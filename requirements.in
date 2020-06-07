@@ -2,3 +2,4 @@ django-rest-framework
 gunicorn
 whitenoise
 dj-database-url
+slackclient

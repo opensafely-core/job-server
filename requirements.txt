@@ -4,15 +4,23 @@
 #
 #    pip-compile
 #
+aiohttp==3.6.2            # via slackclient
 asgiref==3.2.7            # via django
+async-timeout==3.0.1      # via aiohttp
+attrs==19.3.0             # via aiohttp
+chardet==3.0.4            # via aiohttp
 dj-database-url==0.5.0
 django-rest-framework==0.1.0
 django==3.0.7             # via djangorestframework
 djangorestframework==3.11.0  # via django-rest-framework
 gunicorn==20.0.4
+idna==2.9                 # via yarl
+multidict==4.7.6          # via aiohttp, yarl
 pytz==2020.1              # via django
+slackclient==2.7.1
 sqlparse==0.3.1           # via django
 whitenoise==5.1.0
+yarl==1.4.2               # via aiohttp
 
 # The following packages are considered to be unsafe in a requirements file:
 # setuptools==47.1.1        # via gunicorn
