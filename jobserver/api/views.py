@@ -15,15 +15,17 @@ class JobViewSet(viewsets.ModelViewSet):
         """
         Optionally restricts the returned jobs based on any `started` param
         """
-        started = None
         queryset = Job.objects.all().order_by("-created_at")
+        qs_filter = {}
         if "started" in self.request.query_params:
             started_param = self.request.query_params.get("started", "False").lower()
             if started_param == "true":
-                started = True
+                qs_filter["started"] = True
             elif started_param == "false":
-                started = False
-        if started is not None:
-            return queryset.filter(started=started)
+                qs_filter["started"] = False
+        if "repo" in self.request.query_params:
+            qs_filter["repo"] = self.request.query_params["repo"]
+        if qs_filter:
+            return queryset.filter(**qs_filter)
         else:
             return queryset.all()
