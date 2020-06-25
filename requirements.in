@@ -3,3 +3,4 @@ gunicorn
 whitenoise
 dj-database-url
 slackclient
+requests
