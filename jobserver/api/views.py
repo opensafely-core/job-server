@@ -25,6 +25,8 @@ class JobViewSet(viewsets.ModelViewSet):
                 qs_filter["started"] = False
         if "repo" in self.request.query_params:
             qs_filter["repo"] = self.request.query_params["repo"]
+        if "backend" in self.request.query_params:
+            qs_filter["backend"] = self.request.query_params["backend"]
         if qs_filter:
             return queryset.filter(**qs_filter)
         else:

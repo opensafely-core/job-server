@@ -13,6 +13,8 @@ class Job(models.Model):
     tag = models.CharField(max_length=200)
     started = models.BooleanField(default=False)
     operation = models.CharField(max_length=20)
+    backend = models.CharField(max_length=20, db_index=True)
+    db = models.CharField(max_length=20)
     status_code = models.IntegerField(null=True, blank=True)
     output_url = models.CharField(null=True, blank=True, max_length=100)
     created_at = models.DateTimeField(auto_now_add=True)

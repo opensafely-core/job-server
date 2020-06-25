@@ -10,6 +10,8 @@ class JobSerializer(serializers.HyperlinkedModelSerializer):
         fields = [
             "url",
             "repo",
+            "backend",
+            "db",
             "tag",
             "started",
             "operation",
