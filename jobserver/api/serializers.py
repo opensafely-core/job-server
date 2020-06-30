@@ -21,5 +21,6 @@ class JobSerializer(serializers.HyperlinkedModelSerializer):
             "created_at",
             "started_at",
             "completed_at",
+            "callback_url",
         ]
         read_only_fields = ["created_at", "started_at", "completed_at"]
