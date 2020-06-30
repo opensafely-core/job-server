@@ -17,6 +17,7 @@ class Job(models.Model):
     backend = models.CharField(max_length=20, db_index=True)
     db = models.CharField(max_length=20)
     status_code = models.IntegerField(null=True, blank=True)
+    status_message = models.CharField(null=True, blank=True, max_length=200)
     output_url = models.CharField(null=True, blank=True, max_length=100)
     created_at = models.DateTimeField(auto_now_add=True)
     started_at = models.DateTimeField(null=True, blank=True)
