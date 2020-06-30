@@ -39,7 +39,7 @@ class Job(models.Model):
 def notify_callback_url(sender, instance, created, raw, using, update_fields, **kwargs):
     """Send a message to slack about the job
     """
-    if instance.callback_url and sender == Job and instance.completed_at:
+    if sender == Job and instance.callback_url and instance.completed_at:
         if instance.status_code == 0:
             status = f"Finished. See {instance.output_url}"
         else:
