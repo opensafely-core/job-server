@@ -22,7 +22,7 @@ class Job(models.Model):
     created_at = models.DateTimeField(auto_now_add=True)
     started_at = models.DateTimeField(null=True, blank=True)
     completed_at = models.DateTimeField(null=True, blank=True)
-    callback_url = models.CharField(max_length=20, null=True, blank=True)
+    callback_url = models.CharField(max_length=200, null=True, blank=True)
 
     def save(self, *args, **kwargs):
         if self.completed_at:
