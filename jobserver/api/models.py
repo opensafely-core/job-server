@@ -43,7 +43,7 @@ def notify_callback_url(sender, instance, created, raw, using, update_fields, **
         if instance.status_code == 0:
             status = f"Finished. See {instance.output_url}"
         else:
-            status = f"Error (status {instance.status_code})"
+            status = f"Error (status {instance.status_message})"
         requests.post(instance.callback_url, json={"message": status})
 
 
