@@ -1,4 +1,5 @@
 django-rest-framework
+django-filter
 gunicorn
 whitenoise
 dj-database-url
