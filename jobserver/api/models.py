@@ -19,6 +19,9 @@ class Job(models.Model):
     started_at = models.DateTimeField(null=True, blank=True)
     completed_at = models.DateTimeField(null=True, blank=True)
     callback_url = models.CharField(max_length=200, null=True, blank=True)
+    needed_by = models.ForeignKey(
+        "self", null=True, blank=True, on_delete=models.SET_NULL
+    )
 
     def save(self, *args, **kwargs):
         if self.completed_at:
