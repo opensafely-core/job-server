@@ -24,14 +24,11 @@ class Job(models.Model):
     )
 
     def save(self, *args, **kwargs):
-        if self.completed_at:
-            raise ValidationError("Job has already been completed")
         if self.started and not self.started_at:
             self.started_at = datetime.datetime.now()
         if self.status_code is not None and not self.completed_at:
-            if not self.started:
-                raise ValidationError("Cannot complete a job that has not started ")
-            self.completed_at = datetime.datetime.now()
+            if self.started:
+                self.completed_at = datetime.datetime.now()
         super().save(*args, **kwargs)
 
 
