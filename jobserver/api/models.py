@@ -35,12 +35,22 @@ class Job(models.Model):
 def notify_callback_url(sender, instance, created, raw, using, update_fields, **kwargs):
     """Send a message to slack about the job
     """
-    if sender == Job and instance.callback_url and instance.completed_at:
-        if instance.status_code == 0:
-            status = f"Finished. See {instance.output_url}"
-        else:
-            status = f"Error (status {instance.status_message})"
-        requests.post(instance.callback_url, json={"message": status})
+    if sender == Job and instance.callback_url:
+        if sender == Job:
+            if instance.needed_by and not instance.started:
+                # A new dependency has been added; notify the originating thread
+                requests.post(
+                    instance.callback_url,
+                    json={
+                        "message": f"Starting dependency {instance.operation}, job#{instance.pk}"
+                    },
+                )
+            elif instance.started and instance.completed_at:
+                if instance.status_code == 0:
+                    status = f"{instance.operation} finished. See {instance.output_url}"
+                else:
+                    status = f"Error in {instance.operation} (status {instance.status_message})"
+            requests.post(instance.callback_url, json={"message": status})
 
 
 post_save.connect(notify_callback_url)
