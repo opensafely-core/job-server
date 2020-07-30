@@ -1,4 +1,5 @@
 import datetime
+import pytz
 import requests
 
 from django.db import models
@@ -25,10 +26,10 @@ class Job(models.Model):
 
     def save(self, *args, **kwargs):
         if self.started and not self.started_at:
-            self.started_at = datetime.datetime.now()
+            self.started_at = datetime.datetime.now(tz=pytz.UTC)
         if self.status_code is not None and not self.completed_at:
             if self.started:
-                self.completed_at = datetime.datetime.now()
+                self.completed_at = datetime.datetime.now(tz=pytz.UTC)
         super().save(*args, **kwargs)
 
 
