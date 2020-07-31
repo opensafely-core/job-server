@@ -17,7 +17,7 @@ class JobSerializer(serializers.HyperlinkedModelSerializer):
             "operation",
             "status_code",
             "status_message",
-            "output_url",
+            "output_bucket",
             "created_at",
             "started_at",
             "completed_at",

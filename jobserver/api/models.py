@@ -15,7 +15,7 @@ class Job(models.Model):
     db = models.CharField(max_length=20)
     status_code = models.IntegerField(null=True, blank=True)
     status_message = models.CharField(null=True, blank=True, max_length=200)
-    output_url = models.CharField(null=True, blank=True, max_length=100)
+    output_bucket = models.CharField(null=True, blank=True, max_length=100)
     created_at = models.DateTimeField(auto_now_add=True)
     started_at = models.DateTimeField(null=True, blank=True)
     completed_at = models.DateTimeField(null=True, blank=True)
@@ -48,7 +48,9 @@ def notify_callback_url(sender, instance, created, raw, using, update_fields, **
                 )
             elif instance.started and instance.completed_at:
                 if instance.status_code == 0:
-                    status = f"{instance.operation} finished. See {instance.output_url}"
+                    status = (
+                        f"{instance.operation} finished. See {instance.output_bucket}"
+                    )
                 else:
                     status = f"Error in {instance.operation} (status {instance.status_message})"
             requests.post(instance.callback_url, json={"message": status})
