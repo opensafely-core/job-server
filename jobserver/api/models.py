@@ -15,7 +15,6 @@ class Job(models.Model):
     db = models.CharField(max_length=20)
     status_code = models.IntegerField(null=True, blank=True)
     status_message = models.CharField(null=True, blank=True, max_length=200)
-    output_bucket = models.CharField(null=True, blank=True, max_length=100)
     created_at = models.DateTimeField(auto_now_add=True)
     started_at = models.DateTimeField(null=True, blank=True)
     completed_at = models.DateTimeField(null=True, blank=True)
@@ -31,6 +30,15 @@ class Job(models.Model):
             if self.started:
                 self.completed_at = datetime.datetime.now(tz=pytz.UTC)
         super().save(*args, **kwargs)
+
+
+class JobOutput(models.Model):
+    name = models.CharField(max_length=100)
+    location = models.CharField(max_length=100)
+    privacy_level = models.CharField(max_length=30)
+    job = models.ForeignKey(
+        Job, null=True, blank=True, related_name="outputs", on_delete=models.SET_NULL
+    )
 
 
 def notify_callback_url(sender, instance, created, raw, using, update_fields, **kwargs):
