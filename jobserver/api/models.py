@@ -8,7 +8,7 @@ from django.db.models.signals import post_save
 
 class Job(models.Model):
     repo = models.CharField(db_index=True, max_length=300)
-    tag = models.CharField(max_length=200)
+    branch = models.CharField(max_length=200)
     started = models.BooleanField(default=False)
     operation = models.CharField(max_length=20)
     backend = models.CharField(max_length=20, db_index=True)

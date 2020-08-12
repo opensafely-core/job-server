@@ -11,4 +11,4 @@ class JobViewSet(viewsets.ModelViewSet):
 
     queryset = Job.objects.all().order_by("-created_at")
     serializer_class = JobSerializer
-    filterset_fields = ("started", "repo", "backend", "db", "tag", "operation")
+    filterset_fields = ("started", "repo", "backend", "db", "branch", "operation")

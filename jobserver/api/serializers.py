@@ -20,7 +20,7 @@ class JobSerializer(serializers.HyperlinkedModelSerializer):
             "repo",
             "backend",
             "db",
-            "tag",
+            "branch",
             "started",
             "operation",
             "status_code",
