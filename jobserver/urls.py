@@ -21,6 +21,7 @@ from jobserver.api import views
 
 router = routers.DefaultRouter()
 router.register(r"jobs", views.JobViewSet, "jobs")
+router.register(r"workspaces", views.WorkspaceViewSet, "workspaces")
 
 
 urlpatterns = [

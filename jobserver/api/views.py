@@ -1,5 +1,7 @@
 from jobserver.api.models import Job
+from jobserver.api.models import Workspace
 from jobserver.api.serializers import JobSerializer
+from jobserver.api.serializers import WorkspaceSerializer
 
 from rest_framework import viewsets
 
@@ -11,4 +13,14 @@ class JobViewSet(viewsets.ModelViewSet):
 
     queryset = Job.objects.all().order_by("-created_at")
     serializer_class = JobSerializer
-    filterset_fields = ("started", "repo", "backend", "db", "branch", "operation")
+    filterset_fields = ("workspace", "started", "backend", "operation")
+
+
+class WorkspaceViewSet(viewsets.ModelViewSet):
+    """
+    API endpoint that allows workspaces to be viewed or edited.
+    """
+
+    queryset = Workspace.objects.all().order_by("-created_at")
+    serializer_class = WorkspaceSerializer
+    filterset_fields = ("id", "repo", "owner", "db")

@@ -6,13 +6,24 @@ from django.db import models
 from django.db.models.signals import post_save
 
 
-class Job(models.Model):
+class Workspace(models.Model):
+    DB_OPTIONS = (
+        ("dummy", "Dummy database"),
+        ("slice", "Cut-down (but real) database"),
+        ("full", "Full database"),
+    )
+    name = models.CharField(max_length=100)
     repo = models.CharField(db_index=True, max_length=300)
     branch = models.CharField(max_length=200)
+    owner = models.CharField(max_length=100)
+    created_at = models.DateTimeField(auto_now_add=True)
+    db = models.CharField(max_length=20, choices=DB_OPTIONS)
+
+
+class Job(models.Model):
     started = models.BooleanField(default=False)
     operation = models.CharField(max_length=20)
     backend = models.CharField(max_length=20, db_index=True)
-    db = models.CharField(max_length=20)
     status_code = models.IntegerField(null=True, blank=True)
     status_message = models.CharField(null=True, blank=True, max_length=200)
     created_at = models.DateTimeField(auto_now_add=True)
@@ -21,6 +32,13 @@ class Job(models.Model):
     callback_url = models.CharField(max_length=200, null=True, blank=True)
     needed_by = models.ForeignKey(
         "self", null=True, blank=True, on_delete=models.SET_NULL
+    )
+    workspace = models.ForeignKey(
+        Workspace,
+        related_name="workspaces",
+        null=True,
+        blank=True,
+        on_delete=models.SET_NULL,
     )
 
     def save(self, *args, **kwargs):
@@ -33,9 +51,14 @@ class Job(models.Model):
 
 
 class JobOutput(models.Model):
+    PRIVACY_OPTIONS = (
+        ("highly_sensitive", "Highly sensitive"),
+        ("moderately_sensitive", "Moderately sensitive"),
+        ("minimally_sensitive", "Minimally sensitive"),
+    )
     name = models.CharField(max_length=100)
-    location = models.CharField(max_length=100)
-    privacy_level = models.CharField(max_length=30)
+    location = models.CharField(max_length=300)
+    privacy_level = models.CharField(max_length=30, choices=PRIVACY_OPTIONS)
     job = models.ForeignKey(
         Job, null=True, blank=True, related_name="outputs", on_delete=models.SET_NULL
     )
@@ -61,7 +84,7 @@ def notify_callback_url(sender, instance, created, raw, using, update_fields, **
                     )
                 else:
                     status = f"Error in {instance.operation} (status {instance.status_message})"
-            requests.post(instance.callback_url, json={"message": status})
+                requests.post(instance.callback_url, json={"message": status})
 
 
 post_save.connect(notify_callback_url)
