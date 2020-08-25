@@ -8,7 +8,7 @@ from rest_framework.exceptions import ValidationError
 class JobOutputSerializer(serializers.HyperlinkedModelSerializer):
     class Meta:
         model = JobOutput
-        fields = ["name", "location", "privacy_level"]
+        fields = ["location"]
 
 
 class WorkspaceSerializer(serializers.HyperlinkedModelSerializer):
@@ -51,7 +51,7 @@ class JobSerializer(serializers.HyperlinkedModelSerializer):
         outputs_data = validated_data.pop("outputs", [])
         job = Job.objects.create(**validated_data)
         for output_data in outputs_data:
-            JobOutput.objects.create(job=job, **output_data)
+            JobOutput.objects.create(job=job, location=output_data)
         return job
 
     def update(self, instance, validated_data):
@@ -63,7 +63,7 @@ class JobSerializer(serializers.HyperlinkedModelSerializer):
         if instance.outputs.count() and outputs_data:
             raise ValidationError("You can only set outputs for a job once")
         for output_data in outputs_data:
-            instance.outputs.create(**output_data)
+            instance.outputs.create(location=output_data["location"])
         instance.save()
         return instance
 
