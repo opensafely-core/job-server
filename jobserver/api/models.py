@@ -19,6 +19,9 @@ class Workspace(models.Model):
     created_at = models.DateTimeField(auto_now_add=True)
     db = models.CharField(max_length=20, choices=DB_OPTIONS)
 
+    def __str__(self):
+        return f"{self.name} ({self.repo})"
+
 
 class Job(models.Model):
     started = models.BooleanField(default=False)
@@ -41,6 +44,9 @@ class Job(models.Model):
         on_delete=models.SET_NULL,
     )
 
+    def __str__(self):
+        return f"{self.operation}"
+
     def save(self, *args, **kwargs):
         if self.started and not self.started_at:
             self.started_at = datetime.datetime.now(tz=pytz.UTC)
@@ -51,14 +57,7 @@ class Job(models.Model):
 
 
 class JobOutput(models.Model):
-    PRIVACY_OPTIONS = (
-        ("highly_sensitive", "Highly sensitive"),
-        ("moderately_sensitive", "Moderately sensitive"),
-        ("minimally_sensitive", "Minimally sensitive"),
-    )
-    name = models.CharField(max_length=100)
     location = models.CharField(max_length=300)
-    privacy_level = models.CharField(max_length=30, choices=PRIVACY_OPTIONS)
     job = models.ForeignKey(
         Job, null=True, blank=True, related_name="outputs", on_delete=models.SET_NULL
     )

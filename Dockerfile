@@ -34,4 +34,3 @@ RUN mkdir /app
 COPY . /app
 WORKDIR /app
 RUN rm -rf .python-version
-ENTRYPOINT ["/app/entrypoint.sh"]
