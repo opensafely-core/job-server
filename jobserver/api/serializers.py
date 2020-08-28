@@ -34,6 +34,7 @@ class JobSerializer(serializers.HyperlinkedModelSerializer):
             "url",
             "backend",
             "started",
+            "force_run",
             "operation",
             "status_code",
             "status_message",

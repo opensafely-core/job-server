@@ -24,6 +24,7 @@ class Workspace(models.Model):
 
 
 class Job(models.Model):
+    force_run = models.BooleanField(default=False)
     started = models.BooleanField(default=False)
     operation = models.CharField(max_length=20)
     backend = models.CharField(max_length=20, db_index=True)
