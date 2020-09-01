@@ -27,7 +27,7 @@ class Job(models.Model):
     force_run = models.BooleanField(default=False)
     force_run_dependencies = models.BooleanField(default=False)
     started = models.BooleanField(default=False)
-    action = models.CharField(max_length=20)
+    action_id = models.CharField(max_length=20)
     backend = models.CharField(max_length=20, db_index=True)
     status_code = models.IntegerField(null=True, blank=True)
     status_message = models.CharField(null=True, blank=True, max_length=200)
@@ -80,7 +80,7 @@ def notify_callback_url(sender, instance, created, raw, using, update_fields, **
                 )
             elif instance.started and instance.completed_at:
                 if instance.status_code == 0:
-                    status = f"{instance.action} finished. See {instance.output_bucket}"
+                    status = f"{instance.action} finished: {instance.status_message})"
                 else:
                     status = (
                         f"Error in {instance.action} (status {instance.status_message})"
