@@ -27,7 +27,7 @@ class Job(models.Model):
     force_run = models.BooleanField(default=False)
     force_run_dependencies = models.BooleanField(default=False)
     started = models.BooleanField(default=False)
-    operation = models.CharField(max_length=20)
+    action = models.CharField(max_length=20)
     backend = models.CharField(max_length=20, db_index=True)
     status_code = models.IntegerField(null=True, blank=True)
     status_message = models.CharField(null=True, blank=True, max_length=200)
@@ -47,7 +47,7 @@ class Job(models.Model):
     )
 
     def __str__(self):
-        return f"{self.operation}"
+        return f"{self.action}"
 
     def save(self, *args, **kwargs):
         if self.started and not self.started_at:
@@ -75,16 +75,16 @@ def notify_callback_url(sender, instance, created, raw, using, update_fields, **
                 requests.post(
                     instance.callback_url,
                     json={
-                        "message": f"Starting dependency {instance.operation}, job#{instance.pk}"
+                        "message": f"Starting dependency {instance.action}, job#{instance.pk}"
                     },
                 )
             elif instance.started and instance.completed_at:
                 if instance.status_code == 0:
-                    status = (
-                        f"{instance.operation} finished. See {instance.output_bucket}"
-                    )
+                    status = f"{instance.action} finished. See {instance.output_bucket}"
                 else:
-                    status = f"Error in {instance.operation} (status {instance.status_message})"
+                    status = (
+                        f"Error in {instance.action} (status {instance.status_message})"
+                    )
                 requests.post(instance.callback_url, json={"message": status})
 
 
