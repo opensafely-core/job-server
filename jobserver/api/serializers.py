@@ -27,11 +27,15 @@ class JobSerializer(serializers.HyperlinkedModelSerializer):
     workspace_id = serializers.PrimaryKeyRelatedField(
         queryset=Workspace.objects.all(), source="workspace"
     )
+    needed_by_id = serializers.PrimaryKeyRelatedField(
+        queryset=Job.objects.all(), source="needed_by", required=False
+    )
 
     class Meta:
         model = Job
         fields = [
             "url",
+            "pk",
             "backend",
             "started",
             "force_run",
@@ -40,6 +44,7 @@ class JobSerializer(serializers.HyperlinkedModelSerializer):
             "status_code",
             "status_message",
             "outputs",
+            "needed_by_id",
             "workspace",
             "workspace_id",
             "created_at",
@@ -47,7 +52,7 @@ class JobSerializer(serializers.HyperlinkedModelSerializer):
             "completed_at",
             "callback_url",
         ]
-        read_only_fields = ["created_at", "started_at", "completed_at"]
+        read_only_fields = ["pk", "url", "created_at", "started_at", "completed_at"]
 
     def create(self, validated_data):
         outputs_data = validated_data.pop("outputs", [])

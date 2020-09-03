@@ -13,7 +13,7 @@ class JobViewSet(viewsets.ModelViewSet):
 
     queryset = Job.objects.all().order_by("-created_at")
     serializer_class = JobSerializer
-    filterset_fields = ("workspace", "started", "backend", "action_id")
+    filterset_fields = ("workspace", "started", "backend", "action_id", "needed_by_id")
 
 
 class WorkspaceViewSet(viewsets.ModelViewSet):
