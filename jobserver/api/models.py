@@ -47,7 +47,7 @@ class Job(models.Model):
     )
 
     def __str__(self):
-        return f"{self.action}"
+        return f"{self.action_id} ({self.pk})"
 
     def save(self, *args, **kwargs):
         if self.started and not self.started_at:
