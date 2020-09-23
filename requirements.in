@@ -5,3 +5,9 @@ whitenoise
 dj-database-url
 slackclient
 requests
+
+# dev requirements
+black
+flake8
+isort
+pre-commit
