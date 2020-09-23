@@ -27,7 +27,7 @@ class Job(models.Model):
     force_run = models.BooleanField(default=False)
     force_run_dependencies = models.BooleanField(default=False)
     started = models.BooleanField(default=False)
-    action_id = models.CharField(max_length=20)
+    action_id = models.CharField(max_length=200)
     backend = models.CharField(max_length=20, db_index=True)
     status_code = models.IntegerField(null=True, blank=True)
     status_message = models.CharField(null=True, blank=True, max_length=200)
