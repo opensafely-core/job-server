@@ -6,13 +6,13 @@ from django.db import migrations, models
 class Migration(migrations.Migration):
 
     dependencies = [
-        ('api', '0016_auto_20200813_1058'),
+        ("api", "0016_auto_20200813_1058"),
     ]
 
     operations = [
         migrations.AlterField(
-            model_name='joboutput',
-            name='location',
+            model_name="joboutput",
+            name="location",
             field=models.CharField(max_length=300),
         ),
     ]

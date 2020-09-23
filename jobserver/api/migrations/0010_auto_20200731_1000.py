@@ -6,13 +6,13 @@ from django.db import migrations
 class Migration(migrations.Migration):
 
     dependencies = [
-        ('api', '0009_job_needed_by'),
+        ("api", "0009_job_needed_by"),
     ]
 
     operations = [
         migrations.RenameField(
-            model_name='job',
-            old_name='output_url',
-            new_name='output_bucket',
+            model_name="job",
+            old_name="output_url",
+            new_name="output_bucket",
         ),
     ]

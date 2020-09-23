@@ -1,8 +1,7 @@
-from jobserver.api.models import Job
-from jobserver.api.models import JobOutput
-from jobserver.api.models import Workspace
 from rest_framework import serializers
 from rest_framework.exceptions import ValidationError
+
+from jobserver.api.models import Job, JobOutput, Workspace
 
 
 class JobOutputSerializer(serializers.HyperlinkedModelSerializer):
