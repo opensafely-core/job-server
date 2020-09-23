@@ -1,10 +1,11 @@
-django-rest-framework
-django-filter
-gunicorn
-whitenoise
 dj-database-url
-slackclient
+django-filter
+django-rest-framework
+django-structlog
+gunicorn
 requests
+slackclient
+whitenoise
 
 # dev requirements
 black

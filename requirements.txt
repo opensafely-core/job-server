@@ -17,8 +17,10 @@ click==7.1.2              # via black
 distlib==0.3.1            # via virtualenv
 dj-database-url==0.5.0    # via -r requirements.in
 django-filter==2.3.0      # via -r requirements.in
+django-ipware==3.0.1      # via django-structlog
 django-rest-framework==0.1.0  # via -r requirements.in
-django==3.0.7             # via django-filter, djangorestframework
+django-structlog==1.6.1   # via -r requirements.in
+django==3.0.7             # via django-filter, django-structlog, djangorestframework
 djangorestframework==3.11.0  # via django-rest-framework
 filelock==3.0.12          # via virtualenv
 flake8==3.8.3             # via -r requirements.in
@@ -38,9 +40,10 @@ pytz==2020.1              # via django
 pyyaml==5.3.1             # via pre-commit
 regex==2020.7.14          # via black
 requests==2.24.0          # via -r requirements.in
-six==1.15.0               # via virtualenv
+six==1.15.0               # via structlog, virtualenv
 slackclient==2.7.1        # via -r requirements.in
 sqlparse==0.3.1           # via django
+structlog==20.1.0         # via django-structlog
 toml==0.10.1              # via black, pre-commit
 typed-ast==1.4.1          # via black
 typing-extensions==3.7.4.3  # via black
