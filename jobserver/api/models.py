@@ -1,7 +1,7 @@
 import datetime
+
 import pytz
 import requests
-
 from django.db import models
 from django.db.models.signals import post_save
 
@@ -66,8 +66,7 @@ class JobOutput(models.Model):
 
 
 def notify_callback_url(sender, instance, created, raw, using, update_fields, **kwargs):
-    """Send a message to slack about the job
-    """
+    """Send a message to slack about the job"""
     if sender == Job and instance.callback_url:
         if sender == Job:
             if instance.needed_by and not instance.started:

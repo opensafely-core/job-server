@@ -1,9 +1,7 @@
-from jobserver.api.models import Job
-from jobserver.api.models import Workspace
-from jobserver.api.serializers import JobSerializer
-from jobserver.api.serializers import WorkspaceSerializer
-
 from rest_framework import viewsets
+
+from jobserver.api.models import Job, Workspace
+from jobserver.api.serializers import JobSerializer, WorkspaceSerializer
 
 
 class JobViewSet(viewsets.ModelViewSet):

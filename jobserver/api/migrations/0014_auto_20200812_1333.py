@@ -6,18 +6,18 @@ from django.db import migrations, models
 class Migration(migrations.Migration):
 
     dependencies = [
-        ('api', '0013_auto_20200812_1233'),
+        ("api", "0013_auto_20200812_1233"),
     ]
 
     operations = [
         migrations.RemoveField(
-            model_name='job',
-            name='branch',
+            model_name="job",
+            name="branch",
         ),
         migrations.AddField(
-            model_name='workspace',
-            name='branch',
-            field=models.CharField(default='master', max_length=200),
+            model_name="workspace",
+            name="branch",
+            field=models.CharField(default="master", max_length=200),
             preserve_default=False,
         ),
     ]

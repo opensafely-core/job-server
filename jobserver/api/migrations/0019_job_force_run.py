@@ -6,13 +6,13 @@ from django.db import migrations, models
 class Migration(migrations.Migration):
 
     dependencies = [
-        ('api', '0018_auto_20200820_1853'),
+        ("api", "0018_auto_20200820_1853"),
     ]
 
     operations = [
         migrations.AddField(
-            model_name='job',
-            name='force_run',
+            model_name="job",
+            name="force_run",
             field=models.BooleanField(default=False),
         ),
     ]

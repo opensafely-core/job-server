@@ -6,13 +6,13 @@ from django.db import migrations, models
 class Migration(migrations.Migration):
 
     dependencies = [
-        ('api', '0007_job_status_message'),
+        ("api", "0007_job_status_message"),
     ]
 
     operations = [
         migrations.AlterField(
-            model_name='job',
-            name='callback_url',
+            model_name="job",
+            name="callback_url",
             field=models.CharField(blank=True, max_length=200, null=True),
         ),
     ]

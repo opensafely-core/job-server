@@ -1,10 +1,6 @@
 from django.contrib import admin
-from django.urls import reverse
-from django.utils.safestring import mark_safe
 
-from jobserver.api.models import Job
-from jobserver.api.models import JobOutput
-from jobserver.api.models import Workspace
+from jobserver.api.models import Job, JobOutput, Workspace
 
 
 class JobOutputAdmin(admin.ModelAdmin):

@@ -6,20 +6,20 @@ from django.db import migrations, models
 class Migration(migrations.Migration):
 
     dependencies = [
-        ('api', '0003_job_request_ref'),
+        ("api", "0003_job_request_ref"),
     ]
 
     operations = [
         migrations.AddField(
-            model_name='job',
-            name='backend',
-            field=models.CharField(default='tpp', max_length=20),
+            model_name="job",
+            name="backend",
+            field=models.CharField(default="tpp", max_length=20),
             preserve_default=False,
         ),
         migrations.AddField(
-            model_name='job',
-            name='db',
-            field=models.CharField(default='dummy', max_length=20),
+            model_name="job",
+            name="db",
+            field=models.CharField(default="dummy", max_length=20),
             preserve_default=False,
         ),
     ]
