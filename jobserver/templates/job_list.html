@@ -22,6 +22,11 @@
           <td>{{ job.pk }}</td>
           <td>{{ job.status }}</td>
           <td>{{ job.workspace.name }}</td>
+          <td>
+            <a class="btn btn-secondary text-white" href="{% url 'jobs-detail' pk=job.pk %}">
+              View
+            </a>
+          </td>
         </tr>
         {% endfor %}
 
