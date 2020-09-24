@@ -1,0 +1,42 @@
+{% extends "base.html" %}
+
+{% block content %}
+
+<div class="row">
+
+  <div class="col-10">
+
+    <table class="table table-hover">
+      <thead>
+        <tr>
+          <th scope="col">Name</th>
+          <th scope="col">Repo</th>
+          <th scope="col">Branch</th>
+          <th scope="col"></th>
+        </tr>
+      </thead>
+      <tbody>
+
+        {% for workspace in page_obj %}
+        <tr>
+          <td>{{ workspace.name }}</td>
+          <td>{{ workspace.repo }}</td>
+          <td>{{ workspace.branch }}</td>
+        </tr>
+        {% endfor %}
+
+      </tbody>
+    </table>
+
+    <hr />
+
+  </div>
+
+  <div class="col-2">
+    <h4>Filters</h4>
+
+  </div>
+
+</div>
+
+{% endblock content %}
