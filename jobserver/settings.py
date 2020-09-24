@@ -9,10 +9,10 @@ https://docs.djangoproject.com/en/3.0/topics/settings/
 For the full list of settings and their values, see
 https://docs.djangoproject.com/en/3.0/ref/settings/
 """
-
 import os
 
 import dj_database_url
+from django.urls import reverse_lazy
 
 from services.logging import logging_config_dict
 
@@ -133,6 +133,11 @@ STATICFILES_STORAGE = "whitenoise.storage.CompressedManifestStaticFilesStorage"
 # Logging
 # https://docs.djangoproject.com/en/3.1/topics/logging/
 LOGGING = logging_config_dict
+
+
+# Auth
+LOGIN_REDIRECT_URL = reverse_lazy("workspace-list")
+LOGOUT_REDIRECT_URL = "/"
 
 
 # THIRD PARTY SETTINGS

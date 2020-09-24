@@ -14,6 +14,7 @@ Including another URLconf
     2. Add a URL to urlpatterns:  path('blog/', include('blog.urls'))
 """
 from django.contrib import admin
+from django.contrib.auth.views import LogoutView
 from django.urls import include, path
 from django.views.generic import RedirectView
 from rest_framework import routers
@@ -24,6 +25,7 @@ from .views import (
     JobCreate,
     JobDetail,
     JobList,
+    Login,
     WorkspaceCreate,
     WorkspaceDetail,
     WorkspaceList,
@@ -43,6 +45,8 @@ urlpatterns = [
     path("jobs/", JobList.as_view(), name="job-list"),
     path("jobs/new/", JobCreate.as_view(), name="job-create"),
     path("jobs/<pk>/", JobDetail.as_view(), name="job-detail"),
+    path("login/", Login.as_view(), name="login"),
+    path("logout/", LogoutView.as_view(), name="logout"),
     path("workspaces/", WorkspaceList.as_view(), name="workspace-list"),
     path("workspaces/new/", WorkspaceCreate.as_view(), name="workspace-create"),
     path("workspaces/<pk>/", WorkspaceDetail.as_view(), name="workspace-detail"),
