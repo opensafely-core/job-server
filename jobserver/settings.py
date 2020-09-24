@@ -34,7 +34,6 @@ ALLOWED_HOSTS = ["*"]
 
 
 # Application definition
-
 INSTALLED_APPS = [
     "jobserver",
     "jobserver.api",
@@ -86,7 +85,6 @@ WSGI_APPLICATION = "jobserver.wsgi.application"
 
 # Database
 # https://docs.djangoproject.com/en/3.0/ref/settings/#databases
-
 DATABASES = {
     "default": dj_database_url.config(default="sqlite:///db.sqlite3", conn_max_age=600)
 }
@@ -94,7 +92,6 @@ DATABASES = {
 
 # Password validation
 # https://docs.djangoproject.com/en/3.0/ref/settings/#auth-password-validators
-
 AUTH_PASSWORD_VALIDATORS = [
     {
         "NAME": "django.contrib.auth.password_validation.UserAttributeSimilarityValidator",
@@ -113,15 +110,10 @@ AUTH_PASSWORD_VALIDATORS = [
 
 # Internationalization
 # https://docs.djangoproject.com/en/3.0/topics/i18n/
-
 LANGUAGE_CODE = "en-us"
-
 TIME_ZONE = "UTC"
-
 USE_I18N = True
-
 USE_L10N = True
-
 USE_TZ = True
 
 
@@ -138,6 +130,19 @@ os.makedirs(STATIC_ROOT, exist_ok=True)
 STATICFILES_STORAGE = "whitenoise.storage.CompressedManifestStaticFilesStorage"
 
 
+# Logging
+# https://docs.djangoproject.com/en/3.1/topics/logging/
+LOGGING = logging_config_dict
+
+
+# THIRD PARTY SETTINGS
+
+# Crispy Forms
+# https://django-crispy-forms.readthedocs.io/en/latest/install.html#template-packs
+CRISPY_TEMPLATE_PACK = "bootstrap4"
+
+# REST Framework
+# https://www.django-rest-framework.org/api-guide/settings/
 REST_FRAMEWORK = {
     # Use Django's standard `django.contrib.auth` permissions,
     # or allow read-only access for unauthenticated users.
@@ -148,10 +153,3 @@ REST_FRAMEWORK = {
     "DEFAULT_FILTER_BACKENDS": ["django_filters.rest_framework.DjangoFilterBackend"],
     "PAGE_SIZE": 100,
 }
-
-# Heroku-compatible logging
-LOGGING = logging_config_dict
-
-
-# Crispy Forms
-CRISPY_TEMPLATE_PACK = "bootstrap4"
