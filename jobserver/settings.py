@@ -45,6 +45,7 @@ INSTALLED_APPS = [
     "django.contrib.humanize",
     "rest_framework",
     "django_filters",
+    "crispy_forms",
     "jobserver",
     "jobserver.api",
 ]
@@ -150,3 +151,7 @@ REST_FRAMEWORK = {
 
 # Heroku-compatible logging
 LOGGING = logging_config_dict
+
+
+# Crispy Forms
+CRISPY_TEMPLATE_PACK = "bootstrap4"

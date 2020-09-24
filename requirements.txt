@@ -16,6 +16,7 @@ chardet==3.0.4            # via aiohttp, requests
 click==7.1.2              # via black
 distlib==0.3.1            # via virtualenv
 dj-database-url==0.5.0    # via -r requirements.in
+django-crispy-forms==1.9.2  # via -r requirements.in
 django-filter==2.3.0      # via -r requirements.in
 django-ipware==3.0.1      # via django-structlog
 django-rest-framework==0.1.0  # via -r requirements.in
