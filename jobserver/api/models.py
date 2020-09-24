@@ -66,6 +66,9 @@ class Job(models.Model):
     def __str__(self):
         return f"{self.action_id} ({self.pk})"
 
+    def get_absolute_url(self):
+        return reverse("job-detail", kwargs={"pk": self.pk})
+
     @property
     def status(self):
         if not (self.started_at and self.completed_at):
