@@ -19,7 +19,7 @@ from rest_framework import routers
 
 from jobserver.api import views
 
-from .views import JobDetail, JobList
+from .views import JobDetail, JobList, WorkspaceList
 
 
 router = routers.DefaultRouter()
@@ -30,6 +30,7 @@ router.register(r"workspaces", views.WorkspaceViewSet, "workspaces")
 urlpatterns = [
     path("jobs/", JobList.as_view(), name="job-list"),
     path("jobs/<pk>/", JobDetail.as_view(), name="job-detail"),
+    path("workspaces/", WorkspaceList.as_view(), name="workspace-list"),
     path("", include(router.urls)),
     path("admin/", admin.site.urls),
     path("api-auth/", include("rest_framework.urls")),
