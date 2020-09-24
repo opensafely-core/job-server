@@ -22,6 +22,11 @@
           <td>{{ workspace.name }}</td>
           <td>{{ workspace.repo }}</td>
           <td>{{ workspace.branch }}</td>
+          <td>
+            <a class="btn btn-secondary text-white" href="{% url 'workspace-detail' pk=workspace.pk %}">
+              View
+            </a>
+          </td>
         </tr>
         {% endfor %}
 
