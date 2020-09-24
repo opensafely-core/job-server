@@ -49,6 +49,17 @@ class Job(models.Model):
     def __str__(self):
         return f"{self.action_id} ({self.pk})"
 
+    @property
+    def status(self):
+        if not (self.started_at and self.completed_at):
+            return "Pending"
+
+        if self.started_at and not self.completed_at:
+            return "In Progress"
+
+        if self.completed_at:
+            return "Completed"
+
     def save(self, *args, **kwargs):
         if self.started and not self.started_at:
             self.started_at = datetime.datetime.now(tz=pytz.UTC)

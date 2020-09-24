@@ -1,0 +1,45 @@
+{% load static %}
+
+<!doctype html>
+<html lang="en">
+  <head>
+    <!-- Required meta tags -->
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no" />
+
+    {% block extra_meta %}{% endblock %}
+
+    {% block styles %}
+    <link rel="stylesheet" href="{% static 'css/bootstrap-4.5.2.min.css' %}">
+    <link rel="stylesheet" href="{% static 'css/main.css' %}" />
+    {% endblock %}
+
+    <title>OpenSAFELY Jobs</title>
+  </head>
+
+  <body class="d-flex flex-column min-vh-100">
+    <header class="d-flex justify-content-between align-items-center mb-3">
+      <a class="navbar-brand mr-auto" href="/">
+        <h1 class="d-inline">OpenSAFELY Jobs</h1>
+      </a>
+    </header>
+
+    <div class="container-fluid">
+
+      {% for message in messages %}
+      <div class="alert {{ message.tags }} alert-dismissible mt-3" role="alert">
+        <button type="button" class="close" data-dismiss="alert" aria-label="Close">
+          <span aria-hidden="true">&times;</span>
+        </button>
+        {{ message }}
+      </div>
+      {% endfor %}
+
+      {% block content %}{% endblock %}
+
+    </div>
+
+    <!-- JavaScript -->
+    {% block extra_js %}{% endblock %}
+  </body>
+</html>
