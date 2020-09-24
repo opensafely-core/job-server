@@ -23,6 +23,17 @@ class Workspace(models.Model):
         return f"{self.name} ({self.repo})"
 
 
+class JobQuerySet(models.QuerySet):
+    def completed(self):
+        return self.filter(completed_at__isnull=False)
+
+    def in_progress(self):
+        return self.filter(started_at__isnull=False, completed_at=None)
+
+    def pending(self):
+        return self.filter(started_at=None, completed_at=None)
+
+
 class Job(models.Model):
     force_run = models.BooleanField(default=False)
     force_run_dependencies = models.BooleanField(default=False)
@@ -45,6 +56,8 @@ class Job(models.Model):
         blank=True,
         on_delete=models.SET_NULL,
     )
+
+    objects = JobQuerySet.as_manager()
 
     def __str__(self):
         return f"{self.action_id} ({self.pk})"
