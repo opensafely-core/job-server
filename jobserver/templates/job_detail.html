@@ -1,0 +1,23 @@
+{% extends "base.html" %}
+
+{% load humanize %}
+
+{% block content %}
+<ul class="list-unstyled ml-10">
+  <li class="pt-2"><strong>Status:</strong> {{ job.status }}</li>
+  <li class="pt-2">
+    <strong>Workspace:</strong> {{ job.workspace.name }}
+    <small class="text-muted">({{ job.workspace.repo }} | {{ job.workspace.branch }})</small>
+  </li>
+  <li class="pt-2"><strong>Action:</strong> {{ job.action_id|default:"-" }}</li>
+  <li class="pt-2"><strong>Created:</strong> {{ job.created_at|naturaltime }}</li>
+  <li class="pt-2"><strong>Started:</strong> {{ job.started_at|naturaltime|default_if_none:"-" }}</li>
+  <li class="pt-2"><strong>Finished:</strong> {{ job.completed_at|naturaltime|default_if_none:"-"}}</li>
+  <li class="pt-2"><strong>Status Code:</strong> {{ job.status_code }}</li>
+  <li class="pt-2"><strong>Status Message:</strong> {{ job.status_message }}</li>
+  <li class="pt-2"><strong>Needed by:</strong> {{ job.needed_by|default:"-" }}</li>
+  <li class="pt-2"><strong>Backend:</strong> {{ job.backend|default:"-" }}</li>
+  <li class="pt-2"><strong>Force run?:</strong> {{ job.force_run }}</li>
+  <li class="pt-2"><strong>Force run dependencies?:</strong> {{ job.force_run_dependencies }}</li>
+</ul>
+{% endblock content %}
