@@ -1,5 +1,8 @@
 {% extends "base.html" %}
 
+{% load selected_filter %}
+{% load querystring_tools %}
+
 {% block content %}
 
 <div class="row">
@@ -28,6 +31,12 @@
             </a>
           </td>
         </tr>
+        {% empty %}
+        <tr>
+          <td class="text-center" colspan="4">
+            <p class="mt-4">No jobs found, try removing some filters.</p>
+          </td>
+        </tr>
         {% endfor %}
 
       </tbody>
@@ -37,8 +46,54 @@
 
   </div>
 
-  <div class="col-2">
+  <div class="col-2 filters">
     <h4>Filters</h4>
+
+    <h5>Status</h5>
+    <ul class="list-group list-unstyled mb-4">
+      {% for status in statuses %}
+      {% is_filter_selected key="status" value=status as is_active %}
+      <li class="list-group-item {% if is_active %} active{% endif %}">
+
+        <a href="{% url_with_querystring status=status %}">{{ status }}</a>
+
+        {% if is_active %}
+        <a
+          type="button"
+          class="close"
+          aria-label="Close"
+          href="{% url_without_querystring status=status %}"
+          >
+          <span aria-hidden="true">&times;</span>
+        </a>
+        {% endif %}
+
+      </li>
+      {% endfor %}
+    </ul>
+
+    <h5>Workspaces</h5>
+    <ul class="list-group list-unstyled">
+      {% for workspace in workspaces %}
+      {% is_filter_selected key="workspace" value=workspace.pk as is_active %}
+      <li class="list-group-item list-group-item-action{% if is_active %} active{% endif %}">
+
+        <a href="{% url_with_querystring workspace=workspace.pk %}">{{ workspace.name }}</a>
+
+        {% if is_active %}
+        <a
+          type="button"
+          class="close"
+          aria-label="Close"
+          href="{% url_without_querystring workspace=workspace.pk %}"
+          >
+          <span aria-hidden="true">&times;</span>
+        </a>
+        {% endif %}
+
+      </li>
+      {% endfor %}
+    </div>
 
   </div>
 

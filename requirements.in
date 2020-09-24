@@ -2,6 +2,7 @@ dj-database-url
 django-filter
 django-rest-framework
 django-structlog
+furl
 gunicorn
 requests
 slackclient

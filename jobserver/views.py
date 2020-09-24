@@ -11,8 +11,31 @@ class JobDetail(DetailView):
 
 class JobList(ListView):
     paginate_by = 25
-    queryset = Job.objects.select_related("workspace")
     template_name = "job_list.html"
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context["statuses"] = ["completed", "in-progress", "pending"]
+        context["workspaces"] = Workspace.objects.all()
+        return context
+
+    def get_queryset(self):
+        qs = Job.objects.select_related("workspace")
+
+        status = self.request.GET.get("status")
+        if status:
+            status_lut = {
+                "completed": qs.completed,
+                "in-progress": qs.in_progress,
+                "pending": qs.pending,
+            }
+            qs = status_lut[status]()
+
+        workspace = self.request.GET.get("workspace")
+        if workspace:
+            qs = qs.filter(workspace_id=workspace)
+
+        return qs
 
 
 class WorkspaceList(ListView):
