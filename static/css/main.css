@@ -1,3 +1,27 @@
 header {
   padding: .5rem 1rem;
 }
+
+.filters .list-group-item {
+  padding: 0;
+}
+.filters .list-group-item a:first-child {
+  display: inline-block;
+  padding: .75rem 1.25rem;
+}
+.filters .list-group-item.active a:first-child {
+  color: white;
+}
+.filters .list-group-item.active a.close {
+  display: inline-block;
+  margin: .75rem 1.25rem;
+  opacity: 1;
+}
+.filters .list-group-item.active a.close span {
+  height: 16px;
+  text-shadow: none;
+  width: 16px;
+}
+.filters .list-group-item.active a.close span:hover {
+  color: white;
+}
