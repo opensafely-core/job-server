@@ -40,7 +40,7 @@ class Job(models.Model):
     )
     workspace = models.ForeignKey(
         Workspace,
-        related_name="workspaces",
+        related_name="jobs",
         null=True,
         blank=True,
         on_delete=models.SET_NULL,
