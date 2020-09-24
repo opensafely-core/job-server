@@ -18,11 +18,24 @@
   </head>
 
   <body class="d-flex flex-column min-vh-100">
-    <header class="d-flex justify-content-between align-items-center mb-3">
-      <a class="navbar-brand mr-auto" href="/">
-        <h1 class="d-inline">OpenSAFELY Jobs</h1>
-      </a>
-    </header>
+
+    <nav class="navbar navbar-expand-lg navbar-dark bg-primary mb-4">
+      <a class="navbar-brand" href="/jobs">OpenSAFELY Jobs</a>
+      <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarSupportedContent" aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
+        <span class="navbar-toggler-icon"></span>
+      </button>
+      <div class="collapse navbar-collapse" id="navbarSupportedContent">
+        <ul class="navbar-nav mr-auto">
+          {% for location in nav %}
+          <li class="nav-item{% if location.is_active %} active{% endif %}">
+            <a class="nav-link" href="{{ location.url }}">
+              {{ location.name }}{% if location.is_active %} <span class="sr-only">(current)</span>{% endif %}
+            </a>
+          </li>
+          {% endfor %}
+        </ul>
+      </div>
+    </nav>
 
     <div class="container-fluid">
 
