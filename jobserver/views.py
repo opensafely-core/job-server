@@ -1,7 +1,16 @@
 from django.views.generic import CreateView, DetailView, ListView
 
 from .api.models import Job, Workspace
-from .forms import WorkspaceCreateForm
+from .forms import JobCreateForm, WorkspaceCreateForm
+
+
+class JobCreate(CreateView):
+    form_class = JobCreateForm
+    model = Job
+    template_name = "job_create.html"
+
+    def get_success_url(self):
+        return self.object.get_absolute_url()
 
 
 class JobDetail(DetailView):
