@@ -13,4 +13,4 @@ User.objects.filter(username='$QUEUE_USER').exists() or \
     User.objects.create_superuser('$QUEUE_USER', 'doesntmatter@example.com', '$QUEUE_PASS')
 EOF
 
-./manage.py runserver 0.0.0.0:8000
+exec "$@"
