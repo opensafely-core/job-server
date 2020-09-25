@@ -1,4 +1,5 @@
 dj-database-url
+django-crispy-forms
 django-filter
 django-rest-framework
 django-structlog

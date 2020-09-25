@@ -4,6 +4,7 @@ import pytz
 import requests
 from django.db import models
 from django.db.models.signals import post_save
+from django.urls import reverse
 
 
 class Workspace(models.Model):
@@ -21,6 +22,9 @@ class Workspace(models.Model):
 
     def __str__(self):
         return f"{self.name} ({self.repo})"
+
+    def get_absolute_url(self):
+        return reverse("workspace-detail", kwargs={"pk": self.pk})
 
 
 class JobQuerySet(models.QuerySet):
