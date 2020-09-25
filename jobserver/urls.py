@@ -35,13 +35,13 @@ router.register(r"workspaces", views.WorkspaceViewSet, "workspaces")
 
 
 urlpatterns = [
+    path("admin/", admin.site.urls),
+    path("api/", include(router.urls)),
+    path("api-auth/", include("rest_framework.urls")),
     path("jobs/", JobList.as_view(), name="job-list"),
     path("jobs/new/", JobCreate.as_view(), name="job-create"),
     path("jobs/<pk>/", JobDetail.as_view(), name="job-detail"),
     path("workspaces/", WorkspaceList.as_view(), name="workspace-list"),
     path("workspaces/new/", WorkspaceCreate.as_view(), name="workspace-create"),
     path("workspaces/<pk>/", WorkspaceDetail.as_view(), name="workspace-detail"),
-    path("", include(router.urls)),
-    path("admin/", admin.site.urls),
-    path("api-auth/", include("rest_framework.urls")),
 ]
