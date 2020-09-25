@@ -38,6 +38,7 @@ INSTALLED_APPS = [
     "jobserver",
     "jobserver.api",
     "crispy_forms",
+    "django_extensions",
     "django_filters",
     "rest_framework",
     "django.contrib.admin",
