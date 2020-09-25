@@ -1,11 +1,14 @@
+from django.contrib.auth.decorators import login_required
 from django.contrib.auth.views import LoginView
 from django.shortcuts import redirect
+from django.utils.decorators import method_decorator
 from django.views.generic import CreateView, DetailView, ListView
 
 from .api.models import Job, Workspace
 from .forms import JobCreateForm, LoginFormHelper, WorkspaceCreateForm
 
 
+@method_decorator(login_required, name="dispatch")
 class JobCreate(CreateView):
     form_class = JobCreateForm
     model = Job
@@ -59,6 +62,7 @@ class Login(LoginView):
         return context
 
 
+@method_decorator(login_required, name="dispatch")
 class WorkspaceCreate(CreateView):
     form_class = WorkspaceCreateForm
     model = Workspace
