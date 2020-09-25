@@ -1,7 +1,9 @@
 {% extends "base.html" %}
 
-{% load selected_filter %}
 {% load querystring_tools %}
+{% load selected_filter %}
+{% load static %}
+{% load status_tools %}
 
 {% block content %}
 
@@ -24,8 +26,8 @@
     <table class="table table-hover">
       <thead>
         <tr>
-          <th scope="col">ID</th>
           <th scope="col">Status</th>
+          <th scope="col">ID</th>
           <th scope="col">Workspace</th>
           <th scope="col"></th>
         </tr>
@@ -34,8 +36,8 @@
 
         {% for job in page_obj %}
         <tr>
+          <td>{% status_icon job.status %}</td>
           <td>{{ job.pk }}</td>
-          <td>{{ job.status }}</td>
           <td>{{ job.workspace.name }}</td>
           <td>
             <a class="btn btn-secondary text-white" href="{% url 'jobs-detail' pk=job.pk %}">
