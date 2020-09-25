@@ -72,6 +72,12 @@ class Job(models.Model):
     @property
     def status(self):
         if self.status_code is not None:
+            if self.status_code == 6:
+                return "Pending"
+
+            if self.status_code == 7:
+                return "Dependency Failed"
+
             return "Failed"
 
         if self.started_at and not self.completed_at:

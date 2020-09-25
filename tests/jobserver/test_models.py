@@ -16,6 +16,13 @@ def test_job_status_completed():
 
 
 @pytest.mark.django_db
+def test_job_status_dependency_failed():
+    job = JobFactory(status_code=7)
+
+    assert job.status == "Dependency Failed"
+
+
+@pytest.mark.django_db
 def test_job_status_failed():
     job = JobFactory(status_code=1)
 
@@ -31,7 +38,14 @@ def test_job_status_in_progress():
 
 
 @pytest.mark.django_db
-def test_job_status_pending():
+def test_job_status_status_6_is_pending():
+    job = JobFactory(status_code=6)
+
+    assert job.status == "Pending"
+
+
+@pytest.mark.django_db
+def test_job_status_unstarted_is_pending():
     job = JobFactory()
 
     assert job.status == "Pending"
