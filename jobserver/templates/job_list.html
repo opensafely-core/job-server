@@ -30,6 +30,7 @@
           <th scope="col">ID</th>
           <th scope="col">Workspace</th>
           <th scope="col">Action</th>
+          <th scope="col">Description</th>
           <th scope="col"></th>
         </tr>
       </thead>
@@ -41,6 +42,7 @@
           <td>{{ job.pk }}</td>
           <td>{{ job.workspace.name }}</td>
           <td>{{ job.action_id }}</td>
+          <td>{{ job.status_message|default:"-" }}</td>
           <td>
             <a class="btn btn-secondary text-white" href="{% url 'jobs-detail' pk=job.pk %}">
               View
