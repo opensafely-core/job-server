@@ -7,15 +7,8 @@ ENV PIP_NO_CACHE_DIR=1 \
     PYTHONDONTWRITEBYTECODE=1 \
     PYTHONUNBUFFERED=1
 
-ENV DEBIAN_FRONTEND noninteractive
-ENV DEBCONF_NONINTERACTIVE_SEEN true
-
-RUN apt-get update
-# Required by the runner
-RUN apt-get install -y file
-RUN apt-get install -y docker.io
-
-# Copy happens twice to aid with image layers
+# Only requirements to cache them in docker layer so we can skip package
+# installation if they haven't changed
 COPY requirements.txt .
 RUN pip install --requirement requirements.txt
 
