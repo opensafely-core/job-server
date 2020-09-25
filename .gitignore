@@ -6,3 +6,5 @@ model.log
 __pycache__
 .python-version
 *sqlite3
+.coverage
+html_cov

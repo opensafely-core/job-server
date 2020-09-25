@@ -1,9 +1,14 @@
+from django.contrib.auth.decorators import login_required
+from django.contrib.auth.views import LoginView
+from django.shortcuts import redirect
+from django.utils.decorators import method_decorator
 from django.views.generic import CreateView, DetailView, ListView
 
 from .api.models import Job, Workspace
-from .forms import JobCreateForm, WorkspaceCreateForm
+from .forms import JobCreateForm, LoginFormHelper, WorkspaceCreateForm
 
 
+@method_decorator(login_required, name="dispatch")
 class JobCreate(CreateView):
     form_class = JobCreateForm
     model = Job
@@ -48,6 +53,16 @@ class JobList(ListView):
         return qs
 
 
+class Login(LoginView):
+    template_name = "login.html"
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context["form_helper"] = LoginFormHelper()
+        return context
+
+
+@method_decorator(login_required, name="dispatch")
 class WorkspaceCreate(CreateView):
     form_class = WorkspaceCreateForm
     model = Workspace
@@ -66,3 +81,13 @@ class WorkspaceList(ListView):
     paginate_by = 25
     queryset = Workspace.objects.prefetch_related("jobs")
     template_name = "workspace_list.html"
+
+    def get(self, request, *args, **kwargs):
+        response = super().get(request, *args, **kwargs)
+
+        # if there are no workspaces redirect the user to the new Workspace
+        # page immediately
+        if request.user.is_authenticated and not self.object_list:
+            return redirect("workspace-create")
+
+        return response

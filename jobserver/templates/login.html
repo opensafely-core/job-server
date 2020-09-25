@@ -1,0 +1,12 @@
+{% extends "base.html" %}
+
+{% load crispy_forms_tags %}
+
+{% block content %}
+
+<div class="row">
+  <div class="col-8 offset-2">
+    {% crispy form form_helper %}
+  </div>
+</div>
+{% endblock content %}

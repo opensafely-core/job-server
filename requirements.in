@@ -11,6 +11,10 @@ whitenoise
 
 # dev requirements
 black
+factory_boy
 flake8
 isort
 pre-commit
+pytest-cov
+pytest-django
+pytest-env
