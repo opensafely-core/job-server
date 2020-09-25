@@ -71,11 +71,14 @@ class Job(models.Model):
 
     @property
     def status(self):
-        if not (self.started_at and self.completed_at):
-            return "Pending"
+        if self.status_code is not None:
+            return "Failed"
 
         if self.started_at and not self.completed_at:
             return "In Progress"
+
+        if not (self.started_at and self.completed_at):
+            return "Pending"
 
         if self.completed_at:
             return "Completed"
