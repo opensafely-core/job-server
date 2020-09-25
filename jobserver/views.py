@@ -1,4 +1,5 @@
 from django.contrib.auth.views import LoginView
+from django.shortcuts import redirect
 from django.views.generic import CreateView, DetailView, ListView
 
 from .api.models import Job, Workspace
@@ -76,3 +77,13 @@ class WorkspaceList(ListView):
     paginate_by = 25
     queryset = Workspace.objects.prefetch_related("jobs")
     template_name = "workspace_list.html"
+
+    def get(self, request, *args, **kwargs):
+        response = super().get(request, *args, **kwargs)
+
+        # if there are no workspaces redirect the user to the new Workspace
+        # page immediately
+        if request.user.is_authenticated and not self.object_list:
+            return redirect("workspace-create")
+
+        return response
