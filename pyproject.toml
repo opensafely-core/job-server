@@ -10,6 +10,19 @@ exclude = '''
 )
 '''
 
+[tool.coverage.run]
+branch = true
+omit = [
+  "jobserver/asgi.py",
+  "jobserver/settings.py",
+  "jobserver/wsgi.py",
+]
+
+[tool.coverage.report]
+skip_covered = true
+
+[tool.coverage.html]
+
 [tool.isort]
 force_grid_wrap = 0
 include_trailing_comma = true
@@ -18,3 +31,9 @@ lines_after_imports = 2
 multi_line_output = 3
 skip_glob = [".direnv", "venv", ".venv"]
 use_parentheses = true
+
+[tool.pytest.ini_options]
+DJANGO_SETTINGS_MODULE = "jobserver.settings"
+env = [
+  "OPENSAFELY_JOB_SERVER_SECRET_KEY=12345"
+]

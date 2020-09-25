@@ -8,6 +8,7 @@ help:
 	@echo "    make run              run the dev server."
 	@echo "    make setup            set up/update the local dev env."
 	@echo "    make sort             run the sort checker (isort)."
+	@echo "    make test             run the test suite."
 
 .PHONY: deploy
 deploy:
@@ -44,3 +45,7 @@ sort:
 	@echo "Running isort" && \
 		isort --check-only --diff . \
 		|| exit 1
+
+.PHONY: test
+test:
+	pytest --cov=jobserver --cov=tests
