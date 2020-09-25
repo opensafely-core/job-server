@@ -33,6 +33,7 @@
           <th scope="col">Action</th>
           <th scope="col">Description</th>
           <th scope="col">Started At</th>
+          <th scope="col">Elpased Time</th>
           <th scope="col"></th>
         </tr>
       </thead>
@@ -46,6 +47,12 @@
           <td>{{ job.action_id }}</td>
           <td>{{ job.status_message|default:"-" }}</td>
           <td>{{ job.started_at|naturaltime|default_if_none:"" }}</td>
+          <td>
+            {% if not job.runtime %}-{% endif %}
+            {% if job.runtime.hours %}{{ job.runtime.hours }} hour(s){% endif %}
+            {% if job.runtime.minutes %}{{ job.runtime.minutes }} minute(s){% endif %}
+            {% if job.runtime.seconds %}{{ job.runtime.seconds }} second(s){% endif %}
+          </td>
           <td>
             <a class="btn btn-secondary text-white" href="{% url 'jobs-detail' pk=job.pk %}">
               View

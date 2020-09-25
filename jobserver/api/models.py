@@ -6,6 +6,8 @@ from django.db import models
 from django.db.models.signals import post_save
 from django.urls import reverse
 
+from ..runtime import Runtime
+
 
 class Workspace(models.Model):
     DB_OPTIONS = (
@@ -68,6 +70,21 @@ class Job(models.Model):
 
     def get_absolute_url(self):
         return reverse("job-detail", kwargs={"pk": self.pk})
+
+    @property
+    def runtime(self):
+        if self.started_at is None:
+            return
+
+        if self.completed_at is None:
+            return
+
+        delta = self.completed_at - self.started_at
+
+        hours, remainder = divmod(delta.total_seconds(), 3600)
+        minutes, seconds = divmod(remainder, 60)
+
+        return Runtime(int(hours), int(minutes), int(seconds))
 
     @property
     def status(self):
