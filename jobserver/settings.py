@@ -36,6 +36,11 @@ ALLOWED_HOSTS = ["*"]
 # Application definition
 
 INSTALLED_APPS = [
+    "jobserver",
+    "jobserver.api",
+    "crispy_forms",
+    "django_filters",
+    "rest_framework",
     "django.contrib.admin",
     "django.contrib.auth",
     "django.contrib.contenttypes",
@@ -43,11 +48,6 @@ INSTALLED_APPS = [
     "django.contrib.messages",
     "django.contrib.staticfiles",
     "django.contrib.humanize",
-    "rest_framework",
-    "django_filters",
-    "crispy_forms",
-    "jobserver",
-    "jobserver.api",
 ]
 
 MIDDLEWARE = [
