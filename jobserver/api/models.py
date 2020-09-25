@@ -81,7 +81,7 @@ class Job(models.Model):
             return "Completed"
 
     def save(self, *args, **kwargs):
-        if self.started and not self.started_at:
+        if self.started:
             self.started_at = datetime.datetime.now(tz=pytz.UTC)
         if self.status_code is not None and not self.completed_at:
             if self.started:
