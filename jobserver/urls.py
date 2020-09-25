@@ -15,6 +15,7 @@ Including another URLconf
 """
 from django.contrib import admin
 from django.urls import include, path
+from django.views.generic import RedirectView
 from rest_framework import routers
 
 from jobserver.api import views
@@ -35,6 +36,7 @@ router.register(r"workspaces", views.WorkspaceViewSet, "workspaces")
 
 
 urlpatterns = [
+    path("", RedirectView.as_view(pattern_name="job-list")),
     path("admin/", admin.site.urls),
     path("api/", include(router.urls)),
     path("api-auth/", include("rest_framework.urls")),
