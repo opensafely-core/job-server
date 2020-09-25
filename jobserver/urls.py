@@ -20,8 +20,7 @@ from django.urls import include, path
 from django.views.generic import RedirectView
 from rest_framework import routers
 
-from jobserver.api import views
-
+from .api_views import JobViewSet, WorkspaceViewSet
 from .views import (
     JobCreate,
     JobDetail,
@@ -34,8 +33,8 @@ from .views import (
 
 
 router = routers.DefaultRouter()
-router.register(r"jobs", views.JobViewSet, "jobs")
-router.register(r"workspaces", views.WorkspaceViewSet, "workspaces")
+router.register(r"jobs", JobViewSet, "jobs")
+router.register(r"workspaces", WorkspaceViewSet, "workspaces")
 
 
 urlpatterns = [
