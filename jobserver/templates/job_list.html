@@ -29,6 +29,7 @@
           <th scope="col">Status</th>
           <th scope="col">ID</th>
           <th scope="col">Workspace</th>
+          <th scope="col">Action</th>
           <th scope="col"></th>
         </tr>
       </thead>
@@ -39,6 +40,7 @@
           <td>{% status_icon job.status %}</td>
           <td>{{ job.pk }}</td>
           <td>{{ job.workspace.name }}</td>
+          <td>{{ job.action_id }}</td>
           <td>
             <a class="btn btn-secondary text-white" href="{% url 'jobs-detail' pk=job.pk %}">
               View
