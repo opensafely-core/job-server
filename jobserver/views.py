@@ -38,6 +38,11 @@ class JobList(ListView):
         return qs
 
 
+class WorkspaceDetail(DetailView):
+    model = Workspace
+    template_name = "workspace_detail.html"
+
+
 class WorkspaceList(ListView):
     paginate_by = 25
     queryset = Workspace.objects.prefetch_related("jobs")

@@ -6,7 +6,8 @@
 <ul class="list-unstyled ml-10">
   <li class="pt-2"><strong>Status:</strong> {{ job.status }}</li>
   <li class="pt-2">
-    <strong>Workspace:</strong> {{ job.workspace.name }}
+    <strong>Workspace:</strong>
+    <a href={% url 'workspace-detail' pk=job.workspace.pk %}>{{ job.workspace.name }}</a>
     <small class="text-muted">({{ job.workspace.repo }} | {{ job.workspace.branch }})</small>
   </li>
   <li class="pt-2"><strong>Action:</strong> {{ job.action_id|default:"-" }}</li>
