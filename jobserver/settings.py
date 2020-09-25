@@ -38,6 +38,7 @@ INSTALLED_APPS = [
     "jobserver",
     "jobserver.api",
     "crispy_forms",
+    "debug_toolbar",
     "django_extensions",
     "django_filters",
     "rest_framework",
@@ -52,6 +53,7 @@ INSTALLED_APPS = [
 
 MIDDLEWARE = [
     "whitenoise.middleware.WhiteNoiseMiddleware",
+    "debug_toolbar.middleware.DebugToolbarMiddleware",
     "django.middleware.security.SecurityMiddleware",
     "django.contrib.sessions.middleware.SessionMiddleware",
     "django.middleware.common.CommonMiddleware",
@@ -159,3 +161,9 @@ REST_FRAMEWORK = {
     "DEFAULT_FILTER_BACKENDS": ["django_filters.rest_framework.DjangoFilterBackend"],
     "PAGE_SIZE": 100,
 }
+
+# Debug Toolbar
+# https://django-debug-toolbar.readthedocs.io/en/latest/installation.html#configuring-internal-ips
+INTERNAL_IPS = [
+    "127.0.0.1",
+]

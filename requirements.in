@@ -11,6 +11,7 @@ whitenoise
 
 # dev requirements
 black
+django-debug-toolbar
 django-extensions
 factory_boy
 flake8
