@@ -25,6 +25,8 @@ class JobDetail(DetailView):
 
 
 class JobList(ListView):
+    model = Job
+    ordering = "-pk"
     paginate_by = 25
     template_name = "job_list.html"
 
@@ -35,7 +37,7 @@ class JobList(ListView):
         return context
 
     def get_queryset(self):
-        qs = Job.objects.select_related("workspace")
+        qs = super().get_queryset().select_related("workspace")
 
         status = self.request.GET.get("status")
         if status:
