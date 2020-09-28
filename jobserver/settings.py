@@ -15,6 +15,7 @@ import dj_database_url
 from django.urls import reverse_lazy
 
 from services.logging import logging_config_dict
+from services.sentry import initialise_sentry
 
 
 # Build paths inside the project like this: os.path.join(BASE_DIR, ...)
@@ -164,3 +165,6 @@ REST_FRAMEWORK = {
 INTERNAL_IPS = [
     "127.0.0.1",
 ]
+
+# Sentry
+initialise_sentry()
