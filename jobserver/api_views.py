@@ -1,6 +1,6 @@
 from rest_framework import viewsets
 
-from .api.models import Job, Workspace
+from .models import Job, Workspace
 from .serializers import JobSerializer, WorkspaceSerializer
 
 

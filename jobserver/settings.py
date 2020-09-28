@@ -36,7 +36,6 @@ ALLOWED_HOSTS = ["*"]
 # Application definition
 INSTALLED_APPS = [
     "jobserver",
-    "jobserver.api",
     "crispy_forms",
     "debug_toolbar",
     "django_extensions",

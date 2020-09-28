@@ -1,7 +1,7 @@
 import factory
 from django.contrib.auth.models import User
 
-from jobserver.api.models import Job
+from jobserver.models import Job
 
 
 class JobFactory(factory.django.DjangoModelFactory):
