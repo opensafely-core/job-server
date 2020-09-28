@@ -3,7 +3,6 @@ import datetime
 import pytz
 import requests
 from django.db import models
-from django.db.models.signals import post_save
 from django.urls import reverse
 
 from .runtime import Runtime
@@ -71,6 +70,21 @@ class Job(models.Model):
     def get_absolute_url(self):
         return reverse("job-detail", kwargs={"pk": self.pk})
 
+    def notify_callback_url(self):
+        if not self.callback_url:
+            return
+
+        # A new dependency has been added; notify the originating thread
+        if self.needed_by and not self.started:
+            status = f"Starting dependency {self.action}, job#{self.pk}"
+        elif self.started and self.completed_at:
+            if self.status_code == 0:
+                status = f"{self.action} finished: {self.status_message})"
+            else:
+                status = f"Error in {self.action} (status {self.status_message})"
+
+        requests.post(self.callback_url, json={"message": status})
+
     @property
     def runtime(self):
         if self.started_at is None:
@@ -109,10 +123,14 @@ class Job(models.Model):
     def save(self, *args, **kwargs):
         if self.started:
             self.started_at = datetime.datetime.now(tz=pytz.UTC)
+
         if self.status_code is not None and not self.completed_at:
             if self.started:
                 self.completed_at = datetime.datetime.now(tz=pytz.UTC)
+
         super().save(*args, **kwargs)
+
+        self.notify_callback_url()
 
 
 class JobOutput(models.Model):
@@ -120,28 +138,3 @@ class JobOutput(models.Model):
     job = models.ForeignKey(
         Job, null=True, blank=True, related_name="outputs", on_delete=models.SET_NULL
     )
-
-
-def notify_callback_url(sender, instance, created, raw, using, update_fields, **kwargs):
-    """Send a message to slack about the job"""
-    if sender == Job and instance.callback_url:
-        if sender == Job:
-            if instance.needed_by and not instance.started:
-                # A new dependency has been added; notify the originating thread
-                requests.post(
-                    instance.callback_url,
-                    json={
-                        "message": f"Starting dependency {instance.action}, job#{instance.pk}"
-                    },
-                )
-            elif instance.started and instance.completed_at:
-                if instance.status_code == 0:
-                    status = f"{instance.action} finished: {instance.status_message})"
-                else:
-                    status = (
-                        f"Error in {instance.action} (status {instance.status_message})"
-                    )
-                requests.post(instance.callback_url, json={"message": status})
-
-
-post_save.connect(notify_callback_url)
