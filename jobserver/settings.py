@@ -138,6 +138,7 @@ LOGGING = logging_config_dict
 # Auth
 LOGIN_REDIRECT_URL = reverse_lazy("workspace-list")
 LOGOUT_REDIRECT_URL = "/"
+LOGIN_URL = reverse_lazy("login")
 
 
 # THIRD PARTY SETTINGS
