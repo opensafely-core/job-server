@@ -10,4 +10,5 @@ services:
       - QUEUE_PASS=${OPENSAFELY_QUEUE_PASS}
     ports:
       - "8000:8000"
-    entrypoint: /app/entrypoint.sh
+    entrypoint: /app/entrypoint-dev.sh
+    command: /app/manage.py runserver 0.0.0.0:8000
