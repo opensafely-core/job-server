@@ -1,3 +1,4 @@
+attrs
 dj-database-url
 django-crispy-forms
 django-filter
@@ -11,6 +12,8 @@ whitenoise
 
 # dev requirements
 black
+django-debug-toolbar
+django-extensions
 factory_boy
 flake8
 isort

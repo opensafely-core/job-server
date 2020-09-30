@@ -13,6 +13,7 @@ Including another URLconf
     1. Import the include() function: from django.urls import include, path
     2. Add a URL to urlpatterns:  path('blog/', include('blog.urls'))
 """
+import debug_toolbar
 from django.contrib import admin
 from django.contrib.auth.views import LogoutView
 from django.urls import include, path
@@ -50,4 +51,5 @@ urlpatterns = [
     path("workspaces/", WorkspaceList.as_view(), name="workspace-list"),
     path("workspaces/new/", WorkspaceCreate.as_view(), name="workspace-create"),
     path("workspaces/<pk>/", WorkspaceDetail.as_view(), name="workspace-detail"),
+    path("__debug__/", include(debug_toolbar.urls)),
 ]

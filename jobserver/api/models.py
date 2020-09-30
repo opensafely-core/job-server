@@ -6,6 +6,8 @@ from django.db import models
 from django.db.models.signals import post_save
 from django.urls import reverse
 
+from ..runtime import Runtime
+
 
 class Workspace(models.Model):
     DB_OPTIONS = (
@@ -70,12 +72,36 @@ class Job(models.Model):
         return reverse("job-detail", kwargs={"pk": self.pk})
 
     @property
+    def runtime(self):
+        if self.started_at is None:
+            return
+
+        if self.completed_at is None:
+            return
+
+        delta = self.completed_at - self.started_at
+
+        hours, remainder = divmod(delta.total_seconds(), 3600)
+        minutes, seconds = divmod(remainder, 60)
+
+        return Runtime(int(hours), int(minutes), int(seconds))
+
+    @property
     def status(self):
-        if not (self.started_at and self.completed_at):
-            return "Pending"
+        if self.status_code is not None:
+            if self.status_code == 6:
+                return "Pending"
+
+            if self.status_code == 7:
+                return "Dependency Failed"
+
+            return "Failed"
 
         if self.started_at and not self.completed_at:
             return "In Progress"
+
+        if not (self.started_at and self.completed_at):
+            return "Pending"
 
         if self.completed_at:
             return "Completed"
