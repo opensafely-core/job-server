@@ -82,6 +82,8 @@ class Job(models.Model):
                 status = f"{self.action_id} finished: {self.status_message}"
             else:
                 status = f"Error in {self.action_id} (status {self.status_message})"
+        else:
+            return
 
         requests.post(self.callback_url, json={"message": status})
 
