@@ -80,6 +80,7 @@ class WorkspaceDetail(DetailView):
 
 
 class WorkspaceList(ListView):
+    ordering = "name"
     paginate_by = 25
     queryset = Workspace.objects.prefetch_related("jobs")
     template_name = "workspace_list.html"
