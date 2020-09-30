@@ -4,10 +4,10 @@ services:
   job-server:
     build: .
     environment:
-      - OPENSAFELY_JOB_SERVER_SECRET_KEY=${OPENSAFELY_JOB_SERVER_SECRET_KEY}
+      - OPENSAFELY_JOB_SERVER_SECRET_KEY=${OPENSAFELY_JOB_SERVER_SECRET_KEY:-12345}
       # Credentials for acessing the job server
-      - QUEUE_USER=${OPENSAFELY_QUEUE_USER}
-      - QUEUE_PASS=${OPENSAFELY_QUEUE_PASS}
+      - QUEUE_USER=${OPENSAFELY_QUEUE_USER:-queue}
+      - QUEUE_PASS=${OPENSAFELY_QUEUE_PASS:-queue}
     ports:
       - "8000:8000"
     entrypoint: /app/entrypoint-dev.sh

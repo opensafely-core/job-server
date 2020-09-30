@@ -28,3 +28,8 @@ repos:
     - id: check-toml
     - id: check-yaml
     - id: detect-private-key
+
+  - repo: https://github.com/stratasan/hadolint-pre-commit
+    rev: cdefcb0
+    hooks:
+    - id: hadolint

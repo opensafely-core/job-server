@@ -1,38 +1,19 @@
-FROM ubuntu:bionic
-ARG pythonversion
+FROM python:3.8.6-slim-buster
 
-ENV DEBIAN_FRONTEND noninteractive
-ENV DEBCONF_NONINTERACTIVE_SEEN true
+# Don't cache PyPI downloads or wheels.
+# Don't use pyc files or __pycache__ folders.
+# Don't buffer stdout/stderr output.
+ENV PIP_NO_CACHE_DIR=1 \
+    PYTHONDONTWRITEBYTECODE=1 \
+    PYTHONUNBUFFERED=1
 
-RUN apt-get update
-RUN apt-get -y upgrade
-# Python dependencies
-RUN apt-get install -y --no-install-recommends make build-essential libssl-dev zlib1g-dev libbz2-dev libreadline-dev libsqlite3-dev wget curl llvm libncurses5-dev xz-utils tk-dev libxml2-dev libxmlsec1-dev libffi-dev liblzma-dev
-# Pyenv dependencies
-RUN apt-get install -y ca-certificates git
-# Required by the runner
-RUN apt-get install -y file
-RUN apt-get install -y docker.io
-
-# Install pyenv
-RUN curl https://pyenv.run | bash
-ENV PATH="/root/.pyenv/shims:/root/.pyenv/bin:${PATH}"
-ENV PYENV_SHELL=bash
-
-# Install python
-RUN pyenv install $pythonversion
-RUN pyenv global $pythonversion
-
-# Install pip and requirements
-RUN curl https://bootstrap.pypa.io/get-pip.py | python
-
-# Copy happens twice to aid with image layers
+# Only requirements to cache them in docker layer so we can skip package
+# installation if they haven't changed
 COPY requirements.txt .
 RUN pip install --requirement requirements.txt
 
 RUN mkdir /app
 COPY . /app
 WORKDIR /app
-RUN rm -rf .python-version
 
 ENTRYPOINT ["/app/entrypoint.sh"]
