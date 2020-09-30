@@ -14,12 +14,12 @@ class Workspace(models.Model):
         ("slice", "Cut-down (but real) database"),
         ("full", "Full database"),
     )
-    name = models.CharField(max_length=100)
-    repo = models.CharField(db_index=True, max_length=300)
-    branch = models.CharField(max_length=200)
-    owner = models.CharField(max_length=100)
+    name = models.TextField()
+    repo = models.TextField(db_index=True)
+    branch = models.TextField()
+    owner = models.TextField()
     created_at = models.DateTimeField(auto_now_add=True)
-    db = models.CharField(max_length=20, choices=DB_OPTIONS)
+    db = models.TextField(choices=DB_OPTIONS)
 
     def __str__(self):
         return f"{self.name} ({self.repo})"
@@ -43,14 +43,14 @@ class Job(models.Model):
     force_run = models.BooleanField(default=False)
     force_run_dependencies = models.BooleanField(default=False)
     started = models.BooleanField(default=False)
-    action_id = models.CharField(max_length=200)
-    backend = models.CharField(max_length=20, db_index=True)
+    action_id = models.TextField()
+    backend = models.TextField(db_index=True)
     status_code = models.IntegerField(null=True, blank=True)
-    status_message = models.CharField(null=True, blank=True, max_length=200)
+    status_message = models.TextField(null=True, blank=True)
     created_at = models.DateTimeField(auto_now_add=True)
     started_at = models.DateTimeField(null=True, blank=True)
     completed_at = models.DateTimeField(null=True, blank=True)
-    callback_url = models.CharField(max_length=200, null=True, blank=True)
+    callback_url = models.TextField(null=True, blank=True)
     needed_by = models.ForeignKey(
         "self", null=True, blank=True, on_delete=models.SET_NULL
     )
@@ -134,7 +134,7 @@ class Job(models.Model):
 
 
 class JobOutput(models.Model):
-    location = models.CharField(max_length=300)
+    location = models.TextField()
     job = models.ForeignKey(
         Job, null=True, blank=True, related_name="outputs", on_delete=models.SET_NULL
     )
