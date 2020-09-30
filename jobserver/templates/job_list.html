@@ -35,7 +35,7 @@
           <th scope="col">Action</th>
           <th scope="col">Description</th>
           <th scope="col">Started At</th>
-          <th scope="col">Elpased Time</th>
+          <th scope="col">Elapsed Time</th>
           <th scope="col"></th>
         </tr>
       </thead>
@@ -74,6 +74,33 @@
 
     <hr />
 
+    <div class="d-flex justify-content-between mb-3">
+
+      <div>
+        <span class="{% if not page_obj.has_previous %}d-none{% endif %}">
+          {% if page_obj.has_previous %}
+          <a class="btn btn-secondary btn-sm" href="{% url_with_querystring page=page_obj.previous_page_number %}">
+            Previous
+          </a>
+          {% endif %}
+        </span>
+      </div>
+
+      <div class="current">
+        Page {{ page_obj.number }} of {{ page_obj.paginator.num_pages }}
+      </div>
+
+      <div>
+        <span class="{% if not page_obj.has_next %}d-none{% endif %}">
+          {% if page_obj.has_next %}
+          <a class="btn btn-secondary btn-sm" href="{% url_with_querystring page=page_obj.next_page_number %}">
+            Next
+          </a>
+          {% endif %}
+        </span>
+      </div>
+
+    </div>
   </div>
 
   <div class="col-2 filters">
