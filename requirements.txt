@@ -20,7 +20,7 @@ dj-database-url==0.5.0    # via -r requirements.in
 django-crispy-forms==1.9.2  # via -r requirements.in
 django-debug-toolbar==3.1.1  # via -r requirements.in
 django-extensions==3.0.9  # via -r requirements.in
-django-filter==2.3.0      # via -r requirements.in
+django-filter==2.4.0      # via -r requirements.in
 django-ipware==3.0.1      # via django-structlog
 django-rest-framework==0.1.0  # via -r requirements.in
 django-structlog==1.6.1   # via -r requirements.in
