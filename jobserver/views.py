@@ -4,8 +4,8 @@ from django.shortcuts import redirect
 from django.utils.decorators import method_decorator
 from django.views.generic import CreateView, DetailView, ListView
 
-from .api.models import Job, Workspace
 from .forms import JobCreateForm, LoginFormHelper, WorkspaceCreateForm
+from .models import Job, Workspace
 
 
 @method_decorator(login_required, name="dispatch")
