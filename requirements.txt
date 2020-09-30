@@ -73,7 +73,7 @@ typed-ast==1.4.1          # via black
 typing-extensions==3.7.4.3  # via black
 urllib3==1.25.10          # via requests, responses, sentry-sdk
 virtualenv==20.0.31       # via pre-commit
-whitenoise==5.1.0         # via -r requirements.in
+whitenoise==5.2.0         # via -r requirements.in
 yarl==1.4.2               # via aiohttp
 
 # The following packages are considered to be unsafe in a requirements file:
