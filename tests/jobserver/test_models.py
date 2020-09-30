@@ -5,7 +5,7 @@ import responses
 from django.urls import reverse
 from django.utils import timezone
 
-from ..factories import JobFactory
+from ..factories import JobFactory, WorkspaceFactory
 
 
 @pytest.mark.django_db
@@ -187,3 +187,19 @@ def test_job_status_status_6_is_pending():
 def test_job_status_unstarted_is_pending():
     job = JobFactory()
     assert job.status == "Pending"
+
+
+@pytest.mark.django_db
+def test_workspace_str():
+    workspace = WorkspaceFactory(
+        name="Corellian Engineering Corporation", repo="Corellia"
+    )
+
+    assert str(workspace) == "Corellian Engineering Corporation (Corellia)"
+
+
+@pytest.mark.django_db
+def test_workspace_get_absolute_url():
+    workspace = WorkspaceFactory()
+    url = workspace.get_absolute_url()
+    assert url == reverse("workspace-detail", kwargs={"pk": workspace.pk})
