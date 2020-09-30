@@ -76,12 +76,12 @@ class Job(models.Model):
 
         # A new dependency has been added; notify the originating thread
         if self.needed_by and not self.started:
-            status = f"Starting dependency {self.action}, job#{self.pk}"
+            status = f"Starting dependency {self.action_id}, job#{self.pk}"
         elif self.started and self.completed_at:
             if self.status_code == 0:
-                status = f"{self.action} finished: {self.status_message})"
+                status = f"{self.action_id} finished: {self.status_message}"
             else:
-                status = f"Error in {self.action} (status {self.status_message})"
+                status = f"Error in {self.action_id} (status {self.status_message})"
 
         requests.post(self.callback_url, json={"message": status})
 
