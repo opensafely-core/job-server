@@ -12,7 +12,7 @@ repos:
       language_version: python3.8
 
   - repo: https://github.com/pre-commit/mirrors-isort
-    rev: v5.3.0
+    rev: v5.5.4
     hooks:
     - id: isort
       language_version: python3.8
