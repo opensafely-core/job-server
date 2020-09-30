@@ -62,7 +62,7 @@ pyyaml==5.3.1             # via pre-commit
 regex==2020.7.14          # via black
 requests==2.24.0          # via -r requirements.in, responses
 responses==0.12.0         # via -r requirements.in
-sentry-sdk==0.17.8        # via -r requirements.in
+sentry-sdk==0.18.0        # via -r requirements.in
 six==1.15.0               # via furl, orderedmultidict, packaging, python-dateutil, responses, structlog, virtualenv
 slackclient==2.7.1        # via -r requirements.in
 sqlparse==0.3.1           # via django, django-debug-toolbar
