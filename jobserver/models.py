@@ -116,11 +116,10 @@ class Job(models.Model):
         if self.started_at and not self.completed_at:
             return "In Progress"
 
-        if not (self.started_at and self.completed_at):
-            return "Pending"
-
         if self.completed_at:
             return "Completed"
+
+        return "Pending"
 
     def save(self, *args, **kwargs):
         if self.started:
