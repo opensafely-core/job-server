@@ -32,7 +32,8 @@ def status_icon(status_name):
             "name": "history.svg",
         },
     }
-    status = status_lut.get(status_name.lower(), "question-circle.svg")
+    default = {"color": "grey", "name": "question-circle.svg"}
+    status = status_lut.get(status_name.lower(), default)
 
     # Get the SVG file contents so we can put that directly into the template.
     # This lets us color the icons since they ship with fill="currentColor"
