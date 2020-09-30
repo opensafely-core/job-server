@@ -5,6 +5,8 @@ import responses
 from django.urls import reverse
 from django.utils import timezone
 
+from jobserver.models import Job
+
 from ..factories import JobFactory, WorkspaceFactory
 
 
@@ -187,6 +189,17 @@ def test_job_status_status_6_is_pending():
 def test_job_status_unstarted_is_pending():
     job = JobFactory()
     assert job.status == "Pending"
+
+
+@pytest.mark.django_db
+def test_jobqueryset():
+    JobFactory()
+    JobFactory(started_at=timezone.now())
+    JobFactory(completed_at=timezone.now())
+
+    assert Job.objects.completed().count() == 1
+    assert Job.objects.in_progress().count() == 1
+    assert Job.objects.pending().count() == 1
 
 
 @pytest.mark.django_db
