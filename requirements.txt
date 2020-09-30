@@ -30,6 +30,7 @@ factory-boy==3.0.1        # via -r requirements.in
 faker==4.1.3              # via factory-boy
 filelock==3.0.12          # via virtualenv
 flake8==3.8.3             # via -r requirements.in
+freezegun==1.0.0          # via pytest-freezegun
 furl==2.1.0               # via -r requirements.in
 gunicorn==20.0.4          # via -r requirements.in
 identify==1.5.4           # via pre-commit
@@ -53,8 +54,9 @@ pyparsing==2.4.7          # via packaging
 pytest-cov==2.10.1        # via -r requirements.in
 pytest-django==3.10.0     # via -r requirements.in
 pytest-env==0.6.2         # via -r requirements.in
-pytest==6.0.2             # via pytest-cov, pytest-django, pytest-env
-python-dateutil==2.8.1    # via faker
+pytest-freezegun==0.4.2   # via -r requirements.in
+pytest==6.0.2             # via pytest-cov, pytest-django, pytest-env, pytest-freezegun
+python-dateutil==2.8.1    # via faker, freezegun
 pytz==2020.1              # via django
 pyyaml==5.3.1             # via pre-commit
 regex==2020.7.14          # via black
