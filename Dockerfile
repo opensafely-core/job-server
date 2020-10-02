@@ -12,8 +12,7 @@ ENV PIP_NO_CACHE_DIR=1 \
 COPY requirements.txt .
 RUN pip install --requirement requirements.txt
 
-RUN mkdir /app
-COPY . /app
 WORKDIR /app
+COPY . /app
 
 ENTRYPOINT ["/app/entrypoint.sh"]
