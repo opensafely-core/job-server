@@ -215,6 +215,47 @@ class JobRequest(models.Model):
 
     created_at = models.DateTimeField(auto_now_add=True)
 
+    @property
+    def is_complete(self):
+        return all(j.is_complete for j in self.jobs.all())
+
+    @property
+    def is_failed(self):
+        """
+        Has a JobRequst failed?
+
+        We don't consider a JobRequest failed until all Jobs are either
+        Completed or Failed.
+        """
+        if not all(j.is_failed or j.is_complete for j in self.jobs.all()):
+            return False
+
+        return any(j.is_failed for j in self.jobs.all())
+
+    @property
+    def is_in_progress(self):
+        return any(j.is_in_progress for j in self.jobs.all())
+
+    @property
+    def is_pending(self):
+        return all(j.is_pending for j in self.jobs.all())
+
+    @property
+    def status(self):
+        if self.is_complete:
+            return "Completed"
+
+        if self.is_failed:
+            return "Failed"
+
+        if self.is_in_progress:
+            return "In Progress"
+
+        if self.is_pending:
+            return "Pending"
+
+        return "Pending"
+
 
 class User(AbstractUser):
     pass
