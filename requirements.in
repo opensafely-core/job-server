@@ -18,6 +18,7 @@ django-extensions
 factory_boy
 flake8
 isort
+litecli
 pre-commit
 pytest-cov
 pytest-django
