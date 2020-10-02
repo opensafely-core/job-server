@@ -74,6 +74,30 @@ def test_joblist_filter_by_workspace(rf):
     assert len(response.context_data["object_list"]) == 1
 
 
+@pytest.mark.django_db
+def test_joblist_search_by_action(rf):
+    job1 = JobFactory(action_id="run")
+    JobFactory(action_id="leap")
+
+    request = rf.get("/?q=run")
+    response = JobList.as_view()(request)
+
+    assert len(response.context_data["object_list"]) == 1
+    assert response.context_data["object_list"][0] == job1
+
+
+@pytest.mark.django_db
+def test_joblist_search_by_id(rf):
+    JobFactory()
+    job2 = JobFactory(id=99)
+
+    request = rf.get("/?q=99")
+    response = JobList.as_view()(request)
+
+    assert len(response.context_data["object_list"]) == 1
+    assert response.context_data["object_list"][0] == job2
+
+
 def test_login(rf):
     request = rf.get("/")
     response = Login.as_view()(request)
