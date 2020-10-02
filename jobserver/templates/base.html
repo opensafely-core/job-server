@@ -66,6 +66,9 @@
     </div>
 
     <!-- JavaScript -->
-    {% block extra_js %}{% endblock %}
+    {% block extra_js %}
+    <script src="{% static 'js/jquery-3.5.1.slim.min.js' %}"></script>
+    <script src="{% static 'js/bootstrap-4.5.2.min.js' %}"></script>
+    {% endblock %}
   </body>
 </html>
