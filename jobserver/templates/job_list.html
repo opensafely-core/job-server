@@ -56,7 +56,7 @@
             {% if job.runtime.seconds %}{{ job.runtime.seconds }} second(s){% endif %}
           </td>
           <td>
-            <a class="btn btn-secondary text-white" href="{% url 'jobs-detail' pk=job.pk %}">
+            <a class="btn btn-secondary text-white" href="{{ job.get_absolute_url }}">
               View
             </a>
           </td>
