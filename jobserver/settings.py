@@ -135,6 +135,7 @@ LOGGING = logging_config_dict
 
 
 # Auth
+AUTH_USER_MODEL = "jobserver.User"
 LOGIN_REDIRECT_URL = reverse_lazy("workspace-list")
 LOGOUT_REDIRECT_URL = "/"
 LOGIN_URL = reverse_lazy("login")

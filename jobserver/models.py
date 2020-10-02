@@ -2,6 +2,7 @@ import datetime
 
 import pytz
 import requests
+from django.contrib.auth.models import AbstractUser
 from django.db import models
 from django.urls import reverse
 
@@ -139,3 +140,7 @@ class JobOutput(models.Model):
     job = models.ForeignKey(
         Job, null=True, blank=True, related_name="outputs", on_delete=models.SET_NULL
     )
+
+
+class User(AbstractUser):
+    pass
