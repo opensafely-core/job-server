@@ -73,6 +73,45 @@ class Job(models.Model):
     def get_absolute_url(self):
         return reverse("job-detail", kwargs={"pk": self.pk})
 
+    @property
+    def is_complete(self):
+        return self.status_code is None and self.completed_at
+
+    @property
+    def is_dependency_failed(self):
+        return self.status_code == 7
+
+    @property
+    def is_failed(self):
+        dependency_not_finished = 6
+        dependency_failed = 7
+        dependency_running = 8
+
+        non_failure_status = self.status_code in [
+            dependency_not_finished,
+            dependency_failed,
+            dependency_running,
+        ]
+
+        return self.status_code and not non_failure_status
+
+    @property
+    def is_in_progress(self):
+        if self.status_code is not None:
+            return False
+
+        return self.started_at and not self.completed_at
+
+    @property
+    def is_pending(self):
+        if self.status_code in [6, 8]:
+            return True
+
+        if self.status_code is None and not (self.started_at and self.completed_at):
+            return True
+
+        return False
+
     def notify_callback_url(self):
         if not self.callback_url:
             return
@@ -107,23 +146,20 @@ class Job(models.Model):
 
     @property
     def status(self):
-        if self.status_code is not None:
-            if self.status_code == 6:
-                return "Pending"
+        if self.is_complete:
+            return "Completed"
 
-            if self.status_code == 7:
-                return "Dependency Failed"
+        if self.is_dependency_failed:
+            return "Dependency Failed"
 
-            if self.status_code == 8:
-                return "Pending"
-
+        if self.is_failed:
             return "Failed"
 
-        if self.started_at and not self.completed_at:
+        if self.is_in_progress:
             return "In Progress"
 
-        if self.completed_at:
-            return "Completed"
+        if self.is_pending:
+            return "Pending"
 
         return "Pending"
 
