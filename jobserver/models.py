@@ -112,6 +112,9 @@ class Job(models.Model):
             if self.status_code == 7:
                 return "Dependency Failed"
 
+            if self.status_code == 8:
+                return "Pending"
+
             return "Failed"
 
         if self.started_at and not self.completed_at:
