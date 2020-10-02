@@ -143,7 +143,7 @@ AUTHENTICATION_BACKENDS = [
 AUTH_USER_MODEL = "jobserver.User"
 LOGIN_REDIRECT_URL = reverse_lazy("workspace-list")
 LOGOUT_REDIRECT_URL = "/"
-LOGIN_URL = reverse_lazy("login")
+LOGIN_URL = reverse_lazy("social:begin", kwargs={"backend": "github"})
 SOCIAL_AUTH_GITHUB_KEY = os.getenv("SOCIAL_AUTH_GITHUB_KEY")
 SOCIAL_AUTH_GITHUB_SECRET = os.getenv("SOCIAL_AUTH_GITHUB_SECRET")
 SOCIAL_AUTH_GITHUB_SCOPE = ["user:email"]

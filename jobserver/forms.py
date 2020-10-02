@@ -24,12 +24,6 @@ class JobCreateForm(forms.ModelForm):
         self.helper.add_input(Submit("submit", "Submit"))
 
 
-class LoginFormHelper(FormHelper):
-    def __init__(self, *args, **kwargs):
-        super().__init__(*args, **kwargs)
-        self.add_input(Submit("submit", "Submit"))
-
-
 class WorkspaceCreateForm(forms.ModelForm):
     class Meta:
 
