@@ -38,6 +38,7 @@ router.register(r"workspaces", WorkspaceViewSet, "workspaces")
 
 urlpatterns = [
     path("", RedirectView.as_view(pattern_name="job-list")),
+    path("", include("social_django.urls", namespace="social")),
     path("api/", include(router.urls)),
     path("api-auth/", include("rest_framework.urls")),
     path("jobs/", JobList.as_view(), name="job-list"),
