@@ -14,7 +14,6 @@ Including another URLconf
     2. Add a URL to urlpatterns:  path('blog/', include('blog.urls'))
 """
 import debug_toolbar
-from django.contrib import admin
 from django.contrib.auth.views import LogoutView
 from django.urls import include, path
 from django.views.generic import RedirectView
@@ -39,7 +38,6 @@ router.register(r"workspaces", WorkspaceViewSet, "workspaces")
 
 urlpatterns = [
     path("", RedirectView.as_view(pattern_name="job-list")),
-    path("admin/", admin.site.urls),
     path("api/", include(router.urls)),
     path("api-auth/", include("rest_framework.urls")),
     path("jobs/", JobList.as_view(), name="job-list"),
