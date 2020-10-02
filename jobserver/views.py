@@ -1,5 +1,6 @@
 from django.contrib.auth.decorators import login_required
 from django.contrib.auth.views import LoginView
+from django.db.models import Q
 from django.shortcuts import redirect
 from django.utils.decorators import method_decorator
 from django.views.generic import CreateView, DetailView, ListView
@@ -38,6 +39,17 @@ class JobList(ListView):
 
     def get_queryset(self):
         qs = super().get_queryset().select_related("workspace")
+
+        q = self.request.GET.get("q")
+        if q:
+            try:
+                q = int(q)
+            except ValueError:
+                qs = qs.filter(action_id__icontains=q)
+            else:
+                # if the query looks enough like a number for int() to handle
+                # it then we can look for a job number
+                qs = qs.filter(Q(action_id__icontains=q) | Q(pk=q))
 
         status = self.request.GET.get("status")
         if status:

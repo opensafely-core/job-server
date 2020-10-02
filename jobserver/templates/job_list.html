@@ -13,10 +13,24 @@
   <h2>Jobs</h2>
 
   {% if user.is_authenticated %}
-  <div>
-    <a class="btn btn-primary" href="{% url 'job-create' %}">
-      Add Job
-    </a>
+  <div class="d-flex align-items-center">
+
+    <form class="form-inline mr-3" method="GET">
+      <input
+        class="form-control mr-sm-2"
+        type="search"
+        placeholder="Search action_id or job_id"
+        aria-label="Search"
+        name="q" />
+      <button class="btn btn-outline-success my-2 my-sm-0" type="submit">Search</button>
+    </form>
+
+    <div>
+      <a class="btn btn-primary" href="{% url 'job-create' %}">
+        Add Job
+      </a>
+    </div>
+
   </div>
   {% endif %}
 
