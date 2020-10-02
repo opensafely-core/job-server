@@ -12,8 +12,12 @@ ENV PIP_NO_CACHE_DIR=1 \
 COPY requirements.txt .
 RUN pip install --requirement requirements.txt
 
-RUN mkdir /app
-COPY . /app
+RUN apt-get update && \
+    apt-get install --no-install-recommends -y sqlite3=3.27.2-3 && \
+    apt-get clean && \
+    rm -rf /var/lib/apt/lists/*
+
 WORKDIR /app
+COPY . /app
 
 ENTRYPOINT ["/app/entrypoint.sh"]
