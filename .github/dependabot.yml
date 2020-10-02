@@ -5,3 +5,6 @@ updates:
     directory: "/"
     schedule:
       interval: "weekly"
+    reviewers:
+      - "ghickman"
+    open-pull-requests-limit: 20
