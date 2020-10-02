@@ -44,7 +44,7 @@ def status_icon(status_name):
 
     # Wrap to the SVG so we can style it neatly
     icon = f"""
-    <div style="color:{status['color']};width:1rem;">
+    <div style="color:{status['color']};width:1rem;" title="{status_name}">
         {svg}
     </div>
     """
