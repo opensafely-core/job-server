@@ -55,6 +55,9 @@ class Job(models.Model):
     needed_by = models.ForeignKey(
         "self", null=True, blank=True, on_delete=models.SET_NULL
     )
+    request = models.ForeignKey(
+        "JobRequest", null=True, on_delete=models.CASCADE, related_name="jobs"
+    )
     workspace = models.ForeignKey(
         Workspace,
         related_name="jobs",
@@ -143,6 +146,39 @@ class JobOutput(models.Model):
     job = models.ForeignKey(
         Job, null=True, blank=True, related_name="outputs", on_delete=models.SET_NULL
     )
+
+
+class JobRequest(models.Model):
+    """
+    A request to run a Job
+
+    This represents the request, from a Human, to run a given Job in a
+    Workspace.  The job-runner will create any required Jobs for the requested
+    one to run.  All Jobs, either added by Human or Computer, are then grouped
+    by this object.
+    """
+
+    EMIS = "emis"
+    TPP = "tpp"
+    BACKEND_CHOICES = [
+        (EMIS, "EMIS"),
+        (TPP, "TPP"),
+    ]
+
+    created_by = models.ForeignKey(
+        "User",
+        null=True,
+        blank=True,
+        on_delete=models.CASCADE,
+    )
+    workspace = models.ForeignKey(
+        "Workspace", on_delete=models.CASCADE, related_name="job_requests"
+    )
+
+    requested_action = models.TextField()
+    backend = models.TextField(choices=BACKEND_CHOICES, db_index=True)
+
+    created_at = models.DateTimeField(auto_now_add=True)
 
 
 class User(AbstractUser):
