@@ -269,6 +269,9 @@ class JobRequest(models.Model):
         # cache jobs QuerySet to memory to avoid further queries
         all_jobs = list(self.jobs.all())
 
+        if len(all_jobs) == 1:
+            return [first(all_jobs)]
+
         # create a lookup table of Job ID -> Job so we can convert the graph
         # nodes (Job IDs) back to Job instances
         jobs_by_id = {j.pk: j for j in all_jobs}
