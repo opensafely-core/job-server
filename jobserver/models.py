@@ -1,5 +1,6 @@
 import datetime
 
+import networkx as nx
 import pytz
 import requests
 from django.contrib.auth.models import AbstractUser
@@ -70,6 +71,13 @@ class Job(models.Model):
 
     def __str__(self):
         return f"{self.action_id} ({self.pk})"
+
+    @property
+    def edge(self):
+        if not self.needed_by_id:
+            return
+
+        return (self.pk, self.needed_by_id)
 
     def get_absolute_url(self):
         return reverse("job-detail", kwargs={"pk": self.pk})
@@ -254,6 +262,29 @@ class JobRequest(models.Model):
     @property
     def num_completed(self):
         return len([j for j in self.jobs.all() if j.is_complete])
+
+    @property
+    def ordered_jobs(self):
+        """Order this JobRequest's Jobs based on their dependencies."""
+        # cache jobs QuerySet to memory to avoid further queries
+        all_jobs = list(self.jobs.all())
+
+        # create a lookup table of Job ID -> Job so we can convert the graph
+        # nodes (Job IDs) back to Job instances
+        jobs_by_id = {j.pk: j for j in all_jobs}
+
+        # build up a list of edges using Job's edge property, no edge means
+        # it's a root node
+        edges = [j.edge for j in all_jobs if j.edge]
+
+        # build a directed graph from the edges so we can get a linear
+        # representation of them
+        graph = nx.DiGraph(edges)
+
+        # convert graph to a linear iterable.  topological_sort() is a roughly
+        # linear representation of the graph.  This will, of course, fall down
+        # for graphs with multiple forks but that's a known issue.
+        return [jobs_by_id[pk] for pk in nx.topological_sort(graph)]
 
     @property
     def runtime(self):

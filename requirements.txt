@@ -19,6 +19,7 @@ click==7.1.2              # via black, litecli
 configobj==5.0.6          # via cli-helpers, litecli
 coverage==5.3             # via pytest-cov
 cryptography==3.1.1       # via social-auth-core
+decorator==4.4.2          # via networkx
 defusedxml==0.6.0         # via python3-openid, social-auth-core
 distlib==0.3.1            # via virtualenv
 dj-database-url==0.5.0    # via -r requirements.in
@@ -48,6 +49,7 @@ mccabe==0.6.1             # via flake8
 more-itertools==8.5.0     # via pytest
 multidict==4.7.6          # via aiohttp, yarl
 mypy-extensions==0.4.3    # via black
+networkx==2.5             # via -r requirements.in
 nodeenv==1.5.0            # via pre-commit
 oauthlib==3.1.0           # via requests-oauthlib, social-auth-core
 orderedmultidict==1.0.1   # via furl
