@@ -6,7 +6,7 @@ from django.utils import timezone
 from jobserver.models import Job, Workspace
 from jobserver.views import JobCreate, JobList, WorkspaceCreate, WorkspaceList
 
-from ..factories import JobFactory, UserFactory, WorkspaceFactory
+from ..factories import JobFactory, JobRequestFactory, UserFactory, WorkspaceFactory
 
 
 @pytest.mark.django_db
@@ -41,8 +41,12 @@ def test_joblist_filters_exist(rf):
 
 @pytest.mark.django_db
 def test_joblist_filter_by_status(rf):
-    JobFactory()
-    JobFactory(completed_at=timezone.now())
+    request1 = JobRequestFactory()
+    JobFactory(request=request1)
+
+    request2 = JobRequestFactory()
+    JobFactory(request=request2, completed_at=timezone.now())
+    JobFactory(request=request2, completed_at=timezone.now())
 
     request = rf.get("/?status=completed")
     response = JobList.as_view()(request)
@@ -52,11 +56,33 @@ def test_joblist_filter_by_status(rf):
 
 @pytest.mark.django_db
 def test_joblist_filter_by_status_and_workspace(rf):
-    workspace = WorkspaceFactory()
-    JobFactory(workspace=workspace, started_at=timezone.now())
-    JobFactory(workspace=workspace)
+    workspace1 = WorkspaceFactory()
+    workspace2 = WorkspaceFactory()
 
-    request = rf.get(f"/?status=in-progress&workspace={workspace.pk}")
+    # in progress
+    request1 = JobRequestFactory(workspace=workspace1)
+    JobFactory(request=request1, started_at=timezone.now())
+    JobFactory(request=request1)
+
+    # failed
+    request2 = JobRequestFactory(workspace=workspace1)
+    JobFactory(request=request2, completed_at=timezone.now())
+    JobFactory(request=request2, status_code=3)
+
+    # in progress
+    request3 = JobRequestFactory(workspace=workspace2)
+    JobFactory(request=request3, completed_at=timezone.now())
+    JobFactory(request=request3, completed_at=timezone.now())
+    JobFactory(request=request3, started_at=timezone.now())
+    JobFactory(request=request3)
+
+    # complete
+    request4 = JobRequestFactory(workspace=workspace2)
+    JobFactory(request=request4, completed_at=timezone.now())
+    JobFactory(request=request4, completed_at=timezone.now())
+    JobFactory(request=request4, completed_at=timezone.now())
+
+    request = rf.get(f"/?status=in-progress&workspace={workspace2.pk}")
     response = JobList.as_view()(request)
 
     assert len(response.context_data["object_list"]) == 1
@@ -65,8 +91,8 @@ def test_joblist_filter_by_status_and_workspace(rf):
 @pytest.mark.django_db
 def test_joblist_filter_by_workspace(rf):
     workspace = WorkspaceFactory()
-    JobFactory(workspace=workspace)
-    JobFactory()
+    JobRequestFactory(workspace=workspace)
+    JobRequestFactory()
 
     request = rf.get(f"/?workspace={workspace.pk}")
     response = JobList.as_view()(request)
@@ -76,26 +102,31 @@ def test_joblist_filter_by_workspace(rf):
 
 @pytest.mark.django_db
 def test_joblist_search_by_action(rf):
-    job1 = JobFactory(action_id="run")
-    JobFactory(action_id="leap")
+    request1 = JobRequestFactory()
+    JobFactory(request=request1, action_id="run")
+
+    request2 = JobRequestFactory()
+    JobFactory(request=request2, action_id="leap")
 
     request = rf.get("/?q=run")
     response = JobList.as_view()(request)
 
     assert len(response.context_data["object_list"]) == 1
-    assert response.context_data["object_list"][0] == job1
+    assert response.context_data["object_list"][0] == request1
 
 
 @pytest.mark.django_db
 def test_joblist_search_by_id(rf):
-    JobFactory()
-    job2 = JobFactory(id=99)
+    JobFactory(request=JobRequestFactory())
+
+    request2 = JobRequestFactory()
+    JobFactory(request=request2, id=99)
 
     request = rf.get("/?q=99")
     response = JobList.as_view()(request)
 
     assert len(response.context_data["object_list"]) == 1
-    assert response.context_data["object_list"][0] == job2
+    assert response.context_data["object_list"][0] == request2
 
 
 @pytest.mark.django_db
