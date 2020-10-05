@@ -1,0 +1,35 @@
+{% extends "base.html" %}
+
+{% load crispy_forms_tags %}
+
+{% block content %}
+
+<div class="row workspace-select">
+  <div class="col-8 offset-2">
+
+    {% if workspace_list %}
+    <p>Select a Workspace before adding a Job:</p>
+
+    <div class="list-group mb-5 overflow-auto">
+      {% for workspace in workspace_list %}
+      <a
+        class="list-group-item d-flex justify-content-between align-items-center"
+        href="{% url 'job-create' pk=workspace.pk %}">
+        <span class="mr-2">{{ workspace.name }}</span>
+        <code class="text-muted">{{ workspace.repo }}|{{ workspace.branch }}</code>
+      </a>
+      {% endfor %}
+    </div>
+
+    <p>Or create a new Workspace:</p>
+    {% else %}
+    <p>Create a Workspace:</p>
+    {% endif %}
+
+    <div class="">
+      {% crispy form %}
+    </div>
+
+  </div>
+</div>
+{% endblock content %}

@@ -1,21 +1,14 @@
+from django.contrib import messages
 from django.contrib.auth.decorators import login_required
+from django.db import transaction
 from django.db.models import Q
 from django.shortcuts import redirect
+from django.urls import reverse
 from django.utils.decorators import method_decorator
 from django.views.generic import CreateView, DetailView, ListView
 
-from .forms import JobCreateForm, WorkspaceCreateForm
+from .forms import JobRequestCreateForm, WorkspaceCreateForm
 from .models import Job, JobRequest, Workspace
-
-
-@method_decorator(login_required, name="dispatch")
-class JobCreate(CreateView):
-    form_class = JobCreateForm
-    model = Job
-    template_name = "job_create.html"
-
-    def get_success_url(self):
-        return self.object.get_absolute_url()
 
 
 class JobDetail(DetailView):
@@ -88,6 +81,37 @@ class JobList(ListView):
 
 
 @method_decorator(login_required, name="dispatch")
+class JobRequestCreate(CreateView):
+    form_class = JobRequestCreateForm
+    model = JobRequest
+    success_url = "job-list"
+    template_name = "job_create.html"
+
+    def dispatch(self, request, *args, **kwargs):
+        try:
+            self.workspace = Workspace.objects.get(pk=self.kwargs["pk"])
+        except Workspace.DoesNotExist:
+            messages.error(request, "Unknown Workspace, please pick a valid one")
+            return redirect("job-select-workspace")
+
+        return super().dispatch(request, *args, **kwargs)
+
+    @transaction.atomic
+    def form_valid(self, form):
+        # pop backends as it's not field on JobRequest
+        backends = form.cleaned_data.pop("backends")
+        for backend in backends:
+            JobRequest.objects.create(
+                workspace=self.workspace,
+                created_by=self.request.user,
+                backend=backend,
+                **form.cleaned_data,
+            )
+
+        return redirect("job-list")
+
+
+@method_decorator(login_required, name="dispatch")
 class WorkspaceCreate(CreateView):
     form_class = WorkspaceCreateForm
     model = Workspace
@@ -117,3 +141,18 @@ class WorkspaceList(ListView):
             return redirect("workspace-create")
 
         return response
+
+
+@method_decorator(login_required, name="dispatch")
+class WorkspaceSelectOrCreate(CreateView):
+    form_class = WorkspaceCreateForm
+    model = Workspace
+    template_name = "workspace_select.html"
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context["workspace_list"] = Workspace.objects.order_by("name")
+        return context
+
+    def get_success_url(self):
+        return reverse("job-create", kwargs={"pk": self.object.pk})

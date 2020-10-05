@@ -42,6 +42,14 @@ header {
 }
 
 
+.workspace-select .list-group {
+  border-top: 2px solid #dee2e6;
+  border-right: 1px solid #dee2e6;
+  border-bottom: 2px solid #dee2e6;
+  border-left: 1px solid #dee2e6;
+  max-height: 375px;
+}
+
 .filters .list-group-item {
   padding: 0;
 }
