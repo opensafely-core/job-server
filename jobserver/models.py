@@ -5,6 +5,7 @@ import requests
 from django.contrib.auth.models import AbstractUser
 from django.db import models
 from django.urls import reverse
+from first import first
 
 from .runtime import Runtime
 
@@ -216,6 +217,16 @@ class JobRequest(models.Model):
     created_at = models.DateTimeField(auto_now_add=True)
 
     @property
+    def completed_at(self):
+        if not self.ordered_jobs:
+            return
+
+        if not self.is_complete:
+            return
+
+        return first(reversed(self.ordered_jobs)).completed_at
+
+    @property
     def is_complete(self):
         return all(j.is_complete for j in self.jobs.all())
 
@@ -239,6 +250,32 @@ class JobRequest(models.Model):
     @property
     def is_pending(self):
         return all(j.is_pending for j in self.jobs.all())
+
+    @property
+    def num_completed(self):
+        return len([j for j in self.jobs.all() if j.is_complete])
+
+    @property
+    def runtime(self):
+        if self.started_at is None:
+            return
+
+        if self.completed_at is None:
+            return
+
+        delta = self.completed_at - self.started_at
+
+        hours, remainder = divmod(delta.total_seconds(), 3600)
+        minutes, seconds = divmod(remainder, 60)
+
+        return Runtime(int(hours), int(minutes), int(seconds))
+
+    @property
+    def started_at(self):
+        if not self.ordered_jobs:
+            return
+
+        return first(self.ordered_jobs).started_at
 
     @property
     def status(self):

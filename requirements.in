@@ -4,6 +4,7 @@ django-crispy-forms
 django-filter
 django-rest-framework
 django-structlog
+first
 furl
 gunicorn
 requests
