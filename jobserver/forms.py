@@ -25,7 +25,6 @@ class JobCreateForm(forms.ModelForm):
 
 class WorkspaceCreateForm(forms.ModelForm):
     class Meta:
-
         fields = [
             "name",
             "repo",
@@ -34,6 +33,12 @@ class WorkspaceCreateForm(forms.ModelForm):
             "db",
         ]
         model = Workspace
+        widgets = {
+            "name": forms.TextInput(),
+            "repo": forms.TextInput(),
+            "branch": forms.TextInput(),
+            "owner": forms.TextInput(),
+        }
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
