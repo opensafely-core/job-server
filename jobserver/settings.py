@@ -12,6 +12,7 @@ https://docs.djangoproject.com/en/3.0/ref/settings/
 import os
 
 import dj_database_url
+from django.contrib.messages import constants as messages
 from django.urls import reverse_lazy
 
 from services.logging import logging_config_dict
@@ -147,6 +148,17 @@ LOGIN_URL = reverse_lazy("social:begin", kwargs={"backend": "github"})
 SOCIAL_AUTH_GITHUB_KEY = os.getenv("SOCIAL_AUTH_GITHUB_KEY")
 SOCIAL_AUTH_GITHUB_SECRET = os.getenv("SOCIAL_AUTH_GITHUB_SECRET")
 SOCIAL_AUTH_GITHUB_SCOPE = ["user:email"]
+
+
+# Messages
+# https://docs.djangoproject.com/en/3.0/ref/contrib/messages/
+MESSAGE_TAGS = {
+    messages.DEBUG: "alert-info",
+    messages.INFO: "alert-info",
+    messages.SUCCESS: "alert-success",
+    messages.WARNING: "alert-warning",
+    messages.ERROR: "alert-danger",
+}
 
 
 # THIRD PARTY SETTINGS
