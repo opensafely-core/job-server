@@ -1,3 +1,11 @@
+DEBUG=1
+
+# A long random string
 OPENSAFELY_JOB_SERVER_SECRET_KEY=12345
+
 OPENSAFELY_QUEUE_USER=test
 OPENSAFELY_QUEUE_PASS=test
+
+# Get these from a GitHub Org admin, you want the Dev application credentials
+SOCIAL_AUTH_GITHUB_KEY=foo
+SOCIAL_AUTH_GITHUB_SECRET=bar
