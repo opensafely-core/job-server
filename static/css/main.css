@@ -2,6 +2,46 @@ header {
   padding: .5rem 1rem;
 }
 
+.job-list .job-request {
+  border-bottom: 2px solid #dee2e6;
+}
+.job-list .job-request:nth-child(2) {
+  border-top: 2px solid #dee2e6;
+}
+.job-list .headers .status,
+.job-list .job-request .status {
+  margin-left: .5rem;
+  margin-right: 1rem;
+  width: 16px;
+}
+.job-list .headers .workspace,
+.job-list .job-request .workspace {
+  margin-right: .5rem;
+  width: 10%;
+}
+.job-list .headers .jobs,
+.job-list .job-request .jobs {
+  margin-right: .5rem;
+  width: 5%;
+}
+.job-list .headers .action,
+.job-list .job-request .action {
+  margin-right: .5rem;
+  width: 15%;
+}
+.job-list .headers .started-at,
+.job-list .job-request .started-at {
+  margin-right: .5rem;
+  width: 20%;
+}
+.job-list .headers .runtime,
+.job-list .job-request .runtime {
+  margin-right: .5rem;
+  min-width: 206px;
+  flex-grow: 1;
+}
+
+
 .filters .list-group-item {
   padding: 0;
 }
