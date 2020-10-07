@@ -19,7 +19,7 @@ from django.urls import include, path
 from django.views.generic import RedirectView
 from rest_framework import routers
 
-from .api_views import JobViewSet, WorkspaceViewSet
+from .api import JobViewSet, WorkspaceViewSet
 from .views import (
     JobDetail,
     JobList,
