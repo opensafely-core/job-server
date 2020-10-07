@@ -13,7 +13,6 @@ class JobCreateForm(forms.ModelForm):
             "force_run",
             "force_run_dependencies",
             "action_id",
-            "backend",
             "callback_url",
         ]
         model = Job

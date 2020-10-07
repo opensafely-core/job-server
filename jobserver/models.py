@@ -45,7 +45,6 @@ class Job(models.Model):
     force_run_dependencies = models.BooleanField(default=False)
     started = models.BooleanField(default=False)
     action_id = models.TextField()
-    backend = models.TextField(db_index=True)
     status_code = models.IntegerField(null=True, blank=True)
     status_message = models.TextField(null=True, blank=True)
     created_at = models.DateTimeField(auto_now_add=True)
