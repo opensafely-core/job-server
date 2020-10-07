@@ -4,7 +4,7 @@ from django.urls import reverse
 from django.utils import timezone
 
 from jobserver.models import Job, Workspace
-from jobserver.views import JobCreate, JobList, Login, WorkspaceCreate, WorkspaceList
+from jobserver.views import JobCreate, JobList, WorkspaceCreate, WorkspaceList
 
 from ..factories import JobFactory, UserFactory, WorkspaceFactory
 
@@ -96,13 +96,6 @@ def test_joblist_search_by_id(rf):
 
     assert len(response.context_data["object_list"]) == 1
     assert response.context_data["object_list"][0] == job2
-
-
-def test_login(rf):
-    request = rf.get("/")
-    response = Login.as_view()(request)
-
-    assert "form_helper" in response.context_data
 
 
 @pytest.mark.django_db

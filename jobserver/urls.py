@@ -24,7 +24,6 @@ from .views import (
     JobCreate,
     JobDetail,
     JobList,
-    Login,
     WorkspaceCreate,
     WorkspaceDetail,
     WorkspaceList,
@@ -38,12 +37,12 @@ router.register(r"workspaces", WorkspaceViewSet, "workspaces")
 
 urlpatterns = [
     path("", RedirectView.as_view(pattern_name="job-list")),
+    path("", include("social_django.urls", namespace="social")),
     path("api/", include(router.urls)),
     path("api-auth/", include("rest_framework.urls")),
     path("jobs/", JobList.as_view(), name="job-list"),
     path("jobs/new/", JobCreate.as_view(), name="job-create"),
     path("jobs/<pk>/", JobDetail.as_view(), name="job-detail"),
-    path("login/", Login.as_view(), name="login"),
     path("logout/", LogoutView.as_view(), name="logout"),
     path("workspaces/", WorkspaceList.as_view(), name="workspace-list"),
     path("workspaces/new/", WorkspaceCreate.as_view(), name="workspace-create"),

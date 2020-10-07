@@ -1,11 +1,10 @@
 from django.contrib.auth.decorators import login_required
-from django.contrib.auth.views import LoginView
 from django.db.models import Q
 from django.shortcuts import redirect
 from django.utils.decorators import method_decorator
 from django.views.generic import CreateView, DetailView, ListView
 
-from .forms import JobCreateForm, LoginFormHelper, WorkspaceCreateForm
+from .forms import JobCreateForm, WorkspaceCreateForm
 from .models import Job, Workspace
 
 
@@ -65,15 +64,6 @@ class JobList(ListView):
             qs = qs.filter(workspace_id=workspace)
 
         return qs
-
-
-class Login(LoginView):
-    template_name = "login.html"
-
-    def get_context_data(self, **kwargs):
-        context = super().get_context_data(**kwargs)
-        context["form_helper"] = LoginFormHelper()
-        return context
 
 
 @method_decorator(login_required, name="dispatch")

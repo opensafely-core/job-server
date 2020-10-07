@@ -9,6 +9,7 @@ gunicorn
 requests
 sentry-sdk
 slackclient
+social-auth-app-django
 whitenoise
 
 # dev requirements

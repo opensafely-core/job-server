@@ -4,7 +4,7 @@ from datetime import timedelta
 from django.core.management.base import BaseCommand
 from django.utils import timezone
 
-from jobserver.api.models import Job, Workspace
+from jobserver.models import Job, Workspace
 
 
 class Command(BaseCommand):
