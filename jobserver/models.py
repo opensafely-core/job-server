@@ -237,6 +237,9 @@ class JobRequest(models.Model):
 
     @property
     def is_complete(self):
+        if not self.jobs.exists():
+            return False
+
         return all(j.is_complete for j in self.jobs.all())
 
     @property
