@@ -3,36 +3,25 @@ from django.contrib.auth.models import AnonymousUser
 from django.urls import reverse
 from django.utils import timezone
 
-from jobserver.models import Job, Workspace
-from jobserver.views import JobCreate, JobList, WorkspaceCreate, WorkspaceList
+from jobserver.models import JobRequest, Workspace
+from jobserver.views import (
+    JobList,
+    JobRequestCreate,
+    WorkspaceCreate,
+    WorkspaceList,
+    WorkspaceSelectOrCreate,
+)
 
 from ..factories import JobFactory, JobRequestFactory, UserFactory, WorkspaceFactory
 
 
-@pytest.mark.django_db
-def test_jobcreate_redirects_to_new_job(rf):
-    data = {
-        "workspace": WorkspaceFactory().pk,
-        "force_run": "test",
-        "force_run_dependencies": "test",
-        "action_id": "test",
-        "backend": "test",
-        "callback_url": "test",
-    }
-
-    request = rf.post("/", data)
-    request.user = UserFactory()
-    response = JobCreate.as_view()(request)
-
-    assert response.status_code == 302
-
-    pk = Job.objects.first().pk
-    assert response.url == reverse("job-detail", kwargs={"pk": pk})
+MEANINGLESS_URL = "/"
 
 
 @pytest.mark.django_db
 def test_joblist_filters_exist(rf):
-    request = rf.get("/")
+    # Build a RequestFactory instance
+    request = rf.get(MEANINGLESS_URL)
     response = JobList.as_view()(request)
 
     assert "statuses" in response.context_data
@@ -48,6 +37,7 @@ def test_joblist_filter_by_status(rf):
     JobFactory(request=request2, completed_at=timezone.now())
     JobFactory(request=request2, completed_at=timezone.now())
 
+    # Build a RequestFactory instance
     request = rf.get("/?status=completed")
     response = JobList.as_view()(request)
 
@@ -82,6 +72,7 @@ def test_joblist_filter_by_status_and_workspace(rf):
     JobFactory(request=request4, completed_at=timezone.now())
     JobFactory(request=request4, completed_at=timezone.now())
 
+    # Build a RequestFactory instance
     request = rf.get(f"/?status=in-progress&workspace={workspace2.pk}")
     response = JobList.as_view()(request)
 
@@ -94,6 +85,7 @@ def test_joblist_filter_by_workspace(rf):
     JobRequestFactory(workspace=workspace)
     JobRequestFactory()
 
+    # Build a RequestFactory instance
     request = rf.get(f"/?workspace={workspace.pk}")
     response = JobList.as_view()(request)
 
@@ -108,6 +100,7 @@ def test_joblist_search_by_action(rf):
     request2 = JobRequestFactory()
     JobFactory(request=request2, action_id="leap")
 
+    # Build a RequestFactory instance
     request = rf.get("/?q=run")
     response = JobList.as_view()(request)
 
@@ -122,11 +115,90 @@ def test_joblist_search_by_id(rf):
     request2 = JobRequestFactory()
     JobFactory(request=request2, id=99)
 
+    # Build a RequestFactory instance
     request = rf.get("/?q=99")
     response = JobList.as_view()(request)
 
     assert len(response.context_data["object_list"]) == 1
     assert response.context_data["object_list"][0] == request2
+
+
+@pytest.mark.django_db
+def test_jobrequestcreate_success_with_one_backend(rf):
+    user = UserFactory()
+    workspace = WorkspaceFactory()
+
+    data = {
+        "requested_action": "twiddle",
+        "backends": "tpp",
+        "callback_url": "test",
+    }
+
+    # Build a RequestFactory instance
+    request = rf.post(MEANINGLESS_URL, data)
+    request.user = user
+    response = JobRequestCreate.as_view()(request, pk=workspace.pk)
+
+    assert response.status_code == 302, response.context_data["form"].errors
+    assert response.url == reverse("job-list")
+
+    job_request = JobRequest.objects.first()
+    assert job_request.created_by == user
+    assert job_request.workspace == workspace
+    assert job_request.backend == "tpp"
+    assert job_request.requested_action == "twiddle"
+    assert not job_request.jobs.exists()
+
+
+@pytest.mark.django_db
+def test_jobrequestcreate_success_with_all_backends(rf):
+    user = UserFactory()
+    workspace = WorkspaceFactory()
+
+    data = {
+        "requested_action": "twiddle",
+        "backends": "all",
+        "callback_url": "test",
+    }
+
+    # Build a RequestFactory instance
+    request = rf.post(MEANINGLESS_URL, data)
+    request.user = user
+    response = JobRequestCreate.as_view()(request, pk=workspace.pk)
+
+    assert response.status_code == 302, response.context_data["form"].errors
+    assert response.url == reverse("job-list")
+
+    job_requests = JobRequest.objects.all()
+
+    assert len(job_requests) == 2
+
+    job_request1 = job_requests[0]
+    assert job_request1.created_by == user
+    assert job_request1.workspace == workspace
+    assert job_request1.backend == "emis"
+    assert job_request1.requested_action == "twiddle"
+    assert not job_request1.jobs.exists()
+
+    job_request2 = job_requests[1]
+    assert job_request2.created_by == user
+    assert job_request2.workspace == workspace
+    assert job_request2.backend == "tpp"
+    assert job_request2.requested_action == "twiddle"
+    assert not job_request2.jobs.exists()
+
+
+@pytest.mark.django_db
+def test_jobrequestcreate_unknown_workspace_redirects_to_select_workspace_form(client):
+    client.force_login(UserFactory())
+    response = client.post("/jobs/new/0/", follow=True)
+
+    assert response.status_code == 200
+    assert response.redirect_chain == [(reverse("job-select-workspace"), 302)]
+
+    messages = list(response.context["messages"])
+    assert len(messages) == 1
+    assert str(messages[0]) == "Unknown Workspace, please pick a valid one"
 
 
 @pytest.mark.django_db
@@ -139,7 +211,8 @@ def test_workspacecreate_redirects_to_new_workspace(rf):
         "db": "dummy",
     }
 
-    request = rf.post("/", data)
+    # Build a RequestFactory instance
+    request = rf.post(MEANINGLESS_URL, data)
     request.user = UserFactory()
     response = WorkspaceCreate.as_view()(request)
 
@@ -157,7 +230,8 @@ def test_workspacelist_redirects_user_without_workspaces(rf):
     Authenticated users can add workspaces so we want them to be redirected to
     the workspace create page when there aren't any to show in the list page.
     """
-    request = rf.get("/")
+    # Build a RequestFactory instance
+    request = rf.get(MEANINGLESS_URL)
     request.user = UserFactory()
     response = WorkspaceList.as_view()(request)
 
@@ -174,8 +248,42 @@ def test_workspacelist_does_not_redirect_anon_users(rf):
     create page would be a poor experience.  Instead show them the empty
     workspace list page.
     """
-    request = rf.get("/")
+    # Build a RequestFactory instance
+    request = rf.get(MEANINGLESS_URL)
     request.user = AnonymousUser()
     response = WorkspaceList.as_view()(request)
 
     assert response.status_code == 200
+
+
+@pytest.mark.django_db
+def test_workspaceselectorcreate_redirects_to_new_workspace(rf):
+    data = {
+        "name": "Test",
+        "repo": "test",
+        "branch": "test",
+        "owner": "test",
+        "db": "dummy",
+    }
+    # Build a RequestFactory instance
+    request = rf.post(MEANINGLESS_URL, data)
+    request.user = UserFactory()
+    response = WorkspaceSelectOrCreate.as_view()(request)
+
+    assert response.status_code == 302
+
+    pk = Workspace.objects.first().pk
+    assert response.url == reverse("job-create", kwargs={"pk": pk})
+
+
+@pytest.mark.django_db
+def test_workspaceselectorcreate_success(rf):
+    WorkspaceFactory()
+    WorkspaceFactory()
+
+    # Build a RequestFactory instance
+    request = rf.get(MEANINGLESS_URL)
+    request.user = UserFactory()
+    response = WorkspaceSelectOrCreate.as_view()(request)
+    assert response.status_code == 200
+    assert len(response.context_data["workspace_list"]) == 2

@@ -21,12 +21,13 @@ from rest_framework import routers
 
 from .api_views import JobViewSet, WorkspaceViewSet
 from .views import (
-    JobCreate,
     JobDetail,
     JobList,
+    JobRequestCreate,
     WorkspaceCreate,
     WorkspaceDetail,
     WorkspaceList,
+    WorkspaceSelectOrCreate,
 )
 
 
@@ -41,7 +42,8 @@ urlpatterns = [
     path("api/", include(router.urls)),
     path("api-auth/", include("rest_framework.urls")),
     path("jobs/", JobList.as_view(), name="job-list"),
-    path("jobs/new/", JobCreate.as_view(), name="job-create"),
+    path("jobs/new/", WorkspaceSelectOrCreate.as_view(), name="job-select-workspace"),
+    path("jobs/new/<pk>/", JobRequestCreate.as_view(), name="job-create"),
     path("jobs/<pk>/", JobDetail.as_view(), name="job-detail"),
     path("logout/", LogoutView.as_view(), name="logout"),
     path("workspaces/", WorkspaceList.as_view(), name="workspace-list"),

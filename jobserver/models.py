@@ -44,7 +44,6 @@ class JobQuerySet(models.QuerySet):
 
 class Job(models.Model):
     force_run = models.BooleanField(default=False)
-    force_run_dependencies = models.BooleanField(default=False)
     started = models.BooleanField(default=False)
     action_id = models.TextField()
     status_code = models.IntegerField(null=True, blank=True)
@@ -52,7 +51,6 @@ class Job(models.Model):
     created_at = models.DateTimeField(auto_now_add=True)
     started_at = models.DateTimeField(null=True, blank=True)
     completed_at = models.DateTimeField(null=True, blank=True)
-    callback_url = models.TextField(null=True, blank=True)
     needed_by = models.ForeignKey(
         "self", null=True, blank=True, on_delete=models.SET_NULL
     )
@@ -122,7 +120,7 @@ class Job(models.Model):
         return False
 
     def notify_callback_url(self):
-        if not self.callback_url:
+        if not self.request.callback_url:
             return
 
         # A new dependency has been added; notify the originating thread
@@ -136,7 +134,7 @@ class Job(models.Model):
         else:
             return
 
-        requests.post(self.callback_url, json={"message": status})
+        requests.post(self.request.callback_url, json={"message": status})
 
     @property
     def runtime(self):
@@ -219,8 +217,11 @@ class JobRequest(models.Model):
         "Workspace", on_delete=models.CASCADE, related_name="job_requests"
     )
 
-    requested_action = models.TextField()
     backend = models.TextField(choices=BACKEND_CHOICES, db_index=True)
+    force_run = models.BooleanField(default=False)
+    force_run_dependencies = models.BooleanField(default=False)
+    requested_action = models.TextField()
+    callback_url = models.TextField(null=True, blank=True)
 
     created_at = models.DateTimeField(auto_now_add=True)
 
@@ -268,6 +269,9 @@ class JobRequest(models.Model):
         """Order this JobRequest's Jobs based on their dependencies."""
         # cache jobs QuerySet to memory to avoid further queries
         all_jobs = list(self.jobs.all())
+
+        if len(all_jobs) == 1:
+            return [first(all_jobs)]
 
         # create a lookup table of Job ID -> Job so we can convert the graph
         # nodes (Job IDs) back to Job instances
