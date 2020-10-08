@@ -197,6 +197,319 @@ def test_job_status_unstarted_is_pending():
 
 
 @pytest.mark.django_db
+def test_jobrequest_completed_at_no_jobs():
+    assert not JobRequestFactory().completed_at
+
+
+@pytest.mark.django_db
+def test_jobrequest_completed_at_success():
+    request = JobRequestFactory()
+
+    job1 = JobFactory(request=request, completed_at=timezone.now())
+    job2 = JobFactory(request=request, completed_at=timezone.now())
+
+    job1.needed_by = job2
+    job1.save()
+
+    assert request.completed_at == job2.completed_at
+
+
+@pytest.mark.django_db
+def test_jobrequest_completed_at_while_incomplete():
+    request = JobRequestFactory()
+
+    job1 = JobFactory(request=request, completed_at=timezone.now())
+    job2 = JobFactory(request=request)
+
+    job1.needed_by = job2
+    job1.save()
+
+    assert not request.completed_at
+
+
+@pytest.mark.django_db
+def test_jobrequest_is_complete_no_jobs():
+    assert not JobRequestFactory().is_complete
+
+
+@pytest.mark.django_db
+def test_jobrequest_is_complete_success():
+    request = JobRequestFactory()
+
+    job1 = JobFactory(request=request, completed_at=timezone.now())
+    job2 = JobFactory(request=request, completed_at=timezone.now())
+    job3 = JobFactory(request=request, completed_at=timezone.now())
+    job4 = JobFactory(request=request, completed_at=timezone.now())
+
+    # set up hierarchy
+    job1.needed_by = job2
+    job1.save()
+
+    job2.needed_by = job4
+    job2.save()
+
+    job3.needed_by = job4
+    job3.save()
+
+    assert request.is_complete
+
+
+@pytest.mark.django_db
+def test_jobrequest_is_failed_jobs_still_running():
+    request = JobRequestFactory()
+
+    job1 = JobFactory(request=request, completed_at=timezone.now())
+    job2 = JobFactory(request=request, completed_at=timezone.now(), status_code=3)
+    job3 = JobFactory(request=request, completed_at=timezone.now())
+    job4 = JobFactory(request=request)
+
+    # set up hierarchy
+    job1.needed_by = job2
+    job1.save()
+
+    job2.needed_by = job4
+    job2.save()
+
+    job3.needed_by = job4
+    job3.save()
+
+    assert not request.is_failed
+
+
+@pytest.mark.django_db
+def test_jobrequest_is_failed_no_jobs():
+    assert not JobRequestFactory().is_failed
+
+
+@pytest.mark.django_db
+def test_jobrequest_is_failed_success():
+    request = JobRequestFactory()
+
+    job1 = JobFactory(request=request, completed_at=timezone.now())
+    job2 = JobFactory(request=request, completed_at=timezone.now(), status_code=3)
+    job3 = JobFactory(request=request, completed_at=timezone.now())
+    job4 = JobFactory(request=request, completed_at=timezone.now())
+
+    # set up hierarchy
+    job1.needed_by = job2
+    job1.save()
+
+    job2.needed_by = job4
+    job2.save()
+
+    job3.needed_by = job4
+    job3.save()
+
+    assert request.is_failed
+
+
+@pytest.mark.django_db
+def test_jobrequest_is_pending_no_jobs():
+    assert JobRequestFactory().is_pending
+
+
+@pytest.mark.django_db
+def test_jobrequest_is_pending_success():
+    request = JobRequestFactory()
+
+    job1 = JobFactory(request=request)
+    job2 = JobFactory(request=request)
+    job3 = JobFactory(request=request)
+    job4 = JobFactory(request=request)
+
+    # set up hierarchy
+    job1.needed_by = job2
+    job1.save()
+
+    job2.needed_by = job4
+    job2.save()
+
+    job3.needed_by = job4
+    job3.save()
+
+    assert request.is_pending
+
+
+@pytest.mark.django_db
+def test_jobrequest_num_completed_no_jobs():
+    assert JobRequestFactory().num_completed == 0
+
+
+@pytest.mark.django_db
+def test_jobrequest_num_completed_success():
+    request = JobRequestFactory()
+
+    job1 = JobFactory(request=request, completed_at=timezone.now())
+    job2 = JobFactory(request=request, completed_at=timezone.now())
+
+    job1.needed_by = job2
+    job1.save()
+
+    assert request.num_completed == 2
+
+
+@pytest.mark.django_db
+def test_jobrequest_ordered_jobs_no_jobs():
+    assert JobRequestFactory().ordered_jobs == []
+
+
+@pytest.mark.django_db
+def test_jobrequest_ordered_jobs_one_job():
+    request = JobRequestFactory()
+
+    job = JobFactory(request=request)
+
+    assert request.ordered_jobs == [job]
+
+
+@pytest.mark.django_db
+def test_jobrequest_ordered_jobs_success():
+    request = JobRequestFactory()
+
+    job1 = JobFactory(request=request, completed_at=timezone.now())
+    job2 = JobFactory(request=request, completed_at=timezone.now(), status_code=3)
+    job3 = JobFactory(request=request, completed_at=timezone.now())
+    job4 = JobFactory(request=request, completed_at=timezone.now())
+
+    # set up hierarchy
+    job1.needed_by = job2
+    job1.save()
+
+    job2.needed_by = job4
+    job2.save()
+
+    job3.needed_by = job4
+    job3.save()
+
+    assert len(request.ordered_jobs) == 4
+    assert request.ordered_jobs == [job3, job1, job2, job4]
+
+
+@pytest.mark.django_db
+def test_jobrequest_runtime_no_jobs():
+    assert not JobRequestFactory().runtime
+
+
+@pytest.mark.django_db
+def test_jobrequest_runtime_not_completed():
+    request = JobRequestFactory()
+
+    job1 = JobFactory(
+        request=request,
+        started_at=timezone.now() - timedelta(minutes=1),
+        completed_at=timezone.now(),
+    )
+    job2 = JobFactory(request=request)
+
+    job1.needed_by = job2
+    job1.save()
+
+    assert request.started_at
+    assert not request.runtime
+
+
+@pytest.mark.django_db
+def test_jobrequest_runtime_not_started():
+    request = JobRequestFactory()
+
+    JobFactory(request=request)
+    JobFactory(request=request)
+
+    assert not request.runtime
+
+
+@pytest.mark.django_db
+def test_jobrequest_runtime_success():
+    request = JobRequestFactory()
+
+    start = timezone.now() - timedelta(hours=1)
+
+    job1 = JobFactory(
+        request=request,
+        started_at=start,
+        completed_at=start + timedelta(minutes=1),
+    )
+    job2 = JobFactory(
+        request=request,
+        started_at=start + timedelta(minutes=2),
+        completed_at=start + timedelta(minutes=3),
+    )
+
+    # set up hierarchy
+    job1.needed_by = job2
+    job1.save()
+
+    assert request.runtime
+
+
+@pytest.mark.django_db
+def test_jobrequest_started_at_no_jobs():
+    assert not JobRequestFactory().started_at
+
+
+@pytest.mark.django_db
+def test_jobrequest_started_at_success():
+    request = JobRequestFactory()
+
+    job1 = JobFactory(request=request, started_at=timezone.now())
+    job2 = JobFactory(request=request, started_at=timezone.now())
+
+    job1.needed_by = job2
+    job1.save()
+
+    assert request.started_at
+
+
+@pytest.mark.django_db
+def test_jobrequest_status_completed():
+    request = JobRequestFactory()
+
+    job1 = JobFactory(request=request, completed_at=timezone.now())
+    job2 = JobFactory(request=request, completed_at=timezone.now())
+
+    job1.needed_by = job2
+    job1.save()
+
+    assert request.status == "Completed"
+
+
+@pytest.mark.django_db
+def test_jobrequest_status_fall_through():
+    assert JobRequestFactory().status == "Pending"
+
+
+@pytest.mark.django_db
+def test_jobrequest_status_failed():
+    request = JobRequestFactory()
+
+    job1 = JobFactory(request=request, completed_at=timezone.now())
+    job2 = JobFactory(request=request, status_code=3)
+
+    job1.needed_by = job2
+    job1.save()
+
+    assert request.status == "Failed"
+
+
+@pytest.mark.django_db
+def test_jobrequest_status_in_progress():
+    request = JobRequestFactory()
+
+    job1 = JobFactory(request=request, completed_at=timezone.now())
+    job2 = JobFactory(request=request, started_at=timezone.now())
+
+    job1.needed_by = job2
+    job1.save()
+
+    assert request.status == "In Progress"
+
+
+@pytest.mark.django_db
+def test_jobrequest_status_pending():
+    assert JobRequestFactory().status == "Pending"
+
+
+@pytest.mark.django_db
 def test_jobqueryset():
     JobFactory()
     JobFactory(started_at=timezone.now())
