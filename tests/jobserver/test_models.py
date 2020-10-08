@@ -7,7 +7,7 @@ from django.utils import timezone
 
 from jobserver.models import Job
 
-from ..factories import JobFactory, WorkspaceFactory
+from ..factories import JobFactory, JobRequestFactory, WorkspaceFactory
 
 
 @pytest.mark.django_db
@@ -24,8 +24,9 @@ def test_job_get_absolute_url():
 def test_job_notify_callback_url_action_failed():
     responses.add(responses.POST, "http://example.com", status=201)
 
+    request = JobRequestFactory(callback_url="http://example.com")
     JobFactory(
-        callback_url="http://example.com",
+        request=request,
         action_id="Research",
         completed_at=timezone.now(),
         started=True,
@@ -45,8 +46,9 @@ def test_job_notify_callback_url_action_failed():
 def test_job_notify_callback_url_action_finished():
     responses.add(responses.POST, "http://example.com", status=201)
 
+    request = JobRequestFactory(callback_url="http://example.com")
     JobFactory(
-        callback_url="http://example.com",
+        request=request,
         action_id="Research",
         completed_at=timezone.now(),
         started=True,
@@ -65,8 +67,9 @@ def test_job_notify_callback_url_starting_dependency():
 
     parent = JobFactory()
 
+    request = JobRequestFactory(callback_url="http://example.com")
     job = JobFactory(
-        callback_url="http://example.com",
+        request=request,
         action_id="Research",
         needed_by=parent,
         started=False,
@@ -83,7 +86,8 @@ def test_job_notify_callback_url_starting_dependency():
 def test_job_notify_callback_url_started_with_no_parent():
     responses.add(responses.POST, "http://example.com", status=201)
 
-    JobFactory(callback_url="http://example.com", started=False)
+    request = JobRequestFactory(callback_url="http://example.com")
+    JobFactory(request=request, started=False)
 
     assert len(responses.calls) == 0
 
@@ -93,7 +97,8 @@ def test_job_notify_callback_url_started_with_no_parent():
 def test_job_notify_callback_url_with_no_callback_url():
     responses.add(responses.POST, "http://example.com", status=201)
 
-    JobFactory()
+    request = JobRequestFactory()
+    JobFactory(request=request)
 
     assert len(responses.calls) == 0
 
