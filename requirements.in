@@ -8,6 +8,7 @@ first
 furl
 gunicorn
 networkx
+pyyaml
 requests
 sentry-sdk
 slackclient
