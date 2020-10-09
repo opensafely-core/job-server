@@ -557,3 +557,17 @@ def test_workspace_get_absolute_url():
     workspace = WorkspaceFactory()
     url = workspace.get_absolute_url()
     assert url == reverse("workspace-detail", kwargs={"pk": workspace.pk})
+
+
+@pytest.mark.django_db
+def test_workspace_repo_name_no_path():
+    workspace = WorkspaceFactory(repo="http://example.com")
+
+    with pytest.raises(Exception, match="not in expected format"):
+        workspace.repo_name
+
+
+@pytest.mark.django_db
+def test_workspace_repo_name_success():
+    workspace = WorkspaceFactory(repo="http://example.com/foo/test")
+    assert workspace.repo_name == "test"

@@ -5,7 +5,7 @@ from jobserver.forms import JobRequestCreateForm
 
 
 def test_jobrequestcreateform_all_backends():
-    form = JobRequestCreateForm("")
+    form = JobRequestCreateForm(data="", actions=["test"])
     form.cleaned_data = {"backends": "all"}
 
     output = form.clean_backends()
@@ -13,7 +13,7 @@ def test_jobrequestcreateform_all_backends():
 
 
 def test_jobrequestcreateform_one_backend():
-    form = JobRequestCreateForm()
+    form = JobRequestCreateForm(actions=["test"])
     form.cleaned_data = {"backends": "tpp"}
 
     output = form.clean_backends()
@@ -21,7 +21,7 @@ def test_jobrequestcreateform_one_backend():
 
 
 def test_jobrequestcreateform_unknown_backend():
-    form = JobRequestCreateForm()
+    form = JobRequestCreateForm(actions=["test"])
     form.cleaned_data = {"backends": "test"}
 
     with pytest.raises(ValidationError):

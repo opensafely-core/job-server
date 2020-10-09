@@ -1,3 +1,5 @@
+from unittest.mock import patch
+
 import pytest
 from django.contrib.auth.models import AnonymousUser
 from django.urls import reverse
@@ -177,7 +179,9 @@ def test_jobrequestcreate_success_with_one_backend(rf):
     # Build a RequestFactory instance
     request = rf.post(MEANINGLESS_URL, data)
     request.user = user
-    response = JobRequestCreate.as_view()(request, pk=workspace.pk)
+
+    with patch("jobserver.views.get_actions", new=lambda *args: ["twiddle"]):
+        response = JobRequestCreate.as_view()(request, pk=workspace.pk)
 
     assert response.status_code == 302, response.context_data["form"].errors
     assert response.url == reverse("job-list")
@@ -204,7 +208,11 @@ def test_jobrequestcreate_success_with_all_backends(rf):
     # Build a RequestFactory instance
     request = rf.post(MEANINGLESS_URL, data)
     request.user = user
-    response = JobRequestCreate.as_view()(request, pk=workspace.pk)
+
+    with patch(
+        "jobserver.views.get_actions", new=lambda *args: ["frobnicate", "twiddle"]
+    ):
+        response = JobRequestCreate.as_view()(request, pk=workspace.pk)
 
     assert response.status_code == 302, response.context_data["form"].errors
     assert response.url == reverse("job-list")
@@ -322,7 +330,6 @@ def test_workspaceselectorcreate_redirects_to_new_workspace(rf):
 def test_workspaceselectorcreate_success(rf):
     WorkspaceFactory()
     WorkspaceFactory()
-
     # Build a RequestFactory instance
     request = rf.get(MEANINGLESS_URL)
     request.user = UserFactory()

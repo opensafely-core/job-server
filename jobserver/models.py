@@ -7,6 +7,7 @@ from django.contrib.auth.models import AbstractUser
 from django.db import models
 from django.urls import reverse
 from first import first
+from furl import furl
 
 from .runtime import Runtime
 
@@ -32,6 +33,16 @@ class Workspace(models.Model):
 
     def get_absolute_url(self):
         return reverse("workspace-detail", kwargs={"pk": self.pk})
+
+    @property
+    def repo_name(self):
+        """Convert repo URL -> repo name"""
+        f = furl(self.repo)
+
+        if not f.path:
+            raise Exception("Repo URL not in expected format, appears to have no path")
+
+        return f.path.segments[-1]
 
 
 class JobQuerySet(models.QuerySet):

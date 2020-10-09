@@ -31,6 +31,8 @@ class WorkspaceFactory(factory.django.DjangoModelFactory):
     class Meta:
         model = Workspace
 
+    repo = factory.Sequence(lambda n: "http://example.com/org-{n}/repo-{n}")
+
 
 class UserFactory(factory.django.DjangoModelFactory):
     class Meta:

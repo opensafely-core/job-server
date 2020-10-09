@@ -8,6 +8,7 @@ from django.views.generic import CreateView, DetailView, ListView
 
 from .forms import JobRequestCreateForm, WorkspaceCreateForm
 from .models import Job, JobRequest, User, Workspace
+from .project import get_actions
 
 
 def filter_by_status(job_requests, status):
@@ -180,6 +181,15 @@ class JobRequestCreate(CreateView):
             )
 
         return redirect("job-list")
+
+    def get_form_kwargs(self):
+        # build up a list of actions from the Workspace's project.yaml for the
+        # User to pick from
+        actions = get_actions(self.workspace.repo_name, self.workspace.branch)
+
+        kwargs = super().get_form_kwargs()
+        kwargs["actions"] = actions
+        return kwargs
 
 
 @method_decorator(login_required, name="dispatch")
