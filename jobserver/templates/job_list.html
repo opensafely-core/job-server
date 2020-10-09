@@ -74,16 +74,21 @@
           <div class="mx-2">
             <button
               class="btn btn-sm btn-primary"
+              {% if not group.jobs.exists %}
+              disabled
+              {% endif %}
               type="button"
               data-toggle="collapse"
               data-target="#group-{{ group.pk }}"
               aria-expanded="false"
-              aria-controls="group-{{ group.pk }}">
+              aria-controls="group-{{ group.pk }}"
+              >
               Show/Hide Individual Jobs
             </button>
           </div>
         </div>
 
+        {% if group.jobs.exists %}
         <div id="group-{{ group.pk }}" class="collapse">
           <ul class="list-unstyled ml-3 border-top" style="border-left: 2px solid grey">
             <li class="d-flex py-2 border-top">
@@ -122,6 +127,7 @@
             {% endfor %}
           </ul>
         </div>
+        {% endif %}
 
       </div>
       {% endfor %}
