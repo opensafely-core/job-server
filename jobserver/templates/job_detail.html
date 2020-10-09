@@ -8,7 +8,7 @@
   <li class="pt-2">
     <strong>Workspace:</strong>
     <a href={% url 'workspace-detail' pk=job.workspace.pk %}>{{ job.workspace.name }}</a>
-    <small class="text-muted">({{ job.workspace.repo }} | {{ job.workspace.branch }})</small>
+    <small class="text-muted">({{ job.workspace.repo }})</small>
   </li>
       <li class="pt-2"><strong>Branch:</strong> {{ workspace.branch }}</li>
   <li class="pt-2"><strong>Action:</strong> {{ job.action_id|default:"-" }}</li>

@@ -19,7 +19,6 @@ class Workspace(models.Model):
     )
     name = models.TextField()
     repo = models.TextField(db_index=True)
-    branch = models.TextField()
     owner = models.TextField()
     created_at = models.DateTimeField(auto_now_add=True)
     db = models.TextField(choices=DB_OPTIONS)

@@ -56,7 +56,6 @@ class WorkspaceCreateForm(forms.ModelForm):
         fields = [
             "name",
             "repo",
-            "branch",
             "owner",
             "db",
         ]
@@ -64,7 +63,6 @@ class WorkspaceCreateForm(forms.ModelForm):
         widgets = {
             "name": forms.TextInput(),
             "repo": forms.TextInput(),
-            "branch": forms.TextInput(),
             "owner": forms.TextInput(),
         }
 
