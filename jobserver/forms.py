@@ -55,7 +55,6 @@ class WorkspaceCreateForm(forms.ModelForm):
             "name",
             "repo",
             "branch",
-            "owner",
             "db",
         ]
         model = Workspace
@@ -63,7 +62,6 @@ class WorkspaceCreateForm(forms.ModelForm):
             "name": forms.TextInput(),
             "repo": forms.TextInput(),
             "branch": forms.TextInput(),
-            "owner": forms.TextInput(),
         }
 
     def __init__(self, *args, **kwargs):

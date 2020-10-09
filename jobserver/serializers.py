@@ -15,7 +15,16 @@ class WorkspaceSerializer(serializers.HyperlinkedModelSerializer):
 
     class Meta:
         model = Workspace
-        fields = ["id", "url", "name", "repo", "branch", "db", "owner", "created_at"]
+        fields = [
+            "id",
+            "url",
+            "name",
+            "repo",
+            "branch",
+            "db",
+            "created_by__username",
+            "created_at",
+        ]
         read_only_fields = ["created_at"]
 
 

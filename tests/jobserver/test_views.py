@@ -203,23 +203,26 @@ def test_jobrequestcreate_unknown_workspace_redirects_to_select_workspace_form(c
 
 @pytest.mark.django_db
 def test_workspacecreate_redirects_to_new_workspace(rf):
+    user = UserFactory()
     data = {
         "name": "Test",
         "repo": "test",
         "branch": "test",
-        "owner": "test",
         "db": "dummy",
     }
 
     # Build a RequestFactory instance
     request = rf.post(MEANINGLESS_URL, data)
-    request.user = UserFactory()
+    request.user = user
     response = WorkspaceCreate.as_view()(request)
 
     assert response.status_code == 302
 
-    pk = Workspace.objects.first().pk
-    assert response.url == reverse("workspace-detail", kwargs={"pk": pk})
+    workspace = Workspace.objects.first()
+
+    assert response.url == reverse("workspace-detail", kwargs={"pk": workspace.pk})
+
+    assert workspace.created_by == user
 
 
 @pytest.mark.django_db
@@ -262,7 +265,6 @@ def test_workspaceselectorcreate_redirects_to_new_workspace(rf):
         "name": "Test",
         "repo": "test",
         "branch": "test",
-        "owner": "test",
         "db": "dummy",
     }
     # Build a RequestFactory instance
