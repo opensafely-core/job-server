@@ -17,7 +17,6 @@ class Workspace(models.Model):
     name = models.TextField()
     repo = models.TextField(db_index=True)
     branch = models.TextField()
-    owner = models.TextField()
 
     DB_OPTIONS = (
         ("dummy", "Dummy database"),
