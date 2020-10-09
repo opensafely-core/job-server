@@ -13,6 +13,7 @@ class JobRequestCreateForm(forms.ModelForm):
     class Meta:
         fields = [
             "backends",
+            "branch",
             "force_run",
             "force_run_dependencies",
             "requested_action",
@@ -20,6 +21,7 @@ class JobRequestCreateForm(forms.ModelForm):
         ]
         model = JobRequest
         widgets = {
+            "branch": forms.TextInput(),
             "requested_action": forms.TextInput(),
             "callback_url": forms.TextInput(),
         }

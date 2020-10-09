@@ -218,6 +218,7 @@ class JobRequest(models.Model):
     )
 
     backend = models.TextField(choices=BACKEND_CHOICES, db_index=True)
+    branch = models.TextField()
     force_run = models.BooleanField(default=False)
     force_run_dependencies = models.BooleanField(default=False)
     requested_action = models.TextField()

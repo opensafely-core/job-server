@@ -10,6 +10,7 @@
     <a href={% url 'workspace-detail' pk=job.workspace.pk %}>{{ job.workspace.name }}</a>
     <small class="text-muted">({{ job.workspace.repo }} | {{ job.workspace.branch }})</small>
   </li>
+      <li class="pt-2"><strong>Branch:</strong> {{ workspace.branch }}</li>
   <li class="pt-2"><strong>Action:</strong> {{ job.action_id|default:"-" }}</li>
   <li class="pt-2"><strong>Created:</strong> {{ job.created_at|naturaltime }}</li>
   <li class="pt-2"><strong>Started:</strong> {{ job.started_at|naturaltime|default_if_none:"-" }}</li>

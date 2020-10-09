@@ -129,6 +129,7 @@ def test_jobrequestcreate_success_with_one_backend(rf):
     workspace = WorkspaceFactory()
 
     data = {
+        "branch": "test",
         "requested_action": "twiddle",
         "backends": "tpp",
         "callback_url": "test",
@@ -156,6 +157,7 @@ def test_jobrequestcreate_success_with_all_backends(rf):
     workspace = WorkspaceFactory()
 
     data = {
+        "branch": "test",
         "requested_action": "twiddle",
         "backends": "all",
         "callback_url": "test",
