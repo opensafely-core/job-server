@@ -21,4 +21,4 @@ class WorkspaceViewSet(viewsets.ModelViewSet):
 
     queryset = Workspace.objects.all().order_by("-created_at")
     serializer_class = WorkspaceSerializer
-    filterset_fields = ("id", "name", "branch", "repo", "owner", "db")
+    filterset_fields = ("id", "name", "branch", "repo", "created_by__username", "db")

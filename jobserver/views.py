@@ -3,7 +3,6 @@ from django.contrib.auth.decorators import login_required
 from django.db import transaction
 from django.db.models import Q
 from django.shortcuts import redirect
-from django.urls import reverse
 from django.utils.decorators import method_decorator
 from django.views.generic import CreateView, DetailView, ListView
 
@@ -117,8 +116,12 @@ class WorkspaceCreate(CreateView):
     model = Workspace
     template_name = "workspace_create.html"
 
-    def get_success_url(self):
-        return self.object.get_absolute_url()
+    def form_valid(self, form):
+        instance = form.save(commit=False)
+        instance.created_by = self.request.user
+        instance.save()
+
+        return redirect(instance)
 
 
 class WorkspaceDetail(DetailView):
@@ -154,5 +157,9 @@ class WorkspaceSelectOrCreate(CreateView):
         context["workspace_list"] = Workspace.objects.order_by("name")
         return context
 
-    def get_success_url(self):
-        return reverse("job-create", kwargs={"pk": self.object.pk})
+    def form_valid(self, form):
+        instance = form.save(commit=False)
+        instance.created_by = self.request.user
+        instance.save()
+
+        return redirect("job-create", pk=instance.pk)
