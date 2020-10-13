@@ -1,6 +1,6 @@
 import factory
 
-from jobserver.models import Job, JobRequest, User, Workspace
+from jobserver.models import Job, JobOutput, JobRequest, User, Workspace
 
 
 class JobFactory(factory.django.DjangoModelFactory):
@@ -8,6 +8,13 @@ class JobFactory(factory.django.DjangoModelFactory):
         model = Job
 
     request = factory.SubFactory("tests.factories.JobRequestFactory")
+
+
+class JobOutputFactory(factory.django.DjangoModelFactory):
+    class Meta:
+        model = JobOutput
+
+    location = factory.Sequence(lambda n: f"location {n}")
 
 
 class JobRequestFactory(factory.django.DjangoModelFactory):

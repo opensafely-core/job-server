@@ -4,25 +4,35 @@ from rest_framework.test import force_authenticate
 
 from jobserver.api import JobViewSet
 
-from ..factories import JobFactory, JobRequestFactory, UserFactory, WorkspaceFactory
+from ..factories import (
+    JobFactory,
+    JobOutputFactory,
+    JobRequestFactory,
+    UserFactory,
+    WorkspaceFactory,
+)
 
 
 @pytest.mark.django_db
 def test_jobviewset_create_success(api_rf):
     workspace = WorkspaceFactory()
     request = JobRequestFactory(workspace=workspace, backend="tpp")
-    job = JobFactory(
-        request=request,
-        action_id="test-action",
-        force_run=True,
-    )
+    job1 = JobFactory(request=request, action_id="test-action1")
+
+    job2 = JobFactory(request=request, action_id="test-action2")
+    job1.needed_by = job2
+    job1.save()
+
+    job3 = JobFactory(request=request, action_id="test-action3")
+    job2.needed_by = job3
+    job2.save()
 
     data = {
         "force_run": True,
         "force_run_dependencies": True,
         "action_id": "frob",
         "backend": "tpp",
-        "needed_by_id": job.pk,
+        "needed_by_id": job1.pk,
         "workspace_id": workspace.pk,
     }
 
@@ -35,8 +45,31 @@ def test_jobviewset_create_success(api_rf):
     assert response.data["action_id"] == "frob"
     assert response.data["backend"] == "tpp"
     assert response.data["force_run"]
-    assert response.data["needed_by_id"] == job.pk
+    assert response.data["needed_by_id"] == job1.pk
     assert response.data["workspace_id"] == workspace.pk
+
+
+@pytest.mark.django_db
+def test_jobviewset_create_with_unknown_job(api_rf):
+    workspace = WorkspaceFactory()
+
+    data = {
+        "force_run": True,
+        "force_run_dependencies": True,
+        "action_id": "frob",
+        "backend": "tpp",
+        "needed_by_id": 0,
+        "workspace_id": workspace.pk,
+    }
+
+    request = api_rf.post("/", data=data, format="json")
+    force_authenticate(request, user=UserFactory(is_superuser=True))
+    response = JobViewSet.as_view(actions={"post": "create"})(request)
+
+    assert response.status_code == 400, response.data
+
+    error = ErrorDetail("needed_by_id must be a valid Job ID", code="invalid")
+    assert response.data == [error]
 
 
 @pytest.mark.django_db
