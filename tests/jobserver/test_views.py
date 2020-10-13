@@ -147,7 +147,7 @@ def test_jobrequestcreate_success_with_one_backend(rf):
     assert job_request.workspace == workspace
     assert job_request.backend == "tpp"
     assert job_request.requested_action == "twiddle"
-    assert not job_request.jobs.exists()
+    assert job_request.jobs.count() == 1
 
 
 @pytest.mark.django_db
@@ -178,14 +178,14 @@ def test_jobrequestcreate_success_with_all_backends(rf):
     assert job_request1.workspace == workspace
     assert job_request1.backend == "emis"
     assert job_request1.requested_action == "twiddle"
-    assert not job_request1.jobs.exists()
+    assert job_request1.jobs.exists() == 1
 
     job_request2 = job_requests[1]
     assert job_request2.created_by == user
     assert job_request2.workspace == workspace
     assert job_request2.backend == "tpp"
     assert job_request2.requested_action == "twiddle"
-    assert not job_request2.jobs.exists()
+    assert job_request2.jobs.count() == 1
 
 
 @pytest.mark.django_db
