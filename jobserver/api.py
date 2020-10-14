@@ -1,7 +1,7 @@
 from rest_framework import viewsets
 
 from .models import Job, Workspace
-from .serializers import JobSerializer, WorkspaceSerializer
+from .serializers import JobShimSerializer, WorkspaceSerializer
 
 
 class JobViewSet(viewsets.ModelViewSet):
@@ -10,8 +10,14 @@ class JobViewSet(viewsets.ModelViewSet):
     """
 
     queryset = Job.objects.all().order_by("-created_at")
-    serializer_class = JobSerializer
-    filterset_fields = ("workspace", "started", "backend", "action_id", "needed_by_id")
+    serializer_class = JobShimSerializer
+    filterset_fields = (
+        "request__workspace",
+        "started",
+        "request__backend",
+        "action_id",
+        "needed_by_id",
+    )
 
 
 class WorkspaceViewSet(viewsets.ModelViewSet):

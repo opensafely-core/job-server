@@ -100,11 +100,15 @@ class JobRequestCreate(CreateView):
         # pop backends as it's not field on JobRequest
         backends = form.cleaned_data.pop("backends")
         for backend in backends:
-            JobRequest.objects.create(
+            job_request = JobRequest.objects.create(
                 workspace=self.workspace,
                 created_by=self.request.user,
                 backend=backend,
                 **form.cleaned_data,
+            )
+            job_request.jobs.create(
+                action_id=job_request.requested_action,
+                force_run=job_request.force_run,
             )
 
         return redirect("job-list")
