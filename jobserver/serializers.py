@@ -42,26 +42,26 @@ class JobShimSerializer(serializers.Serializer):
 
     url = serializers.HyperlinkedIdentityField(view_name="jobs-detail")
     pk = serializers.IntegerField(read_only=True)
-    backend = serializers.CharField(source="request.backend")
+    backend = serializers.CharField(source="job_request.backend")
     started = serializers.BooleanField(default=False)
     force_run = serializers.BooleanField(default=False)
     force_run_dependencies = serializers.BooleanField(
-        source="request.force_run_dependencies", default=False
+        source="job_request.force_run_dependencies", default=False
     )
     action_id = serializers.CharField()
     status_code = serializers.IntegerField(allow_null=True, required=False)
     status_message = serializers.CharField(allow_null=True, required=False)
     outputs = JobOutputSerializer(many=True, required=False)
     needed_by_id = serializers.IntegerField(allow_null=True)
-    workspace = WorkspaceSerializer(read_only=True, source="request.workspace")
+    workspace = WorkspaceSerializer(read_only=True, source="job_request.workspace")
     workspace_id = serializers.IntegerField(
-        source="request.workspace_id", required=False
+        source="job_request.workspace_id", required=False
     )
     created_at = serializers.DateTimeField(read_only=True)
     started_at = serializers.DateTimeField(read_only=True)
     completed_at = serializers.DateTimeField(read_only=True)
     callback_url = serializers.CharField(
-        source="request.callback_url", allow_null=True, required=False
+        source="job_request.callback_url", allow_null=True, required=False
     )
 
     def create(self, validated_data):
@@ -76,15 +76,15 @@ class JobShimSerializer(serializers.Serializer):
         while dependency.needed_by is not None:
             dependency = dependency.needed_by
 
-        job_request = dependency.request
+        job_request = dependency.job_request
 
-        # remove the request key since job_request is going to replace the
+        # remove the job_request key since job_request is going to replace the
         # values here
-        validated_data.pop("request")
+        validated_data.pop("job_request")
 
         outputs = validated_data.pop("outputs", [])
 
-        job = Job.objects.create(request=job_request, **validated_data)
+        job = Job.objects.create(job_request=job_request, **validated_data)
 
         JobOutput.objects.bulk_create(
             JobOutput(job=job, location=output) for output in outputs
@@ -94,7 +94,7 @@ class JobShimSerializer(serializers.Serializer):
 
     def update(self, instance, validated_data):
         outputs_data = validated_data.pop("outputs", [])
-        validated_data.pop("request")
+        validated_data.pop("job_request")
 
         for attr, value in validated_data.items():
             setattr(instance, attr, value)

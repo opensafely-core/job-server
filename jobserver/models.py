@@ -57,7 +57,7 @@ class Job(models.Model):
     needed_by = models.ForeignKey(
         "self", null=True, blank=True, on_delete=models.SET_NULL
     )
-    request = models.ForeignKey(
+    job_request = models.ForeignKey(
         "JobRequest", null=True, on_delete=models.CASCADE, related_name="jobs"
     )
     workspace = models.ForeignKey(
@@ -123,7 +123,7 @@ class Job(models.Model):
         return False
 
     def notify_callback_url(self):
-        if not self.request.callback_url:
+        if not self.job_request.callback_url:
             return
 
         # A new dependency has been added; notify the originating thread
@@ -137,7 +137,7 @@ class Job(models.Model):
         else:
             return
 
-        requests.post(self.request.callback_url, json={"message": status})
+        requests.post(self.job_request.callback_url, json={"message": status})
 
     @property
     def runtime(self):
