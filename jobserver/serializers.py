@@ -93,9 +93,6 @@ class JobShimSerializer(serializers.Serializer):
         return job
 
     def update(self, instance, validated_data):
-        if validated_data.get("workspace", None):
-            raise ValidationError("You cannot change a job's workspace")
-
         outputs_data = validated_data.pop("outputs", [])
         validated_data.pop("request")
 
