@@ -12,9 +12,9 @@ class JobViewSet(viewsets.ModelViewSet):
     queryset = Job.objects.all().order_by("-created_at")
     serializer_class = JobShimSerializer
     filterset_fields = (
-        "request__workspace",
+        "job_request__workspace",
         "started",
-        "request__backend",
+        "job_request__backend",
         "action_id",
         "needed_by_id",
     )

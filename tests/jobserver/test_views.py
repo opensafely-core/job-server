@@ -30,12 +30,12 @@ def test_joblist_filters_exist(rf):
 
 @pytest.mark.django_db
 def test_joblist_filter_by_status(rf):
-    request1 = JobRequestFactory()
-    JobFactory(request=request1)
+    job_request1 = JobRequestFactory()
+    JobFactory(job_request=job_request1)
 
-    request2 = JobRequestFactory()
-    JobFactory(request=request2, completed_at=timezone.now())
-    JobFactory(request=request2, completed_at=timezone.now())
+    job_request2 = JobRequestFactory()
+    JobFactory(job_request=job_request2, completed_at=timezone.now())
+    JobFactory(job_request=job_request2, completed_at=timezone.now())
 
     # Build a RequestFactory instance
     request = rf.get("/?status=completed")
@@ -50,27 +50,27 @@ def test_joblist_filter_by_status_and_workspace(rf):
     workspace2 = WorkspaceFactory()
 
     # in progress
-    request1 = JobRequestFactory(workspace=workspace1)
-    JobFactory(request=request1, started_at=timezone.now())
-    JobFactory(request=request1)
+    job_request1 = JobRequestFactory(workspace=workspace1)
+    JobFactory(job_request=job_request1, started_at=timezone.now())
+    JobFactory(job_request=job_request1)
 
     # failed
-    request2 = JobRequestFactory(workspace=workspace1)
-    JobFactory(request=request2, completed_at=timezone.now())
-    JobFactory(request=request2, status_code=3)
+    job_request2 = JobRequestFactory(workspace=workspace1)
+    JobFactory(job_request=job_request2, completed_at=timezone.now())
+    JobFactory(job_request=job_request2, status_code=3)
 
     # in progress
-    request3 = JobRequestFactory(workspace=workspace2)
-    JobFactory(request=request3, completed_at=timezone.now())
-    JobFactory(request=request3, completed_at=timezone.now())
-    JobFactory(request=request3, started_at=timezone.now())
-    JobFactory(request=request3)
+    job_request3 = JobRequestFactory(workspace=workspace2)
+    JobFactory(job_request=job_request3, completed_at=timezone.now())
+    JobFactory(job_request=job_request3, completed_at=timezone.now())
+    JobFactory(job_request=job_request3, started_at=timezone.now())
+    JobFactory(job_request=job_request3)
 
     # complete
-    request4 = JobRequestFactory(workspace=workspace2)
-    JobFactory(request=request4, completed_at=timezone.now())
-    JobFactory(request=request4, completed_at=timezone.now())
-    JobFactory(request=request4, completed_at=timezone.now())
+    job_request4 = JobRequestFactory(workspace=workspace2)
+    JobFactory(job_request=job_request4, completed_at=timezone.now())
+    JobFactory(job_request=job_request4, completed_at=timezone.now())
+    JobFactory(job_request=job_request4, completed_at=timezone.now())
 
     # Build a RequestFactory instance
     request = rf.get(f"/?status=in-progress&workspace={workspace2.pk}")
@@ -94,33 +94,33 @@ def test_joblist_filter_by_workspace(rf):
 
 @pytest.mark.django_db
 def test_joblist_search_by_action(rf):
-    request1 = JobRequestFactory()
-    JobFactory(request=request1, action_id="run")
+    job_request1 = JobRequestFactory()
+    JobFactory(job_request=job_request1, action_id="run")
 
-    request2 = JobRequestFactory()
-    JobFactory(request=request2, action_id="leap")
+    job_request2 = JobRequestFactory()
+    JobFactory(job_request=job_request2, action_id="leap")
 
     # Build a RequestFactory instance
     request = rf.get("/?q=run")
     response = JobList.as_view()(request)
 
     assert len(response.context_data["object_list"]) == 1
-    assert response.context_data["object_list"][0] == request1
+    assert response.context_data["object_list"][0] == job_request1
 
 
 @pytest.mark.django_db
 def test_joblist_search_by_id(rf):
-    JobFactory(request=JobRequestFactory())
+    JobFactory(job_request=JobRequestFactory())
 
-    request2 = JobRequestFactory()
-    JobFactory(request=request2, id=99)
+    job_request2 = JobRequestFactory()
+    JobFactory(job_request=job_request2, id=99)
 
     # Build a RequestFactory instance
     request = rf.get("/?q=99")
     response = JobList.as_view()(request)
 
     assert len(response.context_data["object_list"]) == 1
-    assert response.context_data["object_list"][0] == request2
+    assert response.context_data["object_list"][0] == job_request2
 
 
 @pytest.mark.django_db

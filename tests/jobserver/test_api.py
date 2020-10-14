@@ -16,14 +16,14 @@ from ..factories import (
 @pytest.mark.django_db
 def test_jobviewset_create_success(api_rf):
     workspace = WorkspaceFactory()
-    request = JobRequestFactory(workspace=workspace, backend="tpp")
-    job1 = JobFactory(request=request, action_id="test-action1")
+    job_request = JobRequestFactory(workspace=workspace, backend="tpp")
+    job1 = JobFactory(job_request=job_request, action_id="test-action1")
 
-    job2 = JobFactory(request=request, action_id="test-action2")
+    job2 = JobFactory(job_request=job_request, action_id="test-action2")
     job1.needed_by = job2
     job1.save()
 
-    job3 = JobFactory(request=request, action_id="test-action3")
+    job3 = JobFactory(job_request=job_request, action_id="test-action3")
     job2.needed_by = job3
     job2.save()
 
@@ -81,9 +81,9 @@ def test_jobviewset_list_success(api_rf):
         repo="https://github.com/test/test",
         created_by=UserFactory(username="test-user"),
     )
-    request = JobRequestFactory(workspace=workspace, backend="tpp")
+    job_request = JobRequestFactory(workspace=workspace, backend="tpp")
     JobFactory(
-        request=request,
+        job_request=job_request,
         action_id="test-action",
         force_run=True,
         started=True,
@@ -158,12 +158,12 @@ def test_jobviewset_list_with_filters_success(api_rf):
     job_request1 = JobRequestFactory(workspace=workspace1, backend="emis")
     job_request2 = JobRequestFactory(workspace=workspace2, backend="tpp")
 
-    JobFactory(request=job_request1, force_run=False, action_id="attack")
-    JobFactory(request=job_request1, force_run=True, action_id="cast")
-    JobFactory(request=job_request1, force_run=False, action_id="dash")
-    JobFactory(request=job_request2, force_run=True, action_id="disengage")
-    JobFactory(request=job_request2, force_run=False, action_id="dodge")
-    JobFactory(request=job_request2, force_run=True, action_id="help")
+    JobFactory(job_request=job_request1, force_run=False, action_id="attack")
+    JobFactory(job_request=job_request1, force_run=True, action_id="cast")
+    JobFactory(job_request=job_request1, force_run=False, action_id="dash")
+    JobFactory(job_request=job_request2, force_run=True, action_id="disengage")
+    JobFactory(job_request=job_request2, force_run=False, action_id="dodge")
+    JobFactory(job_request=job_request2, force_run=True, action_id="help")
 
     params = {
         "action_id": "dodge",
@@ -188,17 +188,17 @@ def test_jobviewset_list_with_filters_success(api_rf):
 @pytest.mark.django_db
 def test_jobviewset_update_success(api_rf):
     workspace = WorkspaceFactory()
-    request = JobRequestFactory(workspace=workspace, backend="tpp")
-    job = JobFactory(request=request, action_id="test-action", force_run=False)
+    job_request = JobRequestFactory(workspace=workspace, backend="tpp")
+    job = JobFactory(job_request=job_request, action_id="test-action", force_run=False)
 
     assert job.status_code is None
     assert job.status_message is None
 
     data = {
         "action_id": job.action_id,
-        "backend": job.request.backend,
+        "backend": job.job_request.backend,
         "force_run": True,
-        "force_run_dependencies": job.request.force_run_dependencies,
+        "force_run_dependencies": job.job_request.force_run_dependencies,
         "needed_by_id": None,
         "status_code": -2,
         "status_message": "Docker never started",
@@ -220,8 +220,8 @@ def test_jobviewset_update_success(api_rf):
 @pytest.mark.django_db
 def test_jobviewset_update_with_outputs_and_existing_outputs_fails(api_rf):
     workspace = WorkspaceFactory()
-    request = JobRequestFactory(workspace=workspace, backend="tpp")
-    job = JobFactory(request=request, action_id="test-action", force_run=False)
+    job_request = JobRequestFactory(workspace=workspace, backend="tpp")
+    job = JobFactory(job_request=job_request, action_id="test-action", force_run=False)
     JobOutputFactory(job=job)
 
     assert job.status_code is None
@@ -229,9 +229,9 @@ def test_jobviewset_update_with_outputs_and_existing_outputs_fails(api_rf):
 
     data = {
         "action_id": job.action_id,
-        "backend": job.request.backend,
+        "backend": job.job_request.backend,
         "force_run": True,
-        "force_run_dependencies": job.request.force_run_dependencies,
+        "force_run_dependencies": job.job_request.force_run_dependencies,
         "needed_by_id": None,
         "status_code": -2,
         "status_message": "Docker never started",

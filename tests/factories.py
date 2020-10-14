@@ -7,7 +7,7 @@ class JobFactory(factory.django.DjangoModelFactory):
     class Meta:
         model = Job
 
-    request = factory.SubFactory("tests.factories.JobRequestFactory")
+    job_request = factory.SubFactory("tests.factories.JobRequestFactory")
 
 
 class JobOutputFactory(factory.django.DjangoModelFactory):
