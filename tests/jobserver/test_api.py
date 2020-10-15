@@ -73,6 +73,94 @@ def test_jobviewset_create_with_unknown_job(api_rf):
 
 
 @pytest.mark.django_db
+def test_jobviewset_filter_action_id(api_rf):
+    job1 = JobFactory(action_id="action1")
+    JobFactory(action_id="action2")
+
+    request = api_rf.get("/?action_id=action1")
+    force_authenticate(request, user=UserFactory(is_superuser=True))
+    response = JobViewSet.as_view(actions={"get": "list"})(request)
+
+    assert response.status_code == 200
+
+    assert response.data["count"] == 1
+
+    assert response.data["results"][0]["pk"] == job1.pk
+
+
+@pytest.mark.django_db
+def test_jobviewset_filter_backend(api_rf):
+    job1 = JobFactory(job_request=JobRequestFactory(backend="tpp"))
+    JobFactory(job_request=JobRequestFactory(backend="emis"))
+
+    request = api_rf.get("/?backend=tpp")
+    force_authenticate(request, user=UserFactory(is_superuser=True))
+    response = JobViewSet.as_view(actions={"get": "list"})(request)
+
+    assert response.status_code == 200
+
+    assert response.data["count"] == 1
+
+    assert response.data["results"][0]["pk"] == job1.pk
+
+
+@pytest.mark.django_db
+def test_jobviewset_filter_needed_by_id(api_rf):
+    job1 = JobFactory(job_request=JobRequestFactory(backend="tpp"))
+    job2 = JobFactory(job_request=JobRequestFactory(backend="emis"))
+
+    job1.needed_by = job2
+    job1.save()
+
+    request = api_rf.get(f"/?needed_by_id={job2.pk}")
+    force_authenticate(request, user=UserFactory(is_superuser=True))
+    response = JobViewSet.as_view(actions={"get": "list"})(request)
+
+    assert response.status_code == 200
+
+    assert response.data["count"] == 1
+
+    assert response.data["results"][0]["pk"] == job1.pk
+
+
+@pytest.mark.django_db
+def test_jobviewset_filter_started(api_rf):
+    job1 = JobFactory(started=True)
+    JobFactory(started=False)
+
+    request = api_rf.get("/?started=True")
+    force_authenticate(request, user=UserFactory(is_superuser=True))
+    response = JobViewSet.as_view(actions={"get": "list"})(request)
+
+    assert response.status_code == 200
+
+    assert response.data["count"] == 1
+
+    assert response.data["results"][0]["pk"] == job1.pk
+
+
+@pytest.mark.django_db
+def test_jobviewset_filter_workspace(api_rf):
+    workspace1 = WorkspaceFactory()
+    job_request1 = JobRequestFactory(workspace=workspace1)
+    job1 = JobFactory(job_request=job_request1)
+
+    workspace2 = WorkspaceFactory()
+    job_request2 = JobRequestFactory(workspace=workspace2)
+    JobFactory(job_request=job_request2)
+
+    request = api_rf.get(f"/?workspace={workspace1.pk}")
+    force_authenticate(request, user=UserFactory(is_superuser=True))
+    response = JobViewSet.as_view(actions={"get": "list"})(request)
+
+    assert response.status_code == 200
+
+    assert response.data["count"] == 1
+
+    assert response.data["results"][0]["pk"] == job1.pk
+
+
+@pytest.mark.django_db
 def test_jobviewset_list_success(api_rf):
     workspace = WorkspaceFactory(
         branch="master",
