@@ -7,8 +7,12 @@
   <li class="pt-2"><strong>Status:</strong> {{ job.status }}</li>
   <li class="pt-2">
     <strong>Workspace:</strong>
-    <a href={% url 'workspace-detail' pk=job.workspace.pk %}>{{ job.workspace.name }}</a>
-    <small class="text-muted">({{ job.workspace.repo }} | {{ job.workspace.branch }})</small>
+    <a href={% url 'workspace-detail' pk=job.job_request.workspace.pk %}>
+      {{ job.job_request.workspace.name }}
+    </a>
+    <small class="text-muted">
+      ({{ job.job_request.workspace.repo }} | {{ job.job_request.workspace.branch }})
+    </small>
   </li>
   <li class="pt-2"><strong>Action:</strong> {{ job.action_id|default:"-" }}</li>
   <li class="pt-2"><strong>Created:</strong> {{ job.created_at|naturaltime }}</li>
