@@ -78,9 +78,11 @@ class JobShimSerializer(serializers.Serializer):
 
         job_request = dependency.job_request
 
-        # remove the job_request key since job_request is going to replace the
-        # values here
-        validated_data.pop("job_request")
+        # remove the job_request key since the local job_request value is
+        # going to replace any possible values here.
+        # Note: This field is added by DRF travelling field sources which point
+        # to the related job_request instance (eg source=job_request.backend)
+        validated_data.pop("job_request", None)
 
         outputs = validated_data.pop("outputs", [])
 
@@ -94,7 +96,11 @@ class JobShimSerializer(serializers.Serializer):
 
     def update(self, instance, validated_data):
         outputs_data = validated_data.pop("outputs", [])
-        validated_data.pop("job_request")
+
+        # ensure job_request data isn't updated
+        # Note: This field is added by DRF travelling field sources which point
+        # to the related job_request instance (eg source=job_request.backend)
+        validated_data.pop("job_request", None)
 
         for attr, value in validated_data.items():
             setattr(instance, attr, value)
