@@ -42,7 +42,7 @@ class JobShimSerializer(serializers.Serializer):
 
     url = serializers.HyperlinkedIdentityField(view_name="jobs-detail")
     pk = serializers.IntegerField(read_only=True)
-    backend = serializers.CharField(source="job_request.backend")
+    backend = serializers.CharField(source="job_request.backend", default="")
     started = serializers.BooleanField(default=False)
     force_run = serializers.BooleanField(default=False)
     force_run_dependencies = serializers.BooleanField(
@@ -53,7 +53,9 @@ class JobShimSerializer(serializers.Serializer):
     status_message = serializers.CharField(allow_null=True, required=False)
     outputs = JobOutputSerializer(many=True, required=False)
     needed_by_id = serializers.IntegerField(allow_null=True)
-    workspace = WorkspaceSerializer(read_only=True, source="job_request.workspace")
+    workspace = WorkspaceSerializer(
+        read_only=True, source="job_request.workspace", default=""
+    )
     workspace_id = serializers.IntegerField(
         source="job_request.workspace_id", required=False
     )
