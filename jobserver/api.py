@@ -1,7 +1,23 @@
+from django_filters import rest_framework as filters
 from rest_framework import viewsets
 
 from .models import Job, Workspace
 from .serializers import JobShimSerializer, WorkspaceSerializer
+
+
+class JobFilter(filters.FilterSet):
+    backend = filters.CharFilter(field_name="job_request__backend")
+    workspace = filters.NumberFilter(field_name="job_request__workspace_id")
+
+    class Meta:
+        fields = [
+            "action_id",
+            "backend",
+            "needed_by_id",
+            "started",
+            "workspace",
+        ]
+        model = Job
 
 
 class JobViewSet(viewsets.ModelViewSet):
@@ -11,13 +27,7 @@ class JobViewSet(viewsets.ModelViewSet):
 
     queryset = Job.objects.all().order_by("-created_at")
     serializer_class = JobShimSerializer
-    filterset_fields = (
-        "job_request__workspace",
-        "started",
-        "job_request__backend",
-        "action_id",
-        "needed_by_id",
-    )
+    filterset_class = JobFilter
 
 
 class WorkspaceViewSet(viewsets.ModelViewSet):
