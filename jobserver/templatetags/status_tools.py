@@ -35,6 +35,10 @@ def status_icon(status_name):
     default = {"color": "grey", "name": "question-circle.svg"}
     status = status_lut.get(status_name.lower(), default)
 
+    spinner = ""
+    if status_name.lower() == "in progress":
+        spinner = 'class="spinner"'
+
     # Get the SVG file contents so we can put that directly into the template.
     # This lets us color the icons since they ship with fill="currentColor"
     # which takes a colour from the container element.
@@ -44,7 +48,7 @@ def status_icon(status_name):
 
     # Wrap to the SVG so we can style it neatly
     icon = f"""
-    <div style="color:{status['color']};width:1rem;" title="{status_name}">
+    <div {spinner} style="color:{status['color']};width:1rem;" title="{status_name}">
         {svg}
     </div>
     """
