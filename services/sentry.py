@@ -3,6 +3,7 @@ import os
 import sentry_sdk
 import structlog
 from sentry_sdk.integrations.django import DjangoIntegration
+from sentry_sdk.integrations.logging import ignore_logger
 
 
 logger = structlog.get_logger(__name__)
@@ -20,6 +21,8 @@ def initialise_sentry():
 
     if dsn is None:
         return
+
+    ignore_logger("django_structlog")
 
     sentry_sdk.init(
         dsn,
