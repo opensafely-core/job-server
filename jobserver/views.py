@@ -7,7 +7,7 @@ from django.utils.decorators import method_decorator
 from django.views.generic import CreateView, DetailView, ListView
 
 from .forms import JobRequestCreateForm, WorkspaceCreateForm
-from .models import Job, JobRequest, Workspace
+from .models import Job, JobRequest, User, Workspace
 
 
 class JobDetail(DetailView):
@@ -48,6 +48,9 @@ class JobList(ListView):
         return list(filter(func, self.object_list))
 
     def get_context_data(self, **kwargs):
+        # only get Users created via GitHub OAuth
+        users = User.objects.exclude(social_auth=None)
+
         context = super().get_context_data(**kwargs)
 
         # FIXME: This is a hack, see filter_by_status docstring for why and
@@ -55,6 +58,7 @@ class JobList(ListView):
         context["object_list"] = self.filter_by_status()
 
         context["statuses"] = ["completed", "failed", "in-progress", "pending"]
+        context["users"] = {u.username: u.get_full_name() for u in users}
         context["workspaces"] = Workspace.objects.all()
         return context
 
@@ -71,6 +75,10 @@ class JobList(ListView):
                 # if the query looks enough like a number for int() to handle
                 # it then we can look for a job number
                 qs = qs.filter(Q(jobs__action_id__icontains=q) | Q(jobs__pk=q))
+
+        username = self.request.GET.get("username")
+        if username:
+            qs = qs.filter(created_by__username=username)
 
         workspace = self.request.GET.get("workspace")
         if workspace:
