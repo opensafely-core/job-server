@@ -8,34 +8,28 @@ header {
 .job-list .job-request:nth-child(2) {
   border-top: 2px solid #dee2e6;
 }
-.job-list .headers .status,
-.job-list .job-request .status {
+.job-list .job-requests .status {
   margin-left: .5rem;
   margin-right: 1rem;
   width: 16px;
 }
-.job-list .headers .workspace,
-.job-list .job-request .workspace {
+.job-list .job-requests .workspace {
   margin-right: .5rem;
   width: 10%;
 }
-.job-list .headers .jobs,
-.job-list .job-request .jobs {
+.job-list .job-requests .job-count {
   margin-right: .5rem;
   width: 5%;
 }
-.job-list .headers .action,
-.job-list .job-request .action {
+.job-list .job-requests .action {
   margin-right: .5rem;
   width: 15%;
 }
-.job-list .headers .started-at,
-.job-list .job-request .started-at {
+.job-list .job-requests .started-at {
   margin-right: .5rem;
   width: 20%;
 }
-.job-list .headers .runtime,
-.job-list .job-request .runtime {
+.job-list .job-requests .runtime {
   margin-right: .5rem;
   min-width: 206px;
   flex-grow: 1;
@@ -50,6 +44,31 @@ header {
   100% {
     transform: rotate(360deg);
   }
+}
+
+.job-list .jobs .grid {
+  display: grid;
+  grid-template-columns: min-content min-content minmax(min-content, 80px) min-content;
+  align-items: center;
+  border-left: 2px solid grey;
+  border-top: 1px solid #dee2e6;
+  margin-bottom: 1rem;
+  margin-left: 1rem;
+}
+/* Add the ID and Status message columns for larger devices (992px and up) */
+@media (min-width: 992px) {
+  .job-list .jobs .grid {
+    grid-template-columns: min-content min-content min-content minmax(min-content, 80px) 3fr min-content;
+  }
+}
+
+/*
+ * Set a consistent top&bottom padding for Job cells.
+ * Use right padding to add horizontal space between cells.
+ * Status icon (the first cell) sets its own left padding.
+ */
+.job-list .jobs .grid > span {
+  padding: .25rem 1rem .25rem 0;
 }
 
 
