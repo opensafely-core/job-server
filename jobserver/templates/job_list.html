@@ -45,92 +45,87 @@
       </div>
       {% else %}
 
-      <div class="d-flex headers">
-        <div class="status"></div>
-        <div class="workspace"><strong>Workspace</strong></div>
-        <div class="jobs"><strong>Jobs</strong></div>
-        <div class="action"><strong>Requested Action</strong></div>
-        <div class="started-at"><strong>Started</strong></div>
-        <div class="runtime"><strong>Runtime</strong></div>
-      </div>
-
-      {% for group in object_list %}
-      <div class="job-request">
-
-        <div class="d-flex align-items-center py-2">
-          <div class="status">{% status_icon group.status %}</div>
-          <div class="workspace">{{ group.workspace.name }}</div>
-          <div class="jobs">{{ group.num_completed }}/{{ group.jobs.all|length }}</div>
-          <div class="action text-truncate" title="group.requested_action">
-            {{ group.requested_action }}
-          </div>
-          <div class="started-at">{{ group.started_at|naturaltime|default_if_none:"-" }}</div>
-          <div class="runtime">
-            {% if not group.runtime %}-{% endif %}
-            {% if group.runtime.hours %}{{ group.runtime.hours }} hour(s){% endif %}
-            {% if group.runtime.minutes %}{{ group.runtime.minutes }} minute(s){% endif %}
-            {% if group.runtime.seconds %}{{ group.runtime.seconds }} second(s){% endif %}
-          </div>
-          <div class="mx-2">
-            <button
-              class="btn btn-sm btn-primary"
-              {% if not group.jobs.exists %}
-              disabled
-              {% endif %}
-              type="button"
-              data-toggle="collapse"
-              data-target="#group-{{ group.pk }}"
-              aria-expanded="false"
-              aria-controls="group-{{ group.pk }}"
-              >
-              Show/Hide Individual Jobs
-            </button>
-          </div>
+      <div class="job-requests">
+        <div class="d-flex">
+          <div class="status"></div>
+          <div class="workspace"><strong>Workspace</strong></div>
+          <div class="job-count"><strong>Jobs</strong></div>
+          <div class="action"><strong>Requested Action</strong></div>
+          <div class="started-at"><strong>Started</strong></div>
+          <div class="runtime"><strong>Runtime</strong></div>
         </div>
 
-        {% if group.jobs.exists %}
-        <div id="group-{{ group.pk }}" class="collapse">
-          <ul class="list-unstyled ml-3 border-top" style="border-left: 2px solid grey">
-            <li class="d-flex py-2 border-top">
-              <div style="width:48px"></div>
-              <div class="mr-2" style="min-width:25px"><strong>ID</strong></div>
-              <div class="mr-2" style="min-width:80px"><strong>Action</strong></div>
-              <div class="mr-3" style="min-width:200px"><strong>Runtime</strong></div>
-              <div><strong>Status Message</strong></div>
-            </li>
-            {% for job in group.ordered_jobs %}
-            <li class="d-flex py-2 border-top">
-              <div class="mx-3">{% status_icon job.status %}</div>
-              <div class="mr-2" style="min-width:25px">{{ job.pk }}</div>
-              <div class="mr-2" style="min-width:80px">{{ job.action_id }}</div>
-              <div
-                class="mr-3 text-nowrap"
-                {% if job.started_at %}
-                title="{{ job.started_at|naturaltime }}"
+        {% for group in object_list %}
+        <div class="job-request">
+          <div class="d-flex align-items-center py-2">
+            <div class="status">{% status_icon group.status %}</div>
+            <div class="workspace">{{ group.workspace.name }}</div>
+            <div class="job-count">{{ group.num_completed }}/{{ group.jobs.all|length }}</div>
+            <div class="action text-truncate" title="group.requested_action">
+              {{ group.requested_action }}
+            </div>
+            <div class="started-at">{{ group.started_at|naturaltime|default_if_none:"-" }}</div>
+            <div class="runtime">
+              {% if not group.runtime %}-{% endif %}
+              {% if group.runtime.hours %}{{ group.runtime.hours }} hour(s){% endif %}
+              {% if group.runtime.minutes %}{{ group.runtime.minutes }} minute(s){% endif %}
+              {% if group.runtime.seconds %}{{ group.runtime.seconds }} second(s){% endif %}{% runtime group.runtime %}
+            </div>
+            <div class="mx-2">
+              <button
+                class="btn btn-sm btn-primary"
+                {% if not group.jobs.exists %}
+                disabled
                 {% endif %}
-                style="min-width:200px"
+                type="button"
+                data-toggle="collapse"
+                data-target="#group-{{ group.pk }}"
+                aria-expanded="false"
+                aria-controls="group-{{ group.pk }}"
                 >
+                Show/Hide Individual Jobs
+              </button>
+            </div>
+          </div>
+
+          {% if group.jobs.exists %}
+          <div id="group-{{ group.pk }}" class="jobs collapse">
+            <div class="grid">
+              <span class="pl-3"></span>
+              <span class="d-none d-lg-inline"><strong>ID</strong></span>
+              <span><strong>Action</strong></span>
+              <span><strong>Runtime</strong></span>
+              <span class="d-none d-lg-inline"><strong>Status Message</strong></span>
+              <span></span>
+
+              {% for job in group.ordered_jobs %}
+              <span class="pl-3">{% status_icon job.status %}</span>
+              <span class="d-none d-lg-inline"><small>{{ job.pk }}</small></span>
+              <span>{{ job.action_id }}</span>
+              <span {% if job.started_at %} title="{{ job.started_at|naturaltime }}"{% endif %}>
                 {% if not job.runtime %}-{% endif %}
                 {% if job.runtime.hours %}{{ job.runtime.hours }} hour(s){% endif %}
                 {% if job.runtime.minutes %}{{ job.runtime.minutes }} minute(s){% endif %}
                 {% if job.runtime.seconds %}{{ job.runtime.seconds }} second(s){% endif %}
-              </div>
-              <div class="mr-2 flex-grow-1 text-truncate"{% if job.status_message %} title="{{ job.status_message }}"{% endif %}>
+              </span>
+              <span class="d-none d-lg-inline text-truncate" title="{{ job.status_message }}">
                 {{ job.status_message|default:"-" }}
-              </div>
-              <div class="mx-2">
+              </span>
+              <span>
                 <a class="btn btn-sm btn-secondary text-white" href="{% url 'jobs-detail' pk=job.pk %}">
                   View
                 </a>
-              </div>
-            </li>
-            {% endfor %}
-          </ul>
+              </span>
+              {% endfor %}
+            </div>
+
+          </div>
+          {% endif %}
+
         </div>
-        {% endif %}
+        {% endfor %}  {# end of object_list loop #}
 
       </div>
-      {% endfor %}
 
       <div class="d-flex justify-content-between my-3">
 
