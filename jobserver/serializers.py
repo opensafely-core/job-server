@@ -53,9 +53,7 @@ class JobShimSerializer(serializers.Serializer):
     status_message = serializers.CharField(allow_null=True, required=False)
     outputs = JobOutputSerializer(many=True, required=False)
     needed_by_id = serializers.IntegerField(allow_null=True)
-    workspace = WorkspaceSerializer(
-        read_only=True, source="job_request.workspace", default=""
-    )
+    workspace = WorkspaceSerializer(read_only=True, source="job_request.workspace")
     workspace_id = serializers.IntegerField(
         source="job_request.workspace_id", required=False
     )
