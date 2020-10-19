@@ -2,6 +2,7 @@
 
 {% load humanize %}
 {% load querystring_tools %}
+{% load runtime %}
 {% load selected_filter %}
 {% load static %}
 {% load status_tools %}
@@ -65,12 +66,7 @@
               {{ group.requested_action }}
             </div>
             <div class="started-at">{{ group.started_at|naturaltime|default_if_none:"-" }}</div>
-            <div class="runtime">
-              {% if not group.runtime %}-{% endif %}
-              {% if group.runtime.hours %}{{ group.runtime.hours }} hour(s){% endif %}
-              {% if group.runtime.minutes %}{{ group.runtime.minutes }} minute(s){% endif %}
-              {% if group.runtime.seconds %}{{ group.runtime.seconds }} second(s){% endif %}{% runtime group.runtime %}
-            </div>
+            <div class="runtime">{% runtime group.runtime %}</div>
             <div class="mx-2">
               <button
                 class="btn btn-sm btn-primary"
@@ -103,10 +99,7 @@
               <span class="d-none d-lg-inline"><small>{{ job.pk }}</small></span>
               <span>{{ job.action_id }}</span>
               <span {% if job.started_at %} title="{{ job.started_at|naturaltime }}"{% endif %}>
-                {% if not job.runtime %}-{% endif %}
-                {% if job.runtime.hours %}{{ job.runtime.hours }} hour(s){% endif %}
-                {% if job.runtime.minutes %}{{ job.runtime.minutes }} minute(s){% endif %}
-                {% if job.runtime.seconds %}{{ job.runtime.seconds }} second(s){% endif %}
+                <small>{% runtime job.runtime %}</small>
               </span>
               <span class="d-none d-lg-inline text-truncate" title="{{ job.status_message }}">
                 {{ job.status_message|default:"-" }}
