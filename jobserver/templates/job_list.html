@@ -184,6 +184,7 @@
         {% endfor %}
       </ul>
 
+      {% if users %}
       <h5>User</h5>
       <ul class="list-group list-unstyled mb-4 users">
         {% for username, name in users.items %}
@@ -208,6 +209,7 @@
         </li>
         {% endfor %}
       </ul>
+      {% endif %}
 
       <h5>Workspaces</h5>
       <ul class="list-group list-unstyled">
