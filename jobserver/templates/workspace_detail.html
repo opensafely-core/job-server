@@ -21,6 +21,10 @@
 
     <h3 class="text-center">Tools</h3>
 
+    <a class="btn btn-block btn-secondary" href="{% url 'job-create' pk=workspace.pk %}">
+      Add Job
+    </a>
+
     <a class="btn btn-block btn-secondary" href="{% url 'job-list' %}?workspace={{ workspace.pk }}">
       View Jobs
     </a>
