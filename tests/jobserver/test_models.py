@@ -146,6 +146,24 @@ def test_job_save(freezer):
 
 
 @pytest.mark.django_db
+def test_job_save_with_started_at_set(freezer):
+    job = JobFactory()
+
+    assert job.started_at is None
+    assert job.completed_at is None
+
+    start = timezone.now() - timedelta(hours=1)
+
+    job.started = True
+    job.started_at = start
+    job.status_code = 1
+    job.save()
+
+    assert job.started_at == start
+    assert job.completed_at == timezone.now()
+
+
+@pytest.mark.django_db
 def test_job_str():
     job = JobFactory(action_id="Run")
 
