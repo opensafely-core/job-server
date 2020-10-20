@@ -9,8 +9,7 @@ header {
   border-top: 2px solid #dee2e6;
 }
 .job-list .job-requests .status {
-  margin-left: .5rem;
-  margin-right: 1rem;
+  margin: 0 .5rem;
   width: 16px;
 }
 .job-list .job-requests .workspace {
