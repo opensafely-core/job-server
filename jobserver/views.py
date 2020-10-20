@@ -7,7 +7,88 @@ from django.utils.decorators import method_decorator
 from django.views.generic import CreateView, DetailView, ListView
 
 from .forms import JobRequestCreateForm, WorkspaceCreateForm
-from .models import Job, JobRequest, Workspace
+from .models import Job, JobRequest, User, Workspace
+
+
+def filter_by_status(job_requests, status):
+    """
+    Filter JobRequests by possible status
+
+    Status is currently inferred from various Job fields and "bubbled up"
+    to a JobRequest.  This converts the view's QuerySet to a list via a
+    filter which uses properties on JobRequest to cut down the values to
+    those requested.
+
+    TODO: replace with a custom QuerySet once status is driven entirely via
+    the job-runner
+    """
+    if not status:
+        return job_requests
+
+    status_lut = {
+        "completed": lambda r: r.is_complete,
+        "failed": lambda r: r.is_failed,
+        "in-progress": lambda r: r.is_in_progress,
+        "pending": lambda r: r.is_pending,
+    }
+    func = status_lut[status]
+    return list(filter(func, job_requests))
+
+
+class Dashboard(ListView):
+    """
+    User-centric Jobs List
+
+    This is a barely-modified version of JobRequestList for now, but is
+    expected to grow more User-centric features.
+    """
+
+    ordering = "-pk"
+    paginate_by = 25
+    template_name = "job_list.html"
+
+    def dispatch(self, request, *args, **kwargs):
+        if not request.user.is_authenticated:
+            return redirect("job-list")
+
+        return super().dispatch(request, *args, **kwargs)
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+
+        # FIXME: This is a hack, see filter_by_status docstring for why and
+        # when to remove it
+        context["object_list"] = filter_by_status(
+            self.object_list, self.request.GET.get("status")
+        )
+
+        context["statuses"] = ["completed", "failed", "in-progress", "pending"]
+        context["workspaces"] = Workspace.objects.all()
+        return context
+
+    def get_queryset(self):
+        qs = (
+            JobRequest.objects.filter(created_by=self.request.user)
+            .prefetch_related("jobs")
+            .select_related("workspace")
+        )
+
+        q = self.request.GET.get("q")
+        if q:
+            try:
+                q = int(q)
+            except ValueError:
+                qs = qs.filter(jobs__action_id__icontains=q)
+            else:
+                # if the query looks enough like a number for int() to handle
+                # it then we can look for a job number
+                qs = qs.filter(Q(jobs__action_id__icontains=q) | Q(jobs__pk=q))
+
+        workspace = self.request.GET.get("workspace")
+        if workspace:
+            qs = qs.filter(workspace_id=workspace)
+
+        return qs
 
 
 class JobDetail(DetailView):
@@ -16,45 +97,25 @@ class JobDetail(DetailView):
     template_name = "job_detail.html"
 
 
-class JobList(ListView):
+class JobRequestList(ListView):
     ordering = "-pk"
     paginate_by = 25
     template_name = "job_list.html"
 
-    def filter_by_status(self):
-        """
-        Filter JobRequests by possible status
-
-        Status is currently inferred from various Job fields and "bubbled up"
-        to a JobRequest.  This converts the view's QuerySet to a list via a
-        filter which uses properties on JobRequest to cut down the values to
-        those requested.
-
-        TODO: replace with a custom QuerySet once status is driven entirely via
-        the job-runner
-        """
-        status = self.request.GET.get("status")
-
-        if not status:
-            return self.object_list
-
-        status_lut = {
-            "completed": lambda r: r.is_complete,
-            "failed": lambda r: r.is_failed,
-            "in-progress": lambda r: r.is_in_progress,
-            "pending": lambda r: r.is_pending,
-        }
-        func = status_lut[status]
-        return list(filter(func, self.object_list))
-
     def get_context_data(self, **kwargs):
+        # only get Users created via GitHub OAuth
+        users = User.objects.exclude(social_auth=None)
+
         context = super().get_context_data(**kwargs)
 
         # FIXME: This is a hack, see filter_by_status docstring for why and
         # when to remove it
-        context["object_list"] = self.filter_by_status()
+        context["object_list"] = filter_by_status(
+            self.object_list, self.request.GET.get("status")
+        )
 
         context["statuses"] = ["completed", "failed", "in-progress", "pending"]
+        context["users"] = {u.username: u.get_full_name() for u in users}
         context["workspaces"] = Workspace.objects.all()
         return context
 
@@ -71,6 +132,10 @@ class JobList(ListView):
                 # if the query looks enough like a number for int() to handle
                 # it then we can look for a job number
                 qs = qs.filter(Q(jobs__action_id__icontains=q) | Q(jobs__pk=q))
+
+        username = self.request.GET.get("username")
+        if username:
+            qs = qs.filter(created_by__username=username)
 
         workspace = self.request.GET.get("workspace")
         if workspace:
@@ -165,5 +230,4 @@ class WorkspaceSelectOrCreate(CreateView):
         instance = form.save(commit=False)
         instance.created_by = self.request.user
         instance.save()
-
         return redirect("job-create", pk=instance.pk)

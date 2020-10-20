@@ -5,8 +5,9 @@ from django.utils import timezone
 
 from jobserver.models import JobRequest, Workspace
 from jobserver.views import (
-    JobList,
+    Dashboard,
     JobRequestCreate,
+    JobRequestList,
     WorkspaceCreate,
     WorkspaceList,
     WorkspaceSelectOrCreate,
@@ -19,10 +20,49 @@ MEANINGLESS_URL = "/"
 
 
 @pytest.mark.django_db
+def test_dashboard_other_users_jobs(rf):
+    job_request = JobRequestFactory(created_by=UserFactory())
+    JobFactory(job_request=job_request)
+
+    # Build a RequestFactory instance
+    request = rf.get(MEANINGLESS_URL)
+    request.user = UserFactory()
+    response = Dashboard.as_view()(request)
+
+    assert response.status_code == 200
+    assert len(response.context_data["object_list"]) == 0
+
+
+@pytest.mark.django_db
+def test_dashboard_success(rf):
+    user = UserFactory()
+    job_request = JobRequestFactory(created_by=user)
+    JobFactory(job_request=job_request)
+
+    # Build a RequestFactory instance
+    request = rf.get(MEANINGLESS_URL)
+    request.user = user
+    response = Dashboard.as_view()(request)
+
+    assert response.status_code == 200
+    assert len(response.context_data["object_list"]) == 1
+
+
+@pytest.mark.django_db
+def test_dashboard_unauthenticed_redirect(rf):
+    request = rf.get(MEANINGLESS_URL)
+    request.user = AnonymousUser()
+    response = Dashboard.as_view()(request)
+
+    assert response.status_code == 302
+    assert response.url == reverse("job-list")
+
+
+@pytest.mark.django_db
 def test_joblist_filters_exist(rf):
     # Build a RequestFactory instance
     request = rf.get(MEANINGLESS_URL)
-    response = JobList.as_view()(request)
+    response = JobRequestList.as_view()(request)
 
     assert "statuses" in response.context_data
     assert "workspaces" in response.context_data
@@ -39,7 +79,7 @@ def test_joblist_filter_by_status(rf):
 
     # Build a RequestFactory instance
     request = rf.get("/?status=completed")
-    response = JobList.as_view()(request)
+    response = JobRequestList.as_view()(request)
 
     assert len(response.context_data["object_list"]) == 1
 
@@ -74,7 +114,7 @@ def test_joblist_filter_by_status_and_workspace(rf):
 
     # Build a RequestFactory instance
     request = rf.get(f"/?status=in-progress&workspace={workspace2.pk}")
-    response = JobList.as_view()(request)
+    response = JobRequestList.as_view()(request)
 
     assert len(response.context_data["object_list"]) == 1
 
@@ -87,7 +127,7 @@ def test_joblist_filter_by_workspace(rf):
 
     # Build a RequestFactory instance
     request = rf.get(f"/?workspace={workspace.pk}")
-    response = JobList.as_view()(request)
+    response = JobRequestList.as_view()(request)
 
     assert len(response.context_data["object_list"]) == 1
 
@@ -102,7 +142,7 @@ def test_joblist_search_by_action(rf):
 
     # Build a RequestFactory instance
     request = rf.get("/?q=run")
-    response = JobList.as_view()(request)
+    response = JobRequestList.as_view()(request)
 
     assert len(response.context_data["object_list"]) == 1
     assert response.context_data["object_list"][0] == job_request1
@@ -117,7 +157,7 @@ def test_joblist_search_by_id(rf):
 
     # Build a RequestFactory instance
     request = rf.get("/?q=99")
-    response = JobList.as_view()(request)
+    response = JobRequestList.as_view()(request)
 
     assert len(response.context_data["object_list"]) == 1
     assert response.context_data["object_list"][0] == job_request2

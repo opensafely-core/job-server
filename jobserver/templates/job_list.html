@@ -163,9 +163,11 @@
       <ul class="list-group list-unstyled mb-4">
         {% for status in statuses %}
         {% is_filter_selected key="status" value=status as is_active %}
-        <li class="list-group-item {% if is_active %} active{% endif %}">
+        <li class="list-group-item d-flex {% if is_active %} active{% endif %}">
 
-          <a href="{% url_with_querystring status=status %}">{{ status }}</a>
+          <a class="text-truncate flex-grow-1" href="{% url_with_querystring status=status %}">
+            {{ status }}
+          </a>
 
           {% if is_active %}
           <a
@@ -182,13 +184,42 @@
         {% endfor %}
       </ul>
 
+      {% if users %}
+      <h5>User</h5>
+      <ul class="list-group list-unstyled mb-4 users">
+        {% for username, name in users.items %}
+        {% is_filter_selected key="username" value=username as is_active %}
+        <li class="list-group-item d-flex{% if is_active %} active{% endif %}">
+
+          <a class="text-truncate flex-grow-1" href="{% url_with_querystring username=username %}">
+            {{ name }}
+          </a>
+
+          {% if is_active %}
+          <a
+            type="button"
+            class="close"
+            aria-label="Close"
+            href="{% url_without_querystring username=username %}"
+            >
+            <span aria-hidden="true">&times;</span>
+          </a>
+          {% endif %}
+
+        </li>
+        {% endfor %}
+      </ul>
+      {% endif %}
+
       <h5>Workspaces</h5>
       <ul class="list-group list-unstyled">
         {% for workspace in workspaces %}
         {% is_filter_selected key="workspace" value=workspace.pk as is_active %}
-        <li class="list-group-item list-group-item-action{% if is_active %} active{% endif %}">
+        <li class="list-group-item d-flex{% if is_active %} active{% endif %}">
 
-          <a href="{% url_with_querystring workspace=workspace.pk %}">{{ workspace.name }}</a>
+          <a class="text-truncate flex-grow-1" href="{% url_with_querystring workspace=workspace.pk %}">
+            {{ workspace.name }}
+          </a>
 
           {% if is_active %}
           <a

@@ -16,14 +16,14 @@ Including another URLconf
 import debug_toolbar
 from django.contrib.auth.views import LogoutView
 from django.urls import include, path
-from django.views.generic import RedirectView
 from rest_framework import routers
 
 from .api import JobViewSet, WorkspaceViewSet
 from .views import (
+    Dashboard,
     JobDetail,
-    JobList,
     JobRequestCreate,
+    JobRequestList,
     WorkspaceCreate,
     WorkspaceDetail,
     WorkspaceList,
@@ -37,11 +37,11 @@ router.register(r"workspaces", WorkspaceViewSet, "workspaces")
 
 
 urlpatterns = [
-    path("", RedirectView.as_view(pattern_name="job-list")),
+    path("", Dashboard.as_view()),
     path("", include("social_django.urls", namespace="social")),
     path("api/", include(router.urls)),
     path("api-auth/", include("rest_framework.urls")),
-    path("jobs/", JobList.as_view(), name="job-list"),
+    path("jobs/", JobRequestList.as_view(), name="job-list"),
     path("jobs/new/", WorkspaceSelectOrCreate.as_view(), name="job-select-workspace"),
     path("jobs/new/<pk>/", JobRequestCreate.as_view(), name="job-create"),
     path("jobs/<pk>/", JobDetail.as_view(), name="job-detail"),
