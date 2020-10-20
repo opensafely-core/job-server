@@ -30,7 +30,7 @@ header {
 }
 .job-list .job-requests .runtime {
   margin-right: .5rem;
-  min-width: 206px;
+  min-width: 70px;
   flex-grow: 1;
 }
 .job-list .spinner svg {
