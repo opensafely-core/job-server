@@ -14,6 +14,7 @@ header {
 }
 .job-list .job-requests .workspace {
   margin-right: .5rem;
+  min-width: 85px;
   width: 10%;
 }
 .job-list .job-requests .job-count {
