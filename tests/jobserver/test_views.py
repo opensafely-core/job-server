@@ -169,7 +169,7 @@ def test_jobrequestcreate_success_with_one_backend(rf):
     workspace = WorkspaceFactory()
 
     data = {
-        "requested_action": "twiddle",
+        "requested_actions": ["twiddle"],
         "backends": "tpp",
         "callback_url": "test",
     }
@@ -186,7 +186,7 @@ def test_jobrequestcreate_success_with_one_backend(rf):
     assert job_request.created_by == user
     assert job_request.workspace == workspace
     assert job_request.backend == "tpp"
-    assert job_request.requested_action == "twiddle"
+    assert job_request.requested_actions == ["twiddle"]
     assert job_request.jobs.count() == 1
 
 
@@ -196,7 +196,7 @@ def test_jobrequestcreate_success_with_all_backends(rf):
     workspace = WorkspaceFactory()
 
     data = {
-        "requested_action": "twiddle",
+        "requested_actions": ["frobnicate", "twiddle"],
         "backends": "all",
         "callback_url": "test",
     }
@@ -217,15 +217,15 @@ def test_jobrequestcreate_success_with_all_backends(rf):
     assert job_request1.created_by == user
     assert job_request1.workspace == workspace
     assert job_request1.backend == "emis"
-    assert job_request1.requested_action == "twiddle"
-    assert job_request1.jobs.exists() == 1
+    assert job_request1.requested_actions == ["frobnicate", "twiddle"]
+    assert job_request1.jobs.count() == 2
 
     job_request2 = job_requests[1]
     assert job_request2.created_by == user
     assert job_request2.workspace == workspace
     assert job_request2.backend == "tpp"
-    assert job_request2.requested_action == "twiddle"
-    assert job_request2.jobs.count() == 1
+    assert job_request2.requested_actions == ["frobnicate", "twiddle"]
+    assert job_request2.jobs.count() == 2
 
 
 @pytest.mark.django_db

@@ -24,6 +24,8 @@ class JobRequestFactory(factory.django.DjangoModelFactory):
     created_by = factory.SubFactory("tests.factories.UserFactory")
     workspace = factory.SubFactory("tests.factories.WorkspaceFactory")
 
+    requested_actions = []
+
 
 class WorkspaceFactory(factory.django.DjangoModelFactory):
     class Meta:
