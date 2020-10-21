@@ -175,10 +175,11 @@ class JobRequestCreate(CreateView):
                 backend=backend,
                 **form.cleaned_data,
             )
-            job_request.jobs.create(
-                action_id=job_request.requested_action,
-                force_run=job_request.force_run,
-            )
+            for action in job_request.requested_actions:
+                job_request.jobs.create(
+                    action_id=action,
+                    force_run=job_request.force_run,
+                )
 
         return redirect("job-list")
 
