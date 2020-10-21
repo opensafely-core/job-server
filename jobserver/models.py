@@ -174,7 +174,7 @@ class Job(models.Model):
         return "Pending"
 
     def save(self, *args, **kwargs):
-        if self.started:
+        if self.started and not self.started_at:
             self.started_at = datetime.datetime.now(tz=pytz.UTC)
 
         if self.status_code is not None and not self.completed_at:
