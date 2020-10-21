@@ -56,7 +56,7 @@
           <div class="runtime"><strong>Runtime</strong></div>
         </div>
 
-        {% for group in object_list %}
+        {% for group in page_obj %}
         <div class="job-request">
           <div class="d-flex align-items-center py-2">
             <div class="status">{% status_icon group.status %}</div>
