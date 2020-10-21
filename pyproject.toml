@@ -37,3 +37,6 @@ DJANGO_SETTINGS_MODULE = "jobserver.settings"
 env = [
   "OPENSAFELY_JOB_SERVER_SECRET_KEY=12345"
 ]
+filterwarnings = [
+    'ignore:django.conf.urls.url\(\) is deprecated:django.utils.deprecation.RemovedInDjango40Warning:rest_framework|social_django',
+]
