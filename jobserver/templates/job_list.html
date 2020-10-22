@@ -50,9 +50,9 @@
         <div class="d-flex">
           <div class="status"></div>
           <div class="workspace"><strong>Workspace</strong></div>
-          <div class="job-count"><strong>Jobs</strong></div>
-          <div class="action"><strong>Requested Action</strong></div>
-          <div class="started-at"><strong>Started</strong></div>
+          <div class="d-none d-md-block job-count"><strong>Jobs</strong></div>
+          <div class="d-none d-md-block action"><strong>Requested Action</strong></div>
+          <div class="d-none d-lg-block started-at"><strong>Started</strong></div>
           <div class="runtime"><strong>Runtime</strong></div>
         </div>
 
@@ -60,12 +60,12 @@
         <div class="job-request">
           <div class="d-flex align-items-center py-2">
             <div class="status">{% status_icon group.status %}</div>
-            <div class="workspace">{{ group.workspace.name }}</div>
-            <div class="job-count">{{ group.num_completed }}/{{ group.jobs.all|length }}</div>
-            <div class="action text-truncate" title="group.requested_action">
+            <div class="text-truncate workspace">{{ group.workspace.name }}</div>
+            <div class="d-none d-md-block job-count">{{ group.num_completed }}/{{ group.jobs.all|length }}</div>
+            <div class="d-none d-md-block action text-truncate" title="group.requested_action">
               {{ group.requested_action }}
             </div>
-            <div class="started-at">{{ group.started_at|naturaltime|default_if_none:"-" }}</div>
+            <div class="d-none d-lg-block started-at">{{ group.started_at|naturaltime|default_if_none:"-" }}</div>
             <div class="runtime">{% runtime group.runtime %}</div>
             <div class="mx-2">
               <button
@@ -79,7 +79,9 @@
                 aria-expanded="false"
                 aria-controls="group-{{ group.pk }}"
                 >
-                Show/Hide Individual Jobs
+                Show/Hide
+                <span class="d-none d-lg-inline">Individual</span>
+                <span class="d-none d-md-inline">Jobs</span>
               </button>
             </div>
           </div>
