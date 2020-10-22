@@ -122,6 +122,19 @@ def test_jobrequestlist_filter_by_status_and_workspace(rf):
 
 
 @pytest.mark.django_db
+def test_jobrequestlist_filter_by_username(rf):
+    user = UserFactory()
+    JobRequestFactory(created_by=user)
+    JobRequestFactory(created_by=UserFactory())
+
+    # Build a RequestFactory instance
+    request = rf.get(f"/?username={user.username}")
+    response = JobRequestList.as_view()(request)
+
+    assert len(response.context_data["object_list"]) == 1
+
+
+@pytest.mark.django_db
 def test_jobrequestlist_filter_by_workspace(rf):
     workspace = WorkspaceFactory()
     JobRequestFactory(workspace=workspace)
