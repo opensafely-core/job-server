@@ -36,6 +36,43 @@ def test_dashboard_other_users_jobs(rf):
 
 
 @pytest.mark.django_db
+def test_dashboard_search_by_action(rf):
+    user = UserFactory()
+
+    job_request1 = JobRequestFactory(created_by=user)
+    JobFactory(job_request=job_request1, action_id="run")
+
+    job_request2 = JobRequestFactory()
+    JobFactory(job_request=job_request2, action_id="leap")
+
+    # Build a RequestFactory instance
+    request = rf.get("/?q=run")
+    request.user = user
+    response = Dashboard.as_view()(request)
+
+    assert len(response.context_data["object_list"]) == 1
+    assert response.context_data["object_list"][0] == job_request1
+
+
+@pytest.mark.django_db
+def test_dashboard_search_by_id(rf):
+    user = UserFactory()
+
+    JobFactory(job_request=JobRequestFactory())
+
+    job_request2 = JobRequestFactory(created_by=user)
+    JobFactory(job_request=job_request2, id=99)
+
+    # Build a RequestFactory instance
+    request = rf.get("/?q=99")
+    request.user = user
+    response = Dashboard.as_view()(request)
+
+    assert len(response.context_data["object_list"]) == 1
+    assert response.context_data["object_list"][0] == job_request2
+
+
+@pytest.mark.django_db
 def test_dashboard_success(rf):
     user = UserFactory()
     job_request = JobRequestFactory(created_by=user)
