@@ -7,11 +7,23 @@
   <li class="pt-2"><strong>Status:</strong> {{ job.status }}</li>
   <li class="pt-2">
     <strong>Workspace:</strong>
+
+    {% if job.workspace %}
+    <a href={% url 'workspace-detail' pk=job.workspace.pk %}>
+      {{ job.workspace.name }}
+    </a>
+    {% else %}
     <a href={% url 'workspace-detail' pk=job.job_request.workspace.pk %}>
       {{ job.job_request.workspace.name }}
     </a>
+    {% endif %}
+
     <small class="text-muted">
+      {% if job.workspace %}
+      ({{ job.workspace.repo }} | {{ job.workspace.branch }})
+      {% else %}
       ({{ job.job_request.workspace.repo }} | {{ job.job_request.workspace.branch }})
+      {% endif %}
     </small>
   </li>
   <li class="pt-2"><strong>Action:</strong> {{ job.action_id|default:"-" }}</li>
