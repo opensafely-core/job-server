@@ -43,7 +43,6 @@ class Dashboard(ListView):
     expected to grow more User-centric features.
     """
 
-    ordering = "-pk"
     paginate_by = 25
     template_name = "job_list.html"
 
@@ -71,6 +70,7 @@ class Dashboard(ListView):
             JobRequest.objects.filter(created_by=self.request.user)
             .prefetch_related("jobs")
             .select_related("workspace")
+            .order_by("-pk")
         )
 
         q = self.request.GET.get("q")
@@ -98,7 +98,6 @@ class JobDetail(DetailView):
 
 
 class JobRequestList(ListView):
-    ordering = "-pk"
     paginate_by = 25
     template_name = "job_list.html"
 
@@ -120,7 +119,11 @@ class JobRequestList(ListView):
         return context
 
     def get_queryset(self):
-        qs = JobRequest.objects.prefetch_related("jobs").select_related("workspace")
+        qs = (
+            JobRequest.objects.prefetch_related("jobs")
+            .select_related("workspace")
+            .order_by("-pk")
+        )
 
         q = self.request.GET.get("q")
         if q:
