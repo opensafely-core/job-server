@@ -1,4 +1,4 @@
-FROM python:3.9-slim-buster
+FROM python:3.9-buster
 
 # Don't cache PyPI downloads or wheels.
 # Don't use pyc files or __pycache__ folders.
