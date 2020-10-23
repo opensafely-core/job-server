@@ -180,7 +180,8 @@ def test_jobrequestcreate_success_with_one_backend(rf):
     request = rf.post(MEANINGLESS_URL, data)
     request.user = user
 
-    with patch("jobserver.views.get_actions", new=lambda *args: ["twiddle"]):
+    dummy_project = {"twiddle": {"needs": []}}
+    with patch("jobserver.views.get_actions", new=lambda r, b: dummy_project):
         response = JobRequestCreate.as_view()(request, pk=workspace.pk)
 
     assert response.status_code == 302, response.context_data["form"].errors
@@ -209,9 +210,8 @@ def test_jobrequestcreate_success_with_all_backends(rf):
     request = rf.post(MEANINGLESS_URL, data)
     request.user = user
 
-    with patch(
-        "jobserver.views.get_actions", new=lambda *args: ["frobnicate", "twiddle"]
-    ):
+    dummy_project = {"frobnicate": {"needs": []}, "twiddle": {"needs": []}}
+    with patch("jobserver.views.get_actions", new=lambda r, b: dummy_project):
         response = JobRequestCreate.as_view()(request, pk=workspace.pk)
 
     assert response.status_code == 302, response.context_data["form"].errors

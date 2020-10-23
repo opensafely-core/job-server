@@ -10,6 +10,6 @@ def test_get_actions_success():
     """
 
     with patch("jobserver.project.get_file", lambda r, b: dummy_yaml):
-        output = list(get_actions("test", "master"))
+        output = dict(get_actions("test", "master"))
 
-    assert output == ["frobnicate"]
+    assert output == {"frobnicate": {"needs": []}}
