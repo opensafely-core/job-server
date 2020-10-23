@@ -157,10 +157,24 @@ class JobRequestCreate(CreateView):
 
     def dispatch(self, request, *args, **kwargs):
         try:
-            self.workspace = Workspace.objects.get(pk=self.kwargs["pk"])
+            self.workspace = Workspace.objects.prefetch_related(
+                "job_requests__jobs"
+            ).get(pk=self.kwargs["pk"])
         except Workspace.DoesNotExist:
             messages.error(request, "Unknown Workspace, please pick a valid one")
             return redirect("job-select-workspace")
+
+        # build up a list of actions from the Workspace's project.yaml for the
+        # User to pick from
+        actions_and_needs = dict(
+            get_actions(self.workspace.repo_name, self.workspace.branch)
+        )
+
+        self.actions = {}
+        for action, children in actions_and_needs.items():
+            status = self.workspace.get_latest_status_for_action(action)
+            children.update({"status": status})
+            self.actions[action] = children
 
         return super().dispatch(request, *args, **kwargs)
 
@@ -183,13 +197,14 @@ class JobRequestCreate(CreateView):
 
         return redirect("job-list")
 
-    def get_form_kwargs(self):
-        # build up a list of actions from the Workspace's project.yaml for the
-        # User to pick from
-        actions = get_actions(self.workspace.repo_name, self.workspace.branch)
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context["actions_data"] = self.actions
+        return context
 
+    def get_form_kwargs(self):
         kwargs = super().get_form_kwargs()
-        kwargs["actions"] = actions
+        kwargs["actions"] = self.actions.keys()
         return kwargs
 
 

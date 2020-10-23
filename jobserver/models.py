@@ -32,6 +32,20 @@ class Workspace(models.Model):
     def get_absolute_url(self):
         return reverse("workspace-detail", kwargs={"pk": self.pk})
 
+    def get_latest_status_for_action(self, action):
+        """
+        Get the latest status for an action in this Workspace
+        """
+
+        try:
+            job = Job.objects.filter(
+                action_id=action, job_request__workspace=self
+            ).latest("created_at")
+        except Job.DoesNotExist:
+            return "-"
+
+        return job.status
+
     @property
     def repo_name(self):
         """Convert repo URL -> repo name"""

@@ -1,12 +1,152 @@
 {% extends "base.html" %}
 
-{% load crispy_forms_tags %}
+{% load actions %}
 
 {% block content %}
 
-<div class="row">
+<div class="row job-create">
   <div class="col-8 offset-2">
-    {% crispy form %}
+
+    <form method="POST">
+      {% csrf_token %}
+
+      {% if form.non_field_errors %}
+      <ul>
+        {% for error in form.non_field_errors %}
+        <li class="text-danger">{{ error }}</li>
+        {% endfor %}
+      </ul>
+      {% endif %}
+
+      <div class="form-group">
+
+        <label for="id_backends" class="requiredField">
+          Backend <span class="text-danger">*</span>
+        </label>
+
+        <select name="backends" class="select form-control" id="id_backends">
+          {% for value, label in form.backends.field.choices %}
+          <option
+            {% if form.backends.value == value %}selected{% endif %}
+            value="{{ value }}"
+            >
+            {{ label }}
+          </option>
+          {% endfor %}
+        </select>
+
+        {% if form.backend.errors %}
+        <ul class="pl-3 mb-1">
+          {% for error in form.backend.errors %}
+          <li class="text-danger">{{ error }}</li>
+          {% endfor %}
+        </ul>
+        {% endif %}
+
+      </div>
+
+      <div class="form-group">
+        <div class="custom-control custom-checkbox">
+          <input
+            type="checkbox"
+            name="force_run"
+            class="custom-control-input{% if form.force_run.errors %} is-invalid{% endif %}"
+            id="id_force_run"
+            />
+          <label for="id_force_run" class="custom-control-label">
+            Force run?
+          </label>
+        </div>
+
+        {% if form.force_run.errors %}
+        <ul>
+          {% for error in form.force_run.errors %}
+          <li class="text-danger">{{ error }}</li>
+          {% endfor %}
+        </ul>
+        {% endif %}
+
+      </div>
+
+      <div class="form-group">
+        <div class="custom-control custom-checkbox">
+          <input
+            type="checkbox"
+            name="force_run_dependencies"
+            class="custom-control-input{% if form.force_run_dependencies.errors %} is-invalid{% endif %}"
+            id="id_force_run_dependencies"
+            />
+          <label for="id_force_run_dependencies" class="custom-control-label">
+            Force run dependencies?
+          </label>
+        </div>
+
+        {% if form.force_run_dependencies.errors %}
+        <ul>
+          {% for error in form.force_run_dependencies.errors %}
+          <li class="text-danger">{{ error }}</li>
+          {% endfor %}
+        </ul>
+        {% endif %}
+
+      </div>
+
+      <div class="form-group mb-5">
+        <label for="id_callback_url">Callback URL</label>
+        <input
+          type="text"
+          name="callback_url"
+          class="form-control{% if form.callback_url.errors %} is-invalid{% endif %}"
+          id="id_callback_url"
+          />
+
+        {% if form.callback_url.errors %}
+        <ul>
+          {% for error in form.callback_url.errors %}
+          <li class="text-danger">{{ error }}</li>
+          {% endfor %}
+        </ul>
+        {% endif %}
+      </div>
+
+      <p>Pick one or more actions to run:</p>
+
+      <div class="form-group mb-5">
+
+        <table class="table">
+          <thead>
+            <tr>
+              <th class="border-top-0"></th>
+              <th class="border-top-0">Action</th>
+              <th class="border-top-0">Needs</th>
+              <th class="border-top-0">Previous Status</th>
+            </tr>
+          </thead>
+          <tbody>
+            {% for name, _ in form.requested_actions.field.choices %}
+            <tr>
+              {% actions_row name actions_data %}
+            </tr>
+            {% endfor %}
+          </tbody>
+        </table>
+
+        {% if form.requested_actions.errors %}
+        <ul>
+          {% for error in form.requested_actions.errors %}
+          <li class="text-danger">{{ error }}</li>
+          {% endfor %}
+        </ul>
+        {% endif %}
+
+      </div>
+
+      <div class="form-group">
+        <input type="submit" name="submit" value="Submit" class="btn btn-primary" id="submit-id-submit" />
+      </div>
+
+    </form>
+
   </div>
 </div>
 {% endblock content %}

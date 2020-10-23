@@ -30,7 +30,7 @@ class JobRequestCreateForm(forms.ModelForm):
         #  add action field based on the actions passed in
         choices = [(a, a) for a in actions]
         self.fields["requested_actions"] = forms.MultipleChoiceField(
-            label="Actions", choices=choices, widget=forms.CheckboxSelectMultiple
+            choices=choices, widget=forms.CheckboxSelectMultiple
         )
 
     def clean_backends(self):
