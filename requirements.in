@@ -7,7 +7,6 @@ django-structlog
 first
 furl
 gunicorn
-networkx
 pyyaml
 requests
 sentry-sdk
