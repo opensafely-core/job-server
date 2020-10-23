@@ -371,45 +371,6 @@ def test_job_request_num_completed_success():
 
 
 @pytest.mark.django_db
-def test_jobrequest_ordered_jobs_no_jobs():
-    assert JobRequestFactory().ordered_jobs == []
-
-
-@pytest.mark.django_db
-def test_jobrequest_ordered_jobs_one_job():
-    job_request = JobRequestFactory()
-
-    job = JobFactory(job_request=job_request)
-
-    assert job_request.ordered_jobs == [job]
-
-
-@pytest.mark.django_db
-def test_jobrequest_ordered_jobs_success():
-    job_request = JobRequestFactory()
-
-    job1 = JobFactory(job_request=job_request, completed_at=timezone.now())
-    job2 = JobFactory(
-        job_request=job_request, completed_at=timezone.now(), status_code=3
-    )
-    job3 = JobFactory(job_request=job_request, completed_at=timezone.now())
-    job4 = JobFactory(job_request=job_request, completed_at=timezone.now())
-
-    # set up hierarchy
-    job1.needed_by = job2
-    job1.save()
-
-    job2.needed_by = job4
-    job2.save()
-
-    job3.needed_by = job4
-    job3.save()
-
-    assert len(job_request.ordered_jobs) == 4
-    assert job_request.ordered_jobs == [job3, job1, job2, job4]
-
-
-@pytest.mark.django_db
 def test_jobrequest_runtime_no_jobs():
     assert not JobRequestFactory().runtime
 
