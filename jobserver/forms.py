@@ -15,19 +15,23 @@ class JobRequestCreateForm(forms.ModelForm):
             "backends",
             "force_run",
             "force_run_dependencies",
-            "requested_action",
             "callback_url",
         ]
         model = JobRequest
         widgets = {
-            "requested_action": forms.TextInput(),
             "callback_url": forms.TextInput(),
         }
 
-    def __init__(self, *args, **kwargs):
+    def __init__(self, actions, *args, **kwargs):
         super().__init__(*args, **kwargs)
         self.helper = FormHelper()
         self.helper.add_input(Submit("submit", "Submit"))
+
+        #  add action field based on the actions passed in
+        choices = [(a, a) for a in actions]
+        self.fields["requested_actions"] = forms.MultipleChoiceField(
+            choices=choices, widget=forms.CheckboxSelectMultiple
+        )
 
     def clean_backends(self):
         """

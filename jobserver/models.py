@@ -1,12 +1,11 @@
 import datetime
 
-import networkx as nx
 import pytz
 import requests
 from django.contrib.auth.models import AbstractUser
 from django.db import models
 from django.urls import reverse
-from first import first
+from furl import furl
 
 from .runtime import Runtime
 
@@ -32,6 +31,30 @@ class Workspace(models.Model):
 
     def get_absolute_url(self):
         return reverse("workspace-detail", kwargs={"pk": self.pk})
+
+    def get_latest_status_for_action(self, action):
+        """
+        Get the latest status for an action in this Workspace
+        """
+
+        try:
+            job = Job.objects.filter(
+                action_id=action, job_request__workspace=self
+            ).latest("created_at")
+        except Job.DoesNotExist:
+            return "-"
+
+        return job.status
+
+    @property
+    def repo_name(self):
+        """Convert repo URL -> repo name"""
+        f = furl(self.repo)
+
+        if not f.path:
+            raise Exception("Repo URL not in expected format, appears to have no path")
+
+        return f.path.segments[-1]
 
 
 class JobQuerySet(models.QuerySet):
@@ -70,15 +93,11 @@ class Job(models.Model):
 
     objects = JobQuerySet.as_manager()
 
+    class Meta:
+        ordering = ["pk"]
+
     def __str__(self):
         return f"{self.action_id} ({self.pk})"
-
-    @property
-    def edge(self):
-        if not self.needed_by_id:
-            return
-
-        return (self.pk, self.needed_by_id)
 
     def get_absolute_url(self):
         return reverse("job-detail", kwargs={"pk": self.pk})
@@ -223,20 +242,22 @@ class JobRequest(models.Model):
     backend = models.TextField(choices=BACKEND_CHOICES, db_index=True)
     force_run = models.BooleanField(default=False)
     force_run_dependencies = models.BooleanField(default=False)
-    requested_action = models.TextField()
+    requested_actions = models.JSONField()
     callback_url = models.TextField(null=True, blank=True)
 
     created_at = models.DateTimeField(auto_now_add=True)
 
     @property
     def completed_at(self):
-        if not self.ordered_jobs:
+        last_job = self.jobs.order_by("completed_at").last()
+
+        if not last_job:
             return
 
         if not self.is_complete:
             return
 
-        return first(reversed(self.ordered_jobs)).completed_at
+        return last_job.completed_at
 
     @property
     def is_complete(self):
@@ -271,32 +292,6 @@ class JobRequest(models.Model):
         return len([j for j in self.jobs.all() if j.is_complete])
 
     @property
-    def ordered_jobs(self):
-        """Order this JobRequest's Jobs based on their dependencies."""
-        # cache jobs QuerySet to memory to avoid further queries
-        all_jobs = list(self.jobs.all())
-
-        if len(all_jobs) == 1:
-            return [first(all_jobs)]
-
-        # create a lookup table of Job ID -> Job so we can convert the graph
-        # nodes (Job IDs) back to Job instances
-        jobs_by_id = {j.pk: j for j in all_jobs}
-
-        # build up a list of edges using Job's edge property, no edge means
-        # it's a root node
-        edges = [j.edge for j in all_jobs if j.edge]
-
-        # build a directed graph from the edges so we can get a linear
-        # representation of them
-        graph = nx.DiGraph(edges)
-
-        # convert graph to a linear iterable.  topological_sort() is a roughly
-        # linear representation of the graph.  This will, of course, fall down
-        # for graphs with multiple forks but that's a known issue.
-        return [jobs_by_id[pk] for pk in nx.topological_sort(graph)]
-
-    @property
     def runtime(self):
         if self.started_at is None:
             return
@@ -313,10 +308,12 @@ class JobRequest(models.Model):
 
     @property
     def started_at(self):
-        if not self.ordered_jobs:
+        first_job = self.jobs.exclude(started_at=None).order_by("started_at").first()
+
+        if not first_job:
             return
 
-        return first(self.ordered_jobs).started_at
+        return first_job.started_at
 
     @property
     def status(self):

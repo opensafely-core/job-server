@@ -1,3 +1,5 @@
+from unittest.mock import patch
+
 import pytest
 from django.contrib.auth.models import AnonymousUser
 from django.urls import reverse
@@ -169,7 +171,7 @@ def test_jobrequestcreate_success_with_one_backend(rf):
     workspace = WorkspaceFactory()
 
     data = {
-        "requested_action": "twiddle",
+        "requested_actions": ["twiddle"],
         "backends": "tpp",
         "callback_url": "test",
     }
@@ -177,7 +179,10 @@ def test_jobrequestcreate_success_with_one_backend(rf):
     # Build a RequestFactory instance
     request = rf.post(MEANINGLESS_URL, data)
     request.user = user
-    response = JobRequestCreate.as_view()(request, pk=workspace.pk)
+
+    dummy_project = {"twiddle": {"needs": []}}
+    with patch("jobserver.views.get_actions", new=lambda r, b: dummy_project):
+        response = JobRequestCreate.as_view()(request, pk=workspace.pk)
 
     assert response.status_code == 302, response.context_data["form"].errors
     assert response.url == reverse("job-list")
@@ -186,7 +191,7 @@ def test_jobrequestcreate_success_with_one_backend(rf):
     assert job_request.created_by == user
     assert job_request.workspace == workspace
     assert job_request.backend == "tpp"
-    assert job_request.requested_action == "twiddle"
+    assert job_request.requested_actions == ["twiddle"]
     assert job_request.jobs.count() == 1
 
 
@@ -196,7 +201,7 @@ def test_jobrequestcreate_success_with_all_backends(rf):
     workspace = WorkspaceFactory()
 
     data = {
-        "requested_action": "twiddle",
+        "requested_actions": ["frobnicate", "twiddle"],
         "backends": "all",
         "callback_url": "test",
     }
@@ -204,7 +209,10 @@ def test_jobrequestcreate_success_with_all_backends(rf):
     # Build a RequestFactory instance
     request = rf.post(MEANINGLESS_URL, data)
     request.user = user
-    response = JobRequestCreate.as_view()(request, pk=workspace.pk)
+
+    dummy_project = {"frobnicate": {"needs": []}, "twiddle": {"needs": []}}
+    with patch("jobserver.views.get_actions", new=lambda r, b: dummy_project):
+        response = JobRequestCreate.as_view()(request, pk=workspace.pk)
 
     assert response.status_code == 302, response.context_data["form"].errors
     assert response.url == reverse("job-list")
@@ -217,15 +225,15 @@ def test_jobrequestcreate_success_with_all_backends(rf):
     assert job_request1.created_by == user
     assert job_request1.workspace == workspace
     assert job_request1.backend == "emis"
-    assert job_request1.requested_action == "twiddle"
-    assert job_request1.jobs.exists() == 1
+    assert job_request1.requested_actions == ["frobnicate", "twiddle"]
+    assert job_request1.jobs.count() == 2
 
     job_request2 = job_requests[1]
     assert job_request2.created_by == user
     assert job_request2.workspace == workspace
     assert job_request2.backend == "tpp"
-    assert job_request2.requested_action == "twiddle"
-    assert job_request2.jobs.count() == 1
+    assert job_request2.requested_actions == ["frobnicate", "twiddle"]
+    assert job_request2.jobs.count() == 2
 
 
 @pytest.mark.django_db
@@ -322,7 +330,6 @@ def test_workspaceselectorcreate_redirects_to_new_workspace(rf):
 def test_workspaceselectorcreate_success(rf):
     WorkspaceFactory()
     WorkspaceFactory()
-
     # Build a RequestFactory instance
     request = rf.get(MEANINGLESS_URL)
     request.user = UserFactory()

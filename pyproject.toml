@@ -14,6 +14,7 @@ exclude = '''
 branch = true
 omit = [
   "jobserver/asgi.py",
+  "jobserver/migrations/*",
   "jobserver/settings.py",
   "jobserver/wsgi.py",
 ]
@@ -35,5 +36,9 @@ use_parentheses = true
 [tool.pytest.ini_options]
 DJANGO_SETTINGS_MODULE = "jobserver.settings"
 env = [
-  "OPENSAFELY_JOB_SERVER_SECRET_KEY=12345"
+  "GITHUB_TOKEN=dummy_token",
+  "OPENSAFELY_JOB_SERVER_SECRET_KEY=12345",
+]
+filterwarnings = [
+    'ignore:django.conf.urls.url\(\) is deprecated:django.utils.deprecation.RemovedInDjango40Warning:rest_framework|social_django',
 ]

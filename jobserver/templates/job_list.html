@@ -96,7 +96,7 @@
               <span class="d-none d-lg-inline"><strong>Status Message</strong></span>
               <span></span>
 
-              {% for job in group.ordered_jobs %}
+              {% for job in group.jobs.all %}
               <span class="pl-3">{% status_icon job.status %}</span>
               <span class="d-none d-lg-inline"><small>{{ job.pk }}</small></span>
               <span>{{ job.action_id }}</span>
