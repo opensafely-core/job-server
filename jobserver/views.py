@@ -173,8 +173,7 @@ class JobRequestCreate(CreateView):
         self.actions = {}
         for action, children in actions_and_needs.items():
             status = self.workspace.get_latest_status_for_action(action)
-            children.update({"status": status})
-            self.actions[action] = children
+            self.actions[action] = children | {"status": status}
 
         return super().dispatch(request, *args, **kwargs)
 
