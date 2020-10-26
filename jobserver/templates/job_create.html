@@ -4,6 +4,14 @@
 
 {% block content %}
 
+{% if not actions_data %}
+<div class="my-5 text-center">
+  <p>
+    It looks like the branch <code>{{ branch }}</code> doesn't have a <code>project.yaml</code>.
+  </p>
+  <p>Create one and reload this page to continue.</p>
+</div>
+{% else %}
 <div class="row job-create">
   <div class="col-8 offset-2">
 
@@ -149,4 +157,5 @@
 
   </div>
 </div>
+{% endif %}
 {% endblock content %}

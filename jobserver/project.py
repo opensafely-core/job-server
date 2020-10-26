@@ -10,6 +10,9 @@ def load_yaml(content):
 def get_actions(repo, branch):
     """Get actions from project.yaml for this Workspace"""
     content = get_file(repo, branch)
+    if content is None:
+        return {}
+
     project = load_yaml(content)
 
     for action, children in project["actions"].items():
