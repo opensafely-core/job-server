@@ -9,6 +9,27 @@ TOKEN = os.environ["GITHUB_TOKEN"]
 USER_AGENT = "OpenSAFELY Jobs"
 
 
+def get_branch_sha(repo, branch):
+    f = furl(BASE_URL)
+    f.path.segments += [
+        "repos",
+        "opensafely",
+        repo,
+        "branches",
+        branch,
+    ]
+
+    headers = {
+        "Accept": "application/vnd.github.v3+json",
+        "Authorization": f"token {TOKEN}",
+        "User-Agent": "OpenSAFELY Jobs",
+    }
+    r = requests.get(f.url, headers=headers)
+    r.raise_for_status()
+
+    return r.json()["commit"]["sha"]
+
+
 def get_file(repo, branch):
     f = furl(BASE_URL)
     f.path.segments += [
