@@ -1,17 +1,6 @@
 import responses
 
-from jobserver.github import _build_headers, get_file
-
-
-def test_build_headers():
-    headers = _build_headers()
-
-    assert headers["Accept"] == "application/vnd.github.v3+json"
-    assert headers["Authorization"] == "token dummy_token"
-    assert headers["User-Agent"] == "OpenSAFELY Jobs"
-
-    headers = _build_headers(accept="different accept")
-    assert headers["Accept"] == "different accept"
+from jobserver.github import get_file
 
 
 @responses.activate
