@@ -3,10 +3,12 @@ from django.contrib.auth.decorators import login_required
 from django.db import transaction
 from django.db.models import Q
 from django.shortcuts import redirect
+from django.urls import reverse
 from django.utils.decorators import method_decorator
 from django.views.generic import CreateView, DetailView, ListView
 
 from .forms import JobRequestCreateForm, WorkspaceCreateForm
+from .github import get_repos_with_branches
 from .models import Job, JobRequest, User, Workspace
 from .project import get_actions
 
@@ -220,6 +222,15 @@ class WorkspaceCreate(CreateView):
 
         return redirect(instance)
 
+    def get_form_kwargs(self):
+        repos_with_branches = sorted(
+            get_repos_with_branches(), key=lambda r: r["name"].lower()
+        )
+
+        kwargs = super().get_form_kwargs()
+        kwargs["repos_with_branches"] = repos_with_branches
+        return kwargs
+
 
 class WorkspaceDetail(DetailView):
     model = Workspace
@@ -249,8 +260,16 @@ class WorkspaceSelectOrCreate(CreateView):
     model = Workspace
     template_name = "workspace_select.html"
 
+    def dispatch(self, request, *args, **kwargs):
+        self.repos_with_branches = sorted(
+            get_repos_with_branches(), key=lambda r: r["name"].lower()
+        )
+
+        return super().dispatch(request, *args, **kwargs)
+
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
+        context["repos_with_branches"] = self.repos_with_branches
         context["workspace_list"] = Workspace.objects.order_by("name")
         return context
 
@@ -259,3 +278,11 @@ class WorkspaceSelectOrCreate(CreateView):
         instance.created_by = self.request.user
         instance.save()
         return redirect("job-create", pk=instance.pk)
+
+    def get_form_kwargs(self):
+        kwargs = super().get_form_kwargs()
+        kwargs["repos_with_branches"] = self.repos_with_branches
+        return kwargs
+
+    def get_success_url(self):
+        return reverse("job-create", kwargs={"pk": self.object.pk})
