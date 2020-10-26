@@ -63,6 +63,7 @@ class JobShimSerializer(serializers.Serializer):
     callback_url = serializers.CharField(
         source="job_request.callback_url", allow_null=True, required=False
     )
+    sha = serializers.CharField(read_only=True)
 
     def create(self, validated_data):
         # walk the dep links until we reach the leaf Job, which we expect to
