@@ -36,6 +36,43 @@ def test_dashboard_other_users_jobs(rf):
 
 
 @pytest.mark.django_db
+def test_dashboard_search_by_action(rf):
+    user = UserFactory()
+
+    job_request1 = JobRequestFactory(created_by=user)
+    JobFactory(job_request=job_request1, action_id="run")
+
+    job_request2 = JobRequestFactory()
+    JobFactory(job_request=job_request2, action_id="leap")
+
+    # Build a RequestFactory instance
+    request = rf.get("/?q=run")
+    request.user = user
+    response = Dashboard.as_view()(request)
+
+    assert len(response.context_data["object_list"]) == 1
+    assert response.context_data["object_list"][0] == job_request1
+
+
+@pytest.mark.django_db
+def test_dashboard_search_by_id(rf):
+    user = UserFactory()
+
+    JobFactory(job_request=JobRequestFactory())
+
+    job_request2 = JobRequestFactory(created_by=user)
+    JobFactory(job_request=job_request2, id=99)
+
+    # Build a RequestFactory instance
+    request = rf.get("/?q=99")
+    request.user = user
+    response = Dashboard.as_view()(request)
+
+    assert len(response.context_data["object_list"]) == 1
+    assert response.context_data["object_list"][0] == job_request2
+
+
+@pytest.mark.django_db
 def test_dashboard_success(rf):
     user = UserFactory()
     job_request = JobRequestFactory(created_by=user)
@@ -61,7 +98,23 @@ def test_dashboard_unauthenticed_redirect(rf):
 
 
 @pytest.mark.django_db
-def test_joblist_filters_exist(rf):
+def test_dashboard_filter_by_workspace(rf):
+    user = UserFactory()
+
+    workspace = WorkspaceFactory()
+    JobRequestFactory(created_by=user, workspace=workspace)
+    JobRequestFactory(created_by=user)
+
+    # Build a RequestFactory instance
+    request = rf.get(f"/?workspace={workspace.pk}")
+    request.user = user
+    response = Dashboard.as_view()(request)
+
+    assert len(response.context_data["object_list"]) == 1
+
+
+@pytest.mark.django_db
+def test_jobrequestlist_filters_exist(rf):
     # Build a RequestFactory instance
     request = rf.get(MEANINGLESS_URL)
     response = JobRequestList.as_view()(request)
@@ -71,7 +124,7 @@ def test_joblist_filters_exist(rf):
 
 
 @pytest.mark.django_db
-def test_joblist_filter_by_status(rf):
+def test_jobrequestlist_filter_by_status(rf):
     job_request1 = JobRequestFactory()
     JobFactory(job_request=job_request1)
 
@@ -87,7 +140,7 @@ def test_joblist_filter_by_status(rf):
 
 
 @pytest.mark.django_db
-def test_joblist_filter_by_status_and_workspace(rf):
+def test_jobrequestlist_filter_by_status_and_workspace(rf):
     workspace1 = WorkspaceFactory()
     workspace2 = WorkspaceFactory()
 
@@ -122,7 +175,20 @@ def test_joblist_filter_by_status_and_workspace(rf):
 
 
 @pytest.mark.django_db
-def test_joblist_filter_by_workspace(rf):
+def test_jobrequestlist_filter_by_username(rf):
+    user = UserFactory()
+    JobRequestFactory(created_by=user)
+    JobRequestFactory(created_by=UserFactory())
+
+    # Build a RequestFactory instance
+    request = rf.get(f"/?username={user.username}")
+    response = JobRequestList.as_view()(request)
+
+    assert len(response.context_data["object_list"]) == 1
+
+
+@pytest.mark.django_db
+def test_jobrequestlist_filter_by_workspace(rf):
     workspace = WorkspaceFactory()
     JobRequestFactory(workspace=workspace)
     JobRequestFactory()
@@ -135,7 +201,7 @@ def test_joblist_filter_by_workspace(rf):
 
 
 @pytest.mark.django_db
-def test_joblist_search_by_action(rf):
+def test_jobrequestlist_search_by_action(rf):
     job_request1 = JobRequestFactory()
     JobFactory(job_request=job_request1, action_id="run")
 
@@ -151,7 +217,7 @@ def test_joblist_search_by_action(rf):
 
 
 @pytest.mark.django_db
-def test_joblist_search_by_id(rf):
+def test_jobrequestlist_search_by_id(rf):
     JobFactory(job_request=JobRequestFactory())
 
     job_request2 = JobRequestFactory()
