@@ -244,6 +244,7 @@ class JobRequest(models.Model):
     force_run_dependencies = models.BooleanField(default=False)
     requested_actions = models.JSONField()
     callback_url = models.TextField(null=True, blank=True)
+    sha = models.TextField()
 
     created_at = models.DateTimeField(auto_now_add=True)
 
