@@ -1,0 +1,15 @@
+{% extends "job_list_base.html" %}
+
+{% load querystring_tools %}
+
+{% block title %}My Jobs{% endblock %}
+
+{% block empty_list %}
+<div class="text-center">
+  <p>No results found, <a href="{% url 'job-list' %}">Clear all filters</a>?</p>
+
+  <p>OR</p>
+
+  <p>Try your query across <a href={% redirect_with_querystring 'job-list' %}>All Jobs</a>?<p>
+</div>
+{% endblock %}
