@@ -114,6 +114,29 @@ def test_dashboard_filter_by_workspace(rf):
 
 
 @pytest.mark.django_db
+def test_jobdetail_with_newer_job(rf):
+    job_request = JobRequestFactory(workspace=WorkspaceFactory())
+    job = JobFactory(job_request=job_request)
+
+    # Build a RequestFactory instance
+    request = rf.get(MEANINGLESS_URL)
+    response = JobRequestList.as_view()(request, pk=job.pk)
+
+    assert response.status_code == 200
+
+
+@pytest.mark.django_db
+def test_jobdetail_with_older_job(rf):
+    job = JobFactory(workspace=WorkspaceFactory())
+
+    # Build a RequestFactory instance
+    request = rf.get(MEANINGLESS_URL)
+    response = JobRequestList.as_view()(request, pk=job.pk)
+
+    assert response.status_code == 200
+
+
+@pytest.mark.django_db
 def test_jobrequestlist_filters_exist(rf):
     # Build a RequestFactory instance
     request = rf.get(MEANINGLESS_URL)
