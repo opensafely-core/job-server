@@ -270,7 +270,9 @@ def test_jobrequestcreate_success_with_one_backend(rf):
     request.user = user
 
     dummy_project = {"twiddle": {"needs": []}}
-    with patch("jobserver.views.get_actions", new=lambda r, b: dummy_project):
+    with patch("jobserver.views.get_actions", new=lambda r, b: dummy_project), patch(
+        "jobserver.views.get_branch_sha", new=lambda r, b: "abc123"
+    ):
         response = JobRequestCreate.as_view()(request, pk=workspace.pk)
 
     assert response.status_code == 302, response.context_data["form"].errors
@@ -281,6 +283,7 @@ def test_jobrequestcreate_success_with_one_backend(rf):
     assert job_request.workspace == workspace
     assert job_request.backend == "tpp"
     assert job_request.requested_actions == ["twiddle"]
+    assert job_request.sha == "abc123"
     assert job_request.jobs.count() == 1
 
 
@@ -300,7 +303,9 @@ def test_jobrequestcreate_success_with_all_backends(rf):
     request.user = user
 
     dummy_project = {"frobnicate": {"needs": []}, "twiddle": {"needs": []}}
-    with patch("jobserver.views.get_actions", new=lambda r, b: dummy_project):
+    with patch("jobserver.views.get_actions", new=lambda r, b: dummy_project), patch(
+        "jobserver.views.get_branch_sha", new=lambda r, b: "abc123"
+    ):
         response = JobRequestCreate.as_view()(request, pk=workspace.pk)
 
     assert response.status_code == 302, response.context_data["form"].errors
@@ -315,6 +320,7 @@ def test_jobrequestcreate_success_with_all_backends(rf):
     assert job_request1.workspace == workspace
     assert job_request1.backend == "emis"
     assert job_request1.requested_actions == ["frobnicate", "twiddle"]
+    assert job_request1.sha == "abc123"
     assert job_request1.jobs.count() == 2
 
     job_request2 = job_requests[1]
@@ -322,6 +328,7 @@ def test_jobrequestcreate_success_with_all_backends(rf):
     assert job_request2.workspace == workspace
     assert job_request2.backend == "tpp"
     assert job_request2.requested_actions == ["frobnicate", "twiddle"]
+    assert job_request2.sha == "abc123"
     assert job_request2.jobs.count() == 2
 
 

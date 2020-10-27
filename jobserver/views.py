@@ -8,7 +8,7 @@ from django.utils.decorators import method_decorator
 from django.views.generic import CreateView, DetailView, ListView
 
 from .forms import JobRequestCreateForm, WorkspaceCreateForm
-from .github import get_repos_with_branches
+from .github import get_branch_sha, get_repos_with_branches
 from .models import Job, JobRequest, User, Workspace
 from .project import get_actions
 
@@ -181,13 +181,16 @@ class JobRequestCreate(CreateView):
 
     @transaction.atomic
     def form_valid(self, form):
-        # pop backends as it's not field on JobRequest
+        sha = get_branch_sha(self.workspace.repo_name, self.workspace.branch)
+
+        # pop backends as it's not a field on JobRequest
         backends = form.cleaned_data.pop("backends")
         for backend in backends:
             job_request = JobRequest.objects.create(
                 workspace=self.workspace,
                 created_by=self.request.user,
                 backend=backend,
+                sha=sha,
                 **form.cleaned_data,
             )
             for action in job_request.requested_actions:
