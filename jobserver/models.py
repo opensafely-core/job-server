@@ -5,6 +5,7 @@ import requests
 from django.contrib.auth.models import AbstractUser
 from django.db import models
 from django.urls import reverse
+from django.utils import timezone
 from furl import furl
 
 from .runtime import Runtime
@@ -297,10 +298,8 @@ class JobRequest(models.Model):
         if self.started_at is None:
             return
 
-        if self.completed_at is None:
-            return
-
-        delta = self.completed_at - self.started_at
+        end = timezone.now() if self.completed_at is None else self.completed_at
+        delta = end - self.started_at
 
         hours, remainder = divmod(delta.total_seconds(), 3600)
         minutes, seconds = divmod(remainder, 60)
