@@ -5,19 +5,8 @@ from furl import furl
 
 
 BASE_URL = "https://api.github.com"
-
 TOKEN = os.environ["GITHUB_TOKEN"]
-
-
-def _build_headers(accept=None):
-    if accept is None:
-        accept = "application/vnd.github.v3+json"
-
-    return {
-        "Accept": accept,
-        "Authorization": f"token {TOKEN}",
-        "User-Agent": "OpenSAFELY Jobs",
-    }
+USER_AGENT = "OpenSAFELY Jobs"
 
 
 def get_file(repo, branch):
@@ -31,8 +20,58 @@ def get_file(repo, branch):
     ]
     f.args["ref"] = branch
 
-    headers = _build_headers(accept="application/vnd.github.3.raw")
+    headers = {
+        "Accept": "application/vnd.github.3.raw",
+        "Authorization": f"token {TOKEN}",
+        "User-Agent": USER_AGENT,
+    }
     r = requests.get(f.url, headers=headers)
     r.raise_for_status()
 
     return r.text
+
+
+def get_repos_with_branches():
+    """
+    Get Repos with their branches from the OpenSafely Researchers Team
+
+    This uses the GraphQL API to avoid making O(N) calls to GitHub's (v3) REST
+    API.
+    """
+    query = """
+    query {
+      organization(login: "opensafely") {
+        team(slug: "researchers") {
+          repositories(first: 100) {
+            nodes {
+              name
+              url
+              refs(refPrefix: "refs/heads/", first: 100) {
+                nodes {
+                  name
+                }
+              }
+            }
+          }
+        }
+      }
+    }
+    """
+    payload = {"query": query}
+
+    headers = {
+        "Authorization": f"bearer {TOKEN}",
+        "User-Agent": USER_AGENT,
+    }
+    r = requests.post("https://api.github.com/graphql", headers=headers, json=payload)
+    r.raise_for_status()
+    repos = r.json()["data"]["organization"]["team"]["repositories"]["nodes"]
+
+    for repo in repos:
+        branches = [b["name"] for b in repo["refs"]["nodes"]]
+
+        yield {
+            "name": repo["name"],
+            "url": repo["url"],
+            "branches": branches,
+        }

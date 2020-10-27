@@ -328,7 +328,9 @@ def test_jobrequestcreate_success_with_all_backends(rf):
 @pytest.mark.django_db
 def test_jobrequestcreate_unknown_workspace_redirects_to_select_workspace_form(client):
     client.force_login(UserFactory())
-    response = client.post("/jobs/new/0/", follow=True)
+
+    with patch("jobserver.views.get_repos_with_branches", new=lambda *args: []):
+        response = client.post("/jobs/new/0/", follow=True)
 
     assert response.status_code == 200
     assert response.redirect_chain == [(reverse("job-select-workspace"), 302)]
@@ -351,7 +353,10 @@ def test_workspacecreate_redirects_to_new_workspace(rf):
     # Build a RequestFactory instance
     request = rf.post(MEANINGLESS_URL, data)
     request.user = user
-    response = WorkspaceCreate.as_view()(request)
+
+    repos = [{"name": "Test", "url": "test", "branches": ["test"]}]
+    with patch("jobserver.views.get_repos_with_branches", new=lambda *args: repos):
+        response = WorkspaceCreate.as_view()(request)
 
     assert response.status_code == 302
 
@@ -407,7 +412,10 @@ def test_workspaceselectorcreate_redirects_to_new_workspace(rf):
     # Build a RequestFactory instance
     request = rf.post(MEANINGLESS_URL, data)
     request.user = UserFactory()
-    response = WorkspaceSelectOrCreate.as_view()(request)
+
+    repos = [{"name": "Test", "url": "test", "branches": ["test"]}]
+    with patch("jobserver.views.get_repos_with_branches", new=lambda *args: repos):
+        response = WorkspaceSelectOrCreate.as_view()(request)
 
     assert response.status_code == 302
 
@@ -419,9 +427,13 @@ def test_workspaceselectorcreate_redirects_to_new_workspace(rf):
 def test_workspaceselectorcreate_success(rf):
     WorkspaceFactory()
     WorkspaceFactory()
+
     # Build a RequestFactory instance
     request = rf.get(MEANINGLESS_URL)
     request.user = UserFactory()
-    response = WorkspaceSelectOrCreate.as_view()(request)
+
+    with patch("jobserver.views.get_repos_with_branches", new=lambda *args: []):
+        response = WorkspaceSelectOrCreate.as_view()(request)
+
     assert response.status_code == 200
     assert len(response.context_data["workspace_list"]) == 2
