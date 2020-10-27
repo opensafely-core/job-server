@@ -12,7 +12,7 @@
 <div class="job-list">
   <div class="d-flex justify-content-between mt-3 mb-4">
 
-    <h2>Jobs</h2>
+    <h2>{% block title %}{% endblock %}</h2>
 
     {% if user.is_authenticated %}
     <div>
@@ -39,11 +39,8 @@
     </form>
 
 
-      {% if not object_list %}
-      <div class="text-center">
-        <p>No results found.</p>
-        <a href="{% url 'job-list' %}">Clear all filters?</a>
-      </div>
+      {% if not page_obj %}
+      {% block empty_list %}{% endblock %}
       {% else %}
 
       <div class="job-requests">

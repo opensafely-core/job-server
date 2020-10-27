@@ -47,7 +47,7 @@ class Dashboard(ListView):
     """
 
     paginate_by = 25
-    template_name = "job_list.html"
+    template_name = "dashboard.html"
 
     def dispatch(self, request, *args, **kwargs):
         if not request.user.is_authenticated:
@@ -102,7 +102,7 @@ class JobDetail(DetailView):
 
 class JobRequestList(ListView):
     paginate_by = 25
-    template_name = "job_list.html"
+    template_name = "jobrequest_list.html"
 
     def get_context_data(self, **kwargs):
         # only get Users created via GitHub OAuth
