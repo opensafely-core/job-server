@@ -201,6 +201,7 @@ class JobRequestCreate(CreateView):
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
         context["actions_data"] = self.actions
+        context["branch"] = self.workspace.branch
         return context
 
     def get_form_kwargs(self):

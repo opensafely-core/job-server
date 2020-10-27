@@ -26,6 +26,10 @@ def get_file(repo, branch):
         "User-Agent": USER_AGENT,
     }
     r = requests.get(f.url, headers=headers)
+
+    if r.status_code == 404:
+        return
+
     r.raise_for_status()
 
     return r.text

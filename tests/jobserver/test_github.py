@@ -22,6 +22,24 @@ def test_get_file():
 
 
 @responses.activate
+def test_get_file_missing_project_yml():
+    expected_url = "https://api.github.com/repos/opensafely/some_repo/contents/project.yaml?ref=missing_project"
+    responses.add(responses.GET, expected_url, status=404)
+
+    output = get_file("some_repo", "missing_project")
+
+    assert len(responses.calls) == 1
+
+    call = responses.calls[0]
+
+    # check the headers are correct
+    assert "token" in call.request.headers["Authorization"]
+    assert call.request.headers["Accept"] == "application/vnd.github.3.raw"
+
+    assert output is None
+
+
+@responses.activate
 def test_get_repos_with_branches():
     data = {
         "data": {
