@@ -47,8 +47,9 @@
         <div class="d-flex">
           <div class="status"></div>
           <div class="workspace"><strong>Workspace</strong></div>
+          <div class="d-none d-md-block backend"></div>
           <div class="d-none d-md-block job-count"><strong>Jobs</strong></div>
-          <div class="d-none d-md-block action"><strong>Requested Actions</strong></div>
+          <div class="d-none d-md-block action"><strong>Requested Action</strong></div>
           <div class="d-none d-lg-block started-at"><strong>Started</strong></div>
           <div class="runtime"><strong>Runtime</strong></div>
         </div>
@@ -58,11 +59,13 @@
           <div class="d-flex align-items-center py-2">
             <div class="status">{% status_icon group.status %}</div>
             <div class="text-truncate workspace">{{ group.workspace.name }}</div>
+            <div class="d-none d-md-block backend">
+                <span class="badge badge-secondary">{{ group.backend|upper }}</span>
+            </div>
             <div class="d-none d-md-block job-count">{{ group.num_completed }}/{{ group.jobs.all|length }}</div>
             <div class="d-none d-md-block action text-truncate" title="{{ group.requested_actions|join:"," }}">
               {{ group.requested_actions|join:"," }}
             </div>
-            <div class="d-none d-lg-block started-at">{{ group.started_at|naturaltime|default_if_none:"-" }}</div>
             <div class="runtime">{% runtime group.runtime %}</div>
             <div class="mx-2">
               <button

@@ -17,6 +17,10 @@ header {
   min-width: 85px;
   width: 10%;
 }
+.job-list .job-requests .backend {
+  margin-right: .5rem;
+  width: 40px;
+}
 .job-list .job-requests .job-count {
   margin-right: .5rem;
   width: 5%;

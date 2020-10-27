@@ -376,21 +376,30 @@ def test_jobrequest_runtime_no_jobs():
 
 
 @pytest.mark.django_db
-def test_jobrequest_runtime_not_completed():
+def test_jobrequest_runtime_not_completed(freezer):
     job_request = JobRequestFactory()
 
     job1 = JobFactory(
         job_request=job_request,
-        started_at=timezone.now() - timedelta(minutes=1),
-        completed_at=timezone.now(),
+        started_at=timezone.now() - timedelta(minutes=2),
+        completed_at=timezone.now() - timedelta(minutes=1),
     )
-    job2 = JobFactory(job_request=job_request)
+    job2 = JobFactory(
+        job_request=job_request,
+        started_at=timezone.now() - timedelta(seconds=30),
+    )
 
     job1.needed_by = job2
     job1.save()
 
     assert job_request.started_at
-    assert not job_request.runtime
+    assert not job_request.completed_at
+
+    # first job started 2 minutes ago so we should have 00:02:00
+    assert job_request.runtime
+    assert job_request.runtime.hours == 0
+    assert job_request.runtime.minutes == 2
+    assert job_request.runtime.seconds == 0
 
 
 @pytest.mark.django_db
