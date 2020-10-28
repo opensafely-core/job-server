@@ -17,7 +17,7 @@
         class="list-group-item d-flex justify-content-between align-items-center"
         href="{% url 'job-create' pk=workspace.pk %}">
         <span class="mr-2">{{ workspace.name }}</span>
-        <code class="text-muted">{{ workspace.repo }}|{{ workspace.branch }}</code>
+        <code class="text-muted">{{ workspace.repo_name }}|{{ workspace.branch }}</code>
       </a>
       {% endfor %}
     </div>
