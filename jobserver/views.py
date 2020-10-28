@@ -118,7 +118,7 @@ class JobRequestList(ListView):
         )
 
         context["statuses"] = ["completed", "failed", "in-progress", "pending"]
-        context["users"] = {u.username: u.get_full_name() for u in users}
+        context["users"] = {u.username: u.name for u in users}
         context["workspaces"] = Workspace.objects.all()
         return context
 
