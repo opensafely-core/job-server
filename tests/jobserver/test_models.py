@@ -7,7 +7,7 @@ from django.utils import timezone
 
 from jobserver.models import Job
 
-from ..factories import JobFactory, JobRequestFactory, WorkspaceFactory
+from ..factories import JobFactory, JobRequestFactory, UserFactory, WorkspaceFactory
 
 
 @pytest.mark.django_db
@@ -512,6 +512,19 @@ def test_jobqueryset():
     assert Job.objects.completed().count() == 1
     assert Job.objects.in_progress().count() == 1
     assert Job.objects.pending().count() == 1
+
+
+@pytest.mark.django_db
+def test_user_name_with_first_and_last_name():
+    user = UserFactory(first_name="first", last_name="last")
+
+    assert user.name == "first last"
+
+
+@pytest.mark.django_db
+def test_user_name_without_first_and_last_name():
+    user = UserFactory()
+    assert user.name == user.username
 
 
 @pytest.mark.django_db
