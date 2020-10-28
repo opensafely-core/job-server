@@ -2,6 +2,7 @@ import datetime
 
 import pytz
 import requests
+import structlog
 from django.contrib.auth.models import AbstractUser
 from django.db import models
 from django.urls import reverse
@@ -9,6 +10,9 @@ from django.utils import timezone
 from furl import furl
 
 from .runtime import Runtime
+
+
+logger = structlog.get_logger(__name__)
 
 
 class Workspace(models.Model):
@@ -260,6 +264,29 @@ class JobRequest(models.Model):
             return
 
         return last_job.completed_at
+
+    def get_absolute_url(self):
+        return reverse("jobrequest-detail", kwargs={"pk": self.pk})
+
+    def get_project_yaml_url(self):
+        f = furl(self.workspace.repo)
+
+        if not self.sha:
+            logger.info("No SHA found", job_request_pk=self.pk)
+            return f.url
+
+        f.path.segments += ["blob", self.sha, "project.yaml"]
+        return f.url
+
+    def get_repo_url(self):
+        f = furl(self.workspace.repo)
+
+        if not self.sha:
+            logger.info("No SHA found", job_request_pk=self.pk)
+            return f.url
+
+        f.path.segments += ["tree", self.sha]
+        return f.url
 
     @property
     def is_complete(self):
