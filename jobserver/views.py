@@ -164,7 +164,7 @@ class JobRequestCreate(CreateView):
     form_class = JobRequestCreateForm
     model = JobRequest
     success_url = "job-list"
-    template_name = "job_create.html"
+    template_name = "job_request_create.html"
 
     def dispatch(self, request, *args, **kwargs):
         try:
@@ -209,7 +209,7 @@ class JobRequestCreate(CreateView):
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
-        context["actions_data"] = self.actions
+        context["actions"] = self.actions
         context["branch"] = self.workspace.branch
         return context
 
