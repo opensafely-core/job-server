@@ -63,6 +63,7 @@ MIDDLEWARE = [
     "django.contrib.messages.middleware.MessageMiddleware",
     "django.middleware.clickjacking.XFrameOptionsMiddleware",
     "django_structlog.middlewares.RequestMiddleware",
+    "jobserver.middleware.stats_middleware",
 ]
 
 ROOT_URLCONF = "jobserver.urls"
