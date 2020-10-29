@@ -255,13 +255,12 @@ def test_jobrequestlist_search_by_id(rf):
 
 
 @pytest.mark.django_db
-def test_jobrequestcreate_success_with_one_backend(rf):
+def test_jobrequestcreate_success(rf):
     user = UserFactory()
     workspace = WorkspaceFactory()
 
     data = {
         "requested_actions": ["twiddle"],
-        "backends": "tpp",
         "callback_url": "test",
     }
 
@@ -285,51 +284,6 @@ def test_jobrequestcreate_success_with_one_backend(rf):
     assert job_request.requested_actions == ["twiddle"]
     assert job_request.sha == "abc123"
     assert job_request.jobs.count() == 1
-
-
-@pytest.mark.django_db
-def test_jobrequestcreate_success_with_all_backends(rf):
-    user = UserFactory()
-    workspace = WorkspaceFactory()
-
-    data = {
-        "requested_actions": ["frobnicate", "twiddle"],
-        "backends": "all",
-        "callback_url": "test",
-    }
-
-    # Build a RequestFactory instance
-    request = rf.post(MEANINGLESS_URL, data)
-    request.user = user
-
-    dummy_project = {"frobnicate": {"needs": []}, "twiddle": {"needs": []}}
-    with patch("jobserver.views.get_actions", new=lambda r, b: dummy_project), patch(
-        "jobserver.views.get_branch_sha", new=lambda r, b: "abc123"
-    ):
-        response = JobRequestCreate.as_view()(request, pk=workspace.pk)
-
-    assert response.status_code == 302, response.context_data["form"].errors
-    assert response.url == reverse("job-list")
-
-    job_requests = JobRequest.objects.all()
-
-    assert len(job_requests) == 2
-
-    job_request1 = job_requests[0]
-    assert job_request1.created_by == user
-    assert job_request1.workspace == workspace
-    assert job_request1.backend == "emis"
-    assert job_request1.requested_actions == ["frobnicate", "twiddle"]
-    assert job_request1.sha == "abc123"
-    assert job_request1.jobs.count() == 2
-
-    job_request2 = job_requests[1]
-    assert job_request2.created_by == user
-    assert job_request2.workspace == workspace
-    assert job_request2.backend == "tpp"
-    assert job_request2.requested_actions == ["frobnicate", "twiddle"]
-    assert job_request2.sha == "abc123"
-    assert job_request2.jobs.count() == 2
 
 
 @pytest.mark.django_db

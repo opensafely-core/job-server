@@ -183,21 +183,18 @@ class JobRequestCreate(CreateView):
     def form_valid(self, form):
         sha = get_branch_sha(self.workspace.repo_name, self.workspace.branch)
 
-        # pop backends as it's not a field on JobRequest
-        backends = form.cleaned_data.pop("backends")
-        for backend in backends:
-            job_request = JobRequest.objects.create(
-                workspace=self.workspace,
-                created_by=self.request.user,
-                backend=backend,
-                sha=sha,
-                **form.cleaned_data,
+        job_request = JobRequest.objects.create(
+            workspace=self.workspace,
+            created_by=self.request.user,
+            backend=JobRequest.TPP,
+            sha=sha,
+            **form.cleaned_data,
+        )
+        for action in job_request.requested_actions:
+            job_request.jobs.create(
+                action_id=action,
+                force_run=job_request.force_run,
             )
-            for action in job_request.requested_actions:
-                job_request.jobs.create(
-                    action_id=action,
-                    force_run=job_request.force_run,
-                )
 
         return redirect("job-list")
 
