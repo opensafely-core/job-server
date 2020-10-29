@@ -1,6 +1,7 @@
 import factory
+from pytz import utc
 
-from jobserver.models import Job, JobOutput, JobRequest, User, Workspace
+from jobserver.models import Job, JobOutput, JobRequest, Stats, User, Workspace
 
 
 class JobFactory(factory.django.DjangoModelFactory):
@@ -25,6 +26,13 @@ class JobRequestFactory(factory.django.DjangoModelFactory):
     workspace = factory.SubFactory("tests.factories.WorkspaceFactory")
 
     requested_actions = []
+
+
+class StatsFactory(factory.django.DjangoModelFactory):
+    class Meta:
+        model = Stats
+
+    api_last_seen = factory.Faker("date_time", tzinfo=utc)
 
 
 class WorkspaceFactory(factory.django.DjangoModelFactory):

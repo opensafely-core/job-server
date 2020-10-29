@@ -2,12 +2,19 @@ from datetime import timedelta
 
 import pytest
 import responses
+from django.db.utils import IntegrityError
 from django.urls import reverse
 from django.utils import timezone
 
-from jobserver.models import Job
+from jobserver.models import Job, Stats
 
-from ..factories import JobFactory, JobRequestFactory, UserFactory, WorkspaceFactory
+from ..factories import (
+    JobFactory,
+    JobRequestFactory,
+    StatsFactory,
+    UserFactory,
+    WorkspaceFactory,
+)
 
 
 @pytest.mark.django_db
@@ -512,6 +519,23 @@ def test_jobqueryset():
     assert Job.objects.completed().count() == 1
     assert Job.objects.in_progress().count() == 1
     assert Job.objects.pending().count() == 1
+
+
+@pytest.mark.django_db
+def test_stats_is_a_singleton():
+    StatsFactory()
+
+    with pytest.raises(
+        IntegrityError, match="UNIQUE constraint failed: jobserver_stats.id"
+    ):
+        Stats.objects.create()
+
+
+@pytest.mark.django_db
+def test_stats_pk_is_fixed():
+    stats = StatsFactory(pk=42)
+
+    assert stats.pk == 1
 
 
 @pytest.mark.django_db

@@ -359,6 +359,22 @@ class JobRequest(models.Model):
         return "Pending"
 
 
+class Stats(models.Model):
+    """
+    This holds Site wide statistics.
+
+    It acts as a singleton by overriding the save() method to always point to
+    PK=1.
+    """
+
+    api_last_seen = models.DateTimeField(null=True)
+
+    def save(self, *args, **kwargs):
+        self.pk = 1
+
+        return super().save(*args, **kwargs)
+
+
 class User(AbstractUser):
     @property
     def name(self):
