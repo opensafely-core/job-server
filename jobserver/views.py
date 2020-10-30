@@ -1,3 +1,5 @@
+import operator
+
 from django.contrib import messages
 from django.contrib.auth.decorators import login_required
 from django.db import transaction
@@ -162,7 +164,7 @@ class JobRequestCreate(CreateView):
     form_class = JobRequestCreateForm
     model = JobRequest
     success_url = "job-list"
-    template_name = "job_create.html"
+    template_name = "job_request_create.html"
 
     def dispatch(self, request, *args, **kwargs):
         try:
@@ -173,16 +175,16 @@ class JobRequestCreate(CreateView):
             messages.error(request, "Unknown Workspace, please pick a valid one")
             return redirect("job-select-workspace")
 
-        # build up a list of actions from the Workspace's project.yaml for the
-        # User to pick from
-        actions_and_needs = dict(
-            get_actions(self.workspace.repo_name, self.workspace.branch)
-        )
+        # build up a list of actions with current statuses from the Workspace's
+        # project.yaml for the User to pick from
+        actions = get_actions(self.workspace.repo_name, self.workspace.branch)
 
-        self.actions = {}
-        for action, children in actions_and_needs.items():
-            status = self.workspace.get_latest_status_for_action(action)
-            self.actions[action] = children | {"status": status}
+        actions_with_statues = []
+        for action in actions:
+            status = self.workspace.get_latest_status_for_action(action["name"])
+            actions_with_statues.append(action | {"status": status})
+
+        self.actions = sorted(actions_with_statues, key=operator.itemgetter("name"))
 
         return super().dispatch(request, *args, **kwargs)
 
@@ -207,13 +209,13 @@ class JobRequestCreate(CreateView):
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
-        context["actions_data"] = self.actions
+        context["actions"] = self.actions
         context["branch"] = self.workspace.branch
         return context
 
     def get_form_kwargs(self):
         kwargs = super().get_form_kwargs()
-        kwargs["actions"] = self.actions.keys()
+        kwargs["actions"] = [a["name"] for a in self.actions]
         return kwargs
 
 

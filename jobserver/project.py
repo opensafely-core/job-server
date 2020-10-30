@@ -11,10 +11,10 @@ def get_actions(repo, branch):
     """Get actions from project.yaml for this Workspace"""
     content = get_file(repo, branch)
     if content is None:
-        return {}
+        return []
 
     project = load_yaml(content)
 
     for action, children in project["actions"].items():
         needs = children.get("needs", []) if children else []
-        yield action, {"needs": needs}
+        yield {"name": action, "needs": sorted(needs)}

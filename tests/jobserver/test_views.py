@@ -268,7 +268,7 @@ def test_jobrequestcreate_success(rf):
     request = rf.post(MEANINGLESS_URL, data)
     request.user = user
 
-    dummy_project = {"twiddle": {"needs": []}}
+    dummy_project = [{"name": "twiddle", "needs": []}]
     with patch("jobserver.views.get_actions", new=lambda r, b: dummy_project), patch(
         "jobserver.views.get_branch_sha", new=lambda r, b: "abc123"
     ):

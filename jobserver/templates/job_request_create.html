@@ -1,10 +1,10 @@
 {% extends "base.html" %}
 
-{% load actions %}
+{% load static %}
 
 {% block content %}
 
-{% if not actions_data %}
+{% if not actions %}
 <div class="my-5 text-center">
   <p>
     It looks like the branch <code>{{ branch }}</code> doesn't have a <code>project.yaml</code>.
@@ -106,23 +106,65 @@
 
       <div class="form-group mb-5">
 
-        <table class="table">
-          <thead>
-            <tr>
-              <th class="border-top-0"></th>
-              <th class="border-top-0">Action</th>
-              <th class="border-top-0">Needs</th>
-              <th class="border-top-0">Previous Status</th>
-            </tr>
-          </thead>
-          <tbody>
-            {% for name, _ in form.requested_actions.field.choices %}
-            <tr>
-              {% actions_row name actions_data %}
-            </tr>
-            {% endfor %}
-          </tbody>
-        </table>
+        <div class="d-flex">
+          <span style="width:68px"></span>
+          <strong class="flex-grow-1">Action</strong>
+          <strong style="width:110px">Status</strong>
+          <span style="width:60px"></span>
+        </div>
+
+        <div class="accordion" id="actions">
+          {% for action in actions %}
+          <div class="card">
+
+            <div
+              id="heading-{{ action.name }}"
+              class="card-header d-flex align-items-center"
+              style="padding:.5rem"
+              >
+
+              <div class="btn-group-toggle mr-3" data-toggle="buttons">
+                <label class="btn btn-sm btn-outline-success">
+                  <input type="checkbox" name="requested_actions" value="{{ action.name }}" /> Run
+                </label>
+              </div>
+
+              <code class="flex-grow-1 mr-3 text-truncate" title="{{ action.name }}">{{ action.name }}</code>
+              <span class="mr-3" style="width:85px">{{ action.status }}</span>
+
+              <div style="width:60px">
+                {% if action.needs %}
+                <button
+                  class="btn btn-sm btn-secondary"
+                  type="button"
+                  data-toggle="collapse"
+                  data-target="#collapse-{{ action.name }}"
+                  aria-expanded="true"
+                  aria-controls="collapse-{{ action.name }}">
+                  Needs
+                </button>
+                {% endif %}
+              </div>
+
+            </div>
+
+            <div
+              id="collapse-{{ action.name }}"
+              class="collapse"
+              aria-labelledby="heading-{{ action.name }}"
+              data-parent="#actions">
+              <div class="card-body">
+                <ul>
+                  {% for need in action.needs %}
+                  <li><code>{{ need }}</code></li>
+                  {% endfor %}
+                </ul>
+              </div>
+            </div>
+
+          </div>
+          {% endfor %}
+        </div>
 
         {% if form.requested_actions.errors %}
         <ul>
@@ -144,3 +186,7 @@
 </div>
 {% endif %}
 {% endblock content %}
+
+{% block extra_js %}
+<script type="text/javascript" src="{% static 'js/job_request_create.js' %}"></script>
+{% endblock %}
