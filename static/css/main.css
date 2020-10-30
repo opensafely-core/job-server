@@ -29,10 +29,6 @@ header {
   margin-right: .5rem;
   width: 15%;
 }
-.job-list .job-requests .started-at {
-  margin-right: .5rem;
-  width: 20%;
-}
 .job-list .job-requests .runtime {
   margin-right: .5rem;
   min-width: 70px;
