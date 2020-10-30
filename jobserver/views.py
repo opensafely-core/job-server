@@ -100,6 +100,12 @@ class JobDetail(DetailView):
     template_name = "job_detail.html"
 
 
+class JobRequestDetail(DetailView):
+    model = JobRequest
+    queryset = JobRequest.objects.select_related("workspace").prefetch_related("jobs")
+    template_name = "job_request_detail.html"
+
+
 class JobRequestList(ListView):
     paginate_by = 25
     template_name = "jobrequest_list.html"
