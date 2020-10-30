@@ -6,13 +6,8 @@ from .models import JobRequest, Workspace
 
 
 class JobRequestCreateForm(forms.ModelForm):
-    ALL = ("all", "All")
-    BACKEND_CHOICES = [ALL] + JobRequest.BACKEND_CHOICES
-    backends = forms.ChoiceField(label="Backend", choices=BACKEND_CHOICES)
-
     class Meta:
         fields = [
-            "backends",
             "force_run",
             "force_run_dependencies",
             "callback_url",
@@ -32,25 +27,6 @@ class JobRequestCreateForm(forms.ModelForm):
         self.fields["requested_actions"] = forms.MultipleChoiceField(
             choices=choices, widget=forms.CheckboxSelectMultiple
         )
-
-    def clean_backends(self):
-        """
-        Validate backends selector
-
-        Users can select one or All backends in the form, so we want to always
-        give calling code a list of backends.
-        """
-        all_backends = [choice[0] for choice in JobRequest.BACKEND_CHOICES]
-
-        selected = self.cleaned_data["backends"]
-        if selected not in all_backends + [self.ALL[0]]:
-            raise forms.ValidationError("Unknown backend", code="unknown")
-
-        # always return a list
-        if selected != self.ALL[0]:
-            return [selected]
-
-        return all_backends
 
 
 class WorkspaceCreateForm(forms.ModelForm):
@@ -93,5 +69,4 @@ class WorkspaceCreateForm(forms.ModelForm):
         branches = [b.lower() for b in repo["branches"]]
         if branch.lower() not in branches:
             raise forms.ValidationError(f'Unknown branch "{branch}"')
-
         return branch

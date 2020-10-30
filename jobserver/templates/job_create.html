@@ -28,21 +28,6 @@
 
       <div class="form-group">
 
-        <label for="id_backends" class="requiredField">
-          Backend <span class="text-danger">*</span>
-        </label>
-
-        <select name="backends" class="select form-control" id="id_backends">
-          {% for value, label in form.backends.field.choices %}
-          <option
-            {% if form.backends.value == value %}selected{% endif %}
-            value="{{ value }}"
-            >
-            {{ label }}
-          </option>
-          {% endfor %}
-        </select>
-
         {% if form.backend.errors %}
         <ul class="pl-3 mb-1">
           {% for error in form.backend.errors %}
