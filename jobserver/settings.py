@@ -63,6 +63,7 @@ MIDDLEWARE = [
     "django.contrib.messages.middleware.MessageMiddleware",
     "django.middleware.clickjacking.XFrameOptionsMiddleware",
     "django_structlog.middlewares.RequestMiddleware",
+    "jobserver.middleware.stats_middleware",
 ]
 
 ROOT_URLCONF = "jobserver.urls"
@@ -79,6 +80,7 @@ TEMPLATES = [
                 "django.contrib.auth.context_processors.auth",
                 "django.contrib.messages.context_processors.messages",
                 "jobserver.context_processors.nav",
+                "jobserver.context_processors.site_stats",
             ],
         },
     },
