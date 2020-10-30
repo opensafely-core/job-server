@@ -23,6 +23,7 @@ def initialise_sentry():
         return
 
     ignore_logger("django_structlog")
+    ignore_logger("django_structlog.middlewares.request")
 
     sentry_sdk.init(
         dsn,
