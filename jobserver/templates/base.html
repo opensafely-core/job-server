@@ -55,7 +55,15 @@
         Runner Last Seen: {{ site_stats.last_seen }}
 
         {% if site_stats.show_warning %}
-        <span class="text-warning">⚠️</span>
+        <span
+          id="warning-tooltip"
+          class="text-warning"
+          data-toggle="tooltip"
+          data-placement="bottom"
+          title="Job Runner not seen for at least 5 mins"
+          >
+          ⚠️
+        </span>
         {% endif %}
       </small>
 
@@ -89,7 +97,8 @@
 
     <!-- JavaScript -->
     <script src="{% static 'js/jquery-3.5.1.slim.min.js' %}"></script>
-    <script src="{% static 'js/bootstrap-4.5.2.min.js' %}"></script>
+    <script src="{% static 'js/bootstrap-4.5.2.bundle.min.js' %}"></script>
+    <script src="{% static 'js/main.js' %}"></script>
     {% block extra_js %}{% endblock %}
   </body>
 </html>
