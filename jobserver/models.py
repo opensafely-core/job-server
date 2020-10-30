@@ -360,4 +360,7 @@ class JobRequest(models.Model):
 
 
 class User(AbstractUser):
-    pass
+    @property
+    def name(self):
+        """Unify the available names for a User."""
+        return self.get_full_name() or self.username

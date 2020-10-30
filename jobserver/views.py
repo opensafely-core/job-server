@@ -113,6 +113,7 @@ class JobRequestList(ListView):
     def get_context_data(self, **kwargs):
         # only get Users created via GitHub OAuth
         users = User.objects.exclude(social_auth=None)
+        users = sorted(users, key=lambda u: u.name.lower())
 
         context = super().get_context_data(**kwargs)
 
@@ -123,7 +124,7 @@ class JobRequestList(ListView):
         )
 
         context["statuses"] = ["completed", "failed", "in-progress", "pending"]
-        context["users"] = {u.username: u.get_full_name() for u in users}
+        context["users"] = {u.username: u.name for u in users}
         context["workspaces"] = Workspace.objects.all()
         return context
 
