@@ -10,12 +10,8 @@ class JobRequestCreateForm(forms.ModelForm):
         fields = [
             "force_run",
             "force_run_dependencies",
-            "callback_url",
         ]
         model = JobRequest
-        widgets = {
-            "callback_url": forms.TextInput(),
-        }
 
     def __init__(self, actions, *args, **kwargs):
         super().__init__(*args, **kwargs)

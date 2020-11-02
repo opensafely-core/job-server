@@ -84,24 +84,6 @@
 
       </div>
 
-      <div class="form-group mb-5">
-        <label for="id_callback_url">Callback URL</label>
-        <input
-          type="text"
-          name="callback_url"
-          class="form-control{% if form.callback_url.errors %} is-invalid{% endif %}"
-          id="id_callback_url"
-          />
-
-        {% if form.callback_url.errors %}
-        <ul>
-          {% for error in form.callback_url.errors %}
-          <li class="text-danger">{{ error }}</li>
-          {% endfor %}
-        </ul>
-        {% endif %}
-      </div>
-
       <p>Pick one or more actions to run:</p>
 
       <div class="form-group mb-5">
