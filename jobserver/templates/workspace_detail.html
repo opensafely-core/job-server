@@ -8,7 +8,7 @@
     <h3>Workspace: {{ workspace.name }}</h3>
 
     <ul class="list-unstyled">
-      <li class="pt-2"><strong>Repo:</strong> {{ workspace.repo }}</li>
+      <li class="pt-2"><strong>Repo:</strong> <a href="{{ workspace.repo }}">{{ workspace.repo_name }}</a></li>
       <li class="pt-2"><strong>Branch:</strong> {{ workspace.branch }}</li>
       <li class="pt-2"><strong>Owner:</strong> {{ workspace.owner }}</li>
       <li class="pt-2"><strong>DB:</strong> {{ workspace.db }}</li>
