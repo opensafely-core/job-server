@@ -289,7 +289,7 @@ def test_job_status_failed():
 def test_job_status_running():
     job = JobFactory(started=True, completed_at=None)
 
-    assert job.status == "In Progress"
+    assert job.status == "Running"
 
 
 @pytest.mark.django_db
@@ -588,7 +588,7 @@ def test_jobrequest_status_running():
     job1.needed_by = job2
     job1.save()
 
-    assert job_request.status == "In Progress"
+    assert job_request.status == "Running"
 
 
 @pytest.mark.django_db

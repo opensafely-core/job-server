@@ -15,7 +15,7 @@ def status_icon(status_name):
             "color": "green",
             "name": "check.svg",
         },
-        "in progress": {
+        "running": {
             "color": "blue",
             "name": "spinner.svg",
         },
@@ -32,7 +32,7 @@ def status_icon(status_name):
     status = status_lut.get(status_name.lower(), default)
 
     spinner = ""
-    if status_name.lower() == "in progress":
+    if status_name.lower() == "running":
         spinner = 'class="spinner"'
 
     # Get the SVG file contents so we can put that directly into the template.

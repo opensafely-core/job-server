@@ -1,8 +1,8 @@
 from jobserver.templatetags.status_tools import status_icon
 
 
-def test_statusicon_in_progress_status():
-    output = status_icon("In Progress")
+def test_statusicon_running_status():
+    output = status_icon("Running")
 
     assert 'class="spinner"' in output
 

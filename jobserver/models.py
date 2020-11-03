@@ -197,7 +197,7 @@ class Job(models.Model):
             return "Failed"
 
         if self.is_running:
-            return "In Progress"
+            return "Running"
 
         if self.is_pending:
             return "Pending"
@@ -358,7 +358,7 @@ class JobRequest(models.Model):
             return "Failed"
 
         if self.is_running:
-            return "In Progress"
+            return "Running"
 
         if self.is_pending:
             return "Pending"

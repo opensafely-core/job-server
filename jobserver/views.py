@@ -33,7 +33,7 @@ def filter_by_status(job_requests, status):
     status_lut = {
         "completed": lambda r: r.is_completed,
         "failed": lambda r: r.is_failed,
-        "in-progress": lambda r: r.is_running,
+        "running": lambda r: r.is_running,
         "pending": lambda r: r.is_pending,
     }
     func = status_lut[status]
@@ -66,7 +66,7 @@ class Dashboard(ListView):
             self.object_list, self.request.GET.get("status")
         )
 
-        context["statuses"] = ["completed", "failed", "in-progress", "pending"]
+        context["statuses"] = ["completed", "failed", "running", "pending"]
         context["workspaces"] = Workspace.objects.all()
         return context
 
@@ -125,7 +125,7 @@ class JobRequestList(ListView):
             self.object_list, self.request.GET.get("status")
         )
 
-        context["statuses"] = ["completed", "failed", "in-progress", "pending"]
+        context["statuses"] = ["completed", "failed", "running", "pending"]
         context["users"] = {u.username: u.name for u in users}
         context["workspaces"] = Workspace.objects.all()
         return context
