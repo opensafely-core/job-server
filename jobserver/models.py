@@ -141,10 +141,11 @@ class Job(models.Model):
 
     @property
     def is_running(self):
-        if self.status_code is not None:
+        # can we rely on status_code being null to define running?
+        if self.status_code and self.status_code not in [6, 8]:
             return False
 
-        return self.started_at and not self.completed_at
+        return self.started and self.completed_at is None
 
     def notify_callback_url(self):
         if not self.job_request.callback_url:

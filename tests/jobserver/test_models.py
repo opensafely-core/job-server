@@ -47,6 +47,38 @@ def test_job_is_pending_unstarted():
 
 
 @pytest.mark.django_db
+def test_job_is_running_finished():
+    assert not JobFactory(started=True, completed_at=timezone.now()).is_running
+
+
+@pytest.mark.django_db
+def test_job_is_running_status_code():
+    assert not JobFactory(started=True, status_code=3).is_running
+
+
+@pytest.mark.django_db
+def test_job_is_running_status_code_6():
+    assert not JobFactory(started=True, status_code=6).is_running
+
+
+@pytest.mark.django_db
+def test_job_is_running_status_code_8():
+    assert not JobFactory(started=True, status_code=8).is_running
+
+
+@pytest.mark.django_db
+def test_job_is_running_success():
+    job = JobFactory(started=True, completed_at=None)
+
+    assert job.is_running, job.status
+
+
+@pytest.mark.django_db
+def test_job_is_running_unstarted():
+    assert not JobFactory(started=False).is_running
+
+
+@pytest.mark.django_db
 @responses.activate
 def test_job_notify_callback_url_action_failed():
     responses.add(responses.POST, "http://example.com", status=201)
@@ -222,8 +254,7 @@ def test_job_status_failed():
 
 @pytest.mark.django_db
 def test_job_status_running():
-    one_minute = timedelta(seconds=60)
-    job = JobFactory(started_at=timezone.now() - one_minute)
+    job = JobFactory(started=True, completed_at=None)
 
     assert job.status == "In Progress"
 
