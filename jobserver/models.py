@@ -66,7 +66,7 @@ class JobQuerySet(models.QuerySet):
     def completed(self):
         return self.filter(completed_at__isnull=False)
 
-    def in_progress(self):
+    def running(self):
         return self.filter(started_at__isnull=False, completed_at=None)
 
     def pending(self):
@@ -130,13 +130,6 @@ class Job(models.Model):
         return self.status_code and not non_failure_status
 
     @property
-    def is_in_progress(self):
-        if self.status_code is not None:
-            return False
-
-        return self.started_at and not self.completed_at
-
-    @property
     def is_pending(self):
         if not self.started:
             return True
@@ -145,6 +138,13 @@ class Job(models.Model):
             return True
 
         return False
+
+    @property
+    def is_running(self):
+        if self.status_code is not None:
+            return False
+
+        return self.started_at and not self.completed_at
 
     def notify_callback_url(self):
         if not self.job_request.callback_url:
@@ -189,7 +189,7 @@ class Job(models.Model):
         if self.is_failed:
             return "Failed"
 
-        if self.is_in_progress:
+        if self.is_running:
             return "In Progress"
 
         if self.is_pending:
@@ -309,8 +309,8 @@ class JobRequest(models.Model):
         return any(j.is_failed for j in self.jobs.all())
 
     @property
-    def is_in_progress(self):
-        return any(j.is_in_progress for j in self.jobs.all())
+    def is_running(self):
+        return any(j.is_running for j in self.jobs.all())
 
     @property
     def is_pending(self):
@@ -350,7 +350,7 @@ class JobRequest(models.Model):
         if self.is_failed:
             return "Failed"
 
-        if self.is_in_progress:
+        if self.is_running:
             return "In Progress"
 
         if self.is_pending:

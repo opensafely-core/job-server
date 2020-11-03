@@ -221,7 +221,7 @@ def test_job_status_failed():
 
 
 @pytest.mark.django_db
-def test_job_status_in_progress():
+def test_job_status_running():
     one_minute = timedelta(seconds=60)
     job = JobFactory(started_at=timezone.now() - one_minute)
 
@@ -500,7 +500,7 @@ def test_jobrequest_status_failed():
 
 
 @pytest.mark.django_db
-def test_jobrequest_status_in_progress():
+def test_jobrequest_status_running():
     job_request = JobRequestFactory()
 
     job1 = JobFactory(job_request=job_request, completed_at=timezone.now())
@@ -524,7 +524,7 @@ def test_jobqueryset():
     JobFactory(completed_at=timezone.now())
 
     assert Job.objects.completed().count() == 1
-    assert Job.objects.in_progress().count() == 1
+    assert Job.objects.running().count() == 1
     assert Job.objects.pending().count() == 1
 
 
