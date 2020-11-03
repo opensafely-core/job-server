@@ -576,8 +576,10 @@ def test_jobrequest_status_fall_through():
 def test_jobrequest_status_failed():
     job_request = JobRequestFactory()
 
-    job1 = JobFactory(job_request=job_request, completed_at=timezone.now())
-    job2 = JobFactory(job_request=job_request, status_code=3)
+    job1 = JobFactory(
+        job_request=job_request, started=True, completed_at=timezone.now()
+    )
+    job2 = JobFactory(job_request=job_request, started=True, status_code=3)
 
     job1.needed_by = job2
     job1.save()
@@ -589,8 +591,10 @@ def test_jobrequest_status_failed():
 def test_jobrequest_status_running():
     job_request = JobRequestFactory()
 
-    job1 = JobFactory(job_request=job_request, completed_at=timezone.now())
-    job2 = JobFactory(job_request=job_request, started_at=timezone.now())
+    job1 = JobFactory(
+        job_request=job_request, started=True, completed_at=timezone.now()
+    )
+    job2 = JobFactory(job_request=job_request, started=True)
 
     job1.needed_by = job2
     job1.save()
@@ -600,7 +604,10 @@ def test_jobrequest_status_running():
 
 @pytest.mark.django_db
 def test_jobrequest_status_pending():
-    assert JobRequestFactory().status == "Pending"
+    job_request = JobRequestFactory()
+    JobFactory(job_request=job_request, started=False)
+
+    assert job_request.status == "Pending"
 
 
 @pytest.mark.django_db

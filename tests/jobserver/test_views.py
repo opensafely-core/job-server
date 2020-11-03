@@ -169,26 +169,26 @@ def test_jobrequestlist_filter_by_status_and_workspace(rf):
 
     # running
     job_request1 = JobRequestFactory(workspace=workspace1)
-    JobFactory(job_request=job_request1, started_at=timezone.now())
-    JobFactory(job_request=job_request1)
+    JobFactory(job_request=job_request1, started=True, started_at=timezone.now())
+    JobFactory(job_request=job_request1, started=True)
 
     # failed
     job_request2 = JobRequestFactory(workspace=workspace1)
-    JobFactory(job_request=job_request2, completed_at=timezone.now())
-    JobFactory(job_request=job_request2, status_code=3)
+    JobFactory(job_request=job_request2, started=True, completed_at=timezone.now())
+    JobFactory(job_request=job_request2, started=True, status_code=3)
 
     # running
     job_request3 = JobRequestFactory(workspace=workspace2)
-    JobFactory(job_request=job_request3, completed_at=timezone.now())
-    JobFactory(job_request=job_request3, completed_at=timezone.now())
-    JobFactory(job_request=job_request3, started_at=timezone.now())
-    JobFactory(job_request=job_request3)
+    JobFactory(job_request=job_request3, started=True, completed_at=timezone.now())
+    JobFactory(job_request=job_request3, started=True, completed_at=timezone.now())
+    JobFactory(job_request=job_request3, started=True)
+    JobFactory(job_request=job_request3, started=True)
 
     # complete
     job_request4 = JobRequestFactory(workspace=workspace2)
-    JobFactory(job_request=job_request4, completed_at=timezone.now())
-    JobFactory(job_request=job_request4, completed_at=timezone.now())
-    JobFactory(job_request=job_request4, completed_at=timezone.now())
+    JobFactory(job_request=job_request4, started=True, completed_at=timezone.now())
+    JobFactory(job_request=job_request4, started=True, completed_at=timezone.now())
+    JobFactory(job_request=job_request4, started=True, completed_at=timezone.now())
 
     # Build a RequestFactory instance
     request = rf.get(f"/?status=running&workspace={workspace2.pk}")

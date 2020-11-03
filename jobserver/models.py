@@ -308,13 +308,16 @@ class JobRequest(models.Model):
         """
         Has a JobRequst failed?
 
-        We don't consider a JobRequest failed until all Jobs are either
-        Completed or Failed.
+        We don't consider a JobRequest failed until all Jobs are Finished.
         """
-        if not all(j.is_failed or j.is_completed for j in self.jobs.all()):
+        if not self.is_finished:
             return False
 
         return any(j.is_failed for j in self.jobs.all())
+
+    @property
+    def is_finished(self):
+        return all(j.is_finished for j in self.jobs.all())
 
     @property
     def is_running(self):
@@ -361,9 +364,9 @@ class JobRequest(models.Model):
         if self.is_running:
             return "Running"
 
-        if self.is_pending:
-            return "Pending"
-
+        # assert to confirm is_pending is true because we want an error if
+        # we've reached this point but is_pending is False
+        assert self.is_pending
         return "Pending"
 
 
