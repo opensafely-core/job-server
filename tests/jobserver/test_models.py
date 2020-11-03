@@ -27,6 +27,26 @@ def test_job_get_absolute_url():
 
 
 @pytest.mark.django_db
+def test_job_is_pending_failure():
+    assert not JobFactory(started=True).is_pending
+
+
+@pytest.mark.django_db
+def test_job_is_pending_status_code_6():
+    assert JobFactory(started=True, status_code=6).is_pending
+
+
+@pytest.mark.django_db
+def test_job_is_pending_status_code_8():
+    assert JobFactory(started=True, status_code=8).is_pending
+
+
+@pytest.mark.django_db
+def test_job_is_pending_unstarted():
+    assert JobFactory(started=False).is_pending
+
+
+@pytest.mark.django_db
 @responses.activate
 def test_job_notify_callback_url_action_failed():
     responses.add(responses.POST, "http://example.com", status=201)
@@ -206,19 +226,6 @@ def test_job_status_in_progress():
     job = JobFactory(started_at=timezone.now() - one_minute)
 
     assert job.status == "In Progress"
-
-
-@pytest.mark.django_db
-def test_job_status_status_6_is_pending():
-    job = JobFactory(status_code=6)
-
-    assert job.status == "Pending"
-
-
-@pytest.mark.django_db
-def test_job_status_unstarted_is_pending():
-    job = JobFactory()
-    assert job.status == "Pending"
 
 
 @pytest.mark.django_db

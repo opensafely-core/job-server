@@ -138,10 +138,10 @@ class Job(models.Model):
 
     @property
     def is_pending(self):
-        if self.status_code in [6, 8]:
+        if not self.started:
             return True
 
-        if self.status_code is None and not (self.started_at and self.completed_at):
+        if self.status_code in [6, 8]:
             return True
 
         return False
