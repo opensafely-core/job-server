@@ -215,11 +215,10 @@ class Job(models.Model):
         if self.is_running:
             return "Running"
 
-        # assert to confirm is_pending is true because we want an error if
-        # we've reached this point but is_pending is False
-        assert self.is_pending
+        if self.is_pending:
+            return "Pending"
 
-        return "Pending"
+        return "Unknown"
 
     def save(self, *args, **kwargs):
         if self.started and not self.started_at:
@@ -380,10 +379,10 @@ class JobRequest(models.Model):
         if self.is_running:
             return "Running"
 
-        # assert to confirm is_pending is true because we want an error if
-        # we've reached this point but is_pending is False
-        assert self.is_pending
-        return "Pending"
+        if self.is_pending:
+            return "Pending"
+
+        return "Unknown"
 
 
 class Stats(models.Model):

@@ -2,6 +2,7 @@ from datetime import timedelta
 
 import pytest
 import responses
+from django.db import connection
 from django.db.utils import IntegrityError
 from django.urls import reverse
 from django.utils import timezone
@@ -297,6 +298,21 @@ def test_job_status_running():
     job = JobFactory(started=True, completed_at=None)
 
     assert job.status == "Running"
+
+
+@pytest.mark.django_db
+def test_job_status_unknown():
+    job = JobFactory(started=True, status_code=1)
+
+    # manually set completed_at to None/NULL since Job.save() sets this for us
+    # and we can't override that.
+    sql = "UPDATE jobserver_job SET completed_at = NULL WHERE id = %s"
+    with connection.cursor() as c:
+        c.execute(sql, [job.pk])
+
+    job.refresh_from_db()
+
+    assert job.status == "Unknown"
 
 
 @pytest.mark.django_db
@@ -608,6 +624,22 @@ def test_jobrequest_status_pending():
     JobFactory(job_request=job_request, started=False)
 
     assert job_request.status == "Pending"
+
+
+@pytest.mark.django_db
+def test_jobrequest_status_unknown():
+    job_request = JobRequestFactory()
+    job = JobFactory(job_request=job_request, started=True, status_code=1)
+
+    # manually set completed_at to None/NULL since Job.save() sets this for us
+    # and we can't override that.
+    sql = "UPDATE jobserver_job SET completed_at = NULL WHERE id = %s"
+    with connection.cursor() as c:
+        c.execute(sql, [job.pk])
+
+    job.refresh_from_db()
+
+    assert job_request.status == "Unknown"
 
 
 @pytest.mark.django_db
