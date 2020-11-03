@@ -279,13 +279,6 @@ def test_job_status_completed():
 
 
 @pytest.mark.django_db
-def test_job_status_dependency_failed():
-    job = JobFactory(status_code=7)
-
-    assert job.status == "Dependency Failed"
-
-
-@pytest.mark.django_db
 def test_job_status_failed():
     job = JobFactory(started=True, completed_at=timezone.now(), status_code=1)
 

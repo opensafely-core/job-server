@@ -115,10 +115,6 @@ class Job(models.Model):
         return self.status_code is None and self.completed_at
 
     @property
-    def is_dependency_failed(self):
-        return self.status_code == 7
-
-    @property
     def is_failed(self):
         if not self.is_finished:
             return False
@@ -196,9 +192,6 @@ class Job(models.Model):
     def status(self):
         if self.is_completed:
             return "Completed"
-
-        if self.is_dependency_failed:
-            return "Dependency Failed"
 
         if self.is_failed:
             return "Failed"

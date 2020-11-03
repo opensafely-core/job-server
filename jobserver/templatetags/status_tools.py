@@ -15,10 +15,6 @@ def status_icon(status_name):
             "color": "green",
             "name": "check.svg",
         },
-        "dependency failed": {
-            "color": "red",
-            "name": "unlink.svg",
-        },
         "in progress": {
             "color": "blue",
             "name": "spinner.svg",
