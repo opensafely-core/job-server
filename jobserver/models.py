@@ -199,8 +199,9 @@ class Job(models.Model):
         if self.is_running:
             return "Running"
 
-        if self.is_pending:
-            return "Pending"
+        # assert to confirm is_pending is true because we want an error if
+        # we've reached this point but is_pending is False
+        assert self.is_pending
 
         return "Pending"
 
