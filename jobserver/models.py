@@ -5,6 +5,7 @@ import requests
 import structlog
 from django.contrib.auth.models import AbstractUser
 from django.db import models
+from django.db.models import Q
 from django.urls import reverse
 from django.utils import timezone
 from furl import furl
@@ -64,13 +65,28 @@ class Workspace(models.Model):
 
 class JobQuerySet(models.QuerySet):
     def completed(self):
-        return self.filter(completed_at__isnull=False)
+        return (
+            self.filter(started=True)
+            .exclude(completed_at=None)
+            .exclude(status_code=None)
+        )
 
-    def running(self):
-        return self.filter(started_at__isnull=False, completed_at=None)
+    def finished(self):
+        return self.exclude(started=True, completed_at=None)
+
+    def failed(self):
+        return (
+            self.exclude(completed_at=None)
+            .exclude(status_code=None)
+            .exclude(status_code__in=[6, 7, 8])
+        )
 
     def pending(self):
-        return self.filter(started_at=None, completed_at=None)
+        qwargs = Q(status_code=None) | Q(status_code__in=[6, 8])
+        return self.filter(qwargs, started=False)
+
+    def running(self):
+        return self.filter(started=True, completed_at=None)
 
 
 class Job(models.Model):

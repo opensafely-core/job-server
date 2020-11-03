@@ -611,14 +611,41 @@ def test_jobrequest_status_pending():
 
 
 @pytest.mark.django_db
-def test_jobqueryset():
-    JobFactory()
-    JobFactory(started_at=timezone.now())
-    JobFactory(completed_at=timezone.now())
+def test_jobqueryset_completed():
+    JobFactory(started=True, completed_at=timezone.now(), status_code=0)
 
     assert Job.objects.completed().count() == 1
-    assert Job.objects.running().count() == 1
-    assert Job.objects.pending().count() == 1
+
+
+@pytest.mark.django_db
+def test_jobqueryset_failed():
+    JobFactory(started=True, completed_at=timezone.now(), status_code=3)
+
+    assert Job.objects.failed().count() == 1
+
+
+@pytest.mark.django_db
+def test_jobqueryset_finished():
+    JobFactory(started=True, completed_at=timezone.now())
+
+    assert Job.objects.finished().count() == 1
+
+
+@pytest.mark.django_db
+def test_jobqueryset_pending():
+    JobFactory(pk=1, started=False, status_code=None)
+    JobFactory(pk=2, started=False, status_code=6)
+    JobFactory(pk=3, started=False, status_code=8)
+
+    assert Job.objects.pending().count() == 3, Job.objects.pending()
+
+
+@pytest.mark.django_db
+def test_jobqueryset_running():
+    JobFactory(started=True, completed_at=None)
+    JobFactory(started=True, completed_at=None)
+
+    assert Job.objects.running().count() == 2
 
 
 @pytest.mark.django_db
