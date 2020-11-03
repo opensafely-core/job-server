@@ -31,7 +31,7 @@ def filter_by_status(job_requests, status):
         return job_requests
 
     status_lut = {
-        "completed": lambda r: r.is_complete,
+        "completed": lambda r: r.is_completed,
         "failed": lambda r: r.is_failed,
         "in-progress": lambda r: r.is_running,
         "pending": lambda r: r.is_pending,

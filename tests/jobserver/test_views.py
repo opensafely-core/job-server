@@ -152,8 +152,8 @@ def test_jobrequestlist_filter_by_status(rf):
     JobFactory(job_request=job_request1)
 
     job_request2 = JobRequestFactory()
-    JobFactory(job_request=job_request2, completed_at=timezone.now())
-    JobFactory(job_request=job_request2, completed_at=timezone.now())
+    JobFactory(job_request=job_request2, started=True, completed_at=timezone.now())
+    JobFactory(job_request=job_request2, started=True, completed_at=timezone.now())
 
     # Build a RequestFactory instance
     request = rf.get("/?status=completed")

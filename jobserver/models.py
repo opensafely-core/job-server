@@ -108,7 +108,10 @@ class Job(models.Model):
         return reverse("job-detail", kwargs={"pk": self.pk})
 
     @property
-    def is_complete(self):
+    def is_completed(self):
+        if not self.is_finished:
+            return False
+
         return self.status_code is None and self.completed_at
 
     @property
@@ -117,17 +120,27 @@ class Job(models.Model):
 
     @property
     def is_failed(self):
+        if not self.is_finished:
+            return False
+
+        if self.status_code is None:
+            return False
+
         dependency_not_finished = 6
         dependency_failed = 7
         dependency_running = 8
 
-        non_failure_status = self.status_code in [
+        non_failure_statuses = [
             dependency_not_finished,
             dependency_failed,
             dependency_running,
         ]
 
-        return self.status_code and not non_failure_status
+        return self.status_code not in non_failure_statuses
+
+    @property
+    def is_finished(self):
+        return self.started and self.completed_at is not None
 
     @property
     def is_pending(self):
@@ -181,7 +194,7 @@ class Job(models.Model):
 
     @property
     def status(self):
-        if self.is_complete:
+        if self.is_completed:
             return "Completed"
 
         if self.is_dependency_failed:
@@ -261,7 +274,7 @@ class JobRequest(models.Model):
         if not last_job:
             return
 
-        if not self.is_complete:
+        if not self.is_completed:
             return
 
         return last_job.completed_at
@@ -290,11 +303,11 @@ class JobRequest(models.Model):
         return f.url
 
     @property
-    def is_complete(self):
+    def is_completed(self):
         if not self.jobs.exists():
             return False
 
-        return all(j.is_complete for j in self.jobs.all())
+        return all(j.is_completed for j in self.jobs.all())
 
     @property
     def is_failed(self):
@@ -304,7 +317,7 @@ class JobRequest(models.Model):
         We don't consider a JobRequest failed until all Jobs are either
         Completed or Failed.
         """
-        if not all(j.is_failed or j.is_complete for j in self.jobs.all()):
+        if not all(j.is_failed or j.is_completed for j in self.jobs.all()):
             return False
 
         return any(j.is_failed for j in self.jobs.all())
@@ -319,7 +332,7 @@ class JobRequest(models.Model):
 
     @property
     def num_completed(self):
-        return len([j for j in self.jobs.all() if j.is_complete])
+        return len([j for j in self.jobs.all() if j.is_completed])
 
     @property
     def runtime(self):
@@ -345,7 +358,7 @@ class JobRequest(models.Model):
 
     @property
     def status(self):
-        if self.is_complete:
+        if self.is_completed:
             return "Completed"
 
         if self.is_failed:
