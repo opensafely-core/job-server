@@ -19,7 +19,6 @@ logger = structlog.get_logger(__name__)
 # TODO: remove when job-runner is driving state updates
 STATE_SUCCESS = 0
 STATE_DEPENDENCY_NOT_FINISHED = 6
-STATE_DEPENDENCY_FAILED = 7
 STATE_DEPENDENCY_RUNNING = 8
 
 
@@ -80,7 +79,6 @@ class JobQuerySet(models.QuerySet):
 
     def failed(self):
         ignored_states = [
-            STATE_DEPENDENCY_FAILED,
             STATE_DEPENDENCY_NOT_FINISHED,
             STATE_DEPENDENCY_RUNNING,
             STATE_SUCCESS,
@@ -149,7 +147,6 @@ class Job(models.Model):
             return False
 
         non_failure_statuses = [
-            STATE_DEPENDENCY_FAILED,
             STATE_DEPENDENCY_NOT_FINISHED,
             STATE_DEPENDENCY_RUNNING,
             STATE_SUCCESS,
