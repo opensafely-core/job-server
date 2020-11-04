@@ -3,38 +3,115 @@
 {% load humanize %}
 
 {% block content %}
-<ul class="list-unstyled ml-10">
-  <li class="pt-2"><strong>Status:</strong> {{ job.status }}</li>
-  <li class="pt-2">
-    <strong>Workspace:</strong>
+<div class="row">
 
-    {% if job.workspace %}
-    <a href={% url 'workspace-detail' pk=job.workspace.pk %}>
-      {{ job.workspace.name }}
-    </a>
-    {% else %}
-    <a href={% url 'workspace-detail' pk=job.job_request.workspace.pk %}>
-      {{ job.job_request.workspace.name }}
-    </a>
-    {% endif %}
+  <div class="col-lg-10">
 
-    <small class="text-muted">
-      {% if job.workspace %}
-      ({{ job.workspace.repo }} | {{ job.workspace.branch }})
+    <div class="mb-4">
+      <h3>State</h3>
+
+      <div>
+        <strong>Status:</strong>
+        <code>{{ job.status }}</code>
+      </div>
+
+      <div>
+        <strong>Started:</strong> {{ job.started }}
+      </div>
+
+      <div>
+        <strong>Status Code:</strong>
+        {% if job.status_code %}
+        <code>{{ job.status_code }}</code>
+        {% else %}-{% endif %}
+      </div>
+
+      <div>
+        <strong>Status Message:</strong>
+        {% if job.status_message %}
+        <code>{{ job.status_message }}</code>
+        {% else %}-{% endif %}
+      </div>
+
+    </div>
+
+    <div class="mb-5">
+      <h3>Config</h3>
+
+      <div>
+        <strong>Backend:</strong>
+        <code>{{ job.job_request.backend }}</code>
+      </div>
+
+      <div>
+        <strong>Action:</strong>
+        <code>{{ job.action_id }}</code>
+      </div>
+
+      <div>
+        <strong>Force run?:</strong>
+        <code>{{ job.force_run }}</code>
+      </div>
+
+      {% if not job.workspace %}
+      <div>
+        <strong>Workspace:</strong>
+        <a href="{% url 'workspace-detail' pk=job.job_request.workspace.pk %}">
+          {{ job.job_request.workspace.name }}
+        </a>
+        <small class="text-muted">({{ job.job_request.workspace.branch }})</small>
+      </div>
       {% else %}
-      ({{ job.job_request.workspace.repo }} | {{ job.job_request.workspace.branch }})
+      <div>
+        <strong>Workspace:</strong>
+        <a href={% url 'workspace-detail' pk=job.workspace.pk %}>
+          {{ job.workspace.name }}
+        </a>
+        <small class="text-muted">({{ job.workspace.branch }})</small>
+      </div>
       {% endif %}
-    </small>
-  </li>
-  <li class="pt-2"><strong>Action:</strong> {{ job.action_id|default:"-" }}</li>
-  <li class="pt-2"><strong>Created:</strong> {{ job.created_at|naturaltime }}</li>
-  <li class="pt-2"><strong>Started:</strong> {{ job.started_at|naturaltime|default_if_none:"-" }}</li>
-  <li class="pt-2"><strong>Finished:</strong> {{ job.completed_at|naturaltime|default_if_none:"-"}}</li>
-  <li class="pt-2"><strong>Status Code:</strong> {{ job.status_code }}</li>
-  <li class="pt-2"><strong>Status Message:</strong> {{ job.status_message }}</li>
-  <li class="pt-2"><strong>Needed by:</strong> {{ job.needed_by|default:"-" }}</li>
-  <li class="pt-2"><strong>Backend:</strong> {{ job.backend|default:"-" }}</li>
-  <li class="pt-2"><strong>Force run?:</strong> {{ job.force_run }}</li>
-  <li class="pt-2"><strong>Force run dependencies?:</strong> {{ job.force_run_dependencies }}</li>
-</ul>
+
+      <div>
+        <strong>Request:</strong>
+        <a href={% url 'job-request-detail' pk=job.job_request.pk %}>
+          {{ job.job_request_id }} by {{ job.job_request.created_by.username }}
+        </a>
+      </div>
+
+    </div>
+
+    <div class="mb-5">
+      <h3>Timings</h3>
+
+      <div>
+        <strong>Created:</strong>
+        <span title="{{ job.created_at|date:"Y-m-d H:i:s" }}">
+          {{ job.created_at|naturaltime }}
+        </span>
+      </div>
+
+      <div>
+        <strong>Started:</strong>
+        <span title="{{ job.started_at|default_if_none:"" }}">
+          {{ job.started_at|naturaltime|default_if_none:"-" }}
+        </span>
+      </div>
+
+      <div>
+        <strong>Finished:</strong>
+        <span title="{{ job.completed_at|default_if_none:"" }}">
+          {{ job.completed_at|naturaltime|default_if_none:"-"}}
+        </span>
+      </div>
+    </div>
+
+  </div>
+
+  <div class="col-lg-2">
+
+    <h3 class="text-center">Tools</h3>
+
+  </div>
+
+</div>
 {% endblock content %}
