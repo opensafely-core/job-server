@@ -16,6 +16,13 @@ from .runtime import Runtime
 logger = structlog.get_logger(__name__)
 
 
+# TODO: remove when job-runner is driving state updates
+STATE_SUCCESS = 0
+STATE_DEPENDENCY_NOT_FINISHED = 6
+STATE_DEPENDENCY_FAILED = 7
+STATE_DEPENDENCY_RUNNING = 8
+
+
 class Workspace(models.Model):
     created_by = models.ForeignKey("User", null=True, on_delete=models.CASCADE)
 
@@ -75,10 +82,17 @@ class JobQuerySet(models.QuerySet):
         return self.exclude(started=True, completed_at=None)
 
     def failed(self):
+        ignored_states = [
+            STATE_DEPENDENCY_FAILED,
+            STATE_DEPENDENCY_NOT_FINISHED,
+            STATE_DEPENDENCY_RUNNING,
+            STATE_SUCCESS,
+        ]
+
         return (
             self.exclude(completed_at=None)
             .exclude(status_code=None)
-            .exclude(status_code__in=[6, 7, 8])
+            .exclude(status_code__in=ignored_states)
         )
 
     def pending(self):
