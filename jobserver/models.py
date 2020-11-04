@@ -79,7 +79,7 @@ class JobQuerySet(models.QuerySet):
         )
 
     def finished(self):
-        return self.exclude(started=True, completed_at=None)
+        return self.exclude(started=True, status_code=None, completed_at=None)
 
     def failed(self):
         ignored_states = [
@@ -146,9 +146,6 @@ class Job(models.Model):
         if not self.is_finished:
             return False
 
-        if self.status_code is None:
-            return False
-
         non_failure_statuses = [
             STATE_DEPENDENCY_FAILED,
             STATE_DEPENDENCY_NOT_FINISHED,
@@ -160,7 +157,12 @@ class Job(models.Model):
 
     @property
     def is_finished(self):
-        return self.started and self.completed_at is not None
+        # no status code set
+        return (
+            self.started
+            and self.status_code is not None
+            and self.completed_at is not None
+        )
 
     @property
     def is_pending(self):
@@ -193,7 +195,7 @@ class Job(models.Model):
         if not self.is_finished:
             return False
 
-        return self.status_code is None and self.completed_at
+        return self.status_code == 0
 
     def notify_callback_url(self):
         if not self.job_request.callback_url:
