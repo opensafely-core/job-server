@@ -79,7 +79,11 @@ class JobQuerySet(models.QuerySet):
         )
 
     def finished(self):
-        return self.exclude(started=True, status_code=None, completed_at=None)
+        return self.filter(
+            started=True,
+            status_code__isnull=False,
+            completed_at__isnull=False,
+        )
 
     def failed(self):
         ignored_states = [

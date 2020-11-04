@@ -670,9 +670,10 @@ def test_jobqueryset_failed():
 
 @pytest.mark.django_db
 def test_jobqueryset_finished():
-    JobFactory(started=True, completed_at=timezone.now())
+    JobFactory(started=True, status_code=0, completed_at=timezone.now())
+    JobFactory(started=True, status_code=1, completed_at=timezone.now())
 
-    assert Job.objects.finished().count() == 1
+    assert Job.objects.finished().count() == 2
 
 
 @pytest.mark.django_db
