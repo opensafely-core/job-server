@@ -124,13 +124,6 @@ class Job(models.Model):
         return reverse("job-detail", kwargs={"pk": self.pk})
 
     @property
-    def is_completed(self):
-        if not self.is_finished:
-            return False
-
-        return self.status_code is None and self.completed_at
-
-    @property
     def is_failed(self):
         if not self.is_finished:
             return False
@@ -172,6 +165,13 @@ class Job(models.Model):
 
         return self.started and self.completed_at is None
 
+    @property
+    def is_succeeded(self):
+        if not self.is_finished:
+            return False
+
+        return self.status_code is None and self.completed_at
+
     def notify_callback_url(self):
         if not self.job_request.callback_url:
             return
@@ -206,8 +206,8 @@ class Job(models.Model):
 
     @property
     def status(self):
-        if self.is_completed:
-            return "Completed"
+        if self.is_succeeded:
+            return "Succeeded"
 
         if self.is_failed:
             return "Failed"
@@ -283,7 +283,7 @@ class JobRequest(models.Model):
         if not last_job:
             return
 
-        if not self.is_completed:
+        if not self.is_succeeded:
             return
 
         return last_job.completed_at
@@ -312,13 +312,6 @@ class JobRequest(models.Model):
         return f.url
 
     @property
-    def is_completed(self):
-        if not self.jobs.exists():
-            return False
-
-        return all(j.is_completed for j in self.jobs.all())
-
-    @property
     def is_failed(self):
         """
         Has a JobRequst failed?
@@ -343,8 +336,15 @@ class JobRequest(models.Model):
         return all(j.is_pending for j in self.jobs.all())
 
     @property
+    def is_succeeded(self):
+        if not self.jobs.exists():
+            return False
+
+        return all(j.is_succeeded for j in self.jobs.all())
+
+    @property
     def num_completed(self):
-        return len([j for j in self.jobs.all() if j.is_completed])
+        return len([j for j in self.jobs.all() if j.is_succeeded])
 
     @property
     def runtime(self):
@@ -370,8 +370,8 @@ class JobRequest(models.Model):
 
     @property
     def status(self):
-        if self.is_completed:
-            return "Completed"
+        if self.is_succeeded:
+            return "Succeeded"
 
         if self.is_failed:
             return "Failed"

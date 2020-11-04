@@ -8,7 +8,7 @@ def test_statusicon_running_status():
 
 
 def test_statusicon_known_status():
-    output = status_icon("Completed")
+    output = status_icon("Succeeded")
 
     assert "color:green" in output
     assert 'data-icon="check"' in output

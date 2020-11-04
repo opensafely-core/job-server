@@ -156,7 +156,7 @@ def test_jobrequestlist_filter_by_status(rf):
     JobFactory(job_request=job_request2, started=True, completed_at=timezone.now())
 
     # Build a RequestFactory instance
-    request = rf.get("/?status=completed")
+    request = rf.get("/?status=succeeded")
     response = JobRequestList.as_view()(request)
 
     assert len(response.context_data["object_list"]) == 1
@@ -184,7 +184,7 @@ def test_jobrequestlist_filter_by_status_and_workspace(rf):
     JobFactory(job_request=job_request3, started=True)
     JobFactory(job_request=job_request3, started=True)
 
-    # complete
+    # succeeded
     job_request4 = JobRequestFactory(workspace=workspace2)
     JobFactory(job_request=job_request4, started=True, completed_at=timezone.now())
     JobFactory(job_request=job_request4, started=True, completed_at=timezone.now())

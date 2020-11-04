@@ -28,21 +28,6 @@ def test_job_get_absolute_url():
 
 
 @pytest.mark.django_db
-def test_job_is_completed_incomplete():
-    assert not JobFactory(completed_at=None).is_completed
-
-
-@pytest.mark.django_db
-def test_job_is_completed_success():
-    assert JobFactory(started=True, completed_at=timezone.now()).is_completed
-
-
-@pytest.mark.django_db
-def test_job_is_completed_with_status():
-    assert not JobFactory(completed_at=timezone.now(), status_code=6).is_completed
-
-
-@pytest.mark.django_db
 def test_job_is_failed_failure():
     assert not JobFactory(completed_at=timezone.now(), status_code=6).is_failed
 
@@ -119,6 +104,21 @@ def test_job_is_running_success():
 @pytest.mark.django_db
 def test_job_is_running_unstarted():
     assert not JobFactory(started=False).is_running
+
+
+@pytest.mark.django_db
+def test_job_is_succeeded_incomplete():
+    assert not JobFactory(completed_at=None).is_succeeded
+
+
+@pytest.mark.django_db
+def test_job_is_succeeded_success():
+    assert JobFactory(started=True, completed_at=timezone.now()).is_succeeded
+
+
+@pytest.mark.django_db
+def test_job_is_succeeded_with_status():
+    assert not JobFactory(completed_at=timezone.now(), status_code=6).is_succeeded
 
 
 @pytest.mark.django_db
@@ -276,7 +276,7 @@ def test_job_str():
 def test_job_status_completed():
     job = JobFactory(started=True, completed_at=timezone.now())
 
-    assert job.status == "Completed"
+    assert job.status == "Succeeded"
 
 
 @pytest.mark.django_db
@@ -348,35 +348,6 @@ def test_jobrequest_completed_at_while_incomplete():
     job1.save()
 
     assert not job_request.completed_at
-
-
-@pytest.mark.django_db
-def test_jobrequest_is_completed_no_jobs():
-    assert not JobRequestFactory().is_completed
-
-
-@pytest.mark.django_db
-def test_jobrequest_is_completed_success():
-    job_request = JobRequestFactory()
-
-    job1, job2, job3, job4 = JobFactory.create_batch(
-        4,
-        job_request=job_request,
-        started=True,
-        completed_at=timezone.now(),
-    )
-
-    # set up hierarchy
-    job1.needed_by = job2
-    job1.save()
-
-    job2.needed_by = job4
-    job2.save()
-
-    job3.needed_by = job4
-    job3.save()
-
-    assert job_request.is_completed
 
 
 @pytest.mark.django_db
@@ -458,6 +429,35 @@ def test_jobrequest_is_pending_success():
     job3.save()
 
     assert job_request.is_pending
+
+
+@pytest.mark.django_db
+def test_jobrequest_is_succeeded_no_jobs():
+    assert not JobRequestFactory().is_succeeded
+
+
+@pytest.mark.django_db
+def test_jobrequest_is_succeeded_success():
+    job_request = JobRequestFactory()
+
+    job1, job2, job3, job4 = JobFactory.create_batch(
+        4,
+        job_request=job_request,
+        started=True,
+        completed_at=timezone.now(),
+    )
+
+    # set up hierarchy
+    job1.needed_by = job2
+    job1.save()
+
+    job2.needed_by = job4
+    job2.save()
+
+    job3.needed_by = job4
+    job3.save()
+
+    assert job_request.is_succeeded
 
 
 @pytest.mark.django_db
@@ -580,7 +580,7 @@ def test_jobrequest_status_completed():
     job1.needed_by = job2
     job1.save()
 
-    assert job_request.status == "Completed"
+    assert job_request.status == "Succeeded"
 
 
 @pytest.mark.django_db

@@ -11,14 +11,6 @@ def status_icon(status_name):
     """Convert status strings to the relevant inline SVG."""
 
     status_lut = {
-        "completed": {
-            "color": "green",
-            "name": "check.svg",
-        },
-        "running": {
-            "color": "blue",
-            "name": "spinner.svg",
-        },
         "failed": {
             "color": "red",
             "name": "times.svg",
@@ -26,6 +18,14 @@ def status_icon(status_name):
         "pending": {
             "color": "grey",
             "name": "history.svg",
+        },
+        "running": {
+            "color": "blue",
+            "name": "spinner.svg",
+        },
+        "succeeded": {
+            "color": "green",
+            "name": "check.svg",
         },
     }
     default = {"color": "grey", "name": "question-circle.svg"}
