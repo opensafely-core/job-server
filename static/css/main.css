@@ -34,6 +34,23 @@ header {
   margin-right: .5rem;
   width: 160px;
 }
+
+#started-at-header {
+  margin-right: 112px;
+}
+@media (min-width: 768px) {
+  /* account for larger show/hide button */
+  #started-at-header {
+    margin-right: 147px;
+  }
+}
+@media (min-width: 992px) {
+  /* account for larger show/hide button */
+  #started-at-header {
+    margin-right: 212px;
+  }
+}
+
 .job-list .spinner svg {
   animation: spinner 1.2s linear infinite;
 }
