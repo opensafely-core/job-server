@@ -655,13 +655,6 @@ def test_jobrequest_status_unknown():
 
 
 @pytest.mark.django_db
-def test_jobqueryset_succeeded():
-    JobFactory(started=True, completed_at=timezone.now(), status_code=0)
-
-    assert Job.objects.completed().count() == 1
-
-
-@pytest.mark.django_db
 def test_jobqueryset_failed():
     JobFactory(started=True, completed_at=timezone.now(), status_code=3)
 
@@ -691,6 +684,13 @@ def test_jobqueryset_running():
     JobFactory(started=True, completed_at=None)
 
     assert Job.objects.running().count() == 2
+
+
+@pytest.mark.django_db
+def test_jobqueryset_succeeded():
+    JobFactory(started=True, completed_at=timezone.now(), status_code=0)
+
+    assert Job.objects.succeeded().count() == 1
 
 
 @pytest.mark.django_db

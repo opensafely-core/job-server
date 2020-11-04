@@ -71,13 +71,6 @@ class Workspace(models.Model):
 
 
 class JobQuerySet(models.QuerySet):
-    def completed(self):
-        return (
-            self.filter(started=True)
-            .exclude(completed_at=None)
-            .exclude(status_code=None)
-        )
-
     def finished(self):
         return self.filter(
             started=True,
@@ -93,11 +86,9 @@ class JobQuerySet(models.QuerySet):
             STATE_SUCCESS,
         ]
 
-        return (
-            self.exclude(completed_at=None)
-            .exclude(status_code=None)
-            .exclude(status_code__in=ignored_states)
-        )
+        return self.filter(
+            completed_at__isnull=False, status_code__isnull=False
+        ).exclude(status_code__in=ignored_states)
 
     def pending(self):
         pending_states = [
@@ -109,6 +100,13 @@ class JobQuerySet(models.QuerySet):
 
     def running(self):
         return self.filter(started=True, completed_at=None)
+
+    def succeeded(self):
+        return self.filter(
+            started=True,
+            completed_at__isnull=False,
+            status_code__isnull=False,
+        )
 
 
 class Job(models.Model):
