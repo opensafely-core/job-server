@@ -96,7 +96,11 @@ class JobQuerySet(models.QuerySet):
         )
 
     def pending(self):
-        qwargs = Q(status_code=None) | Q(status_code__in=[6, 8])
+        pending_states = [
+            STATE_DEPENDENCY_NOT_FINISHED,
+            STATE_DEPENDENCY_RUNNING,
+        ]
+        qwargs = Q(status_code=None) | Q(status_code__in=pending_states)
         return self.filter(qwargs, started=False)
 
     def running(self):
@@ -145,14 +149,11 @@ class Job(models.Model):
         if self.status_code is None:
             return False
 
-        dependency_not_finished = 6
-        dependency_failed = 7
-        dependency_running = 8
-
         non_failure_statuses = [
-            dependency_not_finished,
-            dependency_failed,
-            dependency_running,
+            STATE_DEPENDENCY_FAILED,
+            STATE_DEPENDENCY_NOT_FINISHED,
+            STATE_DEPENDENCY_RUNNING,
+            STATE_SUCCESS,
         ]
 
         return self.status_code not in non_failure_statuses
@@ -166,15 +167,23 @@ class Job(models.Model):
         if not self.started:
             return True
 
-        if self.status_code in [6, 8]:
+        pending_states = [
+            STATE_DEPENDENCY_NOT_FINISHED,
+            STATE_DEPENDENCY_RUNNING,
+        ]
+
+        if self.status_code in pending_states:
             return True
 
         return False
 
     @property
     def is_running(self):
-        # can we rely on status_code being null to define running?
-        if self.status_code and self.status_code not in [6, 8]:
+        pending_states = [
+            STATE_DEPENDENCY_NOT_FINISHED,
+            STATE_DEPENDENCY_RUNNING,
+        ]
+        if self.status_code and self.status_code not in pending_states:
             return False
 
         return self.started and self.completed_at is None
