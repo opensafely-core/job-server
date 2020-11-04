@@ -26,13 +26,13 @@ header {
   width: 5%;
 }
 .job-list .job-requests .action {
+  flex-grow: 1;
   margin-right: .5rem;
   width: 15%;
 }
-.job-list .job-requests .runtime {
+.job-list .job-requests .started-at {
   margin-right: .5rem;
-  min-width: 70px;
-  flex-grow: 1;
+  width: 160px;
 }
 .job-list .spinner svg {
   animation: spinner 1.2s linear infinite;
