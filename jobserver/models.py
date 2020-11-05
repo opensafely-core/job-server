@@ -273,6 +273,9 @@ class JobRequest(models.Model):
 
     created_at = models.DateTimeField(auto_now_add=True)
 
+    def get_absolute_url(self):
+        return reverse("job-request-detail", kwargs={"pk": self.pk})
+
     @property
     def completed_at(self):
         last_job = self.jobs.order_by("completed_at").last()
@@ -284,9 +287,6 @@ class JobRequest(models.Model):
             return
 
         return last_job.completed_at
-
-    def get_absolute_url(self):
-        return reverse("job-request-detail", kwargs={"pk": self.pk})
 
     def get_project_yaml_url(self):
         f = furl(self.workspace.repo)
