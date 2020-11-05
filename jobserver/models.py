@@ -27,6 +27,7 @@ class Workspace(models.Model):
         on_delete=models.CASCADE,
         null=True,
         blank=True,
+        related_name="workspaces",
     )
 
     name = models.TextField()
@@ -83,7 +84,11 @@ class Job(models.Model):
     started_at = models.DateTimeField(null=True, blank=True)
     completed_at = models.DateTimeField(null=True, blank=True)
     needed_by = models.ForeignKey(
-        "self", null=True, blank=True, on_delete=models.SET_NULL
+        "self",
+        on_delete=models.SET_NULL,
+        null=True,
+        blank=True,
+        related_name="children",
     )
     job_request = models.ForeignKey(
         "JobRequest",
@@ -251,9 +256,10 @@ class JobRequest(models.Model):
 
     created_by = models.ForeignKey(
         "User",
+        on_delete=models.CASCADE,
         null=True,
         blank=True,
-        on_delete=models.CASCADE,
+        related_name="job_requests",
     )
     workspace = models.ForeignKey(
         "Workspace", on_delete=models.CASCADE, related_name="job_requests"
