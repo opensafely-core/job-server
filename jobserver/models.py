@@ -22,7 +22,12 @@ STATE_DEPENDENCY_RUNNING = 8
 
 
 class Workspace(models.Model):
-    created_by = models.ForeignKey("User", null=True, on_delete=models.CASCADE)
+    created_by = models.ForeignKey(
+        "User",
+        on_delete=models.CASCADE,
+        null=True,
+        blank=True,
+    )
 
     name = models.TextField()
     repo = models.TextField(db_index=True)
@@ -81,7 +86,11 @@ class Job(models.Model):
         "self", null=True, blank=True, on_delete=models.SET_NULL
     )
     job_request = models.ForeignKey(
-        "JobRequest", null=True, on_delete=models.CASCADE, related_name="jobs"
+        "JobRequest",
+        on_delete=models.CASCADE,
+        null=True,
+        blank=True,
+        related_name="jobs",
     )
     workspace = models.ForeignKey(
         Workspace,
@@ -375,7 +384,7 @@ class Stats(models.Model):
     PK=1.
     """
 
-    api_last_seen = models.DateTimeField(null=True)
+    api_last_seen = models.DateTimeField(null=True, blank=True)
 
     def save(self, *args, **kwargs):
         self.pk = 1
