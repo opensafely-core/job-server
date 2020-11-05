@@ -222,7 +222,7 @@ def test_jobviewset_list_success(api_rf):
     assert job["outputs"] == []
     assert job["needed_by_id"] is None
     assert job["workspace_id"] == 1
-    assert job["callback_url"] is None
+    assert job["callback_url"] == ""
 
     workspace = dict(job["workspace"])
 
@@ -280,7 +280,7 @@ def test_jobviewset_update_success(api_rf):
     job = JobFactory(job_request=job_request, action_id="test-action", force_run=False)
 
     assert job.status_code is None
-    assert job.status_message is None
+    assert job.status_message == ""
 
     data = {
         "action_id": job.action_id,
@@ -313,7 +313,7 @@ def test_jobviewset_update_with_outputs_and_existing_outputs_fails(api_rf):
     JobOutputFactory(job=job)
 
     assert job.status_code is None
-    assert job.status_message is None
+    assert job.status_message == ""
 
     data = {
         "action_id": job.action_id,

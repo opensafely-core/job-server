@@ -78,7 +78,7 @@ class Job(models.Model):
     started = models.BooleanField(default=False)
     action_id = models.TextField()
     status_code = models.IntegerField(null=True, blank=True)
-    status_message = models.TextField(null=True, blank=True)
+    status_message = models.TextField(default="", blank=True)
     created_at = models.DateTimeField(auto_now_add=True)
     started_at = models.DateTimeField(null=True, blank=True)
     completed_at = models.DateTimeField(null=True, blank=True)
@@ -262,7 +262,7 @@ class JobRequest(models.Model):
     backend = models.TextField(choices=BACKEND_CHOICES, db_index=True)
     force_run_dependencies = models.BooleanField(default=False)
     requested_actions = models.JSONField()
-    callback_url = models.TextField(null=True, blank=True)
+    callback_url = models.TextField(default="", blank=True)
     sha = models.TextField()
 
     created_at = models.DateTimeField(auto_now_add=True)
