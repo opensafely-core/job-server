@@ -103,7 +103,7 @@ class JobQuerySet(models.QuerySet):
         return self.filter(
             started=True,
             completed_at__isnull=False,
-            status_code__isnull=False,
+            status_code=0,
         )
 
 
