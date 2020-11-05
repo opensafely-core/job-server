@@ -7,7 +7,7 @@ from django.db.utils import IntegrityError
 from django.urls import reverse
 from django.utils import timezone
 
-from jobserver.models import Job, Stats
+from jobserver.models import Stats
 
 from ..factories import (
     JobFactory,
@@ -652,45 +652,6 @@ def test_jobrequest_status_unknown():
     job.refresh_from_db()
 
     assert job_request.status == "Unknown"
-
-
-@pytest.mark.django_db
-def test_jobqueryset_failed():
-    JobFactory(started=True, completed_at=timezone.now(), status_code=3)
-
-    assert Job.objects.failed().count() == 1
-
-
-@pytest.mark.django_db
-def test_jobqueryset_finished():
-    JobFactory(started=True, status_code=0, completed_at=timezone.now())
-    JobFactory(started=True, status_code=1, completed_at=timezone.now())
-
-    assert Job.objects.finished().count() == 2
-
-
-@pytest.mark.django_db
-def test_jobqueryset_pending():
-    JobFactory(pk=1, started=False, status_code=None)
-    JobFactory(pk=2, started=False, status_code=6)
-    JobFactory(pk=3, started=False, status_code=8)
-
-    assert Job.objects.pending().count() == 3, Job.objects.pending()
-
-
-@pytest.mark.django_db
-def test_jobqueryset_running():
-    JobFactory(started=True, completed_at=None)
-    JobFactory(started=True, completed_at=None)
-
-    assert Job.objects.running().count() == 2
-
-
-@pytest.mark.django_db
-def test_jobqueryset_succeeded():
-    JobFactory(started=True, completed_at=timezone.now(), status_code=0)
-
-    assert Job.objects.succeeded().count() == 1
 
 
 @pytest.mark.django_db

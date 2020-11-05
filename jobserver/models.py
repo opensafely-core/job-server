@@ -5,7 +5,6 @@ import requests
 import structlog
 from django.contrib.auth.models import AbstractUser
 from django.db import models
-from django.db.models import Q
 from django.urls import reverse
 from django.utils import timezone
 from furl import furl
@@ -69,44 +68,6 @@ class Workspace(models.Model):
         return f.path.segments[-1]
 
 
-class JobQuerySet(models.QuerySet):
-    def finished(self):
-        return self.filter(
-            started=True,
-            status_code__isnull=False,
-            completed_at__isnull=False,
-        )
-
-    def failed(self):
-        ignored_states = [
-            STATE_DEPENDENCY_NOT_FINISHED,
-            STATE_DEPENDENCY_RUNNING,
-            STATE_SUCCESS,
-        ]
-
-        return self.filter(
-            completed_at__isnull=False, status_code__isnull=False
-        ).exclude(status_code__in=ignored_states)
-
-    def pending(self):
-        pending_states = [
-            STATE_DEPENDENCY_NOT_FINISHED,
-            STATE_DEPENDENCY_RUNNING,
-        ]
-        qwargs = Q(status_code=None) | Q(status_code__in=pending_states)
-        return self.filter(qwargs, started=False)
-
-    def running(self):
-        return self.filter(started=True, completed_at=None)
-
-    def succeeded(self):
-        return self.filter(
-            started=True,
-            completed_at__isnull=False,
-            status_code=0,
-        )
-
-
 class Job(models.Model):
     force_run = models.BooleanField(default=False)
     started = models.BooleanField(default=False)
@@ -129,8 +90,6 @@ class Job(models.Model):
         blank=True,
         on_delete=models.SET_NULL,
     )
-
-    objects = JobQuerySet.as_manager()
 
     class Meta:
         ordering = ["pk"]
