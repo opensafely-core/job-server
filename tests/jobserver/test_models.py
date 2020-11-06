@@ -356,6 +356,13 @@ def test_jobrequest_completed_at_while_incomplete():
 
 
 @pytest.mark.django_db
+def test_jobrequest_get_absolute_url():
+    job_request = JobRequestFactory()
+    url = job_request.get_absolute_url()
+    assert url == reverse("job-request-detail", kwargs={"pk": job_request.pk})
+
+
+@pytest.mark.django_db
 def test_jobrequest_is_failed_jobs_still_running():
     job_request = JobRequestFactory()
 
