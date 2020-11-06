@@ -245,7 +245,6 @@ class JobRequest(models.Model):
     )
 
     backend = models.TextField(choices=BACKEND_CHOICES, db_index=True)
-    force_run = models.BooleanField(default=False)
     force_run_dependencies = models.BooleanField(default=False)
     requested_actions = models.JSONField()
     callback_url = models.TextField(null=True, blank=True)

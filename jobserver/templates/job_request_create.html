@@ -38,52 +38,6 @@
 
       </div>
 
-      <div class="form-group">
-        <div class="custom-control custom-checkbox">
-          <input
-            type="checkbox"
-            name="force_run"
-            class="custom-control-input{% if form.force_run.errors %} is-invalid{% endif %}"
-            id="id_force_run"
-            />
-          <label for="id_force_run" class="custom-control-label">
-            Force run?
-          </label>
-        </div>
-
-        {% if form.force_run.errors %}
-        <ul>
-          {% for error in form.force_run.errors %}
-          <li class="text-danger">{{ error }}</li>
-          {% endfor %}
-        </ul>
-        {% endif %}
-
-      </div>
-
-      <div class="form-group">
-        <div class="custom-control custom-checkbox">
-          <input
-            type="checkbox"
-            name="force_run_dependencies"
-            class="custom-control-input{% if form.force_run_dependencies.errors %} is-invalid{% endif %}"
-            id="id_force_run_dependencies"
-            />
-          <label for="id_force_run_dependencies" class="custom-control-label">
-            Force run dependencies?
-          </label>
-        </div>
-
-        {% if form.force_run_dependencies.errors %}
-        <ul>
-          {% for error in form.force_run_dependencies.errors %}
-          <li class="text-danger">{{ error }}</li>
-          {% endfor %}
-        </ul>
-        {% endif %}
-
-      </div>
-
       <p>Pick one or more actions to run:</p>
 
       <div class="form-group mb-5">
@@ -151,6 +105,29 @@
         {% if form.requested_actions.errors %}
         <ul>
           {% for error in form.requested_actions.errors %}
+          <li class="text-danger">{{ error }}</li>
+          {% endfor %}
+        </ul>
+        {% endif %}
+
+      </div>
+
+      <div class="form-group mb-5">
+        <div class="custom-control custom-checkbox">
+          <input
+            type="checkbox"
+            name="force_run_dependencies"
+            class="custom-control-input{% if form.force_run_dependencies.errors %} is-invalid{% endif %}"
+            id="id_force_run_dependencies"
+            />
+          <label for="id_force_run_dependencies" class="custom-control-label">
+            Force run dependencies of your selected actions?
+          </label>
+        </div>
+
+        {% if form.force_run_dependencies.errors %}
+        <ul>
+          {% for error in form.force_run_dependencies.errors %}
           <li class="text-danger">{{ error }}</li>
           {% endfor %}
         </ul>
