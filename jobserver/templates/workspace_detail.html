@@ -11,7 +11,12 @@
       <li class="pt-2"><strong>Repo:</strong> <a href="{{ workspace.repo }}">{{ workspace.repo_name }}</a></li>
       <li class="pt-2"><strong>Branch:</strong> {{ workspace.branch }}</li>
       <li class="pt-2"><strong>DB:</strong> {{ workspace.db }}</li>
-      <li class="pt-2"><strong>Created:</strong> {{ workspace.created_at|naturaltime }}</li>
+      <li class="pt-2">
+        <strong>Created:</strong>
+        <span title="{{ workspace.created_at|date:"Y-m-d H:i:s" }}">
+          {{ workspace.created_at|naturaltime }}
+        </span>
+      </li>
       {% if workspace.created_by %}
       <li class="pt-2"><strong>Created By:</strong> {{ workspace.created_by.name }}</li>
       {% endif %}
