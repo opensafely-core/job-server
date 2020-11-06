@@ -1,7 +1,3 @@
-# add foo=bar when page=N
-# add foo=bar when page is not set
-# remove foo=bar when page=N
-# remove foo=bar when page is not set
 from jobserver.templatetags.querystring_tools import (
     url_with_querystring,
     url_without_querystring,
