@@ -36,13 +36,6 @@ class StatsFactory(factory.django.DjangoModelFactory):
     api_last_seen = factory.Faker("date_time", tzinfo=utc)
 
 
-class WorkspaceFactory(factory.django.DjangoModelFactory):
-    class Meta:
-        model = Workspace
-
-    repo = factory.Sequence(lambda n: "http://example.com/org-{n}/repo-{n}")
-
-
 class UserFactory(factory.django.DjangoModelFactory):
     class Meta:
         model = User
@@ -56,3 +49,10 @@ class UserSocialAuthFactory(factory.django.DjangoModelFactory):
         model = UserSocialAuth
 
     user = factory.SubFactory("tests.factories.UserFactory")
+
+
+class WorkspaceFactory(factory.django.DjangoModelFactory):
+    class Meta:
+        model = Workspace
+
+    repo = factory.Sequence(lambda n: "http://example.com/org-{n}/repo-{n}")
