@@ -8,7 +8,6 @@ from .models import JobRequest, Workspace
 class JobRequestCreateForm(forms.ModelForm):
     class Meta:
         fields = [
-            "force_run",
             "force_run_dependencies",
         ]
         model = JobRequest

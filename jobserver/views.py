@@ -202,7 +202,7 @@ class JobRequestCreate(CreateView):
         for action in job_request.requested_actions:
             job_request.jobs.create(
                 action_id=action,
-                force_run=job_request.force_run,
+                force_run=True,
             )
 
         return redirect("job-list")
