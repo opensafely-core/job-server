@@ -22,7 +22,13 @@ STATE_DEPENDENCY_RUNNING = 8
 
 
 class Workspace(models.Model):
-    created_by = models.ForeignKey("User", null=True, on_delete=models.CASCADE)
+    created_by = models.ForeignKey(
+        "User",
+        on_delete=models.CASCADE,
+        null=True,
+        blank=True,
+        related_name="workspaces",
+    )
 
     name = models.TextField()
     repo = models.TextField(db_index=True)
@@ -73,15 +79,23 @@ class Job(models.Model):
     started = models.BooleanField(default=False)
     action_id = models.TextField()
     status_code = models.IntegerField(null=True, blank=True)
-    status_message = models.TextField(null=True, blank=True)
+    status_message = models.TextField(default="", blank=True)
     created_at = models.DateTimeField(auto_now_add=True)
     started_at = models.DateTimeField(null=True, blank=True)
     completed_at = models.DateTimeField(null=True, blank=True)
     needed_by = models.ForeignKey(
-        "self", null=True, blank=True, on_delete=models.SET_NULL
+        "self",
+        on_delete=models.SET_NULL,
+        null=True,
+        blank=True,
+        related_name="children",
     )
     job_request = models.ForeignKey(
-        "JobRequest", null=True, on_delete=models.CASCADE, related_name="jobs"
+        "JobRequest",
+        on_delete=models.CASCADE,
+        null=True,
+        blank=True,
+        related_name="jobs",
     )
     workspace = models.ForeignKey(
         Workspace,
@@ -242,9 +256,10 @@ class JobRequest(models.Model):
 
     created_by = models.ForeignKey(
         "User",
+        on_delete=models.CASCADE,
         null=True,
         blank=True,
-        on_delete=models.CASCADE,
+        related_name="job_requests",
     )
     workspace = models.ForeignKey(
         "Workspace", on_delete=models.CASCADE, related_name="job_requests"
@@ -253,10 +268,13 @@ class JobRequest(models.Model):
     backend = models.TextField(choices=BACKEND_CHOICES, db_index=True)
     force_run_dependencies = models.BooleanField(default=False)
     requested_actions = models.JSONField()
-    callback_url = models.TextField(null=True, blank=True)
+    callback_url = models.TextField(default="", blank=True)
     sha = models.TextField()
 
     created_at = models.DateTimeField(auto_now_add=True)
+
+    def get_absolute_url(self):
+        return reverse("job-request-detail", kwargs={"pk": self.pk})
 
     @property
     def completed_at(self):
@@ -269,9 +287,6 @@ class JobRequest(models.Model):
             return
 
         return last_job.completed_at
-
-    def get_absolute_url(self):
-        return reverse("job-request-detail", kwargs={"pk": self.pk})
 
     def get_project_yaml_url(self):
         f = furl(self.workspace.repo)
@@ -375,7 +390,7 @@ class Stats(models.Model):
     PK=1.
     """
 
-    api_last_seen = models.DateTimeField(null=True)
+    api_last_seen = models.DateTimeField(null=True, blank=True)
 
     def save(self, *args, **kwargs):
         self.pk = 1
