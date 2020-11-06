@@ -18,9 +18,9 @@ actions = [
 
 def request_1(workspace, user, now):
     """
-    Completed JobRequest
+    Succeeded JobRequest
 
-    Each related Job completed without error.
+    Each related Job finished without error.
     """
     request1 = JobRequest.objects.create(created_by=user, workspace=workspace)
 
@@ -78,7 +78,7 @@ def request_2(workspace, user, now):
     """
     Running JobRequest
 
-    One Job has completed, one is currently running, and one is pending.
+    One Job has succeeded, one is currently running, and one is pending.
     """
     request2 = JobRequest.objects.create(created_by=user, workspace=workspace)
 
@@ -111,7 +111,7 @@ def request_3(workspace, user, now):
     """
     Failed JobRequest
 
-    One Job completed, one failed, and the final one failed because the second
+    One Job succeeded, one failed, and the final one failed because the second
     one failed.
     """
     # JobRequest 3 - failed

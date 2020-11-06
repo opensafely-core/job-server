@@ -15,6 +15,12 @@ from .runtime import Runtime
 logger = structlog.get_logger(__name__)
 
 
+# TODO: remove when job-runner is driving state updates
+STATE_SUCCESS = 0
+STATE_DEPENDENCY_NOT_FINISHED = 6
+STATE_DEPENDENCY_RUNNING = 8
+
+
 class Workspace(models.Model):
     created_by = models.ForeignKey("User", null=True, on_delete=models.CASCADE)
 
@@ -62,17 +68,6 @@ class Workspace(models.Model):
         return f.path.segments[-1]
 
 
-class JobQuerySet(models.QuerySet):
-    def completed(self):
-        return self.filter(completed_at__isnull=False)
-
-    def in_progress(self):
-        return self.filter(started_at__isnull=False, completed_at=None)
-
-    def pending(self):
-        return self.filter(started_at=None, completed_at=None)
-
-
 class Job(models.Model):
     force_run = models.BooleanField(default=False)
     started = models.BooleanField(default=False)
@@ -96,8 +91,6 @@ class Job(models.Model):
         on_delete=models.SET_NULL,
     )
 
-    objects = JobQuerySet.as_manager()
-
     class Meta:
         ordering = ["pk"]
 
@@ -108,43 +101,59 @@ class Job(models.Model):
         return reverse("job-detail", kwargs={"pk": self.pk})
 
     @property
-    def is_complete(self):
-        return self.status_code is None and self.completed_at
-
-    @property
-    def is_dependency_failed(self):
-        return self.status_code == 7
-
-    @property
     def is_failed(self):
-        dependency_not_finished = 6
-        dependency_failed = 7
-        dependency_running = 8
-
-        non_failure_status = self.status_code in [
-            dependency_not_finished,
-            dependency_failed,
-            dependency_running,
-        ]
-
-        return self.status_code and not non_failure_status
-
-    @property
-    def is_in_progress(self):
-        if self.status_code is not None:
+        if not self.is_finished:
             return False
 
-        return self.started_at and not self.completed_at
+        non_failure_statuses = [
+            STATE_DEPENDENCY_NOT_FINISHED,
+            STATE_DEPENDENCY_RUNNING,
+            STATE_SUCCESS,
+        ]
+
+        return self.status_code not in non_failure_statuses
+
+    @property
+    def is_finished(self):
+        # no status code set
+        return (
+            self.started
+            and self.status_code is not None
+            and self.completed_at is not None
+        )
 
     @property
     def is_pending(self):
-        if self.status_code in [6, 8]:
+        if not self.started:
             return True
 
-        if self.status_code is None and not (self.started_at and self.completed_at):
+        pending_states = [
+            STATE_DEPENDENCY_NOT_FINISHED,
+            STATE_DEPENDENCY_RUNNING,
+        ]
+
+        if self.status_code in pending_states:
             return True
 
         return False
+
+    @property
+    def is_running(self):
+        pending_states = [
+            STATE_DEPENDENCY_NOT_FINISHED,
+            STATE_DEPENDENCY_RUNNING,
+        ]
+        if self.status_code and self.status_code not in pending_states:
+            return False
+
+        return self.started and self.completed_at is None
+
+    @property
+    def is_succeeded(self):
+        if not self.is_finished:
+            return False
+
+        return self.status_code == 0
 
     def notify_callback_url(self):
         if not self.job_request.callback_url:
@@ -180,22 +189,19 @@ class Job(models.Model):
 
     @property
     def status(self):
-        if self.is_complete:
-            return "Completed"
-
-        if self.is_dependency_failed:
-            return "Dependency Failed"
+        if self.is_succeeded:
+            return "Succeeded"
 
         if self.is_failed:
             return "Failed"
 
-        if self.is_in_progress:
-            return "In Progress"
+        if self.is_running:
+            return "Running"
 
         if self.is_pending:
             return "Pending"
 
-        return "Pending"
+        return "Unknown"
 
     def save(self, *args, **kwargs):
         if self.started and not self.started_at:
@@ -259,7 +265,7 @@ class JobRequest(models.Model):
         if not last_job:
             return
 
-        if not self.is_complete:
+        if not self.is_succeeded:
             return
 
         return last_job.completed_at
@@ -288,36 +294,39 @@ class JobRequest(models.Model):
         return f.url
 
     @property
-    def is_complete(self):
-        if not self.jobs.exists():
-            return False
-
-        return all(j.is_complete for j in self.jobs.all())
-
-    @property
     def is_failed(self):
         """
         Has a JobRequst failed?
 
-        We don't consider a JobRequest failed until all Jobs are either
-        Completed or Failed.
+        We don't consider a JobRequest failed until all Jobs are Finished.
         """
-        if not all(j.is_failed or j.is_complete for j in self.jobs.all()):
+        if not self.is_finished:
             return False
 
         return any(j.is_failed for j in self.jobs.all())
 
     @property
-    def is_in_progress(self):
-        return any(j.is_in_progress for j in self.jobs.all())
+    def is_finished(self):
+        return all(j.is_finished for j in self.jobs.all())
+
+    @property
+    def is_running(self):
+        return any(j.is_running for j in self.jobs.all())
 
     @property
     def is_pending(self):
         return all(j.is_pending for j in self.jobs.all())
 
     @property
+    def is_succeeded(self):
+        if not self.jobs.exists():
+            return False
+
+        return all(j.is_succeeded for j in self.jobs.all())
+
+    @property
     def num_completed(self):
-        return len([j for j in self.jobs.all() if j.is_complete])
+        return len([j for j in self.jobs.all() if j.is_succeeded])
 
     @property
     def runtime(self):
@@ -343,19 +352,19 @@ class JobRequest(models.Model):
 
     @property
     def status(self):
-        if self.is_complete:
-            return "Completed"
+        if self.is_succeeded:
+            return "Succeeded"
 
         if self.is_failed:
             return "Failed"
 
-        if self.is_in_progress:
-            return "In Progress"
+        if self.is_running:
+            return "Running"
 
         if self.is_pending:
             return "Pending"
 
-        return "Pending"
+        return "Unknown"
 
 
 class Stats(models.Model):

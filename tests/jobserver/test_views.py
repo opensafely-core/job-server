@@ -221,11 +221,16 @@ def test_jobrequestlist_filter_by_status(rf):
     JobFactory(job_request=job_request1)
 
     job_request2 = JobRequestFactory()
-    JobFactory(job_request=job_request2, completed_at=timezone.now())
-    JobFactory(job_request=job_request2, completed_at=timezone.now())
+    JobFactory.create_batch(
+        2,
+        job_request=job_request2,
+        started=True,
+        completed_at=timezone.now(),
+        status_code=0,
+    )
 
     # Build a RequestFactory instance
-    request = rf.get("/?status=completed")
+    request = rf.get("/?status=succeeded")
     response = JobRequestList.as_view()(request)
 
     assert len(response.context_data["object_list"]) == 1
@@ -236,31 +241,46 @@ def test_jobrequestlist_filter_by_status_and_workspace(rf):
     workspace1 = WorkspaceFactory()
     workspace2 = WorkspaceFactory()
 
-    # in progress
+    # running
     job_request1 = JobRequestFactory(workspace=workspace1)
-    JobFactory(job_request=job_request1, started_at=timezone.now())
-    JobFactory(job_request=job_request1)
+    JobFactory(
+        job_request=job_request1, started=True, started_at=timezone.now(), status_code=0
+    )
+    JobFactory(job_request=job_request1, started=True)
 
     # failed
     job_request2 = JobRequestFactory(workspace=workspace1)
-    JobFactory(job_request=job_request2, completed_at=timezone.now())
-    JobFactory(job_request=job_request2, status_code=3)
+    JobFactory(
+        job_request=job_request2,
+        started=True,
+        completed_at=timezone.now(),
+        status_code=0,
+    )
+    JobFactory(job_request=job_request2, started=True, status_code=3)
 
-    # in progress
+    # running
     job_request3 = JobRequestFactory(workspace=workspace2)
-    JobFactory(job_request=job_request3, completed_at=timezone.now())
-    JobFactory(job_request=job_request3, completed_at=timezone.now())
-    JobFactory(job_request=job_request3, started_at=timezone.now())
-    JobFactory(job_request=job_request3)
+    JobFactory.create_batch(
+        2,
+        job_request=job_request3,
+        started=True,
+        completed_at=timezone.now(),
+        status_code=0,
+    )
+    JobFactory.create_batch(2, job_request=job_request3, started=True)
 
-    # complete
+    # succeeded
     job_request4 = JobRequestFactory(workspace=workspace2)
-    JobFactory(job_request=job_request4, completed_at=timezone.now())
-    JobFactory(job_request=job_request4, completed_at=timezone.now())
-    JobFactory(job_request=job_request4, completed_at=timezone.now())
+    JobFactory.create_batch(
+        3,
+        job_request=job_request4,
+        started=True,
+        completed_at=timezone.now(),
+        status_code=0,
+    )
 
     # Build a RequestFactory instance
-    request = rf.get(f"/?status=in-progress&workspace={workspace2.pk}")
+    request = rf.get(f"/?status=running&workspace={workspace2.pk}")
     response = JobRequestList.as_view()(request)
 
     assert len(response.context_data["object_list"]) == 1

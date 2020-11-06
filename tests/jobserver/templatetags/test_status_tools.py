@@ -1,14 +1,14 @@
 from jobserver.templatetags.status_tools import status_icon
 
 
-def test_statusicon_in_progress_status():
-    output = status_icon("In Progress")
+def test_statusicon_running_status():
+    output = status_icon("Running")
 
     assert 'class="spinner"' in output
 
 
 def test_statusicon_known_status():
-    output = status_icon("Completed")
+    output = status_icon("Succeeded")
 
     assert "color:green" in output
     assert 'data-icon="check"' in output

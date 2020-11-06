@@ -11,18 +11,6 @@ def status_icon(status_name):
     """Convert status strings to the relevant inline SVG."""
 
     status_lut = {
-        "completed": {
-            "color": "green",
-            "name": "check.svg",
-        },
-        "dependency failed": {
-            "color": "red",
-            "name": "unlink.svg",
-        },
-        "in progress": {
-            "color": "blue",
-            "name": "spinner.svg",
-        },
         "failed": {
             "color": "red",
             "name": "times.svg",
@@ -31,12 +19,20 @@ def status_icon(status_name):
             "color": "grey",
             "name": "history.svg",
         },
+        "running": {
+            "color": "blue",
+            "name": "spinner.svg",
+        },
+        "succeeded": {
+            "color": "green",
+            "name": "check.svg",
+        },
     }
     default = {"color": "grey", "name": "question-circle.svg"}
     status = status_lut.get(status_name.lower(), default)
 
     spinner = ""
-    if status_name.lower() == "in progress":
+    if status_name.lower() == "running":
         spinner = 'class="spinner"'
 
     # Get the SVG file contents so we can put that directly into the template.
