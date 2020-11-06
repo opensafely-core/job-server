@@ -36,7 +36,7 @@
         {% for workspace in page_obj %}
         <tr>
           <td>{{ workspace.name }}</td>
-          <td>{{ workspace.repo }}</td>
+          <td><a href="{{ workspace.repo }}">{{ workspace.repo_name }}</a></td>
           <td>{{ workspace.branch }}</td>
           <td>
             <a class="btn btn-secondary text-white" href="{% url 'workspace-detail' pk=workspace.pk %}">
