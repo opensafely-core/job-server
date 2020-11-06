@@ -229,6 +229,15 @@ class JobRequestCreate(CreateView):
         return kwargs
 
 
+class JobRequestZombify(View):
+    def post(self, request, *args, **kwargs):
+        job_request = get_object_or_404(JobRequest, pk=self.kwargs["pk"])
+
+        job_request.jobs.update(status_code=10, status_message="Job manually zombified")
+
+        return redirect("job-request-detail", pk=job_request.pk)
+
+
 @method_decorator(login_required, name="dispatch")
 class WorkspaceCreate(CreateView):
     form_class = WorkspaceCreateForm

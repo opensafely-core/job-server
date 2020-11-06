@@ -11,6 +11,7 @@ from jobserver.views import (
     Dashboard,
     JobRequestCreate,
     JobRequestList,
+    JobRequestZombify,
     JobZombify,
     WorkspaceCreate,
     WorkspaceList,
@@ -395,6 +396,37 @@ def test_jobrequestlist_success(rf):
 
     assert response.context_data["users"] == {user.username: user.name}
     assert len(response.context_data["workspaces"]) == 1
+
+
+@pytest.mark.django_db
+def test_jobrequestzombify_success(rf):
+    job_request = JobRequestFactory()
+    JobFactory(job_request=job_request, started=False)
+    JobFactory(
+        job_request=job_request, started=True, completed_at=None, status_code=None
+    )
+
+    request = rf.post(MEANINGLESS_URL)
+    request.user = UserFactory()
+
+    response = JobRequestZombify.as_view()(request, pk=job_request.pk)
+
+    assert response.status_code == 302
+    assert response.url == reverse("job-request-detail", kwargs={"pk": job_request.pk})
+
+    jobs = job_request.jobs.all()
+
+    assert all(j.status_code == 10 for j in jobs)
+    assert all(j.status_message == "Job manually zombified" for j in jobs)
+
+
+@pytest.mark.django_db
+def test_jobrequestzombify_unknown_jobrequest(rf):
+    request = rf.post(MEANINGLESS_URL)
+    request.user = UserFactory()
+
+    with pytest.raises(Http404):
+        JobRequestZombify.as_view()(request, pk="99")
 
 
 @pytest.mark.django_db
