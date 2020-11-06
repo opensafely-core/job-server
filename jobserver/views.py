@@ -4,9 +4,9 @@ from django.contrib import messages
 from django.contrib.auth.decorators import login_required
 from django.db import transaction
 from django.db.models import Q
-from django.shortcuts import redirect
+from django.shortcuts import get_object_or_404, redirect
 from django.utils.decorators import method_decorator
-from django.views.generic import CreateView, DetailView, ListView
+from django.views.generic import CreateView, DetailView, ListView, View
 
 from .forms import JobRequestCreateForm, WorkspaceCreateForm
 from .github import get_branch_sha, get_repos_with_branches
@@ -99,6 +99,17 @@ class JobDetail(DetailView):
     model = Job
     queryset = Job.objects.select_related("workspace")
     template_name = "job_detail.html"
+
+
+class JobZombify(View):
+    def post(self, request, *args, **kwargs):
+        job = get_object_or_404(Job, pk=self.kwargs["pk"])
+
+        job.status_code = 10
+        job.status_message = "Job manually zombified"
+        job.save()
+
+        return redirect("job-detail", pk=job.pk)
 
 
 class JobRequestDetail(DetailView):

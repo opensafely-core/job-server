@@ -2,6 +2,7 @@ from unittest.mock import patch
 
 import pytest
 from django.contrib.auth.models import AnonymousUser
+from django.http import Http404
 from django.urls import reverse
 from django.utils import timezone
 
@@ -10,6 +11,7 @@ from jobserver.views import (
     Dashboard,
     JobRequestCreate,
     JobRequestList,
+    JobZombify,
     WorkspaceCreate,
     WorkspaceList,
     WorkspaceSelectOrCreate,
@@ -140,6 +142,33 @@ def test_jobdetail_with_older_job(rf):
     response = JobRequestList.as_view()(request, pk=job.pk)
 
     assert response.status_code == 200
+
+
+@pytest.mark.django_db
+def test_jobzombify_success(rf):
+    job = JobFactory(started=True, completed_at=None, status_code=None)
+
+    request = rf.post(MEANINGLESS_URL)
+    request.user = UserFactory()
+
+    response = JobZombify.as_view()(request, pk=job.pk)
+
+    assert response.status_code == 302
+    assert response.url == reverse("job-detail", kwargs={"pk": job.pk})
+
+    job.refresh_from_db()
+
+    assert job.status_code == 10
+    assert job.status_message == "Job manually zombified"
+
+
+@pytest.mark.django_db
+def test_jobzombify_unknown_job(rf):
+    request = rf.post(MEANINGLESS_URL)
+    request.user = UserFactory()
+
+    with pytest.raises(Http404):
+        JobZombify.as_view()(request, pk="99")
 
 
 @pytest.mark.django_db
