@@ -6,7 +6,7 @@
 {% block content %}
 
 <div class="row workspace-select">
-  <div class="col-8 offset-2">
+  <div class="col-lg-8 offset-lg-2">
 
     {% if workspace_list %}
     <p>Select a Workspace before adding a Job:</p>
@@ -17,7 +17,9 @@
         class="list-group-item d-flex justify-content-between align-items-center"
         href="{% url 'job-create' pk=workspace.pk %}">
         <span class="mr-2">{{ workspace.name }}</span>
-        <code class="text-muted">{{ workspace.repo_name }}|{{ workspace.branch }}</code>
+        <code class="text-muted d-none d-md-block">
+          {{ workspace.repo_name }}|{{ workspace.branch }}
+        </code>
       </a>
       {% endfor %}
     </div>
