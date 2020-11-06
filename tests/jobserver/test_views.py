@@ -137,6 +137,75 @@ def test_jobdetail_with_older_job(rf):
 
 
 @pytest.mark.django_db
+def test_jobrequestcreate_get_success(rf):
+    user = UserFactory()
+    workspace = WorkspaceFactory()
+
+    # Build a RequestFactory instance
+    request = rf.get(MEANINGLESS_URL)
+    request.user = user
+
+    dummy_project = [{"name": "twiddle", "needs": []}]
+    with patch("jobserver.views.get_actions", new=lambda r, b: dummy_project):
+        response = JobRequestCreate.as_view()(request, pk=workspace.pk)
+
+    assert response.status_code == 200
+
+    assert response.context_data["actions"] == [
+        {"name": "twiddle", "needs": [], "status": "-"}
+    ]
+
+    assert response.context_data["branch"] == workspace.branch
+
+
+@pytest.mark.django_db
+def test_jobrequestcreate_post_success(rf):
+    user = UserFactory()
+    workspace = WorkspaceFactory()
+
+    data = {
+        "requested_actions": ["twiddle"],
+        "callback_url": "test",
+    }
+
+    # Build a RequestFactory instance
+    request = rf.post(MEANINGLESS_URL, data)
+    request.user = user
+
+    dummy_project = [{"name": "twiddle", "needs": []}]
+    with patch("jobserver.views.get_actions", new=lambda r, b: dummy_project), patch(
+        "jobserver.views.get_branch_sha", new=lambda r, b: "abc123"
+    ):
+        response = JobRequestCreate.as_view()(request, pk=workspace.pk)
+
+    assert response.status_code == 302, response.context_data["form"].errors
+    assert response.url == reverse("job-list")
+
+    job_request = JobRequest.objects.first()
+    assert job_request.created_by == user
+    assert job_request.workspace == workspace
+    assert job_request.backend == "tpp"
+    assert job_request.requested_actions == ["twiddle"]
+    assert job_request.sha == "abc123"
+    assert job_request.jobs.count() == 1
+
+
+@pytest.mark.django_db
+def test_jobrequestcreate_unknown_workspace_redirects_to_select_workspace_form(client):
+    client.force_login(UserFactory())
+
+    with patch("jobserver.views.get_repos_with_branches", new=lambda *args: []):
+        response = client.post("/jobs/new/0/", follow=True)
+
+    assert response.status_code == 200
+    assert response.redirect_chain == [(reverse("job-select-workspace"), 302)]
+
+    messages = list(response.context["messages"])
+    assert len(messages) == 1
+    assert str(messages[0]) == "Unknown Workspace, please pick a valid one"
+
+
+@pytest.mark.django_db
 def test_jobrequestlist_filters_exist(rf):
     # Build a RequestFactory instance
     request = rf.get(MEANINGLESS_URL)
@@ -255,53 +324,6 @@ def test_jobrequestlist_search_by_id(rf):
 
 
 @pytest.mark.django_db
-def test_jobrequestcreate_success(rf):
-    user = UserFactory()
-    workspace = WorkspaceFactory()
-
-    data = {
-        "requested_actions": ["twiddle"],
-        "callback_url": "test",
-    }
-
-    # Build a RequestFactory instance
-    request = rf.post(MEANINGLESS_URL, data)
-    request.user = user
-
-    dummy_project = [{"name": "twiddle", "needs": []}]
-    with patch("jobserver.views.get_actions", new=lambda r, b: dummy_project), patch(
-        "jobserver.views.get_branch_sha", new=lambda r, b: "abc123"
-    ):
-        response = JobRequestCreate.as_view()(request, pk=workspace.pk)
-
-    assert response.status_code == 302, response.context_data["form"].errors
-    assert response.url == reverse("job-list")
-
-    job_request = JobRequest.objects.first()
-    assert job_request.created_by == user
-    assert job_request.workspace == workspace
-    assert job_request.backend == "tpp"
-    assert job_request.requested_actions == ["twiddle"]
-    assert job_request.sha == "abc123"
-    assert job_request.jobs.count() == 1
-
-
-@pytest.mark.django_db
-def test_jobrequestcreate_unknown_workspace_redirects_to_select_workspace_form(client):
-    client.force_login(UserFactory())
-
-    with patch("jobserver.views.get_repos_with_branches", new=lambda *args: []):
-        response = client.post("/jobs/new/0/", follow=True)
-
-    assert response.status_code == 200
-    assert response.redirect_chain == [(reverse("job-select-workspace"), 302)]
-
-    messages = list(response.context["messages"])
-    assert len(messages) == 1
-    assert str(messages[0]) == "Unknown Workspace, please pick a valid one"
-
-
-@pytest.mark.django_db
 def test_workspacecreate_redirects_to_new_workspace(rf):
     user = UserFactory()
     data = {
@@ -395,6 +417,5 @@ def test_workspaceselectorcreate_success(rf):
 
     with patch("jobserver.views.get_repos_with_branches", new=lambda *args: []):
         response = WorkspaceSelectOrCreate.as_view()(request)
-
     assert response.status_code == 200
     assert len(response.context_data["workspace_list"]) == 2
