@@ -271,7 +271,7 @@ class JobRequest(models.Model):
         return last_job.completed_at
 
     def get_absolute_url(self):
-        return reverse("jobrequest-detail", kwargs={"pk": self.pk})
+        return reverse("job-request-detail", kwargs={"pk": self.pk})
 
     def get_project_yaml_url(self):
         f = furl(self.workspace.repo)

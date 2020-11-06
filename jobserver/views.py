@@ -5,7 +5,6 @@ from django.contrib.auth.decorators import login_required
 from django.db import transaction
 from django.db.models import Q
 from django.shortcuts import redirect
-from django.urls import reverse
 from django.utils.decorators import method_decorator
 from django.views.generic import CreateView, DetailView, ListView
 
@@ -293,6 +292,3 @@ class WorkspaceSelectOrCreate(CreateView):
         kwargs = super().get_form_kwargs()
         kwargs["repos_with_branches"] = self.repos_with_branches
         return kwargs
-
-    def get_success_url(self):
-        return reverse("job-create", kwargs={"pk": self.object.pk})

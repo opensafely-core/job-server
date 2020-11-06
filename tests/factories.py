@@ -1,5 +1,6 @@
 import factory
 from pytz import utc
+from social_django.models import UserSocialAuth
 
 from jobserver.models import Job, JobOutput, JobRequest, Stats, User, Workspace
 
@@ -35,16 +36,23 @@ class StatsFactory(factory.django.DjangoModelFactory):
     api_last_seen = factory.Faker("date_time", tzinfo=utc)
 
 
-class WorkspaceFactory(factory.django.DjangoModelFactory):
-    class Meta:
-        model = Workspace
-
-    repo = factory.Sequence(lambda n: "http://example.com/org-{n}/repo-{n}")
-
-
 class UserFactory(factory.django.DjangoModelFactory):
     class Meta:
         model = User
 
     username = factory.Sequence(lambda n: f"user-{n}")
     email = factory.Sequence(lambda n: f"user-{n}@example.com")
+
+
+class UserSocialAuthFactory(factory.django.DjangoModelFactory):
+    class Meta:
+        model = UserSocialAuth
+
+    user = factory.SubFactory("tests.factories.UserFactory")
+
+
+class WorkspaceFactory(factory.django.DjangoModelFactory):
+    class Meta:
+        model = Workspace
+
+    repo = factory.Sequence(lambda n: "http://example.com/org-{n}/repo-{n}")

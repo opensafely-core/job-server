@@ -15,7 +15,13 @@ from jobserver.views import (
     WorkspaceSelectOrCreate,
 )
 
-from ..factories import JobFactory, JobRequestFactory, UserFactory, WorkspaceFactory
+from ..factories import (
+    JobFactory,
+    JobRequestFactory,
+    UserFactory,
+    UserSocialAuthFactory,
+    WorkspaceFactory,
+)
 
 
 MEANINGLESS_URL = "/"
@@ -344,6 +350,25 @@ def test_jobrequestlist_search_by_id(rf):
 
 
 @pytest.mark.django_db
+def test_jobrequestlist_success(rf):
+    user = UserSocialAuthFactory().user
+
+    job_request = JobRequestFactory(created_by=user)
+    JobFactory(job_request=job_request)
+    JobFactory(job_request=job_request)
+
+    # Build a RequestFactory instance
+    request = rf.get(MEANINGLESS_URL)
+    response = JobRequestList.as_view()(request)
+
+    assert len(response.context_data["object_list"]) == 1
+    assert response.context_data["object_list"][0] == job_request
+
+    assert response.context_data["users"] == {user.username: user.name}
+    assert len(response.context_data["workspaces"]) == 1
+
+
+@pytest.mark.django_db
 def test_workspacecreate_redirects_to_new_workspace(rf):
     user = UserFactory()
     data = {
@@ -434,7 +459,6 @@ def test_workspaceselectorcreate_success(rf):
     # Build a RequestFactory instance
     request = rf.get(MEANINGLESS_URL)
     request.user = UserFactory()
-
     with patch("jobserver.views.get_repos_with_branches", new=lambda *args: []):
         response = WorkspaceSelectOrCreate.as_view()(request)
     assert response.status_code == 200

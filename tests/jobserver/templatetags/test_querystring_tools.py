@@ -1,11 +1,22 @@
-# add foo=bar when page=N
-# add foo=bar when page is not set
-# remove foo=bar when page=N
-# remove foo=bar when page is not set
+from unittest.mock import patch
+
 from jobserver.templatetags.querystring_tools import (
+    redirect_with_querystring,
     url_with_querystring,
     url_without_querystring,
 )
+
+
+def test_redirect_with_querystring(rf):
+    context = {"request": rf.get("/?foo=bar")}
+
+    # patch here so we don't couple this test to any configured URL
+    with patch(
+        "jobserver.templatetags.querystring_tools.reverse", new=lambda *args: "/an_url"
+    ):
+        output = redirect_with_querystring(context, view_name="derp")
+
+    assert output == "/an_url?foo=bar"
 
 
 def test_url_with_querystring_setting_other_arg_set_with_no_page(rf):
