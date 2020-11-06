@@ -685,18 +685,63 @@ def test_user_name_without_first_and_last_name():
 
 
 @pytest.mark.django_db
-def test_workspace_str():
-    workspace = WorkspaceFactory(
-        name="Corellian Engineering Corporation", repo="Corellia"
-    )
-    assert str(workspace) == "Corellian Engineering Corporation (Corellia)"
-
-
-@pytest.mark.django_db
 def test_workspace_get_absolute_url():
     workspace = WorkspaceFactory()
     url = workspace.get_absolute_url()
     assert url == reverse("workspace-detail", kwargs={"pk": workspace.pk})
+
+
+@pytest.mark.django_db
+def test_workspace_get_latest_status_for_action_success():
+    workspace = WorkspaceFactory()
+    job_request = JobRequestFactory(workspace=workspace)
+
+    now = timezone.now()
+
+    # failed
+    JobFactory(
+        job_request=job_request,
+        action_id="test",
+        created_at=now - timedelta(minutes=4),
+        started=True,
+        completed_at=now - timedelta(minutes=4, seconds=30),
+        status_code=3,
+    )
+
+    # succeeded
+    JobFactory(
+        job_request=job_request,
+        action_id="test",
+        created_at=now - timedelta(minutes=3),
+        started=True,
+        completed_at=now - timedelta(minutes=3, seconds=30),
+        status_code=0,
+    )
+
+    # running
+    JobFactory(
+        job_request=job_request,
+        created_at=now - timedelta(minutes=2),
+        action_id="test",
+        started=True,
+    )
+
+    # pending
+    JobFactory(
+        job_request=job_request,
+        created_at=now - timedelta(minutes=1),
+        action_id="test",
+        started=False,
+    )
+
+    assert workspace.get_latest_status_for_action("test") == "Pending"
+
+
+@pytest.mark.django_db
+def test_workspace_get_latest_status_for_action_unknown_action():
+    workspace = WorkspaceFactory()
+
+    assert workspace.get_latest_status_for_action("test") == "-"
 
 
 @pytest.mark.django_db
@@ -711,3 +756,11 @@ def test_workspace_repo_name_no_path():
 def test_workspace_repo_name_success():
     workspace = WorkspaceFactory(repo="http://example.com/foo/test")
     assert workspace.repo_name == "test"
+
+
+@pytest.mark.django_db
+def test_workspace_str():
+    workspace = WorkspaceFactory(
+        name="Corellian Engineering Corporation", repo="Corellia"
+    )
+    assert str(workspace) == "Corellian Engineering Corporation (Corellia)"
