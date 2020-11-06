@@ -1,5 +1,6 @@
 import factory
 from pytz import utc
+from social_django.models import UserSocialAuth
 
 from jobserver.models import Job, JobOutput, JobRequest, Stats, User, Workspace
 
@@ -48,3 +49,10 @@ class UserFactory(factory.django.DjangoModelFactory):
 
     username = factory.Sequence(lambda n: f"user-{n}")
     email = factory.Sequence(lambda n: f"user-{n}@example.com")
+
+
+class UserSocialAuthFactory(factory.django.DjangoModelFactory):
+    class Meta:
+        model = UserSocialAuth
+
+    user = factory.SubFactory("tests.factories.UserFactory")
