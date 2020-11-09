@@ -111,7 +111,7 @@
 
     <h3 class="text-center">Tools</h3>
 
-    {% if request.user.is_authenticated %}
+    {% if request.user.is_superuser %}
     <form method="POST" action="{% url 'job-zombify' pk=job.pk %}">
       {% csrf_token %}
 

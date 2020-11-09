@@ -80,7 +80,7 @@
       </a>
     </div>
 
-    {% if request.user.is_authenticated %}
+    {% if request.user.is_superuser %}
     <div class="mb-2">
       <form method="POST" action="{% url 'job-request-zombify' pk=jobrequest.pk %}">
         {% csrf_token %}

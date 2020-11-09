@@ -102,6 +102,13 @@ class JobDetail(DetailView):
 
 
 class JobZombify(View):
+    def dispatch(self, request, *args, **kwargs):
+        if not request.user.is_superuser:
+            messages.error(request, "Only admins can zombify Jobs.")
+            return redirect("job-detail", pk=self.kwargs["pk"])
+
+        return super().dispatch(request, *args, **kwargs)
+
     def post(self, request, *args, **kwargs):
         job = get_object_or_404(Job, pk=self.kwargs["pk"])
 
@@ -230,6 +237,13 @@ class JobRequestCreate(CreateView):
 
 
 class JobRequestZombify(View):
+    def dispatch(self, request, *args, **kwargs):
+        if not request.user.is_superuser:
+            messages.error(request, "Only admins can zombify Jobs.")
+            return redirect("job-request-detail", pk=self.kwargs["pk"])
+
+        return super().dispatch(request, *args, **kwargs)
+
     def post(self, request, *args, **kwargs):
         job_request = get_object_or_404(JobRequest, pk=self.kwargs["pk"])
 

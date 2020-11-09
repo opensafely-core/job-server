@@ -146,11 +146,35 @@ def test_jobdetail_with_older_job(rf):
 
 
 @pytest.mark.django_db
+def test_jobzombify_not_superuser(client):
+    job = JobFactory(started=True, completed_at=None, status_code=None)
+
+    client.force_login(UserFactory(is_superuser=False))
+    response = client.post(f"/jobs/{job.pk}/zombify/", follow=True)
+
+    assert response.status_code == 200
+
+    # did we redirect to the correct JobDetail page?
+    url = reverse("job-detail", kwargs={"pk": job.pk})
+    assert response.redirect_chain == [(url, 302)]
+
+    # has the Job been left untouched?
+    job.refresh_from_db()
+    assert job.status_code is None
+    assert job.status_message == ""
+
+    # did we produce a message?
+    messages = list(response.context["messages"])
+    assert len(messages) == 1
+    assert str(messages[0]) == "Only admins can zombify Jobs."
+
+
+@pytest.mark.django_db
 def test_jobzombify_success(rf):
     job = JobFactory(started=True, completed_at=None, status_code=None)
 
     request = rf.post(MEANINGLESS_URL)
-    request.user = UserFactory()
+    request.user = UserFactory(is_superuser=True)
 
     response = JobZombify.as_view()(request, pk=job.pk)
 
@@ -166,7 +190,7 @@ def test_jobzombify_success(rf):
 @pytest.mark.django_db
 def test_jobzombify_unknown_job(rf):
     request = rf.post(MEANINGLESS_URL)
-    request.user = UserFactory()
+    request.user = UserFactory(is_superuser=True)
 
     with pytest.raises(Http404):
         JobZombify.as_view()(request, pk="99")
@@ -399,6 +423,38 @@ def test_jobrequestlist_success(rf):
 
 
 @pytest.mark.django_db
+def test_jobrequestzombify_not_superuser(client):
+    job_request = JobRequestFactory()
+    JobFactory.create_batch(
+        5,
+        job_request=job_request,
+        started=True,
+        completed_at=None,
+        status_code=None,
+    )
+
+    client.force_login(UserFactory(is_superuser=False))
+    response = client.post(f"/job-requests/{job_request.pk}/zombify/", follow=True)
+
+    assert response.status_code == 200
+
+    # did we redirect to the correct JobDetail page?
+    url = reverse("job-request-detail", kwargs={"pk": job_request.pk})
+    assert response.redirect_chain == [(url, 302)]
+
+    # has the Job been left untouched?
+    job_request.refresh_from_db()
+    for job in job_request.jobs.all():
+        assert job.status_code is None
+        assert job.status_message == ""
+
+    # did we produce a message?
+    messages = list(response.context["messages"])
+    assert len(messages) == 1
+    assert str(messages[0]) == "Only admins can zombify Jobs."
+
+
+@pytest.mark.django_db
 def test_jobrequestzombify_success(rf):
     job_request = JobRequestFactory()
     JobFactory(job_request=job_request, started=False)
@@ -407,7 +463,7 @@ def test_jobrequestzombify_success(rf):
     )
 
     request = rf.post(MEANINGLESS_URL)
-    request.user = UserFactory()
+    request.user = UserFactory(is_superuser=True)
 
     response = JobRequestZombify.as_view()(request, pk=job_request.pk)
 
@@ -423,7 +479,7 @@ def test_jobrequestzombify_success(rf):
 @pytest.mark.django_db
 def test_jobrequestzombify_unknown_jobrequest(rf):
     request = rf.post(MEANINGLESS_URL)
-    request.user = UserFactory()
+    request.user = UserFactory(is_superuser=True)
 
     with pytest.raises(Http404):
         JobRequestZombify.as_view()(request, pk="99")
