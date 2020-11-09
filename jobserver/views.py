@@ -4,9 +4,9 @@ from django.contrib import messages
 from django.contrib.auth.decorators import login_required
 from django.db import transaction
 from django.db.models import Q
-from django.shortcuts import redirect
+from django.shortcuts import get_object_or_404, redirect
 from django.utils.decorators import method_decorator
-from django.views.generic import CreateView, DetailView, ListView
+from django.views.generic import CreateView, DetailView, ListView, View
 
 from .forms import JobRequestCreateForm, WorkspaceCreateForm
 from .github import get_branch_sha, get_repos_with_branches
@@ -99,6 +99,24 @@ class JobDetail(DetailView):
     model = Job
     queryset = Job.objects.select_related("workspace")
     template_name = "job_detail.html"
+
+
+class JobZombify(View):
+    def dispatch(self, request, *args, **kwargs):
+        if not request.user.is_superuser:
+            messages.error(request, "Only admins can zombify Jobs.")
+            return redirect("job-detail", pk=self.kwargs["pk"])
+
+        return super().dispatch(request, *args, **kwargs)
+
+    def post(self, request, *args, **kwargs):
+        job = get_object_or_404(Job, pk=self.kwargs["pk"])
+
+        job.status_code = 10
+        job.status_message = "Job manually zombified"
+        job.save()
+
+        return redirect("job-detail", pk=job.pk)
 
 
 class JobRequestDetail(DetailView):
@@ -216,6 +234,22 @@ class JobRequestCreate(CreateView):
         kwargs = super().get_form_kwargs()
         kwargs["actions"] = [a["name"] for a in self.actions]
         return kwargs
+
+
+class JobRequestZombify(View):
+    def dispatch(self, request, *args, **kwargs):
+        if not request.user.is_superuser:
+            messages.error(request, "Only admins can zombify Jobs.")
+            return redirect("job-request-detail", pk=self.kwargs["pk"])
+
+        return super().dispatch(request, *args, **kwargs)
+
+    def post(self, request, *args, **kwargs):
+        job_request = get_object_or_404(JobRequest, pk=self.kwargs["pk"])
+
+        job_request.jobs.update(status_code=10, status_message="Job manually zombified")
+
+        return redirect("job-request-detail", pk=job_request.pk)
 
 
 @method_decorator(login_required, name="dispatch")

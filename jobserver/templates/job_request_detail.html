@@ -68,13 +68,27 @@
 
     <h3 class="text-center">Tools</h3>
 
-    <a class="btn btn-block btn-secondary" href="{{ jobrequest.get_repo_url }}">
-      View Repo
-    </a>
+    <div class="mb-2">
+      <a class="btn btn-block btn-secondary" href="{{ jobrequest.get_repo_url }}">
+        View Repo
+      </a>
+    </div>
 
-    <a class="btn btn-block btn-secondary" href="{{ jobrequest.get_project_yaml_url }}">
-      View project.yaml
-    </a>
+    <div class="mb-2">
+      <a class="btn btn-block btn-secondary" href="{{ jobrequest.get_project_yaml_url }}">
+        View project.yaml
+      </a>
+    </div>
+
+    {% if request.user.is_superuser %}
+    <div class="mb-2">
+      <form method="POST" action="{% url 'job-request-zombify' pk=jobrequest.pk %}">
+        {% csrf_token %}
+
+        <button class="btn btn-block btn-danger" type="submit">Zombify</button>
+      </form>
+    </div>
+    {% endif %}
 
   </div>
 
