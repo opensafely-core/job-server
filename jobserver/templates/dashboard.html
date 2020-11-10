@@ -1,15 +1,56 @@
-{% extends "job_list_base.html" %}
+{% extends "base.html" %}
 
 {% load querystring_tools %}
 
-{% block title %}My Jobs{% endblock %}
+{% block content %}
 
-{% block empty_list %}
-<div class="text-center">
-  <p>No results found, <a href="{% url 'job-list' %}">Clear all filters</a>?</p>
+<div class="job-list">
+  <div class="d-flex justify-content-between mt-3 mb-4">
 
-  <p>OR</p>
+    <h2>{{ request.user.selected_workspace.name }}</h2>
 
-  <p>Try your query across <a href={% redirect_with_querystring 'job-list' %}>All Jobs</a>?<p>
+    {% if user.is_authenticated %}
+    <div>
+      <a class="btn btn-primary" href="{% url 'job-select-workspace' %}">
+        Add Job
+      </a>
+    </div>
+    {% endif %}
+
+  </div>
+
+  <div class="row">
+
+    <div class="col-lg-10">
+
+      <form class="form d-flex align-items-center mb-4" method="GET">
+        <input
+          class="form-control mr-2"
+          type="search"
+          placeholder="Search action_id or job_id"
+          aria-label="Search"
+          name="q" />
+        <button class="btn btn-outline-success my-2 my-sm-0" type="submit">Search</button>
+      </form>
+
+
+      {% if not page_obj %}
+      <div class="text-center">
+        <p>No results found, <a href="{% url 'job-list' %}">Clear all filters</a>?</p>
+
+        <p>OR</p>
+
+        <p>Try your query across <a href={% redirect_with_querystring 'job-list' %}>All Jobs</a>?<p>
+      </div>
+      {% else %}
+
+        {% include "_job_requests.html" %}
+
+      {% endif %}
+
+    </div>
+
+  </div>
+
 </div>
-{% endblock %}
+{% endblock content %}

@@ -127,7 +127,7 @@ class JobRequestDetail(DetailView):
 
 class JobRequestList(ListView):
     paginate_by = 25
-    template_name = "jobrequest_list.html"
+    template_name = "job_request_list.html"
 
     def get_context_data(self, **kwargs):
         # only get Users created via GitHub OAuth
