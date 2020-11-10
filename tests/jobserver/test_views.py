@@ -107,22 +107,6 @@ def test_dashboard_unauthenticed_redirect(rf):
 
 
 @pytest.mark.django_db
-def test_dashboard_filter_by_workspace(rf):
-    user = UserFactory()
-
-    workspace = WorkspaceFactory()
-    JobRequestFactory(created_by=user, workspace=workspace)
-    JobRequestFactory(created_by=user)
-
-    # Build a RequestFactory instance
-    request = rf.get(f"/?workspace={workspace.pk}")
-    request.user = user
-    response = Dashboard.as_view()(request)
-
-    assert len(response.context_data["object_list"]) == 1
-
-
-@pytest.mark.django_db
 def test_jobdetail_with_newer_job(rf):
     job_request = JobRequestFactory(workspace=WorkspaceFactory())
     job = JobFactory(job_request=job_request)

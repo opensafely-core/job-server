@@ -56,19 +56,6 @@ class Dashboard(ListView):
 
         return super().dispatch(request, *args, **kwargs)
 
-    def get_context_data(self, **kwargs):
-        context = super().get_context_data(**kwargs)
-
-        # FIXME: This is a hack, see filter_by_status docstring for why and
-        # when to remove it
-        context["object_list"] = filter_by_status(
-            self.object_list, self.request.GET.get("status")
-        )
-
-        context["statuses"] = ["failed", "running", "pending", "succeeded"]
-        context["workspaces"] = Workspace.objects.all()
-        return context
-
     def get_queryset(self):
         qs = (
             JobRequest.objects.filter(created_by=self.request.user)
@@ -87,10 +74,6 @@ class Dashboard(ListView):
                 # if the query looks enough like a number for int() to handle
                 # it then we can look for a job number
                 qs = qs.filter(Q(jobs__action_id__icontains=q) | Q(jobs__pk=q))
-
-        workspace = self.request.GET.get("workspace")
-        if workspace:
-            qs = qs.filter(workspace_id=workspace)
 
         return qs
 
