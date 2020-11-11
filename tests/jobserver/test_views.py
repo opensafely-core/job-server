@@ -471,8 +471,22 @@ def test_jobrequestzombify_unknown_jobrequest(rf):
 
 
 @pytest.mark.django_db
-def test_workspacecreate_redirects_to_new_workspace(rf):
-    user = UserFactory()
+def test_workspacecreate_get_success(rf):
+    request = rf.get(MEANINGLESS_URL)
+    request.user = UserFactory()
+
+    with patch("jobserver.views.get_repos_with_branches", new=lambda *args: []):
+        response = WorkspaceCreate.as_view()(request)
+
+    assert response.status_code == 200
+    assert response.context_data["repos_with_branches"] == []
+
+
+@pytest.mark.django_db
+def test_workspacecreate_post_success(rf):
+    user = UserFactory(selected_workspace=None)
+    assert user.selected_workspace is None
+
     data = {
         "name": "Test",
         "repo": "test",
@@ -495,6 +509,9 @@ def test_workspacecreate_redirects_to_new_workspace(rf):
     assert response.url == reverse("workspace-detail", kwargs={"pk": workspace.pk})
 
     assert workspace.created_by == user
+
+    user.refresh_from_db()
+    assert user.selected_workspace == workspace
 
 
 @pytest.mark.django_db

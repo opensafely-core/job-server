@@ -242,20 +242,31 @@ class WorkspaceCreate(CreateView):
     model = Workspace
     template_name = "workspace_create.html"
 
+    def dispatch(self, request, *args, **kwargs):
+        self.repos_with_branches = sorted(
+            get_repos_with_branches(), key=lambda r: r["name"].lower()
+        )
+
+        return super().dispatch(request, *args, **kwargs)
+
     def form_valid(self, form):
         instance = form.save(commit=False)
         instance.created_by = self.request.user
         instance.save()
 
+        self.request.user.selected_workspace = instance
+        self.request.user.save()
+
         return redirect(instance)
 
-    def get_form_kwargs(self):
-        repos_with_branches = sorted(
-            get_repos_with_branches(), key=lambda r: r["name"].lower()
-        )
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context["repos_with_branches"] = self.repos_with_branches
+        return context
 
+    def get_form_kwargs(self):
         kwargs = super().get_form_kwargs()
-        kwargs["repos_with_branches"] = repos_with_branches
+        kwargs["repos_with_branches"] = self.repos_with_branches
         return kwargs
 
 

@@ -63,6 +63,8 @@
               <button class="btn btn-link dropdown-item" type="submit">{{ workspace.name }}</button>
             </form>
             {% endfor %}
+            <div class="dropdown-divider"></div>
+            <a class="dropdown-item" href="{% url 'workspace-create' %}">Create new…</a>
           </div>
         </div>
         {% endif %}

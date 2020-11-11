@@ -1,6 +1,7 @@
 {% extends "base.html" %}
 
 {% load crispy_forms_tags %}
+{% load static %}
 
 {% block content %}
 
@@ -10,3 +11,8 @@
   </div>
 </div>
 {% endblock content %}
+
+{% block extra_js %}
+{{ repos_with_branches|json_script:"reposWithBranches" }}
+<script type="text/javascript" src="{% static 'js/workspace_create.js' %}"></script>
+{% endblock %}
