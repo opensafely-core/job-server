@@ -32,13 +32,23 @@ MEANINGLESS_URL = "/"
 
 
 @pytest.mark.django_db
+def test_dashboard_no_selected_workspace_redirect(rf):
+    request = rf.get(MEANINGLESS_URL)
+    request.user = UserFactory(selected_workspace=None)
+    response = Dashboard.as_view()(request)
+
+    assert response.status_code == 302
+    assert response.url == reverse("workspace-select")
+
+
+@pytest.mark.django_db
 def test_dashboard_other_users_jobs(rf):
     job_request = JobRequestFactory(created_by=UserFactory())
     JobFactory(job_request=job_request)
 
     # Build a RequestFactory instance
     request = rf.get(MEANINGLESS_URL)
-    request.user = UserFactory()
+    request.user = UserFactory(selected_workspace=WorkspaceFactory())
     response = Dashboard.as_view()(request)
 
     assert response.status_code == 200
@@ -47,7 +57,7 @@ def test_dashboard_other_users_jobs(rf):
 
 @pytest.mark.django_db
 def test_dashboard_search_by_action(rf):
-    user = UserFactory()
+    user = UserFactory(selected_workspace=WorkspaceFactory())
 
     job_request1 = JobRequestFactory(created_by=user)
     JobFactory(job_request=job_request1, action_id="run")
@@ -66,7 +76,7 @@ def test_dashboard_search_by_action(rf):
 
 @pytest.mark.django_db
 def test_dashboard_search_by_id(rf):
-    user = UserFactory()
+    user = UserFactory(selected_workspace=WorkspaceFactory())
 
     JobFactory(job_request=JobRequestFactory())
 
@@ -84,7 +94,7 @@ def test_dashboard_search_by_id(rf):
 
 @pytest.mark.django_db
 def test_dashboard_success(rf):
-    user = UserFactory()
+    user = UserFactory(selected_workspace=WorkspaceFactory())
     job_request = JobRequestFactory(created_by=user)
     JobFactory(job_request=job_request)
 

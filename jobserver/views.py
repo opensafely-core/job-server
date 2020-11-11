@@ -55,6 +55,9 @@ class Dashboard(ListView):
         if not request.user.is_authenticated:
             return redirect("job-list")
 
+        if not request.user.selected_workspace:
+            return redirect("workspace-select")
+
         return super().dispatch(request, *args, **kwargs)
 
     def get_queryset(self):
