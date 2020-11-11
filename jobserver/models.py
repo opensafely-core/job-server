@@ -1,4 +1,6 @@
+import base64
 import datetime
+import secrets
 
 import pytz
 import requests
@@ -20,6 +22,16 @@ logger = structlog.get_logger(__name__)
 STATE_SUCCESS = 0
 STATE_DEPENDENCY_NOT_FINISHED = 6
 STATE_DEPENDENCY_RUNNING = 8
+
+
+def new_id():
+    """
+    Return a random 16 character lowercase alphanumeric string
+    We used to use UUID4's but they are unnecessarily long for our purposes
+    (particularly the hex representation) and shorter IDs make debugging
+    and inspecting the job-runner a bit more ergonomic.
+    """
+    return base64.b32encode(secrets.token_bytes(10)).decode("ascii").lower()
 
 
 class Job(models.Model):
@@ -218,6 +230,7 @@ class JobRequest(models.Model):
     requested_actions = models.JSONField()
     callback_url = models.TextField(default="", blank=True)
     sha = models.TextField()
+    identifier = models.TextField(default=new_id, unique=True)
 
     created_at = models.DateTimeField(auto_now_add=True)
 
