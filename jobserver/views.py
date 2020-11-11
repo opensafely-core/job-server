@@ -5,6 +5,7 @@ from django.contrib.auth.decorators import login_required
 from django.db import transaction
 from django.db.models import Q
 from django.shortcuts import get_object_or_404, redirect
+from django.template.response import TemplateResponse
 from django.utils.decorators import method_decorator
 from django.views.generic import CreateView, DetailView, ListView, View
 
@@ -281,31 +282,34 @@ class WorkspaceList(ListView):
 
 
 @method_decorator(login_required, name="dispatch")
-class WorkspaceSelectOrCreate(CreateView):
-    form_class = WorkspaceCreateForm
-    model = Workspace
-    template_name = "workspace_select.html"
+class WorkspaceSelect(View):
+    def get(self, request, *args, **kwargs):
+        workspaces = Workspace.objects.order_by("name")
 
-    def dispatch(self, request, *args, **kwargs):
-        self.repos_with_branches = sorted(
-            get_repos_with_branches(), key=lambda r: r["name"].lower()
+        if not workspaces.exists():
+            return redirect("workspace-create")
+
+        return TemplateResponse(
+            request,
+            "workspace_select.html",
+            {"workspace_list": workspaces},
         )
 
-        return super().dispatch(request, *args, **kwargs)
+    def post(self, request, *args, **kwargs):
+        workspace_id = request.POST.get("workspace_id", None)
+        if not workspace_id:
+            return redirect("/")
 
-    def get_context_data(self, **kwargs):
-        context = super().get_context_data(**kwargs)
-        context["repos_with_branches"] = self.repos_with_branches
-        context["workspace_list"] = Workspace.objects.order_by("name")
-        return context
+        try:
+            workspace = Workspace.objects.get(pk=workspace_id)
+        except Workspace.DoesNotExist:
+            messages.error(request, "Unknown Workspace")
+            return redirect("/")
 
-    def form_valid(self, form):
-        instance = form.save(commit=False)
-        instance.created_by = self.request.user
-        instance.save()
-        return redirect("job-create", pk=instance.pk)
+        request.user.selected_workspace = workspace
+        request.user.save()
 
-    def get_form_kwargs(self):
-        kwargs = super().get_form_kwargs()
-        kwargs["repos_with_branches"] = self.repos_with_branches
-        return kwargs
+        next = request.GET.get("next")
+        if next:
+            return redirect(next)
+        return redirect("/")

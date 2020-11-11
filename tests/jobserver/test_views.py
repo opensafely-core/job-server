@@ -2,6 +2,7 @@ from unittest.mock import patch
 
 import pytest
 from django.contrib.auth.models import AnonymousUser
+from django.contrib.messages.storage.fallback import FallbackStorage
 from django.http import Http404
 from django.urls import reverse
 from django.utils import timezone
@@ -15,7 +16,7 @@ from jobserver.views import (
     JobZombify,
     WorkspaceCreate,
     WorkspaceList,
-    WorkspaceSelectOrCreate,
+    WorkspaceSelect,
 )
 
 from ..factories import (
@@ -531,36 +532,94 @@ def test_workspacelist_does_not_redirect_anon_users(rf):
 
 
 @pytest.mark.django_db
-def test_workspaceselectorcreate_redirects_to_new_workspace(rf):
-    data = {
-        "name": "Test",
-        "repo": "test",
-        "branch": "test",
-        "db": "dummy",
-    }
-    # Build a RequestFactory instance
-    request = rf.post(MEANINGLESS_URL, data)
+def test_workspaceselect_get_redirects_with_no_workspaces(rf):
+    request = rf.get(MEANINGLESS_URL)
     request.user = UserFactory()
 
-    repos = [{"name": "Test", "url": "test", "branches": ["test"]}]
-    with patch("jobserver.views.get_repos_with_branches", new=lambda *args: repos):
-        response = WorkspaceSelectOrCreate.as_view()(request)
+    response = WorkspaceSelect.as_view()(request)
 
     assert response.status_code == 302
-
-    pk = Workspace.objects.first().pk
-    assert response.url == reverse("job-create", kwargs={"pk": pk})
+    assert response.url == reverse("workspace-create")
 
 
 @pytest.mark.django_db
-def test_workspaceselectorcreate_success(rf):
-    WorkspaceFactory()
-    WorkspaceFactory()
+def test_workspaceselect_get_success(rf):
+    WorkspaceFactory.create_batch(2)
 
-    # Build a RequestFactory instance
     request = rf.get(MEANINGLESS_URL)
     request.user = UserFactory()
-    with patch("jobserver.views.get_repos_with_branches", new=lambda *args: []):
-        response = WorkspaceSelectOrCreate.as_view()(request)
+
+    response = WorkspaceSelect.as_view()(request)
+
     assert response.status_code == 200
     assert len(response.context_data["workspace_list"]) == 2
+
+
+@pytest.mark.django_db
+def test_workspaceselect_post_no_workspace_id(rf):
+    request = rf.post(MEANINGLESS_URL, {})
+    request.user = UserFactory()
+
+    response = WorkspaceSelect.as_view()(request)
+
+    assert response.status_code == 302
+    assert response.url == "/"
+
+
+@pytest.mark.django_db
+def test_workspaceselect_post_unknown_workspace(rf):
+    request = rf.post(MEANINGLESS_URL, {"workspace_id": 0})
+    request.user = UserFactory()
+
+    # set up the messages backend so we can interrogate it later, we do this
+    # instead of using a Client instance to avoid invoking the redirect target.
+    # In the current implementation this is / (Dashboard) but we no Workspaces
+    # in the database so that redirects to WorkspaceCreate which makes HTTP
+    # calls out to GitHub.
+    request.session = "session"
+    messages = FallbackStorage(request)
+    request._messages = messages
+
+    response = WorkspaceSelect.as_view()(request)
+
+    assert response.status_code == 302
+    assert response.url == "/"
+
+    # did we produce a message?
+    messages = list(messages)
+    assert len(messages) == 1
+    assert messages[0].message == "Unknown Workspace"
+
+
+@pytest.mark.django_db
+def test_workspaceselect_with_next_param(rf):
+    workspace1 = WorkspaceFactory()
+    workspace2 = WorkspaceFactory()
+
+    user = UserFactory(selected_workspace=workspace1)
+
+    request = rf.post("/?next=/derp", {"workspace_id": workspace2.pk})
+    request.user = user
+    response = WorkspaceSelect.as_view()(request)
+
+    assert response.status_code == 302
+    assert response.url == "/derp"
+
+
+@pytest.mark.django_db
+def test_workspaceselect_success(rf):
+    workspace1 = WorkspaceFactory()
+    workspace2 = WorkspaceFactory()
+
+    user = UserFactory(selected_workspace=workspace1)
+    assert user.selected_workspace == workspace1
+
+    request = rf.post(MEANINGLESS_URL, {"workspace_id": workspace2.pk})
+    request.user = user
+    response = WorkspaceSelect.as_view()(request)
+
+    assert response.status_code == 302
+    assert response.url == "/"
+
+    user.refresh_from_db()
+    assert user.selected_workspace == workspace2
