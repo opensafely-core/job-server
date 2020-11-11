@@ -3,7 +3,7 @@ import operator
 from django.contrib import messages
 from django.contrib.auth.decorators import login_required
 from django.db import transaction
-from django.db.models import Q
+from django.db.models import Q, prefetch_related_objects
 from django.shortcuts import get_object_or_404, redirect
 from django.template.response import TemplateResponse
 from django.utils.decorators import method_decorator
@@ -167,25 +167,27 @@ class JobRequestList(ListView):
 class JobRequestCreate(CreateView):
     form_class = JobRequestCreateForm
     model = JobRequest
-    success_url = "job-list"
     template_name = "job_request_create.html"
 
     def dispatch(self, request, *args, **kwargs):
-        try:
-            self.workspace = Workspace.objects.prefetch_related(
-                "job_requests__jobs"
-            ).get(pk=self.kwargs["pk"])
-        except Workspace.DoesNotExist:
-            messages.error(request, "Unknown Workspace, please pick a valid one")
-            return redirect("job-select-workspace")
+        if not request.user.selected_workspace:
+            return redirect("workspace-select")
 
         # build up a list of actions with current statuses from the Workspace's
         # project.yaml for the User to pick from
-        actions = get_actions(self.workspace.repo_name, self.workspace.branch)
+        actions = get_actions(
+            request.user.selected_workspace.repo_name,
+            request.user.selected_workspace.branch,
+        )
 
         actions_with_statues = []
+        prefetch_related_objects(
+            [request.user.selected_workspace], "job_requests__jobs"
+        )
         for action in actions:
-            status = self.workspace.get_latest_status_for_action(action["name"])
+            status = request.user.selected_workspace.get_latest_status_for_action(
+                action["name"]
+            )
             actions_with_statues.append(action | {"status": status})
 
         self.actions = sorted(actions_with_statues, key=operator.itemgetter("name"))
@@ -194,10 +196,12 @@ class JobRequestCreate(CreateView):
 
     @transaction.atomic
     def form_valid(self, form):
-        sha = get_branch_sha(self.workspace.repo_name, self.workspace.branch)
+        workspace = self.request.user.selected_workspace
+
+        sha = get_branch_sha(workspace.repo_name, workspace.branch)
 
         job_request = JobRequest.objects.create(
-            workspace=self.workspace,
+            workspace=workspace,
             created_by=self.request.user,
             backend=JobRequest.TPP,
             sha=sha,
@@ -214,7 +218,7 @@ class JobRequestCreate(CreateView):
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
         context["actions"] = self.actions
-        context["branch"] = self.workspace.branch
+        context["branch"] = self.request.user.selected_workspace.branch
         return context
 
     def get_form_kwargs(self):
@@ -260,7 +264,7 @@ class WorkspaceCreate(CreateView):
         self.request.user.selected_workspace = instance
         self.request.user.save()
 
-        return redirect(instance)
+        return redirect("job-request-create")
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)

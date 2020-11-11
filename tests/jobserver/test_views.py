@@ -192,9 +192,20 @@ def test_jobzombify_unknown_job(rf):
 
 
 @pytest.mark.django_db
+def test_jobrequestcreate_get_redirects_without_selected_workspace(rf):
+    request = rf.get(MEANINGLESS_URL)
+    request.user = UserFactory(selected_workspace=None)
+
+    response = JobRequestCreate.as_view()(request)
+
+    assert response.status_code == 302
+    assert response.url == reverse("workspace-select")
+
+
+@pytest.mark.django_db
 def test_jobrequestcreate_get_success(rf):
-    user = UserFactory()
     workspace = WorkspaceFactory()
+    user = UserFactory(selected_workspace=workspace)
 
     # Build a RequestFactory instance
     request = rf.get(MEANINGLESS_URL)
@@ -215,8 +226,8 @@ def test_jobrequestcreate_get_success(rf):
 
 @pytest.mark.django_db
 def test_jobrequestcreate_post_success(rf):
-    user = UserFactory()
     workspace = WorkspaceFactory()
+    user = UserFactory(selected_workspace=workspace)
 
     data = {
         "requested_actions": ["twiddle"],
@@ -243,21 +254,6 @@ def test_jobrequestcreate_post_success(rf):
     assert job_request.requested_actions == ["twiddle"]
     assert job_request.sha == "abc123"
     assert job_request.jobs.count() == 1
-
-
-@pytest.mark.django_db
-def test_jobrequestcreate_unknown_workspace_redirects_to_select_workspace_form(client):
-    client.force_login(UserFactory())
-
-    with patch("jobserver.views.get_repos_with_branches", new=lambda *args: []):
-        response = client.post("/jobs/new/0/", follow=True)
-
-    assert response.status_code == 200
-    assert response.redirect_chain == [(reverse("job-select-workspace"), 302)]
-
-    messages = list(response.context["messages"])
-    assert len(messages) == 1
-    assert str(messages[0]) == "Unknown Workspace, please pick a valid one"
 
 
 @pytest.mark.django_db
@@ -516,7 +512,7 @@ def test_workspacecreate_post_success(rf):
 
     workspace = Workspace.objects.first()
 
-    assert response.url == reverse("workspace-detail", kwargs={"pk": workspace.pk})
+    assert response.url == reverse("job-request-create")
 
     assert workspace.created_by == user
 

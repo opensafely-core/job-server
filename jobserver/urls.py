@@ -45,8 +45,7 @@ urlpatterns = [
     path("api/", include(router.urls)),
     path("api-auth/", include("rest_framework.urls")),
     path("jobs/", JobRequestList.as_view(), name="job-list"),
-    path("jobs/new/", WorkspaceSelectOrCreate.as_view(), name="job-select-workspace"),
-    path("jobs/new/<pk>/", JobRequestCreate.as_view(), name="job-create"),
+    path("jobs/new/", JobRequestCreate.as_view(), name="job-request-create"),
     path("job-requests/<pk>/", JobRequestDetail.as_view(), name="job-request-detail"),
     path(
         "job-requests/<pk>/zombify/",
