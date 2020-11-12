@@ -210,7 +210,7 @@ def test_jobviewset_list_success(api_rf):
     ]
     assert list(job.keys()) == keys
 
-    assert job["url"] == f"http://testserver/api/jobs/{job['pk']}/"
+    assert job["url"] == f"http://testserver/api/v1/jobs/{job['pk']}/"
     assert job["pk"] == 1
     assert job["backend"] == "tpp"
     assert job["started"]
@@ -230,7 +230,7 @@ def test_jobviewset_list_success(api_rf):
     assert list(workspace.keys()) == keys
 
     assert workspace["id"] == 1
-    assert workspace["url"] == f"http://testserver/api/workspaces/{workspace['id']}/"
+    assert workspace["url"] == f"http://testserver/api/v1/workspaces/{workspace['id']}/"
     assert workspace["name"] == "households"
     assert workspace["repo"] == "https://github.com/test/test"
     assert workspace["branch"] == "master"
