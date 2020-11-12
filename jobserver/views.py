@@ -3,8 +3,9 @@ import operator
 from django.contrib import messages
 from django.contrib.auth.decorators import login_required
 from django.db import transaction
-from django.db.models import Q
+from django.db.models import Q, prefetch_related_objects
 from django.shortcuts import get_object_or_404, redirect
+from django.template.response import TemplateResponse
 from django.utils.decorators import method_decorator
 from django.views.generic import CreateView, DetailView, ListView, View
 
@@ -54,20 +55,10 @@ class Dashboard(ListView):
         if not request.user.is_authenticated:
             return redirect("job-list")
 
+        if not request.user.selected_workspace:
+            return redirect("workspace-select")
+
         return super().dispatch(request, *args, **kwargs)
-
-    def get_context_data(self, **kwargs):
-        context = super().get_context_data(**kwargs)
-
-        # FIXME: This is a hack, see filter_by_status docstring for why and
-        # when to remove it
-        context["object_list"] = filter_by_status(
-            self.object_list, self.request.GET.get("status")
-        )
-
-        context["statuses"] = ["failed", "running", "pending", "succeeded"]
-        context["workspaces"] = Workspace.objects.all()
-        return context
 
     def get_queryset(self):
         qs = (
@@ -87,10 +78,6 @@ class Dashboard(ListView):
                 # if the query looks enough like a number for int() to handle
                 # it then we can look for a job number
                 qs = qs.filter(Q(jobs__action_id__icontains=q) | Q(jobs__pk=q))
-
-        workspace = self.request.GET.get("workspace")
-        if workspace:
-            qs = qs.filter(workspace_id=workspace)
 
         return qs
 
@@ -127,7 +114,7 @@ class JobRequestDetail(DetailView):
 
 class JobRequestList(ListView):
     paginate_by = 25
-    template_name = "jobrequest_list.html"
+    template_name = "job_request_list.html"
 
     def get_context_data(self, **kwargs):
         # only get Users created via GitHub OAuth
@@ -180,25 +167,27 @@ class JobRequestList(ListView):
 class JobRequestCreate(CreateView):
     form_class = JobRequestCreateForm
     model = JobRequest
-    success_url = "job-list"
     template_name = "job_request_create.html"
 
     def dispatch(self, request, *args, **kwargs):
-        try:
-            self.workspace = Workspace.objects.prefetch_related(
-                "job_requests__jobs"
-            ).get(pk=self.kwargs["pk"])
-        except Workspace.DoesNotExist:
-            messages.error(request, "Unknown Workspace, please pick a valid one")
-            return redirect("job-select-workspace")
+        if not request.user.selected_workspace:
+            return redirect("workspace-select")
 
         # build up a list of actions with current statuses from the Workspace's
         # project.yaml for the User to pick from
-        actions = get_actions(self.workspace.repo_name, self.workspace.branch)
+        actions = get_actions(
+            request.user.selected_workspace.repo_name,
+            request.user.selected_workspace.branch,
+        )
 
         actions_with_statues = []
+        prefetch_related_objects(
+            [request.user.selected_workspace], "job_requests__jobs"
+        )
         for action in actions:
-            status = self.workspace.get_latest_status_for_action(action["name"])
+            status = request.user.selected_workspace.get_latest_status_for_action(
+                action["name"]
+            )
             actions_with_statues.append(action | {"status": status})
 
         self.actions = sorted(actions_with_statues, key=operator.itemgetter("name"))
@@ -207,10 +196,12 @@ class JobRequestCreate(CreateView):
 
     @transaction.atomic
     def form_valid(self, form):
-        sha = get_branch_sha(self.workspace.repo_name, self.workspace.branch)
+        workspace = self.request.user.selected_workspace
+
+        sha = get_branch_sha(workspace.repo_name, workspace.branch)
 
         job_request = JobRequest.objects.create(
-            workspace=self.workspace,
+            workspace=workspace,
             created_by=self.request.user,
             backend=JobRequest.TPP,
             sha=sha,
@@ -227,7 +218,7 @@ class JobRequestCreate(CreateView):
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
         context["actions"] = self.actions
-        context["branch"] = self.workspace.branch
+        context["branch"] = self.request.user.selected_workspace.branch
         return context
 
     def get_form_kwargs(self):
@@ -258,20 +249,31 @@ class WorkspaceCreate(CreateView):
     model = Workspace
     template_name = "workspace_create.html"
 
+    def dispatch(self, request, *args, **kwargs):
+        self.repos_with_branches = sorted(
+            get_repos_with_branches(), key=lambda r: r["name"].lower()
+        )
+
+        return super().dispatch(request, *args, **kwargs)
+
     def form_valid(self, form):
         instance = form.save(commit=False)
         instance.created_by = self.request.user
         instance.save()
 
-        return redirect(instance)
+        self.request.user.selected_workspace = instance
+        self.request.user.save()
+
+        return redirect("job-request-create")
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context["repos_with_branches"] = self.repos_with_branches
+        return context
 
     def get_form_kwargs(self):
-        repos_with_branches = sorted(
-            get_repos_with_branches(), key=lambda r: r["name"].lower()
-        )
-
         kwargs = super().get_form_kwargs()
-        kwargs["repos_with_branches"] = repos_with_branches
+        kwargs["repos_with_branches"] = self.repos_with_branches
         return kwargs
 
 
@@ -298,31 +300,34 @@ class WorkspaceList(ListView):
 
 
 @method_decorator(login_required, name="dispatch")
-class WorkspaceSelectOrCreate(CreateView):
-    form_class = WorkspaceCreateForm
-    model = Workspace
-    template_name = "workspace_select.html"
+class WorkspaceSelect(View):
+    def get(self, request, *args, **kwargs):
+        workspaces = Workspace.objects.order_by("name")
 
-    def dispatch(self, request, *args, **kwargs):
-        self.repos_with_branches = sorted(
-            get_repos_with_branches(), key=lambda r: r["name"].lower()
+        if not workspaces.exists():
+            return redirect("workspace-create")
+
+        return TemplateResponse(
+            request,
+            "workspace_select.html",
+            {"workspace_list": workspaces},
         )
 
-        return super().dispatch(request, *args, **kwargs)
+    def post(self, request, *args, **kwargs):
+        workspace_id = request.POST.get("workspace_id", None)
+        if not workspace_id:
+            return redirect("/")
 
-    def get_context_data(self, **kwargs):
-        context = super().get_context_data(**kwargs)
-        context["repos_with_branches"] = self.repos_with_branches
-        context["workspace_list"] = Workspace.objects.order_by("name")
-        return context
+        try:
+            workspace = Workspace.objects.get(pk=workspace_id)
+        except Workspace.DoesNotExist:
+            messages.error(request, "Unknown Workspace")
+            return redirect("/")
 
-    def form_valid(self, form):
-        instance = form.save(commit=False)
-        instance.created_by = self.request.user
-        instance.save()
-        return redirect("job-create", pk=instance.pk)
+        request.user.selected_workspace = workspace
+        request.user.save()
 
-    def get_form_kwargs(self):
-        kwargs = super().get_form_kwargs()
-        kwargs["repos_with_branches"] = self.repos_with_branches
-        return kwargs
+        next = request.GET.get("next")
+        if next:
+            return redirect(next)
+        return redirect("/")

@@ -4,7 +4,7 @@ from datetime import timedelta
 from django.urls import reverse
 from django.utils import timezone
 
-from .models import Job, Stats
+from .models import Job, Stats, Workspace
 
 
 def _is_active(request, prefix):
@@ -71,3 +71,7 @@ def site_stats(request):
             "show_warning": show_warning(unacked, last_seen),
         }
     }
+
+
+def workspaces(request):
+    return {"workspaces": Workspace.objects.order_by("-created_at")}

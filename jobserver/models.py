@@ -399,6 +399,13 @@ class Stats(models.Model):
 
 
 class User(AbstractUser):
+    selected_workspace = models.ForeignKey(
+        "Workspace",
+        on_delete=models.SET_NULL,
+        null=True,
+        related_name="+",
+    )
+
     @property
     def name(self):
         """Unify the available names for a User."""

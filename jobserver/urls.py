@@ -30,7 +30,7 @@ from .views import (
     WorkspaceCreate,
     WorkspaceDetail,
     WorkspaceList,
-    WorkspaceSelectOrCreate,
+    WorkspaceSelect,
 )
 
 
@@ -45,8 +45,7 @@ urlpatterns = [
     path("api/", include(router.urls)),
     path("api-auth/", include("rest_framework.urls")),
     path("jobs/", JobRequestList.as_view(), name="job-list"),
-    path("jobs/new/", WorkspaceSelectOrCreate.as_view(), name="job-select-workspace"),
-    path("jobs/new/<pk>/", JobRequestCreate.as_view(), name="job-create"),
+    path("jobs/new/", JobRequestCreate.as_view(), name="job-request-create"),
     path("job-requests/<pk>/", JobRequestDetail.as_view(), name="job-request-detail"),
     path(
         "job-requests/<pk>/zombify/",
@@ -58,6 +57,7 @@ urlpatterns = [
     path("logout/", LogoutView.as_view(), name="logout"),
     path("workspaces/", WorkspaceList.as_view(), name="workspace-list"),
     path("workspaces/new/", WorkspaceCreate.as_view(), name="workspace-create"),
+    path("workspaces/select/", WorkspaceSelect.as_view(), name="workspace-select"),
     path("workspaces/<pk>/", WorkspaceDetail.as_view(), name="workspace-detail"),
     path("__debug__/", include(debug_toolbar.urls)),
 ]

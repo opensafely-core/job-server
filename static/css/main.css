@@ -1,5 +1,9 @@
-header {
-  padding: .5rem 1rem;
+/* Add the ID and Status message columns for larger devices (992px and up) */
+@media (min-width: 992px) {
+  nav #workspace-dropdown + .dropdown-menu {
+    left: auto;
+    right: 0;
+  }
 }
 
 .job-list .job-request {
@@ -95,6 +99,10 @@ header {
   border-bottom: 2px solid #dee2e6;
   border-left: 1px solid #dee2e6;
   max-height: 375px;
+}
+.workspace-select .list-group button:hover span,
+.workspace-select .list-group button:hover code {
+  text-decoration: underline;
 }
 
 .filters .list-group-item {
