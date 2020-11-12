@@ -71,12 +71,14 @@
       </div>
       {% endif %}
 
+      {% if job.job_request_id %}
       <div>
         <strong>Request:</strong>
         <a href={% url 'job-request-detail' pk=job.job_request.pk %}>
           {{ job.job_request_id }} by {{ job.job_request.created_by.username }}
         </a>
       </div>
+      {% endif %}
 
     </div>
 
