@@ -43,7 +43,6 @@ urlpatterns = [
     path("", Index.as_view()),
     path("", include("social_django.urls", namespace="social")),
     path("api/", include(router.urls)),
-    path("api-auth/", include("rest_framework.urls")),
     path("jobs/", JobRequestList.as_view(), name="job-list"),
     path("job-requests/<pk>/", JobRequestDetail.as_view(), name="job-request-detail"),
     path(
