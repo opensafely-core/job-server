@@ -14,8 +14,11 @@ def stats_middleware(get_response):
         if not request.path.startswith(API_PREFIX):
             return response
 
-        # only update the stats for API access
-        Stats.objects.update_or_create(pk=1, defaults={"api_last_seen": timezone.now()})
+        if response.status_code >= 200 and response.status_code < 300:
+            # only update the stats for API access when response is 2xx
+            Stats.objects.update_or_create(
+                pk=1, defaults={"api_last_seen": timezone.now()}
+            )
 
         return response
 
