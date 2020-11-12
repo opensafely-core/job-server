@@ -1,8 +1,54 @@
 from django_filters import rest_framework as filters
-from rest_framework import viewsets
+from rest_framework import serializers, viewsets
+from rest_framework.generics import ListAPIView
 
-from .models import Job, Workspace
+from .models import Job, JobRequest, Workspace
 from .serializers import JobShimSerializer, WorkspaceSerializer
+
+
+class WorkspaceSerializer2(serializers.ModelSerializer):
+    created_by = serializers.CharField(source="created_by.username", default=None)
+
+    class Meta:
+        fields = [
+            "name",
+            "repo",
+            "branch",
+            "db",
+            "created_by",
+            "created_at",
+        ]
+        model = Workspace
+
+
+class JobRequestAPIList(ListAPIView):
+    filterset_fields = ["backend"]
+    permission_classes = []
+    queryset = (
+        JobRequest.objects.filter(
+            jobs__completed_at__isnull=True,
+        )
+        .select_related("created_by", "workspace", "workspace__created_by")
+        .order_by("-created_at")
+        .distinct()
+    )
+
+    class serializer_class(serializers.ModelSerializer):
+        created_by = serializers.CharField(source="created_by.username")
+        workspace = WorkspaceSerializer2()
+
+        class Meta:
+            fields = [
+                "backend",
+                "sha",
+                "identifier",
+                "force_run_dependencies",
+                "requested_actions",
+                "created_by",
+                "created_at",
+                "workspace",
+            ]
+            model = JobRequest
 
 
 class JobFilter(filters.FilterSet):

@@ -2,7 +2,8 @@ import pytest
 from rest_framework.exceptions import ErrorDetail
 from rest_framework.test import force_authenticate
 
-from jobserver.api import JobViewSet
+from jobserver.api import JobRequestAPIList, JobViewSet
+from jobserver.models import JobRequest
 
 from ..factories import (
     JobFactory,
@@ -11,6 +12,62 @@ from ..factories import (
     UserFactory,
     WorkspaceFactory,
 )
+
+
+@pytest.mark.django_db
+def test_jobrequestapilist_filter_by_backend(api_rf):
+    JobRequestFactory(backend="tpp")
+    JobRequestFactory(backend="test")
+
+    request = api_rf.get("/?backend=tpp")
+    response = JobRequestAPIList.as_view()(request)
+
+    assert response.status_code == 200
+    assert len(response.data["results"]) == 1
+
+
+def test_jobrequestapilist_get_only(api_rf):
+    request = api_rf.post("/", data={}, format="json")
+    response = JobRequestAPIList.as_view()(request)
+
+    assert response.status_code == 405
+
+
+@pytest.mark.django_db
+def test_jobrequestapilist_success(api_rf):
+    workspace = WorkspaceFactory()
+
+    # all completed
+    job_request1 = JobRequestFactory(workspace=workspace)
+    JobFactory.create_batch(2, job_request=job_request1, completed_at=timezone.now())
+
+    # some completed
+    job_request2 = JobRequestFactory(workspace=workspace)
+    JobFactory(job_request=job_request2, completed_at=timezone.now())
+    JobFactory(job_request=job_request2, completed_at=None)
+
+    # none completed
+    job_request3 = JobRequestFactory(workspace=workspace)
+    JobFactory.create_batch(2, job_request=job_request3, completed_at=None)
+
+    #  no jobs
+    job_request4 = JobRequestFactory(workspace=workspace)
+
+    assert JobRequest.objects.count() == 4
+
+    request = api_rf.get("/")
+    response = JobRequestAPIList.as_view()(request)
+
+    assert response.status_code == 200
+    assert response.data["count"] == 3
+    assert len(response.data["results"]) == 3
+
+    identifiers = {j["identifier"] for j in response.data["results"]}
+    assert identifiers == {
+        job_request2.identifier,
+        job_request3.identifier,
+        job_request4.identifier,
+    }
 
 
 @pytest.mark.django_db
