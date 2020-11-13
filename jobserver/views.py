@@ -257,7 +257,7 @@ class WorkspaceDetail(CreateView):
             job_request.jobs.create(
                 action=action,
                 force_run=True,
-                runner_id="",
+                identifier="",
             )
 
         return redirect("job-list")

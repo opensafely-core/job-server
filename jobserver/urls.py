@@ -19,7 +19,7 @@ from django.urls import include, path
 from django.views.generic import RedirectView
 from rest_framework import routers
 
-from .api import JobRequestAPIList, JobViewSet, WorkspaceViewSet
+from .api import JobAPIUpdate, JobRequestAPIList, JobViewSet, WorkspaceViewSet
 from .views import (
     Index,
     JobDetail,
@@ -42,6 +42,7 @@ router.register(r"workspaces", WorkspaceViewSet, "workspaces")
 api_patterns = [
     path("v1/", include(router.urls)),
     path("v2/job-requests/", JobRequestAPIList.as_view()),
+    path("v2/jobs/", JobAPIUpdate.as_view()),
 ]
 
 urlpatterns = [
