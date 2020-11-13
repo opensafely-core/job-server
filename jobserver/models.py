@@ -38,6 +38,10 @@ class Job(models.Model):
     force_run = models.BooleanField(default=False)
     started = models.BooleanField(default=False)
     action = models.TextField()
+
+    # The current state of the Job, as defined by job-runner.
+    # TODO: rename to status after the switch to v2
+    runner_status = models.TextField()
     status_code = models.IntegerField(null=True, blank=True)
     status_message = models.TextField(default="", blank=True)
     created_at = models.DateTimeField(auto_now_add=True)
