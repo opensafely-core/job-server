@@ -4,6 +4,7 @@ from django.core.exceptions import ValidationError
 from jobserver.forms import WorkspaceCreateForm
 
 
+@pytest.mark.django_db
 def test_workspacecreateform_success():
     data = {
         "name": "test",

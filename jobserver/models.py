@@ -369,7 +369,7 @@ class Workspace(models.Model):
         related_name="workspaces",
     )
 
-    name = models.TextField(validators=[validate_slug])
+    name = models.TextField(unique=True, validators=[validate_slug])
     repo = models.TextField(db_index=True)
     branch = models.TextField()
 
