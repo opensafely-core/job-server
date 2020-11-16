@@ -4,6 +4,7 @@ import pytz
 import requests
 import structlog
 from django.contrib.auth.models import AbstractUser
+from django.core.validators import validate_slug
 from django.db import models
 from django.urls import reverse
 from django.utils import timezone
@@ -368,7 +369,7 @@ class Workspace(models.Model):
         related_name="workspaces",
     )
 
-    name = models.TextField()
+    name = models.TextField(validators=[validate_slug])
     repo = models.TextField(db_index=True)
     branch = models.TextField()
 
