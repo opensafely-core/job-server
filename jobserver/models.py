@@ -37,6 +37,11 @@ def new_id():
 class Job(models.Model):
     force_run = models.BooleanField(default=False)
     started = models.BooleanField(default=False)
+
+    # The unique identifier created by job-runner to reference this Job.  We
+    # trust whatever job-runner sets this to.
+    identifier = models.TextField()
+
     action = models.TextField()
 
     # The current state of the Job, as defined by job-runner.
