@@ -48,7 +48,7 @@ class JobShimSerializer(serializers.Serializer):
     force_run_dependencies = serializers.BooleanField(
         source="job_request.force_run_dependencies", default=False
     )
-    action_id = serializers.CharField()
+    action = serializers.CharField()
     status_code = serializers.IntegerField(allow_null=True, required=False)
     status_message = serializers.CharField(allow_null=True, required=False)
     outputs = JobOutputSerializer(many=True, required=False)
@@ -128,7 +128,7 @@ class JobWithInlineWorkspaceSerializer(serializers.HyperlinkedModelSerializer):
             "backend",
             "db",
             "started",
-            "action_id",
+            "action",
             "status_code",
             "status_message",
             "outputs",

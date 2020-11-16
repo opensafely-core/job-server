@@ -11,7 +11,7 @@ class JobFilter(filters.FilterSet):
 
     class Meta:
         fields = [
-            "action_id",
+            "action",
             "backend",
             "needed_by_id",
             "started",

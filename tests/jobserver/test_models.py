@@ -133,7 +133,7 @@ def test_job_notify_callback_url_action_failed():
     job_request = JobRequestFactory(callback_url="http://example.com")
     JobFactory(
         job_request=job_request,
-        action_id="Research",
+        action="Research",
         completed_at=timezone.now(),
         started=True,
         status_code=1,
@@ -155,7 +155,7 @@ def test_job_notify_callback_url_action_finished():
     job_request = JobRequestFactory(callback_url="http://example.com")
     JobFactory(
         job_request=job_request,
-        action_id="Research",
+        action="Research",
         completed_at=timezone.now(),
         started=True,
         status_code=0,
@@ -176,7 +176,7 @@ def test_job_notify_callback_url_starting_dependency():
     job_request = JobRequestFactory(callback_url="http://example.com")
     job = JobFactory(
         job_request=job_request,
-        action_id="Research",
+        action="Research",
         needed_by=parent,
         started=False,
     )
@@ -271,7 +271,7 @@ def test_job_save_with_started_at_set(freezer):
 
 @pytest.mark.django_db
 def test_job_str():
-    job = JobFactory(action_id="Run")
+    job = JobFactory(action="Run")
 
     assert str(job) == f"Run ({job.pk})"
 
@@ -748,7 +748,7 @@ def test_workspace_get_latest_status_for_action_success():
     # failed
     JobFactory(
         job_request=job_request,
-        action_id="test",
+        action="test",
         created_at=now - timedelta(minutes=4),
         started=True,
         completed_at=now - timedelta(minutes=4, seconds=30),
@@ -758,7 +758,7 @@ def test_workspace_get_latest_status_for_action_success():
     # succeeded
     JobFactory(
         job_request=job_request,
-        action_id="test",
+        action="test",
         created_at=now - timedelta(minutes=3),
         started=True,
         completed_at=now - timedelta(minutes=3, seconds=30),
@@ -769,7 +769,7 @@ def test_workspace_get_latest_status_for_action_success():
     JobFactory(
         job_request=job_request,
         created_at=now - timedelta(minutes=2),
-        action_id="test",
+        action="test",
         started=True,
     )
 
@@ -777,7 +777,7 @@ def test_workspace_get_latest_status_for_action_success():
     JobFactory(
         job_request=job_request,
         created_at=now - timedelta(minutes=1),
-        action_id="test",
+        action="test",
         started=False,
     )
 
