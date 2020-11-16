@@ -35,8 +35,14 @@ def new_id():
 
 
 class Job(models.Model):
-    force_run = models.BooleanField(default=False)
-    started = models.BooleanField(default=False)
+    # TODO: remove nullability after move to v2
+    job_request = models.ForeignKey(
+        "JobRequest",
+        on_delete=models.CASCADE,
+        null=True,
+        blank=True,
+        related_name="jobs",
+    )
 
     # The unique identifier created by job-runner to reference this Job.  We
     # trust whatever job-runner sets this to.
@@ -47,25 +53,23 @@ class Job(models.Model):
     # The current state of the Job, as defined by job-runner.
     # TODO: rename to status after the switch to v2
     runner_status = models.TextField()
-    status_code = models.IntegerField(null=True, blank=True)
     status_message = models.TextField(default="", blank=True)
+
     created_at = models.DateTimeField(auto_now_add=True)
     started_at = models.DateTimeField(null=True, blank=True)
     updated_at = models.DateTimeField(null=True, blank=True)
     completed_at = models.DateTimeField(null=True, blank=True)
+
+    # Remove after the move to v2
+    force_run = models.BooleanField(default=False)
+    started = models.BooleanField(default=False)
+    status_code = models.IntegerField(null=True, blank=True)
     needed_by = models.ForeignKey(
         "self",
         on_delete=models.SET_NULL,
         null=True,
         blank=True,
         related_name="children",
-    )
-    job_request = models.ForeignKey(
-        "JobRequest",
-        on_delete=models.CASCADE,
-        null=True,
-        blank=True,
-        related_name="jobs",
     )
     workspace = models.ForeignKey(
         "Workspace",
