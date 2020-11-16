@@ -73,11 +73,11 @@ class Dashboard(ListView):
             try:
                 q = int(q)
             except ValueError:
-                qs = qs.filter(jobs__action_id__icontains=q)
+                qs = qs.filter(jobs__action__icontains=q)
             else:
                 # if the query looks enough like a number for int() to handle
                 # it then we can look for a job number
-                qs = qs.filter(Q(jobs__action_id__icontains=q) | Q(jobs__pk=q))
+                qs = qs.filter(Q(jobs__action__icontains=q) | Q(jobs__pk=q))
 
         return qs
 
@@ -146,11 +146,11 @@ class JobRequestList(ListView):
             try:
                 q = int(q)
             except ValueError:
-                qs = qs.filter(jobs__action_id__icontains=q)
+                qs = qs.filter(jobs__action__icontains=q)
             else:
                 # if the query looks enough like a number for int() to handle
                 # it then we can look for a job number
-                qs = qs.filter(Q(jobs__action_id__icontains=q) | Q(jobs__pk=q))
+                qs = qs.filter(Q(jobs__action__icontains=q) | Q(jobs__pk=q))
 
         username = self.request.GET.get("username")
         if username:
@@ -209,7 +209,7 @@ class JobRequestCreate(CreateView):
         )
         for action in job_request.requested_actions:
             job_request.jobs.create(
-                action_id=action,
+                action=action,
                 force_run=True,
             )
 

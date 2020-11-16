@@ -27,35 +27,35 @@ def request_1(workspace, user, now):
     job1 = Job.objects.create(
         request=request1,
         workspace=workspace,
-        action_id=random.choice(actions),
+        action=random.choice(actions),
         started_at=now + timedelta(minutes=9),
         completed_at=now + timedelta(minutes=10),
     )
     job2 = Job.objects.create(
         request=request1,
         workspace=workspace,
-        action_id=random.choice(actions),
+        action=random.choice(actions),
         started_at=now + timedelta(minutes=7),
         completed_at=now + timedelta(minutes=8),
     )
     job3 = Job.objects.create(
         request=request1,
         workspace=workspace,
-        action_id=random.choice(actions),
+        action=random.choice(actions),
         started_at=now + timedelta(minutes=5),
         completed_at=now + timedelta(minutes=6),
     )
     job4 = Job.objects.create(
         request=request1,
         workspace=workspace,
-        action_id=random.choice(actions),
+        action=random.choice(actions),
         started_at=now + timedelta(minutes=3),
         completed_at=now + timedelta(minutes=4),
     )
     job5 = Job.objects.create(
         request=request1,
         workspace=workspace,
-        action_id=random.choice(actions),
+        action=random.choice(actions),
         started_at=now + timedelta(minutes=1),
         completed_at=now + timedelta(minutes=2),
     )
@@ -85,18 +85,18 @@ def request_2(workspace, user, now):
     job1 = Job.objects.create(
         request=request2,
         workspace=workspace,
-        action_id=random.choice(actions),
+        action=random.choice(actions),
         started_at=now,
         completed_at=now + timedelta(minutes=1),
     )
     job2 = Job.objects.create(
         request=request2,
         workspace=workspace,
-        action_id=random.choice(actions),
+        action=random.choice(actions),
         started_at=now + timedelta(minutes=2),
     )
     job3 = Job.objects.create(
-        request=request2, workspace=workspace, action_id=random.choice(actions)
+        request=request2, workspace=workspace, action=random.choice(actions)
     )
 
     # Set up dependency links
@@ -120,20 +120,20 @@ def request_3(workspace, user, now):
     job1 = Job.objects.create(
         request=request3,
         workspace=workspace,
-        action_id=random.choice(actions),
+        action=random.choice(actions),
         started_at=now + timedelta(minutes=3),
         completed_at=now + timedelta(minutes=19),
     )
     job2 = Job.objects.create(
         request=request3,
         workspace=workspace,
-        action_id=random.choice(actions),
+        action=random.choice(actions),
         status_code=1,  # this job failed
     )
     job3 = Job.objects.create(
         request=request3,
         workspace=workspace,
-        action_id=random.choice(actions),
+        action=random.choice(actions),
         status_code=7,  # this job didn't run because the previous one failed
     )
 
@@ -156,12 +156,12 @@ def request_4(workspace, user, now):
     job1 = Job.objects.create(
         request=request4,
         workspace=workspace,
-        action_id=random.choice(actions),
+        action=random.choice(actions),
     )
     job2 = Job.objects.create(
         request=request4,
         workspace=workspace,
-        action_id=random.choice(actions),
+        action=random.choice(actions),
     )
 
     # Set up dependency links

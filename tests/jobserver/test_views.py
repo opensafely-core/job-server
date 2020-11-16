@@ -60,10 +60,10 @@ def test_dashboard_search_by_action(rf):
     user = UserFactory(selected_workspace=WorkspaceFactory())
 
     job_request1 = JobRequestFactory(created_by=user)
-    JobFactory(job_request=job_request1, action_id="run")
+    JobFactory(job_request=job_request1, action="run")
 
     job_request2 = JobRequestFactory()
-    JobFactory(job_request=job_request2, action_id="leap")
+    JobFactory(job_request=job_request2, action="leap")
 
     # Build a RequestFactory instance
     request = rf.get("/?q=run")
@@ -366,10 +366,10 @@ def test_jobrequestlist_filter_by_workspace(rf):
 @pytest.mark.django_db
 def test_jobrequestlist_search_by_action(rf):
     job_request1 = JobRequestFactory()
-    JobFactory(job_request=job_request1, action_id="run")
+    JobFactory(job_request=job_request1, action="run")
 
     job_request2 = JobRequestFactory()
-    JobFactory(job_request=job_request2, action_id="leap")
+    JobFactory(job_request=job_request2, action="leap")
 
     # Build a RequestFactory instance
     request = rf.get("/?q=run")

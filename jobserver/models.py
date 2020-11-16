@@ -25,7 +25,7 @@ STATE_DEPENDENCY_RUNNING = 8
 class Job(models.Model):
     force_run = models.BooleanField(default=False)
     started = models.BooleanField(default=False)
-    action_id = models.TextField()
+    action = models.TextField()
     status_code = models.IntegerField(null=True, blank=True)
     status_message = models.TextField(default="", blank=True)
     created_at = models.DateTimeField(auto_now_add=True)
@@ -57,7 +57,7 @@ class Job(models.Model):
         ordering = ["pk"]
 
     def __str__(self):
-        return f"{self.action_id} ({self.pk})"
+        return f"{self.action} ({self.pk})"
 
     def get_absolute_url(self):
         return reverse("job-detail", kwargs={"pk": self.pk})
@@ -123,12 +123,12 @@ class Job(models.Model):
 
         # A new dependency has been added; notify the originating thread
         if self.needed_by and not self.started:
-            status = f"Starting dependency {self.action_id}, job#{self.pk}"
+            status = f"Starting dependency {self.action}, job#{self.pk}"
         elif self.started and self.completed_at:
             if self.status_code == 0:
-                status = f"{self.action_id} finished: {self.status_message}"
+                status = f"{self.action} finished: {self.status_message}"
             else:
-                status = f"Error in {self.action_id} (status {self.status_message})"
+                status = f"Error in {self.action} (status {self.status_message})"
         else:
             return
 
@@ -394,9 +394,9 @@ class Workspace(models.Model):
         """
 
         try:
-            job = Job.objects.filter(
-                action_id=action, job_request__workspace=self
-            ).latest("created_at")
+            job = Job.objects.filter(action=action, job_request__workspace=self).latest(
+                "created_at"
+            )
         except Job.DoesNotExist:
             return "-"
 

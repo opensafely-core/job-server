@@ -17,20 +17,20 @@ from ..factories import (
 def test_jobviewset_create_success(api_rf):
     workspace = WorkspaceFactory()
     job_request = JobRequestFactory(workspace=workspace, backend="tpp")
-    job1 = JobFactory(job_request=job_request, action_id="test-action1")
+    job1 = JobFactory(job_request=job_request, action="test-action1")
 
-    job2 = JobFactory(job_request=job_request, action_id="test-action2")
+    job2 = JobFactory(job_request=job_request, action="test-action2")
     job1.needed_by = job2
     job1.save()
 
-    job3 = JobFactory(job_request=job_request, action_id="test-action3")
+    job3 = JobFactory(job_request=job_request, action="test-action3")
     job2.needed_by = job3
     job2.save()
 
     data = {
         "force_run": True,
         "force_run_dependencies": True,
-        "action_id": "frob",
+        "action": "frob",
         "backend": "tpp",
         "needed_by_id": job1.pk,
         "workspace_id": workspace.pk,
@@ -42,7 +42,7 @@ def test_jobviewset_create_success(api_rf):
 
     assert response.status_code == 201, response.data
 
-    assert response.data["action_id"] == "frob"
+    assert response.data["action"] == "frob"
     assert response.data["backend"] == "tpp"
     assert response.data["force_run"]
     assert response.data["needed_by_id"] == job1.pk
@@ -56,7 +56,7 @@ def test_jobviewset_create_with_unknown_job(api_rf):
     data = {
         "force_run": True,
         "force_run_dependencies": True,
-        "action_id": "frob",
+        "action": "frob",
         "backend": "tpp",
         "needed_by_id": 0,
         "workspace_id": workspace.pk,
@@ -73,11 +73,11 @@ def test_jobviewset_create_with_unknown_job(api_rf):
 
 
 @pytest.mark.django_db
-def test_jobviewset_filter_action_id(api_rf):
-    job1 = JobFactory(action_id="action1")
-    JobFactory(action_id="action2")
+def test_jobviewset_filter_action(api_rf):
+    job1 = JobFactory(action="action1")
+    JobFactory(action="action2")
 
-    request = api_rf.get("/?action_id=action1")
+    request = api_rf.get("/?action=action1")
     force_authenticate(request, user=UserFactory(is_superuser=True))
     response = JobViewSet.as_view(actions={"get": "list"})(request)
 
@@ -172,7 +172,7 @@ def test_jobviewset_list_success(api_rf):
     job_request = JobRequestFactory(workspace=workspace, backend="tpp")
     JobFactory(
         job_request=job_request,
-        action_id="test-action",
+        action="test-action",
         force_run=True,
         started=True,
         status_code=2,
@@ -196,7 +196,7 @@ def test_jobviewset_list_success(api_rf):
         "started",
         "force_run",
         "force_run_dependencies",
-        "action_id",
+        "action",
         "status_code",
         "status_message",
         "outputs",
@@ -216,7 +216,7 @@ def test_jobviewset_list_success(api_rf):
     assert job["started"]
     assert job["force_run"]
     assert not job["force_run_dependencies"]
-    assert job["action_id"] == "test-action"
+    assert job["action"] == "test-action"
     assert job["status_code"] == 2
     assert job["status_message"] == "Danger Will Robinson"
     assert job["outputs"] == []
@@ -246,15 +246,15 @@ def test_jobviewset_list_with_filters_success(api_rf):
     job_request1 = JobRequestFactory(workspace=workspace1, backend="emis")
     job_request2 = JobRequestFactory(workspace=workspace2, backend="tpp")
 
-    JobFactory(job_request=job_request1, force_run=False, action_id="attack")
-    JobFactory(job_request=job_request1, force_run=True, action_id="cast")
-    JobFactory(job_request=job_request1, force_run=False, action_id="dash")
-    JobFactory(job_request=job_request2, force_run=True, action_id="disengage")
-    JobFactory(job_request=job_request2, force_run=False, action_id="dodge")
-    JobFactory(job_request=job_request2, force_run=True, action_id="help")
+    JobFactory(job_request=job_request1, force_run=False, action="attack")
+    JobFactory(job_request=job_request1, force_run=True, action="cast")
+    JobFactory(job_request=job_request1, force_run=False, action="dash")
+    JobFactory(job_request=job_request2, force_run=True, action="disengage")
+    JobFactory(job_request=job_request2, force_run=False, action="dodge")
+    JobFactory(job_request=job_request2, force_run=True, action="help")
 
     params = {
-        "action_id": "dodge",
+        "action": "dodge",
         "backend": "tpp",
         "workspace_id": workspace2.pk,
         "limit": 1,
@@ -268,7 +268,7 @@ def test_jobviewset_list_with_filters_success(api_rf):
     assert response.data["count"] == 1
 
     job = response.data["results"][0]
-    assert job["action_id"] == "dodge"
+    assert job["action"] == "dodge"
     assert job["backend"] == "tpp"
     assert not job["force_run"]
 
@@ -277,13 +277,13 @@ def test_jobviewset_list_with_filters_success(api_rf):
 def test_jobviewset_update_success(api_rf):
     workspace = WorkspaceFactory()
     job_request = JobRequestFactory(workspace=workspace, backend="tpp")
-    job = JobFactory(job_request=job_request, action_id="test-action", force_run=False)
+    job = JobFactory(job_request=job_request, action="test-action", force_run=False)
 
     assert job.status_code is None
     assert job.status_message == ""
 
     data = {
-        "action_id": job.action_id,
+        "action": job.action,
         "backend": job.job_request.backend,
         "force_run": True,
         "force_run_dependencies": job.job_request.force_run_dependencies,
@@ -309,14 +309,14 @@ def test_jobviewset_update_success(api_rf):
 def test_jobviewset_update_with_outputs_and_existing_outputs_fails(api_rf):
     workspace = WorkspaceFactory()
     job_request = JobRequestFactory(workspace=workspace, backend="tpp")
-    job = JobFactory(job_request=job_request, action_id="test-action", force_run=False)
+    job = JobFactory(job_request=job_request, action="test-action", force_run=False)
     JobOutputFactory(job=job)
 
     assert job.status_code is None
     assert job.status_message == ""
 
     data = {
-        "action_id": job.action_id,
+        "action": job.action,
         "backend": job.job_request.backend,
         "force_run": True,
         "force_run_dependencies": job.job_request.force_run_dependencies,

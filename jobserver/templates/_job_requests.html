@@ -58,7 +58,7 @@
         {% for job in group.jobs.all %}
         <span class="pl-3">{% status_icon job.status %}</span>
         <span class="d-none d-lg-inline"><small>{{ job.pk }}</small></span>
-        <span>{{ job.action_id }}</span>
+        <span>{{ job.action }}</span>
         <span {% if job.started_at %} title="{{ job.started_at|naturaltime }}"{% endif %}>
           <small>{% runtime job.runtime %}</small>
         </span>
