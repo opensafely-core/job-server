@@ -4,6 +4,7 @@ import pytz
 import requests
 import structlog
 from django.contrib.auth.models import AbstractUser
+from django.core.validators import validate_slug
 from django.db import models
 from django.urls import reverse
 from django.utils import timezone
@@ -19,59 +20,6 @@ logger = structlog.get_logger(__name__)
 STATE_SUCCESS = 0
 STATE_DEPENDENCY_NOT_FINISHED = 6
 STATE_DEPENDENCY_RUNNING = 8
-
-
-class Workspace(models.Model):
-    created_by = models.ForeignKey(
-        "User",
-        on_delete=models.CASCADE,
-        null=True,
-        blank=True,
-        related_name="workspaces",
-    )
-
-    name = models.TextField()
-    repo = models.TextField(db_index=True)
-    branch = models.TextField()
-
-    DB_OPTIONS = (
-        ("dummy", "Dummy database"),
-        ("slice", "Cut-down (but real) database"),
-        ("full", "Full database"),
-    )
-    db = models.TextField(choices=DB_OPTIONS)
-
-    created_at = models.DateTimeField(auto_now_add=True)
-
-    def __str__(self):
-        return f"{self.name} ({self.repo})"
-
-    def get_absolute_url(self):
-        return reverse("workspace-detail", kwargs={"pk": self.pk})
-
-    def get_latest_status_for_action(self, action):
-        """
-        Get the latest status for an action in this Workspace
-        """
-
-        try:
-            job = Job.objects.filter(
-                action_id=action, job_request__workspace=self
-            ).latest("created_at")
-        except Job.DoesNotExist:
-            return "-"
-
-        return job.status
-
-    @property
-    def repo_name(self):
-        """Convert repo URL -> repo name"""
-        f = furl(self.repo)
-
-        if not f.path:
-            raise Exception("Repo URL not in expected format, appears to have no path")
-
-        return f.path.segments[-1]
 
 
 class Job(models.Model):
@@ -98,7 +46,7 @@ class Job(models.Model):
         related_name="jobs",
     )
     workspace = models.ForeignKey(
-        Workspace,
+        "Workspace",
         related_name="jobs",
         null=True,
         blank=True,
@@ -410,3 +358,56 @@ class User(AbstractUser):
     def name(self):
         """Unify the available names for a User."""
         return self.get_full_name() or self.username
+
+
+class Workspace(models.Model):
+    created_by = models.ForeignKey(
+        "User",
+        on_delete=models.CASCADE,
+        null=True,
+        blank=True,
+        related_name="workspaces",
+    )
+
+    name = models.TextField(unique=True, validators=[validate_slug])
+    repo = models.TextField(db_index=True)
+    branch = models.TextField()
+
+    DB_OPTIONS = (
+        ("dummy", "Dummy database"),
+        ("slice", "Cut-down (but real) database"),
+        ("full", "Full database"),
+    )
+    db = models.TextField(choices=DB_OPTIONS)
+
+    created_at = models.DateTimeField(auto_now_add=True)
+
+    def __str__(self):
+        return f"{self.name} ({self.repo})"
+
+    def get_absolute_url(self):
+        return reverse("workspace-detail", kwargs={"pk": self.pk})
+
+    def get_latest_status_for_action(self, action):
+        """
+        Get the latest status for an action in this Workspace
+        """
+
+        try:
+            job = Job.objects.filter(
+                action_id=action, job_request__workspace=self
+            ).latest("created_at")
+        except Job.DoesNotExist:
+            return "-"
+
+        return job.status
+
+    @property
+    def repo_name(self):
+        """Convert repo URL -> repo name"""
+        f = furl(self.repo)
+
+        if not f.path:
+            raise Exception("Repo URL not in expected format, appears to have no path")
+
+        return f.path.segments[-1]

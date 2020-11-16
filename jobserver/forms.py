@@ -65,3 +65,8 @@ class WorkspaceCreateForm(forms.ModelForm):
         if branch.lower() not in branches:
             raise forms.ValidationError(f'Unknown branch "{branch}"')
         return branch
+
+    def clean_name(self):
+        name = self.cleaned_data["name"]
+
+        return name.lower()
