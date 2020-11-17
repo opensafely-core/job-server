@@ -436,42 +436,31 @@ def test_workspacecreate_post_success(rf):
 
 @pytest.mark.django_db
 def test_workspacedetail_no_selected_workspace_redirect(rf):
+    workspace = WorkspaceFactory()
+
     request = rf.get(MEANINGLESS_URL)
     request.user = UserFactory(selected_workspace=None)
-    response = WorkspaceDetail.as_view()(request)
+    response = WorkspaceDetail.as_view()(request, name=workspace.name)
 
     assert response.status_code == 302
     assert response.url == reverse("workspace-select")
 
 
 @pytest.mark.django_db
-def test_workspacedetail_other_users_jobs(rf):
-    job_request = JobRequestFactory(created_by=UserFactory())
-    JobFactory(job_request=job_request)
-
-    # Build a RequestFactory instance
-    request = rf.get(MEANINGLESS_URL)
-    request.user = UserFactory(selected_workspace=WorkspaceFactory())
-    response = WorkspaceDetail.as_view()(request)
-
-    assert response.status_code == 200
-    assert len(response.context_data["object_list"]) == 0
-
-
-@pytest.mark.django_db
 def test_workspacedetail_search_by_action(rf):
-    user = UserFactory(selected_workspace=WorkspaceFactory())
+    workspace = WorkspaceFactory()
+    user = UserFactory(selected_workspace=workspace)
 
-    job_request1 = JobRequestFactory(created_by=user)
+    job_request1 = JobRequestFactory(created_by=user, workspace=workspace)
     JobFactory(job_request=job_request1, action="run")
 
-    job_request2 = JobRequestFactory()
+    job_request2 = JobRequestFactory(workspace=workspace)
     JobFactory(job_request=job_request2, action="leap")
 
     # Build a RequestFactory instance
     request = rf.get("/?q=run")
     request.user = user
-    response = WorkspaceDetail.as_view()(request)
+    response = WorkspaceDetail.as_view()(request, name=user.selected_workspace.name)
 
     assert len(response.context_data["object_list"]) == 1
     assert response.context_data["object_list"][0] == job_request1
@@ -479,17 +468,19 @@ def test_workspacedetail_search_by_action(rf):
 
 @pytest.mark.django_db
 def test_workspacedetail_search_by_id(rf):
-    user = UserFactory(selected_workspace=WorkspaceFactory())
+    workspace = WorkspaceFactory()
+
+    user = UserFactory(selected_workspace=workspace)
 
     JobFactory(job_request=JobRequestFactory())
 
-    job_request2 = JobRequestFactory(created_by=user)
+    job_request2 = JobRequestFactory(created_by=user, workspace=workspace)
     JobFactory(job_request=job_request2, id=99)
 
     # Build a RequestFactory instance
     request = rf.get("/?q=99")
     request.user = user
-    response = WorkspaceDetail.as_view()(request)
+    response = WorkspaceDetail.as_view()(request, name=user.selected_workspace.name)
 
     assert len(response.context_data["object_list"]) == 1
     assert response.context_data["object_list"][0] == job_request2
@@ -497,14 +488,15 @@ def test_workspacedetail_search_by_id(rf):
 
 @pytest.mark.django_db
 def test_workspacedetail_success(rf):
-    user = UserFactory(selected_workspace=WorkspaceFactory())
-    job_request = JobRequestFactory(created_by=user)
+    workspace = WorkspaceFactory()
+    user = UserFactory(selected_workspace=workspace)
+    job_request = JobRequestFactory(created_by=user, workspace=workspace)
     JobFactory(job_request=job_request)
 
     # Build a RequestFactory instance
     request = rf.get(MEANINGLESS_URL)
     request.user = user
-    response = WorkspaceDetail.as_view()(request)
+    response = WorkspaceDetail.as_view()(request, name=user.selected_workspace.name)
 
     assert response.status_code == 200
     assert len(response.context_data["object_list"]) == 1
@@ -518,6 +510,19 @@ def test_workspacedetail_unauthenticed_redirect(rf):
 
     assert response.status_code == 302
     assert response.url == reverse("job-list")
+
+
+@pytest.mark.django_db
+def test_workspacedetail_unknown_workspace(rf):
+    user = UserFactory(selected_workspace=WorkspaceFactory())
+
+    # Build a RequestFactory instance
+    request = rf.get(MEANINGLESS_URL)
+    request.user = user
+    response = WorkspaceDetail.as_view()(request, name="test")
+
+    assert response.status_code == 302
+    assert response.url == reverse("workspace-select")
 
 
 @pytest.mark.django_db

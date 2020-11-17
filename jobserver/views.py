@@ -246,11 +246,21 @@ class WorkspaceDetail(ListView):
         if not request.user.selected_workspace:
             return redirect("workspace-select")
 
+        try:
+            self.workspace = Workspace.objects.get(name=self.kwargs["name"])
+        except Workspace.DoesNotExist:
+            return redirect("workspace-select")
+
         return super().dispatch(request, *args, **kwargs)
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context["workspace"] = self.workspace
+        return context
 
     def get_queryset(self):
         qs = (
-            JobRequest.objects.filter(created_by=self.request.user)
+            JobRequest.objects.filter(workspace=self.workspace)
             .prefetch_related("jobs")
             .select_related("workspace")
             .order_by("-pk")
