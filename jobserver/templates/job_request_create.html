@@ -1,6 +1,7 @@
 {% extends "base.html" %}
 
 {% load static %}
+{% load status_tools %}
 
 {% block content %}
 
@@ -45,8 +46,7 @@
         <div class="d-flex">
           <span style="width:68px"></span>
           <strong class="flex-grow-1">Action</strong>
-          <strong style="width:110px">Status</strong>
-          <span style="width:60px"></span>
+          <strong style="margin-right:80px;width:52px;">Status</strong>
         </div>
 
         <div class="accordion" id="actions">
@@ -65,8 +65,13 @@
                 </label>
               </div>
 
-              <code class="flex-grow-1 mr-3 text-truncate" title="{{ action.name }}">{{ action.name }}</code>
-              <span class="mr-3" style="width:85px">{{ action.status }}</span>
+              <code class="flex-grow-1 mr-3 text-truncate" title="{{ action.name }}">
+                {{ action.name }}
+              </code>
+
+              <span class="mr-3 d-flex justify-content-center" style="width:52px">
+                {% status_icon action.status %}
+              </span>
 
               <div style="width:60px">
                 {% if action.needs %}
