@@ -1,17 +1,13 @@
-from django.urls import reverse
 from django.utils import timezone
 
 from .models import Stats
-
-
-API_PREFIX = reverse("api-root")
 
 
 def stats_middleware(get_response):
     def middleware(request):
         response = get_response(request)
 
-        if not request.path.startswith(API_PREFIX):
+        if not request.path.startswith("/api"):
             return response
 
         # only update the stats for API access
