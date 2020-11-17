@@ -60,12 +60,17 @@ class JobAPIUpdate(APIView):
             jr_id = job.pop("job_request_id")
             status = job.pop("status")
 
+            # v1 shim
+            started = job["started_at"] != ""
+            # END
+
             job_request = job_request_lut[jr_id]
 
             jobs.append(
                 Job(
                     job_request=job_request,
                     runner_status=status,
+                    started=started,
                     **job,
                 )
             )
