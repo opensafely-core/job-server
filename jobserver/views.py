@@ -40,48 +40,6 @@ def filter_by_status(job_requests, status):
     return list(filter(func, job_requests))
 
 
-class Dashboard(ListView):
-    """
-    User-centric Jobs List
-
-    This is a barely-modified version of JobRequestList for now, but is
-    expected to grow more User-centric features.
-    """
-
-    paginate_by = 25
-    template_name = "dashboard.html"
-
-    def dispatch(self, request, *args, **kwargs):
-        if not request.user.is_authenticated:
-            return redirect("job-list")
-
-        if not request.user.selected_workspace:
-            return redirect("workspace-select")
-
-        return super().dispatch(request, *args, **kwargs)
-
-    def get_queryset(self):
-        qs = (
-            JobRequest.objects.filter(created_by=self.request.user)
-            .prefetch_related("jobs")
-            .select_related("workspace")
-            .order_by("-pk")
-        )
-
-        q = self.request.GET.get("q")
-        if q:
-            try:
-                q = int(q)
-            except ValueError:
-                qs = qs.filter(jobs__action__icontains=q)
-            else:
-                # if the query looks enough like a number for int() to handle
-                # it then we can look for a job number
-                qs = qs.filter(Q(jobs__action__icontains=q) | Q(jobs__pk=q))
-
-        return qs
-
-
 class JobDetail(DetailView):
     model = Job
     queryset = Job.objects.select_related("workspace")
@@ -277,9 +235,39 @@ class WorkspaceCreate(CreateView):
         return kwargs
 
 
-class WorkspaceDetail(DetailView):
-    model = Workspace
+class WorkspaceDetail(ListView):
+    paginate_by = 25
     template_name = "workspace_detail.html"
+
+    def dispatch(self, request, *args, **kwargs):
+        if not request.user.is_authenticated:
+            return redirect("job-list")
+
+        if not request.user.selected_workspace:
+            return redirect("workspace-select")
+
+        return super().dispatch(request, *args, **kwargs)
+
+    def get_queryset(self):
+        qs = (
+            JobRequest.objects.filter(created_by=self.request.user)
+            .prefetch_related("jobs")
+            .select_related("workspace")
+            .order_by("-pk")
+        )
+
+        q = self.request.GET.get("q")
+        if q:
+            try:
+                q = int(q)
+            except ValueError:
+                qs = qs.filter(jobs__action__icontains=q)
+            else:
+                # if the query looks enough like a number for int() to handle
+                # it then we can look for a job number
+                qs = qs.filter(Q(jobs__action__icontains=q) | Q(jobs__pk=q))
+
+        return qs
 
 
 class WorkspaceList(ListView):

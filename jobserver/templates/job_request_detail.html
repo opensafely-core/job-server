@@ -11,7 +11,7 @@
     <ul class="list-unstyled ml-10">
       <li class="pt-2">
         <strong>Workspace:</strong>
-        <a href={% url 'workspace-detail' pk=jobrequest.workspace.pk %}>
+        <a href="{{ jobrequest.workspace.get_absolute_url }}">
           {{ jobrequest.workspace.name }}
         </a>
         <small class="text-muted">

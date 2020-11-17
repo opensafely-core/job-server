@@ -386,7 +386,7 @@ class Workspace(models.Model):
         return f"{self.name} ({self.repo})"
 
     def get_absolute_url(self):
-        return reverse("workspace-detail", kwargs={"pk": self.pk})
+        return reverse("workspace-detail", kwargs={"name": self.name})
 
     def get_latest_status_for_action(self, action):
         """

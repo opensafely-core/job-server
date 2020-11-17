@@ -20,7 +20,6 @@ from rest_framework import routers
 
 from .api import JobViewSet, WorkspaceViewSet
 from .views import (
-    Dashboard,
     JobDetail,
     JobRequestCreate,
     JobRequestDetail,
@@ -40,7 +39,6 @@ router.register(r"workspaces", WorkspaceViewSet, "workspaces")
 
 
 urlpatterns = [
-    path("", Dashboard.as_view()),
     path("", include("social_django.urls", namespace="social")),
     path("api/", include(router.urls)),
     path("api-auth/", include("rest_framework.urls")),
@@ -58,6 +56,6 @@ urlpatterns = [
     path("workspaces/", WorkspaceList.as_view(), name="workspace-list"),
     path("workspaces/new/", WorkspaceCreate.as_view(), name="workspace-create"),
     path("workspaces/select/", WorkspaceSelect.as_view(), name="workspace-select"),
-    path("workspaces/<pk>/", WorkspaceDetail.as_view(), name="workspace-detail"),
     path("__debug__/", include(debug_toolbar.urls)),
+    path("<name>/", WorkspaceDetail.as_view(), name="workspace-detail"),
 ]

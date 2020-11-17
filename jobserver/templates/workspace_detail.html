@@ -1,48 +1,44 @@
 {% extends "base.html" %}
 
-{% load humanize %}
-
 {% block content %}
-<div class="row">
-  <div class="col-lg-10">
-    <h3>Workspace: {{ workspace.name }}</h3>
 
-    <ul class="list-unstyled">
-      <li class="pt-2"><strong>Repo:</strong> <a href="{{ workspace.repo }}">{{ workspace.repo_name }}</a></li>
-      <li class="pt-2"><strong>Branch:</strong> {{ workspace.branch }}</li>
-      <li class="pt-2"><strong>DB:</strong> {{ workspace.db }}</li>
-      <li class="pt-2">
-        <strong>Created:</strong>
-        <span title="{{ workspace.created_at|date:"Y-m-d H:i:s" }}">
-          {{ workspace.created_at|naturaltime }}
-        </span>
-      </li>
-      {% if workspace.created_by %}
-      <li class="pt-2"><strong>Created By:</strong> {{ workspace.created_by.name }}</li>
-      {% endif %}
-    </ul>
+<div class="job-list">
+  <div class="d-flex justify-content-between mt-3 mb-4">
 
-  </div>
+    <h2>{{ request.user.selected_workspace.name }}</h2>
 
-  <div class="col-lg-2">
-
-    <h3 class="text-center">Tools</h3>
-
-    <div class="mb-2">
-      <form
-        action="{% url 'workspace-select' %}?{% url 'job-request-create' %}"
-        method="POST">
-        {% csrf_token %}
-        <input type="hidden" name="workspace_id" value="{{ jobrequest.workspace_id }}" />
-        <button class="btn btn-block btn-secondary" type="submit">Add Job</button>
-      </form>
+    {% if user.is_authenticated %}
+    <div>
+      <a class="btn btn-primary" href="{% url 'job-request-create' %}">
+        Add Job
+      </a>
     </div>
-
-    <a class="btn btn-block btn-secondary" href="{% url 'job-list' %}?workspace={{ workspace.pk }}">
-      View Jobs
-    </a>
+    {% endif %}
 
   </div>
+
+  <form class="form d-flex align-items-center mb-4" method="GET">
+    <input
+      class="form-control mr-2"
+      type="search"
+      placeholder="Search action or job_id"
+      aria-label="Search"
+      name="q" />
+    <button class="btn btn-outline-success my-2 my-sm-0" type="submit">Search</button>
+  </form>
+
+
+  {% if not page_obj %}
+  <div class="text-center">
+    <p>
+      No results found, try checking the <a href={% url 'job-list' %}>Event Log</a>.
+    <p>
+  </div>
+  {% else %}
+
+    {% include "_job_requests.html" %}
+
+  {% endif %}
 
 </div>
 {% endblock content %}

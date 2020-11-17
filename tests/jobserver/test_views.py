@@ -9,12 +9,12 @@ from django.utils import timezone
 
 from jobserver.models import JobRequest, Workspace
 from jobserver.views import (
-    Dashboard,
     JobRequestCreate,
     JobRequestList,
     JobRequestZombify,
     JobZombify,
     WorkspaceCreate,
+    WorkspaceDetail,
     WorkspaceList,
     WorkspaceSelect,
 )
@@ -29,92 +29,6 @@ from ..factories import (
 
 
 MEANINGLESS_URL = "/"
-
-
-@pytest.mark.django_db
-def test_dashboard_no_selected_workspace_redirect(rf):
-    request = rf.get(MEANINGLESS_URL)
-    request.user = UserFactory(selected_workspace=None)
-    response = Dashboard.as_view()(request)
-
-    assert response.status_code == 302
-    assert response.url == reverse("workspace-select")
-
-
-@pytest.mark.django_db
-def test_dashboard_other_users_jobs(rf):
-    job_request = JobRequestFactory(created_by=UserFactory())
-    JobFactory(job_request=job_request)
-
-    # Build a RequestFactory instance
-    request = rf.get(MEANINGLESS_URL)
-    request.user = UserFactory(selected_workspace=WorkspaceFactory())
-    response = Dashboard.as_view()(request)
-
-    assert response.status_code == 200
-    assert len(response.context_data["object_list"]) == 0
-
-
-@pytest.mark.django_db
-def test_dashboard_search_by_action(rf):
-    user = UserFactory(selected_workspace=WorkspaceFactory())
-
-    job_request1 = JobRequestFactory(created_by=user)
-    JobFactory(job_request=job_request1, action="run")
-
-    job_request2 = JobRequestFactory()
-    JobFactory(job_request=job_request2, action="leap")
-
-    # Build a RequestFactory instance
-    request = rf.get("/?q=run")
-    request.user = user
-    response = Dashboard.as_view()(request)
-
-    assert len(response.context_data["object_list"]) == 1
-    assert response.context_data["object_list"][0] == job_request1
-
-
-@pytest.mark.django_db
-def test_dashboard_search_by_id(rf):
-    user = UserFactory(selected_workspace=WorkspaceFactory())
-
-    JobFactory(job_request=JobRequestFactory())
-
-    job_request2 = JobRequestFactory(created_by=user)
-    JobFactory(job_request=job_request2, id=99)
-
-    # Build a RequestFactory instance
-    request = rf.get("/?q=99")
-    request.user = user
-    response = Dashboard.as_view()(request)
-
-    assert len(response.context_data["object_list"]) == 1
-    assert response.context_data["object_list"][0] == job_request2
-
-
-@pytest.mark.django_db
-def test_dashboard_success(rf):
-    user = UserFactory(selected_workspace=WorkspaceFactory())
-    job_request = JobRequestFactory(created_by=user)
-    JobFactory(job_request=job_request)
-
-    # Build a RequestFactory instance
-    request = rf.get(MEANINGLESS_URL)
-    request.user = user
-    response = Dashboard.as_view()(request)
-
-    assert response.status_code == 200
-    assert len(response.context_data["object_list"]) == 1
-
-
-@pytest.mark.django_db
-def test_dashboard_unauthenticed_redirect(rf):
-    request = rf.get(MEANINGLESS_URL)
-    request.user = AnonymousUser()
-    response = Dashboard.as_view()(request)
-
-    assert response.status_code == 302
-    assert response.url == reverse("job-list")
 
 
 @pytest.mark.django_db
@@ -521,6 +435,92 @@ def test_workspacecreate_post_success(rf):
 
 
 @pytest.mark.django_db
+def test_workspacedetail_no_selected_workspace_redirect(rf):
+    request = rf.get(MEANINGLESS_URL)
+    request.user = UserFactory(selected_workspace=None)
+    response = WorkspaceDetail.as_view()(request)
+
+    assert response.status_code == 302
+    assert response.url == reverse("workspace-select")
+
+
+@pytest.mark.django_db
+def test_workspacedetail_other_users_jobs(rf):
+    job_request = JobRequestFactory(created_by=UserFactory())
+    JobFactory(job_request=job_request)
+
+    # Build a RequestFactory instance
+    request = rf.get(MEANINGLESS_URL)
+    request.user = UserFactory(selected_workspace=WorkspaceFactory())
+    response = WorkspaceDetail.as_view()(request)
+
+    assert response.status_code == 200
+    assert len(response.context_data["object_list"]) == 0
+
+
+@pytest.mark.django_db
+def test_workspacedetail_search_by_action(rf):
+    user = UserFactory(selected_workspace=WorkspaceFactory())
+
+    job_request1 = JobRequestFactory(created_by=user)
+    JobFactory(job_request=job_request1, action="run")
+
+    job_request2 = JobRequestFactory()
+    JobFactory(job_request=job_request2, action="leap")
+
+    # Build a RequestFactory instance
+    request = rf.get("/?q=run")
+    request.user = user
+    response = WorkspaceDetail.as_view()(request)
+
+    assert len(response.context_data["object_list"]) == 1
+    assert response.context_data["object_list"][0] == job_request1
+
+
+@pytest.mark.django_db
+def test_workspacedetail_search_by_id(rf):
+    user = UserFactory(selected_workspace=WorkspaceFactory())
+
+    JobFactory(job_request=JobRequestFactory())
+
+    job_request2 = JobRequestFactory(created_by=user)
+    JobFactory(job_request=job_request2, id=99)
+
+    # Build a RequestFactory instance
+    request = rf.get("/?q=99")
+    request.user = user
+    response = WorkspaceDetail.as_view()(request)
+
+    assert len(response.context_data["object_list"]) == 1
+    assert response.context_data["object_list"][0] == job_request2
+
+
+@pytest.mark.django_db
+def test_workspacedetail_success(rf):
+    user = UserFactory(selected_workspace=WorkspaceFactory())
+    job_request = JobRequestFactory(created_by=user)
+    JobFactory(job_request=job_request)
+
+    # Build a RequestFactory instance
+    request = rf.get(MEANINGLESS_URL)
+    request.user = user
+    response = WorkspaceDetail.as_view()(request)
+
+    assert response.status_code == 200
+    assert len(response.context_data["object_list"]) == 1
+
+
+@pytest.mark.django_db
+def test_workspacedetail_unauthenticed_redirect(rf):
+    request = rf.get(MEANINGLESS_URL)
+    request.user = AnonymousUser()
+    response = WorkspaceDetail.as_view()(request)
+
+    assert response.status_code == 302
+    assert response.url == reverse("job-list")
+
+
+@pytest.mark.django_db
 def test_workspacelist_redirects_user_without_workspaces(rf):
     """
     Check authenticated users are redirected when there are no workspaces
@@ -643,6 +643,5 @@ def test_workspaceselect_success(rf):
 
     assert response.status_code == 302
     assert response.url == "/"
-
     user.refresh_from_db()
     assert user.selected_workspace == workspace2
