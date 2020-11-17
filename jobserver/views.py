@@ -5,9 +5,8 @@ from django.contrib.auth.decorators import login_required
 from django.db import transaction
 from django.db.models import Q, prefetch_related_objects
 from django.shortcuts import get_object_or_404, redirect
-from django.template.response import TemplateResponse
 from django.utils.decorators import method_decorator
-from django.views.generic import CreateView, DetailView, ListView, View
+from django.views.generic import CreateView, DetailView, ListView, TemplateView, View
 
 from .forms import JobRequestCreateForm, WorkspaceCreateForm
 from .github import get_branch_sha, get_repos_with_branches
@@ -38,6 +37,21 @@ def filter_by_status(job_requests, status):
     }
     func = status_lut[status]
     return list(filter(func, job_requests))
+
+
+class Index(TemplateView):
+    template_name = "index.html"
+
+    def get_context_data(self, **kwargs):
+        job_requests = JobRequest.objects.prefetch_related("jobs").order_by(
+            "-created_at"
+        )[:5]
+        workspaces = Workspace.objects.order_by("name")
+
+        context = super().get_context_data(**kwargs)
+        context["job_requests"] = job_requests
+        context["workspaces"] = workspaces
+        return context
 
 
 class JobDetail(DetailView):
@@ -299,18 +313,6 @@ class WorkspaceList(ListView):
 
 @method_decorator(login_required, name="dispatch")
 class WorkspaceSelect(View):
-    def get(self, request, *args, **kwargs):
-        workspaces = Workspace.objects.order_by("name")
-
-        if not workspaces.exists():
-            return redirect("workspace-create")
-
-        return TemplateResponse(
-            request,
-            "workspace_select.html",
-            {"workspace_list": workspaces},
-        )
-
     def post(self, request, *args, **kwargs):
         workspace_id = request.POST.get("workspace_id", None)
         if not workspace_id:
@@ -325,7 +327,4 @@ class WorkspaceSelect(View):
         request.user.selected_workspace = workspace
         request.user.save()
 
-        next = request.GET.get("next")
-        if next:
-            return redirect(next)
-        return redirect("/")
+        return redirect(workspace)

@@ -1,0 +1,91 @@
+{% extends "base.html" %}
+
+{% load status_tools %}
+
+{% block content %}
+
+<div class="row mb-3">
+  <div class="col-lg-8 offset-lg-2">
+    <p>
+    Welcome to the OpenSAFELY Jobs site.  Pick a Workspace below to get started
+    running your research on the OpenSafely platform or look at some of the
+    existing research tasks below that which have been created to run on it.
+    </p>
+  </div>
+</div>
+
+{% if workspaces %}
+<div class="row mb-5 workspace-select">
+  <div class="col-lg-8 offset-lg-2">
+
+    <div class="list-group mb-3 overflow-auto">
+      {% for workspace in workspaces %}
+      <form method="POST" action="{% url 'workspace-select' %}">
+        {% csrf_token %}
+
+        <input type="hidden" name="workspace_id" value="{{ workspace.id }}" />
+
+        <button
+          class="list-group-item list-group-item-action d-flex justify-content-between align-items-center"
+          type="submit">
+          <span class="text-primary mr-2">{{ workspace.name }}</span>
+          <code class="text-muted d-none d-md-block">
+            {{ workspace.repo_name }}|{{ workspace.branch }}
+          </code>
+        </button>
+
+      </form>
+      {% endfor %}
+    </div>
+
+    {% if request.user.is_authenticated %}
+    <div class="d-flex justify-content-center">
+      <a class="btn btn-lg btn-primary" href="{% url 'workspace-create' %}">
+        Or Add a New Workspace
+      </a>
+    </div>
+    {% endif %}
+
+  </div>
+</div>
+{% endif %}
+
+<div class="row mb-5 job-list">
+  <div class="col-lg-8 offset-lg-2">
+
+    <h3>Latest Jobs</h3>
+
+    <p>Below are the 5 latest requests for Jobs to be run on the OpenSAFELY platform.</p>
+
+    <div class="job-requests mb-3">
+      <div class="d-flex">
+        <div class="status mx-3"></div>
+        <div class="flex-grow-1"><strong>Workspace</strong></div>
+        <div class="started-at" style="margin-right:72px;"><strong>Started At</strong></div>
+      </div>
+
+      {% for job_request in job_requests %}
+      <div class="job-request">
+        <div class="d-flex align-items-center py-2">
+          <div class="status mx-3">{% status_icon job_request.status %}</div>
+          <div class="flex-grow-1">{{ job_request.workspace.name }}</div>
+          <div class="started-at">{{ job_request.started_at|date:"Y-m-d H:i:s"|default:"-" }}</div>
+          <div class="mx-2">
+            <a class="btn btn-sm btn-primary" href="{{ job_request.get_absolute_url }}">View</a>
+          </div>
+        </div>
+      </div>
+      {% endfor %}
+
+    </div>
+
+    <div class="d-flex justify-content-center">
+      <a class="btn btn-lg btn-primary text-center" href="{% url 'job-list' %}">
+        View All Logs
+      </a>
+    </div>
+
+  </div>
+</div>
+
+{% endblock content %}

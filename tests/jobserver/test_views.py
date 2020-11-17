@@ -9,6 +9,7 @@ from django.utils import timezone
 
 from jobserver.models import JobRequest, Workspace
 from jobserver.views import (
+    Index,
     JobRequestCreate,
     JobRequestList,
     JobRequestZombify,
@@ -29,6 +30,19 @@ from ..factories import (
 
 
 MEANINGLESS_URL = "/"
+
+
+@pytest.mark.django_db
+def test_index_success(rf):
+    JobRequestFactory(workspace=WorkspaceFactory())
+
+    # Build a RequestFactory instance
+    request = rf.get(MEANINGLESS_URL)
+    response = Index.as_view()(request)
+
+    assert response.status_code == 200
+    assert len(response.context_data["job_requests"]) == 1
+    assert len(response.context_data["workspaces"]) == 1
 
 
 @pytest.mark.django_db
@@ -560,30 +574,6 @@ def test_workspacelist_does_not_redirect_anon_users(rf):
 
 
 @pytest.mark.django_db
-def test_workspaceselect_get_redirects_with_no_workspaces(rf):
-    request = rf.get(MEANINGLESS_URL)
-    request.user = UserFactory()
-
-    response = WorkspaceSelect.as_view()(request)
-
-    assert response.status_code == 302
-    assert response.url == reverse("workspace-create")
-
-
-@pytest.mark.django_db
-def test_workspaceselect_get_success(rf):
-    WorkspaceFactory.create_batch(2)
-
-    request = rf.get(MEANINGLESS_URL)
-    request.user = UserFactory()
-
-    response = WorkspaceSelect.as_view()(request)
-
-    assert response.status_code == 200
-    assert len(response.context_data["workspace_list"]) == 2
-
-
-@pytest.mark.django_db
 def test_workspaceselect_post_no_workspace_id(rf):
     request = rf.post(MEANINGLESS_URL, {})
     request.user = UserFactory()
@@ -620,21 +610,6 @@ def test_workspaceselect_post_unknown_workspace(rf):
 
 
 @pytest.mark.django_db
-def test_workspaceselect_with_next_param(rf):
-    workspace1 = WorkspaceFactory()
-    workspace2 = WorkspaceFactory()
-
-    user = UserFactory(selected_workspace=workspace1)
-
-    request = rf.post("/?next=/derp", {"workspace_id": workspace2.pk})
-    request.user = user
-    response = WorkspaceSelect.as_view()(request)
-
-    assert response.status_code == 302
-    assert response.url == "/derp"
-
-
-@pytest.mark.django_db
 def test_workspaceselect_success(rf):
     workspace1 = WorkspaceFactory()
     workspace2 = WorkspaceFactory()
@@ -647,6 +622,7 @@ def test_workspaceselect_success(rf):
     response = WorkspaceSelect.as_view()(request)
 
     assert response.status_code == 302
-    assert response.url == "/"
+    assert response.url == reverse("workspace-detail", kwargs={"name": workspace2.name})
+
     user.refresh_from_db()
     assert user.selected_workspace == workspace2
