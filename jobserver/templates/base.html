@@ -39,36 +39,6 @@
           {% endfor %}
         </ul>
 
-        {% if request.user.is_authenticated %}
-        <div class="nav-item dropdown">
-          <a
-            class="nav-link dropdown-toggle text-white"
-            href="#"
-            id="workspace-dropdown"
-            role="button"
-            data-toggle="dropdown"
-            aria-haspopup="true"
-            aria-expanded="false">
-            {% if request.user.selected_workspace %}
-            {{ request.user.selected_workspace.name }}
-            {% else %}
-            Select a Workspace…
-            {% endif %}
-          </a>
-          <div class="dropdown-menu" aria-labelledby="workspace-dropdown">
-            {% for workspace in workspaces %}
-            <form method="POST" action="{% url 'workspace-select' %}">
-              {% csrf_token %}
-              <input type="hidden" name="workspace_id" value="{{ workspace.id }}" />
-              <button class="btn btn-link dropdown-item" type="submit">{{ workspace.name }}</button>
-            </form>
-            {% endfor %}
-            <div class="dropdown-divider"></div>
-            <a class="dropdown-item" href="{% url 'workspace-create' %}">Create new…</a>
-          </div>
-        </div>
-        {% endif %}
-
         <div class="navbar-nav nav-item">
           {% if not user.is_authenticated %}
           <a class="nav-link" href="{% url "social:begin" "github" %}">Login</a>
