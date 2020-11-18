@@ -20,21 +20,14 @@
 
     <div class="list-group mb-3 overflow-auto">
       {% for workspace in workspaces %}
-      <form method="POST" action="{% url 'workspace-select' %}">
-        {% csrf_token %}
-
-        <input type="hidden" name="workspace_id" value="{{ workspace.id }}" />
-
-        <button
-          class="list-group-item list-group-item-action d-flex justify-content-between align-items-center"
-          type="submit">
-          <span class="text-primary mr-2">{{ workspace.name }}</span>
-          <code class="text-muted d-none d-md-block">
-            {{ workspace.repo_name }}|{{ workspace.branch }}
-          </code>
-        </button>
-
-      </form>
+      <a
+        class="list-group-item list-group-item-action d-flex justify-content-between align-items-center"
+        href="{{ workspace.get_absolute_url }}">
+        <span class="text-primary mr-2">{{ workspace.name }}</span>
+        <code class="text-muted d-none d-md-block">
+          {{ workspace.repo_name }}|{{ workspace.branch }}
+        </code>
+      </a>
       {% endfor %}
     </div>
 

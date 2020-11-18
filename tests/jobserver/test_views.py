@@ -1,7 +1,6 @@
 from unittest.mock import patch
 
 import pytest
-from django.contrib.messages.storage.fallback import FallbackStorage
 from django.http import Http404
 from django.urls import reverse
 from django.utils import timezone
@@ -15,7 +14,6 @@ from jobserver.views import (  # JobRequestCreate,
     WorkspaceCreate,
     WorkspaceDetail,
     WorkspaceLog,
-    WorkspaceSelect,
 )
 
 from ..factories import (
@@ -389,7 +387,7 @@ def test_workspacedetail_get_redirects_without_selected_workspace(rf):
     response = WorkspaceDetail.as_view()(request)
 
     assert response.status_code == 302
-    assert response.url == reverse("workspace-select")
+    assert response.url == "/"
 
 
 @pytest.mark.django_db
@@ -456,7 +454,7 @@ def test_workspacedetail_unknown_workspace(rf):
     response = WorkspaceDetail.as_view()(request, name="test")
 
     assert response.status_code == 302
-    assert response.url == reverse("workspace-select")
+    assert response.url == "/"
 
 
 @pytest.mark.django_db
@@ -468,7 +466,7 @@ def test_workspacelog_no_selected_workspace_redirect(rf):
     response = WorkspaceLog.as_view()(request, name=workspace.name)
 
     assert response.status_code == 302
-    assert response.url == reverse("workspace-select")
+    assert response.url == "/"
 
 
 @pytest.mark.django_db
@@ -536,59 +534,4 @@ def test_workspacelog_unknown_workspace(rf):
     response = WorkspaceLog.as_view()(request, name="test")
 
     assert response.status_code == 302
-    assert response.url == reverse("workspace-select")
-
-
-@pytest.mark.django_db
-def test_workspaceselect_post_no_workspace_id(rf):
-    request = rf.post(MEANINGLESS_URL, {})
-    request.user = UserFactory()
-
-    response = WorkspaceSelect.as_view()(request)
-
-    assert response.status_code == 302
     assert response.url == "/"
-
-
-@pytest.mark.django_db
-def test_workspaceselect_post_unknown_workspace(rf):
-    request = rf.post(MEANINGLESS_URL, {"workspace_id": 0})
-    request.user = UserFactory()
-
-    # set up the messages backend so we can interrogate it later, we do this
-    # instead of using a Client instance to avoid invoking the redirect target.
-    # In the current implementation this is / (Dashboard) but we no Workspaces
-    # in the database so that redirects to WorkspaceCreate which makes HTTP
-    # calls out to GitHub.
-    request.session = "session"
-    messages = FallbackStorage(request)
-    request._messages = messages
-
-    response = WorkspaceSelect.as_view()(request)
-
-    assert response.status_code == 302
-    assert response.url == "/"
-
-    # did we produce a message?
-    messages = list(messages)
-    assert len(messages) == 1
-    assert messages[0].message == "Unknown Workspace"
-
-
-@pytest.mark.django_db
-def test_workspaceselect_success(rf):
-    workspace1 = WorkspaceFactory()
-    workspace2 = WorkspaceFactory()
-
-    user = UserFactory(selected_workspace=workspace1)
-    assert user.selected_workspace == workspace1
-
-    request = rf.post(MEANINGLESS_URL, {"workspace_id": workspace2.pk})
-    request.user = user
-    response = WorkspaceSelect.as_view()(request)
-
-    assert response.status_code == 302
-    assert response.url == reverse("workspace-detail", kwargs={"name": workspace2.name})
-
-    user.refresh_from_db()
-    assert user.selected_workspace == workspace2

@@ -192,12 +192,12 @@ class WorkspaceDetail(CreateView):
 
     def dispatch(self, request, *args, **kwargs):
         if not request.user.selected_workspace:
-            return redirect("workspace-select")
+            return redirect("/")
 
         try:
             self.workspace = Workspace.objects.get(name=self.kwargs["name"])
         except Workspace.DoesNotExist:
-            return redirect("workspace-select")
+            return redirect("/")
 
         # build up a list of actions with current statuses from the Workspace's
         # project.yaml for the User to pick from
@@ -260,12 +260,12 @@ class WorkspaceLog(ListView):
 
     def dispatch(self, request, *args, **kwargs):
         if not request.user.selected_workspace:
-            return redirect("workspace-select")
+            return redirect("/")
 
         try:
             self.workspace = Workspace.objects.get(name=self.kwargs["name"])
         except Workspace.DoesNotExist:
-            return redirect("workspace-select")
+            return redirect("/")
 
         return super().dispatch(request, *args, **kwargs)
 
@@ -294,22 +294,3 @@ class WorkspaceLog(ListView):
                 qs = qs.filter(Q(jobs__action__icontains=q) | Q(jobs__pk=q))
 
         return qs
-
-
-@method_decorator(login_required, name="dispatch")
-class WorkspaceSelect(View):
-    def post(self, request, *args, **kwargs):
-        workspace_id = request.POST.get("workspace_id", None)
-        if not workspace_id:
-            return redirect("/")
-
-        try:
-            workspace = Workspace.objects.get(pk=workspace_id)
-        except Workspace.DoesNotExist:
-            messages.error(request, "Unknown Workspace")
-            return redirect("/")
-
-        request.user.selected_workspace = workspace
-        request.user.save()
-
-        return redirect(workspace)

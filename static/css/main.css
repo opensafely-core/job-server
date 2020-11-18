@@ -100,8 +100,8 @@
   border-left: 1px solid #dee2e6;
   max-height: 375px;
 }
-.workspace-select .list-group button:hover span,
-.workspace-select .list-group button:hover code {
+.workspace-select .list-group a:hover span,
+.workspace-select .list-group a:hover code {
   text-decoration: underline;
 }
 

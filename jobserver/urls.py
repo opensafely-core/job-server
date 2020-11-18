@@ -30,7 +30,6 @@ from .views import (
     WorkspaceCreate,
     WorkspaceDetail,
     WorkspaceLog,
-    WorkspaceSelect,
 )
 
 
@@ -56,7 +55,6 @@ urlpatterns = [
     path("logout/", LogoutView.as_view(), name="logout"),
     path("workspaces/", RedirectView.as_view(url="/")),
     path("workspaces/new/", WorkspaceCreate.as_view(), name="workspace-create"),
-    path("workspaces/select/", WorkspaceSelect.as_view(), name="workspace-select"),
     path("__debug__/", include(debug_toolbar.urls)),
     path("<name>/", WorkspaceDetail.as_view(), name="workspace-detail"),
     path("<name>/logs/", WorkspaceLog.as_view(), name="workspace-logs"),
