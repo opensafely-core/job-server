@@ -135,14 +135,68 @@ class JobRequestList(ListView):
         return qs
 
 
+class JobRequestZombify(View):
+    def dispatch(self, request, *args, **kwargs):
+        if not request.user.is_superuser:
+            messages.error(request, "Only admins can zombify Jobs.")
+            return redirect("job-request-detail", pk=self.kwargs["pk"])
+
+        return super().dispatch(request, *args, **kwargs)
+
+    def post(self, request, *args, **kwargs):
+        job_request = get_object_or_404(JobRequest, pk=self.kwargs["pk"])
+
+        job_request.jobs.update(status_code=10, status_message="Job manually zombified")
+
+        return redirect("job-request-detail", pk=job_request.pk)
+
+
 @method_decorator(login_required, name="dispatch")
-class JobRequestCreate(CreateView):
+class WorkspaceCreate(CreateView):
+    form_class = WorkspaceCreateForm
+    model = Workspace
+    template_name = "workspace_create.html"
+
+    def dispatch(self, request, *args, **kwargs):
+        self.repos_with_branches = sorted(
+            get_repos_with_branches(), key=lambda r: r["name"].lower()
+        )
+
+        return super().dispatch(request, *args, **kwargs)
+
+    def form_valid(self, form):
+        instance = form.save(commit=False)
+        instance.created_by = self.request.user
+        instance.save()
+
+        self.request.user.selected_workspace = instance
+        self.request.user.save()
+
+        return redirect(instance)
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context["repos_with_branches"] = self.repos_with_branches
+        return context
+
+    def get_form_kwargs(self):
+        kwargs = super().get_form_kwargs()
+        kwargs["repos_with_branches"] = self.repos_with_branches
+        return kwargs
+
+
+class WorkspaceDetail(CreateView):
     form_class = JobRequestCreateForm
     model = JobRequest
-    template_name = "job_request_create.html"
+    template_name = "workspace_detail.html"
 
     def dispatch(self, request, *args, **kwargs):
         if not request.user.selected_workspace:
+            return redirect("workspace-select")
+
+        try:
+            self.workspace = Workspace.objects.get(name=self.kwargs["name"])
+        except Workspace.DoesNotExist:
             return redirect("workspace-select")
 
         # build up a list of actions with current statuses from the Workspace's
@@ -191,6 +245,7 @@ class JobRequestCreate(CreateView):
         context = super().get_context_data(**kwargs)
         context["actions"] = self.actions
         context["branch"] = self.request.user.selected_workspace.branch
+        context["workspace"] = self.workspace
         return context
 
     def get_form_kwargs(self):
@@ -199,64 +254,28 @@ class JobRequestCreate(CreateView):
         return kwargs
 
 
-class JobRequestZombify(View):
-    def dispatch(self, request, *args, **kwargs):
-        if not request.user.is_superuser:
-            messages.error(request, "Only admins can zombify Jobs.")
-            return redirect("job-request-detail", pk=self.kwargs["pk"])
-
-        return super().dispatch(request, *args, **kwargs)
-
-    def post(self, request, *args, **kwargs):
-        job_request = get_object_or_404(JobRequest, pk=self.kwargs["pk"])
-
-        job_request.jobs.update(status_code=10, status_message="Job manually zombified")
-
-        return redirect("job-request-detail", pk=job_request.pk)
-
-
-@method_decorator(login_required, name="dispatch")
-class WorkspaceCreate(CreateView):
-    form_class = WorkspaceCreateForm
-    model = Workspace
-    template_name = "workspace_create.html"
-
-    def dispatch(self, request, *args, **kwargs):
-        self.repos_with_branches = sorted(
-            get_repos_with_branches(), key=lambda r: r["name"].lower()
-        )
-
-        return super().dispatch(request, *args, **kwargs)
-
-    def form_valid(self, form):
-        instance = form.save(commit=False)
-        instance.created_by = self.request.user
-        instance.save()
-
-        self.request.user.selected_workspace = instance
-        self.request.user.save()
-
-        return redirect("job-request-create")
-
-    def get_context_data(self, **kwargs):
-        context = super().get_context_data(**kwargs)
-        context["repos_with_branches"] = self.repos_with_branches
-        return context
-
-    def get_form_kwargs(self):
-        kwargs = super().get_form_kwargs()
-        kwargs["repos_with_branches"] = self.repos_with_branches
-        return kwargs
-
-
-class WorkspaceDetail(ListView):
+class WorkspaceList(ListView):
+    ordering = "name"
     paginate_by = 25
-    template_name = "workspace_detail.html"
+    queryset = Workspace.objects.prefetch_related("jobs")
+    template_name = "workspace_list.html"
+
+    def get(self, request, *args, **kwargs):
+        response = super().get(request, *args, **kwargs)
+
+        # if there are no workspaces redirect the user to the new Workspace
+        # page immediately
+        if request.user.is_authenticated and not self.object_list:
+            return redirect("workspace-create")
+
+        return response
+
+
+class WorkspaceLog(ListView):
+    paginate_by = 25
+    template_name = "workspace_log.html"
 
     def dispatch(self, request, *args, **kwargs):
-        if not request.user.is_authenticated:
-            return redirect("job-list")
-
         if not request.user.selected_workspace:
             return redirect("workspace-select")
 
@@ -292,23 +311,6 @@ class WorkspaceDetail(ListView):
                 qs = qs.filter(Q(jobs__action__icontains=q) | Q(jobs__pk=q))
 
         return qs
-
-
-class WorkspaceList(ListView):
-    ordering = "name"
-    paginate_by = 25
-    queryset = Workspace.objects.prefetch_related("jobs")
-    template_name = "workspace_list.html"
-
-    def get(self, request, *args, **kwargs):
-        response = super().get(request, *args, **kwargs)
-
-        # if there are no workspaces redirect the user to the new Workspace
-        # page immediately
-        if request.user.is_authenticated and not self.object_list:
-            return redirect("workspace-create")
-
-        return response
 
 
 @method_decorator(login_required, name="dispatch")

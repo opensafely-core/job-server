@@ -22,7 +22,6 @@ from .api import JobViewSet, WorkspaceViewSet
 from .views import (
     Index,
     JobDetail,
-    JobRequestCreate,
     JobRequestDetail,
     JobRequestList,
     JobRequestZombify,
@@ -30,6 +29,7 @@ from .views import (
     WorkspaceCreate,
     WorkspaceDetail,
     WorkspaceList,
+    WorkspaceLog,
     WorkspaceSelect,
 )
 
@@ -45,7 +45,6 @@ urlpatterns = [
     path("api/", include(router.urls)),
     path("api-auth/", include("rest_framework.urls")),
     path("jobs/", JobRequestList.as_view(), name="job-list"),
-    path("jobs/new/", JobRequestCreate.as_view(), name="job-request-create"),
     path("job-requests/<pk>/", JobRequestDetail.as_view(), name="job-request-detail"),
     path(
         "job-requests/<pk>/zombify/",
@@ -60,4 +59,5 @@ urlpatterns = [
     path("workspaces/select/", WorkspaceSelect.as_view(), name="workspace-select"),
     path("__debug__/", include(debug_toolbar.urls)),
     path("<name>/", WorkspaceDetail.as_view(), name="workspace-detail"),
+    path("<name>/logs/", WorkspaceLog.as_view(), name="workspace-logs"),
 ]

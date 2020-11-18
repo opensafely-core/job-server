@@ -1,0 +1,44 @@
+{% extends "base.html" %}
+
+{% block content %}
+
+<div class="job-list">
+  <div class="d-flex justify-content-between mt-3 mb-4">
+
+    <h2>{{ workspace.name }}</h2>
+
+    {% if user.is_authenticated %}
+    <div>
+      <a class="btn btn-primary" href="{{ workspace.get_absolute_url }}">
+        Add Job
+      </a>
+    </div>
+    {% endif %}
+
+  </div>
+
+  <form class="form d-flex align-items-center mb-4" method="GET">
+    <input
+      class="form-control mr-2"
+      type="search"
+      placeholder="Search action or job_id"
+      aria-label="Search"
+      name="q" />
+    <button class="btn btn-outline-success my-2 my-sm-0" type="submit">Search</button>
+  </form>
+
+
+  {% if not page_obj %}
+  <div class="text-center">
+    <p>
+      No results found, try checking the <a href={% url 'job-list' %}>Event Log</a>.
+    <p>
+  </div>
+  {% else %}
+
+    {% include "_job_requests.html" %}
+
+  {% endif %}
+
+</div>
+{% endblock content %}

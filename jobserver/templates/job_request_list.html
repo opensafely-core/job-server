@@ -10,19 +10,8 @@
 {% block content %}
 
 <div class="job-list">
-  <div class="d-flex justify-content-between mt-3 mb-4">
 
-    <h2>All Jobs</h2>
-
-    {% if user.is_authenticated %}
-    <div>
-      <a class="btn btn-primary" href="{% url 'job-request-create' %}">
-        Add Job
-      </a>
-    </div>
-    {% endif %}
-
-  </div>
+  <h2>All Jobs</h2>
 
   <div class="row">
 
