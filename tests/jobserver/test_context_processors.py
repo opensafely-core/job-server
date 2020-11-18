@@ -15,24 +15,8 @@ def test_nav_jobs(rf):
 
     output = nav(request)
 
-    jobs = output["nav"][1]
-    workspaces = output["nav"][0]
-
-    assert workspaces["is_active"] is False
+    jobs = output["nav"][0]
     assert jobs["is_active"] is True
-
-
-def test_nav_workspaces(rf):
-    workspace_list_url = reverse("workspace-list")
-    request = rf.get(workspace_list_url)
-
-    output = nav(request)
-
-    jobs = output["nav"][1]
-    workspaces = output["nav"][0]
-
-    assert workspaces["is_active"] is True
-    assert jobs["is_active"] is False
 
 
 @pytest.mark.django_db

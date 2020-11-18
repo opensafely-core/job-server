@@ -254,23 +254,6 @@ class WorkspaceDetail(CreateView):
         return kwargs
 
 
-class WorkspaceList(ListView):
-    ordering = "name"
-    paginate_by = 25
-    queryset = Workspace.objects.prefetch_related("jobs")
-    template_name = "workspace_list.html"
-
-    def get(self, request, *args, **kwargs):
-        response = super().get(request, *args, **kwargs)
-
-        # if there are no workspaces redirect the user to the new Workspace
-        # page immediately
-        if request.user.is_authenticated and not self.object_list:
-            return redirect("workspace-create")
-
-        return response
-
-
 class WorkspaceLog(ListView):
     paginate_by = 25
     template_name = "workspace_log.html"

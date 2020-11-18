@@ -16,11 +16,6 @@ def nav(request):
 
     options = [
         {
-            "name": "Workspaces",
-            "is_active": _active(reverse("workspace-list")),
-            "url": reverse("workspace-list"),
-        },
-        {
             "name": "Jobs",
             "is_active": _active(reverse("job-list")),
             "url": reverse("job-list"),
