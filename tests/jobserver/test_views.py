@@ -349,8 +349,7 @@ def test_workspacecreate_get_success(rf):
 
 @pytest.mark.django_db
 def test_workspacecreate_post_success(rf):
-    user = UserFactory(selected_workspace=None)
-    assert user.selected_workspace is None
+    user = UserFactory()
 
     data = {
         "name": "Test",
@@ -370,30 +369,14 @@ def test_workspacecreate_post_success(rf):
     assert response.status_code == 302
 
     workspace = Workspace.objects.first()
-
     assert response.url == reverse("workspace-detail", kwargs={"name": workspace.name})
-
     assert workspace.created_by == user
-
-    user.refresh_from_db()
-    assert user.selected_workspace == workspace
-
-
-@pytest.mark.django_db
-def test_workspacedetail_get_redirects_without_selected_workspace(rf):
-    request = rf.get(MEANINGLESS_URL)
-    request.user = UserFactory(selected_workspace=None)
-
-    response = WorkspaceDetail.as_view()(request)
-
-    assert response.status_code == 302
-    assert response.url == "/"
 
 
 @pytest.mark.django_db
 def test_workspacedetail_get_success(rf):
     workspace = WorkspaceFactory()
-    user = UserFactory(selected_workspace=workspace)
+    user = UserFactory()
 
     # Build a RequestFactory instance
     request = rf.get(MEANINGLESS_URL)
@@ -415,7 +398,7 @@ def test_workspacedetail_get_success(rf):
 @pytest.mark.django_db
 def test_workspacedetail_post_success(rf):
     workspace = WorkspaceFactory()
-    user = UserFactory(selected_workspace=workspace)
+    user = UserFactory()
 
     data = {
         "requested_actions": ["twiddle"],
@@ -446,24 +429,10 @@ def test_workspacedetail_post_success(rf):
 
 @pytest.mark.django_db
 def test_workspacedetail_unknown_workspace(rf):
-    user = UserFactory(selected_workspace=WorkspaceFactory())
-
     # Build a RequestFactory instance
     request = rf.get(MEANINGLESS_URL)
-    request.user = user
+    request.user = UserFactory()
     response = WorkspaceDetail.as_view()(request, name="test")
-
-    assert response.status_code == 302
-    assert response.url == "/"
-
-
-@pytest.mark.django_db
-def test_workspacelog_no_selected_workspace_redirect(rf):
-    workspace = WorkspaceFactory()
-
-    request = rf.get(MEANINGLESS_URL)
-    request.user = UserFactory(selected_workspace=None)
-    response = WorkspaceLog.as_view()(request, name=workspace.name)
 
     assert response.status_code == 302
     assert response.url == "/"
@@ -472,7 +441,7 @@ def test_workspacelog_no_selected_workspace_redirect(rf):
 @pytest.mark.django_db
 def test_workspacelog_search_by_action(rf):
     workspace = WorkspaceFactory()
-    user = UserFactory(selected_workspace=workspace)
+    user = UserFactory()
 
     job_request1 = JobRequestFactory(created_by=user, workspace=workspace)
     JobFactory(job_request=job_request1, action="run")
@@ -483,7 +452,7 @@ def test_workspacelog_search_by_action(rf):
     # Build a RequestFactory instance
     request = rf.get("/?q=run")
     request.user = user
-    response = WorkspaceLog.as_view()(request, name=user.selected_workspace.name)
+    response = WorkspaceLog.as_view()(request, name=workspace.name)
 
     assert len(response.context_data["object_list"]) == 1
     assert response.context_data["object_list"][0] == job_request1
@@ -492,8 +461,7 @@ def test_workspacelog_search_by_action(rf):
 @pytest.mark.django_db
 def test_workspacelog_search_by_id(rf):
     workspace = WorkspaceFactory()
-
-    user = UserFactory(selected_workspace=workspace)
+    user = UserFactory()
 
     JobFactory(job_request=JobRequestFactory())
 
@@ -503,7 +471,7 @@ def test_workspacelog_search_by_id(rf):
     # Build a RequestFactory instance
     request = rf.get("/?q=99")
     request.user = user
-    response = WorkspaceLog.as_view()(request, name=user.selected_workspace.name)
+    response = WorkspaceLog.as_view()(request, name=workspace.name)
 
     assert len(response.context_data["object_list"]) == 1
     assert response.context_data["object_list"][0] == job_request2
@@ -512,14 +480,14 @@ def test_workspacelog_search_by_id(rf):
 @pytest.mark.django_db
 def test_workspacelog_success(rf):
     workspace = WorkspaceFactory()
-    user = UserFactory(selected_workspace=workspace)
+    user = UserFactory()
     job_request = JobRequestFactory(created_by=user, workspace=workspace)
     JobFactory(job_request=job_request)
 
     # Build a RequestFactory instance
     request = rf.get(MEANINGLESS_URL)
     request.user = user
-    response = WorkspaceLog.as_view()(request, name=user.selected_workspace.name)
+    response = WorkspaceLog.as_view()(request, name=workspace.name)
 
     assert response.status_code == 200
     assert len(response.context_data["object_list"]) == 1
@@ -527,10 +495,9 @@ def test_workspacelog_success(rf):
 
 @pytest.mark.django_db
 def test_workspacelog_unknown_workspace(rf):
-    user = UserFactory(selected_workspace=WorkspaceFactory())
     # Build a RequestFactory instance
     request = rf.get(MEANINGLESS_URL)
-    request.user = user
+    request.user = UserFactory()
     response = WorkspaceLog.as_view()(request, name="test")
 
     assert response.status_code == 302

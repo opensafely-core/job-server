@@ -169,9 +169,6 @@ class WorkspaceCreate(CreateView):
         instance.created_by = self.request.user
         instance.save()
 
-        self.request.user.selected_workspace = instance
-        self.request.user.save()
-
         return redirect(instance)
 
     def get_context_data(self, **kwargs):
@@ -191,9 +188,6 @@ class WorkspaceDetail(CreateView):
     template_name = "workspace_detail.html"
 
     def dispatch(self, request, *args, **kwargs):
-        if not request.user.selected_workspace:
-            return redirect("/")
-
         try:
             self.workspace = Workspace.objects.get(name=self.kwargs["name"])
         except Workspace.DoesNotExist:
@@ -201,19 +195,12 @@ class WorkspaceDetail(CreateView):
 
         # build up a list of actions with current statuses from the Workspace's
         # project.yaml for the User to pick from
-        actions = get_actions(
-            request.user.selected_workspace.repo_name,
-            request.user.selected_workspace.branch,
-        )
+        actions = get_actions(self.workspace.repo_name, self.workspace.branch)
 
         actions_with_statues = []
-        prefetch_related_objects(
-            [request.user.selected_workspace], "job_requests__jobs"
-        )
+        prefetch_related_objects([self.workspace], "job_requests__jobs")
         for action in actions:
-            status = request.user.selected_workspace.get_latest_status_for_action(
-                action["name"]
-            )
+            status = self.workspace.get_latest_status_for_action(action["name"])
             actions_with_statues.append(action | {"status": status})
 
         self.actions = sorted(actions_with_statues, key=operator.itemgetter("name"))
@@ -222,12 +209,10 @@ class WorkspaceDetail(CreateView):
 
     @transaction.atomic
     def form_valid(self, form):
-        workspace = self.request.user.selected_workspace
-
-        sha = get_branch_sha(workspace.repo_name, workspace.branch)
+        sha = get_branch_sha(self.workspace.repo_name, self.workspace.branch)
 
         job_request = JobRequest.objects.create(
-            workspace=workspace,
+            workspace=self.workspace,
             created_by=self.request.user,
             backend=JobRequest.TPP,
             sha=sha,
@@ -244,7 +229,7 @@ class WorkspaceDetail(CreateView):
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
         context["actions"] = self.actions
-        context["branch"] = self.request.user.selected_workspace.branch
+        context["branch"] = self.workspace.branch
         context["workspace"] = self.workspace
         return context
 
@@ -259,9 +244,6 @@ class WorkspaceLog(ListView):
     template_name = "workspace_log.html"
 
     def dispatch(self, request, *args, **kwargs):
-        if not request.user.selected_workspace:
-            return redirect("/")
-
         try:
             self.workspace = Workspace.objects.get(name=self.kwargs["name"])
         except Workspace.DoesNotExist:
