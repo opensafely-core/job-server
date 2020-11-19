@@ -735,7 +735,7 @@ def test_user_name_without_first_and_last_name():
 def test_workspace_get_absolute_url():
     workspace = WorkspaceFactory()
     url = workspace.get_absolute_url()
-    assert url == reverse("workspace-detail", kwargs={"pk": workspace.pk})
+    assert url == reverse("workspace-detail", kwargs={"name": workspace.name})
 
 
 @pytest.mark.django_db

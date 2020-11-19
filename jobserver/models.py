@@ -347,13 +347,6 @@ class Stats(models.Model):
 
 
 class User(AbstractUser):
-    selected_workspace = models.ForeignKey(
-        "Workspace",
-        on_delete=models.SET_NULL,
-        null=True,
-        related_name="+",
-    )
-
     @property
     def name(self):
         """Unify the available names for a User."""
@@ -386,7 +379,7 @@ class Workspace(models.Model):
         return f"{self.name} ({self.repo})"
 
     def get_absolute_url(self):
-        return reverse("workspace-detail", kwargs={"pk": self.pk})
+        return reverse("workspace-detail", kwargs={"name": self.name})
 
     def get_latest_status_for_action(self, action):
         """

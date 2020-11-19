@@ -39,7 +39,7 @@
           <td><a href="{{ workspace.repo }}">{{ workspace.repo_name }}</a></td>
           <td>{{ workspace.branch }}</td>
           <td>
-            <a class="btn btn-secondary text-white" href="{% url 'workspace-detail' pk=workspace.pk %}">
+            <a class="btn btn-secondary text-white" href="{{ workspace.get_absolute_url }}">
               View
             </a>
           </td>

@@ -5,11 +5,11 @@
 <div class="job-list">
   <div class="d-flex justify-content-between mt-3 mb-4">
 
-    <h2>{{ request.user.selected_workspace.name }}</h2>
+    <h2>{{ workspace.name }}</h2>
 
     {% if user.is_authenticated %}
     <div>
-      <a class="btn btn-primary" href="{% url 'job-request-create' %}">
+      <a class="btn btn-primary" href="{{ workspace.get_absolute_url }}">
         Add Job
       </a>
     </div>

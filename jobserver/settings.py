@@ -81,7 +81,6 @@ TEMPLATES = [
                 "django.contrib.messages.context_processors.messages",
                 "jobserver.context_processors.nav",
                 "jobserver.context_processors.site_stats",
-                "jobserver.context_processors.workspaces",
             ],
         },
     },

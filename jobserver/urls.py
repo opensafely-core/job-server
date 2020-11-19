@@ -16,21 +16,20 @@ Including another URLconf
 import debug_toolbar
 from django.contrib.auth.views import LogoutView
 from django.urls import include, path
+from django.views.generic import RedirectView
 from rest_framework import routers
 
 from .api import JobViewSet, WorkspaceViewSet
 from .views import (
-    Dashboard,
+    Index,
     JobDetail,
-    JobRequestCreate,
     JobRequestDetail,
     JobRequestList,
     JobRequestZombify,
     JobZombify,
     WorkspaceCreate,
     WorkspaceDetail,
-    WorkspaceList,
-    WorkspaceSelect,
+    WorkspaceLog,
 )
 
 
@@ -40,12 +39,11 @@ router.register(r"workspaces", WorkspaceViewSet, "workspaces")
 
 
 urlpatterns = [
-    path("", Dashboard.as_view()),
+    path("", Index.as_view()),
     path("", include("social_django.urls", namespace="social")),
     path("api/", include(router.urls)),
     path("api-auth/", include("rest_framework.urls")),
     path("jobs/", JobRequestList.as_view(), name="job-list"),
-    path("jobs/new/", JobRequestCreate.as_view(), name="job-request-create"),
     path("job-requests/<pk>/", JobRequestDetail.as_view(), name="job-request-detail"),
     path(
         "job-requests/<pk>/zombify/",
@@ -55,9 +53,9 @@ urlpatterns = [
     path("jobs/<pk>/", JobDetail.as_view(), name="job-detail"),
     path("jobs/<pk>/zombify/", JobZombify.as_view(), name="job-zombify"),
     path("logout/", LogoutView.as_view(), name="logout"),
-    path("workspaces/", WorkspaceList.as_view(), name="workspace-list"),
+    path("workspaces/", RedirectView.as_view(url="/")),
     path("workspaces/new/", WorkspaceCreate.as_view(), name="workspace-create"),
-    path("workspaces/select/", WorkspaceSelect.as_view(), name="workspace-select"),
-    path("workspaces/<pk>/", WorkspaceDetail.as_view(), name="workspace-detail"),
     path("__debug__/", include(debug_toolbar.urls)),
+    path("<name>/", WorkspaceDetail.as_view(), name="workspace-detail"),
+    path("<name>/logs/", WorkspaceLog.as_view(), name="workspace-logs"),
 ]

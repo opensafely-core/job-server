@@ -4,7 +4,7 @@ from datetime import timedelta
 from django.urls import reverse
 from django.utils import timezone
 
-from .models import Job, Stats, Workspace
+from .models import Job, Stats
 
 
 def _is_active(request, prefix):
@@ -15,11 +15,6 @@ def nav(request):
     _active = functools.partial(_is_active, request)
 
     options = [
-        {
-            "name": "Workspaces",
-            "is_active": _active(reverse("workspace-list")),
-            "url": reverse("workspace-list"),
-        },
         {
             "name": "Jobs",
             "is_active": _active(reverse("job-list")),
@@ -71,7 +66,3 @@ def site_stats(request):
             "show_warning": show_warning(unacked, last_seen),
         }
     }
-
-
-def workspaces(request):
-    return {"workspaces": Workspace.objects.order_by("-created_at")}

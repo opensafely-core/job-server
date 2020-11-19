@@ -1,48 +1,199 @@
 {% extends "base.html" %}
 
 {% load humanize %}
+{% load static %}
+{% load status_tools %}
 
 {% block content %}
+
 <div class="row">
-  <div class="col-lg-10">
-    <h3>Workspace: {{ workspace.name }}</h3>
+  <div class="col-lg-8 offset-lg-2">
+    <div class="d-flex justify-content-between align-items-center">
+      <h3>{{ workspace.name }}</h3>
 
-    <ul class="list-unstyled">
-      <li class="pt-2"><strong>Repo:</strong> <a href="{{ workspace.repo }}">{{ workspace.repo_name }}</a></li>
-      <li class="pt-2"><strong>Branch:</strong> {{ workspace.branch }}</li>
-      <li class="pt-2"><strong>DB:</strong> {{ workspace.db }}</li>
-      <li class="pt-2">
-        <strong>Created:</strong>
-        <span title="{{ workspace.created_at|date:"Y-m-d H:i:s" }}">
-          {{ workspace.created_at|naturaltime }}
-        </span>
-      </li>
-      {% if workspace.created_by %}
-      <li class="pt-2"><strong>Created By:</strong> {{ workspace.created_by.name }}</li>
-      {% endif %}
-    </ul>
-
-  </div>
-
-  <div class="col-lg-2">
-
-    <h3 class="text-center">Tools</h3>
-
-    <div class="mb-2">
-      <form
-        action="{% url 'workspace-select' %}?{% url 'job-request-create' %}"
-        method="POST">
-        {% csrf_token %}
-        <input type="hidden" name="workspace_id" value="{{ jobrequest.workspace_id }}" />
-        <button class="btn btn-block btn-secondary" type="submit">Add Job</button>
-      </form>
+      <div>
+        <a class="btn btn-primary" href="{% url 'workspace-logs' name=workspace.name %}">
+          Logs
+        </a>
+        <a
+          class="btn btn-primary"
+          data-toggle="collapse"
+          href="#details"
+          role="button"
+          aria-expanded="false"
+          aria-controls="details">
+          Details
+        </a>
+      </div>
     </div>
 
-    <a class="btn btn-block btn-secondary" href="{% url 'job-list' %}?workspace={{ workspace.pk }}">
-      View Jobs
-    </a>
+    <div id="details" class="collapse">
+
+      <p>
+        <strong>Repo:</strong>
+        <a href="{{ workspace.repo }}">{{ workspace.repo_name }}</a>
+        <span class="text-muted">({{ workspace.branch }})</span>
+      </p>
+
+      <p><strong>DB:</strong> {{ workspace.db }}</p>
+
+       <p>
+         <strong>Created:</strong>
+         <span title="{{ workspace.created_at|date:"Y-m-d H:i:s" }}">
+           {{ workspace.created_at|naturaltime }}
+         </span>
+       </p>
+
+      {% if workspace.created_by %}
+      <p><strong>Created By:</strong> {{ workspace.created_by.name }}</p>
+      {% endif %}
+
+    </div>
+  </div>
+</div>
+
+{% if not actions %}
+<div class="my-5 text-center">
+  <p>
+    It looks like the branch <code>{{ branch }}</code> doesn't have a <code>project.yaml</code>.
+  </p>
+  <p>Create one and reload this page to continue.</p>
+</div>
+{% else %}
+<div class="row job-create">
+  <div class="col-lg-8 offset-lg-2">
+
+    <form method="POST">
+      {% csrf_token %}
+
+      {% if form.non_field_errors %}
+      <ul>
+        {% for error in form.non_field_errors %}
+        <li class="text-danger">{{ error }}</li>
+        {% endfor %}
+      </ul>
+      {% endif %}
+
+      <div class="form-group">
+
+        {% if form.backend.errors %}
+        <ul class="pl-3 mb-1">
+          {% for error in form.backend.errors %}
+          <li class="text-danger">{{ error }}</li>
+          {% endfor %}
+        </ul>
+        {% endif %}
+
+      </div>
+
+      <p>Pick one or more actions to run:</p>
+
+      <div class="form-group mb-5">
+
+        <div class="d-flex">
+          <span style="width:68px"></span>
+          <strong class="flex-grow-1">Action</strong>
+          <strong style="margin-right:80px;width:52px;">Status</strong>
+        </div>
+
+        <div class="accordion" id="actions">
+          {% for action in actions %}
+          <div class="card">
+
+            <div
+              id="heading-{{ action.name }}"
+              class="card-header d-flex align-items-center"
+              style="padding:.5rem"
+              >
+
+              <div class="btn-group-toggle mr-3" data-toggle="buttons">
+                <label class="btn btn-sm btn-outline-success">
+                  <input type="checkbox" name="requested_actions" value="{{ action.name }}" /> Run
+                </label>
+              </div>
+
+              <code class="flex-grow-1 mr-3 text-truncate" title="{{ action.name }}">
+                {{ action.name }}
+              </code>
+
+              <span class="mr-3 d-flex justify-content-center" style="width:52px">
+                {% status_icon action.status %}
+              </span>
+
+              <div style="width:60px">
+                {% if action.needs %}
+                <button
+                  class="btn btn-sm btn-secondary"
+                  type="button"
+                  data-toggle="collapse"
+                  data-target="#collapse-{{ action.name }}"
+                  aria-expanded="true"
+                  aria-controls="collapse-{{ action.name }}">
+                  Needs
+                </button>
+                {% endif %}
+              </div>
+
+            </div>
+
+            <div
+              id="collapse-{{ action.name }}"
+              class="collapse"
+              aria-labelledby="heading-{{ action.name }}"
+              data-parent="#actions">
+              <div class="card-body">
+                <ul>
+                  {% for need in action.needs %}
+                  <li><code>{{ need }}</code></li>
+                  {% endfor %}
+                </ul>
+              </div>
+            </div>
+
+          </div>
+          {% endfor %}
+        </div>
+
+        {% if form.requested_actions.errors %}
+        <ul>
+          {% for error in form.requested_actions.errors %}
+          <li class="text-danger">{{ error }}</li>
+          {% endfor %}
+        </ul>
+        {% endif %}
+
+      </div>
+
+      <div class="form-group mb-5">
+        <div class="custom-control custom-checkbox">
+          <input
+            type="checkbox"
+            name="force_run_dependencies"
+            class="custom-control-input{% if form.force_run_dependencies.errors %} is-invalid{% endif %}"
+            id="id_force_run_dependencies"
+            />
+          <label for="id_force_run_dependencies" class="custom-control-label">
+            Force run dependencies of your selected actions?
+          </label>
+        </div>
+
+        {% if form.force_run_dependencies.errors %}
+        <ul>
+          {% for error in form.force_run_dependencies.errors %}
+          <li class="text-danger">{{ error }}</li>
+          {% endfor %}
+        </ul>
+        {% endif %}
+
+      </div>
+
+      <div class="form-group">
+        <input type="submit" name="submit" value="Submit" class="btn btn-primary" id="submit-id-submit" />
+      </div>
+
+    </form>
 
   </div>
-
 </div>
+{% endif %}
 {% endblock content %}
