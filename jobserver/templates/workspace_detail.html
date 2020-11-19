@@ -58,9 +58,11 @@
 {% if not actions %}
 <div class="my-5 text-center">
   <p>
-    It looks like the branch <code>{{ branch }}</code> doesn't have a <code>project.yaml</code>.
+    It looks like the branch <code>{{ branch }}</code> doesn't have a
+    <code>project.yaml</code> or possibly your <code>project.yaml</code> is
+    invalid.
   </p>
-  <p>Create one and reload this page to continue.</p>
+  <p>Create a valid one and reload this page to continue.</p>
 </div>
 {% else %}
 <div class="row job-create">
