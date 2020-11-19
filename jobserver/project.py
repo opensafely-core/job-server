@@ -13,7 +13,10 @@ def get_actions(repo, branch):
     if content is None:
         return []
 
-    project = load_yaml(content)
+    try:
+        project = load_yaml(content)
+    except yaml.scanner.ScannerError:
+        return []
 
     for action, children in project["actions"].items():
         needs = children.get("needs", []) if children else []

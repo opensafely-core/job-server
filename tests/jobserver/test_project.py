@@ -10,6 +10,19 @@ def test_get_actions_no_project_yaml():
     assert output == []
 
 
+def test_get_actions_invalid_yaml():
+    dummy_yaml = """
+    <<<<<<< HEAD
+    actions:
+      frobnicate:
+    """
+
+    with patch("jobserver.project.get_file", lambda r, b: dummy_yaml):
+        output = list(get_actions("test", "master"))
+
+    assert output == []
+
+
 def test_get_actions_success():
     dummy_yaml = """
     actions:
