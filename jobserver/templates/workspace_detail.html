@@ -15,6 +15,7 @@
         <a class="btn btn-primary" href="{% url 'workspace-logs' name=workspace.name %}">
           Logs
         </a>
+        {% if request.user.is_authenticated %}
         <a
           class="btn btn-primary"
           data-toggle="collapse"
@@ -24,10 +25,11 @@
           aria-controls="details">
           Details
         </a>
+        {% endif %}
       </div>
     </div>
 
-    <div id="details" class="collapse">
+    <div id="details"{% if request.user.is_authenticated %} class="collapse"{% endif %}>
 
       <p>
         <strong>Repo:</strong>
@@ -52,6 +54,7 @@
   </div>
 </div>
 
+{% if request.user.is_authenticated %}
 {% if not actions %}
 <div class="my-5 text-center">
   <p>
@@ -195,5 +198,6 @@
 
   </div>
 </div>
+{% endif %}
 {% endif %}
 {% endblock content %}
