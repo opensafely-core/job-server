@@ -52,6 +52,7 @@
   </div>
 </div>
 
+{% if request.user.is_authenticated %}
 {% if not actions %}
 <div class="my-5 text-center">
   <p>
@@ -195,5 +196,6 @@
 
   </div>
 </div>
+{% endif %}
 {% endif %}
 {% endblock content %}
