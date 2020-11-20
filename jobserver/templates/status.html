@@ -1,0 +1,40 @@
+{% extends "base.html" %}
+
+{% block content %}
+
+<div class="row">
+  <div class="col-lg-8 offset-lg-2">
+
+    <h1 class="mb-4">Runner Statuses</h1>
+
+    {% for backend in backends %}
+
+    <h2>
+      {{ backend.name }}
+      {% if backend.show_warning %}
+      <span
+        id="warning-tooltip"
+        class="text-warning"
+        data-toggle="tooltip"
+        data-placement="bottom"
+        title="{{ backend.name }} runner not seen for at least 5 mins"
+        >
+        ⚠️
+      </span>
+      {% endif %}
+    </h2>
+
+    <p>
+      <strong>Runner Last Seen:</strong> {{ backend.last_seen }}
+    </p>
+
+    <p>
+      <strong>Unacked Jobs:</strong> {{ backend.queue.unacked }}
+    </p>
+
+    <p>
+      <strong>Acked Jobs:</strong> {{ backend.queue.acked }}
+    </p>
+    {% endfor %}
+
+{% endblock %}

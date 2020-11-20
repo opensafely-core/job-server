@@ -50,31 +50,6 @@
       </div>
     </nav>
 
-    <div class="d-flex justify-content-around align-items-center border-bottom mb-2">
-      <small>
-        Runner Last Seen: {{ site_stats.last_seen }}
-
-        {% if site_stats.show_warning %}
-        <span
-          id="warning-tooltip"
-          class="text-warning"
-          data-toggle="tooltip"
-          data-placement="bottom"
-          title="Job Runner not seen for at least 5 mins"
-          >
-          ⚠️
-        </span>
-        {% endif %}
-      </small>
-
-      <small>
-      Job Queue:
-      {{ site_stats.queue.unacked }} unacked
-      |
-      {{ site_stats.queue.acked }} acked
-      </small>
-    </div>
-
     <div class="container-fluid">
 
       {% for message in messages %}
