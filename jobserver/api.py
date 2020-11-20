@@ -6,12 +6,13 @@ from .serializers import JobShimSerializer, WorkspaceSerializer
 
 
 class JobFilter(filters.FilterSet):
+    action_id = filters.CharFilter(field_name="action")
     backend = filters.CharFilter(field_name="job_request__backend")
     workspace = filters.NumberFilter(field_name="job_request__workspace_id")
 
     class Meta:
         fields = [
-            "action",
+            "action_id",
             "backend",
             "needed_by_id",
             "started",

@@ -30,7 +30,7 @@ def test_jobviewset_create_success(api_rf):
     data = {
         "force_run": True,
         "force_run_dependencies": True,
-        "action": "frob",
+        "action_id": "frob",
         "backend": "tpp",
         "needed_by_id": job1.pk,
         "workspace_id": workspace.pk,
@@ -42,7 +42,7 @@ def test_jobviewset_create_success(api_rf):
 
     assert response.status_code == 201, response.data
 
-    assert response.data["action"] == "frob"
+    assert response.data["action_id"] == "frob"
     assert response.data["backend"] == "tpp"
     assert response.data["force_run"]
     assert response.data["needed_by_id"] == job1.pk
@@ -56,7 +56,7 @@ def test_jobviewset_create_with_unknown_job(api_rf):
     data = {
         "force_run": True,
         "force_run_dependencies": True,
-        "action": "frob",
+        "action_id": "frob",
         "backend": "tpp",
         "needed_by_id": 0,
         "workspace_id": workspace.pk,
@@ -77,7 +77,7 @@ def test_jobviewset_filter_action(api_rf):
     job1 = JobFactory(action="action1")
     JobFactory(action="action2")
 
-    request = api_rf.get("/?action=action1")
+    request = api_rf.get("/?action_id=action1")
     force_authenticate(request, user=UserFactory(is_superuser=True))
     response = JobViewSet.as_view(actions={"get": "list"})(request)
 
@@ -196,7 +196,7 @@ def test_jobviewset_list_success(api_rf):
         "started",
         "force_run",
         "force_run_dependencies",
-        "action",
+        "action_id",
         "status_code",
         "status_message",
         "outputs",
@@ -216,7 +216,7 @@ def test_jobviewset_list_success(api_rf):
     assert job["started"]
     assert job["force_run"]
     assert not job["force_run_dependencies"]
-    assert job["action"] == "test-action"
+    assert job["action_id"] == "test-action"
     assert job["status_code"] == 2
     assert job["status_message"] == "Danger Will Robinson"
     assert job["outputs"] == []
@@ -254,7 +254,7 @@ def test_jobviewset_list_with_filters_success(api_rf):
     JobFactory(job_request=job_request2, force_run=True, action="help")
 
     params = {
-        "action": "dodge",
+        "action_id": "dodge",
         "backend": "tpp",
         "workspace_id": workspace2.pk,
         "limit": 1,
@@ -268,7 +268,7 @@ def test_jobviewset_list_with_filters_success(api_rf):
     assert response.data["count"] == 1
 
     job = response.data["results"][0]
-    assert job["action"] == "dodge"
+    assert job["action_id"] == "dodge"
     assert job["backend"] == "tpp"
     assert not job["force_run"]
 
@@ -283,7 +283,7 @@ def test_jobviewset_update_success(api_rf):
     assert job.status_message == ""
 
     data = {
-        "action": job.action,
+        "action_id": job.action,
         "backend": job.job_request.backend,
         "force_run": True,
         "force_run_dependencies": job.job_request.force_run_dependencies,
@@ -316,7 +316,7 @@ def test_jobviewset_update_with_outputs_and_existing_outputs_fails(api_rf):
     assert job.status_message == ""
 
     data = {
-        "action": job.action,
+        "action_id": job.action,
         "backend": job.job_request.backend,
         "force_run": True,
         "force_run_dependencies": job.job_request.force_run_dependencies,
