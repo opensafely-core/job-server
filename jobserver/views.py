@@ -1,5 +1,4 @@
 import operator
-from datetime import timedelta
 
 from django.contrib import messages
 from django.contrib.auth.decorators import login_required
@@ -7,10 +6,10 @@ from django.db import transaction
 from django.db.models import Q, prefetch_related_objects
 from django.shortcuts import get_object_or_404, redirect
 from django.template.response import TemplateResponse
-from django.utils import timezone
 from django.utils.decorators import method_decorator
 from django.views.generic import CreateView, DetailView, ListView, TemplateView, View
 
+from .backends import show_warning
 from .forms import JobRequestCreateForm, WorkspaceCreateForm
 from .github import get_branch_sha, get_repos_with_branches
 from .models import Job, JobRequest, Stats, User, Workspace
@@ -169,22 +168,6 @@ class Status(View):
                 return "never"
 
             return last_seen.strftime("%Y-%m-%d %H:%M:%S")
-
-        def show_warning(unacked, last_seen):
-            if unacked == 0:
-                return False
-
-            if last_seen is None:
-                return False
-
-            now = timezone.now()
-            five_minutes = timedelta(minutes=5)
-            delta = now - last_seen
-
-            if delta < five_minutes:
-                return False
-
-            return True
 
         context = {
             "backends": [
