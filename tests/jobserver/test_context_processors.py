@@ -4,9 +4,32 @@ import pytest
 from django.urls import reverse
 from django.utils import timezone
 
-from jobserver.context_processors import nav, site_stats
+from jobserver.context_processors import backend_warnings, nav
 
 from ..factories import JobFactory, StatsFactory
+
+
+@pytest.mark.django_db
+def test_backend_warnings_with_no_warnings(rf):
+    last_seen = timezone.now() - timedelta(minutes=1)
+    StatsFactory(api_last_seen=last_seen)
+
+    request = rf.get("/")
+    output = backend_warnings(request)
+
+    assert output["backend_warnings"] == []
+
+
+@pytest.mark.django_db
+def test_backend_warnings_with_warnings(rf):
+    JobFactory(started=False, completed_at=None)
+    last_seen = timezone.now() - timedelta(minutes=10)
+    StatsFactory(api_last_seen=last_seen)
+
+    request = rf.get("/")
+    output = backend_warnings(request)
+
+    assert output["backend_warnings"] == ["TPP"]
 
 
 def test_nav_jobs(rf):
@@ -16,59 +39,7 @@ def test_nav_jobs(rf):
     output = nav(request)
 
     jobs = output["nav"][0]
+    status = output["nav"][1]
+
     assert jobs["is_active"] is True
-
-
-@pytest.mark.django_db
-def test_sitestats_healthy():
-    JobFactory.create_batch(3, started=True, completed_at=None)
-
-    last_seen = timezone.now() - timedelta(minutes=1)
-    StatsFactory(api_last_seen=last_seen)
-
-    output = site_stats(None)
-
-    assert output["site_stats"]["last_seen"] == last_seen.strftime("%Y-%m-%d %H:%M:%S")
-    assert output["site_stats"]["queue"]["acked"] == 3
-    assert output["site_stats"]["queue"]["unacked"] == 0
-    assert not output["site_stats"]["show_warning"]
-
-
-@pytest.mark.django_db
-def test_sitestats_no_last_seen():
-    JobFactory(started=False)
-
-    output = site_stats(None)
-
-    assert output["site_stats"]["last_seen"] == "never"
-    assert not output["site_stats"]["show_warning"]
-
-
-@pytest.mark.django_db
-def test_sitestats_unacked_jobs_but_recent_api_contact():
-    JobFactory(started=False)
-
-    last_seen = timezone.now() - timedelta(minutes=1)
-    StatsFactory(api_last_seen=last_seen)
-
-    output = site_stats(None)
-
-    assert output["site_stats"]["last_seen"] == last_seen.strftime("%Y-%m-%d %H:%M:%S")
-    assert not output["site_stats"]["show_warning"]
-
-
-@pytest.mark.django_db
-def test_sitestats_unhealthy():
-    JobFactory(started=False, completed_at=None)
-    JobFactory(started=True, completed_at=None)
-    JobFactory(started=True, completed_at=None)
-
-    last_seen = timezone.now() - timedelta(minutes=10)
-    StatsFactory(api_last_seen=last_seen)
-
-    output = site_stats(None)
-
-    assert output["site_stats"]["last_seen"] == last_seen.strftime("%Y-%m-%d %H:%M:%S")
-    assert output["site_stats"]["queue"]["acked"] == 2
-    assert output["site_stats"]["queue"]["unacked"] == 1
-    assert output["site_stats"]["show_warning"]
+    assert status["is_active"] is False

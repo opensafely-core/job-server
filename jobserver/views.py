@@ -5,12 +5,14 @@ from django.contrib.auth.decorators import login_required
 from django.db import transaction
 from django.db.models import Q, prefetch_related_objects
 from django.shortcuts import get_object_or_404, redirect
+from django.template.response import TemplateResponse
 from django.utils.decorators import method_decorator
 from django.views.generic import CreateView, DetailView, ListView, TemplateView, View
 
+from .backends import show_warning
 from .forms import JobRequestCreateForm, WorkspaceCreateForm
 from .github import get_branch_sha, get_repos_with_branches
-from .models import Job, JobRequest, User, Workspace
+from .models import Job, JobRequest, Stats, User, Workspace
 from .project import get_actions
 
 
@@ -149,6 +151,39 @@ class JobRequestZombify(View):
         job_request.jobs.update(status_code=10, status_message="Job manually zombified")
 
         return redirect("job-request-detail", pk=job_request.pk)
+
+
+class Status(View):
+    def get(self, request, *args, **kwargs):
+        acked = Job.objects.filter(started=True).count()
+        unacked = Job.objects.exclude(started=True).count()
+
+        try:
+            last_seen = Stats.objects.first().api_last_seen
+        except AttributeError:
+            last_seen = None
+
+        def format_last_seen(last_seen):
+            if last_seen is None:
+                return "never"
+
+            return last_seen.strftime("%Y-%m-%d %H:%M:%S")
+
+        context = {
+            "backends": [
+                {
+                    "name": "TPP",
+                    "last_seen": format_last_seen(last_seen),
+                    "queue": {
+                        "acked": acked,
+                        "unacked": unacked,
+                    },
+                    "show_warning": show_warning(unacked, last_seen),
+                },
+            ],
+        }
+
+        return TemplateResponse(request, "status.html", context)
 
 
 @method_decorator(login_required, name="dispatch")

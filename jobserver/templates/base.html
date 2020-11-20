@@ -19,7 +19,7 @@
 
   <body class="d-flex flex-column min-vh-100">
 
-    <nav class="navbar navbar-expand-lg navbar-dark bg-primary">
+    <nav class="navbar navbar-expand-lg navbar-dark bg-primary mb-3">
 
       <a class="navbar-brand" href="/">OpenSAFELY Jobs</a>
 
@@ -50,37 +50,13 @@
       </div>
     </nav>
 
-    <div class="d-flex justify-content-around align-items-center border-bottom mb-2">
-      <small>
-        Runner Last Seen: {{ site_stats.last_seen }}
-
-        {% if site_stats.show_warning %}
-        <span
-          id="warning-tooltip"
-          class="text-warning"
-          data-toggle="tooltip"
-          data-placement="bottom"
-          title="Job Runner not seen for at least 5 mins"
-          >
-          ⚠️
-        </span>
-        {% endif %}
-      </small>
-
-      <small>
-      Job Queue:
-      {{ site_stats.queue.unacked }} unacked
-      |
-      {{ site_stats.queue.acked }} acked
-      </small>
-    </div>
-
     <div class="container-fluid">
 
+      {% for backend in backend_warnings %}
       <div class="alert alert-danger text-center mb-3" role="alert">
-        This site is still in early Alpha, some contents may currently be
-        incorrect, and historic data may disappear.
+        Something is wrong with the {{ backend }} backend. Jobs are not being processed.
       </div>
+      {% endfor %}
 
       {% for message in messages %}
       <div class="alert {{ message.tags }} alert-dismissible mb-3" role="alert">

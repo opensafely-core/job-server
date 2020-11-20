@@ -1,3 +1,4 @@
+from datetime import timedelta
 from unittest.mock import patch
 
 import pytest
@@ -6,11 +7,12 @@ from django.urls import reverse
 from django.utils import timezone
 
 from jobserver.models import JobRequest, Workspace
-from jobserver.views import (  # JobRequestCreate,
+from jobserver.views import (
     Index,
     JobRequestList,
     JobRequestZombify,
     JobZombify,
+    Status,
     WorkspaceCreate,
     WorkspaceDetail,
     WorkspaceLog,
@@ -19,6 +21,7 @@ from jobserver.views import (  # JobRequestCreate,
 from ..factories import (
     JobFactory,
     JobRequestFactory,
+    StatsFactory,
     UserFactory,
     UserSocialAuthFactory,
     WorkspaceFactory,
@@ -333,6 +336,73 @@ def test_jobrequestzombify_unknown_jobrequest(rf):
 
     with pytest.raises(Http404):
         JobRequestZombify.as_view()(request, pk="99")
+
+
+@pytest.mark.django_db
+def test_status_healthy(rf):
+    JobFactory.create_batch(3, started=True, completed_at=None)
+
+    last_seen = timezone.now() - timedelta(minutes=1)
+    StatsFactory(api_last_seen=last_seen)
+
+    request = rf.get(MEANINGLESS_URL)
+    response = Status.as_view()(request)
+
+    tpp = response.context_data["backends"][0]
+
+    assert tpp["last_seen"] == last_seen.strftime("%Y-%m-%d %H:%M:%S")
+    assert tpp["queue"]["acked"] == 3
+    assert tpp["queue"]["unacked"] == 0
+    assert not tpp["show_warning"]
+
+
+@pytest.mark.django_db
+def test_status_no_last_seen(rf):
+    JobFactory(started=False)
+
+    request = rf.get(MEANINGLESS_URL)
+    response = Status.as_view()(request)
+
+    tpp = response.context_data["backends"][0]
+
+    assert tpp["last_seen"] == "never"
+    assert not tpp["show_warning"]
+
+
+@pytest.mark.django_db
+def test_status_unacked_jobs_but_recent_api_contact(rf):
+    JobFactory(started=False)
+
+    last_seen = timezone.now() - timedelta(minutes=1)
+    StatsFactory(api_last_seen=last_seen)
+
+    request = rf.get(MEANINGLESS_URL)
+    response = Status.as_view()(request)
+
+    tpp = response.context_data["backends"][0]
+
+    assert tpp["last_seen"] == last_seen.strftime("%Y-%m-%d %H:%M:%S")
+    assert not tpp["show_warning"]
+
+
+@pytest.mark.django_db
+def test_status_unhealthy(rf):
+    JobFactory(started=False, completed_at=None)
+    JobFactory(started=True, completed_at=None)
+    JobFactory(started=True, completed_at=None)
+
+    last_seen = timezone.now() - timedelta(minutes=10)
+    StatsFactory(api_last_seen=last_seen)
+
+    request = rf.get(MEANINGLESS_URL)
+    response = Status.as_view()(request)
+
+    tpp = response.context_data["backends"][0]
+
+    assert tpp["last_seen"] == last_seen.strftime("%Y-%m-%d %H:%M:%S")
+    assert tpp["queue"]["acked"] == 2
+    assert tpp["queue"]["unacked"] == 1
+    assert tpp["show_warning"]
 
 
 @pytest.mark.django_db
