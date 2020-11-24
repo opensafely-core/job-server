@@ -12,6 +12,8 @@ from django.urls import reverse
 from django.utils import timezone
 from furl import furl
 
+from services.backends import BACKEND_CHOICES
+
 from .runtime import Runtime
 
 
@@ -220,13 +222,6 @@ class JobRequest(models.Model):
     one to run.  All Jobs, either added by Human or Computer, are then grouped
     by this object.
     """
-
-    EMIS = "emis"
-    TPP = "tpp"
-    BACKEND_CHOICES = [
-        (EMIS, "EMIS"),
-        (TPP, "TPP"),
-    ]
 
     created_by = models.ForeignKey(
         "User",
