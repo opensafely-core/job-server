@@ -9,9 +9,7 @@ from django.template.response import TemplateResponse
 from django.utils.decorators import method_decorator
 from django.views.generic import CreateView, DetailView, ListView, TemplateView, View
 
-from services.backends import TPP
-
-from .backends import show_warning
+from .backends import TPP, show_warning
 from .forms import JobRequestCreateForm, WorkspaceCreateForm
 from .github import get_branch_sha, get_repos_with_branches
 from .models import Job, JobRequest, Stats, User, Workspace
