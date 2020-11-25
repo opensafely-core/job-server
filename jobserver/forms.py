@@ -20,7 +20,11 @@ class JobRequestCreateForm(forms.ModelForm):
         #  add action field based on the actions passed in
         choices = [(a, a) for a in actions]
         self.fields["requested_actions"] = forms.MultipleChoiceField(
-            choices=choices, widget=forms.CheckboxSelectMultiple
+            choices=choices,
+            widget=forms.CheckboxSelectMultiple,
+            error_messages={
+                "required": "Please select at least one of the Actions listed above."
+            },
         )
 
 
