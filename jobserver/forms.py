@@ -51,7 +51,11 @@ class WorkspaceCreateForm(forms.ModelForm):
         self.repos_with_branches = repos_with_branches
 
         choices = [(r["url"], r["name"]) for r in self.repos_with_branches]
-        self.fields["repo"] = forms.ChoiceField(label="Repo", choices=choices)
+        self.fields["repo"] = forms.ChoiceField(
+            label="Repo",
+            choices=choices,
+            help_text="If your repo doesn't show up here, reach out to the OpenSAFELY team on Slack.",
+        )
 
     def clean_branch(self):
         repo_url = self.cleaned_data["repo"]
