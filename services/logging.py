@@ -1,10 +1,10 @@
-import os
-
 import structlog
+from environs import Env
 
 
 # add logging before app has booted
-DEBUG = os.getenv("DEBUG", default=False)
+env = Env()
+DEBUG = env.bool("DEBUG", default=False)
 
 
 def timestamper(logger, log_method, event_dict):
@@ -56,7 +56,7 @@ logging_config_dict = {
     "formatters": {
         "formatter": {
             "()": structlog.stdlib.ProcessorFormatter,
-            "processor": structlog.dev.ConsoleRenderer(colors=DEBUG),
+            "processor": structlog.dev.ConsoleRenderer(),
             "foreign_pre_chain": pre_chain,
         }
     },
@@ -71,7 +71,7 @@ logging_config_dict = {
     "loggers": {
         "django": {
             "handlers": ["console"],
-            "level": os.getenv("DJANGO_LOG_LEVEL", "INFO"),
+            "level": env.str("DJANGO_LOG_LEVEL", default="INFO"),
             "propagate": False,
         },
         "gunicorn": {"handlers": ["console"], "level": "INFO", "propagate": False},

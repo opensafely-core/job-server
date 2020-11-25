@@ -1,6 +1,9 @@
-import os
+from environs import Env
 
 from jobserver.models import User
+
+
+env = Env()
 
 
 def get_admins():
@@ -9,10 +12,7 @@ def get_admins():
 
     Auth is handled via GitHub OAuth so these are GitHub usernames.
     """
-    admin_users = os.getenv("ADMIN_USERS", "")
-
-    # split into a list
-    admin_users = admin_users.split(",")
+    admin_users = env.list("ADMIN_USERS")
 
     # remove whitespace and only return non-empty strings
     return [u.strip() for u in admin_users if u]
