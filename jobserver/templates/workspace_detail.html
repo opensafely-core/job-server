@@ -101,7 +101,7 @@
           <strong style="margin-right:80px;width:52px;">Status</strong>
         </div>
 
-        <div class="accordion" id="actions">
+        <div class="accordion" id="actions" aria-describedby="actions_help_block">
           {% for action in actions %}
           <div class="card">
 
@@ -159,6 +159,10 @@
           {% endfor %}
         </div>
 
+        <small id="actions_help_block" class="form-text text-muted">
+          Selecting an Action will run it, regardless of its previous state or outputs.
+        </small>
+
         {% if form.requested_actions.errors %}
         <ul>
           {% for error in form.requested_actions.errors %}
@@ -177,10 +181,18 @@
             class="custom-control-input{% if form.force_run_dependencies.errors %} is-invalid{% endif %}"
             id="id_force_run_dependencies"
             />
-          <label for="id_force_run_dependencies" class="custom-control-label">
+          <label
+            for="id_force_run_dependencies"
+            class="custom-control-label"
+            aria-describedby="force_run_dependencies_help_block">
             Force run dependencies of your selected actions?
           </label>
         </div>
+
+        <small id="force_run_dependencies_help_block" class="form-text text-muted">
+          Selecting this will run each Action in your selected Action's
+          dependency trees, regardless of their previous state or outputs.
+        </small>
 
         {% if form.force_run_dependencies.errors %}
         <ul>
