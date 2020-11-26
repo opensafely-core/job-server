@@ -452,6 +452,32 @@ def test_workspacedetail_get_success(rf):
     request = rf.get(MEANINGLESS_URL)
     request.user = user
 
+    dummy_project = [
+        {"name": "twiddle", "needs": []},
+        {"name": "run_all", "needs": ["twiddle"]},
+    ]
+    with patch("jobserver.views.get_actions", new=lambda r, b: dummy_project):
+        response = WorkspaceDetail.as_view()(request, name=workspace.name)
+
+    assert response.status_code == 200
+
+    assert response.context_data["actions"] == [
+        {"name": "run_all", "needs": ["twiddle"], "status": "-"},
+        {"name": "twiddle", "needs": [], "status": "-"},
+    ]
+
+    assert response.context_data["branch"] == workspace.branch
+
+
+@pytest.mark.django_db
+def test_workspacedetail_without_run_all(rf):
+    workspace = WorkspaceFactory()
+    user = UserFactory()
+
+    # Build a RequestFactory instance
+    request = rf.get(MEANINGLESS_URL)
+    request.user = user
+
     dummy_project = [{"name": "twiddle", "needs": []}]
     with patch("jobserver.views.get_actions", new=lambda r, b: dummy_project):
         response = WorkspaceDetail.as_view()(request, name=workspace.name)
@@ -459,7 +485,8 @@ def test_workspacedetail_get_success(rf):
     assert response.status_code == 200
 
     assert response.context_data["actions"] == [
-        {"name": "twiddle", "needs": [], "status": "-"}
+        {"name": "twiddle", "needs": [], "status": "-"},
+        {"name": "run_all", "needs": ["twiddle"], "status": "-"},
     ]
 
     assert response.context_data["branch"] == workspace.branch
