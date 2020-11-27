@@ -486,7 +486,7 @@ def test_workspacedetail_post_success(rf):
         response = WorkspaceDetail.as_view()(request, name=workspace.name)
 
     assert response.status_code == 302, response.context_data["form"].errors
-    assert response.url == reverse("job-list")
+    assert response.url == reverse("workspace-logs", kwargs={"name": workspace.name})
 
     job_request = JobRequest.objects.first()
     assert job_request.created_by == user

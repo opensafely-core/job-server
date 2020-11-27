@@ -259,7 +259,7 @@ class WorkspaceDetail(CreateView):
                 force_run=True,
             )
 
-        return redirect("job-list")
+        return redirect("workspace-logs", name=self.workspace.name)
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
