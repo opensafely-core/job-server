@@ -28,7 +28,7 @@ django-extensions==3.1.0  # via -r requirements.in
 django-filter==2.4.0      # via -r requirements.in
 django-ipware==3.0.1      # via django-structlog
 django-rest-framework==0.1.0  # via -r requirements.in
-django-structlog==1.6.3   # via -r requirements.in
+django-structlog==2.1.0   # via -r requirements.in
 django==3.1.2             # via django-debug-toolbar, django-filter, django-structlog, djangorestframework
 djangorestframework==3.11.0  # via django-rest-framework
 factory-boy==3.1.0        # via -r requirements.in
