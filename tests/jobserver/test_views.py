@@ -9,6 +9,7 @@ from django.utils import timezone
 from jobserver.models import JobRequest, Workspace
 from jobserver.views import (
     Index,
+    JobDetail,
     JobRequestList,
     JobRequestZombify,
     JobZombify,
@@ -45,26 +46,56 @@ def test_index_success(rf):
 
 
 @pytest.mark.django_db
-def test_jobdetail_with_newer_job(rf):
-    job_request = JobRequestFactory(workspace=WorkspaceFactory())
-    job = JobFactory(job_request=job_request)
+def test_jobdetail_with_identifier(rf):
+    job = JobFactory(workspace=WorkspaceFactory())
 
     # Build a RequestFactory instance
     request = rf.get(MEANINGLESS_URL)
-    response = JobRequestList.as_view()(request, pk=job.pk)
+    response = JobDetail.as_view()(request, identifier=job.pk)
 
     assert response.status_code == 200
 
 
 @pytest.mark.django_db
-def test_jobdetail_with_older_job(rf):
+def test_jobdetail_with_pk(rf):
     job = JobFactory(workspace=WorkspaceFactory())
 
     # Build a RequestFactory instance
     request = rf.get(MEANINGLESS_URL)
-    response = JobRequestList.as_view()(request, pk=job.pk)
+    response = JobDetail.as_view()(request, identifier=job.pk)
 
     assert response.status_code == 200
+
+
+@pytest.mark.django_db
+def test_jobdetail_with_post_jobrequest_job(rf):
+    job = JobFactory(workspace=WorkspaceFactory())
+
+    # Build a RequestFactory instance
+    request = rf.get(MEANINGLESS_URL)
+    response = JobDetail.as_view()(request, identifier=job.pk)
+
+    assert response.status_code == 200
+
+
+@pytest.mark.django_db
+def test_jobdetail_with_pre_jobrequest_job(rf):
+    job_request = JobRequestFactory(workspace=WorkspaceFactory())
+    job = JobFactory(job_request=job_request)
+
+    # Build a RequestFactory instance
+    request = rf.get(MEANINGLESS_URL)
+    response = JobDetail.as_view()(request, identifier=job.pk)
+
+    assert response.status_code == 200
+
+
+@pytest.mark.django_db
+def test_jobdetail_with_unknown_job(rf):
+    request = rf.get(MEANINGLESS_URL)
+
+    with pytest.raises(Http404):
+        JobDetail.as_view()(request, identifier="test")
 
 
 @pytest.mark.django_db
@@ -72,12 +103,12 @@ def test_jobzombify_not_superuser(client):
     job = JobFactory(started=True, completed_at=None, status_code=None)
 
     client.force_login(UserFactory(is_superuser=False))
-    response = client.post(f"/jobs/{job.pk}/zombify/", follow=True)
+    response = client.post(f"/jobs/{job.identifier}/zombify/", follow=True)
 
     assert response.status_code == 200
 
     # did we redirect to the correct JobDetail page?
-    url = reverse("job-detail", kwargs={"pk": job.pk})
+    url = reverse("job-detail", kwargs={"identifier": job.identifier})
     assert response.redirect_chain == [(url, 302)]
 
     # has the Job been left untouched?
@@ -98,10 +129,10 @@ def test_jobzombify_success(rf):
     request = rf.post(MEANINGLESS_URL)
     request.user = UserFactory(is_superuser=True)
 
-    response = JobZombify.as_view()(request, pk=job.pk)
+    response = JobZombify.as_view()(request, identifier=job.identifier)
 
     assert response.status_code == 302
-    assert response.url == reverse("job-detail", kwargs={"pk": job.pk})
+    assert response.url == reverse("job-detail", kwargs={"identifier": job.identifier})
 
     job.refresh_from_db()
 
@@ -115,7 +146,7 @@ def test_jobzombify_unknown_job(rf):
     request.user = UserFactory(is_superuser=True)
 
     with pytest.raises(Http404):
-        JobZombify.as_view()(request, pk="99")
+        JobZombify.as_view()(request, identifier="")
 
 
 @pytest.mark.django_db

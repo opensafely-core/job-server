@@ -70,7 +70,7 @@
           {{ job.status_message|default:"-" }}
         </span>
         <span>
-          <a class="btn btn-sm btn-secondary text-white" href="{% url 'job-detail' pk=job.pk %}">
+          <a class="btn btn-sm btn-secondary text-white" href="{{ job.get_absolute_url }}">
             View
           </a>
         </span>

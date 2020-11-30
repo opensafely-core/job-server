@@ -4,6 +4,7 @@ from django.contrib import messages
 from django.contrib.auth.decorators import login_required
 from django.db import transaction
 from django.db.models import Q, prefetch_related_objects
+from django.http import Http404
 from django.shortcuts import get_object_or_404, redirect
 from django.template.response import TemplateResponse
 from django.utils.decorators import method_decorator
@@ -59,27 +60,41 @@ class Index(TemplateView):
 
 
 class JobDetail(DetailView):
-    model = Job
-    queryset = Job.objects.select_related("workspace")
     template_name = "job_detail.html"
+
+    def get_object(self, queryset=None):
+        jobs = Job.objects.select_related("workspace")
+
+        try:
+            pk = int(self.kwargs["identifier"])
+        except ValueError:
+            jobs = jobs.filter(identifier=self.kwargs["identifier"])
+        else:
+            jobs.filter(pk=pk)
+
+        job = jobs.first()
+        if not job:
+            raise Http404
+
+        return job
 
 
 class JobZombify(View):
     def dispatch(self, request, *args, **kwargs):
         if not request.user.is_superuser:
             messages.error(request, "Only admins can zombify Jobs.")
-            return redirect("job-detail", pk=self.kwargs["pk"])
+            return redirect("job-detail", identifier=self.kwargs["identifier"])
 
         return super().dispatch(request, *args, **kwargs)
 
     def post(self, request, *args, **kwargs):
-        job = get_object_or_404(Job, pk=self.kwargs["pk"])
+        job = get_object_or_404(Job, identifier=self.kwargs["identifier"])
 
         job.status_code = 10
         job.status_message = "Job manually zombified"
         job.save()
 
-        return redirect("job-detail", pk=job.pk)
+        return redirect(job)
 
 
 class JobRequestDetail(DetailView):
