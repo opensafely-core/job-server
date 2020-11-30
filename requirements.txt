@@ -53,7 +53,7 @@ orderedmultidict==1.0.1   # via furl
 packaging==20.4           # via pytest
 pathspec==0.8.0           # via black
 pluggy==0.13.1            # via pytest
-pre-commit==2.9.0         # via -r requirements.in
+pre-commit==2.9.2         # via -r requirements.in
 prompt-toolkit==3.0.7     # via litecli
 py==1.9.0                 # via pytest
 pycodestyle==2.6.0        # via flake8
