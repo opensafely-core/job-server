@@ -1,4 +1,6 @@
+import base64
 import datetime
+import secrets
 
 import pytz
 import requests
@@ -9,6 +11,8 @@ from django.db import models
 from django.urls import reverse
 from django.utils import timezone
 from furl import furl
+
+from services.backends import BACKEND_CHOICES
 
 from .runtime import Runtime
 
@@ -22,28 +26,52 @@ STATE_DEPENDENCY_NOT_FINISHED = 6
 STATE_DEPENDENCY_RUNNING = 8
 
 
+def new_id():
+    """
+    Return a random 16 character lowercase alphanumeric string
+    We used to use UUID4's but they are unnecessarily long for our purposes
+    (particularly the hex representation) and shorter IDs make debugging
+    and inspecting the job-runner a bit more ergonomic.
+    """
+    return base64.b32encode(secrets.token_bytes(10)).decode("ascii").lower()
+
+
 class Job(models.Model):
-    force_run = models.BooleanField(default=False)
-    started = models.BooleanField(default=False)
-    action = models.TextField()
-    status_code = models.IntegerField(null=True, blank=True)
-    status_message = models.TextField(default="", blank=True)
-    created_at = models.DateTimeField(auto_now_add=True)
-    started_at = models.DateTimeField(null=True, blank=True)
-    completed_at = models.DateTimeField(null=True, blank=True)
-    needed_by = models.ForeignKey(
-        "self",
-        on_delete=models.SET_NULL,
-        null=True,
-        blank=True,
-        related_name="children",
-    )
+    # TODO: remove nullability after move to v2
     job_request = models.ForeignKey(
         "JobRequest",
         on_delete=models.CASCADE,
         null=True,
         blank=True,
         related_name="jobs",
+    )
+
+    # The unique identifier created by job-runner to reference this Job.  We
+    # trust whatever job-runner sets this to.
+    identifier = models.TextField()
+
+    action = models.TextField()
+
+    # The current state of the Job, as defined by job-runner.
+    # TODO: rename to status after the switch to v2
+    runner_status = models.TextField()
+    status_message = models.TextField(default="", blank=True)
+
+    created_at = models.DateTimeField(auto_now_add=True)
+    started_at = models.DateTimeField(null=True, blank=True)
+    updated_at = models.DateTimeField(null=True, blank=True)
+    completed_at = models.DateTimeField(null=True, blank=True)
+
+    # Remove after the move to v2
+    force_run = models.BooleanField(default=False)
+    started = models.BooleanField(default=False)
+    status_code = models.IntegerField(null=True, blank=True)
+    needed_by = models.ForeignKey(
+        "self",
+        on_delete=models.SET_NULL,
+        null=True,
+        blank=True,
+        related_name="children",
     )
     workspace = models.ForeignKey(
         "Workspace",
@@ -195,13 +223,6 @@ class JobRequest(models.Model):
     by this object.
     """
 
-    EMIS = "emis"
-    TPP = "tpp"
-    BACKEND_CHOICES = [
-        (EMIS, "EMIS"),
-        (TPP, "TPP"),
-    ]
-
     created_by = models.ForeignKey(
         "User",
         on_delete=models.CASCADE,
@@ -218,6 +239,7 @@ class JobRequest(models.Model):
     requested_actions = models.JSONField()
     callback_url = models.TextField(default="", blank=True)
     sha = models.TextField()
+    identifier = models.TextField(default=new_id, unique=True)
 
     created_at = models.DateTimeField(auto_now_add=True)
 

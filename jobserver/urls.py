@@ -19,7 +19,7 @@ from django.urls import include, path
 from django.views.generic import RedirectView
 from rest_framework import routers
 
-from .api import JobViewSet, WorkspaceViewSet
+from .api import JobAPIUpdate, JobRequestAPIList, JobViewSet, WorkspaceViewSet
 from .views import (
     Index,
     JobDetail,
@@ -39,11 +39,16 @@ router.register(r"jobs", JobViewSet, "jobs")
 router.register(r"workspaces", WorkspaceViewSet, "workspaces")
 
 
+api_patterns = [
+    path("v1/", include(router.urls)),
+    path("v2/job-requests/", JobRequestAPIList.as_view()),
+    path("v2/jobs/", JobAPIUpdate.as_view()),
+]
+
 urlpatterns = [
     path("", Index.as_view()),
     path("", include("social_django.urls", namespace="social")),
-    path("api/", include(router.urls)),
-    path("api-auth/", include("rest_framework.urls")),
+    path("api/", include(api_patterns)),
     path("jobs/", JobRequestList.as_view(), name="job-list"),
     path("job-requests/<pk>/", JobRequestDetail.as_view(), name="job-request-detail"),
     path(

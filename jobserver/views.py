@@ -9,6 +9,8 @@ from django.template.response import TemplateResponse
 from django.utils.decorators import method_decorator
 from django.views.generic import CreateView, DetailView, ListView, TemplateView, View
 
+from services.backends import TPP
+
 from .backends import show_warning
 from .forms import JobRequestCreateForm, WorkspaceCreateForm
 from .github import get_branch_sha, get_repos_with_branches
@@ -240,6 +242,13 @@ class WorkspaceDetail(CreateView):
 
         self.actions = sorted(actions_with_statues, key=operator.itemgetter("name"))
 
+        # ensure there's a run_all action
+        action_names = [a["name"] for a in self.actions]
+        if "run_all" not in action_names:
+            self.actions.append(
+                {"name": "run_all", "needs": sorted(action_names), "status": "-"}
+            )
+
         return super().dispatch(request, *args, **kwargs)
 
     @transaction.atomic
@@ -249,7 +258,7 @@ class WorkspaceDetail(CreateView):
         job_request = JobRequest.objects.create(
             workspace=self.workspace,
             created_by=self.request.user,
-            backend=JobRequest.TPP,
+            backend=TPP,
             sha=sha,
             **form.cleaned_data,
         )
@@ -257,6 +266,7 @@ class WorkspaceDetail(CreateView):
             job_request.jobs.create(
                 action=action,
                 force_run=True,
+                identifier="",
             )
 
         return redirect("job-list")
