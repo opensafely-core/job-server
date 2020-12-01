@@ -343,6 +343,32 @@ class JobRequest(models.Model):
 
     @property
     def status(self):
+        runner_statuses = self.jobs.values_list("runner_status", flat=True)
+        if any(runner_statuses):  # we have v2 Jobs
+            # when they're all the same, just use that
+            if len(set(runner_statuses)) == 1:
+                return runner_statuses[0]
+
+            # if any status is running then the JobRequest is running
+            if "running" in runner_statuses:
+                return "running"
+
+            # if we have a mix of failed and succeeded then we've failed
+            if {"failed", "succeeded"} == set(runner_statuses):
+                return "failed"
+
+            # if we have a mix of pending, failed, and succeeded BUT no running
+            # then we're still running.
+            some_failed = "failed" in runner_statuses
+            some_succeeded = "succeeded" in runner_statuses
+            some_completed = some_failed or some_succeeded
+            if "pending" in runner_statuses and some_completed:
+                return "running"
+
+            return "unknown"
+
+        # v1 Jobs
+
         if self.is_succeeded:
             return "Succeeded"
 
