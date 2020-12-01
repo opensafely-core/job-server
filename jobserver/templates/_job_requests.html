@@ -61,7 +61,15 @@
 
         {% for job in group.jobs.all %}
         <span class="pl-3">{% status_icon job.status %}</span>
-        <span class="d-none d-lg-inline"><small>{{ job.pk }}</small></span>
+        <span class="d-none d-lg-inline">
+          <small>
+            {% if job.identifier %}
+            {{ job.identifier }}
+            {% else %}
+            {{ job.pk }}
+            {% endif %}
+          </small>
+        </span>
         <span>{{ job.action }}</span>
         <span {% if job.started_at %} title="{{ job.started_at|naturaltime }}"{% endif %}>
           <small>{% runtime job.runtime %}</small>
@@ -70,7 +78,7 @@
           {{ job.status_message|default:"-" }}
         </span>
         <span>
-          <a class="btn btn-sm btn-secondary text-white" href="{% url 'job-detail' pk=job.pk %}">
+          <a class="btn btn-sm btn-secondary text-white" href="{{ job.get_absolute_url }}">
             View
           </a>
         </span>

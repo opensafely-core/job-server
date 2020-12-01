@@ -11,6 +11,8 @@ class JobFactory(factory.django.DjangoModelFactory):
 
     job_request = factory.SubFactory("tests.factories.JobRequestFactory")
 
+    identifier = factory.Sequence(lambda n: f"identifier-{n}")
+
 
 class JobOutputFactory(factory.django.DjangoModelFactory):
     class Meta:
