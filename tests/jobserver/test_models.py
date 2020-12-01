@@ -318,6 +318,13 @@ def test_job_status_pending():
 
 
 @pytest.mark.django_db
+def test_job_status_runner_status():
+    job = JobFactory(runner_status="running")
+
+    assert job.status == "running"
+
+
+@pytest.mark.django_db
 def test_job_status_running():
     job = JobFactory(started=True, completed_at=None)
 

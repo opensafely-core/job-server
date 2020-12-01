@@ -182,6 +182,9 @@ class Job(models.Model):
 
     @property
     def status(self):
+        if self.runner_status:
+            return self.runner_status
+
         if self.is_succeeded:
             return "Succeeded"
 
