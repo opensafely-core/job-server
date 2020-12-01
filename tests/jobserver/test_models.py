@@ -656,12 +656,12 @@ def test_jobrequest_started_at_success():
 
 
 @pytest.mark.django_db
-def test_jobrequest_status_fall_through():
+def test_jobrequest_v1_status_fall_through():
     assert JobRequestFactory().status == "Pending"
 
 
 @pytest.mark.django_db
-def test_jobrequest_status_failed():
+def test_jobrequest_v1_status_failed():
     job_request = JobRequestFactory()
 
     job1 = JobFactory(
@@ -679,7 +679,7 @@ def test_jobrequest_status_failed():
 
 
 @pytest.mark.django_db
-def test_jobrequest_status_running():
+def test_jobrequest_v1_status_running():
     job_request = JobRequestFactory()
 
     job1 = JobFactory(
@@ -694,7 +694,7 @@ def test_jobrequest_status_running():
 
 
 @pytest.mark.django_db
-def test_jobrequest_status_pending():
+def test_jobrequest_v1_status_pending():
     job_request = JobRequestFactory()
     JobFactory(job_request=job_request, started=False)
 
@@ -702,7 +702,7 @@ def test_jobrequest_status_pending():
 
 
 @pytest.mark.django_db
-def test_jobrequest_status_succeeded():
+def test_jobrequest_v1_status_succeeded():
     job_request = JobRequestFactory()
 
     job1, job2 = JobFactory.create_batch(
@@ -720,7 +720,7 @@ def test_jobrequest_status_succeeded():
 
 
 @pytest.mark.django_db
-def test_jobrequest_status_unknown():
+def test_jobrequest_v1_status_unknown():
     job_request = JobRequestFactory()
     job = JobFactory(job_request=job_request, started=True, status_code=1)
 
@@ -733,6 +733,65 @@ def test_jobrequest_status_unknown():
     job.refresh_from_db()
 
     assert job_request.status == "Unknown"
+
+
+@pytest.mark.django_db
+def test_jobrequest_v2_status_all_jobs_the_same(subtests):
+    status_groups = [
+        ["failed", "failed", "failed", "failed"],
+        ["pending", "pending", "pending", "pending"],
+        ["running", "running", "running", "running"],
+        ["succeeded", "succeeded", "succeeded", "succeeded"],
+    ]
+    for statuses in status_groups:
+        with subtests.test(statuses=statuses):
+            job_request = JobRequestFactory()
+            for status in statuses:
+                JobFactory(job_request=job_request, runner_status=status)
+
+            assert job_request.status == statuses[0]
+
+
+@pytest.mark.django_db
+def test_jobrequest_v2_status_running_in_job_statuses():
+    job_request = JobRequestFactory()
+    JobFactory(job_request=job_request, runner_status="pending")
+    JobFactory(job_request=job_request, runner_status="running")
+    JobFactory(job_request=job_request, runner_status="failed")
+    JobFactory(job_request=job_request, runner_status="succeeded")
+
+    assert job_request.status == "running"
+
+
+@pytest.mark.django_db
+def test_jobrequest_v2_status_running_not_in_job_statues():
+    job_request = JobRequestFactory()
+    JobFactory(job_request=job_request, runner_status="pending")
+    JobFactory(job_request=job_request, runner_status="pending")
+    JobFactory(job_request=job_request, runner_status="failed")
+    JobFactory(job_request=job_request, runner_status="succeeded")
+
+    assert job_request.status == "running"
+
+
+@pytest.mark.django_db
+def test_jobrequest_v2_status_failed():
+    job_request = JobRequestFactory()
+    JobFactory(job_request=job_request, runner_status="failed")
+    JobFactory(job_request=job_request, runner_status="succeeded")
+    JobFactory(job_request=job_request, runner_status="failed")
+    JobFactory(job_request=job_request, runner_status="succeeded")
+
+    assert job_request.status == "failed"
+
+
+@pytest.mark.django_db
+def test_jobrequest_v2_status_unknown():
+    job_request = JobRequestFactory()
+    JobFactory(job_request=job_request, runner_status="foo")
+    JobFactory(job_request=job_request, runner_status="bar")
+
+    assert job_request.status == "unknown"
 
 
 @pytest.mark.django_db
