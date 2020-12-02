@@ -93,12 +93,19 @@
 }
 
 
+.workspace-select .fuzzy-search {
+  border-width: 2px;
+}
 .workspace-select .list-group {
-  border-top: 2px solid #dee2e6;
-  border-right: 1px solid #dee2e6;
-  border-bottom: 2px solid #dee2e6;
-  border-left: 1px solid #dee2e6;
-  max-height: 375px;
+  border: 2px solid #dee2e6;
+  height: 375px;
+}
+.workspace-select .list-group .list-group-item {
+  border: 0;
+  border-bottom: 1px solid #dee2e6;
+}
+.workspace-select .list-group .list-group-item:last-child {
+  border-bottom: 0;
 }
 .workspace-select .list-group a:hover span,
 .workspace-select .list-group a:hover code {

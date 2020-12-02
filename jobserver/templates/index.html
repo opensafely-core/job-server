@@ -1,5 +1,6 @@
 {% extends "base.html" %}
 
+{% load static %}
 {% load status_tools %}
 
 {% block content %}
@@ -17,16 +18,26 @@
 
 {% if workspaces %}
 <div class="row mb-5 workspace-select">
-  <div class="col-lg-8 offset-lg-2">
+  <div id="workspace-list" class="col-lg-8 offset-lg-2">
 
-    <div class="list-group mb-3 overflow-auto">
+    <input
+      class="form-control mb-3 fuzzy-search"
+      type="search"
+      placeholder="Filter workspaces by name, repository, or branch"
+      aria-label="Search" />
+
+    <div class="list-group mb-3 overflow-auto list">
       {% for workspace in workspaces %}
       <a
         class="list-group-item list-group-item-action d-flex justify-content-between align-items-center"
         href="{{ workspace.get_absolute_url }}">
-        <span class="text-primary mr-2">{{ workspace.name }}</span>
+        <span class="text-primary mr-2 name">{{ workspace.name }}</span>
         <code class="text-muted d-none d-md-block">
-          {{ workspace.repo_name }}|{{ workspace.branch }}
+          {% spaceless %}
+          <span class="repo">{{ workspace.repo_name }}</span>
+          <span>|</span>
+          <span class="branch">{{ workspace.branch }}</span>
+          {% endspaceless %}
         </code>
       </a>
       {% endfor %}
@@ -83,3 +94,8 @@
 </div>
 
 {% endblock content %}
+
+{% block extra_js %}
+<script type="text/javascript" src="{% static 'js/list-2.3.0.min.js' %}"></script>
+<script type="text/javascript" src="{% static 'js/index.js' %}"></script>
+{% endblock %}
