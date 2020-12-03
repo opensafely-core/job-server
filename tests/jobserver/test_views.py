@@ -554,7 +554,7 @@ def test_workspacedetail_post_success(rf):
     assert job_request.backend == "tpp"
     assert job_request.requested_actions == ["twiddle"]
     assert job_request.sha == "abc123"
-    assert job_request.jobs.count() == 1
+    assert not job_request.jobs.exists()
 
 
 @pytest.mark.django_db
