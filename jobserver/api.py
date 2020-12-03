@@ -1,3 +1,6 @@
+import itertools
+import operator
+
 from django.db import transaction
 from django_filters import rest_framework as filters
 from rest_framework import serializers, viewsets
@@ -36,46 +39,58 @@ class JobAPIUpdate(APIView):
         serializer = self.serializer_class(data=request.data, many=True)
         serializer.is_valid(raise_exception=True)
 
-        job_request_ids = set(JobRequest.objects.values_list("identifier", flat=True))
         incoming_job_request_ids = {j["job_request_id"] for j in serializer.data}
 
+        # error if we find JobRequest IDs in the payload which aren't in the database.
+        job_request_ids = set(JobRequest.objects.values_list("identifier", flat=True))
         missing_ids = incoming_job_request_ids - job_request_ids
         if missing_ids:
             raise ValidationError(f"Unknown JobRequest IDs: {', '.join(missing_ids)}")
 
+        # get JobRequest instances based on the identifiers in the payload
         job_requests = JobRequest.objects.filter(
             identifier__in=incoming_job_request_ids
         )
         job_request_lut = {jr.identifier: jr for jr in job_requests}
 
-        # Remove existing jobs for the JobRequests we've been told about. POSTs
-        # from job-runner are authoritive and declarative so the Jobs in a
-        # given payload are the full set of Jobs the related JobRequests should
-        # know about.
-        Job.objects.filter(job_request__in=job_requests).delete()
+        # group Jobs by their JobRequest ID
+        jobs_by_request = itertools.groupby(
+            serializer.data, key=operator.itemgetter("job_request_id")
+        )
+        for jr_identifier, jobs in jobs_by_request:
+            # get the JobRequest for this identifier
+            job_request = job_request_lut[jr_identifier]
 
-        # create Jobs for each object in the payload
-        jobs = []
-        for job in serializer.data:
-            jr_id = job.pop("job_request_id")
-            status = job.pop("status")
+            # get the current Jobs for the JobRequest, keyed on their identifier
+            jobs_by_identifier = {j.identifier: j for j in job_request.jobs.all()}
 
-            # v1 shim
-            started = job["started_at"] != ""
-            # END
+            # delete local jobs not in the payload
+            job_request.jobs.exclude(identifier__in=jobs_by_identifier.keys()).delete()
 
-            job_request = job_request_lut[jr_id]
+            for job_data in jobs:
+                # remove this value from the data, it's going to be set by
+                # creating/updating Job instances via the JobRequest instances
+                # related Jobs manager (ie job_request.jobs)
+                job_data.pop("job_request_id")
 
-            jobs.append(
-                Job(
-                    job_request=job_request,
-                    runner_status=status,
-                    started=started,
-                    **job,
+                # V1 SHIM
+                # we need to pull this out so it can be used for the
+                # runner_status field since .status is currently a property on
+                # Job until we can remove the v1 code
+                status = job_data.pop("status")
+
+                # we set this based on started_at being set
+                started = bool(job_data["started_at"])
+                # END
+
+                job_request.jobs.update_or_create(
+                    identifier=job_data["identifier"],
+                    defaults={
+                        "runner_status": status,
+                        "started": started,
+                        **job_data,
+                    },
                 )
-            )
-
-        Job.objects.bulk_create(jobs)
 
         return Response({"status": "success"}, status=200)
 

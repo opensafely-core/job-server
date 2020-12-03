@@ -238,7 +238,7 @@ def test_jobapiupdate_mixture(api_rf, freezer):
     job2, job3 = jobs
 
     # succeeded
-    assert job2.pk != job1.pk
+    assert job2.pk == job1.pk
     assert job2.identifier == "job1"
     assert job2.started_at == timezone.now() - timedelta(minutes=1)
     assert job2.updated_at == timezone.now()
