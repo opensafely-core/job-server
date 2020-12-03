@@ -12,8 +12,7 @@ from django.urls import reverse
 from django.utils import timezone
 from furl import furl
 
-from services.backends import BACKEND_CHOICES
-
+from .backends import BACKEND_CHOICES
 from .runtime import Runtime
 
 

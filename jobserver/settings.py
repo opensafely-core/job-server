@@ -14,9 +14,13 @@ import os
 import dj_database_url
 from django.contrib.messages import constants as messages
 from django.urls import reverse_lazy
+from environs import Env
 
 from services.logging import logging_config_dict
 from services.sentry import initialise_sentry
+
+
+env = Env()
 
 
 # Build paths inside the project like this: os.path.join(BASE_DIR, ...)
@@ -27,10 +31,10 @@ BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 # See https://docs.djangoproject.com/en/3.0/howto/deployment/checklist/
 
 # SECURITY WARNING: keep the secret key used in production secret!
-SECRET_KEY = os.environ["OPENSAFELY_JOB_SERVER_SECRET_KEY"]
+SECRET_KEY = env.str("OPENSAFELY_JOB_SERVER_SECRET_KEY")
 
 # SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = bool(os.getenv("DEBUG", default=False))
+DEBUG = env.bool("DEBUG", default=False)
 
 ALLOWED_HOSTS = ["*"]
 
@@ -147,8 +151,8 @@ AUTH_USER_MODEL = "jobserver.User"
 LOGIN_REDIRECT_URL = "/"
 LOGOUT_REDIRECT_URL = "/"
 LOGIN_URL = reverse_lazy("social:begin", kwargs={"backend": "github"})
-SOCIAL_AUTH_GITHUB_KEY = os.getenv("SOCIAL_AUTH_GITHUB_KEY")
-SOCIAL_AUTH_GITHUB_SECRET = os.getenv("SOCIAL_AUTH_GITHUB_SECRET")
+SOCIAL_AUTH_GITHUB_KEY = env.str("SOCIAL_AUTH_GITHUB_KEY", default=None)
+SOCIAL_AUTH_GITHUB_SECRET = env.str("SOCIAL_AUTH_GITHUB_SECRET", default=None)
 SOCIAL_AUTH_GITHUB_SCOPE = ["user:email"]
 
 

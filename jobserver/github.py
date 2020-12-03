@@ -1,11 +1,13 @@
-import os
-
 import requests
+from environs import Env
 from furl import furl
 
 
+env = Env()
+
+
 BASE_URL = "https://api.github.com"
-TOKEN = os.environ["GITHUB_TOKEN"]
+TOKEN = env.str("GITHUB_TOKEN")
 USER_AGENT = "OpenSAFELY Jobs"
 
 
