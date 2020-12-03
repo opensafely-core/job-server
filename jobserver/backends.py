@@ -19,7 +19,7 @@ available_backends = {
 
 def build_backends():
     """Get a list of requested Backends from the env"""
-    backends = env.list("BACKENDS", default=[])
+    backends = env.list("BACKENDS", default=["expectations"])
 
     # remove whitespace and only return non-empty strings
     backends = {u.strip() for u in backends if u}
