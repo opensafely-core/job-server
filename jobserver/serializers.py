@@ -44,7 +44,6 @@ class JobShimSerializer(serializers.Serializer):
     pk = serializers.IntegerField(read_only=True)
     backend = serializers.CharField(source="job_request.backend", default="")
     started = serializers.BooleanField(default=False)
-    force_run = serializers.BooleanField(default=False)
     force_run_dependencies = serializers.BooleanField(
         source="job_request.force_run_dependencies", default=False
     )

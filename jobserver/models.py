@@ -62,7 +62,6 @@ class Job(models.Model):
     completed_at = models.DateTimeField(null=True, blank=True)
 
     # Remove after the move to v2
-    force_run = models.BooleanField(default=False)
     started = models.BooleanField(default=False)
     status_code = models.IntegerField(null=True, blank=True)
     needed_by = models.ForeignKey(
