@@ -17,9 +17,8 @@ import debug_toolbar
 from django.contrib.auth.views import LogoutView
 from django.urls import include, path
 from django.views.generic import RedirectView
-from rest_framework import routers
 
-from .api import JobAPIUpdate, JobRequestAPIList, JobViewSet, WorkspaceViewSet
+from .api import JobAPIUpdate, JobRequestAPIList
 from .views import (
     Index,
     JobDetail,
@@ -34,21 +33,11 @@ from .views import (
 )
 
 
-router = routers.DefaultRouter()
-router.register(r"jobs", JobViewSet, "jobs")
-router.register(r"workspaces", WorkspaceViewSet, "workspaces")
-
-
-api_patterns = [
-    path("v1/", include(router.urls)),
-    path("v2/job-requests/", JobRequestAPIList.as_view()),
-    path("v2/jobs/", JobAPIUpdate.as_view()),
-]
-
 urlpatterns = [
     path("", Index.as_view()),
     path("", include("social_django.urls", namespace="social")),
-    path("api/", include(api_patterns)),
+    path("api/v2/job-requests/", JobRequestAPIList.as_view()),
+    path("api/v2/jobs/", JobAPIUpdate.as_view()),
     path("jobs/", JobRequestList.as_view(), name="job-list"),
     path("job-requests/<pk>/", JobRequestDetail.as_view(), name="job-request-detail"),
     path(
