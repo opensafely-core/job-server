@@ -72,13 +72,6 @@ class Job(models.Model):
         blank=True,
         related_name="children",
     )
-    workspace = models.ForeignKey(
-        "Workspace",
-        related_name="jobs",
-        null=True,
-        blank=True,
-        on_delete=models.SET_NULL,
-    )
 
     class Meta:
         ordering = ["pk"]

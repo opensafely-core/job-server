@@ -61,7 +61,7 @@ class JobDetail(DetailView):
     template_name = "job_detail.html"
 
     def get_object(self, queryset=None):
-        jobs = Job.objects.select_related("workspace")
+        jobs = Job.objects.all()
 
         try:
             pk = int(self.kwargs["identifier"])
