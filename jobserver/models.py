@@ -47,7 +47,7 @@ class Job(models.Model):
 
     # The unique identifier created by job-runner to reference this Job.  We
     # trust whatever job-runner sets this to.
-    identifier = models.TextField()
+    identifier = models.TextField(unique=True)
 
     action = models.TextField()
 
