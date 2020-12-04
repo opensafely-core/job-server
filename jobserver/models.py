@@ -203,13 +203,6 @@ class Job(models.Model):
         self.notify_callback_url()
 
 
-class JobOutput(models.Model):
-    location = models.TextField()
-    job = models.ForeignKey(
-        Job, null=True, blank=True, related_name="outputs", on_delete=models.SET_NULL
-    )
-
-
 class JobRequest(models.Model):
     """
     A request to run a Job
