@@ -2,7 +2,7 @@ import factory
 from pytz import utc
 from social_django.models import UserSocialAuth
 
-from jobserver.models import Job, JobOutput, JobRequest, Stats, User, Workspace
+from jobserver.models import Job, JobRequest, Stats, User, Workspace
 
 
 class JobFactory(factory.django.DjangoModelFactory):
@@ -12,13 +12,6 @@ class JobFactory(factory.django.DjangoModelFactory):
     job_request = factory.SubFactory("tests.factories.JobRequestFactory")
 
     identifier = factory.Sequence(lambda n: f"identifier-{n}")
-
-
-class JobOutputFactory(factory.django.DjangoModelFactory):
-    class Meta:
-        model = JobOutput
-
-    location = factory.Sequence(lambda n: f"location {n}")
 
 
 class JobRequestFactory(factory.django.DjangoModelFactory):

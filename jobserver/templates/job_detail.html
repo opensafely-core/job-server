@@ -51,27 +51,12 @@
       </div>
 
       <div>
-        <strong>Force run?:</strong>
-        <code>{{ job.force_run }}</code>
-      </div>
-
-      {% if not job.workspace %}
-      <div>
         <strong>Workspace:</strong>
         <a href="{{ job.job_request.workspace.get_absolute_url }}">
           {{ job.job_request.workspace.name }}
         </a>
         <small class="text-muted">({{ job.job_request.workspace.branch }})</small>
       </div>
-      {% else %}
-      <div>
-        <strong>Workspace:</strong>
-        <a href="{{ job.workspace.get_absolute_url }}">
-          {{ job.workspace.name }}
-        </a>
-        <small class="text-muted">({{ job.workspace.branch }})</small>
-      </div>
-      {% endif %}
 
       {% if job.job_request_id %}
       <div>

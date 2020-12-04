@@ -279,6 +279,20 @@ def test_job_save(freezer):
 
 
 @pytest.mark.django_db
+def test_job_save_not_started():
+    job = JobFactory()
+
+    assert not job.started
+    assert not job.started_at
+    assert not job.completed_at
+
+    job.status_code = 1
+    job.save()
+
+    assert job.status_code == 1
+
+
+@pytest.mark.django_db
 def test_job_save_with_started_at_set(freezer):
     job = JobFactory()
 

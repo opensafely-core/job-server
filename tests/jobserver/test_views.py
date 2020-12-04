@@ -47,7 +47,7 @@ def test_index_success(rf):
 
 @pytest.mark.django_db
 def test_jobdetail_with_identifier(rf):
-    job = JobFactory(workspace=WorkspaceFactory())
+    job = JobFactory()
 
     # Build a RequestFactory instance
     request = rf.get(MEANINGLESS_URL)
@@ -58,7 +58,7 @@ def test_jobdetail_with_identifier(rf):
 
 @pytest.mark.django_db
 def test_jobdetail_with_pk(rf):
-    jobs = JobFactory.create_batch(10, workspace=WorkspaceFactory())
+    jobs = JobFactory.create_batch(10)
     job = jobs[7]
 
     # Build a RequestFactory instance
@@ -71,7 +71,7 @@ def test_jobdetail_with_pk(rf):
 
 @pytest.mark.django_db
 def test_jobdetail_with_post_jobrequest_job(rf):
-    job = JobFactory(workspace=WorkspaceFactory())
+    job = JobFactory()
 
     # Build a RequestFactory instance
     request = rf.get(MEANINGLESS_URL)
@@ -554,7 +554,7 @@ def test_workspacedetail_post_success(rf):
     assert job_request.backend == "tpp"
     assert job_request.requested_actions == ["twiddle"]
     assert job_request.sha == "abc123"
-    assert job_request.jobs.count() == 1
+    assert not job_request.jobs.exists()
 
 
 @pytest.mark.django_db

@@ -61,7 +61,7 @@ class JobDetail(DetailView):
     template_name = "job_detail.html"
 
     def get_object(self, queryset=None):
-        jobs = Job.objects.select_related("workspace")
+        jobs = Job.objects.all()
 
         try:
             pk = int(self.kwargs["identifier"])
@@ -268,20 +268,13 @@ class WorkspaceDetail(CreateView):
     def form_valid(self, form):
         sha = get_branch_sha(self.workspace.repo_name, self.workspace.branch)
 
-        job_request = JobRequest.objects.create(
+        JobRequest.objects.create(
             workspace=self.workspace,
             created_by=self.request.user,
             backend=TPP,
             sha=sha,
             **form.cleaned_data,
         )
-        for action in job_request.requested_actions:
-            job_request.jobs.create(
-                action=action,
-                force_run=True,
-                identifier="",
-            )
-
         return redirect("workspace-logs", name=self.workspace.name)
 
     def get_context_data(self, **kwargs):
