@@ -32,10 +32,10 @@ def filter_by_status(job_requests, status):
         return job_requests
 
     status_lut = {
-        "failed": lambda r: r.is_failed,
-        "running": lambda r: r.is_running,
-        "pending": lambda r: r.is_pending,
-        "succeeded": lambda r: r.is_succeeded,
+        "failed": lambda r: r.status.lower() == "failed",
+        "running": lambda r: r.status.lower() == "running",
+        "pending": lambda r: r.status.lower() == "pending",
+        "succeeded": lambda r: r.status.lower() == "succeeded",
     }
     func = status_lut[status]
     return list(filter(func, job_requests))

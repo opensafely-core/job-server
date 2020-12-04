@@ -19,12 +19,6 @@ from .runtime import Runtime
 logger = structlog.get_logger(__name__)
 
 
-# TODO: remove when job-runner is driving state updates
-STATE_SUCCESS = 0
-STATE_DEPENDENCY_NOT_FINISHED = 6
-STATE_DEPENDENCY_RUNNING = 8
-
-
 def new_id():
     """
     Return a random 16 character lowercase alphanumeric string
@@ -52,8 +46,7 @@ class Job(models.Model):
     action = models.TextField()
 
     # The current state of the Job, as defined by job-runner.
-    # TODO: rename to status after the switch to v2
-    runner_status = models.TextField()
+    status = models.TextField()
     status_message = models.TextField(default="", blank=True)
 
     created_at = models.DateTimeField(auto_now_add=True)
@@ -83,61 +76,6 @@ class Job(models.Model):
 
     def get_zombify_url(self):
         return reverse("job-zombify", kwargs={"identifier": self.identifier})
-
-    @property
-    def is_failed(self):
-        if not self.is_finished:
-            return False
-
-        non_failure_statuses = [
-            STATE_DEPENDENCY_NOT_FINISHED,
-            STATE_DEPENDENCY_RUNNING,
-            STATE_SUCCESS,
-        ]
-
-        return self.status_code not in non_failure_statuses
-
-    @property
-    def is_finished(self):
-        # no status code set
-        return (
-            self.started
-            and self.status_code is not None
-            and self.completed_at is not None
-        )
-
-    @property
-    def is_pending(self):
-        if not self.started:
-            return True
-
-        pending_states = [
-            STATE_DEPENDENCY_NOT_FINISHED,
-            STATE_DEPENDENCY_RUNNING,
-        ]
-
-        if self.status_code in pending_states:
-            return True
-
-        return False
-
-    @property
-    def is_running(self):
-        pending_states = [
-            STATE_DEPENDENCY_NOT_FINISHED,
-            STATE_DEPENDENCY_RUNNING,
-        ]
-        if self.status_code and self.status_code not in pending_states:
-            return False
-
-        return self.started and self.completed_at is None
-
-    @property
-    def is_succeeded(self):
-        if not self.is_finished:
-            return False
-
-        return self.status_code == 0
 
     def notify_callback_url(self):
         if not self.job_request.callback_url:
@@ -170,25 +108,6 @@ class Job(models.Model):
         minutes, seconds = divmod(remainder, 60)
 
         return Runtime(int(hours), int(minutes), int(seconds))
-
-    @property
-    def status(self):
-        if self.runner_status:
-            return self.runner_status
-
-        if self.is_succeeded:
-            return "Succeeded"
-
-        if self.is_failed:
-            return "Failed"
-
-        if self.is_running:
-            return "Running"
-
-        if self.is_pending:
-            return "Pending"
-
-        return "Unknown"
 
     def save(self, *args, **kwargs):
         if self.started and not self.started_at:
@@ -243,7 +162,7 @@ class JobRequest(models.Model):
         if not last_job:
             return
 
-        if not self.is_succeeded:
+        if not self.status == "succeeded":
             return
 
         return last_job.completed_at
@@ -269,39 +188,8 @@ class JobRequest(models.Model):
         return f.url
 
     @property
-    def is_failed(self):
-        """
-        Has a JobRequst failed?
-
-        We don't consider a JobRequest failed until all Jobs are Finished.
-        """
-        if not self.is_finished:
-            return False
-
-        return any(j.is_failed for j in self.jobs.all())
-
-    @property
-    def is_finished(self):
-        return all(j.is_finished for j in self.jobs.all())
-
-    @property
-    def is_running(self):
-        return any(j.is_running for j in self.jobs.all())
-
-    @property
-    def is_pending(self):
-        return all(j.is_pending for j in self.jobs.all())
-
-    @property
-    def is_succeeded(self):
-        if not self.jobs.exists():
-            return False
-
-        return all(j.is_succeeded for j in self.jobs.all())
-
-    @property
     def num_completed(self):
-        return len([j for j in self.jobs.all() if j.is_succeeded])
+        return len([j for j in self.jobs.all() if j.status == "succeeded"])
 
     @property
     def runtime(self):
@@ -327,45 +215,29 @@ class JobRequest(models.Model):
 
     @property
     def status(self):
-        runner_statuses = self.jobs.values_list("runner_status", flat=True)
-        if any(runner_statuses):  # we have v2 Jobs
-            # when they're all the same, just use that
-            if len(set(runner_statuses)) == 1:
-                return runner_statuses[0]
+        statuses = self.jobs.values_list("status", flat=True)
 
-            # if any status is running then the JobRequest is running
-            if "running" in runner_statuses:
-                return "running"
+        # when they're all the same, just use that
+        if len(set(statuses)) == 1:
+            return statuses[0]
 
-            # if we have a mix of failed and succeeded then we've failed
-            if {"failed", "succeeded"} == set(runner_statuses):
-                return "failed"
+        # if any status is running then the JobRequest is running
+        if "running" in statuses:
+            return "running"
 
-            # if we have a mix of pending, failed, and succeeded BUT no running
-            # then we're still running.
-            some_failed = "failed" in runner_statuses
-            some_succeeded = "succeeded" in runner_statuses
-            some_completed = some_failed or some_succeeded
-            if "pending" in runner_statuses and some_completed:
-                return "running"
+        # if we have a mix of failed and succeeded then we've failed
+        if {"failed", "succeeded"} == set(statuses):
+            return "failed"
 
-            return "unknown"
+        # if we have a mix of pending, failed, and succeeded BUT no running
+        # then we're still running.
+        some_failed = "failed" in statuses
+        some_succeeded = "succeeded" in statuses
+        some_completed = some_failed or some_succeeded
+        if "pending" in statuses and some_completed:
+            return "running"
 
-        # v1 Jobs
-
-        if self.is_succeeded:
-            return "Succeeded"
-
-        if self.is_failed:
-            return "Failed"
-
-        if self.is_running:
-            return "Running"
-
-        if self.is_pending:
-            return "Pending"
-
-        return "Unknown"
+        return "unknown"
 
 
 class Stats(models.Model):

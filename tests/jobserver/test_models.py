@@ -2,7 +2,6 @@ from datetime import timedelta
 
 import pytest
 import responses
-from django.db import connection
 from django.db.utils import IntegrityError
 from django.urls import reverse
 from django.utils import timezone
@@ -34,104 +33,6 @@ def test_job_get_zombify_url():
     url = job.get_zombify_url()
 
     assert url == reverse("job-zombify", kwargs={"identifier": job.identifier})
-
-
-@pytest.mark.django_db
-def test_job_is_failed_failure():
-    assert not JobFactory(completed_at=timezone.now(), status_code=6).is_failed
-
-
-@pytest.mark.django_db
-def test_job_is_failed_incomplete():
-    assert not JobFactory(completed_at=None).is_failed
-
-
-@pytest.mark.django_db
-def test_job_is_failed_success():
-    job = JobFactory(started=True, completed_at=timezone.now(), status_code=2)
-
-    assert job.is_failed
-
-
-@pytest.mark.django_db
-def test_job_is_finished_failure():
-    assert not JobFactory(completed_at=None).is_finished
-
-
-@pytest.mark.django_db
-def test_job_is_finished_success():
-    job = JobFactory(started=True, status_code=0, completed_at=timezone.now())
-
-    assert job.is_finished
-
-
-@pytest.mark.django_db
-def test_job_is_pending_failure():
-    assert not JobFactory(started=True).is_pending
-
-
-@pytest.mark.django_db
-def test_job_is_pending_status_code_6():
-    assert JobFactory(started=True, status_code=6).is_pending
-
-
-@pytest.mark.django_db
-def test_job_is_pending_status_code_8():
-    assert JobFactory(started=True, status_code=8).is_pending
-
-
-@pytest.mark.django_db
-def test_job_is_pending_unstarted():
-    assert JobFactory(started=False).is_pending
-
-
-@pytest.mark.django_db
-def test_job_is_running_finished():
-    assert not JobFactory(started=True, completed_at=timezone.now()).is_running
-
-
-@pytest.mark.django_db
-def test_job_is_running_status_code():
-    assert not JobFactory(started=True, status_code=3).is_running
-
-
-@pytest.mark.django_db
-def test_job_is_running_status_code_6():
-    assert not JobFactory(started=True, status_code=6).is_running
-
-
-@pytest.mark.django_db
-def test_job_is_running_status_code_8():
-    assert not JobFactory(started=True, status_code=8).is_running
-
-
-@pytest.mark.django_db
-def test_job_is_running_success():
-    job = JobFactory(started=True, completed_at=None)
-
-    assert job.is_running, job.status
-
-
-@pytest.mark.django_db
-def test_job_is_running_unstarted():
-    assert not JobFactory(started=False).is_running
-
-
-@pytest.mark.django_db
-def test_job_is_succeeded_incomplete():
-    assert not JobFactory(completed_at=None).is_succeeded
-
-
-@pytest.mark.django_db
-def test_job_is_succeeded_success():
-    job = JobFactory(started=True, status_code=0, completed_at=timezone.now())
-
-    assert job.is_succeeded
-
-
-@pytest.mark.django_db
-def test_job_is_succeeded_with_status():
-    assert not JobFactory(completed_at=timezone.now(), status_code=6).is_succeeded
 
 
 @pytest.mark.django_db
@@ -300,56 +201,6 @@ def test_job_str():
 
 
 @pytest.mark.django_db
-def test_job_status_failed():
-    job = JobFactory(started=True, completed_at=timezone.now(), status_code=1)
-
-    assert job.status == "Failed"
-
-
-@pytest.mark.django_db
-def test_job_status_pending():
-    job = JobFactory(started=False)
-
-    assert job.status == "Pending"
-
-
-@pytest.mark.django_db
-def test_job_status_runner_status():
-    job = JobFactory(runner_status="running")
-
-    assert job.status == "running"
-
-
-@pytest.mark.django_db
-def test_job_status_running():
-    job = JobFactory(started=True, completed_at=None)
-
-    assert job.status == "Running"
-
-
-@pytest.mark.django_db
-def test_job_status_succeeded():
-    job = JobFactory(started=True, completed_at=timezone.now(), status_code=0)
-
-    assert job.status == "Succeeded"
-
-
-@pytest.mark.django_db
-def test_job_status_unknown():
-    job = JobFactory(started=True, status_code=1)
-
-    # manually set completed_at to None/NULL since Job.save() sets this for us
-    # and we can't override that.
-    sql = "UPDATE jobserver_job SET completed_at = NULL WHERE id = %s"
-    with connection.cursor() as c:
-        c.execute(sql, [job.pk])
-
-    job.refresh_from_db()
-
-    assert job.status == "Unknown"
-
-
-@pytest.mark.django_db
 def test_jobrequest_completed_at_no_jobs():
     assert not JobRequestFactory().completed_at
 
@@ -358,13 +209,7 @@ def test_jobrequest_completed_at_no_jobs():
 def test_jobrequest_completed_at_success():
     job_request = JobRequestFactory()
 
-    job1, job2 = JobFactory.create_batch(
-        2,
-        job_request=job_request,
-        started=True,
-        completed_at=timezone.now(),
-        status_code=0,
-    )
+    job1, job2 = JobFactory.create_batch(2, job_request=job_request, status="succeeded")
 
     job1.needed_by = job2
     job1.save()
@@ -433,118 +278,6 @@ def test_jobrequest_get_repo_url_success():
 
 
 @pytest.mark.django_db
-def test_jobrequest_is_failed_jobs_still_running():
-    job_request = JobRequestFactory()
-
-    job1 = JobFactory(job_request=job_request, completed_at=timezone.now())
-    job2 = JobFactory(
-        job_request=job_request, completed_at=timezone.now(), status_code=3
-    )
-    job3 = JobFactory(job_request=job_request, completed_at=timezone.now())
-    job4 = JobFactory(job_request=job_request)
-
-    # set up hierarchy
-    job1.needed_by = job2
-    job1.save()
-
-    job2.needed_by = job4
-    job2.save()
-
-    job3.needed_by = job4
-    job3.save()
-
-    assert not job_request.is_failed
-
-
-@pytest.mark.django_db
-def test_jobrequest_is_failed_no_jobs():
-    assert not JobRequestFactory().is_failed
-
-
-@pytest.mark.django_db
-def test_jobrequest_is_failed_success():
-    job_request = JobRequestFactory()
-
-    job1, job2, job3, job4 = JobFactory.create_batch(
-        4,
-        job_request=job_request,
-        started=True,
-        completed_at=timezone.now(),
-        status_code=0,
-    )
-
-    # set up hierarchy
-    job1.needed_by = job2
-    job1.save()
-
-    job2.needed_by = job4
-    job2.status_code = 3  # failed job
-    job2.save()
-
-    job3.needed_by = job4
-    job3.save()
-
-    assert job_request.is_failed
-
-
-@pytest.mark.django_db
-def test_jobrequest_is_pending_no_jobs():
-    assert JobRequestFactory().is_pending
-
-
-@pytest.mark.django_db
-def test_jobrequest_is_pending_success():
-    job_request = JobRequestFactory()
-
-    job1 = JobFactory(job_request=job_request)
-    job2 = JobFactory(job_request=job_request)
-    job3 = JobFactory(job_request=job_request)
-    job4 = JobFactory(job_request=job_request)
-
-    # set up hierarchy
-    job1.needed_by = job2
-    job1.save()
-
-    job2.needed_by = job4
-    job2.save()
-
-    job3.needed_by = job4
-    job3.save()
-
-    assert job_request.is_pending
-
-
-@pytest.mark.django_db
-def test_jobrequest_is_succeeded_no_jobs():
-    assert not JobRequestFactory().is_succeeded
-
-
-@pytest.mark.django_db
-def test_jobrequest_is_succeeded_success():
-    job_request = JobRequestFactory()
-
-    job1, job2, job3, job4 = JobFactory.create_batch(
-        4,
-        job_request=job_request,
-        started=True,
-        completed_at=timezone.now(),
-        status_code=0,
-    )
-
-    # set up hierarchy
-    job1.needed_by = job2
-    job1.save()
-
-    job2.needed_by = job4
-    job2.save()
-
-    job3.needed_by = job4
-    job3.save()
-
-    assert job_request.is_succeeded
-
-
-@pytest.mark.django_db
 def test_jobrequest_num_completed_no_jobs():
     assert JobRequestFactory().num_completed == 0
 
@@ -553,13 +286,7 @@ def test_jobrequest_num_completed_no_jobs():
 def test_job_request_num_completed_success():
     job_request = JobRequestFactory()
 
-    job1, job2 = JobFactory.create_batch(
-        2,
-        job_request=job_request,
-        started=True,
-        completed_at=timezone.now(),
-        status_code=0,
-    )
+    job1, job2 = JobFactory.create_batch(2, job_request=job_request, status="succeeded")
 
     job1.needed_by = job2
     job1.save()
@@ -652,87 +379,7 @@ def test_jobrequest_started_at_success():
 
 
 @pytest.mark.django_db
-def test_jobrequest_v1_status_fall_through():
-    assert JobRequestFactory().status == "Pending"
-
-
-@pytest.mark.django_db
-def test_jobrequest_v1_status_failed():
-    job_request = JobRequestFactory()
-
-    job1 = JobFactory(
-        job_request=job_request,
-        started=True,
-        completed_at=timezone.now(),
-        status_code=0,
-    )
-    job2 = JobFactory(job_request=job_request, started=True, status_code=3)
-
-    job1.needed_by = job2
-    job1.save()
-
-    assert job_request.status == "Failed"
-
-
-@pytest.mark.django_db
-def test_jobrequest_v1_status_running():
-    job_request = JobRequestFactory()
-
-    job1 = JobFactory(
-        job_request=job_request, started=True, completed_at=timezone.now()
-    )
-    job2 = JobFactory(job_request=job_request, started=True)
-
-    job1.needed_by = job2
-    job1.save()
-
-    assert job_request.status == "Running"
-
-
-@pytest.mark.django_db
-def test_jobrequest_v1_status_pending():
-    job_request = JobRequestFactory()
-    JobFactory(job_request=job_request, started=False)
-
-    assert job_request.status == "Pending"
-
-
-@pytest.mark.django_db
-def test_jobrequest_v1_status_succeeded():
-    job_request = JobRequestFactory()
-
-    job1, job2 = JobFactory.create_batch(
-        2,
-        job_request=job_request,
-        started=True,
-        completed_at=timezone.now(),
-        status_code=0,
-    )
-
-    job1.needed_by = job2
-    job1.save()
-
-    assert job_request.status == "Succeeded"
-
-
-@pytest.mark.django_db
-def test_jobrequest_v1_status_unknown():
-    job_request = JobRequestFactory()
-    job = JobFactory(job_request=job_request, started=True, status_code=1)
-
-    # manually set completed_at to None/NULL since Job.save() sets this for us
-    # and we can't override that.
-    sql = "UPDATE jobserver_job SET completed_at = NULL WHERE id = %s"
-    with connection.cursor() as c:
-        c.execute(sql, [job.pk])
-
-    job.refresh_from_db()
-
-    assert job_request.status == "Unknown"
-
-
-@pytest.mark.django_db
-def test_jobrequest_v2_status_all_jobs_the_same(subtests):
+def test_jobrequest_status_all_jobs_the_same(subtests):
     status_groups = [
         ["failed", "failed", "failed", "failed"],
         ["pending", "pending", "pending", "pending"],
@@ -743,49 +390,49 @@ def test_jobrequest_v2_status_all_jobs_the_same(subtests):
         with subtests.test(statuses=statuses):
             job_request = JobRequestFactory()
             for status in statuses:
-                JobFactory(job_request=job_request, runner_status=status)
+                JobFactory(job_request=job_request, status=status)
 
             assert job_request.status == statuses[0]
 
 
 @pytest.mark.django_db
-def test_jobrequest_v2_status_running_in_job_statuses():
+def test_jobrequest_status_running_in_job_statuses():
     job_request = JobRequestFactory()
-    JobFactory(job_request=job_request, runner_status="pending")
-    JobFactory(job_request=job_request, runner_status="running")
-    JobFactory(job_request=job_request, runner_status="failed")
-    JobFactory(job_request=job_request, runner_status="succeeded")
+    JobFactory(job_request=job_request, status="pending")
+    JobFactory(job_request=job_request, status="running")
+    JobFactory(job_request=job_request, status="failed")
+    JobFactory(job_request=job_request, status="succeeded")
 
     assert job_request.status == "running"
 
 
 @pytest.mark.django_db
-def test_jobrequest_v2_status_running_not_in_job_statues():
+def test_jobrequest_status_running_not_in_job_statues():
     job_request = JobRequestFactory()
-    JobFactory(job_request=job_request, runner_status="pending")
-    JobFactory(job_request=job_request, runner_status="pending")
-    JobFactory(job_request=job_request, runner_status="failed")
-    JobFactory(job_request=job_request, runner_status="succeeded")
+    JobFactory(job_request=job_request, status="pending")
+    JobFactory(job_request=job_request, status="pending")
+    JobFactory(job_request=job_request, status="failed")
+    JobFactory(job_request=job_request, status="succeeded")
 
     assert job_request.status == "running"
 
 
 @pytest.mark.django_db
-def test_jobrequest_v2_status_failed():
+def test_jobrequest_status_failed():
     job_request = JobRequestFactory()
-    JobFactory(job_request=job_request, runner_status="failed")
-    JobFactory(job_request=job_request, runner_status="succeeded")
-    JobFactory(job_request=job_request, runner_status="failed")
-    JobFactory(job_request=job_request, runner_status="succeeded")
+    JobFactory(job_request=job_request, status="failed")
+    JobFactory(job_request=job_request, status="succeeded")
+    JobFactory(job_request=job_request, status="failed")
+    JobFactory(job_request=job_request, status="succeeded")
 
     assert job_request.status == "failed"
 
 
 @pytest.mark.django_db
-def test_jobrequest_v2_status_unknown():
+def test_jobrequest_status_unknown():
     job_request = JobRequestFactory()
-    JobFactory(job_request=job_request, runner_status="foo")
-    JobFactory(job_request=job_request, runner_status="bar")
+    JobFactory(job_request=job_request, status="foo")
+    JobFactory(job_request=job_request, status="bar")
 
     assert job_request.status == "unknown"
 
@@ -832,45 +479,19 @@ def test_workspace_get_latest_status_for_action_success():
     workspace = WorkspaceFactory()
     job_request = JobRequestFactory(workspace=workspace)
 
-    now = timezone.now()
-
     # failed
-    JobFactory(
-        job_request=job_request,
-        action="test",
-        created_at=now - timedelta(minutes=4),
-        started=True,
-        completed_at=now - timedelta(minutes=4, seconds=30),
-        status_code=3,
-    )
+    JobFactory(job_request=job_request, action="test", status="failed")
 
     # succeeded
-    JobFactory(
-        job_request=job_request,
-        action="test",
-        created_at=now - timedelta(minutes=3),
-        started=True,
-        completed_at=now - timedelta(minutes=3, seconds=30),
-        status_code=0,
-    )
+    JobFactory(job_request=job_request, action="test", status="succeeded")
 
     # running
-    JobFactory(
-        job_request=job_request,
-        created_at=now - timedelta(minutes=2),
-        action="test",
-        started=True,
-    )
+    JobFactory(job_request=job_request, action="test", status="running")
 
     # pending
-    JobFactory(
-        job_request=job_request,
-        created_at=now - timedelta(minutes=1),
-        action="test",
-        started=False,
-    )
+    JobFactory(job_request=job_request, action="test", status="pending")
 
-    assert workspace.get_latest_status_for_action("test") == "Pending"
+    assert workspace.get_latest_status_for_action("test") == "pending"
 
 
 @pytest.mark.django_db
