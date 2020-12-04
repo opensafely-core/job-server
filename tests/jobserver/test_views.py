@@ -58,13 +58,15 @@ def test_jobdetail_with_identifier(rf):
 
 @pytest.mark.django_db
 def test_jobdetail_with_pk(rf):
-    job = JobFactory(workspace=WorkspaceFactory())
+    jobs = JobFactory.create_batch(10, workspace=WorkspaceFactory())
+    job = jobs[7]
 
     # Build a RequestFactory instance
     request = rf.get(MEANINGLESS_URL)
     response = JobDetail.as_view()(request, identifier=job.pk)
 
     assert response.status_code == 200
+    assert response.context_data["job"] == job
 
 
 @pytest.mark.django_db
