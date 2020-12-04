@@ -20,4 +20,9 @@ def get_actions(repo, branch):
 
     for action, children in project["actions"].items():
         needs = children.get("needs", []) if children else []
+
+        # handle needs being defined but empty
+        if needs is None:
+            needs = []
+
         yield {"name": action, "needs": sorted(needs)}
