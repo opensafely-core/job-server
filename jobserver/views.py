@@ -4,7 +4,6 @@ from django.contrib import messages
 from django.contrib.auth.decorators import login_required
 from django.db import transaction
 from django.db.models import Q, prefetch_related_objects
-from django.http import Http404
 from django.shortcuts import get_object_or_404, redirect
 from django.template.response import TemplateResponse
 from django.utils.decorators import method_decorator
@@ -58,23 +57,10 @@ class Index(TemplateView):
 
 
 class JobDetail(DetailView):
+    model = Job
+    slug_field = "identifier"
+    slug_url_kwarg = "identifier"
     template_name = "job_detail.html"
-
-    def get_object(self, queryset=None):
-        jobs = Job.objects.all()
-
-        try:
-            pk = int(self.kwargs["identifier"])
-        except ValueError:
-            jobs = jobs.filter(identifier=self.kwargs["identifier"])
-        else:
-            jobs = jobs.filter(pk=pk)
-
-        job = jobs.first()
-        if not job:
-            raise Http404
-
-        return job
 
 
 class JobZombify(View):

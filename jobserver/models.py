@@ -47,7 +47,7 @@ class Job(models.Model):
 
     # The unique identifier created by job-runner to reference this Job.  We
     # trust whatever job-runner sets this to.
-    identifier = models.TextField()
+    identifier = models.TextField(unique=True)
 
     action = models.TextField()
 
@@ -79,10 +79,10 @@ class Job(models.Model):
         return f"{self.action} ({self.pk})"
 
     def get_absolute_url(self):
-        return reverse("job-detail", kwargs={"identifier": self.identifier or self.pk})
+        return reverse("job-detail", kwargs={"identifier": self.identifier})
 
     def get_zombify_url(self):
-        return reverse("job-zombify", kwargs={"identifier": self.identifier or self.pk})
+        return reverse("job-zombify", kwargs={"identifier": self.identifier})
 
     @property
     def is_failed(self):
@@ -201,13 +201,6 @@ class Job(models.Model):
         super().save(*args, **kwargs)
 
         self.notify_callback_url()
-
-
-class JobOutput(models.Model):
-    location = models.TextField()
-    job = models.ForeignKey(
-        Job, null=True, blank=True, related_name="outputs", on_delete=models.SET_NULL
-    )
 
 
 class JobRequest(models.Model):
