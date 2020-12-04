@@ -68,7 +68,7 @@ class JobDetail(DetailView):
         except ValueError:
             jobs = jobs.filter(identifier=self.kwargs["identifier"])
         else:
-            jobs.filter(pk=pk)
+            jobs = jobs.filter(pk=pk)
 
         job = jobs.first()
         if not job:
