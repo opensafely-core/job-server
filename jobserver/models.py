@@ -79,10 +79,10 @@ class Job(models.Model):
         return f"{self.action} ({self.pk})"
 
     def get_absolute_url(self):
-        return reverse("job-detail", kwargs={"identifier": self.identifier or self.pk})
+        return reverse("job-detail", kwargs={"identifier": self.identifier})
 
     def get_zombify_url(self):
-        return reverse("job-zombify", kwargs={"identifier": self.identifier or self.pk})
+        return reverse("job-zombify", kwargs={"identifier": self.identifier})
 
     @property
     def is_failed(self):

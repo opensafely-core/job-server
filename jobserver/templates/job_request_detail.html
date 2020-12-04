@@ -108,7 +108,7 @@
   <tbody>
     {% for job in jobrequest.jobs.all %}
     <tr>
-      <td>{{ job.pk }}</td>
+      <td>{{ job.identifier }}</td>
       <td>{{ job.status }}</td>
       <td>{{ job.action }}</td>
       <td><a class="btn btn-sm btn-secondary" href="{{ job.get_absolute_url }}">View</a></td>

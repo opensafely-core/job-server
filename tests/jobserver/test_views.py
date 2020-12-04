@@ -46,36 +46,12 @@ def test_index_success(rf):
 
 
 @pytest.mark.django_db
-def test_jobdetail_with_identifier(rf):
-    job = JobFactory()
-
-    # Build a RequestFactory instance
-    request = rf.get(MEANINGLESS_URL)
-    response = JobDetail.as_view()(request, identifier=job.pk)
-
-    assert response.status_code == 200
-
-
-@pytest.mark.django_db
-def test_jobdetail_with_pk(rf):
-    jobs = JobFactory.create_batch(10)
-    job = jobs[7]
-
-    # Build a RequestFactory instance
-    request = rf.get(MEANINGLESS_URL)
-    response = JobDetail.as_view()(request, identifier=job.pk)
-
-    assert response.status_code == 200
-    assert response.context_data["job"] == job
-
-
-@pytest.mark.django_db
 def test_jobdetail_with_post_jobrequest_job(rf):
     job = JobFactory()
 
     # Build a RequestFactory instance
     request = rf.get(MEANINGLESS_URL)
-    response = JobDetail.as_view()(request, identifier=job.pk)
+    response = JobDetail.as_view()(request, identifier=job.identifier)
 
     assert response.status_code == 200
 
@@ -87,7 +63,7 @@ def test_jobdetail_with_pre_jobrequest_job(rf):
 
     # Build a RequestFactory instance
     request = rf.get(MEANINGLESS_URL)
-    response = JobDetail.as_view()(request, identifier=job.pk)
+    response = JobDetail.as_view()(request, identifier=job.identifier)
 
     assert response.status_code == 200
 

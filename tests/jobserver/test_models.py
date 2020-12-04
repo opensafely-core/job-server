@@ -19,8 +19,8 @@ from ..factories import (
 
 
 @pytest.mark.django_db
-def test_job_get_absolute_url_with_identifier():
-    job = JobFactory(identifier="test")
+def test_job_get_absolute_url():
+    job = JobFactory()
 
     url = job.get_absolute_url()
 
@@ -28,30 +28,12 @@ def test_job_get_absolute_url_with_identifier():
 
 
 @pytest.mark.django_db
-def test_job_get_absolute_url_with_pk_only():
-    job = JobFactory(pk=1, identifier="")
-
-    url = job.get_absolute_url()
-
-    assert url == reverse("job-detail", kwargs={"identifier": job.pk})
-
-
-@pytest.mark.django_db
-def test_job_get_zombify_url_with_identifier():
-    job = JobFactory(identifier="test")
+def test_job_get_zombify_url():
+    job = JobFactory()
 
     url = job.get_zombify_url()
 
     assert url == reverse("job-zombify", kwargs={"identifier": job.identifier})
-
-
-@pytest.mark.django_db
-def test_job_get_zombify_url_with_pk_only():
-    job = JobFactory(pk=1, identifier="")
-
-    url = job.get_zombify_url()
-
-    assert url == reverse("job-zombify", kwargs={"identifier": job.pk})
 
 
 @pytest.mark.django_db
