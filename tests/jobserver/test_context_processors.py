@@ -6,7 +6,7 @@ from django.utils import timezone
 
 from jobserver.context_processors import backend_warnings, nav
 
-from ..factories import JobFactory, StatsFactory
+from ..factories import JobRequestFactory, StatsFactory
 
 
 @pytest.mark.django_db
@@ -22,7 +22,8 @@ def test_backend_warnings_with_no_warnings(rf):
 
 @pytest.mark.django_db
 def test_backend_warnings_with_warnings(rf):
-    JobFactory(started=False, completed_at=None)
+    JobRequestFactory()
+
     last_seen = timezone.now() - timedelta(minutes=10)
     StatsFactory(api_last_seen=last_seen)
 

@@ -158,8 +158,8 @@ class JobRequestZombify(View):
 
 class Status(View):
     def get(self, request, *args, **kwargs):
-        acked = Job.objects.filter(started=True).count()
-        unacked = Job.objects.exclude(started=True).count()
+        acked = JobRequest.objects.acked().count()
+        unacked = JobRequest.objects.unacked().count()
 
         try:
             last_seen = Stats.objects.first().api_last_seen

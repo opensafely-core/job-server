@@ -71,17 +71,9 @@ class JobAPIUpdate(APIView):
                 # related Jobs manager (ie job_request.jobs)
                 job_data.pop("job_request_id")
 
-                # V1 SHIM
-                # we set this based on started_at being set
-                started = bool(job_data["started_at"])
-                # END
-
                 job_request.jobs.update_or_create(
                     identifier=job_data["identifier"],
-                    defaults={
-                        "started": started,
-                        **job_data,
-                    },
+                    defaults={**job_data},
                 )
 
         return Response({"status": "success"}, status=200)

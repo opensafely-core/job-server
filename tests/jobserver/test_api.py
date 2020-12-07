@@ -18,8 +18,8 @@ def test_jobapiupdate_all_existing(api_rf, freezer):
     job1, job2, job3, = JobFactory.create_batch(
         3,
         job_request=job_request,
-        started=False,
         started_at=None,
+        status="pending",
         completed_at=None,
     )
     job1.identifier = "job1"

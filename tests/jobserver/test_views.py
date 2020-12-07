@@ -78,7 +78,7 @@ def test_jobdetail_with_unknown_job(rf):
 
 @pytest.mark.django_db
 def test_jobzombify_not_superuser(client):
-    job = JobFactory(started=True, completed_at=None)
+    job = JobFactory(completed_at=None)
 
     client.force_login(UserFactory(is_superuser=False))
     response = client.post(f"/jobs/{job.identifier}/zombify/", follow=True)
@@ -102,7 +102,7 @@ def test_jobzombify_not_superuser(client):
 
 @pytest.mark.django_db
 def test_jobzombify_success(rf):
-    job = JobFactory(started=True, completed_at=None)
+    job = JobFactory(completed_at=None)
 
     request = rf.post(MEANINGLESS_URL)
     request.user = UserFactory(is_superuser=True)
@@ -265,7 +265,6 @@ def test_jobrequestzombify_not_superuser(client):
     JobFactory.create_batch(
         5,
         job_request=job_request,
-        started=True,
         completed_at=None,
     )
 
@@ -293,8 +292,8 @@ def test_jobrequestzombify_not_superuser(client):
 @pytest.mark.django_db
 def test_jobrequestzombify_success(rf):
     job_request = JobRequestFactory()
-    JobFactory(job_request=job_request, started=False)
-    JobFactory(job_request=job_request, started=True, completed_at=None)
+    JobFactory(job_request=job_request)
+    JobFactory(job_request=job_request, completed_at=None)
 
     request = rf.post(MEANINGLESS_URL)
     request.user = UserFactory(is_superuser=True)
@@ -321,7 +320,8 @@ def test_jobrequestzombify_unknown_jobrequest(rf):
 
 @pytest.mark.django_db
 def test_status_healthy(rf):
-    JobFactory.create_batch(3, started=True, completed_at=None)
+    # acked, because JobFactory will implicitly create JobRequests
+    JobFactory.create_batch(3)
 
     last_seen = timezone.now() - timedelta(minutes=1)
     StatsFactory(api_last_seen=last_seen)
@@ -339,8 +339,6 @@ def test_status_healthy(rf):
 
 @pytest.mark.django_db
 def test_status_no_last_seen(rf):
-    JobFactory(started=False)
-
     request = rf.get(MEANINGLESS_URL)
     response = Status.as_view()(request)
 
@@ -352,8 +350,6 @@ def test_status_no_last_seen(rf):
 
 @pytest.mark.django_db
 def test_status_unacked_jobs_but_recent_api_contact(rf):
-    JobFactory(started=False)
-
     last_seen = timezone.now() - timedelta(minutes=1)
     StatsFactory(api_last_seen=last_seen)
 
@@ -368,9 +364,11 @@ def test_status_unacked_jobs_but_recent_api_contact(rf):
 
 @pytest.mark.django_db
 def test_status_unhealthy(rf):
-    JobFactory(started=False, completed_at=None)
-    JobFactory(started=True, completed_at=None)
-    JobFactory(started=True, completed_at=None)
+    # acked, because JobFactory will implicitly create JobRequests
+    JobFactory.create_batch(2)
+
+    # unacked, because it has no Jobs
+    JobRequestFactory()
 
     last_seen = timezone.now() - timedelta(minutes=10)
     StatsFactory(api_last_seen=last_seen)
