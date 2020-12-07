@@ -79,9 +79,6 @@ def test_jobrequest_completed_at_success():
 
     job1, job2 = JobFactory.create_batch(2, job_request=job_request, status="succeeded")
 
-    job1.needed_by = job2
-    job1.save()
-
     assert job_request.completed_at == job2.completed_at
 
 
@@ -89,11 +86,8 @@ def test_jobrequest_completed_at_success():
 def test_jobrequest_completed_at_while_incomplete():
     job_request = JobRequestFactory()
 
-    job1 = JobFactory(job_request=job_request, completed_at=timezone.now())
-    job2 = JobFactory(job_request=job_request)
-
-    job1.needed_by = job2
-    job1.save()
+    JobFactory(job_request=job_request, completed_at=timezone.now())
+    JobFactory(job_request=job_request)
 
     assert not job_request.completed_at
 
@@ -156,9 +150,6 @@ def test_job_request_num_completed_success():
 
     job1, job2 = JobFactory.create_batch(2, job_request=job_request, status="succeeded")
 
-    job1.needed_by = job2
-    job1.save()
-
     assert job_request.num_completed == 2
 
 
@@ -171,18 +162,15 @@ def test_jobrequest_runtime_no_jobs():
 def test_jobrequest_runtime_not_finished(freezer):
     job_request = JobRequestFactory()
 
-    job1 = JobFactory(
+    JobFactory(
         job_request=job_request,
         started_at=timezone.now() - timedelta(minutes=2),
         completed_at=timezone.now() - timedelta(minutes=1),
     )
-    job2 = JobFactory(
+    JobFactory(
         job_request=job_request,
         started_at=timezone.now() - timedelta(seconds=30),
     )
-
-    job1.needed_by = job2
-    job1.save()
 
     assert job_request.started_at
     assert not job_request.completed_at
@@ -210,20 +198,16 @@ def test_jobrequest_runtime_success():
 
     start = timezone.now() - timedelta(hours=1)
 
-    job1 = JobFactory(
+    JobFactory(
         job_request=job_request,
         started_at=start,
         completed_at=start + timedelta(minutes=1),
     )
-    job2 = JobFactory(
+    JobFactory(
         job_request=job_request,
         started_at=start + timedelta(minutes=2),
         completed_at=start + timedelta(minutes=3),
     )
-
-    # set up hierarchy
-    job1.needed_by = job2
-    job1.save()
 
     assert job_request.runtime
 
@@ -237,11 +221,8 @@ def test_jobrequest_started_at_no_jobs():
 def test_jobrequest_started_at_success():
     job_request = JobRequestFactory()
 
-    job1 = JobFactory(job_request=job_request, started_at=timezone.now())
-    job2 = JobFactory(job_request=job_request, started_at=timezone.now())
-
-    job1.needed_by = job2
-    job1.save()
+    JobFactory(job_request=job_request, started_at=timezone.now())
+    JobFactory(job_request=job_request, started_at=timezone.now())
 
     assert job_request.started_at
 

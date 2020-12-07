@@ -52,15 +52,6 @@ class Job(models.Model):
     updated_at = models.DateTimeField(null=True, blank=True)
     completed_at = models.DateTimeField(null=True, blank=True)
 
-    # Remove after the move to v2
-    needed_by = models.ForeignKey(
-        "self",
-        on_delete=models.SET_NULL,
-        null=True,
-        blank=True,
-        related_name="children",
-    )
-
     class Meta:
         ordering = ["pk"]
 
