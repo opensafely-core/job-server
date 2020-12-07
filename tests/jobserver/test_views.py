@@ -78,7 +78,7 @@ def test_jobdetail_with_unknown_job(rf):
 
 @pytest.mark.django_db
 def test_jobzombify_not_superuser(client):
-    job = JobFactory(started=True, completed_at=None, status_code=None)
+    job = JobFactory(started=True, completed_at=None)
 
     client.force_login(UserFactory(is_superuser=False))
     response = client.post(f"/jobs/{job.identifier}/zombify/", follow=True)
@@ -91,7 +91,7 @@ def test_jobzombify_not_superuser(client):
 
     # has the Job been left untouched?
     job.refresh_from_db()
-    assert job.status_code is None
+    assert job.status == ""
     assert job.status_message == ""
 
     # did we produce a message?
@@ -102,7 +102,7 @@ def test_jobzombify_not_superuser(client):
 
 @pytest.mark.django_db
 def test_jobzombify_success(rf):
-    job = JobFactory(started=True, completed_at=None, status_code=None)
+    job = JobFactory(started=True, completed_at=None)
 
     request = rf.post(MEANINGLESS_URL)
     request.user = UserFactory(is_superuser=True)
@@ -114,7 +114,7 @@ def test_jobzombify_success(rf):
 
     job.refresh_from_db()
 
-    assert job.status_code == 10
+    assert job.status == "failed"
     assert job.status_message == "Job manually zombified"
 
 
@@ -267,7 +267,6 @@ def test_jobrequestzombify_not_superuser(client):
         job_request=job_request,
         started=True,
         completed_at=None,
-        status_code=None,
     )
 
     client.force_login(UserFactory(is_superuser=False))
@@ -282,7 +281,7 @@ def test_jobrequestzombify_not_superuser(client):
     # has the Job been left untouched?
     job_request.refresh_from_db()
     for job in job_request.jobs.all():
-        assert job.status_code is None
+        assert job.status == ""
         assert job.status_message == ""
 
     # did we produce a message?
@@ -295,9 +294,7 @@ def test_jobrequestzombify_not_superuser(client):
 def test_jobrequestzombify_success(rf):
     job_request = JobRequestFactory()
     JobFactory(job_request=job_request, started=False)
-    JobFactory(
-        job_request=job_request, started=True, completed_at=None, status_code=None
-    )
+    JobFactory(job_request=job_request, started=True, completed_at=None)
 
     request = rf.post(MEANINGLESS_URL)
     request.user = UserFactory(is_superuser=True)
@@ -309,7 +306,7 @@ def test_jobrequestzombify_success(rf):
 
     jobs = job_request.jobs.all()
 
-    assert all(j.status_code == 10 for j in jobs)
+    assert all(j.status == "failed" for j in jobs)
     assert all(j.status_message == "Job manually zombified" for j in jobs)
 
 

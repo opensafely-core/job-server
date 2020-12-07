@@ -74,7 +74,7 @@ class JobZombify(View):
     def post(self, request, *args, **kwargs):
         job = get_object_or_404(Job, identifier=self.kwargs["identifier"])
 
-        job.status_code = 10
+        job.status = "failed"
         job.status_message = "Job manually zombified"
         job.save()
 
@@ -149,7 +149,9 @@ class JobRequestZombify(View):
     def post(self, request, *args, **kwargs):
         job_request = get_object_or_404(JobRequest, pk=self.kwargs["pk"])
 
-        job_request.jobs.update(status_code=10, status_message="Job manually zombified")
+        job_request.jobs.update(
+            status="failed", status_message="Job manually zombified"
+        )
 
         return redirect("job-request-detail", pk=job_request.pk)
 
