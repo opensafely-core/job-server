@@ -95,18 +95,8 @@ class WorkspaceSerializer(serializers.ModelSerializer):
 
 
 class JobRequestAPIList(ListAPIView):
-    filterset_fields = ["backend"]
-    permission_classes = []
-    queryset = (
-        JobRequest.objects.filter(
-            jobs__completed_at__isnull=True,
-        )
-        .select_related("created_by", "workspace", "workspace__created_by")
-        .order_by("-created_at")
-        .distinct()
-    )
-
     class serializer_class(serializers.ModelSerializer):
+        backend = serializers.CharField(source="backend.name")
         created_by = serializers.CharField(source="created_by.username")
         workspace = WorkspaceSerializer()
 
@@ -122,6 +112,22 @@ class JobRequestAPIList(ListAPIView):
                 "workspace",
             ]
             model = JobRequest
+
+    def get_queryset(self):
+        qs = (
+            JobRequest.objects.filter(
+                jobs__completed_at__isnull=True,
+            )
+            .select_related("created_by", "workspace", "workspace__created_by")
+            .order_by("-created_at")
+            .distinct()
+        )
+
+        backend = self.request.GET.get("backend")
+        if backend:
+            qs = qs.filter(backend__name=backend)
+
+        return qs
 
 
 class WorkspaceStatusesAPI(APIView):

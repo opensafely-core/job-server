@@ -45,7 +45,6 @@ INSTALLED_APPS = [
     "crispy_forms",
     "debug_toolbar",
     "django_extensions",
-    "django_filters",
     "rest_framework",
     "social_django",
     "django.contrib.auth",
@@ -182,7 +181,6 @@ REST_FRAMEWORK = {
         "rest_framework.permissions.DjangoModelPermissionsOrAnonReadOnly"
     ],
     "DEFAULT_PAGINATION_CLASS": "rest_framework.pagination.LimitOffsetPagination",
-    "DEFAULT_FILTER_BACKENDS": ["django_filters.rest_framework.DjangoFilterBackend"],
     "PAGE_SIZE": 100,
 }
 
