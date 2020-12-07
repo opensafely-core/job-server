@@ -1,7 +1,6 @@
 import base64
 import secrets
 
-import requests
 import structlog
 from django.contrib.auth.models import AbstractUser
 from django.core.validators import validate_slug
@@ -74,20 +73,6 @@ class Job(models.Model):
     def get_zombify_url(self):
         return reverse("job-zombify", kwargs={"identifier": self.identifier})
 
-    def notify_callback_url(self):
-        if not self.job_request.callback_url:
-            return
-
-        # A new dependency has been added; notify the originating thread
-        if self.needed_by and not self.started:
-            status = f"Starting dependency {self.action}, job#{self.pk}"
-        elif self.started and self.completed_at:
-            status = f"{self.action} {self.status}: {self.status_message}"
-        else:
-            return
-
-        requests.post(self.job_request.callback_url, json={"message": status})
-
     @property
     def runtime(self):
         if self.started_at is None:
@@ -102,11 +87,6 @@ class Job(models.Model):
         minutes, seconds = divmod(remainder, 60)
 
         return Runtime(int(hours), int(minutes), int(seconds))
-
-    def save(self, *args, **kwargs):
-        super().save(*args, **kwargs)
-
-        self.notify_callback_url()
 
 
 class JobRequest(models.Model):
@@ -133,7 +113,6 @@ class JobRequest(models.Model):
     backend = models.TextField(choices=BACKEND_CHOICES, db_index=True)
     force_run_dependencies = models.BooleanField(default=False)
     requested_actions = models.JSONField()
-    callback_url = models.TextField(default="", blank=True)
     sha = models.TextField()
     identifier = models.TextField(default=new_id, unique=True)
 
