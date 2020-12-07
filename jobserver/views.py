@@ -7,10 +7,10 @@ from django.template.response import TemplateResponse
 from django.utils.decorators import method_decorator
 from django.views.generic import CreateView, DetailView, ListView, TemplateView, View
 
-from .backends import backends, show_warning
+from .backends import show_warning
 from .forms import JobRequestCreateForm, WorkspaceCreateForm
 from .github import get_branch_sha, get_repos_with_branches
-from .models import Job, JobRequest, Stats, User, Workspace
+from .models import Backend, Job, JobRequest, Stats, User, Workspace
 from .project import get_actions
 
 
@@ -254,14 +254,15 @@ class WorkspaceDetail(CreateView):
         sha = get_branch_sha(self.workspace.repo_name, self.workspace.branch)
 
         # Pick a backend.
-        #  We're only configuring one backend in an installation currently.
-        # Rely on that for now.
-        backend = list(backends)[0]
+        # We're only configuring one backend in an installation currently. Rely
+        # on that for now.
+        # TODO: use the form data to decide which backend to use here when the
+        # form exposes backends
+        TPP = Backend.objects.get(name="tpp")
 
-        JobRequest.objects.create(
+        TPP.job_requests.create(
             workspace=self.workspace,
             created_by=self.request.user,
-            backend=backend,
             sha=sha,
             **form.cleaned_data,
         )
