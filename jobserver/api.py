@@ -25,7 +25,7 @@ class JobAPIUpdate(APIView):
         job_request_id = serializers.CharField()
         identifier = serializers.CharField()
         action = serializers.CharField(allow_blank=True)
-        status = serializers.CharField(source="runner_status")
+        status = serializers.CharField()
         status_message = serializers.CharField(allow_blank=True)
         created_at = serializers.DateTimeField()
         updated_at = serializers.DateTimeField(allow_null=True)
@@ -72,11 +72,6 @@ class JobAPIUpdate(APIView):
                 job_data.pop("job_request_id")
 
                 # V1 SHIM
-                # we need to pull this out so it can be used for the
-                # runner_status field since .status is currently a property on
-                # Job until we can remove the v1 code
-                status = job_data.pop("status")
-
                 # we set this based on started_at being set
                 started = bool(job_data["started_at"])
                 # END
@@ -84,7 +79,6 @@ class JobAPIUpdate(APIView):
                 job_request.jobs.update_or_create(
                     identifier=job_data["identifier"],
                     defaults={
-                        "runner_status": status,
                         "started": started,
                         **job_data,
                     },
