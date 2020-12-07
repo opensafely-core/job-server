@@ -1,8 +1,6 @@
 import base64
-import datetime
 import secrets
 
-import pytz
 import requests
 import structlog
 from django.contrib.auth.models import AbstractUser
@@ -110,13 +108,6 @@ class Job(models.Model):
         return Runtime(int(hours), int(minutes), int(seconds))
 
     def save(self, *args, **kwargs):
-        if self.started and not self.started_at:
-            self.started_at = datetime.datetime.now(tz=pytz.UTC)
-
-        if self.status_code is not None and not self.completed_at:
-            if self.started:
-                self.completed_at = datetime.datetime.now(tz=pytz.UTC)
-
         super().save(*args, **kwargs)
 
         self.notify_callback_url()
