@@ -24,54 +24,41 @@ def request_1(workspace, user, now):
     """
     request1 = JobRequest.objects.create(created_by=user, workspace=workspace)
 
-    job1 = Job.objects.create(
+    Job.objects.create(
         request=request1,
         workspace=workspace,
         action=random.choice(actions),
         started_at=now + timedelta(minutes=9),
         completed_at=now + timedelta(minutes=10),
     )
-    job2 = Job.objects.create(
+    Job.objects.create(
         request=request1,
         workspace=workspace,
         action=random.choice(actions),
         started_at=now + timedelta(minutes=7),
         completed_at=now + timedelta(minutes=8),
     )
-    job3 = Job.objects.create(
+    Job.objects.create(
         request=request1,
         workspace=workspace,
         action=random.choice(actions),
         started_at=now + timedelta(minutes=5),
         completed_at=now + timedelta(minutes=6),
     )
-    job4 = Job.objects.create(
+    Job.objects.create(
         request=request1,
         workspace=workspace,
         action=random.choice(actions),
         started_at=now + timedelta(minutes=3),
         completed_at=now + timedelta(minutes=4),
     )
-    job5 = Job.objects.create(
+    Job.objects.create(
         request=request1,
         workspace=workspace,
         action=random.choice(actions),
         started_at=now + timedelta(minutes=1),
         completed_at=now + timedelta(minutes=2),
     )
-
-    # Set up dependency links
-    job1.needed_by = job2
-    job1.save()
-
-    job2.needed_by = job3
-    job2.save()
-
-    job3.needed_by = job4
-    job3.save
-
-    job4.needed_by = job5
-    job4.save()
 
 
 def request_2(workspace, user, now):
@@ -82,29 +69,22 @@ def request_2(workspace, user, now):
     """
     request2 = JobRequest.objects.create(created_by=user, workspace=workspace)
 
-    job1 = Job.objects.create(
+    Job.objects.create(
         request=request2,
         workspace=workspace,
         action=random.choice(actions),
         started_at=now,
         completed_at=now + timedelta(minutes=1),
     )
-    job2 = Job.objects.create(
+    Job.objects.create(
         request=request2,
         workspace=workspace,
         action=random.choice(actions),
         started_at=now + timedelta(minutes=2),
     )
-    job3 = Job.objects.create(
+    Job.objects.create(
         request=request2, workspace=workspace, action=random.choice(actions)
     )
-
-    # Set up dependency links
-    job1.needed_by = job2
-    job1.save()
-
-    job2.needed_by = job3
-    job2.save()
 
 
 def request_3(workspace, user, now):
@@ -117,32 +97,25 @@ def request_3(workspace, user, now):
     # JobRequest 3 - failed
     request3 = JobRequest.objects.create(created_by=user, workspace=workspace)
 
-    job1 = Job.objects.create(
+    Job.objects.create(
         request=request3,
         workspace=workspace,
         action=random.choice(actions),
         started_at=now + timedelta(minutes=3),
         completed_at=now + timedelta(minutes=19),
     )
-    job2 = Job.objects.create(
+    Job.objects.create(
         request=request3,
         workspace=workspace,
         action=random.choice(actions),
         status="failed",
     )
-    job3 = Job.objects.create(
+    Job.objects.create(
         request=request3,
         workspace=workspace,
         action=random.choice(actions),
         status="failed",
     )
-
-    # Set up dependency links
-    job1.needed_by = job2
-    job1.save()
-
-    job2.needed_by = job3
-    job2.save()
 
 
 def request_4(workspace, user, now):
@@ -153,20 +126,16 @@ def request_4(workspace, user, now):
     """
     request4 = JobRequest.objects.create(created_by=user, workspace=workspace)
 
-    job1 = Job.objects.create(
+    Job.objects.create(
         request=request4,
         workspace=workspace,
         action=random.choice(actions),
     )
-    job2 = Job.objects.create(
+    Job.objects.create(
         request=request4,
         workspace=workspace,
         action=random.choice(actions),
     )
-
-    # Set up dependency links
-    job1.needed_by = job2
-    job1.save()
 
 
 class Command(BaseCommand):
