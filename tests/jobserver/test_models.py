@@ -1,7 +1,6 @@
 from datetime import timedelta
 
 import pytest
-import responses
 from django.db.utils import IntegrityError
 from django.urls import reverse
 from django.utils import timezone
@@ -33,87 +32,6 @@ def test_job_get_zombify_url():
     url = job.get_zombify_url()
 
     assert url == reverse("job-zombify", kwargs={"identifier": job.identifier})
-
-
-@pytest.mark.django_db
-@responses.activate
-def test_job_notify_callback_url_action_failed():
-    responses.add(responses.POST, "http://example.com", status=201)
-
-    job_request = JobRequestFactory(callback_url="http://example.com")
-    JobFactory(
-        job_request=job_request,
-        action="Research",
-        completed_at=timezone.now(),
-        started=True,
-        status="failed",
-        status_message="test",
-    )
-
-    assert len(responses.calls) == 1
-    assert responses.calls[0].request.body == b'{"message": "Research failed: test"}'
-
-
-@pytest.mark.django_db
-@responses.activate
-def test_job_notify_callback_url_action_finished():
-    responses.add(responses.POST, "http://example.com", status=201)
-
-    job_request = JobRequestFactory(callback_url="http://example.com")
-    JobFactory(
-        job_request=job_request,
-        action="Research",
-        completed_at=timezone.now(),
-        started=True,
-        status="succeeded",
-        status_message="test",
-    )
-
-    assert len(responses.calls) == 1
-    assert responses.calls[0].request.body == b'{"message": "Research succeeded: test"}'
-
-
-@pytest.mark.django_db
-@responses.activate
-def test_job_notify_callback_url_starting_dependency():
-    responses.add(responses.POST, "http://example.com", status=201)
-
-    parent = JobFactory()
-
-    job_request = JobRequestFactory(callback_url="http://example.com")
-    job = JobFactory(
-        job_request=job_request,
-        action="Research",
-        needed_by=parent,
-        started=False,
-    )
-
-    assert len(responses.calls) == 1
-
-    expected = f'{{"message": "Starting dependency Research, job#{job.pk}"}}'.encode()
-    assert responses.calls[0].request.body == expected
-
-
-@pytest.mark.django_db
-@responses.activate
-def test_job_notify_callback_url_started_with_no_parent():
-    responses.add(responses.POST, "http://example.com", status=201)
-
-    job_request = JobRequestFactory(callback_url="http://example.com")
-    JobFactory(job_request=job_request, started=False)
-
-    assert len(responses.calls) == 0
-
-
-@pytest.mark.django_db
-@responses.activate
-def test_job_notify_callback_url_with_no_callback_url():
-    responses.add(responses.POST, "http://example.com", status=201)
-
-    job_request = JobRequestFactory()
-    JobFactory(job_request=job_request)
-
-    assert len(responses.calls) == 0
 
 
 @pytest.mark.django_db
