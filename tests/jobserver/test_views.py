@@ -481,7 +481,7 @@ def test_workspacedetail_get_success(rf):
 
 @pytest.mark.django_db
 def test_workspacedetail_post_success(rf, monkeypatch):
-    monkeypatch.setattr("jobserver.views.backends", ["the-backend"])
+    monkeypatch.setenv("BACKENDS", "tpp")
 
     workspace = WorkspaceFactory()
     user = UserFactory()

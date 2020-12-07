@@ -10,7 +10,6 @@ from django.urls import reverse
 from django.utils import timezone
 from furl import furl
 
-from .backends import BACKEND_CHOICES
 from .runtime import Runtime
 
 
@@ -120,7 +119,6 @@ class JobRequest(models.Model):
         "Workspace", on_delete=models.CASCADE, related_name="job_requests"
     )
 
-    backend_old = models.TextField(choices=BACKEND_CHOICES, db_index=True)
     force_run_dependencies = models.BooleanField(default=False)
     requested_actions = models.JSONField()
     sha = models.TextField()
