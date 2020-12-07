@@ -54,7 +54,6 @@ class Job(models.Model):
 
     # Remove after the move to v2
     started = models.BooleanField(default=False)
-    status_code = models.IntegerField(null=True, blank=True)
     needed_by = models.ForeignKey(
         "self",
         on_delete=models.SET_NULL,
@@ -83,10 +82,7 @@ class Job(models.Model):
         if self.needed_by and not self.started:
             status = f"Starting dependency {self.action}, job#{self.pk}"
         elif self.started and self.completed_at:
-            if self.status_code == 0:
-                status = f"{self.action} finished: {self.status_message}"
-            else:
-                status = f"Error in {self.action} (status {self.status_message})"
+            status = f"{self.action} {self.status}: {self.status_message}"
         else:
             return
 

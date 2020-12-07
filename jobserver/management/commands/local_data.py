@@ -128,13 +128,13 @@ def request_3(workspace, user, now):
         request=request3,
         workspace=workspace,
         action=random.choice(actions),
-        status_code=1,  # this job failed
+        status="failed",
     )
     job3 = Job.objects.create(
         request=request3,
         workspace=workspace,
         action=random.choice(actions),
-        status_code=7,  # this job didn't run because the previous one failed
+        status="failed",
     )
 
     # Set up dependency links

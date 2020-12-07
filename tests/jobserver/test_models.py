@@ -46,15 +46,12 @@ def test_job_notify_callback_url_action_failed():
         action="Research",
         completed_at=timezone.now(),
         started=True,
-        status_code=1,
+        status="failed",
         status_message="test",
     )
 
     assert len(responses.calls) == 1
-    assert (
-        responses.calls[0].request.body
-        == b'{"message": "Error in Research (status test)"}'
-    )
+    assert responses.calls[0].request.body == b'{"message": "Research failed: test"}'
 
 
 @pytest.mark.django_db
@@ -68,12 +65,12 @@ def test_job_notify_callback_url_action_finished():
         action="Research",
         completed_at=timezone.now(),
         started=True,
-        status_code=0,
+        status="succeeded",
         status_message="test",
     )
 
     assert len(responses.calls) == 1
-    assert responses.calls[0].request.body == b'{"message": "Research finished: test"}'
+    assert responses.calls[0].request.body == b'{"message": "Research succeeded: test"}'
 
 
 @pytest.mark.django_db
