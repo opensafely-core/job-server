@@ -117,7 +117,7 @@ class JobRequest(models.Model):
         "Workspace", on_delete=models.CASCADE, related_name="job_requests"
     )
 
-    backend = models.TextField(choices=BACKEND_CHOICES, db_index=True)
+    backend_old = models.TextField(choices=BACKEND_CHOICES, db_index=True)
     force_run_dependencies = models.BooleanField(default=False)
     requested_actions = models.JSONField()
     sha = models.TextField()
