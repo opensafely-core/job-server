@@ -2,16 +2,47 @@ from datetime import timedelta
 
 import pytest
 from django.utils import timezone
-from rest_framework.test import force_authenticate
+from rest_framework.exceptions import NotAuthenticated
 
-from jobserver.api import JobAPIUpdate, JobRequestAPIList, WorkspaceStatusesAPI
-from jobserver.models import Job, JobRequest
+from jobserver.api import (
+    JobAPIUpdate,
+    JobRequestAPIList,
+    WorkspaceStatusesAPI,
+    get_backend_from_token,
+)
+from jobserver.models import Backend, Job, JobRequest
 
-from ..factories import JobFactory, JobRequestFactory, UserFactory, WorkspaceFactory
+from ..factories import BackendFactory, JobFactory, JobRequestFactory, WorkspaceFactory
+
+
+def test_token_backend_empty_token():
+    with pytest.raises(NotAuthenticated):
+        get_backend_from_token(None)
+
+
+def test_token_backend_no_token():
+    with pytest.raises(NotAuthenticated):
+        get_backend_from_token("")
+
+
+@pytest.mark.django_db
+def test_token_backend_success(monkeypatch):
+    monkeypatch.setenv("BACKENDS", "tpp")
+
+    tpp = Backend.objects.get(name="tpp")
+
+    assert get_backend_from_token(tpp.auth_token) == tpp
+
+
+@pytest.mark.django_db
+def test_token_backend_unknown_backend():
+    with pytest.raises(NotAuthenticated):
+        get_backend_from_token("test")
 
 
 @pytest.mark.django_db
 def test_jobapiupdate_all_existing(api_rf, freezer):
+    backend = BackendFactory()
     job_request = JobRequestFactory()
 
     # 3 pending jobs already exist
@@ -69,8 +100,9 @@ def test_jobapiupdate_all_existing(api_rf, freezer):
         },
     ]
 
-    request = api_rf.post("/", data=data, format="json")
-    force_authenticate(request, user=UserFactory())
+    request = api_rf.post(
+        "/", HTTP_AUTHORIZATION=backend.auth_token, data=data, format="json"
+    )
     response = JobAPIUpdate.as_view()(request)
 
     assert response.status_code == 200, response.data
@@ -103,6 +135,7 @@ def test_jobapiupdate_all_existing(api_rf, freezer):
 
 @pytest.mark.django_db
 def test_jobapiupdate_all_new(api_rf):
+    backend = BackendFactory()
     job_request = JobRequestFactory()
 
     assert Job.objects.count() == 0
@@ -143,8 +176,9 @@ def test_jobapiupdate_all_new(api_rf):
         },
     ]
 
-    request = api_rf.post("/", data=data, format="json")
-    force_authenticate(request, user=UserFactory())
+    request = api_rf.post(
+        "/", HTTP_AUTHORIZATION=backend.auth_token, data=data, format="json"
+    )
     response = JobAPIUpdate.as_view()(request)
 
     assert response.status_code == 200, response.data
@@ -153,12 +187,15 @@ def test_jobapiupdate_all_new(api_rf):
 
 @pytest.mark.django_db
 def test_jobapiupdate_invalid_payload(api_rf):
+    backend = BackendFactory()
+
     assert Job.objects.count() == 0
 
     data = [{"action": "test-action"}]
 
-    request = api_rf.post("/", data=data, format="json")
-    force_authenticate(request, user=UserFactory())
+    request = api_rf.post(
+        "/", HTTP_AUTHORIZATION=backend.auth_token, data=data, format="json"
+    )
     response = JobAPIUpdate.as_view()(request)
 
     assert Job.objects.count() == 0
@@ -174,11 +211,12 @@ def test_jobapiupdate_is_behind_auth(api_rf):
     request = api_rf.post("/")
     response = JobAPIUpdate.as_view()(request)
 
-    assert response.status_code == 401, response.data
+    assert response.status_code == 403, response.data
 
 
 @pytest.mark.django_db
 def test_jobapiupdate_mixture(api_rf, freezer):
+    backend = BackendFactory()
     job_request = JobRequestFactory()
 
     # pending
@@ -217,8 +255,9 @@ def test_jobapiupdate_mixture(api_rf, freezer):
         },
     ]
 
-    request = api_rf.post("/", data=data, format="json")
-    force_authenticate(request, user=UserFactory())
+    request = api_rf.post(
+        "/", HTTP_AUTHORIZATION=backend.auth_token, data=data, format="json"
+    )
     response = JobAPIUpdate.as_view()(request)
 
     assert response.status_code == 200, response.data
@@ -247,29 +286,28 @@ def test_jobapiupdate_mixture(api_rf, freezer):
 
 @pytest.mark.django_db
 def test_jobapiupdate_post_only(api_rf):
+    backend = BackendFactory()
+
     # GET
-    request = api_rf.get("/")
-    force_authenticate(request, user=UserFactory())
+    request = api_rf.get("/", HTTP_AUTHORIZATION=backend.auth_token)
     assert JobAPIUpdate.as_view()(request).status_code == 405
 
     # HEAD
-    request = api_rf.head("/")
-    force_authenticate(request, user=UserFactory())
+    request = api_rf.head("/", HTTP_AUTHORIZATION=backend.auth_token)
     assert JobAPIUpdate.as_view()(request).status_code == 405
 
     # PATCH
-    request = api_rf.patch("/")
-    force_authenticate(request, user=UserFactory())
+    request = api_rf.patch("/", HTTP_AUTHORIZATION=backend.auth_token)
     assert JobAPIUpdate.as_view()(request).status_code == 405
 
     # PUT
-    request = api_rf.put("/")
-    force_authenticate(request, user=UserFactory())
+    request = api_rf.put("/", HTTP_AUTHORIZATION=backend.auth_token)
     assert JobAPIUpdate.as_view()(request).status_code == 405
 
 
 @pytest.mark.django_db
 def test_jobapiupdate_unknown_job_request(api_rf):
+    backend = BackendFactory()
     JobRequestFactory()
 
     data = [
@@ -286,8 +324,9 @@ def test_jobapiupdate_unknown_job_request(api_rf):
         }
     ]
 
-    request = api_rf.post("/", data=data, format="json")
-    force_authenticate(request, user=UserFactory())
+    request = api_rf.post(
+        "/", HTTP_AUTHORIZATION=backend.auth_token, data=data, format="json"
+    )
     response = JobAPIUpdate.as_view()(request)
 
     assert response.status_code == 400, response.data
@@ -296,13 +335,13 @@ def test_jobapiupdate_unknown_job_request(api_rf):
 
 @pytest.mark.django_db
 def test_jobrequestapilist_filter_by_backend(api_rf):
-    JobRequestFactory(backend="expectations")
-    JobRequestFactory(backend="test")
+    JobRequestFactory(backend=Backend.objects.get(name="expectations"))
+    JobRequestFactory(backend=BackendFactory(name="test"))
 
     request = api_rf.get("/?backend=expectations")
     response = JobRequestAPIList.as_view()(request)
 
-    assert response.status_code == 200
+    assert response.status_code == 200, response.data
     assert len(response.data["results"]) == 1
 
 

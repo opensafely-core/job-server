@@ -2,21 +2,47 @@ import itertools
 import operator
 
 from django.db import transaction
+from first import first
 from rest_framework import serializers
-from rest_framework.authentication import BasicAuthentication
-from rest_framework.exceptions import ValidationError
+from rest_framework.exceptions import NotAuthenticated, ValidationError
 from rest_framework.generics import ListAPIView
-from rest_framework.permissions import IsAuthenticated
 from rest_framework.response import Response
 from rest_framework.views import APIView
 
-from .models import JobRequest, Workspace
+from .models import Backend, JobRequest, Workspace
+
+
+def get_backend_from_token(token):
+    """
+    Token based authentication.
+
+    DRF's authentication framework is tied to the concept of a User making
+    requests and, sensibly, assumes you will populate request.user on
+    successful authentication with the appropriate User instance.  However,
+    we want to authenticate each Backend without mixing them up with our
+    Human Users, so per-user auth doesn't make sense.  This function handles
+    token-based auth and returns the relevant Backend on success.
+
+    Clients should authenticate by passing their token in the
+    "Authorization" HTTP header.  For example:
+
+        Authorization: 401f7ac837da42b97f613d789819ff93537bee6a
+
+    """
+
+    if token is None:
+        raise NotAuthenticated("Authorization header is missing")
+
+    if token == "":
+        raise NotAuthenticated("Authorization header is empty")
+
+    try:
+        return Backend.objects.get(auth_token=token)
+    except Backend.DoesNotExist:
+        raise NotAuthenticated("Invalid token")
 
 
 class JobAPIUpdate(APIView):
-    authentication_classes = [BasicAuthentication]
-    permission_classes = [IsAuthenticated]
-
     class serializer_class(serializers.Serializer):
         # FIXME: these fields can be generated with a ModelSerializer once
         # we've migrated to v2 and removed v1-legacy Jobs.  Various fields
@@ -31,6 +57,14 @@ class JobAPIUpdate(APIView):
         updated_at = serializers.DateTimeField(allow_null=True)
         started_at = serializers.DateTimeField(allow_null=True)
         completed_at = serializers.DateTimeField(allow_null=True)
+
+    def initial(self, request, *args, **kwargs):
+        token = request.META.get("HTTP_AUTHORIZATION")
+
+        # require auth for all requests
+        self.backend = get_backend_from_token(token)
+
+        return super().initial(request, *args, **kwargs)
 
     @transaction.atomic
     def post(self, request, *args, **kwargs):
@@ -113,6 +147,15 @@ class JobRequestAPIList(ListAPIView):
             ]
             model = JobRequest
 
+    def initial(self, request, *args, **kwargs):
+        token = request.META.get("HTTP_AUTHORIZATION")
+
+        # if there's an Auth token then try to authenticate with that otherwise
+        # ignore since this endpoint can be used either way.
+        self.backend = get_backend_from_token(token) if token else None
+
+        return super().initial(request, *args, **kwargs)
+
     def get_queryset(self):
         qs = (
             JobRequest.objects.filter(
@@ -123,9 +166,12 @@ class JobRequestAPIList(ListAPIView):
             .distinct()
         )
 
-        backend = self.request.GET.get("backend")
-        if backend:
-            qs = qs.filter(backend__name=backend)
+        # filter JobRequests by Backend name
+        # Prioritise GET arg then self.backend (from authenticated requests)
+        query_arg_backend = self.request.GET.get("backend", None)
+        db_backend = getattr(self.backend, "name", None)
+        if backend_name := first([query_arg_backend, db_backend]):
+            qs = qs.filter(backend__name=backend_name)
 
         return qs
 
