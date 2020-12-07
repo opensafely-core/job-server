@@ -3,7 +3,7 @@ import functools
 from django.urls import reverse
 
 from .backends import show_warning
-from .models import Job, Stats
+from .models import JobRequest, Stats
 
 
 def _is_active(request, prefix):
@@ -11,15 +11,12 @@ def _is_active(request, prefix):
 
 
 def backend_warnings(request):
-    # TODO: rebuild after v2 API goes live to consider JobRequests with no Jobs
-    # as unacked
-    unacked = Job.objects.exclude(started=True).count()
-
     try:
         last_seen = Stats.objects.first().api_last_seen
     except AttributeError:
         last_seen = None
 
+    unacked = JobRequest.objects.unacked().count()
     if not show_warning(unacked, last_seen):
         return {"backend_warnings": []}
 

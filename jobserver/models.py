@@ -5,6 +5,7 @@ import structlog
 from django.contrib.auth.models import AbstractUser
 from django.core.validators import validate_slug
 from django.db import models
+from django.db.models import Count
 from django.urls import reverse
 from django.utils import timezone
 from furl import furl
@@ -89,6 +90,14 @@ class Job(models.Model):
         return Runtime(int(hours), int(minutes), int(seconds))
 
 
+class JobRequestQuerySet(models.QuerySet):
+    def acked(self):
+        return self.annotate(num_jobs=Count("jobs")).filter(num_jobs__gt=0)
+
+    def unacked(self):
+        return self.annotate(num_jobs=Count("jobs")).filter(num_jobs=0)
+
+
 class JobRequest(models.Model):
     """
     A request to run a Job
@@ -117,6 +126,8 @@ class JobRequest(models.Model):
     identifier = models.TextField(default=new_id, unique=True)
 
     created_at = models.DateTimeField(auto_now_add=True)
+
+    objects = JobRequestQuerySet.as_manager()
 
     def get_absolute_url(self):
         return reverse("job-request-detail", kwargs={"pk": self.pk})
