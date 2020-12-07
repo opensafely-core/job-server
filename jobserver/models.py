@@ -27,6 +27,17 @@ def new_id():
     return base64.b32encode(secrets.token_bytes(10)).decode("ascii").lower()
 
 
+class Backend(models.Model):
+    name = models.TextField(unique=True)
+    display_name = models.TextField()
+
+    created_at = models.DateTimeField(auto_now_add=True)
+    updated_at = models.DateTimeField(auto_now=True)
+
+    def __str__(self):
+        return self.name
+
+
 class Job(models.Model):
     job_request = models.ForeignKey(
         "JobRequest",

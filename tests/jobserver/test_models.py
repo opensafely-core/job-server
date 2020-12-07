@@ -8,12 +8,20 @@ from django.utils import timezone
 from jobserver.models import JobRequest, Stats
 
 from ..factories import (
+    BackendFactory,
     JobFactory,
     JobRequestFactory,
     StatsFactory,
     UserFactory,
     WorkspaceFactory,
 )
+
+
+@pytest.mark.django_db
+def test_backend_str():
+    backend = BackendFactory(name="Test Backend")
+
+    assert str(backend) == "Test Backend"
 
 
 @pytest.mark.django_db
