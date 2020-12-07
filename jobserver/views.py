@@ -1,5 +1,3 @@
-import operator
-
 from django.contrib import messages
 from django.contrib.auth.decorators import login_required
 from django.db import transaction
@@ -235,13 +233,11 @@ class WorkspaceDetail(CreateView):
         # project.yaml for the User to pick from
         actions = get_actions(self.workspace.repo_name, self.workspace.branch)
 
-        actions_with_statues = []
+        self.actions = []
         prefetch_related_objects([self.workspace], "job_requests__jobs")
         for action in actions:
             status = self.workspace.get_latest_status_for_action(action["name"])
-            actions_with_statues.append(action | {"status": status})
-
-        self.actions = sorted(actions_with_statues, key=operator.itemgetter("name"))
+            self.actions.append(action | {"status": status})
 
         # ensure there's a run_all action
         action_names = [a["name"] for a in self.actions]
