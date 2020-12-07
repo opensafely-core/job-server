@@ -78,7 +78,7 @@ def test_jobdetail_with_unknown_job(rf):
 
 @pytest.mark.django_db
 def test_jobzombify_not_superuser(client):
-    job = JobFactory(started=True, completed_at=None)
+    job = JobFactory(completed_at=None)
 
     client.force_login(UserFactory(is_superuser=False))
     response = client.post(f"/jobs/{job.identifier}/zombify/", follow=True)
@@ -102,7 +102,7 @@ def test_jobzombify_not_superuser(client):
 
 @pytest.mark.django_db
 def test_jobzombify_success(rf):
-    job = JobFactory(started=True, completed_at=None)
+    job = JobFactory(completed_at=None)
 
     request = rf.post(MEANINGLESS_URL)
     request.user = UserFactory(is_superuser=True)
@@ -265,7 +265,6 @@ def test_jobrequestzombify_not_superuser(client):
     JobFactory.create_batch(
         5,
         job_request=job_request,
-        started=True,
         completed_at=None,
     )
 
@@ -293,8 +292,8 @@ def test_jobrequestzombify_not_superuser(client):
 @pytest.mark.django_db
 def test_jobrequestzombify_success(rf):
     job_request = JobRequestFactory()
-    JobFactory(job_request=job_request, started=False)
-    JobFactory(job_request=job_request, started=True, completed_at=None)
+    JobFactory(job_request=job_request)
+    JobFactory(job_request=job_request, completed_at=None)
 
     request = rf.post(MEANINGLESS_URL)
     request.user = UserFactory(is_superuser=True)

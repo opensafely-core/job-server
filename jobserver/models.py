@@ -53,7 +53,6 @@ class Job(models.Model):
     completed_at = models.DateTimeField(null=True, blank=True)
 
     # Remove after the move to v2
-    started = models.BooleanField(default=False)
     needed_by = models.ForeignKey(
         "self",
         on_delete=models.SET_NULL,
