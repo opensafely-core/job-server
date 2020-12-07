@@ -441,8 +441,8 @@ def test_workspacedetail_get_success(rf):
     assert response.status_code == 200
 
     assert response.context_data["actions"] == [
-        {"name": "run_all", "needs": ["twiddle"], "status": "-"},
         {"name": "twiddle", "needs": [], "status": "-"},
+        {"name": "run_all", "needs": ["twiddle"], "status": "-"},
     ]
 
     assert response.context_data["branch"] == workspace.branch
