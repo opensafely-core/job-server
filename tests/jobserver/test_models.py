@@ -339,30 +339,37 @@ def test_workspace_get_absolute_url():
 
 
 @pytest.mark.django_db
-def test_workspace_get_latest_status_for_action_success():
-    workspace = WorkspaceFactory()
-    job_request = JobRequestFactory(workspace=workspace)
-
-    # failed
-    JobFactory(job_request=job_request, action="test", status="failed")
-
-    # succeeded
-    JobFactory(job_request=job_request, action="test", status="succeeded")
-
-    # running
-    JobFactory(job_request=job_request, action="test", status="running")
-
-    # pending
-    JobFactory(job_request=job_request, action="test", status="pending")
-
-    assert workspace.get_latest_status_for_action("test") == "pending"
+def test_workspace_get_action_status_lut_no_jobs():
+    assert WorkspaceFactory().get_action_status_lut() == {}
 
 
 @pytest.mark.django_db
-def test_workspace_get_latest_status_for_action_unknown_action():
+def test_workspace_get_action_status_lut_success():
     workspace = WorkspaceFactory()
+    job_request = JobRequestFactory(workspace=workspace)
 
-    assert workspace.get_latest_status_for_action("test") == "-"
+    JobFactory(
+        job_request=job_request,
+        action="test",
+        status="failed",
+        created_at=timezone.now() - timedelta(minutes=3),
+    )
+    JobFactory(
+        job_request=job_request,
+        action="test",
+        status="failed",
+        created_at=timezone.now() - timedelta(minutes=2),
+    )
+    JobFactory(
+        job_request=job_request,
+        action="test",
+        status="succeeded",
+        created_at=timezone.now() - timedelta(minutes=1),
+    )
+
+    output = workspace.get_action_status_lut()
+
+    assert output == {"test": "succeeded"}
 
 
 @pytest.mark.django_db

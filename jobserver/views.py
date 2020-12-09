@@ -1,7 +1,7 @@
 from django.contrib import messages
 from django.contrib.auth.decorators import login_required
 from django.db import transaction
-from django.db.models import Q, prefetch_related_objects
+from django.db.models import Q
 from django.shortcuts import get_object_or_404, redirect
 from django.template.response import TemplateResponse
 from django.utils.decorators import method_decorator
@@ -229,22 +229,23 @@ class WorkspaceDetail(CreateView):
         except Workspace.DoesNotExist:
             return redirect("/")
 
-        # build up a list of actions with current statuses from the Workspace's
-        # project.yaml for the User to pick from
-        actions = get_actions(self.workspace.repo_name, self.workspace.branch)
+        action_status_lut = self.workspace.get_action_status_lut()
 
-        self.actions = []
-        prefetch_related_objects([self.workspace], "job_requests__jobs")
-        for action in actions:
-            status = self.workspace.get_latest_status_for_action(action["name"])
-            self.actions.append(action | {"status": status})
-
-        # ensure there's a run_all action
-        action_names = [a["name"] for a in self.actions]
-        if "run_all" not in action_names:
-            self.actions.append(
-                {"name": "run_all", "needs": sorted(action_names), "status": "-"}
+        # build actions as list or render the exception to the page
+        try:
+            self.actions = list(
+                get_actions(
+                    self.workspace.repo_name,
+                    self.workspace.branch,
+                    action_status_lut,
+                )
             )
+        except Exception as e:
+            self.actions = []
+            # this is a bit nasty, need to mirror what get/post would set up for us
+            self.object = None
+            context = self.get_context_data(actions_error=str(e))
+            return self.render_to_response(context=context)
 
         return super().dispatch(request, *args, **kwargs)
 
