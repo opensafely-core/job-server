@@ -13,7 +13,7 @@ COPY requirements.txt .
 RUN pip install --requirement requirements.txt
 
 RUN apt-get update && \
-    apt-get install --no-install-recommends -y sqlite3=3.27.2-3 && \
+    apt-get install --no-install-recommends -y sqlite3=3.27.2-3+deb10u1 && \
     apt-get clean && \
     rm -rf /var/lib/apt/lists/*
 
