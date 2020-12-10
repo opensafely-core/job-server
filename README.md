@@ -36,3 +36,17 @@ To test the integration of job-runner and job-server follow these steps:
 #### Subsequent Runs
 1. Run this against the job-server database: `update jobserver_job set status_code = NULL, status_message = '', started = false, started_at = NULL, completed_at = NULL;` (this will wipe all local Job state)
 1. Run job-runner with `rm -f workdir/db.sqlite && python -m jobrunner.sync`
+
+
+## Add/Updating Static Assets
+We don't currently use any kind of static asset management tool (eg npm, yarn,
+etc) for this project.
+
+Each static asset has been downloaded from the appropriate site and added to
+the project with their version number.
+
+To add or update an asset:
+
+1. Download the asset from its respective site (with `wget` or your favourite tool)
+1. Move the production version to `static/<location>/`
+1. Rename to include the version number (eg `bootstrap.min.css` -> `bootstrap-4.5.0.min.css`)
