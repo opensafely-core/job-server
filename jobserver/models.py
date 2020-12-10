@@ -258,19 +258,27 @@ class Workspace(models.Model):
     def get_absolute_url(self):
         return reverse("workspace-detail", kwargs={"name": self.name})
 
-    def get_latest_status_for_action(self, action):
+    def get_action_status_lut(self):
         """
-        Get the latest status for an action in this Workspace
-        """
+        Build a lookup table of action -> status
 
-        try:
-            job = Job.objects.filter(action=action, job_request__workspace=self).latest(
-                "created_at"
+        We need to get the latest status for each action run inside this
+        Workspace.
+        """
+        # get all known actions
+        actions = set(
+            Job.objects.filter(job_request__workspace=self).values_list(
+                "action", flat=True
             )
-        except Job.DoesNotExist:
-            return "-"
+        )
 
-        return job.status
+        action_status_lut = {}
+        for action in actions:
+            # get the latest status for an action
+            job = Job.objects.filter(action=action).order_by("-created_at").first()
+            action_status_lut[action] = job.status
+
+        return action_status_lut
 
     @property
     def repo_name(self):

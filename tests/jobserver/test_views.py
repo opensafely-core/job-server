@@ -423,6 +423,24 @@ def test_workspacecreate_post_success(rf):
 
 
 @pytest.mark.django_db
+def test_workspacedetail_project_yaml_errors(rf):
+    workspace = WorkspaceFactory()
+    user = UserFactory()
+
+    # Build a RequestFactory instance
+    request = rf.get(MEANINGLESS_URL)
+    request.user = user
+
+    with patch("jobserver.views.get_actions", side_effect=Exception("test error")):
+        response = WorkspaceDetail.as_view()(request, name=workspace.name)
+
+    assert response.status_code == 200
+
+    assert response.context_data["actions"] == []
+    assert response.context_data["actions_error"] == "test error"
+
+
+@pytest.mark.django_db
 def test_workspacedetail_get_success(rf):
     workspace = WorkspaceFactory()
     user = UserFactory()
@@ -431,43 +449,15 @@ def test_workspacedetail_get_success(rf):
     request = rf.get(MEANINGLESS_URL)
     request.user = user
 
-    dummy_project = [
-        {"name": "twiddle", "needs": []},
-        {"name": "run_all", "needs": ["twiddle"]},
-    ]
-    with patch("jobserver.views.get_actions", new=lambda r, b: dummy_project):
+    dummy_project = [{"name": "twiddle", "needs": [], "status": "-"}]
+    with patch("jobserver.views.get_actions", new=lambda *args: dummy_project):
         response = WorkspaceDetail.as_view()(request, name=workspace.name)
 
     assert response.status_code == 200
 
     assert response.context_data["actions"] == [
         {"name": "twiddle", "needs": [], "status": "-"},
-        {"name": "run_all", "needs": ["twiddle"], "status": "-"},
     ]
-
-    assert response.context_data["branch"] == workspace.branch
-
-
-@pytest.mark.django_db
-def test_workspacedetail_without_run_all(rf):
-    workspace = WorkspaceFactory()
-    user = UserFactory()
-
-    # Build a RequestFactory instance
-    request = rf.get(MEANINGLESS_URL)
-    request.user = user
-
-    dummy_project = [{"name": "twiddle", "needs": []}]
-    with patch("jobserver.views.get_actions", new=lambda r, b: dummy_project):
-        response = WorkspaceDetail.as_view()(request, name=workspace.name)
-
-    assert response.status_code == 200
-
-    assert response.context_data["actions"] == [
-        {"name": "twiddle", "needs": [], "status": "-"},
-        {"name": "run_all", "needs": ["twiddle"], "status": "-"},
-    ]
-
     assert response.context_data["branch"] == workspace.branch
 
 
@@ -486,7 +476,7 @@ def test_workspacedetail_post_success(rf):
     request.user = user
 
     dummy_project = [{"name": "twiddle", "needs": []}]
-    with patch("jobserver.views.get_actions", new=lambda r, b: dummy_project), patch(
+    with patch("jobserver.views.get_actions", new=lambda *args: dummy_project), patch(
         "jobserver.views.get_branch_sha", new=lambda r, b: "abc123"
     ):
         response = WorkspaceDetail.as_view()(request, name=workspace.name)
