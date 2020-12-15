@@ -7,7 +7,7 @@ from django.template.response import TemplateResponse
 from django.utils.decorators import method_decorator
 from django.views.generic import CreateView, DetailView, ListView, TemplateView, View
 
-from .backends import TPP, show_warning
+from .backends import backends, show_warning
 from .forms import JobRequestCreateForm, WorkspaceCreateForm
 from .github import get_branch_sha, get_repos_with_branches
 from .models import Job, JobRequest, Stats, User, Workspace
@@ -253,10 +253,15 @@ class WorkspaceDetail(CreateView):
     def form_valid(self, form):
         sha = get_branch_sha(self.workspace.repo_name, self.workspace.branch)
 
+        # Pick a backend.
+        #  We're only configuring one backend in an installation currently.
+        # Rely on that for now.
+        backend = list(backends)[0]
+
         JobRequest.objects.create(
             workspace=self.workspace,
             created_by=self.request.user,
-            backend=TPP,
+            backend=backend,
             sha=sha,
             **form.cleaned_data,
         )
