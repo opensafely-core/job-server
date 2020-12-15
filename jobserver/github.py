@@ -60,18 +60,22 @@ def get_file(repo, branch):
     return r.text
 
 
-def get_repos_with_branches():
+def _get_page(session, cursor):
     """
-    Get Repos with their branches from the OpenSafely Researchers Team
+    Get a page of Repos (with branches) from the OpenSAFELY Researchers Team
 
     This uses the GraphQL API to avoid making O(N) calls to GitHub's (v3) REST
-    API.
+    API.  The passed cursor is a GraphQL cursor [1] allowing us to call this
+    function in a loop, passing in the responses cursor to advance our view of
+    the data.
+
+    [1]: https://graphql.org/learn/pagination/#end-of-list-counts-and-connections
     """
     query = """
-    query {
+    query reposAndBranches($cursor: String) {
       organization(login: "opensafely") {
         team(slug: "researchers") {
-          repositories(first: 100) {
+          repositories(first: 100, after: $cursor) {
             nodes {
               name
               url
@@ -81,29 +85,58 @@ def get_repos_with_branches():
                 }
               }
             }
+            pageInfo {
+                endCursor
+                hasNextPage
+            }
           }
         }
       }
     }
     """
-    payload = {"query": query}
+    # use GraphQL variables to avoid string interpolation
+    variables = {"cursor": cursor}
+    payload = {"query": query, "variables": variables}
 
-    headers = {
+    r = session.post("https://api.github.com/graphql", json=payload)
+    r.raise_for_status()
+    return r.json()["data"]["organization"]["team"]["repositories"]
+
+
+def get_repos_with_branches():
+    """
+    Get Repos (with branches) from the OpenSAFELY Researchers Team
+
+    GitHub limits their paged endpoints to 100 items so we need to paginate the
+    repositories section of our GraphQL query.  GraphQL uses cursors for
+    pagination (more info in the _get_page function).  We start with an empty
+    cursor to get the first page then update it from the response of each page.
+    """
+    session = requests.Session()
+    session.headers = {
         "Authorization": f"bearer {TOKEN}",
         "User-Agent": USER_AGENT,
     }
-    r = requests.post("https://api.github.com/graphql", headers=headers, json=payload)
-    r.raise_for_status()
-    repos = r.json()["data"]["organization"]["team"]["repositories"]["nodes"]
 
-    for repo in repos:
-        branches = [b["name"] for b in repo["refs"]["nodes"]]
+    cursor = ""
+    while True:
+        data = _get_page(session, cursor)
 
-        yield {
-            "name": repo["name"],
-            "url": repo["url"],
-            "branches": branches,
-        }
+        # build a dictionary for each repo with it's branches
+        for repo in data["nodes"]:
+            branches = [b["name"] for b in repo["refs"]["nodes"]]
+
+            yield {
+                "name": repo["name"],
+                "url": repo["url"],
+                "branches": branches,
+            }
+
+        if not data["pageInfo"]["hasNextPage"]:
+            break
+
+        # update the cursor we pass into the GraphQL query
+        cursor = data["pageInfo"]["endCursor"]
 
 
 class GithubOrganizationOAuth2(GithubOAuth2):
