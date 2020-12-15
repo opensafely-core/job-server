@@ -2,6 +2,7 @@ from datetime import timedelta
 from unittest.mock import patch
 
 import pytest
+from django.contrib.auth.models import AnonymousUser
 from django.http import Http404
 from django.urls import reverse
 from django.utils import timezone
@@ -420,6 +421,25 @@ def test_workspacecreate_post_success(rf):
     workspace = Workspace.objects.first()
     assert response.url == reverse("workspace-detail", kwargs={"name": workspace.name})
     assert workspace.created_by == user
+
+
+@pytest.mark.django_db
+def test_workspacedetail_logged_out(rf):
+    workspace = WorkspaceFactory()
+
+    # Build a RequestFactory instance
+    request = rf.get(MEANINGLESS_URL)
+    request.user = AnonymousUser()
+
+    with patch("jobserver.views.get_actions") as mocked_get_actions:
+        response = WorkspaceDetail.as_view()(request, name=workspace.name)
+
+    mocked_get_actions.assert_not_called()
+
+    assert response.status_code == 200
+
+    assert response.context_data["actions"] == []
+    assert response.context_data["branch"] == workspace.branch
 
 
 @pytest.mark.django_db

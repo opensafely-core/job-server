@@ -229,6 +229,12 @@ class WorkspaceDetail(CreateView):
         except Workspace.DoesNotExist:
             return redirect("/")
 
+        if not request.user.is_authenticated:
+            # short-circuit for logged out users to avoid the hop to grab
+            # actions from GitHub
+            self.actions = []
+            return super().dispatch(request, *args, **kwargs)
+
         action_status_lut = self.workspace.get_action_status_lut()
 
         # build actions as list or render the exception to the page
