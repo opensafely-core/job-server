@@ -404,7 +404,7 @@ def test_workspacecreate_post_success(rf):
         "name": "Test",
         "repo": "test",
         "branch": "test",
-        "db": "dummy",
+        "db": "slice",
     }
 
     # Build a RequestFactory instance

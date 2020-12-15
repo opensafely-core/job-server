@@ -244,7 +244,6 @@ class Workspace(models.Model):
     branch = models.TextField()
 
     DB_OPTIONS = (
-        ("dummy", "Dummy database"),
         ("slice", "Cut-down (but real) database"),
         ("full", "Full database"),
     )

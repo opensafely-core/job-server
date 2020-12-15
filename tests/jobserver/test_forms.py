@@ -8,7 +8,7 @@ from jobserver.forms import WorkspaceCreateForm
 def test_workspacecreateform_success():
     data = {
         "name": "test",
-        "db": "dummy",
+        "db": "slice",
         "repo": "http://example.com/derp/test-repo",
         "branch": "test-branch",
     }
@@ -28,7 +28,7 @@ def test_workspacecreateform_success():
 def test_workspacecreateform_success_with_upper_case_names():
     data = {
         "name": "TeSt",
-        "db": "dummy",
+        "db": "full",
         "repo": "http://example.com/derp/test-repo",
         "branch": "test-branch",
     }
@@ -56,7 +56,7 @@ def test_workspacecreateform_unknown_branch():
     form = WorkspaceCreateForm(repos_with_branches)
     form.cleaned_data = {
         "name": "test",
-        "db": "dummy",
+        "db": "slice",
         "repo": "http://example.com/derp/test-repo",
         "branch": "unknown-branch",
     }
@@ -78,7 +78,7 @@ def test_workspacecreateform_unknown_repo():
     form = WorkspaceCreateForm(repos_with_branches)
     form.cleaned_data = {
         "name": "test",
-        "db": "dummy",
+        "db": "full",
         "repo": "unknown-repo",
         "branch": "test-branch",
     }
