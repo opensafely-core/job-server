@@ -18,13 +18,9 @@
       </div>
 
       <div>
-        <strong>Started:</strong> {{ job.started }}
-      </div>
-
-      <div>
         <strong>Status Message:</strong>
         {% if job.status_message %}
-        <code>{{ job.status_message }}</code>
+        <pre>{{ job.status_message }}</pre>
         {% else %}-{% endif %}
       </div>
 
