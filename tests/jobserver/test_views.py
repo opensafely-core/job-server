@@ -462,7 +462,9 @@ def test_workspacedetail_get_success(rf):
 
 
 @pytest.mark.django_db
-def test_workspacedetail_post_success(rf):
+def test_workspacedetail_post_success(rf, monkeypatch):
+    monkeypatch.setattr("jobserver.views.backends", ["the-backend"])
+
     workspace = WorkspaceFactory()
     user = UserFactory()
 
@@ -487,7 +489,7 @@ def test_workspacedetail_post_success(rf):
     job_request = JobRequest.objects.first()
     assert job_request.created_by == user
     assert job_request.workspace == workspace
-    assert job_request.backend == "tpp"
+    assert job_request.backend == "the-backend"
     assert job_request.requested_actions == ["twiddle"]
     assert job_request.sha == "abc123"
     assert not job_request.jobs.exists()
