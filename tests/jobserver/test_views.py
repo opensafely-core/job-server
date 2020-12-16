@@ -140,17 +140,15 @@ def test_jobrequestlist_filters_exist(rf):
 
 @pytest.mark.django_db
 def test_jobrequestlist_filter_by_status(rf):
-    job_request1 = JobRequestFactory()
-    JobFactory(job_request=job_request1)
+    JobFactory(job_request=JobRequestFactory(), status="failed")
 
-    job_request2 = JobRequestFactory()
-    JobFactory.create_batch(2, job_request=job_request2, status="succeeded")
+    JobFactory(job_request=JobRequestFactory(), status="succeeded")
 
     # Build a RequestFactory instance
     request = rf.get("/?status=succeeded")
     response = JobRequestList.as_view()(request)
 
-    assert len(response.context_data["object_list"]) == 1
+    assert len(response.context_data["page_obj"]) == 1
 
 
 @pytest.mark.django_db
