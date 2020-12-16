@@ -55,8 +55,20 @@
   }
 }
 
-.job-list .spinner svg {
+.status-icon {
+  background-repeat: no-repeat;
+  height: 16px;
+  width: 16px;
+}
+.status-icon.failed {
+  background-image: url("/static/icons/times.svg");
+}
+.status-icon.pending {
+  background-image: url("/static/icons/history.svg");
+}
+.status-icon.running {
   animation: spinner 1.2s linear infinite;
+  background-image: url("/static/icons/spinner.svg");
 }
 @keyframes spinner {
   0% {
@@ -65,6 +77,9 @@
   100% {
     transform: rotate(360deg);
   }
+}
+.status-icon.succeeded {
+  background-image: url("/static/icons/check.svg");
 }
 
 .job-list .jobs .grid {

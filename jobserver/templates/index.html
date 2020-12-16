@@ -1,7 +1,6 @@
 {% extends "base.html" %}
 
 {% load static %}
-{% load status_tools %}
 
 {% block content %}
 
@@ -72,7 +71,7 @@
       {% for job_request in job_requests %}
       <div class="job-request">
         <div class="d-flex align-items-center py-2">
-          <div class="status mx-3">{% status_icon job_request.status %}</div>
+          <div class="status status-icon {{ job_request.status }} mx-3"></div>
           <div class="flex-grow-1">{{ job_request.workspace.name }}</div>
           <div class="started-at">{{ job_request.started_at|date:"Y-m-d H:i:s"|default:"-" }}</div>
           <div class="mx-2">

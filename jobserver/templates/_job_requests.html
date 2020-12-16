@@ -1,7 +1,6 @@
 {% load humanize %}
 {% load querystring_tools %}
 {% load runtime %}
-{% load status_tools %}
 
 <div class="job-requests">
   <div class="d-flex">
@@ -18,7 +17,7 @@
   {% for group in page_obj %}
   <div class="job-request">
     <div class="d-flex align-items-center py-2">
-      <div class="status">{% status_icon group.status %}</div>
+      <div class="status status-icon {{ group.status }}"></div>
       {% if show_workspace %}
       <div class="text-truncate workspace">{{ group.workspace.name }}</div>
       {% endif %}
@@ -60,7 +59,7 @@
         <span></span>
 
         {% for job in group.jobs.all %}
-        <span class="pl-3">{% status_icon job.status %}</span>
+        <span class="pl-3 d-block"><div class="status-icon {{ job.status }}"></div></span>
         <span class="d-none d-lg-inline">
           <small>{{ job.identifier }}</small>
         </span>

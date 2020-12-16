@@ -2,7 +2,6 @@
 
 {% load humanize %}
 {% load static %}
-{% load status_tools %}
 
 {% block content %}
 
@@ -126,7 +125,7 @@
               </code>
 
               <span class="mr-3 d-flex justify-content-center" style="width:52px">
-                {% status_icon action.status %}
+                <div class="status-icon {{ action.status }}" title="{{ action.status }}"></div>
               </span>
 
               <div style="width:60px">
