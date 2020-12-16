@@ -81,6 +81,9 @@
 .status-icon.succeeded {
   background-image: url("/static/icons/check.svg");
 }
+.status-icon.unknown {
+  background-image: url("/static/icons/question-circle.svg");
+}
 
 .job-list .jobs .grid {
   display: grid;
