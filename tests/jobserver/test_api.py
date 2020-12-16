@@ -4,7 +4,7 @@ import pytest
 from django.utils import timezone
 from rest_framework.test import force_authenticate
 
-from jobserver.api import JobAPIUpdate, JobRequestAPIList
+from jobserver.api import JobAPIUpdate, JobRequestAPIList, WorkspaceStatusesAPI
 from jobserver.models import Job, JobRequest
 
 from ..factories import JobFactory, JobRequestFactory, UserFactory, WorkspaceFactory
@@ -348,3 +348,24 @@ def test_jobrequestapilist_success(api_rf):
         job_request3.identifier,
         job_request4.identifier,
     }
+
+
+@pytest.mark.django_db
+def test_workspacestatusesapi_success(api_rf):
+    workspace = WorkspaceFactory()
+    job_request = JobRequestFactory(workspace=workspace)
+    JobFactory(job_request=job_request, action="run_all", status="failed")
+
+    request = api_rf.get("/")
+    response = WorkspaceStatusesAPI.as_view()(request, name=workspace.name)
+
+    assert response.status_code == 200
+    assert response.data["run_all"] == "failed"
+
+
+@pytest.mark.django_db
+def test_workspacestatusesapi_unknown_workspace(api_rf):
+    request = api_rf.get("/")
+    response = WorkspaceStatusesAPI.as_view()(request, name="test")
+
+    assert response.status_code == 404

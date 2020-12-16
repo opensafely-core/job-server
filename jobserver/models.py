@@ -257,6 +257,9 @@ class Workspace(models.Model):
     def get_absolute_url(self):
         return reverse("workspace-detail", kwargs={"name": self.name})
 
+    def get_statuses_url(self):
+        return reverse("workspace-statuses", kwargs={"name": self.name})
+
     def get_action_status_lut(self):
         """
         Build a lookup table of action -> status
