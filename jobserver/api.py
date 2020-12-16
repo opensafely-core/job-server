@@ -122,3 +122,16 @@ class JobRequestAPIList(ListAPIView):
                 "workspace",
             ]
             model = JobRequest
+
+
+class WorkspaceStatusesAPI(APIView):
+    permission_classes = []
+
+    def get(self, request, *args, **kwargs):
+        try:
+            workspace = Workspace.objects.get(name=self.kwargs["name"])
+        except Workspace.DoesNotExist:
+            return Response(status=404)
+
+        actions_with_status = workspace.get_action_status_lut()
+        return Response(actions_with_status, status=200)

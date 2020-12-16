@@ -18,7 +18,7 @@ from django.contrib.auth.views import LogoutView
 from django.urls import include, path
 from django.views.generic import RedirectView
 
-from .api import JobAPIUpdate, JobRequestAPIList
+from .api import JobAPIUpdate, JobRequestAPIList, WorkspaceStatusesAPI
 from .views import (
     Index,
     JobDetail,
@@ -38,6 +38,11 @@ urlpatterns = [
     path("", include("social_django.urls", namespace="social")),
     path("api/v2/job-requests/", JobRequestAPIList.as_view()),
     path("api/v2/jobs/", JobAPIUpdate.as_view()),
+    path(
+        "api/v2/workspaces/<name>/statuses/",
+        WorkspaceStatusesAPI.as_view(),
+        name="workspace-statuses",
+    ),
     path("jobs/", JobRequestList.as_view(), name="job-list"),
     path("job-requests/<pk>/", JobRequestDetail.as_view(), name="job-request-detail"),
     path(

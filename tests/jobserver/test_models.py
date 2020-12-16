@@ -339,6 +339,13 @@ def test_workspace_get_absolute_url():
 
 
 @pytest.mark.django_db
+def test_workspace_get_statuses_url():
+    workspace = WorkspaceFactory()
+    url = workspace.get_statuses_url()
+    assert url == reverse("workspace-statuses", kwargs={"name": workspace.name})
+
+
+@pytest.mark.django_db
 def test_workspace_get_action_status_lut_no_jobs():
     assert WorkspaceFactory().get_action_status_lut() == {}
 
