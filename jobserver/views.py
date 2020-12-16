@@ -16,15 +16,11 @@ from .project import get_actions
 
 def filter_by_status(job_requests, status):
     """
-    Filter JobRequests by possible status
+    Filter JobRequests by status property
 
-    Status is currently inferred from various Job fields and "bubbled up"
-    to a JobRequest.  This converts the view's QuerySet to a list via a
-    filter which uses properties on JobRequest to cut down the values to
-    those requested.
-
-    TODO: replace with a custom QuerySet once status is driven entirely via
-    the job-runner
+    JobRequest.status is built by "bubbling up" the status of each related Job.
+    However, the construction of that property isn't easily converted to a
+    QuerySet, hence this function.
     """
     if not status:
         return job_requests
@@ -94,13 +90,11 @@ class JobRequestList(ListView):
         users = User.objects.exclude(social_auth=None)
         users = sorted(users, key=lambda u: u.name.lower())
 
-        context = super().get_context_data(**kwargs)
-
-        # FIXME: This is a hack, see filter_by_status docstring for why and
-        # when to remove it
-        context["object_list"] = filter_by_status(
+        # filter object list based on status arg
+        filtered_object_list = filter_by_status(
             self.object_list, self.request.GET.get("status")
         )
+        context = super().get_context_data(object_list=filtered_object_list, **kwargs)
 
         context["statuses"] = ["failed", "running", "pending", "succeeded"]
         context["users"] = {u.username: u.name for u in users}
