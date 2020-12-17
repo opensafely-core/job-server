@@ -144,16 +144,16 @@ LOGGING = logging_config_dict
 
 # Auth
 AUTHENTICATION_BACKENDS = [
-    "social_core.backends.github.GithubOAuth2",
+    "jobserver.github.GithubOrganizationOAuth2",
     "django.contrib.auth.backends.ModelBackend",
 ]
 AUTH_USER_MODEL = "jobserver.User"
 LOGIN_REDIRECT_URL = "/"
 LOGOUT_REDIRECT_URL = "/"
-LOGIN_URL = reverse_lazy("social:begin", kwargs={"backend": "github"})
-SOCIAL_AUTH_GITHUB_KEY = env.str("SOCIAL_AUTH_GITHUB_KEY", default=None)
-SOCIAL_AUTH_GITHUB_SECRET = env.str("SOCIAL_AUTH_GITHUB_SECRET", default=None)
-SOCIAL_AUTH_GITHUB_SCOPE = ["user:email"]
+LOGIN_URL = reverse_lazy("social:begin", kwargs={"backend": "github-org"})
+SOCIAL_AUTH_GITHUB_ORG_KEY = env.str("SOCIAL_AUTH_GITHUB_KEY", default=None)
+SOCIAL_AUTH_GITHUB_ORG_SECRET = env.str("SOCIAL_AUTH_GITHUB_SECRET", default=None)
+SOCIAL_AUTH_GITHUB_ORG_SCOPE = ["user:email"]
 
 
 # Messages
