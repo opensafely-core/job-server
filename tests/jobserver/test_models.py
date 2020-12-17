@@ -352,29 +352,33 @@ def test_workspace_get_action_status_lut_no_jobs():
 
 @pytest.mark.django_db
 def test_workspace_get_action_status_lut_success():
-    workspace = WorkspaceFactory()
-    job_request = JobRequestFactory(workspace=workspace)
+    workspace1 = WorkspaceFactory()
+    job_request1 = JobRequestFactory(workspace=workspace1)
+    JobFactory(job_request=job_request1, action="other-test", status="succeeded")
+
+    workspace2 = WorkspaceFactory()
+    job_request2 = JobRequestFactory(workspace=workspace2)
 
     JobFactory(
-        job_request=job_request,
+        job_request=job_request2,
         action="test",
         status="failed",
         created_at=timezone.now() - timedelta(minutes=3),
     )
     JobFactory(
-        job_request=job_request,
+        job_request=job_request2,
         action="test",
         status="failed",
         created_at=timezone.now() - timedelta(minutes=2),
     )
     JobFactory(
-        job_request=job_request,
+        job_request=job_request2,
         action="test",
         status="succeeded",
         created_at=timezone.now() - timedelta(minutes=1),
     )
 
-    output = workspace.get_action_status_lut()
+    output = workspace2.get_action_status_lut()
 
     assert output == {"test": "succeeded"}
 
