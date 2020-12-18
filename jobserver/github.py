@@ -126,6 +126,7 @@ class GithubOrganizationOAuth2(GithubOAuth2):
         """
         user_data = super().user_data(access_token, *args, **kwargs)
 
+        # https://docs.github.com/en/free-pro-team@latest/rest/reference/orgs#check-organization-membership-for-a-user
         f = furl(BASE_URL)
         f.path.segments += [
             "orgs",
