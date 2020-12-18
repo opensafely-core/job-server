@@ -74,39 +74,50 @@ def test_get_file_missing_project_yml():
 
 @responses.activate
 def test_get_repos_with_branches():
-    data = {
-        "data": {
-            "organization": {
-                "team": {
-                    "repositories": {
-                        "nodes": [
-                            {
-                                "name": "test-repo",
-                                "url": "http://example.com/test/test/",
-                                "refs": {
-                                    "nodes": [
-                                        {"name": "branch1"},
-                                        {"name": "branch2"},
-                                    ]
-                                },
-                            }
-                        ]
+    def data(hasNextPage):
+        return {
+            "data": {
+                "organization": {
+                    "team": {
+                        "repositories": {
+                            "nodes": [
+                                {
+                                    "name": "test-repo",
+                                    "url": "http://example.com/test/test/",
+                                    "refs": {
+                                        "nodes": [
+                                            {"name": "branch1"},
+                                            {"name": "branch2"},
+                                        ]
+                                    },
+                                }
+                            ],
+                            "pageInfo": {
+                                "endCursor": "test-cursor",
+                                "hasNextPage": hasNextPage,
+                            },
+                        }
                     }
                 }
             }
         }
-    }
+
     expected_url = "https://api.github.com/graphql"
-    responses.add(responses.POST, url=expected_url, json=data, status=200)
+    responses.add(
+        responses.POST, url=expected_url, json=data(hasNextPage=True), status=200
+    )
+    responses.add(
+        responses.POST, url=expected_url, json=data(hasNextPage=False), status=200
+    )
 
     output = list(get_repos_with_branches())
 
-    assert len(responses.calls) == 1
+    assert len(responses.calls) == 2
 
     # check the headers are correct
     assert "bearer" in responses.calls[0].request.headers["Authorization"]
 
-    assert len(output) == 1
+    assert len(output) == 2
     assert output[0]["name"] == "test-repo"
     assert output[0]["branches"][0] == "branch1"
 
