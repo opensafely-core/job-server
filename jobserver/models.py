@@ -267,17 +267,15 @@ class Workspace(models.Model):
         We need to get the latest status for each action run inside this
         Workspace.
         """
+        jobs = Job.objects.filter(job_request__workspace=self)
+
         # get all known actions
-        actions = set(
-            Job.objects.filter(job_request__workspace=self).values_list(
-                "action", flat=True
-            )
-        )
+        actions = set(jobs.values_list("action", flat=True))
 
         action_status_lut = {}
         for action in actions:
             # get the latest status for an action
-            job = Job.objects.filter(action=action).order_by("-created_at").first()
+            job = jobs.order_by("-created_at").first()
             action_status_lut[action] = job.status
 
         return action_status_lut
