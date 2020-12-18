@@ -1,5 +1,4 @@
 import pytest
-import requests
 import responses
 from social_core.exceptions import AuthFailed
 
@@ -112,16 +111,18 @@ def test_get_repos_with_branches():
 
 
 @responses.activate
-def test_githuborganizationoauth2_user_data_404():
+def test_githuborganizationoauth2_user_data_204():
     expected_url = "https://api.github.com/orgs/opensafely/members/test-username"
-    responses.add(responses.GET, url=expected_url, status=404)
+    responses.add(responses.GET, url=expected_url, status=204)
 
     class DummyBackend(GithubOrganizationOAuth2):
         def _user_data(*args, **kwargs):
             return {"email": "test-email", "login": "test-username"}
 
-    with pytest.raises(AuthFailed, match="User doesn't belong to the organization"):
-        DummyBackend().user_data("access-token")
+    # just want to check this doesn't raise an exception here
+    DummyBackend().user_data("access-token")
+
+    assert len(responses.calls) == 1
 
 
 @responses.activate
@@ -133,39 +134,18 @@ def test_githuborganizationoauth2_user_data_302():
         def _user_data(*args, **kwargs):
             return {"email": "test-email", "login": "test-username"}
 
-    DummyBackend().user_data("access-token")
+    with pytest.raises(AuthFailed, match="User doesn't belong to the organization"):
+        DummyBackend().user_data("access-token")
 
 
 @responses.activate
-def test_githuborganizationoauth2_user_data_204():
+def test_githuborganizationoauth2_user_data_404():
     expected_url = "https://api.github.com/orgs/opensafely/members/test-username"
-    responses.add(responses.GET, url=expected_url, status=204)
+    responses.add(responses.GET, url=expected_url, status=404)
 
     class DummyBackend(GithubOrganizationOAuth2):
         def _user_data(*args, **kwargs):
             return {"email": "test-email", "login": "test-username"}
 
-    DummyBackend().user_data("access-token")
-
-    assert len(responses.calls) == 1
-
-
-def test_githuborganizationoauth2_user_data_204_via_error():
-    """
-    Check an HTTPError with response.status_code == 204 doesn't throw an error
-
-    GithubMemberOAuth2 has a check to confirm the status_code of an HTTPError
-    isn't 204.  Since raise_for_status only fires on unsuccessful codes (<400)
-    it's tricky to test this condition!
-    """
-
-    class DummyBackend(GithubOrganizationOAuth2):
-        def _user_data(self, *args, **kwargs):
-            return {"email": "test-email", "login": "test-username"}
-
-        def request(self, *args, **kwargs):
-            response = requests.Response()
-            response.status_code = 204
-            raise requests.exceptions.HTTPError(response=response)
-
-    DummyBackend().user_data("access-token")
+    with pytest.raises(AuthFailed, match="User doesn't belong to the organization"):
+        DummyBackend().user_data("access-token")

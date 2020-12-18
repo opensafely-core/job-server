@@ -140,11 +140,15 @@ class GithubOrganizationOAuth2(GithubOAuth2):
         headers = {"Authorization": f"token {TOKEN}"}
 
         try:
-            self.request(f.url, headers=headers)
-        except requests.HTTPError as err:
-            # if the user is a member of the organization, response code
-            # will be 204, see http://bit.ly/ZS6vFl
-            if err.response.status_code != 204:
-                raise AuthFailed(self, "User doesn't belong to the organization")
+            r = self.request(f.url, headers=headers)
+        except requests.HTTPError as e:
+            # ignore unsuccessful responses, they're all handled in the
+            # conditional below
+            r = e.response
+
+        # The member-of-an-org endpoint returns a 204 on success, any other
+        # status code is a failure here.
+        if r.status_code != 204:
+            raise AuthFailed(self, "User doesn't belong to the organization")
 
         return user_data
