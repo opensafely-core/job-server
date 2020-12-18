@@ -142,8 +142,16 @@ def get_repos_with_branches():
 class GithubOrganizationOAuth2(GithubOAuth2):
     """Github OAuth2 authentication backend for organizations"""
 
-    name = "github-org"
     no_member_string = "User doesn't belong to the organization"
+
+    # Mirror our initial Social Auth Backend choice (GithubOAuth2) provider's
+    # name because it's simpler than making a migration which modifies the
+    # UserSocialAuth table.  Our jobserver app defines a Custom User Model
+    # which social_django depends on in it's migrations dependency tree
+    # (because it FKs User).  This appears to make migrations hit a catch-22 in
+    # dependency resolution.  Rather than dig through the resolver, this is a
+    # much easier fix.
+    name = "github"
 
     def user_data(self, access_token, *args, **kwargs):
         """
