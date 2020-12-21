@@ -4,6 +4,7 @@ django-crispy-forms
 django-rest-framework
 django-structlog
 environs
+first
 furl
 gunicorn
 pyyaml
