@@ -1,4 +1,6 @@
 import base64
+import binascii
+import os
 import secrets
 
 import structlog
@@ -17,6 +19,11 @@ from .runtime import Runtime
 
 env = Env()
 logger = structlog.get_logger(__name__)
+
+
+def generate_token():
+    """Generate a random token string."""
+    return binascii.hexlify(os.urandom(20)).decode()
 
 
 def new_id():
@@ -55,6 +62,8 @@ class BackendManager(models.Manager):
 class Backend(models.Model):
     name = models.TextField(unique=True)
     display_name = models.TextField()
+
+    auth_token = models.TextField(default=generate_token)
 
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
