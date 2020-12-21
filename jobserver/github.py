@@ -167,6 +167,7 @@ class GithubOrganizationOAuth2(GithubOAuth2):
         """
         user_data = super().user_data(access_token, *args, **kwargs)
 
+        # https://docs.github.com/en/free-pro-team@latest/rest/reference/orgs#check-organization-membership-for-a-user
         f = furl(BASE_URL)
         f.path.segments += [
             "orgs",
@@ -180,11 +181,15 @@ class GithubOrganizationOAuth2(GithubOAuth2):
         headers = {"Authorization": f"token {TOKEN}"}
 
         try:
-            self.request(f.url, headers=headers)
-        except requests.HTTPError as err:
-            # if the user is a member of the organization, response code
-            # will be 204, see http://bit.ly/ZS6vFl
-            if err.response.status_code != 204:
-                raise AuthFailed(self, "User doesn't belong to the organization")
+            r = self.request(f.url, headers=headers)
+        except requests.HTTPError as e:
+            # ignore unsuccessful responses, they're all handled in the
+            # conditional below
+            r = e.response
+
+        # The member-of-an-org endpoint returns a 204 on success, any other
+        # status code is a failure here.
+        if r.status_code != 204:
+            raise AuthFailed(self, "User doesn't belong to the organization")
 
         return user_data
