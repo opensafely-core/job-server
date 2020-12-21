@@ -8,11 +8,14 @@ from django.db import models
 from django.db.models import Count
 from django.urls import reverse
 from django.utils import timezone
+from environs import Env
 from furl import furl
 
+from .backends import get_configured_backends
 from .runtime import Runtime
 
 
+env = Env()
 logger = structlog.get_logger(__name__)
 
 
@@ -26,12 +29,37 @@ def new_id():
     return base64.b32encode(secrets.token_bytes(10)).decode("ascii").lower()
 
 
+class BackendManager(models.Manager):
+    def get_queryset(self):
+        """
+        Override default QuerySet to limit backends to those configured
+
+        We want to limit the available backends from the database to those
+        configured in the environment without changing the backed in model
+        validation. Each Backend is created via a migration.  This function
+        limits which backends can be looked up via the ORM to the set listed in
+        the env.
+        """
+        # lookup configured backends on demand to make testing easier
+        configured_backends = get_configured_backends()
+
+        qs = super().get_queryset()
+
+        if not configured_backends:
+            # if no backends are configured, make all available
+            return qs
+
+        return qs.filter(name__in=configured_backends)
+
+
 class Backend(models.Model):
     name = models.TextField(unique=True)
     display_name = models.TextField()
 
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
+
+    objects = BackendManager()
 
     def __str__(self):
         return self.name

@@ -3,45 +3,35 @@ from datetime import timedelta
 import pytest
 from django.utils import timezone
 
-from jobserver.backends import build_backends, build_choices, show_warning
+from jobserver.backends import get_configured_backends, show_warning
 
 
-def test_build_backends_empty(monkeypatch):
+def test_get_configured_backends_empty(monkeypatch):
     monkeypatch.setenv("BACKENDS", "")
-    backends = build_backends()
+    backends = get_configured_backends()
 
     assert backends == set()
 
 
-def test_build_backends_space_around_comma(monkeypatch):
+def test_get_configured_backends_space_around_comma(monkeypatch):
     monkeypatch.setenv("BACKENDS", "tpp , expectations")
-    backends = build_backends()
+    backends = get_configured_backends()
 
     assert backends == {"expectations", "tpp"}
 
 
-def test_build_backends_success(monkeypatch):
+def test_get_configured_backends_success(monkeypatch):
     monkeypatch.setenv("BACKENDS", "tpp,expectations")
-    backends = build_backends()
+    backends = get_configured_backends()
 
     assert backends == {"expectations", "tpp"}
 
 
-def test_build_backends_unknown_backend(monkeypatch):
+def test_get_configured_backends_unknown_backend(monkeypatch):
     monkeypatch.setenv("BACKENDS", "tpp,test,expectations")
 
     with pytest.raises(Exception, match="Unknown backends: test"):
-        build_backends()
-
-
-def test_build_choices_empty_backends():
-    assert build_choices({}) == []
-
-
-def test_build_choices_success():
-    choices = build_choices({"emis", "tpp"})
-
-    assert choices == [("emis", "EMIS"), ("tpp", "TPP")]
+        get_configured_backends()
 
 
 def test_show_warning_zero_unacked():
