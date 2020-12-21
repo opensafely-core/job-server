@@ -30,7 +30,7 @@ def new_id():
 class Job(models.Model):
     job_request = models.ForeignKey(
         "JobRequest",
-        on_delete=models.CASCADE,
+        on_delete=models.PROTECT,
         related_name="jobs",
     )
 
