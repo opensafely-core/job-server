@@ -2,12 +2,7 @@ import pytest
 import responses
 from social_core.exceptions import AuthFailed
 
-from jobserver.github import (
-    GithubOrganizationOAuth2,
-    get_branch_sha,
-    get_file,
-    get_repos_with_branches,
-)
+from jobserver.github import get_branch_sha, get_file, get_repos_with_branches
 
 
 @responses.activate
@@ -111,41 +106,28 @@ def test_get_repos_with_branches():
 
 
 @responses.activate
-def test_githuborganizationoauth2_user_data_204():
+def test_githuborganizationoauth2_user_data_204(dummy_backend):
     expected_url = "https://api.github.com/orgs/opensafely/members/test-username"
     responses.add(responses.GET, url=expected_url, status=204)
 
-    class DummyBackend(GithubOrganizationOAuth2):
-        def _user_data(*args, **kwargs):
-            return {"email": "test-email", "login": "test-username"}
-
-    # just want to check this doesn't raise an exception here
-    DummyBackend().user_data("access-token")
+    dummy_backend.user_data("access-token")
 
     assert len(responses.calls) == 1
 
 
 @responses.activate
-def test_githuborganizationoauth2_user_data_302():
+def test_githuborganizationoauth2_user_data_302(dummy_backend):
     expected_url = "https://api.github.com/orgs/opensafely/members/test-username"
     responses.add(responses.GET, url=expected_url, status=302)
 
-    class DummyBackend(GithubOrganizationOAuth2):
-        def _user_data(*args, **kwargs):
-            return {"email": "test-email", "login": "test-username"}
-
     with pytest.raises(AuthFailed, match="User doesn't belong to the organization"):
-        DummyBackend().user_data("access-token")
+        dummy_backend.user_data("access-token")
 
 
 @responses.activate
-def test_githuborganizationoauth2_user_data_404():
+def test_githuborganizationoauth2_user_data_404(dummy_backend):
     expected_url = "https://api.github.com/orgs/opensafely/members/test-username"
     responses.add(responses.GET, url=expected_url, status=404)
 
-    class DummyBackend(GithubOrganizationOAuth2):
-        def _user_data(*args, **kwargs):
-            return {"email": "test-email", "login": "test-username"}
-
     with pytest.raises(AuthFailed, match="User doesn't belong to the organization"):
-        DummyBackend().user_data("access-token")
+        dummy_backend.user_data("access-token")
