@@ -28,12 +28,9 @@ def new_id():
 
 
 class Job(models.Model):
-    # TODO: remove nullability after move to v2
     job_request = models.ForeignKey(
         "JobRequest",
-        on_delete=models.CASCADE,
-        null=True,
-        blank=True,
+        on_delete=models.PROTECT,
         related_name="jobs",
     )
 
