@@ -34,6 +34,7 @@ from .views import (
     WorkspaceCreate,
     WorkspaceDetail,
     WorkspaceLog,
+    WorkspaceUnarchive,
 )
 
 
@@ -71,4 +72,5 @@ urlpatterns = [
     path("<name>/", WorkspaceDetail.as_view(), name="workspace-detail"),
     path("<name>/archive/", WorkspaceArchive.as_view(), name="workspace-archive"),
     path("<name>/logs/", WorkspaceLog.as_view(), name="workspace-logs"),
+    path("<name>/unarchive/", WorkspaceUnarchive.as_view(), name="workspace-unarchive"),
 ]

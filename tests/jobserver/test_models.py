@@ -406,6 +406,15 @@ def test_workspace_get_statuses_url():
 
 
 @pytest.mark.django_db
+def test_workspace_get_unarchive_url():
+    workspace = WorkspaceFactory()
+
+    url = workspace.get_unarchive_url()
+
+    assert url == reverse("workspace-unarchive", kwargs={"name": workspace.name})
+
+
+@pytest.mark.django_db
 def test_workspace_get_action_status_lut_no_jobs():
     assert WorkspaceFactory().get_action_status_lut() == {}
 

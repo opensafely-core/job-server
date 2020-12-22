@@ -365,3 +365,14 @@ class WorkspaceLog(ListView):
                 qs = qs.filter(Q(jobs__action__icontains=q) | Q(jobs__pk=q))
 
         return qs
+
+
+@method_decorator(login_required, name="dispatch")
+class WorkspaceUnarchive(View):
+    def post(self, request, *args, **kwargs):
+        workspace = get_object_or_404(Workspace, name=self.kwargs["name"])
+
+        workspace.is_archived = False
+        workspace.save()
+
+        return redirect("/")

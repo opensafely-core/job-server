@@ -23,6 +23,7 @@ from jobserver.views import (
     WorkspaceCreate,
     WorkspaceDetail,
     WorkspaceLog,
+    WorkspaceUnarchive,
     superuser_required,
 )
 
@@ -690,3 +691,35 @@ def test_workspacelog_unknown_workspace(rf):
 
     assert response.status_code == 302
     assert response.url == "/"
+
+
+@pytest.mark.django_db
+def test_workspaceunarchive_already_unarchived(rf):
+    workspace = WorkspaceFactory(is_archived=False)
+
+    request = rf.post(MEANINGLESS_URL)
+    request.user = UserFactory()
+
+    response = WorkspaceUnarchive.as_view()(request, name=workspace.name)
+
+    assert response.status_code == 302
+    assert response.url == "/"
+
+    workspace.refresh_from_db()
+    assert not workspace.is_archived
+
+
+@pytest.mark.django_db
+def test_workspaceunarchive_success(rf):
+    workspace = WorkspaceFactory(is_archived=True)
+
+    request = rf.post(MEANINGLESS_URL)
+    request.user = UserFactory()
+
+    response = WorkspaceUnarchive.as_view()(request, name=workspace.name)
+
+    assert response.status_code == 302
+    assert response.url == "/"
+
+    workspace.refresh_from_db()
+    assert not workspace.is_archived

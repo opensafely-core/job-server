@@ -12,10 +12,23 @@
 
       <div class="d-flex">
         {% if request.user.is_authenticated %}
-        <form method="POST" action="{{ workspace.get_archive_url }}" class="mr-2">
+        <form
+          method="POST"
+          {% if not workspace.is_archived %}
+          action="{{ workspace.get_archive_url }}"
+          {% else %}
+          action="{{ workspace.get_unarchive_url }}"
+          {% endif %}
+          class="mr-2">
           {% csrf_token %}
 
-          <button class="btn btn-danger" type="submit">Archive</button>
+          <button class="btn btn-danger" type="submit">
+            {% if not workspace.is_archived %}
+            Archive
+            {% else %}
+            Unarchive
+            {% endif %}
+          </button>
         </form>
         {% endif %}
         <a class="btn btn-primary mr-2" href="{% url 'workspace-logs' name=workspace.name %}">
