@@ -20,6 +20,9 @@ from django.views.generic import RedirectView
 
 from .api import JobAPIUpdate, JobRequestAPIList, WorkspaceStatusesAPI
 from .views import (
+    BackendDetail,
+    BackendList,
+    BackendRotateToken,
     Index,
     JobDetail,
     JobRequestDetail,
@@ -42,6 +45,13 @@ urlpatterns = [
         "api/v2/workspaces/<name>/statuses/",
         WorkspaceStatusesAPI.as_view(),
         name="workspace-statuses",
+    ),
+    path("backends/", BackendList.as_view(), name="backend-list"),
+    path("backends/<pk>/", BackendDetail.as_view(), name="backend-detail"),
+    path(
+        "backends/<pk>/rotate-token/",
+        BackendRotateToken.as_view(),
+        name="backend-rotate-token",
     ),
     path("jobs/", JobRequestList.as_view(), name="job-list"),
     path("job-requests/<pk>/", JobRequestDetail.as_view(), name="job-request-detail"),

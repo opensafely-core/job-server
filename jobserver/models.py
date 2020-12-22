@@ -73,6 +73,16 @@ class Backend(models.Model):
     def __str__(self):
         return self.name
 
+    def get_absolute_url(self):
+        return reverse("backend-detail", kwargs={"pk": self.pk})
+
+    def get_rotate_url(self):
+        return reverse("backend-rotate-token", kwargs={"pk": self.pk})
+
+    def rotate_token(self):
+        self.auth_token = generate_token()
+        self.save()
+
 
 class Job(models.Model):
     job_request = models.ForeignKey(
@@ -333,5 +343,4 @@ class Workspace(models.Model):
 
         if not f.path:
             raise Exception("Repo URL not in expected format, appears to have no path")
-
         return f.path.segments[-1]

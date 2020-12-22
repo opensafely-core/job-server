@@ -1,0 +1,34 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="row">
+  <div class="col-lg-10">
+
+    <h2>{{ backend.display_name }}</h2>
+
+    <div>
+      <strong>Name:</strong>
+      <code>{{ backend.name }}</code>
+    </div>
+
+    <div>
+      <strong>Token:</strong>
+      <code>{{ backend.auth_token }}</code>
+    </div>
+
+  </div>
+
+  <div class="col-lg-2">
+
+    <h3 class="text-center">Tools</h3>
+
+    <form method="POST" action="{{ backend.get_rotate_url }}">
+      {% csrf_token %}
+
+      <button class="btn btn-block btn-danger" type="submit">Rotate Token</button>
+    </form>
+
+  </div>
+
+</div>
+{% endblock content %}

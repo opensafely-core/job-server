@@ -3,12 +3,16 @@ from unittest.mock import patch
 
 import pytest
 from django.contrib.auth.models import AnonymousUser
+from django.contrib.messages.storage.fallback import FallbackStorage
 from django.http import Http404
 from django.urls import reverse
 from django.utils import timezone
 
 from jobserver.models import JobRequest, Workspace
 from jobserver.views import (
+    BackendDetail,
+    BackendList,
+    BackendRotateToken,
     Index,
     JobDetail,
     JobRequestList,
@@ -18,9 +22,11 @@ from jobserver.views import (
     WorkspaceCreate,
     WorkspaceDetail,
     WorkspaceLog,
+    superuser_required,
 )
 
 from ..factories import (
+    BackendFactory,
     JobFactory,
     JobRequestFactory,
     StatsFactory,
@@ -31,6 +37,69 @@ from ..factories import (
 
 
 MEANINGLESS_URL = "/"
+
+
+@pytest.mark.django_db
+def test_superuserrequired_with_superuser(rf):
+    request = rf.get(MEANINGLESS_URL)
+    request.session = "session"
+    request._messages = FallbackStorage(request)
+    request.user = UserFactory(is_superuser=True)
+
+    def dispatch(request):
+        return request
+
+    returned_request = superuser_required(dispatch)(request)
+
+    # check the request is passed through the decorator
+    assert returned_request == request
+
+
+@pytest.mark.django_db
+def test_superuserrequired_without_superuser(rf):
+    request = rf.get(MEANINGLESS_URL)
+    request.session = "session"
+    request._messages = FallbackStorage(request)
+    request.user = UserFactory(is_superuser=False)
+
+    response = superuser_required(None)(request)
+
+    assert response.status_code == 302
+    assert response.url == "/"
+
+
+@pytest.mark.django_db
+def test_backenddetail_success(rf):
+    backend = BackendFactory()
+
+    request = rf.get(MEANINGLESS_URL)
+    request.user = UserFactory(is_superuser=True)
+    response = BackendDetail.as_view()(request, pk=backend.pk)
+
+    assert response.status_code == 200
+    assert response.context_data["backend"] == backend
+
+
+@pytest.mark.django_db
+def test_backendlist_success(rf):
+    request = rf.get(MEANINGLESS_URL)
+    request.user = UserFactory(is_superuser=True)
+    response = BackendList.as_view()(request)
+
+    assert response.status_code == 200
+    assert len(response.context_data["object_list"]) == 3
+
+
+@pytest.mark.django_db
+def test_backendrotatetoken_success(rf):
+    backend = BackendFactory()
+
+    request = rf.post(MEANINGLESS_URL)
+    request.user = UserFactory(is_superuser=True)
+    response = BackendRotateToken.as_view()(request, pk=backend.pk)
+
+    assert response.status_code == 302
+    assert response.url == reverse("backend-detail", kwargs={"pk": backend.pk})
 
 
 @pytest.mark.django_db

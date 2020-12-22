@@ -1,3 +1,5 @@
+from functools import wraps
+
 from django.contrib import messages
 from django.contrib.auth.decorators import login_required
 from django.db import transaction
@@ -33,6 +35,40 @@ def filter_by_status(job_requests, status):
     }
     func = status_lut[status]
     return list(filter(func, job_requests))
+
+
+def superuser_required(f):
+    @wraps(f)
+    def wrapper(request, *args, **kwargs):
+        if request.user.is_superuser:
+            return f(request, *args, **kwargs)
+
+        messages.error(request, "Only admins can view Backends.")
+        return redirect("/")
+
+    return wrapper
+
+
+@method_decorator(superuser_required, name="dispatch")
+class BackendDetail(DetailView):
+    model = Backend
+    template_name = "backend_detail.html"
+
+
+@method_decorator(superuser_required, name="dispatch")
+class BackendList(ListView):
+    model = Backend
+    template_name = "backend_list.html"
+
+
+@method_decorator(superuser_required, name="dispatch")
+class BackendRotateToken(View):
+    def post(self, request, *args, **kwargs):
+        backend = get_object_or_404(Backend, pk=self.kwargs["pk"])
+
+        backend.rotate_token()
+
+        return redirect(backend)
 
 
 class Index(TemplateView):
