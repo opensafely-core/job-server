@@ -19,6 +19,7 @@ from jobserver.views import (
     JobRequestZombify,
     JobZombify,
     Status,
+    WorkspaceArchive,
     WorkspaceCreate,
     WorkspaceDetail,
     WorkspaceLog,
@@ -450,6 +451,38 @@ def test_status_unhealthy(rf):
     assert tpp["queue"]["acked"] == 2
     assert tpp["queue"]["unacked"] == 1
     assert tpp["show_warning"]
+
+
+@pytest.mark.django_db
+def test_workspacearchive_already_archived(rf):
+    workspace = WorkspaceFactory(is_archived=True)
+
+    request = rf.post(MEANINGLESS_URL)
+    request.user = UserFactory()
+
+    response = WorkspaceArchive.as_view()(request, name=workspace.name)
+
+    assert response.status_code == 302
+    assert response.url == "/"
+
+    workspace.refresh_from_db()
+    assert workspace.is_archived
+
+
+@pytest.mark.django_db
+def test_workspacearchive_success(rf):
+    workspace = WorkspaceFactory(is_archived=False)
+
+    request = rf.post(MEANINGLESS_URL)
+    request.user = UserFactory()
+
+    response = WorkspaceArchive.as_view()(request, name=workspace.name)
+
+    assert response.status_code == 302
+    assert response.url == "/"
+
+    workspace.refresh_from_db()
+    assert workspace.is_archived
 
 
 @pytest.mark.django_db

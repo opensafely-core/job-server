@@ -78,7 +78,7 @@ class Index(TemplateView):
         job_requests = JobRequest.objects.prefetch_related("jobs").order_by(
             "-created_at"
         )[:5]
-        workspaces = Workspace.objects.order_by("name")
+        workspaces = Workspace.objects.filter(is_archived=False).order_by("name")
 
         context = super().get_context_data(**kwargs)
         context["job_requests"] = job_requests
@@ -215,6 +215,17 @@ class Status(View):
         }
 
         return TemplateResponse(request, "status.html", context)
+
+
+@method_decorator(login_required, name="dispatch")
+class WorkspaceArchive(View):
+    def post(self, request, *args, **kwargs):
+        workspace = get_object_or_404(Workspace, name=self.kwargs["name"])
+
+        workspace.is_archived = True
+        workspace.save()
+
+        return redirect("/")
 
 
 @method_decorator(login_required, name="dispatch")

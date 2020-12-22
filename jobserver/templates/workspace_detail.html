@@ -10,8 +10,15 @@
     <div class="d-flex justify-content-between align-items-center">
       <h3>{{ workspace.name }}</h3>
 
-      <div>
-        <a class="btn btn-primary" href="{% url 'workspace-logs' name=workspace.name %}">
+      <div class="d-flex">
+        {% if request.user.is_authenticated %}
+        <form method="POST" action="{{ workspace.get_archive_url }}" class="mr-2">
+          {% csrf_token %}
+
+          <button class="btn btn-danger" type="submit">Archive</button>
+        </form>
+        {% endif %}
+        <a class="btn btn-primary mr-2" href="{% url 'workspace-logs' name=workspace.name %}">
           Logs
         </a>
         {% if request.user.is_authenticated %}

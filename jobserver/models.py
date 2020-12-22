@@ -314,6 +314,9 @@ class Workspace(models.Model):
     def get_absolute_url(self):
         return reverse("workspace-detail", kwargs={"name": self.name})
 
+    def get_archive_url(self):
+        return reverse("workspace-archive", kwargs={"name": self.name})
+
     def get_statuses_url(self):
         return reverse("workspace-statuses", kwargs={"name": self.name})
 
