@@ -1,13 +1,20 @@
 # docker configuration for running a development server
 version: "3.6"
+
 services:
   job-server:
     build: .
     environment:
+      - ADMIN_USERS=${ADMIN_USERS}
+      - DATABASE_URL=${DATABASE_URL}
+      - DEBUG=${DEBUG}
       - OPENSAFELY_JOB_SERVER_SECRET_KEY=${OPENSAFELY_JOB_SERVER_SECRET_KEY:-12345}
+      - GITHUB_TOKEN=${GITHUB_TOKEN}
       # Credentials for acessing the job server
       - QUEUE_USER=${OPENSAFELY_QUEUE_USER:-queue}
       - QUEUE_PASS=${OPENSAFELY_QUEUE_PASS:-queue}
+      - SOCIAL_AUTH_GITHUB_KEY=${SOCIAL_AUTH_GITHUB_KEY}
+      - SOCIAL_AUTH_GITHUB_SECRET=${SOCIAL_AUTH_GITHUB_SECRET}
     ports:
       - "8000:8000"
     entrypoint: /app/entrypoint-dev.sh
