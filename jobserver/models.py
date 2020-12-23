@@ -102,9 +102,9 @@ class Job(models.Model):
     status_message = models.TextField(default="", blank=True)
 
     created_at = models.DateTimeField(auto_now_add=True)
-    started_at = models.DateTimeField(null=True, blank=True)
-    updated_at = models.DateTimeField(null=True, blank=True)
-    completed_at = models.DateTimeField(null=True, blank=True)
+    updated_at = models.DateTimeField(null=True)
+    started_at = models.DateTimeField(null=True)
+    completed_at = models.DateTimeField(null=True)
 
     class Meta:
         ordering = ["pk"]
