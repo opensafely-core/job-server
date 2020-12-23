@@ -44,10 +44,6 @@ def get_backend_from_token(token):
 
 class JobAPIUpdate(APIView):
     class serializer_class(serializers.Serializer):
-        # FIXME: these fields can be generated with a ModelSerializer once
-        # we've migrated to v2 and removed v1-legacy Jobs.  Various fields
-        # allow nulls/blank to handle the current late-v1 data, but we don't
-        # want the v2 API to be so relaxed about our data types.
         job_request_id = serializers.CharField()
         identifier = serializers.CharField()
         action = serializers.CharField(allow_blank=True)
