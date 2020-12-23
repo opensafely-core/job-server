@@ -2,6 +2,14 @@
 
 {% block content %}
 
+{% if workspace.is_archived %}
+<div class="alert alert-warning text-center mb-3" role="warning">
+  This Workspace has been archived.  Logs are still available but new Jobs can
+  no longer be requested.  If you think this has been done in error, please
+  contact an admin.
+</div>
+{% endif %}
+
 <div class="job-list">
   <div class="d-flex justify-content-between mt-3 mb-4">
 
