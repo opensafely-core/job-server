@@ -5,7 +5,7 @@ ADMIN_USERS=dummy
 DEBUG=1
 
 # A long random string
-OPENSAFELY_JOB_SERVER_SECRET_KEY=12345
+SECRET_KEY=12345
 
 # Get this from a GitHub Org admin, it's the Service User's PAT
 GITHUB_TOKEN=dummy

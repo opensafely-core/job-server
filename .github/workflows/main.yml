@@ -99,7 +99,7 @@ jobs:
           key: venv-${{ github.ref }}-${{ hashFiles('requirements.txt') }}
       - name: Run tests
         env:
-          OPENSAFELY_JOB_SERVER_SECRET_KEY: 12345
+          SECRET_KEY: 12345
         run: |
           source ${{ github.workspace }}/venv/bin/activate
           make test
