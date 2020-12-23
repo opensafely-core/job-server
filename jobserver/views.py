@@ -270,7 +270,11 @@ class WorkspaceDetail(CreateView):
         except Workspace.DoesNotExist:
             return redirect("/")
 
-        if not request.user.is_authenticated:
+        self.show_details = (
+            request.user.is_authenticated and not self.workspace.is_archived
+        )
+
+        if not self.show_details:
             # short-circuit for logged out users to avoid the hop to grab
             # actions from GitHub
             self.actions = []
@@ -319,6 +323,7 @@ class WorkspaceDetail(CreateView):
         context = super().get_context_data(**kwargs)
         context["actions"] = self.actions
         context["branch"] = self.workspace.branch
+        context["show_details"] = self.show_details
         context["workspace"] = self.workspace
         return context
 
