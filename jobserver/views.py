@@ -332,6 +332,17 @@ class WorkspaceDetail(CreateView):
         kwargs["actions"] = [a["name"] for a in self.actions]
         return kwargs
 
+    def post(self, request, *args, **kwargs):
+        if self.workspace.is_archived:
+            msg = (
+                "You cannot create Jobs for an archived Workspace."
+                "Please contact an admin if you need to have it unarchved."
+            )
+            messages.error(request, msg)
+            return redirect(self.workspace)
+
+        return super().post(request, *args, **kwargs)
+
 
 class WorkspaceLog(ListView):
     paginate_by = 25

@@ -583,6 +583,21 @@ def test_workspacedetail_get_success(rf):
 
 
 @pytest.mark.django_db
+def test_workspacedetail_post_archived_workspace(rf):
+    workspace = WorkspaceFactory(is_archived=True)
+
+    request = rf.post(MEANINGLESS_URL)
+    request.session = "session"
+    request._messages = FallbackStorage(request)
+    request.user = UserFactory()
+
+    response = WorkspaceDetail.as_view()(request, name=workspace.name)
+
+    assert response.status_code == 302
+    assert response.url == workspace.get_absolute_url()
+
+
+@pytest.mark.django_db
 def test_workspacedetail_post_success(rf, monkeypatch):
     monkeypatch.setenv("BACKENDS", "tpp")
 
