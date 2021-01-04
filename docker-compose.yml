@@ -5,13 +5,13 @@ services:
   job-server:
     build: .
     environment:
-      - ADMIN_USERS=${ADMIN_USERS}
-      - DATABASE_URL=${DATABASE_URL}
-      - DEBUG=${DEBUG}
-      - GITHUB_TOKEN=${GITHUB_TOKEN}
+      - ADMIN_USERS
+      - DATABASE_URL
+      - DEBUG
+      - GITHUB_TOKEN
       - SECRET_KEY=${SECRET_KEY:-12345}
-      - SOCIAL_AUTH_GITHUB_KEY=${SOCIAL_AUTH_GITHUB_KEY}
-      - SOCIAL_AUTH_GITHUB_SECRET=${SOCIAL_AUTH_GITHUB_SECRET}
+      - SOCIAL_AUTH_GITHUB_KEY
+      - SOCIAL_AUTH_GITHUB_SECRET
     ports:
       - "8000:8000"
     command: /app/manage.py runserver 0.0.0.0:8000
