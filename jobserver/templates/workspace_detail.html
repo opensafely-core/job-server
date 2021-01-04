@@ -1,6 +1,7 @@
 {% extends "base.html" %}
 
 {% load humanize %}
+{% load runtime %}
 {% load static %}
 
 {% block content %}
@@ -244,6 +245,44 @@
   </div>
 </div>
 {% endif %}
+
+{% if latest_job_request and latest_job_request.jobs.exists %}
+<div class="row mb-4">
+  <div class="col-lg-8 offset-lg-2">
+
+    <hr />
+
+    <h3>Latest Job Request</h3>
+
+    <ul class="list-unstyled">
+      <li><strong>Total Runtime:</strong> {% runtime latest_job_request.runtime %}</li>
+      <li><strong>Requested Actions:</strong> {{ latest_job_request.requested_actions|join:", " }}</li>
+    </ul>
+
+    <div class="latest-jobs mb-3">
+
+      <span></span>
+      <span><strong>Action</strong></span>
+      <span><strong>Runtime</strong></span>
+      <span class="d-none d-lg-inline"><strong>Status Message</strong></span>
+
+      {% for job in latest_job_request.jobs.all %}
+      <span class="pl-3"><div class="status-icon {{ job.status }}"></div></span>
+      <span>{{ job.action }}</span>
+      <span {% if job.started_at %} title="{{ job.started_at|naturaltime }}"{% endif %}>
+        <small>{% runtime job.runtime %}</small>
+      </span>
+      <span class="d-none d-lg-inline text-truncate" title="{{ job.status_message }}">
+        {{ job.status_message|default:"-" }}
+      </span>
+      {% endfor %}
+
+    </div>
+
+  </div>
+</div>
+{% endif %}
+
 {% endif %}
 {% endblock content %}
 
