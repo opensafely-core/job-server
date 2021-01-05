@@ -298,6 +298,7 @@ class Workspace(models.Model):
     name = models.TextField(unique=True, validators=[validate_slug])
     repo = models.TextField(db_index=True)
     branch = models.TextField()
+    is_archived = models.BooleanField(default=False)
 
     DB_OPTIONS = (
         ("slice", "Cut-down (but real) database"),
@@ -313,8 +314,14 @@ class Workspace(models.Model):
     def get_absolute_url(self):
         return reverse("workspace-detail", kwargs={"name": self.name})
 
+    def get_archive_url(self):
+        return reverse("workspace-archive", kwargs={"name": self.name})
+
     def get_statuses_url(self):
         return reverse("workspace-statuses", kwargs={"name": self.name})
+
+    def get_unarchive_url(self):
+        return reverse("workspace-unarchive", kwargs={"name": self.name})
 
     def get_action_status_lut(self):
         """

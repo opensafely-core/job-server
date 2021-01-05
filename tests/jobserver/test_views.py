@@ -19,9 +19,11 @@ from jobserver.views import (
     JobRequestZombify,
     JobZombify,
     Status,
+    WorkspaceArchive,
     WorkspaceCreate,
     WorkspaceDetail,
     WorkspaceLog,
+    WorkspaceUnarchive,
     superuser_required,
 )
 
@@ -453,6 +455,38 @@ def test_status_unhealthy(rf):
 
 
 @pytest.mark.django_db
+def test_workspacearchive_already_archived(rf):
+    workspace = WorkspaceFactory(is_archived=True)
+
+    request = rf.post(MEANINGLESS_URL)
+    request.user = UserFactory()
+
+    response = WorkspaceArchive.as_view()(request, name=workspace.name)
+
+    assert response.status_code == 302
+    assert response.url == "/"
+
+    workspace.refresh_from_db()
+    assert workspace.is_archived
+
+
+@pytest.mark.django_db
+def test_workspacearchive_success(rf):
+    workspace = WorkspaceFactory(is_archived=False)
+
+    request = rf.post(MEANINGLESS_URL)
+    request.user = UserFactory()
+
+    response = WorkspaceArchive.as_view()(request, name=workspace.name)
+
+    assert response.status_code == 302
+    assert response.url == "/"
+
+    workspace.refresh_from_db()
+    assert workspace.is_archived
+
+
+@pytest.mark.django_db
 def test_workspacecreate_get_success(rf):
     request = rf.get(MEANINGLESS_URL)
     request.user = UserFactory()
@@ -546,6 +580,21 @@ def test_workspacedetail_get_success(rf):
         {"name": "twiddle", "needs": [], "status": "-"},
     ]
     assert response.context_data["branch"] == workspace.branch
+
+
+@pytest.mark.django_db
+def test_workspacedetail_post_archived_workspace(rf):
+    workspace = WorkspaceFactory(is_archived=True)
+
+    request = rf.post(MEANINGLESS_URL)
+    request.session = "session"
+    request._messages = FallbackStorage(request)
+    request.user = UserFactory()
+
+    response = WorkspaceDetail.as_view()(request, name=workspace.name)
+
+    assert response.status_code == 302
+    assert response.url == workspace.get_absolute_url()
 
 
 @pytest.mark.django_db
@@ -657,3 +706,35 @@ def test_workspacelog_unknown_workspace(rf):
 
     assert response.status_code == 302
     assert response.url == "/"
+
+
+@pytest.mark.django_db
+def test_workspaceunarchive_already_unarchived(rf):
+    workspace = WorkspaceFactory(is_archived=False)
+
+    request = rf.post(MEANINGLESS_URL)
+    request.user = UserFactory()
+
+    response = WorkspaceUnarchive.as_view()(request, name=workspace.name)
+
+    assert response.status_code == 302
+    assert response.url == "/"
+
+    workspace.refresh_from_db()
+    assert not workspace.is_archived
+
+
+@pytest.mark.django_db
+def test_workspaceunarchive_success(rf):
+    workspace = WorkspaceFactory(is_archived=True)
+
+    request = rf.post(MEANINGLESS_URL)
+    request.user = UserFactory()
+
+    response = WorkspaceUnarchive.as_view()(request, name=workspace.name)
+
+    assert response.status_code == 302
+    assert response.url == "/"
+
+    workspace.refresh_from_db()
+    assert not workspace.is_archived

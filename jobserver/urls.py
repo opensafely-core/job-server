@@ -30,9 +30,11 @@ from .views import (
     JobRequestZombify,
     JobZombify,
     Status,
+    WorkspaceArchive,
     WorkspaceCreate,
     WorkspaceDetail,
     WorkspaceLog,
+    WorkspaceUnarchive,
 )
 
 
@@ -68,5 +70,7 @@ urlpatterns = [
     path("workspaces/new/", WorkspaceCreate.as_view(), name="workspace-create"),
     path("__debug__/", include(debug_toolbar.urls)),
     path("<name>/", WorkspaceDetail.as_view(), name="workspace-detail"),
+    path("<name>/archive/", WorkspaceArchive.as_view(), name="workspace-archive"),
     path("<name>/logs/", WorkspaceLog.as_view(), name="workspace-logs"),
+    path("<name>/unarchive/", WorkspaceUnarchive.as_view(), name="workspace-unarchive"),
 ]

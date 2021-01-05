@@ -5,16 +5,44 @@
 
 {% block content %}
 
+{% if workspace.is_archived %}
+<div class="alert alert-warning text-center mb-3" role="warning">
+  This Workspace has been archived.  Logs are still available but new Jobs can
+  no longer be requested.  If you think this has been done in error, please
+  contact an admin.
+</div>
+{% endif %}
+
 <div class="row">
   <div class="col-lg-8 offset-lg-2">
     <div class="d-flex justify-content-between align-items-center">
       <h3>{{ workspace.name }}</h3>
 
-      <div>
-        <a class="btn btn-primary" href="{% url 'workspace-logs' name=workspace.name %}">
+      <div class="d-flex">
+        {% if request.user.is_authenticated %}
+        <form
+          method="POST"
+          {% if not workspace.is_archived %}
+          action="{{ workspace.get_archive_url }}"
+          {% else %}
+          action="{{ workspace.get_unarchive_url }}"
+          {% endif %}
+          class="mr-2">
+          {% csrf_token %}
+
+          <button class="btn btn-danger" type="submit">
+            {% if not workspace.is_archived %}
+            Archive
+            {% else %}
+            Unarchive
+            {% endif %}
+          </button>
+        </form>
+        {% endif %}
+        <a class="btn btn-primary mr-2" href="{% url 'workspace-logs' name=workspace.name %}">
           Logs
         </a>
-        {% if request.user.is_authenticated %}
+        {% if show_details %}
         <a
           class="btn btn-primary"
           data-toggle="collapse"
@@ -28,7 +56,7 @@
       </div>
     </div>
 
-    <div id="details"{% if request.user.is_authenticated %} class="collapse"{% endif %}>
+    <div id="details"{% if show_details %} class="collapse"{% endif %}>
 
       <p>
         <strong>Repo:</strong>
@@ -53,7 +81,7 @@
   </div>
 </div>
 
-{% if request.user.is_authenticated %}
+{% if show_details %}
 {% if actions_error %}
 <div class="row">
   <div class="col-lg-8 offset-lg-2 my-5">

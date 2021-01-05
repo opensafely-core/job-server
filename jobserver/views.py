@@ -78,7 +78,7 @@ class Index(TemplateView):
         job_requests = JobRequest.objects.prefetch_related("jobs").order_by(
             "-created_at"
         )[:5]
-        workspaces = Workspace.objects.order_by("name")
+        workspaces = Workspace.objects.filter(is_archived=False).order_by("name")
 
         context = super().get_context_data(**kwargs)
         context["job_requests"] = job_requests
@@ -218,6 +218,17 @@ class Status(View):
 
 
 @method_decorator(login_required, name="dispatch")
+class WorkspaceArchive(View):
+    def post(self, request, *args, **kwargs):
+        workspace = get_object_or_404(Workspace, name=self.kwargs["name"])
+
+        workspace.is_archived = True
+        workspace.save()
+
+        return redirect("/")
+
+
+@method_decorator(login_required, name="dispatch")
 class WorkspaceCreate(CreateView):
     form_class = WorkspaceCreateForm
     model = Workspace
@@ -259,7 +270,11 @@ class WorkspaceDetail(CreateView):
         except Workspace.DoesNotExist:
             return redirect("/")
 
-        if not request.user.is_authenticated:
+        self.show_details = (
+            request.user.is_authenticated and not self.workspace.is_archived
+        )
+
+        if not self.show_details:
             # short-circuit for logged out users to avoid the hop to grab
             # actions from GitHub
             self.actions = []
@@ -308,6 +323,7 @@ class WorkspaceDetail(CreateView):
         context = super().get_context_data(**kwargs)
         context["actions"] = self.actions
         context["branch"] = self.workspace.branch
+        context["show_details"] = self.show_details
         context["workspace"] = self.workspace
         return context
 
@@ -315,6 +331,17 @@ class WorkspaceDetail(CreateView):
         kwargs = super().get_form_kwargs()
         kwargs["actions"] = [a["name"] for a in self.actions]
         return kwargs
+
+    def post(self, request, *args, **kwargs):
+        if self.workspace.is_archived:
+            msg = (
+                "You cannot create Jobs for an archived Workspace."
+                "Please contact an admin if you need to have it unarchved."
+            )
+            messages.error(request, msg)
+            return redirect(self.workspace)
+
+        return super().post(request, *args, **kwargs)
 
 
 class WorkspaceLog(ListView):
@@ -354,3 +381,14 @@ class WorkspaceLog(ListView):
                 qs = qs.filter(Q(jobs__action__icontains=q) | Q(jobs__pk=q))
 
         return qs
+
+
+@method_decorator(login_required, name="dispatch")
+class WorkspaceUnarchive(View):
+    def post(self, request, *args, **kwargs):
+        workspace = get_object_or_404(Workspace, name=self.kwargs["name"])
+
+        workspace.is_archived = False
+        workspace.save()
+
+        return redirect("/")
