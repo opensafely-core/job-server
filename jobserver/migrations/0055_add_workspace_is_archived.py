@@ -6,7 +6,7 @@ from django.db import migrations, models
 class Migration(migrations.Migration):
 
     dependencies = [
-        ("jobserver", "0053_add_backend_auth_token"),
+        ("jobserver", "0054_remove_blankability_from_job_timestamp_fields"),
     ]
 
     operations = [
