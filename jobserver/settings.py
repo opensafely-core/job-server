@@ -45,7 +45,6 @@ INSTALLED_APPS = [
     "crispy_forms",
     "debug_toolbar",
     "django_extensions",
-    "django_filters",
     "rest_framework",
     "social_django",
     "django.contrib.auth",
@@ -176,13 +175,7 @@ CRISPY_TEMPLATE_PACK = "bootstrap4"
 # REST Framework
 # https://www.django-rest-framework.org/api-guide/settings/
 REST_FRAMEWORK = {
-    # Use Django's standard `django.contrib.auth` permissions,
-    # or allow read-only access for unauthenticated users.
-    "DEFAULT_PERMISSION_CLASSES": [
-        "rest_framework.permissions.DjangoModelPermissionsOrAnonReadOnly"
-    ],
     "DEFAULT_PAGINATION_CLASS": "rest_framework.pagination.LimitOffsetPagination",
-    "DEFAULT_FILTER_BACKENDS": ["django_filters.rest_framework.DjangoFilterBackend"],
     "PAGE_SIZE": 100,
 }
 

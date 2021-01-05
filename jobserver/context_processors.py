@@ -39,4 +39,13 @@ def nav(request):
         },
     ]
 
+    if request.user.is_superuser:
+        options.append(
+            {
+                "name": "Backends",
+                "is_active": _active(reverse("backend-list")),
+                "url": reverse("backend-list"),
+            }
+        )
+
     return {"nav": options}

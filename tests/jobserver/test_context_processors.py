@@ -6,7 +6,7 @@ from django.utils import timezone
 
 from jobserver.context_processors import backend_warnings, nav
 
-from ..factories import JobRequestFactory, StatsFactory
+from ..factories import JobRequestFactory, StatsFactory, UserFactory
 
 
 @pytest.mark.django_db
@@ -33,14 +33,46 @@ def test_backend_warnings_with_warnings(rf):
     assert output["backend_warnings"] == ["TPP"]
 
 
+@pytest.mark.django_db
 def test_nav_jobs(rf):
-    job_list_url = reverse("job-list")
-    request = rf.get(job_list_url)
+    request = rf.get(reverse("job-list"))
+    request.user = UserFactory(is_superuser=False)
 
-    output = nav(request)
-
-    jobs = output["nav"][0]
-    status = output["nav"][1]
+    jobs, status = nav(request)["nav"]
 
     assert jobs["is_active"] is True
+    assert status["is_active"] is False
+
+
+@pytest.mark.django_db
+def test_nav_status(rf):
+    request = rf.get(reverse("status"))
+    request.user = UserFactory(is_superuser=False)
+
+    jobs, status = nav(request)["nav"]
+
+    assert jobs["is_active"] is False
+    assert status["is_active"] is True
+
+
+@pytest.mark.django_db
+def test_nav_backends(rf):
+    request = rf.get(reverse("backend-list"))
+    request.user = UserFactory(is_superuser=True)
+
+    jobs, status, backends = nav(request)["nav"]
+
+    assert jobs["is_active"] is False
+    assert status["is_active"] is False
+    assert backends["is_active"] is True
+
+
+@pytest.mark.django_db
+def test_nav_without_superuser(rf):
+    request = rf.get(reverse("backend-list"))
+    request.user = UserFactory(is_superuser=False)
+
+    jobs, status = nav(request)["nav"]
+
+    assert jobs["is_active"] is False
     assert status["is_active"] is False

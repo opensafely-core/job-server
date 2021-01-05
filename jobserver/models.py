@@ -1,4 +1,6 @@
 import base64
+import binascii
+import os
 import secrets
 
 import structlog
@@ -8,13 +10,20 @@ from django.db import models
 from django.db.models import Count
 from django.urls import reverse
 from django.utils import timezone
+from environs import Env
 from furl import furl
 
-from .backends import BACKEND_CHOICES
+from .backends import get_configured_backends
 from .runtime import Runtime
 
 
+env = Env()
 logger = structlog.get_logger(__name__)
+
+
+def generate_token():
+    """Generate a random token string."""
+    return binascii.hexlify(os.urandom(20)).decode()
 
 
 def new_id():
@@ -25,6 +34,54 @@ def new_id():
     and inspecting the job-runner a bit more ergonomic.
     """
     return base64.b32encode(secrets.token_bytes(10)).decode("ascii").lower()
+
+
+class BackendManager(models.Manager):
+    def get_queryset(self):
+        """
+        Override default QuerySet to limit backends to those configured
+
+        We want to limit the available backends from the database to those
+        configured in the environment without changing the backed in model
+        validation. Each Backend is created via a migration.  This function
+        limits which backends can be looked up via the ORM to the set listed in
+        the env.
+        """
+        # lookup configured backends on demand to make testing easier
+        configured_backends = get_configured_backends()
+
+        qs = super().get_queryset()
+
+        if not configured_backends:
+            # if no backends are configured, make all available
+            return qs
+
+        return qs.filter(name__in=configured_backends)
+
+
+class Backend(models.Model):
+    name = models.TextField(unique=True)
+    display_name = models.TextField()
+
+    auth_token = models.TextField(default=generate_token)
+
+    created_at = models.DateTimeField(auto_now_add=True)
+    updated_at = models.DateTimeField(auto_now=True)
+
+    objects = BackendManager()
+
+    def __str__(self):
+        return self.name
+
+    def get_absolute_url(self):
+        return reverse("backend-detail", kwargs={"pk": self.pk})
+
+    def get_rotate_url(self):
+        return reverse("backend-rotate-token", kwargs={"pk": self.pk})
+
+    def rotate_token(self):
+        self.auth_token = generate_token()
+        self.save()
 
 
 class Job(models.Model):
@@ -95,6 +152,9 @@ class JobRequest(models.Model):
     by this object.
     """
 
+    backend = models.ForeignKey(
+        "Backend", on_delete=models.PROTECT, null=True, related_name="job_requests"
+    )
     created_by = models.ForeignKey(
         "User",
         on_delete=models.CASCADE,
@@ -106,7 +166,6 @@ class JobRequest(models.Model):
         "Workspace", on_delete=models.CASCADE, related_name="job_requests"
     )
 
-    backend = models.TextField(choices=BACKEND_CHOICES, db_index=True)
     force_run_dependencies = models.BooleanField(default=False)
     requested_actions = models.JSONField()
     sha = models.TextField()
@@ -284,5 +343,4 @@ class Workspace(models.Model):
 
         if not f.path:
             raise Exception("Repo URL not in expected format, appears to have no path")
-
         return f.path.segments[-1]
