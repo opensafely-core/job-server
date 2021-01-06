@@ -13,7 +13,7 @@ TOKEN = env.str("GITHUB_TOKEN")
 USER_AGENT = "OpenSAFELY Jobs"
 
 
-def get_branch_sha(repo, branch):
+def get_branch(repo, branch):
     f = furl(BASE_URL)
     f.path.segments += [
         "repos",
@@ -29,9 +29,22 @@ def get_branch_sha(repo, branch):
         "User-Agent": "OpenSAFELY Jobs",
     }
     r = requests.get(f.url, headers=headers)
+
+    if r.status_code == 404:
+        return
+
     r.raise_for_status()
 
-    return r.json()["commit"]["sha"]
+    return r.json()
+
+
+def get_branch_sha(repo, branch):
+    branch = get_branch(repo, branch)
+
+    if branch is None:
+        return
+
+    return branch["commit"]["sha"]
 
 
 def get_file(repo, branch):
