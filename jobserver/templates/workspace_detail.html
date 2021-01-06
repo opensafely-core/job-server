@@ -90,7 +90,23 @@
 
     <pre class="text-left">{{ actions_error }}</pre>
 
-    <p>Fix the error above and reload this page to continue.</p>
+    <p>
+      To run actions for this Workspace please fix the error above and reload
+      this page to continue.
+    </p>
+
+    <p>
+      If the branch no longer exists you will need to set up a new workspace.
+      Previous jobs in this workspace are still available via the Logs button.
+    </p>
+
+    {% if not workspace.is_archived %}
+    <p>
+      If you are done with this Workspace's branch you can also Archive it to
+      stop it appearing on the homepage list.
+    </p>
+    {% endif %}
+
   </div>
 </div>
 {% endif %}
