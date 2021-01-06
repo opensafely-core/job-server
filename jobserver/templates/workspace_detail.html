@@ -191,7 +191,14 @@
         </div>
 
         <small id="actions_help_block" class="form-text text-muted">
-          Selecting an Action will run it, regardless of its previous state or outputs.
+          <p>Selecting an Action will run it, regardless of its previous state or outputs.</p>
+
+          <p>
+            Selecting "run_all" will run any Action which has yet to complete.
+            Previously successful actions are skipped. A previously failed
+            action will cause "run_all" to refuse to run.  You can override
+            this functionality by selecting "force run dependencies" below.
+          </p>
         </small>
 
         {% if form.requested_actions.errors %}
