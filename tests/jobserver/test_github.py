@@ -1,22 +1,23 @@
+from unittest.mock import patch
+
 import pytest
 import responses
 from social_core.exceptions import AuthFailed
 
-from jobserver.github import get_branch_sha, get_file, get_repos_with_branches
+from jobserver.github import (
+    get_branch,
+    get_branch_sha,
+    get_file,
+    get_repos_with_branches,
+)
 
 
 @responses.activate
-def test_get_branch_sha():
-    data = {
-        "commit": {
-            "sha": "abc123",
-        }
-    }
-
+def test_get_branch():
     expected_url = "https://api.github.com/repos/opensafely/some_repo/branches/master"
-    responses.add(responses.GET, expected_url, json=data, status=200)
+    responses.add(responses.GET, expected_url, json={"test": "test"}, status=200)
 
-    output = get_branch_sha("some_repo", "master")
+    output = get_branch("some_repo", "master")
 
     assert len(responses.calls) == 1
 
@@ -25,9 +26,40 @@ def test_get_branch_sha():
     # check the headers are correct
     assert "token" in call.request.headers["Authorization"]
     assert call.request.headers["Accept"] == "application/vnd.github.v3+json"
-    assert call.response.text == '{"commit": {"sha": "abc123"}}'
+    assert call.response.text == '{"test": "test"}'
+
+    assert output == {"test": "test"}
+
+
+@responses.activate
+def test_get_branch_with_missing_branch():
+    expected_url = "https://api.github.com/repos/opensafely/some_repo/branches/master"
+    responses.add(responses.GET, expected_url, status=404)
+
+    output = get_branch("some_repo", "master")
+
+    assert len(responses.calls) == 1
+    assert output is None
+
+
+def test_get_branch_sha():
+    data = {
+        "commit": {
+            "sha": "abc123",
+        }
+    }
+
+    with patch("jobserver.github.get_branch", lambda r, b: data):
+        output = get_branch_sha("some_repo", "master")
 
     assert output == "abc123"
+
+
+def test_get_branch_sha_with_missing_branch():
+    with patch("jobserver.github.get_branch", lambda r, b: None):
+        output = get_branch_sha("some_repo", "master")
+
+    assert output is None
 
 
 @responses.activate

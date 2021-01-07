@@ -23,10 +23,17 @@ def test_get_actions_empty_needs():
     assert output == expected
 
 
+def test_get_actions_no_branch():
+    with patch("jobserver.project.get_file", lambda r, b: None), patch(
+        "jobserver.project.get_branch", lambda r, b: None
+    ), pytest.raises(Exception, match="Missing branch: 'master'"):
+        list(get_actions("test", "master", {}))
+
+
 def test_get_actions_no_project_yaml():
-    with patch("jobserver.project.get_file", lambda r, b: None), pytest.raises(
-        Exception, match="Could not find project.yaml"
-    ):
+    with patch("jobserver.project.get_file", lambda r, b: None), patch(
+        "jobserver.project.get_branch", lambda r, b: True
+    ), pytest.raises(Exception, match="Could not find project.yaml"):
         list(get_actions("test", "master", {}))
 
 

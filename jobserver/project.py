@@ -1,6 +1,6 @@
 import yaml
 
-from .github import get_file
+from .github import get_branch, get_file
 
 
 def load_yaml(content):
@@ -11,6 +11,9 @@ def get_actions(repo, branch, status_lut):
     """Get actions from project.yaml for this Workspace"""
     content = get_file(repo, branch)
     if content is None:
+        if get_branch(repo, branch) is None:
+            raise Exception(f"Missing branch: '{branch}'")
+
         raise Exception("Could not find project.yaml")
 
     project = load_yaml(content)
