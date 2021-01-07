@@ -264,12 +264,7 @@ class JobRequest(models.Model):
 
 
 class Stats(models.Model):
-    """
-    This holds Site wide statistics.
-
-    It acts as a singleton by overriding the save() method to always point to
-    PK=1.
-    """
+    """This holds per-Backend, per-URL API statistics."""
 
     backend = models.ForeignKey(
         "Backend", on_delete=models.PROTECT, related_name="stats"
@@ -280,11 +275,6 @@ class Stats(models.Model):
 
     class Meta:
         unique_together = ["backend", "url"]
-
-    def save(self, *args, **kwargs):
-        self.pk = 1
-
-        return super().save(*args, **kwargs)
 
 
 class User(AbstractUser):
