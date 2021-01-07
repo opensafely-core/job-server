@@ -276,6 +276,10 @@ class Stats(models.Model):
     )
 
     api_last_seen = models.DateTimeField(null=True, blank=True)
+    url = models.TextField()
+
+    class Meta:
+        unique_together = ["backend", "url"]
 
     def save(self, *args, **kwargs):
         self.pk = 1
