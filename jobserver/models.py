@@ -65,7 +65,7 @@ class Backend(models.Model):
 
     auth_token = models.TextField(default=generate_token)
 
-    created_at = models.DateTimeField(auto_now_add=True)
+    created_at = models.DateTimeField(default=timezone.now)
     updated_at = models.DateTimeField(auto_now=True)
 
     objects = BackendManager()
@@ -101,7 +101,7 @@ class Job(models.Model):
     status = models.TextField()
     status_message = models.TextField(default="", blank=True)
 
-    created_at = models.DateTimeField(auto_now_add=True)
+    created_at = models.DateTimeField(default=timezone.now)
     updated_at = models.DateTimeField(null=True)
     started_at = models.DateTimeField(null=True)
     completed_at = models.DateTimeField(null=True)
@@ -171,7 +171,7 @@ class JobRequest(models.Model):
     sha = models.TextField()
     identifier = models.TextField(default=new_id, unique=True)
 
-    created_at = models.DateTimeField(auto_now_add=True)
+    created_at = models.DateTimeField(default=timezone.now)
 
     objects = JobRequestQuerySet.as_manager()
 
@@ -306,7 +306,7 @@ class Workspace(models.Model):
     )
     db = models.TextField(choices=DB_OPTIONS)
 
-    created_at = models.DateTimeField(auto_now_add=True)
+    created_at = models.DateTimeField(default=timezone.now)
 
     def __str__(self):
         return f"{self.name} ({self.repo})"
