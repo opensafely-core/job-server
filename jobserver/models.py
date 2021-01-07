@@ -271,6 +271,10 @@ class Stats(models.Model):
     PK=1.
     """
 
+    backend = models.ForeignKey(
+        "Backend", on_delete=models.PROTECT, related_name="stats"
+    )
+
     api_last_seen = models.DateTimeField(null=True, blank=True)
 
     def save(self, *args, **kwargs):
