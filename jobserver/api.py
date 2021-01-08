@@ -90,16 +90,24 @@ class JobAPIUpdate(APIView):
             serializer.data, key=operator.itemgetter("job_request_id")
         )
         for jr_identifier, jobs in jobs_by_request:
+            jobs = list(jobs)
+
             # get the JobRequest for this identifier
             job_request = job_request_lut[jr_identifier]
 
+            # bind the job request ID to further logs so looking them up in the UI is easier
+            log = logger.bind(job_request=job_request.id)
+
             # get the current Jobs for the JobRequest, keyed on their identifier
             jobs_by_identifier = {j.identifier: j for j in job_request.jobs.all()}
+            log.info(
+                f"Jobs in database: {','.join(jobs_by_identifier.keys())}",
+            )
+            log.info(f"Jobs in payload: {','.join(j['identifier'] for j in jobs)}")
 
             # delete local jobs not in the payload
-            logger.info(
+            log.info(
                 f"About to delete jobs with identifiers: {','.join(jobs_by_identifier.keys())}",
-                job_request=job_request.id,
             )
             job_request.jobs.exclude(identifier__in=jobs_by_identifier.keys()).delete()
 
