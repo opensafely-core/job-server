@@ -116,10 +116,11 @@ class JobAPIUpdate(APIView):
 
             # delete local jobs not in the payload
             identifiers_to_delete = set(jobs_by_identifier.keys()) - payload_identifiers
-            log.info(
-                f"About to delete jobs with identifiers: {','.join(identifiers_to_delete)}",
-            )
-            job_request.jobs.filter(identifier__in=identifiers_to_delete).delete()
+            if identifiers_to_delete:
+                log.info(
+                    f"About to delete jobs with identifiers: {','.join(identifiers_to_delete)}",
+                )
+                job_request.jobs.filter(identifier__in=identifiers_to_delete).delete()
 
             for job_data in jobs:
                 # remove this value from the data, it's going to be set by
