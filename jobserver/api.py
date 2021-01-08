@@ -1,6 +1,7 @@
 import itertools
 import operator
 
+import structlog
 from django.db import transaction
 from first import first
 from rest_framework import serializers
@@ -10,6 +11,9 @@ from rest_framework.response import Response
 from rest_framework.views import APIView
 
 from .models import Backend, JobRequest, Workspace
+
+
+logger = structlog.get_logger(__name__)
 
 
 def get_backend_from_token(token):
@@ -81,19 +85,42 @@ class JobAPIUpdate(APIView):
         )
         job_request_lut = {jr.identifier: jr for jr in job_requests}
 
+        # sort the incoming data by JobRequest identifier to ensure the
+        # subsequent groupby call works correctly.
+        job_requests = sorted(
+            serializer.data, key=operator.itemgetter("job_request_id")
+        )
         # group Jobs by their JobRequest ID
         jobs_by_request = itertools.groupby(
             serializer.data, key=operator.itemgetter("job_request_id")
         )
         for jr_identifier, jobs in jobs_by_request:
+            jobs = list(jobs)
+
             # get the JobRequest for this identifier
             job_request = job_request_lut[jr_identifier]
 
+            # bind the job request ID to further logs so looking them up in the UI is easier
+            log = logger.bind(job_request=job_request.id)
+
+            database_jobs = job_request.jobs.all()
+
             # get the current Jobs for the JobRequest, keyed on their identifier
-            jobs_by_identifier = {j.identifier: j for j in job_request.jobs.all()}
+            jobs_by_identifier = {j.identifier: j for j in database_jobs}
+            log.info(
+                f"Jobs in database: {','.join(jobs_by_identifier.keys())}",
+            )
+
+            payload_identifiers = {j["identifier"] for j in jobs}
+            log.info(f"Jobs in payload: {','.join(payload_identifiers)}")
 
             # delete local jobs not in the payload
-            job_request.jobs.exclude(identifier__in=jobs_by_identifier.keys()).delete()
+            identifiers_to_delete = set(jobs_by_identifier.keys()) - payload_identifiers
+            if identifiers_to_delete:
+                log.info(
+                    f"About to delete jobs with identifiers: {','.join(identifiers_to_delete)}",
+                )
+                job_request.jobs.filter(identifier__in=identifiers_to_delete).delete()
 
             for job_data in jobs:
                 # remove this value from the data, it's going to be set by
@@ -101,10 +128,12 @@ class JobAPIUpdate(APIView):
                 # related Jobs manager (ie job_request.jobs)
                 job_data.pop("job_request_id")
 
-                job_request.jobs.update_or_create(
+                job, created = job_request.jobs.update_or_create(
                     identifier=job_data["identifier"],
                     defaults={**job_data},
                 )
+
+                log.info("Created or updated Job", job=job.id, created=created)
 
         return Response({"status": "success"}, status=200)
 

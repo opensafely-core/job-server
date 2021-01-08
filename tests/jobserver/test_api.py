@@ -228,11 +228,19 @@ def test_jobapiupdate_mixture(api_rf, freezer):
         completed_at=None,
     )
 
-    assert Job.objects.count() == 1
+    job2 = JobFactory(
+        job_request=job_request,
+        identifier="job2",
+        action="test",
+        started_at=None,
+        completed_at=None,
+    )
+
+    assert Job.objects.count() == 2
 
     data = [
         {
-            "identifier": "job1",
+            "identifier": "job2",
             "job_request_id": job_request.identifier,
             "action": "test",
             "status": "succeeded",
@@ -243,7 +251,7 @@ def test_jobapiupdate_mixture(api_rf, freezer):
             "completed_at": timezone.now() - timedelta(seconds=30),
         },
         {
-            "identifier": "job2",
+            "identifier": "job3",
             "job_request_id": job_request.identifier,
             "action": "test",
             "status": "running",
@@ -270,15 +278,16 @@ def test_jobapiupdate_mixture(api_rf, freezer):
     job2, job3 = jobs
 
     # succeeded
-    assert job2.pk == job1.pk
-    assert job2.identifier == "job1"
+    assert job2.pk == job2.pk
+    assert job2.identifier == "job2"
     assert job2.started_at == timezone.now() - timedelta(minutes=1)
     assert job2.updated_at == timezone.now()
     assert job2.completed_at == timezone.now() - timedelta(seconds=30)
 
     # running
     assert job3.pk != job1.pk
-    assert job3.identifier == "job2"
+    assert job3.pk != job2.pk
+    assert job3.identifier == "job3"
     assert job3.started_at == timezone.now() - timedelta(minutes=1)
     assert job3.updated_at == timezone.now()
     assert job3.completed_at is None
