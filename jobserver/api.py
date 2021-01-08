@@ -117,10 +117,12 @@ class JobAPIUpdate(APIView):
                 # related Jobs manager (ie job_request.jobs)
                 job_data.pop("job_request_id")
 
-                job_request.jobs.update_or_create(
+                job, created = job_request.jobs.update_or_create(
                     identifier=job_data["identifier"],
                     defaults={**job_data},
                 )
+
+                log.info("Created or updated Job", job=job.id, created=created)
 
         return Response({"status": "success"}, status=200)
 
