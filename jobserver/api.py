@@ -85,6 +85,11 @@ class JobAPIUpdate(APIView):
         )
         job_request_lut = {jr.identifier: jr for jr in job_requests}
 
+        # sort the incoming data by JobRequest identifier to ensure the
+        # subsequent groupby call works correctly.
+        job_requests = sorted(
+            serializer.data, key=operator.itemgetter("job_request_id")
+        )
         # group Jobs by their JobRequest ID
         jobs_by_request = itertools.groupby(
             serializer.data, key=operator.itemgetter("job_request_id")
