@@ -99,7 +99,7 @@ class JobAPIUpdate(APIView):
             # delete local jobs not in the payload
             logger.info(
                 f"About to delete jobs with identifiers: {','.join(jobs_by_identifier.keys())}",
-                job_request=jr_identifier,
+                job_request=job_request.id,
             )
             job_request.jobs.exclude(identifier__in=jobs_by_identifier.keys()).delete()
 
