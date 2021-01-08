@@ -1,6 +1,7 @@
 import itertools
 import operator
 
+import structlog
 from django.db import transaction
 from first import first
 from rest_framework import serializers
@@ -10,6 +11,9 @@ from rest_framework.response import Response
 from rest_framework.views import APIView
 
 from .models import Backend, JobRequest, Workspace
+
+
+logger = structlog.get_logger(__name__)
 
 
 def get_backend_from_token(token):
@@ -93,6 +97,10 @@ class JobAPIUpdate(APIView):
             jobs_by_identifier = {j.identifier: j for j in job_request.jobs.all()}
 
             # delete local jobs not in the payload
+            logger.info(
+                f"About to delete jobs with identifiers: {','.join(jobs_by_identifier.keys())}",
+                job_request=jr_identifier,
+            )
             job_request.jobs.exclude(identifier__in=jobs_by_identifier.keys()).delete()
 
             for job_data in jobs:
