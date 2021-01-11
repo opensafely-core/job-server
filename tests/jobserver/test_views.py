@@ -7,8 +7,9 @@ from django.contrib.messages.storage.fallback import FallbackStorage
 from django.http import Http404
 from django.urls import reverse
 from django.utils import timezone
+from first import first
 
-from jobserver.models import JobRequest, Workspace
+from jobserver.models import Backend, JobRequest, Workspace
 from jobserver.views import (
     BackendDetail,
     BackendList,
@@ -390,21 +391,25 @@ def test_jobrequestzombify_unknown_jobrequest(rf):
 
 @pytest.mark.django_db
 def test_status_healthy(rf):
+    tpp = Backend.objects.get(name="tpp")
+
     # acked, because JobFactory will implicitly create JobRequests
-    JobFactory.create_batch(3)
+    JobFactory.create_batch(3, job_request__backend=tpp)
 
     last_seen = timezone.now() - timedelta(minutes=1)
-    StatsFactory(api_last_seen=last_seen)
+    StatsFactory(backend=tpp, api_last_seen=last_seen)
 
     request = rf.get(MEANINGLESS_URL)
     response = Status.as_view()(request)
 
-    tpp = response.context_data["backends"][0]
+    tpp_output = first(
+        response.context_data["backends"], key=lambda b: b["name"] == "TPP"
+    )
 
-    assert tpp["last_seen"] == last_seen.strftime("%Y-%m-%d %H:%M:%S")
-    assert tpp["queue"]["acked"] == 3
-    assert tpp["queue"]["unacked"] == 0
-    assert not tpp["show_warning"]
+    assert tpp_output["last_seen"] == last_seen.strftime("%Y-%m-%d %H:%M:%S")
+    assert tpp_output["queue"]["acked"] == 3
+    assert tpp_output["queue"]["unacked"] == 0
+    assert not tpp_output["show_warning"]
 
 
 @pytest.mark.django_db
@@ -412,46 +417,57 @@ def test_status_no_last_seen(rf):
     request = rf.get(MEANINGLESS_URL)
     response = Status.as_view()(request)
 
-    tpp = response.context_data["backends"][0]
+    tpp_output = first(
+        response.context_data["backends"], key=lambda b: b["name"] == "TPP"
+    )
 
-    assert tpp["last_seen"] == "never"
-    assert not tpp["show_warning"]
+    assert tpp_output["last_seen"] == "never"
+    assert not tpp_output["show_warning"]
 
 
 @pytest.mark.django_db
 def test_status_unacked_jobs_but_recent_api_contact(rf):
+    tpp = Backend.objects.get(name="tpp")
+
     last_seen = timezone.now() - timedelta(minutes=1)
-    StatsFactory(api_last_seen=last_seen)
+    StatsFactory(backend=tpp, api_last_seen=last_seen)
 
     request = rf.get(MEANINGLESS_URL)
     response = Status.as_view()(request)
 
-    tpp = response.context_data["backends"][0]
+    tpp_output = first(
+        response.context_data["backends"], key=lambda b: b["name"] == "TPP"
+    )
 
-    assert tpp["last_seen"] == last_seen.strftime("%Y-%m-%d %H:%M:%S")
-    assert not tpp["show_warning"]
+    assert tpp_output["last_seen"] == last_seen.strftime("%Y-%m-%d %H:%M:%S")
+    assert not tpp_output["show_warning"]
 
 
 @pytest.mark.django_db
 def test_status_unhealthy(rf):
+    # backends are created by migrations so we can depend on them
+    tpp = Backend.objects.get(name="tpp")
+
     # acked, because JobFactory will implicitly create JobRequests
-    JobFactory.create_batch(2)
+    JobFactory.create_batch(2, job_request__backend=tpp)
 
     # unacked, because it has no Jobs
-    JobRequestFactory()
+    JobRequestFactory(backend=tpp)
 
     last_seen = timezone.now() - timedelta(minutes=10)
-    StatsFactory(api_last_seen=last_seen)
+    StatsFactory(backend=tpp, api_last_seen=last_seen, url="foo")
 
     request = rf.get(MEANINGLESS_URL)
     response = Status.as_view()(request)
 
-    tpp = response.context_data["backends"][0]
+    tpp_output = first(
+        response.context_data["backends"], key=lambda b: b["name"] == "TPP"
+    )
 
-    assert tpp["last_seen"] == last_seen.strftime("%Y-%m-%d %H:%M:%S")
-    assert tpp["queue"]["acked"] == 2
-    assert tpp["queue"]["unacked"] == 1
-    assert tpp["show_warning"]
+    assert tpp_output["last_seen"] == last_seen.strftime("%Y-%m-%d %H:%M:%S")
+    assert tpp_output["queue"]["acked"] == 2
+    assert tpp_output["queue"]["unacked"] == 1
+    assert tpp_output["show_warning"]
 
 
 @pytest.mark.django_db
@@ -735,6 +751,5 @@ def test_workspaceunarchive_success(rf):
 
     assert response.status_code == 302
     assert response.url == "/"
-
     workspace.refresh_from_db()
     assert not workspace.is_archived
