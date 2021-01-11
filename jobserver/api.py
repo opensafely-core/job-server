@@ -3,6 +3,7 @@ import operator
 
 import structlog
 from django.db import transaction
+from django.utils import timezone
 from first import first
 from rest_framework import serializers
 from rest_framework.exceptions import NotAuthenticated, ValidationError
@@ -10,7 +11,7 @@ from rest_framework.generics import ListAPIView
 from rest_framework.response import Response
 from rest_framework.views import APIView
 
-from .models import Backend, JobRequest, Workspace
+from .models import Backend, JobRequest, Stats, Workspace
 
 
 logger = structlog.get_logger(__name__)
@@ -44,6 +45,14 @@ def get_backend_from_token(token):
         return Backend.objects.get(auth_token=token)
     except Backend.DoesNotExist:
         raise NotAuthenticated("Invalid token")
+
+
+def update_stats(backend, url):
+    Stats.objects.update_or_create(
+        backend=backend,
+        url=url,
+        defaults={"api_last_seen": timezone.now()},
+    )
 
 
 class JobAPIUpdate(APIView):
@@ -135,6 +144,9 @@ class JobAPIUpdate(APIView):
 
                 log.info("Created or updated Job", job=job.id, created=created)
 
+        # record use of the API
+        update_stats(self.backend, request.path)
+
         return Response({"status": "success"}, status=200)
 
 
@@ -180,6 +192,15 @@ class JobRequestAPIList(ListAPIView):
         self.backend = get_backend_from_token(token) if token else None
 
         return super().initial(request, *args, **kwargs)
+
+    def get(self, request, *args, **kwargs):
+        response = super().get(request, *args, **kwargs)
+
+        # only gather stats when authenticated and response is 2xx
+        if self.backend and response.status_code >= 200 and response.status_code < 300:
+            update_stats(self.backend, request.path)
+
+        return response
 
     def get_queryset(self):
         qs = (

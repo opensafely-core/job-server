@@ -9,10 +9,17 @@ from jobserver.api import (
     JobRequestAPIList,
     WorkspaceStatusesAPI,
     get_backend_from_token,
+    update_stats,
 )
-from jobserver.models import Backend, Job, JobRequest
+from jobserver.models import Backend, Job, JobRequest, Stats
 
-from ..factories import BackendFactory, JobFactory, JobRequestFactory, WorkspaceFactory
+from ..factories import (
+    BackendFactory,
+    JobFactory,
+    JobRequestFactory,
+    StatsFactory,
+    WorkspaceFactory,
+)
 
 
 def test_token_backend_empty_token():
@@ -38,6 +45,30 @@ def test_token_backend_success(monkeypatch):
 def test_token_backend_unknown_backend():
     with pytest.raises(NotAuthenticated):
         get_backend_from_token("test")
+
+
+@pytest.mark.django_db
+def test_update_stats_existing_url():
+    backend = BackendFactory()
+    StatsFactory(backend=backend, url="test")
+
+    update_stats(backend, url="test")
+
+    # check there's only one Stats for backend
+    assert backend.stats.count() == 1
+    assert backend.stats.first().url == "test"
+
+
+@pytest.mark.django_db
+def test_update_stats_new_url():
+    backend = BackendFactory()
+    StatsFactory(backend=backend, url="test")
+
+    update_stats(backend, url="new-url")
+
+    # check there's only one Stats for backend
+    assert backend.stats.count() == 2
+    assert backend.stats.last().url == "new-url"
 
 
 @pytest.mark.django_db
@@ -362,6 +393,19 @@ def test_jobrequestapilist_get_only(api_rf):
 
 
 @pytest.mark.django_db
+def test_jobrequestapilist_produce_stats_when_authed(api_rf):
+    backend = BackendFactory()
+
+    assert Stats.objects.filter(backend=backend).count() == 0
+
+    request = api_rf.get("/", HTTP_AUTHORIZATION=backend.auth_token)
+    response = JobRequestAPIList.as_view()(request)
+
+    assert response.status_code == 200
+    assert Stats.objects.filter(backend=backend).count() == 1
+
+
+@pytest.mark.django_db
 def test_jobrequestapilist_success(api_rf):
     workspace = WorkspaceFactory()
 
@@ -415,5 +459,4 @@ def test_workspacestatusesapi_success(api_rf):
 def test_workspacestatusesapi_unknown_workspace(api_rf):
     request = api_rf.get("/")
     response = WorkspaceStatusesAPI.as_view()(request, name="test")
-
     assert response.status_code == 404
