@@ -1,4 +1,4 @@
-from datetime import timedelta
+from datetime import datetime, timedelta
 
 import pytest
 from django.urls import reverse
@@ -10,6 +10,7 @@ from ..factories import (
     BackendFactory,
     JobFactory,
     JobRequestFactory,
+    StatsFactory,
     UserFactory,
     WorkspaceFactory,
 )
@@ -351,6 +352,25 @@ def test_jobrequestqueryset_unacked():
     JobRequestFactory.create_batch(3)
 
     assert JobRequest.objects.unacked().count() == 3
+
+
+@pytest.mark.django_db
+def test_stats_str_with_last_seen(freezer):
+    tpp = Backend.objects.get(name="tpp")
+
+    last_seen = datetime(2020, 12, 25, 10, 11, 12, tzinfo=timezone.utc)
+    stats = StatsFactory(backend=tpp, api_last_seen=last_seen, url="/foo")
+
+    assert str(stats) == "tpp | 2020-12-25 10:11:12 | /foo"
+
+
+@pytest.mark.django_db
+def test_stats_str_without_last_seen(freezer):
+    tpp = Backend.objects.get(name="tpp")
+
+    stats = StatsFactory(backend=tpp, api_last_seen=None, url="")
+
+    assert str(stats) == "tpp | never | "
 
 
 @pytest.mark.django_db

@@ -12,7 +12,7 @@ from django.views.generic import CreateView, DetailView, ListView, TemplateView,
 from .backends import show_warning
 from .forms import JobRequestCreateForm, WorkspaceCreateForm
 from .github import get_branch_sha, get_repos_with_branches
-from .models import Backend, Job, JobRequest, Stats, User, Workspace
+from .models import Backend, Job, JobRequest, User, Workspace
 from .project import get_actions
 
 
@@ -186,33 +186,35 @@ class JobRequestZombify(View):
 
 class Status(View):
     def get(self, request, *args, **kwargs):
-        acked = JobRequest.objects.acked().count()
-        unacked = JobRequest.objects.unacked().count()
-
-        try:
-            last_seen = Stats.objects.first().api_last_seen
-        except AttributeError:
-            last_seen = None
-
         def format_last_seen(last_seen):
             if last_seen is None:
                 return "never"
 
             return last_seen.strftime("%Y-%m-%d %H:%M:%S")
 
-        context = {
-            "backends": [
-                {
-                    "name": "TPP",
-                    "last_seen": format_last_seen(last_seen),
-                    "queue": {
-                        "acked": acked,
-                        "unacked": unacked,
-                    },
-                    "show_warning": show_warning(unacked, last_seen),
+        def get_stats(backend):
+            acked = backend.job_requests.acked().count()
+            unacked = backend.job_requests.unacked().count()
+
+            try:
+                last_seen = (
+                    backend.stats.order_by("-api_last_seen").first().api_last_seen
+                )
+            except AttributeError:
+                last_seen = None
+
+            return {
+                "name": backend.display_name,
+                "last_seen": format_last_seen(last_seen),
+                "queue": {
+                    "acked": acked,
+                    "unacked": unacked,
                 },
-            ],
-        }
+                "show_warning": show_warning(unacked, last_seen),
+            }
+
+        backends = Backend.objects.all()
+        context = {"backends": [get_stats(b) for b in backends]}
 
         return TemplateResponse(request, "status.html", context)
 
@@ -395,7 +397,6 @@ class WorkspaceLog(ListView):
 class WorkspaceUnarchive(View):
     def post(self, request, *args, **kwargs):
         workspace = get_object_or_404(Workspace, name=self.kwargs["name"])
-
         workspace.is_archived = False
         workspace.save()
 

@@ -5,6 +5,7 @@ from django.urls import reverse
 from django.utils import timezone
 
 from jobserver.context_processors import backend_warnings, nav
+from jobserver.models import Backend
 
 from ..factories import JobRequestFactory, StatsFactory, UserFactory
 
@@ -22,10 +23,12 @@ def test_backend_warnings_with_no_warnings(rf):
 
 @pytest.mark.django_db
 def test_backend_warnings_with_warnings(rf):
-    JobRequestFactory()
+    tpp = Backend.objects.get(name="tpp")
+
+    JobRequestFactory(backend=tpp)
 
     last_seen = timezone.now() - timedelta(minutes=10)
-    StatsFactory(api_last_seen=last_seen)
+    StatsFactory(backend=tpp, api_last_seen=last_seen)
 
     request = rf.get("/")
     output = backend_warnings(request)
