@@ -276,6 +276,15 @@ class Stats(models.Model):
     class Meta:
         unique_together = ["backend", "url"]
 
+    def __str__(self):
+        backend = self.backend.name
+        last_seen = (
+            self.api_last_seen.strftime("%Y-%m-%d %H:%M:%S")
+            if self.api_last_seen
+            else "never"
+        )
+        return f"{backend} | {last_seen} | {self.url}"
+
 
 class User(AbstractUser):
     @property
