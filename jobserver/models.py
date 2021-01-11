@@ -9,7 +9,6 @@ from django.core.validators import validate_slug
 from django.db import models
 from django.db.models import Count
 from django.urls import reverse
-from django.utils import timezone
 from environs import Env
 from furl import furl
 
@@ -216,13 +215,23 @@ class JobRequest(models.Model):
 
     @property
     def runtime(self):
+        """
+        Combined runtime for all finished Jobs of this JobRequest
+
+        Runtime of each finished Job is added together, rather than using the
+        delta of the first start time and last completed time.
+        """
         if self.started_at is None:
             return
 
-        end = timezone.now() if self.completed_at is None else self.completed_at
-        delta = end - self.started_at
+        def runtime_in_seconds(job):
+            return (job.completed_at - job.started_at).total_seconds()
 
-        hours, remainder = divmod(delta.total_seconds(), 3600)
+        # Only look at jobs which have finished
+        jobs = self.jobs.exclude(started_at=None).exclude(completed_at=None)
+        total_runtime = sum(runtime_in_seconds(j) for j in jobs)
+
+        hours, remainder = divmod(total_runtime, 3600)
         minutes, seconds = divmod(remainder, 60)
 
         return Runtime(int(hours), int(minutes), int(seconds))

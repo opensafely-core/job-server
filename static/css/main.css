@@ -36,7 +36,7 @@
 }
 .job-list .job-requests .started-at {
   margin-right: .5rem;
-  width: 160px;
+  width: 165px;
 }
 
 #started-at-header {
@@ -110,6 +110,20 @@
   padding: .25rem 1rem .25rem 0;
 }
 
+.latest-jobs {
+  display: grid;
+  grid-template-columns: min-content min-content min-content;
+  align-items: center;
+}
+/* Add the Status Message columns for larger devices (992px and up) */
+@media (min-width: 992px) {
+  .latest-jobs {
+    grid-template-columns: min-content min-content min-content min-content;
+  }
+}
+.latest-jobs > span {
+  padding: .5rem 1rem .5rem 0;
+}
 
 .workspace-select .fuzzy-search {
   border-width: 2px;

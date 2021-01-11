@@ -323,6 +323,7 @@ class WorkspaceDetail(CreateView):
         context = super().get_context_data(**kwargs)
         context["actions"] = self.actions
         context["branch"] = self.workspace.branch
+        context["latest_job_request"] = self.get_latest_job_request()
         context["show_details"] = self.show_details
         context["workspace"] = self.workspace
         return context
@@ -331,6 +332,13 @@ class WorkspaceDetail(CreateView):
         kwargs = super().get_form_kwargs()
         kwargs["actions"] = [a["name"] for a in self.actions]
         return kwargs
+
+    def get_latest_job_request(self):
+        return (
+            self.workspace.job_requests.prefetch_related("jobs")
+            .order_by("-created_at")
+            .first()
+        )
 
     def post(self, request, *args, **kwargs):
         if self.workspace.is_archived:

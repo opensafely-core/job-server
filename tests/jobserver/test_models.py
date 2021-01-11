@@ -226,10 +226,10 @@ def test_jobrequest_runtime_not_finished(freezer):
     assert job_request.started_at
     assert not job_request.completed_at
 
-    # first job started 2 minutes ago so we should have 00:02:00
+    # combined _finished_ Job runtime is 1 minute
     assert job_request.runtime
     assert job_request.runtime.hours == 0
-    assert job_request.runtime.minutes == 2
+    assert job_request.runtime.minutes == 1
     assert job_request.runtime.seconds == 0
 
 
@@ -261,6 +261,9 @@ def test_jobrequest_runtime_success():
     )
 
     assert job_request.runtime
+    assert job_request.runtime.hours == 0
+    assert job_request.runtime.minutes == 2
+    assert job_request.runtime.seconds == 0
 
 
 @pytest.mark.django_db
