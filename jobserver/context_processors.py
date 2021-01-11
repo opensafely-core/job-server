@@ -3,7 +3,7 @@ import functools
 from django.urls import reverse
 
 from .backends import show_warning
-from .models import JobRequest, Stats
+from .models import Backend, Stats
 
 
 def _is_active(request, prefix):
@@ -11,16 +11,20 @@ def _is_active(request, prefix):
 
 
 def backend_warnings(request):
-    try:
-        last_seen = Stats.objects.first().api_last_seen
-    except AttributeError:
-        last_seen = None
+    def iter_warnings(backends):
+        for backend in backends:
+            try:
+                last_seen = Stats.objects.first().api_last_seen
+            except AttributeError:
+                last_seen = None
 
-    unacked = JobRequest.objects.unacked().count()
-    if not show_warning(unacked, last_seen):
-        return {"backend_warnings": []}
+            unacked = backend.job_requests.unacked().count()
 
-    return {"backend_warnings": ["TPP"]}
+            if show_warning(unacked, last_seen):
+                yield backend.display_name
+
+    backends = Backend.objects.all()
+    return {"backend_warnings": list(iter_warnings(backends))}
 
 
 def nav(request):
