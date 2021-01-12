@@ -3,6 +3,25 @@
 {% load humanize %}
 
 {% block content %}
+
+<nav aria-label="breadcrumb">
+  <ol class="breadcrumb">
+
+    <li class="breadcrumb-item"><a href="/">Home</a></li>
+
+    <li class="breadcrumb-item">
+      <a href="{{ jobrequest.workspace.get_absolute_url }}">
+        {{ jobrequest.workspace.name }}
+      </a>
+    </li>
+
+    <li class="breadcrumb-item active" aria-current="page">
+      Request {{ job.job_request.id }}
+    </li>
+
+  </ol>
+</nav>
+
 <div class="row mb-3">
   <div class="col-md-9 col-lg-10">
 
