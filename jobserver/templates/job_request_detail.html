@@ -28,60 +28,83 @@
 
     <h2>Job Request: {{ jobrequest.pk }}</h2>
 
-    <ul class="list-unstyled ml-10">
-      <li class="pt-2">
+    <div class="mb-4">
+      <h3>State</h3>
+      <small>State is inferred from the related Jobs</small>
+
+      <div>
+        <strong>Status:</strong>
+        <code>{{ jobrequest.status }}</code>
+      </div>
+    </div>
+
+    <div class="mb-4">
+      <h3>Config</h3>
+
+      <div>
+        <strong>Backend:</strong>
+        <code>{{ jobrequest.backend }}</code>
+      </div>
+
+      <div>
         <strong>Workspace:</strong>
         <a href="{{ jobrequest.workspace.get_absolute_url }}">
           {{ jobrequest.workspace.name }}
         </a>
-        <small class="text-muted">
-          {% if jobrequest.workspace %}
-          ({{ jobrequest.workspace.repo_name }} | {{ jobrequest.workspace.branch }})
-          {% else %}
-          ({{ jobrequest.job_request.workspace.repo }} | {{ jobrequest.job_request.workspace.branch }})
-          {% endif %}
-        </small>
-      </li>
-      <li class="pt-2"><strong>Backend:</strong> {{ jobrequest.backend|default:"-" }}</li>
+        <small class="text-muted">({{ jobrequest.workspace.branch }})</small>
+      </div>
 
-      <li class="pt-2">
-        <strong>Requested Actions:</strong>
-        <ul>
-          {% for action in jobrequest.requested_actions %}
-          <li>{{ action }}</li>
-          {% endfor %}
-        </ul>
-      </li>
+      <div>
+        <strong>Force run dependencies?:</strong>
+        {{ jobrequest.force_run_dependencies }}
+      </div>
 
-      <li class="pt-2"><strong>Force run dependencies?:</strong> {{ jobrequest.force_run_dependencies }}</li>
-
-      <li class="pt-2">
+      <div>
         <strong>SHA:</strong>
         <a href="{{ jobrequest.workspace.get_sha_url }}">
           {{ jobrequest.sha|slice:7|default:"-" }}
         </a>
-      </li>
-    </ul>
+      </div>
 
-    <hr />
+      <div>
+        <strong>Requested Actions:</strong>
+        <ul>
+          {% for action in jobrequest.requested_actions %}
+          <li><code>{{ action }}</code></li>
+          {% endfor %}
+        </ul>
+      </div>
+    </div>
 
-    <h4>Timings</h4>
-    <ul class="list-unstyled">
-      <li class="pt-2"><strong>Created:</strong> {{ jobrequest.created_at|naturaltime }}</li>
-      <li class="pt-2"><strong>Started:</strong> {{ jobrequest.started_at|naturaltime|default_if_none:"-" }}</li>
-      <li class="pt-2"><strong>Finished:</strong> {{ jobrequest.completed_at|naturaltime|default_if_none:"-"}}</li>
-      <li class="pt-2"><strong>Runtime:</strong> <span>{% runtime jobrequest.runtime %}</span></li>
-    </ul>
+    <div class="mb-4">
+      <h3>Timings</h3>
 
-    <hr />
+      <div>
+        <strong>Created:</strong>
+        <span title="{{ jobrequest.created_at|date:"Y-m-d H:i:s" }}">
+          {{ jobrequest.created_at|naturaltime }}
+        </span>
+      </div>
 
-    <h4>State</h4>
-    <small>State is inferred from the related Jobs</small>
-    <ul class="list-unstyled">
-      <li class="pt-2"><strong>Status:</strong> {{ jobrequest.status }}</li>
-      <li class="pt-2"><strong>Status Code:</strong> {{ jobrequest.status_code|default:"-" }}</li>
-      <li class="pt-2"><strong>Status Message:</strong> {{ jobrequest.status_message|default:"-" }}</li>
-    </ul>
+      <div>
+        <strong>Started:</strong>
+        <span title="{{ jobrequest.started_at|default_if_none:"" }}">
+          {{ jobrequest.started_at|naturaltime|default_if_none:"-" }}
+        </span>
+      </div>
+
+      <div>
+        <strong>Finished:</strong>
+        <span title="{{ jobrequest.completed_at|default_if_none:"" }}">
+          {{ jobrequest.completed_at|naturaltime|default_if_none:"-"}}
+        </span>
+      </div>
+
+      <div>
+        <strong>Runtime:</strong>
+        <span>{% runtime jobrequest.runtime %}</span>
+      </div>
+    </div>
   </div>
 
   <div class="col-md-3 col-lg-2">
