@@ -31,7 +31,10 @@
 
   <div class="col-lg-10">
 
-    <h2>Job {{ job.identifier }}</h2>
+    <h2><code>{{ job.action }}</code></h2>
+    <p class="small muted">
+      ID: {{ job.identifier }}
+    </p>
 
     <div class="mb-4">
       <h3>State</h3>
@@ -56,11 +59,6 @@
       <div>
         <strong>Backend:</strong>
         <code>{{ job.job_request.backend }}</code>
-      </div>
-
-      <div>
-        <strong>Action:</strong>
-        <code>{{ job.action }}</code>
       </div>
 
       <div>
