@@ -297,6 +297,8 @@ class Stats(models.Model):
 
 
 class User(AbstractUser):
+    notifications_email = models.TextField(default="")
+
     @property
     def name(self):
         """Unify the available names for a User."""
