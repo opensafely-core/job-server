@@ -24,9 +24,9 @@
 </nav>
 
 <div class="row mb-3">
-  <div class="col-md-9 col-lg-10">
+  <div class="col-md-9 col-lg-6 offset-lg-2">
 
-    <h3>Job Request: {{ jobrequest.pk }}</h3>
+    <h2>Job Request: {{ jobrequest.pk }}</h2>
 
     <ul class="list-unstyled ml-10">
       <li class="pt-2">
@@ -114,27 +114,31 @@
 
 </div>
 
-<hr />
+<div class="row mb-3">
+  <div class="col-md-9 col-lg-8 offset-lg-2">
 
-<h4>Jobs</h4>
-<table class="table">
-  <thead>
-    <tr>
-      <th>ID</th>
-      <th>Status</th>
-      <th>Action</th>
-      <th></th>
-    </tr>
-  </thead>
-  <tbody>
-    {% for job in jobrequest.jobs.all %}
-    <tr>
-      <td>{{ job.identifier }}</td>
-      <td>{{ job.status }}</td>
-      <td>{{ job.action }}</td>
-      <td><a class="btn btn-sm btn-secondary" href="{{ job.get_absolute_url }}">View</a></td>
-    </tr>
-    {% endfor %}
-  </tbody>
-</table>
-{% endblock content %}
+    <h4>Jobs</h4>
+    <table class="table">
+      <thead>
+        <tr>
+          <th>ID</th>
+          <th>Status</th>
+          <th>Action</th>
+          <th></th>
+        </tr>
+      </thead>
+      <tbody>
+        {% for job in jobrequest.jobs.all %}
+        <tr>
+          <td>{{ job.identifier }}</td>
+          <td>{{ job.status }}</td>
+          <td>{{ job.action }}</td>
+          <td><a class="btn btn-sm btn-secondary" href="{{ job.get_absolute_url }}">View</a></td>
+        </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+    {% endblock content %}
+
+  </div>
+</div>
