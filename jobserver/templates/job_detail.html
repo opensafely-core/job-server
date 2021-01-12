@@ -1,6 +1,7 @@
 {% extends "base.html" %}
 
 {% load humanize %}
+{% load runtime %}
 
 {% block content %}
 
@@ -103,6 +104,10 @@
         <span title="{{ job.completed_at|default_if_none:"" }}">
           {{ job.completed_at|naturaltime|default_if_none:"-"}}
         </span>
+      </div>
+
+      <div>
+        <strong>Runtime:</strong> <span>{% runtime job.runtime %}</span>
       </div>
     </div>
 

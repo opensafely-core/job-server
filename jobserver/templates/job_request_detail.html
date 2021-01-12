@@ -1,6 +1,7 @@
 {% extends "base.html" %}
 
 {% load humanize %}
+{% load runtime %}
 
 {% block content %}
 
@@ -69,6 +70,7 @@
       <li class="pt-2"><strong>Created:</strong> {{ jobrequest.created_at|naturaltime }}</li>
       <li class="pt-2"><strong>Started:</strong> {{ jobrequest.started_at|naturaltime|default_if_none:"-" }}</li>
       <li class="pt-2"><strong>Finished:</strong> {{ jobrequest.completed_at|naturaltime|default_if_none:"-"}}</li>
+      <li class="pt-2"><strong>Runtime:</strong> <span>{% runtime jobrequest.runtime %}</span></li>
     </ul>
 
     <hr />
