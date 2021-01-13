@@ -43,7 +43,26 @@
           {% if not user.is_authenticated %}
           <a class="nav-link" href="{% url "social:begin" "github" %}?next={{ request.path }}">Login</a>
           {% else %}
-          <a class="nav-link" href="{% url 'logout' %}">Logout</a>
+
+          <span class="dropdown">
+            <a class="nav-link dropdown-toggle" href="#" id="navbarDropdown" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+              <img
+                src="https://github.com/{{ request.user.username }}.png?size=60"
+                alt="{{ request.user.username }} avatar"
+                class="rounded-circle"
+                height=30
+                width=30
+              />
+            </a>
+            <div class="dropdown-menu dropdown-menu-right" aria-labelledby="navbarDropdown">
+              <div class="dropdown-item"><strong>{{ request.user.username }}</strong></div>
+              <div class="dropdown-divider"></div>
+              <a class="dropdown-item" href="{% url 'settings' %}">Settings</a>
+              <div class="dropdown-divider"></div>
+              <a class="dropdown-item" href="{% url 'logout' %}">Logout</a>
+            </div>
+          </li>
+
           {% endif %}
         </div>
 
