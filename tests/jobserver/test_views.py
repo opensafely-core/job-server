@@ -19,6 +19,7 @@ from jobserver.views import (
     JobRequestList,
     JobRequestZombify,
     JobZombify,
+    Settings,
     Status,
     WorkspaceArchive,
     WorkspaceCreate,
@@ -390,6 +391,40 @@ def test_jobrequestzombify_unknown_jobrequest(rf):
 
 
 @pytest.mark.django_db
+def test_settings_get(rf):
+    UserFactory()
+    user2 = UserFactory()
+
+    request = rf.get(MEANINGLESS_URL)
+    request.user = user2
+    response = Settings.as_view()(request)
+
+    assert response.status_code == 200
+
+    # check the view was constructed with the request user
+    assert response.context_data["object"] == user2
+
+
+@pytest.mark.django_db
+def test_settings_post(rf):
+    UserFactory()
+    user2 = UserFactory(notifications_email="original@example.com")
+
+    data = {"notifications_email": "changed@example.com"}
+
+    request = rf.post(MEANINGLESS_URL, data)
+    request.user = user2
+    response = Settings.as_view()(request)
+
+    assert response.status_code == 302
+    assert response.url == reverse("settings")
+
+    user2.refresh_from_db()
+
+    assert user2.notifications_email == "changed@example.com"
+
+
+@pytest.mark.django_db
 def test_status_healthy(rf):
     tpp = Backend.objects.get(name="tpp")
 
@@ -748,7 +783,6 @@ def test_workspaceunarchive_success(rf):
     request.user = UserFactory()
 
     response = WorkspaceUnarchive.as_view()(request, name=workspace.name)
-
     assert response.status_code == 302
     assert response.url == "/"
     workspace.refresh_from_db()

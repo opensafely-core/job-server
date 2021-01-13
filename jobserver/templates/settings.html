@@ -1,0 +1,37 @@
+{% extends "base.html" %}
+
+{% block content %}
+
+<div class="row">
+  <div class="col-lg-8 offset-lg-2">
+
+      <h3 class="mb-5">Your Settings</h3>
+
+      <form method="POST">
+        {% csrf_token %}
+
+        <div class="form-group row mb-5">
+
+          <label for="id_notifications_email" class="col-sm-2 col-form-label">
+            Notification Email
+          </label>
+
+          <div class="col-sm-10">
+            <input
+              class="form-control"
+              id="id_notifications_email"
+              name="notifications_email"
+              type="email"
+              value="{{ form.notifications_email.value }}"
+            />
+          </div>
+
+        </div>
+
+        <button class="btn btn-primary" type="submit">Save</button>
+      </form>
+
+  </div>
+</div>
+
+{% endblock %}
