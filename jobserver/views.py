@@ -412,6 +412,17 @@ class WorkspaceLog(ListView):
 
 
 @method_decorator(login_required, name="dispatch")
+class WorkspaceNotificationsToggle(View):
+    def post(self, request, *args, **kwargs):
+        workspace = get_object_or_404(Workspace, name=self.kwargs["name"])
+
+        workspace.will_notify = not workspace.will_notify
+        workspace.save()
+
+        return redirect(workspace)
+
+
+@method_decorator(login_required, name="dispatch")
 class WorkspaceUnarchive(View):
     def post(self, request, *args, **kwargs):
         workspace = get_object_or_404(Workspace, name=self.kwargs["name"])

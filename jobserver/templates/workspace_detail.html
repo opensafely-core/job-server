@@ -20,26 +20,6 @@
       <h3>{{ workspace.name }}</h3>
 
       <div class="d-flex">
-        {% if request.user.is_authenticated %}
-        <form
-          method="POST"
-          {% if not workspace.is_archived %}
-          action="{{ workspace.get_archive_url }}"
-          {% else %}
-          action="{{ workspace.get_unarchive_url }}"
-          {% endif %}
-          class="mr-2">
-          {% csrf_token %}
-
-          <button class="btn btn-danger" type="submit">
-            {% if not workspace.is_archived %}
-            Archive
-            {% else %}
-            Unarchive
-            {% endif %}
-          </button>
-        </form>
-        {% endif %}
         <a class="btn btn-primary mr-2" href="{% url 'workspace-logs' name=workspace.name %}">
           Logs
         </a>
@@ -59,24 +39,58 @@
 
     <div id="details"{% if show_details %} class="collapse"{% endif %}>
 
-      <p>
-        <strong>Repo:</strong>
-        <a href="{{ workspace.repo }}">{{ workspace.repo_name }}</a>
-        <span class="text-muted">({{ workspace.branch }})</span>
-      </p>
+      <div class="row">
 
-      <p><strong>DB:</strong> {{ workspace.db }}</p>
+        <div class="col-lg-9">
+          <p>
+            <strong>Repo:</strong>
+            <a href="{{ workspace.repo }}">{{ workspace.repo_name }}</a>
+            <span class="text-muted">({{ workspace.branch }})</span>
+          </p>
 
-       <p>
-         <strong>Created:</strong>
-         <span title="{{ workspace.created_at|date:"Y-m-d H:i:s" }}">
-           {{ workspace.created_at|naturaltime }}
-         </span>
-       </p>
+          <p><strong>DB:</strong> {{ workspace.db }}</p>
 
-      {% if workspace.created_by %}
-      <p><strong>Created By:</strong> {{ workspace.created_by.name }}</p>
-      {% endif %}
+           <p>
+             <strong>Created:</strong>
+             <span title="{{ workspace.created_at|date:"Y-m-d H:i:s" }}">
+               {{ workspace.created_at|naturaltime }}
+             </span>
+           </p>
+
+          {% if workspace.created_by %}
+          <p><strong>Created By:</strong> {{ workspace.created_by.name }}</p>
+          {% endif %}
+        </div>
+
+        <div class="col-lg-3 text-right">
+          {% if request.user.is_authenticated %}
+          <form
+            method="POST"
+            {% if not workspace.is_archived %}
+            action="{{ workspace.get_archive_url }}"
+            {% else %}
+            action="{{ workspace.get_unarchive_url }}"
+            {% endif %}
+            class="my-2">
+            {% csrf_token %}
+
+            <button class="btn btn-danger" type="submit">
+              {% if not workspace.is_archived %}
+              Archive
+              {% else %}
+              Unarchive
+              {% endif %}
+            </button>
+          </form>
+
+          <form method="POST" class="mb-2" action="{{ workspace.get_notifications_toggle_url }}">
+            {% csrf_token %}
+            <button class="btn btn-success" type="submit">
+              Turn Notifications {% if workspace.will_notify %}Off{% else %}On{% endif %}
+            </button>
+          </form>
+          {% endif %}
+        </div>
 
     </div>
   </div>

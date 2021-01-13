@@ -403,6 +403,17 @@ def test_workspace_get_archive_url():
 
 
 @pytest.mark.django_db
+def test_workspace_get_notifications_toggle_url():
+    workspace = WorkspaceFactory()
+
+    url = workspace.get_notifications_toggle_url()
+
+    assert url == reverse(
+        "workspace-notifications-toggle", kwargs={"name": workspace.name}
+    )
+
+
+@pytest.mark.django_db
 def test_workspace_get_statuses_url():
     workspace = WorkspaceFactory()
     url = workspace.get_statuses_url()

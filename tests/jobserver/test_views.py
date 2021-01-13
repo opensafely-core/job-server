@@ -25,6 +25,7 @@ from jobserver.views import (
     WorkspaceCreate,
     WorkspaceDetail,
     WorkspaceLog,
+    WorkspaceNotificationsToggle,
     WorkspaceUnarchive,
     superuser_required,
 )
@@ -757,6 +758,31 @@ def test_workspacelog_unknown_workspace(rf):
 
     assert response.status_code == 302
     assert response.url == "/"
+
+
+@pytest.mark.django_db
+def test_workspacenotificationstoggle_success(rf):
+    workspace = WorkspaceFactory(will_notify=True)
+    request = rf.post(MEANINGLESS_URL)
+    request.user = UserFactory()
+
+    response = WorkspaceNotificationsToggle.as_view()(request, name=workspace.name)
+
+    assert response.status_code == 302
+    assert response.url == workspace.get_absolute_url()
+
+    workspace.refresh_from_db()
+
+    assert not workspace.will_notify
+
+
+@pytest.mark.django_db
+def test_workspacenotificationstoggle_unknown_workspace(rf):
+    request = rf.post(MEANINGLESS_URL)
+    request.user = UserFactory()
+
+    with pytest.raises(Http404):
+        WorkspaceNotificationsToggle.as_view()(request, name="test")
 
 
 @pytest.mark.django_db
