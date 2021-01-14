@@ -1,0 +1,7 @@
+{{ action }} in workspace {{ workspace }} {{ status }} after {{ elapsed_time }} with the following message:
+
+{{ status_message }}
+
+You can view the Job here:
+
+{{ url }}

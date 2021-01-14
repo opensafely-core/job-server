@@ -42,6 +42,7 @@ ALLOWED_HOSTS = ["*"]
 # Application definition
 INSTALLED_APPS = [
     "jobserver",
+    "anymail",
     "crispy_forms",
     "debug_toolbar",
     "django_extensions",
@@ -166,6 +167,18 @@ MESSAGE_TAGS = {
 
 
 # THIRD PARTY SETTINGS
+
+# Anymail
+ANYMAIL = {
+    "MAILGUN_API_KEY": env.str("MAILGUN_API_KEY", default=None),
+    "MAILGUN_API_URL": "https://api.eu.mailgun.net/v3",
+    "MAILGUN_SENDER_DOMAIN": "mg.jobs.opensafely.org",
+}
+EMAIL_BACKEND = env.str(
+    "EMAIL_BACKEND", default="django.core.mail.backends.dummy.EmailBackend"
+)
+DEFAULT_FROM_EMAIL = "you@example.com"
+SERVER_EMAIL = "your-server@example.com"
 
 # Crispy Forms
 # https://django-crispy-forms.readthedocs.io/en/latest/install.html#template-packs
