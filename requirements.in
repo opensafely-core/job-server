@@ -1,5 +1,6 @@
 attrs
 dj-database-url
+django-anymail[mailgun]
 django-crispy-forms
 django-rest-framework
 django-structlog
@@ -7,6 +8,7 @@ environs
 first
 furl
 gunicorn
+incuna-mail
 pyyaml
 requests
 sentry-sdk
