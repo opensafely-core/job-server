@@ -18,7 +18,13 @@ from django.views.generic import (
 )
 
 from .backends import show_warning
-from .forms import JobRequestCreateForm, SettingsForm, WorkspaceCreateForm
+from .forms import (
+    JobRequestCreateForm,
+    SettingsForm,
+    WorkspaceArchiveToggleForm,
+    WorkspaceCreateForm,
+    WorkspaceNotificationsToggleForm,
+)
 from .github import get_branch_sha, get_repos_with_branches
 from .models import Backend, Job, JobRequest, User, Workspace
 from .project import get_actions
@@ -238,11 +244,14 @@ class Status(View):
 
 
 @method_decorator(login_required, name="dispatch")
-class WorkspaceArchive(View):
+class WorkspaceArchiveToggle(View):
     def post(self, request, *args, **kwargs):
         workspace = get_object_or_404(Workspace, name=self.kwargs["name"])
 
-        workspace.is_archived = True
+        form = WorkspaceArchiveToggleForm(request.POST)
+        form.is_valid()
+
+        workspace.is_archived = form.cleaned_data["is_archived"]
         workspace.save()
 
         return redirect("/")
@@ -416,17 +425,10 @@ class WorkspaceNotificationsToggle(View):
     def post(self, request, *args, **kwargs):
         workspace = get_object_or_404(Workspace, name=self.kwargs["name"])
 
-        workspace.will_notify = not workspace.will_notify
+        form = WorkspaceNotificationsToggleForm(data=request.POST)
+        form.is_valid()
+
+        workspace.will_notify = form.cleaned_data["will_notify"]
         workspace.save()
 
         return redirect(workspace)
-
-
-@method_decorator(login_required, name="dispatch")
-class WorkspaceUnarchive(View):
-    def post(self, request, *args, **kwargs):
-        workspace = get_object_or_404(Workspace, name=self.kwargs["name"])
-        workspace.is_archived = False
-        workspace.save()
-
-        return redirect("/")

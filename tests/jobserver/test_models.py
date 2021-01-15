@@ -394,12 +394,12 @@ def test_workspace_get_absolute_url():
 
 
 @pytest.mark.django_db
-def test_workspace_get_archive_url():
+def test_workspace_get_archive_toggle_url():
     workspace = WorkspaceFactory()
 
-    url = workspace.get_archive_url()
+    url = workspace.get_archive_toggle_url()
 
-    assert url == reverse("workspace-archive", kwargs={"name": workspace.name})
+    assert url == reverse("workspace-archive-toggle", kwargs={"name": workspace.name})
 
 
 @pytest.mark.django_db
@@ -418,15 +418,6 @@ def test_workspace_get_statuses_url():
     workspace = WorkspaceFactory()
     url = workspace.get_statuses_url()
     assert url == reverse("workspace-statuses", kwargs={"name": workspace.name})
-
-
-@pytest.mark.django_db
-def test_workspace_get_unarchive_url():
-    workspace = WorkspaceFactory()
-
-    url = workspace.get_unarchive_url()
-
-    assert url == reverse("workspace-unarchive", kwargs={"name": workspace.name})
 
 
 @pytest.mark.django_db

@@ -21,12 +21,11 @@ from jobserver.views import (
     JobZombify,
     Settings,
     Status,
-    WorkspaceArchive,
+    WorkspaceArchiveToggle,
     WorkspaceCreate,
     WorkspaceDetail,
     WorkspaceLog,
     WorkspaceNotificationsToggle,
-    WorkspaceUnarchive,
     superuser_required,
 )
 
@@ -507,29 +506,13 @@ def test_status_unhealthy(rf):
 
 
 @pytest.mark.django_db
-def test_workspacearchive_already_archived(rf):
-    workspace = WorkspaceFactory(is_archived=True)
-
-    request = rf.post(MEANINGLESS_URL)
-    request.user = UserFactory()
-
-    response = WorkspaceArchive.as_view()(request, name=workspace.name)
-
-    assert response.status_code == 302
-    assert response.url == "/"
-
-    workspace.refresh_from_db()
-    assert workspace.is_archived
-
-
-@pytest.mark.django_db
-def test_workspacearchive_success(rf):
+def test_workspacearchivetoggle_success(rf):
     workspace = WorkspaceFactory(is_archived=False)
 
-    request = rf.post(MEANINGLESS_URL)
+    request = rf.post(MEANINGLESS_URL, {"is_archived": "True"})
     request.user = UserFactory()
 
-    response = WorkspaceArchive.as_view()(request, name=workspace.name)
+    response = WorkspaceArchiveToggle.as_view()(request, name=workspace.name)
 
     assert response.status_code == 302
     assert response.url == "/"
@@ -763,7 +746,7 @@ def test_workspacelog_unknown_workspace(rf):
 @pytest.mark.django_db
 def test_workspacenotificationstoggle_success(rf):
     workspace = WorkspaceFactory(will_notify=True)
-    request = rf.post(MEANINGLESS_URL)
+    request = rf.post(MEANINGLESS_URL, {"will_notify": ""})
     request.user = UserFactory()
 
     response = WorkspaceNotificationsToggle.as_view()(request, name=workspace.name)
@@ -783,33 +766,3 @@ def test_workspacenotificationstoggle_unknown_workspace(rf):
 
     with pytest.raises(Http404):
         WorkspaceNotificationsToggle.as_view()(request, name="test")
-
-
-@pytest.mark.django_db
-def test_workspaceunarchive_already_unarchived(rf):
-    workspace = WorkspaceFactory(is_archived=False)
-
-    request = rf.post(MEANINGLESS_URL)
-    request.user = UserFactory()
-
-    response = WorkspaceUnarchive.as_view()(request, name=workspace.name)
-
-    assert response.status_code == 302
-    assert response.url == "/"
-
-    workspace.refresh_from_db()
-    assert not workspace.is_archived
-
-
-@pytest.mark.django_db
-def test_workspaceunarchive_success(rf):
-    workspace = WorkspaceFactory(is_archived=True)
-
-    request = rf.post(MEANINGLESS_URL)
-    request.user = UserFactory()
-
-    response = WorkspaceUnarchive.as_view()(request, name=workspace.name)
-    assert response.status_code == 302
-    assert response.url == "/"
-    workspace.refresh_from_db()
-    assert not workspace.is_archived

@@ -36,6 +36,10 @@ class SettingsForm(forms.ModelForm):
         model = User
 
 
+class WorkspaceArchiveToggleForm(forms.Form):
+    is_archived = forms.BooleanField(required=False)
+
+
 class WorkspaceCreateForm(forms.ModelForm):
     branch = forms.CharField(widget=forms.Select)
 
@@ -86,3 +90,7 @@ class WorkspaceCreateForm(forms.ModelForm):
         name = self.cleaned_data["name"]
 
         return name.lower()
+
+
+class WorkspaceNotificationsToggleForm(forms.Form):
+    will_notify = forms.BooleanField(required=False)

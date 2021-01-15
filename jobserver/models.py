@@ -334,17 +334,14 @@ class Workspace(models.Model):
     def get_absolute_url(self):
         return reverse("workspace-detail", kwargs={"name": self.name})
 
-    def get_archive_url(self):
-        return reverse("workspace-archive", kwargs={"name": self.name})
+    def get_archive_toggle_url(self):
+        return reverse("workspace-archive-toggle", kwargs={"name": self.name})
 
     def get_notifications_toggle_url(self):
         return reverse("workspace-notifications-toggle", kwargs={"name": self.name})
 
     def get_statuses_url(self):
         return reverse("workspace-statuses", kwargs={"name": self.name})
-
-    def get_unarchive_url(self):
-        return reverse("workspace-unarchive", kwargs={"name": self.name})
 
     def get_action_status_lut(self):
         """
