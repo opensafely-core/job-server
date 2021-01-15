@@ -6,11 +6,19 @@ from django.db import transaction
 from django.db.models import Q
 from django.shortcuts import get_object_or_404, redirect
 from django.template.response import TemplateResponse
+from django.urls import reverse_lazy
 from django.utils.decorators import method_decorator
-from django.views.generic import CreateView, DetailView, ListView, TemplateView, View
+from django.views.generic import (
+    CreateView,
+    DetailView,
+    ListView,
+    TemplateView,
+    UpdateView,
+    View,
+)
 
 from .backends import show_warning
-from .forms import JobRequestCreateForm, WorkspaceCreateForm
+from .forms import JobRequestCreateForm, SettingsForm, WorkspaceCreateForm
 from .github import get_branch_sha, get_repos_with_branches
 from .models import Backend, Job, JobRequest, User, Workspace
 from .project import get_actions
@@ -182,6 +190,16 @@ class JobRequestZombify(View):
         )
 
         return redirect("job-request-detail", pk=job_request.pk)
+
+
+@method_decorator(login_required, name="dispatch")
+class Settings(UpdateView):
+    form_class = SettingsForm
+    template_name = "settings.html"
+    success_url = reverse_lazy("settings")
+
+    def get_object(self):
+        return self.request.user
 
 
 class Status(View):
@@ -391,6 +409,17 @@ class WorkspaceLog(ListView):
                 qs = qs.filter(Q(jobs__action__icontains=q) | Q(jobs__pk=q))
 
         return qs
+
+
+@method_decorator(login_required, name="dispatch")
+class WorkspaceNotificationsToggle(View):
+    def post(self, request, *args, **kwargs):
+        workspace = get_object_or_404(Workspace, name=self.kwargs["name"])
+
+        workspace.will_notify = not workspace.will_notify
+        workspace.save()
+
+        return redirect(workspace)
 
 
 @method_decorator(login_required, name="dispatch")

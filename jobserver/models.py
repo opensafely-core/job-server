@@ -297,6 +297,8 @@ class Stats(models.Model):
 
 
 class User(AbstractUser):
+    notifications_email = models.TextField(default="")
+
     @property
     def name(self):
         """Unify the available names for a User."""
@@ -316,6 +318,7 @@ class Workspace(models.Model):
     repo = models.TextField(db_index=True)
     branch = models.TextField()
     is_archived = models.BooleanField(default=False)
+    will_notify = models.BooleanField(default=False)
 
     DB_OPTIONS = (
         ("slice", "Cut-down (but real) database"),
@@ -333,6 +336,9 @@ class Workspace(models.Model):
 
     def get_archive_url(self):
         return reverse("workspace-archive", kwargs={"name": self.name})
+
+    def get_notifications_toggle_url(self):
+        return reverse("workspace-notifications-toggle", kwargs={"name": self.name})
 
     def get_statuses_url(self):
         return reverse("workspace-statuses", kwargs={"name": self.name})

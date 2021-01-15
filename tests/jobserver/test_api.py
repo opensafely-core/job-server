@@ -1,4 +1,5 @@
 from datetime import timedelta
+from unittest.mock import patch
 
 import pytest
 from django.utils import timezone
@@ -322,6 +323,72 @@ def test_jobapiupdate_mixture(api_rf, freezer):
     assert job3.started_at == timezone.now() - timedelta(minutes=1)
     assert job3.updated_at == timezone.now()
     assert job3.completed_at is None
+
+
+@pytest.mark.django_db
+def test_jobapiupdate_notifications_on_with_move_to_finished(api_rf):
+    workspace = WorkspaceFactory(will_notify=True)
+    job_request = JobRequestFactory(workspace=workspace)
+    job = JobFactory(job_request=job_request, status="running")
+
+    data = [
+        {
+            "identifier": job.identifier,
+            "job_request_id": job_request.identifier,
+            "action": "test",
+            "status": "succeeded",
+            "status_message": "",
+            "created_at": timezone.now() - timedelta(minutes=2),
+            "started_at": timezone.now() - timedelta(minutes=1),
+            "updated_at": timezone.now(),
+            "completed_at": timezone.now() - timedelta(seconds=30),
+        },
+    ]
+
+    request = api_rf.post(
+        "/",
+        HTTP_AUTHORIZATION=job_request.backend.auth_token,
+        data=data,
+        format="json",
+    )
+    with patch("jobserver.api.send_finished_notification") as mocked_send:
+        response = JobAPIUpdate.as_view()(request)
+
+    mocked_send.assert_called_once()
+    assert response.status_code == 200
+
+
+@pytest.mark.django_db
+def test_jobapiupdate_notifications_on_without_move_to_finished(api_rf):
+    workspace = WorkspaceFactory(will_notify=True)
+    job_request = JobRequestFactory(workspace=workspace)
+    job = JobFactory(job_request=job_request, status="succeeded")
+
+    data = [
+        {
+            "identifier": job.identifier,
+            "job_request_id": job_request.identifier,
+            "action": "test",
+            "status": "succeeded",
+            "status_message": "",
+            "created_at": timezone.now() - timedelta(minutes=2),
+            "started_at": timezone.now() - timedelta(minutes=1),
+            "updated_at": timezone.now(),
+            "completed_at": timezone.now() - timedelta(seconds=30),
+        },
+    ]
+
+    request = api_rf.post(
+        "/",
+        HTTP_AUTHORIZATION=job_request.backend.auth_token,
+        data=data,
+        format="json",
+    )
+    with patch("jobserver.api.send_finished_notification") as mocked_send:
+        response = JobAPIUpdate.as_view()(request)
+
+    mocked_send.assert_not_called()
+    assert response.status_code == 200
 
 
 @pytest.mark.django_db

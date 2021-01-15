@@ -11,6 +11,7 @@ from rest_framework.generics import ListAPIView
 from rest_framework.response import Response
 from rest_framework.views import APIView
 
+from .emails import send_finished_notification
 from .models import Backend, JobRequest, Stats, Workspace
 
 
@@ -137,12 +138,49 @@ class JobAPIUpdate(APIView):
                 # related Jobs manager (ie job_request.jobs)
                 job_data.pop("job_request_id")
 
-                job, created = job_request.jobs.update_or_create(
+                job, created = job_request.jobs.get_or_create(
                     identifier=job_data["identifier"],
                     defaults={**job_data},
                 )
-
                 log.info("Created or updated Job", job=job.id, created=created)
+
+                if created:
+                    # this is the first time job-server has heard about this
+                    # Job so we can move on to further Jobs.  We're knowingly
+                    # skipping potential notifications here to avoid creating
+                    # false positives.
+                    continue
+
+                # check to see if the Job is about to transition to finished
+                # (failed or succeeded) so we can notify after the update
+                finished = ["failed", "succeeded"]
+                should_notify = (
+                    job.status not in finished and job_data["status"] in finished
+                )
+
+                # update Job "manually" so we can make the check above for
+                # status transition
+                for key, value in job_data.items():
+                    setattr(job, key, value)
+                job.save()
+
+                if not job_request.workspace.will_notify:
+                    # Workspace has notificaitons turned off
+                    continue
+
+                if not should_notify:
+                    # Job didn't move into the finished state (it might have
+                    # already been there though)
+                    continue
+
+                send_finished_notification(
+                    job_request.created_by.notifications_email,
+                    job,
+                )
+                log.info(
+                    "Notified requesting user of finished job",
+                    user_id=job_request.created_by_id,
+                )
 
         # record use of the API
         update_stats(self.backend, request.path)

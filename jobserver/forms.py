@@ -2,7 +2,7 @@ from crispy_forms.helper import FormHelper
 from crispy_forms.layout import Submit
 from django import forms
 
-from .models import JobRequest, Workspace
+from .models import JobRequest, User, Workspace
 
 
 class JobRequestCreateForm(forms.ModelForm):
@@ -26,6 +26,14 @@ class JobRequestCreateForm(forms.ModelForm):
                 "required": "Please select at least one of the Actions listed above."
             },
         )
+
+
+class SettingsForm(forms.ModelForm):
+    class Meta:
+        fields = [
+            "notifications_email",
+        ]
+        model = User
 
 
 class WorkspaceCreateForm(forms.ModelForm):

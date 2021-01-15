@@ -29,11 +29,13 @@ from .views import (
     JobRequestList,
     JobRequestZombify,
     JobZombify,
+    Settings,
     Status,
     WorkspaceArchive,
     WorkspaceCreate,
     WorkspaceDetail,
     WorkspaceLog,
+    WorkspaceNotificationsToggle,
     WorkspaceUnarchive,
 )
 
@@ -65,6 +67,7 @@ urlpatterns = [
     path("jobs/<identifier>/", JobDetail.as_view(), name="job-detail"),
     path("jobs/<identifier>/zombify/", JobZombify.as_view(), name="job-zombify"),
     path("logout/", LogoutView.as_view(), name="logout"),
+    path("settings/", Settings.as_view(), name="settings"),
     path("status/", Status.as_view(), name="status"),
     path("workspaces/", RedirectView.as_view(url="/")),
     path("workspaces/new/", WorkspaceCreate.as_view(), name="workspace-create"),
@@ -72,5 +75,10 @@ urlpatterns = [
     path("<name>/", WorkspaceDetail.as_view(), name="workspace-detail"),
     path("<name>/archive/", WorkspaceArchive.as_view(), name="workspace-archive"),
     path("<name>/logs/", WorkspaceLog.as_view(), name="workspace-logs"),
+    path(
+        "<name>/notifications-toggle/",
+        WorkspaceNotificationsToggle.as_view(),
+        name="workspace-notifications-toggle",
+    ),
     path("<name>/unarchive/", WorkspaceUnarchive.as_view(), name="workspace-unarchive"),
 ]
