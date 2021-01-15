@@ -31,12 +31,11 @@ from .views import (
     JobZombify,
     Settings,
     Status,
-    WorkspaceArchive,
+    WorkspaceArchiveToggle,
     WorkspaceCreate,
     WorkspaceDetail,
     WorkspaceLog,
     WorkspaceNotificationsToggle,
-    WorkspaceUnarchive,
 )
 
 
@@ -73,12 +72,15 @@ urlpatterns = [
     path("workspaces/new/", WorkspaceCreate.as_view(), name="workspace-create"),
     path("__debug__/", include(debug_toolbar.urls)),
     path("<name>/", WorkspaceDetail.as_view(), name="workspace-detail"),
-    path("<name>/archive/", WorkspaceArchive.as_view(), name="workspace-archive"),
+    path(
+        "<name>/archive-toggle/",
+        WorkspaceArchiveToggle.as_view(),
+        name="workspace-archive-toggle",
+    ),
     path("<name>/logs/", WorkspaceLog.as_view(), name="workspace-logs"),
     path(
         "<name>/notifications-toggle/",
         WorkspaceNotificationsToggle.as_view(),
         name="workspace-notifications-toggle",
     ),
-    path("<name>/unarchive/", WorkspaceUnarchive.as_view(), name="workspace-unarchive"),
 ]

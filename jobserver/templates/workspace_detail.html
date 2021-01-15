@@ -64,15 +64,10 @@
 
         <div class="col-lg-3 text-right">
           {% if request.user.is_authenticated %}
-          <form
-            method="POST"
-            {% if not workspace.is_archived %}
-            action="{{ workspace.get_archive_url }}"
-            {% else %}
-            action="{{ workspace.get_unarchive_url }}"
-            {% endif %}
-            class="my-2">
+          <form method="POST" action="{{ workspace.get_archive_toggle_url }}" class="my-2">
             {% csrf_token %}
+
+            <input type="hidden" name="is_archived" value="{{ workspace.is_archived|yesno:",True" }}" />
 
             <button class="btn btn-danger" type="submit">
               {% if not workspace.is_archived %}

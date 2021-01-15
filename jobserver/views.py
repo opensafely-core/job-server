@@ -21,6 +21,7 @@ from .backends import show_warning
 from .forms import (
     JobRequestCreateForm,
     SettingsForm,
+    WorkspaceArchiveToggleForm,
     WorkspaceCreateForm,
     WorkspaceNotificationsToggleForm,
 )
@@ -243,11 +244,14 @@ class Status(View):
 
 
 @method_decorator(login_required, name="dispatch")
-class WorkspaceArchive(View):
+class WorkspaceArchiveToggle(View):
     def post(self, request, *args, **kwargs):
         workspace = get_object_or_404(Workspace, name=self.kwargs["name"])
 
-        workspace.is_archived = True
+        form = WorkspaceArchiveToggleForm(request.POST)
+        form.is_valid()
+
+        workspace.is_archived = form.cleaned_data["is_archived"]
         workspace.save()
 
         return redirect("/")
@@ -428,13 +432,3 @@ class WorkspaceNotificationsToggle(View):
         workspace.save()
 
         return redirect(workspace)
-
-
-@method_decorator(login_required, name="dispatch")
-class WorkspaceUnarchive(View):
-    def post(self, request, *args, **kwargs):
-        workspace = get_object_or_404(Workspace, name=self.kwargs["name"])
-        workspace.is_archived = False
-        workspace.save()
-
-        return redirect("/")

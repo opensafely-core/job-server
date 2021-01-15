@@ -36,6 +36,10 @@ class SettingsForm(forms.ModelForm):
         model = User
 
 
+class WorkspaceArchiveToggleForm(forms.Form):
+    is_archived = forms.BooleanField(required=False)
+
+
 class WorkspaceCreateForm(forms.ModelForm):
     branch = forms.CharField(widget=forms.Select)
 
