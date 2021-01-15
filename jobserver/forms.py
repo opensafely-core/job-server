@@ -86,3 +86,7 @@ class WorkspaceCreateForm(forms.ModelForm):
         name = self.cleaned_data["name"]
 
         return name.lower()
+
+
+class WorkspaceNotificationsToggleForm(forms.Form):
+    will_notify = forms.BooleanField(required=False)

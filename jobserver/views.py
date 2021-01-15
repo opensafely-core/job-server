@@ -18,7 +18,12 @@ from django.views.generic import (
 )
 
 from .backends import show_warning
-from .forms import JobRequestCreateForm, SettingsForm, WorkspaceCreateForm
+from .forms import (
+    JobRequestCreateForm,
+    SettingsForm,
+    WorkspaceCreateForm,
+    WorkspaceNotificationsToggleForm,
+)
 from .github import get_branch_sha, get_repos_with_branches
 from .models import Backend, Job, JobRequest, User, Workspace
 from .project import get_actions
@@ -416,7 +421,10 @@ class WorkspaceNotificationsToggle(View):
     def post(self, request, *args, **kwargs):
         workspace = get_object_or_404(Workspace, name=self.kwargs["name"])
 
-        workspace.will_notify = not workspace.will_notify
+        form = WorkspaceNotificationsToggleForm(data=request.POST)
+        form.is_valid()
+
+        workspace.will_notify = form.cleaned_data["will_notify"]
         workspace.save()
 
         return redirect(workspace)
