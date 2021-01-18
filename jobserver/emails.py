@@ -16,7 +16,7 @@ def send_finished_notification(email, job):
     send(
         to=email,
         sender="notificaitons@jobs.opensafely.org",
-        subject=f"[os {workspace_name}]{job.action} {job.status}",
+        subject=f"[os {workspace_name}] {job.action} {job.status}",
         template_name="emails/notify_finished.txt",
         context=context,
     )
