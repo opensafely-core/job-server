@@ -204,6 +204,13 @@ class Settings(UpdateView):
     template_name = "settings.html"
     success_url = reverse_lazy("settings")
 
+    def form_valid(self, form):
+        response = super().form_valid(form)
+
+        messages.success(self.request, "Settings saved successfully")
+
+        return response
+
     def get_object(self):
         return self.request.user
 

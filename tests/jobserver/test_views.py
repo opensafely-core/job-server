@@ -411,17 +411,25 @@ def test_settings_post(rf):
     user2 = UserFactory(notifications_email="original@example.com")
 
     data = {"notifications_email": "changed@example.com"}
-
     request = rf.post(MEANINGLESS_URL, data)
     request.user = user2
-    response = Settings.as_view()(request)
 
+    # set up messages framework
+    request.session = "session"
+    messages = FallbackStorage(request)
+    request._messages = messages
+
+    response = Settings.as_view()(request)
     assert response.status_code == 302
     assert response.url == reverse("settings")
 
     user2.refresh_from_db()
 
     assert user2.notifications_email == "changed@example.com"
+
+    messages = list(messages)
+    assert len(messages) == 1
+    assert str(messages[0]) == "Settings saved successfully"
 
 
 @pytest.mark.django_db
