@@ -26,7 +26,10 @@
 <div class="row mb-3">
   <div class="col-md-9 col-lg-6 offset-lg-2">
 
-    <h2>Job Request: {{ jobrequest.pk }}</h2>
+    <h2 class="mb-4">
+      Job Request: {{ jobrequest.pk }}
+      <code><small class="text-muted">{{ jobrequest.identifier }}</small></code>
+    </h2>
 
     <div class="mb-4">
       <h3>State</h3>
@@ -52,6 +55,11 @@
           {{ jobrequest.workspace.name }}
         </a>
         <small class="text-muted">({{ jobrequest.workspace.branch }})</small>
+      </div>
+
+      <div>
+        <strong>Creator:</strong>
+        {{ jobrequest.created_by.username }}
       </div>
 
       <div>
