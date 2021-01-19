@@ -3,7 +3,7 @@ import functools
 from django.urls import reverse
 
 from .backends import show_warning
-from .models import Backend, Stats
+from .models import Backend
 
 
 def _is_active(request, prefix):
@@ -14,7 +14,9 @@ def backend_warnings(request):
     def iter_warnings(backends):
         for backend in backends:
             try:
-                last_seen = Stats.objects.first().api_last_seen
+                last_seen = (
+                    backend.stats.order_by("-api_last_seen").first().api_last_seen
+                )
             except AttributeError:
                 last_seen = None
 
