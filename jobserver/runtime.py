@@ -11,3 +11,4 @@ class Runtime:
     hours: int = attr.ib(default=0)
     minutes: int = attr.ib(default=0, validator=[less_than_60])
     seconds: int = attr.ib(default=0, validator=[less_than_60])
+    total_seconds: int = attr.ib(default=0)

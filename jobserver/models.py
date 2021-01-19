@@ -127,11 +127,12 @@ class Job(models.Model):
             return
 
         delta = self.completed_at - self.started_at
+        total_seconds = delta.total_seconds()
 
-        hours, remainder = divmod(delta.total_seconds(), 3600)
+        hours, remainder = divmod(total_seconds, 3600)
         minutes, seconds = divmod(remainder, 60)
 
-        return Runtime(int(hours), int(minutes), int(seconds))
+        return Runtime(int(hours), int(minutes), int(seconds), int(total_seconds))
 
 
 class JobRequestQuerySet(models.QuerySet):
