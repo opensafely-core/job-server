@@ -6,7 +6,6 @@ from django.db import transaction
 from django.db.models import Q
 from django.shortcuts import get_object_or_404, redirect
 from django.template.response import TemplateResponse
-from django.urls import reverse_lazy
 from django.utils.decorators import method_decorator
 from django.views.generic import (
     CreateView,
@@ -202,7 +201,7 @@ class JobRequestZombify(View):
 class Settings(UpdateView):
     form_class = SettingsForm
     template_name = "settings.html"
-    success_url = reverse_lazy("settings")
+    success_url = "/"
 
     def form_valid(self, form):
         response = super().form_valid(form)

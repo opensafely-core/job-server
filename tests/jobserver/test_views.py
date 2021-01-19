@@ -421,7 +421,7 @@ def test_settings_post(rf):
 
     response = Settings.as_view()(request)
     assert response.status_code == 302
-    assert response.url == reverse("settings")
+    assert response.url == "/"
 
     user2.refresh_from_db()
 
