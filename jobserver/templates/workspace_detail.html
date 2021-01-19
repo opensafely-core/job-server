@@ -273,6 +273,24 @@
 
       </div>
 
+      <div class="mb-5">
+        <p>
+          Notifications for {{ workspace.name }} are:
+          <strong>{{ workspace.will_notify|yesno:"On,Off" }}</strong>
+
+          <br />
+
+          <small class="text-muted">
+            {% if workspace.will_notify %}
+            You will receive notifications for all Jobs created from this request to <code>{{ request.user.notifications_email }}</code>.
+            <br />
+            You can change this email address in your <a href="{% url 'settings' %}">settings</a>.
+            {% else %}
+            You can enable notifications for this workspace by clicking Details above.
+            {% endif %}
+          </small>
+      </div>
+
       <div class="form-group">
         <input type="submit" name="submit" value="Submit" class="btn btn-primary" id="submit-id-submit" />
       </div>
