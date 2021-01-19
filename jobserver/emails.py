@@ -1,7 +1,7 @@
 from incuna_mail import send
 
 
-def send_finished_notification(email, job):
+def send_finished_notification(email, job, job_url):
     workspace_name = job.job_request.workspace.name
 
     context = {
@@ -9,7 +9,7 @@ def send_finished_notification(email, job):
         "elapsed_time": job.runtime.total_seconds,
         "status": job.status,
         "status_message": job.status_message,
-        "url": job.get_absolute_url(),
+        "url": job_url,
         "workspace": workspace_name,
     }
 
