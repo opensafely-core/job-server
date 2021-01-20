@@ -18,11 +18,9 @@ def backend_warnings(request):
                     backend.stats.order_by("-api_last_seen").first().api_last_seen
                 )
             except AttributeError:
-                last_seen = None
+                continue
 
-            unacked = backend.job_requests.unacked().count()
-
-            if show_warning(unacked, last_seen):
+            if show_warning(last_seen):
                 yield backend.display_name
 
     backends = Backend.objects.all()

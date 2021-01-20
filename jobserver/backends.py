@@ -29,10 +29,7 @@ def get_configured_backends():
     return backends
 
 
-def show_warning(unacked, last_seen, minutes=5):
-    if unacked == 0:
-        return False
-
+def show_warning(last_seen, minutes=5):
     if last_seen is None:
         return False
 
