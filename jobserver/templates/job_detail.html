@@ -107,6 +107,13 @@
       <div>
         <strong>Runtime:</strong> <span>{% runtime job.runtime %}</span>
       </div>
+
+      <div>
+        <strong>Last Updated by Runner:</strong>
+        <span title="{{ job.updated_at|default_if_none:"" }}">
+          {{ job.updated_at|naturaltime|default_if_none:"-" }}
+        </span>
+      </div>
     </div>
 
   </div>
