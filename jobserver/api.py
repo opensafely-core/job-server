@@ -163,6 +163,7 @@ class JobAPIUpdate(APIView):
                 for key, value in job_data.items():
                     setattr(job, key, value)
                 job.save()
+                job.refresh_from_db()
 
                 if not job_request.workspace.will_notify:
                     # Workspace has notificaitons turned off
