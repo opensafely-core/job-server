@@ -92,14 +92,14 @@
 
       <div>
         <strong>Started:</strong>
-        <span title="{{ job.started_at|default_if_none:"" }}">
+        <span title="{{ job.started_at|date:"Y-m-d H:i:s"|default_if_none:"" }}">
           {{ job.started_at|naturaltime|default_if_none:"-" }}
         </span>
       </div>
 
       <div>
         <strong>Finished:</strong>
-        <span title="{{ job.completed_at|default_if_none:"" }}">
+        <span title="{{ job.completed_at|date:"Y-m-d H:i:s"|default_if_none:"" }}">
           {{ job.completed_at|naturaltime|default_if_none:"-"}}
         </span>
       </div>
@@ -110,7 +110,7 @@
 
       <div>
         <strong>Last Updated by Runner:</strong>
-        <span title="{{ job.updated_at|default_if_none:"" }}">
+        <span title="{{ job.updated_at|date:"Y-m-d H:i:s"|default_if_none:"" }}">
           {{ job.updated_at|naturaltime|default_if_none:"-" }}
         </span>
       </div>
