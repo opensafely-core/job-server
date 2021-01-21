@@ -110,3 +110,21 @@ jobs:
     steps:
       - uses: actions/checkout@v2
       - uses: brpaz/hadolint-action@master
+
+  deploy:
+    needs: [test, lint-dockerfile]
+    runs-on: ubuntu-latest
+
+    if: github.ref == 'refs/heads/master'
+
+    steps:
+      - uses: actions/checkout@v2
+        with:
+          fetch-depth: 0
+
+      - name: Deploy to dokku
+        uses: idoberko2/dokku-deploy-github-action@v1
+        with:
+          app-name: "job-server"
+          dokku-host: ${{ secrets.DOKKU_HOST }}
+          ssh-private-key: ${{ secrets.SSH_PRIVATE_KEY }}
