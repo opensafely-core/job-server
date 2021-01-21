@@ -179,6 +179,7 @@ class GithubOrganizationOAuth2(GithubOAuth2):
         membership endpoint.
         """
         user_data = super().user_data(access_token, *args, **kwargs)
+        username = user_data.get("login")
 
         # https://docs.github.com/en/free-pro-team@latest/rest/reference/orgs#check-organization-membership-for-a-user
         f = furl(BASE_URL)
@@ -186,7 +187,7 @@ class GithubOrganizationOAuth2(GithubOAuth2):
             "orgs",
             "opensafely",
             "members",
-            user_data.get("login"),
+            username,
         ]
 
         # Use our "service-level" PAT instead of the User's OAuth token to
@@ -203,6 +204,10 @@ class GithubOrganizationOAuth2(GithubOAuth2):
         # The member-of-an-org endpoint returns a 204 on success, any other
         # status code is a failure here.
         if r.status_code != 204:
-            raise AuthFailed(self, "User doesn't belong to the organization")
+            msg = (
+                f'"{username}" is not part of the OpenSAFELY GitHub Organization. '
+                '<a href="https://opensafely.org/contact/">Contact us</a> to request access.'
+            )
+            raise AuthFailed(self, msg)
 
         return user_data

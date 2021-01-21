@@ -163,7 +163,11 @@ def test_githuborganizationoauth2_user_data_302(dummy_backend):
     expected_url = "https://api.github.com/orgs/opensafely/members/test-username"
     responses.add(responses.GET, url=expected_url, status=302)
 
-    with pytest.raises(AuthFailed, match="User doesn't belong to the organization"):
+    match = (
+        '"test-username" is not part of the OpenSAFELY GitHub Organization. '
+        '<a href="https://opensafely.org/contact/">Contact us</a> to request access.'
+    )
+    with pytest.raises(AuthFailed, match=match):
         dummy_backend.user_data("access-token")
 
 
@@ -172,5 +176,9 @@ def test_githuborganizationoauth2_user_data_404(dummy_backend):
     expected_url = "https://api.github.com/orgs/opensafely/members/test-username"
     responses.add(responses.GET, url=expected_url, status=404)
 
-    with pytest.raises(AuthFailed, match="User doesn't belong to the organization"):
+    match = (
+        '"test-username" is not part of the OpenSAFELY GitHub Organization. '
+        '<a href="https://opensafely.org/contact/">Contact us</a> to request access.'
+    )
+    with pytest.raises(AuthFailed, match=match):
         dummy_backend.user_data("access-token")
