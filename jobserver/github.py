@@ -204,7 +204,10 @@ class GithubOrganizationOAuth2(GithubOAuth2):
         # The member-of-an-org endpoint returns a 204 on success, any other
         # status code is a failure here.
         if r.status_code != 204:
-            msg = f"'{username}' is not part of the OpenSAFELY GitHub Organization."
+            msg = (
+                f'"{username}" is not part of the OpenSAFELY GitHub Organization. '
+                '<a href="https://opensafely.org/contact/">Contact us</a> to request access.'
+            )
             raise AuthFailed(self, msg)
 
         return user_data
