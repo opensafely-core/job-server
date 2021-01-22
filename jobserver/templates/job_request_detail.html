@@ -3,6 +3,13 @@
 {% load humanize %}
 {% load runtime %}
 
+{% block extra_meta %}
+<meta property="og:title" content="Requested Actions: {{ jobrequest.requested_actions|join:"," }}" />
+<meta property="og:type" content="website" />
+<meta property="og:url" content="{{ request.build_absolute_uri }}" />
+<meta property="og:description" content="Workspace: {{ jobrequest.workspace.name }}" />
+{% endblock extra_meta %}
+
 {% block content %}
 
 <nav aria-label="breadcrumb">
