@@ -4,6 +4,13 @@
 {% load runtime %}
 {% load static %}
 
+{% block extra_meta %}
+<meta property="og:title" content="{{ workspace.name }}" />
+<meta property="og:type" content="website" />
+<meta property="og:url" content="{{ request.build_absolute_uri }}" />
+<meta property="og:description" content="Repo: {{ workspace.repo_name }} ({{ workspace.branch }})" />
+{% endblock extra_meta %}
+
 {% block content %}
 
 {% if workspace.is_archived %}
