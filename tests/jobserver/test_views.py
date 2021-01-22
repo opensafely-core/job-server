@@ -675,6 +675,41 @@ def test_workspacedetail_post_success(rf, monkeypatch):
 
 
 @pytest.mark.django_db
+def test_workspacedetail_post_success_with_superuser(rf, monkeypatch):
+    monkeypatch.setenv("BACKENDS", "tpp,emis")
+
+    workspace = WorkspaceFactory()
+    user = UserFactory(is_superuser=True)
+
+    data = {
+        "backend": "emis",
+        "requested_actions": ["twiddle"],
+        "callback_url": "test",
+    }
+
+    # Build a RequestFactory instance
+    request = rf.post(MEANINGLESS_URL, data)
+    request.user = user
+
+    dummy_project = [{"name": "twiddle", "needs": []}]
+    with patch("jobserver.views.get_actions", new=lambda *args: dummy_project), patch(
+        "jobserver.views.get_branch_sha", new=lambda r, b: "abc123"
+    ):
+        response = WorkspaceDetail.as_view()(request, name=workspace.name)
+
+    assert response.status_code == 302, response.context_data["form"].errors
+    assert response.url == reverse("workspace-logs", kwargs={"name": workspace.name})
+
+    job_request = JobRequest.objects.first()
+    assert job_request.created_by == user
+    assert job_request.workspace == workspace
+    assert job_request.backend.name == "emis"
+    assert job_request.requested_actions == ["twiddle"]
+    assert job_request.sha == "abc123"
+    assert not job_request.jobs.exists()
+
+
+@pytest.mark.django_db
 def test_workspacedetail_unknown_workspace(rf):
     # Build a RequestFactory instance
     request = rf.get(MEANINGLESS_URL)
