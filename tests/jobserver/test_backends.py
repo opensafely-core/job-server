@@ -3,7 +3,24 @@ from datetime import timedelta
 import pytest
 from django.utils import timezone
 
-from jobserver.backends import get_configured_backends, show_warning
+from jobserver.backends import (
+    backends_to_choices,
+    get_configured_backends,
+    show_warning,
+)
+
+from ..factories import BackendFactory
+
+
+@pytest.mark.django_db
+def test_backends_to_choices():
+    b1 = BackendFactory(name="test1", display_name="Display One")
+    b2 = BackendFactory(name="test2", display_name="Display Two")
+
+    choices = backends_to_choices([b1, b2])
+
+    assert choices[0] == ("test1", "Display One")
+    assert choices[1] == ("test2", "Display Two")
 
 
 def test_get_configured_backends_empty(monkeypatch):

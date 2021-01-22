@@ -12,7 +12,7 @@ class JobRequestCreateForm(forms.ModelForm):
         ]
         model = JobRequest
 
-    def __init__(self, actions, *args, **kwargs):
+    def __init__(self, actions, *args, backends=None, **kwargs):
         super().__init__(*args, **kwargs)
         self.helper = FormHelper()
         self.helper.add_input(Submit("submit", "Submit"))
@@ -26,6 +26,11 @@ class JobRequestCreateForm(forms.ModelForm):
                 "required": "Please select at least one of the Actions listed above."
             },
         )
+
+        if backends:
+            self.fields["backend"] = forms.ChoiceField(
+                choices=backends, widget=forms.RadioSelect
+            )
 
 
 class SettingsForm(forms.ModelForm):

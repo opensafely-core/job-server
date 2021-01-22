@@ -14,6 +14,10 @@ available_backends = {
 }
 
 
+def backends_to_choices(backends):
+    return [(b.name, b.display_name) for b in backends]
+
+
 def get_configured_backends():
     """Get a list of configured Backends from the env"""
     backends = env.list("BACKENDS", default=[])
