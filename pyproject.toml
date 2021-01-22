@@ -42,6 +42,8 @@ DJANGO_SETTINGS_MODULE = "jobserver.settings"
 env = [
   "GITHUB_TOKEN=dummy_token",
   "SECRET_KEY=12345",
+  "SOCIAL_AUTH_GITHUB_KEY=test",
+  "SOCIAL_AUTH_GITHUB_SECRET=test",
 ]
 filterwarnings = [
     'ignore:django.conf.urls.url\(\) is deprecated:django.utils.deprecation.RemovedInDjango40Warning:rest_framework|social_django',
