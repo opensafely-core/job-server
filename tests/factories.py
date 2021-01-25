@@ -1,4 +1,8 @@
+from datetime import datetime
+
 import factory
+import factory.fuzzy
+from django.utils import timezone
 from pytz import utc
 from social_django.models import UserSocialAuth
 
@@ -19,6 +23,8 @@ class JobFactory(factory.django.DjangoModelFactory):
     job_request = factory.SubFactory("tests.factories.JobRequestFactory")
 
     identifier = factory.Sequence(lambda n: f"identifier-{n}")
+
+    updated_at = factory.fuzzy.FuzzyDateTime(datetime(2020, 1, 1, tzinfo=timezone.utc))
 
 
 class JobRequestFactory(factory.django.DjangoModelFactory):
