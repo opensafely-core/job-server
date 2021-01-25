@@ -240,7 +240,7 @@ class Status(View):
                     "acked": acked,
                     "unacked": unacked,
                 },
-                "show_warning": show_warning(unacked, last_seen),
+                "show_warning": show_warning(last_seen),
             }
 
         backends = Backend.objects.all()

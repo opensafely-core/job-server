@@ -1,9 +1,13 @@
 import functools
 
+import structlog
 from django.urls import reverse
 
 from .backends import show_warning
-from .models import Backend, Stats
+from .models import Backend
+
+
+logger = structlog.get_logger(__name__)
 
 
 def _is_active(request, prefix):
@@ -14,13 +18,14 @@ def backend_warnings(request):
     def iter_warnings(backends):
         for backend in backends:
             try:
-                last_seen = Stats.objects.first().api_last_seen
+                last_seen = (
+                    backend.stats.order_by("-api_last_seen").first().api_last_seen
+                )
             except AttributeError:
-                last_seen = None
+                logger.info(f"No stats found for backend '{backend.name}'")
+                continue
 
-            unacked = backend.job_requests.unacked().count()
-
-            if show_warning(unacked, last_seen):
+            if show_warning(last_seen):
                 yield backend.display_name
 
     backends = Backend.objects.all()
