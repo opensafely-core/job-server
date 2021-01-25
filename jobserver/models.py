@@ -99,6 +99,7 @@ class Job(models.Model):
 
     # The current state of the Job, as defined by job-runner.
     status = models.TextField()
+    status_code = models.TextField(default="", blank=True)
     status_message = models.TextField(default="", blank=True)
 
     created_at = models.DateTimeField(default=timezone.now)
