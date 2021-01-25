@@ -62,6 +62,7 @@ class JobAPIUpdate(APIView):
         identifier = serializers.CharField()
         action = serializers.CharField(allow_blank=True)
         status = serializers.CharField()
+        status_code = serializers.CharField(allow_blank=True)
         status_message = serializers.CharField(allow_blank=True)
         created_at = serializers.DateTimeField()
         updated_at = serializers.DateTimeField(allow_null=True)

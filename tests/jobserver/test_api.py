@@ -102,6 +102,7 @@ def test_jobapiupdate_all_existing(api_rf, freezer):
             "job_request_id": job_request.identifier,
             "action": "test-action1",
             "status": "succeeded",
+            "status_code": "",
             "status_message": "",
             "created_at": timezone.now() - timedelta(minutes=2),
             "started_at": timezone.now() - timedelta(minutes=1),
@@ -113,6 +114,7 @@ def test_jobapiupdate_all_existing(api_rf, freezer):
             "job_request_id": job_request.identifier,
             "action": "test-action2",
             "status": "running",
+            "status_code": "",
             "status_message": "",
             "created_at": timezone.now() - timedelta(minutes=2),
             "started_at": timezone.now() - timedelta(minutes=1),
@@ -124,6 +126,7 @@ def test_jobapiupdate_all_existing(api_rf, freezer):
             "job_request_id": job_request.identifier,
             "action": "test-action3",
             "status": "pending",
+            "status_code": "",
             "status_message": "",
             "created_at": timezone.now() - timedelta(minutes=2),
             "started_at": None,
@@ -178,6 +181,7 @@ def test_jobapiupdate_all_new(api_rf):
             "job_request_id": job_request.identifier,
             "action": "test-action",
             "status": "running",
+            "status_code": "",
             "status_message": "",
             "created_at": timezone.now() - timedelta(minutes=2),
             "started_at": timezone.now() - timedelta(minutes=1),
@@ -189,6 +193,7 @@ def test_jobapiupdate_all_new(api_rf):
             "action": "test-action",
             "job_request_id": job_request.identifier,
             "status": "pending",
+            "status_code": "",
             "status_message": "",
             "created_at": timezone.now() - timedelta(minutes=2),
             "updated_at": timezone.now(),
@@ -200,6 +205,7 @@ def test_jobapiupdate_all_new(api_rf):
             "job_request_id": job_request.identifier,
             "action": "test-action",
             "status": "running",
+            "status_code": "",
             "status_message": "",
             "created_at": timezone.now() - timedelta(minutes=2),
             "started_at": None,
@@ -235,7 +241,7 @@ def test_jobapiupdate_invalid_payload(api_rf):
     assert response.status_code == 400, response.data
 
     errors = response.data[0]
-    assert len(errors.keys()) == 8
+    assert len(errors.keys()) == 9
 
 
 @pytest.mark.django_db
@@ -276,6 +282,7 @@ def test_jobapiupdate_mixture(api_rf, freezer):
             "job_request_id": job_request.identifier,
             "action": "test",
             "status": "succeeded",
+            "status_code": "",
             "status_message": "",
             "created_at": timezone.now() - timedelta(minutes=2),
             "started_at": timezone.now() - timedelta(minutes=1),
@@ -287,6 +294,7 @@ def test_jobapiupdate_mixture(api_rf, freezer):
             "job_request_id": job_request.identifier,
             "action": "test",
             "status": "running",
+            "status_code": "",
             "status_message": "",
             "created_at": timezone.now() - timedelta(minutes=2),
             "started_at": timezone.now() - timedelta(minutes=1),
@@ -337,6 +345,7 @@ def test_jobapiupdate_notifications_on_with_move_to_finished(api_rf):
             "job_request_id": job_request.identifier,
             "action": "test",
             "status": "succeeded",
+            "status_code": "",
             "status_message": "",
             "created_at": timezone.now() - timedelta(minutes=2),
             "started_at": timezone.now() - timedelta(minutes=1),
@@ -370,6 +379,7 @@ def test_jobapiupdate_notifications_on_without_move_to_finished(api_rf):
             "job_request_id": job_request.identifier,
             "action": "test",
             "status": "succeeded",
+            "status_code": "",
             "status_message": "",
             "created_at": timezone.now() - timedelta(minutes=2),
             "started_at": timezone.now() - timedelta(minutes=1),
@@ -423,6 +433,7 @@ def test_jobapiupdate_unknown_job_request(api_rf):
             "job_request_id": "test",
             "action": "test-action",
             "status": "running",
+            "status_code": "",
             "status_message": "",
             "created_at": timezone.now() - timedelta(minutes=2),
             "started_at": timezone.now() - timedelta(minutes=1),
