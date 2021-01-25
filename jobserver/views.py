@@ -16,7 +16,7 @@ from django.views.generic import (
     View,
 )
 
-from .backends import show_warning
+from .backends import backends_to_choices, show_warning
 from .forms import (
     JobRequestCreateForm,
     SettingsForm,
@@ -339,19 +339,29 @@ class WorkspaceDetail(CreateView):
     def form_valid(self, form):
         sha = get_branch_sha(self.workspace.repo_name, self.workspace.branch)
 
-        # Pick a backend.
-        # We're only configuring one backend in an installation currently. Rely
-        # on that for now.
-        # TODO: use the form data to decide which backend to use here when the
-        # form exposes backends
-        TPP = Backend.objects.get(name="tpp")
+        if self.request.user.is_superuser:
+            backend = Backend.objects.get(name=form.cleaned_data.pop("backend"))
+            JobRequest.objects.create(
+                workspace=self.workspace,
+                created_by=self.request.user,
+                backend=backend,
+                sha=sha,
+                **form.cleaned_data,
+            )
+        else:
+            # Pick a backend.
+            # We're only configuring one backend in an installation currently. Rely
+            # on that for now.
+            # TODO: use the form data to decide which backend to use here when the
+            # form exposes backends
+            TPP = Backend.objects.get(name="tpp")
 
-        TPP.job_requests.create(
-            workspace=self.workspace,
-            created_by=self.request.user,
-            sha=sha,
-            **form.cleaned_data,
-        )
+            TPP.job_requests.create(
+                workspace=self.workspace,
+                created_by=self.request.user,
+                sha=sha,
+                **form.cleaned_data,
+            )
         return redirect("workspace-logs", name=self.workspace.name)
 
     def get_context_data(self, **kwargs):
@@ -366,6 +376,13 @@ class WorkspaceDetail(CreateView):
     def get_form_kwargs(self):
         kwargs = super().get_form_kwargs()
         kwargs["actions"] = [a["name"] for a in self.actions]
+
+        if self.request.user.is_superuser:
+            # TODO: move to ModelForm declaration once all users can pick backends
+            backends = Backend.objects.all()
+            backend_choices = backends_to_choices(backends)
+            kwargs["backends"] = backend_choices
+
         return kwargs
 
     def get_latest_job_request(self):

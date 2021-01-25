@@ -1,7 +1,18 @@
 import pytest
 from django.core.exceptions import ValidationError
 
-from jobserver.forms import WorkspaceCreateForm
+from jobserver.backends import backends_to_choices
+from jobserver.forms import JobRequestCreateForm, WorkspaceCreateForm
+from jobserver.models import Backend
+
+
+@pytest.mark.django_db
+def test_jobrequestcreateform_with_backends():
+    choices = backends_to_choices(Backend.objects.all())
+    form = JobRequestCreateForm([], backends=choices)
+
+    assert "backend" in form.fields
+    assert form.fields["backend"].choices == choices
 
 
 @pytest.mark.django_db
