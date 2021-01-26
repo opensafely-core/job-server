@@ -15,6 +15,7 @@ import dj_database_url
 from django.contrib.messages import constants as messages
 from django.urls import reverse_lazy
 from environs import Env
+from furl import furl
 
 from services.logging import logging_config_dict
 from services.sentry import initialise_sentry
@@ -36,7 +37,9 @@ SECRET_KEY = env.str("SECRET_KEY")
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = env.bool("DEBUG", default=False)
 
-ALLOWED_HOSTS = ["*"]
+BASE_URL = env.str("BASE_URL", default="http://localhost:8000")
+
+ALLOWED_HOSTS = [furl(BASE_URL).host]
 
 
 # Application definition

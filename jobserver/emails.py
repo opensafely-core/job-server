@@ -1,7 +1,12 @@
+from django.conf import settings
+from furl import furl
 from incuna_mail import send
 
 
-def send_finished_notification(email, job, job_url):
+def send_finished_notification(email, job):
+    f = furl(settings.BASE_URL)
+    f.path = job.get_absolute_url()
+
     workspace_name = job.job_request.workspace.name
 
     context = {
@@ -9,7 +14,7 @@ def send_finished_notification(email, job, job_url):
         "elapsed_time": job.runtime.total_seconds if job.runtime else None,
         "status": job.status,
         "status_message": job.status_message,
-        "url": job_url,
+        "url": f.url,
         "workspace": workspace_name,
     }
 
