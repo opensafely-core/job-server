@@ -2,6 +2,7 @@ import base64
 import binascii
 import os
 import secrets
+from datetime import timedelta
 
 import structlog
 from django.contrib.auth.models import AbstractUser
@@ -118,6 +119,24 @@ class Job(models.Model):
 
     def get_zombify_url(self):
         return reverse("job-zombify", kwargs={"identifier": self.identifier})
+
+    @property
+    def is_missing_updates(self):
+        """
+        Is this Job missing expected updates from job-runner?
+
+        When a Job has yet to finish but we haven't had an update from
+        job-runner in >30 minutes we want to show users a warning.
+        """
+        if self.completed_at:
+            # Job has completed, ignore lack of updates
+            return False
+
+        now = timezone.now()
+        threshold = timedelta(minutes=30)
+        delta = now - self.updated_at
+
+        return delta > threshold
 
     @property
     def runtime(self):
