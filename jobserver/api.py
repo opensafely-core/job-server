@@ -175,11 +175,9 @@ class JobAPIUpdate(APIView):
                     # already been there though)
                     continue
 
-                job_url = request.build_absolute_uri(job.get_absolute_url())
                 send_finished_notification(
                     job_request.created_by.notifications_email,
                     job,
-                    job_url,
                 )
                 log.info(
                     "Notified requesting user of finished job",
