@@ -8,7 +8,7 @@ import structlog
 from django.contrib.auth.models import AbstractUser
 from django.core.validators import validate_slug
 from django.db import models
-from django.db.models import Count
+from django.db.models import Count, Q
 from django.urls import reverse
 from django.utils import timezone
 from environs import Env
@@ -132,7 +132,7 @@ class Job(models.Model):
         When a Job has yet to finish but we haven't had an update from
         job-runner in >30 minutes we want to show users a warning.
         """
-        if self.completed_at:
+        if self.is_finished:
             # Job has completed, ignore lack of updates
             return False
 
@@ -144,6 +144,9 @@ class Job(models.Model):
 
     @property
     def runtime(self):
+        if not self.is_finished:
+            return
+
         if self.started_at is None:
             return
 
@@ -254,7 +257,7 @@ class JobRequest(models.Model):
             return (job.completed_at - job.started_at).total_seconds()
 
         # Only look at jobs which have finished
-        jobs = self.jobs.exclude(started_at=None).exclude(completed_at=None)
+        jobs = self.jobs.filter(Q(status="failed") | Q(status="succeeded"))
         total_runtime = sum(runtime_in_seconds(j) for j in jobs)
 
         hours, remainder = divmod(total_runtime, 3600)
