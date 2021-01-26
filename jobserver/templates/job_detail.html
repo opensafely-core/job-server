@@ -2,6 +2,7 @@
 
 {% load humanize %}
 {% load runtime %}
+{% load status_tools %}
 
 {% block extra_meta %}
 <meta property="og:title" content="Action: {{ job.action }}" />
@@ -56,6 +57,8 @@
         {% if job.status_message %}
         <pre>{{ job.status_message }}</pre>
         {% else %}-{% endif %}
+
+        {% status_hint job %}
       </div>
 
     </div>
