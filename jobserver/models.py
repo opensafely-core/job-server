@@ -8,7 +8,7 @@ import structlog
 from django.contrib.auth.models import AbstractUser
 from django.core.validators import validate_slug
 from django.db import models
-from django.db.models import Count
+from django.db.models import Count, Q
 from django.urls import reverse
 from django.utils import timezone
 from environs import Env
@@ -121,6 +121,10 @@ class Job(models.Model):
         return reverse("job-zombify", kwargs={"identifier": self.identifier})
 
     @property
+    def is_finished(self):
+        return self.status in ["failed", "succeeded"]
+
+    @property
     def is_missing_updates(self):
         """
         Is this Job missing expected updates from job-runner?
@@ -128,8 +132,12 @@ class Job(models.Model):
         When a Job has yet to finish but we haven't had an update from
         job-runner in >30 minutes we want to show users a warning.
         """
-        if self.completed_at:
+        if self.is_finished:
             # Job has completed, ignore lack of updates
+            return False
+
+        if not self.updated_at:
+            # we can't check freshness without updated_at
             return False
 
         now = timezone.now()
@@ -140,10 +148,10 @@ class Job(models.Model):
 
     @property
     def runtime(self):
-        if self.started_at is None:
+        if not self.is_finished:
             return
 
-        if self.completed_at is None:
+        if self.started_at is None or self.completed_at is None:
             return
 
         delta = self.completed_at - self.started_at
@@ -250,7 +258,7 @@ class JobRequest(models.Model):
             return (job.completed_at - job.started_at).total_seconds()
 
         # Only look at jobs which have finished
-        jobs = self.jobs.exclude(started_at=None).exclude(completed_at=None)
+        jobs = self.jobs.filter(Q(status="failed") | Q(status="succeeded"))
         total_runtime = sum(runtime_in_seconds(j) for j in jobs)
 
         hours, remainder = divmod(total_runtime, 3600)

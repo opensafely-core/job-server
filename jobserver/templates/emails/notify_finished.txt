@@ -1,4 +1,4 @@
-{{ action }} in workspace {{ workspace }} {{ status }} after {{ elapsed_time }} seconds with the following message:
+{{ action }} in workspace {{ workspace }} {{ status }} {% if elapsed_time %} after {{ elapsed_time }} seconds {% endif %}with the following message:
 
 {{ status_message }}
 

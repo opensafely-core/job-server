@@ -101,15 +101,22 @@ def test_job_is_missing_updates_below_threshold():
 
 
 @pytest.mark.django_db
+def test_job_is_missing_updates_missing_updated_at():
+    assert not JobFactory(status="pending", updated_at=None).is_missing_updates
+
+
+@pytest.mark.django_db
 def test_job_is_missing_updates_completed():
-    assert not JobFactory(completed_at=timezone.now()).is_missing_updates
+    assert not JobFactory(status="failed").is_missing_updates
 
 
 @pytest.mark.django_db
 def test_job_runtime():
     duration = timedelta(hours=1, minutes=2, seconds=3)
     started_at = timezone.now() - duration
-    job = JobFactory(started_at=started_at, completed_at=timezone.now())
+    job = JobFactory(
+        status="succeeded", started_at=started_at, completed_at=timezone.now()
+    )
 
     assert job.runtime.hours == 1
     assert job.runtime.minutes == 2
@@ -118,7 +125,7 @@ def test_job_runtime():
 
 @pytest.mark.django_db
 def test_job_runtime_not_finished():
-    job = JobFactory(started_at=timezone.now())
+    job = JobFactory(status="running", started_at=timezone.now())
 
     # an unfinished job has no runtime
     assert job.runtime is None
@@ -126,9 +133,16 @@ def test_job_runtime_not_finished():
 
 @pytest.mark.django_db
 def test_job_runtime_not_started():
-    job = JobFactory()
+    job = JobFactory(status="pending")
 
     # an unstarted job has no runtime
+    assert job.runtime is None
+
+
+@pytest.mark.django_db
+def test_job_runtime_without_timestamps():
+    job = JobFactory(status="succeeded", started_at=None, completed_at=None)
+
     assert job.runtime is None
 
 
@@ -235,11 +249,13 @@ def test_jobrequest_runtime_not_finished(freezer):
 
     JobFactory(
         job_request=job_request,
+        status="succeeded",
         started_at=timezone.now() - timedelta(minutes=2),
         completed_at=timezone.now() - timedelta(minutes=1),
     )
     JobFactory(
         job_request=job_request,
+        status="running",
         started_at=timezone.now() - timedelta(seconds=30),
     )
 
@@ -257,8 +273,8 @@ def test_jobrequest_runtime_not_finished(freezer):
 def test_jobrequest_runtime_not_started():
     job_request = JobRequestFactory()
 
-    JobFactory(job_request=job_request)
-    JobFactory(job_request=job_request)
+    JobFactory(job_request=job_request, status="running")
+    JobFactory(job_request=job_request, status="pending")
 
     assert not job_request.runtime
 
@@ -271,11 +287,13 @@ def test_jobrequest_runtime_success():
 
     JobFactory(
         job_request=job_request,
+        status="succeeded",
         started_at=start,
         completed_at=start + timedelta(minutes=1),
     )
     JobFactory(
         job_request=job_request,
+        status="failed",
         started_at=start + timedelta(minutes=2),
         completed_at=start + timedelta(minutes=3),
     )
