@@ -36,6 +36,8 @@ SECRET_KEY = env.str("SECRET_KEY")
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = env.bool("DEBUG", default=False)
 
+BASE_URL = env.str("BASE_URL", default="http://localhost:8000")
+
 ALLOWED_HOSTS = ["*"]
 
 
