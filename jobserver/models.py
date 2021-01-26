@@ -136,6 +136,10 @@ class Job(models.Model):
             # Job has completed, ignore lack of updates
             return False
 
+        if not self.updated_at:
+            # we can't check freshness without updated_at
+            return False
+
         now = timezone.now()
         threshold = timedelta(minutes=30)
         delta = now - self.updated_at
@@ -147,10 +151,7 @@ class Job(models.Model):
         if not self.is_finished:
             return
 
-        if self.started_at is None:
-            return
-
-        if self.completed_at is None:
+        if self.started_at is None or self.completed_at is None:
             return
 
         delta = self.completed_at - self.started_at

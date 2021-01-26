@@ -140,6 +140,13 @@ def test_job_runtime_not_started():
 
 
 @pytest.mark.django_db
+def test_job_runtime_without_timestamps():
+    job = JobFactory(status="succeeded", started_at=None, completed_at=None)
+
+    assert job.runtime is None
+
+
+@pytest.mark.django_db
 def test_job_str():
     job = JobFactory(action="Run")
 
