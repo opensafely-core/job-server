@@ -239,6 +239,62 @@ def test_job_request_num_completed_success():
 
 
 @pytest.mark.django_db
+def test_jobrequest_runtime_one_job_missing_completed_at(freezer):
+    job_request = JobRequestFactory()
+
+    JobFactory(
+        job_request=job_request,
+        status="succeeded",
+        started_at=timezone.now() - timedelta(minutes=3),
+        completed_at=timezone.now() - timedelta(minutes=2),
+    )
+    JobFactory(
+        job_request=job_request,
+        status="running",
+        started_at=timezone.now() - timedelta(minutes=1),
+        completed_at=None,
+    )
+
+    assert job_request.started_at
+    assert not job_request.completed_at
+
+    # combined _finished_ Job runtime is 0 because the failed job has no
+    # runtime (it never started)
+    assert job_request.runtime
+    assert job_request.runtime.hours == 0
+    assert job_request.runtime.minutes == 1
+    assert job_request.runtime.seconds == 0
+
+
+@pytest.mark.django_db
+def test_jobrequest_runtime_one_job_missing_started_at(freezer):
+    job_request = JobRequestFactory()
+
+    JobFactory(
+        job_request=job_request,
+        status="failed",
+        started_at=timezone.now() - timedelta(minutes=5),
+        completed_at=timezone.now() - timedelta(minutes=3),
+    )
+    JobFactory(
+        job_request=job_request,
+        status="failed",
+        started_at=None,
+        completed_at=timezone.now(),
+    )
+
+    assert job_request.started_at
+    assert not job_request.completed_at
+
+    # combined _finished_ Job runtime is 2 minutes because the second job
+    # failed before it started
+    assert job_request.runtime
+    assert job_request.runtime.hours == 0
+    assert job_request.runtime.minutes == 2
+    assert job_request.runtime.seconds == 0
+
+
+@pytest.mark.django_db
 def test_jobrequest_runtime_no_jobs():
     assert not JobRequestFactory().runtime
 
