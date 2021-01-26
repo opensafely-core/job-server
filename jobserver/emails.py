@@ -6,7 +6,7 @@ def send_finished_notification(email, job, job_url):
 
     context = {
         "action": job.action,
-        "elapsed_time": job.runtime.total_seconds,
+        "elapsed_time": job.runtime.total_seconds if job.runtime else None,
         "status": job.status,
         "status_message": job.status_message,
         "url": job_url,
