@@ -121,6 +121,10 @@ class Job(models.Model):
         return reverse("job-zombify", kwargs={"identifier": self.identifier})
 
     @property
+    def is_finished(self):
+        return self.status in ["failed", "succeeded"]
+
+    @property
     def is_missing_updates(self):
         """
         Is this Job missing expected updates from job-runner?
