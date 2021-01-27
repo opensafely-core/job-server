@@ -284,7 +284,7 @@ def test_jobrequest_runtime_one_job_missing_started_at(freezer):
     )
 
     assert job_request.started_at
-    assert not job_request.completed_at
+    assert job_request.completed_at
 
     # combined _finished_ Job runtime is 2 minutes because the second job
     # failed before it started
