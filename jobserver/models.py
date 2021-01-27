@@ -214,7 +214,7 @@ class JobRequest(models.Model):
         if not last_job:
             return
 
-        if not self.status == "succeeded":
+        if self.status not in ["failed", "succeeded"]:
             return
 
         return last_job.completed_at
