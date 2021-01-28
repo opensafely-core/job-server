@@ -335,7 +335,7 @@ def test_jobapiupdate_mixture(api_rf, freezer):
 
 @pytest.mark.django_db
 def test_jobapiupdate_notifications_on_with_move_to_finished(api_rf):
-    workspace = WorkspaceFactory(will_notify=True)
+    workspace = WorkspaceFactory(should_notify=True)
     job_request = JobRequestFactory(workspace=workspace)
     job = JobFactory(job_request=job_request, status="running")
 
@@ -369,7 +369,7 @@ def test_jobapiupdate_notifications_on_with_move_to_finished(api_rf):
 
 @pytest.mark.django_db
 def test_jobapiupdate_notifications_on_without_move_to_finished(api_rf):
-    workspace = WorkspaceFactory(will_notify=True)
+    workspace = WorkspaceFactory(should_notify=True)
     job_request = JobRequestFactory(workspace=workspace)
     job = JobFactory(job_request=job_request, status="succeeded")
 

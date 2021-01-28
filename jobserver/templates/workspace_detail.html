@@ -88,10 +88,10 @@
           <form method="POST" class="mb-2" action="{{ workspace.get_notifications_toggle_url }}">
             {% csrf_token %}
 
-            <input type="hidden" name="will_notify" value="{{ workspace.will_notify|yesno:",True" }}" />
+            <input type="hidden" name="should_notify" value="{{ workspace.should_notify|yesno:",True" }}" />
 
             <button class="btn btn-success" type="submit">
-              Turn Notifications {% if workspace.will_notify %}Off{% else %}On{% endif %}
+              Turn Notifications {% if workspace.should_notify %}Off{% else %}On{% endif %}
             </button>
           </form>
           {% endif %}

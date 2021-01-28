@@ -504,7 +504,7 @@ class WorkspaceNotificationsToggle(View):
         form = WorkspaceNotificationsToggleForm(data=request.POST)
         form.is_valid()
 
-        workspace.will_notify = form.cleaned_data["will_notify"]
+        workspace.should_notify = form.cleaned_data["should_notify"]
         workspace.save()
 
         return redirect(workspace)

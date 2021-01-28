@@ -866,8 +866,8 @@ def test_workspacelog_unknown_workspace(rf):
 
 @pytest.mark.django_db
 def test_workspacenotificationstoggle_success(rf):
-    workspace = WorkspaceFactory(will_notify=True)
-    request = rf.post(MEANINGLESS_URL, {"will_notify": ""})
+    workspace = WorkspaceFactory(should_notify=True)
+    request = rf.post(MEANINGLESS_URL, {"should_notify": ""})
     request.user = UserFactory()
 
     response = WorkspaceNotificationsToggle.as_view()(request, name=workspace.name)
@@ -877,7 +877,7 @@ def test_workspacenotificationstoggle_success(rf):
 
     workspace.refresh_from_db()
 
-    assert not workspace.will_notify
+    assert not workspace.should_notify
 
 
 @pytest.mark.django_db

@@ -420,7 +420,7 @@ class Workspace(models.Model):
     repo = models.TextField(db_index=True)
     branch = models.TextField()
     is_archived = models.BooleanField(default=False)
-    will_notify = models.BooleanField(default=False)
+    should_notify = models.BooleanField(default=False)
 
     DB_OPTIONS = (
         ("slice", "Cut-down (but real) database"),
