@@ -205,6 +205,7 @@ class JobRequest(models.Model):
     requested_actions = models.JSONField()
     sha = models.TextField()
     identifier = models.TextField(default=new_id, unique=True)
+    will_notify = models.BooleanField(default=False)
 
     created_at = models.DateTimeField(default=timezone.now)
 
