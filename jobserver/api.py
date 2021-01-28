@@ -166,8 +166,7 @@ class JobAPIUpdate(APIView):
                 job.save()
                 job.refresh_from_db()
 
-                if not job_request.workspace.should_notify:
-                    # Workspace has notificaitons turned off
+                if not job_request.will_notify:
                     continue
 
                 if not should_notify:
