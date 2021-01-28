@@ -437,6 +437,11 @@ class WorkspaceDetail(CreateView):
 
         return kwargs
 
+    def get_initial(self):
+        # derive will_notify for the JobRequestCreateForm from the Workspace
+        # setting as a default for the form which the user can override.
+        return {"will_notify": self.workspace.should_notify}
+
     def get_latest_job_request(self):
         return (
             self.workspace.job_requests.prefetch_related("jobs")

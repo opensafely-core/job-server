@@ -301,21 +301,45 @@
       </div>
 
       <div class="mb-5">
-        <p>
-          Notifications for {{ workspace.name }} are:
-          <strong>{{ workspace.will_notify|yesno:"On,Off" }}</strong>
 
-          <br />
+        <div class="card">
+          <div class="card-header d-flex justify-content-between align-items-baseline border-0">
+            <span>
+              Send notifications for the selected actions to
+              <a href="{% url 'settings' %}">your email address</a>.
+            </span>
 
-          <small class="text-muted">
-            {% if workspace.will_notify %}
-            You will receive notifications for all Jobs created from this request to <code>{{ request.user.notifications_email }}</code>.
-            <br />
-            You can change this email address in your <a href="{% url 'settings' %}">settings</a>.
-            {% else %}
-            You can enable notifications for this workspace by clicking Details above.
-            {% endif %}
-          </small>
+            <div class="btn-group btn-group-toggle" data-toggle="buttons">
+              <label class="btn btn-outline-success">
+                <input
+                  type="radio"
+                  id="id_will_notify_0"
+                  name="will_notify"
+                  autocomplete="off"
+                  value="True"
+                  {% if form.will_notify.value %}
+                  checked
+                  {% endif %}
+                />
+                On
+              </label>
+              <label class="btn btn-outline-success">
+                <input
+                  type="radio"
+                  id="id_will_notify_1"
+                  name="will_notify"
+                  autocomplete="off"
+                  value="False"
+                  {% if not form.will_notify.value %}
+                  checked
+                  {% endif %}
+                />
+                Off
+              </label>
+            </div>
+          </div>
+        </div>
+
       </div>
 
       <div class="form-group">
