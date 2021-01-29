@@ -100,9 +100,11 @@ class Index(TemplateView):
 
 
 class JobDetail(DetailView):
-    model = Job
     slug_field = "identifier"
     slug_url_kwarg = "identifier"
+    queryset = Job.objects.select_related(
+        "job_request", "job_request__backend", "job_request__workspace"
+    )
     template_name = "job_detail.html"
 
 

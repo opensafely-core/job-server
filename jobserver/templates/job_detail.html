@@ -2,6 +2,7 @@
 
 {% load humanize %}
 {% load runtime %}
+{% load status_tools %}
 
 {% block extra_meta %}
 <meta property="og:title" content="Action: {{ job.action }}" />
@@ -56,6 +57,8 @@
         {% if job.status_message %}
         <pre>{{ job.status_message }}</pre>
         {% else %}-{% endif %}
+
+        {% status_hint job %}
       </div>
 
     </div>
@@ -137,9 +140,9 @@
 
   <div class="col-md-3 col-lg-2">
 
+    {% if request.user.is_superuser %}
     <h3 class="text-center">Tools</h3>
 
-    {% if request.user.is_superuser %}
     <form method="POST" action="{{ job.get_zombify_url }}">
       {% csrf_token %}
 

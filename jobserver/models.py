@@ -64,6 +64,8 @@ class Backend(models.Model):
     name = models.TextField(unique=True)
     display_name = models.TextField()
 
+    parent_directory = models.TextField(default="")
+
     auth_token = models.TextField(default=generate_token)
 
     created_at = models.DateTimeField(default=timezone.now)
