@@ -196,7 +196,7 @@ class JobRequestZombify(View):
             status="failed", status_message="Job manually zombified"
         )
 
-        return redirect("job-request-detail", pk=job_request.pk)
+        return redirect(job_request)
 
 
 @method_decorator(login_required, name="dispatch")
