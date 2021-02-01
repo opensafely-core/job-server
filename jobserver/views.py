@@ -141,6 +141,8 @@ class JobRequestList(ListView):
         users = User.objects.exclude(social_auth=None)
         users = sorted(users, key=lambda u: u.name.lower())
 
+        workspaces = Workspace.objects.filter(is_archived=False).order_by("name")
+
         # filter object list based on status arg
         filtered_object_list = filter_by_status(
             self.object_list, self.request.GET.get("status")
@@ -149,7 +151,7 @@ class JobRequestList(ListView):
 
         context["statuses"] = ["failed", "running", "pending", "succeeded"]
         context["users"] = {u.username: u.name for u in users}
-        context["workspaces"] = Workspace.objects.all()
+        context["workspaces"] = workspaces
         return context
 
     def get_queryset(self):
