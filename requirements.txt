@@ -55,7 +55,7 @@ distlib==0.3.1
     # via virtualenv
 dj-database-url==0.5.0
     # via -r requirements.in
-django-anymail[mailgun]==8.1
+django-anymail[mailgun]==8.2
     # via -r requirements.in
 django-crispy-forms==1.10.0
     # via -r requirements.in
