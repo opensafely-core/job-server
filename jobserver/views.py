@@ -161,14 +161,15 @@ class JobRequestList(ListView):
 
         q = self.request.GET.get("q")
         if q:
+            qwargs = Q(jobs__action__icontains=q) | Q(jobs__identifier__icontains=q)
             try:
                 q = int(q)
             except ValueError:
-                qs = qs.filter(jobs__action__icontains=q)
+                qs = qs.filter(qwargs)
             else:
                 # if the query looks enough like a number for int() to handle
                 # it then we can look for a job number
-                qs = qs.filter(Q(jobs__action__icontains=q) | Q(jobs__pk=q))
+                qs = qs.filter(qwargs | Q(jobs__pk=q))
 
         username = self.request.GET.get("username")
         if username:
@@ -433,14 +434,15 @@ class WorkspaceLog(ListView):
 
         q = self.request.GET.get("q")
         if q:
+            qwargs = Q(jobs__action__icontains=q) | Q(jobs__identifier__icontains=q)
             try:
                 q = int(q)
             except ValueError:
-                qs = qs.filter(jobs__action__icontains=q)
+                qs = qs.filter(qwargs)
             else:
                 # if the query looks enough like a number for int() to handle
                 # it then we can look for a job number
-                qs = qs.filter(Q(jobs__action__icontains=q) | Q(jobs__pk=q))
+                qs = qs.filter(qwargs | Q(jobs__pk=q))
 
         return qs
 
