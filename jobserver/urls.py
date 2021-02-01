@@ -57,6 +57,7 @@ urlpatterns = [
         name="backend-rotate-token",
     ),
     path("jobs/", JobRequestList.as_view(), name="job-list"),
+    path("job-requests/", RedirectView.as_view(pattern_name="job-list")),
     path("job-requests/<pk>/", JobRequestDetail.as_view(), name="job-request-detail"),
     path(
         "job-requests/<pk>/zombify/",
