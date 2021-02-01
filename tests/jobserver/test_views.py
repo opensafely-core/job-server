@@ -282,6 +282,41 @@ def test_jobrequestlist_filter_by_workspace(rf):
 
 
 @pytest.mark.django_db
+def test_jobrequestlist_find_job_request_by_identifier_form_invalid(rf):
+    request = rf.post(MEANINGLESS_URL, {"test-key": "test-value"})
+    response = JobRequestList.as_view()(request)
+
+    assert response.status_code == 200
+
+    expected = {"identifier": ["This field is required."]}
+    assert response.context_data["form"].errors == expected
+
+
+@pytest.mark.django_db
+def test_jobrequestlist_find_job_request_by_identifier_success(rf):
+    job_request = JobRequestFactory(identifier="test-identifier")
+
+    request = rf.post(MEANINGLESS_URL, {"identifier": job_request.identifier})
+    response = JobRequestList.as_view()(request)
+
+    assert response.status_code == 302
+    assert response.url == job_request.get_absolute_url()
+
+
+@pytest.mark.django_db
+def test_jobrequestlist_find_job_request_by_identifier_unknown_job_request(rf):
+    request = rf.post(MEANINGLESS_URL, {"identifier": "test-value"})
+    response = JobRequestList.as_view()(request)
+
+    assert response.status_code == 200
+
+    expected = {
+        "identifier": ["Could not find a JobRequest with the identfier 'test-value'"],
+    }
+    assert response.context_data["form"].errors == expected
+
+
+@pytest.mark.django_db
 def test_jobrequestlist_search_by_action(rf):
     job_request1 = JobRequestFactory()
     JobFactory(job_request=job_request1, action="run")

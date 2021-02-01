@@ -15,10 +15,12 @@ from django.views.generic import (
     UpdateView,
     View,
 )
+from django.views.generic.edit import FormMixin
 
 from .backends import backends_to_choices, show_warning
 from .forms import (
     JobRequestCreateForm,
+    JobRequestSearchForm,
     SettingsForm,
     WorkspaceArchiveToggleForm,
     WorkspaceCreateForm,
@@ -132,7 +134,8 @@ class JobRequestDetail(DetailView):
     template_name = "job_request_detail.html"
 
 
-class JobRequestList(ListView):
+class JobRequestList(FormMixin, ListView):
+    form_class = JobRequestSearchForm
     paginate_by = 25
     template_name = "job_request_list.html"
 
@@ -179,6 +182,36 @@ class JobRequestList(ListView):
             qs = qs.filter(workspace_id=workspace)
 
         return qs
+
+    def form_valid(self, form):
+        identifier = form.cleaned_data["identifier"]
+
+        job_request = JobRequest.objects.filter(
+            identifier__icontains=identifier
+        ).first()
+
+        if not job_request:
+            msg = f"Could not find a JobRequest with the identfier '{identifier}'"
+            form.add_error("identifier", msg)
+            return self.form_invalid(form)
+
+        return redirect(job_request)
+
+    def post(self, request, *args, **kwargs):
+        """
+        Handle POST requests: instantiate a form instance with the passed POST
+        variables and then check if it's valid.
+
+        Form validity dispatch copied from Django's CBVs, modified so to
+        generate object_list for when form_invalid() is called.
+        """
+        self.object_list = self.get_queryset()
+
+        form = self.get_form()
+        if form.is_valid():
+            return self.form_valid(form)
+        else:
+            return self.form_invalid(form)
 
 
 class JobRequestZombify(View):

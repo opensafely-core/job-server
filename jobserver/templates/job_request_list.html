@@ -27,6 +27,36 @@
     </form>
 
 
+      {% if request.user.is_superuser %}
+      <div class="mb-4">
+
+        {% if form.non_field_errors %}
+        <ul>
+          {% for error in form.non_field_errors %}
+          <li class="text-danger">{{ error }}</li>
+          {% endfor %}
+        </ul>
+        {% endif %}
+
+        <form class="form d-flex align-items-center mb-1" method="POST">
+          {% csrf_token %}
+          <input
+            class="form-control mr-2"
+            type="search"
+            placeholder="Look up JobRequest by Identifier"
+            aria-label="Go"
+            name="identifier" />
+          <button class="btn btn-outline-success my-2 my-sm-0" type="submit">Go</button>
+
+        </form>
+
+        {% for error in form.identifier.errors %}
+        <p class="text-danger" style="margin-left:.75rem">{{ error }}</p>
+        {% endfor %}
+
+      </div>
+      {% endif %}
+
       {% if not page_obj %}
       <div class="text-center">
         <p>No results found.</p>

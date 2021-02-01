@@ -33,6 +33,10 @@ class JobRequestCreateForm(forms.ModelForm):
             )
 
 
+class JobRequestSearchForm(forms.Form):
+    identifier = forms.CharField()
+
+
 class SettingsForm(forms.ModelForm):
     class Meta:
         fields = [
