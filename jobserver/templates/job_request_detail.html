@@ -46,6 +46,11 @@
         <strong>Status:</strong>
         <code>{{ jobrequest.status }}</code>
       </div>
+
+      {% if jobrequest.is_invalid %}
+      <pre class="text-wrap">{{ jobrequest.jobs.first.status_message }}</pre>
+      {% endif %}
+
     </div>
 
     <div class="mb-4">
@@ -152,6 +157,7 @@
 
 </div>
 
+{% if not jobrequest.is_invalid %}
 <div class="row mb-3">
   <div class="col-md-9 col-lg-8 offset-lg-2">
 
@@ -176,7 +182,9 @@
         {% endfor %}
       </tbody>
     </table>
-    {% endblock content %}
 
   </div>
 </div>
+{% endif %}
+
+{% endblock content %}
