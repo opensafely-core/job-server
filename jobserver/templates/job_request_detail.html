@@ -46,6 +46,11 @@
         <strong>Status:</strong>
         <code>{{ jobrequest.status }}</code>
       </div>
+
+      {% if jobrequest.is_invalid %}
+      <pre class="text-wrap">{{ jobrequest.jobs.first.status_message }}</pre>
+      {% endif %}
+
     </div>
 
     <div class="mb-4">
