@@ -128,7 +128,9 @@ class JobZombify(View):
 
 class JobRequestDetail(DetailView):
     model = JobRequest
-    queryset = JobRequest.objects.select_related("workspace").prefetch_related("jobs")
+    queryset = JobRequest.objects.select_related(
+        "created_by", "workspace"
+    ).prefetch_related("jobs")
     template_name = "job_request_detail.html"
 
 
