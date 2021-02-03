@@ -146,7 +146,14 @@
     <form class="mb-3" method="POST" action="{{ job.get_cancel_url }}">
       {% csrf_token %}
 
-      <button class="btn btn-block btn-danger" type="submit">Cancel</button>
+      <button
+        class="btn btn-block btn-danger"
+        {% if job.action in job.job_request.cancelled_actions %}
+        disabled
+        {% endif %}
+        type="submit">
+        Cancel
+      </button>
     </form>
 
     <form class="mb-3" method="POST" action="{{ job.get_zombify_url }}">
