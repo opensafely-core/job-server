@@ -12,13 +12,7 @@ from jobserver.authorization.roles import (
     ProjectCollaborator,
     ProjectDeveloper,
 )
-from jobserver.models import (
-    Backend,
-    JobRequest,
-    ProjectInvitation,
-    ProjectMembership,
-    Release,
-)
+from jobserver.models import Backend, ProjectInvitation, ProjectMembership, Release
 
 from ..factories import (
     BackendFactory,
@@ -485,21 +479,6 @@ def test_jobrequest_status_unknown():
     JobFactory(job_request=job_request, status="bar")
 
     assert job_request.status == "unknown"
-
-
-@pytest.mark.django_db
-def test_jobrequestqueryset_acked():
-    # acked, because JobFactory will implicitly create JobRequests
-    JobFactory.create_batch(3)
-
-    assert JobRequest.objects.acked().count() == 3
-
-
-@pytest.mark.django_db
-def test_jobrequestqueryset_unacked():
-    JobRequestFactory.create_batch(3)
-
-    assert JobRequest.objects.unacked().count() == 3
 
 
 @pytest.mark.django_db

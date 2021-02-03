@@ -1,3 +1,4 @@
+from django.db.models import Count
 from django.template.response import TemplateResponse
 from django.views.generic import View
 
@@ -14,8 +15,16 @@ class Status(View):
             return last_seen.strftime("%Y-%m-%d %H:%M:%S")
 
         def get_stats(backend):
-            acked = backend.job_requests.acked().count()
-            unacked = backend.job_requests.unacked().count()
+            acked = (
+                backend.job_requests.annotate(num_jobs=Count("jobs"))
+                .filter(num_jobs__gt=0)
+                .count()
+            )
+            unacked = (
+                backend.job_requests.annotate(num_jobs=Count("jobs"))
+                .filter(num_jobs=0)
+                .count()
+            )
 
             try:
                 last_seen = (
