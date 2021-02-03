@@ -121,6 +121,23 @@ def test_index_success(rf):
 
 
 @pytest.mark.django_db
+def test_jobcancel_already_cancelled(rf):
+    job_request = JobRequestFactory(cancelled_actions=["another-action", "test"])
+    job = JobFactory(job_request=job_request, action="test")
+
+    request = rf.post(MEANINGLESS_URL)
+    request.user = UserFactory()
+
+    response = JobCancel.as_view()(request, identifier=job.identifier)
+
+    assert response.status_code == 302
+    assert response.url == reverse("job-detail", kwargs={"identifier": job.identifier})
+
+    job_request.refresh_from_db()
+    assert job_request.cancelled_actions == ["another-action", "test"]
+
+
+@pytest.mark.django_db
 def test_jobcancel_success(rf):
     job_request = JobRequestFactory(cancelled_actions=[])
     job = JobFactory(job_request=job_request, action="test")

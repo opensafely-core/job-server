@@ -106,8 +106,9 @@ class JobCancel(View):
     def post(self, request, *args, **kwargs):
         job = get_object_or_404(Job, identifier=self.kwargs["identifier"])
 
-        job.job_request.cancelled_actions.append(job.action)
-        job.job_request.save()
+        if job.action not in job.job_request.cancelled_actions:
+            job.job_request.cancelled_actions.append(job.action)
+            job.job_request.save()
 
         return redirect(job)
 
