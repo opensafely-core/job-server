@@ -146,6 +146,8 @@ class JobRequestList(FormMixin, ListView):
         users = User.objects.exclude(social_auth=None)
         users = sorted(users, key=lambda u: u.name.lower())
 
+        workspaces = Workspace.objects.filter(is_archived=False).order_by("name")
+
         # filter object list based on status arg
         filtered_object_list = filter_by_status(
             self.object_list, self.request.GET.get("status")
@@ -154,7 +156,7 @@ class JobRequestList(FormMixin, ListView):
 
         context["statuses"] = ["failed", "running", "pending", "succeeded"]
         context["users"] = {u.username: u.name for u in users}
-        context["workspaces"] = Workspace.objects.all()
+        context["workspaces"] = workspaces
         return context
 
     def get_queryset(self):
@@ -166,14 +168,15 @@ class JobRequestList(FormMixin, ListView):
 
         q = self.request.GET.get("q")
         if q:
+            qwargs = Q(jobs__action__icontains=q) | Q(jobs__identifier__icontains=q)
             try:
                 q = int(q)
             except ValueError:
-                qs = qs.filter(jobs__action__icontains=q)
+                qs = qs.filter(qwargs)
             else:
                 # if the query looks enough like a number for int() to handle
                 # it then we can look for a job number
-                qs = qs.filter(Q(jobs__action__icontains=q) | Q(jobs__pk=q))
+                qs = qs.filter(qwargs | Q(jobs__pk=q))
 
         username = self.request.GET.get("username")
         if username:
@@ -231,7 +234,7 @@ class JobRequestZombify(View):
             status="failed", status_message="Job manually zombified"
         )
 
-        return redirect("job-request-detail", pk=job_request.pk)
+        return redirect(job_request)
 
 
 @method_decorator(login_required, name="dispatch")
@@ -468,14 +471,15 @@ class WorkspaceLog(ListView):
 
         q = self.request.GET.get("q")
         if q:
+            qwargs = Q(jobs__action__icontains=q) | Q(jobs__identifier__icontains=q)
             try:
                 q = int(q)
             except ValueError:
-                qs = qs.filter(jobs__action__icontains=q)
+                qs = qs.filter(qwargs)
             else:
                 # if the query looks enough like a number for int() to handle
                 # it then we can look for a job number
-                qs = qs.filter(Q(jobs__action__icontains=q) | Q(jobs__pk=q))
+                qs = qs.filter(qwargs | Q(jobs__pk=q))
 
         return qs
 

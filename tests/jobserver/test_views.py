@@ -381,8 +381,7 @@ def test_jobrequestzombify_not_superuser(client):
     assert response.status_code == 200
 
     # did we redirect to the correct JobDetail page?
-    url = reverse("job-request-detail", kwargs={"pk": job_request.pk})
-    assert response.redirect_chain == [(url, 302)]
+    assert response.redirect_chain == [(job_request.get_absolute_url(), 302)]
 
     # has the Job been left untouched?
     job_request.refresh_from_db()
@@ -408,7 +407,7 @@ def test_jobrequestzombify_success(rf):
     response = JobRequestZombify.as_view()(request, pk=job_request.pk)
 
     assert response.status_code == 302
-    assert response.url == reverse("job-request-detail", kwargs={"pk": job_request.pk})
+    assert response.url == job_request.get_absolute_url()
 
     jobs = job_request.jobs.all()
 

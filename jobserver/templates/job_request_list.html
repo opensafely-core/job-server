@@ -16,16 +16,15 @@
 
     <div class="col-lg-10">
 
-    <form class="form d-flex align-items-center mb-4" method="GET">
-      <input
-        class="form-control mr-2"
-        type="search"
-        placeholder="Search action or job_id"
-        aria-label="Search"
-        name="q" />
-      <button class="btn btn-outline-success my-2 my-sm-0" type="submit">Search</button>
-    </form>
-
+      <form class="form d-flex align-items-center mb-4" method="GET">
+        <input
+          class="form-control mr-2"
+          type="search"
+          placeholder="Search by Job action or ID"
+          aria-label="Search"
+          name="q" />
+        <button class="btn btn-outline-success my-2 my-sm-0" type="submit">Search</button>
+      </form>
 
       {% if request.user.is_superuser %}
       <div class="mb-4">
