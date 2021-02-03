@@ -143,7 +143,13 @@
     {% if request.user.is_superuser %}
     <h3 class="text-center">Tools</h3>
 
-    <form method="POST" action="{{ job.get_zombify_url }}">
+    <form class="mb-3" method="POST" action="{{ job.get_cancel_url }}">
+      {% csrf_token %}
+
+      <button class="btn btn-block btn-danger" type="submit">Cancel</button>
+    </form>
+
+    <form class="mb-3" method="POST" action="{{ job.get_zombify_url }}">
       {% csrf_token %}
 
       <button class="btn btn-block btn-danger" type="submit">Zombify</button>

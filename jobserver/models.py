@@ -119,6 +119,9 @@ class Job(models.Model):
     def get_absolute_url(self):
         return reverse("job-detail", kwargs={"identifier": self.identifier})
 
+    def get_cancel_url(self):
+        return reverse("job-cancel", kwargs={"identifier": self.identifier})
+
     def get_zombify_url(self):
         return reverse("job-zombify", kwargs={"identifier": self.identifier})
 
