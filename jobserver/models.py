@@ -306,15 +306,17 @@ class JobRequest(models.Model):
         if "running" in statuses:
             return "running"
 
-        # if we have a mix of failed and succeeded then we've failed
-        if {"failed", "succeeded"} == set(statuses):
-            return "failed"
-
         # we've eliminated all statuses being the same so any pending statuses
         # at this point mean there are other Jobs which are
         # running/failed/succeeded so the request is still running
         if "pending" in statuses:
             return "running"
+
+        # now we know we have no pending or running Jobs left, that leaves us
+        # with failed or succeeded and a JobRequest is failed if any of its
+        # Jobs have failed.
+        if "failed" in statuses:
+            return "failed"
 
         return "unknown"
 
