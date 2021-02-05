@@ -321,6 +321,55 @@ class JobRequest(models.Model):
         return "unknown"
 
 
+class Membership(models.Model):
+    project = models.ForeignKey(
+        "Project",
+        on_delete=models.CASCADE,
+        related_name="members",
+    )
+    user = models.ForeignKey(
+        "User",
+        on_delete=models.CASCADE,
+        related_name="memberships",
+    )
+
+    class Meta:
+        unique_together = ["project", "user"]
+
+    def __str__(self):
+        return f"{self.user.username} member of {self.project.name}"
+
+
+class Org(models.Model):
+    name = models.TextField(unique=True)
+
+    class Meta:
+        verbose_name = "Organisation"
+
+    def __str__(self):
+        return self.name
+
+
+class Project(models.Model):
+    org = models.ForeignKey(
+        "Org",
+        on_delete=models.CASCADE,
+        related_name="projects",
+    )
+
+    name = models.TextField(unique=True)
+    email = models.TextField()
+    project_lead = models.TextField()
+    proposed_start_date = models.DateTimeField()
+    proposed_duration = models.TextField()
+
+    has_governance_approval = models.BooleanField(default=False)
+    has_technical_approval = models.BooleanField(default=False)
+
+    def __str__(self):
+        return self.name
+
+
 class Stats(models.Model):
     """This holds per-Backend, per-URL API statistics."""
 
