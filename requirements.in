@@ -12,7 +12,6 @@ incuna-mail
 pyyaml
 requests
 sentry-sdk
-slackclient
 social-auth-app-django
 whitenoise
 
