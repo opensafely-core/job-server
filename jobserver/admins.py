@@ -33,7 +33,7 @@ def ensure_admins(usernames):
         raise Exception(f"Unknown users: {', '.join(sorted_missing)}")
 
     # reset all users permissions first
-    User.objects.update(is_superuser=False)
+    User.objects.update(is_staff=False, is_superuser=False)
 
     # update configured users to be admins
-    users.update(is_superuser=True)
+    users.update(is_staff=True, is_superuser=True)
