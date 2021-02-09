@@ -80,8 +80,8 @@
       </div>
 
       <div>
-        <strong>SHA:</strong>
-        <a href="{{ jobrequest.workspace.get_sha_url }}">
+        <strong>Git Commit Hash:</strong>
+        <a href="{{ jobrequest.get_repo_url }}">
           {{ jobrequest.sha|slice:7|default:"-" }}
         </a>
       </div>
