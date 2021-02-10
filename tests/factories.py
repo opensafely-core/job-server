@@ -6,7 +6,17 @@ from django.utils import timezone
 from pytz import utc
 from social_django.models import UserSocialAuth
 
-from jobserver.models import Backend, Job, JobRequest, Stats, User, Workspace
+from jobserver.models import (
+    Backend,
+    Job,
+    JobRequest,
+    Membership,
+    Org,
+    Project,
+    Stats,
+    User,
+    Workspace,
+)
 
 
 class BackendFactory(factory.django.DjangoModelFactory):
@@ -36,6 +46,33 @@ class JobRequestFactory(factory.django.DjangoModelFactory):
     workspace = factory.SubFactory("tests.factories.WorkspaceFactory")
 
     requested_actions = []
+
+
+class MembershipFactory(factory.django.DjangoModelFactory):
+    class Meta:
+        model = Membership
+
+    project = factory.SubFactory("tests.factories.ProjectFactory")
+    user = factory.SubFactory("tests.factories.UserFactory")
+
+
+class OrgFactory(factory.django.DjangoModelFactory):
+    class Meta:
+        model = Org
+
+    name = factory.Sequence(lambda n: f"organisation-{n}")
+
+
+class ProjectFactory(factory.django.DjangoModelFactory):
+    class Meta:
+        model = Project
+
+    org = factory.SubFactory("tests.factories.OrgFactory")
+
+    name = factory.Sequence(lambda n: f"project-{n}")
+    proposed_start_date = factory.fuzzy.FuzzyDateTime(
+        datetime(2020, 1, 1, tzinfo=timezone.utc)
+    )
 
 
 class StatsFactory(factory.django.DjangoModelFactory):

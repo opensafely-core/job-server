@@ -25,15 +25,15 @@ def ensure_admins(usernames):
     if not usernames:
         raise Exception("No admin users configured, aborting")
 
-    users = User.objects.filter(username__in=usernames)
+    admins = User.objects.filter(username__in=usernames)
 
-    missing = set(usernames) - set(u.username for u in users)
+    missing = set(usernames) - set(u.username for u in admins)
     if missing:
         sorted_missing = sorted(missing)
         raise Exception(f"Unknown users: {', '.join(sorted_missing)}")
 
     # reset all users permissions first
-    User.objects.update(is_superuser=False)
+    User.objects.update(is_staff=False, is_superuser=False)
 
     # update configured users to be admins
-    users.update(is_superuser=True)
+    admins.update(is_staff=True, is_superuser=True)

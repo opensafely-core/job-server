@@ -10,6 +10,9 @@ from ..factories import (
     BackendFactory,
     JobFactory,
     JobRequestFactory,
+    MembershipFactory,
+    OrgFactory,
+    ProjectFactory,
     StatsFactory,
     UserFactory,
     WorkspaceFactory,
@@ -447,6 +450,25 @@ def test_jobrequestqueryset_unacked():
     JobRequestFactory.create_batch(3)
 
     assert JobRequest.objects.unacked().count() == 3
+
+
+@pytest.mark.django_db
+def test_membership_str():
+    project = ProjectFactory()
+    user = UserFactory()
+    membership = MembershipFactory(project=project, user=user)
+
+    assert str(membership) == f"{user.username} member of {project.name}"
+
+
+@pytest.mark.django_db
+def test_org_str():
+    assert str(OrgFactory(name="test-org")) == "test-org"
+
+
+@pytest.mark.django_db
+def test_project_str():
+    assert str(ProjectFactory(name="test-project")) == "test-project"
 
 
 @pytest.mark.django_db
