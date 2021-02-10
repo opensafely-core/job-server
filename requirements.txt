@@ -38,7 +38,7 @@ configobj==5.0.6
     #   litecli
 coverage==5.3
     # via pytest-cov
-cryptography==3.2
+cryptography==3.3.2
     # via social-auth-core
 defusedxml==0.6.0
     # via
