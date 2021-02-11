@@ -47,4 +47,5 @@ env = [
 ]
 filterwarnings = [
     'ignore:django.conf.urls.url\(\) is deprecated:django.utils.deprecation.RemovedInDjango40Warning:rest_framework|social_django',
+    "ignore:Using or importing the ABCs from 'collections' instead of from 'collections.abc' is deprecated since Python 3.3, and in 3.10 it will stop working:DeprecationWarning:social_core",
 ]
