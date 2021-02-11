@@ -218,6 +218,7 @@ class JobRequestAPIList(ListAPIView):
                 "identifier",
                 "force_run_dependencies",
                 "requested_actions",
+                "cancelled_actions",
                 "created_by",
                 "created_at",
                 "workspace",
