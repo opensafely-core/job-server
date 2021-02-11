@@ -117,7 +117,7 @@ jobs:
     needs: [test, lint-dockerfile]
     runs-on: ubuntu-latest
 
-    if: github.ref == 'refs/heads/master'
+    if: github.ref == 'refs/heads/main'
 
     steps:
       - uses: actions/checkout@v2
@@ -130,3 +130,4 @@ jobs:
           app-name: "job-server"
           dokku-host: ${{ secrets.DOKKU_HOST }}
           ssh-private-key: ${{ secrets.SSH_PRIVATE_KEY }}
+          remote-branch: "main"
