@@ -186,7 +186,7 @@ requests==2.25.1
     #   social-auth-core
 responses==0.12.1
     # via -r requirements.in
-sentry-sdk==0.19.5
+sentry-sdk==0.20.0
     # via -r requirements.in
 six==1.15.0
     # via
