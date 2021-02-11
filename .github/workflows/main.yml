@@ -130,3 +130,4 @@ jobs:
           app-name: "job-server"
           dokku-host: ${{ secrets.DOKKU_HOST }}
           ssh-private-key: ${{ secrets.SSH_PRIVATE_KEY }}
+          remote-branch: "main"
