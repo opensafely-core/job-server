@@ -14,7 +14,7 @@ def test_get_actions_empty_needs():
     """
 
     with patch("jobserver.project.get_file", lambda r, b: dummy_yaml):
-        output = list(get_actions("test", "master", {"frobnicate": "test"}))
+        output = list(get_actions("test", "main", {"frobnicate": "test"}))
 
     expected = [
         {"name": "frobnicate", "needs": [], "status": "test"},
@@ -26,15 +26,15 @@ def test_get_actions_empty_needs():
 def test_get_actions_no_branch():
     with patch("jobserver.project.get_file", lambda r, b: None), patch(
         "jobserver.project.get_branch", lambda r, b: None
-    ), pytest.raises(Exception, match="Missing branch: 'master'"):
-        list(get_actions("test", "master", {}))
+    ), pytest.raises(Exception, match="Missing branch: 'main'"):
+        list(get_actions("test", "main", {}))
 
 
 def test_get_actions_no_project_yaml():
     with patch("jobserver.project.get_file", lambda r, b: None), patch(
         "jobserver.project.get_branch", lambda r, b: True
     ), pytest.raises(Exception, match="Could not find project.yaml"):
-        list(get_actions("test", "master", {}))
+        list(get_actions("test", "main", {}))
 
 
 def test_get_actions_no_run_all():
@@ -51,7 +51,7 @@ def test_get_actions_no_run_all():
     }
 
     with patch("jobserver.project.get_file", lambda r, b: dummy_yaml):
-        output = list(get_actions("test", "master", action_status_lut))
+        output = list(get_actions("test", "main", action_status_lut))
 
     expected = [
         {"name": "frobnicate", "needs": [], "status": "running"},
@@ -70,7 +70,7 @@ def test_get_actions_invalid_yaml():
     with patch("jobserver.project.get_file", lambda r, b: dummy_yaml), pytest.raises(
         ScannerError
     ):
-        list(get_actions("test", "master", {}))
+        list(get_actions("test", "main", {}))
 
 
 def test_get_actions_success():
@@ -80,7 +80,7 @@ def test_get_actions_success():
     """
 
     with patch("jobserver.project.get_file", lambda r, b: dummy_yaml):
-        output = list(get_actions("test", "master", {"frobnicate": "test"}))
+        output = list(get_actions("test", "main", {"frobnicate": "test"}))
 
     expected = [
         {"name": "frobnicate", "needs": [], "status": "test"},

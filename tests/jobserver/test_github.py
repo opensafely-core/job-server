@@ -14,10 +14,10 @@ from jobserver.github import (
 
 @responses.activate
 def test_get_branch():
-    expected_url = "https://api.github.com/repos/opensafely/some_repo/branches/master"
+    expected_url = "https://api.github.com/repos/opensafely/some_repo/branches/main"
     responses.add(responses.GET, expected_url, json={"test": "test"}, status=200)
 
-    output = get_branch("some_repo", "master")
+    output = get_branch("some_repo", "main")
 
     assert len(responses.calls) == 1
 
@@ -33,10 +33,10 @@ def test_get_branch():
 
 @responses.activate
 def test_get_branch_with_missing_branch():
-    expected_url = "https://api.github.com/repos/opensafely/some_repo/branches/master"
+    expected_url = "https://api.github.com/repos/opensafely/some_repo/branches/main"
     responses.add(responses.GET, expected_url, status=404)
 
-    output = get_branch("some_repo", "master")
+    output = get_branch("some_repo", "main")
 
     assert len(responses.calls) == 1
     assert output is None
@@ -50,24 +50,24 @@ def test_get_branch_sha():
     }
 
     with patch("jobserver.github.get_branch", lambda r, b: data):
-        output = get_branch_sha("some_repo", "master")
+        output = get_branch_sha("some_repo", "main")
 
     assert output == "abc123"
 
 
 def test_get_branch_sha_with_missing_branch():
     with patch("jobserver.github.get_branch", lambda r, b: None):
-        output = get_branch_sha("some_repo", "master")
+        output = get_branch_sha("some_repo", "main")
 
     assert output is None
 
 
 @responses.activate
 def test_get_file():
-    expected_url = "https://api.github.com/repos/opensafely/some_repo/contents/project.yaml?ref=master"
+    expected_url = "https://api.github.com/repos/opensafely/some_repo/contents/project.yaml?ref=main"
     responses.add(responses.GET, expected_url, body="a file!", status=200)
 
-    get_file("some_repo", "master")
+    get_file("some_repo", "main")
 
     assert len(responses.calls) == 1
 

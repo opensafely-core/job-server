@@ -12,7 +12,7 @@ help:
 
 .PHONY: deploy
 deploy:
-	git push dokku master
+	git push dokku main
 
 .PHONY: fix
 fix:
