@@ -79,6 +79,15 @@ def test_job_get_absolute_url():
 
 
 @pytest.mark.django_db
+def test_job_get_cancel_url():
+    job = JobFactory()
+
+    url = job.get_cancel_url()
+
+    assert url == reverse("job-cancel", kwargs={"identifier": job.identifier})
+
+
+@pytest.mark.django_db
 def test_job_get_zombify_url():
     job = JobFactory()
 

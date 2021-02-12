@@ -119,6 +119,9 @@ class Job(models.Model):
     def get_absolute_url(self):
         return reverse("job-detail", kwargs={"identifier": self.identifier})
 
+    def get_cancel_url(self):
+        return reverse("job-cancel", kwargs={"identifier": self.identifier})
+
     def get_zombify_url(self):
         return reverse("job-zombify", kwargs={"identifier": self.identifier})
 
@@ -198,6 +201,7 @@ class JobRequest(models.Model):
     )
 
     force_run_dependencies = models.BooleanField(default=False)
+    cancelled_actions = models.JSONField(default=list)
     requested_actions = models.JSONField()
     sha = models.TextField()
     identifier = models.TextField(default=new_id, unique=True)

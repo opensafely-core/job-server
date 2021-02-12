@@ -101,6 +101,18 @@ class Index(TemplateView):
         return context
 
 
+@method_decorator(login_required, name="dispatch")
+class JobCancel(View):
+    def post(self, request, *args, **kwargs):
+        job = get_object_or_404(Job, identifier=self.kwargs["identifier"])
+
+        if job.action not in job.job_request.cancelled_actions:
+            job.job_request.cancelled_actions.append(job.action)
+            job.job_request.save()
+
+        return redirect(job)
+
+
 class JobDetail(DetailView):
     slug_field = "identifier"
     slug_url_kwarg = "identifier"

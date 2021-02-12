@@ -15,6 +15,7 @@ from jobserver.views import (
     BackendList,
     BackendRotateToken,
     Index,
+    JobCancel,
     JobDetail,
     JobRequestList,
     JobRequestZombify,
@@ -117,6 +118,49 @@ def test_index_success(rf):
     assert response.status_code == 200
     assert len(response.context_data["job_requests"]) == 1
     assert len(response.context_data["workspaces"]) == 1
+
+
+@pytest.mark.django_db
+def test_jobcancel_already_cancelled(rf):
+    job_request = JobRequestFactory(cancelled_actions=["another-action", "test"])
+    job = JobFactory(job_request=job_request, action="test")
+
+    request = rf.post(MEANINGLESS_URL)
+    request.user = UserFactory()
+
+    response = JobCancel.as_view()(request, identifier=job.identifier)
+
+    assert response.status_code == 302
+    assert response.url == reverse("job-detail", kwargs={"identifier": job.identifier})
+
+    job_request.refresh_from_db()
+    assert job_request.cancelled_actions == ["another-action", "test"]
+
+
+@pytest.mark.django_db
+def test_jobcancel_success(rf):
+    job_request = JobRequestFactory(cancelled_actions=[])
+    job = JobFactory(job_request=job_request, action="test")
+
+    request = rf.post(MEANINGLESS_URL)
+    request.user = UserFactory()
+
+    response = JobCancel.as_view()(request, identifier=job.identifier)
+
+    assert response.status_code == 302
+    assert response.url == reverse("job-detail", kwargs={"identifier": job.identifier})
+
+    job_request.refresh_from_db()
+    assert job_request.cancelled_actions == ["test"]
+
+
+@pytest.mark.django_db
+def test_jobcancel_unknown_job(rf):
+    request = rf.post(MEANINGLESS_URL)
+    request.user = UserFactory()
+
+    with pytest.raises(Http404):
+        JobCancel.as_view()(request, identifier="not-real")
 
 
 @pytest.mark.django_db
@@ -840,6 +884,5 @@ def test_workspacenotificationstoggle_success(rf):
 def test_workspacenotificationstoggle_unknown_workspace(rf):
     request = rf.post(MEANINGLESS_URL)
     request.user = UserFactory()
-
     with pytest.raises(Http404):
         WorkspaceNotificationsToggle.as_view()(request, name="test")

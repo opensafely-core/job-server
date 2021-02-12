@@ -47,6 +47,12 @@
     <div class="mb-4">
       <h3>State</h3>
 
+      {% if job.action in job.job_request.cancelled_actions %}
+      <div class="alert alert-danger" role="alert">
+        A User has requested this Job is cancelled.
+      </div>
+      {% endif %}
+
       <div>
         <strong>Status:</strong>
         <code>{{ job.status }}</code>
@@ -143,7 +149,20 @@
     {% if request.user.is_superuser %}
     <h3 class="text-center">Tools</h3>
 
-    <form method="POST" action="{{ job.get_zombify_url }}">
+    <form class="mb-3" method="POST" action="{{ job.get_cancel_url }}">
+      {% csrf_token %}
+
+      <button
+        class="btn btn-block btn-danger"
+        {% if job.action in job.job_request.cancelled_actions %}
+        disabled
+        {% endif %}
+        type="submit">
+        Cancel (not working yet!)
+      </button>
+    </form>
+
+    <form class="mb-3" method="POST" action="{{ job.get_zombify_url }}">
       {% csrf_token %}
 
       <button class="btn btn-block btn-danger" type="submit">Zombify</button>
