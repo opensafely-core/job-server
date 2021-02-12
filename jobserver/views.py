@@ -437,6 +437,11 @@ class WorkspaceDetail(CreateView):
 
         return kwargs
 
+    def get_initial(self):
+        # derive will_notify for the JobRequestCreateForm from the Workspace
+        # setting as a default for the form which the user can override.
+        return {"will_notify": self.workspace.should_notify}
+
     def get_latest_job_request(self):
         return (
             self.workspace.job_requests.prefetch_related("jobs")
@@ -504,7 +509,7 @@ class WorkspaceNotificationsToggle(View):
         form = WorkspaceNotificationsToggleForm(data=request.POST)
         form.is_valid()
 
-        workspace.will_notify = form.cleaned_data["will_notify"]
+        workspace.should_notify = form.cleaned_data["should_notify"]
         workspace.save()
 
         return redirect(workspace)

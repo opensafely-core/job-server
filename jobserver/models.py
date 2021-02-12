@@ -205,6 +205,7 @@ class JobRequest(models.Model):
     requested_actions = models.JSONField()
     sha = models.TextField()
     identifier = models.TextField(default=new_id, unique=True)
+    will_notify = models.BooleanField(default=False)
 
     created_at = models.DateTimeField(default=timezone.now)
 
@@ -419,7 +420,7 @@ class Workspace(models.Model):
     repo = models.TextField(db_index=True)
     branch = models.TextField()
     is_archived = models.BooleanField(default=False)
-    will_notify = models.BooleanField(default=False)
+    should_notify = models.BooleanField(default=False)
 
     DB_OPTIONS = (
         ("slice", "Cut-down (but real) database"),

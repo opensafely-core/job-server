@@ -16,6 +16,13 @@ def test_jobrequestcreateform_with_backends():
 
 
 @pytest.mark.django_db
+def test_jobrequestcreateform_without_backends():
+    form = JobRequestCreateForm([])
+
+    assert "backend" not in form.fields
+
+
+@pytest.mark.django_db
 def test_workspacecreateform_success():
     data = {
         "name": "test",

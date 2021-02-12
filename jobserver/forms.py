@@ -9,8 +9,14 @@ class JobRequestCreateForm(forms.ModelForm):
     class Meta:
         fields = [
             "force_run_dependencies",
+            "will_notify",
         ]
         model = JobRequest
+        widgets = {
+            "will_notify": forms.RadioSelect(
+                choices=[(True, "Yes"), (False, "No")],
+            ),
+        }
 
     def __init__(self, actions, *args, backends=None, **kwargs):
         super().__init__(*args, **kwargs)
@@ -102,4 +108,4 @@ class WorkspaceCreateForm(forms.ModelForm):
 
 
 class WorkspaceNotificationsToggleForm(forms.Form):
-    will_notify = forms.BooleanField(required=False)
+    should_notify = forms.BooleanField(required=False)

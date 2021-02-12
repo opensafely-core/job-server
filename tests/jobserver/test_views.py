@@ -753,6 +753,77 @@ def test_workspacedetail_post_success(rf, monkeypatch):
 
 
 @pytest.mark.django_db
+def test_workspacedetail_post_with_notifications_default(rf, monkeypatch):
+    monkeypatch.setenv("BACKENDS", "tpp")
+
+    workspace = WorkspaceFactory(should_notify=True)
+    user = UserFactory()
+
+    data = {
+        "requested_actions": ["twiddle"],
+        "callback_url": "test",
+        "will_notify": "True",
+    }
+
+    # Build a RequestFactory instance
+    request = rf.post(MEANINGLESS_URL, data)
+    request.user = user
+
+    dummy_project = [{"name": "twiddle", "needs": []}]
+    with patch("jobserver.views.get_actions", new=lambda *args: dummy_project), patch(
+        "jobserver.views.get_branch_sha", new=lambda r, b: "abc123"
+    ):
+        response = WorkspaceDetail.as_view()(request, name=workspace.name)
+
+    assert response.status_code == 302, response.context_data["form"].errors
+    assert response.url == reverse("workspace-logs", kwargs={"name": workspace.name})
+
+    job_request = JobRequest.objects.first()
+    assert job_request.created_by == user
+    assert job_request.workspace == workspace
+    assert job_request.backend.name == "tpp"
+    assert job_request.requested_actions == ["twiddle"]
+    assert job_request.sha == "abc123"
+    assert job_request.will_notify
+
+
+@pytest.mark.django_db
+def test_workspacedetail_post_with_notifications_override(rf, monkeypatch):
+    monkeypatch.setenv("BACKENDS", "tpp")
+
+    workspace = WorkspaceFactory(should_notify=True)
+    user = UserFactory()
+
+    data = {
+        "requested_actions": ["twiddle"],
+        "callback_url": "test",
+        "will_notify": "False",
+    }
+
+    # Build a RequestFactory instance
+    request = rf.post(MEANINGLESS_URL, data)
+    request.user = user
+
+    dummy_project = [{"name": "twiddle", "needs": []}]
+    with patch("jobserver.views.get_actions", new=lambda *args: dummy_project), patch(
+        "jobserver.views.get_branch_sha", new=lambda r, b: "abc123"
+    ):
+        response = WorkspaceDetail.as_view()(request, name=workspace.name)
+
+    assert response.status_code == 302, response.context_data["form"].errors
+    assert response.url == reverse("workspace-logs", kwargs={"name": workspace.name})
+
+    job_request = JobRequest.objects.first()
+    assert job_request.created_by == user
+    assert job_request.workspace == workspace
+    assert job_request.backend.name == "tpp"
+    assert job_request.requested_actions == ["twiddle"]
+    assert job_request.sha == "abc123"
+    assert not job_request.will_notify
+    assert not job_request.jobs.exists()
+
+
+@pytest.mark.django_db
 def test_workspacedetail_post_success_with_superuser(rf, monkeypatch):
     monkeypatch.setenv("BACKENDS", "tpp,emis")
 
@@ -866,8 +937,8 @@ def test_workspacelog_unknown_workspace(rf):
 
 @pytest.mark.django_db
 def test_workspacenotificationstoggle_success(rf):
-    workspace = WorkspaceFactory(will_notify=True)
-    request = rf.post(MEANINGLESS_URL, {"will_notify": ""})
+    workspace = WorkspaceFactory(should_notify=True)
+    request = rf.post(MEANINGLESS_URL, {"should_notify": ""})
     request.user = UserFactory()
 
     response = WorkspaceNotificationsToggle.as_view()(request, name=workspace.name)
@@ -877,7 +948,7 @@ def test_workspacenotificationstoggle_success(rf):
 
     workspace.refresh_from_db()
 
-    assert not workspace.will_notify
+    assert not workspace.should_notify
 
 
 @pytest.mark.django_db
