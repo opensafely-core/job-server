@@ -1,10 +1,9 @@
 attrs
-dj-database-url
 django-anymail[mailgun]
 django-crispy-forms
 django-rest-framework
 django-structlog
-environs
+environs[django]
 first
 furl
 gunicorn

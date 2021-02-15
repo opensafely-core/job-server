@@ -11,7 +11,6 @@ https://docs.djangoproject.com/en/3.0/ref/settings/
 """
 import os
 
-import dj_database_url
 from django.contrib.messages import constants as messages
 from django.urls import reverse_lazy
 from environs import Env
@@ -99,7 +98,7 @@ WSGI_APPLICATION = "jobserver.wsgi.application"
 
 # Database
 # https://docs.djangoproject.com/en/3.0/ref/settings/#databases
-DATABASES = {"default": dj_database_url.config(default="sqlite:///db.sqlite3")}
+DATABASES = {"default": env.dj_db_url("DATABASE_URL", default="sqlite:///db.sqlite3")}
 
 
 # Password validation
