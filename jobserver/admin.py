@@ -53,3 +53,27 @@ class ProjectForm(forms.ModelForm):
 @admin.register(Project)
 class ProjectAdmin(admin.ModelAdmin):
     form = ProjectForm
+    fieldsets = [
+        [
+            None,
+            {
+                "fields": [
+                    "org",
+                    "name",
+                    "display_name",
+                    "email",
+                    "project_lead",
+                    "proposed_start_date",
+                    "proposed_duration",
+                ],
+            },
+        ],
+        [
+            "Governance Approval",
+            {"fields": ["governance_approval_notes", "has_governance_approval"]},
+        ],
+        [
+            "Technical Approval",
+            {"fields": ["technical_approval_notes", "has_technical_approval"]},
+        ],
+    ]
