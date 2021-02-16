@@ -1,7 +1,20 @@
+import django.contrib.auth.admin  # noqa: F401
+import social_django.admin  # noqa: F401
 from django import forms
 from django.contrib import admin
+from django.contrib.auth.models import Group
+from social_django.models import Association, Nonce, UserSocialAuth
 
 from .models import Org, Project
+
+
+# Remove apps we don't want in the admin
+# Their admin.py files are explicitly imported above so we can unregister them
+# here, otherwise they're not loaded until later as per INSTALLED_APPS
+admin.site.unregister(Association)
+admin.site.unregister(Group)
+admin.site.unregister(Nonce)
+admin.site.unregister(UserSocialAuth)
 
 
 class OrgForm(forms.ModelForm):
