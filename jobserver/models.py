@@ -369,7 +369,12 @@ class Project(models.Model):
     proposed_start_date = models.DateTimeField(null=True, blank=True)
     proposed_duration = models.TextField(blank=True)
 
+    # Governance approval
+    governance_approval_notes = models.TextField(blank=True)
     has_governance_approval = models.BooleanField(default=False)
+
+    # Technical approval
+    technical_approval_notes = models.TextField(blank=True)
     has_technical_approval = models.BooleanField(default=False)
 
     def __str__(self):

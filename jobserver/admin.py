@@ -31,10 +31,14 @@ class ProjectForm(forms.ModelForm):
             "proposed_start_date",
             "proposed_duration",
             "has_governance_approval",
+            "governance_approval_notes",
             "has_technical_approval",
+            "technical_approval_notes",
         ]
         labels = {
             "org": "Organisation",
+            "has_governance_approval": "Has governance approval?",
+            "has_technical_approval": "Has technical approval?",
         }
         model = Project
         widgets = {
