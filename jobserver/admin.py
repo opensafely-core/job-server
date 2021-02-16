@@ -77,3 +77,11 @@ class ProjectAdmin(admin.ModelAdmin):
             {"fields": ["technical_approval_notes", "has_technical_approval"]},
         ],
     ]
+    list_display = [
+        "pk",
+        "name",
+        "display_name",
+        "project_lead",
+        "email",
+        "org",
+    ]
