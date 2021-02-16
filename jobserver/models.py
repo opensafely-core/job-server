@@ -369,6 +369,9 @@ class Project(models.Model):
     proposed_start_date = models.DateTimeField(null=True, blank=True)
     proposed_duration = models.TextField(blank=True)
 
+    # store a link to our modified FormA
+    form_url = models.TextField(blank=True)
+
     # Governance approval
     governance_approval_notes = models.TextField(blank=True)
     has_governance_approval = models.BooleanField(default=False)

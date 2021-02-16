@@ -43,6 +43,7 @@ class ProjectForm(forms.ModelForm):
             "project_lead",
             "proposed_start_date",
             "proposed_duration",
+            "form_url",
             "has_governance_approval",
             "governance_approval_notes",
             "has_technical_approval",
@@ -52,6 +53,7 @@ class ProjectForm(forms.ModelForm):
             "org": "Organisation",
             "has_governance_approval": "Has governance approval?",
             "has_technical_approval": "Has technical approval?",
+            "form_url": "Form A URL",
         }
         model = Project
         widgets = {
@@ -60,6 +62,7 @@ class ProjectForm(forms.ModelForm):
             "email": forms.TextInput,
             "project_lead": forms.TextInput,
             "proposed_duration": forms.TextInput,
+            "form_url": forms.TextInput,
         }
 
 
@@ -78,6 +81,7 @@ class ProjectAdmin(admin.ModelAdmin):
                     "project_lead",
                     "proposed_start_date",
                     "proposed_duration",
+                    "form_url",
                 ],
             },
         ],
