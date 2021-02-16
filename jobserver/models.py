@@ -362,11 +362,11 @@ class Project(models.Model):
         related_name="projects",
     )
 
-    name = models.TextField(unique=True)
-    email = models.TextField()
-    project_lead = models.TextField()
-    proposed_start_date = models.DateTimeField()
-    proposed_duration = models.TextField()
+    name = models.TextField(blank=True)
+    email = models.TextField(blank=True)
+    project_lead = models.TextField(blank=True)
+    proposed_start_date = models.DateTimeField(null=True, blank=True)
+    proposed_duration = models.TextField(blank=True)
 
     has_governance_approval = models.BooleanField(default=False)
     has_technical_approval = models.BooleanField(default=False)
