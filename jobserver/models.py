@@ -363,6 +363,7 @@ class Project(models.Model):
     )
 
     name = models.TextField(blank=True)
+    display_name = models.TextField(blank=True)
     email = models.TextField(blank=True)
     project_lead = models.TextField(blank=True)
     proposed_start_date = models.DateTimeField(null=True, blank=True)
@@ -372,7 +373,8 @@ class Project(models.Model):
     has_technical_approval = models.BooleanField(default=False)
 
     def __str__(self):
-        return self.name
+        name = self.display_name or self.pk
+        return f"{self.org.name} | {name}"
 
 
 class Stats(models.Model):

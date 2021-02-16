@@ -477,7 +477,12 @@ def test_org_str():
 
 @pytest.mark.django_db
 def test_project_str():
-    assert str(ProjectFactory(name="test-project")) == "test-project"
+    org = OrgFactory(name="test-org")
+
+    assert str(ProjectFactory(org=org)) == "test-org | 1"
+
+    project = ProjectFactory(org=org, display_name="Very Good Project")
+    assert str(project) == "test-org | Very Good Project"
 
 
 @pytest.mark.django_db

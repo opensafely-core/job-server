@@ -25,6 +25,7 @@ class ProjectForm(forms.ModelForm):
         fields = [
             "org",
             "name",
+            "display_name",
             "email",
             "project_lead",
             "proposed_start_date",
@@ -38,6 +39,7 @@ class ProjectForm(forms.ModelForm):
         model = Project
         widgets = {
             "name": forms.TextInput,
+            "display_name": forms.TextInput,
             "email": forms.TextInput,
             "project_lead": forms.TextInput,
             "proposed_duration": forms.TextInput,
