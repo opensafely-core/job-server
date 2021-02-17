@@ -44,6 +44,7 @@ class ProjectForm(forms.ModelForm):
             "proposed_start_date",
             "proposed_duration",
             "form_url",
+            "next_step",
             "has_governance_approval",
             "governance_approval_notes",
             "has_technical_approval",
@@ -82,6 +83,7 @@ class ProjectAdmin(admin.ModelAdmin):
                     "proposed_start_date",
                     "proposed_duration",
                     "form_url",
+                    "next_step",
                 ],
             },
         ],
@@ -101,4 +103,5 @@ class ProjectAdmin(admin.ModelAdmin):
         "project_lead",
         "email",
         "org",
+        "next_step",
     ]

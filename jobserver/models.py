@@ -380,6 +380,10 @@ class Project(models.Model):
     technical_approval_notes = models.TextField(blank=True)
     has_technical_approval = models.BooleanField(default=False)
 
+    # What is the next step for this Project?
+    # We expect this to be driven by a FSM in a later iteration.
+    next_step = models.TextField(blank=True)
+
     def __str__(self):
         name = self.display_name or self.pk
         return f"{self.org.name} | {name}"
