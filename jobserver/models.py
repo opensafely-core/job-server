@@ -362,17 +362,31 @@ class Project(models.Model):
         related_name="projects",
     )
 
-    name = models.TextField(unique=True)
-    email = models.TextField()
-    project_lead = models.TextField()
-    proposed_start_date = models.DateTimeField()
-    proposed_duration = models.TextField()
+    name = models.TextField(blank=True)
+    display_name = models.TextField(blank=True)
+    email = models.TextField(blank=True)
+    project_lead = models.TextField(blank=True)
+    proposed_start_date = models.DateTimeField(null=True, blank=True)
+    proposed_duration = models.TextField(blank=True)
 
+    # store a link to our modified FormA
+    form_url = models.TextField(blank=True)
+
+    # Governance approval
+    governance_approval_notes = models.TextField(blank=True)
     has_governance_approval = models.BooleanField(default=False)
+
+    # Technical approval
+    technical_approval_notes = models.TextField(blank=True)
     has_technical_approval = models.BooleanField(default=False)
 
+    # What is the next step for this Project?
+    # We expect this to be driven by a FSM in a later iteration.
+    next_step = models.TextField(blank=True)
+
     def __str__(self):
-        return self.name
+        name = self.display_name or self.pk
+        return f"{self.org.name} | {name}"
 
 
 class Stats(models.Model):
