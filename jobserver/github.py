@@ -148,3 +148,24 @@ def get_repos_with_branches():
 
         # update the cursor we pass into the GraphQL query
         cursor = data["pageInfo"]["endCursor"]
+
+
+def is_member_of_org(org, username):
+    # https://docs.github.com/en/free-pro-team@latest/rest/reference/orgs#check-organization-membership-for-a-user
+    f = furl(BASE_URL)
+    f.path.segments += [
+        "orgs",
+        "opensafely",
+        "members",
+        username,
+    ]
+
+    headers = {
+        "Accept": "application/vnd.github.v3+json",
+        "Authorization": f"token {TOKEN}",
+        "User-Agent": "OpenSAFELY Jobs",
+    }
+
+    r = requests.get(f.url, headers=headers)
+
+    return r.status_code == 204

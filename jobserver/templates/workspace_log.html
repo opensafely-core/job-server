@@ -15,7 +15,7 @@
 
     <h2>{{ workspace.name }}</h2>
 
-    {% if user.is_authenticated and not workspace.is_archived %}
+    {% if user_can_run_jobs and not workspace.is_archived %}
     <div>
       <a class="btn btn-primary" href="{{ workspace.get_absolute_url }}">
         Add Job

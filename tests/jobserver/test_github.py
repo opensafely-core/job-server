@@ -7,6 +7,7 @@ from jobserver.github import (
     get_branch_sha,
     get_file,
     get_repos_with_branches,
+    is_member_of_org,
 )
 
 
@@ -144,3 +145,31 @@ def test_get_repos_with_branches():
     assert len(output) == 2
     assert output[0]["name"] == "test-repo"
     assert output[0]["branches"][0] == "branch1"
+
+
+@responses.activate
+def test_is_member_of_org_failure():
+    membership_url = "https://api.github.com/orgs/opensafely/members/dummy-user"
+    responses.add(responses.GET, membership_url, status=404)
+
+    assert not is_member_of_org("opensafely", "dummy-user")
+
+    # check the headers are correct
+    call = responses.calls[0]
+    assert "token" in call.request.headers["Authorization"]
+    assert call.request.headers["Accept"] == "application/vnd.github.v3+json"
+    assert not call.response.text
+
+
+@responses.activate
+def test_is_member_of_org_success():
+    membership_url = "https://api.github.com/orgs/opensafely/members/dummy-user"
+    responses.add(responses.GET, membership_url, status=204)
+
+    assert is_member_of_org("opensafely", "dummy-user")
+
+    # check the headers are correct
+    call = responses.calls[0]
+    assert "token" in call.request.headers["Authorization"]
+    assert call.request.headers["Accept"] == "application/vnd.github.v3+json"
+    assert not call.response.text

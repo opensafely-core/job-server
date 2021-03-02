@@ -66,10 +66,10 @@ def test_login_pipeline(client):
             + "?code=test-code&state=test-state"
         )
 
-        response = client.get(redirect_url, follow=True, secure=True)
+        response = client.get(redirect_url, follow=False, secure=True)
 
-    assert response.status_code == 200
-    assert response.redirect_chain == [("/", 302)]
+    assert response.status_code == 302
+    assert response.url == "/"
 
     # ensure we only have one User and it's constructed as expected
     assert User.objects.count() == 1
