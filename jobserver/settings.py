@@ -146,7 +146,7 @@ LOGGING = logging_config_dict
 
 # Auth
 AUTHENTICATION_BACKENDS = [
-    "jobserver.github.GithubOrganizationOAuth2",
+    "social_core.backends.github.GithubOAuth2",
     "django.contrib.auth.backends.ModelBackend",
 ]
 AUTH_USER_MODEL = "jobserver.User"

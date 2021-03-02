@@ -1,8 +1,6 @@
 from unittest.mock import patch
 
-import pytest
 import responses
-from social_core.exceptions import AuthFailed
 
 from jobserver.github import (
     get_branch,
@@ -146,39 +144,3 @@ def test_get_repos_with_branches():
     assert len(output) == 2
     assert output[0]["name"] == "test-repo"
     assert output[0]["branches"][0] == "branch1"
-
-
-@responses.activate
-def test_githuborganizationoauth2_user_data_204(dummy_backend):
-    expected_url = "https://api.github.com/orgs/opensafely/members/test-username"
-    responses.add(responses.GET, url=expected_url, status=204)
-
-    dummy_backend.user_data("access-token")
-
-    assert len(responses.calls) == 1
-
-
-@responses.activate
-def test_githuborganizationoauth2_user_data_302(dummy_backend):
-    expected_url = "https://api.github.com/orgs/opensafely/members/test-username"
-    responses.add(responses.GET, url=expected_url, status=302)
-
-    match = (
-        '"test-username" is not part of the OpenSAFELY GitHub Organization. '
-        '<a href="https://opensafely.org/contact/">Contact us</a> to request access.'
-    )
-    with pytest.raises(AuthFailed, match=match):
-        dummy_backend.user_data("access-token")
-
-
-@responses.activate
-def test_githuborganizationoauth2_user_data_404(dummy_backend):
-    expected_url = "https://api.github.com/orgs/opensafely/members/test-username"
-    responses.add(responses.GET, url=expected_url, status=404)
-
-    match = (
-        '"test-username" is not part of the OpenSAFELY GitHub Organization. '
-        '<a href="https://opensafely.org/contact/">Contact us</a> to request access.'
-    )
-    with pytest.raises(AuthFailed, match=match):
-        dummy_backend.user_data("access-token")
