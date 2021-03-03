@@ -121,6 +121,38 @@ def test_index_success(rf):
 
 
 @pytest.mark.django_db
+def test_index_with_authenticated_user(rf):
+    """
+    Check the Add Workspace button is rendered for authenticated Users on the
+    homepage.
+    """
+    JobRequestFactory(workspace=WorkspaceFactory())
+
+    # Build a RequestFactory instance
+    request = rf.get(MEANINGLESS_URL)
+    request.user = UserFactory()
+    response = Index.as_view()(request)
+
+    assert "Add a New Workspace" in response.rendered_content
+
+
+@pytest.mark.django_db
+def test_index_with_unauthenticated_user(rf):
+    """
+    Check the Add Workspace button is not rendered for unauthenticated Users on
+    the homepage.
+    """
+    JobRequestFactory(workspace=WorkspaceFactory())
+
+    # Build a RequestFactory instance
+    request = rf.get(MEANINGLESS_URL)
+    request.user = AnonymousUser()
+    response = Index.as_view()(request)
+
+    assert "Add a New Workspace" not in response.rendered_content
+
+
+@pytest.mark.django_db
 def test_jobcancel_already_cancelled(rf):
     job_request = JobRequestFactory(cancelled_actions=["another-action", "test"])
     job = JobFactory(job_request=job_request, action="test")
@@ -870,6 +902,45 @@ def test_workspacedetail_unknown_workspace(rf):
 
 
 @pytest.mark.django_db
+def test_workspacedetail_get_with_authenticated_user(rf):
+    """
+    Check WorkspaceDetail renders the controls for Archiving, Notifications,
+    and selecting Actions for authenticated Users.
+    """
+    workspace = WorkspaceFactory(is_archived=False)
+
+    # Build a RequestFactory instance
+    request = rf.get(MEANINGLESS_URL)
+    request.user = UserFactory()
+
+    dummy_project = [{"name": "twiddle", "needs": [], "status": "-"}]
+    with patch("jobserver.views.get_actions", new=lambda *args: dummy_project):
+        response = WorkspaceDetail.as_view()(request, name=workspace.name)
+
+    assert "Archive" in response.rendered_content
+    assert "Turn Notifications" in response.rendered_content
+    assert "twiddle" in response.rendered_content
+
+
+@pytest.mark.django_db
+def test_workspacedetail_get_with_unauthenticated_user(rf):
+    """
+    Check WorkspaceDetail does not render the controls for Archiving,
+    Notifications, and selecting Actions for unauthenticated Users.
+    """
+    workspace = WorkspaceFactory(is_archived=False)
+
+    # Build a RequestFactory instance
+    request = rf.get(MEANINGLESS_URL)
+    request.user = AnonymousUser()
+    response = WorkspaceDetail.as_view()(request, name=workspace.name)
+
+    assert "Archive" not in response.rendered_content
+    assert "Turn Notifications" not in response.rendered_content
+    assert "twiddle" not in response.rendered_content
+
+
+@pytest.mark.django_db
 def test_workspacelog_search_by_action(rf):
     workspace = WorkspaceFactory()
     user = UserFactory()
@@ -933,6 +1004,42 @@ def test_workspacelog_unknown_workspace(rf):
 
     assert response.status_code == 302
     assert response.url == "/"
+
+
+@pytest.mark.django_db
+def test_workspacelog_with_authenticated_user(rf):
+    """
+    Check WorkspaceLog renders the Add Job button for authenticated Users
+    """
+    workspace = WorkspaceFactory()
+    job_request = JobRequestFactory(workspace=workspace)
+    JobFactory(job_request=job_request)
+
+    # Build a RequestFactory instance
+    request = rf.get(MEANINGLESS_URL)
+    request.user = UserFactory()
+    response = WorkspaceLog.as_view()(request, name=workspace.name)
+
+    assert response.status_code == 200
+    assert "Add Job" in response.rendered_content
+
+
+@pytest.mark.django_db
+def test_workspacelog_with_unauthenticated_user(rf):
+    """
+    Check WorkspaceLog renders the Add Job button for authenticated Users
+    """
+    workspace = WorkspaceFactory()
+    job_request = JobRequestFactory(workspace=workspace)
+    JobFactory(job_request=job_request)
+
+    # Build a RequestFactory instance
+    request = rf.get(MEANINGLESS_URL)
+    request.user = AnonymousUser()
+    response = WorkspaceLog.as_view()(request, name=workspace.name)
+
+    assert response.status_code == 200
+    assert "Add Job" not in response.rendered_content
 
 
 @pytest.mark.django_db
