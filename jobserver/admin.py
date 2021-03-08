@@ -5,7 +5,7 @@ from django.contrib import admin
 from django.contrib.auth.models import Group
 from social_django.models import Association, Nonce, UserSocialAuth
 
-from .models import Org, Project
+from .models import Org, Project, User
 
 
 # Remove apps we don't want in the admin
@@ -105,3 +105,13 @@ class ProjectAdmin(admin.ModelAdmin):
         "org",
         "next_step",
     ]
+
+
+@admin.register(User)
+class UserAdmin(admin.ModelAdmin):
+    list_display = [
+        "username",
+        "date_joined",
+        "is_approved",
+    ]
+    ordering = ["username"]
