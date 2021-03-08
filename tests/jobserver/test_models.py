@@ -518,6 +518,11 @@ def test_user_name_without_first_and_last_name():
 
 
 @pytest.mark.django_db
+def test_user_is_unapproved_by_default():
+    assert not UserFactory().is_approved
+
+
+@pytest.mark.django_db
 def test_workspace_get_absolute_url():
     workspace = WorkspaceFactory()
     url = workspace.get_absolute_url()
