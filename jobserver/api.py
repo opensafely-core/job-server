@@ -282,7 +282,7 @@ class ReleaseUploadAPI(APIView):
     # DRF file upload does not use multipart, is just a simple byte stream
     parser_classes = [FileUploadParser]
 
-    def post(self, request, workspace_name):
+    def put(self, request, workspace_name, release_hash):
         try:
             workspace = Workspace.objects.get(name=workspace_name)
         except Workspace.DoesNotExist:
@@ -293,23 +293,6 @@ class ReleaseUploadAPI(APIView):
         backend_user = request.headers.get("Backend-User", "").strip()
         if not backend_user:
             raise NotAuthenticated("Backend-User not valid")
-
-        # TODO: validate user once we have mappings from backend username.
-
-        # We use the conditional request header If-None-Match to communicate
-        # the hash (i.e. effectively its ETag) of the upload content. This is
-        # an undocumented but logical application of conditional requests in
-        # HTTP. 
-        #
-        # Note: this is an optimisation - the request would still be rejected
-        # if the user re-uploads the same release, but by checking up front, we
-        # can reject the request much earlier.
-        release_hash = request.headers.get("If-None-Match")
-
-        # Note: since we control the client, we *require* an If-None-Match from
-        # the client, to ensure we can reject early.
-        if release_hash is None:
-            raise ValidationError("No If-None-Match header with release hash")
 
         if "file" not in request.data:
             raise ValidationError("No data uploaded")

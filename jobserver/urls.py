@@ -54,7 +54,7 @@ urlpatterns = [
         name="workspace-statuses",
     ),
     path(
-        "api/v2/workspaces/<workspace_name>/releases/",
+        "api/v2/workspaces/<workspace_name>/releases/<release_hash>",
         ReleaseUploadAPI.as_view(),
         name="workspace-upload-release",
     ),

@@ -218,6 +218,8 @@ SOCIAL_AUTH_PIPELINE = [
 initialise_sentry()
 
 
+# PROJECT SETTINGS
+
 # Releases storage location.
 # Note: we deliberately don't use MEDIA_ROOT/MEDIA_URL here, to avoid any
 # surprises with django's default uploads implementation.
