@@ -1,33 +1,30 @@
 from datetime import timedelta
-import shutil
 from unittest.mock import patch
-from zipfile import ZipFile
 
 import pytest
-from django.utils import timezone
 from django.conf import settings
+from django.utils import timezone
 from rest_framework.exceptions import NotAuthenticated
 
 from jobserver.api import (
     JobAPIUpdate,
     JobRequestAPIList,
+    ReleaseUploadAPI,
     WorkspaceStatusesAPI,
     get_backend_from_token,
     update_stats,
-    ReleaseUploadAPI,
 )
-from jobserver.models import Backend, Job, JobRequest, Release, Stats
+from jobserver.models import Backend, Job, JobRequest, Stats
+from tests.jobserver.test_releases import make_release_zip
 
 from ..factories import (
     BackendFactory,
     JobFactory,
     JobRequestFactory,
+    ReleaseFactory,
     StatsFactory,
     WorkspaceFactory,
-    ReleaseFactory,
 )
-
-from tests.jobserver.test_releases import make_release_zip
 
 
 def test_token_backend_empty_token():
@@ -565,7 +562,7 @@ def test_upload_release_no_backend_token(api_rf):
 @pytest.mark.django_db
 def test_upload_release_bad_backend_token(api_rf):
     workspace = WorkspaceFactory()
-    backend = BackendFactory(auth_token="test")
+    BackendFactory(auth_token="test")
     request = api_rf.post(
         f"/api/v2/workspaces/{workspace.name}/releases/",
         HTTP_AUTHORIZATION="invalid",
@@ -578,7 +575,7 @@ def test_upload_release_bad_backend_token(api_rf):
 @pytest.mark.django_db
 def test_upload_release_no_user(api_rf):
     workspace = WorkspaceFactory()
-    backend = BackendFactory(auth_token="test")
+    BackendFactory(auth_token="test")
     request = api_rf.post(
         f"/api/v2/workspaces/{workspace.name}/releases/",
         HTTP_AUTHORIZATION="test",
@@ -592,7 +589,7 @@ def test_upload_release_no_user(api_rf):
 @pytest.mark.django_db
 def test_upload_release_no_hash(api_rf):
     workspace = WorkspaceFactory()
-    backend = BackendFactory(auth_token="test")
+    BackendFactory(auth_token="test")
     request = api_rf.post(
         f"/api/v2/workspaces/{workspace.name}/releases/",
         HTTP_AUTHORIZATION="test",
@@ -608,7 +605,7 @@ def test_upload_release_no_hash(api_rf):
 @pytest.mark.django_db
 def test_upload_release_no_files(api_rf):
     workspace = WorkspaceFactory()
-    backend = BackendFactory(auth_token="test")
+    BackendFactory(auth_token="test")
     request = api_rf.post(
         f"/api/v2/workspaces/{workspace.name}/releases/",
         HTTP_AUTHORIZATION="test",
@@ -629,10 +626,10 @@ def test_upload_release_created(api_rf, tmp_path, monkeypatch):
     release_hash = make_release_zip(upload)
 
     workspace = WorkspaceFactory()
-    backend = BackendFactory(auth_token="test")
+    BackendFactory(auth_token="test")
     request = api_rf.post(
         f"/api/v2/workspaces/{workspace.name}/releases/",
-        content_type='application/octet-stream',
+        content_type="application/octet-stream",
         data=upload.read_bytes(),
         HTTP_CONTENT_DISPOSITION="attachment; filename=release.zip",
         HTTP_AUTHORIZATION="test",
@@ -653,11 +650,11 @@ def test_upload_release_redirected(api_rf, tmp_path, monkeypatch):
     upload = tmp_path / "release.zip"
     release_hash = make_release_zip(upload)
     workspace = WorkspaceFactory()
-    backend = BackendFactory(auth_token="test")
-    release = ReleaseFactory(id=release_hash, files=[])
+    BackendFactory(auth_token="test")
+    ReleaseFactory(id=release_hash, files=[])
     request = api_rf.post(
         f"/api/v2/workspaces/{workspace.name}/releases/",
-        content_type='application/octet-stream',
+        content_type="application/octet-stream",
         data=upload.read_bytes(),
         HTTP_CONTENT_DISPOSITION="attachment; filename=release.zip",
         HTTP_AUTHORIZATION="test",

@@ -2,17 +2,16 @@ import itertools
 import operator
 
 import structlog
+from django import urls
 from django.db import transaction
 from django.utils import timezone
-from django.views.decorators.http import require_http_methods
-from django import urls
 from first import first
 from rest_framework import serializers
 from rest_framework.exceptions import NotAuthenticated, ValidationError
 from rest_framework.generics import ListAPIView
+from rest_framework.parsers import FileUploadParser
 from rest_framework.response import Response
 from rest_framework.views import APIView
-from rest_framework.parsers import FileUploadParser
 
 from .emails import send_finished_notification
 from .models import Backend, JobRequest, Stats, Workspace
@@ -280,6 +279,7 @@ class WorkspaceStatusesAPI(APIView):
 
 
 class ReleaseUploadAPI(APIView):
+    # DRF file upload does not use multipart, is just a simple byte stream
     parser_classes = [FileUploadParser]
 
     def post(self, request, workspace_name):

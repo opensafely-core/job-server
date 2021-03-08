@@ -19,12 +19,7 @@ from django.contrib.auth.views import LogoutView
 from django.urls import include, path
 from django.views.generic import RedirectView
 
-from .api import (
-    JobAPIUpdate,
-    JobRequestAPIList,
-    WorkspaceStatusesAPI,
-    ReleaseUploadAPI,
-)
+from .api import JobAPIUpdate, JobRequestAPIList, ReleaseUploadAPI, WorkspaceStatusesAPI
 from .views import (
     BackendDetail,
     BackendList,

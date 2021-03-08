@@ -4,13 +4,9 @@ import pytest
 from django.conf import settings
 from django.db import DatabaseError
 
-from jobserver.releases import handle_release, Release, hash_files
+from jobserver.releases import Release, handle_release, hash_files
 
-from ..factories import (
-    BackendFactory,
-    WorkspaceFactory,
-    ReleaseFactory,
-)
+from ..factories import BackendFactory, ReleaseFactory, WorkspaceFactory
 
 
 def raise_error(**kwargs):
@@ -18,7 +14,7 @@ def raise_error(**kwargs):
 
 
 def make_release_zip(release_path):
-    with ZipFile(release_path, 'w') as zf:
+    with ZipFile(release_path, "w") as zf:
         zf.writestr("file.txt", "test")
 
     # precalculated hash of above file
@@ -50,7 +46,9 @@ def test_handle_release_already_exists(monkeypatch, tmp_path):
 
     upload = tmp_path / "release.zip"
     release_hash = make_release_zip(upload)
-    release = ReleaseFactory(id=release_hash, files=['file.txt'], backend_user='original')
+    release = ReleaseFactory(
+        id=release_hash, files=["file.txt"], backend_user="original"
+    )
 
     release, created = handle_release(
         release.workspace, release.backend, "user", release_hash, upload.open("rb")
@@ -67,11 +65,13 @@ def test_handle_release_bash_hash(monkeypatch, tmp_path):
 
     upload = tmp_path / "release.zip"
     release_hash = make_release_zip(upload)
-    release = ReleaseFactory(id=release_hash, files=['file.txt'], backend_user='original')
+    release = ReleaseFactory(
+        id=release_hash, files=["file.txt"], backend_user="original"
+    )
 
     with pytest.raises(Exception):
-        handle_release( release.workspace, release.backend, "user", "bad hash",
-                upload.open("rb")
+        handle_release(
+            release.workspace, release.backend, "user", "bad hash", upload.open("rb")
         )
 
 
@@ -89,7 +89,6 @@ def test_handle_release_db_error(monkeypatch, tmp_path):
         handle_release(workspace, backend, "user", release_hash, upload.open("rb"))
 
 
-
 def test_hash_files(tmp_path):
     dirpath = tmp_path / "test"
     dirpath.mkdir()
@@ -98,12 +97,10 @@ def test_hash_files(tmp_path):
         "dir/bar.txt": "bar",
         "outputs/data.csv": "data",
     }
-   
+
     for name, contents in files.items():
         path = dirpath / name
         path.parent.mkdir(exist_ok=True, parents=True)
         path.write_text(contents)
 
     assert hash_files(dirpath) == "6c52ca16d696574e6ab5ece283eb3f3d"
-
-

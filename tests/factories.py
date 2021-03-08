@@ -13,10 +13,10 @@ from jobserver.models import (
     Membership,
     Org,
     Project,
+    Release,
     Stats,
     User,
     Workspace,
-    Release,
 )
 
 

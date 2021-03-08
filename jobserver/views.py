@@ -518,4 +518,4 @@ class WorkspaceNotificationsToggle(View):
 @method_decorator(login_required, name="dispatch")
 class WorkspaceReleaseView(View):
     def get(self, request, name, release):
-        return HttpResponse(f"release page for {name}/{release}")  # pragma: no cover
+        return f"release page for {name}/{release}"  # pragma: no cover

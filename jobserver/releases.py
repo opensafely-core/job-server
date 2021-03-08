@@ -1,11 +1,10 @@
-from datetime import datetime
 import hashlib
 import os
 import shutil
 from zipfile import ZipFile
 
-from django.db import transaction
 from django.conf import settings
+from django.db import transaction
 
 from .models import Release
 
@@ -35,7 +34,9 @@ def handle_release(workspace, backend, backend_user, release_hash, upload):
 
         calculated_hash = hash_files(actual_dir)
         if calculated_hash != release_hash:
-            raise Exception(f"provided hash {release_hash} did not match files hash of {calculated_hash}")
+            raise Exception(
+                f"provided hash {release_hash} did not match files hash of {calculated_hash}"
+            )
 
         release = Release.objects.create(
             id=release_hash,
@@ -59,8 +60,7 @@ def handle_release(workspace, backend, backend_user, release_hash, upload):
 def hash_files(directory):
     # use md5 because its fast, and we only care about uniqueness, not security
     hash = hashlib.md5()
-    for filename in sorted(directory.glob('**/*')):
+    for filename in sorted(directory.glob("**/*")):
         if filename.is_file():
             hash.update(filename.read_bytes())
     return hash.hexdigest()
-
