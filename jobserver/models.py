@@ -412,7 +412,7 @@ class Release(models.Model):
         on_delete=models.PROTECT,
         related_name="+",
     )
-    published_on = models.DateTimeField(default=timezone.now)
+    published_at = models.DateTimeField(default=timezone.now)
     upload_dir = models.TextField()
     # list of files in the release upload
     files = models.JSONField()

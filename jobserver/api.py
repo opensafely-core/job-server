@@ -2,8 +2,8 @@ import itertools
 import operator
 
 import structlog
-from django.urls import reverse
 from django.db import transaction
+from django.urls import reverse
 from django.utils import timezone
 from first import first
 from rest_framework import serializers
