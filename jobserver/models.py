@@ -5,6 +5,7 @@ import secrets
 from datetime import timedelta
 
 import structlog
+from django.conf import settings
 from django.contrib.auth.models import AbstractUser
 from django.core.validators import validate_slug
 from django.db import models
@@ -487,3 +488,37 @@ class Workspace(models.Model):
         if not f.path:
             raise Exception("Repo URL not in expected format, appears to have no path")
         return f.path.segments[-1]
+
+
+class Release(models.Model):
+    id = models.TextField(primary_key=True)
+    published_on = models.DateTimeField(default=timezone.now)
+    upload_dir = models.TextField()
+    # list of files in the release upload
+    files = models.JSONField()
+
+    workspace = models.ForeignKey(
+        "Workspace",
+        on_delete=models.PROTECT,
+        related_name="releases",
+    )
+    backend = models.ForeignKey(
+        "Backend",
+        on_delete=models.PROTECT,
+        related_name="+",
+    )
+
+    # store local TPP/EMIS username for audit
+    backend_user = models.TextField()
+
+    # TODO: link this formally via backend_username once we have a mapping
+    # between User and their backend username
+    publishing_user = models.ForeignKey(
+        "User",
+        on_delete=models.PROTECT,
+        null=True,
+        related_name="+",
+    )
+
+    def file_path(self, filename):
+        return settings.RELEASE_STORAGE / self.upload_dir / filename

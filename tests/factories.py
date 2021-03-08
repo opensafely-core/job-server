@@ -16,6 +16,7 @@ from jobserver.models import (
     Stats,
     User,
     Workspace,
+    Release,
 )
 
 
@@ -103,5 +104,13 @@ class WorkspaceFactory(factory.django.DjangoModelFactory):
     class Meta:
         model = Workspace
 
-    name = factory.Sequence(lambda n: f"Workspace {n}")
+    name = factory.Sequence(lambda n: f"workspace-{n}")
     repo = factory.Sequence(lambda n: "http://example.com/org-{n}/repo-{n}")
+
+
+class ReleaseFactory(factory.django.DjangoModelFactory):
+    class Meta:
+        model = Release
+
+    backend = factory.SubFactory("tests.factories.BackendFactory")
+    workspace = factory.SubFactory("tests.factories.WorkspaceFactory")
