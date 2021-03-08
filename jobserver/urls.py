@@ -23,7 +23,7 @@ from .api import (
     JobAPIUpdate,
     JobRequestAPIList,
     WorkspaceStatusesAPI,
-    upload_release,
+    ReleaseUploadAPI,
 )
 from .views import (
     BackendDetail,
@@ -60,7 +60,7 @@ urlpatterns = [
     ),
     path(
         "api/v2/workspaces/<workspace_name>/releases/",
-        upload_release,
+        ReleaseUploadAPI.as_view(),
         name="upload-release",
     ),
     path("backends/", BackendList.as_view(), name="backend-list"),

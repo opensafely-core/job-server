@@ -3,7 +3,6 @@ import operator
 
 import structlog
 from django.db import transaction
-from django.http import HttpResponse, HttpResponseBadRequest
 from django.utils import timezone
 from django.views.decorators.http import require_http_methods
 from django import urls
@@ -13,6 +12,7 @@ from rest_framework.exceptions import NotAuthenticated, ValidationError
 from rest_framework.generics import ListAPIView
 from rest_framework.response import Response
 from rest_framework.views import APIView
+from rest_framework.parsers import FileUploadParser
 
 from .emails import send_finished_notification
 from .models import Backend, JobRequest, Stats, Workspace
@@ -279,42 +279,42 @@ class WorkspaceStatusesAPI(APIView):
         return Response(actions_with_status, status=200)
 
 
-# this is a plain django view, as it doesn't really benefit from DRF as a bulk
-# upload endpoint.
-@require_http_methods(["POST"])
-def upload_release(request, workspace_name):
-    try:
-        workspace = Workspace.objects.get(name=workspace_name)
-    except Workspace.DoesNotExist:
-        return Response(status=404)
+class ReleaseUploadAPI(APIView):
+    parser_classes = [FileUploadParser]
 
-    # authenticate and get backend
-    backend = get_backend_from_token(request.headers.get("Authorization"))
-    backend_user = request.headers.get("Backend-User", "").strip()
-    if not backend_user:
-        raise NotAuthenticated("Backend-User not valid")
+    def post(self, request, workspace_name):
+        try:
+            workspace = Workspace.objects.get(name=workspace_name)
+        except Workspace.DoesNotExist:
+            return Response(status=404)
 
-    # TODO: validate user once we have mappings from backend username.
+        # authenticate and get backend
+        backend = get_backend_from_token(request.headers.get("Authorization"))
+        backend_user = request.headers.get("Backend-User", "").strip()
+        if not backend_user:
+            raise NotAuthenticated("Backend-User not valid")
 
-    release_hash = request.headers.get("If-None-Match")
-    if release_hash is None:
-        return HttpResponseBadRequest("No If-None-Match header with release hash")
+        # TODO: validate user once we have mappings from backend username.
 
-    if "release.zip" not in request.FILES:
-        return HttpResponseBadRequest("No release.zip file uploaded")
+        release_hash = request.headers.get("If-None-Match")
+        if release_hash is None:
+            raise ValidationError("No If-None-Match header with release hash")
 
-    upload = request.FILES["release.zip"]
-    release, created = handle_release(
-        workspace, backend, backend_user, release_hash, upload
-    )
+        if "file" not in request.data:
+            raise ValidationError("No data uploaded")
 
-    response = HttpResponse(status=201 if created else 303)
-    response["Location"] = urls.reverse(
-        "workspace-release",
-        kwargs={
-            "name": workspace.name,
-            "release": release.id,
-        },
-    )
-    response["Release-Id"] = release.id
-    return response
+        upload = request.data["file"]
+        release, created = handle_release(
+            workspace, backend, backend_user, release_hash, upload
+        )
+
+        response = Response(status=201 if created else 303)
+        response["Location"] = urls.reverse(
+            "workspace-release",
+            kwargs={
+                "name": workspace.name,
+                "release": release.id,
+            },
+        )
+        response["Release-Id"] = release.id
+        return response

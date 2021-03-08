@@ -14,7 +14,7 @@ from jobserver.api import (
     WorkspaceStatusesAPI,
     get_backend_from_token,
     update_stats,
-    upload_release,
+    ReleaseUploadAPI,
 )
 from jobserver.models import Backend, Job, JobRequest, Release, Stats
 
@@ -548,98 +548,99 @@ def test_workspacestatusesapi_unknown_workspace(api_rf):
 
 
 @pytest.mark.django_db
-def test_upload_release_no_workspace(rf):
-    request = rf.post("/api/v2/workspaces/notexists/releases/")
-    response = upload_release(request, "notexists")
+def test_upload_release_no_workspace(api_rf):
+    request = api_rf.post("/api/v2/workspaces/notexists/releases/")
+    response = ReleaseUploadAPI.as_view()(request, "notexists")
     assert response.status_code == 404
 
 
 @pytest.mark.django_db
-def test_upload_release_no_backend_token(rf):
+def test_upload_release_no_backend_token(api_rf):
     workspace = WorkspaceFactory()
-    request = rf.post(f"/api/v2/workspaces/{workspace.name}/releases/")
-    with pytest.raises(NotAuthenticated):
-        upload_release(request, workspace.name)
+    request = api_rf.post(f"/api/v2/workspaces/{workspace.name}/releases/")
+    response = ReleaseUploadAPI.as_view()(request, workspace.name)
+    assert response.status_code == 403
 
 
 @pytest.mark.django_db
-def test_upload_release_bad_backend_token(rf):
+def test_upload_release_bad_backend_token(api_rf):
     workspace = WorkspaceFactory()
     backend = BackendFactory(auth_token="test")
-    request = rf.post(
+    request = api_rf.post(
         f"/api/v2/workspaces/{workspace.name}/releases/",
         HTTP_AUTHORIZATION="invalid",
     )
 
-    with pytest.raises(NotAuthenticated):
-        upload_release(request, workspace.name)
+    response = ReleaseUploadAPI.as_view()(request, workspace.name)
+    assert response.status_code == 403
 
 
 @pytest.mark.django_db
-def test_upload_release_no_user(rf):
+def test_upload_release_no_user(api_rf):
     workspace = WorkspaceFactory()
     backend = BackendFactory(auth_token="test")
-    request = rf.post(
+    request = api_rf.post(
         f"/api/v2/workspaces/{workspace.name}/releases/",
         HTTP_AUTHORIZATION="test",
     )
 
-    with pytest.raises(NotAuthenticated) as exc:
-        upload_release(request, workspace.name)
-
-    assert "Backend-User" in str(exc.value)
+    response = ReleaseUploadAPI.as_view()(request, workspace.name)
+    assert response.status_code == 403
+    assert "Backend-User" in response.data["detail"]
 
 
 @pytest.mark.django_db
-def test_upload_release_no_hash(rf):
+def test_upload_release_no_hash(api_rf):
     workspace = WorkspaceFactory()
     backend = BackendFactory(auth_token="test")
-    request = rf.post(
+    request = api_rf.post(
         f"/api/v2/workspaces/{workspace.name}/releases/",
         HTTP_AUTHORIZATION="test",
         HTTP_BACKEND_USER="user",
     )
 
-    response = upload_release(request, workspace.name)
+    response = ReleaseUploadAPI.as_view()(request, workspace.name)
 
     assert response.status_code == 400
-    assert b"If-None-Match" in response.content
+    assert "If-None-Match" in response.data[0]
 
 
 @pytest.mark.django_db
-def test_upload_release_no_files(rf):
+def test_upload_release_no_files(api_rf):
     workspace = WorkspaceFactory()
     backend = BackendFactory(auth_token="test")
-    request = rf.post(
+    request = api_rf.post(
         f"/api/v2/workspaces/{workspace.name}/releases/",
         HTTP_AUTHORIZATION="test",
         HTTP_BACKEND_USER="user",
         HTTP_IF_NONE_MATCH="hash",
     )
 
-    response = upload_release(request, workspace.name)
+    response = ReleaseUploadAPI.as_view()(request, workspace.name)
 
     assert response.status_code == 400
-    assert b"release.zip" in response.content
+    assert "No data" in response.data[0]
 
 
 @pytest.mark.django_db
-def test_upload_release_created(rf, tmp_path, monkeypatch):
+def test_upload_release_created(api_rf, tmp_path, monkeypatch):
     monkeypatch.setattr(settings, "RELEASE_STORAGE", tmp_path / "releases")
     upload = tmp_path / "release.zip"
     release_hash = make_release_zip(upload)
 
     workspace = WorkspaceFactory()
     backend = BackendFactory(auth_token="test")
-    request = rf.post(
+    request = api_rf.post(
         f"/api/v2/workspaces/{workspace.name}/releases/",
-        {"release.zip": upload.open(mode="rb")},
+        content_type='application/octet-stream',
+        data=upload.read_bytes(),
+        HTTP_CONTENT_DISPOSITION="attachment; filename=release.zip",
         HTTP_AUTHORIZATION="test",
         HTTP_BACKEND_USER="user",
         HTTP_IF_NONE_MATCH=release_hash,
     )
 
-    response = upload_release(request, workspace.name)
+    response = ReleaseUploadAPI.as_view()(request, workspace.name)
 
     assert response.status_code == 201
     release_id = response["Release-Id"]
@@ -647,22 +648,24 @@ def test_upload_release_created(rf, tmp_path, monkeypatch):
 
 
 @pytest.mark.django_db
-def test_upload_release_redirected(rf, tmp_path, monkeypatch):
+def test_upload_release_redirected(api_rf, tmp_path, monkeypatch):
     monkeypatch.setattr(settings, "RELEASE_STORAGE", tmp_path / "releases")
     upload = tmp_path / "release.zip"
     release_hash = make_release_zip(upload)
     workspace = WorkspaceFactory()
     backend = BackendFactory(auth_token="test")
     release = ReleaseFactory(id=release_hash, files=[])
-    request = rf.post(
+    request = api_rf.post(
         f"/api/v2/workspaces/{workspace.name}/releases/",
-        {"release.zip": upload.open(mode="rb")},
+        content_type='application/octet-stream',
+        data=upload.read_bytes(),
+        HTTP_CONTENT_DISPOSITION="attachment; filename=release.zip",
         HTTP_AUTHORIZATION="test",
         HTTP_BACKEND_USER="user",
         HTTP_IF_NONE_MATCH=release_hash,
     )
 
-    response = upload_release(request, workspace.name)
+    response = ReleaseUploadAPI.as_view()(request, workspace.name)
 
     assert response.status_code == 303
     release_id = response["Release-Id"]
