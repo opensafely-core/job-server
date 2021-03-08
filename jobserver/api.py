@@ -2,7 +2,7 @@ import itertools
 import operator
 
 import structlog
-from django import urls
+from django.urls import reverse
 from django.db import transaction
 from django.utils import timezone
 from first import first
@@ -296,7 +296,18 @@ class ReleaseUploadAPI(APIView):
 
         # TODO: validate user once we have mappings from backend username.
 
+        # We use the conditional request header If-None-Match to communicate
+        # the hash (i.e. effectively its ETag) of the upload content. This is
+        # an undocumented but logical application of conditional requests in
+        # HTTP. 
+        #
+        # Note: this is an optimisation - the request would still be rejected
+        # if the user re-uploads the same release, but by checking up front, we
+        # can reject the request much earlier.
         release_hash = request.headers.get("If-None-Match")
+
+        # Note: since we control the client, we *require* an If-None-Match from
+        # the client, to ensure we can reject early.
         if release_hash is None:
             raise ValidationError("No If-None-Match header with release hash")
 
@@ -309,7 +320,7 @@ class ReleaseUploadAPI(APIView):
         )
 
         response = Response(status=201 if created else 303)
-        response["Location"] = urls.reverse(
+        response["Location"] = reverse(
             "workspace-release",
             kwargs={
                 "name": workspace.name,

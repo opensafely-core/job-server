@@ -56,7 +56,7 @@ urlpatterns = [
     path(
         "api/v2/workspaces/<workspace_name>/releases/",
         ReleaseUploadAPI.as_view(),
-        name="upload-release",
+        name="workspace-upload-release",
     ),
     path("backends/", BackendList.as_view(), name="backend-list"),
     path("backends/<pk>/", BackendDetail.as_view(), name="backend-detail"),

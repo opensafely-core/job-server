@@ -390,6 +390,39 @@ class Project(models.Model):
         return f"{self.org.name} | {name}"
 
 
+class Release(models.Model):
+    # No value in the default Autoid as we are using a content-addressable hash
+    # as it. Additionaly it avoids enumeration attacks.
+    id = models.TextField(primary_key=True)
+    # TODO: link this formally via backend_username once we have a mapping
+    # between User and their backend username
+    publishing_user = models.ForeignKey(
+        "User",
+        on_delete=models.PROTECT,
+        null=True,
+        related_name="+",
+    )
+    workspace = models.ForeignKey(
+        "Workspace",
+        on_delete=models.PROTECT,
+        related_name="releases",
+    )
+    backend = models.ForeignKey(
+        "Backend",
+        on_delete=models.PROTECT,
+        related_name="+",
+    )
+    published_on = models.DateTimeField(default=timezone.now)
+    upload_dir = models.TextField()
+    # list of files in the release upload
+    files = models.JSONField()
+    # store local TPP/EMIS username for audit
+    backend_user = models.TextField()
+
+    def file_path(self, filename):
+        return settings.RELEASE_STORAGE / self.upload_dir / filename
+
+
 class Stats(models.Model):
     """This holds per-Backend, per-URL API statistics."""
 
@@ -488,37 +521,3 @@ class Workspace(models.Model):
         if not f.path:
             raise Exception("Repo URL not in expected format, appears to have no path")
         return f.path.segments[-1]
-
-
-class Release(models.Model):
-    id = models.TextField(primary_key=True)
-    published_on = models.DateTimeField(default=timezone.now)
-    upload_dir = models.TextField()
-    # list of files in the release upload
-    files = models.JSONField()
-
-    workspace = models.ForeignKey(
-        "Workspace",
-        on_delete=models.PROTECT,
-        related_name="releases",
-    )
-    backend = models.ForeignKey(
-        "Backend",
-        on_delete=models.PROTECT,
-        related_name="+",
-    )
-
-    # store local TPP/EMIS username for audit
-    backend_user = models.TextField()
-
-    # TODO: link this formally via backend_username once we have a mapping
-    # between User and their backend username
-    publishing_user = models.ForeignKey(
-        "User",
-        on_delete=models.PROTECT,
-        null=True,
-        related_name="+",
-    )
-
-    def file_path(self, filename):
-        return settings.RELEASE_STORAGE / self.upload_dir / filename

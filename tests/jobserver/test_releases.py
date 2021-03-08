@@ -60,7 +60,7 @@ def test_handle_release_already_exists(monkeypatch, tmp_path):
 
 
 @pytest.mark.django_db
-def test_handle_release_bash_hash(monkeypatch, tmp_path):
+def test_handle_release_bad_hash(monkeypatch, tmp_path):
     monkeypatch.setattr(settings, "RELEASE_STORAGE", tmp_path / "releases")
 
     upload = tmp_path / "release.zip"
@@ -87,6 +87,10 @@ def test_handle_release_db_error(monkeypatch, tmp_path):
 
     with pytest.raises(DatabaseError):
         handle_release(workspace, backend, "user", release_hash, upload.open("rb"))
+
+    # check the extracted files have been deleted due to the error
+    upload_dir = tmp_path / "releases" / workspace.name / release_hash
+    assert not upload_dir.exists()
 
 
 def test_hash_files(tmp_path):

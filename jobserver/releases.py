@@ -5,6 +5,7 @@ from zipfile import ZipFile
 
 from django.conf import settings
 from django.db import transaction
+from rest_framework.exceptions import ValidationError
 
 from .models import Release
 
@@ -18,7 +19,7 @@ def handle_release(workspace, backend, backend_user, release_hash, upload):
     except Release.DoesNotExist:
         pass
 
-    # Even though id's are globally unique, we partition the filesystem
+    # Even though IDs are globally unique, we partition the filesystem
     # structure into workspace directories, for 2 reasons:
     # 1. avoid dumping everything in one big directory.
     # 2. much easier for human operators to navigate on disk (e.g. for removal
@@ -34,7 +35,9 @@ def handle_release(workspace, backend, backend_user, release_hash, upload):
 
         calculated_hash = hash_files(actual_dir)
         if calculated_hash != release_hash:
-            raise Exception(
+            # per spec, this should probably be 412, rather than 400, but DRF
+            # does not do 412s.
+            raise ValidationError(
                 f"provided hash {release_hash} did not match files hash of {calculated_hash}"
             )
 
