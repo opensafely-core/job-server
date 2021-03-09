@@ -10,6 +10,7 @@ For the full list of settings and their values, see
 https://docs.djangoproject.com/en/3.0/ref/settings/
 """
 import os
+from pathlib import Path
 
 from django.contrib.messages import constants as messages
 from django.urls import reverse_lazy
@@ -215,3 +216,11 @@ SOCIAL_AUTH_PIPELINE = [
 
 # Sentry
 initialise_sentry()
+
+
+# PROJECT SETTINGS
+
+# Releases storage location.
+# Note: we deliberately don't use MEDIA_ROOT/MEDIA_URL here, to avoid any
+# surprises with django's default uploads implementation.
+RELEASE_STORAGE = Path(env.str("RELEASE_STORAGE", default="releases"))

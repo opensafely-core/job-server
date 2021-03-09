@@ -3,16 +3,19 @@ import operator
 
 import structlog
 from django.db import transaction
+from django.urls import reverse
 from django.utils import timezone
 from first import first
 from rest_framework import serializers
 from rest_framework.exceptions import NotAuthenticated, ValidationError
 from rest_framework.generics import ListAPIView
+from rest_framework.parsers import FileUploadParser
 from rest_framework.response import Response
 from rest_framework.views import APIView
 
 from .emails import send_finished_notification
 from .models import Backend, JobRequest, Stats, Workspace
+from .releases import handle_release
 
 
 logger = structlog.get_logger(__name__)
@@ -273,3 +276,39 @@ class WorkspaceStatusesAPI(APIView):
 
         actions_with_status = workspace.get_action_status_lut()
         return Response(actions_with_status, status=200)
+
+
+class ReleaseUploadAPI(APIView):
+    # DRF file upload does not use multipart, is just a simple byte stream
+    parser_classes = [FileUploadParser]
+
+    def put(self, request, workspace_name, release_hash):
+        try:
+            workspace = Workspace.objects.get(name=workspace_name)
+        except Workspace.DoesNotExist:
+            return Response(status=404)
+
+        # authenticate and get backend
+        backend = get_backend_from_token(request.headers.get("Authorization"))
+        backend_user = request.headers.get("Backend-User", "").strip()
+        if not backend_user:
+            raise NotAuthenticated("Backend-User not valid")
+
+        if "file" not in request.data:
+            raise ValidationError("No data uploaded")
+
+        upload = request.data["file"]
+        release, created = handle_release(
+            workspace, backend, backend_user, release_hash, upload
+        )
+
+        response = Response(status=201 if created else 303)
+        response["Location"] = reverse(
+            "workspace-release",
+            kwargs={
+                "name": workspace.name,
+                "release": release.id,
+            },
+        )
+        response["Release-Id"] = release.id
+        return response

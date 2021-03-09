@@ -4,7 +4,7 @@ import pytest
 from django.urls import reverse
 from django.utils import timezone
 
-from jobserver.models import Backend, JobRequest
+from jobserver.models import Backend, JobRequest, Release
 
 from ..factories import (
     BackendFactory,
@@ -609,3 +609,21 @@ def test_workspace_str():
         name="Corellian Engineering Corporation", repo="Corellia"
     )
     assert str(workspace) == "Corellian Engineering Corporation (Corellia)"
+
+
+@pytest.mark.django_db
+def test_release():
+    backend = BackendFactory(auth_token="test")
+    workspace = WorkspaceFactory(
+        name="Corellian Engineering Corporation", repo="Corellia"
+    )
+    release = Release.objects.create(
+        id="release",
+        workspace=workspace,
+        backend=backend,
+        backend_user="UserName",
+        upload_dir="workspace/release",
+        files=["file.txt"],
+    )
+
+    assert str(release.file_path("file.txt")) == "releases/workspace/release/file.txt"

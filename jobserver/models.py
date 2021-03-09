@@ -5,6 +5,7 @@ import secrets
 from datetime import timedelta
 
 import structlog
+from django.conf import settings
 from django.contrib.auth.models import AbstractUser
 from django.core.validators import validate_slug
 from django.db import models
@@ -387,6 +388,39 @@ class Project(models.Model):
     def __str__(self):
         name = self.display_name or self.pk
         return f"{self.org.name} | {name}"
+
+
+class Release(models.Model):
+    # No value in the default Autoid as we are using a content-addressable hash
+    # as it. Additionaly it avoids enumeration attacks.
+    id = models.TextField(primary_key=True)
+    # TODO: link this formally via backend_username once we have a mapping
+    # between User and their backend username
+    publishing_user = models.ForeignKey(
+        "User",
+        on_delete=models.PROTECT,
+        null=True,
+        related_name="+",
+    )
+    workspace = models.ForeignKey(
+        "Workspace",
+        on_delete=models.PROTECT,
+        related_name="releases",
+    )
+    backend = models.ForeignKey(
+        "Backend",
+        on_delete=models.PROTECT,
+        related_name="+",
+    )
+    published_at = models.DateTimeField(default=timezone.now)
+    upload_dir = models.TextField()
+    # list of files in the release upload
+    files = models.JSONField()
+    # store local TPP/EMIS username for audit
+    backend_user = models.TextField()
+
+    def file_path(self, filename):
+        return settings.RELEASE_STORAGE / self.upload_dir / filename
 
 
 class Stats(models.Model):

@@ -19,7 +19,7 @@ from django.contrib.auth.views import LogoutView
 from django.urls import include, path
 from django.views.generic import RedirectView
 
-from .api import JobAPIUpdate, JobRequestAPIList, WorkspaceStatusesAPI
+from .api import JobAPIUpdate, JobRequestAPIList, ReleaseUploadAPI, WorkspaceStatusesAPI
 from .views import (
     BackendDetail,
     BackendList,
@@ -38,6 +38,7 @@ from .views import (
     WorkspaceDetail,
     WorkspaceLog,
     WorkspaceNotificationsToggle,
+    WorkspaceReleaseView,
 )
 
 
@@ -51,6 +52,11 @@ urlpatterns = [
         "api/v2/workspaces/<name>/statuses/",
         WorkspaceStatusesAPI.as_view(),
         name="workspace-statuses",
+    ),
+    path(
+        "api/v2/workspaces/<workspace_name>/releases/<release_hash>",
+        ReleaseUploadAPI.as_view(),
+        name="workspace-upload-release",
     ),
     path("backends/", BackendList.as_view(), name="backend-list"),
     path("backends/<pk>/", BackendDetail.as_view(), name="backend-detail"),
@@ -77,6 +83,11 @@ urlpatterns = [
     path("workspaces/new/", WorkspaceCreate.as_view(), name="workspace-create"),
     path("__debug__/", include(debug_toolbar.urls)),
     path("<name>/", WorkspaceDetail.as_view(), name="workspace-detail"),
+    path(
+        "<name>/releases/<release>",
+        WorkspaceReleaseView.as_view(),
+        name="workspace-release",
+    ),
     path(
         "<name>/archive-toggle/",
         WorkspaceArchiveToggle.as_view(),
