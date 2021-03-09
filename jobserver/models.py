@@ -449,6 +449,9 @@ class Stats(models.Model):
 class User(AbstractUser):
     notifications_email = models.TextField(default="")
 
+    # has the User been approved by an admin?
+    is_approved = models.BooleanField(default=False)
+
     @property
     def name(self):
         """Unify the available names for a User."""
