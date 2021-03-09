@@ -42,7 +42,7 @@
       {% endfor %}
     </div>
 
-    {% if request.user.is_authenticated %}
+    {% if user_can_run_jobs %}
     <div class="d-flex justify-content-center">
       <a class="btn btn-lg btn-primary" href="{% url 'workspace-create' %}">
         Or Add a New Workspace

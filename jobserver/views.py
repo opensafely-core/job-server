@@ -29,6 +29,7 @@ from .forms import (
 from .github import get_branch_sha, get_repos_with_branches
 from .models import Backend, Job, JobRequest, User, Workspace
 from .project import get_actions
+from .roles import can_run_jobs
 
 
 def filter_by_status(job_requests, status):
@@ -97,6 +98,7 @@ class Index(TemplateView):
 
         context = super().get_context_data(**kwargs)
         context["job_requests"] = job_requests
+        context["user_can_run_jobs"] = can_run_jobs(self.request.user)
         context["workspaces"] = workspaces
         return context
 
@@ -357,8 +359,12 @@ class WorkspaceDetail(CreateView):
         except Workspace.DoesNotExist:
             return redirect("/")
 
+        self.user_can_run_jobs = can_run_jobs(request.user)
+
         self.show_details = (
-            request.user.is_authenticated and not self.workspace.is_archived
+            request.user.is_authenticated
+            and self.user_can_run_jobs
+            and not self.workspace.is_archived
         )
 
         if not self.show_details:
@@ -422,6 +428,7 @@ class WorkspaceDetail(CreateView):
         context["branch"] = self.workspace.branch
         context["latest_job_request"] = self.get_latest_job_request()
         context["show_details"] = self.show_details
+        context["user_can_run_jobs"] = self.user_can_run_jobs
         context["workspace"] = self.workspace
         return context
 
@@ -475,6 +482,7 @@ class WorkspaceLog(ListView):
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
+        context["user_can_run_jobs"] = can_run_jobs(self.request.user)
         context["workspace"] = self.workspace
         return context
 

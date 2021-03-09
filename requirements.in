@@ -27,5 +27,6 @@ pytest-cov
 pytest-django
 pytest-env
 pytest-freezegun
+pytest-network
 pytest-subtests
 responses

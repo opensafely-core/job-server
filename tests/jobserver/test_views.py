@@ -113,7 +113,10 @@ def test_index_success(rf):
 
     # Build a RequestFactory instance
     request = rf.get(MEANINGLESS_URL)
-    response = Index.as_view()(request)
+    request.user = UserFactory()
+
+    with patch("jobserver.views.can_run_jobs", return_value=True):
+        response = Index.as_view()(request)
 
     assert response.status_code == 200
     assert len(response.context_data["job_requests"]) == 1
@@ -131,9 +134,29 @@ def test_index_with_authenticated_user(rf):
     # Build a RequestFactory instance
     request = rf.get(MEANINGLESS_URL)
     request.user = UserFactory()
-    response = Index.as_view()(request)
+
+    with patch("jobserver.views.can_run_jobs", return_value=True):
+        response = Index.as_view()(request)
 
     assert "Add a New Workspace" in response.rendered_content
+
+
+@pytest.mark.django_db
+def test_index_with_authenticated_but_partially_registered_user(rf):
+    """
+    Check the Add Workspace button is rendered for authenticated Users on the
+    homepage.
+    """
+    JobRequestFactory(workspace=WorkspaceFactory())
+
+    # Build a RequestFactory instance
+    request = rf.get(MEANINGLESS_URL)
+    request.user = UserFactory()
+
+    with patch("jobserver.views.can_run_jobs", return_value=False):
+        response = Index.as_view()(request)
+
+    assert "Add a New Workspace" not in response.rendered_content
 
 
 @pytest.mark.django_db
@@ -705,7 +728,9 @@ def test_workspacedetail_project_yaml_errors(rf):
     request = rf.get(MEANINGLESS_URL)
     request.user = user
 
-    with patch("jobserver.views.get_actions", side_effect=Exception("test error")):
+    with patch("jobserver.views.can_run_jobs", return_value=True), patch(
+        "jobserver.views.get_actions", side_effect=Exception("test error")
+    ):
         response = WorkspaceDetail.as_view()(request, name=workspace.name)
 
     assert response.status_code == 200
@@ -724,7 +749,9 @@ def test_workspacedetail_get_success(rf):
     request.user = user
 
     dummy_project = [{"name": "twiddle", "needs": [], "status": "-"}]
-    with patch("jobserver.views.get_actions", new=lambda *args: dummy_project):
+    with patch("jobserver.views.can_run_jobs", return_value=True), patch(
+        "jobserver.views.get_actions", new=lambda *args: dummy_project
+    ):
         response = WorkspaceDetail.as_view()(request, name=workspace.name)
 
     assert response.status_code == 200
@@ -744,7 +771,10 @@ def test_workspacedetail_post_archived_workspace(rf):
     request._messages = FallbackStorage(request)
     request.user = UserFactory()
 
-    response = WorkspaceDetail.as_view()(request, name=workspace.name)
+    with patch("jobserver.views.can_run_jobs", return_value=True), patch(
+        "jobserver.views.get_actions", return_value=[]
+    ):
+        response = WorkspaceDetail.as_view()(request, name=workspace.name)
 
     assert response.status_code == 302
     assert response.url == workspace.get_absolute_url()
@@ -767,9 +797,9 @@ def test_workspacedetail_post_success(rf, monkeypatch):
     request.user = user
 
     dummy_project = [{"name": "twiddle", "needs": []}]
-    with patch("jobserver.views.get_actions", new=lambda *args: dummy_project), patch(
-        "jobserver.views.get_branch_sha", new=lambda r, b: "abc123"
-    ):
+    with patch("jobserver.views.can_run_jobs", return_value=True), patch(
+        "jobserver.views.get_actions", new=lambda *args: dummy_project
+    ), patch("jobserver.views.get_branch_sha", new=lambda r, b: "abc123"):
         response = WorkspaceDetail.as_view()(request, name=workspace.name)
 
     assert response.status_code == 302, response.context_data["form"].errors
@@ -802,9 +832,9 @@ def test_workspacedetail_post_with_notifications_default(rf, monkeypatch):
     request.user = user
 
     dummy_project = [{"name": "twiddle", "needs": []}]
-    with patch("jobserver.views.get_actions", new=lambda *args: dummy_project), patch(
-        "jobserver.views.get_branch_sha", new=lambda r, b: "abc123"
-    ):
+    with patch("jobserver.views.can_run_jobs", return_value=True), patch(
+        "jobserver.views.get_actions", new=lambda *args: dummy_project
+    ), patch("jobserver.views.get_branch_sha", new=lambda r, b: "abc123"):
         response = WorkspaceDetail.as_view()(request, name=workspace.name)
 
     assert response.status_code == 302, response.context_data["form"].errors
@@ -837,9 +867,9 @@ def test_workspacedetail_post_with_notifications_override(rf, monkeypatch):
     request.user = user
 
     dummy_project = [{"name": "twiddle", "needs": []}]
-    with patch("jobserver.views.get_actions", new=lambda *args: dummy_project), patch(
-        "jobserver.views.get_branch_sha", new=lambda r, b: "abc123"
-    ):
+    with patch("jobserver.views.can_run_jobs", return_value=True), patch(
+        "jobserver.views.get_actions", new=lambda *args: dummy_project
+    ), patch("jobserver.views.get_branch_sha", new=lambda r, b: "abc123"):
         response = WorkspaceDetail.as_view()(request, name=workspace.name)
 
     assert response.status_code == 302, response.context_data["form"].errors
@@ -873,9 +903,9 @@ def test_workspacedetail_post_success_with_superuser(rf, monkeypatch):
     request.user = user
 
     dummy_project = [{"name": "twiddle", "needs": []}]
-    with patch("jobserver.views.get_actions", new=lambda *args: dummy_project), patch(
-        "jobserver.views.get_branch_sha", new=lambda r, b: "abc123"
-    ):
+    with patch("jobserver.views.can_run_jobs", return_value=True), patch(
+        "jobserver.views.get_actions", new=lambda *args: dummy_project
+    ), patch("jobserver.views.get_branch_sha", new=lambda r, b: "abc123"):
         response = WorkspaceDetail.as_view()(request, name=workspace.name)
 
     assert response.status_code == 302, response.context_data["form"].errors
@@ -914,7 +944,9 @@ def test_workspacedetail_get_with_authenticated_user(rf):
     request.user = UserFactory()
 
     dummy_project = [{"name": "twiddle", "needs": [], "status": "-"}]
-    with patch("jobserver.views.get_actions", new=lambda *args: dummy_project):
+    with patch("jobserver.views.can_run_jobs", return_value=True), patch(
+        "jobserver.views.get_actions", new=lambda *args: dummy_project
+    ):
         response = WorkspaceDetail.as_view()(request, name=workspace.name)
 
     assert "Archive" in response.rendered_content
@@ -954,7 +986,9 @@ def test_workspacelog_search_by_action(rf):
     # Build a RequestFactory instance
     request = rf.get("/?q=run")
     request.user = user
-    response = WorkspaceLog.as_view()(request, name=workspace.name)
+
+    with patch("jobserver.views.can_run_jobs", return_value=True):
+        response = WorkspaceLog.as_view()(request, name=workspace.name)
 
     assert len(response.context_data["object_list"]) == 1
     assert response.context_data["object_list"][0] == job_request1
@@ -973,7 +1007,9 @@ def test_workspacelog_search_by_id(rf):
     # Build a RequestFactory instance
     request = rf.get("/?q=99")
     request.user = user
-    response = WorkspaceLog.as_view()(request, name=workspace.name)
+
+    with patch("jobserver.views.can_run_jobs", return_value=True):
+        response = WorkspaceLog.as_view()(request, name=workspace.name)
 
     assert len(response.context_data["object_list"]) == 1
     assert response.context_data["object_list"][0] == job_request2
@@ -989,7 +1025,9 @@ def test_workspacelog_success(rf):
     # Build a RequestFactory instance
     request = rf.get(MEANINGLESS_URL)
     request.user = user
-    response = WorkspaceLog.as_view()(request, name=workspace.name)
+
+    with patch("jobserver.views.can_run_jobs", return_value=True):
+        response = WorkspaceLog.as_view()(request, name=workspace.name)
 
     assert response.status_code == 200
     assert len(response.context_data["object_list"]) == 1
@@ -1018,7 +1056,9 @@ def test_workspacelog_with_authenticated_user(rf):
     # Build a RequestFactory instance
     request = rf.get(MEANINGLESS_URL)
     request.user = UserFactory()
-    response = WorkspaceLog.as_view()(request, name=workspace.name)
+
+    with patch("jobserver.views.can_run_jobs", return_value=True):
+        response = WorkspaceLog.as_view()(request, name=workspace.name)
 
     assert response.status_code == 200
     assert "Add Job" in response.rendered_content

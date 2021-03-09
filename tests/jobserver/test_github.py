@@ -1,14 +1,13 @@
 from unittest.mock import patch
 
-import pytest
 import responses
-from social_core.exceptions import AuthFailed
 
 from jobserver.github import (
     get_branch,
     get_branch_sha,
     get_file,
     get_repos_with_branches,
+    is_member_of_org,
 )
 
 
@@ -149,36 +148,28 @@ def test_get_repos_with_branches():
 
 
 @responses.activate
-def test_githuborganizationoauth2_user_data_204(dummy_backend):
-    expected_url = "https://api.github.com/orgs/opensafely/members/test-username"
-    responses.add(responses.GET, url=expected_url, status=204)
+def test_is_member_of_org_failure():
+    membership_url = "https://api.github.com/orgs/opensafely/members/dummy-user"
+    responses.add(responses.GET, membership_url, status=404)
 
-    dummy_backend.user_data("access-token")
+    assert not is_member_of_org("opensafely", "dummy-user")
 
-    assert len(responses.calls) == 1
-
-
-@responses.activate
-def test_githuborganizationoauth2_user_data_302(dummy_backend):
-    expected_url = "https://api.github.com/orgs/opensafely/members/test-username"
-    responses.add(responses.GET, url=expected_url, status=302)
-
-    match = (
-        '"test-username" is not part of the OpenSAFELY GitHub Organization. '
-        '<a href="https://opensafely.org/contact/">Contact us</a> to request access.'
-    )
-    with pytest.raises(AuthFailed, match=match):
-        dummy_backend.user_data("access-token")
+    # check the headers are correct
+    call = responses.calls[0]
+    assert "token" in call.request.headers["Authorization"]
+    assert call.request.headers["Accept"] == "application/vnd.github.v3+json"
+    assert not call.response.text
 
 
 @responses.activate
-def test_githuborganizationoauth2_user_data_404(dummy_backend):
-    expected_url = "https://api.github.com/orgs/opensafely/members/test-username"
-    responses.add(responses.GET, url=expected_url, status=404)
+def test_is_member_of_org_success():
+    membership_url = "https://api.github.com/orgs/opensafely/members/dummy-user"
+    responses.add(responses.GET, membership_url, status=204)
 
-    match = (
-        '"test-username" is not part of the OpenSAFELY GitHub Organization. '
-        '<a href="https://opensafely.org/contact/">Contact us</a> to request access.'
-    )
-    with pytest.raises(AuthFailed, match=match):
-        dummy_backend.user_data("access-token")
+    assert is_member_of_org("opensafely", "dummy-user")
+
+    # check the headers are correct
+    call = responses.calls[0]
+    assert "token" in call.request.headers["Authorization"]
+    assert call.request.headers["Accept"] == "application/vnd.github.v3+json"
+    assert not call.response.text

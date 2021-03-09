@@ -70,7 +70,7 @@
         </div>
 
         <div class="col-lg-3 text-right">
-          {% if request.user.is_authenticated %}
+          {% if user_can_run_jobs %}
           <form method="POST" action="{{ workspace.get_archive_toggle_url }}" class="my-2">
             {% csrf_token %}
 

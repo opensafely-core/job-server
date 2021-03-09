@@ -154,6 +154,8 @@ pytest-env==0.6.2
     # via -r requirements.in
 pytest-freezegun==0.4.2
     # via -r requirements.in
+pytest-network==0.0.1
+    # via -r requirements.in
 pytest-subtests==0.4.0
     # via -r requirements.in
 pytest==6.0.2
@@ -162,6 +164,7 @@ pytest==6.0.2
     #   pytest-django
     #   pytest-env
     #   pytest-freezegun
+    #   pytest-network
     #   pytest-subtests
 python-dateutil==2.8.1
     # via
