@@ -12,7 +12,10 @@ the environment variables defined in `dotenv-sample`.
 The DataLab job server is deployed to our `dokku` instance.
 
 ## Testing
-The contents of `dotenv-sample` should be edited and copied to `.env`.
+
+Run `make dev-config` if you have not already. Note: you will need the
+bitwarden cli tool installed in order to access passwords.  
+
 A Django development server can be started with `docker-compose up`.
 
 
