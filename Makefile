@@ -50,3 +50,9 @@ sort:
 test:
 	python manage.py collectstatic --no-input && \
 	pytest --cov=jobserver --cov=services --cov=tests
+
+
+.PHONY: dev-config
+dev-config:
+	cp dotenv-sample .env
+	./scripts/dev-env.sh .env
