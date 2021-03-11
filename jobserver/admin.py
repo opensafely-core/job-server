@@ -31,6 +31,10 @@ class OrgForm(forms.ModelForm):
 @admin.register(Org)
 class OrgAdmin(admin.ModelAdmin):
     form = OrgForm
+    list_display = [
+        "name",
+        "slug",
+    ]
 
 
 class ProjectForm(forms.ModelForm):
