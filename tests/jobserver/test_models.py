@@ -471,6 +471,13 @@ def test_membership_str():
 
 
 @pytest.mark.django_db
+def test_org_get_absolute_url():
+    org = OrgFactory()
+    url = org.get_absolute_url()
+    assert url == reverse("org-detail", kwargs={"org_slug": org.slug})
+
+
+@pytest.mark.django_db
 def test_org_populates_slug():
     assert OrgFactory(name="Test Org", slug="").slug == "test-org"
 

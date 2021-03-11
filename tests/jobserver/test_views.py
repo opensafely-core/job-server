@@ -20,6 +20,7 @@ from jobserver.views import (
     JobRequestList,
     JobRequestZombify,
     JobZombify,
+    OrgDetail,
     Settings,
     Status,
     WorkspaceArchiveToggle,
@@ -34,6 +35,7 @@ from ..factories import (
     BackendFactory,
     JobFactory,
     JobRequestFactory,
+    OrgFactory,
     StatsFactory,
     UserFactory,
     UserSocialAuthFactory,
@@ -521,6 +523,26 @@ def test_jobrequestzombify_unknown_jobrequest(rf):
 
     with pytest.raises(Http404):
         JobRequestZombify.as_view()(request, pk="99")
+
+
+@pytest.mark.django_db
+def test_orgdetail_success(rf):
+    org = OrgFactory()
+
+    request = rf.get(MEANINGLESS_URL)
+    request.user = UserFactory()
+    response = OrgDetail.as_view()(request, org_slug=org.slug)
+
+    assert response.status_code == 200
+
+
+@pytest.mark.django_db
+def test_orgdetail_unknown_org(rf):
+    request = rf.get(MEANINGLESS_URL)
+    request.user = UserFactory()
+
+    with pytest.raises(Http404):
+        OrgDetail.as_view()(request, org_slug="")
 
 
 @pytest.mark.django_db

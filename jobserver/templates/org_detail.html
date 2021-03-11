@@ -1,0 +1,23 @@
+{% extends "base.html" %}
+
+{% block content %}
+
+<nav aria-label="breadcrumb">
+  <ol class="breadcrumb">
+
+    <li class="breadcrumb-item"><a href="/">Home</a></li>
+
+    <li class="breadcrumb-item active" aria-current="page">{{ org.name }}</li>
+
+  </ol>
+</nav>
+
+<div class="row">
+  <div class="col-lg-8 offset-lg-2">
+
+    <h2>{{ org.name }}</h2>
+
+  </div>
+</div>
+
+{% endblock %}

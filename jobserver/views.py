@@ -27,7 +27,7 @@ from .forms import (
     WorkspaceNotificationsToggleForm,
 )
 from .github import get_branch_sha, get_repos_with_branches
-from .models import Backend, Job, JobRequest, User, Workspace
+from .models import Backend, Job, JobRequest, Org, User, Workspace
 from .project import get_actions
 from .roles import can_run_jobs
 
@@ -249,6 +249,12 @@ class JobRequestZombify(View):
         )
 
         return redirect(job_request)
+
+
+class OrgDetail(DetailView):
+    model = Org
+    slug_url_kwarg = "org_slug"
+    template_name = "org_detail.html"
 
 
 @method_decorator(login_required, name="dispatch")
