@@ -564,34 +564,73 @@ def test_workspace_get_action_status_lut_no_jobs():
 @pytest.mark.django_db
 def test_workspace_get_action_status_lut_success():
     workspace1 = WorkspaceFactory()
-    job_request1 = JobRequestFactory(workspace=workspace1)
-    JobFactory(job_request=job_request1, action="other-test", status="succeeded")
+    job_request = JobRequestFactory(workspace=workspace1)
+    JobFactory(job_request=job_request, action="action1", status="pending")
 
     workspace2 = WorkspaceFactory()
-    job_request2 = JobRequestFactory(workspace=workspace2)
 
+    job_request1 = JobRequestFactory(workspace=workspace2)
+    # action1 (succeeded) & action2 (failure)
+    JobFactory(
+        job_request=job_request1,
+        action="action1",
+        status="succeeded",
+        created_at=timezone.now() - timedelta(minutes=7),
+    )
+    JobFactory(
+        job_request=job_request1,
+        action="action2",
+        status="failed",
+        created_at=timezone.now() - timedelta(minutes=6),
+    )
+
+    job_request2 = JobRequestFactory(workspace=workspace2)
+    # action2 (succeeded) & action3 (failed)
     JobFactory(
         job_request=job_request2,
-        action="test",
-        status="failed",
-        created_at=timezone.now() - timedelta(minutes=3),
+        action="action2",
+        status="succeeded",
+        created_at=timezone.now() - timedelta(minutes=5),
     )
     JobFactory(
         job_request=job_request2,
-        action="test",
+        action="action3",
+        status="failed",
+        created_at=timezone.now() - timedelta(minutes=4),
+    )
+
+    job_request3 = JobRequestFactory(workspace=workspace2)
+    # action2 (failed)
+    JobFactory(
+        job_request=job_request3,
+        action="action2",
         status="failed",
         created_at=timezone.now() - timedelta(minutes=2),
     )
+
+    job_request4 = JobRequestFactory(workspace=workspace2)
+    # action3 (succeeded) & action4 (failed)
     JobFactory(
-        job_request=job_request2,
-        action="test",
+        job_request=job_request4,
+        action="action3",
         status="succeeded",
+        created_at=timezone.now() - timedelta(minutes=2),
+    )
+    JobFactory(
+        job_request=job_request4,
+        action="action4",
+        status="failed",
         created_at=timezone.now() - timedelta(minutes=1),
     )
 
     output = workspace2.get_action_status_lut()
-
-    assert output == {"test": "succeeded"}
+    expected = {
+        "action1": "succeeded",
+        "action2": "failed",
+        "action3": "succeeded",
+        "action4": "failed",
+    }
+    assert output == expected
 
 
 @pytest.mark.django_db

@@ -511,7 +511,7 @@ class Workspace(models.Model):
         action_status_lut = {}
         for action in actions:
             # get the latest status for an action
-            job = jobs.order_by("-created_at").first()
+            job = jobs.filter(action=action).order_by("-created_at").first()
             action_status_lut[action] = job.status
 
         return action_status_lut
