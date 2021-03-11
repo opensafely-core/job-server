@@ -375,8 +375,8 @@ class Project(models.Model):
         related_name="projects",
     )
 
-    name = models.TextField(blank=True)
-    display_name = models.TextField(blank=True)
+    name = models.TextField(unique=True)
+    slug = models.SlugField(max_length=255, unique=True)
     email = models.TextField(blank=True)
     project_lead = models.TextField(blank=True)
     proposed_start_date = models.DateTimeField(null=True, blank=True)
@@ -398,8 +398,13 @@ class Project(models.Model):
     next_step = models.TextField(blank=True)
 
     def __str__(self):
-        name = self.display_name or self.pk
-        return f"{self.org.name} | {name}"
+        return f"{self.org.name} | {self.name}"
+
+    def save(self, *args, **kwargs):
+        if not self.slug:
+            self.slug = slugify(self.name)
+
+        return super().save(*args, **kwargs)
 
 
 class Release(models.Model):

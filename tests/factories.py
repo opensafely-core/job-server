@@ -71,7 +71,8 @@ class ProjectFactory(factory.django.DjangoModelFactory):
 
     org = factory.SubFactory("tests.factories.OrgFactory")
 
-    name = factory.Sequence(lambda n: f"project-{n}")
+    name = factory.Sequence(lambda n: f"Project {n}")
+    slug = factory.Sequence(lambda n: f"project-{n}")
     proposed_start_date = factory.fuzzy.FuzzyDateTime(
         datetime(2020, 1, 1, tzinfo=timezone.utc)
     )

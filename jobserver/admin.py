@@ -42,7 +42,7 @@ class ProjectForm(forms.ModelForm):
         fields = [
             "org",
             "name",
-            "display_name",
+            "slug",
             "email",
             "project_lead",
             "proposed_start_date",
@@ -63,7 +63,7 @@ class ProjectForm(forms.ModelForm):
         model = Project
         widgets = {
             "name": forms.TextInput,
-            "display_name": forms.TextInput,
+            "slug": forms.TextInput,
             "email": forms.TextInput,
             "project_lead": forms.TextInput,
             "proposed_duration": forms.TextInput,
@@ -81,7 +81,7 @@ class ProjectAdmin(admin.ModelAdmin):
                 "fields": [
                     "org",
                     "name",
-                    "display_name",
+                    "slug",
                     "email",
                     "project_lead",
                     "proposed_start_date",
@@ -103,7 +103,7 @@ class ProjectAdmin(admin.ModelAdmin):
     list_display = [
         "pk",
         "name",
-        "display_name",
+        "slug",
         "project_lead",
         "email",
         "org",

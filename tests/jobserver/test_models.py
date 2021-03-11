@@ -488,12 +488,16 @@ def test_org_str():
 
 
 @pytest.mark.django_db
+def test_project_populates_slug():
+    assert ProjectFactory(name="Test Project", slug="").slug == "test-project"
+
+
+@pytest.mark.django_db
 def test_project_str():
-    org = OrgFactory(name="test-org")
-
-    assert str(ProjectFactory(org=org)) == "test-org | 1"
-
-    project = ProjectFactory(org=org, display_name="Very Good Project")
+    project = ProjectFactory(
+        org=OrgFactory(name="test-org"),
+        name="Very Good Project",
+    )
     assert str(project) == "test-org | Very Good Project"
 
 
