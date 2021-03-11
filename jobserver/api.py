@@ -295,7 +295,7 @@ class ReleaseUploadAPI(APIView):
             raise NotAuthenticated("Backend-User not valid")
 
         if "file" not in request.data:
-            raise ValidationError("No data uploaded")
+            raise ValidationError({"detail": "No data uploaded"})
 
         upload = request.data["file"]
         release, created = handle_release(
@@ -303,12 +303,14 @@ class ReleaseUploadAPI(APIView):
         )
 
         response = Response(status=201 if created else 303)
-        response["Location"] = reverse(
-            "workspace-release",
-            kwargs={
-                "name": workspace.name,
-                "release": release.id,
-            },
+        response["Location"] = request.build_absolute_uri(
+            reverse(
+                "workspace-release",
+                kwargs={
+                    "name": workspace.name,
+                    "release": release.id,
+                },
+            )
         )
         response["Release-Id"] = release.id
         return response

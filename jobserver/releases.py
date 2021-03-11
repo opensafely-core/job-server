@@ -1,4 +1,5 @@
 import hashlib
+import json
 import os
 import shutil
 from zipfile import ZipFile
@@ -31,14 +32,26 @@ def handle_release(workspace, backend, backend_user, release_hash, upload):
     try:
         # first, ensure we can extract the zip
         with ZipFile(upload) as archive:
+            try:
+                json.load(archive.open("metadata/manifest.json"))
+            except KeyError:
+                raise ValidationError(
+                    {"detail": "metadata/manifest.json file not found in zip"}
+                )
+            except json.JSONDecodeError as exc:
+                raise ValidationError(
+                    {"detail": f"metadata/manifest.json file is not valid json: {exc}"}
+                )
+
             archive.extractall(actual_dir)
 
-        calculated_hash = hash_files(actual_dir)
+        files = list_files(actual_dir)
+        calculated_hash = hash_files(actual_dir, files)
         if calculated_hash != release_hash:
-            # per spec, this should probably be 412, rather than 400, but DRF
-            # does not do 412s.
             raise ValidationError(
-                f"provided hash {release_hash} did not match files hash of {calculated_hash}"
+                {
+                    "detail": f"provided hash {release_hash} did not match files hash of {calculated_hash}"
+                }
             )
 
         release = Release.objects.create(
@@ -47,7 +60,7 @@ def handle_release(workspace, backend, backend_user, release_hash, upload):
             backend=backend,
             backend_user=backend_user,
             upload_dir=upload_dir,
-            files=os.listdir(actual_dir),
+            files=[str(f) for f in files],
         )
 
     except Exception:
@@ -55,15 +68,21 @@ def handle_release(workspace, backend, backend_user, release_hash, upload):
         shutil.rmtree(actual_dir, ignore_errors=True)
         raise
 
-    # TODO: push zip to Github as release.
-
     return release, True
 
 
-def hash_files(directory):
+def list_files(directory):
+    """Utility to list files in a directory tree."""
+    return list(
+        sorted(p.relative_to(directory) for p in directory.glob("**/*") if p.is_file())
+    )
+
+
+def hash_files(directory, files):
     # use md5 because its fast, and we only care about uniqueness, not security
     hash = hashlib.md5()
-    for filename in sorted(directory.glob("**/*")):
-        if filename.is_file():
-            hash.update(filename.read_bytes())
+    for filename in files:
+        path = directory / filename
+        assert path.is_file(), f"{path} is not a file"
+        hash.update(path.read_bytes())
     return hash.hexdigest()
