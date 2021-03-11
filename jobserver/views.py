@@ -28,7 +28,7 @@ from .forms import (
     WorkspaceNotificationsToggleForm,
 )
 from .github import get_branch_sha, get_repos_with_branches
-from .models import Backend, Job, JobRequest, Org, User, Workspace
+from .models import Backend, Job, JobRequest, Org, Project, User, Workspace
 from .project import get_actions
 from .roles import can_run_jobs
 
@@ -271,6 +271,17 @@ class OrgDetail(DetailView):
     model = Org
     slug_url_kwarg = "org_slug"
     template_name = "org_detail.html"
+
+
+class ProjectDetail(DetailView):
+    template_name = "project_detail.html"
+
+    def get_object(self):
+        return get_object_or_404(
+            Project,
+            slug=self.kwargs["project_slug"],
+            org__slug=self.kwargs["org_slug"],
+        )
 
 
 @method_decorator(login_required, name="dispatch")

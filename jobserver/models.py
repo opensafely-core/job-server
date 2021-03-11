@@ -400,6 +400,12 @@ class Project(models.Model):
     def __str__(self):
         return f"{self.org.name} | {self.name}"
 
+    def get_absolute_url(self):
+        return reverse(
+            "project-detail",
+            kwargs={"org_slug": self.org.slug, "project_slug": self.slug},
+        )
+
     def save(self, *args, **kwargs):
         if not self.slug:
             self.slug = slugify(self.name)
