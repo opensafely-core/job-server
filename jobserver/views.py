@@ -21,6 +21,7 @@ from .backends import backends_to_choices, show_warning
 from .forms import (
     JobRequestCreateForm,
     JobRequestSearchForm,
+    OrgCreateForm,
     SettingsForm,
     WorkspaceArchiveToggleForm,
     WorkspaceCreateForm,
@@ -249,6 +250,21 @@ class JobRequestZombify(View):
         )
 
         return redirect(job_request)
+
+
+@method_decorator(login_required, name="dispatch")
+class OrgCreate(CreateView):
+    form_class = OrgCreateForm
+    model = Org
+    template_name = "org_create.html"
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context["orgs"] = Org.objects.order_by("name")
+        return context
+
+    def get_success_url(self):
+        return self.object.get_absolute_url()
 
 
 class OrgDetail(DetailView):

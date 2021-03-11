@@ -2,7 +2,7 @@ from crispy_forms.helper import FormHelper
 from crispy_forms.layout import Submit
 from django import forms
 
-from .models import JobRequest, User, Workspace
+from .models import JobRequest, Org, User, Workspace
 
 
 class JobRequestCreateForm(forms.ModelForm):
@@ -41,6 +41,14 @@ class JobRequestCreateForm(forms.ModelForm):
 
 class JobRequestSearchForm(forms.Form):
     identifier = forms.CharField()
+
+
+class OrgCreateForm(forms.ModelForm):
+    class Meta:
+        fields = [
+            "name",
+        ]
+        model = Org
 
 
 class SettingsForm(forms.ModelForm):

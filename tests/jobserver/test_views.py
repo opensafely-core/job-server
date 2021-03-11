@@ -9,7 +9,7 @@ from django.urls import reverse
 from django.utils import timezone
 from first import first
 
-from jobserver.models import Backend, JobRequest, Workspace
+from jobserver.models import Backend, JobRequest, Org, Workspace
 from jobserver.views import (
     BackendDetail,
     BackendList,
@@ -20,6 +20,7 @@ from jobserver.views import (
     JobRequestList,
     JobRequestZombify,
     JobZombify,
+    OrgCreate,
     OrgDetail,
     Settings,
     Status,
@@ -523,6 +524,39 @@ def test_jobrequestzombify_unknown_jobrequest(rf):
 
     with pytest.raises(Http404):
         JobRequestZombify.as_view()(request, pk="99")
+
+
+@pytest.mark.django_db
+def test_orgcreate_get_success(rf):
+    oxford = OrgFactory(name="University of Oxford")
+    datalab = OrgFactory(name="DataLab")
+
+    request = rf.get(MEANINGLESS_URL)
+    request.user = UserFactory()
+    response = OrgCreate.as_view()(request)
+
+    assert response.status_code == 200
+
+    orgs = response.context_data["orgs"]
+    assert len(orgs) == 2
+    assert orgs[0] == datalab
+    assert orgs[1] == oxford
+
+
+@pytest.mark.django_db
+def test_orgcreate_post_success(rf):
+    request = rf.post(MEANINGLESS_URL, {"name": "A New Org"})
+    request.user = UserFactory()
+    response = OrgCreate.as_view()(request)
+
+    assert response.status_code == 302
+
+    orgs = Org.objects.all()
+    assert len(orgs) == 1
+
+    org = orgs.first()
+    assert org.name == "A New Org"
+    assert response.url == org.get_absolute_url()
 
 
 @pytest.mark.django_db
