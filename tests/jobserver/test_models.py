@@ -471,8 +471,13 @@ def test_membership_str():
 
 
 @pytest.mark.django_db
+def test_org_populates_slug():
+    assert OrgFactory(name="Test Org", slug="").slug == "test-org"
+
+
+@pytest.mark.django_db
 def test_org_str():
-    assert str(OrgFactory(name="test-org")) == "test-org"
+    assert str(OrgFactory(name="Test Org")) == "Test Org"
 
 
 @pytest.mark.django_db

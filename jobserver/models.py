@@ -13,6 +13,7 @@ from django.db import models
 from django.db.models import Count, Q
 from django.urls import reverse
 from django.utils import timezone
+from django.utils.text import slugify
 from environs import Env
 from furl import furl
 
@@ -349,12 +350,19 @@ class Membership(models.Model):
 
 class Org(models.Model):
     name = models.TextField(unique=True)
+    slug = models.SlugField(max_length=255, unique=True)
 
     class Meta:
         verbose_name = "Organisation"
 
     def __str__(self):
         return self.name
+
+    def save(self, *args, **kwargs):
+        if not self.slug:
+            self.slug = slugify(self.name)
+
+        return super().save(*args, **kwargs)
 
 
 class Project(models.Model):
