@@ -425,7 +425,7 @@ class Release(models.Model):
 
     @property
     def manifest(self):
-        return json.load(self.file_path("metadata/manifest.json").open())
+        return json.loads(self.file_path("metadata/manifest.json").read_text())
 
 
 class Stats(models.Model):
