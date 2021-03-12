@@ -594,7 +594,7 @@ def test_release_api_no_files(api_rf):
     )
 
     assert response.status_code == 400
-    assert "No data" in response.data[0]
+    assert "No data" in response.data["detail"]
 
 
 @pytest.mark.django_db
@@ -616,7 +616,10 @@ def test_release_api_created(api_rf, tmp_path, monkeypatch):
 
     assert response.status_code == 201
     release_id = response["Release-Id"]
-    assert response["Location"] == f"/{workspace.name}/releases/{release_id}"
+    assert (
+        response["Location"]
+        == f"http://testserver/{workspace.name}/releases/{release_id}"
+    )
 
 
 @pytest.mark.django_db
@@ -640,4 +643,7 @@ def test_release_api_redirected(api_rf, tmp_path, monkeypatch):
 
     assert response.status_code == 303
     release_id = response["Release-Id"]
-    assert response["Location"] == f"/{workspace.name}/releases/{release_id}"
+    assert (
+        response["Location"]
+        == f"http://testserver/{workspace.name}/releases/{release_id}"
+    )

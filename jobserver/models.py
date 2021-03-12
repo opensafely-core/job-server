@@ -1,5 +1,6 @@
 import base64
 import binascii
+import json
 import os
 import secrets
 from datetime import timedelta
@@ -421,6 +422,10 @@ class Release(models.Model):
 
     def file_path(self, filename):
         return settings.RELEASE_STORAGE / self.upload_dir / filename
+
+    @property
+    def manifest(self):
+        return json.loads(self.file_path("metadata/manifest.json").read_text())
 
 
 class Stats(models.Model):
