@@ -22,6 +22,7 @@ from .forms import (
     JobRequestCreateForm,
     JobRequestSearchForm,
     OrgCreateForm,
+    ProjectCreateForm,
     SettingsForm,
     WorkspaceArchiveToggleForm,
     WorkspaceCreateForm,
@@ -271,6 +272,30 @@ class OrgDetail(DetailView):
     model = Org
     slug_url_kwarg = "org_slug"
     template_name = "org_detail.html"
+
+
+@method_decorator(login_required, name="dispatch")
+class ProjectCreate(CreateView):
+    form_class = ProjectCreateForm
+    model = Project
+    template_name = "project_create.html"
+
+    def dispatch(self, request, *args, **kwargs):
+        self.org = get_object_or_404(Org, slug=self.kwargs["org_slug"])
+
+        return super().dispatch(request, *args, **kwargs)
+
+    def form_valid(self, form):
+        project = form.save(commit=False)
+        project.org = self.org
+        project.save()
+
+        return redirect(project)
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context["org"] = self.org
+        return context
 
 
 class ProjectDetail(DetailView):

@@ -9,7 +9,7 @@ from django.urls import reverse
 from django.utils import timezone
 from first import first
 
-from jobserver.models import Backend, JobRequest, Org, Workspace
+from jobserver.models import Backend, JobRequest, Org, Project, Workspace
 from jobserver.views import (
     BackendDetail,
     BackendList,
@@ -22,6 +22,7 @@ from jobserver.views import (
     JobZombify,
     OrgCreate,
     OrgDetail,
+    ProjectCreate,
     ProjectDetail,
     Settings,
     Status,
@@ -579,6 +580,80 @@ def test_orgdetail_unknown_org(rf):
 
     with pytest.raises(Http404):
         OrgDetail.as_view()(request, org_slug="")
+
+
+@pytest.mark.django_db
+def test_projectcreate_get_success(rf):
+    org = OrgFactory()
+
+    request = rf.get(MEANINGLESS_URL)
+    request.user = UserFactory()
+    response = ProjectCreate.as_view()(request, org_slug=org.slug)
+
+    assert response.status_code == 200
+
+
+@pytest.mark.django_db
+def test_projectcreate_get_unknown_org(rf):
+    request = rf.get(MEANINGLESS_URL)
+    request.user = UserFactory()
+
+    with pytest.raises(Http404):
+        ProjectCreate.as_view()(request, org_slug="")
+
+
+@pytest.mark.django_db
+def test_projectcreate_post_invalid_data(rf):
+    org = OrgFactory()
+
+    data = {
+        "name": "",
+        "project_lead": "",
+        "email": "",
+    }
+
+    request = rf.post(MEANINGLESS_URL, data)
+    request.user = UserFactory()
+    response = ProjectCreate.as_view()(request, org_slug=org.slug)
+
+    assert response.status_code == 200
+    assert Project.objects.count() == 0
+
+
+@pytest.mark.django_db
+def test_projectcreate_post_success(rf):
+    org = OrgFactory()
+
+    data = {
+        "name": "A Brand New Project",
+        "project_lead": "My Name",
+        "email": "name@example.com",
+    }
+
+    request = rf.post(MEANINGLESS_URL, data)
+    request.user = UserFactory()
+    response = ProjectCreate.as_view()(request, org_slug=org.slug)
+
+    assert response.status_code == 302
+
+    projects = Project.objects.all()
+    assert len(projects) == 1
+
+    project = projects.first()
+    assert project.name == "A Brand New Project"
+    assert project.project_lead == "My Name"
+    assert project.email == "name@example.com"
+    assert project.org == org
+    assert response.url == project.get_absolute_url()
+
+
+@pytest.mark.django_db
+def test_projectcreate_post_unknown_org(rf):
+    request = rf.post(MEANINGLESS_URL)
+    request.user = UserFactory()
+
+    with pytest.raises(Http404):
+        ProjectCreate.as_view()(request, org_slug="")
 
 
 @pytest.mark.django_db

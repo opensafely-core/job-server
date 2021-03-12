@@ -2,7 +2,7 @@ from crispy_forms.helper import FormHelper
 from crispy_forms.layout import Submit
 from django import forms
 
-from .models import JobRequest, Org, User, Workspace
+from .models import JobRequest, Org, Project, User, Workspace
 
 
 class JobRequestCreateForm(forms.ModelForm):
@@ -49,6 +49,33 @@ class OrgCreateForm(forms.ModelForm):
             "name",
         ]
         model = Org
+
+
+class ProjectCreateForm(forms.ModelForm):
+    class Meta:
+        fields = [
+            "name",
+            "project_lead",
+            "email",
+            "telephone",
+            "job_title",
+            "team_name",
+            "region",
+            "purpose",
+            "requested_data_meets_purpose",
+            "why_data_is_required",
+            "data_access_legal_basis",
+            "satisfying_confidentiality",
+            "ethics_approval",
+            "is_research_on_cmo_priority_list",
+            "funding_source",
+            "team_details",
+            "previous_experience_with_ehr",
+            "evidence_of_scripting_languages",
+            "evidence_of_sharing_in_public",
+            "has_signed_declaration",
+        ]
+        model = Project
 
 
 class SettingsForm(forms.ModelForm):
