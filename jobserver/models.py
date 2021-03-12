@@ -377,13 +377,8 @@ class Project(models.Model):
 
     name = models.TextField(unique=True)
     slug = models.SlugField(max_length=255, unique=True)
-    email = models.TextField(blank=True)
-    project_lead = models.TextField(blank=True)
     proposed_start_date = models.DateTimeField(null=True, blank=True)
     proposed_duration = models.TextField(blank=True)
-
-    # store a link to our modified FormA
-    form_url = models.TextField(blank=True)
 
     # Governance approval
     governance_approval_notes = models.TextField(blank=True)
@@ -396,6 +391,37 @@ class Project(models.Model):
     # What is the next step for this Project?
     # We expect this to be driven by a FSM in a later iteration.
     next_step = models.TextField(blank=True)
+
+    # REGISTRATION FIELDS
+    # The fields below are based on from our Modified NHSE Form A:
+    # https://docs.google.com/document/d/1_Fd124NqrkJeiprra4vSXU5vytQNUnrTfs4ib3L8vo4
+    # Section 3 has been removed since it's not used.
+    # Section 1
+    project_lead = models.TextField()
+    email = models.TextField(blank=True)
+    telephone = models.TextField(blank=True)
+    job_title = models.TextField(blank=True)
+    team_name = models.TextField(blank=True)
+    region = models.TextField(blank=True)
+
+    # Section 2
+    purpose = models.TextField(blank=True)
+    requested_data_meets_purpose = models.TextField(blank=True)
+    why_data_is_required = models.TextField(blank=True)
+    data_access_legal_basis = models.TextField(blank=True)
+    satisfying_confidentiality = models.TextField(blank=True)
+    ethics_approval = models.TextField(blank=True)
+    is_research_on_cmo_priority_list = models.TextField(blank=True)
+
+    # Section 4
+    funding_source = models.TextField(blank=True)
+    team_details = models.TextField(blank=True)
+    previous_experience_with_ehr = models.TextField(blank=True)
+    evidence_of_scripting_languages = models.TextField(blank=True)
+    evidence_of_sharing_in_public = models.TextField(blank=True)
+
+    # Section 5
+    has_signed_declaration = models.BooleanField(default=False)
 
     def __str__(self):
         return f"{self.org.name} | {self.name}"
