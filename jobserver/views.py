@@ -23,6 +23,7 @@ from .forms import (
     JobRequestSearchForm,
     OrgCreateForm,
     ProjectCreateForm,
+    ResearcherFormSet,
     SettingsForm,
     WorkspaceArchiveToggleForm,
     WorkspaceCreateForm,
@@ -285,17 +286,40 @@ class ProjectCreate(CreateView):
 
         return super().dispatch(request, *args, **kwargs)
 
-    def form_valid(self, form):
-        project = form.save(commit=False)
-        project.org = self.org
-        project.save()
-
-        return redirect(project)
+    def get(self, request, *args, **kwargs):
+        self.object = None
+        researcher_formset = ResearcherFormSet(prefix="researcher")
+        return self.render_to_response(
+            self.get_context_data(researcher_formset=researcher_formset)
+        )
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
         context["org"] = self.org
         return context
+
+    @transaction.atomic
+    def post(self, request, *args, **kwargs):
+        self.object = None
+
+        form = self.get_form()
+        researcher_formset = ResearcherFormSet(request.POST, prefix="researcher")
+
+        form_valid = form.is_valid()
+        formset_valid = researcher_formset.is_valid()
+        if not (form_valid and formset_valid):
+            return self.render_to_response(
+                self.get_context_data(researcher_formset=researcher_formset)
+            )
+
+        project = form.save(commit=False)
+        project.org = self.org
+        project.save()
+
+        researchers = researcher_formset.save()
+        project.researcher_registrations.add(*researchers)
+
+        return redirect(project)
 
 
 class ProjectDetail(DetailView):

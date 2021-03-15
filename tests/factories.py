@@ -14,6 +14,7 @@ from jobserver.models import (
     Org,
     Project,
     Release,
+    ResearcherRegistration,
     Stats,
     User,
     Workspace,
@@ -76,6 +77,13 @@ class ProjectFactory(factory.django.DjangoModelFactory):
     proposed_start_date = factory.fuzzy.FuzzyDateTime(
         datetime(2020, 1, 1, tzinfo=timezone.utc)
     )
+
+
+class ResearcherRegistrationFactory(factory.django.DjangoModelFactory):
+    class Meta:
+        model = ResearcherRegistration
+
+    user = factory.SubFactory("tests.factories.UserFactory")
 
 
 class StatsFactory(factory.django.DjangoModelFactory):

@@ -1,5 +1,7 @@
 {% extends "base.html" %}
 
+{% load static %}
+
 {% block content %}
 <nav aria-label="breadcrumb">
   <ol class="breadcrumb">
@@ -572,6 +574,36 @@
 
       </div>
 
+      <div id="researcher-forms">
+        <div class="d-flex justify-content-between">
+          <h3>Researchers</h3>
+
+          <button id="add-researcher" type="button" class="btn btn-success">+</button>
+        </div>
+
+        <p>
+          How many people need access to the platform to review preliminary
+          results prior to release for publication?
+        </p>
+
+        <p>
+          Platform access will require individuals to successfully complete a
+          safe researcher training course e.g. via
+          <a href="https://researchaccreditationservice.ons.gov.uk/ons/ONS_registration.ofml">
+            ONS</a>.
+        </p>
+
+        {{ researcher_formset.management_form }}
+
+        <div class="d-none template">
+          {% include "_researcher_registration_form.html" with id="__prefix__" form=researcher_formset.empty_form %}
+        </div>
+
+        {% for form in researcher_formset %}
+        {% include "_researcher_registration_form.html" with id=forloop.counter0 form=form %}
+        {% endfor %}
+      </div>
+
       <h3>Declaration</h3>
 
       <div class="form-group mb-5">
@@ -619,3 +651,7 @@
   </div>
 </div>
 {% endblock content %}
+
+{% block extra_js %}
+<script type="text/javascript" src="{% static 'js/project_create.js' %}"></script>
+{% endblock %}

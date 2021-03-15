@@ -610,6 +610,10 @@ def test_projectcreate_post_invalid_data(rf):
         "name": "",
         "project_lead": "",
         "email": "",
+        "researcher-TOTAL_FORMS": "0",
+        "researcher-INITIAL_FORMS": "0",
+        "researcher-MIN_NUM": "0",
+        "researcher-MAX_NUM": "1000",
     }
 
     request = rf.post(MEANINGLESS_URL, data)
@@ -628,6 +632,13 @@ def test_projectcreate_post_success(rf):
         "name": "A Brand New Project",
         "project_lead": "My Name",
         "email": "name@example.com",
+        "researcher-TOTAL_FORMS": "1",
+        "researcher-INITIAL_FORMS": "0",
+        "researcher-MIN_NUM": "0",
+        "researcher-MAX_NUM": "1000",
+        "researcher-0-name": "Test",
+        "researcher-0-passed_researcher_training_at": "2021-01-01",
+        "researcher-0-is_ons_accredited_researcher": "on",
     }
 
     request = rf.post(MEANINGLESS_URL, data)

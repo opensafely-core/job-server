@@ -2,7 +2,7 @@ from crispy_forms.helper import FormHelper
 from crispy_forms.layout import Submit
 from django import forms
 
-from .models import JobRequest, Org, Project, User, Workspace
+from .models import JobRequest, Org, Project, ResearcherRegistration, User, Workspace
 
 
 class JobRequestCreateForm(forms.ModelForm):
@@ -76,6 +76,17 @@ class ProjectCreateForm(forms.ModelForm):
             "has_signed_declaration",
         ]
         model = Project
+
+
+ResearcherFormSet = forms.modelformset_factory(
+    ResearcherRegistration,
+    can_delete=True,
+    fields=[
+        "name",
+        "passed_researcher_training_at",
+        "is_ons_accredited_researcher",
+    ],
+)
 
 
 class SettingsForm(forms.ModelForm):

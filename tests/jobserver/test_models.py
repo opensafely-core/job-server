@@ -13,6 +13,7 @@ from ..factories import (
     MembershipFactory,
     OrgFactory,
     ProjectFactory,
+    ResearcherRegistrationFactory,
     StatsFactory,
     UserFactory,
     WorkspaceFactory,
@@ -509,6 +510,15 @@ def test_project_str():
         name="Very Good Project",
     )
     assert str(project) == "test-org | Very Good Project"
+
+
+@pytest.mark.django_db
+def test_researcher_registration_str():
+    researcher = ResearcherRegistrationFactory(
+        name="Terry",
+        passed_researcher_training_at=timezone.now(),
+    )
+    assert str(researcher) == "Terry"
 
 
 @pytest.mark.django_db

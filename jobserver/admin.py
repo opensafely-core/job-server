@@ -68,6 +68,7 @@ class ProjectForm(forms.ModelForm):
             "previous_experience_with_ehr",
             "evidence_of_scripting_languages",
             "evidence_of_sharing_in_public",
+            "researcher_registrations",
             "has_signed_declaration",
         ]
         labels = {
@@ -134,10 +135,14 @@ class ProjectAdmin(admin.ModelAdmin):
                     "previous_experience_with_ehr",
                     "evidence_of_scripting_languages",
                     "evidence_of_sharing_in_public",
+                    "researcher_registrations",
                     "has_signed_declaration",
                 ]
             },
         ],
+    ]
+    filter_horizontal = [
+        "researcher_registrations",
     ]
     list_display = [
         "pk",
