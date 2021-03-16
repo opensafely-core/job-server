@@ -22,6 +22,7 @@ from jobserver.views import (
     JobZombify,
     OrgCreate,
     OrgDetail,
+    OrgList,
     ProjectCreate,
     ProjectDetail,
     Settings,
@@ -580,6 +581,18 @@ def test_orgdetail_unknown_org(rf):
 
     with pytest.raises(Http404):
         OrgDetail.as_view()(request, org_slug="")
+
+
+@pytest.mark.django_db
+def test_orglist_success(rf):
+    org = OrgFactory()
+
+    request = rf.get(MEANINGLESS_URL)
+    request.user = UserFactory(is_superuser=True)
+    response = OrgList.as_view()(request)
+
+    assert response.status_code == 200
+    assert org in response.context_data["object_list"]
 
 
 @pytest.mark.django_db

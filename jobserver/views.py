@@ -280,6 +280,13 @@ class OrgDetail(DetailView):
 
 @method_decorator(login_required, name="dispatch")
 @method_decorator(user_passes_test(lambda u: u.is_superuser), name="dispatch")
+class OrgList(ListView):
+    model = Org
+    template_name = "org_list.html"
+
+
+@method_decorator(login_required, name="dispatch")
+@method_decorator(user_passes_test(lambda u: u.is_superuser), name="dispatch")
 class ProjectCreate(CreateView):
     form_class = ProjectCreateForm
     model = Project

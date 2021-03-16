@@ -33,6 +33,7 @@ from .views import (
     JobZombify,
     OrgCreate,
     OrgDetail,
+    OrgList,
     ProjectCreate,
     ProjectDetail,
     Settings,
@@ -81,6 +82,7 @@ urlpatterns = [
     path("jobs/<identifier>/cancel/", JobCancel.as_view(), name="job-cancel"),
     path("jobs/<identifier>/zombify/", JobZombify.as_view(), name="job-zombify"),
     path("logout/", LogoutView.as_view(), name="logout"),
+    path("orgs/", OrgList.as_view(), name="org-list"),
     path("orgs/new/", OrgCreate.as_view(), name="org-create"),
     path("orgs/<org_slug>/", OrgDetail.as_view(), name="org-detail"),
     path(
