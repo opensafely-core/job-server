@@ -535,7 +535,7 @@ def test_orgcreate_get_success(rf):
     datalab = OrgFactory(name="DataLab")
 
     request = rf.get(MEANINGLESS_URL)
-    request.user = UserFactory()
+    request.user = UserFactory(is_superuser=True)
     response = OrgCreate.as_view()(request)
 
     assert response.status_code == 200
@@ -549,7 +549,7 @@ def test_orgcreate_get_success(rf):
 @pytest.mark.django_db
 def test_orgcreate_post_success(rf):
     request = rf.post(MEANINGLESS_URL, {"name": "A New Org"})
-    request.user = UserFactory()
+    request.user = UserFactory(is_superuser=True)
     response = OrgCreate.as_view()(request)
 
     assert response.status_code == 302
@@ -567,7 +567,7 @@ def test_orgdetail_success(rf):
     org = OrgFactory()
 
     request = rf.get(MEANINGLESS_URL)
-    request.user = UserFactory()
+    request.user = UserFactory(is_superuser=True)
     response = OrgDetail.as_view()(request, org_slug=org.slug)
 
     assert response.status_code == 200
@@ -576,7 +576,7 @@ def test_orgdetail_success(rf):
 @pytest.mark.django_db
 def test_orgdetail_unknown_org(rf):
     request = rf.get(MEANINGLESS_URL)
-    request.user = UserFactory()
+    request.user = UserFactory(is_superuser=True)
 
     with pytest.raises(Http404):
         OrgDetail.as_view()(request, org_slug="")
@@ -587,7 +587,7 @@ def test_projectcreate_get_success(rf):
     org = OrgFactory()
 
     request = rf.get(MEANINGLESS_URL)
-    request.user = UserFactory()
+    request.user = UserFactory(is_superuser=True)
     response = ProjectCreate.as_view()(request, org_slug=org.slug)
 
     assert response.status_code == 200
@@ -596,7 +596,7 @@ def test_projectcreate_get_success(rf):
 @pytest.mark.django_db
 def test_projectcreate_get_unknown_org(rf):
     request = rf.get(MEANINGLESS_URL)
-    request.user = UserFactory()
+    request.user = UserFactory(is_superuser=True)
 
     with pytest.raises(Http404):
         ProjectCreate.as_view()(request, org_slug="")
@@ -617,7 +617,7 @@ def test_projectcreate_post_invalid_data(rf):
     }
 
     request = rf.post(MEANINGLESS_URL, data)
-    request.user = UserFactory()
+    request.user = UserFactory(is_superuser=True)
     response = ProjectCreate.as_view()(request, org_slug=org.slug)
 
     assert response.status_code == 200
@@ -642,7 +642,7 @@ def test_projectcreate_post_success(rf):
     }
 
     request = rf.post(MEANINGLESS_URL, data)
-    request.user = UserFactory()
+    request.user = UserFactory(is_superuser=True)
     response = ProjectCreate.as_view()(request, org_slug=org.slug)
 
     assert response.status_code == 302
@@ -661,7 +661,7 @@ def test_projectcreate_post_success(rf):
 @pytest.mark.django_db
 def test_projectcreate_post_unknown_org(rf):
     request = rf.post(MEANINGLESS_URL)
-    request.user = UserFactory()
+    request.user = UserFactory(is_superuser=True)
 
     with pytest.raises(Http404):
         ProjectCreate.as_view()(request, org_slug="")
@@ -673,7 +673,7 @@ def test_projectdetail_success(rf):
     project = ProjectFactory(org=org)
 
     request = rf.get(MEANINGLESS_URL)
-    request.user = UserFactory()
+    request.user = UserFactory(is_superuser=True)
     response = ProjectDetail.as_view()(
         request, org_slug=org.slug, project_slug=project.slug
     )
@@ -686,7 +686,7 @@ def test_projectdetail_unknown_org(rf):
     project = ProjectFactory()
 
     request = rf.get(MEANINGLESS_URL)
-    request.user = UserFactory()
+    request.user = UserFactory(is_superuser=True)
 
     with pytest.raises(Http404):
         ProjectDetail.as_view()(request, org_slug="test", project_slug=project.slug)
@@ -697,7 +697,7 @@ def test_projectdetail_unknown_project(rf):
     org = OrgFactory()
 
     request = rf.get(MEANINGLESS_URL)
-    request.user = UserFactory()
+    request.user = UserFactory(is_superuser=True)
 
     with pytest.raises(Http404):
         ProjectDetail.as_view()(request, org_slug=org.slug, project_slug="test")

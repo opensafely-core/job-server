@@ -1,7 +1,7 @@
 from functools import wraps
 
 from django.contrib import messages
-from django.contrib.auth.decorators import login_required
+from django.contrib.auth.decorators import login_required, user_passes_test
 from django.db import transaction
 from django.db.models import Q
 from django.shortcuts import get_object_or_404, redirect
@@ -255,6 +255,7 @@ class JobRequestZombify(View):
 
 
 @method_decorator(login_required, name="dispatch")
+@method_decorator(user_passes_test(lambda u: u.is_superuser), name="dispatch")
 class OrgCreate(CreateView):
     form_class = OrgCreateForm
     model = Org
@@ -269,6 +270,8 @@ class OrgCreate(CreateView):
         return self.object.get_absolute_url()
 
 
+@method_decorator(login_required, name="dispatch")
+@method_decorator(user_passes_test(lambda u: u.is_superuser), name="dispatch")
 class OrgDetail(DetailView):
     model = Org
     slug_url_kwarg = "org_slug"
@@ -276,6 +279,7 @@ class OrgDetail(DetailView):
 
 
 @method_decorator(login_required, name="dispatch")
+@method_decorator(user_passes_test(lambda u: u.is_superuser), name="dispatch")
 class ProjectCreate(CreateView):
     form_class = ProjectCreateForm
     model = Project
@@ -322,6 +326,8 @@ class ProjectCreate(CreateView):
         return redirect(project)
 
 
+@method_decorator(login_required, name="dispatch")
+@method_decorator(user_passes_test(lambda u: u.is_superuser), name="dispatch")
 class ProjectDetail(DetailView):
     template_name = "project_detail.html"
 
