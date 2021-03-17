@@ -2,7 +2,7 @@ from crispy_forms.helper import FormHelper
 from crispy_forms.layout import Submit
 from django import forms
 
-from .models import JobRequest, User, Workspace
+from .models import JobRequest, Org, Project, ResearcherRegistration, User, Workspace
 
 
 class JobRequestCreateForm(forms.ModelForm):
@@ -41,6 +41,52 @@ class JobRequestCreateForm(forms.ModelForm):
 
 class JobRequestSearchForm(forms.Form):
     identifier = forms.CharField()
+
+
+class OrgCreateForm(forms.ModelForm):
+    class Meta:
+        fields = [
+            "name",
+        ]
+        model = Org
+
+
+class ProjectCreateForm(forms.ModelForm):
+    class Meta:
+        fields = [
+            "name",
+            "project_lead",
+            "email",
+            "telephone",
+            "job_title",
+            "team_name",
+            "region",
+            "purpose",
+            "requested_data_meets_purpose",
+            "why_data_is_required",
+            "data_access_legal_basis",
+            "satisfying_confidentiality",
+            "ethics_approval",
+            "is_research_on_cmo_priority_list",
+            "funding_source",
+            "team_details",
+            "previous_experience_with_ehr",
+            "evidence_of_scripting_languages",
+            "evidence_of_sharing_in_public",
+            "has_signed_declaration",
+        ]
+        model = Project
+
+
+ResearcherFormSet = forms.modelformset_factory(
+    ResearcherRegistration,
+    can_delete=True,
+    fields=[
+        "name",
+        "passed_researcher_training_at",
+        "is_ons_accredited_researcher",
+    ],
+)
 
 
 class SettingsForm(forms.ModelForm):

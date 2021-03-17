@@ -14,6 +14,7 @@ from jobserver.models import (
     Org,
     Project,
     Release,
+    ResearcherRegistration,
     Stats,
     User,
     Workspace,
@@ -61,7 +62,8 @@ class OrgFactory(factory.django.DjangoModelFactory):
     class Meta:
         model = Org
 
-    name = factory.Sequence(lambda n: f"organisation-{n}")
+    name = factory.Sequence(lambda n: f"Organisation {n}")
+    slug = factory.Sequence(lambda n: f"organisation-{n}")
 
 
 class ProjectFactory(factory.django.DjangoModelFactory):
@@ -70,10 +72,18 @@ class ProjectFactory(factory.django.DjangoModelFactory):
 
     org = factory.SubFactory("tests.factories.OrgFactory")
 
-    name = factory.Sequence(lambda n: f"project-{n}")
+    name = factory.Sequence(lambda n: f"Project {n}")
+    slug = factory.Sequence(lambda n: f"project-{n}")
     proposed_start_date = factory.fuzzy.FuzzyDateTime(
         datetime(2020, 1, 1, tzinfo=timezone.utc)
     )
+
+
+class ResearcherRegistrationFactory(factory.django.DjangoModelFactory):
+    class Meta:
+        model = ResearcherRegistration
+
+    user = factory.SubFactory("tests.factories.UserFactory")
 
 
 class StatsFactory(factory.django.DjangoModelFactory):

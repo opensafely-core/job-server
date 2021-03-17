@@ -9,7 +9,7 @@ from django.urls import reverse
 from django.utils import timezone
 from first import first
 
-from jobserver.models import Backend, JobRequest, Workspace
+from jobserver.models import Backend, JobRequest, Org, Project, Workspace
 from jobserver.views import (
     BackendDetail,
     BackendList,
@@ -20,6 +20,11 @@ from jobserver.views import (
     JobRequestList,
     JobRequestZombify,
     JobZombify,
+    OrgCreate,
+    OrgDetail,
+    OrgList,
+    ProjectCreate,
+    ProjectDetail,
     Settings,
     Status,
     WorkspaceArchiveToggle,
@@ -34,6 +39,8 @@ from ..factories import (
     BackendFactory,
     JobFactory,
     JobRequestFactory,
+    OrgFactory,
+    ProjectFactory,
     StatsFactory,
     UserFactory,
     UserSocialAuthFactory,
@@ -521,6 +528,192 @@ def test_jobrequestzombify_unknown_jobrequest(rf):
 
     with pytest.raises(Http404):
         JobRequestZombify.as_view()(request, pk="99")
+
+
+@pytest.mark.django_db
+def test_orgcreate_get_success(rf):
+    oxford = OrgFactory(name="University of Oxford")
+    datalab = OrgFactory(name="DataLab")
+
+    request = rf.get(MEANINGLESS_URL)
+    request.user = UserFactory(is_superuser=True)
+    response = OrgCreate.as_view()(request)
+
+    assert response.status_code == 200
+
+    orgs = response.context_data["orgs"]
+    assert len(orgs) == 2
+    assert orgs[0] == datalab
+    assert orgs[1] == oxford
+
+
+@pytest.mark.django_db
+def test_orgcreate_post_success(rf):
+    request = rf.post(MEANINGLESS_URL, {"name": "A New Org"})
+    request.user = UserFactory(is_superuser=True)
+    response = OrgCreate.as_view()(request)
+
+    assert response.status_code == 302
+
+    orgs = Org.objects.all()
+    assert len(orgs) == 1
+
+    org = orgs.first()
+    assert org.name == "A New Org"
+    assert response.url == org.get_absolute_url()
+
+
+@pytest.mark.django_db
+def test_orgdetail_success(rf):
+    org = OrgFactory()
+
+    request = rf.get(MEANINGLESS_URL)
+    request.user = UserFactory(is_superuser=True)
+    response = OrgDetail.as_view()(request, org_slug=org.slug)
+
+    assert response.status_code == 200
+
+
+@pytest.mark.django_db
+def test_orgdetail_unknown_org(rf):
+    request = rf.get(MEANINGLESS_URL)
+    request.user = UserFactory(is_superuser=True)
+
+    with pytest.raises(Http404):
+        OrgDetail.as_view()(request, org_slug="")
+
+
+@pytest.mark.django_db
+def test_orglist_success(rf):
+    org = OrgFactory()
+
+    request = rf.get(MEANINGLESS_URL)
+    request.user = UserFactory(is_superuser=True)
+    response = OrgList.as_view()(request)
+
+    assert response.status_code == 200
+    assert org in response.context_data["object_list"]
+
+
+@pytest.mark.django_db
+def test_projectcreate_get_success(rf):
+    org = OrgFactory()
+
+    request = rf.get(MEANINGLESS_URL)
+    request.user = UserFactory(is_superuser=True)
+    response = ProjectCreate.as_view()(request, org_slug=org.slug)
+
+    assert response.status_code == 200
+
+
+@pytest.mark.django_db
+def test_projectcreate_get_unknown_org(rf):
+    request = rf.get(MEANINGLESS_URL)
+    request.user = UserFactory(is_superuser=True)
+
+    with pytest.raises(Http404):
+        ProjectCreate.as_view()(request, org_slug="")
+
+
+@pytest.mark.django_db
+def test_projectcreate_post_invalid_data(rf):
+    org = OrgFactory()
+
+    data = {
+        "name": "",
+        "project_lead": "",
+        "email": "",
+        "researcher-TOTAL_FORMS": "0",
+        "researcher-INITIAL_FORMS": "0",
+        "researcher-MIN_NUM": "0",
+        "researcher-MAX_NUM": "1000",
+    }
+
+    request = rf.post(MEANINGLESS_URL, data)
+    request.user = UserFactory(is_superuser=True)
+    response = ProjectCreate.as_view()(request, org_slug=org.slug)
+
+    assert response.status_code == 200
+    assert Project.objects.count() == 0
+
+
+@pytest.mark.django_db
+def test_projectcreate_post_success(rf):
+    org = OrgFactory()
+
+    data = {
+        "name": "A Brand New Project",
+        "project_lead": "My Name",
+        "email": "name@example.com",
+        "researcher-TOTAL_FORMS": "1",
+        "researcher-INITIAL_FORMS": "0",
+        "researcher-MIN_NUM": "0",
+        "researcher-MAX_NUM": "1000",
+        "researcher-0-name": "Test",
+        "researcher-0-passed_researcher_training_at": "2021-01-01",
+        "researcher-0-is_ons_accredited_researcher": "on",
+    }
+
+    request = rf.post(MEANINGLESS_URL, data)
+    request.user = UserFactory(is_superuser=True)
+    response = ProjectCreate.as_view()(request, org_slug=org.slug)
+
+    assert response.status_code == 302
+
+    projects = Project.objects.all()
+    assert len(projects) == 1
+
+    project = projects.first()
+    assert project.name == "A Brand New Project"
+    assert project.project_lead == "My Name"
+    assert project.email == "name@example.com"
+    assert project.org == org
+    assert response.url == project.get_absolute_url()
+
+
+@pytest.mark.django_db
+def test_projectcreate_post_unknown_org(rf):
+    request = rf.post(MEANINGLESS_URL)
+    request.user = UserFactory(is_superuser=True)
+
+    with pytest.raises(Http404):
+        ProjectCreate.as_view()(request, org_slug="")
+
+
+@pytest.mark.django_db
+def test_projectdetail_success(rf):
+    org = OrgFactory()
+    project = ProjectFactory(org=org)
+
+    request = rf.get(MEANINGLESS_URL)
+    request.user = UserFactory(is_superuser=True)
+    response = ProjectDetail.as_view()(
+        request, org_slug=org.slug, project_slug=project.slug
+    )
+
+    assert response.status_code == 200
+
+
+@pytest.mark.django_db
+def test_projectdetail_unknown_org(rf):
+    project = ProjectFactory()
+
+    request = rf.get(MEANINGLESS_URL)
+    request.user = UserFactory(is_superuser=True)
+
+    with pytest.raises(Http404):
+        ProjectDetail.as_view()(request, org_slug="test", project_slug=project.slug)
+
+
+@pytest.mark.django_db
+def test_projectdetail_unknown_project(rf):
+    org = OrgFactory()
+
+    request = rf.get(MEANINGLESS_URL)
+    request.user = UserFactory(is_superuser=True)
+
+    with pytest.raises(Http404):
+        ProjectDetail.as_view()(request, org_slug=org.slug, project_slug="test")
 
 
 @pytest.mark.django_db

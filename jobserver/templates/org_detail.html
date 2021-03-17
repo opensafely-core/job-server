@@ -1,0 +1,45 @@
+{% extends "base.html" %}
+
+{% block content %}
+
+<nav aria-label="breadcrumb">
+  <ol class="breadcrumb">
+
+    <li class="breadcrumb-item"><a href="/">Home</a></li>
+
+    <li class="breadcrumb-item active" aria-current="page">{{ org.name }}</li>
+
+  </ol>
+</nav>
+
+<div class="row">
+  <div class="col-lg-8 offset-lg-2">
+
+    <div class="d-flex justify-content-between align-items-center">
+      <h2>{{ org.name }}</h2>
+
+      <div>
+        <a class="btn btn-primary" href="{% url 'project-create' org_slug=org.slug %}">Register Project</a>
+      </div>
+    </div>
+
+
+    {% if projects %}
+    <h3>Projects</h3>
+
+    <ul>
+      {% for project in org.projects.all %}
+      <li><a href="{{ project.get_absolute_url }}">{{ project.name }}</a></li>
+      {% endfor %}
+    </ul>
+    {% else %}
+    <p class="mt-5">
+      There are no projects for this Organisation yet, click "Register Project"
+      to create one.
+    </p>
+    {% endif %}
+
+  </div>
+</div>
+
+{% endblock %}

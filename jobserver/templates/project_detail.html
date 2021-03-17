@@ -1,0 +1,29 @@
+
+{% extends "base.html" %}
+
+{% block content %}
+
+<nav aria-label="breadcrumb">
+  <ol class="breadcrumb">
+
+    <li class="breadcrumb-item"><a href="/">Home</a></li>
+
+    <li class="breadcrumb-item">
+      <a href="{{ project.org.get_absolute_url }}">
+        {{ project.org.name }}
+      </a>
+    </li>
+
+    <li class="breadcrumb-item active" aria-current="page">{{ project.name }}</li>
+
+  </ol>
+</nav>
+
+<div class="row">
+  <div class="col-lg-8 offset-lg-2">
+
+    <h2>{{ project.name }}</h2>
+
+  </div>
+</div>
+{% endblock %}

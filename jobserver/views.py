@@ -1,7 +1,7 @@
 from functools import wraps
 
 from django.contrib import messages
-from django.contrib.auth.decorators import login_required
+from django.contrib.auth.decorators import login_required, user_passes_test
 from django.db import transaction
 from django.db.models import Q
 from django.shortcuts import get_object_or_404, redirect
@@ -21,13 +21,16 @@ from .backends import backends_to_choices, show_warning
 from .forms import (
     JobRequestCreateForm,
     JobRequestSearchForm,
+    OrgCreateForm,
+    ProjectCreateForm,
+    ResearcherFormSet,
     SettingsForm,
     WorkspaceArchiveToggleForm,
     WorkspaceCreateForm,
     WorkspaceNotificationsToggleForm,
 )
 from .github import get_branch_sha, get_repos_with_branches
-from .models import Backend, Job, JobRequest, User, Workspace
+from .models import Backend, Job, JobRequest, Org, Project, User, Workspace
 from .project import get_actions
 from .roles import can_run_jobs
 
@@ -249,6 +252,98 @@ class JobRequestZombify(View):
         )
 
         return redirect(job_request)
+
+
+@method_decorator(login_required, name="dispatch")
+@method_decorator(user_passes_test(lambda u: u.is_superuser), name="dispatch")
+class OrgCreate(CreateView):
+    form_class = OrgCreateForm
+    model = Org
+    template_name = "org_create.html"
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context["orgs"] = Org.objects.order_by("name")
+        return context
+
+    def get_success_url(self):
+        return self.object.get_absolute_url()
+
+
+@method_decorator(login_required, name="dispatch")
+@method_decorator(user_passes_test(lambda u: u.is_superuser), name="dispatch")
+class OrgDetail(DetailView):
+    model = Org
+    slug_url_kwarg = "org_slug"
+    template_name = "org_detail.html"
+
+
+@method_decorator(login_required, name="dispatch")
+@method_decorator(user_passes_test(lambda u: u.is_superuser), name="dispatch")
+class OrgList(ListView):
+    model = Org
+    template_name = "org_list.html"
+
+
+@method_decorator(login_required, name="dispatch")
+@method_decorator(user_passes_test(lambda u: u.is_superuser), name="dispatch")
+class ProjectCreate(CreateView):
+    form_class = ProjectCreateForm
+    model = Project
+    template_name = "project_create.html"
+
+    def dispatch(self, request, *args, **kwargs):
+        self.org = get_object_or_404(Org, slug=self.kwargs["org_slug"])
+
+        return super().dispatch(request, *args, **kwargs)
+
+    def get(self, request, *args, **kwargs):
+        self.object = None
+        researcher_formset = ResearcherFormSet(prefix="researcher")
+        return self.render_to_response(
+            self.get_context_data(researcher_formset=researcher_formset)
+        )
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context["org"] = self.org
+        return context
+
+    @transaction.atomic
+    def post(self, request, *args, **kwargs):
+        self.object = None
+
+        form = self.get_form()
+        researcher_formset = ResearcherFormSet(request.POST, prefix="researcher")
+
+        form_valid = form.is_valid()
+        formset_valid = researcher_formset.is_valid()
+        if not (form_valid and formset_valid):
+            return self.render_to_response(
+                self.get_context_data(researcher_formset=researcher_formset)
+            )
+
+        project = form.save(commit=False)
+        project.org = self.org
+        project.save()
+
+        researchers = researcher_formset.save()
+        project.researcher_registrations.add(*researchers)
+
+        return redirect(project)
+
+
+@method_decorator(login_required, name="dispatch")
+@method_decorator(user_passes_test(lambda u: u.is_superuser), name="dispatch")
+class ProjectDetail(DetailView):
+    template_name = "project_detail.html"
+
+    def get_object(self):
+        return get_object_or_404(
+            Project,
+            slug=self.kwargs["project_slug"],
+            org__slug=self.kwargs["org_slug"],
+        )
 
 
 @method_decorator(login_required, name="dispatch")

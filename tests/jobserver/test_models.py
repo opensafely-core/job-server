@@ -13,6 +13,7 @@ from ..factories import (
     MembershipFactory,
     OrgFactory,
     ProjectFactory,
+    ResearcherRegistrationFactory,
     StatsFactory,
     UserFactory,
     WorkspaceFactory,
@@ -471,18 +472,53 @@ def test_membership_str():
 
 
 @pytest.mark.django_db
+def test_org_get_absolute_url():
+    org = OrgFactory()
+    url = org.get_absolute_url()
+    assert url == reverse("org-detail", kwargs={"org_slug": org.slug})
+
+
+@pytest.mark.django_db
+def test_org_populates_slug():
+    assert OrgFactory(name="Test Org", slug="").slug == "test-org"
+
+
+@pytest.mark.django_db
 def test_org_str():
-    assert str(OrgFactory(name="test-org")) == "test-org"
+    assert str(OrgFactory(name="Test Org")) == "Test Org"
+
+
+@pytest.mark.django_db
+def test_project_get_absolute_url():
+    org = OrgFactory(name="test-org")
+    project = ProjectFactory(org=org)
+    url = project.get_absolute_url()
+    assert url == reverse(
+        "project-detail", kwargs={"org_slug": org.slug, "project_slug": project.slug}
+    )
+
+
+@pytest.mark.django_db
+def test_project_populates_slug():
+    assert ProjectFactory(name="Test Project", slug="").slug == "test-project"
 
 
 @pytest.mark.django_db
 def test_project_str():
-    org = OrgFactory(name="test-org")
-
-    assert str(ProjectFactory(org=org)) == "test-org | 1"
-
-    project = ProjectFactory(org=org, display_name="Very Good Project")
+    project = ProjectFactory(
+        org=OrgFactory(name="test-org"),
+        name="Very Good Project",
+    )
     assert str(project) == "test-org | Very Good Project"
+
+
+@pytest.mark.django_db
+def test_researcher_registration_str():
+    researcher = ResearcherRegistrationFactory(
+        name="Terry",
+        passed_researcher_training_at=timezone.now(),
+    )
+    assert str(researcher) == "Terry"
 
 
 @pytest.mark.django_db

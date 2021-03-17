@@ -31,6 +31,10 @@ class OrgForm(forms.ModelForm):
 @admin.register(Org)
 class OrgAdmin(admin.ModelAdmin):
     form = OrgForm
+    list_display = [
+        "name",
+        "slug",
+    ]
 
 
 class ProjectForm(forms.ModelForm):
@@ -38,32 +42,50 @@ class ProjectForm(forms.ModelForm):
         fields = [
             "org",
             "name",
-            "display_name",
-            "email",
-            "project_lead",
+            "slug",
             "proposed_start_date",
             "proposed_duration",
-            "form_url",
             "next_step",
             "has_governance_approval",
             "governance_approval_notes",
             "has_technical_approval",
             "technical_approval_notes",
+            "project_lead",
+            "email",
+            "telephone",
+            "job_title",
+            "team_name",
+            "region",
+            "purpose",
+            "requested_data_meets_purpose",
+            "why_data_is_required",
+            "data_access_legal_basis",
+            "satisfying_confidentiality",
+            "ethics_approval",
+            "is_research_on_cmo_priority_list",
+            "funding_source",
+            "team_details",
+            "previous_experience_with_ehr",
+            "evidence_of_scripting_languages",
+            "evidence_of_sharing_in_public",
+            "researcher_registrations",
+            "has_signed_declaration",
         ]
         labels = {
             "org": "Organisation",
             "has_governance_approval": "Has governance approval?",
             "has_technical_approval": "Has technical approval?",
-            "form_url": "Form A URL",
         }
         model = Project
         widgets = {
             "name": forms.TextInput,
-            "display_name": forms.TextInput,
-            "email": forms.TextInput,
-            "project_lead": forms.TextInput,
             "proposed_duration": forms.TextInput,
-            "form_url": forms.TextInput,
+            "project_lead": forms.TextInput,
+            "email": forms.TextInput,
+            "telephone": forms.TextInput,
+            "job_title": forms.TextInput,
+            "team_name": forms.TextInput,
+            "region": forms.TextInput,
         }
 
 
@@ -77,12 +99,8 @@ class ProjectAdmin(admin.ModelAdmin):
                 "fields": [
                     "org",
                     "name",
-                    "display_name",
-                    "email",
-                    "project_lead",
                     "proposed_start_date",
                     "proposed_duration",
-                    "form_url",
                     "next_step",
                 ],
             },
@@ -95,11 +113,40 @@ class ProjectAdmin(admin.ModelAdmin):
             "Technical Approval",
             {"fields": ["technical_approval_notes", "has_technical_approval"]},
         ],
+        [
+            "Application",
+            {
+                "fields": [
+                    "project_lead",
+                    "email",
+                    "telephone",
+                    "job_title",
+                    "team_name",
+                    "region",
+                    "purpose",
+                    "requested_data_meets_purpose",
+                    "why_data_is_required",
+                    "data_access_legal_basis",
+                    "satisfying_confidentiality",
+                    "ethics_approval",
+                    "is_research_on_cmo_priority_list",
+                    "funding_source",
+                    "team_details",
+                    "previous_experience_with_ehr",
+                    "evidence_of_scripting_languages",
+                    "evidence_of_sharing_in_public",
+                    "researcher_registrations",
+                    "has_signed_declaration",
+                ]
+            },
+        ],
+    ]
+    filter_horizontal = [
+        "researcher_registrations",
     ]
     list_display = [
         "pk",
         "name",
-        "display_name",
         "project_lead",
         "email",
         "org",

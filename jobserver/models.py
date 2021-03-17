@@ -13,6 +13,7 @@ from django.db import models
 from django.db.models import Count, Q
 from django.urls import reverse
 from django.utils import timezone
+from django.utils.text import slugify
 from environs import Env
 from furl import furl
 
@@ -349,12 +350,22 @@ class Membership(models.Model):
 
 class Org(models.Model):
     name = models.TextField(unique=True)
+    slug = models.SlugField(max_length=255, unique=True)
 
     class Meta:
         verbose_name = "Organisation"
 
     def __str__(self):
         return self.name
+
+    def get_absolute_url(self):
+        return reverse("org-detail", kwargs={"org_slug": self.slug})
+
+    def save(self, *args, **kwargs):
+        if not self.slug:
+            self.slug = slugify(self.name)
+
+        return super().save(*args, **kwargs)
 
 
 class Project(models.Model):
@@ -363,16 +374,15 @@ class Project(models.Model):
         on_delete=models.CASCADE,
         related_name="projects",
     )
+    researcher_registrations = models.ManyToManyField(
+        "ResearcherRegistration",
+        related_name="projects",
+    )
 
-    name = models.TextField(blank=True)
-    display_name = models.TextField(blank=True)
-    email = models.TextField(blank=True)
-    project_lead = models.TextField(blank=True)
+    name = models.TextField(unique=True)
+    slug = models.SlugField(max_length=255, unique=True)
     proposed_start_date = models.DateTimeField(null=True, blank=True)
     proposed_duration = models.TextField(blank=True)
-
-    # store a link to our modified FormA
-    form_url = models.TextField(blank=True)
 
     # Governance approval
     governance_approval_notes = models.TextField(blank=True)
@@ -386,9 +396,51 @@ class Project(models.Model):
     # We expect this to be driven by a FSM in a later iteration.
     next_step = models.TextField(blank=True)
 
+    # REGISTRATION FIELDS
+    # The fields below are based on from our Modified NHSE Form A:
+    # https://docs.google.com/document/d/1_Fd124NqrkJeiprra4vSXU5vytQNUnrTfs4ib3L8vo4
+    # Section 3 has been removed since it's not used.
+    # Section 1
+    project_lead = models.TextField()
+    email = models.TextField(blank=True)
+    telephone = models.TextField(blank=True)
+    job_title = models.TextField(blank=True)
+    team_name = models.TextField(blank=True)
+    region = models.TextField(blank=True)
+
+    # Section 2
+    purpose = models.TextField(blank=True)
+    requested_data_meets_purpose = models.TextField(blank=True)
+    why_data_is_required = models.TextField(blank=True)
+    data_access_legal_basis = models.TextField(blank=True)
+    satisfying_confidentiality = models.TextField(blank=True)
+    ethics_approval = models.TextField(blank=True)
+    is_research_on_cmo_priority_list = models.TextField(blank=True)
+
+    # Section 4
+    funding_source = models.TextField(blank=True)
+    team_details = models.TextField(blank=True)
+    previous_experience_with_ehr = models.TextField(blank=True)
+    evidence_of_scripting_languages = models.TextField(blank=True)
+    evidence_of_sharing_in_public = models.TextField(blank=True)
+
+    # Section 5
+    has_signed_declaration = models.BooleanField(default=False)
+
     def __str__(self):
-        name = self.display_name or self.pk
-        return f"{self.org.name} | {name}"
+        return f"{self.org.name} | {self.name}"
+
+    def get_absolute_url(self):
+        return reverse(
+            "project-detail",
+            kwargs={"org_slug": self.org.slug, "project_slug": self.slug},
+        )
+
+    def save(self, *args, **kwargs):
+        if not self.slug:
+            self.slug = slugify(self.name)
+
+        return super().save(*args, **kwargs)
 
 
 class Release(models.Model):
@@ -426,6 +478,31 @@ class Release(models.Model):
     @property
     def manifest(self):
         return json.loads(self.file_path("metadata/manifest.json").read_text())
+
+
+class ResearcherRegistration(models.Model):
+    """
+    The Registration of a Researcher for a Project
+
+    When registering a new Project 0-N researchers might be named as part of
+    the Project.  Instead of requiring they sign up to the service during the
+    registration process this model holds their details, and can be attached to
+    a User instance if the Project proceeds past registration.
+    """
+
+    user = models.ForeignKey(
+        "User",
+        null=True,
+        on_delete=models.SET_NULL,
+        related_name="researcher_registrations",
+    )
+
+    name = models.TextField()
+    passed_researcher_training_at = models.DateTimeField()
+    is_ons_accredited_researcher = models.BooleanField(default=False)
+
+    def __str__(self):
+        return self.name
 
 
 class Stats(models.Model):
