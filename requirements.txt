@@ -66,7 +66,7 @@ django-rest-framework==0.1.0
     # via -r requirements.in
 django-structlog==2.1.0
     # via -r requirements.in
-django==3.1.2
+django==3.1.6
     # via
     #   django-anymail
     #   django-debug-toolbar
