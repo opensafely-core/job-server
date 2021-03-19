@@ -126,6 +126,11 @@ class JobDetail(DetailView):
     )
     template_name = "job_detail.html"
 
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context["can_run_jobs"] = can_run_jobs(self.request.user)
+        return context
+
 
 class JobZombify(View):
     def dispatch(self, request, *args, **kwargs):
