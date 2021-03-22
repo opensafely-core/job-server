@@ -191,7 +191,7 @@ requests==2.25.1
     #   requests-oauthlib
     #   responses
     #   social-auth-core
-responses==0.12.1
+responses==0.13.1
     # via -r requirements.in
 sentry-sdk==1.0.0
     # via -r requirements.in
