@@ -3,21 +3,8 @@ import yaml
 from .github import get_branch, get_file
 
 
-def load_yaml(content):
-    return yaml.safe_load(content)
-
-
-def get_actions(repo, branch, status_lut):
+def get_actions(project, status_lut):
     """Get actions from project.yaml for this Workspace"""
-    content = get_file(repo, branch)
-    if content is None:
-        if get_branch(repo, branch) is None:
-            raise Exception(f"Missing branch: '{branch}'")
-
-        raise Exception("Could not find project.yaml")
-
-    project = load_yaml(content)
-
     # ensure there's always a run_all action
     if "run_all" not in project["actions"]:
         project["actions"]["run_all"] = {"needs": list(project["actions"].keys())}
@@ -33,3 +20,19 @@ def get_actions(repo, branch, status_lut):
         status = status_lut.get(action, "-")
 
         yield {"name": action, "needs": sorted(needs), "status": status}
+
+
+def get_project(repo, branch):
+    content = get_file(repo, branch)
+
+    if content is not None:
+        return content
+
+    if get_branch(repo, branch) is None:
+        raise Exception(f"Missing branch: '{branch}'")
+
+    raise Exception("Could not find project.yaml")
+
+
+def load_yaml(content):
+    return yaml.safe_load(content)

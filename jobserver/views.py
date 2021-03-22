@@ -29,7 +29,7 @@ from .forms import (
 )
 from .github import get_branch_sha, get_repos_with_branches
 from .models import Backend, Job, JobRequest, Org, Project, User, Workspace
-from .project import get_actions
+from .project import get_actions, get_project
 from .roles import can_run_jobs, superuser_required
 
 
@@ -458,12 +458,9 @@ class WorkspaceDetail(CreateView):
 
         # build actions as list or render the exception to the page
         try:
-            self.actions = list(
-                get_actions(
-                    self.workspace.repo_name,
-                    self.workspace.branch,
-                    action_status_lut,
-                )
+            project = get_project(
+                self.workspace.repo_name,
+                self.workspace.branch,
             )
         except Exception as e:
             self.actions = []
@@ -472,6 +469,7 @@ class WorkspaceDetail(CreateView):
             context = self.get_context_data(actions_error=str(e))
             return self.render_to_response(context=context)
 
+        self.actions = list(get_actions(project, action_status_lut))
         return super().dispatch(request, *args, **kwargs)
 
     @transaction.atomic
