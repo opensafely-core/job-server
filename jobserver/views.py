@@ -1,7 +1,7 @@
 from functools import wraps
 
 from django.contrib import messages
-from django.contrib.auth.decorators import login_required, user_passes_test
+from django.contrib.auth.decorators import login_required
 from django.db import transaction
 from django.db.models import Q
 from django.shortcuts import get_object_or_404, redirect
@@ -57,6 +57,12 @@ def filter_by_status(job_requests, status):
 
 
 def superuser_required(f):
+    """
+    Decorator for views which require a Superuser
+
+    User.is_superuser implies the User is authenticated.
+    """
+
     @wraps(f)
     def wrapper(request, *args, **kwargs):
         if request.user.is_superuser:
@@ -259,8 +265,7 @@ class JobRequestZombify(View):
         return redirect(job_request)
 
 
-@method_decorator(login_required, name="dispatch")
-@method_decorator(user_passes_test(lambda u: u.is_superuser), name="dispatch")
+@method_decorator(superuser_required, name="dispatch")
 class OrgCreate(CreateView):
     form_class = OrgCreateForm
     model = Org
@@ -275,23 +280,20 @@ class OrgCreate(CreateView):
         return self.object.get_absolute_url()
 
 
-@method_decorator(login_required, name="dispatch")
-@method_decorator(user_passes_test(lambda u: u.is_superuser), name="dispatch")
+@method_decorator(superuser_required, name="dispatch")
 class OrgDetail(DetailView):
     model = Org
     slug_url_kwarg = "org_slug"
     template_name = "org_detail.html"
 
 
-@method_decorator(login_required, name="dispatch")
-@method_decorator(user_passes_test(lambda u: u.is_superuser), name="dispatch")
+@method_decorator(superuser_required, name="dispatch")
 class OrgList(ListView):
     model = Org
     template_name = "org_list.html"
 
 
-@method_decorator(login_required, name="dispatch")
-@method_decorator(user_passes_test(lambda u: u.is_superuser), name="dispatch")
+@method_decorator(superuser_required, name="dispatch")
 class ProjectCreate(CreateView):
     form_class = ProjectCreateForm
     model = Project
@@ -338,8 +340,7 @@ class ProjectCreate(CreateView):
         return redirect(project)
 
 
-@method_decorator(login_required, name="dispatch")
-@method_decorator(user_passes_test(lambda u: u.is_superuser), name="dispatch")
+@method_decorator(superuser_required, name="dispatch")
 class ProjectDetail(DetailView):
     template_name = "project_detail.html"
 
