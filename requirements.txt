@@ -100,7 +100,7 @@ incuna-mail==4.1.1
     # via -r requirements.in
 iniconfig==1.0.1
     # via pytest
-isort==5.7.0
+isort==5.8.0
     # via -r requirements.in
 litecli==1.6.0
     # via -r requirements.in
