@@ -477,28 +477,18 @@ class WorkspaceDetail(CreateView):
         sha = get_branch_sha(self.workspace.repo_name, self.workspace.branch)
 
         if self.request.user.is_superuser:
+            # Use the form data to decide which backend to use for superusers.
             backend = Backend.objects.get(name=form.cleaned_data.pop("backend"))
-            JobRequest.objects.create(
-                workspace=self.workspace,
-                created_by=self.request.user,
-                backend=backend,
-                sha=sha,
-                **form.cleaned_data,
-            )
         else:
-            # Pick a backend.
-            # We're only configuring one backend in an installation currently. Rely
-            # on that for now.
-            # TODO: use the form data to decide which backend to use here when the
-            # form exposes backends
-            TPP = Backend.objects.get(name="tpp")
+            # For non-superusers we're only exposing one backend currently.
+            backend = Backend.objects.get(name="tpp")
 
-            TPP.job_requests.create(
-                workspace=self.workspace,
-                created_by=self.request.user,
-                sha=sha,
-                **form.cleaned_data,
-            )
+        backend.job_requests.create(
+            workspace=self.workspace,
+            created_by=self.request.user,
+            sha=sha,
+            **form.cleaned_data,
+        )
         return redirect("workspace-logs", name=self.workspace.name)
 
     def get_context_data(self, **kwargs):
