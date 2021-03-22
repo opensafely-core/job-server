@@ -1,5 +1,3 @@
-from functools import wraps
-
 from django.contrib import messages
 from django.contrib.auth.decorators import login_required
 from django.db import transaction
@@ -32,7 +30,7 @@ from .forms import (
 from .github import get_branch_sha, get_repos_with_branches
 from .models import Backend, Job, JobRequest, Org, Project, User, Workspace
 from .project import get_actions
-from .roles import can_run_jobs
+from .roles import can_run_jobs, superuser_required
 
 
 def filter_by_status(job_requests, status):
@@ -54,24 +52,6 @@ def filter_by_status(job_requests, status):
     }
     func = status_lut[status]
     return list(filter(func, job_requests))
-
-
-def superuser_required(f):
-    """
-    Decorator for views which require a Superuser
-
-    User.is_superuser implies the User is authenticated.
-    """
-
-    @wraps(f)
-    def wrapper(request, *args, **kwargs):
-        if request.user.is_superuser:
-            return f(request, *args, **kwargs)
-
-        messages.error(request, "Only admins can view Backends.")
-        return redirect("/")
-
-    return wrapper
 
 
 @method_decorator(superuser_required, name="dispatch")
