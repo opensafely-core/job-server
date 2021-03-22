@@ -231,7 +231,9 @@ def test_jobdetail_with_post_jobrequest_job(rf):
 
     # Build a RequestFactory instance
     request = rf.get(MEANINGLESS_URL)
-    response = JobDetail.as_view()(request, identifier=job.identifier)
+    request.user = UserFactory()
+    with patch("jobserver.views.can_run_jobs", return_value=False):
+        response = JobDetail.as_view()(request, identifier=job.identifier)
 
     assert response.status_code == 200
 
@@ -243,7 +245,9 @@ def test_jobdetail_with_pre_jobrequest_job(rf):
 
     # Build a RequestFactory instance
     request = rf.get(MEANINGLESS_URL)
-    response = JobDetail.as_view()(request, identifier=job.identifier)
+    request.user = UserFactory()
+    with patch("jobserver.views.can_run_jobs", return_value=False):
+        response = JobDetail.as_view()(request, identifier=job.identifier)
 
     assert response.status_code == 200
 
@@ -261,7 +265,8 @@ def test_jobzombify_not_superuser(client):
     job = JobFactory(completed_at=None)
 
     client.force_login(UserFactory(is_superuser=False))
-    response = client.post(f"/jobs/{job.identifier}/zombify/", follow=True)
+    with patch("jobserver.views.can_run_jobs", return_value=False):
+        response = client.post(f"/jobs/{job.identifier}/zombify/", follow=True)
 
     assert response.status_code == 200
 
