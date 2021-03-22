@@ -1,5 +1,5 @@
 from django.contrib import messages
-from django.contrib.auth.decorators import login_required
+from django.contrib.auth.decorators import login_required, user_passes_test
 from django.db import transaction
 from django.db.models import Q
 from django.shortcuts import get_object_or_404, redirect
@@ -92,7 +92,7 @@ class Index(TemplateView):
         return context
 
 
-@method_decorator(login_required, name="dispatch")
+@method_decorator(user_passes_test(can_run_jobs), name="dispatch")
 class JobCancel(View):
     def post(self, request, *args, **kwargs):
         job = get_object_or_404(Job, identifier=self.kwargs["identifier"])
@@ -384,7 +384,7 @@ class Status(View):
         return TemplateResponse(request, "status.html", context)
 
 
-@method_decorator(login_required, name="dispatch")
+@method_decorator(user_passes_test(can_run_jobs), name="dispatch")
 class WorkspaceArchiveToggle(View):
     def post(self, request, *args, **kwargs):
         workspace = get_object_or_404(Workspace, name=self.kwargs["name"])
@@ -398,7 +398,7 @@ class WorkspaceArchiveToggle(View):
         return redirect("/")
 
 
-@method_decorator(login_required, name="dispatch")
+@method_decorator(user_passes_test(can_run_jobs), name="dispatch")
 class WorkspaceCreate(CreateView):
     form_class = WorkspaceCreateForm
     model = Workspace
@@ -590,7 +590,7 @@ class WorkspaceLog(ListView):
         return qs
 
 
-@method_decorator(login_required, name="dispatch")
+@method_decorator(user_passes_test(can_run_jobs), name="dispatch")
 class WorkspaceNotificationsToggle(View):
     def post(self, request, *args, **kwargs):
         workspace = get_object_or_404(Workspace, name=self.kwargs["name"])
@@ -604,7 +604,7 @@ class WorkspaceNotificationsToggle(View):
         return redirect(workspace)
 
 
-@method_decorator(login_required, name="dispatch")
+@method_decorator(user_passes_test(can_run_jobs), name="dispatch")
 class WorkspaceReleaseView(View):
     def get(self, request, name, release):
         return f"release page for {name}/{release}"  # pragma: no cover
