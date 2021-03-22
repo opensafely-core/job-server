@@ -54,7 +54,7 @@ django-anymail[mailgun]==8.2
     # via -r requirements.in
 django-cache-url==3.2.3
     # via environs
-django-crispy-forms==1.11.1
+django-crispy-forms==1.11.2
     # via -r requirements.in
 django-debug-toolbar==3.2
     # via -r requirements.in
