@@ -230,14 +230,15 @@ class JobRequest(models.Model):
 
         return last_job.completed_at
 
-    def get_project_yaml_url(self):
+    def get_file_url(self, path):
         f = furl(self.workspace.repo)
 
         if not self.sha:
             logger.info("No SHA found", job_request_pk=self.pk)
             return f.url
 
-        f.path.segments += ["blob", self.sha, "project.yaml"]
+        parts = path.split("/")
+        f.path.segments += ["blob", self.sha, *parts]
         return f.url
 
     def get_repo_url(self):

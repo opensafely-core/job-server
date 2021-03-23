@@ -143,6 +143,11 @@ class JobRequestDetail(DetailView):
     ).prefetch_related("jobs")
     template_name = "job_request_detail.html"
 
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context["project_yaml_url"] = self.object.get_file_url("project.yaml")
+        return context
+
 
 class JobRequestList(FormMixin, ListView):
     form_class = JobRequestSearchForm
