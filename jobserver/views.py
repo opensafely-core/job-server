@@ -1,5 +1,3 @@
-from functools import wraps
-
 from django.contrib import messages
 from django.contrib.auth.decorators import login_required, user_passes_test
 from django.db import transaction
@@ -32,7 +30,7 @@ from .forms import (
 from .github import get_branch_sha, get_repos_with_branches
 from .models import Backend, Job, JobRequest, Org, Project, User, Workspace
 from .project import get_actions
-from .roles import can_run_jobs
+from .roles import can_run_jobs, superuser_required
 
 
 def filter_by_status(job_requests, status):
@@ -54,18 +52,6 @@ def filter_by_status(job_requests, status):
     }
     func = status_lut[status]
     return list(filter(func, job_requests))
-
-
-def superuser_required(f):
-    @wraps(f)
-    def wrapper(request, *args, **kwargs):
-        if request.user.is_superuser:
-            return f(request, *args, **kwargs)
-
-        messages.error(request, "Only admins can view Backends.")
-        return redirect("/")
-
-    return wrapper
 
 
 @method_decorator(superuser_required, name="dispatch")
@@ -106,7 +92,7 @@ class Index(TemplateView):
         return context
 
 
-@method_decorator(login_required, name="dispatch")
+@method_decorator(user_passes_test(can_run_jobs), name="dispatch")
 class JobCancel(View):
     def post(self, request, *args, **kwargs):
         job = get_object_or_404(Job, identifier=self.kwargs["identifier"])
@@ -259,8 +245,7 @@ class JobRequestZombify(View):
         return redirect(job_request)
 
 
-@method_decorator(login_required, name="dispatch")
-@method_decorator(user_passes_test(lambda u: u.is_superuser), name="dispatch")
+@method_decorator(superuser_required, name="dispatch")
 class OrgCreate(CreateView):
     form_class = OrgCreateForm
     model = Org
@@ -275,23 +260,20 @@ class OrgCreate(CreateView):
         return self.object.get_absolute_url()
 
 
-@method_decorator(login_required, name="dispatch")
-@method_decorator(user_passes_test(lambda u: u.is_superuser), name="dispatch")
+@method_decorator(superuser_required, name="dispatch")
 class OrgDetail(DetailView):
     model = Org
     slug_url_kwarg = "org_slug"
     template_name = "org_detail.html"
 
 
-@method_decorator(login_required, name="dispatch")
-@method_decorator(user_passes_test(lambda u: u.is_superuser), name="dispatch")
+@method_decorator(superuser_required, name="dispatch")
 class OrgList(ListView):
     model = Org
     template_name = "org_list.html"
 
 
-@method_decorator(login_required, name="dispatch")
-@method_decorator(user_passes_test(lambda u: u.is_superuser), name="dispatch")
+@method_decorator(superuser_required, name="dispatch")
 class ProjectCreate(CreateView):
     form_class = ProjectCreateForm
     model = Project
@@ -338,8 +320,7 @@ class ProjectCreate(CreateView):
         return redirect(project)
 
 
-@method_decorator(login_required, name="dispatch")
-@method_decorator(user_passes_test(lambda u: u.is_superuser), name="dispatch")
+@method_decorator(superuser_required, name="dispatch")
 class ProjectDetail(DetailView):
     template_name = "project_detail.html"
 
@@ -403,7 +384,7 @@ class Status(View):
         return TemplateResponse(request, "status.html", context)
 
 
-@method_decorator(login_required, name="dispatch")
+@method_decorator(user_passes_test(can_run_jobs), name="dispatch")
 class WorkspaceArchiveToggle(View):
     def post(self, request, *args, **kwargs):
         workspace = get_object_or_404(Workspace, name=self.kwargs["name"])
@@ -417,7 +398,7 @@ class WorkspaceArchiveToggle(View):
         return redirect("/")
 
 
-@method_decorator(login_required, name="dispatch")
+@method_decorator(user_passes_test(can_run_jobs), name="dispatch")
 class WorkspaceCreate(CreateView):
     form_class = WorkspaceCreateForm
     model = Workspace
@@ -609,7 +590,7 @@ class WorkspaceLog(ListView):
         return qs
 
 
-@method_decorator(login_required, name="dispatch")
+@method_decorator(user_passes_test(can_run_jobs), name="dispatch")
 class WorkspaceNotificationsToggle(View):
     def post(self, request, *args, **kwargs):
         workspace = get_object_or_404(Workspace, name=self.kwargs["name"])
@@ -623,7 +604,7 @@ class WorkspaceNotificationsToggle(View):
         return redirect(workspace)
 
 
-@method_decorator(login_required, name="dispatch")
+@method_decorator(user_passes_test(can_run_jobs), name="dispatch")
 class WorkspaceReleaseView(View):
     def get(self, request, name, release):
         return f"release page for {name}/{release}"  # pragma: no cover

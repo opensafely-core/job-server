@@ -2,6 +2,8 @@ from datetime import timedelta
 from unittest.mock import patch
 
 import pytest
+import responses
+from django.conf import settings
 from django.contrib.auth.models import AnonymousUser
 from django.contrib.messages.storage.fallback import FallbackStorage
 from django.http import Http404
@@ -32,6 +34,7 @@ from jobserver.views import (
     WorkspaceDetail,
     WorkspaceLog,
     WorkspaceNotificationsToggle,
+    WorkspaceReleaseView,
     superuser_required,
 )
 
@@ -183,12 +186,18 @@ def test_index_with_unauthenticated_user(rf):
 
 
 @pytest.mark.django_db
+@responses.activate
 def test_jobcancel_already_cancelled(rf):
     job_request = JobRequestFactory(cancelled_actions=["another-action", "test"])
     job = JobFactory(job_request=job_request, action="test")
 
+    user = UserFactory()
+
     request = rf.post(MEANINGLESS_URL)
-    request.user = UserFactory()
+    request.user = user
+
+    membership_url = f"https://api.github.com/orgs/opensafely/members/{user.username}"
+    responses.add(responses.GET, membership_url, status=204)
 
     response = JobCancel.as_view()(request, identifier=job.identifier)
 
@@ -200,12 +209,18 @@ def test_jobcancel_already_cancelled(rf):
 
 
 @pytest.mark.django_db
+@responses.activate
 def test_jobcancel_success(rf):
     job_request = JobRequestFactory(cancelled_actions=[])
     job = JobFactory(job_request=job_request, action="test")
 
+    user = UserFactory()
+
     request = rf.post(MEANINGLESS_URL)
-    request.user = UserFactory()
+    request.user = user
+
+    membership_url = f"https://api.github.com/orgs/opensafely/members/{user.username}"
+    responses.add(responses.GET, membership_url, status=204)
 
     response = JobCancel.as_view()(request, identifier=job.identifier)
 
@@ -217,9 +232,33 @@ def test_jobcancel_success(rf):
 
 
 @pytest.mark.django_db
-def test_jobcancel_unknown_job(rf):
+@responses.activate
+def test_jobcancel_unauthorized(rf):
+    job = JobFactory(job_request=JobRequestFactory())
+    user = UserFactory()
+
     request = rf.post(MEANINGLESS_URL)
-    request.user = UserFactory()
+    request.user = user
+
+    membership_url = f"https://api.github.com/orgs/opensafely/members/{user.username}"
+    responses.add(responses.GET, membership_url, status=404)
+
+    response = JobCancel.as_view()(request, identifier=job.identifier)
+
+    assert response.status_code == 302
+    assert response.url == f"{settings.LOGIN_URL}?next=/"
+
+
+@pytest.mark.django_db
+@responses.activate
+def test_jobcancel_unknown_job(rf):
+    user = UserFactory()
+
+    request = rf.post(MEANINGLESS_URL)
+    request.user = user
+
+    membership_url = f"https://api.github.com/orgs/opensafely/members/{user.username}"
+    responses.add(responses.GET, membership_url, status=204)
 
     with pytest.raises(Http404):
         JobCancel.as_view()(request, identifier="not-real")
@@ -845,11 +884,16 @@ def test_status_unhealthy(rf):
 
 
 @pytest.mark.django_db
+@responses.activate
 def test_workspacearchivetoggle_success(rf):
     workspace = WorkspaceFactory(is_archived=False)
+    user = UserFactory()
 
     request = rf.post(MEANINGLESS_URL, {"is_archived": "True"})
-    request.user = UserFactory()
+    request.user = user
+
+    membership_url = f"https://api.github.com/orgs/opensafely/members/{user.username}"
+    responses.add(responses.GET, membership_url, status=204)
 
     response = WorkspaceArchiveToggle.as_view()(request, name=workspace.name)
 
@@ -861,9 +905,33 @@ def test_workspacearchivetoggle_success(rf):
 
 
 @pytest.mark.django_db
+@responses.activate
+def test_workspacearchivetoggle_unauthorized(rf):
+    workspace = WorkspaceFactory()
+    user = UserFactory()
+
+    request = rf.post(MEANINGLESS_URL)
+    request.user = user
+
+    membership_url = f"https://api.github.com/orgs/opensafely/members/{user.username}"
+    responses.add(responses.GET, membership_url, status=404)
+
+    response = WorkspaceArchiveToggle.as_view()(request, name=workspace.name)
+
+    assert response.status_code == 302
+    assert response.url == f"{settings.LOGIN_URL}?next=/"
+
+
+@pytest.mark.django_db
+@responses.activate
 def test_workspacecreate_get_success(rf):
+    user = UserFactory()
+
     request = rf.get(MEANINGLESS_URL)
-    request.user = UserFactory()
+    request.user = user
+
+    membership_url = f"https://api.github.com/orgs/opensafely/members/{user.username}"
+    responses.add(responses.GET, membership_url, status=204)
 
     with patch("jobserver.views.get_repos_with_branches", new=lambda *args: []):
         response = WorkspaceCreate.as_view()(request)
@@ -873,6 +941,7 @@ def test_workspacecreate_get_success(rf):
 
 
 @pytest.mark.django_db
+@responses.activate
 def test_workspacecreate_post_success(rf):
     user = UserFactory()
 
@@ -887,6 +956,9 @@ def test_workspacecreate_post_success(rf):
     request = rf.post(MEANINGLESS_URL, data)
     request.user = user
 
+    membership_url = f"https://api.github.com/orgs/opensafely/members/{user.username}"
+    responses.add(responses.GET, membership_url, status=204)
+
     repos = [{"name": "Test", "url": "test", "branches": ["test"]}]
     with patch("jobserver.views.get_repos_with_branches", new=lambda *args: repos):
         response = WorkspaceCreate.as_view()(request)
@@ -896,6 +968,23 @@ def test_workspacecreate_post_success(rf):
     workspace = Workspace.objects.first()
     assert response.url == reverse("workspace-detail", kwargs={"name": workspace.name})
     assert workspace.created_by == user
+
+
+@pytest.mark.django_db
+@responses.activate
+def test_workspacecreate_unauthorized(rf):
+    user = UserFactory()
+
+    request = rf.post(MEANINGLESS_URL)
+    request.user = user
+
+    membership_url = f"https://api.github.com/orgs/opensafely/members/{user.username}"
+    responses.add(responses.GET, membership_url, status=404)
+
+    response = WorkspaceCreate.as_view()(request)
+
+    assert response.status_code == 302
+    assert response.url == f"{settings.LOGIN_URL}?next=/"
 
 
 @pytest.mark.django_db
@@ -1281,10 +1370,16 @@ def test_workspacelog_with_unauthenticated_user(rf):
 
 
 @pytest.mark.django_db
+@responses.activate
 def test_workspacenotificationstoggle_success(rf):
+    user = UserFactory()
     workspace = WorkspaceFactory(should_notify=True)
+
     request = rf.post(MEANINGLESS_URL, {"should_notify": ""})
-    request.user = UserFactory()
+    request.user = user
+
+    membership_url = f"https://api.github.com/orgs/opensafely/members/{user.username}"
+    responses.add(responses.GET, membership_url, status=204)
 
     response = WorkspaceNotificationsToggle.as_view()(request, name=workspace.name)
 
@@ -1297,8 +1392,50 @@ def test_workspacenotificationstoggle_success(rf):
 
 
 @pytest.mark.django_db
+@responses.activate
+def test_workspacenotificationstoggle_unauthorized(rf):
+    user = UserFactory()
+    workspace = WorkspaceFactory()
+
+    request = rf.post(MEANINGLESS_URL, {"should_notify": ""})
+    request.user = user
+
+    membership_url = f"https://api.github.com/orgs/opensafely/members/{user.username}"
+    responses.add(responses.GET, membership_url, status=404)
+
+    response = WorkspaceNotificationsToggle.as_view()(request, name=workspace.name)
+
+    assert response.status_code == 302
+    assert response.url == f"{settings.LOGIN_URL}?next=/"
+
+
+@pytest.mark.django_db
+@responses.activate
 def test_workspacenotificationstoggle_unknown_workspace(rf):
+    user = UserFactory()
+
     request = rf.post(MEANINGLESS_URL)
-    request.user = UserFactory()
+    request.user = user
+
+    membership_url = f"https://api.github.com/orgs/opensafely/members/{user.username}"
+    responses.add(responses.GET, membership_url, status=204)
+
     with pytest.raises(Http404):
         WorkspaceNotificationsToggle.as_view()(request, name="test")
+
+
+@pytest.mark.django_db
+@responses.activate
+def test_workspacerelease_unauthorized(rf):
+    user = UserFactory()
+
+    request = rf.get(MEANINGLESS_URL)
+    request.user = user
+
+    membership_url = f"https://api.github.com/orgs/opensafely/members/{user.username}"
+    responses.add(responses.GET, membership_url, status=404)
+
+    response = WorkspaceReleaseView.as_view()(request)
+
+    assert response.status_code == 302
+    assert response.url == f"{settings.LOGIN_URL}?next=/"
