@@ -5,6 +5,7 @@ from django.db.models import Q
 from django.shortcuts import get_object_or_404, redirect
 from django.template.response import TemplateResponse
 from django.utils.decorators import method_decorator
+from django.utils.safestring import mark_safe
 from django.views.generic import (
     CreateView,
     DetailView,
@@ -29,7 +30,7 @@ from .forms import (
 )
 from .github import get_branch_sha, get_repos_with_branches
 from .models import Backend, Job, JobRequest, Org, Project, User, Workspace
-from .project import get_actions, get_project, load_yaml
+from .project import get_actions, get_project, load_yaml, render_definition
 from .roles import can_run_jobs, superuser_required
 
 
@@ -145,6 +146,12 @@ class JobRequestDetail(DetailView):
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
+        context["project_definition"] = mark_safe(
+            render_definition(
+                self.object.project_definition,
+                self.object.get_file_url,
+            )
+        )
         context["project_yaml_url"] = self.object.get_file_url("project.yaml")
         return context
 

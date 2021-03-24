@@ -125,6 +125,16 @@
         <span>{% runtime jobrequest.runtime %}</span>
       </div>
     </div>
+
+    {% if project_definition %}
+    <div class="mb-4">
+      <h3>Pipeline</h3>
+
+      <pre>{{ project_definition }}</pre>
+
+    </div>
+    {% endif %}
+
   </div>
 
   <div class="col-md-3 col-lg-2">
