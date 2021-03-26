@@ -202,7 +202,7 @@ def test_jobrequest_get_project_yaml_url_no_sha():
     workspace = WorkspaceFactory(repo="http://example.com/opensafely/some_repo")
     job_request = JobRequestFactory(workspace=workspace)
 
-    url = job_request.get_project_yaml_url()
+    url = job_request.get_file_url("test-blah.foo")
 
     assert url == "http://example.com/opensafely/some_repo"
 
@@ -212,9 +212,9 @@ def test_jobrequest_get_project_yaml_url_success():
     workspace = WorkspaceFactory(repo="http://example.com/opensafely/some_repo")
     job_request = JobRequestFactory(workspace=workspace, sha="abc123")
 
-    url = job_request.get_project_yaml_url()
+    url = job_request.get_file_url("test-blah.foo")
 
-    assert url == "http://example.com/opensafely/some_repo/blob/abc123/project.yaml"
+    assert url == "http://example.com/opensafely/some_repo/blob/abc123/test-blah.foo"
 
 
 @pytest.mark.django_db

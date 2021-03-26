@@ -1016,7 +1016,7 @@ def test_workspacedetail_project_yaml_errors(rf):
     request.user = user
 
     with patch("jobserver.views.can_run_jobs", return_value=True), patch(
-        "jobserver.views.get_actions", side_effect=Exception("test error")
+        "jobserver.views.get_project", side_effect=Exception("test error")
     ):
         response = WorkspaceDetail.as_view()(request, name=workspace.name)
 
@@ -1035,9 +1035,12 @@ def test_workspacedetail_get_success(rf):
     request = rf.get(MEANINGLESS_URL)
     request.user = user
 
-    dummy_project = [{"name": "twiddle", "needs": [], "status": "-"}]
+    dummy_yaml = """
+    actions:
+      twiddle:
+    """
     with patch("jobserver.views.can_run_jobs", return_value=True), patch(
-        "jobserver.views.get_actions", new=lambda *args: dummy_project
+        "jobserver.views.get_project", new=lambda *args: dummy_yaml
     ):
         response = WorkspaceDetail.as_view()(request, name=workspace.name)
 
@@ -1045,6 +1048,7 @@ def test_workspacedetail_get_success(rf):
 
     assert response.context_data["actions"] == [
         {"name": "twiddle", "needs": [], "status": "-"},
+        {"name": "run_all", "needs": ["twiddle"], "status": "-"},
     ]
     assert response.context_data["branch"] == workspace.branch
 
@@ -1083,9 +1087,12 @@ def test_workspacedetail_post_success(rf, monkeypatch):
     request = rf.post(MEANINGLESS_URL, data)
     request.user = user
 
-    dummy_project = [{"name": "twiddle", "needs": []}]
+    dummy_yaml = """
+    actions:
+      twiddle:
+    """
     with patch("jobserver.views.can_run_jobs", return_value=True), patch(
-        "jobserver.views.get_actions", new=lambda *args: dummy_project
+        "jobserver.views.get_project", new=lambda *args: dummy_yaml
     ), patch("jobserver.views.get_branch_sha", new=lambda r, b: "abc123"):
         response = WorkspaceDetail.as_view()(request, name=workspace.name)
 
@@ -1118,9 +1125,12 @@ def test_workspacedetail_post_with_notifications_default(rf, monkeypatch):
     request = rf.post(MEANINGLESS_URL, data)
     request.user = user
 
-    dummy_project = [{"name": "twiddle", "needs": []}]
+    dummy_yaml = """
+    actions:
+      twiddle:
+    """
     with patch("jobserver.views.can_run_jobs", return_value=True), patch(
-        "jobserver.views.get_actions", new=lambda *args: dummy_project
+        "jobserver.views.get_project", new=lambda *args: dummy_yaml
     ), patch("jobserver.views.get_branch_sha", new=lambda r, b: "abc123"):
         response = WorkspaceDetail.as_view()(request, name=workspace.name)
 
@@ -1153,9 +1163,12 @@ def test_workspacedetail_post_with_notifications_override(rf, monkeypatch):
     request = rf.post(MEANINGLESS_URL, data)
     request.user = user
 
-    dummy_project = [{"name": "twiddle", "needs": []}]
+    dummy_yaml = """
+    actions:
+      twiddle:
+    """
     with patch("jobserver.views.can_run_jobs", return_value=True), patch(
-        "jobserver.views.get_actions", new=lambda *args: dummy_project
+        "jobserver.views.get_project", new=lambda *args: dummy_yaml
     ), patch("jobserver.views.get_branch_sha", new=lambda r, b: "abc123"):
         response = WorkspaceDetail.as_view()(request, name=workspace.name)
 
@@ -1189,9 +1202,12 @@ def test_workspacedetail_post_success_with_superuser(rf, monkeypatch):
     request = rf.post(MEANINGLESS_URL, data)
     request.user = user
 
-    dummy_project = [{"name": "twiddle", "needs": []}]
+    dummy_yaml = """
+    actions:
+      twiddle:
+    """
     with patch("jobserver.views.can_run_jobs", return_value=True), patch(
-        "jobserver.views.get_actions", new=lambda *args: dummy_project
+        "jobserver.views.get_project", new=lambda *args: dummy_yaml
     ), patch("jobserver.views.get_branch_sha", new=lambda r, b: "abc123"):
         response = WorkspaceDetail.as_view()(request, name=workspace.name)
 
@@ -1230,9 +1246,12 @@ def test_workspacedetail_get_with_authenticated_user(rf):
     request = rf.get(MEANINGLESS_URL)
     request.user = UserFactory()
 
-    dummy_project = [{"name": "twiddle", "needs": [], "status": "-"}]
+    dummy_yaml = """
+    actions:
+      twiddle:
+    """
     with patch("jobserver.views.can_run_jobs", return_value=True), patch(
-        "jobserver.views.get_actions", new=lambda *args: dummy_project
+        "jobserver.views.get_project", new=lambda *args: dummy_yaml
     ):
         response = WorkspaceDetail.as_view()(request, name=workspace.name)
 

@@ -5,6 +5,7 @@ from django.db.models import Q
 from django.shortcuts import get_object_or_404, redirect
 from django.template.response import TemplateResponse
 from django.utils.decorators import method_decorator
+from django.utils.safestring import mark_safe
 from django.views.generic import (
     CreateView,
     DetailView,
@@ -29,7 +30,7 @@ from .forms import (
 )
 from .github import get_branch_sha, get_repos_with_branches
 from .models import Backend, Job, JobRequest, Org, Project, User, Workspace
-from .project import get_actions
+from .project import get_actions, get_project, load_yaml, render_definition
 from .roles import can_run_jobs, superuser_required
 
 
@@ -142,6 +143,17 @@ class JobRequestDetail(DetailView):
         "created_by", "workspace"
     ).prefetch_related("jobs")
     template_name = "job_request_detail.html"
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context["project_definition"] = mark_safe(
+            render_definition(
+                self.object.project_definition,
+                self.object.get_file_url,
+            )
+        )
+        context["project_yaml_url"] = self.object.get_file_url("project.yaml")
+        return context
 
 
 class JobRequestList(FormMixin, ListView):
@@ -458,13 +470,11 @@ class WorkspaceDetail(CreateView):
 
         # build actions as list or render the exception to the page
         try:
-            self.actions = list(
-                get_actions(
-                    self.workspace.repo_name,
-                    self.workspace.branch,
-                    action_status_lut,
-                )
+            self.project = get_project(
+                self.workspace.repo_name,
+                self.workspace.branch,
             )
+            data = load_yaml(self.project)
         except Exception as e:
             self.actions = []
             # this is a bit nasty, need to mirror what get/post would set up for us
@@ -472,6 +482,7 @@ class WorkspaceDetail(CreateView):
             context = self.get_context_data(actions_error=str(e))
             return self.render_to_response(context=context)
 
+        self.actions = list(get_actions(data, action_status_lut))
         return super().dispatch(request, *args, **kwargs)
 
     @transaction.atomic
@@ -479,28 +490,19 @@ class WorkspaceDetail(CreateView):
         sha = get_branch_sha(self.workspace.repo_name, self.workspace.branch)
 
         if self.request.user.is_superuser:
+            # Use the form data to decide which backend to use for superusers.
             backend = Backend.objects.get(name=form.cleaned_data.pop("backend"))
-            JobRequest.objects.create(
-                workspace=self.workspace,
-                created_by=self.request.user,
-                backend=backend,
-                sha=sha,
-                **form.cleaned_data,
-            )
         else:
-            # Pick a backend.
-            # We're only configuring one backend in an installation currently. Rely
-            # on that for now.
-            # TODO: use the form data to decide which backend to use here when the
-            # form exposes backends
-            TPP = Backend.objects.get(name="tpp")
+            # For non-superusers we're only exposing one backend currently.
+            backend = Backend.objects.get(name="tpp")
 
-            TPP.job_requests.create(
-                workspace=self.workspace,
-                created_by=self.request.user,
-                sha=sha,
-                **form.cleaned_data,
-            )
+        backend.job_requests.create(
+            workspace=self.workspace,
+            created_by=self.request.user,
+            sha=sha,
+            project_definition=self.project,
+            **form.cleaned_data,
+        )
         return redirect("workspace-logs", name=self.workspace.name)
 
     def get_context_data(self, **kwargs):

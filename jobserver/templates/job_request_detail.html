@@ -125,6 +125,16 @@
         <span>{% runtime jobrequest.runtime %}</span>
       </div>
     </div>
+
+    {% if project_definition %}
+    <div class="mb-4">
+      <h3>Pipeline</h3>
+
+      <pre>{{ project_definition }}</pre>
+
+    </div>
+    {% endif %}
+
   </div>
 
   <div class="col-md-3 col-lg-2">
@@ -138,7 +148,7 @@
     </div>
 
     <div class="mb-2">
-      <a class="btn btn-block btn-secondary" href="{{ jobrequest.get_project_yaml_url }}">
+      <a class="btn btn-block btn-secondary" href="{{ project_yaml_url }}">
         View project.yaml
       </a>
     </div>
