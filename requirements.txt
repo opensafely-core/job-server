@@ -74,7 +74,7 @@ django==3.1.6
     #   djangorestframework
 djangorestframework==3.11.2
     # via django-rest-framework
-environs[django]==9.3.1
+environs[django]==9.3.2
     # via -r requirements.in
 factory-boy==3.2.0
     # via -r requirements.in
