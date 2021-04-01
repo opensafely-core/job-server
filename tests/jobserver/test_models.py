@@ -10,9 +10,10 @@ from ..factories import (
     BackendFactory,
     JobFactory,
     JobRequestFactory,
-    MembershipFactory,
     OrgFactory,
+    OrgMembershipFactory,
     ProjectFactory,
+    ProjectMembershipFactory,
     ResearcherRegistrationFactory,
     StatsFactory,
     UserFactory,
@@ -463,15 +464,6 @@ def test_jobrequestqueryset_unacked():
 
 
 @pytest.mark.django_db
-def test_membership_str():
-    project = ProjectFactory()
-    user = UserFactory()
-    membership = MembershipFactory(project=project, user=user)
-
-    assert str(membership) == f"{user.username} member of {project.name}"
-
-
-@pytest.mark.django_db
 def test_org_get_absolute_url():
     org = OrgFactory()
     url = org.get_absolute_url()
@@ -486,6 +478,16 @@ def test_org_populates_slug():
 @pytest.mark.django_db
 def test_org_str():
     assert str(OrgFactory(name="Test Org")) == "Test Org"
+
+
+@pytest.mark.django_db
+def test_orgmembership_str():
+    org = OrgFactory(name="DataLab")
+    user = UserFactory(username="ben")
+
+    membership = OrgMembershipFactory(org=org, user=user)
+
+    assert str(membership) == "ben | DataLab"
 
 
 @pytest.mark.django_db
@@ -510,6 +512,16 @@ def test_project_str():
         name="Very Good Project",
     )
     assert str(project) == "test-org | Very Good Project"
+
+
+@pytest.mark.django_db
+def test_projectmembership_str():
+    project = ProjectFactory(name="DataLab")
+    user = UserFactory(username="ben")
+
+    membership = ProjectMembershipFactory(project=project, user=user)
+
+    assert str(membership) == "ben | DataLab"
 
 
 @pytest.mark.django_db

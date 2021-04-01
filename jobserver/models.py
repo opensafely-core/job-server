@@ -332,25 +332,6 @@ class JobRequest(models.Model):
         return "unknown"
 
 
-class Membership(models.Model):
-    project = models.ForeignKey(
-        "Project",
-        on_delete=models.CASCADE,
-        related_name="members",
-    )
-    user = models.ForeignKey(
-        "User",
-        on_delete=models.CASCADE,
-        related_name="memberships",
-    )
-
-    class Meta:
-        unique_together = ["project", "user"]
-
-    def __str__(self):
-        return f"{self.user.username} member of {self.project.name}"
-
-
 class Org(models.Model):
     name = models.TextField(unique=True)
     slug = models.SlugField(max_length=255, unique=True)
@@ -369,6 +350,33 @@ class Org(models.Model):
             self.slug = slugify(self.name)
 
         return super().save(*args, **kwargs)
+
+
+class OrgMembership(models.Model):
+    created_by = models.ForeignKey(
+        "User",
+        on_delete=models.SET_NULL,
+        related_name="created_org_memberships",
+        null=True,
+    )
+    org = models.ForeignKey(
+        "Org",
+        on_delete=models.CASCADE,
+        related_name="members",
+    )
+    user = models.ForeignKey(
+        "User",
+        on_delete=models.CASCADE,
+        related_name="org_memberships",
+    )
+
+    roles = RolesField()
+
+    class Meta:
+        unique_together = ["org", "user"]
+
+    def __str__(self):
+        return f"{self.user.username} | {self.org.name}"
 
 
 class Project(models.Model):
@@ -444,6 +452,33 @@ class Project(models.Model):
             self.slug = slugify(self.name)
 
         return super().save(*args, **kwargs)
+
+
+class ProjectMembership(models.Model):
+    created_by = models.ForeignKey(
+        "User",
+        on_delete=models.SET_NULL,
+        related_name="created_project_memberships",
+        null=True,
+    )
+    project = models.ForeignKey(
+        "Project",
+        on_delete=models.CASCADE,
+        related_name="members",
+    )
+    user = models.ForeignKey(
+        "User",
+        on_delete=models.CASCADE,
+        related_name="project_memberships",
+    )
+
+    roles = RolesField()
+
+    class Meta:
+        unique_together = ["project", "user"]
+
+    def __str__(self):
+        return f"{self.user.username} | {self.project.name}"
 
 
 class Release(models.Model):

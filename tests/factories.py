@@ -10,9 +10,10 @@ from jobserver.models import (
     Backend,
     Job,
     JobRequest,
-    Membership,
     Org,
+    OrgMembership,
     Project,
+    ProjectMembership,
     Release,
     ResearcherRegistration,
     Stats,
@@ -50,20 +51,20 @@ class JobRequestFactory(factory.django.DjangoModelFactory):
     requested_actions = []
 
 
-class MembershipFactory(factory.django.DjangoModelFactory):
-    class Meta:
-        model = Membership
-
-    project = factory.SubFactory("tests.factories.ProjectFactory")
-    user = factory.SubFactory("tests.factories.UserFactory")
-
-
 class OrgFactory(factory.django.DjangoModelFactory):
     class Meta:
         model = Org
 
     name = factory.Sequence(lambda n: f"Organisation {n}")
     slug = factory.Sequence(lambda n: f"organisation-{n}")
+
+
+class OrgMembershipFactory(factory.django.DjangoModelFactory):
+    class Meta:
+        model = OrgMembership
+
+    org = factory.SubFactory("tests.factories.OrgFactory")
+    user = factory.SubFactory("tests.factories.UserFactory")
 
 
 class ProjectFactory(factory.django.DjangoModelFactory):
@@ -77,6 +78,14 @@ class ProjectFactory(factory.django.DjangoModelFactory):
     proposed_start_date = factory.fuzzy.FuzzyDateTime(
         datetime(2020, 1, 1, tzinfo=timezone.utc)
     )
+
+
+class ProjectMembershipFactory(factory.django.DjangoModelFactory):
+    class Meta:
+        model = ProjectMembership
+
+    project = factory.SubFactory("tests.factories.ProjectFactory")
+    user = factory.SubFactory("tests.factories.UserFactory")
 
 
 class ResearcherRegistrationFactory(factory.django.DjangoModelFactory):
