@@ -10,6 +10,7 @@ from .roles import (
     ProjectDeveloper,
     TechnicalReviewer,
 )
+from .utils import has_permission, has_role
 
 
 __all__ = [
@@ -23,4 +24,6 @@ __all__ = [
     "ProjectCoordinator",
     "ProjectDeveloper",
     "TechnicalReviewer",
+    "has_permission",
+    "has_role",
 ]
