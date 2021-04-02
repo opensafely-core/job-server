@@ -112,6 +112,17 @@ class ProjectDeveloper:
     ]
 
 
+class SuperUser:
+    """
+    Full access to the OpenSAFELY platform.
+
+    This is an interim Role to facilitate moving away from User.is_superuser
+    checks.
+    """
+
+    permissions = []
+
+
 class TechnicalReviewer:
     """
     Evaluation of the feasibility of the project and the skills of the
