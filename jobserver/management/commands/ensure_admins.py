@@ -2,7 +2,7 @@ import sys
 
 from django.core.management.base import BaseCommand
 
-from jobserver.admins import ensure_admins, get_admins
+from jobserver.authorization.admins import ensure_admins, get_admins
 
 
 class Command(BaseCommand):
