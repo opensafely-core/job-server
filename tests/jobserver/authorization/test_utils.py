@@ -40,16 +40,16 @@ def test_has_permission_unauthenticated():
 
 @pytest.mark.django_db
 def test_has_roles_failure():
-    user = UserFactory(roles=[ProjectCoordinator])
+    user = UserFactory(roles=[OutputPublisher])
 
-    assert not has_role(user, OutputPublisher)
+    assert not has_role(user, ProjectCoordinator)
 
 
 @pytest.mark.django_db
 def test_has_roles_success():
-    user = UserFactory(roles=[ProjectCoordinator])
+    user = UserFactory(roles=[OutputPublisher])
 
-    assert has_role(user, ProjectCoordinator)
+    assert has_role(user, OutputPublisher)
 
 
 @pytest.mark.django_db
