@@ -62,6 +62,17 @@ class OnboardingAgent:
     permissions = []
 
 
+class OrgCoordinator:
+    """
+    A responsible party for an Org
+    """
+
+    models = [
+        "jobserver.models.OrgMembership",
+    ]
+    permissions = []
+
+
 class OutputChecker:
     """
     Review output folders that have been proposed for release.
