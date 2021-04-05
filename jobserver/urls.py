@@ -48,22 +48,26 @@ from .views import (
 )
 
 
-urlpatterns = [
-    path("", Index.as_view()),
-    path("", include("social_django.urls", namespace="social")),
-    path("admin/", admin.site.urls),
-    path("api/v2/job-requests/", JobRequestAPIList.as_view()),
-    path("api/v2/jobs/", JobAPIUpdate.as_view()),
+api_urls = [
+    path("job-requests/", JobRequestAPIList.as_view()),
+    path("jobs/", JobAPIUpdate.as_view()),
     path(
-        "api/v2/workspaces/<name>/statuses/",
+        "workspaces/<name>/statuses/",
         WorkspaceStatusesAPI.as_view(),
         name="workspace-statuses",
     ),
     path(
-        "api/v2/workspaces/<workspace_name>/releases/<release_hash>",
+        "workspaces/<workspace_name>/releases/<release_hash>",
         ReleaseUploadAPI.as_view(),
         name="workspace-upload-release",
     ),
+]
+
+urlpatterns = [
+    path("", Index.as_view()),
+    path("", include("social_django.urls", namespace="social")),
+    path("admin/", admin.site.urls),
+    path("api/v2/", include(api_urls)),
     path("backends/", BackendList.as_view(), name="backend-list"),
     path("backends/<pk>/", BackendDetail.as_view(), name="backend-detail"),
     path(
