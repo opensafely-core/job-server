@@ -19,7 +19,13 @@ from django.contrib.auth.views import LogoutView
 from django.urls import include, path
 from django.views.generic import RedirectView
 
-from .api import JobAPIUpdate, JobRequestAPIList, ReleaseUploadAPI, WorkspaceStatusesAPI
+from .api import (
+    JobAPIUpdate,
+    JobRequestAPIList,
+    ReleaseUploadAPI,
+    UserAPIDetail,
+    WorkspaceStatusesAPI,
+)
 from .views import (
     BackendDetail,
     BackendList,
@@ -51,6 +57,7 @@ from .views import (
 api_urls = [
     path("job-requests/", JobRequestAPIList.as_view()),
     path("jobs/", JobAPIUpdate.as_view()),
+    path("users/<username>/", UserAPIDetail.as_view(), name="user-detail"),
     path(
         "workspaces/<name>/statuses/",
         WorkspaceStatusesAPI.as_view(),

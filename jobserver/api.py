@@ -3,6 +3,7 @@ import operator
 
 import structlog
 from django.db import transaction
+from django.http import Http404
 from django.urls import reverse
 from django.utils import timezone
 from first import first
@@ -14,7 +15,7 @@ from rest_framework.response import Response
 from rest_framework.views import APIView
 
 from .emails import send_finished_notification
-from .models import Backend, JobRequest, Stats, Workspace
+from .models import Backend, JobRequest, Stats, User, Workspace
 from .releases import handle_release
 
 
@@ -263,6 +264,28 @@ class JobRequestAPIList(ListAPIView):
             qs = qs.filter(backend__name=backend_name)
 
         return qs
+
+
+class UserAPIDetail(APIView):
+    def initial(self, request, *args, **kwargs):
+        token = request.META.get("HTTP_AUTHORIZATION")
+
+        # require auth for all requests
+        self.backend = get_backend_from_token(token)
+
+        return super().initial(request, *args, **kwargs)
+
+    def get(self, request, *args, **kwargs):
+        try:
+            user = User.objects.get(username=self.kwargs["username"])
+        except User.DoesNotExist:
+            raise Http404
+
+        data = {
+            "permissions": user.get_all_permissions(),
+            "roles": user.get_all_roles(),
+        }
+        return Response(data, status=200)
 
 
 class WorkspaceStatusesAPI(APIView):

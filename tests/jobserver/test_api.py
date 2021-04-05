@@ -10,10 +10,12 @@ from rest_framework.test import APIClient
 from jobserver.api import (
     JobAPIUpdate,
     JobRequestAPIList,
+    UserAPIDetail,
     WorkspaceStatusesAPI,
     get_backend_from_token,
     update_stats,
 )
+from jobserver.authorization import CoreDeveloper, OrgCoordinator, ProjectDeveloper
 from jobserver.models import Backend, Job, JobRequest, Stats
 from tests.jobserver.test_releases import make_release_zip
 
@@ -21,8 +23,13 @@ from ..factories import (
     BackendFactory,
     JobFactory,
     JobRequestFactory,
+    OrgFactory,
+    OrgMembershipFactory,
+    ProjectFactory,
+    ProjectMembershipFactory,
     ReleaseFactory,
     StatsFactory,
+    UserFactory,
     WorkspaceFactory,
 )
 
@@ -522,6 +529,52 @@ def test_jobrequestapilist_success(api_rf):
         job_request3.identifier,
         job_request4.identifier,
     }
+
+
+@pytest.mark.django_db
+def test_userapidetail_success(api_rf):
+    backend = BackendFactory()
+    org = OrgFactory()
+    project = ProjectFactory(org=org)
+    user = UserFactory(roles=[CoreDeveloper])
+
+    OrgMembershipFactory(org=org, user=user, roles=[OrgCoordinator])
+    ProjectMembershipFactory(project=project, user=user, roles=[ProjectDeveloper])
+
+    request = api_rf.get("/", HTTP_AUTHORIZATION=backend.auth_token)
+    response = UserAPIDetail.as_view()(request, username=user.username)
+
+    assert response.status_code == 200
+
+    # permissions
+    permissions = response.data["permissions"]
+    assert permissions["global"] == ["cancel_job", "run_job"]
+    assert permissions["orgs"] == [
+        # we have no permissions for OrgCoordinator yet
+        {
+            "slug": org.slug,
+            "permissions": [],
+        },
+    ]
+    assert permissions["projects"] == [
+        {"slug": project.slug, "permissions": ["cancel_job", "check_output", "run_job"]}
+    ]
+
+    # roles
+    roles = response.data["roles"]
+    assert roles["global"] == ["CoreDeveloper"]
+    assert roles["orgs"] == [{"slug": org.slug, "roles": ["OrgCoordinator"]}]
+    assert roles["projects"] == [{"slug": project.slug, "roles": ["ProjectDeveloper"]}]
+
+
+@pytest.mark.django_db
+def test_userapidetail_unknown_user(api_rf):
+    backend = BackendFactory()
+
+    request = api_rf.get("/", HTTP_AUTHORIZATION=backend.auth_token)
+    response = UserAPIDetail.as_view()(request, username="dummy-user")
+
+    assert response.status_code == 404
 
 
 @pytest.mark.django_db
