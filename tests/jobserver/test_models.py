@@ -4,6 +4,13 @@ import pytest
 from django.urls import reverse
 from django.utils import timezone
 
+from jobserver.authorization.roles import (
+    CoreDeveloper,
+    DataInvestigator,
+    OrgCoordinator,
+    ProjectCollaborator,
+    ProjectDeveloper,
+)
 from jobserver.models import Backend, JobRequest, Release
 
 from ..factories import (
@@ -590,6 +597,80 @@ def test_user_name_without_first_and_last_name():
 
 
 @pytest.mark.django_db
+def test_user_get_all_permissions():
+    org = OrgFactory()
+    project = ProjectFactory(org=org)
+    user = UserFactory(roles=[CoreDeveloper])
+
+    OrgMembershipFactory(org=org, user=user, roles=[OrgCoordinator])
+    ProjectMembershipFactory(project=project, user=user, roles=[ProjectDeveloper])
+
+    output = user.get_all_permissions()
+    expected = {
+        "global": ["cancel_job", "run_job"],
+        "orgs": [{"slug": org.slug, "permissions": []}],
+        "projects": [
+            {
+                "slug": project.slug,
+                "permissions": ["cancel_job", "check_output", "run_job"],
+            }
+        ],
+    }
+
+    assert output == expected
+
+
+@pytest.mark.django_db
+def test_user_get_all_permissions_empty():
+    user = UserFactory()
+
+    output = user.get_all_permissions()
+
+    expected = {
+        "global": [],
+        "projects": [],
+        "orgs": [],
+    }
+    assert output == expected
+
+
+@pytest.mark.django_db
+def test_user_get_all_roles():
+    project = ProjectFactory()
+    user = UserFactory(roles=[DataInvestigator])
+
+    ProjectMembershipFactory(project=project, user=user, roles=[ProjectCollaborator])
+
+    output = user.get_all_roles()
+    expected = {
+        "global": ["DataInvestigator"],
+        "orgs": [],
+        "projects": [
+            {
+                "slug": project.slug,
+                "roles": ["ProjectCollaborator"],
+            }
+        ],
+    }
+
+    assert output == expected
+
+
+@pytest.mark.django_db
+def test_user_get_all_roles_empty():
+    user = UserFactory()
+
+    output = user.get_all_roles()
+
+    expected = {
+        "global": [],
+        "projects": [],
+        "orgs": [],
+    }
+    assert output == expected
+
+
+@pytest.mark.django_db
 def test_user_is_unapproved_by_default():
     assert not UserFactory().is_approved
 
@@ -741,5 +822,4 @@ def test_release():
         upload_dir="workspace/release",
         files=["file.txt"],
     )
-
     assert str(release.file_path("file.txt")) == "releases/workspace/release/file.txt"
