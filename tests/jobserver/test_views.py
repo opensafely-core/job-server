@@ -210,6 +210,29 @@ def test_jobcancel_already_cancelled(rf):
 
 @pytest.mark.django_db
 @responses.activate
+def test_jobcancel_already_finished(rf):
+    job_request = JobRequestFactory(cancelled_actions=["another-action"])
+    job = JobFactory(job_request=job_request, action="test", status="finished")
+
+    user = UserFactory()
+
+    request = rf.post(MEANINGLESS_URL)
+    request.user = user
+
+    membership_url = f"https://api.github.com/orgs/opensafely/members/{user.username}"
+    responses.add(responses.GET, membership_url, status=204)
+
+    response = JobCancel.as_view()(request, identifier=job.identifier)
+
+    assert response.status_code == 302
+    assert response.url == reverse("job-detail", kwargs={"identifier": job.identifier})
+
+    job_request.refresh_from_db()
+    assert job_request.cancelled_actions == ["another-action", "test"]
+
+
+@pytest.mark.django_db
+@responses.activate
 def test_jobcancel_success(rf):
     job_request = JobRequestFactory(cancelled_actions=[])
     job = JobFactory(job_request=job_request, action="test")
