@@ -231,6 +231,9 @@ class JobRequest(models.Model):
 
         return last_job.completed_at
 
+    def get_cancel_url(self):
+        return reverse("job-request-cancel", kwargs={"pk": self.pk})
+
     def get_file_url(self, path):
         f = furl(self.workspace.repo)
 

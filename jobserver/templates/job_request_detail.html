@@ -153,6 +153,21 @@
       </a>
     </div>
 
+    {% if user_can_run_jobs %}
+    <form class="mb-2" method="POST" action="{{ jobrequest.get_cancel_url }}">
+      {% csrf_token %}
+
+      <button
+        class="btn btn-block btn-danger"
+        {% if jobrequest.is_finished %}
+        disabled
+        {% endif %}
+        type="submit">
+        Cancel
+      </button>
+    </form>
+    {% endif %}
+
     {% if is_superuser %}
     <div class="mb-2">
       <form method="POST" action="{% url 'job-request-zombify' pk=jobrequest.pk %}">

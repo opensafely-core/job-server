@@ -198,6 +198,13 @@ def test_jobrequest_get_absolute_url():
 
 
 @pytest.mark.django_db
+def test_jobrequest_get_cancel_url():
+    job_request = JobRequestFactory()
+    url = job_request.get_cancel_url()
+    assert url == reverse("job-request-cancel", kwargs={"pk": job_request.pk})
+
+
+@pytest.mark.django_db
 def test_jobrequest_get_project_yaml_url_no_sha():
     workspace = WorkspaceFactory(repo="http://example.com/opensafely/some_repo")
     job_request = JobRequestFactory(workspace=workspace)
@@ -244,6 +251,14 @@ def test_jobrequest_is_finished():
     JobFactory(job_request=job_request, status="succeeded")
 
     assert job_request.is_finished
+
+
+@pytest.mark.django_db
+def test_jobrequest_is_invalid():
+    job_request = JobRequestFactory()
+    JobFactory(job_request=job_request, action="__error__")
+
+    assert job_request.is_invalid
 
 
 @pytest.mark.django_db

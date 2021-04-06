@@ -141,6 +141,21 @@ class JobZombify(View):
         return redirect(job)
 
 
+@method_decorator(user_passes_test(can_run_jobs), name="dispatch")
+class JobRequestCancel(View):
+    def post(self, request, *args, **kwargs):
+        job_request = get_object_or_404(JobRequest, pk=self.kwargs["pk"])
+
+        if job_request.is_finished:
+            return redirect(job_request)
+
+        actions = list(set(job_request.jobs.values_list("action", flat=True)))
+        job_request.cancelled_actions = actions
+        job_request.save()
+
+        return redirect(job_request)
+
+
 class JobRequestDetail(DetailView):
     model = JobRequest
     queryset = JobRequest.objects.select_related(
@@ -158,6 +173,7 @@ class JobRequestDetail(DetailView):
             )
         )
         context["project_yaml_url"] = self.object.get_file_url("project.yaml")
+        context["user_can_run_jobs"] = can_run_jobs(self.request.user)
         return context
 
 

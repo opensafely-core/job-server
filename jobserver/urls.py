@@ -27,6 +27,7 @@ from .views import (
     Index,
     JobCancel,
     JobDetail,
+    JobRequestCancel,
     JobRequestDetail,
     JobRequestList,
     JobRequestZombify,
@@ -73,6 +74,11 @@ urlpatterns = [
     path("jobs/", JobRequestList.as_view(), name="job-list"),
     path("job-requests/", RedirectView.as_view(pattern_name="job-list")),
     path("job-requests/<pk>/", JobRequestDetail.as_view(), name="job-request-detail"),
+    path(
+        "job-requests/<pk>/cancel/",
+        JobRequestCancel.as_view(),
+        name="job-request-cancel",
+    ),
     path(
         "job-requests/<pk>/zombify/",
         JobRequestZombify.as_view(),
