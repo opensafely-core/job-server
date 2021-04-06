@@ -253,6 +253,10 @@ class JobRequest(models.Model):
         return f.url
 
     @property
+    def is_finished(self):
+        return self.status in ["failed", "succeeded"]
+
+    @property
     def is_invalid(self):
         """
         Is this JobRequest invalid?

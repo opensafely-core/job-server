@@ -238,6 +238,15 @@ def test_jobrequest_get_repo_url_success():
 
 
 @pytest.mark.django_db
+def test_jobrequest_is_finished():
+    job_request = JobRequestFactory()
+    JobFactory(job_request=job_request, status="failed")
+    JobFactory(job_request=job_request, status="succeeded")
+
+    assert job_request.is_finished
+
+
+@pytest.mark.django_db
 def test_jobrequest_num_completed_no_jobs():
     assert JobRequestFactory().num_completed == 0
 
