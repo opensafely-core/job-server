@@ -1,8 +1,9 @@
 import pytest
 
-from jobserver.admins import ensure_admins, get_admins
+from jobserver.authorization.admins import ensure_admins, get_admins
+from jobserver.authorization.roles import SuperUser
 
-from ..factories import UserFactory
+from ...factories import UserFactory
 
 
 @pytest.mark.django_db
@@ -14,18 +15,18 @@ def test_ensure_admins_no_users_configured():
 @pytest.mark.django_db
 def test_ensure_admins_success():
     user = UserFactory(username="ghickman")
-    assert not user.is_superuser
+    assert SuperUser not in user.roles
 
     ensure_admins(["ghickman"])
 
     user.refresh_from_db()
-    assert user.is_superuser
+    assert SuperUser in user.roles
 
 
 @pytest.mark.django_db
 def test_ensure_admins_unknown_user():
     user = UserFactory(username="ghickman")
-    assert not user.is_superuser
+    assert SuperUser not in user.roles
 
     with pytest.raises(Exception, match="Unknown users: test"):
         ensure_admins(["ghickman", "test"])
@@ -34,7 +35,7 @@ def test_ensure_admins_unknown_user():
 @pytest.mark.django_db
 def test_ensure_admins_unknown_users():
     user = UserFactory(username="ghickman")
-    assert not user.is_superuser
+    assert SuperUser not in user.roles
 
     with pytest.raises(Exception, match="Unknown users: foo, test"):
         ensure_admins(["ghickman", "foo", "test"])

@@ -1,6 +1,7 @@
 from environs import Env
 
-from jobserver.models import User
+from ..models import User
+from .roles import SuperUser
 
 
 env = Env()
@@ -32,8 +33,6 @@ def ensure_admins(usernames):
         sorted_missing = sorted(missing)
         raise Exception(f"Unknown users: {', '.join(sorted_missing)}")
 
-    # reset all users permissions first
-    User.objects.update(is_staff=False, is_superuser=False)
-
-    # update configured users to be admins
-    admins.update(is_staff=True, is_superuser=True)
+    for admin in admins:
+        admin.roles.append(SuperUser)
+        admin.save()

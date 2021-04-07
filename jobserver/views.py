@@ -16,6 +16,8 @@ from django.views.generic import (
 )
 from django.views.generic.edit import FormMixin
 
+from .authorization import SuperUser, has_role
+from .authorization.decorators import require_superuser
 from .backends import backends_to_choices, show_warning
 from .forms import (
     JobRequestCreateForm,
@@ -31,7 +33,7 @@ from .forms import (
 from .github import get_branch_sha, get_repos_with_branches
 from .models import Backend, Job, JobRequest, Org, Project, User, Workspace
 from .project import get_actions, get_project, load_yaml, render_definition
-from .roles import can_run_jobs, superuser_required
+from .roles import can_run_jobs
 
 
 def filter_by_status(job_requests, status):
@@ -55,19 +57,19 @@ def filter_by_status(job_requests, status):
     return list(filter(func, job_requests))
 
 
-@method_decorator(superuser_required, name="dispatch")
+@method_decorator(require_superuser, name="dispatch")
 class BackendDetail(DetailView):
     model = Backend
     template_name = "backend_detail.html"
 
 
-@method_decorator(superuser_required, name="dispatch")
+@method_decorator(require_superuser, name="dispatch")
 class BackendList(ListView):
     model = Backend
     template_name = "backend_list.html"
 
 
-@method_decorator(superuser_required, name="dispatch")
+@method_decorator(require_superuser, name="dispatch")
 class BackendRotateToken(View):
     def post(self, request, *args, **kwargs):
         backend = get_object_or_404(Backend, pk=self.kwargs["pk"])
@@ -122,7 +124,7 @@ class JobDetail(DetailView):
 
 class JobZombify(View):
     def dispatch(self, request, *args, **kwargs):
-        if not request.user.is_superuser:
+        if not has_role(request.user, SuperUser):
             messages.error(request, "Only admins can zombify Jobs.")
             return redirect("job-detail", identifier=self.kwargs["identifier"])
 
@@ -242,7 +244,7 @@ class JobRequestList(FormMixin, ListView):
 
 class JobRequestZombify(View):
     def dispatch(self, request, *args, **kwargs):
-        if not request.user.is_superuser:
+        if not has_role(request.user, SuperUser):
             messages.error(request, "Only admins can zombify Jobs.")
             return redirect("job-request-detail", pk=self.kwargs["pk"])
 
@@ -258,7 +260,7 @@ class JobRequestZombify(View):
         return redirect(job_request)
 
 
-@method_decorator(superuser_required, name="dispatch")
+@method_decorator(require_superuser, name="dispatch")
 class OrgCreate(CreateView):
     form_class = OrgCreateForm
     model = Org
@@ -273,20 +275,20 @@ class OrgCreate(CreateView):
         return self.object.get_absolute_url()
 
 
-@method_decorator(superuser_required, name="dispatch")
+@method_decorator(require_superuser, name="dispatch")
 class OrgDetail(DetailView):
     model = Org
     slug_url_kwarg = "org_slug"
     template_name = "org_detail.html"
 
 
-@method_decorator(superuser_required, name="dispatch")
+@method_decorator(require_superuser, name="dispatch")
 class OrgList(ListView):
     model = Org
     template_name = "org_list.html"
 
 
-@method_decorator(superuser_required, name="dispatch")
+@method_decorator(require_superuser, name="dispatch")
 class ProjectCreate(CreateView):
     form_class = ProjectCreateForm
     model = Project
@@ -333,7 +335,7 @@ class ProjectCreate(CreateView):
         return redirect(project)
 
 
-@method_decorator(superuser_required, name="dispatch")
+@method_decorator(require_superuser, name="dispatch")
 class ProjectDetail(DetailView):
     template_name = "project_detail.html"
 
@@ -490,7 +492,7 @@ class WorkspaceDetail(CreateView):
     def form_valid(self, form):
         sha = get_branch_sha(self.workspace.repo_name, self.workspace.branch)
 
-        if self.request.user.is_superuser:
+        if has_role(self.request.user, SuperUser):
             # Use the form data to decide which backend to use for superusers.
             backend = Backend.objects.get(name=form.cleaned_data.pop("backend"))
         else:
@@ -520,7 +522,7 @@ class WorkspaceDetail(CreateView):
         kwargs = super().get_form_kwargs()
         kwargs["actions"] = [a["name"] for a in self.actions]
 
-        if self.request.user.is_superuser:
+        if has_role(self.request.user, SuperUser):
             # TODO: move to ModelForm declaration once all users can pick backends
             backends = Backend.objects.all()
             backend_choices = backends_to_choices(backends)

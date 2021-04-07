@@ -80,7 +80,7 @@ def test_login_pipeline(client):
     assert user.notifications_email == "test@example.com"
     assert user.is_active
     assert not user.is_staff
-    assert not user.is_superuser
+    assert user.roles == []
 
 
 @pytest.mark.django_db

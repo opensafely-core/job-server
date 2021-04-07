@@ -18,6 +18,7 @@ from environs import Env
 from furl import furl
 
 from .backends import get_configured_backends
+from .fields import RolesField
 from .runtime import Runtime
 
 
@@ -535,6 +536,8 @@ class User(AbstractUser):
 
     # has the User been approved by an admin?
     is_approved = models.BooleanField(default=False)
+
+    roles = RolesField()
 
     @property
     def name(self):

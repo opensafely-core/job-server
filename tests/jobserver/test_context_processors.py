@@ -39,7 +39,7 @@ def test_backend_warnings_with_warnings(rf):
 @pytest.mark.django_db
 def test_nav_jobs(rf):
     request = rf.get(reverse("job-list"))
-    request.user = UserFactory(is_superuser=False)
+    request.user = UserFactory()
 
     jobs, status = nav(request)["nav"]
 
@@ -50,7 +50,7 @@ def test_nav_jobs(rf):
 @pytest.mark.django_db
 def test_nav_status(rf):
     request = rf.get(reverse("status"))
-    request.user = UserFactory(is_superuser=False)
+    request.user = UserFactory()
 
     jobs, status = nav(request)["nav"]
 
@@ -59,9 +59,9 @@ def test_nav_status(rf):
 
 
 @pytest.mark.django_db
-def test_nav_backends(rf):
+def test_nav_backends(rf, superuser):
     request = rf.get(reverse("backend-list"))
-    request.user = UserFactory(is_superuser=True)
+    request.user = superuser
 
     jobs, status, backends = nav(request)["nav"]
 
@@ -73,7 +73,7 @@ def test_nav_backends(rf):
 @pytest.mark.django_db
 def test_nav_without_superuser(rf):
     request = rf.get(reverse("backend-list"))
-    request.user = UserFactory(is_superuser=False)
+    request.user = UserFactory()
 
     jobs, status = nav(request)["nav"]
 

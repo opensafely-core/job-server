@@ -3,6 +3,7 @@ import functools
 import structlog
 from django.urls import reverse
 
+from .authorization import SuperUser, has_role
 from .backends import show_warning
 from .models import Backend
 
@@ -48,7 +49,7 @@ def nav(request):
         },
     ]
 
-    if request.user.is_superuser:
+    if has_role(request.user, SuperUser):
         options.append(
             {
                 "name": "Backends",
