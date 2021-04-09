@@ -654,6 +654,12 @@ class Workspace(models.Model):
         blank=True,
         related_name="workspaces",
     )
+    project = models.ForeignKey(
+        "Project",
+        on_delete=models.SET_NULL,
+        null=True,
+        related_name="workspaces",
+    )
 
     name = models.TextField(unique=True, validators=[validate_slug])
     repo = models.TextField(db_index=True)
