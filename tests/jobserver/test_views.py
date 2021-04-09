@@ -259,6 +259,20 @@ def test_jobcancel_unknown_job(rf):
 
 
 @pytest.mark.django_db
+def test_jobdetail_with_authenticated_user(rf):
+    job = JobFactory()
+
+    request = rf.get(MEANINGLESS_URL)
+    request.user = UserFactory(is_superuser=False, roles=[])
+
+    with patch("jobserver.views.can_run_jobs", return_value=True):
+        response = JobDetail.as_view()(request, identifier=job.identifier)
+
+    assert response.status_code == 200
+    assert "Zombify" not in response.rendered_content
+
+
+@pytest.mark.django_db
 def test_jobdetail_with_post_jobrequest_job(rf):
     job = JobFactory()
 
@@ -283,6 +297,34 @@ def test_jobdetail_with_pre_jobrequest_job(rf):
         response = JobDetail.as_view()(request, identifier=job.identifier)
 
     assert response.status_code == 200
+
+
+@pytest.mark.django_db
+def test_jobdetail_with_superuser(rf, superuser):
+    job = JobFactory()
+
+    request = rf.get(MEANINGLESS_URL)
+    request.user = superuser
+
+    with patch("jobserver.views.can_run_jobs", return_value=True):
+        response = JobDetail.as_view()(request, identifier=job.identifier)
+
+    assert response.status_code == 200
+    assert "Zombify" in response.rendered_content
+
+
+@pytest.mark.django_db
+def test_jobdetail_with_unauthenticated_user(rf):
+    job = JobFactory()
+
+    request = rf.get(MEANINGLESS_URL)
+    request.user = AnonymousUser()
+
+    with patch("jobserver.views.can_run_jobs", return_value=False):
+        response = JobDetail.as_view()(request, identifier=job.identifier)
+
+    assert response.status_code == 200
+    assert "Zombify" not in response.rendered_content
 
 
 @pytest.mark.django_db

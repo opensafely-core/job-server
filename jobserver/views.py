@@ -118,6 +118,7 @@ class JobDetail(DetailView):
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
+        context["is_superuser"] = has_role(self.request.user, SuperUser)
         context["user_can_run_jobs"] = can_run_jobs(self.request.user)
         return context
 

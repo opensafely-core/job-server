@@ -162,7 +162,7 @@
       </button>
     </form>
 
-    {% if request.user.is_superuser %}
+    {% if is_superuser %}
     <form class="mb-3" method="POST" action="{{ job.get_zombify_url }}">
       {% csrf_token %}
 
