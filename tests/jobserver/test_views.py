@@ -1256,7 +1256,7 @@ def test_workspacedetail_get_with_authenticated_user(rf):
 
     # Build a RequestFactory instance
     request = rf.get(MEANINGLESS_URL)
-    request.user = UserFactory()
+    request.user = UserFactory(is_superuser=False, roles=[])
 
     dummy_yaml = """
     actions:
@@ -1270,6 +1270,28 @@ def test_workspacedetail_get_with_authenticated_user(rf):
     assert "Archive" in response.rendered_content
     assert "Turn Notifications" in response.rendered_content
     assert "twiddle" in response.rendered_content
+    assert "Pick a backend to run your Jobs in" not in response.rendered_content
+
+
+@pytest.mark.django_db
+def test_workspacedetail_get_with_superuser(rf, superuser):
+    """Check WorkspaceDetail renders the Backend radio buttons for superusers"""
+    workspace = WorkspaceFactory(is_archived=False)
+
+    # Build a RequestFactory instance
+    request = rf.get(MEANINGLESS_URL)
+    request.user = superuser
+
+    dummy_yaml = """
+    actions:
+      twiddle:
+    """
+    with patch("jobserver.views.can_run_jobs", return_value=True, autospec=True), patch(
+        "jobserver.views.get_project", new=lambda *args: dummy_yaml
+    ):
+        response = WorkspaceDetail.as_view()(request, name=workspace.name)
+
+    assert "Pick a backend to run your Jobs in" in response.rendered_content
 
 
 @pytest.mark.django_db

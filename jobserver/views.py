@@ -518,6 +518,7 @@ class WorkspaceDetail(CreateView):
         context["actions"] = self.actions
         context["branch"] = self.workspace.branch
         context["latest_job_request"] = self.get_latest_job_request()
+        context["is_superuser"] = has_role(self.request.user, SuperUser)
         context["show_details"] = self.show_details
         context["user_can_run_jobs"] = self.user_can_run_jobs
         context["workspace"] = self.workspace
