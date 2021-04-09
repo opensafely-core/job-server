@@ -24,6 +24,16 @@
 
     <h2>{{ project.name }}</h2>
 
+    <ul>
+      {% for workspace in workspaces %}
+      <li>
+        <a href="{% url 'project-workspace-detail' org_slug=project.org.slug project_slug=project.slug workspace_slug=workspace.name %}">
+          {{ workspace.name }}
+        </a>
+      </li>
+      {% endfor %}
+    </ul>
+
   </div>
 </div>
 {% endblock %}

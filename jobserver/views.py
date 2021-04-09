@@ -377,6 +377,11 @@ class ProjectDetail(DetailView):
             org__slug=self.kwargs["org_slug"],
         )
 
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context["workspaces"] = self.object.workspaces.order_by("name")
+        return context
+
 
 @method_decorator(login_required, name="dispatch")
 class Settings(UpdateView):
