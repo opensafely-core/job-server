@@ -156,6 +156,12 @@ class ProjectAdmin(admin.ModelAdmin):
 
 @admin.register(User)
 class UserAdmin(admin.ModelAdmin):
+    exclude = [
+        "password",
+        "groups",
+        "user_permissions",
+        "roles",
+    ]
     list_display = [
         "username",
         "date_joined",
