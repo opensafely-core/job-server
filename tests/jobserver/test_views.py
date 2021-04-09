@@ -823,7 +823,7 @@ def test_jobrequestzombify_unknown_jobrequest(rf, superuser):
 @pytest.mark.django_db
 def test_orgcreate_get_success(rf, superuser):
     oxford = OrgFactory(name="University of Oxford")
-    datalab = OrgFactory(name="DataLab")
+    ebmdatalab = OrgFactory(name="EBMDataLab")
 
     request = rf.get(MEANINGLESS_URL)
     request.user = superuser
@@ -832,9 +832,9 @@ def test_orgcreate_get_success(rf, superuser):
     assert response.status_code == 200
 
     orgs = response.context_data["orgs"]
-    assert len(orgs) == 2
-    assert orgs[0] == datalab
-    assert orgs[1] == oxford
+    assert len(orgs) == 3
+    assert orgs[1] == ebmdatalab
+    assert orgs[2] == oxford
 
 
 @pytest.mark.django_db
@@ -846,9 +846,9 @@ def test_orgcreate_post_success(rf, superuser):
     assert response.status_code == 302
 
     orgs = Org.objects.all()
-    assert len(orgs) == 1
+    assert len(orgs) == 2
 
-    org = orgs.first()
+    org = orgs[1]
     assert org.name == "A New Org"
     assert response.url == org.get_absolute_url()
 
