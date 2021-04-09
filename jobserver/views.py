@@ -149,6 +149,7 @@ class JobRequestDetail(DetailView):
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
+        context["is_superuser"] = has_role(self.request.user, SuperUser)
         context["project_definition"] = mark_safe(
             render_definition(
                 self.object.project_definition,

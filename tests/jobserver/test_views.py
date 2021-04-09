@@ -19,6 +19,7 @@ from jobserver.views import (
     Index,
     JobCancel,
     JobDetail,
+    JobRequestDetail,
     JobRequestList,
     JobRequestZombify,
     JobZombify,
@@ -342,6 +343,42 @@ def test_jobzombify_unknown_job(rf, superuser):
 
     with pytest.raises(Http404):
         JobZombify.as_view()(request, identifier="")
+
+
+@pytest.mark.django_db
+def test_jobrequestdetail_with_authenticated_user(rf):
+    job_request = JobRequestFactory()
+
+    request = rf.get(MEANINGLESS_URL)
+    request.user = UserFactory(is_superuser=False, roles=[])
+    response = JobRequestDetail.as_view()(request, pk=job_request.pk)
+
+    assert response.status_code == 200
+    assert "Zombify" not in response.rendered_content
+
+
+@pytest.mark.django_db
+def test_jobrequestdetail_with_superuser(rf, superuser):
+    job_request = JobRequestFactory()
+
+    request = rf.get(MEANINGLESS_URL)
+    request.user = superuser
+    response = JobRequestDetail.as_view()(request, pk=job_request.pk)
+
+    assert response.status_code == 200
+    assert "Zombify" in response.rendered_content
+
+
+@pytest.mark.django_db
+def test_jobrequestdetail_with_unauthenticated_user(rf):
+    job_request = JobRequestFactory()
+
+    request = rf.get(MEANINGLESS_URL)
+    request.user = AnonymousUser()
+    response = JobRequestDetail.as_view()(request, pk=job_request.pk)
+
+    assert response.status_code == 200
+    assert "Zombify" not in response.rendered_content
 
 
 @pytest.mark.django_db
