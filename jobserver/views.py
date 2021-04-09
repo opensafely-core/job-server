@@ -180,6 +180,7 @@ class JobRequestList(FormMixin, ListView):
         context = super().get_context_data(object_list=filtered_object_list, **kwargs)
 
         context["backends"] = Backend.objects.order_by("name")
+        context["is_superuser"] = has_role(self.request.user, SuperUser)
         context["statuses"] = ["failed", "running", "pending", "succeeded"]
         context["users"] = {u.username: u.name for u in users}
         context["workspaces"] = workspaces
