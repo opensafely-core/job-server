@@ -305,6 +305,13 @@ class OrgDetail(DetailView):
     slug_url_kwarg = "org_slug"
     template_name = "org_detail.html"
 
+    def get_context_data(self, **kwargs):
+        projects = self.object.projects.order_by("name")
+
+        context = super().get_context_data(**kwargs)
+        context["projects"] = projects
+        return context
+
 
 @method_decorator(require_superuser, name="dispatch")
 class OrgList(ListView):
