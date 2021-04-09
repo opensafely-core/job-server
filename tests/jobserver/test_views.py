@@ -32,6 +32,7 @@ from jobserver.views import (
     OrgList,
     ProjectCreate,
     ProjectDetail,
+    ProjectDisconnectWorkspace,
     ProjectWorkspaceDetail,
     Settings,
     Status,
@@ -1017,6 +1018,50 @@ def test_projectdetail_unknown_project(rf, superuser):
 
     with pytest.raises(Http404):
         ProjectDetail.as_view()(request, org_slug=org.slug, project_slug="test")
+
+
+@pytest.mark.django_db
+def test_projectdisconnect_missing_workspace_id(rf, superuser):
+    org = OrgFactory()
+    project = ProjectFactory(org=org)
+
+    request = rf.post(MEANINGLESS_URL)
+    request.user = superuser
+    response = ProjectDisconnectWorkspace.as_view()(
+        request, org_slug=org.slug, project_slug=project.slug
+    )
+
+    assert response.status_code == 302
+    assert response.url == project.get_absolute_url()
+
+
+@pytest.mark.django_db
+def test_projectdisconnect_success(rf, superuser):
+    org = OrgFactory()
+    project = ProjectFactory(org=org)
+    workspace = WorkspaceFactory(project=project)
+
+    request = rf.post(MEANINGLESS_URL, {"id": workspace.pk})
+    request.user = superuser
+    response = ProjectDisconnectWorkspace.as_view()(
+        request, org_slug=org.slug, project_slug=project.slug
+    )
+
+    assert response.status_code == 302
+    assert response.url == project.get_absolute_url()
+
+
+@pytest.mark.django_db
+def test_projectdisconnect_unknown_project(rf, superuser):
+    org = OrgFactory()
+
+    request = rf.post(MEANINGLESS_URL)
+    request.user = superuser
+
+    with pytest.raises(Http404):
+        ProjectDisconnectWorkspace.as_view()(
+            request, org_slug=org.slug, project_slug=""
+        )
 
 
 @pytest.mark.django_db

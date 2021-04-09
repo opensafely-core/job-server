@@ -383,6 +383,25 @@ class ProjectDetail(DetailView):
         return context
 
 
+@method_decorator(require_superuser, name="dispatch")
+class ProjectDisconnectWorkspace(View):
+    def post(self, request, *args, **kwargs):
+        """A transitional view to help with migrating Workspaces under Projects"""
+        project = get_object_or_404(
+            Project,
+            org__slug=self.kwargs["org_slug"],
+            slug=self.kwargs["project_slug"],
+        )
+
+        workspace_id = request.POST.get("id")
+        if not workspace_id:
+            return redirect(project)
+
+        project.workspaces.filter(pk=workspace_id).update(project=None)
+
+        return redirect(project)
+
+
 @method_decorator(login_required, name="dispatch")
 class Settings(UpdateView):
     form_class = SettingsForm
