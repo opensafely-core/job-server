@@ -21,7 +21,7 @@ def get_admins():
 
 def ensure_admins(usernames):
     """
-    Given an iterable of username strings, set the is_superuser bit
+    Given an iterable of username strings, ensure they have the SuperUser role
     """
     if not usernames:
         raise Exception("No admin users configured, aborting")
