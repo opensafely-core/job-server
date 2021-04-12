@@ -177,6 +177,7 @@ class JobRequestList(FormMixin, ListView):
         )
         context = super().get_context_data(object_list=filtered_object_list, **kwargs)
 
+        context["backends"] = Backend.objects.order_by("name")
         context["statuses"] = ["failed", "running", "pending", "succeeded"]
         context["users"] = {u.username: u.name for u in users}
         context["workspaces"] = workspaces
@@ -200,6 +201,10 @@ class JobRequestList(FormMixin, ListView):
                 # if the query looks enough like a number for int() to handle
                 # it then we can look for a job number
                 qs = qs.filter(qwargs | Q(jobs__pk=q))
+
+        backend = self.request.GET.get("backend")
+        if backend:
+            qs = qs.filter(backend_id=backend)
 
         username = self.request.GET.get("username")
         if username:

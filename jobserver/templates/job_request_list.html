@@ -129,6 +129,33 @@
       </ul>
       {% endif %}
 
+      {% if backends %}
+      <h5>Backends</h5>
+      <ul class="list-group list-unstyled mb-4">
+        {% for backend in backends %}
+        {% is_filter_selected key="backend" value=backend.pk as is_active %}
+        <li class="list-group-item d-flex{% if is_active %} active{% endif %}">
+
+          <a class="text-truncate flex-grow-1" href="{% url_with_querystring backend=backend.pk %}">
+            {{ backend.name }}
+          </a>
+
+          {% if is_active %}
+          <a
+            type="button"
+            class="close"
+            aria-label="Close"
+            href="{% url_without_querystring backend=backend.pk %}"
+            >
+            <span aria-hidden="true">&times;</span>
+          </a>
+          {% endif %}
+
+        </li>
+        {% endfor %}
+      </ul>
+      {% endif %}
+
       {% if workspaces %}
       <h5>Workspaces</h5>
       <ul class="list-group list-unstyled">
