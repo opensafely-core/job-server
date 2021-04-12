@@ -148,7 +148,7 @@
       </ul>
       {% endif %}
 
-      {% if request.user.is_superuser %}
+      {% if is_superuser %}
       <p>Pick a backend to run your Jobs in:</p>
 
       <div class="form-group">

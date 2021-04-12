@@ -19,6 +19,7 @@ from jobserver.views import (
     Index,
     JobCancel,
     JobDetail,
+    JobRequestDetail,
     JobRequestList,
     JobRequestZombify,
     JobZombify,
@@ -258,6 +259,20 @@ def test_jobcancel_unknown_job(rf):
 
 
 @pytest.mark.django_db
+def test_jobdetail_with_authenticated_user(rf):
+    job = JobFactory()
+
+    request = rf.get(MEANINGLESS_URL)
+    request.user = UserFactory(is_superuser=False, roles=[])
+
+    with patch("jobserver.views.can_run_jobs", return_value=True):
+        response = JobDetail.as_view()(request, identifier=job.identifier)
+
+    assert response.status_code == 200
+    assert "Zombify" not in response.rendered_content
+
+
+@pytest.mark.django_db
 def test_jobdetail_with_post_jobrequest_job(rf):
     job = JobFactory()
 
@@ -282,6 +297,34 @@ def test_jobdetail_with_pre_jobrequest_job(rf):
         response = JobDetail.as_view()(request, identifier=job.identifier)
 
     assert response.status_code == 200
+
+
+@pytest.mark.django_db
+def test_jobdetail_with_superuser(rf, superuser):
+    job = JobFactory()
+
+    request = rf.get(MEANINGLESS_URL)
+    request.user = superuser
+
+    with patch("jobserver.views.can_run_jobs", return_value=True):
+        response = JobDetail.as_view()(request, identifier=job.identifier)
+
+    assert response.status_code == 200
+    assert "Zombify" in response.rendered_content
+
+
+@pytest.mark.django_db
+def test_jobdetail_with_unauthenticated_user(rf):
+    job = JobFactory()
+
+    request = rf.get(MEANINGLESS_URL)
+    request.user = AnonymousUser()
+
+    with patch("jobserver.views.can_run_jobs", return_value=False):
+        response = JobDetail.as_view()(request, identifier=job.identifier)
+
+    assert response.status_code == 200
+    assert "Zombify" not in response.rendered_content
 
 
 @pytest.mark.django_db
@@ -345,9 +388,46 @@ def test_jobzombify_unknown_job(rf, superuser):
 
 
 @pytest.mark.django_db
+def test_jobrequestdetail_with_authenticated_user(rf):
+    job_request = JobRequestFactory()
+
+    request = rf.get(MEANINGLESS_URL)
+    request.user = UserFactory(is_superuser=False, roles=[])
+    response = JobRequestDetail.as_view()(request, pk=job_request.pk)
+
+    assert response.status_code == 200
+    assert "Zombify" not in response.rendered_content
+
+
+@pytest.mark.django_db
+def test_jobrequestdetail_with_superuser(rf, superuser):
+    job_request = JobRequestFactory()
+
+    request = rf.get(MEANINGLESS_URL)
+    request.user = superuser
+    response = JobRequestDetail.as_view()(request, pk=job_request.pk)
+
+    assert response.status_code == 200
+    assert "Zombify" in response.rendered_content
+
+
+@pytest.mark.django_db
+def test_jobrequestdetail_with_unauthenticated_user(rf):
+    job_request = JobRequestFactory()
+
+    request = rf.get(MEANINGLESS_URL)
+    request.user = AnonymousUser()
+    response = JobRequestDetail.as_view()(request, pk=job_request.pk)
+
+    assert response.status_code == 200
+    assert "Zombify" not in response.rendered_content
+
+
+@pytest.mark.django_db
 def test_jobrequestlist_filters_exist(rf):
     # Build a RequestFactory instance
     request = rf.get(MEANINGLESS_URL)
+    request.user = UserFactory()
     response = JobRequestList.as_view()(request)
 
     assert "statuses" in response.context_data
@@ -366,6 +446,7 @@ def test_jobrequestlist_filter_by_backend(rf):
 
     # Build a RequestFactory instance
     request = rf.get(f"/?backend={emis.pk}")
+    request.user = UserFactory()
     response = JobRequestList.as_view()(request)
 
     assert len(response.context_data["page_obj"]) == 1
@@ -379,6 +460,7 @@ def test_jobrequestlist_filter_by_status(rf):
 
     # Build a RequestFactory instance
     request = rf.get("/?status=succeeded")
+    request.user = UserFactory()
     response = JobRequestList.as_view()(request)
 
     assert len(response.context_data["page_obj"]) == 1
@@ -410,6 +492,7 @@ def test_jobrequestlist_filter_by_status_and_workspace(rf):
 
     # Build a RequestFactory instance
     request = rf.get(f"/?status=running&workspace={workspace2.pk}")
+    request.user = UserFactory()
     response = JobRequestList.as_view()(request)
 
     assert len(response.context_data["object_list"]) == 1
@@ -423,6 +506,7 @@ def test_jobrequestlist_filter_by_username(rf):
 
     # Build a RequestFactory instance
     request = rf.get(f"/?username={user.username}")
+    request.user = UserFactory()
     response = JobRequestList.as_view()(request)
 
     assert len(response.context_data["object_list"]) == 1
@@ -436,6 +520,7 @@ def test_jobrequestlist_filter_by_workspace(rf):
 
     # Build a RequestFactory instance
     request = rf.get(f"/?workspace={workspace.pk}")
+    request.user = UserFactory()
     response = JobRequestList.as_view()(request)
 
     assert len(response.context_data["object_list"]) == 1
@@ -444,6 +529,7 @@ def test_jobrequestlist_filter_by_workspace(rf):
 @pytest.mark.django_db
 def test_jobrequestlist_find_job_request_by_identifier_form_invalid(rf):
     request = rf.post(MEANINGLESS_URL, {"test-key": "test-value"})
+    request.user = UserFactory()
     response = JobRequestList.as_view()(request)
 
     assert response.status_code == 200
@@ -457,6 +543,7 @@ def test_jobrequestlist_find_job_request_by_identifier_success(rf):
     job_request = JobRequestFactory(identifier="test-identifier")
 
     request = rf.post(MEANINGLESS_URL, {"identifier": job_request.identifier})
+    request.user = UserFactory()
     response = JobRequestList.as_view()(request)
 
     assert response.status_code == 302
@@ -466,6 +553,7 @@ def test_jobrequestlist_find_job_request_by_identifier_success(rf):
 @pytest.mark.django_db
 def test_jobrequestlist_find_job_request_by_identifier_unknown_job_request(rf):
     request = rf.post(MEANINGLESS_URL, {"identifier": "test-value"})
+    request.user = UserFactory()
     response = JobRequestList.as_view()(request)
 
     assert response.status_code == 200
@@ -486,6 +574,7 @@ def test_jobrequestlist_search_by_action(rf):
 
     # Build a RequestFactory instance
     request = rf.get("/?q=run")
+    request.user = UserFactory()
     response = JobRequestList.as_view()(request)
 
     assert len(response.context_data["object_list"]) == 1
@@ -501,6 +590,7 @@ def test_jobrequestlist_search_by_id(rf):
 
     # Build a RequestFactory instance
     request = rf.get("/?q=99")
+    request.user = UserFactory()
     response = JobRequestList.as_view()(request)
 
     assert len(response.context_data["object_list"]) == 1
@@ -517,6 +607,7 @@ def test_jobrequestlist_success(rf):
 
     # Build a RequestFactory instance
     request = rf.get(MEANINGLESS_URL)
+    request.user = UserFactory()
     response = JobRequestList.as_view()(request)
 
     assert len(response.context_data["object_list"]) == 1
@@ -524,6 +615,48 @@ def test_jobrequestlist_success(rf):
 
     assert response.context_data["users"] == {user.username: user.name}
     assert len(response.context_data["workspaces"]) == 1
+
+
+@pytest.mark.django_db
+def test_jobrequestlist_with_authenticated_user(rf):
+    job_request = JobRequestFactory()
+    JobFactory(job_request=job_request)
+    JobFactory(job_request=job_request)
+
+    request = rf.get(MEANINGLESS_URL)
+    request.user = UserFactory(is_superuser=False, roles=[])
+    response = JobRequestList.as_view()(request)
+
+    assert response.status_code == 200
+    assert "Look up JobRequest by Identifier" not in response.rendered_content
+
+
+@pytest.mark.django_db
+def test_jobrequestlist_with_superuser(rf, superuser):
+    job_request = JobRequestFactory()
+    JobFactory(job_request=job_request)
+    JobFactory(job_request=job_request)
+
+    request = rf.get(MEANINGLESS_URL)
+    request.user = superuser
+    response = JobRequestList.as_view()(request)
+
+    assert response.status_code == 200
+    assert "Look up JobRequest by Identifier" in response.rendered_content
+
+
+@pytest.mark.django_db
+def test_jobrequestlist_with_unauthenticated_user(rf):
+    job_request = JobRequestFactory()
+    JobFactory(job_request=job_request)
+    JobFactory(job_request=job_request)
+
+    request = rf.get(MEANINGLESS_URL)
+    request.user = AnonymousUser()
+    response = JobRequestList.as_view()(request)
+
+    assert response.status_code == 200
+    assert "Look up JobRequest by Identifier" not in response.rendered_content
 
 
 @pytest.mark.django_db
@@ -1256,7 +1389,7 @@ def test_workspacedetail_get_with_authenticated_user(rf):
 
     # Build a RequestFactory instance
     request = rf.get(MEANINGLESS_URL)
-    request.user = UserFactory()
+    request.user = UserFactory(is_superuser=False, roles=[])
 
     dummy_yaml = """
     actions:
@@ -1270,6 +1403,28 @@ def test_workspacedetail_get_with_authenticated_user(rf):
     assert "Archive" in response.rendered_content
     assert "Turn Notifications" in response.rendered_content
     assert "twiddle" in response.rendered_content
+    assert "Pick a backend to run your Jobs in" not in response.rendered_content
+
+
+@pytest.mark.django_db
+def test_workspacedetail_get_with_superuser(rf, superuser):
+    """Check WorkspaceDetail renders the Backend radio buttons for superusers"""
+    workspace = WorkspaceFactory(is_archived=False)
+
+    # Build a RequestFactory instance
+    request = rf.get(MEANINGLESS_URL)
+    request.user = superuser
+
+    dummy_yaml = """
+    actions:
+      twiddle:
+    """
+    with patch("jobserver.views.can_run_jobs", return_value=True, autospec=True), patch(
+        "jobserver.views.get_project", new=lambda *args: dummy_yaml
+    ):
+        response = WorkspaceDetail.as_view()(request, name=workspace.name)
+
+    assert "Pick a backend to run your Jobs in" in response.rendered_content
 
 
 @pytest.mark.django_db

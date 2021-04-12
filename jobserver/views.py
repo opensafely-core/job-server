@@ -118,6 +118,7 @@ class JobDetail(DetailView):
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
+        context["is_superuser"] = has_role(self.request.user, SuperUser)
         context["user_can_run_jobs"] = can_run_jobs(self.request.user)
         return context
 
@@ -149,6 +150,7 @@ class JobRequestDetail(DetailView):
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
+        context["is_superuser"] = has_role(self.request.user, SuperUser)
         context["project_definition"] = mark_safe(
             render_definition(
                 self.object.project_definition,
@@ -178,6 +180,7 @@ class JobRequestList(FormMixin, ListView):
         context = super().get_context_data(object_list=filtered_object_list, **kwargs)
 
         context["backends"] = Backend.objects.order_by("name")
+        context["is_superuser"] = has_role(self.request.user, SuperUser)
         context["statuses"] = ["failed", "running", "pending", "succeeded"]
         context["users"] = {u.username: u.name for u in users}
         context["workspaces"] = workspaces
@@ -518,6 +521,7 @@ class WorkspaceDetail(CreateView):
         context["actions"] = self.actions
         context["branch"] = self.workspace.branch
         context["latest_job_request"] = self.get_latest_job_request()
+        context["is_superuser"] = has_role(self.request.user, SuperUser)
         context["show_details"] = self.show_details
         context["user_can_run_jobs"] = self.user_can_run_jobs
         context["workspace"] = self.workspace
