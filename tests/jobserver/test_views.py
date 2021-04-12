@@ -355,6 +355,23 @@ def test_jobrequestlist_filters_exist(rf):
 
 
 @pytest.mark.django_db
+def test_jobrequestlist_filter_by_backend(rf):
+    emis = Backend.objects.get(name="emis")
+    job_request = JobRequestFactory(backend=emis)
+    JobFactory.create_batch(2, job_request=job_request)
+
+    tpp = Backend.objects.get(name="tpp")
+    job_request = JobRequestFactory(backend=tpp)
+    JobFactory.create_batch(2, job_request=job_request)
+
+    # Build a RequestFactory instance
+    request = rf.get(f"/?backend={emis.pk}")
+    response = JobRequestList.as_view()(request)
+
+    assert len(response.context_data["page_obj"]) == 1
+
+
+@pytest.mark.django_db
 def test_jobrequestlist_filter_by_status(rf):
     JobFactory(job_request=JobRequestFactory(), status="failed")
 
