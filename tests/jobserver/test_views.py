@@ -16,6 +16,8 @@ from jobserver.views import (
     BackendDetail,
     BackendList,
     BackendRotateToken,
+    BaseWorkspaceDetail,
+    GlobalWorkspaceDetail,
     Index,
     JobCancel,
     JobDetail,
@@ -33,7 +35,6 @@ from jobserver.views import (
     Status,
     WorkspaceArchiveToggle,
     WorkspaceCreate,
-    WorkspaceDetail,
     WorkspaceLog,
     WorkspaceNotificationsToggle,
     WorkspaceReleaseView,
@@ -87,6 +88,15 @@ def test_backendrotatetoken_success(rf, superuser):
 
     assert response.status_code == 302
     assert response.url == reverse("backend-detail", kwargs={"pk": backend.pk})
+
+
+@pytest.mark.django_db
+def test_baseworkspacedetail_requires_can_run_jobs(rf):
+    request = rf.get(MEANINGLESS_URL)
+    request.user = UserFactory()
+
+    with pytest.raises(NotImplementedError):
+        BaseWorkspaceDetail.as_view()(request)
 
 
 @pytest.mark.django_db
@@ -1242,7 +1252,7 @@ def test_workspacedetail_logged_out(rf):
     request.user = AnonymousUser()
 
     with patch("jobserver.views.get_actions", autospec=True) as mocked_get_actions:
-        response = WorkspaceDetail.as_view()(request, name=workspace.name)
+        response = GlobalWorkspaceDetail.as_view()(request, name=workspace.name)
 
     mocked_get_actions.assert_not_called()
 
@@ -1266,7 +1276,7 @@ def test_workspacedetail_project_yaml_errors(rf):
         side_effect=Exception("test error"),
         autospec=True,
     ):
-        response = WorkspaceDetail.as_view()(request, name=workspace.name)
+        response = GlobalWorkspaceDetail.as_view()(request, name=workspace.name)
 
     assert response.status_code == 200
 
@@ -1290,7 +1300,7 @@ def test_workspacedetail_get_success(rf):
     with patch("jobserver.views.can_run_jobs", return_value=True, autospec=True), patch(
         "jobserver.views.get_project", new=lambda *args: dummy_yaml
     ):
-        response = WorkspaceDetail.as_view()(request, name=workspace.name)
+        response = GlobalWorkspaceDetail.as_view()(request, name=workspace.name)
 
     assert response.status_code == 200
 
@@ -1313,7 +1323,7 @@ def test_workspacedetail_post_archived_workspace(rf):
     with patch("jobserver.views.can_run_jobs", return_value=True, autospec=True), patch(
         "jobserver.views.get_actions", return_value=[], autospec=True
     ):
-        response = WorkspaceDetail.as_view()(request, name=workspace.name)
+        response = GlobalWorkspaceDetail.as_view()(request, name=workspace.name)
 
     assert response.status_code == 302
     assert response.url == workspace.get_absolute_url()
@@ -1342,7 +1352,7 @@ def test_workspacedetail_post_success(rf, monkeypatch):
     with patch("jobserver.views.can_run_jobs", return_value=True, autospec=True), patch(
         "jobserver.views.get_project", new=lambda *args: dummy_yaml
     ), patch("jobserver.views.get_branch_sha", new=lambda r, b: "abc123"):
-        response = WorkspaceDetail.as_view()(request, name=workspace.name)
+        response = GlobalWorkspaceDetail.as_view()(request, name=workspace.name)
 
     assert response.status_code == 302, response.context_data["form"].errors
     assert response.url == reverse("workspace-logs", kwargs={"name": workspace.name})
@@ -1380,7 +1390,7 @@ def test_workspacedetail_post_with_notifications_default(rf, monkeypatch):
     with patch("jobserver.views.can_run_jobs", return_value=True, autospec=True), patch(
         "jobserver.views.get_project", new=lambda *args: dummy_yaml
     ), patch("jobserver.views.get_branch_sha", new=lambda r, b: "abc123"):
-        response = WorkspaceDetail.as_view()(request, name=workspace.name)
+        response = GlobalWorkspaceDetail.as_view()(request, name=workspace.name)
 
     assert response.status_code == 302, response.context_data["form"].errors
     assert response.url == reverse("workspace-logs", kwargs={"name": workspace.name})
@@ -1418,7 +1428,7 @@ def test_workspacedetail_post_with_notifications_override(rf, monkeypatch):
     with patch("jobserver.views.can_run_jobs", return_value=True, autospec=True), patch(
         "jobserver.views.get_project", new=lambda *args: dummy_yaml
     ), patch("jobserver.views.get_branch_sha", new=lambda r, b: "abc123"):
-        response = WorkspaceDetail.as_view()(request, name=workspace.name)
+        response = GlobalWorkspaceDetail.as_view()(request, name=workspace.name)
 
     assert response.status_code == 302, response.context_data["form"].errors
     assert response.url == reverse("workspace-logs", kwargs={"name": workspace.name})
@@ -1457,7 +1467,7 @@ def test_workspacedetail_post_success_with_superuser(rf, monkeypatch, superuser)
     with patch("jobserver.views.can_run_jobs", return_value=True, autospec=True), patch(
         "jobserver.views.get_project", new=lambda *args: dummy_yaml
     ), patch("jobserver.views.get_branch_sha", new=lambda r, b: "abc123"):
-        response = WorkspaceDetail.as_view()(request, name=workspace.name)
+        response = GlobalWorkspaceDetail.as_view()(request, name=workspace.name)
 
     assert response.status_code == 302, response.context_data["form"].errors
     assert response.url == reverse("workspace-logs", kwargs={"name": workspace.name})
@@ -1476,7 +1486,7 @@ def test_workspacedetail_unknown_workspace(rf):
     # Build a RequestFactory instance
     request = rf.get(MEANINGLESS_URL)
     request.user = UserFactory()
-    response = WorkspaceDetail.as_view()(request, name="test")
+    response = GlobalWorkspaceDetail.as_view()(request, name="test")
 
     assert response.status_code == 302
     assert response.url == "/"
@@ -1485,7 +1495,7 @@ def test_workspacedetail_unknown_workspace(rf):
 @pytest.mark.django_db
 def test_workspacedetail_get_with_authenticated_user(rf):
     """
-    Check WorkspaceDetail renders the controls for Archiving, Notifications,
+    Check GlobalWorkspaceDetail renders the controls for Archiving, Notifications,
     and selecting Actions for authenticated Users.
     """
     workspace = WorkspaceFactory(is_archived=False)
@@ -1501,7 +1511,7 @@ def test_workspacedetail_get_with_authenticated_user(rf):
     with patch("jobserver.views.can_run_jobs", return_value=True, autospec=True), patch(
         "jobserver.views.get_project", new=lambda *args: dummy_yaml
     ):
-        response = WorkspaceDetail.as_view()(request, name=workspace.name)
+        response = GlobalWorkspaceDetail.as_view()(request, name=workspace.name)
 
     assert "Archive" in response.rendered_content
     assert "Turn Notifications" in response.rendered_content
@@ -1511,7 +1521,7 @@ def test_workspacedetail_get_with_authenticated_user(rf):
 
 @pytest.mark.django_db
 def test_workspacedetail_get_with_superuser(rf, superuser):
-    """Check WorkspaceDetail renders the Backend radio buttons for superusers"""
+    """Check GlobalWorkspaceDetail renders the Backend radio buttons for superusers"""
     workspace = WorkspaceFactory(is_archived=False)
 
     # Build a RequestFactory instance
@@ -1525,7 +1535,7 @@ def test_workspacedetail_get_with_superuser(rf, superuser):
     with patch("jobserver.views.can_run_jobs", return_value=True, autospec=True), patch(
         "jobserver.views.get_project", new=lambda *args: dummy_yaml
     ):
-        response = WorkspaceDetail.as_view()(request, name=workspace.name)
+        response = GlobalWorkspaceDetail.as_view()(request, name=workspace.name)
 
     assert "Pick a backend to run your Jobs in" in response.rendered_content
 
@@ -1533,7 +1543,7 @@ def test_workspacedetail_get_with_superuser(rf, superuser):
 @pytest.mark.django_db
 def test_workspacedetail_get_with_unauthenticated_user(rf):
     """
-    Check WorkspaceDetail does not render the controls for Archiving,
+    Check GlobalWorkspaceDetail does not render the controls for Archiving,
     Notifications, and selecting Actions for unauthenticated Users.
     """
     workspace = WorkspaceFactory(is_archived=False)
@@ -1541,7 +1551,7 @@ def test_workspacedetail_get_with_unauthenticated_user(rf):
     # Build a RequestFactory instance
     request = rf.get(MEANINGLESS_URL)
     request.user = AnonymousUser()
-    response = WorkspaceDetail.as_view()(request, name=workspace.name)
+    response = GlobalWorkspaceDetail.as_view()(request, name=workspace.name)
 
     assert "Archive" not in response.rendered_content
     assert "Turn Notifications" not in response.rendered_content
