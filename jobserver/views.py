@@ -16,7 +16,7 @@ from django.views.generic import (
 )
 from django.views.generic.edit import FormMixin
 
-from .authorization import SuperUser, has_role
+from .authorization import SuperUser, has_permission, has_role
 from .authorization.decorators import require_superuser
 from .backends import backends_to_choices, show_warning
 from .forms import (
@@ -597,8 +597,36 @@ class GlobalWorkspaceDetail(BaseWorkspaceDetail):
         return can_run_jobs(user)
 
     def dispatch(self, request, *args, **kwargs):
+        if "project_slug" in self.kwargs:
+            return redirect(
+                "project-workspace-detail",
+                org_slug=self.kwargs["org_slug"],
+                project_slug=self.kwargs["project_slug"],
+                workspace_slug=self.kwargs["workspace_slug"],
+            )
+
         try:
             self.workspace = Workspace.objects.get(name=self.kwargs["name"])
+        except Workspace.DoesNotExist:
+            return redirect("/")
+
+        return super().dispatch(request, *args, **kwargs)
+
+
+class ProjectWorkspaceDetail(BaseWorkspaceDetail):
+    def can_run_jobs(self, user):
+        return has_permission(user, "run_job", project=self.workspace.project)
+
+    def dispatch(self, request, *args, **kwargs):
+        if "project_slug" not in self.kwargs:
+            return redirect("workspace-detail", name=self.kwargs["name"])
+
+        try:
+            self.workspace = Workspace.objects.get(
+                project__org__slug=self.kwargs["org_slug"],
+                project__slug=self.kwargs["project_slug"],
+                name=self.kwargs["workspace_slug"],
+            )
         except Workspace.DoesNotExist:
             return redirect("/")
 

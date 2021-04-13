@@ -11,6 +11,7 @@ from django.urls import reverse
 from django.utils import timezone
 from first import first
 
+from jobserver.authorization import ProjectDeveloper
 from jobserver.models import Backend, JobRequest, Org, Project, Workspace
 from jobserver.views import (
     BackendDetail,
@@ -31,6 +32,7 @@ from jobserver.views import (
     OrgList,
     ProjectCreate,
     ProjectDetail,
+    ProjectWorkspaceDetail,
     Settings,
     Status,
     WorkspaceArchiveToggle,
@@ -46,6 +48,7 @@ from ..factories import (
     JobRequestFactory,
     OrgFactory,
     ProjectFactory,
+    ProjectMembershipFactory,
     StatsFactory,
     UserFactory,
     UserSocialAuthFactory,
@@ -1017,6 +1020,53 @@ def test_projectdetail_unknown_project(rf, superuser):
 
 
 @pytest.mark.django_db
+def test_projectworkspacedetail_redirect_to_global_view(rf):
+    workspace = WorkspaceFactory()
+
+    request = rf.get(MEANINGLESS_URL)
+    response = ProjectWorkspaceDetail.as_view()(request, name=workspace.name)
+
+    assert response.status_code == 302
+    assert response.url == workspace.get_absolute_url()
+
+
+@pytest.mark.django_db
+def test_projectworkspacedetail_success(rf):
+    org = OrgFactory()
+    project = ProjectFactory(org=org)
+    workspace = WorkspaceFactory(project=project)
+
+    user = UserFactory()
+    ProjectMembershipFactory(project=project, user=user, roles=[ProjectDeveloper])
+
+    request = rf.get(MEANINGLESS_URL)
+    request.user = user
+    response = ProjectWorkspaceDetail.as_view()(
+        request,
+        org_slug=org.slug,
+        project_slug=project.slug,
+        workspace_slug=workspace.name,
+    )
+
+    assert response.status_code == 200
+    assert response.context_data["user_can_run_jobs"]
+
+
+@pytest.mark.django_db
+def test_projectworkspacedetail_unknown_workspace(rf):
+    request = rf.get(MEANINGLESS_URL)
+    response = ProjectWorkspaceDetail.as_view()(
+        request,
+        org_slug="",
+        project_slug="",
+        workspace_slug="",
+    )
+
+    assert response.status_code == 302
+    assert response.url == "/"
+
+
+@pytest.mark.django_db
 def test_settings_get(rf):
     UserFactory()
     user2 = UserFactory()
@@ -1479,6 +1529,31 @@ def test_workspacedetail_post_success_with_superuser(rf, monkeypatch, superuser)
     assert job_request.requested_actions == ["twiddle"]
     assert job_request.sha == "abc123"
     assert not job_request.jobs.exists()
+
+
+@pytest.mark.django_db
+def test_workspacedetail_redirects_with_project_url(rf):
+    org = OrgFactory()
+    project = ProjectFactory(org=org)
+    workspace = WorkspaceFactory(project=project)
+
+    request = rf.get(MEANINGLESS_URL)
+    response = GlobalWorkspaceDetail.as_view()(
+        request,
+        org_slug=org.slug,
+        project_slug=project.slug,
+        workspace_slug=workspace.name,
+    )
+
+    assert response.status_code == 302
+    assert response.url == reverse(
+        "project-workspace-detail",
+        kwargs={
+            "org_slug": org.slug,
+            "project_slug": project.slug,
+            "workspace_slug": workspace.name,
+        },
+    )
 
 
 @pytest.mark.django_db
