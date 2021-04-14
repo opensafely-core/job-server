@@ -23,9 +23,6 @@ def ensure_admins(usernames):
     """
     Given an iterable of username strings, ensure they have the SuperUser role
     """
-    if not usernames:
-        raise Exception("No admin users configured, aborting")
-
     admins = User.objects.filter(username__in=usernames)
 
     missing = set(usernames) - set(u.username for u in admins)
