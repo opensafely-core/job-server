@@ -5,8 +5,10 @@ from jobserver.authorization import (
     OutputPublisher,
     ProjectCollaborator,
     ProjectCoordinator,
+    ProjectDeveloper,
     has_permission,
     has_role,
+    strings_to_roles,
 )
 
 from ...factories import ProjectFactory, ProjectMembershipFactory, UserFactory
@@ -87,3 +89,25 @@ def test_has_role_with_context_success():
 
     ProjectMembershipFactory(project=project, user=user, roles=[ProjectCollaborator])
     assert has_role(user, ProjectCollaborator, project=project)
+
+
+def test_strings_to_roles_success():
+    roles = strings_to_roles(["ProjectDeveloper"], "jobserver.models.ProjectMembership")
+
+    assert len(roles) == 1
+    assert roles[0] == ProjectDeveloper
+
+
+def test_strings_to_roles_with_no_available_roles():
+    msg = "No Roles found with a link to 'dummy'.  model_path is a dotted path to a Model, eg: jobserver.models.User"
+
+    with pytest.raises(Exception, match=msg):
+        strings_to_roles(["ProjectDeveloper"], "dummy")
+
+
+def test_strings_to_roles_with_unknown_roles():
+    msg = (
+        "Unknown Roles:\n - DummyRole\nAvailable Roles for jobserver.models.User are:.*"
+    )
+    with pytest.raises(Exception, match=msg):
+        strings_to_roles(["DummyRole"], "jobserver.models.User")
