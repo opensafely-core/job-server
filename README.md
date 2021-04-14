@@ -1,8 +1,9 @@
 # OpenSAFELY Job Server
+This is the Web UI for requesting Jobs are run within the [OpenSAFELY platform](https://opensafely.org), and viewing their logs.
 
-This Django app provides a simple REST API which provides a channel
-for communicating between low-security environments (which can request
-that jobs be run) and high-security environments (where jobs are run).
+It provides an API to [job-runner](https://github.com/opensafely-core/job-runner) which executes those Jobs in high-security environments.
+
+
 
 
 ## Deployment
