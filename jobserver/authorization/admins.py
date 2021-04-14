@@ -13,7 +13,7 @@ def get_admins():
 
     Auth is handled via GitHub OAuth so these are GitHub usernames.
     """
-    admin_users = env.list("ADMIN_USERS")
+    admin_users = env.list("ADMIN_USERS", default=[])
 
     # remove whitespace and only return non-empty strings
     return [u.strip() for u in admin_users if u]
