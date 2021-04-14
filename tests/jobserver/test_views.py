@@ -19,6 +19,7 @@ from jobserver.views import (
     Index,
     JobCancel,
     JobDetail,
+    JobRequestCancel,
     JobRequestDetail,
     JobRequestList,
     JobRequestZombify,
@@ -388,11 +389,101 @@ def test_jobzombify_unknown_job(rf, superuser):
 
 
 @pytest.mark.django_db
+@responses.activate
+def test_jobrequestcancel_already_finished(rf):
+    job_request = JobRequestFactory(cancelled_actions=[])
+    JobFactory(job_request=job_request, status="succeeded")
+    JobFactory(job_request=job_request, status="failed")
+
+    user = UserFactory()
+
+    request = rf.post(MEANINGLESS_URL)
+    request.user = user
+
+    membership_url = f"https://api.github.com/orgs/opensafely/members/{user.username}"
+    responses.add(responses.GET, membership_url, status=204)
+
+    response = JobRequestCancel.as_view()(request, pk=job_request.pk)
+
+    assert response.status_code == 302
+    assert response.url == reverse("job-request-detail", kwargs={"pk": job_request.pk})
+
+    job_request.refresh_from_db()
+    assert job_request.cancelled_actions == []
+
+
+@pytest.mark.django_db
+@responses.activate
+def test_jobrequestcancel_success(rf):
+    job_request = JobRequestFactory(cancelled_actions=[])
+    JobFactory(job_request=job_request, action="test1")
+    JobFactory(job_request=job_request, action="test2")
+    JobFactory(job_request=job_request, action="test3")
+
+    user = UserFactory()
+
+    request = rf.post(MEANINGLESS_URL)
+    request.user = user
+
+    membership_url = f"https://api.github.com/orgs/opensafely/members/{user.username}"
+    responses.add(responses.GET, membership_url, status=204)
+
+    response = JobRequestCancel.as_view()(request, pk=job_request.pk)
+
+    assert response.status_code == 302
+    assert response.url == reverse("job-request-detail", kwargs={"pk": job_request.pk})
+
+    job_request.refresh_from_db()
+    assert "test1" in job_request.cancelled_actions
+    assert "test2" in job_request.cancelled_actions
+    assert "test3" in job_request.cancelled_actions
+
+
+@pytest.mark.django_db
+@responses.activate
+def test_jobrequestcancel_unauthorized(rf):
+    job_request = JobRequestFactory()
+    user = UserFactory()
+
+    request = rf.post(MEANINGLESS_URL)
+    request.user = user
+
+    membership_url = f"https://api.github.com/orgs/opensafely/members/{user.username}"
+    responses.add(responses.GET, membership_url, status=404)
+
+    response = JobRequestCancel.as_view()(request, pk=job_request.pk)
+
+    assert response.status_code == 302
+    assert response.url == f"{settings.LOGIN_URL}?next=/"
+
+
+@pytest.mark.django_db
+@responses.activate
+def test_jobrequestcancel_unknown_job_request(rf):
+    user = UserFactory()
+
+    request = rf.post(MEANINGLESS_URL)
+    request.user = user
+
+    membership_url = f"https://api.github.com/orgs/opensafely/members/{user.username}"
+    responses.add(responses.GET, membership_url, status=204)
+
+    with pytest.raises(Http404):
+        JobRequestCancel.as_view()(request, pk=0)
+
+
+@pytest.mark.django_db
+@responses.activate
 def test_jobrequestdetail_with_authenticated_user(rf):
     job_request = JobRequestFactory()
+    user = UserFactory(is_superuser=False, roles=[])
 
     request = rf.get(MEANINGLESS_URL)
-    request.user = UserFactory(is_superuser=False, roles=[])
+    request.user = user
+
+    membership_url = f"https://api.github.com/orgs/opensafely/members/{user.username}"
+    responses.add(responses.GET, membership_url, status=204)
+
     response = JobRequestDetail.as_view()(request, pk=job_request.pk)
 
     assert response.status_code == 200
@@ -400,11 +491,18 @@ def test_jobrequestdetail_with_authenticated_user(rf):
 
 
 @pytest.mark.django_db
+@responses.activate
 def test_jobrequestdetail_with_superuser(rf, superuser):
     job_request = JobRequestFactory()
 
     request = rf.get(MEANINGLESS_URL)
     request.user = superuser
+
+    membership_url = (
+        f"https://api.github.com/orgs/opensafely/members/{superuser.username}"
+    )
+    responses.add(responses.GET, membership_url, status=204)
+
     response = JobRequestDetail.as_view()(request, pk=job_request.pk)
 
     assert response.status_code == 200
@@ -660,6 +758,7 @@ def test_jobrequestlist_with_unauthenticated_user(rf):
 
 
 @pytest.mark.django_db
+@responses.activate
 def test_jobrequestzombify_not_superuser(client):
     job_request = JobRequestFactory()
     JobFactory.create_batch(
@@ -667,8 +766,12 @@ def test_jobrequestzombify_not_superuser(client):
         job_request=job_request,
         completed_at=None,
     )
+    user = UserFactory(roles=[])
 
-    client.force_login(UserFactory(roles=[]))
+    membership_url = f"https://api.github.com/orgs/opensafely/members/{user.username}"
+    responses.add(responses.GET, membership_url, status=204)
+
+    client.force_login(user)
     response = client.post(f"/job-requests/{job_request.pk}/zombify/", follow=True)
 
     assert response.status_code == 200

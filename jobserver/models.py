@@ -231,6 +231,9 @@ class JobRequest(models.Model):
 
         return last_job.completed_at
 
+    def get_cancel_url(self):
+        return reverse("job-request-cancel", kwargs={"pk": self.pk})
+
     def get_file_url(self, path):
         f = furl(self.workspace.repo)
 
@@ -251,6 +254,10 @@ class JobRequest(models.Model):
 
         f.path.segments += ["tree", self.sha]
         return f.url
+
+    @property
+    def is_finished(self):
+        return self.status in ["failed", "succeeded"]
 
     @property
     def is_invalid(self):
