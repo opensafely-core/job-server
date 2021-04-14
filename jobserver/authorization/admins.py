@@ -28,7 +28,7 @@ def ensure_admins(usernames):
     missing = set(usernames) - set(u.username for u in admins)
     if missing:
         sorted_missing = sorted(missing)
-        raise Exception(f"Unknown users: {', '.join(sorted_missing)}")
+        raise Exception(f"Unknown admin usernames: {', '.join(sorted_missing)}")
 
     for admin in admins:
         admin.roles.append(SuperUser)
