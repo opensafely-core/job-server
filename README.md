@@ -21,6 +21,40 @@ After a successful merge to `main` a deployment is run.
 Errors are logged to the DataLab [Sentry](https://sentry.io) account.
 
 
+## Local Development Set Up
+### Native
+Create a virtualenv with your preferred tool and install the dependencies with:
+
+    pip install -r requirements.txt
+
+
+Run migrations:
+
+    python manage.py migrate
+
+
+Set up the environment variables listed in `dotenv-sample` with your tool of choice.
+
+
+Optionally set up 1 or more administrators by setting `ADMIN_USERS` to a list of strings.
+eg `ADMIN_USERS=ghickman,ingelsp`.
+
+**Note:** this can only contain usernames which exist in the database.
+
+Then update their User records with:
+
+    python manage.py ensure_admins
+
+
+Run the dev server:
+
+    python manage.py runserver
+
+
+### Docker Compose
+Copy `dotenv-sample` to `.env` and run `docker-compose up`.
+
+*Note:* The dev server inside the container does not currently reload when changes are saved.
 
 
 ## Deployment
