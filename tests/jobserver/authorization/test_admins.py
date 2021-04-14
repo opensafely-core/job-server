@@ -7,12 +7,6 @@ from ...factories import UserFactory
 
 
 @pytest.mark.django_db
-def test_ensure_admins_no_users_configured():
-    with pytest.raises(Exception, match="No admin users configured, aborting"):
-        ensure_admins([])
-
-
-@pytest.mark.django_db
 def test_ensure_admins_success():
     user = UserFactory(username="ghickman")
     assert SuperUser not in user.roles
