@@ -2,6 +2,11 @@ from django.db import models
 from django.utils.module_loading import import_string
 
 
+def dotted_path(cls):
+    """Get the dotted path for a given class"""
+    return f"{cls.__module__}.{cls.__qualname__}"
+
+
 def _ensure_role_paths(paths):
     """
     Paths must be for one of our Role Classes in jobserver.authorization.roles.
@@ -55,8 +60,25 @@ class RolesField(models.JSONField):
         if not roles:
             return super().get_prep_value(roles)
 
+        # check each Role is valid for the calling class
+        invalid_roles = []
+        for role in roles:
+            # compare by dotted path because isinstance(self.model,
+            # apps.get_model(role.model)) doesn't work and I can't see why
+            if dotted_path(self.model) not in role.models:
+                invalid_roles.append(role)
+
+        if invalid_roles:
+            msg = f"Some roles could not be assigned to {self.model.__name__}"
+
+            for role in invalid_roles:
+                models = "\n".join([f"   - {model}" for model in role.models])
+                msg += f"\n - {role.__name__} can only be assigned to these models:\n{models}"
+
+            raise ValueError(msg)
+
         # convert each Role to a dotted path string
-        paths = {f"{r.__module__}.{r.__qualname__}" for r in roles}
+        paths = {dotted_path(r) for r in roles}
         paths = list(paths)
 
         _ensure_role_paths(paths)

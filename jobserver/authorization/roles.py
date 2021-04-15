@@ -13,6 +13,9 @@ class CoreDeveloper:
     Internal user who develops and deploys opensafely core framework code.
     """
 
+    models = [
+        "jobserver.models.User",
+    ]
     permissions = [
         cancel_job,
         run_job,
@@ -27,6 +30,9 @@ class DataInvestigator:
     only.
     """
 
+    models = [
+        "jobserver.models.User",
+    ]
     permissions = []
 
 
@@ -36,6 +42,9 @@ class GovernanceReviewer:
     is performed by NHSE.
     """
 
+    models = [
+        "jobserver.models.User",
+    ]
     permissions = []
 
 
@@ -47,6 +56,20 @@ class OnboardingAgent:
     delivering a project, to a degree that has been pre-planned and resourced.
     """
 
+    models = [
+        "jobserver.models.User",
+    ]
+    permissions = []
+
+
+class OrgCoordinator:
+    """
+    A responsible party for an Org
+    """
+
+    models = [
+        "jobserver.models.OrgMembership",
+    ]
     permissions = []
 
 
@@ -55,6 +78,9 @@ class OutputChecker:
     Review output folders that have been proposed for release.
     """
 
+    models = [
+        "jobserver.models.User",
+    ]
     permissions = [
         check_output,
     ]
@@ -66,6 +92,9 @@ class OutputPublisher:
     output checkers and/or an OpenSAFELY Reviewer.
     """
 
+    models = [
+        "jobserver.models.User",
+    ]
     permissions = [
         publish_output,
     ]
@@ -76,6 +105,9 @@ class ProjectCollaborator:
     TODO: Define this role.
     """
 
+    models = [
+        "jobserver.models.ProjectMembership",
+    ]
     permissions = [
         "",
     ]
@@ -93,6 +125,9 @@ class ProjectCoordinator:
     A Project can only have one Project Coordinator.
     """
 
+    models = [
+        "jobserver.models.ProjectMembership",
+    ]
     permissions = [
         invite_project_members,
     ]
@@ -105,6 +140,9 @@ class ProjectDeveloper:
     own outputs.
     """
 
+    models = [
+        "jobserver.models.ProjectMembership",
+    ]
     permissions = [
         cancel_job,
         check_output,
@@ -120,6 +158,9 @@ class SuperUser:
     checks.
     """
 
+    models = [
+        "jobserver.models.User",
+    ]
     permissions = []
 
 
@@ -129,6 +170,9 @@ class TechnicalReviewer:
     applicants, by OpenSAFELY.
     """
 
+    models = [
+        "jobserver.models.User",
+    ]
     permissions = [
         review_project,
     ]

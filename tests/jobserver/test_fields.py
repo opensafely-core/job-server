@@ -2,9 +2,13 @@ import pytest
 from django.db import connection
 
 from jobserver.authorization import CoreDeveloper, OutputChecker, ProjectCollaborator
-from jobserver.fields import RolesField, _ensure_role_paths, parse_roles
+from jobserver.fields import RolesField, _ensure_role_paths, dotted_path, parse_roles
 
-from ..factories import UserFactory
+from ..factories import OrgFactory, OrgMembershipFactory, UserFactory
+
+
+def test_dotted_path():
+    assert dotted_path(OutputChecker) == "jobserver.authorization.roles.OutputChecker"
 
 
 def test_ensure_role_paths_success():
@@ -136,3 +140,26 @@ def test_roles_field_to_python_with_empty_list():
 def test_roles_field_to_python_with_falsey_value():
     assert RolesField().to_python(None) is None
     assert RolesField().to_python([]) == []
+
+
+@pytest.mark.django_db
+def test_roles_field_with_invalid_role():
+    org = OrgFactory()
+    user = UserFactory()
+
+    class ProjectRole:
+        models = ["jobserver.models.ProjectMembership"]
+        permissions = []
+
+    msg = "Some roles could not be assigned to OrgMembership\n"
+    msg += " - ProjectRole can only be assigned to these models:\n"
+    msg += "   - jobserver.models.ProjectMembership"
+    with pytest.raises(ValueError, match=msg):
+        # This checks the RolesField on OrgMembership correctly identifies that
+        # ProjectRole can't be assigned to it because it's models list defines
+        # ProjectMembership as a valid Model.
+        #
+        # We're testing this with an OrgMembership (and thus its factory)
+        # because RolesField makes use of the Model it's defined on to ensure
+        # the passed Role is valid for that model so we can't call it directly.
+        OrgMembershipFactory(org=org, user=user, roles=[ProjectRole])
