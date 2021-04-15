@@ -7,6 +7,8 @@ ENV PIP_NO_CACHE_DIR=1 \
     PYTHONDONTWRITEBYTECODE=1 \
     PYTHONUNBUFFERED=1
 
+WORKDIR /app
+
 # Only requirements to cache them in docker layer so we can skip package
 # installation if they haven't changed
 COPY requirements.txt .
@@ -17,7 +19,6 @@ RUN apt-get update && \
     apt-get clean && \
     rm -rf /var/lib/apt/lists/*
 
-WORKDIR /app
 COPY . /app
 
 ENTRYPOINT ["/app/entrypoint.sh"]
