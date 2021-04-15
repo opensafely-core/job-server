@@ -12,7 +12,7 @@ WORKDIR /app
 # Only requirements to cache them in docker layer so we can skip package
 # installation if they haven't changed
 COPY requirements.txt .
-RUN pip install --requirement requirements.txt
+RUN pip install --no-cache-dir --requirement requirements.txt
 
 RUN apt-get update && \
     apt-get install --no-install-recommends -y sqlite3=3.27.2-3+deb10u1 && \
