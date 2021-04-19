@@ -1,5 +1,6 @@
 import base64
 import binascii
+import itertools
 import json
 import os
 import secrets
@@ -581,6 +582,64 @@ class User(AbstractUser):
 
     roles = RolesField()
 
+    def get_all_permissions(self):
+        """
+        Get all Permissions for the current User
+        """
+
+        def flatten_perms(roles):
+            permissions = itertools.chain.from_iterable(r.permissions for r in roles)
+            return list(sorted(set(permissions)))
+
+        orgs = [
+            {
+                "slug": m.org.slug,
+                "permissions": flatten_perms(m.roles),
+            }
+            for m in self.org_memberships.all()
+        ]
+
+        projects = [
+            {
+                "slug": m.project.slug,
+                "permissions": flatten_perms(m.roles),
+            }
+            for m in self.project_memberships.all()
+        ]
+
+        return {
+            "global": flatten_perms(self.roles),
+            "orgs": orgs,
+            "projects": projects,
+        }
+
+    def get_all_roles(self):
+        """
+        Get all Roles for the current User
+
+        Return all Roles for the User, grouping the local-Roles by the objects
+        they are contextual to.
+        """
+
+        def role_names(roles):
+            return list(sorted(r.__name__ for r in roles))
+
+        orgs = [
+            {"slug": m.org.slug, "roles": role_names(m.roles)}
+            for m in self.org_memberships.all()
+        ]
+
+        projects = [
+            {"slug": m.project.slug, "roles": role_names(m.roles)}
+            for m in self.project_memberships.all()
+        ]
+
+        return {
+            "global": role_names(self.roles),
+            "orgs": orgs,
+            "projects": projects,
+        }
+
     @property
     def name(self):
         """Unify the available names for a User."""
@@ -649,7 +708,6 @@ class Workspace(models.Model):
     def repo_name(self):
         """Convert repo URL -> repo name"""
         f = furl(self.repo)
-
         if not f.path:
             raise Exception("Repo URL not in expected format, appears to have no path")
         return f.path.segments[-1]
