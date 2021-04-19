@@ -111,7 +111,7 @@ jobs:
 
     steps:
       - uses: actions/checkout@v2
-      - uses: brpaz/hadolint-action@master
+      - uses: hadolint/hadolint-action@v1.4.0
 
   deploy:
     needs: [test, lint-dockerfile]
