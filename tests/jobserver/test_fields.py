@@ -2,13 +2,9 @@ import pytest
 from django.db import connection
 
 from jobserver.authorization import CoreDeveloper, OutputChecker, ProjectCollaborator
-from jobserver.fields import RolesField, _ensure_role_paths, dotted_path, parse_roles
+from jobserver.fields import RolesField, _ensure_role_paths, parse_roles
 
 from ..factories import OrgFactory, OrgMembershipFactory, UserFactory
-
-
-def test_dotted_path():
-    assert dotted_path(OutputChecker) == "jobserver.authorization.roles.OutputChecker"
 
 
 def test_ensure_role_paths_success():

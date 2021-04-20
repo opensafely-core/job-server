@@ -1,10 +1,7 @@
 from django.db import models
 from django.utils.module_loading import import_string
 
-
-def dotted_path(cls):
-    """Get the dotted path for a given class"""
-    return f"{cls.__module__}.{cls.__qualname__}"
+from .utils import dotted_path
 
 
 def _ensure_role_paths(paths):
