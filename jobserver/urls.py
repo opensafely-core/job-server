@@ -26,28 +26,22 @@ from .api import (
     UserAPIDetail,
     WorkspaceStatusesAPI,
 )
-from .views import (
-    BackendDetail,
-    BackendList,
-    BackendRotateToken,
-    GlobalWorkspaceDetail,
-    Index,
-    JobCancel,
-    JobDetail,
+from .views.backends import BackendDetail, BackendList, BackendRotateToken
+from .views.index import Index
+from .views.job_requests import (
     JobRequestCancel,
     JobRequestDetail,
     JobRequestList,
     JobRequestZombify,
-    JobZombify,
-    OrgCreate,
-    OrgDetail,
-    OrgList,
-    ProjectCreate,
-    ProjectDetail,
-    ProjectDisconnectWorkspace,
+)
+from .views.jobs import JobCancel, JobDetail, JobZombify
+from .views.orgs import OrgCreate, OrgDetail, OrgList
+from .views.projects import ProjectCreate, ProjectDetail, ProjectDisconnectWorkspace
+from .views.status import Status
+from .views.users import Settings
+from .views.workspaces import (
+    GlobalWorkspaceDetail,
     ProjectWorkspaceDetail,
-    Settings,
-    Status,
     WorkspaceArchiveToggle,
     WorkspaceCreate,
     WorkspaceLog,
