@@ -468,6 +468,46 @@ class Project(models.Model):
         return super().save(*args, **kwargs)
 
 
+class ProjectInvitation(models.Model):
+    """
+    Models an Invitation to join a Project
+
+    If accepted an Invite is linked to a ProjectMembership.
+    """
+
+    created_by = models.ForeignKey(
+        "User",
+        on_delete=models.SET_NULL,
+        related_name="created_project_invitations",
+        null=True,
+    )
+    membership = models.ForeignKey(
+        "ProjectMembership",
+        on_delete=models.CASCADE,
+        related_name="invitations",
+        null=True,
+    )
+    project = models.ForeignKey(
+        "Project",
+        on_delete=models.CASCADE,
+        related_name="invitations",
+    )
+    user = models.ForeignKey(
+        "User",
+        on_delete=models.CASCADE,
+        related_name="project_invitations",
+    )
+
+    created_at = models.DateTimeField(default=timezone.now)
+    accepted_at = models.DateTimeField(null=True)
+
+    class Meta:
+        unique_together = ["project", "user"]
+
+    def __str__(self):
+        return f"{self.user.username} | {self.project.name}"
+
+
 class ProjectMembership(models.Model):
     created_by = models.ForeignKey(
         "User",

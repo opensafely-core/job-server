@@ -20,6 +20,7 @@ from ..factories import (
     OrgFactory,
     OrgMembershipFactory,
     ProjectFactory,
+    ProjectInvitationFactory,
     ProjectMembershipFactory,
     ResearcherRegistrationFactory,
     StatsFactory,
@@ -553,6 +554,16 @@ def test_project_str():
         name="Very Good Project",
     )
     assert str(project) == "test-org | Very Good Project"
+
+
+@pytest.mark.django_db
+def test_projectinvitation_str():
+    project = ProjectFactory(name="DataLab")
+    user = UserFactory(username="ben")
+
+    invitation = ProjectInvitationFactory(project=project, user=user)
+
+    assert str(invitation) == "ben | DataLab"
 
 
 @pytest.mark.django_db
