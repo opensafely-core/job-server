@@ -532,6 +532,16 @@ def test_project_get_absolute_url():
 
 
 @pytest.mark.django_db
+def test_project_get_settings_url():
+    org = OrgFactory(name="test-org")
+    project = ProjectFactory(org=org)
+    url = project.get_settings_url()
+    assert url == reverse(
+        "project-settings", kwargs={"org_slug": org.slug, "project_slug": project.slug}
+    )
+
+
+@pytest.mark.django_db
 def test_project_populates_slug():
     assert ProjectFactory(name="Test Project", slug="").slug == "test-project"
 

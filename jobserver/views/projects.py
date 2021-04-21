@@ -1,8 +1,9 @@
 from django.db import transaction
 from django.shortcuts import get_object_or_404, redirect
 from django.utils.decorators import method_decorator
-from django.views.generic import CreateView, DetailView, View
+from django.views.generic import CreateView, DetailView, TemplateView, View
 
+from ..authorization import has_permission
 from ..authorization.decorators import require_superuser
 from ..forms import ProjectCreateForm, ResearcherFormSet
 from ..models import Org, Project
@@ -67,7 +68,14 @@ class ProjectDetail(DetailView):
         )
 
     def get_context_data(self, **kwargs):
+        can_manage_members = has_permission(
+            self.request.user,
+            "manage_project_members",
+            project=self.object,
+        )
+
         context = super().get_context_data(**kwargs)
+        context["can_manage_members"] = can_manage_members
         context["workspaces"] = self.object.workspaces.order_by("name")
         return context
 
@@ -89,3 +97,22 @@ class ProjectDisconnectWorkspace(View):
         project.workspaces.filter(pk=workspace_id).update(project=None)
 
         return redirect(project)
+
+
+@method_decorator(require_superuser, name="dispatch")
+class ProjectSettings(TemplateView):
+    template_name = "project_settings.html"
+
+    def get_context_data(self, **kwargs):
+        project = get_object_or_404(
+            Project,
+            org__slug=self.kwargs["org_slug"],
+            slug=self.kwargs["project_slug"],
+        )
+
+        members = project.members.select_related("user")
+
+        context = super().get_context_data(**kwargs)
+        context["members"] = members
+        context["project"] = project
+        return context

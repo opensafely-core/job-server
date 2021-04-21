@@ -1,0 +1,59 @@
+{% extends "base.html" %}
+
+{% block content %}
+
+<nav aria-label="breadcrumb">
+  <ol class="breadcrumb">
+
+    <li class="breadcrumb-item"><a href="/">Home</a></li>
+
+    <li class="breadcrumb-item">
+      <a href="{{ project.org.get_absolute_url }}">
+        {{ project.org.name }}
+      </a>
+    </li>
+
+    <li class="breadcrumb-item">
+      <a href="{{ project.get_absolute_url }}">
+        {{ project.name }}
+      </a>
+    </li>
+
+    <li class="breadcrumb-item active" aria-current="page">Settings</li>
+
+  </ol>
+</nav>
+
+<div class="row">
+  <div class="col-lg-8 offset-lg-2">
+
+    <h3>Members</h3>
+
+    {% if members %}
+    <ul class="list-unstyled">
+      {% for member in members %}
+      <li class="mb-3">
+        <div>
+          <strong>{{ member.user.name }}</strong>
+
+          <p>Roles:</p>
+          <ul>
+            {% for role in member.roles %}
+            <li>{{ role }}</li>
+            {% endfor %}
+          </ul>
+        </div>
+      </li>
+      {% endfor %}
+    </ul>
+    {% else %}
+    <p class="mt-5">
+      There are no members for this organisation yet, you can invite some
+      below.
+    </p>
+    {% endif %}
+
+  </div>
+</div>
+
+{% endblock %}

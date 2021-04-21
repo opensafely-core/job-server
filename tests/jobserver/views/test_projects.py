@@ -6,9 +6,15 @@ from jobserver.views.projects import (
     ProjectCreate,
     ProjectDetail,
     ProjectDisconnectWorkspace,
+    ProjectSettings,
 )
 
-from ...factories import OrgFactory, ProjectFactory, WorkspaceFactory
+from ...factories import (
+    OrgFactory,
+    ProjectFactory,
+    ProjectMembershipFactory,
+    WorkspaceFactory,
+)
 
 
 MEANINGLESS_URL = "/"
@@ -177,3 +183,33 @@ def test_projectdisconnect_unknown_project(rf, superuser):
         ProjectDisconnectWorkspace.as_view()(
             request, org_slug=org.slug, project_slug=""
         )
+
+
+@pytest.mark.django_db
+def test_projectsettings_success(rf, superuser):
+    org = OrgFactory()
+    project = ProjectFactory(org=org)
+
+    ProjectMembershipFactory(project=project)
+
+    request = rf.get(MEANINGLESS_URL)
+    request.user = superuser
+
+    response = ProjectSettings.as_view()(
+        request, org_slug=org.slug, project_slug=project.slug
+    )
+
+    assert response.status_code == 200
+
+    assert len(response.context_data["members"]) == 1
+    assert response.context_data["project"] == project
+
+
+@pytest.mark.django_db
+def test_projectsettings_unknown_project(rf, superuser):
+
+    request = rf.get(MEANINGLESS_URL)
+    request.user = superuser
+
+    with pytest.raises(Http404):
+        ProjectSettings.as_view()(request, org_slug="", project_slug="")

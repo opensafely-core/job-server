@@ -455,6 +455,12 @@ class Project(models.Model):
             kwargs={"org_slug": self.org.slug, "project_slug": self.slug},
         )
 
+    def get_settings_url(self):
+        return reverse(
+            "project-settings",
+            kwargs={"org_slug": self.org.slug, "project_slug": self.slug},
+        )
+
     def save(self, *args, **kwargs):
         if not self.slug:
             self.slug = slugify(self.name)

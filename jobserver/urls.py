@@ -36,7 +36,12 @@ from .views.job_requests import (
 )
 from .views.jobs import JobCancel, JobDetail, JobZombify
 from .views.orgs import OrgCreate, OrgDetail, OrgList
-from .views.projects import ProjectCreate, ProjectDetail, ProjectDisconnectWorkspace
+from .views.projects import (
+    ProjectCreate,
+    ProjectDetail,
+    ProjectDisconnectWorkspace,
+    ProjectSettings,
+)
 from .views.status import Status
 from .views.users import Settings
 from .views.workspaces import (
@@ -94,6 +99,11 @@ org_urls = [
         "<org_slug>/<project_slug>/disconnect/",
         ProjectDisconnectWorkspace.as_view(),
         name="project-disconnect-workspace",
+    ),
+    path(
+        "<org_slug>/<project_slug>/settings/",
+        ProjectSettings.as_view(),
+        name="project-settings",
     ),
     path(
         "<org_slug>/<project_slug>/<workspace_slug>/",
