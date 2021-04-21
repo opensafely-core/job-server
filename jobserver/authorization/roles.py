@@ -2,6 +2,7 @@ from .permissions import (
     cancel_job,
     check_output,
     invite_project_members,
+    manage_project_members,
     publish_output,
     review_project,
     run_job,
@@ -130,6 +131,7 @@ class ProjectCoordinator:
     ]
     permissions = [
         invite_project_members,
+        manage_project_members,
     ]
 
 
