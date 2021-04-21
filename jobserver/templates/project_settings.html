@@ -34,7 +34,21 @@
       {% for member in members %}
       <li class="mb-3">
         <div>
-          <strong>{{ member.user.name }}</strong>
+          <div class="d-flex justify-content-between align-items-center">
+            <strong>{{ member.user.name }}</strong>
+
+            {% if can_manage_members %}
+            <form
+              method="POST"
+              action="{% url 'project-remove-member' org_slug=project.org.slug project_slug=project.slug %}">
+              {% csrf_token %}
+
+              <input type="hidden" name="username" value="{{ member.user.username }}" />
+
+              <button class="btn btn-block btn-sm btn-danger" type="submit">Remove</button>
+            </form>
+            {% endif %}
+          </div>
 
           <p>Roles:</p>
           <ul>

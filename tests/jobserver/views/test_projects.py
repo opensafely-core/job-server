@@ -1,11 +1,14 @@
 import pytest
+from django.contrib.messages.storage.fallback import FallbackStorage
 from django.http import Http404
 
-from jobserver.models import Project
+from jobserver.authorization import ProjectCoordinator
+from jobserver.models import Project, ProjectMembership
 from jobserver.views.projects import (
     ProjectCreate,
     ProjectDetail,
     ProjectDisconnectWorkspace,
+    ProjectRemoveMember,
     ProjectSettings,
 )
 
@@ -13,6 +16,7 @@ from ...factories import (
     OrgFactory,
     ProjectFactory,
     ProjectMembershipFactory,
+    UserFactory,
     WorkspaceFactory,
 )
 
@@ -183,6 +187,80 @@ def test_projectdisconnect_unknown_project(rf, superuser):
         ProjectDisconnectWorkspace.as_view()(
             request, org_slug=org.slug, project_slug=""
         )
+
+
+@pytest.mark.django_db
+def test_projectremovemember_success(rf, superuser):
+    org = OrgFactory()
+    project = ProjectFactory(org=org)
+    member = UserFactory()
+
+    ProjectMembershipFactory(
+        project=project, user=superuser, roles=[ProjectCoordinator]
+    )
+    membership = ProjectMembershipFactory(project=project, user=member)
+
+    request = rf.post("/", {"username": member.username})
+    request.user = superuser
+
+    response = ProjectRemoveMember.as_view()(
+        request, org_slug=org.slug, project_slug=project.slug
+    )
+
+    assert response.status_code == 302
+    assert response.url == project.get_settings_url()
+
+    assert not ProjectMembership.objects.filter(pk=membership.pk).exists()
+
+
+@pytest.mark.django_db
+def test_projectremovemember_unknown_project_membership(rf, superuser):
+    org = OrgFactory()
+    project = ProjectFactory(org=org)
+
+    ProjectMembershipFactory(
+        project=project, user=superuser, roles=[ProjectCoordinator]
+    )
+
+    request = rf.post("/", {"username": "test"})
+    request.user = superuser
+
+    with pytest.raises(Http404):
+        ProjectRemoveMember.as_view()(
+            request, org_slug=org.slug, project_slug=project.slug
+        )
+
+
+@pytest.mark.django_db
+def test_projectremovemember_without_permission(rf, superuser):
+    org = OrgFactory()
+    project = ProjectFactory(org=org)
+    member = UserFactory()
+
+    membership = ProjectMembershipFactory(project=project, user=member)
+
+    request = rf.post("/", {"username": member.username})
+    request.user = superuser
+
+    # set up messages framework
+    request.session = "session"
+    messages = FallbackStorage(request)
+    request._messages = messages
+
+    response = ProjectRemoveMember.as_view()(
+        request, org_slug=org.slug, project_slug=project.slug
+    )
+
+    assert response.status_code == 302
+    assert response.url == project.get_settings_url()
+
+    # confirm the membership hasn't been deleted
+    assert ProjectMembership.objects.filter(pk=membership.pk).exists()
+
+    # check we have a message for the user
+    messages = list(messages)
+    assert len(messages) == 1
+    assert str(messages[0]) == "You do not have permission to remove Project members."
 
 
 @pytest.mark.django_db

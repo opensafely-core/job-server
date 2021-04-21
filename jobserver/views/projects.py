@@ -1,4 +1,6 @@
+from django.contrib import messages
 from django.db import transaction
+from django.http import Http404
 from django.shortcuts import get_object_or_404, redirect
 from django.utils.decorators import method_decorator
 from django.views.generic import CreateView, DetailView, TemplateView, View
@@ -6,7 +8,7 @@ from django.views.generic import CreateView, DetailView, TemplateView, View
 from ..authorization import has_permission
 from ..authorization.decorators import require_superuser
 from ..forms import ProjectCreateForm, ResearcherFormSet
-from ..models import Org, Project
+from ..models import Org, Project, ProjectMembership
 
 
 @method_decorator(require_superuser, name="dispatch")
@@ -100,6 +102,35 @@ class ProjectDisconnectWorkspace(View):
 
 
 @method_decorator(require_superuser, name="dispatch")
+class ProjectRemoveMember(View):
+    model = ProjectMembership
+
+    def post(self, request, *args, **kwargs):
+        try:
+            membership = ProjectMembership.objects.select_related("project").get(
+                project__org__slug=self.kwargs["org_slug"],
+                project__slug=self.kwargs["project_slug"],
+                user__username=self.request.POST.get("username"),
+            )
+        except ProjectMembership.DoesNotExist:
+            raise Http404
+
+        can_manage_members = has_permission(
+            self.request.user,
+            "manage_project_members",
+            project=membership.project,
+        )
+        if can_manage_members:
+            membership.delete()
+        else:
+            messages.error(
+                request, "You do not have permission to remove Project members."
+            )
+
+        return redirect(membership.project.get_settings_url())
+
+
+@method_decorator(require_superuser, name="dispatch")
 class ProjectSettings(TemplateView):
     template_name = "project_settings.html"
 
@@ -110,9 +141,15 @@ class ProjectSettings(TemplateView):
             slug=self.kwargs["project_slug"],
         )
 
+        can_manage_members = has_permission(
+            self.request.user,
+            "manage_project_members",
+            project=project,
+        )
         members = project.members.select_related("user")
 
         context = super().get_context_data(**kwargs)
+        context["can_manage_members"] = can_manage_members
         context["members"] = members
         context["project"] = project
         return context
