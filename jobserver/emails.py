@@ -29,7 +29,7 @@ def send_finished_notification(email, job):
 
 def send_project_invite_email(email, project, invite):
     f = furl(settings.BASE_URL)
-    f.path = project.get_absolute_url()
+    f.path = invite.get_invitation_url()
 
     context = {
         "inviter_name": invite.created_by.name,

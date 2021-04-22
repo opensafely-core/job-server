@@ -5,6 +5,7 @@ from django.http import Http404
 from jobserver.authorization import ProjectCoordinator
 from jobserver.models import Project, ProjectInvitation, ProjectMembership
 from jobserver.views.projects import (
+    ProjectAcceptInvite,
     ProjectCreate,
     ProjectDetail,
     ProjectDisconnectWorkspace,
@@ -23,6 +24,81 @@ from ...factories import (
 
 
 MEANINGLESS_URL = "/"
+
+
+@pytest.mark.django_db
+def test_projectacceptinvite_success(rf):
+    org = OrgFactory()
+    project = ProjectFactory(org=org)
+    user = UserFactory()
+
+    invite = ProjectInvitationFactory(project=project, user=user)
+    assert invite.membership is None
+
+    request = rf.get(MEANINGLESS_URL)
+    request.user = user
+
+    response = ProjectAcceptInvite.as_view()(
+        request,
+        org_slug=org.slug,
+        project_slug=project.slug,
+        signed_pk=invite.signed_pk,
+    )
+
+    assert response.status_code == 302
+    assert response.url == project.get_absolute_url()
+
+    invite.refresh_from_db()
+    assert invite.membership is not None
+    assert invite.membership.project == project
+
+
+@pytest.mark.django_db
+def test_projectacceptinvite_unknown_invite(rf):
+    org = OrgFactory()
+    project = ProjectFactory(org=org)
+
+    request = rf.get(MEANINGLESS_URL)
+    request.user = UserFactory()
+
+    with pytest.raises(Http404):
+        ProjectAcceptInvite.as_view()(
+            request,
+            org_slug=org.slug,
+            project_slug=project.slug,
+            signed_pk="test",
+        )
+
+
+@pytest.mark.django_db
+def test_projectacceptinvite_with_different_user(rf):
+    org = OrgFactory()
+    project = ProjectFactory(org=org)
+    invitee = UserFactory()
+    invite = ProjectInvitationFactory(project=project, user=invitee)
+
+    request = rf.get(MEANINGLESS_URL)
+    request.user = UserFactory()
+
+    # set up messages framework
+    request.session = "session"
+    messages = FallbackStorage(request)
+    request._messages = messages
+
+    response = ProjectAcceptInvite.as_view()(
+        request,
+        org_slug=org.slug,
+        project_slug=project.slug,
+        signed_pk=invite.signed_pk,
+    )
+
+    assert response.status_code == 302
+    assert response.url == "/"
+
+    # check we have a message for the user
+    messages = list(messages)
+    assert len(messages) == 1
+    assert str(messages[0]) == "Only the User who was invited may accept an invite."
 
 
 @pytest.mark.django_db

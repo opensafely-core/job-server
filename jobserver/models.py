@@ -9,8 +9,9 @@ from datetime import timedelta
 import structlog
 from django.conf import settings
 from django.contrib.auth.models import AbstractUser
+from django.core import signing
 from django.core.validators import validate_slug
-from django.db import models
+from django.db import models, transaction
 from django.db.models import Count, Q
 from django.urls import reverse
 from django.utils import timezone
@@ -506,6 +507,44 @@ class ProjectInvitation(models.Model):
 
     def __str__(self):
         return f"{self.user.username} | {self.project.name}"
+
+    @transaction.atomic
+    def create_membership(self):
+        self.accepted_at = timezone.now()
+
+        membership = ProjectMembership.objects.create(
+            project=self.project,
+            user=self.user,
+        )
+        self.membership = membership
+
+        self.save()
+
+    @classmethod
+    def get_from_signed_pk(cls, value):
+        """Look up a ProjectInvitation from a signed PK"""
+        unsigned_pk = ProjectInvitation.signer().unsign(value)
+
+        return ProjectInvitation.objects.get(pk=unsigned_pk)
+
+    def get_invitation_url(self):
+        return reverse(
+            "project-accept-invite",
+            kwargs={
+                "org_slug": self.project.org.slug,
+                "project_slug": self.project.slug,
+                "signed_pk": self.signed_pk,
+            },
+        )
+
+    @property
+    def signed_pk(self):
+        return ProjectInvitation.signer().sign(self.pk)
+
+    @staticmethod
+    def signer():
+        """Provide a salted signer instance for Project Invitations"""
+        return signing.Signer(salt="project-invitation")
 
 
 class ProjectMembership(models.Model):

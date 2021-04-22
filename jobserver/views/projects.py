@@ -1,4 +1,6 @@
 from django.contrib import messages
+from django.contrib.auth.decorators import login_required
+from django.core import signing
 from django.db import transaction
 from django.http import Http404
 from django.shortcuts import get_object_or_404, redirect
@@ -12,6 +14,28 @@ from ..authorization.decorators import require_superuser
 from ..emails import send_project_invite_email
 from ..forms import ProjectCreateForm, ProjectInvitationForm, ResearcherFormSet
 from ..models import Org, Project, ProjectInvitation, ProjectMembership, User
+
+
+@method_decorator(login_required, name="dispatch")
+class ProjectAcceptInvite(View):
+    def get(self, request, *args, **kwargs):
+        signed_pk = self.kwargs["signed_pk"]
+
+        try:
+            invite = ProjectInvitation.get_from_signed_pk(signed_pk)
+        except (ProjectInvitation.DoesNotExist, signing.BadSignature):
+            raise Http404
+
+        if request.user != invite.user:
+            messages.error(
+                request,
+                "Only the User who was invited may accept an invite.",
+            )
+            return redirect("/")
+
+        invite.create_membership()
+
+        return redirect(invite.project)
 
 
 @method_decorator(require_superuser, name="dispatch")

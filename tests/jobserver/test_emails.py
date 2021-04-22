@@ -66,7 +66,7 @@ def test_send_project_invite_email(mailoutbox):
 
     assert inviter.name in m.body
     assert project.name in m.body
-    assert project.get_absolute_url() in m.body
+    assert invite.get_invitation_url() in m.body
     assert settings.BASE_URL in m.body
 
     assert list(m.to) == [invitee.notifications_email]

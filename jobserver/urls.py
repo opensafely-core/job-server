@@ -37,6 +37,7 @@ from .views.job_requests import (
 from .views.jobs import JobCancel, JobDetail, JobZombify
 from .views.orgs import OrgCreate, OrgDetail, OrgList
 from .views.projects import (
+    ProjectAcceptInvite,
     ProjectCreate,
     ProjectDetail,
     ProjectDisconnectWorkspace,
@@ -95,6 +96,11 @@ org_urls = [
         "<org_slug>/<project_slug>/",
         ProjectDetail.as_view(),
         name="project-detail",
+    ),
+    path(
+        "<org_slug>/<project_slug>/accept-invite/<signed_pk>/",
+        ProjectAcceptInvite.as_view(),
+        name="project-accept-invite",
     ),
     path(
         "<org_slug>/<project_slug>/disconnect/",

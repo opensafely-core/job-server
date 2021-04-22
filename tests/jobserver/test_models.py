@@ -1,6 +1,7 @@
 from datetime import datetime, timedelta
 
 import pytest
+from django.core import signing
 from django.urls import reverse
 from django.utils import timezone
 
@@ -11,7 +12,13 @@ from jobserver.authorization.roles import (
     ProjectCollaborator,
     ProjectDeveloper,
 )
-from jobserver.models import Backend, JobRequest, Release
+from jobserver.models import (
+    Backend,
+    JobRequest,
+    ProjectInvitation,
+    ProjectMembership,
+    Release,
+)
 
 from ..factories import (
     BackendFactory,
@@ -554,6 +561,77 @@ def test_project_str():
         name="Very Good Project",
     )
     assert str(project) == "test-org | Very Good Project"
+
+
+@pytest.mark.django_db
+def test_projectinvitation_create_membership():
+    invite = ProjectInvitationFactory(accepted_at=None, membership=None)
+
+    assert not ProjectMembership.objects.exists()
+
+    invite.create_membership()
+
+    assert ProjectMembership.objects.exists()
+
+    membership = ProjectMembership.objects.first()
+    assert membership.project == invite.project
+    assert membership.user == invite.user
+
+    assert invite.accepted_at is not None
+    assert invite.membership == membership
+
+
+@pytest.mark.django_db
+def test_projectinvitation_get_from_signed_pk_success():
+    invite_a = ProjectInvitationFactory()
+
+    invite_b = ProjectInvitation.get_from_signed_pk(invite_a.signed_pk)
+
+    assert invite_b == invite_a
+
+
+def test_projectinvitation_get_from_signed_pk_with_bad_value():
+    with pytest.raises(signing.BadSignature):
+        ProjectInvitation.get_from_signed_pk("test")
+
+
+@pytest.mark.django_db
+def test_projectinvitation_get_from_signed_pk_with_unknown_pk():
+    signed_pk = ProjectInvitation.signer().sign(0)
+
+    with pytest.raises(ProjectInvitation.DoesNotExist):
+        ProjectInvitation.get_from_signed_pk(signed_pk)
+
+
+@pytest.mark.django_db
+def test_projectinvitation_get_invitation_url():
+    org = OrgFactory()
+    project = ProjectFactory(org=org)
+    invite = ProjectInvitationFactory(project=project)
+    url = invite.get_invitation_url()
+
+    assert url == reverse(
+        "project-accept-invite",
+        kwargs={
+            "org_slug": org.slug,
+            "project_slug": project.slug,
+            "signed_pk": invite.signed_pk,
+        },
+    )
+
+
+@pytest.mark.django_db
+def test_projectinvitation_signed_pk():
+    invite = ProjectInvitationFactory()
+
+    assert ProjectInvitation.signer().sign(invite.pk) == invite.signed_pk
+
+
+def test_projectinvitation_signer():
+    signer = ProjectInvitation.signer()
+
+    # check the salt for this model is set up correctly
+    assert signer.salt == "project-invitation"
 
 
 @pytest.mark.django_db
