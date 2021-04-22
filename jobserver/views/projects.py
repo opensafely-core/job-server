@@ -3,12 +3,12 @@ from django.db import transaction
 from django.http import Http404
 from django.shortcuts import get_object_or_404, redirect
 from django.utils.decorators import method_decorator
-from django.views.generic import CreateView, DetailView, TemplateView, View
+from django.views.generic import CreateView, DetailView, View
 
 from ..authorization import has_permission
 from ..authorization.decorators import require_superuser
-from ..forms import ProjectCreateForm, ResearcherFormSet
-from ..models import Org, Project, ProjectMembership
+from ..forms import ProjectCreateForm, ProjectInvitationForm, ResearcherFormSet
+from ..models import Org, Project, ProjectInvitation, ProjectMembership, User
 
 
 @method_decorator(require_superuser, name="dispatch")
@@ -131,21 +131,45 @@ class ProjectRemoveMember(View):
 
 
 @method_decorator(require_superuser, name="dispatch")
-class ProjectSettings(TemplateView):
+class ProjectSettings(CreateView):
+    form_class = ProjectInvitationForm
+    model = ProjectInvitation
     template_name = "project_settings.html"
 
-    def get_context_data(self, **kwargs):
-        project = get_object_or_404(
+    def dispatch(self, request, *args, **kwargs):
+        self.project = get_object_or_404(
             Project,
             org__slug=self.kwargs["org_slug"],
             slug=self.kwargs["project_slug"],
         )
 
-        can_manage_members = has_permission(
+        self.can_manage_members = has_permission(
             self.request.user,
             "manage_project_members",
-            project=project,
+            project=self.project,
         )
+        if not self.can_manage_members:
+            raise Http404
+
+        return super().dispatch(request, *args, **kwargs)
+
+    def form_valid(self, form):
+        users = form.cleaned_data["users"]
+
+        for user in users:
+            ProjectInvitation.objects.create(
+                created_by=self.request.user,
+                project=self.project,
+                user=user,
+            )
+
+        return redirect(
+            "project-settings",
+            org_slug=self.project.org.slug,
+            project_slug=self.project.slug,
+        )
+
+    def get_context_data(self, **kwargs):
 
         members = self.project.members.select_related("user").order_by("user__username")
         invitations = (
@@ -155,8 +179,28 @@ class ProjectSettings(TemplateView):
         )
 
         context = super().get_context_data(**kwargs)
-        context["can_manage_members"] = can_manage_members
+        context["can_manage_members"] = self.can_manage_members
         context["invitations"] = invitations
         context["members"] = members
-        context["project"] = project
+        context["project"] = self.project
         return context
+
+    def get_form_kwargs(self, **kwargs):
+        # memberships do not guarantee a matching invitation and vice versa so
+        # look them all up and get a unique list
+        user_ids = set(
+            [
+                *self.project.members.values_list("user_id", flat=True),
+                *self.project.invitations.values_list("user_id", flat=True),
+            ]
+        )
+        users = User.objects.exclude(pk__in=user_ids).order_by("username")
+
+        kwargs = super().get_form_kwargs(**kwargs)
+        kwargs["users"] = users
+
+        # we're not using a ModelForm so make sure there's no instance for it
+        # to deal with
+        del kwargs["instance"]
+
+        return kwargs

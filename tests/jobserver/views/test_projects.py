@@ -3,7 +3,7 @@ from django.contrib.messages.storage.fallback import FallbackStorage
 from django.http import Http404
 
 from jobserver.authorization import ProjectCoordinator
-from jobserver.models import Project, ProjectMembership
+from jobserver.models import Project, ProjectInvitation, ProjectMembership
 from jobserver.views.projects import (
     ProjectCreate,
     ProjectDetail,
@@ -15,6 +15,7 @@ from jobserver.views.projects import (
 from ...factories import (
     OrgFactory,
     ProjectFactory,
+    ProjectInvitationFactory,
     ProjectMembershipFactory,
     UserFactory,
     WorkspaceFactory,
@@ -264,11 +265,13 @@ def test_projectremovemember_without_permission(rf, superuser):
 
 
 @pytest.mark.django_db
-def test_projectsettings_success(rf, superuser):
+def test_projectsettings_get_success(rf, superuser):
     org = OrgFactory()
     project = ProjectFactory(org=org)
 
-    ProjectMembershipFactory(project=project)
+    ProjectMembershipFactory(
+        project=project, user=superuser, roles=[ProjectCoordinator]
+    )
 
     request = rf.get(MEANINGLESS_URL)
     request.user = superuser
@@ -284,10 +287,71 @@ def test_projectsettings_success(rf, superuser):
 
 
 @pytest.mark.django_db
+def test_projectsettings_post_failure(rf, superuser):
+    org = OrgFactory()
+    project = ProjectFactory(org=org)
+
+    ProjectMembershipFactory(
+        project=project, user=superuser, roles=[ProjectCoordinator]
+    )
+
+    ProjectInvitationFactory(project=project)
+    assert ProjectInvitation.objects.filter(project=project).count() == 1
+
+    request = rf.post(MEANINGLESS_URL, {"users": ["not_a_pk"]})
+    request.user = superuser
+
+    response = ProjectSettings.as_view()(
+        request, org_slug=org.slug, project_slug=project.slug
+    )
+
+    assert response.status_code == 200
+
+    # check the number of invitations hasn't changed
+    assert ProjectInvitation.objects.filter(project=project).count() == 1
+
+    assert "“not_a_pk” is not a valid value." in response.rendered_content
+
+
+@pytest.mark.django_db
+def test_projectsettings_post_success(rf, superuser):
+    org = OrgFactory()
+    project = ProjectFactory(org=org)
+    invitee = UserFactory()
+    user = UserFactory()
+
+    ProjectInvitationFactory(project=project, user=invitee)
+    assert ProjectInvitation.objects.filter(project=project).count() == 1
+
+    request = rf.post(MEANINGLESS_URL, {"users": [str(user.pk)]})
+    request.user = superuser
+
+    response = ProjectSettings.as_view()(
+        request, org_slug=org.slug, project_slug=project.slug
+    )
+
+    assert response.status_code == 302
+    assert response.url == project.get_settings_url()
+
+    assert ProjectInvitation.objects.filter(project=project).count() == 2
+    assert ProjectInvitation.objects.filter(project=project, user=user).exists()
+
+
+@pytest.mark.django_db
 def test_projectsettings_unknown_project(rf, superuser):
 
     request = rf.get(MEANINGLESS_URL)
     request.user = superuser
-
     with pytest.raises(Http404):
         ProjectSettings.as_view()(request, org_slug="", project_slug="")
+
+
+@pytest.mark.django_db
+def test_projectsettings_without_permission(rf, superuser):
+    org = OrgFactory()
+    project = ProjectFactory(org=org)
+
+    request = rf.get(MEANINGLESS_URL)
+    request.user = superuser
+    with pytest.raises(Http404):
+        ProjectSettings.as_view()(request, org_slug=org.slug, project_slug=project.slug)
