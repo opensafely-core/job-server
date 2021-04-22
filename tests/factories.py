@@ -119,6 +119,7 @@ class UserFactory(factory.django.DjangoModelFactory):
 
     username = factory.Sequence(lambda n: f"user-{n}")
     email = factory.Sequence(lambda n: f"user-{n}@example.com")
+    notifications_email = factory.Sequence(lambda n: f"user-{n}@example.com")
 
 
 class UserSocialAuthFactory(factory.django.DjangoModelFactory):

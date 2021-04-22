@@ -25,3 +25,22 @@ def send_finished_notification(email, job):
         template_name="emails/notify_finished.txt",
         context=context,
     )
+
+
+def send_project_invite_email(email, project, invite):
+    f = furl(settings.BASE_URL)
+    f.path = project.get_absolute_url()
+
+    context = {
+        "inviter_name": invite.created_by.name,
+        "project_name": project.name,
+        "url": f.url,
+    }
+
+    send(
+        to=email,
+        sender="notifications@jobs.opensafely.org",
+        subject=f"OpenSAFELY Project Invite from {invite.created_by.name} to {project.name}",
+        template_name="emails/project_invite.txt",
+        context=context,
+    )

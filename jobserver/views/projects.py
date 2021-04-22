@@ -3,10 +3,13 @@ from django.db import transaction
 from django.http import Http404
 from django.shortcuts import get_object_or_404, redirect
 from django.utils.decorators import method_decorator
+from django.utils.html import escape
 from django.views.generic import CreateView, DetailView, View
+from sentry_sdk import capture_exception
 
 from ..authorization import has_permission
 from ..authorization.decorators import require_superuser
+from ..emails import send_project_invite_email
 from ..forms import ProjectCreateForm, ProjectInvitationForm, ResearcherFormSet
 from ..models import Org, Project, ProjectInvitation, ProjectMembership, User
 
@@ -156,11 +159,31 @@ class ProjectSettings(CreateView):
     def form_valid(self, form):
         users = form.cleaned_data["users"]
 
+        failed_to_invite = []
+
         for user in users:
-            ProjectInvitation.objects.create(
-                created_by=self.request.user,
-                project=self.project,
-                user=user,
+            try:
+                with transaction.atomic():
+                    invite = ProjectInvitation.objects.create(
+                        created_by=self.request.user,
+                        project=self.project,
+                        user=user,
+                    )
+                    send_project_invite_email(
+                        user.notifications_email, self.project, invite
+                    )
+            except Exception as e:
+                capture_exception(e)
+                failed_to_invite.append(user)
+
+        if failed_to_invite:
+            # tell the user about each failed invite in a single message
+            users = [f"<li>{escape(u.username)}</li>" for u in failed_to_invite]
+            users = f"<ul>{''.join(users)}</ul>"
+
+            messages.error(
+                self.request,
+                f"<p>Failed to invite {len(failed_to_invite)} User(s):</p>{users}<p>Please try again.</p>",
             )
 
         return redirect(

@@ -287,7 +287,76 @@ def test_projectsettings_get_success(rf, superuser):
 
 
 @pytest.mark.django_db
-def test_projectsettings_post_failure(rf, superuser):
+def test_projectsettings_post_success(rf, superuser):
+    org = OrgFactory()
+    project = ProjectFactory(org=org)
+    invitee = UserFactory()
+    user = UserFactory()
+
+    ProjectMembershipFactory(
+        project=project, user=superuser, roles=[ProjectCoordinator]
+    )
+
+    ProjectInvitationFactory(project=project, user=invitee)
+    assert ProjectInvitation.objects.filter(project=project).count() == 1
+
+    request = rf.post(MEANINGLESS_URL, {"users": [str(user.pk)]})
+    request.user = superuser
+
+    response = ProjectSettings.as_view()(
+        request, org_slug=org.slug, project_slug=project.slug
+    )
+
+    assert response.status_code == 302
+    assert response.url == project.get_settings_url()
+
+    assert ProjectInvitation.objects.filter(project=project).count() == 2
+    assert ProjectInvitation.objects.filter(project=project, user=user).exists()
+
+
+@pytest.mark.django_db
+def test_projectsettings_post_with_email_failure(rf, superuser, mocker):
+    org = OrgFactory()
+    project = ProjectFactory(org=org)
+    invitee = UserFactory()
+
+    ProjectMembershipFactory(
+        project=project, user=superuser, roles=[ProjectCoordinator]
+    )
+
+    request = rf.post(MEANINGLESS_URL, {"users": [str(invitee.pk)]})
+    request.user = superuser
+
+    # set up messages framework
+    request.session = "session"
+    messages = FallbackStorage(request)
+    request._messages = messages
+
+    # mock send_project_invite_email to throw an exception
+    mocker.patch(
+        "jobserver.views.projects.send_project_invite_email",
+        autospec=True,
+        side_effect=Exception,
+    )
+    response = ProjectSettings.as_view()(
+        request, org_slug=org.slug, project_slug=project.slug
+    )
+
+    assert response.status_code == 302
+    assert response.url == project.get_settings_url()
+
+    # check there are no invitations
+    assert not ProjectInvitation.objects.exists()
+
+    # check we have a message for the user
+    messages = list(messages)
+    assert len(messages) == 1
+    expected = f"<p>Failed to invite 1 User(s):</p><ul><li>{invitee.username}</li></ul><p>Please try again.</p>"
+    assert str(messages[0]) == expected
+
+
+@pytest.mark.django_db
+def test_projectsettings_post_with_incorrect_form(rf, superuser):
     org = OrgFactory()
     project = ProjectFactory(org=org)
 
@@ -314,32 +383,7 @@ def test_projectsettings_post_failure(rf, superuser):
 
 
 @pytest.mark.django_db
-def test_projectsettings_post_success(rf, superuser):
-    org = OrgFactory()
-    project = ProjectFactory(org=org)
-    invitee = UserFactory()
-    user = UserFactory()
-
-    ProjectInvitationFactory(project=project, user=invitee)
-    assert ProjectInvitation.objects.filter(project=project).count() == 1
-
-    request = rf.post(MEANINGLESS_URL, {"users": [str(user.pk)]})
-    request.user = superuser
-
-    response = ProjectSettings.as_view()(
-        request, org_slug=org.slug, project_slug=project.slug
-    )
-
-    assert response.status_code == 302
-    assert response.url == project.get_settings_url()
-
-    assert ProjectInvitation.objects.filter(project=project).count() == 2
-    assert ProjectInvitation.objects.filter(project=project, user=user).exists()
-
-
-@pytest.mark.django_db
 def test_projectsettings_unknown_project(rf, superuser):
-
     request = rf.get(MEANINGLESS_URL)
     request.user = superuser
     with pytest.raises(Http404):
