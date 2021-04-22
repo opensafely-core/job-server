@@ -520,6 +520,15 @@ class ProjectInvitation(models.Model):
 
         self.save()
 
+    def get_cancel_url(self):
+        return reverse(
+            "project-cancel-invite",
+            kwargs={
+                "org_slug": self.project.org.slug,
+                "project_slug": self.project.slug,
+            },
+        )
+
     @classmethod
     def get_from_signed_pk(cls, value):
         """Look up a ProjectInvitation from a signed PK"""

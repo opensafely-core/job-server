@@ -582,6 +582,22 @@ def test_projectinvitation_create_membership():
 
 
 @pytest.mark.django_db
+def test_projectinvitation_get_cancel_url():
+    org = OrgFactory()
+    project = ProjectFactory(org=org)
+    invite = ProjectInvitationFactory(project=project)
+    url = invite.get_cancel_url()
+
+    assert url == reverse(
+        "project-cancel-invite",
+        kwargs={
+            "org_slug": org.slug,
+            "project_slug": project.slug,
+        },
+    )
+
+
+@pytest.mark.django_db
 def test_projectinvitation_get_from_signed_pk_success():
     invite_a = ProjectInvitationFactory()
 

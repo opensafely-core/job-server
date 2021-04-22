@@ -6,6 +6,7 @@ from jobserver.authorization import ProjectCoordinator
 from jobserver.models import Project, ProjectInvitation, ProjectMembership
 from jobserver.views.projects import (
     ProjectAcceptInvite,
+    ProjectCancelInvite,
     ProjectCreate,
     ProjectDetail,
     ProjectDisconnectWorkspace,
@@ -99,6 +100,60 @@ def test_projectacceptinvite_with_different_user(rf):
     messages = list(messages)
     assert len(messages) == 1
     assert str(messages[0]) == "Only the User who was invited may accept an invite."
+
+
+@pytest.mark.django_db
+def test_projectcancelinvite_success(rf, superuser):
+    org = OrgFactory()
+    project = ProjectFactory(org=org)
+    user = UserFactory()
+    invite = ProjectInvitationFactory(project=project, user=user)
+
+    ProjectMembershipFactory(
+        project=project, user=superuser, roles=[ProjectCoordinator]
+    )
+
+    request = rf.post(MEANINGLESS_URL, {"invite_pk": invite.pk})
+    request.user = superuser
+
+    response = ProjectCancelInvite.as_view()(
+        request, org_slug=org.slug, project_slug=project.slug
+    )
+
+    assert response.status_code == 302
+    assert response.url == project.get_settings_url()
+
+    assert not ProjectInvitation.objects.filter(pk=invite.pk).exists()
+
+
+@pytest.mark.django_db
+def test_projectcancelinvite_unknown_invitation(rf, superuser):
+    org = OrgFactory()
+    project = ProjectFactory(org=org)
+
+    request = rf.post(MEANINGLESS_URL, {"invite_pk": 0})
+    request.user = superuser
+
+    with pytest.raises(Http404):
+        ProjectCancelInvite.as_view()(
+            request, org_slug=org.slug, project_slug=project.slug
+        )
+
+
+@pytest.mark.django_db
+def test_projectcancelinvite_without_manage_members_permission(rf, superuser):
+    org = OrgFactory()
+    project = ProjectFactory(org=org)
+    user = UserFactory()
+    invite = ProjectInvitationFactory(project=project, user=user)
+
+    request = rf.post(MEANINGLESS_URL, {"invite_pk": invite.pk})
+    request.user = superuser
+
+    with pytest.raises(Http404):
+        ProjectCancelInvite.as_view()(
+            request, org_slug=org.slug, project_slug=project.slug
+        )
 
 
 @pytest.mark.django_db

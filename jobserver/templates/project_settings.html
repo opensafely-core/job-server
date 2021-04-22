@@ -118,9 +118,23 @@
     <h4>Pending</h4>
     <ul class="list-unstyled">
       {% for invite in invitations %}
-      <li class="mb-3 p-2 border rounded">
-        {{ invite.user.username }}
-        <small class="text-muted">({{ invite.user.name }})</small>
+      <li class="mb-3 p-2 border rounded d-flex justify-content-between align-items-center">
+
+        <div>
+          {{ invite.user.username }}
+          <small class="text-muted">({{ invite.user.name }})</small>
+        </div>
+
+        {% if can_manage_members %}
+        <form method="POST" action="{{ invite.get_cancel_url }}">
+          {% csrf_token %}
+
+          <input type="hidden" name="invite_pk" value="{{ invite.pk }}" />
+
+          <button class="btn btn-block btn-sm btn-danger" type="submit">Delete</button>
+        </form>
+        {% endif %}
+
       </li>
       {% endfor %}
     </ul>

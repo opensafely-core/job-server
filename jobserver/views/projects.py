@@ -39,6 +39,29 @@ class ProjectAcceptInvite(View):
 
 
 @method_decorator(require_superuser, name="dispatch")
+class ProjectCancelInvite(View):
+    def post(self, request, *args, **kwargs):
+        invite = get_object_or_404(
+            ProjectInvitation,
+            project__org__slug=self.kwargs["org_slug"],
+            project__slug=self.kwargs["project_slug"],
+            pk=self.request.POST.get("invite_pk"),
+        )
+
+        can_manage_members = has_permission(
+            request.user,
+            "manage_project_members",
+            project=invite.project,
+        )
+        if not can_manage_members:
+            raise Http404
+
+        invite.delete()
+
+        return redirect(invite.project.get_settings_url())
+
+
+@method_decorator(require_superuser, name="dispatch")
 class ProjectCreate(CreateView):
     form_class = ProjectCreateForm
     model = Project
