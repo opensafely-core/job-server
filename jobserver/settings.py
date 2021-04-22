@@ -179,7 +179,7 @@ ANYMAIL = {
     "MAILGUN_SENDER_DOMAIN": "mg.jobs.opensafely.org",
 }
 EMAIL_BACKEND = env.str(
-    "EMAIL_BACKEND", default="django.core.mail.backends.dummy.EmailBackend"
+    "EMAIL_BACKEND", default="django.core.mail.backends.console.EmailBackend"
 )
 DEFAULT_FROM_EMAIL = "you@example.com"
 SERVER_EMAIL = "your-server@example.com"
