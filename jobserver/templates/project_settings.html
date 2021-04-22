@@ -24,7 +24,7 @@
   </ol>
 </nav>
 
-<div class="row">
+<div class="row mb-4">
   <div class="col-lg-8 offset-lg-2">
 
     <h3>Members</h3>
@@ -65,6 +65,27 @@
       There are no members for this organisation yet, you can invite some
       below.
     </p>
+    {% endif %}
+
+  </div>
+</div>
+
+<div class="row">
+  <div class="col-lg-8 offset-lg-2">
+
+    <h3>Invitations</h3>
+
+    {% if invitations %}
+    <h4>Pending</h4>
+    <ul class="list-unstyled">
+      {% for invite in invitations %}
+      <li class="mb-3">
+        <strong>{{ invite.user.name }}</strong>
+      </li>
+      {% endfor %}
+    </ul>
+    {% else %}
+    <p class="mt-5">There are no pending invitations for this project.</p>
     {% endif %}
 
   </div>

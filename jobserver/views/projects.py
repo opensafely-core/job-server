@@ -146,10 +146,17 @@ class ProjectSettings(TemplateView):
             "manage_project_members",
             project=project,
         )
-        members = project.members.select_related("user")
+
+        members = self.project.members.select_related("user").order_by("user__username")
+        invitations = (
+            self.project.invitations.filter(membership=None)
+            .select_related("user")
+            .order_by("user__username")
+        )
 
         context = super().get_context_data(**kwargs)
         context["can_manage_members"] = can_manage_members
+        context["invitations"] = invitations
         context["members"] = members
         context["project"] = project
         return context
