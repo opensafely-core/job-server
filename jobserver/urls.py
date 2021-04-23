@@ -26,28 +26,22 @@ from .api import (
     UserAPIDetail,
     WorkspaceStatusesAPI,
 )
-from .views import (
-    BackendDetail,
-    BackendList,
-    BackendRotateToken,
-    GlobalWorkspaceDetail,
-    Index,
-    JobCancel,
-    JobDetail,
+from .views.backends import BackendDetail, BackendList, BackendRotateToken
+from .views.index import Index
+from .views.job_requests import (
     JobRequestCancel,
     JobRequestDetail,
     JobRequestList,
     JobRequestZombify,
-    JobZombify,
-    OrgCreate,
-    OrgDetail,
-    OrgList,
-    ProjectCreate,
-    ProjectDetail,
-    ProjectDisconnectWorkspace,
+)
+from .views.jobs import JobCancel, JobDetail, JobZombify
+from .views.orgs import OrgCreate, OrgDetail, OrgList
+from .views.projects import ProjectCreate, ProjectDetail, ProjectDisconnectWorkspace
+from .views.status import Status
+from .views.users import Settings
+from .views.workspaces import (
+    GlobalWorkspaceDetail,
     ProjectWorkspaceDetail,
-    Settings,
-    Status,
     WorkspaceArchiveToggle,
     WorkspaceCreate,
     WorkspaceLog,
@@ -72,18 +66,48 @@ api_urls = [
     ),
 ]
 
+backend_urls = [
+    path("", BackendList.as_view(), name="backend-list"),
+    path("<pk>/", BackendDetail.as_view(), name="backend-detail"),
+    path(
+        "<pk>/rotate-token/",
+        BackendRotateToken.as_view(),
+        name="backend-rotate-token",
+    ),
+]
+
+org_urls = [
+    path("", OrgList.as_view(), name="org-list"),
+    path("new/", OrgCreate.as_view(), name="org-create"),
+    path("<org_slug>/", OrgDetail.as_view(), name="org-detail"),
+    path(
+        "<org_slug>/new-project/",
+        ProjectCreate.as_view(),
+        name="project-create",
+    ),
+    path(
+        "<org_slug>/<project_slug>/",
+        ProjectDetail.as_view(),
+        name="project-detail",
+    ),
+    path(
+        "<org_slug>/<project_slug>/disconnect/",
+        ProjectDisconnectWorkspace.as_view(),
+        name="project-disconnect-workspace",
+    ),
+    path(
+        "<org_slug>/<project_slug>/<workspace_slug>/",
+        ProjectWorkspaceDetail.as_view(),
+        name="project-workspace-detail",
+    ),
+]
+
 urlpatterns = [
     path("", Index.as_view()),
     path("", include("social_django.urls", namespace="social")),
     path("admin/", admin.site.urls),
     path("api/v2/", include(api_urls)),
-    path("backends/", BackendList.as_view(), name="backend-list"),
-    path("backends/<pk>/", BackendDetail.as_view(), name="backend-detail"),
-    path(
-        "backends/<pk>/rotate-token/",
-        BackendRotateToken.as_view(),
-        name="backend-rotate-token",
-    ),
+    path("backends/", include(backend_urls)),
     path("jobs/", JobRequestList.as_view(), name="job-list"),
     path("job-requests/", RedirectView.as_view(pattern_name="job-list")),
     path("job-requests/<pk>/", JobRequestDetail.as_view(), name="job-request-detail"),
@@ -101,29 +125,7 @@ urlpatterns = [
     path("jobs/<identifier>/cancel/", JobCancel.as_view(), name="job-cancel"),
     path("jobs/<identifier>/zombify/", JobZombify.as_view(), name="job-zombify"),
     path("logout/", LogoutView.as_view(), name="logout"),
-    path("orgs/", OrgList.as_view(), name="org-list"),
-    path("orgs/new/", OrgCreate.as_view(), name="org-create"),
-    path("orgs/<org_slug>/", OrgDetail.as_view(), name="org-detail"),
-    path(
-        "orgs/<org_slug>/new-project/",
-        ProjectCreate.as_view(),
-        name="project-create",
-    ),
-    path(
-        "orgs/<org_slug>/<project_slug>/",
-        ProjectDetail.as_view(),
-        name="project-detail",
-    ),
-    path(
-        "orgs/<org_slug>/<project_slug>/disconnect/",
-        ProjectDisconnectWorkspace.as_view(),
-        name="project-disconnect-workspace",
-    ),
-    path(
-        "orgs/<org_slug>/<project_slug>/<workspace_slug>/",
-        ProjectWorkspaceDetail.as_view(),
-        name="project-workspace-detail",
-    ),
+    path("orgs/", include(org_urls)),
     path("settings/", Settings.as_view(), name="settings"),
     path("status/", Status.as_view(), name="status"),
     path("workspaces/", RedirectView.as_view(url="/")),
