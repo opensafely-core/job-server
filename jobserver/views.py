@@ -16,7 +16,7 @@ from django.views.generic import (
 )
 from django.views.generic.edit import FormMixin
 
-from .authorization import SuperUser, has_role
+from .authorization import SuperUser, has_permission, has_role
 from .authorization.decorators import require_superuser
 from .backends import backends_to_choices, show_warning
 from .forms import (
@@ -305,6 +305,13 @@ class OrgDetail(DetailView):
     slug_url_kwarg = "org_slug"
     template_name = "org_detail.html"
 
+    def get_context_data(self, **kwargs):
+        projects = self.object.projects.order_by("name")
+
+        context = super().get_context_data(**kwargs)
+        context["projects"] = projects
+        return context
+
 
 @method_decorator(require_superuser, name="dispatch")
 class OrgList(ListView):
@@ -369,6 +376,30 @@ class ProjectDetail(DetailView):
             slug=self.kwargs["project_slug"],
             org__slug=self.kwargs["org_slug"],
         )
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context["workspaces"] = self.object.workspaces.order_by("name")
+        return context
+
+
+@method_decorator(require_superuser, name="dispatch")
+class ProjectDisconnectWorkspace(View):
+    def post(self, request, *args, **kwargs):
+        """A transitional view to help with migrating Workspaces under Projects"""
+        project = get_object_or_404(
+            Project,
+            org__slug=self.kwargs["org_slug"],
+            slug=self.kwargs["project_slug"],
+        )
+
+        workspace_id = request.POST.get("id")
+        if not workspace_id:
+            return redirect(project)
+
+        project.workspaces.filter(pk=workspace_id).update(project=None)
+
+        return redirect(project)
 
 
 @method_decorator(login_required, name="dispatch")
@@ -468,18 +499,24 @@ class WorkspaceCreate(CreateView):
         return kwargs
 
 
-class WorkspaceDetail(CreateView):
+class BaseWorkspaceDetail(CreateView):
+    """
+    WorkspaceDetail base view
+
+    Handles everything for the WorkspaceDetail page except Workspace permission
+    lookups.  Any subclass must implement the can_run_jobs method, returning a
+    boolean.
+    """
+
     form_class = JobRequestCreateForm
     model = JobRequest
     template_name = "workspace_detail.html"
 
-    def dispatch(self, request, *args, **kwargs):
-        try:
-            self.workspace = Workspace.objects.get(name=self.kwargs["name"])
-        except Workspace.DoesNotExist:
-            return redirect("/")
+    def can_run_jobs(self, user):
+        raise NotImplementedError
 
-        self.user_can_run_jobs = can_run_jobs(request.user)
+    def dispatch(self, request, *args, **kwargs):
+        self.user_can_run_jobs = self.can_run_jobs(request.user)
 
         self.show_details = (
             request.user.is_authenticated
@@ -577,6 +614,47 @@ class WorkspaceDetail(CreateView):
             return redirect(self.workspace)
 
         return super().post(request, *args, **kwargs)
+
+
+class GlobalWorkspaceDetail(BaseWorkspaceDetail):
+    def can_run_jobs(self, user):
+        return can_run_jobs(user)
+
+    def dispatch(self, request, *args, **kwargs):
+        if "project_slug" in self.kwargs:
+            return redirect(
+                "project-workspace-detail",
+                org_slug=self.kwargs["org_slug"],
+                project_slug=self.kwargs["project_slug"],
+                workspace_slug=self.kwargs["workspace_slug"],
+            )
+
+        try:
+            self.workspace = Workspace.objects.get(name=self.kwargs["name"])
+        except Workspace.DoesNotExist:
+            return redirect("/")
+
+        return super().dispatch(request, *args, **kwargs)
+
+
+class ProjectWorkspaceDetail(BaseWorkspaceDetail):
+    def can_run_jobs(self, user):
+        return has_permission(user, "run_job", project=self.workspace.project)
+
+    def dispatch(self, request, *args, **kwargs):
+        if "project_slug" not in self.kwargs:
+            return redirect("workspace-detail", name=self.kwargs["name"])
+
+        try:
+            self.workspace = Workspace.objects.get(
+                project__org__slug=self.kwargs["org_slug"],
+                project__slug=self.kwargs["project_slug"],
+                name=self.kwargs["workspace_slug"],
+            )
+        except Workspace.DoesNotExist:
+            return redirect("/")
+
+        return super().dispatch(request, *args, **kwargs)
 
 
 class WorkspaceLog(ListView):

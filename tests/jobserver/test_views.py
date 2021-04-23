@@ -11,11 +11,14 @@ from django.urls import reverse
 from django.utils import timezone
 from first import first
 
+from jobserver.authorization import ProjectDeveloper
 from jobserver.models import Backend, JobRequest, Org, Project, Workspace
 from jobserver.views import (
     BackendDetail,
     BackendList,
     BackendRotateToken,
+    BaseWorkspaceDetail,
+    GlobalWorkspaceDetail,
     Index,
     JobCancel,
     JobDetail,
@@ -29,11 +32,12 @@ from jobserver.views import (
     OrgList,
     ProjectCreate,
     ProjectDetail,
+    ProjectDisconnectWorkspace,
+    ProjectWorkspaceDetail,
     Settings,
     Status,
     WorkspaceArchiveToggle,
     WorkspaceCreate,
-    WorkspaceDetail,
     WorkspaceLog,
     WorkspaceNotificationsToggle,
     WorkspaceReleaseView,
@@ -45,6 +49,7 @@ from ..factories import (
     JobRequestFactory,
     OrgFactory,
     ProjectFactory,
+    ProjectMembershipFactory,
     StatsFactory,
     UserFactory,
     UserSocialAuthFactory,
@@ -87,6 +92,15 @@ def test_backendrotatetoken_success(rf, superuser):
 
     assert response.status_code == 302
     assert response.url == reverse("backend-detail", kwargs={"pk": backend.pk})
+
+
+@pytest.mark.django_db
+def test_baseworkspacedetail_requires_can_run_jobs(rf):
+    request = rf.get(MEANINGLESS_URL)
+    request.user = UserFactory()
+
+    with pytest.raises(NotImplementedError):
+        BaseWorkspaceDetail.as_view()(request)
 
 
 @pytest.mark.django_db
@@ -823,7 +837,7 @@ def test_jobrequestzombify_unknown_jobrequest(rf, superuser):
 @pytest.mark.django_db
 def test_orgcreate_get_success(rf, superuser):
     oxford = OrgFactory(name="University of Oxford")
-    datalab = OrgFactory(name="DataLab")
+    ebmdatalab = OrgFactory(name="EBMDataLab")
 
     request = rf.get(MEANINGLESS_URL)
     request.user = superuser
@@ -832,9 +846,9 @@ def test_orgcreate_get_success(rf, superuser):
     assert response.status_code == 200
 
     orgs = response.context_data["orgs"]
-    assert len(orgs) == 2
-    assert orgs[0] == datalab
-    assert orgs[1] == oxford
+    assert len(orgs) == 3
+    assert orgs[1] == ebmdatalab
+    assert orgs[2] == oxford
 
 
 @pytest.mark.django_db
@@ -846,9 +860,9 @@ def test_orgcreate_post_success(rf, superuser):
     assert response.status_code == 302
 
     orgs = Org.objects.all()
-    assert len(orgs) == 1
+    assert len(orgs) == 2
 
-    org = orgs.first()
+    org = orgs[1]
     assert org.name == "A New Org"
     assert response.url == org.get_absolute_url()
 
@@ -1004,6 +1018,97 @@ def test_projectdetail_unknown_project(rf, superuser):
 
     with pytest.raises(Http404):
         ProjectDetail.as_view()(request, org_slug=org.slug, project_slug="test")
+
+
+@pytest.mark.django_db
+def test_projectdisconnect_missing_workspace_id(rf, superuser):
+    org = OrgFactory()
+    project = ProjectFactory(org=org)
+
+    request = rf.post(MEANINGLESS_URL)
+    request.user = superuser
+    response = ProjectDisconnectWorkspace.as_view()(
+        request, org_slug=org.slug, project_slug=project.slug
+    )
+
+    assert response.status_code == 302
+    assert response.url == project.get_absolute_url()
+
+
+@pytest.mark.django_db
+def test_projectdisconnect_success(rf, superuser):
+    org = OrgFactory()
+    project = ProjectFactory(org=org)
+    workspace = WorkspaceFactory(project=project)
+
+    request = rf.post(MEANINGLESS_URL, {"id": workspace.pk})
+    request.user = superuser
+    response = ProjectDisconnectWorkspace.as_view()(
+        request, org_slug=org.slug, project_slug=project.slug
+    )
+
+    assert response.status_code == 302
+    assert response.url == project.get_absolute_url()
+
+
+@pytest.mark.django_db
+def test_projectdisconnect_unknown_project(rf, superuser):
+    org = OrgFactory()
+
+    request = rf.post(MEANINGLESS_URL)
+    request.user = superuser
+
+    with pytest.raises(Http404):
+        ProjectDisconnectWorkspace.as_view()(
+            request, org_slug=org.slug, project_slug=""
+        )
+
+
+@pytest.mark.django_db
+def test_projectworkspacedetail_redirect_to_global_view(rf):
+    workspace = WorkspaceFactory()
+
+    request = rf.get(MEANINGLESS_URL)
+    response = ProjectWorkspaceDetail.as_view()(request, name=workspace.name)
+
+    assert response.status_code == 302
+    assert response.url == workspace.get_absolute_url()
+
+
+@pytest.mark.django_db
+def test_projectworkspacedetail_success(rf):
+    org = OrgFactory()
+    project = ProjectFactory(org=org)
+    workspace = WorkspaceFactory(project=project)
+
+    user = UserFactory()
+    ProjectMembershipFactory(project=project, user=user, roles=[ProjectDeveloper])
+
+    request = rf.get(MEANINGLESS_URL)
+    request.user = user
+    response = ProjectWorkspaceDetail.as_view()(
+        request,
+        org_slug=org.slug,
+        project_slug=project.slug,
+        workspace_slug=workspace.name,
+    )
+
+    assert response.status_code == 200
+    assert response.context_data["user_can_run_jobs"]
+
+
+@pytest.mark.django_db
+def test_projectworkspacedetail_unknown_workspace(rf):
+    request = rf.get(MEANINGLESS_URL)
+    response = ProjectWorkspaceDetail.as_view()(
+        request,
+        org_slug="",
+        project_slug="",
+        workspace_slug="",
+    )
+
+    assert response.status_code == 302
+    assert response.url == "/"
 
 
 @pytest.mark.django_db
@@ -1242,7 +1347,7 @@ def test_workspacedetail_logged_out(rf):
     request.user = AnonymousUser()
 
     with patch("jobserver.views.get_actions", autospec=True) as mocked_get_actions:
-        response = WorkspaceDetail.as_view()(request, name=workspace.name)
+        response = GlobalWorkspaceDetail.as_view()(request, name=workspace.name)
 
     mocked_get_actions.assert_not_called()
 
@@ -1266,7 +1371,7 @@ def test_workspacedetail_project_yaml_errors(rf):
         side_effect=Exception("test error"),
         autospec=True,
     ):
-        response = WorkspaceDetail.as_view()(request, name=workspace.name)
+        response = GlobalWorkspaceDetail.as_view()(request, name=workspace.name)
 
     assert response.status_code == 200
 
@@ -1290,7 +1395,7 @@ def test_workspacedetail_get_success(rf):
     with patch("jobserver.views.can_run_jobs", return_value=True, autospec=True), patch(
         "jobserver.views.get_project", new=lambda *args: dummy_yaml
     ):
-        response = WorkspaceDetail.as_view()(request, name=workspace.name)
+        response = GlobalWorkspaceDetail.as_view()(request, name=workspace.name)
 
     assert response.status_code == 200
 
@@ -1313,7 +1418,7 @@ def test_workspacedetail_post_archived_workspace(rf):
     with patch("jobserver.views.can_run_jobs", return_value=True, autospec=True), patch(
         "jobserver.views.get_actions", return_value=[], autospec=True
     ):
-        response = WorkspaceDetail.as_view()(request, name=workspace.name)
+        response = GlobalWorkspaceDetail.as_view()(request, name=workspace.name)
 
     assert response.status_code == 302
     assert response.url == workspace.get_absolute_url()
@@ -1342,7 +1447,7 @@ def test_workspacedetail_post_success(rf, monkeypatch):
     with patch("jobserver.views.can_run_jobs", return_value=True, autospec=True), patch(
         "jobserver.views.get_project", new=lambda *args: dummy_yaml
     ), patch("jobserver.views.get_branch_sha", new=lambda r, b: "abc123"):
-        response = WorkspaceDetail.as_view()(request, name=workspace.name)
+        response = GlobalWorkspaceDetail.as_view()(request, name=workspace.name)
 
     assert response.status_code == 302, response.context_data["form"].errors
     assert response.url == reverse("workspace-logs", kwargs={"name": workspace.name})
@@ -1380,7 +1485,7 @@ def test_workspacedetail_post_with_notifications_default(rf, monkeypatch):
     with patch("jobserver.views.can_run_jobs", return_value=True, autospec=True), patch(
         "jobserver.views.get_project", new=lambda *args: dummy_yaml
     ), patch("jobserver.views.get_branch_sha", new=lambda r, b: "abc123"):
-        response = WorkspaceDetail.as_view()(request, name=workspace.name)
+        response = GlobalWorkspaceDetail.as_view()(request, name=workspace.name)
 
     assert response.status_code == 302, response.context_data["form"].errors
     assert response.url == reverse("workspace-logs", kwargs={"name": workspace.name})
@@ -1418,7 +1523,7 @@ def test_workspacedetail_post_with_notifications_override(rf, monkeypatch):
     with patch("jobserver.views.can_run_jobs", return_value=True, autospec=True), patch(
         "jobserver.views.get_project", new=lambda *args: dummy_yaml
     ), patch("jobserver.views.get_branch_sha", new=lambda r, b: "abc123"):
-        response = WorkspaceDetail.as_view()(request, name=workspace.name)
+        response = GlobalWorkspaceDetail.as_view()(request, name=workspace.name)
 
     assert response.status_code == 302, response.context_data["form"].errors
     assert response.url == reverse("workspace-logs", kwargs={"name": workspace.name})
@@ -1457,7 +1562,7 @@ def test_workspacedetail_post_success_with_superuser(rf, monkeypatch, superuser)
     with patch("jobserver.views.can_run_jobs", return_value=True, autospec=True), patch(
         "jobserver.views.get_project", new=lambda *args: dummy_yaml
     ), patch("jobserver.views.get_branch_sha", new=lambda r, b: "abc123"):
-        response = WorkspaceDetail.as_view()(request, name=workspace.name)
+        response = GlobalWorkspaceDetail.as_view()(request, name=workspace.name)
 
     assert response.status_code == 302, response.context_data["form"].errors
     assert response.url == reverse("workspace-logs", kwargs={"name": workspace.name})
@@ -1472,11 +1577,36 @@ def test_workspacedetail_post_success_with_superuser(rf, monkeypatch, superuser)
 
 
 @pytest.mark.django_db
+def test_workspacedetail_redirects_with_project_url(rf):
+    org = OrgFactory()
+    project = ProjectFactory(org=org)
+    workspace = WorkspaceFactory(project=project)
+
+    request = rf.get(MEANINGLESS_URL)
+    response = GlobalWorkspaceDetail.as_view()(
+        request,
+        org_slug=org.slug,
+        project_slug=project.slug,
+        workspace_slug=workspace.name,
+    )
+
+    assert response.status_code == 302
+    assert response.url == reverse(
+        "project-workspace-detail",
+        kwargs={
+            "org_slug": org.slug,
+            "project_slug": project.slug,
+            "workspace_slug": workspace.name,
+        },
+    )
+
+
+@pytest.mark.django_db
 def test_workspacedetail_unknown_workspace(rf):
     # Build a RequestFactory instance
     request = rf.get(MEANINGLESS_URL)
     request.user = UserFactory()
-    response = WorkspaceDetail.as_view()(request, name="test")
+    response = GlobalWorkspaceDetail.as_view()(request, name="test")
 
     assert response.status_code == 302
     assert response.url == "/"
@@ -1485,7 +1615,7 @@ def test_workspacedetail_unknown_workspace(rf):
 @pytest.mark.django_db
 def test_workspacedetail_get_with_authenticated_user(rf):
     """
-    Check WorkspaceDetail renders the controls for Archiving, Notifications,
+    Check GlobalWorkspaceDetail renders the controls for Archiving, Notifications,
     and selecting Actions for authenticated Users.
     """
     workspace = WorkspaceFactory(is_archived=False)
@@ -1501,7 +1631,7 @@ def test_workspacedetail_get_with_authenticated_user(rf):
     with patch("jobserver.views.can_run_jobs", return_value=True, autospec=True), patch(
         "jobserver.views.get_project", new=lambda *args: dummy_yaml
     ):
-        response = WorkspaceDetail.as_view()(request, name=workspace.name)
+        response = GlobalWorkspaceDetail.as_view()(request, name=workspace.name)
 
     assert "Archive" in response.rendered_content
     assert "Turn Notifications" in response.rendered_content
@@ -1511,7 +1641,7 @@ def test_workspacedetail_get_with_authenticated_user(rf):
 
 @pytest.mark.django_db
 def test_workspacedetail_get_with_superuser(rf, superuser):
-    """Check WorkspaceDetail renders the Backend radio buttons for superusers"""
+    """Check GlobalWorkspaceDetail renders the Backend radio buttons for superusers"""
     workspace = WorkspaceFactory(is_archived=False)
 
     # Build a RequestFactory instance
@@ -1525,7 +1655,7 @@ def test_workspacedetail_get_with_superuser(rf, superuser):
     with patch("jobserver.views.can_run_jobs", return_value=True, autospec=True), patch(
         "jobserver.views.get_project", new=lambda *args: dummy_yaml
     ):
-        response = WorkspaceDetail.as_view()(request, name=workspace.name)
+        response = GlobalWorkspaceDetail.as_view()(request, name=workspace.name)
 
     assert "Pick a backend to run your Jobs in" in response.rendered_content
 
@@ -1533,7 +1663,7 @@ def test_workspacedetail_get_with_superuser(rf, superuser):
 @pytest.mark.django_db
 def test_workspacedetail_get_with_unauthenticated_user(rf):
     """
-    Check WorkspaceDetail does not render the controls for Archiving,
+    Check GlobalWorkspaceDetail does not render the controls for Archiving,
     Notifications, and selecting Actions for unauthenticated Users.
     """
     workspace = WorkspaceFactory(is_archived=False)
@@ -1541,7 +1671,7 @@ def test_workspacedetail_get_with_unauthenticated_user(rf):
     # Build a RequestFactory instance
     request = rf.get(MEANINGLESS_URL)
     request.user = AnonymousUser()
-    response = WorkspaceDetail.as_view()(request, name=workspace.name)
+    response = GlobalWorkspaceDetail.as_view()(request, name=workspace.name)
 
     assert "Archive" not in response.rendered_content
     assert "Turn Notifications" not in response.rendered_content

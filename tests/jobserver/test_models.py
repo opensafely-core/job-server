@@ -513,12 +513,12 @@ def test_org_str():
 
 @pytest.mark.django_db
 def test_orgmembership_str():
-    org = OrgFactory(name="DataLab")
+    org = OrgFactory(name="EBMDataLab")
     user = UserFactory(username="ben")
 
     membership = OrgMembershipFactory(org=org, user=user)
 
-    assert str(membership) == "ben | DataLab"
+    assert str(membership) == "ben | EBMDataLab"
 
 
 @pytest.mark.django_db

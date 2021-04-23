@@ -28,7 +28,7 @@
     <h3>Projects</h3>
 
     <ul>
-      {% for project in org.projects.all %}
+      {% for project in projects %}
       <li><a href="{{ project.get_absolute_url }}">{{ project.name }}</a></li>
       {% endfor %}
     </ul>
