@@ -13,6 +13,7 @@ from jobserver.models import (
     Org,
     OrgMembership,
     Project,
+    ProjectInvitation,
     ProjectMembership,
     Release,
     ResearcherRegistration,
@@ -80,6 +81,14 @@ class ProjectFactory(factory.django.DjangoModelFactory):
     )
 
 
+class ProjectInvitationFactory(factory.django.DjangoModelFactory):
+    class Meta:
+        model = ProjectInvitation
+
+    project = factory.SubFactory("tests.factories.ProjectFactory")
+    user = factory.SubFactory("tests.factories.UserFactory")
+
+
 class ProjectMembershipFactory(factory.django.DjangoModelFactory):
     class Meta:
         model = ProjectMembership
@@ -110,6 +119,7 @@ class UserFactory(factory.django.DjangoModelFactory):
 
     username = factory.Sequence(lambda n: f"user-{n}")
     email = factory.Sequence(lambda n: f"user-{n}@example.com")
+    notifications_email = factory.Sequence(lambda n: f"user-{n}@example.com")
 
 
 class UserSocialAuthFactory(factory.django.DjangoModelFactory):

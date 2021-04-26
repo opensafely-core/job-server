@@ -78,6 +78,15 @@ class ProjectCreateForm(forms.ModelForm):
         model = Project
 
 
+class ProjectInvitationForm(forms.Form):
+    users = forms.ModelMultipleChoiceField(queryset=User.objects.none())
+
+    def __init__(self, users, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+
+        self.fields["users"].queryset = users
+
+
 ResearcherFormSet = forms.modelformset_factory(
     ResearcherRegistration,
     can_delete=True,

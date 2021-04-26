@@ -37,7 +37,15 @@ from .views.job_requests import (
 )
 from .views.jobs import JobCancel, JobDetail, JobZombify
 from .views.orgs import OrgCreate, OrgDetail, OrgList
-from .views.projects import ProjectCreate, ProjectDetail, ProjectDisconnectWorkspace
+from .views.projects import (
+    ProjectAcceptInvite,
+    ProjectCancelInvite,
+    ProjectCreate,
+    ProjectDetail,
+    ProjectDisconnectWorkspace,
+    ProjectRemoveMember,
+    ProjectSettings,
+)
 from .views.status import Status
 from .views.users import Settings
 from .views.workspaces import (
@@ -92,9 +100,29 @@ org_urls = [
         name="project-detail",
     ),
     path(
+        "<org_slug>/<project_slug>/accept-invite/<signed_pk>/",
+        ProjectAcceptInvite.as_view(),
+        name="project-accept-invite",
+    ),
+    path(
+        "<org_slug>/<project_slug>/cancel-invite/",
+        ProjectCancelInvite.as_view(),
+        name="project-cancel-invite",
+    ),
+    path(
         "<org_slug>/<project_slug>/disconnect/",
         ProjectDisconnectWorkspace.as_view(),
         name="project-disconnect-workspace",
+    ),
+    path(
+        "<org_slug>/<project_slug>/remove-member/",
+        ProjectRemoveMember.as_view(),
+        name="project-remove-member",
+    ),
+    path(
+        "<org_slug>/<project_slug>/settings/",
+        ProjectSettings.as_view(),
+        name="project-settings",
     ),
     path(
         "<org_slug>/<project_slug>/<workspace_slug>/",

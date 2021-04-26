@@ -4,9 +4,16 @@ import pytest
 from django.conf import settings
 from django.utils import timezone
 
-from jobserver.emails import send_finished_notification
+from jobserver.emails import send_finished_notification, send_project_invite_email
 
-from ..factories import JobFactory, JobRequestFactory, WorkspaceFactory
+from ..factories import (
+    JobFactory,
+    JobRequestFactory,
+    ProjectFactory,
+    ProjectInvitationFactory,
+    UserFactory,
+    WorkspaceFactory,
+)
 
 
 @pytest.mark.django_db
@@ -40,3 +47,26 @@ def test_send_finished_notification(mailoutbox):
     assert settings.BASE_URL in m.body
 
     assert list(m.to) == ["test@example.com"]
+
+
+@pytest.mark.django_db
+def test_send_project_invite_email(mailoutbox):
+    project = ProjectFactory()
+    invitee = UserFactory()
+    inviter = UserFactory()
+
+    invite = ProjectInvitationFactory(created_by=inviter, project=project, user=invitee)
+
+    send_project_invite_email(invitee.notifications_email, project, invite)
+
+    m = mailoutbox[0]
+
+    assert inviter.name in m.subject
+    assert project.name in m.subject
+
+    assert inviter.name in m.body
+    assert project.name in m.body
+    assert invite.get_invitation_url() in m.body
+    assert settings.BASE_URL in m.body
+
+    assert list(m.to) == [invitee.notifications_email]

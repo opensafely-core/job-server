@@ -1,0 +1,157 @@
+{% extends "base.html" %}
+
+{% load humanize %}
+{% load static %}
+
+{% block extra_styles %}
+<link rel="stylesheet" href="{% static 'css/select2-4.0.13.min.css' %}">
+{% endblock %}
+
+{% block content %}
+
+<nav aria-label="breadcrumb">
+  <ol class="breadcrumb">
+
+    <li class="breadcrumb-item"><a href="/">Home</a></li>
+
+    <li class="breadcrumb-item">
+      <a href="{{ project.org.get_absolute_url }}">
+        {{ project.org.name }}
+      </a>
+    </li>
+
+    <li class="breadcrumb-item">
+      <a href="{{ project.get_absolute_url }}">
+        {{ project.name }}
+      </a>
+    </li>
+
+    <li class="breadcrumb-item active" aria-current="page">Settings</li>
+
+  </ol>
+</nav>
+
+<div class="row mb-5">
+  <div class="col-lg-8 offset-lg-2">
+
+    <h3>Members</h3>
+
+    {% if members %}
+    <ul class="list-unstyled">
+      {% for member in members %}
+      <li class="mb-3">
+        <div>
+          <div class="d-flex justify-content-between align-items-center">
+            <strong>{{ member.user.name }}</strong>
+
+            {% if can_manage_members %}
+            <form
+              method="POST"
+              action="{% url 'project-remove-member' org_slug=project.org.slug project_slug=project.slug %}">
+              {% csrf_token %}
+
+              <input type="hidden" name="username" value="{{ member.user.username }}" />
+
+              <button class="btn btn-block btn-sm btn-danger" type="submit">Remove</button>
+            </form>
+            {% endif %}
+          </div>
+
+          <p>Roles:</p>
+          <ul>
+            {% for role in member.roles %}
+            <li>{{ role }}</li>
+            {% endfor %}
+          </ul>
+        </div>
+      </li>
+      {% endfor %}
+    </ul>
+    {% else %}
+    <p class="mt-5">
+      There are no members for this organisation yet, you can invite some
+      below.
+    </p>
+    {% endif %}
+
+  </div>
+</div>
+
+<div class="row">
+  <div class="col-lg-8 offset-lg-2">
+
+    <h3>Invitations</h3>
+
+    <p>
+      Invite users to collaborate on {{ project.name }}.  They will be emailed
+      an invitation link.  You will be able to assign them roles once they
+      accept your invitation.
+    </p>
+
+    <form method="POST" class="mb-4">
+      {% csrf_token %}
+
+        {% if form.non_field_errors %}
+        <ul>
+          {% for error in form.non_field_errors %}
+          <li class="text-danger">{{ error }}</li>
+          {% endfor %}
+        </ul>
+        {% endif %}
+
+      <div class="d-flex justify-content-between align-items-center">
+        <select id="id_users" name="users" class="w-100 mr-3" multiple required>
+          {% for value, label in form.fields.users.choices %}
+          <option value="{{ value }}">{{ label }}</option>
+          {% endfor %}
+        </select>
+
+        <button type="submit" class="btn btn-sm btn-primary">Invite</button>
+      </div>
+
+      {% for error in form.users.errors %}
+      <p class="text-danger">{{ error }}</p>
+      {% endfor %}
+    </form>
+
+    {% if invitations %}
+    <h4>Pending</h4>
+    <ul class="list-unstyled">
+      {% for invite in invitations %}
+      <li class="mb-3 p-2 border rounded d-flex justify-content-between align-items-center">
+
+        <div>
+          {{ invite.user.username }}
+          <small class="text-muted">({{ invite.user.name }})</small>
+        </div>
+
+        {% if can_manage_members %}
+        <form method="POST" action="{{ invite.get_cancel_url }}">
+          {% csrf_token %}
+
+          <input type="hidden" name="invite_pk" value="{{ invite.pk }}" />
+
+          <button class="btn btn-block btn-sm btn-danger" type="submit">Delete</button>
+        </form>
+        {% endif %}
+
+      </li>
+      {% endfor %}
+    </ul>
+    {% else %}
+    <p class="mt-5">There are no pending invitations for this project.</p>
+    {% endif %}
+
+  </div>
+</div>
+
+{% endblock %}
+
+{% block extra_js %}
+<script type="text/javascript" src="{% static 'js/select2-4.0.13.min.js' %}"></script>
+<script type="text/javascript">
+  $(document).ready(function() {
+    $('#id_users').select2({selectionCssClass: ":all:"});
+  });
+</script>
+{% endblock %}
