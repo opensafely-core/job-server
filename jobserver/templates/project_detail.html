@@ -43,6 +43,7 @@
           </a>
         </div>
 
+        {% if can_manage_workspaces %}
         <form method="POST" action="{% url 'project-disconnect-workspace' org_slug=project.org.slug project_slug=project.slug %}">
           {% csrf_token %}
 
@@ -50,6 +51,7 @@
 
           <button class="btn btn-block btn-danger" type="submit">Disconnect</button>
         </form>
+        {% endif %}
 
       </li>
       {% endfor %}
