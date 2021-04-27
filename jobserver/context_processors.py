@@ -1,6 +1,7 @@
 import functools
 
 import structlog
+from django.conf import settings
 from django.urls import reverse
 
 from .authorization import SuperUser, has_role
@@ -17,6 +18,9 @@ def _is_active(request, prefix):
 
 def backend_warnings(request):
     def iter_warnings(backends):
+        if settings.DEBUG:
+            return
+
         for backend in backends:
             try:
                 last_seen = (
