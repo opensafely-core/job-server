@@ -101,6 +101,10 @@ WSGI_APPLICATION = "jobserver.wsgi.application"
 # https://docs.djangoproject.com/en/3.0/ref/settings/#databases
 DATABASES = {"default": env.dj_db_url("DATABASE_URL", default="sqlite:///db.sqlite3")}
 
+# Default primary key field type
+# https://docs.djangoproject.com/en/3.2/ref/settings/#default-auto-field
+DEFAULT_AUTO_FIELD = "django.db.models.AutoField"
+
 
 # Password validation
 # https://docs.djangoproject.com/en/3.0/ref/settings/#auth-password-validators
