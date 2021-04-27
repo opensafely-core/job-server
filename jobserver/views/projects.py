@@ -108,7 +108,6 @@ class ProjectCreate(CreateView):
         return redirect(project)
 
 
-@method_decorator(require_superuser, name="dispatch")
 class ProjectDetail(DetailView):
     template_name = "project_detail.html"
 
@@ -120,6 +119,11 @@ class ProjectDetail(DetailView):
         )
 
     def get_context_data(self, **kwargs):
+        can_manage_workspaces = has_permission(
+            self.request.user,
+            "manage_project_workspaces",
+            project=self.object,
+        )
         can_manage_members = has_permission(
             self.request.user,
             "manage_project_members",
@@ -127,12 +131,12 @@ class ProjectDetail(DetailView):
         )
 
         context = super().get_context_data(**kwargs)
+        context["can_manage_workspaces"] = can_manage_workspaces
         context["can_manage_members"] = can_manage_members
         context["workspaces"] = self.object.workspaces.order_by("name")
         return context
 
 
-@method_decorator(require_superuser, name="dispatch")
 class ProjectDisconnectWorkspace(View):
     def post(self, request, *args, **kwargs):
         """A transitional view to help with migrating Workspaces under Projects"""
@@ -141,6 +145,14 @@ class ProjectDisconnectWorkspace(View):
             org__slug=self.kwargs["org_slug"],
             slug=self.kwargs["project_slug"],
         )
+
+        can_manage_workspaces = has_permission(
+            request.user,
+            "manage_project_workspaces",
+            project=project,
+        )
+        if not can_manage_workspaces:
+            raise Http404
 
         workspace_id = request.POST.get("id")
         if not workspace_id:
