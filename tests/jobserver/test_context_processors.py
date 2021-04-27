@@ -11,6 +11,24 @@ from ..factories import JobRequestFactory, StatsFactory, UserFactory
 
 
 @pytest.mark.django_db
+def test_backend_warnings_with_debug_on(rf, settings):
+    settings.DEBUG = True
+
+    # set up some stats which should show up a warning in normal circumstances
+    tpp = Backend.objects.get(name="tpp")
+
+    JobRequestFactory(backend=tpp)
+
+    last_seen = timezone.now() - timedelta(minutes=10)
+    StatsFactory(backend=tpp, api_last_seen=last_seen)
+
+    request = rf.get("/")
+    output = backend_warnings(request)
+
+    assert output["backend_warnings"] == []
+
+
+@pytest.mark.django_db
 def test_backend_warnings_with_no_warnings(rf):
     last_seen = timezone.now() - timedelta(minutes=1)
     StatsFactory(api_last_seen=last_seen)
