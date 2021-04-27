@@ -108,7 +108,6 @@ class ProjectCreate(CreateView):
         return redirect(project)
 
 
-@method_decorator(require_superuser, name="dispatch")
 class ProjectDetail(DetailView):
     template_name = "project_detail.html"
 
