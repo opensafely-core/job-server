@@ -34,6 +34,8 @@ class Command(BaseCommand):
             self.stderr.write(str(e))
             sys.exit(1)
 
-        ProjectMembership.objects.create(
-            project=project, user=user, roles=selected_roles
+        ProjectMembership.objects.update_or_create(
+            project=project,
+            user=user,
+            defaults={"roles": selected_roles},
         )
