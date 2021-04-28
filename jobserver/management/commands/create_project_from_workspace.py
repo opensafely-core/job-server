@@ -27,14 +27,12 @@ class Command(BaseCommand):
         # generate a name from the slug
         name = " ".join(word.capitalize() for word in slug.split("-"))
 
-        project = Project.objects.create(org=org, name=name, slug=slug)
+        project, _ = Project.objects.get_or_create(org=org, name=name, slug=slug)
 
         # tell the User what was made and where they can view it
         f = furl(settings.BASE_URL)
         f.path = project.get_absolute_url()
-        self.stdout.write(
-            f"Name: {project.name}\nSlug: {project.slug}\nURL:  ({f.url})"
-        )
+        self.stdout.write(f"Name: {project.name}\nURL:  {f.url}")
 
         return project
 
