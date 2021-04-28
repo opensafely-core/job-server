@@ -1,6 +1,7 @@
 help:
 	@echo "Usage:"
 	@echo "    make help             prints this help."
+	@echo "    make compile          compile prod & dev requirements from their specs."
 	@echo "    make deploy           deploy the project."
 	@echo "    make fix              fix formatting and import sort ordering."
 	@echo "    make format           run the format checker (black)."
@@ -9,6 +10,11 @@ help:
 	@echo "    make setup            set up/update the local dev env."
 	@echo "    make sort             run the sort checker (isort)."
 	@echo "    make test             run the test suite."
+
+.PHONY: compile
+compile:
+	pip-compile --generate-hashes requirements.in -o requirements.txt
+	pip-compile --generate-hashes requirements.dev.in -o requirements.dev.txt
 
 .PHONY: deploy
 deploy:
@@ -37,7 +43,7 @@ run:
 
 .PHONY: setup
 setup:
-	pip install -r requirements.txt
+	pip install --require-hashes -r requirements.dev.txt
 	pre-commit install
 
 .PHONY: sort
