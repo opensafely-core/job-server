@@ -32,9 +32,7 @@ class Command(BaseCommand):
         # tell the User what was made and where they can view it
         f = furl(settings.BASE_URL)
         f.path = project.get_absolute_url()
-        self.stdout.write(
-            f"Name: {project.name}\nSlug: {project.slug}\nURL:  ({f.url})"
-        )
+        self.stdout.write(f"Name: {project.name}\nURL:  {f.url}")
 
         return project
 
