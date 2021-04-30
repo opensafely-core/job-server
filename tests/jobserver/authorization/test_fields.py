@@ -2,9 +2,9 @@ import pytest
 from django.db import connection
 
 from jobserver.authorization import CoreDeveloper, OutputChecker, ProjectCollaborator
-from jobserver.fields import RolesField, _ensure_role_paths, parse_roles
+from jobserver.authorization.fields import RolesField, _ensure_role_paths, parse_roles
 
-from ..factories import OrgFactory, OrgMembershipFactory, UserFactory
+from ...factories import OrgFactory, OrgMembershipFactory, UserFactory
 
 
 def test_ensure_role_paths_success():

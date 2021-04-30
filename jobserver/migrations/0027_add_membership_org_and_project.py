@@ -4,7 +4,7 @@ import django.db.models.deletion
 from django.conf import settings
 from django.db import migrations, models
 
-import jobserver.fields
+import jobserver.authorization.fields
 
 
 class Migration(migrations.Migration):
@@ -26,7 +26,7 @@ class Migration(migrations.Migration):
                         verbose_name="ID",
                     ),
                 ),
-                ("roles", jobserver.fields.RolesField(default=list)),
+                ("roles", jobserver.authorization.fields.RolesField(default=list)),
                 (
                     "created_by",
                     models.ForeignKey(
@@ -69,7 +69,7 @@ class Migration(migrations.Migration):
                         verbose_name="ID",
                     ),
                 ),
-                ("roles", jobserver.fields.RolesField(default=list)),
+                ("roles", jobserver.authorization.fields.RolesField(default=list)),
                 (
                     "created_by",
                     models.ForeignKey(

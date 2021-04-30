@@ -19,8 +19,8 @@ from django.utils.text import slugify
 from environs import Env
 from furl import furl
 
+from .authorization.fields import RolesField
 from .backends import get_configured_backends
-from .fields import RolesField
 from .runtime import Runtime
 
 

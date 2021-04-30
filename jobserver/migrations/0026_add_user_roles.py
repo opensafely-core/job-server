@@ -2,7 +2,7 @@
 
 from django.db import migrations
 
-import jobserver.fields
+import jobserver.authorization.fields
 
 
 class Migration(migrations.Migration):
@@ -15,6 +15,6 @@ class Migration(migrations.Migration):
         migrations.AddField(
             model_name="user",
             name="roles",
-            field=jobserver.fields.RolesField(default=list),
+            field=jobserver.authorization.fields.RolesField(default=list),
         ),
     ]
