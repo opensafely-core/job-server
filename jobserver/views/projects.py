@@ -6,13 +6,18 @@ from django.http import Http404
 from django.shortcuts import get_object_or_404, redirect
 from django.utils.decorators import method_decorator
 from django.utils.html import escape
-from django.views.generic import CreateView, DetailView, View
+from django.views.generic import CreateView, DetailView, UpdateView, View
 from sentry_sdk import capture_exception
 
-from ..authorization import has_permission
+from ..authorization import has_permission, roles_for
 from ..authorization.decorators import require_superuser
 from ..emails import send_project_invite_email
-from ..forms import ProjectCreateForm, ProjectInvitationForm, ResearcherFormSet
+from ..forms import (
+    ProjectCreateForm,
+    ProjectInvitationForm,
+    ProjectMembershipForm,
+    ResearcherFormSet,
+)
 from ..models import Org, Project, ProjectInvitation, ProjectMembership, User
 
 
@@ -161,6 +166,60 @@ class ProjectDisconnectWorkspace(View):
         project.workspaces.filter(pk=workspace_id).update(project=None)
 
         return redirect(project)
+
+
+class ProjectMembershipEdit(UpdateView):
+    context_object_name = "membership"
+    form_class = ProjectMembershipForm
+    model = ProjectMembership
+    template_name = "project_membership_edit.html"
+
+    def dispatch(self, request, *args, **kwargs):
+        self.project = get_object_or_404(
+            Project,
+            org__slug=self.kwargs["org_slug"],
+            slug=self.kwargs["project_slug"],
+        )
+
+        self.can_manage_members = has_permission(
+            self.request.user,
+            "manage_project_members",
+            project=self.project,
+        )
+
+        if not self.can_manage_members:
+            return redirect(self.project.get_settings_url())
+
+        self.available_roles = roles_for(ProjectMembership)
+
+        return super().dispatch(request, *args, **kwargs)
+
+    def form_valid(self, form):
+        self.object.roles = form.cleaned_data["roles"]
+        self.object.save()
+
+        return redirect(self.project.get_settings_url())
+
+    def get_form_kwargs(self, **kwargs):
+        kwargs = super().get_form_kwargs(**kwargs)
+
+        # ProjectMembershipForm isn't a ModelForm so don't pass instance to it
+        del kwargs["instance"]
+
+        kwargs["roles"] = self.available_roles
+
+        return kwargs
+
+    def get_initial(self):
+        return super().get_initial() | {
+            "roles": self.object.roles,
+        }
+
+    def get_object(self):
+        try:
+            return self.project.members.get(pk=self.kwargs["pk"])
+        except ProjectMembership.DoesNotExist:
+            raise Http404
 
 
 @method_decorator(require_superuser, name="dispatch")

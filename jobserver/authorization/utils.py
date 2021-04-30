@@ -1,6 +1,7 @@
 import inspect
 import itertools
 
+from ..utils import dotted_path
 from . import roles
 from .mappers import get_org_roles_for_user, get_project_roles_for_user
 
@@ -115,6 +116,19 @@ def has_role(user, role, **context):
         return False
 
     return role in _get_roles(user, **context)
+
+
+def roles_for(model):
+    """Get Roles linked to the given Model"""
+    path = dotted_path(model)
+
+    # get all role classes
+    available_roles = [
+        value for name, value in inspect.getmembers(roles, inspect.isclass)
+    ]
+
+    # get roles where the given model is listed
+    return [r for r in available_roles if path in r.models]
 
 
 def strings_to_roles(strings, model_path):

@@ -582,6 +582,16 @@ class ProjectMembership(models.Model):
     def __str__(self):
         return f"{self.user.username} | {self.project.name}"
 
+    def get_edit_url(self):
+        return reverse(
+            "project-membership-edit",
+            kwargs={
+                "org_slug": self.project.org.slug,
+                "project_slug": self.project.slug,
+                "pk": self.pk,
+            },
+        )
+
 
 class Release(models.Model):
     # No value in the default Autoid as we are using a content-addressable hash

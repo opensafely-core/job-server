@@ -2,14 +2,16 @@ import pytest
 from django.contrib.messages.storage.fallback import FallbackStorage
 from django.http import Http404
 
-from jobserver.authorization import ProjectCoordinator
+from jobserver.authorization import ProjectCoordinator, ProjectDeveloper
 from jobserver.models import Project, ProjectInvitation, ProjectMembership
+from jobserver.utils import dotted_path
 from jobserver.views.projects import (
     ProjectAcceptInvite,
     ProjectCancelInvite,
     ProjectCreate,
     ProjectDetail,
     ProjectDisconnectWorkspace,
+    ProjectMembershipEdit,
     ProjectRemoveMember,
     ProjectSettings,
 )
@@ -340,6 +342,62 @@ def test_projectdisconnect_without_permission(rf):
         ProjectDisconnectWorkspace.as_view()(
             request, org_slug=org.slug, project_slug=project.slug
         )
+
+
+@pytest.mark.django_db
+def test_projectmembershipedit_success(rf):
+    org = OrgFactory()
+    project = ProjectFactory(org=org)
+    user = UserFactory()
+
+    ProjectMembershipFactory(project=project, user=user, roles=[ProjectCoordinator])
+
+    membership = ProjectMembershipFactory(project=project, user=UserFactory())
+
+    request = rf.post("/", {"roles": [dotted_path(ProjectDeveloper)]})
+    request.user = user
+
+    response = ProjectMembershipEdit.as_view()(
+        request, org_slug=org.slug, project_slug=project.slug, pk=membership.pk
+    )
+
+    assert response.status_code == 302
+    assert response.url == project.get_settings_url()
+
+    membership.refresh_from_db()
+    assert membership.roles == [ProjectDeveloper]
+
+
+@pytest.mark.django_db
+def test_projectmembershipedit_unknown_membership(rf):
+    org = OrgFactory()
+    project = ProjectFactory(org=org)
+    user = UserFactory()
+
+    ProjectMembershipFactory(project=project, user=user, roles=[ProjectCoordinator])
+
+    request = rf.get("/")
+    request.user = user
+
+    with pytest.raises(Http404):
+        ProjectMembershipEdit.as_view()(
+            request, org_slug=org.slug, project_slug=project.slug, pk="0"
+        )
+
+
+@pytest.mark.django_db
+def test_projectmembershipedit_without_permission(rf):
+    org = OrgFactory()
+    project = ProjectFactory(org=org)
+
+    request = rf.get("/")
+    request.user = UserFactory()
+
+    response = ProjectMembershipEdit.as_view()(
+        request, org_slug=org.slug, project_slug=project.slug, pk="0"
+    )
+    assert response.status_code == 302
+    assert response.url == project.get_settings_url()
 
 
 @pytest.mark.django_db
