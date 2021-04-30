@@ -15,6 +15,7 @@ class CoreDeveloper:
     Internal user who develops and deploys opensafely core framework code.
     """
 
+    display_name = "Core Developer"
     models = [
         "jobserver.models.User",
     ]
@@ -32,6 +33,7 @@ class DataInvestigator:
     only.
     """
 
+    display_name = "Data Investigator"
     models = [
         "jobserver.models.User",
     ]
@@ -44,6 +46,7 @@ class GovernanceReviewer:
     is performed by NHSE.
     """
 
+    display_name = "Governance Reviewer"
     models = [
         "jobserver.models.User",
     ]
@@ -58,6 +61,7 @@ class OnboardingAgent:
     delivering a project, to a degree that has been pre-planned and resourced.
     """
 
+    display_name = "Onboarding Agent"
     models = [
         "jobserver.models.User",
     ]
@@ -69,6 +73,7 @@ class OrgCoordinator:
     A responsible party for an Org
     """
 
+    display_name = "Organisation Coordinator"
     models = [
         "jobserver.models.OrgMembership",
     ]
@@ -80,6 +85,7 @@ class OutputChecker:
     Review output folders that have been proposed for release.
     """
 
+    display_name = "Output Checker"
     models = [
         "jobserver.models.User",
     ]
@@ -94,6 +100,7 @@ class OutputPublisher:
     output checkers and/or an OpenSAFELY Reviewer.
     """
 
+    display_name = "Output Publisher"
     models = [
         "jobserver.models.User",
     ]
@@ -107,6 +114,7 @@ class ProjectCollaborator:
     TODO: Define this role.
     """
 
+    display_name = "Project Collaborator"
     models = [
         "jobserver.models.ProjectMembership",
     ]
@@ -127,6 +135,7 @@ class ProjectCoordinator:
     A Project can only have one Project Coordinator.
     """
 
+    display_name = "Project Coordinator"
     models = [
         "jobserver.models.ProjectMembership",
     ]
@@ -144,6 +153,7 @@ class ProjectDeveloper:
     own outputs.
     """
 
+    display_name = "Project Developer"
     models = [
         "jobserver.models.ProjectMembership",
     ]
@@ -162,6 +172,7 @@ class SuperUser:
     checks.
     """
 
+    display_name = "Super User"
     models = [
         "jobserver.models.User",
     ]
@@ -174,6 +185,7 @@ class TechnicalReviewer:
     applicants, by OpenSAFELY.
     """
 
+    display_name = "Technical Reviewer"
     models = [
         "jobserver.models.User",
     ]
