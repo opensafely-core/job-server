@@ -16,6 +16,9 @@ class CoreDeveloper:
     """
 
     display_name = "Core Developer"
+    description = (
+        "Internal user who develops and deploys the OpenSAFELY core framework."
+    )
     models = [
         "jobserver.models.User",
     ]
@@ -34,6 +37,7 @@ class DataInvestigator:
     """
 
     display_name = "Data Investigator"
+    description = ""
     models = [
         "jobserver.models.User",
     ]
@@ -47,6 +51,7 @@ class GovernanceReviewer:
     """
 
     display_name = "Governance Reviewer"
+    description = ""
     models = [
         "jobserver.models.User",
     ]
@@ -62,6 +67,7 @@ class OnboardingAgent:
     """
 
     display_name = "Onboarding Agent"
+    description = ""
     models = [
         "jobserver.models.User",
     ]
@@ -74,6 +80,7 @@ class OrgCoordinator:
     """
 
     display_name = "Organisation Coordinator"
+    description = ""
     models = [
         "jobserver.models.OrgMembership",
     ]
@@ -86,6 +93,7 @@ class OutputChecker:
     """
 
     display_name = "Output Checker"
+    description = ""
     models = [
         "jobserver.models.User",
     ]
@@ -101,6 +109,7 @@ class OutputPublisher:
     """
 
     display_name = "Output Publisher"
+    description = ""
     models = [
         "jobserver.models.User",
     ]
@@ -115,6 +124,7 @@ class ProjectCollaborator:
     """
 
     display_name = "Project Collaborator"
+    description = ""
     models = [
         "jobserver.models.ProjectMembership",
     ]
@@ -136,6 +146,7 @@ class ProjectCoordinator:
     """
 
     display_name = "Project Coordinator"
+    description = "An administrator for the Project."
     models = [
         "jobserver.models.ProjectMembership",
     ]
@@ -154,6 +165,7 @@ class ProjectDeveloper:
     """
 
     display_name = "Project Developer"
+    description = "An external user who is developing and executing code to analyse data in OpenSAFELY; they will likely want to review (and flag for release) their own outputs."
     models = [
         "jobserver.models.ProjectMembership",
     ]
@@ -173,6 +185,7 @@ class SuperUser:
     """
 
     display_name = "Super User"
+    description = ""
     models = [
         "jobserver.models.User",
     ]
@@ -186,6 +199,7 @@ class TechnicalReviewer:
     """
 
     display_name = "Technical Reviewer"
+    description = ""
     models = [
         "jobserver.models.User",
     ]
