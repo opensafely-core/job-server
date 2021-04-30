@@ -2,6 +2,7 @@ from crispy_forms.helper import FormHelper
 from crispy_forms.layout import Submit
 from django import forms
 
+from .authorization.forms import RolesForm
 from .models import JobRequest, Org, Project, ResearcherRegistration, User, Workspace
 
 
@@ -85,6 +86,10 @@ class ProjectInvitationForm(forms.Form):
         super().__init__(*args, **kwargs)
 
         self.fields["users"].queryset = users
+
+
+class ProjectMembershipForm(RolesForm):
+    pass
 
 
 ResearcherFormSet = forms.modelformset_factory(
