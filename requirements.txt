@@ -155,7 +155,7 @@ pytest-env==0.6.2
     # via -r requirements.in
 pytest-freezegun==0.4.2
     # via -r requirements.in
-pytest-mock==3.5.1
+pytest-mock==3.6.0
     # via -r requirements.in
 pytest-network==0.0.1
     # via -r requirements.in
