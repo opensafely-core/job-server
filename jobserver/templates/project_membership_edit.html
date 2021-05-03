@@ -94,6 +94,22 @@
       </form>
     </div>
 
+    <hr />
+
+    <div>
+      <h4>Remove Member</h4>
+
+      <form method="POST" action="{{ membership.get_remove_url }}">
+        {% csrf_token %}
+
+        <input type="hidden" name="member_pk" value="{{ member.pk }}" />
+
+        <button class="btn btn-danger" type="submit">Remove</button>
+
+      </form>
+
+    </div>
+
   </div>
 </div>
 
