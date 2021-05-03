@@ -14,7 +14,7 @@ attrs==20.3.0
     # via
     #   -r requirements.in
     #   pytest
-black==21.4b0
+black==21.4b2
     # via -r requirements.in
 certifi==2020.6.20
     # via
@@ -123,7 +123,7 @@ orderedmultidict==1.0.1
     # via furl
 packaging==20.4
     # via pytest
-pathspec==0.8.0
+pathspec==0.8.1
     # via black
 pluggy==0.13.1
     # via pytest
