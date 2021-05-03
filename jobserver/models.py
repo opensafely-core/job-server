@@ -499,6 +499,8 @@ class ProjectInvitation(models.Model):
         related_name="project_invitations",
     )
 
+    roles = RolesField()
+
     created_at = models.DateTimeField(default=timezone.now)
     accepted_at = models.DateTimeField(null=True)
 
