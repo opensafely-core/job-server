@@ -54,6 +54,7 @@ def test_projectacceptinvite_success(rf):
     invite.refresh_from_db()
     assert invite.membership is not None
     assert invite.membership.project == project
+    assert invite.membership.roles == invite.roles
 
 
 @pytest.mark.django_db

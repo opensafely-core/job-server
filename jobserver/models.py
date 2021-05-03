@@ -517,6 +517,7 @@ class ProjectInvitation(models.Model):
         membership = ProjectMembership.objects.create(
             project=self.project,
             user=self.user,
+            roles=self.roles,
         )
         self.membership = membership
 
