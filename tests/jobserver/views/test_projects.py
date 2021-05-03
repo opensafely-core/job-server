@@ -2,7 +2,11 @@ import pytest
 from django.contrib.messages.storage.fallback import FallbackStorage
 from django.http import Http404
 
-from jobserver.authorization import ProjectCoordinator, ProjectDeveloper
+from jobserver.authorization import (
+    ProjectCollaborator,
+    ProjectCoordinator,
+    ProjectDeveloper,
+)
 from jobserver.models import Project, ProjectInvitation, ProjectMembership
 from jobserver.utils import dotted_path
 from jobserver.views.projects import (
@@ -35,7 +39,9 @@ def test_projectacceptinvite_success(rf):
     project = ProjectFactory(org=org)
     user = UserFactory()
 
-    invite = ProjectInvitationFactory(project=project, user=user)
+    invite = ProjectInvitationFactory(
+        project=project, user=user, roles=[ProjectCollaborator]
+    )
     assert invite.membership is None
 
     request = rf.get(MEANINGLESS_URL)
@@ -54,6 +60,8 @@ def test_projectacceptinvite_success(rf):
     invite.refresh_from_db()
     assert invite.membership is not None
     assert invite.membership.project == project
+    assert invite.membership.roles == invite.roles
+    assert invite.membership.roles == [ProjectCollaborator]
 
 
 @pytest.mark.django_db
