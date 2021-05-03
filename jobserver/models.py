@@ -345,6 +345,8 @@ class Org(models.Model):
     name = models.TextField(unique=True)
     slug = models.SlugField(max_length=255, unique=True)
 
+    created_at = models.DateTimeField(default=timezone.now)
+
     class Meta:
         verbose_name = "Organisation"
 
@@ -380,6 +382,8 @@ class OrgMembership(models.Model):
     )
 
     roles = RolesField()
+
+    created_at = models.DateTimeField(default=timezone.now)
 
     class Meta:
         unique_together = ["org", "user"]
@@ -446,6 +450,8 @@ class Project(models.Model):
 
     # Section 5
     has_signed_declaration = models.BooleanField(default=False)
+
+    created_at = models.DateTimeField(default=timezone.now)
 
     def __str__(self):
         return f"{self.org.name} | {self.name}"
@@ -573,6 +579,8 @@ class ProjectMembership(models.Model):
 
     roles = RolesField()
 
+    created_at = models.DateTimeField(default=timezone.now)
+
     class Meta:
         unique_together = ["project", "user"]
 
@@ -647,6 +655,8 @@ class ResearcherRegistration(models.Model):
     name = models.TextField()
     passed_researcher_training_at = models.DateTimeField()
     is_ons_accredited_researcher = models.BooleanField(default=False)
+
+    created_at = models.DateTimeField(default=timezone.now)
 
     def __str__(self):
         return self.name
