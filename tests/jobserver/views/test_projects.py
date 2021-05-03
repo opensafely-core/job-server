@@ -510,7 +510,13 @@ def test_projectsettings_post_success(rf, superuser):
     ProjectInvitationFactory(project=project, user=invitee)
     assert ProjectInvitation.objects.filter(project=project).count() == 1
 
-    request = rf.post(MEANINGLESS_URL, {"users": [str(user.pk)]})
+    request = rf.post(
+        MEANINGLESS_URL,
+        {
+            "roles": ["jobserver.authorization.roles.ProjectDeveloper"],
+            "users": [str(user.pk)],
+        },
+    )
     request.user = superuser
 
     response = ProjectSettings.as_view()(
@@ -521,7 +527,9 @@ def test_projectsettings_post_success(rf, superuser):
     assert response.url == project.get_settings_url()
 
     assert ProjectInvitation.objects.filter(project=project).count() == 2
-    assert ProjectInvitation.objects.filter(project=project, user=user).exists()
+
+    invitation = ProjectInvitation.objects.get(project=project, user=user)
+    assert invitation.roles == [ProjectDeveloper]
 
 
 @pytest.mark.django_db
@@ -534,7 +542,13 @@ def test_projectsettings_post_with_email_failure(rf, superuser, mocker):
         project=project, user=superuser, roles=[ProjectCoordinator]
     )
 
-    request = rf.post(MEANINGLESS_URL, {"users": [str(invitee.pk)]})
+    request = rf.post(
+        MEANINGLESS_URL,
+        {
+            "roles": ["jobserver.authorization.roles.ProjectDeveloper"],
+            "users": [str(invitee.pk)],
+        },
+    )
     request.user = superuser
 
     # set up messages framework
@@ -577,7 +591,7 @@ def test_projectsettings_post_with_incorrect_form(rf, superuser):
     ProjectInvitationFactory(project=project)
     assert ProjectInvitation.objects.filter(project=project).count() == 1
 
-    request = rf.post(MEANINGLESS_URL, {"users": ["not_a_pk"]})
+    request = rf.post(MEANINGLESS_URL, {"roles": ["foo"], "users": ["not_a_pk"]})
     request.user = superuser
 
     response = ProjectSettings.as_view()(
