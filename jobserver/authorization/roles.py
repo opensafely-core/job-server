@@ -126,6 +126,7 @@ class ProjectCollaborator:
     display_name = "Project Collaborator"
     description = ""
     models = [
+        "jobserver.models.ProjectInvitation",
         "jobserver.models.ProjectMembership",
     ]
     permissions = [
@@ -148,6 +149,7 @@ class ProjectCoordinator:
     display_name = "Project Coordinator"
     description = "An administrator for the Project."
     models = [
+        "jobserver.models.ProjectInvitation",
         "jobserver.models.ProjectMembership",
     ]
     permissions = [
@@ -167,6 +169,7 @@ class ProjectDeveloper:
     display_name = "Project Developer"
     description = "An external user who is developing and executing code to analyse data in OpenSAFELY; they will likely want to review (and flag for release) their own outputs."
     models = [
+        "jobserver.models.ProjectInvitation",
         "jobserver.models.ProjectMembership",
     ]
     permissions = [
