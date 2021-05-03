@@ -275,6 +275,7 @@ class ProjectSettings(CreateView):
         return super().dispatch(request, *args, **kwargs)
 
     def form_valid(self, form):
+        roles = form.cleaned_data["roles"]
         users = form.cleaned_data["users"]
 
         failed_to_invite = []
@@ -286,6 +287,7 @@ class ProjectSettings(CreateView):
                         created_by=self.request.user,
                         project=self.project,
                         user=user,
+                        roles=roles,
                     )
                     send_project_invite_email(
                         user.notifications_email, self.project, invite
@@ -327,6 +329,8 @@ class ProjectSettings(CreateView):
         return context
 
     def get_form_kwargs(self, **kwargs):
+        available_roles = roles_for(ProjectInvitation)
+
         # memberships do not guarantee a matching invitation and vice versa so
         # look them all up and get a unique list
         user_ids = set(
@@ -338,6 +342,7 @@ class ProjectSettings(CreateView):
         users = User.objects.exclude(pk__in=user_ids).order_by("username")
 
         kwargs = super().get_form_kwargs(**kwargs)
+        kwargs["roles"] = available_roles
         kwargs["users"] = users
 
         # we're not using a ModelForm so make sure there's no instance for it
