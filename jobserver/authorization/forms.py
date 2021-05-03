@@ -21,8 +21,10 @@ class RolesForm(forms.Form):
 
         # convert initial from a list of Roles (so we can easily pass in
         # model.roles in the view) to a list of dotted paths
-        initial_roles = kwargs["initial"].pop("roles")
-        initial = [dotted_path(r) for r in initial_roles]
+        initial = {}
+        if "initial" in kwargs and "roles" in kwargs["initial"]:
+            initial_roles = kwargs["initial"].pop("roles")
+            initial = [dotted_path(r) for r in initial_roles]
 
         self.fields["roles"] = forms.MultipleChoiceField(
             choices=choices,

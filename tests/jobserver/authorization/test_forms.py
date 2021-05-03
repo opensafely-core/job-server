@@ -18,6 +18,18 @@ def test_rolesform_creation():
     assert initial == ["jobserver.authorization.roles.ProjectCoordinator"]
 
 
+def test_rolesform_no_initial():
+    form = RolesForm(
+        data={"roles": ["test"]},
+        available_roles=[ProjectCoordinator, ProjectDeveloper],
+    )
+
+    assert not form.is_valid()
+    assert form.errors["roles"] == [
+        "Select a valid choice. test is not one of the available choices."
+    ]
+
+
 def test_rolesform_invalid_roles():
     form = RolesForm(
         data={"roles": ["test"]},
