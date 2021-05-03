@@ -560,12 +560,6 @@ class ProjectInvitation(models.Model):
 
 
 class ProjectMembership(models.Model):
-    created_by = models.ForeignKey(
-        "User",
-        on_delete=models.SET_NULL,
-        related_name="created_project_memberships",
-        null=True,
-    )
     project = models.ForeignKey(
         "Project",
         on_delete=models.CASCADE,
