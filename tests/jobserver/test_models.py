@@ -540,6 +540,25 @@ def test_project_get_absolute_url():
 
 
 @pytest.mark.django_db
+def test_projectmembership_get_edit_url():
+    org = OrgFactory(name="test-org")
+    project = ProjectFactory(org=org)
+    user = UserFactory()
+
+    membership = ProjectMembershipFactory(project=project, user=user)
+
+    url = membership.get_edit_url()
+    assert url == reverse(
+        "project-membership-edit",
+        kwargs={
+            "org_slug": org.slug,
+            "project_slug": project.slug,
+            "pk": membership.pk,
+        },
+    )
+
+
+@pytest.mark.django_db
 def test_project_get_settings_url():
     org = OrgFactory(name="test-org")
     project = ProjectFactory(org=org)

@@ -8,8 +8,10 @@ from jobserver.authorization import (
     ProjectDeveloper,
     has_permission,
     has_role,
+    roles_for,
     strings_to_roles,
 )
+from jobserver.models import ProjectMembership
 
 from ...factories import ProjectFactory, ProjectMembershipFactory, UserFactory
 
@@ -89,6 +91,13 @@ def test_has_role_with_context_success():
 
     ProjectMembershipFactory(project=project, user=user, roles=[ProjectCollaborator])
     assert has_role(user, ProjectCollaborator, project=project)
+
+
+def test_roles_for_success():
+    output = roles_for(ProjectMembership)
+
+    expected = [ProjectCollaborator, ProjectCoordinator, ProjectDeveloper]
+    assert output == expected
 
 
 def test_strings_to_roles_success():

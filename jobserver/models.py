@@ -19,8 +19,8 @@ from django.utils.text import slugify
 from environs import Env
 from furl import furl
 
+from .authorization.fields import RolesField
 from .backends import get_configured_backends
-from .fields import RolesField
 from .runtime import Runtime
 
 
@@ -581,6 +581,16 @@ class ProjectMembership(models.Model):
 
     def __str__(self):
         return f"{self.user.username} | {self.project.name}"
+
+    def get_edit_url(self):
+        return reverse(
+            "project-membership-edit",
+            kwargs={
+                "org_slug": self.project.org.slug,
+                "project_slug": self.project.slug,
+                "pk": self.pk,
+            },
+        )
 
 
 class Release(models.Model):

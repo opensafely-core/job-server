@@ -1,32 +1,7 @@
 from django.db import models
-from django.utils.module_loading import import_string
 
+from .parsing import _ensure_role_paths, parse_roles
 from .utils import dotted_path
-
-
-def _ensure_role_paths(paths):
-    """
-    Paths must be for one of our Role Classes in jobserver.authorization.roles.
-    """
-    EXPECTED_PREFIX = "jobserver.authorization.roles"
-
-    invalid_paths = [p for p in paths if not p.startswith(EXPECTED_PREFIX)]
-
-    if not invalid_paths:
-        return
-
-    msg = f"Some Role paths did not start with {EXPECTED_PREFIX}:"
-    for path in invalid_paths:
-        msg += f"\n - {path}"
-    raise ValueError(msg)
-
-
-def parse_roles(paths):
-    """Convert Role dotted paths to Role objects"""
-
-    _ensure_role_paths(paths)
-
-    return [import_string(p) for p in paths]
 
 
 class RolesField(models.JSONField):

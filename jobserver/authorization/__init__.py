@@ -12,7 +12,7 @@ from .roles import (
     SuperUser,
     TechnicalReviewer,
 )
-from .utils import has_permission, has_role, strings_to_roles
+from .utils import has_permission, has_role, roles_for, strings_to_roles
 
 
 __all__ = [
@@ -30,5 +30,6 @@ __all__ = [
     "TechnicalReviewer",
     "has_permission",
     "has_role",
+    "roles_for",
     "strings_to_roles",
 ]

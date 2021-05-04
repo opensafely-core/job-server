@@ -45,22 +45,16 @@
             <strong>{{ member.user.name }}</strong>
 
             {% if can_manage_members %}
-            <form
-              method="POST"
-              action="{% url 'project-remove-member' org_slug=project.org.slug project_slug=project.slug %}">
-              {% csrf_token %}
-
-              <input type="hidden" name="username" value="{{ member.user.username }}" />
-
-              <button class="btn btn-block btn-sm btn-danger" type="submit">Remove</button>
-            </form>
+            <a class="btn btn-sm btn-primary" href="{{ member.get_edit_url }}">
+              Edit
+            </a>
             {% endif %}
           </div>
 
           <p>Roles:</p>
           <ul>
             {% for role in member.roles %}
-            <li>{{ role }}</li>
+            <li>{{ role.display_name }}</li>
             {% endfor %}
           </ul>
         </div>

@@ -15,6 +15,10 @@ class CoreDeveloper:
     Internal user who develops and deploys opensafely core framework code.
     """
 
+    display_name = "Core Developer"
+    description = (
+        "Internal user who develops and deploys the OpenSAFELY core framework."
+    )
     models = [
         "jobserver.models.User",
     ]
@@ -32,6 +36,8 @@ class DataInvestigator:
     only.
     """
 
+    display_name = "Data Investigator"
+    description = ""
     models = [
         "jobserver.models.User",
     ]
@@ -44,6 +50,8 @@ class GovernanceReviewer:
     is performed by NHSE.
     """
 
+    display_name = "Governance Reviewer"
+    description = ""
     models = [
         "jobserver.models.User",
     ]
@@ -58,6 +66,8 @@ class OnboardingAgent:
     delivering a project, to a degree that has been pre-planned and resourced.
     """
 
+    display_name = "Onboarding Agent"
+    description = ""
     models = [
         "jobserver.models.User",
     ]
@@ -69,6 +79,8 @@ class OrgCoordinator:
     A responsible party for an Org
     """
 
+    display_name = "Organisation Coordinator"
+    description = ""
     models = [
         "jobserver.models.OrgMembership",
     ]
@@ -80,6 +92,8 @@ class OutputChecker:
     Review output folders that have been proposed for release.
     """
 
+    display_name = "Output Checker"
+    description = ""
     models = [
         "jobserver.models.User",
     ]
@@ -94,6 +108,8 @@ class OutputPublisher:
     output checkers and/or an OpenSAFELY Reviewer.
     """
 
+    display_name = "Output Publisher"
+    description = ""
     models = [
         "jobserver.models.User",
     ]
@@ -107,6 +123,8 @@ class ProjectCollaborator:
     TODO: Define this role.
     """
 
+    display_name = "Project Collaborator"
+    description = ""
     models = [
         "jobserver.models.ProjectMembership",
     ]
@@ -127,6 +145,8 @@ class ProjectCoordinator:
     A Project can only have one Project Coordinator.
     """
 
+    display_name = "Project Coordinator"
+    description = "An administrator for the Project."
     models = [
         "jobserver.models.ProjectMembership",
     ]
@@ -144,6 +164,8 @@ class ProjectDeveloper:
     own outputs.
     """
 
+    display_name = "Project Developer"
+    description = "An external user who is developing and executing code to analyse data in OpenSAFELY; they will likely want to review (and flag for release) their own outputs."
     models = [
         "jobserver.models.ProjectMembership",
     ]
@@ -162,6 +184,8 @@ class SuperUser:
     checks.
     """
 
+    display_name = "Super User"
+    description = ""
     models = [
         "jobserver.models.User",
     ]
@@ -174,6 +198,8 @@ class TechnicalReviewer:
     applicants, by OpenSAFELY.
     """
 
+    display_name = "Technical Reviewer"
+    description = ""
     models = [
         "jobserver.models.User",
     ]

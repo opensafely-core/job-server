@@ -1,0 +1,116 @@
+{% extends "base.html" %}
+
+{% load roles %}
+
+{% block content %}
+
+<nav aria-label="breadcrumb">
+  <ol class="breadcrumb">
+
+    <li class="breadcrumb-item"><a href="/">Home</a></li>
+
+    <li class="breadcrumb-item">
+      <a href="{{ membership.project.org.get_absolute_url }}">
+        {{ membership.project.org.name }}
+      </a>
+    </li>
+
+    <li class="breadcrumb-item">
+      <a href="{{ membership.project.get_absolute_url }}">
+        {{ membership.project.name }}
+      </a>
+    </li>
+
+    <li class="breadcrumb-item">
+      <a href="{{ membership.project.get_settings_url }}">
+        Settings
+      </a>
+    </li>
+
+    <li class="breadcrumb-item active" aria-current="page">{{ membership.user.name }}</li>
+
+  </ol>
+</nav>
+
+<div class="row mb-5">
+  <div class="col-lg-8 offset-lg-2">
+
+    <h3 class="mb-4">
+      {{ membership.user.name }}
+      <small class="muted">({{ membership.user.username }})</small>
+    </h3>
+
+    <div class="mb-4">
+      <form method="POST">
+        {% csrf_token %}
+
+        <h4>Roles</h4>
+
+        {% if form.non_field_errors %}
+        <ul>
+          {% for error in form.non_field_errors %}
+          <li class="text-danger">{{ error }}</li>
+          {% endfor %}
+        </ul>
+        {% endif %}
+
+        <div class="form-group">
+
+          <ul class="list-group mb-3">
+            {% for value, label in form.roles.field.choices %}
+            <li class="list-group-item">
+              <div class="custom-control custom-checkbox">
+                <input
+                  type="checkbox"
+                  class="custom-control-input"
+                  id="id_roles_{{ forloop.counter0 }}"
+                  name="roles"
+                  value="{{ value }}"
+                  {% if value in form.roles.value %}
+                  checked
+                  {% endif %}
+                />
+                <label class="custom-control-label" for="id_roles_{{ forloop.counter0 }}">
+                  <span class="d-block"><strong>{{ label }}</strong></span>
+                  <span>{{ value|role_description|linebreaksbr }}</span>
+                </label>
+              </div>
+            </li>
+            {% endfor %}
+          </ul>
+
+          {% if form.roles.errors %}
+          <ul class="pl-3 mb-1">
+            {% for error in form.roles.errors %}
+            <li class="text-danger">{{ error }}</li>
+            {% endfor %}
+          </ul>
+          {% endif %}
+
+        </div>
+
+        <button class="btn btn-primary" type="submit">Save</button>
+
+      </form>
+    </div>
+
+    <hr />
+
+    <div>
+      <h4>Remove Member</h4>
+
+      <form method="POST" action="{{ membership.get_remove_url }}">
+        {% csrf_token %}
+
+        <input type="hidden" name="member_pk" value="{{ member.pk }}" />
+
+        <button class="btn btn-danger" type="submit">Remove</button>
+
+      </form>
+
+    </div>
+
+  </div>
+</div>
+
+{% endblock %}

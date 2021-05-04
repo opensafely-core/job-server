@@ -8,18 +8,17 @@ optional relationship.
 
 Each function is expected to handle the lookup of Roles in a given relationship.
 """
-from ..models import OrgMembership, ProjectMembership
 
 
 def get_org_roles_for_user(org, user):
     try:
         return org.members.get(user=user).roles
-    except OrgMembership.DoesNotExist:
+    except org.members.model.DoesNotExist:
         return []
 
 
 def get_project_roles_for_user(project, user):
     try:
         return project.members.get(user=user).roles
-    except ProjectMembership.DoesNotExist:
+    except project.members.model.DoesNotExist:
         return []
