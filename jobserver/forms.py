@@ -79,7 +79,7 @@ class ProjectCreateForm(forms.ModelForm):
         model = Project
 
 
-class ProjectInvitationForm(forms.Form):
+class ProjectInvitationForm(RolesForm):
     users = forms.ModelMultipleChoiceField(queryset=User.objects.none())
 
     def __init__(self, users, *args, **kwargs):
