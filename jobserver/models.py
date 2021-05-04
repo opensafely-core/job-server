@@ -12,7 +12,7 @@ from django.contrib.auth.models import AbstractUser
 from django.core import signing
 from django.core.validators import validate_slug
 from django.db import models, transaction
-from django.db.models import Count, Q
+from django.db.models import Q
 from django.urls import reverse
 from django.utils import timezone
 from django.utils.text import slugify
@@ -174,14 +174,6 @@ class Job(models.Model):
         return Runtime(int(hours), int(minutes), int(seconds), int(total_seconds))
 
 
-class JobRequestQuerySet(models.QuerySet):
-    def acked(self):
-        return self.annotate(num_jobs=Count("jobs")).filter(num_jobs__gt=0)
-
-    def unacked(self):
-        return self.annotate(num_jobs=Count("jobs")).filter(num_jobs=0)
-
-
 class JobRequest(models.Model):
     """
     A request to run a Job
@@ -215,8 +207,6 @@ class JobRequest(models.Model):
     project_definition = models.TextField(default="")
 
     created_at = models.DateTimeField(default=timezone.now)
-
-    objects = JobRequestQuerySet.as_manager()
 
     def get_absolute_url(self):
         return reverse("job-request-detail", kwargs={"pk": self.pk})
@@ -345,6 +335,8 @@ class Org(models.Model):
     name = models.TextField(unique=True)
     slug = models.SlugField(max_length=255, unique=True)
 
+    created_at = models.DateTimeField(default=timezone.now)
+
     class Meta:
         verbose_name = "Organisation"
 
@@ -380,6 +372,8 @@ class OrgMembership(models.Model):
     )
 
     roles = RolesField()
+
+    created_at = models.DateTimeField(default=timezone.now)
 
     class Meta:
         unique_together = ["org", "user"]
@@ -446,6 +440,8 @@ class Project(models.Model):
 
     # Section 5
     has_signed_declaration = models.BooleanField(default=False)
+
+    created_at = models.DateTimeField(default=timezone.now)
 
     def __str__(self):
         return f"{self.org.name} | {self.name}"
@@ -560,12 +556,6 @@ class ProjectInvitation(models.Model):
 
 
 class ProjectMembership(models.Model):
-    created_by = models.ForeignKey(
-        "User",
-        on_delete=models.SET_NULL,
-        related_name="created_project_memberships",
-        null=True,
-    )
     project = models.ForeignKey(
         "Project",
         on_delete=models.CASCADE,
@@ -578,6 +568,8 @@ class ProjectMembership(models.Model):
     )
 
     roles = RolesField()
+
+    created_at = models.DateTimeField(default=timezone.now)
 
     class Meta:
         unique_together = ["project", "user"]
@@ -653,6 +645,8 @@ class ResearcherRegistration(models.Model):
     name = models.TextField()
     passed_researcher_training_at = models.DateTimeField()
     is_ons_accredited_researcher = models.BooleanField(default=False)
+
+    created_at = models.DateTimeField(default=timezone.now)
 
     def __str__(self):
         return self.name
