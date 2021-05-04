@@ -1,6 +1,7 @@
 attrs
 django-anymail[mailgun]
 django-crispy-forms
+django-permissions-policy
 django-rest-framework
 django-structlog
 environs[django]
