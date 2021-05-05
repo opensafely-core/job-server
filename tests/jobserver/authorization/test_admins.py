@@ -7,12 +7,6 @@ from ...factories import UserFactory
 
 
 @pytest.mark.django_db
-def test_ensure_admins_no_users_configured():
-    with pytest.raises(Exception, match="No admin users configured, aborting"):
-        ensure_admins([])
-
-
-@pytest.mark.django_db
 def test_ensure_admins_success():
     user = UserFactory(username="ghickman")
     assert SuperUser not in user.roles
@@ -28,7 +22,7 @@ def test_ensure_admins_unknown_user():
     user = UserFactory(username="ghickman")
     assert SuperUser not in user.roles
 
-    with pytest.raises(Exception, match="Unknown users: test"):
+    with pytest.raises(Exception, match="Unknown admin usernames: test"):
         ensure_admins(["ghickman", "test"])
 
 
@@ -37,7 +31,7 @@ def test_ensure_admins_unknown_users():
     user = UserFactory(username="ghickman")
     assert SuperUser not in user.roles
 
-    with pytest.raises(Exception, match="Unknown users: foo, test"):
+    with pytest.raises(Exception, match="Unknown admin usernames: foo, test"):
         ensure_admins(["ghickman", "foo", "test"])
 
 
