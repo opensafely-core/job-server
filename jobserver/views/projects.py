@@ -276,10 +276,11 @@ class ProjectSettings(CreateView):
 
     def form_valid(self, form):
         roles = form.cleaned_data["roles"]
-        users = form.cleaned_data["users"]
+        user_pks = form.cleaned_data["users"]
 
         failed_to_invite = []
 
+        users = User.objects.filter(pk__in=user_pks)
         for user in users:
             try:
                 with transaction.atomic():

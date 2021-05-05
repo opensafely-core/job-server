@@ -80,12 +80,19 @@ class ProjectCreateForm(forms.ModelForm):
 
 
 class ProjectInvitationForm(RolesForm):
-    users = forms.ModelMultipleChoiceField(queryset=User.objects.none())
-
     def __init__(self, users, *args, **kwargs):
         super().__init__(*args, **kwargs)
 
-        self.fields["users"].queryset = users
+        self.fields["users"] = forms.MultipleChoiceField(
+            choices=list(self.build_user_choices(users)),
+        )
+
+    def build_user_choices(self, users):
+        for user in users:
+            full_name = user.get_full_name()
+            label = f"{user.username} ({full_name})" if full_name else user.username
+
+            yield user.pk, label
 
 
 class ProjectMembershipForm(RolesForm):

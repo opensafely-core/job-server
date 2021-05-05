@@ -611,7 +611,7 @@ def test_projectsettings_post_with_incorrect_form(rf, superuser):
     # check the number of invitations hasn't changed
     assert ProjectInvitation.objects.filter(project=project).count() == 1
 
-    assert "“not_a_pk” is not a valid value." in response.rendered_content
+    assert "not_a_pk is not one of the available choices." in response.rendered_content
 
 
 @pytest.mark.django_db
