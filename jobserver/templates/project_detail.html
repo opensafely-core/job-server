@@ -35,7 +35,7 @@
     <h3>Workspaces</h3>
     <ul class="list-unstyled">
       {% for workspace in workspaces %}
-      <li class="d-flex justify-content-between align-items-center">
+      <li class="d-flex justify-content-between align-items-center mb-3">
 
         <div>
           <a href="{% url 'project-workspace-detail' org_slug=project.org.slug project_slug=project.slug workspace_slug=workspace.name %}">
@@ -49,7 +49,7 @@
 
           <input type="hidden" name="id" value="{{ workspace.pk }}" />
 
-          <button class="btn btn-block btn-danger" type="submit">Disconnect</button>
+          <button class="btn btn-block btn-sm btn-danger" type="submit">Disconnect</button>
         </form>
         {% endif %}
 
