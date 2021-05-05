@@ -1,0 +1,17 @@
+-c requirements.in
+-r requirements.in
+
+black
+factory_boy
+flake8
+isort
+litecli
+pre-commit
+pytest-cov
+pytest-django
+pytest-env
+pytest-freezegun
+pytest-mock
+pytest-network
+pytest-subtests
+responses

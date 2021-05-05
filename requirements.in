@@ -1,6 +1,8 @@
 attrs
 django-anymail[mailgun]
 django-crispy-forms
+django-debug-toolbar
+django-extensions
 django-permissions-policy
 django-rest-framework
 django-structlog
@@ -14,21 +16,3 @@ requests
 sentry-sdk
 social-auth-app-django
 whitenoise
-
-# dev requirements
-black
-django-debug-toolbar
-django-extensions
-factory_boy
-flake8
-isort
-litecli
-pre-commit
-pytest-cov
-pytest-django
-pytest-env
-pytest-freezegun
-pytest-mock
-pytest-network
-pytest-subtests
-responses
