@@ -9,15 +9,15 @@ ENV PIP_NO_CACHE_DIR=1 \
 
 WORKDIR /app
 
-# Only requirements to cache them in docker layer so we can skip package
-# installation if they haven't changed
-COPY requirements.txt .
-RUN pip install --no-cache-dir --require-hashes --requirement requirements.txt
-
 RUN apt-get update && \
     apt-get install --no-install-recommends -y sqlite3=3.27.2-3+deb10u1 && \
     apt-get clean && \
     rm -rf /var/lib/apt/lists/*
+
+# Only requirements to cache them in docker layer so we can skip package
+# installation if they haven't changed
+COPY requirements.txt .
+RUN pip install --no-cache-dir --require-hashes --requirement requirements.txt
 
 COPY . /app
 
