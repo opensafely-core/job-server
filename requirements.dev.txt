@@ -310,7 +310,9 @@ isort==5.8.0 \
 litecli==1.6.0 \
     --hash=sha256:4d274e1475b4d3bb32384838830bc4a8388992b7cb8119aa8cffc7ffaa0167f9 \
     --hash=sha256:fa716dff5dae3db83580d24446b6891d85e1d7797f2705ff107fe38139c44030
-    # via -r requirements.dev.in
+    # via
+    #   -c requirements.in
+    #   -r requirements.in
 marshmallow==3.11.1 \
     --hash=sha256:0dd42891a5ef288217ed6410917f3c6048f585f8692075a0052c24f9bfff9dfd \
     --hash=sha256:16e99cb7f630c0ef4d7d364ed0109ac194268dde123966076ab3dafb9ae3906b
