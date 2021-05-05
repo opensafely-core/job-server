@@ -205,6 +205,11 @@ INTERNAL_IPS = [
     "127.0.0.1",
 ]
 
+# Permissions Policy
+PERMISSIONS_POLICY = {
+    "interest-cohort": [],
+}
+
 # Python/Django Social Auth
 SOCIAL_AUTH_PIPELINE = [
     "social_core.pipeline.social_auth.social_details",
