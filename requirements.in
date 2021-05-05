@@ -11,6 +11,7 @@ first
 furl
 gunicorn
 incuna-mail
+litecli
 pyyaml
 requests
 sentry-sdk
