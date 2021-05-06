@@ -1,0 +1,131 @@
+{% extends "base.html" %}
+
+{% load roles %}
+{% load static %}
+
+{% block extra_styles %}
+<link rel="stylesheet" href="{% static 'css/select2-4.0.13.min.css' %}">
+{% endblock %}
+
+{% block content %}
+
+<nav aria-label="breadcrumb">
+  <ol class="breadcrumb">
+
+    <li class="breadcrumb-item"><a href="/">Home</a></li>
+
+    <li class="breadcrumb-item">
+      <a href="{{ project.org.get_absolute_url }}">
+        {{ project.org.name }}
+      </a>
+    </li>
+
+    <li class="breadcrumb-item">
+      <a href="{{ project.get_absolute_url }}">
+        {{ project.name }}
+      </a>
+    </li>
+
+    <li class="breadcrumb-item">
+      <a href="{{ project.get_settings_url }}">
+        Settings
+      </a>
+    </li>
+
+    <li class="breadcrumb-item active" aria-current="page">Invite Users</li>
+
+  </ol>
+</nav>
+
+<div class="row mb-5">
+  <div class="col-lg-8 offset-lg-2">
+
+    <h2>Invite Users</h2>
+
+    <p>
+      Invite users to collaborate on {{ project.name }}.  They will be emailed
+      an invitation link.  You will be able to assign them roles once they
+      accept your invitation.
+    </p>
+
+    <form method="POST" class="mb-4">
+      {% csrf_token %}
+
+      {% if form.non_field_errors %}
+      <ul>
+        {% for error in form.non_field_errors %}
+        <li class="text-danger">{{ error }}</li>
+        {% endfor %}
+      </ul>
+      {% endif %}
+
+      <div class="form-group">
+        <select id="id_users" name="users" class="w-100" multiple required>
+          {% for value, label in form.fields.users.choices %}
+          <option value="{{ value }}">{{ label }}</option>
+          {% endfor %}
+        </select>
+
+        {% for error in form.users.errors %}
+        <p class="text-danger">{{ error }}</p>
+        {% endfor %}
+      </div>
+
+      <div class="form-group mb-3">
+        <p>Select one or more roles for the user(s) you are inviting.</p>
+
+        <ul class="list-group mb-1">
+          {% for value, label in form.roles.field.choices %}
+          <li class="list-group-item">
+            <div class="custom-control custom-checkbox">
+              <input
+                type="checkbox"
+                class="custom-control-input"
+                id="id_roles_{{ forloop.counter0 }}"
+                name="roles"
+                value="{{ value }}"
+                {% if value in form.roles.value %}
+                checked
+                {% endif %}
+              />
+              <label class="custom-control-label" for="id_roles_{{ forloop.counter0 }}">
+                <span class="d-block"><strong>{{ label }}</strong></span>
+                <span>{{ value|role_description|linebreaksbr }}</span>
+              </label>
+            </div>
+          </li>
+          {% endfor %}
+        </ul>
+
+        {% if form.roles.errors %}
+        <ul class="pl-3">
+          {% for error in form.roles.errors %}
+          <li class="text-danger">{{ error }}</li>
+          {% endfor %}
+        </ul>
+        {% endif %}
+
+      </div>
+
+      <div class="form-group mb-3">
+        <button type="submit" class="btn btn-sm btn-primary">Invite</button>
+      </div>
+
+    </form>
+
+  </div>
+</div>
+
+{% endblock %}
+
+{% block extra_js %}
+<script type="text/javascript" src="{% static 'js/select2-4.0.13.min.js' %}"></script>
+<script type="text/javascript">
+  $(document).ready(function() {
+    $('#id_users').select2({
+      placeholder: "Select 1 or more Users to invite",
+      selectionCssClass: ":all:",
+    });
+  });
+</script>
+{% endblock %}

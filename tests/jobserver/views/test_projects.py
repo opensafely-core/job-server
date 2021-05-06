@@ -15,6 +15,7 @@ from jobserver.views.projects import (
     ProjectCreate,
     ProjectDetail,
     ProjectDisconnectWorkspace,
+    ProjectInvitationCreate,
     ProjectMembershipEdit,
     ProjectRemoveMember,
     ProjectSettings,
@@ -353,6 +354,149 @@ def test_projectdisconnect_without_permission(rf):
 
 
 @pytest.mark.django_db
+def test_projectinvitationcreate_get_success(rf):
+    org = OrgFactory()
+    project = ProjectFactory(org=org)
+    coordinator = UserFactory()
+
+    ProjectMembershipFactory(
+        project=project, user=coordinator, roles=[ProjectCoordinator]
+    )
+
+    request = rf.get(MEANINGLESS_URL)
+    request.user = coordinator
+
+    response = ProjectInvitationCreate.as_view()(
+        request, org_slug=org.slug, project_slug=project.slug
+    )
+
+    assert response.status_code == 200
+
+
+@pytest.mark.django_db
+def test_projectinvitationcreate_post_success(rf):
+    org = OrgFactory()
+    project = ProjectFactory(org=org)
+    coordinator = UserFactory()
+    invitee = UserFactory()
+
+    ProjectMembershipFactory(
+        project=project, user=coordinator, roles=[ProjectCoordinator]
+    )
+
+    assert ProjectInvitation.objects.filter(project=project).count() == 0
+
+    request = rf.post(
+        MEANINGLESS_URL,
+        {
+            "roles": ["jobserver.authorization.roles.ProjectDeveloper"],
+            "users": [str(invitee.pk)],
+        },
+    )
+    request.user = coordinator
+
+    response = ProjectInvitationCreate.as_view()(
+        request, org_slug=org.slug, project_slug=project.slug
+    )
+
+    assert response.status_code == 302
+    assert response.url == project.get_settings_url()
+
+    assert ProjectInvitation.objects.filter(project=project).count() == 1
+
+    invitation = ProjectInvitation.objects.get(project=project, user=invitee)
+    assert invitation.roles == [ProjectDeveloper]
+
+
+@pytest.mark.django_db
+def test_projectinvitationcreate_post_with_email_failure(rf, mocker):
+    org = OrgFactory()
+    project = ProjectFactory(org=org)
+    coordinator = UserFactory()
+    invitee = UserFactory()
+
+    ProjectMembershipFactory(
+        project=project, user=coordinator, roles=[ProjectCoordinator]
+    )
+
+    request = rf.post(
+        MEANINGLESS_URL,
+        {
+            "roles": ["jobserver.authorization.roles.ProjectDeveloper"],
+            "users": [str(invitee.pk)],
+        },
+    )
+    request.user = coordinator
+
+    # set up messages framework
+    request.session = "session"
+    messages = FallbackStorage(request)
+    request._messages = messages
+
+    # mock send_project_invite_email to throw an exception
+    mocker.patch(
+        "jobserver.views.projects.send_project_invite_email",
+        autospec=True,
+        side_effect=Exception,
+    )
+    response = ProjectInvitationCreate.as_view()(
+        request, org_slug=org.slug, project_slug=project.slug
+    )
+
+    assert response.status_code == 302
+    assert response.url == project.get_settings_url()
+
+    # check there are no invitations
+    assert not ProjectInvitation.objects.exists()
+
+    # check we have a message for the user
+    messages = list(messages)
+    assert len(messages) == 1
+    expected = f"<p>Failed to invite 1 User(s):</p><ul><li>{invitee.username}</li></ul><p>Please try again.</p>"
+    assert str(messages[0]) == expected
+
+
+@pytest.mark.django_db
+def test_projectinvitationcreate_post_with_incorrect_form(rf):
+    org = OrgFactory()
+    project = ProjectFactory(org=org)
+    coordinator = UserFactory()
+
+    ProjectMembershipFactory(
+        project=project, user=coordinator, roles=[ProjectCoordinator]
+    )
+
+    assert ProjectInvitation.objects.filter(project=project).count() == 0
+
+    request = rf.post(MEANINGLESS_URL, {"roles": ["foo"], "users": ["not_a_pk"]})
+    request.user = coordinator
+
+    response = ProjectInvitationCreate.as_view()(
+        request, org_slug=org.slug, project_slug=project.slug
+    )
+
+    assert response.status_code == 200
+
+    # check the number of invitations hasn't changed
+    assert ProjectInvitation.objects.filter(project=project).count() == 0
+
+    assert "not_a_pk is not one of the available choices." in response.rendered_content
+
+
+@pytest.mark.django_db
+def test_projectinvitationcreate_without_permission(rf):
+    org = OrgFactory()
+    project = ProjectFactory(org=org)
+
+    request = rf.get(MEANINGLESS_URL)
+    request.user = UserFactory()
+    with pytest.raises(Http404):
+        ProjectInvitationCreate.as_view()(
+            request, org_slug=org.slug, project_slug=project.slug
+        )
+
+
+@pytest.mark.django_db
 def test_projectmembershipedit_success(rf):
     org = OrgFactory()
     project = ProjectFactory(org=org)
@@ -483,7 +627,7 @@ def test_projectremovemember_without_permission(rf, superuser):
 
 
 @pytest.mark.django_db
-def test_projectsettings_get_success(rf, superuser):
+def test_projectsettings_success(rf, superuser):
     org = OrgFactory()
     project = ProjectFactory(org=org)
 
@@ -502,116 +646,6 @@ def test_projectsettings_get_success(rf, superuser):
 
     assert len(response.context_data["members"]) == 1
     assert response.context_data["project"] == project
-
-
-@pytest.mark.django_db
-def test_projectsettings_post_success(rf, superuser):
-    org = OrgFactory()
-    project = ProjectFactory(org=org)
-    invitee = UserFactory()
-    user = UserFactory()
-
-    ProjectMembershipFactory(
-        project=project, user=superuser, roles=[ProjectCoordinator]
-    )
-
-    ProjectInvitationFactory(project=project, user=invitee)
-    assert ProjectInvitation.objects.filter(project=project).count() == 1
-
-    request = rf.post(
-        MEANINGLESS_URL,
-        {
-            "roles": ["jobserver.authorization.roles.ProjectDeveloper"],
-            "users": [str(user.pk)],
-        },
-    )
-    request.user = superuser
-
-    response = ProjectSettings.as_view()(
-        request, org_slug=org.slug, project_slug=project.slug
-    )
-
-    assert response.status_code == 302
-    assert response.url == project.get_settings_url()
-
-    assert ProjectInvitation.objects.filter(project=project).count() == 2
-
-    invitation = ProjectInvitation.objects.get(project=project, user=user)
-    assert invitation.roles == [ProjectDeveloper]
-
-
-@pytest.mark.django_db
-def test_projectsettings_post_with_email_failure(rf, superuser, mocker):
-    org = OrgFactory()
-    project = ProjectFactory(org=org)
-    invitee = UserFactory()
-
-    ProjectMembershipFactory(
-        project=project, user=superuser, roles=[ProjectCoordinator]
-    )
-
-    request = rf.post(
-        MEANINGLESS_URL,
-        {
-            "roles": ["jobserver.authorization.roles.ProjectDeveloper"],
-            "users": [str(invitee.pk)],
-        },
-    )
-    request.user = superuser
-
-    # set up messages framework
-    request.session = "session"
-    messages = FallbackStorage(request)
-    request._messages = messages
-
-    # mock send_project_invite_email to throw an exception
-    mocker.patch(
-        "jobserver.views.projects.send_project_invite_email",
-        autospec=True,
-        side_effect=Exception,
-    )
-    response = ProjectSettings.as_view()(
-        request, org_slug=org.slug, project_slug=project.slug
-    )
-
-    assert response.status_code == 302
-    assert response.url == project.get_settings_url()
-
-    # check there are no invitations
-    assert not ProjectInvitation.objects.exists()
-
-    # check we have a message for the user
-    messages = list(messages)
-    assert len(messages) == 1
-    expected = f"<p>Failed to invite 1 User(s):</p><ul><li>{invitee.username}</li></ul><p>Please try again.</p>"
-    assert str(messages[0]) == expected
-
-
-@pytest.mark.django_db
-def test_projectsettings_post_with_incorrect_form(rf, superuser):
-    org = OrgFactory()
-    project = ProjectFactory(org=org)
-
-    ProjectMembershipFactory(
-        project=project, user=superuser, roles=[ProjectCoordinator]
-    )
-
-    ProjectInvitationFactory(project=project)
-    assert ProjectInvitation.objects.filter(project=project).count() == 1
-
-    request = rf.post(MEANINGLESS_URL, {"roles": ["foo"], "users": ["not_a_pk"]})
-    request.user = superuser
-
-    response = ProjectSettings.as_view()(
-        request, org_slug=org.slug, project_slug=project.slug
-    )
-
-    assert response.status_code == 200
-
-    # check the number of invitations hasn't changed
-    assert ProjectInvitation.objects.filter(project=project).count() == 1
-
-    assert "not_a_pk is not one of the available choices." in response.rendered_content
 
 
 @pytest.mark.django_db
