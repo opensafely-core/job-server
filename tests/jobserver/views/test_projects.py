@@ -627,16 +627,17 @@ def test_projectremovemember_without_permission(rf, superuser):
 
 
 @pytest.mark.django_db
-def test_projectsettings_success(rf, superuser):
+def test_projectsettings_success(rf):
     org = OrgFactory()
     project = ProjectFactory(org=org)
+    coordinator = UserFactory()
 
     ProjectMembershipFactory(
-        project=project, user=superuser, roles=[ProjectCoordinator]
+        project=project, user=coordinator, roles=[ProjectCoordinator]
     )
 
     request = rf.get(MEANINGLESS_URL)
-    request.user = superuser
+    request.user = coordinator
 
     response = ProjectSettings.as_view()(
         request, org_slug=org.slug, project_slug=project.slug
@@ -649,19 +650,19 @@ def test_projectsettings_success(rf, superuser):
 
 
 @pytest.mark.django_db
-def test_projectsettings_unknown_project(rf, superuser):
+def test_projectsettings_unknown_project(rf):
     request = rf.get(MEANINGLESS_URL)
-    request.user = superuser
+    request.user = UserFactory()
     with pytest.raises(Http404):
         ProjectSettings.as_view()(request, org_slug="", project_slug="")
 
 
 @pytest.mark.django_db
-def test_projectsettings_without_permission(rf, superuser):
+def test_projectsettings_without_permission(rf):
     org = OrgFactory()
     project = ProjectFactory(org=org)
 
     request = rf.get(MEANINGLESS_URL)
-    request.user = superuser
+    request.user = UserFactory()
     with pytest.raises(Http404):
         ProjectSettings.as_view()(request, org_slug=org.slug, project_slug=project.slug)

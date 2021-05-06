@@ -350,7 +350,6 @@ class ProjectRemoveMember(View):
         return redirect(membership.project.get_settings_url())
 
 
-@method_decorator(require_superuser, name="dispatch")
 class ProjectSettings(TemplateView):
     template_name = "project_settings.html"
 
