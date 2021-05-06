@@ -30,84 +30,85 @@
 <div class="row mb-5">
   <div class="col-lg-8 offset-lg-2">
 
-    <h3>Members</h3>
+    <div class="mb-5">
+      <h3>Members</h3>
 
-    {% if members %}
-    <ul class="list-unstyled">
-      {% for member in members %}
-      <li class="mb-3 p-2 border rounded d-flex justify-content-between align-items-center">
-        <div>
-          <strong class="mr-3">{{ member.user.name }}</strong>
+      {% if members %}
+      <ul class="list-unstyled">
+        {% for member in members %}
+        <li class="mb-3 p-2 border rounded d-flex justify-content-between align-items-center">
+          <div>
+            <strong class="mr-3">{{ member.user.name }}</strong>
 
-          {% for role in member.roles %}
-          <span class="badge badge-secondary">{{ role.display_name }}</span>
-          {% endfor %}
+            {% for role in member.roles %}
+            <span class="badge badge-secondary">{{ role.display_name }}</span>
+            {% endfor %}
 
-        </div>
+          </div>
 
-        {% if can_manage_members %}
-        <div>
-          <a class="btn btn-sm btn-primary" href="{{ member.get_edit_url }}">
-            Edit
-          </a>
-        </div>
-        {% endif %}
-      </li>
-      {% endfor %}
-    </ul>
-    {% else %}
-    <p class="mt-5">
-      There are no members for this organisation yet, you can invite some
-      below.
-    </p>
-    {% endif %}
+          {% if can_manage_members %}
+          <div>
+            <a class="btn btn-sm btn-primary" href="{{ member.get_edit_url }}">
+              Edit
+            </a>
+          </div>
+          {% endif %}
+        </li>
+        {% endfor %}
+      </ul>
+      {% else %}
+      <p class="mt-5">
+        There are no members for this organisation yet, you can invite some
+        below.
+      </p>
+      {% endif %}
 
-  </div>
-</div>
-
-<div class="row">
-  <div class="col-lg-8 offset-lg-2">
-
-    <div class="d-flex justify-content-between align-items-center mb-3">
-      <h3>Invitations</h3>
-
-      <a class="btn btn-sm btn-primary" href="{{ project.get_invitation_url }}">Invite Users</a>
     </div>
 
-    {% if invitations %}
-    <h4>Pending</h4>
-    <ul class="list-unstyled">
-      {% for invite in invitations %}
-      <li class="mb-3 p-2 border rounded d-flex justify-content-between align-items-center">
+    <div class="mb-3">
 
-        <div>
-          <span class="mr-3">
-            {{ invite.user.username }}
-            <small class="text-muted">({{ invite.user.name }})</small>
-          </span>
+      <div class="d-flex justify-content-between align-items-center mb-3">
+        <h3>Invitations</h3>
 
-          {% for role in invite.roles %}
-          <span class="badge badge-secondary">{{ role.display_name }}</span>
-          {% endfor %}
+        <a class="btn btn-sm btn-primary" href="{{ project.get_invitation_url }}">Invite Users</a>
+      </div>
 
-        </div>
+      {% if invitations %}
+      <h4>Pending</h4>
+      <ul class="list-unstyled">
+        {% for invite in invitations %}
+        <li class="mb-3 p-2 border rounded d-flex justify-content-between align-items-center">
 
-        {% if can_manage_members %}
-        <form method="POST" action="{{ invite.get_cancel_url }}">
-          {% csrf_token %}
+          <div>
+            <span class="mr-3">
+              {{ invite.user.username }}
+              <small class="text-muted">({{ invite.user.name }})</small>
+            </span>
 
-          <input type="hidden" name="invite_pk" value="{{ invite.pk }}" />
+            {% for role in invite.roles %}
+            <span class="badge badge-secondary">{{ role.display_name }}</span>
+            {% endfor %}
 
-          <button class="btn btn-block btn-sm btn-danger" type="submit">Delete</button>
-        </form>
-        {% endif %}
+          </div>
 
-      </li>
-      {% endfor %}
-    </ul>
-    {% else %}
-    <p class="mb-5">There are no pending invitations for this project.</p>
-    {% endif %}
+          {% if can_manage_members %}
+          <form method="POST" action="{{ invite.get_cancel_url }}">
+            {% csrf_token %}
+
+            <input type="hidden" name="invite_pk" value="{{ invite.pk }}" />
+
+            <button class="btn btn-block btn-sm btn-danger" type="submit">Delete</button>
+          </form>
+          {% endif %}
+
+        </li>
+        {% endfor %}
+      </ul>
+      {% else %}
+      <p class="mb-5">There are no pending invitations for this project.</p>
+      {% endif %}
+
+    </div>
 
   </div>
 </div>
