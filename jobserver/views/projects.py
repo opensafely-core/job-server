@@ -6,7 +6,7 @@ from django.http import Http404
 from django.shortcuts import get_object_or_404, redirect
 from django.utils.decorators import method_decorator
 from django.utils.html import escape
-from django.views.generic import CreateView, DetailView, TemplateView, UpdateView, View
+from django.views.generic import CreateView, DetailView, UpdateView, View
 from sentry_sdk import capture_exception
 
 from ..authorization import has_permission, roles_for
@@ -350,7 +350,10 @@ class ProjectRemoveMember(View):
         return redirect(membership.project.get_settings_url())
 
 
-class ProjectSettings(TemplateView):
+class ProjectSettings(UpdateView):
+    fields = ["name"]
+    model = Project
+    slug_url_kwarg = "project_slug"
     template_name = "project_settings.html"
 
     def dispatch(self, request, *args, **kwargs):

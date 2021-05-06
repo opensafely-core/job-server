@@ -30,6 +30,43 @@
 <div class="row mb-5">
   <div class="col-lg-8 offset-lg-2">
 
+    <h2>Settings</h2>
+
+    <div class="mb-5">
+      <form method="POST">
+        {% csrf_token %}
+
+        {% if form.non_field_errors %}
+        <ul>
+          {% for error in form.non_field_errors %}
+          <li class="text-danger">{{ error }}</li>
+          {% endfor %}
+        </ul>
+        {% endif %}
+
+        <div class="d-flex justify-content-between align-items-center">
+          <div class="form-group flex-grow-1 mb-0 mr-3">
+            <input
+              type="text"
+              class="form-control"
+              name="name"
+              id="id_name"
+              value="{{ project.name }}"
+              aria-describedby="name_help"
+            />
+            {% for error in form.name.errors %}
+            <p class="text-danger">{{ error }}</p>
+            {% endfor %}
+          </div>
+
+          <div class="form-group mb-0">
+            <button type="submit" class="btn btn-sm btn-primary float-right">Save</button>
+          </div>
+        </div>
+
+      </form>
+    </div>
+
     <div class="mb-5">
       <h3>Members</h3>
 
