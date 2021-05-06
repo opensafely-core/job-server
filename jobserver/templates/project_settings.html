@@ -35,25 +35,23 @@
     {% if members %}
     <ul class="list-unstyled">
       {% for member in members %}
-      <li class="mb-3">
+      <li class="mb-3 p-2 border rounded d-flex justify-content-between align-items-center">
         <div>
-          <div class="d-flex justify-content-between align-items-center">
-            <strong>{{ member.user.name }}</strong>
+          <strong class="mr-3">{{ member.user.name }}</strong>
 
-            {% if can_manage_members %}
-            <a class="btn btn-sm btn-primary" href="{{ member.get_edit_url }}">
-              Edit
-            </a>
-            {% endif %}
-          </div>
+          {% for role in member.roles %}
+          <span class="badge badge-secondary">{{ role.display_name }}</span>
+          {% endfor %}
 
-          <p>Roles:</p>
-          <ul>
-            {% for role in member.roles %}
-            <li>{{ role.display_name }}</li>
-            {% endfor %}
-          </ul>
         </div>
+
+        {% if can_manage_members %}
+        <div>
+          <a class="btn btn-sm btn-primary" href="{{ member.get_edit_url }}">
+            Edit
+          </a>
+        </div>
+        {% endif %}
       </li>
       {% endfor %}
     </ul>
