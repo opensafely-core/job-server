@@ -5,7 +5,7 @@ on:
   push:
 
 jobs:
-  build:
+  format:
     runs-on: ubuntu-latest
 
     steps:
@@ -19,26 +19,6 @@ jobs:
           python -m pip install --upgrade pip
           python -m venv venv
           venv/bin/pip install --progress-bar=off --require-hashes --requirement requirements.dev.txt
-      - name: Cache the venv
-        uses: actions/cache@v2
-        with:
-          path: ${{ github.workspace }}/venv
-          key: venv-${{ github.ref }}-${{ hashFiles('requirements.dev.txt') }}
-
-  format:
-    needs: build
-    runs-on: ubuntu-latest
-
-    steps:
-      - uses: actions/checkout@v2
-      - uses: "actions/setup-python@v2"
-        with:
-          python-version: "3.9"
-      - name: Use the cached venv
-        uses: actions/cache@v2
-        with:
-          path: ${{ github.workspace }}/venv
-          key: venv-${{ github.ref }}-${{ hashFiles('requirements.dev.txt') }}
       - run: ls -lah ${{ github.workspace }}
       - name: Check formatting
         run: |
@@ -46,7 +26,6 @@ jobs:
           make format
 
   lint:
-    needs: build
     runs-on: ubuntu-latest
 
     steps:
@@ -54,18 +33,18 @@ jobs:
       - uses: "actions/setup-python@v2"
         with:
           python-version: "3.9"
-      - name: Use the cached venv
-        uses: actions/cache@v2
-        with:
-          path: ${{ github.workspace }}/venv
-          key: venv-${{ github.ref }}-${{ hashFiles('requirements.dev.txt') }}
+      - name: "Install dependencies"
+        run: |
+          set -xe
+          python -m pip install --upgrade pip
+          python -m venv venv
+          venv/bin/pip install --progress-bar=off --require-hashes --requirement requirements.dev.txt
       - name: Check linting
         run: |
           source ${{ github.workspace }}/venv/bin/activate
           make lint
 
   sort:
-    needs: build
     runs-on: ubuntu-latest
 
     steps:
@@ -73,11 +52,12 @@ jobs:
       - uses: "actions/setup-python@v2"
         with:
           python-version: "3.9"
-      - name: Use the cached venv
-        uses: actions/cache@v2
-        with:
-          path: ${{ github.workspace }}/venv
-          key: venv-${{ github.ref }}-${{ hashFiles('requirements.dev.txt') }}
+      - name: "Install dependencies"
+        run: |
+          set -xe
+          python -m pip install --upgrade pip
+          python -m venv venv
+          venv/bin/pip install --progress-bar=off --require-hashes --requirement requirements.dev.txt
       - name: Check import sorting
         run: |
           source ${{ github.workspace }}/venv/bin/activate
@@ -92,11 +72,12 @@ jobs:
       - uses: "actions/setup-python@v2"
         with:
           python-version: "3.9"
-      - name: Use the cached venv
-        uses: actions/cache@v2
-        with:
-          path: ${{ github.workspace }}/venv
-          key: venv-${{ github.ref }}-${{ hashFiles('requirements.dev.txt') }}
+      - name: "Install dependencies"
+        run: |
+          set -xe
+          python -m pip install --upgrade pip
+          python -m venv venv
+          venv/bin/pip install --progress-bar=off --require-hashes --requirement requirements.dev.txt
       - name: Run tests
         env:
           SECRET_KEY: 12345
