@@ -322,7 +322,7 @@ class ProjectMembershipEdit(UpdateView):
 
 
 @method_decorator(require_superuser, name="dispatch")
-class ProjectRemoveMember(View):
+class ProjectMembershipRemove(View):
     model = ProjectMembership
 
     def post(self, request, *args, **kwargs):

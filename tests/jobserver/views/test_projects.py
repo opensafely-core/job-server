@@ -17,7 +17,7 @@ from jobserver.views.projects import (
     ProjectDisconnectWorkspace,
     ProjectInvitationCreate,
     ProjectMembershipEdit,
-    ProjectRemoveMember,
+    ProjectMembershipRemove,
     ProjectSettings,
 )
 
@@ -553,7 +553,7 @@ def test_projectmembershipedit_without_permission(rf):
 
 
 @pytest.mark.django_db
-def test_projectremovemember_success(rf, superuser):
+def test_projectmembershipremove_success(rf):
     org = OrgFactory()
     project = ProjectFactory(org=org)
     member = UserFactory()
@@ -566,7 +566,7 @@ def test_projectremovemember_success(rf, superuser):
     request = rf.post("/", {"username": member.username})
     request.user = superuser
 
-    response = ProjectRemoveMember.as_view()(
+    response = ProjectMembershipRemove.as_view()(
         request, org_slug=org.slug, project_slug=project.slug
     )
 
@@ -577,7 +577,7 @@ def test_projectremovemember_success(rf, superuser):
 
 
 @pytest.mark.django_db
-def test_projectremovemember_unknown_project_membership(rf, superuser):
+def test_projectmembershipremove_unknown_project_membership(rf, superuser):
     org = OrgFactory()
     project = ProjectFactory(org=org)
 
@@ -589,13 +589,13 @@ def test_projectremovemember_unknown_project_membership(rf, superuser):
     request.user = superuser
 
     with pytest.raises(Http404):
-        ProjectRemoveMember.as_view()(
+        ProjectMembershipRemove.as_view()(
             request, org_slug=org.slug, project_slug=project.slug
         )
 
 
 @pytest.mark.django_db
-def test_projectremovemember_without_permission(rf, superuser):
+def test_projectmembershipremove_without_permission(rf, superuser):
     org = OrgFactory()
     project = ProjectFactory(org=org)
     member = UserFactory()
@@ -610,7 +610,7 @@ def test_projectremovemember_without_permission(rf, superuser):
     messages = FallbackStorage(request)
     request._messages = messages
 
-    response = ProjectRemoveMember.as_view()(
+    response = ProjectMembershipRemove.as_view()(
         request, org_slug=org.slug, project_slug=project.slug
     )
 
