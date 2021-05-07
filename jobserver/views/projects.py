@@ -321,7 +321,6 @@ class ProjectMembershipEdit(UpdateView):
         )
 
 
-@method_decorator(require_superuser, name="dispatch")
 class ProjectMembershipRemove(View):
     model = ProjectMembership
 
