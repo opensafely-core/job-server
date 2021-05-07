@@ -43,6 +43,7 @@ from .views.projects import (
     ProjectCreate,
     ProjectDetail,
     ProjectDisconnectWorkspace,
+    ProjectInvitationCreate,
     ProjectMembershipEdit,
     ProjectRemoveMember,
     ProjectSettings,
@@ -114,6 +115,11 @@ org_urls = [
         "<org_slug>/<project_slug>/disconnect/",
         ProjectDisconnectWorkspace.as_view(),
         name="project-disconnect-workspace",
+    ),
+    path(
+        "<org_slug>/<project_slug>/invite-users/",
+        ProjectInvitationCreate.as_view(),
+        name="project-invitation-create",
     ),
     path(
         "<org_slug>/<project_slug>/members/<pk>/edit",

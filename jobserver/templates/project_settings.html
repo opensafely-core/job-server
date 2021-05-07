@@ -2,11 +2,6 @@
 
 {% load humanize %}
 {% load roles %}
-{% load static %}
-
-{% block extra_styles %}
-<link rel="stylesheet" href="{% static 'css/select2-4.0.13.min.css' %}">
-{% endblock %}
 
 {% block content %}
 
@@ -35,165 +30,124 @@
 <div class="row mb-5">
   <div class="col-lg-8 offset-lg-2">
 
-    <h3>Members</h3>
+    <h2>Settings</h2>
 
-    {% if members %}
-    <ul class="list-unstyled">
-      {% for member in members %}
-      <li class="mb-3">
-        <div>
-          <div class="d-flex justify-content-between align-items-center">
-            <strong>{{ member.user.name }}</strong>
+    <div class="mb-5">
+      <form method="POST">
+        {% csrf_token %}
 
-            {% if can_manage_members %}
-            <a class="btn btn-sm btn-primary" href="{{ member.get_edit_url }}">
-              Edit
-            </a>
-            {% endif %}
-          </div>
-
-          <p>Roles:</p>
-          <ul>
-            {% for role in member.roles %}
-            <li>{{ role.display_name }}</li>
-            {% endfor %}
-          </ul>
-        </div>
-      </li>
-      {% endfor %}
-    </ul>
-    {% else %}
-    <p class="mt-5">
-      There are no members for this organisation yet, you can invite some
-      below.
-    </p>
-    {% endif %}
-
-  </div>
-</div>
-
-<div class="row">
-  <div class="col-lg-8 offset-lg-2">
-
-    <h3>Invitations</h3>
-
-    <p>
-      Invite users to collaborate on {{ project.name }}.  They will be emailed
-      an invitation link.  You will be able to assign them roles once they
-      accept your invitation.
-    </p>
-
-    <form method="POST" class="mb-4">
-      {% csrf_token %}
-
-      {% if form.non_field_errors %}
-      <ul>
-        {% for error in form.non_field_errors %}
-        <li class="text-danger">{{ error }}</li>
-        {% endfor %}
-      </ul>
-      {% endif %}
-
-      <div class="form-group">
-        <select id="id_users" name="users" class="w-100" multiple required>
-          {% for value, label in form.fields.users.choices %}
-          <option value="{{ value }}">{{ label }}</option>
-          {% endfor %}
-        </select>
-
-        {% for error in form.users.errors %}
-        <p class="text-danger">{{ error }}</p>
-        {% endfor %}
-      </div>
-
-      <div class="form-group mb-3">
-        <p>Select one or more roles for the user(s) you are inviting.</p>
-
-        <ul class="list-group mb-1">
-          {% for value, label in form.roles.field.choices %}
-          <li class="list-group-item">
-            <div class="custom-control custom-checkbox">
-              <input
-                type="checkbox"
-                class="custom-control-input"
-                id="id_roles_{{ forloop.counter0 }}"
-                name="roles"
-                value="{{ value }}"
-                {% if value in form.roles.value %}
-                checked
-                {% endif %}
-              />
-              <label class="custom-control-label" for="id_roles_{{ forloop.counter0 }}">
-                <span class="d-block"><strong>{{ label }}</strong></span>
-                <span>{{ value|role_description|linebreaksbr }}</span>
-              </label>
-            </div>
-          </li>
-          {% endfor %}
-        </ul>
-
-        {% if form.roles.errors %}
-        <ul class="pl-3">
-          {% for error in form.roles.errors %}
+        {% if form.non_field_errors %}
+        <ul>
+          {% for error in form.non_field_errors %}
           <li class="text-danger">{{ error }}</li>
           {% endfor %}
         </ul>
         {% endif %}
 
-        <button type="submit" class="btn btn-sm btn-primary">Invite</button>
+        <div class="d-flex justify-content-between align-items-center">
+          <div class="form-group flex-grow-1 mb-0 mr-3">
+            <input
+              type="text"
+              class="form-control"
+              name="name"
+              id="id_name"
+              value="{{ project.name }}"
+              aria-describedby="name_help"
+            />
+            {% for error in form.name.errors %}
+            <p class="text-danger">{{ error }}</p>
+            {% endfor %}
+          </div>
 
-      </div>
-
-    </form>
-
-    {% if invitations %}
-    <h4>Pending</h4>
-    <ul class="list-unstyled">
-      {% for invite in invitations %}
-      <li class="mb-3 p-2 border rounded d-flex justify-content-between align-items-center">
-
-        <div>
-          <span class="mr-3">
-            {{ invite.user.username }}
-            <small class="text-muted">({{ invite.user.name }})</small>
-          </span>
-
-          {% for role in invite.roles %}
-          <span class="badge badge-secondary">{{ role.display_name }}</span>
-          {% endfor %}
-
+          <div class="form-group mb-0">
+            <button type="submit" class="btn btn-sm btn-primary float-right">Save</button>
+          </div>
         </div>
 
-        {% if can_manage_members %}
-        <form method="POST" action="{{ invite.get_cancel_url }}">
-          {% csrf_token %}
+      </form>
+    </div>
 
-          <input type="hidden" name="invite_pk" value="{{ invite.pk }}" />
+    <div class="mb-5">
+      <h3>Members</h3>
 
-          <button class="btn btn-block btn-sm btn-danger" type="submit">Delete</button>
-        </form>
-        {% endif %}
+      {% if members %}
+      <ul class="list-unstyled">
+        {% for member in members %}
+        <li class="mb-3 p-2 border rounded d-flex justify-content-between align-items-center">
+          <div>
+            <strong class="mr-3">{{ member.user.name }}</strong>
 
-      </li>
-      {% endfor %}
-    </ul>
-    {% else %}
-    <p class="mt-5">There are no pending invitations for this project.</p>
-    {% endif %}
+            {% for role in member.roles %}
+            <span class="badge badge-secondary">{{ role.display_name }}</span>
+            {% endfor %}
+
+          </div>
+
+          {% if can_manage_members %}
+          <div>
+            <a class="btn btn-sm btn-primary" href="{{ member.get_edit_url }}">
+              Edit
+            </a>
+          </div>
+          {% endif %}
+        </li>
+        {% endfor %}
+      </ul>
+      {% else %}
+      <p class="mt-5">
+        There are no members for this organisation yet, you can invite some
+        below.
+      </p>
+      {% endif %}
+
+    </div>
+
+    <div class="mb-3">
+
+      <div class="d-flex justify-content-between align-items-center mb-3">
+        <h3>Invitations</h3>
+
+        <a class="btn btn-sm btn-primary" href="{{ project.get_invitation_url }}">Invite Users</a>
+      </div>
+
+      {% if invitations %}
+      <h4>Pending</h4>
+      <ul class="list-unstyled">
+        {% for invite in invitations %}
+        <li class="mb-3 p-2 border rounded d-flex justify-content-between align-items-center">
+
+          <div>
+            <span class="mr-3">
+              {{ invite.user.username }}
+              <small class="text-muted">({{ invite.user.name }})</small>
+            </span>
+
+            {% for role in invite.roles %}
+            <span class="badge badge-secondary">{{ role.display_name }}</span>
+            {% endfor %}
+
+          </div>
+
+          {% if can_manage_members %}
+          <form method="POST" action="{{ invite.get_cancel_url }}">
+            {% csrf_token %}
+
+            <input type="hidden" name="invite_pk" value="{{ invite.pk }}" />
+
+            <button class="btn btn-block btn-sm btn-danger" type="submit">Delete</button>
+          </form>
+          {% endif %}
+
+        </li>
+        {% endfor %}
+      </ul>
+      {% else %}
+      <p class="mb-5">There are no pending invitations for this project.</p>
+      {% endif %}
+
+    </div>
 
   </div>
 </div>
 
-{% endblock %}
-
-{% block extra_js %}
-<script type="text/javascript" src="{% static 'js/select2-4.0.13.min.js' %}"></script>
-<script type="text/javascript">
-  $(document).ready(function() {
-    $('#id_users').select2({
-      placeholder: "Select 1 or more Users to invite",
-      selectionCssClass: ":all:",
-    });
-  });
-</script>
 {% endblock %}

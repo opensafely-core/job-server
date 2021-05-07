@@ -168,94 +168,10 @@ class ProjectDisconnectWorkspace(View):
         return redirect(project)
 
 
-class ProjectMembershipEdit(UpdateView):
-    context_object_name = "membership"
-    form_class = ProjectMembershipForm
-    model = ProjectMembership
-    template_name = "project_membership_edit.html"
-
-    def dispatch(self, request, *args, **kwargs):
-        self.project = get_object_or_404(
-            Project,
-            org__slug=self.kwargs["org_slug"],
-            slug=self.kwargs["project_slug"],
-        )
-
-        self.can_manage_members = has_permission(
-            self.request.user,
-            "manage_project_members",
-            project=self.project,
-        )
-
-        if not self.can_manage_members:
-            return redirect(self.project.get_settings_url())
-
-        return super().dispatch(request, *args, **kwargs)
-
-    def form_valid(self, form):
-        self.object.roles = form.cleaned_data["roles"]
-        self.object.save()
-
-        return redirect(self.project.get_settings_url())
-
-    def get_form_kwargs(self, **kwargs):
-        kwargs = super().get_form_kwargs(**kwargs)
-
-        # ProjectMembershipForm isn't a ModelForm so don't pass instance to it
-        del kwargs["instance"]
-
-        kwargs["available_roles"] = roles_for(ProjectMembership)
-
-        return kwargs
-
-    def get_initial(self):
-        return super().get_initial() | {
-            "roles": self.object.roles,
-        }
-
-    def get_object(self):
-        return get_object_or_404(
-            ProjectMembership,
-            project__org__slug=self.kwargs["org_slug"],
-            project__slug=self.kwargs["project_slug"],
-            pk=self.kwargs["pk"],
-        )
-
-
-@method_decorator(require_superuser, name="dispatch")
-class ProjectRemoveMember(View):
-    model = ProjectMembership
-
-    def post(self, request, *args, **kwargs):
-        try:
-            membership = ProjectMembership.objects.select_related("project").get(
-                project__org__slug=self.kwargs["org_slug"],
-                project__slug=self.kwargs["project_slug"],
-                user__username=self.request.POST.get("username"),
-            )
-        except ProjectMembership.DoesNotExist:
-            raise Http404
-
-        can_manage_members = has_permission(
-            self.request.user,
-            "manage_project_members",
-            project=membership.project,
-        )
-        if can_manage_members:
-            membership.delete()
-        else:
-            messages.error(
-                request, "You do not have permission to remove Project members."
-            )
-
-        return redirect(membership.project.get_settings_url())
-
-
-@method_decorator(require_superuser, name="dispatch")
-class ProjectSettings(CreateView):
+class ProjectInvitationCreate(CreateView):
     form_class = ProjectInvitationForm
     model = ProjectInvitation
-    template_name = "project_settings.html"
+    template_name = "project_invitation_create.html"
 
     def dispatch(self, request, *args, **kwargs):
         self.project = get_object_or_404(
@@ -349,3 +265,125 @@ class ProjectSettings(CreateView):
         del kwargs["instance"]
 
         return kwargs
+
+
+class ProjectMembershipEdit(UpdateView):
+    context_object_name = "membership"
+    form_class = ProjectMembershipForm
+    model = ProjectMembership
+    template_name = "project_membership_edit.html"
+
+    def dispatch(self, request, *args, **kwargs):
+        self.project = get_object_or_404(
+            Project,
+            org__slug=self.kwargs["org_slug"],
+            slug=self.kwargs["project_slug"],
+        )
+
+        self.can_manage_members = has_permission(
+            self.request.user,
+            "manage_project_members",
+            project=self.project,
+        )
+
+        if not self.can_manage_members:
+            return redirect(self.project.get_settings_url())
+
+        return super().dispatch(request, *args, **kwargs)
+
+    def form_valid(self, form):
+        self.object.roles = form.cleaned_data["roles"]
+        self.object.save()
+
+        return redirect(self.project.get_settings_url())
+
+    def get_form_kwargs(self, **kwargs):
+        kwargs = super().get_form_kwargs(**kwargs)
+
+        # ProjectMembershipForm isn't a ModelForm so don't pass instance to it
+        del kwargs["instance"]
+
+        kwargs["available_roles"] = roles_for(ProjectMembership)
+
+        return kwargs
+
+    def get_initial(self):
+        return super().get_initial() | {
+            "roles": self.object.roles,
+        }
+
+    def get_object(self):
+        return get_object_or_404(
+            ProjectMembership,
+            project__org__slug=self.kwargs["org_slug"],
+            project__slug=self.kwargs["project_slug"],
+            pk=self.kwargs["pk"],
+        )
+
+
+@method_decorator(require_superuser, name="dispatch")
+class ProjectRemoveMember(View):
+    model = ProjectMembership
+
+    def post(self, request, *args, **kwargs):
+        try:
+            membership = ProjectMembership.objects.select_related("project").get(
+                project__org__slug=self.kwargs["org_slug"],
+                project__slug=self.kwargs["project_slug"],
+                user__username=self.request.POST.get("username"),
+            )
+        except ProjectMembership.DoesNotExist:
+            raise Http404
+
+        can_manage_members = has_permission(
+            self.request.user,
+            "manage_project_members",
+            project=membership.project,
+        )
+        if can_manage_members:
+            membership.delete()
+        else:
+            messages.error(
+                request, "You do not have permission to remove Project members."
+            )
+
+        return redirect(membership.project.get_settings_url())
+
+
+class ProjectSettings(UpdateView):
+    fields = ["name"]
+    model = Project
+    slug_url_kwarg = "project_slug"
+    template_name = "project_settings.html"
+
+    def dispatch(self, request, *args, **kwargs):
+        self.project = get_object_or_404(
+            Project,
+            org__slug=self.kwargs["org_slug"],
+            slug=self.kwargs["project_slug"],
+        )
+
+        self.can_manage_members = has_permission(
+            self.request.user,
+            "manage_project_members",
+            project=self.project,
+        )
+        if not self.can_manage_members:
+            raise Http404
+
+        return super().dispatch(request, *args, **kwargs)
+
+    def get_context_data(self, **kwargs):
+        members = self.project.members.select_related("user").order_by("user__username")
+        invitations = (
+            self.project.invitations.filter(membership=None)
+            .select_related("user")
+            .order_by("user__username")
+        )
+
+        context = super().get_context_data(**kwargs)
+        context["can_manage_members"] = self.can_manage_members
+        context["invitations"] = invitations
+        context["members"] = members
+        context["project"] = self.project
+        return context
