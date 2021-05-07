@@ -16,12 +16,14 @@ class Command(BaseCommand):
     def _create_project(self, *, org, workspace):
         """Create a Project for the given Workspace in the given Org"""
 
-        # remove common branch names
+        # remove common branch names and "research"
         slug = (
             workspace.name.removesuffix("-main")
             .removesuffix("_main")
             .removesuffix("-master")
             .removesuffix("_master")
+            .removesuffix("-research")
+            .removesuffix("_research")
         )
 
         # generate a name from the slug
