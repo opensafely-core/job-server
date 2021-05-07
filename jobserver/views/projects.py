@@ -329,7 +329,7 @@ class ProjectMembershipRemove(View):
             membership = ProjectMembership.objects.select_related("project").get(
                 project__org__slug=self.kwargs["org_slug"],
                 project__slug=self.kwargs["project_slug"],
-                user__username=self.request.POST.get("username"),
+                pk=self.request.POST.get("member_pk"),
             )
         except ProjectMembership.DoesNotExist:
             raise Http404

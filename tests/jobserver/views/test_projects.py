@@ -564,7 +564,7 @@ def test_projectmembershipremove_success(rf):
     )
     membership = ProjectMembershipFactory(project=project, user=member)
 
-    request = rf.post("/", {"username": member.username})
+    request = rf.post("/", {"member_pk": membership.pk})
     request.user = coordinator
 
     response = ProjectMembershipRemove.as_view()(
@@ -582,7 +582,7 @@ def test_projectmembershipremove_unknown_project_membership(rf):
     org = OrgFactory()
     project = ProjectFactory(org=org)
 
-    request = rf.post("/", {"username": "test"})
+    request = rf.post("/", {"member_pk": 0})
     request.user = UserFactory()
 
     with pytest.raises(Http404):
@@ -599,7 +599,7 @@ def test_projectmembershipremove_without_permission(rf):
 
     membership = ProjectMembershipFactory(project=project, user=member)
 
-    request = rf.post("/", {"username": member.username})
+    request = rf.post("/", {"member_pk": membership.pk})
     request.user = UserFactory()
 
     # set up messages framework
