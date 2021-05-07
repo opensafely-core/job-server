@@ -593,6 +593,16 @@ class ProjectMembership(models.Model):
             },
         )
 
+    def get_remove_url(self):
+        return reverse(
+            "project-membership-remove",
+            kwargs={
+                "org_slug": self.project.org.slug,
+                "project_slug": self.project.slug,
+                "pk": self.pk,
+            },
+        )
+
 
 class Release(models.Model):
     # No value in the default Autoid as we are using a content-addressable hash

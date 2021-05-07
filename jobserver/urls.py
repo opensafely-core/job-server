@@ -45,7 +45,7 @@ from .views.projects import (
     ProjectDisconnectWorkspace,
     ProjectInvitationCreate,
     ProjectMembershipEdit,
-    ProjectRemoveMember,
+    ProjectMembershipRemove,
     ProjectSettings,
 )
 from .views.status import Status
@@ -127,9 +127,9 @@ org_urls = [
         name="project-membership-edit",
     ),
     path(
-        "<org_slug>/<project_slug>/remove-member/",
-        ProjectRemoveMember.as_view(),
-        name="project-remove-member",
+        "<org_slug>/<project_slug>/members/<pk>/remove",
+        ProjectMembershipRemove.as_view(),
+        name="project-membership-remove",
     ),
     path(
         "<org_slug>/<project_slug>/settings/",
