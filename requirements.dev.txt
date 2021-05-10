@@ -539,9 +539,9 @@ responses==0.13.3 \
     --hash=sha256:18a5b88eb24143adbf2b4100f328a2f5bfa72fbdacf12d97d41f07c26c45553d \
     --hash=sha256:b54067596f331786f5ed094ff21e8d79e6a1c68ef625180a7d34808d6f36c11b
     # via -r requirements.dev.in
-sentry-sdk==1.0.0 \
-    --hash=sha256:71de00c9711926816f750bc0f57ef2abbcb1bfbdf5378c601df7ec978f44857a \
-    --hash=sha256:9221e985f425913204989d0e0e1cbb719e8b7fa10540f1bc509f660c06a34e66
+sentry-sdk==1.1.0 \
+    --hash=sha256:c1227d38dca315ba35182373f129c3e2722e8ed999e52584e6aca7d287870739 \
+    --hash=sha256:c7d380a21281e15be3d9f67a3c4fbb4f800c481d88ff8d8931f39486dd7b4ada
     # via
     #   -c requirements.in
     #   -r requirements.in
