@@ -21,9 +21,9 @@ attrs==20.3.0 \
     #   -c requirements.in
     #   -r requirements.in
     #   pytest
-black==21.4b1 \
-    --hash=sha256:20d326de75d13be6290925a95c94a9f368aca2f71cb7b753a938a5ae20f34a37 \
-    --hash=sha256:c9601dc863779db2fb1bf18b345bbfa2bb868463123cde6a7eff44b59e4ef739
+black==21.5b0 \
+    --hash=sha256:0e80435b8a88f383c9149ae89d671eb2095b72344b0fe8a1d61d2ff5110ed173 \
+    --hash=sha256:9dc2042018ca10735366d944c2c12d9cad6dec74a3d5f679d09384ea185d9943
     # via -r requirements.dev.in
 certifi==2020.12.5 \
     --hash=sha256:1a4995114262bffbc2413b159f2a1a480c969de6e6eb13ee966d470af86af59c \
