@@ -24,6 +24,9 @@ class CoreDeveloper:
     ]
     permissions = [
         cancel_job,
+        invite_project_members,
+        manage_project_members,
+        manage_project_workspaces,
         run_job,
     ]
 
