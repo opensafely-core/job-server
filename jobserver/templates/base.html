@@ -22,6 +22,17 @@
     {% block extra_styles %}{% endblock %}
 
     <title>OpenSAFELY Jobs</title>
+
+    <script>
+      if (document.location.hostname === "jobs.opensafely.org") {
+        var script = document.createElement("script");
+        script.async = true;
+        script.defer = true;
+        script.setAttribute("data-domain", "jobs.opensafely.org");
+        script.src = "https://pa.opensafely.org/js/index.js";
+        document.head.appendChild(script);
+      }
+    </script>
   </head>
 
   <body class="d-flex flex-column min-vh-100">
