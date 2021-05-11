@@ -17,7 +17,7 @@ from jobserver.views.projects import (
     ProjectDisconnectWorkspace,
     ProjectInvitationCreate,
     ProjectMembershipEdit,
-    ProjectRemoveMember,
+    ProjectMembershipRemove,
     ProjectSettings,
 )
 
@@ -553,20 +553,21 @@ def test_projectmembershipedit_without_permission(rf):
 
 
 @pytest.mark.django_db
-def test_projectremovemember_success(rf, superuser):
+def test_projectmembershipremove_success(rf):
     org = OrgFactory()
     project = ProjectFactory(org=org)
+    coordinator = UserFactory()
     member = UserFactory()
 
     ProjectMembershipFactory(
-        project=project, user=superuser, roles=[ProjectCoordinator]
+        project=project, user=coordinator, roles=[ProjectCoordinator]
     )
     membership = ProjectMembershipFactory(project=project, user=member)
 
-    request = rf.post("/", {"username": member.username})
-    request.user = superuser
+    request = rf.post("/", {"member_pk": membership.pk})
+    request.user = coordinator
 
-    response = ProjectRemoveMember.as_view()(
+    response = ProjectMembershipRemove.as_view()(
         request, org_slug=org.slug, project_slug=project.slug
     )
 
@@ -577,40 +578,36 @@ def test_projectremovemember_success(rf, superuser):
 
 
 @pytest.mark.django_db
-def test_projectremovemember_unknown_project_membership(rf, superuser):
+def test_projectmembershipremove_unknown_project_membership(rf):
     org = OrgFactory()
     project = ProjectFactory(org=org)
 
-    ProjectMembershipFactory(
-        project=project, user=superuser, roles=[ProjectCoordinator]
-    )
-
-    request = rf.post("/", {"username": "test"})
-    request.user = superuser
+    request = rf.post("/", {"member_pk": 0})
+    request.user = UserFactory()
 
     with pytest.raises(Http404):
-        ProjectRemoveMember.as_view()(
+        ProjectMembershipRemove.as_view()(
             request, org_slug=org.slug, project_slug=project.slug
         )
 
 
 @pytest.mark.django_db
-def test_projectremovemember_without_permission(rf, superuser):
+def test_projectmembershipremove_without_permission(rf):
     org = OrgFactory()
     project = ProjectFactory(org=org)
     member = UserFactory()
 
     membership = ProjectMembershipFactory(project=project, user=member)
 
-    request = rf.post("/", {"username": member.username})
-    request.user = superuser
+    request = rf.post("/", {"member_pk": membership.pk})
+    request.user = UserFactory()
 
     # set up messages framework
     request.session = "session"
     messages = FallbackStorage(request)
     request._messages = messages
 
-    response = ProjectRemoveMember.as_view()(
+    response = ProjectMembershipRemove.as_view()(
         request, org_slug=org.slug, project_slug=project.slug
     )
 
