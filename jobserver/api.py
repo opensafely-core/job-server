@@ -9,10 +9,13 @@ from django.utils import timezone
 from first import first
 from rest_framework import serializers
 from rest_framework.exceptions import NotAuthenticated, ValidationError
-from rest_framework.generics import ListAPIView
+from rest_framework.generics import CreateAPIView, ListAPIView
 from rest_framework.parsers import FileUploadParser
 from rest_framework.response import Response
 from rest_framework.views import APIView
+from slack_sdk.errors import SlackApiError
+
+from services.slack import client as slack_client
 
 from .emails import send_finished_notification
 from .models import Backend, JobRequest, Stats, User, Workspace
@@ -299,6 +302,30 @@ class WorkspaceStatusesAPI(APIView):
 
         actions_with_status = workspace.get_action_status_lut()
         return Response(actions_with_status, status=200)
+
+
+class ReleaseNotificationAPICreate(CreateAPIView):
+    class serializer_class(serializers.Serializer):
+        created_by = serializers.CharField()
+        path = serializers.CharField()
+
+    def initial(self, request, *args, **kwargs):
+        token = request.META.get("HTTP_AUTHORIZATION")
+
+        # require auth for all requests
+        get_backend_from_token(token)
+
+        return super().initial(request, *args, **kwargs)
+
+    def perform_create(self, serializer):
+        data = serializer.data
+
+        message = f"{data['created_by']} released outputs from {data['path']}"
+        try:
+            slack_client.chat_postMessage(channel="opensafely-outputs", text=message)
+        except SlackApiError:
+            # log and don't block the response
+            logger.exception("Failed to notify slack")
 
 
 class ReleaseUploadAPI(APIView):

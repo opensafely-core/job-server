@@ -557,6 +557,12 @@ six==1.15.0 \
     #   responses
     #   social-auth-app-django
     #   virtualenv
+slack-sdk==3.5.1 \
+    --hash=sha256:4d3f9f1a984fe828260010fc66ebcd1aeb63b78e6e47d366a9e7177ccc529e84 \
+    --hash=sha256:8ceb46f7989d2ba1694dec8555dbda7f750b9216e453da4ad3e32a498bc9ea9a
+    # via
+    #   -c requirements.in
+    #   -r requirements.in
 social-auth-app-django==4.0.0 \
     --hash=sha256:2c69e57df0b30c9c1823519c5f1992cbe4f3f98fdc7d95c840e091a752708840 \
     --hash=sha256:567ad0e028311541d7dfed51d3bf2c60440a6fd236d5d4d06c5a618b3d6c57c5 \

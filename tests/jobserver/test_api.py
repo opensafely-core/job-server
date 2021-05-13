@@ -6,10 +6,12 @@ from django.conf import settings
 from django.utils import timezone
 from rest_framework.exceptions import NotAuthenticated
 from rest_framework.test import APIClient
+from slack_sdk.errors import SlackApiError
 
 from jobserver.api import (
     JobAPIUpdate,
     JobRequestAPIList,
+    ReleaseNotificationAPICreate,
     UserAPIDetail,
     WorkspaceStatusesAPI,
     get_backend_from_token,
@@ -528,6 +530,72 @@ def test_jobrequestapilist_success(api_rf):
         job_request2.identifier,
         job_request3.identifier,
         job_request4.identifier,
+    }
+
+
+@pytest.mark.django_db
+def test_releasenotificationapicreate_success(api_rf, mocker):
+    backend = BackendFactory()
+
+    data = {
+        "created_by": "test user",
+        "path": "/path/to/outputs",
+    }
+
+    request = api_rf.post("/", data, HTTP_AUTHORIZATION=backend.auth_token)
+    request.user = UserFactory()
+
+    mock = mocker.patch("jobserver.api.slack_client", auto_spec=True)
+    response = ReleaseNotificationAPICreate.as_view()(request)
+
+    assert response.status_code == 201, response.data
+
+    # check we called the slack API in the expected way
+    mock.chat_postMessage.assert_called_once_with(
+        channel="opensafely-outputs",
+        text="test user released outputs from /path/to/outputs",
+    )
+
+
+@pytest.mark.django_db
+def test_releasenotificationapicreate_with_failed_slack_update(
+    api_rf, mocker, log_output
+):
+    backend = BackendFactory()
+
+    assert len(log_output.entries) == 0, log_output.entries
+
+    data = {
+        "created_by": "test user",
+        "path": "/path/to/outputs",
+    }
+
+    request = api_rf.post("/", data, HTTP_AUTHORIZATION=backend.auth_token)
+    request.user = UserFactory()
+
+    # have the slack API client raise an exception
+    mock = mocker.patch("jobserver.api.slack_client", auto_spec=True)
+    mock.chat_postMessage.side_effect = SlackApiError(
+        message="an error", response={"error": "an error occurred"}
+    )
+
+    response = ReleaseNotificationAPICreate.as_view()(request)
+
+    assert response.status_code == 201, response.data
+
+    # check we called the slack API in the expected way
+    mock.chat_postMessage.assert_called_once_with(
+        channel="opensafely-outputs",
+        text="test user released outputs from /path/to/outputs",
+    )
+
+    # check we logged the slack failure
+    assert len(log_output.entries) == 1, log_output.entries
+    assert log_output.entries[0] == {
+        "exc_info": True,
+        "event": "Failed to notify slack",
+        "job_request": 1,  # why is this being added?!
+        "log_level": "error",
     }
 
 
