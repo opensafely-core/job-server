@@ -47,7 +47,6 @@ structlog.configure(
     context_class=structlog.threadlocal.wrap_dict(dict),
     logger_factory=structlog.stdlib.LoggerFactory(),
     wrapper_class=structlog.stdlib.BoundLogger,
-    cache_logger_on_first_use=True,
 )
 
 logging_config_dict = {
