@@ -162,13 +162,6 @@
       </button>
     </form>
 
-    {% if is_superuser %}
-    <form class="mb-3" method="POST" action="{{ job.get_zombify_url }}">
-      {% csrf_token %}
-
-      <button class="btn btn-block btn-danger" type="submit">Zombify</button>
-    </form>
-    {% endif %}
     {% endif %}
 
   </div>

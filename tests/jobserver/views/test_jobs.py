@@ -7,7 +7,7 @@ from django.contrib.auth.models import AnonymousUser
 from django.http import Http404
 from django.urls import reverse
 
-from jobserver.views.jobs import JobCancel, JobDetail, JobZombify
+from jobserver.views.jobs import JobCancel, JobDetail
 
 from ...factories import JobFactory, JobRequestFactory, UserFactory, WorkspaceFactory
 
@@ -128,7 +128,6 @@ def test_jobdetail_with_authenticated_user(rf):
         response = JobDetail.as_view()(request, identifier=job.identifier)
 
     assert response.status_code == 200
-    assert "Zombify" not in response.rendered_content
 
 
 @pytest.mark.django_db
@@ -159,20 +158,6 @@ def test_jobdetail_with_pre_jobrequest_job(rf):
 
 
 @pytest.mark.django_db
-def test_jobdetail_with_superuser(rf, superuser):
-    job = JobFactory()
-
-    request = rf.get(MEANINGLESS_URL)
-    request.user = superuser
-
-    with patch("jobserver.views.jobs.can_run_jobs", return_value=True):
-        response = JobDetail.as_view()(request, identifier=job.identifier)
-
-    assert response.status_code == 200
-    assert "Zombify" in response.rendered_content
-
-
-@pytest.mark.django_db
 def test_jobdetail_with_unauthenticated_user(rf):
     job = JobFactory()
 
@@ -183,7 +168,6 @@ def test_jobdetail_with_unauthenticated_user(rf):
         response = JobDetail.as_view()(request, identifier=job.identifier)
 
     assert response.status_code == 200
-    assert "Zombify" not in response.rendered_content
 
 
 @pytest.mark.django_db
@@ -192,55 +176,3 @@ def test_jobdetail_with_unknown_job(rf):
 
     with pytest.raises(Http404):
         JobDetail.as_view()(request, identifier="test")
-
-
-@pytest.mark.django_db
-def test_jobzombify_not_superuser(client):
-    job = JobFactory(completed_at=None)
-
-    client.force_login(UserFactory(roles=[]))
-    with patch("jobserver.views.jobs.can_run_jobs", return_value=False):
-        response = client.post(f"/jobs/{job.identifier}/zombify/", follow=True)
-
-    assert response.status_code == 200
-
-    # did we redirect to the correct JobDetail page?
-    url = reverse("job-detail", kwargs={"identifier": job.identifier})
-    assert response.redirect_chain == [(url, 302)]
-
-    # has the Job been left untouched?
-    job.refresh_from_db()
-    assert job.status == ""
-    assert job.status_message == ""
-
-    # did we produce a message?
-    messages = list(response.context["messages"])
-    assert len(messages) == 1
-    assert str(messages[0]) == "Only admins can zombify Jobs."
-
-
-@pytest.mark.django_db
-def test_jobzombify_success(rf, superuser):
-    job = JobFactory(completed_at=None)
-
-    request = rf.post(MEANINGLESS_URL)
-    request.user = superuser
-
-    response = JobZombify.as_view()(request, identifier=job.identifier)
-
-    assert response.status_code == 302
-    assert response.url == reverse("job-detail", kwargs={"identifier": job.identifier})
-
-    job.refresh_from_db()
-
-    assert job.status == "failed"
-    assert job.status_message == "Job manually zombified"
-
-
-@pytest.mark.django_db
-def test_jobzombify_unknown_job(rf, superuser):
-    request = rf.post(MEANINGLESS_URL)
-    request.user = superuser
-
-    with pytest.raises(Http404):
-        JobZombify.as_view()(request, identifier="")

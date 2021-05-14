@@ -99,15 +99,6 @@ def test_job_get_cancel_url():
 
 
 @pytest.mark.django_db
-def test_job_get_zombify_url():
-    job = JobFactory()
-
-    url = job.get_zombify_url()
-
-    assert url == reverse("job-zombify", kwargs={"identifier": job.identifier})
-
-
-@pytest.mark.django_db
 def test_job_is_missing_updates_above_threshold():
     last_update = timezone.now() - timedelta(minutes=50)
     job = JobFactory(completed_at=None, updated_at=last_update)

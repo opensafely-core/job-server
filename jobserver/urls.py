@@ -29,13 +29,8 @@ from .api import (
 )
 from .views.backends import BackendDetail, BackendList, BackendRotateToken
 from .views.index import Index
-from .views.job_requests import (
-    JobRequestCancel,
-    JobRequestDetail,
-    JobRequestList,
-    JobRequestZombify,
-)
-from .views.jobs import JobCancel, JobDetail, JobZombify
+from .views.job_requests import JobRequestCancel, JobRequestDetail, JobRequestList
+from .views.jobs import JobCancel, JobDetail
 from .views.orgs import OrgCreate, OrgDetail, OrgList
 from .views.projects import (
     ProjectAcceptInvite,
@@ -158,14 +153,8 @@ urlpatterns = [
         JobRequestCancel.as_view(),
         name="job-request-cancel",
     ),
-    path(
-        "job-requests/<pk>/zombify/",
-        JobRequestZombify.as_view(),
-        name="job-request-zombify",
-    ),
     path("jobs/<identifier>/", JobDetail.as_view(), name="job-detail"),
     path("jobs/<identifier>/cancel/", JobCancel.as_view(), name="job-cancel"),
-    path("jobs/<identifier>/zombify/", JobZombify.as_view(), name="job-zombify"),
     path("logout/", LogoutView.as_view(), name="logout"),
     path("orgs/", include(org_urls)),
     path("settings/", Settings.as_view(), name="settings"),
