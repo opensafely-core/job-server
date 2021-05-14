@@ -73,7 +73,7 @@ container$ python manage.py sendtestemail me@myemail.org
 ## Testing
 
 Run `make dev-config` if you have not already. Note: you will need the
-bitwarden cli tool installed in order to access passwords.  
+bitwarden cli tool installed in order to access passwords.
 
 A Django development server can be started with `docker-compose up`.
 
