@@ -128,9 +128,6 @@ class Job(models.Model):
     def get_cancel_url(self):
         return reverse("job-cancel", kwargs={"identifier": self.identifier})
 
-    def get_zombify_url(self):
-        return reverse("job-zombify", kwargs={"identifier": self.identifier})
-
     @property
     def is_finished(self):
         return self.status in ["failed", "succeeded"]

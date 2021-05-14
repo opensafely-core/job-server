@@ -168,16 +168,6 @@
     </form>
     {% endif %}
 
-    {% if is_superuser %}
-    <div class="mb-2">
-      <form method="POST" action="{% url 'job-request-zombify' pk=jobrequest.pk %}">
-        {% csrf_token %}
-
-        <button class="btn btn-block btn-danger" type="submit">Zombify</button>
-      </form>
-    </div>
-    {% endif %}
-
   </div>
 
 </div>

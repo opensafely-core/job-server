@@ -1,4 +1,3 @@
-from django.contrib import messages
 from django.contrib.auth.decorators import user_passes_test
 from django.db.models import Q
 from django.shortcuts import get_object_or_404, redirect
@@ -59,7 +58,6 @@ class JobRequestDetail(DetailView):
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
-        context["is_superuser"] = has_role(self.request.user, SuperUser)
         context["project_definition"] = mark_safe(
             render_definition(
                 self.object.project_definition,
@@ -158,21 +156,3 @@ class JobRequestList(FormMixin, ListView):
             return self.form_valid(form)
         else:
             return self.form_invalid(form)
-
-
-class JobRequestZombify(View):
-    def dispatch(self, request, *args, **kwargs):
-        if not has_role(request.user, SuperUser):
-            messages.error(request, "Only admins can zombify Jobs.")
-            return redirect("job-request-detail", pk=self.kwargs["pk"])
-
-        return super().dispatch(request, *args, **kwargs)
-
-    def post(self, request, *args, **kwargs):
-        job_request = get_object_or_404(JobRequest, pk=self.kwargs["pk"])
-
-        job_request.jobs.update(
-            status="failed", status_message="Job manually zombified"
-        )
-
-        return redirect(job_request)

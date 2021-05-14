@@ -10,7 +10,6 @@ from jobserver.views.job_requests import (
     JobRequestCancel,
     JobRequestDetail,
     JobRequestList,
-    JobRequestZombify,
 )
 
 from ...factories import (
@@ -128,25 +127,6 @@ def test_jobrequestdetail_with_authenticated_user(rf):
 
 
 @pytest.mark.django_db
-@responses.activate
-def test_jobrequestdetail_with_superuser(rf, superuser):
-    job_request = JobRequestFactory()
-
-    request = rf.get(MEANINGLESS_URL)
-    request.user = superuser
-
-    membership_url = (
-        f"https://api.github.com/orgs/opensafely/members/{superuser.username}"
-    )
-    responses.add(responses.GET, membership_url, status=204)
-
-    response = JobRequestDetail.as_view()(request, pk=job_request.pk)
-
-    assert response.status_code == 200
-    assert "Zombify" in response.rendered_content
-
-
-@pytest.mark.django_db
 def test_jobrequestdetail_with_unauthenticated_user(rf):
     job_request = JobRequestFactory()
 
@@ -155,7 +135,6 @@ def test_jobrequestdetail_with_unauthenticated_user(rf):
     response = JobRequestDetail.as_view()(request, pk=job_request.pk)
 
     assert response.status_code == 200
-    assert "Zombify" not in response.rendered_content
 
 
 @pytest.mark.django_db
@@ -392,66 +371,3 @@ def test_jobrequestlist_with_unauthenticated_user(rf):
 
     assert response.status_code == 200
     assert "Look up JobRequest by Identifier" not in response.rendered_content
-
-
-@pytest.mark.django_db
-@responses.activate
-def test_jobrequestzombify_not_superuser(client):
-    job_request = JobRequestFactory()
-    JobFactory.create_batch(
-        5,
-        job_request=job_request,
-        completed_at=None,
-    )
-    user = UserFactory(roles=[])
-
-    membership_url = f"https://api.github.com/orgs/opensafely/members/{user.username}"
-    responses.add(responses.GET, membership_url, status=204)
-
-    client.force_login(user)
-    response = client.post(f"/job-requests/{job_request.pk}/zombify/", follow=True)
-
-    assert response.status_code == 200
-
-    # did we redirect to the correct JobDetail page?
-    assert response.redirect_chain == [(job_request.get_absolute_url(), 302)]
-
-    # has the Job been left untouched?
-    job_request.refresh_from_db()
-    for job in job_request.jobs.all():
-        assert job.status == ""
-        assert job.status_message == ""
-
-    # did we produce a message?
-    messages = list(response.context["messages"])
-    assert len(messages) == 1
-    assert str(messages[0]) == "Only admins can zombify Jobs."
-
-
-@pytest.mark.django_db
-def test_jobrequestzombify_success(rf, superuser):
-    job_request = JobRequestFactory()
-    JobFactory(job_request=job_request)
-    JobFactory(job_request=job_request, completed_at=None)
-
-    request = rf.post(MEANINGLESS_URL)
-    request.user = superuser
-
-    response = JobRequestZombify.as_view()(request, pk=job_request.pk)
-
-    assert response.status_code == 302
-    assert response.url == job_request.get_absolute_url()
-
-    jobs = job_request.jobs.all()
-
-    assert all(j.status == "failed" for j in jobs)
-    assert all(j.status_message == "Job manually zombified" for j in jobs)
-
-
-@pytest.mark.django_db
-def test_jobrequestzombify_unknown_jobrequest(rf, superuser):
-    request = rf.post(MEANINGLESS_URL)
-    request.user = superuser
-
-    with pytest.raises(Http404):
-        JobRequestZombify.as_view()(request, pk="99")
