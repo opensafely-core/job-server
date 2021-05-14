@@ -108,7 +108,7 @@ jobs:
           fetch-depth: 0
 
       - name: Deploy to dokku
-        uses: idoberko2/dokku-deploy-github-action@v1
+        uses: idoberko2/dokku-deploy-github-action@4b326b3
         with:
           app-name: "job-server"
           dokku-host: ${{ secrets.DOKKU_HOST }}
