@@ -467,7 +467,7 @@ def test_jobapiupdate_unknown_job_request(api_rf):
 @pytest.mark.django_db
 def test_jobrequestapilist_filter_by_backend(api_rf):
     JobRequestFactory(backend=Backend.objects.get(name="expectations"))
-    JobRequestFactory(backend=BackendFactory(name="test"))
+    JobRequestFactory(backend=Backend.objects.get(name="tpp"))
 
     request = api_rf.get("/?backend=expectations")
     response = JobRequestAPIList.as_view()(request)

@@ -28,7 +28,7 @@ def test_backendlist_success(rf, superuser):
     response = BackendList.as_view()(request)
 
     assert response.status_code == 200
-    assert len(response.context_data["object_list"]) == 3
+    assert len(response.context_data["object_list"]) == 6
 
 
 @pytest.mark.django_db

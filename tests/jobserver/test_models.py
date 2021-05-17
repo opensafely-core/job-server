@@ -35,7 +35,7 @@ def test_backend_no_configured_backends(monkeypatch):
     monkeypatch.setenv("BACKENDS", "")
 
     # backends are created by migrations
-    assert Backend.objects.count() == 3
+    assert Backend.objects.count() == 6
 
 
 @pytest.mark.django_db

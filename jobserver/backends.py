@@ -11,6 +11,9 @@ available_backends = {
     "emis",
     "expectations",
     "tpp",
+    "test",
+    "nhsd",
+    "graphnet",
 }
 
 
