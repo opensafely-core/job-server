@@ -45,9 +45,9 @@ def test_get_configured_backends_success(monkeypatch):
 
 
 def test_get_configured_backends_unknown_backend(monkeypatch):
-    monkeypatch.setenv("BACKENDS", "tpp,test,expectations")
+    monkeypatch.setenv("BACKENDS", "tpp,dog,expectations")
 
-    with pytest.raises(Exception, match="Unknown backends: test"):
+    with pytest.raises(Exception, match="Unknown backends: dog"):
         get_configured_backends()
 
 
