@@ -23,6 +23,7 @@ from django.views.generic import RedirectView
 from .api import (
     JobAPIUpdate,
     JobRequestAPIList,
+    ReleaseNotificationAPICreate,
     ReleaseUploadAPI,
     UserAPIDetail,
     WorkspaceStatusesAPI,
@@ -59,6 +60,7 @@ from .views.workspaces import (
 api_urls = [
     path("job-requests/", JobRequestAPIList.as_view()),
     path("jobs/", JobAPIUpdate.as_view()),
+    path("release-notifications/", ReleaseNotificationAPICreate.as_view()),
     path("users/<username>/", UserAPIDetail.as_view(), name="user-detail"),
     path(
         "workspaces/<name>/statuses/",
