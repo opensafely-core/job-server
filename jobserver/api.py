@@ -86,6 +86,8 @@ class JobAPIUpdate(APIView):
 
     @transaction.atomic
     def post(self, request, *args, **kwargs):
+        log = logger.new()
+
         serializer = self.serializer_class(data=request.data, many=True)
         serializer.is_valid(raise_exception=True)
 
@@ -119,7 +121,7 @@ class JobAPIUpdate(APIView):
             job_request = job_request_lut[jr_identifier]
 
             # bind the job request ID to further logs so looking them up in the UI is easier
-            log = logger.bind(job_request=job_request.id)
+            log = log.bind(job_request=job_request.id)
 
             database_jobs = job_request.jobs.all()
 
