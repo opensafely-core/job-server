@@ -63,6 +63,12 @@ dokku letsencrypt job-server
 dokku plugin:install sentry-webhook
 ```
 
+### Ensure persistent logs
+```bash
+dokku$ sudo mkdir -p /var/log/journal
+```
+
+
 ### Test Mailgun
 
 ```bash
