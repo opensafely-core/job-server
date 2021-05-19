@@ -68,7 +68,6 @@ dokku plugin:install sentry-webhook
 dokku$ sudo mkdir -p /var/log/journal
 ```
 
-
 ### Test Mailgun
 
 ```bash
