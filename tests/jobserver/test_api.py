@@ -594,7 +594,6 @@ def test_releasenotificationapicreate_with_failed_slack_update(
     assert log_output.entries[0] == {
         "exc_info": True,
         "event": "Failed to notify slack",
-        "job_request": 1,  # why is this being added?!
         "log_level": "error",
     }
 

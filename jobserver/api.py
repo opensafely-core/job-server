@@ -86,6 +86,8 @@ class JobAPIUpdate(APIView):
 
     @transaction.atomic
     def post(self, request, *args, **kwargs):
+        log = logger.new()
+
         serializer = self.serializer_class(data=request.data, many=True)
         serializer.is_valid(raise_exception=True)
 
@@ -119,27 +121,23 @@ class JobAPIUpdate(APIView):
             job_request = job_request_lut[jr_identifier]
 
             # bind the job request ID to further logs so looking them up in the UI is easier
-            log = logger.bind(job_request=job_request.id)
+            log = log.bind(job_request=job_request.id)
 
             database_jobs = job_request.jobs.all()
 
             # get the current Jobs for the JobRequest, keyed on their identifier
             jobs_by_identifier = {j.identifier: j for j in database_jobs}
-            log.info(
-                f"Jobs in database: {','.join(jobs_by_identifier.keys())}",
-            )
 
             payload_identifiers = {j["identifier"] for j in jobs}
-            log.info(f"Jobs in payload: {','.join(payload_identifiers)}")
 
             # delete local jobs not in the payload
             identifiers_to_delete = set(jobs_by_identifier.keys()) - payload_identifiers
             if identifiers_to_delete:
-                log.info(
-                    f"About to delete jobs with identifiers: {','.join(identifiers_to_delete)}",
-                )
                 job_request.jobs.filter(identifier__in=identifiers_to_delete).delete()
 
+            # grab Job IDs instead of logging for every Job in the payload (which gets very noisy)
+            created_job_ids = []
+            updated_job_ids = []
             for job_data in jobs:
                 # remove this value from the data, it's going to be set by
                 # creating/updating Job instances via the JobRequest instances
@@ -150,7 +148,10 @@ class JobAPIUpdate(APIView):
                     identifier=job_data["identifier"],
                     defaults={**job_data},
                 )
-                log.info("Created or updated Job", job=job.id, created=created)
+                if created:
+                    created_job_ids.append(str(job.id))
+                else:
+                    updated_job_ids.append(str(job.id))
 
                 if created:
                     # this is the first time job-server has heard about this
@@ -189,6 +190,12 @@ class JobAPIUpdate(APIView):
                     "Notified requesting user of finished job",
                     user_id=job_request.created_by_id,
                 )
+
+        log.info(
+            "Created or updated Jobs",
+            created_job_ids=",".join(created_job_ids),
+            updated_job_ids=",".join(updated_job_ids),
+        )
 
         # record use of the API
         update_stats(self.backend, request.path)
