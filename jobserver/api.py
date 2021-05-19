@@ -307,7 +307,9 @@ class WorkspaceStatusesAPI(APIView):
         except Workspace.DoesNotExist:
             return Response(status=404)
 
-        actions_with_status = workspace.get_action_status_lut()
+        backend = request.GET.get("backend", None)
+
+        actions_with_status = workspace.get_action_status_lut(backend)
         return Response(actions_with_status, status=200)
 
 
