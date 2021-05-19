@@ -125,19 +125,12 @@ class JobAPIUpdate(APIView):
 
             # get the current Jobs for the JobRequest, keyed on their identifier
             jobs_by_identifier = {j.identifier: j for j in database_jobs}
-            log.info(
-                f"Jobs in database: {','.join(jobs_by_identifier.keys())}",
-            )
 
             payload_identifiers = {j["identifier"] for j in jobs}
-            log.info(f"Jobs in payload: {','.join(payload_identifiers)}")
 
             # delete local jobs not in the payload
             identifiers_to_delete = set(jobs_by_identifier.keys()) - payload_identifiers
             if identifiers_to_delete:
-                log.info(
-                    f"About to delete jobs with identifiers: {','.join(identifiers_to_delete)}",
-                )
                 job_request.jobs.filter(identifier__in=identifiers_to_delete).delete()
 
             # grab Job IDs instead of logging for every Job in the payload (which gets very noisy)
