@@ -393,6 +393,8 @@
 {% endblock content %}
 
 {% block extra_js %}
+{% if request.user.is_authenticated %}
 <div id="apiUrl" class="d-none">{{ workspace.get_statuses_url }}</div>
 <script type="text/javascript" src="{% static 'js/workspace_detail.js' %}"></script>
+{% endif %}
 {% endblock %}
