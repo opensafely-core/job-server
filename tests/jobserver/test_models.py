@@ -16,6 +16,7 @@ from jobserver.models import Backend, ProjectInvitation, ProjectMembership, Rele
 
 from ..factories import (
     BackendFactory,
+    BackendMembershipFactory,
     JobFactory,
     JobRequestFactory,
     OrgFactory,
@@ -78,6 +79,16 @@ def test_backend_str():
     backend = BackendFactory(name="Test Backend")
 
     assert str(backend) == "Test Backend"
+
+
+@pytest.mark.django_db
+def test_backendmembership_str():
+    backend = BackendFactory(display_name="Test Backend")
+    user = UserFactory(username="ben")
+
+    membership = BackendMembershipFactory(backend=backend, user=user)
+
+    assert str(membership) == "ben | Test Backend"
 
 
 @pytest.mark.django_db

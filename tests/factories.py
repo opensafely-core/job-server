@@ -8,6 +8,7 @@ from social_django.models import UserSocialAuth
 
 from jobserver.models import (
     Backend,
+    BackendMembership,
     Job,
     JobRequest,
     Org,
@@ -28,6 +29,16 @@ class BackendFactory(factory.django.DjangoModelFactory):
         model = Backend
 
     name = factory.Sequence(lambda n: f"Backend {n}")
+
+
+class BackendMembershipFactory(factory.django.DjangoModelFactory):
+    class Meta:
+        model = BackendMembership
+
+    backend = factory.SubFactory("tests.factories.BackendFactory")
+    user = factory.SubFactory("tests.factories.UserFactory")
+
+    created_by = factory.SubFactory("tests.factories.UserFactory")
 
 
 class JobFactory(factory.django.DjangoModelFactory):

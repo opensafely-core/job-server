@@ -95,6 +95,35 @@ class Backend(models.Model):
         self.save()
 
 
+class BackendMembership(models.Model):
+    """Models the ability for a User to run jobs against a Backend."""
+
+    created_by = models.ForeignKey(
+        "User",
+        on_delete=models.SET_NULL,
+        related_name="created_backend_memberships",
+        null=True,
+    )
+    backend = models.ForeignKey(
+        "Backend",
+        on_delete=models.CASCADE,
+        related_name="members",
+    )
+    user = models.ForeignKey(
+        "User",
+        on_delete=models.CASCADE,
+        related_name="backend_memberships",
+    )
+
+    created_at = models.DateTimeField(default=timezone.now)
+
+    class Meta:
+        unique_together = ["backend", "user"]
+
+    def __str__(self):
+        return f"{self.user.username} | {self.backend.display_name}"
+
+
 class Job(models.Model):
     """
     The execution of an action on a Backend
