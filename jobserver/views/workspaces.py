@@ -146,7 +146,6 @@ class BaseWorkspaceDetail(CreateView):
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
         context["actions"] = self.actions
-        context["branch"] = self.workspace.branch
         context["latest_job_request"] = self.get_latest_job_request()
         context["is_superuser"] = has_role(self.request.user, SuperUser)
         context["show_details"] = self.show_details

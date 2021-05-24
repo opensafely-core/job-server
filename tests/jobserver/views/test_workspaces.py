@@ -214,7 +214,7 @@ def test_workspacedetail_logged_out(rf):
     assert response.status_code == 200
 
     assert response.context_data["actions"] == []
-    assert response.context_data["branch"] == workspace.branch
+    assert response.context_data["workspace"] == workspace
 
 
 @pytest.mark.django_db
@@ -263,7 +263,7 @@ def test_workspacedetail_get_success(rf, user):
         {"name": "twiddle", "needs": [], "status": "-"},
         {"name": "run_all", "needs": ["twiddle"], "status": "-"},
     ]
-    assert response.context_data["branch"] == workspace.branch
+    assert response.context_data["workspace"] == workspace
 
 
 @pytest.mark.django_db
