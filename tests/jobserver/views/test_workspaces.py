@@ -324,13 +324,49 @@ def test_workspacedetail_post_success(rf, monkeypatch, user):
 
 
 @pytest.mark.django_db
+def test_workspacedetail_post_with_invalid_backend(rf, monkeypatch, user):
+    monkeypatch.setenv("BACKENDS", "tpp,emis")
+
+    workspace = WorkspaceFactory()
+
+    BackendMembershipFactory(backend=Backend.objects.get(name="tpp"), user=user)
+
+    data = {
+        "backend": "emis",
+        "requested_actions": ["twiddle"],
+        "callback_url": "test",
+    }
+
+    # Build a RequestFactory instance
+    request = rf.post(MEANINGLESS_URL, data)
+    request.user = user
+
+    dummy_yaml = """
+    actions:
+      twiddle:
+    """
+    with patch(
+        "jobserver.views.workspaces.can_run_jobs", return_value=True, autospec=True
+    ), patch(
+        "jobserver.views.workspaces.get_project", new=lambda *args: dummy_yaml
+    ), patch(
+        "jobserver.views.workspaces.get_branch_sha", new=lambda *args: "abc123"
+    ):
+        response = GlobalWorkspaceDetail.as_view()(request, name=workspace.name)
+
+    assert response.status_code == 200
+    assert response.context_data["form"].errors["backend"] == [
+        "Select a valid choice. emis is not one of the available choices."
+    ]
+
+
+@pytest.mark.django_db
 def test_workspacedetail_post_with_notifications_default(rf, monkeypatch, user):
     monkeypatch.setenv("BACKENDS", "tpp")
 
     workspace = WorkspaceFactory(should_notify=True)
 
-    tpp = Backend.objects.get(name="tpp")
-    BackendMembershipFactory(backend=tpp, user=user)
+    BackendMembershipFactory(backend=Backend.objects.get(name="tpp"), user=user)
 
     data = {
         "backend": "tpp",
@@ -374,8 +410,7 @@ def test_workspacedetail_post_with_notifications_override(rf, monkeypatch, user)
 
     workspace = WorkspaceFactory(should_notify=True)
 
-    tpp = Backend.objects.get(name="tpp")
-    BackendMembershipFactory(backend=tpp, user=user)
+    BackendMembershipFactory(backend=Backend.objects.get(name="tpp"), user=user)
 
     data = {
         "backend": "tpp",
@@ -411,52 +446,6 @@ def test_workspacedetail_post_with_notifications_override(rf, monkeypatch, user)
     assert job_request.requested_actions == ["twiddle"]
     assert job_request.sha == "abc123"
     assert not job_request.will_notify
-    assert not job_request.jobs.exists()
-
-
-@pytest.mark.django_db
-def test_workspacedetail_post_success_with_superuser(rf, monkeypatch, superuser):
-    monkeypatch.setenv("BACKENDS", "tpp,emis")
-
-    workspace = WorkspaceFactory()
-    org = OrgFactory()
-    OrgMembershipFactory(org=org, user=superuser)
-
-    BackendMembershipFactory(backend=Backend.objects.get(name="tpp"), user=superuser)
-    BackendMembershipFactory(backend=Backend.objects.get(name="emis"), user=superuser)
-
-    data = {
-        "backend": "emis",
-        "requested_actions": ["twiddle"],
-        "callback_url": "test",
-    }
-
-    # Build a RequestFactory instance
-    request = rf.post(MEANINGLESS_URL, data)
-    request.user = superuser
-
-    dummy_yaml = """
-    actions:
-      twiddle:
-    """
-    with patch(
-        "jobserver.views.workspaces.can_run_jobs", return_value=True, autospec=True
-    ), patch(
-        "jobserver.views.workspaces.get_project", new=lambda *args: dummy_yaml
-    ), patch(
-        "jobserver.views.workspaces.get_branch_sha", new=lambda *args: "abc123"
-    ):
-        response = GlobalWorkspaceDetail.as_view()(request, name=workspace.name)
-
-    assert response.status_code == 302, response.context_data["form"].errors
-    assert response.url == reverse("workspace-logs", kwargs={"name": workspace.name})
-
-    job_request = JobRequest.objects.first()
-    assert job_request.created_by == superuser
-    assert job_request.workspace == workspace
-    assert job_request.backend.name == "emis"
-    assert job_request.requested_actions == ["twiddle"]
-    assert job_request.sha == "abc123"
     assert not job_request.jobs.exists()
 
 

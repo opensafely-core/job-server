@@ -127,13 +127,7 @@ class BaseWorkspaceDetail(CreateView):
         gh_org = self.request.user.orgs.first().github_orgs[0]
         sha = get_branch_sha(gh_org, self.workspace.repo_name, self.workspace.branch)
 
-        if has_role(self.request.user, SuperUser):
-            # Use the form data to decide which backend to use for superusers.
-            backend = Backend.objects.get(name=form.cleaned_data.pop("backend"))
-        else:
-            # For non-superusers we're only exposing one backend currently.
-            backend = Backend.objects.get(name="tpp")
-
+        backend = Backend.objects.get(name=form.cleaned_data.pop("backend"))
         backend.job_requests.create(
             workspace=self.workspace,
             created_by=self.request.user,
