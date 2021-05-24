@@ -3,6 +3,7 @@ from django.contrib.auth.decorators import user_passes_test
 from django.db import transaction
 from django.db.models import Q
 from django.shortcuts import get_object_or_404, redirect
+from django.template.response import TemplateResponse
 from django.utils.decorators import method_decorator
 from django.views.generic import CreateView, ListView, View
 
@@ -83,13 +84,16 @@ class BaseWorkspaceDetail(CreateView):
         raise NotImplementedError
 
     def dispatch(self, request, *args, **kwargs):
+
+        if not request.user.is_authenticated:
+            context = {
+                "workspace": self.workspace,
+            }
+            return TemplateResponse(request, self.template_name, context=context)
+
         self.user_can_run_jobs = self.can_run_jobs(request.user)
 
-        self.show_details = (
-            request.user.is_authenticated
-            and self.user_can_run_jobs
-            and not self.workspace.is_archived
-        )
+        self.show_details = self.user_can_run_jobs and not self.workspace.is_archived
 
         if not self.show_details:
             # short-circuit for logged out users to avoid the hop to grab
