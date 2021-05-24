@@ -148,37 +148,37 @@
       </ul>
       {% endif %}
 
-      {% if is_superuser %}
-      <p>Pick a backend to run your Jobs in:</p>
+      <div{% if form.backend.field.choices|length < 2 %} class="d-none"{% endif %}>
+        <p>Pick a backend to run your Jobs in:</p>
 
-      <div class="form-group">
+        <div class="form-group">
 
-        {% for value, label in form.backend.field.choices %}
-        <div class="form-check">
-          <input
-            class="form-check-input"
-            type="radio"
-            name="backend"
-            id="id_backend{{ forloop.counter }}"
-            value="{{ value }}"
-            {% if form.backend.value == value %}checked{% endif %}
-            />
-          <label class="form-check-label" for="id_backend{{ forloop.counter }}">
-            {{ label }}
-          </label>
-        </div>
-        {% endfor %}
-
-        {% if form.backend.errors %}
-        <ul class="pl-3 mb-1">
-          {% for error in form.backend.errors %}
-          <li class="text-danger">{{ error }}</li>
+          {% for value, label in form.backend.field.choices %}
+          <div class="form-check">
+            <input
+              class="form-check-input"
+              type="radio"
+              name="backend"
+              id="id_backend{{ forloop.counter }}"
+              value="{{ value }}"
+              {% if form.backend.value == value %}checked{% endif %}
+              />
+            <label class="form-check-label" for="id_backend{{ forloop.counter }}">
+              {{ label }}
+            </label>
+          </div>
           {% endfor %}
-        </ul>
-        {% endif %}
 
+          {% if form.backend.errors %}
+          <ul class="pl-3 mb-1">
+            {% for error in form.backend.errors %}
+            <li class="text-danger">{{ error }}</li>
+            {% endfor %}
+          </ul>
+          {% endif %}
+
+        </div>
       </div>
-      {% endif %}
 
       <p>Pick one or more actions to run:</p>
 

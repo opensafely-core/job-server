@@ -9,7 +9,7 @@ from django.http import Http404
 from django.urls import reverse
 
 from jobserver.authorization import ProjectDeveloper
-from jobserver.models import JobRequest, Workspace
+from jobserver.models import Backend, JobRequest, Workspace
 from jobserver.views.workspaces import (
     BaseWorkspaceDetail,
     GlobalWorkspaceDetail,
@@ -22,10 +22,10 @@ from jobserver.views.workspaces import (
 )
 
 from ...factories import (
+    BackendMembershipFactory,
     JobFactory,
     JobRequestFactory,
     OrgFactory,
-    OrgMembershipFactory,
     ProjectFactory,
     ProjectMembershipFactory,
     UserFactory,
@@ -204,16 +204,10 @@ def test_workspacedetail_logged_out(rf):
     request = rf.get(MEANINGLESS_URL)
     request.user = AnonymousUser()
 
-    with patch(
-        "jobserver.views.workspaces.get_actions", autospec=True
-    ) as mocked_get_actions:
-        response = GlobalWorkspaceDetail.as_view()(request, name=workspace.name)
-
-    mocked_get_actions.assert_not_called()
+    response = GlobalWorkspaceDetail.as_view()(request, name=workspace.name)
 
     assert response.status_code == 200
 
-    assert response.context_data["actions"] == []
     assert response.context_data["workspace"] == workspace
 
 
@@ -290,7 +284,11 @@ def test_workspacedetail_post_success(rf, monkeypatch, user):
 
     workspace = WorkspaceFactory()
 
+    tpp = Backend.objects.get(name="tpp")
+    BackendMembershipFactory(backend=tpp, user=user)
+
     data = {
+        "backend": "tpp",
         "requested_actions": ["twiddle"],
         "callback_url": "test",
     }
@@ -331,7 +329,11 @@ def test_workspacedetail_post_with_notifications_default(rf, monkeypatch, user):
 
     workspace = WorkspaceFactory(should_notify=True)
 
+    tpp = Backend.objects.get(name="tpp")
+    BackendMembershipFactory(backend=tpp, user=user)
+
     data = {
+        "backend": "tpp",
         "requested_actions": ["twiddle"],
         "callback_url": "test",
         "will_notify": "True",
@@ -372,7 +374,11 @@ def test_workspacedetail_post_with_notifications_override(rf, monkeypatch, user)
 
     workspace = WorkspaceFactory(should_notify=True)
 
+    tpp = Backend.objects.get(name="tpp")
+    BackendMembershipFactory(backend=tpp, user=user)
+
     data = {
+        "backend": "tpp",
         "requested_actions": ["twiddle"],
         "callback_url": "test",
         "will_notify": "False",
@@ -415,6 +421,9 @@ def test_workspacedetail_post_success_with_superuser(rf, monkeypatch, superuser)
     workspace = WorkspaceFactory()
     org = OrgFactory()
     OrgMembershipFactory(org=org, user=superuser)
+
+    BackendMembershipFactory(backend=Backend.objects.get(name="tpp"), user=superuser)
+    BackendMembershipFactory(backend=Backend.objects.get(name="emis"), user=superuser)
 
     data = {
         "backend": "emis",
@@ -485,61 +494,6 @@ def test_workspacedetail_unknown_workspace(rf):
 
     assert response.status_code == 302
     assert response.url == "/"
-
-
-@pytest.mark.django_db
-def test_workspacedetail_get_with_authenticated_user(rf, user):
-    """
-    Check GlobalWorkspaceDetail renders the controls for Archiving, Notifications,
-    and selecting Actions for authenticated Users.
-    """
-    workspace = WorkspaceFactory(is_archived=False)
-
-    # ensure the User is authenticated but not authorized
-    user.is_superuser = False
-    user.roles = []
-    user.save()
-
-    # Build a RequestFactory instance
-    request = rf.get(MEANINGLESS_URL)
-    request.user = user
-
-    dummy_yaml = """
-    actions:
-      twiddle:
-    """
-    with patch(
-        "jobserver.views.workspaces.can_run_jobs", return_value=True, autospec=True
-    ), patch("jobserver.views.workspaces.get_project", new=lambda *args: dummy_yaml):
-        response = GlobalWorkspaceDetail.as_view()(request, name=workspace.name)
-
-    assert "Archive" in response.rendered_content
-    assert "Turn Notifications" in response.rendered_content
-    assert "twiddle" in response.rendered_content
-    assert "Pick a backend to run your Jobs in" not in response.rendered_content
-
-
-@pytest.mark.django_db
-def test_workspacedetail_get_with_superuser(rf, superuser):
-    """Check GlobalWorkspaceDetail renders the Backend radio buttons for superusers"""
-    workspace = WorkspaceFactory(is_archived=False)
-    org = OrgFactory()
-    OrgMembershipFactory(org=org, user=superuser)
-
-    # Build a RequestFactory instance
-    request = rf.get(MEANINGLESS_URL)
-    request.user = superuser
-
-    dummy_yaml = """
-    actions:
-      twiddle:
-    """
-    with patch(
-        "jobserver.views.workspaces.can_run_jobs", return_value=True, autospec=True
-    ), patch("jobserver.views.workspaces.get_project", new=lambda *args: dummy_yaml):
-        response = GlobalWorkspaceDetail.as_view()(request, name=workspace.name)
-
-    assert "Pick a backend to run your Jobs in" in response.rendered_content
 
 
 @pytest.mark.django_db

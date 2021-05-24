@@ -7,7 +7,7 @@ from django.template.response import TemplateResponse
 from django.utils.decorators import method_decorator
 from django.views.generic import CreateView, ListView, View
 
-from ..authorization import SuperUser, has_permission, has_role
+from ..authorization import has_permission
 from ..backends import backends_to_choices
 from ..forms import (
     JobRequestCreateForm,
@@ -147,7 +147,6 @@ class BaseWorkspaceDetail(CreateView):
         context = super().get_context_data(**kwargs)
         context["actions"] = self.actions
         context["latest_job_request"] = self.get_latest_job_request()
-        context["is_superuser"] = has_role(self.request.user, SuperUser)
         context["show_details"] = self.show_details
         context["user_can_run_jobs"] = self.user_can_run_jobs
         context["workspace"] = self.workspace
@@ -157,11 +156,11 @@ class BaseWorkspaceDetail(CreateView):
         kwargs = super().get_form_kwargs()
         kwargs["actions"] = [a["name"] for a in self.actions]
 
-        if has_role(self.request.user, SuperUser):
-            # TODO: move to ModelForm declaration once all users can pick backends
-            backends = Backend.objects.all()
-            backend_choices = backends_to_choices(backends)
-            kwargs["backends"] = backend_choices
+        # get backends from the current user
+        backends = Backend.objects.filter(
+            members__in=self.request.user.backend_memberships.all()
+        )
+        kwargs["backends"] = backends_to_choices(backends)
 
         return kwargs
 
