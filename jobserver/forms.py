@@ -21,8 +21,6 @@ class JobRequestCreateForm(forms.ModelForm):
 
     def __init__(self, actions, *args, backends=None, **kwargs):
         super().__init__(*args, **kwargs)
-        self.helper = FormHelper()
-        self.helper.add_input(Submit("submit", "Submit"))
 
         #  add action field based on the actions passed in
         choices = [(a, a) for a in actions]
