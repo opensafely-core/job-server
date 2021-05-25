@@ -28,7 +28,7 @@ def ensure_admins(usernames):
 
     admins = User.objects.filter(username__in=usernames)
 
-    missing = set(usernames) - set(u.username for u in admins)
+    missing = set(usernames) - {u.username for u in admins}
     if missing:
         sorted_missing = sorted(missing)
         raise Exception(f"Unknown users: {', '.join(sorted_missing)}")
