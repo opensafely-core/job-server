@@ -13,4 +13,5 @@ pytest-freezegun
 pytest-mock
 pytest-network
 pytest-subtests
+pyupgrade
 responses
