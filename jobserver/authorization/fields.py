@@ -44,7 +44,7 @@ class RolesField(models.JSONField):
             msg = f"Some roles could not be assigned to {self.model.__name__}"
 
             for role in invalid_roles:
-                models = "\n".join([f"   - {model}" for model in role.models])
+                models = "\n".join(f"   - {model}" for model in role.models)
                 msg += f"\n - {role.__name__} can only be assigned to these models:\n{models}"
 
             raise ValueError(msg)
