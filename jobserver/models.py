@@ -67,6 +67,8 @@ class BackendManager(models.Manager):
 
 
 class Backend(models.Model):
+    """A job-runner instance"""
+
     name = models.TextField(unique=True)
     display_name = models.TextField()
 
@@ -94,6 +96,12 @@ class Backend(models.Model):
 
 
 class Job(models.Model):
+    """
+    The execution of an action on a Backend
+
+    We expect this model to only be written to, via the API, by a job-runner.
+    """
+
     job_request = models.ForeignKey(
         "JobRequest",
         on_delete=models.PROTECT,
@@ -176,9 +184,8 @@ class JobRequest(models.Model):
     A request to run a Job
 
     This represents the request, from a Human, to run a given Job in a
-    Workspace.  The job-runner will create any required Jobs for the requested
-    one to run.  All Jobs, either added by Human or Computer, are then grouped
-    by this object.
+    Workspace.  A job-runner will create any required Jobs for the requested
+    one(s) to run.  All Jobs are then grouped by this object.
     """
 
     backend = models.ForeignKey(
@@ -329,6 +336,8 @@ class JobRequest(models.Model):
 
 
 class Org(models.Model):
+    """An Organisation using the platform"""
+
     name = models.TextField(unique=True)
     slug = models.SlugField(max_length=255, unique=True)
 
@@ -351,6 +360,8 @@ class Org(models.Model):
 
 
 class OrgMembership(models.Model):
+    """Membership of an Organistion for a User"""
+
     created_by = models.ForeignKey(
         "User",
         on_delete=models.SET_NULL,
@@ -380,6 +391,14 @@ class OrgMembership(models.Model):
 
 
 class Project(models.Model):
+    """
+    A public-facing grouping of work on a topic.
+
+    This includes the Workspaces where work is done, the Repos for the code
+    driving that work, the IG approvals allowing the work to happen, and any
+    Papers which are produced as a result of the work.
+    """
+
     org = models.ForeignKey(
         "Org",
         on_delete=models.CASCADE,
@@ -559,6 +578,13 @@ class ProjectInvitation(models.Model):
 
 
 class ProjectMembership(models.Model):
+    """
+    Membership of a Project for a User
+
+    Membership grants a User abilities in the context of the Project via the
+    assigned Roles.
+    """
+
     project = models.ForeignKey(
         "Project",
         on_delete=models.CASCADE,
@@ -602,6 +628,8 @@ class ProjectMembership(models.Model):
 
 
 class Release(models.Model):
+    """Reviewed and redacted outputs from a Workspace"""
+
     # No value in the default Autoid as we are using a content-addressable hash
     # as it. Additionaly it avoids enumeration attacks.
     id = models.TextField(primary_key=True)
@@ -689,6 +717,12 @@ class Stats(models.Model):
 
 
 class User(AbstractUser):
+    """
+    A custom User model used throughout the codebase
+
+    Using a custom Model allows us to add extra fields trivially, eg Roles.
+    """
+
     notifications_email = models.TextField(default="")
 
     # has the User been approved by an admin?
@@ -761,6 +795,8 @@ class User(AbstractUser):
 
 
 class Workspace(models.Model):
+    """Models a working directory on a Backend server."""
+
     created_by = models.ForeignKey(
         "User",
         on_delete=models.CASCADE,
