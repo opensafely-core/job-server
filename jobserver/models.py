@@ -371,7 +371,7 @@ class OrgMembership(models.Model):
     org = models.ForeignKey(
         "Org",
         on_delete=models.CASCADE,
-        related_name="members",
+        related_name="memberships",
     )
     user = models.ForeignKey(
         "User",
@@ -588,7 +588,7 @@ class ProjectMembership(models.Model):
     project = models.ForeignKey(
         "Project",
         on_delete=models.CASCADE,
-        related_name="members",
+        related_name="memberships",
     )
     user = models.ForeignKey(
         "User",

@@ -12,13 +12,13 @@ Each function is expected to handle the lookup of Roles in a given relationship.
 
 def get_org_roles_for_user(org, user):
     try:
-        return org.members.get(user=user).roles
-    except org.members.model.DoesNotExist:
+        return org.memberships.get(user=user).roles
+    except org.memberships.model.DoesNotExist:
         return []
 
 
 def get_project_roles_for_user(project, user):
     try:
-        return project.members.get(user=user).roles
-    except project.members.model.DoesNotExist:
+        return project.memberships.get(user=user).roles
+    except project.memberships.model.DoesNotExist:
         return []
