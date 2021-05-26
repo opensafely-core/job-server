@@ -63,8 +63,27 @@ jobs:
           source ${{ github.workspace }}/venv/bin/activate
           make sort
 
+  upgrade:
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v2
+      - uses: "actions/setup-python@v2"
+        with:
+          python-version: "3.9"
+      - name: "Install dependencies"
+        run: |
+          set -xe
+          python -m pip install --upgrade pip
+          python -m venv venv
+          venv/bin/pip install --progress-bar=off --require-hashes --requirement requirements.dev.txt
+      - name: Check for syntax upgrades
+        run: |
+          source ${{ github.workspace }}/venv/bin/activate
+          make check-for-upgrades
+
   test:
-    needs: [format, lint, sort]
+    needs: [format, lint, sort, upgrade]
     runs-on: ubuntu-latest
 
     steps:

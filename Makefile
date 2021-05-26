@@ -11,6 +11,10 @@ help:
 	@echo "    make sort             run the sort checker (isort)."
 	@echo "    make test             run the test suite."
 
+.PHONY: check-for-upgrades
+check-for-upgrades:
+	pyupgrade --py39-plus $$(find jobserver -name "*.py" -type f) $$(find tests -name "*.py" -type f)
+
 .PHONY: compile
 compile:
 	pip-compile --generate-hashes requirements.in -o requirements.txt

@@ -248,12 +248,10 @@ class ProjectInvitationCreate(CreateView):
     def get_form_kwargs(self, **kwargs):
         # memberships do not guarantee a matching invitation and vice versa so
         # look them all up and get a unique list
-        user_ids = set(
-            [
-                *self.project.members.values_list("user_id", flat=True),
-                *self.project.invitations.values_list("user_id", flat=True),
-            ]
-        )
+        user_ids = {
+            *self.project.members.values_list("user_id", flat=True),
+            *self.project.invitations.values_list("user_id", flat=True),
+        }
         users = User.objects.exclude(pk__in=user_ids).order_by("username")
 
         kwargs = super().get_form_kwargs(**kwargs)
