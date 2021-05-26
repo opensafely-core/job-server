@@ -723,6 +723,13 @@ class User(AbstractUser):
     Using a custom Model allows us to add extra fields trivially, eg Roles.
     """
 
+    orgs = models.ManyToManyField(
+        "Org",
+        related_name="members",
+        through="OrgMembership",
+        through_fields=["user", "org"],
+    )
+
     notifications_email = models.TextField(default="")
 
     # has the User been approved by an admin?
