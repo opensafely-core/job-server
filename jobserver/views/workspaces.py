@@ -3,10 +3,11 @@ from django.contrib.auth.decorators import user_passes_test
 from django.db import transaction
 from django.db.models import Q
 from django.shortcuts import get_object_or_404, redirect
+from django.template.response import TemplateResponse
 from django.utils.decorators import method_decorator
 from django.views.generic import CreateView, ListView, View
 
-from ..authorization import SuperUser, has_permission, has_role
+from ..authorization import has_permission
 from ..backends import backends_to_choices
 from ..forms import (
     JobRequestCreateForm,
@@ -83,13 +84,16 @@ class BaseWorkspaceDetail(CreateView):
         raise NotImplementedError
 
     def dispatch(self, request, *args, **kwargs):
+
+        if not request.user.is_authenticated:
+            context = {
+                "workspace": self.workspace,
+            }
+            return TemplateResponse(request, self.template_name, context=context)
+
         self.user_can_run_jobs = self.can_run_jobs(request.user)
 
-        self.show_details = (
-            request.user.is_authenticated
-            and self.user_can_run_jobs
-            and not self.workspace.is_archived
-        )
+        self.show_details = self.user_can_run_jobs and not self.workspace.is_archived
 
         if not self.show_details:
             # short-circuit for logged out users to avoid the hop to grab
@@ -123,13 +127,7 @@ class BaseWorkspaceDetail(CreateView):
         gh_org = self.request.user.orgs.first().github_orgs[0]
         sha = get_branch_sha(gh_org, self.workspace.repo_name, self.workspace.branch)
 
-        if has_role(self.request.user, SuperUser):
-            # Use the form data to decide which backend to use for superusers.
-            backend = Backend.objects.get(name=form.cleaned_data.pop("backend"))
-        else:
-            # For non-superusers we're only exposing one backend currently.
-            backend = Backend.objects.get(name="tpp")
-
+        backend = Backend.objects.get(name=form.cleaned_data.pop("backend"))
         backend.job_requests.create(
             workspace=self.workspace,
             created_by=self.request.user,
@@ -142,9 +140,7 @@ class BaseWorkspaceDetail(CreateView):
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
         context["actions"] = self.actions
-        context["branch"] = self.workspace.branch
         context["latest_job_request"] = self.get_latest_job_request()
-        context["is_superuser"] = has_role(self.request.user, SuperUser)
         context["show_details"] = self.show_details
         context["user_can_run_jobs"] = self.user_can_run_jobs
         context["workspace"] = self.workspace
@@ -154,11 +150,11 @@ class BaseWorkspaceDetail(CreateView):
         kwargs = super().get_form_kwargs()
         kwargs["actions"] = [a["name"] for a in self.actions]
 
-        if has_role(self.request.user, SuperUser):
-            # TODO: move to ModelForm declaration once all users can pick backends
-            backends = Backend.objects.all()
-            backend_choices = backends_to_choices(backends)
-            kwargs["backends"] = backend_choices
+        # get backends from the current user
+        backends = Backend.objects.filter(
+            members__in=self.request.user.backend_memberships.all()
+        )
+        kwargs["backends"] = backends_to_choices(backends)
 
         return kwargs
 

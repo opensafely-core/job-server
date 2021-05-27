@@ -19,10 +19,8 @@ class JobRequestCreateForm(forms.ModelForm):
             ),
         }
 
-    def __init__(self, actions, *args, backends=None, **kwargs):
+    def __init__(self, actions, backends, *args, **kwargs):
         super().__init__(*args, **kwargs)
-        self.helper = FormHelper()
-        self.helper.add_input(Submit("submit", "Submit"))
 
         #  add action field based on the actions passed in
         choices = [(a, a) for a in actions]
@@ -34,10 +32,15 @@ class JobRequestCreateForm(forms.ModelForm):
             },
         )
 
-        if backends:
-            self.fields["backend"] = forms.ChoiceField(
-                choices=backends, widget=forms.RadioSelect
-            )
+        try:
+            initial = backends[0][0]
+        except IndexError:
+            initial = None
+
+        # bulid the backends field based on the backends passed in
+        self.fields["backend"] = forms.ChoiceField(
+            choices=backends, initial=initial, widget=forms.RadioSelect
+        )
 
 
 class JobRequestSearchForm(forms.Form):
