@@ -341,6 +341,9 @@ class Org(models.Model):
     name = models.TextField(unique=True)
     slug = models.SlugField(max_length=255, unique=True)
 
+    # track which GitHub Organisations this Org has access to
+    github_orgs = models.JSONField(default=list)
+
     created_at = models.DateTimeField(default=timezone.now)
 
     class Meta:
