@@ -87,17 +87,17 @@ def test_get_actions_success():
 
 
 def test_get_project_no_branch():
-    with patch("jobserver.project.get_file", lambda r, b: None), patch(
-        "jobserver.project.get_branch", lambda r, b: None
+    with patch("jobserver.project.get_file", lambda *args: None), patch(
+        "jobserver.project.get_branch", lambda *args: None
     ), pytest.raises(Exception, match="Missing branch: 'main'"):
-        get_project("test", "main")
+        get_project("opensafely", "test", "main")
 
 
 def test_get_project_no_project_yaml():
-    with patch("jobserver.project.get_file", lambda r, b: None), patch(
-        "jobserver.project.get_branch", lambda r, b: True
+    with patch("jobserver.project.get_file", lambda *args: None), patch(
+        "jobserver.project.get_branch", lambda *args: True
     ), pytest.raises(Exception, match="Could not find project.yaml"):
-        get_project("test", "main")
+        get_project("opensafely", "test", "main")
 
 
 def test_get_project_success():
@@ -105,10 +105,10 @@ def test_get_project_success():
     actions:
       frobnicate:
     """
-    with patch("jobserver.project.get_file", lambda r, b: dummy), patch(
-        "jobserver.project.get_branch", lambda r, b: True
+    with patch("jobserver.project.get_file", lambda *args: dummy), patch(
+        "jobserver.project.get_branch", lambda *args: True
     ):
-        assert get_project("test", "main") == dummy
+        assert get_project("opensafely", "test", "main") == dummy
 
 
 def test_link_run_scripts():

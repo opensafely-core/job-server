@@ -231,7 +231,6 @@ class ProjectInvitationCreate(CreateView):
 
     def get_context_data(self, **kwargs):
 
-        members = self.project.members.select_related("user").order_by("user__username")
         invitations = (
             self.project.invitations.filter(membership=None)
             .select_related("user")
@@ -241,7 +240,6 @@ class ProjectInvitationCreate(CreateView):
         context = super().get_context_data(**kwargs)
         context["can_manage_members"] = self.can_manage_members
         context["invitations"] = invitations
-        context["members"] = members
         context["project"] = self.project
         return context
 
@@ -249,7 +247,7 @@ class ProjectInvitationCreate(CreateView):
         # memberships do not guarantee a matching invitation and vice versa so
         # look them all up and get a unique list
         user_ids = {
-            *self.project.members.values_list("user_id", flat=True),
+            *self.project.memberships.values_list("user_id", flat=True),
             *self.project.invitations.values_list("user_id", flat=True),
         }
         users = User.objects.exclude(pk__in=user_ids).order_by("username")
@@ -371,7 +369,9 @@ class ProjectSettings(UpdateView):
         return super().dispatch(request, *args, **kwargs)
 
     def get_context_data(self, **kwargs):
-        members = self.project.members.select_related("user").order_by("user__username")
+        memberships = self.project.memberships.select_related("user").order_by(
+            "user__username"
+        )
         invitations = (
             self.project.invitations.filter(membership=None)
             .select_related("user")
@@ -381,6 +381,6 @@ class ProjectSettings(UpdateView):
         context = super().get_context_data(**kwargs)
         context["can_manage_members"] = self.can_manage_members
         context["invitations"] = invitations
-        context["members"] = members
+        context["memberships"] = memberships
         context["project"] = self.project
         return context

@@ -341,6 +341,9 @@ class Org(models.Model):
     name = models.TextField(unique=True)
     slug = models.SlugField(max_length=255, unique=True)
 
+    # track which GitHub Organisations this Org has access to
+    github_orgs = models.JSONField(default=list)
+
     created_at = models.DateTimeField(default=timezone.now)
 
     class Meta:
@@ -371,7 +374,7 @@ class OrgMembership(models.Model):
     org = models.ForeignKey(
         "Org",
         on_delete=models.CASCADE,
-        related_name="members",
+        related_name="memberships",
     )
     user = models.ForeignKey(
         "User",
@@ -588,7 +591,7 @@ class ProjectMembership(models.Model):
     project = models.ForeignKey(
         "Project",
         on_delete=models.CASCADE,
-        related_name="members",
+        related_name="memberships",
     )
     user = models.ForeignKey(
         "User",
@@ -722,6 +725,13 @@ class User(AbstractUser):
 
     Using a custom Model allows us to add extra fields trivially, eg Roles.
     """
+
+    orgs = models.ManyToManyField(
+        "Org",
+        related_name="members",
+        through="OrgMembership",
+        through_fields=["user", "org"],
+    )
 
     notifications_email = models.TextField(default="")
 

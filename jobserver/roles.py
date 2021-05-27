@@ -12,4 +12,5 @@ def can_run_jobs(user):
     if not user.is_authenticated:
         return False
 
-    return is_member_of_org("opensafely", user.username)
+    gh_org = user.orgs.first().github_orgs[0]
+    return is_member_of_org(gh_org, user.username)

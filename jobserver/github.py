@@ -7,15 +7,18 @@ env = Env()
 
 
 BASE_URL = "https://api.github.com"
-TOKEN = env.str("GITHUB_TOKEN")
 USER_AGENT = "OpenSAFELY Jobs"
 
 
-def get_branch(repo, branch):
+def token(org_name):
+    return env.str(f"GITHUB_{org_name.upper()}_TOKEN")
+
+
+def get_branch(org, repo, branch):
     f = furl(BASE_URL)
     f.path.segments += [
         "repos",
-        "opensafely",
+        org,
         repo,
         "branches",
         branch,
@@ -23,8 +26,8 @@ def get_branch(repo, branch):
 
     headers = {
         "Accept": "application/vnd.github.v3+json",
-        "Authorization": f"token {TOKEN}",
-        "User-Agent": "OpenSAFELY Jobs",
+        "Authorization": f"token {token(org)}",
+        "User-Agent": USER_AGENT,
     }
     r = requests.get(f.url, headers=headers)
 
@@ -36,8 +39,8 @@ def get_branch(repo, branch):
     return r.json()
 
 
-def get_branch_sha(repo, branch):
-    branch = get_branch(repo, branch)
+def get_branch_sha(org, repo, branch):
+    branch = get_branch(org, repo, branch)
 
     if branch is None:
         return
@@ -45,11 +48,11 @@ def get_branch_sha(repo, branch):
     return branch["commit"]["sha"]
 
 
-def get_file(repo, branch):
+def get_file(org, repo, branch):
     f = furl(BASE_URL)
     f.path.segments += [
         "repos",
-        "opensafely",
+        org,
         repo,
         "contents",
         "project.yaml",
@@ -58,7 +61,7 @@ def get_file(repo, branch):
 
     headers = {
         "Accept": "application/vnd.github.3.raw",
-        "Authorization": f"token {TOKEN}",
+        "Authorization": f"token {token(org)}",
         "User-Agent": USER_AGENT,
     }
     r = requests.get(f.url, headers=headers)
@@ -71,7 +74,7 @@ def get_file(repo, branch):
     return r.text
 
 
-def _get_page(session, cursor):
+def _get_page(session, org, cursor):
     """
     Get a page of Repos (with branches) from the OpenSAFELY Researchers Team
 
@@ -83,8 +86,8 @@ def _get_page(session, cursor):
     [1]: https://graphql.org/learn/pagination/#end-of-list-counts-and-connections
     """
     query = """
-    query reposAndBranches($cursor: String) {
-      organization(login: "opensafely") {
+    query reposAndBranches($cursor: String, $org_name: String) {
+      organization(login: $org_name) {
         team(slug: "researchers") {
           repositories(first: 100, after: $cursor) {
             nodes {
@@ -106,7 +109,7 @@ def _get_page(session, cursor):
     }
     """
     # use GraphQL variables to avoid string interpolation
-    variables = {"cursor": cursor}
+    variables = {"cursor": cursor, "org_name": org}
     payload = {"query": query, "variables": variables}
 
     r = session.post("https://api.github.com/graphql", json=payload)
@@ -114,7 +117,7 @@ def _get_page(session, cursor):
     return r.json()["data"]["organization"]["team"]["repositories"]
 
 
-def get_repos_with_branches():
+def get_repos_with_branches(org):
     """
     Get Repos (with branches) from the OpenSAFELY Researchers Team
 
@@ -125,13 +128,13 @@ def get_repos_with_branches():
     """
     session = requests.Session()
     session.headers = {
-        "Authorization": f"bearer {TOKEN}",
+        "Authorization": f"bearer {token(org)}",
         "User-Agent": USER_AGENT,
     }
 
     cursor = ""
     while True:
-        data = _get_page(session, cursor)
+        data = _get_page(session, org, cursor)
 
         # build a dictionary for each repo with it's branches
         for repo in data["nodes"]:
@@ -155,15 +158,15 @@ def is_member_of_org(org, username):
     f = furl(BASE_URL)
     f.path.segments += [
         "orgs",
-        "opensafely",
+        org,
         "members",
         username,
     ]
 
     headers = {
         "Accept": "application/vnd.github.v3+json",
-        "Authorization": f"token {TOKEN}",
-        "User-Agent": "OpenSAFELY Jobs",
+        "Authorization": f"token {token(org)}",
+        "User-Agent": USER_AGENT,
     }
 
     r = requests.get(f.url, headers=headers)

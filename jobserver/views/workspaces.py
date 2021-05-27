@@ -41,8 +41,9 @@ class WorkspaceCreate(CreateView):
     template_name = "workspace_create.html"
 
     def dispatch(self, request, *args, **kwargs):
+        gh_org = self.request.user.orgs.first().github_orgs[0]
         self.repos_with_branches = sorted(
-            get_repos_with_branches(), key=lambda r: r["name"].lower()
+            get_repos_with_branches(gh_org), key=lambda r: r["name"].lower()
         )
 
         return super().dispatch(request, *args, **kwargs)
@@ -99,8 +100,10 @@ class BaseWorkspaceDetail(CreateView):
         action_status_lut = self.workspace.get_action_status_lut()
 
         # build actions as list or render the exception to the page
+        gh_org = self.request.user.orgs.first().github_orgs[0]
         try:
             self.project = get_project(
+                gh_org,
                 self.workspace.repo_name,
                 self.workspace.branch,
             )
@@ -117,7 +120,8 @@ class BaseWorkspaceDetail(CreateView):
 
     @transaction.atomic
     def form_valid(self, form):
-        sha = get_branch_sha(self.workspace.repo_name, self.workspace.branch)
+        gh_org = self.request.user.orgs.first().github_orgs[0]
+        sha = get_branch_sha(gh_org, self.workspace.repo_name, self.workspace.branch)
 
         if has_role(self.request.user, SuperUser):
             # Use the form data to decide which backend to use for superusers.

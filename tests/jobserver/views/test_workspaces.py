@@ -25,6 +25,7 @@ from ...factories import (
     JobFactory,
     JobRequestFactory,
     OrgFactory,
+    OrgMembershipFactory,
     ProjectFactory,
     ProjectMembershipFactory,
     UserFactory,
@@ -56,12 +57,11 @@ def test_projectworkspacedetail_redirect_to_global_view(rf):
 
 
 @pytest.mark.django_db
-def test_projectworkspacedetail_success(rf):
-    org = OrgFactory()
+def test_projectworkspacedetail_success(rf, user):
+    org = user.orgs.first()
     project = ProjectFactory(org=org)
     workspace = WorkspaceFactory(project=project)
 
-    user = UserFactory()
     ProjectMembershipFactory(project=project, user=user, roles=[ProjectDeveloper])
 
     request = rf.get(MEANINGLESS_URL)
@@ -93,14 +93,14 @@ def test_projectworkspacedetail_unknown_workspace(rf):
 
 @pytest.mark.django_db
 @responses.activate
-def test_workspacearchivetoggle_success(rf):
+def test_workspacearchivetoggle_success(rf, user):
     workspace = WorkspaceFactory(is_archived=False)
-    user = UserFactory()
 
     request = rf.post(MEANINGLESS_URL, {"is_archived": "True"})
     request.user = user
 
-    membership_url = f"https://api.github.com/orgs/opensafely/members/{user.username}"
+    gh_org = user.orgs.first().github_orgs[0]
+    membership_url = f"https://api.github.com/orgs/{gh_org}/members/{user.username}"
     responses.add(responses.GET, membership_url, status=204)
 
     response = WorkspaceArchiveToggle.as_view()(request, name=workspace.name)
@@ -114,14 +114,14 @@ def test_workspacearchivetoggle_success(rf):
 
 @pytest.mark.django_db
 @responses.activate
-def test_workspacearchivetoggle_unauthorized(rf):
+def test_workspacearchivetoggle_unauthorized(rf, user):
     workspace = WorkspaceFactory()
-    user = UserFactory()
 
     request = rf.post(MEANINGLESS_URL)
     request.user = user
 
-    membership_url = f"https://api.github.com/orgs/opensafely/members/{user.username}"
+    gh_org = user.orgs.first().github_orgs[0]
+    membership_url = f"https://api.github.com/orgs/{gh_org}/members/{user.username}"
     responses.add(responses.GET, membership_url, status=404)
 
     response = WorkspaceArchiveToggle.as_view()(request, name=workspace.name)
@@ -132,13 +132,12 @@ def test_workspacearchivetoggle_unauthorized(rf):
 
 @pytest.mark.django_db
 @responses.activate
-def test_workspacecreate_get_success(rf):
-    user = UserFactory()
-
+def test_workspacecreate_get_success(rf, user):
     request = rf.get(MEANINGLESS_URL)
     request.user = user
 
-    membership_url = f"https://api.github.com/orgs/opensafely/members/{user.username}"
+    gh_org = user.orgs.first().github_orgs[0]
+    membership_url = f"https://api.github.com/orgs/{gh_org}/members/{user.username}"
     responses.add(responses.GET, membership_url, status=204)
 
     with patch(
@@ -152,9 +151,7 @@ def test_workspacecreate_get_success(rf):
 
 @pytest.mark.django_db
 @responses.activate
-def test_workspacecreate_post_success(rf):
-    user = UserFactory()
-
+def test_workspacecreate_post_success(rf, user):
     data = {
         "name": "Test",
         "repo": "test",
@@ -166,7 +163,8 @@ def test_workspacecreate_post_success(rf):
     request = rf.post(MEANINGLESS_URL, data)
     request.user = user
 
-    membership_url = f"https://api.github.com/orgs/opensafely/members/{user.username}"
+    gh_org = user.orgs.first().github_orgs[0]
+    membership_url = f"https://api.github.com/orgs/{gh_org}/members/{user.username}"
     responses.add(responses.GET, membership_url, status=204)
 
     repos = [{"name": "Test", "url": "test", "branches": ["test"]}]
@@ -184,13 +182,12 @@ def test_workspacecreate_post_success(rf):
 
 @pytest.mark.django_db
 @responses.activate
-def test_workspacecreate_unauthorized(rf):
-    user = UserFactory()
-
+def test_workspacecreate_unauthorized(rf, user):
     request = rf.post(MEANINGLESS_URL)
     request.user = user
 
-    membership_url = f"https://api.github.com/orgs/opensafely/members/{user.username}"
+    gh_org = user.orgs.first().github_orgs[0]
+    membership_url = f"https://api.github.com/orgs/{gh_org}/members/{user.username}"
     responses.add(responses.GET, membership_url, status=404)
 
     response = WorkspaceCreate.as_view()(request)
@@ -221,9 +218,8 @@ def test_workspacedetail_logged_out(rf):
 
 
 @pytest.mark.django_db
-def test_workspacedetail_project_yaml_errors(rf):
+def test_workspacedetail_project_yaml_errors(rf, user):
     workspace = WorkspaceFactory()
-    user = UserFactory()
 
     # Build a RequestFactory instance
     request = rf.get(MEANINGLESS_URL)
@@ -245,9 +241,8 @@ def test_workspacedetail_project_yaml_errors(rf):
 
 
 @pytest.mark.django_db
-def test_workspacedetail_get_success(rf):
+def test_workspacedetail_get_success(rf, user):
     workspace = WorkspaceFactory()
-    user = UserFactory()
 
     # Build a RequestFactory instance
     request = rf.get(MEANINGLESS_URL)
@@ -290,11 +285,10 @@ def test_workspacedetail_post_archived_workspace(rf):
 
 
 @pytest.mark.django_db
-def test_workspacedetail_post_success(rf, monkeypatch):
+def test_workspacedetail_post_success(rf, monkeypatch, user):
     monkeypatch.setenv("BACKENDS", "tpp")
 
     workspace = WorkspaceFactory()
-    user = UserFactory()
 
     data = {
         "requested_actions": ["twiddle"],
@@ -314,7 +308,8 @@ def test_workspacedetail_post_success(rf, monkeypatch):
     ), patch(
         "jobserver.views.workspaces.get_project", new=lambda *args: dummy_yaml
     ), patch(
-        "jobserver.views.workspaces.get_branch_sha", new=lambda r, b: "abc123"
+        "jobserver.views.workspaces.get_branch_sha",
+        new=lambda *args: "abc123",
     ):
         response = GlobalWorkspaceDetail.as_view()(request, name=workspace.name)
 
@@ -331,11 +326,10 @@ def test_workspacedetail_post_success(rf, monkeypatch):
 
 
 @pytest.mark.django_db
-def test_workspacedetail_post_with_notifications_default(rf, monkeypatch):
+def test_workspacedetail_post_with_notifications_default(rf, monkeypatch, user):
     monkeypatch.setenv("BACKENDS", "tpp")
 
     workspace = WorkspaceFactory(should_notify=True)
-    user = UserFactory()
 
     data = {
         "requested_actions": ["twiddle"],
@@ -356,7 +350,7 @@ def test_workspacedetail_post_with_notifications_default(rf, monkeypatch):
     ), patch(
         "jobserver.views.workspaces.get_project", new=lambda *args: dummy_yaml
     ), patch(
-        "jobserver.views.workspaces.get_branch_sha", new=lambda r, b: "abc123"
+        "jobserver.views.workspaces.get_branch_sha", new=lambda *args: "abc123"
     ):
         response = GlobalWorkspaceDetail.as_view()(request, name=workspace.name)
 
@@ -373,11 +367,10 @@ def test_workspacedetail_post_with_notifications_default(rf, monkeypatch):
 
 
 @pytest.mark.django_db
-def test_workspacedetail_post_with_notifications_override(rf, monkeypatch):
+def test_workspacedetail_post_with_notifications_override(rf, monkeypatch, user):
     monkeypatch.setenv("BACKENDS", "tpp")
 
     workspace = WorkspaceFactory(should_notify=True)
-    user = UserFactory()
 
     data = {
         "requested_actions": ["twiddle"],
@@ -398,7 +391,7 @@ def test_workspacedetail_post_with_notifications_override(rf, monkeypatch):
     ), patch(
         "jobserver.views.workspaces.get_project", new=lambda *args: dummy_yaml
     ), patch(
-        "jobserver.views.workspaces.get_branch_sha", new=lambda r, b: "abc123"
+        "jobserver.views.workspaces.get_branch_sha", new=lambda *args: "abc123"
     ):
         response = GlobalWorkspaceDetail.as_view()(request, name=workspace.name)
 
@@ -420,7 +413,8 @@ def test_workspacedetail_post_success_with_superuser(rf, monkeypatch, superuser)
     monkeypatch.setenv("BACKENDS", "tpp,emis")
 
     workspace = WorkspaceFactory()
-    user = superuser
+    org = OrgFactory()
+    OrgMembershipFactory(org=org, user=superuser)
 
     data = {
         "backend": "emis",
@@ -430,7 +424,7 @@ def test_workspacedetail_post_success_with_superuser(rf, monkeypatch, superuser)
 
     # Build a RequestFactory instance
     request = rf.post(MEANINGLESS_URL, data)
-    request.user = user
+    request.user = superuser
 
     dummy_yaml = """
     actions:
@@ -441,7 +435,7 @@ def test_workspacedetail_post_success_with_superuser(rf, monkeypatch, superuser)
     ), patch(
         "jobserver.views.workspaces.get_project", new=lambda *args: dummy_yaml
     ), patch(
-        "jobserver.views.workspaces.get_branch_sha", new=lambda r, b: "abc123"
+        "jobserver.views.workspaces.get_branch_sha", new=lambda *args: "abc123"
     ):
         response = GlobalWorkspaceDetail.as_view()(request, name=workspace.name)
 
@@ -449,7 +443,7 @@ def test_workspacedetail_post_success_with_superuser(rf, monkeypatch, superuser)
     assert response.url == reverse("workspace-logs", kwargs={"name": workspace.name})
 
     job_request = JobRequest.objects.first()
-    assert job_request.created_by == user
+    assert job_request.created_by == superuser
     assert job_request.workspace == workspace
     assert job_request.backend.name == "emis"
     assert job_request.requested_actions == ["twiddle"]
@@ -494,16 +488,21 @@ def test_workspacedetail_unknown_workspace(rf):
 
 
 @pytest.mark.django_db
-def test_workspacedetail_get_with_authenticated_user(rf):
+def test_workspacedetail_get_with_authenticated_user(rf, user):
     """
     Check GlobalWorkspaceDetail renders the controls for Archiving, Notifications,
     and selecting Actions for authenticated Users.
     """
     workspace = WorkspaceFactory(is_archived=False)
 
+    # ensure the User is authenticated but not authorized
+    user.is_superuser = False
+    user.roles = []
+    user.save()
+
     # Build a RequestFactory instance
     request = rf.get(MEANINGLESS_URL)
-    request.user = UserFactory(is_superuser=False, roles=[])
+    request.user = user
 
     dummy_yaml = """
     actions:
@@ -524,6 +523,8 @@ def test_workspacedetail_get_with_authenticated_user(rf):
 def test_workspacedetail_get_with_superuser(rf, superuser):
     """Check GlobalWorkspaceDetail renders the Backend radio buttons for superusers"""
     workspace = WorkspaceFactory(is_archived=False)
+    org = OrgFactory()
+    OrgMembershipFactory(org=org, user=superuser)
 
     # Build a RequestFactory instance
     request = rf.get(MEANINGLESS_URL)
@@ -679,14 +680,14 @@ def test_workspacelog_with_unauthenticated_user(rf):
 
 @pytest.mark.django_db
 @responses.activate
-def test_workspacenotificationstoggle_success(rf):
-    user = UserFactory()
+def test_workspacenotificationstoggle_success(rf, user):
     workspace = WorkspaceFactory(should_notify=True)
 
     request = rf.post(MEANINGLESS_URL, {"should_notify": ""})
     request.user = user
 
-    membership_url = f"https://api.github.com/orgs/opensafely/members/{user.username}"
+    gh_org = user.orgs.first().github_orgs[0]
+    membership_url = f"https://api.github.com/orgs/{gh_org}/members/{user.username}"
     responses.add(responses.GET, membership_url, status=204)
 
     response = WorkspaceNotificationsToggle.as_view()(request, name=workspace.name)
@@ -701,14 +702,14 @@ def test_workspacenotificationstoggle_success(rf):
 
 @pytest.mark.django_db
 @responses.activate
-def test_workspacenotificationstoggle_unauthorized(rf):
-    user = UserFactory()
+def test_workspacenotificationstoggle_unauthorized(rf, user):
     workspace = WorkspaceFactory()
 
     request = rf.post(MEANINGLESS_URL, {"should_notify": ""})
     request.user = user
 
-    membership_url = f"https://api.github.com/orgs/opensafely/members/{user.username}"
+    gh_org = user.orgs.first().github_orgs[0]
+    membership_url = f"https://api.github.com/orgs/{gh_org}/members/{user.username}"
     responses.add(responses.GET, membership_url, status=404)
 
     response = WorkspaceNotificationsToggle.as_view()(request, name=workspace.name)
@@ -719,13 +720,12 @@ def test_workspacenotificationstoggle_unauthorized(rf):
 
 @pytest.mark.django_db
 @responses.activate
-def test_workspacenotificationstoggle_unknown_workspace(rf):
-    user = UserFactory()
-
+def test_workspacenotificationstoggle_unknown_workspace(rf, user):
     request = rf.post(MEANINGLESS_URL)
     request.user = user
 
-    membership_url = f"https://api.github.com/orgs/opensafely/members/{user.username}"
+    gh_org = user.orgs.first().github_orgs[0]
+    membership_url = f"https://api.github.com/orgs/{gh_org}/members/{user.username}"
     responses.add(responses.GET, membership_url, status=204)
 
     with pytest.raises(Http404):
@@ -734,13 +734,12 @@ def test_workspacenotificationstoggle_unknown_workspace(rf):
 
 @pytest.mark.django_db
 @responses.activate
-def test_workspacerelease_unauthorized(rf):
-    user = UserFactory()
-
+def test_workspacerelease_unauthorized(rf, user):
     request = rf.get(MEANINGLESS_URL)
     request.user = user
 
-    membership_url = f"https://api.github.com/orgs/opensafely/members/{user.username}"
+    gh_org = user.orgs.first().github_orgs[0]
+    membership_url = f"https://api.github.com/orgs/{gh_org}/members/{user.username}"
     responses.add(responses.GET, membership_url, status=404)
 
     response = WorkspaceReleaseView.as_view()(request)

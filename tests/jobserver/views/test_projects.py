@@ -642,7 +642,7 @@ def test_projectsettings_success(rf):
 
     assert response.status_code == 200
 
-    assert len(response.context_data["members"]) == 1
+    assert len(response.context_data["memberships"]) == 1
     assert response.context_data["project"] == project
 
 

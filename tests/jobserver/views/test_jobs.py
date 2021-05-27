@@ -17,16 +17,15 @@ MEANINGLESS_URL = "/"
 
 @pytest.mark.django_db
 @responses.activate
-def test_jobcancel_already_cancelled(rf):
+def test_jobcancel_already_cancelled(rf, user):
     job_request = JobRequestFactory(cancelled_actions=["another-action", "test"])
     job = JobFactory(job_request=job_request, action="test")
 
-    user = UserFactory()
-
     request = rf.post(MEANINGLESS_URL)
     request.user = user
 
-    membership_url = f"https://api.github.com/orgs/opensafely/members/{user.username}"
+    gh_org = user.orgs.first().github_orgs[0]
+    membership_url = f"https://api.github.com/orgs/{gh_org}/members/{user.username}"
     responses.add(responses.GET, membership_url, status=204)
 
     response = JobCancel.as_view()(request, identifier=job.identifier)
@@ -40,16 +39,15 @@ def test_jobcancel_already_cancelled(rf):
 
 @pytest.mark.django_db
 @responses.activate
-def test_jobcancel_already_finished(rf):
+def test_jobcancel_already_finished(rf, user):
     job_request = JobRequestFactory(cancelled_actions=["another-action"])
     job = JobFactory(job_request=job_request, action="test", status="finished")
 
-    user = UserFactory()
-
     request = rf.post(MEANINGLESS_URL)
     request.user = user
 
-    membership_url = f"https://api.github.com/orgs/opensafely/members/{user.username}"
+    gh_org = user.orgs.first().github_orgs[0]
+    membership_url = f"https://api.github.com/orgs/{gh_org}/members/{user.username}"
     responses.add(responses.GET, membership_url, status=204)
 
     response = JobCancel.as_view()(request, identifier=job.identifier)
@@ -63,16 +61,15 @@ def test_jobcancel_already_finished(rf):
 
 @pytest.mark.django_db
 @responses.activate
-def test_jobcancel_success(rf):
+def test_jobcancel_success(rf, user):
     job_request = JobRequestFactory(cancelled_actions=[])
     job = JobFactory(job_request=job_request, action="test")
-
-    user = UserFactory()
 
     request = rf.post(MEANINGLESS_URL)
     request.user = user
 
-    membership_url = f"https://api.github.com/orgs/opensafely/members/{user.username}"
+    gh_org = user.orgs.first().github_orgs[0]
+    membership_url = f"https://api.github.com/orgs/{gh_org}/members/{user.username}"
     responses.add(responses.GET, membership_url, status=204)
 
     response = JobCancel.as_view()(request, identifier=job.identifier)
@@ -86,14 +83,14 @@ def test_jobcancel_success(rf):
 
 @pytest.mark.django_db
 @responses.activate
-def test_jobcancel_unauthorized(rf):
+def test_jobcancel_unauthorized(rf, user):
     job = JobFactory(job_request=JobRequestFactory())
-    user = UserFactory()
 
     request = rf.post(MEANINGLESS_URL)
     request.user = user
 
-    membership_url = f"https://api.github.com/orgs/opensafely/members/{user.username}"
+    gh_org = user.orgs.first().github_orgs[0]
+    membership_url = f"https://api.github.com/orgs/{gh_org}/members/{user.username}"
     responses.add(responses.GET, membership_url, status=404)
 
     response = JobCancel.as_view()(request, identifier=job.identifier)
@@ -104,13 +101,12 @@ def test_jobcancel_unauthorized(rf):
 
 @pytest.mark.django_db
 @responses.activate
-def test_jobcancel_unknown_job(rf):
-    user = UserFactory()
-
+def test_jobcancel_unknown_job(rf, user):
     request = rf.post(MEANINGLESS_URL)
     request.user = user
 
-    membership_url = f"https://api.github.com/orgs/opensafely/members/{user.username}"
+    gh_org = user.orgs.first().github_orgs[0]
+    membership_url = f"https://api.github.com/orgs/{gh_org}/members/{user.username}"
     responses.add(responses.GET, membership_url, status=204)
 
     with pytest.raises(Http404):
