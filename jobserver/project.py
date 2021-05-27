@@ -22,13 +22,13 @@ def get_actions(project, status_lut):
         yield {"name": action, "needs": sorted(needs), "status": status}
 
 
-def get_project(repo, branch):
-    content = get_file(repo, branch)
+def get_project(org, repo, branch):
+    content = get_file(org, repo, branch)
 
     if content is not None:
         return content
 
-    if get_branch(repo, branch) is None:
+    if get_branch(org, repo, branch) is None:
         raise Exception(f"Missing branch: '{branch}'")
 
     raise Exception("Could not find project.yaml")

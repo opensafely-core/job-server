@@ -16,7 +16,7 @@ def test_get_branch():
     expected_url = "https://api.github.com/repos/opensafely/some_repo/branches/main"
     responses.add(responses.GET, expected_url, json={"test": "test"}, status=200)
 
-    output = get_branch("some_repo", "main")
+    output = get_branch("opensafely", "some_repo", "main")
 
     assert len(responses.calls) == 1
 
@@ -35,7 +35,7 @@ def test_get_branch_with_missing_branch():
     expected_url = "https://api.github.com/repos/opensafely/some_repo/branches/main"
     responses.add(responses.GET, expected_url, status=404)
 
-    output = get_branch("some_repo", "main")
+    output = get_branch("opensafely", "some_repo", "main")
 
     assert len(responses.calls) == 1
     assert output is None
@@ -48,15 +48,15 @@ def test_get_branch_sha():
         }
     }
 
-    with patch("jobserver.github.get_branch", lambda r, b: data):
-        output = get_branch_sha("some_repo", "main")
+    with patch("jobserver.github.get_branch", lambda *args: data):
+        output = get_branch_sha("opensafely", "some_repo", "main")
 
     assert output == "abc123"
 
 
 def test_get_branch_sha_with_missing_branch():
-    with patch("jobserver.github.get_branch", lambda r, b: None):
-        output = get_branch_sha("some_repo", "main")
+    with patch("jobserver.github.get_branch", lambda *args: None):
+        output = get_branch_sha("opensafely", "some_repo", "main")
 
     assert output is None
 
@@ -66,7 +66,7 @@ def test_get_file():
     expected_url = "https://api.github.com/repos/opensafely/some_repo/contents/project.yaml?ref=main"
     responses.add(responses.GET, expected_url, body="a file!", status=200)
 
-    get_file("some_repo", "main")
+    get_file("opensafely", "some_repo", "main")
 
     assert len(responses.calls) == 1
 
@@ -84,7 +84,7 @@ def test_get_file_missing_project_yml():
     expected_url = "https://api.github.com/repos/opensafely/some_repo/contents/project.yaml?ref=missing_project"
     responses.add(responses.GET, expected_url, status=404)
 
-    output = get_file("some_repo", "missing_project")
+    output = get_file("opensafely", "some_repo", "missing_project")
 
     assert len(responses.calls) == 1
 
@@ -135,7 +135,7 @@ def test_get_repos_with_branches():
         responses.POST, url=expected_url, json=data(hasNextPage=False), status=200
     )
 
-    output = list(get_repos_with_branches())
+    output = list(get_repos_with_branches("opensafely"))
 
     assert len(responses.calls) == 2
 
@@ -148,11 +148,12 @@ def test_get_repos_with_branches():
 
 
 @responses.activate
-def test_is_member_of_org_failure():
-    membership_url = "https://api.github.com/orgs/opensafely/members/dummy-user"
+def test_is_member_of_org_failure(monkeypatch):
+    monkeypatch.setenv("GITHUB_TESTING_TOKEN", "test")
+    membership_url = "https://api.github.com/orgs/testing/members/dummy-user"
     responses.add(responses.GET, membership_url, status=404)
 
-    assert not is_member_of_org("opensafely", "dummy-user")
+    assert not is_member_of_org("testing", "dummy-user")
 
     # check the headers are correct
     call = responses.calls[0]
@@ -162,11 +163,12 @@ def test_is_member_of_org_failure():
 
 
 @responses.activate
-def test_is_member_of_org_success():
-    membership_url = "https://api.github.com/orgs/opensafely/members/dummy-user"
+def test_is_member_of_org_success(monkeypatch):
+    monkeypatch.setenv("GITHUB_TESTING_TOKEN", "test")
+    membership_url = "https://api.github.com/orgs/testing/members/dummy-user"
     responses.add(responses.GET, membership_url, status=204)
 
-    assert is_member_of_org("opensafely", "dummy-user")
+    assert is_member_of_org("testing", "dummy-user")
 
     # check the headers are correct
     call = responses.calls[0]
