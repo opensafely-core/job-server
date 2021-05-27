@@ -17,11 +17,21 @@ admin.site.unregister(Nonce)
 admin.site.unregister(UserSocialAuth)
 
 
+class OrgMembershipInline(admin.StackedInline):
+    extra = 1
+    fields = ["user"]
+    model = Org.members.through
+
+
 class OrgForm(forms.ModelForm):
     class Meta:
         fields = [
             "name",
+            "github_orgs",
         ]
+        labels = {
+            "github_orgs": "GitHub Organisations",
+        }
         model = Org
         widgets = {
             "name": forms.TextInput,
@@ -31,6 +41,9 @@ class OrgForm(forms.ModelForm):
 @admin.register(Org)
 class OrgAdmin(admin.ModelAdmin):
     form = OrgForm
+    inlines = [
+        OrgMembershipInline,
+    ]
     list_display = [
         "name",
         "slug",
