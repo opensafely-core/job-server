@@ -14,6 +14,7 @@ exclude = '''
 branch = true
 omit = [
   "jobserver/asgi.py",
+  "jobserver/management/commands/backfill_org_memberships.py",
   "jobserver/management/commands/backfill_project_dot_yamls.py",
   "jobserver/management/commands/create_project_from_workspace.py",
   "jobserver/management/commands/ensure_admins.py",
