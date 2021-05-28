@@ -1,3 +1,5 @@
+import json
+
 import requests
 from environs import Env
 from furl import furl
@@ -86,7 +88,7 @@ def _get_page(session, org, cursor):
     [1]: https://graphql.org/learn/pagination/#end-of-list-counts-and-connections
     """
     query = """
-    query reposAndBranches($cursor: String, $org_name: String) {
+    query reposAndBranches($cursor: String, $org_name: String!) {
       organization(login: $org_name) {
         team(slug: "researchers") {
           repositories(first: 100, after: $cursor) {
@@ -114,6 +116,18 @@ def _get_page(session, org, cursor):
 
     r = session.post("https://api.github.com/graphql", json=payload)
     r.raise_for_status()
+    result = r.json()
+
+    # In some cases graphql will return a 200 response when there are errors.
+    # https://sachee.medium.com/200-ok-error-handling-in-graphql-7ec869aec9bc
+    # Handling things robustly is complex and query specific, so here we simply
+    # take the absence of 'data' as an error, rather than the presence of
+    # 'errors' key.
+    if "data" not in result:
+        raise RuntimeError(
+            f"graphql query failed\n\nquery:\n{query}\n\nresponse:\n{json.dumps(result, indent=2)}"
+        )
+
     return r.json()["data"]["organization"]["team"]["repositories"]
 
 
