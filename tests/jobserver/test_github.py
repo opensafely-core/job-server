@@ -1,5 +1,6 @@
 from unittest.mock import patch
 
+import pytest
 import responses
 
 from jobserver.github import (
@@ -145,6 +146,40 @@ def test_get_repos_with_branches():
     assert len(output) == 2
     assert output[0]["name"] == "test-repo"
     assert output[0]["branches"][0] == "branch1"
+
+
+@responses.activate
+def test_get_repos_with_branches_200_error():
+    # graphql API returns errors in with a 200 response
+    def data(hasNextPage):
+        # example error from prod
+        return {
+            "errors": [
+                {
+                    "extensions": {
+                        "argumentName": "login",
+                        "code": "variableMismatch",
+                        "errorMessage": "Nullability mismatch",
+                        "typeName": "String",
+                        "variableName": "org_name",
+                    },
+                    "locations": [{"column": 20, "line": 3}],
+                    "message": (
+                        "Nullability mismatch on variable $org_name and "
+                        "argument login (String / String!)"
+                    ),
+                    "path": ["query reposAndBranches", "organization", "login"],
+                }
+            ]
+        }
+
+    expected_url = "https://api.github.com/graphql"
+    responses.add(
+        responses.POST, url=expected_url, json=data(hasNextPage=True), status=200
+    )
+
+    with pytest.raises(RuntimeError):
+        list(get_repos_with_branches("opensafely"))
 
 
 @responses.activate
