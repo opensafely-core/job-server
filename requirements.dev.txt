@@ -411,9 +411,9 @@ pytest-mock==3.6.1 \
 pytest-network==0.0.1 \
     --hash=sha256:7b109e2ad27f4ab0f13c1796a9b419bab1d503ea3b5ae3ca37363486ccceaa3f
     # via -r requirements.dev.in
-pytest-subtests==0.4.0 \
-    --hash=sha256:3755a42b7416b99d90bb3cb2bd1ac4767d5e4b93b8853cb3565200a4e3a10b7e \
-    --hash=sha256:8d9e2c1d1dce11f7b7d2c9d09202ebfc7757b7ff0cac9b72ad328edfe7ee037b
+pytest-subtests==0.5.0 \
+    --hash=sha256:5bd1e4bf0eda4c89a6cd42b0ee28e1d2ca0848de3fd67ad8cdd6d559ed00f120 \
+    --hash=sha256:ae0e920b76f23acf28fb6265d5a83aa39b688af1cf30b2b402ac7094ccbc6bdf
     # via -r requirements.dev.in
 pytest==6.2.3 \
     --hash=sha256:671238a46e4df0f3498d1c3270e5deb9b32d25134c99b7d75370a68cfbe9b634 \
