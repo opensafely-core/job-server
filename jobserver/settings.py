@@ -180,6 +180,12 @@ SILENCED_SYSTEM_CHECKS = [
     "security.W008",  # (SECURE_SSL_REDIRECT) HTTPS redirection is handled by CloudFlare
 ]
 
+# Security
+# https://docs.djangoproject.com/en/3.2/ref/settings/#std:setting-CSRF_COOKIE_SECURE
+CSRF_COOKIE_SECURE = not DEBUG
+SESSION_COOKIE_SECURE = not DEBUG
+
+
 # THIRD PARTY SETTINGS
 
 # Anymail
