@@ -173,6 +173,13 @@ MESSAGE_TAGS = {
 }
 
 
+# Checks
+# https://docs.djangoproject.com/en/3.2/topics/checks/
+SILENCED_SYSTEM_CHECKS = [
+    "security.W004",  # (SECURE_HSTS_SECONDS) TLS is handled by Nginx
+    "security.W008",  # (SECURE_SSL_REDIRECT) HTTPS redirection is handled by CloudFlare
+]
+
 # THIRD PARTY SETTINGS
 
 # Anymail
