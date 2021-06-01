@@ -5,7 +5,7 @@ from django.contrib.auth.models import AnonymousUser
 from django.http import Http404
 from django.urls import reverse
 
-from jobserver.models import Backend
+from jobserver.models import Backend, JobRequest
 from jobserver.views.job_requests import (
     JobRequestCancel,
     JobRequestDetail,
@@ -212,6 +212,24 @@ def test_jobrequestlist_filter_by_status_and_workspace(rf):
     response = JobRequestList.as_view()(request)
 
     assert len(response.context_data["object_list"]) == 1
+
+
+@pytest.mark.django_db
+def test_jobrequestlist_filter_by_unknown_status(rf):
+    workspace = WorkspaceFactory()
+    JobRequestFactory(workspace=workspace)
+    JobRequestFactory(workspace=workspace)
+
+    # Build a RequestFactory instance
+    request = rf.get("/?status=test")
+    request.user = UserFactory()
+    response = JobRequestList.as_view()(request)
+
+    assert response.status_code == 200
+
+    output = set(response.context_data["object_list"])
+    expected = set(JobRequest.objects.all())
+    assert output == expected
 
 
 @pytest.mark.django_db

@@ -30,6 +30,10 @@ def filter_by_status(job_requests, status):
         "pending": lambda r: r.status.lower() == "pending",
         "succeeded": lambda r: r.status.lower() == "succeeded",
     }
+
+    if status not in status_lut:
+        return job_requests
+
     func = status_lut[status]
     return list(filter(func, job_requests))
 
