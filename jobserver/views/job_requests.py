@@ -21,17 +21,13 @@ def filter_by_status(job_requests, status):
     However, the construction of that property isn't easily converted to a
     QuerySet, hence this function.
     """
-    if not status:
+    if status not in ["failed", "running", "pending", "succeeded"]:
+        # status is taken from a GET query arg so we need to treat it as user
+        # input, returning the full JobRequest QuerySet if it's not a valid
+        # value.
         return job_requests
 
-    status_lut = {
-        "failed": lambda r: r.status.lower() == "failed",
-        "running": lambda r: r.status.lower() == "running",
-        "pending": lambda r: r.status.lower() == "pending",
-        "succeeded": lambda r: r.status.lower() == "succeeded",
-    }
-    func = status_lut[status]
-    return list(filter(func, job_requests))
+    return [r for r in job_requests if r.status.lower() == status]
 
 
 @method_decorator(user_passes_test(can_run_jobs), name="dispatch")
