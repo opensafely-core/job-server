@@ -15,7 +15,6 @@ from pathlib import Path
 from django.contrib.messages import constants as messages
 from django.urls import reverse_lazy
 from environs import Env
-from furl import furl
 
 from services.logging import logging_config_dict
 from services.sentry import initialise_sentry
@@ -39,7 +38,7 @@ DEBUG = env.bool("DEBUG", default=False)
 
 BASE_URL = env.str("BASE_URL", default="http://localhost:8000")
 
-ALLOWED_HOSTS = [furl(BASE_URL).host]
+ALLOWED_HOSTS = ["*"]
 
 
 # Application definition
@@ -172,6 +171,19 @@ MESSAGE_TAGS = {
     messages.WARNING: "alert-warning",
     messages.ERROR: "alert-danger",
 }
+
+
+# Checks
+# https://docs.djangoproject.com/en/3.2/topics/checks/
+SILENCED_SYSTEM_CHECKS = [
+    "security.W004",  # (SECURE_HSTS_SECONDS) TLS is handled by Nginx
+    "security.W008",  # (SECURE_SSL_REDIRECT) HTTPS redirection is handled by CloudFlare
+]
+
+# Security
+# https://docs.djangoproject.com/en/3.2/ref/settings/#std:setting-CSRF_COOKIE_SECURE
+CSRF_COOKIE_SECURE = not DEBUG
+SESSION_COOKIE_SECURE = not DEBUG
 
 
 # THIRD PARTY SETTINGS
