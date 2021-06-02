@@ -877,10 +877,24 @@ class Workspace(models.Model):
         return reverse("workspace-detail", kwargs={"name": self.name})
 
     def get_archive_toggle_url(self):
-        return reverse("workspace-archive-toggle", kwargs={"name": self.name})
+        return reverse(
+            "workspace-archive-toggle",
+            kwargs={
+                "org_slug": self.project.org.slug,
+                "project_slug": self.project.slug,
+                "workspace_slug": self.name,
+            },
+        )
 
     def get_notifications_toggle_url(self):
-        return reverse("workspace-notifications-toggle", kwargs={"name": self.name})
+        return reverse(
+            "workspace-notifications-toggle",
+            kwargs={
+                "org_slug": self.project.org.slug,
+                "project_slug": self.project.slug,
+                "workspace_slug": self.name,
+            },
+        )
 
     def get_statuses_url(self):
         return reverse("workspace-statuses", kwargs={"name": self.name})

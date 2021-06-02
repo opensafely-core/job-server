@@ -85,59 +85,81 @@ backend_urls = [
     ),
 ]
 
-org_urls = [
-    path("", OrgList.as_view(), name="org-list"),
-    path("new/", OrgCreate.as_view(), name="org-create"),
-    path("<org_slug>/", OrgDetail.as_view(), name="org-detail"),
+workspace_urls = [
     path(
-        "<org_slug>/new-project/",
-        ProjectCreate.as_view(),
-        name="project-create",
+        "",
+        ProjectWorkspaceDetail.as_view(),
+        name="project-workspace-detail",
     ),
     path(
-        "<org_slug>/<project_slug>/",
-        ProjectDetail.as_view(),
-        name="project-detail",
+        "archive-toggle/",
+        WorkspaceArchiveToggle.as_view(),
+        name="workspace-archive-toggle",
+    ),
+    path("logs/", WorkspaceLog.as_view(), name="workspace-logs"),
+    path(
+        "notifications-toggle/",
+        WorkspaceNotificationsToggle.as_view(),
+        name="workspace-notifications-toggle",
     ),
     path(
-        "<org_slug>/<project_slug>/accept-invite/<signed_pk>/",
+        "releases/<release>",
+        WorkspaceReleaseView.as_view(),
+        name="workspace-release",
+    ),
+]
+
+project_urls = [
+    path("", ProjectDetail.as_view(), name="project-detail"),
+    path(
+        "accept-invite/<signed_pk>/",
         ProjectAcceptInvite.as_view(),
         name="project-accept-invite",
     ),
+    path("cancel-invite/", ProjectCancelInvite.as_view(), name="project-cancel-invite"),
     path(
-        "<org_slug>/<project_slug>/cancel-invite/",
-        ProjectCancelInvite.as_view(),
-        name="project-cancel-invite",
-    ),
-    path(
-        "<org_slug>/<project_slug>/disconnect/",
+        "disconnect/",
         ProjectDisconnectWorkspace.as_view(),
         name="project-disconnect-workspace",
     ),
     path(
-        "<org_slug>/<project_slug>/invite-users/",
+        "invite-users/",
         ProjectInvitationCreate.as_view(),
         name="project-invitation-create",
     ),
     path(
-        "<org_slug>/<project_slug>/members/<pk>/edit",
+        "members/<pk>/edit",
         ProjectMembershipEdit.as_view(),
         name="project-membership-edit",
     ),
     path(
-        "<org_slug>/<project_slug>/members/<pk>/remove",
+        "members/<pk>/remove",
         ProjectMembershipRemove.as_view(),
         name="project-membership-remove",
     ),
+    path("settings/", ProjectSettings.as_view(), name="project-settings"),
+    path("<workspace_slug>/", include(workspace_urls)),
+]
+
+org_urls = [
+    path("", OrgList.as_view(), name="org-list"),
+    path("new/", OrgCreate.as_view(), name="org-create"),
     path(
-        "<org_slug>/<project_slug>/settings/",
-        ProjectSettings.as_view(),
-        name="project-settings",
-    ),
-    path(
-        "<org_slug>/<project_slug>/<workspace_slug>/",
-        ProjectWorkspaceDetail.as_view(),
-        name="project-workspace-detail",
+        "<org_slug>/",
+        include(
+            [
+                path("", OrgDetail.as_view(), name="org-detail"),
+                path(
+                    "new-project/",
+                    ProjectCreate.as_view(),
+                    name="project-create",
+                ),
+                path(
+                    "<project_slug>/",
+                    include(project_urls),
+                ),
+            ]
+        ),
     ),
 ]
 
@@ -167,20 +189,4 @@ urlpatterns = [
     path("workspaces/new/", WorkspaceCreate.as_view(), name="workspace-create"),
     path("__debug__/", include(debug_toolbar.urls)),
     path("<name>/", GlobalWorkspaceDetail.as_view(), name="workspace-detail"),
-    path(
-        "<name>/releases/<release>",
-        WorkspaceReleaseView.as_view(),
-        name="workspace-release",
-    ),
-    path(
-        "<name>/archive-toggle/",
-        WorkspaceArchiveToggle.as_view(),
-        name="workspace-archive-toggle",
-    ),
-    path("<name>/logs/", WorkspaceLog.as_view(), name="workspace-logs"),
-    path(
-        "<name>/notifications-toggle/",
-        WorkspaceNotificationsToggle.as_view(),
-        name="workspace-notifications-toggle",
-    ),
 ]

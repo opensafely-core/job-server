@@ -733,8 +733,11 @@ def test_release_api_created(api_rf, tmp_path, monkeypatch):
     upload = tmp_path / "release.zip"
     release_hash = make_release_zip(upload)
 
-    workspace = WorkspaceFactory()
+    org = OrgFactory()
+    project = ProjectFactory(org=org)
+    workspace = WorkspaceFactory(project=project)
     BackendFactory(auth_token="test")
+
     response = APIClient().put(
         f"/api/v2/workspaces/{workspace.name}/releases/{release_hash}",
         content_type="application/octet-stream",
@@ -748,7 +751,7 @@ def test_release_api_created(api_rf, tmp_path, monkeypatch):
     release_id = response["Release-Id"]
     assert (
         response["Location"]
-        == f"http://testserver/{workspace.name}/releases/{release_id}"
+        == f"http://testserver/orgs/{org.slug}/{project.slug}/{workspace.name}/releases/{release_id}"
     )
 
 
@@ -757,8 +760,12 @@ def test_release_api_redirected(api_rf, tmp_path, monkeypatch):
     monkeypatch.setattr(settings, "RELEASE_STORAGE", tmp_path / "releases")
     upload = tmp_path / "release.zip"
     release_hash = make_release_zip(upload)
-    workspace = WorkspaceFactory()
+
+    org = OrgFactory()
+    project = ProjectFactory(org=org)
+    workspace = WorkspaceFactory(project=project)
     BackendFactory(auth_token="test")
+
     # release already exists
     ReleaseFactory(id=release_hash, files=[])
 
@@ -775,5 +782,5 @@ def test_release_api_redirected(api_rf, tmp_path, monkeypatch):
     release_id = response["Release-Id"]
     assert (
         response["Location"]
-        == f"http://testserver/{workspace.name}/releases/{release_id}"
+        == f"http://testserver/orgs/{org.slug}/{project.slug}/{workspace.name}/releases/{release_id}"
     )

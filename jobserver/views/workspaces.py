@@ -24,7 +24,12 @@ from ..roles import can_run_jobs
 @method_decorator(user_passes_test(can_run_jobs), name="dispatch")
 class WorkspaceArchiveToggle(View):
     def post(self, request, *args, **kwargs):
-        workspace = get_object_or_404(Workspace, name=self.kwargs["name"])
+        workspace = get_object_or_404(
+            Workspace,
+            project__org__slug=self.kwargs["org_slug"],
+            project__slug=self.kwargs["project_slug"],
+            name=self.kwargs["workspace_slug"],
+        )
 
         form = WorkspaceArchiveToggleForm(request.POST)
         form.is_valid()
@@ -135,7 +140,12 @@ class BaseWorkspaceDetail(CreateView):
             project_definition=self.project,
             **form.cleaned_data,
         )
-        return redirect("workspace-logs", name=self.workspace.name)
+        return redirect(
+            "workspace-logs",
+            org_slug=self.workspace.project.org.slug,
+            project_slug=self.workspace.project.slug,
+            workspace_slug=self.workspace.name,
+        )
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
@@ -229,7 +239,11 @@ class WorkspaceLog(ListView):
 
     def dispatch(self, request, *args, **kwargs):
         try:
-            self.workspace = Workspace.objects.get(name=self.kwargs["name"])
+            self.workspace = Workspace.objects.get(
+                project__org__slug=self.kwargs["org_slug"],
+                project__slug=self.kwargs["project_slug"],
+                name=self.kwargs["workspace_slug"],
+            )
         except Workspace.DoesNotExist:
             return redirect("/")
 
@@ -267,7 +281,12 @@ class WorkspaceLog(ListView):
 @method_decorator(user_passes_test(can_run_jobs), name="dispatch")
 class WorkspaceNotificationsToggle(View):
     def post(self, request, *args, **kwargs):
-        workspace = get_object_or_404(Workspace, name=self.kwargs["name"])
+        workspace = get_object_or_404(
+            Workspace,
+            project__org__slug=self.kwargs["org_slug"],
+            project__slug=self.kwargs["project_slug"],
+            name=self.kwargs["workspace_slug"],
+        )
 
         form = WorkspaceNotificationsToggleForm(data=request.POST)
         form.is_valid()
@@ -280,5 +299,5 @@ class WorkspaceNotificationsToggle(View):
 
 @method_decorator(user_passes_test(can_run_jobs), name="dispatch")
 class WorkspaceReleaseView(View):
-    def get(self, request, name, release):
-        return f"release page for {name}/{release}"  # pragma: no cover
+    def get(self, request, workspace_slug, release):
+        return f"release page for {workspace_slug}/{release}"  # pragma: no cover

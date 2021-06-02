@@ -364,7 +364,9 @@ class ReleaseUploadAPI(APIView):
             reverse(
                 "workspace-release",
                 kwargs={
-                    "name": workspace.name,
+                    "org_slug": workspace.project.org.slug,
+                    "project_slug": workspace.project.slug,
+                    "workspace_slug": workspace.name,
                     "release": release.id,
                 },
             )
