@@ -17,6 +17,13 @@ admin.site.unregister(Nonce)
 admin.site.unregister(UserSocialAuth)
 
 
+class BackendMembershipInline(admin.StackedInline):
+    extra = 1
+    fields = ["backend"]
+    fk_name = "user"
+    model = User.backends.through
+
+
 class OrgMembershipInline(admin.StackedInline):
     extra = 1
     fields = ["user"]
@@ -174,6 +181,9 @@ class UserAdmin(admin.ModelAdmin):
         "groups",
         "user_permissions",
         "roles",
+    ]
+    inlines = [
+        BackendMembershipInline,
     ]
     list_display = [
         "username",
