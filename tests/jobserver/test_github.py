@@ -47,14 +47,14 @@ def test_get_branch_sha(mocker):
         }
     }
 
-    mocker.patch("jobserver.github.get_branch", lambda *args: data)
+    mocker.patch("jobserver.github.get_branch", autospec=True, return_value=data)
     output = get_branch_sha("opensafely", "some_repo", "main")
 
     assert output == "abc123"
 
 
 def test_get_branch_sha_with_missing_branch(mocker):
-    mocker.patch("jobserver.github.get_branch", lambda *args: None)
+    mocker.patch("jobserver.github.get_branch", autospec=True, return_value=None)
     output = get_branch_sha("opensafely", "some_repo", "main")
 
     assert output is None

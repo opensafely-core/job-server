@@ -10,7 +10,9 @@ def test_redirect_with_querystring(rf, mocker):
 
     # patch here so we don't couple this test to any configured URL
     mocker.patch(
-        "jobserver.templatetags.querystring_tools.reverse", new=lambda *args: "/an_url"
+        "jobserver.templatetags.querystring_tools.reverse",
+        autospec=True,
+        return_value="/an_url",
     )
     output = redirect_with_querystring(context, view_name="derp")
 

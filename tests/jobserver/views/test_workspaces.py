@@ -139,7 +139,9 @@ def test_workspacecreate_get_success(rf, mocker, user):
     responses.add(responses.GET, membership_url, status=204)
 
     mocker.patch(
-        "jobserver.views.workspaces.get_repos_with_branches", new=lambda *args: []
+        "jobserver.views.workspaces.get_repos_with_branches",
+        autospec=True,
+        return_value=[],
     )
     response = WorkspaceCreate.as_view()(request)
 
@@ -167,7 +169,9 @@ def test_workspacecreate_post_success(rf, mocker, user):
 
     repos = [{"name": "Test", "url": "test", "branches": ["test"]}]
     mocker.patch(
-        "jobserver.views.workspaces.get_repos_with_branches", new=lambda *args: repos
+        "jobserver.views.workspaces.get_repos_with_branches",
+        autospec=True,
+        return_value=repos,
     )
     response = WorkspaceCreate.as_view()(request)
 
@@ -248,7 +252,9 @@ def test_workspacedetail_get_success(rf, mocker, user):
     mocker.patch(
         "jobserver.views.workspaces.can_run_jobs", autospec=True, return_value=True
     )
-    mocker.patch("jobserver.views.workspaces.get_project", new=lambda *args: dummy_yaml)
+    mocker.patch(
+        "jobserver.views.workspaces.get_project", autospec=True, return_value=dummy_yaml
+    )
     response = GlobalWorkspaceDetail.as_view()(request, name=workspace.name)
 
     assert response.status_code == 200
@@ -307,9 +313,13 @@ def test_workspacedetail_post_success(rf, mocker, monkeypatch, user):
     mocker.patch(
         "jobserver.views.workspaces.can_run_jobs", autospec=True, return_value=True
     )
-    mocker.patch("jobserver.views.workspaces.get_project", new=lambda *args: dummy_yaml)
     mocker.patch(
-        "jobserver.views.workspaces.get_branch_sha", new=lambda *args: "abc123"
+        "jobserver.views.workspaces.get_project", autospec=True, return_value=dummy_yaml
+    )
+    mocker.patch(
+        "jobserver.views.workspaces.get_branch_sha",
+        autospec=True,
+        return_value="abc123",
     )
     response = GlobalWorkspaceDetail.as_view()(request, name=workspace.name)
 
@@ -350,9 +360,13 @@ def test_workspacedetail_post_with_invalid_backend(rf, mocker, monkeypatch, user
     mocker.patch(
         "jobserver.views.workspaces.can_run_jobs", autospec=True, return_value=True
     )
-    mocker.patch("jobserver.views.workspaces.get_project", new=lambda *args: dummy_yaml)
     mocker.patch(
-        "jobserver.views.workspaces.get_branch_sha", new=lambda *args: "abc123"
+        "jobserver.views.workspaces.get_project", autospec=True, return_value=dummy_yaml
+    )
+    mocker.patch(
+        "jobserver.views.workspaces.get_branch_sha",
+        autospec=True,
+        return_value="abc123",
     )
     response = GlobalWorkspaceDetail.as_view()(request, name=workspace.name)
 
@@ -388,9 +402,13 @@ def test_workspacedetail_post_with_notifications_default(rf, mocker, monkeypatch
     mocker.patch(
         "jobserver.views.workspaces.can_run_jobs", autospec=True, return_value=True
     )
-    mocker.patch("jobserver.views.workspaces.get_project", new=lambda *args: dummy_yaml)
     mocker.patch(
-        "jobserver.views.workspaces.get_branch_sha", new=lambda *args: "abc123"
+        "jobserver.views.workspaces.get_project", autospec=True, return_value=dummy_yaml
+    )
+    mocker.patch(
+        "jobserver.views.workspaces.get_branch_sha",
+        autospec=True,
+        return_value="abc123",
     )
     response = GlobalWorkspaceDetail.as_view()(request, name=workspace.name)
 
@@ -434,9 +452,13 @@ def test_workspacedetail_post_with_notifications_override(
     mocker.patch(
         "jobserver.views.workspaces.can_run_jobs", autospec=True, return_value=True
     )
-    mocker.patch("jobserver.views.workspaces.get_project", new=lambda *args: dummy_yaml)
     mocker.patch(
-        "jobserver.views.workspaces.get_branch_sha", new=lambda *args: "abc123"
+        "jobserver.views.workspaces.get_project", autospec=True, return_value=dummy_yaml
+    )
+    mocker.patch(
+        "jobserver.views.workspaces.get_branch_sha",
+        autospec=True,
+        return_value="abc123",
     )
     response = GlobalWorkspaceDetail.as_view()(request, name=workspace.name)
 
