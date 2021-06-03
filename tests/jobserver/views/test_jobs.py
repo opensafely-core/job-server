@@ -1,5 +1,3 @@
-from unittest.mock import patch
-
 import pytest
 import responses
 from django.conf import settings
@@ -114,54 +112,54 @@ def test_jobcancel_unknown_job(rf, user):
 
 
 @pytest.mark.django_db
-def test_jobdetail_with_authenticated_user(rf):
+def test_jobdetail_with_authenticated_user(rf, mocker):
     job = JobFactory()
 
     request = rf.get(MEANINGLESS_URL)
     request.user = UserFactory(is_superuser=False, roles=[])
 
-    with patch("jobserver.views.jobs.can_run_jobs", return_value=True):
-        response = JobDetail.as_view()(request, identifier=job.identifier)
+    mocker.patch("jobserver.views.jobs.can_run_jobs", return_value=True)
+    response = JobDetail.as_view()(request, identifier=job.identifier)
 
     assert response.status_code == 200
 
 
 @pytest.mark.django_db
-def test_jobdetail_with_post_jobrequest_job(rf):
+def test_jobdetail_with_post_jobrequest_job(rf, mocker):
     job = JobFactory()
 
     # Build a RequestFactory instance
     request = rf.get(MEANINGLESS_URL)
     request.user = UserFactory()
-    with patch("jobserver.views.jobs.can_run_jobs", return_value=False):
-        response = JobDetail.as_view()(request, identifier=job.identifier)
+    mocker.patch("jobserver.views.jobs.can_run_jobs", return_value=False)
+    response = JobDetail.as_view()(request, identifier=job.identifier)
 
     assert response.status_code == 200
 
 
 @pytest.mark.django_db
-def test_jobdetail_with_pre_jobrequest_job(rf):
+def test_jobdetail_with_pre_jobrequest_job(rf, mocker):
     job_request = JobRequestFactory(workspace=WorkspaceFactory())
     job = JobFactory(job_request=job_request)
 
     # Build a RequestFactory instance
     request = rf.get(MEANINGLESS_URL)
     request.user = UserFactory()
-    with patch("jobserver.views.jobs.can_run_jobs", return_value=False):
-        response = JobDetail.as_view()(request, identifier=job.identifier)
+    mocker.patch("jobserver.views.jobs.can_run_jobs", return_value=False)
+    response = JobDetail.as_view()(request, identifier=job.identifier)
 
     assert response.status_code == 200
 
 
 @pytest.mark.django_db
-def test_jobdetail_with_unauthenticated_user(rf):
+def test_jobdetail_with_unauthenticated_user(rf, mocker):
     job = JobFactory()
 
     request = rf.get(MEANINGLESS_URL)
     request.user = AnonymousUser()
 
-    with patch("jobserver.views.jobs.can_run_jobs", return_value=False):
-        response = JobDetail.as_view()(request, identifier=job.identifier)
+    mocker.patch("jobserver.views.jobs.can_run_jobs", return_value=False)
+    response = JobDetail.as_view()(request, identifier=job.identifier)
 
     assert response.status_code == 200
 

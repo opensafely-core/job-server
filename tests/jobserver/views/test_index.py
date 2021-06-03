@@ -1,5 +1,3 @@
-from unittest.mock import patch
-
 import pytest
 from django.contrib.auth.models import AnonymousUser
 
@@ -12,15 +10,15 @@ MEANINGLESS_URL = "/"
 
 
 @pytest.mark.django_db
-def test_index_success(rf):
+def test_index_success(rf, mocker):
     JobRequestFactory(workspace=WorkspaceFactory())
 
     # Build a RequestFactory instance
     request = rf.get(MEANINGLESS_URL)
     request.user = UserFactory()
 
-    with patch("jobserver.views.index.can_run_jobs", return_value=True, autospec=True):
-        response = Index.as_view()(request)
+    mocker.patch("jobserver.views.index.can_run_jobs", return_value=True, autospec=True)
+    response = Index.as_view()(request)
 
     assert response.status_code == 200
     assert len(response.context_data["job_requests"]) == 1
@@ -28,7 +26,7 @@ def test_index_success(rf):
 
 
 @pytest.mark.django_db
-def test_index_with_authenticated_user(rf):
+def test_index_with_authenticated_user(rf, mocker):
     """
     Check the Add Workspace button is rendered for authenticated Users on the
     homepage.
@@ -39,14 +37,14 @@ def test_index_with_authenticated_user(rf):
     request = rf.get(MEANINGLESS_URL)
     request.user = UserFactory()
 
-    with patch("jobserver.views.index.can_run_jobs", return_value=True, autospec=True):
-        response = Index.as_view()(request)
+    mocker.patch("jobserver.views.index.can_run_jobs", return_value=True, autospec=True)
+    response = Index.as_view()(request)
 
     assert "Add a New Workspace" in response.rendered_content
 
 
 @pytest.mark.django_db
-def test_index_with_authenticated_but_partially_registered_user(rf):
+def test_index_with_authenticated_but_partially_registered_user(rf, mocker):
     """
     Check the Add Workspace button is rendered for authenticated Users on the
     homepage.
@@ -57,8 +55,10 @@ def test_index_with_authenticated_but_partially_registered_user(rf):
     request = rf.get(MEANINGLESS_URL)
     request.user = UserFactory()
 
-    with patch("jobserver.views.index.can_run_jobs", return_value=False, autospec=True):
-        response = Index.as_view()(request)
+    mocker.patch(
+        "jobserver.views.index.can_run_jobs", return_value=False, autospec=True
+    )
+    response = Index.as_view()(request)
 
     assert "Add a New Workspace" not in response.rendered_content
 

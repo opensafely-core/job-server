@@ -1,5 +1,3 @@
-from unittest.mock import patch
-
 import pytest
 from furl import furl
 from yaml.scanner import ScannerError
@@ -86,29 +84,31 @@ def test_get_actions_success():
     assert output == expected
 
 
-def test_get_project_no_branch():
-    with patch("jobserver.project.get_file", lambda *args: None), patch(
-        "jobserver.project.get_branch", lambda *args: None
-    ), pytest.raises(Exception, match="Missing branch: 'main'"):
+def test_get_project_no_branch(mocker):
+    mocker.patch("jobserver.project.get_file", lambda *args: None),
+    mocker.patch("jobserver.project.get_branch", lambda *args: None)
+
+    with pytest.raises(Exception, match="Missing branch: 'main'"):
         get_project("opensafely", "test", "main")
 
 
-def test_get_project_no_project_yaml():
-    with patch("jobserver.project.get_file", lambda *args: None), patch(
-        "jobserver.project.get_branch", lambda *args: True
-    ), pytest.raises(Exception, match="Could not find project.yaml"):
+def test_get_project_no_project_yaml(mocker):
+    mocker.patch("jobserver.project.get_file", lambda *args: None),
+    mocker.patch("jobserver.project.get_branch", lambda *args: True)
+
+    with pytest.raises(Exception, match="Could not find project.yaml"):
         get_project("opensafely", "test", "main")
 
 
-def test_get_project_success():
+def test_get_project_success(mocker):
     dummy = """
     actions:
       frobnicate:
     """
-    with patch("jobserver.project.get_file", lambda *args: dummy), patch(
-        "jobserver.project.get_branch", lambda *args: True
-    ):
-        assert get_project("opensafely", "test", "main") == dummy
+    mocker.patch("jobserver.project.get_file", lambda *args: dummy)
+    mocker.patch("jobserver.project.get_branch", lambda *args: True)
+
+    assert get_project("opensafely", "test", "main") == dummy
 
 
 def test_link_run_scripts():

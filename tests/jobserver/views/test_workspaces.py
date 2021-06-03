@@ -1,5 +1,3 @@
-from unittest.mock import patch
-
 import pytest
 import responses
 from django.conf import settings
@@ -132,7 +130,7 @@ def test_workspacearchivetoggle_unauthorized(rf, user):
 
 @pytest.mark.django_db
 @responses.activate
-def test_workspacecreate_get_success(rf, user):
+def test_workspacecreate_get_success(rf, mocker, user):
     request = rf.get(MEANINGLESS_URL)
     request.user = user
 
@@ -140,10 +138,10 @@ def test_workspacecreate_get_success(rf, user):
     membership_url = f"https://api.github.com/orgs/{gh_org}/members/{user.username}"
     responses.add(responses.GET, membership_url, status=204)
 
-    with patch(
+    mocker.patch(
         "jobserver.views.workspaces.get_repos_with_branches", new=lambda *args: []
-    ):
-        response = WorkspaceCreate.as_view()(request)
+    )
+    response = WorkspaceCreate.as_view()(request)
 
     assert response.status_code == 200
     assert response.context_data["repos_with_branches"] == []
@@ -151,7 +149,7 @@ def test_workspacecreate_get_success(rf, user):
 
 @pytest.mark.django_db
 @responses.activate
-def test_workspacecreate_post_success(rf, user):
+def test_workspacecreate_post_success(rf, mocker, user):
     data = {
         "name": "Test",
         "repo": "test",
@@ -168,10 +166,10 @@ def test_workspacecreate_post_success(rf, user):
     responses.add(responses.GET, membership_url, status=204)
 
     repos = [{"name": "Test", "url": "test", "branches": ["test"]}]
-    with patch(
+    mocker.patch(
         "jobserver.views.workspaces.get_repos_with_branches", new=lambda *args: repos
-    ):
-        response = WorkspaceCreate.as_view()(request)
+    )
+    response = WorkspaceCreate.as_view()(request)
 
     assert response.status_code == 302
 
@@ -212,21 +210,22 @@ def test_workspacedetail_logged_out(rf):
 
 
 @pytest.mark.django_db
-def test_workspacedetail_project_yaml_errors(rf, user):
+def test_workspacedetail_project_yaml_errors(rf, mocker, user):
     workspace = WorkspaceFactory()
 
     # Build a RequestFactory instance
     request = rf.get(MEANINGLESS_URL)
     request.user = user
 
-    with patch(
+    mocker.patch(
         "jobserver.views.workspaces.can_run_jobs", return_value=True, autospec=True
-    ), patch(
+    )
+    mocker.patch(
         "jobserver.views.workspaces.get_project",
         side_effect=Exception("test error"),
         autospec=True,
-    ):
-        response = GlobalWorkspaceDetail.as_view()(request, name=workspace.name)
+    )
+    response = GlobalWorkspaceDetail.as_view()(request, name=workspace.name)
 
     assert response.status_code == 200
 
@@ -235,7 +234,7 @@ def test_workspacedetail_project_yaml_errors(rf, user):
 
 
 @pytest.mark.django_db
-def test_workspacedetail_get_success(rf, user):
+def test_workspacedetail_get_success(rf, mocker, user):
     workspace = WorkspaceFactory()
 
     # Build a RequestFactory instance
@@ -246,10 +245,11 @@ def test_workspacedetail_get_success(rf, user):
     actions:
       twiddle:
     """
-    with patch(
+    mocker.patch(
         "jobserver.views.workspaces.can_run_jobs", return_value=True, autospec=True
-    ), patch("jobserver.views.workspaces.get_project", new=lambda *args: dummy_yaml):
-        response = GlobalWorkspaceDetail.as_view()(request, name=workspace.name)
+    )
+    mocker.patch("jobserver.views.workspaces.get_project", new=lambda *args: dummy_yaml)
+    response = GlobalWorkspaceDetail.as_view()(request, name=workspace.name)
 
     assert response.status_code == 200
 
@@ -261,7 +261,7 @@ def test_workspacedetail_get_success(rf, user):
 
 
 @pytest.mark.django_db
-def test_workspacedetail_post_archived_workspace(rf):
+def test_workspacedetail_post_archived_workspace(rf, mocker):
     workspace = WorkspaceFactory(is_archived=True)
 
     request = rf.post(MEANINGLESS_URL)
@@ -269,17 +269,20 @@ def test_workspacedetail_post_archived_workspace(rf):
     request._messages = FallbackStorage(request)
     request.user = UserFactory()
 
-    with patch(
+    mocker.patch(
         "jobserver.views.workspaces.can_run_jobs", return_value=True, autospec=True
-    ), patch("jobserver.views.workspaces.get_actions", return_value=[], autospec=True):
-        response = GlobalWorkspaceDetail.as_view()(request, name=workspace.name)
+    )
+    mocker.patch(
+        "jobserver.views.workspaces.get_actions", return_value=[], autospec=True
+    )
+    response = GlobalWorkspaceDetail.as_view()(request, name=workspace.name)
 
     assert response.status_code == 302
     assert response.url == workspace.get_absolute_url()
 
 
 @pytest.mark.django_db
-def test_workspacedetail_post_success(rf, monkeypatch, user):
+def test_workspacedetail_post_success(rf, mocker, monkeypatch, user):
     monkeypatch.setenv("BACKENDS", "tpp")
 
     workspace = WorkspaceFactory()
@@ -301,15 +304,14 @@ def test_workspacedetail_post_success(rf, monkeypatch, user):
     actions:
       twiddle:
     """
-    with patch(
+    mocker.patch(
         "jobserver.views.workspaces.can_run_jobs", return_value=True, autospec=True
-    ), patch(
-        "jobserver.views.workspaces.get_project", new=lambda *args: dummy_yaml
-    ), patch(
-        "jobserver.views.workspaces.get_branch_sha",
-        new=lambda *args: "abc123",
-    ):
-        response = GlobalWorkspaceDetail.as_view()(request, name=workspace.name)
+    )
+    mocker.patch("jobserver.views.workspaces.get_project", new=lambda *args: dummy_yaml)
+    mocker.patch(
+        "jobserver.views.workspaces.get_branch_sha", new=lambda *args: "abc123"
+    )
+    response = GlobalWorkspaceDetail.as_view()(request, name=workspace.name)
 
     assert response.status_code == 302, response.context_data["form"].errors
     assert response.url == reverse("workspace-logs", kwargs={"name": workspace.name})
@@ -324,7 +326,7 @@ def test_workspacedetail_post_success(rf, monkeypatch, user):
 
 
 @pytest.mark.django_db
-def test_workspacedetail_post_with_invalid_backend(rf, monkeypatch, user):
+def test_workspacedetail_post_with_invalid_backend(rf, mocker, monkeypatch, user):
     monkeypatch.setenv("BACKENDS", "tpp,emis")
 
     workspace = WorkspaceFactory()
@@ -345,14 +347,14 @@ def test_workspacedetail_post_with_invalid_backend(rf, monkeypatch, user):
     actions:
       twiddle:
     """
-    with patch(
+    mocker.patch(
         "jobserver.views.workspaces.can_run_jobs", return_value=True, autospec=True
-    ), patch(
-        "jobserver.views.workspaces.get_project", new=lambda *args: dummy_yaml
-    ), patch(
+    )
+    mocker.patch("jobserver.views.workspaces.get_project", new=lambda *args: dummy_yaml)
+    mocker.patch(
         "jobserver.views.workspaces.get_branch_sha", new=lambda *args: "abc123"
-    ):
-        response = GlobalWorkspaceDetail.as_view()(request, name=workspace.name)
+    )
+    response = GlobalWorkspaceDetail.as_view()(request, name=workspace.name)
 
     assert response.status_code == 200
     assert response.context_data["form"].errors["backend"] == [
@@ -361,7 +363,7 @@ def test_workspacedetail_post_with_invalid_backend(rf, monkeypatch, user):
 
 
 @pytest.mark.django_db
-def test_workspacedetail_post_with_notifications_default(rf, monkeypatch, user):
+def test_workspacedetail_post_with_notifications_default(rf, mocker, monkeypatch, user):
     monkeypatch.setenv("BACKENDS", "tpp")
 
     workspace = WorkspaceFactory(should_notify=True)
@@ -383,14 +385,14 @@ def test_workspacedetail_post_with_notifications_default(rf, monkeypatch, user):
     actions:
       twiddle:
     """
-    with patch(
+    mocker.patch(
         "jobserver.views.workspaces.can_run_jobs", return_value=True, autospec=True
-    ), patch(
-        "jobserver.views.workspaces.get_project", new=lambda *args: dummy_yaml
-    ), patch(
+    )
+    mocker.patch("jobserver.views.workspaces.get_project", new=lambda *args: dummy_yaml)
+    mocker.patch(
         "jobserver.views.workspaces.get_branch_sha", new=lambda *args: "abc123"
-    ):
-        response = GlobalWorkspaceDetail.as_view()(request, name=workspace.name)
+    )
+    response = GlobalWorkspaceDetail.as_view()(request, name=workspace.name)
 
     assert response.status_code == 302, response.context_data["form"].errors
     assert response.url == reverse("workspace-logs", kwargs={"name": workspace.name})
@@ -405,7 +407,9 @@ def test_workspacedetail_post_with_notifications_default(rf, monkeypatch, user):
 
 
 @pytest.mark.django_db
-def test_workspacedetail_post_with_notifications_override(rf, monkeypatch, user):
+def test_workspacedetail_post_with_notifications_override(
+    rf, mocker, monkeypatch, user
+):
     monkeypatch.setenv("BACKENDS", "tpp")
 
     workspace = WorkspaceFactory(should_notify=True)
@@ -427,14 +431,14 @@ def test_workspacedetail_post_with_notifications_override(rf, monkeypatch, user)
     actions:
       twiddle:
     """
-    with patch(
+    mocker.patch(
         "jobserver.views.workspaces.can_run_jobs", return_value=True, autospec=True
-    ), patch(
-        "jobserver.views.workspaces.get_project", new=lambda *args: dummy_yaml
-    ), patch(
+    )
+    mocker.patch("jobserver.views.workspaces.get_project", new=lambda *args: dummy_yaml)
+    mocker.patch(
         "jobserver.views.workspaces.get_branch_sha", new=lambda *args: "abc123"
-    ):
-        response = GlobalWorkspaceDetail.as_view()(request, name=workspace.name)
+    )
+    response = GlobalWorkspaceDetail.as_view()(request, name=workspace.name)
 
     assert response.status_code == 302, response.context_data["form"].errors
     assert response.url == reverse("workspace-logs", kwargs={"name": workspace.name})
@@ -504,7 +508,7 @@ def test_workspacedetail_get_with_unauthenticated_user(rf):
 
 
 @pytest.mark.django_db
-def test_workspacelog_search_by_action(rf):
+def test_workspacelog_search_by_action(rf, mocker):
     workspace = WorkspaceFactory()
     user = UserFactory()
 
@@ -518,17 +522,17 @@ def test_workspacelog_search_by_action(rf):
     request = rf.get("/?q=run")
     request.user = user
 
-    with patch(
+    mocker.patch(
         "jobserver.views.workspaces.can_run_jobs", return_value=True, autospec=True
-    ):
-        response = WorkspaceLog.as_view()(request, name=workspace.name)
+    )
+    response = WorkspaceLog.as_view()(request, name=workspace.name)
 
     assert len(response.context_data["object_list"]) == 1
     assert response.context_data["object_list"][0] == job_request1
 
 
 @pytest.mark.django_db
-def test_workspacelog_search_by_id(rf):
+def test_workspacelog_search_by_id(rf, mocker):
     workspace = WorkspaceFactory()
     user = UserFactory()
 
@@ -541,17 +545,17 @@ def test_workspacelog_search_by_id(rf):
     request = rf.get("/?q=99")
     request.user = user
 
-    with patch(
+    mocker.patch(
         "jobserver.views.workspaces.can_run_jobs", return_value=True, autospec=True
-    ):
-        response = WorkspaceLog.as_view()(request, name=workspace.name)
+    )
+    response = WorkspaceLog.as_view()(request, name=workspace.name)
 
     assert len(response.context_data["object_list"]) == 1
     assert response.context_data["object_list"][0] == job_request2
 
 
 @pytest.mark.django_db
-def test_workspacelog_success(rf):
+def test_workspacelog_success(rf, mocker):
     workspace = WorkspaceFactory()
     user = UserFactory()
     job_request = JobRequestFactory(created_by=user, workspace=workspace)
@@ -561,10 +565,10 @@ def test_workspacelog_success(rf):
     request = rf.get(MEANINGLESS_URL)
     request.user = user
 
-    with patch(
+    mocker.patch(
         "jobserver.views.workspaces.can_run_jobs", return_value=True, autospec=True
-    ):
-        response = WorkspaceLog.as_view()(request, name=workspace.name)
+    )
+    response = WorkspaceLog.as_view()(request, name=workspace.name)
 
     assert response.status_code == 200
     assert len(response.context_data["object_list"]) == 1
@@ -582,7 +586,7 @@ def test_workspacelog_unknown_workspace(rf):
 
 
 @pytest.mark.django_db
-def test_workspacelog_with_authenticated_user(rf):
+def test_workspacelog_with_authenticated_user(rf, mocker):
     """
     Check WorkspaceLog renders the Add Job button for authenticated Users
     """
@@ -594,10 +598,10 @@ def test_workspacelog_with_authenticated_user(rf):
     request = rf.get(MEANINGLESS_URL)
     request.user = UserFactory()
 
-    with patch(
+    mocker.patch(
         "jobserver.views.workspaces.can_run_jobs", return_value=True, autospec=True
-    ):
-        response = WorkspaceLog.as_view()(request, name=workspace.name)
+    )
+    response = WorkspaceLog.as_view()(request, name=workspace.name)
 
     assert response.status_code == 200
     assert "Add Job" in response.rendered_content

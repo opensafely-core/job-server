@@ -1,5 +1,4 @@
 from datetime import timedelta
-from unittest.mock import patch
 
 import pytest
 from django.conf import settings
@@ -347,7 +346,7 @@ def test_jobapiupdate_mixture(api_rf, freezer):
 
 
 @pytest.mark.django_db
-def test_jobapiupdate_notifications_on_with_move_to_finished(api_rf):
+def test_jobapiupdate_notifications_on_with_move_to_finished(api_rf, mocker):
     workspace = WorkspaceFactory()
     job_request = JobRequestFactory(workspace=workspace, will_notify=True)
     job = JobFactory(job_request=job_request, status="running")
@@ -373,15 +372,15 @@ def test_jobapiupdate_notifications_on_with_move_to_finished(api_rf):
         data=data,
         format="json",
     )
-    with patch("jobserver.api.send_finished_notification") as mocked_send:
-        response = JobAPIUpdate.as_view()(request)
+    mocked_send = mocker.patch("jobserver.api.send_finished_notification")
+    response = JobAPIUpdate.as_view()(request)
 
     mocked_send.assert_called_once()
     assert response.status_code == 200
 
 
 @pytest.mark.django_db
-def test_jobapiupdate_notifications_on_without_move_to_finished(api_rf):
+def test_jobapiupdate_notifications_on_without_move_to_finished(api_rf, mocker):
     workspace = WorkspaceFactory()
     job_request = JobRequestFactory(workspace=workspace, will_notify=True)
     job = JobFactory(job_request=job_request, status="succeeded")
@@ -407,8 +406,8 @@ def test_jobapiupdate_notifications_on_without_move_to_finished(api_rf):
         data=data,
         format="json",
     )
-    with patch("jobserver.api.send_finished_notification") as mocked_send:
-        response = JobAPIUpdate.as_view()(request)
+    mocked_send = mocker.patch("jobserver.api.send_finished_notification")
+    response = JobAPIUpdate.as_view()(request)
 
     mocked_send.assert_not_called()
     assert response.status_code == 200
