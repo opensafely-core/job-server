@@ -755,6 +755,12 @@ class User(AbstractUser):
     Using a custom Model allows us to add extra fields trivially, eg Roles.
     """
 
+    backends = models.ManyToManyField(
+        "Backend",
+        related_name="backends",
+        through="BackendMembership",
+        through_fields=["user", "backend"],
+    )
     orgs = models.ManyToManyField(
         "Org",
         related_name="members",
