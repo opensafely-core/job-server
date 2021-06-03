@@ -118,7 +118,7 @@ def test_jobdetail_with_authenticated_user(rf, mocker):
     request = rf.get(MEANINGLESS_URL)
     request.user = UserFactory(is_superuser=False, roles=[])
 
-    mocker.patch("jobserver.views.jobs.can_run_jobs", return_value=True)
+    mocker.patch("jobserver.views.jobs.can_run_jobs", autospec=True, return_value=True)
     response = JobDetail.as_view()(request, identifier=job.identifier)
 
     assert response.status_code == 200
@@ -131,7 +131,7 @@ def test_jobdetail_with_post_jobrequest_job(rf, mocker):
     # Build a RequestFactory instance
     request = rf.get(MEANINGLESS_URL)
     request.user = UserFactory()
-    mocker.patch("jobserver.views.jobs.can_run_jobs", return_value=False)
+    mocker.patch("jobserver.views.jobs.can_run_jobs", autospec=True, return_value=False)
     response = JobDetail.as_view()(request, identifier=job.identifier)
 
     assert response.status_code == 200
@@ -145,7 +145,7 @@ def test_jobdetail_with_pre_jobrequest_job(rf, mocker):
     # Build a RequestFactory instance
     request = rf.get(MEANINGLESS_URL)
     request.user = UserFactory()
-    mocker.patch("jobserver.views.jobs.can_run_jobs", return_value=False)
+    mocker.patch("jobserver.views.jobs.can_run_jobs", autospec=True, return_value=False)
     response = JobDetail.as_view()(request, identifier=job.identifier)
 
     assert response.status_code == 200
@@ -158,7 +158,7 @@ def test_jobdetail_with_unauthenticated_user(rf, mocker):
     request = rf.get(MEANINGLESS_URL)
     request.user = AnonymousUser()
 
-    mocker.patch("jobserver.views.jobs.can_run_jobs", return_value=False)
+    mocker.patch("jobserver.views.jobs.can_run_jobs", autospec=True, return_value=False)
     response = JobDetail.as_view()(request, identifier=job.identifier)
 
     assert response.status_code == 200

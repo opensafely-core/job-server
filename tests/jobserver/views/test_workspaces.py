@@ -218,12 +218,12 @@ def test_workspacedetail_project_yaml_errors(rf, mocker, user):
     request.user = user
 
     mocker.patch(
-        "jobserver.views.workspaces.can_run_jobs", return_value=True, autospec=True
+        "jobserver.views.workspaces.can_run_jobs", autospec=True, return_value=True
     )
     mocker.patch(
         "jobserver.views.workspaces.get_project",
-        side_effect=Exception("test error"),
         autospec=True,
+        side_effect=Exception("test error"),
     )
     response = GlobalWorkspaceDetail.as_view()(request, name=workspace.name)
 
@@ -246,7 +246,7 @@ def test_workspacedetail_get_success(rf, mocker, user):
       twiddle:
     """
     mocker.patch(
-        "jobserver.views.workspaces.can_run_jobs", return_value=True, autospec=True
+        "jobserver.views.workspaces.can_run_jobs", autospec=True, return_value=True
     )
     mocker.patch("jobserver.views.workspaces.get_project", new=lambda *args: dummy_yaml)
     response = GlobalWorkspaceDetail.as_view()(request, name=workspace.name)
@@ -270,10 +270,10 @@ def test_workspacedetail_post_archived_workspace(rf, mocker):
     request.user = UserFactory()
 
     mocker.patch(
-        "jobserver.views.workspaces.can_run_jobs", return_value=True, autospec=True
+        "jobserver.views.workspaces.can_run_jobs", autospec=True, return_value=True
     )
     mocker.patch(
-        "jobserver.views.workspaces.get_actions", return_value=[], autospec=True
+        "jobserver.views.workspaces.get_actions", autospec=True, return_value=[]
     )
     response = GlobalWorkspaceDetail.as_view()(request, name=workspace.name)
 
@@ -305,7 +305,7 @@ def test_workspacedetail_post_success(rf, mocker, monkeypatch, user):
       twiddle:
     """
     mocker.patch(
-        "jobserver.views.workspaces.can_run_jobs", return_value=True, autospec=True
+        "jobserver.views.workspaces.can_run_jobs", autospec=True, return_value=True
     )
     mocker.patch("jobserver.views.workspaces.get_project", new=lambda *args: dummy_yaml)
     mocker.patch(
@@ -348,7 +348,7 @@ def test_workspacedetail_post_with_invalid_backend(rf, mocker, monkeypatch, user
       twiddle:
     """
     mocker.patch(
-        "jobserver.views.workspaces.can_run_jobs", return_value=True, autospec=True
+        "jobserver.views.workspaces.can_run_jobs", autospec=True, return_value=True
     )
     mocker.patch("jobserver.views.workspaces.get_project", new=lambda *args: dummy_yaml)
     mocker.patch(
@@ -386,7 +386,7 @@ def test_workspacedetail_post_with_notifications_default(rf, mocker, monkeypatch
       twiddle:
     """
     mocker.patch(
-        "jobserver.views.workspaces.can_run_jobs", return_value=True, autospec=True
+        "jobserver.views.workspaces.can_run_jobs", autospec=True, return_value=True
     )
     mocker.patch("jobserver.views.workspaces.get_project", new=lambda *args: dummy_yaml)
     mocker.patch(
@@ -432,7 +432,7 @@ def test_workspacedetail_post_with_notifications_override(
       twiddle:
     """
     mocker.patch(
-        "jobserver.views.workspaces.can_run_jobs", return_value=True, autospec=True
+        "jobserver.views.workspaces.can_run_jobs", autospec=True, return_value=True
     )
     mocker.patch("jobserver.views.workspaces.get_project", new=lambda *args: dummy_yaml)
     mocker.patch(
@@ -523,7 +523,7 @@ def test_workspacelog_search_by_action(rf, mocker):
     request.user = user
 
     mocker.patch(
-        "jobserver.views.workspaces.can_run_jobs", return_value=True, autospec=True
+        "jobserver.views.workspaces.can_run_jobs", autospec=True, return_value=True
     )
     response = WorkspaceLog.as_view()(request, name=workspace.name)
 
@@ -546,7 +546,7 @@ def test_workspacelog_search_by_id(rf, mocker):
     request.user = user
 
     mocker.patch(
-        "jobserver.views.workspaces.can_run_jobs", return_value=True, autospec=True
+        "jobserver.views.workspaces.can_run_jobs", autospec=True, return_value=True
     )
     response = WorkspaceLog.as_view()(request, name=workspace.name)
 
@@ -566,7 +566,7 @@ def test_workspacelog_success(rf, mocker):
     request.user = user
 
     mocker.patch(
-        "jobserver.views.workspaces.can_run_jobs", return_value=True, autospec=True
+        "jobserver.views.workspaces.can_run_jobs", autospec=True, return_value=True
     )
     response = WorkspaceLog.as_view()(request, name=workspace.name)
 
@@ -599,7 +599,7 @@ def test_workspacelog_with_authenticated_user(rf, mocker):
     request.user = UserFactory()
 
     mocker.patch(
-        "jobserver.views.workspaces.can_run_jobs", return_value=True, autospec=True
+        "jobserver.views.workspaces.can_run_jobs", autospec=True, return_value=True
     )
     response = WorkspaceLog.as_view()(request, name=workspace.name)
 

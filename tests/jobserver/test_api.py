@@ -372,7 +372,9 @@ def test_jobapiupdate_notifications_on_with_move_to_finished(api_rf, mocker):
         data=data,
         format="json",
     )
-    mocked_send = mocker.patch("jobserver.api.send_finished_notification")
+    mocked_send = mocker.patch(
+        "jobserver.api.send_finished_notification", autospec=True
+    )
     response = JobAPIUpdate.as_view()(request)
 
     mocked_send.assert_called_once()
@@ -406,7 +408,9 @@ def test_jobapiupdate_notifications_on_without_move_to_finished(api_rf, mocker):
         data=data,
         format="json",
     )
-    mocked_send = mocker.patch("jobserver.api.send_finished_notification")
+    mocked_send = mocker.patch(
+        "jobserver.api.send_finished_notification", autospec=True
+    )
     response = JobAPIUpdate.as_view()(request)
 
     mocked_send.assert_not_called()
@@ -544,7 +548,7 @@ def test_releasenotificationapicreate_success(api_rf, mocker):
     request = api_rf.post("/", data, HTTP_AUTHORIZATION=backend.auth_token)
     request.user = UserFactory()
 
-    mock = mocker.patch("jobserver.api.slack_client", auto_spec=True)
+    mock = mocker.patch("jobserver.api.slack_client", autospec=True)
     response = ReleaseNotificationAPICreate.as_view()(request)
 
     assert response.status_code == 201, response.data
@@ -573,7 +577,7 @@ def test_releasenotificationapicreate_with_failed_slack_update(
     request.user = UserFactory()
 
     # have the slack API client raise an exception
-    mock = mocker.patch("jobserver.api.slack_client", auto_spec=True)
+    mock = mocker.patch("jobserver.api.slack_client", autospec=True)
     mock.chat_postMessage.side_effect = SlackApiError(
         message="an error", response={"error": "an error occurred"}
     )

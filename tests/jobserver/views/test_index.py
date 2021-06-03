@@ -17,7 +17,7 @@ def test_index_success(rf, mocker):
     request = rf.get(MEANINGLESS_URL)
     request.user = UserFactory()
 
-    mocker.patch("jobserver.views.index.can_run_jobs", return_value=True, autospec=True)
+    mocker.patch("jobserver.views.index.can_run_jobs", autospec=True, return_value=True)
     response = Index.as_view()(request)
 
     assert response.status_code == 200
@@ -37,7 +37,7 @@ def test_index_with_authenticated_user(rf, mocker):
     request = rf.get(MEANINGLESS_URL)
     request.user = UserFactory()
 
-    mocker.patch("jobserver.views.index.can_run_jobs", return_value=True, autospec=True)
+    mocker.patch("jobserver.views.index.can_run_jobs", autospec=True, return_value=True)
     response = Index.as_view()(request)
 
     assert "Add a New Workspace" in response.rendered_content
@@ -56,7 +56,7 @@ def test_index_with_authenticated_but_partially_registered_user(rf, mocker):
     request.user = UserFactory()
 
     mocker.patch(
-        "jobserver.views.index.can_run_jobs", return_value=False, autospec=True
+        "jobserver.views.index.can_run_jobs", autospec=True, return_value=False
     )
     response = Index.as_view()(request)
 
