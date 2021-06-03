@@ -28,6 +28,7 @@ from .api import (
     UserAPIDetail,
     WorkspaceStatusesAPI,
 )
+from .views.admin import ApproveUsers
 from .views.backends import BackendDetail, BackendList, BackendRotateToken
 from .views.index import Index
 from .views.job_requests import JobRequestCancel, JobRequestDetail, JobRequestList
@@ -144,6 +145,7 @@ urlpatterns = [
     path("", Index.as_view()),
     path("", include("social_django.urls", namespace="social")),
     path("favicon.ico", RedirectView.as_view(url=settings.STATIC_URL + "favicon.ico")),
+    path("admin/approve-users", ApproveUsers.as_view(), name="approve-users"),
     path("admin/", admin.site.urls),
     path("api/v2/", include(api_urls)),
     path("backends/", include(backend_urls)),

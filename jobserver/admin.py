@@ -3,6 +3,9 @@ import social_django.admin  # noqa: F401
 from django import forms
 from django.contrib import admin
 from django.contrib.auth.models import Group
+from django.shortcuts import redirect
+from django.urls import reverse
+from furl import furl
 from social_django.models import Association, Nonce, UserSocialAuth
 
 from .models import Org, Project, User
@@ -176,6 +179,7 @@ class ProjectAdmin(admin.ModelAdmin):
 
 @admin.register(User)
 class UserAdmin(admin.ModelAdmin):
+    actions = ["approve_users"]
     exclude = [
         "password",
         "groups",
@@ -191,3 +195,13 @@ class UserAdmin(admin.ModelAdmin):
         "is_approved",
     ]
     ordering = ["username"]
+
+    @admin.action(description="Approve selected users")
+    def approve_users(self, request, queryset):
+        url = reverse("approve-users")
+        f = furl(url)
+
+        for user in queryset:
+            f.add({"user": user.id})
+
+        return redirect(f.url)
