@@ -1,5 +1,3 @@
-from unittest.mock import patch
-
 from jobserver.templatetags.querystring_tools import (
     redirect_with_querystring,
     url_with_querystring,
@@ -7,14 +5,16 @@ from jobserver.templatetags.querystring_tools import (
 )
 
 
-def test_redirect_with_querystring(rf):
-    context = {"request": rf.get("/?foo=bar")}
-
+def test_redirect_with_querystring(rf, mocker):
     # patch here so we don't couple this test to any configured URL
-    with patch(
-        "jobserver.templatetags.querystring_tools.reverse", new=lambda *args: "/an_url"
-    ):
-        output = redirect_with_querystring(context, view_name="derp")
+    mocker.patch(
+        "jobserver.templatetags.querystring_tools.reverse",
+        autospec=True,
+        return_value="/an_url",
+    )
+
+    context = {"request": rf.get("/?foo=bar")}
+    output = redirect_with_querystring(context, view_name="derp")
 
     assert output == "/an_url?foo=bar"
 

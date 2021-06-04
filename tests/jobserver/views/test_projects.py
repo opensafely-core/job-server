@@ -419,6 +419,13 @@ def test_projectinvitationcreate_post_with_email_failure(rf, mocker):
         project=project, user=coordinator, roles=[ProjectCoordinator]
     )
 
+    # mock send_project_invite_email to throw an exception
+    mocker.patch(
+        "jobserver.views.projects.send_project_invite_email",
+        autospec=True,
+        side_effect=Exception,
+    )
+
     request = rf.post(
         MEANINGLESS_URL,
         {
@@ -433,12 +440,6 @@ def test_projectinvitationcreate_post_with_email_failure(rf, mocker):
     messages = FallbackStorage(request)
     request._messages = messages
 
-    # mock send_project_invite_email to throw an exception
-    mocker.patch(
-        "jobserver.views.projects.send_project_invite_email",
-        autospec=True,
-        side_effect=Exception,
-    )
     response = ProjectInvitationCreate.as_view()(
         request, org_slug=org.slug, project_slug=project.slug
     )

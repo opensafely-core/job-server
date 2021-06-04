@@ -1,5 +1,3 @@
-from unittest.mock import patch
-
 import pytest
 import responses
 
@@ -42,22 +40,23 @@ def test_get_branch_with_missing_branch():
     assert output is None
 
 
-def test_get_branch_sha():
+def test_get_branch_sha(mocker):
     data = {
         "commit": {
             "sha": "abc123",
         }
     }
+    mocker.patch("jobserver.github.get_branch", autospec=True, return_value=data)
 
-    with patch("jobserver.github.get_branch", lambda *args: data):
-        output = get_branch_sha("opensafely", "some_repo", "main")
+    output = get_branch_sha("opensafely", "some_repo", "main")
 
     assert output == "abc123"
 
 
-def test_get_branch_sha_with_missing_branch():
-    with patch("jobserver.github.get_branch", lambda *args: None):
-        output = get_branch_sha("opensafely", "some_repo", "main")
+def test_get_branch_sha_with_missing_branch(mocker):
+    mocker.patch("jobserver.github.get_branch", autospec=True, return_value=None)
+
+    output = get_branch_sha("opensafely", "some_repo", "main")
 
     assert output is None
 

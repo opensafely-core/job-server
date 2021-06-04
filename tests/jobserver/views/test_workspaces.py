@@ -1,5 +1,3 @@
-from unittest.mock import patch
-
 import pytest
 import responses
 from django.conf import settings
@@ -132,18 +130,21 @@ def test_workspacearchivetoggle_unauthorized(rf, user):
 
 @pytest.mark.django_db
 @responses.activate
-def test_workspacecreate_get_success(rf, user):
-    request = rf.get(MEANINGLESS_URL)
-    request.user = user
-
+def test_workspacecreate_get_success(rf, mocker, user):
     gh_org = user.orgs.first().github_orgs[0]
     membership_url = f"https://api.github.com/orgs/{gh_org}/members/{user.username}"
     responses.add(responses.GET, membership_url, status=204)
 
-    with patch(
-        "jobserver.views.workspaces.get_repos_with_branches", new=lambda *args: []
-    ):
-        response = WorkspaceCreate.as_view()(request)
+    mocker.patch(
+        "jobserver.views.workspaces.get_repos_with_branches",
+        autospec=True,
+        return_value=[],
+    )
+
+    request = rf.get(MEANINGLESS_URL)
+    request.user = user
+
+    response = WorkspaceCreate.as_view()(request)
 
     assert response.status_code == 200
     assert response.context_data["repos_with_branches"] == []
@@ -151,27 +152,27 @@ def test_workspacecreate_get_success(rf, user):
 
 @pytest.mark.django_db
 @responses.activate
-def test_workspacecreate_post_success(rf, user):
+def test_workspacecreate_post_success(rf, mocker, user):
+    gh_org = user.orgs.first().github_orgs[0]
+    membership_url = f"https://api.github.com/orgs/{gh_org}/members/{user.username}"
+    responses.add(responses.GET, membership_url, status=204)
+
+    mocker.patch(
+        "jobserver.views.workspaces.get_repos_with_branches",
+        autospec=True,
+        return_value=[{"name": "Test", "url": "test", "branches": ["test"]}],
+    )
+
     data = {
         "name": "Test",
         "repo": "test",
         "branch": "test",
         "db": "slice",
     }
-
-    # Build a RequestFactory instance
     request = rf.post(MEANINGLESS_URL, data)
     request.user = user
 
-    gh_org = user.orgs.first().github_orgs[0]
-    membership_url = f"https://api.github.com/orgs/{gh_org}/members/{user.username}"
-    responses.add(responses.GET, membership_url, status=204)
-
-    repos = [{"name": "Test", "url": "test", "branches": ["test"]}]
-    with patch(
-        "jobserver.views.workspaces.get_repos_with_branches", new=lambda *args: repos
-    ):
-        response = WorkspaceCreate.as_view()(request)
+    response = WorkspaceCreate.as_view()(request)
 
     assert response.status_code == 302
 
@@ -212,21 +213,22 @@ def test_workspacedetail_logged_out(rf):
 
 
 @pytest.mark.django_db
-def test_workspacedetail_project_yaml_errors(rf, user):
+def test_workspacedetail_project_yaml_errors(rf, mocker, user):
     workspace = WorkspaceFactory()
 
-    # Build a RequestFactory instance
+    mocker.patch(
+        "jobserver.views.workspaces.can_run_jobs", autospec=True, return_value=True
+    )
+    mocker.patch(
+        "jobserver.views.workspaces.get_project",
+        autospec=True,
+        side_effect=Exception("test error"),
+    )
+
     request = rf.get(MEANINGLESS_URL)
     request.user = user
 
-    with patch(
-        "jobserver.views.workspaces.can_run_jobs", return_value=True, autospec=True
-    ), patch(
-        "jobserver.views.workspaces.get_project",
-        side_effect=Exception("test error"),
-        autospec=True,
-    ):
-        response = GlobalWorkspaceDetail.as_view()(request, name=workspace.name)
+    response = GlobalWorkspaceDetail.as_view()(request, name=workspace.name)
 
     assert response.status_code == 200
 
@@ -235,21 +237,24 @@ def test_workspacedetail_project_yaml_errors(rf, user):
 
 
 @pytest.mark.django_db
-def test_workspacedetail_get_success(rf, user):
+def test_workspacedetail_get_success(rf, mocker, user):
     workspace = WorkspaceFactory()
-
-    # Build a RequestFactory instance
-    request = rf.get(MEANINGLESS_URL)
-    request.user = user
 
     dummy_yaml = """
     actions:
       twiddle:
     """
-    with patch(
-        "jobserver.views.workspaces.can_run_jobs", return_value=True, autospec=True
-    ), patch("jobserver.views.workspaces.get_project", new=lambda *args: dummy_yaml):
-        response = GlobalWorkspaceDetail.as_view()(request, name=workspace.name)
+    mocker.patch(
+        "jobserver.views.workspaces.can_run_jobs", autospec=True, return_value=True
+    )
+    mocker.patch(
+        "jobserver.views.workspaces.get_project", autospec=True, return_value=dummy_yaml
+    )
+
+    request = rf.get(MEANINGLESS_URL)
+    request.user = user
+
+    response = GlobalWorkspaceDetail.as_view()(request, name=workspace.name)
 
     assert response.status_code == 200
 
@@ -261,25 +266,29 @@ def test_workspacedetail_get_success(rf, user):
 
 
 @pytest.mark.django_db
-def test_workspacedetail_post_archived_workspace(rf):
+def test_workspacedetail_post_archived_workspace(rf, mocker):
     workspace = WorkspaceFactory(is_archived=True)
+
+    mocker.patch(
+        "jobserver.views.workspaces.can_run_jobs", autospec=True, return_value=True
+    )
+    mocker.patch(
+        "jobserver.views.workspaces.get_actions", autospec=True, return_value=[]
+    )
 
     request = rf.post(MEANINGLESS_URL)
     request.session = "session"
     request._messages = FallbackStorage(request)
     request.user = UserFactory()
 
-    with patch(
-        "jobserver.views.workspaces.can_run_jobs", return_value=True, autospec=True
-    ), patch("jobserver.views.workspaces.get_actions", return_value=[], autospec=True):
-        response = GlobalWorkspaceDetail.as_view()(request, name=workspace.name)
+    response = GlobalWorkspaceDetail.as_view()(request, name=workspace.name)
 
     assert response.status_code == 302
     assert response.url == workspace.get_absolute_url()
 
 
 @pytest.mark.django_db
-def test_workspacedetail_post_success(rf, monkeypatch, user):
+def test_workspacedetail_post_success(rf, mocker, monkeypatch, user):
     monkeypatch.setenv("BACKENDS", "tpp")
 
     workspace = WorkspaceFactory()
@@ -287,29 +296,31 @@ def test_workspacedetail_post_success(rf, monkeypatch, user):
     tpp = Backend.objects.get(name="tpp")
     BackendMembershipFactory(backend=tpp, user=user)
 
+    dummy_yaml = """
+    actions:
+      twiddle:
+    """
+    mocker.patch(
+        "jobserver.views.workspaces.can_run_jobs", autospec=True, return_value=True
+    )
+    mocker.patch(
+        "jobserver.views.workspaces.get_project", autospec=True, return_value=dummy_yaml
+    )
+    mocker.patch(
+        "jobserver.views.workspaces.get_branch_sha",
+        autospec=True,
+        return_value="abc123",
+    )
+
     data = {
         "backend": "tpp",
         "requested_actions": ["twiddle"],
         "callback_url": "test",
     }
-
-    # Build a RequestFactory instance
     request = rf.post(MEANINGLESS_URL, data)
     request.user = user
 
-    dummy_yaml = """
-    actions:
-      twiddle:
-    """
-    with patch(
-        "jobserver.views.workspaces.can_run_jobs", return_value=True, autospec=True
-    ), patch(
-        "jobserver.views.workspaces.get_project", new=lambda *args: dummy_yaml
-    ), patch(
-        "jobserver.views.workspaces.get_branch_sha",
-        new=lambda *args: "abc123",
-    ):
-        response = GlobalWorkspaceDetail.as_view()(request, name=workspace.name)
+    response = GlobalWorkspaceDetail.as_view()(request, name=workspace.name)
 
     assert response.status_code == 302, response.context_data["form"].errors
     assert response.url == reverse("workspace-logs", kwargs={"name": workspace.name})
@@ -324,35 +335,38 @@ def test_workspacedetail_post_success(rf, monkeypatch, user):
 
 
 @pytest.mark.django_db
-def test_workspacedetail_post_with_invalid_backend(rf, monkeypatch, user):
+def test_workspacedetail_post_with_invalid_backend(rf, mocker, monkeypatch, user):
     monkeypatch.setenv("BACKENDS", "tpp,emis")
 
     workspace = WorkspaceFactory()
 
     BackendMembershipFactory(backend=Backend.objects.get(name="tpp"), user=user)
 
+    dummy_yaml = """
+    actions:
+      twiddle:
+    """
+    mocker.patch(
+        "jobserver.views.workspaces.can_run_jobs", autospec=True, return_value=True
+    )
+    mocker.patch(
+        "jobserver.views.workspaces.get_project", autospec=True, return_value=dummy_yaml
+    )
+    mocker.patch(
+        "jobserver.views.workspaces.get_branch_sha",
+        autospec=True,
+        return_value="abc123",
+    )
+
     data = {
         "backend": "emis",
         "requested_actions": ["twiddle"],
         "callback_url": "test",
     }
-
-    # Build a RequestFactory instance
     request = rf.post(MEANINGLESS_URL, data)
     request.user = user
 
-    dummy_yaml = """
-    actions:
-      twiddle:
-    """
-    with patch(
-        "jobserver.views.workspaces.can_run_jobs", return_value=True, autospec=True
-    ), patch(
-        "jobserver.views.workspaces.get_project", new=lambda *args: dummy_yaml
-    ), patch(
-        "jobserver.views.workspaces.get_branch_sha", new=lambda *args: "abc123"
-    ):
-        response = GlobalWorkspaceDetail.as_view()(request, name=workspace.name)
+    response = GlobalWorkspaceDetail.as_view()(request, name=workspace.name)
 
     assert response.status_code == 200
     assert response.context_data["form"].errors["backend"] == [
@@ -361,12 +375,28 @@ def test_workspacedetail_post_with_invalid_backend(rf, monkeypatch, user):
 
 
 @pytest.mark.django_db
-def test_workspacedetail_post_with_notifications_default(rf, monkeypatch, user):
+def test_workspacedetail_post_with_notifications_default(rf, mocker, monkeypatch, user):
     monkeypatch.setenv("BACKENDS", "tpp")
 
     workspace = WorkspaceFactory(should_notify=True)
 
     BackendMembershipFactory(backend=Backend.objects.get(name="tpp"), user=user)
+
+    dummy_yaml = """
+    actions:
+      twiddle:
+    """
+    mocker.patch(
+        "jobserver.views.workspaces.can_run_jobs", autospec=True, return_value=True
+    )
+    mocker.patch(
+        "jobserver.views.workspaces.get_project", autospec=True, return_value=dummy_yaml
+    )
+    mocker.patch(
+        "jobserver.views.workspaces.get_branch_sha",
+        autospec=True,
+        return_value="abc123",
+    )
 
     data = {
         "backend": "tpp",
@@ -374,23 +404,10 @@ def test_workspacedetail_post_with_notifications_default(rf, monkeypatch, user):
         "callback_url": "test",
         "will_notify": "True",
     }
-
-    # Build a RequestFactory instance
     request = rf.post(MEANINGLESS_URL, data)
     request.user = user
 
-    dummy_yaml = """
-    actions:
-      twiddle:
-    """
-    with patch(
-        "jobserver.views.workspaces.can_run_jobs", return_value=True, autospec=True
-    ), patch(
-        "jobserver.views.workspaces.get_project", new=lambda *args: dummy_yaml
-    ), patch(
-        "jobserver.views.workspaces.get_branch_sha", new=lambda *args: "abc123"
-    ):
-        response = GlobalWorkspaceDetail.as_view()(request, name=workspace.name)
+    response = GlobalWorkspaceDetail.as_view()(request, name=workspace.name)
 
     assert response.status_code == 302, response.context_data["form"].errors
     assert response.url == reverse("workspace-logs", kwargs={"name": workspace.name})
@@ -405,12 +422,30 @@ def test_workspacedetail_post_with_notifications_default(rf, monkeypatch, user):
 
 
 @pytest.mark.django_db
-def test_workspacedetail_post_with_notifications_override(rf, monkeypatch, user):
+def test_workspacedetail_post_with_notifications_override(
+    rf, mocker, monkeypatch, user
+):
     monkeypatch.setenv("BACKENDS", "tpp")
 
     workspace = WorkspaceFactory(should_notify=True)
 
     BackendMembershipFactory(backend=Backend.objects.get(name="tpp"), user=user)
+
+    dummy_yaml = """
+    actions:
+      twiddle:
+    """
+    mocker.patch(
+        "jobserver.views.workspaces.can_run_jobs", autospec=True, return_value=True
+    )
+    mocker.patch(
+        "jobserver.views.workspaces.get_project", autospec=True, return_value=dummy_yaml
+    )
+    mocker.patch(
+        "jobserver.views.workspaces.get_branch_sha",
+        autospec=True,
+        return_value="abc123",
+    )
 
     data = {
         "backend": "tpp",
@@ -418,23 +453,10 @@ def test_workspacedetail_post_with_notifications_override(rf, monkeypatch, user)
         "callback_url": "test",
         "will_notify": "False",
     }
-
-    # Build a RequestFactory instance
     request = rf.post(MEANINGLESS_URL, data)
     request.user = user
 
-    dummy_yaml = """
-    actions:
-      twiddle:
-    """
-    with patch(
-        "jobserver.views.workspaces.can_run_jobs", return_value=True, autospec=True
-    ), patch(
-        "jobserver.views.workspaces.get_project", new=lambda *args: dummy_yaml
-    ), patch(
-        "jobserver.views.workspaces.get_branch_sha", new=lambda *args: "abc123"
-    ):
-        response = GlobalWorkspaceDetail.as_view()(request, name=workspace.name)
+    response = GlobalWorkspaceDetail.as_view()(request, name=workspace.name)
 
     assert response.status_code == 302, response.context_data["form"].errors
     assert response.url == reverse("workspace-logs", kwargs={"name": workspace.name})
@@ -504,7 +526,7 @@ def test_workspacedetail_get_with_unauthenticated_user(rf):
 
 
 @pytest.mark.django_db
-def test_workspacelog_search_by_action(rf):
+def test_workspacelog_search_by_action(rf, mocker):
     workspace = WorkspaceFactory()
     user = UserFactory()
 
@@ -514,21 +536,21 @@ def test_workspacelog_search_by_action(rf):
     job_request2 = JobRequestFactory(workspace=workspace)
     JobFactory(job_request=job_request2, action="leap")
 
-    # Build a RequestFactory instance
+    mocker.patch(
+        "jobserver.views.workspaces.can_run_jobs", autospec=True, return_value=True
+    )
+
     request = rf.get("/?q=run")
     request.user = user
 
-    with patch(
-        "jobserver.views.workspaces.can_run_jobs", return_value=True, autospec=True
-    ):
-        response = WorkspaceLog.as_view()(request, name=workspace.name)
+    response = WorkspaceLog.as_view()(request, name=workspace.name)
 
     assert len(response.context_data["object_list"]) == 1
     assert response.context_data["object_list"][0] == job_request1
 
 
 @pytest.mark.django_db
-def test_workspacelog_search_by_id(rf):
+def test_workspacelog_search_by_id(rf, mocker):
     workspace = WorkspaceFactory()
     user = UserFactory()
 
@@ -537,34 +559,34 @@ def test_workspacelog_search_by_id(rf):
     job_request2 = JobRequestFactory(created_by=user, workspace=workspace)
     JobFactory(job_request=job_request2, id=99)
 
-    # Build a RequestFactory instance
+    mocker.patch(
+        "jobserver.views.workspaces.can_run_jobs", autospec=True, return_value=True
+    )
+
     request = rf.get("/?q=99")
     request.user = user
 
-    with patch(
-        "jobserver.views.workspaces.can_run_jobs", return_value=True, autospec=True
-    ):
-        response = WorkspaceLog.as_view()(request, name=workspace.name)
+    response = WorkspaceLog.as_view()(request, name=workspace.name)
 
     assert len(response.context_data["object_list"]) == 1
     assert response.context_data["object_list"][0] == job_request2
 
 
 @pytest.mark.django_db
-def test_workspacelog_success(rf):
+def test_workspacelog_success(rf, mocker):
     workspace = WorkspaceFactory()
     user = UserFactory()
     job_request = JobRequestFactory(created_by=user, workspace=workspace)
     JobFactory(job_request=job_request)
 
-    # Build a RequestFactory instance
+    mocker.patch(
+        "jobserver.views.workspaces.can_run_jobs", autospec=True, return_value=True
+    )
+
     request = rf.get(MEANINGLESS_URL)
     request.user = user
 
-    with patch(
-        "jobserver.views.workspaces.can_run_jobs", return_value=True, autospec=True
-    ):
-        response = WorkspaceLog.as_view()(request, name=workspace.name)
+    response = WorkspaceLog.as_view()(request, name=workspace.name)
 
     assert response.status_code == 200
     assert len(response.context_data["object_list"]) == 1
@@ -582,7 +604,7 @@ def test_workspacelog_unknown_workspace(rf):
 
 
 @pytest.mark.django_db
-def test_workspacelog_with_authenticated_user(rf):
+def test_workspacelog_with_authenticated_user(rf, mocker):
     """
     Check WorkspaceLog renders the Add Job button for authenticated Users
     """
@@ -590,14 +612,14 @@ def test_workspacelog_with_authenticated_user(rf):
     job_request = JobRequestFactory(workspace=workspace)
     JobFactory(job_request=job_request)
 
-    # Build a RequestFactory instance
+    mocker.patch(
+        "jobserver.views.workspaces.can_run_jobs", autospec=True, return_value=True
+    )
+
     request = rf.get(MEANINGLESS_URL)
     request.user = UserFactory()
 
-    with patch(
-        "jobserver.views.workspaces.can_run_jobs", return_value=True, autospec=True
-    ):
-        response = WorkspaceLog.as_view()(request, name=workspace.name)
+    response = WorkspaceLog.as_view()(request, name=workspace.name)
 
     assert response.status_code == 200
     assert "Add Job" in response.rendered_content
