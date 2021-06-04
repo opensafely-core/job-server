@@ -115,10 +115,11 @@ def test_jobcancel_unknown_job(rf, user):
 def test_jobdetail_with_authenticated_user(rf, mocker):
     job = JobFactory()
 
+    mocker.patch("jobserver.views.jobs.can_run_jobs", autospec=True, return_value=True)
+
     request = rf.get(MEANINGLESS_URL)
     request.user = UserFactory(is_superuser=False, roles=[])
 
-    mocker.patch("jobserver.views.jobs.can_run_jobs", autospec=True, return_value=True)
     response = JobDetail.as_view()(request, identifier=job.identifier)
 
     assert response.status_code == 200
@@ -128,10 +129,11 @@ def test_jobdetail_with_authenticated_user(rf, mocker):
 def test_jobdetail_with_post_jobrequest_job(rf, mocker):
     job = JobFactory()
 
-    # Build a RequestFactory instance
+    mocker.patch("jobserver.views.jobs.can_run_jobs", autospec=True, return_value=False)
+
     request = rf.get(MEANINGLESS_URL)
     request.user = UserFactory()
-    mocker.patch("jobserver.views.jobs.can_run_jobs", autospec=True, return_value=False)
+
     response = JobDetail.as_view()(request, identifier=job.identifier)
 
     assert response.status_code == 200
@@ -142,10 +144,11 @@ def test_jobdetail_with_pre_jobrequest_job(rf, mocker):
     job_request = JobRequestFactory(workspace=WorkspaceFactory())
     job = JobFactory(job_request=job_request)
 
-    # Build a RequestFactory instance
+    mocker.patch("jobserver.views.jobs.can_run_jobs", autospec=True, return_value=False)
+
     request = rf.get(MEANINGLESS_URL)
     request.user = UserFactory()
-    mocker.patch("jobserver.views.jobs.can_run_jobs", autospec=True, return_value=False)
+
     response = JobDetail.as_view()(request, identifier=job.identifier)
 
     assert response.status_code == 200
@@ -155,10 +158,11 @@ def test_jobdetail_with_pre_jobrequest_job(rf, mocker):
 def test_jobdetail_with_unauthenticated_user(rf, mocker):
     job = JobFactory()
 
+    mocker.patch("jobserver.views.jobs.can_run_jobs", autospec=True, return_value=False)
+
     request = rf.get(MEANINGLESS_URL)
     request.user = AnonymousUser()
 
-    mocker.patch("jobserver.views.jobs.can_run_jobs", autospec=True, return_value=False)
     response = JobDetail.as_view()(request, identifier=job.identifier)
 
     assert response.status_code == 200

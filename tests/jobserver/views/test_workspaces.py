@@ -131,9 +131,6 @@ def test_workspacearchivetoggle_unauthorized(rf, user):
 @pytest.mark.django_db
 @responses.activate
 def test_workspacecreate_get_success(rf, mocker, user):
-    request = rf.get(MEANINGLESS_URL)
-    request.user = user
-
     gh_org = user.orgs.first().github_orgs[0]
     membership_url = f"https://api.github.com/orgs/{gh_org}/members/{user.username}"
     responses.add(responses.GET, membership_url, status=204)
@@ -143,6 +140,10 @@ def test_workspacecreate_get_success(rf, mocker, user):
         autospec=True,
         return_value=[],
     )
+
+    request = rf.get(MEANINGLESS_URL)
+    request.user = user
+
     response = WorkspaceCreate.as_view()(request)
 
     assert response.status_code == 200
@@ -152,27 +153,25 @@ def test_workspacecreate_get_success(rf, mocker, user):
 @pytest.mark.django_db
 @responses.activate
 def test_workspacecreate_post_success(rf, mocker, user):
+    gh_org = user.orgs.first().github_orgs[0]
+    membership_url = f"https://api.github.com/orgs/{gh_org}/members/{user.username}"
+    responses.add(responses.GET, membership_url, status=204)
+
+    mocker.patch(
+        "jobserver.views.workspaces.get_repos_with_branches",
+        autospec=True,
+        return_value=[{"name": "Test", "url": "test", "branches": ["test"]}],
+    )
+
     data = {
         "name": "Test",
         "repo": "test",
         "branch": "test",
         "db": "slice",
     }
-
-    # Build a RequestFactory instance
     request = rf.post(MEANINGLESS_URL, data)
     request.user = user
 
-    gh_org = user.orgs.first().github_orgs[0]
-    membership_url = f"https://api.github.com/orgs/{gh_org}/members/{user.username}"
-    responses.add(responses.GET, membership_url, status=204)
-
-    repos = [{"name": "Test", "url": "test", "branches": ["test"]}]
-    mocker.patch(
-        "jobserver.views.workspaces.get_repos_with_branches",
-        autospec=True,
-        return_value=repos,
-    )
     response = WorkspaceCreate.as_view()(request)
 
     assert response.status_code == 302
@@ -217,10 +216,6 @@ def test_workspacedetail_logged_out(rf):
 def test_workspacedetail_project_yaml_errors(rf, mocker, user):
     workspace = WorkspaceFactory()
 
-    # Build a RequestFactory instance
-    request = rf.get(MEANINGLESS_URL)
-    request.user = user
-
     mocker.patch(
         "jobserver.views.workspaces.can_run_jobs", autospec=True, return_value=True
     )
@@ -229,6 +224,10 @@ def test_workspacedetail_project_yaml_errors(rf, mocker, user):
         autospec=True,
         side_effect=Exception("test error"),
     )
+
+    request = rf.get(MEANINGLESS_URL)
+    request.user = user
+
     response = GlobalWorkspaceDetail.as_view()(request, name=workspace.name)
 
     assert response.status_code == 200
@@ -241,10 +240,6 @@ def test_workspacedetail_project_yaml_errors(rf, mocker, user):
 def test_workspacedetail_get_success(rf, mocker, user):
     workspace = WorkspaceFactory()
 
-    # Build a RequestFactory instance
-    request = rf.get(MEANINGLESS_URL)
-    request.user = user
-
     dummy_yaml = """
     actions:
       twiddle:
@@ -255,6 +250,10 @@ def test_workspacedetail_get_success(rf, mocker, user):
     mocker.patch(
         "jobserver.views.workspaces.get_project", autospec=True, return_value=dummy_yaml
     )
+
+    request = rf.get(MEANINGLESS_URL)
+    request.user = user
+
     response = GlobalWorkspaceDetail.as_view()(request, name=workspace.name)
 
     assert response.status_code == 200
@@ -270,17 +269,18 @@ def test_workspacedetail_get_success(rf, mocker, user):
 def test_workspacedetail_post_archived_workspace(rf, mocker):
     workspace = WorkspaceFactory(is_archived=True)
 
-    request = rf.post(MEANINGLESS_URL)
-    request.session = "session"
-    request._messages = FallbackStorage(request)
-    request.user = UserFactory()
-
     mocker.patch(
         "jobserver.views.workspaces.can_run_jobs", autospec=True, return_value=True
     )
     mocker.patch(
         "jobserver.views.workspaces.get_actions", autospec=True, return_value=[]
     )
+
+    request = rf.post(MEANINGLESS_URL)
+    request.session = "session"
+    request._messages = FallbackStorage(request)
+    request.user = UserFactory()
+
     response = GlobalWorkspaceDetail.as_view()(request, name=workspace.name)
 
     assert response.status_code == 302
@@ -295,16 +295,6 @@ def test_workspacedetail_post_success(rf, mocker, monkeypatch, user):
 
     tpp = Backend.objects.get(name="tpp")
     BackendMembershipFactory(backend=tpp, user=user)
-
-    data = {
-        "backend": "tpp",
-        "requested_actions": ["twiddle"],
-        "callback_url": "test",
-    }
-
-    # Build a RequestFactory instance
-    request = rf.post(MEANINGLESS_URL, data)
-    request.user = user
 
     dummy_yaml = """
     actions:
@@ -321,6 +311,15 @@ def test_workspacedetail_post_success(rf, mocker, monkeypatch, user):
         autospec=True,
         return_value="abc123",
     )
+
+    data = {
+        "backend": "tpp",
+        "requested_actions": ["twiddle"],
+        "callback_url": "test",
+    }
+    request = rf.post(MEANINGLESS_URL, data)
+    request.user = user
+
     response = GlobalWorkspaceDetail.as_view()(request, name=workspace.name)
 
     assert response.status_code == 302, response.context_data["form"].errors
@@ -343,16 +342,6 @@ def test_workspacedetail_post_with_invalid_backend(rf, mocker, monkeypatch, user
 
     BackendMembershipFactory(backend=Backend.objects.get(name="tpp"), user=user)
 
-    data = {
-        "backend": "emis",
-        "requested_actions": ["twiddle"],
-        "callback_url": "test",
-    }
-
-    # Build a RequestFactory instance
-    request = rf.post(MEANINGLESS_URL, data)
-    request.user = user
-
     dummy_yaml = """
     actions:
       twiddle:
@@ -368,6 +357,15 @@ def test_workspacedetail_post_with_invalid_backend(rf, mocker, monkeypatch, user
         autospec=True,
         return_value="abc123",
     )
+
+    data = {
+        "backend": "emis",
+        "requested_actions": ["twiddle"],
+        "callback_url": "test",
+    }
+    request = rf.post(MEANINGLESS_URL, data)
+    request.user = user
+
     response = GlobalWorkspaceDetail.as_view()(request, name=workspace.name)
 
     assert response.status_code == 200
@@ -384,17 +382,6 @@ def test_workspacedetail_post_with_notifications_default(rf, mocker, monkeypatch
 
     BackendMembershipFactory(backend=Backend.objects.get(name="tpp"), user=user)
 
-    data = {
-        "backend": "tpp",
-        "requested_actions": ["twiddle"],
-        "callback_url": "test",
-        "will_notify": "True",
-    }
-
-    # Build a RequestFactory instance
-    request = rf.post(MEANINGLESS_URL, data)
-    request.user = user
-
     dummy_yaml = """
     actions:
       twiddle:
@@ -410,6 +397,16 @@ def test_workspacedetail_post_with_notifications_default(rf, mocker, monkeypatch
         autospec=True,
         return_value="abc123",
     )
+
+    data = {
+        "backend": "tpp",
+        "requested_actions": ["twiddle"],
+        "callback_url": "test",
+        "will_notify": "True",
+    }
+    request = rf.post(MEANINGLESS_URL, data)
+    request.user = user
+
     response = GlobalWorkspaceDetail.as_view()(request, name=workspace.name)
 
     assert response.status_code == 302, response.context_data["form"].errors
@@ -434,17 +431,6 @@ def test_workspacedetail_post_with_notifications_override(
 
     BackendMembershipFactory(backend=Backend.objects.get(name="tpp"), user=user)
 
-    data = {
-        "backend": "tpp",
-        "requested_actions": ["twiddle"],
-        "callback_url": "test",
-        "will_notify": "False",
-    }
-
-    # Build a RequestFactory instance
-    request = rf.post(MEANINGLESS_URL, data)
-    request.user = user
-
     dummy_yaml = """
     actions:
       twiddle:
@@ -460,6 +446,16 @@ def test_workspacedetail_post_with_notifications_override(
         autospec=True,
         return_value="abc123",
     )
+
+    data = {
+        "backend": "tpp",
+        "requested_actions": ["twiddle"],
+        "callback_url": "test",
+        "will_notify": "False",
+    }
+    request = rf.post(MEANINGLESS_URL, data)
+    request.user = user
+
     response = GlobalWorkspaceDetail.as_view()(request, name=workspace.name)
 
     assert response.status_code == 302, response.context_data["form"].errors
@@ -540,13 +536,13 @@ def test_workspacelog_search_by_action(rf, mocker):
     job_request2 = JobRequestFactory(workspace=workspace)
     JobFactory(job_request=job_request2, action="leap")
 
-    # Build a RequestFactory instance
-    request = rf.get("/?q=run")
-    request.user = user
-
     mocker.patch(
         "jobserver.views.workspaces.can_run_jobs", autospec=True, return_value=True
     )
+
+    request = rf.get("/?q=run")
+    request.user = user
+
     response = WorkspaceLog.as_view()(request, name=workspace.name)
 
     assert len(response.context_data["object_list"]) == 1
@@ -563,13 +559,13 @@ def test_workspacelog_search_by_id(rf, mocker):
     job_request2 = JobRequestFactory(created_by=user, workspace=workspace)
     JobFactory(job_request=job_request2, id=99)
 
-    # Build a RequestFactory instance
-    request = rf.get("/?q=99")
-    request.user = user
-
     mocker.patch(
         "jobserver.views.workspaces.can_run_jobs", autospec=True, return_value=True
     )
+
+    request = rf.get("/?q=99")
+    request.user = user
+
     response = WorkspaceLog.as_view()(request, name=workspace.name)
 
     assert len(response.context_data["object_list"]) == 1
@@ -583,13 +579,13 @@ def test_workspacelog_success(rf, mocker):
     job_request = JobRequestFactory(created_by=user, workspace=workspace)
     JobFactory(job_request=job_request)
 
-    # Build a RequestFactory instance
-    request = rf.get(MEANINGLESS_URL)
-    request.user = user
-
     mocker.patch(
         "jobserver.views.workspaces.can_run_jobs", autospec=True, return_value=True
     )
+
+    request = rf.get(MEANINGLESS_URL)
+    request.user = user
+
     response = WorkspaceLog.as_view()(request, name=workspace.name)
 
     assert response.status_code == 200
@@ -616,13 +612,13 @@ def test_workspacelog_with_authenticated_user(rf, mocker):
     job_request = JobRequestFactory(workspace=workspace)
     JobFactory(job_request=job_request)
 
-    # Build a RequestFactory instance
-    request = rf.get(MEANINGLESS_URL)
-    request.user = UserFactory()
-
     mocker.patch(
         "jobserver.views.workspaces.can_run_jobs", autospec=True, return_value=True
     )
+
+    request = rf.get(MEANINGLESS_URL)
+    request.user = UserFactory()
+
     response = WorkspaceLog.as_view()(request, name=workspace.name)
 
     assert response.status_code == 200

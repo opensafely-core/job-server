@@ -351,6 +351,10 @@ def test_jobapiupdate_notifications_on_with_move_to_finished(api_rf, mocker):
     job_request = JobRequestFactory(workspace=workspace, will_notify=True)
     job = JobFactory(job_request=job_request, status="running")
 
+    mocked_send = mocker.patch(
+        "jobserver.api.send_finished_notification", autospec=True
+    )
+
     data = [
         {
             "identifier": job.identifier,
@@ -365,16 +369,13 @@ def test_jobapiupdate_notifications_on_with_move_to_finished(api_rf, mocker):
             "completed_at": timezone.now() - timedelta(seconds=30),
         },
     ]
-
     request = api_rf.post(
         "/",
         HTTP_AUTHORIZATION=job_request.backend.auth_token,
         data=data,
         format="json",
     )
-    mocked_send = mocker.patch(
-        "jobserver.api.send_finished_notification", autospec=True
-    )
+
     response = JobAPIUpdate.as_view()(request)
 
     mocked_send.assert_called_once()
@@ -387,6 +388,10 @@ def test_jobapiupdate_notifications_on_without_move_to_finished(api_rf, mocker):
     job_request = JobRequestFactory(workspace=workspace, will_notify=True)
     job = JobFactory(job_request=job_request, status="succeeded")
 
+    mocked_send = mocker.patch(
+        "jobserver.api.send_finished_notification", autospec=True
+    )
+
     data = [
         {
             "identifier": job.identifier,
@@ -401,16 +406,13 @@ def test_jobapiupdate_notifications_on_without_move_to_finished(api_rf, mocker):
             "completed_at": timezone.now() - timedelta(seconds=30),
         },
     ]
-
     request = api_rf.post(
         "/",
         HTTP_AUTHORIZATION=job_request.backend.auth_token,
         data=data,
         format="json",
     )
-    mocked_send = mocker.patch(
-        "jobserver.api.send_finished_notification", autospec=True
-    )
+
     response = JobAPIUpdate.as_view()(request)
 
     mocked_send.assert_not_called()
@@ -540,15 +542,15 @@ def test_jobrequestapilist_success(api_rf):
 def test_releasenotificationapicreate_success(api_rf, mocker):
     backend = BackendFactory()
 
+    mock = mocker.patch("jobserver.api.slack_client", autospec=True)
+
     data = {
         "created_by": "test user",
         "path": "/path/to/outputs",
     }
-
     request = api_rf.post("/", data, HTTP_AUTHORIZATION=backend.auth_token)
     request.user = UserFactory()
 
-    mock = mocker.patch("jobserver.api.slack_client", autospec=True)
     response = ReleaseNotificationAPICreate.as_view()(request)
 
     assert response.status_code == 201, response.data
@@ -568,19 +570,18 @@ def test_releasenotificationapicreate_with_failed_slack_update(
 
     assert len(log_output.entries) == 0, log_output.entries
 
-    data = {
-        "created_by": "test user",
-        "path": "/path/to/outputs",
-    }
-
-    request = api_rf.post("/", data, HTTP_AUTHORIZATION=backend.auth_token)
-    request.user = UserFactory()
-
     # have the slack API client raise an exception
     mock = mocker.patch("jobserver.api.slack_client", autospec=True)
     mock.chat_postMessage.side_effect = SlackApiError(
         message="an error", response={"error": "an error occurred"}
     )
+
+    data = {
+        "created_by": "test user",
+        "path": "/path/to/outputs",
+    }
+    request = api_rf.post("/", data, HTTP_AUTHORIZATION=backend.auth_token)
+    request.user = UserFactory()
 
     response = ReleaseNotificationAPICreate.as_view()(request)
 

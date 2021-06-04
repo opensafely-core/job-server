@@ -13,11 +13,11 @@ MEANINGLESS_URL = "/"
 def test_index_success(rf, mocker):
     JobRequestFactory(workspace=WorkspaceFactory())
 
-    # Build a RequestFactory instance
+    mocker.patch("jobserver.views.index.can_run_jobs", autospec=True, return_value=True)
+
     request = rf.get(MEANINGLESS_URL)
     request.user = UserFactory()
 
-    mocker.patch("jobserver.views.index.can_run_jobs", autospec=True, return_value=True)
     response = Index.as_view()(request)
 
     assert response.status_code == 200
@@ -33,11 +33,11 @@ def test_index_with_authenticated_user(rf, mocker):
     """
     JobRequestFactory(workspace=WorkspaceFactory())
 
-    # Build a RequestFactory instance
+    mocker.patch("jobserver.views.index.can_run_jobs", autospec=True, return_value=True)
+
     request = rf.get(MEANINGLESS_URL)
     request.user = UserFactory()
 
-    mocker.patch("jobserver.views.index.can_run_jobs", autospec=True, return_value=True)
     response = Index.as_view()(request)
 
     assert "Add a New Workspace" in response.rendered_content
@@ -51,13 +51,13 @@ def test_index_with_authenticated_but_partially_registered_user(rf, mocker):
     """
     JobRequestFactory(workspace=WorkspaceFactory())
 
-    # Build a RequestFactory instance
-    request = rf.get(MEANINGLESS_URL)
-    request.user = UserFactory()
-
     mocker.patch(
         "jobserver.views.index.can_run_jobs", autospec=True, return_value=False
     )
+
+    request = rf.get(MEANINGLESS_URL)
+    request.user = UserFactory()
+
     response = Index.as_view()(request)
 
     assert "Add a New Workspace" not in response.rendered_content
