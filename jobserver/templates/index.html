@@ -56,11 +56,27 @@
     </div>
 
     {% if user_can_run_jobs %}
-    <div class="d-flex justify-content-center">
-      <a class="btn btn-lg btn-primary" href="{% url 'workspace-create' %}">
-        Or Add a New Workspace
-      </a>
+    <div class="text-center">
+      <p><strong>OR</strong></p>
+
+      <p>
+        Pick {% if request.user.orgs.count > 1 %}an organisation then {% endif %}a project to create a workspace in
+      </p>
+
+      <div class="d-flex justify-content-center">
+        <a
+          {% if request.user.orgs.count > 1 %}
+          href="{% url 'org-list' %}"
+          {% else %}
+          href="{% url 'org-detail' org_slug=request.user.orgs.first.slug %}"
+          {% endif %}
+          class="btn btn-lg btn-primary">
+          Add a New Workspace
+        </a>
+      </div>
+
     </div>
+
     {% endif %}
 
   </div>

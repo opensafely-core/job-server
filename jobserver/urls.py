@@ -43,6 +43,7 @@ from .views.projects import (
     ProjectInvitationCreate,
     ProjectMembershipEdit,
     ProjectMembershipRemove,
+    ProjectOnboardingCreate,
     ProjectSettings,
 )
 from .views.status import Status
@@ -137,6 +138,7 @@ project_urls = [
         ProjectMembershipRemove.as_view(),
         name="project-membership-remove",
     ),
+    path("new-workspace/", WorkspaceCreate.as_view(), name="workspace-create"),
     path("settings/", ProjectSettings.as_view(), name="project-settings"),
     path("<workspace_slug>/", include(workspace_urls)),
 ]
@@ -153,6 +155,11 @@ org_urls = [
                     "new-project/",
                     ProjectCreate.as_view(),
                     name="project-create",
+                ),
+                path(
+                    "project-onboarding/",
+                    ProjectOnboardingCreate.as_view(),
+                    name="project-onboarding",
                 ),
                 path(
                     "<project_slug>/",
@@ -186,7 +193,6 @@ urlpatterns = [
     path("settings/", Settings.as_view(), name="settings"),
     path("status/", Status.as_view(), name="status"),
     path("workspaces/", RedirectView.as_view(url="/")),
-    path("workspaces/new/", WorkspaceCreate.as_view(), name="workspace-create"),
     path("__debug__/", include(debug_toolbar.urls)),
     path("<name>/", GlobalWorkspaceDetail.as_view(), name="workspace-detail"),
 ]

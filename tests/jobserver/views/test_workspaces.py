@@ -138,6 +138,9 @@ def test_workspacearchivetoggle_unauthorized(rf, user):
 @pytest.mark.django_db
 @responses.activate
 def test_workspacecreate_get_success(rf, mocker, user):
+    org = user.orgs.first()
+    project = ProjectFactory(org=org)
+
     gh_org = user.orgs.first().github_orgs[0]
     membership_url = f"https://api.github.com/orgs/{gh_org}/members/{user.username}"
     responses.add(responses.GET, membership_url, status=204)
@@ -151,7 +154,9 @@ def test_workspacecreate_get_success(rf, mocker, user):
     request = rf.get(MEANINGLESS_URL)
     request.user = user
 
-    response = WorkspaceCreate.as_view()(request)
+    response = WorkspaceCreate.as_view()(
+        request, org_slug=org.slug, project_slug=project.slug
+    )
 
     assert response.status_code == 200
     assert response.context_data["repos_with_branches"] == []
@@ -160,6 +165,9 @@ def test_workspacecreate_get_success(rf, mocker, user):
 @pytest.mark.django_db
 @responses.activate
 def test_workspacecreate_post_success(rf, mocker, user):
+    org = user.orgs.first()
+    project = ProjectFactory(org=org)
+
     gh_org = user.orgs.first().github_orgs[0]
     membership_url = f"https://api.github.com/orgs/{gh_org}/members/{user.username}"
     responses.add(responses.GET, membership_url, status=204)
@@ -179,12 +187,14 @@ def test_workspacecreate_post_success(rf, mocker, user):
     request = rf.post(MEANINGLESS_URL, data)
     request.user = user
 
-    response = WorkspaceCreate.as_view()(request)
+    response = WorkspaceCreate.as_view()(
+        request, org_slug=org.slug, project_slug=project.slug
+    )
 
     assert response.status_code == 302
 
     workspace = Workspace.objects.first()
-    assert response.url == reverse("workspace-detail", kwargs={"name": workspace.name})
+    assert response.url == workspace.get_absolute_url()
     assert workspace.created_by == user
 
 

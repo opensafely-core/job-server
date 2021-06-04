@@ -16,7 +16,7 @@ from ..forms import (
     WorkspaceNotificationsToggleForm,
 )
 from ..github import get_branch_sha, get_repos_with_branches
-from ..models import Backend, JobRequest, Workspace
+from ..models import Backend, JobRequest, Project, Workspace
 from ..project import get_actions, get_project, load_yaml
 from ..roles import can_run_jobs
 
@@ -47,6 +47,10 @@ class WorkspaceCreate(CreateView):
     template_name = "workspace_create.html"
 
     def dispatch(self, request, *args, **kwargs):
+        self.project = get_object_or_404(
+            Project, org__slug=self.kwargs["org_slug"], slug=self.kwargs["project_slug"]
+        )
+
         gh_org = self.request.user.orgs.first().github_orgs[0]
         self.repos_with_branches = sorted(
             get_repos_with_branches(gh_org), key=lambda r: r["name"].lower()
@@ -55,16 +59,19 @@ class WorkspaceCreate(CreateView):
         return super().dispatch(request, *args, **kwargs)
 
     def form_valid(self, form):
-        instance = form.save(commit=False)
-        instance.created_by = self.request.user
-        instance.save()
+        workspace = form.save(commit=False)
+        workspace.created_by = self.request.user
+        workspace.project = self.project
+        workspace.save()
 
-        return redirect(instance)
+        return redirect(workspace)
 
     def get_context_data(self, **kwargs):
-        context = super().get_context_data(**kwargs)
-        context["repos_with_branches"] = self.repos_with_branches
-        return context
+        return super().get_context_data(
+            project=self.project,
+            repos_with_branches=self.repos_with_branches,
+            **kwargs,
+        )
 
     def get_form_kwargs(self):
         kwargs = super().get_form_kwargs()

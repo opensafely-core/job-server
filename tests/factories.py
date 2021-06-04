@@ -146,6 +146,8 @@ class WorkspaceFactory(factory.django.DjangoModelFactory):
     class Meta:
         model = Workspace
 
+    project = factory.SubFactory("tests.factories.ProjectFactory")
+
     name = factory.Sequence(lambda n: f"workspace-{n}")
     repo = factory.Sequence(lambda n: "http://example.com/org-{n}/repo-{n}")
 
