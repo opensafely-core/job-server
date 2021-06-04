@@ -12,12 +12,12 @@ from jobserver.utils import dotted_path
 from jobserver.views.projects import (
     ProjectAcceptInvite,
     ProjectCancelInvite,
-    ProjectCreate,
     ProjectDetail,
     ProjectDisconnectWorkspace,
     ProjectInvitationCreate,
     ProjectMembershipEdit,
     ProjectMembershipRemove,
+    ProjectOnboardingCreate,
     ProjectSettings,
 )
 
@@ -165,91 +165,6 @@ def test_projectcancelinvite_without_manage_members_permission(rf, superuser):
         ProjectCancelInvite.as_view()(
             request, org_slug=org.slug, project_slug=project.slug
         )
-
-
-@pytest.mark.django_db
-def test_projectcreate_get_success(rf, superuser):
-    org = OrgFactory()
-
-    request = rf.get(MEANINGLESS_URL)
-    request.user = superuser
-    response = ProjectCreate.as_view()(request, org_slug=org.slug)
-
-    assert response.status_code == 200
-
-
-@pytest.mark.django_db
-def test_projectcreate_get_unknown_org(rf, superuser):
-    request = rf.get(MEANINGLESS_URL)
-    request.user = superuser
-
-    with pytest.raises(Http404):
-        ProjectCreate.as_view()(request, org_slug="")
-
-
-@pytest.mark.django_db
-def test_projectcreate_post_invalid_data(rf, superuser):
-    org = OrgFactory()
-
-    data = {
-        "name": "",
-        "project_lead": "",
-        "email": "",
-        "researcher-TOTAL_FORMS": "0",
-        "researcher-INITIAL_FORMS": "0",
-        "researcher-MIN_NUM": "0",
-        "researcher-MAX_NUM": "1000",
-    }
-
-    request = rf.post(MEANINGLESS_URL, data)
-    request.user = superuser
-    response = ProjectCreate.as_view()(request, org_slug=org.slug)
-
-    assert response.status_code == 200
-    assert Project.objects.count() == 0
-
-
-@pytest.mark.django_db
-def test_projectcreate_post_success(rf, superuser):
-    org = OrgFactory()
-
-    data = {
-        "name": "A Brand New Project",
-        "project_lead": "My Name",
-        "email": "name@example.com",
-        "researcher-TOTAL_FORMS": "1",
-        "researcher-INITIAL_FORMS": "0",
-        "researcher-MIN_NUM": "0",
-        "researcher-MAX_NUM": "1000",
-        "researcher-0-name": "Test",
-        "researcher-0-passed_researcher_training_at": "2021-01-01",
-        "researcher-0-is_ons_accredited_researcher": "on",
-    }
-
-    request = rf.post(MEANINGLESS_URL, data)
-    request.user = superuser
-    response = ProjectCreate.as_view()(request, org_slug=org.slug)
-
-    assert response.status_code == 302
-
-    projects = Project.objects.all()
-    assert len(projects) == 1
-
-    project = projects.first()
-    assert project.name == "A Brand New Project"
-    assert project.project_lead == "My Name"
-    assert project.email == "name@example.com"
-    assert project.org == org
-    assert response.url == project.get_absolute_url()
-
-
-@pytest.mark.django_db
-def test_projectcreate_post_unknown_org(rf, superuser):
-    request = rf.post(MEANINGLESS_URL)
-    request.user = superuser
-
-    with pytest.raises(Http404):
-        ProjectCreate.as_view()(request, org_slug="")
 
 
 @pytest.mark.django_db
@@ -622,6 +537,91 @@ def test_projectmembershipremove_without_permission(rf):
     messages = list(messages)
     assert len(messages) == 1
     assert str(messages[0]) == "You do not have permission to remove Project members."
+
+
+@pytest.mark.django_db
+def test_projectonboardingcreate_get_success(rf, superuser):
+    org = OrgFactory()
+
+    request = rf.get(MEANINGLESS_URL)
+    request.user = superuser
+    response = ProjectOnboardingCreate.as_view()(request, org_slug=org.slug)
+
+    assert response.status_code == 200
+
+
+@pytest.mark.django_db
+def test_projectonboardingcreate_get_unknown_org(rf, superuser):
+    request = rf.get(MEANINGLESS_URL)
+    request.user = superuser
+
+    with pytest.raises(Http404):
+        ProjectOnboardingCreate.as_view()(request, org_slug="")
+
+
+@pytest.mark.django_db
+def test_projectonboardingcreate_post_invalid_data(rf, superuser):
+    org = OrgFactory()
+
+    data = {
+        "name": "",
+        "project_lead": "",
+        "email": "",
+        "researcher-TOTAL_FORMS": "0",
+        "researcher-INITIAL_FORMS": "0",
+        "researcher-MIN_NUM": "0",
+        "researcher-MAX_NUM": "1000",
+    }
+
+    request = rf.post(MEANINGLESS_URL, data)
+    request.user = superuser
+    response = ProjectOnboardingCreate.as_view()(request, org_slug=org.slug)
+
+    assert response.status_code == 200
+    assert Project.objects.count() == 0
+
+
+@pytest.mark.django_db
+def test_projectonboardingcreate_post_success(rf, superuser):
+    org = OrgFactory()
+
+    data = {
+        "name": "A Brand New Project",
+        "project_lead": "My Name",
+        "email": "name@example.com",
+        "researcher-TOTAL_FORMS": "1",
+        "researcher-INITIAL_FORMS": "0",
+        "researcher-MIN_NUM": "0",
+        "researcher-MAX_NUM": "1000",
+        "researcher-0-name": "Test",
+        "researcher-0-passed_researcher_training_at": "2021-01-01",
+        "researcher-0-is_ons_accredited_researcher": "on",
+    }
+
+    request = rf.post(MEANINGLESS_URL, data)
+    request.user = superuser
+    response = ProjectOnboardingCreate.as_view()(request, org_slug=org.slug)
+
+    assert response.status_code == 302
+
+    projects = Project.objects.all()
+    assert len(projects) == 1
+
+    project = projects.first()
+    assert project.name == "A Brand New Project"
+    assert project.project_lead == "My Name"
+    assert project.email == "name@example.com"
+    assert project.org == org
+    assert response.url == project.get_absolute_url()
+
+
+@pytest.mark.django_db
+def test_projectonboardingcreate_post_unknown_org(rf, superuser):
+    request = rf.post(MEANINGLESS_URL)
+    request.user = superuser
+
+    with pytest.raises(Http404):
+        ProjectOnboardingCreate.as_view()(request, org_slug="")
 
 
 @pytest.mark.django_db

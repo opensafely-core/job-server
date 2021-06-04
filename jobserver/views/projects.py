@@ -13,9 +13,9 @@ from ..authorization import has_permission, roles_for
 from ..authorization.decorators import require_superuser
 from ..emails import send_project_invite_email
 from ..forms import (
-    ProjectCreateForm,
     ProjectInvitationForm,
     ProjectMembershipForm,
+    ProjectOnboardingCreateForm,
     ResearcherFormSet,
 )
 from ..models import Org, Project, ProjectInvitation, ProjectMembership, User
@@ -67,10 +67,10 @@ class ProjectCancelInvite(View):
 
 
 @method_decorator(require_superuser, name="dispatch")
-class ProjectCreate(CreateView):
-    form_class = ProjectCreateForm
+class ProjectOnboardingCreate(CreateView):
+    form_class = ProjectOnboardingCreateForm
     model = Project
-    template_name = "project_create.html"
+    template_name = "project_onboarding_create.html"
 
     def dispatch(self, request, *args, **kwargs):
         self.org = get_object_or_404(Org, slug=self.kwargs["org_slug"])
