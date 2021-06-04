@@ -9,7 +9,7 @@ from django.utils.html import escape
 from django.views.generic import CreateView, DetailView, UpdateView, View
 from sentry_sdk import capture_exception
 
-from ..authorization import has_permission, roles_for
+from ..authorization import ProjectCoordinator, has_permission, roles_for
 from ..authorization.decorators import require_superuser
 from ..emails import send_project_invite_email
 from ..forms import (
@@ -64,6 +64,42 @@ class ProjectCancelInvite(View):
         invite.delete()
 
         return redirect(invite.project.get_settings_url())
+
+
+class ProjectCreate(CreateView):
+    fields = ["name"]
+    model = Project
+    template_name = "project_create.html"
+
+    def dispatch(self, request, *args, **kwargs):
+        self.org = get_object_or_404(Org, slug=self.kwargs["org_slug"])
+
+        if self.org.slug not in ["datalab", "lshtm"]:
+            # Only DataLab and LSHTM have blanket approval, all other orgs must
+            # go through the onboarding process to get approval for their
+            # projects.
+            return redirect("project-onboarding", org_slug=self.org.slug)
+
+        if request.user not in self.org.members.all():
+            raise Http404
+
+        return super().dispatch(request, *args, **kwargs)
+
+    @transaction.atomic()
+    def form_valid(self, form):
+        project = form.save(commit=False)
+        project.org = self.org
+        project.save()
+
+        project.memberships.create(user=self.request.user, roles=[ProjectCoordinator])
+
+        return redirect(project)
+
+    def get_context_data(self, **kwargs):
+        return super().get_context_data(
+            org=self.org,
+            **kwargs,
+        )
 
 
 @method_decorator(require_superuser, name="dispatch")

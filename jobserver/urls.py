@@ -37,12 +37,12 @@ from .views.orgs import OrgCreate, OrgDetail, OrgList
 from .views.projects import (
     ProjectAcceptInvite,
     ProjectCancelInvite,
+    ProjectCreate,
     ProjectDetail,
     ProjectDisconnectWorkspace,
     ProjectInvitationCreate,
     ProjectMembershipEdit,
     ProjectMembershipRemove,
-    ProjectOnboardingCreate,
     ProjectSettings,
 )
 from .views.status import Status
@@ -151,7 +151,7 @@ org_urls = [
                 path("", OrgDetail.as_view(), name="org-detail"),
                 path(
                     "new-project/",
-                    ProjectOnboardingCreate.as_view(),
+                    ProjectCreate.as_view(),
                     name="project-create",
                 ),
                 path(

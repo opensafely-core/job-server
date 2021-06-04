@@ -1,17 +1,20 @@
 import pytest
+from django.contrib.auth.models import AnonymousUser
 from django.contrib.messages.storage.fallback import FallbackStorage
 from django.http import Http404
+from django.urls import reverse
 
 from jobserver.authorization import (
     ProjectCollaborator,
     ProjectCoordinator,
     ProjectDeveloper,
 )
-from jobserver.models import Project, ProjectInvitation, ProjectMembership
+from jobserver.models import Org, Project, ProjectInvitation, ProjectMembership
 from jobserver.utils import dotted_path
 from jobserver.views.projects import (
     ProjectAcceptInvite,
     ProjectCancelInvite,
+    ProjectCreate,
     ProjectDetail,
     ProjectDisconnectWorkspace,
     ProjectInvitationCreate,
@@ -23,6 +26,7 @@ from jobserver.views.projects import (
 
 from ...factories import (
     OrgFactory,
+    OrgMembershipFactory,
     ProjectFactory,
     ProjectInvitationFactory,
     ProjectMembershipFactory,
@@ -165,6 +169,89 @@ def test_projectcancelinvite_without_manage_members_permission(rf, superuser):
         ProjectCancelInvite.as_view()(
             request, org_slug=org.slug, project_slug=project.slug
         )
+
+
+@pytest.mark.django_db
+def test_projectcreate_get_success(rf):
+    org, _ = Org.objects.get_or_create(name="DataLab", slug="datalab")
+    user = UserFactory()
+    OrgMembershipFactory(org=org, user=user)
+
+    request = rf.get("/")
+    request.user = user
+
+    response = ProjectCreate.as_view()(request, org_slug=org.slug)
+
+    assert response.status_code == 200
+    assert response.context_data["org"] == org
+
+
+@pytest.mark.django_db
+def test_projectcreate_post_success(rf):
+    org, _ = Org.objects.get_or_create(name="DataLab", slug="datalab")
+    user = UserFactory()
+    OrgMembershipFactory(org=org, user=user)
+
+    assert Project.objects.count() == 0
+
+    request = rf.post("/", {"name": "test"})
+    request.user = user
+
+    response = ProjectCreate.as_view()(request, org_slug=org.slug)
+
+    assert Project.objects.count() == 1
+    project = Project.objects.first()
+
+    assert response.status_code == 302
+    assert response.url == project.get_absolute_url()
+
+    assert project.org == org
+    assert project.name == "test"
+
+    membership = project.memberships.first()
+    assert membership.user == user
+    assert membership.roles == [ProjectCoordinator]
+
+
+@pytest.mark.django_db
+def test_projectcreate_unauthenticated(rf):
+    org, _ = Org.objects.get_or_create(name="DataLab", slug="datalab")
+
+    request = rf.post("/", {"name": "test"})
+    request.user = AnonymousUser()
+
+    with pytest.raises(Http404):
+        ProjectCreate.as_view()(request, org_slug=org.slug)
+
+
+@pytest.mark.django_db
+def test_projectcreate_user_not_in_org(rf):
+    org, _ = Org.objects.get_or_create(name="DataLab", slug="datalab")
+
+    request = rf.post("/", {"name": "test"})
+    request.user = UserFactory()
+
+    with pytest.raises(Http404):
+        ProjectCreate.as_view()(request, org_slug=org.slug)
+
+
+@pytest.mark.parametrize("http_method", ["GET", "POST"])
+@pytest.mark.django_db
+def test_projectcreate_with_org_witout_blanket_approval(http_method, rf):
+    org = OrgFactory()
+    user = UserFactory()
+    OrgMembershipFactory(org=org, user=user)
+
+    assert Project.objects.count() == 0
+
+    request = rf.generic(http_method, "/")
+    request.user = user
+
+    response = ProjectCreate.as_view()(request, org_slug=org.slug)
+
+    assert response.status_code == 302
+    assert response.url == reverse("project-onboarding", kwargs={"org_slug": org.slug})
+    assert Project.objects.count() == 0
 
 
 @pytest.mark.django_db
