@@ -110,6 +110,17 @@ class ProjectMembershipFactory(factory.django.DjangoModelFactory):
     user = factory.SubFactory("tests.factories.UserFactory")
 
 
+class ReleaseFactory(factory.django.DjangoModelFactory):
+    class Meta:
+        model = Release
+
+    backend = factory.SubFactory("tests.factories.BackendFactory")
+    workspace = factory.SubFactory("tests.factories.WorkspaceFactory")
+
+    id = factory.Sequence(lambda n: f"release-{n}")
+    files = []
+
+
 class ResearcherRegistrationFactory(factory.django.DjangoModelFactory):
     class Meta:
         model = ResearcherRegistration
@@ -150,11 +161,3 @@ class WorkspaceFactory(factory.django.DjangoModelFactory):
 
     name = factory.Sequence(lambda n: f"workspace-{n}")
     repo = factory.Sequence(lambda n: "http://example.com/org-{n}/repo-{n}")
-
-
-class ReleaseFactory(factory.django.DjangoModelFactory):
-    class Meta:
-        model = Release
-
-    backend = factory.SubFactory("tests.factories.BackendFactory")
-    workspace = factory.SubFactory("tests.factories.WorkspaceFactory")

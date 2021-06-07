@@ -17,7 +17,7 @@ from jobserver.api import (
     update_stats,
 )
 from jobserver.authorization import CoreDeveloper, OrgCoordinator, ProjectDeveloper
-from jobserver.models import Backend, Job, JobRequest, Stats
+from jobserver.models import Backend, Job, JobRequest, Release, Stats
 from tests.jobserver.test_releases import make_release_zip
 
 from ..factories import (
@@ -738,6 +738,8 @@ def test_release_api_created(api_rf, tmp_path, monkeypatch):
     workspace = WorkspaceFactory(project=project)
     BackendFactory(auth_token="test")
 
+    assert Release.objects.count() == 0
+
     response = APIClient().put(
         f"/api/v2/workspaces/{workspace.name}/releases/{release_hash}",
         content_type="application/octet-stream",
@@ -748,11 +750,11 @@ def test_release_api_created(api_rf, tmp_path, monkeypatch):
     )
 
     assert response.status_code == 201
-    release_id = response["Release-Id"]
-    assert (
-        response["Location"]
-        == f"http://testserver/orgs/{org.slug}/{project.slug}/{workspace.name}/releases/{release_id}"
-    )
+    assert Release.objects.count() == 1
+
+    release = Release.objects.first()
+    assert response["Release-Id"] == release.id
+    assert response["Location"] == f"http://testserver{release.get_absolute_url()}"
 
 
 @pytest.mark.django_db
@@ -767,7 +769,8 @@ def test_release_api_redirected(api_rf, tmp_path, monkeypatch):
     BackendFactory(auth_token="test")
 
     # release already exists
-    ReleaseFactory(id=release_hash, files=[])
+    release = ReleaseFactory(workspace=workspace, id=release_hash, files=[])
+    assert Release.objects.count() == 1
 
     response = APIClient().put(
         f"/api/v2/workspaces/{workspace.name}/releases/{release_hash}",
@@ -779,8 +782,8 @@ def test_release_api_redirected(api_rf, tmp_path, monkeypatch):
     )
 
     assert response.status_code == 303
-    release_id = response["Release-Id"]
-    assert (
-        response["Location"]
-        == f"http://testserver/orgs/{org.slug}/{project.slug}/{workspace.name}/releases/{release_id}"
-    )
+    assert Release.objects.count() == 1
+
+    release.refresh_from_db()
+    assert response["Release-Id"] == release.id
+    assert response["Location"] == f"http://testserver{release.get_absolute_url()}"

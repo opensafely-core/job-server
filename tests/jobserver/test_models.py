@@ -12,7 +12,7 @@ from jobserver.authorization.roles import (
     ProjectCollaborator,
     ProjectDeveloper,
 )
-from jobserver.models import Backend, ProjectInvitation, ProjectMembership, Release
+from jobserver.models import Backend, ProjectInvitation, ProjectMembership
 
 from ..factories import (
     BackendFactory,
@@ -24,6 +24,7 @@ from ..factories import (
     ProjectFactory,
     ProjectInvitationFactory,
     ProjectMembershipFactory,
+    ReleaseFactory,
     ResearcherRegistrationFactory,
     StatsFactory,
     UserFactory,
@@ -701,6 +702,33 @@ def test_projectmembership_str():
 
 
 @pytest.mark.django_db
+def test_release_creation():
+    release = ReleaseFactory(files=["file.txt"], upload_dir="workspace/release")
+
+    assert str(release.file_path("file.txt")) == "releases/workspace/release/file.txt"
+
+
+@pytest.mark.django_db
+def test_release_get_absolute_url():
+    org = OrgFactory()
+    project = ProjectFactory(org=org)
+    workspace = WorkspaceFactory(project=project)
+    release = ReleaseFactory(workspace=workspace)
+
+    url = release.get_absolute_url()
+
+    assert url == reverse(
+        "workspace-release",
+        kwargs={
+            "org_slug": org.slug,
+            "project_slug": project.slug,
+            "workspace_slug": workspace.name,
+            "release": release.id,
+        },
+    )
+
+
+@pytest.mark.django_db
 def test_researcher_registration_str():
     researcher = ResearcherRegistrationFactory(
         name="Terry",
@@ -984,20 +1012,3 @@ def test_workspace_str():
         name="Corellian Engineering Corporation", repo="Corellia"
     )
     assert str(workspace) == "Corellian Engineering Corporation (Corellia)"
-
-
-@pytest.mark.django_db
-def test_release():
-    backend = BackendFactory(auth_token="test")
-    workspace = WorkspaceFactory(
-        name="Corellian Engineering Corporation", repo="Corellia"
-    )
-    release = Release.objects.create(
-        id="release",
-        workspace=workspace,
-        backend=backend,
-        backend_user="UserName",
-        upload_dir="workspace/release",
-        files=["file.txt"],
-    )
-    assert str(release.file_path("file.txt")) == "releases/workspace/release/file.txt"

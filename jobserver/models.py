@@ -690,6 +690,17 @@ class Release(models.Model):
     # store local TPP/EMIS username for audit
     backend_user = models.TextField()
 
+    def get_absolute_url(self):
+        return reverse(
+            "workspace-release",
+            kwargs={
+                "org_slug": self.workspace.project.org.slug,
+                "project_slug": self.workspace.project.slug,
+                "workspace_slug": self.workspace.name,
+                "release": self.id,
+            },
+        )
+
     def file_path(self, filename):
         return settings.RELEASE_STORAGE / self.upload_dir / filename
 
