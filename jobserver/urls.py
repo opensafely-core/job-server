@@ -49,10 +49,9 @@ from .views.projects import (
 from .views.status import Status
 from .views.users import Settings
 from .views.workspaces import (
-    GlobalWorkspaceDetail,
-    ProjectWorkspaceDetail,
     WorkspaceArchiveToggle,
     WorkspaceCreate,
+    WorkspaceDetail,
     WorkspaceLog,
     WorkspaceNotificationsToggle,
     WorkspaceReleaseView,
@@ -89,8 +88,8 @@ backend_urls = [
 workspace_urls = [
     path(
         "",
-        ProjectWorkspaceDetail.as_view(),
-        name="project-workspace-detail",
+        WorkspaceDetail.as_view(),
+        name="workspace-detail",
     ),
     path(
         "archive-toggle/",
@@ -194,5 +193,4 @@ urlpatterns = [
     path("status/", Status.as_view(), name="status"),
     path("workspaces/", RedirectView.as_view(url="/")),
     path("__debug__/", include(debug_toolbar.urls)),
-    path("<name>/", GlobalWorkspaceDetail.as_view(), name="workspace-detail"),
 ]

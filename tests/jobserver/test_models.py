@@ -828,9 +828,20 @@ def test_user_is_unapproved_by_default():
 
 @pytest.mark.django_db
 def test_workspace_get_absolute_url():
-    workspace = WorkspaceFactory()
+    org = OrgFactory()
+    project = ProjectFactory(org=org)
+    workspace = WorkspaceFactory(project=project)
+
     url = workspace.get_absolute_url()
-    assert url == reverse("workspace-detail", kwargs={"name": workspace.name})
+
+    assert url == reverse(
+        "workspace-detail",
+        kwargs={
+            "org_slug": org.slug,
+            "project_slug": project.slug,
+            "workspace_slug": workspace.name,
+        },
+    )
 
 
 @pytest.mark.django_db

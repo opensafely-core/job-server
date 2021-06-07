@@ -79,31 +79,31 @@ class WorkspaceCreate(CreateView):
         return kwargs
 
 
-class BaseWorkspaceDetail(CreateView):
-    """
-    WorkspaceDetail base view
-
-    Handles everything for the WorkspaceDetail page except Workspace permission
-    lookups.  Any subclass must implement the can_run_jobs method, returning a
-    boolean.
-    """
-
+class WorkspaceDetail(CreateView):
     form_class = JobRequestCreateForm
     model = JobRequest
     template_name = "workspace_detail.html"
 
-    def can_run_jobs(self, user):
-        raise NotImplementedError
-
     def dispatch(self, request, *args, **kwargs):
+        try:
+            self.workspace = Workspace.objects.get(
+                project__org__slug=self.kwargs["org_slug"],
+                project__slug=self.kwargs["project_slug"],
+                name=self.kwargs["workspace_slug"],
+            )
+        except Workspace.DoesNotExist:
+            return redirect("/")
 
         if not request.user.is_authenticated:
-            context = {
-                "workspace": self.workspace,
-            }
-            return TemplateResponse(request, self.template_name, context=context)
+            return TemplateResponse(
+                request,
+                self.template_name,
+                context={"workspace": self.workspace},
+            )
 
-        self.user_can_run_jobs = self.can_run_jobs(request.user)
+        self.user_can_run_jobs = has_permission(
+            request.user, "run_job", project=self.workspace.project
+        )
 
         self.show_details = self.user_can_run_jobs and not self.workspace.is_archived
 
@@ -197,47 +197,6 @@ class BaseWorkspaceDetail(CreateView):
             return redirect(self.workspace)
 
         return super().post(request, *args, **kwargs)
-
-
-class GlobalWorkspaceDetail(BaseWorkspaceDetail):
-    def can_run_jobs(self, user):
-        return can_run_jobs(user)
-
-    def dispatch(self, request, *args, **kwargs):
-        if "project_slug" in self.kwargs:
-            return redirect(
-                "project-workspace-detail",
-                org_slug=self.kwargs["org_slug"],
-                project_slug=self.kwargs["project_slug"],
-                workspace_slug=self.kwargs["workspace_slug"],
-            )
-
-        try:
-            self.workspace = Workspace.objects.get(name=self.kwargs["name"])
-        except Workspace.DoesNotExist:
-            return redirect("/")
-
-        return super().dispatch(request, *args, **kwargs)
-
-
-class ProjectWorkspaceDetail(BaseWorkspaceDetail):
-    def can_run_jobs(self, user):
-        return has_permission(user, "run_job", project=self.workspace.project)
-
-    def dispatch(self, request, *args, **kwargs):
-        if "project_slug" not in self.kwargs:
-            return redirect("workspace-detail", name=self.kwargs["name"])
-
-        try:
-            self.workspace = Workspace.objects.get(
-                project__org__slug=self.kwargs["org_slug"],
-                project__slug=self.kwargs["project_slug"],
-                name=self.kwargs["workspace_slug"],
-            )
-        except Workspace.DoesNotExist:
-            return redirect("/")
-
-        return super().dispatch(request, *args, **kwargs)
 
 
 class WorkspaceLog(ListView):

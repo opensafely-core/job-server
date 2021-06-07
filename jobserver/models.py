@@ -874,7 +874,14 @@ class Workspace(models.Model):
         return f"{self.name} ({self.repo})"
 
     def get_absolute_url(self):
-        return reverse("workspace-detail", kwargs={"name": self.name})
+        return reverse(
+            "workspace-detail",
+            kwargs={
+                "org_slug": self.project.org.slug,
+                "project_slug": self.project.slug,
+                "workspace_slug": self.name,
+            },
+        )
 
     def get_archive_toggle_url(self):
         return reverse(
