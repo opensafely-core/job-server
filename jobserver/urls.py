@@ -145,28 +145,6 @@ project_urls = [
 org_urls = [
     path("", OrgList.as_view(), name="org-list"),
     path("new/", OrgCreate.as_view(), name="org-create"),
-    path(
-        "<org_slug>/",
-        include(
-            [
-                path("", OrgDetail.as_view(), name="org-detail"),
-                path(
-                    "new-project/",
-                    ProjectCreate.as_view(),
-                    name="project-create",
-                ),
-                path(
-                    "project-onboarding/",
-                    ProjectOnboardingCreate.as_view(),
-                    name="project-onboarding",
-                ),
-                path(
-                    "<project_slug>/",
-                    include(project_urls),
-                ),
-            ]
-        ),
-    ),
 ]
 
 urlpatterns = [
@@ -193,4 +171,26 @@ urlpatterns = [
     path("status/", Status.as_view(), name="status"),
     path("workspaces/", RedirectView.as_view(url="/")),
     path("__debug__/", include(debug_toolbar.urls)),
+    path(
+        "<org_slug>/",
+        include(
+            [
+                path("", OrgDetail.as_view(), name="org-detail"),
+                path(
+                    "new-project/",
+                    ProjectCreate.as_view(),
+                    name="project-create",
+                ),
+                path(
+                    "project-onboarding/",
+                    ProjectOnboardingCreate.as_view(),
+                    name="project-onboarding",
+                ),
+                path(
+                    "<project_slug>/",
+                    include(project_urls),
+                ),
+            ]
+        ),
+    ),
 ]
