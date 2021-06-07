@@ -16,7 +16,6 @@ from jobserver.views.projects import (
     ProjectCancelInvite,
     ProjectCreate,
     ProjectDetail,
-    ProjectDisconnectWorkspace,
     ProjectInvitationCreate,
     ProjectMembershipEdit,
     ProjectMembershipRemove,
@@ -31,7 +30,6 @@ from ...factories import (
     ProjectInvitationFactory,
     ProjectMembershipFactory,
     UserFactory,
-    WorkspaceFactory,
 )
 
 
@@ -288,71 +286,6 @@ def test_projectdetail_unknown_project(rf):
 
     with pytest.raises(Http404):
         ProjectDetail.as_view()(request, org_slug=org.slug, project_slug="test")
-
-
-@pytest.mark.django_db
-def test_projectdisconnect_missing_workspace_id(rf):
-    org = OrgFactory()
-    project = ProjectFactory(org=org)
-    user = UserFactory()
-
-    ProjectMembershipFactory(project=project, user=user, roles=[ProjectCoordinator])
-
-    request = rf.post(MEANINGLESS_URL)
-    request.user = user
-    response = ProjectDisconnectWorkspace.as_view()(
-        request, org_slug=org.slug, project_slug=project.slug
-    )
-
-    assert response.status_code == 302
-    assert response.url == project.get_absolute_url()
-
-
-@pytest.mark.django_db
-def test_projectdisconnect_success(rf):
-    org = OrgFactory()
-    project = ProjectFactory(org=org)
-    workspace = WorkspaceFactory(project=project)
-    user = UserFactory()
-
-    ProjectMembershipFactory(project=project, user=user, roles=[ProjectCoordinator])
-
-    request = rf.post(MEANINGLESS_URL, {"id": workspace.pk})
-    request.user = user
-    response = ProjectDisconnectWorkspace.as_view()(
-        request, org_slug=org.slug, project_slug=project.slug
-    )
-
-    assert response.status_code == 302
-    assert response.url == project.get_absolute_url()
-
-
-@pytest.mark.django_db
-def test_projectdisconnect_unknown_project(rf):
-    org = OrgFactory()
-
-    request = rf.post(MEANINGLESS_URL)
-    request.user = UserFactory()
-
-    with pytest.raises(Http404):
-        ProjectDisconnectWorkspace.as_view()(
-            request, org_slug=org.slug, project_slug=""
-        )
-
-
-@pytest.mark.django_db
-def test_projectdisconnect_without_permission(rf):
-    org = OrgFactory()
-    project = ProjectFactory(org=org)
-    workspace = WorkspaceFactory(project=project)
-
-    request = rf.post(MEANINGLESS_URL, {"id": workspace.pk})
-    request.user = UserFactory()
-
-    with pytest.raises(Http404):
-        ProjectDisconnectWorkspace.as_view()(
-            request, org_slug=org.slug, project_slug=project.slug
-        )
 
 
 @pytest.mark.django_db

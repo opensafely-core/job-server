@@ -178,32 +178,6 @@ class ProjectDetail(DetailView):
         return context
 
 
-class ProjectDisconnectWorkspace(View):
-    def post(self, request, *args, **kwargs):
-        """A transitional view to help with migrating Workspaces under Projects"""
-        project = get_object_or_404(
-            Project,
-            org__slug=self.kwargs["org_slug"],
-            slug=self.kwargs["project_slug"],
-        )
-
-        can_manage_workspaces = has_permission(
-            request.user,
-            "manage_project_workspaces",
-            project=project,
-        )
-        if not can_manage_workspaces:
-            raise Http404
-
-        workspace_id = request.POST.get("id")
-        if not workspace_id:
-            return redirect(project)
-
-        project.workspaces.filter(pk=workspace_id).update(project=None)
-
-        return redirect(project)
-
-
 class ProjectInvitationCreate(CreateView):
     form_class = ProjectInvitationForm
     model = ProjectInvitation

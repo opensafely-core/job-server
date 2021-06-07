@@ -39,7 +39,6 @@ from .views.projects import (
     ProjectCancelInvite,
     ProjectCreate,
     ProjectDetail,
-    ProjectDisconnectWorkspace,
     ProjectInvitationCreate,
     ProjectMembershipEdit,
     ProjectMembershipRemove,
@@ -117,11 +116,6 @@ project_urls = [
         name="project-accept-invite",
     ),
     path("cancel-invite/", ProjectCancelInvite.as_view(), name="project-cancel-invite"),
-    path(
-        "disconnect/",
-        ProjectDisconnectWorkspace.as_view(),
-        name="project-disconnect-workspace",
-    ),
     path(
         "invite-users/",
         ProjectInvitationCreate.as_view(),
