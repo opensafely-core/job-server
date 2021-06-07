@@ -21,7 +21,6 @@ class OrgCreate(CreateView):
         return self.object.get_absolute_url()
 
 
-@method_decorator(require_superuser, name="dispatch")
 class OrgDetail(DetailView):
     model = Org
     slug_url_kwarg = "org_slug"
