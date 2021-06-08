@@ -1,4 +1,5 @@
 from django.contrib.auth.decorators import user_passes_test
+from django.core.exceptions import BadRequest
 from django.db.models import Q
 from django.shortcuts import get_object_or_404, redirect
 from django.utils.decorators import method_decorator
@@ -109,8 +110,15 @@ class JobRequestList(FormMixin, ListView):
                 # it then we can look for a job number
                 qs = qs.filter(qwargs | Q(jobs__pk=q))
 
+        def raise_if_not_int(value):
+            try:
+                int(value)
+            except ValueError:
+                raise BadRequest
+
         backend = self.request.GET.get("backend")
         if backend:
+            raise_if_not_int(backend)
             qs = qs.filter(backend_id=backend)
 
         username = self.request.GET.get("username")
@@ -119,6 +127,7 @@ class JobRequestList(FormMixin, ListView):
 
         workspace = self.request.GET.get("workspace")
         if workspace:
+            raise_if_not_int(workspace)
             qs = qs.filter(workspace_id=workspace)
 
         return qs
