@@ -2,6 +2,7 @@ import pytest
 import responses
 from django.conf import settings
 from django.contrib.auth.models import AnonymousUser
+from django.core.exceptions import BadRequest
 from django.http import Http404
 from django.urls import reverse
 
@@ -169,6 +170,15 @@ def test_jobrequestlist_filter_by_backend(rf):
 
 
 @pytest.mark.django_db
+def test_jobrequestlist_filter_by_backend_with_broken_pk(rf):
+    request = rf.get("/?backend=test")
+    request.user = UserFactory()
+
+    with pytest.raises(BadRequest):
+        JobRequestList.as_view()(request)
+
+
+@pytest.mark.django_db
 def test_jobrequestlist_filter_by_status(rf):
     JobFactory(job_request=JobRequestFactory(), status="failed")
 
@@ -258,6 +268,15 @@ def test_jobrequestlist_filter_by_workspace(rf):
     response = JobRequestList.as_view()(request)
 
     assert len(response.context_data["object_list"]) == 1
+
+
+@pytest.mark.django_db
+def test_jobrequestlist_filter_by_workspace_with_broken_pk(rf):
+    request = rf.get("/?workspace=test")
+    request.user = UserFactory()
+
+    with pytest.raises(BadRequest):
+        JobRequestList.as_view()(request)
 
 
 @pytest.mark.django_db
