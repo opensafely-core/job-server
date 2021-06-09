@@ -16,7 +16,7 @@ from ..forms import (
     WorkspaceNotificationsToggleForm,
 )
 from ..github import get_branch_sha, get_repos_with_branches
-from ..models import Backend, JobRequest, Workspace
+from ..models import Backend, JobRequest, Project, Workspace
 from ..project import get_actions, get_project, load_yaml
 from ..roles import can_run_jobs
 
@@ -24,7 +24,12 @@ from ..roles import can_run_jobs
 @method_decorator(user_passes_test(can_run_jobs), name="dispatch")
 class WorkspaceArchiveToggle(View):
     def post(self, request, *args, **kwargs):
-        workspace = get_object_or_404(Workspace, name=self.kwargs["name"])
+        workspace = get_object_or_404(
+            Workspace,
+            project__org__slug=self.kwargs["org_slug"],
+            project__slug=self.kwargs["project_slug"],
+            name=self.kwargs["workspace_slug"],
+        )
 
         form = WorkspaceArchiveToggleForm(request.POST)
         form.is_valid()
@@ -42,6 +47,10 @@ class WorkspaceCreate(CreateView):
     template_name = "workspace_create.html"
 
     def dispatch(self, request, *args, **kwargs):
+        self.project = get_object_or_404(
+            Project, org__slug=self.kwargs["org_slug"], slug=self.kwargs["project_slug"]
+        )
+
         gh_org = self.request.user.orgs.first().github_orgs[0]
         self.repos_with_branches = sorted(
             get_repos_with_branches(gh_org), key=lambda r: r["name"].lower()
@@ -50,16 +59,19 @@ class WorkspaceCreate(CreateView):
         return super().dispatch(request, *args, **kwargs)
 
     def form_valid(self, form):
-        instance = form.save(commit=False)
-        instance.created_by = self.request.user
-        instance.save()
+        workspace = form.save(commit=False)
+        workspace.created_by = self.request.user
+        workspace.project = self.project
+        workspace.save()
 
-        return redirect(instance)
+        return redirect(workspace)
 
     def get_context_data(self, **kwargs):
-        context = super().get_context_data(**kwargs)
-        context["repos_with_branches"] = self.repos_with_branches
-        return context
+        return super().get_context_data(
+            project=self.project,
+            repos_with_branches=self.repos_with_branches,
+            **kwargs,
+        )
 
     def get_form_kwargs(self):
         kwargs = super().get_form_kwargs()
@@ -67,31 +79,31 @@ class WorkspaceCreate(CreateView):
         return kwargs
 
 
-class BaseWorkspaceDetail(CreateView):
-    """
-    WorkspaceDetail base view
-
-    Handles everything for the WorkspaceDetail page except Workspace permission
-    lookups.  Any subclass must implement the can_run_jobs method, returning a
-    boolean.
-    """
-
+class WorkspaceDetail(CreateView):
     form_class = JobRequestCreateForm
     model = JobRequest
     template_name = "workspace_detail.html"
 
-    def can_run_jobs(self, user):
-        raise NotImplementedError
-
     def dispatch(self, request, *args, **kwargs):
+        try:
+            self.workspace = Workspace.objects.get(
+                project__org__slug=self.kwargs["org_slug"],
+                project__slug=self.kwargs["project_slug"],
+                name=self.kwargs["workspace_slug"],
+            )
+        except Workspace.DoesNotExist:
+            return redirect("/")
 
         if not request.user.is_authenticated:
-            context = {
-                "workspace": self.workspace,
-            }
-            return TemplateResponse(request, self.template_name, context=context)
+            return TemplateResponse(
+                request,
+                self.template_name,
+                context={"workspace": self.workspace},
+            )
 
-        self.user_can_run_jobs = self.can_run_jobs(request.user)
+        self.user_can_run_jobs = has_permission(
+            request.user, "run_job", project=self.workspace.project
+        )
 
         self.show_details = self.user_can_run_jobs and not self.workspace.is_archived
 
@@ -135,7 +147,12 @@ class BaseWorkspaceDetail(CreateView):
             project_definition=self.project,
             **form.cleaned_data,
         )
-        return redirect("workspace-logs", name=self.workspace.name)
+        return redirect(
+            "workspace-logs",
+            org_slug=self.workspace.project.org.slug,
+            project_slug=self.workspace.project.slug,
+            workspace_slug=self.workspace.name,
+        )
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
@@ -182,54 +199,17 @@ class BaseWorkspaceDetail(CreateView):
         return super().post(request, *args, **kwargs)
 
 
-class GlobalWorkspaceDetail(BaseWorkspaceDetail):
-    def can_run_jobs(self, user):
-        return can_run_jobs(user)
-
-    def dispatch(self, request, *args, **kwargs):
-        if "project_slug" in self.kwargs:
-            return redirect(
-                "project-workspace-detail",
-                org_slug=self.kwargs["org_slug"],
-                project_slug=self.kwargs["project_slug"],
-                workspace_slug=self.kwargs["workspace_slug"],
-            )
-
-        try:
-            self.workspace = Workspace.objects.get(name=self.kwargs["name"])
-        except Workspace.DoesNotExist:
-            return redirect("/")
-
-        return super().dispatch(request, *args, **kwargs)
-
-
-class ProjectWorkspaceDetail(BaseWorkspaceDetail):
-    def can_run_jobs(self, user):
-        return has_permission(user, "run_job", project=self.workspace.project)
-
-    def dispatch(self, request, *args, **kwargs):
-        if "project_slug" not in self.kwargs:
-            return redirect("workspace-detail", name=self.kwargs["name"])
-
-        try:
-            self.workspace = Workspace.objects.get(
-                project__org__slug=self.kwargs["org_slug"],
-                project__slug=self.kwargs["project_slug"],
-                name=self.kwargs["workspace_slug"],
-            )
-        except Workspace.DoesNotExist:
-            return redirect("/")
-
-        return super().dispatch(request, *args, **kwargs)
-
-
 class WorkspaceLog(ListView):
     paginate_by = 25
     template_name = "workspace_log.html"
 
     def dispatch(self, request, *args, **kwargs):
         try:
-            self.workspace = Workspace.objects.get(name=self.kwargs["name"])
+            self.workspace = Workspace.objects.get(
+                project__org__slug=self.kwargs["org_slug"],
+                project__slug=self.kwargs["project_slug"],
+                name=self.kwargs["workspace_slug"],
+            )
         except Workspace.DoesNotExist:
             return redirect("/")
 
@@ -267,7 +247,12 @@ class WorkspaceLog(ListView):
 @method_decorator(user_passes_test(can_run_jobs), name="dispatch")
 class WorkspaceNotificationsToggle(View):
     def post(self, request, *args, **kwargs):
-        workspace = get_object_or_404(Workspace, name=self.kwargs["name"])
+        workspace = get_object_or_404(
+            Workspace,
+            project__org__slug=self.kwargs["org_slug"],
+            project__slug=self.kwargs["project_slug"],
+            name=self.kwargs["workspace_slug"],
+        )
 
         form = WorkspaceNotificationsToggleForm(data=request.POST)
         form.is_valid()
@@ -280,5 +265,5 @@ class WorkspaceNotificationsToggle(View):
 
 @method_decorator(user_passes_test(can_run_jobs), name="dispatch")
 class WorkspaceReleaseView(View):
-    def get(self, request, name, release):
-        return f"release page for {name}/{release}"  # pragma: no cover
+    def get(self, request, workspace_slug, release):
+        return f"release page for {workspace_slug}/{release}"  # pragma: no cover

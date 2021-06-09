@@ -9,13 +9,13 @@ from django.utils.html import escape
 from django.views.generic import CreateView, DetailView, UpdateView, View
 from sentry_sdk import capture_exception
 
-from ..authorization import has_permission, roles_for
+from ..authorization import ProjectCoordinator, has_permission, roles_for
 from ..authorization.decorators import require_superuser
 from ..emails import send_project_invite_email
 from ..forms import (
-    ProjectCreateForm,
     ProjectInvitationForm,
     ProjectMembershipForm,
+    ProjectOnboardingCreateForm,
     ResearcherFormSet,
 )
 from ..models import Org, Project, ProjectInvitation, ProjectMembership, User
@@ -66,11 +66,47 @@ class ProjectCancelInvite(View):
         return redirect(invite.project.get_settings_url())
 
 
-@method_decorator(require_superuser, name="dispatch")
 class ProjectCreate(CreateView):
-    form_class = ProjectCreateForm
+    fields = ["name"]
     model = Project
     template_name = "project_create.html"
+
+    def dispatch(self, request, *args, **kwargs):
+        self.org = get_object_or_404(Org, slug=self.kwargs["org_slug"])
+
+        if self.org.slug not in ["datalab", "lshtm"]:
+            # Only DataLab and LSHTM have blanket approval, all other orgs must
+            # go through the onboarding process to get approval for their
+            # projects.
+            return redirect("project-onboarding", org_slug=self.org.slug)
+
+        if request.user not in self.org.members.all():
+            raise Http404
+
+        return super().dispatch(request, *args, **kwargs)
+
+    @transaction.atomic()
+    def form_valid(self, form):
+        project = form.save(commit=False)
+        project.org = self.org
+        project.save()
+
+        project.memberships.create(user=self.request.user, roles=[ProjectCoordinator])
+
+        return redirect(project)
+
+    def get_context_data(self, **kwargs):
+        return super().get_context_data(
+            org=self.org,
+            **kwargs,
+        )
+
+
+@method_decorator(require_superuser, name="dispatch")
+class ProjectOnboardingCreate(CreateView):
+    form_class = ProjectOnboardingCreateForm
+    model = Project
+    template_name = "project_onboarding_create.html"
 
     def dispatch(self, request, *args, **kwargs):
         self.org = get_object_or_404(Org, slug=self.kwargs["org_slug"])
@@ -140,32 +176,6 @@ class ProjectDetail(DetailView):
         context["can_manage_members"] = can_manage_members
         context["workspaces"] = self.object.workspaces.order_by("name")
         return context
-
-
-class ProjectDisconnectWorkspace(View):
-    def post(self, request, *args, **kwargs):
-        """A transitional view to help with migrating Workspaces under Projects"""
-        project = get_object_or_404(
-            Project,
-            org__slug=self.kwargs["org_slug"],
-            slug=self.kwargs["project_slug"],
-        )
-
-        can_manage_workspaces = has_permission(
-            request.user,
-            "manage_project_workspaces",
-            project=project,
-        )
-        if not can_manage_workspaces:
-            raise Http404
-
-        workspace_id = request.POST.get("id")
-        if not workspace_id:
-            return redirect(project)
-
-        project.workspaces.filter(pk=workspace_id).update(project=None)
-
-        return redirect(project)
 
 
 class ProjectInvitationCreate(CreateView):

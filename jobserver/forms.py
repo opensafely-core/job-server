@@ -55,7 +55,7 @@ class OrgCreateForm(forms.ModelForm):
         model = Org
 
 
-class ProjectCreateForm(forms.ModelForm):
+class ProjectOnboardingCreateForm(forms.ModelForm):
     class Meta:
         fields = [
             "name",

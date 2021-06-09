@@ -690,6 +690,17 @@ class Release(models.Model):
     # store local TPP/EMIS username for audit
     backend_user = models.TextField()
 
+    def get_absolute_url(self):
+        return reverse(
+            "workspace-release",
+            kwargs={
+                "org_slug": self.workspace.project.org.slug,
+                "project_slug": self.workspace.project.slug,
+                "workspace_slug": self.workspace.name,
+                "release": self.id,
+            },
+        )
+
     def file_path(self, filename):
         return settings.RELEASE_STORAGE / self.upload_dir / filename
 
@@ -874,13 +885,34 @@ class Workspace(models.Model):
         return f"{self.name} ({self.repo})"
 
     def get_absolute_url(self):
-        return reverse("workspace-detail", kwargs={"name": self.name})
+        return reverse(
+            "workspace-detail",
+            kwargs={
+                "org_slug": self.project.org.slug,
+                "project_slug": self.project.slug,
+                "workspace_slug": self.name,
+            },
+        )
 
     def get_archive_toggle_url(self):
-        return reverse("workspace-archive-toggle", kwargs={"name": self.name})
+        return reverse(
+            "workspace-archive-toggle",
+            kwargs={
+                "org_slug": self.project.org.slug,
+                "project_slug": self.project.slug,
+                "workspace_slug": self.name,
+            },
+        )
 
     def get_notifications_toggle_url(self):
-        return reverse("workspace-notifications-toggle", kwargs={"name": self.name})
+        return reverse(
+            "workspace-notifications-toggle",
+            kwargs={
+                "org_slug": self.project.org.slug,
+                "project_slug": self.project.slug,
+                "workspace_slug": self.name,
+            },
+        )
 
     def get_statuses_url(self):
         return reverse("workspace-statuses", kwargs={"name": self.name})

@@ -5,9 +5,34 @@
 
 {% block content %}
 
+<nav aria-label="breadcrumb">
+  <ol class="breadcrumb">
+
+    <li class="breadcrumb-item"><a href="/">Home</a></li>
+
+    <li class="breadcrumb-item">
+      <a href="{{ project.org.get_absolute_url }}">
+        {{ project.org.name }}
+      </a>
+    </li>
+
+    <li class="breadcrumb-item">
+      <a href="{{ project.get_absolute_url }}">
+        {{ project.name }}
+      </a>
+    </li>
+
+    <li class="breadcrumb-item active" aria-current="page">Create a Workspace</li>
+
+  </ol>
+</nav>
+
 <div class="row">
   <div class="col-md-8 offset-md-2">
+    <h3 class="mb-3">Create a Workspace</h3>
+
     {% crispy form %}
+
   </div>
 </div>
 {% endblock content %}
