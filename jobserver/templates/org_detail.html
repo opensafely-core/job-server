@@ -18,9 +18,11 @@
     <div class="d-flex justify-content-between align-items-center">
       <h2>{{ org.name }}</h2>
 
+      {% if is_member %}
       <div>
         <a class="btn btn-primary" href="{% url 'project-create' org_slug=org.slug %}">Register Project</a>
       </div>
+      {% endif %}
     </div>
 
 
@@ -34,8 +36,11 @@
     </ul>
     {% else %}
     <p class="mt-5">
-      There are no projects for this Organisation yet, click "Register Project"
-      to create one.
+      {% if is_member %}
+      There are no projects for this organisation yet, click "Register Project" to create one.
+      {% else %}
+      There are no projects for this organisation yet.
+      {% endif %}
     </p>
     {% endif %}
 
