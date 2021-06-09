@@ -4,7 +4,13 @@ from django.http import Http404
 from jobserver.models import Org
 from jobserver.views.orgs import OrgCreate, OrgDetail, OrgList
 
-from ...factories import OrgFactory, ProjectFactory, UserFactory, WorkspaceFactory
+from ...factories import (
+    OrgFactory,
+    OrgMembershipFactory,
+    ProjectFactory,
+    UserFactory,
+    WorkspaceFactory,
+)
 
 
 MEANINGLESS_URL = "/"
@@ -76,6 +82,33 @@ def test_orgdetail_unknown_org_but_known_workspace(rf):
 
     assert response.status_code == 302
     assert response.url == workspace.get_absolute_url()
+
+
+@pytest.mark.django_db
+def test_orgdetail_with_org_member(rf):
+    org = OrgFactory()
+    user = UserFactory()
+    OrgMembershipFactory(org=org, user=user)
+
+    request = rf.get(MEANINGLESS_URL)
+    request.user = user
+
+    response = OrgDetail.as_view()(request, org_slug=org.slug)
+
+    assert response.status_code == 200
+    assert "Register Project" in response.rendered_content
+
+
+@pytest.mark.django_db
+def test_orgdetail_with_non_member_user(rf):
+    org = OrgFactory()
+
+    request = rf.get(MEANINGLESS_URL)
+    request.user = UserFactory()
+    response = OrgDetail.as_view()(request, org_slug=org.slug)
+
+    assert response.status_code == 200
+    assert "Register Project" not in response.rendered_content
 
 
 @pytest.mark.django_db
