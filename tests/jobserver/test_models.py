@@ -891,6 +891,24 @@ def test_workspace_get_archive_toggle_url():
 
 
 @pytest.mark.django_db
+def test_workspace_get_logs_url():
+    org = OrgFactory()
+    project = ProjectFactory(org=org)
+    workspace = WorkspaceFactory(project=project)
+
+    url = workspace.get_logs_url()
+
+    assert url == reverse(
+        "workspace-logs",
+        kwargs={
+            "org_slug": org.slug,
+            "project_slug": project.slug,
+            "workspace_slug": workspace.name,
+        },
+    )
+
+
+@pytest.mark.django_db
 def test_workspace_get_notifications_toggle_url():
     org = OrgFactory()
     project = ProjectFactory(org=org)

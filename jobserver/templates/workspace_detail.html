@@ -27,9 +27,7 @@
       <h3>{{ workspace.name }}</h3>
 
       <div class="d-flex">
-        <a class="btn btn-primary mr-2" href="{% url 'workspace-logs' org_slug=workspace.project.org.slug project_slug=workspace.project.slug workspace_slug=workspace.name %}">
-          Logs
-        </a>
+        <a class="btn btn-primary mr-2" href="{{ workspace.get_logs_url }}">Logs</a>
         {% if show_details %}
         <a
           class="btn btn-primary"

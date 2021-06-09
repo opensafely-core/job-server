@@ -4,7 +4,6 @@ from django.conf import settings
 from django.contrib.auth.models import AnonymousUser
 from django.contrib.messages.storage.fallback import FallbackStorage
 from django.http import Http404
-from django.urls import reverse
 
 from jobserver.authorization import ProjectDeveloper
 from jobserver.models import Backend, JobRequest, Workspace
@@ -357,14 +356,7 @@ def test_workspacedetail_post_success(rf, mocker, monkeypatch, user):
     )
 
     assert response.status_code == 302, response.context_data["form"].errors
-    assert response.url == reverse(
-        "workspace-logs",
-        kwargs={
-            "org_slug": workspace.project.org.slug,
-            "project_slug": workspace.project.slug,
-            "workspace_slug": workspace.name,
-        },
-    )
+    assert response.url == workspace.get_logs_url()
 
     job_request = JobRequest.objects.first()
     assert job_request.created_by == user
@@ -467,14 +459,7 @@ def test_workspacedetail_post_with_notifications_default(rf, mocker, monkeypatch
     )
 
     assert response.status_code == 302, response.context_data["form"].errors
-    assert response.url == reverse(
-        "workspace-logs",
-        kwargs={
-            "org_slug": workspace.project.org.slug,
-            "project_slug": workspace.project.slug,
-            "workspace_slug": workspace.name,
-        },
-    )
+    assert response.url == workspace.get_logs_url()
 
     job_request = JobRequest.objects.first()
     assert job_request.created_by == user
@@ -531,14 +516,7 @@ def test_workspacedetail_post_with_notifications_override(
     )
 
     assert response.status_code == 302, response.context_data["form"].errors
-    assert response.url == reverse(
-        "workspace-logs",
-        kwargs={
-            "org_slug": workspace.project.org.slug,
-            "project_slug": workspace.project.slug,
-            "workspace_slug": workspace.name,
-        },
-    )
+    assert response.url == workspace.get_logs_url()
 
     job_request = JobRequest.objects.first()
     assert job_request.created_by == user
