@@ -208,7 +208,7 @@ def test_projectcreate_post_success(rf):
 
     membership = project.memberships.first()
     assert membership.user == user
-    assert membership.roles == [ProjectCoordinator]
+    assert set(membership.roles) == {ProjectCoordinator, ProjectDeveloper}
 
 
 @pytest.mark.django_db

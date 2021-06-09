@@ -9,7 +9,12 @@ from django.utils.html import escape
 from django.views.generic import CreateView, DetailView, UpdateView, View
 from sentry_sdk import capture_exception
 
-from ..authorization import ProjectCoordinator, has_permission, roles_for
+from ..authorization import (
+    ProjectCoordinator,
+    ProjectDeveloper,
+    has_permission,
+    roles_for,
+)
 from ..authorization.decorators import require_superuser
 from ..emails import send_project_invite_email
 from ..forms import (
@@ -91,7 +96,10 @@ class ProjectCreate(CreateView):
         project.org = self.org
         project.save()
 
-        project.memberships.create(user=self.request.user, roles=[ProjectCoordinator])
+        project.memberships.create(
+            user=self.request.user,
+            roles=[ProjectCoordinator, ProjectDeveloper],
+        )
 
         return redirect(project)
 
