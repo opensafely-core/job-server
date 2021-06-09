@@ -79,7 +79,7 @@ class ProjectCreate(CreateView):
     def dispatch(self, request, *args, **kwargs):
         self.org = get_object_or_404(Org, slug=self.kwargs["org_slug"])
 
-        if self.org.slug not in ["datalab", "lshtm"]:
+        if self.org.slug not in ["datalab", "graphnet", "lshtm"]:
             # Only DataLab and LSHTM have blanket approval, all other orgs must
             # go through the onboarding process to get approval for their
             # projects.
