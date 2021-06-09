@@ -9,11 +9,8 @@ env = Env()
 
 
 BASE_URL = "https://api.github.com"
+GITHUB_TOKEN = env.str("GITHUB_TOKEN")
 USER_AGENT = "OpenSAFELY Jobs"
-
-
-def token(org_name):
-    return env.str(f"GITHUB_{org_name.upper()}_TOKEN")
 
 
 def get_branch(org, repo, branch):
@@ -28,7 +25,7 @@ def get_branch(org, repo, branch):
 
     headers = {
         "Accept": "application/vnd.github.v3+json",
-        "Authorization": f"token {token(org)}",
+        "Authorization": f"token {GITHUB_TOKEN}",
         "User-Agent": USER_AGENT,
     }
     r = requests.get(f.url, headers=headers)
@@ -63,7 +60,7 @@ def get_file(org, repo, branch):
 
     headers = {
         "Accept": "application/vnd.github.3.raw",
-        "Authorization": f"token {token(org)}",
+        "Authorization": f"token {GITHUB_TOKEN}",
         "User-Agent": USER_AGENT,
     }
     r = requests.get(f.url, headers=headers)
@@ -142,7 +139,7 @@ def get_repos_with_branches(org):
     """
     session = requests.Session()
     session.headers = {
-        "Authorization": f"bearer {token(org)}",
+        "Authorization": f"bearer {GITHUB_TOKEN}",
         "User-Agent": USER_AGENT,
     }
 
@@ -179,7 +176,7 @@ def is_member_of_org(org, username):
 
     headers = {
         "Accept": "application/vnd.github.v3+json",
-        "Authorization": f"token {token(org)}",
+        "Authorization": f"token {GITHUB_TOKEN}",
         "User-Agent": USER_AGENT,
     }
 
