@@ -8,11 +8,11 @@ env = Env()
 
 
 available_backends = {
+    "databricks",
     "emis",
     "expectations",
     "tpp",
     "test",
-    "nhsd",
     "graphnet",
 }
 
