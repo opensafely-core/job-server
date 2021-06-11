@@ -1,5 +1,6 @@
-
 {% extends "base.html" %}
+
+{% load humanize %}
 
 {% block content %}
 
@@ -20,9 +21,9 @@
 </nav>
 
 <div class="row">
-  <div class="col-lg-8 offset-lg-2">
+  <div class="col-lg-10 offset-lg-1">
 
-    <div class="d-flex justify-content-between align-items-center">
+    <div class="d-flex justify-content-between align-items-center mb-3">
       <h2>{{ project.name }}</h2>
 
       {% if can_manage_members %}
@@ -32,29 +33,86 @@
       {% endif %}
     </div>
 
-    <div class="d-flex justify-content-between align-items-center">
-      <h3>Workspaces</h3>
-
-      {% if can_manage_workspaces %}
-      <a class="btn btn-sm btn-primary" href="{% url 'workspace-create' org_slug=project.org.slug project_slug=project.slug %}">
-        Create a Workspace
-      </a>
+    <div class="mb-4">
+      {% if project.description %}
+      <p>{{ project.description }}
       {% endif %}
+
+      <p>
+        This is an OpenSAFELY project. Every time a researcher runs their
+        analytic code against patient data, it is audited in public here. Use
+        the "logs" buttons below to explore more.
+      </p>
     </div>
 
-    <ul class="list-unstyled">
-      {% for workspace in workspaces %}
-      <li class="d-flex justify-content-between align-items-center mb-3">
+    <div class="row">
 
-        <div>
-          <a href="{% url 'workspace-detail' org_slug=project.org.slug project_slug=project.slug workspace_slug=workspace.name %}">
-            {{ workspace.name }}
+      <div class="col-lg-8">
+        <div class="d-flex justify-content-between align-items-center">
+          <h3>Workspaces</h3>
+
+          {% if can_manage_workspaces %}
+          <a class="btn btn-sm btn-primary" href="{% url 'workspace-create' org_slug=project.org.slug project_slug=project.slug %}">
+            Create a Workspace
           </a>
+          {% endif %}
         </div>
 
-      </li>
-      {% endfor %}
-    </ul>
+        <ul class="list-unstyled">
+          {% for workspace in workspaces %}
+          <li class="d-flex justify-content-between align-items-center border rounded mb-3 p-2">
+
+            <div>
+              <a href="{{ workspace.get_absolute_url }}">
+                {{ workspace.name }}
+              </a>
+            </div>
+
+            <a class="btn btn-sm btn-primary" href="{{ workspace.get_logs_url }}">Logs</a>
+
+          </li>
+          {% endfor %}
+        </ul>
+      </div>
+
+      <div class="col-lg-4">
+
+        <div class="mb-4">
+          <h5>Repos</h5>
+          <ul class="list-unstyled">
+            {% for workspace in workspaces %}
+            <li>
+              <a href="{{ workspace.repo }}">
+                {{ workspace.repo_name }} ({{ workspace.branch }})
+              </a>
+            </li>
+            {% endfor %}
+          </ul>
+        </div>
+
+        <div class="mb-4">
+          <h5>Created</h5>
+          <span title="{{ project.created_at|date:"Y-m-d H:i:s" }}">
+            {{ project.created_at|naturaltime }}
+          </span>
+
+        </div>
+
+        <div class="mb-4">
+          <h5>Organisation</h5>
+          <a href="{{ project.org.get_absolute_url }}">{{ project.org.name }}</a>
+        </div>
+
+        <div class="mb-4">
+          <h5>Researchers</h5>
+          <ul class="list-unstyled">
+            {% for user in project.members.all %}
+            <li>{{ user.name }}</li>
+            {% endfor %}
+          </ul>
+        </div>
+
+      </div>
 
   </div>
 </div>
