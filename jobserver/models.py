@@ -73,6 +73,7 @@ class Backend(models.Model):
     display_name = models.TextField()
 
     parent_directory = models.TextField(default="")
+    is_active = models.BooleanField(default=False)
 
     auth_token = models.TextField(default=generate_token)
 
