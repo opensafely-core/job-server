@@ -779,6 +779,11 @@ class User(AbstractUser):
         through="OrgMembership",
         through_fields=["user", "org"],
     )
+    projects = models.ManyToManyField(
+        "Project",
+        related_name="members",
+        through="ProjectMembership",
+    )
 
     notifications_email = models.TextField(default="")
 
