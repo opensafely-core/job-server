@@ -30,8 +30,10 @@ def test_backend_warnings_with_debug_on(rf, settings):
 
 @pytest.mark.django_db
 def test_backend_warnings_with_no_warnings(rf):
+    tpp = Backend.objects.get(name="tpp")
+
     last_seen = timezone.now() - timedelta(minutes=1)
-    StatsFactory(api_last_seen=last_seen)
+    StatsFactory(backend=tpp, api_last_seen=last_seen)
 
     request = rf.get("/")
     output = backend_warnings(request)
