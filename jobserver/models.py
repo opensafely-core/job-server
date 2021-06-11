@@ -370,6 +370,8 @@ class Org(models.Model):
 
     name = models.TextField(unique=True)
     slug = models.SlugField(max_length=255, unique=True)
+    description = models.TextField(default="", blank=True)
+    logo = models.TextField(default="", blank=True)
 
     # track which GitHub Organisations this Org has access to
     github_orgs = models.JSONField(default=list)
