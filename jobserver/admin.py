@@ -66,6 +66,7 @@ class ProjectForm(forms.ModelForm):
             "org",
             "name",
             "slug",
+            "description",
             "proposed_start_date",
             "proposed_duration",
             "next_step",
@@ -122,6 +123,7 @@ class ProjectAdmin(admin.ModelAdmin):
                 "fields": [
                     "org",
                     "name",
+                    "description",
                     "proposed_start_date",
                     "proposed_duration",
                     "next_step",
