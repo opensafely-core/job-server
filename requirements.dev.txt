@@ -189,9 +189,9 @@ django-cache-url==3.2.3 \
     --hash=sha256:5514ca3a2075c6b956b3d0a5c540654d32b004e76340d7bdabf6661135b5f218 \
     --hash=sha256:c1d45626ae8a206267c1263aa7a3461e2e186be2e939bcbd8c660e25851ddac8
     # via environs
-django-crispy-forms==1.11.2 \
-    --hash=sha256:3db71ab06d17ec9d0195c086d3ad454da300ac268752ac3a4f63d72f7a490254 \
-    --hash=sha256:88efa857ce6111bd696cc4f74057539a3456102fe9c3a3ece8868e1e4579e70a
+django-crispy-forms==1.12.0 \
+    --hash=sha256:a3320356c84d0cdc631e1ec7b8908aa0117bc2a5f0ab1d053d33eba08f584808 \
+    --hash=sha256:d196db62ee8b4fc32d1f9583d0e4be1bb17328b662682c1ecb9fb77bbc0fcf77
     # via
     #   -c requirements.in
     #   -r requirements.in
