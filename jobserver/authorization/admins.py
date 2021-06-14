@@ -13,7 +13,7 @@ def get_admins():
 
     Auth is handled via GitHub OAuth so these are GitHub usernames.
     """
-    admin_users = env.list("ADMIN_USERS")
+    admin_users = env.list("ADMIN_USERS", default=[])
 
     # remove whitespace and only return non-empty strings
     return [u.strip() for u in admin_users if u]
@@ -23,15 +23,12 @@ def ensure_admins(usernames):
     """
     Given an iterable of username strings, ensure they have the SuperUser role
     """
-    if not usernames:
-        raise Exception("No admin users configured, aborting")
-
     admins = User.objects.filter(username__in=usernames)
 
     missing = set(usernames) - {u.username for u in admins}
     if missing:
         sorted_missing = sorted(missing)
-        raise Exception(f"Unknown users: {', '.join(sorted_missing)}")
+        raise Exception(f"Unknown admin usernames: {', '.join(sorted_missing)}")
 
     for admin in admins:
         admin.roles.append(SuperUser)
