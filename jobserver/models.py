@@ -928,7 +928,7 @@ class Workspace(models.Model):
     def get_statuses_url(self):
         return reverse("workspace-statuses", kwargs={"name": self.name})
 
-    def get_action_status_lut(self):
+    def get_action_status_lut(self, backend=None):
         """
         Build a lookup table of action -> status
 
@@ -936,6 +936,9 @@ class Workspace(models.Model):
         Workspace.
         """
         jobs = Job.objects.filter(job_request__workspace=self)
+
+        if backend:
+            jobs = jobs.filter(job_request__backend__name=backend)
 
         # get all known actions
         actions = set(jobs.values_list("action", flat=True))
