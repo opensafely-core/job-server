@@ -45,7 +45,7 @@
 
 <div class="row">
   <div class="col-lg-8 offset-lg-2">
-    <div class="d-flex justify-content-between align-items-center">
+    <div class="d-flex justify-content-between align-items-center mb-3">
       <h3>{{ workspace.name }}</h3>
 
       <div class="d-flex">
@@ -63,6 +63,16 @@
         {% endif %}
       </div>
     </div>
+
+    <p>
+      This is an OpenSAFELY workspace.  It represents a working directory for the
+      <a href="{{ workspace.project.get_absolute_url }}">{{ workspace.project.name }}</a>
+      project on all of the secure services ("backends") supported by
+      OpenSAFELY.  On each backend, the directory includes code from the
+      <a href="{{ workspace.repo }}">repository</a>,
+      and the results of running it against real data ("jobs"). Researchers can
+      request jobs are run from this page.
+    </p>
 
     <div id="details"{% if show_details %} class="collapse"{% endif %}>
 
