@@ -25,6 +25,15 @@
 
   </div>
 
+  <p class="mb-4">
+    Below are the logs for each job run in the
+    <a href="{{ workspace.get_absolute_url }}">{{ workspace.name }}</a>
+    workspace of the project
+    <a href="{{ workspace.project.get_absolute_url }}">{{ workspace.project.name }}</a>.
+    They are grouped
+    based on the actions which were requested.
+  </p>
+
   <form class="form d-flex align-items-center mb-4" method="GET">
     <input
       class="form-control mr-2"
