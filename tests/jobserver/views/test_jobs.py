@@ -7,7 +7,7 @@ from django.urls import reverse
 
 from jobserver.views.jobs import JobCancel, JobDetail
 
-from ...factories import JobFactory, JobRequestFactory, UserFactory, WorkspaceFactory
+from ...factories import JobFactory, JobRequestFactory, UserFactory
 
 
 MEANINGLESS_URL = "/"
@@ -123,35 +123,36 @@ def test_jobdetail_with_authenticated_user(rf, mocker):
     response = JobDetail.as_view()(request, identifier=job.identifier)
 
     assert response.status_code == 200
+    assert "Cancel" in response.rendered_content
 
 
 @pytest.mark.django_db
-def test_jobdetail_with_post_jobrequest_job(rf, mocker):
+def test_jobdetail_with_partial_identifier_failure(rf, mocker):
+    JobFactory(identifier="123abc")
+    JobFactory(identifier="123def")
+
+    mocker.patch("jobserver.views.jobs.can_run_jobs", autospec=True, return_value=True)
+
+    request = rf.get(MEANINGLESS_URL)
+    request.user = UserFactory()
+
+    with pytest.raises(Http404):
+        JobDetail.as_view()(request, identifier="123")
+
+
+@pytest.mark.django_db
+def test_jobdetail_with_partial_identifier_success(rf, mocker):
     job = JobFactory()
 
-    mocker.patch("jobserver.views.jobs.can_run_jobs", autospec=True, return_value=False)
+    mocker.patch("jobserver.views.jobs.can_run_jobs", autospec=True, return_value=True)
 
     request = rf.get(MEANINGLESS_URL)
     request.user = UserFactory()
 
-    response = JobDetail.as_view()(request, identifier=job.identifier)
+    response = JobDetail.as_view()(request, identifier=job.identifier[:4])
 
-    assert response.status_code == 200
-
-
-@pytest.mark.django_db
-def test_jobdetail_with_pre_jobrequest_job(rf, mocker):
-    job_request = JobRequestFactory(workspace=WorkspaceFactory())
-    job = JobFactory(job_request=job_request)
-
-    mocker.patch("jobserver.views.jobs.can_run_jobs", autospec=True, return_value=False)
-
-    request = rf.get(MEANINGLESS_URL)
-    request.user = UserFactory()
-
-    response = JobDetail.as_view()(request, identifier=job.identifier)
-
-    assert response.status_code == 200
+    assert response.status_code == 302
+    assert response.url == job.get_absolute_url()
 
 
 @pytest.mark.django_db
@@ -166,6 +167,7 @@ def test_jobdetail_with_unauthenticated_user(rf, mocker):
     response = JobDetail.as_view()(request, identifier=job.identifier)
 
     assert response.status_code == 200
+    assert "Cancel" not in response.rendered_content
 
 
 @pytest.mark.django_db

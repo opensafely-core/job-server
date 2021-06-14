@@ -1,7 +1,10 @@
 from django.contrib.auth.decorators import user_passes_test
+from django.core.exceptions import MultipleObjectsReturned
+from django.http import Http404
 from django.shortcuts import get_object_or_404, redirect
+from django.template.response import TemplateResponse
 from django.utils.decorators import method_decorator
-from django.views.generic import DetailView, View
+from django.views.generic import View
 
 from ..models import Job
 from ..roles import can_run_jobs
@@ -20,15 +23,24 @@ class JobCancel(View):
         return redirect(job)
 
 
-class JobDetail(DetailView):
-    slug_field = "identifier"
-    slug_url_kwarg = "identifier"
-    queryset = Job.objects.select_related(
-        "job_request", "job_request__backend", "job_request__workspace"
-    )
-    template_name = "job_detail.html"
+class JobDetail(View):
+    def get(self, request, *args, **kwargs):
+        try:
+            job = Job.objects.select_related(
+                "job_request", "job_request__backend", "job_request__workspace"
+            ).get(identifier__startswith=self.kwargs["identifier"])
+        except (Job.DoesNotExist, MultipleObjectsReturned):
+            raise Http404
 
-    def get_context_data(self, **kwargs):
-        context = super().get_context_data(**kwargs)
-        context["user_can_run_jobs"] = can_run_jobs(self.request.user)
-        return context
+        if job.identifier != self.kwargs["identifier"]:
+            # redirect to the full URL if a partial identifier was used
+            return redirect(job)
+
+        context = {
+            "job": job,
+            "object": job,
+            "user_can_run_jobs": can_run_jobs(self.request.user),
+            "view": self,
+        }
+
+        return TemplateResponse(request, "job_detail.html", context=context)
