@@ -127,6 +127,35 @@ def test_jobdetail_with_authenticated_user(rf, mocker):
 
 
 @pytest.mark.django_db
+def test_jobdetail_with_partial_identifier_failure(rf, mocker):
+    JobFactory(identifier="123abc")
+    JobFactory(identifier="123def")
+
+    mocker.patch("jobserver.views.jobs.can_run_jobs", autospec=True, return_value=True)
+
+    request = rf.get(MEANINGLESS_URL)
+    request.user = UserFactory()
+
+    with pytest.raises(Http404):
+        JobDetail.as_view()(request, identifier="123")
+
+
+@pytest.mark.django_db
+def test_jobdetail_with_partial_identifier_success(rf, mocker):
+    job = JobFactory()
+
+    mocker.patch("jobserver.views.jobs.can_run_jobs", autospec=True, return_value=True)
+
+    request = rf.get(MEANINGLESS_URL)
+    request.user = UserFactory()
+
+    response = JobDetail.as_view()(request, identifier=job.identifier[:4])
+
+    assert response.status_code == 302
+    assert response.url == job.get_absolute_url()
+
+
+@pytest.mark.django_db
 def test_jobdetail_with_unauthenticated_user(rf, mocker):
     job = JobFactory()
 
