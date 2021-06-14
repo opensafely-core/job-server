@@ -7,12 +7,26 @@ from jobserver.models import Backend
 
 
 @pytest.mark.django_db
-def test_jobrequestcreateform_with_backends():
-    choices = backends_to_choices(Backend.objects.all())
-    form = JobRequestCreateForm([], backends=choices)
+def test_jobrequestcreateform_with_single_backend():
+    emis = Backend.objects.get(name="emis")
+    choices = backends_to_choices([emis])
+    form = JobRequestCreateForm({"backend": "emis"}, backends=choices)
 
     assert "backend" in form.fields
     assert form.fields["backend"].choices == choices
+
+    assert form.is_valid, form.errors
+
+
+@pytest.mark.django_db
+def test_jobrequestcreateform_with_multiple_backends():
+    choices = backends_to_choices(Backend.objects.all())
+    form = JobRequestCreateForm({"backend": "tpp"}, backends=choices)
+
+    assert "backend" in form.fields
+    assert form.fields["backend"].choices == choices
+
+    assert form.is_valid, form.errors
 
 
 @pytest.mark.django_db

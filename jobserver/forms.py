@@ -32,10 +32,9 @@ class JobRequestCreateForm(forms.ModelForm):
             },
         )
 
-        try:
-            initial = backends[0][0]
-        except IndexError:
-            initial = None
+        # only set an initial if there is one backend since the selector will
+        # be hidden on the page
+        initial = backends[0][0] if len(backends) == 1 else None
 
         # bulid the backends field based on the backends passed in
         self.fields["backend"] = forms.ChoiceField(
