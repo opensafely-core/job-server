@@ -2,6 +2,34 @@
 
 {% block content %}
 
+<nav aria-label="breadcrumb">
+  <ol class="breadcrumb">
+
+    <li class="breadcrumb-item"><a href="/">Home</a></li>
+
+    <li class="breadcrumb-item">
+      <a href="{{ workspace.project.org.get_absolute_url }}">
+        {{ workspace.project.org.name }}
+      </a>
+    </li>
+
+    <li class="breadcrumb-item">
+      <a href="{{ workspace.project.get_absolute_url }}">
+        {{ workspace.project.name }}
+      </a>
+    </li>
+
+    <li class="breadcrumb-item">
+      <a href="{{ workspace.get_absolute_url }}">
+        {{ workspace.name }}
+      </a>
+    </li>
+
+    <li class="breadcrumb-item active" aria-current="page">Logs</li>
+
+  </ol>
+</nav>
+
 {% if workspace.is_archived %}
 <div class="alert alert-warning text-center mb-3" role="warning">
   This Workspace has been archived.  Logs are still available but new Jobs can
@@ -24,6 +52,15 @@
     {% endif %}
 
   </div>
+
+  <p class="mb-4">
+    Below are the logs for each job run in the
+    <a href="{{ workspace.get_absolute_url }}">{{ workspace.name }}</a>
+    workspace of the project
+    <a href="{{ workspace.project.get_absolute_url }}">{{ workspace.project.name }}</a>.
+    They are grouped
+    based on the actions which were requested.
+  </p>
 
   <form class="form d-flex align-items-center mb-4" method="GET">
     <input

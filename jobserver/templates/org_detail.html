@@ -15,19 +15,42 @@
 <div class="row">
   <div class="col-lg-8 offset-lg-2">
 
-    <div class="d-flex justify-content-between align-items-center">
+    <div class="d-flex justify-content-between align-items-center mb-3">
       <h2>{{ org.name }}</h2>
 
       {% if is_member %}
       <div>
-        <a class="btn btn-primary" href="{% url 'project-create' org_slug=org.slug %}">Register Project</a>
+        <a class="btn btn-sm btn-primary" href="{% url 'project-create' org_slug=org.slug %}">
+          Register Project
+        </a>
       </div>
       {% endif %}
     </div>
 
+    {% if org.logo %}
+    <img
+      class="float-right ml-3"
+      src="{{ org.logo }}"
+      width="200"
+      height="200"
+    />
+    {% endif %}
+
+    {% if org.description %}
+    <p class="mb-5">{{ org.description }}</p>
+    {% endif %}
+
+    <p class="mb-5">
+      This is an organisation which uses OpenSAFELY to deliver research
+      projects. Every project it has started is listed below.
+    </p>
 
     {% if projects %}
     <h3>Projects</h3>
+
+    <p>
+      These are individual OpenSAFELY projects that have been started by {{ org.name }}.
+    </p>
 
     <ul>
       {% for project in projects %}

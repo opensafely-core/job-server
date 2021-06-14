@@ -38,6 +38,8 @@ class OrgForm(forms.ModelForm):
         fields = [
             "name",
             "github_orgs",
+            "logo",
+            "description",
         ]
         labels = {
             "github_orgs": "GitHub Organisations",
@@ -45,6 +47,7 @@ class OrgForm(forms.ModelForm):
         model = Org
         widgets = {
             "name": forms.TextInput,
+            "logo": forms.TextInput,
         }
 
 
@@ -58,6 +61,7 @@ class OrgAdmin(admin.ModelAdmin):
         "name",
         "slug",
     ]
+    ordering = ["name"]
 
 
 class ProjectForm(forms.ModelForm):
@@ -66,6 +70,7 @@ class ProjectForm(forms.ModelForm):
             "org",
             "name",
             "slug",
+            "description",
             "proposed_start_date",
             "proposed_duration",
             "next_step",
@@ -122,6 +127,7 @@ class ProjectAdmin(admin.ModelAdmin):
                 "fields": [
                     "org",
                     "name",
+                    "description",
                     "proposed_start_date",
                     "proposed_duration",
                     "next_step",

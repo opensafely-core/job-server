@@ -370,6 +370,8 @@ class Org(models.Model):
 
     name = models.TextField(unique=True)
     slug = models.SlugField(max_length=255, unique=True)
+    description = models.TextField(default="", blank=True)
+    logo = models.TextField(default="", blank=True)
 
     # track which GitHub Organisations this Org has access to
     github_orgs = models.JSONField(default=list)
@@ -444,6 +446,7 @@ class Project(models.Model):
 
     name = models.TextField(unique=True)
     slug = models.SlugField(max_length=255, unique=True)
+    description = models.TextField(default="")
     proposed_start_date = models.DateTimeField(null=True, blank=True)
     proposed_duration = models.TextField(blank=True)
 
@@ -778,6 +781,11 @@ class User(AbstractUser):
         related_name="members",
         through="OrgMembership",
         through_fields=["user", "org"],
+    )
+    projects = models.ManyToManyField(
+        "Project",
+        related_name="members",
+        through="ProjectMembership",
     )
 
     notifications_email = models.TextField(default="")
