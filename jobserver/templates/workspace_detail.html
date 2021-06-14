@@ -13,14 +13,6 @@
 
 {% block content %}
 
-{% if workspace.is_archived %}
-<div class="alert alert-warning text-center mb-3" role="warning">
-  This Workspace has been archived.  Logs are still available but new Jobs can
-  no longer be requested.  If you think this has been done in error, please
-  contact an admin.
-</div>
-{% endif %}
-
 <nav aria-label="breadcrumb">
   <ol class="breadcrumb">
 
@@ -42,6 +34,14 @@
 
   </ol>
 </nav>
+
+{% if workspace.is_archived %}
+<div class="alert alert-warning text-center mb-3" role="warning">
+  This Workspace has been archived.  Logs are still available but new Jobs can
+  no longer be requested.  If you think this has been done in error, please
+  contact an admin.
+</div>
+{% endif %}
 
 <div class="row">
   <div class="col-lg-8 offset-lg-2">
