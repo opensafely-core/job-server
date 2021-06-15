@@ -494,6 +494,25 @@ def test_jobrequestapilist_filter_by_databricks(api_rf):
     assert response.data["results"][0]["identifier"] == job_request.identifier
 
 
+@pytest.mark.django_db
+def test_jobrequestapilist_filter_by_databricks_with_mismatched(api_rf, mocker):
+    tpp = Backend.objects.get(name="tpp")
+
+    JobRequestFactory(backend=tpp)
+    job_request = JobRequestFactory(backend=Backend.objects.get(name="emis"))
+
+    mocked_sentry = mocker.patch("jobserver.api.sentry_sdk", autospec=True)
+
+    request = api_rf.get("/?backend=emis", HTTP_AUTHORIZATION=tpp.auth_token)
+    response = JobRequestAPIList.as_view()(request)
+
+    assert response.status_code == 200, response.data
+    assert len(response.data["results"]) == 1
+    assert response.data["results"][0]["identifier"] == job_request.identifier
+
+    assert mocked_sentry.capture_message.call_count == 1
+
+
 def test_jobrequestapilist_get_only(api_rf):
     request = api_rf.post("/", data={}, format="json")
     response = JobRequestAPIList.as_view()(request)

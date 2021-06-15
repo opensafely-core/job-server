@@ -279,7 +279,7 @@ class JobRequestAPIList(ListAPIView):
 
         # send a warning to Sentry if the query arg and token-linked backend
         # names differ
-        if query_arg_backend != db_backend:
+        if query_arg_backend and db_backend and query_arg_backend != db_backend:
             sentry_sdk.set_context(
                 "backend_values",
                 {
