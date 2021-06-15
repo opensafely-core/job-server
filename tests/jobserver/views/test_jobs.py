@@ -54,7 +54,7 @@ def test_jobcancel_already_completed(rf, user):
     assert response.url == reverse("job-detail", kwargs={"identifier": job.identifier})
 
     job_request.refresh_from_db()
-    assert job_request.cancelled_actions == ["another-action", "test"]
+    assert job_request.cancelled_actions == ["another-action"]
 
 
 @pytest.mark.django_db
