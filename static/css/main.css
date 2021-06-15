@@ -1,3 +1,21 @@
+nav.bg-primary {
+  background-color: #002147 !important;
+}
+
+a {
+  color: #0058be;
+  font-weight: 600;
+  text-decoration-skip-ink: auto;
+  text-underline-offset: 1px;
+}
+
+a:hover,
+a:focus {
+  color: #002147;
+  text-decoration: underline;
+  text-decoration-color: #001936;
+}
+
 /* Add the ID and Status message columns for larger devices (992px and up) */
 @media (min-width: 992px) {
   nav #workspace-dropdown + .dropdown-menu {
