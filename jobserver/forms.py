@@ -130,7 +130,6 @@ class WorkspaceCreateForm(forms.ModelForm):
     class Meta:
         fields = [
             "name",
-            "db",
             "repo",
             "branch",
         ]

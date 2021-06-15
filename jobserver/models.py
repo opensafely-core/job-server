@@ -882,11 +882,7 @@ class Workspace(models.Model):
     is_archived = models.BooleanField(default=False)
     should_notify = models.BooleanField(default=False)
 
-    DB_OPTIONS = (
-        ("slice", "Cut-down (but real) database"),
-        ("full", "Full database"),
-    )
-    db = models.TextField(choices=DB_OPTIONS)
+    db = models.TextField(choices=[("full", "Full database")])
 
     created_at = models.DateTimeField(default=timezone.now)
 
