@@ -269,6 +269,11 @@ class JobRequestAPIList(ListAPIView):
         # filter JobRequests by Backend name
         # Prioritise GET arg then self.backend (from authenticated requests)
         query_arg_backend = self.request.GET.get("backend", None)
+
+        # short term special case
+        if query_arg_backend == "nhsd":
+            query_arg_backend = "databricks"
+
         db_backend = getattr(self.backend, "name", None)
         if backend_name := first([query_arg_backend, db_backend]):
             qs = qs.filter(backend__name=backend_name)
