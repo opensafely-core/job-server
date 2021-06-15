@@ -159,7 +159,6 @@ def test_workspacecreate_post_success(rf, mocker, user):
         "name": "Test",
         "repo": "test",
         "branch": "test",
-        "db": "slice",
     }
     request = rf.post(MEANINGLESS_URL, data)
     request.user = user
