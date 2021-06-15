@@ -958,6 +958,18 @@ class Workspace(models.Model):
     def repo_name(self):
         """Convert repo URL -> repo name"""
         f = furl(self.repo)
+
         if not f.path:
             raise Exception("Repo URL not in expected format, appears to have no path")
+
         return f.path.segments[-1]
+
+    @property
+    def repo_owner(self):
+        """Convert repo URL -> repo name"""
+        f = furl(self.repo)
+
+        if not f.path:
+            raise Exception("Repo URL not in expected format, appears to have no path")
+
+        return f.path.segments[0]

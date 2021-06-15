@@ -7,6 +7,7 @@ from django.shortcuts import get_object_or_404, redirect
 from django.utils.decorators import method_decorator
 from django.utils.html import escape
 from django.views.generic import CreateView, DetailView, UpdateView, View
+from furl import furl
 from sentry_sdk import capture_exception
 
 from ..authorization import (
@@ -23,6 +24,7 @@ from ..forms import (
     ProjectOnboardingCreateForm,
     ResearcherFormSet,
 )
+from ..github import get_repo_is_private
 from ..models import Org, Project, ProjectInvitation, ProjectMembership, User
 
 
@@ -179,11 +181,26 @@ class ProjectDetail(DetailView):
             project=self.object,
         )
 
+        workspaces = self.object.workspaces.order_by("name")
+
+        repos = sorted(set(workspaces.values_list("repo", flat=True)))
+
         context = super().get_context_data(**kwargs)
         context["can_manage_workspaces"] = can_manage_workspaces
         context["can_manage_members"] = can_manage_members
-        context["workspaces"] = self.object.workspaces.order_by("name")
+        context["repos"] = list(self.get_repos(repos))
+        context["workspaces"] = workspaces
         return context
+
+    def get_repos(self, repo_urls):
+        for url in repo_urls:
+            f = furl(url)
+
+            yield {
+                "name": f.path.segments[1],
+                "url": url,
+                "is_private": get_repo_is_private(*f.path.segments),
+            }
 
 
 class ProjectInvitationCreate(CreateView):

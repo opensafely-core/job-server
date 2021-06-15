@@ -1099,6 +1099,20 @@ def test_workspace_repo_name_success():
 
 
 @pytest.mark.django_db
+def test_workspace_repo_owner_no_path():
+    workspace = WorkspaceFactory(repo="http://example.com")
+
+    with pytest.raises(Exception, match="not in expected format"):
+        workspace.repo_owner
+
+
+@pytest.mark.django_db
+def test_workspace_repo_owner_success():
+    workspace = WorkspaceFactory(repo="http://example.com/foo/test")
+    assert workspace.repo_owner == "foo"
+
+
+@pytest.mark.django_db
 def test_workspace_str():
     workspace = WorkspaceFactory(
         name="Corellian Engineering Corporation", repo="Corellia"

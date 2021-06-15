@@ -5,6 +5,8 @@ from jobserver.github import (
     get_branch,
     get_branch_sha,
     get_file,
+    get_repo,
+    get_repo_is_private,
     get_repos_with_branches,
     is_member_of_org,
 )
@@ -93,6 +95,80 @@ def test_get_file_missing_project_yml():
     # check the headers are correct
     assert "token" in call.request.headers["Authorization"]
     assert call.request.headers["Accept"] == "application/vnd.github.3.raw"
+
+    assert output is None
+
+
+@responses.activate
+def test_get_repo():
+    expected_url = "https://api.github.com/repos/opensafely/some_repo"
+    responses.add(responses.GET, expected_url, json={"test": "test"}, status=200)
+
+    output = get_repo("opensafely", "some_repo")
+
+    assert len(responses.calls) == 1
+
+    call = responses.calls[0]
+
+    # check the headers are correct
+    assert "token" in call.request.headers["Authorization"]
+    assert call.request.headers["Accept"] == "application/vnd.github.v3+json"
+    assert call.response.text == '{"test": "test"}'
+
+    assert output == {"test": "test"}
+
+
+@responses.activate
+def test_get_repo_is_private():
+    expected_url = "https://api.github.com/repos/opensafely/some_repo"
+    responses.add(responses.GET, expected_url, json={"private": True}, status=200)
+
+    is_private = get_repo_is_private("opensafely", "some_repo")
+
+    assert len(responses.calls) == 1
+
+    call = responses.calls[0]
+
+    # check the headers are correct
+    assert "token" in call.request.headers["Authorization"]
+    assert call.request.headers["Accept"] == "application/vnd.github.v3+json"
+    assert call.response.text == '{"private": true}'
+
+    assert is_private
+
+
+@responses.activate
+def test_get_repo_is_private_with_unknown_repo():
+    expected_url = "https://api.github.com/repos/opensafely/some_repo"
+    responses.add(responses.GET, expected_url, status=404)
+
+    is_private = get_repo_is_private("opensafely", "some_repo")
+
+    assert len(responses.calls) == 1
+
+    call = responses.calls[0]
+
+    # check the headers are correct
+    assert "token" in call.request.headers["Authorization"]
+    assert call.request.headers["Accept"] == "application/vnd.github.v3+json"
+
+    assert is_private is None
+
+
+@responses.activate
+def test_get_repo_with_unknown_repo():
+    expected_url = "https://api.github.com/repos/opensafely/some_repo"
+    responses.add(responses.GET, expected_url, status=404)
+
+    output = get_repo("opensafely", "some_repo")
+
+    assert len(responses.calls) == 1
+
+    call = responses.calls[0]
+
+    # check the headers are correct
+    assert "token" in call.request.headers["Authorization"]
+    assert call.request.headers["Accept"] == "application/vnd.github.v3+json"
 
     assert output is None
 

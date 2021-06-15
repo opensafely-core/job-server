@@ -32,41 +32,6 @@ MEANINGLESS_URL = "/"
 
 
 @pytest.mark.django_db
-def test_projectworkspacedetail_success(rf, user):
-    org = user.orgs.first()
-    project = ProjectFactory(org=org)
-    workspace = WorkspaceFactory(project=project)
-
-    ProjectMembershipFactory(project=project, user=user, roles=[ProjectDeveloper])
-
-    request = rf.get(MEANINGLESS_URL)
-    request.user = user
-    response = WorkspaceDetail.as_view()(
-        request,
-        org_slug=org.slug,
-        project_slug=project.slug,
-        workspace_slug=workspace.name,
-    )
-
-    assert response.status_code == 200
-    assert response.context_data["user_can_run_jobs"]
-
-
-@pytest.mark.django_db
-def test_projectworkspacedetail_unknown_workspace(rf):
-    request = rf.get(MEANINGLESS_URL)
-    response = WorkspaceDetail.as_view()(
-        request,
-        org_slug="",
-        project_slug="",
-        workspace_slug="",
-    )
-
-    assert response.status_code == 302
-    assert response.url == "/"
-
-
-@pytest.mark.django_db
 @responses.activate
 def test_workspacearchivetoggle_success(rf, user):
     org = user.orgs.first()
@@ -228,6 +193,11 @@ def test_workspacedetail_project_yaml_errors(rf, mocker, user):
         autospec=True,
         side_effect=Exception("test error"),
     )
+    mocker.patch(
+        "jobserver.views.workspaces.get_repo_is_private",
+        autospec=True,
+        return_value=True,
+    )
 
     request = rf.get(MEANINGLESS_URL)
     request.user = user
@@ -262,6 +232,11 @@ def test_workspacedetail_get_success(rf, mocker, user):
     )
     mocker.patch(
         "jobserver.views.workspaces.get_project", autospec=True, return_value=dummy_yaml
+    )
+    mocker.patch(
+        "jobserver.views.workspaces.get_repo_is_private",
+        autospec=True,
+        return_value=True,
     )
 
     request = rf.get(MEANINGLESS_URL)
@@ -391,6 +366,11 @@ def test_workspacedetail_post_with_invalid_backend(rf, mocker, monkeypatch, user
         "jobserver.views.workspaces.get_branch_sha",
         autospec=True,
         return_value="abc123",
+    )
+    mocker.patch(
+        "jobserver.views.workspaces.get_repo_is_private",
+        autospec=True,
+        return_value=True,
     )
 
     data = {

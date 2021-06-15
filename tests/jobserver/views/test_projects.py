@@ -30,6 +30,7 @@ from ...factories import (
     ProjectInvitationFactory,
     ProjectMembershipFactory,
     UserFactory,
+    WorkspaceFactory,
 )
 
 
@@ -253,17 +254,38 @@ def test_projectcreate_with_org_witout_blanket_approval(http_method, rf):
 
 
 @pytest.mark.django_db
-def test_projectdetail_success(rf):
+def test_projectdetail_success(rf, mocker):
     org = OrgFactory()
     project = ProjectFactory(org=org)
+    WorkspaceFactory.create_batch(
+        3,
+        project=project,
+        repo="https://github.com/opensafely/some-research",
+    )
+
+    mocker.patch(
+        "jobserver.views.projects.get_repo_is_private",
+        autospec=True,
+        return_value=True,
+    )
 
     request = rf.get(MEANINGLESS_URL)
     request.user = UserFactory()
+
     response = ProjectDetail.as_view()(
         request, org_slug=org.slug, project_slug=project.slug
     )
 
     assert response.status_code == 200
+
+    assert len(response.context_data["repos"]) == 1
+    assert response.context_data["repos"] == [
+        {
+            "name": "some-research",
+            "url": "https://github.com/opensafely/some-research",
+            "is_private": True,
+        }
+    ]
 
 
 @pytest.mark.django_db
