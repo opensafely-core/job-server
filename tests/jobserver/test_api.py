@@ -481,6 +481,19 @@ def test_jobrequestapilist_filter_by_backend(api_rf):
     assert len(response.data["results"]) == 1
 
 
+@pytest.mark.django_db
+def test_jobrequestapilist_filter_by_databricks(api_rf):
+    job_request = JobRequestFactory(backend=Backend.objects.get(name="databricks"))
+    JobRequestFactory(backend=Backend.objects.get(name="tpp"))
+
+    request = api_rf.get("/?backend=nhsd")
+    response = JobRequestAPIList.as_view()(request)
+
+    assert response.status_code == 200, response.data
+    assert len(response.data["results"]) == 1
+    assert response.data["results"][0]["identifier"] == job_request.identifier
+
+
 def test_jobrequestapilist_get_only(api_rf):
     request = api_rf.post("/", data={}, format="json")
     response = JobRequestAPIList.as_view()(request)
