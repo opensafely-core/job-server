@@ -1,6 +1,7 @@
 import itertools
 import operator
 
+import sentry_sdk
 import structlog
 from django.db import transaction
 from django.http import Http404
@@ -275,6 +276,19 @@ class JobRequestAPIList(ListAPIView):
             query_arg_backend = "databricks"
 
         db_backend = getattr(self.backend, "name", None)
+
+        # send a warning to Sentry if the query arg and token-linked backend
+        # names differ
+        if query_arg_backend != db_backend:
+            sentry_sdk.set_context(
+                "backend_values",
+                {
+                    "query_arg": query_arg_backend,
+                    "token": db_backend,
+                },
+            )
+            sentry_sdk.capture_message("Backend mismatch between query arg and token")
+
         if backend_name := first([query_arg_backend, db_backend]):
             qs = qs.filter(backend__name=backend_name)
 
