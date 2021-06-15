@@ -15,7 +15,7 @@ from ..forms import (
     WorkspaceCreateForm,
     WorkspaceNotificationsToggleForm,
 )
-from ..github import get_branch_sha, get_repos_with_branches
+from ..github import get_branch_sha, get_repo_is_private, get_repos_with_branches
 from ..models import Backend, JobRequest, Project, Workspace
 from ..project import get_actions, get_project, load_yaml
 from ..roles import can_run_jobs
@@ -157,6 +157,7 @@ class WorkspaceDetail(CreateView):
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
         context["actions"] = self.actions
+        context["repo_is_private"] = self.get_repo_is_private()
         context["latest_job_request"] = self.get_latest_job_request()
         context["show_details"] = self.show_details
         context["user_can_run_jobs"] = self.user_can_run_jobs
@@ -179,6 +180,12 @@ class WorkspaceDetail(CreateView):
         # derive will_notify for the JobRequestCreateForm from the Workspace
         # setting as a default for the form which the user can override.
         return {"will_notify": self.workspace.should_notify}
+
+    def get_repo_is_private(self):
+        return get_repo_is_private(
+            self.workspace.repo_owner,
+            self.workspace.repo_name,
+        )
 
     def get_latest_job_request(self):
         return (
