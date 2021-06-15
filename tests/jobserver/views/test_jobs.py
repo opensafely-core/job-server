@@ -37,9 +37,9 @@ def test_jobcancel_already_cancelled(rf, user):
 
 @pytest.mark.django_db
 @responses.activate
-def test_jobcancel_already_finished(rf, user):
+def test_jobcancel_already_completed(rf, user):
     job_request = JobRequestFactory(cancelled_actions=["another-action"])
-    job = JobFactory(job_request=job_request, action="test", status="finished")
+    job = JobFactory(job_request=job_request, action="test", status="succeeded")
 
     request = rf.post(MEANINGLESS_URL)
     request.user = user

@@ -27,7 +27,7 @@ MEANINGLESS_URL = "/"
 
 @pytest.mark.django_db
 @responses.activate
-def test_jobrequestcancel_already_finished(rf, user):
+def test_jobrequestcancel_already_completed(rf, user):
     job_request = JobRequestFactory(cancelled_actions=[])
     JobFactory(job_request=job_request, status="succeeded")
     JobFactory(job_request=job_request, status="failed")

@@ -154,7 +154,7 @@
 
       <button
         class="btn btn-block btn-danger"
-        {% if job.is_finished or job.action in job.job_request.cancelled_actions %}
+        {% if job.is_completed or job.action in job.job_request.cancelled_actions %}
         disabled
         {% endif %}
         type="submit">

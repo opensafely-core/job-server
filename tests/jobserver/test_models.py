@@ -150,10 +150,10 @@ def test_job_runtime():
 
 
 @pytest.mark.django_db
-def test_job_runtime_not_finished():
+def test_job_runtime_not_completed():
     job = JobFactory(status="running", started_at=timezone.now())
 
-    # an unfinished job has no runtime
+    # an uncompleted job has no runtime
     assert job.runtime is None
 
 
@@ -258,12 +258,12 @@ def test_jobrequest_get_repo_url_success():
 
 
 @pytest.mark.django_db
-def test_jobrequest_is_finished():
+def test_jobrequest_is_completed():
     job_request = JobRequestFactory()
     JobFactory(job_request=job_request, status="failed")
     JobFactory(job_request=job_request, status="succeeded")
 
-    assert job_request.is_finished
+    assert job_request.is_completed
 
 
 @pytest.mark.django_db
@@ -308,7 +308,7 @@ def test_jobrequest_runtime_one_job_missing_completed_at(freezer):
     assert job_request.started_at
     assert not job_request.completed_at
 
-    # combined _finished_ Job runtime is 0 because the failed job has no
+    # combined _completed_ Job runtime is 0 because the failed job has no
     # runtime (it never started)
     assert job_request.runtime
     assert job_request.runtime.hours == 0
@@ -336,7 +336,7 @@ def test_jobrequest_runtime_one_job_missing_started_at(freezer):
     assert job_request.started_at
     assert job_request.completed_at
 
-    # combined _finished_ Job runtime is 2 minutes because the second job
+    # combined _completed_ Job runtime is 2 minutes because the second job
     # failed before it started
     assert job_request.runtime
     assert job_request.runtime.hours == 0
@@ -350,7 +350,7 @@ def test_jobrequest_runtime_no_jobs():
 
 
 @pytest.mark.django_db
-def test_jobrequest_runtime_not_finished(freezer):
+def test_jobrequest_runtime_not_completed(freezer):
     job_request = JobRequestFactory()
 
     JobFactory(
@@ -368,7 +368,7 @@ def test_jobrequest_runtime_not_finished(freezer):
     assert job_request.started_at
     assert not job_request.completed_at
 
-    # combined _finished_ Job runtime is 1 minute
+    # combined _completed_ Job runtime is 1 minute
     assert job_request.runtime
     assert job_request.runtime.hours == 0
     assert job_request.runtime.minutes == 1
