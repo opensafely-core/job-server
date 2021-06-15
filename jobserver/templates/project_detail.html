@@ -80,11 +80,12 @@
         <div class="mb-4">
           <h5>Repos</h5>
           <ul class="list-unstyled">
-            {% for workspace in workspaces %}
-            <li>
-              <a href="{{ workspace.repo }}">
-                {{ workspace.repo_name }} ({{ workspace.branch }})
-              </a>
+            {% for repo in repos %}
+            <li class="d-flex align-items-center">
+              <a href="{{ repo.url }}">{{ repo.name }}</a>
+              <span class="badge badge-secondary ml-1">
+                {% if repo.is_private %}Private{% else %}Public{% endif %}
+              </span>
             </li>
             {% endfor %}
           </ul>
