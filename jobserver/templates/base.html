@@ -1,17 +1,13 @@
 {% load static %}
 
-<!doctype html>
+<!DOCTYPE html>
 <html lang="en">
   <head>
-    <link rel="icon" href="{% static 'favicon.ico' %}"><!-- 32×32 -->
-    <link rel="icon" href="{% static 'icon.svg' %}" type="image/svg+xml">
-    <link rel="apple-touch-icon" href="{% static 'apple-touch-icon.png' %}"><!-- 180×180 -->
-    <link rel="manifest" href="{% static 'manifest.webmanifest' %}">
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-    <!-- Required meta tags -->
-    <meta charset="utf-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no" />
-
+    <title>OpenSAFELY Jobs</title>
     <meta property="og:site_name" content="OpenSAFELY Jobs" />
 
     {% block extra_meta %}{% endblock %}
@@ -21,7 +17,12 @@
 
     {% block extra_styles %}{% endblock %}
 
-    <title>OpenSAFELY Jobs</title>
+    {% include "_fonts.html" %}
+
+    <link rel="icon" href="{% static 'favicon.ico' %}"><!-- 32×32 -->
+    <link rel="icon" href="{% static 'icon.svg' %}" type="image/svg+xml">
+    <link rel="apple-touch-icon" href="{% static 'apple-touch-icon.png' %}"><!-- 180×180 -->
+    <link rel="manifest" href="{% static 'manifest.webmanifest' %}">
 
     <script>
       if (document.location.hostname === "jobs.opensafely.org") {
