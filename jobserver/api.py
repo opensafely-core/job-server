@@ -161,11 +161,11 @@ class JobAPIUpdate(APIView):
                     # false positives.
                     continue
 
-                # check to see if the Job is about to transition to finished
+                # check to see if the Job is about to transition to completed
                 # (failed or succeeded) so we can notify after the update
-                finished = ["failed", "succeeded"]
+                completed = ["failed", "succeeded"]
                 should_notify = (
-                    job.status not in finished and job_data["status"] in finished
+                    job.status not in completed and job_data["status"] in completed
                 )
 
                 # update Job "manually" so we can make the check above for
@@ -179,7 +179,7 @@ class JobAPIUpdate(APIView):
                     continue
 
                 if not should_notify:
-                    # Job didn't move into the finished state (it might have
+                    # Job didn't move into the completed state (it might have
                     # already been there though)
                     continue
 
@@ -188,7 +188,7 @@ class JobAPIUpdate(APIView):
                     job,
                 )
                 log.info(
-                    "Notified requesting user of finished job",
+                    "Notified requesting user of completed job",
                     user_id=job_request.created_by_id,
                 )
 

@@ -15,7 +15,7 @@ class JobCancel(View):
     def post(self, request, *args, **kwargs):
         job = get_object_or_404(Job, identifier=self.kwargs["identifier"])
 
-        if job.is_finished or job.action in job.job_request.cancelled_actions:
+        if job.is_completed or job.action in job.job_request.cancelled_actions:
             return redirect(job)
 
         job.job_request.cancelled_actions.append(job.action)

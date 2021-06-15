@@ -36,7 +36,7 @@ class JobRequestCancel(View):
     def post(self, request, *args, **kwargs):
         job_request = get_object_or_404(JobRequest, pk=self.kwargs["pk"])
 
-        if job_request.is_finished:
+        if job_request.is_completed:
             return redirect(job_request)
 
         actions = list(set(job_request.jobs.values_list("action", flat=True)))

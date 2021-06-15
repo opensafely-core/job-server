@@ -167,7 +167,7 @@ class Job(models.Model):
         return reverse("job-cancel", kwargs={"identifier": self.identifier})
 
     @property
-    def is_finished(self):
+    def is_completed(self):
         return self.status in ["failed", "succeeded"]
 
     @property
@@ -178,7 +178,7 @@ class Job(models.Model):
         When a Job has yet to finish but we haven't had an update from
         job-runner in >30 minutes we want to show users a warning.
         """
-        if self.is_finished:
+        if self.is_completed:
             # Job has completed, ignore lack of updates
             return False
 
@@ -194,7 +194,7 @@ class Job(models.Model):
 
     @property
     def runtime(self):
-        if not self.is_finished:
+        if not self.is_completed:
             return
 
         if self.started_at is None or self.completed_at is None:
@@ -282,7 +282,7 @@ class JobRequest(models.Model):
         return f.url
 
     @property
-    def is_finished(self):
+    def is_completed(self):
         return self.status in ["failed", "succeeded"]
 
     @property
@@ -306,9 +306,9 @@ class JobRequest(models.Model):
     @property
     def runtime(self):
         """
-        Combined runtime for all finished Jobs of this JobRequest
+        Combined runtime for all completed Jobs of this JobRequest
 
-        Runtime of each finished Job is added together, rather than using the
+        Runtime of each completed Job is added together, rather than using the
         delta of the first start time and last completed time.
         """
         if self.started_at is None:
@@ -320,7 +320,7 @@ class JobRequest(models.Model):
 
             return (job.completed_at - job.started_at).total_seconds()
 
-        # Only look at jobs which have finished
+        # Only look at jobs which have completed
         jobs = self.jobs.filter(Q(status="failed") | Q(status="succeeded"))
         total_runtime = sum(runtime_in_seconds(j) for j in jobs)
 
