@@ -13,7 +13,6 @@ a:hover,
 a:focus {
   color: #002147;
   text-decoration: underline;
-  text-decoration-color: #001936;
 }
 
 /* Add the ID and Status message columns for larger devices (992px and up) */
