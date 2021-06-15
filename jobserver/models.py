@@ -871,8 +871,7 @@ class Workspace(models.Model):
     )
     project = models.ForeignKey(
         "Project",
-        on_delete=models.SET_NULL,
-        null=True,
+        on_delete=models.PROTECT,
         related_name="workspaces",
     )
 
