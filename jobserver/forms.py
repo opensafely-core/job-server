@@ -134,6 +134,9 @@ class WorkspaceCreateForm(forms.ModelForm):
             "repo",
             "branch",
         ]
+        help_texts = {
+            "name": "Enter a descriptive name which makes this workspace easy to identify.  It will also be the name of the directory in which you will find results after jobs from this workspace are run.",
+        }
         model = Workspace
         widgets = {
             "name": forms.TextInput(),
