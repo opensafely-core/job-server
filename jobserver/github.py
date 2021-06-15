@@ -73,6 +73,38 @@ def get_file(org, repo, branch):
     return r.text
 
 
+def get_repo(org, repo):
+    f = furl(BASE_URL)
+    f.path.segments += [
+        "repos",
+        org,
+        repo,
+    ]
+
+    headers = {
+        "Accept": "application/vnd.github.v3+json",
+        "Authorization": f"token {GITHUB_TOKEN}",
+        "User-Agent": USER_AGENT,
+    }
+    r = requests.get(f.url, headers=headers)
+
+    if r.status_code == 404:
+        return
+
+    r.raise_for_status()
+
+    return r.json()
+
+
+def get_repo_is_private(org, repo):
+    repo = get_repo(org, repo)
+
+    if repo is None:
+        return None
+
+    return repo["private"]
+
+
 def _get_page(session, org, cursor):
     """
     Get a page of Repos (with branches) from the OpenSAFELY Researchers Team
