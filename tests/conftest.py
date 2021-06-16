@@ -2,7 +2,7 @@ import pytest
 import structlog
 from structlog.testing import LogCapture
 
-from jobserver.authorization.roles import SuperUser
+from jobserver.authorization.roles import CoreDeveloper, SuperUser
 
 from .factories import OrgFactory, OrgMembershipFactory, UserFactory
 
@@ -12,6 +12,11 @@ def api_rf():
     from rest_framework.test import APIRequestFactory
 
     return APIRequestFactory()
+
+
+@pytest.fixture
+def core_developer():
+    return UserFactory(roles=[CoreDeveloper])
 
 
 @pytest.fixture(name="log_output")

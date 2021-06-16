@@ -6,7 +6,6 @@ from django.core.exceptions import BadRequest
 from django.http import Http404
 from django.urls import reverse
 
-from jobserver.authorization import CoreDeveloper
 from jobserver.models import Backend, JobRequest
 from jobserver.views.job_requests import (
     JobRequestCancel,
@@ -392,7 +391,7 @@ def test_jobrequestlist_with_core_developer(rf, core_developer):
     JobFactory(job_request=job_request)
 
     request = rf.get(MEANINGLESS_URL)
-    request.user = UserFactory(roles=[CoreDeveloper])
+    request.user = core_developer
     response = JobRequestList.as_view()(request)
 
     assert response.status_code == 200
