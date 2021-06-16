@@ -46,7 +46,7 @@ from .views.projects import (
     ProjectSettings,
 )
 from .views.status import Status
-from .views.users import Settings
+from .views.users import Settings, UserList
 from .views.workspaces import (
     WorkspaceArchiveToggle,
     WorkspaceCreate,
@@ -141,6 +141,10 @@ org_urls = [
     path("new/", OrgCreate.as_view(), name="org-create"),
 ]
 
+user_urls = [
+    path("", UserList.as_view(), name="user-list"),
+]
+
 urlpatterns = [
     path("", Index.as_view()),
     path("", include("social_django.urls", namespace="social")),
@@ -163,6 +167,7 @@ urlpatterns = [
     path("orgs/", include(org_urls)),
     path("settings/", Settings.as_view(), name="settings"),
     path("status/", Status.as_view(), name="status"),
+    path("users/", include(user_urls)),
     path("workspaces/", RedirectView.as_view(url="/")),
     path("__debug__/", include(debug_toolbar.urls)),
     path(

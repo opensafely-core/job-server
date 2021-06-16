@@ -1,0 +1,34 @@
+{% extends "base.html" %}
+
+{% block content %}
+<nav aria-label="breadcrumb">
+  <ol class="breadcrumb">
+
+    <li class="breadcrumb-item"><a href="/">Home</a></li>
+
+    <li class="breadcrumb-item active" aria-current="page">Users</li>
+
+  </ol>
+</nav>
+
+<div class="row">
+  <div class="col-lg-8 offset-lg-2">
+
+    <h1 class="mb-4">Users</h1>
+
+    {% for user in object_list %}
+    <div class="d-flex justify-content-between align-items-baseline border rounded p-3 pl-3 mb-3">
+
+      <h5>
+        {{ user.username }}
+        {% if user.get_full_name %}
+        <small class="text-muted">({{ user.get_full_name }})</small>
+        {% endif %}
+      </h5>
+
+    </div>
+    {% endfor %}
+
+  </div>
+</div>
+{% endblock %}

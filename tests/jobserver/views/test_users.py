@@ -1,7 +1,7 @@
 import pytest
 from django.contrib.messages.storage.fallback import FallbackStorage
 
-from jobserver.views.users import Settings
+from jobserver.views.users import Settings, UserList
 
 from ...factories import UserFactory
 
@@ -49,3 +49,19 @@ def test_settings_post(rf):
     messages = list(messages)
     assert len(messages) == 1
     assert str(messages[0]) == "Settings saved successfully"
+
+
+@pytest.mark.django_db
+def test_userlist_success(rf, core_developer):
+    UserFactory.create_batch(5)
+
+    request = rf.get(MEANINGLESS_URL)
+    request.user = core_developer
+
+    response = UserList.as_view()(request)
+
+    assert response.status_code == 200
+
+    # the core_developer fixture creates a User object as well as the 5 we
+    # created in the batch call above
+    assert len(response.context_data["object_list"]) == 6
