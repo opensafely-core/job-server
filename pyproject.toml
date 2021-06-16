@@ -14,15 +14,9 @@ exclude = '''
 branch = true
 omit = [
   "jobserver/asgi.py",
-  "jobserver/management/commands/backfill_org_memberships.py",
   "jobserver/management/commands/backfill_project_dot_yamls.py",
-  "jobserver/management/commands/create_project_from_workspace.py",
   "jobserver/management/commands/ensure_admins.py",
-  "jobserver/management/commands/get_workspace_data.py",
-  "jobserver/management/commands/link_user_to_project.py",
-  "jobserver/management/commands/link_workspace_to_project.py",
   "jobserver/management/commands/local_data.py",
-  "jobserver/management/commands/map_existing_workspaces.py",
   "jobserver/migrations/*",
   "jobserver/settings.py",
   "jobserver/wsgi.py",
