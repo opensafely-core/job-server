@@ -1,3 +1,4 @@
+from django.db import transaction
 from environs import Env
 
 from ..models import User
@@ -19,17 +20,25 @@ def get_admins():
     return [u.strip() for u in admin_users if u]
 
 
+@transaction.atomic()
 def ensure_admins(usernames):
     """
     Given an iterable of username strings, ensure they have the SuperUser role
     """
-    admins = User.objects.filter(username__in=usernames)
+    for user in User.objects.all():
+        try:
+            user.roles.remove(SuperUser)
+        except ValueError:
+            pass
+        user.save()
 
-    missing = set(usernames) - {u.username for u in admins}
+    admins_to_be = User.objects.filter(username__in=usernames)
+
+    missing = set(usernames) - {u.username for u in admins_to_be}
     if missing:
         sorted_missing = sorted(missing)
         raise Exception(f"Unknown admin usernames: {', '.join(sorted_missing)}")
 
-    for admin in admins:
+    for admin in admins_to_be:
         admin.roles.append(SuperUser)
         admin.save()
