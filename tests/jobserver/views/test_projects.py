@@ -117,18 +117,16 @@ def test_projectacceptinvite_with_different_user(rf):
 
 
 @pytest.mark.django_db
-def test_projectcancelinvite_success(rf, superuser):
+def test_projectcancelinvite_success(rf):
     org = OrgFactory()
     project = ProjectFactory(org=org)
     user = UserFactory()
+    ProjectMembershipFactory(project=project, user=user, roles=[ProjectCoordinator])
+
     invite = ProjectInvitationFactory(project=project, user=user)
 
-    ProjectMembershipFactory(
-        project=project, user=superuser, roles=[ProjectCoordinator]
-    )
-
     request = rf.post(MEANINGLESS_URL, {"invite_pk": invite.pk})
-    request.user = superuser
+    request.user = user
 
     response = ProjectCancelInvite.as_view()(
         request, org_slug=org.slug, project_slug=project.slug
@@ -141,12 +139,14 @@ def test_projectcancelinvite_success(rf, superuser):
 
 
 @pytest.mark.django_db
-def test_projectcancelinvite_unknown_invitation(rf, superuser):
+def test_projectcancelinvite_unknown_invitation(rf):
     org = OrgFactory()
     project = ProjectFactory(org=org)
+    user = UserFactory()
+    ProjectMembershipFactory(project=project, user=user, roles=[ProjectCoordinator])
 
     request = rf.post(MEANINGLESS_URL, {"invite_pk": 0})
-    request.user = superuser
+    request.user = user
 
     with pytest.raises(Http404):
         ProjectCancelInvite.as_view()(
@@ -155,14 +155,13 @@ def test_projectcancelinvite_unknown_invitation(rf, superuser):
 
 
 @pytest.mark.django_db
-def test_projectcancelinvite_without_manage_members_permission(rf, superuser):
+def test_projectcancelinvite_without_manage_members_permission(rf):
     org = OrgFactory()
     project = ProjectFactory(org=org)
-    user = UserFactory()
-    invite = ProjectInvitationFactory(project=project, user=user)
+    invite = ProjectInvitationFactory(project=project, user=UserFactory())
 
     request = rf.post(MEANINGLESS_URL, {"invite_pk": invite.pk})
-    request.user = superuser
+    request.user = UserFactory()
 
     with pytest.raises(Http404):
         ProjectCancelInvite.as_view()(

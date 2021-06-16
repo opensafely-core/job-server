@@ -50,7 +50,6 @@ class ProjectAcceptInvite(View):
         return redirect(invite.project)
 
 
-@method_decorator(require_superuser, name="dispatch")
 class ProjectCancelInvite(View):
     def post(self, request, *args, **kwargs):
         invite = get_object_or_404(
