@@ -7,7 +7,7 @@ from django.utils.safestring import mark_safe
 from django.views.generic import DetailView, ListView, View
 from django.views.generic.edit import FormMixin
 
-from ..authorization import SuperUser, has_role
+from ..authorization import CoreDeveloper, has_role
 from ..forms import JobRequestSearchForm
 from ..models import Backend, JobRequest, User, Workspace
 from ..project import render_definition
@@ -85,7 +85,7 @@ class JobRequestList(FormMixin, ListView):
         context = super().get_context_data(object_list=filtered_object_list, **kwargs)
 
         context["backends"] = Backend.objects.order_by("name")
-        context["is_superuser"] = has_role(self.request.user, SuperUser)
+        context["is_core_dev"] = has_role(self.request.user, CoreDeveloper)
         context["statuses"] = ["failed", "running", "pending", "succeeded"]
         context["users"] = {u.username: u.name for u in users}
         context["workspaces"] = workspaces
