@@ -783,6 +783,7 @@ def test_user_get_all_permissions():
         "global": [
             "cancel_job",
             "invite_project_members",
+            "manage_backends",
             "manage_project_members",
             "manage_project_workspaces",
             "run_job",

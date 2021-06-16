@@ -1,8 +1,35 @@
 import pytest
 
-from jobserver.authorization.decorators import require_superuser
+from jobserver.authorization.decorators import (
+    require_manage_backends,
+    require_superuser,
+)
 
 from ...factories import UserFactory
+
+
+@pytest.mark.django_db
+def test_require_manage_backends_with_core_dev_role(rf, core_developer):
+    request = rf.get("/")
+    request.user = core_developer
+
+    def dispatch(request):
+        return request
+
+    returned_request = require_manage_backends(dispatch)(request)
+
+    # check the request is passed through the decorator
+    assert returned_request == request
+
+
+@pytest.mark.django_db
+def test_require_manage_backends_without_core_dev_role(rf):
+    request = rf.get("/")
+    request.user = UserFactory(roles=[])
+
+    response = require_manage_backends(None)(request)
+
+    assert response.status_code == 403
 
 
 @pytest.mark.django_db
