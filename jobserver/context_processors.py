@@ -4,7 +4,7 @@ import structlog
 from django.conf import settings
 from django.urls import reverse
 
-from .authorization import SuperUser, has_role
+from .authorization import has_permission
 from .backends import show_warning
 from .models import Backend
 
@@ -53,7 +53,7 @@ def nav(request):
         },
     ]
 
-    if has_role(request.user, SuperUser):
+    if has_permission(request.user, "manage_backends"):
         options.append(
             {
                 "name": "Backends",
