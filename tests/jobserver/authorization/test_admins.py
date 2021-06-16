@@ -2,8 +2,31 @@ import pytest
 
 from jobserver.authorization.admins import ensure_admins, get_admins
 from jobserver.authorization.roles import SuperUser
+from jobserver.models import User
 
 from ...factories import UserFactory
+
+
+@pytest.mark.django_db
+def test_ensure_admins_remove_user():
+    # is superuser now, and will be afterwards
+    UserFactory(username="aaa", roles=[SuperUser])
+
+    # is superuser now, and won't be afterwards
+    UserFactory(username="bbb", roles=[SuperUser])
+
+    # isn't superuser now, and will be afterwards
+    UserFactory(username="ccc")
+
+    # isn't superuser now, and won't be afterwards
+    UserFactory(username="ddd")
+
+    ensure_admins(["aaa", "ccc"])
+
+    assert SuperUser in User.objects.get(username="aaa").roles
+    assert SuperUser not in User.objects.get(username="bbb").roles
+    assert SuperUser in User.objects.get(username="ccc").roles
+    assert SuperUser not in User.objects.get(username="ddd").roles
 
 
 @pytest.mark.django_db

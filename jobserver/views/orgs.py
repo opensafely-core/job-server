@@ -58,7 +58,6 @@ class OrgDetail(DetailView):
         )
 
 
-@method_decorator(require_superuser, name="dispatch")
 class OrgList(ListView):
-    model = Org
+    queryset = Org.objects.order_by("name")
     template_name = "org_list.html"

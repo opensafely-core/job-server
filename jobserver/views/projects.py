@@ -16,7 +16,6 @@ from ..authorization import (
     has_permission,
     roles_for,
 )
-from ..authorization.decorators import require_superuser
 from ..emails import send_project_invite_email
 from ..forms import (
     ProjectInvitationForm,
@@ -50,7 +49,6 @@ class ProjectAcceptInvite(View):
         return redirect(invite.project)
 
 
-@method_decorator(require_superuser, name="dispatch")
 class ProjectCancelInvite(View):
     def post(self, request, *args, **kwargs):
         invite = get_object_or_404(
@@ -112,7 +110,6 @@ class ProjectCreate(CreateView):
         )
 
 
-@method_decorator(require_superuser, name="dispatch")
 class ProjectOnboardingCreate(CreateView):
     form_class = ProjectOnboardingCreateForm
     model = Project

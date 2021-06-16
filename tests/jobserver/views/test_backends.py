@@ -10,11 +10,11 @@ MEANINGLESS_URL = "/"
 
 
 @pytest.mark.django_db
-def test_backenddetail_success(rf, superuser):
+def test_backenddetail_success(rf, core_developer):
     backend = BackendFactory()
 
     request = rf.get(MEANINGLESS_URL)
-    request.user = superuser
+    request.user = core_developer
     response = BackendDetail.as_view()(request, pk=backend.pk)
 
     assert response.status_code == 200
@@ -22,9 +22,9 @@ def test_backenddetail_success(rf, superuser):
 
 
 @pytest.mark.django_db
-def test_backendlist_success(rf, superuser):
+def test_backendlist_success(rf, core_developer):
     request = rf.get(MEANINGLESS_URL)
-    request.user = superuser
+    request.user = core_developer
     response = BackendList.as_view()(request)
 
     assert response.status_code == 200
@@ -32,11 +32,11 @@ def test_backendlist_success(rf, superuser):
 
 
 @pytest.mark.django_db
-def test_backendrotatetoken_success(rf, superuser):
+def test_backendrotatetoken_success(rf, core_developer):
     backend = BackendFactory()
 
     request = rf.post(MEANINGLESS_URL)
-    request.user = superuser
+    request.user = core_developer
     response = BackendRotateToken.as_view()(request, pk=backend.pk)
 
     assert response.status_code == 302

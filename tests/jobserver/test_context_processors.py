@@ -79,9 +79,9 @@ def test_nav_status(rf):
 
 
 @pytest.mark.django_db
-def test_nav_backends(rf, superuser):
+def test_nav_backends(rf, core_developer):
     request = rf.get(reverse("backend-list"))
-    request.user = superuser
+    request.user = core_developer
 
     jobs, status, backends = nav(request)["nav"]
 
@@ -91,7 +91,7 @@ def test_nav_backends(rf, superuser):
 
 
 @pytest.mark.django_db
-def test_nav_without_superuser(rf):
+def test_nav_without_core_developer_role(rf):
     request = rf.get(reverse("backend-list"))
     request.user = UserFactory()
 

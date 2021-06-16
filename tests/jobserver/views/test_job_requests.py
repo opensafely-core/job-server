@@ -385,13 +385,13 @@ def test_jobrequestlist_with_authenticated_user(rf):
 
 
 @pytest.mark.django_db
-def test_jobrequestlist_with_superuser(rf, superuser):
+def test_jobrequestlist_with_core_developer(rf, core_developer):
     job_request = JobRequestFactory()
     JobFactory(job_request=job_request)
     JobFactory(job_request=job_request)
 
     request = rf.get(MEANINGLESS_URL)
-    request.user = superuser
+    request.user = core_developer
     response = JobRequestList.as_view()(request)
 
     assert response.status_code == 200

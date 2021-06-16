@@ -112,11 +112,12 @@ def test_orgdetail_with_non_member_user(rf):
 
 
 @pytest.mark.django_db
-def test_orglist_success(rf, superuser):
+def test_orglist_success(rf):
     org = OrgFactory()
 
     request = rf.get(MEANINGLESS_URL)
-    request.user = superuser
+    request.user = UserFactory()
+
     response = OrgList.as_view()(request)
 
     assert response.status_code == 200
