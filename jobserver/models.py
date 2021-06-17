@@ -108,7 +108,7 @@ class BackendMembership(models.Model):
     backend = models.ForeignKey(
         "Backend",
         on_delete=models.CASCADE,
-        related_name="members",
+        related_name="memberships",
     )
     user = models.ForeignKey(
         "User",
