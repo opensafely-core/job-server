@@ -29,6 +29,7 @@ class RolesForm(forms.Form):
         self.fields["roles"] = forms.MultipleChoiceField(
             choices=choices,
             initial=initial,
+            required=False,
             widget=forms.CheckboxSelectMultiple,
         )
 

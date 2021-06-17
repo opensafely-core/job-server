@@ -53,3 +53,13 @@ def test_rolesform_produces_role_classes():
     assert form.is_valid(), form.errors
 
     assert form.cleaned_data["roles"] == [ProjectDeveloper]
+
+
+def test_rolesform_with_no_roles():
+    form = RolesForm(
+        available_roles=[ProjectCoordinator],
+        data={"roles": []},
+    )
+
+    assert form.is_valid()
+    assert len(form.cleaned_data["roles"]) == 0
