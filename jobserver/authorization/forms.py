@@ -13,8 +13,8 @@ class RolesForm(forms.Form):
     classes on save.
     """
 
-    def __init__(self, available_roles, *args, **kwargs):
-        super().__init__(*args, **kwargs)
+    def __init__(self, *, available_roles, **kwargs):
+        super().__init__(**kwargs)
 
         # build choices from a list of Role classes
         choices = [(dotted_path(r), r.display_name) for r in available_roles]
