@@ -62,4 +62,13 @@ def nav(request):
             }
         )
 
+    if has_permission(request.user, "manage_users"):
+        options.append(
+            {
+                "name": "Users",
+                "is_active": _active(reverse("user-list")),
+                "url": reverse("user-list"),
+            }
+        )
+
     return {"nav": options}
