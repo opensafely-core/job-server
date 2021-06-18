@@ -2,7 +2,7 @@ import pytest
 from django.core.exceptions import ValidationError
 
 from jobserver.backends import backends_to_choices
-from jobserver.forms import JobRequestCreateForm, WorkspaceCreateForm
+from jobserver.forms import JobRequestCreateForm, UserForm, WorkspaceCreateForm
 from jobserver.models import Backend
 
 
@@ -27,6 +27,72 @@ def test_jobrequestcreateform_with_multiple_backends():
     assert form.fields["backend"].choices == choices
 
     assert form.is_valid, form.errors
+
+
+@pytest.mark.django_db
+def test_userform_success():
+    available_backends = Backend.objects.filter(name__in=["emis", "tpp", "test"])
+
+    data = {
+        "backends": ["emis", "tpp"],
+        "roles": [],
+    }
+
+    form = UserForm(
+        available_backends=available_backends,
+        available_roles=[],
+        data=data,
+    )
+
+    assert form.is_valid(), form.errors
+
+    output = set(form.cleaned_data["backends"].values_list("name", flat=True))
+    expected = set(
+        Backend.objects.filter(name__in=["emis", "tpp"]).values_list("name", flat=True)
+    )
+    assert output == expected
+
+
+@pytest.mark.django_db
+def test_userform_with_no_backends():
+    available_backends = Backend.objects.filter(name__in=["tpp"])
+
+    data = {
+        "backends": [],
+        "roles": [],
+    }
+
+    form = UserForm(
+        available_backends=available_backends,
+        available_roles=[],
+        data=data,
+    )
+
+    assert form.is_valid()
+    assert len(form.cleaned_data["backends"]) == 0
+
+
+@pytest.mark.django_db
+def test_userform_with_unknown_backend():
+    available_backends = Backend.objects.filter(name__in=["emis", "tpp", "test"])
+
+    data = {
+        "backends": ["emis", "tpp", "unknown"],
+        "roles": [],
+    }
+
+    form = UserForm(
+        available_backends=available_backends,
+        available_roles=[],
+        data=data,
+    )
+
+    assert not form.is_valid()
+    assert form.errors == {
+        "backends": [
+            "Select a valid choice. unknown is not one of the available choices."
+        ]
+    }
 
 
 @pytest.mark.django_db

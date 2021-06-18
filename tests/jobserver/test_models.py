@@ -770,6 +770,20 @@ def test_user_name_without_first_and_last_name():
 
 
 @pytest.mark.django_db
+def test_user_get_absolute_url():
+    user = UserFactory()
+
+    url = user.get_absolute_url()
+
+    assert url == reverse(
+        "user-detail",
+        kwargs={
+            "username": user.username,
+        },
+    )
+
+
+@pytest.mark.django_db
 def test_user_get_all_permissions():
     org = OrgFactory()
     project = ProjectFactory(org=org)

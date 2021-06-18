@@ -46,7 +46,7 @@ from .views.projects import (
     ProjectSettings,
 )
 from .views.status import Status
-from .views.users import Settings, UserList
+from .views.users import Settings, UserDetail, UserList
 from .views.workspaces import (
     WorkspaceArchiveToggle,
     WorkspaceCreate,
@@ -143,6 +143,7 @@ org_urls = [
 
 user_urls = [
     path("", UserList.as_view(), name="user-list"),
+    path("<username>/", UserDetail.as_view(), name="user-detail"),
 ]
 
 urlpatterns = [

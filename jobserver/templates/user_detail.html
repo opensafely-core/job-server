@@ -1,0 +1,158 @@
+{% extends "base.html" %}
+
+{% load humanize %}
+{% load roles %}
+
+{% block content %}
+
+<nav aria-label="breadcrumb">
+  <ol class="breadcrumb">
+
+    <li class="breadcrumb-item"><a href="/">Home</a></li>
+
+    <li class="breadcrumb-item">
+      <a href="{% url 'user-list' %}">Users</a>
+    </li>
+
+    <li class="breadcrumb-item active" aria-current="page">{{ user.username }}</li>
+
+  </ol>
+</nav>
+
+<div class="row mb-5">
+  <div class="col-lg-8 offset-lg-2">
+
+    <div class="mb-5">
+      <h2>
+        {{ user.username }}
+        {% if user.get_full_name %}
+        <small class="text-muted">{{ user.get_full_name }}</small>
+        {% endif %}
+      </h2>
+
+      <p>
+        <strong>Created at:</strong> {{ user.date_joined }}
+      </p>
+
+    </div>
+
+    <form method="POST">
+      {% csrf_token %}
+
+      {% if form.non_field_errors %}
+      <ul>
+        {% for error in form.non_field_errors %}
+        <li class="text-danger">{{ error }}</li>
+        {% endfor %}
+      </ul>
+      {% endif %}
+
+      <div class="form-group">
+        <h4>Backends</h4>
+
+        <p>
+          A list of backends {{ user.username }} has access to.
+        </p>
+
+        <ul class="list-group mb-5">
+          {% for value, label in form.backends.field.choices %}
+          <li class="list-group-item">
+            <div class="custom-control custom-checkbox">
+              <input
+                type="checkbox"
+                class="custom-control-input"
+                id="id_backends_{{ forloop.counter0 }}"
+                name="backends"
+                value="{{ value }}"
+                {% if value in form.backends.value %}
+                checked
+                {% endif %}
+              />
+              <label class="custom-control-label" for="id_backends_{{ forloop.counter0 }}">
+                {{ label }}
+              </label>
+            </div>
+          </li>
+          {% endfor %}
+        </ul>
+
+        {% if form.backends.errors %}
+        <ul class="pl-3 mb-1">
+          {% for error in form.backends.errors %}
+          <li class="text-danger">{{ error }}</li>
+          {% endfor %}
+        </ul>
+        {% endif %}
+
+      </div>
+
+      <div class="form-group mb-5">
+        <h4>Orgnisations</h4>
+
+        <ul class="list-group mb-3">
+          {% for org in orgs %}
+          <li class="list-group-item">
+            <a href="{{ org.get_absolute_url }}">{{ org.name }}</a>
+          </li>
+          {% endfor %}
+        </ul>
+      </div>
+
+      <div class="form-group mb-5">
+        <h4>Projects</h4>
+
+        <ul class="list-group mb-3">
+          {% for project in projects %}
+          <li class="list-group-item">
+            <a href="{{ project.get_absolute_url }}">{{ project.name }}</a>
+          </li>
+          {% endfor %}
+        </ul>
+      </div>
+
+      <div class="form-group mb-5">
+        <h4>Roles</h4>
+
+        <ul class="list-group mb-3">
+          {% for value, label in form.roles.field.choices %}
+          <li class="list-group-item">
+            <div class="custom-control custom-checkbox">
+              <input
+                type="checkbox"
+                class="custom-control-input"
+                id="id_roles_{{ forloop.counter0 }}"
+                name="roles"
+                value="{{ value }}"
+                {% if value in form.roles.value %}
+                checked
+                {% endif %}
+              />
+              <label class="custom-control-label" for="id_roles_{{ forloop.counter0 }}">
+                <span class="d-block"><strong>{{ label }}</strong></span>
+                <span>{{ value|role_description|linebreaksbr }}</span>
+              </label>
+            </div>
+          </li>
+          {% endfor %}
+        </ul>
+
+        {% if form.roles.errors %}
+        <ul class="pl-3 mb-1">
+          {% for error in form.roles.errors %}
+          <li class="text-danger">{{ error }}</li>
+          {% endfor %}
+        </ul>
+        {% endif %}
+
+      </div>
+
+      <div class="form-group">
+        <button class="btn btn-primary" type="submit">Save</button>
+      </div>
+
+    </form>
+
+  </div>
+</div>
+
+{% endblock %}

@@ -795,6 +795,9 @@ class User(AbstractUser):
 
     roles = RolesField()
 
+    def get_absolute_url(self):
+        return reverse("user-detail", kwargs={"username": self.username})
+
     def get_all_permissions(self):
         """
         Get all Permissions for the current User
