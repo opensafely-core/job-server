@@ -83,11 +83,25 @@ def test_nav_backends(rf, core_developer):
     request = rf.get(reverse("backend-list"))
     request.user = core_developer
 
-    jobs, status, backends = nav(request)["nav"]
+    jobs, status, backends, users = nav(request)["nav"]
 
     assert jobs["is_active"] is False
     assert status["is_active"] is False
     assert backends["is_active"] is True
+    assert users["is_active"] is False
+
+
+@pytest.mark.django_db
+def test_nav_users(rf, core_developer):
+    request = rf.get(reverse("user-list"))
+    request.user = core_developer
+
+    jobs, status, backends, users = nav(request)["nav"]
+
+    assert jobs["is_active"] is False
+    assert status["is_active"] is False
+    assert backends["is_active"] is False
+    assert users["is_active"] is True
 
 
 @pytest.mark.django_db
