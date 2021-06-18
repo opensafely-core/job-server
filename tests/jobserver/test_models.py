@@ -786,6 +786,7 @@ def test_user_get_all_permissions():
             "manage_backends",
             "manage_project_members",
             "manage_project_workspaces",
+            "manage_users",
             "run_job",
         ],
         "orgs": [{"slug": org.slug, "permissions": []}],

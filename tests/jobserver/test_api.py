@@ -657,6 +657,7 @@ def test_userapidetail_success(api_rf):
         "manage_backends",
         "manage_project_members",
         "manage_project_workspaces",
+        "manage_users",
         "run_job",
     ]
     assert permissions["orgs"] == [

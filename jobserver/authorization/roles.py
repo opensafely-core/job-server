@@ -5,6 +5,7 @@ from .permissions import (
     manage_backends,
     manage_project_members,
     manage_project_workspaces,
+    manage_users,
     publish_output,
     review_project,
     run_job,
@@ -29,6 +30,7 @@ class CoreDeveloper:
         manage_backends,
         manage_project_members,
         manage_project_workspaces,
+        manage_users,
         run_job,
     ]
 
