@@ -170,7 +170,7 @@ class WorkspaceDetail(CreateView):
 
         # get backends from the current user
         backends = Backend.objects.filter(
-            members__in=self.request.user.backend_memberships.all()
+            memberships__in=self.request.user.backend_memberships.all()
         )
         kwargs["backends"] = backends_to_choices(backends)
 

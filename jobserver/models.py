@@ -108,7 +108,7 @@ class BackendMembership(models.Model):
     backend = models.ForeignKey(
         "Backend",
         on_delete=models.CASCADE,
-        related_name="members",
+        related_name="memberships",
     )
     user = models.ForeignKey(
         "User",
@@ -794,6 +794,9 @@ class User(AbstractUser):
     is_approved = models.BooleanField(default=False)
 
     roles = RolesField()
+
+    def get_absolute_url(self):
+        return reverse("user-detail", kwargs={"username": self.username})
 
     def get_all_permissions(self):
         """

@@ -3,7 +3,16 @@ from crispy_forms.layout import Submit
 from django import forms
 
 from .authorization.forms import RolesForm
-from .models import JobRequest, Org, Project, ResearcherRegistration, User, Workspace
+from .backends import backends_to_choices
+from .models import (
+    Backend,
+    JobRequest,
+    Org,
+    Project,
+    ResearcherRegistration,
+    User,
+    Workspace,
+)
 
 
 class JobRequestCreateForm(forms.ModelForm):
@@ -118,6 +127,24 @@ class SettingsForm(forms.ModelForm):
             "notifications_email",
         ]
         model = User
+
+
+class UserForm(RolesForm):
+    def __init__(self, *, available_backends, **kwargs):
+        super().__init__(**kwargs)
+
+        # build choices from the available backends
+        choices = backends_to_choices(available_backends)
+
+        self.fields["backends"] = forms.MultipleChoiceField(
+            choices=choices,
+            required=False,
+            widget=forms.CheckboxSelectMultiple,
+        )
+
+    def clean_backends(self):
+        """Convert backend names to Backend instances"""
+        return Backend.objects.filter(name__in=self.cleaned_data["backends"])
 
 
 class WorkspaceArchiveToggleForm(forms.Form):
