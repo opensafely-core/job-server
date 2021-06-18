@@ -10,7 +10,9 @@ if ! command -v bw > /dev/null; then
     exit 1
 fi
 
-if test -z "$BW_SESSION"; then
+session_from_env=${BW_SESSION-"not-found"}
+
+if (test $session_from_env = "not-found"); then
     echo "Unlocking bitwarden..."
     BW_SESSION=$(bw unlock --raw)
     export BW_SESSION
@@ -22,9 +24,9 @@ GH_DEV_TOKEN_BW_ID=10242708-234a-4162-982f-ace700ee5c53
 write() {
     local name="$1"
     local value="$2"
-    sed -i "s/$name=.*/$name=$value/" "$target"
+    sed -i"" -e "s/$name=.*/$name=$value/" "$target"
 }
 
-write GITHUB_TOKEN "$(bw get password $GH_DEV_TOKEN_ID)"
+write GITHUB_TOKEN "$(bw get password $GH_DEV_TOKEN_BW_ID)"
 write SOCIAL_AUTH_GITHUB_KEY "$(bw get username $SOCIAL_AUTH_BW_ID)"
 write SOCIAL_AUTH_GITHUB_SECRET "$(bw get password $SOCIAL_AUTH_BW_ID)"
