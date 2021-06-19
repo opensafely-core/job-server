@@ -1,13 +1,14 @@
 # Local Development Set Up
 ## Native
 
-### Prerequisites:
+Prerequisites:
 - **Python v3.9.x**
+- **virtualenv**
 - **Pip**
 
 Create a virtualenv with your preferred tool and install the dependencies with:
 
-    pip install -r requirements.dev.txt
+    make setup
 
 Set up environment (note: you will need the bitwarden cli tool installed in order to access passwords):
 
@@ -23,7 +24,7 @@ Run migrations:
 Optionally set up 1 or more administrators by setting `ADMIN_USERS` to a list of strings.
 eg `ADMIN_USERS=ghickman,ingelsp`.
 
-**Note:** this can only contain usernames which exist in the database.  
+**Note:** this can only contain usernames which exist in the database.
 If necessary, you can create the required user(s) first with:
 
     python manage.py createsuperuser
@@ -34,7 +35,7 @@ Then update their User records with:
 
 Run the dev server:
 
-    python manage.py runserver
+    make run
 
 Access at http://localhost:8000
 
@@ -62,7 +63,7 @@ bitwarden cli tool installed in order to access passwords.
 
 Run the tests with:
 
-    pytest tests
+    make test
 
 # Add/Updating Static Assets
 We don't currently use any kind of static asset management tool (eg npm, yarn,
