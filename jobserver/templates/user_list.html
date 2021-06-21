@@ -16,6 +16,16 @@
 
     <h1 class="mb-4">Users</h1>
 
+    <form class="form d-flex align-items-center mb-4" method="GET">
+      <input
+        class="form-control mr-2"
+        type="search"
+        placeholder="Search by name or username"
+        aria-label="Search"
+        name="q" />
+      <button class="btn btn-outline-success my-2 my-sm-0" type="submit">Search</button>
+    </form>
+
     {% for user in object_list %}
     <div class="d-flex justify-content-between align-items-baseline border rounded p-3 pl-3 mb-3">
 

@@ -3,6 +3,7 @@ import inspect
 from django.contrib import messages
 from django.contrib.auth.decorators import login_required
 from django.db import transaction
+from django.db.models import Q
 from django.shortcuts import redirect
 from django.utils.decorators import method_decorator
 from django.views.generic import ListView, UpdateView
@@ -83,3 +84,16 @@ class UserDetail(UpdateView):
 class UserList(ListView):
     queryset = User.objects.order_by("username")
     template_name = "user_list.html"
+
+    def get_queryset(self):
+        qs = super().get_queryset()
+
+        q = self.request.GET.get("q")
+        if q:
+            qs = qs.filter(
+                Q(username__icontains=q)
+                | Q(first_name__icontains=q)
+                | Q(last_name__icontains=q)
+            )
+
+        return qs

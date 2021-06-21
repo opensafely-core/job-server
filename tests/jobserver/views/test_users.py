@@ -235,6 +235,22 @@ def test_userdetail_without_core_dev_role(rf):
 
 
 @pytest.mark.django_db
+def test_userlist_find_by_username(rf, core_developer):
+    UserFactory(username="ben")
+    UserFactory(first_name="ben")
+    UserFactory(username="seb")
+
+    request = rf.get("/?q=ben")
+    request.user = core_developer
+
+    response = UserList.as_view()(request)
+
+    assert response.status_code == 200
+
+    assert len(response.context_data["object_list"]) == 2
+
+
+@pytest.mark.django_db
 def test_userlist_success(rf, core_developer):
     UserFactory.create_batch(5)
 
