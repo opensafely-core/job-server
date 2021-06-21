@@ -38,6 +38,21 @@
       <code><small class="text-muted">{{ jobrequest.identifier }}</small></code>
     </h2>
 
+    <p>
+      This page shows the technical details of what happened when authorised researcher {{ jobrequest.created_by.name }} requested one or
+      more actions to be run against real patient data in the
+      <a href="{{ jobrequest.workspace.project.get_absolute_url }}">{{ jobrequest.workspace.project.name }} project</a>, within a secure environment.
+    </p>
+
+    <p>
+      By cross-referencing the indicated Requested Actions with the Pipeline section below, you can infer what
+      <a href="https://docs.opensafely.org/security-levels/">security level</a> various outputs were written to. Outputs
+      marked as <code>highly_sensitive</code> can never be viewed directly by a
+      researcher; they can only request that code runs against them. Outputs marked as <code>moderately_sensitive</code> can be
+      viewed by an approved researcher by logging into a highly secure environment. Only outputs marked as
+      <code>moderately_sensitive</code> can be requested for release to the public, via a controlled output review service.
+    </p>
+
     <div class="mb-4">
       <h3>State</h3>
       <small>State is inferred from the related Jobs</small>
