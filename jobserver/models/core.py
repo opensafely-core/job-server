@@ -72,7 +72,16 @@ class Job(models.Model):
         return f"{self.action} ({self.pk})"
 
     def get_absolute_url(self):
-        return reverse("job-detail", kwargs={"identifier": self.identifier})
+        return reverse(
+            "job-detail",
+            kwargs={
+                "org_slug": self.job_request.workspace.project.org.slug,
+                "project_slug": self.job_request.workspace.project.slug,
+                "workspace_slug": self.job_request.workspace.name,
+                "pk": self.job_request.pk,
+                "identifier": self.identifier,
+            },
+        )
 
     def get_cancel_url(self):
         return reverse(
@@ -163,7 +172,15 @@ class JobRequest(models.Model):
     created_at = models.DateTimeField(default=timezone.now)
 
     def get_absolute_url(self):
-        return reverse("job-request-detail", kwargs={"pk": self.pk})
+        return reverse(
+            "job-request-detail",
+            kwargs={
+                "org_slug": self.workspace.project.org.slug,
+                "project_slug": self.workspace.project.slug,
+                "workspace_slug": self.workspace.name,
+                "pk": self.pk,
+            },
+        )
 
     @property
     def completed_at(self):

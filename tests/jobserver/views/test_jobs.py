@@ -1,7 +1,6 @@
 import pytest
 from django.contrib.auth.models import AnonymousUser
 from django.http import Http404
-from django.urls import reverse
 
 from jobserver.authorization import ProjectDeveloper
 from jobserver.views.jobs import JobCancel, JobDetail, JobDetailRedirect
@@ -32,7 +31,7 @@ def test_jobcancel_already_cancelled(rf, user):
     response = JobCancel.as_view()(request, identifier=job.identifier)
 
     assert response.status_code == 302
-    assert response.url == reverse("job-detail", kwargs={"identifier": job.identifier})
+    assert response.url == job.get_absolute_url()
 
     job_request.refresh_from_db()
     assert job_request.cancelled_actions == ["another-action", "test"]
@@ -53,7 +52,7 @@ def test_jobcancel_already_completed(rf, user):
     response = JobCancel.as_view()(request, identifier=job.identifier)
 
     assert response.status_code == 302
-    assert response.url == reverse("job-detail", kwargs={"identifier": job.identifier})
+    assert response.url == job.get_absolute_url()
 
     job_request.refresh_from_db()
     assert job_request.cancelled_actions == ["another-action"]
@@ -75,7 +74,7 @@ def test_jobcancel_success(rf):
     response = JobCancel.as_view()(request, identifier=job.identifier)
 
     assert response.status_code == 302
-    assert response.url == reverse("job-detail", kwargs={"identifier": job.identifier})
+    assert response.url == job.get_absolute_url()
 
     job_request.refresh_from_db()
     assert job_request.cancelled_actions == ["test"]
@@ -93,7 +92,7 @@ def test_jobcancel_with_job_creator(rf):
     response = JobCancel.as_view()(request, identifier=job.identifier)
 
     assert response.status_code == 302
-    assert response.url == reverse("job-detail", kwargs={"identifier": job.identifier})
+    assert response.url == job.get_absolute_url()
 
     job_request.refresh_from_db()
     assert job_request.cancelled_actions == ["test"]
