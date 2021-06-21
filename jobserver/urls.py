@@ -25,8 +25,13 @@ from jobserver.api.releases import (
 from .views.admin import ApproveUsers
 from .views.backends import BackendDetail, BackendEdit, BackendList, BackendRotateToken
 from .views.index import Index
-from .views.job_requests import JobRequestCancel, JobRequestDetail, JobRequestList
-from .views.jobs import JobCancel, JobDetail
+from .views.job_requests import (
+    JobRequestCancel,
+    JobRequestDetail,
+    JobRequestDetailRedirect,
+    JobRequestList,
+)
+from .views.jobs import JobCancel, JobDetail, JobDetailRedirect
 from .views.orgs import OrgCreate, OrgDetail, OrgList
 from .views.projects import (
     ProjectAcceptInvite,
@@ -208,6 +213,10 @@ workspace_urls = [
     ),
     path("outputs/", include(outputs_urls)),
     path("releases/", include(releases_urls)),
+    path("<pk>/", JobRequestDetail.as_view(), name="job-request-detail"),
+    path("<pk>/cancel/", JobRequestCancel.as_view(), name="job-request-cancel"),
+    path("<pk>/<identifier>/", JobDetail.as_view(), name="job-detail"),
+    path("<pk>/<identifier>/cancel/", JobCancel.as_view(), name="job-cancel"),
 ]
 
 project_urls = [
@@ -258,18 +267,14 @@ urlpatterns = [
     path("admin/", admin.site.urls),
     path("api/v2/", include((api_urls, "api"))),
     path("backends/", include(backend_urls)),
-    path("jobs/", JobRequestList.as_view(), name="job-list"),
-    path("job-requests/", RedirectView.as_view(pattern_name="job-list")),
+    path("event-list/", JobRequestList.as_view(), name="job-list"),
+    path("jobs/", RedirectView.as_view(query_string=True, pattern_name="job-list")),
     path(
-        "job-requests/<int:pk>/", JobRequestDetail.as_view(), name="job-request-detail"
+        "job-requests/<pk>/",
+        JobRequestDetailRedirect.as_view(),
+        name="job-request-detail",
     ),
-    path(
-        "job-requests/<int:pk>/cancel/",
-        JobRequestCancel.as_view(),
-        name="job-request-cancel",
-    ),
-    path("jobs/<identifier>/", JobDetail.as_view(), name="job-detail"),
-    path("jobs/<identifier>/cancel/", JobCancel.as_view(), name="job-cancel"),
+    path("jobs/<identifier>/", JobDetailRedirect.as_view(), name="job-detail"),
     path("logout/", LogoutView.as_view(), name="logout"),
     path("orgs/", include(org_urls)),
     path("settings/", Settings.as_view(), name="settings"),

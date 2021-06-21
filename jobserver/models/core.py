@@ -75,7 +75,16 @@ class Job(models.Model):
         return reverse("job-detail", kwargs={"identifier": self.identifier})
 
     def get_cancel_url(self):
-        return reverse("job-cancel", kwargs={"identifier": self.identifier})
+        return reverse(
+            "job-cancel",
+            kwargs={
+                "org_slug": self.job_request.workspace.project.org.slug,
+                "project_slug": self.job_request.workspace.project.slug,
+                "workspace_slug": self.job_request.workspace.name,
+                "pk": self.job_request.pk,
+                "identifier": self.identifier,
+            },
+        )
 
     @property
     def is_completed(self):
@@ -169,7 +178,15 @@ class JobRequest(models.Model):
         return last_job.completed_at
 
     def get_cancel_url(self):
-        return reverse("job-request-cancel", kwargs={"pk": self.pk})
+        return reverse(
+            "job-request-cancel",
+            kwargs={
+                "org_slug": self.workspace.project.org.slug,
+                "project_slug": self.workspace.project.slug,
+                "workspace_slug": self.workspace.name,
+                "pk": self.pk,
+            },
+        )
 
     def get_file_url(self, path):
         f = furl(self.workspace.repo)

@@ -2,7 +2,7 @@ from django.core.exceptions import MultipleObjectsReturned
 from django.http import Http404
 from django.shortcuts import get_object_or_404, redirect
 from django.template.response import TemplateResponse
-from django.views.generic import View
+from django.views.generic import RedirectView, View
 
 from ..authorization import has_permission
 from ..models import Job
@@ -31,7 +31,13 @@ class JobDetail(View):
         try:
             job = Job.objects.select_related(
                 "job_request", "job_request__backend", "job_request__workspace"
-            ).get(identifier__startswith=self.kwargs["identifier"])
+            ).get(
+                job_request__workspace__project__org__slug=self.kwargs["org_slug"],
+                job_request__workspace__project__slug=self.kwargs["project_slug"],
+                job_request__workspace__name=self.kwargs["workspace_slug"],
+                job_request__pk=self.kwargs["pk"],
+                identifier__startswith=self.kwargs["identifier"],
+            )
         except (Job.DoesNotExist, MultipleObjectsReturned):
             raise Http404
 
@@ -51,3 +57,9 @@ class JobDetail(View):
         }
 
         return TemplateResponse(request, "job_detail.html", context=context)
+
+
+class JobDetailRedirect(RedirectView):
+    def get_redirect_url(self, *args, **kwargs):
+        job = get_object_or_404(Job, identifier=self.kwargs["identifier"])
+        return job.get_absolute_url()
