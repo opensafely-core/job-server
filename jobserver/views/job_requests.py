@@ -101,7 +101,7 @@ class JobRequestList(FormMixin, ListView):
     def get_queryset(self):
         qs = (
             JobRequest.objects.prefetch_related("jobs")
-            .select_related("workspace")
+            .select_related("backend", "workspace")
             .order_by("-pk")
         )
 
