@@ -282,9 +282,9 @@ six==1.15.0 \
     #   social-auth-app-django
     #   social-auth-core
     #   structlog
-slack-sdk==3.6.0 \
-    --hash=sha256:195f044e02a2844579a7a26818ce323e85dde8de224730c859644918d793399e \
-    --hash=sha256:e1b257923a1ef88b8620dd3abff94dc5b3eee16ef37975d101ba9e60123ac3af
+slack-sdk==3.7.0 \
+    --hash=sha256:50b9fd6d8f83af7e8ad6d8e76882d04931842241f85ccfd30da09b4a7b9b1516 \
+    --hash=sha256:f0bf3e38ac393eba7fe1a99191b0e72f710860c6d2edc1271606fcfc08bea2e1
     # via -r requirements.in
 social-auth-app-django==4.0.0 \
     --hash=sha256:2c69e57df0b30c9c1823519c5f1992cbe4f3f98fdc7d95c840e091a752708840 \
