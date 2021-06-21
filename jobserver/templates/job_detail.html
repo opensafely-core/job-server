@@ -19,6 +19,18 @@
     <li class="breadcrumb-item"><a href="/">Home</a></li>
 
     <li class="breadcrumb-item">
+      <a href="{{ job.job_request.workspace.project.org.get_absolute_url }}">
+        {{ job.job_request.workspace.project.org.name }}
+      </a>
+    </li>
+
+    <li class="breadcrumb-item">
+      <a href="{{ job.job_request.workspace.project.get_absolute_url }}">
+        {{ job.job_request.workspace.project.name }}
+      </a>
+    </li>
+
+    <li class="breadcrumb-item">
       <a href="{{ job.job_request.workspace.get_absolute_url }}">
         {{ job.job_request.workspace.name }}
       </a>
