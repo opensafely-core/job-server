@@ -31,18 +31,12 @@
     </form>
 
     {% for user in object_list %}
-    <div class="d-flex justify-content-between align-items-baseline border rounded p-3 pl-3 mb-3">
+    <div class="border rounded p-2 pl-3 mb-3">
 
-      <h5>
-        {{ user.username }}
-        {% if user.get_full_name %}
-        <small class="text-muted">({{ user.get_full_name }})</small>
-        {% endif %}
-      </h5>
-
-      <div>
-        <a class="btn btn-primary btn-block" href="{{ user.get_absolute_url }}">View</a>
-      </div>
+      <a href="{{ user.get_absolute_url }}">{{ user.username }}</a>
+      {% if user.get_full_name %}
+      <small class="text-muted">({{ user.get_full_name }})</small>
+      {% endif %}
 
     </div>
     {% endfor %}
