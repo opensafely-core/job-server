@@ -12,7 +12,7 @@ from jobserver.authorization.roles import (
     ProjectCollaborator,
     ProjectDeveloper,
 )
-from jobserver.models import Backend, ProjectInvitation, ProjectMembership
+from jobserver.models import Backend, JobRequest, ProjectInvitation, ProjectMembership
 
 from ..factories import (
     BackendFactory,
@@ -190,7 +190,8 @@ def test_jobrequest_completed_at_success():
 
     job1, job2 = JobFactory.create_batch(2, job_request=job_request, status="succeeded")
 
-    assert job_request.completed_at == job2.completed_at
+    jr = JobRequest.objects.prefetch_related("jobs").get(pk=job_request.pk)
+    assert jr.completed_at == job2.completed_at
 
 
 @pytest.mark.django_db
@@ -200,7 +201,8 @@ def test_jobrequest_completed_at_while_incomplete():
     JobFactory(job_request=job_request, completed_at=timezone.now())
     JobFactory(job_request=job_request)
 
-    assert not job_request.completed_at
+    jr = JobRequest.objects.prefetch_related("jobs").get(pk=job_request.pk)
+    assert not jr.completed_at
 
 
 @pytest.mark.django_db
@@ -263,7 +265,8 @@ def test_jobrequest_is_completed():
     JobFactory(job_request=job_request, status="failed")
     JobFactory(job_request=job_request, status="succeeded")
 
-    assert job_request.is_completed
+    jr = JobRequest.objects.prefetch_related("jobs").get(pk=job_request.pk)
+    assert jr.is_completed
 
 
 @pytest.mark.django_db
@@ -305,15 +308,16 @@ def test_jobrequest_runtime_one_job_missing_completed_at(freezer):
         completed_at=None,
     )
 
-    assert job_request.started_at
-    assert not job_request.completed_at
+    jr = JobRequest.objects.prefetch_related("jobs").get(pk=job_request.pk)
+    assert jr.started_at
+    assert not jr.completed_at
 
     # combined _completed_ Job runtime is 0 because the failed job has no
     # runtime (it never started)
-    assert job_request.runtime
-    assert job_request.runtime.hours == 0
-    assert job_request.runtime.minutes == 1
-    assert job_request.runtime.seconds == 0
+    assert jr.runtime
+    assert jr.runtime.hours == 0
+    assert jr.runtime.minutes == 1
+    assert jr.runtime.seconds == 0
 
 
 @pytest.mark.django_db
@@ -333,15 +337,16 @@ def test_jobrequest_runtime_one_job_missing_started_at(freezer):
         completed_at=timezone.now(),
     )
 
-    assert job_request.started_at
-    assert job_request.completed_at
+    jr = JobRequest.objects.prefetch_related("jobs").get(pk=job_request.pk)
+    assert jr.started_at
+    assert jr.completed_at
 
     # combined _completed_ Job runtime is 2 minutes because the second job
     # failed before it started
-    assert job_request.runtime
-    assert job_request.runtime.hours == 0
-    assert job_request.runtime.minutes == 2
-    assert job_request.runtime.seconds == 0
+    assert jr.runtime
+    assert jr.runtime.hours == 0
+    assert jr.runtime.minutes == 2
+    assert jr.runtime.seconds == 0
 
 
 @pytest.mark.django_db
@@ -365,14 +370,15 @@ def test_jobrequest_runtime_not_completed(freezer):
         started_at=timezone.now() - timedelta(seconds=30),
     )
 
-    assert job_request.started_at
-    assert not job_request.completed_at
+    jr = JobRequest.objects.prefetch_related("jobs").get(pk=job_request.pk)
+    assert jr.started_at
+    assert not jr.completed_at
 
     # combined _completed_ Job runtime is 1 minute
-    assert job_request.runtime
-    assert job_request.runtime.hours == 0
-    assert job_request.runtime.minutes == 1
-    assert job_request.runtime.seconds == 0
+    assert jr.runtime
+    assert jr.runtime.hours == 0
+    assert jr.runtime.minutes == 1
+    assert jr.runtime.seconds == 0
 
 
 @pytest.mark.django_db
@@ -439,7 +445,8 @@ def test_jobrequest_status_all_jobs_the_same(subtests):
             for status in statuses:
                 JobFactory(job_request=job_request, status=status)
 
-            assert job_request.status == statuses[0]
+            jr = JobRequest.objects.prefetch_related("jobs").get(pk=job_request.pk)
+            assert jr.status == statuses[0]
 
 
 @pytest.mark.django_db
@@ -450,7 +457,8 @@ def test_jobrequest_status_running_in_job_statuses():
     JobFactory(job_request=job_request, status="failed")
     JobFactory(job_request=job_request, status="succeeded")
 
-    assert job_request.status == "running"
+    jr = JobRequest.objects.prefetch_related("jobs").get(pk=job_request.pk)
+    assert jr.status == "running"
 
 
 @pytest.mark.django_db
@@ -461,7 +469,8 @@ def test_jobrequest_status_running_not_in_job_statues():
     JobFactory(job_request=job_request, status="failed")
     JobFactory(job_request=job_request, status="succeeded")
 
-    assert job_request.status == "running"
+    jr = JobRequest.objects.prefetch_related("jobs").get(pk=job_request.pk)
+    assert jr.status == "running"
 
 
 @pytest.mark.django_db
@@ -472,7 +481,8 @@ def test_jobrequest_status_failed():
     JobFactory(job_request=job_request, status="failed")
     JobFactory(job_request=job_request, status="succeeded")
 
-    assert job_request.status == "failed"
+    jr = JobRequest.objects.prefetch_related("jobs").get(pk=job_request.pk)
+    assert jr.status == "failed"
 
 
 @pytest.mark.django_db
@@ -481,7 +491,29 @@ def test_jobrequest_status_unknown():
     JobFactory(job_request=job_request, status="foo")
     JobFactory(job_request=job_request, status="bar")
 
-    assert job_request.status == "unknown"
+    jr = JobRequest.objects.prefetch_related("jobs").get(pk=job_request.pk)
+    assert jr.status == "unknown"
+
+
+@pytest.mark.django_db
+def test_jobrequest_status_uses_prefetch_cache(django_assert_num_queries):
+    for i in range(5):
+        jr = JobRequestFactory()
+        JobFactory.create_batch(5, job_request=jr)
+
+    with django_assert_num_queries(2):
+        # 1. select JobRequests
+        # 2. select Jobs for those JobRequests
+        [jr.status for jr in JobRequest.objects.prefetch_related("jobs")]
+
+
+@pytest.mark.django_db
+def test_jobrequest_status_without_prefetching_jobs(django_assert_num_queries):
+    job_request = JobRequestFactory()
+    JobFactory.create_batch(5, job_request=job_request)
+
+    with pytest.raises(Exception, match="JobRequest queries must prefetch jobs."):
+        job_request.status
 
 
 @pytest.mark.django_db
