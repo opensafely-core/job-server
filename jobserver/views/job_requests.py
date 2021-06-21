@@ -1,7 +1,8 @@
 from django.contrib.auth.decorators import user_passes_test
 from django.core.exceptions import BadRequest
 from django.db.models import Q
-from django.shortcuts import get_object_or_404, redirect
+from django.http import Http404
+from django.shortcuts import redirect
 from django.utils.decorators import method_decorator
 from django.utils.safestring import mark_safe
 from django.views.generic import DetailView, ListView, View
@@ -28,13 +29,19 @@ def filter_by_status(job_requests, status):
         # value.
         return job_requests
 
+    job_requests = job_requests.prefetch_related("jobs")
     return [r for r in job_requests if r.status.lower() == status]
 
 
 @method_decorator(user_passes_test(can_run_jobs), name="dispatch")
 class JobRequestCancel(View):
     def post(self, request, *args, **kwargs):
-        job_request = get_object_or_404(JobRequest, pk=self.kwargs["pk"])
+        try:
+            job_request = JobRequest.objects.prefetch_related("jobs").get(
+                pk=self.kwargs["pk"]
+            )
+        except JobRequest.DoesNotExist:
+            raise Http404
 
         if job_request.is_completed:
             return redirect(job_request)

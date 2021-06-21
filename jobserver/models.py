@@ -340,7 +340,18 @@ class JobRequest(models.Model):
 
     @property
     def status(self):
-        statuses = self.jobs.values_list("status", flat=True)
+        prefetched_jobs = (
+            hasattr(self, "_prefetched_objects_cache")
+            and "jobs" in self._prefetched_objects_cache
+        )
+        if not prefetched_jobs:
+            # require Jobs are prefetched to get statuses since we have to
+            # query every Job for the logic below to work
+            raise Exception("JobRequest queries must prefetch jobs.")
+
+        # always make use of prefetched Jobs, so we don't execute O(N) queries
+        # each time.
+        statuses = [j.status for j in self.jobs.all()]
 
         # when they're all the same, just use that
         if len(set(statuses)) == 1:
