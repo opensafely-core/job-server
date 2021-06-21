@@ -1,5 +1,4 @@
 from django.contrib.auth.decorators import user_passes_test
-from django.core.exceptions import BadRequest
 from django.db.models import Q
 from django.http import Http404
 from django.shortcuts import redirect
@@ -14,6 +13,7 @@ from ..forms import JobRequestSearchForm
 from ..models import Backend, JobRequest, User, Workspace
 from ..project import render_definition
 from ..roles import can_run_jobs
+from ..utils import raise_if_not_int
 
 
 def filter_by_status(job_requests, status):
@@ -117,12 +117,6 @@ class JobRequestList(FormMixin, ListView):
                 # if the query looks enough like a number for int() to handle
                 # it then we can look for a job number
                 qs = qs.filter(qwargs | Q(jobs__pk=q))
-
-        def raise_if_not_int(value):
-            try:
-                int(value)
-            except ValueError:
-                raise BadRequest
 
         backend = self.request.GET.get("backend")
         if backend:
