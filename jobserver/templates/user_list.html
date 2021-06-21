@@ -1,5 +1,8 @@
 {% extends "base.html" %}
 
+{% load querystring_tools %}
+{% load selected_filter %}
+
 {% block content %}
 <nav aria-label="breadcrumb">
   <ol class="breadcrumb">
@@ -12,9 +15,7 @@
 </nav>
 
 <div class="row">
-  <div class="col-lg-8 offset-lg-2">
-
-    <h1 class="mb-4">Users</h1>
+  <div class="col-lg-6 offset-lg-2">
 
     <form class="form d-flex align-items-center mb-4" method="GET">
       <input
@@ -22,6 +23,9 @@
         type="search"
         placeholder="Search by name or username"
         aria-label="Search"
+        {% if q %}
+        value="{{ q }}"
+        {% endif %}
         name="q" />
       <button class="btn btn-outline-success my-2 my-sm-0" type="submit">Search</button>
     </form>
@@ -44,5 +48,44 @@
     {% endfor %}
 
   </div>
+
+  <div class="col-lg-2 filters">
+    <h4>Filters</h4>
+
+    {% if request.GET %}
+    <div class="mb-3">
+      <a href="{% url 'user-list' %}">Clear All</a>
+    </div>
+    {% endif %}
+
+    {% if backends %}
+    <h5>Backends</h5>
+    <ul class="list-group list-unstyled mb-4">
+      {% for backend in backends %}
+      {% is_filter_selected key="backend" value=backend.pk as is_active %}
+      <li class="list-group-item d-flex{% if is_active %} active{% endif %}">
+
+        <a class="text-truncate flex-grow-1" href="{% url_with_querystring backend=backend.pk %}">
+          {{ backend.name }}
+        </a>
+
+        {% if is_active %}
+        <a
+          type="button"
+          class="close"
+          aria-label="Close"
+          href="{% url_without_querystring backend=backend.pk %}"
+          >
+          <span aria-hidden="true">&times;</span>
+        </a>
+        {% endif %}
+
+      </li>
+      {% endfor %}
+    </ul>
+    {% endif %}
+
+  </div>
+
 </div>
 {% endblock %}

@@ -12,6 +12,7 @@ from ..authorization import roles
 from ..authorization.decorators import require_permission
 from ..forms import SettingsForm, UserForm
 from ..models import Backend, User
+from ..utils import raise_if_not_int
 
 
 @method_decorator(login_required, name="dispatch")
@@ -85,6 +86,12 @@ class UserList(ListView):
     queryset = User.objects.order_by("username")
     template_name = "user_list.html"
 
+    def get_context_data(self, **kwargs):
+        return super().get_context_data(**kwargs) | {
+            "backends": Backend.objects.order_by("name"),
+            "q": self.request.GET.get("q", ""),
+        }
+
     def get_queryset(self):
         qs = super().get_queryset()
 
@@ -95,5 +102,10 @@ class UserList(ListView):
                 | Q(first_name__icontains=q)
                 | Q(last_name__icontains=q)
             )
+
+        backend = self.request.GET.get("backend")
+        if backend:
+            raise_if_not_int(backend)
+            qs = qs.filter(backends__pk=backend)
 
         return qs
