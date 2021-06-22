@@ -17,7 +17,7 @@ class Release(models.Model):
 
     # No value in the default Autoid as we are using a content-addressable hash
     # as it. Additionaly it avoids enumeration attacks.
-    id = models.TextField(primary_key=True)
+    id = models.TextField(primary_key=True)  # noqa: A003
 
     workspace = models.ForeignKey(
         "Workspace",
