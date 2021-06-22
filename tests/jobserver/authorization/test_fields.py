@@ -1,10 +1,25 @@
 import pytest
 from django.db import connection
 
-from jobserver.authorization import CoreDeveloper
-from jobserver.authorization.fields import RolesField
+from jobserver.authorization import CoreDeveloper, OutputChecker
+from jobserver.authorization.fields import ExtractRoles, RolesField
+from jobserver.models import User
 
 from ...factories import OrgFactory, OrgMembershipFactory, UserFactory
+
+
+@pytest.mark.django_db
+def test_extractroles():
+    user1 = UserFactory(roles=[OutputChecker])
+    user2 = UserFactory(roles=[CoreDeveloper])
+
+    users = User.objects.alias(extracted=ExtractRoles("roles")).filter(
+        extracted__contains="CoreDeveloper"
+    )
+
+    assert len(users) == 1
+    assert user1 not in users
+    assert user2 in users
 
 
 @pytest.mark.django_db
