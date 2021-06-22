@@ -5,6 +5,7 @@ black
 factory_boy
 flake8
 flake8-builtins
+flake8-implicit-str-concat
 isort
 pre-commit
 pytest-cov
