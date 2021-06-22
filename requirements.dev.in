@@ -4,6 +4,7 @@
 black
 factory_boy
 flake8
+flake8-builtins
 isort
 pre-commit
 pytest-cov

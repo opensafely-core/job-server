@@ -14,9 +14,9 @@ asgiref==3.3.4 \
     --hash=sha256:92906c611ce6c967347bbfea733f13d6313901d54dcca88195eaeb52b2a8e8ee \
     --hash=sha256:d1216dfbdfb63826470995d31caed36225dcaf34f182e0fa257a4dd9e86f1b78
     # via django
-attrs==21.2.0 \
-    --hash=sha256:149e90d6d8ac20db7a955ad60cf0e6881a3f20d37096140088356da6c716b0b1 \
-    --hash=sha256:ef6aaac3ca6cd92904cdd0d83f629a15f18053ec84e6432106f7a4d04ae4f5fb
+attrs==20.3.0 \
+    --hash=sha256:31b2eced602aa8423c2aea9c76a724617ed67cf9513173fd3a4f03e3a929c7e6 \
+    --hash=sha256:832aa3cde19744e49938b91fea06d69ecb9e649c93ba974535d08ad92164f700
     # via
     #   -c requirements.in
     #   -r requirements.in
@@ -306,10 +306,16 @@ first==2.0.2 \
     # via
     #   -c requirements.in
     #   -r requirements.in
+flake8-builtins==1.5.3 \
+    --hash=sha256:09998853b2405e98e61d2ff3027c47033adbdc17f9fe44ca58443d876eb00f3b \
+    --hash=sha256:7706babee43879320376861897e5d1468e396a40b8918ed7bccf70e5f90b8687
+    # via -r requirements.dev.in
 flake8==3.9.2 \
     --hash=sha256:07528381786f2a6237b061f6e96610a4167b226cb926e2aa2b6b1d78057c576b \
     --hash=sha256:bf8fd333346d844f616e8d47905ef3a3384edae6b4e9beb0c5101e25e3110907
-    # via -r requirements.dev.in
+    # via
+    #   -r requirements.dev.in
+    #   flake8-builtins
 freezegun==1.1.0 \
     --hash=sha256:177f9dd59861d871e27a484c3332f35a6e3f5d14626f2bf91be37891f18927f3 \
     --hash=sha256:2ae695f7eb96c62529f03a038461afe3c692db3465e215355e1bb4b0ab408712
