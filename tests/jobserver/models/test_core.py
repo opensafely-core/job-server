@@ -9,10 +9,18 @@ from jobserver.authorization.roles import (
     CoreDeveloper,
     DataInvestigator,
     OrgCoordinator,
+    OutputChecker,
+    OutputPublisher,
     ProjectCollaborator,
     ProjectDeveloper,
 )
-from jobserver.models import Backend, JobRequest, ProjectInvitation, ProjectMembership
+from jobserver.models import (
+    Backend,
+    JobRequest,
+    ProjectInvitation,
+    ProjectMembership,
+    User,
+)
 
 from ...factories import (
     JobFactory,
@@ -780,6 +788,25 @@ def test_user_get_all_roles_empty():
 @pytest.mark.django_db
 def test_user_is_unapproved_by_default():
     assert not UserFactory().is_approved
+
+
+@pytest.mark.django_db
+def test_userqueryset_success():
+    user1 = UserFactory(roles=[CoreDeveloper, OutputChecker])
+    user2 = UserFactory(roles=[OutputChecker])
+    user3 = UserFactory(roles=[OutputPublisher])
+
+    users = User.objects.filter_by_role(OutputChecker)
+
+    assert user1 in users
+    assert user2 in users
+    assert user3 not in users
+
+
+@pytest.mark.django_db
+def test_userqueryset_unknown_role():
+    with pytest.raises(Exception, match="Unknown Roles:.*"):
+        User.objects.filter_by_role("unknown")
 
 
 @pytest.mark.django_db

@@ -262,6 +262,28 @@ def test_userlist_filter_by_invalid_backend(rf, core_developer):
 
 
 @pytest.mark.django_db
+def test_userlist_filter_by_role(rf, core_developer):
+    UserFactory(roles=[OutputPublisher])
+    UserFactory(roles=[TechnicalReviewer])
+
+    request = rf.get("/?role=OutputPublisher")
+    request.user = core_developer
+
+    response = UserList.as_view()(request)
+
+    assert len(response.context_data["object_list"]) == 1
+
+
+@pytest.mark.django_db
+def test_userlist_filter_by_invalid_role(rf, core_developer):
+    request = rf.get("/?backend=unknown")
+    request.user = core_developer
+
+    with pytest.raises(BadRequest):
+        UserList.as_view()(request)
+
+
+@pytest.mark.django_db
 def test_userlist_find_by_username(rf, core_developer):
     UserFactory(username="ben")
     UserFactory(first_name="ben")

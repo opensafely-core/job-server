@@ -79,6 +79,32 @@
     </ul>
     {% endif %}
 
+    {% if roles %}
+    <h5>Roles</h5>
+    <ul class="list-group list-unstyled mb-4">
+      {% for role in roles %}
+      {% is_filter_selected key="role" value=role as is_active %}
+      <li class="list-group-item d-flex{% if is_active %} active{% endif %}">
+
+        <a class="text-truncate flex-grow-1" href="{% url_with_querystring role=role %}">
+          {{ role }}
+        </a>
+
+        {% if is_active %}
+        <a
+          type="button"
+          class="close"
+          aria-label="Close"
+          href="{% url_without_querystring role=role %}"
+          >
+          <span aria-hidden="true">&times;</span>
+        </a>
+        {% endif %}
+
+      </li>
+      {% endfor %}
+    </ul>
+    {% endif %}
   </div>
 
 </div>

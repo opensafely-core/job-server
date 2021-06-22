@@ -4,7 +4,7 @@ import secrets
 from datetime import timedelta
 
 import structlog
-from django.contrib.auth.models import AbstractUser
+from django.contrib.auth.models import AbstractUser, UserManager
 from django.core import signing
 from django.core.validators import validate_slug
 from django.db import models, transaction
@@ -15,8 +15,10 @@ from django.utils.text import slugify
 from environs import Env
 from furl import furl
 
-from ..authorization.fields import RolesField
+from ..authorization.fields import ExtractRoles, RolesField
+from ..authorization.utils import strings_to_roles
 from ..runtime import Runtime
+from ..utils import dotted_path
 
 
 env = Env()
@@ -582,6 +584,24 @@ class ProjectMembership(models.Model):
         )
 
 
+class UserQuerySet(models.QuerySet):
+    def filter_by_role(self, role):
+        """
+        Filter the Users by a given Role (class or string)
+
+        Roles are converted to a dotted path and quoted to make sure we filter
+        for a dotted path with surrounding quotes.
+        """
+        if isinstance(role, str):
+            role = strings_to_roles([role])[0]
+
+        path = dotted_path(role)
+
+        return self.alias(extracted=ExtractRoles("roles")).filter(
+            extracted__contains=f'"{path}"'
+        )
+
+
 class User(AbstractUser):
     """
     A custom User model used throughout the codebase
@@ -613,6 +633,8 @@ class User(AbstractUser):
     is_approved = models.BooleanField(default=False)
 
     roles = RolesField()
+
+    objects = UserManager.from_queryset(UserQuerySet)()
 
     def get_absolute_url(self):
         return reverse("user-detail", kwargs={"username": self.username})

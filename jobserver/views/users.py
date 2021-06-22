@@ -87,9 +87,12 @@ class UserList(ListView):
     template_name = "user_list.html"
 
     def get_context_data(self, **kwargs):
+        all_roles = [name for name, value in inspect.getmembers(roles, inspect.isclass)]
+
         return super().get_context_data(**kwargs) | {
             "backends": Backend.objects.order_by("name"),
             "q": self.request.GET.get("q", ""),
+            "roles": all_roles,
         }
 
     def get_queryset(self):
@@ -107,5 +110,9 @@ class UserList(ListView):
         if backend:
             raise_if_not_int(backend)
             qs = qs.filter(backends__pk=backend)
+
+        role = self.request.GET.get("role")
+        if role:
+            qs = qs.filter_by_role(role)
 
         return qs
