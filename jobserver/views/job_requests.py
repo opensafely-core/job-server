@@ -4,6 +4,7 @@ from django.db.models import Q
 from django.http import Http404
 from django.shortcuts import redirect
 from django.utils.decorators import method_decorator
+from django.utils.html import escape
 from django.utils.safestring import mark_safe
 from django.views.generic import DetailView, ListView, View
 from django.views.generic.edit import FormMixin
@@ -64,7 +65,7 @@ class JobRequestDetail(DetailView):
         context = super().get_context_data(**kwargs)
         context["project_definition"] = mark_safe(
             render_definition(
-                self.object.project_definition,
+                escape(self.object.project_definition),
                 self.object.get_file_url,
             )
         )
