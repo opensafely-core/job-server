@@ -1,19 +1,22 @@
-# Local Development Set Up
+# Developer documentation
 
-- [Native](#native)
-  - [Prerequisites](#prerequisites)
-  - [Steps](#steps)
-- [Docker Compose](#docker-compose)
+- [Local development](#local-development)
+  - [Native](#native)
+    - [Prerequisites](#prerequisites)
+    - [Steps](#steps)
+  - [Docker Compose](#docker-compose)
 - [Deployment](#deployment)
 - [Testing](#testing)
-- [Add/Updating Static Assets](#addupdating-static-assets)
-- [Adding New Backends](#adding-new-backends)
+- [Adding or updating static assets](#adding-or-updating-static-assets)
+- [Adding new backends](#adding-new-backends)
   - [Steps to add a backend](#steps-to-add-a-backend)
-  - [Why](#why)
+  - [Why add a backend?](#why-add-a-backend)
 
-## Native
+## Local development
 
-### Prerequisites
+### Native
+
+#### Prerequisites
 
 - **Python v3.9.x**
 - **virtualenv**
@@ -21,7 +24,7 @@
 - **Node.js v16.x** ([fnm](https://github.com/Schniz/fnm#installation) is recommended)
 - **npm v7.x**
 
-### Steps
+#### Steps
 
 **Create a virtualenv with your preferred tool and install the dependencies with:**
 
@@ -74,7 +77,7 @@ make run
 
 Access at [localhost:8000](http://localhost:8000)
 
-## Docker Compose
+### Docker Compose
 
 Set up environment as above:
 
@@ -104,7 +107,7 @@ Run the tests with:
 make test
 ```
 
-## Add/Updating Static Assets
+## Adding or updating static assets
 
 We don't currently use any kind of static asset management tool (eg npm, yarn,
 etc) for this project.
@@ -118,7 +121,7 @@ To add or update an asset:
 2. Move the production version to `static/<location>/`
 3. Rename to include the version number (eg `bootstrap.min.css` -> `bootstrap-4.5.0.min.css`)
 
-## Adding New Backends
+## Adding new backends
 
 ### Steps to add a backend
 
@@ -126,7 +129,7 @@ To add or update an asset:
 2. Create your Backend(s) in a function via RunPython in the new migration file.
 3. Fix the tests (some will check the number of migrations).
 
-### Why
+### Why add a backend?
 
 Backends in this project represent a [job runner](https://github.com/opensafely-core/job-runner) instance somewhere.
 They are a Django model with a unique authentication token attached.
