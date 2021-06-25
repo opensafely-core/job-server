@@ -41,7 +41,8 @@ _Note:_ you will need the [Bitwarden CLI tool](https://bitwarden.com/help/articl
 make dev-config
 ```
 
-Alternatively, for limited functionality without requiring access to special passwords, copy `dotenv-sample` to `.env`, or export the environment variables in `dotenv-sample` with your tool of choice.
+Alternatively, for limited functionality without requiring access to special passwords, copy `dotenv-sample` to `.env`,
+or export the environment variables in `dotenv-sample` with your tool of choice.
 
 **Run migrations:**
 
@@ -49,9 +50,11 @@ Alternatively, for limited functionality without requiring access to special pas
 python manage.py migrate
 ```
 
-Optionally set up 1 or more administrators by setting `ADMIN_USERS` to a list of strings (for example: `ADMIN_USERS=ghickman,ingelsp`).
+Optionally set up 1 or more administrators by setting `ADMIN_USERS` to a list of strings.
+For example: `ADMIN_USERS=ghickman,ingelsp`.
 
-_Note:_ this can only contain usernames which exist in the database. If necessary, you can create the required user(s) first with:
+_Note:_ this can only contain usernames which exist in the database.
+If necessary, you can create the required user(s) first with:
 
 ```sh
 python manage.py createsuperuser
