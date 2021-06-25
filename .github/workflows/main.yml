@@ -139,7 +139,7 @@ jobs:
         uses: actions/download-artifact@v2
         with:
           name: node-assets
-          path: static/dist
+          path: assets/dist
 
       - name: Run tests
         env:
