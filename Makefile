@@ -49,6 +49,7 @@ run:
 setup:
 	pip install --require-hashes -r requirements.dev.txt
 	pre-commit install
+	npm ci
 
 .PHONY: sort
 sort:

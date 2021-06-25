@@ -30,7 +30,6 @@
 
 ```sh
 make setup
-npm ci
 ```
 
 **Set up environment:**
