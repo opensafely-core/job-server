@@ -14,7 +14,8 @@ We authenticate Users with the [Python Social Auth](https://python-social-auth.r
 Tests are run with [pytest](https://docs.pytest.org) and a selection of plug-ins.
 
 We use [black](https://black.readthedocs.io) and [isort](https://pycqa.github.io/isort/) to automatically format the codebase, with [flake8](https://flake8.pycqa.org) for linting.
-Each tool, including pytest, has been configured via config files, but a Makefile also exists to script common use cases (eg check and fix formatting). [pre-commit](https://pre-commit.com) is configured to run the same checks via git hooks.
+Each tool, including pytest, has been configured via config files, but a Makefile also exists to script common use cases (eg check and fix formatting).
+[pre-commit](https://pre-commit.com) is configured to run the same checks via git hooks.
 
 Frontend assets are managed in [Node.js](https://nodejs.org/) using [npm](https://www.npmjs.com/) and [Vite](https://vitejs.dev/).
 
