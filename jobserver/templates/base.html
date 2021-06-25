@@ -13,7 +13,7 @@
 
     {% block extra_meta %}{% endblock %}
 
-    <link rel="stylesheet" href="{% static 'css/bootstrap-4.5.2.min.css' %}">
+    <link rel="stylesheet" href="{% static 'vendor/bootstrap.min.css' %}">
     <link rel="stylesheet" href="{% static 'css/main.css' %}" />
 
     {% vite_hmr_client %}
@@ -114,8 +114,8 @@
     </div>
 
     <!-- JavaScript -->
-    <script src="{% static 'js/jquery-3.5.1.slim.min.js' %}"></script>
-    <script src="{% static 'js/bootstrap-4.5.2.bundle.min.js' %}"></script>
+    <script src="{% static 'vendor/jquery.slim.min.js' %}"></script>
+    <script src="{% static 'vendor/bootstrap.min.js' %}"></script>
     <script src="{% static 'js/main.js' %}"></script>
     {% block extra_js %}{% endblock %}
   </body>
