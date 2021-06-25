@@ -35,7 +35,7 @@ npm ci
 
 **Set up environment:**
 
-_Note:_ you will need the bitwarden cli tool installed in order to access passwords
+_Note:_ you will need the [Bitwarden CLI tool](https://bitwarden.com/help/article/cli/) installed in order to access passwords.
 
 ```sh
 make dev-config
@@ -91,15 +91,15 @@ _Note:_ The dev server inside the container does not currently reload when chang
 
 ## Deployment
 
-It is currently configured to be deployed Heroku-style, and requires
-the environment variables defined in `dotenv-sample`.
+It is currently configured to be deployed Heroku-style, and requires the environment variables defined in `dotenv-sample`.
 
 The DataLab job server is deployed to our `dokku2` instance, instructions are are in [INSTALL.md](INSTALL.md).
 
 ## Testing
 
-Run `make dev-config` if you have not already. Note: you will need the
-bitwarden cli tool installed in order to access passwords.
+Run `make dev-config` if you have not already.
+
+_Note:_ you will need the [Bitwarden CLI tool](https://bitwarden.com/help/article/cli/) installed in order to access passwords.
 
 Run the tests with:
 
@@ -109,11 +109,9 @@ make test
 
 ## Adding or updating static assets
 
-We don't currently use any kind of static asset management tool (eg npm, yarn,
-etc) for this project.
+We don't currently use any kind of static asset management tool (eg npm, yarn, etc) for this project.
 
-Each static asset has been downloaded from the appropriate site and added to
-the project with their version number.
+Each static asset has been downloaded from the appropriate site and added to the project with their version number.
 
 To add or update an asset:
 
