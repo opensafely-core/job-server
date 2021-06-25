@@ -12,3 +12,4 @@ staticfiles
 releases
 .env
 .idea/
+node_modules/
