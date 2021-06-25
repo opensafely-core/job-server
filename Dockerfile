@@ -1,3 +1,12 @@
+FROM node:16-buster AS nodeassets
+WORKDIR /usr/src/app
+
+COPY package*.json ./
+RUN npm ci
+
+COPY . ./
+RUN npm run build
+
 FROM python:3.9-buster
 
 # Don't cache PyPI downloads or wheels.
@@ -20,5 +29,7 @@ COPY requirements.txt .
 RUN pip install --no-cache-dir --require-hashes --requirement requirements.txt
 
 COPY . /app
+
+COPY --from=nodeassets /usr/src/app/assets/dist ./assets/dist
 
 ENTRYPOINT ["/app/entrypoint.sh"]
