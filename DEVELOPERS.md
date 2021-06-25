@@ -7,7 +7,6 @@
   - [Docker Compose](#docker-compose)
 - [Deployment](#deployment)
 - [Testing](#testing)
-- [Adding or updating static assets](#adding-or-updating-static-assets)
 - [Adding new backends](#adding-new-backends)
   - [Steps to add a backend](#steps-to-add-a-backend)
   - [Why add a backend?](#why-add-a-backend)
@@ -108,18 +107,6 @@ Run the tests with:
 ```sh
 make test
 ```
-
-## Adding or updating static assets
-
-We don't currently use any kind of static asset management tool (eg npm, yarn, etc) for this project.
-
-Each static asset has been downloaded from the appropriate site and added to the project with their version number.
-
-To add or update an asset:
-
-1. Download the asset from its respective site (with `wget` or your favourite tool)
-2. Move the production version to `static/<location>/`
-3. Rename to include the version number (eg `bootstrap.min.css` -> `bootstrap-4.5.0.min.css`)
 
 ## Adding new backends
 
