@@ -1,3 +1,3 @@
 $(function () {
-  $("#warning-tooltip").tooltip();
+  $("[data-tooltip=warning]").tooltip();
 });

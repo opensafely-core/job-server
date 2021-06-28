@@ -16,10 +16,10 @@
           {{ backend.name }}
           {% if backend.show_warning %}
           <span
-            id="warning-tooltip"
             class="text-warning"
-            data-toggle="tooltip"
             data-placement="bottom"
+            data-toggle="tooltip"
+            data-tooltip="warning"
             title="{{ backend.name }} runner not seen for at least 5 mins"
             >
             ⚠️

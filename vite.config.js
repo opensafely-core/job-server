@@ -28,7 +28,7 @@ const config = {
     copy({
       targets: [
         {
-          src: "./node_modules/bootstrap/dist/js/bootstrap.min.*",
+          src: "./node_modules/bootstrap/dist/js/bootstrap.bundle.min.*",
           dest: "./assets/dist/vendor",
         },
         {
