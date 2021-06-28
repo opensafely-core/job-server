@@ -13,9 +13,6 @@
 
     {% block extra_meta %}{% endblock %}
 
-    <link rel="stylesheet" href="{% static 'vendor/bootstrap.min.css' %}">
-    <link rel="stylesheet" href="{% static 'css/main.css' %}" />
-
     {% vite_hmr_client %}
     {% vite_asset 'assets/src/scripts/main.js' %}
 
