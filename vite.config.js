@@ -44,6 +44,10 @@ const config = {
           src: "./node_modules/select2/dist/js/select2.min.js",
           dest: "./assets/dist/vendor",
         },
+        {
+          src: "./assets/src/js/*",
+          dest: "./assets/dist/js",
+        },
       ],
       hook: "writeBundle",
     }),
