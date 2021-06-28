@@ -1,13 +1,9 @@
 import base64
-import binascii
 import itertools
-import json
-import os
 import secrets
 from datetime import timedelta
 
 import structlog
-from django.conf import settings
 from django.contrib.auth.models import AbstractUser
 from django.core import signing
 from django.core.validators import validate_slug
@@ -19,18 +15,12 @@ from django.utils.text import slugify
 from environs import Env
 from furl import furl
 
-from .authorization.fields import RolesField
-from .backends import get_configured_backends
-from .runtime import Runtime
+from ..authorization.fields import RolesField
+from ..runtime import Runtime
 
 
 env = Env()
 logger = structlog.get_logger(__name__)
-
-
-def generate_token():
-    """Generate a random token string."""
-    return binascii.hexlify(os.urandom(20)).decode()
 
 
 def new_id():
@@ -41,88 +31,6 @@ def new_id():
     and inspecting the job-runner a bit more ergonomic.
     """
     return base64.b32encode(secrets.token_bytes(10)).decode("ascii").lower()
-
-
-class BackendManager(models.Manager):
-    def get_queryset(self):
-        """
-        Override default QuerySet to limit backends to those configured
-
-        We want to limit the available backends from the database to those
-        configured in the environment without changing the backed in model
-        validation. Each Backend is created via a migration.  This function
-        limits which backends can be looked up via the ORM to the set listed in
-        the env.
-        """
-        # lookup configured backends on demand to make testing easier
-        configured_backends = get_configured_backends()
-
-        qs = super().get_queryset()
-
-        if not configured_backends:
-            # if no backends are configured, make all available
-            return qs
-
-        return qs.filter(name__in=configured_backends)
-
-
-class Backend(models.Model):
-    """A job-runner instance"""
-
-    name = models.TextField(unique=True)
-    display_name = models.TextField()
-
-    parent_directory = models.TextField(default="")
-    is_active = models.BooleanField(default=False)
-
-    auth_token = models.TextField(default=generate_token)
-
-    created_at = models.DateTimeField(default=timezone.now)
-    updated_at = models.DateTimeField(auto_now=True)
-
-    objects = BackendManager()
-
-    def __str__(self):
-        return self.name
-
-    def get_absolute_url(self):
-        return reverse("backend-detail", kwargs={"pk": self.pk})
-
-    def get_rotate_url(self):
-        return reverse("backend-rotate-token", kwargs={"pk": self.pk})
-
-    def rotate_token(self):
-        self.auth_token = generate_token()
-        self.save()
-
-
-class BackendMembership(models.Model):
-    """Models the ability for a User to run jobs against a Backend."""
-
-    created_by = models.ForeignKey(
-        "User",
-        on_delete=models.SET_NULL,
-        related_name="created_backend_memberships",
-        null=True,
-    )
-    backend = models.ForeignKey(
-        "Backend",
-        on_delete=models.CASCADE,
-        related_name="memberships",
-    )
-    user = models.ForeignKey(
-        "User",
-        on_delete=models.CASCADE,
-        related_name="backend_memberships",
-    )
-
-    created_at = models.DateTimeField(default=timezone.now)
-
-    class Meta:
-        unique_together = ["backend", "user"]
-
-    def __str__(self):
-        return f"{self.user.username} | {self.backend.display_name}"
 
 
 class Job(models.Model):
@@ -672,106 +580,6 @@ class ProjectMembership(models.Model):
                 "pk": self.pk,
             },
         )
-
-
-class Release(models.Model):
-    """Reviewed and redacted outputs from a Workspace"""
-
-    # No value in the default Autoid as we are using a content-addressable hash
-    # as it. Additionaly it avoids enumeration attacks.
-    id = models.TextField(primary_key=True)
-    # TODO: link this formally via backend_username once we have a mapping
-    # between User and their backend username
-    publishing_user = models.ForeignKey(
-        "User",
-        on_delete=models.PROTECT,
-        null=True,
-        related_name="+",
-    )
-    workspace = models.ForeignKey(
-        "Workspace",
-        on_delete=models.PROTECT,
-        related_name="releases",
-    )
-    backend = models.ForeignKey(
-        "Backend",
-        on_delete=models.PROTECT,
-        related_name="+",
-    )
-    published_at = models.DateTimeField(default=timezone.now)
-    upload_dir = models.TextField()
-    # list of files in the release upload
-    files = models.JSONField()
-    # store local TPP/EMIS username for audit
-    backend_user = models.TextField()
-
-    def get_absolute_url(self):
-        return reverse(
-            "workspace-release",
-            kwargs={
-                "org_slug": self.workspace.project.org.slug,
-                "project_slug": self.workspace.project.slug,
-                "workspace_slug": self.workspace.name,
-                "release": self.id,
-            },
-        )
-
-    def file_path(self, filename):
-        return settings.RELEASE_STORAGE / self.upload_dir / filename
-
-    @property
-    def manifest(self):
-        return json.loads(self.file_path("metadata/manifest.json").read_text())
-
-
-class ResearcherRegistration(models.Model):
-    """
-    The Registration of a Researcher for a Project
-
-    When registering a new Project 0-N researchers might be named as part of
-    the Project.  Instead of requiring they sign up to the service during the
-    registration process this model holds their details, and can be attached to
-    a User instance if the Project proceeds past registration.
-    """
-
-    user = models.ForeignKey(
-        "User",
-        null=True,
-        on_delete=models.SET_NULL,
-        related_name="researcher_registrations",
-    )
-
-    name = models.TextField()
-    passed_researcher_training_at = models.DateTimeField()
-    is_ons_accredited_researcher = models.BooleanField(default=False)
-
-    created_at = models.DateTimeField(default=timezone.now)
-
-    def __str__(self):
-        return self.name
-
-
-class Stats(models.Model):
-    """This holds per-Backend, per-URL API statistics."""
-
-    backend = models.ForeignKey(
-        "Backend", on_delete=models.PROTECT, related_name="stats"
-    )
-
-    api_last_seen = models.DateTimeField(null=True, blank=True)
-    url = models.TextField()
-
-    class Meta:
-        unique_together = ["backend", "url"]
-
-    def __str__(self):
-        backend = self.backend.name
-        last_seen = (
-            self.api_last_seen.strftime("%Y-%m-%d %H:%M:%S")
-            if self.api_last_seen
-            else "never"
-        )
-        return f"{backend} | {last_seen} | {self.url}"
 
 
 class User(AbstractUser):

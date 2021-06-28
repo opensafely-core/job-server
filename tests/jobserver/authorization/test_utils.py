@@ -101,7 +101,10 @@ def test_roles_for_success():
 
 
 def test_strings_to_roles_success():
-    roles = strings_to_roles(["ProjectDeveloper"], "jobserver.models.ProjectMembership")
+    roles = strings_to_roles(
+        ["ProjectDeveloper"],
+        "jobserver.models.core.ProjectMembership",
+    )
 
     assert len(roles) == 1
     assert roles[0] == ProjectDeveloper
@@ -115,8 +118,6 @@ def test_strings_to_roles_with_no_available_roles():
 
 
 def test_strings_to_roles_with_unknown_roles():
-    msg = (
-        "Unknown Roles:\n - DummyRole\nAvailable Roles for jobserver.models.User are:.*"
-    )
+    msg = "Unknown Roles:\n - DummyRole\nAvailable Roles for jobserver.models.core.User are:.*"
     with pytest.raises(Exception, match=msg):
-        strings_to_roles(["DummyRole"], "jobserver.models.User")
+        strings_to_roles(["DummyRole"], "jobserver.models.core.User")

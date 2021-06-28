@@ -22,7 +22,7 @@ class CoreDeveloper:
         "Internal user who develops and deploys the OpenSAFELY core framework."
     )
     models = [
-        "jobserver.models.User",
+        "jobserver.models.core.User",
     ]
     permissions = [
         cancel_job,
@@ -46,7 +46,7 @@ class DataInvestigator:
     display_name = "Data Investigator"
     description = ""
     models = [
-        "jobserver.models.User",
+        "jobserver.models.core.User",
     ]
     permissions = []
 
@@ -60,7 +60,7 @@ class GovernanceReviewer:
     display_name = "Governance Reviewer"
     description = ""
     models = [
-        "jobserver.models.User",
+        "jobserver.models.core.User",
     ]
     permissions = []
 
@@ -76,7 +76,7 @@ class OnboardingAgent:
     display_name = "Onboarding Agent"
     description = ""
     models = [
-        "jobserver.models.User",
+        "jobserver.models.core.User",
     ]
     permissions = []
 
@@ -89,7 +89,7 @@ class OrgCoordinator:
     display_name = "Organisation Coordinator"
     description = ""
     models = [
-        "jobserver.models.OrgMembership",
+        "jobserver.models.core.OrgMembership",
     ]
     permissions = []
 
@@ -102,7 +102,7 @@ class OutputChecker:
     display_name = "Output Checker"
     description = ""
     models = [
-        "jobserver.models.User",
+        "jobserver.models.core.User",
     ]
     permissions = [
         check_output,
@@ -118,7 +118,7 @@ class OutputPublisher:
     display_name = "Output Publisher"
     description = ""
     models = [
-        "jobserver.models.User",
+        "jobserver.models.core.User",
     ]
     permissions = [
         publish_output,
@@ -133,8 +133,8 @@ class ProjectCollaborator:
     display_name = "Project Collaborator"
     description = ""
     models = [
-        "jobserver.models.ProjectInvitation",
-        "jobserver.models.ProjectMembership",
+        "jobserver.models.core.ProjectInvitation",
+        "jobserver.models.core.ProjectMembership",
     ]
     permissions = [
         "",
@@ -156,8 +156,8 @@ class ProjectCoordinator:
     display_name = "Project Coordinator"
     description = "An administrator for the Project."
     models = [
-        "jobserver.models.ProjectInvitation",
-        "jobserver.models.ProjectMembership",
+        "jobserver.models.core.ProjectInvitation",
+        "jobserver.models.core.ProjectMembership",
     ]
     permissions = [
         invite_project_members,
@@ -176,8 +176,8 @@ class ProjectDeveloper:
     display_name = "Project Developer"
     description = "An external user who is developing and executing code to analyse data in OpenSAFELY; they will likely want to review (and flag for release) their own outputs."
     models = [
-        "jobserver.models.ProjectInvitation",
-        "jobserver.models.ProjectMembership",
+        "jobserver.models.core.ProjectInvitation",
+        "jobserver.models.core.ProjectMembership",
     ]
     permissions = [
         cancel_job,
@@ -197,7 +197,7 @@ class SuperUser:
     display_name = "Super User"
     description = ""
     models = [
-        "jobserver.models.User",
+        "jobserver.models.core.User",
     ]
     permissions = []
 
@@ -211,7 +211,7 @@ class TechnicalReviewer:
     display_name = "Technical Reviewer"
     description = ""
     models = [
-        "jobserver.models.User",
+        "jobserver.models.core.User",
     ]
     permissions = [
         review_project,

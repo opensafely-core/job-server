@@ -154,7 +154,7 @@ class Migration(migrations.Migration):
                 ("parent_directory", models.TextField(default="")),
                 (
                     "auth_token",
-                    models.TextField(default=jobserver.models.generate_token),
+                    models.TextField(default=jobserver.models.backends.generate_token),
                 ),
                 ("created_at", models.DateTimeField(default=django.utils.timezone.now)),
                 ("updated_at", models.DateTimeField(auto_now=True)),
@@ -228,7 +228,7 @@ class Migration(migrations.Migration):
                 ("sha", models.TextField()),
                 (
                     "identifier",
-                    models.TextField(default=jobserver.models.new_id, unique=True),
+                    models.TextField(default=jobserver.models.core.new_id, unique=True),
                 ),
                 ("created_at", models.DateTimeField(default=django.utils.timezone.now)),
                 (
