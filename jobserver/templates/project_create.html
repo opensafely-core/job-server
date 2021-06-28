@@ -1,6 +1,6 @@
 {% extends "base.html" %}
 
-{% load static %}
+{% load django_vite %}
 
 {% block content %}
 <nav aria-label="breadcrumb">
@@ -71,5 +71,5 @@
 {% endblock content %}
 
 {% block extra_js %}
-<script type="text/javascript" src="{% static 'js/project_create.js' %}"></script>
+{% vite_asset 'assets/src/scripts/project_create.js' %}
 {% endblock %}

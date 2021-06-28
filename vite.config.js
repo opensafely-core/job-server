@@ -12,6 +12,7 @@ const config = {
       input: {
         index: "./assets/src/scripts/index.js",
         main: "./assets/src/scripts/main.js",
+        project_create: "./assets/src/scripts/project_create.js",
         workspace_create: "./assets/src/scripts/workspace_create.js",
         workspace_detail: "./assets/src/scripts/workspace_detail.js",
       },
