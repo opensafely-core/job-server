@@ -1,3 +1,5 @@
+import "vite/dynamic-import-polyfill";
+
 const addForm = (name, event) => {
   // Get the existing total form count so we can set the correct prefix and
   // bump this count after adding the form

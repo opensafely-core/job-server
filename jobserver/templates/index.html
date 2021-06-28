@@ -125,5 +125,5 @@
 
 {% block extra_js %}
   {% vite_asset 'assets/src/scripts/index.js' %}
-  {# {% vite_asset 'assets/src/scripts/index-legacy.js' %} #}
+  {% vite_asset 'assets/src/scripts/index-legacy.js' scripts_attrs=scripts_attrs %}
 {% endblock %}

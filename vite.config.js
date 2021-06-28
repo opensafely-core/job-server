@@ -24,7 +24,6 @@ const config = {
     legacy({
       targets: ["ie >= 11"],
       additionalLegacyPolyfills: ["regenerator-runtime/runtime"],
-      polyfills: ["es.promise", "es.array.iterator"],
     }),
     copy({
       targets: [

@@ -39,5 +39,6 @@
 
 {% block extra_js %}
 {{ repos_with_branches|json_script:"reposWithBranches" }}
-  {% vite_asset 'assets/src/scripts/workspace_create.js' %}
+{% vite_asset 'assets/src/scripts/workspace_create.js' %}
+{% vite_asset 'assets/src/scripts/workspace_create.js' scripts_attrs=scripts_attrs %}
 {% endblock %}
