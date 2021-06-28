@@ -4,7 +4,9 @@ const updateStatuses = (urlBase) => {
    */
 
   // if a backend radio button has been checked use it filter the API query
-  const checkedBackends = Array.from(document.getElementsByName('backend')).filter(e => e.checked);
+  const checkedBackends = Array.from(
+    document.getElementsByName("backend")
+  ).filter((e) => e.checked);
   let backendQuery = "";
   if (checkedBackends.length > 0) {
     backendQuery = `?backend=${checkedBackends[0].value}`;
@@ -12,8 +14,8 @@ const updateStatuses = (urlBase) => {
 
   const url = `${urlBase}${backendQuery}`;
   fetch(url)
-    .then(response => response.json())
-    .then(data => {
+    .then((response) => response.json())
+    .then((data) => {
       const actions = document.querySelectorAll("#actions .card>.card-header");
 
       // loop the actions we've loaded from GitHub clearing their icon then
@@ -32,10 +34,8 @@ const updateStatuses = (urlBase) => {
         }
       }
     });
-}
-window.addEventListener("DOMContentLoaded", () => {
-  const urlBase = document.getElementById("apiUrl").textContent;
+};
 
-  // poll the backend every 10s
-  window.setInterval(updateStatuses, 10000, urlBase);
-});
+const urlBase = document.getElementById("apiUrl").textContent;
+// poll the backend every 10s
+window.setInterval(updateStatuses, 10000, urlBase);

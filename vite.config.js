@@ -13,6 +13,7 @@ const config = {
         index: "./assets/src/scripts/index.js",
         main: "./assets/src/scripts/main.js",
         workspace_create: "./assets/src/scripts/workspace_create.js",
+        workspace_detail: "./assets/src/scripts/workspace_detail.js",
       },
     },
     outDir: "assets/dist",
