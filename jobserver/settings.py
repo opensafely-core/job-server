@@ -89,6 +89,7 @@ TEMPLATES = [
                 "django.contrib.messages.context_processors.messages",
                 "jobserver.context_processors.backend_warnings",
                 "jobserver.context_processors.nav",
+                "jobserver.context_processors.scripts_attrs",
             ],
         },
     },

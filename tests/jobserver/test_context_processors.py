@@ -4,7 +4,7 @@ import pytest
 from django.urls import reverse
 from django.utils import timezone
 
-from jobserver.context_processors import backend_warnings, nav
+from jobserver.context_processors import backend_warnings, nav, scripts_attrs
 from jobserver.models import Backend
 
 from ..factories import JobRequestFactory, StatsFactory, UserFactory
@@ -113,3 +113,10 @@ def test_nav_without_core_developer_role(rf):
 
     assert jobs["is_active"] is False
     assert status["is_active"] is False
+
+
+@pytest.mark.django_db
+def test_scriptsattrs_success(rf):
+    request = rf.get("/")
+
+    assert scripts_attrs(request) == {"scripts_attrs": {"nomodule": ""}}
