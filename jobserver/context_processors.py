@@ -72,3 +72,10 @@ def nav(request):
         )
 
     return {"nav": options}
+
+
+def script_attrs(request):
+    """Generate script attributes for use with the Vite plugin"""
+    return {
+        "script_attrs": {"nomodule", ""},
+    }
