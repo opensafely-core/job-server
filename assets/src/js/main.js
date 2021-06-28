@@ -1,3 +1,3 @@
-$(document).ready(() => {
-  $('#warning-tooltip').tooltip();
+$(function () {
+  $("#warning-tooltip").tooltip();
 });
