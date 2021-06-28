@@ -4,7 +4,7 @@ import pytest
 from django.urls import reverse
 from django.utils import timezone
 
-from jobserver.context_processors import backend_warnings, nav, script_attrs
+from jobserver.context_processors import backend_warnings, nav, scripts_attrs
 from jobserver.models import Backend
 
 from ..factories import JobRequestFactory, StatsFactory, UserFactory
@@ -119,4 +119,4 @@ def test_nav_without_core_developer_role(rf):
 def test_scriptsattrs_success(rf):
     request = rf.get("/")
 
-    assert script_attrs(request) == {"script_attrs": {"nomodule", ""}}
+    assert scripts_attrs(request) == {"scripts_attrs": {"nomodule", ""}}
