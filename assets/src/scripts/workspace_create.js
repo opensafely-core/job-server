@@ -5,9 +5,12 @@ const setBranches = (reposWithBranches, repoURL) => {
   const repo = reposWithBranches.find((r) => r.url === repoURL);
 
   // clear current options
-  $("#id_branch option").remove();
+  const selectBox = document.getElementById("id_branch");
+  while (selectBox.options.length > 0) {
+    selectBox.remove(0);
+  }
 
-  const select = $("#id_branch");
+  const select = document.getElementById("id_branch");
   repo.branches.forEach((branch) => {
     // Set master or main branches as the default selected option
     const selected = branch === "master" || branch === "main";
