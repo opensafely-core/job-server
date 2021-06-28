@@ -113,7 +113,24 @@
           </ul>
         </div>
 
+        {% if releases %}
+        <div class="mb-4">
+          <h5>Releases</h5>
+
+          <a class="btn btn-primary btn-sm" href="{% url 'project-releases' org_slug=project.org.slug project_slug=project.slug %}">
+            View
+          </a>
+          {# <ul class="list-unstyled"> #}
+          {#   {% for release in releases %} #}
+          {#   <li>{{ release }}</li> #}
+          {#   {% endfor %} #}
+          {# </ul> #}
+        </div>
+        {% endif %}
+
       </div>
+
+    </div>
 
   </div>
 </div>
