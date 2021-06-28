@@ -182,12 +182,15 @@ class ProjectDetail(DetailView):
 
         repos = sorted(set(workspaces.values_list("repo", flat=True)))
 
-        context = super().get_context_data(**kwargs)
-        context["can_manage_workspaces"] = can_manage_workspaces
-        context["can_manage_members"] = can_manage_members
-        context["repos"] = list(self.get_repos(repos))
-        context["workspaces"] = workspaces
-        return context
+        releases = ["derp", "foo"]
+
+        return super().get_context_data(**kwargs) | {
+            "can_manage_workspaces": can_manage_workspaces,
+            "can_manage_members": can_manage_members,
+            "releases": releases,
+            "repos": list(self.get_repos(repos)),
+            "workspaces": workspaces,
+        }
 
     def get_repos(self, repo_urls):
         for url in repo_urls:
