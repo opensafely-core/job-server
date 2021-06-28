@@ -1,6 +1,6 @@
 {% extends "base.html" %}
 
-{% load static %}
+{% load django_vite %}
 
 {% block content %}
 
@@ -124,6 +124,5 @@
 {% endblock content %}
 
 {% block extra_js %}
-<script type="text/javascript" src="{% static 'vendor/list.min.js' %}"></script>
-<script type="text/javascript" src="{% static 'js/index.js' %}"></script>
+  {% vite_asset 'assets/src/scripts/index.js' %}
 {% endblock %}

@@ -10,6 +10,7 @@ const config = {
     manifest: true,
     rollupOptions: {
       input: {
+        index: "./assets/src/scripts/index.js",
         main: "./assets/src/scripts/main.js",
       },
     },
