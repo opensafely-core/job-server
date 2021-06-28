@@ -1,3 +1,4 @@
+import legacy from "@vitejs/plugin-legacy";
 import copy from "rollup-plugin-copy";
 
 /**
@@ -16,6 +17,11 @@ const config = {
     emptyOutDir: true,
   },
   plugins: [
+    legacy({
+      targets: ["ie >= 11"],
+      additionalLegacyPolyfills: ["regenerator-runtime/runtime"],
+      polyfills: ["es.promise", "es.array.iterator"],
+    }),
     copy({
       targets: [
         {
