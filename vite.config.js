@@ -12,6 +12,7 @@ const config = {
       input: {
         index: "./assets/src/scripts/index.js",
         main: "./assets/src/scripts/main.js",
+        workspace_create: "./assets/src/scripts/workspace_create.js",
       },
     },
     outDir: "assets/dist",
