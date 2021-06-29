@@ -1,5 +1,6 @@
 import pytest
 from django.contrib.messages.storage.fallback import FallbackStorage
+from django.core.exceptions import BadRequest
 from django.http import Http404
 
 from jobserver.authorization import OutputPublisher, TechnicalReviewer
@@ -7,6 +8,7 @@ from jobserver.models import Backend
 from jobserver.views.users import Settings, UserDetail, UserList
 
 from ...factories import (
+    BackendMembershipFactory,
     OrgFactory,
     OrgMembershipFactory,
     ProjectFactory,
@@ -232,6 +234,69 @@ def test_userdetail_without_core_dev_role(rf):
     response = UserDetail.as_view()(request, username="test")
 
     assert response.status_code == 403
+
+
+@pytest.mark.django_db
+def test_userlist_filter_by_backend(rf, core_developer):
+    emis = Backend.objects.get(name="emis")
+    tpp = Backend.objects.get(name="tpp")
+
+    BackendMembershipFactory(user=UserFactory(), backend=emis)
+    BackendMembershipFactory(user=UserFactory(), backend=tpp)
+
+    request = rf.get(f"/?backend={emis.pk}")
+    request.user = core_developer
+
+    response = UserList.as_view()(request)
+
+    assert len(response.context_data["object_list"]) == 1
+
+
+@pytest.mark.django_db
+def test_userlist_filter_by_invalid_backend(rf, core_developer):
+    request = rf.get("/?backend=test")
+    request.user = core_developer
+
+    with pytest.raises(BadRequest):
+        UserList.as_view()(request)
+
+
+@pytest.mark.django_db
+def test_userlist_filter_by_role(rf, core_developer):
+    UserFactory(roles=[OutputPublisher])
+    UserFactory(roles=[TechnicalReviewer])
+
+    request = rf.get("/?role=OutputPublisher")
+    request.user = core_developer
+
+    response = UserList.as_view()(request)
+
+    assert len(response.context_data["object_list"]) == 1
+
+
+@pytest.mark.django_db
+def test_userlist_filter_by_invalid_role(rf, core_developer):
+    request = rf.get("/?backend=unknown")
+    request.user = core_developer
+
+    with pytest.raises(BadRequest):
+        UserList.as_view()(request)
+
+
+@pytest.mark.django_db
+def test_userlist_find_by_username(rf, core_developer):
+    UserFactory(username="ben")
+    UserFactory(first_name="ben")
+    UserFactory(username="seb")
+
+    request = rf.get("/?q=ben")
+    request.user = core_developer
+
+    response = UserList.as_view()(request)
+
+    assert response.status_code == 200
+
+    assert len(response.context_data["object_list"]) == 2
 
 
 @pytest.mark.django_db

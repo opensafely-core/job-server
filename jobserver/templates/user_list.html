@@ -1,5 +1,8 @@
 {% extends "base.html" %}
 
+{% load querystring_tools %}
+{% load selected_filter %}
+
 {% block content %}
 <nav aria-label="breadcrumb">
   <ol class="breadcrumb">
@@ -12,27 +15,97 @@
 </nav>
 
 <div class="row">
-  <div class="col-lg-8 offset-lg-2">
+  <div class="col-lg-6 offset-lg-2">
 
-    <h1 class="mb-4">Users</h1>
+    <form class="form d-flex align-items-center mb-4" method="GET">
+      <input
+        class="form-control mr-2"
+        type="search"
+        placeholder="Search by name or username"
+        aria-label="Search"
+        {% if q %}
+        value="{{ q }}"
+        {% endif %}
+        name="q" />
+      <button class="btn btn-outline-success my-2 my-sm-0" type="submit">Search</button>
+    </form>
 
     {% for user in object_list %}
-    <div class="d-flex justify-content-between align-items-baseline border rounded p-3 pl-3 mb-3">
+    <div class="border rounded p-2 pl-3 mb-3">
 
-      <h5>
-        {{ user.username }}
-        {% if user.get_full_name %}
-        <small class="text-muted">({{ user.get_full_name }})</small>
-        {% endif %}
-      </h5>
-
-      <div>
-        <a class="btn btn-primary btn-block" href="{{ user.get_absolute_url }}">View</a>
-      </div>
+      <a href="{{ user.get_absolute_url }}">{{ user.username }}</a>
+      {% if user.get_full_name %}
+      <small class="text-muted">({{ user.get_full_name }})</small>
+      {% endif %}
 
     </div>
     {% endfor %}
 
   </div>
+
+  <div class="col-lg-2 filters">
+    <h4>Filters</h4>
+
+    {% if request.GET %}
+    <div class="mb-3">
+      <a href="{% url 'user-list' %}">Clear All</a>
+    </div>
+    {% endif %}
+
+    {% if backends %}
+    <h5>Backends</h5>
+    <ul class="list-group list-unstyled mb-4">
+      {% for backend in backends %}
+      {% is_filter_selected key="backend" value=backend.pk as is_active %}
+      <li class="list-group-item d-flex{% if is_active %} active{% endif %}">
+
+        <a class="text-truncate flex-grow-1" href="{% url_with_querystring backend=backend.pk %}">
+          {{ backend.name }}
+        </a>
+
+        {% if is_active %}
+        <a
+          type="button"
+          class="close"
+          aria-label="Close"
+          href="{% url_without_querystring backend=backend.pk %}"
+          >
+          <span aria-hidden="true">&times;</span>
+        </a>
+        {% endif %}
+
+      </li>
+      {% endfor %}
+    </ul>
+    {% endif %}
+
+    {% if roles %}
+    <h5>Roles</h5>
+    <ul class="list-group list-unstyled mb-4">
+      {% for role in roles %}
+      {% is_filter_selected key="role" value=role as is_active %}
+      <li class="list-group-item d-flex{% if is_active %} active{% endif %}">
+
+        <a class="text-truncate flex-grow-1" href="{% url_with_querystring role=role %}">
+          {{ role }}
+        </a>
+
+        {% if is_active %}
+        <a
+          type="button"
+          class="close"
+          aria-label="Close"
+          href="{% url_without_querystring role=role %}"
+          >
+          <span aria-hidden="true">&times;</span>
+        </a>
+        {% endif %}
+
+      </li>
+      {% endfor %}
+    </ul>
+    {% endif %}
+  </div>
+
 </div>
 {% endblock %}

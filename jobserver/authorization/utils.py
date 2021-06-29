@@ -131,30 +131,16 @@ def roles_for(model):
     return [r for r in available_roles if path in r.models]
 
 
-def strings_to_roles(strings, model_path):
+def strings_to_roles(strings):
     """
     Convert Role names to Class objects
 
     Given an iterable of strings, convert them to the appropriate Role
-    classes, ensuring they are valid Role names, and they are tied to the given
-    Model path.
+    classes, ensuring they are valid Role names.
     """
     # use introspection to find the available Role classes, with their string
     # names
     available_roles = inspect.getmembers(roles, inspect.isclass)
-
-    # ensure all Roles are for the given Model path
-    available_roles = [
-        (name, value) for (name, value) in available_roles if model_path in value.models
-    ]
-
-    # explain why there are no available roles
-    if not available_roles:
-        msg = (
-            f"No Roles found with a link to '{model_path}'.  "
-            "model_path is a dotted path to a Model, eg: jobserver.models.User"
-        )
-        raise Exception(msg)
 
     # convert available role into just their string names
     available_names = [name for name, value in available_roles]
@@ -166,8 +152,9 @@ def strings_to_roles(strings, model_path):
         msg = f"Unknown Roles:\n{unknown_lines}"
 
         available_lines = "\n".join(f" - {r}" for r in available_names)
-        msg += f"\nAvailable Roles for {model_path} are:\n{available_lines}"
+        msg += f"\nAvailable Roles are:\n{available_lines}"
 
         raise Exception(msg)
+
     # convert selected role strings to classes
     return [value for name, value in available_roles if name in strings]

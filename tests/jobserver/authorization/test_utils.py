@@ -101,23 +101,13 @@ def test_roles_for_success():
 
 
 def test_strings_to_roles_success():
-    roles = strings_to_roles(
-        ["ProjectDeveloper"],
-        "jobserver.models.core.ProjectMembership",
-    )
+    roles = strings_to_roles(["ProjectDeveloper"])
 
     assert len(roles) == 1
     assert roles[0] == ProjectDeveloper
 
 
-def test_strings_to_roles_with_no_available_roles():
-    msg = "No Roles found with a link to 'dummy'.  model_path is a dotted path to a Model, eg: jobserver.models.User"
-
-    with pytest.raises(Exception, match=msg):
-        strings_to_roles(["ProjectDeveloper"], "dummy")
-
-
 def test_strings_to_roles_with_unknown_roles():
-    msg = "Unknown Roles:\n - DummyRole\nAvailable Roles for jobserver.models.core.User are:.*"
+    msg = "Unknown Roles:\n - DummyRole\nAvailable Roles are:.*"
     with pytest.raises(Exception, match=msg):
-        strings_to_roles(["DummyRole"], "jobserver.models.core.User")
+        strings_to_roles(["DummyRole"])
