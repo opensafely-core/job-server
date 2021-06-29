@@ -429,6 +429,6 @@
   {% if request.user.is_authenticated %}
     <div id="apiUrl" class="d-none">{{ workspace.get_statuses_url }}</div>
     {% vite_asset 'assets/src/scripts/workspace_detail.js' %}
-    {% vite_asset 'assets/src/scripts/workspace_detail.js' scripts_attrs=scripts_attrs %}
+    {% vite_asset 'assets/src/scripts/workspace_detail-legacy.js' scripts_attrs=scripts_attrs %}
   {% endif %}
 {% endblock %}
