@@ -84,16 +84,15 @@ a:focus {
   height: 16px;
   width: 16px;
 }
-.status-icon.failed {
-  background-image: url("../icons/times.svg");
+
+@mixin icon($icon) {
+  @if ($env == "production") {
+    background-image: url($icon);
+  } @else {
+    background-image: svg-load($icon);
+  }
 }
-.status-icon.pending {
-  background-image: url("../icons/history.svg");
-}
-.status-icon.running {
-  animation: spinner 1.2s linear infinite;
-  background-image: url("../icons/spinner.svg");
-}
+
 @keyframes spinner {
   0% {
     transform: rotate(0deg);
@@ -102,11 +101,27 @@ a:focus {
     transform: rotate(360deg);
   }
 }
-.status-icon.succeeded {
-  background-image: url("../icons/check.svg");
+
+.status-icon.failed {
+  @include icon("../icons/times.svg");
 }
+
+.status-icon.pending {
+  @include icon("../icons/history.svg");
+}
+
+.status-icon.running {
+  animation: spinner 1.2s linear infinite;
+  @include icon("../icons/spinner.svg");
+}
+
+
+.status-icon.succeeded {
+  @include icon("../icons/check.svg");
+}
+
 .status-icon.unknown {
-  background-image: url("../icons/question-circle.svg");
+  @include icon("../icons/question-circle.svg");
 }
 
 .job-list .jobs .grid {

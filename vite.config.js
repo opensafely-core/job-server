@@ -20,6 +20,13 @@ const config = {
     outDir: "assets/dist",
     emptyOutDir: true,
   },
+  css: {
+    preprocessorOptions: {
+      scss: {
+        additionalData: "$env: " + process.env.NODE_ENV + ";",
+      },
+    },
+  },
   plugins: [
     legacy({
       additionalLegacyPolyfills: ["regenerator-runtime/runtime"],

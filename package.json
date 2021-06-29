@@ -10,6 +10,7 @@
     "@vitejs/plugin-legacy": "^1.4.3",
     "autoprefixer": "^10.2.6",
     "cssnano": "^5.0.6",
+    "postcss-inline-svg": "^5.0.0",
     "rollup-plugin-copy": "^3.4.0",
     "sass": "^1.35.1",
     "vite": "^2.3.8"
