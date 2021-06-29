@@ -22,7 +22,6 @@ const config = {
   },
   plugins: [
     legacy({
-      targets: ["ie >= 11"],
       additionalLegacyPolyfills: ["regenerator-runtime/runtime"],
     }),
     copy({
