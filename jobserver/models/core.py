@@ -4,7 +4,8 @@ import secrets
 from datetime import timedelta
 
 import structlog
-from django.contrib.auth.models import AbstractUser, UserManager
+from django.contrib.auth.models import AbstractUser
+from django.contrib.auth.models import UserManager as BaseUserManager
 from django.core import signing
 from django.core.validators import validate_slug
 from django.db import models, transaction
@@ -602,6 +603,17 @@ class UserQuerySet(models.QuerySet):
         )
 
 
+class UserManager(BaseUserManager.from_queryset(UserQuerySet)):
+    """
+    Custom Manager built from the custom QuerySet above
+
+    This exists so we have a concrete Manager which can be serialised in
+    Migrations.
+    """
+
+    pass
+
+
 class User(AbstractUser):
     """
     A custom User model used throughout the codebase
@@ -634,7 +646,7 @@ class User(AbstractUser):
 
     roles = RolesField()
 
-    objects = UserManager.from_queryset(UserQuerySet)()
+    objects = UserManager()
 
     def get_absolute_url(self):
         return reverse("user-detail", kwargs={"username": self.username})
@@ -815,5 +827,4 @@ class Workspace(models.Model):
 
         if not f.path:
             raise Exception("Repo URL not in expected format, appears to have no path")
-
         return f.path.segments[0]
