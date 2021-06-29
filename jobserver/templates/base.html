@@ -24,17 +24,6 @@
     <link rel="icon" href="{% static 'icon.svg' %}" type="image/svg+xml">
     <link rel="apple-touch-icon" href="{% static 'apple-touch-icon.png' %}"><!-- 180×180 -->
     <link rel="manifest" href="{% static 'manifest.webmanifest' %}">
-
-    <script>
-      if (document.location.hostname === "jobs.opensafely.org") {
-        var script = document.createElement("script");
-        script.async = true;
-        script.defer = true;
-        script.setAttribute("data-domain", "jobs.opensafely.org");
-        script.src = "https://pa.opensafely.org/js/index.js";
-        document.head.appendChild(script);
-      }
-    </script>
   </head>
 
   <body class="d-flex flex-column min-vh-100">
