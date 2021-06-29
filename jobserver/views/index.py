@@ -11,7 +11,11 @@ class Index(TemplateView):
         job_requests = JobRequest.objects.prefetch_related("jobs").order_by(
             "-created_at"
         )[:5]
-        workspaces = Workspace.objects.filter(is_archived=False).order_by("name")
+        workspaces = (
+            Workspace.objects.filter(is_archived=False)
+            .select_related("project", "project__org")
+            .order_by("name")
+        )
 
         context = super().get_context_data(**kwargs)
         context["job_requests"] = job_requests
