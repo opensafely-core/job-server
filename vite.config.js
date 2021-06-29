@@ -1,3 +1,4 @@
+import legacy from "@vitejs/plugin-legacy";
 import copy from "rollup-plugin-copy";
 
 /**
@@ -9,21 +10,31 @@ const config = {
     manifest: true,
     rollupOptions: {
       input: {
+        index: "./assets/src/scripts/index.js",
         main: "./assets/src/scripts/main.js",
+        project_create: "./assets/src/scripts/project_create.js",
+        workspace_create: "./assets/src/scripts/workspace_create.js",
+        workspace_detail: "./assets/src/scripts/workspace_detail.js",
       },
     },
     outDir: "assets/dist",
     emptyOutDir: true,
   },
+  css: {
+    preprocessorOptions: {
+      scss: {
+        additionalData: "$env: " + process.env.NODE_ENV + ";",
+      },
+    },
+  },
   plugins: [
+    legacy({
+      additionalLegacyPolyfills: ["regenerator-runtime/runtime"],
+    }),
     copy({
       targets: [
         {
-          src: "./node_modules/bootstrap/dist/css/bootstrap.min.*",
-          dest: "./assets/dist/vendor",
-        },
-        {
-          src: "./node_modules/bootstrap/dist/js/bootstrap.min.*",
+          src: "./node_modules/bootstrap/dist/js/bootstrap.bundle.min.*",
           dest: "./assets/dist/vendor",
         },
         {
@@ -41,6 +52,10 @@ const config = {
         {
           src: "./node_modules/select2/dist/js/select2.min.js",
           dest: "./assets/dist/vendor",
+        },
+        {
+          src: "./assets/src/js/*",
+          dest: "./assets/dist/js",
         },
       ],
       hook: "writeBundle",

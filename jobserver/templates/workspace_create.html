@@ -1,7 +1,7 @@
 {% extends "base.html" %}
 
 {% load crispy_forms_tags %}
-{% load static %}
+{% load django_vite %}
 
 {% block content %}
 
@@ -39,5 +39,6 @@
 
 {% block extra_js %}
 {{ repos_with_branches|json_script:"reposWithBranches" }}
-<script type="text/javascript" src="{% static 'js/workspace_create.js' %}"></script>
+{% vite_asset 'assets/src/scripts/workspace_create.js' %}
+{% vite_asset 'assets/src/scripts/workspace_create-legacy.js' scripts_attrs=scripts_attrs %}
 {% endblock %}

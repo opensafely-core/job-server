@@ -13,9 +13,6 @@
 
     {% block extra_meta %}{% endblock %}
 
-    <link rel="stylesheet" href="{% static 'vendor/bootstrap.min.css' %}">
-    <link rel="stylesheet" href="{% static 'css/main.css' %}" />
-
     {% vite_hmr_client %}
     {% vite_asset 'assets/src/scripts/main.js' %}
 
@@ -115,8 +112,11 @@
 
     <!-- JavaScript -->
     <script src="{% static 'vendor/jquery.slim.min.js' %}"></script>
-    <script src="{% static 'vendor/bootstrap.min.js' %}"></script>
+    <script src="{% static 'vendor/bootstrap.bundle.min.js' %}"></script>
     <script src="{% static 'js/main.js' %}"></script>
+
+    {% vite_asset 'vite/legacy-polyfills' scripts_attrs=scripts_attrs %}
+    {% vite_asset 'assets/src/scripts/main-legacy.js' scripts_attrs=scripts_attrs %}
     {% block extra_js %}{% endblock %}
   </body>
 </html>

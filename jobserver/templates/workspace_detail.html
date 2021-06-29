@@ -2,7 +2,7 @@
 
 {% load humanize %}
 {% load runtime %}
-{% load static %}
+{% load django_vite %}
 
 {% block extra_meta %}
 <meta property="og:title" content="{{ workspace.name }}" />
@@ -426,8 +426,9 @@
 {% endblock content %}
 
 {% block extra_js %}
-{% if request.user.is_authenticated %}
-<div id="apiUrl" class="d-none">{{ workspace.get_statuses_url }}</div>
-<script type="text/javascript" src="{% static 'js/workspace_detail.js' %}"></script>
-{% endif %}
+  {% if request.user.is_authenticated %}
+    <div id="apiUrl" class="d-none">{{ workspace.get_statuses_url }}</div>
+    {% vite_asset 'assets/src/scripts/workspace_detail.js' %}
+    {% vite_asset 'assets/src/scripts/workspace_detail-legacy.js' scripts_attrs=scripts_attrs %}
+  {% endif %}
 {% endblock %}
