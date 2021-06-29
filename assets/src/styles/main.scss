@@ -14,12 +14,12 @@ a {
   font-weight: 600;
   text-decoration-skip-ink: auto;
   text-underline-offset: 1px;
-}
 
-a:hover,
-a:focus {
-  color: #002147;
-  text-decoration: underline;
+  &:hover,
+  &:focus {
+    color: #002147;
+    text-decoration: underline;
+  }
 }
 
 /* Add the ID and Status message columns for larger devices (992px and up) */
@@ -32,49 +32,51 @@ a:focus {
 
 .job-list .job-request {
   border-bottom: 2px solid #dee2e6;
+
+  &:nth-child(2) {
+    border-top: 2px solid #dee2e6;
+  }
 }
-.job-list .job-request:nth-child(2) {
-  border-top: 2px solid #dee2e6;
-}
-.job-list .job-requests .status {
-  margin: 0 0.5rem;
-  width: 16px;
-}
-.job-list .job-requests .workspace {
-  margin-right: 0.5rem;
-  min-width: 85px;
-  width: 10%;
-}
-.job-list .job-requests .backend {
-  margin-right: 0.5rem;
-  width: 90px;
-}
-.job-list .job-requests .job-count {
-  margin-right: 0.5rem;
-  width: 5%;
-}
-.job-list .job-requests .action {
-  flex-grow: 1;
-  margin-right: 0.5rem;
-  width: 15%;
-}
-.job-list .job-requests .started-at {
-  margin-right: 0.5rem;
-  width: 165px;
+
+.job-list .job-requests {
+  .status {
+    margin: 0 0.5rem;
+    width: 16px;
+  }
+  .workspace {
+    margin-right: 0.5rem;
+    min-width: 85px;
+    width: 10%;
+  }
+  .backend {
+    margin-right: 0.5rem;
+    width: 90px;
+  }
+  .job-count {
+    margin-right: 0.5rem;
+    width: 5%;
+  }
+  .action {
+    flex-grow: 1;
+    margin-right: 0.5rem;
+    width: 15%;
+  }
+  .started-at {
+    margin-right: 0.5rem;
+    width: 165px;
+  }
 }
 
 #started-at-header {
   margin-right: 112px;
-}
-@media (min-width: 768px) {
+
   /* account for larger show/hide button */
-  #started-at-header {
+  @media (min-width: 768px) {
     margin-right: 147px;
   }
-}
-@media (min-width: 992px) {
+
   /* account for larger show/hide button */
-  #started-at-header {
+  @media (min-width: 992px) {
     margin-right: 212px;
   }
 }
@@ -102,26 +104,27 @@ a:focus {
   }
 }
 
-.status-icon.failed {
-  @include icon("../icons/times.svg");
-}
+.status-icon {
+  &.failed {
+    @include icon("../icons/times.svg");
+  }
 
-.status-icon.pending {
-  @include icon("../icons/history.svg");
-}
+  &.pending {
+    @include icon("../icons/history.svg");
+  }
 
-.status-icon.running {
-  animation: spinner 1.2s linear infinite;
-  @include icon("../icons/spinner.svg");
-}
+  &.running {
+    animation: spinner 1.2s linear infinite;
+    @include icon("../icons/spinner.svg");
+  }
 
+  &.succeeded {
+    @include icon("../icons/check.svg");
+  }
 
-.status-icon.succeeded {
-  @include icon("../icons/check.svg");
-}
-
-.status-icon.unknown {
-  @include icon("../icons/question-circle.svg");
+  &.unknown {
+    @include icon("../icons/question-circle.svg");
+  }
 }
 
 .job-list .jobs .grid {
@@ -132,80 +135,91 @@ a:focus {
   border-top: 1px solid #dee2e6;
   margin-bottom: 1rem;
   margin-left: 1rem;
-}
-/* Add the ID and Status message columns for larger devices (992px and up) */
-@media (min-width: 992px) {
-  .job-list .jobs .grid {
-    grid-template-columns: min-content min-content min-content minmax(
-        min-content,
-        80px
-      ) 3fr min-content;
-  }
-}
 
-/*
- * Set a consistent top&bottom padding for Job cells.
- * Use right padding to add horizontal space between cells.
- * Status icon (the first cell) sets its own left padding.
- */
-.job-list .jobs .grid > span {
-  padding: 0.25rem 1rem 0.25rem 0;
+  /* Add the ID and Status message columns for larger devices (992px and up) */
+  @media (min-width: 992px) {
+    grid-template-columns:
+      min-content min-content min-content minmax(min-content, 80px)
+      3fr min-content;
+  }
+
+  /*
+   * Set a consistent top&bottom padding for Job cells.
+   * Use right padding to add horizontal space between cells.
+   * Status icon (the first cell) sets its own left padding.
+   */
+  > span {
+    padding: 0.25rem 1rem 0.25rem 0;
+  }
 }
 
 .latest-jobs {
   display: grid;
   grid-template-columns: min-content min-content min-content;
   align-items: center;
-}
-/* Add the Status Message columns for larger devices (992px and up) */
-@media (min-width: 992px) {
-  .latest-jobs {
+
+  /* Add the Status Message columns for larger devices (992px and up) */
+  @media (min-width: 992px) {
     grid-template-columns: min-content min-content min-content min-content;
   }
-}
-.latest-jobs > span {
-  padding: 0.5rem 1rem 0.5rem 0;
+
+  > span {
+    padding: 0.5rem 1rem 0.5rem 0;
+  }
 }
 
-.workspace-select .fuzzy-search {
-  border-width: 2px;
-}
-.workspace-select .list-group {
-  border: 2px solid #dee2e6;
-  height: 375px;
-}
-.workspace-select .list-group .list-group-item {
-  border: 0;
-  border-bottom: 1px solid #dee2e6;
-}
-.workspace-select .list-group .list-group-item:last-child {
-  border-bottom: 0;
-}
-.workspace-select .list-group a:hover span,
-.workspace-select .list-group a:hover code {
-  text-decoration: underline;
+.workspace-select {
+  .fuzzy-search {
+    border-width: 2px;
+  }
+
+  .list-group {
+    border: 2px solid #dee2e6;
+    height: 375px;
+
+    .list-group-item {
+      border: 0;
+      border-bottom: 1px solid #dee2e6;
+
+      &:last-child {
+        border-bottom: 0;
+      }
+    }
+
+    a:hover span,
+    a:hover code {
+      text-decoration: underline;
+    }
+  }
 }
 
 .filters .list-group-item {
   padding: 0;
-}
-.filters .list-group-item a:first-child {
-  display: inline-block;
-  padding: 0.75rem 0.25rem 0.75rem 1.25rem;
-}
-.filters .list-group-item.active a:first-child {
-  color: white;
-}
-.filters .list-group-item.active a.close {
-  display: inline-block;
-  margin: 0.75rem 1.25rem 0.75rem 0.25rem;
-  opacity: 1;
-}
-.filters .list-group-item.active a.close span {
-  height: 16px;
-  text-shadow: none;
-  width: 16px;
-}
-.filters .list-group-item.active a.close span:hover {
-  color: white;
+
+  a:first-child {
+    display: inline-block;
+    padding: 0.75rem 0.25rem 0.75rem 1.25rem;
+  }
+
+  &.active {
+    a:first-child {
+      color: white;
+    }
+
+    a.close {
+      display: inline-block;
+      margin: 0.75rem 1.25rem 0.75rem 0.25rem;
+      opacity: 1;
+
+      span {
+        height: 16px;
+        text-shadow: none;
+        width: 16px;
+
+        &:hover {
+          color: white;
+        }
+      }
+    }
+  }
 }
