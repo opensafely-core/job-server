@@ -1,5 +1,3 @@
-import "vite/dynamic-import-polyfill";
-
 const updateStatuses = (urlBase) => {
   /**
    * Update statuses for the current Workspace

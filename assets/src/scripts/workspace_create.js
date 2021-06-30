@@ -1,5 +1,3 @@
-import "vite/dynamic-import-polyfill";
-
 const setBranches = (reposWithBranches, repoURL) => {
   /*
    * Set Branches for a given Repo
