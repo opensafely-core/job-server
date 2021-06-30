@@ -1,5 +1,8 @@
 {% extends "base.html" %}
 
+{% load django_vite %}
+{% load static %}
+
 {% block content %}
 
 <nav aria-label="breadcrumb">
@@ -38,4 +41,11 @@
 
 {% include "outputs-spa.html" %}
 
+{% endblock %}
+
+{% block extra_js %}
+  <script src="{% static 'vendor/react.production.min.js' %}"></script>
+  <script src="{% static 'vendor/react-dom.production.min.js' %}"></script>
+  {% vite_asset 'assets/src/scripts/results-viewer/index.jsx' %}
+  {% vite_asset 'assets/src/scripts/results-viewer/index-legacy.jsx' scripts_attrs=scripts_attrs %}
 {% endblock %}

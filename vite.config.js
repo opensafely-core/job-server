@@ -15,11 +15,14 @@ const config = {
         project_create: "./assets/src/scripts/project_create.js",
         workspace_create: "./assets/src/scripts/workspace_create.js",
         workspace_detail: "./assets/src/scripts/workspace_detail.js",
+        "results-viewer": "./assets/src/scripts/results-viewer/index.jsx",
       },
-      external: ["list.js"],
+      external: ["react", "react-dom", "list.js"],
       output: {
         globals: {
           "list.js": "List",
+          react: "React",
+          "react-dom": "ReactDOM",
         },
       },
     },
@@ -53,6 +56,14 @@ const config = {
         },
         {
           src: "./node_modules/select2/dist/css/select2.min.css",
+          dest: "./assets/dist/vendor",
+        },
+        {
+          src: "./node_modules/react/umd/react.production.min.js",
+          dest: "./assets/dist/vendor",
+        },
+        {
+          src: "./node_modules/react-dom/umd/react-dom.production.min.js",
           dest: "./assets/dist/vendor",
         },
         {
