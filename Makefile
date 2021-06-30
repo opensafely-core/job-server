@@ -50,6 +50,7 @@ setup:
 	pip install --require-hashes -r requirements.dev.txt
 	pre-commit install
 	npm ci
+	npm run build
 
 .PHONY: sort
 sort:
