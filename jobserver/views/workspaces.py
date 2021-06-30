@@ -7,7 +7,6 @@ from django.template.response import TemplateResponse
 from django.utils.decorators import method_decorator
 from django.views.generic import CreateView, ListView, View
 
-from ..authorization import has_permission
 from ..backends import backends_to_choices
 from ..forms import (
     JobRequestCreateForm,
@@ -101,9 +100,7 @@ class WorkspaceDetail(CreateView):
                 context={"workspace": self.workspace},
             )
 
-        self.user_can_run_jobs = has_permission(
-            request.user, "run_job", project=self.workspace.project
-        )
+        self.user_can_run_jobs = can_run_jobs(request.user)
 
         self.show_details = self.user_can_run_jobs and not self.workspace.is_archived
 
