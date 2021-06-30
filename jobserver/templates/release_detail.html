@@ -44,6 +44,11 @@
 {% endblock %}
 
 {% block extra_js %}
+  <script>
+    window.props = {
+      name: '{{ project.name }}',
+    };
+  </script>
   {% vite_asset 'assets/src/scripts/results-viewer/index.jsx' %}
   {% vite_asset 'assets/src/scripts/results-viewer/index-legacy.jsx' scripts_attrs=scripts_attrs %}
 {% endblock %}
