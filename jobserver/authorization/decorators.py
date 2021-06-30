@@ -3,7 +3,6 @@ from functools import wraps
 from django.http import HttpResponseForbidden
 
 from .permissions import manage_backends
-from .roles import SuperUser
 from .utils import has_permission, has_role
 
 
@@ -44,4 +43,3 @@ def require_role(role):
 
 
 require_manage_backends = require_permission(manage_backends)
-require_superuser = require_role(SuperUser)
