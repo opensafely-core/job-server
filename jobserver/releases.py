@@ -26,8 +26,7 @@ def handle_release(workspace, backend, backend_user, release_hash, upload):
     # 2. much easier for human operators to navigate on disk (e.g. for removal
     #    of any disclosive information).
     upload_dir = os.path.join(workspace.name, release_hash)
-    actual_dir = settings.RELEASE_STORAGE / upload_dir
-    actual_dir.parent.mkdir(exist_ok=True, parents=True)
+    actual_dir = None
 
     try:
         # first, ensure we can extract the zip
@@ -43,10 +42,9 @@ def handle_release(workspace, backend, backend_user, release_hash, upload):
                     {"detail": f"metadata/manifest.json file is not valid json: {exc}"}
                 )
 
-            archive.extractall(actual_dir)
+            actual_dir = extract_upload(upload_dir, archive)
 
-        files = list_files(actual_dir)
-        calculated_hash = hash_files(actual_dir, files)
+        calculated_hash, files = hash_files(actual_dir)
         if calculated_hash != release_hash:
             raise ValidationError(
                 {
@@ -60,7 +58,7 @@ def handle_release(workspace, backend, backend_user, release_hash, upload):
             backend=backend,
             backend_user=backend_user,
             upload_dir=upload_dir,
-            files=[str(f) for f in files],
+            files=files,
         )
 
     except Exception:
@@ -71,18 +69,24 @@ def handle_release(workspace, backend, backend_user, release_hash, upload):
     return release, True
 
 
-def list_files(directory):
-    """Utility to list files in a directory tree."""
-    return list(
-        sorted(p.relative_to(directory) for p in directory.glob("**/*") if p.is_file())
+def hash_files(directory):
+    """Sort files in the directory and the hash them in that order."""
+    files = list(
+        sorted(
+            str(p.relative_to(directory)) for p in directory.glob("**/*") if p.is_file()
+        )
     )
-
-
-def hash_files(directory, files):
     # use md5 because its fast, and we only care about uniqueness, not security
     hash = hashlib.md5()
     for filename in files:
         path = directory / filename
         assert path.is_file(), f"{path} is not a file"
         hash.update(path.read_bytes())
-    return hash.hexdigest()
+    return hash.hexdigest(), files
+
+
+def extract_upload(upload_dir, archive):
+    actual_dir = settings.RELEASE_STORAGE / upload_dir
+    actual_dir.parent.mkdir(exist_ok=True, parents=True)
+    archive.extractall(actual_dir)
+    return actual_dir
