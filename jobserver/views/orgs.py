@@ -4,12 +4,12 @@ from django.template.response import TemplateResponse
 from django.utils.decorators import method_decorator
 from django.views.generic import CreateView, DetailView, ListView
 
-from ..authorization.decorators import require_superuser
+from ..authorization.decorators import require_permission
 from ..forms import OrgCreateForm
 from ..models import Org, Workspace
 
 
-@method_decorator(require_superuser, name="dispatch")
+@method_decorator(require_permission("create_org"), name="dispatch")
 class OrgCreate(CreateView):
     form_class = OrgCreateForm
     model = Org

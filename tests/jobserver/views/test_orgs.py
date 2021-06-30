@@ -17,12 +17,12 @@ MEANINGLESS_URL = "/"
 
 
 @pytest.mark.django_db
-def test_orgcreate_get_success(rf, superuser):
+def test_orgcreate_get_success(rf, core_developer):
     oxford = OrgFactory(name="University of Oxford")
     ebmdatalab = OrgFactory(name="EBMDataLab")
 
     request = rf.get(MEANINGLESS_URL)
-    request.user = superuser
+    request.user = core_developer
     response = OrgCreate.as_view()(request)
 
     assert response.status_code == 200
@@ -34,9 +34,9 @@ def test_orgcreate_get_success(rf, superuser):
 
 
 @pytest.mark.django_db
-def test_orgcreate_post_success(rf, superuser):
+def test_orgcreate_post_success(rf, core_developer):
     request = rf.post(MEANINGLESS_URL, {"name": "A New Org"})
-    request.user = superuser
+    request.user = core_developer
     response = OrgCreate.as_view()(request)
 
     assert response.status_code == 302
