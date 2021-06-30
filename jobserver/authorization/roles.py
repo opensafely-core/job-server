@@ -1,6 +1,7 @@
 from .permissions import (
     cancel_job,
     check_output,
+    create_org,
     invite_project_members,
     manage_backends,
     manage_project_members,
@@ -26,6 +27,7 @@ class CoreDeveloper:
     ]
     permissions = [
         cancel_job,
+        create_org,
         invite_project_members,
         manage_backends,
         manage_project_members,
