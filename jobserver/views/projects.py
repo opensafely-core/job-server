@@ -44,6 +44,9 @@ class ProjectAcceptInvite(View):
             )
             return redirect("/")
 
+        if invite.membership:
+            return redirect(invite.project)
+
         invite.create_membership()
 
         return redirect(invite.project)

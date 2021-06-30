@@ -38,6 +38,36 @@ MEANINGLESS_URL = "/"
 
 
 @pytest.mark.django_db
+def test_projectacceptinvite_already_accepted(rf):
+    org = OrgFactory()
+    project = ProjectFactory(org=org)
+    user = UserFactory()
+
+    membership = ProjectMembershipFactory(project=project, user=user)
+    invite = ProjectInvitationFactory(
+        project=project,
+        user=user,
+        membership=membership,
+        roles=[ProjectCollaborator],
+    )
+
+    request = rf.get(MEANINGLESS_URL)
+    request.user = user
+
+    response = ProjectAcceptInvite.as_view()(
+        request,
+        org_slug=org.slug,
+        project_slug=project.slug,
+        signed_pk=invite.signed_pk,
+    )
+
+    assert response.status_code == 302
+    assert response.url == project.get_absolute_url()
+
+    assert ProjectMembership.objects.filter(project=project, user=user).count() == 1
+
+
+@pytest.mark.django_db
 def test_projectacceptinvite_success(rf):
     org = OrgFactory()
     project = ProjectFactory(org=org)
