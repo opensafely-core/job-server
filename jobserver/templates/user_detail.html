@@ -146,6 +146,28 @@
 
       </div>
 
+      <div class="form-group mb-5">
+        <h4>Django Admin Access</h4>
+
+        <div class="custom-control custom-checkbox">
+          <input
+            type="checkbox"
+            class="custom-control-input"
+            id="id_is_superuser"
+            name="is_superuser"
+            value="{{ form.is_superuser.value }}"
+            {% if form.is_superuser.value %}
+            checked
+            {% endif %}
+            />
+          <label class="custom-control-label" for="id_is_superuser">
+            <span class="d-block">
+              Should <strong>{{ user.username }}</strong> have access to the Django Admin?
+            </span>
+          </label>
+        </div>
+      </div>
+
       <div class="form-group">
         <button class="btn btn-primary" type="submit">Save</button>
       </div>

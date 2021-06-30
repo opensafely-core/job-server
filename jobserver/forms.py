@@ -130,6 +130,10 @@ class SettingsForm(forms.ModelForm):
 
 
 class UserForm(RolesForm):
+    is_superuser = forms.TypedChoiceField(
+        coerce=bool, empty_value=False, required=False
+    )
+
     def __init__(self, *, available_backends, **kwargs):
         super().__init__(**kwargs)
 
