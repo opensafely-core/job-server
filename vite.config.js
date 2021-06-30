@@ -17,18 +17,11 @@ const config = {
         workspace_detail: "./assets/src/scripts/workspace_detail.js",
         "results-viewer": "./assets/src/scripts/results-viewer/index.jsx",
       },
-      external: ["react", "react-dom", "list.js"],
-      output: {
-        globals: {
-          "list.js": "List",
-          react: "React",
-          "react-dom": "ReactDOM",
-        },
-      },
     },
     outDir: "assets/dist",
     emptyOutDir: true,
   },
+  clearScreen: false,
   css: {
     preprocessorOptions: {
       scss: {
