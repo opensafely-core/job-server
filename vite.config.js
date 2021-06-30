@@ -16,6 +16,12 @@ const config = {
         workspace_create: "./assets/src/scripts/workspace_create.js",
         workspace_detail: "./assets/src/scripts/workspace_detail.js",
       },
+      external: ["list.js"],
+      output: {
+        globals: {
+          "list.js": "List",
+        },
+      },
     },
     outDir: "assets/dist",
     emptyOutDir: true,
