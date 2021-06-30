@@ -95,11 +95,13 @@ _Note:_ The dev server inside the container does not currently reload when chang
 
 ### Frontend development (CSS/JS)
 
-This project is using [Vite](https://vitejs.dev/), a modern build tool and development server, to build the frontend assets. Vite integrates into the Django project using the [django-vite](https://github.com/MrBin99/django-vite) package.
+This project uses [Vite](https://vitejs.dev/), a modern build tool and development server, to build the frontend assets.
+Vite integrates into the Django project using the [django-vite](https://github.com/MrBin99/django-vite) package.
 
 Vite works by compiling JavaScript files, and outputs a manifest file, the JavaScript files, and any included assets such as stylesheets or images.
 
-Vite adds all JavaScript files to the page using [ES6 Module syntax](https://caniuse.com/es6-module). For legacy browsers, this project is utilising the [Vite Legacy Plugin](https://github.com/vitejs/vite/tree/main/packages/plugin-legacy) to provide a fallback using the [module/nomodule pattern](https://philipwalton.com/articles/deploying-es2015-code-in-production-today/).
+Vite adds all JavaScript files to the page using [ES6 Module syntax](https://caniuse.com/es6-module).
+For legacy browsers, this project is utilising the [Vite Legacy Plugin](https://github.com/vitejs/vite/tree/main/packages/plugin-legacy) to provide a fallback using the [module/nomodule pattern](https://philipwalton.com/articles/deploying-es2015-code-in-production-today/).
 
 For styling this project uses [Scss](https://www.npmjs.com/package/sass) to compile the stylesheets, and then [PostCSS](https://github.com/postcss/postcss) for post-processing.
 
