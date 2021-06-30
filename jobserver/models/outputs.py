@@ -48,8 +48,13 @@ class Release(models.Model):
             },
         )
 
-    def file_path(self, filename):
-        return settings.RELEASE_STORAGE / self.upload_dir / filename
+    def file_path(self, filepath):
+        if filepath not in self.files:
+            return None
+        abs_path = settings.RELEASE_STORAGE / self.upload_dir / filepath
+        if not abs_path.exists():
+            return None
+        return abs_path
 
     @property
     def manifest(self):

@@ -1,58 +1,37 @@
-import json
-from pathlib import Path
-from tempfile import TemporaryDirectory
-from zipfile import ZipFile
-
 import pytest
 from django.conf import settings
 from django.db import DatabaseError
 from rest_framework.exceptions import ValidationError
 
-from jobserver.releases import Release, handle_release, hash_files, list_files
+from jobserver.releases import Release, handle_release, hash_files
 
-from ..factories import BackendFactory, ReleaseFactory, WorkspaceFactory
+from ..factories import (
+    BackendFactory,
+    ReleaseFactory,
+    ReleaseUploadFactory,
+    WorkspaceFactory,
+)
 
 
 def raise_error(**kwargs):
     raise DatabaseError("test error")
 
 
-DEFAULT_MANIFEST = json.dumps({"workspace": "workspace", "repo": "repo"})
-
-
-def make_release_zip(release_path, manifest=DEFAULT_MANIFEST):
-    with TemporaryDirectory() as d:
-        tmp = Path(d)
-        (tmp / "file.txt").write_text("test")
-        if manifest:
-            path = tmp / "metadata" / "manifest.json"
-            path.parent.mkdir()
-            path.write_text(manifest)
-
-        files = list_files(tmp)
-        files_hash = hash_files(tmp, files)
-
-        with ZipFile(release_path, "w") as zf:
-            for f in files:
-                zf.write(tmp / f, arcname=str(f))
-
-    return files_hash
-
-
 @pytest.mark.django_db
-def test_handle_release_created(monkeypatch, tmp_path):
-    monkeypatch.setattr(settings, "RELEASE_STORAGE", tmp_path / "releases")
+def test_handle_release_created():
     workspace = WorkspaceFactory()
     backend = BackendFactory()
-
-    upload = tmp_path / "release.zip"
-    release_hash = make_release_zip(upload)
+    upload = ReleaseUploadFactory()
 
     release, created = handle_release(
-        workspace, backend, "user", release_hash, upload.open("rb")
+        workspace,
+        backend,
+        "user",
+        upload.hash,
+        upload.zip,
     )
     assert created
-    assert release.id == release_hash
+    assert release.id == upload.hash
     assert release.backend_user == "user"
     assert release.files == ["file.txt", "metadata/manifest.json"]
     assert release.file_path("file.txt").read_text() == "test"
@@ -60,95 +39,98 @@ def test_handle_release_created(monkeypatch, tmp_path):
 
 
 @pytest.mark.django_db
-def test_handle_release_already_exists(monkeypatch, tmp_path):
-    monkeypatch.setattr(settings, "RELEASE_STORAGE", tmp_path / "releases")
+def test_handle_release_already_exists():
 
-    upload = tmp_path / "release.zip"
-    release_hash = make_release_zip(upload)
-    release = ReleaseFactory(
-        id=release_hash,
-        files=["file.txt", "metadata/manifest.json"],
+    files = {"file.txt": "mydata"}
+    existing_release = ReleaseFactory(
+        files=files,
         backend_user="original",
     )
+    upload = ReleaseUploadFactory(files=files)
 
+    # check out test setup is correct
+    assert existing_release.id == upload.hash
+
+    # upload same files
     release, created = handle_release(
-        release.workspace, release.backend, "user", release_hash, upload.open("rb")
+        existing_release.workspace,
+        existing_release.backend,
+        "user",
+        upload.hash,
+        upload.zip,
     )
     assert not created
-    assert release.id == release_hash
-    assert release.backend_user == "original"
+    assert release.id == existing_release.id
+    assert release.backend_user == "original"  # Not 'user'
     assert release.files == ["file.txt", "metadata/manifest.json"]
 
 
 @pytest.mark.django_db
-def test_handle_release_bad_hash(monkeypatch, tmp_path):
-    monkeypatch.setattr(settings, "RELEASE_STORAGE", tmp_path / "releases")
-
-    upload = tmp_path / "release.zip"
-    release_hash = make_release_zip(upload)
-    release = ReleaseFactory(
-        id=release_hash, files=["file.txt"], backend_user="original"
-    )
+def test_handle_release_bad_hash():
+    workspace = WorkspaceFactory()
+    backend = BackendFactory()
+    upload = ReleaseUploadFactory()
 
     with pytest.raises(ValidationError) as exc:
         handle_release(
-            release.workspace, release.backend, "user", "bad hash", upload.open("rb")
+            workspace,
+            backend,
+            "user",
+            "bad hash",
+            upload.zip,
         )
 
     assert "did not match" in exc.value.detail["detail"]
 
 
 @pytest.mark.django_db
-def test_handle_release_no_manifest(monkeypatch, tmp_path):
-    monkeypatch.setattr(settings, "RELEASE_STORAGE", tmp_path / "releases")
-
-    upload = tmp_path / "release.zip"
-    release_hash = make_release_zip(upload, manifest=None)
-    release = ReleaseFactory(
-        id=release_hash, files=["file.txt"], backend_user="original"
-    )
+def test_handle_release_no_manifest():
+    workspace = WorkspaceFactory()
+    backend = BackendFactory()
+    upload = ReleaseUploadFactory(manifest=None)
 
     with pytest.raises(ValidationError) as exc:
         handle_release(
-            release.workspace, release.backend, "user", "bad hash", upload.open("rb")
+            workspace,
+            backend,
+            "user",
+            upload.hash,
+            upload.zip,
         )
 
     assert "file not found" in exc.value.detail["detail"]
 
 
 @pytest.mark.django_db
-def test_handle_release_bad_manifest(monkeypatch, tmp_path):
-    monkeypatch.setattr(settings, "RELEASE_STORAGE", tmp_path / "releases")
-
-    upload = tmp_path / "release.zip"
-    release_hash = make_release_zip(upload, manifest="BADJSON")
-    release = ReleaseFactory(
-        id=release_hash, files=["file.txt"], backend_user="original"
-    )
+def test_handle_release_bad_manifest():
+    workspace = WorkspaceFactory()
+    backend = BackendFactory()
+    upload = ReleaseUploadFactory(raw_manifest="BADJSON")
 
     with pytest.raises(ValidationError) as exc:
         handle_release(
-            release.workspace, release.backend, "user", "bad hash", upload.open("rb")
+            workspace,
+            backend,
+            "user",
+            upload.hash,
+            upload.zip,
         )
 
     assert "not valid json" in exc.value.detail["detail"]
 
 
 @pytest.mark.django_db
-def test_handle_release_db_error(monkeypatch, tmp_path):
-    monkeypatch.setattr(settings, "RELEASE_STORAGE", tmp_path / "releases")
-    monkeypatch.setattr(Release.objects, "create", raise_error)
-
-    upload = tmp_path / "release.zip"
-    release_hash = make_release_zip(upload)
+def test_handle_release_db_error(monkeypatch):
     workspace = WorkspaceFactory()
     backend = BackendFactory()
+    upload = ReleaseUploadFactory()
 
+    monkeypatch.setattr(Release.objects, "create", raise_error)
     with pytest.raises(DatabaseError):
-        handle_release(workspace, backend, "user", release_hash, upload.open("rb"))
+        handle_release(workspace, backend, "user", upload.hash, upload.zip)
 
     # check the extracted files have been deleted due to the error
-    upload_dir = tmp_path / "releases" / workspace.name / release_hash
+    upload_dir = settings.RELEASE_STORAGE / workspace.name / upload.hash
     assert not upload_dir.exists()
 
 
@@ -166,6 +148,5 @@ def test_hash_files(tmp_path):
         path.parent.mkdir(exist_ok=True, parents=True)
         path.write_text(contents)
 
-    assert (
-        hash_files(dirpath, list_files(dirpath)) == "6c52ca16d696574e6ab5ece283eb3f3d"
-    )
+    release_hash, _ = hash_files(dirpath)
+    assert release_hash == "6c52ca16d696574e6ab5ece283eb3f3d"

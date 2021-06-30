@@ -1,7 +1,6 @@
 from datetime import timedelta
 
 import pytest
-from django.conf import settings
 from django.utils import timezone
 from rest_framework.exceptions import NotAuthenticated
 from rest_framework.test import APIClient
@@ -18,7 +17,6 @@ from jobserver.api import (
 )
 from jobserver.authorization import CoreDeveloper, OrgCoordinator, ProjectDeveloper
 from jobserver.models import Backend, Job, JobRequest, Release, Stats
-from tests.jobserver.test_releases import make_release_zip
 
 from ..factories import (
     BackendFactory,
@@ -29,6 +27,7 @@ from ..factories import (
     ProjectFactory,
     ProjectMembershipFactory,
     ReleaseFactory,
+    ReleaseUploadFactory,
     StatsFactory,
     UserFactory,
     WorkspaceFactory,
@@ -709,20 +708,20 @@ def test_workspacestatusesapi_unknown_workspace(api_rf):
 
 
 @pytest.mark.django_db
-def test_release_api_no_workspace(api_rf):
+def test_upload_api_no_workspace(api_rf):
     response = APIClient().put("/api/v2/workspaces/notexists/releases/hash")
     assert response.status_code == 404
 
 
 @pytest.mark.django_db
-def test_release_api_no_backend_token(api_rf):
+def test_upload_api_no_backend_token(api_rf):
     workspace = WorkspaceFactory()
     response = APIClient().put(f"/api/v2/workspaces/{workspace.name}/releases/hash")
     assert response.status_code == 403
 
 
 @pytest.mark.django_db
-def test_release_api_bad_backend_token(api_rf):
+def test_upload_api_bad_backend_token(api_rf):
     workspace = WorkspaceFactory()
     BackendFactory(auth_token="test")
 
@@ -735,7 +734,7 @@ def test_release_api_bad_backend_token(api_rf):
 
 
 @pytest.mark.django_db
-def test_release_api_no_user(api_rf):
+def test_upload_api_no_user(api_rf):
     workspace = WorkspaceFactory()
     BackendFactory(auth_token="test")
     response = APIClient().put(
@@ -748,7 +747,7 @@ def test_release_api_no_user(api_rf):
 
 
 @pytest.mark.django_db
-def test_release_api_no_files(api_rf):
+def test_upload_api_no_files(api_rf):
     workspace = WorkspaceFactory()
     BackendFactory(auth_token="test")
     response = APIClient().put(
@@ -762,22 +761,19 @@ def test_release_api_no_files(api_rf):
 
 
 @pytest.mark.django_db
-def test_release_api_created(api_rf, tmp_path, monkeypatch):
-    monkeypatch.setattr(settings, "RELEASE_STORAGE", tmp_path / "releases")
-    upload = tmp_path / "release.zip"
-    release_hash = make_release_zip(upload)
-
+def test_upload_api_created(api_rf):
     org = OrgFactory()
     project = ProjectFactory(org=org)
     workspace = WorkspaceFactory(project=project)
     BackendFactory(auth_token="test")
+    upload = ReleaseUploadFactory()
 
     assert Release.objects.count() == 0
 
     response = APIClient().put(
-        f"/api/v2/workspaces/{workspace.name}/releases/{release_hash}",
+        f"/api/v2/workspaces/{workspace.name}/releases/{upload.hash}",
         content_type="application/octet-stream",
-        data=upload.read_bytes(),
+        data=upload.zip.read(),
         HTTP_CONTENT_DISPOSITION="attachment; filename=release.zip",
         HTTP_AUTHORIZATION="test",
         HTTP_BACKEND_USER="user",
@@ -792,24 +788,22 @@ def test_release_api_created(api_rf, tmp_path, monkeypatch):
 
 
 @pytest.mark.django_db
-def test_release_api_redirected(api_rf, tmp_path, monkeypatch):
-    monkeypatch.setattr(settings, "RELEASE_STORAGE", tmp_path / "releases")
-    upload = tmp_path / "release.zip"
-    release_hash = make_release_zip(upload)
-
+def test_upload_api_redirected(api_rf):
     org = OrgFactory()
     project = ProjectFactory(org=org)
     workspace = WorkspaceFactory(project=project)
-    BackendFactory(auth_token="test")
+    backend = BackendFactory(auth_token="test")
+    files = {"file.txt": "test redirect"}
+    upload = ReleaseUploadFactory(files)
 
     # release already exists
-    release = ReleaseFactory(workspace=workspace, id=release_hash, files=[])
+    release = ReleaseFactory(workspace=workspace, backend=backend, files=files)
     assert Release.objects.count() == 1
 
     response = APIClient().put(
-        f"/api/v2/workspaces/{workspace.name}/releases/{release_hash}",
+        f"/api/v2/workspaces/{workspace.name}/releases/{upload.hash}",
         content_type="application/octet-stream",
-        data=upload.read_bytes(),
+        data=upload.zip.read(),
         HTTP_CONTENT_DISPOSITION="attachment; filename=release.zip",
         HTTP_AUTHORIZATION="test",
         HTTP_BACKEND_USER="user",
