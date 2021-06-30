@@ -1,7 +1,7 @@
 import pytest
 
 from jobserver.authorization.admins import ensure_admins, get_admins
-from jobserver.authorization.roles import SuperUser
+from jobserver.authorization.roles import CoreDeveloper
 from jobserver.models import User
 
 from ...factories import UserFactory
@@ -9,41 +9,41 @@ from ...factories import UserFactory
 
 @pytest.mark.django_db
 def test_ensure_admins_remove_user():
-    # is superuser now, and will be afterwards
-    UserFactory(username="aaa", roles=[SuperUser])
+    # is CoreDeveloper now, and will be afterwards
+    UserFactory(username="aaa", roles=[CoreDeveloper])
 
-    # is superuser now, and won't be afterwards
-    UserFactory(username="bbb", roles=[SuperUser])
+    # is CoreDeveloper now, and won't be afterwards
+    UserFactory(username="bbb", roles=[CoreDeveloper])
 
-    # isn't superuser now, and will be afterwards
+    # isn't CoreDeveloper now, and will be afterwards
     UserFactory(username="ccc")
 
-    # isn't superuser now, and won't be afterwards
+    # isn't CoreDeveloper now, and won't be afterwards
     UserFactory(username="ddd")
 
     ensure_admins(["aaa", "ccc"])
 
-    assert SuperUser in User.objects.get(username="aaa").roles
-    assert SuperUser not in User.objects.get(username="bbb").roles
-    assert SuperUser in User.objects.get(username="ccc").roles
-    assert SuperUser not in User.objects.get(username="ddd").roles
+    assert CoreDeveloper in User.objects.get(username="aaa").roles
+    assert CoreDeveloper not in User.objects.get(username="bbb").roles
+    assert CoreDeveloper in User.objects.get(username="ccc").roles
+    assert CoreDeveloper not in User.objects.get(username="ddd").roles
 
 
 @pytest.mark.django_db
 def test_ensure_admins_success():
     user = UserFactory(username="ghickman")
-    assert SuperUser not in user.roles
+    assert CoreDeveloper not in user.roles
 
     ensure_admins(["ghickman"])
 
     user.refresh_from_db()
-    assert SuperUser in user.roles
+    assert CoreDeveloper in user.roles
 
 
 @pytest.mark.django_db
 def test_ensure_admins_unknown_user():
     user = UserFactory(username="ghickman")
-    assert SuperUser not in user.roles
+    assert CoreDeveloper not in user.roles
 
     with pytest.raises(Exception, match="Unknown admin usernames: test"):
         ensure_admins(["ghickman", "test"])
@@ -52,7 +52,7 @@ def test_ensure_admins_unknown_user():
 @pytest.mark.django_db
 def test_ensure_admins_unknown_users():
     user = UserFactory(username="ghickman")
-    assert SuperUser not in user.roles
+    assert CoreDeveloper not in user.roles
 
     with pytest.raises(Exception, match="Unknown admin usernames: foo, test"):
         ensure_admins(["ghickman", "foo", "test"])

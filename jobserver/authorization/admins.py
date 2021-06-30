@@ -2,7 +2,7 @@ from django.db import transaction
 from environs import Env
 
 from ..models import User
-from .roles import SuperUser
+from .roles import CoreDeveloper
 
 
 env = Env()
@@ -23,11 +23,12 @@ def get_admins():
 @transaction.atomic()
 def ensure_admins(usernames):
     """
-    Given an iterable of username strings, ensure they have the SuperUser role
+    Given an iterable of username strings, ensure they have the CoreDeveloper
+    role which we to denote administrators.
     """
     for user in User.objects.all():
         try:
-            user.roles.remove(SuperUser)
+            user.roles.remove(CoreDeveloper)
         except ValueError:
             pass
         user.save()
@@ -40,5 +41,5 @@ def ensure_admins(usernames):
         raise Exception(f"Unknown admin usernames: {', '.join(sorted_missing)}")
 
     for admin in admins_to_be:
-        admin.roles.append(SuperUser)
+        admin.roles.append(CoreDeveloper)
         admin.save()
