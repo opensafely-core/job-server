@@ -4,6 +4,7 @@ from django.contrib import messages
 from django.contrib.auth.decorators import login_required
 from django.db import transaction
 from django.db.models import Q
+from django.db.models.functions import Lower
 from django.shortcuts import redirect
 from django.utils.decorators import method_decorator
 from django.views.generic import ListView, UpdateView
@@ -85,7 +86,7 @@ class UserDetail(UpdateView):
 
 @method_decorator(require_permission("manage_users"), name="dispatch")
 class UserList(ListView):
-    queryset = User.objects.order_by("username")
+    queryset = User.objects.order_by(Lower("username"))
     template_name = "user_list.html"
 
     def get_context_data(self, **kwargs):
