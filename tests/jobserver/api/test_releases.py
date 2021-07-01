@@ -191,61 +191,107 @@ def test_upload_api_redirected():
 
 
 @pytest.mark.django_db
-def test_release_index_api():
-    release = ReleaseFactory()
-    user = UserFactory()
+def test_release_index_api_not_exists():
     client = APIClient()
 
     # bad id
     response = client.get("/api/v2/releases/badid")
     assert response.status_code == 404
 
+
+@pytest.mark.django_db
+def test_release_index_api_anonymous():
+    release = ReleaseFactory()
+    client = APIClient()
     index_url = f"/api/v2/releases/{release.id}"
 
-    # not logged in
     response = client.get(index_url)
     assert response.status_code == 403
 
-    # logged in, but no permission
+
+@pytest.mark.django_db
+def test_release_index_api_logged_in_no_permission():
+    release = ReleaseFactory()
+    user = UserFactory()
+    client = APIClient()
+    index_url = f"/api/v2/releases/{release.id}"
+
     client.force_authenticate(user=user)
     response = client.get(index_url)
     assert response.status_code == 403
 
-    # logged in, with permission
+
+@pytest.mark.django_db
+def test_release_index_api_have_permission():
+    release = ReleaseFactory()
+    user = UserFactory()
+    client = APIClient()
+    index_url = f"/api/v2/releases/{release.id}"
+
     ProjectMembershipFactory(user=user, project=release.workspace.project)
+    client.force_authenticate(user=user)
     response = client.get(index_url)
     assert response.status_code == 200
     assert response.json() == ["file.txt", "metadata/manifest.json"]
 
 
 @pytest.mark.django_db
-def test_release_file_api():
-    release = ReleaseFactory()
-    user = UserFactory()
+def test_release_file_api_release_not_exists():
     client = APIClient()
 
     response = client.get("/api/v2/releases/badid/file.txt")
     assert response.status_code == 404
 
+
+@pytest.mark.django_db
+def test_release_file_api_anonymous():
+    release = ReleaseFactory()
+    client = APIClient()
     file_url = f"/api/v2/releases/{release.id}/file.txt"
 
-    # not logged in
     response = client.get(file_url)
     assert response.status_code == 403
+
+
+@pytest.mark.django_db
+def test_release_file_api_no_permission():
+    release = ReleaseFactory()
+    user = UserFactory()
+    client = APIClient()
+    file_url = f"/api/v2/releases/{release.id}/file.txt"
 
     # logged in, but no permission
     client.force_authenticate(user=user)
     response = client.get(file_url)
     assert response.status_code == 403
 
+
+@pytest.mark.django_db
+def test_release_file_api_have_permission():
+    release = ReleaseFactory()
+    user = UserFactory()
+    client = APIClient()
+    file_url = f"/api/v2/releases/{release.id}/file.txt"
+
     # logged in, with permission
     ProjectMembershipFactory(user=user, project=release.workspace.project)
+    client.force_authenticate(user=user)
     response = client.get(file_url)
     assert response.status_code == 200
     assert b"".join(response.streaming_content) == b"test"
     assert response.headers["Content-Type"] == "text/plain"
 
+
+@pytest.mark.django_db
+def test_release_file_api_nginx_redirect():
+    release = ReleaseFactory()
+    user = UserFactory()
+    client = APIClient()
+    file_url = f"/api/v2/releases/{release.id}/file.txt"
+
     # test nginx configuration
+    ProjectMembershipFactory(user=user, project=release.workspace.project)
+    client.force_authenticate(user=user)
     response = client.get(file_url, HTTP_RELEASES_REDIRECT="/releases")
     assert response.status_code == 200
     assert (
@@ -253,7 +299,19 @@ def test_release_file_api():
         == f"/releases/{release.workspace.name}/{release.id}/file.txt"
     )
 
+
+@pytest.mark.django_db
+def test_release_file_api():
+    release = ReleaseFactory()
+    user = UserFactory()
+    client = APIClient()
+    file_url = f"/api/v2/releases/{release.id}/file.txt"
+
+    ProjectMembershipFactory(user=user, project=release.workspace.project)
+    client.force_authenticate(user=user)
+
     # delete file
     release.file_path("file.txt").unlink()
     response = client.get(file_url)
+
     assert response.status_code == 404
