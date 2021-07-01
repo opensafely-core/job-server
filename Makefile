@@ -61,7 +61,7 @@ sort:
 .PHONY: test
 test:
 	python manage.py collectstatic --no-input && \
-	pytest --cov=jobserver --cov=services --cov=tests
+	pytest --cov=jobserver --cov=services --cov=tests --cov-report term-missing
 
 
 .PHONY: dev-config

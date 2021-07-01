@@ -8,6 +8,7 @@ from tests.factories import (
     BackendFactory,
     OrgFactory,
     ProjectFactory,
+    ProjectMembershipFactory,
     ReleaseFactory,
     ReleaseUploadFactory,
     UserFactory,
@@ -80,20 +81,20 @@ def test_releasenotificationapicreate_with_failed_slack_update(
 
 
 @pytest.mark.django_db
-def test_upload_api_no_workspace(api_rf):
+def test_upload_api_no_workspace():
     response = APIClient().put("/api/v2/workspaces/notexists/releases/hash")
     assert response.status_code == 404
 
 
 @pytest.mark.django_db
-def test_upload_api_no_backend_token(api_rf):
+def test_upload_api_no_backend_token():
     workspace = WorkspaceFactory()
     response = APIClient().put(f"/api/v2/workspaces/{workspace.name}/releases/hash")
     assert response.status_code == 403
 
 
 @pytest.mark.django_db
-def test_upload_api_bad_backend_token(api_rf):
+def test_upload_api_bad_backend_token():
     workspace = WorkspaceFactory()
     BackendFactory(auth_token="test")
 
@@ -106,7 +107,7 @@ def test_upload_api_bad_backend_token(api_rf):
 
 
 @pytest.mark.django_db
-def test_upload_api_no_user(api_rf):
+def test_upload_api_no_user():
     workspace = WorkspaceFactory()
     BackendFactory(auth_token="test")
     response = APIClient().put(
@@ -119,7 +120,7 @@ def test_upload_api_no_user(api_rf):
 
 
 @pytest.mark.django_db
-def test_upload_api_no_files(api_rf):
+def test_upload_api_no_files():
     workspace = WorkspaceFactory()
     BackendFactory(auth_token="test")
     response = APIClient().put(
@@ -133,7 +134,7 @@ def test_upload_api_no_files(api_rf):
 
 
 @pytest.mark.django_db
-def test_upload_api_created(api_rf):
+def test_upload_api_created():
     org = OrgFactory()
     project = ProjectFactory(org=org)
     workspace = WorkspaceFactory(project=project)
@@ -160,7 +161,7 @@ def test_upload_api_created(api_rf):
 
 
 @pytest.mark.django_db
-def test_upload_api_redirected(api_rf):
+def test_upload_api_redirected():
     org = OrgFactory()
     project = ProjectFactory(org=org)
     workspace = WorkspaceFactory(project=project)
@@ -187,3 +188,72 @@ def test_upload_api_redirected(api_rf):
     release.refresh_from_db()
     assert response["Release-Id"] == release.id
     assert response["Location"] == f"http://testserver{release.get_absolute_url()}"
+
+
+@pytest.mark.django_db
+def test_release_index_api():
+    release = ReleaseFactory()
+    user = UserFactory()
+    client = APIClient()
+
+    # bad id
+    response = client.get("/api/v2/releases/badid")
+    assert response.status_code == 404
+
+    index_url = f"/api/v2/releases/{release.id}"
+
+    # not logged in
+    response = client.get(index_url)
+    assert response.status_code == 403
+
+    # logged in, but no permission
+    client.force_authenticate(user=user)
+    response = client.get(index_url)
+    assert response.status_code == 403
+
+    # logged in, with permission
+    ProjectMembershipFactory(user=user, project=release.workspace.project)
+    response = client.get(index_url)
+    assert response.status_code == 200
+    assert response.json() == ["file.txt", "metadata/manifest.json"]
+
+
+@pytest.mark.django_db
+def test_release_file_api():
+    release = ReleaseFactory()
+    user = UserFactory()
+    client = APIClient()
+
+    response = client.get("/api/v2/releases/badid/file.txt")
+    assert response.status_code == 404
+
+    file_url = f"/api/v2/releases/{release.id}/file.txt"
+
+    # not logged in
+    response = client.get(file_url)
+    assert response.status_code == 403
+
+    # logged in, but no permission
+    client.force_authenticate(user=user)
+    response = client.get(file_url)
+    assert response.status_code == 403
+
+    # logged in, with permission
+    ProjectMembershipFactory(user=user, project=release.workspace.project)
+    response = client.get(file_url)
+    assert response.status_code == 200
+    assert b"".join(response.streaming_content) == b"test"
+    assert response.headers["Content-Type"] == "text/plain"
+
+    # test nginx configuration
+    response = client.get(file_url, HTTP_RELEASES_REDIRECT="/releases")
+    assert response.status_code == 200
+    assert (
+        response.headers["X-Accel-Redirect"]
+        == f"/releases/{release.workspace.name}/{release.id}/file.txt"
+    )
+
+    # delete file
+    release.file_path("file.txt").unlink()
+    response = client.get(file_url)
+    assert response.status_code == 404
