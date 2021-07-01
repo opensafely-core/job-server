@@ -26,7 +26,12 @@ from jobserver.api.jobs import (
     UserAPIDetail,
     WorkspaceStatusesAPI,
 )
-from jobserver.api.releases import ReleaseNotificationAPICreate, ReleaseUploadAPI
+from jobserver.api.releases import (
+    ReleaseFileAPI,
+    ReleaseIndexAPI,
+    ReleaseNotificationAPICreate,
+    ReleaseUploadAPI,
+)
 
 from .views.admin import ApproveUsers
 from .views.backends import BackendDetail, BackendList, BackendRotateToken
@@ -72,6 +77,16 @@ api_urls = [
         "workspaces/<workspace_name>/releases/<release_hash>",
         ReleaseUploadAPI.as_view(),
         name="workspace-upload-release",
+    ),
+    path(
+        "releases/<release_hash>",
+        ReleaseIndexAPI.as_view(),
+        name="release-index",
+    ),
+    path(
+        "releases/<release_hash>/<filepath>",
+        ReleaseFileAPI.as_view(),
+        name="release-file",
     ),
 ]
 
