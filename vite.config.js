@@ -52,14 +52,6 @@ const config = {
           dest: "./assets/dist/vendor",
         },
         {
-          src: "./node_modules/react/umd/react.production.min.js",
-          dest: "./assets/dist/vendor",
-        },
-        {
-          src: "./node_modules/react-dom/umd/react-dom.production.min.js",
-          dest: "./assets/dist/vendor",
-        },
-        {
           src: "./node_modules/select2/dist/js/select2.min.js",
           dest: "./assets/dist/vendor",
         },
