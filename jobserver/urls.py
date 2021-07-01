@@ -20,14 +20,14 @@ from django.contrib.auth.views import LogoutView
 from django.urls import include, path
 from django.views.generic import RedirectView
 
-from .api import (
+from jobserver.api.jobs import (
     JobAPIUpdate,
     JobRequestAPIList,
-    ReleaseNotificationAPICreate,
-    ReleaseUploadAPI,
     UserAPIDetail,
     WorkspaceStatusesAPI,
 )
+from jobserver.api.releases import ReleaseNotificationAPICreate, ReleaseUploadAPI
+
 from .views.admin import ApproveUsers
 from .views.backends import BackendDetail, BackendList, BackendRotateToken
 from .views.index import Index

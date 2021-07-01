@@ -5,55 +5,20 @@ import sentry_sdk
 import structlog
 from django.db import transaction
 from django.http import Http404
-from django.urls import reverse
 from django.utils import timezone
 from first import first
 from rest_framework import serializers
-from rest_framework.exceptions import NotAuthenticated, ValidationError
-from rest_framework.generics import CreateAPIView, ListAPIView
-from rest_framework.parsers import FileUploadParser
+from rest_framework.exceptions import ValidationError
+from rest_framework.generics import ListAPIView
 from rest_framework.response import Response
 from rest_framework.views import APIView
-from slack_sdk.errors import SlackApiError
 
-from services.slack import client as slack_client
-
-from .emails import send_finished_notification
-from .models import Backend, JobRequest, Stats, User, Workspace
-from .releases import handle_release
+from jobserver.api import get_backend_from_token
+from jobserver.emails import send_finished_notification
+from jobserver.models import JobRequest, Stats, User, Workspace
 
 
 logger = structlog.get_logger(__name__)
-
-
-def get_backend_from_token(token):
-    """
-    Token based authentication.
-
-    DRF's authentication framework is tied to the concept of a User making
-    requests and, sensibly, assumes you will populate request.user on
-    successful authentication with the appropriate User instance.  However,
-    we want to authenticate each Backend without mixing them up with our
-    Human Users, so per-user auth doesn't make sense.  This function handles
-    token-based auth and returns the relevant Backend on success.
-
-    Clients should authenticate by passing their token in the
-    "Authorization" HTTP header.  For example:
-
-        Authorization: 401f7ac837da42b97f613d789819ff93537bee6a
-
-    """
-
-    if token is None:
-        raise NotAuthenticated("Authorization header is missing")
-
-    if token == "":
-        raise NotAuthenticated("Authorization header is empty")
-
-    try:
-        return Backend.objects.get(auth_token=token)
-    except Backend.DoesNotExist:
-        raise NotAuthenticated("Invalid token")
 
 
 def update_stats(backend, url):
@@ -330,67 +295,3 @@ class WorkspaceStatusesAPI(APIView):
 
         actions_with_status = workspace.get_action_status_lut(backend)
         return Response(actions_with_status, status=200)
-
-
-class ReleaseNotificationAPICreate(CreateAPIView):
-    class serializer_class(serializers.Serializer):
-        created_by = serializers.CharField()
-        path = serializers.CharField()
-
-    def initial(self, request, *args, **kwargs):
-        token = request.META.get("HTTP_AUTHORIZATION")
-
-        # require auth for all requests
-        get_backend_from_token(token)
-
-        return super().initial(request, *args, **kwargs)
-
-    def perform_create(self, serializer):
-        data = serializer.data
-
-        message = f"{data['created_by']} released outputs from {data['path']}"
-        try:
-            slack_client.chat_postMessage(channel="opensafely-outputs", text=message)
-        except SlackApiError:
-            # log and don't block the response
-            logger.exception("Failed to notify slack")
-
-
-class ReleaseUploadAPI(APIView):
-    # DRF file upload does not use multipart, is just a simple byte stream
-    parser_classes = [FileUploadParser]
-
-    def put(self, request, workspace_name, release_hash):
-        try:
-            workspace = Workspace.objects.get(name=workspace_name)
-        except Workspace.DoesNotExist:
-            return Response(status=404)
-
-        # authenticate and get backend
-        backend = get_backend_from_token(request.headers.get("Authorization"))
-        backend_user = request.headers.get("Backend-User", "").strip()
-        if not backend_user:
-            raise NotAuthenticated("Backend-User not valid")
-
-        if "file" not in request.data:
-            raise ValidationError({"detail": "No data uploaded"})
-
-        upload = request.data["file"]
-        release, created = handle_release(
-            workspace, backend, backend_user, release_hash, upload
-        )
-
-        response = Response(status=201 if created else 303)
-        response["Location"] = request.build_absolute_uri(
-            reverse(
-                "workspace-release",
-                kwargs={
-                    "org_slug": workspace.project.org.slug,
-                    "project_slug": workspace.project.slug,
-                    "workspace_slug": workspace.name,
-                    "release": release.id,
-                },
-            )
-        )
-        response["Release-Id"] = release.id
-        return response
