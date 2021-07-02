@@ -1,5 +1,6 @@
 import React from "react";
 import { useQuery } from "react-query";
+import classes from "./FileList.module.scss";
 
 const dummyData = [
   "src/file1.html",
@@ -30,7 +31,9 @@ function FileList() {
   return (
     <ul>
       {data.map((item) => (
-        <li key={item}>{item}</li>
+        <li key={item} className={classes.item}>
+          {item}
+        </li>
       ))}
     </ul>
   );
