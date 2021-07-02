@@ -3,11 +3,14 @@ import json
 import requests
 from environs import Env
 from furl import furl
+from social_core.backends.github import GithubOAuth2
+from social_core.exceptions import AuthFailed
 
 
 env = Env()
 
 
+AUTHORIZATION_ORGS = env.list("AUTHORIZATION_ORGS")
 BASE_URL = "https://api.github.com"
 GITHUB_TOKEN = env.str("GITHUB_TOKEN")
 USER_AGENT = "OpenSAFELY Jobs"
@@ -197,7 +200,7 @@ def get_repos_with_branches(org):
 
 
 def is_member_of_org(org, username):
-    # https://docs.github.com/en/free-pro-team@latest/rest/reference/orgs#check-organization-membership-for-a-user
+    # https://docs.github.com/en/rest/reference/orgs#check-organization-membership-for-a-user
     f = furl(BASE_URL)
     f.path.segments += [
         "orgs",
@@ -215,3 +218,43 @@ def is_member_of_org(org, username):
     r = requests.get(f.url, headers=headers)
 
     return r.status_code == 204
+
+
+class GithubOrganizationOAuth2(GithubOAuth2):
+    """Github OAuth2 authentication backend for organizations"""
+
+    no_member_string = "User doesn't belong to the organization"
+
+    # Mirror our initial Social Auth Backend choice (GithubOAuth2) provider's
+    # name because it's simpler than making a migration which modifies the
+    # UserSocialAuth table.  Our jobserver app defines a Custom User Model
+    # which social_django depends on in it's migrations dependency tree
+    # (because it FKs User).  This appears to make migrations hit a catch-22 in
+    # dependency resolution.  Rather than dig through the resolver, this is a
+    # much easier fix.
+    name = "github"
+
+    def user_data(self, access_token, *args, **kwargs):
+        """
+        Check the User is part of a configured GitHub Org
+
+        This is a near-complete reimplementation of GithubMemberOAuth2's
+        .user_data() which gets the correct URL from GithubOrganizationOAuth2's
+        .member_url().
+
+        We use our service-level PAT to avoid requesting further scopes from
+        the user (specifically admin:org) to make the call to the Org
+        membership endpoint.
+        """
+        user_data = super().user_data(access_token, *args, **kwargs)
+        username = user_data.get("login")
+
+        for org in AUTHORIZATION_ORGS:
+            if is_member_of_org(org, username):
+                return user_data  # succeed on the first valid org
+
+        msg = (
+            f'"{username}" is not part of the OpenSAFELY GitHub Organization. '
+            '<a href="https://opensafely.org/contact/">Contact us</a> to request access.'
+        )
+        raise AuthFailed(self, msg)
