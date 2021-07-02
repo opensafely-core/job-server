@@ -716,6 +716,7 @@ def test_user_get_all_permissions():
     expected = {
         "global": [
             "cancel_job",
+            "create_org",
             "invite_project_members",
             "manage_backends",
             "manage_project_members",

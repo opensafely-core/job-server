@@ -15,23 +15,25 @@ def test_approveusers_as_non_superuser(rf):
 
     response = ApproveUsers.as_view()(request)
 
-    assert response.status_code == 403
+    assert response.status_code == 302
+    assert response.url == "/login/github/?next=/"
 
 
 @pytest.mark.django_db
-def test_approveusers_get_success(rf, superuser):
-    request = rf.get(f"/?user={superuser.pk}")
-    request.user = superuser
+def test_approveusers_get_success(rf):
+    user = UserFactory(is_superuser=True)
+    request = rf.get(f"/?user={user.pk}")
+    request.user = user
 
     response = ApproveUsers.as_view()(request)
 
     assert response.status_code == 200
 
-    assert list(response.context_data["users"]) == [superuser]
+    assert list(response.context_data["users"]) == [user]
 
 
 @pytest.mark.django_db
-def test_approveusers_post_success(rf, superuser):
+def test_approveusers_post_success(rf):
     user1 = UserFactory()
     user2 = UserFactory()
 
@@ -49,7 +51,7 @@ def test_approveusers_post_success(rf, superuser):
         "orgs": [org1.pk],
     }
     request = rf.post(f"/?user={user1.pk}&user={user2.pk}", data)
-    request.user = superuser
+    request.user = UserFactory(is_superuser=True)
 
     # set up messages framework
     request.session = "session"
@@ -70,9 +72,11 @@ def test_approveusers_post_success(rf, superuser):
 
 
 @pytest.mark.django_db
-def test_approveusers_with_invalid_form(rf, superuser):
-    request = rf.post(f"/?user={superuser.pk}")
-    request.user = superuser
+def test_approveusers_with_invalid_form(rf):
+    user = UserFactory(is_superuser=True)
+
+    request = rf.post(f"/?user={user.pk}")
+    request.user = user
 
     response = ApproveUsers.as_view()(request)
 
@@ -81,9 +85,11 @@ def test_approveusers_with_invalid_form(rf, superuser):
 
 
 @pytest.mark.django_db
-def test_approveusers_with_no_users(rf, superuser):
+def test_approveusers_with_no_users(rf):
+    user = UserFactory(is_superuser=True)
+
     request = rf.get("/")
-    request.user = superuser
+    request.user = user
 
     # set up messages framework
     request.session = "session"

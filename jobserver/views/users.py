@@ -4,6 +4,7 @@ from django.contrib import messages
 from django.contrib.auth.decorators import login_required
 from django.db import transaction
 from django.db.models import Q
+from django.db.models.functions import Lower
 from django.shortcuts import redirect
 from django.utils.decorators import method_decorator
 from django.views.generic import ListView, UpdateView
@@ -48,6 +49,7 @@ class UserDetail(UpdateView):
         for backend in form.cleaned_data["backends"]:
             backend.memberships.create(user=self.object, created_by=self.request.user)
 
+        self.object.is_superuser = form.cleaned_data["is_superuser"]
         self.object.roles = form.cleaned_data["roles"]
         self.object.save()
 
@@ -77,13 +79,14 @@ class UserDetail(UpdateView):
     def get_initial(self):
         return super().get_initial() | {
             "backends": self.object.backends.values_list("name", flat=True),
+            "is_superuser": self.object.is_superuser,
             "roles": self.object.roles,
         }
 
 
 @method_decorator(require_permission("manage_users"), name="dispatch")
 class UserList(ListView):
-    queryset = User.objects.order_by("username")
+    queryset = User.objects.order_by(Lower("username"))
     template_name = "user_list.html"
 
     def get_context_data(self, **kwargs):

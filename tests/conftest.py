@@ -3,7 +3,7 @@ import structlog
 from django.conf import settings
 from structlog.testing import LogCapture
 
-from jobserver.authorization.roles import CoreDeveloper, SuperUser
+from jobserver.authorization.roles import CoreDeveloper
 
 from .factories import OrgFactory, OrgMembershipFactory, UserFactory
 
@@ -33,11 +33,6 @@ def fixture_configure_structlog(log_output):
 @pytest.fixture(autouse=True)
 def set_release_storage(monkeypatch, tmp_path):
     monkeypatch.setattr(settings, "RELEASE_STORAGE", tmp_path / "releases")
-
-
-@pytest.fixture
-def superuser():
-    return UserFactory(roles=[SuperUser])
 
 
 @pytest.fixture

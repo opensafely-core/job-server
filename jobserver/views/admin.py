@@ -1,12 +1,12 @@
 from django import forms
 from django.contrib import messages
+from django.contrib.auth.decorators import user_passes_test
 from django.db import transaction
 from django.shortcuts import redirect
 from django.urls import reverse_lazy
 from django.utils.decorators import method_decorator
 from django.views.generic import FormView
 
-from ..authorization.decorators import require_superuser
 from ..models import Backend, BackendMembership, Org, OrgMembership, User
 
 
@@ -19,7 +19,7 @@ class ApprovalForm(forms.Form):
         self.fields["orgs"] = forms.ModelMultipleChoiceField(queryset=orgs)
 
 
-@method_decorator(require_superuser, name="dispatch")
+@method_decorator(user_passes_test(lambda u: u.is_superuser), name="dispatch")
 class ApproveUsers(FormView):
     form_class = ApprovalForm
     success_url = reverse_lazy("admin:jobserver_user_changelist")

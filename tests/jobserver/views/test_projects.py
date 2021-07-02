@@ -611,27 +611,28 @@ def test_projectmembershipremove_without_permission(rf):
 
 
 @pytest.mark.django_db
-def test_projectonboardingcreate_get_success(rf, superuser):
+def test_projectonboardingcreate_get_success(rf):
     org = OrgFactory()
 
     request = rf.get(MEANINGLESS_URL)
-    request.user = superuser
+    request.user = UserFactory()
+
     response = ProjectOnboardingCreate.as_view()(request, org_slug=org.slug)
 
     assert response.status_code == 200
 
 
 @pytest.mark.django_db
-def test_projectonboardingcreate_get_unknown_org(rf, superuser):
+def test_projectonboardingcreate_get_unknown_org(rf):
     request = rf.get(MEANINGLESS_URL)
-    request.user = superuser
+    request.user = UserFactory()
 
     with pytest.raises(Http404):
         ProjectOnboardingCreate.as_view()(request, org_slug="")
 
 
 @pytest.mark.django_db
-def test_projectonboardingcreate_post_invalid_data(rf, superuser):
+def test_projectonboardingcreate_post_invalid_data(rf):
     org = OrgFactory()
 
     data = {
@@ -645,7 +646,7 @@ def test_projectonboardingcreate_post_invalid_data(rf, superuser):
     }
 
     request = rf.post(MEANINGLESS_URL, data)
-    request.user = superuser
+    request.user = UserFactory()
     response = ProjectOnboardingCreate.as_view()(request, org_slug=org.slug)
 
     assert response.status_code == 200
@@ -653,7 +654,7 @@ def test_projectonboardingcreate_post_invalid_data(rf, superuser):
 
 
 @pytest.mark.django_db
-def test_projectonboardingcreate_post_success(rf, superuser):
+def test_projectonboardingcreate_post_success(rf):
     org = OrgFactory()
 
     data = {
@@ -670,7 +671,7 @@ def test_projectonboardingcreate_post_success(rf, superuser):
     }
 
     request = rf.post(MEANINGLESS_URL, data)
-    request.user = superuser
+    request.user = UserFactory()
     response = ProjectOnboardingCreate.as_view()(request, org_slug=org.slug)
 
     assert response.status_code == 302
@@ -687,9 +688,9 @@ def test_projectonboardingcreate_post_success(rf, superuser):
 
 
 @pytest.mark.django_db
-def test_projectonboardingcreate_post_unknown_org(rf, superuser):
+def test_projectonboardingcreate_post_unknown_org(rf):
     request = rf.post(MEANINGLESS_URL)
-    request.user = superuser
+    request.user = UserFactory()
 
     with pytest.raises(Http404):
         ProjectOnboardingCreate.as_view()(request, org_slug="")

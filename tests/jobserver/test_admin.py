@@ -9,7 +9,7 @@ from ..factories import UserFactory
 
 
 @pytest.mark.django_db
-def test_useradmin_approve_users(rf, superuser):
+def test_useradmin_approve_users(rf):
     UserFactory.create_batch(5)
 
     # only work with a subset of created users to ensure we don't somehow
@@ -19,7 +19,7 @@ def test_useradmin_approve_users(rf, superuser):
     user_admin = UserAdmin(model=User, admin_site=AdminSite())
 
     request = rf.get("/")
-    request.user = superuser
+    request.user = UserFactory(is_superuser=True)
 
     response = user_admin.approve_users(request, users)
 
