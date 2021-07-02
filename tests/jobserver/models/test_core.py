@@ -30,6 +30,7 @@ from ...factories import (
     ProjectFactory,
     ProjectInvitationFactory,
     ProjectMembershipFactory,
+    ReleaseFactory,
     UserFactory,
     WorkspaceFactory,
 )
@@ -1038,6 +1039,59 @@ def test_workspace_get_action_status_lut_without_backend():
         "action4": "failed",
     }
     assert output == expected
+
+
+@pytest.mark.django_db
+def test_workspace_latest_files_no_releases():
+    workspace = WorkspaceFactory()
+
+    assert workspace.latest_files() == []
+
+
+@pytest.mark.django_db
+def test_workspace_latest_files_one_release():
+    workspace = WorkspaceFactory()
+    release = ReleaseFactory(workspace=workspace, files=["test1", "test2", "test3"])
+
+    output = workspace.latest_files()
+
+    assert output == list(release.files.all())
+
+
+@pytest.mark.django_db
+def test_workspace_latest_files_many_releases(freezer):
+    now = timezone.now()
+
+    workspace = WorkspaceFactory()
+
+    def minutes_ago(minutes):
+        return now - timedelta(minutes=minutes)
+
+    ReleaseFactory(
+        workspace=workspace,
+        files=["test1", "test2", "test3"],
+        created_at=minutes_ago(10),
+    )
+    ReleaseFactory(
+        workspace=workspace, files=["test2", "test3"], created_at=minutes_ago(8)
+    )
+    release3 = ReleaseFactory(
+        workspace=workspace, files=["test2"], created_at=minutes_ago(6)
+    )
+    release4 = ReleaseFactory(
+        workspace=workspace, files=["test1", "test3"], created_at=minutes_ago(4)
+    )
+    release5 = ReleaseFactory(
+        workspace=workspace, files=["test1"], created_at=minutes_ago(2)
+    )
+
+    output = workspace.latest_files()
+
+    assert output == [
+        release5.files.filter(name="test1").first(),
+        release4.files.filter(name="test3").first(),
+        release3.files.filter(name="test2").first(),
+    ]
 
 
 @pytest.mark.django_db

@@ -1,0 +1,92 @@
+{% extends "base.html" %}
+
+{% load humanize %}
+
+{% block content %}
+
+<nav aria-label="breadcrumb">
+  <ol class="breadcrumb">
+
+    <li class="breadcrumb-item"><a href="/">Home</a></li>
+
+    <li class="breadcrumb-item">
+      <a href="{{ workspace.project.org.get_absolute_url }}">
+        {{ workspace.project.org.name }}
+      </a>
+    </li>
+
+    <li class="breadcrumb-item">
+      <a href="{{ workspace.project.get_absolute_url }}">
+        {{ workspace.project.name }}
+      </a>
+    </li>
+
+    <li class="breadcrumb-item">
+      <a href="{{ workspace.get_absolute_url }}">
+        {{ workspace.name }}
+      </a>
+    </li>
+
+    <li class="breadcrumb-item active" aria-current="page">Releases</li>
+
+  </ol>
+</nav>
+
+
+<div class="row">
+  <div class="col-lg-8 offset-lg-2">
+
+    <div class="mb-4">
+      <h4>Workspace Files</h4>
+      <p>
+        These are the latest versions of all files that have been released so
+        far for this workspace.
+      </p>
+
+      <ul>
+        {% for file in files %}
+        <li>
+          {{ file.name }}
+          <small class="text-muted">({{ file.release.id }})</small>
+        </li>
+        {% endfor %}
+      </ul>
+    </div>
+
+    <h4>All Releases</h4>
+    {% for release in object_list %}
+    <div class="border rounded p-2 pl-3 mb-3">
+
+      <div class="d-flex justify-content-between">
+        <span>
+          Files released by {{ release.created_by.name }} {{ release.created_at|naturaltime }}
+        </span>
+
+        <button
+          class="btn btn-primary"
+          type="button"
+          data-toggle="collapse"
+          data-target="#release-{{ release.id }}-files"
+          aria-expanded="false"
+          aria-controls="release-{{ release.id }}-files">
+          Files
+        </button>
+      </div>
+
+      <div class="collapse" id="release-{{ release.id }}-files">
+        <div class="card card-body border-0 mt-2 p-0 px-2">
+          <ul class="list-unstyled mb-0">
+            {% for file in release.files.all %}
+            <li><code>{{ file.name }}</code></li>
+            {% endfor %}
+          </ul>
+        </div>
+      </div>
+
+    </div>
+    {% endfor %}
+
+  </div>
+
+</div>
+{% endblock %}

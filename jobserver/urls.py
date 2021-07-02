@@ -50,7 +50,7 @@ from .views.projects import (
     ProjectOnboardingCreate,
     ProjectSettings,
 )
-from .views.releases import Releases
+from .views.releases import Releases, WorkspaceReleaseList
 from .views.status import Status
 from .views.users import Settings, UserDetail, UserList
 from .views.workspaces import (
@@ -116,6 +116,11 @@ workspace_urls = [
         "notifications-toggle/",
         WorkspaceNotificationsToggle.as_view(),
         name="workspace-notifications-toggle",
+    ),
+    path(
+        "releases/",
+        WorkspaceReleaseList.as_view(),
+        name="workspace-release-list",
     ),
     path(
         "releases/<release>",
