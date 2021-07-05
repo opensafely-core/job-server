@@ -1,6 +1,10 @@
 # Set this to your GitHub username
 ADMIN_USERS=dummy
 
+# Set this to a comma-delimited list of GitHub Organisations you want to have
+# access to the platform
+AUTHORIZATION_ORGS=opensafely
+
 # Turn on debug
 DEBUG=1
 

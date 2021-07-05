@@ -48,6 +48,9 @@ def test_login_pipeline(client):
         ]
         rsps.add(responses.GET, emails_url, json=emails_data, status=200)
 
+        membership_url = "https://api.github.com/orgs/opensafely/members/dummy-user"
+        rsps.add(responses.GET, membership_url, status=204)
+
         # set a dummy state value in the test Client's session to match the
         # value in redirect_url below
         session = client.session

@@ -1,6 +1,8 @@
 import pytest
 import responses
+from social_core.exceptions import AuthFailed
 
+from jobserver import github
 from jobserver.github import (
     get_branch,
     get_branch_sha,
@@ -255,6 +257,48 @@ def test_get_repos_with_branches_200_error():
 
     with pytest.raises(RuntimeError):
         list(get_repos_with_branches("opensafely"))
+
+
+@responses.activate
+def test_githuborganizationoauth2_user_data_204(monkeypatch, dummy_backend):
+    monkeypatch.setattr(github, "AUTHORIZATION_ORGS", ["opensafely"])
+
+    expected_url = "https://api.github.com/orgs/opensafely/members/test-username"
+    responses.add(responses.GET, url=expected_url, status=204)
+
+    dummy_backend.user_data("access-token")
+
+    assert len(responses.calls) == 1
+
+
+@responses.activate
+def test_githuborganizationoauth2_user_data_302(monkeypatch, dummy_backend):
+    monkeypatch.setattr(github, "AUTHORIZATION_ORGS", ["opensafely"])
+
+    expected_url = "https://api.github.com/orgs/opensafely/members/test-username"
+    responses.add(responses.GET, url=expected_url, status=302)
+
+    match = (
+        '"test-username" is not part of the OpenSAFELY GitHub Organization. '
+        '<a href="https://opensafely.org/contact/">Contact us</a> to request access.'
+    )
+    with pytest.raises(AuthFailed, match=match):
+        dummy_backend.user_data("access-token")
+
+
+@responses.activate
+def test_githuborganizationoauth2_user_data_404(monkeypatch, dummy_backend):
+    monkeypatch.setattr(github, "AUTHORIZATION_ORGS", ["opensafely"])
+
+    expected_url = "https://api.github.com/orgs/opensafely/members/test-username"
+    responses.add(responses.GET, url=expected_url, status=404)
+
+    match = (
+        '"test-username" is not part of the OpenSAFELY GitHub Organization. '
+        '<a href="https://opensafely.org/contact/">Contact us</a> to request access.'
+    )
+    with pytest.raises(AuthFailed, match=match):
+        dummy_backend.user_data("access-token")
 
 
 @responses.activate
