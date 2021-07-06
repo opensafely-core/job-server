@@ -50,7 +50,7 @@ from .views.projects import (
     ProjectOnboardingCreate,
     ProjectSettings,
 )
-from .views.releases import Releases, WorkspaceReleaseList
+from .views.releases import ProjectReleaseList, Releases, WorkspaceReleaseList
 from .views.status import Status
 from .views.users import Settings, UserDetail, UserList
 from .views.workspaces import (
@@ -153,7 +153,8 @@ project_urls = [
         name="project-membership-remove",
     ),
     path("new-workspace/", WorkspaceCreate.as_view(), name="workspace-create"),
-    path("releases/", Releases.as_view(), name="project-releases"),
+    path("releases/", ProjectReleaseList.as_view(), name="project-release-list"),
+    path("releases/spa/", Releases.as_view(), name="project-releases"),
     path("settings/", ProjectSettings.as_view(), name="project-settings"),
     path("<workspace_slug>/", include(workspace_urls)),
 ]

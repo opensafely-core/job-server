@@ -4,7 +4,7 @@ import pytest
 from django.http import Http404
 from django.utils import timezone
 
-from jobserver.views.releases import Releases, WorkspaceReleaseList
+from jobserver.views.releases import ProjectReleaseList, Releases, WorkspaceReleaseList
 
 from ...factories import OrgFactory, ProjectFactory, ReleaseFactory, WorkspaceFactory
 
@@ -32,7 +32,44 @@ def test_releases_unknown_project(rf):
 
 
 @pytest.mark.django_db
-def test_workspacereleaselist_success(rf, freezer):
+def test_projectreleaselist_success(rf):
+    project = ProjectFactory()
+    workspace1 = WorkspaceFactory(project=project)
+    workspace2 = WorkspaceFactory(project=project)
+
+    ReleaseFactory(workspace=workspace1, files=["test1", "test2"])
+    ReleaseFactory(workspace=workspace2, files=["test3", "test4"])
+
+    request = rf.get("/")
+
+    response = ProjectReleaseList.as_view()(
+        request,
+        org_slug=project.org.slug,
+        project_slug=project.slug,
+    )
+
+    assert response.status_code == 200
+
+    assert response.context_data["project"] == project
+    assert len(response.context_data["object_list"]) == 2
+
+
+@pytest.mark.django_db
+def test_projectreleaselist_unknown_workspace(rf):
+    org = OrgFactory()
+
+    request = rf.get("/")
+
+    with pytest.raises(Http404):
+        ProjectReleaseList.as_view()(
+            request,
+            org_slug=org.slug,
+            project_slug="",
+        )
+
+
+@pytest.mark.django_db
+def test_workspacereleaselist_success(rf):
     workspace = WorkspaceFactory()
     release1 = ReleaseFactory(
         workspace=workspace,

@@ -2,7 +2,7 @@ from django.shortcuts import get_object_or_404
 from django.template.response import TemplateResponse
 from django.views.generic import ListView, View
 
-from ..models import Project, Workspace
+from ..models import Project, Release, Workspace
 
 
 class Releases(View):
@@ -22,6 +22,31 @@ class Releases(View):
             request,
             "project_releases.html",
             context=context,
+        )
+
+
+class ProjectReleaseList(ListView):
+    template_name = "project_release_list.html"
+
+    def dispatch(self, request, *args, **kwargs):
+        self.project = get_object_or_404(
+            Project,
+            org__slug=self.kwargs["org_slug"],
+            slug=self.kwargs["project_slug"],
+        )
+
+        return super().dispatch(request, *args, **kwargs)
+
+    def get_context_data(self, **kwargs):
+        return super().get_context_data(**kwargs) | {
+            "project": self.project,
+        }
+
+    def get_queryset(self):
+        return (
+            Release.objects.filter(workspace__project=self.project)
+            .order_by("-created_at")
+            .select_related("workspace")
         )
 
 

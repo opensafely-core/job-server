@@ -1,0 +1,74 @@
+{% extends "base.html" %}
+
+{% load humanize %}
+
+{% block content %}
+
+<nav aria-label="breadcrumb">
+  <ol class="breadcrumb">
+
+    <li class="breadcrumb-item"><a href="/">Home</a></li>
+
+    <li class="breadcrumb-item">
+      <a href="{{ project.org.get_absolute_url }}">
+        {{ project.org.name }}
+      </a>
+    </li>
+
+    <li class="breadcrumb-item">
+      <a href="{{ project.get_absolute_url }}">
+        {{ project.name }}
+      </a>
+    </li>
+
+    <li class="breadcrumb-item active" aria-current="page">Releases</li>
+
+  </ol>
+</nav>
+
+
+<div class="row">
+  <div class="col-lg-8 offset-lg-2">
+
+    <p>
+      Below are all released files for the {{ project.name }} project across
+      all of its workspaces.
+    </p>
+    {% for release in object_list %}
+    <div class="border rounded p-2 pl-3 mb-3">
+
+      <div class="d-flex justify-content-between">
+        <span>
+          Files released by {{ release.created_by.name }} in the
+          <a href="{{ release.workspace.get_absolute_url }}">{{ release.workspace.name }}</a>
+          workspace {{ release.created_at|naturaltime }}
+        </span>
+
+        <button
+          class="btn btn-sm btn-primary"
+          type="button"
+          data-toggle="collapse"
+          data-target="#release-{{ release.id }}-files"
+          aria-expanded="false"
+          aria-controls="release-{{ release.id }}-files">
+          Files
+        </button>
+      </div>
+
+      <div class="collapse" id="release-{{ release.id }}-files">
+        <div class="card card-body border-0 mt-2 p-0 px-2">
+          <ul class="list-unstyled mb-0">
+            {% for file in release.files.all %}
+            <li><code>{{ file.name }}</code></li>
+            {% endfor %}
+          </ul>
+        </div>
+      </div>
+
+    </div>
+    {% endfor %}
+
+  </div>
+
+</div>
+{% endblock %}
