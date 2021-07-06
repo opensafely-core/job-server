@@ -4,31 +4,13 @@ import pytest
 from django.http import Http404
 from django.utils import timezone
 
-from jobserver.views.releases import ProjectReleaseList, Releases, WorkspaceReleaseList
+from jobserver.views.releases import (
+    ProjectReleaseList,
+    ReleaseDetail,
+    WorkspaceReleaseList,
+)
 
 from ...factories import OrgFactory, ProjectFactory, ReleaseFactory, WorkspaceFactory
-
-
-@pytest.mark.django_db
-def test_releases_success(rf):
-    project = ProjectFactory()
-
-    request = rf.get("/")
-
-    response = Releases.as_view()(
-        request, org_slug=project.org.slug, project_slug=project.slug
-    )
-
-    assert response.status_code == 200
-
-
-@pytest.mark.django_db
-def test_releases_unknown_project(rf):
-    org = OrgFactory()
-
-    request = rf.get("/")
-    with pytest.raises(Http404):
-        Releases.as_view()(request, org_slug=org.slug, project_slug="")
 
 
 @pytest.mark.django_db
@@ -66,6 +48,57 @@ def test_projectreleaselist_unknown_workspace(rf):
             org_slug=org.slug,
             project_slug="",
         )
+
+
+@pytest.mark.django_db
+def test_releasedetail_no_path_success(rf):
+    release = ReleaseFactory()
+
+    request = rf.get("/")
+
+    response = ReleaseDetail.as_view()(
+        request,
+        org_slug=release.workspace.project.org.slug,
+        project_slug=release.workspace.project.slug,
+        workspace_slug=release.workspace.name,
+        pk=release.id,
+        path="",
+    )
+
+    assert response.status_code == 200
+
+
+@pytest.mark.django_db
+def test_releasedetail_unknown_release(rf):
+    workspace = WorkspaceFactory()
+
+    request = rf.get("/")
+    with pytest.raises(Http404):
+        ReleaseDetail.as_view()(
+            request,
+            org_slug=workspace.project.org.slug,
+            project_slug=workspace.project.slug,
+            workspace_slug=workspace.name,
+            pk="",
+        )
+
+
+@pytest.mark.django_db
+def test_releasedetail_with_path_success(rf):
+    release = ReleaseFactory()
+
+    request = rf.get("/")
+
+    response = ReleaseDetail.as_view()(
+        request,
+        org_slug=release.workspace.project.org.slug,
+        project_slug=release.workspace.project.slug,
+        workspace_slug=release.workspace.name,
+        pk=release.id,
+        path="test123/some/path",
+    )
+
+    assert response.status_code == 200
 
 
 @pytest.mark.django_db

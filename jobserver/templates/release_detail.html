@@ -1,0 +1,43 @@
+{% extends "base.html" %}
+
+{% block content %}
+
+<nav aria-label="breadcrumb">
+  <ol class="breadcrumb">
+
+    <li class="breadcrumb-item"><a href="/">Home</a></li>
+
+    <li class="breadcrumb-item">
+      <a href="{{ release.workspace.project.org.get_absolute_url }}">
+        {{ release.workspace.project.org.name }}
+      </a>
+    </li>
+
+    <li class="breadcrumb-item">
+      <a href="{{ release.workspace.project.get_absolute_url }}">
+        {{ release.workspace.project.name }}
+      </a>
+    </li>
+
+    <li class="breadcrumb-item">
+      <a href="{{ release.workspace.get_absolute_url }}">
+        {{ release.workspace.name }}
+      </a>
+    </li>
+
+    <li class="breadcrumb-item">
+      <a href="{{ release.workspace.get_releases_url }}">
+        Releases
+      </a>
+    </li>
+
+    <li class="breadcrumb-item active" aria-current="page">{{ release.id }}</li>
+
+  </ol>
+</nav>
+
+<div>
+
+  <pre>Path: {{ path }}</pre>
+</div>
+{% endblock %}
