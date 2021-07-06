@@ -1,10 +1,10 @@
 import json
 import os
-from datetime import datetime
 
 from django.conf import settings
 from django.db import models
 from django.urls import reverse
+from django.utils import timezone
 
 
 def absolute_file_path(path):
@@ -29,7 +29,7 @@ class Release(models.Model):
         on_delete=models.PROTECT,
         related_name="+",
     )
-    created_at = models.DateTimeField(default=datetime.utcnow)
+    created_at = models.DateTimeField(default=timezone.now)
     # TODO: once we have new review flow, this can be made null=False, as we'll
     # have the correct user.
     created_by = models.ForeignKey(
