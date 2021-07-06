@@ -8,7 +8,10 @@ from django.conf import settings
 from django.db import transaction
 from rest_framework.exceptions import ValidationError
 
-from .models import Release
+from .models import Release, ReleaseFile
+
+
+MANIFEST_PATH = "metadata/manifest.json"
 
 
 @transaction.atomic
@@ -25,14 +28,14 @@ def handle_release(workspace, backend, backend_user, release_hash, upload):
     # 1. avoid dumping everything in one big directory.
     # 2. much easier for human operators to navigate on disk (e.g. for removal
     #    of any disclosive information).
-    upload_dir = os.path.join(workspace.name, release_hash)
+    upload_dir = os.path.join(workspace.name, "releases", release_hash)
     actual_dir = None
 
     try:
         # first, ensure we can extract the zip
         with ZipFile(upload) as archive:
             try:
-                json.load(archive.open("metadata/manifest.json"))
+                json.load(archive.open(MANIFEST_PATH))
             except KeyError:
                 raise ValidationError(
                     {"detail": "metadata/manifest.json file not found in zip"}
@@ -58,8 +61,16 @@ def handle_release(workspace, backend, backend_user, release_hash, upload):
             backend=backend,
             backend_user=backend_user,
             upload_dir=upload_dir,
-            files=files,
         )
+        for name in files:
+            if name == MANIFEST_PATH:
+                continue
+            ReleaseFile.objects.create(
+                workspace=workspace,
+                release=release,
+                name=name,
+                path=os.path.join(upload_dir, name),
+            )
 
     except Exception:
         # something went wrong, clean up files, they will need to reupload
@@ -73,7 +84,9 @@ def hash_files(directory):
     """Sort files in the directory and the hash them in that order."""
     files = list(
         sorted(
-            str(p.relative_to(directory)) for p in directory.glob("**/*") if p.is_file()
+            str(p.relative_to(directory))
+            for p in directory.glob("**/*")
+            if p.is_file() and str(p) != MANIFEST_PATH
         )
     )
     # use md5 because its fast, and we only care about uniqueness, not security
