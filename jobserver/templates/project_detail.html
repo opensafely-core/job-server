@@ -113,20 +113,16 @@
           </ul>
         </div>
 
-        {% if releases %}
         <div class="mb-4">
-          <h5>Releases</h5>
+          <h5>
+            Releases
+            <small>({{ releases_count }} files)</small>
+          </h5>
 
-          <a class="btn btn-primary btn-sm" href="{% url 'project-releases' org_slug=project.org.slug project_slug=project.slug %}">
+          <a class="btn btn-primary btn-sm" href="{{ project.get_releases_url }}">
             View
           </a>
-          {# <ul class="list-unstyled"> #}
-          {#   {% for release in releases %} #}
-          {#   <li>{{ release }}</li> #}
-          {#   {% endfor %} #}
-          {# </ul> #}
         </div>
-        {% endif %}
 
       </div>
 

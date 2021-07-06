@@ -547,6 +547,21 @@ def test_project_get_invitation_url():
 
 
 @pytest.mark.django_db
+def test_project_get_releases_url():
+    project = ProjectFactory()
+
+    url = project.get_releases_url()
+
+    assert url == reverse(
+        "project-release-list",
+        kwargs={
+            "org_slug": project.org.slug,
+            "project_slug": project.slug,
+        },
+    )
+
+
+@pytest.mark.django_db
 def test_project_get_settings_url():
     org = OrgFactory(name="test-org")
     project = ProjectFactory(org=org)

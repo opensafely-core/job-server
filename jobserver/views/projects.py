@@ -24,7 +24,7 @@ from ..forms import (
     ResearcherFormSet,
 )
 from ..github import get_repo_is_private
-from ..models import Org, Project, ProjectInvitation, ProjectMembership, User
+from ..models import Org, Project, ProjectInvitation, ProjectMembership, Release, User
 
 
 @method_decorator(login_required, name="dispatch")
@@ -185,12 +185,12 @@ class ProjectDetail(DetailView):
 
         repos = sorted(set(workspaces.values_list("repo", flat=True)))
 
-        releases = ["derp", "foo"]
+        releases_count = Release.objects.filter(workspace__project=self.object).count()
 
         return super().get_context_data(**kwargs) | {
             "can_manage_workspaces": can_manage_workspaces,
             "can_manage_members": can_manage_members,
-            "releases": releases,
+            "releases_count": releases_count,
             "repos": list(self.get_repos(repos)),
             "workspaces": workspaces,
         }
