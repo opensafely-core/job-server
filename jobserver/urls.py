@@ -84,7 +84,7 @@ api_urls = [
         name="release-index",
     ),
     path(
-        "releases/<release_hash>/<filepath>",
+        "releases/<release_hash>/<filename>",
         ReleaseFileAPI.as_view(),
         name="release-file",
     ),

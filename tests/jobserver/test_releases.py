@@ -33,8 +33,12 @@ def test_handle_release_created():
     assert created
     assert release.id == upload.hash
     assert release.backend_user == "user"
-    assert release.files == ["file.txt", "metadata/manifest.json"]
-    assert release.file_path("file.txt").read_text() == "test"
+    assert release.files.count() == 1
+    assert release.files.first().name == "file.txt"
+    assert (
+        release.files.first().path
+        == f"{workspace.name}/releases/{upload.hash}/file.txt"
+    )
     assert release.manifest == {"workspace": "workspace", "repo": "repo"}
 
 
@@ -62,7 +66,8 @@ def test_handle_release_already_exists():
     assert not created
     assert release.id == existing_release.id
     assert release.backend_user == "original"  # Not 'user'
-    assert release.files == ["file.txt", "metadata/manifest.json"]
+    assert release.files.count() == 1
+    assert release.files.first().name == "file.txt"
 
 
 @pytest.mark.django_db

@@ -22,7 +22,6 @@ from jobserver.models import (
     Project,
     ProjectInvitation,
     ProjectMembership,
-    Release,
     ResearcherRegistration,
     Stats,
     User,
@@ -152,7 +151,14 @@ class ReleaseUploadFactory:
         self.zip.seek(0)
 
 
-def ReleaseFactory(**kwargs):
+def ReleaseFactory(
+    files=None,
+    manifest=None,
+    raw_manifest=None,
+    workspace=None,
+    backend=None,
+    backend_user="user",
+):
     """Factory for Release objects.
 
     Release has attributes that depend on its file contents, namely id,
@@ -165,7 +171,8 @@ def ReleaseFactory(**kwargs):
     It returns a Release object, but we create it manually.
     """
 
-    files = kwargs.pop("files", DEFAULT_FILES)
+    if files is None:
+        files = DEFAULT_FILES
 
     # files can be a list of files or a dict.
     # If it is a list, we default the file contents to be the name of the file.
@@ -173,26 +180,17 @@ def ReleaseFactory(**kwargs):
     if isinstance(files, list):
         files = {f: f for f in files}  # pragma: no cover
 
-    manifest = kwargs.pop("manifest", DEFAULT_MANIFEST)
-    raw_manifest = kwargs.pop("raw_manifest", None)
-
-    # create these if needed
-    kwargs.setdefault("workspace", WorkspaceFactory())
-    kwargs.setdefault("backend", BackendFactory())
+    manifest = manifest or DEFAULT_MANIFEST
+    workspace = workspace or WorkspaceFactory()
+    backend = backend or BackendFactory()
 
     # create an upload, so we know the release_hash ahead of time.
     upload = ReleaseUploadFactory(files, manifest, raw_manifest)
-    upload_dir = f"{kwargs['workspace'].name}/{upload.hash}"
 
-    # write the actual files to disk
-    releases.extract_upload(upload_dir, ZipFile(upload.zip))
-
-    return Release.objects.create(
-        id=upload.hash,
-        upload_dir=upload_dir,
-        files=upload.files,
-        **kwargs,
+    release, _ = releases.handle_release(
+        workspace, backend, backend_user, upload.hash, upload.zip
     )
+    return release
 
 
 class ResearcherRegistrationFactory(factory.django.DjangoModelFactory):

@@ -232,7 +232,7 @@ def test_release_index_api_have_permission():
     client.force_authenticate(user=user)
     response = client.get(index_url)
     assert response.status_code == 200
-    assert response.json() == ["file.txt", "metadata/manifest.json"]
+    assert response.json() == ["file.txt"]
 
 
 @pytest.mark.django_db
@@ -292,16 +292,16 @@ def test_release_file_api_nginx_redirect():
     # test nginx configuration
     ProjectMembershipFactory(user=user, project=release.workspace.project)
     client.force_authenticate(user=user)
-    response = client.get(file_url, HTTP_RELEASES_REDIRECT="/releases")
+    response = client.get(file_url, HTTP_RELEASES_REDIRECT="/storage")
     assert response.status_code == 200
     assert (
         response.headers["X-Accel-Redirect"]
-        == f"/releases/{release.workspace.name}/{release.id}/file.txt"
+        == f"/storage/{release.workspace.name}/releases/{release.id}/file.txt"
     )
 
 
 @pytest.mark.django_db
-def test_release_file_api():
+def test_release_file_api_file_deleted():
     release = ReleaseFactory()
     user = UserFactory()
     client = APIClient()
@@ -311,7 +311,7 @@ def test_release_file_api():
     client.force_authenticate(user=user)
 
     # delete file
-    release.file_path("file.txt").unlink()
+    release.files.get(name="file.txt").absolute_path().unlink()
     response = client.get(file_url)
 
     assert response.status_code == 404

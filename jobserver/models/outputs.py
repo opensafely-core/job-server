@@ -1,25 +1,24 @@
 import json
+import os
+from datetime import datetime
 
 from django.conf import settings
 from django.db import models
 from django.urls import reverse
-from django.utils import timezone
+
+
+def absolute_file_path(path):
+    abs_path = settings.RELEASE_STORAGE / path
+    return abs_path
 
 
 class Release(models.Model):
-    """Reviewed and redacted outputs from a Workspace"""
+    """A set of reviewed and redacted outputs from a Workspace"""
 
     # No value in the default Autoid as we are using a content-addressable hash
     # as it. Additionaly it avoids enumeration attacks.
     id = models.TextField(primary_key=True)
-    # TODO: link this formally via backend_username once we have a mapping
-    # between User and their backend username
-    publishing_user = models.ForeignKey(
-        "User",
-        on_delete=models.PROTECT,
-        null=True,
-        related_name="+",
-    )
+
     workspace = models.ForeignKey(
         "Workspace",
         on_delete=models.PROTECT,
@@ -30,10 +29,16 @@ class Release(models.Model):
         on_delete=models.PROTECT,
         related_name="+",
     )
-    published_at = models.DateTimeField(default=timezone.now)
+    created_at = models.DateTimeField(default=datetime.utcnow)
+    # TODO: once we have new review flow, this can be made null=False, as we'll
+    # have the correct user.
+    created_by = models.ForeignKey(
+        "User",
+        on_delete=models.PROTECT,
+        null=True,
+        related_name="+",
+    )
     upload_dir = models.TextField()
-    # list of files in the release upload
-    files = models.JSONField()
     # store local TPP/EMIS username for audit
     backend_user = models.TextField()
 
@@ -48,14 +53,33 @@ class Release(models.Model):
             },
         )
 
-    def file_path(self, filepath):
-        if filepath not in self.files:
-            return None
-        abs_path = settings.RELEASE_STORAGE / self.upload_dir / filepath
-        if not abs_path.exists():
-            return None
-        return abs_path
-
     @property
     def manifest(self):
-        return json.loads(self.file_path("metadata/manifest.json").read_text())
+        path = os.path.join(self.upload_dir, "metadata/manifest.json")
+        return json.loads(absolute_file_path(path).read_text())
+
+
+class ReleaseFile(models.Model):
+    """Individual files in a Release.
+
+    We store these in the file system to avoid db bloat and so that we can
+    serve them via nginx.
+    """
+
+    release = models.ForeignKey(
+        "Release",
+        on_delete=models.PROTECT,
+        related_name="files",
+    )
+    workspace = models.ForeignKey(
+        "Workspace",
+        on_delete=models.PROTECT,
+        related_name="files",
+    )
+    # name is path from the POV of the researcher, e.g "outputs/file1.txt"
+    name = models.TextField()
+    # path is from the POV of the system e.g. "workspace/release/outputs/file1.txt"
+    path = models.TextField()
+
+    def absolute_path(self):
+        return absolute_file_path(self.path)

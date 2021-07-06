@@ -1,5 +1,4 @@
 import structlog
-from django.conf import settings
 from django.http import FileResponse
 from django.urls import reverse
 from rest_framework import serializers
@@ -103,27 +102,29 @@ def validate_release_access(request, release_hash):
 class ReleaseIndexAPI(APIView):
     def get(self, request, release_hash):
         release = validate_release_access(request, release_hash)
-        return Response(release.files)
+        files = [v["name"] for v in release.files.values("name")]
+        return Response(files)
 
 
 class ReleaseFileAPI(APIView):
-    def get(self, request, release_hash, filepath):
+    def get(self, request, release_hash, filename):
         release = validate_release_access(request, release_hash)
-        handle = release.file_path(filepath)
+        rfile = release.files.get(name=filename)
 
-        if handle is None:
-            raise NotFound(f"File {filepath} not found in release {release_hash}")
+        handle = rfile.absolute_path()
+        # check the file actually exists on disk
+        if not handle.exists():
+            raise NotFound
 
         internal_redirect = request.headers.get("Releases-Redirect")
         if internal_redirect:
-            # we're behind nginx, so use X-Accel-Redirect to serve the file from nginx
-            relative_path = handle.relative_to(settings.RELEASE_STORAGE)
-            redirect_path = f"{internal_redirect}/{relative_path}"
+            # we're behind nginx, so use X-Accel-Redirect to serve the file
+            # from nginx, relative to RELEASES_STORAGE.
             response = Response()
-            response.headers["X-Accel-Redirect"] = redirect_path
+            response.headers["X-Accel-Redirect"] = f"{internal_redirect}/{rfile.path}"
         else:
-            # serve directly from django in dev
-            # use regular django response to bypass DRFs renderer framework and just serve bytes
+            # serve directly from django in dev use regular django response to
+            # bypass DRFs renderer framework and just serve bytes
             response = FileResponse(handle.open("rb"))
 
         return response
