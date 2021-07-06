@@ -884,6 +884,22 @@ def test_workspace_get_notifications_toggle_url():
 
 
 @pytest.mark.django_db
+def test_workspace_get_releases_url():
+    workspace = WorkspaceFactory()
+
+    url = workspace.get_releases_url()
+
+    assert url == reverse(
+        "workspace-release-list",
+        kwargs={
+            "org_slug": workspace.project.org.slug,
+            "project_slug": workspace.project.slug,
+            "workspace_slug": workspace.name,
+        },
+    )
+
+
+@pytest.mark.django_db
 def test_workspace_get_statuses_url():
     workspace = WorkspaceFactory()
     url = workspace.get_statuses_url()
