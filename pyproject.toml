@@ -47,6 +47,7 @@ env = [
   "SOCIAL_AUTH_GITHUB_SECRET=test",
 ]
 filterwarnings = [
+    "error",
     'ignore:django.conf.urls.url\(\) is deprecated:django.utils.deprecation.RemovedInDjango40Warning:rest_framework|social_django',
     "ignore:'(debug_toolbar|social_django)':django.utils.deprecation.RemovedInDjango41Warning:django",
     "ignore:A private pytest class or function was used.:pytest.PytestDeprecationWarning:pytest_subtests",
