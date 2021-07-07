@@ -59,7 +59,6 @@ from .views.workspaces import (
     WorkspaceDetail,
     WorkspaceLog,
     WorkspaceNotificationsToggle,
-    WorkspaceReleaseView,
 )
 
 
@@ -127,11 +126,6 @@ workspace_urls = [
         "releases/<pk>/<path:path>",
         ReleaseDetail.as_view(),
         name="release-detail-with-path",
-    ),
-    path(
-        "releases/<release>",
-        WorkspaceReleaseView.as_view(),
-        name="workspace-release",
     ),
 ]
 

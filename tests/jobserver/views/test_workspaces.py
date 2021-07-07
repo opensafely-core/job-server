@@ -13,7 +13,6 @@ from jobserver.views.workspaces import (
     WorkspaceDetail,
     WorkspaceLog,
     WorkspaceNotificationsToggle,
-    WorkspaceReleaseView,
 )
 
 from ...factories import (
@@ -772,18 +771,3 @@ def test_workspacenotificationstoggle_unknown_workspace(rf, user):
         WorkspaceNotificationsToggle.as_view()(
             request, org_slug=org.slug, project_slug=project.slug, workspace_slug="test"
         )
-
-
-@pytest.mark.django_db
-@responses.activate
-def test_workspacerelease_unauthorized(rf, user):
-    request = rf.get(MEANINGLESS_URL)
-    request.user = user
-
-    gh_org = user.orgs.first().github_orgs[0]
-    membership_url = f"https://api.github.com/orgs/{gh_org}/members/{user.username}"
-    responses.add(responses.GET, membership_url, status=404)
-
-    response = WorkspaceReleaseView.as_view()(request)
-    assert response.status_code == 302
-    assert response.url == f"{settings.LOGIN_URL}?next=/"
