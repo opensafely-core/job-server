@@ -158,6 +158,7 @@ def ReleaseFactory(
     workspace=None,
     backend=None,
     backend_user="user",
+    created_at=None,
 ):
     """Factory for Release objects.
 
@@ -190,6 +191,11 @@ def ReleaseFactory(
     release, _ = releases.handle_release(
         workspace, backend, backend_user, upload.hash, upload.zip
     )
+
+    if created_at is not None:
+        release.created_at = created_at
+        release.save()
+
     return release
 
 

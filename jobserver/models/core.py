@@ -432,6 +432,12 @@ class Project(models.Model):
             kwargs={"org_slug": self.org.slug, "project_slug": self.slug},
         )
 
+    def get_releases_url(self):
+        return reverse(
+            "project-release-list",
+            kwargs={"org_slug": self.org.slug, "project_slug": self.slug},
+        )
+
     def get_settings_url(self):
         return reverse(
             "project-settings",
@@ -784,6 +790,16 @@ class Workspace(models.Model):
             },
         )
 
+    def get_releases_url(self):
+        return reverse(
+            "workspace-release-list",
+            kwargs={
+                "org_slug": self.project.org.slug,
+                "project_slug": self.project.slug,
+                "workspace_slug": self.name,
+            },
+        )
+
     def get_statuses_url(self):
         return reverse("workspace-statuses", kwargs={"name": self.name})
 
@@ -809,6 +825,21 @@ class Workspace(models.Model):
             action_status_lut[action] = job.status
 
         return action_status_lut
+
+    def latest_files(self):
+        """
+        Gets the latest version of each file for this Workspace
+
+        We use Python to find the latest version of each file because SQLite
+        doesn't support DISTINCT ON so we can't use
+        `.distinct("release__created_at")`.
+        """
+        seen = {}
+        files = self.files.order_by("-release__created_at")
+        for file in files:
+            if file.name not in seen:
+                seen[file.name] = file
+        return list(seen.values())
 
     @property
     def repo_name(self):
