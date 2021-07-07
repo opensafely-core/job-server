@@ -47,7 +47,13 @@
         {% for file in files %}
         <li>
           {{ file.name }}
-          <small class="text-muted">({{ file.release.id }})</small>
+          <small class="text-muted">
+            (
+            <a href="{{ file.release.get_absolute_url }}">
+              {{ file.release.id }}
+            </a>
+            )
+          </small>
         </li>
         {% endfor %}
       </ul>
@@ -62,15 +68,18 @@
           Files released by {{ release.created_by.name }} {{ release.created_at|naturaltime }}
         </span>
 
-        <button
-          class="btn btn-primary"
-          type="button"
-          data-toggle="collapse"
-          data-target="#release-{{ release.id }}-files"
-          aria-expanded="false"
-          aria-controls="release-{{ release.id }}-files">
-          Files
-        </button>
+        <div>
+          <a class="btn btn-sm btn-primary" href="{{ release.get_absolute_url }}">View</a>
+          <button
+            class="btn btn-sm btn-primary"
+            type="button"
+            data-toggle="collapse"
+            data-target="#release-{{ release.id }}-files"
+            aria-expanded="false"
+            aria-controls="release-{{ release.id }}-files">
+            Files
+          </button>
+        </div>
       </div>
 
       <div class="collapse" id="release-{{ release.id }}-files">

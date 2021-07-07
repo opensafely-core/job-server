@@ -44,12 +44,12 @@ class Release(models.Model):
 
     def get_absolute_url(self):
         return reverse(
-            "workspace-release",
+            "release-detail",
             kwargs={
                 "org_slug": self.workspace.project.org.slug,
                 "project_slug": self.workspace.project.slug,
                 "workspace_slug": self.workspace.name,
-                "release": self.id,
+                "pk": self.id,
             },
         )
 

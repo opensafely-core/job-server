@@ -10,13 +10,14 @@ def test_release_get_absolute_url():
     release = ReleaseFactory()
 
     url = release.get_absolute_url()
+
     assert url == reverse(
-        "workspace-release",
+        "release-detail",
         kwargs={
             "org_slug": release.workspace.project.org.slug,
             "project_slug": release.workspace.project.slug,
             "workspace_slug": release.workspace.name,
-            "release": release.id,
+            "pk": release.id,
         },
     )
 
