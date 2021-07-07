@@ -43,3 +43,23 @@ def test_release_file_absolute_path():
     path = rfile.absolute_path()
     assert path == expected
     assert path.read_text() == "test_absolute_path"
+
+
+@pytest.mark.django_db
+def test_releasefile_get_absolute_url():
+    release = ReleaseFactory(files={"file.txt": "a/path/to/the/file"})
+
+    file = release.files.first()
+
+    url = file.get_absolute_url()
+
+    assert url == reverse(
+        "release-detail-with-path",
+        kwargs={
+            "org_slug": release.workspace.project.org.slug,
+            "project_slug": release.workspace.project.slug,
+            "workspace_slug": release.workspace.name,
+            "pk": release.id,
+            "path": file.path,
+        },
+    )

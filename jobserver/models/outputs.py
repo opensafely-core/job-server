@@ -83,3 +83,15 @@ class ReleaseFile(models.Model):
 
     def absolute_path(self):
         return absolute_file_path(self.path)
+
+    def get_absolute_url(self):
+        return reverse(
+            "release-detail-with-path",
+            kwargs={
+                "org_slug": self.release.workspace.project.org.slug,
+                "project_slug": self.release.workspace.project.slug,
+                "workspace_slug": self.release.workspace.name,
+                "pk": self.release.id,
+                "path": self.path,
+            },
+        )
