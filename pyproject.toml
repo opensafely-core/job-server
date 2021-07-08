@@ -15,6 +15,7 @@ branch = true
 omit = [
   "jobserver/asgi.py",
   "jobserver/management/commands/ensure_admins.py",
+  "jobserver/management/commands/release.py",
   "jobserver/migrations/*",
   "jobserver/settings.py",
   "jobserver/wsgi.py",

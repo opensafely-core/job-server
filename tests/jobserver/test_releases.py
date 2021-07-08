@@ -146,6 +146,7 @@ def test_hash_files(tmp_path):
         "foo.txt": "foo",
         "dir/bar.txt": "bar",
         "outputs/data.csv": "data",
+        "metadata/manifest.json": '{"foo":"bar"}',
     }
 
     for name, contents in files.items():
@@ -153,5 +154,6 @@ def test_hash_files(tmp_path):
         path.parent.mkdir(exist_ok=True, parents=True)
         path.write_text(contents)
 
-    release_hash, _ = hash_files(dirpath)
+    release_hash, release_files = hash_files(dirpath)
+    assert "metadata/manifest.json" not in release_files
     assert release_hash == "6c52ca16d696574e6ab5ece283eb3f3d"
