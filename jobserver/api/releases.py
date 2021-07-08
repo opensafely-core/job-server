@@ -91,8 +91,8 @@ def validate_release_access(request, release_hash):
 class ReleaseIndexAPI(APIView):
     def get(self, request, release_hash):
         release = validate_release_access(request, release_hash)
-        files = [v["name"] for v in release.files.values("name")]
-        return Response(files)
+
+        return Response(release.files.values_list("name", flat=True))
 
 
 class ReleaseFileAPI(APIView):
