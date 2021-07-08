@@ -1,5 +1,6 @@
 from django.shortcuts import get_object_or_404
 from django.template.response import TemplateResponse
+from django.urls import reverse
 from django.views.generic import ListView, View
 
 from ..models import Project, Release, Workspace
@@ -50,6 +51,7 @@ class ReleaseDetail(View):
         # TODO: check permissions here
 
         context = {
+            "api_url": reverse("release-index", kwargs={"release_hash": release.id}),
             "release": release,
         }
         return TemplateResponse(
