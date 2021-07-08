@@ -1,9 +1,6 @@
-import io
-import json
 from datetime import datetime
 from pathlib import Path
 from tempfile import TemporaryDirectory
-from zipfile import ZipFile
 
 import factory
 import factory.fuzzy
@@ -123,37 +120,25 @@ class ReleaseUploadFactory:
     """A zip bytestream with valid hash."""
 
     def __init__(
-        self, files=DEFAULT_FILES, manifest=DEFAULT_MANIFEST, raw_manifest=None
+        self, files=DEFAULT_FILES, manifest=releases.DEFAULT_MANIFEST, raw_manifest=None
     ):
-        self.zip = io.BytesIO()
         with TemporaryDirectory() as d:
             tmp = Path(d)
 
             for path, contents in files.items():
                 (tmp / path).write_text(contents)
 
-            # raw_manifest allows us to write bad json for testing
-            # setting manifest=None means we do not write a manifest
-            if raw_manifest is None and manifest:
-                raw_manifest = json.dumps(manifest)
-
             if raw_manifest:
                 path = tmp / "metadata" / "manifest.json"
                 path.parent.mkdir()
                 path.write_text(raw_manifest)
 
-            self.hash, self.files = releases.hash_files(tmp)
-
-            with ZipFile(self.zip, "w") as zf:
-                for f in self.files:
-                    zf.write(tmp / f, arcname=str(f))
-
-        self.zip.seek(0)
+            self.hash, self.zip = releases.create_upload_zip(tmp, manifest)
 
 
 def ReleaseFactory(
     files=None,
-    manifest=None,
+    manifest=releases.DEFAULT_MANIFEST,
     raw_manifest=None,
     workspace=None,
     backend=None,
@@ -181,7 +166,6 @@ def ReleaseFactory(
     if isinstance(files, list):
         files = {f: f for f in files}  # pragma: no cover
 
-    manifest = manifest or DEFAULT_MANIFEST
     workspace = workspace or WorkspaceFactory()
     backend = backend or BackendFactory()
 

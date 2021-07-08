@@ -1,4 +1,5 @@
 import hashlib
+import io
 import json
 import os
 import shutil
@@ -63,8 +64,6 @@ def handle_release(workspace, backend, backend_user, release_hash, upload):
             upload_dir=upload_dir,
         )
         for name in files:
-            if name == MANIFEST_PATH:
-                continue
             ReleaseFile.objects.create(
                 workspace=workspace,
                 release=release,
@@ -82,13 +81,10 @@ def handle_release(workspace, backend, backend_user, release_hash, upload):
 
 def hash_files(directory):
     """Sort files in the directory and the hash them in that order."""
-    files = list(
-        sorted(
-            str(p.relative_to(directory))
-            for p in directory.glob("**/*")
-            if p.is_file() and str(p) != MANIFEST_PATH
-        )
+    relative_paths = (
+        p.relative_to(directory) for p in directory.glob("**/*") if p.is_file()
     )
+    files = list(sorted(f for f in relative_paths if str(f) != MANIFEST_PATH))
     # use md5 because its fast, and we only care about uniqueness, not security
     hash = hashlib.md5()
     for filename in files:
@@ -103,3 +99,43 @@ def extract_upload(upload_dir, archive):
     actual_dir.parent.mkdir(exist_ok=True, parents=True)
     archive.extractall(actual_dir)
     return actual_dir
+
+
+DEFAULT_MANIFEST = object()
+
+
+def create_upload_zip(directory, manifest=DEFAULT_MANIFEST):
+    """Create a zipfile stream from a directory of files.
+
+    If there is no metadata/manifest.json in the directory, it will create
+    a default dummy one. If you passmanifest=None, it will not generate
+    a manifest.
+
+    Mainly used in testing and development.
+    """
+    zipstream = io.BytesIO()
+    manifest_data = None
+    hash, files = hash_files(directory)
+
+    manifest_path = directory / MANIFEST_PATH
+    if manifest_path.exists():
+        manifest_data = manifest_path.read_text()
+    elif manifest is DEFAULT_MANIFEST:
+        manifest_data = json.dumps(
+            {
+                "workspace": "workspace",
+                "repo": "repo",
+            }
+        )
+    elif manifest is not None:
+        # no tests using this yet, hence the no cover. But they will
+        manifest_data = json.dumps(manifest)  # pragma: no cover
+
+    with ZipFile(zipstream, "w") as zf:
+        for filename in files:
+            zf.write(directory / filename, arcname=str(filename))
+        if manifest_data:
+            zf.writestr(MANIFEST_PATH, manifest_data)
+
+    zipstream.seek(0)
+    return hash, zipstream
