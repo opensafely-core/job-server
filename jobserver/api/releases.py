@@ -1,6 +1,5 @@
 import structlog
 from django.http import FileResponse
-from django.urls import reverse
 from rest_framework import serializers
 from rest_framework.exceptions import NotAuthenticated, NotFound, ValidationError
 from rest_framework.generics import CreateAPIView
@@ -67,17 +66,7 @@ class ReleaseUploadAPI(APIView):
         )
 
         response = Response(status=201 if created else 303)
-        response["Location"] = request.build_absolute_uri(
-            reverse(
-                "workspace-release",
-                kwargs={
-                    "org_slug": workspace.project.org.slug,
-                    "project_slug": workspace.project.slug,
-                    "workspace_slug": workspace.name,
-                    "release": release.id,
-                },
-            )
-        )
+        response["Location"] = request.build_absolute_uri(release.get_absolute_url())
         response["Release-Id"] = release.id
         return response
 
@@ -102,8 +91,8 @@ def validate_release_access(request, release_hash):
 class ReleaseIndexAPI(APIView):
     def get(self, request, release_hash):
         release = validate_release_access(request, release_hash)
-        files = [v["name"] for v in release.files.values("name")]
-        return Response(files)
+
+        return Response(release.files.values_list("name", flat=True))
 
 
 class ReleaseFileAPI(APIView):

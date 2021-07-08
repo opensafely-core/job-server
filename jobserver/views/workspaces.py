@@ -269,9 +269,3 @@ class WorkspaceNotificationsToggle(View):
         workspace.save()
 
         return redirect(workspace)
-
-
-@method_decorator(user_passes_test(can_run_jobs), name="dispatch")
-class WorkspaceReleaseView(View):
-    def get(self, request, workspace_slug, release):
-        return f"release page for {workspace_slug}/{release}"  # pragma: no cover

@@ -46,8 +46,14 @@
       <ul>
         {% for file in files %}
         <li>
-          {{ file.name }}
-          <small class="text-muted">({{ file.release.id }})</small>
+          <a href="{{ file.get_absolute_url }}">{{ file.name }}</a>
+          <small class="text-muted">
+            (
+            <a href="{{ file.release.get_absolute_url }}">
+              {{ file.release.id }}
+            </a>
+            )
+          </small>
         </li>
         {% endfor %}
       </ul>
@@ -62,22 +68,29 @@
           Files released by {{ release.created_by.name }} {{ release.created_at|naturaltime }}
         </span>
 
-        <button
-          class="btn btn-primary"
-          type="button"
-          data-toggle="collapse"
-          data-target="#release-{{ release.id }}-files"
-          aria-expanded="false"
-          aria-controls="release-{{ release.id }}-files">
-          Files
-        </button>
+        <div>
+          <a class="btn btn-sm btn-primary" href="{{ release.get_absolute_url }}">View</a>
+          <button
+            class="btn btn-sm btn-primary"
+            type="button"
+            data-toggle="collapse"
+            data-target="#release-{{ release.id }}-files"
+            aria-expanded="false"
+            aria-controls="release-{{ release.id }}-files">
+            Files
+          </button>
+        </div>
       </div>
 
       <div class="collapse" id="release-{{ release.id }}-files">
         <div class="card card-body border-0 mt-2 p-0 px-2">
           <ul class="list-unstyled mb-0">
             {% for file in release.files.all %}
-            <li><code>{{ file.name }}</code></li>
+            <li>
+              <a href="{{ file.get_absolute_url }}">
+                <code>{{ file.name }}</code>
+              </a>
+            </li>
             {% endfor %}
           </ul>
         </div>

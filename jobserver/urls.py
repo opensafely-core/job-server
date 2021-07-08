@@ -50,7 +50,7 @@ from .views.projects import (
     ProjectOnboardingCreate,
     ProjectSettings,
 )
-from .views.releases import ProjectReleaseList, Releases, WorkspaceReleaseList
+from .views.releases import ProjectReleaseList, ReleaseDetail, WorkspaceReleaseList
 from .views.status import Status
 from .views.users import Settings, UserDetail, UserList
 from .views.workspaces import (
@@ -59,7 +59,6 @@ from .views.workspaces import (
     WorkspaceDetail,
     WorkspaceLog,
     WorkspaceNotificationsToggle,
-    WorkspaceReleaseView,
 )
 
 
@@ -122,10 +121,11 @@ workspace_urls = [
         WorkspaceReleaseList.as_view(),
         name="workspace-release-list",
     ),
+    path("releases/<pk>/", ReleaseDetail.as_view(), name="release-detail"),
     path(
-        "releases/<release>",
-        WorkspaceReleaseView.as_view(),
-        name="workspace-release",
+        "releases/<pk>/<path:path>",
+        ReleaseDetail.as_view(),
+        name="release-detail-with-path",
     ),
 ]
 
@@ -154,7 +154,6 @@ project_urls = [
     ),
     path("new-workspace/", WorkspaceCreate.as_view(), name="workspace-create"),
     path("releases/", ProjectReleaseList.as_view(), name="project-release-list"),
-    path("releases/spa/", Releases.as_view(), name="project-releases"),
     path("settings/", ProjectSettings.as_view(), name="project-settings"),
     path("<workspace_slug>/", include(workspace_urls)),
 ]

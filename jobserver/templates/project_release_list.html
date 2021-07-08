@@ -44,22 +44,29 @@
           workspace {{ release.created_at|naturaltime }}
         </span>
 
-        <button
-          class="btn btn-sm btn-primary"
-          type="button"
-          data-toggle="collapse"
-          data-target="#release-{{ release.id }}-files"
-          aria-expanded="false"
-          aria-controls="release-{{ release.id }}-files">
-          Files
-        </button>
+        <div>
+          <a class="btn btn-sm btn-primary" href="{{ release.get_absolute_url }}">View</a>
+          <button
+            class="btn btn-sm btn-primary"
+            type="button"
+            data-toggle="collapse"
+            data-target="#release-{{ release.id }}-files"
+            aria-expanded="false"
+            aria-controls="release-{{ release.id }}-files">
+            Files
+          </button>
+        </div>
       </div>
 
       <div class="collapse" id="release-{{ release.id }}-files">
         <div class="card card-body border-0 mt-2 p-0 px-2">
           <ul class="list-unstyled mb-0">
             {% for file in release.files.all %}
-            <li><code>{{ file.name }}</code></li>
+            <li>
+              <a href="{{ file.get_absolute_url }}">
+                <code>{{ file.name }}</code>
+              </a>
+            </li>
             {% endfor %}
           </ul>
         </div>
