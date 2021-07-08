@@ -36,30 +36,7 @@
 <div class="row">
   <div class="col-lg-8 offset-lg-2">
 
-    <div class="mb-4">
-      <h4>Workspace Files</h4>
-      <p>
-        These are the latest versions of all files that have been released so
-        far for this workspace.
-      </p>
-
-      <ul>
-        {% for file in files %}
-        <li>
-          <a href="{{ file.get_absolute_url }}">{{ file.name }}</a>
-          <small class="text-muted">
-            (
-            <a href="{{ file.release.get_absolute_url }}">
-              {{ file.release.id }}
-            </a>
-            )
-          </small>
-        </li>
-        {% endfor %}
-      </ul>
-    </div>
-
-    <h4>All Releases</h4>
+    <h4>All Releases for this workspace</h4>
     {% for release in object_list %}
     <div class="border rounded p-2 pl-3 mb-3">
 
