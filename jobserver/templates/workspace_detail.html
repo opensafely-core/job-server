@@ -49,7 +49,9 @@
       <h3>{{ workspace.name }}</h3>
 
       <div class="d-flex">
+        {% if can_use_releases %}
         <a class="btn btn-primary mr-2" href="{{ workspace.get_releases_url }}">Releases</a>
+        {% endif %}
         <a class="btn btn-primary mr-2" href="{{ workspace.get_logs_url }}">Logs</a>
         {% if show_details %}
         <a
