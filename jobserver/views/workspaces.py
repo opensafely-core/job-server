@@ -7,6 +7,7 @@ from django.template.response import TemplateResponse
 from django.utils.decorators import method_decorator
 from django.views.generic import CreateView, ListView, View
 
+from ..authorization import CoreDeveloper, has_role
 from ..backends import backends_to_choices
 from ..forms import (
     JobRequestCreateForm,
@@ -152,8 +153,11 @@ class WorkspaceDetail(CreateView):
         )
 
     def get_context_data(self, **kwargs):
+        can_use_releases = has_role(self.request.user, CoreDeveloper)
+
         context = super().get_context_data(**kwargs)
         context["actions"] = self.actions
+        context["can_use_releases"] = can_use_releases
         context["repo_is_private"] = self.get_repo_is_private()
         context["latest_job_request"] = self.get_latest_job_request()
         context["show_details"] = self.show_details

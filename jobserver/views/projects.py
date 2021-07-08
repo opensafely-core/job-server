@@ -11,9 +11,11 @@ from furl import furl
 from sentry_sdk import capture_exception
 
 from ..authorization import (
+    CoreDeveloper,
     ProjectCoordinator,
     ProjectDeveloper,
     has_permission,
+    has_role,
     roles_for,
 )
 from ..emails import send_project_invite_email
@@ -180,6 +182,7 @@ class ProjectDetail(DetailView):
             "manage_project_members",
             project=self.object,
         )
+        can_use_releases = has_role(self.request.user, CoreDeveloper)
 
         workspaces = self.object.workspaces.order_by("name")
 
@@ -190,6 +193,7 @@ class ProjectDetail(DetailView):
         return super().get_context_data(**kwargs) | {
             "can_manage_workspaces": can_manage_workspaces,
             "can_manage_members": can_manage_members,
+            "can_use_releases": can_use_releases,
             "releases_count": releases_count,
             "repos": list(self.get_repos(repos)),
             "workspaces": workspaces,
