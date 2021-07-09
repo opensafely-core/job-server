@@ -295,6 +295,6 @@ class WorkspaceOutputList(View):
         }
         return TemplateResponse(
             request,
-            "release_detail.html",
+            "workspace_output_list.html",
             context=context,
         )
