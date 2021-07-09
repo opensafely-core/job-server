@@ -232,7 +232,14 @@ def test_release_index_api_have_permission():
     client.force_authenticate(user=user)
     response = client.get(index_url)
     assert response.status_code == 200
-    assert response.json() == ["file.txt"]
+    assert response.json() == {
+        "files": [
+            {
+                "name": "file.txt",
+                "url": f"/api/v2/releases/{release.id}/file.txt",
+            }
+        ],
+    }
 
 
 @pytest.mark.django_db
@@ -315,3 +322,67 @@ def test_release_file_api_file_deleted():
     response = client.get(file_url)
 
     assert response.status_code == 404
+
+
+@pytest.mark.django_db
+def test_workspace_index_api_not_exists():
+    client = APIClient()
+    response = client.get("/api/v2/releases/workspace/badid")
+    assert response.status_code == 404
+
+
+@pytest.mark.django_db
+def test_workspace_index_api_anonymous():
+    workspace = WorkspaceFactory()
+    client = APIClient()
+    index_url = f"/api/v2/releases/workspace/{workspace.name}"
+
+    response = client.get(index_url)
+    assert response.status_code == 403
+
+
+@pytest.mark.django_db
+def test_workspace_index_api_logged_in_no_permission():
+    workspace = WorkspaceFactory()
+    client = APIClient()
+    user = UserFactory()
+    index_url = f"/api/v2/releases/workspace/{workspace.name}"
+
+    client.force_authenticate(user=user)
+    response = client.get(index_url)
+    assert response.status_code == 403
+
+
+@pytest.mark.django_db
+def test_workspace_index_api_have_permission():
+    workspace = WorkspaceFactory()
+    backend1 = BackendFactory(name="backend1")
+    backend2 = BackendFactory(name="backend2")
+    user = UserFactory()
+    client = APIClient()
+    client.force_authenticate(user=user)
+    ProjectMembershipFactory(user=user, project=workspace.project)
+
+    index_url = f"/api/v2/releases/workspace/{workspace.name}"
+
+    release1 = ReleaseFactory(
+        workspace=workspace, backend=backend1, files={"file1.txt": "backend1"}
+    )
+    release2 = ReleaseFactory(
+        workspace=workspace, backend=backend2, files={"file1.txt": "backend2"}
+    )
+
+    response = client.get(index_url)
+    assert response.status_code == 200
+    assert response.json() == {
+        "files": [
+            {
+                "name": "backend2/file1.txt",
+                "url": f"/api/v2/releases/{release2.id}/file1.txt",
+            },
+            {
+                "name": "backend1/file1.txt",
+                "url": f"/api/v2/releases/{release1.id}/file1.txt",
+            },
+        ],
+    }

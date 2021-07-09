@@ -1,5 +1,6 @@
 import structlog
 from django.http import FileResponse
+from django.shortcuts import get_object_or_404
 from rest_framework import serializers
 from rest_framework.exceptions import NotAuthenticated, NotFound, ValidationError
 from rest_framework.generics import CreateAPIView
@@ -10,7 +11,7 @@ from slack_sdk.errors import SlackApiError
 
 from jobserver.api import get_backend_from_token
 from jobserver.models import Release, Workspace
-from jobserver.releases import handle_release
+from jobserver.releases import handle_release, workspace_files
 from services.slack import client as slack_client
 
 
@@ -71,49 +72,72 @@ class ReleaseUploadAPI(APIView):
         return response
 
 
-def validate_release_access(request, release_hash):
-    try:
-        release = Release.objects.get(id=release_hash)
-    except Release.DoesNotExist:
-        raise NotFound(f"Release {release_hash} does not exist")
-
+def validate_release_access(request, workspace):
+    """Validate this request can access releases for this workspace."""
     # TODO: check if release is published
     if request.user.is_anonymous:
         raise NotAuthenticated("Invalid user or token")
     else:
-        project = release.workspace.project
+        project = workspace.project
         if not project.members.filter(username=request.user.username).exists():
-            raise NotAuthenticated(f"Invalid user or token for release {release_hash}")
+            raise NotAuthenticated(
+                f"Invalid user or token for workspace {workspace.name}"
+            )
 
-    return release
+
+def serve_file(request, rfile):
+    """Serve a ReleaseFile as the response.
+
+    If Releases-Redirect header is set, use nginx's X-Accel-Redirect to serve
+    response. Else just serve the bytes directly (for dev).
+    """
+    path = rfile.absolute_path()
+    # check the file actually exists on disk
+    if not path.exists():
+        raise NotFound
+
+    internal_redirect = request.headers.get("Releases-Redirect")
+    if internal_redirect:
+        # we're behind nginx, so use X-Accel-Redirect to serve the file
+        # from nginx, relative to RELEASES_STORAGE.
+        response = Response()
+        response.headers["X-Accel-Redirect"] = f"{internal_redirect}/{rfile.path}"
+    else:
+        # serve directly from django in dev use regular django response to
+        # bypass DRFs renderer framework and just serve bytes
+        response = FileResponse(path.open("rb"))
+
+    return response
 
 
-class ReleaseIndexAPI(APIView):
-    def get(self, request, release_hash):
-        release = validate_release_access(request, release_hash)
-
-        return Response(release.files.values_list("name", flat=True))
+def generate_index(files):
+    return dict(
+        files=[dict(name=k, url=v.get_api_url()) for k, v in files.items()],
+    )
 
 
 class ReleaseFileAPI(APIView):
     def get(self, request, release_hash, filename):
-        release = validate_release_access(request, release_hash)
+        """Return the content of a specific ReleaseFile"""
+        release = get_object_or_404(Release, id=release_hash)
+        validate_release_access(request, release.workspace)
         rfile = release.files.get(name=filename)
+        return serve_file(request, rfile)
 
-        handle = rfile.absolute_path()
-        # check the file actually exists on disk
-        if not handle.exists():
-            raise NotFound
 
-        internal_redirect = request.headers.get("Releases-Redirect")
-        if internal_redirect:
-            # we're behind nginx, so use X-Accel-Redirect to serve the file
-            # from nginx, relative to RELEASES_STORAGE.
-            response = Response()
-            response.headers["X-Accel-Redirect"] = f"{internal_redirect}/{rfile.path}"
-        else:
-            # serve directly from django in dev use regular django response to
-            # bypass DRFs renderer framework and just serve bytes
-            response = FileResponse(handle.open("rb"))
+class ReleaseIndexAPI(APIView):
+    def get(self, request, release_hash):
+        """Index is list of file metadata for a Release."""
+        release = get_object_or_404(Release, id=release_hash)
+        validate_release_access(request, release.workspace)
+        files = {f.name: f for f in release.files.all()}
+        return Response(generate_index(files))
 
-        return response
+
+class WorkspaceReleaseIndexAPI(APIView):
+    def get(self, request, workspace_name):
+        """Index is list of most recent file metadata for a Workspace."""
+        workspace = get_object_or_404(Workspace, name=workspace_name)
+        validate_release_access(request, workspace)
+        files = workspace_files(workspace)
+        return Response(generate_index(files))
