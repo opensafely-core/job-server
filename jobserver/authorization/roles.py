@@ -138,6 +138,7 @@ class ProjectCollaborator:
     models = [
         "jobserver.models.core.ProjectInvitation",
         "jobserver.models.core.ProjectMembership",
+        "jobserver.models.core.User",
     ]
     permissions = [
         view_release_file,
