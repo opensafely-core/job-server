@@ -800,6 +800,9 @@ class Workspace(models.Model):
             },
         )
 
+    def get_api_index_url(self):
+        return reverse("workspace-release-index", kwargs={"workspace_name": self.name})
+
     def get_statuses_url(self):
         return reverse("workspace-statuses", kwargs={"name": self.name})
 
@@ -825,21 +828,6 @@ class Workspace(models.Model):
             action_status_lut[action] = job.status
 
         return action_status_lut
-
-    def latest_files(self):
-        """
-        Gets the latest version of each file for this Workspace
-
-        We use Python to find the latest version of each file because SQLite
-        doesn't support DISTINCT ON so we can't use
-        `.distinct("release__created_at")`.
-        """
-        seen = {}
-        files = self.files.order_by("-release__created_at")
-        for file in files:
-            if file.name not in seen:
-                seen[file.name] = file
-        return list(seen.values())
 
     @property
     def repo_name(self):

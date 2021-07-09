@@ -1,9 +1,12 @@
+from datetime import timedelta
+
 import pytest
 from django.conf import settings
 from django.db import DatabaseError
+from django.utils import timezone
 from rest_framework.exceptions import ValidationError
 
-from jobserver.releases import Release, handle_release, hash_files
+from jobserver.releases import Release, handle_release, hash_files, workspace_files
 
 from ..factories import (
     BackendFactory,
@@ -157,3 +160,86 @@ def test_hash_files(tmp_path):
     release_hash, release_files = hash_files(dirpath)
     assert "metadata/manifest.json" not in release_files
     assert release_hash == "6c52ca16d696574e6ab5ece283eb3f3d"
+
+
+@pytest.mark.django_db
+def test_workspace_files_no_releases():
+    workspace = WorkspaceFactory()
+
+    assert workspace_files(workspace) == {}
+
+
+@pytest.mark.django_db
+def test_workspace_files_one_release():
+    backend = BackendFactory(name="backend")
+    workspace = WorkspaceFactory()
+    release = ReleaseFactory(
+        workspace=workspace, backend=backend, files=["test1", "test2", "test3"]
+    )
+
+    output = workspace_files(workspace)
+
+    assert output == {
+        "backend/test1": release.files.get(name="test1"),
+        "backend/test2": release.files.get(name="test2"),
+        "backend/test3": release.files.get(name="test3"),
+    }
+
+
+@pytest.mark.django_db
+def test_workspace_files_many_releases(freezer):
+    now = timezone.now()
+
+    backend1 = BackendFactory(name="backend1")
+    backend2 = BackendFactory(name="backend2")
+    workspace = WorkspaceFactory()
+
+    def minutes_ago(minutes):
+        return now - timedelta(minutes=minutes)
+
+    ReleaseFactory(
+        workspace=workspace,
+        backend=backend1,
+        files=["test1", "test2", "test3"],
+        created_at=minutes_ago(10),
+    )
+    ReleaseFactory(
+        workspace=workspace,
+        backend=backend1,
+        files=["test2", "test3"],
+        created_at=minutes_ago(8),
+    )
+    release3 = ReleaseFactory(
+        workspace=workspace,
+        backend=backend1,
+        files=["test2"],
+        created_at=minutes_ago(6),
+    )
+    release4 = ReleaseFactory(
+        workspace=workspace,
+        backend=backend1,
+        files=["test1", "test3"],
+        created_at=minutes_ago(4),
+    )
+    release5 = ReleaseFactory(
+        workspace=workspace,
+        backend=backend1,
+        files=["test1"],
+        created_at=minutes_ago(2),
+    )
+    # different backend, same file name, more recent
+    release6 = ReleaseFactory(
+        workspace=workspace,
+        backend=backend2,
+        files={"test1": "content"},
+        created_at=minutes_ago(1),
+    )
+
+    output = workspace_files(workspace)
+
+    assert output == {
+        "backend1/test1": release5.files.get(name="test1"),
+        "backend1/test3": release4.files.get(name="test3"),
+        "backend1/test2": release3.files.get(name="test2"),
+        "backend2/test1": release6.files.get(name="test1"),
+    }

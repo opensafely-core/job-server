@@ -139,3 +139,22 @@ def create_upload_zip(directory, manifest=DEFAULT_MANIFEST):
 
     zipstream.seek(0)
     return hash, zipstream
+
+
+def workspace_files(workspace):
+    """
+    Gets the latest version of each file for each backend in this Workspace.
+
+    Returns a mapping of the workspace-relative file name (which includes
+    backend) to its RequestFile model.
+
+    We use Python to find the latest version of each file because SQLite
+    doesn't support DISTINCT ON so we can't use
+    `.distinct("release__created_at")`.
+    """
+    index = {}
+    for rfile in workspace.files.order_by("-release__created_at"):
+        workspace_path = f"{rfile.release.backend.name}/{rfile.name}"
+        if workspace_path not in index:
+            index[workspace_path] = rfile
+    return index

@@ -75,10 +75,7 @@ class WorkspaceReleaseList(ListView):
         return super().dispatch(request, *args, **kwargs)
 
     def get_context_data(self, **kwargs):
-        files = sorted(self.workspace.latest_files(), key=lambda file: file.name)
-
         return super().get_context_data(**kwargs) | {
-            "files": files,
             "workspace": self.workspace,
         }
 

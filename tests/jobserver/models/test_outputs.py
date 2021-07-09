@@ -23,6 +23,12 @@ def test_release_get_absolute_url():
 
 
 @pytest.mark.django_db
+def test_release_get_api_index_url():
+    release = ReleaseFactory()
+    assert release.get_api_index_url() == f"/api/v2/releases/{release.id}"
+
+
+@pytest.mark.django_db
 def test_release_manifest():
     files = {"file.txt": "test_release_creation"}
     release = ReleaseFactory(files=files)

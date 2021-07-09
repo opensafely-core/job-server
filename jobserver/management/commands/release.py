@@ -8,7 +8,7 @@ from jobserver.releases import create_upload_zip, handle_release
 
 
 class Command(BaseCommand):
-    help = "Configure admins to "
+    help = "Release a directory of files to a workspace"
 
     def add_arguments(self, parser):
         parser.add_argument("workspace_name", help="worksapace name to release to")

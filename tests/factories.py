@@ -30,7 +30,7 @@ class BackendFactory(factory.django.DjangoModelFactory):
     class Meta:
         model = Backend
 
-    name = factory.Sequence(lambda n: f"Backend {n}")
+    name = factory.Sequence(lambda n: f"backend-{n}")
 
 
 class BackendMembershipFactory(factory.django.DjangoModelFactory):

@@ -31,6 +31,7 @@ from jobserver.api.releases import (
     ReleaseIndexAPI,
     ReleaseNotificationAPICreate,
     ReleaseUploadAPI,
+    WorkspaceReleaseIndexAPI,
 )
 
 from .views.admin import ApproveUsers
@@ -81,6 +82,11 @@ api_urls = [
         "releases/<release_hash>",
         ReleaseIndexAPI.as_view(),
         name="release-index",
+    ),
+    path(
+        "releases/workspace/<workspace_name>",
+        WorkspaceReleaseIndexAPI.as_view(),
+        name="workspace-release-index",
     ),
     path(
         "releases/<release_hash>/<filename>",
