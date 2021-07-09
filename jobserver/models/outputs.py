@@ -54,7 +54,7 @@ class Release(models.Model):
         )
 
     def get_api_index_url(self):
-        return reverse("release-index", kwargs={"release_hash": self.id})
+        return reverse("api:release-index", kwargs={"release_hash": self.id})
 
     @property
     def manifest(self):
@@ -102,7 +102,7 @@ class ReleaseFile(models.Model):
     def get_api_url(self):
         """The API url that will serve up this file."""
         return reverse(
-            "release-file",
+            "api:release-file",
             kwargs={
                 "release_hash": self.release.id,
                 "filename": self.name,

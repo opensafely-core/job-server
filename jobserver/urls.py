@@ -168,7 +168,7 @@ urlpatterns = [
     path("favicon.ico", RedirectView.as_view(url=settings.STATIC_URL + "favicon.ico")),
     path("admin/approve-users", ApproveUsers.as_view(), name="approve-users"),
     path("admin/", admin.site.urls),
-    path("api/v2/", include(api_urls)),
+    path("api/v2/", include((api_urls, "api"))),
     path("backends/", include(backend_urls)),
     path("jobs/", JobRequestList.as_view(), name="job-list"),
     path("job-requests/", RedirectView.as_view(pattern_name="job-list")),
