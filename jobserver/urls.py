@@ -135,11 +135,7 @@ workspace_urls = [
         name="workspace-release-list",
     ),
     path("releases/<pk>/", ReleaseDetail.as_view(), name="release-detail"),
-    path(
-        "releases/<pk>/<path:path>",
-        ReleaseDetail.as_view(),
-        name="release-detail-with-path",
-    ),
+    path("releases/<pk>/<path:path>", ReleaseDetail.as_view(), name="release-detail"),
 ]
 
 project_urls = [

@@ -89,7 +89,7 @@ class ReleaseFile(models.Model):
 
     def get_absolute_url(self):
         return reverse(
-            "release-detail-with-path",
+            "release-detail",
             kwargs={
                 "org_slug": self.release.workspace.project.org.slug,
                 "project_slug": self.release.workspace.project.slug,

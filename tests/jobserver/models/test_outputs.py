@@ -60,7 +60,7 @@ def test_releasefile_get_absolute_url():
     url = file.get_absolute_url()
 
     assert url == reverse(
-        "release-detail-with-path",
+        "release-detail",
         kwargs={
             "org_slug": release.workspace.project.org.slug,
             "project_slug": release.workspace.project.slug,
