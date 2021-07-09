@@ -50,6 +50,7 @@
 
       <div class="d-flex">
         {% if can_use_releases %}
+        <a class="btn btn-primary mr-2" href="{{ workspace.get_outputs_url }}">Outputs</a>
         <a class="btn btn-primary mr-2" href="{{ workspace.get_releases_url }}">Release History</a>
         {% endif %}
         <a class="btn btn-primary mr-2" href="{{ workspace.get_logs_url }}">Logs</a>

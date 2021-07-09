@@ -269,3 +269,32 @@ class WorkspaceNotificationsToggle(View):
         workspace.save()
 
         return redirect(workspace)
+
+
+class WorkspaceOutputList(View):
+    def get(self, request, *args, **kwargs):
+        """
+        Orchestrate viewing of a Release in the SPA
+
+        We consume two URLs with one view, because we want to both do
+        permissions checks on the Release but also load the SPA for any given
+        path under a Release.
+        """
+        workspace = get_object_or_404(
+            Workspace,
+            project__org__slug=self.kwargs["org_slug"],
+            project__slug=self.kwargs["project_slug"],
+            name=self.kwargs["workspace_slug"],
+        )
+
+        # TODO: check permissions here
+
+        context = {
+            "api_url": workspace.get_api_index_url(),
+            "workspace": workspace,
+        }
+        return TemplateResponse(
+            request,
+            "workspace_output_list.html",
+            context=context,
+        )
