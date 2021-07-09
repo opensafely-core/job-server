@@ -845,6 +845,14 @@ def test_workspace_get_absolute_url():
 
 
 @pytest.mark.django_db
+def test_workspace_get_api_index_url():
+    workspace = WorkspaceFactory()
+    assert (
+        workspace.get_api_index_url() == f"/api/v2/releases/workspace/{workspace.name}"
+    )
+
+
+@pytest.mark.django_db
 def test_workspace_get_archive_toggle_url():
     org = OrgFactory()
     project = ProjectFactory(org=org)

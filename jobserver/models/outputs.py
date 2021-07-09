@@ -53,6 +53,9 @@ class Release(models.Model):
             },
         )
 
+    def get_api_index_url(self):
+        return reverse("release-index", kwargs={"release_hash": self.id})
+
     @property
     def manifest(self):
         path = os.path.join(self.upload_dir, "metadata/manifest.json")
@@ -93,5 +96,15 @@ class ReleaseFile(models.Model):
                 "workspace_slug": self.release.workspace.name,
                 "pk": self.release.id,
                 "path": self.path,
+            },
+        )
+
+    def get_api_url(self):
+        """The API url that will serve up this file."""
+        return reverse(
+            "release-file",
+            kwargs={
+                "release_hash": self.release.id,
+                "filename": self.name,
             },
         )
