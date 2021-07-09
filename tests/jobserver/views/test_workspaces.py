@@ -13,6 +13,7 @@ from jobserver.views.workspaces import (
     WorkspaceDetail,
     WorkspaceLog,
     WorkspaceNotificationsToggle,
+    WorkspaceOutputList,
 )
 
 from ...factories import (
@@ -770,4 +771,35 @@ def test_workspacenotificationstoggle_unknown_workspace(rf, user):
     with pytest.raises(Http404):
         WorkspaceNotificationsToggle.as_view()(
             request, org_slug=org.slug, project_slug=project.slug, workspace_slug="test"
+        )
+
+
+@pytest.mark.django_db
+def test_workspaceoutputlist_success(rf):
+    workspace = WorkspaceFactory()
+
+    request = rf.get("/")
+
+    response = WorkspaceOutputList.as_view()(
+        request,
+        org_slug=workspace.project.org.slug,
+        project_slug=workspace.project.slug,
+        workspace_slug=workspace.name,
+    )
+
+    assert response.status_code == 200
+
+
+@pytest.mark.django_db
+def test_workspaceoutputs_unknown_workspace(rf):
+    project = ProjectFactory()
+
+    request = rf.get("/")
+
+    with pytest.raises(Http404):
+        WorkspaceOutputList.as_view()(
+            request,
+            org_slug=project.org.slug,
+            project_slug=project.slug,
+            workspace_slug="",
         )

@@ -60,6 +60,7 @@ from .views.workspaces import (
     WorkspaceDetail,
     WorkspaceLog,
     WorkspaceNotificationsToggle,
+    WorkspaceOutputList,
 )
 
 
@@ -121,6 +122,12 @@ workspace_urls = [
         "notifications-toggle/",
         WorkspaceNotificationsToggle.as_view(),
         name="workspace-notifications-toggle",
+    ),
+    path("outputs/", WorkspaceOutputList.as_view(), name="workspace-output-list"),
+    path(
+        "outputs/<path:path>",
+        WorkspaceOutputList.as_view(),
+        name="workspace-output-list",
     ),
     path(
         "releases/",
