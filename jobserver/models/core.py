@@ -811,10 +811,13 @@ class Workspace(models.Model):
         )
 
     def get_api_index_url(self):
-        return reverse("workspace-release-index", kwargs={"workspace_name": self.name})
+        return reverse(
+            "api:workspace-release-index",
+            kwargs={"workspace_name": self.name},
+        )
 
     def get_statuses_url(self):
-        return reverse("workspace-statuses", kwargs={"name": self.name})
+        return reverse("api:workspace-statuses", kwargs={"name": self.name})
 
     def get_action_status_lut(self, backend=None):
         """

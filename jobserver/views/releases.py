@@ -51,7 +51,9 @@ class ReleaseDetail(View):
         # TODO: check permissions here
 
         context = {
-            "api_url": reverse("release-index", kwargs={"release_hash": release.id}),
+            "api_url": reverse(
+                "api:release-index", kwargs={"release_hash": release.id}
+            ),
             "release": release,
         }
         return TemplateResponse(
