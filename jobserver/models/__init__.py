@@ -11,7 +11,7 @@ from .core import (
     Workspace,
 )
 from .onboarding import ResearcherRegistration
-from .outputs import Release, ReleaseFile
+from .outputs import PublicRelease, Release, ReleaseFile
 from .stats import Stats
 
 
@@ -25,6 +25,7 @@ __all__ = [
     "Project",
     "ProjectInvitation",
     "ProjectMembership",
+    "PublicRelease",
     "Release",
     "ReleaseFile",
     "ResearcherRegistration",

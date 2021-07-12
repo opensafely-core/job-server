@@ -11,6 +11,38 @@ def absolute_file_path(path):
     return abs_path
 
 
+class PublicRelease(models.Model):
+    """
+    A Release for a Workspace which has been, or will be made publicly available
+    """
+
+    class Statuses(models.TextChoices):
+        DRAFT = "draft", "Draft"
+        LIVE = "live", "Live"
+
+    created_by = models.ForeignKey(
+        "User",
+        on_delete=models.PROTECT,
+        related_name="public_releases",
+    )
+    files = models.ManyToManyField(
+        "ReleaseFile",
+        related_name="public_releases",
+    )
+    workspace = models.ForeignKey(
+        "Workspace",
+        on_delete=models.PROTECT,
+        related_name="public_releases",
+    )
+
+    status = models.TextField(choices=Statuses.choices, default=Statuses.DRAFT)
+
+    created_at = models.DateTimeField(default=timezone.now)
+
+    def __str__(self):
+        return f"{self.status} Public Release made by {self.created_by.username}"
+
+
 class Release(models.Model):
     """A set of reviewed and redacted outputs from a Workspace"""
 

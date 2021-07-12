@@ -20,6 +20,7 @@ from jobserver.models import (
     Project,
     ProjectInvitation,
     ProjectMembership,
+    PublicRelease,
     ResearcherRegistration,
     Stats,
     User,
@@ -111,6 +112,14 @@ class ProjectMembershipFactory(factory.django.DjangoModelFactory):
 
     project = factory.SubFactory("tests.factories.ProjectFactory")
     user = factory.SubFactory("tests.factories.UserFactory")
+
+
+class PublicReleaseFactory(factory.django.DjangoModelFactory):
+    class Meta:
+        model = PublicRelease
+
+    created_by = factory.SubFactory("tests.factories.UserFactory")
+    workspace = factory.SubFactory("tests.factories.WorkspaceFactory")
 
 
 @dataclass
@@ -242,6 +251,5 @@ class WorkspaceFactory(factory.django.DjangoModelFactory):
         model = Workspace
 
     project = factory.SubFactory("tests.factories.ProjectFactory")
-
     name = factory.Sequence(lambda n: f"workspace-{n}")
     repo = factory.Sequence(lambda n: "http://example.com/org-{n}/repo-{n}")

@@ -2,7 +2,20 @@ import pytest
 from django.conf import settings
 from django.urls import reverse
 
-from tests.factories import ReleaseFactory, ReleaseUploadsFactory
+from tests.factories import (
+    PublicReleaseFactory,
+    ReleaseFactory,
+    ReleaseUploadsFactory,
+    UserFactory,
+)
+
+
+@pytest.mark.django_db
+def test_publicrelease_str():
+    user = UserFactory()
+    public_release = PublicReleaseFactory(status="derp", created_by=user)
+
+    assert str(public_release) == f"derp Public Release made by {user.username}"
 
 
 @pytest.mark.django_db
