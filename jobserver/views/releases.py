@@ -1,3 +1,5 @@
+from django.core.exceptions import ValidationError
+from django.http import Http404
 from django.shortcuts import get_object_or_404
 from django.template.response import TemplateResponse
 from django.urls import reverse
@@ -40,20 +42,21 @@ class ReleaseDetail(View):
         permissions checks on the Release but also load the SPA for any given
         path under a Release.
         """
-        release = get_object_or_404(
-            Release,
-            workspace__project__org__slug=self.kwargs["org_slug"],
-            workspace__project__slug=self.kwargs["project_slug"],
-            workspace__name=self.kwargs["workspace_slug"],
-            pk=self.kwargs["pk"],
-        )
+        try:
+            release = get_object_or_404(
+                Release,
+                workspace__project__org__slug=self.kwargs["org_slug"],
+                workspace__project__slug=self.kwargs["project_slug"],
+                workspace__name=self.kwargs["workspace_slug"],
+                pk=self.kwargs["pk"],
+            )
+        except ValidationError:
+            raise Http404
 
         # TODO: check permissions here
 
         context = {
-            "api_url": reverse(
-                "api:release-index", kwargs={"release_hash": release.id}
-            ),
+            "api_url": reverse("api:release", kwargs={"release_id": release.id}),
             "release": release,
         }
         return TemplateResponse(

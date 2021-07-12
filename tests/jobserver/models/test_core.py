@@ -851,10 +851,11 @@ def test_workspace_get_absolute_url():
 
 
 @pytest.mark.django_db
-def test_workspace_get_api_index_url():
+def test_workspace_get_releases_api_url():
     workspace = WorkspaceFactory()
     assert (
-        workspace.get_api_index_url() == f"/api/v2/releases/workspace/{workspace.name}"
+        workspace.get_releases_api_url()
+        == f"/api/v2/releases/workspace/{workspace.name}"
     )
 
 

@@ -1,18 +1,19 @@
 import structlog
+from django.core.exceptions import ValidationError as DjangoValidationError
 from django.http import FileResponse
 from django.shortcuts import get_object_or_404
 from rest_framework import serializers
 from rest_framework.exceptions import NotAuthenticated, NotFound, ValidationError
 from rest_framework.generics import CreateAPIView
-from rest_framework.parsers import FileUploadParser
+from rest_framework.parsers import FileUploadParser, JSONParser
 from rest_framework.response import Response
 from rest_framework.views import APIView
 from slack_sdk.errors import SlackApiError
 
+from jobserver import releases
 from jobserver.api import get_backend_from_token
 from jobserver.authorization import has_permission
-from jobserver.models import Release, Workspace
-from jobserver.releases import handle_release, workspace_files
+from jobserver.models import Release, User, Workspace
 from services.slack import client as slack_client
 
 
@@ -43,44 +44,140 @@ class ReleaseNotificationAPICreate(CreateAPIView):
             logger.exception("Failed to notify slack")
 
 
-class ReleaseUploadAPI(APIView):
-    # DRF file upload does not use multipart, is just a simple byte stream
-    parser_classes = [FileUploadParser]
+def validate_upload_access(request, workspace):
+    """Validate the request can upload releases for this workspace.
 
-    def put(self, request, workspace_name, release_hash):
-        try:
-            workspace = Workspace.objects.get(name=workspace_name)
-        except Workspace.DoesNotExist:
-            return Response(status=404)
+    This validation uses backend authentication to authenticate the user, but
+    then checks that user has the correct permissons."""
+    # authenticate and get backend
+    backend = get_backend_from_token(request.headers.get("Authorization"))
 
-        # authenticate and get backend
-        backend = get_backend_from_token(request.headers.get("Authorization"))
-        backend_user = request.headers.get("Backend-User", "").strip()
-        if not backend_user:
-            raise NotAuthenticated("Backend-User not valid")
+    # The request is from an authenticated backend so we trust it to supply
+    # arbitrary usernames
+    username = request.headers.get("OS-User", "").strip()
+    try:
+        user = User.objects.get(username=username)
+    except User.DoesNotExist:
+        raise NotAuthenticated
 
-        if "file" not in request.data:
-            raise ValidationError({"detail": "No data uploaded"})
-
-        upload = request.data["file"]
-        release, created = handle_release(
-            workspace, backend, backend_user, release_hash, upload
-        )
-
-        response = Response(status=201 if created else 303)
-        response["Location"] = request.build_absolute_uri(release.get_absolute_url())
-        response["Release-Id"] = release.id
-        return response
+    # TODO: check user permissions
+    return backend, user
 
 
 def validate_release_access(request, workspace):
-    """Validate this request can access releases for this workspace."""
+    """Validate this request can access releases for this workspace.
+
+    This validation uses Django's regular User auth.
+    """
     # TODO: check if release is published
     if request.user.is_anonymous:
         raise NotAuthenticated("Invalid user or token")
 
     if not has_permission(request.user, "view_release_file", project=workspace.project):
         raise NotAuthenticated(f"Invalid user or token for workspace {workspace.name}")
+
+
+def generate_index(files):
+    """Generate a JSON list of files as expected by the SPA."""
+    return dict(
+        files=[dict(name=k, url=v.get_api_url()) for k, v in files.items()],
+    )
+
+
+class ReleaseIndexAPI(APIView):
+    def get(self, request, release_id):
+        """A list of files for this Release."""
+        try:
+            release = get_object_or_404(Release, id=release_id)
+        except DjangoValidationError:
+            # invalid UUID
+            raise NotFound
+        validate_release_access(request, release.workspace)
+        files = {f.name: f for f in release.files.all()}
+        return Response(generate_index(files))
+
+
+class ReleaseWorkspaceAPI(APIView):
+    """Listing current files and creating new Releases for a workspace."""
+
+    parsers = [JSONParser]
+
+    class FilesSerializer(serializers.Serializer):
+        files = serializers.DictField(child=serializers.CharField())
+
+    def post(self, request, workspace_name):
+        """Create a new Release for this workspace."""
+        workspace = get_object_or_404(Workspace, name=workspace_name)
+        backend, user = validate_upload_access(request, workspace)
+
+        # parse the requested files
+        serializer = self.FilesSerializer(data=request.data)
+        serializer.is_valid(raise_exception=True)
+        files = serializer.validated_data["files"]
+
+        release = releases.create_release(workspace, backend, user, files)
+
+        response = Response(status=201)
+        response["Location"] = request.build_absolute_uri(release.get_api_url())
+        response["Release-Id"] = release.id
+        return response
+
+    def get(self, request, workspace_name):
+        """List the most recent versions of files for the Workspace."""
+        workspace = get_object_or_404(Workspace, name=workspace_name)
+        validate_release_access(request, workspace)
+        files = releases.workspace_files(workspace)
+        return Response(generate_index(files))
+
+
+class ReleaseFileAPI(APIView):
+    # DRF file upload does not use multipart, is just a simple byte stream
+    parser_classes = [FileUploadParser]
+
+    def put(self, request, release_id, filename):
+        """Upload a file for this Release.
+
+        File must be listed in Release.requested_files, and the hash must match.
+        """
+        try:
+            release = get_object_or_404(Release, id=release_id)
+        except DjangoValidationError:
+            raise NotFound
+
+        if filename not in release.requested_files:
+            raise NotFound
+
+        backend, user = validate_upload_access(request, release.workspace)
+
+        # ensure this is being released from the same backend as the Release
+        # was created from
+        if release.backend != backend:
+            raise ValidationError(
+                {
+                    "detail": f"Release is from backend {release.backend.name} not {backend.name}"
+                }
+            )
+
+        if "file" not in request.data:
+            raise ValidationError({"detail": "No data uploaded"})
+
+        releases.handle_file_upload(
+            release, backend, user, request.data["file"], filename
+        )
+
+        return Response(status=200)
+
+    def get(self, request, release_id, filename):
+        """Return the content of a specific ReleaseFile"""
+        try:
+            release = get_object_or_404(Release, id=release_id)
+        except DjangoValidationError:
+            # invalid UUID
+            raise NotFound
+
+        validate_release_access(request, release.workspace)
+        rfile = release.files.get(name=filename)
+        return serve_file(request, rfile)
 
 
 def serve_file(request, rfile):
@@ -106,36 +203,3 @@ def serve_file(request, rfile):
         response = FileResponse(path.open("rb"))
 
     return response
-
-
-def generate_index(files):
-    return dict(
-        files=[dict(name=k, url=v.get_api_url()) for k, v in files.items()],
-    )
-
-
-class ReleaseFileAPI(APIView):
-    def get(self, request, release_hash, filename):
-        """Return the content of a specific ReleaseFile"""
-        release = get_object_or_404(Release, id=release_hash)
-        validate_release_access(request, release.workspace)
-        rfile = release.files.get(name=filename)
-        return serve_file(request, rfile)
-
-
-class ReleaseIndexAPI(APIView):
-    def get(self, request, release_hash):
-        """Index is list of file metadata for a Release."""
-        release = get_object_or_404(Release, id=release_hash)
-        validate_release_access(request, release.workspace)
-        files = {f.name: f for f in release.files.all()}
-        return Response(generate_index(files))
-
-
-class WorkspaceReleaseIndexAPI(APIView):
-    def get(self, request, workspace_name):
-        """Index is list of most recent file metadata for a Workspace."""
-        workspace = get_object_or_404(Workspace, name=workspace_name)
-        validate_release_access(request, workspace)
-        files = workspace_files(workspace)
-        return Response(generate_index(files))

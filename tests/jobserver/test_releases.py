@@ -1,17 +1,22 @@
+import random
+import string
+
 import pytest
-from django.conf import settings
 from django.db import DatabaseError
 from django.utils import timezone
-from rest_framework.exceptions import ValidationError
 
-from jobserver.releases import Release, handle_release, hash_files, workspace_files
-
-from ..factories import (
+from jobserver import releases
+from jobserver.models import ReleaseFile
+from jobserver.models.outputs import absolute_file_path
+from tests.factories import (
     BackendFactory,
     ReleaseFactory,
-    ReleaseUploadFactory,
+    ReleaseFileFactory,
+    ReleaseUploadsFactory,
+    UserFactory,
     WorkspaceFactory,
 )
+
 from ..utils import minutes_ago
 
 
@@ -20,163 +25,91 @@ def raise_error(**kwargs):
 
 
 @pytest.mark.django_db
-def test_handle_release_created():
+def test_create_release():
+    backend = BackendFactory(name="backend2")
     workspace = WorkspaceFactory()
-    backend = BackendFactory()
-    upload = ReleaseUploadFactory()
-
-    release, created = handle_release(
-        workspace,
-        backend,
-        "user",
-        upload.hash,
-        upload.zip,
-    )
-    assert created
-    assert release.id == upload.hash
-    assert release.backend_user == "user"
-    assert release.files.count() == 1
-    assert release.files.first().name == "file.txt"
-    assert (
-        release.files.first().path
-        == f"{workspace.name}/releases/{upload.hash}/file.txt"
-    )
-    assert release.manifest == {"workspace": "workspace", "repo": "repo"}
+    user = UserFactory()
+    files = {"file1.txt": "hash"}
+    release = releases.create_release(workspace, backend, user, files)
+    assert release.requested_files == files
 
 
 @pytest.mark.django_db
-def test_handle_release_already_exists():
+def test_handle_release_upload_file_created():
+    uploads = ReleaseUploadsFactory({"file1.txt": b"test"})
+    release = ReleaseFactory(uploads, uploaded=False)
 
-    files = {"file.txt": "mydata"}
-    existing_release = ReleaseFactory(
-        files=files,
-        backend_user="original",
+    rfile = releases.handle_file_upload(
+        release,
+        release.backend,
+        release.created_by,
+        uploads[0].stream,
+        uploads[0].filename,
     )
-    upload = ReleaseUploadFactory(files=files)
+    assert rfile.name == "file1.txt"
+    assert rfile.path == f"{release.workspace.name}/releases/{release.id}/file1.txt"
+    assert rfile.filehash == uploads[0].filehash
+
+
+@pytest.mark.django_db
+def test_handle_release_upload_already_exists():
+    uploads = ReleaseUploadsFactory({"file1.txt": b"test"})
+    existing = ReleaseFileFactory(uploads[0])
 
     # check out test setup is correct
-    assert existing_release.id == upload.hash
+    assert existing.filehash == uploads[0].filehash
 
     # upload same files
-    release, created = handle_release(
-        existing_release.workspace,
-        existing_release.backend,
-        "user",
-        upload.hash,
-        upload.zip,
+    rfile = releases.handle_file_upload(
+        existing.release,
+        existing.release.backend,
+        existing.created_by,
+        uploads[0].stream,
+        uploads[0].filename,
     )
-    assert not created
-    assert release.id == existing_release.id
-    assert release.backend_user == "original"  # Not 'user'
-    assert release.files.count() == 1
-    assert release.files.first().name == "file.txt"
+    assert rfile.id == existing.id
+    assert rfile.name == "file1.txt"
+    assert (
+        rfile.path
+        == f"{existing.release.workspace.name}/releases/{existing.release.id}/file1.txt"
+    )
+    assert rfile.filehash == uploads[0].filehash
 
 
 @pytest.mark.django_db
-def test_handle_release_bad_hash():
-    workspace = WorkspaceFactory()
-    backend = BackendFactory()
-    upload = ReleaseUploadFactory()
+def test_handle_release_upload_db_error(monkeypatch):
+    uploads = ReleaseUploadsFactory({"file1.txt": b"test"})
+    release = ReleaseFactory(uploads, uploaded=False)
 
-    with pytest.raises(ValidationError) as exc:
-        handle_release(
-            workspace,
-            backend,
-            "user",
-            "bad hash",
-            upload.zip,
-        )
-
-    assert "did not match" in exc.value.detail["detail"]
-
-
-@pytest.mark.django_db
-def test_handle_release_no_manifest():
-    workspace = WorkspaceFactory()
-    backend = BackendFactory()
-    upload = ReleaseUploadFactory(manifest=None)
-
-    with pytest.raises(ValidationError) as exc:
-        handle_release(
-            workspace,
-            backend,
-            "user",
-            upload.hash,
-            upload.zip,
-        )
-
-    assert "file not found" in exc.value.detail["detail"]
-
-
-@pytest.mark.django_db
-def test_handle_release_bad_manifest():
-    workspace = WorkspaceFactory()
-    backend = BackendFactory()
-    upload = ReleaseUploadFactory(raw_manifest="BADJSON")
-
-    with pytest.raises(ValidationError) as exc:
-        handle_release(
-            workspace,
-            backend,
-            "user",
-            upload.hash,
-            upload.zip,
-        )
-
-    assert "not valid json" in exc.value.detail["detail"]
-
-
-@pytest.mark.django_db
-def test_handle_release_db_error(monkeypatch):
-    workspace = WorkspaceFactory()
-    backend = BackendFactory()
-    upload = ReleaseUploadFactory()
-
-    monkeypatch.setattr(Release.objects, "create", raise_error)
+    monkeypatch.setattr(ReleaseFile.objects, "create", raise_error)
     with pytest.raises(DatabaseError):
-        handle_release(workspace, backend, "user", upload.hash, upload.zip)
+        releases.handle_file_upload(
+            release,
+            release.backend,
+            release.created_by,
+            uploads[0].stream,
+            uploads[0].filename,
+        )
 
-    # check the extracted files have been deleted due to the error
-    upload_dir = settings.RELEASE_STORAGE / workspace.name / upload.hash
-    assert not upload_dir.exists()
-
-
-def test_hash_files(tmp_path):
-    dirpath = tmp_path / "test"
-    dirpath.mkdir()
-    files = {
-        "foo.txt": "foo",
-        "dir/bar.txt": "bar",
-        "outputs/data.csv": "data",
-        "metadata/manifest.json": '{"foo":"bar"}',
-    }
-
-    for name, contents in files.items():
-        path = dirpath / name
-        path.parent.mkdir(exist_ok=True, parents=True)
-        path.write_text(contents)
-
-    release_hash, release_files = hash_files(dirpath)
-    assert "metadata/manifest.json" not in release_files
-    assert release_hash == "6c52ca16d696574e6ab5ece283eb3f3d"
+    # check the file has been deleted due to the error
+    rpath = f"{release.workspace.name}/releases/{release.id}/{uploads[0].filename}"
+    assert not absolute_file_path(rpath).exists()
 
 
 @pytest.mark.django_db
 def test_workspace_files_no_releases():
     workspace = WorkspaceFactory()
 
-    assert workspace_files(workspace) == {}
+    assert releases.workspace_files(workspace) == {}
 
 
 @pytest.mark.django_db
 def test_workspace_files_one_release():
     backend = BackendFactory(name="backend")
-    workspace = WorkspaceFactory()
-    release = ReleaseFactory(
-        workspace=workspace, backend=backend, files=["test1", "test2", "test3"]
-    )
+    uploads = ReleaseUploadsFactory(["test1", "test2", "test3"])
+    release = ReleaseFactory(uploads, backend=backend)
 
-    output = workspace_files(workspace)
+    output = releases.workspace_files(release.workspace)
 
     assert output == {
         "backend/test1": release.files.get(name="test1"),
@@ -193,45 +126,50 @@ def test_workspace_files_many_releases(freezer):
     backend2 = BackendFactory(name="backend2")
     workspace = WorkspaceFactory()
 
+    def uploads(files):
+        """Generate files with unique contents."""
+        content = "".join(random.choice(string.ascii_letters) for i in range(10))
+        return ReleaseUploadsFactory({f: content.encode("utf8") for f in files})
+
     ReleaseFactory(
+        uploads(["test1", "test2", "test3"]),
         workspace=workspace,
         backend=backend1,
-        files=["test1", "test2", "test3"],
         created_at=minutes_ago(now, 10),
     )
     ReleaseFactory(
+        uploads(["test2", "test3"]),
         workspace=workspace,
         backend=backend1,
-        files=["test2", "test3"],
         created_at=minutes_ago(now, 8),
     )
     release3 = ReleaseFactory(
+        uploads(["test2"]),
         workspace=workspace,
         backend=backend1,
-        files=["test2"],
         created_at=minutes_ago(now, 6),
     )
     release4 = ReleaseFactory(
+        uploads(["test1", "test3"]),
         workspace=workspace,
         backend=backend1,
-        files=["test1", "test3"],
         created_at=minutes_ago(now, 4),
     )
     release5 = ReleaseFactory(
+        uploads(["test1"]),
         workspace=workspace,
         backend=backend1,
-        files=["test1"],
         created_at=minutes_ago(now, 2),
     )
     # different backend, same file name, more recent
     release6 = ReleaseFactory(
+        uploads(["test1"]),
         workspace=workspace,
         backend=backend2,
-        files={"test1": "content"},
         created_at=minutes_ago(now, 1),
     )
 
-    output = workspace_files(workspace)
+    output = releases.workspace_files(workspace)
 
     assert output == {
         "backend1/test1": release5.files.get(name="test1"),

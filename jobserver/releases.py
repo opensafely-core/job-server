@@ -1,144 +1,75 @@
 import hashlib
-import io
-import json
-import os
-import shutil
-from zipfile import ZipFile
+from pathlib import Path
 
-from django.conf import settings
 from django.db import transaction
-from rest_framework.exceptions import ValidationError
 
 from .models import Release, ReleaseFile
-
-
-MANIFEST_PATH = "metadata/manifest.json"
+from .models.outputs import absolute_file_path
 
 
 @transaction.atomic
-def handle_release(workspace, backend, backend_user, release_hash, upload):
+def create_release(workspace, backend, created_by, requested_files, **kwargs):
+    release = Release.objects.create(
+        workspace=workspace,
+        backend=backend,
+        created_by=created_by,
+        requested_files=requested_files,
+        **kwargs,
+    )
+    return release
+
+
+@transaction.atomic
+def handle_file_upload(release, backend, user, upload, filename):
+    """Validate and save an uploaded file to disk and database.
+
+    Does basic detection of re-uploads of the same file, to avoid duplication.
+    """
+    # This reads the whole file into memory, but should not be a problem.
+    # TODO: enforce a max upload size?
+    data = upload.read()
+    calculated_hash = hashlib.sha256(data).hexdigest()
+
+    # idempotency
     try:
         # check for duplicates
-        existing_release = Release.objects.get(id=release_hash)
-        return existing_release, False
-    except Release.DoesNotExist:
+        # - same backend
+        # - same filename
+        # - same contents
+        existing = ReleaseFile.objects.filter(
+            release__backend=backend,
+            name=filename,
+            filehash=calculated_hash,
+        ).get()
+        return existing
+    except ReleaseFile.DoesNotExist:
         pass
 
-    # Even though IDs are globally unique, we partition the filesystem
-    # structure into workspace directories, for 2 reasons:
+    # We group the directory structure by workspace for 2 reasons:
     # 1. avoid dumping everything in one big directory.
-    # 2. much easier for human operators to navigate on disk (e.g. for removal
-    #    of any disclosive information).
-    upload_dir = os.path.join(workspace.name, "releases", release_hash)
-    actual_dir = None
+    # 2. much easier for human operators to navigate on disk if needed.
+    relative_path = (
+        Path(release.workspace.name) / "releases" / str(release.id) / filename
+    )
+    absolute_path = absolute_file_path(relative_path)
+    absolute_path.parent.mkdir(parents=True, exist_ok=True)
+    absolute_path.write_bytes(data)
 
     try:
-        # first, ensure we can extract the zip
-        with ZipFile(upload) as archive:
-            try:
-                json.load(archive.open(MANIFEST_PATH))
-            except KeyError:
-                raise ValidationError(
-                    {"detail": "metadata/manifest.json file not found in zip"}
-                )
-            except json.JSONDecodeError as exc:
-                raise ValidationError(
-                    {"detail": f"metadata/manifest.json file is not valid json: {exc}"}
-                )
-
-            actual_dir = extract_upload(upload_dir, archive)
-
-        calculated_hash, files = hash_files(actual_dir)
-        if calculated_hash != release_hash:
-            raise ValidationError(
-                {
-                    "detail": f"provided hash {release_hash} did not match files hash of {calculated_hash}"
-                }
-            )
-
-        release = Release.objects.create(
-            id=release_hash,
-            workspace=workspace,
-            backend=backend,
-            backend_user=backend_user,
-            upload_dir=upload_dir,
+        rfile = ReleaseFile.objects.create(
+            release=release,
+            workspace=release.workspace,
+            created_by=user,
+            name=filename,
+            path=str(relative_path),
+            filehash=calculated_hash,
         )
-        for name in files:
-            ReleaseFile.objects.create(
-                workspace=workspace,
-                release=release,
-                name=name,
-                path=os.path.join(upload_dir, name),
-            )
-
     except Exception:
-        # something went wrong, clean up files, they will need to reupload
-        shutil.rmtree(actual_dir, ignore_errors=True)
+        # something went wrong, clean up file, they will need to reupload
+        absolute_path.unlink(missing_ok=True)
         raise
 
-    return release, True
-
-
-def hash_files(directory):
-    """Sort files in the directory and the hash them in that order."""
-    relative_paths = (
-        p.relative_to(directory) for p in directory.glob("**/*") if p.is_file()
-    )
-    files = list(sorted(f for f in relative_paths if str(f) != MANIFEST_PATH))
-    # use md5 because its fast, and we only care about uniqueness, not security
-    hash = hashlib.md5()  # noqa: A001
-    for filename in files:
-        path = directory / filename
-        assert path.is_file(), f"{path} is not a file"
-        hash.update(path.read_bytes())
-    return hash.hexdigest(), files
-
-
-def extract_upload(upload_dir, archive):
-    actual_dir = settings.RELEASE_STORAGE / upload_dir
-    actual_dir.parent.mkdir(exist_ok=True, parents=True)
-    archive.extractall(actual_dir)
-    return actual_dir
-
-
-DEFAULT_MANIFEST = object()
-
-
-def create_upload_zip(directory, manifest=DEFAULT_MANIFEST):
-    """Create a zipfile stream from a directory of files.
-
-    If there is no metadata/manifest.json in the directory, it will create
-    a default dummy one. If you passmanifest=None, it will not generate
-    a manifest.
-
-    Mainly used in testing and development.
-    """
-    zipstream = io.BytesIO()
-    manifest_data = None
-    hash, files = hash_files(directory)  # noqa: A001
-
-    manifest_path = directory / MANIFEST_PATH
-    if manifest_path.exists():
-        manifest_data = manifest_path.read_text()
-    elif manifest is DEFAULT_MANIFEST:
-        manifest_data = json.dumps(
-            {
-                "workspace": "workspace",
-                "repo": "repo",
-            }
-        )
-    elif manifest is not None:
-        # no tests using this yet, hence the no cover. But they will
-        manifest_data = json.dumps(manifest)  # pragma: no cover
-
-    with ZipFile(zipstream, "w") as zf:
-        for filename in files:
-            zf.write(directory / filename, arcname=str(filename))
-        if manifest_data:
-            zf.writestr(MANIFEST_PATH, manifest_data)
-
-    zipstream.seek(0)
-    return hash, zipstream
+    return rfile
 
 
 def workspace_files(workspace):
