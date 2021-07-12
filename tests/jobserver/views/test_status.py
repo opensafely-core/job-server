@@ -1,5 +1,3 @@
-from datetime import timedelta
-
 import pytest
 from django.utils import timezone
 from first import first
@@ -8,6 +6,7 @@ from jobserver.models import Backend
 from jobserver.views.status import Status
 
 from ...factories import JobFactory, JobRequestFactory, StatsFactory
+from ...utils import minutes_ago
 
 
 MEANINGLESS_URL = "/"
@@ -20,7 +19,7 @@ def test_status_healthy(rf):
     # acked, because JobFactory will implicitly create JobRequests
     JobFactory.create_batch(3, job_request__backend=tpp)
 
-    last_seen = timezone.now() - timedelta(minutes=1)
+    last_seen = minutes_ago(timezone.now(), 1)
     StatsFactory(backend=tpp, api_last_seen=last_seen)
 
     request = rf.get(MEANINGLESS_URL)
@@ -53,7 +52,7 @@ def test_status_no_last_seen(rf):
 def test_status_unacked_jobs_but_recent_api_contact(rf):
     tpp = Backend.objects.get(name="tpp")
 
-    last_seen = timezone.now() - timedelta(minutes=1)
+    last_seen = minutes_ago(timezone.now(), 1)
     StatsFactory(backend=tpp, api_last_seen=last_seen)
 
     request = rf.get(MEANINGLESS_URL)
@@ -78,7 +77,7 @@ def test_status_unhealthy(rf):
     # unacked, because it has no Jobs
     JobRequestFactory(backend=tpp)
 
-    last_seen = timezone.now() - timedelta(minutes=10)
+    last_seen = minutes_ago(timezone.now(), 10)
     StatsFactory(backend=tpp, api_last_seen=last_seen, url="foo")
 
     request = rf.get(MEANINGLESS_URL)

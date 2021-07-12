@@ -33,6 +33,7 @@ from ...factories import (
     UserFactory,
     WorkspaceFactory,
 )
+from ...utils import minutes_ago
 
 
 @pytest.mark.django_db
@@ -55,7 +56,7 @@ def test_job_get_cancel_url():
 
 @pytest.mark.django_db
 def test_job_is_missing_updates_above_threshold():
-    last_update = timezone.now() - timedelta(minutes=50)
+    last_update = minutes_ago(timezone.now(), 50)
     job = JobFactory(completed_at=None, updated_at=last_update)
 
     assert job.is_missing_updates
@@ -63,7 +64,7 @@ def test_job_is_missing_updates_above_threshold():
 
 @pytest.mark.django_db
 def test_job_is_missing_updates_below_threshold():
-    last_update = timezone.now() - timedelta(minutes=29)
+    last_update = minutes_ago(timezone.now(), 29)
     job = JobFactory(completed_at=None, updated_at=last_update)
 
     assert not job.is_missing_updates
@@ -238,16 +239,18 @@ def test_job_request_num_completed_success():
 def test_jobrequest_runtime_one_job_missing_completed_at(freezer):
     job_request = JobRequestFactory()
 
+    now = timezone.now()
+
     JobFactory(
         job_request=job_request,
         status="succeeded",
-        started_at=timezone.now() - timedelta(minutes=3),
-        completed_at=timezone.now() - timedelta(minutes=2),
+        started_at=minutes_ago(now, 3),
+        completed_at=minutes_ago(now, 2),
     )
     JobFactory(
         job_request=job_request,
         status="running",
-        started_at=timezone.now() - timedelta(minutes=1),
+        started_at=minutes_ago(now, 1),
         completed_at=None,
     )
 
@@ -267,11 +270,13 @@ def test_jobrequest_runtime_one_job_missing_completed_at(freezer):
 def test_jobrequest_runtime_one_job_missing_started_at(freezer):
     job_request = JobRequestFactory()
 
+    now = timezone.now()
+
     JobFactory(
         job_request=job_request,
         status="failed",
-        started_at=timezone.now() - timedelta(minutes=5),
-        completed_at=timezone.now() - timedelta(minutes=3),
+        started_at=minutes_ago(now, 5),
+        completed_at=minutes_ago(now, 3),
     )
     JobFactory(
         job_request=job_request,
@@ -301,16 +306,18 @@ def test_jobrequest_runtime_no_jobs():
 def test_jobrequest_runtime_not_completed(freezer):
     job_request = JobRequestFactory()
 
+    now = timezone.now()
+
     JobFactory(
         job_request=job_request,
         status="succeeded",
-        started_at=timezone.now() - timedelta(minutes=2),
-        completed_at=timezone.now() - timedelta(minutes=1),
+        started_at=minutes_ago(now, 2),
+        completed_at=minutes_ago(now, 1),
     )
     JobFactory(
         job_request=job_request,
         status="running",
-        started_at=timezone.now() - timedelta(seconds=30),
+        started_at=now - timedelta(seconds=30),
     )
 
     jr = JobRequest.objects.prefetch_related("jobs").get(pk=job_request.pk)
@@ -957,6 +964,8 @@ def test_workspace_get_action_status_lut_with_backend():
     job_request = JobRequestFactory(backend=emis, workspace=workspace1)
     JobFactory(job_request=job_request, action="action1", status="pending")
 
+    now = timezone.now()
+
     workspace2 = WorkspaceFactory()
 
     job_request1 = JobRequestFactory(backend=tpp, workspace=workspace2)
@@ -965,13 +974,13 @@ def test_workspace_get_action_status_lut_with_backend():
         job_request=job_request1,
         action="action1",
         status="succeeded",
-        created_at=timezone.now() - timedelta(minutes=7),
+        created_at=minutes_ago(now, 7),
     )
     JobFactory(
         job_request=job_request1,
         action="action2",
         status="failed",
-        created_at=timezone.now() - timedelta(minutes=6),
+        created_at=minutes_ago(now, 6),
     )
 
     job_request2 = JobRequestFactory(backend=tpp, workspace=workspace2)
@@ -980,13 +989,13 @@ def test_workspace_get_action_status_lut_with_backend():
         job_request=job_request2,
         action="action2",
         status="succeeded",
-        created_at=timezone.now() - timedelta(minutes=5),
+        created_at=minutes_ago(now, 5),
     )
     JobFactory(
         job_request=job_request2,
         action="action3",
         status="failed",
-        created_at=timezone.now() - timedelta(minutes=4),
+        created_at=minutes_ago(now, 4),
     )
 
     job_request3 = JobRequestFactory(backend=tpp, workspace=workspace2)
@@ -995,7 +1004,7 @@ def test_workspace_get_action_status_lut_with_backend():
         job_request=job_request3,
         action="action2",
         status="failed",
-        created_at=timezone.now() - timedelta(minutes=2),
+        created_at=minutes_ago(now, 2),
     )
 
     job_request4 = JobRequestFactory(backend=tpp, workspace=workspace2)
@@ -1004,13 +1013,13 @@ def test_workspace_get_action_status_lut_with_backend():
         job_request=job_request4,
         action="action3",
         status="succeeded",
-        created_at=timezone.now() - timedelta(minutes=2),
+        created_at=minutes_ago(now, 2),
     )
     JobFactory(
         job_request=job_request4,
         action="action4",
         status="failed",
-        created_at=timezone.now() - timedelta(minutes=1),
+        created_at=minutes_ago(now, 1),
     )
 
     output = workspace2.get_action_status_lut(backend="tpp")
@@ -1029,6 +1038,8 @@ def test_workspace_get_action_status_lut_without_backend():
     job_request = JobRequestFactory(workspace=workspace1)
     JobFactory(job_request=job_request, action="action1", status="pending")
 
+    now = timezone.now()
+
     workspace2 = WorkspaceFactory()
 
     job_request1 = JobRequestFactory(workspace=workspace2)
@@ -1037,13 +1048,13 @@ def test_workspace_get_action_status_lut_without_backend():
         job_request=job_request1,
         action="action1",
         status="succeeded",
-        created_at=timezone.now() - timedelta(minutes=7),
+        created_at=minutes_ago(now, 7),
     )
     JobFactory(
         job_request=job_request1,
         action="action2",
         status="failed",
-        created_at=timezone.now() - timedelta(minutes=6),
+        created_at=minutes_ago(now, 6),
     )
 
     job_request2 = JobRequestFactory(workspace=workspace2)
@@ -1052,13 +1063,13 @@ def test_workspace_get_action_status_lut_without_backend():
         job_request=job_request2,
         action="action2",
         status="succeeded",
-        created_at=timezone.now() - timedelta(minutes=5),
+        created_at=minutes_ago(now, 5),
     )
     JobFactory(
         job_request=job_request2,
         action="action3",
         status="failed",
-        created_at=timezone.now() - timedelta(minutes=4),
+        created_at=minutes_ago(now, 4),
     )
 
     job_request3 = JobRequestFactory(workspace=workspace2)
@@ -1067,7 +1078,7 @@ def test_workspace_get_action_status_lut_without_backend():
         job_request=job_request3,
         action="action2",
         status="failed",
-        created_at=timezone.now() - timedelta(minutes=2),
+        created_at=minutes_ago(now, 2),
     )
 
     job_request4 = JobRequestFactory(workspace=workspace2)
@@ -1076,13 +1087,13 @@ def test_workspace_get_action_status_lut_without_backend():
         job_request=job_request4,
         action="action3",
         status="succeeded",
-        created_at=timezone.now() - timedelta(minutes=2),
+        created_at=minutes_ago(now, 2),
     )
     JobFactory(
         job_request=job_request4,
         action="action4",
         status="failed",
-        created_at=timezone.now() - timedelta(minutes=1),
+        created_at=minutes_ago(now, 1),
     )
 
     output = workspace2.get_action_status_lut()
