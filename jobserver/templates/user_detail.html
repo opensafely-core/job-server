@@ -165,6 +165,15 @@
               Should <strong>{{ user.username }}</strong> have access to the Django Admin?
             </span>
           </label>
+
+          {% if form.is_superuser.errors %}
+          <ul class="pl-3 mb-1">
+            {% for error in form.is_superuser.errors %}
+            <li class="text-danger">{{ error }}</li>
+            {% endfor %}
+          </ul>
+          {% endif %}
+
         </div>
       </div>
 
