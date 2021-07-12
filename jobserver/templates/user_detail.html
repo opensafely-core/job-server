@@ -155,7 +155,6 @@
             class="custom-control-input"
             id="id_is_superuser"
             name="is_superuser"
-            value="{{ form.is_superuser.value }}"
             {% if form.is_superuser.value %}
             checked
             {% endif %}
@@ -165,6 +164,15 @@
               Should <strong>{{ user.username }}</strong> have access to the Django Admin?
             </span>
           </label>
+
+          {% if form.is_superuser.errors %}
+          <ul class="pl-3 mb-1">
+            {% for error in form.is_superuser.errors %}
+            <li class="text-danger">{{ error }}</li>
+            {% endfor %}
+          </ul>
+          {% endif %}
+
         </div>
       </div>
 
