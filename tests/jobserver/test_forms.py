@@ -35,6 +35,7 @@ def test_userform_success():
 
     data = {
         "backends": ["emis", "tpp"],
+        "is_superuser": ["on"],
         "roles": [],
     }
 
@@ -52,6 +53,8 @@ def test_userform_success():
     )
     assert output == expected
 
+    assert form.cleaned_data["is_superuser"]
+
 
 @pytest.mark.django_db
 def test_userform_with_no_backends():
@@ -59,6 +62,7 @@ def test_userform_with_no_backends():
 
     data = {
         "backends": [],
+        "is_superuser": ["on"],
         "roles": [],
     }
 
@@ -78,6 +82,7 @@ def test_userform_with_unknown_backend():
 
     data = {
         "backends": ["emis", "tpp", "unknown"],
+        "is_superuser": [""],
         "roles": [],
     }
 

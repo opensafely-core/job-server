@@ -112,6 +112,7 @@ def test_userdetail_post_success(rf, core_developer):
 
     data = {
         "backends": ["test"],
+        "is_superuser": ["on"],
         "roles": ["jobserver.authorization.roles.OutputPublisher"],
     }
     request = rf.post("/", data)
@@ -123,8 +124,9 @@ def test_userdetail_post_success(rf, core_developer):
     assert response.url == user.get_absolute_url()
 
     user.refresh_from_db()
-    assert user.roles == [OutputPublisher]
     assert list(user.backends.values_list("name", flat=True)) == ["test"]
+    assert user.roles == [OutputPublisher]
+    assert user.is_superuser
 
 
 @pytest.mark.django_db
@@ -147,6 +149,7 @@ def test_userdetail_post_with_unknown_backend(rf, core_developer):
 
     data = {
         "backends": ["not-a-real-backend"],
+        "is_superuser": [""],
         "roles": ["jobserver.authorization.roles.OutputPublisher"],
     }
     request = rf.post("/", data)
@@ -192,6 +195,7 @@ def test_userdetail_post_with_unknown_role(rf, core_developer):
 
     data = {
         "backends": ["test", "tpp"],
+        "is_superuser": ["on"],
         "roles": ["not-a-real-role"],
     }
     request = rf.post("/", data)
