@@ -33,7 +33,7 @@ from ...factories import (
     UserFactory,
     WorkspaceFactory,
 )
-from ...utils import minutes_ago
+from ...utils import minutes_ago, seconds_ago
 
 
 @pytest.mark.django_db
@@ -317,7 +317,7 @@ def test_jobrequest_runtime_not_completed(freezer):
     JobFactory(
         job_request=job_request,
         status="running",
-        started_at=now - timedelta(seconds=30),
+        started_at=seconds_ago(now, 30),
     )
 
     jr = JobRequest.objects.prefetch_related("jobs").get(pk=job_request.pk)

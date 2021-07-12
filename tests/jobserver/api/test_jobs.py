@@ -1,5 +1,3 @@
-from datetime import timedelta
-
 import pytest
 from django.utils import timezone
 from rest_framework.exceptions import NotAuthenticated
@@ -26,7 +24,7 @@ from tests.factories import (
     UserFactory,
     WorkspaceFactory,
 )
-from tests.utils import minutes_ago
+from tests.utils import minutes_ago, seconds_ago
 
 
 def test_token_backend_empty_token():
@@ -115,7 +113,7 @@ def test_jobapiupdate_all_existing(api_rf, freezer):
             "created_at": minutes_ago(now, 2),
             "started_at": minutes_ago(now, 1),
             "updated_at": now,
-            "completed_at": now - timedelta(seconds=30),
+            "completed_at": seconds_ago(now, 30),
         },
         {
             "identifier": "job2",
@@ -161,7 +159,7 @@ def test_jobapiupdate_all_existing(api_rf, freezer):
     assert job1.identifier == "job1"
     assert job1.started_at == minutes_ago(now, 1)
     assert job1.updated_at == now
-    assert job1.completed_at == now - timedelta(seconds=30)
+    assert job1.completed_at == seconds_ago(now, 30)
 
     # running
     assert job2.identifier == "job2"
@@ -299,7 +297,7 @@ def test_jobapiupdate_mixture(api_rf, freezer):
             "created_at": minutes_ago(now, 2),
             "started_at": minutes_ago(now, 1),
             "updated_at": now,
-            "completed_at": now - timedelta(seconds=30),
+            "completed_at": seconds_ago(now, 30),
         },
         {
             "identifier": "job3",
@@ -334,7 +332,7 @@ def test_jobapiupdate_mixture(api_rf, freezer):
     assert job2.identifier == "job2"
     assert job2.started_at == minutes_ago(now, 1)
     assert job2.updated_at == now
-    assert job2.completed_at == now - timedelta(seconds=30)
+    assert job2.completed_at == seconds_ago(now, 30)
 
     # running
     assert job3.pk != job1.pk
@@ -368,7 +366,7 @@ def test_jobapiupdate_notifications_on_with_move_to_completed(api_rf, mocker):
             "created_at": minutes_ago(now, 2),
             "started_at": minutes_ago(now, 1),
             "updated_at": now,
-            "completed_at": now - timedelta(seconds=30),
+            "completed_at": seconds_ago(now, 30),
         },
     ]
     request = api_rf.post(
@@ -407,7 +405,7 @@ def test_jobapiupdate_notifications_on_without_move_to_completed(api_rf, mocker)
             "created_at": minutes_ago(now, 2),
             "started_at": minutes_ago(now, 1),
             "updated_at": now,
-            "completed_at": now - timedelta(seconds=30),
+            "completed_at": seconds_ago(now, 30),
         },
     ]
     request = api_rf.post(
