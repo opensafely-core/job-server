@@ -3,6 +3,7 @@ from rest_framework.test import APIClient
 from slack_sdk.errors import SlackApiError
 
 from jobserver.api.releases import ReleaseNotificationAPICreate
+from jobserver.authorization import ProjectCollaborator
 from jobserver.models import Release
 from tests.factories import (
     BackendFactory,
@@ -228,7 +229,11 @@ def test_release_index_api_have_permission():
     client = APIClient()
     index_url = f"/api/v2/releases/{release.id}"
 
-    ProjectMembershipFactory(user=user, project=release.workspace.project)
+    ProjectMembershipFactory(
+        user=user,
+        project=release.workspace.project,
+        roles=[ProjectCollaborator],
+    )
     client.force_authenticate(user=user)
     response = client.get(index_url)
     assert response.status_code == 200
@@ -281,7 +286,11 @@ def test_release_file_api_have_permission():
     file_url = f"/api/v2/releases/{release.id}/file.txt"
 
     # logged in, with permission
-    ProjectMembershipFactory(user=user, project=release.workspace.project)
+    ProjectMembershipFactory(
+        user=user,
+        project=release.workspace.project,
+        roles=[ProjectCollaborator],
+    )
     client.force_authenticate(user=user)
     response = client.get(file_url)
     assert response.status_code == 200
@@ -297,7 +306,11 @@ def test_release_file_api_nginx_redirect():
     file_url = f"/api/v2/releases/{release.id}/file.txt"
 
     # test nginx configuration
-    ProjectMembershipFactory(user=user, project=release.workspace.project)
+    ProjectMembershipFactory(
+        user=user,
+        project=release.workspace.project,
+        roles=[ProjectCollaborator],
+    )
     client.force_authenticate(user=user)
     response = client.get(file_url, HTTP_RELEASES_REDIRECT="/storage")
     assert response.status_code == 200
@@ -314,7 +327,11 @@ def test_release_file_api_file_deleted():
     client = APIClient()
     file_url = f"/api/v2/releases/{release.id}/file.txt"
 
-    ProjectMembershipFactory(user=user, project=release.workspace.project)
+    ProjectMembershipFactory(
+        user=user,
+        project=release.workspace.project,
+        roles=[ProjectCollaborator],
+    )
     client.force_authenticate(user=user)
 
     # delete file
@@ -361,7 +378,9 @@ def test_workspace_index_api_have_permission():
     user = UserFactory()
     client = APIClient()
     client.force_authenticate(user=user)
-    ProjectMembershipFactory(user=user, project=workspace.project)
+    ProjectMembershipFactory(
+        user=user, project=workspace.project, roles=[ProjectCollaborator]
+    )
 
     index_url = f"/api/v2/releases/workspace/{workspace.name}"
 

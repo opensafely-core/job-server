@@ -10,6 +10,7 @@ from .permissions import (
     publish_output,
     review_project,
     run_job,
+    view_release_file,
 )
 
 
@@ -137,9 +138,10 @@ class ProjectCollaborator:
     models = [
         "jobserver.models.core.ProjectInvitation",
         "jobserver.models.core.ProjectMembership",
+        "jobserver.models.core.User",
     ]
     permissions = [
-        "",
+        view_release_file,
     ]
 
 

@@ -10,6 +10,7 @@ from rest_framework.views import APIView
 from slack_sdk.errors import SlackApiError
 
 from jobserver.api import get_backend_from_token
+from jobserver.authorization import has_permission
 from jobserver.models import Release, Workspace
 from jobserver.releases import handle_release, workspace_files
 from services.slack import client as slack_client
@@ -77,12 +78,9 @@ def validate_release_access(request, workspace):
     # TODO: check if release is published
     if request.user.is_anonymous:
         raise NotAuthenticated("Invalid user or token")
-    else:
-        project = workspace.project
-        if not project.members.filter(username=request.user.username).exists():
-            raise NotAuthenticated(
-                f"Invalid user or token for workspace {workspace.name}"
-            )
+
+    if not has_permission(request.user, "view_release_file", project=workspace.project):
+        raise NotAuthenticated(f"Invalid user or token for workspace {workspace.name}")
 
 
 def serve_file(request, rfile):
