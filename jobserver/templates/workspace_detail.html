@@ -51,6 +51,17 @@
       <div class="d-flex">
         {% if can_use_releases %}
         <a class="btn btn-primary mr-2" href="{{ workspace.get_outputs_url }}">Outputs</a>
+
+        {% if user_can_run_jobs %}
+        <form method="POST" action="{{ workspace.get_publish_url }}">
+          {% csrf_token %}
+
+          <button class="btn btn-primary mr-2" type="submit">
+            Publish
+          </button>
+        </form>
+        {% endif %}
+
         <a class="btn btn-primary mr-2" href="{{ workspace.get_releases_url }}">Release History</a>
         {% endif %}
         <a class="btn btn-primary mr-2" href="{{ workspace.get_logs_url }}">Logs</a>
