@@ -1,5 +1,3 @@
-from datetime import timedelta
-
 import pytest
 from django.urls import reverse
 from django.utils import timezone
@@ -8,6 +6,7 @@ from jobserver.context_processors import backend_warnings, nav, scripts_attrs
 from jobserver.models import Backend
 
 from ..factories import JobRequestFactory, StatsFactory, UserFactory
+from ..utils import minutes_ago
 
 
 @pytest.mark.django_db
@@ -19,7 +18,7 @@ def test_backend_warnings_with_debug_on(rf, settings):
 
     JobRequestFactory(backend=tpp)
 
-    last_seen = timezone.now() - timedelta(minutes=10)
+    last_seen = minutes_ago(timezone.now(), 10)
     StatsFactory(backend=tpp, api_last_seen=last_seen)
 
     request = rf.get("/")
@@ -32,7 +31,7 @@ def test_backend_warnings_with_debug_on(rf, settings):
 def test_backend_warnings_with_no_warnings(rf):
     tpp = Backend.objects.get(name="tpp")
 
-    last_seen = timezone.now() - timedelta(minutes=1)
+    last_seen = minutes_ago(timezone.now(), 1)
     StatsFactory(backend=tpp, api_last_seen=last_seen)
 
     request = rf.get("/")
@@ -47,7 +46,7 @@ def test_backend_warnings_with_warnings(rf):
 
     JobRequestFactory(backend=tpp)
 
-    last_seen = timezone.now() - timedelta(minutes=10)
+    last_seen = minutes_ago(timezone.now(), 10)
     StatsFactory(backend=tpp, api_last_seen=last_seen)
 
     request = rf.get("/")

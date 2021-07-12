@@ -1,5 +1,3 @@
-from datetime import timedelta
-
 import pytest
 from django.conf import settings
 from django.db import DatabaseError
@@ -14,6 +12,7 @@ from ..factories import (
     ReleaseUploadFactory,
     WorkspaceFactory,
 )
+from ..utils import minutes_ago
 
 
 def raise_error(**kwargs):
@@ -194,45 +193,42 @@ def test_workspace_files_many_releases(freezer):
     backend2 = BackendFactory(name="backend2")
     workspace = WorkspaceFactory()
 
-    def minutes_ago(minutes):
-        return now - timedelta(minutes=minutes)
-
     ReleaseFactory(
         workspace=workspace,
         backend=backend1,
         files=["test1", "test2", "test3"],
-        created_at=minutes_ago(10),
+        created_at=minutes_ago(now, 10),
     )
     ReleaseFactory(
         workspace=workspace,
         backend=backend1,
         files=["test2", "test3"],
-        created_at=minutes_ago(8),
+        created_at=minutes_ago(now, 8),
     )
     release3 = ReleaseFactory(
         workspace=workspace,
         backend=backend1,
         files=["test2"],
-        created_at=minutes_ago(6),
+        created_at=minutes_ago(now, 6),
     )
     release4 = ReleaseFactory(
         workspace=workspace,
         backend=backend1,
         files=["test1", "test3"],
-        created_at=minutes_ago(4),
+        created_at=minutes_ago(now, 4),
     )
     release5 = ReleaseFactory(
         workspace=workspace,
         backend=backend1,
         files=["test1"],
-        created_at=minutes_ago(2),
+        created_at=minutes_ago(now, 2),
     )
     # different backend, same file name, more recent
     release6 = ReleaseFactory(
         workspace=workspace,
         backend=backend2,
         files={"test1": "content"},
-        created_at=minutes_ago(1),
+        created_at=minutes_ago(now, 1),
     )
 
     output = workspace_files(workspace)

@@ -1,5 +1,3 @@
-from datetime import timedelta
-
 import pytest
 from django.utils import timezone
 from rest_framework.exceptions import NotAuthenticated
@@ -26,6 +24,7 @@ from tests.factories import (
     UserFactory,
     WorkspaceFactory,
 )
+from tests.utils import minutes_ago, seconds_ago
 
 
 def test_token_backend_empty_token():
@@ -82,6 +81,8 @@ def test_jobapiupdate_all_existing(api_rf, freezer):
     backend = BackendFactory()
     job_request = JobRequestFactory()
 
+    now = timezone.now()
+
     # 3 pending jobs already exist
     job1, job2, job3, = JobFactory.create_batch(
         3,
@@ -109,10 +110,10 @@ def test_jobapiupdate_all_existing(api_rf, freezer):
             "status": "succeeded",
             "status_code": "",
             "status_message": "",
-            "created_at": timezone.now() - timedelta(minutes=2),
-            "started_at": timezone.now() - timedelta(minutes=1),
-            "updated_at": timezone.now(),
-            "completed_at": timezone.now() - timedelta(seconds=30),
+            "created_at": minutes_ago(now, 2),
+            "started_at": minutes_ago(now, 1),
+            "updated_at": now,
+            "completed_at": seconds_ago(now, 30),
         },
         {
             "identifier": "job2",
@@ -121,9 +122,9 @@ def test_jobapiupdate_all_existing(api_rf, freezer):
             "status": "running",
             "status_code": "",
             "status_message": "",
-            "created_at": timezone.now() - timedelta(minutes=2),
-            "started_at": timezone.now() - timedelta(minutes=1),
-            "updated_at": timezone.now(),
+            "created_at": minutes_ago(now, 2),
+            "started_at": minutes_ago(now, 1),
+            "updated_at": now,
             "completed_at": None,
         },
         {
@@ -133,9 +134,9 @@ def test_jobapiupdate_all_existing(api_rf, freezer):
             "status": "pending",
             "status_code": "",
             "status_message": "",
-            "created_at": timezone.now() - timedelta(minutes=2),
+            "created_at": minutes_ago(now, 2),
             "started_at": None,
-            "updated_at": timezone.now(),
+            "updated_at": now,
             "completed_at": None,
         },
     ]
@@ -156,20 +157,20 @@ def test_jobapiupdate_all_existing(api_rf, freezer):
 
     # succeeded
     assert job1.identifier == "job1"
-    assert job1.started_at == timezone.now() - timedelta(minutes=1)
-    assert job1.updated_at == timezone.now()
-    assert job1.completed_at == timezone.now() - timedelta(seconds=30)
+    assert job1.started_at == minutes_ago(now, 1)
+    assert job1.updated_at == now
+    assert job1.completed_at == seconds_ago(now, 30)
 
     # running
     assert job2.identifier == "job2"
-    assert job2.started_at == timezone.now() - timedelta(minutes=1)
-    assert job2.updated_at == timezone.now()
+    assert job2.started_at == minutes_ago(now, 1)
+    assert job2.updated_at == now
     assert job2.completed_at is None
 
     # pending
     assert job3.identifier == "job3"
     assert job3.started_at is None
-    assert job3.updated_at == timezone.now()
+    assert job3.updated_at == now
     assert job3.completed_at is None
 
 
@@ -177,6 +178,8 @@ def test_jobapiupdate_all_existing(api_rf, freezer):
 def test_jobapiupdate_all_new(api_rf):
     backend = BackendFactory()
     job_request = JobRequestFactory()
+
+    now = timezone.now()
 
     assert Job.objects.count() == 0
 
@@ -188,9 +191,9 @@ def test_jobapiupdate_all_new(api_rf):
             "status": "running",
             "status_code": "",
             "status_message": "",
-            "created_at": timezone.now() - timedelta(minutes=2),
-            "started_at": timezone.now() - timedelta(minutes=1),
-            "updated_at": timezone.now(),
+            "created_at": minutes_ago(now, 2),
+            "started_at": minutes_ago(now, 1),
+            "updated_at": now,
             "completed_at": None,
         },
         {
@@ -200,8 +203,8 @@ def test_jobapiupdate_all_new(api_rf):
             "status": "pending",
             "status_code": "",
             "status_message": "",
-            "created_at": timezone.now() - timedelta(minutes=2),
-            "updated_at": timezone.now(),
+            "created_at": minutes_ago(now, 2),
+            "updated_at": now,
             "started_at": None,
             "completed_at": None,
         },
@@ -212,9 +215,9 @@ def test_jobapiupdate_all_new(api_rf):
             "status": "running",
             "status_code": "",
             "status_message": "",
-            "created_at": timezone.now() - timedelta(minutes=2),
+            "created_at": minutes_ago(now, 2),
             "started_at": None,
-            "updated_at": timezone.now(),
+            "updated_at": now,
             "completed_at": None,
         },
     ]
@@ -262,6 +265,8 @@ def test_jobapiupdate_mixture(api_rf, freezer):
     backend = BackendFactory()
     job_request = JobRequestFactory()
 
+    now = timezone.now()
+
     # pending
     job1 = JobFactory(
         job_request=job_request,
@@ -289,10 +294,10 @@ def test_jobapiupdate_mixture(api_rf, freezer):
             "status": "succeeded",
             "status_code": "",
             "status_message": "",
-            "created_at": timezone.now() - timedelta(minutes=2),
-            "started_at": timezone.now() - timedelta(minutes=1),
-            "updated_at": timezone.now(),
-            "completed_at": timezone.now() - timedelta(seconds=30),
+            "created_at": minutes_ago(now, 2),
+            "started_at": minutes_ago(now, 1),
+            "updated_at": now,
+            "completed_at": seconds_ago(now, 30),
         },
         {
             "identifier": "job3",
@@ -301,9 +306,9 @@ def test_jobapiupdate_mixture(api_rf, freezer):
             "status": "running",
             "status_code": "",
             "status_message": "",
-            "created_at": timezone.now() - timedelta(minutes=2),
-            "started_at": timezone.now() - timedelta(minutes=1),
-            "updated_at": timezone.now(),
+            "created_at": minutes_ago(now, 2),
+            "started_at": minutes_ago(now, 1),
+            "updated_at": now,
             "completed_at": None,
         },
     ]
@@ -325,16 +330,16 @@ def test_jobapiupdate_mixture(api_rf, freezer):
     # succeeded
     assert job2.pk == job2.pk
     assert job2.identifier == "job2"
-    assert job2.started_at == timezone.now() - timedelta(minutes=1)
-    assert job2.updated_at == timezone.now()
-    assert job2.completed_at == timezone.now() - timedelta(seconds=30)
+    assert job2.started_at == minutes_ago(now, 1)
+    assert job2.updated_at == now
+    assert job2.completed_at == seconds_ago(now, 30)
 
     # running
     assert job3.pk != job1.pk
     assert job3.pk != job2.pk
     assert job3.identifier == "job3"
-    assert job3.started_at == timezone.now() - timedelta(minutes=1)
-    assert job3.updated_at == timezone.now()
+    assert job3.started_at == minutes_ago(now, 1)
+    assert job3.updated_at == now
     assert job3.completed_at is None
 
 
@@ -343,6 +348,8 @@ def test_jobapiupdate_notifications_on_with_move_to_completed(api_rf, mocker):
     workspace = WorkspaceFactory()
     job_request = JobRequestFactory(workspace=workspace, will_notify=True)
     job = JobFactory(job_request=job_request, status="running")
+
+    now = timezone.now()
 
     mocked_send = mocker.patch(
         "jobserver.api.jobs.send_finished_notification", autospec=True
@@ -356,10 +363,10 @@ def test_jobapiupdate_notifications_on_with_move_to_completed(api_rf, mocker):
             "status": "succeeded",
             "status_code": "",
             "status_message": "",
-            "created_at": timezone.now() - timedelta(minutes=2),
-            "started_at": timezone.now() - timedelta(minutes=1),
-            "updated_at": timezone.now(),
-            "completed_at": timezone.now() - timedelta(seconds=30),
+            "created_at": minutes_ago(now, 2),
+            "started_at": minutes_ago(now, 1),
+            "updated_at": now,
+            "completed_at": seconds_ago(now, 30),
         },
     ]
     request = api_rf.post(
@@ -381,6 +388,8 @@ def test_jobapiupdate_notifications_on_without_move_to_completed(api_rf, mocker)
     job_request = JobRequestFactory(workspace=workspace, will_notify=True)
     job = JobFactory(job_request=job_request, status="succeeded")
 
+    now = timezone.now()
+
     mocked_send = mocker.patch(
         "jobserver.api.jobs.send_finished_notification", autospec=True
     )
@@ -393,10 +402,10 @@ def test_jobapiupdate_notifications_on_without_move_to_completed(api_rf, mocker)
             "status": "succeeded",
             "status_code": "",
             "status_message": "",
-            "created_at": timezone.now() - timedelta(minutes=2),
-            "started_at": timezone.now() - timedelta(minutes=1),
-            "updated_at": timezone.now(),
-            "completed_at": timezone.now() - timedelta(seconds=30),
+            "created_at": minutes_ago(now, 2),
+            "started_at": minutes_ago(now, 1),
+            "updated_at": now,
+            "completed_at": seconds_ago(now, 30),
         },
     ]
     request = api_rf.post(
@@ -438,6 +447,8 @@ def test_jobapiupdate_unknown_job_request(api_rf):
     backend = BackendFactory()
     JobRequestFactory()
 
+    now = timezone.now()
+
     data = [
         {
             "identifier": "job1",
@@ -446,9 +457,9 @@ def test_jobapiupdate_unknown_job_request(api_rf):
             "status": "running",
             "status_code": "",
             "status_message": "",
-            "created_at": timezone.now() - timedelta(minutes=2),
-            "started_at": timezone.now() - timedelta(minutes=1),
-            "updated_at": timezone.now(),
+            "created_at": minutes_ago(now, 2),
+            "started_at": minutes_ago(now, 1),
+            "updated_at": now,
             "completed_at": None,
         }
     ]

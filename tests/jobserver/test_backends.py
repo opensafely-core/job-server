@@ -1,5 +1,3 @@
-from datetime import timedelta
-
 import pytest
 from django.utils import timezone
 
@@ -10,6 +8,7 @@ from jobserver.backends import (
 )
 
 from ..factories import BackendFactory
+from ..utils import minutes_ago
 
 
 @pytest.mark.django_db
@@ -56,15 +55,15 @@ def test_show_warning_last_seen_is_none():
 
 
 def test_show_warning_last_seen_equal_threhold(freezer):
-    last_seen = timezone.now() - timedelta(minutes=3)
+    last_seen = minutes_ago(timezone.now(), 3)
     assert show_warning(last_seen, minutes=3) is True
 
 
 def test_show_warning_last_seen_less_than_threhold(freezer):
-    last_seen = timezone.now() - timedelta(minutes=2)
+    last_seen = minutes_ago(timezone.now(), 2)
     assert show_warning(last_seen, minutes=3) is False
 
 
 def test_show_warning_success(freezer):
-    last_seen = timezone.now() - timedelta(minutes=6)
+    last_seen = minutes_ago(timezone.now(), 6)
     assert show_warning(last_seen) is True
