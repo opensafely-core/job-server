@@ -162,6 +162,7 @@ class ProjectCoordinator:
     models = [
         "jobserver.models.core.ProjectInvitation",
         "jobserver.models.core.ProjectMembership",
+        "jobserver.models.core.User",
     ]
     permissions = [
         invite_project_members,

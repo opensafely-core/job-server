@@ -11,6 +11,7 @@ from django.views.generic import ListView, UpdateView
 
 from ..authorization import roles
 from ..authorization.decorators import require_permission
+from ..authorization.utils import roles_for
 from ..forms import SettingsForm, UserForm
 from ..models import Backend, User
 from ..utils import raise_if_not_int
@@ -67,9 +68,7 @@ class UserDetail(UpdateView):
         # UserForm isn't a ModelForm so don't pass instance to it
         del kwargs["instance"]
 
-        available_roles = [
-            value for name, value in inspect.getmembers(roles, inspect.isclass)
-        ]
+        available_roles = roles_for(User)
 
         return kwargs | {
             "available_backends": Backend.objects.order_by("name"),
