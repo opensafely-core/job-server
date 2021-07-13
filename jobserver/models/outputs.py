@@ -1,5 +1,4 @@
-import json
-import os
+import uuid
 
 from django.conf import settings
 from django.db import models
@@ -15,9 +14,14 @@ def absolute_file_path(path):
 class Release(models.Model):
     """A set of reviewed and redacted outputs from a Workspace"""
 
-    # No value in the default Autoid as we are using a content-addressable hash
-    # as it. Additionaly it avoids enumeration attacks.
-    id = models.TextField(primary_key=True)  # noqa: A003
+    class ReleaseStatuses(models.TextChoices):
+        REQUESTED = "REQUESTED", "Requested"
+        APPROVED = "APPROVED", "Approved"
+        REJECTED = "REJECTED", "Rejected"
+
+    id = models.UUIDField(  # noqa: A003
+        primary_key=True, default=uuid.uuid4, editable=False
+    )
 
     workspace = models.ForeignKey(
         "Workspace",
@@ -27,20 +31,21 @@ class Release(models.Model):
     backend = models.ForeignKey(
         "Backend",
         on_delete=models.PROTECT,
-        related_name="+",
+        related_name="releases",
     )
     created_at = models.DateTimeField(default=timezone.now)
-    # TODO: once we have new review flow, this can be made null=False, as we'll
-    # have the correct user.
+    # the user who requested the release
     created_by = models.ForeignKey(
         "User",
         on_delete=models.PROTECT,
-        null=True,
-        related_name="+",
+        related_name="releases",
     )
-    upload_dir = models.TextField()
-    # store local TPP/EMIS username for audit
-    backend_user = models.TextField()
+    status = models.TextField(
+        choices=ReleaseStatuses.choices, default=ReleaseStatuses.REQUESTED
+    )
+
+    # list of files requested for release
+    requested_files = models.JSONField()
 
     def get_absolute_url(self):
         return reverse(
@@ -53,13 +58,8 @@ class Release(models.Model):
             },
         )
 
-    def get_api_index_url(self):
-        return reverse("api:release-index", kwargs={"release_hash": self.id})
-
-    @property
-    def manifest(self):
-        path = os.path.join(self.upload_dir, "metadata/manifest.json")
-        return json.loads(absolute_file_path(path).read_text())
+    def get_api_url(self):
+        return reverse("api:release", kwargs={"release_id": self.id})
 
 
 class ReleaseFile(models.Model):
@@ -79,10 +79,19 @@ class ReleaseFile(models.Model):
         on_delete=models.PROTECT,
         related_name="files",
     )
+    created_at = models.DateTimeField(default=timezone.now)
+    # the user who approved the release
+    created_by = models.ForeignKey(
+        "User",
+        on_delete=models.PROTECT,
+        related_name="released_files",
+    )
     # name is path from the POV of the researcher, e.g "outputs/file1.txt"
     name = models.TextField()
-    # path is from the POV of the system e.g. "workspace/release/outputs/file1.txt"
+    # path is from the POV of the system e.g. "workspace/releases/RELEASE_ID/file1.txt"
     path = models.TextField()
+    # the sha256 hash of the file
+    filehash = models.TextField()
 
     def absolute_path(self):
         return absolute_file_path(self.path)
@@ -95,7 +104,7 @@ class ReleaseFile(models.Model):
                 "project_slug": self.release.workspace.project.slug,
                 "workspace_slug": self.release.workspace.name,
                 "pk": self.release.id,
-                "path": self.path,
+                "path": self.name,
             },
         )
 
@@ -104,7 +113,7 @@ class ReleaseFile(models.Model):
         return reverse(
             "api:release-file",
             kwargs={
-                "release_hash": self.release.id,
+                "release_id": self.release.id,
                 "filename": self.name,
             },
         )

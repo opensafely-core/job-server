@@ -810,9 +810,9 @@ class Workspace(models.Model):
             },
         )
 
-    def get_api_index_url(self):
+    def get_releases_api_url(self):
         return reverse(
-            "api:workspace-release-index",
+            "api:release-workspace",
             kwargs={"workspace_name": self.name},
         )
 

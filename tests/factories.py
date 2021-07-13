@@ -1,6 +1,7 @@
+import hashlib
+import io
+from dataclasses import dataclass
 from datetime import datetime
-from pathlib import Path
-from tempfile import TemporaryDirectory
 
 import factory
 import factory.fuzzy
@@ -112,75 +113,96 @@ class ProjectMembershipFactory(factory.django.DjangoModelFactory):
     user = factory.SubFactory("tests.factories.UserFactory")
 
 
-DEFAULT_MANIFEST = {"workspace": "workspace", "repo": "repo"}
-DEFAULT_FILES = {"file.txt": "test"}
+@dataclass
+class ReleaseUpload:
+    filename: str
+    contents: bytes
+    filehash: str = ""
+
+    def __post_init__(self):
+        if not self.filehash:  # pragma: no cover
+            self.filehash = hashlib.sha256(self.contents).hexdigest()
+
+    @property
+    def stream(self):
+        return io.BytesIO(self.contents)
 
 
-class ReleaseUploadFactory:
-    """A zip bytestream with valid hash."""
+def ReleaseUploadsFactory(files):
+    if isinstance(files, list):
+        files = {f: f.encode("utf8") for f in files}
 
-    def __init__(
-        self, files=DEFAULT_FILES, manifest=releases.DEFAULT_MANIFEST, raw_manifest=None
-    ):
-        with TemporaryDirectory() as d:
-            tmp = Path(d)
-
-            for path, contents in files.items():
-                (tmp / path).write_text(contents)
-
-            if raw_manifest:
-                path = tmp / "metadata" / "manifest.json"
-                path.parent.mkdir()
-                path.write_text(raw_manifest)
-
-            self.hash, self.zip = releases.create_upload_zip(tmp, manifest)
+    return [ReleaseUpload(filename=k, contents=v) for k, v in files.items()]
 
 
 def ReleaseFactory(
-    files=None,
-    manifest=releases.DEFAULT_MANIFEST,
-    raw_manifest=None,
-    workspace=None,
-    backend=None,
-    backend_user="user",
-    created_at=None,
+    uploads, uploaded=True, workspace=None, backend=None, created_by=None, **kwargs
 ):
     """Factory for Release objects.
 
-    Release has attributes that depend on its file contents, namely id,
-    upload_dir and files. It also requires the associated filesystem state to
-    exist.
+    You must supply a list of ReleaseUpload's as the first argument. If you
+    want an 'empty' release, pass uploaded=False.
 
-    This makes it difficult to fit into how DjangoModelFactory works, so we
-    implement our own Factory, that quacks like a DjangoModelFactory.
-
-    It returns a Release object, but we create it manually.
+    Not a Factory Boy factory, as the need for files on disk and
+    file hashes to be known ahead of time to create valid objects
+    just does not work with Factory Boy.
     """
 
-    if files is None:
-        files = DEFAULT_FILES
-
-    # files can be a list of files or a dict.
-    # If it is a list, we default the file contents to be the name of the file.
-    # If it is a dict, we use the values as content.
-    if isinstance(files, list):
-        files = {f: f for f in files}  # pragma: no cover
-
-    workspace = workspace or WorkspaceFactory()
+    created_by = created_by or UserFactory()
     backend = backend or BackendFactory()
-
-    # create an upload, so we know the release_hash ahead of time.
-    upload = ReleaseUploadFactory(files, manifest, raw_manifest)
-
-    release, _ = releases.handle_release(
-        workspace, backend, backend_user, upload.hash, upload.zip
+    workspace = workspace or WorkspaceFactory()
+    release = releases.create_release(
+        workspace=workspace,
+        backend=backend,
+        created_by=created_by,
+        requested_files={u.filename: u.filehash for u in uploads},
+        **kwargs,
     )
 
-    if created_at is not None:
-        release.created_at = created_at
-        release.save()
+    # create the ReleaseFile objects
+    if uploaded:
+        for upload in uploads:
+            ReleaseFileFactory(
+                upload,
+                release=release,
+                backend=backend,
+                workspace=workspace,
+                created_by=created_by,
+            )
 
     return release
+
+
+def ReleaseFileFactory(
+    upload, release=None, created_by=None, workspace=None, backend=None, **kwargs
+):
+    """Factory for ReleaseFile objects.
+
+    You must supply a ReleaseUpload as the first argument.
+
+    Not a Factory Boy factory, as the need for files on disk and
+    file hashes to be known ahead of time to create valid objects
+    just does not work with Factory Boy.
+    """
+    created_by = created_by or UserFactory()
+    backend = backend or BackendFactory()
+    workspace = workspace or WorkspaceFactory()
+    release = release or ReleaseFactory(
+        [upload],
+        uploaded=False,
+        workspace=workspace,
+        backend=backend,
+        created_by=created_by,
+    )
+
+    # use the business logic to actually create it.
+    return releases.handle_file_upload(
+        release,
+        backend,
+        created_by,
+        upload.stream,
+        upload.filename,
+    )
 
 
 class ResearcherRegistrationFactory(factory.django.DjangoModelFactory):

@@ -290,7 +290,7 @@ class WorkspaceOutputList(View):
         # TODO: check permissions here
 
         context = {
-            "api_url": workspace.get_api_index_url(),
+            "api_url": workspace.get_releases_api_url(),
             "workspace": workspace,
         }
         return TemplateResponse(

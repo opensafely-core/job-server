@@ -2,12 +2,12 @@ import pytest
 from django.conf import settings
 from django.urls import reverse
 
-from tests.factories import ReleaseFactory
+from tests.factories import ReleaseFactory, ReleaseUploadsFactory
 
 
 @pytest.mark.django_db
 def test_release_get_absolute_url():
-    release = ReleaseFactory()
+    release = ReleaseFactory(ReleaseUploadsFactory(["file1.txt"]))
 
     url = release.get_absolute_url()
 
@@ -23,23 +23,15 @@ def test_release_get_absolute_url():
 
 
 @pytest.mark.django_db
-def test_release_get_api_index_url():
-    release = ReleaseFactory()
-    assert release.get_api_index_url() == f"/api/v2/releases/{release.id}"
-
-
-@pytest.mark.django_db
-def test_release_manifest():
-    files = {"file.txt": "test_release_creation"}
-    release = ReleaseFactory(files=files)
-
-    assert release.manifest == {"workspace": "workspace", "repo": "repo"}
+def test_release_get_api_url():
+    release = ReleaseFactory(ReleaseUploadsFactory(["file1.txt"]))
+    assert release.get_api_url() == f"/api/v2/releases/release/{release.id}"
 
 
 @pytest.mark.django_db
 def test_release_file_absolute_path():
-    files = {"file.txt": "test_absolute_path"}
-    release = ReleaseFactory(files=files)
+    files = {"file.txt": b"test_absolute_path"}
+    release = ReleaseFactory(ReleaseUploadsFactory(files))
     rfile = release.files.get(name="file.txt")
 
     expected = (
@@ -53,7 +45,8 @@ def test_release_file_absolute_path():
 
 @pytest.mark.django_db
 def test_releasefile_get_absolute_url():
-    release = ReleaseFactory(files={"file.txt": "a/path/to/the/file"})
+    files = {"file.txt": b"contents"}
+    release = ReleaseFactory(ReleaseUploadsFactory(files))
 
     file = release.files.first()
 
@@ -66,6 +59,6 @@ def test_releasefile_get_absolute_url():
             "project_slug": release.workspace.project.slug,
             "workspace_slug": release.workspace.name,
             "pk": release.id,
-            "path": file.path,
+            "path": file.name,
         },
     )

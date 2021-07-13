@@ -7,7 +7,13 @@ from jobserver.views.releases import (
     WorkspaceReleaseList,
 )
 
-from ...factories import OrgFactory, ProjectFactory, ReleaseFactory, WorkspaceFactory
+from ...factories import (
+    OrgFactory,
+    ProjectFactory,
+    ReleaseFactory,
+    ReleaseUploadsFactory,
+    WorkspaceFactory,
+)
 
 
 @pytest.mark.django_db
@@ -16,8 +22,14 @@ def test_projectreleaselist_success(rf):
     workspace1 = WorkspaceFactory(project=project)
     workspace2 = WorkspaceFactory(project=project)
 
-    ReleaseFactory(workspace=workspace1, files=["test1", "test2"])
-    ReleaseFactory(workspace=workspace2, files=["test3", "test4"])
+    ReleaseFactory(
+        ReleaseUploadsFactory(["test1", "test2"]),
+        workspace=workspace1,
+    )
+    ReleaseFactory(
+        ReleaseUploadsFactory(["test3", "test4"]),
+        workspace=workspace2,
+    )
 
     request = rf.get("/")
 
@@ -49,7 +61,7 @@ def test_projectreleaselist_unknown_workspace(rf):
 
 @pytest.mark.django_db
 def test_releasedetail_no_path_success(rf):
-    release = ReleaseFactory()
+    release = ReleaseFactory(ReleaseUploadsFactory(["test1"]))
 
     request = rf.get("/")
 
@@ -82,7 +94,7 @@ def test_releasedetail_unknown_release(rf):
 
 @pytest.mark.django_db
 def test_releasedetail_with_path_success(rf):
-    release = ReleaseFactory()
+    release = ReleaseFactory(ReleaseUploadsFactory(["test1"]))
 
     request = rf.get("/")
 
