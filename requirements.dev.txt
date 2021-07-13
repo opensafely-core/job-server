@@ -485,9 +485,9 @@ pytz==2021.1 \
     --hash=sha256:83a4a90894bf38e243cf052c8b58f381bfe9a7a483f6a9cab140bc7f702ac4da \
     --hash=sha256:eb10ce3e7736052ed3623d49975ce333bcd712c7bb19a58b9e2089d4057d0798
     # via django
-pyupgrade==2.20.0 \
-    --hash=sha256:33848f4656fd8f35bfe073e6f23b0e249f010533ab06b6866d57f812b3e026a2 \
-    --hash=sha256:e646016d0e4a0fc171fd0a56177facf0f16dd2a7b30b2a3a08aa4ad9dd90e0d2
+pyupgrade==2.21.0 \
+    --hash=sha256:833c1aa26ed974d5e5a098c5d204b94a8a75b3d935d7cc781390821c03476d74 \
+    --hash=sha256:e06f47fadbea99a7c03c0ec78214413ee0f4165ef3f33185f9c85c318c6430d1
     # via -r requirements.dev.in
 pyyaml==5.4.1 \
     --hash=sha256:08682f6b72c722394747bddaf0aa62277e02557c0fd1c42cb853016a38f8dedf \
