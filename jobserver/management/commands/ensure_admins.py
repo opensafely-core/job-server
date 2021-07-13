@@ -6,7 +6,7 @@ from jobserver.authorization.admins import ensure_admins, get_admins
 
 
 class Command(BaseCommand):
-    help = "Configure admins to "
+    help = "Configure admins to "  # noqa: A003
 
     def handle(self, *args, **options):
         usernames = get_admins()

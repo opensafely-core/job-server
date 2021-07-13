@@ -86,7 +86,7 @@ def hash_files(directory):
     )
     files = list(sorted(f for f in relative_paths if str(f) != MANIFEST_PATH))
     # use md5 because its fast, and we only care about uniqueness, not security
-    hash = hashlib.md5()
+    hash = hashlib.md5()  # noqa: A001
     for filename in files:
         path = directory / filename
         assert path.is_file(), f"{path} is not a file"
@@ -115,7 +115,7 @@ def create_upload_zip(directory, manifest=DEFAULT_MANIFEST):
     """
     zipstream = io.BytesIO()
     manifest_data = None
-    hash, files = hash_files(directory)
+    hash, files = hash_files(directory)  # noqa: A001
 
     manifest_path = directory / MANIFEST_PATH
     if manifest_path.exists():
