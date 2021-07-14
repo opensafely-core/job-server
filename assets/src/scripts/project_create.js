@@ -20,7 +20,7 @@ const addForm = (name, event) => {
 
   // Update the number of total forms
   document.getElementById(`id_${name}-TOTAL_FORMS`).value =
-    parseInt(formIndex) + 1;
+    parseInt(formIndex, 10) + 1;
 
   event.preventDefault();
 };
@@ -29,6 +29,7 @@ const removeRow = (name, event) => {
   const classes = [...event.target.classList].filter((c) => c.startsWith(name));
 
   if (classes.length < 1) {
+    // eslint-disable-next-line no-console
     console.error(
       `no classes beginning with ${name} in remove button class list`
     );
@@ -55,8 +56,9 @@ document
 
 document.addEventListener(
   "click",
-  function (event) {
+  (event) => {
     if (!event.target.closest(".remove-researcher")) return;
+    // eslint-disable-next-line consistent-return
     return removeRow("researcher", event);
   },
   false

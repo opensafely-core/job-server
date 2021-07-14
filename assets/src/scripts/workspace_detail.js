@@ -1,3 +1,5 @@
+/* eslint-disable no-restricted-syntax */
+
 const updateStatuses = (urlBase) => {
   /**
    * Update statuses for the current Workspace

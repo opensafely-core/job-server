@@ -1,4 +1,5 @@
 import axios from "axios";
+import PropTypes from "prop-types";
 import React from "react";
 import { useQuery } from "react-query";
 import classes from "./FileList.module.scss";
@@ -7,8 +8,8 @@ function FileList({ apiUrl }) {
   const { isLoading, isError, data, error } = useQuery(
     "FILE_LIST",
     async () => {
-      const { data } = await axios.get(apiUrl);
-      return data;
+      const { data: files } = await axios.get(apiUrl);
+      return files;
     }
   );
 
@@ -32,3 +33,7 @@ function FileList({ apiUrl }) {
 }
 
 export default FileList;
+
+FileList.propTypes = {
+  apiUrl: PropTypes.string.isRequired,
+};

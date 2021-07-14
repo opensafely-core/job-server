@@ -1,3 +1,4 @@
+import PropTypes from "prop-types";
 import React from "react";
 import { QueryClient, QueryClientProvider } from "react-query";
 import { ReactQueryDevtools } from "react-query/devtools";
@@ -21,3 +22,7 @@ function App({ apiUrl }) {
 }
 
 export default App;
+
+App.propTypes = {
+  apiUrl: PropTypes.string.isRequired,
+};
