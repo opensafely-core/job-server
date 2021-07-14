@@ -13,6 +13,7 @@ furl
 gunicorn
 incuna-mail
 litecli
+python-ulid
 pyyaml
 requests
 sentry-sdk

@@ -1,5 +1,4 @@
 import structlog
-from django.core.exceptions import ValidationError as DjangoValidationError
 from django.http import FileResponse
 from django.shortcuts import get_object_or_404
 from rest_framework import serializers
@@ -87,11 +86,7 @@ def generate_index(files):
 class ReleaseIndexAPI(APIView):
     def get(self, request, release_id):
         """A list of files for this Release."""
-        try:
-            release = get_object_or_404(Release, id=release_id)
-        except DjangoValidationError:
-            # invalid UUID
-            raise NotFound
+        release = get_object_or_404(Release, id=release_id)
         validate_release_access(request, release.workspace)
         files = {f.name: f for f in release.files.all()}
         return Response(generate_index(files))
@@ -139,10 +134,7 @@ class ReleaseFileAPI(APIView):
 
         File must be listed in Release.requested_files, and the hash must match.
         """
-        try:
-            release = get_object_or_404(Release, id=release_id)
-        except DjangoValidationError:
-            raise NotFound
+        release = get_object_or_404(Release, id=release_id)
 
         if filename not in release.requested_files:
             raise NotFound
@@ -169,12 +161,7 @@ class ReleaseFileAPI(APIView):
 
     def get(self, request, release_id, filename):
         """Return the content of a specific ReleaseFile"""
-        try:
-            release = get_object_or_404(Release, id=release_id)
-        except DjangoValidationError:
-            # invalid UUID
-            raise NotFound
-
+        release = get_object_or_404(Release, id=release_id)
         validate_release_access(request, release.workspace)
         rfile = release.files.get(name=filename)
         return serve_file(request, rfile)

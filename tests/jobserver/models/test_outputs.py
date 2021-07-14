@@ -42,6 +42,12 @@ def test_release_get_api_url():
 
 
 @pytest.mark.django_db
+def test_release_ulid():
+    release = ReleaseFactory(ReleaseUploadsFactory(["file1.txt"]))
+    assert release.ulid.timestamp
+
+
+@pytest.mark.django_db
 def test_release_file_absolute_path():
     files = {"file.txt": b"test_absolute_path"}
     release = ReleaseFactory(ReleaseUploadsFactory(files))
@@ -75,3 +81,10 @@ def test_releasefile_get_absolute_url():
             "path": file.name,
         },
     )
+
+
+@pytest.mark.django_db
+def test_releasefile_ulid():
+    release = ReleaseFactory(ReleaseUploadsFactory(["file1.txt"]))
+    rfile = release.files.first()
+    assert rfile.ulid.timestamp

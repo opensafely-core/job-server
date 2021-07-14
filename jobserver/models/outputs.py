@@ -1,9 +1,10 @@
-import uuid
-
 from django.conf import settings
 from django.db import models
 from django.urls import reverse
 from django.utils import timezone
+from ulid import ULID
+
+from jobserver.models.common import new_ulid_str
 
 
 def absolute_file_path(path):
@@ -46,14 +47,18 @@ class PublicRelease(models.Model):
 class Release(models.Model):
     """A set of reviewed and redacted outputs from a Workspace"""
 
-    class ReleaseStatuses(models.TextChoices):
+    class Statuses(models.TextChoices):
         REQUESTED = "REQUESTED", "Requested"
         APPROVED = "APPROVED", "Approved"
         REJECTED = "REJECTED", "Rejected"
 
-    id = models.UUIDField(  # noqa: A003
-        primary_key=True, default=uuid.uuid4, editable=False
+    id = models.CharField(  # noqa: A003
+        default=new_ulid_str, max_length=26, primary_key=True, editable=False
     )
+
+    @property
+    def ulid(self):
+        return ULID.from_str(self.id)
 
     workspace = models.ForeignKey(
         "Workspace",
@@ -72,9 +77,7 @@ class Release(models.Model):
         on_delete=models.PROTECT,
         related_name="releases",
     )
-    status = models.TextField(
-        choices=ReleaseStatuses.choices, default=ReleaseStatuses.REQUESTED
-    )
+    status = models.TextField(choices=Statuses.choices, default=Statuses.REQUESTED)
 
     # list of files requested for release
     requested_files = models.JSONField()
@@ -100,6 +103,14 @@ class ReleaseFile(models.Model):
     We store these in the file system to avoid db bloat and so that we can
     serve them via nginx.
     """
+
+    id = models.CharField(  # noqa: A003
+        default=new_ulid_str, max_length=26, primary_key=True, editable=False
+    )
+
+    @property
+    def ulid(self):
+        return ULID.from_str(self.id)
 
     release = models.ForeignKey(
         "Release",
