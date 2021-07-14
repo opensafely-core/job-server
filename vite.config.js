@@ -15,7 +15,7 @@ const config = {
         project_create: "./assets/src/scripts/project_create.js",
         workspace_create: "./assets/src/scripts/workspace_create.js",
         workspace_detail: "./assets/src/scripts/workspace_detail.js",
-        "results-viewer": "./assets/src/scripts/results-viewer/index.jsx",
+        "outputs-viewer": "./assets/src/scripts/outputs-viewer/index.jsx",
       },
     },
     outDir: "assets/dist",
@@ -25,7 +25,7 @@ const config = {
   css: {
     preprocessorOptions: {
       scss: {
-        additionalData: "$env: " + process.env.NODE_ENV + ";",
+        additionalData: `$env: ${process.env.NODE_ENV};`,
       },
     },
   },
