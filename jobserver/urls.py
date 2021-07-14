@@ -35,7 +35,12 @@ from .views.projects import (
     ProjectOnboardingCreate,
     ProjectSettings,
 )
-from .views.releases import ProjectReleaseList, ReleaseDetail, WorkspaceReleaseList
+from .views.releases import (
+    ProjectReleaseList,
+    PublicReleaseCreate,
+    ReleaseDetail,
+    WorkspaceReleaseList,
+)
 from .views.status import Status
 from .views.users import Settings, UserDetail, UserList
 from .views.workspaces import (
@@ -108,6 +113,11 @@ workspace_urls = [
         "outputs/<path:path>",
         WorkspaceOutputList.as_view(),
         name="workspace-output-list",
+    ),
+    path(
+        "publish/",
+        PublicReleaseCreate.as_view(),
+        name="workspace-publish",
     ),
     path(
         "releases/",

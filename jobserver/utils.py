@@ -11,3 +11,7 @@ def raise_if_not_int(value):
         int(value)
     except ValueError:
         raise BadRequest
+
+
+def set_from_qs(qs, field="pk"):
+    return set(qs.values_list(field, flat=True))
