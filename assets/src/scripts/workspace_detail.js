@@ -1,4 +1,4 @@
-import "vite/dynamic-import-polyfill";
+/* eslint-disable no-restricted-syntax */
 
 const updateStatuses = (urlBase) => {
   /**

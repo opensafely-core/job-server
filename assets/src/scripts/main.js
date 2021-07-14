@@ -1,4 +1,3 @@
-import "vite/dynamic-import-polyfill";
 import "../styles/main.scss";
 
 if (document.location.hostname === "jobs.opensafely.org") {
