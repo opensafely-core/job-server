@@ -12,8 +12,8 @@ from jobserver.api.jobs import (
     WorkspaceStatusesAPI,
 )
 from jobserver.api.releases import (
+    ReleaseAPI,
     ReleaseFileAPI,
-    ReleaseIndexAPI,
     ReleaseNotificationAPICreate,
     ReleaseWorkspaceAPI,
 )
@@ -71,11 +71,11 @@ api_urls = [
     ),
     path(
         "releases/release/<release_id>",
-        ReleaseIndexAPI.as_view(),
+        ReleaseAPI.as_view(),
         name="release",
     ),
     path(
-        "releases/release/<release_id>/<path:filename>",
+        "releases/file/<file_id>",
         ReleaseFileAPI.as_view(),
         name="release-file",
     ),

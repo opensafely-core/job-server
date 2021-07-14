@@ -153,10 +153,4 @@ class ReleaseFile(models.Model):
 
     def get_api_url(self):
         """The API url that will serve up this file."""
-        return reverse(
-            "api:release-file",
-            kwargs={
-                "release_id": self.release.id,
-                "filename": self.name,
-            },
-        )
+        return reverse("api:release-file", kwargs={"file_id": self.id})

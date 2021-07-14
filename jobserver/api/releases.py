@@ -12,7 +12,7 @@ from slack_sdk.errors import SlackApiError
 from jobserver import releases
 from jobserver.api import get_backend_from_token
 from jobserver.authorization import has_permission
-from jobserver.models import Release, User, Workspace
+from jobserver.models import Release, ReleaseFile, User, Workspace
 from services.slack import client as slack_client
 
 
@@ -83,15 +83,6 @@ def generate_index(files):
     )
 
 
-class ReleaseIndexAPI(APIView):
-    def get(self, request, release_id):
-        """A list of files for this Release."""
-        release = get_object_or_404(Release, id=release_id)
-        validate_release_access(request, release.workspace)
-        files = {f.name: f for f in release.files.all()}
-        return Response(generate_index(files))
-
-
 class ReleaseWorkspaceAPI(APIView):
     """Listing current files and creating new Releases for a workspace."""
 
@@ -110,7 +101,10 @@ class ReleaseWorkspaceAPI(APIView):
         serializer.is_valid(raise_exception=True)
         files = serializer.validated_data["files"]
 
-        release = releases.create_release(workspace, backend, user, files)
+        try:
+            release = releases.create_release(workspace, backend, user, files)
+        except releases.ReleaseFileAlreadyExists as exc:
+            raise ValidationError({"detail": str(exc)})
 
         response = Response(status=201)
         response["Location"] = request.build_absolute_uri(release.get_api_url())
@@ -125,21 +119,28 @@ class ReleaseWorkspaceAPI(APIView):
         return Response(generate_index(files))
 
 
-class ReleaseFileAPI(APIView):
+class ReleaseAPI(APIView):
     # DRF file upload does not use multipart, is just a simple byte stream
     parser_classes = [FileUploadParser]
 
-    def put(self, request, release_id, filename):
+    def post(self, request, release_id):
         """Upload a file for this Release.
 
         File must be listed in Release.requested_files, and the hash must match.
         """
         release = get_object_or_404(Release, id=release_id)
-
-        if filename not in release.requested_files:
-            raise NotFound
-
         backend, user = validate_upload_access(request, release.workspace)
+
+        try:
+            upload = request.data["file"]
+        except KeyError:
+            raise ValidationError({"detail": "No data uploaded"})
+
+        filename = upload.name
+        if filename not in release.requested_files:
+            raise ValidationError(
+                {"detail": f"File {filename} not requested in release {release.id}"}
+            )
 
         # ensure this is being released from the same backend as the Release
         # was created from
@@ -150,20 +151,31 @@ class ReleaseFileAPI(APIView):
                 }
             )
 
-        if "file" not in request.data:
-            raise ValidationError({"detail": "No data uploaded"})
+        try:
+            rfile = releases.handle_file_upload(
+                release, backend, user, upload, filename
+            )
+        except releases.ReleaseFileAlreadyExists as exc:
+            raise ValidationError({"detail": str(exc)})
 
-        releases.handle_file_upload(
-            release, backend, user, request.data["file"], filename
-        )
+        response = Response(status=201)
+        response.headers["File-Id"] = rfile.id
+        response.headers["Location"] = request.build_absolute_uri(rfile.get_api_url())
+        return response
 
-        return Response(status=200)
-
-    def get(self, request, release_id, filename):
-        """Return the content of a specific ReleaseFile"""
+    def get(self, request, release_id):
+        """A list of files for this Release."""
         release = get_object_or_404(Release, id=release_id)
         validate_release_access(request, release.workspace)
-        rfile = release.files.get(name=filename)
+        files = {f.name: f for f in release.files.all()}
+        return Response(generate_index(files))
+
+
+class ReleaseFileAPI(APIView):
+    def get(self, request, file_id):
+        """Return the content of a specific ReleaseFile"""
+        rfile = get_object_or_404(ReleaseFile, id=file_id)
+        validate_release_access(request, rfile.workspace)
         return serve_file(request, rfile)
 
 
