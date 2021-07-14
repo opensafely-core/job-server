@@ -1,22 +1,14 @@
+import axios from "axios";
 import React from "react";
 import { useQuery } from "react-query";
 import classes from "./FileList.module.scss";
 
-const dummyData = [
-  "src/file1.html",
-  "src/file2.svg",
-  "src/file3.csv",
-  "src/file4.png",
-  "src/file5.txt",
-];
-
-function FileList() {
+function FileList({ apiUrl }) {
   const { isLoading, isError, data, error } = useQuery(
     "FILE_LIST",
-    () => fetch("/"),
-    {
-      initialData: dummyData,
-      staleTime: Infinity,
+    async () => {
+      const { data } = await axios.get(apiUrl);
+      return data;
     }
   );
 
@@ -30,9 +22,9 @@ function FileList() {
 
   return (
     <ul>
-      {data.map((item) => (
-        <li key={item} className={classes.item}>
-          {item}
+      {data.files.map((item) => (
+        <li key={item.url} className={classes.item}>
+          <a href={item.url}>{item.name}</a>
         </li>
       ))}
     </ul>

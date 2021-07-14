@@ -11,10 +11,10 @@ const queryClient = new QueryClient({
   },
 });
 
-function App() {
+function App({ apiUrl }) {
   return (
     <QueryClientProvider client={queryClient}>
-      <FileList />
+      <FileList apiUrl={apiUrl} />
       <ReactQueryDevtools initialIsOpen={false} />
     </QueryClientProvider>
   );

@@ -16,6 +16,7 @@
     "vite": "^2.3.8"
   },
   "dependencies": {
+    "axios": "^0.21.1",
     "bootstrap": "^4.5.2",
     "jquery": "^3.5.1",
     "list.js": "^2.3.0",

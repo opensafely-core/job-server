@@ -1,4 +1,8 @@
-<div>
-  <pre>Path: {{ path }}</pre>
-  <div id="root"></div>
-</div>
+{% load django_vite %}
+
+<div id="outputsSPA" data-api-url="{{ api_url }}"></div>
+
+{% block extra_js %}
+  {% vite_asset 'assets/src/scripts/results-viewer/index.jsx' %}
+  {% vite_asset 'assets/src/scripts/results-viewer/index-legacy.jsx' scripts_attrs=scripts_attrs %}
+{% endblock %}
