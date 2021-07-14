@@ -12,38 +12,6 @@ def absolute_file_path(path):
     return abs_path
 
 
-class PublicRelease(models.Model):
-    """
-    A Release for a Workspace which has been, or will be made publicly available
-    """
-
-    class Statuses(models.TextChoices):
-        DRAFT = "draft", "Draft"
-        LIVE = "live", "Live"
-
-    created_by = models.ForeignKey(
-        "User",
-        on_delete=models.PROTECT,
-        related_name="public_releases",
-    )
-    files = models.ManyToManyField(
-        "ReleaseFile",
-        related_name="public_releases",
-    )
-    workspace = models.ForeignKey(
-        "Workspace",
-        on_delete=models.PROTECT,
-        related_name="public_releases",
-    )
-
-    status = models.TextField(choices=Statuses.choices, default=Statuses.DRAFT)
-
-    created_at = models.DateTimeField(default=timezone.now)
-
-    def __str__(self):
-        return f"{self.status} Public Release made by {self.created_by.username}"
-
-
 class Release(models.Model):
     """A set of reviewed and redacted outputs from a Workspace"""
 
@@ -154,3 +122,47 @@ class ReleaseFile(models.Model):
     def get_api_url(self):
         """The API url that will serve up this file."""
         return reverse("api:release-file", kwargs={"file_id": self.id})
+
+
+class Snapshot(models.Model):
+    """A "frozen" copy of the ReleaseFiles for a Workspace."""
+
+    class Statuses(models.TextChoices):
+        DRAFT = "draft", "Draft"
+        PUBLISHED = "published", "Published"
+
+    created_by = models.ForeignKey(
+        "User",
+        on_delete=models.PROTECT,
+        related_name="snapshots",
+    )
+    files = models.ManyToManyField(
+        "ReleaseFile",
+        related_name="snapshots",
+    )
+    workspace = models.ForeignKey(
+        "Workspace",
+        on_delete=models.PROTECT,
+        related_name="snapshots",
+    )
+
+    created_at = models.DateTimeField(default=timezone.now)
+    published_at = models.DateTimeField(null=True)
+
+    def __str__(self):
+        status = "Published" if self.published_at else "Draft"
+        return f"{status} Snapshot made by {self.created_by.username}"
+
+    def get_absolute_url(self):
+        return reverse(
+            "workspace-snapshot-detail",
+            kwargs={
+                "org_slug": self.workspace.project.org.slug,
+                "project_slug": self.workspace.project.slug,
+                "workspace_slug": self.workspace.name,
+                "pk": self.pk,
+            },
+        )
+
+    def get_api_url(self):
+        return reverse("api:snapshot", kwargs={"snapshot_id": self.pk})

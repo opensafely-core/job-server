@@ -5,17 +5,17 @@ from django.http import Http404
 from jobserver.authorization import OutputPublisher
 from jobserver.views.releases import (
     ProjectReleaseList,
-    PublicReleaseCreate,
     ReleaseDetail,
+    SnapshotCreate,
     WorkspaceReleaseList,
 )
 
 from ...factories import (
     OrgFactory,
     ProjectFactory,
-    PublicReleaseFactory,
     ReleaseFactory,
     ReleaseUploadsFactory,
+    SnapshotFactory,
     UserFactory,
     WorkspaceFactory,
 )
@@ -61,138 +61,6 @@ def test_projectreleaselist_unknown_workspace(rf):
             request,
             org_slug=org.slug,
             project_slug="",
-        )
-
-
-@pytest.mark.django_db
-def test_publicreleasecreate_success(rf):
-    workspace = WorkspaceFactory()
-    ReleaseFactory(ReleaseUploadsFactory(["file1", "file2"]), workspace=workspace)
-
-    assert workspace.public_releases.count() == 0
-
-    request = rf.post("/")
-    request.user = UserFactory(roles=[OutputPublisher])
-
-    response = PublicReleaseCreate.as_view()(
-        request,
-        org_slug=workspace.project.org.slug,
-        project_slug=workspace.project.slug,
-        workspace_slug=workspace.name,
-    )
-
-    assert response.status_code == 302
-    assert response.url == workspace.get_absolute_url()
-
-    workspace.refresh_from_db()
-    assert workspace.public_releases.count() == 1
-
-    # confirm the public release's files match the current workspace files
-    output = set(workspace.public_releases.first().files.values_list("pk", flat=True))
-    expected = set(workspace.files.values_list("pk", flat=True))
-    assert output == expected
-
-
-@pytest.mark.django_db
-def test_publicreleasecreate_unknown_workspace(rf):
-    project = ProjectFactory()
-
-    request = rf.post("/")
-    request.user = UserFactory(roles=[OutputPublisher])
-
-    with pytest.raises(Http404):
-        PublicReleaseCreate.as_view()(
-            request,
-            org_slug=project.org.slug,
-            project_slug=project.slug,
-            workspace_slug="",
-        )
-
-
-@pytest.mark.django_db
-def test_publicreleasecreate_with_duplicate_public_release(rf):
-    workspace = WorkspaceFactory()
-    ReleaseFactory(ReleaseUploadsFactory(["file1", "file2"]), workspace=workspace)
-
-    # create a PublicRelease of the Workspace in its current state
-    public_release = PublicReleaseFactory(workspace=workspace)
-    public_release.files.set(workspace.files.all())
-    assert workspace.public_releases.count() == 1
-    assert workspace.public_releases.first() == public_release
-
-    request = rf.post("/")
-    request.user = UserFactory(roles=[OutputPublisher])
-
-    # set up messages framework
-    request.session = "session"
-    messages = FallbackStorage(request)
-    request._messages = messages
-
-    response = PublicReleaseCreate.as_view()(
-        request,
-        org_slug=workspace.project.org.slug,
-        project_slug=workspace.project.slug,
-        workspace_slug=workspace.name,
-    )
-
-    assert response.status_code == 302
-    assert response.url == workspace.get_absolute_url()
-
-    workspace.refresh_from_db()
-
-    # check the public release is still the one we created above
-    assert workspace.public_releases.count() == 1
-    assert workspace.public_releases.first() == public_release
-
-    # check we have a message for the user
-    messages = list(messages)
-    assert len(messages) == 1
-    expected = "A release with the current files already exists, please use that one."
-    assert str(messages[0]) == expected
-
-
-@pytest.mark.django_db
-def test_publicreleasecreate_with_no_outputs(rf):
-    workspace = WorkspaceFactory()
-
-    request = rf.post("/")
-    request.user = UserFactory(roles=[OutputPublisher])
-
-    # set up messages framework
-    request.session = "session"
-    messages = FallbackStorage(request)
-    request._messages = messages
-
-    response = PublicReleaseCreate.as_view()(
-        request,
-        org_slug=workspace.project.org.slug,
-        project_slug=workspace.project.slug,
-        workspace_slug=workspace.name,
-    )
-
-    assert response.status_code == 302
-    assert response.url == workspace.get_absolute_url()
-
-    # check we have a message for the user
-    messages = list(messages)
-    assert len(messages) == 1
-    expected = "There are no outputs to publish for this workspace."
-    assert str(messages[0]) == expected
-
-
-@pytest.mark.django_db
-def test_publicreleasecreate_without_permission(rf):
-    workspace = WorkspaceFactory()
-
-    request = rf.post("/")
-    request.user = UserFactory()
-
-    with pytest.raises(Http404):
-        PublicReleaseCreate.as_view()(
-            request,
-            org_slug=workspace.project.org.slug,
-            project_slug=workspace.project.slug,
-            workspace_slug=workspace.name,
         )
 
 
@@ -245,6 +113,138 @@ def test_releasedetail_with_path_success(rf):
     )
 
     assert response.status_code == 200
+
+
+@pytest.mark.django_db
+def test_snapshotcreate_success(rf):
+    workspace = WorkspaceFactory()
+    ReleaseFactory(ReleaseUploadsFactory(["file1", "file2"]), workspace=workspace)
+
+    assert workspace.snapshots.count() == 0
+
+    request = rf.post("/")
+    request.user = UserFactory(roles=[OutputPublisher])
+
+    response = SnapshotCreate.as_view()(
+        request,
+        org_slug=workspace.project.org.slug,
+        project_slug=workspace.project.slug,
+        workspace_slug=workspace.name,
+    )
+
+    assert response.status_code == 302
+    assert response.url == workspace.get_absolute_url()
+
+    workspace.refresh_from_db()
+    assert workspace.snapshots.count() == 1
+
+    # confirm the snapshot's files match the current workspace files
+    output = set(workspace.snapshots.first().files.values_list("pk", flat=True))
+    expected = set(workspace.files.values_list("pk", flat=True))
+    assert output == expected
+
+
+@pytest.mark.django_db
+def test_snapshotcreate_unknown_workspace(rf):
+    project = ProjectFactory()
+
+    request = rf.post("/")
+    request.user = UserFactory(roles=[OutputPublisher])
+
+    with pytest.raises(Http404):
+        SnapshotCreate.as_view()(
+            request,
+            org_slug=project.org.slug,
+            project_slug=project.slug,
+            workspace_slug="",
+        )
+
+
+@pytest.mark.django_db
+def test_snapshotcreate_with_duplicate_snapshot(rf):
+    workspace = WorkspaceFactory()
+    ReleaseFactory(ReleaseUploadsFactory(["file1", "file2"]), workspace=workspace)
+
+    # create a Snapshot of the Workspace in its current state
+    snapshot = SnapshotFactory(workspace=workspace)
+    snapshot.files.set(workspace.files.all())
+    assert workspace.snapshots.count() == 1
+    assert workspace.snapshots.first() == snapshot
+
+    request = rf.post("/")
+    request.user = UserFactory(roles=[OutputPublisher])
+
+    # set up messages framework
+    request.session = "session"
+    messages = FallbackStorage(request)
+    request._messages = messages
+
+    response = SnapshotCreate.as_view()(
+        request,
+        org_slug=workspace.project.org.slug,
+        project_slug=workspace.project.slug,
+        workspace_slug=workspace.name,
+    )
+
+    assert response.status_code == 302
+    assert response.url == workspace.get_absolute_url()
+
+    workspace.refresh_from_db()
+
+    # check the snapshot is still the one we created above
+    assert workspace.snapshots.count() == 1
+    assert workspace.snapshots.first() == snapshot
+
+    # check we have a message for the user
+    messages = list(messages)
+    assert len(messages) == 1
+    expected = "A release with the current files already exists, please use that one."
+    assert str(messages[0]) == expected
+
+
+@pytest.mark.django_db
+def test_snapshotcreate_with_no_outputs(rf):
+    workspace = WorkspaceFactory()
+
+    request = rf.post("/")
+    request.user = UserFactory(roles=[OutputPublisher])
+
+    # set up messages framework
+    request.session = "session"
+    messages = FallbackStorage(request)
+    request._messages = messages
+
+    response = SnapshotCreate.as_view()(
+        request,
+        org_slug=workspace.project.org.slug,
+        project_slug=workspace.project.slug,
+        workspace_slug=workspace.name,
+    )
+
+    assert response.status_code == 302
+    assert response.url == workspace.get_absolute_url()
+
+    # check we have a message for the user
+    messages = list(messages)
+    assert len(messages) == 1
+    expected = "There are no outputs to publish for this workspace."
+    assert str(messages[0]) == expected
+
+
+@pytest.mark.django_db
+def test_snapshotcreate_without_permission(rf):
+    workspace = WorkspaceFactory()
+
+    request = rf.post("/")
+    request.user = UserFactory()
+
+    with pytest.raises(Http404):
+        SnapshotCreate.as_view()(
+            request,
+            org_slug=workspace.project.org.slug,
+            project_slug=workspace.project.slug,
+            workspace_slug=workspace.name,
+        )
 
 
 @pytest.mark.django_db

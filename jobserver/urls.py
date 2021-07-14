@@ -37,8 +37,8 @@ from .views.projects import (
 )
 from .views.releases import (
     ProjectReleaseList,
-    PublicReleaseCreate,
     ReleaseDetail,
+    SnapshotCreate,
     WorkspaceReleaseList,
 )
 from .views.status import Status
@@ -116,7 +116,7 @@ workspace_urls = [
     ),
     path(
         "publish/",
-        PublicReleaseCreate.as_view(),
+        SnapshotCreate.as_view(),
         name="workspace-publish",
     ),
     path(
