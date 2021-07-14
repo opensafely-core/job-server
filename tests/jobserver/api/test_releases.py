@@ -42,6 +42,35 @@ def test_releasenotificationapicreate_success(api_rf, mocker):
 
 
 @pytest.mark.django_db
+def test_releasenotificationapicreate_success_with_files(api_rf, mocker):
+    backend = BackendFactory()
+
+    mock = mocker.patch("jobserver.api.releases.slack_client", autospec=True)
+
+    data = {
+        "created_by": "test user",
+        "path": "/path/to/outputs",
+        "files": ["output/file1.txt", "output/file2.txt"],
+    }
+    request = api_rf.post("/", data, HTTP_AUTHORIZATION=backend.auth_token)
+    request.user = UserFactory()
+
+    response = ReleaseNotificationAPICreate.as_view()(request)
+
+    assert response.status_code == 201, response.data
+
+    # check we called the slack API in the expected way
+    mock.chat_postMessage.assert_called_once_with(
+        channel="opensafely-outputs",
+        text=(
+            "test user released 2 outputs from /path/to/outputs:\n"
+            "`output/file1.txt`\n"
+            "`output/file2.txt`"
+        ),
+    )
+
+
+@pytest.mark.django_db
 def test_releasenotificationapicreate_with_failed_slack_update(
     api_rf, mocker, log_output
 ):

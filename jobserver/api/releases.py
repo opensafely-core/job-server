@@ -24,6 +24,7 @@ class ReleaseNotificationAPICreate(CreateAPIView):
     class serializer_class(serializers.Serializer):
         created_by = serializers.CharField()
         path = serializers.CharField()
+        files = serializers.ListField(child=serializers.CharField(), required=False)
 
     def initial(self, request, *args, **kwargs):
         token = request.META.get("HTTP_AUTHORIZATION")
@@ -36,9 +37,20 @@ class ReleaseNotificationAPICreate(CreateAPIView):
     def perform_create(self, serializer):
         data = serializer.data
 
-        message = f"{data['created_by']} released outputs from {data['path']}"
+        if "files" in data:
+            files = data["files"]
+            message = [
+                f"{data['created_by']} released {len(files)} outputs from {data['path']}:"
+            ]
+            for f in files:
+                message.append(f"`{f}`")
+        else:
+            message = [f"{data['created_by']} released outputs from {data['path']}"]
+
         try:
-            slack_client.chat_postMessage(channel="opensafely-outputs", text=message)
+            slack_client.chat_postMessage(
+                channel="opensafely-outputs", text="\n".join(message)
+            )
         except SlackApiError:
             # log and don't block the response
             logger.exception("Failed to notify slack")
