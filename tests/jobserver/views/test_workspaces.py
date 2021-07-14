@@ -10,10 +10,10 @@ from jobserver.models import Backend, JobRequest, Workspace
 from jobserver.views.workspaces import (
     WorkspaceArchiveToggle,
     WorkspaceCreate,
+    WorkspaceCurrentOutputsDetail,
     WorkspaceDetail,
     WorkspaceLog,
     WorkspaceNotificationsToggle,
-    WorkspaceOutputList,
 )
 
 from ...factories import (
@@ -775,12 +775,12 @@ def test_workspacenotificationstoggle_unknown_workspace(rf, user):
 
 
 @pytest.mark.django_db
-def test_workspaceoutputlist_success(rf):
+def test_workspacecurrentoutputsdetail_success(rf):
     workspace = WorkspaceFactory()
 
     request = rf.get("/")
 
-    response = WorkspaceOutputList.as_view()(
+    response = WorkspaceCurrentOutputsDetail.as_view()(
         request,
         org_slug=workspace.project.org.slug,
         project_slug=workspace.project.slug,
@@ -791,13 +791,13 @@ def test_workspaceoutputlist_success(rf):
 
 
 @pytest.mark.django_db
-def test_workspaceoutputs_unknown_workspace(rf):
+def test_workspacecurrentoutputsdetail_unknown_workspace(rf):
     project = ProjectFactory()
 
     request = rf.get("/")
 
     with pytest.raises(Http404):
-        WorkspaceOutputList.as_view()(
+        WorkspaceCurrentOutputsDetail.as_view()(
             request,
             org_slug=project.org.slug,
             project_slug=project.slug,

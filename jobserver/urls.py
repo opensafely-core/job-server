@@ -46,10 +46,10 @@ from .views.users import Settings, UserDetail, UserList
 from .views.workspaces import (
     WorkspaceArchiveToggle,
     WorkspaceCreate,
+    WorkspaceCurrentOutputsDetail,
     WorkspaceDetail,
     WorkspaceLog,
     WorkspaceNotificationsToggle,
-    WorkspaceOutputList,
 )
 
 
@@ -108,11 +108,15 @@ workspace_urls = [
         WorkspaceNotificationsToggle.as_view(),
         name="workspace-notifications-toggle",
     ),
-    path("outputs/", WorkspaceOutputList.as_view(), name="workspace-output-list"),
+    path(
+        "outputs/",
+        WorkspaceCurrentOutputsDetail.as_view(),
+        name="workspace-current-outputs-detail",
+    ),
     path(
         "outputs/<path:path>",
-        WorkspaceOutputList.as_view(),
-        name="workspace-output-list",
+        WorkspaceCurrentOutputsDetail.as_view(),
+        name="workspace-current-outputs-detail",
     ),
     path(
         "publish/",

@@ -878,6 +878,22 @@ def test_workspace_get_archive_toggle_url():
 
 
 @pytest.mark.django_db
+def test_workspace_get_current_outputs_url():
+    workspace = WorkspaceFactory()
+
+    url = workspace.get_current_outputs_url()
+
+    assert url == reverse(
+        "workspace-current-outputs-detail",
+        kwargs={
+            "org_slug": workspace.project.org.slug,
+            "project_slug": workspace.project.slug,
+            "workspace_slug": workspace.name,
+        },
+    )
+
+
+@pytest.mark.django_db
 def test_workspace_get_logs_url():
     org = OrgFactory()
     project = ProjectFactory(org=org)
@@ -908,22 +924,6 @@ def test_workspace_get_notifications_toggle_url():
         kwargs={
             "org_slug": org.slug,
             "project_slug": project.slug,
-            "workspace_slug": workspace.name,
-        },
-    )
-
-
-@pytest.mark.django_db
-def test_workspace_get_outputs_url():
-    workspace = WorkspaceFactory()
-
-    url = workspace.get_outputs_url()
-
-    assert url == reverse(
-        "workspace-output-list",
-        kwargs={
-            "org_slug": workspace.project.org.slug,
-            "project_slug": workspace.project.slug,
             "workspace_slug": workspace.name,
         },
     )

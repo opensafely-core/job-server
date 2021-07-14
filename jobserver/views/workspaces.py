@@ -271,15 +271,16 @@ class WorkspaceNotificationsToggle(View):
         return redirect(workspace)
 
 
-class WorkspaceOutputList(View):
-    def get(self, request, *args, **kwargs):
-        """
-        Orchestrate viewing of a Release in the SPA
+class WorkspaceCurrentOutputsDetail(View):
+    """
+    Orchestrate viewing of the Workspace's outputs in the SPA
 
-        We consume two URLs with one view, because we want to both do
-        permissions checks on the Release but also load the SPA for any given
-        path under a Release.
-        """
+    We consume two URLs with one view, because we want to both do permissions
+    checks on the Workspace but also load the SPA for any given path under the
+    Workspace.
+    """
+
+    def get(self, request, *args, **kwargs):
         workspace = get_object_or_404(
             Workspace,
             project__org__slug=self.kwargs["org_slug"],
@@ -295,6 +296,6 @@ class WorkspaceOutputList(View):
         }
         return TemplateResponse(
             request,
-            "workspace_output_list.html",
+            "workspace_current_outputs_detail.html",
             context=context,
         )
