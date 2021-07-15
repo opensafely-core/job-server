@@ -156,15 +156,28 @@ class WorkspaceDetail(CreateView):
     def get_context_data(self, **kwargs):
         can_use_releases = has_role(self.request.user, CoreDeveloper)
 
-        context = super().get_context_data(**kwargs)
-        context["actions"] = self.actions
-        context["can_use_releases"] = can_use_releases
-        context["repo_is_private"] = self.get_repo_is_private()
-        context["latest_job_request"] = self.get_latest_job_request()
-        context["show_details"] = self.show_details
-        context["user_can_run_jobs"] = self.user_can_run_jobs
-        context["workspace"] = self.workspace
-        return context
+        # unprivileged users only see the Outputs button if there's published snapshots
+        # privileged users see it if there's snapshots or workspace files
+        is_privileged_user = has_permission(
+            self.request.user, "view_release_file", project=self.workspace.project
+        )
+        if is_privileged_user:
+            can_view_outputs = self.workspace.files.exists()
+        else:
+            can_view_outputs = self.workspace.snapshots.exclude(
+                published_at=None
+            ).exists()
+
+        return super().get_context_data(**kwargs) | {
+            "actions": self.actions,
+            "can_use_releases": can_use_releases,
+            "repo_is_private": self.get_repo_is_private(),
+            "latest_job_request": self.get_latest_job_request(),
+            "show_details": self.show_details,
+            "user_can_run_jobs": self.user_can_run_jobs,
+            "user_can_view_outputs": can_view_outputs,
+            "workspace": self.workspace,
+        }
 
     def get_form_kwargs(self):
         kwargs = super().get_form_kwargs()

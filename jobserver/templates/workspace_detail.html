@@ -78,7 +78,9 @@
 
       <div class="d-flex">
         {% if can_use_releases %}
+        {% if user_can_view_outputs %}
         <a class="btn btn-primary mr-2" href="{{ workspace.get_outputs_url }}">Outputs</a>
+        {% endif %}
 
         {% if user_can_run_jobs %}
         <form method="POST" action="{{ workspace.get_publish_url }}">
