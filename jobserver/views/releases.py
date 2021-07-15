@@ -1,5 +1,4 @@
 from django.contrib import messages
-from django.core.exceptions import ValidationError
 from django.http import Http404
 from django.shortcuts import get_object_or_404, redirect
 from django.template.response import TemplateResponse
@@ -82,16 +81,13 @@ class ReleaseDetail(View):
         permissions checks on the Release but also load the SPA for any given
         path under a Release.
         """
-        try:
-            release = get_object_or_404(
-                Release,
-                workspace__project__org__slug=self.kwargs["org_slug"],
-                workspace__project__slug=self.kwargs["project_slug"],
-                workspace__name=self.kwargs["workspace_slug"],
-                pk=self.kwargs["pk"],
-            )
-        except ValidationError:
-            raise Http404
+        release = get_object_or_404(
+            Release,
+            workspace__project__org__slug=self.kwargs["org_slug"],
+            workspace__project__slug=self.kwargs["project_slug"],
+            workspace__name=self.kwargs["workspace_slug"],
+            pk=self.kwargs["pk"],
+        )
 
         # TODO: check permissions here
 

@@ -7,8 +7,29 @@ from .models import Release, ReleaseFile
 from .models.outputs import absolute_file_path
 
 
+class ReleaseFileAlreadyExists(Exception):
+    pass
+
+
+def check_not_already_uploaded(filename, filehash, backend):
+    """Check if this filename/filehash combination has been uploaded before."""
+    duplicate = ReleaseFile.objects.filter(
+        release__backend=backend,
+        name=filename,
+        filehash=filehash,
+    )
+    if duplicate.exists():
+        raise ReleaseFileAlreadyExists(
+            f"This version of {filename} already exists for {backend.name}"
+        )
+
+
 @transaction.atomic
 def create_release(workspace, backend, created_by, requested_files, **kwargs):
+
+    for filename, filehash in requested_files.items():
+        check_not_already_uploaded(filename, filehash, backend)
+
     release = Release.objects.create(
         workspace=workspace,
         backend=backend,
@@ -29,21 +50,7 @@ def handle_file_upload(release, backend, user, upload, filename):
     # TODO: enforce a max upload size?
     data = upload.read()
     calculated_hash = hashlib.sha256(data).hexdigest()
-
-    # idempotency
-    try:
-        # check for duplicates
-        # - same backend
-        # - same filename
-        # - same contents
-        existing = ReleaseFile.objects.filter(
-            release__backend=backend,
-            name=filename,
-            filehash=calculated_hash,
-        ).get()
-        return existing
-    except ReleaseFile.DoesNotExist:
-        pass
+    check_not_already_uploaded(filename, calculated_hash, backend)
 
     # We group the directory structure by workspace for 2 reasons:
     # 1. avoid dumping everything in one big directory.

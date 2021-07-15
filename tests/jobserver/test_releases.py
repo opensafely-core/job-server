@@ -25,13 +25,25 @@ def raise_error(**kwargs):
 
 
 @pytest.mark.django_db
-def test_create_release():
-    backend = BackendFactory(name="backend2")
+def test_create_release_success():
+    backend = BackendFactory()
     workspace = WorkspaceFactory()
     user = UserFactory()
     files = {"file1.txt": "hash"}
     release = releases.create_release(workspace, backend, user, files)
     assert release.requested_files == files
+
+
+@pytest.mark.django_db
+def test_create_release_reupload():
+    uploads = ReleaseUploadsFactory({"file1.txt": b"test"})
+    release = ReleaseFactory(uploads)
+    rfile = release.files.first()
+    files = {"file1.txt": rfile.filehash}
+    with pytest.raises(releases.ReleaseFileAlreadyExists):
+        releases.create_release(
+            release.workspace, release.backend, release.created_by, files
+        )
 
 
 @pytest.mark.django_db
@@ -60,20 +72,14 @@ def test_handle_release_upload_already_exists():
     assert existing.filehash == uploads[0].filehash
 
     # upload same files
-    rfile = releases.handle_file_upload(
-        existing.release,
-        existing.release.backend,
-        existing.created_by,
-        uploads[0].stream,
-        uploads[0].filename,
-    )
-    assert rfile.id == existing.id
-    assert rfile.name == "file1.txt"
-    assert (
-        rfile.path
-        == f"{existing.release.workspace.name}/releases/{existing.release.id}/file1.txt"
-    )
-    assert rfile.filehash == uploads[0].filehash
+    with pytest.raises(releases.ReleaseFileAlreadyExists):
+        releases.handle_file_upload(
+            existing.release,
+            existing.release.backend,
+            existing.created_by,
+            uploads[0].stream,
+            uploads[0].filename,
+        )
 
 
 @pytest.mark.django_db
