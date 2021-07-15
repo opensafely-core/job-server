@@ -1,3 +1,4 @@
+import preact from "@preact/preset-vite";
 import legacy from "@vitejs/plugin-legacy";
 import copy from "rollup-plugin-copy";
 import { visualizer } from "rollup-plugin-visualizer";
@@ -31,6 +32,7 @@ const config = {
     },
   },
   plugins: [
+    preact(),
     legacy({
       additionalLegacyPolyfills: ["regenerator-runtime/runtime"],
     }),
