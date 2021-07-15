@@ -4,23 +4,25 @@ import { readString } from "react-papaparse";
 import { useTable } from "react-table";
 
 function Table({ data }) {
-  let jsonData;
+  const memoData = React.useMemo(
+    () =>
+      readString(data, {
+        header: true,
+        complete: (results) => results,
+      }).data,
+    [data]
+  );
 
-  readString(data, {
-    header: true,
-    complete: (results) => {
-      jsonData = results;
-    },
-  });
-
-  const memoData = React.useMemo(() => jsonData.data, [data]);
-
-  const columns = React.useMemo(() => {
-    const headers = jsonData.meta.fields.map((header) => ({
-      accessor: header,
-    }));
-    return headers;
-  }, [data]);
+  const columns = React.useMemo(
+    () =>
+      readString(data, {
+        header: true,
+        complete: (results) => results,
+      }).meta.fields.map((header) => ({
+        accessor: header,
+      })),
+    [data]
+  );
 
   const { getTableProps, getTableBodyProps, rows, prepareRow } = useTable({
     columns,
