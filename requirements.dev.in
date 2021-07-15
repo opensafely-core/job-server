@@ -1,5 +1,4 @@
--c requirements.in
--r requirements.in
+-r requirements.txt
 
 black
 factory_boy
@@ -7,6 +6,7 @@ flake8
 flake8-builtins
 flake8-implicit-str-concat
 isort
+pip-tools
 pre-commit
 pytest-cov
 pytest-django

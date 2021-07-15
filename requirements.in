@@ -1,4 +1,4 @@
-attrs
+attrs<21
 django-anymail[mailgun]
 django-crispy-forms
 django-debug-toolbar

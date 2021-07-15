@@ -16,9 +16,13 @@ check-for-upgrades:
 	pyupgrade --py39-plus $$(find jobserver -name "*.py" -type f) $$(find tests -name "*.py" -type f)
 
 .PHONY: compile
-compile:
-	pip-compile --generate-hashes requirements.in -o requirements.txt
-	pip-compile --generate-hashes requirements.dev.in -o requirements.dev.txt
+compile: requirements.txt requirements.dev.txt
+
+requirements.txt: requirements.in
+	pip-compile --generate-hashes --allow-unsafe requirements.in -o requirements.txt
+
+requirements.dev.txt: requirements.dev.in requirements.txt
+	pip-compile --generate-hashes --allow-unsafe requirements.dev.in -o requirements.dev.txt
 
 .PHONY: deploy
 deploy:
