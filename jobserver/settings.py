@@ -194,6 +194,9 @@ SILENCED_SYSTEM_CHECKS = [
 CSRF_COOKIE_SECURE = not DEBUG
 SESSION_COOKIE_SECURE = not DEBUG
 
+# https://developer.mozilla.org/en-US/docs/Web/HTTP/Headers/X-Frame-Options#directives
+X_FRAME_OPTIONS = "SAMEORIGIN"
+
 
 # THIRD PARTY SETTINGS
 

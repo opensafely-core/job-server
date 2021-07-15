@@ -9,6 +9,7 @@
     "lint:fix": "eslint \"./assets/src/**/*.{js,jsx}\" --fix"
   },
   "devDependencies": {
+    "@preact/preset-vite": "^2.1.0",
     "@vitejs/plugin-legacy": "^1.4.3",
     "autoprefixer": "^10.2.6",
     "cssnano": "^5.0.6",
@@ -24,23 +25,26 @@
     "prettier": "2.3.2",
     "prettier-eslint": "^12.0.0",
     "rollup-plugin-copy": "^3.4.0",
+    "rollup-plugin-visualizer": "^5.5.2",
     "sass": "^1.35.1",
     "vite": "^2.3.8"
   },
   "dependencies": {
-    "axios": "^0.21.1",
     "bootstrap": "^4.5.2",
+    "convert-csv-to-json": "^1.3.1",
     "jquery": "^3.5.1",
     "list.js": "^2.3.0",
     "prop-types": "^15.7.2",
     "react": "^17.0.2",
     "react-dom": "^17.0.2",
+    "react-papaparse": "^3.16.1",
     "react-query": "^3.18.1",
     "select2": "^4.0.13"
   },
   "eslintConfig": {
     "extends": [
       "airbnb",
+      "airbnb/hooks",
       "prettier"
     ],
     "plugins": [
