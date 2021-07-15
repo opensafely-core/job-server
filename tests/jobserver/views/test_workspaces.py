@@ -785,6 +785,7 @@ def test_workspacecurrentoutputsdetail_success(rf):
     workspace = WorkspaceFactory()
 
     request = rf.get("/")
+    request.user = UserFactory(roles=[ProjectCollaborator])
 
     response = WorkspaceCurrentOutputsDetail.as_view()(
         request,
@@ -794,6 +795,22 @@ def test_workspacecurrentoutputsdetail_success(rf):
     )
 
     assert response.status_code == 200
+
+
+@pytest.mark.django_db
+def test_workspacecurrentoutputsdetail_without_permission(rf):
+    workspace = WorkspaceFactory()
+
+    request = rf.get("/")
+    request.user = UserFactory()
+
+    with pytest.raises(Http404):
+        WorkspaceCurrentOutputsDetail.as_view()(
+            request,
+            org_slug=workspace.project.org.slug,
+            project_slug=workspace.project.slug,
+            workspace_slug=workspace.name,
+        )
 
 
 @pytest.mark.django_db

@@ -2,6 +2,7 @@ from django.contrib import messages
 from django.contrib.auth.decorators import user_passes_test
 from django.db import transaction
 from django.db.models import Q
+from django.http import Http404
 from django.shortcuts import get_object_or_404, redirect
 from django.template.response import TemplateResponse
 from django.utils.decorators import method_decorator
@@ -288,7 +289,11 @@ class WorkspaceCurrentOutputsDetail(View):
             name=self.kwargs["workspace_slug"],
         )
 
-        # TODO: check permissions here
+        # only a privileged user can view the current files
+        if not has_permission(
+            request.user, "view_release_file", project=workspace.project
+        ):
+            raise Http404
 
         context = {
             "api_url": workspace.get_releases_api_url(),
