@@ -1,16 +1,14 @@
-import axios from "axios";
 import PropTypes from "prop-types";
 import React from "react";
 import { useQuery } from "react-query";
+import handleErrors from "../../utils/fetch-handle-errors";
 import classes from "./FileList.module.scss";
 
 function FileList({ apiUrl, setFileUrl }) {
-  const { isLoading, isError, data, error } = useQuery(
-    "FILE_LIST",
-    async () => {
-      const { data: files } = await axios.get(apiUrl);
-      return files;
-    }
+  const { isLoading, isError, data, error } = useQuery("FILE_LIST", async () =>
+    fetch(apiUrl)
+      .then(handleErrors)
+      .then(async (response) => response.json())
   );
 
   if (isLoading) {

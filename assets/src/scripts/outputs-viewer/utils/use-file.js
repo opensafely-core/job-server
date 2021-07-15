@@ -1,13 +1,12 @@
-import axios from "axios";
 import { useQuery } from "react-query";
-
-const getFileByUrl = async (fileUrl) => {
-  const { data } = await axios.get(fileUrl);
-  return data;
-};
+import handleErrors from "./fetch-handle-errors";
 
 function useFile(fileUrl) {
-  return useQuery(["file", fileUrl], () => getFileByUrl(fileUrl));
+  return useQuery(["file", fileUrl], async () =>
+    fetch(fileUrl)
+      .then(handleErrors)
+      .then(async (response) => response.text())
+  );
 }
 
 export default useFile;
