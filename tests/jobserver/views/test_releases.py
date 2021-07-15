@@ -2,11 +2,12 @@ import pytest
 from django.contrib.messages.storage.fallback import FallbackStorage
 from django.http import Http404
 
-from jobserver.authorization import OutputPublisher
+from jobserver.authorization import OutputPublisher, ProjectCollaborator
 from jobserver.views.releases import (
     ProjectReleaseList,
     ReleaseDetail,
     SnapshotCreate,
+    SnapshotDetail,
     WorkspaceReleaseList,
 )
 
@@ -244,6 +245,57 @@ def test_snapshotcreate_without_permission(rf):
             org_slug=workspace.project.org.slug,
             project_slug=workspace.project.slug,
             workspace_slug=workspace.name,
+        )
+
+
+@pytest.mark.django_db
+def test_snapshotdetail_success(rf):
+    snapshot = SnapshotFactory()
+
+    request = rf.get("/")
+    request.user = UserFactory(roles=[ProjectCollaborator])
+
+    response = SnapshotDetail.as_view()(
+        request,
+        org_slug=snapshot.workspace.project.org.slug,
+        project_slug=snapshot.workspace.project.slug,
+        workspace_slug=snapshot.workspace.name,
+        pk=snapshot.pk,
+    )
+
+    assert response.status_code == 200
+
+
+@pytest.mark.django_db
+def test_snapshotdetail_without_permission(rf):
+    snapshot = SnapshotFactory()
+
+    request = rf.get("/")
+    request.user = UserFactory()
+
+    with pytest.raises(Http404):
+        SnapshotDetail.as_view()(
+            request,
+            org_slug=snapshot.workspace.project.org.slug,
+            project_slug=snapshot.workspace.project.slug,
+            workspace_slug=snapshot.workspace.name,
+            pk=snapshot.pk,
+        )
+
+
+@pytest.mark.django_db
+def test_snapshotdetail_unknown_snapshot(rf):
+    workspace = WorkspaceFactory()
+
+    request = rf.get("/")
+
+    with pytest.raises(Http404):
+        SnapshotDetail.as_view()(
+            request,
+            org_slug=workspace.project.org.slug,
+            project_slug=workspace.project.slug,
+            workspace_slug=workspace.name,
+            pk=0,
         )
 
 

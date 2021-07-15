@@ -51,8 +51,28 @@
       {% endif %}
 
       {% for snapshot in snapshots %}
-      <li class="list-group-item">
-        {{ snapshot.id }}
+      <li class="list-group-item d-flex justify-content-between">
+
+        <div>
+          <a class="mr-3" href="{{ snapshot.get_absolute_url }}">
+            {% if user_can_view_all_files %}Created{% else %}Published{% endif %}
+            on {{ snapshot.created_at|date:"D-m-d" }} by {{ snapshot.created_by.name }}
+          </a>
+          {% if user_can_view_all_files %}
+          <span class="badge badge-secondary">
+            {% if snapshot.published_at %}
+            Published
+            {% else %}
+            Draft
+            {% endif %}
+          </span>
+          {% endif %}
+        </div>
+
+        <div>
+          <span>{{ snapshot.files.count }} file{{ snapshot.files.count|pluralize }}</span>
+        </div>
+
       </li>
       {% endfor %}
     </ul>

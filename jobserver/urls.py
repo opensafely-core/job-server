@@ -16,6 +16,7 @@ from jobserver.api.releases import (
     ReleaseFileAPI,
     ReleaseNotificationAPICreate,
     ReleaseWorkspaceAPI,
+    SnapshotAPI,
 )
 
 from .views.admin import ApproveUsers
@@ -39,6 +40,7 @@ from .views.releases import (
     ProjectReleaseList,
     ReleaseDetail,
     SnapshotCreate,
+    SnapshotDetail,
     WorkspaceReleaseList,
 )
 from .views.status import Status
@@ -80,6 +82,11 @@ api_urls = [
         ReleaseFileAPI.as_view(),
         name="release-file",
     ),
+    path(
+        "releases/snapshot/<snapshot_id>",
+        SnapshotAPI.as_view(),
+        name="snapshot",
+    ),
 ]
 
 backend_urls = [
@@ -103,6 +110,16 @@ outputs_urls = [
         "current/<path:path>",
         WorkspaceCurrentOutputsDetail.as_view(),
         name="workspace-current-outputs-detail",
+    ),
+    path(
+        "<pk>/",
+        SnapshotDetail.as_view(),
+        name="workspace-snapshot-detail",
+    ),
+    path(
+        "<pk>/<path:path>",
+        SnapshotDetail.as_view(),
+        name="workspace-snapshot-detail",
     ),
 ]
 

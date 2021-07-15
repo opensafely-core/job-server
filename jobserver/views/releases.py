@@ -6,7 +6,7 @@ from django.urls import reverse
 from django.views.generic import ListView, View
 
 from ..authorization import has_permission
-from ..models import Project, Release, Workspace
+from ..models import Project, Release, Snapshot, Workspace
 from ..releases import workspace_files
 from ..utils import set_from_qs
 
@@ -98,6 +98,32 @@ class SnapshotCreate(View):
         snapshot.files.set(workspace.files.all())
 
         return redirect(workspace)
+
+
+class SnapshotDetail(View):
+    def get(self, request, *args, **kwargs):
+        snapshot = get_object_or_404(
+            Snapshot,
+            workspace__project__org__slug=self.kwargs["org_slug"],
+            workspace__project__slug=self.kwargs["project_slug"],
+            workspace__name=self.kwargs["workspace_slug"],
+            pk=self.kwargs["pk"],
+        )
+
+        if not has_permission(
+            request.user, "view_release_file", project=snapshot.workspace.project
+        ):
+            raise Http404
+
+        context = {
+            "api_url": snapshot.get_api_url(),
+            "snapshot": snapshot,
+        }
+        return TemplateResponse(
+            request,
+            "snapshot_detail.html",
+            context=context,
+        )
 
 
 class WorkspaceReleaseList(ListView):
