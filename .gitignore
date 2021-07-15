@@ -14,3 +14,4 @@ releases
 .idea/
 node_modules/
 /assets/dist
+/assets/stats.html
