@@ -12,6 +12,7 @@ from tests.factories import (
     ProjectMembershipFactory,
     ReleaseFactory,
     ReleaseUploadsFactory,
+    SnapshotFactory,
     UserFactory,
     WorkspaceFactory,
 )
@@ -592,3 +593,39 @@ def test_release_file_api_file_deleted():
     response = client.get(f"/api/v2/releases/file/{rfile.id}")
 
     assert response.status_code == 404
+
+
+@pytest.mark.django_db
+def test_snapshot_api_anonymous():
+    snapshot = SnapshotFactory()
+
+    client = APIClient()
+    response = client.get(f"/api/v2/releases/snapshot/{snapshot.pk}")
+
+    assert response.status_code == 403
+
+
+@pytest.mark.django_db
+def test_snapshot_api_no_permission():
+    snapshot = SnapshotFactory()
+
+    client = APIClient()
+    # logged in, but no permission
+    client.force_authenticate(user=UserFactory())
+
+    response = client.get(f"/api/v2/releases/snapshot/{snapshot.pk}")
+
+    assert response.status_code == 403
+
+
+@pytest.mark.django_db
+def test_snapshot_api_success():
+    snapshot = SnapshotFactory()
+
+    client = APIClient()
+    client.force_authenticate(user=UserFactory(roles=[ProjectCollaborator]))
+
+    response = client.get(f"/api/v2/releases/snapshot/{snapshot.pk}")
+
+    assert response.status_code == 200
+    assert response.data == {"files": []}

@@ -4,8 +4,9 @@ from django.conf import settings
 from django.contrib.auth.models import AnonymousUser
 from django.contrib.messages.storage.fallback import FallbackStorage
 from django.http import Http404
+from django.utils import timezone
 
-from jobserver.authorization import ProjectDeveloper
+from jobserver.authorization import ProjectCollaborator, ProjectDeveloper
 from jobserver.models import Backend, JobRequest, Workspace
 from jobserver.views.workspaces import (
     WorkspaceArchiveToggle,
@@ -14,6 +15,7 @@ from jobserver.views.workspaces import (
     WorkspaceDetail,
     WorkspaceLog,
     WorkspaceNotificationsToggle,
+    WorkspaceOutputList,
 )
 
 from ...factories import (
@@ -23,9 +25,13 @@ from ...factories import (
     OrgFactory,
     ProjectFactory,
     ProjectMembershipFactory,
+    ReleaseFactory,
+    ReleaseUploadsFactory,
+    SnapshotFactory,
     UserFactory,
     WorkspaceFactory,
 )
+from ...utils import minutes_ago
 
 
 MEANINGLESS_URL = "/"
@@ -798,6 +804,125 @@ def test_workspacecurrentoutputsdetail_unknown_workspace(rf):
 
     with pytest.raises(Http404):
         WorkspaceCurrentOutputsDetail.as_view()(
+            request,
+            org_slug=project.org.slug,
+            project_slug=project.slug,
+            workspace_slug="",
+        )
+
+
+@pytest.mark.django_db
+def test_workspaceoutputlist_success(rf, freezer):
+    workspace = WorkspaceFactory()
+
+    now = timezone.now()
+
+    ReleaseFactory(
+        ReleaseUploadsFactory({"file1.txt": b"text", "file2.txt": b"text"}),
+        workspace=workspace,
+    )
+    snapshot1 = SnapshotFactory(workspace=workspace, published_at=minutes_ago(now, 3))
+    snapshot1.files.set(workspace.files.all())
+
+    ReleaseFactory(
+        ReleaseUploadsFactory(
+            {
+                "file2.txt": b"text2",
+                "file3.txt": b"text",
+            }
+        ),
+        workspace=workspace,
+    )
+    snapshot2 = SnapshotFactory(workspace=workspace)
+    snapshot2.files.set(workspace.files.all())
+
+    ReleaseFactory(
+        ReleaseUploadsFactory(
+            {
+                "file2.txt": b"text2",
+                "file3.txt": b"text",
+            }
+        ),
+        workspace=workspace,
+    )
+
+    request = rf.get("/")
+    request.user = UserFactory(roles=[ProjectCollaborator])
+
+    response = WorkspaceOutputList.as_view()(
+        request,
+        org_slug=workspace.project.org.slug,
+        project_slug=workspace.project.slug,
+        workspace_slug=workspace.name,
+    )
+
+    assert response.status_code == 200
+    assert len(response.context_data["snapshots"]) == 2
+
+    # Check we're showing the latest files section for a privileged user
+    assert "Current" in response.rendered_content
+
+
+@pytest.mark.django_db
+def test_workspaceoutputlist_without_permission(rf, freezer):
+    workspace = WorkspaceFactory()
+
+    now = timezone.now()
+
+    ReleaseFactory(
+        ReleaseUploadsFactory({"file1.txt": b"text", "file2.txt": b"text"}),
+        workspace=workspace,
+    )
+    snapshot1 = SnapshotFactory(workspace=workspace, published_at=minutes_ago(now, 3))
+    snapshot1.files.set(workspace.files.all())
+
+    ReleaseFactory(
+        ReleaseUploadsFactory(
+            {
+                "file2.txt": b"text2",
+                "file3.txt": b"text",
+            }
+        ),
+        workspace=workspace,
+    )
+    snapshot2 = SnapshotFactory(workspace=workspace, published_at=None)
+    snapshot2.files.set(workspace.files.all())
+
+    ReleaseFactory(
+        ReleaseUploadsFactory(
+            {
+                "file2.txt": b"text2",
+                "file3.txt": b"text",
+            }
+        ),
+        workspace=workspace,
+    )
+
+    request = rf.get("/")
+    request.user = UserFactory()
+
+    response = WorkspaceOutputList.as_view()(
+        request,
+        org_slug=workspace.project.org.slug,
+        project_slug=workspace.project.slug,
+        workspace_slug=workspace.name,
+    )
+
+    assert response.status_code == 200
+    assert len(response.context_data["snapshots"]) == 1
+
+    # Check we're not showing the latest files section for an unprivileged user
+    assert "Current" not in response.rendered_content
+
+
+@pytest.mark.django_db
+def test_workspaceoutputlist_unknown_workspace(rf):
+    project = ProjectFactory()
+
+    request = rf.get("/")
+
+    with pytest.raises(Http404):
+        WorkspaceOutputList.as_view()(
             request,
             org_slug=project.org.slug,
             project_slug=project.slug,

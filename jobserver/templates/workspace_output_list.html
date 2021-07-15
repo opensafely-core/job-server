@@ -1,0 +1,63 @@
+{% extends "base.html" %}
+
+{% block content %}
+
+<nav aria-label="breadcrumb">
+  <ol class="breadcrumb">
+
+    <li class="breadcrumb-item"><a href="/">Home</a></li>
+
+    <li class="breadcrumb-item">
+      <a href="{{ workspace.project.org.get_absolute_url }}">
+        {{ workspace.project.org.name }}
+      </a>
+    </li>
+
+    <li class="breadcrumb-item">
+      <a href="{{ workspace.project.get_absolute_url }}">
+        {{ workspace.project.name }}
+      </a>
+    </li>
+
+    <li class="breadcrumb-item">
+      <a href="{{ workspace.get_absolute_url }}">
+        {{ workspace.name }}
+      </a>
+    </li>
+
+    <li class="breadcrumb-item active" aria-current="page">Outputs</li>
+
+  </ol>
+</nav>
+
+<div class="row">
+  <div class="col-lg-8 offset-lg-2">
+    <h3>Outputs</h3>
+
+    <p>
+      Listed below are the outputs for the {{ workspace.name }} workspace.
+    </p>
+
+    <ul class="list-group list-unstyled mb-4">
+      {% if user_can_view_all_files %}
+      <li class="list-group-item d-flex justify-content-between">
+        <div>
+          <a href="{{ workspace.get_current_outputs_url }}">Current</a>
+        </div>
+        <div>
+          <span>{{ workspace.files.count }} file{{ workspace.files.count|pluralize }}</span>
+        </div>
+      </li>
+      {% endif %}
+
+      {% for snapshot in snapshots %}
+      <li class="list-group-item">
+        {{ snapshot.id }}
+      </li>
+      {% endfor %}
+    </ul>
+
+  </div>
+</div>
+
+{% endblock %}

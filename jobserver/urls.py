@@ -50,6 +50,7 @@ from .views.workspaces import (
     WorkspaceDetail,
     WorkspaceLog,
     WorkspaceNotificationsToggle,
+    WorkspaceOutputList,
 )
 
 
@@ -91,6 +92,20 @@ backend_urls = [
     ),
 ]
 
+outputs_urls = [
+    path("", WorkspaceOutputList.as_view(), name="workspace-output-list"),
+    path(
+        "current/",
+        WorkspaceCurrentOutputsDetail.as_view(),
+        name="workspace-current-outputs-detail",
+    ),
+    path(
+        "current/<path:path>",
+        WorkspaceCurrentOutputsDetail.as_view(),
+        name="workspace-current-outputs-detail",
+    ),
+]
+
 workspace_urls = [
     path(
         "",
@@ -108,16 +123,7 @@ workspace_urls = [
         WorkspaceNotificationsToggle.as_view(),
         name="workspace-notifications-toggle",
     ),
-    path(
-        "outputs/",
-        WorkspaceCurrentOutputsDetail.as_view(),
-        name="workspace-current-outputs-detail",
-    ),
-    path(
-        "outputs/<path:path>",
-        WorkspaceCurrentOutputsDetail.as_view(),
-        name="workspace-current-outputs-detail",
-    ),
+    path("outputs/", include(outputs_urls)),
     path(
         "publish/",
         SnapshotCreate.as_view(),

@@ -7,7 +7,7 @@ from django.template.response import TemplateResponse
 from django.utils.decorators import method_decorator
 from django.views.generic import CreateView, ListView, View
 
-from ..authorization import CoreDeveloper, has_role
+from ..authorization import CoreDeveloper, has_permission, has_role
 from ..backends import backends_to_choices
 from ..forms import (
     JobRequestCreateForm,
@@ -297,5 +297,41 @@ class WorkspaceCurrentOutputsDetail(View):
         return TemplateResponse(
             request,
             "workspace_current_outputs_detail.html",
+            context=context,
+        )
+
+
+class WorkspaceOutputList(ListView):
+    """
+    Show a list of Outputs versions for a Workspace
+
+    Outputs in this context are a combination of "the latest version of each
+    ReleaseFile for the Workspace" and any Snapshots for the Workspace.
+    """
+
+    def get(self, request, *args, **kwargs):
+        workspace = get_object_or_404(
+            Workspace,
+            project__org__slug=self.kwargs["org_slug"],
+            project__slug=self.kwargs["project_slug"],
+            name=self.kwargs["workspace_slug"],
+        )
+
+        snapshots = workspace.snapshots.order_by("-created_at")
+
+        can_view_all_files = has_permission(
+            request.user, "view_release_file", project=workspace.project
+        )
+        if not can_view_all_files:
+            snapshots = snapshots.exclude(published_at=None)
+
+        context = {
+            "user_can_view_all_files": can_view_all_files,
+            "snapshots": snapshots,
+            "workspace": workspace,
+        }
+        return TemplateResponse(
+            request,
+            "workspace_output_list.html",
             context=context,
         )
