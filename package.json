@@ -44,6 +44,7 @@
   "eslintConfig": {
     "extends": [
       "airbnb",
+      "airbnb/hooks",
       "prettier"
     ],
     "plugins": [
