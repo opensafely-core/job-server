@@ -4,7 +4,14 @@ updates:
   - package-ecosystem: "pip"
     directory: "/"
     schedule:
-      interval: "weekly"
+      interval: "daily"
     reviewers:
       - "ghickman"
+    open-pull-requests-limit: 20
+  - package-ecosystem: "npm"
+    directory: "/"
+    schedule:
+      interval: "daily"
+    reviewers:
+      - "tomodwyer"
     open-pull-requests-limit: 20
