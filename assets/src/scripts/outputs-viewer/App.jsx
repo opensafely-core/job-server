@@ -15,16 +15,16 @@ const queryClient = new QueryClient({
 });
 
 function App({ apiUrl }) {
-  const [fileUrl, setFileUrl] = useState("");
+  const [file, setFile] = useState({ name: "", url: "" });
 
   return (
     <QueryClientProvider client={queryClient}>
       <div className="row">
         <div className="col-md-3">
-          <FileList apiUrl={apiUrl} setFileUrl={setFileUrl} />
+          <FileList apiUrl={apiUrl} setFile={setFile} />
         </div>
         <div className="col-md-9">
-          <Viewer fileUrl={fileUrl} />
+          <Viewer file={file} />
         </div>
       </div>
       <ReactQueryDevtools initialIsOpen={false} />

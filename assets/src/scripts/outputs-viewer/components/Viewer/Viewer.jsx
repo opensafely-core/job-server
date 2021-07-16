@@ -6,17 +6,17 @@ import Image from "../Image/Image";
 import Table from "../Table/Table";
 import Text from "../Text/Text";
 
-function Viewer({ fileUrl }) {
-  const isCsv = fileUrl.match(/.*\.(?:csv)$/i);
-  const isHtml = fileUrl.match(/.*\.(?:html)$/i);
-  const isImg = fileUrl.match(/.*\.(?:gif|jpg|jpeg|png|svg)$/i);
-  const isTxt = fileUrl.match(/.*\.(?:txt)$/i);
+function Viewer({ file }) {
+  const isCsv = file.name.match(/.*\.(?:csv)$/i);
+  const isHtml = file.name.match(/.*\.(?:html)$/i);
+  const isImg = file.name.match(/.*\.(?:gif|jpg|jpeg|png|svg)$/i);
+  const isTxt = file.name.match(/.*\.(?:txt)$/i);
 
-  const { data, error, isLoading, isError } = useFile(fileUrl, {
-    enabled: !!(fileUrl && (isHtml || isCsv || isTxt || isImg)),
+  const { data, error, isLoading, isError } = useFile(file.url, {
+    enabled: !!(file.url && (isHtml || isCsv || isTxt || isImg)),
   });
 
-  if (!fileUrl) return null;
+  if (!file.url) return null;
 
   if (!isHtml && !isCsv && !isTxt && !isImg) {
     return <p>We cannot show a preview of this file</p>;
@@ -28,15 +28,18 @@ function Viewer({ fileUrl }) {
 
   if (isCsv) return <Table data={data} />;
 
-  if (isHtml) return <Iframe data={data} fileUrl={fileUrl} />;
+  if (isHtml) return <Iframe data={data} fileUrl={file.url} />;
 
-  if (isImg) return <Image fileUrl={fileUrl} />;
+  if (isImg) return <Image fileUrl={file.url} />;
 
   if (isTxt) return <Text data={data} />;
 }
 
 Viewer.propTypes = {
-  fileUrl: PropTypes.string.isRequired,
+  file: PropTypes.objectOf({
+    name: PropTypes.string.isRequired,
+    url: PropTypes.string.isRequired,
+  }).isRequired,
 };
 
 export default Viewer;

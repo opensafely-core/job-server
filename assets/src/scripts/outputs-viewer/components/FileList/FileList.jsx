@@ -4,7 +4,7 @@ import { useQuery } from "react-query";
 import handleErrors from "../../utils/fetch-handle-errors";
 import classes from "./FileList.module.scss";
 
-function FileList({ apiUrl, setFileUrl }) {
+function FileList({ apiUrl, setFile }) {
   const { isLoading, isError, data, error } = useQuery("FILE_LIST", async () =>
     fetch(apiUrl)
       .then(handleErrors)
@@ -38,7 +38,7 @@ function FileList({ apiUrl, setFileUrl }) {
             href={item.url}
             onClick={(e) => {
               e.preventDefault();
-              return setFileUrl(item.url);
+              return setFile({ name: item.name, url: item.url });
             }}
           >
             {item.name}
@@ -53,5 +53,5 @@ export default FileList;
 
 FileList.propTypes = {
   apiUrl: PropTypes.string.isRequired,
-  setFileUrl: PropTypes.func.isRequired,
+  setFile: PropTypes.func.isRequired,
 };
