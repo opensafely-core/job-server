@@ -31,7 +31,7 @@ function FileList({ apiUrl, setFile }) {
   ];
 
   return (
-    <ul>
+    <ul className={`${classes.list} list-unstyled`}>
       {sortedFiles.map((item) => (
         <li key={item.url} className={classes.item}>
           <a

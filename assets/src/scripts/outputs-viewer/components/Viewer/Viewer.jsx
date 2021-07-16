@@ -3,6 +3,7 @@ import React from "react";
 import useFile from "../../utils/use-file";
 import Iframe from "../Iframe/Iframe";
 import Image from "../Image/Image";
+import Metadata from "../Metadata/Metadata";
 import Table from "../Table/Table";
 import Text from "../Text/Text";
 
@@ -19,20 +20,45 @@ function Viewer({ file }) {
   if (!file.url) return null;
 
   if (!isHtml && !isCsv && !isTxt && !isImg) {
-    return <p>We cannot show a preview of this file</p>;
+    return (
+      <>
+        <Metadata file={file} />
+        <p>We cannot show a preview of this file</p>
+      </>
+    );
   }
 
-  if (isLoading) return <span>Loading...</span>;
+  if (isLoading) {
+    return (
+      <>
+        <Metadata file={file} />
+        <span>Loading...</span>
+      </>
+    );
+  }
 
-  if (isError) return <span>Error: {error.message}</span>;
+  if (isError) {
+    return (
+      <>
+        <Metadata file={file} />
+        <span>Error: {error.message}</span>
+      </>
+    );
+  }
 
-  if (isCsv) return <Table data={data} />;
-
-  if (isHtml) return <Iframe data={data} fileUrl={file.url} />;
-
-  if (isImg) return <Image fileUrl={file.url} />;
-
-  if (isTxt) return <Text data={data} />;
+  return (
+    <>
+      <Metadata file={file} />
+      <div className="card">
+        <div className="card-body">
+          {isCsv ? <Table data={data} /> : null}
+          {isHtml ? <Iframe data={data} fileUrl={file.url} /> : null}
+          {isImg ? <Image fileUrl={file.url} /> : null}
+          {isTxt ? <Text data={data} /> : null}
+        </div>
+      </div>
+    </>
+  );
 }
 
 Viewer.propTypes = {

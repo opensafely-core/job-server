@@ -14,16 +14,29 @@ const queryClient = new QueryClient({
   },
 });
 
-function App({ apiUrl }) {
+function App({ dataset }) {
   const [file, setFile] = useState({ name: "", url: "" });
 
   return (
     <QueryClientProvider client={queryClient}>
       <div className="row">
         <div className="col-md-3">
-          <FileList apiUrl={apiUrl} setFile={setFile} />
+          <FileList apiUrl={dataset.apiUrl} setFile={setFile} />
         </div>
         <div className="col-md-9">
+          <h1 className="h2">
+            {dataset.workspaceName}:{" "}
+            <pre className="d-inline">{dataset.releaseName}</pre>
+          </h1>
+          <ul className="list-unstyled">
+            <li>
+              <strong>Author:</strong> {dataset.releaseAuthor}
+            </li>
+            <li>
+              <strong>Created:</strong> {dataset.releaseDate}
+            </li>
+          </ul>
+          <hr />
           <Viewer file={file} />
         </div>
       </div>
@@ -35,5 +48,10 @@ function App({ apiUrl }) {
 export default App;
 
 App.propTypes = {
-  apiUrl: PropTypes.string.isRequired,
+  dataset: PropTypes.objectOf({
+    apiUrl: PropTypes.string.isRequired,
+    releaseName: PropTypes.string.isRequired,
+    releaseAuthor: PropTypes.string.isRequired,
+    releaseDate: PropTypes.string.isRequired,
+  }).isRequired,
 };

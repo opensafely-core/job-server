@@ -1,9 +1,11 @@
 import PropTypes from "prop-types";
 import React from "react";
+import classes from "./Iframe.module.scss";
 
 function Iframe({ fileUrl, data }) {
   return (
     <iframe
+      className={classes.iframe}
       frameBorder="0"
       src={fileUrl}
       srcDoc={data}
