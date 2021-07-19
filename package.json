@@ -9,7 +9,6 @@
     "lint:fix": "eslint \"./assets/src/**/*.{js,jsx}\" --fix"
   },
   "devDependencies": {
-    "@preact/preset-vite": "^2.1.0",
     "@vitejs/plugin-legacy": "^1.4.3",
     "autoprefixer": "^10.2.6",
     "cssnano": "^5.0.6",
