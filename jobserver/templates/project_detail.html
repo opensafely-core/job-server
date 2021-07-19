@@ -115,14 +115,17 @@
 
         {% if can_use_releases %}
         <div class="mb-4">
-          <h5>
-            Releases
-            <small>({{ releases_count }} files)</small>
-          </h5>
+          <h5>Outputs</h5>
 
-          <a class="btn btn-primary btn-sm" href="{{ project.get_releases_url }}">
-            View
-          </a>
+          <ul class="list-unstyled">
+            {% for snapshot in outputs %}
+            <li>
+              <a class="mr-3" href="{{ snapshot.get_absolute_url }}">
+                Published on {{ snapshot.created_at|date:"Y-m-d" }}
+              </a>
+            </li>
+            {% endfor %}
+          </ul>
         </div>
         {% endif %}
 
