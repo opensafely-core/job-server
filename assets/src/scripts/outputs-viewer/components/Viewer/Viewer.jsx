@@ -70,7 +70,7 @@ function Viewer({ file }) {
   return (
     <Wrapper file={file}>
       {isCsv(file) ? <Table data={data} /> : null}
-      {isHtml(file) ? <Iframe data={data} fileUrl={file.url} /> : null}
+      {isHtml(file) ? <Iframe data={data} file={file} /> : null}
       {isImg(file) ? <Image fileUrl={file.url} /> : null}
       {isTxt(file) ? <Text data={data} /> : null}
     </Wrapper>
