@@ -32,14 +32,6 @@ function Viewer({ file }) {
 
   if (!file.url) return null;
 
-  if (!canDisplay(file)) {
-    return (
-      <Wrapper file={file}>
-        <p>We cannot show a preview of this file</p>
-      </Wrapper>
-    );
-  }
-
   if (isLoading) {
     return (
       <Wrapper file={file}>
@@ -52,6 +44,23 @@ function Viewer({ file }) {
     return (
       <Wrapper file={file}>
         <span>Error: {error.message}</span>
+      </Wrapper>
+    );
+  }
+
+  const incompatibleFileType = !canDisplay(file);
+  const emptyData =
+    data && Object.keys(data).length === 0 && data.constructor === Object;
+
+  if (incompatibleFileType || emptyData) {
+    return (
+      <Wrapper file={file}>
+        <p>We cannot show a preview of this file.</p>
+        <p>
+          <a href={file.url} rel="noreferrer noopener" target="filePreview">
+            Open file in a new tab &#8599;
+          </a>
+        </p>
       </Wrapper>
     );
   }
