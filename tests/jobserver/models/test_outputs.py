@@ -1,21 +1,14 @@
 import pytest
 from django.conf import settings
 from django.urls import reverse
+from django.utils import timezone
 
 from tests.factories import (
-    PublicReleaseFactory,
     ReleaseFactory,
     ReleaseUploadsFactory,
+    SnapshotFactory,
     UserFactory,
 )
-
-
-@pytest.mark.django_db
-def test_publicrelease_str():
-    user = UserFactory()
-    public_release = PublicReleaseFactory(status="derp", created_by=user)
-
-    assert str(public_release) == f"derp Public Release made by {user.username}"
 
 
 @pytest.mark.django_db
@@ -88,3 +81,40 @@ def test_releasefile_ulid():
     release = ReleaseFactory(ReleaseUploadsFactory(["file1.txt"]))
     rfile = release.files.first()
     assert rfile.ulid.timestamp
+
+
+@pytest.mark.django_db
+def test_snapshot_str():
+    user = UserFactory()
+
+    snapshot = SnapshotFactory(created_by=user, published_at=timezone.now())
+    assert str(snapshot) == f"Published Snapshot made by {user.username}"
+
+    snapshot = SnapshotFactory(created_by=user)
+    assert str(snapshot) == f"Draft Snapshot made by {user.username}"
+
+
+@pytest.mark.django_db
+def test_snapshot_get_absolute_url():
+    snapshot = SnapshotFactory()
+
+    url = snapshot.get_absolute_url()
+
+    assert url == reverse(
+        "workspace-snapshot-detail",
+        kwargs={
+            "org_slug": snapshot.workspace.project.org.slug,
+            "project_slug": snapshot.workspace.project.slug,
+            "workspace_slug": snapshot.workspace.name,
+            "pk": snapshot.pk,
+        },
+    )
+
+
+@pytest.mark.django_db
+def test_snapshot_get_api_url():
+    snapshot = SnapshotFactory()
+
+    url = snapshot.get_api_url()
+
+    assert url == reverse("api:snapshot", kwargs={"snapshot_id": snapshot.pk})

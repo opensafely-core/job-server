@@ -12,7 +12,7 @@ from slack_sdk.errors import SlackApiError
 from jobserver import releases
 from jobserver.api import get_backend_from_token
 from jobserver.authorization import has_permission
-from jobserver.models import Release, ReleaseFile, User, Workspace
+from jobserver.models import Release, ReleaseFile, Snapshot, User, Workspace
 from services.slack import client as slack_client
 
 
@@ -90,8 +90,25 @@ def validate_release_access(request, workspace):
 
 def generate_index(files):
     """Generate a JSON list of files as expected by the SPA."""
+
+    def get_size(rfile):
+        try:
+            return rfile.absolute_path().stat().st_size
+        except FileNotFoundError:  # pragma: no cover
+            return None
+
     return dict(
-        files=[dict(name=k, url=v.get_api_url()) for k, v in files.items()],
+        files=[
+            dict(
+                name=name,
+                url=rfile.get_api_url(),
+                user=rfile.created_by.username,
+                date=rfile.created_at.isoformat(),
+                sha256=rfile.filehash,
+                size=get_size(rfile),
+            )
+            for name, rfile in files.items()
+        ],
     )
 
 
@@ -189,6 +206,17 @@ class ReleaseFileAPI(APIView):
         rfile = get_object_or_404(ReleaseFile, id=file_id)
         validate_release_access(request, rfile.workspace)
         return serve_file(request, rfile)
+
+
+class SnapshotAPI(APIView):
+    def get(self, request, snapshot_id):
+        """A list of files for this Snapshot."""
+        snapshot = get_object_or_404(Snapshot, pk=snapshot_id)
+
+        validate_release_access(request, snapshot.workspace)
+        files = {f.name: f for f in snapshot.files.all()}
+
+        return Response(generate_index(files))
 
 
 def serve_file(request, rfile):

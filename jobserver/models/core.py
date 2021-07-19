@@ -770,6 +770,16 @@ class Workspace(models.Model):
             },
         )
 
+    def get_current_outputs_url(self):
+        return reverse(
+            "workspace-current-outputs-detail",
+            kwargs={
+                "org_slug": self.project.org.slug,
+                "project_slug": self.project.slug,
+                "workspace_slug": self.name,
+            },
+        )
+
     def get_logs_url(self):
         return reverse(
             "workspace-logs",

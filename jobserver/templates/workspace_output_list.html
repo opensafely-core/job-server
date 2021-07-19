@@ -30,6 +30,54 @@
   </ol>
 </nav>
 
-{% include "outputs-spa.html" %}
+<div class="row">
+  <div class="col-lg-8 offset-lg-2">
+    <h3>Outputs</h3>
+
+    <p>
+      Listed below are the outputs for the {{ workspace.name }} workspace.
+    </p>
+
+    <ul class="list-group list-unstyled mb-4">
+      {% if user_can_view_all_files %}
+      <li class="list-group-item d-flex justify-content-between">
+        <div>
+          <a href="{{ workspace.get_current_outputs_url }}">Current</a>
+        </div>
+        <div>
+          <span>{{ workspace.files.count }} file{{ workspace.files.count|pluralize }}</span>
+        </div>
+      </li>
+      {% endif %}
+
+      {% for snapshot in snapshots %}
+      <li class="list-group-item d-flex justify-content-between">
+
+        <div>
+          <a class="mr-3" href="{{ snapshot.get_absolute_url }}">
+            {% if user_can_view_all_files %}Created{% else %}Published{% endif %}
+            on {{ snapshot.created_at|date:"D-m-d" }} by {{ snapshot.created_by.name }}
+          </a>
+          {% if user_can_view_all_files %}
+          <span class="badge badge-secondary">
+            {% if snapshot.published_at %}
+            Published
+            {% else %}
+            Draft
+            {% endif %}
+          </span>
+          {% endif %}
+        </div>
+
+        <div>
+          <span>{{ snapshot.files.count }} file{{ snapshot.files.count|pluralize }}</span>
+        </div>
+
+      </li>
+      {% endfor %}
+    </ul>
+
+  </div>
+</div>
 
 {% endblock %}

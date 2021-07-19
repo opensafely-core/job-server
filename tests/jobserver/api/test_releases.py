@@ -12,6 +12,7 @@ from tests.factories import (
     ProjectMembershipFactory,
     ReleaseFactory,
     ReleaseUploadsFactory,
+    SnapshotFactory,
     UserFactory,
     WorkspaceFactory,
 )
@@ -270,11 +271,13 @@ def test_workspace_index_api_have_permission():
         ReleaseUploadsFactory({"file1.txt": b"backend1"}),
         workspace=workspace,
         backend=backend1,
+        created_by=user,
     )
     release2 = ReleaseFactory(
         ReleaseUploadsFactory({"file1.txt": b"backend2"}),
         workspace=workspace,
         backend=backend2,
+        created_by=user,
     )
 
     index_url = f"/api/v2/releases/workspace/{workspace.name}"
@@ -285,10 +288,18 @@ def test_workspace_index_api_have_permission():
             {
                 "name": "backend2/file1.txt",
                 "url": f"/api/v2/releases/file/{release2.files.first().id}",
+                "user": user.username,
+                "date": release2.files.first().created_at.isoformat(),
+                "size": 8,
+                "sha256": release2.files.first().filehash,
             },
             {
                 "name": "backend1/file1.txt",
                 "url": f"/api/v2/releases/file/{release1.files.first().id}",
+                "user": user.username,
+                "date": release1.files.first().created_at.isoformat(),
+                "size": 8,
+                "sha256": release1.files.first().filehash,
             },
         ],
     }
@@ -328,20 +339,29 @@ def test_release_index_api_logged_in_no_permission():
 def test_release_index_api_have_permission():
     release = ReleaseFactory(ReleaseUploadsFactory(["file.txt"]))
     rfile = release.files.first()
-    user = UserFactory()
     client = APIClient()
 
     ProjectMembershipFactory(
-        user=user,
+        user=release.created_by,
         project=release.workspace.project,
         roles=[ProjectCollaborator],
     )
-    client.force_authenticate(user=user)
+    client.force_authenticate(user=release.created_by)
     index_url = f"/api/v2/releases/release/{release.id}"
     response = client.get(index_url)
+    rfile = release.files.first()
     assert response.status_code == 200
     assert response.json() == {
-        "files": [{"name": "file.txt", "url": f"/api/v2/releases/file/{rfile.id}"}],
+        "files": [
+            {
+                "name": "file.txt",
+                "url": f"/api/v2/releases/file/{rfile.id}",
+                "user": rfile.created_by.username,
+                "date": rfile.created_at.isoformat(),
+                "size": 8,
+                "sha256": rfile.filehash,
+            }
+        ],
     }
 
 
@@ -592,3 +612,39 @@ def test_release_file_api_file_deleted():
     response = client.get(f"/api/v2/releases/file/{rfile.id}")
 
     assert response.status_code == 404
+
+
+@pytest.mark.django_db
+def test_snapshot_api_anonymous():
+    snapshot = SnapshotFactory()
+
+    client = APIClient()
+    response = client.get(f"/api/v2/releases/snapshot/{snapshot.pk}")
+
+    assert response.status_code == 403
+
+
+@pytest.mark.django_db
+def test_snapshot_api_no_permission():
+    snapshot = SnapshotFactory()
+
+    client = APIClient()
+    # logged in, but no permission
+    client.force_authenticate(user=UserFactory())
+
+    response = client.get(f"/api/v2/releases/snapshot/{snapshot.pk}")
+
+    assert response.status_code == 403
+
+
+@pytest.mark.django_db
+def test_snapshot_api_success():
+    snapshot = SnapshotFactory()
+
+    client = APIClient()
+    client.force_authenticate(user=UserFactory(roles=[ProjectCollaborator]))
+
+    response = client.get(f"/api/v2/releases/snapshot/{snapshot.pk}")
+
+    assert response.status_code == 200
+    assert response.data == {"files": []}
