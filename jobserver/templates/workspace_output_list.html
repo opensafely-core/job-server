@@ -56,7 +56,7 @@
         <div>
           <a class="mr-3" href="{{ snapshot.get_absolute_url }}">
             {% if user_can_view_all_files %}Created{% else %}Published{% endif %}
-            on {{ snapshot.created_at|date:"D-m-d" }} by {{ snapshot.created_by.name }}
+            on {{ snapshot.created_at|date:"Y-m-d" }} by {{ snapshot.created_by.name }}
           </a>
           {% if user_can_view_all_files %}
           <span class="badge badge-secondary">
