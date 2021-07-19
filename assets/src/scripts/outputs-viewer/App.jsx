@@ -48,7 +48,7 @@ function App({ dataset }) {
 export default App;
 
 App.propTypes = {
-  dataset: PropTypes.objectOf({
+  dataset: PropTypes.shape({
     apiUrl: PropTypes.string.isRequired,
     releaseName: PropTypes.string.isRequired,
     releaseAuthor: PropTypes.string.isRequired,

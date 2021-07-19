@@ -62,7 +62,7 @@ function Viewer({ file }) {
 }
 
 Viewer.propTypes = {
-  file: PropTypes.objectOf({
+  file: PropTypes.shape({
     name: PropTypes.string.isRequired,
     url: PropTypes.string.isRequired,
   }).isRequired,
