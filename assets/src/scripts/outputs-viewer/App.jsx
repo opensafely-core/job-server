@@ -29,18 +29,13 @@ function App({ dataset }) {
           <FileList apiUrl={dataset.apiUrl} setFile={setFile} />
         </div>
         <div className="col-md-9">
-          <h1 className="h2">
+          <h1 className="card-title h3">
             {dataset.workspaceName}:{" "}
             <pre className="d-inline">{dataset.releaseName}</pre>
           </h1>
-          <ul className="list-unstyled">
-            <li>
-              <strong>Author:</strong> {dataset.releaseAuthor}
-            </li>
-            <li>
-              <strong>Created:</strong> {releaseDate}
-            </li>
-          </ul>
+          <p className="card-subtitle mb-2 text-muted">
+            Released by {dataset.releaseAuthor} on {releaseDate}
+          </p>
           <hr />
           <Viewer file={file} />
         </div>

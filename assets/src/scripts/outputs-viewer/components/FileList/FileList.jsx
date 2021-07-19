@@ -1,22 +1,51 @@
 import PropTypes from "prop-types";
-import React from "react";
+import React, { useEffect, useState } from "react";
 import { useQuery } from "react-query";
+import useWindowSize from "../../hooks/useWindowSize";
 import handleErrors from "../../utils/fetch-handle-errors";
 import classes from "./FileList.module.scss";
 
 function FileList({ apiUrl, setFile }) {
+  const windowSize = useWindowSize();
+  const [appHeight, setAppHeight] = useState("");
+
   const { isLoading, isError, data, error } = useQuery("FILE_LIST", async () =>
     fetch(apiUrl)
       .then(handleErrors)
       .then(async (response) => response.json())
   );
 
+  useEffect(() => {
+    setAppHeight(
+      window.innerHeight -
+        document.querySelector("#outputsSPA").getBoundingClientRect().top -
+        30
+    );
+  }, [windowSize]);
+
   if (isLoading) {
-    return <span>Loading...</span>;
+    return (
+      <ul
+        className={`${classes.list} list-unstyled card`}
+        style={{ height: appHeight }}
+      >
+        <li className={classes.item}>Loading…</li>
+      </ul>
+    );
   }
 
   if (isError) {
-    return <span>Error: {error.message}</span>;
+    // eslint-disable-next-line no-console
+    console.error(error.message);
+
+    return (
+      <ul
+        className={`${classes.list} list-unstyled card`}
+        style={{ height: appHeight }}
+      >
+        <li className={classes.item}>Error: Unable to load file</li>
+      </ul>
+    );
   }
 
   const sortedFiles = [
@@ -31,7 +60,10 @@ function FileList({ apiUrl, setFile }) {
   ];
 
   return (
-    <ul className={`${classes.list} list-unstyled`}>
+    <ul
+      className={`${classes.list} list-unstyled card`}
+      style={{ height: appHeight }}
+    >
       {sortedFiles.map((item) => (
         <li key={item.url} className={classes.item}>
           <a
