@@ -2,6 +2,7 @@ from django.contrib import messages
 from django.contrib.auth.decorators import login_required
 from django.core import signing
 from django.db import transaction
+from django.db.models import OuterRef, Subquery
 from django.http import Http404
 from django.shortcuts import get_object_or_404, redirect
 from django.utils.decorators import method_decorator
@@ -26,7 +27,7 @@ from ..forms import (
     ResearcherFormSet,
 )
 from ..github import get_repo_is_private
-from ..models import Org, Project, ProjectInvitation, ProjectMembership, Release, User
+from ..models import Org, Project, ProjectInvitation, ProjectMembership, Snapshot, User
 
 
 @method_decorator(login_required, name="dispatch")
@@ -188,16 +189,40 @@ class ProjectDetail(DetailView):
 
         repos = sorted(set(workspaces.values_list("repo", flat=True)))
 
-        releases_count = Release.objects.filter(workspace__project=self.object).count()
-
         return super().get_context_data(**kwargs) | {
             "can_manage_workspaces": can_manage_workspaces,
             "can_manage_members": can_manage_members,
             "can_use_releases": can_use_releases,
-            "releases_count": releases_count,
+            "outputs": self.get_outputs(workspaces),
             "repos": list(self.get_repos(repos)),
             "workspaces": workspaces,
         }
+
+    def get_outputs(self, workspaces):
+        """
+        Builds up a QuerySet of Snapshots (outputs) for the page
+
+        We only want to show the most recent published Snapshot for each
+        Workspace.
+        """
+        # build a Subquery to get the PK for the most recently published
+        # Snapshot for each Workspace
+        latest_snapshot_qs = (
+            Snapshot.objects.filter(workspace_id=OuterRef("id"))
+            .exclude(published_at=None)
+            .order_by("-published_at")
+            .values("pk")[:1]
+        )
+
+        # annotate the subquery onto the Workspace QuerySet
+        workspaces = workspaces.annotate(latest_snapshot=Subquery(latest_snapshot_qs))
+
+        # build the QuerySet of Snapshots from the PKs annotated onto each Workspace
+        snapshot_pks = workspaces.exclude(latest_snapshot=None).values_list(
+            "latest_snapshot", flat=True
+        )
+
+        return Snapshot.objects.filter(pk__in=snapshot_pks).order_by("-published_at")
 
     def get_repos(self, repo_urls):
         for url in repo_urls:

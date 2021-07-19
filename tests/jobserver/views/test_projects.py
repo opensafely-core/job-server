@@ -3,14 +3,22 @@ from django.contrib.auth.models import AnonymousUser
 from django.contrib.messages.storage.fallback import FallbackStorage
 from django.http import Http404
 from django.urls import reverse
+from django.utils import timezone
 
 from jobserver.authorization import (
+    CoreDeveloper,
     ProjectCollaborator,
     ProjectCoordinator,
     ProjectDeveloper,
 )
-from jobserver.models import Org, Project, ProjectInvitation, ProjectMembership
-from jobserver.utils import dotted_path
+from jobserver.models import (
+    Org,
+    Project,
+    ProjectInvitation,
+    ProjectMembership,
+    Snapshot,
+)
+from jobserver.utils import dotted_path, set_from_qs
 from jobserver.views.projects import (
     ProjectAcceptInvite,
     ProjectCancelInvite,
@@ -29,9 +37,11 @@ from ...factories import (
     ProjectFactory,
     ProjectInvitationFactory,
     ProjectMembershipFactory,
+    SnapshotFactory,
     UserFactory,
     WorkspaceFactory,
 )
+from ...utils import minutes_ago
 
 
 MEANINGLESS_URL = "/"
@@ -315,6 +325,80 @@ def test_projectdetail_success(rf, mocker):
             "is_private": True,
         }
     ]
+
+
+@pytest.mark.django_db
+def test_projectdetail_with_with_multiple_releases(rf, freezer, mocker):
+    project = ProjectFactory()
+
+    now = timezone.now()
+
+    workspace1 = WorkspaceFactory(project=project)
+    snapshot1 = SnapshotFactory(workspace=workspace1, published_at=minutes_ago(now, 2))
+    snapshot2 = SnapshotFactory(workspace=workspace1, published_at=minutes_ago(now, 3))
+
+    workspace2 = WorkspaceFactory(project=project)
+    snapshot3 = SnapshotFactory(workspace=workspace2, published_at=minutes_ago(now, 1))
+
+    # unpublished
+    workspace3 = WorkspaceFactory(project=project)
+    snapshot4 = SnapshotFactory(workspace=workspace3, published_at=None)
+
+    workspace4 = WorkspaceFactory(project=project)
+    snapshot5 = SnapshotFactory(workspace=workspace4, published_at=minutes_ago(now, 4))
+
+    mocker.patch(
+        "jobserver.views.projects.get_repo_is_private",
+        autospec=True,
+        return_value=True,
+    )
+
+    request = rf.get(MEANINGLESS_URL)
+    # FIXME: remove this role when releases is deployed to all users
+    request.user = UserFactory(roles=[CoreDeveloper])
+
+    response = ProjectDetail.as_view()(
+        request, org_slug=project.org.slug, project_slug=project.slug
+    )
+
+    assert response.status_code == 200
+
+    assert "Outputs" in response.rendered_content
+
+    # check the ordering of responses, should be latest first
+    assert len(response.context_data["outputs"]) == 3
+    output_pks = list(response.context_data["outputs"].values_list("pk", flat=True))
+    expected_pks = [snapshot3.pk, snapshot1.pk, snapshot5.pk]
+    assert output_pks == expected_pks
+
+    # check unpublished or published-but-older snapshots are not in the
+    # snapshots picked to display for outputs
+    snapshots = set_from_qs(Snapshot.objects.all())
+    assert snapshot2 not in snapshots
+    assert snapshot4 not in snapshots
+
+
+@pytest.mark.django_db
+def test_projectdetail_with_no_releases(rf, mocker):
+    project = ProjectFactory()
+
+    mocker.patch(
+        "jobserver.views.projects.get_repo_is_private",
+        autospec=True,
+        return_value=True,
+    )
+
+    request = rf.get(MEANINGLESS_URL)
+    request.user = UserFactory()
+
+    response = ProjectDetail.as_view()(
+        request, org_slug=project.org.slug, project_slug=project.slug
+    )
+
+    assert response.status_code == 200
+
+    assert len(response.context_data["outputs"]) == 0
+    assert "Outputs" not in response.rendered_content
 
 
 @pytest.mark.django_db
