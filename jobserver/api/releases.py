@@ -12,7 +12,7 @@ from slack_sdk.errors import SlackApiError
 from jobserver import releases
 from jobserver.api import get_backend_from_token
 from jobserver.authorization import has_permission
-from jobserver.models import Release, ReleaseFile, User, Workspace
+from jobserver.models import Release, ReleaseFile, Snapshot, User, Workspace
 from services.slack import client as slack_client
 
 
@@ -189,6 +189,17 @@ class ReleaseFileAPI(APIView):
         rfile = get_object_or_404(ReleaseFile, id=file_id)
         validate_release_access(request, rfile.workspace)
         return serve_file(request, rfile)
+
+
+class SnapshotAPI(APIView):
+    def get(self, request, snapshot_id):
+        """A list of files for this Snapshot."""
+        snapshot = get_object_or_404(Snapshot, pk=snapshot_id)
+
+        validate_release_access(request, snapshot.workspace)
+        files = {f.name: f for f in snapshot.files.all()}
+
+        return Response(generate_index(files))
 
 
 def serve_file(request, rfile):

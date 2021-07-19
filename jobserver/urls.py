@@ -16,6 +16,7 @@ from jobserver.api.releases import (
     ReleaseFileAPI,
     ReleaseNotificationAPICreate,
     ReleaseWorkspaceAPI,
+    SnapshotAPI,
 )
 
 from .views.admin import ApproveUsers
@@ -37,8 +38,9 @@ from .views.projects import (
 )
 from .views.releases import (
     ProjectReleaseList,
-    PublicReleaseCreate,
     ReleaseDetail,
+    SnapshotCreate,
+    SnapshotDetail,
     WorkspaceReleaseList,
 )
 from .views.status import Status
@@ -46,6 +48,7 @@ from .views.users import Settings, UserDetail, UserList
 from .views.workspaces import (
     WorkspaceArchiveToggle,
     WorkspaceCreate,
+    WorkspaceCurrentOutputsDetail,
     WorkspaceDetail,
     WorkspaceLog,
     WorkspaceNotificationsToggle,
@@ -79,6 +82,11 @@ api_urls = [
         ReleaseFileAPI.as_view(),
         name="release-file",
     ),
+    path(
+        "releases/snapshot/<snapshot_id>",
+        SnapshotAPI.as_view(),
+        name="snapshot",
+    ),
 ]
 
 backend_urls = [
@@ -88,6 +96,30 @@ backend_urls = [
         "<pk>/rotate-token/",
         BackendRotateToken.as_view(),
         name="backend-rotate-token",
+    ),
+]
+
+outputs_urls = [
+    path("", WorkspaceOutputList.as_view(), name="workspace-output-list"),
+    path(
+        "current/",
+        WorkspaceCurrentOutputsDetail.as_view(),
+        name="workspace-current-outputs-detail",
+    ),
+    path(
+        "current/<path:path>",
+        WorkspaceCurrentOutputsDetail.as_view(),
+        name="workspace-current-outputs-detail",
+    ),
+    path(
+        "<pk>/",
+        SnapshotDetail.as_view(),
+        name="workspace-snapshot-detail",
+    ),
+    path(
+        "<pk>/<path:path>",
+        SnapshotDetail.as_view(),
+        name="workspace-snapshot-detail",
     ),
 ]
 
@@ -108,15 +140,10 @@ workspace_urls = [
         WorkspaceNotificationsToggle.as_view(),
         name="workspace-notifications-toggle",
     ),
-    path("outputs/", WorkspaceOutputList.as_view(), name="workspace-output-list"),
-    path(
-        "outputs/<path:path>",
-        WorkspaceOutputList.as_view(),
-        name="workspace-output-list",
-    ),
+    path("outputs/", include(outputs_urls)),
     path(
         "publish/",
-        PublicReleaseCreate.as_view(),
+        SnapshotCreate.as_view(),
         name="workspace-publish",
     ),
     path(

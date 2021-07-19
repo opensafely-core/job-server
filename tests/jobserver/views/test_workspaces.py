@@ -4,12 +4,14 @@ from django.conf import settings
 from django.contrib.auth.models import AnonymousUser
 from django.contrib.messages.storage.fallback import FallbackStorage
 from django.http import Http404
+from django.utils import timezone
 
-from jobserver.authorization import ProjectDeveloper
+from jobserver.authorization import ProjectCollaborator, ProjectDeveloper
 from jobserver.models import Backend, JobRequest, Workspace
 from jobserver.views.workspaces import (
     WorkspaceArchiveToggle,
     WorkspaceCreate,
+    WorkspaceCurrentOutputsDetail,
     WorkspaceDetail,
     WorkspaceLog,
     WorkspaceNotificationsToggle,
@@ -23,9 +25,13 @@ from ...factories import (
     OrgFactory,
     ProjectFactory,
     ProjectMembershipFactory,
+    ReleaseFactory,
+    ReleaseUploadsFactory,
+    SnapshotFactory,
     UserFactory,
     WorkspaceFactory,
 )
+from ...utils import minutes_ago
 
 
 MEANINGLESS_URL = "/"
@@ -223,6 +229,15 @@ def test_workspacedetail_get_success(rf, mocker, user):
 
     ProjectMembershipFactory(project=project, user=user, roles=[ProjectDeveloper])
 
+    # Give the User the permission to view unpublished Snapshots and current
+    # Workspace files
+    user.roles = [ProjectCollaborator]
+    user.save()
+
+    # set up some files for the workspace
+    upload = ReleaseUploadsFactory({"file1.txt": b"text", "file2.txt": b"text"})
+    ReleaseFactory(upload, workspace=workspace)
+
     dummy_yaml = """
     actions:
       twiddle:
@@ -256,6 +271,58 @@ def test_workspacedetail_get_success(rf, mocker, user):
         {"name": "run_all", "needs": ["twiddle"], "status": "-"},
     ]
     assert response.context_data["workspace"] == workspace
+
+    # this is true because the user has the right permission to see outputs
+    assert response.context_data["user_can_view_outputs"]
+
+
+@pytest.mark.django_db
+def test_workspacedetail_get_with_unprivileged_user(rf, mocker, user):
+    org = user.orgs.first()
+    project = ProjectFactory(org=org)
+    workspace = WorkspaceFactory(project=project)
+
+    ProjectMembershipFactory(project=project, user=user, roles=[ProjectDeveloper])
+
+    dummy_yaml = """
+    actions:
+      twiddle:
+    """
+    mocker.patch(
+        "jobserver.views.workspaces.can_run_jobs", autospec=True, return_value=True
+    )
+    mocker.patch(
+        "jobserver.views.workspaces.get_project", autospec=True, return_value=dummy_yaml
+    )
+    mocker.patch(
+        "jobserver.views.workspaces.get_repo_is_private",
+        autospec=True,
+        return_value=True,
+    )
+
+    request = rf.get(MEANINGLESS_URL)
+    request.user = user
+
+    response = WorkspaceDetail.as_view()(
+        request,
+        org_slug=org.slug,
+        project_slug=project.slug,
+        workspace_slug=workspace.name,
+    )
+
+    assert response.status_code == 200
+
+    assert response.context_data["actions"] == [
+        {"name": "twiddle", "needs": [], "status": "-"},
+        {"name": "run_all", "needs": ["twiddle"], "status": "-"},
+    ]
+    assert response.context_data["workspace"] == workspace
+
+    # this is false because:
+    # the user is either logged out
+    #   OR doesn't have the right permission to see outputs
+    #   AND there are no published Snapshots to show the user.
+    assert not response.context_data["user_can_view_outputs"]
 
 
 @pytest.mark.django_db
@@ -775,12 +842,13 @@ def test_workspacenotificationstoggle_unknown_workspace(rf, user):
 
 
 @pytest.mark.django_db
-def test_workspaceoutputlist_success(rf):
+def test_workspacecurrentoutputsdetail_success(rf):
     workspace = WorkspaceFactory()
 
     request = rf.get("/")
+    request.user = UserFactory(roles=[ProjectCollaborator])
 
-    response = WorkspaceOutputList.as_view()(
+    response = WorkspaceCurrentOutputsDetail.as_view()(
         request,
         org_slug=workspace.project.org.slug,
         project_slug=workspace.project.slug,
@@ -791,7 +859,142 @@ def test_workspaceoutputlist_success(rf):
 
 
 @pytest.mark.django_db
-def test_workspaceoutputs_unknown_workspace(rf):
+def test_workspacecurrentoutputsdetail_without_permission(rf):
+    workspace = WorkspaceFactory()
+
+    request = rf.get("/")
+    request.user = UserFactory()
+
+    with pytest.raises(Http404):
+        WorkspaceCurrentOutputsDetail.as_view()(
+            request,
+            org_slug=workspace.project.org.slug,
+            project_slug=workspace.project.slug,
+            workspace_slug=workspace.name,
+        )
+
+
+@pytest.mark.django_db
+def test_workspacecurrentoutputsdetail_unknown_workspace(rf):
+    project = ProjectFactory()
+
+    request = rf.get("/")
+
+    with pytest.raises(Http404):
+        WorkspaceCurrentOutputsDetail.as_view()(
+            request,
+            org_slug=project.org.slug,
+            project_slug=project.slug,
+            workspace_slug="",
+        )
+
+
+@pytest.mark.django_db
+def test_workspaceoutputlist_success(rf, freezer):
+    workspace = WorkspaceFactory()
+
+    now = timezone.now()
+
+    ReleaseFactory(
+        ReleaseUploadsFactory({"file1.txt": b"text", "file2.txt": b"text"}),
+        workspace=workspace,
+    )
+    snapshot1 = SnapshotFactory(workspace=workspace, published_at=minutes_ago(now, 3))
+    snapshot1.files.set(workspace.files.all())
+
+    ReleaseFactory(
+        ReleaseUploadsFactory(
+            {
+                "file2.txt": b"text2",
+                "file3.txt": b"text",
+            }
+        ),
+        workspace=workspace,
+    )
+    snapshot2 = SnapshotFactory(workspace=workspace)
+    snapshot2.files.set(workspace.files.all())
+
+    ReleaseFactory(
+        ReleaseUploadsFactory(
+            {
+                "file2.txt": b"text2",
+                "file3.txt": b"text",
+            }
+        ),
+        workspace=workspace,
+    )
+
+    request = rf.get("/")
+    request.user = UserFactory(roles=[ProjectCollaborator])
+
+    response = WorkspaceOutputList.as_view()(
+        request,
+        org_slug=workspace.project.org.slug,
+        project_slug=workspace.project.slug,
+        workspace_slug=workspace.name,
+    )
+
+    assert response.status_code == 200
+    assert len(response.context_data["snapshots"]) == 2
+
+    # Check we're showing the latest files section for a privileged user
+    assert "Current" in response.rendered_content
+
+
+@pytest.mark.django_db
+def test_workspaceoutputlist_without_permission(rf, freezer):
+    workspace = WorkspaceFactory()
+
+    now = timezone.now()
+
+    ReleaseFactory(
+        ReleaseUploadsFactory({"file1.txt": b"text", "file2.txt": b"text"}),
+        workspace=workspace,
+    )
+    snapshot1 = SnapshotFactory(workspace=workspace, published_at=minutes_ago(now, 3))
+    snapshot1.files.set(workspace.files.all())
+
+    ReleaseFactory(
+        ReleaseUploadsFactory(
+            {
+                "file2.txt": b"text2",
+                "file3.txt": b"text",
+            }
+        ),
+        workspace=workspace,
+    )
+    snapshot2 = SnapshotFactory(workspace=workspace, published_at=None)
+    snapshot2.files.set(workspace.files.all())
+
+    ReleaseFactory(
+        ReleaseUploadsFactory(
+            {
+                "file2.txt": b"text2",
+                "file3.txt": b"text",
+            }
+        ),
+        workspace=workspace,
+    )
+
+    request = rf.get("/")
+    request.user = UserFactory()
+
+    response = WorkspaceOutputList.as_view()(
+        request,
+        org_slug=workspace.project.org.slug,
+        project_slug=workspace.project.slug,
+        workspace_slug=workspace.name,
+    )
+
+    assert response.status_code == 200
+    assert len(response.context_data["snapshots"]) == 1
+
+    # Check we're not showing the latest files section for an unprivileged user
+    assert "Current" not in response.rendered_content
+
+
+@pytest.mark.django_db
+def test_workspaceoutputlist_unknown_workspace(rf):
     project = ProjectFactory()
 
     request = rf.get("/")

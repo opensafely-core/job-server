@@ -20,8 +20,8 @@ from jobserver.models import (
     Project,
     ProjectInvitation,
     ProjectMembership,
-    PublicRelease,
     ResearcherRegistration,
+    Snapshot,
     Stats,
     User,
     Workspace,
@@ -114,9 +114,9 @@ class ProjectMembershipFactory(factory.django.DjangoModelFactory):
     user = factory.SubFactory("tests.factories.UserFactory")
 
 
-class PublicReleaseFactory(factory.django.DjangoModelFactory):
+class SnapshotFactory(factory.django.DjangoModelFactory):
     class Meta:
-        model = PublicRelease
+        model = Snapshot
 
     created_by = factory.SubFactory("tests.factories.UserFactory")
     workspace = factory.SubFactory("tests.factories.WorkspaceFactory")

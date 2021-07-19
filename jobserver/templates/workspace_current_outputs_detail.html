@@ -1,0 +1,41 @@
+{% extends "base.html" %}
+
+{% block content %}
+
+<nav aria-label="breadcrumb">
+  <ol class="breadcrumb">
+
+    <li class="breadcrumb-item"><a href="/">Home</a></li>
+
+    <li class="breadcrumb-item">
+      <a href="{{ workspace.project.org.get_absolute_url }}">
+        {{ workspace.project.org.name }}
+      </a>
+    </li>
+
+    <li class="breadcrumb-item">
+      <a href="{{ workspace.project.get_absolute_url }}">
+        {{ workspace.project.name }}
+      </a>
+    </li>
+
+    <li class="breadcrumb-item">
+      <a href="{{ workspace.get_absolute_url }}">
+        {{ workspace.name }}
+      </a>
+    </li>
+
+    <li class="breadcrumb-item">
+      <a href="{{ workspace.get_outputs_url }}">
+        Outputs
+      </a>
+    </li>
+
+    <li class="breadcrumb-item active" aria-current="page">Latest</li>
+
+  </ol>
+</nav>
+
+{% include "outputs-spa.html" %}
+
+{% endblock %}

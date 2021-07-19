@@ -2,12 +2,13 @@ from django.contrib import messages
 from django.contrib.auth.decorators import user_passes_test
 from django.db import transaction
 from django.db.models import Q
+from django.http import Http404
 from django.shortcuts import get_object_or_404, redirect
 from django.template.response import TemplateResponse
 from django.utils.decorators import method_decorator
 from django.views.generic import CreateView, ListView, View
 
-from ..authorization import CoreDeveloper, has_role
+from ..authorization import CoreDeveloper, has_permission, has_role
 from ..backends import backends_to_choices
 from ..forms import (
     JobRequestCreateForm,
@@ -155,15 +156,28 @@ class WorkspaceDetail(CreateView):
     def get_context_data(self, **kwargs):
         can_use_releases = has_role(self.request.user, CoreDeveloper)
 
-        context = super().get_context_data(**kwargs)
-        context["actions"] = self.actions
-        context["can_use_releases"] = can_use_releases
-        context["repo_is_private"] = self.get_repo_is_private()
-        context["latest_job_request"] = self.get_latest_job_request()
-        context["show_details"] = self.show_details
-        context["user_can_run_jobs"] = self.user_can_run_jobs
-        context["workspace"] = self.workspace
-        return context
+        # unprivileged users only see the Outputs button if there's published snapshots
+        # privileged users see it if there's snapshots or workspace files
+        is_privileged_user = has_permission(
+            self.request.user, "view_release_file", project=self.workspace.project
+        )
+        if is_privileged_user:
+            can_view_outputs = self.workspace.files.exists()
+        else:
+            can_view_outputs = self.workspace.snapshots.exclude(
+                published_at=None
+            ).exists()
+
+        return super().get_context_data(**kwargs) | {
+            "actions": self.actions,
+            "can_use_releases": can_use_releases,
+            "repo_is_private": self.get_repo_is_private(),
+            "latest_job_request": self.get_latest_job_request(),
+            "show_details": self.show_details,
+            "user_can_run_jobs": self.user_can_run_jobs,
+            "user_can_view_outputs": can_view_outputs,
+            "workspace": self.workspace,
+        }
 
     def get_form_kwargs(self):
         kwargs = super().get_form_kwargs()
@@ -271,15 +285,16 @@ class WorkspaceNotificationsToggle(View):
         return redirect(workspace)
 
 
-class WorkspaceOutputList(View):
-    def get(self, request, *args, **kwargs):
-        """
-        Orchestrate viewing of a Release in the SPA
+class WorkspaceCurrentOutputsDetail(View):
+    """
+    Orchestrate viewing of the Workspace's outputs in the SPA
 
-        We consume two URLs with one view, because we want to both do
-        permissions checks on the Release but also load the SPA for any given
-        path under a Release.
-        """
+    We consume two URLs with one view, because we want to both do permissions
+    checks on the Workspace but also load the SPA for any given path under the
+    Workspace.
+    """
+
+    def get(self, request, *args, **kwargs):
         workspace = get_object_or_404(
             Workspace,
             project__org__slug=self.kwargs["org_slug"],
@@ -287,10 +302,50 @@ class WorkspaceOutputList(View):
             name=self.kwargs["workspace_slug"],
         )
 
-        # TODO: check permissions here
+        # only a privileged user can view the current files
+        if not has_permission(
+            request.user, "view_release_file", project=workspace.project
+        ):
+            raise Http404
 
         context = {
             "api_url": workspace.get_releases_api_url(),
+            "workspace": workspace,
+        }
+        return TemplateResponse(
+            request,
+            "workspace_current_outputs_detail.html",
+            context=context,
+        )
+
+
+class WorkspaceOutputList(ListView):
+    """
+    Show a list of Outputs versions for a Workspace
+
+    Outputs in this context are a combination of "the latest version of each
+    ReleaseFile for the Workspace" and any Snapshots for the Workspace.
+    """
+
+    def get(self, request, *args, **kwargs):
+        workspace = get_object_or_404(
+            Workspace,
+            project__org__slug=self.kwargs["org_slug"],
+            project__slug=self.kwargs["project_slug"],
+            name=self.kwargs["workspace_slug"],
+        )
+
+        snapshots = workspace.snapshots.order_by("-created_at")
+
+        can_view_all_files = has_permission(
+            request.user, "view_release_file", project=workspace.project
+        )
+        if not can_view_all_files:
+            snapshots = snapshots.exclude(published_at=None)
+
+        context = {
+            "user_can_view_all_files": can_view_all_files,
+            "snapshots": snapshots,
             "workspace": workspace,
         }
         return TemplateResponse(
