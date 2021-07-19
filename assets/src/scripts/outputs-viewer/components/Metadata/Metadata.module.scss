@@ -1,0 +1,22 @@
+.spacer {
+  position: relative;
+
+  &::before {
+    content: "|";
+    margin-right: 0.5rem;
+    position: relative;
+  }
+}
+
+.fileLink {
+  position: relative;
+
+  &::after {
+    content: "\2197";
+    font-size: 1.25rem;
+    font-weight: normal;
+    line-height: 1;
+    margin-left: 0.25rem;
+    position: relative;
+  }
+}

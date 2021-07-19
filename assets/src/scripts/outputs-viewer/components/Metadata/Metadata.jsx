@@ -2,27 +2,33 @@ import prettyBytes from "pretty-bytes";
 import PropTypes from "prop-types";
 import React from "react";
 import dateFmt from "../../utils/date-format";
+import classes from "./Metadata.module.scss";
 
 function Metadata({ file }) {
   const fileSize = prettyBytes(file.size, { locale: "en-gb" });
   const fileDate = dateFmt({ date: file.date });
+  const fileDateISO = dateFmt({ date: file.date });
 
   return (
-    <div className="card bg-light mb-3">
-      <div className="card-body">
-        <h2 className="card-title h5 mb-0">{file.name}</h2>
-      </div>
-      <ul className="list-group list-group-flush">
-        <li className="list-group-item">
-          <strong>File size: </strong>
-          {fileSize}
-        </li>
-        <li className="list-group-item">
-          <strong>Last modified date: </strong>
+    <ul className="list-inline small text-monospace d-flex mb-0">
+      <li className="list-inline-item">
+        <a
+          className={classes.fileLink}
+          href={file.url}
+          rel="noreferrer noopener"
+          target="filePreview"
+        >
+          {file.name}
+        </a>
+      </li>
+      <li className="list-inline-item ml-auto">
+        <div className="sr-only">Last modified at: </div>
+        <time dateTime={fileDate} title={fileDate}>
           {fileDate}
-        </li>
-      </ul>
-    </div>
+        </time>
+      </li>
+      <li className={`list-inline-item ${classes.spacer}`}>{fileSize}</li>
+    </ul>
   );
 }
 

@@ -17,8 +17,10 @@ import Text from "../Text/Text";
 function Wrapper({ children, file }) {
   return (
     <>
-      <Metadata file={file} />
       <div className="card">
+        <div className="card-header">
+          <Metadata file={file} />
+        </div>
         <div className="card-body">{children}</div>
       </div>
     </>
@@ -56,8 +58,8 @@ function Viewer({ file }) {
     return (
       <Wrapper file={file}>
         <p>We cannot show a preview of this file.</p>
-        <p>
-          <a href={file.url} rel="noreferrer noopener" target="filePreview">
+        <p className="mb-0">
+          <a href={file.url} rel="noreferrer noopener" target="_blank">
             Open file in a new tab &#8599;
           </a>
         </p>
