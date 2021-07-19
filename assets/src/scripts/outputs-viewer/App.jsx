@@ -53,5 +53,6 @@ App.propTypes = {
     releaseName: PropTypes.string.isRequired,
     releaseAuthor: PropTypes.string.isRequired,
     releaseDate: PropTypes.string.isRequired,
+    workspaceName: PropTypes.string.isRequired,
   }).isRequired,
 };
