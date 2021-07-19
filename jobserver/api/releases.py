@@ -90,8 +90,25 @@ def validate_release_access(request, workspace):
 
 def generate_index(files):
     """Generate a JSON list of files as expected by the SPA."""
+
+    def get_size(rfile):
+        try:
+            return rfile.absolute_path().stat().st_size
+        except FileNotFoundError:  # pragma: no cover
+            return None
+
     return dict(
-        files=[dict(name=k, url=v.get_api_url()) for k, v in files.items()],
+        files=[
+            dict(
+                name=name,
+                url=rfile.get_api_url(),
+                user=rfile.created_by.username,
+                date=rfile.created_at.isoformat(),
+                sha256=rfile.filehash,
+                size=get_size(rfile),
+            )
+            for name, rfile in files.items()
+        ],
     )
 
 
