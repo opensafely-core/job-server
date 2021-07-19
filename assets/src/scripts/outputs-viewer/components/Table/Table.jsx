@@ -18,13 +18,15 @@ function Table({ data }) {
   }).data;
 
   return (
-    <table>
-      <tbody>
-        {jsonData.map((row) => (
-          <TableRow key={row.join(",")} row={row} />
-        ))}
-      </tbody>
-    </table>
+    <div className="table-responsive">
+      <table className="table table-striped">
+        <tbody>
+          {jsonData.map((row) => (
+            <TableRow key={row.join(",")} row={row} />
+          ))}
+        </tbody>
+      </table>
+    </div>
   );
 }
 
