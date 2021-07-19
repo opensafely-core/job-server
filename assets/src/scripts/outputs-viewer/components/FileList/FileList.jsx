@@ -38,7 +38,11 @@ function FileList({ apiUrl, setFile }) {
             href={item.url}
             onClick={(e) => {
               e.preventDefault();
-              return setFile({ name: item.name, url: item.url });
+              return setFile({
+                name: item.name,
+                url: item.url,
+                size: item.size,
+              });
             }}
           >
             {item.name}
