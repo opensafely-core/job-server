@@ -4,6 +4,7 @@ import { QueryClient, QueryClientProvider } from "react-query";
 import { ReactQueryDevtools } from "react-query/devtools";
 import FileList from "./components/FileList/FileList";
 import Viewer from "./components/Viewer/Viewer";
+import dateFmt from "./utils/date-format";
 
 const queryClient = new QueryClient({
   defaultOptions: {
@@ -16,6 +17,10 @@ const queryClient = new QueryClient({
 
 function App({ dataset }) {
   const [file, setFile] = useState({ name: "", url: "" });
+  const releaseDate = dateFmt({
+    date: dataset.releaseDate,
+    format: "MMMM d, yyyy, h:m bbbb",
+  });
 
   return (
     <QueryClientProvider client={queryClient}>
@@ -33,7 +38,7 @@ function App({ dataset }) {
               <strong>Author:</strong> {dataset.releaseAuthor}
             </li>
             <li>
-              <strong>Created:</strong> {dataset.releaseDate}
+              <strong>Created:</strong> {releaseDate}
             </li>
           </ul>
           <hr />

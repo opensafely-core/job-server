@@ -1,7 +1,12 @@
+import prettyBytes from "pretty-bytes";
 import PropTypes from "prop-types";
 import React from "react";
+import dateFmt from "../../utils/date-format";
 
 function Metadata({ file }) {
+  const fileSize = prettyBytes(file.size, { locale: "en-gb" });
+  const fileDate = dateFmt({ date: file.date });
+
   return (
     <div className="card bg-light mb-3">
       <div className="card-body">
@@ -9,11 +14,12 @@ function Metadata({ file }) {
       </div>
       <ul className="list-group list-group-flush">
         <li className="list-group-item">
-          <strong>File size: </strong>50 kb
+          <strong>File size: </strong>
+          {fileSize}
         </li>
         <li className="list-group-item">
           <strong>Last modified date: </strong>
-          01 Jan 2021
+          {fileDate}
         </li>
       </ul>
     </div>
@@ -22,7 +28,9 @@ function Metadata({ file }) {
 
 Metadata.propTypes = {
   file: PropTypes.shape({
+    date: PropTypes.string.isRequired,
     name: PropTypes.string.isRequired,
+    size: PropTypes.number.isRequired,
     url: PropTypes.string.isRequired,
   }).isRequired,
 };
