@@ -1,8 +1,8 @@
-import debounce from "lodash/debounce";
 import { useState, useEffect } from "react";
+import debounce from "../utils/debounce";
 
 // Hook
-function useWindowSize(delay = 500) {
+function useWindowSize(delay = 200) {
   // Initialize state with undefined width/height so server and client renders match
   // Learn more here: https://joshwcomeau.com/react/the-perils-of-rehydration/
   const [windowSize, setWindowSize] = useState({
@@ -21,7 +21,7 @@ function useWindowSize(delay = 500) {
     }
 
     // Add event listener
-    window.addEventListener("resize", debounce(handleResize, delay));
+    window.addEventListener("resize", debounce(handleResize));
 
     // Call handler right away so state gets updated with initial window size
     handleResize();
