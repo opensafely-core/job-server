@@ -1,6 +1,7 @@
 import json
 
 import pytest
+from django.utils import timezone
 from rest_framework.test import APIClient
 from slack_sdk.errors import SlackApiError
 
@@ -619,8 +620,52 @@ def test_release_file_api_file_deleted():
 
 
 @pytest.mark.django_db
-def test_snapshot_api_anonymous():
-    snapshot = SnapshotFactory()
+def test_snapshot_api_published_anonymous(freezer):
+    snapshot = SnapshotFactory(published_at=timezone.now())
+
+    client = APIClient()
+    response = client.get(
+        f"/api/v2/workspaces/{snapshot.workspace.name}/snapshots/{snapshot.pk}"
+    )
+
+    assert response.status_code == 200
+    assert response.data == {"files": []}
+
+
+@pytest.mark.django_db
+def test_snapshot_api_published_no_permission():
+    snapshot = SnapshotFactory(published_at=timezone.now())
+
+    client = APIClient()
+    # logged in, but no permission
+    client.force_authenticate(user=UserFactory())
+
+    response = client.get(
+        f"/api/v2/workspaces/{snapshot.workspace.name}/snapshots/{snapshot.pk}"
+    )
+
+    assert response.status_code == 200
+    assert response.data == {"files": []}
+
+
+@pytest.mark.django_db
+def test_snapshot_api_published_with_permission():
+    snapshot = SnapshotFactory(published_at=timezone.now())
+
+    client = APIClient()
+    client.force_authenticate(user=UserFactory(roles=[ProjectCollaborator]))
+
+    response = client.get(
+        f"/api/v2/workspaces/{snapshot.workspace.name}/snapshots/{snapshot.pk}"
+    )
+
+    assert response.status_code == 200
+    assert response.data == {"files": []}
+
+
+@pytest.mark.django_db
+def test_snapshot_api_unpublished_anonymous():
+    snapshot = SnapshotFactory(published_at=None)
 
     client = APIClient()
     response = client.get(
@@ -631,8 +676,8 @@ def test_snapshot_api_anonymous():
 
 
 @pytest.mark.django_db
-def test_snapshot_api_no_permission():
-    snapshot = SnapshotFactory()
+def test_snapshot_api_unpublished_no_permission():
+    snapshot = SnapshotFactory(published_at=None)
 
     client = APIClient()
     # logged in, but no permission
@@ -646,8 +691,8 @@ def test_snapshot_api_no_permission():
 
 
 @pytest.mark.django_db
-def test_snapshot_api_success():
-    snapshot = SnapshotFactory()
+def test_snapshot_api_unpublished_with_permission():
+    snapshot = SnapshotFactory(published_at=None)
 
     client = APIClient()
     client.force_authenticate(user=UserFactory(roles=[ProjectCollaborator]))
@@ -753,7 +798,6 @@ def test_snapshot_create_without_permission():
 
     client = APIClient()
     client.force_authenticate(user=UserFactory())
-
     data = {"file_ids": ["test"]}
     response = client.post(f"/api/v2/workspaces/{workspace.name}/snapshots", data)
 

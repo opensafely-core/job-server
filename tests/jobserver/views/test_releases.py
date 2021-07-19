@@ -1,5 +1,7 @@
 import pytest
+from django.contrib.auth.models import AnonymousUser
 from django.http import Http404
+from django.utils import timezone
 
 from jobserver.authorization import ProjectCollaborator
 from jobserver.views.releases import (
@@ -115,8 +117,26 @@ def test_releasedetail_with_path_success(rf):
 
 
 @pytest.mark.django_db
-def test_snapshotdetail_success(rf):
-    snapshot = SnapshotFactory()
+def test_snapshotdetail_published_logged_out(rf):
+    snapshot = SnapshotFactory(published_at=timezone.now())
+
+    request = rf.get("/")
+    request.user = AnonymousUser()
+
+    response = SnapshotDetail.as_view()(
+        request,
+        org_slug=snapshot.workspace.project.org.slug,
+        project_slug=snapshot.workspace.project.slug,
+        workspace_slug=snapshot.workspace.name,
+        pk=snapshot.pk,
+    )
+
+    assert response.status_code == 200
+
+
+@pytest.mark.django_db
+def test_snapshotdetail_published_with_permission(rf):
+    snapshot = SnapshotFactory(published_at=timezone.now())
 
     request = rf.get("/")
     request.user = UserFactory(roles=[ProjectCollaborator])
@@ -133,8 +153,44 @@ def test_snapshotdetail_success(rf):
 
 
 @pytest.mark.django_db
-def test_snapshotdetail_without_permission(rf):
-    snapshot = SnapshotFactory()
+def test_snapshotdetail_published_without_permission(rf):
+    snapshot = SnapshotFactory(published_at=timezone.now())
+
+    request = rf.get("/")
+    request.user = UserFactory()
+
+    response = SnapshotDetail.as_view()(
+        request,
+        org_slug=snapshot.workspace.project.org.slug,
+        project_slug=snapshot.workspace.project.slug,
+        workspace_slug=snapshot.workspace.name,
+        pk=snapshot.pk,
+    )
+
+    assert response.status_code == 200
+
+
+@pytest.mark.django_db
+def test_snapshotdetail_unpublished_with_permission(rf):
+    snapshot = SnapshotFactory(published_at=None)
+
+    request = rf.get("/")
+    request.user = UserFactory(roles=[ProjectCollaborator])
+
+    response = SnapshotDetail.as_view()(
+        request,
+        org_slug=snapshot.workspace.project.org.slug,
+        project_slug=snapshot.workspace.project.slug,
+        workspace_slug=snapshot.workspace.name,
+        pk=snapshot.pk,
+    )
+
+    assert response.status_code == 200
+
+
+@pytest.mark.django_db
+def test_snapshotdetail_unpublished_without_permission(rf):
+    snapshot = SnapshotFactory(published_at=None)
 
     request = rf.get("/")
     request.user = UserFactory()

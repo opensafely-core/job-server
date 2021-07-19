@@ -73,9 +73,11 @@ class SnapshotDetail(View):
             pk=self.kwargs["pk"],
         )
 
-        if not has_permission(
+        has_permission_to_view = has_permission(
             request.user, "view_release_file", project=snapshot.workspace.project
-        ):
+        )
+        is_published = snapshot.published_at is not None
+        if not (is_published or has_permission_to_view):
             raise Http404
 
         context = {
