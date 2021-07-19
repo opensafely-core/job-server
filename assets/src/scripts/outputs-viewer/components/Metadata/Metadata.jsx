@@ -6,8 +6,14 @@ import classes from "./Metadata.module.scss";
 
 function Metadata({ file }) {
   const fileSize = prettyBytes(file.size, { locale: "en-gb" });
-  const fileDate = dateFmt({ date: file.date });
-  const fileDateISO = dateFmt({ date: file.date });
+  const fileDate = dateFmt({
+    date: file.date,
+    output: "yyyy-MM-dd HH:mm",
+  });
+  const fileDateAbs = dateFmt({
+    date: file.date,
+    output: "yyyy-MM-dd'T'HH:mm:ssXX",
+  });
 
   return (
     <ul className="list-inline small text-monospace d-flex mb-0">
@@ -23,7 +29,7 @@ function Metadata({ file }) {
       </li>
       <li className="list-inline-item ml-auto">
         <div className="sr-only">Last modified at: </div>
-        <time dateTime={fileDate} title={fileDate}>
+        <time dateTime={fileDateAbs} title={fileDateAbs}>
           {fileDate}
         </time>
       </li>

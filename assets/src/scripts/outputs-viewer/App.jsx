@@ -19,7 +19,7 @@ function App({ dataset }) {
   const [file, setFile] = useState({ name: "", url: "" });
   const releaseDate = dateFmt({
     date: `${dataset.releaseDate} +0000`,
-    format: "MMMM d, yyyy, h:m bbbb xxxx",
+    input: "MMMM d, yyyy, h:m bbbb xxxx",
   });
 
   return (
