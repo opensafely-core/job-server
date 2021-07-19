@@ -88,6 +88,24 @@ def validate_release_access(request, workspace):
         raise NotAuthenticated(f"Invalid user or token for workspace {workspace.name}")
 
 
+def validate_snapshot_access(request, snapshot):
+    """
+    Validate this request can access this snapshot.
+
+    This validation uses Django's regular User auth.
+    """
+    if snapshot.published_at:
+        return
+
+    if request.user.is_anonymous:
+        raise NotAuthenticated("Invalid user or token")
+
+    if not has_permission(
+        request.user, "view_release_file", project=snapshot.workspace.project
+    ):
+        raise NotAuthenticated(f"Invalid user or token for snapshot pk={snapshot.pk}")
+
+
 def generate_index(files):
     """Generate a JSON list of files as expected by the SPA."""
     return dict(
@@ -196,7 +214,7 @@ class SnapshotAPI(APIView):
         """A list of files for this Snapshot."""
         snapshot = get_object_or_404(Snapshot, pk=snapshot_id)
 
-        validate_release_access(request, snapshot.workspace)
+        validate_snapshot_access(request, snapshot)
         files = {f.name: f for f in snapshot.files.all()}
 
         return Response(generate_index(files))
