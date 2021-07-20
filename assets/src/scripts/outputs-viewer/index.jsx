@@ -6,7 +6,7 @@ const element = document.getElementById("outputsSPA");
 
 ReactDOM.render(
   <React.StrictMode>
-    <App dataset={element.dataset} />
+    <App apiUrl={element.dataset.apiUrl} />
   </React.StrictMode>,
   element
 );

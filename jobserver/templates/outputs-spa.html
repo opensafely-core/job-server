@@ -1,13 +1,6 @@
 {% load django_vite %}
 
-<div
-  data-api-url="{{ api_url }}"
-  data-release-author="{{ release.created_by.name }}"
-  data-release-date="{{ release.created_at }}"
-  data-release-name="{{ release.id }}"
-  data-workspace-name="{{ release.workspace.name }}"
-  id="outputsSPA"
-></div>
+<div data-api-url="{{ api_url }}" id="outputsSPA"></div>
 
 {% block extra_js %}
   {% vite_asset 'assets/src/scripts/outputs-viewer/index.jsx' %}

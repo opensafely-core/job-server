@@ -36,6 +36,16 @@
   </ol>
 </nav>
 
+<h1 class="card-title h3">
+  {{ release.workspace.name }}:
+  <pre class="d-inline">{{ release.id }}</pre>
+</h1>
+
+<p class="card-subtitle mb-2 text-muted">
+  Released by {{ release.created_by.name }} on
+  {{ release.created_at|date:"D M Y" }} at {{ release.created_at|date:"H:i" }}
+</p>
+
 {% include "outputs-spa.html" %}
 
 {% endblock %}
