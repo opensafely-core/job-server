@@ -1,19 +1,17 @@
 import prettyBytes from "pretty-bytes";
 import PropTypes from "prop-types";
 import React from "react";
-import dateFmt from "../../utils/date-format";
 import classes from "./Metadata.module.scss";
 
 function Metadata({ file }) {
   const fileSize = prettyBytes(file.size, { locale: "en-gb" });
-  const fileDate = dateFmt({
-    date: file.date,
-    output: "yyyy-MM-dd HH:mm",
-  });
-  const fileDateAbs = dateFmt({
-    date: file.date,
-    output: "yyyy-MM-dd'T'HH:mm:ssXX",
-  });
+  const date = new Date(file.date);
+  const fileDateAbs = date.toISOString();
+  const fileDate = new Intl.DateTimeFormat("en-GB", {
+    timeZone: "UTC",
+    dateStyle: "short",
+    timeStyle: "short",
+  }).format(date);
 
   return (
     <ul className="list-inline small text-monospace d-flex mb-0">
