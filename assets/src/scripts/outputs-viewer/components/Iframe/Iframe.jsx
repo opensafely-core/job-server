@@ -9,9 +9,12 @@ function Iframe({ data, file }) {
 
   useLayoutEffect(() => {
     setFrameHeight(
-      window.innerHeight -
-        document.getElementById(id).getBoundingClientRect().top -
-        58 // Magic number…
+      Math.round(
+        window.innerHeight -
+          document.getElementById(id).getBoundingClientRect().top -
+          17 - // Magic number for scroll bar height
+          40 // 2rem
+      )
     );
   }, [windowSize, id]);
 
