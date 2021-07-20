@@ -43,7 +43,7 @@ function FileList({ apiUrl, setFile }) {
         className={`${classes.list} list-unstyled card`}
         style={{ height: appHeight }}
       >
-        <li className={classes.item}>Error: Unable to load file</li>
+        <li className={classes.item}>Error: Unable to load files</li>
       </ul>
     );
   }

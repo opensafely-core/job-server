@@ -6,5 +6,9 @@
   padding: 1rem;
   position: sticky;
   top: 1rem;
-  word-wrap: initial;
+  white-space: pre-line;
+
+  li a {
+    white-space: nowrap;
+  }
 }
