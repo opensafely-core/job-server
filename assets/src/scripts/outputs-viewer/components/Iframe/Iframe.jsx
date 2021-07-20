@@ -4,18 +4,22 @@ import useWindowSize from "../../hooks/useWindowSize";
 
 function Iframe({ data, file }) {
   const windowSize = useWindowSize();
-  const [frameHeight, setFrameHeight] = useState("");
+  const [frameHeight, setFrameHeight] = useState(0);
   const id = encodeURIComponent(file.url).replace(/\W/g, "");
 
   useLayoutEffect(() => {
-    setFrameHeight(
-      Math.round(
-        window.innerHeight -
-          document.getElementById(id).getBoundingClientRect().top -
-          17 - // Magic number for scroll bar height
-          40 // 2rem
-      )
-    );
+    if (window.innerWidth > 991) {
+      setFrameHeight(
+        Math.round(
+          window.innerHeight -
+            document.getElementById(id).getBoundingClientRect().top -
+            17 - // Magic number for scroll bar height
+            40 // 2rem
+        )
+      );
+    } else {
+      setFrameHeight(1000);
+    }
   }, [windowSize, id]);
 
   return (

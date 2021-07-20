@@ -16,6 +16,7 @@ const queryClient = new QueryClient({
 });
 
 function App({ dataset }) {
+  const [listVisible, setListVisible] = useState(false);
   const [file, setFile] = useState({ name: "", url: "" });
   const releaseDate = dateFmt({
     date: `${dataset.releaseDate} +0000`,
@@ -25,10 +26,22 @@ function App({ dataset }) {
   return (
     <QueryClientProvider client={queryClient}>
       <div className="row">
-        <div className="col-md-3">
-          <FileList apiUrl={dataset.apiUrl} setFile={setFile} />
+        <div className="col-lg-3">
+          <button
+            className="d-block d-lg-none btn btn-secondary mb-3"
+            onClick={() => setListVisible(!listVisible)}
+            type="button"
+          >
+            {listVisible ? "Hide" : "Show"} file list
+          </button>
+          <FileList
+            apiUrl={dataset.apiUrl}
+            listVisible={listVisible}
+            setFile={setFile}
+            setListVisible={setListVisible}
+          />
         </div>
-        <div className="col-md-9">
+        <div className="col-lg-9">
           <h1 className="card-title h3">
             {dataset.workspaceName}:{" "}
             <pre className="d-inline">{dataset.releaseName}</pre>

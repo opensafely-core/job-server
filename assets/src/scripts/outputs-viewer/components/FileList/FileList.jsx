@@ -5,9 +5,22 @@ import useWindowSize from "../../hooks/useWindowSize";
 import handleErrors from "../../utils/fetch-handle-errors";
 import classes from "./FileList.module.scss";
 
-function FileList({ apiUrl, setFile }) {
+function ListWrapper({ appHeight, children, listVisible }) {
+  return (
+    <ul
+      className={`${classes.list} list-unstyled card ${
+        listVisible ? "d-block" : "d-none"
+      }`}
+      style={{ height: appHeight || "auto" }}
+    >
+      {children}
+    </ul>
+  );
+}
+
+function FileList({ apiUrl, listVisible, setFile, setListVisible }) {
   const windowSize = useWindowSize();
-  const [appHeight, setAppHeight] = useState("");
+  const [appHeight, setAppHeight] = useState(0);
 
   const { isLoading, isError, data, error } = useQuery("FILE_LIST", async () =>
     fetch(apiUrl)
@@ -16,21 +29,21 @@ function FileList({ apiUrl, setFile }) {
   );
 
   useEffect(() => {
-    setAppHeight(
-      window.innerHeight -
-        document.querySelector("#outputsSPA").getBoundingClientRect().top -
-        30
-    );
-  }, [windowSize]);
+    if (window.innerWidth > 991) {
+      setListVisible(true);
+      setAppHeight(
+        window.innerHeight -
+          document.querySelector("#outputsSPA").getBoundingClientRect().top -
+          30
+      );
+    }
+  }, [windowSize, setListVisible, listVisible]);
 
   if (isLoading) {
     return (
-      <ul
-        className={`${classes.list} list-unstyled card`}
-        style={{ height: appHeight }}
-      >
+      <ListWrapper appHeight={appHeight} listVisible={listVisible}>
         <li className={classes.item}>Loading…</li>
-      </ul>
+      </ListWrapper>
     );
   }
 
@@ -39,12 +52,9 @@ function FileList({ apiUrl, setFile }) {
     console.error(error.message);
 
     return (
-      <ul
-        className={`${classes.list} list-unstyled card`}
-        style={{ height: appHeight }}
-      >
+      <ListWrapper appHeight={appHeight} listVisible={listVisible}>
         <li className={classes.item}>Error: Unable to load files</li>
-      </ul>
+      </ListWrapper>
     );
   }
 
@@ -60,10 +70,7 @@ function FileList({ apiUrl, setFile }) {
   ];
 
   return (
-    <ul
-      className={`${classes.list} list-unstyled card`}
-      style={{ height: appHeight }}
-    >
+    <ListWrapper appHeight={appHeight} listVisible={listVisible}>
       {sortedFiles.map((item) => (
         <li key={item.url} className={classes.item}>
           <a
@@ -82,7 +89,7 @@ function FileList({ apiUrl, setFile }) {
           </a>
         </li>
       ))}
-    </ul>
+    </ListWrapper>
   );
 }
 
@@ -90,5 +97,13 @@ export default FileList;
 
 FileList.propTypes = {
   apiUrl: PropTypes.string.isRequired,
+  listVisible: PropTypes.bool.isRequired,
   setFile: PropTypes.func.isRequired,
+  setListVisible: PropTypes.func.isRequired,
+};
+
+ListWrapper.propTypes = {
+  appHeight: PropTypes.number.isRequired,
+  children: PropTypes.node.isRequired,
+  listVisible: PropTypes.bool.isRequired,
 };
