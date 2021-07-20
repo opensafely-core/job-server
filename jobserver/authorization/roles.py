@@ -2,6 +2,7 @@ from .permissions import (
     cancel_job,
     check_output,
     create_org,
+    create_snapshot,
     invite_project_members,
     manage_backends,
     manage_project_members,
@@ -187,6 +188,7 @@ class ProjectDeveloper:
     permissions = [
         cancel_job,
         check_output,
+        create_snapshot,
         run_job,
     ]
 

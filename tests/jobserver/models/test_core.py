@@ -750,7 +750,12 @@ def test_user_get_all_permissions():
         "projects": [
             {
                 "slug": project.slug,
-                "permissions": ["cancel_job", "check_output", "run_job"],
+                "permissions": [
+                    "cancel_job",
+                    "check_output",
+                    "create_snapshot",
+                    "run_job",
+                ],
             }
         ],
     }
