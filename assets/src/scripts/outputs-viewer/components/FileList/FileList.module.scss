@@ -1,3 +1,14 @@
-.item {
-  background-color: white;
+.list {
+  border: 1px solid #ccc;
+  font-size: 0.9rem;
+  margin: 0 0 30px;
+  overflow: auto;
+  padding: 1rem;
+  position: sticky;
+  top: 1rem;
+  white-space: pre-line;
+
+  li a {
+    white-space: nowrap;
+  }
 }

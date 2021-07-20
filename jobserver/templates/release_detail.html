@@ -36,6 +36,13 @@
   </ol>
 </nav>
 
+<h1 class="h3">Release from {{ release.workspace.name }}</h1>
+
+<p class="mb-2 text-muted">
+  Released by {{ release.created_by.name }} on
+  {{ release.created_at|date:"D M Y" }} at {{ release.created_at|date:"H:i" }}
+</p>
+
 {% include "outputs-spa.html" %}
 
 {% endblock %}

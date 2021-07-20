@@ -15,16 +15,29 @@ const queryClient = new QueryClient({
 });
 
 function App({ apiUrl }) {
-  const [fileUrl, setFileUrl] = useState("");
+  const [listVisible, setListVisible] = useState(false);
+  const [file, setFile] = useState({ name: "", url: "" });
 
   return (
     <QueryClientProvider client={queryClient}>
       <div className="row">
-        <div className="col-md-3">
-          <FileList apiUrl={apiUrl} setFileUrl={setFileUrl} />
+        <div className="col-lg-3">
+          <button
+            className="d-block d-lg-none btn btn-secondary mb-3"
+            onClick={() => setListVisible(!listVisible)}
+            type="button"
+          >
+            {listVisible ? "Hide" : "Show"} file list
+          </button>
+          <FileList
+            apiUrl={apiUrl}
+            listVisible={listVisible}
+            setFile={setFile}
+            setListVisible={setListVisible}
+          />
         </div>
-        <div className="col-md-9">
-          <Viewer fileUrl={fileUrl} />
+        <div className="col-lg-9">
+          <Viewer file={file} />
         </div>
       </div>
       <ReactQueryDevtools initialIsOpen={false} />
