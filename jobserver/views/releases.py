@@ -56,7 +56,7 @@ class ReleaseDetail(View):
         # TODO: check permissions here
 
         context = {
-            "api_url": reverse("api:release", kwargs={"release_id": release.id}),
+            "files_url": reverse("api:release", kwargs={"release_id": release.id}),
             "release": release,
         }
         return TemplateResponse(
@@ -116,7 +116,7 @@ class SnapshotDetail(View):
             raise Http404
 
         context = {
-            "api_url": snapshot.get_api_url(),
+            "files_url": snapshot.get_api_url(),
             "snapshot": snapshot,
         }
         return TemplateResponse(

@@ -14,7 +14,7 @@ const queryClient = new QueryClient({
   },
 });
 
-function App({ apiUrl }) {
+function App({ filesUrl }) {
   const [listVisible, setListVisible] = useState(false);
   const [file, setFile] = useState({ name: "", url: "" });
 
@@ -30,7 +30,7 @@ function App({ apiUrl }) {
             {listVisible ? "Hide" : "Show"} file list
           </button>
           <FileList
-            apiUrl={apiUrl}
+            apiUrl={filesUrl}
             listVisible={listVisible}
             setFile={setFile}
             setListVisible={setListVisible}
@@ -48,5 +48,5 @@ function App({ apiUrl }) {
 export default App;
 
 App.propTypes = {
-  apiUrl: PropTypes.string.isRequired,
+  filesUrl: PropTypes.string.isRequired,
 };

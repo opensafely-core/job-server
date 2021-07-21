@@ -309,7 +309,7 @@ class WorkspaceCurrentOutputsDetail(View):
             raise Http404
 
         context = {
-            "api_url": workspace.get_releases_api_url(),
+            "files_url": workspace.get_releases_api_url(),
             "workspace": workspace,
         }
         return TemplateResponse(
