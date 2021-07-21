@@ -68,6 +68,11 @@ api_urls = [
     ),
     # releasing outputs API
     path(
+        "workspaces/<workspace_id>/snapshots/<snapshot_id>",
+        SnapshotAPI.as_view(),
+        name="snapshot",
+    ),
+    path(
         "releases/workspace/<workspace_name>",
         ReleaseWorkspaceAPI.as_view(),
         name="release-workspace",
@@ -81,11 +86,6 @@ api_urls = [
         "releases/file/<file_id>",
         ReleaseFileAPI.as_view(),
         name="release-file",
-    ),
-    path(
-        "releases/snapshot/<snapshot_id>",
-        SnapshotAPI.as_view(),
-        name="snapshot",
     ),
 ]
 

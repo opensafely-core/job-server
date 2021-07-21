@@ -210,9 +210,13 @@ class ReleaseFileAPI(APIView):
 
 
 class SnapshotAPI(APIView):
-    def get(self, request, snapshot_id):
+    def get(self, request, *args, **kwargs):
         """A list of files for this Snapshot."""
-        snapshot = get_object_or_404(Snapshot, pk=snapshot_id)
+        snapshot = get_object_or_404(
+            Snapshot,
+            workspace__name=self.kwargs["workspace_id"],
+            pk=self.kwargs["snapshot_id"],
+        )
 
         validate_release_access(request, snapshot.workspace)
         files = {f.name: f for f in snapshot.files.all()}

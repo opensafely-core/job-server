@@ -117,4 +117,10 @@ def test_snapshot_get_api_url():
 
     url = snapshot.get_api_url()
 
-    assert url == reverse("api:snapshot", kwargs={"snapshot_id": snapshot.pk})
+    assert url == reverse(
+        "api:snapshot",
+        kwargs={
+            "workspace_id": snapshot.workspace.name,
+            "snapshot_id": snapshot.pk,
+        },
+    )

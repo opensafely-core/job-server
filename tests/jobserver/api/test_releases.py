@@ -622,7 +622,9 @@ def test_snapshot_api_anonymous():
     snapshot = SnapshotFactory()
 
     client = APIClient()
-    response = client.get(f"/api/v2/releases/snapshot/{snapshot.pk}")
+    response = client.get(
+        f"/api/v2/workspaces/{snapshot.workspace.name}/snapshots/{snapshot.pk}"
+    )
 
     assert response.status_code == 403
 
@@ -635,7 +637,9 @@ def test_snapshot_api_no_permission():
     # logged in, but no permission
     client.force_authenticate(user=UserFactory())
 
-    response = client.get(f"/api/v2/releases/snapshot/{snapshot.pk}")
+    response = client.get(
+        f"/api/v2/workspaces/{snapshot.workspace.name}/snapshots/{snapshot.pk}"
+    )
 
     assert response.status_code == 403
 
@@ -647,7 +651,9 @@ def test_snapshot_api_success():
     client = APIClient()
     client.force_authenticate(user=UserFactory(roles=[ProjectCollaborator]))
 
-    response = client.get(f"/api/v2/releases/snapshot/{snapshot.pk}")
+    response = client.get(
+        f"/api/v2/workspaces/{snapshot.workspace.name}/snapshots/{snapshot.pk}"
+    )
 
     assert response.status_code == 200
     assert response.data == {"files": []}
