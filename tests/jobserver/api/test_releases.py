@@ -287,6 +287,7 @@ def test_workspace_index_api_have_permission():
         "files": [
             {
                 "name": "backend2/file1.txt",
+                "id": release2.files.first().pk,
                 "url": f"/api/v2/releases/file/{release2.files.first().id}",
                 "user": user.username,
                 "date": release2.files.first().created_at.isoformat(),
@@ -295,6 +296,7 @@ def test_workspace_index_api_have_permission():
             },
             {
                 "name": "backend1/file1.txt",
+                "id": release1.files.first().pk,
                 "url": f"/api/v2/releases/file/{release1.files.first().id}",
                 "user": user.username,
                 "date": release1.files.first().created_at.isoformat(),
@@ -355,6 +357,7 @@ def test_release_index_api_have_permission():
         "files": [
             {
                 "name": "file.txt",
+                "id": rfile.pk,
                 "url": f"/api/v2/releases/file/{rfile.id}",
                 "user": rfile.created_by.username,
                 "date": rfile.created_at.isoformat(),

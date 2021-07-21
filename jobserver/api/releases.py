@@ -101,6 +101,7 @@ def generate_index(files):
         files=[
             dict(
                 name=name,
+                id=rfile.pk,
                 url=rfile.get_api_url(),
                 user=rfile.created_by.username,
                 date=rfile.created_at.isoformat(),
