@@ -32,6 +32,7 @@ function FileList({ apiUrl, listVisible, setFile, setListVisible }) {
           30
       );
     }
+    setListHeight(0);
   }, [windowSize, setListVisible, listVisible]);
 
   if (isLoading) {
