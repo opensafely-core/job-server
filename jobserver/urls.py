@@ -17,6 +17,7 @@ from jobserver.api.releases import (
     ReleaseNotificationAPICreate,
     ReleaseWorkspaceAPI,
     SnapshotAPI,
+    SnapshotCreateAPI,
 )
 
 from .views.admin import ApproveUsers
@@ -39,7 +40,6 @@ from .views.projects import (
 from .views.releases import (
     ProjectReleaseList,
     ReleaseDetail,
-    SnapshotCreate,
     SnapshotDetail,
     WorkspaceReleaseList,
 )
@@ -67,6 +67,11 @@ api_urls = [
         name="workspace-statuses",
     ),
     # releasing outputs API
+    path(
+        "workspaces/<workspace_id>/snapshots",
+        SnapshotCreateAPI.as_view(),
+        name="snapshot-create",
+    ),
     path(
         "workspaces/<workspace_id>/snapshots/<snapshot_id>",
         SnapshotAPI.as_view(),
@@ -141,11 +146,6 @@ workspace_urls = [
         name="workspace-notifications-toggle",
     ),
     path("outputs/", include(outputs_urls)),
-    path(
-        "publish/",
-        SnapshotCreate.as_view(),
-        name="workspace-publish",
-    ),
     path(
         "releases/",
         WorkspaceReleaseList.as_view(),

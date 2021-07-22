@@ -5,8 +5,9 @@ from rest_framework.test import APIClient
 from slack_sdk.errors import SlackApiError
 
 from jobserver.api.releases import ReleaseNotificationAPICreate
-from jobserver.authorization import ProjectCollaborator
+from jobserver.authorization import ProjectCollaborator, ProjectDeveloper
 from jobserver.models import Release
+from jobserver.utils import set_from_qs
 from tests.factories import (
     BackendFactory,
     ProjectMembershipFactory,
@@ -657,3 +658,103 @@ def test_snapshot_api_success():
 
     assert response.status_code == 200
     assert response.data == {"files": []}
+
+
+@pytest.mark.django_db
+def test_snapshot_create_unknown_files():
+    workspace = WorkspaceFactory()
+    user = UserFactory()
+    ProjectMembershipFactory(
+        project=workspace.project, user=user, roles=[ProjectDeveloper]
+    )
+
+    client = APIClient()
+    client.force_authenticate(user=user)
+
+    response = client.post(
+        f"/api/v2/workspaces/{workspace.name}/snapshots",
+        {"file_ids": ["test"]},
+    )
+
+    assert response.status_code == 400, response.data
+    assert "Unknown file IDs" in response.data["detail"], response.data
+
+
+@pytest.mark.django_db
+def test_snapshot_create_with_existing_snapshot():
+    workspace = WorkspaceFactory()
+    uploads = ReleaseUploadsFactory({"file1.txt": b"test1"})
+    release = ReleaseFactory(uploads, workspace=workspace)
+    snapshot = SnapshotFactory(workspace=workspace)
+    snapshot.files.set(release.files.all())
+
+    user = UserFactory()
+    ProjectMembershipFactory(
+        project=workspace.project, user=user, roles=[ProjectDeveloper]
+    )
+
+    client = APIClient()
+    client.force_authenticate(user=user)
+
+    data = {"file_ids": [release.files.first().pk]}
+    response = client.post(f"/api/v2/workspaces/{workspace.name}/snapshots", data)
+
+    assert response.status_code == 400, response.data
+
+    msg = "A release with the current files already exists"
+    assert msg in response.data["detail"], response.data
+
+
+@pytest.mark.django_db
+def test_snapshot_create_with_permission():
+    workspace = WorkspaceFactory()
+    uploads = ReleaseUploadsFactory(
+        {
+            "file1.txt": b"test1",
+            "file2.txt": b"test2",
+            "file3.txt": b"test3",
+            "file4.txt": b"test4",
+            "file5.txt": b"test5",
+        }
+    )
+    release = ReleaseFactory(uploads, workspace=workspace)
+
+    user = UserFactory()
+    ProjectMembershipFactory(
+        project=workspace.project, user=user, roles=[ProjectDeveloper]
+    )
+
+    client = APIClient()
+    client.force_authenticate(user=user)
+
+    data = {
+        "file_ids": [
+            release.files.get(name="file1.txt").pk,
+            release.files.get(name="file3.txt").pk,
+            release.files.get(name="file5.txt").pk,
+        ],
+    }
+    response = client.post(f"/api/v2/workspaces/{workspace.name}/snapshots", data)
+
+    assert response.status_code == 201
+
+    workspace.refresh_from_db()
+
+    assert workspace.snapshots.count() == 1
+
+    snapshot_file_ids = set_from_qs(workspace.snapshots.first().files.all())
+    current_file_ids = set_from_qs(workspace.files.all())
+    assert snapshot_file_ids <= current_file_ids
+
+
+@pytest.mark.django_db
+def test_snapshot_create_without_permission():
+    workspace = WorkspaceFactory()
+
+    client = APIClient()
+    client.force_authenticate(user=UserFactory())
+
+    data = {"file_ids": ["test"]}
+    response = client.post(f"/api/v2/workspaces/{workspace.name}/snapshots", data)
+
+    assert response.status_code == 403, response.data

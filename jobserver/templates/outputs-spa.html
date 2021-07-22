@@ -1,6 +1,11 @@
 {% load django_vite %}
 
-<div data-files-url="{{ files_url }}" id="outputsSPA"></div>
+<div
+  data-csrf-token="{{ csrf_token }}"
+  data-files-url="{{ files_url }}"
+  data-prepare-url="{{ prepare_url }}"
+  id="outputsSPA">
+</div>
 
 {% block extra_js %}
   {% vite_asset 'assets/src/scripts/outputs-viewer/index.jsx' %}

@@ -1,8 +1,14 @@
 import structlog
+from django.db import transaction
 from django.http import FileResponse
 from django.shortcuts import get_object_or_404
 from rest_framework import serializers
-from rest_framework.exceptions import NotAuthenticated, NotFound, ValidationError
+from rest_framework.exceptions import (
+    NotAuthenticated,
+    NotFound,
+    ParseError,
+    ValidationError,
+)
 from rest_framework.generics import CreateAPIView
 from rest_framework.parsers import FileUploadParser, JSONParser
 from rest_framework.response import Response
@@ -14,6 +20,8 @@ from jobserver.api import get_backend_from_token
 from jobserver.authorization import has_permission
 from jobserver.models import Release, ReleaseFile, Snapshot, User, Workspace
 from services.slack import client as slack_client
+
+from ..utils import set_from_qs
 
 
 logger = structlog.get_logger(__name__)
@@ -222,6 +230,44 @@ class SnapshotAPI(APIView):
         files = {f.name: f for f in snapshot.files.all()}
 
         return Response(generate_index(files))
+
+
+class SnapshotCreateAPI(APIView):
+    class serializer_class(serializers.Serializer):
+        file_ids = serializers.ListField(child=serializers.CharField())
+
+    @transaction.atomic
+    def post(self, request, *args, **kwargs):
+        """Create a Snapshot from the given list of files."""
+        workspace = get_object_or_404(Workspace, name=self.kwargs["workspace_id"])
+
+        serializer = self.serializer_class(data=request.data)
+        serializer.is_valid(raise_exception=True)
+        data = serializer.data
+
+        if not has_permission(
+            request.user, "create_snapshot", project=workspace.project
+        ):
+            raise NotAuthenticated
+
+        file_ids = set(data["file_ids"])
+        files = ReleaseFile.objects.filter(pk__in=file_ids)
+
+        rfile_ids = set_from_qs(files)
+        snapshot_ids = [set_from_qs(s.files.all()) for s in workspace.snapshots.all()]
+        if rfile_ids in snapshot_ids:
+            msg = (
+                "A release with the current files already exists, please use that one."
+            )
+            raise ParseError(msg)
+
+        if missing := file_ids - set_from_qs(files):
+            raise ParseError(f"Unknown file IDs: {', '.join(missing)}")
+
+        snapshot = Snapshot.objects.create(created_by=request.user, workspace=workspace)
+        snapshot.files.set(files)
+
+        return Response({"url": snapshot.get_absolute_url()}, status=201)
 
 
 def serve_file(request, rfile):

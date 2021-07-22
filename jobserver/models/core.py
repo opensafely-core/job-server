@@ -770,6 +770,9 @@ class Workspace(models.Model):
             },
         )
 
+    def get_create_snapshot_api_url(self):
+        return reverse("api:snapshot-create", kwargs={"workspace_id": self.name})
+
     def get_current_outputs_url(self):
         return reverse(
             "workspace-current-outputs-detail",
@@ -803,16 +806,6 @@ class Workspace(models.Model):
     def get_outputs_url(self):
         return reverse(
             "workspace-output-list",
-            kwargs={
-                "org_slug": self.project.org.slug,
-                "project_slug": self.project.slug,
-                "workspace_slug": self.name,
-            },
-        )
-
-    def get_publish_url(self):
-        return reverse(
-            "workspace-publish",
             kwargs={
                 "org_slug": self.project.org.slug,
                 "project_slug": self.project.slug,

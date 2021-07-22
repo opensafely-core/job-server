@@ -310,6 +310,7 @@ class WorkspaceCurrentOutputsDetail(View):
 
         context = {
             "files_url": workspace.get_releases_api_url(),
+            "prepare_url": workspace.get_create_snapshot_api_url(),
             "workspace": workspace,
         }
         return TemplateResponse(
