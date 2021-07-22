@@ -1,6 +1,7 @@
 cancel_job = "cancel_job"
 check_output = "check_output"
 create_org = "create_org"
+create_snapshot = "create_snapshot"
 invite_org_members = "invite_org_members"
 invite_project_members = "invite_project_members"
 manage_backends = "manage_backends"

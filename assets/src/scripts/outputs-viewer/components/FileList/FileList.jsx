@@ -1,8 +1,7 @@
 import PropTypes from "prop-types";
 import React, { useEffect, useState } from "react";
-import { useQuery } from "react-query";
+import useFileList from "../../hooks/use-file-list";
 import useWindowSize from "../../hooks/useWindowSize";
-import handleErrors from "../../utils/fetch-handle-errors";
 import classes from "./FileList.module.scss";
 
 function ListWrapper({ listHeight, children, listVisible }) {
@@ -22,11 +21,7 @@ function FileList({ apiUrl, listVisible, setFile, setListVisible }) {
   const windowSize = useWindowSize();
   const [listHeight, setListHeight] = useState(0);
 
-  const { isLoading, isError, data, error } = useQuery("FILE_LIST", async () =>
-    fetch(apiUrl)
-      .then(handleErrors)
-      .then(async (response) => response.json())
-  );
+  const { isLoading, isError, data, error } = useFileList({ apiUrl });
 
   useEffect(() => {
     if (window.innerWidth > 991) {

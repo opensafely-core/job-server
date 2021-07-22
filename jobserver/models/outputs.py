@@ -165,4 +165,10 @@ class Snapshot(models.Model):
         )
 
     def get_api_url(self):
-        return reverse("api:snapshot", kwargs={"snapshot_id": self.pk})
+        return reverse(
+            "api:snapshot",
+            kwargs={
+                "workspace_id": self.workspace.name,
+                "snapshot_id": self.pk,
+            },
+        )

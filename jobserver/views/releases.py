@@ -1,14 +1,11 @@
-from django.contrib import messages
 from django.http import Http404
-from django.shortcuts import get_object_or_404, redirect
+from django.shortcuts import get_object_or_404
 from django.template.response import TemplateResponse
 from django.urls import reverse
 from django.views.generic import ListView, View
 
 from ..authorization import has_permission
 from ..models import Project, Release, Snapshot, Workspace
-from ..releases import workspace_files
-from ..utils import set_from_qs
 
 
 class ProjectReleaseList(ListView):
@@ -56,7 +53,7 @@ class ReleaseDetail(View):
         # TODO: check permissions here
 
         context = {
-            "api_url": reverse("api:release", kwargs={"release_id": release.id}),
+            "files_url": reverse("api:release", kwargs={"release_id": release.id}),
             "release": release,
         }
         return TemplateResponse(
@@ -64,40 +61,6 @@ class ReleaseDetail(View):
             "release_detail.html",
             context=context,
         )
-
-
-class SnapshotCreate(View):
-    def post(self, request, *args, **kwargs):
-        workspace = get_object_or_404(
-            Workspace,
-            project__org__slug=self.kwargs["org_slug"],
-            project__slug=self.kwargs["project_slug"],
-            name=self.kwargs["workspace_slug"],
-        )
-
-        if not has_permission(request.user, "publish_output"):
-            raise Http404
-
-        if not workspace.files.exists():
-            messages.error(
-                request,
-                "There are no outputs to publish for this workspace.",
-            )
-            return redirect(workspace)
-
-        file_ids = {f.pk for f in workspace_files(workspace).values()}
-        snapshot_ids = [set_from_qs(pr.files.all()) for pr in workspace.snapshots.all()]
-        if file_ids in snapshot_ids:
-            messages.error(
-                request,
-                "A release with the current files already exists, please use that one.",
-            )
-            return redirect(workspace)
-
-        snapshot = workspace.snapshots.create(created_by=request.user)
-        snapshot.files.set(workspace.files.all())
-
-        return redirect(workspace)
 
 
 class SnapshotDetail(View):
@@ -116,7 +79,7 @@ class SnapshotDetail(View):
             raise Http404
 
         context = {
-            "api_url": snapshot.get_api_url(),
+            "files_url": snapshot.get_api_url(),
             "snapshot": snapshot,
         }
         return TemplateResponse(

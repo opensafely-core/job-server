@@ -3,6 +3,7 @@ import React, { useState } from "react";
 import { QueryClient, QueryClientProvider } from "react-query";
 import { ReactQueryDevtools } from "react-query/devtools";
 import FileList from "./components/FileList/FileList";
+import PrepareButton from "./components/PrepareButton/PrepareButton";
 import Viewer from "./components/Viewer/Viewer";
 
 const queryClient = new QueryClient({
@@ -14,12 +15,23 @@ const queryClient = new QueryClient({
   },
 });
 
-function App({ apiUrl }) {
+function App({ csrfToken, filesUrl, prepareUrl }) {
   const [listVisible, setListVisible] = useState(false);
   const [file, setFile] = useState({ name: "", url: "" });
 
   return (
     <QueryClientProvider client={queryClient}>
+      {prepareUrl && (
+        <div className="row">
+          <div className="col">
+            <PrepareButton
+              csrfToken={csrfToken}
+              filesUrl={filesUrl}
+              prepareUrl={prepareUrl}
+            />
+          </div>
+        </div>
+      )}
       <div className="row">
         <div className="col-lg-3">
           <button
@@ -30,7 +42,7 @@ function App({ apiUrl }) {
             {listVisible ? "Hide" : "Show"} file list
           </button>
           <FileList
-            apiUrl={apiUrl}
+            apiUrl={filesUrl}
             listVisible={listVisible}
             setFile={setFile}
             setListVisible={setListVisible}
@@ -48,5 +60,12 @@ function App({ apiUrl }) {
 export default App;
 
 App.propTypes = {
-  apiUrl: PropTypes.string.isRequired,
+  csrfToken: PropTypes.string,
+  filesUrl: PropTypes.string.isRequired,
+  prepareUrl: PropTypes.string,
+};
+
+App.defaultProps = {
+  csrfToken: null,
+  prepareUrl: null,
 };

@@ -609,7 +609,10 @@ def test_userapidetail_success(api_rf):
         },
     ]
     assert permissions["projects"] == [
-        {"slug": project.slug, "permissions": ["cancel_job", "check_output", "run_job"]}
+        {
+            "slug": project.slug,
+            "permissions": ["cancel_job", "check_output", "create_snapshot", "run_job"],
+        }
     ]
 
     # roles

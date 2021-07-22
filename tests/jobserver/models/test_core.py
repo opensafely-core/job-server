@@ -750,7 +750,12 @@ def test_user_get_all_permissions():
         "projects": [
             {
                 "slug": project.slug,
-                "permissions": ["cancel_job", "check_output", "run_job"],
+                "permissions": [
+                    "cancel_job",
+                    "check_output",
+                    "create_snapshot",
+                    "run_job",
+                ],
             }
         ],
     }
@@ -937,22 +942,6 @@ def test_workspace_get_outputs_url():
 
     assert url == reverse(
         "workspace-output-list",
-        kwargs={
-            "org_slug": workspace.project.org.slug,
-            "project_slug": workspace.project.slug,
-            "workspace_slug": workspace.name,
-        },
-    )
-
-
-@pytest.mark.django_db
-def test_workspace_get_publish_url():
-    workspace = WorkspaceFactory()
-
-    url = workspace.get_publish_url()
-
-    assert url == reverse(
-        "workspace-publish",
         kwargs={
             "org_slug": workspace.project.org.slug,
             "project_slug": workspace.project.slug,
