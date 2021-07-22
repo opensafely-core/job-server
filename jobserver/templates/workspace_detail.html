@@ -83,16 +83,9 @@
           Current Outputs
         </a>
         <a class="btn btn-primary mr-2" href="{{ workspace.get_outputs_url }}">Outputs</a>
-        {% endif %}
-
-        {% if user_can_run_jobs %}
-        <form method="POST" action="{{ workspace.get_publish_url }}">
-          {% csrf_token %}
-
-          <button class="btn btn-primary mr-2" type="submit">
-            Publish
-          </button>
-        </form>
+        <a class="btn btn-primary mr-2" href="{{ workspace.get_current_outputs_url }}">
+          Publish
+        </a>
         {% endif %}
 
         <a class="btn btn-primary mr-2" href="{{ workspace.get_releases_url }}">Release History</a>
