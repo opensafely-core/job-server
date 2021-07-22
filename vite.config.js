@@ -34,7 +34,12 @@ const config = {
   plugins: [
     preact(),
     legacy({
-      additionalLegacyPolyfills: ["regenerator-runtime/runtime"],
+      additionalLegacyPolyfills: [
+        "regenerator-runtime/runtime",
+        "bluebird",
+        "whatwg-fetch",
+      ],
+      targets: ["ie >= 11"],
     }),
     copy({
       targets: [
