@@ -179,6 +179,15 @@ class Snapshot(models.Model):
             },
         )
 
+    def get_publish_api_url(self):
+        return reverse(
+            "api:snapshot-publish",
+            kwargs={
+                "workspace_id": self.workspace.name,
+                "snapshot_id": self.pk,
+            },
+        )
+
     @property
     def is_draft(self):
         return self.published_at is None

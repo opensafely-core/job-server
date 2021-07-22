@@ -83,6 +83,13 @@ class SnapshotDetail(View):
             "files_url": snapshot.get_api_url(),
             "snapshot": snapshot,
         }
+
+        can_publish = has_permission(
+            request.user, "publish_output", project=snapshot.workspace.project
+        )
+        if can_publish and snapshot.is_draft:
+            context["publish_url"] = snapshot.get_publish_api_url()
+
         return TemplateResponse(
             request,
             "snapshot_detail.html",

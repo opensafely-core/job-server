@@ -20,7 +20,7 @@ function PrepareButton({ csrfToken, filesUrl, prepareUrl }) {
         .then(handleErrors)
         .then((response) => response.json()),
     {
-      mutationKey: "PUBLISH_RELEASE",
+      mutationKey: "PREPARE_RELEASE",
       onSuccess: (data) => {
         // redirect to URL returned from the API
         window.location.href = data.url;
@@ -32,7 +32,7 @@ function PrepareButton({ csrfToken, filesUrl, prepareUrl }) {
     }
   );
 
-  const onPublish = ({ e, fileIds }) => {
+  const onPrepare = ({ e, fileIds }) => {
     e.preventDefault();
     mutation.mutate({ fileIds });
   };
@@ -45,7 +45,7 @@ function PrepareButton({ csrfToken, filesUrl, prepareUrl }) {
     <button
       className={`btn btn-${mutation.isLoading ? "secondary" : "primary"}`}
       disabled={mutation.isLoading}
-      onClick={(e) => onPublish({ e, fileIds })}
+      onClick={(e) => onPrepare({ e, fileIds })}
       type="button"
     >
       {mutation.isLoading ? "Publishing…" : "Publish"}

@@ -5,7 +5,11 @@ from django.utils import timezone
 from slack_sdk.errors import SlackApiError
 
 from jobserver.api.releases import ReleaseNotificationAPICreate
-from jobserver.authorization import ProjectCollaborator, ProjectDeveloper
+from jobserver.authorization import (
+    OutputPublisher,
+    ProjectCollaborator,
+    ProjectDeveloper,
+)
 from jobserver.models import Release
 from jobserver.utils import set_from_qs
 from tests.factories import (
@@ -778,3 +782,59 @@ def test_snapshot_create_without_permission(api_client):
     response = api_client.post(f"/api/v2/workspaces/{workspace.name}/snapshots", data)
 
     assert response.status_code == 403, response.data
+
+
+@pytest.mark.django_db
+def test_snapshot_publish_api_already_published(api_client):
+    snapshot = SnapshotFactory(published_at=timezone.now())
+
+    assert snapshot.is_published
+
+    api_client.force_authenticate(user=UserFactory(roles=[OutputPublisher]))
+    response = api_client.post(
+        f"/api/v2/workspaces/{snapshot.workspace.name}/snapshots/{snapshot.pk}/publish"
+    )
+
+    assert response.status_code == 200
+
+    snapshot.refresh_from_db()
+    assert snapshot.is_published
+
+
+@pytest.mark.django_db
+def test_snapshot_publish_api_success(api_client):
+    snapshot = SnapshotFactory()
+
+    assert snapshot.is_draft
+
+    api_client.force_authenticate(user=UserFactory(roles=[OutputPublisher]))
+    response = api_client.post(
+        f"/api/v2/workspaces/{snapshot.workspace.name}/snapshots/{snapshot.pk}/publish"
+    )
+
+    assert response.status_code == 200
+
+    snapshot.refresh_from_db()
+    assert snapshot.is_published
+
+
+@pytest.mark.django_db
+def test_snapshot_publish_api_unknown_snapshot(api_client):
+    workspace = WorkspaceFactory()
+
+    api_client.force_authenticate(user=UserFactory(roles=[OutputPublisher]))
+    response = api_client.post(
+        f"/api/v2/workspaces/{workspace.name}/snapshots/0/publish"
+    )
+
+    assert response.status_code == 404
+
+
+@pytest.mark.django_db
+def test_snapshot_publish_api_without_permission(api_client):
+    snapshot = SnapshotFactory()
+
+    api_client.force_authenticate(user=UserFactory())
+    api_client.post(
+        f"/api/v2/workspaces/{snapshot.workspace.name}/snapshots/{snapshot.pk}/publish"
+    )

@@ -10,6 +10,7 @@ ReactDOM.render(
       csrfToken={element.dataset.csrfToken}
       filesUrl={element.dataset.filesUrl}
       prepareUrl={element.dataset.prepareUrl}
+      publishUrl={element.dataset.publishUrl}
     />
   </React.StrictMode>,
   element

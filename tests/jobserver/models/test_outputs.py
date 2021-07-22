@@ -127,6 +127,21 @@ def test_snapshot_get_api_url():
 
 
 @pytest.mark.django_db
+def test_snapshot_get_publish_api_url():
+    snapshot = SnapshotFactory()
+
+    url = snapshot.get_publish_api_url()
+
+    assert url == reverse(
+        "api:snapshot-publish",
+        kwargs={
+            "workspace_id": snapshot.workspace.name,
+            "snapshot_id": snapshot.pk,
+        },
+    )
+
+
+@pytest.mark.django_db
 def test_snapshot_is_draft():
     assert SnapshotFactory(published_at=None).is_draft
 

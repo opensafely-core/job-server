@@ -2,6 +2,7 @@ import structlog
 from django.db import transaction
 from django.http import FileResponse
 from django.shortcuts import get_object_or_404
+from django.utils import timezone
 from rest_framework import serializers
 from rest_framework.exceptions import (
     NotAuthenticated,
@@ -19,9 +20,8 @@ from jobserver import releases
 from jobserver.api import get_backend_from_token
 from jobserver.authorization import has_permission
 from jobserver.models import Release, ReleaseFile, Snapshot, User, Workspace
+from jobserver.utils import set_from_qs
 from services.slack import client as slack_client
-
-from ..utils import set_from_qs
 
 
 logger = structlog.get_logger(__name__)
@@ -286,6 +286,31 @@ class SnapshotCreateAPI(APIView):
         snapshot.files.set(files)
 
         return Response({"url": snapshot.get_absolute_url()}, status=201)
+
+
+class SnapshotPublishAPI(APIView):
+    def post(self, request, *args, **kwargs):
+        snapshot = get_object_or_404(
+            Snapshot,
+            workspace__name=self.kwargs["workspace_id"],
+            pk=self.kwargs["snapshot_id"],
+        )
+
+        if not has_permission(
+            request.user, "publish_output", project=snapshot.workspace.project
+        ):
+            raise NotAuthenticated
+
+        if snapshot.published_at:
+            # The Snapshot has already been published, don't lose the original
+            # information.
+            return Response()
+
+        snapshot.published_at = timezone.now()
+        snapshot.published_by = request.user
+        snapshot.save()
+
+        return Response()
 
 
 def serve_file(request, rfile):
