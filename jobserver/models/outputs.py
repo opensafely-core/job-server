@@ -178,3 +178,11 @@ class Snapshot(models.Model):
                 "snapshot_id": self.pk,
             },
         )
+
+    @property
+    def is_draft(self):
+        return self.published_at is None
+
+    @property
+    def is_published(self):
+        return self.published_at

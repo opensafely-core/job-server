@@ -124,3 +124,13 @@ def test_snapshot_get_api_url():
             "snapshot_id": snapshot.pk,
         },
     )
+
+
+@pytest.mark.django_db
+def test_snapshot_is_draft():
+    assert SnapshotFactory(published_at=None).is_draft
+
+
+@pytest.mark.django_db
+def test_snapshot_is_published():
+    assert SnapshotFactory(published_at=timezone.now()).is_published
