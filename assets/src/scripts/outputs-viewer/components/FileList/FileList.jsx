@@ -31,6 +31,8 @@ function FileList({ apiUrl, listVisible, setFile, setListVisible }) {
           document.querySelector("#outputsSPA").getBoundingClientRect().top -
           30
       );
+    } else {
+      setListHeight(0);
     }
   }, [windowSize, setListVisible, listVisible]);
 

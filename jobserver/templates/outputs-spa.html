@@ -9,5 +9,7 @@
 
 {% block extra_js %}
   {% vite_asset 'assets/src/scripts/outputs-viewer/index.jsx' %}
+
+  {% vite_asset 'vite/legacy-polyfills' scripts_attrs=scripts_attrs %}
   {% vite_asset 'assets/src/scripts/outputs-viewer/index-legacy.jsx' scripts_attrs=scripts_attrs %}
 {% endblock %}
