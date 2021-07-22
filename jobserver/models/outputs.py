@@ -140,6 +140,12 @@ class Snapshot(models.Model):
         "ReleaseFile",
         related_name="snapshots",
     )
+    published_by = models.ForeignKey(
+        "User",
+        null=True,
+        on_delete=models.PROTECT,
+        related_name="published_snapshots",
+    )
     workspace = models.ForeignKey(
         "Workspace",
         on_delete=models.PROTECT,
