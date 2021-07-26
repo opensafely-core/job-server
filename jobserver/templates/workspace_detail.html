@@ -98,11 +98,12 @@
           <p>
             <strong>Repo:</strong>
             <a href="{{ workspace.repo }}">{{ workspace.repo_name }}</a>
-            <span class="text-muted">({{ workspace.branch }})</span>
             <span class="badge badge-secondary">
               {% if repo_is_private %}Private{% else %}Public{% endif %}
             </span>
           </p>
+
+          <p><strong>Branch:</strong> {{ workspace.branch }}</p>
 
           <p><strong>DB:</strong> {{ workspace.db }}</p>
 
