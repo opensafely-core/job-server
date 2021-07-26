@@ -545,9 +545,9 @@ pytz==2021.1 \
     # via
     #   -r requirements.txt
     #   django
-pyupgrade==2.21.2 \
-    --hash=sha256:0b923ec80a835f199a41572e184718b5b748f780144956aa8a88c1b10410339b \
-    --hash=sha256:9f2d20dc75383a509eb0f15326f33ab3f3707958e1570df72f85bf77bb8a8935
+pyupgrade==2.23.0 \
+    --hash=sha256:24535b6c3efc86b0a72b1cac627a852ad394a514823cd9e96c3442364e96e152 \
+    --hash=sha256:c22beaf4d4fe5d1cd3b57028ee3de7393e537eeb41a9ba70d2cc531db9fdc244
     # via -r requirements.dev.in
 pyyaml==5.4.1 \
     --hash=sha256:08682f6b72c722394747bddaf0aa62277e02557c0fd1c42cb853016a38f8dedf \
