@@ -57,6 +57,14 @@ class WorkspaceCreate(CreateView):
             get_repos_with_branches(gh_org), key=lambda r: r["name"].lower()
         )
 
+        can_manage_workspaces = has_permission(
+            self.request.user,
+            "manage_project_workspaces",
+            project=self.project,
+        )
+        if not can_manage_workspaces:
+            raise Http404
+
         return super().dispatch(request, *args, **kwargs)
 
     def form_valid(self, form):
