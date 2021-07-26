@@ -754,6 +754,7 @@ def test_user_get_all_permissions():
                     "cancel_job",
                     "check_output",
                     "create_snapshot",
+                    "manage_project_workspaces",
                     "run_job",
                 ],
             }

@@ -6,11 +6,7 @@ from django.contrib.messages.storage.fallback import FallbackStorage
 from django.http import Http404
 from django.utils import timezone
 
-from jobserver.authorization import (
-    ProjectCollaborator,
-    ProjectCoordinator,
-    ProjectDeveloper,
-)
+from jobserver.authorization import ProjectCollaborator, ProjectDeveloper
 from jobserver.models import Backend, JobRequest, Workspace
 from jobserver.views.workspaces import (
     WorkspaceArchiveToggle,
@@ -92,7 +88,7 @@ def test_workspacearchivetoggle_unauthorized(rf, user):
 def test_workspacecreate_get_success(rf, mocker, user):
     org = user.orgs.first()
     project = ProjectFactory(org=org)
-    ProjectMembershipFactory(project=project, user=user, roles=[ProjectCoordinator])
+    ProjectMembershipFactory(project=project, user=user, roles=[ProjectDeveloper])
 
     gh_org = user.orgs.first().github_orgs[0]
     membership_url = f"https://api.github.com/orgs/{gh_org}/members/{user.username}"
@@ -142,7 +138,7 @@ def test_workspacecreate_get_without_permission(rf, mocker, user):
 def test_workspacecreate_post_success(rf, mocker, user):
     org = user.orgs.first()
     project = ProjectFactory(org=org)
-    ProjectMembershipFactory(project=project, user=user, roles=[ProjectCoordinator])
+    ProjectMembershipFactory(project=project, user=user, roles=[ProjectDeveloper])
 
     gh_org = user.orgs.first().github_orgs[0]
     membership_url = f"https://api.github.com/orgs/{gh_org}/members/{user.username}"

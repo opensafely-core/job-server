@@ -168,7 +168,6 @@ class ProjectCoordinator:
     permissions = [
         invite_project_members,
         manage_project_members,
-        manage_project_workspaces,
     ]
 
 
@@ -189,6 +188,7 @@ class ProjectDeveloper:
         cancel_job,
         check_output,
         create_snapshot,
+        manage_project_workspaces,
         run_job,
     ]
 
