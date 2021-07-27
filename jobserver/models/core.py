@@ -629,7 +629,7 @@ class User(AbstractUser):
 
     backends = models.ManyToManyField(
         "Backend",
-        related_name="backends",
+        related_name="members",
         through="BackendMembership",
         through_fields=["user", "backend"],
     )
