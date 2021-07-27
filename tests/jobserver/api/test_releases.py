@@ -438,7 +438,7 @@ def test_release_api_upload_no_files():
 @pytest.mark.django_db
 def test_release_api_upload_bad_backend():
     user = UserFactory()
-    uploads = ReleaseUploadsFactory(["file.txt"])
+    uploads = ReleaseUploadsFactory(["output/file.txt"])
     release = ReleaseFactory(uploads, uploaded=False)
     bad_backend = BackendFactory()
 

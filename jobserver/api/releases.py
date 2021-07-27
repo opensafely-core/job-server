@@ -1,3 +1,5 @@
+import cgi
+
 import structlog
 from django.db import transaction
 from django.http import FileResponse
@@ -192,7 +194,12 @@ class ReleaseAPI(APIView):
         except KeyError:
             raise ValidationError({"detail": "No data uploaded"})
 
-        filename = upload.name
+        # DRF validates and parses the Content-Disposition header, but sadly
+        # strips any directory paths from the filename. We need those paths, so
+        # we need to reparse the header to get them.
+        _, params = cgi.parse_header(request.headers["Content-Disposition"])
+        filename = params["filename"]
+
         if filename not in release.requested_files:
             raise ValidationError(
                 {"detail": f"File {filename} not requested in release {release.id}"}
