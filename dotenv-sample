@@ -19,4 +19,6 @@ SOCIAL_AUTH_GITHUB_KEY=dummy
 SOCIAL_AUTH_GITHUB_SECRET=dummy
 
 DJANGO_VITE_DEV_MODE=False
-VITE_REACT_SENTRY=https://www.example.com/
+
+# Token for Sentry error tracking of the Outputs SPA
+VITE_REACT_SENTRY=
