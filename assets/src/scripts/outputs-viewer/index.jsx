@@ -3,12 +3,10 @@ import React from "react";
 import ReactDOM from "react-dom";
 import App from "./App";
 
-if (document.location.hostname === "jobs.opensafely.org") {
-  Sentry.init({
-    dsn: import.meta.env.VITE_REACT_SENTRY,
-    tracesSampleRate: 1.0,
-  });
-}
+Sentry.init({
+  dsn: import.meta.env.VITE_REACT_SENTRY,
+  tracesSampleRate: 1.0,
+});
 
 const element = document.getElementById("outputsSPA");
 
