@@ -37,6 +37,8 @@ jobs:
 
       - name: Build assets
         run: npm run build
+        env:
+          VITE_REACT_SENTRY: ${{ secrets.VITE_REACT_SENTRY }}
 
       - name: Store assets
         uses: actions/upload-artifact@v2
