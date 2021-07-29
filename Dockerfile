@@ -5,6 +5,7 @@ COPY package*.json ./
 RUN npm ci
 
 COPY . ./
+ARG VITE_SENTRY_DSN
 RUN npm run build
 
 FROM python:3.9-buster
