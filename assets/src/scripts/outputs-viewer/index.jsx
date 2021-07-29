@@ -4,7 +4,7 @@ import ReactDOM from "react-dom";
 import App from "./App";
 
 Sentry.init({
-  dsn: import.meta.env.VITE_REACT_SENTRY,
+  dsn: import.meta.env.VITE_SENTRY_DSN,
   tracesSampleRate: 1.0,
 });
 

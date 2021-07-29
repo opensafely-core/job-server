@@ -20,5 +20,5 @@ SOCIAL_AUTH_GITHUB_SECRET=dummy
 
 DJANGO_VITE_DEV_MODE=False
 
-# Token for Sentry error tracking of the Outputs SPA
-VITE_REACT_SENTRY=
+# Token for frontend Sentry error tracking DSN
+VITE_SENTRY_DSN=
