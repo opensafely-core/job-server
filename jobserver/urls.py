@@ -52,6 +52,7 @@ from .views.workspaces import (
     WorkspaceCreate,
     WorkspaceCurrentOutputsDetail,
     WorkspaceDetail,
+    WorkspaceFileList,
     WorkspaceLog,
     WorkspaceNotificationsToggle,
     WorkspaceOutputList,
@@ -111,6 +112,20 @@ backend_urls = [
     ),
 ]
 
+files_urls = [
+    path("", WorkspaceFileList.as_view(), name="workspace-files-list"),
+    path(
+        "<backend_slug>/",
+        WorkspaceBackendFiles.as_view(),
+        name="workspace-backend-files",
+    ),
+    path(
+        "<backend_slug>/<path:path>",
+        WorkspaceBackendFiles.as_view(),
+        name="workspace-backend-files",
+    ),
+]
+
 outputs_urls = [
     path("", WorkspaceOutputList.as_view(), name="workspace-output-list"),
     path(
@@ -122,16 +137,6 @@ outputs_urls = [
         "current/<path:path>",
         WorkspaceCurrentOutputsDetail.as_view(),
         name="workspace-current-outputs-detail",
-    ),
-    path(
-        "live/<backend_slug>/",
-        WorkspaceBackendFiles.as_view(),
-        name="workspace-backend-files",
-    ),
-    path(
-        "live/<backend_slug>/<path:path>",
-        WorkspaceBackendFiles.as_view(),
-        name="workspace-backend-files",
     ),
     path(
         "<pk>/",
@@ -156,6 +161,7 @@ workspace_urls = [
         WorkspaceArchiveToggle.as_view(),
         name="workspace-archive-toggle",
     ),
+    path("files/", include(files_urls)),
     path("logs/", WorkspaceLog.as_view(), name="workspace-logs"),
     path(
         "notifications-toggle/",

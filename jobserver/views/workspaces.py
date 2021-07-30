@@ -224,12 +224,10 @@ class WorkspaceDetail(CreateView):
         is_privileged_user = has_permission(
             self.request.user, "view_release_file", project=self.workspace.project
         )
-        if is_privileged_user:
-            can_view_outputs = self.workspace.files.exists()
-        else:
-            can_view_outputs = self.workspace.snapshots.exclude(
-                published_at=None
-            ).exists()
+        has_published_snapshots = self.workspace.snapshots.exclude(
+            published_at=None
+        ).exists()
+        can_view_outputs = is_privileged_user or has_published_snapshots
 
         return super().get_context_data(**kwargs) | {
             "actions": self.actions,
@@ -282,6 +280,37 @@ class WorkspaceDetail(CreateView):
             return redirect(self.workspace)
 
         return super().post(request, *args, **kwargs)
+
+
+class WorkspaceFileList(View):
+    def get(self, request, *args, **kwargs):
+        workspace = get_object_or_404(
+            Workspace,
+            project__org__slug=self.kwargs["org_slug"],
+            project__slug=self.kwargs["project_slug"],
+            name=self.kwargs["workspace_slug"],
+        )
+
+        # we treat the ability to run jobs in this workspace and the ability to
+        # interact with at least one backend (checked below) as permission to
+        # also view the files those jobs have output on the backends
+        if not has_permission(request.user, "run_job", project=workspace.project):
+            raise Http404
+
+        backends = request.user.backends.exclude(level_4_url="").order_by("name")
+
+        if not backends:
+            raise Http404
+
+        context = {
+            "backends": backends,
+            "workspace": workspace,
+        }
+        return TemplateResponse(
+            request,
+            "workspace_file_list.html",
+            context=context,
+        )
 
 
 class WorkspaceLog(ListView):

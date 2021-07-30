@@ -1,0 +1,56 @@
+{% extends "base.html" %}
+
+{% block content %}
+
+<nav aria-label="breadcrumb">
+  <ol class="breadcrumb">
+
+    <li class="breadcrumb-item"><a href="/">Home</a></li>
+
+    <li class="breadcrumb-item">
+      <a href="{{ workspace.project.org.get_absolute_url }}">
+        {{ workspace.project.org.name }}
+      </a>
+    </li>
+
+    <li class="breadcrumb-item">
+      <a href="{{ workspace.project.get_absolute_url }}">
+        {{ workspace.project.name }}
+      </a>
+    </li>
+
+    <li class="breadcrumb-item">
+      <a href="{{ workspace.get_absolute_url }}">
+        {{ workspace.name }}
+      </a>
+    </li>
+
+    <li class="breadcrumb-item active" aria-current="page">Files</li>
+
+  </ol>
+</nav>
+
+<div class="row">
+  <div class="col-lg-8 offset-lg-2">
+    <h3>Medium Privacy (Level 4) Files</h3>
+
+    <p>
+      Listed below are the backends which you have access to.
+      Clicking one will show you the files currently on that backend for the
+      {{ workspace.name }} workspace.
+    </p>
+
+    <ul class="list-group list-unstyled mb-4">
+      {% for backend in backends %}
+      <li class="list-group-item">
+        <a class="mr-3" href="{% url 'workspace-backend-files' org_slug=workspace.project.org.slug project_slug=workspace.project.slug workspace_slug=workspace.name backend_slug=backend.name %}">
+          {{ backend.display_name }}
+        </a>
+      </li>
+      {% endfor %}
+    </ul>
+
+  </div>
+</div>
+
+{% endblock %}

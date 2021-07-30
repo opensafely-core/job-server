@@ -14,6 +14,7 @@ from jobserver.views.workspaces import (
     WorkspaceCreate,
     WorkspaceCurrentOutputsDetail,
     WorkspaceDetail,
+    WorkspaceFileList,
     WorkspaceLog,
     WorkspaceNotificationsToggle,
     WorkspaceOutputList,
@@ -770,6 +771,88 @@ def test_workspacedetail_get_with_unauthenticated_user(rf, user):
     assert "Archive" not in response.rendered_content
     assert "Turn Notifications" not in response.rendered_content
     assert "twiddle" not in response.rendered_content
+
+
+@pytest.mark.django_db
+def test_workspacefilelist_success(rf):
+    backend1 = BackendFactory()
+    BackendFactory()
+    user = UserFactory()
+    workspace = WorkspaceFactory()
+
+    BackendMembershipFactory(backend=backend1, user=user)
+    ProjectMembershipFactory(
+        project=workspace.project, user=user, roles=[ProjectDeveloper]
+    )
+
+    request = rf.get("/")
+    request.user = user
+
+    response = WorkspaceFileList.as_view()(
+        request,
+        org_slug=workspace.project.org.slug,
+        project_slug=workspace.project.slug,
+        workspace_slug=workspace.name,
+    )
+
+    assert response.status_code == 200
+    assert list(response.context_data["backends"]) == [backend1]
+
+
+@pytest.mark.django_db
+def test_workspacefilelist_unknown_workspace(rf):
+    project = ProjectFactory()
+
+    request = rf.get("/")
+    request.user = UserFactory()
+
+    with pytest.raises(Http404):
+        WorkspaceFileList.as_view()(
+            request,
+            org_slug=project.org.slug,
+            project_slug=project.slug,
+            workspace_slug="",
+        )
+
+
+@pytest.mark.django_db
+def test_workspacefilelist_without_backends(rf):
+    user = UserFactory()
+    workspace = WorkspaceFactory()
+
+    ProjectMembershipFactory(
+        project=workspace.project, user=user, roles=[ProjectDeveloper]
+    )
+
+    request = rf.get("/")
+    request.user = user
+
+    with pytest.raises(Http404):
+        WorkspaceFileList.as_view()(
+            request,
+            org_slug=workspace.project.org.slug,
+            project_slug=workspace.project.slug,
+            workspace_slug=workspace.name,
+        )
+
+
+@pytest.mark.django_db
+def test_workspacefilelist_without_permission(rf):
+    user = UserFactory()
+    workspace = WorkspaceFactory()
+
+    BackendMembershipFactory(user=user)
+
+    request = rf.get("/")
+    request.user = user
+
+    with pytest.raises(Http404):
+        WorkspaceFileList.as_view()(
+            request,
+            org_slug=workspace.project.org.slug,
+            project_slug=workspace.project.slug,
+            workspace_slug=workspace.name,
+        )
 
 
 @pytest.mark.django_db

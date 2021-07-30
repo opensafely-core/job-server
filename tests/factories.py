@@ -33,6 +33,7 @@ class BackendFactory(factory.django.DjangoModelFactory):
         model = Backend
 
     name = factory.Sequence(lambda n: f"backend-{n}")
+    level_4_url = factory.Sequence(lambda n: f"http://example.com/{n}")
 
 
 class BackendMembershipFactory(factory.django.DjangoModelFactory):
