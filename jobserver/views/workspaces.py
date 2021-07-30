@@ -20,6 +20,7 @@ from ..forms import (
 from ..github import get_branch_sha, get_repo_is_private, get_repos_with_branches
 from ..models import Backend, JobRequest, Project, Workspace
 from ..project import get_actions, get_project, load_yaml
+from ..releases import build_hatch_token_and_url
 from ..roles import can_run_jobs
 
 
@@ -71,10 +72,19 @@ class WorkspaceBackendFiles(View):
         if not has_permission(request.user, "run_job", project=workspace.project):
             raise Http404
 
-        f = furl(backend.level_4_url)
-        f.path.segments += ["workspace", workspace.name, "current"]
+        auth_token, url = build_hatch_token_and_url(
+            backend=backend,
+            workspace=workspace,
+            user=request.user,
+        )
+
+        # add the path we're going to initialise the SPA with to the URL the
+        # token was created for.
+        f = furl(url)  # assume URL is a string
+        f.path.segments += ["current"]
 
         context = {
+            "auth_token": auth_token,
             "backend": backend,
             "files_url": f.url,
             "workspace": workspace,

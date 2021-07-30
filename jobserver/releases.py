@@ -1,14 +1,38 @@
 import hashlib
+from datetime import timedelta
 from pathlib import Path
 
 from django.db import transaction
+from django.utils import timezone
+from furl import furl
 
 from .models import Release, ReleaseFile
 from .models.outputs import absolute_file_path
+from .signing import AuthToken
 
 
 class ReleaseFileAlreadyExists(Exception):
     pass
+
+
+def build_hatch_token_and_url(*, backend, workspace, user, expiry=None):
+    """Build an auth token and base URL for talking to release hatch"""
+    # build the base URL for which we want the auth token to authenticate,
+    # all paths beneath this one will be valid with the token
+    f = furl(backend.level_4_url)
+    f.path.segments += ["workspace", workspace.name]
+
+    if expiry is None:
+        expiry = timezone.now() + timedelta(minutes=30)
+
+    builder = AuthToken(
+        url=f.url,
+        user=user.username,
+        expiry=expiry,
+    )
+    token = builder.sign(key=backend.auth_token, salt="hatch")
+
+    return token, f.url
 
 
 def check_not_already_uploaded(filename, filehash, backend):

@@ -1,6 +1,7 @@
 {% load django_vite %}
 
 <div
+  data-auth-token="{{ auth_token }}"
   data-csrf-token="{{ csrf_token }}"
   data-files-url="{{ files_url }}"
   data-prepare-url="{{ prepare_url }}"

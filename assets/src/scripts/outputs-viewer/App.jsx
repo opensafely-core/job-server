@@ -16,7 +16,7 @@ const queryClient = new QueryClient({
   },
 });
 
-function App({ csrfToken, filesUrl, prepareUrl, publishUrl }) {
+function App({ authToken, csrfToken, filesUrl, prepareUrl, publishUrl }) {
   const [listVisible, setListVisible] = useState(false);
   const [file, setFile] = useState({ name: "", url: "" });
   const hasButtons = prepareUrl || publishUrl;
@@ -50,13 +50,14 @@ function App({ csrfToken, filesUrl, prepareUrl, publishUrl }) {
           </button>
           <FileList
             apiUrl={filesUrl}
+            authToken={authToken}
             listVisible={listVisible}
             setFile={setFile}
             setListVisible={setListVisible}
           />
         </div>
         <div className="col-lg-9">
-          <Viewer file={file} />
+          <Viewer authToken={authToken} file={file} />
         </div>
       </div>
       <ReactQueryDevtools initialIsOpen={false} />
@@ -67,6 +68,7 @@ function App({ csrfToken, filesUrl, prepareUrl, publishUrl }) {
 export default App;
 
 App.propTypes = {
+  authToken: PropTypes.string,
   csrfToken: PropTypes.string,
   filesUrl: PropTypes.string.isRequired,
   prepareUrl: PropTypes.string,
@@ -74,6 +76,7 @@ App.propTypes = {
 };
 
 App.defaultProps = {
+  authToken: null,
   csrfToken: null,
   prepareUrl: null,
   publishUrl: null,

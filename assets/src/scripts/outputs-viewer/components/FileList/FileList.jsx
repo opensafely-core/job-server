@@ -5,12 +5,12 @@ import useWindowSize from "../../hooks/use-window-size";
 import List from "./List";
 import Wrapper from "./Wrapper";
 
-function FileList({ apiUrl, listVisible, setFile, setListVisible }) {
+function FileList({ apiUrl, authToken, listVisible, setFile, setListVisible }) {
   const [listHeight, setListHeight] = useState(0);
   const listEl = useRef(null);
   const windowSize = useWindowSize();
 
-  const { data } = useFileList({ apiUrl });
+  const { data } = useFileList({ apiUrl, authToken });
 
   useEffect(() => {
     const largeViewport = window.innerWidth > 991;
@@ -35,7 +35,7 @@ function FileList({ apiUrl, listVisible, setFile, setListVisible }) {
 
   return (
     <Wrapper ref={listEl} listHeight={listHeight} listVisible={listVisible}>
-      <List apiUrl={apiUrl} setFile={setFile} />
+      <List apiUrl={apiUrl} authToken={authToken} setFile={setFile} />
     </Wrapper>
   );
 }
@@ -44,7 +44,12 @@ export default FileList;
 
 FileList.propTypes = {
   apiUrl: PropTypes.string.isRequired,
+  authToken: PropTypes.string,
   listVisible: PropTypes.bool.isRequired,
   setFile: PropTypes.func.isRequired,
   setListVisible: PropTypes.func.isRequired,
+};
+
+FileList.defaultProps = {
+  authToken: null,
 };
