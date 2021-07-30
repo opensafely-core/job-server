@@ -48,6 +48,7 @@ from .views.status import Status
 from .views.users import Settings, UserDetail, UserList
 from .views.workspaces import (
     WorkspaceArchiveToggle,
+    WorkspaceBackendFiles,
     WorkspaceCreate,
     WorkspaceCurrentOutputsDetail,
     WorkspaceDetail,
@@ -121,6 +122,16 @@ outputs_urls = [
         "current/<path:path>",
         WorkspaceCurrentOutputsDetail.as_view(),
         name="workspace-current-outputs-detail",
+    ),
+    path(
+        "live/<backend_slug>/",
+        WorkspaceBackendFiles.as_view(),
+        name="workspace-backend-files",
+    ),
+    path(
+        "live/<backend_slug>/<path:path>",
+        WorkspaceBackendFiles.as_view(),
+        name="workspace-backend-files",
     ),
     path(
         "<pk>/",

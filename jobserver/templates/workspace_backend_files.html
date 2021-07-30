@@ -1,0 +1,46 @@
+{% extends "base.html" %}
+
+{% block content %}
+
+<nav aria-label="breadcrumb">
+  <ol class="breadcrumb">
+
+    <li class="breadcrumb-item"><a href="/">Home</a></li>
+
+    <li class="breadcrumb-item">
+      <a href="{{ workspace.project.org.get_absolute_url }}">
+        {{ workspace.project.org.name }}
+      </a>
+    </li>
+
+    <li class="breadcrumb-item">
+      <a href="{{ workspace.project.get_absolute_url }}">
+        {{ workspace.project.name }}
+      </a>
+    </li>
+
+    <li class="breadcrumb-item">
+      <a href="{{ workspace.get_absolute_url }}">
+        {{ workspace.name }}
+      </a>
+    </li>
+
+    <li class="breadcrumb-item">
+      <a href="{{ workspace.get_files_url }}">
+        Files
+      </a>
+    </li>
+
+    <li class="breadcrumb-item active" aria-current="page">{{ backend.display_name }} Files</li>
+
+  </ol>
+</nav>
+
+<p class="mb-2">
+  Medium privacy (Level 4) files currently on <strong>{{ backend.display_name }}</strong>
+  in the <strong>{{ workspace.name }}</strong> workspace.
+</p>
+
+{% include "outputs-spa.html" %}
+
+{% endblock %}

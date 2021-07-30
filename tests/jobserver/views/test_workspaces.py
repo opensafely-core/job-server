@@ -10,6 +10,7 @@ from jobserver.authorization import ProjectCollaborator, ProjectDeveloper
 from jobserver.models import Backend, JobRequest, Workspace
 from jobserver.views.workspaces import (
     WorkspaceArchiveToggle,
+    WorkspaceBackendFiles,
     WorkspaceCreate,
     WorkspaceCurrentOutputsDetail,
     WorkspaceDetail,
@@ -19,6 +20,7 @@ from jobserver.views.workspaces import (
 )
 
 from ...factories import (
+    BackendFactory,
     BackendMembershipFactory,
     JobFactory,
     JobRequestFactory,
@@ -81,6 +83,135 @@ def test_workspacearchivetoggle_unauthorized(rf, user):
 
     assert response.status_code == 302
     assert response.url == f"{settings.LOGIN_URL}?next=/"
+
+
+@pytest.mark.django_db
+def test_workspacebackendfiles_success(rf):
+    backend = BackendFactory()
+    user = UserFactory()
+    workspace = WorkspaceFactory()
+
+    BackendMembershipFactory(backend=backend, user=user)
+    ProjectMembershipFactory(
+        project=workspace.project, user=user, roles=[ProjectDeveloper]
+    )
+
+    request = rf.get("/")
+    request.user = user
+
+    response = WorkspaceBackendFiles.as_view()(
+        request,
+        org_slug=workspace.project.org.slug,
+        project_slug=workspace.project.slug,
+        workspace_slug=workspace.name,
+        backend_slug=backend.name,
+    )
+
+    assert response.status_code == 200
+
+
+@pytest.mark.django_db
+def test_workspacebackendfiles_unknown_backend(rf):
+    workspace = WorkspaceFactory()
+
+    request = rf.get("/")
+    request.user = UserFactory()
+
+    with pytest.raises(Http404):
+        WorkspaceBackendFiles.as_view()(
+            request,
+            org_slug=workspace.project.org.slug,
+            project_slug=workspace.project.slug,
+            workspace_slug=workspace.name,
+            backend_slug="unknown",
+        )
+
+
+@pytest.mark.django_db
+def test_workspacebackendfiles_unknown_workspace(rf):
+    backend = BackendFactory()
+    project = ProjectFactory()
+
+    request = rf.get("/")
+    request.user = UserFactory()
+
+    with pytest.raises(Http404):
+        WorkspaceBackendFiles.as_view()(
+            request,
+            org_slug=project.org.slug,
+            project_slug=project.slug,
+            workspace_slug="unknown",
+            backend_slug=backend.name,
+        )
+
+
+@pytest.mark.django_db
+def test_workspacebackendfiles_with_permission(rf):
+    backend = BackendFactory()
+    user = UserFactory()
+    workspace = WorkspaceFactory()
+
+    BackendMembershipFactory(backend=backend, user=user)
+    ProjectMembershipFactory(
+        project=workspace.project, user=user, roles=[ProjectDeveloper]
+    )
+
+    request = rf.get("/")
+    request.user = user
+
+    response = WorkspaceBackendFiles.as_view()(
+        request,
+        org_slug=workspace.project.org.slug,
+        project_slug=workspace.project.slug,
+        workspace_slug=workspace.name,
+        backend_slug=backend.name,
+    )
+
+    assert response.status_code == 200
+
+
+@pytest.mark.django_db
+def test_workspacebackendfiles_without_backend_access(rf):
+    backend = BackendFactory()
+    user = UserFactory()
+    workspace = WorkspaceFactory()
+
+    ProjectMembershipFactory(
+        project=workspace.project, user=user, roles=[ProjectDeveloper]
+    )
+
+    request = rf.get("/")
+    request.user = user
+
+    with pytest.raises(Http404):
+        WorkspaceBackendFiles.as_view()(
+            request,
+            org_slug=workspace.project.org.slug,
+            project_slug=workspace.project.slug,
+            workspace_slug=workspace.name,
+            backend_slug=backend.name,
+        )
+
+
+@pytest.mark.django_db
+def test_workspacebackendfiles_without_permission(rf):
+    backend = BackendFactory()
+    user = UserFactory()
+    workspace = WorkspaceFactory()
+
+    BackendMembershipFactory(backend=backend, user=user)
+
+    request = rf.get("/")
+    request.user = user
+
+    with pytest.raises(Http404):
+        WorkspaceBackendFiles.as_view()(
+            request,
+            org_slug=workspace.project.org.slug,
+            project_slug=workspace.project.slug,
+            workspace_slug=workspace.name,
+            backend_slug=backend.name,
+        )
 
 
 @pytest.mark.django_db

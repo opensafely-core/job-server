@@ -7,6 +7,7 @@ from django.shortcuts import get_object_or_404, redirect
 from django.template.response import TemplateResponse
 from django.utils.decorators import method_decorator
 from django.views.generic import CreateView, ListView, View
+from furl import furl
 
 from ..authorization import CoreDeveloper, has_permission, has_role
 from ..backends import backends_to_choices
@@ -39,6 +40,50 @@ class WorkspaceArchiveToggle(View):
         workspace.save()
 
         return redirect("/")
+
+
+class WorkspaceBackendFiles(View):
+    """
+    Orchestrate viewing of a Backend's "live" files for a given Workspace
+
+    We consume two URLs with one view, because we want to both do permissions
+    checks on the Workspace but also load the SPA for any given path under the
+    Workspace.
+    """
+
+    def get(self, request, *args, **kwargs):
+        workspace = get_object_or_404(
+            Workspace,
+            project__org__slug=self.kwargs["org_slug"],
+            project__slug=self.kwargs["project_slug"],
+            name=self.kwargs["workspace_slug"],
+        )
+
+        backend = get_object_or_404(Backend, name=self.kwargs["backend_slug"])
+
+        # ensure the user has access to the given Backend
+        if request.user not in backend.members.all():
+            raise Http404
+
+        # we treat the ability to run jobs in this workspace and the ability to
+        # interact with the backend (checked above) as permission to also view
+        # the files those jobs have output
+        if not has_permission(request.user, "run_job", project=workspace.project):
+            raise Http404
+
+        f = furl(backend.level_4_url)
+        f.path.segments += ["workspace", workspace.name, "current"]
+
+        context = {
+            "backend": backend,
+            "files_url": f.url,
+            "workspace": workspace,
+        }
+        return TemplateResponse(
+            request,
+            "workspace_backend_files.html",
+            context=context,
+        )
 
 
 @method_decorator(user_passes_test(can_run_jobs), name="dispatch")
