@@ -1,12 +1,33 @@
 import pytest
 from django.urls import reverse
 
-from jobserver.views.backends import BackendDetail, BackendList, BackendRotateToken
+from jobserver.views.backends import (
+    BackendDetail,
+    BackendEdit,
+    BackendList,
+    BackendRotateToken,
+)
 
 from ...factories import BackendFactory
 
 
 MEANINGLESS_URL = "/"
+
+
+@pytest.mark.django_db
+def test_backendedit_success(rf, core_developer):
+    backend = BackendFactory()
+
+    request = rf.post("/", {"level_4_url": "http://testing"})
+    request.user = core_developer
+
+    response = BackendEdit.as_view()(request, pk=backend.pk)
+
+    assert response.status_code == 302
+    assert response.url == backend.get_absolute_url()
+
+    backend.refresh_from_db()
+    assert backend.level_4_url == "http://testing"
 
 
 @pytest.mark.django_db

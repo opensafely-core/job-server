@@ -22,7 +22,7 @@ from jobserver.api.releases import (
 )
 
 from .views.admin import ApproveUsers
-from .views.backends import BackendDetail, BackendList, BackendRotateToken
+from .views.backends import BackendDetail, BackendEdit, BackendList, BackendRotateToken
 from .views.index import Index
 from .views.job_requests import JobRequestCancel, JobRequestDetail, JobRequestList
 from .views.jobs import JobCancel, JobDetail
@@ -105,6 +105,7 @@ api_urls = [
 backend_urls = [
     path("", BackendList.as_view(), name="backend-list"),
     path("<pk>/", BackendDetail.as_view(), name="backend-detail"),
+    path("<pk>/edit/", BackendEdit.as_view(), name="backend-edit"),
     path(
         "<pk>/rotate-token/",
         BackendRotateToken.as_view(),
