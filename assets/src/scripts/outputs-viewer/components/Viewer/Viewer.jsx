@@ -45,7 +45,12 @@ function Viewer({ file }) {
   if (isError) {
     return (
       <Wrapper file={file}>
-        <span>Error: {error.message}</span>
+        <p>Error: {error.message}</p>
+        <p className="mb-0">
+          <a href={file.url} rel="noreferrer noopener" target="_blank">
+            Open file in a new tab &#8599;
+          </a>
+        </p>
       </Wrapper>
     );
   }
