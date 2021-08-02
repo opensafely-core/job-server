@@ -1,11 +1,10 @@
 import pytest
-import responses
-from django.conf import settings
 from django.contrib.auth.models import AnonymousUser
 from django.core.exceptions import BadRequest
 from django.http import Http404
 from django.urls import reverse
 
+from jobserver.authorization import ProjectDeveloper
 from jobserver.models import Backend, JobRequest
 from jobserver.views.job_requests import (
     JobRequestCancel,
@@ -16,6 +15,7 @@ from jobserver.views.job_requests import (
 from ...factories import (
     JobFactory,
     JobRequestFactory,
+    ProjectMembershipFactory,
     UserFactory,
     UserSocialAuthFactory,
     WorkspaceFactory,
@@ -26,18 +26,18 @@ MEANINGLESS_URL = "/"
 
 
 @pytest.mark.django_db
-@responses.activate
-def test_jobrequestcancel_already_completed(rf, user):
+def test_jobrequestcancel_already_completed(rf):
     job_request = JobRequestFactory(cancelled_actions=[])
     JobFactory(job_request=job_request, status="succeeded")
     JobFactory(job_request=job_request, status="failed")
+    user = UserFactory()
+
+    ProjectMembershipFactory(
+        project=job_request.workspace.project, user=user, roles=[ProjectDeveloper]
+    )
 
     request = rf.post(MEANINGLESS_URL)
     request.user = user
-
-    gh_org = user.orgs.first().github_orgs[0]
-    membership_url = f"https://api.github.com/orgs/{gh_org}/members/{user.username}"
-    responses.add(responses.GET, membership_url, status=204)
 
     response = JobRequestCancel.as_view()(request, pk=job_request.pk)
 
@@ -49,19 +49,19 @@ def test_jobrequestcancel_already_completed(rf, user):
 
 
 @pytest.mark.django_db
-@responses.activate
-def test_jobrequestcancel_success(rf, user):
+def test_jobrequestcancel_success(rf):
     job_request = JobRequestFactory(cancelled_actions=[])
     JobFactory(job_request=job_request, action="test1")
     JobFactory(job_request=job_request, action="test2")
     JobFactory(job_request=job_request, action="test3")
+    user = UserFactory()
+
+    ProjectMembershipFactory(
+        project=job_request.workspace.project, user=user, roles=[ProjectDeveloper]
+    )
 
     request = rf.post(MEANINGLESS_URL)
     request.user = user
-
-    gh_org = user.orgs.first().github_orgs[0]
-    membership_url = f"https://api.github.com/orgs/{gh_org}/members/{user.username}"
-    responses.add(responses.GET, membership_url, status=204)
 
     response = JobRequestCancel.as_view()(request, pk=job_request.pk)
 
@@ -75,58 +75,74 @@ def test_jobrequestcancel_success(rf, user):
 
 
 @pytest.mark.django_db
-@responses.activate
-def test_jobrequestcancel_unauthorized(rf, user):
-    job_request = JobRequestFactory()
+def test_jobrequestcancel_with_job_request_creator(rf):
+    user = UserFactory()
+    job_request = JobRequestFactory(cancelled_actions=[], created_by=user)
+    JobFactory(job_request=job_request, action="test1")
 
     request = rf.post(MEANINGLESS_URL)
     request.user = user
-
-    gh_org = user.orgs.first().github_orgs[0]
-    membership_url = f"https://api.github.com/orgs/{gh_org}/members/{user.username}"
-    responses.add(responses.GET, membership_url, status=404)
 
     response = JobRequestCancel.as_view()(request, pk=job_request.pk)
 
     assert response.status_code == 302
-    assert response.url == f"{settings.LOGIN_URL}?next=/"
+    assert response.url == reverse("job-request-detail", kwargs={"pk": job_request.pk})
+
+    job_request.refresh_from_db()
+    assert "test1" in job_request.cancelled_actions
 
 
 @pytest.mark.django_db
-@responses.activate
-def test_jobrequestcancel_unknown_job_request(rf, user):
+def test_jobrequestcancel_unauthorized(rf):
+    job_request = JobRequestFactory()
+    user = UserFactory()
+
     request = rf.post(MEANINGLESS_URL)
     request.user = user
 
-    gh_org = user.orgs.first().github_orgs[0]
-    membership_url = f"https://api.github.com/orgs/{gh_org}/members/{user.username}"
-    responses.add(responses.GET, membership_url, status=204)
+    with pytest.raises(Http404):
+        JobRequestCancel.as_view()(request, pk=job_request.pk)
+
+
+@pytest.mark.django_db
+def test_jobrequestcancel_unknown_job_request(rf):
+    request = rf.post(MEANINGLESS_URL)
+    request.user = UserFactory()
 
     with pytest.raises(Http404):
         JobRequestCancel.as_view()(request, pk=0)
 
 
 @pytest.mark.django_db
-@responses.activate
-def test_jobrequestdetail_with_authenticated_user(rf, user):
+def test_jobrequestdetail_with_authenticated_user(rf):
     job_request = JobRequestFactory()
+    user = UserFactory()
 
-    # ensure the user doesn't have any elevated privileges
-    user.is_superuser = False
-    user.roles = []
-    user.save()
+    ProjectMembershipFactory(
+        project=job_request.workspace.project, user=user, roles=[ProjectDeveloper]
+    )
 
     request = rf.get(MEANINGLESS_URL)
     request.user = user
 
-    gh_org = user.orgs.first().github_orgs[0]
-    membership_url = f"https://api.github.com/orgs/{gh_org}/members/{user.username}"
-    responses.add(responses.GET, membership_url, status=204)
+    response = JobRequestDetail.as_view()(request, pk=job_request.pk)
+
+    assert response.status_code == 200
+    assert "Cancel" in response.rendered_content
+
+
+@pytest.mark.django_db
+def test_jobrequestdetail_with_job_request_creator(rf):
+    user = UserFactory()
+    job_request = JobRequestFactory(created_by=user)
+
+    request = rf.get(MEANINGLESS_URL)
+    request.user = user
 
     response = JobRequestDetail.as_view()(request, pk=job_request.pk)
 
     assert response.status_code == 200
-    assert "Zombify" not in response.rendered_content
+    assert "Cancel" in response.rendered_content
 
 
 @pytest.mark.django_db
@@ -135,9 +151,23 @@ def test_jobrequestdetail_with_unauthenticated_user(rf):
 
     request = rf.get(MEANINGLESS_URL)
     request.user = AnonymousUser()
+
     response = JobRequestDetail.as_view()(request, pk=job_request.pk)
 
     assert response.status_code == 200
+
+
+@pytest.mark.django_db
+def test_jobrequestdetail_with_unprivileged_user(rf):
+    job_request = JobRequestFactory()
+
+    request = rf.get(MEANINGLESS_URL)
+    request.user = UserFactory()
+
+    response = JobRequestDetail.as_view()(request, pk=job_request.pk)
+
+    assert response.status_code == 200
+    assert "Cancel" not in response.rendered_content
 
 
 @pytest.mark.django_db

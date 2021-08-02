@@ -168,7 +168,7 @@
       </a>
     </div>
 
-    {% if user_can_run_jobs %}
+    {% if user_can_cancel_jobs %}
     <form class="mb-2" method="POST" action="{{ jobrequest.get_cancel_url }}">
       {% csrf_token %}
 
