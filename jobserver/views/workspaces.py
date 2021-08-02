@@ -229,6 +229,11 @@ class WorkspaceDetail(CreateView):
         ).exists()
         can_view_outputs = is_privileged_user or has_published_snapshots
 
+        # a user can see backend files if they have access to at least one
+        # backend and the permissions required to see outputs
+        has_backends = self.request.user.backends.exclude(level_4_url="").exists()
+        can_view_files = can_view_outputs and has_backends
+
         return super().get_context_data(**kwargs) | {
             "actions": self.actions,
             "can_use_releases": can_use_releases,
@@ -236,6 +241,7 @@ class WorkspaceDetail(CreateView):
             "latest_job_request": self.get_latest_job_request(),
             "show_details": self.show_details,
             "user_can_run_jobs": self.user_can_run_jobs,
+            "user_can_view_files": can_view_files,
             "user_can_view_outputs": can_view_outputs,
             "workspace": self.workspace,
         }
