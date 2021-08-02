@@ -1,6 +1,6 @@
 import { useQuery } from "react-query";
-import handleErrors from "./fetch-handle-errors";
-import { canDisplay } from "./file-type-match";
+import handleErrors from "../utils/fetch-handle-errors";
+import { canDisplay } from "../utils/file-type-match";
 
 function useFile(file) {
   return useQuery(["FILE", file.url], async () => {
