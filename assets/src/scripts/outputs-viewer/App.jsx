@@ -19,24 +19,23 @@ const queryClient = new QueryClient({
 function App({ csrfToken, filesUrl, prepareUrl, publishUrl }) {
   const [listVisible, setListVisible] = useState(false);
   const [file, setFile] = useState({ name: "", url: "" });
+  const hasButtons = prepareUrl || publishUrl;
 
   return (
     <QueryClientProvider client={queryClient}>
-      {prepareUrl && (
+      {hasButtons && (
         <div className="row">
           <div className="col">
-            <PrepareButton
-              csrfToken={csrfToken}
-              filesUrl={filesUrl}
-              prepareUrl={prepareUrl}
-            />
-          </div>
-        </div>
-      )}
-      {publishUrl && (
-        <div className="row">
-          <div className="col">
-            <PublishButton csrfToken={csrfToken} publishUrl={publishUrl} />
+            {prepareUrl && (
+              <PrepareButton
+                csrfToken={csrfToken}
+                filesUrl={filesUrl}
+                prepareUrl={prepareUrl}
+              />
+            )}
+            {publishUrl && (
+              <PublishButton csrfToken={csrfToken} publishUrl={publishUrl} />
+            )}
           </div>
         </div>
       )}
