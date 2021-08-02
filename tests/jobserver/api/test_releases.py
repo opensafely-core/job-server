@@ -4,7 +4,7 @@ import pytest
 from django.utils import timezone
 from slack_sdk.errors import SlackApiError
 
-from jobserver.api.releases import ReleaseNotificationAPICreate
+from jobserver.api.releases import ReleaseNotificationAPICreate, WorkspaceStatusAPI
 from jobserver.authorization import (
     OutputPublisher,
     ProjectCollaborator,
@@ -14,6 +14,7 @@ from jobserver.models import Release
 from jobserver.utils import set_from_qs
 from tests.factories import (
     BackendFactory,
+    ProjectFactory,
     ProjectMembershipFactory,
     ReleaseFactory,
     ReleaseUploadsFactory,
@@ -838,3 +839,22 @@ def test_snapshot_publish_api_without_permission(api_client):
     api_client.post(
         f"/api/v2/workspaces/{snapshot.workspace.name}/snapshots/{snapshot.pk}/publish"
     )
+
+
+@pytest.mark.django_db
+def test_workspacestatusapi_success(api_rf):
+    request = api_rf.get("/")
+
+    project1 = ProjectFactory(uses_new_release_flow=True)
+    workspace1 = WorkspaceFactory(project=project1)
+
+    response = WorkspaceStatusAPI.as_view()(request, workspace_id=workspace1.name)
+    assert response.status_code == 200
+    assert response.data["uses_new_release_flow"]
+
+    project2 = ProjectFactory(uses_new_release_flow=False)
+    workspace2 = WorkspaceFactory(project=project2)
+
+    response = WorkspaceStatusAPI.as_view()(request, workspace_id=workspace2.name)
+    assert response.status_code == 200
+    assert not response.data["uses_new_release_flow"]
