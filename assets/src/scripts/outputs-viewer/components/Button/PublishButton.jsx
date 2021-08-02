@@ -2,6 +2,7 @@ import PropTypes from "prop-types";
 import React from "react";
 import { useMutation } from "react-query";
 import handleErrors from "../../utils/fetch-handle-errors";
+import Button from "./Button";
 
 function PublishButton({ csrfToken, publishUrl }) {
   const mutation = useMutation(
@@ -26,20 +27,12 @@ function PublishButton({ csrfToken, publishUrl }) {
     }
   );
 
-  const onPublish = ({ e }) => {
-    e.preventDefault();
-    mutation.mutate();
-  };
-
   return (
-    <button
-      className={`btn btn-${mutation.isLoading ? "secondary" : "primary"}`}
-      disabled={mutation.isLoading}
-      onClick={(e) => onPublish({ e })}
-      type="button"
-    >
-      {mutation.isLoading ? "Confirming…" : "Confirm Publish?"}
-    </button>
+    <Button
+      isLoading={mutation.isLoading}
+      onClickFn={() => mutation.mutate()}
+      text={{ default: "Confirm Publish?", loading: "Confirming…" }}
+    />
   );
 }
 

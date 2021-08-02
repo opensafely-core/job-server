@@ -2,9 +2,9 @@ import PropTypes from "prop-types";
 import React, { useState } from "react";
 import { QueryClient, QueryClientProvider } from "react-query";
 import { ReactQueryDevtools } from "react-query/devtools";
+import PrepareButton from "./components/Button/PrepareButton";
+import PublishButton from "./components/Button/PublishButton";
 import FileList from "./components/FileList/FileList";
-import PrepareButton from "./components/PrepareButton/PrepareButton";
-import PublishButton from "./components/PublishButton/PublishButton";
 import Viewer from "./components/Viewer/Viewer";
 
 const queryClient = new QueryClient({
