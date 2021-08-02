@@ -40,7 +40,7 @@ function App({ csrfToken, filesUrl, prepareUrl, publishUrl }) {
           </div>
         </div>
       )}
-      <div className="row">
+      <div className="row mb-3">
         <div className="col-lg-3">
           <button
             className="d-block d-lg-none btn btn-secondary mb-3"
