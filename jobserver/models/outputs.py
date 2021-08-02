@@ -140,6 +140,12 @@ class Snapshot(models.Model):
         "ReleaseFile",
         related_name="snapshots",
     )
+    published_by = models.ForeignKey(
+        "User",
+        null=True,
+        on_delete=models.PROTECT,
+        related_name="published_snapshots",
+    )
     workspace = models.ForeignKey(
         "Workspace",
         on_delete=models.PROTECT,
@@ -172,3 +178,20 @@ class Snapshot(models.Model):
                 "snapshot_id": self.pk,
             },
         )
+
+    def get_publish_api_url(self):
+        return reverse(
+            "api:snapshot-publish",
+            kwargs={
+                "workspace_id": self.workspace.name,
+                "snapshot_id": self.pk,
+            },
+        )
+
+    @property
+    def is_draft(self):
+        return self.published_at is None
+
+    @property
+    def is_published(self):
+        return self.published_at

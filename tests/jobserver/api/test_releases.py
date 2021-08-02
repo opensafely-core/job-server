@@ -2,11 +2,14 @@ import json
 
 import pytest
 from django.utils import timezone
-from rest_framework.test import APIClient
 from slack_sdk.errors import SlackApiError
 
 from jobserver.api.releases import ReleaseNotificationAPICreate
-from jobserver.authorization import ProjectCollaborator, ProjectDeveloper
+from jobserver.authorization import (
+    OutputPublisher,
+    ProjectCollaborator,
+    ProjectDeveloper,
+)
 from jobserver.models import Release
 from jobserver.utils import set_from_qs
 from tests.factories import (
@@ -114,24 +117,24 @@ def test_releasenotificationapicreate_with_failed_slack_update(
 
 
 @pytest.mark.django_db
-def test_workspace_api_create_release_no_workspace():
-    response = APIClient().post("/api/v2/releases/workspace/notexists")
+def test_workspace_api_create_release_no_workspace(api_client):
+    response = api_client.post("/api/v2/releases/workspace/notexists")
     assert response.status_code == 404
 
 
 @pytest.mark.django_db
-def test_workspace_api_create_release_no_backend_token():
+def test_workspace_api_create_release_no_backend_token(api_client):
     workspace = WorkspaceFactory()
-    response = APIClient().post(f"/api/v2/releases/workspace/{workspace.name}")
+    response = api_client.post(f"/api/v2/releases/workspace/{workspace.name}")
     assert response.status_code == 403
 
 
 @pytest.mark.django_db
-def test_workspace_api_create_release_bad_backend_token():
+def test_workspace_api_create_release_bad_backend_token(api_client):
     workspace = WorkspaceFactory()
     BackendFactory(auth_token="test")
 
-    response = APIClient().post(
+    response = api_client.post(
         f"/api/v2/releases/workspace/{workspace.name}",
         HTTP_AUTHORIZATION="invalid",
     )
@@ -140,10 +143,10 @@ def test_workspace_api_create_release_bad_backend_token():
 
 
 @pytest.mark.django_db
-def test_workspace_api_create_release_no_user():
+def test_workspace_api_create_release_no_user(api_client):
     workspace = WorkspaceFactory()
     BackendFactory(auth_token="test")
-    response = APIClient().post(
+    response = api_client.post(
         f"/api/v2/releases/workspace/{workspace.name}",
         HTTP_AUTHORIZATION="test",
     )
@@ -152,10 +155,10 @@ def test_workspace_api_create_release_no_user():
 
 
 @pytest.mark.django_db
-def test_workspace_api_create_release_bad_user():
+def test_workspace_api_create_release_bad_user(api_client):
     workspace = WorkspaceFactory()
     BackendFactory(auth_token="test")
-    response = APIClient().post(
+    response = api_client.post(
         f"/api/v2/releases/workspace/{workspace.name}",
         HTTP_AUTHORIZATION="test",
         HTTP_OS_USER="baduser",
@@ -165,7 +168,7 @@ def test_workspace_api_create_release_bad_user():
 
 
 @pytest.mark.django_db
-def test_workspace_api_create_release_created():
+def test_workspace_api_create_release_created(api_client):
     user = UserFactory()
     workspace = WorkspaceFactory()
     ProjectMembershipFactory(user=user, project=workspace.project)
@@ -173,7 +176,7 @@ def test_workspace_api_create_release_created():
 
     assert Release.objects.count() == 0
 
-    response = APIClient().post(
+    response = api_client.post(
         f"/api/v2/releases/workspace/{workspace.name}",
         content_type="application/json",
         data=json.dumps({"files": {"file1.txt": "hash"}}),
@@ -190,12 +193,12 @@ def test_workspace_api_create_release_created():
 
 
 @pytest.mark.django_db
-def test_workspace_api_create_release_already_exists():
+def test_workspace_api_create_release_already_exists(api_client):
     release = ReleaseFactory(ReleaseUploadsFactory(["file.txt"]))
     rfile = release.files.first()
     ProjectMembershipFactory(user=release.created_by, project=release.workspace.project)
 
-    response = APIClient().post(
+    response = api_client.post(
         f"/api/v2/releases/workspace/{release.workspace.name}",
         content_type="application/json",
         data=json.dumps({"files": {"file.txt": rfile.filehash}}),
@@ -209,13 +212,13 @@ def test_workspace_api_create_release_already_exists():
 
 
 @pytest.mark.django_db
-def test_workspace_api_create_release_bad_json():
+def test_workspace_api_create_release_bad_json(api_client):
     user = UserFactory()
     workspace = WorkspaceFactory()
     ProjectMembershipFactory(user=user, project=workspace.project)
     BackendFactory(auth_token="test")
 
-    response = APIClient().post(
+    response = api_client.post(
         f"/api/v2/releases/workspace/{workspace.name}",
         content_type="application/json",
         data=json.dumps({}),
@@ -228,42 +231,36 @@ def test_workspace_api_create_release_bad_json():
 
 
 @pytest.mark.django_db
-def test_workspace_index_api_not_exists():
-    client = APIClient()
-    response = client.get("/api/v2/releases/workspace/badid")
+def test_workspace_index_api_not_exists(api_client):
+    response = api_client.get("/api/v2/releases/workspace/badid")
     assert response.status_code == 404
 
 
 @pytest.mark.django_db
-def test_workspace_index_api_anonymous():
+def test_workspace_index_api_anonymous(api_client):
     workspace = WorkspaceFactory()
-    client = APIClient()
 
-    index_url = f"/api/v2/releases/workspace/{workspace.name}"
-    response = client.get(index_url)
+    response = api_client.get(f"/api/v2/releases/workspace/{workspace.name}")
+
     assert response.status_code == 403
 
 
 @pytest.mark.django_db
-def test_workspace_index_api_logged_in_no_permission():
+def test_workspace_index_api_logged_in_no_permission(api_client):
     workspace = WorkspaceFactory()
-    client = APIClient()
     user = UserFactory()
 
-    client.force_authenticate(user=user)
-    index_url = f"/api/v2/releases/workspace/{workspace.name}"
-    response = client.get(index_url)
+    api_client.force_authenticate(user=user)
+    response = api_client.get(f"/api/v2/releases/workspace/{workspace.name}")
     assert response.status_code == 403
 
 
 @pytest.mark.django_db
-def test_workspace_index_api_have_permission():
+def test_workspace_index_api_have_permission(api_client):
     workspace = WorkspaceFactory()
     backend1 = BackendFactory(name="backend1")
     backend2 = BackendFactory(name="backend2")
     user = UserFactory()
-    client = APIClient()
-    client.force_authenticate(user=user)
     ProjectMembershipFactory(
         user=user, project=workspace.project, roles=[ProjectCollaborator]
     )
@@ -282,8 +279,9 @@ def test_workspace_index_api_have_permission():
         created_by=user,
     )
 
-    index_url = f"/api/v2/releases/workspace/{workspace.name}"
-    response = client.get(index_url)
+    api_client.force_authenticate(user=user)
+    response = api_client.get(f"/api/v2/releases/workspace/{workspace.name}")
+
     assert response.status_code == 200
     assert response.json() == {
         "files": [
@@ -310,49 +308,43 @@ def test_workspace_index_api_have_permission():
 
 
 @pytest.mark.django_db
-def test_release_index_api_not_exists():
-    client = APIClient()
+def test_release_index_api_not_exists(api_client):
     # bad id
-    response = client.get("/api/v2/releases/release/badid")
+    response = api_client.get("/api/v2/releases/release/badid")
     assert response.status_code == 404
 
 
 @pytest.mark.django_db
-def test_release_index_api_anonymous():
+def test_release_index_api_anonymous(api_client):
     release = ReleaseFactory(ReleaseUploadsFactory(["file.txt"]))
-    client = APIClient()
-    index_url = f"/api/v2/releases/release/{release.id}"
 
-    response = client.get(index_url)
+    response = api_client.get(f"/api/v2/releases/release/{release.id}")
     assert response.status_code == 403
 
 
 @pytest.mark.django_db
-def test_release_index_api_logged_in_no_permission():
+def test_release_index_api_logged_in_no_permission(api_client):
     release = ReleaseFactory(ReleaseUploadsFactory(["file.txt"]))
-    user = UserFactory()
-    client = APIClient()
-    client.force_authenticate(user=user)
 
-    index_url = f"/api/v2/releases/release/{release.id}"
-    response = client.get(index_url)
+    api_client.force_authenticate(user=UserFactory())
+    response = api_client.get(f"/api/v2/releases/release/{release.id}")
+
     assert response.status_code == 403
 
 
 @pytest.mark.django_db
-def test_release_index_api_have_permission():
+def test_release_index_api_have_permission(api_client):
     release = ReleaseFactory(ReleaseUploadsFactory(["file.txt"]))
     rfile = release.files.first()
-    client = APIClient()
 
     ProjectMembershipFactory(
         user=release.created_by,
         project=release.workspace.project,
         roles=[ProjectCollaborator],
     )
-    client.force_authenticate(user=release.created_by)
+    api_client.force_authenticate(user=release.created_by)
     index_url = f"/api/v2/releases/release/{release.id}"
-    response = client.get(index_url)
+    response = api_client.get(index_url)
     rfile = release.files.first()
     assert response.status_code == 200
     assert response.json() == {
@@ -371,24 +363,26 @@ def test_release_index_api_have_permission():
 
 
 @pytest.mark.django_db
-def test_release_api_upload_no_release():
-    response = APIClient().post("/api/v2/releases/release/notexists")
+def test_release_api_upload_no_release(api_client):
+    response = api_client.post("/api/v2/releases/release/notexists")
     assert response.status_code == 404
 
 
 @pytest.mark.django_db
-def test_release_api_upload_no_backend_token():
+def test_release_api_upload_no_backend_token(api_client):
     uploads = ReleaseUploadsFactory(["file.txt"])
     release = ReleaseFactory(uploads, uploaded=False)
-    response = APIClient().post(f"/api/v2/releases/release/{release.id}")
+
+    response = api_client.post(f"/api/v2/releases/release/{release.id}")
+
     assert response.status_code == 403
 
 
 @pytest.mark.django_db
-def test_release_api_upload_bad_backend_token():
+def test_release_api_upload_bad_backend_token(api_client):
     uploads = ReleaseUploadsFactory(["file.txt"])
     release = ReleaseFactory(uploads, uploaded=False)
-    response = APIClient().post(
+    response = api_client.post(
         f"/api/v2/releases/release/{release.id}",
         HTTP_AUTHORIZATION="invalid",
     )
@@ -396,10 +390,10 @@ def test_release_api_upload_bad_backend_token():
 
 
 @pytest.mark.django_db
-def test_release_api_upload_no_user():
+def test_release_api_upload_no_user(api_client):
     uploads = ReleaseUploadsFactory(["file.txt"])
     release = ReleaseFactory(uploads, uploaded=False)
-    response = APIClient().post(
+    response = api_client.post(
         f"/api/v2/releases/release/{release.id}",
         HTTP_AUTHORIZATION=release.backend.auth_token,
     )
@@ -407,10 +401,10 @@ def test_release_api_upload_no_user():
 
 
 @pytest.mark.django_db
-def test_release_api_upload_bad_user():
+def test_release_api_upload_bad_user(api_client):
     uploads = ReleaseUploadsFactory(["file.txt"])
     release = ReleaseFactory(uploads, uploaded=False)
-    response = APIClient().post(
+    response = api_client.post(
         f"/api/v2/releases/release/{release.id}",
         HTTP_AUTHORIZATION=release.backend.auth_token,
         HTTP_OS_USER="baduser",
@@ -419,12 +413,12 @@ def test_release_api_upload_bad_user():
 
 
 @pytest.mark.django_db
-def test_release_api_upload_no_files():
+def test_release_api_upload_no_files(api_client):
     user = UserFactory()
     uploads = ReleaseUploadsFactory(["file.txt"])
     release = ReleaseFactory(uploads, uploaded=False)
 
-    response = APIClient().post(
+    response = api_client.post(
         f"/api/v2/releases/release/{release.id}",
         HTTP_CONTENT_DISPOSITION=f"attachment; filename={uploads[0].filename}",
         HTTP_AUTHORIZATION=release.backend.auth_token,
@@ -436,13 +430,13 @@ def test_release_api_upload_no_files():
 
 
 @pytest.mark.django_db
-def test_release_api_upload_bad_backend():
+def test_release_api_upload_bad_backend(api_client):
     user = UserFactory()
     uploads = ReleaseUploadsFactory(["output/file.txt"])
     release = ReleaseFactory(uploads, uploaded=False)
     bad_backend = BackendFactory()
 
-    response = APIClient().post(
+    response = api_client.post(
         f"/api/v2/releases/release/{release.id}",
         content_type="application/octet-stream",
         data=uploads[0].contents,
@@ -456,12 +450,12 @@ def test_release_api_upload_bad_backend():
 
 
 @pytest.mark.django_db
-def test_release_api_upload_bad_filename():
+def test_release_api_upload_bad_filename(api_client):
     user = UserFactory()
     uploads = ReleaseUploadsFactory(["file.txt"])
     release = ReleaseFactory(uploads, uploaded=False)
 
-    response = APIClient().post(
+    response = api_client.post(
         f"/api/v2/releases/release/{release.id}",
         content_type="application/octet-stream",
         data=uploads[0].contents,
@@ -475,12 +469,12 @@ def test_release_api_upload_bad_filename():
 
 
 @pytest.mark.django_db
-def test_release_api_upload_success():
+def test_release_api_upload_success(api_client):
     user = UserFactory()
     uploads = ReleaseUploadsFactory(["file.txt"])
     release = ReleaseFactory(uploads, uploaded=False)
 
-    response = APIClient().post(
+    response = api_client.post(
         f"/api/v2/releases/release/{release.id}",
         content_type="application/octet-stream",
         data=uploads[0].contents,
@@ -496,14 +490,14 @@ def test_release_api_upload_success():
 
 
 @pytest.mark.django_db
-def test_release_api_upload_already_uploaded():
+def test_release_api_upload_already_uploaded(api_client):
     user = UserFactory()
     uploads = ReleaseUploadsFactory(["file.txt"])
     release = ReleaseFactory(uploads, uploaded=True)
 
     count_before = release.files.count()
 
-    response = APIClient().post(
+    response = api_client.post(
         f"/api/v2/releases/release/{release.id}",
         content_type="application/octet-stream",
         data=uploads[0].contents,
@@ -519,46 +513,38 @@ def test_release_api_upload_already_uploaded():
 
 
 @pytest.mark.django_db
-def test_release_file_api_release_not_exists():
-    client = APIClient()
-
-    response = client.get("/api/v2/releases/release/badid/file.txt")
+def test_release_file_api_release_not_exists(api_client):
+    response = api_client.get("/api/v2/releases/release/badid/file.txt")
     assert response.status_code == 404
 
 
 @pytest.mark.django_db
-def test_release_file_api_anonymous():
+def test_release_file_api_anonymous(api_client):
     release = ReleaseFactory(ReleaseUploadsFactory(["file1.txt"]))
     rfile = release.files.first()
-    client = APIClient()
-    file_url = f"/api/v2/releases/file/{rfile.id}"
 
-    response = client.get(file_url)
+    response = api_client.get(f"/api/v2/releases/file/{rfile.id}")
     assert response.status_code == 403
 
 
 @pytest.mark.django_db
-def test_release_file_api_no_permission():
+def test_release_file_api_no_permission(api_client):
     release = ReleaseFactory(ReleaseUploadsFactory(["file1.txt"]))
     rfile = release.files.first()
-    user = UserFactory()
-    client = APIClient()
-    file_url = f"/api/v2/releases/file/{rfile.id}"
 
     # logged in, but no permission
-    client.force_authenticate(user=user)
-    response = client.get(file_url)
+    api_client.force_authenticate(user=UserFactory())
+    response = api_client.get(f"/api/v2/releases/file/{rfile.id}")
+
     assert response.status_code == 403
 
 
 @pytest.mark.django_db
-def test_release_file_api_have_permission():
+def test_release_file_api_have_permission(api_client):
     uploads = ReleaseUploadsFactory({"file.txt": b"test"})
     release = ReleaseFactory(uploads)
     rfile = release.files.first()
     user = UserFactory()
-    client = APIClient()
-    file_url = f"/api/v2/releases/file/{rfile.id}"
 
     # logged in, with permission
     ProjectMembershipFactory(
@@ -566,21 +552,21 @@ def test_release_file_api_have_permission():
         project=release.workspace.project,
         roles=[ProjectCollaborator],
     )
-    client.force_authenticate(user=user)
-    response = client.get(file_url)
+
+    api_client.force_authenticate(user=user)
+    response = api_client.get(f"/api/v2/releases/file/{rfile.id}")
+
     assert response.status_code == 200
     assert b"".join(response.streaming_content) == b"test"
     assert response.headers["Content-Type"] == "text/plain"
 
 
 @pytest.mark.django_db
-def test_release_file_api_nginx_redirect():
+def test_release_file_api_nginx_redirect(api_client):
     uploads = ReleaseUploadsFactory({"file.txt": b"test"})
     release = ReleaseFactory(uploads)
     rfile = release.files.first()
     user = UserFactory()
-    client = APIClient()
-    file_url = f"/api/v2/releases/file/{rfile.id}"
 
     # test nginx configuration
     ProjectMembershipFactory(
@@ -588,8 +574,12 @@ def test_release_file_api_nginx_redirect():
         project=release.workspace.project,
         roles=[ProjectCollaborator],
     )
-    client.force_authenticate(user=user)
-    response = client.get(file_url, HTTP_RELEASES_REDIRECT="/storage")
+
+    api_client.force_authenticate(user=user)
+    response = api_client.get(
+        f"/api/v2/releases/file/{rfile.id}", HTTP_RELEASES_REDIRECT="/storage"
+    )
+
     assert response.status_code == 200
     assert (
         response.headers["X-Accel-Redirect"]
@@ -598,33 +588,32 @@ def test_release_file_api_nginx_redirect():
 
 
 @pytest.mark.django_db
-def test_release_file_api_file_deleted():
+def test_release_file_api_file_deleted(api_client):
     uploads = ReleaseUploadsFactory({"file.txt": b"test"})
     release = ReleaseFactory(uploads)
     rfile = release.files.first()
     user = UserFactory()
-    client = APIClient()
 
     ProjectMembershipFactory(
         user=user,
         project=release.workspace.project,
         roles=[ProjectCollaborator],
     )
-    client.force_authenticate(user=user)
 
     # delete file
     rfile.absolute_path().unlink()
-    response = client.get(f"/api/v2/releases/file/{rfile.id}")
+
+    api_client.force_authenticate(user=user)
+    response = api_client.get(f"/api/v2/releases/file/{rfile.id}")
 
     assert response.status_code == 404
 
 
 @pytest.mark.django_db
-def test_snapshot_api_published_anonymous(freezer):
+def test_snapshot_api_published_anonymous(api_client, freezer):
     snapshot = SnapshotFactory(published_at=timezone.now())
 
-    client = APIClient()
-    response = client.get(
+    response = api_client.get(
         f"/api/v2/workspaces/{snapshot.workspace.name}/snapshots/{snapshot.pk}"
     )
 
@@ -633,14 +622,13 @@ def test_snapshot_api_published_anonymous(freezer):
 
 
 @pytest.mark.django_db
-def test_snapshot_api_published_no_permission():
+def test_snapshot_api_published_no_permission(api_client):
     snapshot = SnapshotFactory(published_at=timezone.now())
 
-    client = APIClient()
     # logged in, but no permission
-    client.force_authenticate(user=UserFactory())
+    api_client.force_authenticate(user=UserFactory())
 
-    response = client.get(
+    response = api_client.get(
         f"/api/v2/workspaces/{snapshot.workspace.name}/snapshots/{snapshot.pk}"
     )
 
@@ -649,13 +637,12 @@ def test_snapshot_api_published_no_permission():
 
 
 @pytest.mark.django_db
-def test_snapshot_api_published_with_permission():
+def test_snapshot_api_published_with_permission(api_client):
     snapshot = SnapshotFactory(published_at=timezone.now())
 
-    client = APIClient()
-    client.force_authenticate(user=UserFactory(roles=[ProjectCollaborator]))
+    api_client.force_authenticate(user=UserFactory(roles=[ProjectCollaborator]))
 
-    response = client.get(
+    response = api_client.get(
         f"/api/v2/workspaces/{snapshot.workspace.name}/snapshots/{snapshot.pk}"
     )
 
@@ -664,11 +651,10 @@ def test_snapshot_api_published_with_permission():
 
 
 @pytest.mark.django_db
-def test_snapshot_api_unpublished_anonymous():
+def test_snapshot_api_unpublished_anonymous(api_client):
     snapshot = SnapshotFactory(published_at=None)
 
-    client = APIClient()
-    response = client.get(
+    response = api_client.get(
         f"/api/v2/workspaces/{snapshot.workspace.name}/snapshots/{snapshot.pk}"
     )
 
@@ -676,14 +662,13 @@ def test_snapshot_api_unpublished_anonymous():
 
 
 @pytest.mark.django_db
-def test_snapshot_api_unpublished_no_permission():
+def test_snapshot_api_unpublished_no_permission(api_client):
     snapshot = SnapshotFactory(published_at=None)
 
-    client = APIClient()
     # logged in, but no permission
-    client.force_authenticate(user=UserFactory())
+    api_client.force_authenticate(user=UserFactory())
 
-    response = client.get(
+    response = api_client.get(
         f"/api/v2/workspaces/{snapshot.workspace.name}/snapshots/{snapshot.pk}"
     )
 
@@ -691,13 +676,12 @@ def test_snapshot_api_unpublished_no_permission():
 
 
 @pytest.mark.django_db
-def test_snapshot_api_unpublished_with_permission():
+def test_snapshot_api_unpublished_with_permission(api_client):
     snapshot = SnapshotFactory(published_at=None)
 
-    client = APIClient()
-    client.force_authenticate(user=UserFactory(roles=[ProjectCollaborator]))
+    api_client.force_authenticate(user=UserFactory(roles=[ProjectCollaborator]))
 
-    response = client.get(
+    response = api_client.get(
         f"/api/v2/workspaces/{snapshot.workspace.name}/snapshots/{snapshot.pk}"
     )
 
@@ -706,17 +690,16 @@ def test_snapshot_api_unpublished_with_permission():
 
 
 @pytest.mark.django_db
-def test_snapshot_create_unknown_files():
+def test_snapshot_create_unknown_files(api_client):
     workspace = WorkspaceFactory()
     user = UserFactory()
     ProjectMembershipFactory(
         project=workspace.project, user=user, roles=[ProjectDeveloper]
     )
 
-    client = APIClient()
-    client.force_authenticate(user=user)
+    api_client.force_authenticate(user=user)
 
-    response = client.post(
+    response = api_client.post(
         f"/api/v2/workspaces/{workspace.name}/snapshots",
         {"file_ids": ["test"]},
     )
@@ -726,7 +709,7 @@ def test_snapshot_create_unknown_files():
 
 
 @pytest.mark.django_db
-def test_snapshot_create_with_existing_snapshot():
+def test_snapshot_create_with_existing_snapshot(api_client):
     workspace = WorkspaceFactory()
     uploads = ReleaseUploadsFactory({"file1.txt": b"test1"})
     release = ReleaseFactory(uploads, workspace=workspace)
@@ -738,11 +721,10 @@ def test_snapshot_create_with_existing_snapshot():
         project=workspace.project, user=user, roles=[ProjectDeveloper]
     )
 
-    client = APIClient()
-    client.force_authenticate(user=user)
+    api_client.force_authenticate(user=user)
 
     data = {"file_ids": [release.files.first().pk]}
-    response = client.post(f"/api/v2/workspaces/{workspace.name}/snapshots", data)
+    response = api_client.post(f"/api/v2/workspaces/{workspace.name}/snapshots", data)
 
     assert response.status_code == 400, response.data
 
@@ -751,7 +733,7 @@ def test_snapshot_create_with_existing_snapshot():
 
 
 @pytest.mark.django_db
-def test_snapshot_create_with_permission():
+def test_snapshot_create_with_permission(api_client):
     workspace = WorkspaceFactory()
     uploads = ReleaseUploadsFactory(
         {
@@ -769,8 +751,7 @@ def test_snapshot_create_with_permission():
         project=workspace.project, user=user, roles=[ProjectDeveloper]
     )
 
-    client = APIClient()
-    client.force_authenticate(user=user)
+    api_client.force_authenticate(user=user)
 
     data = {
         "file_ids": [
@@ -779,7 +760,7 @@ def test_snapshot_create_with_permission():
             release.files.get(name="file5.txt").pk,
         ],
     }
-    response = client.post(f"/api/v2/workspaces/{workspace.name}/snapshots", data)
+    response = api_client.post(f"/api/v2/workspaces/{workspace.name}/snapshots", data)
 
     assert response.status_code == 201
 
@@ -793,12 +774,67 @@ def test_snapshot_create_with_permission():
 
 
 @pytest.mark.django_db
-def test_snapshot_create_without_permission():
+def test_snapshot_create_without_permission(api_client):
     workspace = WorkspaceFactory()
 
-    client = APIClient()
-    client.force_authenticate(user=UserFactory())
+    api_client.force_authenticate(user=UserFactory())
     data = {"file_ids": ["test"]}
-    response = client.post(f"/api/v2/workspaces/{workspace.name}/snapshots", data)
+    response = api_client.post(f"/api/v2/workspaces/{workspace.name}/snapshots", data)
 
     assert response.status_code == 403, response.data
+
+
+@pytest.mark.django_db
+def test_snapshot_publish_api_already_published(api_client):
+    snapshot = SnapshotFactory(published_at=timezone.now())
+
+    assert snapshot.is_published
+
+    api_client.force_authenticate(user=UserFactory(roles=[OutputPublisher]))
+    response = api_client.post(
+        f"/api/v2/workspaces/{snapshot.workspace.name}/snapshots/{snapshot.pk}/publish"
+    )
+
+    assert response.status_code == 200
+
+    snapshot.refresh_from_db()
+    assert snapshot.is_published
+
+
+@pytest.mark.django_db
+def test_snapshot_publish_api_success(api_client):
+    snapshot = SnapshotFactory()
+
+    assert snapshot.is_draft
+
+    api_client.force_authenticate(user=UserFactory(roles=[OutputPublisher]))
+    response = api_client.post(
+        f"/api/v2/workspaces/{snapshot.workspace.name}/snapshots/{snapshot.pk}/publish"
+    )
+
+    assert response.status_code == 200
+
+    snapshot.refresh_from_db()
+    assert snapshot.is_published
+
+
+@pytest.mark.django_db
+def test_snapshot_publish_api_unknown_snapshot(api_client):
+    workspace = WorkspaceFactory()
+
+    api_client.force_authenticate(user=UserFactory(roles=[OutputPublisher]))
+    response = api_client.post(
+        f"/api/v2/workspaces/{workspace.name}/snapshots/0/publish"
+    )
+
+    assert response.status_code == 404
+
+
+@pytest.mark.django_db
+def test_snapshot_publish_api_without_permission(api_client):
+    snapshot = SnapshotFactory()
+
+    api_client.force_authenticate(user=UserFactory())
+    api_client.post(
+        f"/api/v2/workspaces/{snapshot.workspace.name}/snapshots/{snapshot.pk}/publish"
+    )

@@ -3,7 +3,7 @@ from django.contrib.auth.models import AnonymousUser
 from django.http import Http404
 from django.utils import timezone
 
-from jobserver.authorization import ProjectCollaborator
+from jobserver.authorization import OutputPublisher, ProjectCollaborator
 from jobserver.views.releases import (
     ProjectReleaseList,
     ReleaseDetail,
@@ -171,7 +171,45 @@ def test_snapshotdetail_published_without_permission(rf):
 
 
 @pytest.mark.django_db
-def test_snapshotdetail_unpublished_with_permission(rf):
+def test_snapshotdetail_unpublished_with_permission_to_publish(rf):
+    snapshot = SnapshotFactory(published_at=None)
+
+    request = rf.get("/")
+    request.user = UserFactory(roles=[OutputPublisher, ProjectCollaborator])
+
+    response = SnapshotDetail.as_view()(
+        request,
+        org_slug=snapshot.workspace.project.org.slug,
+        project_slug=snapshot.workspace.project.slug,
+        workspace_slug=snapshot.workspace.name,
+        pk=snapshot.pk,
+    )
+
+    assert response.status_code == 200
+    assert response.context_data["publish_url"] == snapshot.get_publish_api_url()
+
+
+@pytest.mark.django_db
+def test_snapshotdetail_unpublished_without_permission_to_publish(rf):
+    snapshot = SnapshotFactory(published_at=None)
+
+    request = rf.get("/")
+    request.user = UserFactory(roles=[ProjectCollaborator])
+
+    response = SnapshotDetail.as_view()(
+        request,
+        org_slug=snapshot.workspace.project.org.slug,
+        project_slug=snapshot.workspace.project.slug,
+        workspace_slug=snapshot.workspace.name,
+        pk=snapshot.pk,
+    )
+
+    assert response.status_code == 200
+    assert "publish_url" not in response.context_data
+
+
+@pytest.mark.django_db
+def test_snapshotdetail_unpublished_with_permission_to_view(rf):
     snapshot = SnapshotFactory(published_at=None)
 
     request = rf.get("/")
@@ -189,7 +227,7 @@ def test_snapshotdetail_unpublished_with_permission(rf):
 
 
 @pytest.mark.django_db
-def test_snapshotdetail_unpublished_without_permission(rf):
+def test_snapshotdetail_unpublished_without_permission_to_view(rf):
     snapshot = SnapshotFactory(published_at=None)
 
     request = rf.get("/")

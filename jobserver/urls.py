@@ -18,6 +18,7 @@ from jobserver.api.releases import (
     ReleaseWorkspaceAPI,
     SnapshotAPI,
     SnapshotCreateAPI,
+    SnapshotPublishAPI,
 )
 
 from .views.admin import ApproveUsers
@@ -76,6 +77,11 @@ api_urls = [
         "workspaces/<workspace_id>/snapshots/<snapshot_id>",
         SnapshotAPI.as_view(),
         name="snapshot",
+    ),
+    path(
+        "workspaces/<workspace_id>/snapshots/<snapshot_id>/publish",
+        SnapshotPublishAPI.as_view(),
+        name="snapshot-publish",
     ),
     path(
         "releases/workspace/<workspace_name>",

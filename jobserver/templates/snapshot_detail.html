@@ -36,6 +36,13 @@
   </ol>
 </nav>
 
+<h1 class="h3">
+  Outputs for {{ snapshot.workspace.name }}
+  {% if snapshot.is_draft %}
+  <span class="badge badge-secondary">Draft</span>
+  {% endif %}
+</h1>
+
 {% include "outputs-spa.html" %}
 
 {% endblock %}

@@ -76,14 +76,20 @@ class SnapshotDetail(View):
         has_permission_to_view = has_permission(
             request.user, "view_release_file", project=snapshot.workspace.project
         )
-        is_published = snapshot.published_at is not None
-        if not (is_published or has_permission_to_view):
+        if snapshot.is_draft and not has_permission_to_view:
             raise Http404
 
         context = {
             "files_url": snapshot.get_api_url(),
             "snapshot": snapshot,
         }
+
+        can_publish = has_permission(
+            request.user, "publish_output", project=snapshot.workspace.project
+        )
+        if can_publish and snapshot.is_draft:
+            context["publish_url"] = snapshot.get_publish_api_url()
+
         return TemplateResponse(
             request,
             "snapshot_detail.html",

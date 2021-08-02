@@ -10,6 +10,13 @@ from .factories import OrgFactory, OrgMembershipFactory, UserFactory
 
 
 @pytest.fixture
+def api_client():
+    from rest_framework.test import APIClient
+
+    return APIClient()
+
+
+@pytest.fixture
 def api_rf():
     from rest_framework.test import APIRequestFactory
 
