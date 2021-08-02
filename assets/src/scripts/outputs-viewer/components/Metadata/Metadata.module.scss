@@ -11,6 +11,14 @@
 .fileLink {
   position: relative;
 
+    // Make sure file links can wrap
+    white-space: pre-line;
+    overflow-wrap: break-word;
+    word-wrap: break-word;
+    word-break: break-all;
+    word-break: break-word;
+    hyphens: auto;
+
   &::after {
     content: "\2197";
     display: inline-block;
@@ -20,4 +28,8 @@
     margin-left: 0.25rem;
     position: relative;
   }
+}
+
+.fileDate {
+  white-space: nowrap;
 }
