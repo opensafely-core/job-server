@@ -1,7 +1,7 @@
 import PropTypes from "prop-types";
 import React, { useEffect, useState } from "react";
 import useFileList from "../../hooks/use-file-list";
-import useWindowSize from "../../hooks/useWindowSize";
+import useWindowSize from "../../hooks/use-window-size";
 import classes from "./FileList.module.scss";
 
 function ListWrapper({ listHeight, children, listVisible }) {

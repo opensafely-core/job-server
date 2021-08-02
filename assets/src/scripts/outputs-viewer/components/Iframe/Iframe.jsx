@@ -1,6 +1,6 @@
 import PropTypes from "prop-types";
 import React, { useLayoutEffect, useState } from "react";
-import useWindowSize from "../../hooks/useWindowSize";
+import useWindowSize from "../../hooks/use-window-size";
 
 function Iframe({ data, file }) {
   const windowSize = useWindowSize();
