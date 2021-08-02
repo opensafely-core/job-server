@@ -39,7 +39,7 @@ function PrepareButton({ csrfToken, filesUrl, prepareUrl }) {
 
   if (!fileList) return null;
 
-  const fileIds = fileList.files.map((f) => f.id);
+  const fileIds = fileList.map((f) => f.id);
 
   return (
     <button

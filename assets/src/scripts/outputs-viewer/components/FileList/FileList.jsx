@@ -55,34 +55,18 @@ function FileList({ apiUrl, listVisible, setFile, setListVisible }) {
     );
   }
 
-  const sortedFiles = [
-    ...data.files.sort((a, b) => {
-      const nameA = a.name.toUpperCase();
-      const nameB = b.name.toUpperCase();
-
-      if (nameA < nameB) return -1;
-      if (nameA > nameB) return 1;
-      return 0;
-    }),
-  ];
-
   return (
     <ListWrapper listHeight={listHeight} listVisible={listVisible}>
-      {sortedFiles.map((item) => (
+      {data.map((item) => (
         <li key={item.url} className={classes.item}>
           <a
             href={item.url}
             onClick={(e) => {
               e.preventDefault();
-              return setFile({
-                date: item.date,
-                name: item.name,
-                url: item.url,
-                size: item.size,
-              });
+              return setFile({ ...item });
             }}
           >
-            {item.name}
+            {item.shortName}
           </a>
         </li>
       ))}
