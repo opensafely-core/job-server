@@ -34,7 +34,7 @@ function App() {
         <div className="col-lg-3">
           <button
             className="d-block d-lg-none btn btn-secondary mb-3"
-            onClick={() => useStore.setState({ listVisible: !!listVisible })}
+            onClick={() => useStore.setState({ listVisible: !listVisible })}
             type="button"
           >
             {listVisible ? "Hide" : "Show"} file list
