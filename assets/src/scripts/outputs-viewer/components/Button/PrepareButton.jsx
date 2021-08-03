@@ -6,8 +6,8 @@ import handleErrors from "../../utils/fetch-handle-errors";
 import Button from "./Button";
 
 function PrepareButton() {
-  const { csrfToken, filesUrl, prepareUrl } = useStore();
-  const { data: fileList } = useFileList({ apiUrl: filesUrl });
+  const { csrfToken, prepareUrl } = useStore();
+  const { data: fileList } = useFileList();
 
   const mutation = useMutation(
     ({ fileIds }) =>
