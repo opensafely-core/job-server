@@ -430,6 +430,12 @@ class Project(models.Model):
             kwargs={"org_slug": self.org.slug, "project_slug": self.slug},
         )
 
+    def get_edit_url(self):
+        return reverse(
+            "project-edit",
+            kwargs={"org_slug": self.org.slug, "project_slug": self.slug},
+        )
+
     def get_invitation_url(self):
         return reverse(
             "project-invitation-create",

@@ -26,11 +26,19 @@
     <div class="d-flex justify-content-between align-items-center mb-3">
       <h2>{{ project.name }}</h2>
 
-      {% if can_manage_members %}
-      <a class="btn btn-sm btn-primary" href="{% url 'project-settings' org_slug=project.org.slug project_slug=project.slug %}">
-        Settings
-      </a>
-      {% endif %}
+      <div>
+        {% if can_manage_members %}
+        <a class="btn btn-sm btn-primary" href="{% url 'project-settings' org_slug=project.org.slug project_slug=project.slug %}">
+          Settings
+        </a>
+        {% endif %}
+
+        {% if can_change_release_process %}
+        <a class="btn btn-sm btn-danger" href="{{ project.get_edit_url }}">
+          Edit
+        </a>
+        {% endif %}
+      </div>
     </div>
 
     <div class="mb-4">

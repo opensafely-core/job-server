@@ -147,6 +147,33 @@
 
     </div>
 
+    {% if user_can_change_release_process %}
+    <div class="mb-3">
+      <h3>Staff-only Administration</h3>
+
+      <div class="d-flex justify-content-between align-items-center">
+
+        <div>
+          Uses New Release Process?:
+          <strong>{{ project.uses_new_release_flow|yesno }}</strong>
+        </div>
+
+        <form class="mb-3" method="POST" action="{{ project.get_release_process_toggle_url }}">
+          {% csrf_token %}
+
+          {{ form.uses_new_release_flow }}
+
+          <button class="btn btn-block btn-danger" type="submit">
+            Use
+            {% if project.uses_new_release_flow %}Old{% else %}New{% endif %}
+            Process
+          </button>
+        </form>
+
+      </div>
+    </div>
+    {% endif %}
+
   </div>
 </div>
 
