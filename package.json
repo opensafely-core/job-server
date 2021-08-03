@@ -44,7 +44,8 @@
     "react-papaparse": "^3.17.0",
     "react-query": "^3.19.1",
     "select2": "^4.0.13",
-    "whatwg-fetch": "^3.6.2"
+    "whatwg-fetch": "^3.6.2",
+    "zustand": "^3.5.7"
   },
   "eslintConfig": {
     "extends": [
