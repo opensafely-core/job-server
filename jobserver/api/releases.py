@@ -12,7 +12,7 @@ from rest_framework.exceptions import (
     ParseError,
     ValidationError,
 )
-from rest_framework.generics import CreateAPIView
+from rest_framework.generics import CreateAPIView, RetrieveAPIView
 from rest_framework.parsers import FileUploadParser, JSONParser
 from rest_framework.response import Response
 from rest_framework.views import APIView
@@ -318,6 +318,17 @@ class SnapshotPublishAPI(APIView):
         snapshot.save()
 
         return Response()
+
+
+class WorkspaceStatusAPI(RetrieveAPIView):
+    lookup_field = "name"
+    lookup_url_kwarg = "workspace_id"
+    queryset = Workspace.objects.all()
+
+    class serializer_class(serializers.Serializer):
+        uses_new_release_flow = serializers.BooleanField(
+            source="project.uses_new_release_flow"
+        )
 
 
 def serve_file(request, rfile):

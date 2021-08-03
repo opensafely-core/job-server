@@ -19,6 +19,7 @@ from jobserver.api.releases import (
     SnapshotAPI,
     SnapshotCreateAPI,
     SnapshotPublishAPI,
+    WorkspaceStatusAPI,
 )
 
 from .views.admin import ApproveUsers
@@ -32,6 +33,7 @@ from .views.projects import (
     ProjectCancelInvite,
     ProjectCreate,
     ProjectDetail,
+    ProjectEdit,
     ProjectInvitationCreate,
     ProjectMembershipEdit,
     ProjectMembershipRemove,
@@ -84,6 +86,11 @@ api_urls = [
         "workspaces/<workspace_id>/snapshots/<snapshot_id>/publish",
         SnapshotPublishAPI.as_view(),
         name="snapshot-publish",
+    ),
+    path(
+        "workspaces/<workspace_id>/status",
+        WorkspaceStatusAPI.as_view(),
+        name="workspace-status",
     ),
     path(
         "releases/workspace/<workspace_name>",
@@ -187,6 +194,7 @@ project_urls = [
         name="project-accept-invite",
     ),
     path("cancel-invite/", ProjectCancelInvite.as_view(), name="project-cancel-invite"),
+    path("edit", ProjectEdit.as_view(), name="project-edit"),
     path(
         "invite-users/",
         ProjectInvitationCreate.as_view(),

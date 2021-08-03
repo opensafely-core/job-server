@@ -417,12 +417,22 @@ class Project(models.Model):
 
     created_at = models.DateTimeField(default=timezone.now)
 
+    # TODO: Remove this once all Projects are ready to move to the new release
+    # process
+    uses_new_release_flow = models.BooleanField(default=True)
+
     def __str__(self):
         return f"{self.org.name} | {self.name}"
 
     def get_absolute_url(self):
         return reverse(
             "project-detail",
+            kwargs={"org_slug": self.org.slug, "project_slug": self.slug},
+        )
+
+    def get_edit_url(self):
+        return reverse(
+            "project-edit",
             kwargs={"org_slug": self.org.slug, "project_slug": self.slug},
         )
 
