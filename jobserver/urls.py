@@ -194,7 +194,7 @@ project_urls = [
         name="project-accept-invite",
     ),
     path("cancel-invite/", ProjectCancelInvite.as_view(), name="project-cancel-invite"),
-    path("edit", ProjectEdit.as_view(), name="project-edit"),
+    path("edit/", ProjectEdit.as_view(), name="project-edit"),
     path(
         "invite-users/",
         ProjectInvitationCreate.as_view(),
