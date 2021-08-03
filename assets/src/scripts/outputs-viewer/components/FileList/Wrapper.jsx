@@ -1,8 +1,11 @@
 import PropTypes from "prop-types";
 import React from "react";
+import useStore from "../../stores/use-store";
 import classes from "./Wrapper.module.scss";
 
-function Wrapper({ listHeight, children, listVisible }) {
+function Wrapper({ listHeight, children }) {
+  const { listVisible } = useStore();
+
   return (
     <ul
       className={`${classes.list} list-unstyled card ${
@@ -16,9 +19,8 @@ function Wrapper({ listHeight, children, listVisible }) {
 }
 
 Wrapper.propTypes = {
-  listHeight: PropTypes.number.isRequired,
   children: PropTypes.node.isRequired,
-  listVisible: PropTypes.bool.isRequired,
+  listHeight: PropTypes.number.isRequired,
 };
 
 export default Wrapper;

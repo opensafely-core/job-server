@@ -1,11 +1,12 @@
-import PropTypes from "prop-types";
 import React from "react";
 import { useMutation } from "react-query";
 import useFileList from "../../hooks/use-file-list";
+import useStore from "../../stores/use-store";
 import handleErrors from "../../utils/fetch-handle-errors";
 import Button from "./Button";
 
-function PrepareButton({ csrfToken, filesUrl, prepareUrl }) {
+function PrepareButton() {
+  const { csrfToken, filesUrl, prepareUrl } = useStore();
   const { data: fileList } = useFileList({ apiUrl: filesUrl });
 
   const mutation = useMutation(
@@ -45,11 +46,5 @@ function PrepareButton({ csrfToken, filesUrl, prepareUrl }) {
     />
   );
 }
-
-PrepareButton.propTypes = {
-  csrfToken: PropTypes.string.isRequired,
-  filesUrl: PropTypes.string.isRequired,
-  prepareUrl: PropTypes.string.isRequired,
-};
 
 export default PrepareButton;

@@ -1,8 +1,10 @@
 import PropTypes from "prop-types";
 import React, { useLayoutEffect, useState } from "react";
 import useWindowSize from "../../hooks/use-window-size";
+import useStore from "../../stores/use-store";
 
-function Iframe({ data, file }) {
+function Iframe({ data }) {
+  const { file } = useStore();
   const windowSize = useWindowSize();
   const [frameHeight, setFrameHeight] = useState(0);
   const id = encodeURIComponent(file.url).replace(/\W/g, "");
@@ -37,10 +39,6 @@ function Iframe({ data, file }) {
 
 Iframe.propTypes = {
   data: PropTypes.string.isRequired,
-  file: PropTypes.shape({
-    name: PropTypes.string,
-    url: PropTypes.string,
-  }).isRequired,
 };
 
 export default Iframe;

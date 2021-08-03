@@ -1,4 +1,5 @@
 import { useQuery } from "react-query";
+import useStore from "../stores/use-store";
 import handleErrors from "../utils/fetch-handle-errors";
 
 function longestStartingSubstr(array) {
@@ -29,11 +30,13 @@ function sortedFiles(files) {
   ];
 }
 
-function useFileList({ apiUrl }) {
+function useFileList() {
+  const { filesUrl } = useStore();
+
   return useQuery(
     "FILE_LIST",
     async () =>
-      fetch(apiUrl)
+      fetch(filesUrl)
         .then(handleErrors)
         .then(async (response) => response.json()),
     {

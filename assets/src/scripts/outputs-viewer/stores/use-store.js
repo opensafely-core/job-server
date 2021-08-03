@@ -10,7 +10,7 @@ const useStore = create(
 
     listVisible: false,
 
-    selectedFile: {
+    file: {
       name: "",
       url: "",
     },

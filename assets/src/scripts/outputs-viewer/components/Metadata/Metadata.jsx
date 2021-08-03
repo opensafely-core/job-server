@@ -1,9 +1,11 @@
 import prettyBytes from "pretty-bytes";
-import PropTypes from "prop-types";
 import React from "react";
+import useStore from "../../stores/use-store";
 import classes from "./Metadata.module.scss";
 
-function Metadata({ file }) {
+function Metadata() {
+  const { file } = useStore();
+
   const fileSize = file.size
     ? prettyBytes(file.size, { locale: "en-gb" })
     : "unknown";
@@ -41,14 +43,5 @@ function Metadata({ file }) {
     </ul>
   );
 }
-
-Metadata.propTypes = {
-  file: PropTypes.shape({
-    date: PropTypes.string.isRequired,
-    name: PropTypes.string.isRequired,
-    size: PropTypes.number.isRequired,
-    url: PropTypes.string.isRequired,
-  }).isRequired,
-};
 
 export default Metadata;
