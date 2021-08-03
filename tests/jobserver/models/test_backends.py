@@ -32,6 +32,15 @@ def test_backend_get_absolute_url():
 
 
 @pytest.mark.django_db
+def test_backend_get_edit_url():
+    backend = BackendFactory(auth_token="test")
+
+    url = backend.get_edit_url()
+
+    assert url == reverse("backend-edit", kwargs={"pk": backend.pk})
+
+
+@pytest.mark.django_db
 def test_backend_get_rotate_url():
     backend = BackendFactory(auth_token="test")
 

@@ -7,6 +7,7 @@ from django.shortcuts import get_object_or_404, redirect
 from django.template.response import TemplateResponse
 from django.utils.decorators import method_decorator
 from django.views.generic import CreateView, ListView, View
+from furl import furl
 
 from ..authorization import CoreDeveloper, has_permission, has_role
 from ..backends import backends_to_choices
@@ -19,6 +20,7 @@ from ..forms import (
 from ..github import get_branch_sha, get_repo_is_private, get_repos_with_branches
 from ..models import Backend, JobRequest, Project, Workspace
 from ..project import get_actions, get_project, load_yaml
+from ..releases import build_hatch_token_and_url
 from ..roles import can_run_jobs
 
 
@@ -39,6 +41,59 @@ class WorkspaceArchiveToggle(View):
         workspace.save()
 
         return redirect("/")
+
+
+class WorkspaceBackendFiles(View):
+    """
+    Orchestrate viewing of a Backend's "live" files for a given Workspace
+
+    We consume two URLs with one view, because we want to both do permissions
+    checks on the Workspace but also load the SPA for any given path under the
+    Workspace.
+    """
+
+    def get(self, request, *args, **kwargs):
+        workspace = get_object_or_404(
+            Workspace,
+            project__org__slug=self.kwargs["org_slug"],
+            project__slug=self.kwargs["project_slug"],
+            name=self.kwargs["workspace_slug"],
+        )
+
+        backend = get_object_or_404(Backend, name=self.kwargs["backend_slug"])
+
+        # ensure the user has access to the given Backend
+        if request.user not in backend.members.all():
+            raise Http404
+
+        # we treat the ability to run jobs in this workspace and the ability to
+        # interact with the backend (checked above) as permission to also view
+        # the files those jobs have output
+        if not has_permission(request.user, "run_job", project=workspace.project):
+            raise Http404
+
+        auth_token, url = build_hatch_token_and_url(
+            backend=backend,
+            workspace=workspace,
+            user=request.user,
+        )
+
+        # add the path we're going to initialise the SPA with to the URL the
+        # token was created for.
+        f = furl(url)  # assume URL is a string
+        f.path.segments += ["current"]
+
+        context = {
+            "auth_token": auth_token,
+            "backend": backend,
+            "files_url": f.url,
+            "workspace": workspace,
+        }
+        return TemplateResponse(
+            request,
+            "workspace_backend_files.html",
+            context=context,
+        )
 
 
 @method_decorator(user_passes_test(can_run_jobs), name="dispatch")
@@ -169,12 +224,15 @@ class WorkspaceDetail(CreateView):
         is_privileged_user = has_permission(
             self.request.user, "view_release_file", project=self.workspace.project
         )
-        if is_privileged_user:
-            can_view_outputs = self.workspace.files.exists()
-        else:
-            can_view_outputs = self.workspace.snapshots.exclude(
-                published_at=None
-            ).exists()
+        has_published_snapshots = self.workspace.snapshots.exclude(
+            published_at=None
+        ).exists()
+        can_view_outputs = is_privileged_user or has_published_snapshots
+
+        # a user can see backend files if they have access to at least one
+        # backend and the permissions required to see outputs
+        has_backends = self.request.user.backends.exclude(level_4_url="").exists()
+        can_view_files = can_view_outputs and has_backends
 
         return super().get_context_data(**kwargs) | {
             "actions": self.actions,
@@ -183,6 +241,7 @@ class WorkspaceDetail(CreateView):
             "latest_job_request": self.get_latest_job_request(),
             "show_details": self.show_details,
             "user_can_run_jobs": self.user_can_run_jobs,
+            "user_can_view_files": can_view_files,
             "user_can_view_outputs": can_view_outputs,
             "workspace": self.workspace,
         }
@@ -227,6 +286,37 @@ class WorkspaceDetail(CreateView):
             return redirect(self.workspace)
 
         return super().post(request, *args, **kwargs)
+
+
+class WorkspaceFileList(View):
+    def get(self, request, *args, **kwargs):
+        workspace = get_object_or_404(
+            Workspace,
+            project__org__slug=self.kwargs["org_slug"],
+            project__slug=self.kwargs["project_slug"],
+            name=self.kwargs["workspace_slug"],
+        )
+
+        # we treat the ability to run jobs in this workspace and the ability to
+        # interact with at least one backend (checked below) as permission to
+        # also view the files those jobs have output on the backends
+        if not has_permission(request.user, "run_job", project=workspace.project):
+            raise Http404
+
+        backends = request.user.backends.exclude(level_4_url="").order_by("name")
+
+        if not backends:
+            raise Http404
+
+        context = {
+            "backends": backends,
+            "workspace": workspace,
+        }
+        return TemplateResponse(
+            request,
+            "workspace_file_list.html",
+            context=context,
+        )
 
 
 class WorkspaceLog(ListView):

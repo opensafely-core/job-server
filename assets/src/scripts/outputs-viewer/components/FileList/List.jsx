@@ -2,8 +2,11 @@ import PropTypes from "prop-types";
 import React from "react";
 import useFileList from "../../hooks/use-file-list";
 
-function List({ apiUrl, setFile }) {
-  const { data, error, isError, isLoading } = useFileList({ apiUrl });
+function List({ apiUrl, authToken, setFile }) {
+  const { data, error, isError, isLoading } = useFileList({
+    apiUrl,
+    authToken,
+  });
 
   if (isLoading) {
     return <li>Loading…</li>;
@@ -38,5 +41,10 @@ export default List;
 
 List.propTypes = {
   apiUrl: PropTypes.string.isRequired,
+  authToken: PropTypes.string,
   setFile: PropTypes.func.isRequired,
+};
+
+List.defaultProps = {
+  authToken: null,
 };

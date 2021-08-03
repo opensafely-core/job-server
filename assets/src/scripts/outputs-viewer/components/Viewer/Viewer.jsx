@@ -27,8 +27,8 @@ function Wrapper({ children, file }) {
   );
 }
 
-function Viewer({ file }) {
-  const { data, error, isLoading, isError } = useFile(file, {
+function Viewer({ authToken, file }) {
+  const { data, error, isLoading, isError } = useFile(authToken, file, {
     enabled: !!(file.url && canDisplay(file)),
   });
 
@@ -92,6 +92,7 @@ Wrapper.propTypes = {
 };
 
 Viewer.propTypes = {
+  authToken: PropTypes.string.isRequired,
   file: PropTypes.shape({
     name: PropTypes.string,
     size: PropTypes.number,

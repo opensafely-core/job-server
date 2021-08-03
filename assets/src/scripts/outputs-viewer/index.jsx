@@ -13,6 +13,7 @@ const element = document.getElementById("outputsSPA");
 ReactDOM.render(
   <React.StrictMode>
     <App
+      authToken={element.dataset.authToken}
       csrfToken={element.dataset.csrfToken}
       filesUrl={element.dataset.filesUrl}
       prepareUrl={element.dataset.prepareUrl}

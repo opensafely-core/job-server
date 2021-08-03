@@ -900,6 +900,22 @@ def test_workspace_get_current_outputs_url():
 
 
 @pytest.mark.django_db
+def test_workspace_get_files_url():
+    workspace = WorkspaceFactory()
+
+    url = workspace.get_files_url()
+
+    assert url == reverse(
+        "workspace-files-list",
+        kwargs={
+            "org_slug": workspace.project.org.slug,
+            "project_slug": workspace.project.slug,
+            "workspace_slug": workspace.name,
+        },
+    )
+
+
+@pytest.mark.django_db
 def test_workspace_get_logs_url():
     org = OrgFactory()
     project = ProjectFactory(org=org)

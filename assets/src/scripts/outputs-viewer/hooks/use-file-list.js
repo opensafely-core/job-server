@@ -29,11 +29,11 @@ function sortedFiles(files) {
   ];
 }
 
-function useFileList({ apiUrl }) {
+function useFileList({ apiUrl, authToken }) {
   return useQuery(
     "FILE_LIST",
     async () =>
-      fetch(apiUrl)
+      fetch(apiUrl, { headers: { Authorization: authToken || "" } })
         .then(handleErrors)
         .then(async (response) => response.json()),
     {
