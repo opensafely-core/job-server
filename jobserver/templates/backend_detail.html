@@ -16,16 +16,22 @@
       <code>{{ backend.auth_token }}</code>
     </div>
 
+    <div>
+      <strong>Level 4 URL:</strong>
+      <code>{{ backend.level_4_url }}</code>
+    </div>
   </div>
 
   <div class="col-lg-2">
 
     <h3 class="text-center">Tools</h3>
 
+    <a class="btn btn-block btn-danger mb-3" href="{{ backend.get_edit_url }}">Edit</a>
+
     <form method="POST" action="{{ backend.get_rotate_url }}">
       {% csrf_token %}
 
-      <button class="btn btn-block btn-danger" type="submit">Rotate Token</button>
+      <button class="btn btn-block btn-danger mb-3" type="submit">Rotate Token</button>
     </form>
 
   </div>

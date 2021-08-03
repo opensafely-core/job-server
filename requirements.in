@@ -12,7 +12,9 @@ first
 furl
 gunicorn
 incuna-mail
+itsdangerous
 litecli
+pydantic
 python-ulid
 pyyaml
 requests

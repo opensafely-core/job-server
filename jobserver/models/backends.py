@@ -47,6 +47,9 @@ class Backend(models.Model):
 
     auth_token = models.TextField(default=generate_token)
 
+    # track where release-hatch is serving files from
+    level_4_url = models.TextField(default="")
+
     created_at = models.DateTimeField(default=timezone.now)
     updated_at = models.DateTimeField(auto_now=True)
 
@@ -57,6 +60,9 @@ class Backend(models.Model):
 
     def get_absolute_url(self):
         return reverse("backend-detail", kwargs={"pk": self.pk})
+
+    def get_edit_url(self):
+        return reverse("backend-edit", kwargs={"pk": self.pk})
 
     def get_rotate_url(self):
         return reverse("backend-rotate-token", kwargs={"pk": self.pk})

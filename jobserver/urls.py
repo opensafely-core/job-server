@@ -22,7 +22,7 @@ from jobserver.api.releases import (
 )
 
 from .views.admin import ApproveUsers
-from .views.backends import BackendDetail, BackendList, BackendRotateToken
+from .views.backends import BackendDetail, BackendEdit, BackendList, BackendRotateToken
 from .views.index import Index
 from .views.job_requests import JobRequestCancel, JobRequestDetail, JobRequestList
 from .views.jobs import JobCancel, JobDetail
@@ -48,9 +48,11 @@ from .views.status import Status
 from .views.users import Settings, UserDetail, UserList
 from .views.workspaces import (
     WorkspaceArchiveToggle,
+    WorkspaceBackendFiles,
     WorkspaceCreate,
     WorkspaceCurrentOutputsDetail,
     WorkspaceDetail,
+    WorkspaceFileList,
     WorkspaceLog,
     WorkspaceNotificationsToggle,
     WorkspaceOutputList,
@@ -103,10 +105,25 @@ api_urls = [
 backend_urls = [
     path("", BackendList.as_view(), name="backend-list"),
     path("<pk>/", BackendDetail.as_view(), name="backend-detail"),
+    path("<pk>/edit/", BackendEdit.as_view(), name="backend-edit"),
     path(
         "<pk>/rotate-token/",
         BackendRotateToken.as_view(),
         name="backend-rotate-token",
+    ),
+]
+
+files_urls = [
+    path("", WorkspaceFileList.as_view(), name="workspace-files-list"),
+    path(
+        "<backend_slug>/",
+        WorkspaceBackendFiles.as_view(),
+        name="workspace-backend-files",
+    ),
+    path(
+        "<backend_slug>/<path:path>",
+        WorkspaceBackendFiles.as_view(),
+        name="workspace-backend-files",
     ),
 ]
 
@@ -145,6 +162,7 @@ workspace_urls = [
         WorkspaceArchiveToggle.as_view(),
         name="workspace-archive-toggle",
     ),
+    path("files/", include(files_urls)),
     path("logs/", WorkspaceLog.as_view(), name="workspace-logs"),
     path(
         "notifications-toggle/",

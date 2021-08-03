@@ -21,9 +21,12 @@
         {% for backend in object_list %}
         <tr>
           <td>{{ backend.display_name }}</td>
-          <td>
+          <td class="text-right">
             <a class="btn btn-secondary text-white" href="{{ backend.get_absolute_url }}">
               View
+            </a>
+            <a class="btn btn-danger text-white" href="{{ backend.get_edit_url }}">
+              Edit
             </a>
           </td>
         </tr>

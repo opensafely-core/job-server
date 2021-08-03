@@ -629,7 +629,7 @@ class User(AbstractUser):
 
     backends = models.ManyToManyField(
         "Backend",
-        related_name="backends",
+        related_name="members",
         through="BackendMembership",
         through_fields=["user", "backend"],
     )
@@ -776,6 +776,16 @@ class Workspace(models.Model):
     def get_current_outputs_url(self):
         return reverse(
             "workspace-current-outputs-detail",
+            kwargs={
+                "org_slug": self.project.org.slug,
+                "project_slug": self.project.slug,
+                "workspace_slug": self.name,
+            },
+        )
+
+    def get_files_url(self):
+        return reverse(
+            "workspace-files-list",
             kwargs={
                 "org_slug": self.project.org.slug,
                 "project_slug": self.project.slug,
