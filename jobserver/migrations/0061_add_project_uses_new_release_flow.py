@@ -6,7 +6,7 @@ from django.db import migrations, models
 class Migration(migrations.Migration):
 
     dependencies = [
-        ("jobserver", "0058_add_snapshot_published_by"),
+        ("jobserver", "0060_fix_users_backends_related_name"),
     ]
 
     operations = [

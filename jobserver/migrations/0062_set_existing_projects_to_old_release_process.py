@@ -18,7 +18,7 @@ def set_existing_projects_to_new_process(apps, schema_editor):
 class Migration(migrations.Migration):
 
     dependencies = [
-        ("jobserver", "0059_add_project_uses_new_release_flow"),
+        ("jobserver", "0061_add_project_uses_new_release_flow"),
     ]
 
     operations = [
