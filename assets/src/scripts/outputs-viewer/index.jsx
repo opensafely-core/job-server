@@ -12,6 +12,7 @@ Sentry.init({
 const element = document.getElementById("outputsSPA");
 
 useStore.setState({
+  authToken: element.dataset.authToken,
   csrfToken: element.dataset.csrfToken,
   filesUrl: element.dataset.filesUrl,
   prepareUrl: element.dataset.prepareUrl,
