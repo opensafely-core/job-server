@@ -3,6 +3,7 @@ import React from "react";
 import { useMutation } from "react-query";
 import useFileList from "../../hooks/use-file-list";
 import handleErrors from "../../utils/fetch-handle-errors";
+import Button from "./Button";
 
 function PrepareButton({ csrfToken, filesUrl, prepareUrl }) {
   const { data: fileList } = useFileList({ apiUrl: filesUrl });
@@ -32,24 +33,16 @@ function PrepareButton({ csrfToken, filesUrl, prepareUrl }) {
     }
   );
 
-  const onPrepare = ({ e, fileIds }) => {
-    e.preventDefault();
-    mutation.mutate({ fileIds });
-  };
-
   if (!fileList) return null;
 
-  const fileIds = fileList.files.map((f) => f.id);
+  const fileIds = fileList.map((f) => f.id);
 
   return (
-    <button
-      className={`btn btn-${mutation.isLoading ? "secondary" : "primary"}`}
-      disabled={mutation.isLoading}
-      onClick={(e) => onPrepare({ e, fileIds })}
-      type="button"
-    >
-      {mutation.isLoading ? "Publishing…" : "Publish"}
-    </button>
+    <Button
+      isLoading={mutation.isLoading}
+      onClickFn={() => mutation.mutate({ fileIds })}
+      text={{ default: "Publish", loading: "Publishing…" }}
+    />
   );
 }
 

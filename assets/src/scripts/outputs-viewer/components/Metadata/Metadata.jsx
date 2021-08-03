@@ -4,7 +4,9 @@ import React from "react";
 import classes from "./Metadata.module.scss";
 
 function Metadata({ file }) {
-  const fileSize = prettyBytes(file.size, { locale: "en-gb" });
+  const fileSize = file.size
+    ? prettyBytes(file.size, { locale: "en-gb" })
+    : "unknown";
   const date = new Date(file.date);
   const fileDateAbs = date.toISOString();
   const fileDate = new Intl.DateTimeFormat("en-GB", {
@@ -17,7 +19,7 @@ function Metadata({ file }) {
     <ul className="list-inline small text-monospace d-flex mb-0">
       <li className="list-inline-item">
         <a
-          className={classes.fileLink}
+          className={`${classes.fileLink} d-flex`}
           href={file.url}
           rel="noreferrer noopener"
           target="filePreview"
@@ -27,7 +29,11 @@ function Metadata({ file }) {
       </li>
       <li className="list-inline-item ml-auto">
         <div className="sr-only">Last modified at: </div>
-        <time dateTime={fileDateAbs} title={fileDateAbs}>
+        <time
+          className={classes.fileDate}
+          dateTime={fileDateAbs}
+          title={fileDateAbs}
+        >
           {fileDate}
         </time>
       </li>

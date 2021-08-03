@@ -1,5 +1,6 @@
 import PropTypes from "prop-types";
 import React from "react";
+import useFile from "../../hooks/use-file";
 import {
   canDisplay,
   isCsv,
@@ -7,7 +8,6 @@ import {
   isImg,
   isTxt,
 } from "../../utils/file-type-match";
-import useFile from "../../utils/use-file";
 import Iframe from "../Iframe/Iframe";
 import Image from "../Image/Image";
 import Metadata from "../Metadata/Metadata";
@@ -45,7 +45,12 @@ function Viewer({ file }) {
   if (isError) {
     return (
       <Wrapper file={file}>
-        <span>Error: {error.message}</span>
+        <p>Error: {error.message}</p>
+        <p className="mb-0">
+          <a href={file.url} rel="noreferrer noopener" target="_blank">
+            Open file in a new tab &#8599;
+          </a>
+        </p>
       </Wrapper>
     );
   }
