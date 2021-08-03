@@ -31,12 +31,16 @@ function sortedFiles(files) {
 }
 
 function useFileList() {
-  const { filesUrl, authToken = "" } = useStore();
+  const { filesUrl, authToken } = useStore();
 
   return useQuery(
     "FILE_LIST",
     async () =>
-      fetch(filesUrl, { headers: { Authorization: authToken } })
+      fetch(filesUrl, {
+        headers: new Headers({
+          Authorization: authToken,
+        }),
+      })
         .then(handleErrors)
         .then(async (response) => response.json()),
     {
