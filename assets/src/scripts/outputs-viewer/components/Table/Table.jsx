@@ -15,6 +15,7 @@ const TableRow = ({ row }) => (
 
 function Table({ data }) {
   const jsonData = readString(data, {
+    chunk: true,
     complete: (results) => results,
   }).data;
 
