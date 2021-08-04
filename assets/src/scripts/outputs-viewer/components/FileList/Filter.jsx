@@ -23,7 +23,7 @@ function Filter({ setFiles }) {
         autoCapitalize="off"
         autoComplete="off"
         autoCorrect="off"
-        className="form-control"
+        className="form-control mb-0"
         id="filterFiles"
         onChange={(e) => setFilter(e.target.value)}
         placeholder="Filter files"
