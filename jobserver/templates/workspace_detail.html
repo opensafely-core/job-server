@@ -78,21 +78,19 @@
 
       <div class="d-flex">
         {% if can_use_releases %}
-        {% if user_can_view_outputs %}
-        <a class="btn btn-primary mr-2" href="{{ workspace.get_current_outputs_url }}">
-          Current Outputs
-        </a>
-        <a class="btn btn-primary mr-2" href="{{ workspace.get_outputs_url }}">Outputs</a>
-        <a class="btn btn-primary mr-2" href="{{ workspace.get_current_outputs_url }}">
-          Publish
-        </a>
-        {% endif %}
 
         {% if user_can_view_files %}
-        <a class="btn btn-primary mr-2" href="{{ workspace.get_files_url }}">Backend Files</a>
+        <a class="btn btn-primary mr-2" href="{{ workspace.get_files_url }}">Level 4 Outputs</a>
         {% endif %}
 
-        <a class="btn btn-primary mr-2" href="{{ workspace.get_releases_url }}">Release History</a>
+        {% if user_can_view_releases %}
+        <a class="btn btn-primary mr-2" href="{{ workspace.get_releases_url }}">Released Outputs</a>
+        {% endif %}
+
+        {% if user_can_view_outputs %}
+        <a class="btn btn-primary mr-2" href="{{ workspace.get_outputs_url }}">Published Outputs</a>
+        {% endif %}
+
         {% endif %}
       </div>
 
