@@ -42,7 +42,12 @@
 
       <div class="d-flex justify-content-between">
         <span>
-          Files released by {{ release.created_by.name }} {{ release.created_at|naturaltime }}
+          {% if release.files.exist %}
+          Files released
+          {% else %}
+          Release
+          {% endif %}
+          by {{ release.created_by.name }} {{ release.created_at|naturaltime }}
         </span>
 
         <div>
