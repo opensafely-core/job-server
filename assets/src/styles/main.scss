@@ -1,4 +1,5 @@
-@import "../../../node_modules/bootstrap/dist/css/bootstrap";
+@import "../../../node_modules/bootstrap/scss/bootstrap";
+@import "fonts";
 
 body {
   font-family: "Public Sans", -apple-system, BlinkMacSystemFont, "Segoe UI",
@@ -87,14 +88,6 @@ a {
   width: 16px;
 }
 
-@mixin icon($icon) {
-  @if ($env == "production") {
-    background-image: url($icon);
-  } @else {
-    background-image: svg-load($icon);
-  }
-}
-
 @keyframes spinner {
   0% {
     transform: rotate(0deg);
@@ -106,24 +99,24 @@ a {
 
 .status-icon {
   &.failed {
-    @include icon("../icons/times.svg");
+    background-image: url("../icons/times.svg");
   }
 
   &.pending {
-    @include icon("../icons/history.svg");
+    background-image: url("../icons/history.svg");
   }
 
   &.running {
     animation: spinner 1.2s linear infinite;
-    @include icon("../icons/spinner.svg");
+    background-image: url("../icons/spinner.svg");
   }
 
   &.succeeded {
-    @include icon("../icons/check.svg");
+    background-image: url("../icons/check.svg");
   }
 
   &.unknown {
-    @include icon("../icons/question-circle.svg");
+    background-image: url("../icons/question-circle.svg");
   }
 }
 

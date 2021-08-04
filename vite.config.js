@@ -1,3 +1,4 @@
+/* eslint-disable import/no-extraneous-dependencies */
 import preact from "@preact/preset-vite";
 import legacy from "@vitejs/plugin-legacy";
 import copy from "rollup-plugin-copy";
@@ -24,13 +25,6 @@ const config = {
     emptyOutDir: true,
   },
   clearScreen: false,
-  css: {
-    preprocessorOptions: {
-      scss: {
-        additionalData: `$env: ${process.env.NODE_ENV};`,
-      },
-    },
-  },
   plugins: [
     preact(),
     legacy({
