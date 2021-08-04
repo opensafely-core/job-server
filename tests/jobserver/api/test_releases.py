@@ -209,7 +209,7 @@ def test_workspace_api_create_release_already_exists(api_client):
 
     assert response.status_code == 400
     assert "file.txt" in response.data["detail"]
-    assert "already exists" in response.data["detail"]
+    assert "already been uploaded" in response.data["detail"]
 
 
 @pytest.mark.django_db
@@ -509,7 +509,7 @@ def test_release_api_upload_already_uploaded(api_client):
 
     assert response.status_code == 400
     assert "file.txt" in response.data["detail"]
-    assert "already exists" in response.data["detail"]
+    assert "already been uploaded" in response.data["detail"]
     assert release.files.count() == count_before
 
 
