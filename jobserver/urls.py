@@ -43,6 +43,7 @@ from .views.projects import (
 from .views.releases import (
     ProjectReleaseList,
     ReleaseDetail,
+    ReleaseDownload,
     SnapshotDetail,
     WorkspaceReleaseList,
 )
@@ -183,6 +184,7 @@ workspace_urls = [
         name="workspace-release-list",
     ),
     path("releases/<pk>/", ReleaseDetail.as_view(), name="release-detail"),
+    path("releases/<pk>/download/", ReleaseDownload.as_view(), name="release-download"),
     path("releases/<pk>/<path:path>", ReleaseDetail.as_view(), name="release-detail"),
 ]
 

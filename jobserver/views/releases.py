@@ -1,4 +1,4 @@
-from django.http import Http404
+from django.http import FileResponse, Http404
 from django.shortcuts import get_object_or_404
 from django.template.response import TemplateResponse
 from django.urls import reverse
@@ -6,6 +6,7 @@ from django.views.generic import ListView, View
 
 from ..authorization import has_permission
 from ..models import Project, Release, Snapshot, Workspace
+from ..releases import build_outputs_zip
 
 
 class ProjectReleaseList(ListView):
@@ -63,6 +64,34 @@ class ReleaseDetail(View):
             request,
             "release_detail.html",
             context=context,
+        )
+
+
+class ReleaseDownload(View):
+    def get(self, request, *args, **kwargs):
+        release = get_object_or_404(
+            Release,
+            workspace__project__org__slug=self.kwargs["org_slug"],
+            workspace__project__slug=self.kwargs["project_slug"],
+            workspace__name=self.kwargs["workspace_slug"],
+            pk=self.kwargs["pk"],
+        )
+
+        if not release.files.exists():
+            raise Http404
+
+        if not has_permission(
+            request.user,
+            "view_release_file",
+            project=release.workspace.project,
+        ):
+            raise Http404
+
+        zf = build_outputs_zip(release.files.all())
+        return FileResponse(
+            zf,
+            as_attachment=True,
+            filename=f"release-{release.pk}.zip",
         )
 
 

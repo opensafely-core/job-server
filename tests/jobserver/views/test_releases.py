@@ -7,6 +7,7 @@ from jobserver.authorization import OutputPublisher, ProjectCollaborator
 from jobserver.views.releases import (
     ProjectReleaseList,
     ReleaseDetail,
+    ReleaseDownload,
     SnapshotDetail,
     WorkspaceReleaseList,
 )
@@ -129,6 +130,75 @@ def test_releasedetail_without_files(rf):
             project_slug=release.workspace.project.slug,
             workspace_slug=release.workspace.name,
             pk=release.id,
+        )
+
+
+@pytest.mark.django_db
+def test_releasedownload_release_with_no_files(rf):
+    release = ReleaseFactory(uploads=[], uploaded=False)
+
+    request = rf.get("/")
+    request.user = UserFactory(roles=[ProjectCollaborator])
+
+    with pytest.raises(Http404):
+        ReleaseDownload.as_view()(
+            request,
+            org_slug=release.workspace.project.org.slug,
+            project_slug=release.workspace.project.slug,
+            workspace_slug=release.workspace.name,
+            pk=release.pk,
+        )
+
+
+@pytest.mark.django_db
+def test_releasedownload_success(rf):
+    release = ReleaseFactory(ReleaseUploadsFactory(["test1"]))
+
+    request = rf.get("/")
+    request.user = UserFactory(roles=[ProjectCollaborator])
+
+    response = ReleaseDownload.as_view()(
+        request,
+        org_slug=release.workspace.project.org.slug,
+        project_slug=release.workspace.project.slug,
+        workspace_slug=release.workspace.name,
+        pk=release.pk,
+    )
+
+    assert response.status_code == 200
+
+
+@pytest.mark.django_db
+def test_releasedownload_unknown_release(rf):
+    workspace = WorkspaceFactory()
+
+    request = rf.get("/")
+    request.user = UserFactory(roles=[ProjectCollaborator])
+
+    with pytest.raises(Http404):
+        ReleaseDownload.as_view()(
+            request,
+            org_slug=workspace.project.org.slug,
+            project_slug=workspace.project.slug,
+            workspace_slug=workspace.name,
+            pk="",
+        )
+
+
+@pytest.mark.django_db
+def test_releasedownload_without_permission(rf):
+    release = ReleaseFactory(ReleaseUploadsFactory(["test1"]))
+
+    request = rf.get("/")
+    request.user = UserFactory()
+
+    with pytest.raises(Http404):
+        ReleaseDownload.as_view()(
+            request,
+            org_slug=release.workspace.project.org.slug,
+            project_slug=release.workspace.project.slug,
+            workspace_slug=release.workspace.name,
+            pk=release.pk,
         )
 
 
