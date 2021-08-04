@@ -50,6 +50,9 @@ class ReleaseDetail(View):
             pk=self.kwargs["pk"],
         )
 
+        if not release.files.exists():
+            raise Http404
+
         # TODO: check permissions here
 
         context = {

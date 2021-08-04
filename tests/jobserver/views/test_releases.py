@@ -117,6 +117,22 @@ def test_releasedetail_with_path_success(rf):
 
 
 @pytest.mark.django_db
+def test_releasedetail_without_files(rf):
+    release = ReleaseFactory(uploads=[], uploaded=False)
+
+    request = rf.get("/")
+
+    with pytest.raises(Http404):
+        ReleaseDetail.as_view()(
+            request,
+            org_slug=release.workspace.project.org.slug,
+            project_slug=release.workspace.project.slug,
+            workspace_slug=release.workspace.name,
+            pk=release.id,
+        )
+
+
+@pytest.mark.django_db
 def test_snapshotdetail_published_logged_out(rf):
     snapshot = SnapshotFactory(published_at=timezone.now())
 
