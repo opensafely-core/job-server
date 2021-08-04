@@ -1,14 +1,12 @@
-import prettyBytes from "pretty-bytes";
 import React from "react";
 import useStore from "../../stores/use-store";
+import prettyFileSize from "../../utils/pretty-file-size";
 import classes from "./Metadata.module.scss";
 
 function Metadata() {
   const { file } = useStore();
 
-  const fileSize = file.size
-    ? prettyBytes(file.size, { locale: "en-gb" })
-    : "unknown";
+  const fileSize = prettyFileSize(file.size);
   const date = new Date(file.date);
   const fileDateAbs = date.toISOString();
   const fileDate = new Intl.DateTimeFormat("en-GB", {
