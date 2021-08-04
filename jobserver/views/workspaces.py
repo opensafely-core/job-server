@@ -228,6 +228,9 @@ class WorkspaceDetail(CreateView):
         has_backends = self.request.user.backends.exclude(level_4_url="").exists()
         can_view_files = is_privileged_user and has_backends
 
+        # are there any releases to show for the workspace?
+        can_view_releases = self.workspace.releases.exists()
+
         # unprivileged users can only see published snapshots, but privileged
         # users can see snapshots if there are any releases since they can also
         # prepare and publish them from the same views.
@@ -245,6 +248,7 @@ class WorkspaceDetail(CreateView):
             "user_can_run_jobs": self.user_can_run_jobs,
             "user_can_view_files": can_view_files,
             "user_can_view_outputs": can_view_outputs,
+            "user_can_view_releases": can_view_releases,
             "workspace": self.workspace,
         }
 
