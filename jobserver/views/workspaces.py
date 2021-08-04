@@ -414,9 +414,16 @@ class WorkspaceCurrentOutputsDetail(View):
         ):
             raise Http404
 
+        # only show the publish button if the user has permission to publish
+        # ouputs
+        can_publish = has_permission(
+            request.user, "create_snapshot", project=workspace.project
+        )
+        prepare_url = workspace.get_create_snapshot_api_url() if can_publish else ""
+
         context = {
             "files_url": workspace.get_releases_api_url(),
-            "prepare_url": workspace.get_create_snapshot_api_url(),
+            "prepare_url": prepare_url,
             "workspace": workspace,
         }
         return TemplateResponse(
