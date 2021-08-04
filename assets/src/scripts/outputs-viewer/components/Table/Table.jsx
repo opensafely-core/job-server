@@ -1,3 +1,4 @@
+/* eslint-disable react/no-array-index-key */
 import PropTypes from "prop-types";
 import React from "react";
 import { readString } from "react-papaparse";
@@ -6,8 +7,8 @@ const TableCell = ({ cell }) => <td>{cell}</td>;
 
 const TableRow = ({ row }) => (
   <tr>
-    {row.map((cell) => (
-      <TableCell key={row + cell} cell={cell} />
+    {row.map((cell, i) => (
+      <TableCell key={i} cell={cell} />
     ))}
   </tr>
 );
@@ -21,8 +22,8 @@ function Table({ data }) {
     <div className="table-responsive">
       <table className="table table-striped">
         <tbody>
-          {jsonData.map((row) => (
-            <TableRow key={row.join(",")} row={row} />
+          {jsonData.map((row, i) => (
+            <TableRow key={i} row={row} />
           ))}
         </tbody>
       </table>
