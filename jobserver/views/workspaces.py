@@ -219,20 +219,22 @@ class WorkspaceDetail(CreateView):
     def get_context_data(self, **kwargs):
         can_use_releases = has_role(self.request.user, CoreDeveloper)
 
-        # unprivileged users only see the Outputs button if there's published snapshots
-        # privileged users see it if there's snapshots or workspace files
         is_privileged_user = has_permission(
             self.request.user, "view_release_file", project=self.workspace.project
         )
-        has_published_snapshots = self.workspace.snapshots.exclude(
-            published_at=None
-        ).exists()
-        can_view_outputs = is_privileged_user or has_published_snapshots
 
         # a user can see backend files if they have access to at least one
         # backend and the permissions required to see outputs
         has_backends = self.request.user.backends.exclude(level_4_url="").exists()
-        can_view_files = can_view_outputs and has_backends
+        can_view_files = is_privileged_user and has_backends
+
+        # unprivileged users can only see published snapshots, but privileged
+        # users can see snapshots if there are any releases since they can also
+        # prepare and publish them from the same views.
+        has_published_snapshots = self.workspace.snapshots.exclude(
+            published_at=None
+        ).exists()
+        can_view_outputs = is_privileged_user or has_published_snapshots
 
         return super().get_context_data(**kwargs) | {
             "actions": self.actions,
