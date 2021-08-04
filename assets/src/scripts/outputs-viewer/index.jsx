@@ -3,7 +3,6 @@ import React from "react";
 import ReactDOM from "react-dom";
 import App from "./App";
 import useStore from "./stores/use-store";
-import "vite/dynamic-import-polyfill";
 
 Sentry.init({
   dsn: import.meta.env.VITE_SENTRY_DSN,
