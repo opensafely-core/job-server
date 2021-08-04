@@ -1,20 +1,30 @@
+import PropTypes from "prop-types";
 import React from "react";
 import useFileList from "../../hooks/use-file-list";
 import useStore from "../../stores/use-store";
 import prettyFileSize from "../../utils/pretty-file-size";
+import classes from "./List.module.scss";
 
-function List() {
-  const { data, error, isError, isLoading } = useFileList();
+function List({ files }) {
+  const { error, isError, isLoading } = useFileList();
 
   if (isLoading) {
-    return <li>Loading…</li>;
+    return (
+      <ul className={`${classes.list} list-unstyled`}>
+        <li>Loading…</li>
+      </ul>
+    );
   }
 
   if (isError) {
     // eslint-disable-next-line no-console
     console.error(error.message);
 
-    return <li>Error: Unable to load files</li>;
+    return (
+      <ul className={`${classes.list} list-unstyled`}>
+        <li>Error: Unable to load files</li>
+      </ul>
+    );
   }
 
   const selectFile = ({ e, item }) => {
@@ -23,8 +33,8 @@ function List() {
   };
 
   return (
-    <>
-      {data.map((item) => (
+    <ul className={`${classes.list} list-unstyled`}>
+      {files.map((item) => (
         <li key={item.url}>
           <a
             href={item.url}
@@ -35,8 +45,12 @@ function List() {
           </a>
         </li>
       ))}
-    </>
+    </ul>
   );
 }
 
 export default List;
+
+List.propTypes = {
+  files: PropTypes.arrayOf(PropTypes.shape).isRequired,
+};
