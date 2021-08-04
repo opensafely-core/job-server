@@ -21,7 +21,7 @@ function FileList() {
     const hasScrollbarX =
       listEl.current?.clientWidth < listEl.current?.scrollWidth;
 
-    // Viewport size, minus the Outputs SPA height, minus 50px for spacing
+    // Viewport size, minus the list height, minus 30px for spacing
     // If there are horizontal scrollbars, minus 17px for the scrollbar
     const fileListHeight =
       window.innerHeight -
