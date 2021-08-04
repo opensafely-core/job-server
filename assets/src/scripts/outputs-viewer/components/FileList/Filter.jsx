@@ -18,7 +18,7 @@ function Filter({ setFiles }) {
 
   return (
     <label className="w-100" htmlFor="filterFiles">
-      <span className="sr-only">Filter files</span>
+      <span className="sr-only">Find a file…</span>
       <input
         autoCapitalize="off"
         autoComplete="off"
@@ -26,7 +26,7 @@ function Filter({ setFiles }) {
         className="form-control mb-0"
         id="filterFiles"
         onChange={(e) => setFilter(e.target.value)}
-        placeholder="Filter files"
+        placeholder="Find a file…"
         spellCheck="false"
         type="search"
         value={filter}
