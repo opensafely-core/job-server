@@ -83,7 +83,9 @@
         <a class="btn btn-primary mr-2" href="{{ workspace.get_files_url }}">Level 4 Outputs</a>
         {% endif %}
 
+        {% if user_can_view_releases %}
         <a class="btn btn-primary mr-2" href="{{ workspace.get_releases_url }}">Released Outputs</a>
+        {% endif %}
 
         {% if user_can_view_outputs %}
         <a class="btn btn-primary mr-2" href="{{ workspace.get_outputs_url }}">Published Outputs</a>
