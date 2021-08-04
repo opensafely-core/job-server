@@ -1,11 +1,11 @@
-import PropTypes from "prop-types";
-import React, { useState } from "react";
+import React from "react";
 import { QueryClient, QueryClientProvider } from "react-query";
 import { ReactQueryDevtools } from "react-query/devtools";
 import PrepareButton from "./components/Button/PrepareButton";
 import PublishButton from "./components/Button/PublishButton";
 import FileList from "./components/FileList/FileList";
 import Viewer from "./components/Viewer/Viewer";
+import useStore from "./stores/use-store";
 
 const queryClient = new QueryClient({
   defaultOptions: {
@@ -16,9 +16,8 @@ const queryClient = new QueryClient({
   },
 });
 
-function App({ authToken, csrfToken, filesUrl, prepareUrl, publishUrl }) {
-  const [listVisible, setListVisible] = useState(false);
-  const [file, setFile] = useState({ name: "", url: "" });
+function App() {
+  const { listVisible, prepareUrl, publishUrl } = useStore();
   const hasButtons = prepareUrl || publishUrl;
 
   return (
@@ -26,16 +25,8 @@ function App({ authToken, csrfToken, filesUrl, prepareUrl, publishUrl }) {
       {hasButtons && (
         <div className="row">
           <div className="col">
-            {prepareUrl && (
-              <PrepareButton
-                csrfToken={csrfToken}
-                filesUrl={filesUrl}
-                prepareUrl={prepareUrl}
-              />
-            )}
-            {publishUrl && (
-              <PublishButton csrfToken={csrfToken} publishUrl={publishUrl} />
-            )}
+            {prepareUrl && <PrepareButton />}
+            {publishUrl && <PublishButton />}
           </div>
         </div>
       )}
@@ -43,21 +34,15 @@ function App({ authToken, csrfToken, filesUrl, prepareUrl, publishUrl }) {
         <div className="col-lg-3">
           <button
             className="d-block d-lg-none btn btn-secondary mb-3"
-            onClick={() => setListVisible(!listVisible)}
+            onClick={() => useStore.setState({ listVisible: !listVisible })}
             type="button"
           >
             {listVisible ? "Hide" : "Show"} file list
           </button>
-          <FileList
-            apiUrl={filesUrl}
-            authToken={authToken}
-            listVisible={listVisible}
-            setFile={setFile}
-            setListVisible={setListVisible}
-          />
+          <FileList />
         </div>
         <div className="col-lg-9">
-          <Viewer authToken={authToken} file={file} />
+          <Viewer />
         </div>
       </div>
       <ReactQueryDevtools initialIsOpen={false} />
@@ -66,18 +51,3 @@ function App({ authToken, csrfToken, filesUrl, prepareUrl, publishUrl }) {
 }
 
 export default App;
-
-App.propTypes = {
-  authToken: PropTypes.string,
-  csrfToken: PropTypes.string,
-  filesUrl: PropTypes.string.isRequired,
-  prepareUrl: PropTypes.string,
-  publishUrl: PropTypes.string,
-};
-
-App.defaultProps = {
-  authToken: null,
-  csrfToken: null,
-  prepareUrl: null,
-  publishUrl: null,
-};

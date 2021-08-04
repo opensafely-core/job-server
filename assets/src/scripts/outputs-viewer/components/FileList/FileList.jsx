@@ -1,16 +1,17 @@
-import PropTypes from "prop-types";
 import React, { useEffect, useRef, useState } from "react";
 import useFileList from "../../hooks/use-file-list";
 import useWindowSize from "../../hooks/use-window-size";
+import useStore from "../../stores/use-store";
 import List from "./List";
 import Wrapper from "./Wrapper";
 
-function FileList({ apiUrl, authToken, listVisible, setFile, setListVisible }) {
+function FileList() {
+  const { listVisible } = useStore();
   const [listHeight, setListHeight] = useState(0);
   const listEl = useRef(null);
   const windowSize = useWindowSize();
 
-  const { data } = useFileList({ apiUrl, authToken });
+  const { data } = useFileList();
 
   useEffect(() => {
     const largeViewport = window.innerWidth > 991;
@@ -26,30 +27,18 @@ function FileList({ apiUrl, authToken, listVisible, setFile, setListVisible }) {
       (hasScrollbarX ? 17 : 0);
 
     if (largeViewport) {
-      setListVisible(true);
+      useStore.setState({ listVisible: true });
       return setListHeight(fileListHeight);
     }
 
     return setListHeight(0);
-  }, [windowSize, setListVisible, listVisible, data]);
+  }, [data, listVisible, windowSize]);
 
   return (
-    <Wrapper ref={listEl} listHeight={listHeight} listVisible={listVisible}>
-      <List apiUrl={apiUrl} authToken={authToken} setFile={setFile} />
+    <Wrapper ref={listEl} listHeight={listHeight}>
+      <List />
     </Wrapper>
   );
 }
 
 export default FileList;
-
-FileList.propTypes = {
-  apiUrl: PropTypes.string.isRequired,
-  authToken: PropTypes.string,
-  listVisible: PropTypes.bool.isRequired,
-  setFile: PropTypes.func.isRequired,
-  setListVisible: PropTypes.func.isRequired,
-};
-
-FileList.defaultProps = {
-  authToken: null,
-};

@@ -1,6 +1,7 @@
 import PropTypes from "prop-types";
 import React from "react";
 import useFile from "../../hooks/use-file";
+import useStore from "../../stores/use-store";
 import {
   canDisplay,
   isCsv,
@@ -14,12 +15,12 @@ import Metadata from "../Metadata/Metadata";
 import Table from "../Table/Table";
 import Text from "../Text/Text";
 
-function Wrapper({ children, file }) {
+function Wrapper({ children }) {
   return (
     <>
       <div className="card">
         <div className="card-header">
-          <Metadata file={file} />
+          <Metadata />
         </div>
         <div className="card-body">{children}</div>
       </div>
@@ -27,8 +28,9 @@ function Wrapper({ children, file }) {
   );
 }
 
-function Viewer({ authToken, file }) {
-  const { data, error, isLoading, isError } = useFile(authToken, file, {
+function Viewer() {
+  const { file } = useStore();
+  const { data, error, isLoading, isError } = useFile(file, {
     enabled: !!(file.url && canDisplay(file)),
   });
 
@@ -36,7 +38,7 @@ function Viewer({ authToken, file }) {
 
   if (isLoading) {
     return (
-      <Wrapper file={file}>
+      <Wrapper>
         <span>Loading...</span>
       </Wrapper>
     );
@@ -44,7 +46,7 @@ function Viewer({ authToken, file }) {
 
   if (isError) {
     return (
-      <Wrapper file={file}>
+      <Wrapper>
         <p>Error: {error.message}</p>
         <p className="mb-0">
           <a href={file.url} rel="noreferrer noopener" target="_blank">
@@ -61,7 +63,7 @@ function Viewer({ authToken, file }) {
 
   if (incompatibleFileType || emptyData) {
     return (
-      <Wrapper file={file}>
+      <Wrapper>
         <p>We cannot show a preview of this file.</p>
         <p className="mb-0">
           <a href={file.url} rel="noreferrer noopener" target="_blank">
@@ -73,10 +75,10 @@ function Viewer({ authToken, file }) {
   }
 
   return (
-    <Wrapper file={file}>
+    <Wrapper>
       {isCsv(file) ? <Table data={data} /> : null}
-      {isHtml(file) ? <Iframe data={data} file={file} /> : null}
-      {isImg(file) ? <Image fileUrl={file.url} /> : null}
+      {isHtml(file) ? <Iframe data={data} /> : null}
+      {isImg(file) ? <Image /> : null}
       {isTxt(file) ? <Text data={data} /> : null}
     </Wrapper>
   );
@@ -84,20 +86,6 @@ function Viewer({ authToken, file }) {
 
 Wrapper.propTypes = {
   children: PropTypes.node.isRequired,
-  file: PropTypes.shape({
-    name: PropTypes.string.isRequired,
-    size: PropTypes.number.isRequired,
-    url: PropTypes.string.isRequired,
-  }).isRequired,
-};
-
-Viewer.propTypes = {
-  authToken: PropTypes.string.isRequired,
-  file: PropTypes.shape({
-    name: PropTypes.string,
-    size: PropTypes.number,
-    url: PropTypes.string,
-  }).isRequired,
 };
 
 export default Viewer;

@@ -1,10 +1,12 @@
-import PropTypes from "prop-types";
 import React from "react";
 import { useMutation } from "react-query";
+import useStore from "../../stores/use-store";
 import handleErrors from "../../utils/fetch-handle-errors";
 import Button from "./Button";
 
-function PublishButton({ csrfToken, publishUrl }) {
+function PublishButton() {
+  const { csrfToken, publishUrl } = useStore();
+
   const mutation = useMutation(
     () =>
       fetch(publishUrl, {
@@ -35,10 +37,5 @@ function PublishButton({ csrfToken, publishUrl }) {
     />
   );
 }
-
-PublishButton.propTypes = {
-  csrfToken: PropTypes.string.isRequired,
-  publishUrl: PropTypes.string.isRequired,
-};
 
 export default PublishButton;

@@ -1,13 +1,10 @@
-import PropTypes from "prop-types";
 import React from "react";
+import useStore from "../../stores/use-store";
 import classes from "./Image.module.scss";
 
-function Image({ fileUrl }) {
-  return <img alt="" className={classes.img} src={fileUrl} />;
+function Image() {
+  const { file } = useStore();
+  return <img alt="" className={classes.img} src={file.url} />;
 }
-
-Image.propTypes = {
-  fileUrl: PropTypes.string.isRequired,
-};
 
 export default Image;

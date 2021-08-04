@@ -1,12 +1,9 @@
-import PropTypes from "prop-types";
 import React from "react";
 import useFileList from "../../hooks/use-file-list";
+import useStore from "../../stores/use-store";
 
-function List({ apiUrl, authToken, setFile }) {
-  const { data, error, isError, isLoading } = useFileList({
-    apiUrl,
-    authToken,
-  });
+function List() {
+  const { data, error, isError, isLoading } = useFileList();
 
   if (isLoading) {
     return <li>Loading…</li>;
@@ -21,7 +18,7 @@ function List({ apiUrl, authToken, setFile }) {
 
   const selectFile = ({ e, item }) => {
     e.preventDefault();
-    return setFile({ ...item });
+    return useStore.setState({ file: { ...item } });
   };
 
   return (
@@ -38,13 +35,3 @@ function List({ apiUrl, authToken, setFile }) {
 }
 
 export default List;
-
-List.propTypes = {
-  apiUrl: PropTypes.string.isRequired,
-  authToken: PropTypes.string,
-  setFile: PropTypes.func.isRequired,
-};
-
-List.defaultProps = {
-  authToken: null,
-};
