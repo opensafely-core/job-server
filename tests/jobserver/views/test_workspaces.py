@@ -12,9 +12,9 @@ from jobserver.views.workspaces import (
     WorkspaceArchiveToggle,
     WorkspaceBackendFiles,
     WorkspaceCreate,
-    WorkspaceCurrentOutputsDetail,
     WorkspaceDetail,
     WorkspaceFileList,
+    WorkspaceLatestOutputsDetail,
     WorkspaceLog,
     WorkspaceNotificationsToggle,
     WorkspaceOutputList,
@@ -315,78 +315,6 @@ def test_workspacecreate_unauthorized(rf, user):
 
     assert response.status_code == 302
     assert response.url == f"{settings.LOGIN_URL}?next=/"
-
-
-@pytest.mark.django_db
-def test_workspacecurrentoutputsdetail_success(rf):
-    user = UserFactory(roles=[ProjectCollaborator])
-    workspace = WorkspaceFactory()
-
-    ProjectMembershipFactory(
-        project=workspace.project, user=user, roles=[ProjectDeveloper]
-    )
-
-    request = rf.get("/")
-    request.user = user
-
-    response = WorkspaceCurrentOutputsDetail.as_view()(
-        request,
-        org_slug=workspace.project.org.slug,
-        project_slug=workspace.project.slug,
-        workspace_slug=workspace.name,
-    )
-
-    assert response.status_code == 200
-    assert response.context_data["prepare_url"]
-
-
-@pytest.mark.django_db
-def test_workspacecurrentoutputsdetail_without_file_permission(rf):
-    workspace = WorkspaceFactory()
-
-    request = rf.get("/")
-    request.user = UserFactory()
-
-    with pytest.raises(Http404):
-        WorkspaceCurrentOutputsDetail.as_view()(
-            request,
-            org_slug=workspace.project.org.slug,
-            project_slug=workspace.project.slug,
-            workspace_slug=workspace.name,
-        )
-
-
-@pytest.mark.django_db
-def test_workspacecurrentoutputsdetail_without_publish_permission(rf):
-    workspace = WorkspaceFactory()
-
-    request = rf.get("/")
-    request.user = UserFactory(roles=[ProjectCollaborator])
-
-    response = WorkspaceCurrentOutputsDetail.as_view()(
-        request,
-        org_slug=workspace.project.org.slug,
-        project_slug=workspace.project.slug,
-        workspace_slug=workspace.name,
-    )
-
-    assert response.status_code == 200
-    assert not response.context_data["prepare_url"]
-
-
-@pytest.mark.django_db
-def test_workspacecurrentoutputsdetail_unknown_workspace(rf):
-    project = ProjectFactory()
-
-    request = rf.get("/")
-
-    with pytest.raises(Http404):
-        WorkspaceCurrentOutputsDetail.as_view()(
-            request,
-            org_slug=project.org.slug,
-            project_slug=project.slug,
-            workspace_slug="",
-        )
 
 
 @pytest.mark.django_db
@@ -980,6 +908,78 @@ def test_workspacefilelist_without_permission(rf):
             org_slug=workspace.project.org.slug,
             project_slug=workspace.project.slug,
             workspace_slug=workspace.name,
+        )
+
+
+@pytest.mark.django_db
+def test_workspacelatestoutputsdetail_success(rf):
+    user = UserFactory(roles=[ProjectCollaborator])
+    workspace = WorkspaceFactory()
+
+    ProjectMembershipFactory(
+        project=workspace.project, user=user, roles=[ProjectDeveloper]
+    )
+
+    request = rf.get("/")
+    request.user = user
+
+    response = WorkspaceLatestOutputsDetail.as_view()(
+        request,
+        org_slug=workspace.project.org.slug,
+        project_slug=workspace.project.slug,
+        workspace_slug=workspace.name,
+    )
+
+    assert response.status_code == 200
+    assert response.context_data["prepare_url"]
+
+
+@pytest.mark.django_db
+def test_workspacelatestoutputsdetail_without_file_permission(rf):
+    workspace = WorkspaceFactory()
+
+    request = rf.get("/")
+    request.user = UserFactory()
+
+    with pytest.raises(Http404):
+        WorkspaceLatestOutputsDetail.as_view()(
+            request,
+            org_slug=workspace.project.org.slug,
+            project_slug=workspace.project.slug,
+            workspace_slug=workspace.name,
+        )
+
+
+@pytest.mark.django_db
+def test_workspacelatestoutputsdetail_without_publish_permission(rf):
+    workspace = WorkspaceFactory()
+
+    request = rf.get("/")
+    request.user = UserFactory(roles=[ProjectCollaborator])
+
+    response = WorkspaceLatestOutputsDetail.as_view()(
+        request,
+        org_slug=workspace.project.org.slug,
+        project_slug=workspace.project.slug,
+        workspace_slug=workspace.name,
+    )
+
+    assert response.status_code == 200
+    assert not response.context_data["prepare_url"]
+
+
+@pytest.mark.django_db
+def test_workspacelatestoutputsdetail_unknown_workspace(rf):
+    project = ProjectFactory()
+
+    request = rf.get("/")
+
+    with pytest.raises(Http404):
+        WorkspaceLatestOutputsDetail.as_view()(
+            request,
+            org_slug=project.org.slug,
+            project_slug=project.slug,
+            workspace_slug="",
         )
 
 

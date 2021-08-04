@@ -42,7 +42,7 @@
       {% if user_can_view_all_files %}
       <li class="list-group-item d-flex justify-content-between">
         <div>
-          <a href="{{ workspace.get_current_outputs_url }}">Current</a>
+          <a href="{{ workspace.get_latest_outputs_url }}">Latest outputs</a>
         </div>
         <div>
           <span>{{ workspace.files.count }} file{{ workspace.files.count|pluralize }}</span>

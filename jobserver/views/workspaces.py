@@ -327,6 +327,48 @@ class WorkspaceFileList(View):
         )
 
 
+class WorkspaceLatestOutputsDetail(View):
+    """
+    Orchestrate viewing of the Workspace's outputs in the SPA
+
+    We consume two URLs with one view, because we want to both do permissions
+    checks on the Workspace but also load the SPA for any given path under the
+    Workspace.
+    """
+
+    def get(self, request, *args, **kwargs):
+        workspace = get_object_or_404(
+            Workspace,
+            project__org__slug=self.kwargs["org_slug"],
+            project__slug=self.kwargs["project_slug"],
+            name=self.kwargs["workspace_slug"],
+        )
+
+        # only a privileged user can view the current files
+        if not has_permission(
+            request.user, "view_release_file", project=workspace.project
+        ):
+            raise Http404
+
+        # only show the publish button if the user has permission to publish
+        # ouputs
+        can_publish = has_permission(
+            request.user, "create_snapshot", project=workspace.project
+        )
+        prepare_url = workspace.get_create_snapshot_api_url() if can_publish else ""
+
+        context = {
+            "files_url": workspace.get_releases_api_url(),
+            "prepare_url": prepare_url,
+            "workspace": workspace,
+        }
+        return TemplateResponse(
+            request,
+            "workspace_latest_outputs_detail.html",
+            context=context,
+        )
+
+
 class WorkspaceLog(ListView):
     paginate_by = 25
     template_name = "workspace_log.html"
@@ -389,48 +431,6 @@ class WorkspaceNotificationsToggle(View):
         workspace.save()
 
         return redirect(workspace)
-
-
-class WorkspaceCurrentOutputsDetail(View):
-    """
-    Orchestrate viewing of the Workspace's outputs in the SPA
-
-    We consume two URLs with one view, because we want to both do permissions
-    checks on the Workspace but also load the SPA for any given path under the
-    Workspace.
-    """
-
-    def get(self, request, *args, **kwargs):
-        workspace = get_object_or_404(
-            Workspace,
-            project__org__slug=self.kwargs["org_slug"],
-            project__slug=self.kwargs["project_slug"],
-            name=self.kwargs["workspace_slug"],
-        )
-
-        # only a privileged user can view the current files
-        if not has_permission(
-            request.user, "view_release_file", project=workspace.project
-        ):
-            raise Http404
-
-        # only show the publish button if the user has permission to publish
-        # ouputs
-        can_publish = has_permission(
-            request.user, "create_snapshot", project=workspace.project
-        )
-        prepare_url = workspace.get_create_snapshot_api_url() if can_publish else ""
-
-        context = {
-            "files_url": workspace.get_releases_api_url(),
-            "prepare_url": prepare_url,
-            "workspace": workspace,
-        }
-        return TemplateResponse(
-            request,
-            "workspace_current_outputs_detail.html",
-            context=context,
-        )
 
 
 class WorkspaceOutputList(ListView):
