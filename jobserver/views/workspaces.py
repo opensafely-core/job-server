@@ -237,7 +237,9 @@ class WorkspaceDetail(CreateView):
         has_published_snapshots = self.workspace.snapshots.exclude(
             published_at=None
         ).exists()
-        can_view_outputs = is_privileged_user or has_published_snapshots
+        can_view_outputs = has_published_snapshots or (
+            is_privileged_user and can_view_releases
+        )
 
         return super().get_context_data(**kwargs) | {
             "actions": self.actions,
