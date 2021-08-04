@@ -36,7 +36,6 @@ const config = {
     legacy({
       additionalLegacyPolyfills: [
         "regenerator-runtime/runtime",
-        "bluebird",
         "whatwg-fetch",
       ],
       targets: ["ie >= 11"],
