@@ -20,10 +20,14 @@ function Filter({ setFiles }) {
     <label className="w-100" htmlFor="filterFiles">
       <span className="sr-only">Filter files</span>
       <input
+        autoCapitalize="off"
+        autoComplete="off"
+        autoCorrect="off"
         className="form-control"
         id="filterFiles"
         onChange={(e) => setFilter(e.target.value)}
         placeholder="Filter files"
+        spellCheck="false"
         type="search"
         value={filter}
       />
