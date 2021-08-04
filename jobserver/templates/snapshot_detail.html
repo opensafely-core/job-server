@@ -37,9 +37,11 @@
 </nav>
 
 <h1 class="h3">
-  Outputs for {{ snapshot.workspace.name }}
   {% if snapshot.is_draft %}
+  Outputs for {{ snapshot.workspace.name }}
   <span class="badge badge-secondary">Draft</span>
+  {% else %}
+  Published outputs for {{ snapshot.workspace.name }}
   {% endif %}
 </h1>
 
