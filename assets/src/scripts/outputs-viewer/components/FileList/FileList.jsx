@@ -25,8 +25,8 @@ function FileList() {
     // If there are horizontal scrollbars, minus 17px for the scrollbar
     const fileListHeight =
       window.innerHeight -
-      document.querySelector("#outputsSPA").getBoundingClientRect().top -
-      50 -
+      listEl.current?.getBoundingClientRect().top -
+      30 -
       (hasScrollbarX ? 17 : 0);
 
     if (largeViewport) {
