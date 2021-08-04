@@ -346,9 +346,12 @@ def test_snapshotdetail_unknown_snapshot(rf):
 
 
 @pytest.mark.django_db
-def test_workspacereleaselist_success(rf):
+def test_workspacereleaselist_authenticated(rf):
     workspace = WorkspaceFactory()
+    release = ReleaseFactory(ReleaseUploadsFactory(["test1"]), workspace=workspace)
+
     request = rf.get("/")
+    request.user = UserFactory(roles=[ProjectCollaborator])
 
     response = WorkspaceReleaseList.as_view()(
         request,
@@ -359,6 +362,50 @@ def test_workspacereleaselist_success(rf):
 
     assert response.status_code == 200
     assert response.context_data["workspace"] == workspace
+    assert len(response.context_data["releases"]) == 1
+    assert response.context_data["releases"][0] == release
+
+    assert response.context_data["user_can_view_all_files"]
+    assert "Latest outputs" in response.rendered_content
+
+
+@pytest.mark.django_db
+def test_workspacereleaselist_no_releases(rf):
+    workspace = WorkspaceFactory()
+
+    request = rf.get("/")
+    request.user = UserFactory(roles=[ProjectCollaborator])
+
+    with pytest.raises(Http404):
+        WorkspaceReleaseList.as_view()(
+            request,
+            org_slug=workspace.project.org.slug,
+            project_slug=workspace.project.slug,
+            workspace_slug=workspace.name,
+        )
+
+
+@pytest.mark.django_db
+def test_workspacereleaselist_unauthenticated(rf):
+    workspace = WorkspaceFactory()
+    release = ReleaseFactory(ReleaseUploadsFactory(["test1"]), workspace=workspace)
+
+    request = rf.get("/")
+    request.user = AnonymousUser()
+
+    response = WorkspaceReleaseList.as_view()(
+        request,
+        org_slug=workspace.project.org.slug,
+        project_slug=workspace.project.slug,
+        workspace_slug=workspace.name,
+    )
+
+    assert response.status_code == 200
+    assert response.context_data["workspace"] == workspace
+    assert len(response.context_data["releases"]) == 1
+    assert response.context_data["releases"][0] == release
+
+    assert "Latest outputs" not in response.rendered_content
 
 
 @pytest.mark.django_db

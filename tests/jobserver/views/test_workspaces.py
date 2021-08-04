@@ -1255,9 +1255,6 @@ def test_workspaceoutputlist_success(rf, freezer):
     assert response.status_code == 200
     assert len(response.context_data["snapshots"]) == 2
 
-    # Check we're showing the latest files section for a privileged user
-    assert "Current" in response.rendered_content
-
 
 @pytest.mark.django_db
 def test_workspaceoutputlist_without_permission(rf, freezer):

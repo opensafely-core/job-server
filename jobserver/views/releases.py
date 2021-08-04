@@ -6,7 +6,7 @@ from django.views.generic import ListView, View
 
 from ..authorization import has_permission
 from ..models import Project, Release, Snapshot, Workspace
-from ..releases import build_outputs_zip
+from ..releases import build_outputs_zip, workspace_files
 
 
 class ProjectReleaseList(ListView):
@@ -130,22 +130,34 @@ class SnapshotDetail(View):
 
 
 class WorkspaceReleaseList(ListView):
-    template_name = "workspace_release_list.html"
-
-    def dispatch(self, request, *args, **kwargs):
-        self.workspace = get_object_or_404(
+    def get(self, request, *args, **kwargs):
+        workspace = get_object_or_404(
             Workspace,
             project__org__slug=self.kwargs["org_slug"],
             project__slug=self.kwargs["project_slug"],
             name=self.kwargs["workspace_slug"],
         )
 
-        return super().dispatch(request, *args, **kwargs)
+        if not workspace.releases.exists():
+            raise Http404
 
-    def get_context_data(self, **kwargs):
-        return super().get_context_data(**kwargs) | {
-            "workspace": self.workspace,
+        can_view_all_files = has_permission(
+            request.user,
+            "view_release_file",
+            project=workspace.project,
+        )
+
+        latest_files = workspace_files(workspace).values()
+
+        context = {
+            "latest_files": latest_files,
+            "releases": workspace.releases.order_by("-created_at"),
+            "user_can_view_all_files": can_view_all_files,
+            "workspace": workspace,
         }
 
-    def get_queryset(self):
-        return self.workspace.releases.order_by("-created_at")
+        return TemplateResponse(
+            request,
+            "workspace_release_list.html",
+            context=context,
+        )

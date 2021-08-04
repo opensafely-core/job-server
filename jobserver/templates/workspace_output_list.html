@@ -39,17 +39,6 @@
     </p>
 
     <ul class="list-group list-unstyled mb-4">
-      {% if user_can_view_all_files %}
-      <li class="list-group-item d-flex justify-content-between">
-        <div>
-          <a href="{{ workspace.get_latest_outputs_url }}">Latest outputs</a>
-        </div>
-        <div>
-          <span>{{ workspace.files.count }} file{{ workspace.files.count|pluralize }}</span>
-        </div>
-      </li>
-      {% endif %}
-
       {% for snapshot in snapshots %}
       <li class="list-group-item d-flex justify-content-between">
 
