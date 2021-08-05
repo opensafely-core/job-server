@@ -176,7 +176,9 @@ class WorkspaceReleaseList(ListView):
             project=workspace.project,
         )
 
-        latest_files = workspace_files(workspace).values()
+        latest_files = sorted(
+            workspace_files(workspace).values(), key=lambda rf: rf.name
+        )
 
         context = {
             "latest_files": latest_files,
