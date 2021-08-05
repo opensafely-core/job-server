@@ -1,5 +1,4 @@
 /* eslint-disable import/no-extraneous-dependencies */
-import preact from "@preact/preset-vite";
 import legacy from "@vitejs/plugin-legacy";
 import copy from "rollup-plugin-copy";
 import { visualizer } from "rollup-plugin-visualizer";
@@ -26,7 +25,6 @@ const config = {
   },
   clearScreen: false,
   plugins: [
-    preact(),
     legacy({
       additionalLegacyPolyfills: [
         "regenerator-runtime/runtime",

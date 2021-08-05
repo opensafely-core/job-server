@@ -2,27 +2,30 @@ import React, { useEffect, useRef, useState } from "react";
 import useFileList from "../../hooks/use-file-list";
 import useWindowSize from "../../hooks/use-window-size";
 import useStore from "../../stores/use-store";
-import List from "./List";
-import Wrapper from "./Wrapper";
+import prettyFileSize from "../../utils/pretty-file-size";
+import classes from "./FileList.module.scss";
+import Filter from "./Filter";
 
 function FileList() {
-  const { listVisible } = useStore();
+  const [files, setFiles] = useState([]);
   const [listHeight, setListHeight] = useState(0);
-  const listEl = useRef(null);
+
+  const { error, isError, isLoading } = useFileList();
+  const { listVisible } = useStore();
   const windowSize = useWindowSize();
 
-  const { data } = useFileList();
+  const listEl = useRef(null);
 
   useEffect(() => {
     const largeViewport = window.innerWidth > 991;
     const hasScrollbarX =
-      listEl.current?.base.clientWidth < listEl.current?.base.scrollWidth;
+      listEl.current?.clientWidth < listEl.current?.scrollWidth;
 
-    // Viewport size, minus the Outputs SPA height, minus 30px for spacing
+    // Viewport size, minus the list height, minus 30px for spacing
     // If there are horizontal scrollbars, minus 17px for the scrollbar
     const fileListHeight =
       window.innerHeight -
-      document.querySelector("#outputsSPA").getBoundingClientRect().top -
+      listEl.current?.getBoundingClientRect().top -
       30 -
       (hasScrollbarX ? 17 : 0);
 
@@ -32,12 +35,55 @@ function FileList() {
     }
 
     return setListHeight(0);
-  }, [data, listVisible, windowSize]);
+  }, [files, windowSize]);
+
+  if (isLoading) {
+    return (
+      <ul className={`${classes.list} list-unstyled card`}>
+        <li>Loading…</li>
+      </ul>
+    );
+  }
+
+  if (isError) {
+    // eslint-disable-next-line no-console
+    console.error(error.message);
+
+    return (
+      <ul className={`${classes.list} list-unstyled card`}>
+        <li>Error: Unable to load files</li>
+      </ul>
+    );
+  }
+
+  const selectFile = ({ e, item }) => {
+    e.preventDefault();
+    return useStore.setState({ file: { ...item } });
+  };
 
   return (
-    <Wrapper ref={listEl} listHeight={listHeight}>
-      <List />
-    </Wrapper>
+    <>
+      <Filter setFiles={setFiles} />
+      <ul
+        ref={listEl}
+        className={`${classes.list} list-unstyled card ${
+          listVisible ? "d-block" : "d-none"
+        }`}
+        style={{ height: listHeight || "auto" }}
+      >
+        {files.map((item) => (
+          <li key={item.url}>
+            <a
+              href={item.url}
+              onClick={(e) => selectFile({ e, item })}
+              title={`File size: ${prettyFileSize(item.size)}`}
+            >
+              {item.shortName}
+            </a>
+          </li>
+        ))}
+      </ul>
+    </>
   );
 }
 
