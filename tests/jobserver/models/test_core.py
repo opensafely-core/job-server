@@ -884,13 +884,13 @@ def test_workspace_get_archive_toggle_url():
 
 
 @pytest.mark.django_db
-def test_workspace_get_current_outputs_url():
+def test_workspace_get_files_url():
     workspace = WorkspaceFactory()
 
-    url = workspace.get_current_outputs_url()
+    url = workspace.get_files_url()
 
     assert url == reverse(
-        "workspace-current-outputs-detail",
+        "workspace-files-list",
         kwargs={
             "org_slug": workspace.project.org.slug,
             "project_slug": workspace.project.slug,
@@ -900,13 +900,29 @@ def test_workspace_get_current_outputs_url():
 
 
 @pytest.mark.django_db
-def test_workspace_get_files_url():
+def test_workspace_get_latest_outputs_download_url():
     workspace = WorkspaceFactory()
 
-    url = workspace.get_files_url()
+    url = workspace.get_latest_outputs_download_url()
 
     assert url == reverse(
-        "workspace-files-list",
+        "workspace-latest-outputs-download",
+        kwargs={
+            "org_slug": workspace.project.org.slug,
+            "project_slug": workspace.project.slug,
+            "workspace_slug": workspace.name,
+        },
+    )
+
+
+@pytest.mark.django_db
+def test_workspace_get_latest_outputs_url():
+    workspace = WorkspaceFactory()
+
+    url = workspace.get_latest_outputs_url()
+
+    assert url == reverse(
+        "workspace-latest-outputs-detail",
         kwargs={
             "org_slug": workspace.project.org.slug,
             "project_slug": workspace.project.slug,

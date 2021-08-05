@@ -53,9 +53,10 @@ from .views.workspaces import (
     WorkspaceArchiveToggle,
     WorkspaceBackendFiles,
     WorkspaceCreate,
-    WorkspaceCurrentOutputsDetail,
     WorkspaceDetail,
     WorkspaceFileList,
+    WorkspaceLatestOutputsDetail,
+    WorkspaceLatestOutputsDownload,
     WorkspaceLog,
     WorkspaceNotificationsToggle,
     WorkspaceOutputList,
@@ -138,14 +139,19 @@ files_urls = [
 outputs_urls = [
     path("", WorkspaceOutputList.as_view(), name="workspace-output-list"),
     path(
-        "current/",
-        WorkspaceCurrentOutputsDetail.as_view(),
-        name="workspace-current-outputs-detail",
+        "latest/",
+        WorkspaceLatestOutputsDetail.as_view(),
+        name="workspace-latest-outputs-detail",
     ),
     path(
-        "current/<path:path>",
-        WorkspaceCurrentOutputsDetail.as_view(),
-        name="workspace-current-outputs-detail",
+        "latest/download/",
+        WorkspaceLatestOutputsDownload.as_view(),
+        name="workspace-latest-outputs-download",
+    ),
+    path(
+        "latest/<path:path>",
+        WorkspaceLatestOutputsDetail.as_view(),
+        name="workspace-latest-outputs-detail",
     ),
     path(
         "<pk>/",

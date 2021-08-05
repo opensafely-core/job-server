@@ -36,6 +36,14 @@
   </ol>
 </nav>
 
+<div class="d-flex justify-content-between align-items-center">
+  <h1 class="h3">Latest outputs from {{ workspace.name }}</h1>
+
+  <a class="btn btn-sm btn-primary" href="{{ workspace.get_latest_outputs_download_url }}">
+    Download
+  </a>
+</div>
+
 {% include "outputs-spa.html" %}
 
 {% endblock %}
