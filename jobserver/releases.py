@@ -62,7 +62,7 @@ def check_not_already_uploaded(filename, filehash, backend):
     )
     if duplicate.exists():
         raise ReleaseFileAlreadyExists(
-            f"This version of {filename} already exists for {backend.name}"
+            f"This version of '{filename}' has already been uploaded from backend '{backend.name}'"
         )
 
 
