@@ -48,10 +48,14 @@
         </span>
 
         <div>
-          <a class="btn btn-sm btn-primary" href="{{ release.get_absolute_url }}">View</a>
+          <a class="btn btn-sm btn-primary {% if not release.files.exists %}disabled{% endif %}"
+            href="{{ release.get_absolute_url }}">View</a>
           <button
             class="btn btn-sm btn-primary"
             type="button"
+            {% if not release.files.exists %}
+            disabled
+            {% endif %}
             data-toggle="collapse"
             data-target="#release-{{ release.id }}-files"
             aria-expanded="false"
