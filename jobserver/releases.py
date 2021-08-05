@@ -1,4 +1,6 @@
 import hashlib
+import io
+import zipfile
 from datetime import timedelta
 from pathlib import Path
 
@@ -33,6 +35,22 @@ def build_hatch_token_and_url(*, backend, workspace, user, expiry=None):
     token = builder.sign(key=backend.auth_token, salt="hatch")
 
     return token, f.url
+
+
+def build_outputs_zip(release_files):
+    # create an in memory stream so we don't need to write the file to disk
+    in_memory_zf = io.BytesIO()
+
+    # add each ReleaseFile to the zip using their name as the name in the
+    # archive
+    with zipfile.ZipFile(in_memory_zf, "w") as zip_obj:
+        for rfile in release_files:
+            zip_obj.write(rfile.absolute_path(), arcname=rfile.name)
+
+    # rewind the file stream to the start
+    in_memory_zf.seek(0)
+
+    return in_memory_zf
 
 
 def check_not_already_uploaded(filename, filehash, backend):

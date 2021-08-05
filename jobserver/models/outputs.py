@@ -64,6 +64,17 @@ class Release(models.Model):
     def get_api_url(self):
         return reverse("api:release", kwargs={"release_id": self.id})
 
+    def get_download_url(self):
+        return reverse(
+            "release-download",
+            kwargs={
+                "org_slug": self.workspace.project.org.slug,
+                "project_slug": self.workspace.project.slug,
+                "workspace_slug": self.workspace.name,
+                "pk": self.id,
+            },
+        )
+
 
 class ReleaseFile(models.Model):
     """Individual files in a Release.

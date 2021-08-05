@@ -1,5 +1,6 @@
 import random
 import string
+import zipfile
 from datetime import timedelta
 
 import pytest
@@ -50,6 +51,27 @@ def test_build_hatch_token_and_url_with_custom_expires():
         user=user,
         expiry=timezone.now() + timedelta(minutes=3),
     )
+
+
+@pytest.mark.django_db
+def test_build_outputs_zip():
+    release = ReleaseFactory(ReleaseUploadsFactory(["test1"]))
+
+    zf = releases.build_outputs_zip(release.files.all())
+
+    with zipfile.ZipFile(zf, "r") as zip_obj:
+        assert zip_obj.testzip() is None
+
+        assert zip_obj.namelist() == ["test1"]
+
+        with open(release.files.first().absolute_path(), "rb") as f:
+            original_contents = f.read()
+
+        with zip_obj.open("test1") as f:
+            zipped_contents = f.read()
+
+        # check the zipped files contents match the original files contents
+        assert zipped_contents == original_contents
 
 
 @pytest.mark.django_db

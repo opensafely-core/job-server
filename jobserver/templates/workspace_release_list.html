@@ -53,6 +53,9 @@
         <div>
           <a
             class="btn btn-sm btn-primary {% if not release.files.exists %}disabled{% endif %}"
+            href="{{ release.get_download_url }}">Download</a>
+          <a
+            class="btn btn-sm btn-primary {% if not release.files.exists %}disabled{% endif %}"
             href="{{ release.get_absolute_url }}">View</a>
           <button
             class="btn btn-sm btn-primary"

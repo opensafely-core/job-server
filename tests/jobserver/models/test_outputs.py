@@ -35,6 +35,23 @@ def test_release_get_api_url():
 
 
 @pytest.mark.django_db
+def test_release_get_download_url():
+    release = ReleaseFactory(ReleaseUploadsFactory(["file1.txt"]))
+
+    url = release.get_download_url()
+
+    assert url == reverse(
+        "release-download",
+        kwargs={
+            "org_slug": release.workspace.project.org.slug,
+            "project_slug": release.workspace.project.slug,
+            "workspace_slug": release.workspace.name,
+            "pk": release.id,
+        },
+    )
+
+
+@pytest.mark.django_db
 def test_release_ulid():
     release = ReleaseFactory(ReleaseUploadsFactory(["file1.txt"]))
     assert release.ulid.timestamp

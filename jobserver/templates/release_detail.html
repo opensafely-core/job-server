@@ -36,7 +36,13 @@
   </ol>
 </nav>
 
-<h1 class="h3">Release from {{ release.workspace.name }}</h1>
+<div class="d-flex justify-content-between align-items-center">
+  <h1 class="h3">Release from {{ release.workspace.name }}</h1>
+
+  <a class="btn btn-sm btn-primary" href="{{ release.get_download_url }}">
+    Download
+  </a>
+</div>
 
 <p class="mb-2 text-muted">
   Released by {{ release.created_by.name }} on
