@@ -1,11 +1,10 @@
 import PropTypes from "prop-types";
-import React, { useEffect, useRef, useState } from "react";
+import React, { useEffect, useState } from "react";
 import useFileList from "../../hooks/use-file-list";
 
 function Filter({ setFiles }) {
   const { data } = useFileList();
   const [filter, setFilter] = useState("");
-  const inputRef = useRef(null);
 
   useEffect(() => {
     if (filter) {
@@ -31,7 +30,6 @@ function Filter({ setFiles }) {
     <label className="w-100" htmlFor="filterFiles">
       <span className="sr-only">Find a file…</span>
       <input
-        ref={inputRef}
         autoCapitalize="off"
         autoComplete="off"
         autoCorrect="off"
