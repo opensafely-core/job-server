@@ -41,6 +41,7 @@ def test_projectreleaselist_success(rf):
     )
 
     request = rf.get("/")
+    request.user = UserFactory()
 
     response = ProjectReleaseList.as_view()(
         request,
@@ -66,6 +67,39 @@ def test_projectreleaselist_unknown_workspace(rf):
             org_slug=org.slug,
             project_slug="",
         )
+
+
+@pytest.mark.django_db
+def test_projectreleaselist_with_delete_permission(rf):
+    project = ProjectFactory()
+    workspace1 = WorkspaceFactory(project=project)
+    workspace2 = WorkspaceFactory(project=project)
+
+    ReleaseFactory(
+        ReleaseUploadsFactory(["test1", "test2"]),
+        workspace=workspace1,
+    )
+    ReleaseFactory(
+        ReleaseUploadsFactory(["test3", "test4"]),
+        workspace=workspace2,
+    )
+
+    request = rf.get("/")
+    request.user = UserFactory(roles=[OutputChecker])
+
+    response = ProjectReleaseList.as_view()(
+        request,
+        org_slug=project.org.slug,
+        project_slug=project.slug,
+    )
+
+    assert response.status_code == 200
+
+    assert response.context_data["project"] == project
+    assert len(response.context_data["object_list"]) == 2
+
+    assert response.context_data["user_can_delete_files"]
+    assert "Delete" in response.rendered_content
 
 
 @pytest.mark.django_db

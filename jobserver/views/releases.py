@@ -22,8 +22,12 @@ class ProjectReleaseList(ListView):
         return super().dispatch(request, *args, **kwargs)
 
     def get_context_data(self, **kwargs):
+        can_delete_files = has_permission(
+            self.request.user, "delete_release_file", project=self.project
+        )
         return super().get_context_data(**kwargs) | {
             "project": self.project,
+            "user_can_delete_files": can_delete_files,
         }
 
     def get_queryset(self):
