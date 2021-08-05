@@ -13,7 +13,7 @@ function Filter({ setFiles }) {
         () =>
           setFiles(
             data.filter((state) =>
-              state.name.toLowerCase().includes(filter.toLowerCase())
+              state.shortName.toLowerCase().includes(filter.toLowerCase())
             )
           ),
         350
