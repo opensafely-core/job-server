@@ -793,6 +793,16 @@ class Workspace(models.Model):
             },
         )
 
+    def get_latest_outputs_download_url(self):
+        return reverse(
+            "workspace-latest-outputs-download",
+            kwargs={
+                "org_slug": self.project.org.slug,
+                "project_slug": self.project.slug,
+                "workspace_slug": self.name,
+            },
+        )
+
     def get_latest_outputs_url(self):
         return reverse(
             "workspace-latest-outputs-detail",

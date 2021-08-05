@@ -46,7 +46,10 @@
         </span>
 
         <div>
-          <a class="btn btn-sm btn-primary" href="{{ release.workspace.get_latest_outputs_url }}">
+          <a class="btn btn-sm btn-primary" href="{{ workspace.get_latest_outputs_download_url }}">
+            Download
+          </a>
+          <a class="btn btn-sm btn-primary" href="{{ workspace.get_latest_outputs_url }}">
             View
           </a>
           <button

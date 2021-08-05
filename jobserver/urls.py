@@ -56,6 +56,7 @@ from .views.workspaces import (
     WorkspaceDetail,
     WorkspaceFileList,
     WorkspaceLatestOutputsDetail,
+    WorkspaceLatestOutputsDownload,
     WorkspaceLog,
     WorkspaceNotificationsToggle,
     WorkspaceOutputList,
@@ -141,6 +142,11 @@ outputs_urls = [
         "latest/",
         WorkspaceLatestOutputsDetail.as_view(),
         name="workspace-latest-outputs-detail",
+    ),
+    path(
+        "latest/download/",
+        WorkspaceLatestOutputsDownload.as_view(),
+        name="workspace-latest-outputs-download",
     ),
     path(
         "latest/<path:path>",
