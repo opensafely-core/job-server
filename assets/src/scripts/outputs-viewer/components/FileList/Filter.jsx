@@ -1,17 +1,28 @@
 import PropTypes from "prop-types";
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useRef, useState } from "react";
 import useFileList from "../../hooks/use-file-list";
 
 function Filter({ setFiles }) {
   const { data } = useFileList();
   const [filter, setFilter] = useState("");
+  const inputRef = useRef(null);
 
   useEffect(() => {
-    if (data) {
-      return filter
-        ? setFiles(data.filter((item) => item.shortName.includes(filter)))
-        : setFiles(data);
+    if (filter) {
+      const timer = setTimeout(
+        () =>
+          setFiles(
+            data.filter((state) =>
+              state.name.toLowerCase().includes(filter.toLowerCase())
+            )
+          ),
+        350
+      );
+
+      return () => clearTimeout(timer);
     }
+
+    if (data) return setFiles(data);
 
     return setFiles([]);
   }, [data, filter, setFiles]);
@@ -20,6 +31,7 @@ function Filter({ setFiles }) {
     <label className="w-100" htmlFor="filterFiles">
       <span className="sr-only">Find a file…</span>
       <input
+        ref={inputRef}
         autoCapitalize="off"
         autoComplete="off"
         autoCorrect="off"
