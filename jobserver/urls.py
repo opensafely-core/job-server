@@ -44,6 +44,7 @@ from .views.releases import (
     ProjectReleaseList,
     ReleaseDetail,
     ReleaseDownload,
+    ReleaseFileDelete,
     SnapshotDetail,
     SnapshotDownload,
     WorkspaceReleaseList,
@@ -179,6 +180,11 @@ releases_urls = [
     ),
     path("<pk>/", ReleaseDetail.as_view(), name="release-detail"),
     path("<pk>/download/", ReleaseDownload.as_view(), name="release-download"),
+    path(
+        "<pk>/<release_file_id>/delete/",
+        ReleaseFileDelete.as_view(),
+        name="release-file-delete",
+    ),
     path("<pk>/<path:path>", ReleaseDetail.as_view(), name="release-detail"),
 ]
 

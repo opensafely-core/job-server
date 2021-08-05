@@ -1,11 +1,11 @@
 from django.http import FileResponse, Http404
-from django.shortcuts import get_object_or_404
+from django.shortcuts import get_object_or_404, redirect
 from django.template.response import TemplateResponse
 from django.urls import reverse
 from django.views.generic import ListView, View
 
 from ..authorization import has_permission
-from ..models import Project, Release, Snapshot, Workspace
+from ..models import Project, Release, ReleaseFile, Snapshot, Workspace
 from ..releases import build_outputs_zip, workspace_files
 
 
@@ -95,6 +95,33 @@ class ReleaseDownload(View):
         )
 
 
+class ReleaseFileDelete(View):
+    def post(self, request, *args, **kwargs):
+        rfile = get_object_or_404(
+            ReleaseFile,
+            release__workspace__project__org__slug=self.kwargs["org_slug"],
+            release__workspace__project__slug=self.kwargs["project_slug"],
+            release__workspace__name=self.kwargs["workspace_slug"],
+            release__pk=self.kwargs["pk"],
+            pk=self.kwargs["release_file_id"],
+        )
+
+        if not rfile.absolute_path().exists():
+            raise Http404
+
+        if not has_permission(
+            request.user,
+            "delete_release_file",
+            project=rfile.release.workspace.project,
+        ):
+            raise Http404
+
+        # delete file on disk
+        rfile.absolute_path().unlink()
+
+        return redirect(rfile.release.workspace.get_releases_url())
+
+
 class SnapshotDetail(View):
     def get(self, request, *args, **kwargs):
         snapshot = get_object_or_404(
@@ -170,6 +197,9 @@ class WorkspaceReleaseList(ListView):
         if not workspace.releases.exists():
             raise Http404
 
+        can_delete_files = has_permission(
+            request.user, "delete_release_file", project=workspace.project
+        )
         can_view_all_files = has_permission(
             request.user,
             "view_release_file",
@@ -183,6 +213,7 @@ class WorkspaceReleaseList(ListView):
         context = {
             "latest_files": latest_files,
             "releases": workspace.releases.order_by("-created_at"),
+            "user_can_delete_files": can_delete_files,
             "user_can_view_all_files": can_view_all_files,
             "workspace": workspace,
         }

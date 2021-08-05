@@ -134,6 +134,23 @@ class ReleaseFile(models.Model):
         """The API url that will serve up this file."""
         return reverse("api:release-file", kwargs={"file_id": self.id})
 
+    def get_delete_url(self):
+        return reverse(
+            "release-file-delete",
+            kwargs={
+                "org_slug": self.release.workspace.project.org.slug,
+                "project_slug": self.release.workspace.project.slug,
+                "workspace_slug": self.release.workspace.name,
+                "pk": self.release.id,
+                "release_file_id": self.id,
+            },
+        )
+
+    @property
+    def is_deleted(self):
+        """Has the file on disk been deleted?"""
+        return not self.absolute_path().exists()
+
 
 class Snapshot(models.Model):
     """A "frozen" copy of the ReleaseFiles for a Workspace."""
