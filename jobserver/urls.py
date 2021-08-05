@@ -171,6 +171,17 @@ outputs_urls = [
     ),
 ]
 
+releases_urls = [
+    path(
+        "",
+        WorkspaceReleaseList.as_view(),
+        name="workspace-release-list",
+    ),
+    path("<pk>/", ReleaseDetail.as_view(), name="release-detail"),
+    path("<pk>/download/", ReleaseDownload.as_view(), name="release-download"),
+    path("<pk>/<path:path>", ReleaseDetail.as_view(), name="release-detail"),
+]
+
 workspace_urls = [
     path(
         "",
@@ -190,14 +201,7 @@ workspace_urls = [
         name="workspace-notifications-toggle",
     ),
     path("outputs/", include(outputs_urls)),
-    path(
-        "releases/",
-        WorkspaceReleaseList.as_view(),
-        name="workspace-release-list",
-    ),
-    path("releases/<pk>/", ReleaseDetail.as_view(), name="release-detail"),
-    path("releases/<pk>/download/", ReleaseDownload.as_view(), name="release-download"),
-    path("releases/<pk>/<path:path>", ReleaseDetail.as_view(), name="release-detail"),
+    path("releases/", include(releases_urls)),
 ]
 
 project_urls = [
