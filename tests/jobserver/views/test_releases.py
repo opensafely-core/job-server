@@ -9,6 +9,7 @@ from jobserver.views.releases import (
     ReleaseDetail,
     ReleaseDownload,
     SnapshotDetail,
+    SnapshotDownload,
     WorkspaceReleaseList,
 )
 
@@ -342,6 +343,123 @@ def test_snapshotdetail_unknown_snapshot(rf):
             project_slug=workspace.project.slug,
             workspace_slug=workspace.name,
             pk=0,
+        )
+
+
+@pytest.mark.django_db
+def test_snapshotdownload_published_with_permission(rf):
+    workspace = WorkspaceFactory()
+    ReleaseFactory(ReleaseUploadsFactory(["test1"]), workspace=workspace)
+    snapshot = SnapshotFactory(workspace=workspace, published_at=timezone.now())
+    snapshot.files.set(workspace.files.all())
+
+    request = rf.get("/")
+    request.user = UserFactory(roles=[ProjectCollaborator])
+
+    response = SnapshotDownload.as_view()(
+        request,
+        org_slug=snapshot.workspace.project.org.slug,
+        project_slug=snapshot.workspace.project.slug,
+        workspace_slug=snapshot.workspace.name,
+        pk=snapshot.pk,
+    )
+
+    assert response.status_code == 200
+
+
+@pytest.mark.django_db
+def test_snapshotdownload_published_without_permission(rf):
+    workspace = WorkspaceFactory()
+    ReleaseFactory(ReleaseUploadsFactory(["test1"]), workspace=workspace)
+    snapshot = SnapshotFactory(workspace=workspace, published_at=timezone.now())
+    snapshot.files.set(workspace.files.all())
+
+    request = rf.get("/")
+    request.user = UserFactory()
+
+    response = SnapshotDownload.as_view()(
+        request,
+        org_slug=workspace.project.org.slug,
+        project_slug=workspace.project.slug,
+        workspace_slug=workspace.name,
+        pk=snapshot.pk,
+    )
+
+    assert response.status_code == 200
+
+
+@pytest.mark.django_db
+def test_snapshotdownload_unknown_snapshot(rf):
+    workspace = WorkspaceFactory()
+
+    request = rf.get("/")
+    request.user = UserFactory(roles=[ProjectCollaborator])
+
+    with pytest.raises(Http404):
+        SnapshotDownload.as_view()(
+            request,
+            org_slug=workspace.project.org.slug,
+            project_slug=workspace.project.slug,
+            workspace_slug=workspace.name,
+            pk=0,
+        )
+
+
+@pytest.mark.django_db
+def test_snapshotdownload_unpublished_with_permission(rf):
+    workspace = WorkspaceFactory()
+    ReleaseFactory(ReleaseUploadsFactory(["test1"]), workspace=workspace)
+    snapshot = SnapshotFactory(workspace=workspace, published_at=None)
+    snapshot.files.set(workspace.files.all())
+
+    request = rf.get("/")
+    request.user = UserFactory(roles=[ProjectCollaborator])
+
+    response = SnapshotDownload.as_view()(
+        request,
+        org_slug=workspace.project.org.slug,
+        project_slug=workspace.project.slug,
+        workspace_slug=workspace.name,
+        pk=snapshot.pk,
+    )
+
+    assert response.status_code == 200
+
+
+@pytest.mark.django_db
+def test_snapshotdownload_unpublished_without_permission(rf):
+    workspace = WorkspaceFactory()
+    ReleaseFactory(ReleaseUploadsFactory(["test1"]), workspace=workspace)
+    snapshot = SnapshotFactory(workspace=workspace, published_at=None)
+    snapshot.files.set(workspace.files.all())
+
+    request = rf.get("/")
+    request.user = UserFactory()
+
+    with pytest.raises(Http404):
+        SnapshotDownload.as_view()(
+            request,
+            org_slug=workspace.project.org.slug,
+            project_slug=workspace.project.slug,
+            workspace_slug=workspace.name,
+            pk=snapshot.pk,
+        )
+
+
+@pytest.mark.django_db
+def test_snapshotdownload_with_no_files(rf):
+    snapshot = SnapshotFactory()
+
+    request = rf.get("/")
+    request.user = UserFactory(roles=[ProjectCollaborator])
+
+    with pytest.raises(Http404):
+        SnapshotDownload.as_view()(
+            request,
+            org_slug=snapshot.workspace.project.org.slug,
+            project_slug=snapshot.workspace.project.slug,
+            workspace_slug=snapshot.workspace.name,
+            pk=snapshot.pk,
         )
 
 

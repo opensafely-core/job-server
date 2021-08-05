@@ -144,6 +144,23 @@ def test_snapshot_get_api_url():
 
 
 @pytest.mark.django_db
+def test_snapshot_get_download_url():
+    snapshot = SnapshotFactory()
+
+    url = snapshot.get_download_url()
+
+    assert url == reverse(
+        "workspace-snapshot-download",
+        kwargs={
+            "org_slug": snapshot.workspace.project.org.slug,
+            "project_slug": snapshot.workspace.project.slug,
+            "workspace_slug": snapshot.workspace.name,
+            "pk": snapshot.pk,
+        },
+    )
+
+
+@pytest.mark.django_db
 def test_snapshot_get_publish_api_url():
     snapshot = SnapshotFactory()
 

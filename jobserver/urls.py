@@ -45,6 +45,7 @@ from .views.releases import (
     ReleaseDetail,
     ReleaseDownload,
     SnapshotDetail,
+    SnapshotDownload,
     WorkspaceReleaseList,
 )
 from .views.status import Status
@@ -157,6 +158,11 @@ outputs_urls = [
         "<pk>/",
         SnapshotDetail.as_view(),
         name="workspace-snapshot-detail",
+    ),
+    path(
+        "<pk>/download/",
+        SnapshotDownload.as_view(),
+        name="workspace-snapshot-download",
     ),
     path(
         "<pk>/<path:path>",
