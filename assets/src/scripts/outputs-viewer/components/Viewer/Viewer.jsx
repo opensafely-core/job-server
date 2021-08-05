@@ -7,6 +7,7 @@ import {
   isCsv,
   isHtml,
   isImg,
+  isJson,
   isTxt,
 } from "../../utils/file-type-match";
 import Iframe from "../Iframe/Iframe";
@@ -79,7 +80,7 @@ function Viewer() {
       {isCsv(file) ? <Table data={data} /> : null}
       {isHtml(file) ? <Iframe data={data} /> : null}
       {isImg(file) ? <Image /> : null}
-      {isTxt(file) ? <Text data={data} /> : null}
+      {isTxt(file) || isJson(file) ? <Text data={data} /> : null}
     </Wrapper>
   );
 }

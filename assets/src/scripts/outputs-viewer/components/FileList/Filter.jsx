@@ -7,11 +7,21 @@ function Filter({ setFiles }) {
   const [filter, setFilter] = useState("");
 
   useEffect(() => {
-    if (data) {
-      return filter
-        ? setFiles(data.filter((item) => item.shortName.includes(filter)))
-        : setFiles(data);
+    if (filter) {
+      const timer = setTimeout(
+        () =>
+          setFiles(
+            data.filter((state) =>
+              state.shortName.toLowerCase().includes(filter.toLowerCase())
+            )
+          ),
+        350
+      );
+
+      return () => clearTimeout(timer);
     }
+
+    if (data) return setFiles(data);
 
     return setFiles([]);
   }, [data, filter, setFiles]);

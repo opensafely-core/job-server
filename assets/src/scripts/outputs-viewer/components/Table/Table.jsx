@@ -22,7 +22,7 @@ function Table({ data }) {
     complete: (results) => results,
   }).data;
 
-  if (jsonData.length > 1000) {
+  if (jsonData.length > 5000) {
     return (
       <>
         <p>We cannot show a preview of this file.</p>
@@ -31,6 +31,25 @@ function Table({ data }) {
             Open file in a new tab &#8599;
           </a>
         </p>
+      </>
+    );
+  }
+
+  if (jsonData.length > 1000) {
+    return (
+      <>
+        <p>
+          <strong>This is a preview of the first 1000 lines</strong>
+        </p>
+        <div className="table-responsive">
+          <table className="table table-striped">
+            <tbody>
+              {jsonData.slice(0, 999).map((row, i) => (
+                <TableRow key={i} row={row} />
+              ))}
+            </tbody>
+          </table>
+        </div>
       </>
     );
   }
