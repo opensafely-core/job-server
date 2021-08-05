@@ -60,15 +60,19 @@
 
       <div class="collapse" id="release-{{ release.id }}-files">
         <div class="card card-body border-0 mt-2 p-0 px-2">
-          <ul class="list-unstyled mb-0">
-            {% for file in release.files.all %}
-            <li>
-              <a href="{{ file.get_absolute_url }}">
-                <code>{{ file.name }}</code>
-              </a>
-            </li>
-            {% endfor %}
-          </ul>
+          <table class="table table-striped">
+            <tbody>
+              {% for file in release.files.all %}
+              <tr>
+                <td class="d-flex justify-content-between align-items-center">
+                  <a href="{{ file.get_absolute_url }}">
+                    <code>{{ file.name }}</code>
+                  </a>
+                </td>
+              </tr>
+              {% endfor %}
+            </tbody>
+          </table>
         </div>
       </div>
 
