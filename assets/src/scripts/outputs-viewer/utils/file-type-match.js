@@ -7,5 +7,7 @@ export const isImg = (file) =>
 
 export const isTxt = (file) => file.name.match(/.*\.(?:txt)$/i);
 
+export const isJson = (file) => file.name.match(/.*\.(?:json)$/i);
+
 export const canDisplay = (file) =>
-  isCsv(file) || isHtml(file) || isImg(file) || isTxt(file);
+  isCsv(file) || isHtml(file) || isImg(file) || isTxt(file) || isJson(file);
