@@ -309,6 +309,7 @@ def test_workspace_index_api_have_permission(api_client):
                 "date": release2.files.first().created_at.isoformat(),
                 "size": 8,
                 "sha256": release2.files.first().filehash,
+                "is_deleted": False,
             },
             {
                 "name": "backend1/file1.txt",
@@ -318,6 +319,7 @@ def test_workspace_index_api_have_permission(api_client):
                 "date": release1.files.first().created_at.isoformat(),
                 "size": 8,
                 "sha256": release1.files.first().filehash,
+                "is_deleted": False,
             },
         ],
     }
@@ -373,6 +375,7 @@ def test_release_index_api_have_permission(api_client):
                 "date": rfile.created_at.isoformat(),
                 "size": 8,
                 "sha256": rfile.filehash,
+                "is_deleted": False,
             }
         ],
     }
