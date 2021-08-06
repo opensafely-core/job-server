@@ -1,7 +1,9 @@
+from django.db import transaction
 from django.http import FileResponse, Http404
 from django.shortcuts import get_object_or_404, redirect
 from django.template.response import TemplateResponse
 from django.urls import reverse
+from django.utils import timezone
 from django.views.generic import ListView, View
 
 from ..authorization import has_permission
@@ -120,8 +122,13 @@ class ReleaseFileDelete(View):
         ):
             raise Http404
 
-        # delete file on disk
-        rfile.absolute_path().unlink()
+        with transaction.atomic():
+            # delete file on disk
+            rfile.absolute_path().unlink()
+
+            rfile.deleted_by = request.user
+            rfile.deleted_at = timezone.now()
+            rfile.save()
 
         return redirect(rfile.release.workspace.get_releases_url())
 

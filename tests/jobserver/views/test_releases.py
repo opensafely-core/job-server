@@ -262,14 +262,15 @@ def test_releasefiledelete_no_file_on_disk(rf):
 
 
 @pytest.mark.django_db
-def test_releasefiledelete_success(rf):
+def test_releasefiledelete_success(rf, freezer):
     release = ReleaseFactory(ReleaseUploadsFactory({"file1.txt": b"test"}))
     rfile = release.files.first()
+    user = UserFactory(roles=[OutputChecker])
 
     assert rfile.absolute_path().exists()
 
     request = rf.post("/")
-    request.user = UserFactory(roles=[OutputChecker])
+    request.user = user
 
     response = ReleaseFileDelete.as_view()(
         request,
@@ -283,7 +284,10 @@ def test_releasefiledelete_success(rf):
     assert response.status_code == 302
     assert response.url == rfile.release.workspace.get_releases_url()
 
+    rfile.refresh_from_db()
     assert not rfile.absolute_path().exists()
+    assert rfile.deleted_by == user
+    assert rfile.deleted_at == timezone.now()
 
 
 @pytest.mark.django_db
