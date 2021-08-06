@@ -73,13 +73,16 @@ function FileList() {
       >
         {files.map((item) => (
           <li key={item.url}>
-            <a
-              href={item.url}
-              onClick={(e) => selectFile({ e, item })}
-              title={`File size: ${prettyFileSize(item.size)}`}
-            >
-              {item.shortName}
-            </a>
+            {!item.is_deleted && (
+              <a
+                href={item.url}
+                onClick={(e) => selectFile({ e, item })}
+                title={`File size: ${prettyFileSize(item.size)}`}
+              >
+                {item.shortName}
+              </a>
+            )}
+            {item.is_deleted && <span>{item.shortName}</span>}
           </li>
         ))}
       </ul>
