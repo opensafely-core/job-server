@@ -142,7 +142,7 @@ def generate_index(files):
                 date=rfile.created_at.isoformat(),
                 sha256=rfile.filehash,
                 size=get_size(rfile),
-                is_deleted=not rfile.absolute_path().exists(),
+                is_deleted=rfile.deleted_at or not rfile.absolute_path().exists(),
             )
             for name, rfile in files.items()
         ],
