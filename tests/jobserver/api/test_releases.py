@@ -19,6 +19,7 @@ from jobserver.models import Release
 from jobserver.utils import set_from_qs
 from tests.factories import (
     BackendFactory,
+    BackendMembershipFactory,
     ProjectFactory,
     ProjectMembershipFactory,
     ReleaseFactory,
@@ -178,7 +179,9 @@ def test_workspace_api_create_release_created(api_client):
     user = UserFactory()
     workspace = WorkspaceFactory()
     ProjectMembershipFactory(user=user, project=workspace.project)
-    BackendFactory(auth_token="test")
+
+    backend = BackendFactory(auth_token="test")
+    BackendMembershipFactory(backend=backend, user=user)
 
     assert Release.objects.count() == 0
 
@@ -202,6 +205,8 @@ def test_workspace_api_create_release_created(api_client):
 def test_workspace_api_create_release_already_exists(api_client):
     release = ReleaseFactory(ReleaseUploadsFactory(["file.txt"]))
     rfile = release.files.first()
+
+    BackendMembershipFactory(backend=release.backend, user=release.created_by)
     ProjectMembershipFactory(user=release.created_by, project=release.workspace.project)
 
     response = api_client.post(
@@ -222,7 +227,9 @@ def test_workspace_api_create_release_bad_json(api_client):
     user = UserFactory()
     workspace = WorkspaceFactory()
     ProjectMembershipFactory(user=user, project=workspace.project)
-    BackendFactory(auth_token="test")
+
+    backend = BackendFactory(auth_token="test")
+    BackendMembershipFactory(backend=backend, user=user)
 
     response = api_client.post(
         f"/api/v2/releases/workspace/{workspace.name}",
@@ -424,6 +431,8 @@ def test_release_api_upload_no_files(api_client):
     uploads = ReleaseUploadsFactory(["file.txt"])
     release = ReleaseFactory(uploads, uploaded=False)
 
+    BackendMembershipFactory(backend=release.backend, user=user)
+
     response = api_client.post(
         f"/api/v2/releases/release/{release.id}",
         HTTP_CONTENT_DISPOSITION=f"attachment; filename={uploads[0].filename}",
@@ -440,7 +449,9 @@ def test_release_api_upload_bad_backend(api_client):
     user = UserFactory()
     uploads = ReleaseUploadsFactory(["output/file.txt"])
     release = ReleaseFactory(uploads, uploaded=False)
+
     bad_backend = BackendFactory()
+    BackendMembershipFactory(backend=bad_backend, user=user)
 
     response = api_client.post(
         f"/api/v2/releases/release/{release.id}",
@@ -461,6 +472,8 @@ def test_release_api_upload_bad_filename(api_client):
     uploads = ReleaseUploadsFactory(["file.txt"])
     release = ReleaseFactory(uploads, uploaded=False)
 
+    BackendMembershipFactory(backend=release.backend, user=user)
+
     response = api_client.post(
         f"/api/v2/releases/release/{release.id}",
         content_type="application/octet-stream",
@@ -479,6 +492,8 @@ def test_release_api_upload_success(api_client):
     user = UserFactory()
     uploads = ReleaseUploadsFactory(["file.txt"])
     release = ReleaseFactory(uploads, uploaded=False)
+
+    BackendMembershipFactory(backend=release.backend, user=user)
 
     response = api_client.post(
         f"/api/v2/releases/release/{release.id}",
@@ -500,6 +515,8 @@ def test_release_api_upload_already_uploaded(api_client):
     user = UserFactory()
     uploads = ReleaseUploadsFactory(["file.txt"])
     release = ReleaseFactory(uploads, uploaded=True)
+
+    BackendMembershipFactory(backend=release.backend, user=user)
 
     count_before = release.files.count()
 
@@ -847,9 +864,27 @@ def test_snapshot_publish_api_without_permission(api_client):
 
 
 @pytest.mark.django_db
+def test_validate_upload_access_not_a_backend_member(rf):
+    backend = BackendFactory()
+    user = UserFactory()
+    workspace = WorkspaceFactory()
+
+    request = rf.get(
+        "/",
+        HTTP_AUTHORIZATION=backend.auth_token,
+        HTTP_OS_USER=user.username,
+    )
+
+    with pytest.raises(NotAuthenticated):
+        validate_upload_access(request, workspace)
+
+
+@pytest.mark.django_db
 def test_validate_upload_access_unknown_user(rf):
     backend = BackendFactory()
     workspace = WorkspaceFactory()
+
+    BackendMembershipFactory(backend=backend)
 
     request = rf.get("/", HTTP_AUTHORIZATION=backend.auth_token, HTTP_OS_USER="test")
 
