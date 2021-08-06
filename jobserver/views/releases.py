@@ -129,6 +129,35 @@ class SnapshotDetail(View):
         )
 
 
+class SnapshotDownload(View):
+    def get(self, request, *args, **kwargs):
+        snapshot = get_object_or_404(
+            Snapshot,
+            workspace__project__org__slug=self.kwargs["org_slug"],
+            workspace__project__slug=self.kwargs["project_slug"],
+            workspace__name=self.kwargs["workspace_slug"],
+            pk=self.kwargs["pk"],
+        )
+
+        if not snapshot.files.exists():
+            raise Http404
+
+        can_view_unpublished_files = has_permission(
+            request.user,
+            "view_release_file",
+            project=snapshot.workspace.project,
+        )
+        if snapshot.is_draft and not can_view_unpublished_files:
+            raise Http404
+
+        zf = build_outputs_zip(snapshot.files.all())
+        return FileResponse(
+            zf,
+            as_attachment=True,
+            filename=f"release-{snapshot.pk}.zip",
+        )
+
+
 class WorkspaceReleaseList(ListView):
     def get(self, request, *args, **kwargs):
         workspace = get_object_or_404(

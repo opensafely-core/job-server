@@ -36,14 +36,20 @@
   </ol>
 </nav>
 
-<h1 class="h3">
-  {% if snapshot.is_draft %}
-  Outputs for {{ snapshot.workspace.name }}
-  <span class="badge badge-secondary">Draft</span>
-  {% else %}
-  Published outputs for {{ snapshot.workspace.name }}
-  {% endif %}
-</h1>
+<div class="d-flex justify-content-between align-items-center">
+  <h1 class="h3">
+    {% if snapshot.is_draft %}
+    Outputs for {{ snapshot.workspace.name }}
+    <span class="badge badge-secondary">Draft</span>
+    {% else %}
+    Published outputs for {{ snapshot.workspace.name }}
+    {% endif %}
+  </h1>
+
+  <a class="btn btn-sm btn-primary" href="{{ snapshot.get_download_url }}">
+    Download
+  </a>
+</div>
 
 {% include "outputs-spa.html" %}
 

@@ -190,6 +190,17 @@ class Snapshot(models.Model):
             },
         )
 
+    def get_download_url(self):
+        return reverse(
+            "workspace-snapshot-download",
+            kwargs={
+                "org_slug": self.workspace.project.org.slug,
+                "project_slug": self.workspace.project.slug,
+                "workspace_slug": self.workspace.name,
+                "pk": self.pk,
+            },
+        )
+
     def get_publish_api_url(self):
         return reverse(
             "api:snapshot-publish",
