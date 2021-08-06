@@ -1,0 +1,76 @@
+{% load humanize %}
+
+<div class="border rounded p-2 pl-3 mb-3">
+
+  <div class="d-flex justify-content-between align-items-center">
+    <span>{{ r.title }}</span>
+
+    <div>
+      <a class="btn btn-sm btn-primary {% if not r.files %}disabled{% endif %}"
+         href="{{ r.download_url }}">
+        Download
+      </a>
+      <a class="btn btn-sm btn-primary {% if not r.files %}disabled{% endif %}"
+         href="{{ r.view_url }}">
+        View
+      </a>
+      <button
+        class="btn btn-sm btn-primary"
+        type="button"
+        {% if not r.files %}
+        disabled
+        {% endif %}
+        data-toggle="collapse"
+        data-target="#release-{{ r.id }}-files"
+        aria-expanded="false"
+        aria-controls="release-{{ r.id }}-files">
+        Files
+      </button>
+    </div>
+  </div>
+
+  <div class="collapse" id="release-{{ r.id }}-files">
+    <div class="card card-body border-0 mt-2 p-0 px-2">
+      <table class="table table-striped">
+        <tbody>
+          {% for file in r.files %}
+          <tr>
+            <td class="d-flex justify-content-between align-items-center">
+
+              <div>
+                <a href="{{ file.get_absolute_url }}" {% if file.is_deleted %}class="btn-link disabled"{% endif %}>
+                  <code>{{ file.name }}</code>
+                </a>
+
+                {% if file.is_deleted %}
+                <small class="text-muted">
+                  (Deleted by {{ file.deleted_by.name }} at {{ file.deleted_at|date:"Y-m-d H:i:s" }})
+                </small>
+                {% endif %}
+
+              </div>
+
+              {% if user_can_delete_files %}
+              <form method="POST" action="{{ file.get_delete_url }}">
+                {% csrf_token %}
+
+                <button
+                  class="btn btn-sm btn-danger"
+                  {% if file.is_deleted %}
+                  disabled
+                  {% endif %}
+                  type="submit">
+                  Delete
+                </button>
+              </form>
+              {% endif %}
+
+            </td>
+          </tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    </div>
+  </div>
+
+</div>

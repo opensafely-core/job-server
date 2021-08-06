@@ -1,42 +1,68 @@
+from django.contrib.humanize.templatetags.humanize import naturaltime
 from django.db import transaction
 from django.http import FileResponse, Http404
 from django.shortcuts import get_object_or_404, redirect
 from django.template.response import TemplateResponse
 from django.urls import reverse
 from django.utils import timezone
-from django.views.generic import ListView, View
+from django.utils.safestring import mark_safe
+from django.views.generic import View
 
 from ..authorization import has_permission
 from ..models import Project, Release, ReleaseFile, Snapshot, Workspace
 from ..releases import build_outputs_zip, workspace_files
 
 
-class ProjectReleaseList(ListView):
-    template_name = "project_release_list.html"
-
-    def dispatch(self, request, *args, **kwargs):
-        self.project = get_object_or_404(
+class ProjectReleaseList(View):
+    def get(self, request, *args, **kwargs):
+        project = get_object_or_404(
             Project,
             org__slug=self.kwargs["org_slug"],
             slug=self.kwargs["project_slug"],
         )
 
-        return super().dispatch(request, *args, **kwargs)
-
-    def get_context_data(self, **kwargs):
-        can_delete_files = has_permission(
-            self.request.user, "delete_release_file", project=self.project
+        releases = (
+            Release.objects.filter(workspace__project=project)
+            .order_by("-created_at")
+            .select_related("workspace")
         )
-        return super().get_context_data(**kwargs) | {
-            "project": self.project,
+        if not releases.exists():
+            raise Http404
+
+        can_delete_files = has_permission(
+            request.user, "delete_release_file", project=project
+        )
+
+        def build_title(release):
+            created_at = naturaltime(release.created_at)
+            name = release.created_by.name
+            url = f'<a href="{release.workspace.get_absolute_url()}">{release.workspace.name}</a>'
+
+            return mark_safe(
+                f"Files released by {name} in the {url} workspace {created_at}"
+            )
+
+        releases = [
+            {
+                "download_url": r.get_download_url(),
+                "files": r.files.order_by("name"),
+                "id": r.pk,
+                "title": build_title(r),
+                "view_url": r.get_absolute_url(),
+            }
+            for r in releases
+        ]
+
+        context = {
+            "project": project,
+            "releases": releases,
             "user_can_delete_files": can_delete_files,
         }
 
-    def get_queryset(self):
-        return (
-            Release.objects.filter(workspace__project=self.project)
-            .order_by("-created_at")
-            .select_related("workspace")
+        return TemplateResponse(
+            request,
+            "project_release_list.html",
+            context=context,
         )
 
 
@@ -196,7 +222,7 @@ class SnapshotDownload(View):
         )
 
 
-class WorkspaceReleaseList(ListView):
+class WorkspaceReleaseList(View):
     def get(self, request, *args, **kwargs):
         workspace = get_object_or_404(
             Workspace,
@@ -217,13 +243,36 @@ class WorkspaceReleaseList(ListView):
             project=workspace.project,
         )
 
-        latest_files = sorted(
-            workspace_files(workspace).values(), key=lambda rf: rf.name
-        )
+        latest_files = {
+            "download_url": workspace.get_latest_outputs_download_url(),
+            "files": sorted(
+                workspace_files(workspace).values(), key=lambda rf: rf.name
+            ),
+            "id": "latest",
+            "title": "Latest outputs",
+            "view_url": workspace.get_latest_outputs_url(),
+        }
+
+        def build_title(release):
+            suffix = f" by {release.created_by.name} {naturaltime(release.created_at)}"
+            prefix = "Files released" if release.files else "Released"
+
+            return prefix + suffix
+
+        releases = [
+            {
+                "download_url": r.get_download_url(),
+                "files": r.files.order_by("name"),
+                "id": r.pk,
+                "title": build_title(r),
+                "view_url": r.get_absolute_url(),
+            }
+            for r in workspace.releases.order_by("-created_at")
+        ]
 
         context = {
             "latest_files": latest_files,
-            "releases": workspace.releases.order_by("-created_at"),
+            "releases": releases,
             "user_can_delete_files": can_delete_files,
             "user_can_view_all_files": can_view_all_files,
             "workspace": workspace,

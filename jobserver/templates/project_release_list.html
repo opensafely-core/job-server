@@ -37,79 +37,8 @@
       all of its workspaces.
     </p>
 
-    {% for release in object_list %}
-    <div class="border rounded p-2 pl-3 mb-3">
-
-      <div class="d-flex justify-content-between">
-        <span>
-          Files released by {{ release.created_by.name }} in the
-          <a href="{{ release.workspace.get_absolute_url }}">{{ release.workspace.name }}</a>
-          workspace {{ release.created_at|naturaltime }}
-        </span>
-
-        <div>
-          <a class="btn btn-sm btn-primary {% if not release.files.exists %}disabled{% endif %}"
-            href="{{ release.get_absolute_url }}">View</a>
-          <button
-            class="btn btn-sm btn-primary"
-            type="button"
-            {% if not release.files.exists %}
-            disabled
-            {% endif %}
-            data-toggle="collapse"
-            data-target="#release-{{ release.id }}-files"
-            aria-expanded="false"
-            aria-controls="release-{{ release.id }}-files">
-            Files
-          </button>
-        </div>
-      </div>
-
-      <div class="collapse" id="release-{{ release.id }}-files">
-        <div class="card card-body border-0 mt-2 p-0 px-2">
-          <table class="table table-striped">
-            <tbody>
-              {% for file in release.files.all|dictsort:"name" %}
-              <tr>
-                <td class="d-flex justify-content-between align-items-center">
-
-                  <div>
-                    <a href="{{ file.get_absolute_url }}" {% if file.is_deleted %}class="btn-link disabled"{% endif %}>
-                      <code>{{ file.name }}</code>
-                    </a>
-
-                    {% if file.is_deleted %}
-                    <small class="text-muted">
-                      (Deleted by {{ file.deleted_by.name }} at {{ file.deleted_at|date:"Y-m-d H:i:s" }})
-                    </small>
-                    {% endif %}
-
-                  </div>
-
-                  {% if user_can_delete_files %}
-                  <form method="POST" action="{{ file.get_delete_url }}">
-                    {% csrf_token %}
-
-                    <button
-                      class="btn btn-sm btn-danger"
-                      {% if file.is_deleted %}
-                      disabled
-                      {% endif %}
-                      type="submit">
-                      Delete
-                    </button>
-                  </form>
-                  {% endif %}
-
-                </td>
-              </tr>
-              {% endfor %}
-            </tbody>
-          </table>
-        </div>
-      </div>
-
-    </div>
+    {% for release in releases %}
+    {% include "_release_list.html" with r=release %}
     {% endfor %}
 
   </div>

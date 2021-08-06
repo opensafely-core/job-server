@@ -26,6 +26,22 @@ from ...factories import (
 
 
 @pytest.mark.django_db
+def test_projectreleaselist_no_releases(rf):
+    project = ProjectFactory()
+    WorkspaceFactory.create_batch(3, project=project)
+
+    request = rf.get("/")
+    request.user = UserFactory(roles=[ProjectCollaborator])
+
+    with pytest.raises(Http404):
+        ProjectReleaseList.as_view()(
+            request,
+            org_slug=project.org.slug,
+            project_slug=project.slug,
+        )
+
+
+@pytest.mark.django_db
 def test_projectreleaselist_success(rf):
     project = ProjectFactory()
     workspace1 = WorkspaceFactory(project=project)
@@ -52,7 +68,7 @@ def test_projectreleaselist_success(rf):
     assert response.status_code == 200
 
     assert response.context_data["project"] == project
-    assert len(response.context_data["object_list"]) == 2
+    assert len(response.context_data["releases"]) == 2
 
 
 @pytest.mark.django_db
@@ -96,7 +112,7 @@ def test_projectreleaselist_with_delete_permission(rf):
     assert response.status_code == 200
 
     assert response.context_data["project"] == project
-    assert len(response.context_data["object_list"]) == 2
+    assert len(response.context_data["releases"]) == 2
 
     assert response.context_data["user_can_delete_files"]
     assert "Delete" in response.rendered_content
@@ -592,7 +608,7 @@ def test_snapshotdownload_with_no_files(rf):
 @pytest.mark.django_db
 def test_workspacereleaselist_authenticated_to_view_not_delete(rf):
     workspace = WorkspaceFactory()
-    release = ReleaseFactory(ReleaseUploadsFactory(["test1"]), workspace=workspace)
+    ReleaseFactory(ReleaseUploadsFactory(["test1"]), workspace=workspace)
 
     request = rf.get("/")
     request.user = UserFactory(roles=[ProjectCollaborator])
@@ -607,7 +623,6 @@ def test_workspacereleaselist_authenticated_to_view_not_delete(rf):
     assert response.status_code == 200
     assert response.context_data["workspace"] == workspace
     assert len(response.context_data["releases"]) == 1
-    assert response.context_data["releases"][0] == release
 
     assert response.context_data["user_can_view_all_files"]
     assert "Latest outputs" in response.rendered_content
@@ -619,7 +634,7 @@ def test_workspacereleaselist_authenticated_to_view_not_delete(rf):
 @pytest.mark.django_db
 def test_workspacereleaselist_authenticated_to_view_and_delete(rf):
     workspace = WorkspaceFactory()
-    release = ReleaseFactory(ReleaseUploadsFactory(["test1"]), workspace=workspace)
+    ReleaseFactory(ReleaseUploadsFactory(["test1"]), workspace=workspace)
 
     request = rf.get("/")
     request.user = UserFactory(roles=[OutputChecker, ProjectCollaborator])
@@ -633,7 +648,6 @@ def test_workspacereleaselist_authenticated_to_view_and_delete(rf):
 
     assert response.status_code == 200
     assert len(response.context_data["releases"]) == 1
-    assert response.context_data["releases"][0] == release
 
     assert response.context_data["user_can_view_all_files"]
     assert "Latest outputs" in response.rendered_content
@@ -661,7 +675,7 @@ def test_workspacereleaselist_no_releases(rf):
 @pytest.mark.django_db
 def test_workspacereleaselist_unauthenticated(rf):
     workspace = WorkspaceFactory()
-    release = ReleaseFactory(ReleaseUploadsFactory(["test1"]), workspace=workspace)
+    ReleaseFactory(ReleaseUploadsFactory(["test1"]), workspace=workspace)
 
     request = rf.get("/")
     request.user = AnonymousUser()
@@ -676,7 +690,6 @@ def test_workspacereleaselist_unauthenticated(rf):
     assert response.status_code == 200
     assert response.context_data["workspace"] == workspace
     assert len(response.context_data["releases"]) == 1
-    assert response.context_data["releases"][0] == release
 
     assert "Latest outputs" not in response.rendered_content
 
