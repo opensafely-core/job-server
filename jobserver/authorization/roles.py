@@ -11,6 +11,7 @@ from .permissions import (
     publish_output,
     review_project,
     run_job,
+    upload_release_file,
     view_release_file,
 )
 
@@ -110,6 +111,7 @@ class OutputChecker:
     ]
     permissions = [
         check_output,
+        upload_release_file,
     ]
 
 
