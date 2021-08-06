@@ -11,6 +11,7 @@ from jobserver.api.releases import (
     validate_upload_access,
 )
 from jobserver.authorization import (
+    OutputChecker,
     OutputPublisher,
     ProjectCollaborator,
     ProjectDeveloper,
@@ -176,7 +177,7 @@ def test_workspace_api_create_release_bad_user(api_client):
 
 @pytest.mark.django_db
 def test_workspace_api_create_release_created(api_client):
-    user = UserFactory()
+    user = UserFactory(roles=[OutputChecker])
     workspace = WorkspaceFactory()
     ProjectMembershipFactory(user=user, project=workspace.project)
 
@@ -203,18 +204,20 @@ def test_workspace_api_create_release_created(api_client):
 
 @pytest.mark.django_db
 def test_workspace_api_create_release_already_exists(api_client):
-    release = ReleaseFactory(ReleaseUploadsFactory(["file.txt"]))
+    user = UserFactory(roles=[OutputChecker])
+
+    release = ReleaseFactory(ReleaseUploadsFactory(["file.txt"]), created_by=user)
     rfile = release.files.first()
 
-    BackendMembershipFactory(backend=release.backend, user=release.created_by)
-    ProjectMembershipFactory(user=release.created_by, project=release.workspace.project)
+    BackendMembershipFactory(backend=release.backend, user=user)
+    ProjectMembershipFactory(project=release.workspace.project, user=user)
 
     response = api_client.post(
         f"/api/v2/releases/workspace/{release.workspace.name}",
         content_type="application/json",
         data=json.dumps({"files": {"file.txt": rfile.filehash}}),
         HTTP_AUTHORIZATION=release.backend.auth_token,
-        HTTP_OS_USER=release.created_by.username,
+        HTTP_OS_USER=user.username,
     )
 
     assert response.status_code == 400
@@ -224,7 +227,7 @@ def test_workspace_api_create_release_already_exists(api_client):
 
 @pytest.mark.django_db
 def test_workspace_api_create_release_bad_json(api_client):
-    user = UserFactory()
+    user = UserFactory(roles=[OutputChecker])
     workspace = WorkspaceFactory()
     ProjectMembershipFactory(user=user, project=workspace.project)
 
@@ -427,7 +430,7 @@ def test_release_api_upload_bad_user(api_client):
 
 @pytest.mark.django_db
 def test_release_api_upload_no_files(api_client):
-    user = UserFactory()
+    user = UserFactory(roles=[OutputChecker])
     uploads = ReleaseUploadsFactory(["file.txt"])
     release = ReleaseFactory(uploads, uploaded=False)
 
@@ -446,7 +449,7 @@ def test_release_api_upload_no_files(api_client):
 
 @pytest.mark.django_db
 def test_release_api_upload_bad_backend(api_client):
-    user = UserFactory()
+    user = UserFactory(roles=[OutputChecker])
     uploads = ReleaseUploadsFactory(["output/file.txt"])
     release = ReleaseFactory(uploads, uploaded=False)
 
@@ -468,7 +471,7 @@ def test_release_api_upload_bad_backend(api_client):
 
 @pytest.mark.django_db
 def test_release_api_upload_bad_filename(api_client):
-    user = UserFactory()
+    user = UserFactory(roles=[OutputChecker])
     uploads = ReleaseUploadsFactory(["file.txt"])
     release = ReleaseFactory(uploads, uploaded=False)
 
@@ -489,7 +492,7 @@ def test_release_api_upload_bad_filename(api_client):
 
 @pytest.mark.django_db
 def test_release_api_upload_success(api_client):
-    user = UserFactory()
+    user = UserFactory(roles=[OutputChecker])
     uploads = ReleaseUploadsFactory(["file.txt"])
     release = ReleaseFactory(uploads, uploaded=False)
 
@@ -512,7 +515,7 @@ def test_release_api_upload_success(api_client):
 
 @pytest.mark.django_db
 def test_release_api_upload_already_uploaded(api_client):
-    user = UserFactory()
+    user = UserFactory(roles=[OutputChecker])
     uploads = ReleaseUploadsFactory(["file.txt"])
     release = ReleaseFactory(uploads, uploaded=True)
 
@@ -864,9 +867,27 @@ def test_snapshot_publish_api_without_permission(api_client):
 
 
 @pytest.mark.django_db
-def test_validate_upload_access_not_a_backend_member(rf):
+def test_validate_upload_access_no_permission(rf):
     backend = BackendFactory()
     user = UserFactory()
+    workspace = WorkspaceFactory()
+
+    BackendMembershipFactory(backend=backend, user=user)
+
+    request = rf.get(
+        "/",
+        HTTP_AUTHORIZATION=backend.auth_token,
+        HTTP_OS_USER=user.username,
+    )
+
+    with pytest.raises(NotAuthenticated):
+        validate_upload_access(request, workspace)
+
+
+@pytest.mark.django_db
+def test_validate_upload_access_not_a_backend_member(rf):
+    backend = BackendFactory()
+    user = UserFactory(roles=[OutputChecker])
     workspace = WorkspaceFactory()
 
     request = rf.get(
