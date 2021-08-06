@@ -89,6 +89,7 @@ class ReleaseDetail(View):
         # TODO: check permissions here
 
         context = {
+            "file_path": self.kwargs.get("path", ""),
             "files_url": reverse("api:release", kwargs={"release_id": release.id}),
             "release": release,
         }
@@ -176,6 +177,7 @@ class SnapshotDetail(View):
             raise Http404
 
         context = {
+            "file_path": self.kwargs.get("path", ""),
             "files_url": snapshot.get_api_url(),
             "snapshot": snapshot,
         }

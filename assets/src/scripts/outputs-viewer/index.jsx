@@ -14,6 +14,7 @@ const element = document.getElementById("outputsSPA");
 useStore.setState({
   authToken: element.dataset.authToken,
   csrfToken: element.dataset.csrfToken,
+  filePath: element.dataset.filePath,
   filesUrl: element.dataset.filesUrl,
   prepareUrl: element.dataset.prepareUrl,
   publishUrl: element.dataset.publishUrl,

@@ -86,6 +86,7 @@ class WorkspaceBackendFiles(View):
         context = {
             "auth_token": auth_token,
             "backend": backend,
+            "file_path": self.kwargs.get("path", ""),
             "files_url": f.url,
             "workspace": workspace,
         }
@@ -358,6 +359,7 @@ class WorkspaceLatestOutputsDetail(View):
         prepare_url = workspace.get_create_snapshot_api_url() if can_publish else ""
 
         context = {
+            "file_path": self.kwargs.get("path", ""),
             "files_url": workspace.get_releases_api_url(),
             "prepare_url": prepare_url,
             "workspace": workspace,
