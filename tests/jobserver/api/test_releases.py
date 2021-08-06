@@ -2,9 +2,14 @@ import json
 
 import pytest
 from django.utils import timezone
+from rest_framework.exceptions import NotAuthenticated
 from slack_sdk.errors import SlackApiError
 
-from jobserver.api.releases import ReleaseNotificationAPICreate, WorkspaceStatusAPI
+from jobserver.api.releases import (
+    ReleaseNotificationAPICreate,
+    WorkspaceStatusAPI,
+    validate_upload_access,
+)
 from jobserver.authorization import (
     OutputPublisher,
     ProjectCollaborator,
@@ -839,6 +844,17 @@ def test_snapshot_publish_api_without_permission(api_client):
     api_client.post(
         f"/api/v2/workspaces/{snapshot.workspace.name}/snapshots/{snapshot.pk}/publish"
     )
+
+
+@pytest.mark.django_db
+def test_validate_upload_access_unknown_user(rf):
+    backend = BackendFactory()
+    workspace = WorkspaceFactory()
+
+    request = rf.get("/", HTTP_AUTHORIZATION=backend.auth_token, HTTP_OS_USER="test")
+
+    with pytest.raises(NotAuthenticated):
+        validate_upload_access(request, workspace)
 
 
 @pytest.mark.django_db
