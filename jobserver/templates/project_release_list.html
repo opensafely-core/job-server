@@ -73,9 +73,18 @@
               <tr>
                 <td class="d-flex justify-content-between align-items-center">
 
-                  <a href="{{ file.get_absolute_url }}" {% if file.is_deleted %}class="btn-link disabled"{% endif %}>
-                    <code>{{ file.name }}</code>
-                  </a>
+                  <div>
+                    <a href="{{ file.get_absolute_url }}" {% if file.is_deleted %}class="btn-link disabled"{% endif %}>
+                      <code>{{ file.name }}</code>
+                    </a>
+
+                    {% if file.is_deleted %}
+                    <small class="text-muted">
+                      (Deleted by {{ file.deleted_by.name }} at {{ file.deleted_at|date:"Y-m-d H:i:s" }})
+                    </small>
+                    {% endif %}
+
+                  </div>
 
                   {% if user_can_delete_files %}
                   <form method="POST" action="{{ file.get_delete_url }}">
