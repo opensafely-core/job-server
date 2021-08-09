@@ -1,15 +1,21 @@
+from django.contrib import messages
+from django.db import transaction
 from django.db.models import Q
 from django.http import Http404
 from django.shortcuts import get_object_or_404, redirect
+from django.template.response import TemplateResponse
 from django.utils.html import escape
 from django.utils.safestring import mark_safe
-from django.views.generic import DetailView, ListView, RedirectView, View
+from django.views.generic import CreateView, DetailView, ListView, RedirectView, View
 from django.views.generic.edit import FormMixin
 
 from ..authorization import CoreDeveloper, has_permission, has_role
-from ..forms import JobRequestSearchForm
+from ..backends import backends_to_choices
+from ..forms import JobRequestCreateForm, JobRequestSearchForm
+from ..github import get_branch_sha, get_repo_is_private
 from ..models import Backend, JobRequest, User, Workspace
-from ..project import render_definition
+from ..project import get_actions, get_project, load_yaml, render_definition
+from ..roles import can_run_jobs
 from ..utils import raise_if_not_int
 
 
@@ -54,6 +60,131 @@ class JobRequestCancel(View):
         job_request.save()
 
         return redirect(job_request)
+
+
+class JobRequestCreate(CreateView):
+    form_class = JobRequestCreateForm
+    model = JobRequest
+    template_name = "job_request_create.html"
+
+    def dispatch(self, request, *args, **kwargs):
+        try:
+            self.workspace = Workspace.objects.get(
+                project__org__slug=self.kwargs["org_slug"],
+                project__slug=self.kwargs["project_slug"],
+                name=self.kwargs["workspace_slug"],
+            )
+        except Workspace.DoesNotExist:
+            return redirect("/")
+
+        if not request.user.is_authenticated:
+            return TemplateResponse(
+                request,
+                self.template_name,
+                context={"workspace": self.workspace},
+            )
+
+        self.user_can_run_jobs = can_run_jobs(request.user)
+
+        self.show_details = self.user_can_run_jobs and not self.workspace.is_archived
+
+        if not self.show_details:
+            # short-circuit for logged out users to avoid the hop to grab
+            # actions from GitHub
+            self.actions = []
+            return super().dispatch(request, *args, **kwargs)
+
+        action_status_lut = self.workspace.get_action_status_lut()
+
+        # build actions as list or render the exception to the page
+        gh_org = self.request.user.orgs.first().github_orgs[0]
+        try:
+            self.project = get_project(
+                gh_org,
+                self.workspace.repo_name,
+                self.workspace.branch,
+            )
+            data = load_yaml(self.project)
+        except Exception as e:
+            self.actions = []
+            # this is a bit nasty, need to mirror what get/post would set up for us
+            self.object = None
+            context = self.get_context_data(actions_error=str(e))
+            return self.render_to_response(context=context)
+
+        self.actions = list(get_actions(data, action_status_lut))
+        return super().dispatch(request, *args, **kwargs)
+
+    @transaction.atomic
+    def form_valid(self, form):
+        gh_org = self.request.user.orgs.first().github_orgs[0]
+        sha = get_branch_sha(gh_org, self.workspace.repo_name, self.workspace.branch)
+
+        backend = Backend.objects.get(slug=form.cleaned_data.pop("backend"))
+        backend.job_requests.create(
+            workspace=self.workspace,
+            created_by=self.request.user,
+            sha=sha,
+            project_definition=self.project,
+            **form.cleaned_data,
+        )
+        return redirect(
+            "workspace-logs",
+            org_slug=self.workspace.project.org.slug,
+            project_slug=self.workspace.project.slug,
+            workspace_slug=self.workspace.name,
+        )
+
+    def get_context_data(self, **kwargs):
+        return super().get_context_data(**kwargs) | {
+            "actions": self.actions,
+            "repo_is_private": self.get_repo_is_private(),
+            "latest_job_request": self.get_latest_job_request(),
+            "show_details": self.show_details,
+            "user_can_run_jobs": self.user_can_run_jobs,
+            "workspace": self.workspace,
+        }
+
+    def get_form_kwargs(self):
+        kwargs = super().get_form_kwargs()
+        kwargs["actions"] = [a["name"] for a in self.actions]
+
+        # get backends from the current user
+        backends = Backend.objects.filter(
+            memberships__in=self.request.user.backend_memberships.all()
+        )
+        kwargs["backends"] = backends_to_choices(backends)
+
+        return kwargs
+
+    def get_initial(self):
+        # derive will_notify for the JobRequestCreateForm from the Workspace
+        # setting as a default for the form which the user can override.
+        return {"will_notify": self.workspace.should_notify}
+
+    def get_repo_is_private(self):
+        return get_repo_is_private(
+            self.workspace.repo_owner,
+            self.workspace.repo_name,
+        )
+
+    def get_latest_job_request(self):
+        return (
+            self.workspace.job_requests.prefetch_related("jobs")
+            .order_by("-created_at")
+            .first()
+        )
+
+    def post(self, request, *args, **kwargs):
+        if self.workspace.is_archived:
+            msg = (
+                "You cannot create Jobs for an archived Workspace."
+                "Please contact an admin if you need to have it unarchved."
+            )
+            messages.error(request, msg)
+            return redirect(self.workspace)
+
+        return super().post(request, *args, **kwargs)
 
 
 class JobRequestDetail(DetailView):

@@ -1,6 +1,4 @@
-from django.contrib import messages
 from django.contrib.auth.decorators import user_passes_test
-from django.db import transaction
 from django.db.models import Q
 from django.http import FileResponse, Http404
 from django.shortcuts import get_object_or_404, redirect
@@ -10,16 +8,13 @@ from django.views.generic import CreateView, ListView, View
 from furl import furl
 
 from ..authorization import CoreDeveloper, has_permission, has_role
-from ..backends import backends_to_choices
 from ..forms import (
-    JobRequestCreateForm,
     WorkspaceArchiveToggleForm,
     WorkspaceCreateForm,
     WorkspaceNotificationsToggleForm,
 )
-from ..github import get_branch_sha, get_repo_is_private, get_repos_with_branches
+from ..github import get_repos_with_branches
 from ..models import Backend, JobRequest, Project, Workspace
-from ..project import get_actions, get_project, load_yaml
 from ..releases import (
     build_hatch_token_and_url,
     build_outputs_zip,
@@ -150,157 +145,56 @@ class WorkspaceCreate(CreateView):
         return kwargs
 
 
-class WorkspaceDetail(CreateView):
-    form_class = JobRequestCreateForm
-    model = JobRequest
-    template_name = "workspace_detail.html"
-
-    def dispatch(self, request, *args, **kwargs):
-        try:
-            self.workspace = Workspace.objects.get(
-                project__org__slug=self.kwargs["org_slug"],
-                project__slug=self.kwargs["project_slug"],
-                name=self.kwargs["workspace_slug"],
-            )
-        except Workspace.DoesNotExist:
-            return redirect("/")
-
-        if not request.user.is_authenticated:
-            return TemplateResponse(
-                request,
-                self.template_name,
-                context={"workspace": self.workspace},
-            )
-
-        self.user_can_run_jobs = can_run_jobs(request.user)
-
-        self.show_details = self.user_can_run_jobs and not self.workspace.is_archived
-
-        if not self.show_details:
-            # short-circuit for logged out users to avoid the hop to grab
-            # actions from GitHub
-            self.actions = []
-            return super().dispatch(request, *args, **kwargs)
-
-        action_status_lut = self.workspace.get_action_status_lut()
-
-        # build actions as list or render the exception to the page
-        gh_org = self.request.user.orgs.first().github_orgs[0]
-        try:
-            self.project = get_project(
-                gh_org,
-                self.workspace.repo_name,
-                self.workspace.branch,
-            )
-            data = load_yaml(self.project)
-        except Exception as e:
-            self.actions = []
-            # this is a bit nasty, need to mirror what get/post would set up for us
-            self.object = None
-            context = self.get_context_data(actions_error=str(e))
-            return self.render_to_response(context=context)
-
-        self.actions = list(get_actions(data, action_status_lut))
-        return super().dispatch(request, *args, **kwargs)
-
-    @transaction.atomic
-    def form_valid(self, form):
-        gh_org = self.request.user.orgs.first().github_orgs[0]
-        sha = get_branch_sha(gh_org, self.workspace.repo_name, self.workspace.branch)
-
-        backend = Backend.objects.get(slug=form.cleaned_data.pop("backend"))
-        backend.job_requests.create(
-            workspace=self.workspace,
-            created_by=self.request.user,
-            sha=sha,
-            project_definition=self.project,
-            **form.cleaned_data,
-        )
-        return redirect(
-            "workspace-logs",
-            org_slug=self.workspace.project.org.slug,
-            project_slug=self.workspace.project.slug,
-            workspace_slug=self.workspace.name,
+class WorkspaceDetail(View):
+    def get(self, request, *args, **kwargs):
+        workspace = get_object_or_404(
+            Workspace,
+            project__org__slug=self.kwargs["org_slug"],
+            project__slug=self.kwargs["project_slug"],
+            name=self.kwargs["workspace_slug"],
         )
 
-    def get_context_data(self, **kwargs):
-        can_use_releases = has_role(self.request.user, CoreDeveloper)
+        user_can_run_jobs = can_run_jobs(request.user)
+        can_use_releases = has_role(request.user, CoreDeveloper)
 
         is_privileged_user = has_permission(
-            self.request.user, "view_release_file", project=self.workspace.project
+            request.user, "view_release_file", project=workspace.project
         )
 
         # a user can see backend files if they have access to at least one
         # backend and the permissions required to see outputs
-        has_backends = self.request.user.backends.exclude(level_4_url="").exists()
+        has_backends = (
+            request.user.is_authenticated
+            and request.user.backends.exclude(level_4_url="").exists()
+        )
         can_view_files = is_privileged_user and has_backends
 
         # are there any releases to show for the workspace?
-        can_view_releases = self.workspace.releases.exists()
+        can_view_releases = workspace.releases.exists()
 
         # unprivileged users can only see published snapshots, but privileged
         # users can see snapshots if there are any releases since they can also
         # prepare and publish them from the same views.
-        has_published_snapshots = self.workspace.snapshots.exclude(
+        has_published_snapshots = workspace.snapshots.exclude(
             published_at=None
         ).exists()
         can_view_outputs = has_published_snapshots or (
             is_privileged_user and can_view_releases
         )
 
-        return super().get_context_data(**kwargs) | {
-            "actions": self.actions,
+        context = {
             "can_use_releases": can_use_releases,
-            "repo_is_private": self.get_repo_is_private(),
-            "latest_job_request": self.get_latest_job_request(),
-            "show_details": self.show_details,
-            "user_can_run_jobs": self.user_can_run_jobs,
+            "user_can_run_jobs": user_can_run_jobs,
             "user_can_view_files": can_view_files,
             "user_can_view_outputs": can_view_outputs,
             "user_can_view_releases": can_view_releases,
-            "workspace": self.workspace,
+            "workspace": workspace,
         }
-
-    def get_form_kwargs(self):
-        kwargs = super().get_form_kwargs()
-        kwargs["actions"] = [a["name"] for a in self.actions]
-
-        # get backends from the current user
-        backends = Backend.objects.filter(
-            memberships__in=self.request.user.backend_memberships.all()
+        return TemplateResponse(
+            request,
+            "workspace_detail.html",
+            context=context,
         )
-        kwargs["backends"] = backends_to_choices(backends)
-
-        return kwargs
-
-    def get_initial(self):
-        # derive will_notify for the JobRequestCreateForm from the Workspace
-        # setting as a default for the form which the user can override.
-        return {"will_notify": self.workspace.should_notify}
-
-    def get_repo_is_private(self):
-        return get_repo_is_private(
-            self.workspace.repo_owner,
-            self.workspace.repo_name,
-        )
-
-    def get_latest_job_request(self):
-        return (
-            self.workspace.job_requests.prefetch_related("jobs")
-            .order_by("-created_at")
-            .first()
-        )
-
-    def post(self, request, *args, **kwargs):
-        if self.workspace.is_archived:
-            msg = (
-                "You cannot create Jobs for an archived Workspace."
-                "Please contact an admin if you need to have it unarchved."
-            )
-            messages.error(request, msg)
-            return redirect(self.workspace)
-
-        return super().post(request, *args, **kwargs)
 
 
 class WorkspaceFileList(View):

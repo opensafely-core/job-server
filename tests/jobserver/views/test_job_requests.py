@@ -1,21 +1,28 @@
 import pytest
 from django.contrib.auth.models import AnonymousUser
+from django.contrib.messages.storage.fallback import FallbackStorage
 from django.core.exceptions import BadRequest
 from django.http import Http404
 
-from jobserver.authorization import ProjectDeveloper
+from jobserver.authorization import ProjectCollaborator, ProjectDeveloper
 from jobserver.models import Backend, JobRequest
 from jobserver.views.job_requests import (
     JobRequestCancel,
+    JobRequestCreate,
     JobRequestDetail,
     JobRequestDetailRedirect,
     JobRequestList,
 )
 
 from ...factories import (
+    BackendMembershipFactory,
     JobFactory,
     JobRequestFactory,
+    OrgFactory,
+    ProjectFactory,
     ProjectMembershipFactory,
+    ReleaseFactory,
+    ReleaseUploadsFactory,
     UserFactory,
     UserSocialAuthFactory,
     WorkspaceFactory,
@@ -111,6 +118,467 @@ def test_jobrequestcancel_unknown_job_request(rf):
 
     with pytest.raises(Http404):
         JobRequestCancel.as_view()(request, pk=0)
+
+
+@pytest.mark.django_db
+def test_jobrequestcreate_logged_out(rf):
+    org = OrgFactory()
+    project = ProjectFactory(org=org)
+    workspace = WorkspaceFactory(project=project)
+
+    # Build a RequestFactory instance
+    request = rf.get(MEANINGLESS_URL)
+    request.user = AnonymousUser()
+
+    response = JobRequestCreate.as_view()(
+        request,
+        org_slug=org.slug,
+        project_slug=project.slug,
+        workspace_slug=workspace.name,
+    )
+
+    assert response.status_code == 200
+
+    assert response.context_data["workspace"] == workspace
+
+
+@pytest.mark.django_db
+def test_jobrequestcreate_project_yaml_errors(rf, mocker, user):
+    org = user.orgs.first()
+    project = ProjectFactory(org=org)
+    workspace = WorkspaceFactory(project=project)
+
+    ProjectMembershipFactory(project=project, user=user, roles=[ProjectDeveloper])
+
+    mocker.patch(
+        "jobserver.views.job_requests.can_run_jobs", autospec=True, return_value=True
+    )
+    mocker.patch(
+        "jobserver.views.job_requests.get_project",
+        autospec=True,
+        side_effect=Exception("test error"),
+    )
+    mocker.patch(
+        "jobserver.views.job_requests.get_repo_is_private",
+        autospec=True,
+        return_value=True,
+    )
+
+    request = rf.get(MEANINGLESS_URL)
+    request.user = user
+
+    response = JobRequestCreate.as_view()(
+        request,
+        org_slug=org.slug,
+        project_slug=project.slug,
+        workspace_slug=workspace.name,
+    )
+
+    assert response.status_code == 200
+
+    assert response.context_data["actions"] == []
+    assert response.context_data["actions_error"] == "test error"
+
+
+@pytest.mark.django_db
+def test_jobrequestcreate_get_success(rf, mocker, user):
+    org = user.orgs.first()
+    project = ProjectFactory(org=org)
+    workspace = WorkspaceFactory(project=project)
+
+    ProjectMembershipFactory(project=project, user=user, roles=[ProjectDeveloper])
+
+    # Give the User the permission to view unpublished Snapshots and current
+    # Workspace files
+    user.roles = [ProjectCollaborator]
+    user.save()
+
+    # set up some files for the workspace
+    upload = ReleaseUploadsFactory({"file1.txt": b"text", "file2.txt": b"text"})
+    ReleaseFactory(upload, workspace=workspace)
+
+    dummy_yaml = """
+    actions:
+      twiddle:
+    """
+    mocker.patch(
+        "jobserver.views.job_requests.can_run_jobs", autospec=True, return_value=True
+    )
+    mocker.patch(
+        "jobserver.views.job_requests.get_project",
+        autospec=True,
+        return_value=dummy_yaml,
+    )
+    mocker.patch(
+        "jobserver.views.job_requests.get_repo_is_private",
+        autospec=True,
+        return_value=True,
+    )
+
+    request = rf.get(MEANINGLESS_URL)
+    request.user = user
+
+    response = JobRequestCreate.as_view()(
+        request,
+        org_slug=org.slug,
+        project_slug=project.slug,
+        workspace_slug=workspace.name,
+    )
+
+    assert response.status_code == 200
+
+    assert response.context_data["actions"] == [
+        {"name": "twiddle", "needs": [], "status": "-"},
+        {"name": "run_all", "needs": ["twiddle"], "status": "-"},
+    ]
+    assert response.context_data["workspace"] == workspace
+
+
+@pytest.mark.django_db
+def test_jobrequestcreate_get_with_unauthenticated_user(rf, user):
+    """
+    Check JobRequestCreate does not render the controls for Archiving,
+    Notifications, and selecting Actions for unauthenticated Users.
+    """
+    org = user.orgs.first()
+    project = ProjectFactory(org=org)
+    workspace = WorkspaceFactory(project=project, is_archived=False)
+
+    # Build a RequestFactory instance
+    request = rf.get(MEANINGLESS_URL)
+    request.user = AnonymousUser()
+    response = JobRequestCreate.as_view()(
+        request,
+        org_slug=org.slug,
+        project_slug=project.slug,
+        workspace_slug=workspace.name,
+    )
+
+    assert "Archive" not in response.rendered_content
+    assert "Turn Notifications" not in response.rendered_content
+    assert "twiddle" not in response.rendered_content
+
+
+@pytest.mark.django_db
+def test_jobrequestcreate_get_with_unprivileged_user(rf, mocker, user):
+    org = user.orgs.first()
+    project = ProjectFactory(org=org)
+    workspace = WorkspaceFactory(project=project)
+
+    ProjectMembershipFactory(project=project, user=user, roles=[ProjectDeveloper])
+
+    dummy_yaml = """
+    actions:
+      twiddle:
+    """
+    mocker.patch(
+        "jobserver.views.job_requests.can_run_jobs", autospec=True, return_value=True
+    )
+    mocker.patch(
+        "jobserver.views.job_requests.get_project",
+        autospec=True,
+        return_value=dummy_yaml,
+    )
+    mocker.patch(
+        "jobserver.views.job_requests.get_repo_is_private",
+        autospec=True,
+        return_value=True,
+    )
+
+    request = rf.get(MEANINGLESS_URL)
+    request.user = user
+
+    response = JobRequestCreate.as_view()(
+        request,
+        org_slug=org.slug,
+        project_slug=project.slug,
+        workspace_slug=workspace.name,
+    )
+
+    assert response.status_code == 200
+
+    assert response.context_data["actions"] == [
+        {"name": "twiddle", "needs": [], "status": "-"},
+        {"name": "run_all", "needs": ["twiddle"], "status": "-"},
+    ]
+    assert response.context_data["workspace"] == workspace
+
+
+@pytest.mark.django_db
+def test_jobrequestcreate_post_archived_workspace(rf, mocker, user):
+    org = user.orgs.first()
+    project = ProjectFactory(org=org)
+    workspace = WorkspaceFactory(project=project, is_archived=True)
+
+    mocker.patch(
+        "jobserver.views.job_requests.can_run_jobs", autospec=True, return_value=True
+    )
+    mocker.patch(
+        "jobserver.views.job_requests.get_actions", autospec=True, return_value=[]
+    )
+
+    request = rf.post(MEANINGLESS_URL)
+    request.session = "session"
+    request._messages = FallbackStorage(request)
+    request.user = user
+
+    response = JobRequestCreate.as_view()(
+        request,
+        org_slug=org.slug,
+        project_slug=project.slug,
+        workspace_slug=workspace.name,
+    )
+
+    assert response.status_code == 302
+    assert response.url == workspace.get_absolute_url()
+
+
+@pytest.mark.django_db
+def test_jobrequestcreate_post_success(rf, mocker, monkeypatch, user):
+    monkeypatch.setenv("BACKENDS", "tpp")
+
+    org = user.orgs.first()
+    project = ProjectFactory(org=org)
+    workspace = WorkspaceFactory(project=project)
+
+    BackendMembershipFactory(backend=Backend.objects.get(slug="tpp"), user=user)
+    ProjectMembershipFactory(project=project, user=user, roles=[ProjectDeveloper])
+
+    dummy_yaml = """
+    actions:
+      twiddle:
+    """
+    mocker.patch(
+        "jobserver.views.job_requests.can_run_jobs", autospec=True, return_value=True
+    )
+    mocker.patch(
+        "jobserver.views.job_requests.get_project",
+        autospec=True,
+        return_value=dummy_yaml,
+    )
+    mocker.patch(
+        "jobserver.views.job_requests.get_branch_sha",
+        autospec=True,
+        return_value="abc123",
+    )
+
+    data = {
+        "backend": "tpp",
+        "requested_actions": ["twiddle"],
+        "callback_url": "test",
+    }
+    request = rf.post(MEANINGLESS_URL, data)
+    request.user = user
+
+    response = JobRequestCreate.as_view()(
+        request,
+        org_slug=org.slug,
+        project_slug=project.slug,
+        workspace_slug=workspace.name,
+    )
+
+    assert response.status_code == 302, response.context_data["form"].errors
+    assert response.url == workspace.get_logs_url()
+
+    job_request = JobRequest.objects.first()
+    assert job_request.created_by == user
+    assert job_request.workspace == workspace
+    assert job_request.backend.slug == "tpp"
+    assert job_request.requested_actions == ["twiddle"]
+    assert job_request.sha == "abc123"
+    assert not job_request.jobs.exists()
+
+
+@pytest.mark.django_db
+def test_jobrequestcreate_post_with_invalid_backend(rf, mocker, monkeypatch, user):
+    monkeypatch.setenv("BACKENDS", "tpp,emis")
+
+    org = user.orgs.first()
+    project = ProjectFactory(org=org)
+    workspace = WorkspaceFactory(project=project)
+
+    BackendMembershipFactory(backend=Backend.objects.get(slug="tpp"), user=user)
+    ProjectMembershipFactory(project=project, user=user, roles=[ProjectDeveloper])
+
+    dummy_yaml = """
+    actions:
+      twiddle:
+    """
+    mocker.patch(
+        "jobserver.views.job_requests.can_run_jobs", autospec=True, return_value=True
+    )
+    mocker.patch(
+        "jobserver.views.job_requests.get_project",
+        autospec=True,
+        return_value=dummy_yaml,
+    )
+    mocker.patch(
+        "jobserver.views.job_requests.get_branch_sha",
+        autospec=True,
+        return_value="abc123",
+    )
+    mocker.patch(
+        "jobserver.views.job_requests.get_repo_is_private",
+        autospec=True,
+        return_value=True,
+    )
+
+    data = {
+        "backend": "emis",
+        "requested_actions": ["twiddle"],
+        "callback_url": "test",
+    }
+    request = rf.post(MEANINGLESS_URL, data)
+    request.user = user
+
+    response = JobRequestCreate.as_view()(
+        request,
+        org_slug=org.slug,
+        project_slug=project.slug,
+        workspace_slug=workspace.name,
+    )
+
+    assert response.status_code == 200
+    assert response.context_data["form"].errors["backend"] == [
+        "Select a valid choice. emis is not one of the available choices."
+    ]
+
+
+@pytest.mark.django_db
+def test_jobrequestcreate_post_with_notifications_default(
+    rf, mocker, monkeypatch, user
+):
+    monkeypatch.setenv("BACKENDS", "tpp")
+
+    org = user.orgs.first()
+    project = ProjectFactory(org=org)
+    workspace = WorkspaceFactory(project=project, should_notify=True)
+
+    BackendMembershipFactory(backend=Backend.objects.get(slug="tpp"), user=user)
+    ProjectMembershipFactory(project=project, user=user, roles=[ProjectDeveloper])
+
+    dummy_yaml = """
+    actions:
+      twiddle:
+    """
+    mocker.patch(
+        "jobserver.views.job_requests.can_run_jobs", autospec=True, return_value=True
+    )
+    mocker.patch(
+        "jobserver.views.job_requests.get_project",
+        autospec=True,
+        return_value=dummy_yaml,
+    )
+    mocker.patch(
+        "jobserver.views.job_requests.get_branch_sha",
+        autospec=True,
+        return_value="abc123",
+    )
+
+    data = {
+        "backend": "tpp",
+        "requested_actions": ["twiddle"],
+        "callback_url": "test",
+        "will_notify": "True",
+    }
+    request = rf.post(MEANINGLESS_URL, data)
+    request.user = user
+
+    response = JobRequestCreate.as_view()(
+        request,
+        org_slug=org.slug,
+        project_slug=project.slug,
+        workspace_slug=workspace.name,
+    )
+
+    assert response.status_code == 302, response.context_data["form"].errors
+    assert response.url == workspace.get_logs_url()
+
+    job_request = JobRequest.objects.first()
+    assert job_request.created_by == user
+    assert job_request.workspace == workspace
+    assert job_request.backend.slug == "tpp"
+    assert job_request.requested_actions == ["twiddle"]
+    assert job_request.sha == "abc123"
+    assert job_request.will_notify
+
+
+@pytest.mark.django_db
+def test_jobrequestcreate_post_with_notifications_override(
+    rf, mocker, monkeypatch, user
+):
+    monkeypatch.setenv("BACKENDS", "tpp")
+
+    org = user.orgs.first()
+    project = ProjectFactory(org=org)
+    workspace = WorkspaceFactory(project=project, should_notify=True)
+
+    BackendMembershipFactory(backend=Backend.objects.get(slug="tpp"), user=user)
+    ProjectMembershipFactory(project=project, user=user, roles=[ProjectDeveloper])
+
+    dummy_yaml = """
+    actions:
+      twiddle:
+    """
+    mocker.patch(
+        "jobserver.views.job_requests.can_run_jobs", autospec=True, return_value=True
+    )
+    mocker.patch(
+        "jobserver.views.job_requests.get_project",
+        autospec=True,
+        return_value=dummy_yaml,
+    )
+    mocker.patch(
+        "jobserver.views.job_requests.get_branch_sha",
+        autospec=True,
+        return_value="abc123",
+    )
+
+    data = {
+        "backend": "tpp",
+        "requested_actions": ["twiddle"],
+        "callback_url": "test",
+        "will_notify": "False",
+    }
+    request = rf.post(MEANINGLESS_URL, data)
+    request.user = user
+
+    response = JobRequestCreate.as_view()(
+        request,
+        org_slug=org.slug,
+        project_slug=project.slug,
+        workspace_slug=workspace.name,
+    )
+
+    assert response.status_code == 302, response.context_data["form"].errors
+    assert response.url == workspace.get_logs_url()
+
+    job_request = JobRequest.objects.first()
+    assert job_request.created_by == user
+    assert job_request.workspace == workspace
+    assert job_request.backend.slug == "tpp"
+    assert job_request.requested_actions == ["twiddle"]
+    assert job_request.sha == "abc123"
+    assert not job_request.will_notify
+    assert not job_request.jobs.exists()
+
+
+@pytest.mark.django_db
+def test_jobrequestcreate_unknown_workspace(rf, user):
+    org = user.orgs.first()
+    project = ProjectFactory(org=org)
+
+    request = rf.get(MEANINGLESS_URL)
+    request.user = user
+    response = JobRequestCreate.as_view()(
+        request,
+        org_slug=org.slug,
+        project_slug=project.slug,
+        workspace_slug="test",
+    )
+
+    assert response.status_code == 302
+    assert response.url == "/"
 
 
 @pytest.mark.django_db
