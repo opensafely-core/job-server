@@ -115,10 +115,10 @@ api_urls = [
 
 backend_urls = [
     path("", BackendList.as_view(), name="backend-list"),
-    path("<pk>/", BackendDetail.as_view(), name="backend-detail"),
-    path("<pk>/edit/", BackendEdit.as_view(), name="backend-edit"),
+    path("<int:pk>/", BackendDetail.as_view(), name="backend-detail"),
+    path("<int:pk>/edit/", BackendEdit.as_view(), name="backend-edit"),
     path(
-        "<pk>/rotate-token/",
+        "<int:pk>/rotate-token/",
         BackendRotateToken.as_view(),
         name="backend-rotate-token",
     ),
@@ -156,17 +156,17 @@ outputs_urls = [
         name="workspace-latest-outputs-detail",
     ),
     path(
-        "<pk>/",
+        "<int:pk>/",
         SnapshotDetail.as_view(),
         name="workspace-snapshot-detail",
     ),
     path(
-        "<pk>/download/",
+        "<int:pk>/download/",
         SnapshotDownload.as_view(),
         name="workspace-snapshot-download",
     ),
     path(
-        "<pk>/<path:path>",
+        "<int:pk>/<path:path>",
         SnapshotDetail.as_view(),
         name="workspace-snapshot-detail",
     ),
@@ -225,12 +225,12 @@ project_urls = [
         name="project-invitation-create",
     ),
     path(
-        "members/<pk>/edit",
+        "members/<int:pk>/edit",
         ProjectMembershipEdit.as_view(),
         name="project-membership-edit",
     ),
     path(
-        "members/<pk>/remove",
+        "members/<int:pk>/remove",
         ProjectMembershipRemove.as_view(),
         name="project-membership-remove",
     ),
@@ -260,9 +260,11 @@ urlpatterns = [
     path("backends/", include(backend_urls)),
     path("jobs/", JobRequestList.as_view(), name="job-list"),
     path("job-requests/", RedirectView.as_view(pattern_name="job-list")),
-    path("job-requests/<pk>/", JobRequestDetail.as_view(), name="job-request-detail"),
     path(
-        "job-requests/<pk>/cancel/",
+        "job-requests/<int:pk>/", JobRequestDetail.as_view(), name="job-request-detail"
+    ),
+    path(
+        "job-requests/<int:pk>/cancel/",
         JobRequestCancel.as_view(),
         name="job-request-cancel",
     ),
