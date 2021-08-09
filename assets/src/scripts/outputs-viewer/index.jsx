@@ -13,7 +13,7 @@ const element = document.getElementById("outputsSPA");
 
 useStore.setState({
   authToken: element.dataset.authToken,
-  basename: element.dataset.basename,
+  basePath: element.dataset.basePath,
   csrfToken: element.dataset.csrfToken,
   filePath: element.dataset.filePath,
   filesUrl: element.dataset.filesUrl,

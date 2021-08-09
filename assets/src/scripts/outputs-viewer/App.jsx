@@ -18,12 +18,11 @@ const queryClient = new QueryClient({
 });
 
 function App() {
-  const { basename, filePath, listVisible, prepareUrl, publishUrl } =
-    useStore();
+  const { basePath, listVisible, prepareUrl, publishUrl } = useStore();
   const hasButtons = prepareUrl || publishUrl;
 
   return (
-    <BrowserRouter basename={basename.replace(filePath, "")}>
+    <BrowserRouter basePath={basePath}>
       <QueryClientProvider client={queryClient}>
         {hasButtons && (
           <div className="row">

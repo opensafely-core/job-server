@@ -10,7 +10,7 @@ from django.views.generic import View
 
 from ..authorization import has_permission
 from ..models import Project, Release, ReleaseFile, Snapshot, Workspace
-from ..releases import build_outputs_zip, workspace_files
+from ..releases import build_outputs_zip, build_spa_urls, workspace_files
 
 
 class ProjectReleaseList(View):
@@ -88,8 +88,10 @@ class ReleaseDetail(View):
 
         # TODO: check permissions here
 
+        base_path, file_path = build_spa_urls(request.path, self.kwargs.get("path", ""))
         context = {
-            "file_path": self.kwargs.get("path", ""),
+            "base_path": base_path,
+            "file_path": file_path,
             "files_url": reverse("api:release", kwargs={"release_id": release.id}),
             "release": release,
         }
@@ -176,8 +178,10 @@ class SnapshotDetail(View):
         if snapshot.is_draft and not has_permission_to_view:
             raise Http404
 
+        base_path, file_path = build_spa_urls(request.path, self.kwargs.get("path", ""))
         context = {
-            "file_path": self.kwargs.get("path", ""),
+            "base_path": base_path,
+            "file_path": file_path,
             "files_url": snapshot.get_api_url(),
             "snapshot": snapshot,
         }
