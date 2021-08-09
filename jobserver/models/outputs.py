@@ -91,6 +91,12 @@ class ReleaseFile(models.Model):
     def ulid(self):
         return ULID.from_str(self.id)
 
+    deleted_by = models.ForeignKey(
+        "User",
+        on_delete=models.PROTECT,
+        null=True,
+        related_name="deleted_files",
+    )
     release = models.ForeignKey(
         "Release",
         on_delete=models.PROTECT,
@@ -101,19 +107,39 @@ class ReleaseFile(models.Model):
         on_delete=models.PROTECT,
         related_name="files",
     )
-    created_at = models.DateTimeField(default=timezone.now)
     # the user who approved the release
     created_by = models.ForeignKey(
         "User",
         on_delete=models.PROTECT,
         related_name="released_files",
     )
+
     # name is path from the POV of the researcher, e.g "outputs/file1.txt"
     name = models.TextField()
     # path is from the POV of the system e.g. "workspace/releases/RELEASE_ID/file1.txt"
     path = models.TextField()
     # the sha256 hash of the file
     filehash = models.TextField()
+
+    created_at = models.DateTimeField(default=timezone.now)
+    deleted_at = models.DateTimeField(null=True)
+
+    class Meta:
+        constraints = [
+            models.CheckConstraint(
+                name="%(app_label)s_%(class)s_deleted_fields_both_set",
+                check=(
+                    models.Q(
+                        deleted_at=None,
+                        deleted_by=None,
+                    )
+                    | ~models.Q(
+                        deleted_at=None,
+                        deleted_by=None,
+                    )
+                ),
+            )
+        ]
 
     def absolute_path(self):
         return absolute_file_path(self.path)
@@ -133,6 +159,23 @@ class ReleaseFile(models.Model):
     def get_api_url(self):
         """The API url that will serve up this file."""
         return reverse("api:release-file", kwargs={"file_id": self.id})
+
+    def get_delete_url(self):
+        return reverse(
+            "release-file-delete",
+            kwargs={
+                "org_slug": self.release.workspace.project.org.slug,
+                "project_slug": self.release.workspace.project.slug,
+                "workspace_slug": self.release.workspace.name,
+                "pk": self.release.id,
+                "release_file_id": self.id,
+            },
+        )
+
+    @property
+    def is_deleted(self):
+        """Has the file on disk been deleted?"""
+        return not self.absolute_path().exists()
 
 
 class Snapshot(models.Model):

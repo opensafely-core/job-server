@@ -3,6 +3,7 @@ from .permissions import (
     check_output,
     create_org,
     create_snapshot,
+    delete_release_file,
     invite_project_members,
     manage_backends,
     manage_project_members,
@@ -111,6 +112,7 @@ class OutputChecker:
     ]
     permissions = [
         check_output,
+        delete_release_file,
         upload_release_file,
     ]
 

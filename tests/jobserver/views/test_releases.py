@@ -3,11 +3,12 @@ from django.contrib.auth.models import AnonymousUser
 from django.http import Http404
 from django.utils import timezone
 
-from jobserver.authorization import OutputPublisher, ProjectCollaborator
+from jobserver.authorization import OutputChecker, OutputPublisher, ProjectCollaborator
 from jobserver.views.releases import (
     ProjectReleaseList,
     ReleaseDetail,
     ReleaseDownload,
+    ReleaseFileDelete,
     SnapshotDetail,
     SnapshotDownload,
     WorkspaceReleaseList,
@@ -22,6 +23,22 @@ from ...factories import (
     UserFactory,
     WorkspaceFactory,
 )
+
+
+@pytest.mark.django_db
+def test_projectreleaselist_no_releases(rf):
+    project = ProjectFactory()
+    WorkspaceFactory.create_batch(3, project=project)
+
+    request = rf.get("/")
+    request.user = UserFactory(roles=[ProjectCollaborator])
+
+    with pytest.raises(Http404):
+        ProjectReleaseList.as_view()(
+            request,
+            org_slug=project.org.slug,
+            project_slug=project.slug,
+        )
 
 
 @pytest.mark.django_db
@@ -40,6 +57,7 @@ def test_projectreleaselist_success(rf):
     )
 
     request = rf.get("/")
+    request.user = UserFactory()
 
     response = ProjectReleaseList.as_view()(
         request,
@@ -50,7 +68,7 @@ def test_projectreleaselist_success(rf):
     assert response.status_code == 200
 
     assert response.context_data["project"] == project
-    assert len(response.context_data["object_list"]) == 2
+    assert len(response.context_data["releases"]) == 2
 
 
 @pytest.mark.django_db
@@ -65,6 +83,39 @@ def test_projectreleaselist_unknown_workspace(rf):
             org_slug=org.slug,
             project_slug="",
         )
+
+
+@pytest.mark.django_db
+def test_projectreleaselist_with_delete_permission(rf):
+    project = ProjectFactory()
+    workspace1 = WorkspaceFactory(project=project)
+    workspace2 = WorkspaceFactory(project=project)
+
+    ReleaseFactory(
+        ReleaseUploadsFactory(["test1", "test2"]),
+        workspace=workspace1,
+    )
+    ReleaseFactory(
+        ReleaseUploadsFactory(["test3", "test4"]),
+        workspace=workspace2,
+    )
+
+    request = rf.get("/")
+    request.user = UserFactory(roles=[OutputChecker])
+
+    response = ProjectReleaseList.as_view()(
+        request,
+        org_slug=project.org.slug,
+        project_slug=project.slug,
+    )
+
+    assert response.status_code == 200
+
+    assert response.context_data["project"] == project
+    assert len(response.context_data["releases"]) == 2
+
+    assert response.context_data["user_can_delete_files"]
+    assert "Delete" in response.rendered_content
 
 
 @pytest.mark.django_db
@@ -200,6 +251,97 @@ def test_releasedownload_without_permission(rf):
             project_slug=release.workspace.project.slug,
             workspace_slug=release.workspace.name,
             pk=release.pk,
+        )
+
+
+@pytest.mark.django_db
+def test_releasefiledelete_no_file_on_disk(rf):
+    release = ReleaseFactory(ReleaseUploadsFactory(["file1.txt"]))
+    rfile = release.files.first()
+
+    assert rfile.absolute_path().exists()
+    rfile.absolute_path().unlink()
+    assert not rfile.absolute_path().exists()
+
+    request = rf.post("/")
+    request.user = UserFactory(roles=[OutputChecker])
+
+    with pytest.raises(Http404):
+        ReleaseFileDelete.as_view()(
+            request,
+            org_slug=release.workspace.project.org.slug,
+            project_slug=release.workspace.project.slug,
+            workspace_slug=release.workspace.name,
+            pk=release.pk,
+            release_file_id=rfile.pk,
+        )
+
+
+@pytest.mark.django_db
+def test_releasefiledelete_success(rf, freezer):
+    release = ReleaseFactory(ReleaseUploadsFactory({"file1.txt": b"test"}))
+    rfile = release.files.first()
+    user = UserFactory(roles=[OutputChecker])
+
+    assert rfile.absolute_path().exists()
+
+    request = rf.post("/")
+    request.user = user
+
+    response = ReleaseFileDelete.as_view()(
+        request,
+        org_slug=release.workspace.project.org.slug,
+        project_slug=release.workspace.project.slug,
+        workspace_slug=release.workspace.name,
+        pk=release.pk,
+        release_file_id=rfile.pk,
+    )
+
+    assert response.status_code == 302
+    assert response.url == rfile.release.workspace.get_releases_url()
+
+    rfile.refresh_from_db()
+    assert not rfile.absolute_path().exists()
+    assert rfile.deleted_by == user
+    assert rfile.deleted_at == timezone.now()
+
+
+@pytest.mark.django_db
+def test_releasefiledelete_unknown_release_file(rf):
+    release = ReleaseFactory([], uploaded=False)
+
+    request = rf.post("/")
+    request.user = UserFactory()
+
+    with pytest.raises(Http404):
+        ReleaseFileDelete.as_view()(
+            request,
+            org_slug=release.workspace.project.org.slug,
+            project_slug=release.workspace.project.slug,
+            workspace_slug=release.workspace.name,
+            pk=release.pk,
+            release_file_id="",
+        )
+
+
+@pytest.mark.django_db
+def test_releasefiledelete_without_permission(rf):
+    release = ReleaseFactory(ReleaseUploadsFactory(["file1.txt"]))
+    rfile = release.files.first()
+
+    assert rfile.absolute_path().exists()
+
+    request = rf.post("/")
+    request.user = UserFactory()
+
+    with pytest.raises(Http404):
+        ReleaseFileDelete.as_view()(
+            request,
+            org_slug=release.workspace.project.org.slug,
+            project_slug=release.workspace.project.slug,
+            workspace_slug=release.workspace.name,
+            pk=release.pk,
+            release_file_id=rfile.pk,
         )
 
 
@@ -464,9 +606,9 @@ def test_snapshotdownload_with_no_files(rf):
 
 
 @pytest.mark.django_db
-def test_workspacereleaselist_authenticated(rf):
+def test_workspacereleaselist_authenticated_to_view_not_delete(rf):
     workspace = WorkspaceFactory()
-    release = ReleaseFactory(ReleaseUploadsFactory(["test1"]), workspace=workspace)
+    ReleaseFactory(ReleaseUploadsFactory(["test1"]), workspace=workspace)
 
     request = rf.get("/")
     request.user = UserFactory(roles=[ProjectCollaborator])
@@ -481,10 +623,37 @@ def test_workspacereleaselist_authenticated(rf):
     assert response.status_code == 200
     assert response.context_data["workspace"] == workspace
     assert len(response.context_data["releases"]) == 1
-    assert response.context_data["releases"][0] == release
 
     assert response.context_data["user_can_view_all_files"]
     assert "Latest outputs" in response.rendered_content
+
+    assert not response.context_data["user_can_delete_files"]
+    assert "Delete" not in response.rendered_content
+
+
+@pytest.mark.django_db
+def test_workspacereleaselist_authenticated_to_view_and_delete(rf):
+    workspace = WorkspaceFactory()
+    ReleaseFactory(ReleaseUploadsFactory(["test1"]), workspace=workspace)
+
+    request = rf.get("/")
+    request.user = UserFactory(roles=[OutputChecker, ProjectCollaborator])
+
+    response = WorkspaceReleaseList.as_view()(
+        request,
+        org_slug=workspace.project.org.slug,
+        project_slug=workspace.project.slug,
+        workspace_slug=workspace.name,
+    )
+
+    assert response.status_code == 200
+    assert len(response.context_data["releases"]) == 1
+
+    assert response.context_data["user_can_view_all_files"]
+    assert "Latest outputs" in response.rendered_content
+
+    assert response.context_data["user_can_delete_files"]
+    assert "Delete" in response.rendered_content
 
 
 @pytest.mark.django_db
@@ -506,7 +675,7 @@ def test_workspacereleaselist_no_releases(rf):
 @pytest.mark.django_db
 def test_workspacereleaselist_unauthenticated(rf):
     workspace = WorkspaceFactory()
-    release = ReleaseFactory(ReleaseUploadsFactory(["test1"]), workspace=workspace)
+    ReleaseFactory(ReleaseUploadsFactory(["test1"]), workspace=workspace)
 
     request = rf.get("/")
     request.user = AnonymousUser()
@@ -521,7 +690,6 @@ def test_workspacereleaselist_unauthenticated(rf):
     assert response.status_code == 200
     assert response.context_data["workspace"] == workspace
     assert len(response.context_data["releases"]) == 1
-    assert response.context_data["releases"][0] == release
 
     assert "Latest outputs" not in response.rendered_content
 

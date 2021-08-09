@@ -30,49 +30,15 @@
 <div class="row">
   <div class="col-lg-8 offset-lg-2">
 
+    <h4>Releases for the {{ project.name }} project</h4>
+
     <p>
       Below are all released files for the {{ project.name }} project across
       all of its workspaces.
     </p>
-    {% for release in object_list %}
-    <div class="border rounded p-2 pl-3 mb-3">
 
-      <div class="d-flex justify-content-between">
-        <span>
-          Files released by {{ release.created_by.name }} in the
-          <a href="{{ release.workspace.get_absolute_url }}">{{ release.workspace.name }}</a>
-          workspace {{ release.created_at|naturaltime }}
-        </span>
-
-        <div>
-          <a class="btn btn-sm btn-primary" href="{{ release.get_absolute_url }}">View</a>
-          <button
-            class="btn btn-sm btn-primary"
-            type="button"
-            data-toggle="collapse"
-            data-target="#release-{{ release.id }}-files"
-            aria-expanded="false"
-            aria-controls="release-{{ release.id }}-files">
-            Files
-          </button>
-        </div>
-      </div>
-
-      <div class="collapse" id="release-{{ release.id }}-files">
-        <div class="card card-body border-0 mt-2 p-0 px-2">
-          <ul class="list-unstyled mb-0">
-            {% for file in release.files.all %}
-            <li>
-              <a href="{{ file.get_absolute_url }}">
-                <code>{{ file.name }}</code>
-              </a>
-            </li>
-            {% endfor %}
-          </ul>
-        </div>
-      </div>
-
-    </div>
+    {% for release in releases %}
+    {% include "_release_list.html" with r=release %}
     {% endfor %}
 
   </div>
