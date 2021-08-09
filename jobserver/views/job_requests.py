@@ -76,6 +76,14 @@ class JobRequestCreate(CreateView):
         except Workspace.DoesNotExist:
             return redirect("/")
 
+        if self.workspace.is_archived:
+            msg = (
+                "You cannot create Jobs for an archived Workspace."
+                "Please contact an admin if you need to have it unarchved."
+            )
+            messages.error(request, msg)
+            return redirect(self.workspace)
+
         self.user_can_run_jobs = can_run_jobs(request.user)
         if not self.user_can_run_jobs:
             raise Http404
@@ -151,17 +159,6 @@ class JobRequestCreate(CreateView):
             .order_by("-created_at")
             .first()
         )
-
-    def post(self, request, *args, **kwargs):
-        if self.workspace.is_archived:
-            msg = (
-                "You cannot create Jobs for an archived Workspace."
-                "Please contact an admin if you need to have it unarchved."
-            )
-            messages.error(request, msg)
-            return redirect(self.workspace)
-
-        return super().post(request, *args, **kwargs)
 
 
 class JobRequestDetail(DetailView):

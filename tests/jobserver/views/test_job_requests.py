@@ -153,6 +153,26 @@ def test_jobrequestcreate_project_yaml_errors(rf, mocker, user):
 
 
 @pytest.mark.django_db
+def test_jobrequestcreate_get_archived_workspace(rf):
+    workspace = WorkspaceFactory(is_archived=True)
+
+    request = rf.get("/")
+    request.session = "session"
+    request._messages = FallbackStorage(request)
+    request.user = UserFactory()
+
+    response = JobRequestCreate.as_view()(
+        request,
+        org_slug=workspace.project.org.slug,
+        project_slug=workspace.project.slug,
+        workspace_slug=workspace.name,
+    )
+
+    assert response.status_code == 302
+    assert response.url == workspace.get_absolute_url()
+
+
+@pytest.mark.django_db
 def test_jobrequestcreate_get_logged_out(rf):
     workspace = WorkspaceFactory()
 
@@ -290,33 +310,18 @@ def test_jobrequestcreate_get_with_unprivileged_user(rf, mocker, user):
 
 
 @pytest.mark.django_db
-def test_jobrequestcreate_post_archived_workspace(rf, mocker, user):
-    org = user.orgs.first()
-    project = ProjectFactory(org=org)
-    workspace = WorkspaceFactory(project=project, is_archived=True)
+def test_jobrequestcreate_post_archived_workspace(rf):
+    workspace = WorkspaceFactory(is_archived=True)
 
-    dummy_yaml = """
-    actions:
-      twiddle:
-    """
-    mocker.patch(
-        "jobserver.views.job_requests.can_run_jobs", autospec=True, return_value=True
-    )
-    mocker.patch(
-        "jobserver.views.job_requests.get_project",
-        autospec=True,
-        return_value=dummy_yaml,
-    )
-
-    request = rf.post(MEANINGLESS_URL)
+    request = rf.post("/")
     request.session = "session"
     request._messages = FallbackStorage(request)
-    request.user = user
+    request.user = UserFactory()
 
     response = JobRequestCreate.as_view()(
         request,
-        org_slug=org.slug,
-        project_slug=project.slug,
+        org_slug=workspace.project.org.slug,
+        project_slug=workspace.project.slug,
         workspace_slug=workspace.name,
     )
 
