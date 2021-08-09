@@ -12,10 +12,7 @@ function FileList() {
   const [listHeight, setListHeight] = useState(0);
 
   const { error, isError, isLoading } = useFileList();
-  const {
-    file: { name: fileName },
-    listVisible,
-  } = useStore();
+  const { listVisible } = useStore();
   const history = useHistory();
   const location = useLocation();
 
@@ -45,13 +42,14 @@ function FileList() {
   }, [files, windowSize]);
 
   useEffect(() => {
-    if (location.pathname !== fileName) {
-      const item = files.filter((f) => `/${f.name}` === location.pathname)[0];
-      if (item) {
-        useStore.setState({ file: { ...item } });
-      }
+    const item = files.filter(
+      (file) => `/${file.name}` === location.pathname
+    )[0];
+
+    if (item) {
+      useStore.setState({ file: { ...item } });
     }
-  }, [fileName, files, location]);
+  }, [files, location]);
 
   if (isLoading) {
     return (
@@ -75,9 +73,10 @@ function FileList() {
   const selectFile = ({ e, item }) => {
     e.preventDefault();
 
+    const itemName = `/${item.name}`;
     // Only push a state change if clicking on a new file
-    if (`/${item.name}` !== location.pathname) {
-      history.push(item.name);
+    if (itemName !== location.pathname) {
+      history.push(itemName);
       return useStore.setState({ file: { ...item } });
     }
 
