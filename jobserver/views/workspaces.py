@@ -365,8 +365,10 @@ class WorkspaceLatestOutputsDetail(View):
         )
         prepare_url = workspace.get_create_snapshot_api_url() if can_publish else ""
 
+        base_path, file_path = build_spa_urls(request.path, self.kwargs.get("path", ""))
         context = {
-            "file_path": self.kwargs.get("path", ""),
+            "base_path": base_path,
+            "path_path": file_path,
             "files_url": workspace.get_releases_api_url(),
             "prepare_url": prepare_url,
             "workspace": workspace,
