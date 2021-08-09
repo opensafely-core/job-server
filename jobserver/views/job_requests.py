@@ -1,18 +1,15 @@
-from django.contrib.auth.decorators import user_passes_test
 from django.db.models import Q
 from django.http import Http404
 from django.shortcuts import redirect
-from django.utils.decorators import method_decorator
 from django.utils.html import escape
 from django.utils.safestring import mark_safe
 from django.views.generic import DetailView, ListView, View
 from django.views.generic.edit import FormMixin
 
-from ..authorization import CoreDeveloper, has_role
+from ..authorization import CoreDeveloper, has_permission, has_role
 from ..forms import JobRequestSearchForm
 from ..models import Backend, JobRequest, User, Workspace
 from ..project import render_definition
-from ..roles import can_run_jobs
 from ..utils import raise_if_not_int
 
 
@@ -34,7 +31,6 @@ def filter_by_status(job_requests, status):
     return [r for r in job_requests if r.status.lower() == status]
 
 
-@method_decorator(user_passes_test(can_run_jobs), name="dispatch")
 class JobRequestCancel(View):
     def post(self, request, *args, **kwargs):
         try:
@@ -42,6 +38,12 @@ class JobRequestCancel(View):
                 pk=self.kwargs["pk"]
             )
         except JobRequest.DoesNotExist:
+            raise Http404
+
+        can_cancel_jobs = job_request.created_by == request.user or has_permission(
+            request.user, "cancel_job", project=job_request.workspace.project
+        )
+        if not can_cancel_jobs:
             raise Http404
 
         if job_request.is_completed:
@@ -62,16 +64,20 @@ class JobRequestDetail(DetailView):
     template_name = "job_request_detail.html"
 
     def get_context_data(self, **kwargs):
-        context = super().get_context_data(**kwargs)
-        context["project_definition"] = mark_safe(
-            render_definition(
-                escape(self.object.project_definition),
-                self.object.get_file_url,
-            )
+        can_cancel_jobs = self.object.created_by == self.request.user or has_permission(
+            self.request.user, "cancel_job", project=self.object.workspace.project
         )
-        context["project_yaml_url"] = self.object.get_file_url("project.yaml")
-        context["user_can_run_jobs"] = can_run_jobs(self.request.user)
-        return context
+
+        return super().get_context_data(**kwargs) | {
+            "project_definition": mark_safe(
+                render_definition(
+                    escape(self.object.project_definition),
+                    self.object.get_file_url,
+                )
+            ),
+            "project_yaml_url": self.object.get_file_url("project.yaml"),
+            "user_can_cancel_jobs": can_cancel_jobs,
+        }
 
 
 class JobRequestList(FormMixin, ListView):
