@@ -71,8 +71,14 @@ function FileList() {
 
   const selectFile = ({ e, item }) => {
     e.preventDefault();
-    history.push(item.name);
-    return useStore.setState({ file: { ...item }, filePath: item.name });
+
+    // Only push a state change if clicking on a new file
+    if (`/${item.name}` !== location.pathname) {
+      history.push(item.name);
+      return useStore.setState({ file: { ...item } });
+    }
+
+    return null;
   };
 
   return (
