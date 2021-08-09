@@ -53,7 +53,7 @@ def build_outputs_zip(release_files):
     return in_memory_zf
 
 
-def build_spa_urls(full_path, file_path):
+def build_spa_base_url(full_path, file_path):
     """
     Break the full path of a page down into the URL path without any file path
 
@@ -66,8 +66,7 @@ def build_spa_urls(full_path, file_path):
         /org/project/workspace/releases/string/
 
     """
-    base_path = full_path.removesuffix(file_path)
-    return base_path, file_path
+    return full_path.removesuffix(file_path)
 
 
 def check_not_already_uploaded(filename, filehash, backend):

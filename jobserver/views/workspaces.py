@@ -23,7 +23,7 @@ from ..project import get_actions, get_project, load_yaml
 from ..releases import (
     build_hatch_token_and_url,
     build_outputs_zip,
-    build_spa_urls,
+    build_spa_base_url,
     workspace_files,
 )
 from ..roles import can_run_jobs
@@ -88,12 +88,11 @@ class WorkspaceBackendFiles(View):
         f = furl(url)  # assume URL is a string
         f.path.segments += ["current"]
 
-        base_path, file_path = build_spa_urls(request.path, self.kwargs.get("path", ""))
+        base_path = build_spa_base_url(request.path, self.kwargs.get("path", ""))
         context = {
             "auth_token": auth_token,
             "backend": backend,
             "base_path": base_path,
-            "file_path": file_path,
             "files_url": f.url,
             "workspace": workspace,
         }
@@ -365,10 +364,9 @@ class WorkspaceLatestOutputsDetail(View):
         )
         prepare_url = workspace.get_create_snapshot_api_url() if can_publish else ""
 
-        base_path, file_path = build_spa_urls(request.path, self.kwargs.get("path", ""))
+        base_path = build_spa_base_url(request.path, self.kwargs.get("path", ""))
         context = {
             "base_path": base_path,
-            "path_path": file_path,
             "files_url": workspace.get_releases_api_url(),
             "prepare_url": prepare_url,
             "workspace": workspace,
