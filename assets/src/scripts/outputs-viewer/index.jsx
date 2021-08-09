@@ -15,7 +15,6 @@ useStore.setState({
   authToken: element.dataset.authToken,
   basePath: element.dataset.basePath,
   csrfToken: element.dataset.csrfToken,
-  filePath: element.dataset.filePath,
   filesUrl: element.dataset.filesUrl,
   prepareUrl: element.dataset.prepareUrl,
   publishUrl: element.dataset.publishUrl,

@@ -22,7 +22,7 @@ function App() {
   const hasButtons = prepareUrl || publishUrl;
 
   return (
-    <BrowserRouter basePath={basePath}>
+    <BrowserRouter basename={basePath}>
       <QueryClientProvider client={queryClient}>
         {hasButtons && (
           <div className="row">
