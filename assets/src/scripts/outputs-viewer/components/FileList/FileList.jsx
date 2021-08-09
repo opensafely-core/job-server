@@ -12,7 +12,10 @@ function FileList() {
   const [listHeight, setListHeight] = useState(0);
 
   const { error, isError, isLoading } = useFileList();
-  const { file, listVisible } = useStore();
+  const {
+    file: { name: fileName },
+    listVisible,
+  } = useStore();
   const history = useHistory();
   const location = useLocation();
 
@@ -42,13 +45,13 @@ function FileList() {
   }, [files, windowSize]);
 
   useEffect(() => {
-    if (location.pathname !== file.name) {
+    if (location.pathname !== fileName) {
       const item = files.filter((f) => `/${f.name}` === location.pathname)[0];
       if (item) {
         useStore.setState({ file: { ...item } });
       }
     }
-  }, [file.name, files, location]);
+  }, [fileName, files, location]);
 
   if (isLoading) {
     return (
