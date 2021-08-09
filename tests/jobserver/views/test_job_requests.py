@@ -18,7 +18,6 @@ from ...factories import (
     BackendMembershipFactory,
     JobFactory,
     JobRequestFactory,
-    OrgFactory,
     ProjectFactory,
     ProjectMembershipFactory,
     ReleaseFactory,
@@ -121,28 +120,6 @@ def test_jobrequestcancel_unknown_job_request(rf):
 
 
 @pytest.mark.django_db
-def test_jobrequestcreate_logged_out(rf):
-    org = OrgFactory()
-    project = ProjectFactory(org=org)
-    workspace = WorkspaceFactory(project=project)
-
-    # Build a RequestFactory instance
-    request = rf.get(MEANINGLESS_URL)
-    request.user = AnonymousUser()
-
-    response = JobRequestCreate.as_view()(
-        request,
-        org_slug=org.slug,
-        project_slug=project.slug,
-        workspace_slug=workspace.name,
-    )
-
-    assert response.status_code == 200
-
-    assert response.context_data["workspace"] == workspace
-
-
-@pytest.mark.django_db
 def test_jobrequestcreate_project_yaml_errors(rf, mocker, user):
     org = user.orgs.first()
     project = ProjectFactory(org=org)
@@ -178,6 +155,22 @@ def test_jobrequestcreate_project_yaml_errors(rf, mocker, user):
 
     assert response.context_data["actions"] == []
     assert response.context_data["actions_error"] == "test error"
+
+
+@pytest.mark.django_db
+def test_jobrequestcreate_get_logged_out(rf):
+    workspace = WorkspaceFactory()
+
+    request = rf.get("/")
+    request.user = AnonymousUser()
+
+    with pytest.raises(Http404):
+        JobRequestCreate.as_view()(
+            request,
+            org_slug=workspace.project.org.slug,
+            project_slug=workspace.project.slug,
+            workspace_slug=workspace.name,
+        )
 
 
 @pytest.mark.django_db
@@ -235,28 +228,35 @@ def test_jobrequestcreate_get_success(rf, mocker, user):
 
 
 @pytest.mark.django_db
-def test_jobrequestcreate_get_with_unauthenticated_user(rf, user):
-    """
-    Check JobRequestCreate does not render the controls for Archiving,
-    Notifications, and selecting Actions for unauthenticated Users.
-    """
-    org = user.orgs.first()
-    project = ProjectFactory(org=org)
-    workspace = WorkspaceFactory(project=project, is_archived=False)
+def test_jobrequestcreate_get_unauthenticated(rf):
+    workspace = WorkspaceFactory()
 
-    # Build a RequestFactory instance
-    request = rf.get(MEANINGLESS_URL)
-    request.user = AnonymousUser()
-    response = JobRequestCreate.as_view()(
-        request,
-        org_slug=org.slug,
-        project_slug=project.slug,
-        workspace_slug=workspace.name,
-    )
+    request = rf.get("/")
+    request.user = UserFactory()
 
-    assert "Archive" not in response.rendered_content
-    assert "Turn Notifications" not in response.rendered_content
-    assert "twiddle" not in response.rendered_content
+    with pytest.raises(Http404):
+        JobRequestCreate.as_view()(
+            request,
+            org_slug=workspace.project.org.slug,
+            project_slug=workspace.project.slug,
+            workspace_slug=workspace.name,
+        )
+
+
+@pytest.mark.django_db
+def test_jobrequestcreate_post_unauthenticated(rf):
+    workspace = WorkspaceFactory()
+
+    request = rf.post("/")
+    request.user = UserFactory()
+
+    with pytest.raises(Http404):
+        JobRequestCreate.as_view()(
+            request,
+            org_slug=workspace.project.org.slug,
+            project_slug=workspace.project.slug,
+            workspace_slug=workspace.name,
+        )
 
 
 @pytest.mark.django_db
@@ -310,11 +310,17 @@ def test_jobrequestcreate_post_archived_workspace(rf, mocker, user):
     project = ProjectFactory(org=org)
     workspace = WorkspaceFactory(project=project, is_archived=True)
 
+    dummy_yaml = """
+    actions:
+      twiddle:
+    """
     mocker.patch(
         "jobserver.views.job_requests.can_run_jobs", autospec=True, return_value=True
     )
     mocker.patch(
-        "jobserver.views.job_requests.get_actions", autospec=True, return_value=[]
+        "jobserver.views.job_requests.get_project",
+        autospec=True,
+        return_value=dummy_yaml,
     )
 
     request = rf.post(MEANINGLESS_URL)

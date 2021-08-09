@@ -3,7 +3,6 @@ from django.db import transaction
 from django.db.models import Q
 from django.http import Http404
 from django.shortcuts import get_object_or_404, redirect
-from django.template.response import TemplateResponse
 from django.utils.html import escape
 from django.utils.safestring import mark_safe
 from django.views.generic import CreateView, DetailView, ListView, RedirectView, View
@@ -77,22 +76,9 @@ class JobRequestCreate(CreateView):
         except Workspace.DoesNotExist:
             return redirect("/")
 
-        if not request.user.is_authenticated:
-            return TemplateResponse(
-                request,
-                self.template_name,
-                context={"workspace": self.workspace},
-            )
-
         self.user_can_run_jobs = can_run_jobs(request.user)
-
-        self.show_details = self.user_can_run_jobs and not self.workspace.is_archived
-
-        if not self.show_details:
-            # short-circuit for logged out users to avoid the hop to grab
-            # actions from GitHub
-            self.actions = []
-            return super().dispatch(request, *args, **kwargs)
+        if not self.user_can_run_jobs:
+            raise Http404
 
         action_status_lut = self.workspace.get_action_status_lut()
 
@@ -140,7 +126,6 @@ class JobRequestCreate(CreateView):
             "actions": self.actions,
             "repo_is_private": self.get_repo_is_private(),
             "latest_job_request": self.get_latest_job_request(),
-            "show_details": self.show_details,
             "user_can_run_jobs": self.user_can_run_jobs,
             "workspace": self.workspace,
         }
