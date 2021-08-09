@@ -12,7 +12,7 @@ function FileList() {
   const [listHeight, setListHeight] = useState(0);
 
   const { error, isError, isLoading } = useFileList();
-  const { file, filePath, listVisible } = useStore();
+  const { file, listVisible } = useStore();
   const history = useHistory();
   const location = useLocation();
 
@@ -45,10 +45,10 @@ function FileList() {
     if (location.pathname !== file.name) {
       const item = files.filter((f) => `/${f.name}` === location.pathname)[0];
       if (item) {
-        useStore.setState({ file: { ...item }, filePath });
+        useStore.setState({ file: { ...item } });
       }
     }
-  }, [file.name, files, filePath, location]);
+  }, [file.name, files, location]);
 
   if (isLoading) {
     return (
