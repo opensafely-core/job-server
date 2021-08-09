@@ -11,7 +11,7 @@ from django.views.generic.edit import FormMixin
 from ..authorization import CoreDeveloper, has_permission, has_role
 from ..backends import backends_to_choices
 from ..forms import JobRequestCreateForm, JobRequestSearchForm
-from ..github import get_branch_sha, get_repo_is_private
+from ..github import get_branch_sha
 from ..models import Backend, JobRequest, User, Workspace
 from ..project import get_actions, get_project, load_yaml, render_definition
 from ..roles import can_run_jobs
@@ -124,9 +124,7 @@ class JobRequestCreate(CreateView):
     def get_context_data(self, **kwargs):
         return super().get_context_data(**kwargs) | {
             "actions": self.actions,
-            "repo_is_private": self.get_repo_is_private(),
             "latest_job_request": self.get_latest_job_request(),
-            "user_can_run_jobs": self.user_can_run_jobs,
             "workspace": self.workspace,
         }
 
@@ -146,12 +144,6 @@ class JobRequestCreate(CreateView):
         # derive will_notify for the JobRequestCreateForm from the Workspace
         # setting as a default for the form which the user can override.
         return {"will_notify": self.workspace.should_notify}
-
-    def get_repo_is_private(self):
-        return get_repo_is_private(
-            self.workspace.repo_owner,
-            self.workspace.repo_name,
-        )
 
     def get_latest_job_request(self):
         return (

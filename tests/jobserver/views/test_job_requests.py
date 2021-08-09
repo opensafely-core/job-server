@@ -135,11 +135,6 @@ def test_jobrequestcreate_project_yaml_errors(rf, mocker, user):
         autospec=True,
         side_effect=Exception("test error"),
     )
-    mocker.patch(
-        "jobserver.views.job_requests.get_repo_is_private",
-        autospec=True,
-        return_value=True,
-    )
 
     request = rf.get(MEANINGLESS_URL)
     request.user = user
@@ -201,11 +196,6 @@ def test_jobrequestcreate_get_success(rf, mocker, user):
         "jobserver.views.job_requests.get_project",
         autospec=True,
         return_value=dummy_yaml,
-    )
-    mocker.patch(
-        "jobserver.views.job_requests.get_repo_is_private",
-        autospec=True,
-        return_value=True,
     )
 
     request = rf.get(MEANINGLESS_URL)
@@ -278,11 +268,6 @@ def test_jobrequestcreate_get_with_unprivileged_user(rf, mocker, user):
         "jobserver.views.job_requests.get_project",
         autospec=True,
         return_value=dummy_yaml,
-    )
-    mocker.patch(
-        "jobserver.views.job_requests.get_repo_is_private",
-        autospec=True,
-        return_value=True,
     )
 
     request = rf.get(MEANINGLESS_URL)
@@ -422,11 +407,6 @@ def test_jobrequestcreate_post_with_invalid_backend(rf, mocker, monkeypatch, use
         "jobserver.views.job_requests.get_branch_sha",
         autospec=True,
         return_value="abc123",
-    )
-    mocker.patch(
-        "jobserver.views.job_requests.get_repo_is_private",
-        autospec=True,
-        return_value=True,
     )
 
     data = {

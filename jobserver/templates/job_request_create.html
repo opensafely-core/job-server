@@ -69,66 +69,6 @@
       request jobs are run from this page.
     </p>
 
-    <div id="details">
-
-      <div class="row">
-
-        <div class="col-lg-9">
-          <p>
-            <strong>Repo:</strong>
-            <a href="{{ workspace.repo }}">{{ workspace.repo_name }}</a>
-            <span class="badge badge-secondary">
-              {% if repo_is_private %}Private{% else %}Public{% endif %}
-            </span>
-          </p>
-
-          <p><strong>Branch:</strong> {{ workspace.branch }}</p>
-
-          <p><strong>DB:</strong> {{ workspace.db }}</p>
-
-           <p>
-             <strong>Created:</strong>
-             <span title="{{ workspace.created_at|date:"Y-m-d H:i:s" }}">
-               {{ workspace.created_at|naturaltime }}
-             </span>
-           </p>
-
-          {% if workspace.created_by %}
-          <p><strong>Created By:</strong> {{ workspace.created_by.name }}</p>
-          {% endif %}
-        </div>
-
-        <div class="col-lg-3 text-right">
-          {% if user_can_run_jobs %}
-          <form method="POST" action="{{ workspace.get_archive_toggle_url }}" class="my-2">
-            {% csrf_token %}
-
-            <input type="hidden" name="is_archived" value="{{ workspace.is_archived|yesno:",True" }}" />
-
-            <button class="btn btn-danger" type="submit">
-              {% if not workspace.is_archived %}
-              Archive
-              {% else %}
-              Unarchive
-              {% endif %}
-            </button>
-          </form>
-
-          <form method="POST" class="mb-2" action="{{ workspace.get_notifications_toggle_url }}">
-            {% csrf_token %}
-
-            <input type="hidden" name="should_notify" value="{{ workspace.should_notify|yesno:",True" }}" />
-
-            <button class="btn btn-success" type="submit">
-              Turn Notifications {% if workspace.should_notify %}Off{% else %}On{% endif %}
-            </button>
-          </form>
-          {% endif %}
-        </div>
-
-      </div>
-    </div>
-
   </div>
 </div>
 
