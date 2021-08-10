@@ -90,7 +90,7 @@ function FileList() {
   };
 
   return (
-    <>
+    <div className={classes.sidebar}>
       <Filter
         className={`${listVisible ? "d-block" : "d-none"}`}
         listRef={listRef}
@@ -118,7 +118,7 @@ function FileList() {
           </li>
         )}
       </FixedSizeList>
-    </>
+    </div>
   );
 }
 
