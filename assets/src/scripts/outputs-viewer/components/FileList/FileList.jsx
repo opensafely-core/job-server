@@ -27,12 +27,17 @@ function FileList() {
     const hasScrollbarX =
       listEl.current?.clientWidth < listEl.current?.scrollWidth;
 
-    // Viewport size, minus the list height, minus 30px for spacing
-    // If there are horizontal scrollbars, minus 17px for the scrollbar
     const fileListHeight =
+      // Viewport size height
       window.innerHeight -
+      // if the list exists
+      // minus the height from the top of the list
+      // else minus zero
       (listEl.current?.getBoundingClientRect().top || 0) -
+      // minus 30px for spacing at the bottom
       30 -
+      // if there are horizontal scrollbars
+      // minus 17px for the scrollbar (magic number)
       (hasScrollbarX ? 17 : 0);
 
     if (largeViewport) {
