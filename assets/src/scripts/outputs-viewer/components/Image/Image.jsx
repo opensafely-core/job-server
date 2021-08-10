@@ -8,6 +8,6 @@ function Image({ data }) {
 
 export default Image;
 
-Text.propTypes = {
+Image.propTypes = {
   data: PropTypes.string.isRequired,
 };
