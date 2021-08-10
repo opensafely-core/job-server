@@ -1,4 +1,4 @@
-import React, { useEffect, useRef, useState } from "react";
+import React, { createRef, useEffect, useRef, useState } from "react";
 import { useHistory, useLocation } from "react-router-dom";
 import { FixedSizeList } from "react-window";
 import useFileList from "../../hooks/use-file-list";
@@ -20,6 +20,7 @@ function FileList() {
   const windowSize = useWindowSize();
 
   const listEl = useRef(null);
+  const listRef = createRef();
 
   useEffect(() => {
     const largeViewport = window.innerWidth > 991;
@@ -39,7 +40,6 @@ function FileList() {
       return setListHeight(fileListHeight);
     }
 
-    console.log({ fileListHeight });
     return setListHeight(fileListHeight);
   }, [files, windowSize]);
 
@@ -91,8 +91,13 @@ function FileList() {
 
   return (
     <>
-      <Filter setFiles={setFiles} />
+      <Filter
+        className={`${listVisible ? "d-block" : "d-none"}`}
+        listRef={listRef}
+        setFiles={setFiles}
+      />
       <FixedSizeList
+        ref={listRef}
         className={`${classes.list} card ${listVisible ? "d-block" : "d-none"}`}
         height={listHeight}
         innerElementType="ul"
