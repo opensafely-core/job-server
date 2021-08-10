@@ -3,20 +3,14 @@
   top: 1rem;
 }
 
-.list {
-  ul {
-    font-size: 0.9rem;
-    list-style-type: none;
-    margin: 0;
-    padding: 0;
+.list ul {
+  font-size: 0.9rem;
+  list-style-type: none;
+  margin: 0;
+  padding: 0;
 
-    li {
-      padding: 1rem;
-
-      a {
-        padding-right: 0.5rem;
-        white-space: nowrap;
-      }
-    }
+  li a {
+    padding: 0 1rem;
+    white-space: nowrap;
   }
 }

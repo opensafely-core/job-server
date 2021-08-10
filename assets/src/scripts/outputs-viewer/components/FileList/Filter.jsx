@@ -2,7 +2,7 @@ import PropTypes from "prop-types";
 import React, { useEffect, useState } from "react";
 import useFileList from "../../hooks/use-file-list";
 
-function Filter({ className, listRef, setFiles }) {
+function Filter({ listRef, setFiles }) {
   const { data } = useFileList();
   const [filter, setFilter] = useState("");
 
@@ -32,7 +32,7 @@ function Filter({ className, listRef, setFiles }) {
   }
 
   return (
-    <label className={`w-100 ${className}`} htmlFor="filterFiles">
+    <label className="w-100" htmlFor="filterFiles">
       <span className="sr-only">Find a file…</span>
       <input
         autoCapitalize="off"
@@ -53,14 +53,9 @@ function Filter({ className, listRef, setFiles }) {
 export default Filter;
 
 Filter.propTypes = {
-  className: PropTypes.string,
   listRef: PropTypes.oneOfType([
     PropTypes.func,
     PropTypes.shape({ current: PropTypes.instanceOf(Element) }),
   ]).isRequired,
   setFiles: PropTypes.func.isRequired,
-};
-
-Filter.defaultProps = {
-  className: "",
 };

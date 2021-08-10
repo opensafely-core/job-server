@@ -60,7 +60,7 @@ function FileList() {
 
   if (isLoading) {
     return (
-      <div className={`${classes.list} card`}>
+      <div className={`${classes.list} card p-2`}>
         <ul>
           <li>Loading…</li>
         </ul>
@@ -73,7 +73,7 @@ function FileList() {
     console.error(error.message);
 
     return (
-      <div className={`${classes.list} card`}>
+      <div className={`${classes.list} card p-2`}>
         <ul>
           <li>Error: Unable to load files</li>
         </ul>
@@ -95,34 +95,32 @@ function FileList() {
   };
 
   return (
-    <div className={classes.sidebar}>
-      <Filter
-        className={`${listVisible ? "d-block" : "d-none"}`}
-        listRef={listRef}
-        setFiles={setFiles}
-      />
-      <FixedSizeList
-        ref={listRef}
-        className={`${classes.list} card ${listVisible ? "d-block" : "d-none"}`}
-        height={listHeight}
-        innerElementType="ul"
-        itemCount={files.length}
-        itemSize={21}
-        outerRef={listEl}
-        width="100%"
-      >
-        {({ index, style }) => (
-          <li style={style}>
-            <a
-              href={files[index].url}
-              onClick={(e) => selectFile({ e, item: files[index] })}
-              title={`File size: ${prettyFileSize(files[index].size)}`}
-            >
-              {files[index].shortName}
-            </a>
-          </li>
-        )}
-      </FixedSizeList>
+    <div className={`${classes.sidebar} ${listVisible ? "d-block" : "d-none"}`}>
+      <Filter listRef={listRef} setFiles={setFiles} />
+      <div className="card pt-2">
+        <FixedSizeList
+          ref={listRef}
+          className={classes.list}
+          height={listHeight}
+          innerElementType="ul"
+          itemCount={files.length}
+          itemSize={25}
+          outerRef={listEl}
+          width="100%"
+        >
+          {({ index, style }) => (
+            <li style={style}>
+              <a
+                href={files[index].url}
+                onClick={(e) => selectFile({ e, item: files[index] })}
+                title={`File size: ${prettyFileSize(files[index].size)}`}
+              >
+                {files[index].shortName}
+              </a>
+            </li>
+          )}
+        </FixedSizeList>
+      </div>
     </div>
   );
 }
