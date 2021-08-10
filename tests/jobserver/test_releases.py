@@ -74,6 +74,12 @@ def test_build_outputs_zip():
         assert zipped_contents == original_contents
 
 
+def test_build_spa_base_url():
+    base = releases.build_spa_base_url("/a/page/with/file.csv", "with/file.csv")
+
+    assert base == "/a/page/"
+
+
 @pytest.mark.django_db
 def test_create_release_success():
     backend = BackendFactory()

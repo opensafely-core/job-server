@@ -1,4 +1,5 @@
 import React, { useEffect, useRef, useState } from "react";
+import { useHistory, useLocation } from "react-router-dom";
 import useFileList from "../../hooks/use-file-list";
 import useWindowSize from "../../hooks/use-window-size";
 import useStore from "../../stores/use-store";
@@ -12,6 +13,9 @@ function FileList() {
 
   const { error, isError, isLoading } = useFileList();
   const { listVisible } = useStore();
+  const history = useHistory();
+  const location = useLocation();
+
   const windowSize = useWindowSize();
 
   const listEl = useRef(null);
@@ -37,6 +41,16 @@ function FileList() {
     return setListHeight(0);
   }, [files, windowSize]);
 
+  useEffect(() => {
+    const item = files.filter(
+      (file) => `/${file.name}` === location.pathname
+    )[0];
+
+    if (item) {
+      useStore.setState({ file: { ...item } });
+    }
+  }, [files, location]);
+
   if (isLoading) {
     return (
       <ul className={`${classes.list} list-unstyled card`}>
@@ -58,7 +72,15 @@ function FileList() {
 
   const selectFile = ({ e, item }) => {
     e.preventDefault();
-    return useStore.setState({ file: { ...item } });
+
+    const itemName = `/${item.name}`;
+    // Only push a state change if clicking on a new file
+    if (itemName !== location.pathname) {
+      history.push(itemName);
+      return useStore.setState({ file: { ...item } });
+    }
+
+    return null;
   };
 
   return (

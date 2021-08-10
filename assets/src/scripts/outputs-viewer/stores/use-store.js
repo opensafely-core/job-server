@@ -4,6 +4,7 @@ import { devtools } from "zustand/middleware";
 const useStore = create(
   devtools(() => ({
     authToken: "",
+    basePath: "",
     csrfToken: "",
     filesUrl: "",
     prepareUrl: "",

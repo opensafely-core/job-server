@@ -20,7 +20,12 @@ from ..forms import (
 from ..github import get_branch_sha, get_repo_is_private, get_repos_with_branches
 from ..models import Backend, JobRequest, Project, Workspace
 from ..project import get_actions, get_project, load_yaml
-from ..releases import build_hatch_token_and_url, build_outputs_zip, workspace_files
+from ..releases import (
+    build_hatch_token_and_url,
+    build_outputs_zip,
+    build_spa_base_url,
+    workspace_files,
+)
 from ..roles import can_run_jobs
 
 
@@ -83,9 +88,11 @@ class WorkspaceBackendFiles(View):
         f = furl(url)  # assume URL is a string
         f.path.segments += ["current"]
 
+        base_path = build_spa_base_url(request.path, self.kwargs.get("path", ""))
         context = {
             "auth_token": auth_token,
             "backend": backend,
+            "base_path": base_path,
             "files_url": f.url,
             "workspace": workspace,
         }
@@ -357,7 +364,9 @@ class WorkspaceLatestOutputsDetail(View):
         )
         prepare_url = workspace.get_create_snapshot_api_url() if can_publish else ""
 
+        base_path = build_spa_base_url(request.path, self.kwargs.get("path", ""))
         context = {
+            "base_path": base_path,
             "files_url": workspace.get_releases_api_url(),
             "prepare_url": prepare_url,
             "workspace": workspace,

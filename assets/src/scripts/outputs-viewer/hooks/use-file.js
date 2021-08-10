@@ -1,7 +1,7 @@
 import { useQuery } from "react-query";
 import useStore from "../stores/use-store";
 import handleErrors from "../utils/fetch-handle-errors";
-import { canDisplay, isCsv } from "../utils/file-type-match";
+import { canDisplay, isCsv, isImg } from "../utils/file-type-match";
 
 function useFile(file) {
   const { authToken } = useStore();
@@ -16,6 +16,10 @@ function useFile(file) {
     // and the file size is too large (>5mb)
     // don't try to return the data
     if (isCsv(file) && file.size > 5000000) return {};
+
+    // If the file is an image
+    // we don't need the data, only the URL
+    if (isImg(file)) return { data: file.url };
 
     return fetch(file.url, {
       headers: new Headers({
