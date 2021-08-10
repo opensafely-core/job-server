@@ -1,13 +1,16 @@
 .list {
+  ul {
   font-size: 0.9rem;
-  margin: 0;
-  overflow: auto;
-  padding: 1rem;
+  list-style-type: none;
+  margin: 1rem;
+  padding: 0;
   position: sticky;
   top: 1rem;
   white-space: pre-line;
+  width: calc(100% - 1rem) !important;
 
   li a {
+    padding-right: 0.5rem;
     white-space: nowrap;
   }
-}
+}}

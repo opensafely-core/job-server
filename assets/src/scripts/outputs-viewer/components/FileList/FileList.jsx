@@ -1,5 +1,6 @@
 import React, { useEffect, useRef, useState } from "react";
 import { useHistory, useLocation } from "react-router-dom";
+import { FixedSizeList } from "react-window";
 import useFileList from "../../hooks/use-file-list";
 import useWindowSize from "../../hooks/use-window-size";
 import useStore from "../../stores/use-store";
@@ -29,7 +30,7 @@ function FileList() {
     // If there are horizontal scrollbars, minus 17px for the scrollbar
     const fileListHeight =
       window.innerHeight -
-      listEl.current?.getBoundingClientRect().top -
+      (listEl.current?.getBoundingClientRect().top || 0) -
       30 -
       (hasScrollbarX ? 17 : 0);
 
@@ -38,7 +39,8 @@ function FileList() {
       return setListHeight(fileListHeight);
     }
 
-    return setListHeight(0);
+    console.log({ fileListHeight });
+    return setListHeight(fileListHeight);
   }, [files, windowSize]);
 
   useEffect(() => {
@@ -53,9 +55,11 @@ function FileList() {
 
   if (isLoading) {
     return (
-      <ul className={`${classes.list} list-unstyled card`}>
-        <li>Loading…</li>
-      </ul>
+      <div className={`${classes.list} card`}>
+        <ul>
+          <li>Loading…</li>
+        </ul>
+      </div>
     );
   }
 
@@ -64,9 +68,11 @@ function FileList() {
     console.error(error.message);
 
     return (
-      <ul className={`${classes.list} list-unstyled card`}>
-        <li>Error: Unable to load files</li>
-      </ul>
+      <div className={`${classes.list} card`}>
+        <ul>
+          <li>Error: Unable to load files</li>
+        </ul>
+      </div>
     );
   }
 
@@ -86,28 +92,27 @@ function FileList() {
   return (
     <>
       <Filter setFiles={setFiles} />
-      <ul
-        ref={listEl}
-        className={`${classes.list} list-unstyled card ${
-          listVisible ? "d-block" : "d-none"
-        }`}
-        style={{ height: listHeight || "auto" }}
+      <FixedSizeList
+        className={`${classes.list} card ${listVisible ? "d-block" : "d-none"}`}
+        height={listHeight}
+        innerElementType="ul"
+        itemCount={files.length}
+        itemSize={21}
+        outerRef={listEl}
+        width="100%"
       >
-        {files.map((item) => (
-          <li key={item.url}>
-            {!item.is_deleted && (
-              <a
-                href={item.url}
-                onClick={(e) => selectFile({ e, item })}
-                title={`File size: ${prettyFileSize(item.size)}`}
-              >
-                {item.shortName}
-              </a>
-            )}
-            {item.is_deleted && <span>{item.shortName}</span>}
+        {({ index, style }) => (
+          <li style={style}>
+            <a
+              href={files[index].url}
+              onClick={(e) => selectFile({ e, item: files[index] })}
+              title={`File size: ${prettyFileSize(files[index].size)}`}
+            >
+              {files[index].shortName}
+            </a>
           </li>
-        ))}
-      </ul>
+        )}
+      </FixedSizeList>
     </>
   );
 }
