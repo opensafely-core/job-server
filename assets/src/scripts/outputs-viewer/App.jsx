@@ -25,7 +25,7 @@ function App() {
     <BrowserRouter basename={basePath}>
       <QueryClientProvider client={queryClient}>
         {hasButtons && (
-          <div className="row">
+          <div className="row mb-2">
             <div className="col">
               {prepareUrl && <PrepareButton />}
               {publishUrl && <PublishButton />}

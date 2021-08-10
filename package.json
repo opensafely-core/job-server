@@ -42,6 +42,7 @@
     "react-papaparse": "^3.17.1",
     "react-query": "^3.19.2",
     "react-router-dom": "^5.2.0",
+    "react-window": "^1.8.6",
     "select2": "^4.0.13",
     "whatwg-fetch": "^3.6.2",
     "zustand": "^3.5.7"

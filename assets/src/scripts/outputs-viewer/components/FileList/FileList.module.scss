@@ -1,13 +1,22 @@
-.list {
-  font-size: 0.9rem;
-  margin: 0;
-  overflow: auto;
-  padding: 1rem;
+.sidebar {
   position: sticky;
   top: 1rem;
-  white-space: pre-line;
+}
 
-  li a {
-    white-space: nowrap;
+.list {
+  ul {
+    font-size: 0.9rem;
+    list-style-type: none;
+    margin: 0;
+    padding: 0;
+
+    li {
+      padding: 1rem;
+
+      a {
+        padding-right: 0.5rem;
+        white-space: nowrap;
+      }
+    }
   }
 }
