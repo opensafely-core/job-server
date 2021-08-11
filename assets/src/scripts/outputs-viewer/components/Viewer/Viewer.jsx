@@ -48,7 +48,7 @@ function Viewer() {
   if (isError) {
     return (
       <Wrapper>
-        <p>Error: {error.message}</p>
+        <p>Error: {error}</p>
         <p className="mb-0">
           <a href={file.url} rel="noreferrer noopener" target="_blank">
             Open file in a new tab &#8599;
