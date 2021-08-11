@@ -101,7 +101,7 @@ def test_projectreleaselist_with_delete_permission(rf):
     )
 
     request = rf.get("/")
-    request.user = UserFactory(roles=[OutputChecker])
+    request.user = UserFactory(roles=[OutputChecker, ProjectCollaborator])
 
     response = ProjectReleaseList.as_view()(
         request,
@@ -624,7 +624,7 @@ def test_workspacereleaselist_authenticated_to_view_not_delete(rf):
     assert response.context_data["workspace"] == workspace
     assert len(response.context_data["releases"]) == 1
 
-    assert response.context_data["user_can_view_all_files"]
+    assert all(r["can_view_files"] for r in response.context_data["releases"])
     assert "Latest outputs" in response.rendered_content
 
     assert not response.context_data["user_can_delete_files"]
@@ -649,7 +649,7 @@ def test_workspacereleaselist_authenticated_to_view_and_delete(rf):
     assert response.status_code == 200
     assert len(response.context_data["releases"]) == 1
 
-    assert response.context_data["user_can_view_all_files"]
+    assert all(r["can_view_files"] for r in response.context_data["releases"])
     assert "Latest outputs" in response.rendered_content
 
     assert response.context_data["user_can_delete_files"]

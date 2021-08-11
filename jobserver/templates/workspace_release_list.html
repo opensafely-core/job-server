@@ -38,7 +38,7 @@
 
     <h4>Releases for the {{ workspace.name }} workspace</h4>
 
-    {% if user_can_view_all_files %}
+    {% if latest_files.can_view_files %}
     {% include "_release_list.html" with r=latest_files %}
     {% endif %}
 

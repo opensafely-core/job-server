@@ -6,18 +6,18 @@
     <span>{{ r.title }}</span>
 
     <div>
-      <a class="btn btn-sm btn-primary {% if not r.files %}disabled{% endif %}"
+      <a class="btn btn-sm btn-primary {% if not r.can_view_files %}disabled{% endif %}"
          href="{{ r.download_url }}">
         Download
       </a>
-      <a class="btn btn-sm btn-primary {% if not r.files %}disabled{% endif %}"
+      <a class="btn btn-sm btn-primary {% if not r.can_view_files %}disabled{% endif %}"
          href="{{ r.view_url }}">
         View
       </a>
       <button
         class="btn btn-sm btn-primary"
         type="button"
-        {% if not r.files %}
+        {% if not r.can_view_files %}
         disabled
         {% endif %}
         data-toggle="collapse"
@@ -29,6 +29,7 @@
     </div>
   </div>
 
+  {% if r.can_view_files %}
   <div class="collapse" id="release-{{ r.id }}-files">
     <div class="card card-body border-0 mt-2 p-0 px-2">
       <table class="table table-striped">
@@ -72,5 +73,6 @@
       </table>
     </div>
   </div>
+  {% endif %}
 
 </div>

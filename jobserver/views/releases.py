@@ -32,6 +32,9 @@ class ProjectReleaseList(View):
         can_delete_files = has_permission(
             request.user, "delete_release_file", project=project
         )
+        can_view_files = has_permission(
+            request.user, "view_release_file", project=project
+        )
 
         def build_title(release):
             created_at = naturaltime(release.created_at)
@@ -44,6 +47,7 @@ class ProjectReleaseList(View):
 
         releases = [
             {
+                "can_view_files": can_view_files and r.files.exists(),
                 "download_url": r.get_download_url(),
                 "files": r.files.order_by("name"),
                 "id": r.pk,
@@ -241,17 +245,19 @@ class WorkspaceReleaseList(View):
         can_delete_files = has_permission(
             request.user, "delete_release_file", project=workspace.project
         )
-        can_view_all_files = has_permission(
+        can_view_files = has_permission(
             request.user,
             "view_release_file",
             project=workspace.project,
         )
 
+        latest_files = list(
+            sorted(workspace_files(workspace).values(), key=lambda rf: rf.name)
+        )
         latest_files = {
+            "can_view_files": can_view_files and bool(latest_files),
             "download_url": workspace.get_latest_outputs_download_url(),
-            "files": sorted(
-                workspace_files(workspace).values(), key=lambda rf: rf.name
-            ),
+            "files": latest_files,
             "id": "latest",
             "title": "Latest outputs",
             "view_url": workspace.get_latest_outputs_url(),
@@ -265,6 +271,7 @@ class WorkspaceReleaseList(View):
 
         releases = [
             {
+                "can_view_files": can_view_files and r.files.exists(),
                 "download_url": r.get_download_url(),
                 "files": r.files.order_by("name"),
                 "id": r.pk,
@@ -278,7 +285,6 @@ class WorkspaceReleaseList(View):
             "latest_files": latest_files,
             "releases": releases,
             "user_can_delete_files": can_delete_files,
-            "user_can_view_all_files": can_view_all_files,
             "workspace": workspace,
         }
 
