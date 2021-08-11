@@ -9,7 +9,7 @@ from .permissions import (
     manage_project_members,
     manage_project_workspaces,
     manage_users,
-    publish_output,
+    publish_snapshot,
     review_project,
     run_job,
     upload_release_file,
@@ -129,7 +129,7 @@ class OutputPublisher:
         "jobserver.models.core.User",
     ]
     permissions = [
-        publish_output,
+        publish_snapshot,
     ]
 
 

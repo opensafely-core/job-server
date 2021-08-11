@@ -312,7 +312,7 @@ class SnapshotPublishAPI(APIView):
         )
 
         if not has_permission(
-            request.user, "publish_output", project=snapshot.workspace.project
+            request.user, "publish_snapshot", project=snapshot.workspace.project
         ):
             raise NotAuthenticated
 
