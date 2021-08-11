@@ -3,6 +3,17 @@ import useStore from "../stores/use-store";
 import handleErrors from "../utils/fetch-handle-errors";
 import { canDisplay, isCsv, isImg } from "../utils/file-type-match";
 
+function convertBlobToBase64(blob) {
+  return new Promise((resolve, reject) => {
+    const reader = new FileReader();
+    reader.onerror = reject;
+    reader.onload = () => {
+      resolve(reader.result);
+    };
+    reader.readAsDataURL(blob);
+  });
+}
+
 function useFile(file) {
   const { authToken } = useStore();
 
@@ -18,8 +29,16 @@ function useFile(file) {
     if (isCsv(file) && file.size > 5000000) return {};
 
     // If the file is an image
-    // we don't need the data, only the URL
-    if (isImg(file)) return { data: file.url };
+    // grab the blob and encode it as Base64
+    if (isImg(file))
+      return fetch(file.url, {
+        headers: new Headers({
+          Authorization: authToken,
+        }),
+      })
+        .then(handleErrors)
+        .then(async (response) => response.blob())
+        .then((blob) => convertBlobToBase64(blob));
 
     return fetch(file.url, {
       headers: new Headers({
