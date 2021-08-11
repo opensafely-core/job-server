@@ -123,6 +123,7 @@ def test_releasedetail_no_path_success(rf):
     release = ReleaseFactory(ReleaseUploadsFactory(["test1"]))
 
     request = rf.get("/")
+    request.user = UserFactory(roles=[ProjectCollaborator])
 
     response = ReleaseDetail.as_view()(
         request,
@@ -156,6 +157,7 @@ def test_releasedetail_with_path_success(rf):
     release = ReleaseFactory(ReleaseUploadsFactory(["test1"]))
 
     request = rf.get("/")
+    request.user = UserFactory(roles=[ProjectCollaborator])
 
     response = ReleaseDetail.as_view()(
         request,
@@ -170,10 +172,28 @@ def test_releasedetail_with_path_success(rf):
 
 
 @pytest.mark.django_db
+def test_releasedetail_without_permission(rf):
+    release = ReleaseFactory(ReleaseUploadsFactory(["test1"]))
+
+    request = rf.get("/")
+    request.user = UserFactory()
+
+    with pytest.raises(Http404):
+        ReleaseDetail.as_view()(
+            request,
+            org_slug=release.workspace.project.org.slug,
+            project_slug=release.workspace.project.slug,
+            workspace_slug=release.workspace.name,
+            pk=release.id,
+        )
+
+
+@pytest.mark.django_db
 def test_releasedetail_without_files(rf):
     release = ReleaseFactory(uploads=[], uploaded=False)
 
     request = rf.get("/")
+    request.user = UserFactory(roles=[ProjectCollaborator])
 
     with pytest.raises(Http404):
         ReleaseDetail.as_view()(

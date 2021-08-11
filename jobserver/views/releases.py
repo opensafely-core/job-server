@@ -90,7 +90,12 @@ class ReleaseDetail(View):
         if not release.files.exists():
             raise Http404
 
-        # TODO: check permissions here
+        if not has_permission(
+            request.user,
+            "view_release_file",
+            project=release.workspace.project,
+        ):
+            raise Http404
 
         base_path = build_spa_base_url(request.path, self.kwargs.get("path", ""))
         context = {
