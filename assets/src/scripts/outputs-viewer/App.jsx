@@ -5,6 +5,7 @@ import { BrowserRouter } from "react-router-dom";
 import PrepareButton from "./components/Button/PrepareButton";
 import PublishButton from "./components/Button/PublishButton";
 import FileList from "./components/FileList/FileList";
+import Toast from "./components/Toast/Toast";
 import Viewer from "./components/Viewer/Viewer";
 import useStore from "./stores/use-store";
 
@@ -47,6 +48,7 @@ function App() {
             <Viewer />
           </div>
         </div>
+        <Toast />
         <ReactQueryDevtools initialIsOpen={false} />
       </QueryClientProvider>
     </BrowserRouter>
