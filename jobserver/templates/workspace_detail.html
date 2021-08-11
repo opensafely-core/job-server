@@ -47,7 +47,13 @@
       <h3>{{ workspace.name }}</h3>
 
       <div class="d-flex">
+
+        {% if user_can_run_jobs %}
+        <a class="btn btn-primary mr-2" href="{{ workspace.get_jobs_url }}">Run Jobs</a>
+        {% endif %}
+
         <a class="btn btn-primary mr-2" href="{{ workspace.get_logs_url }}">Logs</a>
+
       </div>
     </div>
 
