@@ -1,5 +1,7 @@
 {% extends "base.html" %}
 
+{% load static %}
+
 {% block content %}
 
 <nav aria-label="breadcrumb">
@@ -63,9 +65,21 @@
       {% endif %}
     </h1>
 
-    <a class="btn btn-sm btn-primary" href="{{ snapshot.get_download_url }}">
-      Download
-    </a>
+    <div>
+      <a class="btn btn-sm btn-primary mr-3" href="{{ snapshot.get_download_url }}">
+        Download
+      </a>
+      <span
+        class="d-inline-block"
+        data-placement="bottom"
+        data-toggle="tooltip"
+        data-tooltip="warning"
+        style="width:18px"
+        title="You can see these outputs because you have been assigned the ProjectCollaborator role."
+        >
+        <img src="{% static 'icons/question-circle.svg' %}" />
+      </span>
+    </div>
   </div>
   <div class="card-body">
     <p class="card-text">
