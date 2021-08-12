@@ -36,14 +36,17 @@
   </ol>
 </nav>
 
-<div>
-  <h1 class="h3">Level 4 outputs from {{ workspace.name }}</h1>
+<div class="card border-danger mb-3">
+  <div class="card-header">
+    <h3>Level 4 outputs from {{ workspace.name }}</h3>
+  </div>
+  <div class="card-body">
+    <p class="card-text">
+      Medium privacy (Level 4) files currently on <strong>{{ backend.display_name }}</strong>
+      in the <strong>{{ workspace.name }}</strong> workspace.
+    </p>
+  </div>
 </div>
-
-<p class="mb-2 text-muted">
-  Medium privacy (Level 4) files currently on <strong>{{ backend.display_name }}</strong>
-  in the <strong>{{ workspace.name }}</strong> workspace.
-</p>
 
 {% include "outputs-spa.html" %}
 

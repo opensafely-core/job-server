@@ -36,19 +36,32 @@
   </ol>
 </nav>
 
-<div class="d-flex justify-content-between align-items-center">
-  <h1 class="h3">
-    {% if snapshot.is_draft %}Draft{% else %}Published{% endif %}
-    outputs from {{ snapshot.workspace.name }}
+<div class="card border-{% if snapshot.is_draft %}warning{% else %}success{% endif %} mb-3">
+  <div class="card-header d-flex justify-content-between align-items-center">
+    <h1 class="h3">
+      {% if snapshot.is_draft %}Draft{% else %}Published{% endif %}
+      outputs from {{ snapshot.workspace.name }}
 
-    {% if snapshot.is_draft %}
-    <span class="badge badge-secondary">Draft</span>
-    {% endif %}
-  </h1>
+      {% if snapshot.is_draft %}
+      <span class="badge badge-secondary">Draft</span>
+      {% endif %}
+    </h1>
 
-  <a class="btn btn-sm btn-primary" href="{{ snapshot.get_download_url }}">
-    Download
-  </a>
+    <a class="btn btn-sm btn-primary" href="{{ snapshot.get_download_url }}">
+      Download
+    </a>
+  </div>
+  <div class="card-body">
+    <p class="card-text">
+      {% if snapshot.is_draft %}
+      Prepared for publishing by {{ snapshot.created_by.name }} on
+      {{ snapshot.created_at|date:"D M Y" }} at {{ snapshot.created_at|date:"H:i" }}
+      {% else %}
+      Published by {{ snapshot.published_by.name }} on
+      {{ snapshot.published_at|date:"D M Y" }} at {{ snapshot.published_at|date:"H:i" }}
+      {% endif %}
+    </p>
+  </div>
 </div>
 
 {% include "outputs-spa.html" %}
