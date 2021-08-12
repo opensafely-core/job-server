@@ -12,7 +12,7 @@ function FileList() {
   const [files, setFiles] = useState([]);
   const [listHeight, setListHeight] = useState(0);
 
-  const { error, isError, isLoading } = useFileList();
+  const { isError, isLoading } = useFileList();
   const { listVisible } = useStore();
   const history = useHistory();
   const location = useLocation();
@@ -69,9 +69,6 @@ function FileList() {
   }
 
   if (isError) {
-    // eslint-disable-next-line no-console
-    console.error(error.message);
-
     return (
       <div className={`${classes.list} card p-2`}>
         <ul>

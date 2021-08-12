@@ -1,6 +1,7 @@
+import axios from "axios";
 import { useQuery } from "react-query";
 import useStore from "../stores/use-store";
-import handleErrors from "../utils/fetch-handle-errors";
+import { toastError } from "../utils/toast";
 
 function longestStartingSubstr(array) {
   const A = array.concat().sort();
@@ -36,15 +37,26 @@ function useFileList() {
   return useQuery(
     "FILE_LIST",
     async () =>
-      fetch(filesUrl, {
-        headers: new Headers({
-          Authorization: authToken,
+      axios
+        .get(filesUrl, {
+          headers: {
+            Authorization: authToken,
+          },
+        })
+        .then((response) => response.data)
+        .catch((error) => {
+          throw error?.response?.data?.detail || error;
         }),
-      })
-        .then(handleErrors)
-        .then(async (response) => response.json()),
     {
       select: (data) => sortedFiles(data.files),
+      onError: (error) => {
+        toastError({
+          message: `${error}`,
+          toastId: filesUrl,
+          filesUrl,
+          url: document.location.href,
+        });
+      },
     }
   );
 }
