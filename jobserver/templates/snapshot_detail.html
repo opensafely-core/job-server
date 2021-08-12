@@ -39,7 +39,7 @@
 <div class="d-flex justify-content-between align-items-center">
   <h1 class="h3">
     {% if snapshot.is_draft %}Draft{% else %}Published{% endif %}
-    outputs for {{ snapshot.workspace.name }}
+    outputs from {{ snapshot.workspace.name }}
 
     {% if snapshot.is_draft %}
     <span class="badge badge-secondary">Draft</span>
