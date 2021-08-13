@@ -39,45 +39,49 @@
 </nav>
 
 {% if request.user.is_anonymous %}
-<div class="d-flex justify-content-between align-items-center">
-  <h1 class="h3">Published outputs from {{ snapshot.workspace.name }}</h1>
-  <a class="btn btn-sm btn-primary" href="{{ snapshot.get_download_url }}">
-    Download
-  </a>
+<div class="card mb-3">
+  <div class="card-header d-flex justify-content-between align-items-center">
+    <h1 class="h3 mb-0">Published outputs from {{ snapshot.workspace.name }}</h1>
+
+    <div>
+      <a class="btn btn-sm btn-primary" href="{{ snapshot.get_download_url }}">
+        Download
+      </a>
+    </div>
+  </div>
+  <div class="card-body">
+    <p class="card-text">
+      Published by {{ snapshot.published_by.name }} on
+      {{ snapshot.published_at|date:"D M Y" }} at {{ snapshot.published_at|date:"H:i" }}
+    </p>
+  </div>
 </div>
-
-
-<p>
-  Published by {{ snapshot.published_by.name }} on
-  {{ snapshot.published_at|date:"D M Y" }} at {{ snapshot.published_at|date:"H:i" }}
-</p>
 {% endif %}
 
 {% if request.user.is_authenticated %}
 <div class="card border-{% if snapshot.is_draft %}warning{% else %}success{% endif %} mb-3">
-  <div class="card-header d-flex justify-content-between align-items-center">
-    <h1 class="h3">
+  <div class="card-header d-flex justify-content-between align-items-center border-{% if snapshot.is_draft %}warning{% else %}success{% endif %}">
+    <h1 class="h3 mb-0">
       {% if snapshot.is_draft %}Draft{% else %}Published{% endif %}
       outputs from {{ snapshot.workspace.name }}
 
       {% if snapshot.is_draft %}
-      <span class="badge badge-secondary">Draft</span>
+        <span class="badge badge-secondary">Draft</span>
       {% endif %}
     </h1>
 
     <div>
-      <a class="btn btn-sm btn-primary mr-3" href="{{ snapshot.get_download_url }}">
+      <a class="btn btn-sm btn-primary mr-2" href="{{ release.get_download_url }}">
         Download
       </a>
       <span
-        class="d-inline-block"
+        class="btn btn-sm font-weight-bold btn-{% if snapshot.is_draft %}warning{% else %}success{% endif %} px-3"
         data-placement="bottom"
         data-toggle="tooltip"
         data-tooltip="warning"
-        style="width:18px"
-        title="You can see these outputs because you have been assigned the ProjectCollaborator role."
-        >
-        <img src="{% static 'icons/question-circle.svg' %}" />
+        title="You can see these outputs because you have been assigned the ProjectCollaborator role.">
+          <span class="sr-only">You can see these outputs because you have been assigned the ProjectCollaborator role.</span>
+          <span aria-hidden>?</span>
       </span>
     </div>
   </div>
