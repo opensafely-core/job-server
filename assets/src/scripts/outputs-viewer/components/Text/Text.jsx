@@ -1,13 +1,12 @@
-import PropTypes from "prop-types";
 import React from "react";
+import useFile from "../../hooks/use-file";
+import useStore from "../../stores/use-store";
 import classes from "./Text.module.scss";
 
-function Text({ data }) {
+function Text() {
+  const { file } = useStore();
+  const { data } = useFile(file);
   return <pre className={classes.txt}>{data}</pre>;
 }
-
-Text.propTypes = {
-  data: PropTypes.string.isRequired,
-};
 
 export default Text;

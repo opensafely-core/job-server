@@ -13,6 +13,7 @@ import {
 import Iframe from "../Iframe/Iframe";
 import Image from "../Image/Image";
 import Metadata from "../Metadata/Metadata";
+import NoPreview from "../NoPreview/NoPreview";
 import Table from "../Table/Table";
 import Text from "../Text/Text";
 
@@ -45,15 +46,10 @@ function Viewer() {
     );
   }
 
-  if (isError) {
+  if (isError || !data) {
     return (
       <Wrapper>
-        <p>Error: {error}</p>
-        <p className="mb-0">
-          <a href={file.url} rel="noreferrer noopener" target="_blank">
-            Open file in a new tab &#8599;
-          </a>
-        </p>
+        <NoPreview error={error} />
       </Wrapper>
     );
   }
@@ -65,22 +61,17 @@ function Viewer() {
   if (incompatibleFileType || emptyData) {
     return (
       <Wrapper>
-        <p>We cannot show a preview of this file.</p>
-        <p className="mb-0">
-          <a href={file.url} rel="noreferrer noopener" target="_blank">
-            Open file in a new tab &#8599;
-          </a>
-        </p>
+        <NoPreview error={error} />
       </Wrapper>
     );
   }
 
   return (
     <Wrapper>
-      {isCsv(file) ? <Table data={data} /> : null}
-      {isHtml(file) ? <Iframe data={data} /> : null}
-      {isImg(file) ? <Image data={data} /> : null}
-      {isTxt(file) || isJson(file) ? <Text data={data} /> : null}
+      {isCsv(file) ? <Table /> : null}
+      {isHtml(file) ? <Iframe /> : null}
+      {isImg(file) ? <Image /> : null}
+      {isTxt(file) || isJson(file) ? <Text /> : null}
     </Wrapper>
   );
 }
