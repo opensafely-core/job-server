@@ -287,6 +287,7 @@ urlpatterns = [
     path("logout/", LogoutView.as_view(), name="logout"),
     path("orgs/", include(org_urls)),
     path("settings/", Settings.as_view(), name="settings"),
+    path("staff/", include("staff.urls", namespace="staff")),
     path("status/", Status.as_view(), name="status"),
     path("users/", include(user_urls)),
     path("workspaces/", RedirectView.as_view(url="/")),

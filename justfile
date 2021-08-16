@@ -104,7 +104,7 @@ run: devenv
 # Run the tests
 test *ARGS: devenv
     $BIN/python manage.py collectstatic --no-input
-    $BIN/python -m pytest --cov=jobserver --cov=services --cov=tests --cov-report html --cov-report term-missing:skip-covered {{ ARGS }}
+    $BIN/python -m pytest --cov=jobserver --cov=staff --cov=services --cov=tests --cov-report html --cov-report term-missing:skip-covered {{ ARGS }}
 
 
 # upgrade dev or prod dependencies (all by default, specify package to upgrade single package)

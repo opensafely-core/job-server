@@ -44,6 +44,7 @@ ALLOWED_HOSTS = ["*"]
 # Application definition
 INSTALLED_APPS = [
     "jobserver",
+    "staff",
     "anymail",
     "debug_toolbar",
     "django_vite",
