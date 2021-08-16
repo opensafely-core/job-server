@@ -20,6 +20,14 @@ function Toast() {
       toastOptions={{
         duration: Infinity,
 
+        style: {
+          whiteSpace: "pre-line",
+          overflowWrap: "break-word",
+          wordWrap: "break-word",
+          wordBreak: "break-word",
+          hyphens: "auto",
+        },
+
         error: {
           style: {
             color: "#721c24",
