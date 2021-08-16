@@ -2,38 +2,34 @@
 import PropTypes from "prop-types";
 import React from "react";
 import { readString } from "react-papaparse";
+import useFile from "../../hooks/use-file";
 import useStore from "../../stores/use-store";
+import NoPreview from "../NoPreview/NoPreview";
 
-const TableCell = ({ cell }) => <td>{cell}</td>;
+function TableCell({ cell }) {
+  return <td>{cell}</td>;
+}
 
-const TableRow = ({ row }) => (
-  <tr>
-    {row.map((cell, i) => (
-      <TableCell key={i} cell={cell} />
-    ))}
-  </tr>
-);
+function TableRow({ row }) {
+  return (
+    <tr>
+      {row.map((cell, i) => (
+        <TableCell key={i} cell={cell} />
+      ))}
+    </tr>
+  );
+}
 
-function Table({ data }) {
+function Table() {
   const { file } = useStore();
+  const { data } = useFile(file);
 
   const jsonData = readString(data, {
     chunk: true,
     complete: (results) => results,
   }).data;
 
-  if (jsonData.length > 5000) {
-    return (
-      <>
-        <p>We cannot show a preview of this file.</p>
-        <p className="mb-0">
-          <a href={file.url} rel="noreferrer noopener" target="_blank">
-            Open file in a new tab &#8599;
-          </a>
-        </p>
-      </>
-    );
-  }
+  if (jsonData.length > 5000) return <NoPreview />;
 
   if (jsonData.length > 1000) {
     return (
@@ -73,10 +69,6 @@ TableCell.propTypes = {
 
 TableRow.propTypes = {
   row: PropTypes.arrayOf(PropTypes.string).isRequired,
-};
-
-Table.propTypes = {
-  data: PropTypes.string.isRequired,
 };
 
 export default Table;
