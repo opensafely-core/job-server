@@ -57,8 +57,8 @@ def nav(request):
         options.append(
             {
                 "name": "Backends",
-                "is_active": _active(reverse("backend-list")),
-                "url": reverse("backend-list"),
+                "is_active": _active(reverse("staff:backend-list")),
+                "url": reverse("staff:backend-list"),
             }
         )
 
@@ -66,8 +66,8 @@ def nav(request):
         options.append(
             {
                 "name": "Users",
-                "is_active": _active(reverse("user-list")),
-                "url": reverse("user-list"),
+                "is_active": _active(reverse("staff:user-list")),
+                "url": reverse("staff:user-list"),
             }
         )
 

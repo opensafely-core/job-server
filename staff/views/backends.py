@@ -2,8 +2,8 @@ from django.shortcuts import get_object_or_404, redirect
 from django.utils.decorators import method_decorator
 from django.views.generic import DetailView, ListView, UpdateView, View
 
-from ..authorization.decorators import require_manage_backends
-from ..models import Backend
+from jobserver.authorization.decorators import require_manage_backends
+from jobserver.models import Backend
 
 
 @method_decorator(require_manage_backends, name="dispatch")

@@ -79,7 +79,7 @@ def test_nav_status(rf):
 
 @pytest.mark.django_db
 def test_nav_backends(rf, core_developer):
-    request = rf.get(reverse("backend-list"))
+    request = rf.get(reverse("staff:backend-list"))
     request.user = core_developer
 
     jobs, status, backends, users = nav(request)["nav"]
@@ -92,7 +92,7 @@ def test_nav_backends(rf, core_developer):
 
 @pytest.mark.django_db
 def test_nav_users(rf, core_developer):
-    request = rf.get(reverse("user-list"))
+    request = rf.get(reverse("staff:user-list"))
     request.user = core_developer
 
     jobs, status, backends, users = nav(request)["nav"]
@@ -105,7 +105,7 @@ def test_nav_users(rf, core_developer):
 
 @pytest.mark.django_db
 def test_nav_without_core_developer_role(rf):
-    request = rf.get(reverse("backend-list"))
+    request = rf.get(reverse("staff:backend-list"))
     request.user = UserFactory()
 
     jobs, status = nav(request)["nav"]

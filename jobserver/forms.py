@@ -2,16 +2,7 @@ from django import forms
 from first import first
 
 from .authorization.forms import RolesForm
-from .backends import backends_to_choices
-from .models import (
-    Backend,
-    JobRequest,
-    Org,
-    Project,
-    ResearcherRegistration,
-    User,
-    Workspace,
-)
+from .models import JobRequest, Org, Project, ResearcherRegistration, User, Workspace
 
 
 class JobRequestCreateForm(forms.ModelForm):
@@ -126,26 +117,6 @@ class SettingsForm(forms.ModelForm):
             "notifications_email",
         ]
         model = User
-
-
-class UserForm(RolesForm):
-    is_superuser = forms.BooleanField(required=False)
-
-    def __init__(self, *, available_backends, **kwargs):
-        super().__init__(**kwargs)
-
-        # build choices from the available backends
-        choices = backends_to_choices(available_backends)
-
-        self.fields["backends"] = forms.MultipleChoiceField(
-            choices=choices,
-            required=False,
-            widget=forms.CheckboxSelectMultiple,
-        )
-
-    def clean_backends(self):
-        """Convert backend slugs to Backend instances"""
-        return Backend.objects.filter(slug__in=self.cleaned_data["backends"])
 
 
 class WorkspaceArchiveToggleForm(forms.Form):

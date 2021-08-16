@@ -756,7 +756,7 @@ def test_user_get_absolute_url():
     url = user.get_absolute_url()
 
     assert url == reverse(
-        "user-detail",
+        "staff:user-detail",
         kwargs={
             "username": user.username,
         },

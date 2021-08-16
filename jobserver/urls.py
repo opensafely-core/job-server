@@ -23,7 +23,6 @@ from jobserver.api.releases import (
 )
 
 from .views.admin import ApproveUsers
-from .views.backends import BackendDetail, BackendEdit, BackendList, BackendRotateToken
 from .views.index import Index
 from .views.job_requests import (
     JobRequestCancel,
@@ -56,7 +55,7 @@ from .views.releases import (
     WorkspaceReleaseList,
 )
 from .views.status import Status
-from .views.users import Settings, UserDetail, UserList
+from .views.users import Settings
 from .views.workspaces import (
     WorkspaceArchiveToggle,
     WorkspaceBackendFiles,
@@ -117,17 +116,6 @@ api_urls = [
         "releases/file/<file_id>",
         ReleaseFileAPI.as_view(),
         name="release-file",
-    ),
-]
-
-backend_urls = [
-    path("", BackendList.as_view(), name="backend-list"),
-    path("<int:pk>/", BackendDetail.as_view(), name="backend-detail"),
-    path("<int:pk>/edit/", BackendEdit.as_view(), name="backend-edit"),
-    path(
-        "<int:pk>/rotate-token/",
-        BackendRotateToken.as_view(),
-        name="backend-rotate-token",
     ),
 ]
 
@@ -262,11 +250,6 @@ org_urls = [
     path("new/", OrgCreate.as_view(), name="org-create"),
 ]
 
-user_urls = [
-    path("", UserList.as_view(), name="user-list"),
-    path("<username>/", UserDetail.as_view(), name="user-detail"),
-]
-
 urlpatterns = [
     path("", Index.as_view()),
     path("", include("social_django.urls", namespace="social")),
@@ -274,7 +257,6 @@ urlpatterns = [
     path("admin/approve-users", ApproveUsers.as_view(), name="approve-users"),
     path("admin/", admin.site.urls),
     path("api/v2/", include((api_urls, "api"))),
-    path("backends/", include(backend_urls)),
     path("event-log/", JobRequestList.as_view(), name="job-list"),
     path("event-list/", RedirectView.as_view(url="/event-log/")),
     path("jobs/", RedirectView.as_view(query_string=True, pattern_name="job-list")),
@@ -289,7 +271,6 @@ urlpatterns = [
     path("settings/", Settings.as_view(), name="settings"),
     path("staff/", include("staff.urls", namespace="staff")),
     path("status/", Status.as_view(), name="status"),
-    path("users/", include(user_urls)),
     path("workspaces/", RedirectView.as_view(url="/")),
     path("__debug__/", include(debug_toolbar.urls)),
     path(

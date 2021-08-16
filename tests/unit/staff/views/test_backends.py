@@ -1,7 +1,7 @@
 import pytest
 from django.urls import reverse
 
-from jobserver.views.backends import (
+from staff.views.backends import (
     BackendDetail,
     BackendEdit,
     BackendList,
@@ -58,4 +58,4 @@ def test_backendrotatetoken_success(rf, core_developer):
     response = BackendRotateToken.as_view()(request, pk=backend.pk)
 
     assert response.status_code == 302
-    assert response.url == reverse("backend-detail", kwargs={"pk": backend.pk})
+    assert response.url == reverse("staff:backend-detail", kwargs={"pk": backend.pk})

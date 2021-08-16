@@ -59,13 +59,13 @@ class Backend(models.Model):
         return self.slug
 
     def get_absolute_url(self):
-        return reverse("backend-detail", kwargs={"pk": self.pk})
+        return reverse("staff:backend-detail", kwargs={"pk": self.pk})
 
     def get_edit_url(self):
-        return reverse("backend-edit", kwargs={"pk": self.pk})
+        return reverse("staff:backend-edit", kwargs={"pk": self.pk})
 
     def get_rotate_url(self):
-        return reverse("backend-rotate-token", kwargs={"pk": self.pk})
+        return reverse("staff:backend-rotate-token", kwargs={"pk": self.pk})
 
     def rotate_token(self):
         self.auth_token = generate_token()
