@@ -35,7 +35,7 @@
     {% for user in object_list %}
     <div class="border rounded p-2 pl-3 mb-3">
 
-      <a href="{{ user.get_absolute_url }}">{{ user.username }}</a>
+      <a href="{{ user.get_staff_url }}">{{ user.username }}</a>
       {% if user.get_full_name %}
       <small class="text-muted">({{ user.get_full_name }})</small>
       {% endif %}
