@@ -37,21 +37,13 @@ def backend_warnings(request):
     return {"backend_warnings": list(iter_warnings(backends))}
 
 
-def nav(request):
+def staff_nav(request):
+    if not request.user.is_authenticated:
+        return {"staff_nav": []}
+
     _active = functools.partial(_is_active, request)
 
-    options = [
-        {
-            "name": "Event log",
-            "is_active": _active(reverse("job-list")),
-            "url": reverse("job-list"),
-        },
-        {
-            "name": "Status",
-            "is_active": _active(reverse("status")),
-            "url": reverse("status"),
-        },
-    ]
+    options = []
 
     if has_permission(request.user, "backend_manage"):
         options.append(
@@ -71,7 +63,26 @@ def nav(request):
             }
         )
 
-    return {"nav": options}
+    return {"staff_nav": options}
+
+
+def nav(request):
+    _active = functools.partial(_is_active, request)
+
+    return {
+        "nav": [
+            {
+                "name": "Event Log",
+                "is_active": _active(reverse("job-list")),
+                "url": reverse("job-list"),
+            },
+            {
+                "name": "Status",
+                "is_active": _active(reverse("status")),
+                "url": reverse("status"),
+            },
+        ],
+    }
 
 
 def scripts_attrs(request):

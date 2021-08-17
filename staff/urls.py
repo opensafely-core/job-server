@@ -1,6 +1,7 @@
 from django.urls import include, path
 
 from .views.backends import BackendDetail, BackendEdit, BackendList, BackendRotateToken
+from .views.index import Index
 from .views.users import UserDetail, UserList
 
 
@@ -23,6 +24,7 @@ user_urls = [
 ]
 
 urlpatterns = [
+    path("", Index.as_view(), name="index"),
     path("backends/", include(backend_urls)),
     path("users/", include(user_urls)),
 ]

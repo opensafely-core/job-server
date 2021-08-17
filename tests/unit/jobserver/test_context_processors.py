@@ -2,7 +2,7 @@ import pytest
 from django.urls import reverse
 from django.utils import timezone
 
-from jobserver.context_processors import backend_warnings, nav, scripts_attrs
+from jobserver.context_processors import backend_warnings, nav, scripts_attrs, staff_nav
 from jobserver.models import Backend
 
 from ...factories import JobRequestFactory, StatsFactory, UserFactory
@@ -56,6 +56,28 @@ def test_backend_warnings_with_warnings(rf):
 
 
 @pytest.mark.django_db
+def test_staff_nav_backends(rf, core_developer):
+    request = rf.get(reverse("staff:backend-list"))
+    request.user = core_developer
+
+    backends, users = staff_nav(request)["staff_nav"]
+
+    assert backends["is_active"] is True
+    assert users["is_active"] is False
+
+
+@pytest.mark.django_db
+def test_staff_nav_users(rf, core_developer):
+    request = rf.get(reverse("staff:user-list"))
+    request.user = core_developer
+
+    backends, users = staff_nav(request)["staff_nav"]
+
+    assert backends["is_active"] is False
+    assert users["is_active"] is True
+
+
+@pytest.mark.django_db
 def test_nav_jobs(rf):
     request = rf.get(reverse("job-list"))
     request.user = UserFactory()
@@ -75,43 +97,6 @@ def test_nav_status(rf):
 
     assert jobs["is_active"] is False
     assert status["is_active"] is True
-
-
-@pytest.mark.django_db
-def test_nav_backends(rf, core_developer):
-    request = rf.get(reverse("staff:backend-list"))
-    request.user = core_developer
-
-    jobs, status, backends, users = nav(request)["nav"]
-
-    assert jobs["is_active"] is False
-    assert status["is_active"] is False
-    assert backends["is_active"] is True
-    assert users["is_active"] is False
-
-
-@pytest.mark.django_db
-def test_nav_users(rf, core_developer):
-    request = rf.get(reverse("staff:user-list"))
-    request.user = core_developer
-
-    jobs, status, backends, users = nav(request)["nav"]
-
-    assert jobs["is_active"] is False
-    assert status["is_active"] is False
-    assert backends["is_active"] is False
-    assert users["is_active"] is True
-
-
-@pytest.mark.django_db
-def test_nav_without_core_developer_role(rf):
-    request = rf.get(reverse("staff:backend-list"))
-    request.user = UserFactory()
-
-    jobs, status = nav(request)["nav"]
-
-    assert jobs["is_active"] is False
-    assert status["is_active"] is False
 
 
 @pytest.mark.django_db
