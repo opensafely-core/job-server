@@ -2,40 +2,20 @@
 
 {% block staff_content %}
 
-<div class="d-flex justify-content-between mt-3 mb-4">
-  <h2>Backends</h2>
-</div>
-
 <div class="row">
-  <div class="col-lg-10">
+  <div class="col-lg-8 offset-lg-2">
 
-    <table class="table table-hover">
-      <thead>
-        <tr>
-          <th scope="col">Name</th>
-          <th scope="col"></th>
-        </tr>
-      </thead>
-      <tbody>
+  <div class="d-flex justify-content-between mt-3 mb-4">
+    <h2>Backends</h2>
+  </div>
 
-        {% for backend in object_list %}
-        <tr>
-          <td>{{ backend.display_name }}</td>
-          <td class="text-right">
-            <a class="btn btn-secondary text-white" href="{{ backend.get_staff_url }}">
-              View
-            </a>
-            <a class="btn btn-danger text-white" href="{{ backend.get_edit_url }}">
-              Edit
-            </a>
-          </td>
-        </tr>
-        {% endfor %}
-
-      </tbody>
-    </table>
+    {% for backend in backend_list %}
+    <div class="d-flex justify-content-between align-items-center border rounded p-2 pl-3 mb-3">
+      <a href="{{ backend.get_staff_url }}">{{ backend.name }}</a>
+      <a class="btn btn-sm btn-danger" href="{{ backend.get_edit_url }}">Edit</a>
+    </div>
+    {% endfor %}
 
   </div>
 </div>
-
 {% endblock staff_content %}
