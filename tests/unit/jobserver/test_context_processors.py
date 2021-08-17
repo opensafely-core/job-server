@@ -2,7 +2,13 @@ import pytest
 from django.urls import reverse
 from django.utils import timezone
 
-from jobserver.context_processors import backend_warnings, nav, scripts_attrs, staff_nav
+from jobserver.context_processors import (
+    backend_warnings,
+    can_view_staff_area,
+    nav,
+    scripts_attrs,
+    staff_nav,
+)
 from jobserver.models import Backend
 
 from ...factories import JobRequestFactory, StatsFactory, UserFactory
@@ -53,6 +59,22 @@ def test_backend_warnings_with_warnings(rf):
     output = backend_warnings(request)
 
     assert output["backend_warnings"] == ["TPP"]
+
+
+@pytest.mark.django_db
+def test_can_view_staff_area_with_core_developer(rf, core_developer):
+    request = rf.get("/")
+    request.user = core_developer
+
+    assert can_view_staff_area(request)["user_can_view_staff_area"]
+
+
+@pytest.mark.django_db
+def test_can_view_staff_area_without_core_developer(rf):
+    request = rf.get("/")
+    request.user = UserFactory()
+
+    assert not can_view_staff_area(request)["user_can_view_staff_area"]
 
 
 @pytest.mark.django_db

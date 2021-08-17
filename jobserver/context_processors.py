@@ -4,7 +4,7 @@ import structlog
 from django.conf import settings
 from django.urls import reverse
 
-from .authorization import has_permission
+from .authorization import CoreDeveloper, has_permission, has_role
 from .backends import show_warning
 from .models import Backend
 
@@ -35,6 +35,12 @@ def backend_warnings(request):
 
     backends = Backend.objects.filter(is_active=True)
     return {"backend_warnings": list(iter_warnings(backends))}
+
+
+def can_view_staff_area(request):
+    can_view_staff_area = has_role(request.user, CoreDeveloper)
+
+    return {"user_can_view_staff_area": can_view_staff_area}
 
 
 def staff_nav(request):
