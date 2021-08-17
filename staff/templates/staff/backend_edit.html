@@ -1,11 +1,11 @@
-{% extends "base.html" %}
+{% extends "staff/base.html" %}
 
-{% block content %}
+{% block staff_content %}
 
 <nav aria-label="breadcrumb">
   <ol class="breadcrumb">
 
-    <li class="breadcrumb-item"><a href="/">Home</a></li>
+    <li class="breadcrumb-item"><a href="{% url 'staff:index' %}">Inspector</a></li>
 
     <li class="breadcrumb-item">
       <a href="{% url 'staff:backend-list' %}">Backends</a>
@@ -66,4 +66,4 @@
   </div>
 </div>
 
-{% endblock %}
+{% endblock staff_content %}
