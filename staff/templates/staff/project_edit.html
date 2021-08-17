@@ -1,30 +1,6 @@
 {% extends "staff/base.html" %}
 
 {% block staff_content %}
-<nav aria-label="breadcrumb">
-  <ol class="breadcrumb">
-
-    <li class="breadcrumb-item">
-      <a href="{% url 'staff:index' %}">Staff Area</a>
-    </li>
-
-    <li class="breadcrumb-item">
-      <a href="{% url 'staff:project-list' %}">
-        Projects
-      </a>
-    </li>
-
-    <li class="breadcrumb-item">
-      <a href="{{ project.get_staff_url }}">
-        {{ project.name }}
-      </a>
-    </li>
-
-    <li class="breadcrumb-item active" aria-current="page">Edit</li>
-
-  </ol>
-</nav>
-
 <div class="row mb-5">
   <div class="col-lg-8 offset-lg-2">
 
@@ -62,5 +38,4 @@
 
   </div>
 </div>
-
 {% endblock staff_content %}

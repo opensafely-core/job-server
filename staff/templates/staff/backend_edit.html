@@ -1,25 +1,6 @@
 {% extends "staff/base.html" %}
 
 {% block staff_content %}
-
-<nav aria-label="breadcrumb">
-  <ol class="breadcrumb">
-
-    <li class="breadcrumb-item"><a href="{% url 'staff:index' %}">Inspector</a></li>
-
-    <li class="breadcrumb-item">
-      <a href="{% url 'staff:backend-list' %}">Backends</a>
-    </li>
-
-    <li class="breadcrumb-item">
-      <a href="{{ backend.get_staff_url }}">{{ backend.display_name }}</a>
-    </li>
-
-    <li class="breadcrumb-item active" aria-current="page">Edit</li>
-
-  </ol>
-</nav>
-
 <div class="row mb-5">
   <div class="col-lg-8 offset-lg-2">
 
@@ -65,5 +46,4 @@
 
   </div>
 </div>
-
 {% endblock staff_content %}
