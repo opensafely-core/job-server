@@ -108,7 +108,7 @@ def test_workspacebackendfiles_success(rf):
         org_slug=workspace.project.org.slug,
         project_slug=workspace.project.slug,
         workspace_slug=workspace.name,
-        backend_slug=backend.name,
+        backend_slug=backend.slug,
     )
 
     assert response.status_code == 200
@@ -145,7 +145,7 @@ def test_workspacebackendfiles_unknown_workspace(rf):
             org_slug=project.org.slug,
             project_slug=project.slug,
             workspace_slug="unknown",
-            backend_slug=backend.name,
+            backend_slug=backend.slug,
         )
 
 
@@ -168,7 +168,7 @@ def test_workspacebackendfiles_with_permission(rf):
         org_slug=workspace.project.org.slug,
         project_slug=workspace.project.slug,
         workspace_slug=workspace.name,
-        backend_slug=backend.name,
+        backend_slug=backend.slug,
     )
 
     assert response.status_code == 200
@@ -193,7 +193,7 @@ def test_workspacebackendfiles_without_backend_access(rf):
             org_slug=workspace.project.org.slug,
             project_slug=workspace.project.slug,
             workspace_slug=workspace.name,
-            backend_slug=backend.name,
+            backend_slug=backend.slug,
         )
 
 
@@ -214,7 +214,7 @@ def test_workspacebackendfiles_without_permission(rf):
             org_slug=workspace.project.org.slug,
             project_slug=workspace.project.slug,
             workspace_slug=workspace.name,
-            backend_slug=backend.name,
+            backend_slug=backend.slug,
         )
 
 
@@ -577,7 +577,7 @@ def test_workspacedetail_post_success(rf, mocker, monkeypatch, user):
     project = ProjectFactory(org=org)
     workspace = WorkspaceFactory(project=project)
 
-    BackendMembershipFactory(backend=Backend.objects.get(name="tpp"), user=user)
+    BackendMembershipFactory(backend=Backend.objects.get(slug="tpp"), user=user)
     ProjectMembershipFactory(project=project, user=user, roles=[ProjectDeveloper])
 
     dummy_yaml = """
@@ -617,7 +617,7 @@ def test_workspacedetail_post_success(rf, mocker, monkeypatch, user):
     job_request = JobRequest.objects.first()
     assert job_request.created_by == user
     assert job_request.workspace == workspace
-    assert job_request.backend.name == "tpp"
+    assert job_request.backend.slug == "tpp"
     assert job_request.requested_actions == ["twiddle"]
     assert job_request.sha == "abc123"
     assert not job_request.jobs.exists()
@@ -631,7 +631,7 @@ def test_workspacedetail_post_with_invalid_backend(rf, mocker, monkeypatch, user
     project = ProjectFactory(org=org)
     workspace = WorkspaceFactory(project=project)
 
-    BackendMembershipFactory(backend=Backend.objects.get(name="tpp"), user=user)
+    BackendMembershipFactory(backend=Backend.objects.get(slug="tpp"), user=user)
     ProjectMembershipFactory(project=project, user=user, roles=[ProjectDeveloper])
 
     dummy_yaml = """
@@ -684,7 +684,7 @@ def test_workspacedetail_post_with_notifications_default(rf, mocker, monkeypatch
     project = ProjectFactory(org=org)
     workspace = WorkspaceFactory(project=project, should_notify=True)
 
-    BackendMembershipFactory(backend=Backend.objects.get(name="tpp"), user=user)
+    BackendMembershipFactory(backend=Backend.objects.get(slug="tpp"), user=user)
     ProjectMembershipFactory(project=project, user=user, roles=[ProjectDeveloper])
 
     dummy_yaml = """
@@ -725,7 +725,7 @@ def test_workspacedetail_post_with_notifications_default(rf, mocker, monkeypatch
     job_request = JobRequest.objects.first()
     assert job_request.created_by == user
     assert job_request.workspace == workspace
-    assert job_request.backend.name == "tpp"
+    assert job_request.backend.slug == "tpp"
     assert job_request.requested_actions == ["twiddle"]
     assert job_request.sha == "abc123"
     assert job_request.will_notify
@@ -741,7 +741,7 @@ def test_workspacedetail_post_with_notifications_override(
     project = ProjectFactory(org=org)
     workspace = WorkspaceFactory(project=project, should_notify=True)
 
-    BackendMembershipFactory(backend=Backend.objects.get(name="tpp"), user=user)
+    BackendMembershipFactory(backend=Backend.objects.get(slug="tpp"), user=user)
     ProjectMembershipFactory(project=project, user=user, roles=[ProjectDeveloper])
 
     dummy_yaml = """
@@ -782,7 +782,7 @@ def test_workspacedetail_post_with_notifications_override(
     job_request = JobRequest.objects.first()
     assert job_request.created_by == user
     assert job_request.workspace == workspace
-    assert job_request.backend.name == "tpp"
+    assert job_request.backend.slug == "tpp"
     assert job_request.requested_actions == ["twiddle"]
     assert job_request.sha == "abc123"
     assert not job_request.will_notify

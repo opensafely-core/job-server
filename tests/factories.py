@@ -32,7 +32,7 @@ class BackendFactory(factory.django.DjangoModelFactory):
     class Meta:
         model = Backend
 
-    name = factory.Sequence(lambda n: f"backend-{n}")
+    slug = factory.Sequence(lambda n: f"backend-{n}")
     level_4_url = factory.Sequence(lambda n: f"http://example.com/{n}")
 
 

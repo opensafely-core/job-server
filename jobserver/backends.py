@@ -18,7 +18,7 @@ available_backends = {
 
 
 def backends_to_choices(backends):
-    return [(b.name, b.display_name) for b in backends]
+    return [(b.slug, b.display_name) for b in backends]
 
 
 def get_configured_backends():

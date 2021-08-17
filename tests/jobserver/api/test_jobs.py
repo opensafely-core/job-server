@@ -41,7 +41,7 @@ def test_token_backend_no_token():
 def test_token_backend_success(monkeypatch):
     monkeypatch.setenv("BACKENDS", "tpp")
 
-    tpp = Backend.objects.get(name="tpp")
+    tpp = Backend.objects.get(slug="tpp")
 
     assert get_backend_from_token(tpp.auth_token) == tpp
 
@@ -475,8 +475,8 @@ def test_jobapiupdate_unknown_job_request(api_rf):
 
 @pytest.mark.django_db
 def test_jobrequestapilist_filter_by_backend(api_rf):
-    JobRequestFactory(backend=Backend.objects.get(name="expectations"))
-    JobRequestFactory(backend=Backend.objects.get(name="tpp"))
+    JobRequestFactory(backend=Backend.objects.get(slug="expectations"))
+    JobRequestFactory(backend=Backend.objects.get(slug="tpp"))
 
     request = api_rf.get("/?backend=expectations")
     response = JobRequestAPIList.as_view()(request)
@@ -487,8 +487,8 @@ def test_jobrequestapilist_filter_by_backend(api_rf):
 
 @pytest.mark.django_db
 def test_jobrequestapilist_filter_by_databricks(api_rf):
-    job_request = JobRequestFactory(backend=Backend.objects.get(name="databricks"))
-    JobRequestFactory(backend=Backend.objects.get(name="tpp"))
+    job_request = JobRequestFactory(backend=Backend.objects.get(slug="databricks"))
+    JobRequestFactory(backend=Backend.objects.get(slug="tpp"))
 
     request = api_rf.get("/?backend=nhsd")
     response = JobRequestAPIList.as_view()(request)
@@ -500,10 +500,10 @@ def test_jobrequestapilist_filter_by_databricks(api_rf):
 
 @pytest.mark.django_db
 def test_jobrequestapilist_filter_by_databricks_with_mismatched(api_rf, mocker):
-    tpp = Backend.objects.get(name="tpp")
+    tpp = Backend.objects.get(slug="tpp")
 
     JobRequestFactory(backend=tpp)
-    job_request = JobRequestFactory(backend=Backend.objects.get(name="emis"))
+    job_request = JobRequestFactory(backend=Backend.objects.get(slug="emis"))
 
     mocked_sentry = mocker.patch("jobserver.api.jobs.sentry_sdk", autospec=True)
 

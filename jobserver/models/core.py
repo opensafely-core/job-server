@@ -872,7 +872,7 @@ class Workspace(models.Model):
         jobs = Job.objects.filter(job_request__workspace=self)
 
         if backend:
-            jobs = jobs.filter(job_request__backend__name=backend)
+            jobs = jobs.filter(job_request__backend__slug=backend)
 
         # get all known actions
         actions = set(jobs.values_list("action", flat=True))

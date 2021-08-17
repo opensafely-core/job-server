@@ -274,8 +274,8 @@ def test_workspace_index_api_logged_in_no_permission(api_client):
 @pytest.mark.django_db
 def test_workspace_index_api_have_permission(api_client):
     workspace = WorkspaceFactory()
-    backend1 = BackendFactory(name="backend1")
-    backend2 = BackendFactory(name="backend2")
+    backend1 = BackendFactory(slug="backend1")
+    backend2 = BackendFactory(slug="backend2")
     user = UserFactory()
     ProjectMembershipFactory(
         user=user, project=workspace.project, roles=[ProjectCollaborator]
@@ -469,7 +469,7 @@ def test_release_api_upload_bad_backend(api_client):
     )
 
     assert response.status_code == 400
-    assert bad_backend.name in response.data["detail"]
+    assert bad_backend.slug in response.data["detail"]
 
 
 @pytest.mark.django_db

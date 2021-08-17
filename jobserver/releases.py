@@ -78,7 +78,7 @@ def check_not_already_uploaded(filename, filehash, backend):
     )
     if duplicate.exists():
         raise ReleaseFileAlreadyExists(
-            f"This version of '{filename}' has already been uploaded from backend '{backend.name}'"
+            f"This version of '{filename}' has already been uploaded from backend '{backend.slug}'"
         )
 
 
@@ -150,7 +150,7 @@ def workspace_files(workspace):
     """
     index = {}
     for rfile in workspace.files.order_by("-release__created_at"):
-        workspace_path = f"{rfile.release.backend.name}/{rfile.name}"
+        workspace_path = f"{rfile.release.backend.slug}/{rfile.name}"
         if workspace_path not in index:
             index[workspace_path] = rfile
     return index

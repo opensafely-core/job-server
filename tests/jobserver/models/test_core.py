@@ -1013,8 +1013,8 @@ def test_workspace_get_action_status_lut_no_jobs():
 
 @pytest.mark.django_db
 def test_workspace_get_action_status_lut_with_backend():
-    emis = Backend.objects.get(name="emis")
-    tpp = Backend.objects.get(name="tpp")
+    emis = Backend.objects.get(slug="emis")
+    tpp = Backend.objects.get(slug="tpp")
     workspace1 = WorkspaceFactory()
     job_request = JobRequestFactory(backend=emis, workspace=workspace1)
     JobFactory(job_request=job_request, action="action1", status="pending")

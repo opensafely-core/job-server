@@ -145,8 +145,8 @@ class UserForm(RolesForm):
         )
 
     def clean_backends(self):
-        """Convert backend names to Backend instances"""
-        return Backend.objects.filter(name__in=self.cleaned_data["backends"])
+        """Convert backend slugs to Backend instances"""
+        return Backend.objects.filter(slug__in=self.cleaned_data["backends"])
 
 
 class WorkspaceArchiveToggleForm(forms.Form):

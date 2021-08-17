@@ -19,7 +19,7 @@ def test_token_backend_no_token():
 def test_token_backend_success(monkeypatch):
     monkeypatch.setenv("BACKENDS", "tpp")
 
-    tpp = Backend.objects.get(name="tpp")
+    tpp = Backend.objects.get(slug="tpp")
 
     assert get_backend_from_token(tpp.auth_token) == tpp
 

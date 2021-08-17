@@ -27,7 +27,7 @@ def backend_warnings(request):
                     backend.stats.order_by("-api_last_seen").first().api_last_seen
                 )
             except AttributeError:
-                logger.info(f"No stats found for backend '{backend.name}'")
+                logger.info(f"No stats found for backend '{backend.slug}'")
                 continue
 
             if show_warning(last_seen):

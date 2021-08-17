@@ -70,8 +70,8 @@ def test_userdetail_get_success(rf, core_developer):
     user = UserFactory(roles=[OutputPublisher, TechnicalReviewer])
 
     # link the user to some Backends
-    user.backend_memberships.create(backend=Backend.objects.get(name="test"))
-    user.backend_memberships.create(backend=Backend.objects.get(name="tpp"))
+    user.backend_memberships.create(backend=Backend.objects.get(slug="test"))
+    user.backend_memberships.create(backend=Backend.objects.get(slug="tpp"))
 
     # link the user to the Org
     OrgMembershipFactory(org=org, user=user)
@@ -100,8 +100,8 @@ def test_userdetail_post_success(rf, core_developer):
     user = UserFactory(roles=[OutputPublisher, TechnicalReviewer])
 
     # link the user to some Backends
-    user.backend_memberships.create(backend=Backend.objects.get(name="test"))
-    user.backend_memberships.create(backend=Backend.objects.get(name="tpp"))
+    user.backend_memberships.create(backend=Backend.objects.get(slug="test"))
+    user.backend_memberships.create(backend=Backend.objects.get(slug="tpp"))
 
     # link the user to the Org
     OrgMembershipFactory(org=org, user=user)
@@ -124,7 +124,7 @@ def test_userdetail_post_success(rf, core_developer):
     assert response.url == user.get_absolute_url()
 
     user.refresh_from_db()
-    assert list(user.backends.values_list("name", flat=True)) == ["test"]
+    assert list(user.backends.values_list("slug", flat=True)) == ["test"]
     assert user.roles == [OutputPublisher]
     assert user.is_superuser
 
@@ -137,8 +137,8 @@ def test_userdetail_post_with_unknown_backend(rf, core_developer):
     user = UserFactory(roles=[OutputPublisher, TechnicalReviewer])
 
     # link the user to some Backends
-    user.backend_memberships.create(backend=Backend.objects.get(name="test"))
-    user.backend_memberships.create(backend=Backend.objects.get(name="tpp"))
+    user.backend_memberships.create(backend=Backend.objects.get(slug="test"))
+    user.backend_memberships.create(backend=Backend.objects.get(slug="tpp"))
 
     # link the user to the Org
     OrgMembershipFactory(org=org, user=user)
@@ -183,8 +183,8 @@ def test_userdetail_post_with_unknown_role(rf, core_developer):
     user = UserFactory(roles=[OutputPublisher, TechnicalReviewer])
 
     # link the user to some Backends
-    user.backend_memberships.create(backend=Backend.objects.get(name="test"))
-    user.backend_memberships.create(backend=Backend.objects.get(name="tpp"))
+    user.backend_memberships.create(backend=Backend.objects.get(slug="test"))
+    user.backend_memberships.create(backend=Backend.objects.get(slug="tpp"))
 
     # link the user to the Org
     OrgMembershipFactory(org=org, user=user)
@@ -242,8 +242,8 @@ def test_userdetail_without_core_dev_role(rf):
 
 @pytest.mark.django_db
 def test_userlist_filter_by_backend(rf, core_developer):
-    emis = Backend.objects.get(name="emis")
-    tpp = Backend.objects.get(name="tpp")
+    emis = Backend.objects.get(slug="emis")
+    tpp = Backend.objects.get(slug="tpp")
 
     BackendMembershipFactory(user=UserFactory(), backend=emis)
     BackendMembershipFactory(user=UserFactory(), backend=tpp)

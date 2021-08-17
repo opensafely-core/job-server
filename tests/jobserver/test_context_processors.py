@@ -14,7 +14,7 @@ def test_backend_warnings_with_debug_on(rf, settings):
     settings.DEBUG = True
 
     # set up some stats which should show up a warning in normal circumstances
-    tpp = Backend.objects.get(name="tpp")
+    tpp = Backend.objects.get(slug="tpp")
 
     JobRequestFactory(backend=tpp)
 
@@ -29,7 +29,7 @@ def test_backend_warnings_with_debug_on(rf, settings):
 
 @pytest.mark.django_db
 def test_backend_warnings_with_no_warnings(rf):
-    tpp = Backend.objects.get(name="tpp")
+    tpp = Backend.objects.get(slug="tpp")
 
     last_seen = minutes_ago(timezone.now(), 1)
     StatsFactory(backend=tpp, api_last_seen=last_seen)
@@ -42,7 +42,7 @@ def test_backend_warnings_with_no_warnings(rf):
 
 @pytest.mark.django_db
 def test_backend_warnings_with_warnings(rf):
-    tpp = Backend.objects.get(name="tpp")
+    tpp = Backend.objects.get(slug="tpp")
 
     JobRequestFactory(backend=tpp)
 

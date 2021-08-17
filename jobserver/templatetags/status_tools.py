@@ -50,9 +50,9 @@ def status_hint(job):
     """
     backend = job.job_request.backend
 
-    description_lut = status_hints.get(backend.name, None)
+    description_lut = status_hints.get(backend.slug, None)
     if not description_lut:
-        logger.info(f"Unknown backend: {backend.name}")
+        logger.info(f"Unknown backend: {backend.slug}")
         return ""
 
     description_func = description_lut.get(job.status_code, None)

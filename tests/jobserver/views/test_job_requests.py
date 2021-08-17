@@ -183,11 +183,11 @@ def test_jobrequestlist_filters_exist(rf):
 
 @pytest.mark.django_db
 def test_jobrequestlist_filter_by_backend(rf):
-    emis = Backend.objects.get(name="emis")
+    emis = Backend.objects.get(slug="emis")
     job_request = JobRequestFactory(backend=emis)
     JobFactory.create_batch(2, job_request=job_request)
 
-    tpp = Backend.objects.get(name="tpp")
+    tpp = Backend.objects.get(slug="tpp")
     job_request = JobRequestFactory(backend=tpp)
     JobFactory.create_batch(2, job_request=job_request)
 

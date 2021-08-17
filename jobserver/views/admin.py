@@ -59,6 +59,6 @@ class ApproveUsers(FormView):
 
     def get_form_kwargs(self):
         return super().get_form_kwargs() | {
-            "backends": Backend.objects.order_by("name"),
+            "backends": Backend.objects.order_by("slug"),
             "orgs": Org.objects.order_by("name"),
         }
