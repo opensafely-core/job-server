@@ -9,14 +9,14 @@ from jobserver.models import Backend
 @method_decorator(require_manage_backends, name="dispatch")
 class BackendDetail(DetailView):
     model = Backend
-    template_name = "backend_detail.html"
+    template_name = "staff/backend_detail.html"
 
 
 @method_decorator(require_manage_backends, name="dispatch")
 class BackendEdit(UpdateView):
     fields = ["level_4_url"]
     model = Backend
-    template_name = "backend_edit.html"
+    template_name = "staff/backend_edit.html"
 
     def get_success_url(self):
         return self.object.get_staff_url()
@@ -25,7 +25,7 @@ class BackendEdit(UpdateView):
 @method_decorator(require_manage_backends, name="dispatch")
 class BackendList(ListView):
     model = Backend
-    template_name = "backend_list.html"
+    template_name = "staff/backend_list.html"
 
 
 @method_decorator(require_manage_backends, name="dispatch")

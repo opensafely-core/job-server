@@ -22,7 +22,7 @@ class UserDetail(UpdateView):
     model = User
     slug_field = "username"
     slug_url_kwarg = "username"
-    template_name = "user_detail.html"
+    template_name = "staff/user_detail.html"
 
     @transaction.atomic()
     def form_valid(self, form):
@@ -68,7 +68,7 @@ class UserDetail(UpdateView):
 @method_decorator(require_permission("user_manage"), name="dispatch")
 class UserList(ListView):
     queryset = User.objects.order_by(Lower("username"))
-    template_name = "user_list.html"
+    template_name = "staff/user_list.html"
 
     def get_context_data(self, **kwargs):
         all_roles = [name for name, value in inspect.getmembers(roles, inspect.isclass)]
