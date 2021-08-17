@@ -21,7 +21,7 @@ def test_backendedit_success(rf, core_developer):
     response = BackendEdit.as_view()(request, pk=backend.pk)
 
     assert response.status_code == 302
-    assert response.url == backend.get_absolute_url()
+    assert response.url == backend.get_staff_url()
 
     backend.refresh_from_db()
     assert backend.level_4_url == "http://testing"

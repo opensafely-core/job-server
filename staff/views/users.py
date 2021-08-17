@@ -36,7 +36,7 @@ class UserDetail(UpdateView):
         self.object.roles = form.cleaned_data["roles"]
         self.object.save()
 
-        return redirect(self.object.get_absolute_url())
+        return redirect(self.object.get_staff_url())
 
     def get_context_data(self, **kwargs):
         return super().get_context_data(**kwargs) | {

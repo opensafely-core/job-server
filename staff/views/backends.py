@@ -18,6 +18,9 @@ class BackendEdit(UpdateView):
     model = Backend
     template_name = "backend_edit.html"
 
+    def get_success_url(self):
+        return self.object.get_staff_url()
+
 
 @method_decorator(require_manage_backends, name="dispatch")
 class BackendList(ListView):
@@ -32,4 +35,4 @@ class BackendRotateToken(View):
 
         backend.rotate_token()
 
-        return redirect(backend)
+        return redirect(backend.get_staff_url())

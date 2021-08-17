@@ -75,7 +75,7 @@ def test_userdetail_post_success(rf, core_developer):
     response = UserDetail.as_view()(request, username=user.username)
 
     assert response.status_code == 302, response.context_data["form"].errors
-    assert response.url == user.get_absolute_url()
+    assert response.url == user.get_staff_url()
 
     user.refresh_from_db()
     assert list(user.backends.values_list("slug", flat=True)) == ["test"]

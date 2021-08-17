@@ -698,9 +698,6 @@ class User(AbstractUser):
 
     objects = UserManager()
 
-    def get_absolute_url(self):
-        return reverse("staff:user-detail", kwargs={"username": self.username})
-
     def get_all_permissions(self):
         """
         Get all Permissions for the current User
@@ -758,6 +755,9 @@ class User(AbstractUser):
             "orgs": orgs,
             "projects": projects,
         }
+
+    def get_staff_url(self):
+        return reverse("staff:user-detail", kwargs={"username": self.username})
 
     @property
     def name(self):
