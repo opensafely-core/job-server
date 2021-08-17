@@ -67,7 +67,7 @@ def test_backend_str():
 
 @pytest.mark.django_db
 def test_backendmembership_str():
-    backend = BackendFactory(display_name="Test Backend")
+    backend = BackendFactory(name="Test Backend")
     user = UserFactory(username="ben")
 
     membership = BackendMembershipFactory(backend=backend, user=user)

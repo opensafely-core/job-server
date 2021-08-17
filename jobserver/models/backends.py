@@ -40,7 +40,7 @@ class Backend(models.Model):
     """A job-runner instance"""
 
     slug = models.SlugField(max_length=255, unique=True)
-    display_name = models.TextField()
+    name = models.TextField()
 
     parent_directory = models.TextField(default="")
     is_active = models.BooleanField(default=False)
@@ -98,4 +98,4 @@ class BackendMembership(models.Model):
         unique_together = ["backend", "user"]
 
     def __str__(self):
-        return f"{self.user.username} | {self.backend.display_name}"
+        return f"{self.user.username} | {self.backend.name}"

@@ -31,7 +31,7 @@ def backend_warnings(request):
                 continue
 
             if show_warning(last_seen):
-                yield backend.display_name
+                yield backend.name
 
     backends = Backend.objects.filter(is_active=True)
     return {"backend_warnings": list(iter_warnings(backends))}

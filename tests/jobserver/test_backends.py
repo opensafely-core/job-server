@@ -13,8 +13,8 @@ from ..utils import minutes_ago
 
 @pytest.mark.django_db
 def test_backends_to_choices():
-    b1 = BackendFactory(slug="test1", display_name="Display One")
-    b2 = BackendFactory(slug="test2", display_name="Display Two")
+    b1 = BackendFactory(slug="test1", name="Display One")
+    b2 = BackendFactory(slug="test2", name="Display Two")
 
     choices = backends_to_choices([b1, b2])
 

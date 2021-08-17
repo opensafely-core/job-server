@@ -21,7 +21,7 @@ def nonzero_exit(job):
         f"""
         <small class="d-block mb-1">
           The job exited with an error. You can check the log output by logging
-          into the {job.job_request.backend.display_name} server and looking at:
+          into the {job.job_request.backend.name} server and looking at:
         </small>
 
         <pre>{path}</pre>
