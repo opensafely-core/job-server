@@ -1,6 +1,7 @@
 import pytest
 from django.urls import reverse
 from django.utils import timezone
+from first import first
 
 from jobserver.context_processors import (
     backend_warnings,
@@ -77,26 +78,24 @@ def test_can_view_staff_area_without_core_developer(rf):
     assert not can_view_staff_area(request)["user_can_view_staff_area"]
 
 
+@pytest.mark.parametrize(
+    ("url_name",),
+    [("backend-list",), ("project-list",), ("user-list",)],
+)
 @pytest.mark.django_db
-def test_staff_nav_backends(rf, core_developer):
-    request = rf.get(reverse("staff:backend-list"))
+def test_staff_nav_selected_urls(rf, core_developer, url_name):
+    url = reverse(f"staff:{url_name}")
+
+    request = rf.get(url)
     request.user = core_developer
 
-    backends, users = staff_nav(request)["staff_nav"]
+    nav_items = staff_nav(request)["staff_nav"]
 
-    assert backends["is_active"] is True
-    assert users["is_active"] is False
+    selected_url = first(nav_items, key=lambda u: u["url"] == url)
+    assert selected_url["is_active"]
 
-
-@pytest.mark.django_db
-def test_staff_nav_users(rf, core_developer):
-    request = rf.get(reverse("staff:user-list"))
-    request.user = core_developer
-
-    backends, users = staff_nav(request)["staff_nav"]
-
-    assert backends["is_active"] is False
-    assert users["is_active"] is True
+    unselected_urls = filter(lambda u: u["url"] != url, nav_items)
+    assert all(u["is_active"] is False for u in unselected_urls)
 
 
 @pytest.mark.django_db

@@ -465,10 +465,10 @@ class Project(models.Model):
         )
 
     def get_edit_url(self):
-        return reverse(
-            "project-edit",
-            kwargs={"org_slug": self.org.slug, "project_slug": self.slug},
-        )
+        return reverse("staff:project-edit", kwargs={"slug": self.slug})
+
+    def get_staff_url(self):
+        return reverse("staff:project-detail", kwargs={"slug": self.slug})
 
     def get_invitation_url(self):
         return reverse(

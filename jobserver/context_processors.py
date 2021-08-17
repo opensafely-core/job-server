@@ -4,7 +4,7 @@ import structlog
 from django.conf import settings
 from django.urls import reverse
 
-from .authorization import CoreDeveloper, has_permission, has_role
+from .authorization import CoreDeveloper, has_role
 from .backends import show_warning
 from .models import Backend
 
@@ -44,30 +44,28 @@ def can_view_staff_area(request):
 
 
 def staff_nav(request):
-    if not request.user.is_authenticated:
+    if not has_role(request.user, CoreDeveloper):
         return {"staff_nav": []}
 
     _active = functools.partial(_is_active, request)
 
-    options = []
-
-    if has_permission(request.user, "backend_manage"):
-        options.append(
-            {
-                "name": "Backends",
-                "is_active": _active(reverse("staff:backend-list")),
-                "url": reverse("staff:backend-list"),
-            }
-        )
-
-    if has_permission(request.user, "user_manage"):
-        options.append(
-            {
-                "name": "Users",
-                "is_active": _active(reverse("staff:user-list")),
-                "url": reverse("staff:user-list"),
-            }
-        )
+    options = [
+        {
+            "name": "Backends",
+            "is_active": _active(reverse("staff:backend-list")),
+            "url": reverse("staff:backend-list"),
+        },
+        {
+            "name": "Projects",
+            "is_active": _active(reverse("staff:project-list")),
+            "url": reverse("staff:project-list"),
+        },
+        {
+            "name": "Users",
+            "is_active": _active(reverse("staff:user-list")),
+            "url": reverse("staff:user-list"),
+        },
+    ]
 
     return {"staff_nav": options}
 

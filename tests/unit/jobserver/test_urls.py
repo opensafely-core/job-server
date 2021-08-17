@@ -35,6 +35,7 @@ from jobserver.views import (
     workspaces,
 )
 from staff.views import backends as staff_backends
+from staff.views import projects as staff_projects
 from staff.views import users as staff_users
 
 
@@ -77,6 +78,9 @@ def test_url_redirects(client, url, redirect):
         ("/staff/backends/42/", staff_backends.BackendDetail),
         ("/staff/backends/42/edit/", staff_backends.BackendEdit),
         ("/staff/backends/42/rotate-token/", staff_backends.BackendRotateToken),
+        ("/staff/projects/", staff_projects.ProjectList),
+        ("/staff/projects/p/", staff_projects.ProjectDetail),
+        ("/staff/projects/p/edit/", staff_projects.ProjectEdit),
         ("/staff/users/", staff_users.UserList),
         ("/staff/users/<username>/", staff_users.UserDetail),
         ("/job-requests/42/", job_requests.JobRequestDetailRedirect),
@@ -93,7 +97,6 @@ def test_url_redirects(client, url, redirect):
         ("/o/p/", projects.ProjectDetail),
         ("/o/p/accept-invite/42/", projects.ProjectAcceptInvite),
         ("/o/p/cancel-invite/", projects.ProjectCancelInvite),
-        ("/o/p/edit/", projects.ProjectEdit),
         ("/o/p/invite-users/", projects.ProjectInvitationCreate),
         ("/o/p/members/42/edit", projects.ProjectMembershipEdit),
         ("/o/p/members/42/remove", projects.ProjectMembershipRemove),

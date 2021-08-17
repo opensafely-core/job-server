@@ -1,20 +1,21 @@
+{% extends "staff/base.html" %}
 
-{% extends "base.html" %}
-
-{% block content %}
+{% block staff_content %}
 <nav aria-label="breadcrumb">
   <ol class="breadcrumb">
 
-    <li class="breadcrumb-item"><a href="/">Home</a></li>
+    <li class="breadcrumb-item">
+      <a href="{% url 'staff:index' %}">Staff Area</a>
+    </li>
 
     <li class="breadcrumb-item">
-      <a href="{{ project.org.get_absolute_url }}">
-        {{ project.org.name }}
+      <a href="{% url 'staff:project-list' %}">
+        Projects
       </a>
     </li>
 
     <li class="breadcrumb-item">
-      <a href="{{ project.get_absolute_url }}">
+      <a href="{{ project.get_staff_url }}">
         {{ project.name }}
       </a>
     </li>
@@ -27,13 +28,13 @@
 <div class="row mb-5">
   <div class="col-lg-8 offset-lg-2">
 
-    <h2 class="mb-5">Staff-only Administration for {{ project.name }}</h2>
+    <h2 class="mb-3">Edit {{ project.name }}</h2>
 
     <form class="mb-3" method="POST">
       {% csrf_token %}
 
       <div class="form-group mb-5">
-        <h4>New Release Proecess</h4>
+        <h4>Enable New Release Process?</h4>
         <div class="custom-control custom-checkbox">
           <input
               type="checkbox"
@@ -59,7 +60,7 @@
 
     </form>
 
-    </div>
   </div>
+</div>
 
-{% endblock %}
+{% endblock staff_content %}

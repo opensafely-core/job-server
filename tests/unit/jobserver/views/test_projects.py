@@ -25,7 +25,6 @@ from jobserver.views.projects import (
     ProjectCancelInvite,
     ProjectCreate,
     ProjectDetail,
-    ProjectEdit,
     ProjectInvitationCreate,
     ProjectMembershipEdit,
     ProjectMembershipRemove,
@@ -450,66 +449,6 @@ def test_projectdetail_unknown_project(rf):
 
     with pytest.raises(Http404):
         ProjectDetail.as_view()(request, org_slug=org.slug, project_slug="test")
-
-
-@pytest.mark.django_db
-def test_project_edit_get_success(rf):
-    project = ProjectFactory()
-
-    request = rf.get("/")
-    request.user = UserFactory(roles=[CoreDeveloper])
-
-    response = ProjectEdit.as_view()(
-        request, org_slug=project.org.slug, project_slug=project.slug
-    )
-
-    assert response.status_code == 200
-
-
-@pytest.mark.django_db
-def test_project_edit_get_unauthorized(rf):
-    project = ProjectFactory()
-
-    request = rf.get("/")
-    request.user = UserFactory()
-
-    response = ProjectEdit.as_view()(
-        request, org_slug=project.org.slug, project_slug=project.slug
-    )
-
-    assert response.status_code == 403
-
-
-@pytest.mark.django_db
-def test_project_edit_post_success(rf):
-    project = ProjectFactory(uses_new_release_flow=False)
-
-    request = rf.post("/", {"uses_new_release_flow": True})
-    request.user = UserFactory(roles=[CoreDeveloper])
-
-    response = ProjectEdit.as_view()(
-        request, org_slug=project.org.slug, project_slug=project.slug
-    )
-
-    assert response.status_code == 302
-    assert response.url == project.get_absolute_url()
-
-    project.refresh_from_db()
-    assert project.uses_new_release_flow
-
-
-@pytest.mark.django_db
-def test_project_edit_post_unauthorized(rf):
-    project = ProjectFactory()
-
-    request = rf.post("/")
-    request.user = UserFactory()
-
-    response = ProjectEdit.as_view()(
-        request, org_slug=project.org.slug, project_slug=project.slug
-    )
-
-    assert response.status_code == 403
 
 
 @pytest.mark.django_db

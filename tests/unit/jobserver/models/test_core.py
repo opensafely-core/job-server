@@ -580,6 +580,24 @@ def test_projectmembership_get_remove_url():
 
 
 @pytest.mark.django_db
+def test_project_get_edit_url():
+    project = ProjectFactory()
+
+    url = project.get_edit_url()
+
+    assert url == reverse("staff:project-edit", kwargs={"slug": project.slug})
+
+
+@pytest.mark.django_db
+def test_project_get_staff_url():
+    project = ProjectFactory()
+
+    url = project.get_staff_url()
+
+    assert url == reverse("staff:project-detail", kwargs={"slug": project.slug})
+
+
+@pytest.mark.django_db
 def test_project_get_invitation_url():
     org = OrgFactory(name="test-org")
     project = ProjectFactory(org=org)

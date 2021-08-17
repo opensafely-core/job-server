@@ -2,6 +2,7 @@ from django.urls import include, path
 
 from .views.backends import BackendDetail, BackendEdit, BackendList, BackendRotateToken
 from .views.index import Index
+from .views.projects import ProjectDetail, ProjectEdit, ProjectList
 from .views.users import UserDetail, UserList
 
 
@@ -18,6 +19,12 @@ backend_urls = [
     ),
 ]
 
+project_urls = [
+    path("", ProjectList.as_view(), name="project-list"),
+    path("<slug>/", ProjectDetail.as_view(), name="project-detail"),
+    path("<slug>/edit/", ProjectEdit.as_view(), name="project-edit"),
+]
+
 user_urls = [
     path("", UserList.as_view(), name="user-list"),
     path("<username>/", UserDetail.as_view(), name="user-detail"),
@@ -26,5 +33,6 @@ user_urls = [
 urlpatterns = [
     path("", Index.as_view(), name="index"),
     path("backends/", include(backend_urls)),
+    path("projects/", include(project_urls)),
     path("users/", include(user_urls)),
 ]
