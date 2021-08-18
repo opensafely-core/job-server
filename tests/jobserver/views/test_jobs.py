@@ -1,10 +1,9 @@
 import pytest
 from django.contrib.auth.models import AnonymousUser
 from django.http import Http404
-from django.urls import reverse
 
 from jobserver.authorization import ProjectDeveloper
-from jobserver.views.jobs import JobCancel, JobDetail
+from jobserver.views.jobs import JobCancel, JobDetail, JobDetailRedirect
 
 from ...factories import (
     JobFactory,
@@ -32,7 +31,7 @@ def test_jobcancel_already_cancelled(rf, user):
     response = JobCancel.as_view()(request, identifier=job.identifier)
 
     assert response.status_code == 302
-    assert response.url == reverse("job-detail", kwargs={"identifier": job.identifier})
+    assert response.url == job.get_absolute_url()
 
     job_request.refresh_from_db()
     assert job_request.cancelled_actions == ["another-action", "test"]
@@ -53,7 +52,7 @@ def test_jobcancel_already_completed(rf, user):
     response = JobCancel.as_view()(request, identifier=job.identifier)
 
     assert response.status_code == 302
-    assert response.url == reverse("job-detail", kwargs={"identifier": job.identifier})
+    assert response.url == job.get_absolute_url()
 
     job_request.refresh_from_db()
     assert job_request.cancelled_actions == ["another-action"]
@@ -75,7 +74,7 @@ def test_jobcancel_success(rf):
     response = JobCancel.as_view()(request, identifier=job.identifier)
 
     assert response.status_code == 302
-    assert response.url == reverse("job-detail", kwargs={"identifier": job.identifier})
+    assert response.url == job.get_absolute_url()
 
     job_request.refresh_from_db()
     assert job_request.cancelled_actions == ["test"]
@@ -93,7 +92,7 @@ def test_jobcancel_with_job_creator(rf):
     response = JobCancel.as_view()(request, identifier=job.identifier)
 
     assert response.status_code == 302
-    assert response.url == reverse("job-detail", kwargs={"identifier": job.identifier})
+    assert response.url == job.get_absolute_url()
 
     job_request.refresh_from_db()
     assert job_request.cancelled_actions == ["test"]
@@ -131,7 +130,14 @@ def test_jobdetail_with_authenticated_user(rf):
     request = rf.get(MEANINGLESS_URL)
     request.user = user
 
-    response = JobDetail.as_view()(request, identifier=job.identifier)
+    response = JobDetail.as_view()(
+        request,
+        org_slug=job.job_request.workspace.project.org.slug,
+        project_slug=job.job_request.workspace.project.slug,
+        workspace_slug=job.job_request.workspace.name,
+        pk=job.job_request.pk,
+        identifier=job.identifier,
+    )
 
     assert response.status_code == 200
     assert "Cancel" in response.rendered_content
@@ -146,22 +152,37 @@ def test_jobdetail_with_job_creator(rf):
     request = rf.get(MEANINGLESS_URL)
     request.user = user
 
-    response = JobDetail.as_view()(request, identifier=job.identifier)
+    response = JobDetail.as_view()(
+        request,
+        org_slug=job.job_request.workspace.project.org.slug,
+        project_slug=job.job_request.workspace.project.slug,
+        workspace_slug=job.job_request.workspace.name,
+        pk=job.job_request.pk,
+        identifier=job.identifier,
+    )
 
     assert response.status_code == 200
     assert "Cancel" in response.rendered_content
 
 
 @pytest.mark.django_db
-def test_jobdetail_with_partial_identifier_failure(rf):
-    JobFactory(identifier="123abc")
-    JobFactory(identifier="123def")
+def test_jobdetail_with_partial_identifier_failure(rf, mocker):
+    job_request = JobRequestFactory()
+    JobFactory(job_request=job_request, identifier="123abc")
+    JobFactory(job_request=job_request, identifier="123def")
 
     request = rf.get(MEANINGLESS_URL)
     request.user = UserFactory()
 
     with pytest.raises(Http404):
-        JobDetail.as_view()(request, identifier="123")
+        JobDetail.as_view()(
+            request,
+            org_slug=job_request.workspace.project.org.slug,
+            project_slug=job_request.workspace.project.slug,
+            workspace_slug=job_request.workspace.name,
+            pk=job_request.pk,
+            identifier="123",
+        )
 
 
 @pytest.mark.django_db
@@ -171,7 +192,14 @@ def test_jobdetail_with_partial_identifier_success(rf):
     request = rf.get(MEANINGLESS_URL)
     request.user = UserFactory()
 
-    response = JobDetail.as_view()(request, identifier=job.identifier[:4])
+    response = JobDetail.as_view()(
+        request,
+        org_slug=job.job_request.workspace.project.org.slug,
+        project_slug=job.job_request.workspace.project.slug,
+        workspace_slug=job.job_request.workspace.name,
+        pk=job.job_request.pk,
+        identifier=job.identifier[:4],
+    )
 
     assert response.status_code == 302
     assert response.url == job.get_absolute_url()
@@ -184,7 +212,14 @@ def test_jobdetail_with_unpriviliged_user(rf):
     request = rf.get(MEANINGLESS_URL)
     request.user = UserFactory()
 
-    response = JobDetail.as_view()(request, identifier=job.identifier)
+    response = JobDetail.as_view()(
+        request,
+        org_slug=job.job_request.workspace.project.org.slug,
+        project_slug=job.job_request.workspace.project.slug,
+        workspace_slug=job.job_request.workspace.name,
+        pk=job.job_request.pk,
+        identifier=job.identifier,
+    )
 
     assert response.status_code == 200
     assert "Cancel" not in response.rendered_content
@@ -197,7 +232,14 @@ def test_jobdetail_with_unauthenticated_user(rf):
     request = rf.get(MEANINGLESS_URL)
     request.user = AnonymousUser()
 
-    response = JobDetail.as_view()(request, identifier=job.identifier)
+    response = JobDetail.as_view()(
+        request,
+        org_slug=job.job_request.workspace.project.org.slug,
+        project_slug=job.job_request.workspace.project.slug,
+        workspace_slug=job.job_request.workspace.name,
+        pk=job.job_request.pk,
+        identifier=job.identifier,
+    )
 
     assert response.status_code == 200
     assert "Cancel" not in response.rendered_content
@@ -205,7 +247,36 @@ def test_jobdetail_with_unauthenticated_user(rf):
 
 @pytest.mark.django_db
 def test_jobdetail_with_unknown_job(rf):
+    job_request = JobRequestFactory()
+
     request = rf.get(MEANINGLESS_URL)
 
     with pytest.raises(Http404):
-        JobDetail.as_view()(request, identifier="test")
+        JobDetail.as_view()(
+            request,
+            org_slug=job_request.workspace.project.org.slug,
+            project_slug=job_request.workspace.project.slug,
+            workspace_slug=job_request.workspace.name,
+            pk=job_request.pk,
+            identifier="test",
+        )
+
+
+@pytest.mark.django_db
+def test_jobdetailredirect_success(rf):
+    job = JobFactory()
+
+    request = rf.get(MEANINGLESS_URL)
+
+    response = JobDetailRedirect.as_view()(request, identifier=job.identifier)
+
+    assert response.status_code == 302
+    assert response.url == job.get_absolute_url()
+
+
+@pytest.mark.django_db
+def test_jobdetailredirect_with_unknown_job(rf):
+    request = rf.get(MEANINGLESS_URL)
+
+    with pytest.raises(Http404):
+        JobDetailRedirect.as_view()(request, identifier="test")

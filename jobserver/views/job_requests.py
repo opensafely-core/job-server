@@ -1,9 +1,9 @@
 from django.db.models import Q
 from django.http import Http404
-from django.shortcuts import redirect
+from django.shortcuts import get_object_or_404, redirect
 from django.utils.html import escape
 from django.utils.safestring import mark_safe
-from django.views.generic import DetailView, ListView, View
+from django.views.generic import DetailView, ListView, RedirectView, View
 from django.views.generic.edit import FormMixin
 
 from ..authorization import CoreDeveloper, has_permission, has_role
@@ -78,6 +78,12 @@ class JobRequestDetail(DetailView):
             "project_yaml_url": self.object.get_file_url("project.yaml"),
             "user_can_cancel_jobs": can_cancel_jobs,
         }
+
+
+class JobRequestDetailRedirect(RedirectView):
+    def get_redirect_url(self, *args, **kwargs):
+        job_request = get_object_or_404(JobRequest, pk=self.kwargs["pk"])
+        return job_request.get_absolute_url()
 
 
 class JobRequestList(FormMixin, ListView):

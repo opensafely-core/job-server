@@ -42,7 +42,16 @@ def test_job_get_absolute_url():
 
     url = job.get_absolute_url()
 
-    assert url == reverse("job-detail", kwargs={"identifier": job.identifier})
+    assert url == reverse(
+        "job-detail",
+        kwargs={
+            "org_slug": job.job_request.workspace.project.org.slug,
+            "project_slug": job.job_request.workspace.project.slug,
+            "workspace_slug": job.job_request.workspace.name,
+            "pk": job.job_request.pk,
+            "identifier": job.identifier,
+        },
+    )
 
 
 @pytest.mark.django_db
@@ -51,7 +60,16 @@ def test_job_get_cancel_url():
 
     url = job.get_cancel_url()
 
-    assert url == reverse("job-cancel", kwargs={"identifier": job.identifier})
+    assert url == reverse(
+        "job-cancel",
+        kwargs={
+            "org_slug": job.job_request.workspace.project.org.slug,
+            "project_slug": job.job_request.workspace.project.slug,
+            "workspace_slug": job.job_request.workspace.name,
+            "pk": job.job_request.pk,
+            "identifier": job.identifier,
+        },
+    )
 
 
 @pytest.mark.django_db
@@ -152,15 +170,35 @@ def test_jobrequest_completed_at_while_incomplete():
 @pytest.mark.django_db
 def test_jobrequest_get_absolute_url():
     job_request = JobRequestFactory()
+
     url = job_request.get_absolute_url()
-    assert url == reverse("job-request-detail", kwargs={"pk": job_request.pk})
+
+    assert url == reverse(
+        "job-request-detail",
+        kwargs={
+            "org_slug": job_request.workspace.project.org.slug,
+            "project_slug": job_request.workspace.project.slug,
+            "workspace_slug": job_request.workspace.name,
+            "pk": job_request.pk,
+        },
+    )
 
 
 @pytest.mark.django_db
 def test_jobrequest_get_cancel_url():
     job_request = JobRequestFactory()
+
     url = job_request.get_cancel_url()
-    assert url == reverse("job-request-cancel", kwargs={"pk": job_request.pk})
+
+    assert url == reverse(
+        "job-request-cancel",
+        kwargs={
+            "org_slug": job_request.workspace.project.org.slug,
+            "project_slug": job_request.workspace.project.slug,
+            "workspace_slug": job_request.workspace.name,
+            "pk": job_request.pk,
+        },
+    )
 
 
 @pytest.mark.django_db

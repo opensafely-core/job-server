@@ -2,13 +2,13 @@ import pytest
 from django.contrib.auth.models import AnonymousUser
 from django.core.exceptions import BadRequest
 from django.http import Http404
-from django.urls import reverse
 
 from jobserver.authorization import ProjectDeveloper
 from jobserver.models import Backend, JobRequest
 from jobserver.views.job_requests import (
     JobRequestCancel,
     JobRequestDetail,
+    JobRequestDetailRedirect,
     JobRequestList,
 )
 
@@ -42,7 +42,7 @@ def test_jobrequestcancel_already_completed(rf):
     response = JobRequestCancel.as_view()(request, pk=job_request.pk)
 
     assert response.status_code == 302
-    assert response.url == reverse("job-request-detail", kwargs={"pk": job_request.pk})
+    assert response.url == job_request.get_absolute_url()
 
     job_request.refresh_from_db()
     assert job_request.cancelled_actions == []
@@ -66,7 +66,7 @@ def test_jobrequestcancel_success(rf):
     response = JobRequestCancel.as_view()(request, pk=job_request.pk)
 
     assert response.status_code == 302
-    assert response.url == reverse("job-request-detail", kwargs={"pk": job_request.pk})
+    assert response.url == job_request.get_absolute_url()
 
     job_request.refresh_from_db()
     assert "test1" in job_request.cancelled_actions
@@ -86,7 +86,7 @@ def test_jobrequestcancel_with_job_request_creator(rf):
     response = JobRequestCancel.as_view()(request, pk=job_request.pk)
 
     assert response.status_code == 302
-    assert response.url == reverse("job-request-detail", kwargs={"pk": job_request.pk})
+    assert response.url == job_request.get_absolute_url()
 
     job_request.refresh_from_db()
     assert "test1" in job_request.cancelled_actions
@@ -168,6 +168,26 @@ def test_jobrequestdetail_with_unprivileged_user(rf):
 
     assert response.status_code == 200
     assert "Cancel" not in response.rendered_content
+
+
+@pytest.mark.django_db
+def test_jobrequestdetailredirect_success(rf):
+    job_request = JobRequestFactory()
+
+    request = rf.get(MEANINGLESS_URL)
+
+    response = JobRequestDetailRedirect.as_view()(request, pk=job_request.pk)
+
+    assert response.status_code == 302
+    assert response.url == job_request.get_absolute_url()
+
+
+@pytest.mark.django_db
+def test_jobrequestdetailredirect_with_unknown_job(rf):
+    request = rf.get(MEANINGLESS_URL)
+
+    with pytest.raises(Http404):
+        JobRequestDetailRedirect.as_view()(request, pk=0)
 
 
 @pytest.mark.django_db

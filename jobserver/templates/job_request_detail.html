@@ -18,13 +18,25 @@
     <li class="breadcrumb-item"><a href="/">Home</a></li>
 
     <li class="breadcrumb-item">
+      <a href="{{ jobrequest.workspace.project.org.get_absolute_url }}">
+        {{ jobrequest.workspace.project.org.name }}
+      </a>
+    </li>
+
+    <li class="breadcrumb-item">
+      <a href="{{ jobrequest.workspace.project.get_absolute_url }}">
+        {{ jobrequest.workspace.project.name }}
+      </a>
+    </li>
+
+    <li class="breadcrumb-item">
       <a href="{{ jobrequest.workspace.get_absolute_url }}">
         {{ jobrequest.workspace.name }}
       </a>
     </li>
 
     <li class="breadcrumb-item active" aria-current="page">
-      Request {{ job.job_request.id }}
+      Request {{ jobrequest.id }}
     </li>
 
   </ol>
