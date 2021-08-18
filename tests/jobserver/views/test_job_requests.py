@@ -4,7 +4,7 @@ from django.contrib.messages.storage.fallback import FallbackStorage
 from django.core.exceptions import BadRequest
 from django.http import Http404
 
-from jobserver.authorization import ProjectCollaborator, ProjectDeveloper
+from jobserver.authorization import ProjectDeveloper
 from jobserver.models import Backend, JobRequest
 from jobserver.views.job_requests import (
     JobRequestCancel,
@@ -20,8 +20,6 @@ from ...factories import (
     JobRequestFactory,
     ProjectFactory,
     ProjectMembershipFactory,
-    ReleaseFactory,
-    ReleaseUploadsFactory,
     UserFactory,
     UserSocialAuthFactory,
     WorkspaceFactory,
@@ -120,7 +118,7 @@ def test_jobrequestcancel_unknown_job_request(rf):
 
 
 @pytest.mark.django_db
-def test_jobrequestcreate_project_yaml_errors(rf, mocker, user):
+def test_jobrequestcreate_get_with_project_yaml_errors(rf, mocker, user):
     org = user.orgs.first()
     project = ProjectFactory(org=org)
     workspace = WorkspaceFactory(project=project)
@@ -153,26 +151,6 @@ def test_jobrequestcreate_project_yaml_errors(rf, mocker, user):
 
 
 @pytest.mark.django_db
-def test_jobrequestcreate_get_archived_workspace(rf):
-    workspace = WorkspaceFactory(is_archived=True)
-
-    request = rf.get("/")
-    request.session = "session"
-    request._messages = FallbackStorage(request)
-    request.user = UserFactory()
-
-    response = JobRequestCreate.as_view()(
-        request,
-        org_slug=workspace.project.org.slug,
-        project_slug=workspace.project.slug,
-        workspace_slug=workspace.name,
-    )
-
-    assert response.status_code == 302
-    assert response.url == workspace.get_absolute_url()
-
-
-@pytest.mark.django_db
 def test_jobrequestcreate_get_logged_out(rf):
     workspace = WorkspaceFactory()
 
@@ -196,15 +174,6 @@ def test_jobrequestcreate_get_success(rf, mocker, user):
 
     ProjectMembershipFactory(project=project, user=user, roles=[ProjectDeveloper])
 
-    # Give the User the permission to view unpublished Snapshots and current
-    # Workspace files
-    user.roles = [ProjectCollaborator]
-    user.save()
-
-    # set up some files for the workspace
-    upload = ReleaseUploadsFactory({"file1.txt": b"text", "file2.txt": b"text"})
-    ReleaseFactory(upload, workspace=workspace)
-
     dummy_yaml = """
     actions:
       twiddle:
@@ -238,39 +207,7 @@ def test_jobrequestcreate_get_success(rf, mocker, user):
 
 
 @pytest.mark.django_db
-def test_jobrequestcreate_get_unauthenticated(rf):
-    workspace = WorkspaceFactory()
-
-    request = rf.get("/")
-    request.user = UserFactory()
-
-    with pytest.raises(Http404):
-        JobRequestCreate.as_view()(
-            request,
-            org_slug=workspace.project.org.slug,
-            project_slug=workspace.project.slug,
-            workspace_slug=workspace.name,
-        )
-
-
-@pytest.mark.django_db
-def test_jobrequestcreate_post_unauthenticated(rf):
-    workspace = WorkspaceFactory()
-
-    request = rf.post("/")
-    request.user = UserFactory()
-
-    with pytest.raises(Http404):
-        JobRequestCreate.as_view()(
-            request,
-            org_slug=workspace.project.org.slug,
-            project_slug=workspace.project.slug,
-            workspace_slug=workspace.name,
-        )
-
-
-@pytest.mark.django_db
-def test_jobrequestcreate_get_with_unprivileged_user(rf, mocker, user):
+def test_jobrequestcreate_get_with_permission(rf, mocker, user):
     org = user.orgs.first()
     project = ProjectFactory(org=org)
     workspace = WorkspaceFactory(project=project)
@@ -307,26 +244,6 @@ def test_jobrequestcreate_get_with_unprivileged_user(rf, mocker, user):
         {"name": "run_all", "needs": ["twiddle"], "status": "-"},
     ]
     assert response.context_data["workspace"] == workspace
-
-
-@pytest.mark.django_db
-def test_jobrequestcreate_post_archived_workspace(rf):
-    workspace = WorkspaceFactory(is_archived=True)
-
-    request = rf.post("/")
-    request.session = "session"
-    request._messages = FallbackStorage(request)
-    request.user = UserFactory()
-
-    response = JobRequestCreate.as_view()(
-        request,
-        org_slug=workspace.project.org.slug,
-        project_slug=workspace.project.slug,
-        workspace_slug=workspace.name,
-    )
-
-    assert response.status_code == 302
-    assert response.url == workspace.get_absolute_url()
 
 
 @pytest.mark.django_db
@@ -570,6 +487,42 @@ def test_jobrequestcreate_unknown_workspace(rf, user):
 
     assert response.status_code == 302
     assert response.url == "/"
+
+
+@pytest.mark.django_db
+def test_jobrequestcreate_with_archived_workspace(rf):
+    workspace = WorkspaceFactory(is_archived=True)
+
+    request = rf.get("/")
+    request.session = "session"
+    request._messages = FallbackStorage(request)
+    request.user = UserFactory()
+
+    response = JobRequestCreate.as_view()(
+        request,
+        org_slug=workspace.project.org.slug,
+        project_slug=workspace.project.slug,
+        workspace_slug=workspace.name,
+    )
+
+    assert response.status_code == 302
+    assert response.url == workspace.get_absolute_url()
+
+
+@pytest.mark.django_db
+def test_jobrequestcreate_without_permission(rf):
+    workspace = WorkspaceFactory()
+
+    request = rf.get("/")
+    request.user = UserFactory()
+
+    with pytest.raises(Http404):
+        JobRequestCreate.as_view()(
+            request,
+            org_slug=workspace.project.org.slug,
+            project_slug=workspace.project.slug,
+            workspace_slug=workspace.name,
+        )
 
 
 @pytest.mark.django_db
