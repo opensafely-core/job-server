@@ -121,6 +121,7 @@ def test_jobrequestcancel_unknown_job_request(rf):
 def test_jobrequestcreate_get_with_project_yaml_errors(rf, mocker, user):
     workspace = WorkspaceFactory()
 
+    BackendMembershipFactory(backend=Backend.objects.get(slug="tpp"), user=user)
     ProjectMembershipFactory(
         project=workspace.project, user=user, roles=[ProjectDeveloper]
     )
@@ -151,6 +152,7 @@ def test_jobrequestcreate_get_with_project_yaml_errors(rf, mocker, user):
 def test_jobrequestcreate_get_success(rf, mocker, user):
     workspace = WorkspaceFactory()
 
+    BackendMembershipFactory(backend=Backend.objects.get(slug="tpp"), user=user)
     ProjectMembershipFactory(
         project=workspace.project, user=user, roles=[ProjectDeveloper]
     )
@@ -188,6 +190,7 @@ def test_jobrequestcreate_get_success(rf, mocker, user):
 def test_jobrequestcreate_get_with_permission(rf, mocker, user):
     workspace = WorkspaceFactory()
 
+    BackendMembershipFactory(backend=Backend.objects.get(slug="tpp"), user=user)
     ProjectMembershipFactory(
         project=workspace.project, user=user, roles=[ProjectDeveloper]
     )
@@ -475,6 +478,27 @@ def test_jobrequestcreate_with_archived_workspace(rf):
 
     assert response.status_code == 302
     assert response.url == workspace.get_absolute_url()
+
+
+@pytest.mark.django_db
+def test_jobrequestcreate_with_no_backends(rf):
+    user = UserFactory()
+    workspace = WorkspaceFactory()
+
+    ProjectMembershipFactory(
+        project=workspace.project, user=user, roles=[ProjectDeveloper]
+    )
+
+    request = rf.get("/")
+    request.user = user
+
+    with pytest.raises(Http404):
+        JobRequestCreate.as_view()(
+            request,
+            org_slug=workspace.project.org.slug,
+            project_slug=workspace.project.slug,
+            workspace_slug=workspace.name,
+        )
 
 
 @pytest.mark.django_db

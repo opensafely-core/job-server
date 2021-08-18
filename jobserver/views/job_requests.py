@@ -86,6 +86,11 @@ class JobRequestCreate(CreateView):
             messages.error(request, msg)
             return redirect(self.workspace)
 
+        # jobs need to be run on a backend so the user needs to have access to
+        # at least one
+        if not request.user.backends.exists():
+            raise Http404
+
         action_status_lut = self.workspace.get_action_status_lut()
 
         # build actions as list or render the exception to the page
