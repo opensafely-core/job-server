@@ -14,7 +14,6 @@ from ..forms import JobRequestCreateForm, JobRequestSearchForm
 from ..github import get_branch_sha
 from ..models import Backend, JobRequest, User, Workspace
 from ..project import get_actions, get_project, load_yaml, render_definition
-from ..roles import can_run_jobs
 from ..utils import raise_if_not_int
 
 
@@ -84,8 +83,7 @@ class JobRequestCreate(CreateView):
             messages.error(request, msg)
             return redirect(self.workspace)
 
-        self.user_can_run_jobs = can_run_jobs(request.user)
-        if not self.user_can_run_jobs:
+        if not has_permission(request.user, "run_job", project=self.workspace.project):
             raise Http404
 
         action_status_lut = self.workspace.get_action_status_lut()

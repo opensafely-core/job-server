@@ -119,15 +119,12 @@ def test_jobrequestcancel_unknown_job_request(rf):
 
 @pytest.mark.django_db
 def test_jobrequestcreate_get_with_project_yaml_errors(rf, mocker, user):
-    org = user.orgs.first()
-    project = ProjectFactory(org=org)
-    workspace = WorkspaceFactory(project=project)
+    workspace = WorkspaceFactory()
 
-    ProjectMembershipFactory(project=project, user=user, roles=[ProjectDeveloper])
-
-    mocker.patch(
-        "jobserver.views.job_requests.can_run_jobs", autospec=True, return_value=True
+    ProjectMembershipFactory(
+        project=workspace.project, user=user, roles=[ProjectDeveloper]
     )
+
     mocker.patch(
         "jobserver.views.job_requests.get_project",
         autospec=True,
@@ -139,8 +136,8 @@ def test_jobrequestcreate_get_with_project_yaml_errors(rf, mocker, user):
 
     response = JobRequestCreate.as_view()(
         request,
-        org_slug=org.slug,
-        project_slug=project.slug,
+        org_slug=workspace.project.org.slug,
+        project_slug=workspace.project.slug,
         workspace_slug=workspace.name,
     )
 
@@ -151,36 +148,17 @@ def test_jobrequestcreate_get_with_project_yaml_errors(rf, mocker, user):
 
 
 @pytest.mark.django_db
-def test_jobrequestcreate_get_logged_out(rf):
+def test_jobrequestcreate_get_success(rf, mocker, user):
     workspace = WorkspaceFactory()
 
-    request = rf.get("/")
-    request.user = AnonymousUser()
-
-    with pytest.raises(Http404):
-        JobRequestCreate.as_view()(
-            request,
-            org_slug=workspace.project.org.slug,
-            project_slug=workspace.project.slug,
-            workspace_slug=workspace.name,
-        )
-
-
-@pytest.mark.django_db
-def test_jobrequestcreate_get_success(rf, mocker, user):
-    org = user.orgs.first()
-    project = ProjectFactory(org=org)
-    workspace = WorkspaceFactory(project=project)
-
-    ProjectMembershipFactory(project=project, user=user, roles=[ProjectDeveloper])
+    ProjectMembershipFactory(
+        project=workspace.project, user=user, roles=[ProjectDeveloper]
+    )
 
     dummy_yaml = """
     actions:
       twiddle:
     """
-    mocker.patch(
-        "jobserver.views.job_requests.can_run_jobs", autospec=True, return_value=True
-    )
     mocker.patch(
         "jobserver.views.job_requests.get_project",
         autospec=True,
@@ -192,8 +170,8 @@ def test_jobrequestcreate_get_success(rf, mocker, user):
 
     response = JobRequestCreate.as_view()(
         request,
-        org_slug=org.slug,
-        project_slug=project.slug,
+        org_slug=workspace.project.org.slug,
+        project_slug=workspace.project.slug,
         workspace_slug=workspace.name,
     )
 
@@ -208,19 +186,16 @@ def test_jobrequestcreate_get_success(rf, mocker, user):
 
 @pytest.mark.django_db
 def test_jobrequestcreate_get_with_permission(rf, mocker, user):
-    org = user.orgs.first()
-    project = ProjectFactory(org=org)
-    workspace = WorkspaceFactory(project=project)
+    workspace = WorkspaceFactory()
 
-    ProjectMembershipFactory(project=project, user=user, roles=[ProjectDeveloper])
+    ProjectMembershipFactory(
+        project=workspace.project, user=user, roles=[ProjectDeveloper]
+    )
 
     dummy_yaml = """
     actions:
       twiddle:
     """
-    mocker.patch(
-        "jobserver.views.job_requests.can_run_jobs", autospec=True, return_value=True
-    )
     mocker.patch(
         "jobserver.views.job_requests.get_project",
         autospec=True,
@@ -232,8 +207,8 @@ def test_jobrequestcreate_get_with_permission(rf, mocker, user):
 
     response = JobRequestCreate.as_view()(
         request,
-        org_slug=org.slug,
-        project_slug=project.slug,
+        org_slug=workspace.project.org.slug,
+        project_slug=workspace.project.slug,
         workspace_slug=workspace.name,
     )
 
@@ -250,20 +225,17 @@ def test_jobrequestcreate_get_with_permission(rf, mocker, user):
 def test_jobrequestcreate_post_success(rf, mocker, monkeypatch, user):
     monkeypatch.setenv("BACKENDS", "tpp")
 
-    org = user.orgs.first()
-    project = ProjectFactory(org=org)
-    workspace = WorkspaceFactory(project=project)
+    workspace = WorkspaceFactory()
 
     BackendMembershipFactory(backend=Backend.objects.get(slug="tpp"), user=user)
-    ProjectMembershipFactory(project=project, user=user, roles=[ProjectDeveloper])
+    ProjectMembershipFactory(
+        project=workspace.project, user=user, roles=[ProjectDeveloper]
+    )
 
     dummy_yaml = """
     actions:
       twiddle:
     """
-    mocker.patch(
-        "jobserver.views.job_requests.can_run_jobs", autospec=True, return_value=True
-    )
     mocker.patch(
         "jobserver.views.job_requests.get_project",
         autospec=True,
@@ -285,8 +257,8 @@ def test_jobrequestcreate_post_success(rf, mocker, monkeypatch, user):
 
     response = JobRequestCreate.as_view()(
         request,
-        org_slug=org.slug,
-        project_slug=project.slug,
+        org_slug=workspace.project.org.slug,
+        project_slug=workspace.project.slug,
         workspace_slug=workspace.name,
     )
 
@@ -306,20 +278,17 @@ def test_jobrequestcreate_post_success(rf, mocker, monkeypatch, user):
 def test_jobrequestcreate_post_with_invalid_backend(rf, mocker, monkeypatch, user):
     monkeypatch.setenv("BACKENDS", "tpp,emis")
 
-    org = user.orgs.first()
-    project = ProjectFactory(org=org)
-    workspace = WorkspaceFactory(project=project)
+    workspace = WorkspaceFactory()
 
     BackendMembershipFactory(backend=Backend.objects.get(slug="tpp"), user=user)
-    ProjectMembershipFactory(project=project, user=user, roles=[ProjectDeveloper])
+    ProjectMembershipFactory(
+        project=workspace.project, user=user, roles=[ProjectDeveloper]
+    )
 
     dummy_yaml = """
     actions:
       twiddle:
     """
-    mocker.patch(
-        "jobserver.views.job_requests.can_run_jobs", autospec=True, return_value=True
-    )
     mocker.patch(
         "jobserver.views.job_requests.get_project",
         autospec=True,
@@ -341,8 +310,8 @@ def test_jobrequestcreate_post_with_invalid_backend(rf, mocker, monkeypatch, use
 
     response = JobRequestCreate.as_view()(
         request,
-        org_slug=org.slug,
-        project_slug=project.slug,
+        org_slug=workspace.project.org.slug,
+        project_slug=workspace.project.slug,
         workspace_slug=workspace.name,
     )
 
@@ -358,20 +327,17 @@ def test_jobrequestcreate_post_with_notifications_default(
 ):
     monkeypatch.setenv("BACKENDS", "tpp")
 
-    org = user.orgs.first()
-    project = ProjectFactory(org=org)
-    workspace = WorkspaceFactory(project=project, should_notify=True)
+    workspace = WorkspaceFactory(should_notify=True)
 
     BackendMembershipFactory(backend=Backend.objects.get(slug="tpp"), user=user)
-    ProjectMembershipFactory(project=project, user=user, roles=[ProjectDeveloper])
+    ProjectMembershipFactory(
+        project=workspace.project, user=user, roles=[ProjectDeveloper]
+    )
 
     dummy_yaml = """
     actions:
       twiddle:
     """
-    mocker.patch(
-        "jobserver.views.job_requests.can_run_jobs", autospec=True, return_value=True
-    )
     mocker.patch(
         "jobserver.views.job_requests.get_project",
         autospec=True,
@@ -394,8 +360,8 @@ def test_jobrequestcreate_post_with_notifications_default(
 
     response = JobRequestCreate.as_view()(
         request,
-        org_slug=org.slug,
-        project_slug=project.slug,
+        org_slug=workspace.project.org.slug,
+        project_slug=workspace.project.slug,
         workspace_slug=workspace.name,
     )
 
@@ -417,20 +383,17 @@ def test_jobrequestcreate_post_with_notifications_override(
 ):
     monkeypatch.setenv("BACKENDS", "tpp")
 
-    org = user.orgs.first()
-    project = ProjectFactory(org=org)
-    workspace = WorkspaceFactory(project=project, should_notify=True)
+    workspace = WorkspaceFactory(should_notify=True)
 
     BackendMembershipFactory(backend=Backend.objects.get(slug="tpp"), user=user)
-    ProjectMembershipFactory(project=project, user=user, roles=[ProjectDeveloper])
+    ProjectMembershipFactory(
+        project=workspace.project, user=user, roles=[ProjectDeveloper]
+    )
 
     dummy_yaml = """
     actions:
       twiddle:
     """
-    mocker.patch(
-        "jobserver.views.job_requests.can_run_jobs", autospec=True, return_value=True
-    )
     mocker.patch(
         "jobserver.views.job_requests.get_project",
         autospec=True,
@@ -453,8 +416,8 @@ def test_jobrequestcreate_post_with_notifications_override(
 
     response = JobRequestCreate.as_view()(
         request,
-        org_slug=org.slug,
-        project_slug=project.slug,
+        org_slug=workspace.project.org.slug,
+        project_slug=workspace.project.slug,
         workspace_slug=workspace.name,
     )
 
@@ -869,6 +832,5 @@ def test_jobrequestlist_with_unauthenticated_user(rf):
     request = rf.get(MEANINGLESS_URL)
     request.user = AnonymousUser()
     response = JobRequestList.as_view()(request)
-
     assert response.status_code == 200
     assert "Look up JobRequest by Identifier" not in response.rendered_content
