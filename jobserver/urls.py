@@ -27,6 +27,7 @@ from .views.backends import BackendDetail, BackendEdit, BackendList, BackendRota
 from .views.index import Index
 from .views.job_requests import (
     JobRequestCancel,
+    JobRequestCreate,
     JobRequestDetail,
     JobRequestDetailRedirect,
     JobRequestList,
@@ -198,6 +199,11 @@ workspace_urls = [
         "",
         WorkspaceDetail.as_view(),
         name="workspace-detail",
+    ),
+    path(
+        "run-jobs/",
+        JobRequestCreate.as_view(),
+        name="job-request-create",
     ),
     path(
         "archive-toggle/",

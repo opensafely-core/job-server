@@ -827,6 +827,16 @@ class Workspace(models.Model):
             },
         )
 
+    def get_jobs_url(self):
+        return reverse(
+            "job-request-create",
+            kwargs={
+                "org_slug": self.project.org.slug,
+                "project_slug": self.project.slug,
+                "workspace_slug": self.name,
+            },
+        )
+
     def get_latest_outputs_download_url(self):
         return reverse(
             "workspace-latest-outputs-download",
