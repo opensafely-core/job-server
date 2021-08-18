@@ -1,0 +1,63 @@
+{% extends "staff/base.html" %}
+
+{% block staff_content %}
+<div class="row mb-5">
+  <div class="col-lg-8 offset-lg-2">
+
+    <div class="mb-5">
+      <div class="d-flex justify-content-between align-items-center">
+        <h2>{{ workspace.name }}</h2>
+
+        <div>
+          <a class="btn btn-sm btn-primary" href="{{ workspace.get_absolute_url }}">View on Site</a>
+        </div>
+      </div>
+
+      <p>
+        <strong>Created at:</strong> {{ workspace.created_at }}
+        <br />
+        <strong>Created by:</strong>
+        <a href="{{ workspace.created_by.get_staff_url }}">{{ workspace.created_by.name }}</a>
+      </p>
+
+      <p>
+        <strong>Org:</strong> {{ workspace.project.org.name }}
+        <br />
+        <strong>Project:</strong>
+        <a href="{{ workspace.project.get_staff_url }}">{{ workspace.project.name }}</a>
+      </p>
+
+      <p>
+        <strong>Repo:</strong>
+        <a href="{{ workspace.repo }}/tree/{{ workspace.branch }}">{{ workspace.repo_owner }}/{{ workspace.repo_name }}</a>
+      </p>
+
+      <p>
+        <strong>Archived?:</strong> {% if workspace.is_archived %}✅{% else %}❌{% endif %}
+        <small class="form-text text-muted">
+          Archived workspaces can no longer have jobs run in them, this can be
+          toggled on the main workspace page.
+        </small>
+      </p>
+
+      <p>
+        <strong>Notify When Jobs Finish?:</strong> {% if workspace.should_notify %}✅{% else %}❌{% endif %}
+        <small class="form-text text-muted">
+          Should JobRequests notify their creator when all Jobs finish?  This
+          can be overridden when creating a JobRequest.
+        </small>
+      </p>
+
+      <p>
+        <strong>DB:</strong> {{ workspace.db }}
+        <small class="form-text text-muted">
+          Deprecated.  Only TPP supports the slice DB and we're moving away
+          from it in favour of expectations.
+        </small>
+      </p>
+
+    </div>
+
+  </div>
+</div>
+{% endblock staff_content %}

@@ -467,9 +467,6 @@ class Project(models.Model):
     def get_edit_url(self):
         return reverse("staff:project-edit", kwargs={"slug": self.slug})
 
-    def get_staff_url(self):
-        return reverse("staff:project-detail", kwargs={"slug": self.slug})
-
     def get_invitation_url(self):
         return reverse(
             "project-invitation-create",
@@ -487,6 +484,9 @@ class Project(models.Model):
             "project-settings",
             kwargs={"org_slug": self.org.slug, "project_slug": self.slug},
         )
+
+    def get_staff_url(self):
+        return reverse("staff:project-detail", kwargs={"slug": self.slug})
 
     def save(self, *args, **kwargs):
         if not self.slug:
@@ -826,6 +826,9 @@ class Workspace(models.Model):
                 "workspace_slug": self.name,
             },
         )
+
+    def get_staff_url(self):
+        return reverse("staff:workspace-detail", kwargs={"slug": self.name})
 
     def get_jobs_url(self):
         return reverse(

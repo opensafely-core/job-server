@@ -589,15 +589,6 @@ def test_project_get_edit_url():
 
 
 @pytest.mark.django_db
-def test_project_get_staff_url():
-    project = ProjectFactory()
-
-    url = project.get_staff_url()
-
-    assert url == reverse("staff:project-detail", kwargs={"slug": project.slug})
-
-
-@pytest.mark.django_db
 def test_project_get_invitation_url():
     org = OrgFactory(name="test-org")
     project = ProjectFactory(org=org)
@@ -631,6 +622,15 @@ def test_project_get_settings_url():
     assert url == reverse(
         "project-settings", kwargs={"org_slug": org.slug, "project_slug": project.slug}
     )
+
+
+@pytest.mark.django_db
+def test_project_get_staff_url():
+    project = ProjectFactory()
+
+    url = project.get_staff_url()
+
+    assert url == reverse("staff:project-detail", kwargs={"slug": project.slug})
 
 
 @pytest.mark.django_db
@@ -949,6 +949,15 @@ def test_workspace_get_files_url():
             "workspace_slug": workspace.name,
         },
     )
+
+
+@pytest.mark.django_db
+def test_workspace_get_staff_url():
+    workspace = WorkspaceFactory()
+
+    url = workspace.get_staff_url()
+
+    assert url == reverse("staff:workspace-detail", kwargs={"slug": workspace.name})
 
 
 @pytest.mark.django_db

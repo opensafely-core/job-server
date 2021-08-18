@@ -4,6 +4,7 @@ from .views.backends import BackendDetail, BackendEdit, BackendList, BackendRota
 from .views.index import Index
 from .views.projects import ProjectDetail, ProjectEdit, ProjectList
 from .views.users import UserDetail, UserList
+from .views.workspaces import WorkspaceDetail, WorkspaceList
 
 
 app_name = "staff"
@@ -30,9 +31,15 @@ user_urls = [
     path("<username>/", UserDetail.as_view(), name="user-detail"),
 ]
 
+workspace_urls = [
+    path("", WorkspaceList.as_view(), name="workspace-list"),
+    path("<slug>/", WorkspaceDetail.as_view(), name="workspace-detail"),
+]
+
 urlpatterns = [
     path("", Index.as_view(), name="index"),
     path("backends/", include(backend_urls)),
     path("projects/", include(project_urls)),
     path("users/", include(user_urls)),
+    path("workspaces/", include(workspace_urls)),
 ]

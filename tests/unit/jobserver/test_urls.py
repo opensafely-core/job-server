@@ -37,6 +37,7 @@ from jobserver.views import (
 from staff.views import backends as staff_backends
 from staff.views import projects as staff_projects
 from staff.views import users as staff_users
+from staff.views import workspaces as staff_workspaces
 
 
 @pytest.mark.parametrize(
@@ -83,6 +84,8 @@ def test_url_redirects(client, url, redirect):
         ("/staff/projects/p/edit/", staff_projects.ProjectEdit),
         ("/staff/users/", staff_users.UserList),
         ("/staff/users/<username>/", staff_users.UserDetail),
+        ("/staff/workspaces/", staff_workspaces.WorkspaceList),
+        ("/staff/workspaces/w/", staff_workspaces.WorkspaceDetail),
         ("/job-requests/42/", job_requests.JobRequestDetailRedirect),
         ("/jobs/<identifier>/", jobs.JobDetailRedirect),
         ("/login/github/", social_django_auth_view),
