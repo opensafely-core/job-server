@@ -218,7 +218,7 @@ class ReleaseAPI(APIView):
         if release.backend != backend:
             raise ValidationError(
                 {
-                    "detail": f"Release is from backend {release.backend.name} not {backend.name}"
+                    "detail": f"Release is from backend {release.backend.slug} not {backend.slug}"
                 }
             )
 

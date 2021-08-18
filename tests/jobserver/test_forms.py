@@ -8,7 +8,7 @@ from jobserver.models import Backend
 
 @pytest.mark.django_db
 def test_jobrequestcreateform_with_single_backend():
-    emis = Backend.objects.get(name="emis")
+    emis = Backend.objects.get(slug="emis")
     choices = backends_to_choices([emis])
     form = JobRequestCreateForm({"backend": "emis"}, backends=choices)
 
@@ -31,7 +31,7 @@ def test_jobrequestcreateform_with_multiple_backends():
 
 @pytest.mark.django_db
 def test_userform_success():
-    available_backends = Backend.objects.filter(name__in=["emis", "tpp", "test"])
+    available_backends = Backend.objects.filter(slug__in=["emis", "tpp", "test"])
 
     data = {
         "backends": ["emis", "tpp"],
@@ -47,9 +47,9 @@ def test_userform_success():
 
     assert form.is_valid(), form.errors
 
-    output = set(form.cleaned_data["backends"].values_list("name", flat=True))
+    output = set(form.cleaned_data["backends"].values_list("slug", flat=True))
     expected = set(
-        Backend.objects.filter(name__in=["emis", "tpp"]).values_list("name", flat=True)
+        Backend.objects.filter(slug__in=["emis", "tpp"]).values_list("slug", flat=True)
     )
     assert output == expected
 
@@ -58,7 +58,7 @@ def test_userform_success():
 
 @pytest.mark.django_db
 def test_userform_with_no_backends():
-    available_backends = Backend.objects.filter(name__in=["tpp"])
+    available_backends = Backend.objects.filter(slug__in=["tpp"])
 
     data = {
         "backends": [],
@@ -78,7 +78,7 @@ def test_userform_with_no_backends():
 
 @pytest.mark.django_db
 def test_userform_with_unknown_backend():
-    available_backends = Backend.objects.filter(name__in=["emis", "tpp", "test"])
+    available_backends = Backend.objects.filter(slug__in=["emis", "tpp", "test"])
 
     data = {
         "backends": ["emis", "tpp", "unknown"],

@@ -34,7 +34,7 @@ class Status(View):
                 last_seen = None
 
             return {
-                "name": backend.display_name,
+                "name": backend.name,
                 "last_seen": format_last_seen(last_seen),
                 "queue": {
                     "acked": acked,

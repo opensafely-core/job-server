@@ -13,7 +13,7 @@ from ...factories import BackendFactory, JobFactory, JobRequestFactory, Workspac
 
 @pytest.mark.django_db
 def test_status_hint_dependency_failed():
-    backend = Backend.objects.get(name="tpp")
+    backend = Backend.objects.get(slug="tpp")
     job_request = JobRequestFactory(backend=backend)
     job = JobFactory(job_request=job_request, status_code="dependency_failed")
 
@@ -22,7 +22,7 @@ def test_status_hint_dependency_failed():
 
 @pytest.mark.django_db
 def test_status_hint_waiting_on_dependencies():
-    backend = Backend.objects.get(name="tpp")
+    backend = Backend.objects.get(slug="tpp")
     job_request = JobRequestFactory(backend=backend)
     job = JobFactory(job_request=job_request, status_code="waiting_on_dependencies")
 
@@ -31,7 +31,7 @@ def test_status_hint_waiting_on_dependencies():
 
 @pytest.mark.django_db
 def test_status_hint_waiting_on_workers():
-    backend = Backend.objects.get(name="tpp")
+    backend = Backend.objects.get(slug="tpp")
     job_request = JobRequestFactory(backend=backend)
     job = JobFactory(job_request=job_request, status_code="waiting_on_workers")
 
@@ -40,7 +40,7 @@ def test_status_hint_waiting_on_workers():
 
 @pytest.mark.django_db
 def test_status_hint_nonzero_exit():
-    backend = Backend.objects.get(name="tpp")
+    backend = Backend.objects.get(slug="tpp")
     workspace = WorkspaceFactory(name="an-workspace")
     job_request = JobRequestFactory(backend=backend, workspace=workspace)
     job = JobFactory(
@@ -66,7 +66,7 @@ def test_status_hint_unknown_backend():
 
 @pytest.mark.django_db
 def test_status_hint_unknown_status_code():
-    backend = Backend.objects.get(name="tpp")
+    backend = Backend.objects.get(slug="tpp")
     job_request = JobRequestFactory(backend=backend)
     job = JobFactory(job_request=job_request)
 

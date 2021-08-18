@@ -65,7 +65,7 @@ class WorkspaceBackendFiles(View):
             name=self.kwargs["workspace_slug"],
         )
 
-        backend = get_object_or_404(Backend, name=self.kwargs["backend_slug"])
+        backend = get_object_or_404(Backend, slug=self.kwargs["backend_slug"])
 
         # ensure the user has access to the given Backend
         if request.user not in backend.members.all():
@@ -208,7 +208,7 @@ class WorkspaceDetail(CreateView):
         gh_org = self.request.user.orgs.first().github_orgs[0]
         sha = get_branch_sha(gh_org, self.workspace.repo_name, self.workspace.branch)
 
-        backend = Backend.objects.get(name=form.cleaned_data.pop("backend"))
+        backend = Backend.objects.get(slug=form.cleaned_data.pop("backend"))
         backend.job_requests.create(
             workspace=self.workspace,
             created_by=self.request.user,
@@ -318,7 +318,7 @@ class WorkspaceFileList(View):
         if not has_permission(request.user, "run_job", project=workspace.project):
             raise Http404
 
-        backends = request.user.backends.exclude(level_4_url="").order_by("name")
+        backends = request.user.backends.exclude(level_4_url="").order_by("slug")
 
         if not backends:
             raise Http404

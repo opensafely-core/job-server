@@ -60,14 +60,14 @@ def test_backend_rotate_token():
 
 @pytest.mark.django_db
 def test_backend_str():
-    backend = BackendFactory(name="Test Backend")
+    backend = BackendFactory(slug="test-backend")
 
-    assert str(backend) == "Test Backend"
+    assert str(backend) == "test-backend"
 
 
 @pytest.mark.django_db
 def test_backendmembership_str():
-    backend = BackendFactory(display_name="Test Backend")
+    backend = BackendFactory(name="Test Backend")
     user = UserFactory(username="ben")
 
     membership = BackendMembershipFactory(backend=backend, user=user)

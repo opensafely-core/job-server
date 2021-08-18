@@ -71,13 +71,13 @@ class UserDetail(UpdateView):
         available_roles = roles_for(User)
 
         return kwargs | {
-            "available_backends": Backend.objects.order_by("name"),
+            "available_backends": Backend.objects.order_by("slug"),
             "available_roles": available_roles,
         }
 
     def get_initial(self):
         return super().get_initial() | {
-            "backends": self.object.backends.values_list("name", flat=True),
+            "backends": self.object.backends.values_list("slug", flat=True),
             "is_superuser": self.object.is_superuser,
             "roles": self.object.roles,
         }
@@ -92,7 +92,7 @@ class UserList(ListView):
         all_roles = [name for name, value in inspect.getmembers(roles, inspect.isclass)]
 
         return super().get_context_data(**kwargs) | {
-            "backends": Backend.objects.order_by("name"),
+            "backends": Backend.objects.order_by("slug"),
             "q": self.request.GET.get("q", ""),
             "roles": all_roles,
         }

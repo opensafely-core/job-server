@@ -186,7 +186,7 @@ class WorkspaceSerializer(serializers.ModelSerializer):
 
 class JobRequestAPIList(ListAPIView):
     class serializer_class(serializers.ModelSerializer):
-        backend = serializers.CharField(source="backend.name")
+        backend = serializers.CharField(source="backend.slug")
         created_by = serializers.CharField(source="created_by.username")
         workspace = WorkspaceSerializer()
 
@@ -240,7 +240,7 @@ class JobRequestAPIList(ListAPIView):
         if query_arg_backend == "nhsd":
             query_arg_backend = "databricks"
 
-        db_backend = getattr(self.backend, "name", None)
+        db_backend = getattr(self.backend, "slug", None)
 
         # send a warning to Sentry if the query arg and token-linked backend
         # names differ
@@ -254,8 +254,8 @@ class JobRequestAPIList(ListAPIView):
             )
             sentry_sdk.capture_message("Backend mismatch between query arg and token")
 
-        if backend_name := first([query_arg_backend, db_backend]):
-            qs = qs.filter(backend__name=backend_name)
+        if backend_slug := first([query_arg_backend, db_backend]):
+            qs = qs.filter(backend__slug=backend_slug)
 
         return qs
 

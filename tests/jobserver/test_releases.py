@@ -167,7 +167,7 @@ def test_workspace_files_no_releases():
 
 @pytest.mark.django_db
 def test_workspace_files_one_release():
-    backend = BackendFactory(name="backend")
+    backend = BackendFactory(slug="backend")
     uploads = ReleaseUploadsFactory(["test1", "test2", "test3"])
     release = ReleaseFactory(uploads, backend=backend)
 
@@ -184,8 +184,8 @@ def test_workspace_files_one_release():
 def test_workspace_files_many_releases(freezer):
     now = timezone.now()
 
-    backend1 = BackendFactory(name="backend1")
-    backend2 = BackendFactory(name="backend2")
+    backend1 = BackendFactory(slug="backend1")
+    backend2 = BackendFactory(slug="backend2")
     workspace = WorkspaceFactory()
 
     def uploads(files):

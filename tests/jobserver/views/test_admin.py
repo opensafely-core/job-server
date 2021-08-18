@@ -43,8 +43,8 @@ def test_approveusers_post_success(rf):
     # selected orgs
     OrgFactory()
 
-    test = Backend.objects.get(name="test")
-    tpp = Backend.objects.get(name="tpp")
+    test = Backend.objects.get(slug="test")
+    tpp = Backend.objects.get(slug="tpp")
 
     data = {
         "backends": [test.pk, tpp.pk],

@@ -98,7 +98,7 @@ class JobRequestList(FormMixin, ListView):
         )
         context = super().get_context_data(object_list=filtered_object_list, **kwargs)
 
-        context["backends"] = Backend.objects.order_by("name")
+        context["backends"] = Backend.objects.order_by("slug")
         context["is_core_dev"] = has_role(self.request.user, CoreDeveloper)
         context["statuses"] = ["failed", "running", "pending", "succeeded"]
         context["users"] = {u.username: u.name for u in users}

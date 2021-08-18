@@ -33,14 +33,14 @@ class BackendManager(models.Manager):
             # if no backends are configured, make all available
             return qs
 
-        return qs.filter(name__in=configured_backends)
+        return qs.filter(slug__in=configured_backends)
 
 
 class Backend(models.Model):
     """A job-runner instance"""
 
-    name = models.TextField(unique=True)
-    display_name = models.TextField()
+    slug = models.SlugField(max_length=255, unique=True)
+    name = models.TextField()
 
     parent_directory = models.TextField(default="")
     is_active = models.BooleanField(default=False)
@@ -56,7 +56,7 @@ class Backend(models.Model):
     objects = BackendManager()
 
     def __str__(self):
-        return self.name
+        return self.slug
 
     def get_absolute_url(self):
         return reverse("backend-detail", kwargs={"pk": self.pk})
@@ -98,4 +98,4 @@ class BackendMembership(models.Model):
         unique_together = ["backend", "user"]
 
     def __str__(self):
-        return f"{self.user.username} | {self.backend.display_name}"
+        return f"{self.user.username} | {self.backend.name}"
