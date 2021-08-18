@@ -454,12 +454,17 @@ def test_jobrequestcreate_unknown_workspace(rf, user):
 
 @pytest.mark.django_db
 def test_jobrequestcreate_with_archived_workspace(rf):
+    user = UserFactory()
     workspace = WorkspaceFactory(is_archived=True)
+
+    ProjectMembershipFactory(
+        project=workspace.project, user=user, roles=[ProjectDeveloper]
+    )
 
     request = rf.get("/")
     request.session = "session"
     request._messages = FallbackStorage(request)
-    request.user = UserFactory()
+    request.user = user
 
     response = JobRequestCreate.as_view()(
         request,

@@ -75,6 +75,9 @@ class JobRequestCreate(CreateView):
         except Workspace.DoesNotExist:
             return redirect("/")
 
+        if not has_permission(request.user, "run_job", project=self.workspace.project):
+            raise Http404
+
         if self.workspace.is_archived:
             msg = (
                 "You cannot create Jobs for an archived Workspace."
@@ -82,9 +85,6 @@ class JobRequestCreate(CreateView):
             )
             messages.error(request, msg)
             return redirect(self.workspace)
-
-        if not has_permission(request.user, "run_job", project=self.workspace.project):
-            raise Http404
 
         action_status_lut = self.workspace.get_action_status_lut()
 
