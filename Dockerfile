@@ -26,8 +26,8 @@ RUN apt-get update && \
 
 # Only requirements to cache them in docker layer so we can skip package
 # installation if they haven't changed
-COPY requirements.txt .
-RUN pip install --no-cache-dir --require-hashes --requirement requirements.txt
+COPY requirements.prod.txt .
+RUN pip install --no-cache-dir --require-hashes --requirement requirements.prod.txt
 
 COPY . /app
 

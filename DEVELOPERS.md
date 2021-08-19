@@ -26,24 +26,19 @@
 - **Node.js v16.x** ([fnm](https://github.com/Schniz/fnm#installation) is recommended)
 - **npm v7.x**
 
+_Note:_ you will need the [Bitwarden CLI tool](https://bitwarden.com/help/article/cli/) installed in order to access passwords, but it is not a requirement.
+
+Each `just` command sets up a dev environment as part of running it.
+If you want to maintain your own virtualenv make sure you have activated it before running a `just` command and it will be used instead.
+
 #### Steps
 
-**Create a virtualenv with your preferred tool and install the dependencies with:**
+
+**Set up an environment**
 
 ```sh
-make setup
+just devenv
 ```
-
-**Set up environment:**
-
-_Note:_ you will need the [Bitwarden CLI tool](https://bitwarden.com/help/article/cli/) installed in order to access passwords.
-
-```sh
-make dev-config
-```
-
-Alternatively, for limited functionality without requiring access to special passwords, copy `dotenv-sample` to `.env`,
-or export the environment variables in `dotenv-sample` with your tool of choice.
 
 **Run migrations:**
 
@@ -76,18 +71,12 @@ npm run build
 **Run the dev server:**
 
 ```sh
-make run
+just run
 ```
 
 Access at [localhost:8000](http://localhost:8000)
 
 ### Docker Compose
-
-Set up environment as above:
-
-```sh
-make dev-config
-```
 
 Run `docker-compose up`.
 
