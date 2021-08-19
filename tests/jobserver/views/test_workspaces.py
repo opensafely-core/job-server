@@ -316,28 +316,6 @@ def test_workspacedetail_authorized_archive_workspaces(rf):
 
 
 @pytest.mark.django_db
-def test_workspacedetail_authorized_modify_workspace(rf, mocker):
-    workspace = WorkspaceFactory()
-
-    mocker.patch(
-        "jobserver.views.workspaces.can_run_jobs", autospec=True, return_value=True
-    )
-
-    request = rf.get("/")
-    request.user = UserFactory()
-
-    response = WorkspaceDetail.as_view()(
-        request,
-        org_slug=workspace.project.org.slug,
-        project_slug=workspace.project.slug,
-        workspace_slug=workspace.name,
-    )
-
-    assert response.status_code == 200
-    assert response.context_data["user_can_run_jobs"]
-
-
-@pytest.mark.django_db
 def test_workspacedetail_authorized_view_files(rf):
     backend = BackendFactory(level_4_url="http://test/")
     user = UserFactory(roles=[ProjectCollaborator])
@@ -377,6 +355,29 @@ def test_workspacedetail_authorized_view_releases(rf):
 
     assert response.status_code == 200
     assert response.context_data["user_can_view_releases"]
+
+
+@pytest.mark.django_db
+def test_workspacedetail_authorized_run_jobs(rf):
+    workspace = WorkspaceFactory()
+    user = UserFactory()
+
+    ProjectMembershipFactory(
+        project=workspace.project, user=user, roles=[ProjectDeveloper]
+    )
+
+    request = rf.get("/")
+    request.user = user
+
+    response = WorkspaceDetail.as_view()(
+        request,
+        org_slug=workspace.project.org.slug,
+        project_slug=workspace.project.slug,
+        workspace_slug=workspace.name,
+    )
+
+    assert response.status_code == 200
+    assert response.context_data["user_can_run_jobs"]
 
 
 @pytest.mark.django_db

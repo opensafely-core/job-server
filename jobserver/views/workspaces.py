@@ -157,7 +157,6 @@ class WorkspaceDetail(View):
             name=self.kwargs["workspace_slug"],
         )
 
-        user_can_run_jobs = can_run_jobs(request.user)
         can_use_releases = has_role(request.user, CoreDeveloper)
 
         is_privileged_user = has_permission(
@@ -188,11 +187,14 @@ class WorkspaceDetail(View):
         can_archive_workspace = has_permission(
             request.user, "archive_workspace", project=workspace.project
         )
+        can_run_jobs = has_permission(
+            request.user, "run_job", project=workspace.project
+        )
 
         context = {
             "can_use_releases": can_use_releases,
             "user_can_archive_workspace": can_archive_workspace,
-            "user_can_run_jobs": user_can_run_jobs,
+            "user_can_run_jobs": can_run_jobs,
             "user_can_view_files": can_view_files,
             "user_can_view_outputs": can_view_outputs,
             "user_can_view_releases": can_view_releases,
