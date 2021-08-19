@@ -45,7 +45,7 @@
 
                 {% if file.is_deleted %}
                 <small class="text-muted">
-                  (Deleted by {{ file.deleted_by.name }} at {{ file.deleted_at|date:"Y-m-d H:i:s" }})
+                  (Deleted by {{ file.deleted_by.name }} at {{ file.deleted_at|date:"Y-m-d H:i:sO" }})
                 </small>
                 {% endif %}
 

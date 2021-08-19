@@ -29,7 +29,7 @@
       <div class="d-none d-md-block action text-truncate" title="{{ group.requested_actions|join:"," }}">
         {{ group.requested_actions|join:"," }}
       </div>
-      <div class="started-at">{{ group.started_at|date:"Y-m-d H:i:s"|default:"-" }}</div>
+      <div class="started-at">{{ group.started_at|date:"Y-m-d H:i:sO"|default:"-" }}</div>
       <div class="mx-2">
         <button
           class="btn btn-sm btn-primary"
