@@ -42,23 +42,21 @@ MEANINGLESS_URL = "/"
 
 
 @pytest.mark.django_db
-@responses.activate
-def test_workspacearchivetoggle_success(rf, user):
-    org = user.orgs.first()
-    project = ProjectFactory(org=org)
-    workspace = WorkspaceFactory(project=project, is_archived=False)
+def test_workspacearchivetoggle_success(rf):
+    user = UserFactory()
+    workspace = WorkspaceFactory(is_archived=False)
+
+    ProjectMembershipFactory(
+        project=workspace.project, user=user, roles=[ProjectDeveloper]
+    )
 
     request = rf.post(MEANINGLESS_URL, {"is_archived": "True"})
     request.user = user
 
-    gh_org = user.orgs.first().github_orgs[0]
-    membership_url = f"https://api.github.com/orgs/{gh_org}/members/{user.username}"
-    responses.add(responses.GET, membership_url, status=204)
-
     response = WorkspaceArchiveToggle.as_view()(
         request,
-        org_slug=org.slug,
-        project_slug=project.slug,
+        org_slug=workspace.project.org.slug,
+        project_slug=workspace.project.slug,
         workspace_slug=workspace.name,
     )
 
@@ -70,21 +68,35 @@ def test_workspacearchivetoggle_success(rf, user):
 
 
 @pytest.mark.django_db
-@responses.activate
-def test_workspacearchivetoggle_unauthorized(rf, user):
+def test_workspacearchivetoggle_unknown_workspace(rf):
+    project = ProjectFactory()
+
+    request = rf.post(MEANINGLESS_URL)
+    request.user = UserFactory()
+
+    with pytest.raises(Http404):
+        WorkspaceArchiveToggle.as_view()(
+            request,
+            org_slug=project.org.slug,
+            project_slug=project.slug,
+            workspace_slug="",
+        )
+
+
+@pytest.mark.django_db
+def test_workspacearchivetoggle_without_permission(rf):
     workspace = WorkspaceFactory()
 
     request = rf.post(MEANINGLESS_URL)
-    request.user = user
+    request.user = UserFactory()
 
-    gh_org = user.orgs.first().github_orgs[0]
-    membership_url = f"https://api.github.com/orgs/{gh_org}/members/{user.username}"
-    responses.add(responses.GET, membership_url, status=404)
-
-    response = WorkspaceArchiveToggle.as_view()(request, name=workspace.name)
-
-    assert response.status_code == 302
-    assert response.url == f"{settings.LOGIN_URL}?next=/"
+    with pytest.raises(Http404):
+        WorkspaceArchiveToggle.as_view()(
+            request,
+            org_slug=workspace.project.org.slug,
+            project_slug=workspace.project.slug,
+            workspace_slug=workspace.name,
+        )
 
 
 @pytest.mark.django_db
@@ -278,6 +290,29 @@ def test_workspacecreate_without_permission(rf, user):
         WorkspaceCreate.as_view()(
             request, org_slug=project.org.slug, project_slug=project.slug
         )
+
+
+@pytest.mark.django_db
+def test_workspacedetail_authorized_archive_workspaces(rf):
+    workspace = WorkspaceFactory()
+    user = UserFactory()
+
+    ProjectMembershipFactory(
+        project=workspace.project, user=user, roles=[ProjectDeveloper]
+    )
+
+    request = rf.get("/")
+    request.user = user
+
+    response = WorkspaceDetail.as_view()(
+        request,
+        org_slug=workspace.project.org.slug,
+        project_slug=workspace.project.slug,
+        workspace_slug=workspace.name,
+    )
+
+    assert response.status_code == 200
+    assert response.context_data["user_can_archive_workspace"]
 
 
 @pytest.mark.django_db

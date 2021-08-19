@@ -24,7 +24,6 @@ from ..releases import (
 from ..roles import can_run_jobs
 
 
-@method_decorator(user_passes_test(can_run_jobs), name="dispatch")
 class WorkspaceArchiveToggle(View):
     def post(self, request, *args, **kwargs):
         workspace = get_object_or_404(
@@ -33,6 +32,11 @@ class WorkspaceArchiveToggle(View):
             project__slug=self.kwargs["project_slug"],
             name=self.kwargs["workspace_slug"],
         )
+
+        if not has_permission(
+            request.user, "archive_workspace", project=workspace.project
+        ):
+            raise Http404
 
         form = WorkspaceArchiveToggleForm(request.POST)
         form.is_valid()
@@ -181,8 +185,13 @@ class WorkspaceDetail(View):
             is_privileged_user and can_view_releases
         )
 
+        can_archive_workspace = has_permission(
+            request.user, "archive_workspace", project=workspace.project
+        )
+
         context = {
             "can_use_releases": can_use_releases,
+            "user_can_archive_workspace": can_archive_workspace,
             "user_can_run_jobs": user_can_run_jobs,
             "user_can_view_files": can_view_files,
             "user_can_view_outputs": can_view_outputs,
