@@ -1,3 +1,4 @@
+archive_workspace = "archive_workspace"
 cancel_job = "cancel_job"
 check_output = "check_output"
 create_org = "create_org"

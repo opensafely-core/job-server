@@ -1,4 +1,5 @@
 from .permissions import (
+    archive_workspace,
     cancel_job,
     check_output,
     create_org,
@@ -189,6 +190,7 @@ class ProjectDeveloper:
         "jobserver.models.core.ProjectMembership",
     ]
     permissions = [
+        archive_workspace,
         cancel_job,
         check_output,
         create_snapshot,
