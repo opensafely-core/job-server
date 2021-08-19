@@ -13,6 +13,7 @@ from .permissions import (
     publish_snapshot,
     review_project,
     run_job,
+    toggle_workspace_notifications,
     upload_release_file,
     view_release_file,
 )
@@ -196,6 +197,7 @@ class ProjectDeveloper:
         create_snapshot,
         manage_project_workspaces,
         run_job,
+        toggle_workspace_notifications,
     ]
 
 

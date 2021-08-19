@@ -795,6 +795,7 @@ def test_user_get_all_permissions():
                     "create_snapshot",
                     "manage_project_workspaces",
                     "run_job",
+                    "toggle_workspace_notifications",
                 ],
             }
         ],

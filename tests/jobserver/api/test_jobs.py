@@ -618,6 +618,7 @@ def test_userapidetail_success(api_rf):
                 "create_snapshot",
                 "manage_project_workspaces",
                 "run_job",
+                "toggle_workspace_notifications",
             ],
         }
     ]
