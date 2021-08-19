@@ -7,7 +7,6 @@ from ...factories import (
     JobRequestFactory,
     OrgFactory,
     OrgMembershipFactory,
-    UserFactory,
     WorkspaceFactory,
 )
 
@@ -58,20 +57,6 @@ def test_index_with_authenticated_user_in_one_org(rf, user):
 
     assert "Pick a project" in response.rendered_content
     assert "Add a New Workspace" in response.rendered_content
-
-
-@pytest.mark.django_db
-def test_index_with_authenticated_but_partially_registered_user(rf):
-    """
-    Check the Add Workspace button is rendered for authenticated Users on the
-    homepage.
-    """
-    request = rf.get(MEANINGLESS_URL)
-    request.user = UserFactory()
-
-    response = Index.as_view()(request)
-
-    assert "Add a New Workspace" not in response.rendered_content
 
 
 @pytest.mark.django_db
