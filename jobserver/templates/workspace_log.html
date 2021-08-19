@@ -39,19 +39,7 @@
 {% endif %}
 
 <div class="job-list">
-  <div class="d-flex justify-content-between mt-3 mb-4">
-
-    <h2>{{ workspace.name }}</h2>
-
-    {% if user_can_run_jobs and not workspace.is_archived %}
-    <div>
-      <a class="btn btn-primary" href="{{ workspace.get_absolute_url }}">
-        Add Job
-      </a>
-    </div>
-    {% endif %}
-
-  </div>
+  <h2>{{ workspace.name }}</h2>
 
   <p class="mb-4">
     Below are the logs for each job run in the

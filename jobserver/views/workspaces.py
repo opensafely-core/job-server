@@ -336,10 +336,9 @@ class WorkspaceLog(ListView):
         return super().dispatch(request, *args, **kwargs)
 
     def get_context_data(self, **kwargs):
-        context = super().get_context_data(**kwargs)
-        context["user_can_run_jobs"] = can_run_jobs(self.request.user)
-        context["workspace"] = self.workspace
-        return context
+        return super().get_context_data(**kwargs) | {
+            "workspace": self.workspace,
+        }
 
     def get_queryset(self):
         qs = (

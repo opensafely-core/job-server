@@ -703,10 +703,13 @@ def test_workspacelatestoutputsdownload_without_permission(rf):
 
 
 @pytest.mark.django_db
-def test_workspacelog_search_by_action(rf, mocker, user):
-    org = user.orgs.first()
-    project = ProjectFactory(org=org)
-    workspace = WorkspaceFactory(project=project)
+def test_workspacelog_search_by_action(rf):
+    workspace = WorkspaceFactory()
+    user = UserFactory()
+
+    ProjectMembershipFactory(
+        project=workspace.project, user=user, roles=[ProjectDeveloper]
+    )
 
     job_request1 = JobRequestFactory(created_by=user, workspace=workspace)
     JobFactory(job_request=job_request1, action="run")
@@ -714,17 +717,13 @@ def test_workspacelog_search_by_action(rf, mocker, user):
     job_request2 = JobRequestFactory(workspace=workspace)
     JobFactory(job_request=job_request2, action="leap")
 
-    mocker.patch(
-        "jobserver.views.workspaces.can_run_jobs", autospec=True, return_value=True
-    )
-
     request = rf.get("/?q=run")
     request.user = user
 
     response = WorkspaceLog.as_view()(
         request,
-        org_slug=org.slug,
-        project_slug=project.slug,
+        org_slug=workspace.project.org.slug,
+        project_slug=workspace.project.slug,
         workspace_slug=workspace.name,
     )
 
@@ -733,27 +732,26 @@ def test_workspacelog_search_by_action(rf, mocker, user):
 
 
 @pytest.mark.django_db
-def test_workspacelog_search_by_id(rf, mocker, user):
-    org = user.orgs.first()
-    project = ProjectFactory(org=org)
-    workspace = WorkspaceFactory(project=project)
+def test_workspacelog_search_by_id(rf):
+    workspace = WorkspaceFactory()
+    user = UserFactory()
+
+    ProjectMembershipFactory(
+        project=workspace.project, user=user, roles=[ProjectDeveloper]
+    )
 
     JobFactory(job_request=JobRequestFactory())
 
     job_request2 = JobRequestFactory(created_by=user, workspace=workspace)
     JobFactory(job_request=job_request2, id=99)
 
-    mocker.patch(
-        "jobserver.views.workspaces.can_run_jobs", autospec=True, return_value=True
-    )
-
     request = rf.get("/?q=99")
     request.user = user
 
     response = WorkspaceLog.as_view()(
         request,
-        org_slug=org.slug,
-        project_slug=project.slug,
+        org_slug=workspace.project.org.slug,
+        project_slug=workspace.project.slug,
         workspace_slug=workspace.name,
     )
 
@@ -762,24 +760,24 @@ def test_workspacelog_search_by_id(rf, mocker, user):
 
 
 @pytest.mark.django_db
-def test_workspacelog_success(rf, mocker, user):
-    org = user.orgs.first()
-    project = ProjectFactory(org=org)
-    workspace = WorkspaceFactory(project=project)
+def test_workspacelog_success(rf):
+    workspace = WorkspaceFactory()
+    user = UserFactory()
+
+    ProjectMembershipFactory(
+        project=workspace.project, user=user, roles=[ProjectDeveloper]
+    )
+
     job_request = JobRequestFactory(created_by=user, workspace=workspace)
     JobFactory(job_request=job_request)
-
-    mocker.patch(
-        "jobserver.views.workspaces.can_run_jobs", autospec=True, return_value=True
-    )
 
     request = rf.get(MEANINGLESS_URL)
     request.user = user
 
     response = WorkspaceLog.as_view()(
         request,
-        org_slug=org.slug,
-        project_slug=project.slug,
+        org_slug=workspace.project.org.slug,
+        project_slug=workspace.project.slug,
         workspace_slug=workspace.name,
     )
 
@@ -788,16 +786,18 @@ def test_workspacelog_success(rf, mocker, user):
 
 
 @pytest.mark.django_db
-def test_workspacelog_unknown_workspace(rf, user):
-    org = user.orgs.first()
-    project = ProjectFactory(org=org)
+def test_workspacelog_unknown_workspace(rf):
+    project = ProjectFactory()
+    user = UserFactory()
 
-    # Build a RequestFactory instance
+    ProjectMembershipFactory(project=project, user=user, roles=[ProjectDeveloper])
+
     request = rf.get(MEANINGLESS_URL)
-    request.user = UserFactory()
+    request.user = user
+
     response = WorkspaceLog.as_view()(
         request,
-        org_slug=org.slug,
+        org_slug=project.org.slug,
         project_slug=project.slug,
         workspace_slug="test",
     )
@@ -807,57 +807,41 @@ def test_workspacelog_unknown_workspace(rf, user):
 
 
 @pytest.mark.django_db
-def test_workspacelog_with_authenticated_user(rf, mocker, user):
-    """
-    Check WorkspaceLog renders the Add Job button for authenticated Users
-    """
-    org = user.orgs.first()
-    project = ProjectFactory(org=org)
-    workspace = WorkspaceFactory(project=project)
+def test_workspacelog_with_authenticated_user(rf):
+    workspace = WorkspaceFactory()
     job_request = JobRequestFactory(workspace=workspace)
     JobFactory(job_request=job_request)
-
-    mocker.patch(
-        "jobserver.views.workspaces.can_run_jobs", autospec=True, return_value=True
-    )
 
     request = rf.get(MEANINGLESS_URL)
     request.user = UserFactory()
 
     response = WorkspaceLog.as_view()(
         request,
-        org_slug=org.slug,
-        project_slug=project.slug,
+        org_slug=workspace.project.org.slug,
+        project_slug=workspace.project.slug,
         workspace_slug=workspace.name,
     )
 
     assert response.status_code == 200
-    assert "Add Job" in response.rendered_content
 
 
 @pytest.mark.django_db
-def test_workspacelog_with_unauthenticated_user(rf, user):
-    """
-    Check WorkspaceLog renders the Add Job button for authenticated Users
-    """
-    org = user.orgs.first()
-    project = ProjectFactory(org=org)
-    workspace = WorkspaceFactory(project=project)
+def test_workspacelog_with_unauthenticated_user(rf):
+    workspace = WorkspaceFactory()
     job_request = JobRequestFactory(workspace=workspace)
     JobFactory(job_request=job_request)
 
-    # Build a RequestFactory instance
     request = rf.get(MEANINGLESS_URL)
     request.user = AnonymousUser()
+
     response = WorkspaceLog.as_view()(
         request,
-        org_slug=org.slug,
-        project_slug=project.slug,
+        org_slug=workspace.project.org.slug,
+        project_slug=workspace.project.slug,
         workspace_slug=workspace.name,
     )
 
     assert response.status_code == 200
-    assert "Add Job" not in response.rendered_content
 
 
 @pytest.mark.django_db
