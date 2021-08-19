@@ -2,7 +2,6 @@ import zipfile
 
 import pytest
 import responses
-from django.conf import settings
 from django.contrib.auth.models import AnonymousUser
 from django.http import Http404
 from django.utils import timezone
@@ -846,22 +845,21 @@ def test_workspacelog_with_unauthenticated_user(rf):
 
 @pytest.mark.django_db
 @responses.activate
-def test_workspacenotificationstoggle_success(rf, user):
-    org = user.orgs.first()
-    project = ProjectFactory(org=org)
-    workspace = WorkspaceFactory(project=project, should_notify=True)
+def test_workspacenotificationstoggle_success(rf):
+    workspace = WorkspaceFactory(should_notify=True)
+    user = UserFactory()
+
+    ProjectMembershipFactory(
+        project=workspace.project, user=user, roles=[ProjectDeveloper]
+    )
 
     request = rf.post(MEANINGLESS_URL, {"should_notify": ""})
     request.user = user
 
-    gh_org = user.orgs.first().github_orgs[0]
-    membership_url = f"https://api.github.com/orgs/{gh_org}/members/{user.username}"
-    responses.add(responses.GET, membership_url, status=204)
-
     response = WorkspaceNotificationsToggle.as_view()(
         request,
-        org_slug=org.slug,
-        project_slug=project.slug,
+        org_slug=workspace.project.org.slug,
+        project_slug=workspace.project.slug,
         workspace_slug=workspace.name,
     )
 
@@ -875,38 +873,38 @@ def test_workspacenotificationstoggle_success(rf, user):
 
 @pytest.mark.django_db
 @responses.activate
-def test_workspacenotificationstoggle_unauthorized(rf, user):
+def test_workspacenotificationstoggle_without_permission(rf, user):
     workspace = WorkspaceFactory()
+    user = UserFactory()
 
     request = rf.post(MEANINGLESS_URL, {"should_notify": ""})
     request.user = user
 
-    gh_org = user.orgs.first().github_orgs[0]
-    membership_url = f"https://api.github.com/orgs/{gh_org}/members/{user.username}"
-    responses.add(responses.GET, membership_url, status=404)
-
-    response = WorkspaceNotificationsToggle.as_view()(request, name=workspace.name)
-
-    assert response.status_code == 302
-    assert response.url == f"{settings.LOGIN_URL}?next=/"
+    with pytest.raises(Http404):
+        WorkspaceNotificationsToggle.as_view()(
+            request,
+            org_slug=workspace.project.org.slug,
+            project_slug=workspace.project.slug,
+            workspace_slug=workspace.name,
+        )
 
 
 @pytest.mark.django_db
-@responses.activate
-def test_workspacenotificationstoggle_unknown_workspace(rf, user):
-    org = user.orgs.first()
-    project = ProjectFactory(org=org)
+def test_workspacenotificationstoggle_unknown_workspace(rf):
+    project = ProjectFactory()
+    user = UserFactory()
+
+    ProjectMembershipFactory(project=project, user=user, roles=[ProjectDeveloper])
 
     request = rf.post(MEANINGLESS_URL)
     request.user = user
 
-    gh_org = user.orgs.first().github_orgs[0]
-    membership_url = f"https://api.github.com/orgs/{gh_org}/members/{user.username}"
-    responses.add(responses.GET, membership_url, status=204)
-
     with pytest.raises(Http404):
         WorkspaceNotificationsToggle.as_view()(
-            request, org_slug=org.slug, project_slug=project.slug, workspace_slug="test"
+            request,
+            org_slug=project.org.slug,
+            project_slug=project.slug,
+            workspace_slug="test",
         )
 
 

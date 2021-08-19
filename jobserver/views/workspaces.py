@@ -1,9 +1,7 @@
-from django.contrib.auth.decorators import user_passes_test
 from django.db.models import Q
 from django.http import FileResponse, Http404
 from django.shortcuts import get_object_or_404, redirect
 from django.template.response import TemplateResponse
-from django.utils.decorators import method_decorator
 from django.views.generic import CreateView, ListView, View
 from furl import furl
 
@@ -21,7 +19,6 @@ from ..releases import (
     build_spa_base_url,
     workspace_files,
 )
-from ..roles import can_run_jobs
 
 
 class WorkspaceArchiveToggle(View):
@@ -363,7 +360,6 @@ class WorkspaceLog(ListView):
         return qs
 
 
-@method_decorator(user_passes_test(can_run_jobs), name="dispatch")
 class WorkspaceNotificationsToggle(View):
     def post(self, request, *args, **kwargs):
         workspace = get_object_or_404(
@@ -372,6 +368,11 @@ class WorkspaceNotificationsToggle(View):
             project__slug=self.kwargs["project_slug"],
             name=self.kwargs["workspace_slug"],
         )
+
+        if not has_permission(
+            request.user, "toggle_workspace_notifications", project=workspace.project
+        ):
+            raise Http404
 
         form = WorkspaceNotificationsToggleForm(data=request.POST)
         form.is_valid()
