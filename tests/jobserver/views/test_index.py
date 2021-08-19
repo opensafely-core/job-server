@@ -16,12 +16,9 @@ MEANINGLESS_URL = "/"
 
 
 @pytest.mark.django_db
-def test_index_success(rf, mocker, user):
+def test_index_success(rf, user):
     workspace = WorkspaceFactory()
     JobRequestFactory.create_batch(10, workspace=workspace)
-
-    # mock GitHub Org membership
-    mocker.patch("jobserver.views.index.can_run_jobs", autospec=True, return_value=True)
 
     request = rf.get(MEANINGLESS_URL)
     request.user = user
@@ -33,15 +30,12 @@ def test_index_success(rf, mocker, user):
 
 
 @pytest.mark.django_db
-def test_index_with_authenticated_user_in_multiple_orgs(rf, mocker, user):
+def test_index_with_authenticated_user_in_multiple_orgs(rf, user):
     """Check the Add Workspace button is rendered for authenticated Users in multiple Orgs."""
     WorkspaceFactory()
 
     # set up a second Org & tie the User to it
     OrgMembershipFactory(org=OrgFactory(), user=user)
-
-    # mock GitHub Org membership
-    mocker.patch("jobserver.views.index.can_run_jobs", autospec=True, return_value=True)
 
     request = rf.get(MEANINGLESS_URL)
     request.user = user
@@ -53,12 +47,9 @@ def test_index_with_authenticated_user_in_multiple_orgs(rf, mocker, user):
 
 
 @pytest.mark.django_db
-def test_index_with_authenticated_user_in_one_org(rf, mocker, user):
+def test_index_with_authenticated_user_in_one_org(rf, user):
     """Check the Add Workspace button is rendered for authenticated Users in a single Org."""
     WorkspaceFactory()
-
-    # mock GitHub Org membership
-    mocker.patch("jobserver.views.index.can_run_jobs", autospec=True, return_value=True)
 
     request = rf.get(MEANINGLESS_URL)
     request.user = user
@@ -70,16 +61,11 @@ def test_index_with_authenticated_user_in_one_org(rf, mocker, user):
 
 
 @pytest.mark.django_db
-def test_index_with_authenticated_but_partially_registered_user(rf, mocker):
+def test_index_with_authenticated_but_partially_registered_user(rf):
     """
     Check the Add Workspace button is rendered for authenticated Users on the
     homepage.
     """
-    # mock a lack of GitHub Org membership
-    mocker.patch(
-        "jobserver.views.index.can_run_jobs", autospec=True, return_value=False
-    )
-
     request = rf.get(MEANINGLESS_URL)
     request.user = UserFactory()
 
