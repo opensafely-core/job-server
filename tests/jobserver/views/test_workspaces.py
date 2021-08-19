@@ -217,15 +217,9 @@ def test_workspacebackendfiles_without_permission(rf):
 
 
 @pytest.mark.django_db
-@responses.activate
 def test_workspacecreate_get_success(rf, mocker, user):
-    org = user.orgs.first()
-    project = ProjectFactory(org=org)
+    project = ProjectFactory()
     ProjectMembershipFactory(project=project, user=user, roles=[ProjectDeveloper])
-
-    gh_org = user.orgs.first().github_orgs[0]
-    membership_url = f"https://api.github.com/orgs/{gh_org}/members/{user.username}"
-    responses.add(responses.GET, membership_url, status=204)
 
     mocker.patch(
         "jobserver.views.workspaces.get_repos_with_branches",
@@ -237,45 +231,16 @@ def test_workspacecreate_get_success(rf, mocker, user):
     request.user = user
 
     response = WorkspaceCreate.as_view()(
-        request, org_slug=org.slug, project_slug=project.slug
+        request, org_slug=project.org.slug, project_slug=project.slug
     )
 
     assert response.status_code == 200
 
 
 @pytest.mark.django_db
-@responses.activate
-def test_workspacecreate_get_without_permission(rf, mocker, user):
-    org = user.orgs.first()
-    project = ProjectFactory(org=org)
-
-    gh_org = user.orgs.first().github_orgs[0]
-    membership_url = f"https://api.github.com/orgs/{gh_org}/members/{user.username}"
-    responses.add(responses.GET, membership_url, status=204)
-
-    mocker.patch(
-        "jobserver.views.workspaces.get_repos_with_branches",
-        autospec=True,
-        return_value=[],
-    )
-
-    request = rf.get(MEANINGLESS_URL)
-    request.user = user
-
-    with pytest.raises(Http404):
-        WorkspaceCreate.as_view()(request, org_slug=org.slug, project_slug=project.slug)
-
-
-@pytest.mark.django_db
-@responses.activate
 def test_workspacecreate_post_success(rf, mocker, user):
-    org = user.orgs.first()
-    project = ProjectFactory(org=org)
+    project = ProjectFactory()
     ProjectMembershipFactory(project=project, user=user, roles=[ProjectDeveloper])
-
-    gh_org = user.orgs.first().github_orgs[0]
-    membership_url = f"https://api.github.com/orgs/{gh_org}/members/{user.username}"
-    responses.add(responses.GET, membership_url, status=204)
 
     mocker.patch(
         "jobserver.views.workspaces.get_repos_with_branches",
@@ -292,7 +257,7 @@ def test_workspacecreate_post_success(rf, mocker, user):
     request.user = user
 
     response = WorkspaceCreate.as_view()(
-        request, org_slug=org.slug, project_slug=project.slug
+        request, org_slug=project.org.slug, project_slug=project.slug
     )
 
     assert response.status_code == 302
@@ -303,19 +268,16 @@ def test_workspacecreate_post_success(rf, mocker, user):
 
 
 @pytest.mark.django_db
-@responses.activate
-def test_workspacecreate_unauthorized(rf, user):
+def test_workspacecreate_without_permission(rf, user):
+    project = ProjectFactory()
+
     request = rf.post(MEANINGLESS_URL)
     request.user = user
 
-    gh_org = user.orgs.first().github_orgs[0]
-    membership_url = f"https://api.github.com/orgs/{gh_org}/members/{user.username}"
-    responses.add(responses.GET, membership_url, status=404)
-
-    response = WorkspaceCreate.as_view()(request)
-
-    assert response.status_code == 302
-    assert response.url == f"{settings.LOGIN_URL}?next=/"
+    with pytest.raises(Http404):
+        WorkspaceCreate.as_view()(
+            request, org_slug=project.org.slug, project_slug=project.slug
+        )
 
 
 @pytest.mark.django_db

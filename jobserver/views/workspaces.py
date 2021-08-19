@@ -98,7 +98,6 @@ class WorkspaceBackendFiles(View):
         )
 
 
-@method_decorator(user_passes_test(can_run_jobs), name="dispatch")
 class WorkspaceCreate(CreateView):
     form_class = WorkspaceCreateForm
     model = Workspace
@@ -109,11 +108,6 @@ class WorkspaceCreate(CreateView):
             Project, org__slug=self.kwargs["org_slug"], slug=self.kwargs["project_slug"]
         )
 
-        gh_org = self.request.user.orgs.first().github_orgs[0]
-        self.repos_with_branches = sorted(
-            get_repos_with_branches(gh_org), key=lambda r: r["name"].lower()
-        )
-
         can_manage_workspaces = has_permission(
             self.request.user,
             "manage_project_workspaces",
@@ -121,6 +115,11 @@ class WorkspaceCreate(CreateView):
         )
         if not can_manage_workspaces:
             raise Http404
+
+        gh_org = self.request.user.orgs.first().github_orgs[0]
+        self.repos_with_branches = sorted(
+            get_repos_with_branches(gh_org), key=lambda r: r["name"].lower()
+        )
 
         return super().dispatch(request, *args, **kwargs)
 
