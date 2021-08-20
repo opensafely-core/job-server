@@ -1,4 +1,3 @@
-import PropTypes from "prop-types";
 import React from "react";
 import useFile from "../../hooks/use-file";
 import useStore from "../../stores/use-store";
@@ -12,23 +11,10 @@ import {
 } from "../../utils/file-type-match";
 import Iframe from "../Iframe/Iframe";
 import Image from "../Image/Image";
-import Metadata from "../Metadata/Metadata";
 import NoPreview from "../NoPreview/NoPreview";
 import Table from "../Table/Table";
 import Text from "../Text/Text";
-
-function Wrapper({ children }) {
-  return (
-    <>
-      <div className="card">
-        <div className="card-header">
-          <Metadata />
-        </div>
-        <div className="card-body">{children}</div>
-      </div>
-    </>
-  );
-}
+import Wrapper from "./Wrapper";
 
 function Viewer() {
   const { file } = useStore();
@@ -75,9 +61,5 @@ function Viewer() {
     </Wrapper>
   );
 }
-
-Wrapper.propTypes = {
-  children: PropTypes.node.isRequired,
-};
 
 export default Viewer;
