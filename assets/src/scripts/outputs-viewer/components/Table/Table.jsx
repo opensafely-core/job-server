@@ -2,8 +2,6 @@
 import PropTypes from "prop-types";
 import React from "react";
 import { readString } from "react-papaparse";
-import useFile from "../../hooks/use-file";
-import useStore from "../../stores/use-store";
 import NoPreview from "../NoPreview/NoPreview";
 
 function TableCell({ cell }) {
@@ -20,10 +18,7 @@ function TableRow({ row }) {
   );
 }
 
-function Table() {
-  const { file } = useStore();
-  const { data } = useFile(file);
-
+function Table({ data }) {
   const jsonData = readString(data, {
     chunk: true,
     complete: (results) => results,
@@ -63,6 +58,8 @@ function Table() {
   );
 }
 
+export default Table;
+
 TableCell.propTypes = {
   cell: PropTypes.string.isRequired,
 };
@@ -71,4 +68,6 @@ TableRow.propTypes = {
   row: PropTypes.arrayOf(PropTypes.string).isRequired,
 };
 
-export default Table;
+Table.propTypes = {
+  data: PropTypes.string.isRequired,
+};
