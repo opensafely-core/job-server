@@ -12,7 +12,7 @@ function FileList() {
   const [files, setFiles] = useState([]);
   const [listHeight, setListHeight] = useState(0);
 
-  const { isError, isLoading } = useFileList();
+  const { data, isError, isLoading } = useFileList();
   const { listVisible } = useStore();
   const history = useHistory();
   const location = useLocation();
@@ -93,7 +93,7 @@ function FileList() {
 
   return (
     <div className={`${classes.sidebar} ${listVisible ? "d-block" : "d-none"}`}>
-      <Filter listRef={listRef} setFiles={setFiles} />
+      <Filter files={data} listRef={listRef} setFiles={setFiles} />{" "}
       <div className="card pt-2">
         <FixedSizeList
           ref={listRef}

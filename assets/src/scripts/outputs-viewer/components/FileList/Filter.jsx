@@ -1,9 +1,7 @@
 import PropTypes from "prop-types";
 import React, { useEffect, useState } from "react";
-import useFileList from "../../hooks/use-file-list";
 
-function Filter({ listRef, setFiles }) {
-  const { data } = useFileList();
+function Filter({ files, listRef, setFiles }) {
   const [filter, setFilter] = useState("");
 
   useEffect(() => {
@@ -11,7 +9,7 @@ function Filter({ listRef, setFiles }) {
       const timer = setTimeout(
         () =>
           setFiles(
-            data.filter((state) =>
+            files.filter((state) =>
               state.shortName.toLowerCase().includes(filter.toLowerCase())
             )
           ),
@@ -21,10 +19,10 @@ function Filter({ listRef, setFiles }) {
       return () => clearTimeout(timer);
     }
 
-    if (data) return setFiles(data);
+    if (files) return setFiles(files);
 
     return setFiles([]);
-  }, [data, filter, setFiles]);
+  }, [files, filter, setFiles]);
 
   function filterOnChange(e) {
     listRef?.current?.scrollToItem(0);
@@ -53,6 +51,7 @@ function Filter({ listRef, setFiles }) {
 export default Filter;
 
 Filter.propTypes = {
+  files: PropTypes.arrayOf(PropTypes.shape()).isRequired,
   listRef: PropTypes.oneOfType([
     PropTypes.func,
     PropTypes.shape({ current: PropTypes.instanceOf(Element) }),
