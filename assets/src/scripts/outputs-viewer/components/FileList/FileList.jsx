@@ -84,13 +84,17 @@ function FileList() {
     e.preventDefault();
 
     const itemName = `/${item.name}`;
-    // Only push a state change if clicking on a new file
-    if (itemName !== location.pathname) {
-      history.push(itemName);
-      return useStore.setState({ file: { ...item } });
+
+    // Don't push a state change if clicking on a new file
+    if (
+      itemName === location.pathname ||
+      itemName === location?.location?.pathname
+    ) {
+      return null;
     }
 
-    return null;
+    history.push(itemName);
+    return useStore.setState({ file: { ...item } });
   };
 
   return (
