@@ -3,7 +3,7 @@ import { useQuery } from "react-query";
 import useStore from "../stores/use-store";
 import { toastError } from "../utils/toast";
 
-function longestStartingSubstr(array) {
+export function longestStartingSubstr(array) {
   const A = array.concat().sort();
   const a1 = A[0];
   const a2 = A[A.length - 1];
@@ -13,7 +13,7 @@ function longestStartingSubstr(array) {
   return a1.substring(0, i);
 }
 
-function sortedFiles(files) {
+export function sortedFiles(files) {
   const fileNameArr = [...files].map((file) => file.name);
   const prefix = longestStartingSubstr(fileNameArr);
 
