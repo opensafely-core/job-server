@@ -2,9 +2,10 @@ import pytest
 from django.core.exceptions import BadRequest
 from django.http import Http404
 
-from staff.views.users import UserDetail, UserList
 from jobserver.authorization import OutputPublisher, TechnicalReviewer
 from jobserver.models import Backend
+from jobserver.utils import set_from_qs
+from staff.views.users import UserDetail, UserList, UserSetOrgs
 
 from ....factories import (
     BackendMembershipFactory,
@@ -271,3 +272,34 @@ def test_userlist_success(rf, core_developer):
     # the core_developer fixture creates a User object as well as the 5 we
     # created in the batch call above
     assert len(response.context_data["object_list"]) == 6
+
+
+@pytest.mark.django_db
+def test_usersetorgs_success(rf, core_developer):
+    existing_org = OrgFactory()
+    new_org1 = OrgFactory()
+    new_org2 = OrgFactory()
+
+    user = UserFactory()
+
+    OrgMembershipFactory(org=existing_org, user=user)
+
+    request = rf.post("/", {"orgs": [new_org1.pk, new_org2.pk]})
+    request.user = core_developer
+
+    response = UserSetOrgs.as_view()(request, username=user.username)
+
+    assert response.status_code == 302
+    assert response.url == user.get_staff_url()
+
+    user.refresh_from_db()
+    assert set_from_qs(user.orgs.all()) == {new_org1.pk, new_org2.pk}
+
+
+@pytest.mark.django_db
+def test_usersetorgs_unknown_user(rf, core_developer):
+    request = rf.get("/")
+    request.user = core_developer
+
+    with pytest.raises(Http404):
+        UserSetOrgs.as_view()(request, username="")

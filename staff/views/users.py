@@ -3,17 +3,17 @@ import inspect
 from django.db import transaction
 from django.db.models import Q
 from django.db.models.functions import Lower
-from django.shortcuts import redirect
+from django.shortcuts import get_object_or_404, redirect
 from django.utils.decorators import method_decorator
-from django.views.generic import ListView, UpdateView
+from django.views.generic import FormView, ListView, UpdateView
 
 from jobserver.authorization import roles
 from jobserver.authorization.decorators import require_permission
 from jobserver.authorization.utils import roles_for
-from jobserver.models import Backend, User
+from jobserver.models import Backend, Org, User
 from jobserver.utils import raise_if_not_int
 
-from ..forms import UserForm
+from ..forms import UserForm, UserOrgsForm
 
 
 @method_decorator(require_permission("user_manage"), name="dispatch")
@@ -100,3 +100,34 @@ class UserList(ListView):
             qs = qs.filter_by_role(role)
 
         return qs
+
+
+@method_decorator(require_permission("user_manage"), name="dispatch")
+class UserSetOrgs(FormView):
+    form_class = UserOrgsForm
+    template_name = "staff/user_set_orgs.html"
+
+    def dispatch(self, request, *args, **kwargs):
+        self.user = get_object_or_404(User, username=self.kwargs["username"])
+
+        return super().dispatch(request, *args, **kwargs)
+
+    @transaction.atomic()
+    def form_valid(self, form):
+        # remove the existing memberships so we can create new ones based on
+        # the form values
+        self.user.org_memberships.all().delete()
+        for org in form.cleaned_data["orgs"]:
+            org.memberships.create(user=self.user, created_by=self.request.user)
+
+        return redirect(self.user.get_staff_url())
+
+    def get_form_kwargs(self):
+        return super().get_form_kwargs() | {
+            "available_orgs": Org.objects.order_by("name"),
+        }
+
+    def get_initial(self):
+        return super().get_initial() | {
+            "orgs": self.user.orgs.values_list("pk", flat=True),
+        }

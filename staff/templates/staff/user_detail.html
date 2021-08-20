@@ -72,7 +72,12 @@
       </div>
 
       <div class="form-group mb-5">
-        <h4>Orgnisations</h4>
+        <div class="d-flex justify-content-between align-items-center">
+          <h4>Organisations</h4>
+          <a class="btn btn-sm btn-primary" href="{% url 'staff:user-set-orgs' username=user.username %}">
+            +
+          </a>
+        </div>
 
         <ul class="list-group mb-3">
           {% for org in orgs %}

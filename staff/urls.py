@@ -3,7 +3,7 @@ from django.urls import include, path
 from .views.backends import BackendDetail, BackendEdit, BackendList, BackendRotateToken
 from .views.index import Index
 from .views.projects import ProjectDetail, ProjectEdit, ProjectList
-from .views.users import UserDetail, UserList
+from .views.users import UserDetail, UserList, UserSetOrgs
 from .views.workspaces import WorkspaceDetail, WorkspaceList
 
 
@@ -29,6 +29,7 @@ project_urls = [
 user_urls = [
     path("", UserList.as_view(), name="user-list"),
     path("<username>/", UserDetail.as_view(), name="user-detail"),
+    path("<username>/set-orgs/", UserSetOrgs.as_view(), name="user-set-orgs"),
 ]
 
 workspace_urls = [
