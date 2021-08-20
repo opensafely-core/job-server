@@ -12,7 +12,7 @@ function FileList() {
   const [files, setFiles] = useState([]);
   const [listHeight, setListHeight] = useState(0);
 
-  const { isError, isLoading } = useFileList();
+  const { data, isError, isLoading } = useFileList();
   const { listVisible } = useStore();
   const history = useHistory();
   const location = useLocation();
@@ -28,8 +28,10 @@ function FileList() {
       listEl.current?.clientWidth < listEl.current?.scrollWidth;
 
     const fileListHeight =
-      // Viewport size height
-      window.innerHeight -
+      // If the viewport height is taller than 600px
+      // Use the viewport height
+      // Otherwise use 600px
+      (window.innerHeight > 600 ? window.innerHeight : 600) -
       // if the list exists
       // minus the height from the top of the list
       // else minus zero
@@ -82,18 +84,22 @@ function FileList() {
     e.preventDefault();
 
     const itemName = `/${item.name}`;
-    // Only push a state change if clicking on a new file
-    if (itemName !== location.pathname) {
-      history.push(itemName);
-      return useStore.setState({ file: { ...item } });
+
+    // Don't push a state change if clicking on a new file
+    if (
+      itemName === location.pathname ||
+      itemName === location?.location?.pathname
+    ) {
+      return null;
     }
 
-    return null;
+    history.push(itemName);
+    return useStore.setState({ file: { ...item } });
   };
 
   return (
     <div className={`${classes.sidebar} ${listVisible ? "d-block" : "d-none"}`}>
-      <Filter listRef={listRef} setFiles={setFiles} />
+      <Filter files={data} listRef={listRef} setFiles={setFiles} />{" "}
       <div className="card pt-2">
         <FixedSizeList
           ref={listRef}

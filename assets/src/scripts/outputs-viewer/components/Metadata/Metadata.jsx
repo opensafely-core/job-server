@@ -1,11 +1,9 @@
+import PropTypes from "prop-types";
 import React from "react";
-import useStore from "../../stores/use-store";
 import prettyFileSize from "../../utils/pretty-file-size";
 import classes from "./Metadata.module.scss";
 
-function Metadata() {
-  const { file } = useStore();
-
+function Metadata({ file }) {
   const fileSize = prettyFileSize(file.size);
   const date = new Date(file.date);
   const fileDateAbs = date.toISOString();
@@ -43,3 +41,12 @@ function Metadata() {
 }
 
 export default Metadata;
+
+Metadata.propTypes = {
+  file: PropTypes.shape({
+    date: PropTypes.string.isRequired,
+    name: PropTypes.string.isRequired,
+    size: PropTypes.number.isRequired,
+    url: PropTypes.string.isRequired,
+  }).isRequired,
+};

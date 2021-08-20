@@ -44,7 +44,7 @@ function useFile(file) {
           .then((response) => response.data)
           .then((blob) => convertBlobToBase64(blob))
           .catch((error) => {
-            throw error?.response?.data?.detail || error;
+            throw error?.response?.data?.detail || error.toJSON().message;
           });
 
       return axios
@@ -55,7 +55,7 @@ function useFile(file) {
         })
         .then((response) => response.data)
         .catch((error) => {
-          throw error?.response?.data?.detail || error;
+          throw error?.response?.data?.detail || error.toJSON().message;
         });
     },
     {

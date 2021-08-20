@@ -1,27 +1,28 @@
+import PropTypes from "prop-types";
 import React, { useLayoutEffect, useState } from "react";
-import useFile from "../../hooks/use-file";
 import useWindowSize from "../../hooks/use-window-size";
 import useStore from "../../stores/use-store";
 
-function Iframe() {
+function Iframe({ data }) {
   const { file } = useStore();
-  const { data } = useFile(file);
   const windowSize = useWindowSize();
   const [frameHeight, setFrameHeight] = useState(0);
   const id = encodeURIComponent(file.url).replace(/\W/g, "");
 
   useLayoutEffect(() => {
-    if (window.innerWidth > 991) {
-      setFrameHeight(
-        Math.round(
-          window.innerHeight -
-            document.getElementById(id).getBoundingClientRect().top -
-            17 - // Magic number for scroll bar height
-            40 // 2rem
-        )
-      );
-    } else {
-      setFrameHeight(1000);
+    if (document.getElementById(id)) {
+      if (window.innerWidth > 991) {
+        setFrameHeight(
+          Math.round(
+            window.innerHeight -
+              document.getElementById(id).getBoundingClientRect().top -
+              17 - // Magic number for scroll bar height
+              40 // 2rem
+          )
+        );
+      } else {
+        setFrameHeight(1000);
+      }
     }
   }, [windowSize, id]);
 
@@ -39,3 +40,7 @@ function Iframe() {
 }
 
 export default Iframe;
+
+Iframe.propTypes = {
+  data: PropTypes.string.isRequired,
+};

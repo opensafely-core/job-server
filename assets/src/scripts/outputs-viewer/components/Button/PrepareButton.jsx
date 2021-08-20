@@ -48,7 +48,7 @@ function PrepareButton() {
     }
   );
 
-  if (!fileList) return null;
+  if (!fileList?.length) return null;
 
   const fileIds = fileList.map((f) => f.id);
 
