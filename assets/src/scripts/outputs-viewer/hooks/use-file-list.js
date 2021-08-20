@@ -45,7 +45,7 @@ function useFileList() {
         })
         .then((response) => response.data)
         .catch((error) => {
-          throw error?.response?.data?.detail || error;
+          throw error?.response?.data?.detail || error.toJSON().message;
         }),
     {
       select: (data) => sortedFiles(data.files),
