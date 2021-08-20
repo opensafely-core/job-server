@@ -28,8 +28,10 @@ function FileList() {
       listEl.current?.clientWidth < listEl.current?.scrollWidth;
 
     const fileListHeight =
-      // Viewport size height
-      window.innerHeight -
+      // If the viewport height is taller than 600px
+      // Use the viewport height
+      // Otherwise use 600px
+      (window.innerHeight > 600 ? window.innerHeight : 600) -
       // if the list exists
       // minus the height from the top of the list
       // else minus zero
