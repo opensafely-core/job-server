@@ -36,26 +36,26 @@ function useFile(file) {
       if (isImg(file))
         return axios
           .get(file.url, {
-            headers: new Headers({
+            headers: {
               Authorization: authToken,
-            }),
+            },
             responseType: "blob",
           })
           .then((response) => response.data)
           .then((blob) => convertBlobToBase64(blob))
           .catch((error) => {
-            throw error?.response?.data?.detail || error.toJSON().message;
+            throw error?.response?.data?.detail || error?.message;
           });
 
       return axios
         .get(file.url, {
-          headers: new Headers({
+          headers: {
             Authorization: authToken,
-          }),
+          },
         })
         .then((response) => response.data)
         .catch((error) => {
-          throw error?.response?.data?.detail || error.toJSON().message;
+          throw error?.response?.data?.detail || error?.message;
         });
     },
     {
