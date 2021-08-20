@@ -24,18 +24,18 @@ function Table({ data }) {
     complete: (results) => results,
   }).data;
 
-  if (jsonData.length > 5000) return <NoPreview />;
+  if (jsonData.length >= 5000) return <NoPreview />;
 
-  if (jsonData.length > 1000) {
+  if (jsonData.length >= 1000) {
     return (
       <>
-        <p>
-          <strong>This is a preview of the first 1000 lines</strong>
+        <p role="alert">
+          <strong>This is a preview of the first 1000 rows</strong>
         </p>
         <div className="table-responsive">
           <table className="table table-striped">
             <tbody>
-              {jsonData.slice(0, 999).map((row, i) => (
+              {jsonData.slice(0, 1000).map((row, i) => (
                 <TableRow key={i} row={row} />
               ))}
             </tbody>
