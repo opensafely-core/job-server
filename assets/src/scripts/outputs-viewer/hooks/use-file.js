@@ -36,9 +36,9 @@ function useFile(file) {
       if (isImg(file))
         return axios
           .get(file.url, {
-            headers: new Headers({
+            headers: {
               Authorization: authToken,
-            }),
+            },
             responseType: "blob",
           })
           .then((response) => response.data)
@@ -49,9 +49,9 @@ function useFile(file) {
 
       return axios
         .get(file.url, {
-          headers: new Headers({
+          headers: {
             Authorization: authToken,
-          }),
+          },
         })
         .then((response) => response.data)
         .catch((error) => {
