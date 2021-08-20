@@ -13,7 +13,6 @@ from sentry_sdk import capture_exception
 
 from ..authorization import (
     CoreDeveloper,
-    ProjectCoordinator,
     ProjectDeveloper,
     has_permission,
     has_role,
@@ -105,7 +104,7 @@ class ProjectCreate(CreateView):
 
         project.memberships.create(
             user=self.request.user,
-            roles=[ProjectCoordinator, ProjectDeveloper],
+            roles=[ProjectDeveloper],
         )
 
         return redirect(project)
