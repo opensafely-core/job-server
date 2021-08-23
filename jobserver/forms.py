@@ -1,5 +1,3 @@
-from crispy_forms.helper import FormHelper
-from crispy_forms.layout import Submit
 from django import forms
 from first import first
 
@@ -163,18 +161,10 @@ class WorkspaceCreateForm(forms.ModelForm):
             "repo",
             "branch",
         ]
-        help_texts = {
-            "name": "Enter a descriptive name which makes this workspace easy to identify.  It will also be the name of the directory in which you will find results after jobs from this workspace are run.",
-        }
         model = Workspace
-        widgets = {
-            "name": forms.TextInput(),
-        }
 
     def __init__(self, repos_with_branches, *args, **kwargs):
         super().__init__(*args, **kwargs)
-        self.helper = FormHelper()
-        self.helper.add_input(Submit("submit", "Submit"))
 
         self.repos_with_branches = repos_with_branches
 
