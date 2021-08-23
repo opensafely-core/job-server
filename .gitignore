@@ -15,3 +15,4 @@ releases
 node_modules/
 /assets/dist
 /assets/stats.html
+/coverage

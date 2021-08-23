@@ -19,9 +19,7 @@ function Filter({ files, listRef, setFiles }) {
       return () => clearTimeout(timer);
     }
 
-    if (files) return setFiles(files);
-
-    return setFiles([]);
+    return setFiles(files);
   }, [files, filter, setFiles]);
 
   function filterOnChange(e) {
