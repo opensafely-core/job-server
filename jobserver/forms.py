@@ -1,6 +1,7 @@
 from crispy_forms.helper import FormHelper
 from crispy_forms.layout import Submit
 from django import forms
+from first import first
 
 from .authorization.forms import RolesForm
 from .backends import backends_to_choices
@@ -188,9 +189,7 @@ class WorkspaceCreateForm(forms.ModelForm):
         repo_url = self.cleaned_data["repo"]
         branch = self.cleaned_data["branch"]
 
-        repo = next(
-            filter(lambda r: r["url"] == repo_url, self.repos_with_branches), None
-        )
+        repo = first(self.repos_with_branches, key=lambda r: r["url"] == repo_url)
         if repo is None:
             msg = "Unknown repo, please reload the page and try again"
             raise forms.ValidationError(msg)
