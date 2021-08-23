@@ -131,6 +131,8 @@ Run the tests with:
 just test
 ```
 
+More details on testing can be found in [TESTING.md](TESTING.md).
+
 ## Adding new backends
 
 ### Steps to add a backend
