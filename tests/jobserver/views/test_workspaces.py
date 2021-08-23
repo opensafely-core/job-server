@@ -2,7 +2,6 @@ import zipfile
 
 import pytest
 import responses
-from django.conf import settings
 from django.contrib.auth.models import AnonymousUser
 from django.http import Http404
 from django.utils import timezone
@@ -42,23 +41,21 @@ MEANINGLESS_URL = "/"
 
 
 @pytest.mark.django_db
-@responses.activate
-def test_workspacearchivetoggle_success(rf, user):
-    org = user.orgs.first()
-    project = ProjectFactory(org=org)
-    workspace = WorkspaceFactory(project=project, is_archived=False)
+def test_workspacearchivetoggle_success(rf):
+    user = UserFactory()
+    workspace = WorkspaceFactory(is_archived=False)
+
+    ProjectMembershipFactory(
+        project=workspace.project, user=user, roles=[ProjectDeveloper]
+    )
 
     request = rf.post(MEANINGLESS_URL, {"is_archived": "True"})
     request.user = user
 
-    gh_org = user.orgs.first().github_orgs[0]
-    membership_url = f"https://api.github.com/orgs/{gh_org}/members/{user.username}"
-    responses.add(responses.GET, membership_url, status=204)
-
     response = WorkspaceArchiveToggle.as_view()(
         request,
-        org_slug=org.slug,
-        project_slug=project.slug,
+        org_slug=workspace.project.org.slug,
+        project_slug=workspace.project.slug,
         workspace_slug=workspace.name,
     )
 
@@ -70,21 +67,35 @@ def test_workspacearchivetoggle_success(rf, user):
 
 
 @pytest.mark.django_db
-@responses.activate
-def test_workspacearchivetoggle_unauthorized(rf, user):
+def test_workspacearchivetoggle_unknown_workspace(rf):
+    project = ProjectFactory()
+
+    request = rf.post(MEANINGLESS_URL)
+    request.user = UserFactory()
+
+    with pytest.raises(Http404):
+        WorkspaceArchiveToggle.as_view()(
+            request,
+            org_slug=project.org.slug,
+            project_slug=project.slug,
+            workspace_slug="",
+        )
+
+
+@pytest.mark.django_db
+def test_workspacearchivetoggle_without_permission(rf):
     workspace = WorkspaceFactory()
 
     request = rf.post(MEANINGLESS_URL)
-    request.user = user
+    request.user = UserFactory()
 
-    gh_org = user.orgs.first().github_orgs[0]
-    membership_url = f"https://api.github.com/orgs/{gh_org}/members/{user.username}"
-    responses.add(responses.GET, membership_url, status=404)
-
-    response = WorkspaceArchiveToggle.as_view()(request, name=workspace.name)
-
-    assert response.status_code == 302
-    assert response.url == f"{settings.LOGIN_URL}?next=/"
+    with pytest.raises(Http404):
+        WorkspaceArchiveToggle.as_view()(
+            request,
+            org_slug=workspace.project.org.slug,
+            project_slug=workspace.project.slug,
+            workspace_slug=workspace.name,
+        )
 
 
 @pytest.mark.django_db
@@ -217,15 +228,9 @@ def test_workspacebackendfiles_without_permission(rf):
 
 
 @pytest.mark.django_db
-@responses.activate
 def test_workspacecreate_get_success(rf, mocker, user):
-    org = user.orgs.first()
-    project = ProjectFactory(org=org)
+    project = ProjectFactory()
     ProjectMembershipFactory(project=project, user=user, roles=[ProjectDeveloper])
-
-    gh_org = user.orgs.first().github_orgs[0]
-    membership_url = f"https://api.github.com/orgs/{gh_org}/members/{user.username}"
-    responses.add(responses.GET, membership_url, status=204)
 
     mocker.patch(
         "jobserver.views.workspaces.get_repos_with_branches",
@@ -237,45 +242,16 @@ def test_workspacecreate_get_success(rf, mocker, user):
     request.user = user
 
     response = WorkspaceCreate.as_view()(
-        request, org_slug=org.slug, project_slug=project.slug
+        request, org_slug=project.org.slug, project_slug=project.slug
     )
 
     assert response.status_code == 200
 
 
 @pytest.mark.django_db
-@responses.activate
-def test_workspacecreate_get_without_permission(rf, mocker, user):
-    org = user.orgs.first()
-    project = ProjectFactory(org=org)
-
-    gh_org = user.orgs.first().github_orgs[0]
-    membership_url = f"https://api.github.com/orgs/{gh_org}/members/{user.username}"
-    responses.add(responses.GET, membership_url, status=204)
-
-    mocker.patch(
-        "jobserver.views.workspaces.get_repos_with_branches",
-        autospec=True,
-        return_value=[],
-    )
-
-    request = rf.get(MEANINGLESS_URL)
-    request.user = user
-
-    with pytest.raises(Http404):
-        WorkspaceCreate.as_view()(request, org_slug=org.slug, project_slug=project.slug)
-
-
-@pytest.mark.django_db
-@responses.activate
 def test_workspacecreate_post_success(rf, mocker, user):
-    org = user.orgs.first()
-    project = ProjectFactory(org=org)
+    project = ProjectFactory()
     ProjectMembershipFactory(project=project, user=user, roles=[ProjectDeveloper])
-
-    gh_org = user.orgs.first().github_orgs[0]
-    membership_url = f"https://api.github.com/orgs/{gh_org}/members/{user.username}"
-    responses.add(responses.GET, membership_url, status=204)
 
     mocker.patch(
         "jobserver.views.workspaces.get_repos_with_branches",
@@ -292,7 +268,7 @@ def test_workspacecreate_post_success(rf, mocker, user):
     request.user = user
 
     response = WorkspaceCreate.as_view()(
-        request, org_slug=org.slug, project_slug=project.slug
+        request, org_slug=project.org.slug, project_slug=project.slug
     )
 
     assert response.status_code == 302
@@ -303,31 +279,29 @@ def test_workspacecreate_post_success(rf, mocker, user):
 
 
 @pytest.mark.django_db
-@responses.activate
-def test_workspacecreate_unauthorized(rf, user):
+def test_workspacecreate_without_permission(rf, user):
+    project = ProjectFactory()
+
     request = rf.post(MEANINGLESS_URL)
     request.user = user
 
-    gh_org = user.orgs.first().github_orgs[0]
-    membership_url = f"https://api.github.com/orgs/{gh_org}/members/{user.username}"
-    responses.add(responses.GET, membership_url, status=404)
-
-    response = WorkspaceCreate.as_view()(request)
-
-    assert response.status_code == 302
-    assert response.url == f"{settings.LOGIN_URL}?next=/"
+    with pytest.raises(Http404):
+        WorkspaceCreate.as_view()(
+            request, org_slug=project.org.slug, project_slug=project.slug
+        )
 
 
 @pytest.mark.django_db
-def test_workspacedetail_authorized_modify_workspace(rf, mocker):
+def test_workspacedetail_authorized_archive_workspaces(rf):
     workspace = WorkspaceFactory()
+    user = UserFactory()
 
-    mocker.patch(
-        "jobserver.views.workspaces.can_run_jobs", autospec=True, return_value=True
+    ProjectMembershipFactory(
+        project=workspace.project, user=user, roles=[ProjectDeveloper]
     )
 
     request = rf.get("/")
-    request.user = UserFactory()
+    request.user = user
 
     response = WorkspaceDetail.as_view()(
         request,
@@ -337,7 +311,7 @@ def test_workspacedetail_authorized_modify_workspace(rf, mocker):
     )
 
     assert response.status_code == 200
-    assert response.context_data["user_can_run_jobs"]
+    assert response.context_data["user_can_archive_workspace"]
 
 
 @pytest.mark.django_db
@@ -380,6 +354,29 @@ def test_workspacedetail_authorized_view_releases(rf):
 
     assert response.status_code == 200
     assert response.context_data["user_can_view_releases"]
+
+
+@pytest.mark.django_db
+def test_workspacedetail_authorized_run_jobs(rf):
+    workspace = WorkspaceFactory()
+    user = UserFactory()
+
+    ProjectMembershipFactory(
+        project=workspace.project, user=user, roles=[ProjectDeveloper]
+    )
+
+    request = rf.get("/")
+    request.user = user
+
+    response = WorkspaceDetail.as_view()(
+        request,
+        org_slug=workspace.project.org.slug,
+        project_slug=workspace.project.slug,
+        workspace_slug=workspace.name,
+    )
+
+    assert response.status_code == 200
+    assert response.context_data["user_can_run_jobs"]
 
 
 @pytest.mark.django_db
@@ -705,10 +702,13 @@ def test_workspacelatestoutputsdownload_without_permission(rf):
 
 
 @pytest.mark.django_db
-def test_workspacelog_search_by_action(rf, mocker, user):
-    org = user.orgs.first()
-    project = ProjectFactory(org=org)
-    workspace = WorkspaceFactory(project=project)
+def test_workspacelog_search_by_action(rf):
+    workspace = WorkspaceFactory()
+    user = UserFactory()
+
+    ProjectMembershipFactory(
+        project=workspace.project, user=user, roles=[ProjectDeveloper]
+    )
 
     job_request1 = JobRequestFactory(created_by=user, workspace=workspace)
     JobFactory(job_request=job_request1, action="run")
@@ -716,17 +716,13 @@ def test_workspacelog_search_by_action(rf, mocker, user):
     job_request2 = JobRequestFactory(workspace=workspace)
     JobFactory(job_request=job_request2, action="leap")
 
-    mocker.patch(
-        "jobserver.views.workspaces.can_run_jobs", autospec=True, return_value=True
-    )
-
     request = rf.get("/?q=run")
     request.user = user
 
     response = WorkspaceLog.as_view()(
         request,
-        org_slug=org.slug,
-        project_slug=project.slug,
+        org_slug=workspace.project.org.slug,
+        project_slug=workspace.project.slug,
         workspace_slug=workspace.name,
     )
 
@@ -735,27 +731,26 @@ def test_workspacelog_search_by_action(rf, mocker, user):
 
 
 @pytest.mark.django_db
-def test_workspacelog_search_by_id(rf, mocker, user):
-    org = user.orgs.first()
-    project = ProjectFactory(org=org)
-    workspace = WorkspaceFactory(project=project)
+def test_workspacelog_search_by_id(rf):
+    workspace = WorkspaceFactory()
+    user = UserFactory()
+
+    ProjectMembershipFactory(
+        project=workspace.project, user=user, roles=[ProjectDeveloper]
+    )
 
     JobFactory(job_request=JobRequestFactory())
 
     job_request2 = JobRequestFactory(created_by=user, workspace=workspace)
     JobFactory(job_request=job_request2, id=99)
 
-    mocker.patch(
-        "jobserver.views.workspaces.can_run_jobs", autospec=True, return_value=True
-    )
-
     request = rf.get("/?q=99")
     request.user = user
 
     response = WorkspaceLog.as_view()(
         request,
-        org_slug=org.slug,
-        project_slug=project.slug,
+        org_slug=workspace.project.org.slug,
+        project_slug=workspace.project.slug,
         workspace_slug=workspace.name,
     )
 
@@ -764,24 +759,24 @@ def test_workspacelog_search_by_id(rf, mocker, user):
 
 
 @pytest.mark.django_db
-def test_workspacelog_success(rf, mocker, user):
-    org = user.orgs.first()
-    project = ProjectFactory(org=org)
-    workspace = WorkspaceFactory(project=project)
+def test_workspacelog_success(rf):
+    workspace = WorkspaceFactory()
+    user = UserFactory()
+
+    ProjectMembershipFactory(
+        project=workspace.project, user=user, roles=[ProjectDeveloper]
+    )
+
     job_request = JobRequestFactory(created_by=user, workspace=workspace)
     JobFactory(job_request=job_request)
-
-    mocker.patch(
-        "jobserver.views.workspaces.can_run_jobs", autospec=True, return_value=True
-    )
 
     request = rf.get(MEANINGLESS_URL)
     request.user = user
 
     response = WorkspaceLog.as_view()(
         request,
-        org_slug=org.slug,
-        project_slug=project.slug,
+        org_slug=workspace.project.org.slug,
+        project_slug=workspace.project.slug,
         workspace_slug=workspace.name,
     )
 
@@ -790,16 +785,18 @@ def test_workspacelog_success(rf, mocker, user):
 
 
 @pytest.mark.django_db
-def test_workspacelog_unknown_workspace(rf, user):
-    org = user.orgs.first()
-    project = ProjectFactory(org=org)
+def test_workspacelog_unknown_workspace(rf):
+    project = ProjectFactory()
+    user = UserFactory()
 
-    # Build a RequestFactory instance
+    ProjectMembershipFactory(project=project, user=user, roles=[ProjectDeveloper])
+
     request = rf.get(MEANINGLESS_URL)
-    request.user = UserFactory()
+    request.user = user
+
     response = WorkspaceLog.as_view()(
         request,
-        org_slug=org.slug,
+        org_slug=project.org.slug,
         project_slug=project.slug,
         workspace_slug="test",
     )
@@ -809,77 +806,60 @@ def test_workspacelog_unknown_workspace(rf, user):
 
 
 @pytest.mark.django_db
-def test_workspacelog_with_authenticated_user(rf, mocker, user):
-    """
-    Check WorkspaceLog renders the Add Job button for authenticated Users
-    """
-    org = user.orgs.first()
-    project = ProjectFactory(org=org)
-    workspace = WorkspaceFactory(project=project)
+def test_workspacelog_with_authenticated_user(rf):
+    workspace = WorkspaceFactory()
     job_request = JobRequestFactory(workspace=workspace)
     JobFactory(job_request=job_request)
-
-    mocker.patch(
-        "jobserver.views.workspaces.can_run_jobs", autospec=True, return_value=True
-    )
 
     request = rf.get(MEANINGLESS_URL)
     request.user = UserFactory()
 
     response = WorkspaceLog.as_view()(
         request,
-        org_slug=org.slug,
-        project_slug=project.slug,
+        org_slug=workspace.project.org.slug,
+        project_slug=workspace.project.slug,
         workspace_slug=workspace.name,
     )
 
     assert response.status_code == 200
-    assert "Add Job" in response.rendered_content
 
 
 @pytest.mark.django_db
-def test_workspacelog_with_unauthenticated_user(rf, user):
-    """
-    Check WorkspaceLog renders the Add Job button for authenticated Users
-    """
-    org = user.orgs.first()
-    project = ProjectFactory(org=org)
-    workspace = WorkspaceFactory(project=project)
+def test_workspacelog_with_unauthenticated_user(rf):
+    workspace = WorkspaceFactory()
     job_request = JobRequestFactory(workspace=workspace)
     JobFactory(job_request=job_request)
 
-    # Build a RequestFactory instance
     request = rf.get(MEANINGLESS_URL)
     request.user = AnonymousUser()
+
     response = WorkspaceLog.as_view()(
         request,
-        org_slug=org.slug,
-        project_slug=project.slug,
+        org_slug=workspace.project.org.slug,
+        project_slug=workspace.project.slug,
         workspace_slug=workspace.name,
     )
 
     assert response.status_code == 200
-    assert "Add Job" not in response.rendered_content
 
 
 @pytest.mark.django_db
 @responses.activate
-def test_workspacenotificationstoggle_success(rf, user):
-    org = user.orgs.first()
-    project = ProjectFactory(org=org)
-    workspace = WorkspaceFactory(project=project, should_notify=True)
+def test_workspacenotificationstoggle_success(rf):
+    workspace = WorkspaceFactory(should_notify=True)
+    user = UserFactory()
+
+    ProjectMembershipFactory(
+        project=workspace.project, user=user, roles=[ProjectDeveloper]
+    )
 
     request = rf.post(MEANINGLESS_URL, {"should_notify": ""})
     request.user = user
 
-    gh_org = user.orgs.first().github_orgs[0]
-    membership_url = f"https://api.github.com/orgs/{gh_org}/members/{user.username}"
-    responses.add(responses.GET, membership_url, status=204)
-
     response = WorkspaceNotificationsToggle.as_view()(
         request,
-        org_slug=org.slug,
-        project_slug=project.slug,
+        org_slug=workspace.project.org.slug,
+        project_slug=workspace.project.slug,
         workspace_slug=workspace.name,
     )
 
@@ -893,38 +873,38 @@ def test_workspacenotificationstoggle_success(rf, user):
 
 @pytest.mark.django_db
 @responses.activate
-def test_workspacenotificationstoggle_unauthorized(rf, user):
+def test_workspacenotificationstoggle_without_permission(rf, user):
     workspace = WorkspaceFactory()
+    user = UserFactory()
 
     request = rf.post(MEANINGLESS_URL, {"should_notify": ""})
     request.user = user
 
-    gh_org = user.orgs.first().github_orgs[0]
-    membership_url = f"https://api.github.com/orgs/{gh_org}/members/{user.username}"
-    responses.add(responses.GET, membership_url, status=404)
-
-    response = WorkspaceNotificationsToggle.as_view()(request, name=workspace.name)
-
-    assert response.status_code == 302
-    assert response.url == f"{settings.LOGIN_URL}?next=/"
+    with pytest.raises(Http404):
+        WorkspaceNotificationsToggle.as_view()(
+            request,
+            org_slug=workspace.project.org.slug,
+            project_slug=workspace.project.slug,
+            workspace_slug=workspace.name,
+        )
 
 
 @pytest.mark.django_db
-@responses.activate
-def test_workspacenotificationstoggle_unknown_workspace(rf, user):
-    org = user.orgs.first()
-    project = ProjectFactory(org=org)
+def test_workspacenotificationstoggle_unknown_workspace(rf):
+    project = ProjectFactory()
+    user = UserFactory()
+
+    ProjectMembershipFactory(project=project, user=user, roles=[ProjectDeveloper])
 
     request = rf.post(MEANINGLESS_URL)
     request.user = user
 
-    gh_org = user.orgs.first().github_orgs[0]
-    membership_url = f"https://api.github.com/orgs/{gh_org}/members/{user.username}"
-    responses.add(responses.GET, membership_url, status=204)
-
     with pytest.raises(Http404):
         WorkspaceNotificationsToggle.as_view()(
-            request, org_slug=org.slug, project_slug=project.slug, workspace_slug="test"
+            request,
+            org_slug=project.org.slug,
+            project_slug=project.slug,
+            workspace_slug="test",
         )
 
 

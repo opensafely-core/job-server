@@ -1,9 +1,7 @@
-from django.contrib.auth.decorators import user_passes_test
 from django.db.models import Q
 from django.http import FileResponse, Http404
 from django.shortcuts import get_object_or_404, redirect
 from django.template.response import TemplateResponse
-from django.utils.decorators import method_decorator
 from django.views.generic import CreateView, ListView, View
 from furl import furl
 
@@ -21,10 +19,8 @@ from ..releases import (
     build_spa_base_url,
     workspace_files,
 )
-from ..roles import can_run_jobs
 
 
-@method_decorator(user_passes_test(can_run_jobs), name="dispatch")
 class WorkspaceArchiveToggle(View):
     def post(self, request, *args, **kwargs):
         workspace = get_object_or_404(
@@ -33,6 +29,11 @@ class WorkspaceArchiveToggle(View):
             project__slug=self.kwargs["project_slug"],
             name=self.kwargs["workspace_slug"],
         )
+
+        if not has_permission(
+            request.user, "archive_workspace", project=workspace.project
+        ):
+            raise Http404
 
         form = WorkspaceArchiveToggleForm(request.POST)
         form.is_valid()
@@ -98,7 +99,6 @@ class WorkspaceBackendFiles(View):
         )
 
 
-@method_decorator(user_passes_test(can_run_jobs), name="dispatch")
 class WorkspaceCreate(CreateView):
     form_class = WorkspaceCreateForm
     model = Workspace
@@ -109,11 +109,6 @@ class WorkspaceCreate(CreateView):
             Project, org__slug=self.kwargs["org_slug"], slug=self.kwargs["project_slug"]
         )
 
-        gh_org = self.request.user.orgs.first().github_orgs[0]
-        self.repos_with_branches = sorted(
-            get_repos_with_branches(gh_org), key=lambda r: r["name"].lower()
-        )
-
         can_manage_workspaces = has_permission(
             self.request.user,
             "manage_project_workspaces",
@@ -121,6 +116,11 @@ class WorkspaceCreate(CreateView):
         )
         if not can_manage_workspaces:
             raise Http404
+
+        gh_org = self.request.user.orgs.first().github_orgs[0]
+        self.repos_with_branches = sorted(
+            get_repos_with_branches(gh_org), key=lambda r: r["name"].lower()
+        )
 
         return super().dispatch(request, *args, **kwargs)
 
@@ -154,7 +154,6 @@ class WorkspaceDetail(View):
             name=self.kwargs["workspace_slug"],
         )
 
-        user_can_run_jobs = can_run_jobs(request.user)
         can_use_releases = has_role(request.user, CoreDeveloper)
 
         is_privileged_user = has_permission(
@@ -182,9 +181,17 @@ class WorkspaceDetail(View):
             is_privileged_user and can_view_releases
         )
 
+        can_archive_workspace = has_permission(
+            request.user, "archive_workspace", project=workspace.project
+        )
+        can_run_jobs = has_permission(
+            request.user, "run_job", project=workspace.project
+        )
+
         context = {
             "can_use_releases": can_use_releases,
-            "user_can_run_jobs": user_can_run_jobs,
+            "user_can_archive_workspace": can_archive_workspace,
+            "user_can_run_jobs": can_run_jobs,
             "user_can_view_files": can_view_files,
             "user_can_view_outputs": can_view_outputs,
             "user_can_view_releases": can_view_releases,
@@ -326,10 +333,9 @@ class WorkspaceLog(ListView):
         return super().dispatch(request, *args, **kwargs)
 
     def get_context_data(self, **kwargs):
-        context = super().get_context_data(**kwargs)
-        context["user_can_run_jobs"] = can_run_jobs(self.request.user)
-        context["workspace"] = self.workspace
-        return context
+        return super().get_context_data(**kwargs) | {
+            "workspace": self.workspace,
+        }
 
     def get_queryset(self):
         qs = (
@@ -354,7 +360,6 @@ class WorkspaceLog(ListView):
         return qs
 
 
-@method_decorator(user_passes_test(can_run_jobs), name="dispatch")
 class WorkspaceNotificationsToggle(View):
     def post(self, request, *args, **kwargs):
         workspace = get_object_or_404(
@@ -363,6 +368,11 @@ class WorkspaceNotificationsToggle(View):
             project__slug=self.kwargs["project_slug"],
             name=self.kwargs["workspace_slug"],
         )
+
+        if not has_permission(
+            request.user, "toggle_workspace_notifications", project=workspace.project
+        ):
+            raise Http404
 
         form = WorkspaceNotificationsToggleForm(data=request.POST)
         form.is_valid()
