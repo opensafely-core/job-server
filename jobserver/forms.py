@@ -153,8 +153,6 @@ class WorkspaceArchiveToggleForm(forms.Form):
 
 
 class WorkspaceCreateForm(forms.ModelForm):
-    branch = forms.CharField(widget=forms.Select)
-
     class Meta:
         fields = [
             "name",
@@ -168,11 +166,27 @@ class WorkspaceCreateForm(forms.ModelForm):
 
         self.repos_with_branches = repos_with_branches
 
-        choices = [(r["url"], r["name"]) for r in self.repos_with_branches]
+        # construct the repo Form field
+        repo_choices = [(r["url"], r["name"]) for r in self.repos_with_branches]
         self.fields["repo"] = forms.ChoiceField(
             label="Repo",
-            choices=choices,
-            help_text="If your repo doesn't show up here, reach out to the OpenSAFELY team on Slack.",
+            choices=repo_choices,
+        )
+
+        # has there been a repo selected already?
+        if "data" in kwargs and "repo" in kwargs["data"]:
+            repo = first(
+                self.repos_with_branches,
+                key=lambda r: r["url"] == kwargs["data"]["repo"],
+            )
+        else:
+            repo = first(self.repos_with_branches)
+
+        # construct the branch Form field
+        branch_choices = [(b, b) for b in repo["branches"]]
+        self.fields["branch"] = forms.ChoiceField(
+            label="Branch",
+            choices=branch_choices,
         )
 
     def clean_branch(self):
