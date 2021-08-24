@@ -9,7 +9,7 @@ from ..forms import OrgCreateForm
 from ..models import Org, Workspace
 
 
-@method_decorator(require_permission("create_org"), name="dispatch")
+@method_decorator(require_permission("org_create"), name="dispatch")
 class OrgCreate(CreateView):
     form_class = OrgCreateForm
     model = Org

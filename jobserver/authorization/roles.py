@@ -1,5 +1,4 @@
 from .permissions import (
-    create_org,
     create_snapshot,
     delete_release_file,
     invite_project_members,
@@ -8,6 +7,7 @@ from .permissions import (
     manage_project_members,
     manage_project_workspaces,
     manage_users,
+    org_create,
     publish_snapshot,
     review_project,
     run_job,
@@ -31,13 +31,13 @@ class CoreDeveloper:
         "jobserver.models.core.User",
     ]
     permissions = [
-        create_org,
         invite_project_members,
         job_cancel,
         manage_backends,
         manage_project_members,
         manage_project_workspaces,
         manage_users,
+        org_create,
         run_job,
     ]
 

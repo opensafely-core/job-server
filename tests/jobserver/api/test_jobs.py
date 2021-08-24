@@ -592,13 +592,13 @@ def test_userapidetail_success(api_rf):
     # permissions
     permissions = response.data["permissions"]
     assert permissions["global"] == [
-        "create_org",
         "invite_project_members",
         "job_cancel",
         "manage_backends",
         "manage_project_members",
         "manage_project_workspaces",
         "manage_users",
+        "org_create",
         "run_job",
     ]
     assert permissions["orgs"] == [
