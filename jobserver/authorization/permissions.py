@@ -1,4 +1,3 @@
-check_output = "check_output"
 create_org = "create_org"
 create_snapshot = "create_snapshot"
 delete_release_file = "delete_release_file"
