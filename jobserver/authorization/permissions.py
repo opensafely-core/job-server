@@ -1,4 +1,3 @@
-manage_backends = "manage_backends"
 manage_project_members = "manage_project_members"
 manage_project_workspaces = "manage_project_workspaces"
 manage_users = "manage_users"
@@ -10,6 +9,7 @@ upload_release_file = "upload_release_file"
 view_release_file = "view_release_file"
 
 
+backend_manage = "backend_manage"
 job_cancel = "job_cancel"
 org_create = "org_create"
 org_invite_members = "org_invite_members"
