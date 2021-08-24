@@ -1,4 +1,3 @@
-cancel_job = "cancel_job"
 check_output = "check_output"
 create_org = "create_org"
 create_snapshot = "create_snapshot"
@@ -17,4 +16,5 @@ upload_release_file = "upload_release_file"
 view_release_file = "view_release_file"
 
 
+job_cancel = "job_cancel"
 workspace_archive = "workspace_archive"

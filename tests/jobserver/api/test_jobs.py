@@ -592,9 +592,9 @@ def test_userapidetail_success(api_rf):
     # permissions
     permissions = response.data["permissions"]
     assert permissions["global"] == [
-        "cancel_job",
         "create_org",
         "invite_project_members",
+        "job_cancel",
         "manage_backends",
         "manage_project_members",
         "manage_project_workspaces",
@@ -612,9 +612,9 @@ def test_userapidetail_success(api_rf):
         {
             "slug": project.slug,
             "permissions": [
-                "cancel_job",
                 "check_output",
                 "create_snapshot",
+                "job_cancel",
                 "manage_project_workspaces",
                 "run_job",
                 "toggle_workspace_notifications",

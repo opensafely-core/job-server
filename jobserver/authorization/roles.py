@@ -1,10 +1,10 @@
 from .permissions import (
-    cancel_job,
     check_output,
     create_org,
     create_snapshot,
     delete_release_file,
     invite_project_members,
+    job_cancel,
     manage_backends,
     manage_project_members,
     manage_project_workspaces,
@@ -32,9 +32,9 @@ class CoreDeveloper:
         "jobserver.models.core.User",
     ]
     permissions = [
-        cancel_job,
         create_org,
         invite_project_members,
+        job_cancel,
         manage_backends,
         manage_project_members,
         manage_project_workspaces,
@@ -191,9 +191,9 @@ class ProjectDeveloper:
         "jobserver.models.core.ProjectMembership",
     ]
     permissions = [
-        cancel_job,
         check_output,
         create_snapshot,
+        job_cancel,
         manage_project_workspaces,
         run_job,
         toggle_workspace_notifications,
