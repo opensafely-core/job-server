@@ -43,7 +43,7 @@
     "react-testing-library": "^8.0.1",
     "rollup-plugin-copy": "^3.4.0",
     "rollup-plugin-visualizer": "^5.5.2",
-    "sass": "^1.38.0",
+    "sass": "^1.38.1",
     "vite": "^2.5.0",
     "window-resizeto": "^0.0.2"
   },
