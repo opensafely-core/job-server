@@ -109,12 +109,12 @@ class WorkspaceCreate(CreateView):
             Project, org__slug=self.kwargs["org_slug"], slug=self.kwargs["project_slug"]
         )
 
-        can_manage_workspaces = has_permission(
+        can_create_workspaces = has_permission(
             self.request.user,
-            "manage_project_workspaces",
+            "workspace_create",
             project=self.project,
         )
-        if not can_manage_workspaces:
+        if not can_create_workspaces:
             raise Http404
 
         gh_org = self.request.user.orgs.first().github_orgs[0]

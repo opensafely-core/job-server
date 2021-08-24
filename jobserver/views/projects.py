@@ -187,9 +187,9 @@ class ProjectDetail(DetailView):
         )
 
     def get_context_data(self, **kwargs):
-        can_manage_workspaces = has_permission(
+        can_create_workspaces = has_permission(
             self.request.user,
-            "manage_project_workspaces",
+            "workspace_create",
             project=self.object,
         )
         can_manage_members = has_permission(
@@ -205,8 +205,8 @@ class ProjectDetail(DetailView):
         repos = sorted(set(workspaces.values_list("repo", flat=True)))
 
         return super().get_context_data(**kwargs) | {
+            "can_create_workspaces": can_create_workspaces,
             "can_change_release_process": can_change_release_process,
-            "can_manage_workspaces": can_manage_workspaces,
             "can_manage_members": can_manage_members,
             "can_use_releases": can_use_releases,
             "outputs": self.get_outputs(workspaces),

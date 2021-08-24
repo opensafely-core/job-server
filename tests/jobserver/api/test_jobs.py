@@ -594,12 +594,12 @@ def test_userapidetail_success(api_rf):
     assert permissions["global"] == [
         "backend_manage",
         "job_cancel",
-        "manage_project_workspaces",
         "manage_users",
         "org_create",
         "project_invite_members",
         "project_membership_edit",
         "run_job",
+        "workspace_create",
     ]
     assert permissions["orgs"] == [
         # we have no permissions for OrgCoordinator yet
@@ -613,11 +613,11 @@ def test_userapidetail_success(api_rf):
             "slug": project.slug,
             "permissions": [
                 "job_cancel",
-                "manage_project_workspaces",
                 "run_job",
                 "snapshot_create",
                 "toggle_workspace_notifications",
                 "workspace_archive",
+                "workspace_create",
             ],
         }
     ]
