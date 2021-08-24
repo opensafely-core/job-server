@@ -1,4 +1,5 @@
-# Set this to your GitHub username
+# Set this to a comma-delimited list of User's username.
+# Note: the Users must exist first
 ADMIN_USERS=dummy
 
 # Set this to a comma-delimited list of GitHub Organisations you want to have
