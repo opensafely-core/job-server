@@ -1,6 +1,6 @@
 from .permissions import (
+    backend_manage,
     job_cancel,
-    manage_backends,
     manage_project_members,
     manage_project_workspaces,
     manage_users,
@@ -31,8 +31,8 @@ class CoreDeveloper:
         "jobserver.models.core.User",
     ]
     permissions = [
+        backend_manage,
         job_cancel,
-        manage_backends,
         manage_project_members,
         manage_project_workspaces,
         manage_users,

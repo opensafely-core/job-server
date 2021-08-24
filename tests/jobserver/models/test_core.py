@@ -775,8 +775,8 @@ def test_user_get_all_permissions():
     output = user.get_all_permissions()
     expected = {
         "global": [
+            "backend_manage",
             "job_cancel",
-            "manage_backends",
             "manage_project_members",
             "manage_project_workspaces",
             "manage_users",

@@ -53,7 +53,7 @@ def nav(request):
         },
     ]
 
-    if has_permission(request.user, "manage_backends"):
+    if has_permission(request.user, "backend_manage"):
         options.append(
             {
                 "name": "Backends",
