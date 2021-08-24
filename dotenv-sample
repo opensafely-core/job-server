@@ -16,7 +16,7 @@ DEBUG=1
 # A long random string
 SECRET_KEY=12345
 
-# Get this from a GitHub Org admin, it's the Service User's PAT
+# A GitHub API token, we use a PAT for this
 GITHUB_TOKEN=dummy
 
 # Get these from a GitHub Org admin, you want the Dev application credentials
