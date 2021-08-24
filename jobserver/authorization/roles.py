@@ -1,5 +1,4 @@
 from .permissions import (
-    delete_release_file,
     invite_project_members,
     job_cancel,
     manage_backends,
@@ -8,6 +7,7 @@ from .permissions import (
     manage_users,
     org_create,
     publish_snapshot,
+    release_file_delete,
     review_project,
     run_job,
     snapshot_create,
@@ -112,7 +112,7 @@ class OutputChecker:
         "jobserver.models.core.User",
     ]
     permissions = [
-        delete_release_file,
+        release_file_delete,
         upload_release_file,
     ]
 

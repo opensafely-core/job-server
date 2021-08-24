@@ -30,7 +30,7 @@ class ProjectReleaseList(View):
             raise Http404
 
         can_delete_files = has_permission(
-            request.user, "delete_release_file", project=project
+            request.user, "release_file_delete", project=project
         )
         can_view_files = has_permission(
             request.user, "view_release_file", project=project
@@ -154,7 +154,7 @@ class ReleaseFileDelete(View):
 
         if not has_permission(
             request.user,
-            "delete_release_file",
+            "release_file_delete",
             project=rfile.release.workspace.project,
         ):
             raise Http404
@@ -248,7 +248,7 @@ class WorkspaceReleaseList(View):
             raise Http404
 
         can_delete_files = has_permission(
-            request.user, "delete_release_file", project=workspace.project
+            request.user, "release_file_delete", project=workspace.project
         )
         can_view_files = has_permission(
             request.user,
