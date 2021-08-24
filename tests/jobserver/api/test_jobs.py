@@ -594,11 +594,11 @@ def test_userapidetail_success(api_rf):
     assert permissions["global"] == [
         "backend_manage",
         "job_cancel",
-        "manage_project_members",
         "manage_project_workspaces",
         "manage_users",
         "org_create",
         "project_invite_members",
+        "project_membership_edit",
         "run_job",
     ]
     assert permissions["orgs"] == [

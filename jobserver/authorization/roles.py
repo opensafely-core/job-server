@@ -1,11 +1,11 @@
 from .permissions import (
     backend_manage,
     job_cancel,
-    manage_project_members,
     manage_project_workspaces,
     manage_users,
     org_create,
     project_invite_members,
+    project_membership_edit,
     publish_snapshot,
     release_file_delete,
     review_project,
@@ -33,11 +33,11 @@ class CoreDeveloper:
     permissions = [
         backend_manage,
         job_cancel,
-        manage_project_members,
         manage_project_workspaces,
         manage_users,
         org_create,
         project_invite_members,
+        project_membership_edit,
         run_job,
     ]
 
@@ -170,8 +170,8 @@ class ProjectCoordinator:
         "jobserver.models.core.User",
     ]
     permissions = [
-        manage_project_members,
         project_invite_members,
+        project_membership_edit,
     ]
 
 

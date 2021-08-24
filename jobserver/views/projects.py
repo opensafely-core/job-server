@@ -66,7 +66,7 @@ class ProjectCancelInvite(View):
 
         can_manage_members = has_permission(
             request.user,
-            "manage_project_members",
+            "project_membership_edit",
             project=invite.project,
         )
         if not can_manage_members:
@@ -194,7 +194,7 @@ class ProjectDetail(DetailView):
         )
         can_manage_members = has_permission(
             self.request.user,
-            "manage_project_members",
+            "project_membership_edit",
             project=self.object,
         )
         can_use_releases = has_role(self.request.user, CoreDeveloper)
@@ -265,7 +265,7 @@ class ProjectInvitationCreate(CreateView):
 
         self.can_manage_members = has_permission(
             self.request.user,
-            "manage_project_members",
+            "project_membership_edit",
             project=self.project,
         )
         if not self.can_manage_members:
@@ -361,7 +361,7 @@ class ProjectMembershipEdit(UpdateView):
 
         self.can_manage_members = has_permission(
             self.request.user,
-            "manage_project_members",
+            "project_membership_edit",
             project=self.project,
         )
 
@@ -415,7 +415,7 @@ class ProjectMembershipRemove(View):
 
         can_manage_members = has_permission(
             self.request.user,
-            "manage_project_members",
+            "project_membership_edit",
             project=membership.project,
         )
         if can_manage_members:
@@ -443,7 +443,7 @@ class ProjectSettings(UpdateView):
 
         self.can_manage_members = has_permission(
             self.request.user,
-            "manage_project_members",
+            "project_membership_edit",
             project=self.project,
         )
         if not self.can_manage_members:
