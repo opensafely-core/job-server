@@ -45,7 +45,6 @@ ALLOWED_HOSTS = ["*"]
 INSTALLED_APPS = [
     "jobserver",
     "anymail",
-    "crispy_forms",
     "debug_toolbar",
     "django_vite",
     "django_extensions",
@@ -211,10 +210,6 @@ EMAIL_BACKEND = env.str(
 )
 DEFAULT_FROM_EMAIL = "you@example.com"
 SERVER_EMAIL = "your-server@example.com"
-
-# Crispy Forms
-# https://django-crispy-forms.readthedocs.io/en/latest/install.html#template-packs
-CRISPY_TEMPLATE_PACK = "bootstrap4"
 
 # REST Framework
 # https://www.django-rest-framework.org/api-guide/settings/

@@ -235,7 +235,7 @@ def test_workspacecreate_get_success(rf, mocker, user):
     mocker.patch(
         "jobserver.views.workspaces.get_repos_with_branches",
         autospec=True,
-        return_value=[],
+        return_value=[{"name": "test", "url": "test", "branches": ["main"]}],
     )
 
     request = rf.get(MEANINGLESS_URL)
@@ -249,6 +249,22 @@ def test_workspacecreate_get_success(rf, mocker, user):
 
 
 @pytest.mark.django_db
+def test_workspacecreate_get_without_permission(rf):
+    project = ProjectFactory()
+
+    request = rf.get(MEANINGLESS_URL)
+    request.user = UserFactory()
+
+    with pytest.raises(Http404):
+        WorkspaceCreate.as_view()(
+            request,
+            org_slug=project.org.slug,
+            project_slug=project.slug,
+        )
+
+
+@pytest.mark.django_db
+@responses.activate
 def test_workspacecreate_post_success(rf, mocker, user):
     project = ProjectFactory()
     ProjectMembershipFactory(project=project, user=user, roles=[ProjectDeveloper])

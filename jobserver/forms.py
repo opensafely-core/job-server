@@ -1,6 +1,5 @@
-from crispy_forms.helper import FormHelper
-from crispy_forms.layout import Submit
 from django import forms
+from first import first
 
 from .authorization.forms import RolesForm
 from .backends import backends_to_choices
@@ -154,43 +153,47 @@ class WorkspaceArchiveToggleForm(forms.Form):
 
 
 class WorkspaceCreateForm(forms.ModelForm):
-    branch = forms.CharField(widget=forms.Select)
-
     class Meta:
         fields = [
             "name",
             "repo",
             "branch",
         ]
-        help_texts = {
-            "name": "Enter a descriptive name which makes this workspace easy to identify.  It will also be the name of the directory in which you will find results after jobs from this workspace are run.",
-        }
         model = Workspace
-        widgets = {
-            "name": forms.TextInput(),
-        }
 
     def __init__(self, repos_with_branches, *args, **kwargs):
         super().__init__(*args, **kwargs)
-        self.helper = FormHelper()
-        self.helper.add_input(Submit("submit", "Submit"))
 
         self.repos_with_branches = repos_with_branches
 
-        choices = [(r["url"], r["name"]) for r in self.repos_with_branches]
+        # construct the repo Form field
+        repo_choices = [(r["url"], r["name"]) for r in self.repos_with_branches]
         self.fields["repo"] = forms.ChoiceField(
             label="Repo",
-            choices=choices,
-            help_text="If your repo doesn't show up here, reach out to the OpenSAFELY team on Slack.",
+            choices=repo_choices,
+        )
+
+        # has there been a repo selected already?
+        if "data" in kwargs and "repo" in kwargs["data"]:
+            repo = first(
+                self.repos_with_branches,
+                key=lambda r: r["url"] == kwargs["data"]["repo"],
+            )
+        else:
+            repo = first(self.repos_with_branches)
+
+        # construct the branch Form field
+        branch_choices = [(b, b) for b in repo["branches"]]
+        self.fields["branch"] = forms.ChoiceField(
+            label="Branch",
+            choices=branch_choices,
         )
 
     def clean_branch(self):
         repo_url = self.cleaned_data["repo"]
         branch = self.cleaned_data["branch"]
 
-        repo = next(
-            filter(lambda r: r["url"] == repo_url, self.repos_with_branches), None
-        )
+        repo = first(self.repos_with_branches, key=lambda r: r["url"] == repo_url)
         if repo is None:
             msg = "Unknown repo, please reload the page and try again"
             raise forms.ValidationError(msg)

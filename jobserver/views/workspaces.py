@@ -140,9 +140,9 @@ class WorkspaceCreate(CreateView):
         )
 
     def get_form_kwargs(self):
-        kwargs = super().get_form_kwargs()
-        kwargs["repos_with_branches"] = self.repos_with_branches
-        return kwargs
+        return super().get_form_kwargs() | {
+            "repos_with_branches": self.repos_with_branches,
+        }
 
 
 class WorkspaceDetail(View):
