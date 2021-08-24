@@ -65,9 +65,13 @@ def test_index_with_unauthenticated_user(rf):
     Check the Add Workspace button is not rendered for unauthenticated Users on
     the homepage.
     """
+    WorkspaceFactory()
+
     request = rf.get(MEANINGLESS_URL)
     request.user = AnonymousUser()
 
     response = Index.as_view()(request)
+
+    assert response.status_code == 200
 
     assert "Add a New Workspace" not in response.rendered_content
