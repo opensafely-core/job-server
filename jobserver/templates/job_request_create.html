@@ -329,6 +329,9 @@
     <h3>Latest Job Request</h3>
 
     <ul class="list-unstyled">
+      <li title="{{ latest_job_request.created_at|date:"Y-m-d H:i:sO" }}">
+        <strong>Created:</strong> {{ latest_job_request.created_at|naturaltime }}
+      </li>
       <li><strong>Total Runtime:</strong> {% runtime latest_job_request.runtime %}</li>
       <li><strong>Requested Actions:</strong> {{ latest_job_request.requested_actions|join:", " }}</li>
     </ul>
