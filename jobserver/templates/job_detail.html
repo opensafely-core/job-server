@@ -117,39 +117,61 @@
       <h3>Timings</h3>
 
       <p>
-        The timestamps below are generated and stored using the UTC timezone.
+        The timestamps below are generated and stored using the UTC timezone on
+        the secure backend which created this job, {{ job.job_request.backend.name }}.
       </p>
 
-      <div>
+      <div class="mb-2">
         <strong>Created:</strong>
         <span title="{{ job.created_at|date:"Y-m-d H:i:sO" }}">
           {{ job.created_at|naturaltime }}
         </span>
+        <br />
+        <small class="text-muted">When the job was created by the secure backend.</small>
       </div>
 
-      <div>
-        <strong>Started:</strong>
+      <div class="mb-2">
+        <strong>Acknowledged:</strong>
         <span title="{{ job.started_at|date:"Y-m-d H:i:sO"|default_if_none:"" }}">
           {{ job.started_at|naturaltime|default_if_none:"-" }}
         </span>
+        <br />
+        <small class="text-muted">
+          When the job moved to the pending or running state on the secure backend.
+        </small>
       </div>
 
-      <div>
+      <div class="mb-2">
         <strong>Finished:</strong>
         <span title="{{ job.completed_at|date:"Y-m-d H:i:sO"|default_if_none:"" }}">
           {{ job.completed_at|naturaltime|default_if_none:"-"}}
         </span>
+        <br />
+        <small class="text-muted">
+          When the job finished running on the secure backend.
+        </small>
       </div>
 
-      <div>
-        <strong>Runtime:</strong> <span>{% runtime job.runtime %}</span>
+      <div class="mb-2">
+        <strong>Duration:</strong> <span>{% runtime job.runtime %}</span>
+        <br />
+        <small class="text-muted">
+          How long the job ran for on the secure backend, this includes time
+          spent copying files, and waiting to be checked by the backend.
+        </small>
       </div>
 
-      <div>
-        <strong>Last Updated by Runner:</strong>
+      <div class="mb-2">
+        <strong>Last Updated by Backend:</strong>
         <span title="{{ job.updated_at|date:"Y-m-d H:i:sO"|default_if_none:"" }}">
           {{ job.updated_at|naturaltime|default_if_none:"-" }}
         </span>
+
+        <br />
+        <small class="text-muted">
+          How long ago did the secure backend update the website about this
+          job.
+        </small>
 
         {% if job.is_missing_updates %}
         <div>
