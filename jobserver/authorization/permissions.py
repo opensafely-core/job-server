@@ -1,4 +1,3 @@
-archive_workspace = "archive_workspace"
 cancel_job = "cancel_job"
 check_output = "check_output"
 create_org = "create_org"
@@ -16,3 +15,6 @@ run_job = "run_job"
 toggle_workspace_notifications = "toggle_workspace_notifications"
 upload_release_file = "upload_release_file"
 view_release_file = "view_release_file"
+
+
+workspace_archive = "workspace_archive"

@@ -31,7 +31,7 @@ class WorkspaceArchiveToggle(View):
         )
 
         if not has_permission(
-            request.user, "archive_workspace", project=workspace.project
+            request.user, "workspace_archive", project=workspace.project
         ):
             raise Http404
 
@@ -182,7 +182,7 @@ class WorkspaceDetail(View):
         )
 
         can_archive_workspace = has_permission(
-            request.user, "archive_workspace", project=workspace.project
+            request.user, "workspace_archive", project=workspace.project
         )
         can_run_jobs = has_permission(
             request.user, "run_job", project=workspace.project

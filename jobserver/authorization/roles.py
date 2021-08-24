@@ -1,5 +1,4 @@
 from .permissions import (
-    archive_workspace,
     cancel_job,
     check_output,
     create_org,
@@ -16,6 +15,7 @@ from .permissions import (
     toggle_workspace_notifications,
     upload_release_file,
     view_release_file,
+    workspace_archive,
 )
 
 
@@ -191,13 +191,13 @@ class ProjectDeveloper:
         "jobserver.models.core.ProjectMembership",
     ]
     permissions = [
-        archive_workspace,
         cancel_job,
         check_output,
         create_snapshot,
         manage_project_workspaces,
         run_job,
         toggle_workspace_notifications,
+        workspace_archive,
     ]
 
 
