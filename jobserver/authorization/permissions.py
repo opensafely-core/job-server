@@ -1,4 +1,3 @@
-invite_org_members = "invite_org_members"
 invite_project_members = "invite_project_members"
 manage_backends = "manage_backends"
 manage_project_members = "manage_project_members"
@@ -14,6 +13,7 @@ view_release_file = "view_release_file"
 
 job_cancel = "job_cancel"
 org_create = "org_create"
+org_invite_members = "org_invite_members"
 release_file_delete = "release_file_delete"
 snapshot_create = "snapshot_create"
 workspace_archive = "workspace_archive"
