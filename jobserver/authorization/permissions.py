@@ -1,4 +1,3 @@
-create_snapshot = "create_snapshot"
 delete_release_file = "delete_release_file"
 invite_org_members = "invite_org_members"
 invite_project_members = "invite_project_members"
@@ -16,4 +15,5 @@ view_release_file = "view_release_file"
 
 job_cancel = "job_cancel"
 org_create = "org_create"
+snapshot_create = "snapshot_create"
 workspace_archive = "workspace_archive"

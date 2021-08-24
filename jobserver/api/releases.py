@@ -279,7 +279,7 @@ class SnapshotCreateAPI(APIView):
         data = serializer.data
 
         if not has_permission(
-            request.user, "create_snapshot", project=workspace.project
+            request.user, "snapshot_create", project=workspace.project
         ):
             raise NotAuthenticated
 

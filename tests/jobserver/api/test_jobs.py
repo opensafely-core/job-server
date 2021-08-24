@@ -612,10 +612,10 @@ def test_userapidetail_success(api_rf):
         {
             "slug": project.slug,
             "permissions": [
-                "create_snapshot",
                 "job_cancel",
                 "manage_project_workspaces",
                 "run_job",
+                "snapshot_create",
                 "toggle_workspace_notifications",
                 "workspace_archive",
             ],

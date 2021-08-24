@@ -789,10 +789,10 @@ def test_user_get_all_permissions():
             {
                 "slug": project.slug,
                 "permissions": [
-                    "create_snapshot",
                     "job_cancel",
                     "manage_project_workspaces",
                     "run_job",
+                    "snapshot_create",
                     "toggle_workspace_notifications",
                     "workspace_archive",
                 ],
