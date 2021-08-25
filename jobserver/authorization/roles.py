@@ -4,8 +4,8 @@ from .permissions import (
     org_create,
     project_invite_members,
     project_membership_edit,
+    project_review,
     release_file_delete,
-    review_project,
     run_job,
     snapshot_create,
     snapshot_publish,
@@ -226,5 +226,5 @@ class TechnicalReviewer:
         "jobserver.models.core.User",
     ]
     permissions = [
-        review_project,
+        project_review,
     ]
