@@ -86,7 +86,7 @@ def validate_upload_access(request, workspace):
         raise NotAuthenticated
 
     # check the user has permission to upload release files
-    if not has_permission(user, "upload_release_file", project=workspace.project):
+    if not has_permission(user, "release_file_upload", project=workspace.project):
         raise NotAuthenticated
 
     return backend, user

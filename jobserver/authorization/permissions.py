@@ -1,4 +1,3 @@
-upload_release_file = "upload_release_file"
 view_release_file = "view_release_file"
 
 
@@ -11,6 +10,7 @@ project_invite_members = "project_invite_members"
 project_membership_edit = "project_membership_edit"
 project_review = "project_review"
 release_file_delete = "release_file_delete"
+release_file_upload = "release_file_upload"
 snapshot_create = "snapshot_create"
 snapshot_publish = "snapshot_publish"
 user_manage = "user_manage"

@@ -7,9 +7,9 @@ from .permissions import (
     project_membership_edit,
     project_review,
     release_file_delete,
+    release_file_upload,
     snapshot_create,
     snapshot_publish,
-    upload_release_file,
     user_manage,
     view_release_file,
     workspace_archive,
@@ -113,7 +113,7 @@ class OutputChecker:
     ]
     permissions = [
         release_file_delete,
-        upload_release_file,
+        release_file_upload,
     ]
 
 
