@@ -217,7 +217,13 @@ def is_member_of_org(org, username):
 
     r = requests.get(f.url, headers=headers)
 
-    return r.status_code == 204
+    if r.status_code == 204:
+        return True
+
+    if r.status_code in (302, 404):
+        return False
+
+    r.raise_for_status()
 
 
 class GithubOrganizationOAuth2(GithubOAuth2):

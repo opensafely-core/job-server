@@ -1,4 +1,5 @@
 import pytest
+import requests
 import responses
 from social_core.exceptions import AuthFailed
 
@@ -329,3 +330,13 @@ def test_is_member_of_org_success(monkeypatch):
     assert "token" in call.request.headers["Authorization"]
     assert call.request.headers["Accept"] == "application/vnd.github.v3+json"
     assert not call.response.text
+
+
+@responses.activate
+def test_is_member_of_org_without_github(monkeypatch):
+    monkeypatch.setenv("GITHUB_TESTING_TOKEN", "test")
+    membership_url = "https://api.github.com/orgs/testing/members/dummy-user"
+    responses.add(responses.GET, membership_url, status=401)
+
+    with pytest.raises(requests.HTTPError):
+        is_member_of_org("testing", "dummy-user")
