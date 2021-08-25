@@ -1,0 +1,14 @@
+{% for backend in backend_warnings %}
+  <div class="alert alert-danger text-center mb-3" role="alert">
+    Something is wrong with the {{ backend }} backend. Jobs are not being processed.
+  </div>
+{% endfor %}
+
+{% for message in messages %}
+  <div class="alert {{ message.tags }} alert-dismissible mb-3" role="alert">
+    <button type="button" class="close" data-dismiss="alert" aria-label="Close">
+      <span aria-hidden="true">&times;</span>
+    </button>
+    {{ message|safe }}
+  </div>
+{% endfor %}

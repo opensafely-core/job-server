@@ -44,8 +44,8 @@
       <a
         class="list-group-item list-group-item-action d-flex justify-content-between align-items-center"
         href="{{ workspace.get_absolute_url }}">
-        <span class="text-primary mr-2 name">{{ workspace.name }}</span>
-        <code class="text-muted d-none d-md-block">
+        <span class="mr-2 name">{{ workspace.name }}</span>
+        <code class="d-none d-md-block text-right font-weight-normal">
           {% spaceless %}
           <span class="repo">{{ workspace.repo_name }}</span>
           <span>|</span>
