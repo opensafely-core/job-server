@@ -1,3 +1,5 @@
+import requests
+from django.contrib import messages
 from django.db.models import Q
 from django.http import FileResponse, Http404
 from django.shortcuts import get_object_or_404, redirect
@@ -118,8 +120,24 @@ class WorkspaceCreate(CreateView):
             raise Http404
 
         gh_org = self.request.user.orgs.first().github_orgs[0]
+
+        try:
+            self.repos_with_branches = list(get_repos_with_branches(gh_org))
+        except requests.HTTPError:
+            # gracefully handle not being able to access GitHub's API
+            msg = (
+                "An error occurred while retrieving the list of repositories from GitHub, "
+                "please reload the page to try again."
+            )
+            messages.error(request, msg)
+            return TemplateResponse(
+                request,
+                self.template_name,
+                context={"project": self.project},
+            )
+
         self.repos_with_branches = sorted(
-            get_repos_with_branches(gh_org), key=lambda r: r["name"].lower()
+            self.repos_with_branches, key=lambda r: r["name"].lower()
         )
 
         return super().dispatch(request, *args, **kwargs)
