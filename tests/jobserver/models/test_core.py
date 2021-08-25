@@ -776,13 +776,8 @@ def test_user_get_all_permissions():
     expected = {
         "global": [
             "backend_manage",
-            "job_cancel",
-            "job_run",
             "org_create",
-            "project_invite_members",
-            "project_membership_edit",
             "user_manage",
-            "workspace_create",
         ],
         "orgs": [{"slug": org.slug, "permissions": []}],
         "projects": [

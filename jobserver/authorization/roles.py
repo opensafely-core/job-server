@@ -32,13 +32,8 @@ class CoreDeveloper:
     ]
     permissions = [
         backend_manage,
-        job_cancel,
-        job_run,
         org_create,
-        project_invite_members,
-        project_membership_edit,
         user_manage,
-        workspace_create,
     ]
 
 
