@@ -1,3 +1,4 @@
+import requests
 from django.contrib import messages
 from django.contrib.auth.decorators import login_required
 from django.core import signing
@@ -244,10 +245,15 @@ class ProjectDetail(DetailView):
         for url in repo_urls:
             f = furl(url)
 
+            try:
+                is_private = get_repo_is_private(*f.path.segments)
+            except requests.HTTPError:
+                is_private = None
+
             yield {
                 "name": f.path.segments[1],
                 "url": url,
-                "is_private": get_repo_is_private(*f.path.segments),
+                "is_private": is_private,
             }
 
 

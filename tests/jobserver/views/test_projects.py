@@ -1,4 +1,5 @@
 import pytest
+import requests
 from django.contrib.auth.models import AnonymousUser
 from django.contrib.messages.storage.fallback import FallbackStorage
 from django.http import Http404
@@ -332,7 +333,7 @@ def test_projectdetail_success(rf, mocker):
 
 
 @pytest.mark.django_db
-def test_projectdetail_with_with_multiple_releases(rf, freezer, mocker):
+def test_projectdetail_with_multiple_releases(rf, freezer, mocker):
     project = ProjectFactory()
 
     now = timezone.now()
@@ -380,6 +381,33 @@ def test_projectdetail_with_with_multiple_releases(rf, freezer, mocker):
     snapshots = set_from_qs(Snapshot.objects.all())
     assert snapshot2 not in snapshots
     assert snapshot4 not in snapshots
+
+
+@pytest.mark.django_db
+def test_projectdetail_with_no_github(rf, mocker):
+    project = ProjectFactory()
+    WorkspaceFactory(project=project)
+
+    mocker.patch(
+        "jobserver.views.projects.get_repo_is_private",
+        autospec=True,
+        side_effect=requests.HTTPError,
+    )
+
+    request = rf.get(MEANINGLESS_URL)
+    request.user = UserFactory()
+
+    response = ProjectDetail.as_view()(
+        request, org_slug=project.org.slug, project_slug=project.slug
+    )
+
+    assert response.status_code == 200
+
+    # check there is no public/private badge when GitHub returns an
+    # unsuccessful response
+    assert response.context_data["repos"][0]["is_private"] is None
+    assert "Private" not in response.rendered_content
+    assert "Public" not in response.rendered_content
 
 
 @pytest.mark.django_db

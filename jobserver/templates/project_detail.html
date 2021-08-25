@@ -91,9 +91,13 @@
             {% for repo in repos %}
             <li class="d-flex align-items-center">
               <a href="{{ repo.url }}">{{ repo.name }}</a>
+
+              {% if repo.is_private != None %}
               <span class="badge badge-secondary ml-1">
                 {% if repo.is_private %}Private{% else %}Public{% endif %}
               </span>
+              {% endif %}
+
             </li>
             {% endfor %}
           </ul>
