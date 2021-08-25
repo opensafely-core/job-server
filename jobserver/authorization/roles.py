@@ -4,11 +4,11 @@ from .permissions import (
     org_create,
     project_invite_members,
     project_membership_edit,
-    publish_snapshot,
     release_file_delete,
     review_project,
     run_job,
     snapshot_create,
+    snapshot_publish,
     toggle_workspace_notifications,
     upload_release_file,
     user_manage,
@@ -129,7 +129,7 @@ class OutputPublisher:
         "jobserver.models.core.User",
     ]
     permissions = [
-        publish_snapshot,
+        snapshot_publish,
     ]
 
 
