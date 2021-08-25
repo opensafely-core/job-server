@@ -1,5 +1,21 @@
+$oxford-50: #f1f7ff;
+$oxford-100: #cfe5ff;
+$oxford-200: #9ccaff;
+$oxford-300: #69afff;
+$oxford-400: #3693ff;
+$oxford-500: #0378ff;
+$oxford-600: #0058be;
+$oxford-700: #00397a;
+$oxford-800: #002147;
+$oxford-900: #001936;
+$oxford: $oxford-800;
+
+$theme-colors: (
+  "primary": $oxford-600
+);
+
 @import "../../../node_modules/bootstrap/scss/bootstrap";
-@import "fonts";
+@import "fonts";;
 
 body {
   font-family: "Public Sans", -apple-system, BlinkMacSystemFont, "Segoe UI",
@@ -7,7 +23,7 @@ body {
 }
 
 nav.bg-primary {
-  background-color: #002147 !important;
+  background-color: $oxford !important;
 }
 
 a {
@@ -18,7 +34,7 @@ a {
 
   &:hover,
   &:focus {
-    color: #002147;
+    color: $oxford;
     text-decoration: underline;
   }
 }
@@ -162,6 +178,10 @@ a {
 }
 
 .workspace-select {
+  .name {
+    color: $oxford-600;
+  }
+
   .fuzzy-search {
     border-width: 2px;
   }
