@@ -1,7 +1,6 @@
 from .permissions import (
     backend_manage,
     job_cancel,
-    manage_users,
     org_create,
     project_invite_members,
     project_membership_edit,
@@ -12,6 +11,7 @@ from .permissions import (
     snapshot_create,
     toggle_workspace_notifications,
     upload_release_file,
+    user_manage,
     view_release_file,
     workspace_archive,
     workspace_create,
@@ -33,11 +33,11 @@ class CoreDeveloper:
     permissions = [
         backend_manage,
         job_cancel,
-        manage_users,
         org_create,
         project_invite_members,
         project_membership_edit,
         run_job,
+        user_manage,
         workspace_create,
     ]
 

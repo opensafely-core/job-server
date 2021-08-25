@@ -62,7 +62,7 @@ def nav(request):
             }
         )
 
-    if has_permission(request.user, "manage_users"):
+    if has_permission(request.user, "user_manage"):
         options.append(
             {
                 "name": "Users",

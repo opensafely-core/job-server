@@ -34,7 +34,7 @@ class Settings(UpdateView):
         return self.request.user
 
 
-@method_decorator(require_permission("manage_users"), name="dispatch")
+@method_decorator(require_permission("user_manage"), name="dispatch")
 class UserDetail(UpdateView):
     form_class = UserForm
     model = User
@@ -83,7 +83,7 @@ class UserDetail(UpdateView):
         }
 
 
-@method_decorator(require_permission("manage_users"), name="dispatch")
+@method_decorator(require_permission("user_manage"), name="dispatch")
 class UserList(ListView):
     queryset = User.objects.order_by(Lower("username"))
     template_name = "user_list.html"

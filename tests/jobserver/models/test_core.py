@@ -777,11 +777,11 @@ def test_user_get_all_permissions():
         "global": [
             "backend_manage",
             "job_cancel",
-            "manage_users",
             "org_create",
             "project_invite_members",
             "project_membership_edit",
             "run_job",
+            "user_manage",
             "workspace_create",
         ],
         "orgs": [{"slug": org.slug, "permissions": []}],
