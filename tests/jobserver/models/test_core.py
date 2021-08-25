@@ -777,10 +777,10 @@ def test_user_get_all_permissions():
         "global": [
             "backend_manage",
             "job_cancel",
+            "job_run",
             "org_create",
             "project_invite_members",
             "project_membership_edit",
-            "run_job",
             "user_manage",
             "workspace_create",
         ],
@@ -790,7 +790,7 @@ def test_user_get_all_permissions():
                 "slug": project.slug,
                 "permissions": [
                     "job_cancel",
-                    "run_job",
+                    "job_run",
                     "snapshot_create",
                     "toggle_workspace_notifications",
                     "workspace_archive",
