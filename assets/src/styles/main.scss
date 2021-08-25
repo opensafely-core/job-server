@@ -22,10 +22,6 @@ body {
     Roboto, Oxygen, Ubuntu, Cantarell, "Open Sans", "Helvetica Neue", sans-serif;
 }
 
-nav.bg-primary {
-  background-color: $oxford !important;
-}
-
 a {
   color: #0058be;
   font-weight: 600;
@@ -36,6 +32,27 @@ a {
   &:focus {
     color: $oxford;
     text-decoration: underline;
+  }
+}
+
+nav {
+  &.bg-primary {
+    background-color: $oxford !important;
+  }
+
+  .btn-outline-light {
+    &:hover,
+    &:focus {
+      text-decoration: none;
+    }
+
+    &:focus {
+      color: $white;
+    }
+
+    &:hover {
+      color: $gray-900;
+    }
   }
 }
 
