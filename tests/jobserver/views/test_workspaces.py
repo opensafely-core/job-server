@@ -1,8 +1,10 @@
 import zipfile
 
 import pytest
+import requests
 import responses
 from django.contrib.auth.models import AnonymousUser
+from django.contrib.messages.storage.fallback import FallbackStorage
 from django.http import Http404
 from django.utils import timezone
 
@@ -292,6 +294,45 @@ def test_workspacecreate_post_success(rf, mocker, user):
     workspace = Workspace.objects.first()
     assert response.url == workspace.get_absolute_url()
     assert workspace.created_by == user
+
+
+@pytest.mark.django_db
+def test_workspacecreate_without_github(rf, mocker, user):
+    project = ProjectFactory()
+    ProjectMembershipFactory(project=project, user=user, roles=[ProjectDeveloper])
+
+    mocker.patch(
+        "jobserver.views.workspaces.get_repos_with_branches",
+        autospec=True,
+        side_effect=requests.HTTPError,
+    )
+
+    request = rf.get(MEANINGLESS_URL)
+    request.user = user
+
+    # set up messages framework
+    request.session = "session"
+    messages = FallbackStorage(request)
+    request._messages = messages
+
+    response = WorkspaceCreate.as_view()(
+        request, org_slug=project.org.slug, project_slug=project.slug
+    )
+
+    assert response.status_code == 200
+
+    # check we skipped creating the form
+    assert "form" not in response.context_data
+
+    # check we have a message for the user
+    messages = list(messages)
+    assert len(messages) == 1
+
+    expected = (
+        "An error occurred while retrieving the list of repositories from GitHub, "
+        "please reload the page to try again."
+    )
+    assert str(messages[0]) == expected
 
 
 @pytest.mark.django_db
