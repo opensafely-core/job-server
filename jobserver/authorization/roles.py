@@ -9,12 +9,12 @@ from .permissions import (
     release_file_delete,
     snapshot_create,
     snapshot_publish,
-    toggle_workspace_notifications,
     upload_release_file,
     user_manage,
     view_release_file,
     workspace_archive,
     workspace_create,
+    workspace_toggle_notifications,
 )
 
 
@@ -192,9 +192,9 @@ class ProjectDeveloper:
         job_cancel,
         job_run,
         snapshot_create,
-        toggle_workspace_notifications,
         workspace_archive,
         workspace_create,
+        workspace_toggle_notifications,
     ]
 
 

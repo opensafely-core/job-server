@@ -792,9 +792,9 @@ def test_user_get_all_permissions():
                     "job_cancel",
                     "job_run",
                     "snapshot_create",
-                    "toggle_workspace_notifications",
                     "workspace_archive",
                     "workspace_create",
+                    "workspace_toggle_notifications",
                 ],
             }
         ],

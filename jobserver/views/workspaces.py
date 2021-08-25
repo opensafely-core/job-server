@@ -370,7 +370,7 @@ class WorkspaceNotificationsToggle(View):
         )
 
         if not has_permission(
-            request.user, "toggle_workspace_notifications", project=workspace.project
+            request.user, "workspace_toggle_notifications", project=workspace.project
         ):
             raise Http404
 

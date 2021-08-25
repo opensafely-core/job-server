@@ -1,4 +1,3 @@
-toggle_workspace_notifications = "toggle_workspace_notifications"
 upload_release_file = "upload_release_file"
 view_release_file = "view_release_file"
 
@@ -17,3 +16,4 @@ snapshot_publish = "snapshot_publish"
 user_manage = "user_manage"
 workspace_archive = "workspace_archive"
 workspace_create = "workspace_create"
+workspace_toggle_notifications = "workspace_toggle_notifications"
