@@ -31,7 +31,7 @@ class WorkspaceArchiveToggle(View):
         )
 
         if not has_permission(
-            request.user, "archive_workspace", project=workspace.project
+            request.user, "workspace_archive", project=workspace.project
         ):
             raise Http404
 
@@ -70,7 +70,7 @@ class WorkspaceBackendFiles(View):
         # we treat the ability to run jobs in this workspace and the ability to
         # interact with the backend (checked above) as permission to also view
         # the files those jobs have output
-        if not has_permission(request.user, "run_job", project=workspace.project):
+        if not has_permission(request.user, "job_run", project=workspace.project):
             raise Http404
 
         auth_token, url = build_hatch_token_and_url(
@@ -109,12 +109,12 @@ class WorkspaceCreate(CreateView):
             Project, org__slug=self.kwargs["org_slug"], slug=self.kwargs["project_slug"]
         )
 
-        can_manage_workspaces = has_permission(
+        can_create_workspaces = has_permission(
             self.request.user,
-            "manage_project_workspaces",
+            "workspace_create",
             project=self.project,
         )
-        if not can_manage_workspaces:
+        if not can_create_workspaces:
             raise Http404
 
         gh_org = self.request.user.orgs.first().github_orgs[0]
@@ -157,7 +157,7 @@ class WorkspaceDetail(View):
         can_use_releases = has_role(request.user, CoreDeveloper)
 
         is_privileged_user = has_permission(
-            request.user, "view_release_file", project=workspace.project
+            request.user, "release_file_view", project=workspace.project
         )
 
         # a user can see backend files if they have access to at least one
@@ -182,10 +182,10 @@ class WorkspaceDetail(View):
         )
 
         can_archive_workspace = has_permission(
-            request.user, "archive_workspace", project=workspace.project
+            request.user, "workspace_archive", project=workspace.project
         )
         can_run_jobs = has_permission(
-            request.user, "run_job", project=workspace.project
+            request.user, "job_run", project=workspace.project
         )
 
         context = {
@@ -216,7 +216,7 @@ class WorkspaceFileList(View):
         # we treat the ability to run jobs in this workspace and the ability to
         # interact with at least one backend (checked below) as permission to
         # also view the files those jobs have output on the backends
-        if not has_permission(request.user, "run_job", project=workspace.project):
+        if not has_permission(request.user, "job_run", project=workspace.project):
             raise Http404
 
         backends = request.user.backends.exclude(level_4_url="").order_by("slug")
@@ -254,14 +254,14 @@ class WorkspaceLatestOutputsDetail(View):
 
         # only a privileged user can view the current files
         if not has_permission(
-            request.user, "view_release_file", project=workspace.project
+            request.user, "release_file_view", project=workspace.project
         ):
             raise Http404
 
         # only show the publish button if the user has permission to publish
         # ouputs
         can_publish = has_permission(
-            request.user, "create_snapshot", project=workspace.project
+            request.user, "snapshot_create", project=workspace.project
         )
         prepare_url = workspace.get_create_snapshot_api_url() if can_publish else ""
 
@@ -301,7 +301,7 @@ class WorkspaceLatestOutputsDownload(View):
 
         # only a privileged user can view the current files
         if not has_permission(
-            request.user, "view_release_file", project=workspace.project
+            request.user, "release_file_view", project=workspace.project
         ):
             raise Http404
 
@@ -370,7 +370,7 @@ class WorkspaceNotificationsToggle(View):
         )
 
         if not has_permission(
-            request.user, "toggle_workspace_notifications", project=workspace.project
+            request.user, "workspace_toggle_notifications", project=workspace.project
         ):
             raise Http404
 
@@ -402,7 +402,7 @@ class WorkspaceOutputList(ListView):
         snapshots = workspace.snapshots.order_by("-created_at")
 
         can_view_all_files = has_permission(
-            request.user, "view_release_file", project=workspace.project
+            request.user, "release_file_view", project=workspace.project
         )
         if not can_view_all_files:
             snapshots = snapshots.exclude(published_at=None)

@@ -13,7 +13,7 @@ class JobCancel(View):
         job = get_object_or_404(Job, identifier=self.kwargs["identifier"])
 
         can_cancel_job = job.job_request.created_by == request.user or has_permission(
-            request.user, "cancel_job", project=job.job_request.workspace.project
+            request.user, "job_cancel", project=job.job_request.workspace.project
         )
         if not can_cancel_job:
             raise Http404
@@ -46,7 +46,7 @@ class JobDetail(View):
             return redirect(job)
 
         can_cancel_jobs = job.job_request.created_by == request.user or has_permission(
-            request.user, "cancel_job", project=job.job_request.workspace.project
+            request.user, "job_cancel", project=job.job_request.workspace.project
         )
 
         context = {

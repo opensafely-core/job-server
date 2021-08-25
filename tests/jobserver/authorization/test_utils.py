@@ -19,7 +19,7 @@ from ...factories import ProjectFactory, ProjectMembershipFactory, UserFactory
 @pytest.mark.django_db
 def test_has_permission_failure():
     # ensure a stable test since roles must be from our defined roles
-    assert OutputPublisher.permissions == ["publish_snapshot"]
+    assert OutputPublisher.permissions == ["snapshot_publish"]
 
     user = UserFactory(roles=[OutputPublisher])
 
@@ -29,11 +29,11 @@ def test_has_permission_failure():
 @pytest.mark.django_db
 def test_has_permission_success():
     # ensure a stable test since roles must be from our defined roles
-    assert OutputPublisher.permissions == ["publish_snapshot"]
+    assert OutputPublisher.permissions == ["snapshot_publish"]
 
     user = UserFactory(roles=[OutputPublisher])
 
-    assert has_permission(user, "publish_snapshot")
+    assert has_permission(user, "snapshot_publish")
 
 
 @pytest.mark.django_db

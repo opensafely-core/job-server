@@ -45,7 +45,7 @@ class JobRequestCancel(View):
             raise Http404
 
         can_cancel_jobs = job_request.created_by == request.user or has_permission(
-            request.user, "cancel_job", project=job_request.workspace.project
+            request.user, "job_cancel", project=job_request.workspace.project
         )
         if not can_cancel_jobs:
             raise Http404
@@ -75,7 +75,7 @@ class JobRequestCreate(CreateView):
         except Workspace.DoesNotExist:
             return redirect("/")
 
-        if not has_permission(request.user, "run_job", project=self.workspace.project):
+        if not has_permission(request.user, "job_run", project=self.workspace.project):
             raise Http404
 
         if self.workspace.is_archived:
@@ -173,7 +173,7 @@ class JobRequestDetail(DetailView):
 
     def get_context_data(self, **kwargs):
         can_cancel_jobs = self.object.created_by == self.request.user or has_permission(
-            self.request.user, "cancel_job", project=self.object.workspace.project
+            self.request.user, "job_cancel", project=self.object.workspace.project
         )
 
         return super().get_context_data(**kwargs) | {

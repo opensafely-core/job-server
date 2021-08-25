@@ -1,21 +1,20 @@
 from .permissions import (
-    archive_workspace,
-    cancel_job,
-    check_output,
-    create_org,
-    create_snapshot,
-    delete_release_file,
-    invite_project_members,
-    manage_backends,
-    manage_project_members,
-    manage_project_workspaces,
-    manage_users,
-    publish_snapshot,
-    review_project,
-    run_job,
-    toggle_workspace_notifications,
-    upload_release_file,
-    view_release_file,
+    backend_manage,
+    job_cancel,
+    job_run,
+    org_create,
+    project_invite_members,
+    project_membership_edit,
+    project_review,
+    release_file_delete,
+    release_file_upload,
+    release_file_view,
+    snapshot_create,
+    snapshot_publish,
+    user_manage,
+    workspace_archive,
+    workspace_create,
+    workspace_toggle_notifications,
 )
 
 
@@ -32,14 +31,14 @@ class CoreDeveloper:
         "jobserver.models.core.User",
     ]
     permissions = [
-        cancel_job,
-        create_org,
-        invite_project_members,
-        manage_backends,
-        manage_project_members,
-        manage_project_workspaces,
-        manage_users,
-        run_job,
+        backend_manage,
+        job_cancel,
+        job_run,
+        org_create,
+        project_invite_members,
+        project_membership_edit,
+        user_manage,
+        workspace_create,
     ]
 
 
@@ -113,9 +112,8 @@ class OutputChecker:
         "jobserver.models.core.User",
     ]
     permissions = [
-        check_output,
-        delete_release_file,
-        upload_release_file,
+        release_file_delete,
+        release_file_upload,
     ]
 
 
@@ -131,7 +129,7 @@ class OutputPublisher:
         "jobserver.models.core.User",
     ]
     permissions = [
-        publish_snapshot,
+        snapshot_publish,
     ]
 
 
@@ -148,7 +146,7 @@ class ProjectCollaborator:
         "jobserver.models.core.User",
     ]
     permissions = [
-        view_release_file,
+        release_file_view,
     ]
 
 
@@ -172,8 +170,8 @@ class ProjectCoordinator:
         "jobserver.models.core.User",
     ]
     permissions = [
-        invite_project_members,
-        manage_project_members,
+        project_invite_members,
+        project_membership_edit,
     ]
 
 
@@ -191,13 +189,12 @@ class ProjectDeveloper:
         "jobserver.models.core.ProjectMembership",
     ]
     permissions = [
-        archive_workspace,
-        cancel_job,
-        check_output,
-        create_snapshot,
-        manage_project_workspaces,
-        run_job,
-        toggle_workspace_notifications,
+        job_cancel,
+        job_run,
+        snapshot_create,
+        workspace_archive,
+        workspace_create,
+        workspace_toggle_notifications,
     ]
 
 
@@ -229,5 +226,5 @@ class TechnicalReviewer:
         "jobserver.models.core.User",
     ]
     permissions = [
-        review_project,
+        project_review,
     ]

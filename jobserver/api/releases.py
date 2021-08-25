@@ -86,7 +86,7 @@ def validate_upload_access(request, workspace):
         raise NotAuthenticated
 
     # check the user has permission to upload release files
-    if not has_permission(user, "upload_release_file", project=workspace.project):
+    if not has_permission(user, "release_file_upload", project=workspace.project):
         raise NotAuthenticated
 
     return backend, user
@@ -101,7 +101,7 @@ def validate_release_access(request, workspace):
     if request.user.is_anonymous:
         raise NotAuthenticated("Invalid user or token")
 
-    if not has_permission(request.user, "view_release_file", project=workspace.project):
+    if not has_permission(request.user, "release_file_view", project=workspace.project):
         raise NotAuthenticated(f"Invalid user or token for workspace {workspace.name}")
 
 
@@ -118,7 +118,7 @@ def validate_snapshot_access(request, snapshot):
         raise NotAuthenticated("Invalid user or token")
 
     if not has_permission(
-        request.user, "view_release_file", project=snapshot.workspace.project
+        request.user, "release_file_view", project=snapshot.workspace.project
     ):
         raise NotAuthenticated(f"Invalid user or token for snapshot pk={snapshot.pk}")
 
@@ -279,7 +279,7 @@ class SnapshotCreateAPI(APIView):
         data = serializer.data
 
         if not has_permission(
-            request.user, "create_snapshot", project=workspace.project
+            request.user, "snapshot_create", project=workspace.project
         ):
             raise NotAuthenticated
 
@@ -312,7 +312,7 @@ class SnapshotPublishAPI(APIView):
         )
 
         if not has_permission(
-            request.user, "publish_snapshot", project=snapshot.workspace.project
+            request.user, "snapshot_publish", project=snapshot.workspace.project
         ):
             raise NotAuthenticated
 

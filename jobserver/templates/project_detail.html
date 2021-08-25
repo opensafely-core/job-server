@@ -59,7 +59,7 @@
         <div class="d-flex justify-content-between align-items-center">
           <h3>Workspaces</h3>
 
-          {% if can_manage_workspaces %}
+          {% if can_create_workspaces %}
           <a class="btn btn-sm btn-primary" href="{% url 'workspace-create' org_slug=project.org.slug project_slug=project.slug %}">
             Create a Workspace
           </a>
