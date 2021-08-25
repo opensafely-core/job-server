@@ -157,7 +157,7 @@ class WorkspaceDetail(View):
         can_use_releases = has_role(request.user, CoreDeveloper)
 
         is_privileged_user = has_permission(
-            request.user, "view_release_file", project=workspace.project
+            request.user, "release_file_view", project=workspace.project
         )
 
         # a user can see backend files if they have access to at least one
@@ -254,7 +254,7 @@ class WorkspaceLatestOutputsDetail(View):
 
         # only a privileged user can view the current files
         if not has_permission(
-            request.user, "view_release_file", project=workspace.project
+            request.user, "release_file_view", project=workspace.project
         ):
             raise Http404
 
@@ -301,7 +301,7 @@ class WorkspaceLatestOutputsDownload(View):
 
         # only a privileged user can view the current files
         if not has_permission(
-            request.user, "view_release_file", project=workspace.project
+            request.user, "release_file_view", project=workspace.project
         ):
             raise Http404
 
@@ -402,7 +402,7 @@ class WorkspaceOutputList(ListView):
         snapshots = workspace.snapshots.order_by("-created_at")
 
         can_view_all_files = has_permission(
-            request.user, "view_release_file", project=workspace.project
+            request.user, "release_file_view", project=workspace.project
         )
         if not can_view_all_files:
             snapshots = snapshots.exclude(published_at=None)

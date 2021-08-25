@@ -33,7 +33,7 @@ class ProjectReleaseList(View):
             request.user, "release_file_delete", project=project
         )
         can_view_files = has_permission(
-            request.user, "view_release_file", project=project
+            request.user, "release_file_view", project=project
         )
 
         def build_title(release):
@@ -92,7 +92,7 @@ class ReleaseDetail(View):
 
         if not has_permission(
             request.user,
-            "view_release_file",
+            "release_file_view",
             project=release.workspace.project,
         ):
             raise Http404
@@ -125,7 +125,7 @@ class ReleaseDownload(View):
 
         if not has_permission(
             request.user,
-            "view_release_file",
+            "release_file_view",
             project=release.workspace.project,
         ):
             raise Http404
@@ -181,7 +181,7 @@ class SnapshotDetail(View):
         )
 
         has_permission_to_view = has_permission(
-            request.user, "view_release_file", project=snapshot.workspace.project
+            request.user, "release_file_view", project=snapshot.workspace.project
         )
         if snapshot.is_draft and not has_permission_to_view:
             raise Http404
@@ -221,7 +221,7 @@ class SnapshotDownload(View):
 
         can_view_unpublished_files = has_permission(
             request.user,
-            "view_release_file",
+            "release_file_view",
             project=snapshot.workspace.project,
         )
         if snapshot.is_draft and not can_view_unpublished_files:
@@ -252,7 +252,7 @@ class WorkspaceReleaseList(View):
         )
         can_view_files = has_permission(
             request.user,
-            "view_release_file",
+            "release_file_view",
             project=workspace.project,
         )
 

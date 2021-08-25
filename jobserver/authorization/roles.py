@@ -8,10 +8,10 @@ from .permissions import (
     project_review,
     release_file_delete,
     release_file_upload,
+    release_file_view,
     snapshot_create,
     snapshot_publish,
     user_manage,
-    view_release_file,
     workspace_archive,
     workspace_create,
     workspace_toggle_notifications,
@@ -146,7 +146,7 @@ class ProjectCollaborator:
         "jobserver.models.core.User",
     ]
     permissions = [
-        view_release_file,
+        release_file_view,
     ]
 
 

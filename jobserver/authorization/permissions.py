@@ -1,6 +1,3 @@
-view_release_file = "view_release_file"
-
-
 backend_manage = "backend_manage"
 job_cancel = "job_cancel"
 job_run = "job_run"
@@ -11,6 +8,7 @@ project_membership_edit = "project_membership_edit"
 project_review = "project_review"
 release_file_delete = "release_file_delete"
 release_file_upload = "release_file_upload"
+release_file_view = "release_file_view"
 snapshot_create = "snapshot_create"
 snapshot_publish = "snapshot_publish"
 user_manage = "user_manage"
