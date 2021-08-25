@@ -255,9 +255,13 @@ class GithubOrganizationOAuth2(GithubOAuth2):
         user_data = super().user_data(access_token, *args, **kwargs)
         username = user_data.get("login")
 
-        for org in AUTHORIZATION_ORGS:
-            if is_member_of_org(org, username):
-                return user_data  # succeed on the first valid org
+        try:
+            for org in AUTHORIZATION_ORGS:
+                if is_member_of_org(org, username):
+                    return user_data  # succeed on the first valid org
+        except requests.HTTPError:
+            msg = "We were unable to reach GitHub, please try again."
+            raise AuthFailed(self, msg)
 
         msg = (
             f'"{username}" is not part of the OpenSAFELY GitHub Organization. '
