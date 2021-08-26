@@ -62,23 +62,6 @@ class RolesField(models.JSONField):
         if not roles:
             return super().get_prep_value(roles)
 
-        # check each Role is valid for the calling class
-        invalid_roles = []
-        for role in roles:
-            # compare by dotted path because isinstance(self.model,
-            # apps.get_model(role.model)) doesn't work and I can't see why
-            if dotted_path(self.model) not in role.models:
-                invalid_roles.append(role)
-
-        if invalid_roles:
-            msg = f"Some roles could not be assigned to {self.model.__name__}"
-
-            for role in invalid_roles:
-                models = "\n".join(f"   - {model}" for model in role.models)
-                msg += f"\n - {role.__name__} can only be assigned to these models:\n{models}"
-
-            raise ValueError(msg)
-
         # convert each Role to a dotted path string
         paths = {dotted_path(r) for r in roles}
         paths = list(paths)
