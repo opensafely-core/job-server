@@ -2,149 +2,161 @@
 
 {% load humanize %}
 
-{% block content %}
+{% block metatitle %}{{ project.name }} | OpenSAFELY Jobs{% endblock metatitle %}
 
-<nav aria-label="breadcrumb">
-  <ol class="breadcrumb">
-
-    <li class="breadcrumb-item"><a href="/">Home</a></li>
-
-    <li class="breadcrumb-item">
-      <a href="{{ project.org.get_absolute_url }}">
-        {{ project.org.name }}
-      </a>
-    </li>
-
-    <li class="breadcrumb-item active" aria-current="page">{{ project.name }}</li>
-
-  </ol>
+{% block breadcrumbs %}
+<nav class="breadcrumb-container" aria-label="breadcrumb">
+  <div class="container">
+    <ol class="breadcrumb rounded-0 mb-0 px-0">
+      <li class="breadcrumb-item">
+        <a href="/">Home</a>
+      </li>
+      <li class="breadcrumb-item">
+        <a href="{{ project.org.get_absolute_url }}">
+          {{ project.org.name }}
+        </a>
+      </li>
+      <li class="breadcrumb-item active" aria-current="page">
+        {{ project.name }}
+      </li>
+    </ol>
+  </div>
 </nav>
+{% endblock breadcrumbs %}
 
-<div class="row">
-  <div class="col-lg-10 offset-lg-1">
-
-    <div class="d-flex justify-content-between align-items-center mb-3">
-      <h2>{{ project.name }}</h2>
-
-      <div>
-        {% if can_manage_members %}
-        <a class="btn btn-sm btn-primary" href="{% url 'project-settings' org_slug=project.org.slug project_slug=project.slug %}">
-          Settings
-        </a>
-        {% endif %}
-
-        {% if can_change_release_process %}
-        <a class="btn btn-sm btn-danger" href="{{ project.get_edit_url }}">
-          Edit
-        </a>
-        {% endif %}
-      </div>
-    </div>
-
-    <div class="mb-4">
+{% block jumbotron %}
+<div class="jumbotron jumbotron-fluid pt-md-2">
+  <div class="container">
+    <h1>{{ project.name }}</h1>
+    <p class="lead">
       {% if project.description %}
-      <p>{{ project.description }}
-      {% endif %}
-
-      <p>
+        {{ project.description }}
+      {% else %}
         This is an OpenSAFELY project. Every time a researcher runs their
         analytic code against patient data, it is audited in public here. Use
         the "logs" buttons below to explore more.
-      </p>
-    </div>
+      {% endif %}
+    </p>
+    {% if can_manage_members %}
+      <a class="btn btn-primary" href="{% url 'project-settings' org_slug=project.org.slug project_slug=project.slug %}">
+        Settings
+      </a>
+    {% endif %}
+    {% if can_change_release_process %}
+      <a class="btn btn-secondary" href="{{ project.get_edit_url }}">
+        Edit
+      </a>
+    {% endif %}
+  </div>
+</div>
+{% endblock jumbotron %}
 
-    <div class="row">
+{% block content %}
+<div class="container">
+  <div class="row">
+    <div class="col-lg-8">
+      <div class="card border-0">
+        <h2 class="h5 card-header border border-bottom-0">
+          Workspaces
+        </h2>
 
-      <div class="col-lg-8">
-        <div class="d-flex justify-content-between align-items-center">
-          <h3>Workspaces</h3>
-
+        <div class="list-group list-group-flush">
           {% if can_create_workspaces %}
-          <a class="btn btn-sm btn-primary" href="{% url 'workspace-create' org_slug=project.org.slug project_slug=project.slug %}">
-            Create a Workspace
-          </a>
+            <a class="list-group-item list-group-item-success border-bottom-0" href="{% url 'workspace-create' org_slug=project.org.slug project_slug=project.slug %}">
+              Create a new workspace &nearr;
+            </a>
           {% endif %}
+          <ul class="list-unstyled mb-0">
+            {% for workspace in workspaces %}
+              <li class="list-group-item d-flex align-items-center">
+                <span class="mr-3">
+                  <a href="{{ workspace.get_absolute_url }}">
+                    {{ workspace.name }}
+                  </a>
+                </span>
+                <a class="btn btn-sm btn-primary ml-auto" href="{{ workspace.get_logs_url }}">
+                  Logs
+                </a>
+              </li>
+            {% endfor %}
+          </ul>
         </div>
-
-        <ul class="list-unstyled">
-          {% for workspace in workspaces %}
-          <li class="d-flex justify-content-between align-items-center border rounded mb-3 p-2">
-
-            <div>
-              <a href="{{ workspace.get_absolute_url }}">
-                {{ workspace.name }}
-              </a>
-            </div>
-
-            <a class="btn btn-sm btn-primary" href="{{ workspace.get_logs_url }}">Logs</a>
-
-          </li>
-          {% endfor %}
-        </ul>
       </div>
-
-      <div class="col-lg-4">
-
-        <div class="mb-4">
-          <h5>Repos</h5>
-          <ul class="list-unstyled">
-            {% for repo in repos %}
-            <li class="d-flex align-items-center">
-              <a href="{{ repo.url }}">{{ repo.name }}</a>
-
-              {% if repo.is_private != None %}
-              <span class="badge badge-secondary ml-1">
-                {% if repo.is_private %}Private{% else %}Public{% endif %}
-              </span>
-              {% endif %}
-
-            </li>
-            {% endfor %}
-          </ul>
-        </div>
-
-        <div class="mb-4">
-          <h5>Created</h5>
-          <span title="{{ project.created_at|date:"Y-m-d H:i:sO" }}">
-            {{ project.created_at|naturaltime }}
-          </span>
-
-        </div>
-
-        <div class="mb-4">
-          <h5>Organisation</h5>
-          <a href="{{ project.org.get_absolute_url }}">{{ project.org.name }}</a>
-        </div>
-
-        <div class="mb-4">
-          <h5>Researchers</h5>
-          <ul class="list-unstyled">
-            {% for user in project.members.all %}
-            <li>{{ user.name }}</li>
-            {% endfor %}
-          </ul>
-        </div>
-
-        {% if can_use_releases %}
-        <div class="mb-4">
-          <h5>Outputs</h5>
-
-          <ul class="list-unstyled">
-            {% for snapshot in outputs %}
-            <li>
-              <a class="mr-3" href="{{ snapshot.get_absolute_url }}">
-                Published on {{ snapshot.created_at|date:"Y-m-d" }}
-              </a>
-            </li>
-            {% endfor %}
-          </ul>
-        </div>
-        {% endif %}
-
-      </div>
-
     </div>
 
+    <div class="col-lg-4">
+      <ul class="list-unstyled">
+        <li class="card mb-3">
+          <h2 class="card-header h5">
+            Repos
+          </h2>
+          <ul class="list-unstyled card-body">
+            {% for repo in repos %}
+              <li class="d-flex align-items-center">
+                <a class="mr-2" href="{{ repo.url }}">{{ repo.name }}</a>
+                {% if repo.is_private != None %}
+                  <span
+                    class="
+                      badge badge-pill
+                      badge-{% if repo.is_private %}warning{% else %}success{% endif %}
+                  ">
+                    {% if repo.is_private %}Private{% else %}Public{% endif %}
+                  </span>
+                {% endif %}
+              </li>
+            {% endfor %}
+          </ul>
+        </li>
+
+        <li class="card mb-3">
+          <h2 class="card-header h5">
+            Created
+          </h2>
+          <p class="card-body mb-0">
+            <time datetime="{{ project.created_at|date:"Y-m-d H:i:sO" }}" title="{{ project.created_at|date:"Y-m-d H:i:sO" }}">
+              {{ project.created_at|naturaltime }}
+            </time>
+          </p>
+        </li>
+
+        <li class="card mb-3">
+          <h2 class="card-header h5">
+            Organisation
+          </h2>
+          <p class="card-body mb-0">
+            <a href="{{ project.org.get_absolute_url }}">{{ project.org.name }}</a>
+          </p>
+        </li>
+
+        <li class="card mb-3">
+          <h2 class="card-header h5">
+            Researchers
+          </h2>
+          <ul class="card-body list-unstyled">
+            {% for user in project.members.all %}
+              <li>{{ user.name }}</li>
+            {% endfor %}
+          </ul>
+        </li>
+
+        {% if can_use_releases and outputs %}
+          <li class="card">
+            <h2 class="card-header h5">
+              Outputs
+            </h2>
+            <ul class="card-body list-unstyled">
+              {% for snapshot in outputs %}
+                <li>
+                  <a href="{{ snapshot.get_absolute_url }}">
+                    Published on {{ snapshot.created_at|date:"Y-m-d" }}
+                  </a>
+                </li>
+              {% endfor %}
+            </ul>
+          </li>
+        {% endif %}
+      </ul>
+    </div>
   </div>
 </div>
 {% endblock %}

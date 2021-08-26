@@ -2,6 +2,8 @@
 
 {% load humanize %}
 
+{% block metatitle %}{{ workspace.name }} | OpenSAFELY Jobs{% endblock metatitle %}
+
 {% block extra_meta %}
 <meta property="og:title" content="{{ workspace.name }}" />
 <meta property="og:type" content="website" />

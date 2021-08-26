@@ -1,19 +1,4 @@
-$oxford-50: #f1f7ff;
-$oxford-100: #cfe5ff;
-$oxford-200: #9ccaff;
-$oxford-300: #69afff;
-$oxford-400: #3693ff;
-$oxford-500: #0378ff;
-$oxford-600: #0058be;
-$oxford-700: #00397a;
-$oxford-800: #002147;
-$oxford-900: #001936;
-$oxford: $oxford-800;
-
-$theme-colors: (
-  "primary": $oxford-600,
-);
-
+@import "variables";
 @import "../../../node_modules/bootstrap/scss/bootstrap";
 @import "fonts";
 
@@ -251,5 +236,29 @@ nav {
         }
       }
     }
+  }
+}
+
+.breadcrumb-container {
+  background-color: $oxford-50;
+}
+
+[data-toggle="collapse"][aria-expanded="true"] {
+  .collapse--show {
+    display: none;
+  }
+
+  .collapse--hide {
+    display: inline-block;
+  }
+}
+
+[data-toggle="collapse"][aria-expanded="false"] {
+  .collapse--show {
+    display: inline-block;
+  }
+
+  .collapse--hide {
+    display: none;
   }
 }

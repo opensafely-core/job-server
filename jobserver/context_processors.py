@@ -42,7 +42,7 @@ def nav(request):
 
     options = [
         {
-            "name": "Event Log",
+            "name": "Event log",
             "is_active": _active(reverse("job-list")),
             "url": reverse("job-list"),
         },

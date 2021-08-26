@@ -8,7 +8,7 @@
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-    <title>OpenSAFELY Jobs</title>
+    <title>{% block metatitle %}OpenSAFELY Jobs{% endblock metatitle %}</title>
     <meta property="og:site_name" content="OpenSAFELY Jobs" />
 
     {% block extra_meta %}{% endblock %}
@@ -27,10 +27,15 @@
   <body class="d-flex flex-column min-vh-100">
     {% include 'partials/header.html' %}
 
-    <div class="container-fluid flex-grow-1 pt-3">
-      {% include 'partials/alerts.html' %}
-      {% block content %}{% endblock %}
-    </div>
+    <main class="main flex-grow-1">
+      {% block breadcrumbs %}{% endblock %}
+      {% block jumbotron %}{% endblock %}
+
+      <div class="container-fluid pt-3">
+        {% include 'partials/alerts.html' %}
+        {% block content %}{% endblock %}
+      </div>
+    </main>
 
     {% include 'partials/footer.html' %}
 

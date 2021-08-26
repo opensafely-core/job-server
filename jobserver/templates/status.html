@@ -1,49 +1,67 @@
 {% extends "base.html" %}
 
+{% block metatitle %}Status | OpenSAFELY Jobs{% endblock metatitle %}
+
+{% block breadcrumbs %}
+<nav class="breadcrumb-container" aria-label="breadcrumb">
+  <div class="container">
+    <ol class="breadcrumb rounded-0 mb-0 px-0">
+      <li class="breadcrumb-item">
+        <a href="/">Home</a>
+      </li>
+      <li class="breadcrumb-item active" aria-current="page">
+        Status
+      </li>
+    </ol>
+  </div>
+</nav>
+{% endblock breadcrumbs %}
+
+{% block jumbotron %}
+<div class="jumbotron jumbotron-fluid pt-md-2">
+  <div class="container">
+    <h1 class="display-4">Status</h1>
+  </div>
+</div>
+{% endblock jumbotron %}
+
 {% block content %}
-
-<div class="row">
-  <div class="col-lg-8 offset-lg-2">
-
-    <h1 class="mb-4">Runner Statuses</h1>
-
-    <div class="row">
-
-      {% for backend in backends %}
-      <div class="col-lg-6 mb-5">
-
-        <h2>
-          {{ backend.name }}
+<div class="container">
+  <div class="row">
+    {% for backend in backends|dictsort:"name.lower" %}
+      <div class="col-lg-6">
+        <div class="card mb-5">
+          <h2 class="card-header h3">{{ backend.name }}</h2>
+          <ul class="list-group list-group-flush">
+            <li class="list-group-item">
+              <dl class="mb-0">
+                <dt class="d-inline-block">Runner last seen:</dt>
+                <dd class="d-inline-block mb-0 text-capitalize">
+                  <time datetime="{{ backend.last_seen }}">{{ backend.last_seen }}</time>
+                </dd>
+              </dl>
+            </li>
+            <li class="list-group-item">
+              <dl class="mb-0">
+                <dt class="d-inline-block">Unacked Jobs:</dt>
+                <dd class="d-inline-block mb-0 text-capitalize">{{ backend.queue.unacked }}</dd>
+              </dl>
+            </li>
+            <li class="list-group-item">
+              <dl class="mb-0">
+                <dt class="d-inline-block">Acked Jobs:</dt>
+                <dd class="d-inline-block mb-0 text-capitalize">{{ backend.queue.acked }}</dd>
+              </dl>
+            </li>
+          </ul>
           {% if backend.show_warning %}
-          <span
-            class="text-warning"
-            data-placement="bottom"
-            data-toggle="tooltip"
-            data-tooltip="warning"
-            title="{{ backend.name }} runner not seen for at least 5 mins"
-            >
-            ⚠️
-          </span>
+            <div class="card-footer text-danger font-weight-bold">
+              {{ backend.name }} runner not seen for at least 5 mins
+            </div>
           {% endif %}
-        </h2>
-
-        <p>
-          <strong>Runner Last Seen:</strong> {{ backend.last_seen }}
-        </p>
-
-        <p>
-          <strong>Unacked Jobs:</strong> {{ backend.queue.unacked }}
-        </p>
-
-        <p>
-          <strong>Acked Jobs:</strong> {{ backend.queue.acked }}
-        </p>
-
+        </div>
       </div>
-      {% endfor %}
-
-    </div>
-
+    {% endfor %}
   </div>
 </div>
 {% endblock %}

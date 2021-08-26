@@ -273,7 +273,8 @@ urlpatterns = [
     path("admin/", admin.site.urls),
     path("api/v2/", include((api_urls, "api"))),
     path("backends/", include(backend_urls)),
-    path("event-list/", JobRequestList.as_view(), name="job-list"),
+    path("event-log/", JobRequestList.as_view(), name="job-list"),
+    path("event-list/", RedirectView.as_view(url="/event-log/")),
     path("jobs/", RedirectView.as_view(query_string=True, pattern_name="job-list")),
     path(
         "job-requests/<pk>/",
