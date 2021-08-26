@@ -15,6 +15,12 @@ $theme-colors: (
   "danger": #d13242,
 );
 
+$jumbotron-bg: $oxford-50;
+$jumbotron-padding: 1rem;
+$breadcrumb-bg: $oxford-50;
+$breadcrumb-divider-color: $oxford-600;
+$breadcrumb-active-color: $oxford-800;
+
 @import "../../../node_modules/bootstrap/scss/bootstrap";
 @import "fonts";
 
@@ -253,4 +259,8 @@ nav {
       }
     }
   }
+}
+
+.breadcrumb-container {
+  background-color: $oxford-50;
 }
