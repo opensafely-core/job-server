@@ -1,37 +1,56 @@
 {% extends "base.html" %}
 
+{% block breadcrumbs %}
+<nav class="breadcrumb-container" aria-label="breadcrumb">
+  <div class="container">
+    <ol class="breadcrumb rounded-0 mb-0 px-0">
+      <li class="breadcrumb-item">
+        <a href="/">Home</a>
+      </li>
+      <li class="breadcrumb-item">
+        {{ request.user.username }}
+      </li>
+      <li class="breadcrumb-item active" aria-current="page">
+        Settings
+      </li>
+    </ol>
+  </div>
+</nav>
+{% endblock breadcrumbs %}
+
+{% block jumbotron %}
+<div class="jumbotron jumbotron-fluid pt-md-2">
+  <div class="container">
+    <h1 class="display-4">Settings</h1>
+  </div>
+</div>
+{% endblock jumbotron %}
+
 {% block content %}
-
-<div class="row">
-  <div class="col-lg-8 offset-lg-2">
-
-      <h3 class="mb-5">Your Settings</h3>
-
+<div class="container">
+  <div class="row">
+    <div class="col-lg-9 col-xl-8">
       <form method="POST">
         {% csrf_token %}
-
-        <div class="form-group row mb-5">
-
-          <label for="id_notifications_email" class="col-sm-2 col-form-label">
-            Notification Email
-          </label>
-
-          <div class="col-sm-10">
+        <fieldset>
+          <legend class="h3 mb-3">
+            Notification email
+          </legend>
+          <div class="form-group">
+            <label for="id_notifications_email">Email address</label>
             <input
               class="form-control"
               id="id_notifications_email"
               name="notifications_email"
+              required
               type="email"
               value="{{ form.notifications_email.value }}"
             />
           </div>
-
-        </div>
-
+        </fieldset>
         <button class="btn btn-primary" type="submit">Save</button>
       </form>
-
+    </div>
   </div>
 </div>
-
 {% endblock %}
