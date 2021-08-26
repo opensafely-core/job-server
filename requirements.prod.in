@@ -13,6 +13,7 @@ gunicorn
 incuna-mail
 itsdangerous
 litecli
+pybadges
 pydantic
 python-ulid
 pyyaml
