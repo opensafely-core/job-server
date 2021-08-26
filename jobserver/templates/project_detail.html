@@ -60,25 +60,27 @@
           Workspaces
         </h2>
 
-        <ul class="list-group list-group-flush">
+        <div class="list-group list-group-flush">
           {% if can_create_workspaces %}
-            <a class="list-group-item list-group-item-success" href="{% url 'workspace-create' org_slug=project.org.slug project_slug=project.slug %}">
+            <a class="list-group-item list-group-item-success border-bottom-0" href="{% url 'workspace-create' org_slug=project.org.slug project_slug=project.slug %}">
               Create a new workspace &nearr;
             </a>
           {% endif %}
-          {% for workspace in workspaces %}
-            <li class="list-group-item d-flex align-items-center">
-              <span class="mr-3">
-                <a href="{{ workspace.get_absolute_url }}">
-                  {{ workspace.name }}
+          <ul class="list-unstyled">
+            {% for workspace in workspaces %}
+              <li class="list-group-item d-flex align-items-center">
+                <span class="mr-3">
+                  <a href="{{ workspace.get_absolute_url }}">
+                    {{ workspace.name }}
+                  </a>
+                </span>
+                <a class="btn btn-sm btn-primary ml-auto" href="{{ workspace.get_logs_url }}">
+                  Logs
                 </a>
-              </span>
-              <a class="btn btn-sm btn-primary ml-auto" href="{{ workspace.get_logs_url }}">
-                Logs
-              </a>
-            </li>
-          {% endfor %}
-        </ul>
+              </li>
+            {% endfor %}
+          </ul>
+        </div>
       </div>
     </div>
 
