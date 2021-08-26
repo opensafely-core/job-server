@@ -1,11 +1,12 @@
 import requests
 from django.contrib import messages
 from django.db.models import Q
-from django.http import FileResponse, Http404
+from django.http import FileResponse, Http404, HttpResponse
 from django.shortcuts import get_object_or_404, redirect
 from django.template.response import TemplateResponse
 from django.views.generic import CreateView, ListView, View
 from furl import furl
+from pybadges import badge
 
 from ..authorization import CoreDeveloper, has_permission, has_role
 from ..forms import (
@@ -435,3 +436,22 @@ class WorkspaceOutputList(ListView):
             "workspace_output_list.html",
             context=context,
         )
+
+
+class WorkspaceOutputsBadge(View):
+    def get(self, request, *args, **kwargs):
+        workspace = get_object_or_404(
+            Workspace,
+            project__org__slug=self.kwargs["org_slug"],
+            project__slug=self.kwargs["project_slug"],
+            name=self.kwargs["workspace_slug"],
+        )
+
+        published_snapshots = workspace.snapshots.exclude(published_at=None).count()
+
+        s = badge(
+            left_text="Published outputs",
+            right_text=str(published_snapshots),
+            right_color="#0058be",
+        )
+        return HttpResponse(s, headers={"Content-Type": "image/svg+xml"})

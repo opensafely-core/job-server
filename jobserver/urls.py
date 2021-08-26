@@ -68,6 +68,7 @@ from .views.workspaces import (
     WorkspaceLog,
     WorkspaceNotificationsToggle,
     WorkspaceOutputList,
+    WorkspaceOutputsBadge,
 )
 
 
@@ -161,6 +162,7 @@ outputs_urls = [
         WorkspaceLatestOutputsDetail.as_view(),
         name="workspace-latest-outputs-detail",
     ),
+    path("badge/", WorkspaceOutputsBadge.as_view(), name="workspace-outputs-badge"),
     path(
         "<int:pk>/",
         SnapshotDetail.as_view(),
