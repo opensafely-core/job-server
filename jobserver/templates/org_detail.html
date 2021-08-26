@@ -37,6 +37,11 @@
             projects. Every project it has started is listed below.
           {% endif %}
         </p>
+        {% if is_member %}
+          <a class="btn btn-primary" href="{% url 'project-create' org_slug=org.slug %}">
+            Register Project
+          </a>
+        {% endif %}
       </div>
     </div>
   </div>
@@ -44,42 +49,31 @@
 {% endblock jumbotron %}
 
 {% block content %}
-<div class="row mt-n3">
-  <div class="col-lg-8 offset-lg-2">
-
-    <div class="d-flex justify-content-between align-items-center mb-3">
-      {% if is_member %}
-      <div>
-        <a class="btn btn-sm btn-primary" href="{% url 'project-create' org_slug=org.slug %}">
-          Register Project
-        </a>
+<div class="container">
+  {% if projects %}
+    <div class="row">
+      <div class="col-12">
+        <h3>Projects</h3>
+        <p>These are individual OpenSAFELY projects that have been started by {{ org.name }}.</p>
       </div>
-      {% endif %}
+      <div class="col-lg-8">
+        <div class="list-group list-unstyled">
+          {% for project in projects %}
+            <a href="{{ project.get_absolute_url }}" class="list-group-item list-group-item-action">
+              {{ project.name }}
+            </a>
+          {% endfor %}
+        </div>
+      </div>
     </div>
-
-    {% if projects %}
-    <h3>Projects</h3>
-
-    <p>
-      These are individual OpenSAFELY projects that have been started by {{ org.name }}.
-    </p>
-
-    <ul>
-      {% for project in projects %}
-      <li><a href="{{ project.get_absolute_url }}">{{ project.name }}</a></li>
-      {% endfor %}
-    </ul>
-    {% else %}
-    <p class="mt-5">
+  {% else %}
+    <p class="lead">
       {% if is_member %}
-      There are no projects for this organisation yet, click "Register Project" to create one.
+        There are no projects for this organisation yet, click "Register Project" to create one.
       {% else %}
-      There are no projects for this organisation yet.
+        There are no projects for this organisation yet.
       {% endif %}
     </p>
-    {% endif %}
-
-  </div>
+  {% endif %}
 </div>
-
 {% endblock %}
