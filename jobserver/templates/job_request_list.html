@@ -6,6 +6,23 @@
 {% load selected_filter %}
 {% load static %}
 
+{% block metatitle %}Event log | OpenSAFELY Jobs{% endblock metatitle %}
+
+{% block breadcrumbs %}
+<nav class="breadcrumb-container" aria-label="breadcrumb">
+  <div class="container">
+    <ol class="breadcrumb rounded-0 mb-0 px-0">
+      <li class="breadcrumb-item">
+        <a href="/">Home</a>
+      </li>
+      <li class="breadcrumb-item active" aria-current="page">
+        Event log
+      </li>
+    </ol>
+  </div>
+</nav>
+{% endblock breadcrumbs %}
+
 {% block content %}
 
 <div class="job-list">
