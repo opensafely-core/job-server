@@ -12,6 +12,7 @@ $oxford: $oxford-800;
 
 $theme-colors: (
   "primary": $oxford-600,
+  "danger": #d13242,
 );
 
 @import "../../../node_modules/bootstrap/scss/bootstrap";
