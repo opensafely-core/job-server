@@ -242,3 +242,23 @@ nav {
 .breadcrumb-container {
   background-color: $oxford-50;
 }
+
+[data-toggle="collapse"][aria-expanded="true"] {
+  .collapse--show {
+    display: none;
+  }
+
+  .collapse--hide {
+    display: inline-block;
+  }
+}
+
+[data-toggle="collapse"][aria-expanded="false"] {
+  .collapse--show {
+    display: inline-block;
+  }
+
+  .collapse--hide {
+    display: none;
+  }
+}
