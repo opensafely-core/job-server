@@ -3,49 +3,65 @@
 {% load humanize %}
 {% load roles %}
 
-{% block content %}
+{% block metatitle %}Settings: {{ project.name }} | OpenSAFELY Jobs{% endblock metatitle %}
 
-<nav aria-label="breadcrumb">
-  <ol class="breadcrumb">
-
-    <li class="breadcrumb-item"><a href="/">Home</a></li>
-
-    <li class="breadcrumb-item">
-      <a href="{{ project.org.get_absolute_url }}">
-        {{ project.org.name }}
-      </a>
-    </li>
-
-    <li class="breadcrumb-item">
-      <a href="{{ project.get_absolute_url }}">
-        {{ project.name }}
-      </a>
-    </li>
-
-    <li class="breadcrumb-item active" aria-current="page">Settings</li>
-
-  </ol>
+{% block breadcrumbs %}
+<nav class="breadcrumb-container" aria-label="breadcrumb">
+  <div class="container">
+    <ol class="breadcrumb rounded-0 mb-0 px-0">
+      <li class="breadcrumb-item">
+        <a href="/">Home</a>
+      </li>
+      <li class="breadcrumb-item">
+        <a href="{{ project.org.get_absolute_url }}">
+          {{ project.org.name }}
+        </a>
+      </li>
+      <li class="breadcrumb-item">
+        <a href="{{ project.get_absolute_url }}">
+          {{ project.name }}
+        </a>
+      </li>
+      <li class="breadcrumb-item active" aria-current="page">
+        Settings
+      </li>
+    </ol>
+  </div>
 </nav>
+{% endblock breadcrumbs %}
 
-<div class="row mb-5">
-  <div class="col-lg-8 offset-lg-2">
+{% block jumbotron %}
+<div class="jumbotron jumbotron-fluid">
+  <div class="container">
+    <h1>Settings</h1>
+    <p class="lead">{{ project.name }}</p>
+  </div>
+</div>
+{% endblock jumbotron %}
 
-    <h2>Settings</h2>
+{% block content %}
+<div class="container">
+  <div class="row">
+    <div class="col-lg-9 col-xl-8">
 
-    <div class="mb-5">
+      {# Project settings #}
       <form method="POST">
         {% csrf_token %}
+        <fieldset id="settings">
+          <legend class="h3 mb-3">
+            Project settings
+          </legend>
 
         {% if form.non_field_errors %}
-        <ul>
-          {% for error in form.non_field_errors %}
-          <li class="text-danger">{{ error }}</li>
-          {% endfor %}
-        </ul>
+          <ul>
+            {% for error in form.non_field_errors %}
+              <li class="text-danger">{{ error }}</li>
+            {% endfor %}
+          </ul>
         {% endif %}
 
-        <div class="d-flex justify-content-between align-items-center">
-          <div class="form-group flex-grow-1 mb-0 mr-3">
+          <div class="form-group">
+            <label for="id_name">Project name</label>
             <input
               type="text"
               class="form-control"
@@ -55,126 +71,107 @@
               aria-describedby="name_help"
             />
             {% for error in form.name.errors %}
-            <p class="text-danger">{{ error }}</p>
+              <p class="text-danger">{{ error }}</p>
             {% endfor %}
           </div>
-
-          <div class="form-group mb-0">
-            <button type="submit" class="btn btn-sm btn-primary float-right">Save</button>
-          </div>
-        </div>
-
+        </fieldset>
+        <button class="btn btn-primary" type="submit">Save</button>
       </form>
-    </div>
 
-    <div class="mb-5">
-      <h3>Members</h3>
+      {# Members #}
+      <div class="pt-5 mt-5 border-top" id="members">
+        <h2 class="h3 mb-3">Members</h2>
 
-      {% if memberships %}
-      <ul class="list-unstyled">
-        {% for member in memberships %}
-        <li class="mb-3 p-2 border rounded d-flex justify-content-between align-items-center">
-          <div>
-            <strong class="mr-3">{{ member.user.name }}</strong>
-
-            {% for role in member.roles %}
-            <span class="badge badge-secondary">{{ role.display_name }}</span>
-            {% endfor %}
-
+        {% if memberships %}
+          <div class="card">
+            <div class="list-group list-group-flush">
+              <ul class="list-unstyled mb-0">
+                {% for member in memberships %}
+                  <li class="list-group-item d-flex align-items-center">
+                    <span class="mr-3 d-flex flex-wrap align-items-center">
+                      <span class="mr-2">{{ member.user.name }}</span>
+                      {% for role in member.roles %}
+                        <span class="badge badge-pill badge-secondary">{{ role.display_name }}</span>
+                      {% endfor %}
+                    </span>
+                    {% if can_manage_members %}
+                      <a class="btn btn-sm btn-outline-primary ml-auto" href="{{ member.get_edit_url }}">
+                        Edit
+                      </a>
+                    {% endif %}
+                  </li>
+                {% endfor %}
+              </ul>
+            </div>
           </div>
-
-          {% if can_manage_members %}
-          <div>
-            <a class="btn btn-sm btn-primary" href="{{ member.get_edit_url }}">
-              Edit
-            </a>
-          </div>
-          {% endif %}
-        </li>
-        {% endfor %}
-      </ul>
-      {% else %}
-      <p class="mt-5">
-        There are no members for this organisation yet, you can invite some
-        below.
-      </p>
-      {% endif %}
-
-    </div>
-
-    <div class="mb-3">
-
-      <div class="d-flex justify-content-between align-items-center mb-3">
-        <h3>Invitations</h3>
-
-        <a class="btn btn-sm btn-primary" href="{{ project.get_invitation_url }}">Invite Users</a>
+        {% else %}
+          <p class="lead">
+            There are no members for this organisation yet, you can invite some below.
+          </p>
+        {% endif %}
       </div>
 
-      {% if invitations %}
-      <h4>Pending</h4>
-      <ul class="list-unstyled">
-        {% for invite in invitations %}
-        <li class="mb-3 p-2 border rounded d-flex justify-content-between align-items-center">
-
-          <div>
-            <span class="mr-3">
-              {{ invite.user.username }}
-              <small class="text-muted">({{ invite.user.name }})</small>
-            </span>
-
-            {% for role in invite.roles %}
-            <span class="badge badge-secondary">{{ role.display_name }}</span>
-            {% endfor %}
-
-          </div>
-
-          {% if can_manage_members %}
-          <form method="POST" action="{{ invite.get_cancel_url }}">
-            {% csrf_token %}
-
-            <input type="hidden" name="invite_pk" value="{{ invite.pk }}" />
-
-            <button class="btn btn-block btn-sm btn-danger" type="submit">Delete</button>
-          </form>
-          {% endif %}
-
-        </li>
-        {% endfor %}
-      </ul>
-      {% else %}
-      <p class="mb-5">There are no pending invitations for this project.</p>
-      {% endif %}
-
-    </div>
-
-    {% if user_can_change_release_process %}
-    <div class="mb-3">
-      <h3>Staff-only Administration</h3>
-
-      <div class="d-flex justify-content-between align-items-center">
-
-        <div>
-          Uses New Release Process?:
-          <strong>{{ project.uses_new_release_flow|yesno }}</strong>
+      {# Invitations #}
+      <div class="pt-5 mt-5 border-top" id="invitations">
+        <div class="d-flex align-items-center mb-3">
+          <h2 class="h3 mb-0 mr-3">Invitations</h2>
+          <a class="ml-auto btn btn-primary" href="{{ project.get_invitation_url }}">Invite Users</a>
         </div>
 
-        <form class="mb-3" method="POST" action="{{ project.get_release_process_toggle_url }}">
-          {% csrf_token %}
+        {% if invitations %}
+          <h3 class="h4">Pending</h3>
+          {% for invite in invitations %}
+            <li class="list-group-item d-flex align-items-center">
+              <span class="mr-3 d-flex flex-wrap align-items-center">
+                <span class="mr-2">
+                  {{ invite.user.username }}
+                  <span class="text-muted">({{ invite.user.name }})</span>
+                </span>
+                {% for role in invite.roles %}
+                  <span class="badge badge-pill badge-secondary mr-2">{{ role.display_name }}</span>
+                {% endfor %}
+              </span>
+              {% if can_manage_members %}
+                <form class="ml-auto" method="POST" action="{{ invite.get_cancel_url }}">
+                  {% csrf_token %}
+                  <input type="hidden" name="invite_pk" value="{{ invite.pk }}" />
+                  <button class="btn btn-sm btn-outline-danger" type="submit">Delete</button>
+                </form>
+              {% endif %}
+            </li>
+          {% endfor %}
+        {% else %}
+          <p class="lead">There are no pending invitations for this project.</p>
+        {% endif %}
 
-          {{ form.uses_new_release_flow }}
+        {# Staff-only admin #}
+        {% if user_can_change_release_process %}
+          <div class="pt-5 mt-5 border-top" id="staff-admin">
+            <h2 class="h3 mb-3">Staff-only administration</h2>
 
-          <button class="btn btn-block btn-danger" type="submit">
-            Use
-            {% if project.uses_new_release_flow %}Old{% else %}New{% endif %}
-            Process
-          </button>
-        </form>
+            <form method="POST" action="{{ project.get_release_process_toggle_url }}">
+              {% csrf_token %}
+              <fieldset>
+                <legend class="h4 mb-3">
+                  New release flow
+                </legend>
 
+                <div class="form-group">
+                  <p class="mb-0">Does this project use the new release flow?</p>
+                  <p class="text-capitalize"><strong>{{ form.uses_new_release_flow|yesno }}</strong></p>
+                </div>
+
+                <button class="btn btn-danger" type="submit">
+                  Use
+                  {% if project.uses_new_release_flow %}new{% else %}new{% endif %}
+                  release flow
+                </button>
+              </fieldset>
+            </form>
+          </div>
+        {% endif %}
       </div>
     </div>
-    {% endif %}
-
   </div>
 </div>
-
 {% endblock %}
