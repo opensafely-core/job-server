@@ -1,12 +1,12 @@
 <nav class="navbar navbar-expand-lg navbar-dark bg-primary py-lg-2">
-  <div class="container">
+  <div class="container px-0 px-sm-3">
     <a class="navbar-brand" href="/">OpenSAFELY Jobs</a>
     <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
       <span class="navbar-toggler-icon"></span>
     </button>
 
     <div class="collapse navbar-collapse" id="navbar">
-      <ul class="navbar-nav mr-auto mt-2 mt-lg-0">
+      <ul class="navbar-nav ml-auto mr-2 mt-2 mt-lg-0">
         {% for location in nav %}
           <li class="nav-item {% if location.is_active %}active{% endif %}">
             <a class="nav-link {% if location.is_active %}text-white{% else %}text-light{% endif %}" href="{{ location.url }}">
@@ -20,7 +20,7 @@
         <a class="btn btn-outline-light mt-2 mb-3 my-lg-0" href="{% url "social:begin" "github" %}?next={{ request.path }}">Login</a>
       {% else %}
         <div class="dropdown mt-2 mb-3 my-lg-0">
-          <button class="btn btn-link text-white nav-link dropdown-toggle" id="navbarUserDropdown" type="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+          <button class="btn btn-link text-white nav-link dropdown-toggle px-0 px-md-2" id="navbarUserDropdown" type="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
             <img
               src="https://github.com/{{ request.user.username }}.png?size=60"
               alt="{{ request.user.username }} avatar"
