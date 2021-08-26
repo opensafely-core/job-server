@@ -86,27 +86,29 @@
 
     <div class="col-lg-4">
       <ul class="list-unstyled">
-        <li class="card mb-3">
-          <h2 class="card-header h5">
-            Repos
-          </h2>
-          <ul class="list-unstyled card-body">
-            {% for repo in repos %}
-              <li class="d-flex align-items-center">
-                <a class="mr-2" href="{{ repo.url }}">{{ repo.name }}</a>
-                {% if repo.is_private != None %}
-                  <span
-                    class="
-                      badge badge-pill
-                      badge-{% if repo.is_private %}warning{% else %}success{% endif %}
-                  ">
-                    {% if repo.is_private %}Private{% else %}Public{% endif %}
-                  </span>
-                {% endif %}
-              </li>
-            {% endfor %}
-          </ul>
-        </li>
+        {% if repos %}
+          <li class="card mb-3">
+            <h2 class="card-header h5">
+              Repos
+            </h2>
+            <ul class="list-unstyled card-body">
+              {% for repo in repos %}
+                <li class="d-flex align-items-center">
+                  <a class="mr-2" href="{{ repo.url }}">{{ repo.name }}</a>
+                  {% if repo.is_private != None %}
+                    <span
+                      class="
+                        badge badge-pill
+                        badge-{% if repo.is_private %}warning{% else %}success{% endif %}
+                    ">
+                      {% if repo.is_private %}Private{% else %}Public{% endif %}
+                    </span>
+                  {% endif %}
+                </li>
+              {% endfor %}
+            </ul>
+          </li>
+        {% endif %}
 
         <li class="card mb-3">
           <h2 class="card-header h5">
