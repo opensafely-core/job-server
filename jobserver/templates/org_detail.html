@@ -1,23 +1,53 @@
 {% extends "base.html" %}
 
-{% block content %}
-
-<nav aria-label="breadcrumb">
-  <ol class="breadcrumb">
-
-    <li class="breadcrumb-item"><a href="/">Home</a></li>
-
-    <li class="breadcrumb-item active" aria-current="page">{{ org.name }}</li>
-
-  </ol>
+{% block breadcrumbs %}
+<nav class="breadcrumb-container" aria-label="breadcrumb">
+  <div class="container">
+    <ol class="breadcrumb rounded-0 mb-0 px-0">
+      <li class="breadcrumb-item">
+        <a href="/">Home</a>
+      </li>
+      <li class="breadcrumb-item active" aria-current="page">
+        {{ org.name }}
+      </li>
+    </ol>
+  </div>
 </nav>
+{% endblock breadcrumbs %}
 
-<div class="row">
+{% block jumbotron %}
+<div class="jumbotron jumbotron-fluid pt-md-2">
+  <div class="container">
+    <div class="d-flex align-items-center">
+      {% if org.logo %}
+        <img
+          class="mr-5 rounded"
+          height="200"
+          src="{{ org.logo }}"
+          width="200"
+        />
+      {% endif %}
+      <div>
+        <h1>{{ org.name }}</h1>
+        <p class="lead">
+          {% if org.description %}
+            {{ org.description }}
+          {% else %}
+            This is an organisation which uses OpenSAFELY to deliver research
+            projects. Every project it has started is listed below.
+          {% endif %}
+        </p>
+      </div>
+    </div>
+  </div>
+</div>
+{% endblock jumbotron %}
+
+{% block content %}
+<div class="row mt-n3">
   <div class="col-lg-8 offset-lg-2">
 
     <div class="d-flex justify-content-between align-items-center mb-3">
-      <h2>{{ org.name }}</h2>
-
       {% if is_member %}
       <div>
         <a class="btn btn-sm btn-primary" href="{% url 'project-create' org_slug=org.slug %}">
@@ -26,24 +56,6 @@
       </div>
       {% endif %}
     </div>
-
-    {% if org.logo %}
-    <img
-      class="float-right ml-3"
-      src="{{ org.logo }}"
-      width="200"
-      height="200"
-    />
-    {% endif %}
-
-    {% if org.description %}
-    <p class="mb-5">{{ org.description }}</p>
-    {% endif %}
-
-    <p class="mb-5">
-      This is an organisation which uses OpenSAFELY to deliver research
-      projects. Every project it has started is listed below.
-    </p>
 
     {% if projects %}
     <h3>Projects</h3>
