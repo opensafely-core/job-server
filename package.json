@@ -67,7 +67,7 @@
     "react-window": "^1.8.6",
     "select2": "^4.0.13",
     "whatwg-fetch": "^3.6.2",
-    "zustand": "^3.5.9"
+    "zustand": "^3.5.10"
   },
   "eslintConfig": {
     "extends": [
