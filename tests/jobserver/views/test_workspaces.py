@@ -1068,6 +1068,22 @@ def test_workspaceoutputlist_without_permission(rf, freezer):
 
 
 @pytest.mark.django_db
+def test_workspaceoutputlist_without_snapshots(rf, freezer):
+    workspace = WorkspaceFactory()
+
+    request = rf.get("/")
+    request.user = UserFactory(roles=[ProjectCollaborator])
+
+    with pytest.raises(Http404):
+        WorkspaceOutputList.as_view()(
+            request,
+            org_slug=workspace.project.org.slug,
+            project_slug=workspace.project.slug,
+            workspace_slug=workspace.name,
+        )
+
+
+@pytest.mark.django_db
 def test_workspaceoutputlist_unknown_workspace(rf):
     project = ProjectFactory()
 

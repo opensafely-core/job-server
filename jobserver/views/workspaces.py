@@ -426,6 +426,10 @@ class WorkspaceOutputList(ListView):
         if not can_view_all_files:
             snapshots = snapshots.exclude(published_at=None)
 
+        if not snapshots:
+            # if there are no snapshots for the user return 404
+            raise Http404
+
         context = {
             "user_can_view_all_files": can_view_all_files,
             "snapshots": snapshots,
