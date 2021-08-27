@@ -2,70 +2,81 @@
 
 {% load django_vite %}
 
-{% block content %}
-<nav aria-label="breadcrumb">
-  <ol class="breadcrumb">
+{% block metatitle %}Create a project | OpenSAFELY Jobs{% endblock metatitle %}
 
-    <li class="breadcrumb-item"><a href="/">Home</a></li>
-
-    <li class="breadcrumb-item">
-      <a href="{{ org.get_absolute_url }}">
-        {{ org.name }}
-      </a>
-    </li>
-
-    <li class="breadcrumb-item active" aria-current="page">Create a Project</li>
-
-  </ol>
+{% block breadcrumbs %}
+<nav class="breadcrumb-container" aria-label="breadcrumb">
+  <div class="container">
+    <ol class="breadcrumb rounded-0 mb-0 px-0">
+      <li class="breadcrumb-item">
+        <a href="/">Home</a>
+      </li>
+      <li class="breadcrumb-item">
+        <a href="{{ org.get_absolute_url }}">
+          {{ org.name }}
+        </a>
+      </li>
+      <li class="breadcrumb-item active" aria-current="page">
+        Create a project
+      </li>
+    </ol>
+  </div>
 </nav>
+{% endblock breadcrumbs %}
 
-<div class="row">
-  <div class="col-lg-8 offset-lg-2">
+{% block jumbotron %}
+<div class="jumbotron jumbotron-fluid pt-md-2">
+  <div class="container">
+    <h1 class="display-4">Create a project</h1>
+  </div>
+</div>
+{% endblock jumbotron %}
 
-    <h3 class="mb-3">Create a Project</h3>
+{% block content %}
+<div class="container">
+  <div class="row">
+    <div class="col-lg-9 col-xl-8">
+      <form method="POST">
+        {% csrf_token %}
+        <fieldset>
+          <legend class="h3 mb-3">
+            Project details
+          </legend>
 
-    <form method="POST">
-      {% csrf_token %}
+          {% if form.non_field_errors %}
+            <ul>
+              {% for error in form.non_field_errors %}
+                <li class="text-danger">{{ error }}</li>
+              {% endfor %}
+            </ul>
+          {% endif %}
 
-      {% if form.non_field_errors %}
-      <ul>
-        {% for error in form.non_field_errors %}
-        <li class="text-danger">{{ error }}</li>
-        {% endfor %}
-      </ul>
-      {% endif %}
+          <div class="form-group">
+            <label for="id_name">Project name</label>
+            <input
+              type="text"
+              class="form-control"
+              id="id_name"
+              {% if form.name.value %}
+              value="{{ form.name.value }}"
+              {% endif %}
+              name="name"
+            />
+          </div>
 
-      <div class="form-group row">
-        <label for="id_name" class="col-sm-2 col-form-label">Name</label>
-        <div class="col-sm-10">
-          <input
-            type="text"
-            class="form-control"
-            id="id_name"
-            {% if form.name.value %}
-            value="{{ form.name.value }}"
-            {% endif %}
-            name="name" />
-        </div>
+          {% if form.name.errors %}
+            <ul class="pl-3 mb-1">
+              {% for error in form.name.errors %}
+                <li class="text-danger">{{ error }}</li>
+              {% endfor %}
+            </ul>
+          {% endif %}
+        </fieldset>
 
-        {% if form.name.errors %}
-        <ul class="pl-3 mb-1">
-          {% for error in form.name.errors %}
-          <li class="text-danger">{{ error }}</li>
-          {% endfor %}
-        </ul>
-        {% endif %}
+        <button class="btn btn-success" type="submit">Create</button>
 
-      </div>
-
-      <div class="form-group row">
-        <div class="col-sm-10">
-          <button type="submit" class="btn btn-primary">Save</button>
-        </div>
-      </div>
-
-    </form>
-
+      </form>
+    </div>
   </div>
 </div>
 {% endblock content %}

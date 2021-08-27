@@ -55,6 +55,10 @@ const config = {
           dest: "./assets/dist/vendor",
         },
         {
+          src: "./node_modules/@ttskch/select2-bootstrap4-theme/dist/select2-bootstrap4.min.css",
+          dest: "./assets/dist/vendor",
+        },
+        {
           src: "./assets/src/js/*",
           dest: "./assets/dist/js",
         },
