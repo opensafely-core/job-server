@@ -99,7 +99,7 @@ def test_jobcancel_with_job_creator(rf):
 
 
 @pytest.mark.django_db
-def test_jobcancel_unauthorized(rf, user):
+def test_jobcancel_without_permission(rf, user):
     job = JobFactory(job_request=JobRequestFactory())
 
     request = rf.post(MEANINGLESS_URL)
@@ -119,7 +119,27 @@ def test_jobcancel_unknown_job(rf, user):
 
 
 @pytest.mark.django_db
-def test_jobdetail_with_authenticated_user(rf):
+def test_jobdetail_with_anonymous_user(rf):
+    job = JobFactory()
+
+    request = rf.get(MEANINGLESS_URL)
+    request.user = AnonymousUser()
+
+    response = JobDetail.as_view()(
+        request,
+        org_slug=job.job_request.workspace.project.org.slug,
+        project_slug=job.job_request.workspace.project.slug,
+        workspace_slug=job.job_request.workspace.name,
+        pk=job.job_request.pk,
+        identifier=job.identifier,
+    )
+
+    assert response.status_code == 200
+    assert "Cancel" not in response.rendered_content
+
+
+@pytest.mark.django_db
+def test_jobdetail_with_permission(rf):
     job = JobFactory()
     user = UserFactory()
 
@@ -206,7 +226,24 @@ def test_jobdetail_with_partial_identifier_success(rf):
 
 
 @pytest.mark.django_db
-def test_jobdetail_with_unpriviliged_user(rf):
+def test_jobdetail_with_unknown_job(rf):
+    job_request = JobRequestFactory()
+
+    request = rf.get(MEANINGLESS_URL)
+
+    with pytest.raises(Http404):
+        JobDetail.as_view()(
+            request,
+            org_slug=job_request.workspace.project.org.slug,
+            project_slug=job_request.workspace.project.slug,
+            workspace_slug=job_request.workspace.name,
+            pk=job_request.pk,
+            identifier="test",
+        )
+
+
+@pytest.mark.django_db
+def test_jobdetail_without_permission(rf):
     job = JobFactory()
 
     request = rf.get(MEANINGLESS_URL)
@@ -223,43 +260,6 @@ def test_jobdetail_with_unpriviliged_user(rf):
 
     assert response.status_code == 200
     assert "Cancel" not in response.rendered_content
-
-
-@pytest.mark.django_db
-def test_jobdetail_with_unauthenticated_user(rf):
-    job = JobFactory()
-
-    request = rf.get(MEANINGLESS_URL)
-    request.user = AnonymousUser()
-
-    response = JobDetail.as_view()(
-        request,
-        org_slug=job.job_request.workspace.project.org.slug,
-        project_slug=job.job_request.workspace.project.slug,
-        workspace_slug=job.job_request.workspace.name,
-        pk=job.job_request.pk,
-        identifier=job.identifier,
-    )
-
-    assert response.status_code == 200
-    assert "Cancel" not in response.rendered_content
-
-
-@pytest.mark.django_db
-def test_jobdetail_with_unknown_job(rf):
-    job_request = JobRequestFactory()
-
-    request = rf.get(MEANINGLESS_URL)
-
-    with pytest.raises(Http404):
-        JobDetail.as_view()(
-            request,
-            org_slug=job_request.workspace.project.org.slug,
-            project_slug=job_request.workspace.project.slug,
-            workspace_slug=job_request.workspace.name,
-            pk=job_request.pk,
-            identifier="test",
-        )
 
 
 @pytest.mark.django_db
