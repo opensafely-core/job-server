@@ -125,15 +125,13 @@ The DataLab job server is deployed to our `dokku2` instance, instructions are ar
 
 ## Testing
 
-Run `make dev-config` if you have not already.
-
-_Note:_ you will need the [Bitwarden CLI tool](https://bitwarden.com/help/article/cli/) installed in order to access passwords.
-
 Run the tests with:
 
 ```sh
-make test
+just test
 ```
+
+More details on testing can be found in [TESTING.md](TESTING.md).
 
 ## Adding new backends
 
