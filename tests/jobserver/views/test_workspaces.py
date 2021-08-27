@@ -21,6 +21,7 @@ from jobserver.views.workspaces import (
     WorkspaceLog,
     WorkspaceNotificationsToggle,
     WorkspaceOutputList,
+    WorkspaceOutputsBadge,
 )
 
 from ...factories import (
@@ -1074,6 +1075,60 @@ def test_workspaceoutputlist_unknown_workspace(rf):
 
     with pytest.raises(Http404):
         WorkspaceOutputList.as_view()(
+            request,
+            org_slug=project.org.slug,
+            project_slug=project.slug,
+            workspace_slug="",
+        )
+
+
+@pytest.mark.django_db
+def test_workspaceoutputsbadge_with_published_outputs(rf):
+    workspace = WorkspaceFactory()
+
+    ReleaseFactory(
+        ReleaseUploadsFactory({"file1.txt": b"text", "file2.txt": b"text"}),
+        workspace=workspace,
+    )
+    snapshot = SnapshotFactory(workspace=workspace, published_at=timezone.now())
+    snapshot.files.set(workspace.files.all())
+
+    request = rf.get("/")
+
+    response = WorkspaceOutputsBadge.as_view()(
+        request,
+        org_slug=workspace.project.org.slug,
+        project_slug=workspace.project.slug,
+        workspace_slug=workspace.name,
+    )
+
+    assert response.status_code == 200
+
+
+@pytest.mark.django_db
+def test_workspaceoutputsbadge_without_published_outputs(rf):
+    workspace = WorkspaceFactory()
+
+    request = rf.get("/")
+
+    response = WorkspaceOutputsBadge.as_view()(
+        request,
+        org_slug=workspace.project.org.slug,
+        project_slug=workspace.project.slug,
+        workspace_slug=workspace.name,
+    )
+
+    assert response.status_code == 200
+
+
+@pytest.mark.django_db
+def test_workspaceoutputsbadge_unknown_workspace(rf):
+    project = ProjectFactory()
+
+    request = rf.get("/")
+
+    with pytest.raises(Http404):
+        WorkspaceOutputsBadge.as_view()(
             request,
             org_slug=project.org.slug,
             project_slug=project.slug,

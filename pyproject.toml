@@ -51,4 +51,5 @@ filterwarnings = [
     "error",
     "ignore:'debug_toolbar':django.utils.deprecation.RemovedInDjango41Warning:django",
     "ignore:A private pytest class or function was used.:pytest.PytestDeprecationWarning:pytest_subtests",
+    "ignore::pytest.PytestUnraisableExceptionWarning:",
 ]
