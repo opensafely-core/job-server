@@ -2,7 +2,7 @@
 
 {% load django_vite %}
 
-{% block metatitle %}Settings: {{ project.name }} | OpenSAFELY Jobs{% endblock metatitle %}
+{% block metatitle %}Create a workspace: {{ project.name }} | OpenSAFELY Jobs{% endblock metatitle %}
 
 {% block breadcrumbs %}
 <nav class="breadcrumb-container" aria-label="breadcrumb">
@@ -43,7 +43,6 @@
   <div class="row">
     <div class="col-lg-9 col-xl-8">
 
-      {# Project settings #}
       <form method="POST">
         {% csrf_token %}
         <fieldset class="mb-2">
