@@ -5,6 +5,7 @@
 
 {% block extra_styles %}
 <link rel="stylesheet" href="{% static 'vendor/select2.min.css' %}">
+<link rel="stylesheet" href="{% static 'vendor/select2-bootstrap4.min.css' %}">
 {% endblock %}
 
 {% block metatitle %}Invite users: {{ project.name }} | OpenSAFELY Jobs{% endblock metatitle %}
@@ -138,6 +139,7 @@
     $('#id_users').select2({
       placeholder: "Select 1 or more users to invite",
       selectionCssClass: ":all:",
+      theme: "bootstrap4",
       width: "100%"
     });
   });
