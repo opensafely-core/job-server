@@ -182,6 +182,7 @@ class ProjectDeveloper:
     models = [
         "jobserver.models.core.ProjectInvitation",
         "jobserver.models.core.ProjectMembership",
+        "jobserver.models.core.User",
     ]
     permissions = [
         job_cancel,
