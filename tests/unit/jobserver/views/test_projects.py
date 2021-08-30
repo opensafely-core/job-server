@@ -46,9 +46,6 @@ from ....factories import (
 from ....utils import minutes_ago
 
 
-MEANINGLESS_URL = "/"
-
-
 @pytest.mark.django_db
 def test_projectacceptinvite_already_accepted(rf):
     org = OrgFactory()
@@ -63,7 +60,7 @@ def test_projectacceptinvite_already_accepted(rf):
         roles=[ProjectCollaborator],
     )
 
-    request = rf.get(MEANINGLESS_URL)
+    request = rf.get("/")
     request.user = user
 
     response = ProjectAcceptInvite.as_view()(
@@ -90,7 +87,7 @@ def test_projectacceptinvite_success(rf):
     )
     assert invite.membership is None
 
-    request = rf.get(MEANINGLESS_URL)
+    request = rf.get("/")
     request.user = user
 
     response = ProjectAcceptInvite.as_view()(
@@ -115,7 +112,7 @@ def test_projectacceptinvite_unknown_invite(rf):
     org = OrgFactory()
     project = ProjectFactory(org=org)
 
-    request = rf.get(MEANINGLESS_URL)
+    request = rf.get("/")
     request.user = UserFactory()
 
     with pytest.raises(Http404):
@@ -134,7 +131,7 @@ def test_projectacceptinvite_with_different_user(rf):
     invitee = UserFactory()
     invite = ProjectInvitationFactory(project=project, user=invitee)
 
-    request = rf.get(MEANINGLESS_URL)
+    request = rf.get("/")
     request.user = UserFactory()
 
     # set up messages framework
@@ -167,7 +164,7 @@ def test_projectcancelinvite_success(rf):
 
     invite = ProjectInvitationFactory(project=project, user=user)
 
-    request = rf.post(MEANINGLESS_URL, {"invite_pk": invite.pk})
+    request = rf.post("/", {"invite_pk": invite.pk})
     request.user = user
 
     response = ProjectCancelInvite.as_view()(
@@ -187,7 +184,7 @@ def test_projectcancelinvite_unknown_invitation(rf):
     user = UserFactory()
     ProjectMembershipFactory(project=project, user=user, roles=[ProjectCoordinator])
 
-    request = rf.post(MEANINGLESS_URL, {"invite_pk": 0})
+    request = rf.post("/", {"invite_pk": 0})
     request.user = user
 
     with pytest.raises(Http404):
@@ -202,7 +199,7 @@ def test_projectcancelinvite_without_manage_members_permission(rf):
     project = ProjectFactory(org=org)
     invite = ProjectInvitationFactory(project=project, user=UserFactory())
 
-    request = rf.post(MEANINGLESS_URL, {"invite_pk": invite.pk})
+    request = rf.post("/", {"invite_pk": invite.pk})
     request.user = UserFactory()
 
     with pytest.raises(Http404):
@@ -310,7 +307,7 @@ def test_projectdetail_success(rf, mocker):
         return_value=True,
     )
 
-    request = rf.get(MEANINGLESS_URL)
+    request = rf.get("/")
     request.user = UserFactory()
 
     response = ProjectDetail.as_view()(
@@ -358,7 +355,7 @@ def test_projectdetail_with_multiple_releases(rf, freezer, mocker):
         return_value=True,
     )
 
-    request = rf.get(MEANINGLESS_URL)
+    request = rf.get("/")
     # FIXME: remove this role when releases is deployed to all users
     request.user = UserFactory(roles=[CoreDeveloper])
 
@@ -394,7 +391,7 @@ def test_projectdetail_with_no_github(rf, mocker):
         side_effect=requests.HTTPError,
     )
 
-    request = rf.get(MEANINGLESS_URL)
+    request = rf.get("/")
     request.user = UserFactory()
 
     response = ProjectDetail.as_view()(
@@ -420,7 +417,7 @@ def test_projectdetail_with_no_releases(rf, mocker):
         return_value=True,
     )
 
-    request = rf.get(MEANINGLESS_URL)
+    request = rf.get("/")
     request.user = UserFactory()
 
     response = ProjectDetail.as_view()(
@@ -437,7 +434,7 @@ def test_projectdetail_with_no_releases(rf, mocker):
 def test_projectdetail_unknown_org(rf):
     project = ProjectFactory()
 
-    request = rf.get(MEANINGLESS_URL)
+    request = rf.get("/")
     request.user = UserFactory()
 
     with pytest.raises(Http404):
@@ -448,7 +445,7 @@ def test_projectdetail_unknown_org(rf):
 def test_projectdetail_unknown_project(rf):
     org = OrgFactory()
 
-    request = rf.get(MEANINGLESS_URL)
+    request = rf.get("/")
     request.user = UserFactory()
 
     with pytest.raises(Http404):
@@ -525,7 +522,7 @@ def test_projectinvitationcreate_get_success(rf):
         project=project, user=coordinator, roles=[ProjectCoordinator]
     )
 
-    request = rf.get(MEANINGLESS_URL)
+    request = rf.get("/")
     request.user = coordinator
 
     response = ProjectInvitationCreate.as_view()(
@@ -549,7 +546,7 @@ def test_projectinvitationcreate_post_success(rf):
     assert ProjectInvitation.objects.filter(project=project).count() == 0
 
     request = rf.post(
-        MEANINGLESS_URL,
+        "/",
         {
             "roles": ["jobserver.authorization.roles.ProjectDeveloper"],
             "users": [str(invitee.pk)],
@@ -589,7 +586,7 @@ def test_projectinvitationcreate_post_with_email_failure(rf, mocker):
     )
 
     request = rf.post(
-        MEANINGLESS_URL,
+        "/",
         {
             "roles": ["jobserver.authorization.roles.ProjectDeveloper"],
             "users": [str(invitee.pk)],
@@ -631,7 +628,7 @@ def test_projectinvitationcreate_post_with_incorrect_form(rf):
 
     assert ProjectInvitation.objects.filter(project=project).count() == 0
 
-    request = rf.post(MEANINGLESS_URL, {"roles": ["foo"], "users": ["not_a_pk"]})
+    request = rf.post("/", {"roles": ["foo"], "users": ["not_a_pk"]})
     request.user = coordinator
 
     response = ProjectInvitationCreate.as_view()(
@@ -651,7 +648,7 @@ def test_projectinvitationcreate_without_permission(rf):
     org = OrgFactory()
     project = ProjectFactory(org=org)
 
-    request = rf.get(MEANINGLESS_URL)
+    request = rf.get("/")
     request.user = UserFactory()
     with pytest.raises(Http404):
         ProjectInvitationCreate.as_view()(
@@ -790,7 +787,7 @@ def test_projectmembershipremove_without_permission(rf):
 def test_projectonboardingcreate_get_success(rf):
     org = OrgFactory()
 
-    request = rf.get(MEANINGLESS_URL)
+    request = rf.get("/")
     request.user = UserFactory()
 
     response = ProjectOnboardingCreate.as_view()(request, org_slug=org.slug)
@@ -800,7 +797,7 @@ def test_projectonboardingcreate_get_success(rf):
 
 @pytest.mark.django_db
 def test_projectonboardingcreate_get_unknown_org(rf):
-    request = rf.get(MEANINGLESS_URL)
+    request = rf.get("/")
     request.user = UserFactory()
 
     with pytest.raises(Http404):
@@ -821,7 +818,7 @@ def test_projectonboardingcreate_post_invalid_data(rf):
         "researcher-MAX_NUM": "1000",
     }
 
-    request = rf.post(MEANINGLESS_URL, data)
+    request = rf.post("/", data)
     request.user = UserFactory()
     response = ProjectOnboardingCreate.as_view()(request, org_slug=org.slug)
 
@@ -846,7 +843,7 @@ def test_projectonboardingcreate_post_success(rf):
         "researcher-0-is_ons_accredited_researcher": "on",
     }
 
-    request = rf.post(MEANINGLESS_URL, data)
+    request = rf.post("/", data)
     request.user = UserFactory()
     response = ProjectOnboardingCreate.as_view()(request, org_slug=org.slug)
 
@@ -865,7 +862,7 @@ def test_projectonboardingcreate_post_success(rf):
 
 @pytest.mark.django_db
 def test_projectonboardingcreate_post_unknown_org(rf):
-    request = rf.post(MEANINGLESS_URL)
+    request = rf.post("/")
     request.user = UserFactory()
 
     with pytest.raises(Http404):
@@ -882,7 +879,7 @@ def test_projectsettings_success(rf):
         project=project, user=coordinator, roles=[ProjectCoordinator]
     )
 
-    request = rf.get(MEANINGLESS_URL)
+    request = rf.get("/")
     request.user = coordinator
 
     response = ProjectSettings.as_view()(
@@ -897,7 +894,7 @@ def test_projectsettings_success(rf):
 
 @pytest.mark.django_db
 def test_projectsettings_unknown_project(rf):
-    request = rf.get(MEANINGLESS_URL)
+    request = rf.get("/")
     request.user = UserFactory()
     with pytest.raises(Http404):
         ProjectSettings.as_view()(request, org_slug="", project_slug="")
@@ -908,7 +905,7 @@ def test_projectsettings_without_permission(rf):
     org = OrgFactory()
     project = ProjectFactory(org=org)
 
-    request = rf.get(MEANINGLESS_URL)
+    request = rf.get("/")
     request.user = UserFactory()
     with pytest.raises(Http404):
         ProjectSettings.as_view()(request, org_slug=org.slug, project_slug=project.slug)

@@ -40,9 +40,6 @@ from ....factories import (
 from ....utils import minutes_ago
 
 
-MEANINGLESS_URL = "/"
-
-
 @pytest.mark.django_db
 def test_workspacearchivetoggle_success(rf):
     user = UserFactory()
@@ -52,7 +49,7 @@ def test_workspacearchivetoggle_success(rf):
         project=workspace.project, user=user, roles=[ProjectDeveloper]
     )
 
-    request = rf.post(MEANINGLESS_URL, {"is_archived": "True"})
+    request = rf.post("/", {"is_archived": "True"})
     request.user = user
 
     response = WorkspaceArchiveToggle.as_view()(
@@ -73,7 +70,7 @@ def test_workspacearchivetoggle_success(rf):
 def test_workspacearchivetoggle_unknown_workspace(rf):
     project = ProjectFactory()
 
-    request = rf.post(MEANINGLESS_URL)
+    request = rf.post("/")
     request.user = UserFactory()
 
     with pytest.raises(Http404):
@@ -89,7 +86,7 @@ def test_workspacearchivetoggle_unknown_workspace(rf):
 def test_workspacearchivetoggle_without_permission(rf):
     workspace = WorkspaceFactory()
 
-    request = rf.post(MEANINGLESS_URL)
+    request = rf.post("/")
     request.user = UserFactory()
 
     with pytest.raises(Http404):
@@ -241,7 +238,7 @@ def test_workspacecreate_get_success(rf, mocker, user):
         return_value=[{"name": "test", "url": "test", "branches": ["main"]}],
     )
 
-    request = rf.get(MEANINGLESS_URL)
+    request = rf.get("/")
     request.user = user
 
     response = WorkspaceCreate.as_view()(
@@ -255,7 +252,7 @@ def test_workspacecreate_get_success(rf, mocker, user):
 def test_workspacecreate_get_without_permission(rf):
     project = ProjectFactory()
 
-    request = rf.get(MEANINGLESS_URL)
+    request = rf.get("/")
     request.user = UserFactory()
 
     with pytest.raises(Http404):
@@ -283,7 +280,7 @@ def test_workspacecreate_post_success(rf, mocker, user):
         "repo": "test",
         "branch": "test",
     }
-    request = rf.post(MEANINGLESS_URL, data)
+    request = rf.post("/", data)
     request.user = user
 
     response = WorkspaceCreate.as_view()(
@@ -308,7 +305,7 @@ def test_workspacecreate_without_github(rf, mocker, user):
         side_effect=requests.HTTPError,
     )
 
-    request = rf.get(MEANINGLESS_URL)
+    request = rf.get("/")
     request.user = user
 
     # set up messages framework
@@ -340,7 +337,7 @@ def test_workspacecreate_without_github(rf, mocker, user):
 def test_workspacecreate_without_permission(rf, user):
     project = ProjectFactory()
 
-    request = rf.post(MEANINGLESS_URL)
+    request = rf.post("/")
     request.user = user
 
     with pytest.raises(Http404):
@@ -894,7 +891,7 @@ def test_workspacelog_success(rf):
     job_request = JobRequestFactory(created_by=user, workspace=workspace)
     JobFactory(job_request=job_request)
 
-    request = rf.get(MEANINGLESS_URL)
+    request = rf.get("/")
     request.user = user
 
     response = WorkspaceLog.as_view()(
@@ -915,7 +912,7 @@ def test_workspacelog_unknown_workspace(rf):
 
     ProjectMembershipFactory(project=project, user=user, roles=[ProjectDeveloper])
 
-    request = rf.get(MEANINGLESS_URL)
+    request = rf.get("/")
     request.user = user
 
     response = WorkspaceLog.as_view()(
@@ -935,7 +932,7 @@ def test_workspacelog_with_authenticated_user(rf):
     job_request = JobRequestFactory(workspace=workspace)
     JobFactory(job_request=job_request)
 
-    request = rf.get(MEANINGLESS_URL)
+    request = rf.get("/")
     request.user = UserFactory()
 
     response = WorkspaceLog.as_view()(
@@ -954,7 +951,7 @@ def test_workspacelog_with_unauthenticated_user(rf):
     job_request = JobRequestFactory(workspace=workspace)
     JobFactory(job_request=job_request)
 
-    request = rf.get(MEANINGLESS_URL)
+    request = rf.get("/")
     request.user = AnonymousUser()
 
     response = WorkspaceLog.as_view()(
@@ -977,7 +974,7 @@ def test_workspacenotificationstoggle_success(rf):
         project=workspace.project, user=user, roles=[ProjectDeveloper]
     )
 
-    request = rf.post(MEANINGLESS_URL, {"should_notify": ""})
+    request = rf.post("/", {"should_notify": ""})
     request.user = user
 
     response = WorkspaceNotificationsToggle.as_view()(
@@ -1001,7 +998,7 @@ def test_workspacenotificationstoggle_without_permission(rf, user):
     workspace = WorkspaceFactory()
     user = UserFactory()
 
-    request = rf.post(MEANINGLESS_URL, {"should_notify": ""})
+    request = rf.post("/", {"should_notify": ""})
     request.user = user
 
     with pytest.raises(Http404):
@@ -1020,7 +1017,7 @@ def test_workspacenotificationstoggle_unknown_workspace(rf):
 
     ProjectMembershipFactory(project=project, user=user, roles=[ProjectDeveloper])
 
-    request = rf.post(MEANINGLESS_URL)
+    request = rf.post("/")
     request.user = user
 
     with pytest.raises(Http404):

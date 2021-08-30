@@ -13,9 +13,6 @@ from ....factories import (
 )
 
 
-MEANINGLESS_URL = "/"
-
-
 @pytest.mark.django_db
 def test_jobcancel_already_cancelled(rf, user):
     job_request = JobRequestFactory(cancelled_actions=["another-action", "test"])
@@ -25,7 +22,7 @@ def test_jobcancel_already_cancelled(rf, user):
         project=job_request.workspace.project, user=user, roles=[ProjectDeveloper]
     )
 
-    request = rf.post(MEANINGLESS_URL)
+    request = rf.post("/")
     request.user = user
 
     response = JobCancel.as_view()(request, identifier=job.identifier)
@@ -46,7 +43,7 @@ def test_jobcancel_already_completed(rf, user):
         project=job_request.workspace.project, user=user, roles=[ProjectDeveloper]
     )
 
-    request = rf.post(MEANINGLESS_URL)
+    request = rf.post("/")
     request.user = user
 
     response = JobCancel.as_view()(request, identifier=job.identifier)
@@ -68,7 +65,7 @@ def test_jobcancel_success(rf):
         project=job_request.workspace.project, user=user, roles=[ProjectDeveloper]
     )
 
-    request = rf.post(MEANINGLESS_URL)
+    request = rf.post("/")
     request.user = user
 
     response = JobCancel.as_view()(request, identifier=job.identifier)
@@ -86,7 +83,7 @@ def test_jobcancel_with_job_creator(rf):
     job_request = JobRequestFactory(cancelled_actions=[], created_by=user)
     job = JobFactory(job_request=job_request, action="test")
 
-    request = rf.post(MEANINGLESS_URL)
+    request = rf.post("/")
     request.user = user
 
     response = JobCancel.as_view()(request, identifier=job.identifier)
@@ -102,7 +99,7 @@ def test_jobcancel_with_job_creator(rf):
 def test_jobcancel_without_permission(rf, user):
     job = JobFactory(job_request=JobRequestFactory())
 
-    request = rf.post(MEANINGLESS_URL)
+    request = rf.post("/")
     request.user = user
 
     with pytest.raises(Http404):
@@ -111,7 +108,7 @@ def test_jobcancel_without_permission(rf, user):
 
 @pytest.mark.django_db
 def test_jobcancel_unknown_job(rf, user):
-    request = rf.post(MEANINGLESS_URL)
+    request = rf.post("/")
     request.user = user
 
     with pytest.raises(Http404):
@@ -122,7 +119,7 @@ def test_jobcancel_unknown_job(rf, user):
 def test_jobdetail_with_anonymous_user(rf):
     job = JobFactory()
 
-    request = rf.get(MEANINGLESS_URL)
+    request = rf.get("/")
     request.user = AnonymousUser()
 
     response = JobDetail.as_view()(
@@ -147,7 +144,7 @@ def test_jobdetail_with_permission(rf):
         project=job.job_request.workspace.project, user=user, roles=[ProjectDeveloper]
     )
 
-    request = rf.get(MEANINGLESS_URL)
+    request = rf.get("/")
     request.user = user
 
     response = JobDetail.as_view()(
@@ -169,7 +166,7 @@ def test_jobdetail_with_job_creator(rf):
     job_request = JobRequestFactory(created_by=user)
     job = JobFactory(job_request=job_request)
 
-    request = rf.get(MEANINGLESS_URL)
+    request = rf.get("/")
     request.user = user
 
     response = JobDetail.as_view()(
@@ -191,7 +188,7 @@ def test_jobdetail_with_partial_identifier_failure(rf, mocker):
     JobFactory(job_request=job_request, identifier="123abc")
     JobFactory(job_request=job_request, identifier="123def")
 
-    request = rf.get(MEANINGLESS_URL)
+    request = rf.get("/")
     request.user = UserFactory()
 
     with pytest.raises(Http404):
@@ -209,7 +206,7 @@ def test_jobdetail_with_partial_identifier_failure(rf, mocker):
 def test_jobdetail_with_partial_identifier_success(rf):
     job = JobFactory()
 
-    request = rf.get(MEANINGLESS_URL)
+    request = rf.get("/")
     request.user = UserFactory()
 
     response = JobDetail.as_view()(
@@ -229,7 +226,7 @@ def test_jobdetail_with_partial_identifier_success(rf):
 def test_jobdetail_with_unknown_job(rf):
     job_request = JobRequestFactory()
 
-    request = rf.get(MEANINGLESS_URL)
+    request = rf.get("/")
 
     with pytest.raises(Http404):
         JobDetail.as_view()(
@@ -246,7 +243,7 @@ def test_jobdetail_with_unknown_job(rf):
 def test_jobdetail_without_permission(rf):
     job = JobFactory()
 
-    request = rf.get(MEANINGLESS_URL)
+    request = rf.get("/")
     request.user = UserFactory()
 
     response = JobDetail.as_view()(
@@ -266,7 +263,7 @@ def test_jobdetail_without_permission(rf):
 def test_jobdetailredirect_success(rf):
     job = JobFactory()
 
-    request = rf.get(MEANINGLESS_URL)
+    request = rf.get("/")
 
     response = JobDetailRedirect.as_view()(request, identifier=job.identifier)
 
@@ -276,7 +273,7 @@ def test_jobdetailredirect_success(rf):
 
 @pytest.mark.django_db
 def test_jobdetailredirect_with_unknown_job(rf):
-    request = rf.get(MEANINGLESS_URL)
+    request = rf.get("/")
 
     with pytest.raises(Http404):
         JobDetailRedirect.as_view()(request, identifier="test")

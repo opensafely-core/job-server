@@ -13,15 +13,12 @@ from ....factories import (
 )
 
 
-MEANINGLESS_URL = "/"
-
-
 @pytest.mark.django_db
 def test_orgcreate_get_success(rf, core_developer):
     oxford = OrgFactory(name="University of Oxford")
     ebmdatalab = OrgFactory(name="EBMDataLab")
 
-    request = rf.get(MEANINGLESS_URL)
+    request = rf.get("/")
     request.user = core_developer
     response = OrgCreate.as_view()(request)
 
@@ -35,7 +32,7 @@ def test_orgcreate_get_success(rf, core_developer):
 
 @pytest.mark.django_db
 def test_orgcreate_post_success(rf, core_developer):
-    request = rf.post(MEANINGLESS_URL, {"name": "A New Org"})
+    request = rf.post("/", {"name": "A New Org"})
     request.user = core_developer
     response = OrgCreate.as_view()(request)
 
@@ -53,7 +50,7 @@ def test_orgcreate_post_success(rf, core_developer):
 def test_orgdetail_success(rf):
     org = OrgFactory()
 
-    request = rf.get(MEANINGLESS_URL)
+    request = rf.get("/")
     request.user = UserFactory()
     response = OrgDetail.as_view()(request, org_slug=org.slug)
 
@@ -62,7 +59,7 @@ def test_orgdetail_success(rf):
 
 @pytest.mark.django_db
 def test_orgdetail_unknown_org(rf):
-    request = rf.get(MEANINGLESS_URL)
+    request = rf.get("/")
     request.user = UserFactory()
 
     with pytest.raises(Http404):
@@ -75,7 +72,7 @@ def test_orgdetail_unknown_org_but_known_workspace(rf):
     project = ProjectFactory(org=org)
     workspace = WorkspaceFactory(project=project)
 
-    request = rf.get(MEANINGLESS_URL)
+    request = rf.get("/")
     request.user = UserFactory()
 
     response = OrgDetail.as_view()(request, org_slug=workspace.name)
@@ -90,7 +87,7 @@ def test_orgdetail_with_org_member(rf):
     user = UserFactory()
     OrgMembershipFactory(org=org, user=user)
 
-    request = rf.get(MEANINGLESS_URL)
+    request = rf.get("/")
     request.user = user
 
     response = OrgDetail.as_view()(request, org_slug=org.slug)
@@ -103,7 +100,7 @@ def test_orgdetail_with_org_member(rf):
 def test_orgdetail_with_non_member_user(rf):
     org = OrgFactory()
 
-    request = rf.get(MEANINGLESS_URL)
+    request = rf.get("/")
     request.user = UserFactory()
     response = OrgDetail.as_view()(request, org_slug=org.slug)
 
@@ -115,7 +112,7 @@ def test_orgdetail_with_non_member_user(rf):
 def test_orglist_success(rf):
     org = OrgFactory()
 
-    request = rf.get(MEANINGLESS_URL)
+    request = rf.get("/")
     request.user = UserFactory()
 
     response = OrgList.as_view()(request)

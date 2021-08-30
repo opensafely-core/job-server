@@ -11,9 +11,6 @@ from jobserver.views.backends import (
 from ....factories import BackendFactory
 
 
-MEANINGLESS_URL = "/"
-
-
 @pytest.mark.django_db
 def test_backendedit_success(rf, core_developer):
     backend = BackendFactory()
@@ -34,7 +31,7 @@ def test_backendedit_success(rf, core_developer):
 def test_backenddetail_success(rf, core_developer):
     backend = BackendFactory()
 
-    request = rf.get(MEANINGLESS_URL)
+    request = rf.get("/")
     request.user = core_developer
     response = BackendDetail.as_view()(request, pk=backend.pk)
 
@@ -44,7 +41,7 @@ def test_backenddetail_success(rf, core_developer):
 
 @pytest.mark.django_db
 def test_backendlist_success(rf, core_developer):
-    request = rf.get(MEANINGLESS_URL)
+    request = rf.get("/")
     request.user = core_developer
     response = BackendList.as_view()(request)
 
@@ -56,7 +53,7 @@ def test_backendlist_success(rf, core_developer):
 def test_backendrotatetoken_success(rf, core_developer):
     backend = BackendFactory()
 
-    request = rf.post(MEANINGLESS_URL)
+    request = rf.post("/")
     request.user = core_developer
     response = BackendRotateToken.as_view()(request, pk=backend.pk)
 
