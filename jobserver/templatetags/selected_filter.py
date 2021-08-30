@@ -23,12 +23,12 @@ def is_filter_selected(context, *, key, value, **kwargs):
     # arg to is also a string
     value = str(value)
 
-    arg = request.GET.get(key)
+    args = request.GET.getlist(key)
 
-    if arg is None:
+    if not args:
         return False
 
-    if arg != value:
+    if value not in args:
         return False
 
     return True
