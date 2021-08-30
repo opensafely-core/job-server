@@ -96,6 +96,6 @@ def render_definition(content, link_func):
 
     # replace newlines with <br /> elements so the normal newlines aren't
     # collapsed when the browser renders them.
-    definition = "<br/>".join(lines)
+    definition = "\n".join(lines)
 
     return definition

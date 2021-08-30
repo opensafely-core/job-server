@@ -197,9 +197,7 @@ def test_render_definition():
         needs: [run_model]
         outputs:
           moderately_sensitive:
-            log: logs/analysis.log""".replace(
-        "\n", "<br/>"
-    )  # keep expected human readable
+            log: logs/analysis.log"""
 
     def link_func(path):
         return f"example.com/test/{path}"
