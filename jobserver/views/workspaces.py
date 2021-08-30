@@ -360,7 +360,9 @@ class WorkspaceLog(ListView):
         qs = (
             JobRequest.objects.filter(workspace=self.workspace)
             .prefetch_related("jobs")
-            .select_related("workspace")
+            .select_related(
+                "backend", "workspace", "workspace__project", "workspace__project__org"
+            )
             .order_by("-pk")
         )
 
