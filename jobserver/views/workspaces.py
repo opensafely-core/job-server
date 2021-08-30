@@ -352,7 +352,15 @@ class WorkspaceLog(ListView):
         return super().dispatch(request, *args, **kwargs)
 
     def get_context_data(self, **kwargs):
+        # limit backends to those the workspace uses
+        backends = Backend.objects.filter(
+            pk__in=JobRequest.objects.filter(workspace=self.workspace).values_list(
+                "backend_id", flat=True
+            )
+        )
+
         return super().get_context_data(**kwargs) | {
+            "backends": backends,
             "workspace": self.workspace,
         }
 
@@ -377,6 +385,9 @@ class WorkspaceLog(ListView):
                 # if the query looks enough like a number for int() to handle
                 # it then we can look for a job number
                 qs = qs.filter(qwargs | Q(jobs__pk=q))
+
+        if backends := self.request.GET.getlist("backend"):
+            qs = qs.filter(backend__slug__in=backends)
 
         return qs
 
