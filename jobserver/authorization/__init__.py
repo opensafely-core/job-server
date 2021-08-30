@@ -9,7 +9,6 @@ from .roles import (
     ProjectCollaborator,
     ProjectCoordinator,
     ProjectDeveloper,
-    SuperUser,
     TechnicalReviewer,
 )
 from .utils import has_permission, has_role, roles_for, strings_to_roles
@@ -26,7 +25,6 @@ __all__ = [
     "ProjectCollaborator",
     "ProjectCoordinator",
     "ProjectDeveloper",
-    "SuperUser",
     "TechnicalReviewer",
     "has_permission",
     "has_role",
