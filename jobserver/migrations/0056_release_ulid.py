@@ -2,7 +2,7 @@
 
 from django.db import migrations, models
 
-import jobserver.models.common
+import jobserver.models.outputs
 
 
 class Migration(migrations.Migration):
@@ -16,7 +16,7 @@ class Migration(migrations.Migration):
             model_name="release",
             name="id",
             field=models.CharField(
-                default=jobserver.models.common.new_ulid_str,
+                default=jobserver.models.outputs.new_ulid_str,
                 editable=False,
                 max_length=26,
                 primary_key=True,
@@ -27,7 +27,7 @@ class Migration(migrations.Migration):
             model_name="releasefile",
             name="id",
             field=models.CharField(
-                default=jobserver.models.common.new_ulid_str,
+                default=jobserver.models.outputs.new_ulid_str,
                 editable=False,
                 max_length=26,
                 primary_key=True,

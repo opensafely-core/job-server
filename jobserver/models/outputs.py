@@ -4,12 +4,14 @@ from django.urls import reverse
 from django.utils import timezone
 from ulid import ULID
 
-from jobserver.models.common import new_ulid_str
-
 
 def absolute_file_path(path):
     abs_path = settings.RELEASE_STORAGE / path
     return abs_path
+
+
+def new_ulid_str():
+    return str(ULID())
 
 
 class Release(models.Model):
