@@ -85,7 +85,7 @@ def render_definition(content, link_func):
     project.yaml but since we're only convert the script-looking substrings
     currently this seems like the quicker path.
     """
-    lines = content.split("\n")
+    lines = content.strip().split("\n")
 
     for i, line in enumerate(lines):
         if "run:" not in line:
@@ -96,6 +96,6 @@ def render_definition(content, link_func):
 
     # replace newlines with <br /> elements so the normal newlines aren't
     # collapsed when the browser renders them.
-    definition = "<br/>".join(lines)
+    definition = "\n".join(lines)
 
     return definition

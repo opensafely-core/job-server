@@ -173,8 +173,7 @@ def test_render_definition():
             log: logs/analysis.log
     """
 
-    expected = """
-    version: "3.0"
+    expected = """version: "3.0"
 
     expectations:
       population_size: 100000
@@ -198,10 +197,7 @@ def test_render_definition():
         needs: [run_model]
         outputs:
           moderately_sensitive:
-            log: logs/analysis.log
-    """.replace(
-        "\n", "<br/>"
-    )  # keep expected human readable
+            log: logs/analysis.log"""
 
     def link_func(path):
         return f"example.com/test/{path}"
