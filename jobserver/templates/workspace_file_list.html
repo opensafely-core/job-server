@@ -1,45 +1,57 @@
 {% extends "base.html" %}
 
-{% block content %}
+{% block metatitle %}Medium Privacy (Level 4) Files: {{ workspace.name }} | OpenSAFELY Jobs{% endblock metatitle %}
 
-<nav aria-label="breadcrumb">
-  <ol class="breadcrumb">
+{% block breadcrumbs %}
+<nav class="breadcrumb-container" aria-label="breadcrumb">
+  <div class="container">
+    <ol class="breadcrumb rounded-0 mb-0 px-0">
+      <li class="breadcrumb-item">
+        <a href="/">Home</a>
+      </li>
 
-    <li class="breadcrumb-item"><a href="/">Home</a></li>
+      <li class="breadcrumb-item">
+        <a href="{{ workspace.project.org.get_absolute_url }}">
+          {{ workspace.project.org.name }}
+        </a>
+      </li>
 
-    <li class="breadcrumb-item">
-      <a href="{{ workspace.project.org.get_absolute_url }}">
-        {{ workspace.project.org.name }}
-      </a>
-    </li>
+      <li class="breadcrumb-item">
+        <a href="{{ workspace.project.get_absolute_url }}">
+          {{ workspace.project.name }}
+        </a>
+      </li>
 
-    <li class="breadcrumb-item">
-      <a href="{{ workspace.project.get_absolute_url }}">
-        {{ workspace.project.name }}
-      </a>
-    </li>
+      <li class="breadcrumb-item">
+        <a href="{{ workspace.get_absolute_url }}">
+          {{ workspace.name }}
+        </a>
+      </li>
 
-    <li class="breadcrumb-item">
-      <a href="{{ workspace.get_absolute_url }}">
-        {{ workspace.name }}
-      </a>
-    </li>
-
-    <li class="breadcrumb-item active" aria-current="page">Files</li>
-
-  </ol>
+      <li class="breadcrumb-item active" aria-current="page">
+        Files
+      </li>
+    </ol>
+  </div>
 </nav>
+{% endblock breadcrumbs %}
 
-<div class="row">
-  <div class="col-lg-8 offset-lg-2">
-    <h3>Medium Privacy (Level 4) Files</h3>
-
-    <p>
+{% block jumbotron %}
+<div class="jumbotron jumbotron-fluid">
+  <div class="container">
+    <h1>Medium Privacy (Level 4) Files</h1>
+    <p class="lead prose-width">
       Listed below are the backends which you have access to.
       Clicking one will show you the files currently on that backend for the
       {{ workspace.name }} workspace.
     </p>
+  </div>
+</div>
+{% endblock jumbotron %}
 
+{% block content %}
+<div class="row">
+  <div class="col-lg-8 offset-lg-2">
     <ul class="list-group list-unstyled mb-4">
       {% for backend in backends %}
       <li class="list-group-item">
@@ -49,7 +61,6 @@
       </li>
       {% endfor %}
     </ul>
-
   </div>
 </div>
 
