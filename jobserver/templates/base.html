@@ -28,11 +28,11 @@
     {% include 'partials/header.html' %}
 
     <main class="main flex-grow-1">
+      {% include 'partials/alerts.html' %}
       {% block breadcrumbs %}{% endblock %}
       {% block jumbotron %}{% endblock %}
 
       <div class="container-fluid pt-3">
-        {% include 'partials/alerts.html' %}
         {% block content %}{% endblock %}
       </div>
     </main>

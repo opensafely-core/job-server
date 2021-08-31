@@ -1,14 +1,26 @@
 {% for backend in backend_warnings %}
-  <div class="alert alert-danger text-center mb-3" role="alert">
-    Something is wrong with the {{ backend }} backend. Jobs are not being processed.
+  <div class="alert alert-danger text-center mb-0" role="alert">
+    <div class="container">
+      <div class="row">
+        <div class="col">
+          <p class="mb-0">Something is wrong with the {{ backend }} backend. Jobs are not being processed.</p>
+        </div>
+      </div>
+    </div>
   </div>
 {% endfor %}
 
 {% for message in messages %}
-  <div class="alert {{ message.tags }} alert-dismissible mb-3" role="alert">
+  <div class="alert {{ message.tags }} alert-dismissible mb-0" role="alert">
     <button type="button" class="close" data-dismiss="alert" aria-label="Close">
       <span aria-hidden="true">&times;</span>
     </button>
-    {{ message|safe }}
+    <div class="container">
+      <div class="row">
+        <div class="col text-center">
+          <p class="mb-0">{{ message|safe }}</p>
+        </div>
+      </div>
+    </div>
   </div>
 {% endfor %}
