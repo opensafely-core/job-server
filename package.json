@@ -60,14 +60,14 @@
     "prop-types": "^15.7.2",
     "react": "^17.0.2",
     "react-dom": "^17.0.2",
-    "react-hot-toast": "^2.1.0",
+    "react-hot-toast": "^2.1.1",
     "react-papaparse": "^3.17.1",
-    "react-query": "^3.21.0",
-    "react-router-dom": "^5.2.0",
+    "react-query": "^3.21.1",
+    "react-router-dom": "^5.2.1",
     "react-window": "^1.8.6",
     "select2": "^4.0.13",
     "whatwg-fetch": "^3.6.2",
-    "zustand": "^3.5.9"
+    "zustand": "^3.5.10"
   },
   "eslintConfig": {
     "extends": [
