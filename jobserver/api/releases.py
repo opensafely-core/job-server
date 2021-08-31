@@ -143,6 +143,7 @@ def generate_index(files):
                 sha256=rfile.filehash,
                 size=get_size(rfile),
                 is_deleted=rfile.deleted_at or not rfile.absolute_path().exists(),
+                backend=rfile.release.backend.name,
             )
             for name, rfile in files.items()
         ],
