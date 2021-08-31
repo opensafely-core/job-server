@@ -98,7 +98,7 @@ class Command(BaseCommand):
             else:
                 raise
 
-        backend = get_or_maybe_create(create, Backend, {"name": backend_name})
+        backend = get_or_maybe_create(create, Backend, {"slug": backend_name})
         user = get_or_maybe_create(create, User, {"username": username})
 
         release = releases.create_release(workspace, backend, user, files)

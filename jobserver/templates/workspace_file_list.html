@@ -55,7 +55,7 @@
     <ul class="list-group list-unstyled mb-4">
       {% for backend in backends %}
       <li class="list-group-item">
-        <a class="mr-3" href="{% url 'workspace-backend-files' org_slug=workspace.project.org.slug project_slug=workspace.project.slug workspace_slug=workspace.name backend_slug=backend.name %}">
+        <a class="mr-3" href="{% url 'workspace-backend-files' org_slug=workspace.project.org.slug project_slug=workspace.project.slug workspace_slug=workspace.name backend_slug=backend.slug %}">
           {{ backend.name }}
         </a>
       </li>

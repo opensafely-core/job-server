@@ -196,8 +196,9 @@ class WorkspaceDetail(View):
         has_published_snapshots = workspace.snapshots.exclude(
             published_at=None
         ).exists()
+        has_any_snapshots = workspace.snapshots.exists()
         can_view_outputs = has_published_snapshots or (
-            is_privileged_user and can_view_releases
+            is_privileged_user and can_view_releases and has_any_snapshots
         )
 
         can_archive_workspace = has_permission(
