@@ -17,15 +17,12 @@ from ....factories import (
 )
 
 
-MEANINGLESS_URL = "/"
-
-
 @pytest.mark.django_db
 def test_settings_get(rf):
     UserFactory()
     user2 = UserFactory()
 
-    request = rf.get(MEANINGLESS_URL)
+    request = rf.get("/")
     request.user = user2
     response = Settings.as_view()(request)
 
@@ -41,7 +38,7 @@ def test_settings_post(rf):
     user2 = UserFactory(notifications_email="original@example.com")
 
     data = {"notifications_email": "changed@example.com"}
-    request = rf.post(MEANINGLESS_URL, data)
+    request = rf.post("/", data)
     request.user = user2
 
     # set up messages framework
@@ -307,7 +304,7 @@ def test_userlist_find_by_username(rf, core_developer):
 def test_userlist_success(rf, core_developer):
     UserFactory.create_batch(5)
 
-    request = rf.get(MEANINGLESS_URL)
+    request = rf.get("/")
     request.user = core_developer
 
     response = UserList.as_view()(request)

@@ -9,9 +9,6 @@ from ....factories import JobFactory, JobRequestFactory, StatsFactory
 from ....utils import minutes_ago
 
 
-MEANINGLESS_URL = "/"
-
-
 @pytest.mark.django_db
 def test_status_healthy(rf):
     tpp = Backend.objects.get(slug="tpp")
@@ -22,7 +19,7 @@ def test_status_healthy(rf):
     last_seen = minutes_ago(timezone.now(), 1)
     StatsFactory(backend=tpp, api_last_seen=last_seen)
 
-    request = rf.get(MEANINGLESS_URL)
+    request = rf.get("/")
     response = Status.as_view()(request)
 
     tpp_output = first(
@@ -37,7 +34,7 @@ def test_status_healthy(rf):
 
 @pytest.mark.django_db
 def test_status_no_last_seen(rf):
-    request = rf.get(MEANINGLESS_URL)
+    request = rf.get("/")
     response = Status.as_view()(request)
 
     tpp_output = first(
@@ -55,7 +52,7 @@ def test_status_unacked_jobs_but_recent_api_contact(rf):
     last_seen = minutes_ago(timezone.now(), 1)
     StatsFactory(backend=tpp, api_last_seen=last_seen)
 
-    request = rf.get(MEANINGLESS_URL)
+    request = rf.get("/")
     response = Status.as_view()(request)
 
     tpp_output = first(
@@ -80,7 +77,7 @@ def test_status_unhealthy(rf):
     last_seen = minutes_ago(timezone.now(), 10)
     StatsFactory(backend=tpp, api_last_seen=last_seen, url="foo")
 
-    request = rf.get(MEANINGLESS_URL)
+    request = rf.get("/")
     response = Status.as_view()(request)
 
     tpp_output = first(

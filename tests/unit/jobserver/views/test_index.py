@@ -11,15 +11,12 @@ from ....factories import (
 )
 
 
-MEANINGLESS_URL = "/"
-
-
 @pytest.mark.django_db
 def test_index_success(rf, user):
     workspace = WorkspaceFactory()
     JobRequestFactory.create_batch(10, workspace=workspace)
 
-    request = rf.get(MEANINGLESS_URL)
+    request = rf.get("/")
     request.user = user
 
     response = Index.as_view()(request)
@@ -36,7 +33,7 @@ def test_index_with_authenticated_user_in_multiple_orgs(rf, user):
     # set up a second Org & tie the User to it
     OrgMembershipFactory(org=OrgFactory(), user=user)
 
-    request = rf.get(MEANINGLESS_URL)
+    request = rf.get("/")
     request.user = user
 
     response = Index.as_view()(request)
@@ -50,7 +47,7 @@ def test_index_with_authenticated_user_in_one_org(rf, user):
     """Check the Add Workspace button is rendered for authenticated Users in a single Org."""
     WorkspaceFactory()
 
-    request = rf.get(MEANINGLESS_URL)
+    request = rf.get("/")
     request.user = user
 
     response = Index.as_view()(request)
@@ -67,7 +64,7 @@ def test_index_with_unauthenticated_user(rf):
     """
     WorkspaceFactory()
 
-    request = rf.get(MEANINGLESS_URL)
+    request = rf.get("/")
     request.user = AnonymousUser()
 
     response = Index.as_view()(request)

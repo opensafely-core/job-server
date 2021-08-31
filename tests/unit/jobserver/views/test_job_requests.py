@@ -26,9 +26,6 @@ from ....factories import (
 )
 
 
-MEANINGLESS_URL = "/"
-
-
 @pytest.mark.django_db
 def test_jobrequestcancel_already_completed(rf):
     job_request = JobRequestFactory(cancelled_actions=[])
@@ -40,7 +37,7 @@ def test_jobrequestcancel_already_completed(rf):
         project=job_request.workspace.project, user=user, roles=[ProjectDeveloper]
     )
 
-    request = rf.post(MEANINGLESS_URL)
+    request = rf.post("/")
     request.user = user
 
     response = JobRequestCancel.as_view()(request, pk=job_request.pk)
@@ -64,7 +61,7 @@ def test_jobrequestcancel_success(rf):
         project=job_request.workspace.project, user=user, roles=[ProjectDeveloper]
     )
 
-    request = rf.post(MEANINGLESS_URL)
+    request = rf.post("/")
     request.user = user
 
     response = JobRequestCancel.as_view()(request, pk=job_request.pk)
@@ -84,7 +81,7 @@ def test_jobrequestcancel_with_job_request_creator(rf):
     job_request = JobRequestFactory(cancelled_actions=[], created_by=user)
     JobFactory(job_request=job_request, action="test1")
 
-    request = rf.post(MEANINGLESS_URL)
+    request = rf.post("/")
     request.user = user
 
     response = JobRequestCancel.as_view()(request, pk=job_request.pk)
@@ -101,7 +98,7 @@ def test_jobrequestcancel_unauthorized(rf):
     job_request = JobRequestFactory()
     user = UserFactory()
 
-    request = rf.post(MEANINGLESS_URL)
+    request = rf.post("/")
     request.user = user
 
     with pytest.raises(Http404):
@@ -110,42 +107,11 @@ def test_jobrequestcancel_unauthorized(rf):
 
 @pytest.mark.django_db
 def test_jobrequestcancel_unknown_job_request(rf):
-    request = rf.post(MEANINGLESS_URL)
+    request = rf.post("/")
     request.user = UserFactory()
 
     with pytest.raises(Http404):
         JobRequestCancel.as_view()(request, pk=0)
-
-
-@pytest.mark.django_db
-def test_jobrequestcreate_get_with_project_yaml_errors(rf, mocker, user):
-    workspace = WorkspaceFactory()
-
-    BackendMembershipFactory(backend=Backend.objects.get(slug="tpp"), user=user)
-    ProjectMembershipFactory(
-        project=workspace.project, user=user, roles=[ProjectDeveloper]
-    )
-
-    mocker.patch(
-        "jobserver.views.job_requests.get_project",
-        autospec=True,
-        side_effect=Exception("test error"),
-    )
-
-    request = rf.get(MEANINGLESS_URL)
-    request.user = user
-
-    response = JobRequestCreate.as_view()(
-        request,
-        org_slug=workspace.project.org.slug,
-        project_slug=workspace.project.slug,
-        workspace_slug=workspace.name,
-    )
-
-    assert response.status_code == 200
-
-    assert response.context_data["actions"] == []
-    assert response.context_data["actions_error"] == "test error"
 
 
 @pytest.mark.django_db
@@ -167,7 +133,7 @@ def test_jobrequestcreate_get_success(rf, mocker, user):
         return_value=dummy_yaml,
     )
 
-    request = rf.get(MEANINGLESS_URL)
+    request = rf.get("/")
     request.user = user
 
     response = JobRequestCreate.as_view()(
@@ -205,7 +171,7 @@ def test_jobrequestcreate_get_with_permission(rf, mocker, user):
         return_value=dummy_yaml,
     )
 
-    request = rf.get(MEANINGLESS_URL)
+    request = rf.get("/")
     request.user = user
 
     response = JobRequestCreate.as_view()(
@@ -222,6 +188,37 @@ def test_jobrequestcreate_get_with_permission(rf, mocker, user):
         {"name": "run_all", "needs": ["twiddle"], "status": "-"},
     ]
     assert response.context_data["workspace"] == workspace
+
+
+@pytest.mark.django_db
+def test_jobrequestcreate_get_with_project_yaml_errors(rf, mocker, user):
+    workspace = WorkspaceFactory()
+
+    BackendMembershipFactory(backend=Backend.objects.get(slug="tpp"), user=user)
+    ProjectMembershipFactory(
+        project=workspace.project, user=user, roles=[ProjectDeveloper]
+    )
+
+    mocker.patch(
+        "jobserver.views.job_requests.get_project",
+        autospec=True,
+        side_effect=Exception("test error"),
+    )
+
+    request = rf.get("/")
+    request.user = user
+
+    response = JobRequestCreate.as_view()(
+        request,
+        org_slug=workspace.project.org.slug,
+        project_slug=workspace.project.slug,
+        workspace_slug=workspace.name,
+    )
+
+    assert response.status_code == 200
+
+    assert response.context_data["actions"] == []
+    assert response.context_data["actions_error"] == "test error"
 
 
 @pytest.mark.django_db
@@ -255,7 +252,7 @@ def test_jobrequestcreate_post_success(rf, mocker, monkeypatch, user):
         "requested_actions": ["twiddle"],
         "callback_url": "test",
     }
-    request = rf.post(MEANINGLESS_URL, data)
+    request = rf.post("/", data)
     request.user = user
 
     response = JobRequestCreate.as_view()(
@@ -308,7 +305,7 @@ def test_jobrequestcreate_post_with_invalid_backend(rf, mocker, monkeypatch, use
         "requested_actions": ["twiddle"],
         "callback_url": "test",
     }
-    request = rf.post(MEANINGLESS_URL, data)
+    request = rf.post("/", data)
     request.user = user
 
     response = JobRequestCreate.as_view()(
@@ -358,7 +355,7 @@ def test_jobrequestcreate_post_with_notifications_default(
         "callback_url": "test",
         "will_notify": "True",
     }
-    request = rf.post(MEANINGLESS_URL, data)
+    request = rf.post("/", data)
     request.user = user
 
     response = JobRequestCreate.as_view()(
@@ -414,7 +411,7 @@ def test_jobrequestcreate_post_with_notifications_override(
         "callback_url": "test",
         "will_notify": "False",
     }
-    request = rf.post(MEANINGLESS_URL, data)
+    request = rf.post("/", data)
     request.user = user
 
     response = JobRequestCreate.as_view()(
@@ -442,7 +439,7 @@ def test_jobrequestcreate_unknown_workspace(rf, user):
     org = user.orgs.first()
     project = ProjectFactory(org=org)
 
-    request = rf.get(MEANINGLESS_URL)
+    request = rf.get("/")
     request.user = user
     response = JobRequestCreate.as_view()(
         request,
@@ -518,15 +515,11 @@ def test_jobrequestcreate_without_permission(rf):
 
 
 @pytest.mark.django_db
-def test_jobrequestdetail_with_authenticated_user(rf):
-    job_request = JobRequestFactory()
+def test_jobrequestdetail_with_job_request_creator(rf):
     user = UserFactory()
+    job_request = JobRequestFactory(created_by=user)
 
-    ProjectMembershipFactory(
-        project=job_request.workspace.project, user=user, roles=[ProjectDeveloper]
-    )
-
-    request = rf.get(MEANINGLESS_URL)
+    request = rf.get("/")
     request.user = user
 
     response = JobRequestDetail.as_view()(request, pk=job_request.pk)
@@ -536,11 +529,15 @@ def test_jobrequestdetail_with_authenticated_user(rf):
 
 
 @pytest.mark.django_db
-def test_jobrequestdetail_with_job_request_creator(rf):
+def test_jobrequestdetail_with_permission(rf):
+    job_request = JobRequestFactory()
     user = UserFactory()
-    job_request = JobRequestFactory(created_by=user)
 
-    request = rf.get(MEANINGLESS_URL)
+    ProjectMembershipFactory(
+        project=job_request.workspace.project, user=user, roles=[ProjectDeveloper]
+    )
+
+    request = rf.get("/")
     request.user = user
 
     response = JobRequestDetail.as_view()(request, pk=job_request.pk)
@@ -553,7 +550,7 @@ def test_jobrequestdetail_with_job_request_creator(rf):
 def test_jobrequestdetail_with_unauthenticated_user(rf):
     job_request = JobRequestFactory()
 
-    request = rf.get(MEANINGLESS_URL)
+    request = rf.get("/")
     request.user = AnonymousUser()
 
     response = JobRequestDetail.as_view()(request, pk=job_request.pk)
@@ -562,10 +559,10 @@ def test_jobrequestdetail_with_unauthenticated_user(rf):
 
 
 @pytest.mark.django_db
-def test_jobrequestdetail_with_unprivileged_user(rf):
+def test_jobrequestdetail_without_permission(rf):
     job_request = JobRequestFactory()
 
-    request = rf.get(MEANINGLESS_URL)
+    request = rf.get("/")
     request.user = UserFactory()
 
     response = JobRequestDetail.as_view()(request, pk=job_request.pk)
@@ -578,7 +575,7 @@ def test_jobrequestdetail_with_unprivileged_user(rf):
 def test_jobrequestdetailredirect_success(rf):
     job_request = JobRequestFactory()
 
-    request = rf.get(MEANINGLESS_URL)
+    request = rf.get("/")
 
     response = JobRequestDetailRedirect.as_view()(request, pk=job_request.pk)
 
@@ -588,7 +585,7 @@ def test_jobrequestdetailredirect_success(rf):
 
 @pytest.mark.django_db
 def test_jobrequestdetailredirect_with_unknown_job(rf):
-    request = rf.get(MEANINGLESS_URL)
+    request = rf.get("/")
 
     with pytest.raises(Http404):
         JobRequestDetailRedirect.as_view()(request, pk=0)
@@ -597,7 +594,7 @@ def test_jobrequestdetailredirect_with_unknown_job(rf):
 @pytest.mark.django_db
 def test_jobrequestlist_filters_exist(rf):
     # Build a RequestFactory instance
-    request = rf.get(MEANINGLESS_URL)
+    request = rf.get("/")
     request.user = UserFactory()
     response = JobRequestList.as_view()(request)
 
@@ -735,7 +732,7 @@ def test_jobrequestlist_filter_by_workspace_with_broken_pk(rf):
 
 @pytest.mark.django_db
 def test_jobrequestlist_find_job_request_by_identifier_form_invalid(rf):
-    request = rf.post(MEANINGLESS_URL, {"test-key": "test-value"})
+    request = rf.post("/", {"test-key": "test-value"})
     request.user = UserFactory()
     response = JobRequestList.as_view()(request)
 
@@ -749,7 +746,7 @@ def test_jobrequestlist_find_job_request_by_identifier_form_invalid(rf):
 def test_jobrequestlist_find_job_request_by_identifier_success(rf):
     job_request = JobRequestFactory(identifier="test-identifier")
 
-    request = rf.post(MEANINGLESS_URL, {"identifier": job_request.identifier})
+    request = rf.post("/", {"identifier": job_request.identifier})
     request.user = UserFactory()
     response = JobRequestList.as_view()(request)
 
@@ -759,7 +756,7 @@ def test_jobrequestlist_find_job_request_by_identifier_success(rf):
 
 @pytest.mark.django_db
 def test_jobrequestlist_find_job_request_by_identifier_unknown_job_request(rf):
-    request = rf.post(MEANINGLESS_URL, {"identifier": "test-value"})
+    request = rf.post("/", {"identifier": "test-value"})
     request.user = UserFactory()
     response = JobRequestList.as_view()(request)
 
@@ -813,7 +810,7 @@ def test_jobrequestlist_success(rf):
     JobFactory(job_request=job_request)
 
     # Build a RequestFactory instance
-    request = rf.get(MEANINGLESS_URL)
+    request = rf.get("/")
     request.user = UserFactory()
     response = JobRequestList.as_view()(request)
 
@@ -825,26 +822,12 @@ def test_jobrequestlist_success(rf):
 
 
 @pytest.mark.django_db
-def test_jobrequestlist_with_authenticated_user(rf):
-    job_request = JobRequestFactory()
-    JobFactory(job_request=job_request)
-    JobFactory(job_request=job_request)
-
-    request = rf.get(MEANINGLESS_URL)
-    request.user = UserFactory(is_superuser=False, roles=[])
-    response = JobRequestList.as_view()(request)
-
-    assert response.status_code == 200
-    assert "Look up JobRequest by Identifier" not in response.rendered_content
-
-
-@pytest.mark.django_db
 def test_jobrequestlist_with_core_developer(rf, core_developer):
     job_request = JobRequestFactory()
     JobFactory(job_request=job_request)
     JobFactory(job_request=job_request)
 
-    request = rf.get(MEANINGLESS_URL)
+    request = rf.get("/")
     request.user = core_developer
     response = JobRequestList.as_view()(request)
 
@@ -853,12 +836,26 @@ def test_jobrequestlist_with_core_developer(rf, core_developer):
 
 
 @pytest.mark.django_db
-def test_jobrequestlist_with_unauthenticated_user(rf):
+def test_jobrequestlist_with_permission(rf):
     job_request = JobRequestFactory()
     JobFactory(job_request=job_request)
     JobFactory(job_request=job_request)
 
-    request = rf.get(MEANINGLESS_URL)
+    request = rf.get("/")
+    request.user = UserFactory(is_superuser=False, roles=[])
+    response = JobRequestList.as_view()(request)
+
+    assert response.status_code == 200
+    assert "Look up JobRequest by Identifier" not in response.rendered_content
+
+
+@pytest.mark.django_db
+def test_jobrequestlist_without_permission(rf):
+    job_request = JobRequestFactory()
+    JobFactory(job_request=job_request)
+    JobFactory(job_request=job_request)
+
+    request = rf.get("/")
     request.user = AnonymousUser()
     response = JobRequestList.as_view()(request)
     assert response.status_code == 200
