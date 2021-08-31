@@ -9,7 +9,7 @@ from django.http import Http404
 from django.utils import timezone
 
 from jobserver.authorization import ProjectCollaborator, ProjectDeveloper
-from jobserver.models import Workspace
+from jobserver.models import Backend, Workspace
 from jobserver.views.workspaces import (
     WorkspaceArchiveToggle,
     WorkspaceBackendFiles,
@@ -757,6 +757,72 @@ def test_workspacelatestoutputsdownload_without_permission(rf):
             project_slug=workspace.project.slug,
             workspace_slug=workspace.name,
         )
+
+
+@pytest.mark.django_db
+def test_workspacelog_filter_by_one_backend(rf):
+    workspace = WorkspaceFactory()
+    user = UserFactory()
+
+    ProjectMembershipFactory(
+        project=workspace.project, user=user, roles=[ProjectDeveloper]
+    )
+
+    job_request1 = JobRequestFactory(
+        workspace=workspace, backend=Backend.objects.get(slug="test")
+    )
+    JobRequestFactory(workspace=workspace, backend=Backend.objects.get(slug="tpp"))
+
+    request = rf.get("/?backend=test")
+    request.user = user
+
+    response = WorkspaceLog.as_view()(
+        request,
+        org_slug=workspace.project.org.slug,
+        project_slug=workspace.project.slug,
+        workspace_slug=workspace.name,
+    )
+
+    assert len(response.context_data["object_list"]) == 1
+    assert response.context_data["object_list"][0] == job_request1
+
+
+@pytest.mark.django_db
+def test_workspacelog_filter_by_several_backends(rf):
+    workspace = WorkspaceFactory()
+    user = UserFactory()
+
+    ProjectMembershipFactory(
+        project=workspace.project, user=user, roles=[ProjectDeveloper]
+    )
+
+    JobRequestFactory(workspace=workspace, backend=Backend.objects.get(slug="emis"))
+    job_request1 = JobRequestFactory(
+        workspace=workspace, backend=Backend.objects.get(slug="expectations")
+    )
+    job_request2 = JobRequestFactory(
+        workspace=workspace, backend=Backend.objects.get(slug="test")
+    )
+    job_request3 = JobRequestFactory(
+        workspace=workspace, backend=Backend.objects.get(slug="tpp")
+    )
+
+    request = rf.get("/?backend=expectations&backend=test&backend=tpp")
+    request.user = user
+
+    response = WorkspaceLog.as_view()(
+        request,
+        org_slug=workspace.project.org.slug,
+        project_slug=workspace.project.slug,
+        workspace_slug=workspace.name,
+    )
+
+    assert len(response.context_data["object_list"]) == 3
+    assert set(response.context_data["object_list"]) == {
+        job_request1,
+        job_request2,
+        job_request3,
+    }
 
 
 @pytest.mark.django_db

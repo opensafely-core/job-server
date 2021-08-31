@@ -88,16 +88,6 @@ nav {
 
 #started-at-header {
   margin-right: 112px;
-
-  /* account for larger show/hide button */
-  @media (min-width: 768px) {
-    margin-right: 147px;
-  }
-
-  /* account for larger show/hide button */
-  @media (min-width: 992px) {
-    margin-right: 212px;
-  }
 }
 
 .status-icon {

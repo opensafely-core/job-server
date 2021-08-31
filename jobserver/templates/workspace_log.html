@@ -1,5 +1,7 @@
 {% extends "base.html" %}
 
+{% load selected_filter %}
+
 {% block metatitle %}Logs: {{ workspace.name }} | OpenSAFELY Jobs{% endblock metatitle %}
 
 {% block content %}
@@ -52,7 +54,7 @@
     based on the actions which were requested.
   </p>
 
-  <form class="form d-flex align-items-center mb-4" method="GET">
+  <form class="d-flex align-items-center mb-2" method="GET">
     <input
       class="form-control mr-2"
       type="search"
@@ -62,6 +64,25 @@
     <button class="btn btn-outline-success my-2 my-sm-0" type="submit">Search</button>
   </form>
 
+  <form class="d-flex justify-content-between align-items-center mb-2" method="GET">
+
+    <div class="form-group">
+      <div class="btn-group-toggle" data-toggle="buttons">
+        {% for backend in backends %}
+        {% is_filter_selected key="backend" value=backend.slug as is_active %}
+        <label class="btn btn-sm btn-outline-success">
+          <input type="checkbox" name="backend" {% if is_active %}checked {% endif %}value="{{ backend.slug }}" />
+          {{ backend.name }}
+        </label>
+        {% endfor %}
+      </div>
+    </div>
+
+    <div class="form-group">
+      <button class="btn btn-outline-success" type="submit">Filter</button>
+    </div>
+
+  </form>
 
   {% if not page_obj %}
   <div class="text-center">
