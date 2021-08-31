@@ -2,51 +2,60 @@
 
 {% load humanize %}
 
-{% block content %}
+{% block metatitle %}Releases: {{ workspace.name }} | OpenSAFELY Jobs{% endblock metatitle %}
 
-<nav aria-label="breadcrumb">
-  <ol class="breadcrumb">
+{% block breadcrumbs %}
+<nav class="breadcrumb-container" aria-label="breadcrumb">
+  <div class="container">
+    <ol class="breadcrumb rounded-0 mb-0 px-0">
+      <li class="breadcrumb-item">
+        <a href="/">Home</a>
+      </li>
 
-    <li class="breadcrumb-item"><a href="/">Home</a></li>
+      <li class="breadcrumb-item">
+        <a href="{{ workspace.project.org.get_absolute_url }}">
+          {{ workspace.project.org.name }}
+        </a>
+      </li>
 
-    <li class="breadcrumb-item">
-      <a href="{{ workspace.project.org.get_absolute_url }}">
-        {{ workspace.project.org.name }}
-      </a>
-    </li>
+      <li class="breadcrumb-item">
+        <a href="{{ workspace.project.get_absolute_url }}">
+          {{ workspace.project.name }}
+        </a>
+      </li>
 
-    <li class="breadcrumb-item">
-      <a href="{{ workspace.project.get_absolute_url }}">
-        {{ workspace.project.name }}
-      </a>
-    </li>
+      <li class="breadcrumb-item">
+        <a href="{{ workspace.get_absolute_url }}">
+          {{ workspace.name }}
+        </a>
+      </li>
 
-    <li class="breadcrumb-item">
-      <a href="{{ workspace.get_absolute_url }}">
-        {{ workspace.name }}
-      </a>
-    </li>
-
-    <li class="breadcrumb-item active" aria-current="page">Releases</li>
-
-  </ol>
+      <li class="breadcrumb-item active" aria-current="page">
+        Releases
+      </li>
+    </ol>
+  </div>
 </nav>
+{% endblock breadcrumbs %}
 
+{% block jumbotron %}
+<div class="jumbotron jumbotron-fluid">
+  <div class="container">
+    <h1>Releases for the {{ workspace.name }} workspace</h1>
+  </div>
+</div>
+{% endblock jumbotron %}
 
+{% block content %}
 <div class="row">
   <div class="col-lg-8 offset-lg-2">
-
-    <h4>Releases for the {{ workspace.name }} workspace</h4>
-
     {% if latest_files.can_view_files %}
-    {% include "_release_list.html" with r=latest_files %}
+      {% include "_release_list.html" with r=latest_files %}
     {% endif %}
 
     {% for release in releases %}
-    {% include "_release_list.html" with r=release %}
+      {% include "_release_list.html" with r=release %}
     {% endfor %}
-
   </div>
-
 </div>
 {% endblock %}
