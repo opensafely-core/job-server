@@ -78,36 +78,50 @@
 <div class="job-list">
   <div class="container">
     <div class="row">
-      <form class="col-lg-10 offset-lg-1 col-xl-8 offset-xl-2 form d-flex align-items-center mb-4" method="GET">
-        <label for="searchJobLogs" class="sr-only">Search by Job action or ID</label>
-        <input
-          id="searchJobLogs"
-          class="form-control mr-2"
-          type="search"
-          placeholder="Search by Job action or ID"
-          aria-label="Search"
-          name="q" />
-        <button class="btn btn-outline-success my-2 my-sm-0" type="submit">Search</button>
-      </form>
-
-      <form class="d-flex justify-content-between align-items-center mb-2" method="GET">
-
+      <form class="col-lg-10 col-xl-8 form mb-3" method="GET">
         <div class="form-group">
-          <div class="btn-group-toggle" data-toggle="buttons">
-            {% for backend in backends %}
-              {% is_filter_selected key="backend" value=backend.slug as is_active %}
-              <label class="btn btn-sm btn-outline-success">
-                <input type="checkbox" name="backend" {% if is_active %}checked {% endif %}value="{{ backend.slug }}" />
-                {{ backend.name }}
-              </label>
-            {% endfor %}
+          <label class="font-weight-bold" for="searchJobLogs">Search by Job action or ID</label>
+          <div class="input-group mb-3">
+            <input
+              class="form-control"
+              id="searchJobLogs"
+              name="q"
+              type="search"
+            >
+            <div class="input-group-append">
+              <button class="btn btn-outline-primary" type="submit" id="button-addon2">Search</button>
+            </div>
           </div>
         </div>
+      </form>
 
-        <div class="form-group">
-          <button class="btn btn-outline-success" type="submit">Filter</button>
+      <form class="col-12 form" method="GET">
+        <fieldset class="form-group">
+          <legend class="form-label h6 font-weight-bold">Filter by backend</legend>
+          {% for backend in backends|dictsort:"name.lower" %}
+            {% is_filter_selected key="backend" value=backend.slug as is_active %}
+            <div class="form-check form-check-inline mb-2 {% if not forloop.last %}mr-4{% endif %}">
+              <input
+                {% if is_active %}checked {% endif %}
+                class="form-check-input"
+                type="checkbox"
+                name="backend"
+                id="{{ backend.slug }}"
+                value="{{ backend.slug }}"
+              >
+              <label
+                class="form-check-label"
+                for="{{ backend.slug }}"
+              >
+                {{ backend.name }}
+              </label>
+            </div>
+          {% endfor %}
+        </fieldset>
+
+        <div class="form-group mt-n2">
+          <button class="btn btn-outline-primary" type="submit">Filter</button>
         </div>
-
       </form>
     </div>
   </div>
