@@ -273,4 +273,8 @@ details[open] summary {
   }
 }
 
+.btn[aria-disabled] {
+  cursor: not-allowed;
+}
+
 @import "utilities";
