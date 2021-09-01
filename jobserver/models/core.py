@@ -677,6 +677,11 @@ class User(AbstractUser):
         through="BackendMembership",
         through_fields=["user", "backend"],
     )
+    events = models.ManyToManyField(
+        "auditing.AuditEvent",
+        related_name="users",
+        through="UserAuditEvent",
+    )
     orgs = models.ManyToManyField(
         "Org",
         related_name="members",
@@ -763,6 +768,19 @@ class User(AbstractUser):
     def name(self):
         """Unify the available names for a User."""
         return self.get_full_name() or self.username
+
+
+class UserAuditEvent(models.Model):
+    class UserEventType(models.TextChoices):
+        RELEASE_CREATOR = "release_creator", "Creator"
+        RELEASE_FILE_UPLOADER = "relase_file_uploader", "Uploader"
+        ROLE_ASSIGNED = "role_assigned", "Assigned"
+        ROLE_ASSIGNER = "role_assigner", "Assigner"
+
+    event = models.ForeignKey("auditing.AuditEvent", on_delete=models.PROTECT)
+    user = models.ForeignKey("User", on_delete=models.CASCADE)
+
+    relationship_type = models.TextField(choices=UserEventType.choices)
 
 
 class Workspace(models.Model):

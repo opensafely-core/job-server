@@ -78,6 +78,16 @@ class Release(models.Model):
         )
 
 
+class ReleaseAuditEvent(models.Model):
+    class ReleaseEventType(models.TextChoices):
+        CREATED = "created", "Created"
+
+    event = models.ForeignKey("auditing.AuditEvent", on_delete=models.PROTECT)
+    release = models.ForeignKey("Release", on_delete=models.CASCADE)
+
+    relationship_type = models.TextField(choices=ReleaseEventType.choices)
+
+
 class ReleaseFile(models.Model):
     """Individual files in a Release.
 
@@ -180,6 +190,17 @@ class ReleaseFile(models.Model):
         return not self.absolute_path().exists()
 
 
+class ReleaseFileAuditEvent(models.Model):
+    class ReleaseFileEventType(models.TextChoices):
+        DELETED = "deleted", "Deleted"
+        UPLOADED = "uploaded", "Uploaded"
+
+    event = models.ForeignKey("auditing.AuditEvent", on_delete=models.PROTECT)
+    release_file = models.ForeignKey("ReleaseFile", on_delete=models.CASCADE)
+
+    relationship_type = models.TextField(choices=ReleaseFileEventType.choices)
+
+
 class Snapshot(models.Model):
     """A "frozen" copy of the ReleaseFiles for a Workspace."""
 
@@ -262,3 +283,14 @@ class Snapshot(models.Model):
     @property
     def is_published(self):
         return self.published_at
+
+
+class SnapshotAuditEvent(models.Model):
+    class SnapshotEventType(models.TextChoices):
+        PREPARED = "prepared", "Prepared"
+        PUBLISHED = "published", "Published"
+
+    event = models.ForeignKey("auditing.AuditEvent", on_delete=models.PROTECT)
+    snapshot = models.ForeignKey("Snapshot", on_delete=models.CASCADE)
+
+    relationship_type = models.TextField(choices=SnapshotEventType.choices)
