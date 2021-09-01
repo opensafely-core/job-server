@@ -25,3 +25,6 @@ $breadcrumb-active-color: $oxford-800;
 
 $list-group-action-color: $oxford-600;
 $list-group-action-hover-color: $oxford;
+
+$code-color: map-get($theme-colors, "danger");
+$font-weight-bolder: 700;
