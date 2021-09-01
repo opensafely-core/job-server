@@ -11,7 +11,7 @@
 <meta property="og:description" content="Workspace: {{ job.job_request.workspace.name }}" />
 {% endblock extra_meta %}
 
-{% block metatitle %}Job detail: {{ job.job_request.id }} - {{ job.job_request.workspace.name }} | OpenSAFELY Jobs{% endblock metatitle %}
+{% block metatitle %}Job request: {{ job.action }} - {{ job.job_request.id }} - {{ job.job_request.workspace.name }} | OpenSAFELY Jobs{% endblock metatitle %}
 
 {% block breadcrumbs %}
 <nav class="breadcrumb-container" aria-label="breadcrumb">
@@ -66,7 +66,6 @@
       This page describes a "job", an action (<code>{{ job.action }}</code>) requested by the
       user, and run on a secure backend (<code>{{ job.job_request.backend.name }}</code>).
     </p>
-
 
     {% if user_can_cancel_jobs %}
       <form class="d-inline-block" method="POST" action="{{ jobrequest.get_cancel_url }}">
