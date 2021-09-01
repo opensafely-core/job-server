@@ -253,4 +253,24 @@ nav {
   }
 }
 
+details summary {
+  .summary--show {
+    display: inline;
+  }
+
+  .summary--hide {
+    display: none;
+  }
+}
+
+details[open] summary {
+  .summary--show {
+    display: none;
+  }
+
+  .summary--hide {
+    display: inline;
+  }
+}
+
 @import "utilities";

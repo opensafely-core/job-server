@@ -2,6 +2,7 @@
 
 {% load humanize %}
 {% load runtime %}
+{% load static %}
 
 {% block extra_meta %}
 <meta property="og:title" content="{{ jobrequest.requested_actions|length }} Action{{ jobrequest.requested_actions|pluralize }} Requested" />
@@ -9,6 +10,10 @@
 <meta property="og:url" content="{{ request.build_absolute_uri }}" />
 <meta property="og:description" content="Workspace: {{ jobrequest.workspace.name }}" />
 {% endblock extra_meta %}
+
+{% block extra_styles %}
+<link rel="stylesheet" href="{% static 'vendor/a11y-dark.css' %}">
+{% endblock extra_styles %}
 
 {% block metatitle %}Snapshot: {{ snapshot.id }} | OpenSAFELY Jobs{% endblock metatitle %}
 
@@ -171,7 +176,14 @@
       {% if project_definition %}
         <section class="pt-3">
           <h2 class="h3">Pipeline</h2>
-          <pre>{{ project_definition }}</pre>
+          <details class="card overflow-hidden">
+            <summary class="btn btn-link card-header font-weight-bold">
+              <span class="summary--show">Show</span>
+              <span class="summary--hide">Hide</span>
+              project.yaml
+            </summary>
+            <pre class="card-body my-0 rounded-0"><code class="language-yml">{{ project_definition }}</code></pre>
+          </details>
         </section>
       {% endif %}
 
@@ -289,3 +301,8 @@
   </div>
 </div>
 {% endblock content %}
+
+{% block extra_js %}
+<script type="text/javascript" src="{% static 'vendor/prismjs/components/prism-core.min.js' %}"></script>
+<script type="text/javascript" src="{% static 'vendor/prismjs/plugins/autoloader/prism-autoloader.min.js' %}"></script>
+{% endblock extra_js %}

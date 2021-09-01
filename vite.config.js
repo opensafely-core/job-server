@@ -59,6 +59,22 @@ const config = {
           dest: "./assets/dist/vendor",
         },
         {
+          src: "./node_modules/prismjs/components/prism-core.min.js",
+          dest: "./assets/dist/vendor/prismjs/components",
+        },
+        {
+          src: "./node_modules/prismjs/components/prism-yaml.min.js",
+          dest: "./assets/dist/vendor/prismjs/components",
+        },
+        {
+          src: "./node_modules/prismjs/plugins/autoloader/prism-autoloader.min.js",
+          dest: "./assets/dist/vendor/prismjs/plugins/autoloader",
+        },
+        {
+          src: "./node_modules/a11y-syntax-highlighting/dist/prism/a11y-dark.css",
+          dest: "./assets/dist/vendor",
+        },
+        {
           src: "./assets/src/js/*",
           dest: "./assets/dist/js",
         },
