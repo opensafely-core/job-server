@@ -15,7 +15,7 @@
 <link rel="stylesheet" href="{% static 'vendor/a11y-dark.css' %}">
 {% endblock extra_styles %}
 
-{% block metatitle %}Snapshot: {{ snapshot.id }} | OpenSAFELY Jobs{% endblock metatitle %}
+{% block metatitle %}Job request: {{ jobrequest.pk }} - {{ jobrequest.workspace.name }} | OpenSAFELY Jobs{% endblock metatitle %}
 
 {% block breadcrumbs %}
 <nav class="breadcrumb-container" aria-label="breadcrumb">
@@ -54,7 +54,7 @@
 {% block jumbotron %}
 <div class="jumbotron jumbotron-fluid">
   <div class="container">
-    <h1>Job Request: {{ jobrequest.pk }}</h1>
+    <h1>Job request: {{ jobrequest.pk }}</h1>
 
     <ul class="list-unstyled lead">
       <li><strong>ID:</strong> <code>{{ jobrequest.identifier }}</code></li>
