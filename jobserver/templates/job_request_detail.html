@@ -44,7 +44,7 @@
       </li>
 
       <li class="breadcrumb-item active" aria-current="page">
-        Request {{ jobrequest.id }}
+        Job request: {{ jobrequest.id }}
       </li>
     </ol>
   </div>
@@ -203,6 +203,41 @@
         </div>
       </div>
       <div class="card mb-3">
+        <div class="card-header">
+          <h2 class="h5">Timings</h2>
+          <p class="card-subtitle mb-0">Timings set to UTC timezone.</p>
+        </div>
+        <div class="card-body">
+          <ul class="list-unstyled mb-0">
+            <li>
+              <strong>Created:</strong>
+              <time title="{{ jobrequest.created_at|date:"Y-m-d H:i:sO" }}">
+                {{ jobrequest.created_at|naturaltime }}
+              </time>
+            </li>
+
+            <li>
+              <strong>Started:</strong>
+              <time title="{{ jobrequest.started_at|default_if_none:"" }}">
+                {{ jobrequest.started_at|naturaltime|default_if_none:"-" }}
+              </time>
+            </li>
+
+            <li>
+              <strong>Finished:</strong>
+              <time title="{{ jobrequest.completed_at|default_if_none:"" }}">
+                {{ jobrequest.completed_at|naturaltime|default_if_none:"-"}}
+              </time>
+            </li>
+
+            <li>
+              <strong>Runtime:</strong>
+              <span>{% runtime jobrequest.runtime %}</span>
+            </li>
+          </ul>
+        </div>
+      </div>
+      <div class="card mb-3">
         <h2 class="card-header h5">Config</h2>
         <ul class="list-group list-group-flush">
           <li class="list-group-item">
@@ -262,41 +297,6 @@
             </ul>
           </li>
         </ul>
-      </div>
-      <div class="card mb-3">
-        <div class="card-header">
-          <h2 class="h5">Timings</h2>
-          <p class="card-subtitle mb-0">Timings set to UTC timezone.</p>
-        </div>
-        <div class="card-body">
-          <ul class="list-unstyled mb-0">
-            <li>
-              <strong>Created:</strong>
-              <time title="{{ jobrequest.created_at|date:"Y-m-d H:i:sO" }}">
-                {{ jobrequest.created_at|naturaltime }}
-              </time>
-            </li>
-
-            <li>
-              <strong>Started:</strong>
-              <time title="{{ jobrequest.started_at|default_if_none:"" }}">
-                {{ jobrequest.started_at|naturaltime|default_if_none:"-" }}
-              </time>
-            </li>
-
-            <li>
-              <strong>Finished:</strong>
-              <time title="{{ jobrequest.completed_at|default_if_none:"" }}">
-                {{ jobrequest.completed_at|naturaltime|default_if_none:"-"}}
-              </time>
-            </li>
-
-            <li>
-              <strong>Runtime:</strong>
-              <span>{% runtime jobrequest.runtime %}</span>
-            </li>
-          </ul>
-        </div>
       </div>
     </div>
   </div>
