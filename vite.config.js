@@ -72,7 +72,7 @@ const config = {
         },
         {
           src: "./node_modules/a11y-syntax-highlighting/dist/prism/a11y-dark.css",
-          dest: "./assets/dist/vendor",
+          dest: "./assets/dist/vendor/a11y-syntax-highlighting",
         },
         {
           src: "./assets/src/js/*",
