@@ -153,16 +153,18 @@
                 <th>ID</th>
                 <th>Status</th>
                 <th>Action</th>
-                <th></th>
               </tr>
             </thead>
             <tbody>
               {% for job in jobrequest.jobs.all %}
               <tr>
-                <td>{{ job.identifier }}</td>
+                <td>
+                  <a class="btn btn-link p-0 text-monospace font-weight-bold" href="{{ job.get_absolute_url }}">
+                    {{ job.identifier }}
+                  </a>
+                </td>
                 <td>{{ job.status }}</td>
                 <td>{{ job.action }}</td>
-                <td><a class="btn btn-link p-0" href="{{ job.get_absolute_url }}">View</a></td>
               </tr>
               {% endfor %}
             </tbody>
