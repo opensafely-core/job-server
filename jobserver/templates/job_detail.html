@@ -11,205 +11,224 @@
 <meta property="og:description" content="Workspace: {{ job.job_request.workspace.name }}" />
 {% endblock extra_meta %}
 
-{% block content %}
+{% block metatitle %}Job request: {{ job.action }} - {{ job.job_request.id }} - {{ job.job_request.workspace.name }} | OpenSAFELY Jobs{% endblock metatitle %}
 
-<nav aria-label="breadcrumb">
-  <ol class="breadcrumb">
+{% block breadcrumbs %}
+<nav class="breadcrumb-container" aria-label="breadcrumb">
+  <div class="container">
+    <ol class="breadcrumb rounded-0 mb-0 px-0">
+      <li class="breadcrumb-item">
+        <a href="/">Home</a>
+      </li>
 
-    <li class="breadcrumb-item"><a href="/">Home</a></li>
+      <li class="breadcrumb-item">
+        <a href="{{ job.job_request.workspace.project.org.get_absolute_url }}">
+          {{ job.job_request.workspace.project.org.name }}
+        </a>
+      </li>
 
-    <li class="breadcrumb-item">
-      <a href="{{ job.job_request.workspace.project.org.get_absolute_url }}">
-        {{ job.job_request.workspace.project.org.name }}
-      </a>
-    </li>
+      <li class="breadcrumb-item">
+        <a href="{{ job.job_request.workspace.project.get_absolute_url }}">
+          {{ job.job_request.workspace.project.name }}
+        </a>
+      </li>
 
-    <li class="breadcrumb-item">
-      <a href="{{ job.job_request.workspace.project.get_absolute_url }}">
-        {{ job.job_request.workspace.project.name }}
-      </a>
-    </li>
-
-    <li class="breadcrumb-item">
-      <a href="{{ job.job_request.workspace.get_absolute_url }}">
-        {{ job.job_request.workspace.name }}
-      </a>
-    </li>
-
-    <li class="breadcrumb-item">
-      <a href="{{ job.job_request.get_absolute_url }}">
-        Request {{ job.job_request.id }}
-      </a>
-    </li>
-
-    <li class="breadcrumb-item active" aria-current="page">{{ job.action }}</li>
-
-  </ol>
-</nav>
-
-<div class="row">
-
-  <div class="col-md-9 col-lg-6 offset-lg-2">
-
-    <h2><code>{{ job.action }}</code></h2>
-    <p class="small text-muted">
-      ID: {{ job.identifier }}
-    </p>
-
-    <p>
-      This page describes a "job", an action ({{ job.action }}) requested by the
-      user, and run on a secure backend ({{ job.job_request.backend.name }}).
-    </p>
-
-    <div class="mb-4">
-      <h3>State</h3>
-
-      {% if job.action in job.job_request.cancelled_actions %}
-      <div class="alert alert-danger" role="alert">
-        A User has requested this Job is cancelled.
-      </div>
-      {% endif %}
-
-      <div>
-        <strong>Status:</strong>
-        <code>{{ job.status }}</code>
-      </div>
-
-      <div>
-        <strong>Status Message:</strong>
-        {% if job.status_message %}
-        <pre class="text-wrap">{{ job.status_message }}</pre>
-        {% else %}-{% endif %}
-
-        {% status_hint job %}
-      </div>
-
-    </div>
-
-    <div class="mb-4">
-      <h3>Config</h3>
-
-      <div>
-        <strong>Backend:</strong>
-        <code>{{ job.job_request.backend }}</code>
-      </div>
-
-      <div>
-        <strong>Workspace:</strong>
+      <li class="breadcrumb-item">
         <a href="{{ job.job_request.workspace.get_absolute_url }}">
           {{ job.job_request.workspace.name }}
         </a>
-        <small class="text-muted">({{ job.job_request.workspace.branch }})</small>
-      </div>
+      </li>
 
-      {% if job.job_request_id %}
-      <div>
-        <strong>Request:</strong>
+      <li class="breadcrumb-item">
         <a href="{{ job.job_request.get_absolute_url }}">
-          {{ job.job_request_id }} by {{ job.job_request.created_by.username }}
+          {{ job.job_request.id }}
         </a>
-      </div>
-      {% endif %}
+      </li>
 
-    </div>
-
-    <div class="mb-4">
-      <h3>Timings</h3>
-
-      <p>
-        The timestamps below are generated and stored using the
-        <a href="https://en.wikipedia.org/wiki/Coordinated_Universal_Time">UTC</a>
-        timezone on the secure backend which created this job,
-        {{ job.job_request.backend.name }}.
-      </p>
-
-      <div class="mb-2">
-        <strong>Created:</strong>
-        <span title="{{ job.created_at|date:"Y-m-d H:i:sO" }}">
-          {{ job.created_at|naturaltime }}
-        </span>
-        <br />
-        <small class="text-muted">When the job was created by the secure backend.</small>
-      </div>
-
-      <div class="mb-2">
-        <strong>Acknowledged:</strong>
-        <span title="{{ job.started_at|date:"Y-m-d H:i:sO"|default_if_none:"" }}">
-          {{ job.started_at|naturaltime|default_if_none:"-" }}
-        </span>
-        <br />
-        <small class="text-muted">
-          When the job moved to the pending or running state on the secure backend.
-        </small>
-      </div>
-
-      <div class="mb-2">
-        <strong>Finished:</strong>
-        <span title="{{ job.completed_at|date:"Y-m-d H:i:sO"|default_if_none:"" }}">
-          {{ job.completed_at|naturaltime|default_if_none:"-"}}
-        </span>
-        <br />
-        <small class="text-muted">
-          When the job finished running on the secure backend.
-        </small>
-      </div>
-
-      <div class="mb-2">
-        <strong>Duration:</strong> <span>{% runtime job.runtime %}</span>
-        <br />
-        <small class="text-muted">
-          How long the job ran for on the secure backend, this includes time
-          spent copying files, and waiting to be checked by the backend.
-        </small>
-      </div>
-
-      <div class="mb-2">
-        <strong>Last Updated by Backend:</strong>
-        <span title="{{ job.updated_at|date:"Y-m-d H:i:sO"|default_if_none:"" }}">
-          {{ job.updated_at|naturaltime|default_if_none:"-" }}
-        </span>
-
-        <br />
-        <small class="text-muted">
-          How long ago did the secure backend update the website about this
-          job.
-        </small>
-
-        {% if job.is_missing_updates %}
-        <div>
-          ⚠️
-          <small class="text-muted">
-            This Job has not been updated for over 30 minutes, some of the data
-            on this page could be stale.
-          </small>
-        </div>
-        {% endif %}
-      </div>
-    </div>
-
+      <li class="breadcrumb-item active" aria-current="page">
+        {{ job.action }}
+      </li>
+    </ol>
   </div>
+</nav>
+{% endblock breadcrumbs %}
 
-  <div class="col-md-3 col-lg-2">
+{% block jumbotron %}
+<div class="jumbotron jumbotron-fluid">
+  <div class="container">
+    <h1><code class="text-body">{{ job.action }}</code></h1>
+
+    <ul class="list-unstyled lead">
+      <li><strong>ID:</strong> <code>{{ job.identifier }}</code></li>
+    </ul>
+
+    <p class="lead">
+      This page describes a "job", an action (<code>{{ job.action }}</code>) requested by the
+      user, and run on a secure backend (<code>{{ job.job_request.backend.name }}</code>).
+    </p>
 
     {% if user_can_cancel_jobs %}
-    <h3 class="text-center">Tools</h3>
-
-    <form class="mb-3" method="POST" action="{{ job.get_cancel_url }}">
-      {% csrf_token %}
-
+      <form class="d-inline-block" method="POST" action="{{ jobrequest.get_cancel_url }}">
+        {% csrf_token %}
       <button
-        class="btn btn-block btn-danger"
-        {% if job.is_completed or job.action in job.job_request.cancelled_actions %}
-        disabled
-        {% endif %}
-        type="submit">
-        Cancel
-      </button>
-    </form>
-
+          {% if job.is_completed or job.action in job.job_request.cancelled_actions %}
+            aria-disabled="true"
+            disabled
+            tabindex="-1"
+            title="Job cannot be cancelled"
+          {% endif %}
+          class="btn btn-block btn-danger"
+          type="submit"
+        >
+          Cancel
+        </button>
+      </form>
     {% endif %}
-
   </div>
-
 </div>
+{% endblock jumbotron %}
+
+{% block content %}
+<div class="container">
+  <div class="row">
+    <div class="col-lg-6">
+      <section class="card mb-3">
+        <h2 class="card-header h4 mb-0">State</h2>
+        <div class="list-group list-group-flush">
+          <p class="list-group-item mb-0">
+            <strong>Status:</strong>
+            <code>{{ job.status|capfirst }}</code>
+          </p>
+          <div class="list-group-item">
+            <strong>Status message:</strong>
+            {% if job.status_message %}
+              <pre class="text-wrap mb-0 mt-1">{{ job.status_message }}</pre>
+            {% else %}
+              -
+            {% endif %}
+          </div>
+          {% if job.action in job.job_request.cancelled_actions %}
+            <p class="list-group-item list-group-item-danger mb-0">
+              A User has requested this Job is cancelled.
+            </p>
+          {% endif %}
+
+          {% status_hint job %}
+        </div>
+      </section>
+
+      <section class="card">
+        <h2 class="card-header h4 mb-0">Config</h2>
+        <ul class="list-group list-group-flush">
+          <li class="list-group-item">
+            <strong>Branch:</strong>
+            <ul class="list-unstyled">
+              <li><code>{{ job.job_request.backend }}</code></li>
+            </ul>
+          </li>
+          <li class="list-group-item">
+            <strong>Workspace:</strong>
+            <ul class="list-unstyled">
+              <li>
+                <a href="{{ job.job_request.workspace.get_absolute_url }}">
+                  {{ job.job_request.workspace.name }}
+                </a>
+              </li>
+            </ul>
+          </li>
+          <li class="list-group-item">
+            <strong>Branch:</strong>
+            <ul class="list-unstyled">
+              <li><code>{{ job.job_request.workspace.branch }}</code></li>
+            </ul>
+          </li>
+          {% if job.job_request_id %}
+            <li class="list-group-item">
+              <strong>Request:</strong>
+              <ul class="list-unstyled">
+                <li>
+                  <a href="{{ job.job_request.get_absolute_url }}">
+                    {{ job.job_request_id }} by {{ job.job_request.created_by.username }}
+                  </a>
+                </li>
+              </ul>
+            </li>
+          {% endif %}
+        </ul>
+      </section>
+    </div>
+    <div class="col-lg-6">
+      <section class="card">
+        <div class="card-header">
+          <h2 class="card-title">Timings</h2>
+          <p class="card-subtitle">
+            The timestamps below are generated and stored using the
+            <a href="https://en.wikipedia.org/wiki/Coordinated_Universal_Time">UTC</a>
+            timezone on the secure backend which created this job,
+            <code>{{ job.job_request.backend.name }}</code>.
+          </p>
+        </div>
+        <div class="list-group list-group-flush">
+          <div class="list-group-item">
+            <strong>Created:</strong>
+            <time datetime="{{ job.created_at|date:"Y-m-d H:i:sO" }}" title="{{ job.created_at|date:"Y-m-d H:i:sO" }}">
+              {{ job.created_at|naturaltime }}
+            </time>
+            <p class="text-muted mb-0 mt-1">When the job was created by the secure backend.</p>
+          </div>
+
+          <div class="list-group-item">
+            <strong>Acknowledged:</strong>
+            <time datetime="{{ job.started_at|date:"Y-m-d H:i:sO"|default_if_none:"" }}" title="{{ job.started_at|date:"Y-m-d H:i:sO"|default_if_none:"" }}">
+              {{ job.started_at|naturaltime|default_if_none:"-" }}
+            </time>
+            <p class="text-muted mb-0 mt-1">
+              When the job moved to the pending or running state on the secure backend.
+            </p>
+          </div>
+
+          <div class="list-group-item">
+            <strong>Finished:</strong>
+            <time datetime="{{ job.completed_at|date:"Y-m-d H:i:sO"|default_if_none:"" }}" title="{{ job.completed_at|date:"Y-m-d H:i:sO"|default_if_none:"" }}">
+              {{ job.completed_at|naturaltime|default_if_none:"-"}}
+            </time>
+            <p class="text-muted mb-0 mt-1">
+              When the job finished running on the secure backend.
+            </p>
+          </div>
+
+          <div class="list-group-item">
+            <strong>Duration:</strong>
+            <span>{% runtime job.runtime %}</span>
+            <p class="text-muted mb-0 mt-1">
+              How long the job ran for on the secure backend, this includes time
+              spent copying files, and waiting to be checked by the backend.
+            </p>
+          </div>
+
+          <div class="list-group-item">
+            <strong>Last Updated by Backend:</strong>
+            <time datetime="{{ job.updated_at|date:"Y-m-d H:i:sO"|default_if_none:"" }}" title="{{ job.updated_at|date:"Y-m-d H:i:sO"|default_if_none:"" }}">
+              {{ job.updated_at|naturaltime|default_if_none:"-" }}
+            </time>
+            <p class="text-muted mb-0 mt-1">
+              How long ago did the secure backend update the website about this
+              job.
+            </p>
+          </div>
+
+          {% if job.is_missing_updates %}
+            <div class="list-group-item list-group-item-warning">
+              <p class="mb-0">
+                This Job has not been updated for over 30 minutes, some of the data
+                on this page could be stale.
+              </p>
+            </div>
+          {% endif %}
+        </div>
+      </section>
+    </div>
+  </div>
+</div>
+
 {% endblock content %}
