@@ -58,7 +58,7 @@
       {% endfor %}
     </div>
 
-    {% if request.user.is_authenticated %}
+    {% if request.user.is_authenticated and request.user.orgs.exists %}
     <div class="text-center">
       <p><strong>OR</strong></p>
 
