@@ -14,7 +14,7 @@ from ..forms import (
     WorkspaceCreateForm,
     WorkspaceNotificationsToggleForm,
 )
-from ..github import get_repos_with_branches
+from ..github import get_repo_is_private, get_repos_with_branches
 from ..models import Backend, JobRequest, Project, Workspace
 from ..releases import (
     build_hatch_token_and_url,
@@ -208,8 +208,16 @@ class WorkspaceDetail(View):
             request.user, "job_run", project=workspace.project
         )
 
+        try:
+            repo_is_private = get_repo_is_private(
+                workspace.repo_owner, workspace.repo_name
+            )
+        except requests.HTTPError:
+            repo_is_private = None
+
         context = {
             "can_use_releases": can_use_releases,
+            "repo_is_private": repo_is_private,
             "user_can_archive_workspace": can_archive_workspace,
             "user_can_run_jobs": can_run_jobs,
             "user_can_view_files": can_view_files,
