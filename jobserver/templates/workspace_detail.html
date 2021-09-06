@@ -122,13 +122,15 @@
               <dt class="d-inline-block">Repo:</dt>
               <dd class="d-inline-flex mb-0 align-items-center">
                 <a class="mr-1" href="{{ workspace.repo }}">{{ workspace.repo_name }}</a>
+                {% if repo_is_private is not None %}
                 <span
                   class="
                     badge badge-pill
-                    badge-{% if repo.is_private %}warning{% else %}success{% endif %}
+                    badge-{% if repo_is_private %}warning{% else %}success{% endif %}
                 ">
                   {% if repo_is_private %}Private{% else %}Public{% endif %}
                 </span>
+                {% endif %}
               </dd>
             </dl>
           </li>

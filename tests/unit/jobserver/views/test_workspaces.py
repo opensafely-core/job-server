@@ -347,12 +347,18 @@ def test_workspacecreate_without_permission(rf, user):
 
 
 @pytest.mark.django_db
-def test_workspacedetail_authorized_archive_workspaces(rf):
+def test_workspacedetail_authorized_archive_workspaces(rf, mocker):
     workspace = WorkspaceFactory()
     user = UserFactory()
 
     ProjectMembershipFactory(
         project=workspace.project, user=user, roles=[ProjectDeveloper]
+    )
+
+    mocker.patch(
+        "jobserver.views.workspaces.get_repo_is_private",
+        autospec=True,
+        return_value=True,
     )
 
     request = rf.get("/")
@@ -370,12 +376,18 @@ def test_workspacedetail_authorized_archive_workspaces(rf):
 
 
 @pytest.mark.django_db
-def test_workspacedetail_authorized_view_files(rf):
+def test_workspacedetail_authorized_view_files(rf, mocker):
     backend = BackendFactory(level_4_url="http://test/")
     user = UserFactory(roles=[ProjectCollaborator])
     workspace = WorkspaceFactory()
 
     BackendMembershipFactory(backend=backend, user=user)
+
+    mocker.patch(
+        "jobserver.views.workspaces.get_repo_is_private",
+        autospec=True,
+        return_value=True,
+    )
 
     request = rf.get("/")
     request.user = user
@@ -392,10 +404,16 @@ def test_workspacedetail_authorized_view_files(rf):
 
 
 @pytest.mark.django_db
-def test_workspacedetail_authorized_view_releases(rf):
+def test_workspacedetail_authorized_view_releases(rf, mocker):
     workspace = WorkspaceFactory()
 
     ReleaseFactory([], uploaded=True, workspace=workspace)
+
+    mocker.patch(
+        "jobserver.views.workspaces.get_repo_is_private",
+        autospec=True,
+        return_value=True,
+    )
 
     request = rf.get("/")
     request.user = UserFactory()
@@ -412,12 +430,18 @@ def test_workspacedetail_authorized_view_releases(rf):
 
 
 @pytest.mark.django_db
-def test_workspacedetail_authorized_run_jobs(rf):
+def test_workspacedetail_authorized_run_jobs(rf, mocker):
     workspace = WorkspaceFactory()
     user = UserFactory()
 
     ProjectMembershipFactory(
         project=workspace.project, user=user, roles=[ProjectDeveloper]
+    )
+
+    mocker.patch(
+        "jobserver.views.workspaces.get_repo_is_private",
+        autospec=True,
+        return_value=True,
     )
 
     request = rf.get("/")
@@ -435,9 +459,15 @@ def test_workspacedetail_authorized_run_jobs(rf):
 
 
 @pytest.mark.django_db
-def test_workspacedetail_authorized_view_snaphots(rf):
+def test_workspacedetail_authorized_view_snaphots(rf, mocker):
     workspace = WorkspaceFactory()
     SnapshotFactory(workspace=workspace, published_at=timezone.now())
+
+    mocker.patch(
+        "jobserver.views.workspaces.get_repo_is_private",
+        autospec=True,
+        return_value=True,
+    )
 
     request = rf.get("/")
     request.user = UserFactory()
@@ -454,8 +484,14 @@ def test_workspacedetail_authorized_view_snaphots(rf):
 
 
 @pytest.mark.django_db
-def test_workspacedetail_logged_out(rf):
+def test_workspacedetail_logged_out(rf, mocker):
     workspace = WorkspaceFactory()
+
+    mocker.patch(
+        "jobserver.views.workspaces.get_repo_is_private",
+        autospec=True,
+        return_value=True,
+    )
 
     request = rf.get("/")
     request.user = AnonymousUser()
@@ -484,8 +520,14 @@ def test_workspacedetail_logged_out(rf):
 
 
 @pytest.mark.django_db
-def test_workspacedetail_unauthorized(rf):
+def test_workspacedetail_unauthorized(rf, mocker):
     workspace = WorkspaceFactory()
+
+    mocker.patch(
+        "jobserver.views.workspaces.get_repo_is_private",
+        autospec=True,
+        return_value=True,
+    )
 
     request = rf.get("/")
     request.user = UserFactory()
@@ -526,6 +568,31 @@ def test_workspacedetail_unknown_workspace(rf):
             project_slug=project.slug,
             workspace_slug="",
         )
+
+
+@pytest.mark.django_db
+def test_workspacedetail_with_no_github(rf, mocker):
+    workspace = WorkspaceFactory()
+
+    mocker.patch(
+        "jobserver.views.workspaces.get_repo_is_private",
+        autospec=True,
+        side_effect=requests.HTTPError,
+    )
+
+    request = rf.get("/")
+    request.user = UserFactory()
+
+    response = WorkspaceDetail.as_view()(
+        request,
+        org_slug=workspace.project.org.slug,
+        project_slug=workspace.project.slug,
+        workspace_slug=workspace.name,
+    )
+
+    assert response.status_code == 200
+
+    assert response.context_data["repo_is_private"] is None
 
 
 @pytest.mark.django_db
