@@ -15,6 +15,7 @@ itsdangerous
 litecli
 pybadges
 pydantic
+pygments
 python-ulid
 pyyaml
 requests
