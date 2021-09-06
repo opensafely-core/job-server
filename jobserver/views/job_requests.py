@@ -3,7 +3,6 @@ from django.db import transaction
 from django.db.models import Q
 from django.http import Http404
 from django.shortcuts import get_object_or_404, redirect
-from django.utils.html import escape
 from django.utils.safestring import mark_safe
 from django.views.generic import CreateView, DetailView, ListView, RedirectView, View
 from django.views.generic.edit import FormMixin
@@ -176,13 +175,15 @@ class JobRequestDetail(DetailView):
             self.request.user, "job_cancel", project=self.object.workspace.project
         )
 
+        project_definition = mark_safe(
+            render_definition(
+                self.object.project_definition,
+                self.object.get_file_url,
+            )
+        )
+
         return super().get_context_data(**kwargs) | {
-            "project_definition": mark_safe(
-                render_definition(
-                    escape(self.object.project_definition),
-                    self.object.get_file_url,
-                )
-            ),
+            "project_definition": project_definition,
             "project_yaml_url": self.object.get_file_url("project.yaml"),
             "user_can_cancel_jobs": can_cancel_jobs,
         }

@@ -13,6 +13,10 @@
 
 {% block metatitle %}Job request: {{ jobrequest.pk }} - {{ jobrequest.workspace.name }} | OpenSAFELY Jobs{% endblock metatitle %}
 
+{% block extra_styles %}
+<link rel="stylesheet" href="{% static 'highlighting.css' %}">
+{% endblock extra_styles %}
+
 {% block breadcrumbs %}
 <nav class="breadcrumb-container" aria-label="breadcrumb">
   <div class="container">
@@ -181,7 +185,7 @@
               <span class="summary--hide">Hide</span>
               project.yaml
             </summary>
-            <pre class="card-body my-0 rounded-0"><code class="language-yml">{{ project_definition }}</code></pre>
+            {{ project_definition }}
           </details>
         </section>
       {% endif %}

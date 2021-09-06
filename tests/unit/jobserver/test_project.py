@@ -7,6 +7,7 @@ from jobserver.project import (
     get_project,
     link_run_scripts,
     load_yaml,
+    map_run_scripts_to_links,
     render_definition,
 )
 
@@ -26,6 +27,12 @@ dummy_project = {
         },
     },
 }
+
+
+def link_func(path):
+    f = furl("example.com")
+    f.path /= path
+    return f.url
 
 
 def test_get_actions_empty_needs():
@@ -112,12 +119,7 @@ def test_get_project_success(mocker):
 
 
 def test_link_run_scripts():
-    def link_func(path):
-        f = furl("example.com")
-        f.path.segments += [path]
-        return f.url
-
-    line = "some:command --a-switch /output/super-sekret.log /workspace/script1.py ./script2.do /script3"
+    line = "some:command --a-switch /output/super-sekret.log /workspace/script1.py ./analysis/script2.do /script3"
 
     # maintain the line above's readability
     output = list(link_run_scripts(line, link_func))
@@ -127,7 +129,7 @@ def test_link_run_scripts():
         "--a-switch",
         "/output/super-sekret.log",
         '<a href="example.com/script1.py">/workspace/script1.py</a>',
-        '<a href="example.com/script2.do">./script2.do</a>',
+        '<a href="example.com/analysis/script2.do">./analysis/script2.do</a>',
         '<a href="example.com/script3">/script3</a>',
     ]
 
@@ -142,6 +144,38 @@ def test_load_yaml_invalid_yaml():
     """
     with pytest.raises(ScannerError):
         load_yaml(dummy_yaml)
+
+
+def test_map_run_scripts_to_links():
+    content = """
+    version: "3.0"
+
+    expectations:
+      population_size: 100000
+
+    actions:
+      generate_cohort:
+        run: cohortextractor:latest generate_cohort
+        outputs:
+          highly_sensitive:
+            cohort1: output/input_af.csv
+            cohort2: output/input_af_population_flow_chart.csv
+            cohort3: output/input_general_population.csv
+            cohort4: output/input_general_population_flow_chart.csv
+
+      # Flowchart for AF population
+      flowchart_af:
+        run: stata-mp:latest analysis/flow_chart_af_population.do af_population_flowchart
+    """
+
+    output = map_run_scripts_to_links(content, link_func)
+
+    expected = {
+        "cohortextractor:latest generate_cohort": "cohortextractor:latest generate_cohort",
+        "stata-mp:latest analysis/flow_chart_af_population.do af_population_flowchart": 'stata-mp:latest <a href="example.com/analysis/flow_chart_af_population.do">analysis/flow_chart_af_population.do</a> af_population_flowchart',
+    }
+
+    assert output == expected
 
 
 def test_render_definition():
@@ -173,34 +207,33 @@ def test_render_definition():
             log: logs/analysis.log
     """
 
-    expected = """version: "3.0"
+    expected = """<div class="card-body my-0 rounded-0 highlight"><pre><span></span><span class="nt">version</span><span class="p">:</span> <span class="s">&quot;3.0&quot;</span>
 
-    expectations:
-      population_size: 100000
+    <span class="nt">expectations</span><span class="p">:</span>
+      <span class="nt">population_size</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">100000</span>
 
-    actions:
-      generate_cohort:
-        run: cohortextractor:latest generate_cohort --study-definition study_definition
-        outputs:
-          highly_sensitive:
-            cohort: output/input.csv
+    <span class="nt">actions</span><span class="p">:</span>
+      <span class="nt">generate_cohort</span><span class="p">:</span>
+        <span class="nt">run</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">cohortextractor:latest generate_cohort --study-definition study_definition</span>
+        <span class="nt">outputs</span><span class="p">:</span>
+          <span class="nt">highly_sensitive</span><span class="p">:</span>
+            <span class="nt">cohort</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">output/input.csv</span>
 
-      run_model:
-        run: stata-mp:latest <a href="example.com/test/analysis/model.do">analysis/model.do</a>
-        needs: [generate_cohortMAIN]
-        outputs:
-          moderately_sensitive:
-            log: logs/model.log
+      <span class="nt">run_model</span><span class="p">:</span>
+        <span class="nt">run</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">stata-mp:latest <a href="example.com/analysis/model.do">analysis/model.do</a></span>
+        <span class="nt">needs</span><span class="p">:</span> <span class="p p-Indicator">[</span><span class="nv">generate_cohortMAIN</span><span class="p p-Indicator">]</span>
+        <span class="nt">outputs</span><span class="p">:</span>
+          <span class="nt">moderately_sensitive</span><span class="p">:</span>
+            <span class="nt">log</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">logs/model.log</span>
 
-      draw_graphs:
-        run: python:latest python <a href="example.com/test/analysis/time_series_plots.py">analysis/time_series_plots.py</a>
-        needs: [run_model]
-        outputs:
-          moderately_sensitive:
-            log: logs/analysis.log"""
-
-    def link_func(path):
-        return f"example.com/test/{path}"
+      <span class="nt">draw_graphs</span><span class="p">:</span>
+        <span class="nt">run</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">python:latest python <a href="example.com/analysis/time_series_plots.py">analysis/time_series_plots.py</a></span>
+        <span class="nt">needs</span><span class="p">:</span> <span class="p p-Indicator">[</span><span class="nv">run_model</span><span class="p p-Indicator">]</span>
+        <span class="nt">outputs</span><span class="p">:</span>
+          <span class="nt">moderately_sensitive</span><span class="p">:</span>
+            <span class="nt">log</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">logs/analysis.log</span>
+</pre></div>\n"""
 
     output = render_definition(dummy_yaml, link_func)
+
     assert output == expected
