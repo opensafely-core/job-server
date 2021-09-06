@@ -443,6 +443,39 @@ def test_jobapiupdate_post_only(api_rf):
 
 
 @pytest.mark.django_db
+def test_jobapiupdate_post_with_internal_error(api_rf, mocker):
+    backend = BackendFactory()
+    job_request = JobRequestFactory()
+
+    now = timezone.now()
+
+    mocked_sentry_sdk = mocker.patch("jobserver.api.jobs.sentry_sdk", autospec=True)
+
+    data = [
+        {
+            "identifier": "job",
+            "job_request_id": job_request.identifier,
+            "action": "test-action",
+            "status": "running",
+            "status_code": "",
+            "status_message": "Internal error",
+            "created_at": now,
+            "started_at": now,
+            "updated_at": now,
+            "completed_at": None,
+        },
+    ]
+    request = api_rf.post(
+        "/", HTTP_AUTHORIZATION=backend.auth_token, data=data, format="json"
+    )
+    response = JobAPIUpdate.as_view()(request)
+
+    assert response.status_code == 200, response.data
+
+    mocked_sentry_sdk.capture_message.assert_called_once()
+
+
+@pytest.mark.django_db
 def test_jobapiupdate_unknown_job_request(api_rf):
     backend = BackendFactory()
     JobRequestFactory()

@@ -119,6 +119,16 @@ class JobAPIUpdate(APIView):
                 else:
                     updated_job_ids.append(str(job.id))
 
+                if "internal error" in job.status_message.lower():
+                    # bubble internal errors encountered with a job up to
+                    # sentry so we can get notifications they've happened
+                    with sentry_sdk.push_scope() as scope:
+                        scope.set_tag("backend", job_request.backend.slug)
+                        scope.set_tag(
+                            "job", request.build_absolute_uri(job.get_absolute_url())
+                        )
+                        sentry_sdk.capture_message("Job encountered an internal error")
+
                 if created:
                     # this is the first time job-server has heard about this
                     # Job so we can move on to further Jobs.  We're knowingly
