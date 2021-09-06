@@ -115,10 +115,6 @@ def map_run_scripts_to_links(content, link_func):
         (line, " ".join(link_run_scripts(line, link_func))) for line in run_lines
     )
 
-    # compact the list to remove Nones, from lines with no appropriate script
-    # as the run target (eg a generate_cohort action)
-    links_map = (m for m in links_map if m is not None)
-
     # finally convert to a dictionary so we can use it as a mapping
     return dict(links_map)
 
