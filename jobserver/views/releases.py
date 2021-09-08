@@ -1,13 +1,12 @@
 from django.contrib.humanize.templatetags.humanize import naturaltime
-from django.db import transaction
 from django.http import FileResponse, Http404
 from django.shortcuts import get_object_or_404, redirect
 from django.template.response import TemplateResponse
 from django.urls import reverse
-from django.utils import timezone
 from django.utils.safestring import mark_safe
 from django.views.generic import View
 
+from .. import actions
 from ..authorization import has_permission
 from ..models import Project, Release, ReleaseFile, Snapshot, Workspace
 from ..releases import build_outputs_zip, build_spa_base_url, workspace_files
@@ -159,13 +158,7 @@ class ReleaseFileDelete(View):
         ):
             raise Http404
 
-        with transaction.atomic():
-            # delete file on disk
-            rfile.absolute_path().unlink()
-
-            rfile.deleted_by = request.user
-            rfile.deleted_at = timezone.now()
-            rfile.save()
+        actions.delete_release_file(rfile, request.user)
 
         return redirect(rfile.release.workspace.get_releases_url())
 
