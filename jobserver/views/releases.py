@@ -7,7 +7,7 @@ from django.utils.safestring import mark_safe
 from django.views.generic import View
 
 from .. import actions
-from ..authorization import has_permission, has_permission_2
+from ..authorization import can_do_action, has_permission
 from ..models import Project, Release, ReleaseFile, Snapshot, Workspace
 from ..releases import build_outputs_zip, build_spa_base_url, workspace_files
 
@@ -28,12 +28,12 @@ class ProjectReleaseList(View):
         if not releases.exists():
             raise Http404
 
-        can_delete_files = has_permission_2(
+        can_delete_files = can_do_action(
             request.user,
             actions.release_file_delete,
             project=project,
         )
-        can_view_files = has_permission_2(
+        can_view_files = can_do_action(
             request.user,
             actions.release_file_view,
             project=project,
@@ -93,7 +93,7 @@ class ReleaseDetail(View):
         if not release.files.exists():
             raise Http404
 
-        if not has_permission_2(
+        if not can_do_action(
             request.user,
             actions.release_file_view,
             project=release.workspace.project,
@@ -126,7 +126,7 @@ class ReleaseDownload(View):
         if not release.files.exists():
             raise Http404
 
-        if not has_permission_2(
+        if not can_do_action(
             request.user,
             actions.release_file_view,
             project=release.workspace.project,
@@ -174,7 +174,7 @@ class SnapshotDetail(View):
             pk=self.kwargs["pk"],
         )
 
-        has_permission_to_view = has_permission_2(
+        has_permission_to_view = can_do_action(
             request.user,
             actions.release_file_view,
             project=snapshot.workspace.project,
@@ -215,7 +215,7 @@ class SnapshotDownload(View):
         if not snapshot.files.exists():
             raise Http404
 
-        can_view_unpublished_files = has_permission_2(
+        can_view_unpublished_files = can_do_action(
             request.user,
             actions.release_file_view,
             project=snapshot.workspace.project,
@@ -243,12 +243,12 @@ class WorkspaceReleaseList(View):
         if not workspace.releases.exists():
             raise Http404
 
-        can_delete_files = has_permission_2(
+        can_delete_files = can_do_action(
             request.user,
             actions.release_file_delete,
             project=workspace.project,
         )
-        can_view_files = has_permission_2(
+        can_view_files = can_do_action(
             request.user,
             actions.release_file_view,
             project=workspace.project,

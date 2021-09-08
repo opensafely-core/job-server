@@ -113,7 +113,7 @@ def has_permission(user, permission, **context):
     return permission in permissions
 
 
-def has_permission_2(user, action_fn, **context):
+def can_do_action(user, action_fn, **context):
     if not user.is_authenticated:
         return False
 
