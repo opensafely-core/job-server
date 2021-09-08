@@ -177,7 +177,7 @@ def require_role(role, *context_keys):
             context = {key: kwargs[key] for key in context_keys}
             if not has_role(kwargs["user"], role, **context):
                 raise PermissionDenied
-            fn(**kwargs)
+            return fn(**kwargs)
 
         return wrapper
 

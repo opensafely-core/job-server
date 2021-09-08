@@ -18,7 +18,7 @@ from rest_framework.response import Response
 from rest_framework.views import APIView
 from slack_sdk.errors import SlackApiError
 
-from jobserver import releases
+from jobserver import actions, releases
 from jobserver.api import get_backend_from_token
 from jobserver.authorization import has_permission
 from jobserver.models import Release, ReleaseFile, Snapshot, User, Workspace
@@ -65,11 +65,12 @@ class ReleaseNotificationAPICreate(CreateAPIView):
             logger.exception("Failed to notify slack")
 
 
-def validate_upload_access(request, workspace):
-    """Validate the request can upload releases for this workspace.
+def validate_upload_access(request):
+    """Validate that the user exists and is a member of the backend identified by the
+    supplied authentication token.
 
-    This validation uses backend authentication to authenticate the user, but
-    then checks that user has the correct permissons."""
+    Validation that the user can upload to requested workspace is handled by the
+    permissions checks in actions.py."""
     # authenticate and get backend
     backend = get_backend_from_token(request.headers.get("Authorization"))
 
@@ -83,10 +84,6 @@ def validate_upload_access(request, workspace):
 
     # check the user has access to this backend
     if user not in backend.members.all():
-        raise NotAuthenticated
-
-    # check the user has permission to upload release files
-    if not has_permission(user, "release_file_upload", project=workspace.project):
         raise NotAuthenticated
 
     return backend, user
@@ -161,7 +158,7 @@ class ReleaseWorkspaceAPI(APIView):
     def post(self, request, workspace_name):
         """Create a new Release for this workspace."""
         workspace = get_object_or_404(Workspace, name=workspace_name)
-        backend, user = validate_upload_access(request, workspace)
+        backend, user = validate_upload_access(request)
 
         # parse the requested files
         serializer = self.FilesSerializer(data=request.data)
@@ -169,7 +166,13 @@ class ReleaseWorkspaceAPI(APIView):
         files = serializer.validated_data["files"]
 
         try:
-            release = releases.create_release(workspace, backend, user, files)
+            release = actions.release_workspace_create(
+                user=user,
+                workspace=workspace,
+                backend=backend,
+                files=files,
+                project=workspace.project,
+            )
         except releases.ReleaseFileAlreadyExists as exc:
             raise ValidationError({"detail": str(exc)})
 
@@ -196,7 +199,7 @@ class ReleaseAPI(APIView):
         File must be listed in Release.requested_files, and the hash must match.
         """
         release = get_object_or_404(Release, id=release_id)
-        backend, user = validate_upload_access(request, release.workspace)
+        backend, user = validate_upload_access(request)
 
         try:
             upload = request.data["file"]
@@ -224,8 +227,13 @@ class ReleaseAPI(APIView):
             )
 
         try:
-            rfile = releases.handle_file_upload(
-                release, backend, user, upload, filename
+            rfile = actions.release_file_upload(
+                user=user,
+                release=release,
+                backend=backend,
+                upload=upload,
+                filename=filename,
+                project=release.workspace.project,
             )
         except releases.ReleaseFileAlreadyExists as exc:
             raise ValidationError({"detail": str(exc)})
