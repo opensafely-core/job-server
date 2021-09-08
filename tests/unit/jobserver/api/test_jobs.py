@@ -37,7 +37,6 @@ def test_token_backend_no_token():
         get_backend_from_token("")
 
 
-@pytest.mark.django_db
 def test_token_backend_success(monkeypatch):
     monkeypatch.setenv("BACKENDS", "tpp")
 
@@ -46,13 +45,11 @@ def test_token_backend_success(monkeypatch):
     assert get_backend_from_token(tpp.auth_token) == tpp
 
 
-@pytest.mark.django_db
 def test_token_backend_unknown_backend():
     with pytest.raises(NotAuthenticated):
         get_backend_from_token("test")
 
 
-@pytest.mark.django_db
 def test_update_stats_existing_url():
     backend = BackendFactory()
     StatsFactory(backend=backend, url="test")
@@ -64,7 +61,6 @@ def test_update_stats_existing_url():
     assert backend.stats.first().url == "test"
 
 
-@pytest.mark.django_db
 def test_update_stats_new_url():
     backend = BackendFactory()
     StatsFactory(backend=backend, url="test")
@@ -76,7 +72,6 @@ def test_update_stats_new_url():
     assert backend.stats.last().url == "new-url"
 
 
-@pytest.mark.django_db
 def test_jobapiupdate_all_existing(api_rf, freezer):
     backend = BackendFactory()
     job_request = JobRequestFactory()
@@ -174,7 +169,6 @@ def test_jobapiupdate_all_existing(api_rf, freezer):
     assert job3.completed_at is None
 
 
-@pytest.mark.django_db
 def test_jobapiupdate_all_new(api_rf):
     backend = BackendFactory()
     job_request = JobRequestFactory()
@@ -231,7 +225,6 @@ def test_jobapiupdate_all_new(api_rf):
     assert Job.objects.count() == 3
 
 
-@pytest.mark.django_db
 def test_jobapiupdate_invalid_payload(api_rf):
     backend = BackendFactory()
 
@@ -252,7 +245,6 @@ def test_jobapiupdate_invalid_payload(api_rf):
     assert len(errors.keys()) == 9
 
 
-@pytest.mark.django_db
 def test_jobapiupdate_is_behind_auth(api_rf):
     request = api_rf.post("/")
     response = JobAPIUpdate.as_view()(request)
@@ -260,7 +252,6 @@ def test_jobapiupdate_is_behind_auth(api_rf):
     assert response.status_code == 403, response.data
 
 
-@pytest.mark.django_db
 def test_jobapiupdate_mixture(api_rf, freezer):
     backend = BackendFactory()
     job_request = JobRequestFactory()
@@ -343,7 +334,6 @@ def test_jobapiupdate_mixture(api_rf, freezer):
     assert job3.completed_at is None
 
 
-@pytest.mark.django_db
 def test_jobapiupdate_notifications_on_with_move_to_completed(api_rf, mocker):
     workspace = WorkspaceFactory()
     job_request = JobRequestFactory(workspace=workspace, will_notify=True)
@@ -382,7 +372,6 @@ def test_jobapiupdate_notifications_on_with_move_to_completed(api_rf, mocker):
     assert response.status_code == 200
 
 
-@pytest.mark.django_db
 def test_jobapiupdate_notifications_on_without_move_to_completed(api_rf, mocker):
     workspace = WorkspaceFactory()
     job_request = JobRequestFactory(workspace=workspace, will_notify=True)
@@ -421,7 +410,6 @@ def test_jobapiupdate_notifications_on_without_move_to_completed(api_rf, mocker)
     assert response.status_code == 200
 
 
-@pytest.mark.django_db
 def test_jobapiupdate_post_only(api_rf):
     backend = BackendFactory()
 
@@ -442,7 +430,6 @@ def test_jobapiupdate_post_only(api_rf):
     assert JobAPIUpdate.as_view()(request).status_code == 405
 
 
-@pytest.mark.django_db
 def test_jobapiupdate_post_with_internal_error(api_rf, mocker):
     backend = BackendFactory()
     job_request = JobRequestFactory()
@@ -475,7 +462,6 @@ def test_jobapiupdate_post_with_internal_error(api_rf, mocker):
     mocked_sentry_sdk.capture_message.assert_called_once()
 
 
-@pytest.mark.django_db
 def test_jobapiupdate_unknown_job_request(api_rf):
     backend = BackendFactory()
     JobRequestFactory()
@@ -506,7 +492,6 @@ def test_jobapiupdate_unknown_job_request(api_rf):
     assert "Unknown JobRequest IDs" in response.data[0]
 
 
-@pytest.mark.django_db
 def test_jobrequestapilist_filter_by_backend(api_rf):
     JobRequestFactory(backend=Backend.objects.get(slug="expectations"))
     JobRequestFactory(backend=Backend.objects.get(slug="tpp"))
@@ -518,7 +503,6 @@ def test_jobrequestapilist_filter_by_backend(api_rf):
     assert len(response.data["results"]) == 1
 
 
-@pytest.mark.django_db
 def test_jobrequestapilist_filter_by_databricks(api_rf):
     job_request = JobRequestFactory(backend=Backend.objects.get(slug="databricks"))
     JobRequestFactory(backend=Backend.objects.get(slug="tpp"))
@@ -531,7 +515,6 @@ def test_jobrequestapilist_filter_by_databricks(api_rf):
     assert response.data["results"][0]["identifier"] == job_request.identifier
 
 
-@pytest.mark.django_db
 def test_jobrequestapilist_filter_by_databricks_with_mismatched(api_rf, mocker):
     tpp = Backend.objects.get(slug="tpp")
 
@@ -557,7 +540,6 @@ def test_jobrequestapilist_get_only(api_rf):
     assert response.status_code == 405
 
 
-@pytest.mark.django_db
 def test_jobrequestapilist_produce_stats_when_authed(api_rf):
     backend = BackendFactory()
 
@@ -570,7 +552,6 @@ def test_jobrequestapilist_produce_stats_when_authed(api_rf):
     assert Stats.objects.filter(backend=backend).count() == 1
 
 
-@pytest.mark.django_db
 def test_jobrequestapilist_success(api_rf):
     workspace = WorkspaceFactory()
 
@@ -607,7 +588,6 @@ def test_jobrequestapilist_success(api_rf):
     }
 
 
-@pytest.mark.django_db
 def test_userapidetail_success(api_rf):
     backend = BackendFactory()
     org = OrgFactory()
@@ -657,7 +637,6 @@ def test_userapidetail_success(api_rf):
     assert roles["projects"] == [{"slug": project.slug, "roles": ["ProjectDeveloper"]}]
 
 
-@pytest.mark.django_db
 def test_userapidetail_unknown_user(api_rf):
     backend = BackendFactory()
 
@@ -667,7 +646,6 @@ def test_userapidetail_unknown_user(api_rf):
     assert response.status_code == 404
 
 
-@pytest.mark.django_db
 def test_workspacestatusesapi_success(api_rf):
     workspace = WorkspaceFactory()
     job_request = JobRequestFactory(workspace=workspace)
@@ -680,7 +658,6 @@ def test_workspacestatusesapi_success(api_rf):
     assert response.data["run_all"] == "failed"
 
 
-@pytest.mark.django_db
 def test_workspacestatusesapi_unknown_workspace(api_rf):
     request = api_rf.get("/")
     response = WorkspaceStatusesAPI.as_view()(request, name="test")

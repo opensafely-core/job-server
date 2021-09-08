@@ -1,10 +1,8 @@
-import pytest
 from django.utils import timezone
 
 from ....factories import ResearcherRegistrationFactory
 
 
-@pytest.mark.django_db
 def test_researcher_registration_str():
     researcher = ResearcherRegistrationFactory(
         name="Terry",

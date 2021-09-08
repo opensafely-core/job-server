@@ -1,11 +1,8 @@
-import pytest
-
 from staff.views.index import Index
 
 from ....factories import BackendFactory, UserFactory, WorkspaceFactory
 
 
-@pytest.mark.django_db
 def test_index_without_search(rf, core_developer):
     request = rf.get("/")
     request.user = core_developer
@@ -16,7 +13,6 @@ def test_index_without_search(rf, core_developer):
     assert response.context_data["results"] == []
 
 
-@pytest.mark.django_db
 def test_index_search(rf, core_developer):
     backend = BackendFactory(name="GHickman's Research Thing")
     BackendFactory.create_batch(2)

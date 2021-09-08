@@ -15,7 +15,6 @@ def test_token_backend_no_token():
         get_backend_from_token("")
 
 
-@pytest.mark.django_db
 def test_token_backend_success(monkeypatch):
     monkeypatch.setenv("BACKENDS", "tpp")
 
@@ -24,7 +23,6 @@ def test_token_backend_success(monkeypatch):
     assert get_backend_from_token(tpp.auth_token) == tpp
 
 
-@pytest.mark.django_db
 def test_token_backend_unknown_backend():
     with pytest.raises(NotAuthenticated):
         get_backend_from_token("test")

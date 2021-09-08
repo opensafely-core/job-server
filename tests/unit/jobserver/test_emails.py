@@ -1,6 +1,5 @@
 from datetime import timedelta
 
-import pytest
 from django.conf import settings
 from django.utils import timezone
 
@@ -16,7 +15,6 @@ from ...factories import (
 )
 
 
-@pytest.mark.django_db
 def test_send_finished_notification(mailoutbox):
     now = timezone.now()
 
@@ -49,7 +47,6 @@ def test_send_finished_notification(mailoutbox):
     assert list(m.to) == ["test@example.com"]
 
 
-@pytest.mark.django_db
 def test_send_project_invite_email(mailoutbox):
     project = ProjectFactory()
     invitee = UserFactory()

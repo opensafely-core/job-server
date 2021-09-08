@@ -16,7 +16,6 @@ from jobserver.models import ProjectMembership
 from ....factories import ProjectFactory, ProjectMembershipFactory, UserFactory
 
 
-@pytest.mark.django_db
 def test_has_permission_failure():
     # ensure a stable test since roles must be from our defined roles
     assert OutputPublisher.permissions == ["snapshot_publish"]
@@ -26,7 +25,6 @@ def test_has_permission_failure():
     assert not has_permission(user, "perm1")
 
 
-@pytest.mark.django_db
 def test_has_permission_success():
     # ensure a stable test since roles must be from our defined roles
     assert OutputPublisher.permissions == ["snapshot_publish"]
@@ -36,35 +34,30 @@ def test_has_permission_success():
     assert has_permission(user, "snapshot_publish")
 
 
-@pytest.mark.django_db
 def test_has_permission_unauthenticated():
     user = AnonymousUser()
 
     assert not has_permission(user, "perm1")
 
 
-@pytest.mark.django_db
 def test_has_roles_failure():
     user = UserFactory(roles=[OutputPublisher])
 
     assert not has_role(user, ProjectCoordinator)
 
 
-@pytest.mark.django_db
 def test_has_roles_success():
     user = UserFactory(roles=[OutputPublisher])
 
     assert has_role(user, OutputPublisher)
 
 
-@pytest.mark.django_db
 def test_has_role_unauthenticated():
     user = AnonymousUser()
 
     assert not has_role(user, ProjectCoordinator)
 
 
-@pytest.mark.django_db
 def test_has_role_with_context_failure():
     project = ProjectFactory()
     user = UserFactory()
@@ -84,7 +77,6 @@ def test_has_role_with_context_failure():
         has_role(user, ProjectCollaborator, project=user)
 
 
-@pytest.mark.django_db
 def test_has_role_with_context_success():
     project = ProjectFactory()
     user = UserFactory()

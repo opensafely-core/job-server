@@ -1,4 +1,3 @@
-import pytest
 from django.contrib.messages.storage.fallback import FallbackStorage
 from django.urls import reverse
 
@@ -8,7 +7,6 @@ from jobserver.views.admin import ApproveUsers
 from ....factories import OrgFactory, UserFactory
 
 
-@pytest.mark.django_db
 def test_approveusers_as_non_superuser(rf):
     request = rf.get("/")
     request.user = UserFactory()
@@ -19,7 +17,6 @@ def test_approveusers_as_non_superuser(rf):
     assert response.url == "/login/github/?next=/"
 
 
-@pytest.mark.django_db
 def test_approveusers_get_success(rf):
     user = UserFactory(is_superuser=True)
     request = rf.get(f"/?user={user.pk}")
@@ -32,7 +29,6 @@ def test_approveusers_get_success(rf):
     assert list(response.context_data["users"]) == [user]
 
 
-@pytest.mark.django_db
 def test_approveusers_post_success(rf):
     user1 = UserFactory()
     user2 = UserFactory()
@@ -71,7 +67,6 @@ def test_approveusers_post_success(rf):
     assert list(user2.orgs.all()) == [org1]
 
 
-@pytest.mark.django_db
 def test_approveusers_with_invalid_form(rf):
     user = UserFactory(is_superuser=True)
 
@@ -84,7 +79,6 @@ def test_approveusers_with_invalid_form(rf):
     assert response.context_data["form"].errors
 
 
-@pytest.mark.django_db
 def test_approveusers_with_no_users(rf):
     user = UserFactory(is_superuser=True)
 

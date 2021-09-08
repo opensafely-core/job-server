@@ -1,10 +1,7 @@
-import pytest
-
 from jobserver.models import Backend
 from staff.forms import UserForm
 
 
-@pytest.mark.django_db
 def test_userform_success():
     available_backends = Backend.objects.filter(slug__in=["emis", "tpp", "test"])
 
@@ -31,7 +28,6 @@ def test_userform_success():
     assert form.cleaned_data["is_superuser"]
 
 
-@pytest.mark.django_db
 def test_userform_with_no_backends():
     available_backends = Backend.objects.filter(slug__in=["tpp"])
 
@@ -51,7 +47,6 @@ def test_userform_with_no_backends():
     assert len(form.cleaned_data["backends"]) == 0
 
 
-@pytest.mark.django_db
 def test_userform_with_unknown_backend():
     available_backends = Backend.objects.filter(slug__in=["emis", "tpp", "test"])
 

@@ -1,4 +1,3 @@
-import pytest
 from django.contrib.admin.sites import AdminSite
 from django.urls import reverse
 
@@ -8,7 +7,6 @@ from jobserver.models import User
 from ...factories import UserFactory
 
 
-@pytest.mark.django_db
 def test_useradmin_approve_users(rf):
     UserFactory.create_batch(5)
 

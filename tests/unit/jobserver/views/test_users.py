@@ -1,4 +1,3 @@
-import pytest
 from django.contrib.messages.storage.fallback import FallbackStorage
 
 from jobserver.views.users import Settings
@@ -6,7 +5,6 @@ from jobserver.views.users import Settings
 from ....factories import UserFactory
 
 
-@pytest.mark.django_db
 def test_settings_get(rf):
     UserFactory()
     user2 = UserFactory()
@@ -21,7 +19,6 @@ def test_settings_get(rf):
     assert response.context_data["object"] == user2
 
 
-@pytest.mark.django_db
 def test_settings_post(rf):
     UserFactory()
     user2 = UserFactory(notifications_email="original@example.com")

@@ -1,4 +1,3 @@
-import pytest
 from django.db import connection
 
 from jobserver.authorization import CoreDeveloper, OutputChecker
@@ -8,7 +7,6 @@ from jobserver.models import User
 from ....factories import UserFactory
 
 
-@pytest.mark.django_db
 def test_extractroles():
     user1 = UserFactory(roles=[OutputChecker])
     user2 = UserFactory(roles=[CoreDeveloper])
@@ -22,7 +20,6 @@ def test_extractroles():
     assert user2 in users
 
 
-@pytest.mark.django_db
 def test_roles_field_db_values():
     user = UserFactory(roles=[CoreDeveloper])
 
@@ -33,13 +30,11 @@ def test_roles_field_db_values():
     assert row[0] == '["jobserver.authorization.roles.CoreDeveloper"]'
 
 
-@pytest.mark.django_db
 def test_roles_field_default_empty_list():
     # check default=list holds true
     assert UserFactory().roles == []
 
 
-@pytest.mark.django_db
 def test_roles_field_empty():
     user = UserFactory()
 
@@ -51,7 +46,6 @@ def test_roles_field_empty():
     assert user.roles == []
 
 
-@pytest.mark.django_db
 def test_roles_field_list_append():
     user = UserFactory()
 
@@ -62,7 +56,6 @@ def test_roles_field_list_append():
     assert user.roles == [CoreDeveloper]
 
 
-@pytest.mark.django_db
 def test_roles_field_list_extend():
     user = UserFactory()
 
@@ -73,7 +66,6 @@ def test_roles_field_list_extend():
     assert user.roles == [CoreDeveloper]
 
 
-@pytest.mark.django_db
 def test_roles_field_multiple_roles():
     user = UserFactory()
 
@@ -84,7 +76,6 @@ def test_roles_field_multiple_roles():
     assert user.roles == [CoreDeveloper]
 
 
-@pytest.mark.django_db
 def test_roles_field_one_role():
     user = UserFactory()
 
@@ -95,7 +86,6 @@ def test_roles_field_one_role():
     assert user.roles == [CoreDeveloper]
 
 
-@pytest.mark.django_db
 def test_roles_field_to_python_success():
     roles = RolesField()
 
@@ -105,17 +95,14 @@ def test_roles_field_to_python_success():
     assert output == expected
 
 
-@pytest.mark.django_db
 def test_roles_field_to_python_with_a_role():
     assert RolesField().to_python([CoreDeveloper]) == [CoreDeveloper]
 
 
-@pytest.mark.django_db
 def test_roles_field_to_python_with_empty_list():
     assert RolesField().to_python([]) == []
 
 
-@pytest.mark.django_db
 def test_roles_field_to_python_with_falsey_value():
     assert RolesField().to_python(None) is None
     assert RolesField().to_python([]) == []

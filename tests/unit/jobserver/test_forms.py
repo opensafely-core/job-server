@@ -6,7 +6,6 @@ from jobserver.forms import JobRequestCreateForm, WorkspaceCreateForm
 from jobserver.models import Backend
 
 
-@pytest.mark.django_db
 def test_jobrequestcreateform_with_single_backend():
     emis = Backend.objects.get(slug="emis")
     choices = backends_to_choices([emis])
@@ -18,7 +17,6 @@ def test_jobrequestcreateform_with_single_backend():
     assert form.is_valid, form.errors
 
 
-@pytest.mark.django_db
 def test_jobrequestcreateform_with_multiple_backends():
     choices = backends_to_choices(Backend.objects.all())
     form = JobRequestCreateForm({"backend": "tpp"}, backends=choices)
@@ -29,7 +27,6 @@ def test_jobrequestcreateform_with_multiple_backends():
     assert form.is_valid, form.errors
 
 
-@pytest.mark.django_db
 def test_workspacecreateform_success():
     data = {
         "name": "test",
@@ -49,7 +46,6 @@ def test_workspacecreateform_success():
     assert form.is_valid()
 
 
-@pytest.mark.django_db
 def test_workspacecreateform_success_with_upper_case_names():
     data = {
         "name": "TeSt",

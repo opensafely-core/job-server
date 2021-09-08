@@ -13,7 +13,6 @@ from ....factories import (
 )
 
 
-@pytest.mark.django_db
 def test_jobcancel_already_cancelled(rf, user):
     job_request = JobRequestFactory(cancelled_actions=["another-action", "test"])
     job = JobFactory(job_request=job_request, action="test")
@@ -34,7 +33,6 @@ def test_jobcancel_already_cancelled(rf, user):
     assert job_request.cancelled_actions == ["another-action", "test"]
 
 
-@pytest.mark.django_db
 def test_jobcancel_already_completed(rf, user):
     job_request = JobRequestFactory(cancelled_actions=["another-action"])
     job = JobFactory(job_request=job_request, action="test", status="succeeded")
@@ -55,7 +53,6 @@ def test_jobcancel_already_completed(rf, user):
     assert job_request.cancelled_actions == ["another-action"]
 
 
-@pytest.mark.django_db
 def test_jobcancel_success(rf):
     job_request = JobRequestFactory(cancelled_actions=[])
     job = JobFactory(job_request=job_request, action="test")
@@ -77,7 +74,6 @@ def test_jobcancel_success(rf):
     assert job_request.cancelled_actions == ["test"]
 
 
-@pytest.mark.django_db
 def test_jobcancel_with_job_creator(rf):
     user = UserFactory()
     job_request = JobRequestFactory(cancelled_actions=[], created_by=user)
@@ -95,7 +91,6 @@ def test_jobcancel_with_job_creator(rf):
     assert job_request.cancelled_actions == ["test"]
 
 
-@pytest.mark.django_db
 def test_jobcancel_without_permission(rf, user):
     job = JobFactory(job_request=JobRequestFactory())
 
@@ -106,7 +101,6 @@ def test_jobcancel_without_permission(rf, user):
         JobCancel.as_view()(request, identifier=job.identifier)
 
 
-@pytest.mark.django_db
 def test_jobcancel_unknown_job(rf, user):
     request = rf.post("/")
     request.user = user
@@ -115,7 +109,6 @@ def test_jobcancel_unknown_job(rf, user):
         JobCancel.as_view()(request, identifier="not-real")
 
 
-@pytest.mark.django_db
 def test_jobdetail_with_anonymous_user(rf):
     job = JobFactory()
 
@@ -135,7 +128,6 @@ def test_jobdetail_with_anonymous_user(rf):
     assert "Cancel" not in response.rendered_content
 
 
-@pytest.mark.django_db
 def test_jobdetail_with_permission(rf):
     job = JobFactory()
     user = UserFactory()
@@ -160,7 +152,6 @@ def test_jobdetail_with_permission(rf):
     assert "Cancel" in response.rendered_content
 
 
-@pytest.mark.django_db
 def test_jobdetail_with_job_creator(rf):
     user = UserFactory()
     job_request = JobRequestFactory(created_by=user)
@@ -182,7 +173,6 @@ def test_jobdetail_with_job_creator(rf):
     assert "Cancel" in response.rendered_content
 
 
-@pytest.mark.django_db
 def test_jobdetail_with_partial_identifier_failure(rf, mocker):
     job_request = JobRequestFactory()
     JobFactory(job_request=job_request, identifier="123abc")
@@ -202,7 +192,6 @@ def test_jobdetail_with_partial_identifier_failure(rf, mocker):
         )
 
 
-@pytest.mark.django_db
 def test_jobdetail_with_partial_identifier_success(rf):
     job = JobFactory()
 
@@ -222,7 +211,6 @@ def test_jobdetail_with_partial_identifier_success(rf):
     assert response.url == job.get_absolute_url()
 
 
-@pytest.mark.django_db
 def test_jobdetail_with_unknown_job(rf):
     job_request = JobRequestFactory()
 
@@ -239,7 +227,6 @@ def test_jobdetail_with_unknown_job(rf):
         )
 
 
-@pytest.mark.django_db
 def test_jobdetail_without_permission(rf):
     job = JobFactory()
 
@@ -259,7 +246,6 @@ def test_jobdetail_without_permission(rf):
     assert "Cancel" not in response.rendered_content
 
 
-@pytest.mark.django_db
 def test_jobdetailredirect_success(rf):
     job = JobFactory()
 
@@ -271,7 +257,6 @@ def test_jobdetailredirect_success(rf):
     assert response.url == job.get_absolute_url()
 
 
-@pytest.mark.django_db
 def test_jobdetailredirect_with_unknown_job(rf):
     request = rf.get("/")
 

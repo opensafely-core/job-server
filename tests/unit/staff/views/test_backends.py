@@ -1,4 +1,3 @@
-import pytest
 from django.urls import reverse
 
 from staff.views.backends import (
@@ -11,7 +10,6 @@ from staff.views.backends import (
 from ....factories import BackendFactory
 
 
-@pytest.mark.django_db
 def test_backendedit_success(rf, core_developer):
     backend = BackendFactory()
 
@@ -27,7 +25,6 @@ def test_backendedit_success(rf, core_developer):
     assert backend.level_4_url == "http://testing"
 
 
-@pytest.mark.django_db
 def test_backenddetail_success(rf, core_developer):
     backend = BackendFactory()
 
@@ -39,7 +36,6 @@ def test_backenddetail_success(rf, core_developer):
     assert response.context_data["backend"] == backend
 
 
-@pytest.mark.django_db
 def test_backendlist_success(rf, core_developer):
     request = rf.get("/")
     request.user = core_developer
@@ -49,7 +45,6 @@ def test_backendlist_success(rf, core_developer):
     assert len(response.context_data["object_list"]) == 6
 
 
-@pytest.mark.django_db
 def test_backendrotatetoken_success(rf, core_developer):
     backend = BackendFactory()
 

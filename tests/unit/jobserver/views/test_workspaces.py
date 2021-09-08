@@ -40,7 +40,6 @@ from ....factories import (
 from ....utils import minutes_ago
 
 
-@pytest.mark.django_db
 def test_workspacearchivetoggle_success(rf):
     user = UserFactory()
     workspace = WorkspaceFactory(is_archived=False)
@@ -66,7 +65,6 @@ def test_workspacearchivetoggle_success(rf):
     assert workspace.is_archived
 
 
-@pytest.mark.django_db
 def test_workspacearchivetoggle_unknown_workspace(rf):
     project = ProjectFactory()
 
@@ -82,7 +80,6 @@ def test_workspacearchivetoggle_unknown_workspace(rf):
         )
 
 
-@pytest.mark.django_db
 def test_workspacearchivetoggle_without_permission(rf):
     workspace = WorkspaceFactory()
 
@@ -98,7 +95,6 @@ def test_workspacearchivetoggle_without_permission(rf):
         )
 
 
-@pytest.mark.django_db
 def test_workspacebackendfiles_success(rf):
     backend = BackendFactory()
     user = UserFactory()
@@ -123,7 +119,6 @@ def test_workspacebackendfiles_success(rf):
     assert response.status_code == 200
 
 
-@pytest.mark.django_db
 def test_workspacebackendfiles_unknown_backend(rf):
     workspace = WorkspaceFactory()
 
@@ -140,7 +135,6 @@ def test_workspacebackendfiles_unknown_backend(rf):
         )
 
 
-@pytest.mark.django_db
 def test_workspacebackendfiles_unknown_workspace(rf):
     backend = BackendFactory()
     project = ProjectFactory()
@@ -158,7 +152,6 @@ def test_workspacebackendfiles_unknown_workspace(rf):
         )
 
 
-@pytest.mark.django_db
 def test_workspacebackendfiles_with_permission(rf):
     backend = BackendFactory()
     user = UserFactory()
@@ -183,7 +176,6 @@ def test_workspacebackendfiles_with_permission(rf):
     assert response.status_code == 200
 
 
-@pytest.mark.django_db
 def test_workspacebackendfiles_without_backend_access(rf):
     backend = BackendFactory()
     user = UserFactory()
@@ -206,7 +198,6 @@ def test_workspacebackendfiles_without_backend_access(rf):
         )
 
 
-@pytest.mark.django_db
 def test_workspacebackendfiles_without_permission(rf):
     backend = BackendFactory()
     user = UserFactory()
@@ -227,7 +218,6 @@ def test_workspacebackendfiles_without_permission(rf):
         )
 
 
-@pytest.mark.django_db
 def test_workspacecreate_get_success(rf, mocker, user):
     project = ProjectFactory()
     ProjectMembershipFactory(project=project, user=user, roles=[ProjectDeveloper])
@@ -248,7 +238,6 @@ def test_workspacecreate_get_success(rf, mocker, user):
     assert response.status_code == 200
 
 
-@pytest.mark.django_db
 def test_workspacecreate_get_without_permission(rf):
     project = ProjectFactory()
 
@@ -263,7 +252,6 @@ def test_workspacecreate_get_without_permission(rf):
         )
 
 
-@pytest.mark.django_db
 @responses.activate
 def test_workspacecreate_post_success(rf, mocker, user):
     project = ProjectFactory()
@@ -294,7 +282,6 @@ def test_workspacecreate_post_success(rf, mocker, user):
     assert workspace.created_by == user
 
 
-@pytest.mark.django_db
 def test_workspacecreate_without_github(rf, mocker, user):
     project = ProjectFactory()
     ProjectMembershipFactory(project=project, user=user, roles=[ProjectDeveloper])
@@ -333,7 +320,6 @@ def test_workspacecreate_without_github(rf, mocker, user):
     assert str(messages[0]) == expected
 
 
-@pytest.mark.django_db
 def test_workspacecreate_without_permission(rf, user):
     project = ProjectFactory()
 
@@ -346,7 +332,6 @@ def test_workspacecreate_without_permission(rf, user):
         )
 
 
-@pytest.mark.django_db
 def test_workspacedetail_authorized_archive_workspaces(rf, mocker):
     workspace = WorkspaceFactory()
     user = UserFactory()
@@ -375,7 +360,6 @@ def test_workspacedetail_authorized_archive_workspaces(rf, mocker):
     assert response.context_data["user_can_archive_workspace"]
 
 
-@pytest.mark.django_db
 def test_workspacedetail_authorized_view_files(rf, mocker):
     backend = BackendFactory(level_4_url="http://test/")
     user = UserFactory(roles=[ProjectCollaborator])
@@ -403,7 +387,6 @@ def test_workspacedetail_authorized_view_files(rf, mocker):
     assert response.context_data["user_can_view_files"]
 
 
-@pytest.mark.django_db
 def test_workspacedetail_authorized_view_releases(rf, mocker):
     workspace = WorkspaceFactory()
 
@@ -429,7 +412,6 @@ def test_workspacedetail_authorized_view_releases(rf, mocker):
     assert response.context_data["user_can_view_releases"]
 
 
-@pytest.mark.django_db
 def test_workspacedetail_authorized_run_jobs(rf, mocker):
     workspace = WorkspaceFactory()
     user = UserFactory()
@@ -458,7 +440,6 @@ def test_workspacedetail_authorized_run_jobs(rf, mocker):
     assert response.context_data["user_can_run_jobs"]
 
 
-@pytest.mark.django_db
 def test_workspacedetail_authorized_view_snaphots(rf, mocker):
     workspace = WorkspaceFactory()
     SnapshotFactory(workspace=workspace, published_at=timezone.now())
@@ -483,7 +464,6 @@ def test_workspacedetail_authorized_view_snaphots(rf, mocker):
     assert response.context_data["user_can_view_outputs"]
 
 
-@pytest.mark.django_db
 def test_workspacedetail_logged_out(rf, mocker):
     workspace = WorkspaceFactory()
 
@@ -519,7 +499,6 @@ def test_workspacedetail_logged_out(rf, mocker):
     assert not response.context_data["user_can_view_outputs"]
 
 
-@pytest.mark.django_db
 def test_workspacedetail_unauthorized(rf, mocker):
     workspace = WorkspaceFactory()
 
@@ -555,7 +534,6 @@ def test_workspacedetail_unauthorized(rf, mocker):
     assert not response.context_data["user_can_view_outputs"]
 
 
-@pytest.mark.django_db
 def test_workspacedetail_unknown_workspace(rf):
     project = ProjectFactory()
 
@@ -570,7 +548,6 @@ def test_workspacedetail_unknown_workspace(rf):
         )
 
 
-@pytest.mark.django_db
 def test_workspacedetail_with_no_github(rf, mocker):
     workspace = WorkspaceFactory()
 
@@ -595,7 +572,6 @@ def test_workspacedetail_with_no_github(rf, mocker):
     assert response.context_data["repo_is_private"] is None
 
 
-@pytest.mark.django_db
 def test_workspacefilelist_success(rf):
     backend1 = BackendFactory()
     BackendFactory()
@@ -621,7 +597,6 @@ def test_workspacefilelist_success(rf):
     assert list(response.context_data["backends"]) == [backend1]
 
 
-@pytest.mark.django_db
 def test_workspacefilelist_unknown_workspace(rf):
     project = ProjectFactory()
 
@@ -637,7 +612,6 @@ def test_workspacefilelist_unknown_workspace(rf):
         )
 
 
-@pytest.mark.django_db
 def test_workspacefilelist_without_backends(rf):
     user = UserFactory()
     workspace = WorkspaceFactory()
@@ -658,7 +632,6 @@ def test_workspacefilelist_without_backends(rf):
         )
 
 
-@pytest.mark.django_db
 def test_workspacefilelist_without_permission(rf):
     user = UserFactory()
     workspace = WorkspaceFactory()
@@ -677,7 +650,6 @@ def test_workspacefilelist_without_permission(rf):
         )
 
 
-@pytest.mark.django_db
 def test_workspacelatestoutputsdetail_success(rf):
     user = UserFactory(roles=[ProjectCollaborator])
     workspace = WorkspaceFactory()
@@ -700,7 +672,6 @@ def test_workspacelatestoutputsdetail_success(rf):
     assert response.context_data["prepare_url"]
 
 
-@pytest.mark.django_db
 def test_workspacelatestoutputsdetail_without_file_permission(rf):
     workspace = WorkspaceFactory()
 
@@ -716,7 +687,6 @@ def test_workspacelatestoutputsdetail_without_file_permission(rf):
         )
 
 
-@pytest.mark.django_db
 def test_workspacelatestoutputsdetail_without_publish_permission(rf):
     workspace = WorkspaceFactory()
 
@@ -734,7 +704,6 @@ def test_workspacelatestoutputsdetail_without_publish_permission(rf):
     assert not response.context_data["prepare_url"]
 
 
-@pytest.mark.django_db
 def test_workspacelatestoutputsdetail_unknown_workspace(rf):
     project = ProjectFactory()
 
@@ -749,7 +718,6 @@ def test_workspacelatestoutputsdetail_unknown_workspace(rf):
         )
 
 
-@pytest.mark.django_db
 def test_workspacelatestoutputsdownload_no_files(rf):
     workspace = WorkspaceFactory()
 
@@ -765,7 +733,6 @@ def test_workspacelatestoutputsdownload_no_files(rf):
         )
 
 
-@pytest.mark.django_db
 def test_workspacelatestoutputsdownload_success(rf):
     workspace = WorkspaceFactory()
     ReleaseFactory(ReleaseUploadsFactory(["test1", "test2"]), workspace=workspace)
@@ -790,7 +757,6 @@ def test_workspacelatestoutputsdownload_success(rf):
         assert set(zip_obj.namelist()) == {"test1", "test2", "test3"}
 
 
-@pytest.mark.django_db
 def test_workspacelatestoutputsdownload_unknown_workspace(rf):
     project = ProjectFactory()
 
@@ -806,7 +772,6 @@ def test_workspacelatestoutputsdownload_unknown_workspace(rf):
         )
 
 
-@pytest.mark.django_db
 def test_workspacelatestoutputsdownload_without_permission(rf):
     workspace = WorkspaceFactory()
     ReleaseFactory(ReleaseUploadsFactory(["test1"]), workspace=workspace)
@@ -823,7 +788,6 @@ def test_workspacelatestoutputsdownload_without_permission(rf):
         )
 
 
-@pytest.mark.django_db
 def test_workspacelog_filter_by_one_backend(rf):
     workspace = WorkspaceFactory()
     user = UserFactory()
@@ -851,7 +815,6 @@ def test_workspacelog_filter_by_one_backend(rf):
     assert response.context_data["object_list"][0] == job_request1
 
 
-@pytest.mark.django_db
 def test_workspacelog_filter_by_several_backends(rf):
     workspace = WorkspaceFactory()
     user = UserFactory()
@@ -889,7 +852,6 @@ def test_workspacelog_filter_by_several_backends(rf):
     }
 
 
-@pytest.mark.django_db
 def test_workspacelog_search_by_action(rf):
     workspace = WorkspaceFactory()
     user = UserFactory()
@@ -918,7 +880,6 @@ def test_workspacelog_search_by_action(rf):
     assert response.context_data["object_list"][0] == job_request1
 
 
-@pytest.mark.django_db
 def test_workspacelog_search_by_id(rf):
     workspace = WorkspaceFactory()
     user = UserFactory()
@@ -946,7 +907,6 @@ def test_workspacelog_search_by_id(rf):
     assert response.context_data["object_list"][0] == job_request2
 
 
-@pytest.mark.django_db
 def test_workspacelog_success(rf):
     workspace = WorkspaceFactory()
     user = UserFactory()
@@ -972,7 +932,6 @@ def test_workspacelog_success(rf):
     assert len(response.context_data["object_list"]) == 1
 
 
-@pytest.mark.django_db
 def test_workspacelog_unknown_workspace(rf):
     project = ProjectFactory()
     user = UserFactory()
@@ -993,7 +952,6 @@ def test_workspacelog_unknown_workspace(rf):
     assert response.url == "/"
 
 
-@pytest.mark.django_db
 def test_workspacelog_with_authenticated_user(rf):
     workspace = WorkspaceFactory()
     job_request = JobRequestFactory(workspace=workspace)
@@ -1012,7 +970,6 @@ def test_workspacelog_with_authenticated_user(rf):
     assert response.status_code == 200
 
 
-@pytest.mark.django_db
 def test_workspacelog_with_unauthenticated_user(rf):
     workspace = WorkspaceFactory()
     job_request = JobRequestFactory(workspace=workspace)
@@ -1031,7 +988,6 @@ def test_workspacelog_with_unauthenticated_user(rf):
     assert response.status_code == 200
 
 
-@pytest.mark.django_db
 @responses.activate
 def test_workspacenotificationstoggle_success(rf):
     workspace = WorkspaceFactory(should_notify=True)
@@ -1059,7 +1015,6 @@ def test_workspacenotificationstoggle_success(rf):
     assert not workspace.should_notify
 
 
-@pytest.mark.django_db
 @responses.activate
 def test_workspacenotificationstoggle_without_permission(rf, user):
     workspace = WorkspaceFactory()
@@ -1077,7 +1032,6 @@ def test_workspacenotificationstoggle_without_permission(rf, user):
         )
 
 
-@pytest.mark.django_db
 def test_workspacenotificationstoggle_unknown_workspace(rf):
     project = ProjectFactory()
     user = UserFactory()
@@ -1096,7 +1050,6 @@ def test_workspacenotificationstoggle_unknown_workspace(rf):
         )
 
 
-@pytest.mark.django_db
 def test_workspaceoutputlist_success(rf, freezer):
     workspace = WorkspaceFactory()
 
@@ -1145,7 +1098,6 @@ def test_workspaceoutputlist_success(rf, freezer):
     assert len(response.context_data["snapshots"]) == 2
 
 
-@pytest.mark.django_db
 def test_workspaceoutputlist_without_permission(rf, freezer):
     workspace = WorkspaceFactory()
 
@@ -1197,7 +1149,6 @@ def test_workspaceoutputlist_without_permission(rf, freezer):
     assert "Current" not in response.rendered_content
 
 
-@pytest.mark.django_db
 def test_workspaceoutputlist_without_snapshots(rf, freezer):
     workspace = WorkspaceFactory()
 
@@ -1213,7 +1164,6 @@ def test_workspaceoutputlist_without_snapshots(rf, freezer):
         )
 
 
-@pytest.mark.django_db
 def test_workspaceoutputlist_unknown_workspace(rf):
     project = ProjectFactory()
 
@@ -1228,7 +1178,6 @@ def test_workspaceoutputlist_unknown_workspace(rf):
         )
 
 
-@pytest.mark.django_db
 def test_workspaceoutputsbadge_with_published_outputs(rf):
     workspace = WorkspaceFactory()
 
@@ -1251,7 +1200,6 @@ def test_workspaceoutputsbadge_with_published_outputs(rf):
     assert response.status_code == 200
 
 
-@pytest.mark.django_db
 def test_workspaceoutputsbadge_without_published_outputs(rf):
     workspace = WorkspaceFactory()
 
@@ -1267,7 +1215,6 @@ def test_workspaceoutputsbadge_without_published_outputs(rf):
     assert response.status_code == 200
 
 
-@pytest.mark.django_db
 def test_workspaceoutputsbadge_unknown_workspace(rf):
     project = ProjectFactory()
 

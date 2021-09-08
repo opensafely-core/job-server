@@ -17,7 +17,6 @@ from ....factories import (
 )
 
 
-@pytest.mark.django_db
 def test_userdetail_get_success(rf, core_developer):
     org = OrgFactory()
     project1 = ProjectFactory(org=org)
@@ -47,7 +46,6 @@ def test_userdetail_get_success(rf, core_developer):
     assert response.context_data["user"] == user
 
 
-@pytest.mark.django_db
 def test_userdetail_post_success(rf, core_developer):
     org = OrgFactory()
     project1 = ProjectFactory(org=org)
@@ -84,7 +82,6 @@ def test_userdetail_post_success(rf, core_developer):
     assert user.is_superuser
 
 
-@pytest.mark.django_db
 def test_userdetail_post_with_unknown_backend(rf, core_developer):
     org = OrgFactory()
     project1 = ProjectFactory(org=org)
@@ -130,7 +127,6 @@ def test_userdetail_post_with_unknown_backend(rf, core_developer):
     )
 
 
-@pytest.mark.django_db
 def test_userdetail_post_with_unknown_role(rf, core_developer):
     org = OrgFactory()
     project1 = ProjectFactory(org=org)
@@ -176,7 +172,6 @@ def test_userdetail_post_with_unknown_role(rf, core_developer):
     )
 
 
-@pytest.mark.django_db
 def test_userdetail_with_unknown_user(rf, core_developer):
     request = rf.get("/")
     request.user = core_developer
@@ -185,7 +180,6 @@ def test_userdetail_with_unknown_user(rf, core_developer):
         UserDetail.as_view()(request, username="test")
 
 
-@pytest.mark.django_db
 def test_userdetail_without_core_dev_role(rf):
     request = rf.get("/")
     request.user = UserFactory()
@@ -195,7 +189,6 @@ def test_userdetail_without_core_dev_role(rf):
     assert response.status_code == 403
 
 
-@pytest.mark.django_db
 def test_userlist_filter_by_backend(rf, core_developer):
     emis = Backend.objects.get(slug="emis")
     tpp = Backend.objects.get(slug="tpp")
@@ -211,7 +204,6 @@ def test_userlist_filter_by_backend(rf, core_developer):
     assert len(response.context_data["object_list"]) == 1
 
 
-@pytest.mark.django_db
 def test_userlist_filter_by_invalid_backend(rf, core_developer):
     request = rf.get("/?backend=test")
     request.user = core_developer
@@ -220,7 +212,6 @@ def test_userlist_filter_by_invalid_backend(rf, core_developer):
         UserList.as_view()(request)
 
 
-@pytest.mark.django_db
 def test_userlist_filter_by_role(rf, core_developer):
     UserFactory(roles=[OutputPublisher])
     UserFactory(roles=[TechnicalReviewer])
@@ -233,7 +224,6 @@ def test_userlist_filter_by_role(rf, core_developer):
     assert len(response.context_data["object_list"]) == 1
 
 
-@pytest.mark.django_db
 def test_userlist_filter_by_invalid_role(rf, core_developer):
     request = rf.get("/?backend=unknown")
     request.user = core_developer
@@ -242,7 +232,6 @@ def test_userlist_filter_by_invalid_role(rf, core_developer):
         UserList.as_view()(request)
 
 
-@pytest.mark.django_db
 def test_userlist_find_by_username(rf, core_developer):
     UserFactory(username="ben")
     UserFactory(first_name="ben")
@@ -258,7 +247,6 @@ def test_userlist_find_by_username(rf, core_developer):
     assert len(response.context_data["object_list"]) == 2
 
 
-@pytest.mark.django_db
 def test_userlist_success(rf, core_developer):
     UserFactory.create_batch(5)
 
@@ -274,7 +262,6 @@ def test_userlist_success(rf, core_developer):
     assert len(response.context_data["object_list"]) == 6
 
 
-@pytest.mark.django_db
 def test_usersetorgs_success(rf, core_developer):
     existing_org = OrgFactory()
     new_org1 = OrgFactory()
@@ -296,7 +283,6 @@ def test_usersetorgs_success(rf, core_developer):
     assert set_from_qs(user.orgs.all()) == {new_org1.pk, new_org2.pk}
 
 
-@pytest.mark.django_db
 def test_usersetorgs_unknown_user(rf, core_developer):
     request = rf.get("/")
     request.user = core_developer
