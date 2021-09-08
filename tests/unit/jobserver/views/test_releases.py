@@ -1,6 +1,7 @@
 import pytest
 from django.contrib.auth.models import AnonymousUser
 from django.http import Http404
+from django.urls import reverse
 from django.utils import timezone
 
 from jobserver.authorization import OutputChecker, OutputPublisher, ProjectCollaborator
@@ -328,24 +329,28 @@ def test_releasefiledelete_unknown_release_file(rf):
         )
 
 
-def test_releasefiledelete_without_permission(rf):
+def test_releasefiledelete_without_permission(client):
     release = ReleaseFactory(ReleaseUploadsFactory(["file1.txt"]))
     rfile = release.files.first()
 
     assert rfile.absolute_path().exists()
 
-    request = rf.post("/")
-    request.user = UserFactory()
+    client.force_login(UserFactory())
 
-    with pytest.raises(Http404):
-        ReleaseFileDelete.as_view()(
-            request,
-            org_slug=release.workspace.project.org.slug,
-            project_slug=release.workspace.project.slug,
-            workspace_slug=release.workspace.name,
-            pk=release.pk,
-            release_file_id=rfile.pk,
+    rsp = client.post(
+        reverse(
+            "release-file-delete",
+            kwargs=dict(
+                org_slug=release.workspace.project.org.slug,
+                project_slug=release.workspace.project.slug,
+                workspace_slug=release.workspace.name,
+                pk=release.pk,
+                release_file_id=rfile.pk,
+            ),
         )
+    )
+
+    assert rsp.status_code == 404
 
 
 def test_snapshotdetail_published_logged_out(rf):
