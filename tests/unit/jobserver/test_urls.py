@@ -24,7 +24,6 @@ from jobserver.api.releases import (
 from jobserver.utils import dotted_path
 from jobserver.views import (
     admin,
-    backends,
     index,
     job_requests,
     jobs,
@@ -35,6 +34,10 @@ from jobserver.views import (
     users,
     workspaces,
 )
+from staff.views import backends as staff_backends
+from staff.views import projects as staff_projects
+from staff.views import users as staff_users
+from staff.views import workspaces as staff_workspaces
 
 
 @pytest.mark.parametrize(
@@ -71,12 +74,19 @@ def test_url_redirects(client, url, redirect):
         ("/api/v2/releases/workspace/w", ReleaseWorkspaceAPI),
         ("/api/v2/releases/release/42", ReleaseAPI),
         ("/api/v2/releases/file/42", ReleaseFileAPI),
-        ("/backends/", backends.BackendList),
-        ("/backends/42/", backends.BackendDetail),
-        ("/backends/42/edit/", backends.BackendEdit),
-        ("/backends/42/rotate-token/", backends.BackendRotateToken),
         ("/event-log/", job_requests.JobRequestList),
-        ("/job-requests/<pk>/", job_requests.JobRequestDetailRedirect),
+        ("/staff/backends/", staff_backends.BackendList),
+        ("/staff/backends/42/", staff_backends.BackendDetail),
+        ("/staff/backends/42/edit/", staff_backends.BackendEdit),
+        ("/staff/backends/42/rotate-token/", staff_backends.BackendRotateToken),
+        ("/staff/projects/", staff_projects.ProjectList),
+        ("/staff/projects/p/", staff_projects.ProjectDetail),
+        ("/staff/projects/p/edit/", staff_projects.ProjectEdit),
+        ("/staff/users/", staff_users.UserList),
+        ("/staff/users/<username>/", staff_users.UserDetail),
+        ("/staff/workspaces/", staff_workspaces.WorkspaceList),
+        ("/staff/workspaces/w/", staff_workspaces.WorkspaceDetail),
+        ("/job-requests/42/", job_requests.JobRequestDetailRedirect),
         ("/jobs/<identifier>/", jobs.JobDetailRedirect),
         ("/login/github/", social_django_auth_view),
         ("/logout/", LogoutView),
@@ -84,15 +94,12 @@ def test_url_redirects(client, url, redirect):
         ("/orgs/new/", orgs.OrgCreate),
         ("/settings/", users.Settings),
         ("/status/", status.Status),
-        ("/users/", users.UserList),
-        ("/users/ben/", users.UserDetail),
         ("/o/", orgs.OrgDetail),
         ("/o/new-project/", projects.ProjectCreate),
         ("/o/project-onboarding/", projects.ProjectOnboardingCreate),
         ("/o/p/", projects.ProjectDetail),
         ("/o/p/accept-invite/42/", projects.ProjectAcceptInvite),
         ("/o/p/cancel-invite/", projects.ProjectCancelInvite),
-        ("/o/p/edit/", projects.ProjectEdit),
         ("/o/p/invite-users/", projects.ProjectInvitationCreate),
         ("/o/p/members/42/edit", projects.ProjectMembershipEdit),
         ("/o/p/members/42/remove", projects.ProjectMembershipRemove),
@@ -130,7 +137,7 @@ def test_url_resolution(url, view):
     """Test each URL resolves to the expected view function or class"""
     resolved_view = resolve(url).func
 
-    assert dotted_path(resolved_view) == dotted_path(view)
+    assert dotted_path(resolved_view) == dotted_path(view), url
 
     msg = f"Resolved view '{resolved_view}' is a class. Did you forget `.as_view()`?"
     assert not inspect.isclass(resolved_view), msg

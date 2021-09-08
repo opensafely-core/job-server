@@ -44,6 +44,7 @@ ALLOWED_HOSTS = ["*"]
 # Application definition
 INSTALLED_APPS = [
     "jobserver",
+    "staff",
     "anymail",
     "debug_toolbar",
     "django_vite",
@@ -87,6 +88,8 @@ TEMPLATES = [
                 "django.contrib.auth.context_processors.auth",
                 "django.contrib.messages.context_processors.messages",
                 "jobserver.context_processors.backend_warnings",
+                "jobserver.context_processors.can_view_staff_area",
+                "jobserver.context_processors.staff_nav",
                 "jobserver.context_processors.nav",
                 "jobserver.context_processors.scripts_attrs",
             ],

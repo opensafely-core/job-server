@@ -1,0 +1,68 @@
+{% extends "staff/base.html" %}
+
+{% block staff_content %}
+
+<div class="row mt-5">
+  <div class="col-6 offset-3">
+    <h2>Welcome to the 🚨Staff Area🚨</h2>
+
+    <div class="mb-5">
+      <p>
+      The staff area is a tailored, staff-only interface.
+      It requires authentication but assumes all users are both equal and have full rights.
+      </p>
+
+      <p>
+      It is ideal for, and tailored towards:
+      </p>
+      <ul>
+        <li>Administration of a live instance</li>
+        <li>Speeding up local dev work</li>
+      </ul>
+    </div>
+
+    <p>You can search for various objects below:</p>
+
+    <form method="GET" class="form-inline mb-5">
+      <div class="form-group w-100">
+
+        <input
+          class="form-control form-control-lg w-100"
+          type="search"
+          name="q"
+          placeholder="Search"
+          autofocus
+          {% if q %}
+          value="{{ q|stringformat:'s' }}"
+          {% endif %}
+          />
+
+      </div>
+    </form>
+
+    {% if results %}
+    <h3>Results</h3>
+
+    {% for key, group in results %}
+    <div class="mb-5">
+
+      <h5>{{ key }}{{ 2|pluralize }}</h5>
+
+      <ul>
+        {% for item in group %}
+        <li>
+          <a href="{{ item.get_staff_url }}">
+            {{ item }}
+          </a>
+        </li>
+        {% endfor %}
+      </ul>
+
+    </div>
+    {% endfor %}
+    {% endif %}
+
+  </div>
+</div>
+
+{% endblock staff_content %}

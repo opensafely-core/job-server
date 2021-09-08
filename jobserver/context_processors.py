@@ -4,7 +4,7 @@ import structlog
 from django.conf import settings
 from django.urls import reverse
 
-from .authorization import has_permission
+from .authorization import CoreDeveloper, has_role
 from .backends import show_warning
 from .models import Backend
 
@@ -37,41 +37,61 @@ def backend_warnings(request):
     return {"backend_warnings": list(iter_warnings(backends))}
 
 
-def nav(request):
+def can_view_staff_area(request):
+    can_view_staff_area = has_role(request.user, CoreDeveloper)
+
+    return {"user_can_view_staff_area": can_view_staff_area}
+
+
+def staff_nav(request):
+    if not has_role(request.user, CoreDeveloper):
+        return {"staff_nav": []}
+
     _active = functools.partial(_is_active, request)
 
     options = [
         {
-            "name": "Event log",
-            "is_active": _active(reverse("job-list")),
-            "url": reverse("job-list"),
+            "name": "Backends",
+            "is_active": _active(reverse("staff:backend-list")),
+            "url": reverse("staff:backend-list"),
         },
         {
-            "name": "Status",
-            "is_active": _active(reverse("status")),
-            "url": reverse("status"),
+            "name": "Projects",
+            "is_active": _active(reverse("staff:project-list")),
+            "url": reverse("staff:project-list"),
+        },
+        {
+            "name": "Users",
+            "is_active": _active(reverse("staff:user-list")),
+            "url": reverse("staff:user-list"),
+        },
+        {
+            "name": "Workspaces",
+            "is_active": _active(reverse("staff:workspace-list")),
+            "url": reverse("staff:workspace-list"),
         },
     ]
 
-    if has_permission(request.user, "backend_manage"):
-        options.append(
-            {
-                "name": "Backends",
-                "is_active": _active(reverse("backend-list")),
-                "url": reverse("backend-list"),
-            }
-        )
+    return {"staff_nav": options}
 
-    if has_permission(request.user, "user_manage"):
-        options.append(
-            {
-                "name": "Users",
-                "is_active": _active(reverse("user-list")),
-                "url": reverse("user-list"),
-            }
-        )
 
-    return {"nav": options}
+def nav(request):
+    _active = functools.partial(_is_active, request)
+
+    return {
+        "nav": [
+            {
+                "name": "Event Log",
+                "is_active": _active(reverse("job-list")),
+                "url": reverse("job-list"),
+            },
+            {
+                "name": "Status",
+                "is_active": _active(reverse("status")),
+                "url": reverse("status"),
+            },
+        ],
+    }
 
 
 def scripts_attrs(request):

@@ -580,6 +580,15 @@ def test_projectmembership_get_remove_url():
 
 
 @pytest.mark.django_db
+def test_project_get_edit_url():
+    project = ProjectFactory()
+
+    url = project.get_edit_url()
+
+    assert url == reverse("staff:project-edit", kwargs={"slug": project.slug})
+
+
+@pytest.mark.django_db
 def test_project_get_invitation_url():
     org = OrgFactory(name="test-org")
     project = ProjectFactory(org=org)
@@ -613,6 +622,15 @@ def test_project_get_settings_url():
     assert url == reverse(
         "project-settings", kwargs={"org_slug": org.slug, "project_slug": project.slug}
     )
+
+
+@pytest.mark.django_db
+def test_project_get_staff_url():
+    project = ProjectFactory()
+
+    url = project.get_staff_url()
+
+    assert url == reverse("staff:project-detail", kwargs={"slug": project.slug})
 
 
 @pytest.mark.django_db
@@ -750,20 +768,6 @@ def test_user_name_without_first_and_last_name():
 
 
 @pytest.mark.django_db
-def test_user_get_absolute_url():
-    user = UserFactory()
-
-    url = user.get_absolute_url()
-
-    assert url == reverse(
-        "user-detail",
-        kwargs={
-            "username": user.username,
-        },
-    )
-
-
-@pytest.mark.django_db
 def test_user_get_all_permissions():
     org = OrgFactory()
     project = ProjectFactory(org=org)
@@ -849,6 +853,20 @@ def test_user_get_all_roles_empty():
 
 
 @pytest.mark.django_db
+def test_user_get_staff_url():
+    user = UserFactory()
+
+    url = user.get_staff_url()
+
+    assert url == reverse(
+        "staff:user-detail",
+        kwargs={
+            "username": user.username,
+        },
+    )
+
+
+@pytest.mark.django_db
 def test_user_is_unapproved_by_default():
     assert not UserFactory().is_approved
 
@@ -931,6 +949,15 @@ def test_workspace_get_files_url():
             "workspace_slug": workspace.name,
         },
     )
+
+
+@pytest.mark.django_db
+def test_workspace_get_staff_url():
+    workspace = WorkspaceFactory()
+
+    url = workspace.get_staff_url()
+
+    assert url == reverse("staff:workspace-detail", kwargs={"slug": workspace.name})
 
 
 @pytest.mark.django_db

@@ -1,24 +1,9 @@
-{% extends "base.html" %}
+{% extends "staff/base.html" %}
 
 {% load humanize %}
 {% load roles %}
 
-{% block content %}
-
-<nav aria-label="breadcrumb">
-  <ol class="breadcrumb">
-
-    <li class="breadcrumb-item"><a href="/">Home</a></li>
-
-    <li class="breadcrumb-item">
-      <a href="{% url 'user-list' %}">Users</a>
-    </li>
-
-    <li class="breadcrumb-item active" aria-current="page">{{ user.username }}</li>
-
-  </ol>
-</nav>
-
+{% block staff_content %}
 <div class="row mb-5">
   <div class="col-lg-8 offset-lg-2">
 
@@ -87,7 +72,12 @@
       </div>
 
       <div class="form-group mb-5">
-        <h4>Orgnisations</h4>
+        <div class="d-flex justify-content-between align-items-center">
+          <h4>Organisations</h4>
+          <a class="btn btn-sm btn-primary" href="{% url 'staff:user-set-orgs' username=user.username %}">
+            +
+          </a>
+        </div>
 
         <ul class="list-group mb-3">
           {% for org in orgs %}
@@ -184,5 +174,4 @@
 
   </div>
 </div>
-
-{% endblock %}
+{% endblock staff_content %}

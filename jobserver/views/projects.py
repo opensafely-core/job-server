@@ -19,7 +19,6 @@ from ..authorization import (
     has_role,
     roles_for,
 )
-from ..authorization.decorators import require_role
 from ..emails import send_project_invite_email
 from ..forms import (
     ProjectInvitationForm,
@@ -117,20 +116,6 @@ class ProjectCreate(CreateView):
         )
 
 
-@method_decorator(require_role(CoreDeveloper), name="dispatch")
-class ProjectEdit(UpdateView):
-    """
-    Staff-only view for general Project editing
-
-    TODO: move to a staff-only area
-    """
-
-    fields = ["uses_new_release_flow"]
-    model = Project
-    slug_url_kwarg = "project_slug"
-    template_name = "project_edit.html"
-
-
 class ProjectOnboardingCreate(CreateView):
     form_class = ProjectOnboardingCreateForm
     model = Project
@@ -199,7 +184,6 @@ class ProjectDetail(DetailView):
             project=self.object,
         )
         can_use_releases = has_role(self.request.user, CoreDeveloper)
-        can_change_release_process = has_role(self.request.user, CoreDeveloper)
 
         workspaces = self.object.workspaces.order_by("name")
 
@@ -207,7 +191,6 @@ class ProjectDetail(DetailView):
 
         return super().get_context_data(**kwargs) | {
             "can_create_workspaces": can_create_workspaces,
-            "can_change_release_process": can_change_release_process,
             "can_manage_members": can_manage_members,
             "can_use_releases": can_use_releases,
             "outputs": self.get_outputs(workspaces),

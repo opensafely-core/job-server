@@ -1,19 +1,9 @@
-{% extends "base.html" %}
+{% extends "staff/base.html" %}
 
 {% load querystring_tools %}
 {% load selected_filter %}
 
-{% block content %}
-<nav aria-label="breadcrumb">
-  <ol class="breadcrumb">
-
-    <li class="breadcrumb-item"><a href="/">Home</a></li>
-
-    <li class="breadcrumb-item active" aria-current="page">Users</li>
-
-  </ol>
-</nav>
-
+{% block staff_content %}
 <div class="row">
   <div class="col-lg-6 offset-lg-2">
 
@@ -33,7 +23,7 @@
     {% for user in object_list %}
     <div class="border rounded p-2 pl-3 mb-3">
 
-      <a href="{{ user.get_absolute_url }}">{{ user.username }}</a>
+      <a href="{{ user.get_staff_url }}">{{ user.username }}</a>
       {% if user.get_full_name %}
       <small class="text-muted">({{ user.get_full_name }})</small>
       {% endif %}
@@ -48,7 +38,7 @@
 
     {% if request.GET %}
     <div class="mb-3">
-      <a href="{% url 'user-list' %}">Clear All</a>
+      <a href="{% url 'staff:user-list' %}">Clear All</a>
     </div>
     {% endif %}
 
@@ -108,4 +98,4 @@
   </div>
 
 </div>
-{% endblock %}
+{% endblock staff_content %}

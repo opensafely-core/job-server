@@ -32,6 +32,13 @@
           </button>
           <div class="dropdown-menu dropdown-menu-lg-right" aria-labelledby="navbarUserDropdown">
             <span class="dropdown-header font-weight-bold">{{ request.user.username }}</span>
+
+              {% if user_can_view_staff_area %}
+              <a class="dropdown-item" href="{% url 'staff:index' %}">
+                🚨 Staff Area 🚨
+              </a>
+              {% endif %}
+
             <a class="dropdown-item" href="{% url 'settings' %}">Settings</a>
             <a class="dropdown-item" href="{% url 'logout' %}">Logout</a>
           </div>
