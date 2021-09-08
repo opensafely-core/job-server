@@ -43,6 +43,7 @@ ALLOWED_HOSTS = ["*"]
 
 # Application definition
 INSTALLED_APPS = [
+    "applications",
     "jobserver",
     "staff",
     "anymail",
