@@ -112,6 +112,13 @@ def has_permission(user, permission, **context):
     return permission in permissions
 
 
+def has_permission_2(user, action_fn, **context):
+    if not user.is_authenticated:
+        return False
+
+    return has_role(user, action_fn.required_role, **context)
+
+
 def has_role(user, role, **context):
     if not user.is_authenticated:
         return False
@@ -163,6 +170,8 @@ def strings_to_roles(strings):
 
 def require_role(role, *context_keys):
     def decorator(fn):
+        fn.required_role = role
+
         @functools.wraps(fn)
         def wrapper(**kwargs):
             context = {key: kwargs[key] for key in context_keys}
