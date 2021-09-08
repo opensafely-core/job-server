@@ -30,7 +30,7 @@ class ProjectReleaseList(View):
 
         can_delete_files = has_permission_2(
             request.user,
-            actions.delete_release_file,
+            actions.release_file_delete,
             project=project,
         )
         can_view_files = has_permission(
@@ -153,7 +153,7 @@ class ReleaseFileDelete(View):
         if not rfile.absolute_path().exists():
             raise Http404
 
-        actions.delete_release_file(
+        actions.release_file_delete(
             user=request.user,
             rfile=rfile,
             project=rfile.release.workspace.project,
@@ -241,7 +241,7 @@ class WorkspaceReleaseList(View):
 
         can_delete_files = has_permission_2(
             request.user,
-            actions.delete_release_file,
+            actions.release_file_delete,
             project=workspace.project,
         )
         can_view_files = has_permission(

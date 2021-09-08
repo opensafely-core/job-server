@@ -7,7 +7,7 @@ from .authorization.utils import require_role
 
 @transaction.atomic
 @require_role(roles.OutputChecker, "project")
-def delete_release_file(*, user, rfile, project):
+def release_file_delete(*, user, rfile, project):
     # delete file on disk
     rfile.absolute_path().unlink()
 
