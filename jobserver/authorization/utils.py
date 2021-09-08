@@ -161,12 +161,12 @@ def strings_to_roles(strings):
     return [value for name, value in available_roles if name in strings]
 
 
-def require_permission(permission, *context_keys):
+def require_role(role, *context_keys):
     def decorator(fn):
         @functools.wraps(fn)
         def wrapper(**kwargs):
             context = {key: kwargs[key] for key in context_keys}
-            if not has_permission(kwargs["user"], permission, **context):
+            if not has_role(kwargs["user"], role, **context):
                 raise PermissionDenied
             fn(**kwargs)
 
