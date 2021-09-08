@@ -1,5 +1,8 @@
+import functools
 import inspect
 import itertools
+
+from django.http import Http404
 
 from ..utils import dotted_path
 from . import roles
@@ -158,3 +161,17 @@ def strings_to_roles(strings):
 
     # convert selected role strings to classes
     return [value for name, value in available_roles if name in strings]
+
+
+def require_permission(permission, *context_keys):
+    def decorator(fn):
+        @functools.wraps(fn)
+        def wrapper(**kwargs):
+            context = {key: kwargs[key] for key in context_keys}
+            if not has_permission(kwargs["user"], permission, **context):
+                raise Http404
+            fn(**kwargs)
+
+        return wrapper
+
+    return decorator
