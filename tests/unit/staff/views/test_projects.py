@@ -1,11 +1,8 @@
-import pytest
-
 from staff.views.projects import ProjectEdit, ProjectList
 
 from ....factories import ProjectFactory, UserFactory
 
 
-@pytest.mark.django_db
 def test_projectedit_get_success(rf, core_developer):
     project = ProjectFactory()
 
@@ -17,7 +14,6 @@ def test_projectedit_get_success(rf, core_developer):
     assert response.status_code == 200
 
 
-@pytest.mark.django_db
 def test_projectedit_get_unauthorized(rf):
     project = ProjectFactory()
 
@@ -29,7 +25,6 @@ def test_projectedit_get_unauthorized(rf):
     assert response.status_code == 403
 
 
-@pytest.mark.django_db
 def test_projectedit_post_success(rf, core_developer):
     project = ProjectFactory(uses_new_release_flow=False)
 
@@ -45,7 +40,6 @@ def test_projectedit_post_success(rf, core_developer):
     assert project.uses_new_release_flow
 
 
-@pytest.mark.django_db
 def test_projectedit_post_unauthorized(rf):
     project = ProjectFactory()
 
@@ -57,7 +51,6 @@ def test_projectedit_post_unauthorized(rf):
     assert response.status_code == 403
 
 
-@pytest.mark.django_db
 def test_projectlist_filter_by_org(rf, core_developer):
     project = ProjectFactory()
     ProjectFactory.create_batch(2)
@@ -70,7 +63,6 @@ def test_projectlist_filter_by_org(rf, core_developer):
     assert len(response.context_data["project_list"]) == 1
 
 
-@pytest.mark.django_db
 def test_projectlist_find_by_username(rf, core_developer):
     ProjectFactory(name="ben")
     ProjectFactory(name="benjamin")
@@ -86,7 +78,6 @@ def test_projectlist_find_by_username(rf, core_developer):
     assert len(response.context_data["project_list"]) == 2
 
 
-@pytest.mark.django_db
 def test_projectlist_success(rf, core_developer):
     ProjectFactory.create_batch(5)
 
@@ -99,7 +90,6 @@ def test_projectlist_success(rf, core_developer):
     assert len(response.context_data["project_list"])
 
 
-@pytest.mark.django_db
 def test_projectlist_unauthorized(rf):
     project = ProjectFactory()
 

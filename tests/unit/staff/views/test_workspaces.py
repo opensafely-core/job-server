@@ -6,7 +6,6 @@ from staff.views.workspaces import WorkspaceDetail, WorkspaceList
 from ....factories import UserFactory, WorkspaceFactory
 
 
-@pytest.mark.django_db
 def test_workspacedetail_success(rf, core_developer):
     workspace = WorkspaceFactory()
 
@@ -20,7 +19,6 @@ def test_workspacedetail_success(rf, core_developer):
     assert response.context_data["workspace"] == workspace
 
 
-@pytest.mark.django_db
 def test_workspacedetail_with_unknown_user(rf, core_developer):
     request = rf.get("/")
     request.user = core_developer
@@ -29,7 +27,6 @@ def test_workspacedetail_with_unknown_user(rf, core_developer):
         WorkspaceDetail.as_view()(request, slug="test")
 
 
-@pytest.mark.django_db
 def test_workspacedetail_without_core_dev_role(rf):
     workspace = WorkspaceFactory()
 
@@ -41,7 +38,6 @@ def test_workspacedetail_without_core_dev_role(rf):
     assert response.status_code == 403
 
 
-@pytest.mark.django_db
 def test_workspacelist_search(rf, core_developer):
     WorkspaceFactory(name="ben")
     WorkspaceFactory(repo="ben")
@@ -57,7 +53,6 @@ def test_workspacelist_search(rf, core_developer):
     assert len(response.context_data["object_list"]) == 2
 
 
-@pytest.mark.django_db
 def test_workspacelist_success(rf, core_developer):
     WorkspaceFactory.create_batch(5)
 

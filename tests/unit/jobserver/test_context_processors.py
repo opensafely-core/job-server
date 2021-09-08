@@ -16,7 +16,6 @@ from ...factories import JobRequestFactory, StatsFactory, UserFactory
 from ...utils import minutes_ago
 
 
-@pytest.mark.django_db
 def test_backend_warnings_with_debug_on(rf, settings):
     settings.DEBUG = True
 
@@ -34,7 +33,6 @@ def test_backend_warnings_with_debug_on(rf, settings):
     assert output["backend_warnings"] == []
 
 
-@pytest.mark.django_db
 def test_backend_warnings_with_no_warnings(rf):
     tpp = Backend.objects.get(slug="tpp")
 
@@ -47,7 +45,6 @@ def test_backend_warnings_with_no_warnings(rf):
     assert output["backend_warnings"] == []
 
 
-@pytest.mark.django_db
 def test_backend_warnings_with_warnings(rf):
     tpp = Backend.objects.get(slug="tpp")
 
@@ -62,7 +59,6 @@ def test_backend_warnings_with_warnings(rf):
     assert output["backend_warnings"] == ["TPP"]
 
 
-@pytest.mark.django_db
 def test_can_view_staff_area_with_core_developer(rf, core_developer):
     request = rf.get("/")
     request.user = core_developer
@@ -70,7 +66,6 @@ def test_can_view_staff_area_with_core_developer(rf, core_developer):
     assert can_view_staff_area(request)["user_can_view_staff_area"]
 
 
-@pytest.mark.django_db
 def test_can_view_staff_area_without_core_developer(rf):
     request = rf.get("/")
     request.user = UserFactory()
@@ -82,7 +77,6 @@ def test_can_view_staff_area_without_core_developer(rf):
     ("url_name",),
     [("backend-list",), ("project-list",), ("user-list",)],
 )
-@pytest.mark.django_db
 def test_staff_nav_selected_urls(rf, core_developer, url_name):
     url = reverse(f"staff:{url_name}")
 
@@ -98,7 +92,6 @@ def test_staff_nav_selected_urls(rf, core_developer, url_name):
     assert all(u["is_active"] is False for u in unselected_urls)
 
 
-@pytest.mark.django_db
 def test_nav_jobs(rf):
     request = rf.get(reverse("job-list"))
     request.user = UserFactory()
@@ -109,7 +102,6 @@ def test_nav_jobs(rf):
     assert status["is_active"] is False
 
 
-@pytest.mark.django_db
 def test_nav_status(rf):
     request = rf.get(reverse("status"))
     request.user = UserFactory()
@@ -120,7 +112,6 @@ def test_nav_status(rf):
     assert status["is_active"] is True
 
 
-@pytest.mark.django_db
 def test_scriptsattrs_success(rf):
     request = rf.get("/")
 

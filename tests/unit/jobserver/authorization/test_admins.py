@@ -7,7 +7,6 @@ from jobserver.models import User
 from ....factories import UserFactory
 
 
-@pytest.mark.django_db
 def test_ensure_admins_remove_user():
     # is CoreDeveloper now, and will be afterwards
     UserFactory(username="aaa", roles=[CoreDeveloper])
@@ -29,7 +28,6 @@ def test_ensure_admins_remove_user():
     assert CoreDeveloper not in User.objects.get(username="ddd").roles
 
 
-@pytest.mark.django_db
 def test_ensure_admins_success():
     user = UserFactory(username="ghickman")
     assert CoreDeveloper not in user.roles
@@ -40,7 +38,6 @@ def test_ensure_admins_success():
     assert CoreDeveloper in user.roles
 
 
-@pytest.mark.django_db
 def test_ensure_admins_unknown_user():
     user = UserFactory(username="ghickman")
     assert CoreDeveloper not in user.roles
@@ -49,7 +46,6 @@ def test_ensure_admins_unknown_user():
         ensure_admins(["ghickman", "test"])
 
 
-@pytest.mark.django_db
 def test_ensure_admins_unknown_users():
     user = UserFactory(username="ghickman")
     assert CoreDeveloper not in user.roles

@@ -1,4 +1,3 @@
-import pytest
 from django.conf import settings
 from django.urls import reverse
 from django.utils import timezone
@@ -11,7 +10,6 @@ from tests.factories import (
 )
 
 
-@pytest.mark.django_db
 def test_release_get_absolute_url():
     release = ReleaseFactory(ReleaseUploadsFactory(["file1.txt"]))
 
@@ -28,13 +26,11 @@ def test_release_get_absolute_url():
     )
 
 
-@pytest.mark.django_db
 def test_release_get_api_url():
     release = ReleaseFactory(ReleaseUploadsFactory(["file1.txt"]))
     assert release.get_api_url() == f"/api/v2/releases/release/{release.id}"
 
 
-@pytest.mark.django_db
 def test_release_get_download_url():
     release = ReleaseFactory(ReleaseUploadsFactory(["file1.txt"]))
 
@@ -51,13 +47,11 @@ def test_release_get_download_url():
     )
 
 
-@pytest.mark.django_db
 def test_release_ulid():
     release = ReleaseFactory(ReleaseUploadsFactory(["file1.txt"]))
     assert release.ulid.timestamp
 
 
-@pytest.mark.django_db
 def test_release_file_absolute_path():
     files = {"file.txt": b"test_absolute_path"}
     release = ReleaseFactory(ReleaseUploadsFactory(files))
@@ -72,7 +66,6 @@ def test_release_file_absolute_path():
     assert path.read_text() == "test_absolute_path"
 
 
-@pytest.mark.django_db
 def test_releasefile_get_absolute_url():
     files = {"file.txt": b"contents"}
     release = ReleaseFactory(ReleaseUploadsFactory(files))
@@ -93,14 +86,12 @@ def test_releasefile_get_absolute_url():
     )
 
 
-@pytest.mark.django_db
 def test_releasefile_ulid():
     release = ReleaseFactory(ReleaseUploadsFactory(["file1.txt"]))
     rfile = release.files.first()
     assert rfile.ulid.timestamp
 
 
-@pytest.mark.django_db
 def test_snapshot_str():
     user = UserFactory()
 
@@ -111,7 +102,6 @@ def test_snapshot_str():
     assert str(snapshot) == f"Draft Snapshot made by {user.username}"
 
 
-@pytest.mark.django_db
 def test_snapshot_get_absolute_url():
     snapshot = SnapshotFactory()
 
@@ -128,7 +118,6 @@ def test_snapshot_get_absolute_url():
     )
 
 
-@pytest.mark.django_db
 def test_snapshot_get_api_url():
     snapshot = SnapshotFactory()
 
@@ -143,7 +132,6 @@ def test_snapshot_get_api_url():
     )
 
 
-@pytest.mark.django_db
 def test_snapshot_get_download_url():
     snapshot = SnapshotFactory()
 
@@ -160,7 +148,6 @@ def test_snapshot_get_download_url():
     )
 
 
-@pytest.mark.django_db
 def test_snapshot_get_publish_api_url():
     snapshot = SnapshotFactory()
 
@@ -175,11 +162,9 @@ def test_snapshot_get_publish_api_url():
     )
 
 
-@pytest.mark.django_db
 def test_snapshot_is_draft():
     assert SnapshotFactory(published_at=None).is_draft
 
 
-@pytest.mark.django_db
 def test_snapshot_is_published():
     assert SnapshotFactory(published_at=timezone.now()).is_published

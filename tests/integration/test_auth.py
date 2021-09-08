@@ -1,4 +1,3 @@
-import pytest
 import responses
 from django.urls import reverse
 from furl import furl
@@ -6,7 +5,6 @@ from furl import furl
 from jobserver.models import User
 
 
-@pytest.mark.django_db
 def test_login_pipeline(client):
     """
     Test the Auth Pipeline with an incoming request
@@ -86,7 +84,6 @@ def test_login_pipeline(client):
     assert user.roles == []
 
 
-@pytest.mark.django_db
 def test_login_redirects_correctly(client):
     login_url = reverse("social:begin", kwargs={"backend": "github"})
     response = client.get(login_url)
@@ -103,7 +100,6 @@ def test_login_redirects_correctly(client):
     assert f.args["scope"] == "user:email"
 
 
-@pytest.mark.django_db
 def test_login_pipeline_without_gitub_token(client):
     """
     Test the Auth Pipeline with an incoming request but no GitHub API access

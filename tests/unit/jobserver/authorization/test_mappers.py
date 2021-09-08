@@ -1,5 +1,3 @@
-import pytest
-
 from jobserver.authorization import CoreDeveloper, OrgCoordinator, ProjectCoordinator
 from jobserver.authorization.mappers import (
     get_org_roles_for_user,
@@ -15,7 +13,6 @@ from ....factories import (
 )
 
 
-@pytest.mark.django_db
 def test_get_org_roles_for_user_with_roles():
     org = OrgFactory()
     user = UserFactory(roles=[CoreDeveloper])
@@ -27,7 +24,6 @@ def test_get_org_roles_for_user_with_roles():
     assert roles == [OrgCoordinator]
 
 
-@pytest.mark.django_db
 def test_get_org_roles_for_user_unknown_membership():
     org = OrgFactory()
     user = UserFactory(roles=[CoreDeveloper])
@@ -35,7 +31,6 @@ def test_get_org_roles_for_user_unknown_membership():
     assert get_org_roles_for_user(org, user) == []
 
 
-@pytest.mark.django_db
 def test_get_org_roles_for_user_without_roles():
     org = OrgFactory()
     user = UserFactory(roles=[CoreDeveloper])
@@ -47,7 +42,6 @@ def test_get_org_roles_for_user_without_roles():
     assert roles == []
 
 
-@pytest.mark.django_db
 def test_get_project_roles_for_user_with_roles():
     project = ProjectFactory()
     user = UserFactory(roles=[CoreDeveloper])
@@ -59,7 +53,6 @@ def test_get_project_roles_for_user_with_roles():
     assert roles == [ProjectCoordinator]
 
 
-@pytest.mark.django_db
 def test_get_project_roles_for_user_unknown_membership():
     project = ProjectFactory()
     user = UserFactory(roles=[CoreDeveloper])
@@ -67,7 +60,6 @@ def test_get_project_roles_for_user_unknown_membership():
     assert get_project_roles_for_user(project, user) == []
 
 
-@pytest.mark.django_db
 def test_get_project_roles_for_user_without_roles():
     project = ProjectFactory()
     user = UserFactory(roles=[CoreDeveloper])

@@ -36,7 +36,6 @@ from ....factories import (
 from ....utils import minutes_ago, seconds_ago
 
 
-@pytest.mark.django_db
 def test_job_get_absolute_url():
     job = JobFactory()
 
@@ -54,7 +53,6 @@ def test_job_get_absolute_url():
     )
 
 
-@pytest.mark.django_db
 def test_job_get_cancel_url():
     job = JobFactory()
 
@@ -72,7 +70,6 @@ def test_job_get_cancel_url():
     )
 
 
-@pytest.mark.django_db
 def test_job_is_missing_updates_above_threshold():
     last_update = minutes_ago(timezone.now(), 50)
     job = JobFactory(completed_at=None, updated_at=last_update)
@@ -80,7 +77,6 @@ def test_job_is_missing_updates_above_threshold():
     assert job.is_missing_updates
 
 
-@pytest.mark.django_db
 def test_job_is_missing_updates_below_threshold():
     last_update = minutes_ago(timezone.now(), 29)
     job = JobFactory(completed_at=None, updated_at=last_update)
@@ -88,17 +84,14 @@ def test_job_is_missing_updates_below_threshold():
     assert not job.is_missing_updates
 
 
-@pytest.mark.django_db
 def test_job_is_missing_updates_missing_updated_at():
     assert not JobFactory(status="pending", updated_at=None).is_missing_updates
 
 
-@pytest.mark.django_db
 def test_job_is_missing_updates_completed():
     assert not JobFactory(status="failed").is_missing_updates
 
 
-@pytest.mark.django_db
 def test_job_runtime():
     duration = timedelta(hours=1, minutes=2, seconds=3)
     started_at = timezone.now() - duration
@@ -111,7 +104,6 @@ def test_job_runtime():
     assert job.runtime.seconds == 3
 
 
-@pytest.mark.django_db
 def test_job_runtime_not_completed():
     job = JobFactory(status="running", started_at=timezone.now())
 
@@ -119,7 +111,6 @@ def test_job_runtime_not_completed():
     assert job.runtime is None
 
 
-@pytest.mark.django_db
 def test_job_runtime_not_started():
     job = JobFactory(status="pending")
 
@@ -127,26 +118,22 @@ def test_job_runtime_not_started():
     assert job.runtime is None
 
 
-@pytest.mark.django_db
 def test_job_runtime_without_timestamps():
     job = JobFactory(status="succeeded", started_at=None, completed_at=None)
 
     assert job.runtime is None
 
 
-@pytest.mark.django_db
 def test_job_str():
     job = JobFactory(action="Run")
 
     assert str(job) == f"Run ({job.pk})"
 
 
-@pytest.mark.django_db
 def test_jobrequest_completed_at_no_jobs():
     assert not JobRequestFactory().completed_at
 
 
-@pytest.mark.django_db
 def test_jobrequest_completed_at_success():
     job_request = JobRequestFactory()
 
@@ -156,7 +143,6 @@ def test_jobrequest_completed_at_success():
     assert jr.completed_at == job2.completed_at
 
 
-@pytest.mark.django_db
 def test_jobrequest_completed_at_while_incomplete():
     job_request = JobRequestFactory()
 
@@ -167,7 +153,6 @@ def test_jobrequest_completed_at_while_incomplete():
     assert not jr.completed_at
 
 
-@pytest.mark.django_db
 def test_jobrequest_get_absolute_url():
     job_request = JobRequestFactory()
 
@@ -184,7 +169,6 @@ def test_jobrequest_get_absolute_url():
     )
 
 
-@pytest.mark.django_db
 def test_jobrequest_get_cancel_url():
     job_request = JobRequestFactory()
 
@@ -201,7 +185,6 @@ def test_jobrequest_get_cancel_url():
     )
 
 
-@pytest.mark.django_db
 def test_jobrequest_get_project_yaml_url_no_sha():
     workspace = WorkspaceFactory(repo="http://example.com/opensafely/some_repo")
     job_request = JobRequestFactory(workspace=workspace)
@@ -211,7 +194,6 @@ def test_jobrequest_get_project_yaml_url_no_sha():
     assert url == "http://example.com/opensafely/some_repo"
 
 
-@pytest.mark.django_db
 def test_jobrequest_get_project_yaml_url_success():
     workspace = WorkspaceFactory(repo="http://example.com/opensafely/some_repo")
     job_request = JobRequestFactory(workspace=workspace, sha="abc123")
@@ -221,7 +203,6 @@ def test_jobrequest_get_project_yaml_url_success():
     assert url == "http://example.com/opensafely/some_repo/blob/abc123/test-blah.foo"
 
 
-@pytest.mark.django_db
 def test_jobrequest_get_repo_url_no_sha():
     workspace = WorkspaceFactory(repo="http://example.com/opensafely/some_repo")
     job_request = JobRequestFactory(workspace=workspace)
@@ -231,7 +212,6 @@ def test_jobrequest_get_repo_url_no_sha():
     assert url == "http://example.com/opensafely/some_repo"
 
 
-@pytest.mark.django_db
 def test_jobrequest_get_repo_url_success():
     workspace = WorkspaceFactory(repo="http://example.com/opensafely/some_repo")
     job_request = JobRequestFactory(workspace=workspace, sha="abc123")
@@ -241,7 +221,6 @@ def test_jobrequest_get_repo_url_success():
     assert url == "http://example.com/opensafely/some_repo/tree/abc123"
 
 
-@pytest.mark.django_db
 def test_jobrequest_is_completed():
     job_request = JobRequestFactory()
     JobFactory(job_request=job_request, status="failed")
@@ -251,7 +230,6 @@ def test_jobrequest_is_completed():
     assert jr.is_completed
 
 
-@pytest.mark.django_db
 def test_jobrequest_is_invalid():
     job_request = JobRequestFactory()
     JobFactory(job_request=job_request, action="__error__")
@@ -259,12 +237,10 @@ def test_jobrequest_is_invalid():
     assert job_request.is_invalid
 
 
-@pytest.mark.django_db
 def test_jobrequest_num_completed_no_jobs():
     assert JobRequestFactory().num_completed == 0
 
 
-@pytest.mark.django_db
 def test_job_request_num_completed_success():
     job_request = JobRequestFactory()
 
@@ -273,7 +249,6 @@ def test_job_request_num_completed_success():
     assert job_request.num_completed == 2
 
 
-@pytest.mark.django_db
 def test_jobrequest_runtime_one_job_missing_completed_at(freezer):
     job_request = JobRequestFactory()
 
@@ -304,7 +279,6 @@ def test_jobrequest_runtime_one_job_missing_completed_at(freezer):
     assert jr.runtime.seconds == 0
 
 
-@pytest.mark.django_db
 def test_jobrequest_runtime_one_job_missing_started_at(freezer):
     job_request = JobRequestFactory()
 
@@ -335,12 +309,10 @@ def test_jobrequest_runtime_one_job_missing_started_at(freezer):
     assert jr.runtime.seconds == 0
 
 
-@pytest.mark.django_db
 def test_jobrequest_runtime_no_jobs():
     assert not JobRequestFactory().runtime
 
 
-@pytest.mark.django_db
 def test_jobrequest_runtime_not_completed(freezer):
     job_request = JobRequestFactory()
 
@@ -369,7 +341,6 @@ def test_jobrequest_runtime_not_completed(freezer):
     assert jr.runtime.seconds == 0
 
 
-@pytest.mark.django_db
 def test_jobrequest_runtime_not_started():
     job_request = JobRequestFactory()
 
@@ -379,7 +350,6 @@ def test_jobrequest_runtime_not_started():
     assert not job_request.runtime
 
 
-@pytest.mark.django_db
 def test_jobrequest_runtime_success():
     job_request = JobRequestFactory()
 
@@ -404,12 +374,10 @@ def test_jobrequest_runtime_success():
     assert job_request.runtime.seconds == 0
 
 
-@pytest.mark.django_db
 def test_jobrequest_started_at_no_jobs():
     assert not JobRequestFactory().started_at
 
 
-@pytest.mark.django_db
 def test_jobrequest_started_at_success():
     job_request = JobRequestFactory()
 
@@ -419,7 +387,6 @@ def test_jobrequest_started_at_success():
     assert job_request.started_at
 
 
-@pytest.mark.django_db
 def test_jobrequest_status_all_jobs_the_same(subtests):
     status_groups = [
         ["failed", "failed", "failed", "failed"],
@@ -437,7 +404,6 @@ def test_jobrequest_status_all_jobs_the_same(subtests):
             assert jr.status == statuses[0]
 
 
-@pytest.mark.django_db
 def test_jobrequest_status_running_in_job_statuses():
     job_request = JobRequestFactory()
     JobFactory(job_request=job_request, status="pending")
@@ -449,7 +415,6 @@ def test_jobrequest_status_running_in_job_statuses():
     assert jr.status == "running"
 
 
-@pytest.mark.django_db
 def test_jobrequest_status_running_not_in_job_statues():
     job_request = JobRequestFactory()
     JobFactory(job_request=job_request, status="pending")
@@ -461,7 +426,6 @@ def test_jobrequest_status_running_not_in_job_statues():
     assert jr.status == "running"
 
 
-@pytest.mark.django_db
 def test_jobrequest_status_failed():
     job_request = JobRequestFactory()
     JobFactory(job_request=job_request, status="failed")
@@ -473,7 +437,6 @@ def test_jobrequest_status_failed():
     assert jr.status == "failed"
 
 
-@pytest.mark.django_db
 def test_jobrequest_status_unknown():
     job_request = JobRequestFactory()
     JobFactory(job_request=job_request, status="foo")
@@ -483,7 +446,6 @@ def test_jobrequest_status_unknown():
     assert jr.status == "unknown"
 
 
-@pytest.mark.django_db
 def test_jobrequest_status_uses_prefetch_cache(django_assert_num_queries):
     for i in range(5):
         jr = JobRequestFactory()
@@ -495,7 +457,6 @@ def test_jobrequest_status_uses_prefetch_cache(django_assert_num_queries):
         [jr.status for jr in JobRequest.objects.prefetch_related("jobs")]
 
 
-@pytest.mark.django_db
 def test_jobrequest_status_without_prefetching_jobs(django_assert_num_queries):
     job_request = JobRequestFactory()
     JobFactory.create_batch(5, job_request=job_request)
@@ -504,24 +465,20 @@ def test_jobrequest_status_without_prefetching_jobs(django_assert_num_queries):
         job_request.status
 
 
-@pytest.mark.django_db
 def test_org_get_absolute_url():
     org = OrgFactory()
     url = org.get_absolute_url()
     assert url == reverse("org-detail", kwargs={"org_slug": org.slug})
 
 
-@pytest.mark.django_db
 def test_org_populates_slug():
     assert OrgFactory(name="Test Org", slug="").slug == "test-org"
 
 
-@pytest.mark.django_db
 def test_org_str():
     assert str(OrgFactory(name="Test Org")) == "Test Org"
 
 
-@pytest.mark.django_db
 def test_orgmembership_str():
     org = OrgFactory(name="EBMDataLab")
     user = UserFactory(username="ben")
@@ -531,7 +488,6 @@ def test_orgmembership_str():
     assert str(membership) == "ben | EBMDataLab"
 
 
-@pytest.mark.django_db
 def test_project_get_absolute_url():
     org = OrgFactory(name="test-org")
     project = ProjectFactory(org=org)
@@ -541,7 +497,6 @@ def test_project_get_absolute_url():
     )
 
 
-@pytest.mark.django_db
 def test_projectmembership_get_edit_url():
     org = OrgFactory(name="test-org")
     project = ProjectFactory(org=org)
@@ -560,7 +515,6 @@ def test_projectmembership_get_edit_url():
     )
 
 
-@pytest.mark.django_db
 def test_projectmembership_get_remove_url():
     org = OrgFactory(name="test-org")
     project = ProjectFactory(org=org)
@@ -579,7 +533,6 @@ def test_projectmembership_get_remove_url():
     )
 
 
-@pytest.mark.django_db
 def test_project_get_edit_url():
     project = ProjectFactory()
 
@@ -588,7 +541,6 @@ def test_project_get_edit_url():
     assert url == reverse("staff:project-edit", kwargs={"slug": project.slug})
 
 
-@pytest.mark.django_db
 def test_project_get_invitation_url():
     org = OrgFactory(name="test-org")
     project = ProjectFactory(org=org)
@@ -599,7 +551,6 @@ def test_project_get_invitation_url():
     )
 
 
-@pytest.mark.django_db
 def test_project_get_releases_url():
     project = ProjectFactory()
 
@@ -614,7 +565,6 @@ def test_project_get_releases_url():
     )
 
 
-@pytest.mark.django_db
 def test_project_get_settings_url():
     org = OrgFactory(name="test-org")
     project = ProjectFactory(org=org)
@@ -624,7 +574,6 @@ def test_project_get_settings_url():
     )
 
 
-@pytest.mark.django_db
 def test_project_get_staff_url():
     project = ProjectFactory()
 
@@ -633,12 +582,10 @@ def test_project_get_staff_url():
     assert url == reverse("staff:project-detail", kwargs={"slug": project.slug})
 
 
-@pytest.mark.django_db
 def test_project_populates_slug():
     assert ProjectFactory(name="Test Project", slug="").slug == "test-project"
 
 
-@pytest.mark.django_db
 def test_project_str():
     project = ProjectFactory(
         org=OrgFactory(name="test-org"),
@@ -647,7 +594,6 @@ def test_project_str():
     assert str(project) == "test-org | Very Good Project"
 
 
-@pytest.mark.django_db
 def test_projectinvitation_create_membership():
     invite = ProjectInvitationFactory(accepted_at=None, membership=None)
 
@@ -665,7 +611,6 @@ def test_projectinvitation_create_membership():
     assert invite.membership == membership
 
 
-@pytest.mark.django_db
 def test_projectinvitation_get_cancel_url():
     org = OrgFactory()
     project = ProjectFactory(org=org)
@@ -681,7 +626,6 @@ def test_projectinvitation_get_cancel_url():
     )
 
 
-@pytest.mark.django_db
 def test_projectinvitation_get_from_signed_pk_success():
     invite_a = ProjectInvitationFactory()
 
@@ -695,7 +639,6 @@ def test_projectinvitation_get_from_signed_pk_with_bad_value():
         ProjectInvitation.get_from_signed_pk("test")
 
 
-@pytest.mark.django_db
 def test_projectinvitation_get_from_signed_pk_with_unknown_pk():
     signed_pk = ProjectInvitation.signer().sign(0)
 
@@ -703,7 +646,6 @@ def test_projectinvitation_get_from_signed_pk_with_unknown_pk():
         ProjectInvitation.get_from_signed_pk(signed_pk)
 
 
-@pytest.mark.django_db
 def test_projectinvitation_get_invitation_url():
     org = OrgFactory()
     project = ProjectFactory(org=org)
@@ -720,7 +662,6 @@ def test_projectinvitation_get_invitation_url():
     )
 
 
-@pytest.mark.django_db
 def test_projectinvitation_signed_pk():
     invite = ProjectInvitationFactory()
 
@@ -734,7 +675,6 @@ def test_projectinvitation_signer():
     assert signer.salt == "project-invitation"
 
 
-@pytest.mark.django_db
 def test_projectinvitation_str():
     project = ProjectFactory(name="DataLab")
     user = UserFactory(username="ben")
@@ -744,7 +684,6 @@ def test_projectinvitation_str():
     assert str(invitation) == "ben | DataLab"
 
 
-@pytest.mark.django_db
 def test_projectmembership_str():
     project = ProjectFactory(name="DataLab")
     user = UserFactory(username="ben")
@@ -754,20 +693,17 @@ def test_projectmembership_str():
     assert str(membership) == "ben | DataLab"
 
 
-@pytest.mark.django_db
 def test_user_name_with_first_and_last_name():
     user = UserFactory(first_name="first", last_name="last")
 
     assert user.name == "first last"
 
 
-@pytest.mark.django_db
 def test_user_name_without_first_and_last_name():
     user = UserFactory()
     assert user.name == user.username
 
 
-@pytest.mark.django_db
 def test_user_get_all_permissions():
     org = OrgFactory()
     project = ProjectFactory(org=org)
@@ -802,7 +738,6 @@ def test_user_get_all_permissions():
     assert output == expected
 
 
-@pytest.mark.django_db
 def test_user_get_all_permissions_empty():
     user = UserFactory()
 
@@ -816,7 +751,6 @@ def test_user_get_all_permissions_empty():
     assert output == expected
 
 
-@pytest.mark.django_db
 def test_user_get_all_roles():
     project = ProjectFactory()
     user = UserFactory(roles=[DataInvestigator])
@@ -838,7 +772,6 @@ def test_user_get_all_roles():
     assert output == expected
 
 
-@pytest.mark.django_db
 def test_user_get_all_roles_empty():
     user = UserFactory()
 
@@ -852,7 +785,6 @@ def test_user_get_all_roles_empty():
     assert output == expected
 
 
-@pytest.mark.django_db
 def test_user_get_staff_url():
     user = UserFactory()
 
@@ -866,12 +798,10 @@ def test_user_get_staff_url():
     )
 
 
-@pytest.mark.django_db
 def test_user_is_unapproved_by_default():
     assert not UserFactory().is_approved
 
 
-@pytest.mark.django_db
 def test_userqueryset_success():
     user1 = UserFactory(roles=[CoreDeveloper, OutputChecker])
     user2 = UserFactory(roles=[OutputChecker])
@@ -884,13 +814,11 @@ def test_userqueryset_success():
     assert user3 not in users
 
 
-@pytest.mark.django_db
 def test_userqueryset_unknown_role():
     with pytest.raises(Exception, match="Unknown Roles:.*"):
         User.objects.filter_by_role("unknown")
 
 
-@pytest.mark.django_db
 def test_workspace_get_absolute_url():
     org = OrgFactory()
     project = ProjectFactory(org=org)
@@ -908,7 +836,6 @@ def test_workspace_get_absolute_url():
     )
 
 
-@pytest.mark.django_db
 def test_workspace_get_releases_api_url():
     workspace = WorkspaceFactory()
     assert (
@@ -917,7 +844,6 @@ def test_workspace_get_releases_api_url():
     )
 
 
-@pytest.mark.django_db
 def test_workspace_get_archive_toggle_url():
     org = OrgFactory()
     project = ProjectFactory(org=org)
@@ -935,7 +861,6 @@ def test_workspace_get_archive_toggle_url():
     )
 
 
-@pytest.mark.django_db
 def test_workspace_get_files_url():
     workspace = WorkspaceFactory()
 
@@ -951,7 +876,6 @@ def test_workspace_get_files_url():
     )
 
 
-@pytest.mark.django_db
 def test_workspace_get_staff_url():
     workspace = WorkspaceFactory()
 
@@ -960,7 +884,6 @@ def test_workspace_get_staff_url():
     assert url == reverse("staff:workspace-detail", kwargs={"slug": workspace.name})
 
 
-@pytest.mark.django_db
 def test_workspace_get_jobs_url():
     workspace = WorkspaceFactory()
 
@@ -976,7 +899,6 @@ def test_workspace_get_jobs_url():
     )
 
 
-@pytest.mark.django_db
 def test_workspace_get_latest_outputs_download_url():
     workspace = WorkspaceFactory()
 
@@ -992,7 +914,6 @@ def test_workspace_get_latest_outputs_download_url():
     )
 
 
-@pytest.mark.django_db
 def test_workspace_get_latest_outputs_url():
     workspace = WorkspaceFactory()
 
@@ -1008,7 +929,6 @@ def test_workspace_get_latest_outputs_url():
     )
 
 
-@pytest.mark.django_db
 def test_workspace_get_logs_url():
     org = OrgFactory()
     project = ProjectFactory(org=org)
@@ -1026,7 +946,6 @@ def test_workspace_get_logs_url():
     )
 
 
-@pytest.mark.django_db
 def test_workspace_get_notifications_toggle_url():
     org = OrgFactory()
     project = ProjectFactory(org=org)
@@ -1044,7 +963,6 @@ def test_workspace_get_notifications_toggle_url():
     )
 
 
-@pytest.mark.django_db
 def test_workspace_get_outputs_url():
     workspace = WorkspaceFactory()
 
@@ -1060,7 +978,6 @@ def test_workspace_get_outputs_url():
     )
 
 
-@pytest.mark.django_db
 def test_workspace_get_releases_url():
     workspace = WorkspaceFactory()
 
@@ -1076,19 +993,16 @@ def test_workspace_get_releases_url():
     )
 
 
-@pytest.mark.django_db
 def test_workspace_get_statuses_url():
     workspace = WorkspaceFactory()
     url = workspace.get_statuses_url()
     assert url == reverse("api:workspace-statuses", kwargs={"name": workspace.name})
 
 
-@pytest.mark.django_db
 def test_workspace_get_action_status_lut_no_jobs():
     assert WorkspaceFactory().get_action_status_lut() == {}
 
 
-@pytest.mark.django_db
 def test_workspace_get_action_status_lut_with_backend():
     emis = Backend.objects.get(slug="emis")
     tpp = Backend.objects.get(slug="tpp")
@@ -1164,7 +1078,6 @@ def test_workspace_get_action_status_lut_with_backend():
     assert output == expected
 
 
-@pytest.mark.django_db
 def test_workspace_get_action_status_lut_without_backend():
     workspace1 = WorkspaceFactory()
     job_request = JobRequestFactory(workspace=workspace1)
@@ -1238,7 +1151,6 @@ def test_workspace_get_action_status_lut_without_backend():
     assert output == expected
 
 
-@pytest.mark.django_db
 def test_workspace_repo_name_no_path():
     workspace = WorkspaceFactory(repo="http://example.com")
 
@@ -1246,13 +1158,11 @@ def test_workspace_repo_name_no_path():
         workspace.repo_name
 
 
-@pytest.mark.django_db
 def test_workspace_repo_name_success():
     workspace = WorkspaceFactory(repo="http://example.com/foo/test")
     assert workspace.repo_name == "test"
 
 
-@pytest.mark.django_db
 def test_workspace_repo_owner_no_path():
     workspace = WorkspaceFactory(repo="http://example.com")
 
@@ -1260,13 +1170,11 @@ def test_workspace_repo_owner_no_path():
         workspace.repo_owner
 
 
-@pytest.mark.django_db
 def test_workspace_repo_owner_success():
     workspace = WorkspaceFactory(repo="http://example.com/foo/test")
     assert workspace.repo_owner == "foo"
 
 
-@pytest.mark.django_db
 def test_workspace_str():
     workspace = WorkspaceFactory(
         name="Corellian Engineering Corporation", repo="Corellia"

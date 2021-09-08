@@ -11,7 +11,6 @@ from ...factories import BackendFactory
 from ...utils import minutes_ago
 
 
-@pytest.mark.django_db
 def test_backends_to_choices():
     b1 = BackendFactory(slug="test1", name="Display One")
     b2 = BackendFactory(slug="test2", name="Display Two")

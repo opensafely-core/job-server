@@ -26,7 +26,6 @@ from ....factories import (
 )
 
 
-@pytest.mark.django_db
 def test_jobrequestcancel_already_completed(rf):
     job_request = JobRequestFactory(cancelled_actions=[])
     JobFactory(job_request=job_request, status="succeeded")
@@ -49,7 +48,6 @@ def test_jobrequestcancel_already_completed(rf):
     assert job_request.cancelled_actions == []
 
 
-@pytest.mark.django_db
 def test_jobrequestcancel_success(rf):
     job_request = JobRequestFactory(cancelled_actions=[])
     JobFactory(job_request=job_request, action="test1")
@@ -75,7 +73,6 @@ def test_jobrequestcancel_success(rf):
     assert "test3" in job_request.cancelled_actions
 
 
-@pytest.mark.django_db
 def test_jobrequestcancel_with_job_request_creator(rf):
     user = UserFactory()
     job_request = JobRequestFactory(cancelled_actions=[], created_by=user)
@@ -93,7 +90,6 @@ def test_jobrequestcancel_with_job_request_creator(rf):
     assert "test1" in job_request.cancelled_actions
 
 
-@pytest.mark.django_db
 def test_jobrequestcancel_unauthorized(rf):
     job_request = JobRequestFactory()
     user = UserFactory()
@@ -105,7 +101,6 @@ def test_jobrequestcancel_unauthorized(rf):
         JobRequestCancel.as_view()(request, pk=job_request.pk)
 
 
-@pytest.mark.django_db
 def test_jobrequestcancel_unknown_job_request(rf):
     request = rf.post("/")
     request.user = UserFactory()
@@ -114,7 +109,6 @@ def test_jobrequestcancel_unknown_job_request(rf):
         JobRequestCancel.as_view()(request, pk=0)
 
 
-@pytest.mark.django_db
 def test_jobrequestcreate_get_success(rf, mocker, user):
     workspace = WorkspaceFactory()
 
@@ -152,7 +146,6 @@ def test_jobrequestcreate_get_success(rf, mocker, user):
     assert response.context_data["workspace"] == workspace
 
 
-@pytest.mark.django_db
 def test_jobrequestcreate_get_with_permission(rf, mocker, user):
     workspace = WorkspaceFactory()
 
@@ -190,7 +183,6 @@ def test_jobrequestcreate_get_with_permission(rf, mocker, user):
     assert response.context_data["workspace"] == workspace
 
 
-@pytest.mark.django_db
 def test_jobrequestcreate_get_with_project_yaml_errors(rf, mocker, user):
     workspace = WorkspaceFactory()
 
@@ -221,7 +213,6 @@ def test_jobrequestcreate_get_with_project_yaml_errors(rf, mocker, user):
     assert response.context_data["actions_error"] == "test error"
 
 
-@pytest.mark.django_db
 def test_jobrequestcreate_post_success(rf, mocker, monkeypatch, user):
     monkeypatch.setenv("BACKENDS", "tpp")
 
@@ -274,7 +265,6 @@ def test_jobrequestcreate_post_success(rf, mocker, monkeypatch, user):
     assert not job_request.jobs.exists()
 
 
-@pytest.mark.django_db
 def test_jobrequestcreate_post_with_invalid_backend(rf, mocker, monkeypatch, user):
     monkeypatch.setenv("BACKENDS", "tpp,emis")
 
@@ -321,7 +311,6 @@ def test_jobrequestcreate_post_with_invalid_backend(rf, mocker, monkeypatch, use
     ]
 
 
-@pytest.mark.django_db
 def test_jobrequestcreate_post_with_notifications_default(
     rf, mocker, monkeypatch, user
 ):
@@ -377,7 +366,6 @@ def test_jobrequestcreate_post_with_notifications_default(
     assert job_request.will_notify
 
 
-@pytest.mark.django_db
 def test_jobrequestcreate_post_with_notifications_override(
     rf, mocker, monkeypatch, user
 ):
@@ -434,7 +422,6 @@ def test_jobrequestcreate_post_with_notifications_override(
     assert not job_request.jobs.exists()
 
 
-@pytest.mark.django_db
 def test_jobrequestcreate_unknown_workspace(rf, user):
     org = user.orgs.first()
     project = ProjectFactory(org=org)
@@ -452,7 +439,6 @@ def test_jobrequestcreate_unknown_workspace(rf, user):
     assert response.url == "/"
 
 
-@pytest.mark.django_db
 def test_jobrequestcreate_with_archived_workspace(rf):
     user = UserFactory()
     workspace = WorkspaceFactory(is_archived=True)
@@ -477,7 +463,6 @@ def test_jobrequestcreate_with_archived_workspace(rf):
     assert response.url == workspace.get_absolute_url()
 
 
-@pytest.mark.django_db
 def test_jobrequestcreate_with_no_backends(rf):
     user = UserFactory()
     workspace = WorkspaceFactory()
@@ -498,7 +483,6 @@ def test_jobrequestcreate_with_no_backends(rf):
         )
 
 
-@pytest.mark.django_db
 def test_jobrequestcreate_without_permission(rf):
     workspace = WorkspaceFactory()
 
@@ -514,7 +498,6 @@ def test_jobrequestcreate_without_permission(rf):
         )
 
 
-@pytest.mark.django_db
 def test_jobrequestdetail_with_job_request_creator(rf):
     user = UserFactory()
     job_request = JobRequestFactory(created_by=user)
@@ -528,7 +511,6 @@ def test_jobrequestdetail_with_job_request_creator(rf):
     assert "Cancel" in response.rendered_content
 
 
-@pytest.mark.django_db
 def test_jobrequestdetail_with_permission(rf):
     job_request = JobRequestFactory()
     user = UserFactory()
@@ -546,7 +528,6 @@ def test_jobrequestdetail_with_permission(rf):
     assert "Cancel" in response.rendered_content
 
 
-@pytest.mark.django_db
 def test_jobrequestdetail_with_unauthenticated_user(rf):
     job_request = JobRequestFactory()
 
@@ -558,7 +539,6 @@ def test_jobrequestdetail_with_unauthenticated_user(rf):
     assert response.status_code == 200
 
 
-@pytest.mark.django_db
 def test_jobrequestdetail_without_permission(rf):
     job_request = JobRequestFactory()
 
@@ -571,7 +551,6 @@ def test_jobrequestdetail_without_permission(rf):
     assert "Cancel" not in response.rendered_content
 
 
-@pytest.mark.django_db
 def test_jobrequestdetailredirect_success(rf):
     job_request = JobRequestFactory()
 
@@ -583,7 +562,6 @@ def test_jobrequestdetailredirect_success(rf):
     assert response.url == job_request.get_absolute_url()
 
 
-@pytest.mark.django_db
 def test_jobrequestdetailredirect_with_unknown_job(rf):
     request = rf.get("/")
 
@@ -591,7 +569,6 @@ def test_jobrequestdetailredirect_with_unknown_job(rf):
         JobRequestDetailRedirect.as_view()(request, pk=0)
 
 
-@pytest.mark.django_db
 def test_jobrequestlist_filters_exist(rf):
     # Build a RequestFactory instance
     request = rf.get("/")
@@ -602,7 +579,6 @@ def test_jobrequestlist_filters_exist(rf):
     assert "workspaces" in response.context_data
 
 
-@pytest.mark.django_db
 def test_jobrequestlist_filter_by_backend(rf):
     emis = Backend.objects.get(slug="emis")
     job_request = JobRequestFactory(backend=emis)
@@ -620,7 +596,6 @@ def test_jobrequestlist_filter_by_backend(rf):
     assert len(response.context_data["page_obj"]) == 1
 
 
-@pytest.mark.django_db
 def test_jobrequestlist_filter_by_backend_with_broken_pk(rf):
     request = rf.get("/?backend=test")
     request.user = UserFactory()
@@ -629,7 +604,6 @@ def test_jobrequestlist_filter_by_backend_with_broken_pk(rf):
         JobRequestList.as_view()(request)
 
 
-@pytest.mark.django_db
 def test_jobrequestlist_filter_by_status(rf):
     JobFactory(job_request=JobRequestFactory(), status="failed")
 
@@ -643,7 +617,6 @@ def test_jobrequestlist_filter_by_status(rf):
     assert len(response.context_data["page_obj"]) == 1
 
 
-@pytest.mark.django_db
 def test_jobrequestlist_filter_by_status_and_workspace(rf):
     workspace1 = WorkspaceFactory()
     workspace2 = WorkspaceFactory()
@@ -675,7 +648,6 @@ def test_jobrequestlist_filter_by_status_and_workspace(rf):
     assert len(response.context_data["object_list"]) == 1
 
 
-@pytest.mark.django_db
 def test_jobrequestlist_filter_by_unknown_status(rf):
     workspace = WorkspaceFactory()
     JobRequestFactory(workspace=workspace)
@@ -693,7 +665,6 @@ def test_jobrequestlist_filter_by_unknown_status(rf):
     assert output == expected
 
 
-@pytest.mark.django_db
 def test_jobrequestlist_filter_by_username(rf):
     user = UserFactory()
     JobRequestFactory(created_by=user)
@@ -707,7 +678,6 @@ def test_jobrequestlist_filter_by_username(rf):
     assert len(response.context_data["object_list"]) == 1
 
 
-@pytest.mark.django_db
 def test_jobrequestlist_filter_by_workspace(rf):
     workspace = WorkspaceFactory()
     JobRequestFactory(workspace=workspace)
@@ -721,7 +691,6 @@ def test_jobrequestlist_filter_by_workspace(rf):
     assert len(response.context_data["object_list"]) == 1
 
 
-@pytest.mark.django_db
 def test_jobrequestlist_filter_by_workspace_with_broken_pk(rf):
     request = rf.get("/?workspace=test")
     request.user = UserFactory()
@@ -730,7 +699,6 @@ def test_jobrequestlist_filter_by_workspace_with_broken_pk(rf):
         JobRequestList.as_view()(request)
 
 
-@pytest.mark.django_db
 def test_jobrequestlist_find_job_request_by_identifier_form_invalid(rf):
     request = rf.post("/", {"test-key": "test-value"})
     request.user = UserFactory()
@@ -742,7 +710,6 @@ def test_jobrequestlist_find_job_request_by_identifier_form_invalid(rf):
     assert response.context_data["form"].errors == expected
 
 
-@pytest.mark.django_db
 def test_jobrequestlist_find_job_request_by_identifier_success(rf):
     job_request = JobRequestFactory(identifier="test-identifier")
 
@@ -754,7 +721,6 @@ def test_jobrequestlist_find_job_request_by_identifier_success(rf):
     assert response.url == job_request.get_absolute_url()
 
 
-@pytest.mark.django_db
 def test_jobrequestlist_find_job_request_by_identifier_unknown_job_request(rf):
     request = rf.post("/", {"identifier": "test-value"})
     request.user = UserFactory()
@@ -768,7 +734,6 @@ def test_jobrequestlist_find_job_request_by_identifier_unknown_job_request(rf):
     assert response.context_data["form"].errors == expected
 
 
-@pytest.mark.django_db
 def test_jobrequestlist_search_by_action(rf):
     job_request1 = JobRequestFactory()
     JobFactory(job_request=job_request1, action="run")
@@ -785,7 +750,6 @@ def test_jobrequestlist_search_by_action(rf):
     assert response.context_data["object_list"][0] == job_request1
 
 
-@pytest.mark.django_db
 def test_jobrequestlist_search_by_id(rf):
     JobFactory(job_request=JobRequestFactory())
 
@@ -801,7 +765,6 @@ def test_jobrequestlist_search_by_id(rf):
     assert response.context_data["object_list"][0] == job_request2
 
 
-@pytest.mark.django_db
 def test_jobrequestlist_success(rf):
     user = UserSocialAuthFactory().user
 
@@ -821,7 +784,6 @@ def test_jobrequestlist_success(rf):
     assert len(response.context_data["workspaces"]) == 1
 
 
-@pytest.mark.django_db
 def test_jobrequestlist_with_core_developer(rf, core_developer):
     job_request = JobRequestFactory()
     JobFactory(job_request=job_request)
@@ -835,7 +797,6 @@ def test_jobrequestlist_with_core_developer(rf, core_developer):
     assert "Look up JobRequest by Identifier" in response.rendered_content
 
 
-@pytest.mark.django_db
 def test_jobrequestlist_with_permission(rf):
     job_request = JobRequestFactory()
     JobFactory(job_request=job_request)
@@ -849,7 +810,6 @@ def test_jobrequestlist_with_permission(rf):
     assert "Look up JobRequest by Identifier" not in response.rendered_content
 
 
-@pytest.mark.django_db
 def test_jobrequestlist_without_permission(rf):
     job_request = JobRequestFactory()
     JobFactory(job_request=job_request)

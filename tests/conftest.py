@@ -9,6 +9,11 @@ from jobserver.github import GithubOrganizationOAuth2
 from .factories import OrgFactory, OrgMembershipFactory, UserFactory
 
 
+@pytest.fixture(autouse=True)
+def enable_db_access_for_all_tests(db):
+    pass
+
+
 @pytest.fixture
 def api_rf():
     from rest_framework.test import APIRequestFactory

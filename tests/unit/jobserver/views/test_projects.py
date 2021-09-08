@@ -45,7 +45,6 @@ from ....factories import (
 from ....utils import minutes_ago
 
 
-@pytest.mark.django_db
 def test_projectacceptinvite_already_accepted(rf):
     org = OrgFactory()
     project = ProjectFactory(org=org)
@@ -75,7 +74,6 @@ def test_projectacceptinvite_already_accepted(rf):
     assert ProjectMembership.objects.filter(project=project, user=user).count() == 1
 
 
-@pytest.mark.django_db
 def test_projectacceptinvite_success(rf):
     org = OrgFactory()
     project = ProjectFactory(org=org)
@@ -106,7 +104,6 @@ def test_projectacceptinvite_success(rf):
     assert invite.membership.roles == [ProjectCollaborator]
 
 
-@pytest.mark.django_db
 def test_projectacceptinvite_unknown_invite(rf):
     org = OrgFactory()
     project = ProjectFactory(org=org)
@@ -123,7 +120,6 @@ def test_projectacceptinvite_unknown_invite(rf):
         )
 
 
-@pytest.mark.django_db
 def test_projectacceptinvite_with_different_user(rf):
     org = OrgFactory()
     project = ProjectFactory(org=org)
@@ -154,7 +150,6 @@ def test_projectacceptinvite_with_different_user(rf):
     assert str(messages[0]) == "Only the User who was invited may accept an invite."
 
 
-@pytest.mark.django_db
 def test_projectcancelinvite_success(rf):
     org = OrgFactory()
     project = ProjectFactory(org=org)
@@ -176,7 +171,6 @@ def test_projectcancelinvite_success(rf):
     assert not ProjectInvitation.objects.filter(pk=invite.pk).exists()
 
 
-@pytest.mark.django_db
 def test_projectcancelinvite_unknown_invitation(rf):
     org = OrgFactory()
     project = ProjectFactory(org=org)
@@ -192,7 +186,6 @@ def test_projectcancelinvite_unknown_invitation(rf):
         )
 
 
-@pytest.mark.django_db
 def test_projectcancelinvite_without_manage_members_permission(rf):
     org = OrgFactory()
     project = ProjectFactory(org=org)
@@ -207,7 +200,6 @@ def test_projectcancelinvite_without_manage_members_permission(rf):
         )
 
 
-@pytest.mark.django_db
 def test_projectcreate_get_success(rf):
     org, _ = Org.objects.get_or_create(name="DataLab", slug="datalab")
     user = UserFactory()
@@ -222,7 +214,6 @@ def test_projectcreate_get_success(rf):
     assert response.context_data["org"] == org
 
 
-@pytest.mark.django_db
 def test_projectcreate_post_success(rf):
     org, _ = Org.objects.get_or_create(name="DataLab", slug="datalab")
     user = UserFactory()
@@ -249,7 +240,6 @@ def test_projectcreate_post_success(rf):
     assert set(membership.roles) == {ProjectDeveloper}
 
 
-@pytest.mark.django_db
 def test_projectcreate_unauthenticated(rf):
     org, _ = Org.objects.get_or_create(name="DataLab", slug="datalab")
 
@@ -260,7 +250,6 @@ def test_projectcreate_unauthenticated(rf):
         ProjectCreate.as_view()(request, org_slug=org.slug)
 
 
-@pytest.mark.django_db
 def test_projectcreate_user_not_in_org(rf):
     org, _ = Org.objects.get_or_create(name="DataLab", slug="datalab")
 
@@ -272,7 +261,6 @@ def test_projectcreate_user_not_in_org(rf):
 
 
 @pytest.mark.parametrize("http_method", ["GET", "POST"])
-@pytest.mark.django_db
 def test_projectcreate_with_org_witout_blanket_approval(http_method, rf):
     org = OrgFactory()
     user = UserFactory()
@@ -290,7 +278,6 @@ def test_projectcreate_with_org_witout_blanket_approval(http_method, rf):
     assert Project.objects.count() == 0
 
 
-@pytest.mark.django_db
 def test_projectdetail_success(rf, mocker):
     org = OrgFactory()
     project = ProjectFactory(org=org)
@@ -328,7 +315,6 @@ def test_projectdetail_success(rf, mocker):
     assert "Edit" not in response.context_data
 
 
-@pytest.mark.django_db
 def test_projectdetail_with_multiple_releases(rf, freezer, mocker):
     project = ProjectFactory()
 
@@ -379,7 +365,6 @@ def test_projectdetail_with_multiple_releases(rf, freezer, mocker):
     assert snapshot4 not in snapshots
 
 
-@pytest.mark.django_db
 def test_projectdetail_with_no_github(rf, mocker):
     project = ProjectFactory()
     WorkspaceFactory(project=project)
@@ -406,7 +391,6 @@ def test_projectdetail_with_no_github(rf, mocker):
     assert "Public" not in response.rendered_content
 
 
-@pytest.mark.django_db
 def test_projectdetail_with_no_releases(rf, mocker):
     project = ProjectFactory()
 
@@ -429,7 +413,6 @@ def test_projectdetail_with_no_releases(rf, mocker):
     assert "Outputs" not in response.rendered_content
 
 
-@pytest.mark.django_db
 def test_projectdetail_unknown_org(rf):
     project = ProjectFactory()
 
@@ -440,7 +423,6 @@ def test_projectdetail_unknown_org(rf):
         ProjectDetail.as_view()(request, org_slug="test", project_slug=project.slug)
 
 
-@pytest.mark.django_db
 def test_projectdetail_unknown_project(rf):
     org = OrgFactory()
 
@@ -451,7 +433,6 @@ def test_projectdetail_unknown_project(rf):
         ProjectDetail.as_view()(request, org_slug=org.slug, project_slug="test")
 
 
-@pytest.mark.django_db
 def test_projectinvitationcreate_get_success(rf):
     org = OrgFactory()
     project = ProjectFactory(org=org)
@@ -471,7 +452,6 @@ def test_projectinvitationcreate_get_success(rf):
     assert response.status_code == 200
 
 
-@pytest.mark.django_db
 def test_projectinvitationcreate_post_success(rf):
     org = OrgFactory()
     project = ProjectFactory(org=org)
@@ -506,7 +486,6 @@ def test_projectinvitationcreate_post_success(rf):
     assert invitation.roles == [ProjectDeveloper]
 
 
-@pytest.mark.django_db
 def test_projectinvitationcreate_post_with_email_failure(rf, mocker):
     org = OrgFactory()
     project = ProjectFactory(org=org)
@@ -555,7 +534,6 @@ def test_projectinvitationcreate_post_with_email_failure(rf, mocker):
     assert str(messages[0]) == expected
 
 
-@pytest.mark.django_db
 def test_projectinvitationcreate_post_with_incorrect_form(rf):
     org = OrgFactory()
     project = ProjectFactory(org=org)
@@ -582,7 +560,6 @@ def test_projectinvitationcreate_post_with_incorrect_form(rf):
     assert "not_a_pk is not one of the available choices." in response.rendered_content
 
 
-@pytest.mark.django_db
 def test_projectinvitationcreate_without_permission(rf):
     org = OrgFactory()
     project = ProjectFactory(org=org)
@@ -595,7 +572,6 @@ def test_projectinvitationcreate_without_permission(rf):
         )
 
 
-@pytest.mark.django_db
 def test_projectmembershipedit_success(rf):
     org = OrgFactory()
     project = ProjectFactory(org=org)
@@ -619,7 +595,6 @@ def test_projectmembershipedit_success(rf):
     assert membership.roles == [ProjectDeveloper]
 
 
-@pytest.mark.django_db
 def test_projectmembershipedit_unknown_membership(rf):
     org = OrgFactory()
     project = ProjectFactory(org=org)
@@ -636,7 +611,6 @@ def test_projectmembershipedit_unknown_membership(rf):
         )
 
 
-@pytest.mark.django_db
 def test_projectmembershipedit_without_permission(rf):
     org = OrgFactory()
     project = ProjectFactory(org=org)
@@ -651,7 +625,6 @@ def test_projectmembershipedit_without_permission(rf):
     assert response.url == project.get_settings_url()
 
 
-@pytest.mark.django_db
 def test_projectmembershipremove_success(rf):
     org = OrgFactory()
     project = ProjectFactory(org=org)
@@ -676,7 +649,6 @@ def test_projectmembershipremove_success(rf):
     assert not ProjectMembership.objects.filter(pk=membership.pk).exists()
 
 
-@pytest.mark.django_db
 def test_projectmembershipremove_unknown_project_membership(rf):
     org = OrgFactory()
     project = ProjectFactory(org=org)
@@ -690,7 +662,6 @@ def test_projectmembershipremove_unknown_project_membership(rf):
         )
 
 
-@pytest.mark.django_db
 def test_projectmembershipremove_without_permission(rf):
     org = OrgFactory()
     project = ProjectFactory(org=org)
@@ -722,7 +693,6 @@ def test_projectmembershipremove_without_permission(rf):
     assert str(messages[0]) == "You do not have permission to remove Project members."
 
 
-@pytest.mark.django_db
 def test_projectonboardingcreate_get_success(rf):
     org = OrgFactory()
 
@@ -734,7 +704,6 @@ def test_projectonboardingcreate_get_success(rf):
     assert response.status_code == 200
 
 
-@pytest.mark.django_db
 def test_projectonboardingcreate_get_unknown_org(rf):
     request = rf.get("/")
     request.user = UserFactory()
@@ -743,7 +712,6 @@ def test_projectonboardingcreate_get_unknown_org(rf):
         ProjectOnboardingCreate.as_view()(request, org_slug="")
 
 
-@pytest.mark.django_db
 def test_projectonboardingcreate_post_invalid_data(rf):
     org = OrgFactory()
 
@@ -765,7 +733,6 @@ def test_projectonboardingcreate_post_invalid_data(rf):
     assert Project.objects.count() == 0
 
 
-@pytest.mark.django_db
 def test_projectonboardingcreate_post_success(rf):
     org = OrgFactory()
 
@@ -799,7 +766,6 @@ def test_projectonboardingcreate_post_success(rf):
     assert response.url == project.get_absolute_url()
 
 
-@pytest.mark.django_db
 def test_projectonboardingcreate_post_unknown_org(rf):
     request = rf.post("/")
     request.user = UserFactory()
@@ -808,7 +774,6 @@ def test_projectonboardingcreate_post_unknown_org(rf):
         ProjectOnboardingCreate.as_view()(request, org_slug="")
 
 
-@pytest.mark.django_db
 def test_projectsettings_success(rf):
     org = OrgFactory()
     project = ProjectFactory(org=org)
@@ -831,7 +796,6 @@ def test_projectsettings_success(rf):
     assert response.context_data["project"] == project
 
 
-@pytest.mark.django_db
 def test_projectsettings_unknown_project(rf):
     request = rf.get("/")
     request.user = UserFactory()
@@ -839,7 +803,6 @@ def test_projectsettings_unknown_project(rf):
         ProjectSettings.as_view()(request, org_slug="", project_slug="")
 
 
-@pytest.mark.django_db
 def test_projectsettings_without_permission(rf):
     org = OrgFactory()
     project = ProjectFactory(org=org)

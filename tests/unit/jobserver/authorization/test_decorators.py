@@ -1,12 +1,9 @@
-import pytest
-
 from jobserver.authorization import CoreDeveloper
 from jobserver.authorization.decorators import require_manage_backends, require_role
 
 from ....factories import UserFactory
 
 
-@pytest.mark.django_db
 def test_require_manage_backends_with_core_dev_role(rf, core_developer):
     request = rf.get("/")
     request.user = core_developer
@@ -20,7 +17,6 @@ def test_require_manage_backends_with_core_dev_role(rf, core_developer):
     assert returned_request == request
 
 
-@pytest.mark.django_db
 def test_require_manage_backends_without_core_dev_role(rf):
     request = rf.get("/")
     request.user = UserFactory(roles=[])
@@ -30,7 +26,6 @@ def test_require_manage_backends_without_core_dev_role(rf):
     assert response.status_code == 403
 
 
-@pytest.mark.django_db
 def test_require_role_success(rf):
     request = rf.get("/")
     request.user = UserFactory(roles=[CoreDeveloper])
@@ -43,7 +38,6 @@ def test_require_role_success(rf):
     assert returned_request == request
 
 
-@pytest.mark.django_db
 def test_require_role_without_role(rf):
     request = rf.get("/")
     request.user = UserFactory(roles=[])

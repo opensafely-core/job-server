@@ -1,4 +1,3 @@
-import pytest
 from django.contrib.auth.models import AnonymousUser
 
 from jobserver.views.index import Index
@@ -12,7 +11,6 @@ from ....factories import (
 )
 
 
-@pytest.mark.django_db
 def test_index_success(rf, user):
     workspace = WorkspaceFactory()
     JobRequestFactory.create_batch(10, workspace=workspace)
@@ -26,7 +24,6 @@ def test_index_success(rf, user):
     assert len(response.context_data["workspaces"]) == 1
 
 
-@pytest.mark.django_db
 def test_index_with_authenticated_user_in_multiple_orgs(rf, user):
     """Check the Add Workspace button is rendered for authenticated Users in multiple Orgs."""
     WorkspaceFactory()
@@ -43,7 +40,6 @@ def test_index_with_authenticated_user_in_multiple_orgs(rf, user):
     assert "Add a New Workspace" in response.rendered_content
 
 
-@pytest.mark.django_db
 def test_index_with_authenticated_user_in_one_org(rf, user):
     """Check the Add Workspace button is rendered for authenticated Users in a single Org."""
     WorkspaceFactory()
@@ -57,7 +53,6 @@ def test_index_with_authenticated_user_in_one_org(rf, user):
     assert "Add a New Workspace" in response.rendered_content
 
 
-@pytest.mark.django_db
 def test_index_with_authenticated_user_in_zero_orgs(rf):
     """Check the Add Workspace button is rendered for authenticated Users in a single Org."""
     WorkspaceFactory()
@@ -71,7 +66,6 @@ def test_index_with_authenticated_user_in_zero_orgs(rf):
     assert "Add a New Workspace" not in response.rendered_content
 
 
-@pytest.mark.django_db
 def test_index_with_unauthenticated_user(rf):
     """
     Check the Add Workspace button is not rendered for unauthenticated Users on

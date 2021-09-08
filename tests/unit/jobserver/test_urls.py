@@ -49,7 +49,6 @@ from staff.views import workspaces as staff_workspaces
         ("/workspaces/", "/"),
     ],
 )
-@pytest.mark.django_db
 def test_url_redirects(client, url, redirect):
     response = client.get(url)
 

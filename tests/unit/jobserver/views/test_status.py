@@ -1,4 +1,3 @@
-import pytest
 from django.utils import timezone
 from first import first
 
@@ -9,7 +8,6 @@ from ....factories import JobFactory, JobRequestFactory, StatsFactory
 from ....utils import minutes_ago
 
 
-@pytest.mark.django_db
 def test_status_healthy(rf):
     tpp = Backend.objects.get(slug="tpp")
 
@@ -32,7 +30,6 @@ def test_status_healthy(rf):
     assert not tpp_output["show_warning"]
 
 
-@pytest.mark.django_db
 def test_status_no_last_seen(rf):
     request = rf.get("/")
     response = Status.as_view()(request)
@@ -45,7 +42,6 @@ def test_status_no_last_seen(rf):
     assert not tpp_output["show_warning"]
 
 
-@pytest.mark.django_db
 def test_status_unacked_jobs_but_recent_api_contact(rf):
     tpp = Backend.objects.get(slug="tpp")
 
@@ -63,7 +59,6 @@ def test_status_unacked_jobs_but_recent_api_contact(rf):
     assert not tpp_output["show_warning"]
 
 
-@pytest.mark.django_db
 def test_status_unhealthy(rf):
     # backends are created by migrations so we can depend on them
     tpp = Backend.objects.get(slug="tpp")

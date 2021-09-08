@@ -26,7 +26,6 @@ def raise_error(**kwargs):
     raise DatabaseError("test error")
 
 
-@pytest.mark.django_db
 def test_build_hatch_token_and_url_default():
     backend = BackendFactory()
     user = UserFactory()
@@ -39,7 +38,6 @@ def test_build_hatch_token_and_url_default():
     )
 
 
-@pytest.mark.django_db
 def test_build_hatch_token_and_url_with_custom_expires():
     backend = BackendFactory()
     user = UserFactory()
@@ -53,7 +51,6 @@ def test_build_hatch_token_and_url_with_custom_expires():
     )
 
 
-@pytest.mark.django_db
 def test_build_outputs_zip():
     release = ReleaseFactory(ReleaseUploadsFactory(["test1"]))
 
@@ -80,7 +77,6 @@ def test_build_spa_base_url():
     assert base == "/a/page/"
 
 
-@pytest.mark.django_db
 def test_create_release_success():
     backend = BackendFactory()
     workspace = WorkspaceFactory()
@@ -90,7 +86,6 @@ def test_create_release_success():
     assert release.requested_files == files
 
 
-@pytest.mark.django_db
 def test_create_release_reupload():
     uploads = ReleaseUploadsFactory({"file1.txt": b"test"})
     release = ReleaseFactory(uploads)
@@ -102,7 +97,6 @@ def test_create_release_reupload():
         )
 
 
-@pytest.mark.django_db
 def test_handle_release_upload_file_created():
     uploads = ReleaseUploadsFactory({"file1.txt": b"test"})
     release = ReleaseFactory(uploads, uploaded=False)
@@ -119,7 +113,6 @@ def test_handle_release_upload_file_created():
     assert rfile.filehash == uploads[0].filehash
 
 
-@pytest.mark.django_db
 def test_handle_release_upload_already_exists():
     uploads = ReleaseUploadsFactory({"file1.txt": b"test"})
     existing = ReleaseFileFactory(uploads[0])
@@ -138,7 +131,6 @@ def test_handle_release_upload_already_exists():
         )
 
 
-@pytest.mark.django_db
 def test_handle_release_upload_db_error(monkeypatch):
     uploads = ReleaseUploadsFactory({"file1.txt": b"test"})
     release = ReleaseFactory(uploads, uploaded=False)
@@ -158,14 +150,12 @@ def test_handle_release_upload_db_error(monkeypatch):
     assert not absolute_file_path(rpath).exists()
 
 
-@pytest.mark.django_db
 def test_workspace_files_no_releases():
     workspace = WorkspaceFactory()
 
     assert releases.workspace_files(workspace) == {}
 
 
-@pytest.mark.django_db
 def test_workspace_files_one_release():
     backend = BackendFactory(slug="backend")
     uploads = ReleaseUploadsFactory(["test1", "test2", "test3"])
@@ -180,7 +170,6 @@ def test_workspace_files_one_release():
     }
 
 
-@pytest.mark.django_db
 def test_workspace_files_many_releases(freezer):
     now = timezone.now()
 

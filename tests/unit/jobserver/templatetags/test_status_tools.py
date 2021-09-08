@@ -1,5 +1,3 @@
-import pytest
-
 from jobserver.models import Backend
 from jobserver.templatetags.status_tools import status_hint
 
@@ -16,7 +14,6 @@ from ....factories import (
 # "waiting_on_workers"
 
 
-@pytest.mark.django_db
 def test_status_hint_dependency_failed():
     backend = Backend.objects.get(slug="tpp")
     job_request = JobRequestFactory(backend=backend)
@@ -25,7 +22,6 @@ def test_status_hint_dependency_failed():
     assert status_hint(job) == ""
 
 
-@pytest.mark.django_db
 def test_status_hint_waiting_on_dependencies():
     backend = Backend.objects.get(slug="tpp")
     job_request = JobRequestFactory(backend=backend)
@@ -34,7 +30,6 @@ def test_status_hint_waiting_on_dependencies():
     assert status_hint(job) == ""
 
 
-@pytest.mark.django_db
 def test_status_hint_waiting_on_workers():
     backend = Backend.objects.get(slug="tpp")
     job_request = JobRequestFactory(backend=backend)
@@ -43,7 +38,6 @@ def test_status_hint_waiting_on_workers():
     assert status_hint(job) == ""
 
 
-@pytest.mark.django_db
 def test_status_hint_nonzero_exit():
     backend = Backend.objects.get(slug="tpp")
     workspace = WorkspaceFactory(name="an-workspace")
@@ -60,7 +54,6 @@ def test_status_hint_nonzero_exit():
     assert path in output
 
 
-@pytest.mark.django_db
 def test_status_hint_unknown_backend():
     backend = BackendFactory()
     job_request = JobRequestFactory(backend=backend)
@@ -69,7 +62,6 @@ def test_status_hint_unknown_backend():
     assert status_hint(job) == ""
 
 
-@pytest.mark.django_db
 def test_status_hint_unknown_status_code():
     backend = Backend.objects.get(slug="tpp")
     job_request = JobRequestFactory(backend=backend)

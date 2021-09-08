@@ -1,5 +1,3 @@
-import pytest
-
 from jobserver.authorization import OutputChecker
 from jobserver.models import Job
 from jobserver.utils import dotted_path, set_from_qs
@@ -11,7 +9,6 @@ def test_dotted_path():
     assert dotted_path(OutputChecker) == "jobserver.authorization.roles.OutputChecker"
 
 
-@pytest.mark.django_db
 def test_set_from_qs():
     job1 = JobFactory(status="test")
     job2 = JobFactory(status="success")

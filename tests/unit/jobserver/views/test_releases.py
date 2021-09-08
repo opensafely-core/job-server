@@ -25,7 +25,6 @@ from ....factories import (
 )
 
 
-@pytest.mark.django_db
 def test_projectreleaselist_no_releases(rf):
     project = ProjectFactory()
     WorkspaceFactory.create_batch(3, project=project)
@@ -41,7 +40,6 @@ def test_projectreleaselist_no_releases(rf):
         )
 
 
-@pytest.mark.django_db
 def test_projectreleaselist_success(rf):
     project = ProjectFactory()
     workspace1 = WorkspaceFactory(project=project)
@@ -71,7 +69,6 @@ def test_projectreleaselist_success(rf):
     assert len(response.context_data["releases"]) == 2
 
 
-@pytest.mark.django_db
 def test_projectreleaselist_unknown_workspace(rf):
     org = OrgFactory()
 
@@ -85,7 +82,6 @@ def test_projectreleaselist_unknown_workspace(rf):
         )
 
 
-@pytest.mark.django_db
 def test_projectreleaselist_with_delete_permission(rf):
     project = ProjectFactory()
     workspace1 = WorkspaceFactory(project=project)
@@ -118,7 +114,6 @@ def test_projectreleaselist_with_delete_permission(rf):
     assert "Delete" in response.rendered_content
 
 
-@pytest.mark.django_db
 def test_releasedetail_no_path_success(rf):
     release = ReleaseFactory(ReleaseUploadsFactory(["test1"]))
 
@@ -137,7 +132,6 @@ def test_releasedetail_no_path_success(rf):
     assert response.status_code == 200
 
 
-@pytest.mark.django_db
 def test_releasedetail_unknown_release(rf):
     workspace = WorkspaceFactory()
 
@@ -152,7 +146,6 @@ def test_releasedetail_unknown_release(rf):
         )
 
 
-@pytest.mark.django_db
 def test_releasedetail_with_path_success(rf):
     release = ReleaseFactory(ReleaseUploadsFactory(["test1"]))
 
@@ -171,7 +164,6 @@ def test_releasedetail_with_path_success(rf):
     assert response.status_code == 200
 
 
-@pytest.mark.django_db
 def test_releasedetail_without_permission(rf):
     release = ReleaseFactory(ReleaseUploadsFactory(["test1"]))
 
@@ -188,7 +180,6 @@ def test_releasedetail_without_permission(rf):
         )
 
 
-@pytest.mark.django_db
 def test_releasedetail_without_files(rf):
     release = ReleaseFactory(uploads=[], uploaded=False)
 
@@ -205,7 +196,6 @@ def test_releasedetail_without_files(rf):
         )
 
 
-@pytest.mark.django_db
 def test_releasedownload_release_with_no_files(rf):
     release = ReleaseFactory(uploads=[], uploaded=False)
 
@@ -222,7 +212,6 @@ def test_releasedownload_release_with_no_files(rf):
         )
 
 
-@pytest.mark.django_db
 def test_releasedownload_success(rf):
     release = ReleaseFactory(ReleaseUploadsFactory(["test1"]))
 
@@ -240,7 +229,6 @@ def test_releasedownload_success(rf):
     assert response.status_code == 200
 
 
-@pytest.mark.django_db
 def test_releasedownload_unknown_release(rf):
     workspace = WorkspaceFactory()
 
@@ -257,7 +245,6 @@ def test_releasedownload_unknown_release(rf):
         )
 
 
-@pytest.mark.django_db
 def test_releasedownload_without_permission(rf):
     release = ReleaseFactory(ReleaseUploadsFactory(["test1"]))
 
@@ -274,7 +261,6 @@ def test_releasedownload_without_permission(rf):
         )
 
 
-@pytest.mark.django_db
 def test_releasefiledelete_no_file_on_disk(rf):
     release = ReleaseFactory(ReleaseUploadsFactory(["file1.txt"]))
     rfile = release.files.first()
@@ -297,7 +283,6 @@ def test_releasefiledelete_no_file_on_disk(rf):
         )
 
 
-@pytest.mark.django_db
 def test_releasefiledelete_success(rf, freezer):
     release = ReleaseFactory(ReleaseUploadsFactory({"file1.txt": b"test"}))
     rfile = release.files.first()
@@ -326,7 +311,6 @@ def test_releasefiledelete_success(rf, freezer):
     assert rfile.deleted_at == timezone.now()
 
 
-@pytest.mark.django_db
 def test_releasefiledelete_unknown_release_file(rf):
     release = ReleaseFactory([], uploaded=False)
 
@@ -344,7 +328,6 @@ def test_releasefiledelete_unknown_release_file(rf):
         )
 
 
-@pytest.mark.django_db
 def test_releasefiledelete_without_permission(rf):
     release = ReleaseFactory(ReleaseUploadsFactory(["file1.txt"]))
     rfile = release.files.first()
@@ -365,7 +348,6 @@ def test_releasefiledelete_without_permission(rf):
         )
 
 
-@pytest.mark.django_db
 def test_snapshotdetail_published_logged_out(rf):
     snapshot = SnapshotFactory(published_at=timezone.now())
 
@@ -383,7 +365,6 @@ def test_snapshotdetail_published_logged_out(rf):
     assert response.status_code == 200
 
 
-@pytest.mark.django_db
 def test_snapshotdetail_published_with_permission(rf):
     snapshot = SnapshotFactory(published_at=timezone.now())
 
@@ -401,7 +382,6 @@ def test_snapshotdetail_published_with_permission(rf):
     assert response.status_code == 200
 
 
-@pytest.mark.django_db
 def test_snapshotdetail_published_without_permission(rf):
     snapshot = SnapshotFactory(published_at=timezone.now())
 
@@ -419,7 +399,6 @@ def test_snapshotdetail_published_without_permission(rf):
     assert response.status_code == 200
 
 
-@pytest.mark.django_db
 def test_snapshotdetail_unpublished_with_permission_to_publish(rf):
     snapshot = SnapshotFactory(published_at=None)
 
@@ -438,7 +417,6 @@ def test_snapshotdetail_unpublished_with_permission_to_publish(rf):
     assert response.context_data["publish_url"] == snapshot.get_publish_api_url()
 
 
-@pytest.mark.django_db
 def test_snapshotdetail_unpublished_without_permission_to_publish(rf):
     snapshot = SnapshotFactory(published_at=None)
 
@@ -457,7 +435,6 @@ def test_snapshotdetail_unpublished_without_permission_to_publish(rf):
     assert "publish_url" not in response.context_data
 
 
-@pytest.mark.django_db
 def test_snapshotdetail_unpublished_with_permission_to_view(rf):
     snapshot = SnapshotFactory(published_at=None)
 
@@ -475,7 +452,6 @@ def test_snapshotdetail_unpublished_with_permission_to_view(rf):
     assert response.status_code == 200
 
 
-@pytest.mark.django_db
 def test_snapshotdetail_unpublished_without_permission_to_view(rf):
     snapshot = SnapshotFactory(published_at=None)
 
@@ -492,7 +468,6 @@ def test_snapshotdetail_unpublished_without_permission_to_view(rf):
         )
 
 
-@pytest.mark.django_db
 def test_snapshotdetail_unknown_snapshot(rf):
     workspace = WorkspaceFactory()
 
@@ -508,7 +483,6 @@ def test_snapshotdetail_unknown_snapshot(rf):
         )
 
 
-@pytest.mark.django_db
 def test_snapshotdownload_published_with_permission(rf):
     workspace = WorkspaceFactory()
     ReleaseFactory(ReleaseUploadsFactory(["test1"]), workspace=workspace)
@@ -529,7 +503,6 @@ def test_snapshotdownload_published_with_permission(rf):
     assert response.status_code == 200
 
 
-@pytest.mark.django_db
 def test_snapshotdownload_published_without_permission(rf):
     workspace = WorkspaceFactory()
     ReleaseFactory(ReleaseUploadsFactory(["test1"]), workspace=workspace)
@@ -550,7 +523,6 @@ def test_snapshotdownload_published_without_permission(rf):
     assert response.status_code == 200
 
 
-@pytest.mark.django_db
 def test_snapshotdownload_unknown_snapshot(rf):
     workspace = WorkspaceFactory()
 
@@ -567,7 +539,6 @@ def test_snapshotdownload_unknown_snapshot(rf):
         )
 
 
-@pytest.mark.django_db
 def test_snapshotdownload_unpublished_with_permission(rf):
     workspace = WorkspaceFactory()
     ReleaseFactory(ReleaseUploadsFactory(["test1"]), workspace=workspace)
@@ -588,7 +559,6 @@ def test_snapshotdownload_unpublished_with_permission(rf):
     assert response.status_code == 200
 
 
-@pytest.mark.django_db
 def test_snapshotdownload_unpublished_without_permission(rf):
     workspace = WorkspaceFactory()
     ReleaseFactory(ReleaseUploadsFactory(["test1"]), workspace=workspace)
@@ -608,7 +578,6 @@ def test_snapshotdownload_unpublished_without_permission(rf):
         )
 
 
-@pytest.mark.django_db
 def test_snapshotdownload_with_no_files(rf):
     snapshot = SnapshotFactory()
 
@@ -625,7 +594,6 @@ def test_snapshotdownload_with_no_files(rf):
         )
 
 
-@pytest.mark.django_db
 def test_workspacereleaselist_authenticated_to_view_not_delete(rf):
     workspace = WorkspaceFactory()
     ReleaseFactory(ReleaseUploadsFactory(["test1"]), workspace=workspace)
@@ -651,7 +619,6 @@ def test_workspacereleaselist_authenticated_to_view_not_delete(rf):
     assert "Delete" not in response.rendered_content
 
 
-@pytest.mark.django_db
 def test_workspacereleaselist_authenticated_to_view_and_delete(rf):
     workspace = WorkspaceFactory()
     ReleaseFactory(ReleaseUploadsFactory(["test1"]), workspace=workspace)
@@ -676,7 +643,6 @@ def test_workspacereleaselist_authenticated_to_view_and_delete(rf):
     assert "Delete" in response.rendered_content
 
 
-@pytest.mark.django_db
 def test_workspacereleaselist_no_releases(rf):
     workspace = WorkspaceFactory()
 
@@ -692,7 +658,6 @@ def test_workspacereleaselist_no_releases(rf):
         )
 
 
-@pytest.mark.django_db
 def test_workspacereleaselist_unauthenticated(rf):
     workspace = WorkspaceFactory()
     ReleaseFactory(ReleaseUploadsFactory(["test1"]), workspace=workspace)
@@ -714,7 +679,6 @@ def test_workspacereleaselist_unauthenticated(rf):
     assert "Latest outputs" not in response.rendered_content
 
 
-@pytest.mark.django_db
 def test_workspacereleaselist_unknown_workspace(rf):
     project = ProjectFactory()
 
