@@ -16,6 +16,6 @@ def release_file_delete(*, user, rfile, project):
     rfile.save()
 
 
-@require_role(roles.ProjectCollaborator, "project")
-def release_file_view(*, user, project):
+@require_role(roles.ProjectCollaborator)
+def release_file_view():
     pass
