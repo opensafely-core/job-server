@@ -1,6 +1,7 @@
 import functools
 import inspect
 import itertools
+from collections import defaultdict
 
 from ..utils import dotted_path
 from . import roles
@@ -195,3 +196,15 @@ def require_role(role, *context_keys):
 class PermissionDenied(Exception):
     """Indicates that a user has tried to perform an action for which they do not have
     permission."""
+
+
+def build_role_to_actions():
+    from .. import actions
+
+    role_to_actions = defaultdict(list)
+    for k, v in vars(actions).items():
+        if not (required_role := getattr(v, "required_role", None)):
+            continue
+        role_to_actions[required_role].append(v)
+
+    return role_to_actions
