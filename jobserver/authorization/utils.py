@@ -112,6 +112,11 @@ def has_permission(user, permission, **context):
     return permission in permissions
 
 
+def can_do_action(user, action_fn, **context):
+    """Return whether user has permission to do an action."""
+    return has_role(user, action_fn.required_role, **context)
+
+
 def has_role(user, role, **context):
     if not user.is_authenticated:
         return False
@@ -173,10 +178,12 @@ def require_role(role, *context_keys):
     """
 
     def decorator(fn):
+        fn.required_role = role
+
         @functools.wraps(fn)
         def wrapper(**kwargs):
             context = {key: kwargs[key] for key in context_keys}
-            if not has_role(kwargs["user"], role, **context):
+            if not can_do_action(kwargs["user"], fn, **context):
                 raise PermissionDenied
             return fn(**kwargs)
 

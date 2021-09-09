@@ -13,6 +13,7 @@ from .roles import (
 )
 from .utils import (
     PermissionDenied,
+    can_do_action,
     has_permission,
     has_role,
     roles_for,
@@ -32,6 +33,7 @@ __all__ = [
     "ProjectCoordinator",
     "ProjectDeveloper",
     "TechnicalReviewer",
+    "can_do_action",
     "has_permission",
     "has_role",
     "roles_for",
