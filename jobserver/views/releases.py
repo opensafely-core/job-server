@@ -151,14 +151,11 @@ class ReleaseFileDelete(View):
         if not rfile.absolute_path().exists():
             raise Http404
 
-        if not has_permission(
-            request.user,
-            "release_file_delete",
+        actions.release_file_delete(
+            user=request.user,
+            rfile=rfile,
             project=rfile.release.workspace.project,
-        ):
-            raise Http404
-
-        actions.release_file_delete(rfile, request.user)
+        )
 
         return redirect(rfile.release.workspace.get_releases_url())
 

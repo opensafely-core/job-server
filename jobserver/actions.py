@@ -1,8 +1,11 @@
 from django.db import transaction
 from django.utils import timezone
 
+from .authorization.utils import require_permission
 
-def release_file_delete(rfile, user):
+
+@require_permission("release_file_delete", "project")
+def release_file_delete(*, user, rfile, project):
     """Delete a release file"""
 
     with transaction.atomic():
