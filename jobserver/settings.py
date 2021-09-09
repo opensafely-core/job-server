@@ -72,6 +72,7 @@ MIDDLEWARE = [
     "django.middleware.clickjacking.XFrameOptionsMiddleware",
     "django_structlog.middlewares.RequestMiddleware",
     "social_django.middleware.SocialAuthExceptionMiddleware",
+    "jobserver.middleware.PermissionDeniedMiddleware",
 ]
 
 ROOT_URLCONF = "jobserver.urls"

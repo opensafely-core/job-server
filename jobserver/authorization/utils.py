@@ -2,8 +2,6 @@ import functools
 import inspect
 import itertools
 
-from django.http import Http404
-
 from ..utils import dotted_path
 from . import roles
 from .mappers import get_org_roles_for_user, get_project_roles_for_user
@@ -177,9 +175,14 @@ def require_permission(permission, *context_keys):
         def wrapper(**kwargs):
             context = {key: kwargs[key] for key in context_keys}
             if not has_permission(kwargs["user"], permission, **context):
-                raise Http404
+                raise PermissionDenied
             return fn(**kwargs)
 
         return wrapper
 
     return decorator
+
+
+class PermissionDenied(Exception):
+    """Indicates that a user has tried to perform an action for which they do not have
+    permission."""

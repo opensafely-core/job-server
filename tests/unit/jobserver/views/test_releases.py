@@ -3,7 +3,12 @@ from django.contrib.auth.models import AnonymousUser
 from django.http import Http404
 from django.utils import timezone
 
-from jobserver.authorization import OutputChecker, OutputPublisher, ProjectCollaborator
+from jobserver.authorization import (
+    OutputChecker,
+    OutputPublisher,
+    PermissionDenied,
+    ProjectCollaborator,
+)
 from jobserver.views.releases import (
     ProjectReleaseList,
     ReleaseDetail,
@@ -337,7 +342,7 @@ def test_releasefiledelete_without_permission(rf):
     request = rf.post("/")
     request.user = UserFactory()
 
-    with pytest.raises(Http404):
+    with pytest.raises(PermissionDenied):
         ReleaseFileDelete.as_view()(
             request,
             org_slug=release.workspace.project.org.slug,

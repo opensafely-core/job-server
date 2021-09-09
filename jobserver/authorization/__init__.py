@@ -11,7 +11,13 @@ from .roles import (
     ProjectDeveloper,
     TechnicalReviewer,
 )
-from .utils import has_permission, has_role, roles_for, strings_to_roles
+from .utils import (
+    PermissionDenied,
+    has_permission,
+    has_role,
+    roles_for,
+    strings_to_roles,
+)
 
 
 __all__ = [
@@ -30,4 +36,5 @@ __all__ = [
     "has_role",
     "roles_for",
     "strings_to_roles",
+    "PermissionDenied",
 ]
