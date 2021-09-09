@@ -42,7 +42,7 @@
     "rollup-plugin-copy": "^3.4.0",
     "rollup-plugin-visualizer": "^5.5.2",
     "sass": "^1.39.0",
-    "vite": "^2.5.3",
+    "vite": "^2.5.6",
     "window-resizeto": "^0.0.2"
   },
   "dependencies": {
