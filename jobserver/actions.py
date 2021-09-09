@@ -15,3 +15,8 @@ def release_file_delete(*, user, rfile, project):
         rfile.deleted_by = user
         rfile.deleted_at = timezone.now()
         rfile.save()
+
+
+@require_role(roles.ProjectCollaborator)
+def release_file_view():
+    """View a release file"""

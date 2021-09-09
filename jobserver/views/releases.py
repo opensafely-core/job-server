@@ -33,8 +33,10 @@ class ProjectReleaseList(View):
             actions.release_file_delete,
             project=project,
         )
-        can_view_files = has_permission(
-            request.user, "release_file_view", project=project
+        can_view_files = can_do_action(
+            request.user,
+            actions.release_file_view,
+            project=project,
         )
 
         def build_title(release):
@@ -91,9 +93,9 @@ class ReleaseDetail(View):
         if not release.files.exists():
             raise Http404
 
-        if not has_permission(
+        if not can_do_action(
             request.user,
-            "release_file_view",
+            actions.release_file_view,
             project=release.workspace.project,
         ):
             raise Http404
@@ -124,9 +126,9 @@ class ReleaseDownload(View):
         if not release.files.exists():
             raise Http404
 
-        if not has_permission(
+        if not can_do_action(
             request.user,
-            "release_file_view",
+            actions.release_file_view,
             project=release.workspace.project,
         ):
             raise Http404
@@ -172,8 +174,10 @@ class SnapshotDetail(View):
             pk=self.kwargs["pk"],
         )
 
-        has_permission_to_view = has_permission(
-            request.user, "release_file_view", project=snapshot.workspace.project
+        has_permission_to_view = can_do_action(
+            request.user,
+            actions.release_file_view,
+            project=snapshot.workspace.project,
         )
         if snapshot.is_draft and not has_permission_to_view:
             raise Http404
@@ -211,9 +215,9 @@ class SnapshotDownload(View):
         if not snapshot.files.exists():
             raise Http404
 
-        can_view_unpublished_files = has_permission(
+        can_view_unpublished_files = can_do_action(
             request.user,
-            "release_file_view",
+            actions.release_file_view,
             project=snapshot.workspace.project,
         )
         if snapshot.is_draft and not can_view_unpublished_files:
@@ -244,9 +248,9 @@ class WorkspaceReleaseList(View):
             actions.release_file_delete,
             project=workspace.project,
         )
-        can_view_files = has_permission(
+        can_view_files = can_do_action(
             request.user,
-            "release_file_view",
+            actions.release_file_view,
             project=workspace.project,
         )
 
