@@ -161,9 +161,11 @@ def strings_to_roles(strings):
     return [value for name, value in available_roles if name in strings]
 
 
-def require_permission(permission, *context_keys):
+def require_role(role, *context_keys):
     """Build decorator which decorates function to ensure that it can only be called by
-    user with appropriate permission.
+    user with requried role.
+
+    This could be adapted to support allowing multiple roles.
 
     The decorated function must only take kwargs, which must include "user", and all of
     the context_keys, which are used to create the context which is passed to
@@ -174,7 +176,7 @@ def require_permission(permission, *context_keys):
         @functools.wraps(fn)
         def wrapper(**kwargs):
             context = {key: kwargs[key] for key in context_keys}
-            if not has_permission(kwargs["user"], permission, **context):
+            if not has_role(kwargs["user"], role, **context):
                 raise PermissionDenied
             return fn(**kwargs)
 
