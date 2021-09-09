@@ -30,12 +30,12 @@ class ProjectReleaseList(View):
 
         can_delete_files = can_do_action(
             request.user,
-            actions.release_file_delete,
+            actions.delete_release_file,
             project=project,
         )
         can_view_files = can_do_action(
             request.user,
-            actions.release_file_view,
+            actions.view_release_file,
             project=project,
         )
 
@@ -95,7 +95,7 @@ class ReleaseDetail(View):
 
         if not can_do_action(
             request.user,
-            actions.release_file_view,
+            actions.view_release_file,
             project=release.workspace.project,
         ):
             raise Http404
@@ -128,7 +128,7 @@ class ReleaseDownload(View):
 
         if not can_do_action(
             request.user,
-            actions.release_file_view,
+            actions.view_release_file,
             project=release.workspace.project,
         ):
             raise Http404
@@ -155,7 +155,7 @@ class ReleaseFileDelete(View):
         if not rfile.absolute_path().exists():
             raise Http404
 
-        actions.release_file_delete(
+        actions.delete_release_file(
             user=request.user,
             rfile=rfile,
             project=rfile.release.workspace.project,
@@ -176,7 +176,7 @@ class SnapshotDetail(View):
 
         has_permission_to_view = can_do_action(
             request.user,
-            actions.release_file_view,
+            actions.view_release_file,
             project=snapshot.workspace.project,
         )
         if snapshot.is_draft and not has_permission_to_view:
@@ -217,7 +217,7 @@ class SnapshotDownload(View):
 
         can_view_unpublished_files = can_do_action(
             request.user,
-            actions.release_file_view,
+            actions.view_release_file,
             project=snapshot.workspace.project,
         )
         if snapshot.is_draft and not can_view_unpublished_files:
@@ -245,12 +245,12 @@ class WorkspaceReleaseList(View):
 
         can_delete_files = can_do_action(
             request.user,
-            actions.release_file_delete,
+            actions.delete_release_file,
             project=workspace.project,
         )
         can_view_files = can_do_action(
             request.user,
-            actions.release_file_view,
+            actions.view_release_file,
             project=workspace.project,
         )
 

@@ -166,7 +166,7 @@ class ReleaseWorkspaceAPI(APIView):
         files = serializer.validated_data["files"]
 
         try:
-            release = actions.release_workspace_create(
+            release = actions.create_workspace_release(
                 user=user,
                 workspace=workspace,
                 backend=backend,
@@ -227,7 +227,7 @@ class ReleaseAPI(APIView):
             )
 
         try:
-            rfile = actions.release_file_upload(
+            rfile = actions.upload_release_file(
                 user=user,
                 release=release,
                 backend=backend,

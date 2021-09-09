@@ -7,7 +7,7 @@ from .authorization.utils import require_role
 
 
 @require_role(roles.OutputChecker, "project")
-def release_file_delete(*, user, rfile, project):
+def delete_release_file(*, user, rfile, project):
     """Delete a release file"""
     with transaction.atomic():
         # delete file on disk
@@ -19,17 +19,17 @@ def release_file_delete(*, user, rfile, project):
 
 
 @require_role(roles.ProjectCollaborator)
-def release_file_view():
+def view_release_file():
     """View a release file"""
 
 
 @require_role(roles.OutputChecker, "project")
-def release_file_upload(*, user, release, backend, upload, filename, project):
+def upload_release_file(*, user, release, backend, upload, filename, project):
     """Upload a released file"""
     return releases.handle_file_upload(release, backend, user, upload, filename)
 
 
 @require_role(roles.OutputChecker, "project")
-def release_workspace_create(*, user, workspace, backend, files, project):
+def create_workspace_release(*, user, workspace, backend, files, project):
     """Create a release in a workspace"""
     return releases.create_release(workspace, backend, user, files)
