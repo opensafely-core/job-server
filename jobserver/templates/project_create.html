@@ -51,26 +51,8 @@
             </ul>
           {% endif %}
 
-          <div class="form-group">
-            <label for="id_name">Project name</label>
-            <input
-              type="text"
-              class="form-control"
-              id="id_name"
-              {% if form.name.value %}
-              value="{{ form.name.value }}"
-              {% endif %}
-              name="name"
-            />
-          </div>
+          {% include "components/form_text.html" with field=form.name label="Project name" %}
 
-          {% if form.name.errors %}
-            <ul class="pl-3 mb-1">
-              {% for error in form.name.errors %}
-                <li class="text-danger">{{ error }}</li>
-              {% endfor %}
-            </ul>
-          {% endif %}
         </fieldset>
 
         <button class="btn btn-success" type="submit">Create</button>
