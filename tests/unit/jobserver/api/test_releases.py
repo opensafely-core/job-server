@@ -941,27 +941,9 @@ def test_snapshotpublishapi_without_permission(api_rf):
     assert response.status_code == 403
 
 
-def test_validate_upload_access_no_permission(rf):
-    backend = BackendFactory()
-    user = UserFactory()
-    workspace = WorkspaceFactory()
-
-    BackendMembershipFactory(backend=backend, user=user)
-
-    request = rf.get(
-        "/",
-        HTTP_AUTHORIZATION=backend.auth_token,
-        HTTP_OS_USER=user.username,
-    )
-
-    with pytest.raises(NotAuthenticated):
-        validate_upload_access(request, workspace)
-
-
 def test_validate_upload_access_not_a_backend_member(rf):
     backend = BackendFactory()
     user = UserFactory(roles=[OutputChecker])
-    workspace = WorkspaceFactory()
 
     request = rf.get(
         "/",
@@ -970,19 +952,18 @@ def test_validate_upload_access_not_a_backend_member(rf):
     )
 
     with pytest.raises(NotAuthenticated):
-        validate_upload_access(request, workspace)
+        validate_upload_access(request)
 
 
 def test_validate_upload_access_unknown_user(rf):
     backend = BackendFactory()
-    workspace = WorkspaceFactory()
 
     BackendMembershipFactory(backend=backend)
 
     request = rf.get("/", HTTP_AUTHORIZATION=backend.auth_token, HTTP_OS_USER="test")
 
     with pytest.raises(NotAuthenticated):
-        validate_upload_access(request, workspace)
+        validate_upload_access(request)
 
 
 def test_workspacestatusapi_success(api_rf):
