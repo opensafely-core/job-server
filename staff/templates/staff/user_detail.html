@@ -1,7 +1,6 @@
 {% extends "staff/base.html" %}
 
 {% load humanize %}
-{% load roles %}
 
 {% block staff_content %}
 <div class="row mb-5">
@@ -100,41 +99,7 @@
         </ul>
       </div>
 
-      <div class="form-group mb-5">
-        <h4>Roles</h4>
-
-        <ul class="list-group mb-3">
-          {% for value, label in form.roles.field.choices %}
-          <li class="list-group-item">
-            <div class="custom-control custom-checkbox">
-              <input
-                type="checkbox"
-                class="custom-control-input"
-                id="id_roles_{{ forloop.counter0 }}"
-                name="roles"
-                value="{{ value }}"
-                {% if value in form.roles.value %}
-                checked
-                {% endif %}
-              />
-              <label class="custom-control-label" for="id_roles_{{ forloop.counter0 }}">
-                <span class="d-block"><strong>{{ label }}</strong></span>
-                <span>{{ value|role_description|linebreaksbr }}</span>
-              </label>
-            </div>
-          </li>
-          {% endfor %}
-        </ul>
-
-        {% if form.roles.errors %}
-        <ul class="pl-3 mb-1">
-          {% for error in form.roles.errors %}
-          <li class="text-danger">{{ error }}</li>
-          {% endfor %}
-        </ul>
-        {% endif %}
-
-      </div>
+      {% include "components/form_roles.html" with field=form.roles label="Roles" name="roles" %}
 
       <div class="form-group mb-5">
         <h4>Django Admin Access</h4>

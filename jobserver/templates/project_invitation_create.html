@@ -1,6 +1,5 @@
 {% extends "base.html" %}
 
-{% load roles %}
 {% load static %}
 
 {% block extra_styles %}
@@ -84,45 +83,7 @@
           </div>
         </fieldset>
 
-        <fieldset class="mb-3">
-          <legend class="h3 mb-3">
-            Roles
-          </legend>
-
-          <div class="form-group">
-            <div class="list-group mb-3">
-              {% for value, label in form.roles.field.choices %}
-                <label
-                  class="list-group-item cursor-pointer d-flex align-items-top mb-0"
-                  for="id_roles_{{ forloop.counter0 }}"
-                >
-                  <input
-                    type="checkbox"
-                    class="mr-3 mt-1"
-                    id="id_roles_{{ forloop.counter0 }}"
-                    name="roles"
-                    value="{{ value }}"
-                    {% if value in form.roles.value %}
-                    checked
-                    {% endif %}
-                  />
-                  <span class="d-flex flex-column">
-                    <span class="d-block"><strong>{{ label }}</strong></span>
-                    <span>{{ value|role_description|linebreaksbr }}</span>
-                  </span>
-                </label>
-              {% endfor %}
-            </div>
-
-            {% if form.roles.errors %}
-              <ul class="pl-3 mb-1">
-                {% for error in form.roles.errors %}
-                  <li class="text-danger">{{ error }}</li>
-                {% endfor %}
-              </ul>
-            {% endif %}
-          </div>
-        </fieldset>
+        {% include "components/form_roles.html" with field=form.roles label="Roles" name="roles" %}
 
         <button class="btn btn-success" type="submit">Invite users</button>
       </form>
