@@ -10,7 +10,8 @@
       {% csrf_token %}
 
       <div class="form-group mb-5">
-        <h4>Enable New Release Process?</h4>
+        {% include "components/form_text.html" with field=form.name label="Project name" name="name" %}
+
         <div class="custom-control custom-checkbox">
           <input
               type="checkbox"

@@ -44,15 +44,20 @@ def test_projectedit_get_unauthorized(rf):
 def test_projectedit_post_success(rf, core_developer):
     project = ProjectFactory(uses_new_release_flow=False)
 
-    request = rf.post("/", {"uses_new_release_flow": True})
+    data = {
+        "name": "new-name",
+        "uses_new_release_flow": True,
+    }
+    request = rf.post("/", data)
     request.user = core_developer
 
     response = ProjectEdit.as_view()(request, slug=project.slug)
 
-    assert response.status_code == 302
+    assert response.status_code == 302, response.context_data["form"].errors
     assert response.url == project.get_staff_url()
 
     project.refresh_from_db()
+    assert project.name == "new-name"
     assert project.uses_new_release_flow
 
 

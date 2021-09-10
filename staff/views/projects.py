@@ -19,7 +19,7 @@ class ProjectDetail(DetailView):
 
 @method_decorator(require_role(CoreDeveloper), name="dispatch")
 class ProjectEdit(UpdateView):
-    fields = ["uses_new_release_flow"]
+    fields = ["name", "uses_new_release_flow"]
     model = Project
     template_name = "staff/project_edit.html"
 
