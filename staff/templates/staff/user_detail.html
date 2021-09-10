@@ -93,7 +93,7 @@
         <ul class="list-group mb-3">
           {% for project in projects %}
           <li class="list-group-item">
-            <a href="{{ project.get_absolute_url }}">{{ project.name }}</a>
+            <a href="{{ project.get_staff_url }}">{{ project.name }}</a>
           </li>
           {% endfor %}
         </ul>
