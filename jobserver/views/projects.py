@@ -12,6 +12,7 @@ from django.views.generic import CreateView, DetailView, UpdateView, View
 from furl import furl
 from sentry_sdk import capture_exception
 
+from .. import actions
 from ..authorization import (
     CoreDeveloper,
     ProjectDeveloper,
@@ -64,15 +65,11 @@ class ProjectCancelInvite(View):
             pk=self.request.POST.get("invite_pk"),
         )
 
-        can_manage_members = has_permission(
-            request.user,
-            "project_membership_edit",
+        actions.cancel_project_invite(
+            user=request.user,
+            invite=invite,
             project=invite.project,
         )
-        if not can_manage_members:
-            raise Http404
-
-        invite.delete()
 
         return redirect(invite.project.get_settings_url())
 

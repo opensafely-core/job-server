@@ -6,6 +6,12 @@ from .authorization import roles
 from .authorization.utils import require_role
 
 
+@require_role(roles.ProjectCoordinator, "project")
+def cancel_project_invite(*, user, invite, project):
+    """Cancel an existing Project invitation"""
+    invite.delete()
+
+
 @require_role(roles.OutputChecker, "project")
 def delete_release_file(*, user, rfile, project):
     """Delete a release file"""

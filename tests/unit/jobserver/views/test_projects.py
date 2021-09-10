@@ -12,6 +12,7 @@ from jobserver.authorization import (
     ProjectCoordinator,
     ProjectDeveloper,
 )
+from jobserver.authorization.utils import PermissionDenied
 from jobserver.models import (
     Org,
     Project,
@@ -194,7 +195,7 @@ def test_projectcancelinvite_without_manage_members_permission(rf):
     request = rf.post("/", {"invite_pk": invite.pk})
     request.user = UserFactory()
 
-    with pytest.raises(Http404):
+    with pytest.raises(PermissionDenied):
         ProjectCancelInvite.as_view()(
             request, org_slug=org.slug, project_slug=project.slug
         )
