@@ -5,7 +5,7 @@ from furl import furl
 from jobserver.models import User
 
 
-def test_login_pipeline(client):
+def test_login_pipeline(client, mocker):
     """
     Test the Auth Pipeline with an incoming request
 
@@ -48,6 +48,8 @@ def test_login_pipeline(client):
 
         membership_url = "https://api.github.com/orgs/opensafely/members/dummy-user"
         rsps.add(responses.GET, membership_url, status=204)
+
+        mocker.patch("jobserver.pipeline.slack_client", autospec=True)
 
         # set a dummy state value in the test Client's session to match the
         # value in redirect_url below
