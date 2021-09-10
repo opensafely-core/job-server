@@ -13,13 +13,21 @@ from jobserver.models import Backend, User, Workspace
 
 # configure searchable models here, each must have get_staff_url defined
 configured_searches = [
-    {"model": Backend, "fields": ["name", "slug"], "order_by": "name"},
+    {
+        "model": Backend,
+        "fields": ["name", "slug"],
+        "order_by": "name",
+    },
     {
         "model": User,
         "fields": ["first_name", "last_name", "username"],
         "order_by": "username",
     },
-    {"model": Workspace, "fields": ["name", "repo"], "order_by": "name"},
+    {
+        "model": Workspace,
+        "fields": ["name", "repo"],
+        "order_by": "name",
+    },
 ]
 
 
