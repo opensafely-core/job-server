@@ -3,34 +3,18 @@
 from django.db import migrations
 
 
-drop_django_admin_log = """DROP TABLE django_admin_log"""
-create_django_admin_log = """
-CREATE TABLE "django_admin_log" (
-    "id" integer NOT NULL PRIMARY KEY AUTOINCREMENT,
-    "action_time" datetime NOT NULL,
-    "object_id" text NULL,
-    "object_repr" varchar(200) NOT NULL,
-    "change_message" text NOT NULL,
-    "content_type_id" integer NULL REFERENCES "django_content_type" ("id") DEFERRABLE INITIALLY DEFERRED,
-    "user_id" integer NOT NULL REFERENCES "{auth_table}" ("id") DEFERRABLE INITIALLY DEFERRED,
-    "action_flag" smallint unsigned NOT NULL CHECK ("action_flag" >= 0)
-)
-"""
-
-
 class Migration(migrations.Migration):
+    """
+    No-op migration
+
+    With the removal of the Django Admin we no longer have a django_admin_log
+    table against which to run the SQL queries originally in this migration.
+    However, we also don't need to fix said table so this migration is now a
+    no-op.
+    """
 
     dependencies = [
         ("jobserver", "0003_add_membership_org_and_project"),
     ]
 
-    operations = [
-        migrations.RunSQL(
-            sql=drop_django_admin_log,
-            reverse_sql=create_django_admin_log.format(auth_table="auth_user"),
-        ),
-        migrations.RunSQL(
-            sql=create_django_admin_log.format(auth_table="jobserver_user"),
-            reverse_sql=drop_django_admin_log,
-        ),
-    ]
+    operations = []

@@ -23,7 +23,6 @@ from jobserver.api.releases import (
 )
 from jobserver.utils import dotted_path
 from jobserver.views import (
-    admin,
     index,
     job_requests,
     jobs,
@@ -60,7 +59,6 @@ def test_url_redirects(client, url, redirect):
     "url,view",
     [
         ("/", index.Index),
-        ("/admin/approve-users", admin.ApproveUsers),
         ("/api/v2/job-requests/", JobRequestAPIList),
         ("/api/v2/jobs/", JobAPIUpdate),
         ("/api/v2/release-notifications/", ReleaseNotificationAPICreate),
