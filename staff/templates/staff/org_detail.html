@@ -1,5 +1,12 @@
 {% extends "staff/base.html" %}
 
+{% load static %}
+
+{% block extra_styles %}
+<link rel="stylesheet" href="{% static 'vendor/select2.min.css' %}">
+<link rel="stylesheet" href="{% static 'vendor/select2-bootstrap4.min.css' %}">
+{% endblock %}
+
 {% block staff_content %}
 <div class="row mb-5">
   <div class="col-lg-8 offset-lg-2">
@@ -27,16 +34,57 @@
 
     </div>
 
-    <div class="form-group mb-5">
+    <div class="mb-5">
       <h4>Members</h4>
+
+      <form method="POST" class="mb-2">
+        {% csrf_token %}
+
+        {% if form.non_field_errors %}
+          <ul>
+            {% for error in form.non_field_errors %}
+              <li class="text-danger">{{ error }}</li>
+            {% endfor %}
+          </ul>
+        {% endif %}
+
+        <div class="d-flex justify-content-between align-items-center">
+          <div class="w-100 mr-1">
+            <select id="id_users" name="users" multiple required>
+              {% for value, label in form.fields.users.choices %}
+              <option value="{{ value }}">{{ label }}</option>
+              {% endfor %}
+            </select>
+
+            {% for error in form.users.errors %}
+            <p class="text-danger">{{ error }}</p>
+            {% endfor %}
+          </div>
+
+          <button class="btn btn-sm btn-primary" type="submit">Add</button>
+        </div>
+
+      </form>
 
       <ul class="list-group mb-3">
         {% for user in members %}
-        <li class="list-group-item">
-          <a href="{{ user.get_staff_url }}">{{ user.username }}</a>
-          {% if user.get_full_name %}
-          <small class="text-muted">({{ user.get_full_name }})</small>
-          {% endif %}
+        <li class="list-group-item d-flex justify-content-between align-items-center">
+
+          <div>
+            <a href="{{ user.get_staff_url }}">{{ user.username }}</a>
+            {% if user.get_full_name %}
+            <small class="text-muted">({{ user.get_full_name }})</small>
+            {% endif %}
+          </div>
+
+          <form method="POST" action="{% url 'staff:org-remove-member' slug=org.slug %}">
+            {% csrf_token %}
+
+            <input type="hidden" name="username" value="{{ user.username }}" />
+
+            <button class="btn btn-sm btn-danger" type="submit">&times;</button>
+          </form>
+
         </li>
         {% endfor %}
       </ul>
@@ -57,3 +105,17 @@
   </div>
 </div>
 {% endblock staff_content %}
+
+{% block extra_js %}
+<script type="text/javascript" src="{% static 'vendor/select2.min.js' %}"></script>
+<script type="text/javascript">
+  $(document).ready(function() {
+    $('#id_users').select2({
+      placeholder: "Select 1 or more users to add",
+      selectionCssClass: ":all:",
+      theme: "bootstrap4",
+      width: "100%"
+    });
+  });
+</script>
+{% endblock %}

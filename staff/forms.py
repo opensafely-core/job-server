@@ -5,6 +5,22 @@ from jobserver.backends import backends_to_choices
 from jobserver.models import Backend
 
 
+class OrgAddMemberForm(forms.Form):
+    def __init__(self, users, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+
+        self.fields["users"] = forms.MultipleChoiceField(
+            choices=list(self.build_user_choices(users)),
+        )
+
+    def build_user_choices(self, users):
+        for user in users:
+            full_name = user.get_full_name()
+            label = f"{user.username} ({full_name})" if full_name else user.username
+
+            yield user.pk, label
+
+
 class UserForm(RolesForm):
     is_superuser = forms.BooleanField(required=False)
 

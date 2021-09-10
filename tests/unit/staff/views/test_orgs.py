@@ -1,10 +1,14 @@
+import pytest
+from django.contrib.messages.storage.fallback import FallbackStorage
+from django.http import Http404
+
 from jobserver.utils import set_from_qs
-from staff.views.orgs import OrgDetail, OrgEdit, OrgList
+from staff.views.orgs import OrgDetail, OrgEdit, OrgList, OrgRemoveMember
 
-from ....factories import OrgFactory, UserFactory
+from ....factories import OrgFactory, OrgMembershipFactory, UserFactory
 
 
-def test_orgdetail_success(rf, core_developer):
+def test_orgdetail_get_success(rf, core_developer):
     org = OrgFactory()
 
     request = rf.get("/")
@@ -21,6 +25,35 @@ def test_orgdetail_success(rf, core_developer):
     expected = set_from_qs(org.projects.all())
     output = set_from_qs(response.context_data["projects"])
     assert output == expected
+
+
+def test_orgdetail_post_success(rf, core_developer):
+    org = OrgFactory()
+
+    user1 = UserFactory()
+    user2 = UserFactory()
+
+    request = rf.post("/", {"users": [str(user1.pk), str(user2.pk)]})
+    request.user = core_developer
+
+    response = OrgDetail.as_view()(request, slug=org.slug)
+
+    assert response.status_code == 302
+    assert response.url == org.get_staff_url()
+
+    assert set_from_qs(org.members.all()) == {user1.pk, user2.pk}
+
+
+def test_orgdetail_post_with_bad_data(rf, core_developer):
+    org = OrgFactory()
+
+    request = rf.post("/", {"test": "test"})
+    request.user = core_developer
+
+    response = OrgDetail.as_view()(request, slug=org.slug)
+
+    assert response.status_code == 200
+    assert response.context_data["form"].errors
 
 
 def test_orgdetail_unauthorized(rf):
@@ -116,3 +149,70 @@ def test_orglist_unauthorized(rf):
     response = OrgList.as_view()(request)
 
     assert response.status_code == 403
+
+
+def test_orgremovemember_success(rf, core_developer):
+    org = OrgFactory()
+    user = UserFactory()
+
+    OrgMembershipFactory(org=org, user=user)
+
+    request = rf.post("/", {"username": user.username})
+    request.user = core_developer
+
+    # set up messages framework
+    request.session = "session"
+    messages = FallbackStorage(request)
+    request._messages = messages
+
+    response = OrgRemoveMember.as_view()(request, slug=org.slug)
+
+    assert response.status_code == 302
+    assert response.url == org.get_staff_url()
+
+    org.refresh_from_db()
+    assert user not in org.members.all()
+
+    # check we have a message for the user
+    messages = list(messages)
+    assert len(messages) == 1
+    assert str(messages[0]) == f"Removed {user.username} from {org.name}"
+
+
+def test_orgremovemember_unauthorized(rf):
+    request = rf.post("/")
+    request.user = UserFactory()
+
+    response = OrgRemoveMember.as_view()(request)
+
+    assert response.status_code == 403
+
+
+def test_orgremovemember_unknown_org(rf, core_developer):
+    request = rf.post("/")
+    request.user = core_developer
+
+    with pytest.raises(Http404):
+        OrgRemoveMember.as_view()(request, slug="test")
+
+
+def test_orgremovemember_unknown_member(rf, core_developer):
+    org = OrgFactory()
+
+    assert org.memberships.count() == 0
+
+    request = rf.post("/", {"username": "test"})
+    request.user = core_developer
+
+    # set up messages framework
+    request.session = "session"
+    messages = FallbackStorage(request)
+    request._messages = messages
+
+    response = OrgRemoveMember.as_view()(request, slug=org.slug)
+
+    assert response.status_code == 302
+    assert response.url == org.get_staff_url()
+
+    org.refresh_from_db()
+    assert org.memberships.count() == 0
