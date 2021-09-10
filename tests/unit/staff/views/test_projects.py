@@ -1,6 +1,22 @@
-from staff.views.projects import ProjectEdit, ProjectList
+from jobserver.utils import set_from_qs
+from staff.views.projects import ProjectDetail, ProjectEdit, ProjectList
 
 from ....factories import ProjectFactory, UserFactory
+
+
+def test_projectdetail_success(rf, core_developer):
+    project = ProjectFactory()
+
+    request = rf.get("/")
+    request.user = core_developer
+
+    response = ProjectDetail.as_view()(request, slug=project.slug)
+
+    assert response.status_code == 200
+
+    expected = set_from_qs(project.workspaces.all())
+    output = set_from_qs(response.context_data["workspaces"])
+    assert output == expected
 
 
 def test_projectedit_get_success(rf, core_developer):

@@ -1,8 +1,5 @@
 {% extends "staff/base.html" %}
 
-{% load humanize %}
-{% load roles %}
-
 {% block staff_content %}
 <div class="row mb-5">
   <div class="col-lg-8 offset-lg-2">
@@ -30,68 +27,10 @@
 
     </div>
 
-    <form method="POST">
-      {% csrf_token %}
-
-      {% if form.non_field_errors %}
-      <ul>
-        {% for error in form.non_field_errors %}
-        <li class="text-danger">{{ error }}</li>
-        {% endfor %}
-      </ul>
-      {% endif %}
-
-      <div class="form-group">
-        <h4>Backends</h4>
-
-        <p>
-          A list of backends {{ user.username }} has access to.
-        </p>
-
-        <ul class="list-group mb-5">
-          {% for value, label in form.backends.field.choices %}
-          <li class="list-group-item">
-            <div class="custom-control custom-checkbox">
-              <input
-                type="checkbox"
-                class="custom-control-input"
-                id="id_backends_{{ forloop.counter0 }}"
-                name="backends"
-                value="{{ value }}"
-                {% if value in form.backends.value %}
-                checked
-                {% endif %}
-              />
-              <label class="custom-control-label" for="id_backends_{{ forloop.counter0 }}">
-                {{ label }}
-              </label>
-            </div>
-          </li>
-          {% endfor %}
-        </ul>
-
-        {% if form.backends.errors %}
-        <ul class="pl-3 mb-1">
-          {% for error in form.backends.errors %}
-          <li class="text-danger">{{ error }}</li>
-          {% endfor %}
-        </ul>
-        {% endif %}
-
-      </div>
-
-      <div class="form-group mb-5">
-        <h4>Orgnisations</h4>
-
-        <ul class="list-group mb-3">
-          {% for org in orgs %}
-          <li class="list-group-item">
-            <a href="{{ org.get_absolute_url }}">{{ org.name }}</a>
-          </li>
-          {% endfor %}
-        </ul>
-      </div>
-
+    <div class="form-group mb-5">
+      <h4>Organisation</h4>
+      <a href="{{ project.org.get_absolute_url }}">{{ project.org.name }}</a>
+    </div>
 
     <div class="form-group mb-5">
       <h4>Feature Flags</h4>
@@ -100,6 +39,18 @@
         <strong>New style Releases:</strong>
         {% if project.uses_new_release_flow %}✅{% else %}❌{% endif %}
       </p>
+    </div>
+
+    <div class="form-group mb-5">
+      <h4>Workspaces</h4>
+
+      <ul class="list-group mb-3">
+        {% for workspace in workspaces %}
+        <li class="list-group-item">
+          <a href="{{ workspace.get_staff_url }}">{{ workspace.name }}</a>
+        </li>
+        {% endfor %}
+      </ul>
     </div>
 
   </div>
