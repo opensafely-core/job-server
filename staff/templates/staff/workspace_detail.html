@@ -21,7 +21,8 @@
       </p>
 
       <p>
-        <strong>Org:</strong> {{ workspace.project.org.name }}
+        <strong>Org:</strong>
+        <a href="{{ workspace.project.org.get_staff_url }}">{{ workspace.project.org.name }}</a>
         <br />
         <strong>Project:</strong>
         <a href="{{ workspace.project.get_staff_url }}">{{ workspace.project.name }}</a>

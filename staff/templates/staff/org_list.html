@@ -1,0 +1,28 @@
+{% extends "staff/base.html" %}
+
+{% block staff_content %}
+<div class="row">
+  <div class="col-lg-6 offset-lg-2">
+
+    <form class="form d-flex align-items-center mb-4" method="GET">
+      <input
+        class="form-control mr-2"
+        type="search"
+        placeholder="Search by org name"
+        aria-label="Search"
+        {% if q %}
+        value="{{ q }}"
+        {% endif %}
+        name="q" />
+      <button class="btn btn-outline-success my-2 my-sm-0" type="submit">Search</button>
+    </form>
+
+    {% for org in org_list %}
+    <div class="border rounded p-2 pl-3 mb-3">
+      <a href="{{ org.get_staff_url }}">{{ org.name }}</a>
+    </div>
+    {% endfor %}
+
+  </div>
+</div>
+{% endblock staff_content %}

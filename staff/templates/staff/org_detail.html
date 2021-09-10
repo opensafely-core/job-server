@@ -1,0 +1,59 @@
+{% extends "staff/base.html" %}
+
+{% block staff_content %}
+<div class="row mb-5">
+  <div class="col-lg-8 offset-lg-2">
+
+    <div class="mb-5">
+      <div class="d-flex justify-content-between align-items-center">
+        <h2>{{ org.name }}</h2>
+
+        <div>
+          <a class="btn btn-sm btn-danger" href="{{ org.get_edit_url }}">Edit</a>
+          <a class="btn btn-sm btn-primary" href="{{ org.get_absolute_url }}">View on Site</a>
+        </div>
+      </div>
+
+      {% if org.created_by %}
+      <p>
+        <strong>Created by:</strong>
+        <a href="{{ org.created_by.get_staff_url }}">{{ org.created_by.name }}</a>
+      </p>
+      {% endif %}
+
+      <p>
+        <strong>Created at:</strong> {{ org.created_at }}
+      </p>
+
+    </div>
+
+    <div class="form-group mb-5">
+      <h4>Members</h4>
+
+      <ul class="list-group mb-3">
+        {% for user in members %}
+        <li class="list-group-item">
+          <a href="{{ user.get_staff_url }}">{{ user.username }}</a>
+          {% if user.get_full_name %}
+          <small class="text-muted">({{ user.get_full_name }})</small>
+          {% endif %}
+        </li>
+        {% endfor %}
+      </ul>
+    </div>
+
+    <div class="form-group mb-5">
+      <h4>Projects</h4>
+
+      <ul class="list-group mb-3">
+        {% for project in projects %}
+        <li class="list-group-item">
+          <a href="{{ project.get_staff_url }}">{{ project.name }}</a>
+        </li>
+        {% endfor %}
+      </ul>
+    </div>
+
+  </div>
+</div>
+{% endblock staff_content %}

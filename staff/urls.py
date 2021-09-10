@@ -2,6 +2,7 @@ from django.urls import include, path
 
 from .views.backends import BackendDetail, BackendEdit, BackendList, BackendRotateToken
 from .views.index import Index
+from .views.orgs import OrgDetail, OrgEdit, OrgList
 from .views.projects import ProjectDetail, ProjectEdit, ProjectList
 from .views.users import UserDetail, UserList, UserSetOrgs
 from .views.workspaces import WorkspaceDetail, WorkspaceList
@@ -20,6 +21,11 @@ backend_urls = [
     ),
 ]
 
+org_urls = [
+    path("", OrgList.as_view(), name="org-list"),
+    path("<slug>/", OrgDetail.as_view(), name="org-detail"),
+    path("<slug>/edit/", OrgEdit.as_view(), name="org-edit"),
+]
 project_urls = [
     path("", ProjectList.as_view(), name="project-list"),
     path("<slug>/", ProjectDetail.as_view(), name="project-detail"),
@@ -40,6 +46,7 @@ workspace_urls = [
 urlpatterns = [
     path("", Index.as_view(), name="index"),
     path("backends/", include(backend_urls)),
+    path("orgs/", include(org_urls)),
     path("projects/", include(project_urls)),
     path("users/", include(user_urls)),
     path("workspaces/", include(workspace_urls)),

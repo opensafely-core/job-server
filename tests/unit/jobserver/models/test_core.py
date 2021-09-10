@@ -471,6 +471,22 @@ def test_org_get_absolute_url():
     assert url == reverse("org-detail", kwargs={"org_slug": org.slug})
 
 
+def test_org_get_edit_url():
+    org = OrgFactory()
+
+    url = org.get_edit_url()
+
+    assert url == reverse("staff:org-edit", kwargs={"slug": org.slug})
+
+
+def test_org_get_staff_url():
+    org = OrgFactory()
+
+    url = org.get_staff_url()
+
+    assert url == reverse("staff:org-detail", kwargs={"slug": org.slug})
+
+
 def test_org_populates_slug():
     assert OrgFactory(name="Test Org", slug="").slug == "test-org"
 
