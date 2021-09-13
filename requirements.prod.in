@@ -13,6 +13,7 @@ gunicorn
 incuna-mail
 itsdangerous
 litecli
+markdown
 pybadges
 pydantic
 pygments
