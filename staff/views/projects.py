@@ -11,10 +11,15 @@ class ProjectDetail(DetailView):
     model = Project
     template_name = "staff/project_detail.html"
 
+    def get_context_data(self, **kwargs):
+        return super().get_context_data(**kwargs) | {
+            "workspaces": self.object.workspaces.order_by("name"),
+        }
+
 
 @method_decorator(require_role(CoreDeveloper), name="dispatch")
 class ProjectEdit(UpdateView):
-    fields = ["uses_new_release_flow"]
+    fields = ["name", "uses_new_release_flow"]
     model = Project
     template_name = "staff/project_edit.html"
 

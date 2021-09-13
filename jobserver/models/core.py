@@ -343,6 +343,12 @@ class Org(models.Model):
     def get_absolute_url(self):
         return reverse("org-detail", kwargs={"org_slug": self.slug})
 
+    def get_edit_url(self):
+        return reverse("staff:org-edit", kwargs={"slug": self.slug})
+
+    def get_staff_url(self):
+        return reverse("staff:org-detail", kwargs={"slug": self.slug})
+
     def save(self, *args, **kwargs):
         if not self.slug:
             self.slug = slugify(self.name)
