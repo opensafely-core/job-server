@@ -2,7 +2,12 @@ import pytest
 from django.core.exceptions import BadRequest
 from django.http import Http404
 
-from jobserver.authorization import OutputPublisher, TechnicalReviewer
+from jobserver.authorization import (
+    OutputPublisher,
+    ProjectCollaborator,
+    ProjectCoordinator,
+    TechnicalReviewer,
+)
 from jobserver.models import Backend
 from jobserver.utils import set_from_qs
 from staff.views.users import UserDetail, UserList, UserSetOrgs
@@ -31,8 +36,8 @@ def test_userdetail_get_success(rf, core_developer):
     OrgMembershipFactory(org=org, user=user)
 
     # link the user to the Projects
-    ProjectMembershipFactory(project=project1, user=user)
-    ProjectMembershipFactory(project=project2, user=user)
+    ProjectMembershipFactory(project=project1, user=user, roles=[ProjectCoordinator])
+    ProjectMembershipFactory(project=project2, user=user, roles=[ProjectCollaborator])
 
     request = rf.get("/")
     request.user = core_developer
@@ -41,8 +46,27 @@ def test_userdetail_get_success(rf, core_developer):
 
     assert response.status_code == 200
 
-    assert set(response.context_data["orgs"]) == {org}
-    assert set(response.context_data["projects"]) == {project1, project2}
+    assert response.context_data["orgs"] == [
+        {
+            "name": org.name,
+            "roles": [],
+            "staff_url": org.get_staff_url(),
+        },
+    ]
+
+    assert response.context_data["projects"] == [
+        {
+            "name": project1.name,
+            "roles": ["Project Coordinator"],
+            "staff_url": project1.get_staff_url(),
+        },
+        {
+            "name": project2.name,
+            "roles": ["Project Collaborator"],
+            "staff_url": project2.get_staff_url(),
+        },
+    ]
+
     assert response.context_data["user"] == user
 
 
