@@ -339,9 +339,9 @@ requests==2.26.0 \
     # via
     #   -c requirements.prod.txt
     #   responses
-responses==0.13.4 \
-    --hash=sha256:9476775d856d3c24ae660bbebe29fb6d789d4ad16acd723efbfb6ee20990b899 \
-    --hash=sha256:d8d0f655710c46fd3513b9202a7f0dcedd02ca0f8cf4976f27fa8ab5b81e656d
+responses==0.14.0 \
+    --hash=sha256:57bab4e9d4d65f31ea5caf9de62095032c4d81f591a8fac2f5858f7777b8567b \
+    --hash=sha256:93f774a762ee0e27c0d9d7e06227aeda9ff9f5f69392f72bb6c6b73f8763563e
     # via -r requirements.dev.in
 six==1.16.0 \
     --hash=sha256:1e61c37477a1626458e36f7b1d82aa5c9b094fa4802892072e49de9c60c4c926 \
