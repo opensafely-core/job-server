@@ -253,9 +253,9 @@ python-dateutil==2.8.2 \
     # via
     #   faker
     #   freezegun
-pyupgrade==2.25.0 \
-    --hash=sha256:8409f4a166d8fbbf475e4e63912817f8ec07c402979f9399658929ebafaa6043 \
-    --hash=sha256:a61084aae26ccedd6ae98fc0cc09383ce4e11b6d519653ff5e2fd131d2023723
+pyupgrade==2.26.0 \
+    --hash=sha256:03eba5ee3494c334d634a272774a30b0aa28af4f5f07f1d3f5d5bedee86c5bcb \
+    --hash=sha256:fcfde421775d356eb1e7da443fb23fad6dceca411d8c014acebaed1c2bfeed52
     # via -r requirements.dev.in
 pyyaml==5.4.1 \
     --hash=sha256:08682f6b72c722394747bddaf0aa62277e02557c0fd1c42cb853016a38f8dedf \
