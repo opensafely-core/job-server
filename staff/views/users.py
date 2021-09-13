@@ -39,9 +39,25 @@ class UserDetail(UpdateView):
         return redirect(self.object.get_staff_url())
 
     def get_context_data(self, **kwargs):
+        orgs = [
+            {
+                "name": m.org.name,
+                "roles": [r.display_name for r in m.roles],
+                "staff_url": m.org.get_staff_url(),
+            }
+            for m in self.object.org_memberships.order_by("org__name")
+        ]
+        projects = [
+            {
+                "name": m.project.name,
+                "roles": [r.display_name for r in m.roles],
+                "staff_url": m.project.get_staff_url(),
+            }
+            for m in self.object.project_memberships.order_by("project__name")
+        ]
         return super().get_context_data(**kwargs) | {
-            "orgs": self.object.orgs.order_by("name"),
-            "projects": self.object.projects.order_by("name"),
+            "orgs": orgs,
+            "projects": projects,
         }
 
     def get_form_kwargs(self):
