@@ -52,7 +52,6 @@ INSTALLED_APPS = [
     "django_extensions",
     "rest_framework",
     "social_django",
-    "django.contrib.admin",
     "django.contrib.auth",
     "django.contrib.contenttypes",
     "django.contrib.sessions",
@@ -162,7 +161,6 @@ LOGGING = logging_config_dict
 # Auth
 AUTHENTICATION_BACKENDS = [
     "jobserver.github.GithubOrganizationOAuth2",
-    "django.contrib.auth.backends.ModelBackend",
 ]
 AUTH_USER_MODEL = "jobserver.User"
 LOGIN_REDIRECT_URL = "/"

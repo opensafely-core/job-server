@@ -1,6 +1,5 @@
 import debug_toolbar
 from django.conf import settings
-from django.contrib import admin
 from django.contrib.auth.views import LogoutView
 from django.urls import include, path
 from django.views.generic import RedirectView
@@ -22,7 +21,6 @@ from jobserver.api.releases import (
     WorkspaceStatusAPI,
 )
 
-from .views.admin import ApproveUsers
 from .views.index import Index
 from .views.job_requests import (
     JobRequestCancel,
@@ -252,8 +250,6 @@ urlpatterns = [
     path("", Index.as_view()),
     path("", include("social_django.urls", namespace="social")),
     path("favicon.ico", RedirectView.as_view(url=settings.STATIC_URL + "favicon.ico")),
-    path("admin/approve-users", ApproveUsers.as_view(), name="approve-users"),
-    path("admin/", admin.site.urls),
     path("api/v2/", include((api_urls, "api"))),
     path("applications/", include("applications.urls")),
     path("event-log/", JobRequestList.as_view(), name="job-list"),
