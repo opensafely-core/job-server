@@ -1,10 +1,17 @@
 from django.urls import path
 
-from . import views
+from .views import ApplicationDetail, ApplicationProcess, Apply, application
 
 
 app_name = "applications"
 
 urlpatterns = [
-    path("", views.application, name="application"),
+    path("", application, name="application"),
+    path("applications/<int:pk>/", ApplicationDetail.as_view()),
+    path(
+        "applications/<int:pk>/page/<int:page_num>/",
+        ApplicationProcess.as_view(),
+        name="application-process",
+    ),
+    path("apply/", Apply.as_view(), name="apply"),
 ]

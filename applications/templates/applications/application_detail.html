@@ -1,0 +1,20 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="container">
+  <div class="row">
+    <div class="col-lg-8">
+      <h2 class="h5">
+        Draft Application
+      </h2>
+
+      <a
+        class="btn btn-sm btn-success"
+        href="{% url 'applications:application-process' pk=application.pk page_num=2 %}"
+      >
+        Continue Process
+      </a>
+    </div>
+  </div>
+</div>
+{% endblock %}
