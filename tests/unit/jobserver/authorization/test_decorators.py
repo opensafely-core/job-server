@@ -1,3 +1,6 @@
+import pytest
+from django.core.exceptions import PermissionDenied
+
 from jobserver.authorization import CoreDeveloper
 from jobserver.authorization.decorators import require_manage_backends, require_role
 
@@ -21,9 +24,8 @@ def test_require_manage_backends_without_core_dev_role(rf):
     request = rf.get("/")
     request.user = UserFactory(roles=[])
 
-    response = require_manage_backends(None)(request)
-
-    assert response.status_code == 403
+    with pytest.raises(PermissionDenied):
+        require_manage_backends(None)(request)
 
 
 def test_require_role_success(rf):
@@ -42,6 +44,5 @@ def test_require_role_without_role(rf):
     request = rf.get("/")
     request.user = UserFactory(roles=[])
 
-    response = require_role(CoreDeveloper)(None)(request)
-
-    assert response.status_code == 403
+    with pytest.raises(PermissionDenied):
+        require_role(CoreDeveloper)(None)(request)

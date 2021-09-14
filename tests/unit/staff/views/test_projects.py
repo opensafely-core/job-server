@@ -1,3 +1,6 @@
+import pytest
+from django.core.exceptions import PermissionDenied
+
 from jobserver.utils import set_from_qs
 from staff.views.projects import ProjectDetail, ProjectEdit, ProjectList
 
@@ -36,9 +39,8 @@ def test_projectedit_get_unauthorized(rf):
     request = rf.get("/")
     request.user = UserFactory()
 
-    response = ProjectEdit.as_view()(request, slug=project.slug)
-
-    assert response.status_code == 403
+    with pytest.raises(PermissionDenied):
+        ProjectEdit.as_view()(request, slug=project.slug)
 
 
 def test_projectedit_post_success(rf, core_developer):
@@ -67,9 +69,8 @@ def test_projectedit_post_unauthorized(rf):
     request = rf.post("/")
     request.user = UserFactory()
 
-    response = ProjectEdit.as_view()(request, slug=project.slug)
-
-    assert response.status_code == 403
+    with pytest.raises(PermissionDenied):
+        ProjectEdit.as_view()(request, slug=project.slug)
 
 
 def test_projectlist_filter_by_org(rf, core_developer):
@@ -117,8 +118,9 @@ def test_projectlist_unauthorized(rf):
     request = rf.post("/")
     request.user = UserFactory()
 
-    response = ProjectList.as_view()(
-        request, org_slug=project.org.slug, project_slug=project.slug
-    )
-
-    assert response.status_code == 403
+    with pytest.raises(PermissionDenied):
+        ProjectList.as_view()(
+            request,
+            org_slug=project.org.slug,
+            project_slug=project.slug,
+        )

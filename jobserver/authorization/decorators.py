@@ -1,6 +1,6 @@
 from functools import wraps
 
-from django.http import HttpResponseForbidden
+from django.core.exceptions import PermissionDenied
 
 from .permissions import backend_manage
 from .utils import has_permission, has_role
@@ -17,7 +17,7 @@ def require_permission(permission):
         @wraps(f)
         def wrapper_require_role(request, *args, **kwargs):
             if not has_permission(request.user, permission):
-                return HttpResponseForbidden()
+                raise PermissionDenied
 
             return f(request, *args, **kwargs)
 
@@ -33,7 +33,7 @@ def require_role(role):
         @wraps(f)
         def wrapper_require_role(request, *args, **kwargs):
             if not has_role(request.user, role):
-                return HttpResponseForbidden()
+                raise PermissionDenied
 
             return f(request, *args, **kwargs)
 

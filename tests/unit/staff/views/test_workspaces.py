@@ -1,4 +1,5 @@
 import pytest
+from django.core.exceptions import PermissionDenied
 from django.http import Http404
 
 from staff.views.workspaces import WorkspaceDetail, WorkspaceList
@@ -33,9 +34,8 @@ def test_workspacedetail_without_core_dev_role(rf):
     request = rf.get("/")
     request.user = UserFactory()
 
-    response = WorkspaceDetail.as_view()(request, slug=workspace.name)
-
-    assert response.status_code == 403
+    with pytest.raises(PermissionDenied):
+        WorkspaceDetail.as_view()(request, slug=workspace.name)
 
 
 def test_workspacelist_search(rf, core_developer):
