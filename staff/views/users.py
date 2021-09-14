@@ -42,7 +42,7 @@ class UserDetail(UpdateView):
         orgs = [
             {
                 "name": m.org.name,
-                "roles": [r.display_name for r in m.roles],
+                "roles": sorted(r.display_name for r in m.roles),
                 "staff_url": m.org.get_staff_url(),
             }
             for m in self.object.org_memberships.order_by("org__name")
@@ -50,7 +50,7 @@ class UserDetail(UpdateView):
         projects = [
             {
                 "name": m.project.name,
-                "roles": [r.display_name for r in m.roles],
+                "roles": sorted(r.display_name for r in m.roles),
                 "staff_url": m.project.get_staff_url(),
             }
             for m in self.object.project_memberships.order_by("project__name")
