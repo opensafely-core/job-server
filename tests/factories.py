@@ -20,7 +20,6 @@ from jobserver.models import (
     Project,
     ProjectInvitation,
     ProjectMembership,
-    ResearcherRegistration,
     Snapshot,
     Stats,
     User,
@@ -92,9 +91,6 @@ class ProjectFactory(factory.django.DjangoModelFactory):
 
     name = factory.Sequence(lambda n: f"Project {n}")
     slug = factory.Sequence(lambda n: f"project-{n}")
-    proposed_start_date = factory.fuzzy.FuzzyDateTime(
-        datetime(2020, 1, 1, tzinfo=timezone.utc)
-    )
 
 
 class ProjectInvitationFactory(factory.django.DjangoModelFactory):
@@ -211,13 +207,6 @@ def ReleaseFileFactory(
         upload.stream,
         upload.filename,
     )
-
-
-class ResearcherRegistrationFactory(factory.django.DjangoModelFactory):
-    class Meta:
-        model = ResearcherRegistration
-
-    user = factory.SubFactory("tests.factories.UserFactory")
 
 
 class StatsFactory(factory.django.DjangoModelFactory):

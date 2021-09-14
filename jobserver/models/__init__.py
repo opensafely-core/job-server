@@ -10,7 +10,6 @@ from .core import (
     User,
     Workspace,
 )
-from .onboarding import ResearcherRegistration
 from .outputs import Release, ReleaseFile, Snapshot
 from .stats import Stats
 
@@ -27,7 +26,6 @@ __all__ = [
     "ProjectMembership",
     "Release",
     "ReleaseFile",
-    "ResearcherRegistration",
     "Snapshot",
     "Stats",
     "User",
