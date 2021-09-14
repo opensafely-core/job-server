@@ -1,5 +1,5 @@
 import pytest
-from django.core.exceptions import BadRequest
+from django.core.exceptions import BadRequest, PermissionDenied
 from django.http import Http404
 
 from jobserver.authorization import (
@@ -208,9 +208,8 @@ def test_userdetail_without_core_dev_role(rf):
     request = rf.get("/")
     request.user = UserFactory()
 
-    response = UserDetail.as_view()(request, username="test")
-
-    assert response.status_code == 403
+    with pytest.raises(PermissionDenied):
+        UserDetail.as_view()(request, username="test")
 
 
 def test_userlist_filter_by_backend(rf, core_developer):

@@ -1,5 +1,6 @@
 import pytest
 from django.contrib.messages.storage.fallback import FallbackStorage
+from django.core.exceptions import PermissionDenied
 from django.http import Http404
 
 from jobserver.utils import set_from_qs
@@ -62,9 +63,8 @@ def test_orgdetail_unauthorized(rf):
     request = rf.get("/")
     request.user = UserFactory()
 
-    response = OrgDetail.as_view()(request, slug=org.slug)
-
-    assert response.status_code == 403
+    with pytest.raises(PermissionDenied):
+        OrgDetail.as_view()(request, slug=org.slug)
 
 
 def test_orgedit_get_success(rf, core_developer):
@@ -84,9 +84,8 @@ def test_orgedit_get_unauthorized(rf):
     request = rf.get("/")
     request.user = UserFactory()
 
-    response = OrgEdit.as_view()(request, slug=org.slug)
-
-    assert response.status_code == 403
+    with pytest.raises(PermissionDenied):
+        OrgEdit.as_view()(request, slug=org.slug)
 
 
 def test_orgedit_post_success(rf, core_developer):
@@ -110,9 +109,8 @@ def test_orgedit_post_unauthorized(rf):
     request = rf.post("/")
     request.user = UserFactory()
 
-    response = OrgEdit.as_view()(request, slug=org.slug)
-
-    assert response.status_code == 403
+    with pytest.raises(PermissionDenied):
+        OrgEdit.as_view()(request, slug=org.slug)
 
 
 def test_orglist_find_by_name(rf, core_developer):
@@ -148,9 +146,8 @@ def test_orglist_unauthorized(rf):
     request = rf.post("/")
     request.user = UserFactory()
 
-    response = OrgList.as_view()(request)
-
-    assert response.status_code == 403
+    with pytest.raises(PermissionDenied):
+        OrgList.as_view()(request)
 
 
 def test_orgremovemember_success(rf, core_developer):
@@ -185,9 +182,8 @@ def test_orgremovemember_unauthorized(rf):
     request = rf.post("/")
     request.user = UserFactory()
 
-    response = OrgRemoveMember.as_view()(request)
-
-    assert response.status_code == 403
+    with pytest.raises(PermissionDenied):
+        OrgRemoveMember.as_view()(request)
 
 
 def test_orgremovemember_unknown_org(rf, core_developer):
