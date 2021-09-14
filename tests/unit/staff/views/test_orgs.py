@@ -139,7 +139,9 @@ def test_orglist_success(rf, core_developer):
     response = OrgList.as_view()(request)
 
     assert response.status_code == 200
-    assert len(response.context_data["org_list"])
+
+    # 6 because the UserFactory in core_developer creates one too
+    assert len(response.context_data["org_list"]) == 6
 
 
 def test_orglist_unauthorized(rf):
