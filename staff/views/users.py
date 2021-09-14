@@ -139,8 +139,12 @@ class UserSetOrgs(FormView):
         return redirect(self.user.get_staff_url())
 
     def get_form_kwargs(self):
+        existing_membership_orgs = self.user.orgs.values_list("pk", flat=True)
+        available_orgs = Org.objects.exclude(pk__in=existing_membership_orgs).order_by(
+            "name"
+        )
         return super().get_form_kwargs() | {
-            "available_orgs": Org.objects.order_by("name"),
+            "available_orgs": available_orgs,
         }
 
     def get_initial(self):
