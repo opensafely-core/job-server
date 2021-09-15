@@ -42,6 +42,24 @@ form_specs = [
         "title": "Reasons for the request",
         "fieldsets": [
             {
+                "label": "Ethical and sponsor requirements",
+                "fields": [
+                    {
+                        "name": "is_study_research",
+                        "label": "Is your study research?",
+                    },
+                    {
+                        "name": "is_study_a_service_evaluation",
+                        "label": "Is your study a service evaluation?",
+                    },
+                ],
+            },
+        ],
+    },
+    {
+        "title": "Reasons for the request",
+        "fieldsets": [
+            {
                 "label": "HRA REC and Institutional REC",
                 "fields": [
                     {
