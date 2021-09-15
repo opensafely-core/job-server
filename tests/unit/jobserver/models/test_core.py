@@ -465,6 +465,22 @@ def test_jobrequest_status_without_prefetching_jobs(django_assert_num_queries):
         job_request.status
 
 
+def test_org_default_for_github_orgs():
+    org1 = OrgFactory()
+    assert org1.github_orgs == ["opensafely"]
+
+    org2 = OrgFactory()
+    assert org2.github_orgs == ["opensafely"]
+
+    # does mutating the field affect the other object?
+    org1.github_orgs += ["test"]
+    org1.save()
+    org1.refresh_from_db()
+
+    assert org1.github_orgs == ["opensafely", "test"]
+    assert org2.github_orgs == ["opensafely"]
+
+
 def test_org_get_absolute_url():
     org = OrgFactory()
     url = org.get_absolute_url()
