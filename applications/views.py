@@ -3,66 +3,9 @@ from django.shortcuts import render
 from django.urls import reverse
 from django.views.generic import CreateView, DetailView, UpdateView
 
-# from . import forms as application_forms
+from .form_specs import form_specs
 from .forms import Form1
 from .models import Application
-
-
-application_forms = {
-    2: [
-        "study_name",
-        "purpose",
-    ],
-    3: [
-        "purpose",
-        "author_name",
-        "author_email",
-        "author_organisation",
-    ],
-    4: [
-        "study_data",
-        "need_record_level_data",
-    ],
-    5: [
-        "record_level_data_reasons",
-    ],
-    6: [
-        "is_study_research",
-        "is_study_a_service_evaluation",
-    ],
-    7: [
-        "hra_ires_id",
-        "hra_rec_reference",
-        "institutional_rec_reference",
-    ],
-    8: [
-        "institutional_rec_reference",
-    ],
-    9: [
-        "is_on_cmo_priority_list",
-    ],
-    10: [
-        "funding_details",
-    ],
-    11: [
-        "team_details",
-    ],
-    12: [
-        "previous_experience_with_ehr",
-    ],
-    13: [
-        "evidence_of_coding",
-    ],
-    14: [
-        "evidence_of_sharing_in_public_domain_before",
-    ],
-    15: [
-        "number_of_researchers_needing_access",
-    ],
-    16: [
-        "has_agreed_to_terms",
-    ],
-}
 
 
 def application(request):
@@ -75,7 +18,11 @@ class ApplicationProcess(UpdateView):
 
     def get_form_class(self):
         page_num = self.kwargs["page_num"]
-        fields = application_forms[page_num]
+        form_spec = form_specs[page_num]
+        fields = []
+        for fieldset in form_spec["fieldsets"]:
+            for field in fieldset["fields"]:
+                fields.append(field["name"])
         return modelform_factory(self.model, fields=fields)
 
     def get_success_url(self):
