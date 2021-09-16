@@ -20,7 +20,13 @@ configured_searches = [
     },
     {
         "model": User,
-        "fields": ["first_name", "last_name", "username"],
+        "fields": [
+            "first_name",
+            "last_name",
+            "orgs__name",
+            "projects__name",
+            "username",
+        ],
         "order_by": "username",
     },
     {
