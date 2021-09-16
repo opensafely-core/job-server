@@ -8,13 +8,23 @@ from django.views.generic import View
 
 from jobserver.authorization import CoreDeveloper
 from jobserver.authorization.decorators import require_role
-from jobserver.models import Backend, User, Workspace
+from jobserver.models import Backend, Org, Project, User, Workspace
 
 
 # configure searchable models here, each must have get_staff_url defined
 configured_searches = [
     {
         "model": Backend,
+        "fields": ["name", "slug"],
+        "order_by": "name",
+    },
+    {
+        "model": Org,
+        "fields": ["name", "slug"],
+        "order_by": "name",
+    },
+    {
+        "model": Project,
         "fields": ["name", "slug"],
         "order_by": "name",
     },
