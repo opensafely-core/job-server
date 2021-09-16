@@ -1,5 +1,7 @@
+from django import forms
 from django.forms.models import modelform_factory
 from django.shortcuts import render
+from django.template.loader import render_to_string
 from django.urls import reverse
 from django.views.generic import CreateView, DetailView, UpdateView
 
@@ -10,6 +12,45 @@ from .models import Application
 
 def application(request):
     return render(request, "application.html")
+
+
+class ApplicationFormBase(forms.ModelForm):
+    """
+    A base ModelForm for use with modelform_factory
+
+    This provides the `as_html` method to mirror Form's .as_p(), etc methods,
+    but using our own templates and components.
+    """
+
+    def as_html(self):
+        template_lut = {
+            "CharField": "components/form_text.html",
+            "IntegerField": "components/form_number.html",
+            "NullBooleanField": "components/form_radio.html",
+        }
+
+        # attach the rendered component to each field
+        for i, fieldset_spec in enumerate(self.spec["fieldsets"]):
+            for j, field_spec in enumerate(fieldset_spec["fields"]):
+                # the field instance
+                field = self.fields[field_spec["name"]]
+
+                # get the component template using the field class name
+                template_name = template_lut[field.__class__.__name__]
+
+                # render the field component
+                context = {
+                    "field": field,
+                    "label": field_spec["label"],
+                    "name": field_spec["name"],
+                }
+                rendered_field = render_to_string(template_name, context)
+
+                # mutate the spec on this ModelForm instance so we can use it
+                # in the context below
+                self.spec["fieldsets"][i]["fields"][j]["rendered"] = rendered_field
+
+        return render_to_string("applications/process_form.html", context=self.spec)
 
 
 class ApplicationProcess(UpdateView):
@@ -23,7 +64,16 @@ class ApplicationProcess(UpdateView):
         for fieldset in form_spec["fieldsets"]:
             for field in fieldset["fields"]:
                 fields.append(field["name"])
-        return modelform_factory(self.model, fields=fields)
+
+        form_class = modelform_factory(
+            self.model, form=ApplicationFormBase, fields=fields
+        )
+
+        # attach the spec for this particular form so we can use it for
+        # presentation in the template too
+        form_class.spec = form_spec
+
+        return form_class
 
     def get_success_url(self):
         page_num = self.kwargs["page_num"]

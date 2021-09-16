@@ -1,0 +1,28 @@
+<h2 class="h5">{{ title }}</h2>
+
+{% if sub_title %}
+<p>sub title: {{ sub_title }}</p>
+{% endif %}
+
+{% if rubric %}
+{{ rubric }}
+{% endif %}
+
+<form method="POST">
+  {% csrf_token %}
+
+  {% for fieldset in fieldsets %}
+  <fieldset>
+    <legend>{{ fieldset.label }}</legend>
+
+    {% for field in fieldset.fields %}
+    {{ field.rendered }}
+    {% endfor %}
+
+  </fieldset>
+  {% endfor %}
+
+  <a class="btn btn-sm btn-secondary" href="">Back</a>
+  <button class="btn btn-sm btn-success" type="submit">Continue</button>
+
+</form>
