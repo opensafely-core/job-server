@@ -7,9 +7,18 @@ from django.urls import reverse
 from django.views.generic import CreateView, DetailView, UpdateView
 from first import first
 
+from jobserver.templatetags.snippet import snippet
+
 from .form_specs import form_specs
 from .forms import Form1
 from .models import Application
+
+
+def expand_snippets(spec):
+    if spec["rubric"] == ("<snippet>"):
+        spec["rubric"] = snippet(str(spec["key"]))
+
+    return spec
 
 
 def application(request):
@@ -66,6 +75,8 @@ class ApplicationProcess(UpdateView):
         form_spec = first(form_specs, key=lambda s: s["key"] == page_num)
         if not form_spec:
             raise Http404
+
+        form_spec = expand_snippets(form_spec)
 
         fields = []
         for fieldset in form_spec["fieldsets"]:

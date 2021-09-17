@@ -2,6 +2,8 @@ form_specs = [
     {
         "key": 1,
         "title": "Contact details",
+        "sub_title": "Provide the contact information for the overall application owner",
+        "rubric": "<snippet>",
         "fieldsets": [
             {
                 "label": "Personal details",
@@ -42,6 +44,8 @@ form_specs = [
     {
         "key": 2,
         "title": "Reasons for the request",
+        "subtitle": "Ethical and sponsor requirements",
+        "rubric": "<snippet>",
         "fieldsets": [
             {
                 "label": "Type of study",
@@ -65,6 +69,8 @@ form_specs = [
     {
         "key": 3,
         "title": "Reasons for the request",
+        "sub_title": "Ethical and sponsor requirements",
+        "rubric": "<snippet>",
         "fieldsets": [
             {
                 "label": "HRA REC and Institutional REC",
@@ -88,6 +94,8 @@ form_specs = [
     {
         "key": 4,
         "title": "Reasons for the request",
+        "sub_title": "",
+        "rubric": "",
         "fieldsets": [
             {
                 "label": "HRA REC and Institutional REC",
