@@ -26,9 +26,9 @@ class ApplicationFormBase(forms.ModelForm):
 
     def as_html(self):
         template_lut = {
+            "BooleanField": "components/form_checkbox.html",
             "CharField": "components/form_text.html",
             "IntegerField": "components/form_number.html",
-            "NullBooleanField": "components/form_radio.html",
         }
 
         # attach the rendered component to each field
