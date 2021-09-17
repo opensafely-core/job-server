@@ -32,15 +32,17 @@ class ApplicationFormBase(forms.ModelForm):
         # attach the rendered component to each field
         for i, fieldset_spec in enumerate(self.spec["fieldsets"]):
             for j, field_spec in enumerate(fieldset_spec["fields"]):
-                # the field instance
-                field = self.fields[field_spec["name"]]
+                # get the bound field instance
+                # Note: doing this with self.fields gets the plain field instance
+                bound_field = self[field_spec["name"]]
 
                 # get the component template using the field class name
-                template_name = template_lut[field.__class__.__name__]
+                # Note: this is original field class, not the bound version
+                template_name = template_lut[bound_field.field.__class__.__name__]
 
                 # render the field component
                 context = {
-                    "field": field,
+                    "field": bound_field,
                     "label": field_spec["label"],
                     "name": field_spec["name"],
                 }
