@@ -4,7 +4,14 @@
 <div class="container">
   <div class="row">
     <div class="col-lg-8">
-      {{ form.as_html }}
+
+      <form method="POST">
+        {% csrf_token %}
+
+        {{ form.as_html }}
+
+      </form>
+
     </div>
   </div>
 </div>
