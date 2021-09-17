@@ -20,7 +20,7 @@ class Form2(forms.ModelForm):
     class Meta:
         fields = [
             "study_name",
-            "purpose",
+            "study_purpose",
         ]
         model = Application
 
@@ -28,7 +28,7 @@ class Form2(forms.ModelForm):
 class Form3(forms.ModelForm):
     class Meta:
         fields = [
-            "purpose",
+            "study_purpose",
             "author_name",
             "author_email",
             "author_organisation",
@@ -39,7 +39,7 @@ class Form3(forms.ModelForm):
 class Form4(forms.ModelForm):
     class Meta:
         fields = [
-            "study_data",
+            "data_meets_purpose",
             "need_record_level_data",
         ]
         model = Application

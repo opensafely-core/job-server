@@ -23,17 +23,17 @@ class Application(models.Model):
 
     # form 2 (study information)
     study_name = models.TextField(blank=True)
-    purpose = models.TextField(blank=True)
+    study_purpose = models.TextField(blank=True)
 
     # form 3 (study purpose)
-    purpose = models.TextField(blank=True)
+    description = models.TextField(blank=True)
     author_name = models.TextField(blank=True)
     author_email = models.TextField(blank=True)
     author_organisation = models.TextField(blank=True)
 
     # form 4 (study data)
-    study_data = models.TextField(blank=True)
-    need_record_level_data = models.BooleanField(null=True, default=None)
+    data_meets_purpose = models.TextField(blank=True)
+    need_record_level_data = models.BooleanField(default=True)
 
     # form 5 (record level data)
     record_level_data_reasons = models.TextField(blank=True)
@@ -50,29 +50,37 @@ class Application(models.Model):
 
     # form 8 (ethical and sponsor requirements)
     # institutional_rec_reference = models.TextField(blank=True)
+    sponsor_name = models.TextField(blank=True)
+    sponsor_email = models.TextField(blank=True)
+    sponsor_job_role = models.TextField(blank=True)
 
     # form 9 (cmo priority)
-    is_on_cmo_priority_list = models.BooleanField(null=True, default=None)
+    is_on_cmo_priority_list = models.BooleanField(default=False)
 
-    # form 10 (study funding)
+    # form 10 (legal basis)
+    legal_basis_for_accessing_data_under_dpa = models.TextField(blank=True)
+    how_is_duty_of_confidentiality_satisfied = models.TextField(blank=True)
+
+    # form 11 (study funding)
     funding_details = models.TextField(blank=True)
 
-    # form 11 (team details)
+    # form 12 (team details)
     team_details = models.TextField(blank=True)
 
-    # form 12 (electronic health record data)
+    # form 13 (electronic health record data)
     previous_experience_with_ehr = models.TextField(blank=True)
 
-    # form 13 (coding)
+    # form 14 (coding)
     evidence_of_coding = models.TextField(blank=True)
+    all_applicants_completed_getting_started = models.BooleanField(default=False)
 
-    # form 14 (public domain)
+    # form 15 (public domain)
     evidence_of_sharing_in_public_domain_before = models.TextField(blank=True)
 
     # form 15
     number_of_researchers_needing_access = models.IntegerField(default=0)
 
-    has_agreed_to_terms = models.BooleanField(null=True, default=None)
+    has_agreed_to_terms = models.BooleanField(default=False)
 
 
 class ResearcherRegistration(models.Model):
