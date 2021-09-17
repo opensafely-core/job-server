@@ -7,18 +7,11 @@ from django.urls import reverse
 from django.views.generic import CreateView, DetailView, UpdateView
 from first import first
 
-from jobserver.templatetags.snippet import snippet
+from jobserver.snippets import expand_snippets
 
 from .form_specs import form_specs
 from .forms import Form1
 from .models import Application
-
-
-def expand_snippets(spec):
-    if spec["rubric"] == ("<snippet>"):
-        spec["rubric"] = snippet(str(spec["key"]))
-
-    return spec
 
 
 def application(request):
