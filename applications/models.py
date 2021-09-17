@@ -39,8 +39,9 @@ class Application(models.Model):
     record_level_data_reasons = models.TextField(blank=True)
 
     # form 6 (ethical and sponsor requirements)
-    is_study_research = models.BooleanField(null=True, default=None)
-    is_study_a_service_evaluation = models.BooleanField(null=True, default=None)
+    is_study_research = models.BooleanField(default=False)
+    is_study_service_evaluation = models.BooleanField(default=False)
+    is_study_audit = models.BooleanField(default=False)
 
     # form 7 (ethical and sponsor requirements)
     hra_ires_id = models.TextField(blank=True)

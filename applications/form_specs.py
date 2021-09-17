@@ -44,15 +44,19 @@ form_specs = [
         "title": "Reasons for the request",
         "fieldsets": [
             {
-                "label": "Ethical and sponsor requirements",
+                "label": "Type of study",
                 "fields": [
                     {
                         "name": "is_study_research",
-                        "label": "Is your study research?",
+                        "label": "Research",
                     },
                     {
-                        "name": "is_study_a_service_evaluation",
-                        "label": "Is your study a service evaluation?",
+                        "name": "is_study_service_evaluation",
+                        "label": "Service evaluation",
+                    },
+                    {
+                        "name": "is_study_audit",
+                        "label": "Audit",
                     },
                 ],
             },

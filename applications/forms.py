@@ -57,7 +57,7 @@ class Form6(forms.ModelForm):
     class Meta:
         fields = [
             "is_study_research",
-            "is_study_a_service_evaluation",
+            "is_study_service_evaluation",
         ]
         model = Application
 
