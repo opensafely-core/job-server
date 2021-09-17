@@ -1,5 +1,6 @@
 form_specs = [
     {
+        "key": 1,
         "title": "Contact details",
         "fieldsets": [
             {
@@ -39,6 +40,7 @@ form_specs = [
         ],
     },
     {
+        "key": 2,
         "title": "Reasons for the request",
         "fieldsets": [
             {
@@ -57,6 +59,7 @@ form_specs = [
         ],
     },
     {
+        "key": 3,
         "title": "Reasons for the request",
         "fieldsets": [
             {
@@ -79,6 +82,7 @@ form_specs = [
         ],
     },
     {
+        "key": 4,
         "title": "Reasons for the request",
         "fieldsets": [
             {

@@ -1,9 +1,11 @@
 from django import forms
 from django.forms.models import modelform_factory
+from django.http import Http404
 from django.shortcuts import render
 from django.template.loader import render_to_string
 from django.urls import reverse
 from django.views.generic import CreateView, DetailView, UpdateView
+from first import first
 
 from .form_specs import form_specs
 from .forms import Form1
@@ -61,7 +63,10 @@ class ApplicationProcess(UpdateView):
 
     def get_form_class(self):
         page_num = self.kwargs["page_num"]
-        form_spec = form_specs[page_num]
+        form_spec = first(form_specs, key=lambda s: s["key"] == page_num)
+        if not form_spec:
+            raise Http404
+
         fields = []
         for fieldset in form_spec["fieldsets"]:
             for field in fieldset["fields"]:
