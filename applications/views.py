@@ -1,73 +1,58 @@
-from django.forms.models import modelform_factory
-from django.http import Http404
-from django.shortcuts import render
-from django.urls import reverse
-from django.views.generic import CreateView, DetailView, UpdateView
-from first import first
-
-from jobserver.snippets import expand_snippets
+from django.shortcuts import get_object_or_404, redirect, render
 
 from .form_specs import form_specs
-from .forms import ApplicationFormBase
 from .models import Application
+from .wizard import Wizard
 
 
-def application(request):
-    return render(request, "application.html")
+def new(request):
+    if request.method == "POST":
+        application = Application.objects.create()
+        return redirect("applications:page", pk=application.pk, page_num=1)
+    return render(request, "applications/new.html")
 
 
-class ApplicationProcess(UpdateView):
-    model = Application
-    template_name = "applications/application_process_page.html"
+def page(request, pk, page_num):
+    application = get_object_or_404(Application, pk=pk)
+    page = Wizard(application, form_specs).get_page(page_num)
 
-    def get_form_class(self):
-        page_num = self.kwargs["page_num"]
-        form_spec = first(form_specs, key=lambda s: s["key"] == page_num)
-        if not form_spec:
-            raise Http404
+    if request.method == "POST":
+        form = page.get_bound_form(request.POST)
+        form.save()
 
-        form_spec = expand_snippets(form_spec)
+        page.validate_form(form)
 
-        fields = []
-        for fieldset in form_spec["fieldsets"]:
-            for field in fieldset["fields"]:
-                fields.append(field["name"])
+        if form.is_valid():
+            if request.POST["direction"] == "next":
+                next_page_num = page.next_page_num
+            else:
+                assert request.POST["direction"] == "prev"
+                next_page_num = page.prev_page_num
+                assert next_page_num is not None
 
-        form_class = modelform_factory(
-            self.model, form=ApplicationFormBase, fields=fields
-        )
+            if next_page_num is None:
+                return redirect("applications:confirmation", pk=pk)
+            else:
+                return redirect("applications:page", pk=pk, page_num=next_page_num)
 
-        # attach the spec for this particular form so we can use it for
-        # presentation in the template too
-        form_class.spec = form_spec
+    else:
+        form = page.get_unbound_form()
 
-        return form_class
+    ctx = {
+        "application": application,
+        "form": form,
+        "page": page,
+    }
 
-    def get_success_url(self):
-        page_num = self.kwargs["page_num"]
-        return reverse(
-            "applications:application-process",
-            kwargs={
-                "pk": self.object.pk,
-                "page_num": page_num + 1,
-            },
-        )
-
-    # def get_template_names(self):
-    #     page_num = self.kwargs["page_num"]
-
-    #     return f"applications/application_process_page_{page_num}.html"
+    return render(request, "applications/page.html", ctx)
 
 
-class ApplicationDetail(DetailView):
-    model = Application
-    template_name = "applications/application_detail.html"
-
-
-class Apply(CreateView):
-    form_class = Form1
-    model = Application
-    template_name = "applications/apply.html"
-
-    def get_success_url(self):
-        return reverse("application-detail", kwargs={"pk": self.object})
+def confirmation(request, pk):
+    application = get_object_or_404(Application, pk=pk)
+    wizard = Wizard(application, form_specs)
+    pages = list(wizard.get_pages())
+    ctx = {
+        "application": application,
+        "pages": pages,
+    }
+    return render(request, "applications/confirmation.html", ctx)

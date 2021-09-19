@@ -41,4 +41,7 @@ class ApplicationFormBase(forms.ModelForm):
                 # in the context below
                 self.spec["fieldsets"][i]["fields"][j]["rendered"] = rendered_field
 
+        # this is definitely not the right place to put this, but it works for now
+        self.spec["non_field_errors"] = self.non_field_errors()
+
         return render_to_string("applications/process_form.html", context=self.spec)

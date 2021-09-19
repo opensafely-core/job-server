@@ -160,6 +160,12 @@ form_specs = [
                 ],
             },
         ],
+        "can_continue": lambda application: (
+            application.is_study_research
+            or application.is_study_service_evaluation
+            or application.is_study_audit
+        ),
+        "cant_continue_message": "You must select at least one purpose",
     },
     {
         "key": 7,
@@ -186,6 +192,7 @@ form_specs = [
                 ],
             },
         ],
+        "prerequisite": lambda application: application.is_study_research,
     },
     {
         "key": 8,
@@ -221,6 +228,9 @@ form_specs = [
                 ],
             },
         ],
+        "prerequisite": lambda application: (
+            application.is_study_service_evaluation or application.is_study_audit
+        ),
     },
     {
         "key": 9,

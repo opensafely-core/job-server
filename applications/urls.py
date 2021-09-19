@@ -1,17 +1,24 @@
 from django.urls import path
 
-from .views import ApplicationDetail, ApplicationProcess, Apply, application
+from .views import confirmation, new, page
 
 
 app_name = "applications"
 
 urlpatterns = [
-    path("", application, name="application"),
-    path("applications/<int:pk>/", ApplicationDetail.as_view()),
+    path(
+        "applications/new/",
+        new,
+        name="new",
+    ),
     path(
         "applications/<int:pk>/page/<int:page_num>/",
-        ApplicationProcess.as_view(),
-        name="application-process",
+        page,
+        name="page",
     ),
-    path("apply/", Apply.as_view(), name="apply"),
+    path(
+        "applications/<int:pk>/confirmation/",
+        confirmation,
+        name="confirmation",
+    ),
 ]

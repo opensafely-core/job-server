@@ -1,0 +1,32 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="container">
+  <div class="row">
+    <div class="col-lg-8">
+      <form method="POST">
+        {% csrf_token %}
+
+        {{ form.as_html }}
+
+        <hr />
+
+        {% if page.prev_page_num %}
+          <button
+            class="btn btn-sm btn-secondary"
+            type="submit"
+            name="direction"
+            value="prev"
+          >Back</button>
+        {% endif %}
+        <button
+          class="btn btn-sm btn-success"
+          type="submit"
+          name="direction"
+          value="next"
+        >Continue</button>
+      </form>
+    </div>
+  </div>
+</div>
+{% endblock %}

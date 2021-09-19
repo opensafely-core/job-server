@@ -8,6 +8,12 @@
 {{ rubric }}
 {% endif %}
 
+{% if non_field_errors %}
+  {% for error in non_field_errors %}
+    <div class="alert alert-danger" role="alert">{{ error }}</div>
+  {% endfor %}
+{% endif %}
+
 {% for fieldset in fieldsets %}
 <fieldset>
   <legend>{{ fieldset.label }}</legend>
@@ -18,6 +24,3 @@
 
 </fieldset>
 {% endfor %}
-
-<a class="btn btn-sm btn-secondary" href="">Back</a>
-<button class="btn btn-sm btn-success" type="submit">Continue</button>

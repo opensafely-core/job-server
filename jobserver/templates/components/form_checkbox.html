@@ -6,8 +6,7 @@
       type="checkbox"
       name="{{ name }}"
       id="id_{{ name }}"
-      value="{{ value }}"
-      {% if field.value == value %}checked{% endif %}
+      {% if field.value %}checked{% endif %}
       />
     <label class="form-check-label" for="id_{{ name }}">
       {{ label }}
