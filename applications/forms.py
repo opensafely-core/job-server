@@ -1,144 +1,44 @@
 from django import forms
-
-from .models import Application
-
-
-class Form1(forms.ModelForm):
-    class Meta:
-        fields = [
-            "full_name",
-            "email",
-            "telephone",
-            "job_title",
-            "team_name",
-            "organisation",
-        ]
-        model = Application
+from django.template.loader import render_to_string
 
 
-class Form2(forms.ModelForm):
-    class Meta:
-        fields = [
-            "study_name",
-            "study_purpose",
-        ]
-        model = Application
+class ApplicationFormBase(forms.ModelForm):
+    """
+    A base ModelForm for use with modelform_factory
 
+    This provides the `as_html` method to mirror Form's .as_p(), etc methods,
+    but using our own templates and components.
+    """
 
-class Form3(forms.ModelForm):
-    class Meta:
-        fields = [
-            "study_purpose",
-            "author_name",
-            "author_email",
-            "author_organisation",
-        ]
-        model = Application
+    def as_html(self):
+        template_lut = {
+            "BooleanField": "components/form_checkbox.html",
+            "CharField": "components/form_text.html",
+            "IntegerField": "components/form_number.html",
+            "TypedChoiceField": "components/form_radio.html",
+        }
 
+        # attach the rendered component to each field
+        for i, fieldset_spec in enumerate(self.spec["fieldsets"]):
+            for j, field_spec in enumerate(fieldset_spec["fields"]):
+                # get the bound field instance
+                # Note: doing this with self.fields gets the plain field instance
+                bound_field = self[field_spec["name"]]
 
-class Form4(forms.ModelForm):
-    class Meta:
-        fields = [
-            "data_meets_purpose",
-            "need_record_level_data",
-        ]
-        model = Application
+                # get the component template using the field class name
+                # Note: this is original field class, not the bound version
+                template_name = template_lut[bound_field.field.__class__.__name__]
 
+                # render the field component
+                context = {
+                    "field": bound_field,
+                    "label": field_spec["label"],
+                    "name": field_spec["name"],
+                }
+                rendered_field = render_to_string(template_name, context)
 
-class Form5(forms.ModelForm):
-    class Meta:
-        fields = [
-            "record_level_data_reasons",
-        ]
-        model = Application
+                # mutate the spec on this ModelForm instance so we can use it
+                # in the context below
+                self.spec["fieldsets"][i]["fields"][j]["rendered"] = rendered_field
 
-
-class Form6(forms.ModelForm):
-    class Meta:
-        fields = [
-            "is_study_research",
-            "is_study_service_evaluation",
-        ]
-        model = Application
-
-
-class Form7(forms.ModelForm):
-    class Meta:
-        fields = [
-            "hra_ires_id",
-            "hra_rec_reference",
-            "institutional_rec_reference",
-        ]
-        model = Application
-
-
-class Form8(forms.ModelForm):
-    class Meta:
-        fields = [
-            "institutional_rec_reference",
-        ]
-        model = Application
-
-
-class Form9(forms.ModelForm):
-    class Meta:
-        fields = [
-            "is_on_cmo_priority_list",
-        ]
-        model = Application
-
-
-class Form10(forms.ModelForm):
-    class Meta:
-        fields = [
-            "funding_details",
-        ]
-        model = Application
-
-
-class Form11(forms.ModelForm):
-    class Meta:
-        fields = [
-            "team_details",
-        ]
-        model = Application
-
-
-class Form12(forms.ModelForm):
-    class Meta:
-        fields = [
-            "previous_experience_with_ehr",
-        ]
-        model = Application
-
-
-class Form13(forms.ModelForm):
-    class Meta:
-        fields = [
-            "evidence_of_coding",
-        ]
-        model = Application
-
-
-class Form14(forms.ModelForm):
-    class Meta:
-        fields = [
-            "evidence_of_sharing_in_public_domain_before",
-        ]
-        model = Application
-
-
-class Form15(forms.ModelForm):
-    class Meta:
-        fields = [
-            "number_of_researchers_needing_access",
-        ]
-        model = Application
-
-
-class Form16(forms.ModelForm):
-    class Meta:
-        fields = [
-            "has_agreed_to_terms",
-        ]
-        model = Application
+        return render_to_string("applications/process_form.html", context=self.spec)

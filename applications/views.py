@@ -1,8 +1,6 @@
-from django import forms
 from django.forms.models import modelform_factory
 from django.http import Http404
 from django.shortcuts import render
-from django.template.loader import render_to_string
 from django.urls import reverse
 from django.views.generic import CreateView, DetailView, UpdateView
 from first import first
@@ -10,54 +8,12 @@ from first import first
 from jobserver.snippets import expand_snippets
 
 from .form_specs import form_specs
-from .forms import Form1
+from .forms import ApplicationFormBase
 from .models import Application
 
 
 def application(request):
     return render(request, "application.html")
-
-
-class ApplicationFormBase(forms.ModelForm):
-    """
-    A base ModelForm for use with modelform_factory
-
-    This provides the `as_html` method to mirror Form's .as_p(), etc methods,
-    but using our own templates and components.
-    """
-
-    def as_html(self):
-        template_lut = {
-            "BooleanField": "components/form_checkbox.html",
-            "CharField": "components/form_text.html",
-            "IntegerField": "components/form_number.html",
-            "TypedChoiceField": "components/form_radio.html",
-        }
-
-        # attach the rendered component to each field
-        for i, fieldset_spec in enumerate(self.spec["fieldsets"]):
-            for j, field_spec in enumerate(fieldset_spec["fields"]):
-                # get the bound field instance
-                # Note: doing this with self.fields gets the plain field instance
-                bound_field = self[field_spec["name"]]
-
-                # get the component template using the field class name
-                # Note: this is original field class, not the bound version
-                template_name = template_lut[bound_field.field.__class__.__name__]
-
-                # render the field component
-                context = {
-                    "field": bound_field,
-                    "label": field_spec["label"],
-                    "name": field_spec["name"],
-                }
-                rendered_field = render_to_string(template_name, context)
-
-                # mutate the spec on this ModelForm instance so we can use it
-                # in the context below
-                self.spec["fieldsets"][i]["fields"][j]["rendered"] = rendered_field
-
-        return render_to_string("applications/process_form.html", context=self.spec)
 
 
 class ApplicationProcess(UpdateView):
