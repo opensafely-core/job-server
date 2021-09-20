@@ -330,7 +330,7 @@ class Org(models.Model):
     logo = models.TextField(default="", blank=True)
 
     # track which GitHub Organisations this Org has access to
-    github_orgs = models.JSONField(default=list)
+    github_orgs = models.JSONField(default=lambda: list(["opensafely"]))
 
     created_at = models.DateTimeField(default=timezone.now)
 

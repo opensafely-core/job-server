@@ -75,8 +75,6 @@ class OrgFactory(factory.django.DjangoModelFactory):
     name = factory.Sequence(lambda n: f"Organisation {n}")
     slug = factory.Sequence(lambda n: f"organisation-{n}")
 
-    github_orgs = ["opensafely"]
-
 
 class OrgMembershipFactory(factory.django.DjangoModelFactory):
     class Meta:
