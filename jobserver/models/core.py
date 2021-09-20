@@ -26,6 +26,10 @@ env = Env()
 logger = structlog.get_logger(__name__)
 
 
+def default_github_orgs():
+    return list(["opensafely"])
+
+
 def new_id():
     """
     Return a random 16 character lowercase alphanumeric string
@@ -330,7 +334,7 @@ class Org(models.Model):
     logo = models.TextField(default="", blank=True)
 
     # track which GitHub Organisations this Org has access to
-    github_orgs = models.JSONField(default=lambda: list(["opensafely"]))
+    github_orgs = models.JSONField(default=default_github_orgs)
 
     created_at = models.DateTimeField(default=timezone.now)
 
