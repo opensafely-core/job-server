@@ -41,6 +41,7 @@ def test_orgcreate_post_success(rf, core_developer):
 
     org = orgs[1]
     assert org.name == "A New Org"
+    assert org.created_by == core_developer
     assert response.url == org.get_absolute_url()
 
 

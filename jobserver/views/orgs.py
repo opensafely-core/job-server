@@ -15,13 +15,16 @@ class OrgCreate(CreateView):
     model = Org
     template_name = "org_create.html"
 
+    def form_valid(self, form):
+        org = form.save(commit=False)
+        org.created_by = self.request.user
+        org.save()
+        return redirect(org)
+
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
         context["orgs"] = Org.objects.order_by("name")
         return context
-
-    def get_success_url(self):
-        return self.object.get_absolute_url()
 
 
 class OrgDetail(DetailView):
