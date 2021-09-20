@@ -39,7 +39,6 @@ from .views.projects import (
     ProjectInvitationCreate,
     ProjectMembershipEdit,
     ProjectMembershipRemove,
-    ProjectOnboardingCreate,
     ProjectSettings,
 )
 from .views.releases import (
@@ -277,11 +276,6 @@ urlpatterns = [
                     "new-project/",
                     ProjectCreate.as_view(),
                     name="project-create",
-                ),
-                path(
-                    "project-onboarding/",
-                    ProjectOnboardingCreate.as_view(),
-                    name="project-onboarding",
                 ),
                 path(
                     "<project_slug>/",

@@ -2,7 +2,7 @@ from django import forms
 from first import first
 
 from .authorization.forms import RolesForm
-from .models import JobRequest, Org, Project, ResearcherRegistration, User, Workspace
+from .models import JobRequest, Org, User, Workspace
 
 
 class JobRequestCreateForm(forms.ModelForm):
@@ -53,33 +53,6 @@ class OrgCreateForm(forms.ModelForm):
         model = Org
 
 
-class ProjectOnboardingCreateForm(forms.ModelForm):
-    class Meta:
-        fields = [
-            "name",
-            "project_lead",
-            "email",
-            "telephone",
-            "job_title",
-            "team_name",
-            "region",
-            "purpose",
-            "requested_data_meets_purpose",
-            "why_data_is_required",
-            "data_access_legal_basis",
-            "satisfying_confidentiality",
-            "ethics_approval",
-            "is_research_on_cmo_priority_list",
-            "funding_source",
-            "team_details",
-            "previous_experience_with_ehr",
-            "evidence_of_scripting_languages",
-            "evidence_of_sharing_in_public",
-            "has_signed_declaration",
-        ]
-        model = Project
-
-
 class ProjectInvitationForm(RolesForm):
     def __init__(self, users, *args, **kwargs):
         super().__init__(*args, **kwargs)
@@ -98,17 +71,6 @@ class ProjectInvitationForm(RolesForm):
 
 class ProjectMembershipForm(RolesForm):
     pass
-
-
-ResearcherFormSet = forms.modelformset_factory(
-    ResearcherRegistration,
-    can_delete=True,
-    fields=[
-        "name",
-        "passed_researcher_training_at",
-        "is_ons_accredited_researcher",
-    ],
-)
 
 
 class SettingsForm(forms.ModelForm):

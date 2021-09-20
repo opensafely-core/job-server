@@ -20,12 +20,7 @@ from ..authorization import (
     roles_for,
 )
 from ..emails import send_project_invite_email
-from ..forms import (
-    ProjectInvitationForm,
-    ProjectMembershipForm,
-    ProjectOnboardingCreateForm,
-    ResearcherFormSet,
-)
+from ..forms import ProjectInvitationForm, ProjectMembershipForm
 from ..github import get_repo_is_private
 from ..models import Org, Project, ProjectInvitation, ProjectMembership, Snapshot, User
 
@@ -85,12 +80,6 @@ class ProjectCreate(CreateView):
     def dispatch(self, request, *args, **kwargs):
         self.org = get_object_or_404(Org, slug=self.kwargs["org_slug"])
 
-        if self.org.slug not in ["datalab", "graphnet", "lshtm"]:
-            # Only DataLab and LSHTM have blanket approval, all other orgs must
-            # go through the onboarding process to get approval for their
-            # projects.
-            return redirect("project-onboarding", org_slug=self.org.slug)
-
         if request.user not in self.org.members.all():
             raise Http404
 
@@ -114,52 +103,6 @@ class ProjectCreate(CreateView):
             org=self.org,
             **kwargs,
         )
-
-
-class ProjectOnboardingCreate(CreateView):
-    form_class = ProjectOnboardingCreateForm
-    model = Project
-    template_name = "project_onboarding_create.html"
-
-    def dispatch(self, request, *args, **kwargs):
-        self.org = get_object_or_404(Org, slug=self.kwargs["org_slug"])
-
-        return super().dispatch(request, *args, **kwargs)
-
-    def get(self, request, *args, **kwargs):
-        self.object = None
-        researcher_formset = ResearcherFormSet(prefix="researcher")
-        return self.render_to_response(
-            self.get_context_data(researcher_formset=researcher_formset)
-        )
-
-    def get_context_data(self, **kwargs):
-        context = super().get_context_data(**kwargs)
-        context["org"] = self.org
-        return context
-
-    @transaction.atomic
-    def post(self, request, *args, **kwargs):
-        self.object = None
-
-        form = self.get_form()
-        researcher_formset = ResearcherFormSet(request.POST, prefix="researcher")
-
-        form_valid = form.is_valid()
-        formset_valid = researcher_formset.is_valid()
-        if not (form_valid and formset_valid):
-            return self.render_to_response(
-                self.get_context_data(researcher_formset=researcher_formset)
-            )
-
-        project = form.save(commit=False)
-        project.org = self.org
-        project.save()
-
-        researchers = researcher_formset.save()
-        project.researcher_registrations.add(*researchers)
-
-        return redirect(project)
 
 
 class ProjectDetail(DetailView):

@@ -3,7 +3,6 @@ import requests
 from django.contrib.auth.models import AnonymousUser
 from django.contrib.messages.storage.fallback import FallbackStorage
 from django.http import Http404
-from django.urls import reverse
 from django.utils import timezone
 
 from jobserver.authorization import (
@@ -28,7 +27,6 @@ from jobserver.views.projects import (
     ProjectInvitationCreate,
     ProjectMembershipEdit,
     ProjectMembershipRemove,
-    ProjectOnboardingCreate,
     ProjectSettings,
 )
 
@@ -258,24 +256,6 @@ def test_projectcreate_user_not_in_org(rf):
 
     with pytest.raises(Http404):
         ProjectCreate.as_view()(request, org_slug=org.slug)
-
-
-@pytest.mark.parametrize("http_method", ["GET", "POST"])
-def test_projectcreate_with_org_witout_blanket_approval(http_method, rf):
-    org = OrgFactory()
-    user = UserFactory()
-    OrgMembershipFactory(org=org, user=user)
-
-    assert Project.objects.count() == 0
-
-    request = rf.generic(http_method, "/")
-    request.user = user
-
-    response = ProjectCreate.as_view()(request, org_slug=org.slug)
-
-    assert response.status_code == 302
-    assert response.url == reverse("project-onboarding", kwargs={"org_slug": org.slug})
-    assert Project.objects.count() == 0
 
 
 def test_projectdetail_success(rf, mocker):
@@ -691,87 +671,6 @@ def test_projectmembershipremove_without_permission(rf):
     messages = list(messages)
     assert len(messages) == 1
     assert str(messages[0]) == "You do not have permission to remove Project members."
-
-
-def test_projectonboardingcreate_get_success(rf):
-    org = OrgFactory()
-
-    request = rf.get("/")
-    request.user = UserFactory()
-
-    response = ProjectOnboardingCreate.as_view()(request, org_slug=org.slug)
-
-    assert response.status_code == 200
-
-
-def test_projectonboardingcreate_get_unknown_org(rf):
-    request = rf.get("/")
-    request.user = UserFactory()
-
-    with pytest.raises(Http404):
-        ProjectOnboardingCreate.as_view()(request, org_slug="")
-
-
-def test_projectonboardingcreate_post_invalid_data(rf):
-    org = OrgFactory()
-
-    data = {
-        "name": "",
-        "project_lead": "",
-        "email": "",
-        "researcher-TOTAL_FORMS": "0",
-        "researcher-INITIAL_FORMS": "0",
-        "researcher-MIN_NUM": "0",
-        "researcher-MAX_NUM": "1000",
-    }
-
-    request = rf.post("/", data)
-    request.user = UserFactory()
-    response = ProjectOnboardingCreate.as_view()(request, org_slug=org.slug)
-
-    assert response.status_code == 200
-    assert Project.objects.count() == 0
-
-
-def test_projectonboardingcreate_post_success(rf):
-    org = OrgFactory()
-
-    data = {
-        "name": "A Brand New Project",
-        "project_lead": "My Name",
-        "email": "name@example.com",
-        "researcher-TOTAL_FORMS": "1",
-        "researcher-INITIAL_FORMS": "0",
-        "researcher-MIN_NUM": "0",
-        "researcher-MAX_NUM": "1000",
-        "researcher-0-name": "Test",
-        "researcher-0-passed_researcher_training_at": "2021-01-01",
-        "researcher-0-is_ons_accredited_researcher": "on",
-    }
-
-    request = rf.post("/", data)
-    request.user = UserFactory()
-    response = ProjectOnboardingCreate.as_view()(request, org_slug=org.slug)
-
-    assert response.status_code == 302
-
-    projects = Project.objects.all()
-    assert len(projects) == 1
-
-    project = projects.first()
-    assert project.name == "A Brand New Project"
-    assert project.project_lead == "My Name"
-    assert project.email == "name@example.com"
-    assert project.org == org
-    assert response.url == project.get_absolute_url()
-
-
-def test_projectonboardingcreate_post_unknown_org(rf):
-    request = rf.post("/")
-    request.user = UserFactory()
-
-    with pytest.raises(Http404):
-        ProjectOnboardingCreate.as_view()(request, org_slug="")
 
 
 def test_projectsettings_success(rf):
