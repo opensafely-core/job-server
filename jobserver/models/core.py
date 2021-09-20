@@ -328,6 +328,13 @@ class JobRequest(models.Model):
 class Org(models.Model):
     """An Organisation using the platform"""
 
+    created_by = models.ForeignKey(
+        "User",
+        null=True,
+        on_delete=models.SET_NULL,
+        related_name="created_orgs",
+    )
+
     name = models.TextField(unique=True)
     slug = models.SlugField(max_length=255, unique=True)
     description = models.TextField(default="", blank=True)
@@ -399,6 +406,13 @@ class Project(models.Model):
     driving that work, the IG approvals allowing the work to happen, and any
     Papers which are produced as a result of the work.
     """
+
+    created_by = models.ForeignKey(
+        "User",
+        null=True,
+        on_delete=models.SET_NULL,
+        related_name="created_projects",
+    )
 
     org = models.ForeignKey(
         "Org",

@@ -230,6 +230,7 @@ def test_projectcreate_post_success(rf):
     assert response.status_code == 302
     assert response.url == project.get_absolute_url()
 
+    assert project.created_by == user
     assert project.org == org
     assert project.name == "test"
 
