@@ -20,17 +20,17 @@
 {% block jumbotron %}
 <div class="jumbotron jumbotron-fluid pt-md-2">
   <div class="container">
-    <div class="d-flex align-items-center">
+    <div class="d-flex flex-column flex-md-row align-items-center">
       {% if org.logo %}
         <img
-          class="mr-5 rounded"
+          class="mr-md-5 rounded"
           height="200"
           src="{{ org.logo }}"
           width="200"
         />
       {% endif %}
       <div>
-        <h1>{{ org.name }}</h1>
+        <h1 class="pt-4 pt-md-0">{{ org.name }}</h1>
         <p class="lead">
           {% if org.description %}
             {{ org.description }}
