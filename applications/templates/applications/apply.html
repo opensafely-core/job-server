@@ -1,24 +1,23 @@
 {% extends "base.html" %}
 
-{% load humanize %}
-
-{% block metatitle %}Apply | OpenSAFELY Jobs{% endblock metatitle %}
+{% load snippet %}
 
 {% block content %}
 <div class="container">
   <div class="row">
-    <div class="col-lg-8">
-      <div class="card border-0">
-        <form method="POST">
-          {% csrf_token %}
+    <div class="col">
+      {% snippet "start_page" %}
 
-          {{ form.as_p }}
-
-          <button class="btn btn-sm btn-success" type="submit">Continue</button>
-        </form>
-      </div>
+      <a class="btn btn-success"
+        {% if request.user.is_authenticated %}
+        href="{% url 'applications:terms' %}"
+        {% else %}
+        href="{% url 'applications:sign-in' %}"
+        {% endif %}
+      >
+      Start now
+      </a>
     </div>
-
   </div>
 </div>
 {% endblock %}
