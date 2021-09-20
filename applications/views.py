@@ -1,4 +1,5 @@
-from django.shortcuts import get_object_or_404, redirect, render
+from django.shortcuts import get_object_or_404, redirect
+from django.template.response import TemplateResponse
 
 from .form_specs import form_specs
 from .models import Application
@@ -9,7 +10,8 @@ def new(request):
     if request.method == "POST":
         application = Application.objects.create()
         return redirect("applications:page", pk=application.pk, page_num=1)
-    return render(request, "applications/new.html")
+
+    return TemplateResponse(request, "applications/new.html")
 
 
 def page(request, pk, page_num):
@@ -44,7 +46,7 @@ def page(request, pk, page_num):
         "page": page,
     }
 
-    return render(request, "applications/page.html", ctx)
+    return TemplateResponse(request, "applications/page.html", ctx)
 
 
 def confirmation(request, pk):
@@ -55,4 +57,4 @@ def confirmation(request, pk):
         "application": application,
         "pages": pages,
     }
-    return render(request, "applications/confirmation.html", ctx)
+    return TemplateResponse(request, "applications/confirmation.html", ctx)
