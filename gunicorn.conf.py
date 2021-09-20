@@ -8,3 +8,6 @@ errorlog = "-"
 # Configure log structure
 # http://docs.gunicorn.org/en/stable/settings.html#logconfig-dict
 logconfig_dict = logging_config_dict
+
+# workers
+workers = 3
