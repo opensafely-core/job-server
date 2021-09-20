@@ -18,27 +18,31 @@ def page(request, pk, page_num):
     application = get_object_or_404(Application, pk=pk)
     page = Wizard(application, form_specs).get_page(page_num)
 
-    if request.method == "POST":
-        form = page.get_bound_form(request.POST)
-        form.save()
+    if request.method == "GET":
+        ctx = {
+            "application": application,
+            "form": page.get_unbound_form(),
+            "page": page,
+        }
+        return TemplateResponse(request, "applications/page.html", ctx)
 
-        page.validate_form(form)
+    form = page.get_bound_form(request.POST)
+    form.save()
 
-        if form.is_valid():
-            if request.POST["direction"] == "next":
-                next_page_num = page.next_page_num
-            else:
-                assert request.POST["direction"] == "prev"
-                next_page_num = page.prev_page_num
-                assert next_page_num is not None
+    page.validate_form(form)
 
-            if next_page_num is None:
-                return redirect("applications:confirmation", pk=pk)
-            else:
-                return redirect("applications:page", pk=pk, page_num=next_page_num)
+    if form.is_valid():
+        if request.POST["direction"] == "next":
+            next_page_num = page.next_page_num
+        else:
+            assert request.POST["direction"] == "prev"
+            next_page_num = page.prev_page_num
+            assert next_page_num is not None
 
-    else:
-        form = page.get_unbound_form()
+        if next_page_num is None:
+            return redirect("applications:confirmation", pk=pk)
+        else:
+            return redirect("applications:page", pk=pk, page_num=next_page_num)
 
     ctx = {
         "application": application,
