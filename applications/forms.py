@@ -14,7 +14,6 @@ class ApplicationFormBase(forms.ModelForm):
         template_lut = {
             "BooleanField": "components/form_checkbox.html",
             "CharField": "components/form_text.html",
-            "IntegerField": "components/form_number.html",
             "TypedChoiceField": "components/form_radio.html",
         }
 
