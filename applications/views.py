@@ -1,3 +1,4 @@
+from django.contrib.auth.decorators import login_required
 from django.shortcuts import get_object_or_404, redirect
 from django.template.response import TemplateResponse
 
@@ -6,6 +7,7 @@ from .models import Application
 from .wizard import Wizard
 
 
+@login_required
 def page(request, pk, page_num):
     application = get_object_or_404(Application, pk=pk)
     page = Wizard(application, form_specs).get_page(page_num)
@@ -45,6 +47,7 @@ def sign_in(request):
     return redirect("applications:terms")
 
 
+@login_required
 def terms(request):
     if request.method == "GET":
         return TemplateResponse(request, "applications/terms.html")
@@ -53,6 +56,7 @@ def terms(request):
     return redirect("applications:page", pk=application.pk, page_num=1)
 
 
+@login_required
 def confirmation(request, pk):
     application = get_object_or_404(Application, pk=pk)
     wizard = Wizard(application, form_specs)

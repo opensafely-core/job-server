@@ -27,6 +27,7 @@ def test_page_get_success(rf):
     application = ApplicationFactory()
 
     request = rf.get("/")
+    request.user = UserFactory()
 
     response = page(request, pk=application.pk, page_num=3)
 
@@ -39,6 +40,7 @@ def test_page_post_final_page(rf):
     application = ApplicationFactory()
 
     request = rf.post("/", {"evidence_of_sharing_in_public_domain_before": "evidence"})
+    request.user = UserFactory()
 
     response = page(request, pk=application.pk, page_num=15)
 
@@ -52,6 +54,7 @@ def test_page_post_non_final_page(rf):
     application = ApplicationFactory()
 
     request = rf.post("/", {"previous_experience_with_ehr": "experience"})
+    request.user = UserFactory()
 
     response = page(request, pk=application.pk, page_num=13)
 
@@ -69,6 +72,7 @@ def test_page_post_with_invalid_continue_state(rf):
     )
 
     request = rf.post("/", {})
+    request.user = UserFactory()
 
     response = page(request, pk=application.pk, page_num=6)
 
@@ -83,6 +87,7 @@ def test_page_post_with_invalid_prerequisite(rf):
     application = ApplicationFactory(is_study_research=False)
 
     request = rf.post("/", {})
+    request.user = UserFactory()
 
     response = page(request, pk=application.pk, page_num=7)
 
