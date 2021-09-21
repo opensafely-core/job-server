@@ -16,6 +16,18 @@
 
 ## Local development
 
+### Development credentials
+
+_Note:_ you will need the [Bitwarden CLI tool](https://bitwarden.com/help/article/cli/) installed in order to access passwords, but it is not a requirement.
+- There is an existing `dotenv-sample` template that you can use to base
+  your own `.env` file on.
+- Use `bw` to login to the Bitwarden account.
+- When logged in to Bitwarden, run `scripts/dev-env.sh
+  <env_file_target>` to retrieve and write the credentials to the target
+  environment file specified.
+  - `.env` is already in `.gitignore` to help prevent an accidental
+    commit of credentials.
+
 ### Native
 
 #### Prerequisites
@@ -26,7 +38,7 @@
 - **Node.js v16.x** ([fnm](https://github.com/Schniz/fnm#installation) is recommended)
 - **npm v7.x**
 
-_Note:_ you will need the [Bitwarden CLI tool](https://bitwarden.com/help/article/cli/) installed in order to access passwords, but it is not a requirement.
+#### `just` commands
 
 Each `just` command sets up a dev environment as part of running it.
 If you want to maintain your own virtualenv make sure you have activated it before running a `just` command and it will be used instead.
