@@ -98,6 +98,8 @@ class Application(models.Model):
     created_at = models.DateTimeField(default=timezone.now)
     completed_at = models.DateTimeField(null=True)
 
+    has_reached_confirmation = models.BooleanField(default=False)
+
 
 class ResearcherRegistration(models.Model):
     """

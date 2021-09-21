@@ -63,6 +63,10 @@ def confirmation(request, pk):
     # check the user can access this application
     validate_application_access(request.user, application)
 
+    if not application.has_reached_confirmation:
+        application.has_reached_confirmation = True
+        application.save()
+
     wizard = Wizard(application, form_specs)
     pages = list(wizard.get_pages())
     ctx = {
