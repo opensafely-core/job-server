@@ -75,7 +75,7 @@ form_specs = [
                 "fields": [
                     {
                         "name": "description",
-                        "label": "Provide a short lay description of your study purprose for the general public",
+                        "label": "Provide a short lay description of your study purpose for the general public",
                     },
                 ],
             },
@@ -130,7 +130,7 @@ form_specs = [
                 "fields": [
                     {
                         "name": "record_level_data_reasons",
-                        "label": "Explain why you required access to record level data",
+                        "label": "Explain why you require access to record level data",
                     },
                 ],
             },
@@ -288,7 +288,7 @@ form_specs = [
                 "fields": [
                     {
                         "name": "funding_details",
-                        "label": "Provide details fo how your research study is funded",
+                        "label": "Provide details of how your research study is funded",
                     },
                 ],
             },
@@ -298,14 +298,14 @@ form_specs = [
         "key": 12,
         "title": "Study and team detail",
         "sub_title": "Research team",
-        "rubric": "OpenSAFELY will need to assess the impact of onboarding your team on your own capacity.",
+        "rubric": "OpenSAFELY will need to assess the impact of onboarding your team on our own capacity.",
         "fieldsets": [
             {
                 "label": "Team",
                 "fields": [
                     {
                         "name": "team_details",
-                        "label": "Provide details of the team invovled in the proposed research",
+                        "label": "Provide details of the team involved in the proposed research",
                     },
                 ],
             },
@@ -322,7 +322,7 @@ form_specs = [
                 "fields": [
                     {
                         "name": "previous_experience_with_ehr",
-                        "label": "Describe your previous expereince of working with primary care electonric health record data (e.g. CPRD)",
+                        "label": "Describe your previous experience of working with primary care electronic health record data (e.g. CPRD)",
                     },
                 ],
             },
