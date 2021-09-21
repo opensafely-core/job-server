@@ -1,0 +1,29 @@
+{% extends "base.html" %}
+
+{% load humanize %}
+
+{% block metatitle %}Apply | OpenSAFELY Jobs{% endblock metatitle %}
+
+{% block content %}
+<div class="container">
+  <div class="row">
+    <div class="col-lg-8">
+      <div class="card border-0">
+        {% for page in pages %}
+        <h3 class="h5">{{ page.title }}</h3>
+        <table>
+        {% for field in page.get_unbound_form %}
+        <tr>
+                <td>{{ field.label }}</td>
+                <td>{{ field.value }}</td>
+        </tr>
+        {% endfor %}
+        </table>
+        <hr />
+        {% endfor %}
+      </div>
+    </div>
+
+  </div>
+</div>
+{% endblock %}

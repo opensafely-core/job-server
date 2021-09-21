@@ -1,0 +1,1 @@
+You must obtain a favourable opinion from your institutional ethics review process/committee and obtain support from a senior sponsor (usually NHSE/X individual, such as a national clinical lead, band 9, director, or the sponsor might be a member of SAGE, JCVI, etc.).

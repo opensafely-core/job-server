@@ -1,0 +1,20 @@
+{% extends "base.html" %}
+
+{% load snippet %}
+
+{% block content %}
+<div class="container">
+  <div class="row">
+    <div class="col">
+      {% snippet "sign_in" %}
+
+      <a
+        class="btn btn-success"
+        href="{% url "social:begin" "github" %}?next={% url 'applications:terms' %}"
+      >
+        Sign in to GitHub
+      </a>
+    </div>
+  </div>
+</div>
+{% endblock %}

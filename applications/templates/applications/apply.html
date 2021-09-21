@@ -1,0 +1,23 @@
+{% extends "base.html" %}
+
+{% load snippet %}
+
+{% block content %}
+<div class="container">
+  <div class="row">
+    <div class="col">
+      {% snippet "start_page" %}
+
+      <a class="btn btn-success"
+        {% if request.user.is_authenticated %}
+        href="{% url 'applications:terms' %}"
+        {% else %}
+        href="{% url 'applications:sign-in' %}"
+        {% endif %}
+      >
+      Start now
+      </a>
+    </div>
+  </div>
+</div>
+{% endblock %}
