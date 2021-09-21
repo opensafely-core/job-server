@@ -24,14 +24,7 @@ def page(request, pk, page_num):
     page.validate_form(form)
 
     if form.is_valid():
-        if request.POST["direction"] == "next":
-            next_page_num = page.next_page_num
-        else:
-            assert request.POST["direction"] == "prev"
-            next_page_num = page.prev_page_num
-            assert next_page_num is not None
-
-        if next_page_num is None:
+        if (next_page_num := page.next_page_num) is None:
             return redirect("applications:confirmation", pk=pk)
         else:
             return redirect("applications:page", pk=pk, page_num=next_page_num)

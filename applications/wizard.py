@@ -74,12 +74,3 @@ class WizardPage:
                 return next_page_num
             next_page_num += 1
         return None
-
-    @property
-    def prev_page_num(self):
-        next_page_num = self.page_num - 1
-        while next_page_num >= 1:
-            if self.wizard.is_page_required(next_page_num):
-                return next_page_num
-            next_page_num -= 1
-        return None
