@@ -9,6 +9,11 @@ YES_NO_CHOICES = [
 
 
 class Application(models.Model):
+    created_by = models.ForeignKey(
+        "jobserver.User",
+        on_delete=models.CASCADE,
+        related_name="applications",
+    )
     # completed application's project
     project = models.ForeignKey(
         "jobserver.Project",
@@ -89,6 +94,9 @@ class Application(models.Model):
     number_of_researchers_needing_access = models.IntegerField(default=0)
 
     has_agreed_to_terms = models.BooleanField(default=False)
+
+    created_at = models.DateTimeField(default=timezone.now)
+    completed_at = models.DateTimeField(null=True)
 
 
 class ResearcherRegistration(models.Model):

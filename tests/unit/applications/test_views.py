@@ -3,9 +3,12 @@ from django.urls import reverse
 from applications.models import Application
 from applications.views import terms
 
+from ...factories import UserFactory
+
 
 def test_terms_get_success(rf):
     request = rf.get("/")
+    request.user = UserFactory()
 
     response = terms(request)
 
@@ -14,6 +17,7 @@ def test_terms_get_success(rf):
 
 def test_terms_post_success(rf):
     request = rf.post("/")
+    request.user = UserFactory()
 
     assert Application.objects.count() == 0
 

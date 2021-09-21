@@ -49,7 +49,7 @@ def terms(request):
     if request.method == "GET":
         return TemplateResponse(request, "applications/terms.html")
 
-    application = Application.objects.create()
+    application = Application.objects.create(created_by=request.user)
     return redirect("applications:page", pk=application.pk, page_num=1)
 
 
