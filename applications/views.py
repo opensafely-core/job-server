@@ -12,6 +12,7 @@ from furl import furl
 from jobserver.authorization import has_permission
 from services.slack import client as slack_client
 
+from .emails import send_submitted_application_email
 from .form_specs import form_specs
 from .forms import ResearcherRegistrationForm
 from .models import Application, ResearcherRegistration
@@ -212,6 +213,7 @@ class Confirmation(View):
 
         notify_slack(self.wizard.application, "Application submitted")
 
-        # TODO: email user confirmation
+        send_submitted_application_email(request.user.email, self.wizard.application)
+
         messages.success(request, "Application submitted")
         return redirect("applications:list")
