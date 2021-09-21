@@ -3,7 +3,7 @@ set -euo pipefail
 target="$1"
 
 if ! command -v bw > /dev/null; then
-    echo "You need the bitwarden cli tool installed:"
+    echo "You need the Bitwarden CLI tool — bw — installed:"
     echo
     echo "    https://bitwarden.com/help/article/cli/#download-and-install"
     echo
