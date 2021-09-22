@@ -1,4 +1,4 @@
-from applications.form_specs import field, fieldset, form
+from applications.form_specs import Field, Fieldset, Form
 from applications.forms import ApplicationFormBase
 from applications.models import Application
 
@@ -15,29 +15,29 @@ class ApplicationForm(ApplicationFormBase):
         model = Application
 
 
-form_spec = form(
+form_spec = Form(
     key=1,
     title="title",
     sub_title="subtitle",
     rubric="rubric",
     fieldsets=[
-        fieldset(
+        Fieldset(
             label="Fieldset 1",
             fields=[
-                field(
+                Field(
                     name="email",
                     label="Email",
                 ),
-                field(
+                Field(
                     name="is_study_research",
                     label="Is Study Research?",
                 ),
             ],
         ),
-        fieldset(
+        Fieldset(
             label="Fieldset 2",
             fields=[
-                field(
+                Field(
                     name="need_record_level_data",
                     label="Need Record Level Data?",
                 ),
