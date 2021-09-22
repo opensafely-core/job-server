@@ -18,8 +18,8 @@
 <fieldset>
   <legend>{{ fieldset.label }}</legend>
 
-  {% for field in fieldset.fields %}
-  {{ field.rendered }}
+  {% for field in fieldset.rendered_fields %}
+  {{ field }}
   {% endfor %}
 
 </fieldset>

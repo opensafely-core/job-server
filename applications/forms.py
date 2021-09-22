@@ -17,8 +17,9 @@ class ApplicationFormBase(forms.ModelForm):
             "TypedChoiceField": "components/form_radio.html",
         }
 
-        # attach the rendered component to each field
+        fieldset_contexts = []
         for fieldset_spec in self.spec["fieldsets"]:
+            rendered_fields = []
             for field_spec in fieldset_spec["fields"]:
                 # get the bound field instance
                 # Note: doing this with self.fields gets the plain field instance
@@ -34,13 +35,22 @@ class ApplicationFormBase(forms.ModelForm):
                     "label": field_spec["label"],
                     "name": field_spec["name"],
                 }
-                rendered_field = render_to_string(template_name, context)
+                rendered_fields.append(render_to_string(template_name, context))
 
-                # mutate the spec on this ModelForm instance so we can use it
-                # in the context below
-                field_spec["rendered"] = rendered_field
+            fieldset_contexts.append(
+                {
+                    "label": fieldset_spec["label"],
+                    "rendered_fields": rendered_fields,
+                }
+            )
 
-        # this is definitely not the right place to put this, but it works for now
-        self.spec["non_field_errors"] = self.non_field_errors()
+        form_context = {
+            "title": self.spec["title"],
+            "sub_title": self.spec["sub_title"],
+            "rubric": self.spec["rubric"],
+            "footer": self.spec["footer"],
+            "non_field_errors": self.non_field_errors(),
+            "fieldsets": fieldset_contexts,
+        }
 
-        return render_to_string("applications/process_form.html", context=self.spec)
+        return render_to_string("applications/process_form.html", context=form_context)
