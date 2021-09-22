@@ -1,6 +1,5 @@
 from django.forms.models import modelform_factory
 
-from .forms import ApplicationFormBase
 from .models import Application
 
 
@@ -39,13 +38,7 @@ class WizardPage:
         for fieldset in self.form_spec.fieldsets:
             for field in fieldset.fields:
                 fields.append(field.name)
-        form_class = modelform_factory(
-            Application, form=ApplicationFormBase, fields=fields
-        )
-
-        # attach the spec for this particular form so we can use it for
-        # presentation in the template too
-        form_class.spec = self.form_spec
+        form_class = modelform_factory(Application, fields=fields)
 
         return form_class
 
