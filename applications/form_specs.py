@@ -3,6 +3,8 @@ from __future__ import annotations
 from dataclasses import dataclass
 from typing import Callable
 
+from django.template.loader import render_to_string
+
 from applications.models import Application
 
 
@@ -33,6 +35,30 @@ class Field:
     name: str
     label: str
     help_text: str = ""
+
+    def render(self, form):
+        template_lut = {
+            "BooleanField": "components/form_checkbox.html",
+            "CharField": "components/form_text.html",
+            "TypedChoiceField": "components/form_radio.html",
+        }
+
+        # get the bound field instance
+        # Note: doing this with form.fields gets the plain field instance
+        bound_field = form[self.name]
+
+        # get the component template using the field class name
+        # Note: this is original field class, not the bound version
+        template_name = template_lut[bound_field.field.__class__.__name__]
+
+        # render the field component
+        context = {
+            "field": bound_field,
+            "label": self.label,
+            "name": self.name,
+        }
+
+        return render_to_string(template_name, context)
 
 
 form_specs = [
