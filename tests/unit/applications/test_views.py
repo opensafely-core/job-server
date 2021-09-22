@@ -114,9 +114,8 @@ def test_page_post_with_invalid_continue_state(rf):
 
     assert response.status_code == 200
 
-    form = response.context_data["form"]
-    assert not form.is_valid(), form.errors
-    assert form.non_field_errors() == ["You must select at least one purpose"]
+    non_field_errors = response.context_data["non_field_errors"]
+    assert non_field_errors == ["You must select at least one purpose"]
 
 
 def test_page_post_with_invalid_prerequisite(rf):

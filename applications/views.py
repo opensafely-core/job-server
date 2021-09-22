@@ -30,11 +30,10 @@ def page(request, pk, page_num):
     page = Wizard(application, form_specs).get_page(page_num)
 
     if request.method == "GET":
-        ctx = {
-            "application": application,
-            "form": page.get_unbound_form(),
-            "page": page,
-        }
+        form = page.get_unbound_form()
+        ctx = page.form_spec.template_context(form)
+        ctx["application"] = application
+        ctx["page"] = page
         return TemplateResponse(request, "applications/page.html", ctx)
 
     form = page.get_bound_form(request.POST)
@@ -48,11 +47,9 @@ def page(request, pk, page_num):
         else:
             return redirect("applications:page", pk=pk, page_num=next_page_num)
 
-    ctx = {
-        "application": application,
-        "form": form,
-        "page": page,
-    }
+    ctx = page.form_spec.template_context(form)
+    ctx["application"] = application
+    ctx["page"] = page
 
     return TemplateResponse(request, "applications/page.html", ctx)
 

@@ -1,5 +1,4 @@
 from django import forms
-from django.template.loader import render_to_string
 
 
 class ApplicationFormBase(forms.ModelForm):
@@ -10,7 +9,4 @@ class ApplicationFormBase(forms.ModelForm):
     but using our own templates and components.
     """
 
-    def as_html(self):
-        return render_to_string(
-            "applications/process_form.html", context=self.spec.template_context(self)
-        )
+    pass

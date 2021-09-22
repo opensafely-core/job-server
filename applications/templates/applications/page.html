@@ -4,10 +4,39 @@
 <div class="container">
   <div class="row">
     <div class="col-lg-8">
+      <h2 class="h5">{{ title }}</h2>
+
+      {% if sub_title %}
+      <p>{{ sub_title }}</p>
+      {% endif %}
+
+      {% if rubric %}
+        <div class="d-flex flex-column mb-3">
+          {{ rubric }}
+        </div>
+      {% endif %}
+
+      {% if non_field_errors %}
+        {% for error in non_field_errors %}
+          <div class="alert alert-danger" role="alert">{{ error }}</div>
+        {% endfor %}
+      {% endif %}
+
       <form method="POST">
         {% csrf_token %}
 
-        {{ form.as_html }}
+        {% for fieldset in fieldsets %}
+          <fieldset class="d-flex flex-column mb-4 {% if not forloop.last %}pb-4 border-bottom{% endif %}">
+            <legend>
+              <h2 class="h3 mb-3">{{ fieldset.label }}</h2>
+            </legend>
+
+            {% for field in fieldset.rendered_fields %}
+              {{ field }}
+            {% endfor %}
+
+          </fieldset>
+        {% endfor %}
 
         <button class="btn btn-lg btn-success mt-3" type="submit" >Continue</button>
       </form>
