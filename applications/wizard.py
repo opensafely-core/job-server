@@ -46,12 +46,13 @@ class WizardPage:
         return self.form_class(instance=self.application)
 
     def get_bound_form(self, data):
-        return self.form_class(data, instance=self.application)
+        form = self.form_class(data, instance=self.application)
+        form.save()
 
-    def validate_form(self, form):
-        can_continue = self.form_spec.can_continue
-        if not can_continue(self.application):
+        if not self.form_spec.can_continue(self.application):
             form.add_error(None, self.form_spec.cant_continue_message)
+
+        return form
 
     @property
     def title(self):

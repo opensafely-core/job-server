@@ -35,9 +35,6 @@ def page(request, pk, page_num):
         return TemplateResponse(request, "applications/page.html", ctx)
 
     form = page.get_bound_form(request.POST)
-    form.save()
-
-    page.validate_form(form)
 
     if form.is_valid():
         if (next_page_num := page.next_page_num) is None:
