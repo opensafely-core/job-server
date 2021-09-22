@@ -11,24 +11,6 @@ class ApplicationFormBase(forms.ModelForm):
     """
 
     def as_html(self):
-        fieldset_contexts = []
-        for fieldset_spec in self.spec.fieldsets:
-            fieldset_contexts.append(
-                {
-                    "label": fieldset_spec.label,
-                    "rendered_fields": [
-                        field_spec.render(self) for field_spec in fieldset_spec.fields
-                    ],
-                }
-            )
-
-        form_context = {
-            "title": self.spec.title,
-            "sub_title": self.spec.sub_title,
-            "rubric": self.spec.rubric,
-            "footer": self.spec.footer,
-            "non_field_errors": self.non_field_errors(),
-            "fieldsets": fieldset_contexts,
-        }
-
-        return render_to_string("applications/process_form.html", context=form_context)
+        return render_to_string(
+            "applications/process_form.html", context=self.spec.template_context(self)
+        )

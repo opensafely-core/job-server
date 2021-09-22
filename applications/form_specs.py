@@ -23,11 +23,29 @@ class Form:
     cant_continue_message: str | None = None
     prerequisite: Callable[[Application], bool] = lambda application: True
 
+    def template_context(self, form):
+        return {
+            "title": self.title,
+            "sub_title": self.sub_title,
+            "rubric": self.rubric,
+            "footer": self.footer,
+            "non_field_errors": form.non_field_errors(),
+            "fieldsets": [
+                fieldset.template_context(form) for fieldset in self.fieldsets
+            ],
+        }
+
 
 @dataclass
 class Fieldset:
     label: str
     fields: list[Field]
+
+    def template_context(self, form):
+        return {
+            "label": self.label,
+            "rendered_fields": [field_spec.render(form) for field_spec in self.fields],
+        }
 
 
 @dataclass
