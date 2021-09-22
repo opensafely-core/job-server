@@ -1,4 +1,5 @@
 from django.forms.models import modelform_factory
+from django.shortcuts import redirect
 
 from .models import Application
 
@@ -72,3 +73,11 @@ class WizardPage:
             "application": self.application,
             "page": self,
         }
+
+    def redirect_to_next_page(self):
+        if (next_page_num := self.next_page_num) is None:
+            return redirect("applications:confirmation", pk=self.application.pk)
+        else:
+            return redirect(
+                "applications:page", pk=self.application.pk, page_num=next_page_num
+            )
