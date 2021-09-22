@@ -18,8 +18,8 @@ class ApplicationFormBase(forms.ModelForm):
         }
 
         # attach the rendered component to each field
-        for i, fieldset_spec in enumerate(self.spec["fieldsets"]):
-            for j, field_spec in enumerate(fieldset_spec["fields"]):
+        for fieldset_spec in self.spec["fieldsets"]:
+            for field_spec in fieldset_spec["fields"]:
                 # get the bound field instance
                 # Note: doing this with self.fields gets the plain field instance
                 bound_field = self[field_spec["name"]]
@@ -38,7 +38,7 @@ class ApplicationFormBase(forms.ModelForm):
 
                 # mutate the spec on this ModelForm instance so we can use it
                 # in the context below
-                self.spec["fieldsets"][i]["fields"][j]["rendered"] = rendered_field
+                field_spec["rendered"] = rendered_field
 
         # this is definitely not the right place to put this, but it works for now
         self.spec["non_field_errors"] = self.non_field_errors()
