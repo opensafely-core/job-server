@@ -5,7 +5,7 @@ def form(
     sub_title,
     fieldsets,
     rubric,
-    footer=None,
+    footer="",
     can_continue=None,
     cant_continue_message=None,
     prerequisite=None,
@@ -30,7 +30,7 @@ def fieldset(*, label, fields):
     }
 
 
-def field(*, name, label, help_text=None):
+def field(*, name, label, help_text=""):
     return {
         "name": name,
         "label": label,
