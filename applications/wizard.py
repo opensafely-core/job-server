@@ -1,8 +1,6 @@
 from django.forms.models import modelform_factory
+from django.shortcuts import redirect
 
-from jobserver.snippets import expand_snippets
-
-from .forms import ApplicationFormBase
 from .models import Application
 
 
@@ -20,11 +18,11 @@ class Wizard:
         return WizardPage(self, page_num)
 
     def get_form_spec(self, page_num):
-        return expand_snippets(self.form_specs[page_num - 1])
+        return self.form_specs[page_num - 1]
 
     def is_page_required(self, page_num):
         form_spec = self.get_form_spec(page_num)
-        prerequisite = form_spec["prerequisite"]
+        prerequisite = form_spec.prerequisite
         return prerequisite(self.application)
 
 
@@ -38,16 +36,10 @@ class WizardPage:
     @property
     def form_class(self):
         fields = []
-        for fieldset in self.form_spec["fieldsets"]:
-            for field in fieldset["fields"]:
-                fields.append(field["name"])
-        form_class = modelform_factory(
-            Application, form=ApplicationFormBase, fields=fields
-        )
-
-        # attach the spec for this particular form so we can use it for
-        # presentation in the template too
-        form_class.spec = self.form_spec
+        for fieldset in self.form_spec.fieldsets:
+            for field in fieldset.fields:
+                fields.append(field.name)
+        form_class = modelform_factory(Application, fields=fields)
 
         return form_class
 
@@ -55,16 +47,17 @@ class WizardPage:
         return self.form_class(instance=self.application)
 
     def get_bound_form(self, data):
-        return self.form_class(data, instance=self.application)
+        form = self.form_class(data, instance=self.application)
+        form.save()
 
-    def validate_form(self, form):
-        can_continue = self.form_spec["can_continue"]
-        if not can_continue(self.application):
-            form.add_error(None, self.form_spec["cant_continue_message"])
+        if not self.form_spec.can_continue(self.application):
+            form.add_error(None, self.form_spec.cant_continue_message)
+
+        return form
 
     @property
     def title(self):
-        return self.form_spec["title"]
+        return self.form_spec.title
 
     @property
     def next_page_num(self):
@@ -74,3 +67,17 @@ class WizardPage:
                 return next_page_num
             next_page_num += 1
         return None
+
+    def template_context(self, form):
+        return self.form_spec.template_context(form) | {
+            "application": self.application,
+            "page": self,
+        }
+
+    def redirect_to_next_page(self):
+        if (next_page_num := self.next_page_num) is None:
+            return redirect("applications:confirmation", pk=self.application.pk)
+        else:
+            return redirect(
+                "applications:page", pk=self.application.pk, page_num=next_page_num
+            )
