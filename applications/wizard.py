@@ -65,3 +65,9 @@ class WizardPage:
                 return next_page_num
             next_page_num += 1
         return None
+
+    def template_context(self, form):
+        return self.form_spec.template_context(form) | {
+            "application": self.application,
+            "page": self,
+        }

@@ -31,9 +31,7 @@ def page(request, pk, page_num):
 
     if request.method == "GET":
         form = page.get_unbound_form()
-        ctx = page.form_spec.template_context(form)
-        ctx["application"] = application
-        ctx["page"] = page
+        ctx = page.template_context(form)
         return TemplateResponse(request, "applications/page.html", ctx)
 
     form = page.get_bound_form(request.POST)
@@ -47,9 +45,8 @@ def page(request, pk, page_num):
         else:
             return redirect("applications:page", pk=pk, page_num=next_page_num)
 
-    ctx = page.form_spec.template_context(form)
-    ctx["application"] = application
-    ctx["page"] = page
+    ctx = page.template_context(form)
+    return TemplateResponse(request, "applications/page.html", ctx)
 
     return TemplateResponse(request, "applications/page.html", ctx)
 
