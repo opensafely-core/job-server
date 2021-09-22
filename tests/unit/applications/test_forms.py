@@ -1,3 +1,4 @@
+from applications.form_specs import field, fieldset, form
 from applications.forms import ApplicationFormBase
 from applications.models import Application
 
@@ -14,36 +15,36 @@ class ApplicationForm(ApplicationFormBase):
         model = Application
 
 
-form_spec = {
-    "key": 1,
-    "title": "title",
-    "sub_title": "subtitle",
-    "rubric": "rubric",
-    "fieldsets": [
-        {
-            "label": "Fieldset 1",
-            "fields": [
-                {
-                    "name": "email",
-                    "label": "Email",
-                },
-                {
-                    "name": "is_study_research",
-                    "label": "Is Study Research?",
-                },
+form_spec = form(
+    key=1,
+    title="title",
+    sub_title="subtitle",
+    rubric="rubric",
+    fieldsets=[
+        fieldset(
+            label="Fieldset 1",
+            fields=[
+                field(
+                    name="email",
+                    label="Email",
+                ),
+                field(
+                    name="is_study_research",
+                    label="Is Study Research?",
+                ),
             ],
-        },
-        {
-            "label": "Fieldset 2",
-            "fields": [
-                {
-                    "name": "need_record_level_data",
-                    "label": "Need Record Level Data?",
-                },
+        ),
+        fieldset(
+            label="Fieldset 2",
+            fields=[
+                field(
+                    name="need_record_level_data",
+                    label="Need Record Level Data?",
+                ),
             ],
-        },
+        ),
     ],
-}
+)
 
 
 def test_applicationformbase():
