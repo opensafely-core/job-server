@@ -1,24 +1,23 @@
-<div class="form-group">
-
-  <div class="form-check">
-    <input
-      class="form-check-input"
-      type="checkbox"
-      name="{{ name }}"
-      id="id_{{ name }}"
-      {% if field.value %}checked{% endif %}
-      />
-    <label class="form-check-label" for="id_{{ name }}">
+<div class="custom-control custom-checkbox mb-2">
+  <input
+    type="checkbox"
+    class="custom-control-input"
+    name="{{ name }}"
+    id="id_{{ name }}"
+    {% if field.value %}checked{% endif %}
+  >
+    <label
+      class="custom-control-label"
+      for="id_{{ name }}"
+    >
       {{ label }}
     </label>
-  </div>
+</div>
 
-  {% if field.errors %}
+{% if field.errors %}
   <ul class="pl-3 mb-1">
     {% for error in field.errors %}
-    <li class="text-danger">{{ error }}</li>
+      <li class="text-danger">{{ error }}</li>
     {% endfor %}
   </ul>
-  {% endif %}
-
-</div>
+{% endif %}

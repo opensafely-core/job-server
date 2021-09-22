@@ -5,7 +5,9 @@
 {% endif %}
 
 {% if rubric %}
-{{ rubric }}
+  <div class="d-flex flex-column mb-3">
+    {{ rubric }}
+  </div>
 {% endif %}
 
 {% if non_field_errors %}
@@ -15,11 +17,13 @@
 {% endif %}
 
 {% for fieldset in fieldsets %}
-<fieldset>
-  <legend>{{ fieldset.label }}</legend>
+<fieldset class="d-flex flex-column mb-4 {% if not forloop.last %}pb-4 border-bottom{% endif %}">
+  <legend>
+    <h2 class="h3 mb-3">{{ fieldset.label }}</h2>
+  </legend>
 
   {% for field in fieldset.rendered_fields %}
-  {{ field }}
+    {{ field }}
   {% endfor %}
 
 </fieldset>

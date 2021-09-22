@@ -1,29 +1,25 @@
-<div class="form-group">
+<h2 class="h4 mb-2">{{ label }}</h2>
 
-  <p>{{ label }}</p>
-
-  {% for value, label in field.field.choices %}
-  <div class="form-check">
+{% for value, label in field.field.choices %}
+  <div class="custom-control custom-radio mb-2">
     <input
-      class="form-check-input"
+      class="custom-control-input"
       type="radio"
       name="{{ name }}"
       id="id_{{ name }}{{ forloop.counter }}"
       value="{{ value }}"
       {% if field.value == value %}checked{% endif %}
-      />
-    <label class="form-check-label" for="id_{{ name }}{{ forloop.counter }}">
+    />
+    <label class="custom-control-label" for="id_{{ name }}{{ forloop.counter }}">
       {{ label }}
     </label>
   </div>
-  {% endfor %}
+{% endfor %}
 
-  {% if field.errors %}
+{% if field.errors %}
   <ul class="pl-3 mb-1">
     {% for error in field.errors %}
-    <li class="text-danger">{{ error }}</li>
+      <li class="text-danger">{{ error }}</li>
     {% endfor %}
   </ul>
-  {% endif %}
-
-</div>
+{% endif %}

@@ -7,23 +7,24 @@
 {% block content %}
 <div class="container">
   <div class="row">
-    <div class="col-lg-8">
-      <div class="card border-0">
-        {% for page in pages %}
-        <h3 class="h5">{{ page.title }}</h3>
-        <table>
-        {% for field in page.get_unbound_form %}
-        <tr>
-                <td>{{ field.label }}</td>
-                <td>{{ field.value }}</td>
-        </tr>
-        {% endfor %}
-        </table>
-        <hr />
-        {% endfor %}
-      </div>
+    <div class="col">
+      {% for page in pages %}
+        <section class="mb-3 pb-3 border-bottom">
+          <h2 class="h4 mb-3">{{ page.title }}</h2>
+          {# We should use the sub-title from the page if page titles are matching #}
+          {# <h2 class="h4 mb-3">{{ page.sub_title }}</h2> #}
+          {% for field in page.get_unbound_form %}
+            <dl class="row mb-0 mb-lg-1">
+              <dt class="col-lg-3 col-xl-3">{{ field.label }}</dt>
+              <dd class="md-1 mb-lg-0 col-lg-7 col-xl-8">{{ field.value }}</dd>
+              <dd class="{% if not forloop.last %}mb-4 mb-lg-0{% endif %} col-lg-2 col-xl-1">
+                <a href="#">Change<span class="sr-only"> {{ field.label|lower }}</span></a>
+              </dd>
+            </dl>
+          {% endfor %}
+        </section>
+      {% endfor %}
     </div>
-
   </div>
 </div>
 {% endblock %}

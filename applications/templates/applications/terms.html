@@ -5,19 +5,17 @@
 {% block content %}
 <div class="container">
   <div class="row">
-    <div class="col">
+    <div class="col-lg-8">
       {% snippet "terms" %}
 
       <form method="POST">
         {% csrf_token %}
 
-        <button class="btn btn-success" type="submit">
+        <button class="btn btn-lg btn-success mt-3" type="submit">
           Continue
         </button>
       </form>
 
-
-      <a class="btn btn-secondary" href="{% url 'applications:start' %}">Back</a>
     </div>
   </div>
 </div>
