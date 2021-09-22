@@ -31,17 +31,12 @@ def page(request, pk, page_num):
 
     if request.method == "GET":
         form = page.get_unbound_form()
-        ctx = page.template_context(form)
-        return TemplateResponse(request, "applications/page.html", ctx)
-
-    form = page.get_bound_form(request.POST)
-
-    if form.is_valid():
-        return page.redirect_to_next_page()
+    else:
+        form = page.get_bound_form(request.POST)
+        if form.is_valid():
+            return page.redirect_to_next_page()
 
     ctx = page.template_context(form)
-    return TemplateResponse(request, "applications/page.html", ctx)
-
     return TemplateResponse(request, "applications/page.html", ctx)
 
 
