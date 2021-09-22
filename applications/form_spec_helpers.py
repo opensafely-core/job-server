@@ -4,6 +4,7 @@ from dataclasses import dataclass
 from typing import Callable
 
 from applications.models import Application
+from jobserver.snippets import render_snippet
 
 
 SNIPPET = "<snippet>"
@@ -21,12 +22,22 @@ class Form:
     cant_continue_message: str | None = None
     prerequisite: Callable[[Application], bool] = lambda application: True
 
+    def __post_init__(self):
+        for fieldset_ix, fieldset in enumerate(self.fieldsets):
+            fieldset.key = f"{self.key}-fieldset{fieldset_ix}"
+
+            for field_ix, field in enumerate(fieldset.fields):
+                field.key = f"{self.key}-fieldset{fieldset_ix}-field{field_ix}"
+
     def template_context(self, form):
+        rubric = maybe_replace_value_with_snippet(self.rubric, f"{self.key}-rubric")
+        footer = maybe_replace_value_with_snippet(self.footer, f"{self.key}-footer")
+
         return {
             "title": self.title,
             "sub_title": self.sub_title,
-            "rubric": self.rubric,
-            "footer": self.footer,
+            "rubric": rubric,
+            "footer": footer,
             "non_field_errors": form.non_field_errors(),
             "fieldsets": [
                 fieldset.template_context(form) for fieldset in self.fieldsets
@@ -40,8 +51,10 @@ class Fieldset:
     fields: list[Field]
 
     def template_context(self, form):
+        label = maybe_replace_value_with_snippet(self.label, f"{self.key}-label")
+
         return {
-            "label": self.label,
+            "label": label,
             "fields": [field_spec.template_context(form) for field_spec in self.fields],
         }
 
@@ -67,12 +80,24 @@ class Field:
         # Note: this is original field class, not the bound version
         template_name = template_lut[bound_field.field.__class__.__name__]
 
+        label = maybe_replace_value_with_snippet(self.label, f"{self.key}-label")
+        bound_field.help_text = maybe_replace_value_with_snippet(
+            self.help_text, f"{self.key}-help_text"
+        )
+
         # render the field component
         context = {
             "field": bound_field,
-            "label": self.label,
+            "label": label,
             "name": self.name,
             "template_name": template_name,
         }
 
         return context
+
+
+def maybe_replace_value_with_snippet(value, key):
+    if value == SNIPPET:
+        return render_snippet(key)
+    else:
+        return value
