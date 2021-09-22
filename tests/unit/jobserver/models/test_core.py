@@ -747,6 +747,7 @@ def test_user_get_all_permissions():
     output = user.get_all_permissions()
     expected = {
         "global": [
+            "application_manage",
             "backend_manage",
             "org_create",
             "user_manage",

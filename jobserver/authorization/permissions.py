@@ -1,3 +1,4 @@
+application_manage = "application_manage"
 backend_manage = "backend_manage"
 job_cancel = "job_cancel"
 job_run = "job_run"

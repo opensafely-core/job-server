@@ -605,6 +605,7 @@ def test_userapidetail_success(api_rf):
     # permissions
     permissions = response.data["permissions"]
     assert permissions["global"] == [
+        "application_manage",
         "backend_manage",
         "org_create",
         "user_manage",
