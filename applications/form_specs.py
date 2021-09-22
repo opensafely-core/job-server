@@ -3,8 +3,6 @@ from __future__ import annotations
 from dataclasses import dataclass
 from typing import Callable
 
-from django.template.loader import render_to_string
-
 from applications.models import Application
 
 
@@ -44,7 +42,7 @@ class Fieldset:
     def template_context(self, form):
         return {
             "label": self.label,
-            "rendered_fields": [field_spec.render(form) for field_spec in self.fields],
+            "fields": [field_spec.template_context(form) for field_spec in self.fields],
         }
 
 
@@ -54,7 +52,7 @@ class Field:
     label: str
     help_text: str = ""
 
-    def render(self, form):
+    def template_context(self, form):
         template_lut = {
             "BooleanField": "components/form_checkbox.html",
             "CharField": "components/form_text.html",
@@ -74,9 +72,10 @@ class Field:
             "field": bound_field,
             "label": self.label,
             "name": self.name,
+            "template_name": template_name,
         }
 
-        return render_to_string(template_name, context)
+        return context
 
 
 form_specs = [
