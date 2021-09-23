@@ -68,7 +68,7 @@
     </p>
 
     {% if user_can_cancel_jobs %}
-      <form class="d-inline-block" method="POST" action="{{ jobrequest.get_cancel_url }}">
+      <form class="d-inline-block" method="POST" action="{{ job.get_cancel_url }}">
         {% csrf_token %}
       <button
           {% if job.is_completed or job.action in job.job_request.cancelled_actions %}
