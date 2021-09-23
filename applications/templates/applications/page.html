@@ -37,11 +37,13 @@
           </fieldset>
         {% endfor %}
 
-        {% if application.has_reached_confirmation %}
-        <a class="btn btn-lg btn-success mt-3" href="{% url 'applications:confirmation' application.pk %}" role="button">Return to confirmation</a>
-        {% else %}
-        <button class="btn btn-lg btn-success mt-3" type="submit" >Continue</button>
-        {% endif %}
+        <button class="btn btn-lg btn-success mt-3" type="submit" >
+            {% if application.has_reached_confirmation %}
+            Return to confirmation
+            {% else %}
+            Continue
+            {% endif %}
+        </button>
       </form>
     </div>
   </div>

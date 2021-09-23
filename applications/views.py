@@ -34,6 +34,8 @@ def page(request, pk, page_num):
     else:
         form = page.get_bound_form(request.POST)
         if form.is_valid():
+            if application.has_reached_confirmation:
+                return redirect("applications:confirmation", pk=application.pk)
             return page.redirect_to_next_page()
 
     ctx = page.template_context(form)
