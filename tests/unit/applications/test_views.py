@@ -265,7 +265,7 @@ def test_page_post_final_page(rf):
     request = rf.post("/", {"evidence_of_sharing_in_public_domain_before": "evidence"})
     request.user = user
 
-    response = page(request, pk=application.pk, page_num=15)
+    response = page(request, pk=application.pk, page_num=16)
 
     assert response.status_code == 302
     assert response.url == reverse(

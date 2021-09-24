@@ -371,4 +371,12 @@ form_specs = [
             ),
         ],
     ),
+    Form(
+        key=16,
+        title="What level of OpenSAFELY platform access does each researcher require?",
+        sub_title="",
+        rubric="<snippet>",
+        template_name="applications/page_researchers.html",
+        fieldsets=[],
+    ),
 ]
