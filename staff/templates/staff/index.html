@@ -1,68 +1,97 @@
 {% extends "staff/base.html" %}
 
-{% block staff_content %}
+{% block metatitle %}Staff Area | OpenSAFELY Jobs{% endblock metatitle %}
 
-<div class="row mt-5">
-  <div class="col-6 offset-3">
-    <h2>Welcome to the 🚨Staff Area🚨</h2>
+{% block breadcrumbs %}
+<nav class="breadcrumb-container breadcrumb--danger" aria-label="breadcrumb">
+  <div class="container">
+    <ol class="breadcrumb rounded-0 mb-0 px-0">
+      <li class="breadcrumb-item active" aria-current="page">
+        Staff Area
+      </li>
+    </ol>
+  </div>
+</nav>
+{% endblock breadcrumbs %}
 
-    <div class="mb-5">
+{% block jumbotron %}
+<div class="jumbotron jumbotron-fluid jumbotron--danger pt-md-2">
+  <div class="container">
+    <h1 class="display-4">🚨Staff Area🚨</h1>
+    <div class="lead">
       <p>
-      The staff area is a tailored, staff-only interface.
-      It requires authentication but assumes all users are both equal and have full rights.
+        The staff area is a tailored, staff-only interface.<br />
+        It requires authentication but assumes all users are both equal and have full rights.
       </p>
+    </div>
 
-      <p>
+    <p>
       It is ideal for, and tailored towards:
-      </p>
-      <ul>
-        <li>Administration of a live instance</li>
-        <li>Speeding up local dev work</li>
-      </ul>
-    </div>
-
-    <p>You can search for various objects below:</p>
-
-    <form method="GET" class="form-inline mb-5">
-      <div class="form-group w-100">
-
-        <input
-          class="form-control form-control-lg w-100"
-          type="search"
-          name="q"
-          placeholder="Search"
-          autofocus
-          {% if q %}
-          value="{{ q|stringformat:'s' }}"
-          {% endif %}
-          />
-
-      </div>
-    </form>
-
-    {% if results %}
-    <h3>Results</h3>
-
-    {% for key, group in results %}
-    <div class="mb-5">
-
-      <h5>{{ key }}{{ 2|pluralize }}</h5>
-
-      <ul>
-        {% for item in group %}
-        <li>
-          <a href="{{ item.get_staff_url }}">
-            {{ item }}
-          </a>
-        </li>
-        {% endfor %}
-      </ul>
-
-    </div>
-    {% endfor %}
-    {% endif %}
-
+    </p>
+    <ul class="mb-0">
+      <li>Administration of a live instance</li>
+      <li>Speeding up local dev work</li>
+    </ul>
   </div>
 </div>
+{% endblock jumbotron %}
 
+
+{% block staff_content %}
+<div class="container">
+  <div class="row">
+    <div class="col-lg-4">
+      <div class="list-group">
+        <a href="/staff/applications/" class="list-group-item list-group-item-action disabled" aria-disabled="true">Applications</a>
+        <a href="/staff/backends/" class="list-group-item list-group-item-action">Backends</a>
+        <a href="/staff/orgs/" class="list-group-item list-group-item-action">Organisations</a>
+        <a href="/staff/projects/" class="list-group-item list-group-item-action">Projects</a>
+        <a href="/staff/users/" class="list-group-item list-group-item-action">Users</a>
+        <a href="/staff/workspaces/" class="list-group-item list-group-item-action">Workspaces</a>
+      </div>
+    </div>
+
+    <div class="col-lg-8">
+
+      <form method="GET" class="mb-4">
+        <fieldset>
+          <legend class="h5">Search the site</legend>
+        </fieldset>
+        <div class="form-inline w-100 d-flex flex-nowrap">
+          <label for="staffSearch" class="sr-only">Search the site</label>
+          <input
+            aria-label="Search"
+            autofocus
+            class="form-control form-control-lg mr-sm-2 w-100"
+            id="staffSearch"
+            name="q"
+            placeholder="Search"
+            type="search"
+            {% if q %}
+              value="{{ q|stringformat:'s' }}"
+            {% endif %}
+          >
+          <button class="btn btn-lg btn-outline-success my-2 my-sm-0" type="submit">Search</button>
+        </div>
+      </form>
+
+      {% if results %}
+        <h2 class="mb-4 pb-4 border-bottom">Results</h2>
+
+        {% for key, group in results %}
+          <section class="mb-4 pb-4 border-bottom">
+            <h3 class="h4 mb-3">{{ key }}{{ 2|pluralize }}</h3>
+
+            <div class="list-group">
+              {% for item in group %}
+                <a href="{{ item.get_staff_url }}" class="list-group-item list-group-item-action">{{ item }}</a>
+              {% endfor %}
+            </div>
+          </section>
+        {% endfor %}
+      {% endif %}
+
+    </div>
+  </div>
+</div>
 {% endblock staff_content %}
