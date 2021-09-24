@@ -21,6 +21,7 @@ class Form:
     can_continue: Callable[[Application], bool] = lambda application: True
     cant_continue_message: str | None = None
     prerequisite: Callable[[Application], bool] = lambda application: True
+    template_name: str | None = None
 
     def __post_init__(self):
         for fieldset_ix, fieldset in enumerate(self.fieldsets):
@@ -42,6 +43,7 @@ class Form:
             "fieldsets": [
                 fieldset.template_context(form) for fieldset in self.fieldsets
             ],
+            "template_name": self.template_name,
         }
 
 
