@@ -54,7 +54,7 @@ def test_confirmation_success(rf):
         assert spec.title in response.rendered_content
 
 
-def test_application_records_confirmation_page_reached(rf):
+def test_application_records_confirmation_reached(rf):
     user = UserFactory()
     application = ApplicationFactory(
         created_by=user,
@@ -68,8 +68,6 @@ def test_application_records_confirmation_page_reached(rf):
 
     application.refresh_from_db()
     assert application.has_reached_confirmation
-
-    request = confirmation(request, pk=application.pk)
 
 
 def test_return_to_confirmation_once_reached(rf):
