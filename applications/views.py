@@ -24,6 +24,13 @@ def validate_application_access(user, application):
     raise Http404
 
 
+def get_next_url(get_args):
+    try:
+        return get_args["next"]
+    except KeyError:
+        return reverse("applications:list")
+
+
 class ApplicationList(ListView):
     context_object_name = "applications"
     template_name = "applications/application_list.html"
@@ -49,8 +56,7 @@ class ResearcherCreate(CreateView):
         researcher.application = self.application
         researcher.save()
 
-        # TODO: how should we configure this so it's not hardcoded?
-        return redirect("applications:page", pk=self.application.pk, page_num=16)
+        return redirect(get_next_url(self.request.GET))
 
 
 class ResearcherDelete(View):
@@ -70,8 +76,7 @@ class ResearcherDelete(View):
             f'Successfully removed researcher "{researcher.email}" from application',
         )
 
-        # TODO: how should we configure this so it's not hardcoded?
-        return redirect("applications:page", pk=researcher.application.pk, page_num=16)
+        return redirect(get_next_url(request.GET))
 
 
 class ResearcherEdit(UpdateView):
@@ -96,11 +101,7 @@ class ResearcherEdit(UpdateView):
         return researcher
 
     def get_success_url(self):
-        # TODO: how should we configure this so it's not hardcoded?
-        return reverse(
-            "applications:page",
-            kwargs={"pk": self.object.application.pk, "page_num": 16},
-        )
+        return get_next_url(self.request.GET)
 
 
 @login_required

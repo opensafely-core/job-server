@@ -12,6 +12,7 @@ from applications.views import (
     ResearcherDelete,
     ResearcherEdit,
     confirmation,
+    get_next_url,
     page,
     sign_in,
     terms,
@@ -35,6 +36,23 @@ def test_applicationlist_success(rf):
     assert len(response.context_data["applications"]) == 5
 
 
+def test_getnexturl_with_next_arg(rf):
+    request = rf.get("/?next=/next/view/")
+
+    output = get_next_url(request.GET)
+
+    assert output == "/next/view/"
+
+
+def test_getnexturl_without_next_arg(rf):
+
+    request = rf.get("/")
+
+    output = get_next_url(request.GET)
+
+    assert output == reverse("applications:list")
+
+
 def test_researchercreate_get_success(rf):
     user = UserFactory()
     application = ApplicationFactory(created_by=user)
@@ -56,14 +74,12 @@ def test_researchercreate_post_success(rf):
         "job_title": "test",
         "email": "test",
     }
-    request = rf.post("/", data)
+    request = rf.post("/?next=/view/to/return/to/", data)
     request.user = user
 
     response = ResearcherCreate.as_view()(request, pk=application.pk)
     assert response.status_code == 302
-    assert response.url == reverse(
-        "applications:page", kwargs={"pk": application.pk, "page_num": 16}
-    )
+    assert response.url == "/view/to/return/to/"
 
 
 def test_researchercreate_without_permission(rf):
@@ -88,7 +104,7 @@ def test_researcherdelete_success(rf):
     user = UserFactory()
     researcher = ResearcherRegistrationFactory(application__created_by=user)
 
-    request = rf.post("/")
+    request = rf.post("/?next=/view/to/return/to/")
     request.user = user
 
     # set up messages framework
@@ -101,9 +117,7 @@ def test_researcherdelete_success(rf):
     )
 
     assert response.status_code == 302
-    assert response.url == reverse(
-        "applications:page", kwargs={"pk": researcher.application.pk, "page_num": 16}
-    )
+    assert response.url == "/view/to/return/to/"
 
     assert not ResearcherRegistration.objects.filter(pk=researcher.pk).exists()
 
@@ -158,7 +172,7 @@ def test_researcheredit_post_success(rf):
         "job_title": "job title",
         "email": "email",
     }
-    request = rf.post("/", data)
+    request = rf.post("/?next=/view/to/return/to/", data)
     request.user = user
 
     response = ResearcherEdit.as_view()(
@@ -166,9 +180,7 @@ def test_researcheredit_post_success(rf):
     )
 
     assert response.status_code == 302
-    assert response.url == reverse(
-        "applications:page", kwargs={"pk": researcher.application.pk, "page_num": 16}
-    )
+    assert response.url == "/view/to/return/to/"
 
     researcher.refresh_from_db()
     assert researcher.name == "new name"

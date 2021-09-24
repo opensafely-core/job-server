@@ -48,11 +48,11 @@
       </dl>
 
       <div class="d-flex justify-content-end">
-        <a class="btn btn-sm btn-secondary mr-2" href="{{ researcher.get_edit_url }}">
+        <a class="btn btn-sm btn-secondary mr-2" href="{{ researcher.get_edit_url }}?next={{ request.path }}">
           Edit researcher details
         </a>
 
-        <form method="POST" action="{{ researcher.get_delete_url }}">
+        <form method="POST" action="{{ researcher.get_delete_url }}?next={{ request.path }}">
           {% csrf_token %}
           <button type="submit" class="btn btn-sm btn-danger">
             Delete researcher details
@@ -66,7 +66,7 @@
   <div class="d-flex justify-content-end">
     <a
       class="btn btn-sm btn-secondary"
-      href="{% url 'applications:researcher-add' pk=application.pk %}">
+      href="{% url 'applications:researcher-add' pk=application.pk %}?next={{ request.path }}">
       Add new researcher
     </a>
   </div>
