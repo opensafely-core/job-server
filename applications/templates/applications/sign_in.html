@@ -1,12 +1,30 @@
 {% extends "base.html" %}
 
-{% load snippet %}
+{% block jumbotron %}
+<div class="jumbotron jumbotron-fluid pt-md-2">
+  <div class="container">
+    <div class="d-flex flex-column flex-md-row align-items-center">
+      <div>
+        <h1 class="display-4">Sign in to GitHub</h1>
+
+        <p class="lead">
+          If your application is approved, you will be able to submit study
+          code to run on OpenSAFELY via GitHub.
+        </p>
+      </div>
+    </div>
+  </div>
+</div>
+{% endblock jumbotron %}
 
 {% block content %}
 <div class="container">
   <div class="row">
     <div class="col">
-      {% snippet "sign_in" %}
+      <p>
+        By signing in to your GitHub account here, your OpenSAFELY access
+        request is associated with your GitHub user account.
+      </p>
 
       <a
         class="btn btn-success"

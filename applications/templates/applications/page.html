@@ -1,15 +1,25 @@
 {% extends "base.html" %}
 
+{% block jumbotron %}
+<div class="jumbotron jumbotron-fluid pt-md-2">
+  <div class="container">
+    <div class="d-flex flex-column flex-md-row align-items-center">
+      <div>
+        <h1 class="display-4">{{ title }}</h1>
+
+        {% if sub_title %}
+        <p class="lead">{{ sub_title }}</p>
+        {% endif %}
+      </div>
+    </div>
+  </div>
+</div>
+{% endblock jumbotron %}
+
 {% block content %}
 <div class="container">
   <div class="row">
     <div class="col-lg-8">
-      <h2 class="h5">{{ title }}</h2>
-
-      {% if sub_title %}
-      <p>{{ sub_title }}</p>
-      {% endif %}
-
       {% if rubric %}
         <div class="d-flex flex-column mb-3">
           {{ rubric }}

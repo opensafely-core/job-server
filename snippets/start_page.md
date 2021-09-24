@@ -1,8 +1,3 @@
-# Apply for research access to OpenSAFELY
-
-This form is for researchers requiring access to information on the OpenSAFELY-EMIS/-TPP COVID-19 research platform.
-One lead applicant — the application owner — should complete this form on behalf of their research team.
-
 ## What data can I access via OpenSAFELY?
 Our [documentation](https://docs.opensafely.org/) lists the available [data sources](https://docs.opensafely.org/en/latest/dataset-intro/).
 
