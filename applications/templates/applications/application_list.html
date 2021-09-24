@@ -1,0 +1,57 @@
+{% extends "base.html" %}
+
+{% block metatitle %}Applications | OpenSAFELY Jobs{% endblock metatitle %}
+
+{% block breadcrumbs %}
+<nav class="breadcrumb-container" aria-label="breadcrumb">
+  <div class="container">
+    <ol class="breadcrumb rounded-0 mb-0 px-0">
+      <li class="breadcrumb-item">
+        <a href="/">Home</a>
+      </li>
+      <li class="breadcrumb-item active" aria-current="page">
+        Applications
+      </li>
+    </ol>
+  </div>
+</nav>
+{% endblock breadcrumbs %}
+
+{% block jumbotron %}
+<div class="jumbotron jumbotron-fluid pt-md-2">
+  <div class="container">
+    <div class="d-flex flex-column flex-md-row align-items-center">
+      <div>
+        <h1 class="pt-4 pt-md-0">Applications</h1>
+        <a class="btn btn-success" href="{% url 'applications:start' %}">Start a new project</a>
+      </div>
+    </div>
+  </div>
+</div>
+{% endblock jumbotron %}
+
+{% block content %}
+<div class="container">
+  {% if applications %}
+  <div class="row">
+    <div class="col-12">
+      <p>These are individual OpenSAFELY applications that have been started by you.</p>
+    </div>
+    <div class="col col-lg-9 col-xl-8">
+      <div class="list-group list-unstyled">
+        {% for application in applications %}
+        <a href="{% url 'applications:page' pk=application.pk page_num=1 %}"
+          class="list-group-item list-group-item-action">
+          Application {{ application.pk }} started on {{ application.created_at|date }}
+        </a>
+        {% endfor %}
+      </div>
+    </div>
+  </div>
+  {% else %}
+  <p class="lead">
+    There are no projects for this organisation yet.
+  </p>
+  {% endif %}
+</div>
+{% endblock %}

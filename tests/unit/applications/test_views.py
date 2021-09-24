@@ -7,6 +7,7 @@ from django.urls import reverse
 from applications.form_specs import form_specs
 from applications.models import Application, ResearcherRegistration
 from applications.views import (
+    ApplicationList,
     ResearcherCreate,
     ResearcherDelete,
     ResearcherEdit,
@@ -19,6 +20,19 @@ from applications.views import (
 from jobserver.authorization import CoreDeveloper
 
 from ...factories import ApplicationFactory, ResearcherRegistrationFactory, UserFactory
+
+
+def test_applicationlist_success(rf):
+    user = UserFactory()
+    ApplicationFactory.create_batch(5, created_by=user)
+
+    request = rf.get("/")
+    request.user = user
+
+    response = ApplicationList.as_view()(request)
+
+    assert response.status_code == 200
+    assert len(response.context_data["applications"]) == 5
 
 
 def test_researchercreate_get_success(rf):

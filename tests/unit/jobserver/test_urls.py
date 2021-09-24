@@ -77,6 +77,7 @@ def test_url_redirects(client, url, redirect):
         ("/apply/", TemplateView),
         ("/apply/sign-in", applications.sign_in),
         ("/apply/terms/", applications.terms),
+        ("/applications/", applications.ApplicationList),
         ("/applications/42/page/42/", applications.page),
         ("/applications/42/confirmation/", applications.confirmation),
         ("/applications/42/researchers/add", applications.ResearcherCreate),
