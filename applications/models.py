@@ -1,4 +1,5 @@
 from django.db import models
+from django.urls import reverse
 from django.utils import timezone
 
 
@@ -130,15 +131,32 @@ class ResearcherRegistration(models.Model):
     name = models.TextField()
     job_title = models.TextField()
     email = models.TextField()
-    github_username = models.TextField()
-    telephone = models.TextField()
-    phone_type = models.TextField(choices=PhoneTypes.choices)
 
-    has_taken_safe_researcher_training = models.BooleanField()
-    training_with_org = models.TextField()
-    training_passed_at = models.DateTimeField()
+    does_researcher_need_server_access = models.BooleanField(
+        null=True, choices=YES_NO_CHOICES
+    )
+    telephone = models.TextField(blank=True)
+    phone_type = models.TextField(blank=True, choices=PhoneTypes.choices, default="")
+
+    has_taken_safe_researcher_training = models.BooleanField(
+        null=True, choices=YES_NO_CHOICES
+    )
+    training_with_org = models.TextField(blank=True)
+    training_passed_at = models.DateTimeField(null=True, blank=True)
 
     created_at = models.DateTimeField(default=timezone.now)
 
     def __str__(self):
         return self.name
+
+    def get_delete_url(self):
+        return reverse(
+            "applications:researcher-delete",
+            kwargs={"pk": self.application.pk, "researcher_pk": self.pk},
+        )
+
+    def get_edit_url(self):
+        return reverse(
+            "applications:researcher-edit",
+            kwargs={"pk": self.application.pk, "researcher_pk": self.pk},
+        )
