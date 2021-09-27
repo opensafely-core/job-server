@@ -1,6 +1,6 @@
 from __future__ import annotations
 
-from dataclasses import dataclass
+from dataclasses import asdict, dataclass
 from typing import Callable
 
 from applications.models import Application
@@ -67,6 +67,7 @@ class Field:
     label: str
     help_text: str = ""
     template_name: str | None = None
+    attributes: Attributes | None = None
 
     def template_context(self, form):
         template_lut = {
@@ -100,7 +101,23 @@ class Field:
             "template_name": template_name,
         }
 
+        if self.attributes:
+            context |= {"attributes": self.attributes.template_context()}
+
         return context
+
+
+@dataclass
+class Attributes:
+    type: str = "text"  # noqa: A003
+    inputmode: str | None = None
+    autocomplete: str | None = None
+    autocapitalize: str | None = None
+    spellcheck: str | None = None
+    autocorrect: str | None = None
+
+    def template_context(self):
+        return {k: v for k, v in asdict(self).items() if v is not None}
 
 
 def maybe_replace_value_with_snippet(value, key):

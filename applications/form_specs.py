@@ -1,4 +1,4 @@
-from .form_spec_helpers import SNIPPET, Field, Fieldset, Form
+from .form_spec_helpers import SNIPPET, Attributes, Field, Fieldset, Form
 
 
 form_specs = [
@@ -14,6 +14,10 @@ form_specs = [
                     Field(
                         name="full_name",
                         label="Full name",
+                        attributes=Attributes(
+                            autocomplete="name",
+                            autocapitalize="words",
+                        ),
                     ),
                     Field(
                         name="email",
@@ -31,6 +35,9 @@ form_specs = [
                     Field(
                         name="job_title",
                         label="Job title",
+                        attributes=Attributes(
+                            autocomplete="organization-title",
+                        ),
                     ),
                     Field(
                         name="team_name",
@@ -39,6 +46,9 @@ form_specs = [
                     Field(
                         name="organisation",
                         label="Organisation",
+                        attributes=Attributes(
+                            autocomplete="organization",
+                        ),
                     ),
                 ],
             ),
@@ -89,6 +99,9 @@ form_specs = [
                     Field(
                         name="author_name",
                         label="Name of application owner",
+                        attributes=Attributes(
+                            autocomplete="name",
+                        ),
                     ),
                     Field(
                         name="author_email",
@@ -97,6 +110,9 @@ form_specs = [
                     Field(
                         name="author_organisation",
                         label="Affiliated organisation",
+                        attributes=Attributes(
+                            autocomplete="organization",
+                        ),
                     ),
                 ],
             ),
@@ -222,6 +238,9 @@ form_specs = [
                     Field(
                         name="sponsor_name",
                         label="Sponsor name",
+                        attributes=Attributes(
+                            autocapitalize="words",
+                        ),
                     ),
                     Field(
                         name="sponsor_email",
