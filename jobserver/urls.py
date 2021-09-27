@@ -71,40 +71,40 @@ api_urls = [
     path("job-requests/", JobRequestAPIList.as_view()),
     path("jobs/", JobAPIUpdate.as_view()),
     path("release-notifications/", ReleaseNotificationAPICreate.as_view()),
-    path("users/<username>/", UserAPIDetail.as_view(), name="user-detail"),
+    path("users/<str:username>/", UserAPIDetail.as_view(), name="user-detail"),
     path(
-        "workspaces/<name>/statuses/",
+        "workspaces/<str:name>/statuses/",
         WorkspaceStatusesAPI.as_view(),
         name="workspace-statuses",
     ),
     # releasing outputs API
     path(
-        "workspaces/<workspace_id>/snapshots",
+        "workspaces/<str:workspace_id>/snapshots",
         SnapshotCreateAPI.as_view(),
         name="snapshot-create",
     ),
     path(
-        "workspaces/<workspace_id>/snapshots/<snapshot_id>",
+        "workspaces/<workspace_id>/snapshots/<int:snapshot_id>",
         SnapshotAPI.as_view(),
         name="snapshot",
     ),
     path(
-        "workspaces/<workspace_id>/snapshots/<snapshot_id>/publish",
+        "workspaces/<str:workspace_id>/snapshots/<int:snapshot_id>/publish",
         SnapshotPublishAPI.as_view(),
         name="snapshot-publish",
     ),
     path(
-        "workspaces/<workspace_id>/status",
+        "workspaces/<str:workspace_id>/status",
         WorkspaceStatusAPI.as_view(),
         name="workspace-status",
     ),
     path(
-        "releases/workspace/<workspace_name>",
+        "releases/workspace/<str:workspace_name>",
         ReleaseWorkspaceAPI.as_view(),
         name="release-workspace",
     ),
     path(
-        "releases/release/<release_id>",
+        "releases/release/<str:release_id>",
         ReleaseAPI.as_view(),
         name="release",
     ),
@@ -118,12 +118,12 @@ api_urls = [
 files_urls = [
     path("", WorkspaceFileList.as_view(), name="workspace-files-list"),
     path(
-        "<backend_slug>/",
+        "<str:backend_slug>/",
         WorkspaceBackendFiles.as_view(),
         name="workspace-backend-files",
     ),
     path(
-        "<backend_slug>/<path:path>",
+        "<str:backend_slug>/<path:path>",
         WorkspaceBackendFiles.as_view(),
         name="workspace-backend-files",
     ),
@@ -170,14 +170,14 @@ releases_urls = [
         WorkspaceReleaseList.as_view(),
         name="workspace-release-list",
     ),
-    path("<pk>/", ReleaseDetail.as_view(), name="release-detail"),
-    path("<pk>/download/", ReleaseDownload.as_view(), name="release-download"),
+    path("<str:pk>/", ReleaseDetail.as_view(), name="release-detail"),
+    path("<str:pk>/download/", ReleaseDownload.as_view(), name="release-download"),
     path(
-        "<pk>/<release_file_id>/delete/",
+        "<str:pk>/<str:release_file_id>/delete/",
         ReleaseFileDelete.as_view(),
         name="release-file-delete",
     ),
-    path("<pk>/<path:path>", ReleaseDetail.as_view(), name="release-detail"),
+    path("<str:pk>/<path:path>", ReleaseDetail.as_view(), name="release-detail"),
 ]
 
 workspace_urls = [
@@ -205,10 +205,10 @@ workspace_urls = [
     ),
     path("outputs/", include(outputs_urls)),
     path("releases/", include(releases_urls)),
-    path("<pk>/", JobRequestDetail.as_view(), name="job-request-detail"),
-    path("<pk>/cancel/", JobRequestCancel.as_view(), name="job-request-cancel"),
-    path("<pk>/<identifier>/", JobDetail.as_view(), name="job-detail"),
-    path("<pk>/<identifier>/cancel/", JobCancel.as_view(), name="job-cancel"),
+    path("<int:pk>/", JobRequestDetail.as_view(), name="job-request-detail"),
+    path("<int:pk>/cancel/", JobRequestCancel.as_view(), name="job-request-cancel"),
+    path("<int:pk>/<identifier>/", JobDetail.as_view(), name="job-detail"),
+    path("<int:pk>/<identifier>/cancel/", JobCancel.as_view(), name="job-cancel"),
 ]
 
 project_urls = [
@@ -237,7 +237,7 @@ project_urls = [
     path("new-workspace/", WorkspaceCreate.as_view(), name="workspace-create"),
     path("releases/", ProjectReleaseList.as_view(), name="project-release-list"),
     path("settings/", ProjectSettings.as_view(), name="project-settings"),
-    path("<workspace_slug>/", include(workspace_urls)),
+    path("<str:workspace_slug>/", include(workspace_urls)),
 ]
 
 org_urls = [
@@ -268,7 +268,7 @@ urlpatterns = [
     path("workspaces/", RedirectView.as_view(url="/")),
     path("__debug__/", include(debug_toolbar.urls)),
     path(
-        "<org_slug>/",
+        "<str:org_slug>/",
         include(
             [
                 path("", OrgDetail.as_view(), name="org-detail"),
@@ -278,7 +278,7 @@ urlpatterns = [
                     name="project-create",
                 ),
                 path(
-                    "<project_slug>/",
+                    "<str:project_slug>/",
                     include(project_urls),
                 ),
             ]
