@@ -114,10 +114,27 @@ class JobAPIUpdate(APIView):
                     identifier=job_data["identifier"],
                     defaults={**job_data},
                 )
-                if created:
-                    created_job_ids.append(str(job.id))
-                else:
+
+                if not created:
                     updated_job_ids.append(str(job.id))
+                    # check to see if the Job is about to transition to completed
+                    # (failed or succeeded) so we can notify after the update
+                    completed = ["failed", "succeeded"]
+                    should_notify = (
+                        job.status not in completed and job_data["status"] in completed
+                    )
+                    # update Job "manually" so we can make the check above for
+                    # status transition
+                    for key, value in job_data.items():
+                        setattr(job, key, value)
+                    job.save()
+                    job.refresh_from_db()
+                else:
+                    created_job_ids.append(str(job.id))
+                    # For newly created jobs we can't check if they've just
+                    # transition to "completed" so we knowingly skip potential
+                    # notifications here to avoid creating false positives.
+                    should_notify = False
 
                 if "internal error" in job.status_message.lower():
                     # bubble internal errors encountered with a job up to
@@ -128,27 +145,6 @@ class JobAPIUpdate(APIView):
                             "job", request.build_absolute_uri(job.get_absolute_url())
                         )
                         sentry_sdk.capture_message("Job encountered an internal error")
-
-                if created:
-                    # this is the first time job-server has heard about this
-                    # Job so we can move on to further Jobs.  We're knowingly
-                    # skipping potential notifications here to avoid creating
-                    # false positives.
-                    continue
-
-                # check to see if the Job is about to transition to completed
-                # (failed or succeeded) so we can notify after the update
-                completed = ["failed", "succeeded"]
-                should_notify = (
-                    job.status not in completed and job_data["status"] in completed
-                )
-
-                # update Job "manually" so we can make the check above for
-                # status transition
-                for key, value in job_data.items():
-                    setattr(job, key, value)
-                job.save()
-                job.refresh_from_db()
 
                 if not job_request.will_notify:
                     continue

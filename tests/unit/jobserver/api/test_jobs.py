@@ -445,17 +445,23 @@ def test_jobapiupdate_post_with_internal_error(api_rf, mocker):
             "action": "test-action",
             "status": "running",
             "status_code": "",
-            "status_message": "Internal error",
+            "status_message": "Running",
             "created_at": now,
             "started_at": now,
             "updated_at": now,
             "completed_at": None,
         },
     ]
-    request = api_rf.post(
+    request_1 = api_rf.post(
         "/", HTTP_AUTHORIZATION=backend.auth_token, data=data, format="json"
     )
-    response = JobAPIUpdate.as_view()(request)
+    JobAPIUpdate.as_view()(request_1)
+
+    data[0]["status_message"] = "Internal error"
+    request_2 = api_rf.post(
+        "/", HTTP_AUTHORIZATION=backend.auth_token, data=data, format="json"
+    )
+    response = JobAPIUpdate.as_view()(request_2)
 
     assert response.status_code == 200, response.data
 
