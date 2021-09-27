@@ -1,28 +1,58 @@
 {% extends "staff/base.html" %}
 
+{% block metatitle %}Organisations: Staff Area | OpenSAFELY Jobs{% endblock metatitle %}
+
+{% block breadcrumbs %}
+<nav class="breadcrumb-container breadcrumb--danger" aria-label="breadcrumb">
+  <div class="container">
+    <ol class="breadcrumb rounded-0 mb-0 px-0">
+      <li class="breadcrumb-item">
+        <a href="/staff/">Staff area</a>
+      </li>
+      <li class="breadcrumb-item active" aria-current="page">
+        Organisations
+      </li>
+    </ol>
+  </div>
+</nav>
+{% endblock breadcrumbs %}
+
+{% block jumbotron %}
+<div class="jumbotron jumbotron-fluid jumbotron--danger pt-md-2">
+  <div class="container">
+    <h1 class="display-4">Organisations</h1>
+  </div>
+</div>
+{% endblock jumbotron %}
+
 {% block staff_content %}
-<div class="row">
-  <div class="col-lg-6 offset-lg-2">
-
-    <form class="form d-flex align-items-center mb-4" method="GET">
-      <input
-        class="form-control mr-2"
-        type="search"
-        placeholder="Search by org name"
-        aria-label="Search"
-        {% if q %}
-        value="{{ q }}"
-        {% endif %}
-        name="q" />
-      <button class="btn btn-outline-success my-2 my-sm-0" type="submit">Search</button>
-    </form>
-
-    {% for org in org_list %}
-    <div class="border rounded p-2 pl-3 mb-3">
-      <a href="{{ org.get_staff_url }}">{{ org.name }}</a>
+<div class="container">
+  <div class="row">
+    <div class="col col-lg-9 col-xl-8">
+      <form method="GET" class="mb-4">
+        <div class="form-inline w-100 d-flex flex-nowrap">
+          <label for="orgSearch" class="sr-only">Search by org name</label>
+          <input
+            class="form-control mr-sm-2 w-100"
+            id="orgSearch"
+            name="q"
+            placeholder="Search by org name"
+            type="search"
+            {% if q %}
+              value="{{ q }}"
+            {% endif %}
+          >
+          <button class="btn btn-outline-success my-2 my-sm-0" type="submit">Search</button>
+        </div>
+      </form>
+      <div class="list-group list-unstyled">
+        {% for org in org_list %}
+          <a href="{{ org.get_staff_url }}" class="d-flex align-items-center list-group-item list-group-item-action">
+            <span class="mr-3">{{ org.name }}</span>
+          </a>
+        {% endfor %}
+      </div>
     </div>
-    {% endfor %}
-
   </div>
 </div>
 {% endblock staff_content %}

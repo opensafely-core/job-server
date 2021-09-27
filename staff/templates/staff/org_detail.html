@@ -7,37 +7,59 @@
 <link rel="stylesheet" href="{% static 'vendor/select2-bootstrap4.min.css' %}">
 {% endblock %}
 
-{% block staff_content %}
-<div class="row mb-5">
-  <div class="col-lg-8 offset-lg-2">
+{% block metatitle %}{{ org.name }}: Staff Area | OpenSAFELY Jobs{% endblock metatitle %}
 
-    <div class="mb-5">
-      <div class="d-flex justify-content-between align-items-center">
-        <h2>{{ org.name }}</h2>
+{% block breadcrumbs %}
+<nav class="breadcrumb-container breadcrumb--danger" aria-label="breadcrumb">
+  <div class="container">
+    <ol class="breadcrumb rounded-0 mb-0 px-0">
+      <li class="breadcrumb-item">
+        <a href="/staff/">Staff area</a>
+      </li>
+      <li class="breadcrumb-item">
+        <a href="/staff/orgs/">Organisations</a>
+      </li>
+      <li class="breadcrumb-item active" aria-current="page">
+        {{ org.name }}
+      </li>
+    </ol>
+  </div>
+</nav>
+{% endblock breadcrumbs %}
 
-        <div>
-          <a class="btn btn-sm btn-danger" href="{{ org.get_edit_url }}">Edit</a>
-          <a class="btn btn-sm btn-primary" href="{{ org.get_absolute_url }}">View on Site</a>
-        </div>
-      </div>
+{% block jumbotron %}
+<div class="jumbotron jumbotron-fluid jumbotron--danger pt-md-2">
+  <div class="container">
+    <h1 class="display-4">{{ org.name }}</h1>
 
+    <ul class="list-unstyled lead">
       {% if org.created_by %}
-      <p>
-        <strong>Created by:</strong>
-        <a href="{{ org.created_by.get_staff_url }}">{{ org.created_by.name }}</a>
-      </p>
+        <li>
+          <strong>Created by:</strong>
+          <a href="{{ org.created_by.get_staff_url }}">{{ org.created_by.name }}</a>
+        </li>
       {% endif %}
 
-      <p>
+      <li>
         <strong>Created at:</strong> {{ org.created_at }}
-      </p>
+      </li>
+    </ul>
 
+    <div class="d-flex">
+      <a class="btn btn-danger mr-1" href="{{ org.get_edit_url }}">Edit</a>
+      <a class="btn btn-primary" href="{{ org.get_absolute_url }}">View on Site</a>
     </div>
+  </div>
+</div>
+{% endblock jumbotron %}
 
-    <div class="mb-5">
-      <h4>Members</h4>
+{% block staff_content %}
+<div class="container">
+  <div class="row">
+    <div class="col col-lg-9 col-xl-8">
+      <h2 class="h3">Members</h2>
 
-      <form method="POST" class="mb-2">
+      <form method="POST" class="mb-3">
         {% csrf_token %}
 
         {% if form.non_field_errors %}
@@ -52,56 +74,50 @@
           <div class="w-100 mr-1">
             <select id="id_users" name="users" multiple required>
               {% for value, label in form.fields.users.choices %}
-              <option value="{{ value }}">{{ label }}</option>
+                <option value="{{ value }}">{{ label }}</option>
               {% endfor %}
             </select>
 
             {% for error in form.users.errors %}
-            <p class="text-danger">{{ error }}</p>
+              <p class="text-danger">{{ error }}</p>
             {% endfor %}
           </div>
 
-          <button class="btn btn-sm btn-primary" type="submit">Add</button>
+          <button class="btn btn-outline-primary my-2 my-sm-0" type="submit">Add</button>
         </div>
 
       </form>
 
-      <ul class="list-group mb-3">
+      <div class="list-group list-unstyled mb-4">
+        <ul class="list-group">
         {% for user in members %}
-        <li class="list-group-item d-flex justify-content-between align-items-center">
-
-          <div>
-            <a href="{{ user.get_staff_url }}">{{ user.username }}</a>
+          <li class="list-group-item d-flex align-items-center">
+            <span>{{ user.username }}</span>
             {% if user.get_full_name %}
-            <small class="text-muted">({{ user.get_full_name }})</small>
+              <small class="ml-2 text-muted">({{ user.get_full_name }})</small>
             {% endif %}
-          </div>
-
-          <form method="POST" action="{% url 'staff:org-remove-member' slug=org.slug %}">
-            {% csrf_token %}
-
-            <input type="hidden" name="username" value="{{ user.username }}" />
-
-            <button class="btn btn-sm btn-danger" type="submit">&times;</button>
-          </form>
-
-        </li>
+            <a class="btn btn-sm btn-primary ml-auto mr-2" href="{{ user.get_staff_url }}">Edit</a>
+            <form method="POST" action="{% url 'staff:org-remove-member' slug=org.slug %}">
+              {% csrf_token %}
+              <input type="hidden" name="username" value="{{ user.username }}" />
+              <button class="btn btn-sm btn-danger" type="submit">Remove <span class="sr-only">from {{ org.name }}</span></button>
+            </form>
+          </li>
         {% endfor %}
-      </ul>
-    </div>
+        </ul>
+      </div>
 
-    <div class="form-group mb-5">
-      <h4>Projects</h4>
-
-      <ul class="list-group mb-3">
+      <h2 class="h3">Projects</h2>
+      <ul class="list-group list-unstyled">
         {% for project in projects %}
-        <li class="list-group-item">
-          <a href="{{ project.get_staff_url }}">{{ project.name }}</a>
-        </li>
+          <li class="list-group-item list-group-item-action">
+            <a class="list-group-item-action" href="{{ project.get_staff_url }}">
+              {{ project.name }}
+            </a>
+          </li>
         {% endfor %}
       </ul>
     </div>
-
   </div>
 </div>
 {% endblock staff_content %}
