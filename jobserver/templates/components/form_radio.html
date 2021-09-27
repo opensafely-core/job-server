@@ -1,25 +1,32 @@
-<h2 class="h4 mb-2">{{ label }}</h2>
+<fieldset class="d-flex flex-column mb-4">
+  <legend>
+    <h2 class="h3">{{ label }}</h2>
+  </legend>
 
-{% for value, label in field.field.choices %}
-  <div class="custom-control custom-radio mb-2">
-    <input
-      class="custom-control-input"
-      type="radio"
-      name="{{ name }}"
-      id="id_{{ name }}{{ forloop.counter }}"
-      value="{{ value|stringformat:'s' }}"
-      {% if field.value|stringformat:'s' == value|stringformat:'s' %}checked{% endif %}
-    />
-    <label class="custom-control-label" for="id_{{ name }}{{ forloop.counter }}">
-      {{ label }}
-    </label>
-  </div>
-{% endfor %}
-
-{% if field.errors %}
-  <ul class="pl-3 mb-1">
-    {% for error in field.errors %}
-      <li class="text-danger">{{ error }}</li>
+  <div class="form-group">
+    {% for value, label in field.field.choices %}
+    <div class="custom-control custom-radio mb-1">
+      <input
+        class="custom-control-input"
+        type="radio"
+        name="{{ name }}"
+        id="id_{{ name }}{{ forloop.counter }}"
+        value="{{ value }}"
+        {% if field.value == value %}checked{% endif %}
+      />
+      <label class="custom-control-label" for="id_{{ name }}{{ forloop.counter }}">
+        {{ label }}
+      </label>
+    </div>
     {% endfor %}
-  </ul>
-{% endif %}
+
+    {% if field.errors %}
+    <ul class="pl-3 mb-1">
+      {% for error in field.errors %}
+        <li class="text-danger">{{ error }}</li>
+      {% endfor %}
+    </ul>
+    {% endif %}
+  </div>
+
+</fieldset>
