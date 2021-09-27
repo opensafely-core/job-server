@@ -36,6 +36,11 @@ form_specs = [
                     Field(
                         name="telephone",
                         label="Telephone number",
+                        attributes=Attributes(
+                            type="tel",
+                            inputmode="tel",
+                            autocomplete="tel",
+                        ),
                     ),
                 ],
             ),
