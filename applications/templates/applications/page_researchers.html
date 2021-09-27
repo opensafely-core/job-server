@@ -1,0 +1,78 @@
+<fieldset class="d-flex flex-column mb-4 {% if not forloop.last %}pb-4 border-bottom{% endif %}">
+  <legend>
+    <h2 class="h3 mb-3">Researcher details</h2>
+  </legend>
+
+  {% for researcher in application.researcher_registrations.all %}
+  <div class="card mb-3">
+    <h2 class="h5 card-header">
+      Researcher {{ forloop.counter }}
+    </h2>
+
+    <div class="card-body">
+      <dl class="row">
+        <dt class="col-7">Name:</dt>
+        <dd class="col-5">{{ researcher.name }}</dd>
+
+        <dt class="col-7">Job title:</dt>
+        <dd class="col-5">{{ researcher.job_title }}</dd>
+
+        <dt class="col-7">Email:</dt>
+        <dd class="col-5">{{ researcher.email }}</dd>
+      </dl>
+
+      <dl class="row">
+        <dt class="col-7">Do they need access to the results server?</dt>
+        <dd class="col-5">{{ researcher.get_does_researcher_need_server_access_display }}</dd>
+
+        <dt class="col-7">Phone number:</dt>
+        <dd class="col-5">{{ researcher.telephone|default:"N/A" }}</dd>
+
+        <dt class="col-7">Type of phone:</dt>
+        <dd class="col-5">{{ researcher.get_phone_type_display|default:"N/A" }}</dd>
+      </dl>
+
+      <dl class="row">
+        <dt class="col-7">Have they undertaken safe researcher training?</dt>
+        <dd class="col-5">{{ researcher.get_has_taken_safe_researcher_training_display }}</dd>
+
+        <dt class="col-7">Organisation training completed with:</dt>
+        <dd class="col-5">{{ researcher.training_with_org|default:"N/A" }}</dd>
+
+        <dt class="col-7">Training passed on:</dt>
+        <dd class="col-5">
+          {% if researcher.training_passed_at %}
+          {{ researcher.training_passed_at|date:"Y-m-d"|default:"N/A" }}
+          {% endif %}
+        </dd>
+      </dl>
+
+      <div class="d-flex justify-content-end">
+        <a class="btn btn-sm btn-secondary mr-2" href="{{ researcher.get_edit_url }}?next={{ request.path }}">
+          Edit researcher details
+        </a>
+
+        <form method="POST" action="{{ researcher.get_delete_url }}?next={{ request.path }}">
+          {% csrf_token %}
+          <button type="submit" class="btn btn-sm btn-danger">
+            Delete researcher details
+          </button>
+        </form>
+      </div>
+    </div>
+  </div>
+  {% endfor %}
+
+  <div class="d-flex justify-content-end">
+    <a
+      class="btn btn-sm btn-secondary"
+      href="{% url 'applications:researcher-add' pk=application.pk %}?next={{ request.path }}">
+      Add new researcher
+    </a>
+  </div>
+</fieldset>
+
+<form method="POST">
+  {% csrf_token %}
+  <button class="btn btn-lg btn-success mt-3" type="submit">Continue</button>
+</form>

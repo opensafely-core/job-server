@@ -1,12 +1,16 @@
+from django.contrib import messages
 from django.contrib.auth.decorators import login_required
 from django.http import Http404
 from django.shortcuts import get_object_or_404, redirect
 from django.template.response import TemplateResponse
+from django.urls import reverse
+from django.views.generic import CreateView, ListView, UpdateView, View
 
 from jobserver.authorization import has_permission
 
 from .form_specs import form_specs
-from .models import Application
+from .forms import ResearcherRegistrationForm
+from .models import Application, ResearcherRegistration
 from .wizard import Wizard
 
 
@@ -18,6 +22,86 @@ def validate_application_access(user, application):
         return
 
     raise Http404
+
+
+def get_next_url(get_args):
+    try:
+        return get_args["next"]
+    except KeyError:
+        return reverse("applications:list")
+
+
+class ApplicationList(ListView):
+    context_object_name = "applications"
+    template_name = "applications/application_list.html"
+
+    def get_queryset(self):
+        return Application.objects.filter(created_by=self.request.user)
+
+
+class ResearcherCreate(CreateView):
+    form_class = ResearcherRegistrationForm
+    model = ResearcherRegistration
+    template_name = "applications/researcher_form.html"
+
+    def dispatch(self, request, *args, **kwargs):
+        self.application = get_object_or_404(Application, pk=self.kwargs["pk"])
+
+        validate_application_access(request.user, self.application)
+
+        return super().dispatch(request, *args, **kwargs)
+
+    def form_valid(self, form):
+        researcher = form.save(commit=False)
+        researcher.application = self.application
+        researcher.save()
+
+        return redirect(get_next_url(self.request.GET))
+
+
+class ResearcherDelete(View):
+    def post(self, request, *args, **kwargs):
+        researcher = get_object_or_404(
+            ResearcherRegistration,
+            application__pk=self.kwargs["pk"],
+            pk=self.kwargs["researcher_pk"],
+        )
+
+        validate_application_access(request.user, researcher.application)
+
+        researcher.delete()
+
+        messages.success(
+            request,
+            f'Successfully removed researcher "{researcher.email}" from application',
+        )
+
+        return redirect(get_next_url(request.GET))
+
+
+class ResearcherEdit(UpdateView):
+    form_class = ResearcherRegistrationForm
+    model = ResearcherRegistration
+    template_name = "applications/researcher_form.html"
+
+    def get_context_data(self, **kwargs):
+        return super().get_context_data(**kwargs) | {
+            "is_edit": True,
+        }
+
+    def get_object(self, queryset=None):
+        researcher = get_object_or_404(
+            ResearcherRegistration,
+            application__pk=self.kwargs["pk"],
+            pk=self.kwargs["researcher_pk"],
+        )
+
+        validate_application_access(self.request.user, researcher.application)
+
+        return researcher
+
+    def get_success_url(self):
+        return get_next_url(self.request.GET)
 
 
 @login_required

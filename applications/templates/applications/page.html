@@ -52,6 +52,9 @@
         {% endfor %}
       {% endif %}
 
+      {% if template_name %}
+      {% include template_name %}
+      {% else %}
       <form method="POST">
         {% csrf_token %}
 
@@ -60,7 +63,6 @@
             <legend>
               <h2 class="h3 mb-3">{{ fieldset.label }}</h2>
             </legend>
-
             {% for field in fieldset.fields %}
               {% include field.template_name with field=field.field label=field.label name=field.name %}
             {% endfor %}
@@ -75,6 +77,7 @@
             {% endif %}
         </button>
       </form>
+      {% endif %}
     </div>
   </div>
 </div>

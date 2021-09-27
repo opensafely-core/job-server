@@ -3,8 +3,10 @@ import inspect
 import pytest
 from django.contrib.auth.views import LogoutView
 from django.urls import resolve
+from django.views.generic import TemplateView
 from social_django.views import auth as social_django_auth_view
 
+from applications import views as applications
 from jobserver.api.jobs import (
     JobAPIUpdate,
     JobRequestAPIList,
@@ -42,6 +44,7 @@ from staff.views import workspaces as staff_workspaces
 @pytest.mark.parametrize(
     "url,redirect",
     [
+        ("/applications/42/researchers/", "/applications/42/researchers/add"),
         ("/favicon.ico", "/static/favicon.ico"),
         ("/event-list/", "/event-log/"),
         ("/jobs/", "/event-log/"),
@@ -71,6 +74,15 @@ def test_url_redirects(client, url, redirect):
         ("/api/v2/releases/workspace/w", ReleaseWorkspaceAPI),
         ("/api/v2/releases/release/42", ReleaseAPI),
         ("/api/v2/releases/file/42", ReleaseFileAPI),
+        ("/apply/", TemplateView),
+        ("/apply/sign-in", applications.sign_in),
+        ("/apply/terms/", applications.terms),
+        ("/applications/", applications.ApplicationList),
+        ("/applications/42/page/42/", applications.page),
+        ("/applications/42/confirmation/", applications.confirmation),
+        ("/applications/42/researchers/add", applications.ResearcherCreate),
+        ("/applications/42/researchers/42/delete/", applications.ResearcherDelete),
+        ("/applications/42/researchers/42/edit/", applications.ResearcherEdit),
         ("/event-log/", job_requests.JobRequestList),
         ("/staff/backends/", staff_backends.BackendList),
         ("/staff/backends/42/", staff_backends.BackendDetail),

@@ -7,8 +7,8 @@
       type="radio"
       name="{{ name }}"
       id="id_{{ name }}{{ forloop.counter }}"
-      value="{{ value }}"
-      {% if field.value == value %}checked{% endif %}
+      value="{{ value|stringformat:'s' }}"
+      {% if field.value|stringformat:'s' == value|stringformat:'s' %}checked{% endif %}
     />
     <label class="custom-control-label" for="id_{{ name }}{{ forloop.counter }}">
       {{ label }}

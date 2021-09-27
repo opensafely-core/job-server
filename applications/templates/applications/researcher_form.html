@@ -1,0 +1,115 @@
+{% extends "base.html" %}
+
+{% load snippet %}
+
+{% block content %}
+<div class="container">
+  <div class="row">
+    <div class="col-lg-8">
+
+      <h2 class="h5">Add a new researcher to your OpenSAFELY application</h2>
+
+      {% for error in form.non_field_errors %}
+        <div class="alert alert-danger" role="alert">{{ error }}</div>
+      {% endfor %}
+
+      <form method="POST">
+        {% csrf_token %}
+
+        {% if form.does_researcher_need_server_access.errors %}
+        <ul class="pl-3 mb-1">
+          {% for error in form.does_researcher_need_server_access.errors %}
+            <li class="text-danger">{{ error }}</li>
+          {% endfor %}
+        </ul>
+        {% endif %}
+
+        <fieldset>
+          <legend>Researcher details</legend>
+
+          {% include "components/form_text.html" with field=form.name label="Full name" name="name" %}
+          {% include "components/form_text.html" with field=form.job_title label="Job title" name="job_title" %}
+          {% include "components/form_text.html" with field=form.email label="Work email address" name="email" %}
+
+          {% snippet "researcher-details" %}
+
+        </fieldset>
+
+        <fieldset>
+          <legend>Results server access</legend>
+
+          {% snippet "researcher-server-access-rubric" %}
+
+          {% include "components/form_radio.html" with field=form.does_researcher_need_server_access label="" name="does_researcher_need_server_access" %}
+
+          <fieldset>
+            <label>Mobile phone</label>
+
+            <p>This is required to set up Virtual Private Network (VPN) access.</p>
+
+            {% include "components/form_text.html" with field=form.telephone label="Mobile phone number" name="telephone" %}
+            {% include "components/form_radio.html" with field=form.phone_type label="What type of smartphone does this researcher have?" name="phone_type" %}
+          </fieldset>
+
+          <fieldset>
+            <label>Safe researcher training</label>
+
+            {% include "components/form_radio.html" with field=form.has_taken_safe_researcher_training label="Has this researcher undertaken safe researcher training?" name="has_taken_safe_researcher_training" %}
+            {% include "components/form_text.html" with field=form.training_with_org label="If yes, with which organisation?" name="training_with_org" %}
+            <div class="form-group">
+
+              <label class="font-weight-bold" for="id_training_passed_at">
+                If yes, on what date did they pass?
+              </label>
+
+              <input
+                type="date"
+                class="form-control"
+                id="id_training_passed_at"
+                name="training_passed_at"
+
+                {% if form.training_passed_at.help_text %}
+                aria-describedby="training_passed_atHelpBlock"
+                {% endif %}
+
+                {% if form.training_passed_at.field.required %}
+                required
+                {% endif %}
+
+                {% if form.training_passed_at.value %}
+                value="{{ form.training_passed_at.value|date:"Y-m-d" }}"
+                {% endif %}
+
+              />
+
+              {% if form.training_passed_at.help_text %}
+                <small id="training_passed_atHelpBlock" class="form-text text-muted">
+                  {{ form.training_passed_at.help_text }}
+                </small>
+              {% endif %}
+
+              {% if form.training_passed_at.errors %}
+                <ul class="pl-3 mb-1">
+                  {% for error in form.training_passed_at.errors %}
+                    <li class="text-danger">{{ error }}</li>
+                  {% endfor %}
+                </ul>
+              {% endif %}
+
+            </div>
+          </fieldset>
+
+          {% snippet "researcher-server-access-footer" %}
+
+        </fieldset>
+
+        <hr />
+
+        <button class="btn btn-sm btn-success" type="submit">
+          {% if is_edit %}Save{% else %}Add{% endif %} this researcher
+        </button>
+      </form>
+    </div>
+  </div>
+</div>
+{% endblock %}
