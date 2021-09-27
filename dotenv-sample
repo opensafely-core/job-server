@@ -6,10 +6,6 @@ ADMIN_USERS=dummy
 # access to the platform
 AUTHORIZATION_ORGS=opensafely
 
-# Set this to a comma-delimited list of Backends you want to be enabled for the
-# platform
-BACKENDS=test
-
 # Turn on debug
 DEBUG=1
 
@@ -24,6 +20,13 @@ SOCIAL_AUTH_GITHUB_KEY=dummy
 SOCIAL_AUTH_GITHUB_SECRET=dummy
 
 DJANGO_VITE_DEV_MODE=False
+
+# PRODUCTION ONLY
+# You only need to set the values below in Production by default.
+
+# Set this to a comma-delimited list of Backends you want to be enabled for the
+# platform
+BACKENDS=test
 
 # Token for frontend Sentry error tracking DSN
 VITE_SENTRY_DSN=

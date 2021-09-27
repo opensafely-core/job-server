@@ -35,6 +35,13 @@ class WizardPage:
 
     @property
     def form_class(self):
+        """
+        Construct a ModelForm class from this page's form_spec
+
+        Each page uses a ModelForm instance which we dynamically construct with
+        Django's modelform_factory, using the fields defined by the fieldsets
+        of a given form_spec.
+        """
         fields = []
         for fieldset in self.form_spec.fieldsets:
             for field in fieldset.fields:
@@ -44,9 +51,19 @@ class WizardPage:
         return form_class
 
     def get_unbound_form(self):
+        """
+        Create a form instance without POST data (typically for GET requests)
+        """
         return self.form_class(instance=self.application)
 
     def get_bound_form(self, data):
+        """
+        Create a form instance with POST data
+
+        When a page is submitted we validate the submitted data and check if
+        the user can continue to the next page based on rules defined in the
+        form_spec for this page.
+        """
         form = self.form_class(data, instance=self.application)
         form.save()
 
