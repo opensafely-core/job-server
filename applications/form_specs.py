@@ -1,6 +1,15 @@
 from .form_spec_helpers import SNIPPET, Attributes, Field, Fieldset, Form
 
 
+email_attrs = Attributes(
+    type="email",
+    inputmode="email",
+    autocomplete="email",
+    autocapitalize="off",
+    spellcheck="false",
+    autocorrect="off",
+)
+
 form_specs = [
     Form(
         key=1,
@@ -22,6 +31,7 @@ form_specs = [
                     Field(
                         name="email",
                         label="Email",
+                        attributes=email_attrs,
                     ),
                     Field(
                         name="telephone",
@@ -106,6 +116,7 @@ form_specs = [
                     Field(
                         name="author_email",
                         label="Work email address",
+                        attributes=email_attrs,
                     ),
                     Field(
                         name="author_organisation",
@@ -245,6 +256,7 @@ form_specs = [
                     Field(
                         name="sponsor_email",
                         label="Sponsor email address",
+                        attributes=email_attrs,
                     ),
                     Field(
                         name="sponsor_job_role",
