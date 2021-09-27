@@ -1,6 +1,3 @@
-# Terms of use of OpenSAFELY
-This section details the terms of use of OpenSAFELY. By agreeing to these terms, you can continue to submit your access request. Please review the terms carefully.
-
 ## Conditions of OpenSAFELY data use
 * OpenSAFELY operates as a trusted research platform; no record level data is permitted to be extracted from the platform.
 * All outputs from the OpenSAFELY-EMIS/-TPP NHS England COVID-19 research platform must be aggregated data with [small number suppression](https://securedatagroup.org/sdc-handbook/) applied.
