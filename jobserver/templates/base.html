@@ -45,8 +45,8 @@
     <script src="{% static 'vendor/bootstrap.bundle.min.js' %}"></script>
     <script src="{% static 'js/main.js' %}"></script>
 
-    {% vite_asset 'vite/legacy-polyfills' scripts_attrs=scripts_attrs %}
-    {% vite_asset 'assets/src/scripts/main-legacy.js' scripts_attrs=scripts_attrs %}
+    {% vite_legacy_polyfills %}
+    {% vite_legacy_asset 'assets/src/scripts/main-legacy.js' %}
     {% block extra_js %}{% endblock %}
   </body>
 </html>
