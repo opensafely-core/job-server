@@ -1,5 +1,14 @@
-from .form_spec_helpers import SNIPPET, Field, Fieldset, Form
+from .form_spec_helpers import SNIPPET, Attributes, Field, Fieldset, Form
 
+
+email_attrs = Attributes(
+    type="email",
+    inputmode="email",
+    autocomplete="email",
+    autocapitalize="off",
+    spellcheck="false",
+    autocorrect="off",
+)
 
 form_specs = [
     Form(
@@ -14,14 +23,24 @@ form_specs = [
                     Field(
                         name="full_name",
                         label="Full name",
+                        attributes=Attributes(
+                            autocomplete="name",
+                            autocapitalize="words",
+                        ),
                     ),
                     Field(
                         name="email",
                         label="Email",
+                        attributes=email_attrs,
                     ),
                     Field(
                         name="telephone",
                         label="Telephone number",
+                        attributes=Attributes(
+                            type="tel",
+                            inputmode="tel",
+                            autocomplete="tel",
+                        ),
                     ),
                 ],
             ),
@@ -31,6 +50,9 @@ form_specs = [
                     Field(
                         name="job_title",
                         label="Job title",
+                        attributes=Attributes(
+                            autocomplete="organization-title",
+                        ),
                     ),
                     Field(
                         name="team_name",
@@ -39,6 +61,9 @@ form_specs = [
                     Field(
                         name="organisation",
                         label="Organisation",
+                        attributes=Attributes(
+                            autocomplete="organization",
+                        ),
                     ),
                 ],
             ),
@@ -62,6 +87,7 @@ form_specs = [
                         name="study_purpose",
                         label="What is the purpose for which you are requesting access to the OpenSAFELY data?",
                         help_text=SNIPPET,
+                        template_name="components/form_textarea.html",
                     ),
                 ],
             ),
@@ -88,14 +114,21 @@ form_specs = [
                     Field(
                         name="author_name",
                         label="Name of application owner",
+                        attributes=Attributes(
+                            autocomplete="name",
+                        ),
                     ),
                     Field(
                         name="author_email",
                         label="Work email address",
+                        attributes=email_attrs,
                     ),
                     Field(
                         name="author_organisation",
                         label="Affiliated organisation",
+                        attributes=Attributes(
+                            autocomplete="organization",
+                        ),
                     ),
                 ],
             ),
@@ -113,6 +146,7 @@ form_specs = [
                     Field(
                         name="data_meets_purpose",
                         label="State how the data you have requested meets your purpose",
+                        template_name="components/form_textarea.html",
                     ),
                     Field(
                         name="need_record_level_data",
@@ -134,6 +168,7 @@ form_specs = [
                     Field(
                         name="record_level_data_reasons",
                         label="Explain why you require access to record level data",
+                        template_name="components/form_textarea.html",
                     ),
                 ],
             ),
@@ -219,10 +254,14 @@ form_specs = [
                     Field(
                         name="sponsor_name",
                         label="Sponsor name",
+                        attributes=Attributes(
+                            autocapitalize="words",
+                        ),
                     ),
                     Field(
                         name="sponsor_email",
                         label="Sponsor email address",
+                        attributes=email_attrs,
                     ),
                     Field(
                         name="sponsor_job_role",
@@ -265,6 +304,7 @@ form_specs = [
                         name="legal_basis_for_accessing_data_under_dpa",
                         label="State the legal basis for accessing the data under data protection law",
                         help_text=SNIPPET,
+                        template_name="components/form_textarea.html",
                     ),
                 ],
             ),
@@ -275,6 +315,7 @@ form_specs = [
                         name="how_is_duty_of_confidentiality_satisfied",
                         label="State how you are satisfying or setting aside the common law duty of confidentiality",
                         help_text=SNIPPET,
+                        template_name="components/form_textarea.html",
                     ),
                 ],
             ),
@@ -292,6 +333,7 @@ form_specs = [
                     Field(
                         name="funding_details",
                         label="Provide details of how your research study is funded",
+                        template_name="components/form_textarea.html",
                     ),
                 ],
             ),
@@ -309,6 +351,7 @@ form_specs = [
                     Field(
                         name="team_details",
                         label="Provide details of the team involved in the proposed research",
+                        template_name="components/form_textarea.html",
                     ),
                 ],
             ),
@@ -326,6 +369,7 @@ form_specs = [
                     Field(
                         name="previous_experience_with_ehr",
                         label="Describe your previous experience of working with primary care electronic health record data (e.g. CPRD)",
+                        template_name="components/form_textarea.html",
                     ),
                 ],
             ),
@@ -344,6 +388,7 @@ form_specs = [
                         name="evidence_of_coding",
                         label="Provide evidence of you/your research group experience of using a script-based coding language",
                         help_text=SNIPPET,
+                        template_name="components/form_textarea.html",
                     ),
                     Field(
                         name="all_applicants_completed_getting_started",
@@ -366,6 +411,7 @@ form_specs = [
                     Field(
                         name="evidence_of_sharing_in_public_domain_before",
                         label="Provide evidence of you/your research group sharing and documenting analytic code in the public domain",
+                        template_name="components/form_textarea.html",
                     ),
                 ],
             ),

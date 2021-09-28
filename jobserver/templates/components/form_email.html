@@ -1,17 +1,16 @@
 <div class="form-group">
 
-  <label
-    class="font-weight-bold"
-    for="id_{{ name }}"
-  >
+  <label class="font-weight-bold" for="id_{{ name }}">
     {{ label }}
   </label>
 
   <input
-    {% if 'type' not in extra_attributes %}
-    type="text"
-    {% endif %}
-
+    type="email"
+    inputmode="email"
+    autocomplete="email"
+    autocapitalize="off"
+    spellcheck="false"
+    autocorrect="off"
     class="form-control"
     id="id_{{ name }}"
     name="{{ name }}"
@@ -28,10 +27,6 @@
     value="{{ field.value }}"
     {% endif %}
 
-    {# add extra form attributes here #}
-    {% for attr_name, attr_value in extra_attributes.items %}
-    {{ attr_name }}={{ attr_value }}
-    {% endfor %}
   />
 
   {% if field.help_text %}

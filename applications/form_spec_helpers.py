@@ -1,6 +1,6 @@
 from __future__ import annotations
 
-from dataclasses import dataclass
+from dataclasses import asdict, dataclass
 from typing import Callable
 
 from applications.models import Application
@@ -66,6 +66,8 @@ class Field:
     name: str
     label: str
     help_text: str = ""
+    template_name: str | None = None
+    attributes: Attributes | None = None
 
     def template_context(self, form):
         template_lut = {
@@ -78,9 +80,13 @@ class Field:
         # Note: doing this with form.fields gets the plain field instance
         bound_field = form[self.name]
 
-        # get the component template using the field class name
-        # Note: this is original field class, not the bound version
-        template_name = template_lut[bound_field.field.__class__.__name__]
+        if self.template_name is not None:
+            template_name = self.template_name
+        else:
+            # fall back to getting the component template using the field class
+            # name
+            # Note: this is original field class, not the bound version
+            template_name = template_lut[bound_field.field.__class__.__name__]
 
         label = maybe_replace_value_with_snippet(self.label, f"{self.key}-label")
         bound_field.help_text = maybe_replace_value_with_snippet(
@@ -95,7 +101,23 @@ class Field:
             "template_name": template_name,
         }
 
+        if self.attributes:
+            context |= {"attributes": self.attributes.template_context()}
+
         return context
+
+
+@dataclass
+class Attributes:
+    type: str = "text"  # noqa: A003
+    inputmode: str | None = None
+    autocomplete: str | None = None
+    autocapitalize: str | None = None
+    spellcheck: str | None = None
+    autocorrect: str | None = None
+
+    def template_context(self):
+        return {k: v for k, v in asdict(self).items() if v is not None}
 
 
 def maybe_replace_value_with_snippet(value, key):

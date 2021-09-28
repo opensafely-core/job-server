@@ -64,7 +64,7 @@
               <h2 class="h3 mb-3">{{ fieldset.label }}</h2>
             </legend>
             {% for field in fieldset.fields %}
-              {% include field.template_name with field=field.field label=field.label name=field.name %}
+              {% include field.template_name with field=field.field label=field.label name=field.name extra_attributes=field.attributes %}
             {% endfor %}
           </fieldset>
         {% endfor %}
