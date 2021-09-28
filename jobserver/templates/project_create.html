@@ -65,5 +65,6 @@
 
 {% block extra_js %}
 {% vite_asset 'assets/src/scripts/project_create.js' %}
-{% vite_asset 'assets/src/scripts/project_create-legacy.js' scripts_attrs=scripts_attrs %}
+{% vite_legacy_polyfills %}
+{% vite_legacy_asset 'assets/src/scripts/project_create-legacy.js' %}
 {% endblock %}

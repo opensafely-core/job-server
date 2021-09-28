@@ -366,6 +366,7 @@
   {% if request.user.is_authenticated %}
     <div id="apiUrl" class="d-none">{{ workspace.get_statuses_url }}</div>
     {% vite_asset 'assets/src/scripts/job_request_create.js' %}
-    {% vite_asset 'assets/src/scripts/job_request_create-legacy.js' scripts_attrs=scripts_attrs %}
+    {% vite_legacy_polyfills %}
+    {% vite_legacy_asset 'assets/src/scripts/job_request_create-legacy.js' %}
   {% endif %}
 {% endblock %}

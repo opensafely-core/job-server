@@ -7,7 +7,6 @@ from jobserver.context_processors import (
     backend_warnings,
     can_view_staff_area,
     nav,
-    scripts_attrs,
     staff_nav,
 )
 from jobserver.models import Backend
@@ -110,9 +109,3 @@ def test_nav_status(rf):
 
     assert jobs["is_active"] is False
     assert status["is_active"] is True
-
-
-def test_scriptsattrs_success(rf):
-    request = rf.get("/")
-
-    assert scripts_attrs(request) == {"scripts_attrs": {"nomodule": ""}}
