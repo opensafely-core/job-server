@@ -3,6 +3,23 @@ from django import forms
 from .models import YES_NO_CHOICES, ResearcherRegistration
 
 
+class ApplicationFormBase(forms.ModelForm):
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+
+        # override our nullable BooleanFields since modelform_factory and thus
+        # ModelForm.Meta don't let us override the field class for a field
+        # which uses choices.
+        radio_fields = [
+            "all_applicants_completed_getting_started",
+            "need_record_level_data",
+            "is_on_cmo_priority_list",
+        ]
+        for name in radio_fields:
+            if name in self.fields:
+                self.fields[name] = YesNoField()
+
+
 class YesNoField(forms.TypedChoiceField):
     def __init__(self, *args, **kwargs):
         super().__init__(

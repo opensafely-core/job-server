@@ -1,6 +1,7 @@
 from django.forms.models import modelform_factory
 from django.shortcuts import redirect
 
+from .forms import ApplicationFormBase
 from .models import Application
 
 
@@ -46,7 +47,9 @@ class WizardPage:
         for fieldset in self.form_spec.fieldsets:
             for field in fieldset.fields:
                 fields.append(field.name)
-        form_class = modelform_factory(Application, fields=fields)
+        form_class = modelform_factory(
+            Application, fields=fields, form=ApplicationFormBase
+        )
 
         return form_class
 
