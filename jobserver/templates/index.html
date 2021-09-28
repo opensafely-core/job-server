@@ -128,5 +128,6 @@
 {% block extra_js %}
   <script src="{% static 'vendor/list.min.js' %}"></script>
   {% vite_asset 'assets/src/scripts/index.js' %}
+  {% vite_legacy_polyfills %}
   {% vite_legacy_asset 'assets/src/scripts/index-legacy.js' %}
 {% endblock %}
