@@ -245,8 +245,10 @@ def test_projectcreate_unauthenticated(rf):
     request = rf.post("/", {"name": "test"})
     request.user = AnonymousUser()
 
-    with pytest.raises(Http404):
-        ProjectCreate.as_view()(request, org_slug=org.slug)
+    response = ProjectCreate.as_view()(request, org_slug=org.slug)
+
+    assert response.status_code == 302
+    assert response.url == "/login/github/?next=/"
 
 
 def test_projectcreate_user_not_in_org(rf):
