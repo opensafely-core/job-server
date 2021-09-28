@@ -45,7 +45,7 @@ class Application(models.Model):
 
     # form 4 (study data)
     data_meets_purpose = models.TextField(blank=True)
-    need_record_level_data = models.BooleanField(default=True, choices=YES_NO_CHOICES)
+    need_record_level_data = models.BooleanField(null=True, choices=YES_NO_CHOICES)
 
     # form 5 (record level data)
     record_level_data_reasons = models.TextField(blank=True)
@@ -67,7 +67,7 @@ class Application(models.Model):
     sponsor_job_role = models.TextField(blank=True)
 
     # form 9 (cmo priority)
-    is_on_cmo_priority_list = models.BooleanField(default=False, choices=YES_NO_CHOICES)
+    is_on_cmo_priority_list = models.BooleanField(null=True, choices=YES_NO_CHOICES)
 
     # form 10 (legal basis)
     legal_basis_for_accessing_data_under_dpa = models.TextField(blank=True)
@@ -85,7 +85,7 @@ class Application(models.Model):
     # form 14 (coding)
     evidence_of_coding = models.TextField(blank=True)
     all_applicants_completed_getting_started = models.BooleanField(
-        default=False, choices=YES_NO_CHOICES
+        null=True, choices=YES_NO_CHOICES
     )
 
     # form 15 (public domain)
