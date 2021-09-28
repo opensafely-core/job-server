@@ -91,7 +91,6 @@ TEMPLATES = [
                 "jobserver.context_processors.can_view_staff_area",
                 "jobserver.context_processors.staff_nav",
                 "jobserver.context_processors.nav",
-                "jobserver.context_processors.scripts_attrs",
             ],
         },
     },
