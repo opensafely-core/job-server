@@ -5,7 +5,9 @@ model.log
 */input.csv
 __pycache__
 .python-version
-*sqlite3
+db.sqlite3
+db.sqlite3-shm
+db.sqlite3-wal
 .coverage
 htmlcov
 staticfiles
