@@ -250,6 +250,7 @@ urlpatterns = [
     path("", include("social_django.urls", namespace="social")),
     path("", include("applications.urls")),
     path("favicon.ico", RedirectView.as_view(url=settings.STATIC_URL + "favicon.ico")),
+    path("robots.txt", RedirectView.as_view(url=settings.STATIC_URL + "robots.txt")),
     path("api/v2/", include((api_urls, "api"))),
     path("event-log/", JobRequestList.as_view(), name="job-list"),
     path("event-list/", RedirectView.as_view(url="/event-log/")),
