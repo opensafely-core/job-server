@@ -73,7 +73,7 @@ class Field:
         template_lut = {
             "BooleanField": "components/form_checkbox.html",
             "CharField": "components/form_text.html",
-            "TypedChoiceField": "components/form_radio.html",
+            "YesNoField": "components/form_radio.html",
         }
 
         # get the bound field instance
