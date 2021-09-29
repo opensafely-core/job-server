@@ -72,7 +72,12 @@ def get_results(q):
         qwargs = functools.reduce(
             Q.__or__, (Q(**{f"{f}__icontains": q}) for f in target["fields"])
         )
-        qs = target["model"].objects.filter(qwargs).order_by(target["order_by"])
+        qs = (
+            target["model"]
+            .objects.filter(qwargs)
+            .order_by(target["order_by"])
+            .distinct()
+        )
 
         queries.append(qs)
 
