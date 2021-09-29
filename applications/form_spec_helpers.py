@@ -8,7 +8,7 @@ from applications.models import Application
 
 @dataclass
 class Form:
-    key: int
+    key: str
     title: str
     sub_title: str
     rubric: str
