@@ -1,0 +1,10 @@
+User-agent: *
+Disallow: /api/
+Disallow: /applications/
+Disallow: /apply/
+Disallow: /complete/
+Disallow: /disconnect/
+Disallow: /login/
+Disallow: /logout/
+Disallow: /settings/
+Disallow: /staff/
