@@ -19,13 +19,6 @@ class Form:
     prerequisite: Callable[[Application], bool] = lambda application: True
     template_name: str | None = None
 
-    def __post_init__(self):
-        for fieldset_ix, fieldset in enumerate(self.fieldsets):
-            fieldset.key = f"{self.key}-fieldset{fieldset_ix}"
-
-            for field_ix, field in enumerate(fieldset.fields):
-                field.key = f"{self.key}-fieldset{fieldset_ix}-field{field_ix}"
-
     def template_context(self, form):
         return {
             "title": self.title,
