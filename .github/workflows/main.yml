@@ -152,3 +152,12 @@ jobs:
           dokku-host: ${{ secrets.DOKKU_HOST }}
           ssh-private-key: ${{ secrets.DOKKU2_DEPLOY_SSH_KEY }}
           remote-branch: "main"
+
+      - name: Create Sentry release
+        uses: getsentry/action-release@744e4b262278339b79fb39c8922efcae71e98e39
+        env:
+          SENTRY_AUTH_TOKEN: ${{ secrets.SENTRY_AUTH_TOKEN }}
+          SENTRY_ORG: ${{ secrets.SENTRY_ORG }}
+          SENTRY_PROJECT: ${{ secrets.SENTRY_PROJECT }}
+        with:
+          environment: production
