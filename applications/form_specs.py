@@ -1,4 +1,6 @@
-from .form_spec_helpers import SNIPPET, Attributes, Field, Fieldset, Form
+from jobserver.snippets import render_snippet as snippet
+
+from .form_spec_helpers import Attributes, Field, Fieldset, Form
 
 
 email_attrs = Attributes(
@@ -15,7 +17,7 @@ form_specs = [
         key=1,
         title="Contact details",
         sub_title="Provide the contact information for the overall application owner",
-        rubric=SNIPPET,
+        rubric=snippet("1-rubric"),
         fieldsets=[
             Fieldset(
                 label="Personal details",
@@ -73,7 +75,7 @@ form_specs = [
         key=2,
         title="Reasons for the request",
         sub_title="Study information",
-        rubric=SNIPPET,
+        rubric=snippet("2-rubric"),
         fieldsets=[
             Fieldset(
                 label="Study information",
@@ -86,7 +88,7 @@ form_specs = [
                     Field(
                         name="study_purpose",
                         label="What is the purpose for which you are requesting access to the OpenSAFELY data?",
-                        help_text=SNIPPET,
+                        help_text=snippet("2-fieldset0-field1-help_text"),
                         template_name="components/form_textarea.html",
                     ),
                 ],
@@ -97,7 +99,7 @@ form_specs = [
         key=3,
         title="Reasons for the request",
         sub_title="Study purpose",
-        rubric=SNIPPET,
+        rubric=snippet("3-rubric"),
         fieldsets=[
             Fieldset(
                 label="Simple description",
@@ -178,7 +180,7 @@ form_specs = [
         key=6,
         title="Reasons for the request",
         sub_title="Ethical and sponsor requirements",
-        rubric=SNIPPET,
+        rubric=snippet("6-rubric"),
         fieldsets=[
             Fieldset(
                 label="Type of study",
@@ -209,8 +211,8 @@ form_specs = [
         key=7,
         title="Reasons for the request",
         sub_title="Ethical and sponsor requirements",
-        rubric=SNIPPET,
-        footer=SNIPPET,
+        rubric=snippet("7-rubric"),
+        footer=snippet("7-footer"),
         fieldsets=[
             Fieldset(
                 label="HRA REC and Institutional REC",
@@ -236,8 +238,8 @@ form_specs = [
         key=8,
         title="Reasons for the request",
         sub_title="Ethical and sponsor requirements",
-        rubric=SNIPPET,
-        footer=SNIPPET,
+        rubric=snippet("8-rubric"),
+        footer=snippet("8-footer"),
         fieldsets=[
             Fieldset(
                 label="Service evaluation or an audit",
@@ -281,11 +283,11 @@ form_specs = [
         rubric="",
         fieldsets=[
             Fieldset(
-                label="CMO priority list",
+                label=snippet("9-fieldset0-is_on_cmo_priority_list-label"),
                 fields=[
                     Field(
                         name="is_on_cmo_priority_list",
-                        label=SNIPPET,
+                        label=snippet("9-fieldset0-field0-label"),
                     ),
                 ],
             ),
@@ -303,7 +305,7 @@ form_specs = [
                     Field(
                         name="legal_basis_for_accessing_data_under_dpa",
                         label="State the legal basis for accessing the data under data protection law",
-                        help_text=SNIPPET,
+                        help_text=snippet("10-fieldset0-field0-help_text"),
                         template_name="components/form_textarea.html",
                     ),
                 ],
@@ -314,7 +316,7 @@ form_specs = [
                     Field(
                         name="how_is_duty_of_confidentiality_satisfied",
                         label="State how you are satisfying or setting aside the common law duty of confidentiality",
-                        help_text=SNIPPET,
+                        help_text=snippet("10-fieldset1-field0-help_text"),
                         template_name="components/form_textarea.html",
                     ),
                 ],
@@ -325,7 +327,7 @@ form_specs = [
         key=11,
         title="Study and team detail",
         sub_title="Study funding",
-        rubric=SNIPPET,
+        rubric=snippet("11-rubric"),
         fieldsets=[
             Fieldset(
                 label="Funding",
@@ -361,7 +363,7 @@ form_specs = [
         key=13,
         title="Study and team detail",
         sub_title="Electronic health record (EHR) data",
-        rubric=SNIPPET,
+        rubric=snippet("13-rubric"),
         fieldsets=[
             Fieldset(
                 label="EHR data",
@@ -379,7 +381,7 @@ form_specs = [
         key=14,
         title="Study and team detail",
         sub_title="Software development coding skills",
-        rubric=SNIPPET,
+        rubric=snippet("14-rubric"),
         fieldsets=[
             Fieldset(
                 label="Script-based coding",
@@ -387,13 +389,13 @@ form_specs = [
                     Field(
                         name="evidence_of_coding",
                         label="Provide evidence of you/your research group experience of using a script-based coding language",
-                        help_text=SNIPPET,
+                        help_text=snippet("14-fieldset0-field0-help_text"),
                         template_name="components/form_textarea.html",
                     ),
                     Field(
                         name="all_applicants_completed_getting_started",
-                        label=SNIPPET,
-                        help_text=SNIPPET,
+                        label=snippet("14-fieldset0-field1-label"),
+                        help_text=snippet("14-fieldset0-field1-help_text"),
                     ),
                 ],
             ),
@@ -403,7 +405,7 @@ form_specs = [
         key=15,
         title="Study and team detail",
         sub_title="Sharing code in the public domain",
-        rubric=SNIPPET,
+        rubric=snippet("15-rubric"),
         fieldsets=[
             Fieldset(
                 label="Sharing analytic code",
@@ -421,7 +423,7 @@ form_specs = [
         key=16,
         title="What level of OpenSAFELY platform access does each researcher require?",
         sub_title="",
-        rubric="<snippet>",
+        rubric=snippet("16-rubric"),
         template_name="applications/page_researchers.html",
         fieldsets=[],
     ),
