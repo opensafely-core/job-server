@@ -105,13 +105,16 @@ class ResearcherEdit(UpdateView):
 
 
 @login_required
-def page(request, pk, page_num):
+def page(request, pk, key):
     application = get_object_or_404(Application, pk=pk)
 
     # check the user can access this application
     validate_application_access(request.user, application)
 
-    page = Wizard(application, form_specs).get_page(page_num)
+    try:
+        page = Wizard(application, form_specs).get_page(key)
+    except ValueError:
+        raise Http404
 
     if request.method == "GET":
         form = page.get_unbound_form()
@@ -139,7 +142,7 @@ def terms(request):
         return TemplateResponse(request, "applications/terms.html")
 
     application = Application.objects.create(created_by=request.user)
-    return redirect("applications:page", pk=application.pk, page_num=1)
+    return redirect("applications:page", pk=application.pk, key=form_specs[0].key)
 
 
 @login_required
