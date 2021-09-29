@@ -72,6 +72,7 @@ class ProjectCancelInvite(View):
         return redirect(invite.project.get_settings_url())
 
 
+@method_decorator(login_required, name="dispatch")
 class ProjectCreate(CreateView):
     fields = ["name"]
     model = Project
