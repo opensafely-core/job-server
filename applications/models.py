@@ -1,3 +1,4 @@
+from django.core.exceptions import ObjectDoesNotExist
 from django.db import models
 from django.urls import reverse
 from django.utils import timezone
@@ -23,83 +24,125 @@ class Application(models.Model):
         related_name="applications",
     )
 
-    # form 1 (contact details)
-    full_name = models.TextField()
-    email = models.TextField(blank=True)
-    telephone = models.TextField(blank=True)
-    job_title = models.TextField(blank=True)
-    team_name = models.TextField(blank=True)
-
-    # TODO: how will we tie this to an existing org, especially with typos?
-    organisation = models.TextField(blank=True)
-
-    # form 2 (study information)
-    study_name = models.TextField(blank=True)
-    study_purpose = models.TextField(blank=True)
-
-    # form 3 (study purpose)
-    description = models.TextField(blank=True)
-    author_name = models.TextField(blank=True)
-    author_email = models.TextField(blank=True)
-    author_organisation = models.TextField(blank=True)
-
-    # form 4 (study data)
-    data_meets_purpose = models.TextField(blank=True)
-    need_record_level_data = models.BooleanField(null=True, choices=YES_NO_CHOICES)
-
-    # form 5 (record level data)
-    record_level_data_reasons = models.TextField(blank=True)
-
-    # form 6 (ethical and sponsor requirements)
-    is_study_research = models.BooleanField(default=False)
-    is_study_service_evaluation = models.BooleanField(default=False)
-    is_study_audit = models.BooleanField(default=False)
-
-    # form 7 (ethical and sponsor requirements)
-    hra_ires_id = models.TextField(blank=True)
-    hra_rec_reference = models.TextField(blank=True)
-    institutional_rec_reference = models.TextField(blank=True)
-
-    # form 8 (ethical and sponsor requirements)
-    # institutional_rec_reference = models.TextField(blank=True)
-    sponsor_name = models.TextField(blank=True)
-    sponsor_email = models.TextField(blank=True)
-    sponsor_job_role = models.TextField(blank=True)
-
-    # form 9 (cmo priority)
-    is_on_cmo_priority_list = models.BooleanField(null=True, choices=YES_NO_CHOICES)
-
-    # form 10 (legal basis)
-    legal_basis_for_accessing_data_under_dpa = models.TextField(blank=True)
-    how_is_duty_of_confidentiality_satisfied = models.TextField(blank=True)
-
-    # form 11 (study funding)
-    funding_details = models.TextField(blank=True)
-
-    # form 12 (team details)
-    team_details = models.TextField(blank=True)
-
-    # form 13 (electronic health record data)
-    previous_experience_with_ehr = models.TextField(blank=True)
-
-    # form 14 (coding)
-    evidence_of_coding = models.TextField(blank=True)
-    all_applicants_completed_getting_started = models.BooleanField(
-        null=True, choices=YES_NO_CHOICES
-    )
-
-    # form 15 (public domain)
-    evidence_of_sharing_in_public_domain_before = models.TextField(blank=True)
-
-    # form 15
-    number_of_researchers_needing_access = models.IntegerField(default=0)
-
     has_agreed_to_terms = models.BooleanField(default=False)
 
     created_at = models.DateTimeField(default=timezone.now)
     completed_at = models.DateTimeField(null=True)
 
     has_reached_confirmation = models.BooleanField(default=False)
+
+    @property
+    def is_study_research(self):
+        try:
+            return self.typeofstudypage.is_study_research
+        except ObjectDoesNotExist:
+            return False
+
+    @property
+    def is_study_service_evaluation(self):
+        try:
+            return self.typeofstudypage.is_study_service_evaluation
+        except ObjectDoesNotExist:
+            return False
+
+    @property
+    def is_study_audit(self):
+        try:
+            return self.typeofstudypage.is_study_audit
+        except ObjectDoesNotExist:
+            return False
+
+
+class AbstractPage(models.Model):
+    application = models.OneToOneField("Application", on_delete=models.CASCADE)
+
+    class Meta:
+        abstract = True
+
+
+class ContactDetailsPage(AbstractPage):
+    full_name = models.TextField()
+    email = models.TextField(blank=True)
+    telephone = models.TextField(blank=True)
+    job_title = models.TextField(blank=True)
+    team_name = models.TextField(blank=True)
+    # TODO: how will we tie this to an existing org, especially with typos?
+    organisation = models.TextField(blank=True)
+
+
+class StudyInformationPage(AbstractPage):
+    study_name = models.TextField(blank=True)
+    study_purpose = models.TextField(blank=True)
+
+
+class StudyPurposePage(AbstractPage):
+    description = models.TextField(blank=True)
+    author_name = models.TextField(blank=True)
+    author_email = models.TextField(blank=True)
+    author_organisation = models.TextField(blank=True)
+
+
+class StudyDataPage(AbstractPage):
+    data_meets_purpose = models.TextField(blank=True)
+    need_record_level_data = models.BooleanField(null=True, choices=YES_NO_CHOICES)
+
+
+class RecordLevelDataPage(AbstractPage):
+    record_level_data_reasons = models.TextField(blank=True)
+
+
+class TypeOfStudyPage(AbstractPage):
+    is_study_research = models.BooleanField(default=False)
+    is_study_service_evaluation = models.BooleanField(default=False)
+    is_study_audit = models.BooleanField(default=False)
+
+
+class ReferencesPage(AbstractPage):
+    hra_ires_id = models.TextField(blank=True)
+    hra_rec_reference = models.TextField(blank=True)
+    institutional_rec_reference = models.TextField(blank=True)
+
+
+class SponsorDetailsPage(AbstractPage):
+    sponsor_name = models.TextField(blank=True)
+    sponsor_email = models.TextField(blank=True)
+    sponsor_job_role = models.TextField(blank=True)
+
+
+class CmoPriorityListPage(AbstractPage):
+    is_on_cmo_priority_list = models.BooleanField(null=True, choices=YES_NO_CHOICES)
+
+
+class LegalBasisPage(AbstractPage):
+    legal_basis_for_accessing_data_under_dpa = models.TextField(blank=True)
+    how_is_duty_of_confidentiality_satisfied = models.TextField(blank=True)
+
+
+class StudyFundingPage(AbstractPage):
+    funding_details = models.TextField(blank=True)
+
+
+class TeamDetailsPage(AbstractPage):
+    team_details = models.TextField(blank=True)
+
+
+class PreviousEhrExperiencePage(AbstractPage):
+    previous_experience_with_ehr = models.TextField(blank=True)
+
+
+class SoftwareDevelopmentExperiencePage(AbstractPage):
+    evidence_of_coding = models.TextField(blank=True)
+    all_applicants_completed_getting_started = models.BooleanField(
+        null=True, choices=YES_NO_CHOICES
+    )
+
+
+class SharingCodePage(AbstractPage):
+    evidence_of_sharing_in_public_domain_before = models.TextField(blank=True)
+
+
+class ResearcherDetailsPage(AbstractPage):
+    pass
 
 
 class ResearcherRegistration(models.Model):

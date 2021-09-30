@@ -1,5 +1,6 @@
 from jobserver.snippets import render_snippet as snippet
 
+from . import models
 from .form_spec_helpers import Attributes, Field, Fieldset, Form
 
 
@@ -15,6 +16,7 @@ email_attrs = Attributes(
 form_specs = [
     Form(
         key="contact-details",
+        model=models.ContactDetailsPage,
         title="Contact details",
         sub_title="Provide the contact information for the overall application owner",
         rubric=snippet("1-rubric"),
@@ -73,6 +75,7 @@ form_specs = [
     ),
     Form(
         key="study-information",
+        model=models.StudyInformationPage,
         title="Reasons for the request",
         sub_title="Study information",
         rubric=snippet("2-rubric"),
@@ -97,6 +100,7 @@ form_specs = [
     ),
     Form(
         key="study-purpose",
+        model=models.StudyPurposePage,
         title="Reasons for the request",
         sub_title="Study purpose",
         rubric=snippet("3-rubric"),
@@ -138,6 +142,7 @@ form_specs = [
     ),
     Form(
         key="study-data",
+        model=models.StudyDataPage,
         title="Reasons for the request",
         sub_title="Study data",
         rubric="",
@@ -160,6 +165,7 @@ form_specs = [
     ),
     Form(
         key="record-level-data",
+        model=models.RecordLevelDataPage,
         title="Reasons for the request",
         sub_title="Record level data",
         rubric="",
@@ -178,6 +184,7 @@ form_specs = [
     ),
     Form(
         key="type-of-study",
+        model=models.TypeOfStudyPage,
         title="Reasons for the request",
         sub_title="Ethical and sponsor requirements",
         rubric=snippet("6-rubric"),
@@ -209,6 +216,7 @@ form_specs = [
     ),
     Form(
         key="references",
+        model=models.ReferencesPage,
         title="Reasons for the request",
         sub_title="Ethical and sponsor requirements",
         rubric=snippet("7-rubric"),
@@ -236,6 +244,7 @@ form_specs = [
     ),
     Form(
         key="sponsor-details",
+        model=models.SponsorDetailsPage,
         title="Reasons for the request",
         sub_title="Ethical and sponsor requirements",
         rubric=snippet("8-rubric"),
@@ -278,6 +287,7 @@ form_specs = [
     ),
     Form(
         key="cmo-priority-list",
+        model=models.CmoPriorityListPage,
         title="Reasons for the request",
         sub_title="Chief Medical Officer (CMO) priority list",
         rubric="",
@@ -295,6 +305,7 @@ form_specs = [
     ),
     Form(
         key="legal-basis",
+        model=models.LegalBasisPage,
         title="Reasons for the request",
         sub_title="Legal basis and common law duty",
         rubric="",
@@ -325,6 +336,7 @@ form_specs = [
     ),
     Form(
         key="study-funding",
+        model=models.StudyFundingPage,
         title="Study and team detail",
         sub_title="Study funding",
         rubric=snippet("11-rubric"),
@@ -343,6 +355,7 @@ form_specs = [
     ),
     Form(
         key="team-details",
+        model=models.TeamDetailsPage,
         title="Study and team detail",
         sub_title="Research team",
         rubric="OpenSAFELY will need to assess the impact of onboarding your team on our own capacity.",
@@ -361,6 +374,7 @@ form_specs = [
     ),
     Form(
         key="previous-ehr-experience",
+        model=models.PreviousEhrExperiencePage,
         title="Study and team detail",
         sub_title="Electronic health record (EHR) data",
         rubric=snippet("13-rubric"),
@@ -379,6 +393,7 @@ form_specs = [
     ),
     Form(
         key="software-development-experience",
+        model=models.SoftwareDevelopmentExperiencePage,
         title="Study and team detail",
         sub_title="Software development coding skills",
         rubric=snippet("14-rubric"),
@@ -403,6 +418,7 @@ form_specs = [
     ),
     Form(
         key="sharing-code",
+        model=models.SharingCodePage,
         title="Study and team detail",
         sub_title="Sharing code in the public domain",
         rubric=snippet("15-rubric"),
@@ -421,6 +437,7 @@ form_specs = [
     ),
     Form(
         key="researcher-details",
+        model=models.ResearcherDetailsPage,
         title="What level of OpenSAFELY platform access does each researcher require?",
         sub_title="",
         rubric=snippet("16-rubric"),

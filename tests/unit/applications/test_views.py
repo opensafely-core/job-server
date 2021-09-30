@@ -5,7 +5,7 @@ from django.http import Http404
 from django.urls import reverse
 
 from applications.form_specs import form_specs
-from applications.models import Application, ResearcherRegistration
+from applications.models import Application, ResearcherRegistration, TypeOfStudyPage
 from applications.views import (
     ApplicationList,
     ResearcherCreate,
@@ -252,7 +252,6 @@ def test_return_to_confirmation_once_reached(rf):
     application = ApplicationFactory(
         created_by=user,
         has_reached_confirmation=True,
-        previous_experience_with_ehr="no",
     )
 
     request = rf.post("/", {"previous_experience_with_ehr": "yes"})
@@ -267,7 +266,7 @@ def test_return_to_confirmation_once_reached(rf):
     )
 
     application.refresh_from_db()
-    assert application.previous_experience_with_ehr == "yes"
+    assert application.previousehrexperiencepage.previous_experience_with_ehr == "yes"
 
 
 def test_page_get_success(rf):
@@ -328,8 +327,9 @@ def test_page_post_non_final_page(rf):
 
 def test_page_post_with_invalid_continue_state(rf):
     user = UserFactory()
-    application = ApplicationFactory(
-        created_by=user,
+    application = ApplicationFactory(created_by=user)
+    TypeOfStudyPage.objects.create(
+        application=application,
         is_study_research=False,
         is_study_service_evaluation=False,
         is_study_audit=False,
@@ -348,7 +348,13 @@ def test_page_post_with_invalid_continue_state(rf):
 
 def test_page_post_with_invalid_prerequisite(rf):
     user = UserFactory()
-    application = ApplicationFactory(created_by=user, is_study_research=False)
+    application = ApplicationFactory(created_by=user)
+    TypeOfStudyPage.objects.create(
+        application=application,
+        is_study_research=False,
+        is_study_service_evaluation=False,
+        is_study_audit=False,
+    )
 
     request = rf.post("/", {})
     request.user = user
