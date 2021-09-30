@@ -284,6 +284,17 @@ def test_page_get_success(rf):
     assert response.context_data["application"] == application
 
 
+def test_page_get_404(rf):
+    user = UserFactory()
+    application = ApplicationFactory(created_by=user)
+
+    request = rf.get("/")
+    request.user = user
+
+    with pytest.raises(Http404):
+        page(request, pk=application.pk, key="not-a-page")
+
+
 def test_page_post_final_page(rf):
     user = UserFactory()
     application = ApplicationFactory(created_by=user)
