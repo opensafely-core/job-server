@@ -2,7 +2,6 @@ from django.forms.models import modelform_factory
 from django.shortcuts import redirect
 
 from .forms import ApplicationFormBase
-from .models import Application
 
 
 class Wizard:
@@ -31,8 +30,9 @@ class Wizard:
 class WizardPage:
     def __init__(self, wizard, form_spec):
         self.wizard = wizard
-        self.form_spec = form_spec
         self.application = wizard.application
+        self.form_spec = form_spec
+        self.model = form_spec.model
 
     @property
     def form_class(self):
@@ -48,16 +48,29 @@ class WizardPage:
             for field in fieldset.fields:
                 fields.append(field.name)
         form_class = modelform_factory(
-            Application, fields=fields, form=ApplicationFormBase
+            self.model, fields=fields, form=ApplicationFormBase
         )
 
         return form_class
+
+    @property
+    def instance(self):
+        """
+        Return instance of model containing data for this page.
+
+        If this page has already been saved, there will be an instance in the
+        database and we return that.  Otherwise, we return a new unsaved instance.
+        """
+        try:
+            return self.model.objects.get(application=self.application)
+        except self.model.DoesNotExist:
+            return self.model(application=self.application)
 
     def get_unbound_form(self):
         """
         Create a form instance without POST data (typically for GET requests)
         """
-        return self.form_class(instance=self.application)
+        return self.form_class(instance=self.instance)
 
     def get_bound_form(self, data):
         """
@@ -67,7 +80,7 @@ class WizardPage:
         the user can continue to the next page based on rules defined in the
         form_spec for this page.
         """
-        form = self.form_class(data, instance=self.application)
+        form = self.form_class(data, instance=self.instance)
         form.save()
 
         if not self.form_spec.can_continue(self.application):

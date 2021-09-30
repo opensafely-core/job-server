@@ -3,12 +3,15 @@ from __future__ import annotations
 from dataclasses import asdict, dataclass
 from typing import Callable
 
+from django.db.models import Model
+
 from applications.models import Application
 
 
 @dataclass
 class Form:
     key: str
+    model: type(Model)
     title: str
     sub_title: str
     rubric: str
