@@ -142,8 +142,6 @@ def test_researcherdelete_unknown_researcher(rf):
     with pytest.raises(Http404):
         ResearcherDelete.as_view()(request, pk=0, researcher_pk=0)
 
-    # ResearcherEdit,
-
 
 def test_researcheredit_get_success(rf):
     user = UserFactory()
