@@ -136,22 +136,23 @@
           </ul>
         </li>
 
-        {% if can_use_releases and outputs %}
-          <li class="card">
-            <h2 class="card-header h5">
-              Outputs
-            </h2>
-            <ul class="card-body list-unstyled">
-              {% for snapshot in outputs %}
-                <li>
-                  <a href="{{ snapshot.get_absolute_url }}">
-                    Published on {{ snapshot.created_at|date:"Y-m-d" }}
-                  </a>
-                </li>
-              {% endfor %}
-            </ul>
-          </li>
+        {% if outputs %}
+        <li class="card">
+          <h2 class="card-header h5">
+            Outputs
+          </h2>
+          <ul class="card-body list-unstyled">
+            {% for snapshot in outputs %}
+              <li>
+                <a href="{{ snapshot.get_absolute_url }}">
+                  Published on {{ snapshot.created_at|date:"Y-m-d" }}
+                </a>
+              </li>
+            {% endfor %}
+          </ul>
+        </li>
         {% endif %}
+
       </ul>
     </div>
   </div>

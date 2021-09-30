@@ -114,40 +114,6 @@
         <code>moderately_sensitive</code> can be requested for release to the public, via a controlled output review service.
       </p>
 
-      {% if can_use_releases %}
-        <div class="card border-0">
-          <h2 class="h5 card-header border border-bottom-0">
-            Releases
-          </h2>
-
-          <div class="list-group list-group-flush">
-            <ul class="list-unstyled mb-0">
-              {% if user_can_view_files %}
-                <li class="list-group-item">
-                  <a href="{{ workspace.get_files_url }}">
-                    Level 4 Outputs
-                  </a>
-                </li>
-              {% endif %}
-              {% if user_can_view_releases %}
-                <li class="list-group-item">
-                  <a href="{{ workspace.get_releases_url }}">
-                    Released Outputs
-                  </a>
-                </li>
-              {% endif %}
-              {% if user_can_view_outputs %}
-                <li class="list-group-item">
-                  <a href="{{ workspace.get_outputs_url }}">
-                    Published Outputs
-                  </a>
-                </li>
-              {% endif %}
-            </ul>
-          </div>
-        </div>
-      {% endif %}
-
       {% if not jobrequest.is_invalid %}
         <section class="pt-3">
           <h2 class="h3">Jobs</h2>
