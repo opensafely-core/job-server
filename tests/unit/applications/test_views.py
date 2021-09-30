@@ -258,7 +258,7 @@ def test_return_to_confirmation_once_reached(rf):
     request = rf.post("/", {"previous_experience_with_ehr": "yes"})
     request.user = user
 
-    response = page(request, pk=application.pk, page_num=13)
+    response = page(request, pk=application.pk, key="previous-ehr-experience")
 
     assert response.status_code == 302
     assert response.url == reverse(
@@ -277,11 +277,22 @@ def test_page_get_success(rf):
     request = rf.get("/")
     request.user = user
 
-    response = page(request, pk=application.pk, page_num=3)
+    response = page(request, pk=application.pk, key="study-purpose")
 
     assert response.status_code == 200
 
     assert response.context_data["application"] == application
+
+
+def test_page_get_404(rf):
+    user = UserFactory()
+    application = ApplicationFactory(created_by=user)
+
+    request = rf.get("/")
+    request.user = user
+
+    with pytest.raises(Http404):
+        page(request, pk=application.pk, key="not-a-page")
 
 
 def test_page_post_final_page(rf):
@@ -291,7 +302,7 @@ def test_page_post_final_page(rf):
     request = rf.post("/", {"evidence_of_sharing_in_public_domain_before": "evidence"})
     request.user = user
 
-    response = page(request, pk=application.pk, page_num=16)
+    response = page(request, pk=application.pk, key="researcher-details")
 
     assert response.status_code == 302
     assert response.url == reverse(
@@ -306,11 +317,12 @@ def test_page_post_non_final_page(rf):
     request = rf.post("/", {"previous_experience_with_ehr": "experience"})
     request.user = user
 
-    response = page(request, pk=application.pk, page_num=13)
+    response = page(request, pk=application.pk, key="previous-ehr-experience")
 
     assert response.status_code == 302
     assert response.url == reverse(
-        "applications:page", kwargs={"pk": application.pk, "page_num": 14}
+        "applications:page",
+        kwargs={"pk": application.pk, "key": "software-development-experience"},
     )
 
 
@@ -326,7 +338,7 @@ def test_page_post_with_invalid_continue_state(rf):
     request = rf.post("/", {})
     request.user = user
 
-    response = page(request, pk=application.pk, page_num=6)
+    response = page(request, pk=application.pk, key="type-of-study")
 
     assert response.status_code == 200
 
@@ -341,11 +353,11 @@ def test_page_post_with_invalid_prerequisite(rf):
     request = rf.post("/", {})
     request.user = user
 
-    response = page(request, pk=application.pk, page_num=7)
+    response = page(request, pk=application.pk, key="references")
 
     assert response.status_code == 302
     assert response.url == reverse(
-        "applications:page", kwargs={"pk": application.pk, "page_num": 9}
+        "applications:page", kwargs={"pk": application.pk, "key": "cmo-priority-list"}
     )
 
 
@@ -388,7 +400,7 @@ def test_terms_post_success(rf):
 
     application = Application.objects.first()
     expected_url = reverse(
-        "applications:page", kwargs={"pk": application.pk, "page_num": 1}
+        "applications:page", kwargs={"pk": application.pk, "key": "contact-details"}
     )
     assert response.url == expected_url
 

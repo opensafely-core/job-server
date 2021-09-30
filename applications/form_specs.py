@@ -14,7 +14,7 @@ email_attrs = Attributes(
 
 form_specs = [
     Form(
-        key=1,
+        key="contact-details",
         title="Contact details",
         sub_title="Provide the contact information for the overall application owner",
         rubric=snippet("1-rubric"),
@@ -72,7 +72,7 @@ form_specs = [
         ],
     ),
     Form(
-        key=2,
+        key="study-information",
         title="Reasons for the request",
         sub_title="Study information",
         rubric=snippet("2-rubric"),
@@ -96,7 +96,7 @@ form_specs = [
         ],
     ),
     Form(
-        key=3,
+        key="study-purpose",
         title="Reasons for the request",
         sub_title="Study purpose",
         rubric=snippet("3-rubric"),
@@ -137,7 +137,7 @@ form_specs = [
         ],
     ),
     Form(
-        key=4,
+        key="study-data",
         title="Reasons for the request",
         sub_title="Study data",
         rubric="",
@@ -159,7 +159,7 @@ form_specs = [
         ],
     ),
     Form(
-        key=5,
+        key="record-level-data",
         title="Reasons for the request",
         sub_title="Record level data",
         rubric="",
@@ -177,7 +177,7 @@ form_specs = [
         ],
     ),
     Form(
-        key=6,
+        key="type-of-study",
         title="Reasons for the request",
         sub_title="Ethical and sponsor requirements",
         rubric=snippet("6-rubric"),
@@ -208,7 +208,7 @@ form_specs = [
         cant_continue_message="You must select at least one purpose",
     ),
     Form(
-        key=7,
+        key="references",
         title="Reasons for the request",
         sub_title="Ethical and sponsor requirements",
         rubric=snippet("7-rubric"),
@@ -235,7 +235,7 @@ form_specs = [
         prerequisite=lambda application: application.is_study_research,
     ),
     Form(
-        key=8,
+        key="sponsor-details",
         title="Reasons for the request",
         sub_title="Ethical and sponsor requirements",
         rubric=snippet("8-rubric"),
@@ -277,7 +277,7 @@ form_specs = [
         ),
     ),
     Form(
-        key=9,
+        key="cmo-priority-list",
         title="Reasons for the request",
         sub_title="Chief Medical Officer (CMO) priority list",
         rubric="",
@@ -294,7 +294,7 @@ form_specs = [
         ],
     ),
     Form(
-        key=10,
+        key="legal-basis",
         title="Reasons for the request",
         sub_title="Legal basis and common law duty",
         rubric="",
@@ -324,7 +324,7 @@ form_specs = [
         ],
     ),
     Form(
-        key=11,
+        key="study-funding",
         title="Study and team detail",
         sub_title="Study funding",
         rubric=snippet("11-rubric"),
@@ -342,7 +342,7 @@ form_specs = [
         ],
     ),
     Form(
-        key=12,
+        key="team-details",
         title="Study and team detail",
         sub_title="Research team",
         rubric="OpenSAFELY will need to assess the impact of onboarding your team on our own capacity.",
@@ -360,7 +360,7 @@ form_specs = [
         ],
     ),
     Form(
-        key=13,
+        key="previous-ehr-experience",
         title="Study and team detail",
         sub_title="Electronic health record (EHR) data",
         rubric=snippet("13-rubric"),
@@ -378,7 +378,7 @@ form_specs = [
         ],
     ),
     Form(
-        key=14,
+        key="software-development-experience",
         title="Study and team detail",
         sub_title="Software development coding skills",
         rubric=snippet("14-rubric"),
@@ -402,7 +402,7 @@ form_specs = [
         ],
     ),
     Form(
-        key=15,
+        key="sharing-code",
         title="Study and team detail",
         sub_title="Sharing code in the public domain",
         rubric=snippet("15-rubric"),
@@ -420,7 +420,7 @@ form_specs = [
         ],
     ),
     Form(
-        key=16,
+        key="researcher-details",
         title="What level of OpenSAFELY platform access does each researcher require?",
         sub_title="",
         rubric=snippet("16-rubric"),

@@ -9,30 +9,30 @@ class Wizard:
     def __init__(self, application, form_specs):
         self.application = application
         self.form_specs = form_specs
+        self.keys = [form_spec.key for form_spec in form_specs]
+
+    def get_page(self, key):
+        form_spec = self.form_specs[self.keys.index(key)]
+        return WizardPage(self, form_spec)
 
     def get_pages(self):
-        for page_num in range(1, len(self.form_specs) + 1):
-            if self.is_page_required(page_num):
-                yield self.get_page(page_num)
+        for form_spec in self.form_specs:
+            if form_spec.prerequisite(self.application):
+                yield WizardPage(self, form_spec)
 
-    def get_page(self, page_num):
-        return WizardPage(self, page_num)
+    def get_next_page_key(self, key):
+        next_ix = self.keys.index(key) + 1
 
-    def get_form_spec(self, page_num):
-        return self.form_specs[page_num - 1]
-
-    def is_page_required(self, page_num):
-        form_spec = self.get_form_spec(page_num)
-        prerequisite = form_spec.prerequisite
-        return prerequisite(self.application)
+        for form_spec in self.form_specs[next_ix:]:
+            if form_spec.prerequisite(self.application):
+                return form_spec.key
 
 
 class WizardPage:
-    def __init__(self, wizard, page_num):
+    def __init__(self, wizard, form_spec):
         self.wizard = wizard
-        self.form_spec = wizard.get_form_spec(page_num)
+        self.form_spec = form_spec
         self.application = wizard.application
-        self.page_num = page_num
 
     @property
     def form_class(self):
@@ -80,13 +80,8 @@ class WizardPage:
         return self.form_spec.title
 
     @property
-    def next_page_num(self):
-        next_page_num = self.page_num + 1
-        while next_page_num <= len(self.wizard.form_specs):
-            if self.wizard.is_page_required(next_page_num):
-                return next_page_num
-            next_page_num += 1
-        return None
+    def key(self):
+        return self.form_spec.key
 
     def template_context(self, form):
         return self.form_spec.template_context(form) | {
@@ -95,9 +90,9 @@ class WizardPage:
         }
 
     def redirect_to_next_page(self):
-        if (next_page_num := self.next_page_num) is None:
+        if (next_page_key := self.wizard.get_next_page_key(self.key)) is None:
             return redirect("applications:confirmation", pk=self.application.pk)
         else:
             return redirect(
-                "applications:page", pk=self.application.pk, page_num=next_page_num
+                "applications:page", pk=self.application.pk, key=next_page_key
             )

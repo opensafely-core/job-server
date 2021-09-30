@@ -18,7 +18,7 @@
               <dt class="col-lg-3 col-xl-3">{{ field.label }}</dt>
               <dd class="md-1 mb-lg-0 col-lg-7 col-xl-8">{{ field.value }}</dd>
               <dd class="{% if not forloop.last %}mb-4 mb-lg-0{% endif %} col-lg-2 col-xl-1">
-                <a href="{% url 'applications:page' application.pk page.page_num %}">Change<span class="sr-only"> {{ field.label|lower }}</span></a>
+                <a href="{% url 'applications:page' application.pk page.key %}">Change<span class="sr-only"> {{ field.label|lower }}</span></a>
               </dd>
             </dl>
           {% endfor %}
