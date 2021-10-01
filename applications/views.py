@@ -4,7 +4,7 @@ from django.http import Http404
 from django.shortcuts import get_object_or_404, redirect
 from django.template.response import TemplateResponse
 from django.urls import reverse
-from django.views.generic import CreateView, ListView, UpdateView, View
+from django.views.generic import CreateView, ListView, RedirectView, UpdateView, View
 
 from jobserver.authorization import has_permission
 
@@ -37,6 +37,17 @@ class ApplicationList(ListView):
 
     def get_queryset(self):
         return Application.objects.filter(created_by=self.request.user)
+
+
+class PageRedirect(RedirectView):
+    def get_redirect_url(self, *args, **kwargs):
+        return reverse(
+            "applications:page",
+            kwargs={
+                "pk": self.kwargs["pk"],
+                "key": form_specs[0].key,
+            },
+        )
 
 
 class ResearcherCreate(CreateView):

@@ -31,6 +31,9 @@ class Application(models.Model):
 
     has_reached_confirmation = models.BooleanField(default=False)
 
+    def get_absolute_url(self):
+        return reverse("applications:detail", kwargs={"pk": self.pk})
+
     @property
     def is_study_research(self):
         try:
