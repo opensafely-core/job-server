@@ -42,12 +42,12 @@
   <div class="row">
     <div class="col-lg-4">
       <div class="list-group">
-        <a href="/staff/applications/" class="list-group-item list-group-item-action disabled" aria-disabled="true">Applications</a>
-        <a href="/staff/backends/" class="list-group-item list-group-item-action">Backends</a>
-        <a href="/staff/orgs/" class="list-group-item list-group-item-action">Organisations</a>
-        <a href="/staff/projects/" class="list-group-item list-group-item-action">Projects</a>
-        <a href="/staff/users/" class="list-group-item list-group-item-action">Users</a>
-        <a href="/staff/workspaces/" class="list-group-item list-group-item-action">Workspaces</a>
+        <a href="#" class="list-group-item list-group-item-action disabled" aria-disabled="true">Applications</a>
+        <a href="{% url 'staff:backend-list' %}" class="list-group-item list-group-item-action">Backends</a>
+        <a href="{% url 'staff:org-list' %}" class="list-group-item list-group-item-action">Organisations</a>
+        <a href="{% url 'staff:project-list' %}" class="list-group-item list-group-item-action">Projects</a>
+        <a href="{% url 'staff:user-list' %}" class="list-group-item list-group-item-action">Users</a>
+        <a href="{% url 'staff:workspace-list' %}" class="list-group-item list-group-item-action">Workspaces</a>
       </div>
     </div>
 

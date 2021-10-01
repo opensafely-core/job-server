@@ -14,10 +14,10 @@
   <div class="container">
     <ol class="breadcrumb rounded-0 mb-0 px-0">
       <li class="breadcrumb-item">
-        <a href="/staff/">Staff area</a>
+        <a href="{% url 'staff:index' %}">Staff area</a>
       </li>
       <li class="breadcrumb-item">
-        <a href="/staff/orgs/">Organisations</a>
+        <a href="{% url 'staff:org-list' %}">Organisations</a>
       </li>
       <li class="breadcrumb-item active" aria-current="page">
         {{ org.name }}

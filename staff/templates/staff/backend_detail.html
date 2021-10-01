@@ -7,10 +7,10 @@
   <div class="container">
     <ol class="breadcrumb rounded-0 mb-0 px-0">
       <li class="breadcrumb-item">
-        <a href="/staff/">Staff area</a>
+        <a href="{% url 'staff:index' %}">Staff area</a>
       </li>
       <li class="breadcrumb-item">
-        <a href="/staff/backends/">Backends</a>
+        <a href="{% url 'staff:backend-list' %}">Backends</a>
       </li>
       <li class="breadcrumb-item active" aria-current="page">
         {{ backend.name }}
