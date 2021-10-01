@@ -47,9 +47,9 @@
       </form>
       <div class="list-group list-unstyled">
         {% for org in org_list %}
-          <a href="{{ org.get_staff_url }}" class="d-flex align-items-center list-group-item list-group-item-action">
-            <span class="mr-3">{{ org.name }}</span>
-          </a>
+        <a href="{{ org.get_staff_url }}" class="d-flex align-items-center list-group-item list-group-item-action">
+          <span class="mr-3">{{ org.name }}</span>
+        </a>
         {% endfor %}
       </div>
     </div>

@@ -76,19 +76,19 @@
       </form>
 
       {% if results %}
-        <h2 class="mb-4 pb-4 border-bottom">Results</h2>
+      <h2 class="mb-4 pb-4 border-bottom">Results</h2>
 
-        {% for key, group in results %}
-          <section class="mb-4 pb-4 border-bottom">
-            <h3 class="h4 mb-3">{{ key }}{{ 2|pluralize }}</h3>
+      {% for key, group in results %}
+      <section class="mb-4 pb-4 border-bottom">
+        <h3 class="h4 mb-3">{{ key }}{{ 2|pluralize }}</h3>
 
-            <div class="list-group">
-              {% for item in group %}
-                <a href="{{ item.get_staff_url }}" class="list-group-item list-group-item-action">{{ item }}</a>
-              {% endfor %}
-            </div>
-          </section>
-        {% endfor %}
+        <div class="list-group">
+          {% for item in group %}
+          <a href="{{ item.get_staff_url }}" class="list-group-item list-group-item-action">{{ item }}</a>
+          {% endfor %}
+        </div>
+      </section>
+      {% endfor %}
       {% endif %}
 
     </div>
