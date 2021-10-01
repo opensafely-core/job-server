@@ -32,7 +32,7 @@
       <div class="list-group list-unstyled">
         {% for backend in backend_list %}
         <a href="{{ backend.get_staff_url }}" class="d-flex align-items-center list-group-item list-group-item-action">
-          <span class="mr-3">{{ backend.name }}</span>
+          {{ backend.name }}
         </a>
         {% endfor %}
       </div>
