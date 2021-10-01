@@ -1,8 +1,11 @@
 import debug_toolbar
+import social_django.views as social_django_views
 from django.conf import settings
 from django.contrib.auth.views import LogoutView
 from django.urls import include, path
-from django.views.generic import RedirectView
+from django.views.decorators.csrf import csrf_exempt
+from django.views.decorators.http import require_POST
+from django.views.generic import RedirectView, TemplateView
 
 from jobserver.api.jobs import (
     JobAPIUpdate,
@@ -247,6 +250,11 @@ org_urls = [
 
 urlpatterns = [
     path("", Index.as_view()),
+    path(
+        "login/<str:backend>/",
+        csrf_exempt(require_POST(social_django_views.auth)),
+        name="auth-login",
+    ),
     path("", include("social_django.urls", namespace="social")),
     path("", include("applications.urls")),
     path("favicon.ico", RedirectView.as_view(url=settings.STATIC_URL + "favicon.ico")),
@@ -261,6 +269,7 @@ urlpatterns = [
         name="job-request-detail",
     ),
     path("jobs/<identifier>/", JobDetailRedirect.as_view(), name="job-detail"),
+    path("login/", TemplateView.as_view(template_name="login.html"), name="login"),
     path("logout/", LogoutView.as_view(), name="logout"),
     path("orgs/", include(org_urls)),
     path("settings/", Settings.as_view(), name="settings"),
