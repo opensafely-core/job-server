@@ -1,21 +1,42 @@
 {% extends "staff/base.html" %}
 
-{% block staff_content %}
+{% block metatitle %}Backends: Staff Area | OpenSAFELY Jobs{% endblock metatitle %}
 
-<div class="row">
-  <div class="col-lg-8 offset-lg-2">
-
-  <div class="d-flex justify-content-between mt-3 mb-4">
-    <h2>Backends</h2>
+{% block breadcrumbs %}
+<nav class="breadcrumb-container breadcrumb--danger" aria-label="breadcrumb">
+  <div class="container">
+    <ol class="breadcrumb rounded-0 mb-0 px-0">
+      <li class="breadcrumb-item">
+        <a href="{% url 'staff:index' %}">Staff area</a>
+      </li>
+      <li class="breadcrumb-item active" aria-current="page">
+        Backends
+      </li>
+    </ol>
   </div>
+</nav>
+{% endblock breadcrumbs %}
 
-    {% for backend in backend_list %}
-    <div class="d-flex justify-content-between align-items-center border rounded p-2 pl-3 mb-3">
-      <a href="{{ backend.get_staff_url }}">{{ backend.name }}</a>
-      <a class="btn btn-sm btn-danger" href="{{ backend.get_edit_url }}">Edit</a>
+{% block jumbotron %}
+<div class="jumbotron jumbotron-fluid jumbotron--danger pt-md-2">
+  <div class="container">
+    <h1 class="display-4">Backends</h1>
+  </div>
+</div>
+{% endblock jumbotron %}
+
+{% block staff_content %}
+<div class="container">
+  <div class="row">
+    <div class="col-lg-8 col-xl-9">
+      <div class="list-group list-unstyled">
+        {% for backend in backend_list %}
+        <a href="{{ backend.get_staff_url }}" class="d-flex align-items-center list-group-item list-group-item-action">
+          <span class="mr-3">{{ backend.name }}</span>
+        </a>
+        {% endfor %}
+      </div>
     </div>
-    {% endfor %}
-
   </div>
 </div>
 {% endblock staff_content %}

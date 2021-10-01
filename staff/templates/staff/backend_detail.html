@@ -1,40 +1,62 @@
 {% extends "staff/base.html" %}
 
+{% block metatitle %}{{ backend.name }}: Staff Area | OpenSAFELY Jobs{% endblock metatitle %}
+
+{% block breadcrumbs %}
+<nav class="breadcrumb-container breadcrumb--danger" aria-label="breadcrumb">
+  <div class="container">
+    <ol class="breadcrumb rounded-0 mb-0 px-0">
+      <li class="breadcrumb-item">
+        <a href="{% url 'staff:index' %}">Staff area</a>
+      </li>
+      <li class="breadcrumb-item">
+        <a href="{% url 'staff:backend-list' %}">Backends</a>
+      </li>
+      <li class="breadcrumb-item active" aria-current="page">
+        {{ backend.name }}
+      </li>
+    </ol>
+  </div>
+</nav>
+{% endblock breadcrumbs %}
+
+{% block jumbotron %}
+<div class="jumbotron jumbotron-fluid jumbotron--danger pt-md-2">
+  <div class="container">
+    <h1 class="display-4">{{ backend.name }}</h1>
+
+    <div class="d-flex">
+      <a class="btn btn-primary mr-1" href="{{ backend.get_edit_url }}">Edit</a>
+      <form method="POST" action="{{ backend.get_rotate_url }}">
+        {% csrf_token %}
+        <button class="btn btn-danger" type="submit">Rotate Token</button>
+      </form>
+    </div>
+  </div>
+</div>
+{% endblock jumbotron %}
+
 {% block staff_content %}
-<div class="row">
-  <div class="col-lg-6 offset-lg-2">
-
-    <h2>{{ backend.display_name }}</h2>
-
-    <div>
-      <strong>Name:</strong>
-      <code>{{ backend.name }}</code>
-    </div>
-
-    <div>
-      <strong>Token:</strong>
-      <code>{{ backend.auth_token }}</code>
-    </div>
-
-    <div>
-      <strong>Level 4 URL:</strong>
-      <code>{{ backend.level_4_url|default:"-" }}</code>
+<div class="container">
+  <div class="row">
+    <div class="col-lg-8 col-xl-9">
+      <div class="card">
+        <ul class="list-group list-group-flush">
+          <li class="list-group-item">
+            <strong>Name:</strong>
+            <code>{{ backend.name }}</code>
+          </li>
+          <li class="list-group-item">
+            <strong>Token:</strong>
+            <code>{{ backend.auth_token }}</code>
+          </li>
+          <li class="list-group-item">
+            <strong>Level 4 URL:</strong>
+            <code>{{ backend.level_4_url|default:"-" }}</code>
+          </li>
+        </ul>
+      </div>
     </div>
   </div>
-
-  <div class="col-lg-2">
-
-    <h3 class="text-center">Tools</h3>
-
-    <a class="btn btn-sm btn-block btn-danger mb-3" href="{{ backend.get_edit_url }}">Edit</a>
-
-    <form method="POST" action="{{ backend.get_rotate_url }}">
-      {% csrf_token %}
-
-      <button class="btn btn-sm btn-block btn-danger mb-3" type="submit">Rotate Token</button>
-    </form>
-
-  </div>
-
 </div>
 {% endblock staff_content %}
