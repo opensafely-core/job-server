@@ -107,16 +107,16 @@
         </ul>
       </div>
 
+      {% if projects %}
       <h2 class="h3">Projects</h2>
-      <ul class="list-group list-unstyled">
+      <div class="list-group">
         {% for project in projects %}
-        <li class="list-group-item list-group-item-action">
-          <a class="list-group-item-action" href="{{ project.get_staff_url }}">
-            {{ project.name }}
-          </a>
-        </li>
+        <a class="list-group-item list-group-item-action" href="{{ project.get_staff_url }}">
+          {{ project.name }}
+        </a>
         {% endfor %}
-      </ul>
+      </div>
+      {% endif %}
     </div>
   </div>
 </div>
