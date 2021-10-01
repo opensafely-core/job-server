@@ -3,67 +3,88 @@
 {% load querystring_tools %}
 {% load selected_filter %}
 
-{% block staff_content %}
-<div class="row">
-  <div class="col-lg-6 offset-lg-2">
+{% block metatitle %}Projects: Staff Area | OpenSAFELY Jobs{% endblock metatitle %}
 
-    <form class="form d-flex align-items-center mb-4" method="GET">
-      <input
-        class="form-control mr-2"
-        type="search"
-        placeholder="Search by project name"
-        aria-label="Search"
-        {% if q %}
-        value="{{ q }}"
-        {% endif %}
-        name="q" />
-      <button class="btn btn-outline-success my-2 my-sm-0" type="submit">Search</button>
-    </form>
-
-    {% for project in project_list %}
-    <div class="border rounded p-2 pl-3 mb-3">
-      <a href="{{ project.get_staff_url }}">{{ project.name }}</a>
-    </div>
-    {% endfor %}
-
-  </div>
-
-  <div class="col-lg-2 filters">
-    <h4>Filters</h4>
-
-    {% if request.GET %}
-    <div class="mb-3">
-      <a href="{% url 'staff:project-list' %}">Clear All</a>
-    </div>
-    {% endif %}
-
-    {% if orgs %}
-    <h5>Orgs</h5>
-    <ul class="list-group list-unstyled mb-4">
-      {% for org in orgs %}
-      {% is_filter_selected key="org" value=org.slug as is_active %}
-      <li class="list-group-item d-flex{% if is_active %} active{% endif %}">
-
-        <a class="text-truncate flex-grow-1" href="{% url_with_querystring org=org.slug %}">
-          {{ org.name }}
-        </a>
-
-        {% if is_active %}
-        <a
-          type="button"
-          class="close"
-          aria-label="Close"
-          href="{% url_without_querystring org=org.slug %}"
-          >
-          <span aria-hidden="true">&times;</span>
-        </a>
-        {% endif %}
-
+{% block breadcrumbs %}
+<nav class="breadcrumb-container breadcrumb--danger" aria-label="breadcrumb">
+  <div class="container">
+    <ol class="breadcrumb rounded-0 mb-0 px-0">
+      <li class="breadcrumb-item">
+        <a href="{% url 'staff:index' %}">Staff area</a>
       </li>
-      {% endfor %}
-    </ul>
-    {% endif %}
+      <li class="breadcrumb-item active" aria-current="page">
+        Projects
+      </li>
+    </ol>
   </div>
+</nav>
+{% endblock breadcrumbs %}
 
+{% block jumbotron %}
+<div class="jumbotron jumbotron-fluid jumbotron--danger pt-md-2">
+  <div class="container">
+    <h1 class="display-4">Projects</h1>
+  </div>
+</div>
+{% endblock jumbotron %}
+
+
+{% block staff_content %}
+<div class="container">
+  <div class="row">
+    <div class="col col-lg-3 col-xl-4">
+      <h2 class="sr-only">Filters</h2>
+
+      {% if orgs %}
+      <h3 class="h4">Filter by organisation</h3>
+      {% if request.GET %}
+      <div class="mb-3">
+        <a href="{% url 'staff:project-list' %}">Clear filter</a>
+      </div>
+      {% endif %}
+      <div class="btn-group-vertical w-100" role="group" aria-label="Filter by organisation">
+        {% for org in orgs %}
+        {% is_filter_selected key="org" value=org.slug as is_active %}
+        <a
+          {% if is_active %}aria-pressed="true"{% endif %}
+          class="btn btn-outline-primary btn-block text-left {% if is_active %}active{% endif %}"
+          href="
+            {% if is_active %}
+              {% url_without_querystring org=org.slug %}
+            {% else %}
+              {% url_with_querystring org=org.slug %}
+            {% endif %}
+          "
+        >
+            {{ org.name }}
+        </a>
+        {% endfor %}
+      </div>
+      {% endif %}
+    </div>
+
+    <div class="col col-lg-9 col-xl-8">
+      <form class="form d-flex align-items-center mb-4" method="GET">
+        <input
+          class="form-control mr-2"
+          type="search"
+          placeholder="Search by project name"
+          aria-label="Search"
+          {% if q %}
+          value="{{ q }}"
+          {% endif %}
+          name="q" />
+        <button class="btn btn-outline-primary my-2 my-sm-0" type="submit">Search</button>
+      </form>
+
+      <div class="list-group list-unstyled">
+        {% for project in project_list %}
+        <a href="{{ project.get_staff_url }}" class="d-flex align-items-center list-group-item list-group-item-action">
+          {{ project.name }}
+        </a>
+        {% endfor %}
+      </div>
+    </div>
+  </div>
 </div>
 {% endblock staff_content %}

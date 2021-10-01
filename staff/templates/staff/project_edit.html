@@ -1,42 +1,70 @@
 {% extends "staff/base.html" %}
 
+{% block metatitle %}Edit {{ project.name }}: Staff Area | OpenSAFELY Jobs{% endblock metatitle %}
+
+{% block breadcrumbs %}
+<nav class="breadcrumb-container breadcrumb--danger" aria-label="breadcrumb">
+  <div class="container">
+    <ol class="breadcrumb rounded-0 mb-0 px-0">
+      <li class="breadcrumb-item">
+        <a href="{% url 'staff:index' %}">Staff area</a>
+      </li>
+      <li class="breadcrumb-item">
+        <a href="{% url 'staff:project-list' %}">Organisations</a>
+      </li>
+      <li class="breadcrumb-item">
+        <a href="{{ project.get_staff_url }}">{{ project.name }}</a>
+      </li>
+      <li class="breadcrumb-item active" aria-current="page">
+        Edit
+      </li>
+    </ol>
+  </div>
+</nav>
+{% endblock breadcrumbs %}
+
+{% block jumbotron %}
+<div class="jumbotron jumbotron-fluid jumbotron--danger pt-md-2">
+  <div class="container">
+    <h1 class="display-4">Edit: {{ project.name }}</h1>
+  </div>
+</div>
+{% endblock jumbotron %}
+
 {% block staff_content %}
-<div class="row mb-5">
-  <div class="col-lg-8 offset-lg-2">
+<div class="container">
+  <div class="row">
+    <div class="col col-lg-9 col-xl-8">
+      <form class="mb-3" method="POST">
+        {% csrf_token %}
 
-    <h2 class="mb-3">Edit {{ project.name }}</h2>
+        <div class="form-group">
+          {% include "components/form_text.html" with field=form.name label="Project name" name="name" %}
 
-    <form class="mb-3" method="POST">
-      {% csrf_token %}
-
-      <div class="form-group mb-5">
-        {% include "components/form_text.html" with field=form.name label="Project name" name="name" %}
-
-        <div class="custom-control custom-checkbox">
-          <input
-              type="checkbox"
-              class="custom-control-input"
-              id="id_uses_new_release_flow"
-              name="uses_new_release_flow"
-              {% if form.uses_new_release_flow.value %}
-              checked
-              {% endif %}
-              />
-          <label class="custom-control-label" for="id_uses_new_release_flow">
-            Should this project, and its workspaces, use the new Jobs site
-            based release process?
-          </label>
+          <fieldset>
+            <legend class="pt-3">Feature flags</legend>
+            <div class="custom-control custom-checkbox">
+              <input
+                  type="checkbox"
+                  class="custom-control-input"
+                  id="id_uses_new_release_flow"
+                  name="uses_new_release_flow"
+                  {% if form.uses_new_release_flow.value %}
+                  checked
+                  {% endif %}
+                  />
+              <label class="custom-control-label" for="id_uses_new_release_flow">
+                Use the new Jobs site release process for this project, and its workspaces
+              </label>
+            </div>
+          </fieldset>
         </div>
-      </div>
 
-      <div class="form-group">
         <button class="btn btn-primary" type="submit">
           Save
         </button>
-      </div>
-
-    </form>
-
+      </form>
+    </div>
   </div>
 </div>
 {% endblock staff_content %}
