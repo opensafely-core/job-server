@@ -34,6 +34,9 @@ class Application(models.Model):
     def get_absolute_url(self):
         return reverse("applications:detail", kwargs={"pk": self.pk})
 
+    def get_staff_url(self):
+        return reverse("staff:application-detail", kwargs={"pk": self.pk})
+
     @property
     def is_study_research(self):
         try:

@@ -11,6 +11,14 @@ def test_application_get_absolute_url():
     return url == reverse("applications:detail", kwargs={"pk": application.pk})
 
 
+def test_application_get_staff_url():
+    application = ApplicationFactory()
+
+    url = application.get_staff_url()
+
+    return url == reverse("staff:application-detail", kwargs={"pk": application.pk})
+
+
 def test_researcherregistration_get_delete_url():
     researcher = ResearcherRegistrationFactory()
 

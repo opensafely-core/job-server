@@ -1,0 +1,61 @@
+{% extends "staff/base.html" %}
+
+{% block metatitle %}Applications: Staff Area | OpenSAFELY Jobs{% endblock metatitle %}
+
+{% block breadcrumbs %}
+<nav class="breadcrumb-container breadcrumb--danger" aria-label="breadcrumb">
+  <div class="container">
+    <ol class="breadcrumb rounded-0 mb-0 px-0">
+      <li class="breadcrumb-item">
+        <a href="{% url 'staff:index' %}">Staff area</a>
+      </li>
+      <li class="breadcrumb-item active" aria-current="page">
+        Applications
+      </li>
+    </ol>
+  </div>
+</nav>
+{% endblock breadcrumbs %}
+
+{% block jumbotron %}
+<div class="jumbotron jumbotron-fluid jumbotron--danger pt-md-2">
+  <div class="container">
+    <h1 class="display-4">Applications</h1>
+  </div>
+</div>
+{% endblock jumbotron %}
+
+{% block staff_content %}
+<div class="container">
+  <div class="row">
+    <div class="col col-lg-9 col-xl-8">
+      <form method="GET" class="mb-4">
+        <div class="form-inline w-100 d-flex flex-nowrap">
+          <label for="applicationSearch" class="sr-only">Search by name of application author</label>
+          <input
+            class="form-control mr-sm-2 w-100"
+            id="applicationSearch"
+            name="q"
+            placeholder="Search by name of application author"
+            type="search"
+            {% if q %}
+              value="{{ q }}"
+            {% endif %}
+          >
+          <button class="btn btn-outline-success my-2 my-sm-0" type="submit">Search</button>
+        </div>
+      </form>
+      <div class="list-group list-unstyled">
+        {% for application in application_list %}
+        <a href="{{ application.get_staff_url }}" class="d-flex align-items-center list-group-item list-group-item-action">
+          <span class="mr-3">
+            {{ application.pk }} by {{ application.created_by.name }}
+            <small class="text-muted">(started {{ application.created_at|date }})</small>
+          </span>
+        </a>
+        {% endfor %}
+      </div>
+    </div>
+  </div>
+</div>
+{% endblock staff_content %}
