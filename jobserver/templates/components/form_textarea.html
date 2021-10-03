@@ -16,11 +16,7 @@
     {% if field.field.required %}
     required
     {% endif %}
-
-    {% if field.value %}
-    value="{{ field.value }}"
-    {% endif %}
-  ></textarea>
+  >{% if field.value %}{{ field.value }}{% endif %}</textarea>
 
   {% if field.help_text %}
     <small id="{{ name }}HelpBlock" class="form-text text-muted">
