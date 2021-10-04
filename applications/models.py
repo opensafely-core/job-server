@@ -31,6 +31,9 @@ class Application(models.Model):
 
     has_reached_confirmation = models.BooleanField(default=False)
 
+    def __str__(self):
+        return f"Application {self.pk} by {self.created_by.name}"
+
     def get_absolute_url(self):
         return reverse("applications:detail", kwargs={"pk": self.pk})
 
