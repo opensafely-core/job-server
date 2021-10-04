@@ -285,7 +285,24 @@ def test_userlist_success(rf, core_developer):
     assert len(response.context_data["object_list"]) == 6
 
 
-def test_usersetorgs_success(rf, core_developer):
+def test_usersetorgs_get_success(rf, core_developer):
+    org1 = OrgFactory()
+    org2 = OrgFactory()
+    user = UserFactory()
+
+    OrgMembershipFactory(org=org1, user=user)
+    OrgMembershipFactory(org=org2, user=user)
+
+    request = rf.get("/")
+    request.user = core_developer
+
+    response = UserSetOrgs.as_view()(request, username=user.username)
+
+    assert response.status_code == 200
+    assert response.context_data["user"] == user
+
+
+def test_usersetorgs_post_success(rf, core_developer):
     existing_org = OrgFactory()
     new_org1 = OrgFactory()
     new_org2 = OrgFactory()
