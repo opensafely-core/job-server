@@ -87,8 +87,8 @@ def test_login_pipeline(client, mocker):
 
 
 def test_login_redirects_correctly(client):
-    login_url = reverse("social:begin", kwargs={"backend": "github"})
-    response = client.get(login_url)
+    login_url = reverse("auth-login", kwargs={"backend": "github"})
+    response = client.post(login_url)
 
     assert response.status_code == 302
 
