@@ -102,6 +102,13 @@ def test_login_redirects_correctly(client):
     assert f.args["scope"] == "user:email"
 
 
+def test_login_with_get_request_fails(client):
+    login_url = reverse("auth-login", kwargs={"backend": "github"})
+    response = client.get(login_url)
+
+    assert response.status_code == 405
+
+
 def test_login_pipeline_without_gitub_token(client):
     """
     Test the Auth Pipeline with an incoming request but no GitHub API access
