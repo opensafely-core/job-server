@@ -299,5 +299,12 @@ details[open] summary {
   overflow-x: auto;
 }
 
+.job-table {
+  th,
+  td {
+    vertical-align: baseline;
+  }
+}
+
 @import "staff";
 @import "utilities";

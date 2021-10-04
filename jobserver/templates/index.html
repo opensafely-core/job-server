@@ -5,23 +5,21 @@
 
 {% block metatitle %}OpenSAFELY Jobs | Home{% endblock metatitle %}
 
-{% block content %}
-
-<div class="row mb-3">
-  <div class="col-lg-8 offset-lg-2">
-    <p>
-      Welcome to the <a href="https://opensafely.org">OpenSAFELY</a> Jobs site.
-    </p>
-    <p>
+{% block jumbotron %}
+<div class="jumbotron jumbotron-fluid">
+  <div class="container">
+    <h1 class="display-4">OpenSAFELY Jobs</h1>
+    <p class="lead">
       This site logs all jobs executed on production data as they happen, with a link to
       the Github repository and commit reference that uniquely identifies the exact code
-      that was run. However, in accordance with the <a
-      href="https://opensafely.org/principles/">Principles of OpenSAFELY</a> some Github
-      repositories are kept private until the results are shared publicly - at which
-      point we require the entire repository to be made public. If the repository is
-      currently private, any links to it from this site will return a "404 Not Found"
-      error unless you are logged in and have the relevant permissions.
-
+      that was run.
+    </p>
+    <p>
+      In accordance with the <a href="https://www.opensafely.org/about/#transparency-and-public-logs">Principles of
+      OpenSAFELY</a> some Github repositories are kept private until the results are
+      shared publicly - at which point we require the entire repository to be made public.
+      If the repository is currently private, any links to it from this site will return
+      a "404 Not Found" error unless you are logged in and have the relevant permissions.
     </p>
     <p>
       Pick a Workspace below to get started running your research on the OpenSAFELY
@@ -30,99 +28,105 @@
     </p>
   </div>
 </div>
+{% endblock jumbotron %}
 
-{% if workspaces %}
-<div class="row mb-5 workspace-select">
-  <div id="workspace-list" class="col-lg-8 offset-lg-2">
+{% block content %}
+<div class="container">
+  <div class="row">
+    {% if workspaces %}
+    <div class="col-12 mb-5 workspace-select">
+      <div id="workspace-list">
 
-    <input
-      class="form-control mb-3 fuzzy-search"
-      type="search"
-      placeholder="Filter workspaces by name, repository, or branch"
-      aria-label="Search" />
+        <input
+          class="form-control mb-3 fuzzy-search"
+          type="search"
+          placeholder="Filter workspaces by name, repository, or branch"
+          aria-label="Search" />
 
-    <div class="list-group mb-3 overflow-auto list">
-      {% for workspace in workspaces %}
-      <a
-        class="list-group-item list-group-item-action d-flex justify-content-between align-items-center"
-        href="{{ workspace.get_absolute_url }}">
-        <span class="mr-2 name">{{ workspace.name }}</span>
-        <code class="d-none d-md-block text-right font-weight-normal">
-          {% spaceless %}
-          <span class="repo">{{ workspace.repo_name }}</span>
-          <span>|</span>
-          <span class="branch">{{ workspace.branch }}</span>
-          {% endspaceless %}
-        </code>
-      </a>
-      {% endfor %}
-    </div>
+        <div class="list-group mb-3 overflow-auto list">
+          {% for workspace in workspaces %}
+          <a
+            class="list-group-item list-group-item-action d-flex justify-content-between align-items-center"
+            href="{{ workspace.get_absolute_url }}">
+            <span class="mr-2 name">{{ workspace.name }}</span>
+            <code class="d-none d-md-block text-right font-weight-normal">
+              {% spaceless %}
+              <span class="repo">{{ workspace.repo_name }}</span>
+              <span>|</span>
+              <span class="branch">{{ workspace.branch }}</span>
+              {% endspaceless %}
+            </code>
+          </a>
+          {% endfor %}
+        </div>
 
-    {% if request.user.is_authenticated and request.user.orgs.exists %}
-    <div class="text-center">
-      <p><strong>OR</strong></p>
+        {% if request.user.is_authenticated and request.user.orgs.exists %}
+        <div class="text-center">
+          <p><strong>OR</strong></p>
 
-      <p>
-        Pick {% if request.user.orgs.count > 1 %}an organisation then {% endif %}a project to create a workspace in
-      </p>
+          <p>
+            Pick {% if request.user.orgs.count > 1 %}an organisation then {% endif %}a project to create a workspace in
+          </p>
 
-      <div class="d-flex justify-content-center">
-        <a
-          {% if request.user.orgs.count > 1 %}
-          href="{% url 'org-list' %}"
-          {% else %}
-          href="{% url 'org-detail' org_slug=request.user.orgs.first.slug %}"
-          {% endif %}
-          class="btn btn-lg btn-primary">
-          Add a New Workspace
-        </a>
+          <div class="d-flex justify-content-center">
+            <a
+              {% if request.user.orgs.count > 1 %}
+              href="{% url 'org-list' %}"
+              {% else %}
+              href="{% url 'org-detail' org_slug=request.user.orgs.first.slug %}"
+              {% endif %}
+              class="btn btn-lg btn-primary">
+              Add a New Workspace
+            </a>
+          </div>
+
+        </div>
+        {% endif %}
+
       </div>
-
     </div>
     {% endif %}
 
+    <section class="col-12">
+      <h2 class="h3">Latest Jobs</h2>
+      <p>Below are the 5 latest requests for Jobs to be run on the OpenSAFELY platform.</p>
+
+      <div class="table-responsive">
+        <table class="table table-striped job-table">
+          <thead class="thead-light">
+            <tr>
+              <th><span class="sr-only">Status</span></th>
+              <th>Workspace</th>
+              <th>Started at</th>
+              <th><span class="sr-only">Action</span></th>
+            </tr>
+          </thead>
+          <tbody>
+            {% for job_request in job_requests %}
+            <tr>
+              <td>
+                <div class="status status-icon {{ job_request.status }} mx-auto"></div>
+              </td>
+              <td>{{ job_request.workspace.name }}</td>
+              <td>{{ job_request.started_at|date:"Y-m-d H:i:sO"|default:"-" }}</td>
+              <td>
+                <a class="btn btn-sm btn-primary" href="{{ job_request.get_absolute_url }}">
+                  View
+                </a>
+              </td>
+            </tr>
+            {% endfor %}
+          </tbody>
+        </table>
+      </div>
+      <div class="d-flex justify-content-center mt-3">
+        <a class="btn btn-primary text-center" href="{% url 'job-list' %}">
+          View all logs
+        </a>
+      </div>
+    </section>
   </div>
 </div>
-{% endif %}
-
-<div class="row mb-5 job-list">
-  <div class="col-lg-8 offset-lg-2">
-
-    <h3>Latest Jobs</h3>
-
-    <p>Below are the 5 latest requests for Jobs to be run on the OpenSAFELY platform.</p>
-
-    <div class="job-requests mb-3">
-      <div class="d-flex">
-        <div class="status mx-3"></div>
-        <div class="flex-grow-1"><strong>Workspace</strong></div>
-        <div class="started-at" style="margin-right:72px;"><strong>Started At</strong></div>
-      </div>
-
-      {% for job_request in job_requests %}
-      <div class="job-request">
-        <div class="d-flex align-items-center py-2">
-          <div class="status status-icon {{ job_request.status }} mx-3"></div>
-          <div class="flex-grow-1">{{ job_request.workspace.name }}</div>
-          <div class="started-at">{{ job_request.started_at|date:"Y-m-d H:i:sO"|default:"-" }}</div>
-          <div class="mx-2">
-            <a class="btn btn-sm btn-primary" href="{{ job_request.get_absolute_url }}">View</a>
-          </div>
-        </div>
-      </div>
-      {% endfor %}
-
-    </div>
-
-    <div class="d-flex justify-content-center">
-      <a class="btn btn-lg btn-primary text-center" href="{% url 'job-list' %}">
-        View All Logs
-      </a>
-    </div>
-
-  </div>
-</div>
-
 {% endblock content %}
 
 {% block extra_js %}
