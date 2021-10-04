@@ -12,13 +12,7 @@ from django.views.generic import CreateView, DetailView, UpdateView, View
 from furl import furl
 from sentry_sdk import capture_exception
 
-from ..authorization import (
-    CoreDeveloper,
-    ProjectDeveloper,
-    has_permission,
-    has_role,
-    roles_for,
-)
+from ..authorization import ProjectDeveloper, has_permission, roles_for
 from ..emails import send_project_invite_email
 from ..forms import ProjectInvitationForm, ProjectMembershipForm
 from ..github import get_repo_is_private
@@ -128,7 +122,6 @@ class ProjectDetail(DetailView):
             "project_membership_edit",
             project=self.object,
         )
-        can_use_releases = has_role(self.request.user, CoreDeveloper)
 
         workspaces = self.object.workspaces.order_by("name")
 
@@ -137,7 +130,6 @@ class ProjectDetail(DetailView):
         return super().get_context_data(**kwargs) | {
             "can_create_workspaces": can_create_workspaces,
             "can_manage_members": can_manage_members,
-            "can_use_releases": can_use_releases,
             "outputs": self.get_outputs(workspaces),
             "repos": list(self.get_repos(repos)),
             "workspaces": workspaces,

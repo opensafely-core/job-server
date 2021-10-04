@@ -8,7 +8,7 @@ from django.views.generic import CreateView, ListView, View
 from furl import furl
 from pybadges import badge
 
-from ..authorization import CoreDeveloper, has_permission, has_role
+from ..authorization import has_permission
 from ..forms import (
     WorkspaceArchiveToggleForm,
     WorkspaceCreateForm,
@@ -173,8 +173,6 @@ class WorkspaceDetail(View):
             name=self.kwargs["workspace_slug"],
         )
 
-        can_use_releases = has_role(request.user, CoreDeveloper)
-
         is_privileged_user = has_permission(
             request.user, "release_file_view", project=workspace.project
         )
@@ -208,6 +206,11 @@ class WorkspaceDetail(View):
             request.user, "job_run", project=workspace.project
         )
 
+        # should we display the releases section for this workspace?
+        can_use_releases = workspace.project.uses_new_release_flow and (
+            can_view_files or can_view_releases or can_view_outputs
+        )
+
         try:
             repo_is_private = get_repo_is_private(
                 workspace.repo_owner, workspace.repo_name
@@ -216,10 +219,10 @@ class WorkspaceDetail(View):
             repo_is_private = None
 
         context = {
-            "can_use_releases": can_use_releases,
             "repo_is_private": repo_is_private,
             "user_can_archive_workspace": can_archive_workspace,
             "user_can_run_jobs": can_run_jobs,
+            "user_can_use_releases": can_use_releases,
             "user_can_view_files": can_view_files,
             "user_can_view_outputs": can_view_outputs,
             "user_can_view_releases": can_view_releases,
