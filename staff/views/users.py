@@ -138,6 +138,11 @@ class UserSetOrgs(FormView):
 
         return redirect(self.user.get_staff_url())
 
+    def get_context_data(self, **kwargs):
+        return super().get_context_data(**kwargs) | {
+            "user": self.user,
+        }
+
     def get_form_kwargs(self):
         return super().get_form_kwargs() | {
             "available_orgs": Org.objects.order_by("name"),
