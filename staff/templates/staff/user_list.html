@@ -3,11 +3,90 @@
 {% load querystring_tools %}
 {% load selected_filter %}
 
-{% block staff_content %}
-<div class="row">
-  <div class="col-lg-6 offset-lg-2">
+{% block metatitle %}Users: Staff Area | OpenSAFELY Jobs{% endblock metatitle %}
 
-    <form class="form d-flex align-items-center mb-4" method="GET">
+{% block breadcrumbs %}
+<nav class="breadcrumb-container breadcrumb--danger" aria-label="breadcrumb">
+  <div class="container">
+    <ol class="breadcrumb rounded-0 mb-0 px-0">
+      <li class="breadcrumb-item">
+        <a href="{% url 'staff:index' %}">Staff area</a>
+      </li>
+      <li class="breadcrumb-item active" aria-current="page">
+        Users
+      </li>
+    </ol>
+  </div>
+</nav>
+{% endblock breadcrumbs %}
+
+{% block jumbotron %}
+<div class="jumbotron jumbotron-fluid jumbotron--danger pt-md-2">
+  <div class="container">
+    <h1 class="display-4">Users</h1>
+  </div>
+</div>
+{% endblock jumbotron %}
+
+{% block staff_content %}
+<div class="container">
+  <div class="row">
+    <div class="col col-lg-3 col-xl-4">
+      <h2 class="h3">Filters</h2>
+
+      {% if request.GET %}
+      <div class="mb-3">
+        <a href="{% url 'staff:user-list' %}">Clear All</a>
+      </div>
+      {% endif %}
+
+      {% if backends %}
+      <h3 class="h4">Backends</h3>
+      <div class="btn-group-vertical w-100 mb-4" role="group" aria-label="Filter by backends">
+        {% for backend in backends %}
+        {% is_filter_selected key="backend" value=backend.pk as is_active %}
+        <a
+          {% if is_active %}aria-pressed="true"{% endif %}
+          class="btn btn-outline-primary btn-block text-left {% if is_active %}active{% endif %}"
+          href="
+            {% if is_active %}
+              {% url_without_querystring backend=backend.pk %}
+            {% else %}
+              {% url_with_querystring backend=backend.pk %}
+            {% endif %}
+          "
+        >
+            {{ backend.name }}
+        </a>
+        {% endfor %}
+      </div>
+      {% endif %}
+
+      {% if roles %}
+      <h3 class="h4">Role</h3>
+      <div class="btn-group-vertical w-100 mb-4" role="group" aria-label="Filter by role">
+        {% for role in roles %}
+        {% is_filter_selected key="role" value=role as is_active %}
+        <a
+          {% if is_active %}aria-pressed="true"{% endif %}
+          class="btn btn-outline-primary btn-block text-left {% if is_active %}active{% endif %}"
+          href="
+            {% if is_active %}
+              {% url_without_querystring role=role %}
+            {% else %}
+              {% url_with_querystring role=role %}
+            {% endif %}
+          "
+        >
+            {{ role }}
+        </a>
+        {% endfor %}
+      </div>
+      {% endif %}
+    </div>
+
+    <div class="col col-lg-9 col-xl-8">
+      <form class="form d-flex align-items-center mb-4" method="GET">
       <input
         class="form-control mr-2"
         type="search"
@@ -17,85 +96,20 @@
         value="{{ q }}"
         {% endif %}
         name="q" />
-      <button class="btn btn-outline-success my-2 my-sm-0" type="submit">Search</button>
-    </form>
+        <button class="btn btn-outline-primary my-2 my-sm-0" type="submit">Search</button>
+      </form>
 
-    {% for user in object_list %}
-    <div class="border rounded p-2 pl-3 mb-3">
-
-      <a href="{{ user.get_staff_url }}">{{ user.username }}</a>
-      {% if user.get_full_name %}
-      <small class="text-muted">({{ user.get_full_name }})</small>
-      {% endif %}
-
+      <div class="list-group list-unstyled">
+        {% for user in object_list %}
+        <a href="{{ user.get_staff_url }}" class="d-flex align-items-center list-group-item list-group-item-action">
+          {{ user.username }}
+          {% if user.get_full_name %}
+          <span class="text-muted ml-2 font-weight-normal">({{ user.get_full_name }})</span>
+          {% endif %}
+        </a>
+        {% endfor %}
+      </div>
     </div>
-    {% endfor %}
-
   </div>
-
-  <div class="col-lg-2 filters">
-    <h4>Filters</h4>
-
-    {% if request.GET %}
-    <div class="mb-3">
-      <a href="{% url 'staff:user-list' %}">Clear All</a>
-    </div>
-    {% endif %}
-
-    {% if backends %}
-    <h5>Backends</h5>
-    <ul class="list-group list-unstyled mb-4">
-      {% for backend in backends %}
-      {% is_filter_selected key="backend" value=backend.pk as is_active %}
-      <li class="list-group-item d-flex{% if is_active %} active{% endif %}">
-
-        <a class="text-truncate flex-grow-1" href="{% url_with_querystring backend=backend.pk %}">
-          {{ backend.name }}
-        </a>
-
-        {% if is_active %}
-        <a
-          type="button"
-          class="close"
-          aria-label="Close"
-          href="{% url_without_querystring backend=backend.pk %}"
-          >
-          <span aria-hidden="true">&times;</span>
-        </a>
-        {% endif %}
-
-      </li>
-      {% endfor %}
-    </ul>
-    {% endif %}
-
-    {% if roles %}
-    <h5>Roles</h5>
-    <ul class="list-group list-unstyled mb-4">
-      {% for role in roles %}
-      {% is_filter_selected key="role" value=role as is_active %}
-      <li class="list-group-item d-flex{% if is_active %} active{% endif %}">
-
-        <a class="text-truncate flex-grow-1" href="{% url_with_querystring role=role %}">
-          {{ role }}
-        </a>
-
-        {% if is_active %}
-        <a
-          type="button"
-          class="close"
-          aria-label="Close"
-          href="{% url_without_querystring role=role %}"
-          >
-          <span aria-hidden="true">&times;</span>
-        </a>
-        {% endif %}
-
-      </li>
-      {% endfor %}
-    </ul>
-    {% endif %}
-  </div>
-
 </div>
 {% endblock staff_content %}
