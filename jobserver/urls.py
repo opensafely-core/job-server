@@ -54,7 +54,7 @@ from .views.releases import (
     WorkspaceReleaseList,
 )
 from .views.status import Status
-from .views.users import Login, Settings
+from .views.users import Settings, login_view
 from .views.workspaces import (
     WorkspaceArchiveToggle,
     WorkspaceBackendFiles,
@@ -269,7 +269,7 @@ urlpatterns = [
         name="job-request-detail",
     ),
     path("jobs/<identifier>/", JobDetailRedirect.as_view(), name="job-detail"),
-    path("login/", Login.as_view(), name="login"),
+    path("login/", login_view, name="login"),
     path("logout/", LogoutView.as_view(), name="logout"),
     path("orgs/", include(org_urls)),
     path("settings/", Settings.as_view(), name="settings"),
