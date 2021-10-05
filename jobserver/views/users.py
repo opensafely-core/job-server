@@ -14,8 +14,9 @@ class Login(TemplateView):
     template_name = "login.html"
 
     def get(self, request, *args, **kwargs):
-        if is_safe_path(request.GET.get("next", "")):
-            return render(request, self.template_name)
+        next_url = request.GET.get("next", "/")
+        if is_safe_path(next_url):
+            return render(request, self.template_name, {"next_url": next_url})
         else:
             return bad_request(request, SuspiciousOperation)
 
