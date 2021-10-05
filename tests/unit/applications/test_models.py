@@ -1,6 +1,29 @@
 from django.urls import reverse
 
-from ...factories import ResearcherRegistrationFactory
+from ...factories import ApplicationFactory, ResearcherRegistrationFactory, UserFactory
+
+
+def test_application_get_absolute_url():
+    application = ApplicationFactory()
+
+    url = application.get_absolute_url()
+
+    return url == reverse("applications:detail", kwargs={"pk": application.pk})
+
+
+def test_application_get_staff_url():
+    application = ApplicationFactory()
+
+    url = application.get_staff_url()
+
+    return url == reverse("staff:application-detail", kwargs={"pk": application.pk})
+
+
+def test_application_str():
+    user = UserFactory(first_name="Ben", last_name="Seb")
+    application = ApplicationFactory(created_by=user)
+
+    assert str(application) == f"Application {application.pk} by Ben Seb"
 
 
 def test_researcherregistration_get_delete_url():

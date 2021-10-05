@@ -8,6 +8,7 @@ from applications.form_specs import form_specs
 from applications.models import Application, ResearcherRegistration, TypeOfStudyPage
 from applications.views import (
     ApplicationList,
+    PageRedirect,
     ResearcherCreate,
     ResearcherDelete,
     ResearcherEdit,
@@ -51,6 +52,19 @@ def test_getnexturl_without_next_arg(rf):
     output = get_next_url(request.GET)
 
     assert output == reverse("applications:list")
+
+
+def test_pageredirect_success(rf):
+    request = rf.get("/")
+
+    response = PageRedirect.as_view()(request, pk=0)
+
+    assert response.status_code == 302
+
+    assert response.url == reverse(
+        "applications:page",
+        kwargs={"pk": 0, "key": form_specs[0].key},
+    )
 
 
 def test_researchercreate_get_success(rf):

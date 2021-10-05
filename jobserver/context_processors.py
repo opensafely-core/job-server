@@ -51,6 +51,11 @@ def staff_nav(request):
 
     options = [
         {
+            "name": "Applications",
+            "is_active": _active(reverse("staff:application-list")),
+            "url": reverse("staff:application-list"),
+        },
+        {
             "name": "Backends",
             "is_active": _active(reverse("staff:backend-list")),
             "url": reverse("staff:backend-list"),

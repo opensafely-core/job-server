@@ -6,6 +6,7 @@ from django.template.response import TemplateResponse
 from django.utils.decorators import method_decorator
 from django.views.generic import View
 
+from applications.models import Application
 from jobserver.authorization import CoreDeveloper
 from jobserver.authorization.decorators import require_role
 from jobserver.models import Backend, Org, Project, User, Workspace
@@ -13,6 +14,15 @@ from jobserver.models import Backend, Org, Project, User, Workspace
 
 # configure searchable models here, each must have get_staff_url defined
 configured_searches = [
+    {
+        "model": Application,
+        "fields": [
+            "created_by__first_name",
+            "created_by__last_name",
+            "created_by__username",
+        ],
+        "order_by": "created_at",
+    },
     {
         "model": Backend,
         "fields": ["name", "slug"],

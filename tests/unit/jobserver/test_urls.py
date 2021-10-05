@@ -44,6 +44,7 @@ from staff.views import workspaces as staff_workspaces
 @pytest.mark.parametrize(
     "url,redirect",
     [
+        ("/applications/42/", "/applications/42/page/contact-details/"),
         ("/applications/42/researchers/", "/applications/42/researchers/add"),
         ("/favicon.ico", "/static/favicon.ico"),
         ("/event-list/", "/event-log/"),

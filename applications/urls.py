@@ -3,6 +3,7 @@ from django.views.generic import RedirectView, TemplateView
 
 from .views import (
     ApplicationList,
+    PageRedirect,
     ResearcherCreate,
     ResearcherDelete,
     ResearcherEdit,
@@ -34,6 +35,7 @@ urlpatterns = [
     path("apply/sign-in", sign_in, name="sign-in"),
     path("apply/terms/", terms, name="terms"),
     path("applications/", ApplicationList.as_view(), name="list"),
+    path("applications/<int:pk>/", PageRedirect.as_view(), name="detail"),
     path("applications/<int:pk>/page/<str:key>/", page, name="page"),
     path("applications/<int:pk>/confirmation/", confirmation, name="confirmation"),
     path("applications/<int:pk>/researchers/", include(researcher_urls)),
