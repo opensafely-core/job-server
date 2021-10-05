@@ -95,7 +95,6 @@
 
         </div>
 
-        {% if orgs %}
         <div class="form-group mb-5">
           <div class="d-flex justify-content-between align-items-center">
             <h2 class="h4">Organisations</h2>
@@ -115,9 +114,7 @@
             {% endfor %}
           </div>
         </div>
-        {% endif %}
 
-        {% if projects %}
         <div class="form-group mb-5">
           <h2 class="h4">Projects</h2>
 
@@ -132,7 +129,6 @@
             {% endfor %}
           </div>
         </div>
-        {% endif %}
 
         {% include "components/form_roles.html" with field=form.roles label="Roles" name="roles" %}
 
