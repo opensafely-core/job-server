@@ -26,5 +26,7 @@ describe("useFileList hook", () => {
     expect(longestStartingSubstr(["nodata-001.csv", "data-002.csv"])).toEqual(
       ""
     );
+
+    expect(longestStartingSubstr(["data-001.csv"])).toEqual("");
   });
 });
