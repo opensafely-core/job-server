@@ -11,6 +11,7 @@ def test_dotted_path():
 
 def test_is_safe_path_with_safe_path():
     assert is_safe_path("/")
+    assert is_safe_path("/status/")
 
 
 def test_is_safe_path_with_unsafe_path():
