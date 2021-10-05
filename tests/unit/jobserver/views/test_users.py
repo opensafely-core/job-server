@@ -1,8 +1,33 @@
+from django.contrib.auth.models import AnonymousUser
 from django.contrib.messages.storage.fallback import FallbackStorage
 
-from jobserver.views.users import Settings
+from jobserver.views.users import Settings, login_view
 
 from ....factories import UserFactory
+
+
+def test_login_get_no_path(rf):
+    request = rf.get("login/")
+    request.user = AnonymousUser()
+    response = login_view(request)
+
+    assert response.status_code == 200
+
+
+def test_login_get_safe_path(rf):
+    request = rf.get("login/?next=/")
+    request.user = AnonymousUser()
+    response = login_view(request)
+
+    assert response.status_code == 200
+
+
+def test_login_get_unsafe_path(rf):
+    request = rf.get("login/?next=https://steal-your-bank-details.com/")
+    request.user = AnonymousUser()
+    response = login_view(request)
+
+    assert response.status_code == 400
 
 
 def test_settings_get(rf):

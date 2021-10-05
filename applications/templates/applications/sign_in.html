@@ -46,13 +46,9 @@
         request is associated with your GitHub user account.
       </p>
 
-      <a
-        class="btn btn-success"
-        href="{% url "social:begin" "github" %}?next={% url 'applications:terms' %}"
-        rel="nofollow"
-      >
-        Sign in to GitHub
-      </a>
+      <form method="POST" action="{% url "auth-login" "github" %}?next={% url 'applications:terms' %}">
+        <button type="submit" class="btn btn-success">Sign in to GitHub</button>
+      </form>
     </div>
   </div>
 </div>
