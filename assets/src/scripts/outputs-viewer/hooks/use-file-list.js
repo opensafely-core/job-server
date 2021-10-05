@@ -4,6 +4,11 @@ import useStore from "../stores/use-store";
 import { toastError } from "../utils/toast";
 
 export function longestStartingSubstr(array) {
+  if (array.length < 2) {
+    // don't match the entire string for single item arrays
+    return "";
+  }
+
   const A = array.concat().sort();
   const a1 = A[0];
   const a2 = A[A.length - 1];
