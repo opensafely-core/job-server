@@ -35,9 +35,9 @@
   />
 
   {% if field.help_text %}
-    <small id="{{ name }}HelpBlock" class="form-text text-muted">
+    <div id="{{ name }}HelpBlock" class="form-text text-muted form__help-text">
       {{ field.help_text }}
-    </small>
+    </div>
   {% endif %}
 
   {% if field.errors %}
