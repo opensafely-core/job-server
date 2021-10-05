@@ -107,16 +107,14 @@ class UserList(ListView):
                 | Q(last_name__icontains=q)
             )
 
-        backend = self.request.GET.get("backend")
-        if backend:
+        if backend := self.request.GET.get("backend"):
             raise_if_not_int(backend)
             qs = qs.filter(backends__pk=backend)
 
         if org := self.request.GET.get("org"):
             qs = qs.filter(orgs__slug=org)
 
-        role = self.request.GET.get("role")
-        if role:
+        if role := self.request.GET.get("role"):
             qs = qs.filter_by_role(role)
 
         return qs
