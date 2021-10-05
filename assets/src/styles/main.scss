@@ -306,5 +306,12 @@ details[open] summary {
   }
 }
 
+.form__helper-text,
+legend {
+  > *:last-child {
+    margin-bottom: 0;
+  }
+}
+
 @import "staff";
 @import "utilities";
