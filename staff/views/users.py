@@ -92,6 +92,7 @@ class UserList(ListView):
         return super().get_context_data(**kwargs) | {
             "backends": Backend.objects.order_by("slug"),
             "q": self.request.GET.get("q", ""),
+            "orgs": Org.objects.order_by("name"),
             "roles": all_roles,
         }
 
@@ -110,6 +111,9 @@ class UserList(ListView):
         if backend:
             raise_if_not_int(backend)
             qs = qs.filter(backends__pk=backend)
+
+        if org := self.request.GET.get("org"):
+            qs = qs.filter(orgs__slug=org)
 
         role = self.request.GET.get("role")
         if role:
