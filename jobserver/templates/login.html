@@ -4,7 +4,7 @@
 <div class="container">
   <div class="row">
     <div class="col-sm-12">
-      <form method="POST" action="{% url "auth-login" "github" %}?next={{ request.path }}">
+      <form method="POST" action="{% url "auth-login" "github" %}?next={{ request.GET.next|default:"/" }}">
         <div class="w-25 mx-auto">
           <button type="submit" class="btn btn-outline-primary btn-block">Login with GitHub</button>
           <button type="submit" class="btn btn-outline-secondary btn-block">Register with GitHub</button>

@@ -5,7 +5,7 @@ from django.contrib.auth.views import LogoutView
 from django.urls import include, path
 from django.views.decorators.csrf import csrf_exempt
 from django.views.decorators.http import require_POST
-from django.views.generic import RedirectView, TemplateView
+from django.views.generic import RedirectView
 
 from jobserver.api.jobs import (
     JobAPIUpdate,
@@ -54,7 +54,7 @@ from .views.releases import (
     WorkspaceReleaseList,
 )
 from .views.status import Status
-from .views.users import Settings
+from .views.users import Login, Settings
 from .views.workspaces import (
     WorkspaceArchiveToggle,
     WorkspaceBackendFiles,
@@ -269,7 +269,7 @@ urlpatterns = [
         name="job-request-detail",
     ),
     path("jobs/<identifier>/", JobDetailRedirect.as_view(), name="job-detail"),
-    path("login/", TemplateView.as_view(template_name="login.html"), name="login"),
+    path("login/", Login.as_view(), name="login"),
     path("logout/", LogoutView.as_view(), name="logout"),
     path("orgs/", include(org_urls)),
     path("settings/", Settings.as_view(), name="settings"),
