@@ -126,6 +126,17 @@ AUTH_PASSWORD_VALIDATORS = [
 ]
 
 
+# Sessions
+# https://docs.djangoproject.com/en/3.2/ref/settings/#sessions
+SESSION_ENGINE = "django.contrib.sessions.backends.signed_cookies"
+# The below are defaults, but as they're key security features we want to set
+# them explicitly:
+# Prevent JS from accessing the session cookie.
+SESSION_COOKIE_HTTPONLY = True
+# Using PickleSerializer instead leaves us open to RCE if SECRET_KEY is compromised.
+SESSION_SERIALIZER = "django.contrib.sessions.serializers.JSONSerializer"
+
+
 # Internationalization
 # https://docs.djangoproject.com/en/3.0/topics/i18n/
 LANGUAGE_CODE = "en-us"
