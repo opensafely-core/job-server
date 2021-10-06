@@ -103,8 +103,8 @@ class WizardPage:
     def is_approved_field_name(self):
         return f"{self.key}-is_approved"
 
-    def template_context(self, form):
-        return self.form_spec.template_context(form) | {
+    def form_context(self, form):
+        return self.form_spec.form_context(form) | {
             "application": self.application,
             "page": self,
         }

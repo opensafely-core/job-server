@@ -22,16 +22,14 @@ class Form:
     prerequisite: Callable[[Application], bool] = lambda application: True
     template_name: str | None = None
 
-    def template_context(self, form):
+    def form_context(self, form):
         return {
             "title": self.title,
             "sub_title": self.sub_title,
             "rubric": self.rubric,
             "footer": self.footer,
             "non_field_errors": form.non_field_errors(),
-            "fieldsets": [
-                fieldset.template_context(form) for fieldset in self.fieldsets
-            ],
+            "fieldsets": [fieldset.form_context(form) for fieldset in self.fieldsets],
             "template_name": self.template_name,
         }
 
@@ -41,10 +39,10 @@ class Fieldset:
     label: str
     fields: list[Field]
 
-    def template_context(self, form):
+    def form_context(self, form):
         return {
             "label": self.label,
-            "fields": [field_spec.template_context(form) for field_spec in self.fields],
+            "fields": [field_spec.form_context(form) for field_spec in self.fields],
         }
 
 
@@ -56,7 +54,7 @@ class Field:
     template_name: str | None = None
     attributes: Attributes | None = None
 
-    def template_context(self, form):
+    def form_context(self, form):
         template_lut = {
             "BooleanField": "components/form_checkbox.html",
             "CharField": "components/form_text.html",
@@ -86,7 +84,7 @@ class Field:
         }
 
         if self.attributes:
-            context |= {"attributes": self.attributes.template_context()}
+            context |= {"attributes": self.attributes.form_context()}
 
         return context
 
@@ -100,5 +98,5 @@ class Attributes:
     spellcheck: str | None = None
     autocorrect: str | None = None
 
-    def template_context(self):
+    def form_context(self):
         return {k: v for k, v in asdict(self).items() if v is not None}

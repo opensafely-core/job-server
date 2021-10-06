@@ -141,7 +141,7 @@ def page(request, pk, key):
                 return redirect("applications:confirmation", pk=application.pk)
             return page.redirect_to_next_page()
 
-    ctx = page.template_context(form)
+    ctx = page.form_context(form)
     return TemplateResponse(request, "applications/page.html", ctx)
 
 

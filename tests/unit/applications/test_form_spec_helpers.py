@@ -16,6 +16,6 @@ def test_field_template_context_template_name_override():
 
     form = Form()
 
-    context = field.template_context(form)
+    context = field.form_context(form)
 
     assert context["template_name"] == "test"
