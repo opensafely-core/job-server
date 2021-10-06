@@ -306,8 +306,12 @@ details[open] summary {
   }
 }
 
-.form__helper-text,
+.form__help-text,
 legend {
+  p {
+    margin-bottom: 0.5rem;
+  }
+
   > *:last-child {
     margin-bottom: 0;
   }

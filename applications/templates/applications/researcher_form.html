@@ -62,14 +62,15 @@
 
           <fieldset class="d-flex flex-column mb-3">
             <legend class="h6 font-weight-bold">Does this researcher require access to the OpenSAFELY secure results server?</legend>
-            {% include "components/form_radio.html" with field=form.does_researcher_need_server_access label="" name="does_researcher_need_server_access" help_text="As a security measure, this should typically be the main study author only." %}
+            {% include "components/form_radio.html" with field=form.does_researcher_need_server_access label="" name="does_researcher_need_server_access" %}
+
+            <div  class="form-text text-muted form__help-text">
+              {% snippet "researcher-server-access-rubric" %}
+            </div>
           </fieldset>
 
           {% snippet "researcher-details" %}
         </fieldset>
-
-
-        {% snippet "researcher-server-access-rubric" %}
 
         <fieldset class="d-flex flex-column mb-4 pb-4 border-bottom">
           <legend>
