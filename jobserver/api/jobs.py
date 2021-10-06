@@ -3,7 +3,6 @@ import operator
 
 import sentry_sdk
 import structlog
-from django.db import transaction
 from django.http import Http404
 from django.utils import timezone
 from first import first
@@ -50,7 +49,6 @@ class JobAPIUpdate(APIView):
 
         return super().initial(request, *args, **kwargs)
 
-    @transaction.atomic
     def post(self, request, *args, **kwargs):
         log = logger.new()
 
