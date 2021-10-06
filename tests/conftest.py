@@ -3,10 +3,12 @@ import structlog
 from django.conf import settings
 from structlog.testing import LogCapture
 
+from applications.form_specs import form_specs
 from jobserver.authorization.roles import CoreDeveloper
 from jobserver.github import GithubOrganizationOAuth2
 
 from .factories import OrgFactory, OrgMembershipFactory, UserFactory
+from .factories import applications as application_factories
 
 
 @pytest.fixture(autouse=True)
@@ -73,3 +75,23 @@ def user():
     OrgMembershipFactory(org=org, user=user)
 
     return user
+
+
+@pytest.fixture
+def complete_application():
+    application = application_factories.ApplicationFactory()
+    for form_spec in form_specs:
+        factory_name = form_spec.model.__name__ + "Factory"
+        factory = getattr(application_factories, factory_name)
+        factory(application=application)
+    return application
+
+
+@pytest.fixture
+def incomplete_application():
+    application = application_factories.ApplicationFactory()
+    for form_spec in form_specs[:10]:
+        factory_name = form_spec.model.__name__ + "Factory"
+        factory = getattr(application_factories, factory_name)
+        factory(application=application)
+    return application
