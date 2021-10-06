@@ -235,6 +235,30 @@ def test_userlist_filter_by_invalid_backend(rf, core_developer):
         UserList.as_view()(request)
 
 
+def test_userlist_filter_by_org(rf, core_developer):
+    org1 = OrgFactory()
+    org2 = OrgFactory()
+
+    OrgMembershipFactory(user=UserFactory(), org=org1)
+    OrgMembershipFactory(user=UserFactory(), org=org2)
+
+    request = rf.get(f"/?org={org1.slug}")
+    request.user = core_developer
+
+    response = UserList.as_view()(request)
+
+    assert len(response.context_data["object_list"]) == 1
+
+
+def test_userlist_filter_by_invalid_org(rf, core_developer):
+    request = rf.get("/?org=test")
+    request.user = core_developer
+
+    response = UserList.as_view()(request)
+
+    assert len(response.context_data["object_list"]) == 0
+
+
 def test_userlist_filter_by_role(rf, core_developer):
     UserFactory(roles=[OutputPublisher])
     UserFactory(roles=[TechnicalReviewer])
@@ -248,10 +272,10 @@ def test_userlist_filter_by_role(rf, core_developer):
 
 
 def test_userlist_filter_by_invalid_role(rf, core_developer):
-    request = rf.get("/?backend=unknown")
+    request = rf.get("/?role=unknown")
     request.user = core_developer
 
-    with pytest.raises(BadRequest):
+    with pytest.raises(Exception, match="^Unknown Roles:"):
         UserList.as_view()(request)
 
 

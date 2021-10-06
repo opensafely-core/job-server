@@ -83,6 +83,29 @@
         {% endfor %}
       </div>
       {% endif %}
+
+      {% if orgs %}
+      <h3 class="h4">Orgs</h3>
+      <div class="btn-group-vertical w-100 mb-4" role="group" aria-label="Filter by orgs">
+        {% for org in orgs %}
+        {% is_filter_selected key="org" value=org.slug as is_active %}
+        <a
+          {% if is_active %}aria-pressed="true"{% endif %}
+          class="btn btn-outline-primary btn-block text-left {% if is_active %}active{% endif %}"
+          href="
+            {% if is_active %}
+              {% url_without_querystring org=org.slug %}
+            {% else %}
+              {% url_with_querystring org=org.slug %}
+            {% endif %}
+          "
+        >
+            {{ org.name }}
+        </a>
+        {% endfor %}
+      </div>
+      {% endif %}
+
     </div>
 
     <div class="col col-lg-9 col-xl-8">
