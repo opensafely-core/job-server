@@ -60,7 +60,7 @@
 
         {% for fieldset in fieldsets %}
           <fieldset class="d-flex flex-column mb-4 {% if not forloop.last %}pb-4 border-bottom{% endif %}">
-            <legend>
+            <legend class="mb-0">
               <h2 class="h3 mb-3">{{ fieldset.label }}</h2>
             </legend>
             {% for field in fieldset.fields %}
