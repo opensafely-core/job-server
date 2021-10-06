@@ -16,31 +16,7 @@ class ApplicationDetail(DetailView):
 
     def get_context_data(self, **kwargs):
         wizard = Wizard(self.object, form_specs)
-        pages = []
-
-        for page in wizard.get_pages():
-            fieldsets = []
-            for fieldset in page.form_spec.fieldsets:
-                fields = []
-                for field in fieldset.fields:
-                    fields.append(
-                        {
-                            "label": field.label,
-                            "value": getattr(page.instance, field.name),
-                        }
-                    )
-                fieldsets.append(
-                    {
-                        "label": fieldset.label,
-                        "fields": fields,
-                    }
-                )
-            pages.append(
-                {
-                    "title": page.title,
-                    "fieldsets": fieldsets,
-                }
-            )
+        pages = [page.review_context() for page in wizard.get_pages()]
 
         return super().get_context_data(**kwargs) | {
             "researchers": self.object.researcher_registrations.order_by("created_at"),

@@ -33,6 +33,13 @@ class Form:
             "template_name": self.template_name,
         }
 
+    def review_context(self, page):
+        return {
+            "title": self.title,
+            "sub_title": self.sub_title,
+            "fieldsets": [fieldset.review_context(page) for fieldset in self.fieldsets],
+        }
+
 
 @dataclass
 class Fieldset:
@@ -43,6 +50,12 @@ class Fieldset:
         return {
             "label": self.label,
             "fields": [field_spec.form_context(form) for field_spec in self.fields],
+        }
+
+    def review_context(self, page):
+        return {
+            "label": self.label,
+            "fields": [field_spec.review_context(page) for field_spec in self.fields],
         }
 
 
@@ -87,6 +100,12 @@ class Field:
             context |= {"attributes": self.attributes.form_context()}
 
         return context
+
+    def review_context(self, page):
+        return {
+            "label": self.label,
+            "value": getattr(page, self.name),
+        }
 
 
 @dataclass

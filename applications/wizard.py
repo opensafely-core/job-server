@@ -69,6 +69,9 @@ class WizardPage:
         except self.model.DoesNotExist:
             return self.model(application=self.application)
 
+    def is_started(self):
+        return bool(self.instance.pk)
+
     def get_unbound_data_form(self):
         """
         Create a form instance without POST data (typically for GET requests)
@@ -107,6 +110,12 @@ class WizardPage:
         return self.form_spec.form_context(form) | {
             "application": self.application,
             "page": self,
+        }
+
+    def review_context(self):
+        return self.form_spec.review_context(self.instance) | {
+            "started": self.is_started(),
+            "wizard_page": self,
         }
 
     def redirect_to_next_page(self):
