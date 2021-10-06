@@ -24,8 +24,11 @@ class Wizard:
         next_ix = self.keys.index(key) + 1
 
         for form_spec in self.form_specs[next_ix:]:
-            if form_spec.prerequisite(self.application):
-                return form_spec.key
+            if not form_spec.prerequisite(self.application):
+                continue
+            page = WizardPage(self, form_spec)
+            if not page.is_started():
+                return page.key
 
 
 class WizardPage:

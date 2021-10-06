@@ -137,8 +137,6 @@ def page(request, pk, key):
             form.add_error(None, page.form_spec.cant_continue_message)
 
         if form.is_valid():
-            if application.has_reached_confirmation:
-                return redirect("applications:confirmation", pk=application.pk)
             return page.redirect_to_next_page()
 
     ctx = page.form_context(form)
@@ -167,10 +165,6 @@ def confirmation(request, pk):
 
     # check the user can access this application
     validate_application_access(request.user, application)
-
-    if not application.has_reached_confirmation:
-        application.has_reached_confirmation = True
-        application.save()
 
     wizard = Wizard(application, form_specs)
     pages = list(wizard.get_pages())
