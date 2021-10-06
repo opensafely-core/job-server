@@ -132,6 +132,10 @@ def page(request, pk, key):
     else:
         form = page.get_bound_data_form(request.POST)
 
+        if form.has_changed():
+            page.instance.is_approved = False
+            page.instance.save()
+
         form.save()
         if not page.form_spec.can_continue(application):
             form.add_error(None, page.form_spec.cant_continue_message)
