@@ -1,13 +1,41 @@
-{% extends "base.html" %}
+{% extends "applications_base.html" %}
 
 {% load snippet %}
 
+{% block metatitle %}Apply: {% if is_edit %}Edit{% else %}Add a new{% endif %} researcher | OpenSAFELY Jobs{% endblock metatitle %}
+
+{% block breadcrumbs %}
+<nav class="breadcrumb-container" aria-label="breadcrumb">
+  <div class="container">
+    <ol class="breadcrumb rounded-0 mb-0 px-0">
+      <li class="breadcrumb-item">
+        <a href="/">Home</a>
+      </li>
+      <li class="breadcrumb-item">
+        <a href="{% url 'applications:start' %}">Apply</a>
+      </li>
+      <li class="breadcrumb-item active" aria-current="page">
+        {% if is_edit %}Edit{% else %}Add a new{% endif %} researcher
+      </li>
+    </ol>
+  </div>
+</nav>
+{% endblock breadcrumbs %}
+
+{% block jumbotron %}
+<div class="jumbotron jumbotron-fluid pt-md-2">
+  <div class="container">
+    <h1 class="display-4">
+      {% if is_edit %}Edit{% else %}Add a new{% endif %} researcher
+    </h1>
+  </div>
+</div>
+{% endblock jumbotron %}
+
 {% block content %}
-<div class="container">
+<article class="container" id="applicationForm">
   <div class="row">
     <div class="col-lg-8">
-
-      <h2 class="h5">Add a new researcher to your OpenSAFELY application</h2>
 
       {% for error in form.non_field_errors %}
         <div class="alert alert-danger" role="alert">{{ error }}</div>
@@ -24,38 +52,53 @@
         </ul>
         {% endif %}
 
-        <fieldset>
-          <legend>Researcher details</legend>
+        <fieldset class="d-flex flex-column mb-4 pb-4 border-bottom">
+          <legend class="sr-only">
+            <h2 class="h3 mb-3">Researcher contact information</h2>
+          </legend>
+          {% include "components/form_text.html" with field=form.name label="Researcher name" name="name" %}
+          {% include "components/form_text.html" with field=form.job_title label="Researcher job title" name="job_title" %}
+          {% include "components/form_email.html" with field=form.email label="Researcher work email address" name="email" %}
 
-          {% include "components/form_text.html" with field=form.name label="Full name" name="name" %}
-          {% include "components/form_text.html" with field=form.job_title label="Job title" name="job_title" %}
-          {% include "components/form_text.html" with field=form.email label="Work email address" name="email" %}
+          <fieldset class="d-flex flex-column mb-3">
+            <legend class="h6 font-weight-bold">Does this researcher require access to the OpenSAFELY secure results server?</legend>
+            {% include "components/form_radio.html" with field=form.does_researcher_need_server_access label="" name="does_researcher_need_server_access" %}
 
-          {% snippet "researcher-details" %}
-
-        </fieldset>
-
-        <fieldset>
-          <legend>Results server access</legend>
-
-          {% snippet "researcher-server-access-rubric" %}
-
-          {% include "components/form_radio.html" with field=form.does_researcher_need_server_access label="" name="does_researcher_need_server_access" %}
-
-          <fieldset>
-            <label>Mobile phone</label>
-
-            <p>This is required to set up Virtual Private Network (VPN) access.</p>
-
-            {% include "components/form_text.html" with field=form.telephone label="Mobile phone number" name="telephone" %}
-            {% include "components/form_radio.html" with field=form.phone_type label="What type of smartphone does this researcher have?" name="phone_type" %}
+            <div class="form-text text-muted form__help-text">
+              {% snippet "researcher-server-access-rubric" %}
+            </div>
           </fieldset>
 
-          <fieldset>
-            <label>Safe researcher training</label>
+          {% snippet "researcher-details" %}
+        </fieldset>
 
-            {% include "components/form_radio.html" with field=form.has_taken_safe_researcher_training label="Has this researcher undertaken safe researcher training?" name="has_taken_safe_researcher_training" %}
+        <fieldset class="d-flex flex-column mb-4 pb-4 border-bottom">
+          <legend>
+            <h2 class="h3 mb-3">Mobile phone</h2>
+          </legend>
+
+          <p>This is required to set up Virtual Private Network (VPN) access.</p>
+
+          <fieldset class="d-flex flex-column mb-3">
+            <legend class="h6 font-weight-bold">What type of smartphone does this researcher have?</legend>
+            {% include "components/form_radio.html" with field=form.phone_type label="" name="phone_type" %}
+          </fieldset>
+
+          {% include "components/form_text.html" with field=form.telephone label="Mobile phone number" name="telephone" %}
+        </fieldset>
+
+        <fieldset class="d-flex flex-column mb-4">
+          <legend>
+            <h2 class="h3 mb-3">Safe researcher training</h2>
+          </legend>
+
+            <fieldset class="d-flex flex-column mb-3">
+              <legend class="h6 font-weight-bold">Has this researcher undertaken safe researcher training?</legend>
+              {% include "components/form_radio.html" with field=form.has_taken_safe_researcher_training label="" name="has_taken_safe_researcher_training" %}
+            </fieldset>
+
             {% include "components/form_text.html" with field=form.training_with_org label="If yes, with which organisation?" name="training_with_org" %}
+
             <div class="form-group">
 
               <label class="font-weight-bold" for="id_training_passed_at">
@@ -103,13 +146,11 @@
 
         </fieldset>
 
-        <hr />
-
-        <button class="btn btn-sm btn-success" type="submit">
-          {% if is_edit %}Save{% else %}Add{% endif %} this researcher
+        <button class="btn btn btn-success mt-3" type="submit" >
+          {% if is_edit %}Save{% else %}Add a new{% endif %} researcher
         </button>
       </form>
     </div>
   </div>
-</div>
+</article>
 {% endblock %}

@@ -13,6 +13,7 @@ const config = {
     rollupOptions: {
       input: {
         index: "./assets/src/scripts/index.js",
+        "application-form": "./assets/src/scripts/application-form.js",
         job_request_create: "./assets/src/scripts/job_request_create.js",
         main: "./assets/src/scripts/main.js",
         project_create: "./assets/src/scripts/project_create.js",

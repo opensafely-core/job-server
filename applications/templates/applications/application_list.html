@@ -1,4 +1,4 @@
-{% extends "base.html" %}
+{% extends "applications_base.html" %}
 
 {% block metatitle %}Applications | OpenSAFELY Jobs{% endblock metatitle %}
 
@@ -31,7 +31,7 @@
 {% endblock jumbotron %}
 
 {% block content %}
-<div class="container">
+<article class="container" id="applicationForm">
   {% if applications %}
   <div class="row">
     <div class="col-12">
@@ -53,5 +53,5 @@
     There are no projects for this organisation yet.
   </p>
   {% endif %}
-</div>
+</article>
 {% endblock %}

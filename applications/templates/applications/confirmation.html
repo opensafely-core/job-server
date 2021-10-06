@@ -1,18 +1,16 @@
-{% extends "base.html" %}
+{% extends "applications_base.html" %}
 
 {% load humanize %}
 
 {% block metatitle %}Apply | OpenSAFELY Jobs{% endblock metatitle %}
 
 {% block content %}
-<div class="container">
+<article class="container" id="applicationForm">
   <div class="row">
     <div class="col">
       {% for page in pages %}
         <section class="mb-3 pb-3 border-bottom">
           <h2 class="h4 mb-3">{{ page.title }}</h2>
-          {# We should use the sub-title from the page if page titles are matching #}
-          {# <h2 class="h4 mb-3">{{ page.sub_title }}</h2> #}
           {% for field in page.get_unbound_form %}
             <dl class="row mb-0 mb-lg-1">
               <dt class="col-lg-3 col-xl-3">{{ field.label }}</dt>
@@ -26,5 +24,5 @@
       {% endfor %}
     </div>
   </div>
-</div>
+</article>
 {% endblock %}

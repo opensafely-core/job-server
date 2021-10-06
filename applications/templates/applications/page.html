@@ -1,4 +1,4 @@
-{% extends "base.html" %}
+{% extends "applications_base.html" %}
 
 {% block metatitle %}Apply: {{ title }} | OpenSAFELY Jobs{% endblock metatitle %}
 
@@ -37,7 +37,7 @@
 {% endblock jumbotron %}
 
 {% block content %}
-<div class="container">
+<article class="container" id="applicationForm">
   <div class="row">
     <div class="col-lg-8">
       {% if rubric %}
@@ -60,7 +60,7 @@
 
         {% for fieldset in fieldsets %}
           <fieldset class="d-flex flex-column mb-4 {% if not forloop.last %}pb-4 border-bottom{% endif %}">
-            <legend>
+            <legend class="mb-0">
               <h2 class="h3 mb-3">{{ fieldset.label }}</h2>
             </legend>
             {% for field in fieldset.fields %}
@@ -76,5 +76,5 @@
       {% endif %}
     </div>
   </div>
-</div>
+</article>
 {% endblock %}

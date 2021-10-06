@@ -228,7 +228,8 @@ def test_confirmation_success(rf):
 
     assert response.context_data["application"] == application
     for spec in form_specs:
-        assert spec.title in response.rendered_content
+        if spec.prerequisite(application):
+            assert spec.title in response.rendered_content
 
 
 def test_return_to_confirmation_once_reached(rf, complete_application):

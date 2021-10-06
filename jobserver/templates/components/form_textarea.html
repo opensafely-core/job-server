@@ -8,6 +8,7 @@
     class="form-control"
     id="id_{{ name }}"
     name="{{ name }}"
+    rows="4"
 
     {% if field.help_text %}
     aria-describedby="{{ name }}HelpBlock"
@@ -19,9 +20,9 @@
   >{% if field.value %}{{ field.value }}{% endif %}</textarea>
 
   {% if field.help_text %}
-    <small id="{{ name }}HelpBlock" class="form-text text-muted">
+    <div id="{{ name }}HelpBlock" class="form-text text-muted form__help-text mt-2">
       {{ field.help_text }}
-    </small>
+    </div>
   {% endif %}
 
   {% if field.errors %}

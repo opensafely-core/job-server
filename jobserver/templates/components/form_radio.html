@@ -1,32 +1,31 @@
-<fieldset class="d-flex flex-column mb-4">
-  <legend>
-    <h2 class="h3">{{ label }}</h2>
-  </legend>
-
-  <div class="form-group">
-    {% for value, label in field.field.choices %}
-    <div class="custom-control custom-radio mb-1">
-      <input
-        class="custom-control-input"
-        type="radio"
-        name="{{ name }}"
-        id="id_{{ name }}{{ forloop.counter }}"
-        value="{{ value }}"
-        {% if field.value == value %}checked{% endif %}
-      />
-      <label class="custom-control-label" for="id_{{ name }}{{ forloop.counter }}">
-        {{ label }}
-      </label>
-    </div>
-    {% endfor %}
-
-    {% if field.errors %}
-    <ul class="pl-3 mb-1">
-      {% for error in field.errors %}
-        <li class="text-danger">{{ error }}</li>
-      {% endfor %}
-    </ul>
-    {% endif %}
+<div class="form-group mb-0">
+  {% for value, label in field.field.choices %}
+  <div class="custom-control custom-radio mb-1">
+    <input
+      class="custom-control-input"
+      type="radio"
+      name="{{ name }}"
+      id="id_{{ name }}{{ forloop.counter }}"
+      value="{{ value }}"
+      {% if field.value == value %}checked{% endif %}
+    />
+    <label class="custom-control-label" for="id_{{ name }}{{ forloop.counter }}">
+      {{ label }}
+    </label>
   </div>
+  {% endfor %}
 
-</fieldset>
+  {% if field.help_text %}
+  <div id="{{ name }}HelpBlock" class="form-text text-muted form__help-text mt-2">
+    {{ field.help_text }}
+  </div>
+  {% endif %}
+
+  {% if field.errors %}
+  <ul class="pl-3 mb-1">
+    {% for error in field.errors %}
+    <li class="text-danger">{{ error }}</li>
+    {% endfor %}
+  </ul>
+  {% endif %}
+</div>

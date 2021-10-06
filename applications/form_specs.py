@@ -76,8 +76,8 @@ form_specs = [
     Form(
         key="study-information",
         model=models.StudyInformationPage,
-        title="Reasons for the request",
-        sub_title="Study information",
+        title="Study information",
+        sub_title="Reason for the request",
         rubric=snippet("2-rubric"),
         fieldsets=[
             Fieldset(
@@ -101,8 +101,8 @@ form_specs = [
     Form(
         key="study-purpose",
         model=models.StudyPurposePage,
-        title="Reasons for the request",
-        sub_title="Study purpose",
+        title="Study purpose",
+        sub_title="",
         rubric=snippet("3-rubric"),
         fieldsets=[
             Fieldset(
@@ -143,21 +143,26 @@ form_specs = [
     Form(
         key="study-data",
         model=models.StudyDataPage,
-        title="Reasons for the request",
-        sub_title="Study data",
+        title="Study data",
+        sub_title="",
         rubric="",
         fieldsets=[
             Fieldset(
-                label="Study data",
+                label="",
                 fields=[
                     Field(
                         name="data_meets_purpose",
                         label="State how the data you have requested meets your purpose",
                         template_name="components/form_textarea.html",
                     ),
+                ],
+            ),
+            Fieldset(
+                label="Are you requesting record level data?",
+                fields=[
                     Field(
                         name="need_record_level_data",
-                        label="Are you requesting record level data?",
+                        label="",
                     ),
                 ],
             ),
@@ -166,12 +171,12 @@ form_specs = [
     Form(
         key="record-level-data",
         model=models.RecordLevelDataPage,
-        title="Reasons for the request",
-        sub_title="Record level data",
+        title="Record level data",
+        sub_title="",
         rubric="",
         fieldsets=[
             Fieldset(
-                label="Record level data",
+                label="",
                 fields=[
                     Field(
                         name="record_level_data_reasons",
@@ -185,12 +190,12 @@ form_specs = [
     Form(
         key="type-of-study",
         model=models.TypeOfStudyPage,
-        title="Reasons for the request",
-        sub_title="Ethical and sponsor requirements",
+        title="Type of study",
+        sub_title="",
         rubric=snippet("6-rubric"),
         fieldsets=[
             Fieldset(
-                label="Type of study",
+                label="What type of study are you performing?",
                 fields=[
                     Field(
                         name="is_study_research",
@@ -217,8 +222,8 @@ form_specs = [
     Form(
         key="references",
         model=models.ReferencesPage,
-        title="Reasons for the request",
-        sub_title="Ethical and sponsor requirements",
+        title="Ethical and sponsor requirements",
+        sub_title="",
         rubric=snippet("7-rubric"),
         footer=snippet("7-footer"),
         fieldsets=[
@@ -245,8 +250,8 @@ form_specs = [
     Form(
         key="sponsor-details",
         model=models.SponsorDetailsPage,
-        title="Reasons for the request",
-        sub_title="Ethical and sponsor requirements",
+        title="Sponsor details",
+        sub_title="",
         rubric=snippet("8-rubric"),
         footer=snippet("8-footer"),
         fieldsets=[
@@ -260,7 +265,7 @@ form_specs = [
                 ],
             ),
             Fieldset(
-                label="Sponsor details",
+                label="Sponsor information",
                 fields=[
                     Field(
                         name="sponsor_name",
@@ -288,16 +293,17 @@ form_specs = [
     Form(
         key="cmo-priority-list",
         model=models.CmoPriorityListPage,
-        title="Reasons for the request",
-        sub_title="Chief Medical Officer (CMO) priority list",
+        title="Chief Medical Officer priority list",
+        sub_title="",
         rubric="",
         fieldsets=[
             Fieldset(
-                label=snippet("9-fieldset0-is_on_cmo_priority_list-label"),
+                label="Is your research on the CMO Priority list?",
                 fields=[
                     Field(
                         name="is_on_cmo_priority_list",
-                        label=snippet("9-fieldset0-field0-label"),
+                        label="",
+                        help_text=snippet("is_on_cmo_priority_list_help_text"),
                     ),
                 ],
             ),
@@ -306,8 +312,8 @@ form_specs = [
     Form(
         key="legal-basis",
         model=models.LegalBasisPage,
-        title="Reasons for the request",
-        sub_title="Legal basis and common law duty",
+        title="Legal basis and common law duty",
+        sub_title="",
         rubric="",
         fieldsets=[
             Fieldset(
@@ -322,7 +328,7 @@ form_specs = [
                 ],
             ),
             Fieldset(
-                label="Legal basis for record level data",
+                label="Common law duty",
                 fields=[
                     Field(
                         name="how_is_duty_of_confidentiality_satisfied",
@@ -337,8 +343,8 @@ form_specs = [
     Form(
         key="study-funding",
         model=models.StudyFundingPage,
-        title="Study and team detail",
-        sub_title="Study funding",
+        title="Study funding",
+        sub_title="",
         rubric=snippet("11-rubric"),
         fieldsets=[
             Fieldset(
@@ -356,12 +362,12 @@ form_specs = [
     Form(
         key="team-details",
         model=models.TeamDetailsPage,
-        title="Study and team detail",
-        sub_title="Research team",
+        title="Research team",
+        sub_title="",
         rubric="OpenSAFELY will need to assess the impact of onboarding your team on our own capacity.",
         fieldsets=[
             Fieldset(
-                label="Team",
+                label="Team details",
                 fields=[
                     Field(
                         name="team_details",
@@ -375,8 +381,8 @@ form_specs = [
     Form(
         key="previous-ehr-experience",
         model=models.PreviousEhrExperiencePage,
-        title="Study and team detail",
-        sub_title="Electronic health record (EHR) data",
+        title="Electronic health record (EHR) data",
+        sub_title="",
         rubric=snippet("13-rubric"),
         fieldsets=[
             Fieldset(
@@ -384,8 +390,9 @@ form_specs = [
                 fields=[
                     Field(
                         name="previous_experience_with_ehr",
-                        label="Describe your previous experience of working with primary care electronic health record data (e.g. CPRD)",
+                        label="Describe your previous experience of working with primary care electronic health record data",
                         template_name="components/form_textarea.html",
+                        help_text=snippet("previous_experience_with_ehr_help_text"),
                     ),
                 ],
             ),
@@ -394,8 +401,8 @@ form_specs = [
     Form(
         key="software-development-experience",
         model=models.SoftwareDevelopmentExperiencePage,
-        title="Study and team detail",
-        sub_title="Software development coding skills",
+        title="Software development experience",
+        sub_title="",
         rubric=snippet("14-rubric"),
         fieldsets=[
             Fieldset(
@@ -407,9 +414,14 @@ form_specs = [
                         help_text=snippet("14-fieldset0-field0-help_text"),
                         template_name="components/form_textarea.html",
                     ),
+                ],
+            ),
+            Fieldset(
+                label="Have all applicants for OpenSAFELY access completed the Getting Started tutorial?",
+                fields=[
                     Field(
                         name="all_applicants_completed_getting_started",
-                        label=snippet("14-fieldset0-field1-label"),
+                        label="",
                         help_text=snippet("14-fieldset0-field1-help_text"),
                     ),
                 ],
@@ -419,8 +431,8 @@ form_specs = [
     Form(
         key="sharing-code",
         model=models.SharingCodePage,
-        title="Study and team detail",
-        sub_title="Sharing code in the public domain",
+        title="Sharing code in the public domain",
+        sub_title="",
         rubric=snippet("15-rubric"),
         fieldsets=[
             Fieldset(
@@ -438,8 +450,8 @@ form_specs = [
     Form(
         key="researcher-details",
         model=models.ResearcherDetailsPage,
-        title="What level of OpenSAFELY platform access does each researcher require?",
-        sub_title="",
+        title="Researchers",
+        sub_title="What level of OpenSAFELY platform access does each researcher require?",
         rubric=snippet("16-rubric"),
         template_name="applications/page_researchers.html",
         fieldsets=[],
