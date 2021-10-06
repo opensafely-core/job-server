@@ -116,6 +116,7 @@ class SponsorDetailsPage(AbstractPage):
     sponsor_name = models.TextField(blank=True)
     sponsor_email = models.TextField(blank=True)
     sponsor_job_role = models.TextField(blank=True)
+    institutional_rec_reference = models.TextField(blank=True)
 
 
 class CmoPriorityListPage(AbstractPage):
