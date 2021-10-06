@@ -131,6 +131,11 @@ def page(request, pk, key):
         form = page.get_unbound_form()
     else:
         form = page.get_bound_form(request.POST)
+
+        form.save()
+        if not page.form_spec.can_continue(application):
+            form.add_error(None, page.form_spec.cant_continue_message)
+
         if form.is_valid():
             if application.has_reached_confirmation:
                 return redirect("applications:confirmation", pk=application.pk)

@@ -72,18 +72,8 @@ class WizardPage:
     def get_bound_form(self, data):
         """
         Create a form instance with POST data
-
-        When a page is submitted we validate the submitted data and check if
-        the user can continue to the next page based on rules defined in the
-        form_spec for this page.
         """
-        form = self.form_class(data, instance=self.instance)
-        form.save()
-
-        if not self.form_spec.can_continue(self.application):
-            form.add_error(None, self.form_spec.cant_continue_message)
-
-        return form
+        return self.form_class(data, instance=self.instance)
 
     @property
     def title(self):
