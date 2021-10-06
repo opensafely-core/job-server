@@ -9,7 +9,6 @@ from django.utils import timezone
 from pytz import utc
 from social_django.models import UserSocialAuth
 
-from applications.models import Application, ResearcherRegistration
 from jobserver import releases
 from jobserver.models import (
     Backend,
@@ -26,14 +25,6 @@ from jobserver.models import (
     User,
     Workspace,
 )
-
-
-class ApplicationFactory(factory.django.DjangoModelFactory):
-    class Meta:
-        model = Application
-
-    created_by = factory.SubFactory("tests.factories.UserFactory")
-    project = factory.SubFactory("tests.factories.ProjectFactory")
 
 
 class BackendFactory(factory.django.DjangoModelFactory):
@@ -216,16 +207,6 @@ def ReleaseFileFactory(
         upload.stream,
         upload.filename,
     )
-
-
-class ResearcherRegistrationFactory(factory.django.DjangoModelFactory):
-    class Meta:
-        model = ResearcherRegistration
-
-    application = factory.SubFactory("tests.factories.ApplicationFactory")
-
-    has_taken_safe_researcher_training = True
-    training_passed_at = factory.Faker("date_time", tzinfo=utc)
 
 
 class StatsFactory(factory.django.DjangoModelFactory):

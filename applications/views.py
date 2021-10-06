@@ -128,15 +128,20 @@ def page(request, pk, key):
         raise Http404
 
     if request.method == "GET":
-        form = page.get_unbound_form()
+        form = page.get_unbound_data_form()
     else:
-        form = page.get_bound_form(request.POST)
+        form = page.get_bound_data_form(request.POST)
+
+        form.save()
+        if not page.form_spec.can_continue(application):
+            form.add_error(None, page.form_spec.cant_continue_message)
+
         if form.is_valid():
             if application.has_reached_confirmation:
                 return redirect("applications:confirmation", pk=application.pk)
             return page.redirect_to_next_page()
 
-    ctx = page.template_context(form)
+    ctx = page.form_context(form)
     return TemplateResponse(request, "applications/page.html", ctx)
 
 

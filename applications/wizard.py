@@ -1,7 +1,8 @@
 from django.forms.models import modelform_factory
 from django.shortcuts import redirect
+from django.utils.functional import cached_property
 
-from .forms import ApplicationFormBase
+from .forms import PageFormBase
 
 
 class Wizard:
@@ -35,7 +36,7 @@ class WizardPage:
         self.model = form_spec.model
 
     @property
-    def form_class(self):
+    def data_form_class(self):
         """
         Construct a ModelForm class from this page's form_spec
 
@@ -47,13 +48,15 @@ class WizardPage:
         for fieldset in self.form_spec.fieldsets:
             for field in fieldset.fields:
                 fields.append(field.name)
-        form_class = modelform_factory(
-            self.model, fields=fields, form=ApplicationFormBase
-        )
 
-        return form_class
+        return modelform_factory(self.model, fields=fields, form=PageFormBase)
 
     @property
+    def approval_form_class(self):
+        fields = ["notes", "is_approved"]
+        return modelform_factory(self.model, fields=fields, form=PageFormBase)
+
+    @cached_property
     def instance(self):
         """
         Return instance of model containing data for this page.
@@ -66,27 +69,26 @@ class WizardPage:
         except self.model.DoesNotExist:
             return self.model(application=self.application)
 
-    def get_unbound_form(self):
+    def is_started(self):
+        return bool(self.instance.pk)
+
+    def get_unbound_data_form(self):
         """
         Create a form instance without POST data (typically for GET requests)
         """
-        return self.form_class(instance=self.instance)
+        return self.data_form_class(instance=self.instance)
 
-    def get_bound_form(self, data):
+    def get_unbound_approval_form(self):
+        return self.approval_form_class(instance=self.instance)
+
+    def get_bound_data_form(self, data):
         """
         Create a form instance with POST data
-
-        When a page is submitted we validate the submitted data and check if
-        the user can continue to the next page based on rules defined in the
-        form_spec for this page.
         """
-        form = self.form_class(data, instance=self.instance)
-        form.save()
+        return self.data_form_class(data, instance=self.instance)
 
-        if not self.form_spec.can_continue(self.application):
-            form.add_error(None, self.form_spec.cant_continue_message)
-
-        return form
+    def get_bound_approval_form(self, data):
+        return self.approval_form_class(data, instance=self.instance, prefix=self.key)
 
     @property
     def title(self):
@@ -96,10 +98,24 @@ class WizardPage:
     def key(self):
         return self.form_spec.key
 
-    def template_context(self, form):
-        return self.form_spec.template_context(form) | {
+    @property
+    def notes_field_name(self):
+        return f"{self.key}-notes"
+
+    @property
+    def is_approved_field_name(self):
+        return f"{self.key}-is_approved"
+
+    def form_context(self, form):
+        return self.form_spec.form_context(form) | {
             "application": self.application,
             "page": self,
+        }
+
+    def review_context(self):
+        return self.form_spec.review_context(self.instance) | {
+            "started": self.is_started(),
+            "wizard_page": self,
         }
 
     def redirect_to_next_page(self):

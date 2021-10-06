@@ -49,153 +49,51 @@
 <div class="container">
   <div class="row">
     <div class="col">
+      <form method="post">
+        {% csrf_token %}
 
-      <dl class="row mb-1">
-        <dt class="col-6 mb-2">Full name</dt>
-        <dd class="col-6">{{ application.contactdetailspage.full_name }}</dd>
-      </dl>
-      <dl class="row mb-1">
-        <dt class="col-6 mb-2">Email</dt>
-        <dd class="col-6">{{ applicatio.contactdetailspagen.email }}</dd>
-      </dl>
-      <dl class="row mb-1">
-        <dt class="col-6 mb-2">Telephone number</dt>
-        <dd class="col-6">{{ application.contactdetailspage.telephone }}</dd>
-      </dl>
-      <dl class="row mb-1">
-        <dt class="col-6 mb-2">Job title</dt>
-        <dd class="col-6">{{ application.contactdetailspage.job_title }}</dd>
-      </dl>
-      <dl class="row mb-1">
-        <dt class="col-6 mb-2">Team or division</dt>
-        <dd class="col-6">{{ application.contactdetailspage.team_name }}</dd>
-      </dl>
-      <dl class="row mb-1">
-        <dt class="col-6 mb-2">Organisation</dt>
-        <dd class="col-6">{{ application.contactdetailspage.organisation }}</dd>
-      </dl>
-      <dl class="row mb-1">
-        <dt class="col-6 mb-2">Study name</dt>
-        <dd class="col-6">{{ application.studyinformationpage.study_name }}</dd>
-      </dl>
-      <dl class="row mb-1">
-        <dt class="col-6 mb-2">Purpose for requesting access to OpenSAFELY data</dt>
-        <dd class="col-6">{{ application.studyinformationpage.study_purpose }}</dd>
-      </dl>
-      <dl class="row mb-1">
-        <dt class="col-6 mb-2">Simple description of study</dt>
-        <dd class="col-6">{{ application.studypurposepage.description }}</dd>
-      </dl>
-      <dl class="row mb-1">
-        <dt class="col-6 mb-2">Name of application owner</dt>
-        <dd class="col-6">{{ application.studypurposepage.author_name }}</dd>
-      </dl>
-      <dl class="row mb-1">
-        <dt class="col-6 mb-2">Work email address</dt>
-        <dd class="col-6">{{ application.studypurposepage.author_email }}</dd>
-      </dl>
-      <dl class="row mb-1">
-        <dt class="col-6 mb-2">Affiliated organisation</dt>
-        <dd class="col-6">{{ application.studypurposepage.author_organisation }}</dd>
-      </dl>
-      <dl class="row mb-1">
-        <dt class="col-6 mb-2">How does the requested data meet the study purpose</dt>
-        <dd class="col-6">{{ application.studydatapage.data_meets_purpose }}</dd>
-      </dl>
-      <dl class="row mb-1">
-        <dt class="col-6 mb-2">Needs record level data?</dt>
-        <dd class="col-6">{{ application.studydatapage.need_record_level_data }}</dd>
-      </dl>
-      <dl class="row mb-1">
-        <dt class="col-6 mb-2">Access to data reasons</dt>
-        <dd class="col-6">{{ application.recordleveldatapage.record_level_data_reasons }}</dd>
-      </dl>
-      <dl class="row mb-1">
-        <dt class="col-6 mb-2">Type of study is Research?</dt>
-        <dd class="col-6">{{ application.typeofstudypage.is_study_research }}</dd>
-      </dl>
-      <dl class="row mb-1">
-        <dt class="col-6 mb-2">Type of study is Service evaluation?</dt>
-        <dd class="col-6">{{ application.typeofstudypage.is_study_service_evaluation }}</dd>
-      </dl>
-      <dl class="row mb-1">
-        <dt class="col-6 mb-2">Type of study is Audit?</dt>
-        <dd class="col-6">{{ application.typeofstudypage.is_study_audit }}</dd>
-      </dl>
-      <dl class="row mb-1">
-        <dt class="col-6 mb-2">HRA/IRSE ID</dt>
-        <dd class="col-6">{{ application.referencespage.hra_ires_id }}</dd>
-      </dl>
-      <dl class="row mb-1">
-        <dt class="col-6 mb-2">HRA/REC reference</dt>
-        <dd class="col-6">{{ application.referencespage.hra_rec_reference }}</dd>
-      </dl>
-      <dl class="row mb-1">
-        <dt class="col-6 mb-2">Institutional REC reference</dt>
-        <dd class="col-6">{{ application.referencespage.institutional_rec_reference }}</dd>
-      </dl>
-      <dl class="row mb-1">
-        <dt class="col-6 mb-2">Sponsor name</dt>
-        <dd class="col-6">{{ application.sponsordetailspage.sponsor_name }}</dd>
-      </dl>
-      <dl class="row mb-1">
-        <dt class="col-6 mb-2">Sponsor email</dt>
-        <dd class="col-6">{{ application.sponsordetailspage.sponsor_email }}</dd>
-      </dl>
-      <dl class="row mb-1">
-        <dt class="col-6 mb-2">Sponsor job role</dt>
-        <dd class="col-6">{{ application.sponsordetailspage.sponsor_job_role }}</dd>
-      </dl>
-      <dl class="row mb-1">
-        <dt class="col-6 mb-2">Is research on CMO priority list?</dt>
-        <dd class="col-6">{{ application.cmoprioritylistpage.is_on_cmo_priority_list }}</dd>
-      </dl>
-      <dl class="row mb-1">
-        <dt class="col-6 mb-2">Legal basis for accessing data under DPA</dt>
-        <dd class="col-6">{{ application.legalbasispage.legal_basis_for_accessing_data_under_dpa }}</dd>
-      </dl>
-      <dl class="row mb-1">
-        <dt class="col-6 mb-2">How is duty of confidentiality satisfied or set aside</dt>
-        <dd class="col-6">{{ application.legalbasispage.how_is_duty_of_confidentiality_satisfied }}</dd>
-      </dl>
-      <dl class="row mb-1">
-        <dt class="col-6 mb-2">Funding details</dt>
-        <dd class="col-6">{{ application.studyfundingpage.funding_details }}</dd>
-      </dl>
-      <dl class="row mb-1">
-        <dt class="col-6 mb-2">Team details</dt>
-        <dd class="col-6">{{ application.teamdetails.team_details }}</dd>
-      </dl>
-      <dl class="row mb-1">
-        <dt class="col-6 mb-2">Previous experience with EHR</dt>
-        <dd class="col-6">{{ application.previousehrexperiencepage.previous_experience_with_ehr }}</dd>
-      </dl>
-      <dl class="row mb-1">
-        <dt class="col-6 mb-2">Evidence of coding</dt>
-        <dd class="col-6">{{ application.softwaredevelopmentexperiencepage.evidence_of_coding }}</dd>
-      </dl>
-      <dl class="row mb-1">
-        <dt class="col-6 mb-2">All applications have completed gettting started</dt>
-        <dd class="col-6">{{ application.softwaredevelopmentexperiencepage.all_applicants_completed_getting_started }}</dd>
-      </dl>
-      <dl class="row mb-1">
-        <dt class="col-6 mb-2">Evidence of sharing in public domain before</dt>
-        <dd class="col-6">{{ application.sharingcodepage.evidence_of_sharing_in_public_domain_before }}</dd>
-      </dl>
+        {% for page in pages %}
+          <h3>{{ page.title }} ({{ page.sub_title }})</h3>
 
-      <h2 class="h3 mt-5">Researchers</h2>
+          {% if page.started %}
+            {% for fieldset in page.fieldsets %}
+            <h4>{{ fieldset.label }}</h4>
 
-      <div class="list-group list-unstyled">
-        {% for researcher in researchers %}
-        <div class="d-flex justify-content-between align-items-center list-group-item">
-          <span class="mr-3">
-            {{ researcher.name }}
-            <small class="text-muted">({{ researcher.email }})</small>
-          </span>
-          <a class="btn btn-sm btn-primary" href="{{ researcher.get_edit_url }}">View on Site</a>
-        </a>
+              {% for field in fieldset.fields %}
+              <dl class="row mb-1">
+                <dt class="col-6 mb-2">{{ field.label }}</dt>
+                <dd class="col-6">{{ field.value }}</dd>
+              </dl>
+              {% endfor %}
+            {% endfor %}
+
+            {% include "components/form_textarea.html" with name=page.wizard_page.notes_field_name label="Notes" field=page.wizard_page.get_unbound_approval_form.notes %}
+            {% include "components/form_radio.html" with name=page.wizard_page.is_approved_field_name label="Approved?" field=page.wizard_page.get_unbound_approval_form.is_approved %}
+          {% else %}
+          <p>User has not started this page</p>
+          {% endif %}
+          <hr />
         {% endfor %}
-      </div>
+
+        <h2 class="h3 mt-5">Researchers</h2>
+
+        <div class="list-group list-unstyled">
+          {% for researcher in researchers %}
+          <div class="d-flex justify-content-between align-items-center list-group-item">
+            <span class="mr-3">
+              {{ researcher.name }}
+              <small class="text-muted">({{ researcher.email }})</small>
+            </span>
+            <a class="btn btn-sm btn-primary" href="{{ researcher.get_edit_url }}">View on Site</a>
+          </a>
+          {% endfor %}
+        </div>
+
+        <hr />
+        <button class="btn btn-lg btn-success mt-3" type="submit">
+          Submit review
+        </button>
+      </form>
     </div>
 
   </div>

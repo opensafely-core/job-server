@@ -64,6 +64,18 @@ class Application(models.Model):
 
 class AbstractPage(models.Model):
     application = models.OneToOneField("Application", on_delete=models.CASCADE)
+    reviewed_by = models.ForeignKey(
+        "jobserver.User",
+        on_delete=models.CASCADE,
+        null=True,
+    )
+
+    notes = models.TextField(blank=True)
+    is_approved = models.BooleanField(null=True)
+    last_reviewed_at = models.DateTimeField(null=True)
+
+    created_at = models.DateTimeField(default=timezone.now)
+    updated_at = models.DateTimeField(auto_now=True)
 
     class Meta:
         abstract = True
