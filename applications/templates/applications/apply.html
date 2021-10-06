@@ -1,4 +1,4 @@
-{% extends "base.html" %}
+{% extends "applications_base.html" %}
 
 {% load snippet %}
 
@@ -39,7 +39,7 @@
 {% endblock jumbotron %}
 
 {% block content %}
-<div class="container">
+<article class="container" id="applicationForm">
   <div class="row">
     <div class="col-lg-8">
       {% snippet "start_page" %}
@@ -55,5 +55,5 @@
       </a>
     </div>
   </div>
-</div>
+</article>
 {% endblock %}

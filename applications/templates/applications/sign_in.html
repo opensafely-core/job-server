@@ -1,4 +1,4 @@
-{% extends "base.html" %}
+{% extends "applications_base.html" %}
 
 {% block metatitle %}Apply: Sign In | OpenSAFELY Jobs{% endblock metatitle %}
 
@@ -38,7 +38,7 @@
 {% endblock jumbotron %}
 
 {% block content %}
-<div class="container">
+<article class="container" id="applicationForm">
   <div class="row">
     <div class="col">
       <p>
@@ -51,5 +51,5 @@
       </form>
     </div>
   </div>
-</div>
+</article>
 {% endblock %}

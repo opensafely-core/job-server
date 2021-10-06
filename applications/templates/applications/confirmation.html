@@ -1,11 +1,11 @@
-{% extends "base.html" %}
+{% extends "applications_base.html" %}
 
 {% load humanize %}
 
 {% block metatitle %}Apply | OpenSAFELY Jobs{% endblock metatitle %}
 
 {% block content %}
-<div class="container">
+<article class="container" id="applicationForm">
   <div class="row">
     <div class="col">
       {% for page in pages %}
@@ -24,5 +24,5 @@
       {% endfor %}
     </div>
   </div>
-</div>
+</article>
 {% endblock %}

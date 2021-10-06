@@ -1,4 +1,4 @@
-{% extends "base.html" %}
+{% extends "applications_base.html" %}
 
 {% block metatitle %}Apply: {{ title }} | OpenSAFELY Jobs{% endblock metatitle %}
 
@@ -37,7 +37,7 @@
 {% endblock jumbotron %}
 
 {% block content %}
-<div class="container">
+<article class="container" id="applicationForm">
   <div class="row">
     <div class="col-lg-8">
       {% if rubric %}
@@ -80,5 +80,5 @@
       {% endif %}
     </div>
   </div>
-</div>
+</article>
 {% endblock %}

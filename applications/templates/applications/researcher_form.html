@@ -1,4 +1,4 @@
-{% extends "base.html" %}
+{% extends "applications_base.html" %}
 
 {% load snippet %}
 
@@ -33,7 +33,7 @@
 {% endblock jumbotron %}
 
 {% block content %}
-<div class="container">
+<article class="container" id="applicationForm">
   <div class="row">
     <div class="col-lg-8">
 
@@ -64,7 +64,7 @@
             <legend class="h6 font-weight-bold">Does this researcher require access to the OpenSAFELY secure results server?</legend>
             {% include "components/form_radio.html" with field=form.does_researcher_need_server_access label="" name="does_researcher_need_server_access" %}
 
-            <div  class="form-text text-muted form__help-text">
+            <div class="form-text text-muted form__help-text">
               {% snippet "researcher-server-access-rubric" %}
             </div>
           </fieldset>
@@ -152,5 +152,5 @@
       </form>
     </div>
   </div>
-</div>
+</article>
 {% endblock %}
