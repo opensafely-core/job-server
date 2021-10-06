@@ -231,45 +231,11 @@ def test_confirmation_success(rf):
         assert spec.title in response.rendered_content
 
 
-def test_application_records_confirmation_reached(rf):
-    user = UserFactory()
-    application = ApplicationFactory(
-        created_by=user,
-    )
-
-    request = rf.get("/")
-    request.user = user
-
-    response = confirmation(request, pk=application.pk)
-    assert response.status_code == 200
-
-    application.refresh_from_db()
-    assert application.has_reached_confirmation
-
-
-def test_confirmation_with_application_that_already_reached_confirmation(rf):
-    user = UserFactory()
-    application = ApplicationFactory(
-        created_by=user,
-        has_reached_confirmation=True,
-    )
-
-    request = rf.get("/")
-    request.user = user
-
-    response = confirmation(request, pk=application.pk)
-    assert response.status_code == 200
-
-
-def test_return_to_confirmation_once_reached(rf):
-    user = UserFactory()
-    application = ApplicationFactory(
-        created_by=user,
-        has_reached_confirmation=True,
-    )
+def test_return_to_confirmation_once_reached(rf, complete_application):
+    application = complete_application
 
     request = rf.post("/", {"previous_experience_with_ehr": "yes"})
-    request.user = user
+    request.user = application.created_by
 
     response = page(request, pk=application.pk, key="previous-ehr-experience")
 
