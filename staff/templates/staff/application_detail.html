@@ -49,34 +49,51 @@
 <div class="container">
   <div class="row">
     <div class="col">
-      {% for page in pages %}
-      <h3>{{ page.title }}</h3>
+      <form method="post">
+        {% csrf_token %}
 
-      {% for fieldset in page.fieldsets %}
-      <h4>{{ fieldset.label }}</h4>
+        {% for page in pages %}
+          <h3>{{ page.title }} ({{ page.sub_title }})</h3>
 
-      {% for field in fieldset.fields %}
-      <dl class="row mb-1">
-        <dt class="col-6 mb-2">{{ field.label }}</dt>
-        <dd class="col-6">{{ field.value }}</dd>
-      </dl>
-      {% endfor %}
-      {% endfor %}
-      {% endfor %}
+          {% if page.started %}
+            {% for fieldset in page.fieldsets %}
+            <h4>{{ fieldset.label }}</h4>
 
-      <h2 class="h3 mt-5">Researchers</h2>
+              {% for field in fieldset.fields %}
+              <dl class="row mb-1">
+                <dt class="col-6 mb-2">{{ field.label }}</dt>
+                <dd class="col-6">{{ field.value }}</dd>
+              </dl>
+              {% endfor %}
+            {% endfor %}
 
-      <div class="list-group list-unstyled">
-        {% for researcher in researchers %}
-        <div class="d-flex justify-content-between align-items-center list-group-item">
-          <span class="mr-3">
-            {{ researcher.name }}
-            <small class="text-muted">({{ researcher.email }})</small>
-          </span>
-          <a class="btn btn-sm btn-primary" href="{{ researcher.get_edit_url }}">View on Site</a>
-        </a>
+            {% include "components/form_textarea.html" with name=page.wizard_page.notes_field_name label="Notes" field=page.wizard_page.get_unbound_approval_form.notes %}
+            {% include "components/form_radio.html" with name=page.wizard_page.is_approved_field_name label="Approved?" field=page.wizard_page.get_unbound_approval_form.is_approved %}
+          {% else %}
+          <p>User has not started this page</p>
+          {% endif %}
+          <hr />
         {% endfor %}
-      </div>
+
+        <h2 class="h3 mt-5">Researchers</h2>
+
+        <div class="list-group list-unstyled">
+          {% for researcher in researchers %}
+          <div class="d-flex justify-content-between align-items-center list-group-item">
+            <span class="mr-3">
+              {{ researcher.name }}
+              <small class="text-muted">({{ researcher.email }})</small>
+            </span>
+            <a class="btn btn-sm btn-primary" href="{{ researcher.get_edit_url }}">View on Site</a>
+          </a>
+          {% endfor %}
+        </div>
+
+        <hr />
+        <button class="btn btn-lg btn-success mt-3" type="submit">
+          Submit review
+        </button>
+      </form>
     </div>
 
   </div>
