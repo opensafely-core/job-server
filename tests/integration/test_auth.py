@@ -1,4 +1,5 @@
 import responses
+from django.conf import settings
 from django.urls import reverse
 from furl import furl
 
@@ -53,9 +54,7 @@ def test_login_pipeline(client, mocker):
 
         # set a dummy state value in the test Client's session to match the
         # value in redirect_url below
-        session = client.session
-        session["github_state"] = "test-state"
-        session.save()
+        _update_client_session(client, github_state="test-state")
 
         # construct the URL path we've configured our GitHub OAuth application
         # with, and set the expected query args.  Code is unused in this case
@@ -155,9 +154,7 @@ def test_login_pipeline_without_gitub_token(client):
 
         # set a dummy state value in the test Client's session to match the
         # value in redirect_url below
-        session = client.session
-        session["github_state"] = "test-state"
-        session.save()
+        _update_client_session(client, github_state="test-state")
 
         # construct the URL path we've configured our GitHub OAuth application
         # with, and set the expected query args.  Code is unused in this case
@@ -175,3 +172,14 @@ def test_login_pipeline_without_gitub_token(client):
 
     assert response.status_code == 302
     assert response.url == "/"
+
+
+def _update_client_session(client, **kwargs):
+    session = client.session
+    session.update(kwargs)
+    session.save()
+    # When using the signed cookie session backend we need the cookie to be
+    # updated whenever we change the contents of the session. The test client's
+    # session handling doesn't do this for us (presumably it's written with the
+    # database-backed session in mind) so we have to do that manually here.
+    client.cookies[settings.SESSION_COOKIE_NAME] = session.session_key
