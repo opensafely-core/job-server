@@ -64,6 +64,8 @@ class Application(models.Model):
 
 class AbstractPage(models.Model):
     application = models.OneToOneField("Application", on_delete=models.CASCADE)
+    notes = models.TextField(blank=True)
+    is_approved = models.BooleanField(default=False)
 
     class Meta:
         abstract = True

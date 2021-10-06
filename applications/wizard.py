@@ -1,5 +1,6 @@
 from django.forms.models import modelform_factory
 from django.shortcuts import redirect
+from django.utils.functional import cached_property
 
 from .forms import PageFormBase
 
@@ -35,7 +36,7 @@ class WizardPage:
         self.model = form_spec.model
 
     @property
-    def form_class(self):
+    def data_form_class(self):
         """
         Construct a ModelForm class from this page's form_spec
 
@@ -51,6 +52,11 @@ class WizardPage:
         return modelform_factory(self.model, fields=fields, form=PageFormBase)
 
     @property
+    def approval_form_class(self):
+        fields = ["notes", "is_approved"]
+        return modelform_factory(self.model, fields=fields, form=PageFormBase)
+
+    @cached_property
     def instance(self):
         """
         Return instance of model containing data for this page.
@@ -63,17 +69,23 @@ class WizardPage:
         except self.model.DoesNotExist:
             return self.model(application=self.application)
 
-    def get_unbound_form(self):
+    def get_unbound_data_form(self):
         """
         Create a form instance without POST data (typically for GET requests)
         """
-        return self.form_class(instance=self.instance)
+        return self.data_form_class(instance=self.instance)
 
-    def get_bound_form(self, data):
+    def get_unbound_approval_form(self):
+        return self.approval_form_class(instance=self.instance)
+
+    def get_bound_data_form(self, data):
         """
         Create a form instance with POST data
         """
-        return self.form_class(data, instance=self.instance)
+        return self.data_form_class(data, instance=self.instance)
+
+    def get_bound_approval_form(self, data):
+        return self.approval_form_class(data, instance=self.instance, prefix=self.key)
 
     @property
     def title(self):
@@ -82,6 +94,14 @@ class WizardPage:
     @property
     def key(self):
         return self.form_spec.key
+
+    @property
+    def notes_field_name(self):
+        return f"{self.key}-notes"
+
+    @property
+    def is_approved_field_name(self):
+        return f"{self.key}-is_approved"
 
     def template_context(self, form):
         return self.form_spec.template_context(form) | {

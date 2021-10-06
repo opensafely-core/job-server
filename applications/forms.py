@@ -14,6 +14,7 @@ class PageFormBase(forms.ModelForm):
             "all_applicants_completed_getting_started",
             "need_record_level_data",
             "is_on_cmo_priority_list",
+            "is_approved",
         ]
         for name in radio_fields:
             if name in self.fields:
