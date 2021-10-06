@@ -256,6 +256,15 @@ form_specs = [
         footer=snippet("8-footer"),
         fieldsets=[
             Fieldset(
+                label="Service evaluation or an audit",
+                fields=[
+                    Field(
+                        name="institutional_rec_reference",
+                        label="Institutional REC reference",
+                    ),
+                ],
+            ),
+            Fieldset(
                 label="Sponsor information",
                 fields=[
                     Field(
