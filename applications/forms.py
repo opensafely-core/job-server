@@ -3,7 +3,7 @@ from django import forms
 from .models import YES_NO_CHOICES, ResearcherRegistration
 
 
-class ApplicationFormBase(forms.ModelForm):
+class PageFormBase(forms.ModelForm):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
 

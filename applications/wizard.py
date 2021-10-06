@@ -1,7 +1,7 @@
 from django.forms.models import modelform_factory
 from django.shortcuts import redirect
 
-from .forms import ApplicationFormBase
+from .forms import PageFormBase
 
 
 class Wizard:
@@ -47,11 +47,8 @@ class WizardPage:
         for fieldset in self.form_spec.fieldsets:
             for field in fieldset.fields:
                 fields.append(field.name)
-        form_class = modelform_factory(
-            self.model, fields=fields, form=ApplicationFormBase
-        )
 
-        return form_class
+        return modelform_factory(self.model, fields=fields, form=PageFormBase)
 
     @property
     def instance(self):
