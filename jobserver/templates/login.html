@@ -31,7 +31,8 @@
 <div class="container">
   <div class="row">
     <div class="col col-sm-8 offset-sm-2 col-md-6 offset-md-3 col-lg-4 offset-lg-4">
-      <form method="POST" action="{% url "auth-login" "github" %}?next={{ next_url }}">
+      <form method="POST" action="{% url "auth-login" "github" %}">
+        <input type="hidden" name="next" value="{{ next_url }}" />
         <button type="submit" class="btn btn-primary btn-block">Sign in with GitHub</button>
         <p class="text-center my-2">or</p>
         <button type="submit" class="btn btn-outline-secondary btn-block">Create a GitHub account</button>
