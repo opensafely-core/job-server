@@ -1,4 +1,5 @@
 import json
+from datetime import datetime, timezone
 
 import requests
 from environs import Env
@@ -219,6 +220,41 @@ def get_repos_with_branches(org):
             "name": repo["name"],
             "url": repo["url"],
             "branches": branches,
+        }
+
+
+def get_repos_with_dates():
+    query = """
+    query reposAndBranches($cursor: String) {
+      organization(login: "opensafely") {
+        team(slug: "researchers") {
+          repositories(first: 100, after: $cursor) {
+            nodes {
+              name
+              url
+              isPrivate
+              createdAt
+            }
+            pageInfo {
+                endCursor
+                hasNextPage
+            }
+          }
+        }
+      }
+    }
+    """
+    results = list(_iter_query_results(query))
+    for repo in results:
+        created_at = datetime.strptime(repo["createdAt"], "%Y-%m-%dT%H:%M:%SZ").replace(
+            tzinfo=timezone.utc
+        )
+
+        yield {
+            "name": repo["name"],
+            "url": repo["url"],
+            "is_private": repo["isPrivate"],
+            "created_at": created_at,
         }
 
 

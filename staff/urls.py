@@ -5,6 +5,7 @@ from .views.backends import BackendDetail, BackendEdit, BackendList, BackendRota
 from .views.index import Index
 from .views.orgs import OrgDetail, OrgEdit, OrgList, OrgRemoveMember
 from .views.projects import ProjectDetail, ProjectEdit, ProjectList
+from .views.repos import RepoList
 from .views.users import UserDetail, UserList, UserSetOrgs
 from .views.workspaces import WorkspaceDetail, WorkspaceList
 
@@ -56,6 +57,7 @@ urlpatterns = [
     path("backends/", include(backend_urls)),
     path("orgs/", include(org_urls)),
     path("projects/", include(project_urls)),
+    path("repos/", RepoList.as_view(), name="repo-list"),
     path("users/", include(user_urls)),
     path("workspaces/", include(workspace_urls)),
 ]
