@@ -49,11 +49,18 @@
 <div class="container">
   <div class="row">
     <div class="col">
+      <ul>
+        {% for page in pages %}
+          <li><a href="#{{ page.key }}">{{ page.title }}</a> ({{ page.status }})</li>
+        {% endfor %}
+      </ul>
+
       <form method="post">
         {% csrf_token %}
 
         {% for page in pages %}
-          <h3>{{ page.title }} ({{ page.sub_title }})</h3>
+          <hr />
+          <h3 id="{{ page.key }}">{{ page.title }}</h3>
 
           {% if page.started %}
             {% for fieldset in page.fieldsets %}
@@ -72,7 +79,6 @@
           {% else %}
           <p>User has not started this page</p>
           {% endif %}
-          <hr />
         {% endfor %}
 
         <h2 class="h3 mt-5">Researchers</h2>
