@@ -90,6 +90,12 @@
           </fieldset>
         {% endfor %}
 
+        {% if footer %}
+          <div class="d-flex flex-column my-2">
+            {{ footer }}
+          </div>
+        {% endif %}
+
         <button class="btn btn-lg btn-success mt-3" type="submit" >
           Continue
         </button>
