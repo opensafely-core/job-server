@@ -63,6 +63,7 @@
     "react-router-dom": "^5.3.0",
     "react-window": "^1.8.6",
     "select2": "^4.0.13",
+    "tablesorter": "^2.31.3",
     "whatwg-fetch": "^3.6.2",
     "zustand": "^3.5.12"
   },

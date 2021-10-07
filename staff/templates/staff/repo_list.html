@@ -1,5 +1,7 @@
 {% extends "staff/base.html" %}
 
+{% load static %}
+
 {% block metatitle %}Repos: Staff Area | OpenSAFELY Jobs{% endblock metatitle %}
 
 {% block breadcrumbs %}
@@ -29,29 +31,40 @@
 <div class="container">
   <div class="row">
     <div class="col">
-
-      <table class="table table-striped">
-        <thead>
-          <tr>
-            <th>Created</th>
-            <th>Repo</th>
-            <th>Workspace</th>
-            <th>Project</th>
-          </tr>
-        </thead>
-        <tbody>
-          {% for repo in repos %}
-          <tr>
-            <td class="text-nowrap">{{ repo.created_at|date }}</td>
-            <td><a href="{{ repo.url }}">{{ repo.name }}</a></td>
-            <td><a href="{{ repo.workspace.get_staff_url }}">{{ repo.workspace.name }}</a></td>
-            <td><a href="{{ repo.workspace.project.get_staff_url }}">{{ repo.workspace.project.name }}</a></td>
-          </tr>
-          {% endfor %}
-        </tbody>
-      </table>
-
+      <button type="button" class="reset btn btn-outline-primary mb-3" data-column="0" data-filter="">Reset filters</button>
+      <div class="table-responsive">
+        <table class="table table-striped">
+          <thead>
+            <tr>
+              <th>Created</th>
+              <th>Repo</th>
+              <th>Workspace</th>
+              <th>Project</th>
+            </tr>
+          </thead>
+          <tbody>
+            {% for repo in repos %}
+            <tr>
+              <td class="text-nowrap">{{ repo.created_at|date:"d M Y" }}</td>
+              <td><a href="{{ repo.url }}">{{ repo.name }}</a></td>
+              <td><a href="{{ repo.workspace.get_staff_url }}">{{ repo.workspace.name }}</a></td>
+              <td><a href="{{ repo.workspace.project.get_staff_url }}">{{ repo.workspace.project.name }}</a></td>
+            </tr>
+            {% endfor %}
+          </tbody>
+        </table>
+      </div>
     </div>
   </div>
 </div>
 {% endblock staff_content %}
+
+{% block extra_styles %}
+<link rel="stylesheet" href="{% static 'vendor/tablesorter/theme.bootstrap_4.min.css' %}">
+{% endblock %}
+
+{% block extra_js %}
+<script src="{% static 'vendor/tablesorter/jquery.tablesorter.min.js' %}"></script>
+<script src="{% static 'vendor/tablesorter/jquery.tablesorter.widgets.min.js' %}"></script>
+<script src="{% static 'js/tablesorter.js' %}"></script>
+{% endblock %}

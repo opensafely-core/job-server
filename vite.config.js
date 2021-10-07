@@ -59,6 +59,18 @@ const config = {
           dest: "./assets/dist/vendor",
         },
         {
+          src: "./node_modules/tablesorter/dist/js/jquery.tablesorter.min.js",
+          dest: "./assets/dist/vendor/tablesorter",
+        },
+        {
+          src: "./node_modules/tablesorter/dist/js/jquery.tablesorter.widgets.min.js",
+          dest: "./assets/dist/vendor/tablesorter",
+        },
+        {
+          src: "./node_modules/tablesorter/dist/css/theme.bootstrap_4.min.css",
+          dest: "./assets/dist/vendor/tablesorter",
+        },
+        {
           src: "./assets/src/js/*",
           dest: "./assets/dist/js",
         },
