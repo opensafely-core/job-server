@@ -5,6 +5,12 @@ from django.utils.functional import cached_property
 from .forms import PageFormBase
 
 
+UNSTARTED = "unstarted"
+NEEDS_REVIEW = "needs review"
+NOT_APPROVED = "not approved"
+APPROVED = "approved"
+
+
 class Wizard:
     def __init__(self, application, form_specs):
         self.application = application
@@ -27,7 +33,7 @@ class Wizard:
             if not form_spec.prerequisite(self.application):
                 continue
             page = WizardPage(self, form_spec)
-            if not page.is_started():
+            if page.status == UNSTARTED:
                 return page.key
 
 
@@ -72,8 +78,16 @@ class WizardPage:
         except self.model.DoesNotExist:
             return self.model(application=self.application)
 
-    def is_started(self):
-        return bool(self.instance.pk)
+    @property
+    def status(self):
+        if not self.instance.pk:
+            return UNSTARTED
+
+        return {
+            None: NEEDS_REVIEW,
+            True: APPROVED,
+            False: NOT_APPROVED,
+        }[self.instance.is_approved]
 
     def get_unbound_data_form(self):
         """
@@ -117,7 +131,9 @@ class WizardPage:
 
     def review_context(self):
         return self.form_spec.review_context(self.instance) | {
-            "started": self.is_started(),
+            "key": self.key,
+            "started": self.status != UNSTARTED,
+            "status": self.status,
             "wizard_page": self,
         }
 
