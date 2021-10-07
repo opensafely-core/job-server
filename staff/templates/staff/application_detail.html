@@ -59,6 +59,7 @@
         {% csrf_token %}
 
         {% for page in pages %}
+          <hr />
           <h3 id="{{ page.key }}">{{ page.title }}</h3>
 
           {% if page.started %}
@@ -78,7 +79,6 @@
           {% else %}
           <p>User has not started this page</p>
           {% endif %}
-          <hr />
         {% endfor %}
 
         <h2 class="h3 mt-5">Researchers</h2>
