@@ -55,29 +55,3 @@ class ResearcherRegistrationForm(forms.ModelForm):
             "training_passed_at",
         ]
         model = ResearcherRegistration
-
-    def clean(self):
-        cleaned_data = super().clean()
-
-        does_researcher_need_server_access = cleaned_data.get(
-            "does_researcher_need_server_access", False
-        )
-        telephone = cleaned_data["telephone"]
-        phone_type = cleaned_data.get("phone_type", None)
-        if does_researcher_need_server_access:
-            if not (telephone and phone_type):
-                msg = "A phone number and phone type are required to access the results server"
-                raise forms.ValidationError(msg)
-
-        has_taken_safe_researcher_training = cleaned_data.get(
-            "has_taken_safe_researcher_training", False
-        )
-        training_with_org = cleaned_data["training_with_org"]
-        training_passed_at = cleaned_data["training_passed_at"]
-        if has_taken_safe_researcher_training:
-            if not (training_with_org and training_passed_at):
-                msg = (
-                    "When a researcher has undertaken safe researcher training we "
-                    "need to know the organisation and date they passed the course"
-                )
-                raise forms.ValidationError(msg)

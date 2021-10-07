@@ -23,7 +23,7 @@
 
       <dl class="row">
         <dt class="col-7">Do they need access to the results server?</dt>
-        <dd class="col-5">{{ researcher.get_does_researcher_need_server_access_display }}</dd>
+        <dd class="col-5">{{ researcher.get_does_researcher_need_server_access_display |default_if_none:"N/A"}}</dd>
 
         <dt class="col-7">Phone number:</dt>
         <dd class="col-5">{{ researcher.telephone|default:"N/A" }}</dd>
@@ -34,7 +34,7 @@
 
       <dl class="row">
         <dt class="col-7">Have they undertaken safe researcher training?</dt>
-        <dd class="col-5">{{ researcher.get_has_taken_safe_researcher_training_display }}</dd>
+        <dd class="col-5">{{ researcher.get_has_taken_safe_researcher_training_display|default_if_none:"N/A" }}</dd>
 
         <dt class="col-7">Organisation training completed with:</dt>
         <dd class="col-5">{{ researcher.training_with_org|default:"N/A" }}</dd>
