@@ -59,7 +59,7 @@
         {% csrf_token %}
 
         {% for page in pages %}
-          <h3 id="{{ page.key }}">{{ page.title }} ({{ page.sub_title }})</h3>
+          <h3 id="{{ page.key }}">{{ page.title }}</h3>
 
           {% if page.started %}
             {% for fieldset in page.fieldsets %}
