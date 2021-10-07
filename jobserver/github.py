@@ -16,6 +16,75 @@ GITHUB_TOKEN = env.str("GITHUB_TOKEN")
 USER_AGENT = "OpenSAFELY Jobs"
 
 
+def _get_query_page(*, query, session, cursor, **kwargs):
+    """
+    Get a page of the given query
+
+    This uses the GraphQL API to avoid making O(N) calls to GitHub's (v3) REST
+    API.  The passed cursor is a GraphQL cursor [1] allowing us to call this
+    function in a loop, passing in the responses cursor to advance our view of
+    the data.
+
+    [1]: https://graphql.org/learn/pagination/#end-of-list-counts-and-connections
+    """
+    # use GraphQL variables to avoid string interpolation
+    variables = {"cursor": cursor, **kwargs}
+    payload = {"query": query, "variables": variables}
+
+    r = session.post("https://api.github.com/graphql", json=payload)
+    r.raise_for_status()
+    results = r.json()
+
+    # In some cases graphql will return a 200 response when there are errors.
+    # https://sachee.medium.com/200-ok-error-handling-in-graphql-7ec869aec9bc
+    # Handling things robustly is complex and query specific, so here we simply
+    # take the absence of 'data' as an error, rather than the presence of
+    # 'errors' key.
+    if "data" not in results:
+        raise RuntimeError(
+            f"graphql query failed\n\nquery:\n{query}\n\nresponse:\n{json.dumps(results, indent=2)}"
+        )
+
+    return results["data"]["organization"]["team"]["repositories"]
+
+
+def _iter_query_results(query, **kwargs):
+    """
+    Get results from a GraphQL query
+
+    Given a GraphQL query, return all results across one or more pages as a
+    single generator.  We currently assume all results live under
+
+        data.organization.team.repositories
+
+    GitHub's GraphQL API provides cursor-based pagination, so this function
+    wraps the actual API calls done in _get_query_page and tracks the cursor.
+    one.
+    """
+    session = requests.Session()
+    session.headers = {
+        "Authorization": f"bearer {GITHUB_TOKEN}",
+        "User-Agent": USER_AGENT,
+    }
+
+    cursor = ""
+    while True:
+        data = _get_query_page(
+            query=query,
+            session=session,
+            cursor=cursor,
+            **kwargs,
+        )
+
+        yield from data["nodes"]
+
+        if not data["pageInfo"]["hasNextPage"]:
+            break
+
+        # update the cursor we pass into the GraphQL query
+        cursor = data["pageInfo"]["endCursor"]
+
+
 def get_branch(org, repo, branch):
     f = furl(BASE_URL)
     f.path.segments += [
@@ -108,9 +177,9 @@ def get_repo_is_private(org, repo):
     return repo["private"]
 
 
-def _get_page(session, org, cursor):
+def get_repos_with_branches(org):
     """
-    Get a page of Repos (with branches) from the OpenSAFELY Researchers Team
+    Get Repos (with branches) from the OpenSAFELY Researchers Team
 
     This uses the GraphQL API to avoid making O(N) calls to GitHub's (v3) REST
     API.  The passed cursor is a GraphQL cursor [1] allowing us to call this
@@ -142,61 +211,15 @@ def _get_page(session, org, cursor):
       }
     }
     """
-    # use GraphQL variables to avoid string interpolation
-    variables = {"cursor": cursor, "org_name": org}
-    payload = {"query": query, "variables": variables}
+    results = list(_iter_query_results(query, org_name=org))
+    for repo in results:
+        branches = [b["name"] for b in repo["refs"]["nodes"]]
 
-    r = session.post("https://api.github.com/graphql", json=payload)
-    r.raise_for_status()
-    result = r.json()
-
-    # In some cases graphql will return a 200 response when there are errors.
-    # https://sachee.medium.com/200-ok-error-handling-in-graphql-7ec869aec9bc
-    # Handling things robustly is complex and query specific, so here we simply
-    # take the absence of 'data' as an error, rather than the presence of
-    # 'errors' key.
-    if "data" not in result:
-        raise RuntimeError(
-            f"graphql query failed\n\nquery:\n{query}\n\nresponse:\n{json.dumps(result, indent=2)}"
-        )
-
-    return r.json()["data"]["organization"]["team"]["repositories"]
-
-
-def get_repos_with_branches(org):
-    """
-    Get Repos (with branches) from the OpenSAFELY Researchers Team
-
-    GitHub limits their paged endpoints to 100 items so we need to paginate the
-    repositories section of our GraphQL query.  GraphQL uses cursors for
-    pagination (more info in the _get_page function).  We start with an empty
-    cursor to get the first page then update it from the response of each page.
-    """
-    session = requests.Session()
-    session.headers = {
-        "Authorization": f"bearer {GITHUB_TOKEN}",
-        "User-Agent": USER_AGENT,
-    }
-
-    cursor = ""
-    while True:
-        data = _get_page(session, org, cursor)
-
-        # build a dictionary for each repo with it's branches
-        for repo in data["nodes"]:
-            branches = [b["name"] for b in repo["refs"]["nodes"]]
-
-            yield {
-                "name": repo["name"],
-                "url": repo["url"],
-                "branches": branches,
-            }
-
-        if not data["pageInfo"]["hasNextPage"]:
-            break
-
-        # update the cursor we pass into the GraphQL query
-        cursor = data["pageInfo"]["endCursor"]
+        yield {
+            "name": repo["name"],
+            "url": repo["url"],
+            "branches": branches,
+        }
 
 
 def is_member_of_org(org, username):

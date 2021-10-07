@@ -5,6 +5,7 @@ from social_core.exceptions import AuthFailed
 
 from jobserver import github
 from jobserver.github import (
+    _iter_query_results,
     get_branch,
     get_branch_sha,
     get_file,
@@ -227,40 +228,6 @@ def test_get_repos_with_branches():
 
 
 @responses.activate
-def test_get_repos_with_branches_200_error():
-    # graphql API returns errors in with a 200 response
-    def data(hasNextPage):
-        # example error from prod
-        return {
-            "errors": [
-                {
-                    "extensions": {
-                        "argumentName": "login",
-                        "code": "variableMismatch",
-                        "errorMessage": "Nullability mismatch",
-                        "typeName": "String",
-                        "variableName": "org_name",
-                    },
-                    "locations": [{"column": 20, "line": 3}],
-                    "message": (
-                        "Nullability mismatch on variable $org_name and "
-                        "argument login (String / String!)"
-                    ),
-                    "path": ["query reposAndBranches", "organization", "login"],
-                }
-            ]
-        }
-
-    expected_url = "https://api.github.com/graphql"
-    responses.add(
-        responses.POST, url=expected_url, json=data(hasNextPage=True), status=200
-    )
-
-    with pytest.raises(RuntimeError):
-        list(get_repos_with_branches("opensafely"))
-
-
-@responses.activate
 def test_githuborganizationoauth2_user_data_204(monkeypatch, dummy_backend):
     monkeypatch.setattr(github, "AUTHORIZATION_ORGS", ["opensafely"])
 
@@ -340,3 +307,39 @@ def test_is_member_of_org_without_github(monkeypatch):
 
     with pytest.raises(requests.HTTPError):
         is_member_of_org("testing", "dummy-user")
+
+
+@responses.activate
+def test_iter_query_results_200_error():
+    # graphql API returns errors in with a 200 response
+    def data(hasNextPage):
+        # example error from prod
+        return {
+            "errors": [
+                {
+                    "extensions": {
+                        "argumentName": "login",
+                        "code": "variableMismatch",
+                        "errorMessage": "Nullability mismatch",
+                        "typeName": "String",
+                        "variableName": "org_name",
+                    },
+                    "locations": [{"column": 20, "line": 3}],
+                    "message": (
+                        "Nullability mismatch on variable $org_name and "
+                        "argument login (String / String!)"
+                    ),
+                    "path": ["query reposAndBranches", "organization", "login"],
+                }
+            ]
+        }
+
+    expected_url = "https://api.github.com/graphql"
+    responses.add(
+        responses.POST, url=expected_url, json=data(hasNextPage=True), status=200
+    )
+
+    query = ""  # empty query as we're not going to execute it
+
+    with pytest.raises(RuntimeError):
+        list(_iter_query_results(query))
