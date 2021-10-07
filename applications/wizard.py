@@ -36,6 +36,15 @@ class Wizard:
             if page.status == UNSTARTED:
                 return page.key
 
+    def progress_percent(self):
+        """Return user's progress through wizard as a percentage."""
+
+        pages = list(self.get_pages())
+        num_pages = len(pages)
+        num_pages_done = len([p for p in pages if p.status != UNSTARTED])
+
+        return int(100 * num_pages_done / num_pages)
+
 
 class WizardPage:
     def __init__(self, wizard, form_spec):
@@ -127,6 +136,7 @@ class WizardPage:
         return self.form_spec.form_context(form) | {
             "application": self.application,
             "page": self,
+            "progress_percent": self.wizard.progress_percent(),
         }
 
     def review_context(self):
