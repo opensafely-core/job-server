@@ -40,6 +40,19 @@
 <article class="container" id="applicationForm">
   <div class="row">
     <div class="col-lg-8">
+      <div class="progress mb-4">
+        <div
+          class="progress-bar"
+          role="progressbar"
+          style="width: {{ progress_percent}}%"
+          aria-valuenow="{{ progress_percent}}"
+          aria-valuemin="0"
+          aria-valuemax="100"
+        >
+          {{ progress_percent }}%
+        </div>
+      </div>
+
       {% if rubric %}
         <div class="d-flex flex-column mb-3">
           {{ rubric }}

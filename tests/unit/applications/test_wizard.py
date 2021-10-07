@@ -10,3 +10,11 @@ def test_get_next_page_key_for_complete_application(complete_application):
 def test_get_next_page_key_for_incomplete_application(incomplete_application):
     wizard = Wizard(incomplete_application, form_specs)
     assert wizard.get_next_page_key("contact-details") == "study-funding"
+
+
+def test_progress_percent(complete_application, incomplete_application):
+    wizard = Wizard(complete_application, form_specs)
+    assert wizard.progress_percent() == 100
+
+    wizard = Wizard(incomplete_application, form_specs)
+    assert 0 < wizard.progress_percent() < 100
