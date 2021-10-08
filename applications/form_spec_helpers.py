@@ -70,6 +70,7 @@ class Field:
     help_text: str = ""
     template_name: str | None = None
     attributes: Attributes | None = None
+    optional: bool = False
 
     def form_context(self, form):
         template_lut = {
