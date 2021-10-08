@@ -5,12 +5,14 @@ from social_core.exceptions import AuthFailed
 
 from jobserver import github
 from jobserver.github import (
+    _iter_query_results,
     get_branch,
     get_branch_sha,
     get_file,
     get_repo,
     get_repo_is_private,
     get_repos_with_branches,
+    get_repos_with_dates,
     is_member_of_org,
 )
 
@@ -227,37 +229,48 @@ def test_get_repos_with_branches():
 
 
 @responses.activate
-def test_get_repos_with_branches_200_error():
-    # graphql API returns errors in with a 200 response
+def test_get_repos_with_dates():
     def data(hasNextPage):
-        # example error from prod
         return {
-            "errors": [
-                {
-                    "extensions": {
-                        "argumentName": "login",
-                        "code": "variableMismatch",
-                        "errorMessage": "Nullability mismatch",
-                        "typeName": "String",
-                        "variableName": "org_name",
-                    },
-                    "locations": [{"column": 20, "line": 3}],
-                    "message": (
-                        "Nullability mismatch on variable $org_name and "
-                        "argument login (String / String!)"
-                    ),
-                    "path": ["query reposAndBranches", "organization", "login"],
+            "data": {
+                "organization": {
+                    "team": {
+                        "repositories": {
+                            "nodes": [
+                                {
+                                    "name": "test-repo",
+                                    "url": "http://example.com/test/test/",
+                                    "isPrivate": True,
+                                    "createdAt": "2021-10-07T13:37:00Z",
+                                }
+                            ],
+                            "pageInfo": {
+                                "endCursor": "test-cursor",
+                                "hasNextPage": hasNextPage,
+                            },
+                        }
+                    }
                 }
-            ]
+            }
         }
 
     expected_url = "https://api.github.com/graphql"
     responses.add(
         responses.POST, url=expected_url, json=data(hasNextPage=True), status=200
     )
+    responses.add(
+        responses.POST, url=expected_url, json=data(hasNextPage=False), status=200
+    )
 
-    with pytest.raises(RuntimeError):
-        list(get_repos_with_branches("opensafely"))
+    output = list(get_repos_with_dates())
+
+    assert len(responses.calls) == 2
+
+    # check the headers are correct
+    assert "bearer" in responses.calls[0].request.headers["Authorization"]
+
+    assert len(output) == 2
+    assert output[0]["name"] == "test-repo"
 
 
 @responses.activate
@@ -340,3 +353,39 @@ def test_is_member_of_org_without_github(monkeypatch):
 
     with pytest.raises(requests.HTTPError):
         is_member_of_org("testing", "dummy-user")
+
+
+@responses.activate
+def test_iter_query_results_200_error():
+    # graphql API returns errors in with a 200 response
+    def data(hasNextPage):
+        # example error from prod
+        return {
+            "errors": [
+                {
+                    "extensions": {
+                        "argumentName": "login",
+                        "code": "variableMismatch",
+                        "errorMessage": "Nullability mismatch",
+                        "typeName": "String",
+                        "variableName": "org_name",
+                    },
+                    "locations": [{"column": 20, "line": 3}],
+                    "message": (
+                        "Nullability mismatch on variable $org_name and "
+                        "argument login (String / String!)"
+                    ),
+                    "path": ["query reposAndBranches", "organization", "login"],
+                }
+            ]
+        }
+
+    expected_url = "https://api.github.com/graphql"
+    responses.add(
+        responses.POST, url=expected_url, json=data(hasNextPage=True), status=200
+    )
+
+    query = ""  # empty query as we're not going to execute it
+
+    with pytest.raises(RuntimeError):
+        list(_iter_query_results(query))
