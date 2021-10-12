@@ -19,6 +19,7 @@ from applications.views import (
     terms,
     validate_application_access,
 )
+from applications.wizard import Wizard
 from jobserver.authorization import CoreDeveloper
 
 from ...factories import ApplicationFactory, ResearcherRegistrationFactory, UserFactory
@@ -344,6 +345,23 @@ def test_page_post_with_invalid_prerequisite(rf):
     assert response.url == reverse(
         "applications:page", kwargs={"pk": application.pk, "key": "cmo-priority-list"}
     )
+
+
+def test_approved_page_becomes_unapproved_on_edit(rf):
+    user = UserFactory()
+    application = ApplicationFactory(created_by=user)
+
+    ehr_page = Wizard(application, form_specs).get_page("previous-ehr-experience")
+    ehr_page.instance.is_approved = True
+    ehr_page.instance.save()
+
+    request = rf.post("/", {"previous_experience_with_ehr": "experience"})
+    request.user = user
+
+    response = page(request, pk=application.pk, key="previous-ehr-experience")
+    assert response.status_code == 302
+    ehr_page.instance.refresh_from_db()
+    assert not ehr_page.instance.is_approved
 
 
 def test_sign_in_with_authenticated_user(rf):
