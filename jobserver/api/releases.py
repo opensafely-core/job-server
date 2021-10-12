@@ -36,7 +36,7 @@ class ReleaseNotificationAPICreate(CreateAPIView):
         files = serializers.ListField(child=serializers.CharField(), required=False)
 
     def initial(self, request, *args, **kwargs):
-        token = request.META.get("HTTP_AUTHORIZATION")
+        token = request.headers.get("Authorization")
 
         # require auth for all requests
         get_backend_from_token(token)
