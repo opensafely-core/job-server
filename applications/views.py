@@ -10,6 +10,7 @@ from django.views.generic import CreateView, ListView, RedirectView, UpdateView,
 from furl import furl
 
 from jobserver.authorization import has_permission
+from jobserver.hash_utils import unhash_or_404
 from services.slack import client as slack_client
 
 from .emails import send_submitted_application_email
@@ -63,7 +64,7 @@ class PageRedirect(RedirectView):
         return reverse(
             "applications:page",
             kwargs={
-                "pk": self.kwargs["pk"],
+                "pk_hash": self.kwargs["pk_hash"],
                 "key": form_specs[0].key,
             },
         )
@@ -75,7 +76,9 @@ class ResearcherCreate(CreateView):
     template_name = "applications/researcher_form.html"
 
     def dispatch(self, request, *args, **kwargs):
-        self.application = get_object_or_404(Application, pk=self.kwargs["pk"])
+        self.application = get_object_or_404(
+            Application, pk=unhash_or_404(self.kwargs["pk_hash"])
+        )
 
         validate_application_access(request.user, self.application)
 
@@ -93,7 +96,7 @@ class ResearcherDelete(View):
     def post(self, request, *args, **kwargs):
         researcher = get_object_or_404(
             ResearcherRegistration,
-            application__pk=self.kwargs["pk"],
+            application__pk=unhash_or_404(self.kwargs["pk_hash"]),
             pk=self.kwargs["researcher_pk"],
         )
 
@@ -122,7 +125,7 @@ class ResearcherEdit(UpdateView):
     def get_object(self, queryset=None):
         researcher = get_object_or_404(
             ResearcherRegistration,
-            application__pk=self.kwargs["pk"],
+            application__pk=unhash_or_404(self.kwargs["pk_hash"]),
             pk=self.kwargs["researcher_pk"],
         )
 
@@ -135,8 +138,8 @@ class ResearcherEdit(UpdateView):
 
 
 @login_required
-def page(request, pk, key):
-    application = get_object_or_404(Application, pk=pk)
+def page(request, pk_hash, key):
+    application = get_object_or_404(Application, pk=unhash_or_404(pk_hash))
 
     # check the user can access this application
     validate_application_access(request.user, application)
@@ -182,13 +185,17 @@ def terms(request):
 
     notify_slack(application, "New application started")
 
-    return redirect("applications:page", pk=application.pk, key=form_specs[0].key)
+    return redirect(
+        "applications:page", pk_hash=application.pk_hash, key=form_specs[0].key
+    )
 
 
 @method_decorator(login_required, name="dispatch")
 class Confirmation(View):
     def dispatch(self, request, *args, **kwargs):
-        application = get_object_or_404(Application, pk=self.kwargs["pk"])
+        application = get_object_or_404(
+            Application, pk=unhash_or_404(self.kwargs["pk_hash"])
+        )
 
         # check the user can access this application
         validate_application_access(request.user, application)

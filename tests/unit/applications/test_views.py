@@ -43,7 +43,7 @@ def test_confirmation_get_success(rf, incomplete_application):
     request = rf.get("/")
     request.user = incomplete_application.created_by
 
-    response = Confirmation.as_view()(request, pk=incomplete_application.pk)
+    response = Confirmation.as_view()(request, pk_hash=incomplete_application.pk_hash)
 
     assert response.status_code == 200
 
@@ -59,7 +59,7 @@ def test_confirmation_post_invalid(rf, incomplete_application):
     request = rf.post("/")
     request.user = incomplete_application.created_by
 
-    response = Confirmation.as_view()(request, pk=incomplete_application.pk)
+    response = Confirmation.as_view()(request, pk_hash=incomplete_application.pk_hash)
 
     assert response.status_code == 200
 
@@ -77,7 +77,7 @@ def test_confirmation_post_success(rf, complete_application, mailoutbox, mocker)
 
     mail_count = len(mailoutbox)
 
-    response = Confirmation.as_view()(request, pk=complete_application.pk)
+    response = Confirmation.as_view()(request, pk_hash=complete_application.pk_hash)
 
     assert response.status_code == 302
     assert response.url == reverse("applications:list")
@@ -122,13 +122,13 @@ def test_notify_slack_not_called_in_debug_mode(mocker, settings):
 def test_pageredirect_success(rf):
     request = rf.get("/")
 
-    response = PageRedirect.as_view()(request, pk=0)
+    response = PageRedirect.as_view()(request, pk_hash="0000")
 
     assert response.status_code == 302
 
     assert response.url == reverse(
         "applications:page",
-        kwargs={"pk": 0, "key": form_specs[0].key},
+        kwargs={"pk_hash": "0000", "key": form_specs[0].key},
     )
 
 
@@ -139,7 +139,7 @@ def test_researchercreate_get_success(rf):
     request = rf.get("/")
     request.user = user
 
-    response = ResearcherCreate.as_view()(request, pk=application.pk)
+    response = ResearcherCreate.as_view()(request, pk_hash=application.pk_hash)
     assert response.status_code == 200
     assert "is_edit" not in response.context_data
 
@@ -156,7 +156,7 @@ def test_researchercreate_post_success(rf):
     request = rf.post("/?next=/view/to/return/to/", data)
     request.user = user
 
-    response = ResearcherCreate.as_view()(request, pk=application.pk)
+    response = ResearcherCreate.as_view()(request, pk_hash=application.pk_hash)
     assert response.status_code == 302
     assert response.url == "/view/to/return/to/"
 
@@ -168,7 +168,7 @@ def test_researchercreate_without_permission(rf):
     request.user = UserFactory()
 
     with pytest.raises(Http404):
-        ResearcherCreate.as_view()(request, pk=application.pk)
+        ResearcherCreate.as_view()(request, pk_hash=application.pk_hash)
 
 
 def test_researchercreate_unknown_application(rf):
@@ -176,7 +176,7 @@ def test_researchercreate_unknown_application(rf):
     request.user = AnonymousUser()
 
     with pytest.raises(Http404):
-        ResearcherCreate.as_view()(request, pk=0)
+        ResearcherCreate.as_view()(request, pk_hash="0000")
 
 
 def test_researcherdelete_success(rf):
@@ -192,7 +192,7 @@ def test_researcherdelete_success(rf):
     request._messages = messages
 
     response = ResearcherDelete.as_view()(
-        request, pk=researcher.application.pk, researcher_pk=researcher.pk
+        request, pk_hash=researcher.application.pk_hash, researcher_pk=researcher.pk
     )
 
     assert response.status_code == 302
@@ -212,14 +212,14 @@ def test_researcherdelete_without_permission(rf):
     request.user = UserFactory()
 
     with pytest.raises(Http404):
-        ResearcherDelete.as_view()(request, pk=0, researcher_pk=0)
+        ResearcherDelete.as_view()(request, pk_hash="0000", researcher_pk=0)
 
 
 def test_researcherdelete_unknown_researcher(rf):
     request = rf.post("/")
 
     with pytest.raises(Http404):
-        ResearcherDelete.as_view()(request, pk=0, researcher_pk=0)
+        ResearcherDelete.as_view()(request, pk_hash="0000", researcher_pk=0)
 
 
 def test_researcheredit_get_success(rf):
@@ -230,7 +230,7 @@ def test_researcheredit_get_success(rf):
     request.user = user
 
     response = ResearcherEdit.as_view()(
-        request, pk=researcher.application.pk, researcher_pk=researcher.pk
+        request, pk_hash=researcher.application.pk_hash, researcher_pk=researcher.pk
     )
 
     assert response.status_code == 200
@@ -253,7 +253,7 @@ def test_researcheredit_post_success(rf):
     request.user = user
 
     response = ResearcherEdit.as_view()(
-        request, pk=researcher.application.pk, researcher_pk=researcher.pk
+        request, pk_hash=researcher.application.pk_hash, researcher_pk=researcher.pk
     )
 
     assert response.status_code == 302
@@ -268,14 +268,14 @@ def test_researcheredit_without_permission(rf):
     request.user = UserFactory()
 
     with pytest.raises(Http404):
-        ResearcherEdit.as_view()(request, pk=0, researcher_pk=0)
+        ResearcherEdit.as_view()(request, pk_hash="0000", researcher_pk=0)
 
 
 def test_researcheredit_unknown_researcher(rf):
     request = rf.post("/")
 
     with pytest.raises(Http404):
-        ResearcherEdit.as_view()(request, pk=0, researcher_pk=0)
+        ResearcherEdit.as_view()(request, pk_hash="0000", researcher_pk=0)
 
 
 def test_return_to_confirmation_once_reached(rf, complete_application):
@@ -284,12 +284,12 @@ def test_return_to_confirmation_once_reached(rf, complete_application):
     request = rf.post("/", {"previous_experience_with_ehr": "yes"})
     request.user = application.created_by
 
-    response = page(request, pk=application.pk, key="previous-ehr-experience")
+    response = page(request, pk_hash=application.pk_hash, key="previous-ehr-experience")
 
     assert response.status_code == 302
     assert response.url == reverse(
         "applications:confirmation",
-        kwargs={"pk": application.pk},
+        kwargs={"pk_hash": application.pk_hash},
     )
 
     application.refresh_from_db()
@@ -303,7 +303,7 @@ def test_page_get_success(rf):
     request = rf.get("/")
     request.user = user
 
-    response = page(request, pk=application.pk, key="study-purpose")
+    response = page(request, pk_hash=application.pk_hash, key="study-purpose")
 
     assert response.status_code == 200
 
@@ -318,7 +318,7 @@ def test_page_get_404(rf):
     request.user = user
 
     with pytest.raises(Http404):
-        page(request, pk=application.pk, key="not-a-page")
+        page(request, pk_hash=application.pk_hash, key="not-a-page")
 
 
 def test_page_post_final_page(rf):
@@ -328,11 +328,11 @@ def test_page_post_final_page(rf):
     request = rf.post("/", {"evidence_of_sharing_in_public_domain_before": "evidence"})
     request.user = user
 
-    response = page(request, pk=application.pk, key="researcher-details")
+    response = page(request, pk_hash=application.pk_hash, key="researcher-details")
 
     assert response.status_code == 302
     assert response.url == reverse(
-        "applications:confirmation", kwargs={"pk": application.pk}
+        "applications:confirmation", kwargs={"pk_hash": application.pk_hash}
     )
 
 
@@ -343,12 +343,15 @@ def test_page_post_non_final_page(rf):
     request = rf.post("/", {"previous_experience_with_ehr": "experience"})
     request.user = user
 
-    response = page(request, pk=application.pk, key="previous-ehr-experience")
+    response = page(request, pk_hash=application.pk_hash, key="previous-ehr-experience")
 
     assert response.status_code == 302
     assert response.url == reverse(
         "applications:page",
-        kwargs={"pk": application.pk, "key": "software-development-experience"},
+        kwargs={
+            "pk_hash": application.pk_hash,
+            "key": "software-development-experience",
+        },
     )
 
 
@@ -365,7 +368,7 @@ def test_page_post_with_invalid_continue_state(rf):
     request = rf.post("/", {})
     request.user = user
 
-    response = page(request, pk=application.pk, key="type-of-study")
+    response = page(request, pk_hash=application.pk_hash, key="type-of-study")
 
     assert response.status_code == 200
 
@@ -386,11 +389,12 @@ def test_page_post_with_invalid_prerequisite(rf):
     request = rf.post("/", {})
     request.user = user
 
-    response = page(request, pk=application.pk, key="references")
+    response = page(request, pk_hash=application.pk_hash, key="references")
 
     assert response.status_code == 302
     assert response.url == reverse(
-        "applications:page", kwargs={"pk": application.pk, "key": "cmo-priority-list"}
+        "applications:page",
+        kwargs={"pk_hash": application.pk_hash, "key": "cmo-priority-list"},
     )
 
 
@@ -405,7 +409,7 @@ def test_approved_page_becomes_unapproved_on_edit(rf):
     request = rf.post("/", {"previous_experience_with_ehr": "experience"})
     request.user = user
 
-    response = page(request, pk=application.pk, key="previous-ehr-experience")
+    response = page(request, pk_hash=application.pk_hash, key="previous-ehr-experience")
     assert response.status_code == 302
     ehr_page.page_instance.refresh_from_db()
     assert not ehr_page.page_instance.is_approved
@@ -452,7 +456,8 @@ def test_terms_post_success(rf, mocker):
 
     application = Application.objects.first()
     expected_url = reverse(
-        "applications:page", kwargs={"pk": application.pk, "key": "contact-details"}
+        "applications:page",
+        kwargs={"pk_hash": application.pk_hash, "key": "contact-details"},
     )
     assert response.url == expected_url
 

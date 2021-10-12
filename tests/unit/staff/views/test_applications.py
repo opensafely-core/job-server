@@ -20,7 +20,7 @@ def test_applicationdetail_success_with_complete_application(
     request = rf.get("/")
     request.user = core_developer
 
-    response = ApplicationDetail.as_view()(request, pk=application.pk)
+    response = ApplicationDetail.as_view()(request, pk_hash=application.pk_hash)
 
     assert response.status_code == 200
     assert response.context_data["pages"][0]["title"] == "Contact details"
@@ -40,7 +40,7 @@ def test_applicationdetail_success_with_incomplete_application(
     request = rf.get("/")
     request.user = core_developer
 
-    response = ApplicationDetail.as_view()(request, pk=application.pk)
+    response = ApplicationDetail.as_view()(request, pk_hash=application.pk_hash)
 
     assert response.status_code == 200
     assert response.context_data["pages"][0]["title"] == "Contact details"
@@ -54,7 +54,7 @@ def test_applicationdetail_with_unknown_user(rf, core_developer):
     request.user = core_developer
 
     with pytest.raises(Http404):
-        ApplicationDetail.as_view()(request, pk=0)
+        ApplicationDetail.as_view()(request, pk_hash="0000")
 
 
 def test_applicationdetail_without_core_dev_role(rf):
@@ -64,7 +64,7 @@ def test_applicationdetail_without_core_dev_role(rf):
     request.user = UserFactory()
 
     with pytest.raises(PermissionDenied):
-        ApplicationDetail.as_view()(request, pk=application.pk)
+        ApplicationDetail.as_view()(request, pk_hash=application.pk_hash)
 
 
 def test_applicationdetail_post_with_complete_application(
@@ -90,7 +90,7 @@ def test_applicationdetail_post_with_complete_application(
     request = rf.post("/", data)
     request.user = core_developer
 
-    response = ApplicationDetail.as_view()(request, pk=application.pk)
+    response = ApplicationDetail.as_view()(request, pk_hash=application.pk_hash)
 
     assert response.status_code == 302
 
@@ -131,7 +131,7 @@ def test_applicationdetail_post_with_incomplete_application(
     request = rf.post("/", data)
     request.user = core_developer
 
-    response = ApplicationDetail.as_view()(request, pk=application.pk)
+    response = ApplicationDetail.as_view()(request, pk_hash=application.pk_hash)
 
     assert response.status_code == 302
 

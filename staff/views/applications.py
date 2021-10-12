@@ -10,12 +10,15 @@ from applications.models import Application
 from applications.wizard import Wizard
 from jobserver.authorization import CoreDeveloper
 from jobserver.authorization.decorators import require_role
+from jobserver.hash_utils import unhash_or_404
 
 
 @method_decorator(require_role(CoreDeveloper), name="dispatch")
 class ApplicationDetail(View):
     def get(self, request, *args, **kwargs):
-        application = get_object_or_404(Application, pk=self.kwargs["pk"])
+        application = get_object_or_404(
+            Application, pk=unhash_or_404(self.kwargs["pk_hash"])
+        )
         wizard = Wizard(application, form_specs)
         pages = [page.review_context() for page in wizard.get_pages()]
 
@@ -28,7 +31,9 @@ class ApplicationDetail(View):
         return TemplateResponse(request, "staff/application_detail.html", ctx)
 
     def post(self, request, *args, **kwargs):
-        application = get_object_or_404(Application, pk=self.kwargs["pk"])
+        application = get_object_or_404(
+            Application, pk=unhash_or_404(self.kwargs["pk_hash"])
+        )
 
         wizard = Wizard(application, form_specs)
         pages = list(wizard.get_pages())
@@ -42,7 +47,7 @@ class ApplicationDetail(View):
                 form.instance.reviewed_by = request.user
                 form.save()
 
-        return redirect("staff:application-detail", application.pk)
+        return redirect("staff:application-detail", application.pk_hash)
 
 
 @method_decorator(require_role(CoreDeveloper), name="dispatch")
