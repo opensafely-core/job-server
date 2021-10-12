@@ -42,7 +42,7 @@ class JobAPIUpdate(APIView):
         completed_at = serializers.DateTimeField(allow_null=True)
 
     def initial(self, request, *args, **kwargs):
-        token = request.META.get("HTTP_AUTHORIZATION")
+        token = request.headers.get("Authorization")
 
         # require auth for all requests
         self.backend = get_backend_from_token(token)
@@ -209,7 +209,7 @@ class JobRequestAPIList(ListAPIView):
             model = JobRequest
 
     def initial(self, request, *args, **kwargs):
-        token = request.META.get("HTTP_AUTHORIZATION")
+        token = request.headers.get("Authorization")
 
         # if there's an Auth token then try to authenticate with that otherwise
         # ignore since this endpoint can be used either way.
@@ -266,7 +266,7 @@ class JobRequestAPIList(ListAPIView):
 
 class UserAPIDetail(APIView):
     def initial(self, request, *args, **kwargs):
-        token = request.META.get("HTTP_AUTHORIZATION")
+        token = request.headers.get("Authorization")
 
         # require auth for all requests
         self.backend = get_backend_from_token(token)
