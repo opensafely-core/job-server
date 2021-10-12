@@ -32,7 +32,7 @@ class YesNoField(forms.TypedChoiceField):
         )
 
 
-class ResearcherRegistrationForm(forms.ModelForm):
+class ResearcherRegistrationPageForm(forms.ModelForm):
     does_researcher_need_server_access = YesNoField()
     has_taken_safe_researcher_training = YesNoField()
     phone_type = forms.TypedChoiceField(
