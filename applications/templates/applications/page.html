@@ -23,35 +23,43 @@
 {% block jumbotron %}
 <div class="jumbotron jumbotron-fluid pt-md-2">
   <div class="container">
-    <div class="d-flex flex-column flex-md-row align-items-center">
-      <div>
-        <h1 class="display-4">{{ title }}</h1>
+    <h1 class="display-4">{{ title }}</h1>
 
-        {% if sub_title %}
-        <p class="lead">{{ sub_title }}</p>
-        {% endif %}
-      </div>
-    </div>
+    {% if sub_title %}
+    <p class="lead">{{ sub_title }}</p>
+    {% endif %}
   </div>
 </div>
 {% endblock jumbotron %}
 
 {% block content %}
+{% if progress_percent > 0 %}
+<div class="border-bottom pb-4 mb-4 mt-n3">
+  <div class="container">
+    <div class="row">
+      <div class="col-lg-8">
+        <h2 class="h5">Your progress</h2>
+        <div class="progress">
+          <div
+            class="progress-bar"
+            role="progressbar"
+            style="width: {{ progress_percent }}%"
+            aria-valuenow="{{ progress_percent }}"
+            aria-valuemin="0"
+            aria-valuemax="100"
+          >
+            {{ progress_percent }}%
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+{% endif %}
+
 <article class="container" id="applicationForm">
   <div class="row">
     <div class="col-lg-8">
-      <div class="progress mb-4">
-        <div
-          class="progress-bar"
-          role="progressbar"
-          style="width: {{ progress_percent}}%"
-          aria-valuenow="{{ progress_percent}}"
-          aria-valuemin="0"
-          aria-valuemax="100"
-        >
-          {{ progress_percent }}%
-        </div>
-      </div>
 
       {% if rubric %}
         <div class="d-flex flex-column mb-3">
@@ -81,6 +89,12 @@
             {% endfor %}
           </fieldset>
         {% endfor %}
+
+        {% if footer %}
+          <div class="d-flex flex-column my-2">
+            {{ footer }}
+          </div>
+        {% endif %}
 
         <button class="btn btn-lg btn-success mt-3" type="submit" >
           Continue

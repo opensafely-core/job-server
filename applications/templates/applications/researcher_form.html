@@ -59,6 +59,7 @@
           {% include "components/form_text.html" with field=form.name label="Researcher name" name="name" %}
           {% include "components/form_text.html" with field=form.job_title label="Researcher job title" name="job_title" %}
           {% include "components/form_email.html" with field=form.email label="Researcher work email address" name="email" %}
+          {% include "components/form_text.html" with field=form.telephone label="Mobile phone number" name="telephone" %}
 
           <fieldset class="d-flex flex-column mb-3">
             <legend class="h6 font-weight-bold">Does this researcher require access to the OpenSAFELY secure results server?</legend>
@@ -83,8 +84,6 @@
             <legend class="h6 font-weight-bold">What type of smartphone does this researcher have?</legend>
             {% include "components/form_radio.html" with field=form.phone_type label="" name="phone_type" %}
           </fieldset>
-
-          {% include "components/form_text.html" with field=form.telephone label="Mobile phone number" name="telephone" %}
         </fieldset>
 
         <fieldset class="d-flex flex-column mb-4">

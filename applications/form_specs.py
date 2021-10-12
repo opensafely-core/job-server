@@ -18,11 +18,11 @@ form_specs = [
         key="contact-details",
         model=models.ContactDetailsPage,
         title="Contact details",
-        sub_title="Provide the contact information for the overall application owner",
+        sub_title="Provide the contact information for the key contact for overall application",
         rubric=snippet("1-rubric"),
         fieldsets=[
             Fieldset(
-                label="Personal details",
+                label="Key contact details",
                 fields=[
                     Field(
                         name="full_name",
@@ -49,7 +49,7 @@ form_specs = [
                 ],
             ),
             Fieldset(
-                label="Organisation",
+                label="Key contact organisation",
                 fields=[
                     Field(
                         name="job_title",
@@ -91,7 +91,7 @@ form_specs = [
                     Field(
                         name="study_purpose",
                         label="What is the purpose for which you are requesting access to the OpenSAFELY data?",
-                        help_text=snippet("2-fieldset0-field1-help_text"),
+                        help_text=snippet("study_purpose-help_text"),
                         template_name="components/form_textarea.html",
                     ),
                 ],
@@ -108,30 +108,32 @@ form_specs = [
             Fieldset(
                 label="Simple description",
                 fields=[
+                    # Convert to textarea
                     Field(
                         name="description",
                         label="Provide a short lay description of your study purpose for the general public",
+                        help_text=snippet("description-help_text"),
                     ),
                 ],
             ),
             Fieldset(
-                label="Study author",
+                label="Study lead",
                 fields=[
                     Field(
                         name="author_name",
-                        label="Name of application owner",
+                        label="Study lead name",
                         attributes=Attributes(
                             autocomplete="name",
                         ),
                     ),
                     Field(
                         name="author_email",
-                        label="Work email address",
+                        label="Study lead email address",
                         attributes=email_attrs,
                     ),
                     Field(
                         name="author_organisation",
-                        label="Affiliated organisation",
+                        label="Study lead organisation",
                         attributes=Attributes(
                             autocomplete="organization",
                         ),
@@ -222,10 +224,10 @@ form_specs = [
     Form(
         key="references",
         model=models.ReferencesPage,
-        title="Ethical and sponsor requirements",
+        title="Research references",
         sub_title="",
-        rubric=snippet("7-rubric"),
-        footer=snippet("7-footer"),
+        rubric=snippet("references-rubric"),
+        footer=snippet("references-footer"),
         fieldsets=[
             Fieldset(
                 label="HRA REC and Institutional REC",
@@ -248,15 +250,15 @@ form_specs = [
         prerequisite=lambda application: application.is_study_research,
     ),
     Form(
-        key="sponsor-details",
+        key="service-evaluation-audit",
         model=models.SponsorDetailsPage,
-        title="Sponsor details",
+        title="Service evaluation or audit",
         sub_title="",
-        rubric=snippet("8-rubric"),
-        footer=snippet("8-footer"),
+        rubric=snippet("service-evaluation-audit-rubric"),
+        footer=snippet("service-evaluation-audit-footer"),
         fieldsets=[
             Fieldset(
-                label="Service evaluation or an audit",
+                label="",
                 fields=[
                     Field(
                         name="institutional_rec_reference",
