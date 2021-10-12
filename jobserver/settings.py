@@ -198,7 +198,7 @@ AUTH_USER_MODEL = "jobserver.User"
 LOGIN_REDIRECT_URL = "/"
 LOGOUT_REDIRECT_URL = "/"
 LOGIN_ERROR_URL = "/"
-LOGIN_URL = reverse_lazy("auth-login", kwargs={"backend": "github"})
+LOGIN_URL = reverse_lazy("login")
 SOCIAL_AUTH_GITHUB_KEY = env.str("SOCIAL_AUTH_GITHUB_KEY")
 SOCIAL_AUTH_GITHUB_SECRET = env.str("SOCIAL_AUTH_GITHUB_SECRET")
 SOCIAL_AUTH_GITHUB_SCOPE = ["user:email"]

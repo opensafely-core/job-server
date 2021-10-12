@@ -248,7 +248,7 @@ def test_projectcreate_unauthenticated(rf):
     response = ProjectCreate.as_view()(request, org_slug=org.slug)
 
     assert response.status_code == 302
-    assert response.url == "/login/github/?next=/"
+    assert response.url == "/login/?next=/"
 
 
 def test_projectcreate_user_not_in_org(rf):
