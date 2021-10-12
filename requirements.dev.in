@@ -5,6 +5,7 @@
 # pip-compile --generate-hashes --output-file=requirements.dev.txt requirements.dev.in
 
 black
+django-upgrade
 factory_boy
 flake8
 flake8-builtins

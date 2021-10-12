@@ -14,9 +14,19 @@ default:
     @{{ just_executable() }} --list
 
 
-# run pyupgrade but does not change files
 check-for-upgrades: devenv
-    $BIN/pyupgrade --py39-plus $(find jobserver -name "*.py" -type f) $(find tests -name "*.py" -type f)
+    # run pyupgrade but does not change files
+    $BIN/pyupgrade --py39-plus \
+        $(find applications -name "*.py" -type f) \
+        $(find jobserver -name "*.py" -type f) \
+        $(find services -name "*.py" -type f) \
+        $(find tests -name "*.py" -type f)
+
+    $BIN/django-upgrade --target-version=3.2 \
+        $(find applications -name "*.py" -type f) \
+        $(find jobserver -name "*.py" -type f) \
+        $(find services -name "*.py" -type f) \
+        $(find tests -name "*.py" -type f)
 
 
 # run the various dev checks but does not change any files
