@@ -1,6 +1,7 @@
 import pytest
 from django.core.exceptions import ObjectDoesNotExist, PermissionDenied
 from django.http import Http404
+from django.utils import timezone
 
 from jobserver.utils import set_from_qs
 from staff.views.applications import ApplicationDetail, ApplicationList
@@ -134,6 +135,33 @@ def test_applicationlist_search(rf, core_developer):
 
     assert len(response.context_data["object_list"]) == 2
     assert set_from_qs(response.context_data["object_list"]) == {app1.pk, app2.pk}
+
+
+def test_applicationdetail_submitted_review_updates_last_reviewed(
+    rf, core_developer, complete_application, freezer
+):
+    application = complete_application
+    data = {
+        "contact-details-notes": "could do better",
+        "contact-details-is_approved": "False",
+        "study-information-notes": "couldn't do better",
+        "study-information-is_approved": "True",
+    }
+    assert application.contactdetailspage.last_reviewed_at is None
+    assert application.studyinformationpage.last_reviewed_at is None
+
+    request = rf.post("/", data)
+    request.user = core_developer
+
+    response = ApplicationDetail.as_view()(request, pk=application.pk)
+
+    assert response.status_code == 302
+
+    application.refresh_from_db()
+
+    now = timezone.now()
+    assert application.contactdetailspage.last_reviewed_at == now
+    assert application.studyinformationpage.last_reviewed_at == now
 
 
 def test_applicationlist_success(rf, core_developer):
