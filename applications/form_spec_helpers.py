@@ -110,7 +110,15 @@ class Field:
         return {
             "label": self.label,
             "value": self.value(page_instance),
+            "is_valid": self.is_valid(page_instance),
         }
+
+    def is_valid(self, page_instance):
+        if self.optional:
+            return True
+
+        value = self.value(page_instance)
+        return value not in [None, ""]
 
     def value(self, page_instance):
         return getattr(page_instance, self.name)
