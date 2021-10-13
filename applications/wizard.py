@@ -119,10 +119,6 @@ class WizardPage:
         )
 
     @property
-    def title(self):
-        return self.form_spec.title
-
-    @property
     def key(self):
         return self.form_spec.key
 
