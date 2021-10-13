@@ -75,7 +75,7 @@ class WizardPage:
         return modelform_factory(self.model, fields=fields, form=PageFormBase)
 
     @cached_property
-    def instance(self):
+    def page_instance(self):
         """
         Return instance of model containing data for this page.
 
@@ -89,32 +89,34 @@ class WizardPage:
 
     @property
     def status(self):
-        if not self.instance.pk:
+        if not self.page_instance.pk:
             return UNSTARTED
 
         return {
             None: NEEDS_REVIEW,
             True: APPROVED,
             False: NOT_APPROVED,
-        }[self.instance.is_approved]
+        }[self.page_instance.is_approved]
 
     def get_unbound_data_form(self):
         """
         Create a form instance without POST data (typically for GET requests)
         """
-        return self.data_form_class(instance=self.instance)
+        return self.data_form_class(instance=self.page_instance)
 
     def get_unbound_approval_form(self):
-        return self.approval_form_class(instance=self.instance)
+        return self.approval_form_class(instance=self.page_instance)
 
     def get_bound_data_form(self, data):
         """
         Create a form instance with POST data
         """
-        return self.data_form_class(data, instance=self.instance)
+        return self.data_form_class(data, instance=self.page_instance)
 
     def get_bound_approval_form(self, data):
-        return self.approval_form_class(data, instance=self.instance, prefix=self.key)
+        return self.approval_form_class(
+            data, instance=self.page_instance, prefix=self.key
+        )
 
     @property
     def title(self):
@@ -140,7 +142,7 @@ class WizardPage:
         }
 
     def review_context(self):
-        return self.form_spec.review_context(self.instance) | {
+        return self.form_spec.review_context(self.page_instance) | {
             "key": self.key,
             "started": self.status != UNSTARTED,
             "status": self.status,

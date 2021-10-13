@@ -33,11 +33,13 @@ class Form:
             "template_name": self.template_name,
         }
 
-    def review_context(self, page):
+    def review_context(self, page_instance):
         return {
             "title": self.title,
             "sub_title": self.sub_title,
-            "fieldsets": [fieldset.review_context(page) for fieldset in self.fieldsets],
+            "fieldsets": [
+                fieldset.review_context(page_instance) for fieldset in self.fieldsets
+            ],
         }
 
 
@@ -52,10 +54,12 @@ class Fieldset:
             "fields": [field_spec.form_context(form) for field_spec in self.fields],
         }
 
-    def review_context(self, page):
+    def review_context(self, page_instance):
         return {
             "label": self.label,
-            "fields": [field_spec.review_context(page) for field_spec in self.fields],
+            "fields": [
+                field_spec.review_context(page_instance) for field_spec in self.fields
+            ],
         }
 
 
@@ -101,10 +105,10 @@ class Field:
 
         return context
 
-    def review_context(self, page):
+    def review_context(self, page_instance):
         return {
             "label": self.label,
-            "value": getattr(page, self.name),
+            "value": getattr(page_instance, self.name),
         }
 
 

@@ -123,27 +123,27 @@ def page(request, pk, key):
     validate_application_access(request.user, application)
 
     try:
-        page = Wizard(application, form_specs).get_page(key)
+        wizard_page = Wizard(application, form_specs).get_page(key)
     except ValueError:
         raise Http404
 
     if request.method == "GET":
-        form = page.get_unbound_data_form()
+        form = wizard_page.get_unbound_data_form()
     else:
-        form = page.get_bound_data_form(request.POST)
+        form = wizard_page.get_bound_data_form(request.POST)
 
         if form.has_changed():
-            page.instance.is_approved = False
-            page.instance.save()
+            wizard_page.page_instance.is_approved = False
+            wizard_page.page_instance.save()
 
         form.save()
-        if not page.form_spec.can_continue(application):
-            form.add_error(None, page.form_spec.cant_continue_message)
+        if not wizard_page.form_spec.can_continue(application):
+            form.add_error(None, wizard_page.form_spec.cant_continue_message)
 
         if form.is_valid():
-            return page.redirect_to_next_page()
+            return wizard_page.redirect_to_next_page()
 
-    ctx = page.form_context(form)
+    ctx = wizard_page.form_context(form)
     return TemplateResponse(request, "applications/page.html", ctx)
 
 

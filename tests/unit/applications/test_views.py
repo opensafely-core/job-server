@@ -352,16 +352,16 @@ def test_approved_page_becomes_unapproved_on_edit(rf):
     application = ApplicationFactory(created_by=user)
 
     ehr_page = Wizard(application, form_specs).get_page("previous-ehr-experience")
-    ehr_page.instance.is_approved = True
-    ehr_page.instance.save()
+    ehr_page.page_instance.is_approved = True
+    ehr_page.page_instance.save()
 
     request = rf.post("/", {"previous_experience_with_ehr": "experience"})
     request.user = user
 
     response = page(request, pk=application.pk, key="previous-ehr-experience")
     assert response.status_code == 302
-    ehr_page.instance.refresh_from_db()
-    assert not ehr_page.instance.is_approved
+    ehr_page.page_instance.refresh_from_db()
+    assert not ehr_page.page_instance.is_approved
 
 
 def test_sign_in_with_authenticated_user(rf):
