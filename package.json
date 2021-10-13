@@ -48,7 +48,7 @@
   "dependencies": {
     "@sentry/react": "^6.13.3",
     "@ttskch/select2-bootstrap4-theme": "^1.5.2",
-    "axios": "^0.22.0",
+    "axios": "^0.23.0",
     "bootstrap": "^4.5.2",
     "jquery": "^3.5.1",
     "list.js": "^2.3.0",
