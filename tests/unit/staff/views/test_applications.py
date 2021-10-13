@@ -137,18 +137,20 @@ def test_applicationlist_search(rf, core_developer):
     assert set_from_qs(response.context_data["object_list"]) == {app1.pk, app2.pk}
 
 
-def test_applicationdetail_submitted_review_updates_last_reviewed(
+def test_applicationdetail_updates_review_details_following_review(
     rf, core_developer, complete_application, freezer
 ):
     application = complete_application
     data = {
         "contact-details-notes": "could do better",
-        "contact-details-is_approved": "False",
+        "contact-details-is_approved": "True",
         "study-information-notes": "couldn't do better",
-        "study-information-is_approved": "True",
+        "study-information-is_approved": "False",
     }
     assert application.contactdetailspage.last_reviewed_at is None
+    assert application.contactdetailspage.reviewed_by is None
     assert application.studyinformationpage.last_reviewed_at is None
+    assert application.studyinformationpage.reviewed_by is None
 
     request = rf.post("/", data)
     request.user = core_developer
@@ -161,7 +163,9 @@ def test_applicationdetail_submitted_review_updates_last_reviewed(
 
     now = timezone.now()
     assert application.contactdetailspage.last_reviewed_at == now
+    assert application.contactdetailspage.reviewed_by == request.user
     assert application.studyinformationpage.last_reviewed_at == now
+    assert application.studyinformationpage.reviewed_by == request.user
 
 
 def test_applicationlist_success(rf, core_developer):
