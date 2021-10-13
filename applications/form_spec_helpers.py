@@ -70,6 +70,7 @@ class Field:
     help_text: str = ""
     template_name: str | None = None
     attributes: Attributes | None = None
+    optional: bool = False
 
     def form_context(self, form):
         template_lut = {
@@ -108,8 +109,19 @@ class Field:
     def review_context(self, page_instance):
         return {
             "label": self.label,
-            "value": getattr(page_instance, self.name),
+            "value": self.value(page_instance),
+            "is_valid": self.is_valid(page_instance),
         }
+
+    def is_valid(self, page_instance):
+        if self.optional:
+            return True
+
+        value = self.value(page_instance)
+        return value not in [None, ""]
+
+    def value(self, page_instance):
+        return getattr(page_instance, self.name)
 
 
 @dataclass
