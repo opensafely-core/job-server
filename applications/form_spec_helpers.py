@@ -7,6 +7,8 @@ from django.db.models import Model
 
 from applications.models import Application
 
+from .utils import value_for_presentation
+
 
 @dataclass
 class Form:
@@ -107,9 +109,10 @@ class Field:
         return context
 
     def review_context(self, page_instance):
+        value = value_for_presentation(self.value(page_instance))
         return {
             "label": self.label,
-            "value": self.value(page_instance),
+            "value": value,
             "is_valid": self.is_valid(page_instance),
         }
 
