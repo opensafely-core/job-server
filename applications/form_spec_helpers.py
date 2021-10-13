@@ -109,8 +109,11 @@ class Field:
     def review_context(self, page_instance):
         return {
             "label": self.label,
-            "value": getattr(page_instance, self.name),
+            "value": self.value(page_instance),
         }
+
+    def value(self, page_instance):
+        return getattr(page_instance, self.name)
 
 
 @dataclass
