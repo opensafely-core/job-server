@@ -20,7 +20,10 @@
 
       {% for field in fieldset.fields %}
       <dl class="row mb-1">
-        <dt class="col-6 mb-2">{{ field.label }}</dt>
+        <dt class="col-6 mb-2{% if not field.is_valid %} text-danger{% endif %}">
+          {{ field.label }}
+          {% if not field.is_valid %}*{% endif %}
+        </dt>
         <dd class="col-6">{{ field.value }}</dd>
       </dl>
       {% endfor %}
