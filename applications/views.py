@@ -171,7 +171,7 @@ def confirmation(request, pk):
     validate_application_access(request.user, application)
 
     wizard = Wizard(application, form_specs)
-    pages = list(wizard.get_pages())
+    pages = [page.review_context() for page in wizard.get_pages()]
     ctx = {
         "application": application,
         "pages": pages,
