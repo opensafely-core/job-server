@@ -63,7 +63,7 @@ def test_confirmation_post_invalid(rf, incomplete_application):
     assert response.status_code == 200
 
 
-def test_confirmation_post_success(rf, complete_application, mocker):
+def test_confirmation_post_success(rf, complete_application, mailoutbox, mocker):
     request = rf.post("/")
     request.user = complete_application.created_by
 
@@ -73,6 +73,8 @@ def test_confirmation_post_success(rf, complete_application, mocker):
     request._messages = messages
 
     mocked_slack = mocker.patch("applications.views.slack_client", autospec=True)
+
+    mail_count = len(mailoutbox)
 
     response = Confirmation.as_view()(request, pk=complete_application.pk)
 
@@ -86,6 +88,8 @@ def test_confirmation_post_success(rf, complete_application, mocker):
     assert str(messages[0]) == msg
 
     assert mocked_slack.chat_postMessage.call_count == 1
+
+    assert len(mailoutbox) == mail_count + 1
 
 
 def test_getnexturl_with_next_arg(rf):
