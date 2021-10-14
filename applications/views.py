@@ -4,6 +4,7 @@ from django.http import Http404
 from django.shortcuts import get_object_or_404, redirect
 from django.template.response import TemplateResponse
 from django.urls import reverse
+from django.utils.decorators import method_decorator
 from django.views.generic import CreateView, ListView, RedirectView, UpdateView, View
 
 from jobserver.authorization import has_permission
@@ -163,17 +164,38 @@ def terms(request):
     return redirect("applications:page", pk=application.pk, key=form_specs[0].key)
 
 
-@login_required
-def confirmation(request, pk):
-    application = get_object_or_404(Application, pk=pk)
+@method_decorator(login_required, name="dispatch")
+class Confirmation(View):
+    def dispatch(self, request, *args, **kwargs):
+        application = get_object_or_404(Application, pk=self.kwargs["pk"])
 
-    # check the user can access this application
-    validate_application_access(request.user, application)
+        # check the user can access this application
+        validate_application_access(request.user, application)
 
-    wizard = Wizard(application, form_specs)
-    pages = [page.review_context() for page in wizard.get_pages()]
-    ctx = {
-        "application": application,
-        "pages": pages,
-    }
-    return TemplateResponse(request, "applications/confirmation.html", ctx)
+        self.wizard = Wizard(application, form_specs)
+
+        return super().dispatch(request, *args, **kwargs)
+
+    def get(self, request, *args, **kwargs):
+        pages = [page.review_context() for page in self.wizard.get_pages()]
+
+        context = {
+            "application": self.wizard.application,
+            "is_valid": self.wizard.is_valid(),
+            "pages": pages,
+        }
+
+        return TemplateResponse(
+            request,
+            "applications/confirmation.html",
+            context=context,
+        )
+
+    def post(self, request, *args, **kwargs):
+        if not self.wizard.is_valid():
+            return self.get(request, *args, **kwargs)
+
+        # TODO: notify slack channel
+        # TODO: email user confirmation
+        messages.success(request, "Application submitted")
+        return redirect("applications:list")
