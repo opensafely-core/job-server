@@ -74,17 +74,18 @@ def test_applicationdetail_post_with_complete_application(
     freezer,
 ):
     application = complete_application
+
+    application.contactdetailspage.last_reviewed_at = None
+    application.contactdetailspage.reviewed_by = None
+    application.studyinformationpage.last_reviewed_at = None
+    application.studyinformationpage.reviewed_by = None
+
     data = {
         "contact-details-notes": "could do better",
         "contact-details-is_approved": "False",
         "study-information-notes": "couldn't do better",
         "study-information-is_approved": "True",
     }
-
-    assert application.contactdetailspage.last_reviewed_at is None
-    assert application.contactdetailspage.reviewed_by is None
-    assert application.studyinformationpage.last_reviewed_at is None
-    assert application.studyinformationpage.reviewed_by is None
 
     request = rf.post("/", data)
     request.user = core_developer
@@ -114,17 +115,18 @@ def test_applicationdetail_post_with_incomplete_application(
     freezer,
 ):
     application = incomplete_application
+
+    application.contactdetailspage.last_reviewed_at = None
+    application.contactdetailspage.reviewed_by = None
+    application.studyinformationpage.last_reviewed_at = None
+    application.studyinformationpage.reviewed_by = None
+
     data = {
         "contact-details-notes": "could do better",
         "contact-details-is_approved": "False",
         "study-information-notes": "couldn't do better",
         "study-information-is_approved": "True",
     }
-
-    assert application.contactdetailspage.last_reviewed_at is None
-    assert application.contactdetailspage.reviewed_by is None
-    assert application.studyinformationpage.last_reviewed_at is None
-    assert application.studyinformationpage.reviewed_by is None
 
     request = rf.post("/", data)
     request.user = core_developer
