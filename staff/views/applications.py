@@ -37,10 +37,9 @@ class ApplicationDetail(View):
         for page in pages:
             form = page.get_bound_approval_form(request.POST)
             if form.instance.pk and form.has_changed():
+                form.instance.last_reviewed_at = review_time
+                form.instance.reviewed_by = request.user
                 form.save()
-                page.instance.last_reviewed_at = review_time
-                page.instance.reviewed_by = request.user
-                page.instance.save()
 
         return redirect("staff:application-detail", application.pk)
 
