@@ -45,6 +45,7 @@ def get_next_url(get_args):
         return reverse("applications:list")
 
 
+@method_decorator(login_required, name="dispatch")
 class ApplicationList(ListView):
     context_object_name = "applications"
     template_name = "applications/application_list.html"
