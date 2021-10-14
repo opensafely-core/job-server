@@ -1,6 +1,7 @@
 from django.db.models import Q
 from django.shortcuts import get_object_or_404, redirect
 from django.template.response import TemplateResponse
+from django.utils import timezone
 from django.utils.decorators import method_decorator
 from django.views.generic import ListView, View
 
@@ -31,9 +32,13 @@ class ApplicationDetail(View):
         wizard = Wizard(application, form_specs)
         pages = list(wizard.get_pages())
 
+        review_time = timezone.now()
+
         for page in pages:
             form = page.get_bound_approval_form(request.POST)
-            if form.instance.pk:
+            if form.instance.pk and form.has_changed():
+                form.instance.last_reviewed_at = review_time
+                form.instance.reviewed_by = request.user
                 form.save()
 
         return redirect("staff:application-detail", application.pk)

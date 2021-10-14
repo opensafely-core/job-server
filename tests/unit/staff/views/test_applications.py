@@ -1,6 +1,7 @@
 import pytest
 from django.core.exceptions import ObjectDoesNotExist, PermissionDenied
 from django.http import Http404
+from django.utils import timezone
 
 from jobserver.utils import set_from_qs
 from staff.views.applications import ApplicationDetail, ApplicationList
@@ -67,7 +68,10 @@ def test_applicationdetail_without_core_dev_role(rf):
 
 
 def test_applicationdetail_post_with_complete_application(
-    rf, core_developer, complete_application
+    rf,
+    core_developer,
+    complete_application,
+    freezer,
 ):
     application = complete_application
     data = {
@@ -77,6 +81,11 @@ def test_applicationdetail_post_with_complete_application(
         "study-information-is_approved": "True",
     }
 
+    assert application.contactdetailspage.last_reviewed_at is None
+    assert application.contactdetailspage.reviewed_by is None
+    assert application.studyinformationpage.last_reviewed_at is None
+    assert application.studyinformationpage.reviewed_by is None
+
     request = rf.post("/", data)
     request.user = core_developer
 
@@ -85,14 +94,24 @@ def test_applicationdetail_post_with_complete_application(
     assert response.status_code == 302
 
     application.refresh_from_db()
+
     assert application.contactdetailspage.notes == "could do better"
     assert application.contactdetailspage.is_approved is False
     assert application.studyinformationpage.notes == "couldn't do better"
     assert application.studyinformationpage.is_approved is True
 
+    now = timezone.now()
+    assert application.contactdetailspage.last_reviewed_at == now
+    assert application.contactdetailspage.reviewed_by == request.user
+    assert application.studyinformationpage.last_reviewed_at == now
+    assert application.studyinformationpage.reviewed_by == request.user
+
 
 def test_applicationdetail_post_with_incomplete_application(
-    rf, core_developer, incomplete_application
+    rf,
+    core_developer,
+    incomplete_application,
+    freezer,
 ):
     application = incomplete_application
     data = {
@@ -102,6 +121,11 @@ def test_applicationdetail_post_with_incomplete_application(
         "study-information-is_approved": "True",
     }
 
+    assert application.contactdetailspage.last_reviewed_at is None
+    assert application.contactdetailspage.reviewed_by is None
+    assert application.studyinformationpage.last_reviewed_at is None
+    assert application.studyinformationpage.reviewed_by is None
+
     request = rf.post("/", data)
     request.user = core_developer
 
@@ -114,6 +138,12 @@ def test_applicationdetail_post_with_incomplete_application(
     assert application.contactdetailspage.is_approved is False
     assert application.studyinformationpage.notes == "couldn't do better"
     assert application.studyinformationpage.is_approved is True
+
+    now = timezone.now()
+    assert application.contactdetailspage.last_reviewed_at == now
+    assert application.contactdetailspage.reviewed_by == request.user
+    assert application.studyinformationpage.last_reviewed_at == now
+    assert application.studyinformationpage.reviewed_by == request.user
 
     # Check that a page instance has not been created
     with pytest.raises(ObjectDoesNotExist):
