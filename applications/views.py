@@ -1,3 +1,4 @@
+from django.conf import settings
 from django.contrib import messages
 from django.contrib.auth.decorators import login_required
 from django.http import Http404
@@ -6,13 +7,24 @@ from django.template.response import TemplateResponse
 from django.urls import reverse
 from django.utils.decorators import method_decorator
 from django.views.generic import CreateView, ListView, RedirectView, UpdateView, View
+from furl import furl
 
 from jobserver.authorization import has_permission
+from services.slack import client as slack_client
 
 from .form_specs import form_specs
 from .forms import ResearcherRegistrationForm
 from .models import Application, ResearcherRegistration
 from .wizard import Wizard
+
+
+def notify_slack(application, msg):
+    f = furl(settings.BASE_URL)
+    f.path = application.get_staff_url()
+    slack_client.chat_postMessage(
+        channel="job-server-applications",
+        text=f"{msg}: {f.url}",
+    )
 
 
 def validate_application_access(user, application):
@@ -161,6 +173,9 @@ def terms(request):
         return TemplateResponse(request, "applications/terms.html")
 
     application = Application.objects.create(created_by=request.user)
+
+    notify_slack(application, "New application started")
+
     return redirect("applications:page", pk=application.pk, key=form_specs[0].key)
 
 
@@ -195,7 +210,8 @@ class Confirmation(View):
         if not self.wizard.is_valid():
             return self.get(request, *args, **kwargs)
 
-        # TODO: notify slack channel
+        notify_slack(self.wizard.application, "Application submitted")
+
         # TODO: email user confirmation
         messages.success(request, "Application submitted")
         return redirect("applications:list")
