@@ -68,7 +68,10 @@ def test_applicationdetail_without_core_dev_role(rf):
 
 
 def test_applicationdetail_post_with_complete_application(
-    rf, core_developer, complete_application
+    rf,
+    core_developer,
+    complete_application,
+    freezer,
 ):
     application = complete_application
     data = {
@@ -78,6 +81,11 @@ def test_applicationdetail_post_with_complete_application(
         "study-information-is_approved": "True",
     }
 
+    assert application.contactdetailspage.last_reviewed_at is None
+    assert application.contactdetailspage.reviewed_by is None
+    assert application.studyinformationpage.last_reviewed_at is None
+    assert application.studyinformationpage.reviewed_by is None
+
     request = rf.post("/", data)
     request.user = core_developer
 
@@ -86,14 +94,24 @@ def test_applicationdetail_post_with_complete_application(
     assert response.status_code == 302
 
     application.refresh_from_db()
+
     assert application.contactdetailspage.notes == "could do better"
     assert application.contactdetailspage.is_approved is False
     assert application.studyinformationpage.notes == "couldn't do better"
     assert application.studyinformationpage.is_approved is True
 
+    now = timezone.now()
+    assert application.contactdetailspage.last_reviewed_at == now
+    assert application.contactdetailspage.reviewed_by == request.user
+    assert application.studyinformationpage.last_reviewed_at == now
+    assert application.studyinformationpage.reviewed_by == request.user
+
 
 def test_applicationdetail_post_with_incomplete_application(
-    rf, core_developer, incomplete_application
+    rf,
+    core_developer,
+    incomplete_application,
+    freezer,
 ):
     application = incomplete_application
     data = {
@@ -103,6 +121,11 @@ def test_applicationdetail_post_with_incomplete_application(
         "study-information-is_approved": "True",
     }
 
+    assert application.contactdetailspage.last_reviewed_at is None
+    assert application.contactdetailspage.reviewed_by is None
+    assert application.studyinformationpage.last_reviewed_at is None
+    assert application.studyinformationpage.reviewed_by is None
+
     request = rf.post("/", data)
     request.user = core_developer
 
@@ -115,6 +138,12 @@ def test_applicationdetail_post_with_incomplete_application(
     assert application.contactdetailspage.is_approved is False
     assert application.studyinformationpage.notes == "couldn't do better"
     assert application.studyinformationpage.is_approved is True
+
+    now = timezone.now()
+    assert application.contactdetailspage.last_reviewed_at == now
+    assert application.contactdetailspage.reviewed_by == request.user
+    assert application.studyinformationpage.last_reviewed_at == now
+    assert application.studyinformationpage.reviewed_by == request.user
 
     # Check that a page instance has not been created
     with pytest.raises(ObjectDoesNotExist):
@@ -135,37 +164,6 @@ def test_applicationlist_search(rf, core_developer):
 
     assert len(response.context_data["object_list"]) == 2
     assert set_from_qs(response.context_data["object_list"]) == {app1.pk, app2.pk}
-
-
-def test_applicationdetail_updates_review_details_following_review(
-    rf, core_developer, complete_application, freezer
-):
-    application = complete_application
-    data = {
-        "contact-details-notes": "could do better",
-        "contact-details-is_approved": "True",
-        "study-information-notes": "couldn't do better",
-        "study-information-is_approved": "False",
-    }
-    assert application.contactdetailspage.last_reviewed_at is None
-    assert application.contactdetailspage.reviewed_by is None
-    assert application.studyinformationpage.last_reviewed_at is None
-    assert application.studyinformationpage.reviewed_by is None
-
-    request = rf.post("/", data)
-    request.user = core_developer
-
-    response = ApplicationDetail.as_view()(request, pk=application.pk)
-
-    assert response.status_code == 302
-
-    application.refresh_from_db()
-
-    now = timezone.now()
-    assert application.contactdetailspage.last_reviewed_at == now
-    assert application.contactdetailspage.reviewed_by == request.user
-    assert application.studyinformationpage.last_reviewed_at == now
-    assert application.studyinformationpage.reviewed_by == request.user
 
 
 def test_applicationlist_success(rf, core_developer):
