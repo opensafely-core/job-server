@@ -40,7 +40,7 @@
     <div class="col col-lg-9 col-xl-8">
       <div class="list-group list-unstyled">
         {% for application in applications %}
-        <a href="{% url 'applications:page' pk=application.pk page_num=1 %}"
+        <a href="{{ application.get_absolute_url }}"
           class="list-group-item list-group-item-action">
           Application {{ application.pk }} started on {{ application.created_at|date }}
         </a>
