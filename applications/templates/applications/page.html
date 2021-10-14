@@ -102,6 +102,39 @@
           Continue
         </button>
       </form>
+
+      <hr>
+
+      {% if page.page_instance.last_reviewed_at is not None %}
+      <h2 class="h3 mb-3">OpenSAFELY review</h2>
+        <ul>
+          <li>
+            Page last reviewed at: {{ page.page_instance.last_reviewed_at }}
+          </li>
+
+          {% if page.page_instance.is_approved %}
+          <li>
+            Page approved &checkmark;
+          </li>
+          {% elif not page.page_instance.is_approved %}
+          <li>
+            Page not approved &cross;
+          </li>
+          {% else %}
+          <li>
+            Page not yet reviewed.
+          </li>
+          {% endif %}
+
+          {% if page.page_instance.notes %}
+          <li>Reviewer's notes:
+            <br>
+            {{ page.page_instance.notes }}
+          </li>
+          {% endif %}
+        </ul>
+
+      {% endif %}
       {% endif %}
     </div>
   </div>
