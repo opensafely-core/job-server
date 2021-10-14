@@ -36,9 +36,9 @@
             Page last reviewed at: {{ page.wizard_page.page_instance.last_reviewed_at }}
           </li>
 
-          {% if page.wizard_page.page_instance.is_approved %}
+          {% if page.wizard_page.page_instance.is_approved is None %}
           <li>
-            Page approved &checkmark;
+            Page is still awaiting an approval decision.
           </li>
           {% elif not page.wizard_page.page_instance.is_approved %}
           <li>
@@ -46,7 +46,7 @@
           </li>
           {% else %}
           <li>
-            Page not yet reviewed.
+            Page approved &checkmark;
           </li>
           {% endif %}
 

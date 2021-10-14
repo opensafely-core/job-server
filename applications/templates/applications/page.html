@@ -112,9 +112,9 @@
             Page last reviewed at: {{ page.page_instance.last_reviewed_at }}
           </li>
 
-          {% if page.page_instance.is_approved %}
+          {% if page.page_instance.is_approved is None %}
           <li>
-            Page approved &checkmark;
+            Page is still awaiting an approval decision.
           </li>
           {% elif not page.page_instance.is_approved %}
           <li>
@@ -122,7 +122,7 @@
           </li>
           {% else %}
           <li>
-            Page not yet reviewed.
+            Page approved &checkmark;
           </li>
           {% endif %}
 
