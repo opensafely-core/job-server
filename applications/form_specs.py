@@ -160,11 +160,11 @@ form_specs = [
                 ],
             ),
             Fieldset(
-                label="Are you requesting record level data?",
+                label="",
                 fields=[
                     Field(
                         name="need_record_level_data",
-                        label="",
+                        label="Are you requesting record level data?",
                     ),
                 ],
             ),
@@ -300,11 +300,11 @@ form_specs = [
         rubric="",
         fieldsets=[
             Fieldset(
-                label="Is your research on the CMO Priority list?",
+                label="",
                 fields=[
                     Field(
                         name="is_on_cmo_priority_list",
-                        label="",
+                        label="Is your research on the CMO Priority list?",
                         help_text=snippet("is_on_cmo_priority_list_help_text"),
                     ),
                 ],
@@ -421,11 +421,11 @@ form_specs = [
                 ],
             ),
             Fieldset(
-                label="Have all applicants for OpenSAFELY access completed the Getting Started tutorial?",
+                label="",
                 fields=[
                     Field(
                         name="all_applicants_completed_getting_started",
-                        label="",
+                        label="Have all applicants for OpenSAFELY access completed the Getting Started tutorial?",
                         help_text=snippet("14-fieldset0-field1-help_text"),
                     ),
                 ],

@@ -81,9 +81,11 @@
 
         {% for fieldset in fieldsets %}
           <fieldset class="d-flex flex-column mb-4 {% if not forloop.last %}pb-4 border-bottom{% endif %}">
+            {% if fieldset.label %}
             <legend class="mb-0">
               <h2 class="h3 mb-3">{{ fieldset.label }}</h2>
             </legend>
+            {% endif %}
             {% for field in fieldset.fields %}
               {% include field.template_name with field=field.field label=field.label name=field.name extra_attributes=field.attributes %}
             {% endfor %}
