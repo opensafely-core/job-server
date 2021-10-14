@@ -33,6 +33,9 @@ class Form:
             "template_name": self.template_name,
         }
 
+    def is_valid(self, page_instance):
+        return all(fieldset.is_valid(page_instance) for fieldset in self.fieldsets)
+
     def review_context(self, page_instance):
         return {
             "title": self.title,
@@ -53,6 +56,9 @@ class Fieldset:
             "label": self.label,
             "fields": [field_spec.form_context(form) for field_spec in self.fields],
         }
+
+    def is_valid(self, page_instance):
+        return all(field.is_valid(page_instance) for field in self.fields)
 
     def review_context(self, page_instance):
         return {
