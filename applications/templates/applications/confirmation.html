@@ -27,6 +27,21 @@
       {% endfor %}
 
       {% endfor %}
+
+      <form method="POST">
+        {% csrf_token %}
+        <button
+          class="btn btn-lg btn-success mt-3"
+          type="submit"
+          {% if not is_valid %}
+          disabled
+          aria-disabled="true"
+          {% endif %}
+        >
+          Submit
+        </button>
+      </form>
+
     </div>
   </div>
 </article>

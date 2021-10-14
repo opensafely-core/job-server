@@ -8,11 +8,11 @@ from applications.form_specs import form_specs
 from applications.models import Application, ResearcherRegistration, TypeOfStudyPage
 from applications.views import (
     ApplicationList,
+    Confirmation,
     PageRedirect,
     ResearcherCreate,
     ResearcherDelete,
     ResearcherEdit,
-    confirmation,
     get_next_url,
     page,
     sign_in,
@@ -36,6 +36,52 @@ def test_applicationlist_success(rf):
 
     assert response.status_code == 200
     assert len(response.context_data["applications"]) == 5
+
+
+def test_confirmation_get_success(rf, incomplete_application):
+    request = rf.get("/")
+    request.user = incomplete_application.created_by
+
+    response = Confirmation.as_view()(request, pk=incomplete_application.pk)
+
+    assert response.status_code == 200
+
+    assert response.context_data["application"] == incomplete_application
+
+    # check each relevant page is displayed on the confirmation page
+    specs = [s for s in form_specs if s.prerequisite(incomplete_application)]
+    for spec in specs:
+        assert spec.title in response.rendered_content
+
+
+def test_confirmation_post_invalid(rf, incomplete_application):
+    request = rf.post("/")
+    request.user = incomplete_application.created_by
+
+    response = Confirmation.as_view()(request, pk=incomplete_application.pk)
+
+    assert response.status_code == 200
+
+
+def test_confirmation_post_success(rf, complete_application):
+    request = rf.post("/")
+    request.user = complete_application.created_by
+
+    # set up messages framework
+    request.session = "session"
+    messages = FallbackStorage(request)
+    request._messages = messages
+
+    response = Confirmation.as_view()(request, pk=complete_application.pk)
+
+    assert response.status_code == 302
+    assert response.url == reverse("applications:list")
+
+    # check we have a message for the user
+    messages = list(messages)
+    assert len(messages) == 1
+    msg = "Application submitted"
+    assert str(messages[0]) == msg
 
 
 def test_getnexturl_with_next_arg(rf):
@@ -212,23 +258,6 @@ def test_researcheredit_unknown_researcher(rf):
 
     with pytest.raises(Http404):
         ResearcherEdit.as_view()(request, pk=0, researcher_pk=0)
-
-
-def test_confirmation_success(rf):
-    user = UserFactory()
-    application = ApplicationFactory(created_by=user)
-
-    request = rf.get("/")
-    request.user = user
-
-    response = confirmation(request, pk=application.pk)
-
-    assert response.status_code == 200
-
-    assert response.context_data["application"] == application
-    for spec in form_specs:
-        if spec.prerequisite(application):
-            assert spec.title in response.rendered_content
 
 
 def test_return_to_confirmation_once_reached(rf, complete_application):

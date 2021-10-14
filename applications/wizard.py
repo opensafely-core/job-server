@@ -36,6 +36,9 @@ class Wizard:
             if page.status == UNSTARTED:
                 return page.key
 
+    def is_valid(self):
+        return all(p.form_spec.is_valid(p.page_instance) for p in self.get_pages())
+
     def progress_percent(self):
         """Return user's progress through wizard as a percentage."""
 

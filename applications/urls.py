@@ -3,11 +3,11 @@ from django.views.generic import RedirectView, TemplateView
 
 from .views import (
     ApplicationList,
+    Confirmation,
     PageRedirect,
     ResearcherCreate,
     ResearcherDelete,
     ResearcherEdit,
-    confirmation,
     page,
     sign_in,
     terms,
@@ -37,6 +37,10 @@ urlpatterns = [
     path("applications/", ApplicationList.as_view(), name="list"),
     path("applications/<int:pk>/", PageRedirect.as_view(), name="detail"),
     path("applications/<int:pk>/page/<str:key>/", page, name="page"),
-    path("applications/<int:pk>/confirmation/", confirmation, name="confirmation"),
+    path(
+        "applications/<int:pk>/confirmation/",
+        Confirmation.as_view(),
+        name="confirmation",
+    ),
     path("applications/<int:pk>/researchers/", include(researcher_urls)),
 ]
