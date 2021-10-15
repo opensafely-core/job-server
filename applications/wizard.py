@@ -3,6 +3,7 @@ from django.shortcuts import redirect
 from django.utils.functional import cached_property
 
 from .forms import PageFormBase
+from .researchers import build_researcher_form
 
 
 UNSTARTED = "unstarted"
@@ -37,7 +38,18 @@ class Wizard:
                 return page.key
 
     def is_valid(self):
-        return all(p.form_spec.is_valid(p.page_instance) for p in self.get_pages())
+        pages_valid = all(
+            p.form_spec.is_valid(p.page_instance) for p in self.get_pages()
+        )
+        if not pages_valid:
+            return False
+
+        for researcher in self.application.researcher_registrations.all():
+            form = build_researcher_form(researcher)
+            if not form.is_valid():
+                return False
+
+        return True
 
     def progress_percent(self):
         """Return user's progress through wizard as a percentage."""

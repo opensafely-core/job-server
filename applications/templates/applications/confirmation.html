@@ -31,6 +31,87 @@
 
       {% endfor %}
 
+      <section class="mb-3 pb-3 border-bottom">
+
+        {% for form in researchers %}
+        <div class="card mb-3">
+          <div class="card-header">
+            <h2 class="h5">Researcher {{ forloop.counter }}</h2>
+          </div>
+
+          <div class="card-body">
+            <dl class="row">
+              <dt class="col-7{% if form.name.errors %} text-danger{% endif %}">
+                Name{% if form.name.errors %}*{% endif %}:
+              </dt>
+              <dd class="col-5">{{ form.name.value }}</dd>
+
+              <dt class="col-7{% if form.job_title.errors %} text-danger{% endif %}">
+                Job title{% if form.job_title.errors %}*{% endif %}:
+              </dt>
+              <dd class="col-5">{{ form.job_title.value }}</dd>
+
+              <dt class="col-7{% if form.email.errors %} text-danger{% endif %}">
+                Email{% if form.email.errors %}*{% endif %}:
+              </dt>
+              <dd class="col-5">{{ form.email.value }}</dd>
+            </dl>
+
+            <dl class="row">
+              <dt class="col-7{% if form.does_researcher_need_server_access.errors %} text-danger{% endif %}">
+                Do they need access to the results server?
+                {% if form.does_researcher_need_server_access.errors %}*{% endif %}
+              </dt>
+              <dd class="col-5">{{ form.does_researcher_need_server_access.value|default_if_none:"Not supplied"}}</dd>
+
+              <dt class="col-7{% if form.telephone.errors %} text-danger{% endif %}">
+                Phone number{% if form.telephone.errors %}*{% endif %}:
+                {% for error in form.telephone.errors %}
+                <p>{{ error }}</p>
+                {% endfor %}
+              </dt>
+              <dd class="col-5">{{ form.telephone.value|default:"Not supplied" }}</dd>
+
+              <dt class="col-7{% if form.phone_type.errors %} text-danger{% endif %}">
+                Type of phone{% if form.phone_type.errors %}*{% endif %}:
+                {% for error in form.phone_type.errors %}
+                <p>{{ error }}</p>
+                {% endfor %}
+              </dt>
+              <dd class="col-5">{{ form.get_phone_type_display|default:"Not supplied" }}</dd>
+            </dl>
+
+            <dl class="row">
+              <dt class="col-7{% if form.has_taken_safe_researcher_training.errors %} text-danger{% endif %}">
+                Have they undertaken safe researcher training?
+                {% if form.has_taken_safe_researcher_training.errors %}*{% endif %}
+              </dt>
+              <dd class="col-5">{{ form.has_taken_safe_researcher_training.value|default_if_none:"Not supplied" }}</dd>
+
+              <dt class="col-7{% if form.training_with_org.errors %} text-danger{% endif %}">
+                Organisation training completed with{% if form.training_with_org.errors %}*{% endif %}:
+                {% for error in form.training_with_org.errors %}
+                <p>{{ error }}</p>
+                {% endfor %}
+              </dt>
+              <dd class="col-5">{{ form.training_with_org.value|default:"Not supplied" }}</dd>
+
+              <dt class="col-7{% if form.training_passed_at.errors %} text-danger{% endif %}">
+                Training passed on{% if form.training_passed_at.errors %}*{% endif %}:
+                {% for error in form.training_passed_at.errors %}
+                <p>{{ error }}</p>
+                {% endfor %}
+              </dt>
+              <dd class="col-5">
+                {{ form.training_passed_at.value|date:"Y-m-d"|default:"Not supplied" }}
+              </dd>
+            </dl>
+          </div>
+        </div>
+        {% endfor %}
+
+      </section>
+
       <form method="POST">
         {% csrf_token %}
         <button

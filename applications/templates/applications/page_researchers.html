@@ -23,27 +23,25 @@
 
       <dl class="row">
         <dt class="col-7">Do they need access to the results server?</dt>
-        <dd class="col-5">{{ researcher.get_does_researcher_need_server_access_display |default_if_none:"N/A"}}</dd>
+        <dd class="col-5">{{ researcher.get_does_researcher_need_server_access_display |default_if_none:"Not supplied"}}</dd>
 
         <dt class="col-7">Phone number:</dt>
-        <dd class="col-5">{{ researcher.telephone|default:"N/A" }}</dd>
+        <dd class="col-5">{{ researcher.telephone|default:"Not supplied" }}</dd>
 
         <dt class="col-7">Type of phone:</dt>
-        <dd class="col-5">{{ researcher.get_phone_type_display|default:"N/A" }}</dd>
+        <dd class="col-5">{{ researcher.get_phone_type_display|default:"Not supplied" }}</dd>
       </dl>
 
       <dl class="row">
         <dt class="col-7">Have they undertaken safe researcher training?</dt>
-        <dd class="col-5">{{ researcher.get_has_taken_safe_researcher_training_display|default_if_none:"N/A" }}</dd>
+        <dd class="col-5">{{ researcher.get_has_taken_safe_researcher_training_display|default_if_none:"Not supplied" }}</dd>
 
         <dt class="col-7">Organisation training completed with:</dt>
-        <dd class="col-5">{{ researcher.training_with_org|default:"N/A" }}</dd>
+        <dd class="col-5">{{ researcher.training_with_org|default:"Not supplied" }}</dd>
 
         <dt class="col-7">Training passed on:</dt>
         <dd class="col-5">
-          {% if researcher.training_passed_at %}
-          {{ researcher.training_passed_at|date:"Y-m-d"|default:"N/A" }}
-          {% endif %}
+          {{ researcher.training_passed_at|date:"Y-m-d"|default:"Not supplied" }}
         </dd>
       </dl>
 

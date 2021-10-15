@@ -14,8 +14,9 @@ from services.slack import client as slack_client
 
 from .emails import send_submitted_application_email
 from .form_specs import form_specs
-from .forms import ResearcherRegistrationForm
+from .forms import ResearcherRegistrationPageForm
 from .models import Application, ResearcherRegistration
+from .researchers import build_researcher_form
 from .wizard import Wizard
 
 
@@ -66,7 +67,7 @@ class PageRedirect(RedirectView):
 
 
 class ResearcherCreate(CreateView):
-    form_class = ResearcherRegistrationForm
+    form_class = ResearcherRegistrationPageForm
     model = ResearcherRegistration
     template_name = "applications/researcher_form.html"
 
@@ -106,7 +107,7 @@ class ResearcherDelete(View):
 
 
 class ResearcherEdit(UpdateView):
-    form_class = ResearcherRegistrationForm
+    form_class = ResearcherRegistrationPageForm
     model = ResearcherRegistration
     template_name = "applications/researcher_form.html"
 
@@ -196,10 +197,15 @@ class Confirmation(View):
     def get(self, request, *args, **kwargs):
         pages = [page.review_context() for page in self.wizard.get_pages()]
 
+        researchers = [
+            build_researcher_form(r)
+            for r in self.wizard.application.researcher_registrations.order_by("name")
+        ]
         context = {
             "application": self.wizard.application,
             "is_valid": self.wizard.is_valid(),
             "pages": pages,
+            "researchers": researchers,
         }
 
         return TemplateResponse(

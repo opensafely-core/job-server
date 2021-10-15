@@ -32,7 +32,7 @@ class YesNoField(forms.TypedChoiceField):
         )
 
 
-class ResearcherRegistrationForm(forms.ModelForm):
+class ResearcherRegistrationPageForm(forms.ModelForm):
     does_researcher_need_server_access = YesNoField()
     has_taken_safe_researcher_training = YesNoField()
     phone_type = forms.TypedChoiceField(
@@ -55,3 +55,61 @@ class ResearcherRegistrationForm(forms.ModelForm):
             "training_passed_at",
         ]
         model = ResearcherRegistration
+
+
+class ResearcherRegistrationSubmissionForm(ResearcherRegistrationPageForm):
+    """
+    Submission form for Researchers
+
+    When submitting an application we want to do extra validation of the
+    fields, however researchers are separate to pages so we can't use the
+    existing submission validation to do that.  Instead we take the form used
+    to create/edit researchers and add cross-field validation to it.
+    """
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+
+        self.fields["does_researcher_need_server_access"].required = True
+        self.fields["has_taken_safe_researcher_training"].required = True
+
+    def clean(self):
+        cleaned_data = super().clean()
+
+        # require number and phone type if the user is going to need server
+        # access.
+        does_researcher_need_server_access = cleaned_data.get(
+            "does_researcher_need_server_access", False
+        )
+        telephone = cleaned_data["telephone"]
+        phone_type = cleaned_data.get("phone_type", None)
+        if does_researcher_need_server_access:
+            if not telephone:
+                msg = "A phone number is required to access the results server."
+                self.add_error("telephone", msg)
+
+            if not phone_type:
+                msg = "A phone type is required to access the results server."
+                self.add_error("phone_type", msg)
+
+        # require training org and pass date when researcher has taken safe
+        # researcher training.
+        has_taken_safe_researcher_training = cleaned_data.get(
+            "has_taken_safe_researcher_training", False
+        )
+        training_with_org = cleaned_data["training_with_org"]
+        training_passed_at = cleaned_data["training_passed_at"]
+        if has_taken_safe_researcher_training:
+            if not training_with_org:
+                msg = (
+                    "When a researcher has undertaken safe researcher training we "
+                    "need to know the organisation they completed it with."
+                )
+                self.add_error("training_with_org", msg)
+
+            if not training_passed_at:
+                msg = (
+                    "When a researcher has undertaken safe researcher training we "
+                    "need to know the date they passed the course."
+                )
+                self.add_error("training_passed_at", msg)
