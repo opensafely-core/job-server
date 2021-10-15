@@ -5,7 +5,14 @@ from jobserver.backends import backends_to_choices
 from jobserver.models import Backend
 
 
-class OrgAddMemberForm(forms.Form):
+class AddMemberForm(forms.Form):
+    """
+    A generic form for adding Members to another object.
+
+    We connect users to different objects (eg Orgs) via membership models.  In
+    the Staff Area we want a UI to handle creating those connections.
+    """
+
     def __init__(self, users, *args, **kwargs):
         super().__init__(*args, **kwargs)
 
