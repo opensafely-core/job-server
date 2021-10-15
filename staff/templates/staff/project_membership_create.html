@@ -1,0 +1,99 @@
+{% extends "staff/base.html" %}
+
+{% load static %}
+
+{% block extra_styles %}
+<link rel="stylesheet" href="{% static 'vendor/select2.min.css' %}">
+<link rel="stylesheet" href="{% static 'vendor/select2-bootstrap4.min.css' %}">
+{% endblock %}
+
+{% block metatitle %}Invite users: {{ project.name }} | OpenSAFELY Jobs{% endblock metatitle %}
+
+{% block breadcrumbs %}
+<nav class="breadcrumb-container breadcrumb--danger" aria-label="breadcrumb">
+  <div class="container">
+    <ol class="breadcrumb rounded-0 mb-0 px-0">
+      <li class="breadcrumb-item">
+        <a href="{% url 'staff:index' %}">Staff area</a>
+      </li>
+      <li class="breadcrumb-item">
+        <a href="{% url 'staff:project-list' %}">Projects</a>
+      </li>
+      <li class="breadcrumb-item active" aria-current="page">
+        <a href="{{ project.get_staff_url }}">{{ project.name }}</a>
+      </li>
+      <li class="breadcrumb-item active" aria-current="page">
+        Add users
+      </li>
+    </ol>
+  </div>
+</nav>
+{% endblock breadcrumbs %}
+
+{% block jumbotron %}
+<div class="jumbotron jumbotron-fluid jumbotron--danger pt-md-2">
+  <div class="container">
+    <h1 class="display-4">Add users</h1>
+    <p class="lead">
+      Add users to collaborate on {{ project.name }}
+    </p>
+  </div>
+</div>
+{% endblock jumbotron %}
+
+{% block content %}
+<div class="container">
+  <div class="row">
+    <div class="col-lg-9 col-xl-8">
+      <h2 class="sr-only">Add users</h2>
+
+      <form class="mt-3 pt-3" method="POST">
+        {% csrf_token %}
+
+        {% if form.non_field_errors %}
+          <ul>
+            {% for error in form.non_field_errors %}
+              <li class="text-danger">{{ error }}</li>
+            {% endfor %}
+          </ul>
+        {% endif %}
+
+        <fieldset class="mb-3">
+          <legend class="h3 mb-3">Select users</legend>
+
+          <div class="form-group">
+            <select id="id_users" name="users" multiple required>
+              {% for value, label in form.fields.users.choices %}
+                <option value="{{ value }}">{{ label }}</option>
+              {% endfor %}
+            </select>
+
+            {% for error in form.users.errors %}
+              <p class="text-danger">{{ error }}</p>
+            {% endfor %}
+          </div>
+        </fieldset>
+
+        {% include "components/form_roles.html" with field=form.roles label="Roles" name="roles" %}
+
+        <button class="btn btn-success" type="submit">Add users</button>
+      </form>
+    </div>
+  </div>
+</div>
+
+{% endblock %}
+
+{% block extra_js %}
+<script type="text/javascript" src="{% static 'vendor/select2.min.js' %}"></script>
+<script type="text/javascript">
+  $(document).ready(function() {
+    $('#id_users').select2({
+      placeholder: "Select 1 or more users to add",
+      selectionCssClass: ":all:",
+      theme: "bootstrap4",
+      width: "100%"
+    });
+  });
+</script>
+{% endblock %}

@@ -4,7 +4,13 @@ from .views.applications import ApplicationDetail, ApplicationList
 from .views.backends import BackendDetail, BackendEdit, BackendList, BackendRotateToken
 from .views.index import Index
 from .views.orgs import OrgDetail, OrgEdit, OrgList, OrgProjectCreate, OrgRemoveMember
-from .views.projects import ProjectDetail, ProjectEdit, ProjectList, ProjectRemoveMember
+from .views.projects import (
+    ProjectAddMember,
+    ProjectDetail,
+    ProjectEdit,
+    ProjectList,
+    ProjectRemoveMember,
+)
 from .views.repos import RepoList
 from .views.users import UserDetail, UserList, UserSetOrgs
 from .views.workspaces import WorkspaceDetail, WorkspaceList
@@ -38,6 +44,7 @@ org_urls = [
 project_urls = [
     path("", ProjectList.as_view(), name="project-list"),
     path("<slug>/", ProjectDetail.as_view(), name="project-detail"),
+    path("<slug>/add-member/", ProjectAddMember.as_view(), name="project-add-member"),
     path("<slug>/edit/", ProjectEdit.as_view(), name="project-edit"),
     path(
         "<slug>/remove-member/",

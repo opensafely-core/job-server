@@ -28,6 +28,10 @@ class AddMemberForm(forms.Form):
             yield user.pk, label
 
 
+class ProjectAddMemberForm(RolesForm, AddMemberForm):
+    pass
+
+
 class UserForm(RolesForm):
     is_superuser = forms.BooleanField(required=False)
 

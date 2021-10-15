@@ -3,8 +3,10 @@ from django.contrib.messages.storage.fallback import FallbackStorage
 from django.core.exceptions import PermissionDenied
 from django.http import Http404
 
+from jobserver.authorization import ProjectDeveloper
 from jobserver.utils import set_from_qs
 from staff.views.projects import (
+    ProjectAddMember,
     ProjectDetail,
     ProjectEdit,
     ProjectList,
@@ -12,6 +14,56 @@ from staff.views.projects import (
 )
 
 from ....factories import ProjectFactory, ProjectMembershipFactory, UserFactory
+
+
+def test_projectaddmember_get_success(rf, core_developer):
+    project = ProjectFactory()
+
+    request = rf.get("/")
+    request.user = core_developer
+
+    response = ProjectAddMember.as_view()(request, slug=project.slug)
+
+    assert response.status_code == 200
+    assert response.context_data["project"] == project
+
+
+def test_projectaddmember_post_success(rf, core_developer):
+    project = ProjectFactory()
+    user1 = UserFactory()
+    user2 = UserFactory()
+
+    data = {
+        "roles": ["jobserver.authorization.roles.ProjectDeveloper"],
+        "users": [user1.pk, user2.pk],
+    }
+    request = rf.post("/", data)
+    request.user = core_developer
+
+    response = ProjectAddMember.as_view()(request, slug=project.slug)
+
+    assert response.status_code == 302
+    assert response.url == project.get_staff_url()
+
+    assert set_from_qs(project.members.all()) == {user1.pk, user2.pk}
+
+    assert project.memberships.filter(roles=[ProjectDeveloper]).count() == 2
+
+
+def test_projectaddmember_unauthorized(rf, core_developer):
+    request = rf.post("/")
+    request.user = UserFactory()
+
+    with pytest.raises(PermissionDenied):
+        ProjectAddMember.as_view()(request)
+
+
+def test_projectaddmember_unknown_project(rf, core_developer):
+    request = rf.post("/")
+    request.user = core_developer
+
+    with pytest.raises(Http404):
+        ProjectRemoveMember.as_view()(request, slug="test")
 
 
 def test_projectdetail_success(rf, core_developer):
