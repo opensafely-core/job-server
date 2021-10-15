@@ -45,13 +45,6 @@ class OrgDetail(FormView):
             "users": self.object.members.values_list("pk", flat=True),
         }
 
-    def post(self, request, *args, **kwargs):
-        form = self.get_form()
-        if form.is_valid():
-            return self.form_valid(form)
-        else:
-            return self.form_invalid(form)
-
 
 @method_decorator(require_role(CoreDeveloper), name="dispatch")
 class OrgEdit(UpdateView):
