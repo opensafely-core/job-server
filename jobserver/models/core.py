@@ -567,6 +567,12 @@ class ProjectMembership(models.Model):
     assigned Roles.
     """
 
+    created_by = models.ForeignKey(
+        "User",
+        on_delete=models.SET_NULL,
+        related_name="created_project_memberships",
+        null=True,
+    )
     project = models.ForeignKey(
         "Project",
         on_delete=models.CASCADE,
@@ -661,6 +667,7 @@ class User(AbstractUser):
         "Project",
         related_name="members",
         through="ProjectMembership",
+        through_fields=["user", "project"],
     )
 
     notifications_email = models.TextField(default="")
