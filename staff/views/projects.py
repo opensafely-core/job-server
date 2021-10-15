@@ -1,10 +1,12 @@
+from django.contrib import messages
 from django.db.models.functions import Lower
+from django.shortcuts import get_object_or_404, redirect
 from django.utils.decorators import method_decorator
-from django.views.generic import DetailView, ListView, UpdateView
+from django.views.generic import DetailView, ListView, UpdateView, View
 
 from jobserver.authorization import CoreDeveloper
 from jobserver.authorization.decorators import require_role
-from jobserver.models import Org, Project
+from jobserver.models import Org, Project, ProjectMembership
 
 
 @method_decorator(require_role(CoreDeveloper), name="dispatch")
@@ -53,3 +55,19 @@ class ProjectList(ListView):
         if org:
             qs = qs.filter(org__slug=org)
         return qs
+
+
+@method_decorator(require_role(CoreDeveloper), name="dispatch")
+class ProjectRemoveMember(View):
+    def post(self, request, *args, **kwargs):
+        project = get_object_or_404(Project, slug=self.kwargs["slug"])
+        username = request.POST.get("username", None)
+
+        try:
+            project.memberships.get(user__username=username).delete()
+        except ProjectMembership.DoesNotExist:
+            pass
+
+        messages.success(request, f"Removed {username} from {project.name}")
+
+        return redirect(project.get_staff_url())

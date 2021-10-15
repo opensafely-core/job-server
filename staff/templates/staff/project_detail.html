@@ -66,6 +66,13 @@
             <span class="badge badge-pill badge-secondary">{{ role.display_name }}</span>
             {% endfor %}
           </div>
+          <form method="POST" action="{% url 'staff:project-remove-member' slug=project.slug %}">
+            {% csrf_token %}
+            <input type="hidden" name="username" value="{{ user.username }}" />
+            <button class="btn btn-sm btn-danger" type="submit">
+              Remove <span class="sr-only">from {{ project.name }}</span>
+            </button>
+          </form>
         </div>
       {% empty %}
         <p class="list-group-item">No members</p>
