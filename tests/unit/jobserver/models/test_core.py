@@ -376,19 +376,6 @@ def test_jobrequest_runtime_success():
     assert job_request.runtime.seconds == 0
 
 
-def test_jobrequest_started_at_no_jobs():
-    assert not JobRequestFactory().started_at
-
-
-def test_jobrequest_started_at_success():
-    job_request = JobRequestFactory()
-
-    JobFactory(job_request=job_request, started_at=timezone.now())
-    JobFactory(job_request=job_request, started_at=timezone.now())
-
-    assert job_request.started_at
-
-
 def test_jobrequest_status_all_jobs_the_same(subtests):
     status_groups = [
         ["failed", "failed", "failed", "failed"],
