@@ -11,8 +11,8 @@ class Migration(migrations.Migration):
     initial = True
 
     dependencies = [
-        ("jobserver", "0069_add_created_by_to_org_and_project"),
         migrations.swappable_dependency(settings.AUTH_USER_MODEL),
+        ("jobserver", "0001_initial"),
     ]
 
     operations = [
