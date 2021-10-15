@@ -1,7 +1,5 @@
 {% extends "base.html" %}
 
-{% load django_vite %}
-
 {% block metatitle %}Create a project | OpenSAFELY Jobs{% endblock metatitle %}
 
 {% block breadcrumbs %}
@@ -62,9 +60,3 @@
   </div>
 </div>
 {% endblock content %}
-
-{% block extra_js %}
-{% vite_asset 'assets/src/scripts/project_create.js' %}
-{% vite_legacy_polyfills %}
-{% vite_legacy_asset 'assets/src/scripts/project_create-legacy.js' %}
-{% endblock %}
