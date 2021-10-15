@@ -1,0 +1,5 @@
+load database
+     from sqlite://db.sqlite3
+     into postgresql://localhost/jobserver
+
+ with include drop, reset sequences;

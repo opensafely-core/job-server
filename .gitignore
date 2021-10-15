@@ -6,9 +6,6 @@ __pycache__/
 /assets/dist
 /assets/stats.html
 /coverage
-db.sqlite3
-db.sqlite3-shm
-db.sqlite3-wal
 htmlcov
 node_modules/
 releases
