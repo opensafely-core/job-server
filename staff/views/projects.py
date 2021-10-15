@@ -1,3 +1,4 @@
+from django.db.models.functions import Lower
 from django.utils.decorators import method_decorator
 from django.views.generic import DetailView, ListView, UpdateView
 
@@ -13,6 +14,9 @@ class ProjectDetail(DetailView):
 
     def get_context_data(self, **kwargs):
         return super().get_context_data(**kwargs) | {
+            "memberships": self.object.memberships.select_related("user").order_by(
+                Lower("user__username")
+            ),
             "workspaces": self.object.workspaces.order_by("name"),
         }
 
