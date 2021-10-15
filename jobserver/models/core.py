@@ -142,6 +142,11 @@ class Job(models.Model):
         return Runtime(int(hours), int(minutes), int(seconds), int(total_seconds))
 
 
+class JobRequestManager(models.Manager):
+    def get_queryset(self):
+        return super().get_queryset().prefetch_related("jobs")
+
+
 class JobRequest(models.Model):
     """
     A request to run a Job

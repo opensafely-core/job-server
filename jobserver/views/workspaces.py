@@ -379,7 +379,6 @@ class WorkspaceLog(ListView):
     def get_queryset(self):
         qs = (
             JobRequest.objects.filter(workspace=self.workspace)
-            .prefetch_related("jobs")
             .select_related(
                 "backend", "workspace", "workspace__project", "workspace__project__org"
             )
