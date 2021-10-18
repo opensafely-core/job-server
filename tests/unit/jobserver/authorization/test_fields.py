@@ -14,7 +14,7 @@ def test_roles_field_db_values():
         c.execute("SELECT roles FROM jobserver_user WHERE id = %s", [user.pk])
         row = c.fetchone()
 
-    assert row[0] == '["jobserver.authorization.roles.CoreDeveloper"]'
+    assert row[0] == ["jobserver.authorization.roles.CoreDeveloper"]
 
 
 def test_roles_field_default_empty_list():

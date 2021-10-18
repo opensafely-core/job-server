@@ -455,7 +455,7 @@ class OrgMembership(models.Model):
         related_name="org_memberships",
     )
 
-    roles2 = RolesArrayField()
+    roles = RolesArrayField()
 
     created_at = models.DateTimeField(default=timezone.now)
 
@@ -642,7 +642,7 @@ class ProjectMembership(models.Model):
         related_name="project_memberships",
     )
 
-    roles2 = RolesArrayField()
+    roles = RolesArrayField()
 
     created_at = models.DateTimeField(default=timezone.now)
 
@@ -838,7 +838,7 @@ class User(AbstractBaseUser):
         related_name="created_users",
     )
 
-    roles2 = RolesArrayField()
+    roles = RolesArrayField()
 
     objects = UserManager()
 
