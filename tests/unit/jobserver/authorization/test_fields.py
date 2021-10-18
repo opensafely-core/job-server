@@ -1,7 +1,7 @@
 from django.db import connection
 
 from jobserver.authorization import CoreDeveloper
-from jobserver.authorization.fields import RolesField
+from jobserver.authorization.fields import RoleField
 from jobserver.models import User
 
 from ....factories import UserFactory
@@ -73,32 +73,34 @@ def test_roles_field_one_role():
     assert user.roles == [CoreDeveloper]
 
 
-def test_roles_field_to_python_success():
-    roles = RolesField()
+def test_rolesarrayfield_to_python_success():
+    roles = RoleField()
 
-    output = roles.to_python(["jobserver.authorization.roles.CoreDeveloper"])
-    expected = [CoreDeveloper]
+    output = roles.to_python("jobserver.authorization.roles.CoreDeveloper")
 
-    assert output == expected
+    assert output == CoreDeveloper
 
 
 def test_roles_field_to_python_with_a_role():
-    assert RolesField().to_python([CoreDeveloper]) == [CoreDeveloper]
+    assert RoleField().to_python([CoreDeveloper]) == [CoreDeveloper]
 
 
 def test_roles_field_to_python_with_empty_list():
-    assert RolesField().to_python([]) == []
+    assert RoleField().to_python([]) == []
 
 
 def test_roles_field_to_python_with_falsey_value():
-    assert RolesField().to_python(None) is None
-    assert RolesField().to_python([]) == []
+    assert RoleField().to_python(None) is None
+    assert RoleField().to_python([]) == []
 
 
 def test_query_by_roles():
     user = UserFactory(roles=[CoreDeveloper])
 
     qs = User.objects.filter(roles__contains=CoreDeveloper)
+    assert qs.count() == 1
+    assert qs.first() == user
 
+    qs = User.objects.filter(roles__contains=[CoreDeveloper])
     assert qs.count() == 1
     assert qs.first() == user
