@@ -16,9 +16,10 @@ from django.utils.text import slugify
 from environs import Env
 from furl import furl
 
-from ..authorization.fields import RolesField
+from ..authorization.fields import ExtractRoles, RolesField
 from ..authorization.utils import strings_to_roles
 from ..runtime import Runtime
+from ..utils import dotted_path
 
 
 env = Env()
@@ -625,7 +626,11 @@ class UserQuerySet(models.QuerySet):
         if isinstance(role, str):
             role = strings_to_roles([role])[0]
 
-        return self.filter(roles__contains=[role])
+        path = dotted_path(role)
+
+        return self.alias(extracted=ExtractRoles("roles")).filter(
+            extracted__contains=f'"{path}"'
+        )
 
 
 class UserManager(BaseUserManager.from_queryset(UserQuerySet)):

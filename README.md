@@ -7,7 +7,7 @@ It provides an API to [job-runner](https://github.com/opensafely-core/job-runner
 ## Stack
 
 This is a [Django](https://www.djangoproject.com) project.
-It uses [Django Rest Framework](https://www.django-rest-framework.org) for the API and [PostgreSQL](https://www.postgresql.org/) for the database.
+It uses [Django Rest Framework](https://www.django-rest-framework.org) for the API and [SQLite](https://www.sqlite.org/index.html) for the database.
 It is deployed via [dokku](https://dokku.com), serves static files using the [whitenoise](http://whitenoise.evans.io) package, and is itself served by [gunicorn](https://gunicorn.org).
 We authenticate Users with the [Python Social Auth](https://python-social-auth.readthedocs.io) Django-specific package, using [GitHub](https://github.com/) as the OAuth Provider backend.
 

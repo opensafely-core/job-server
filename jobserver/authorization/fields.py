@@ -4,6 +4,36 @@ from .parsing import _ensure_role_paths, parse_roles
 from .utils import dotted_path
 
 
+class ExtractRoles(models.Func):
+    """
+    Extract a roles field into a CharField
+
+    When querying models using a Role we need to deal with the underlying
+    JSONField, which on SQLite doesn't support Django's __contains expression.
+    However, Django's .alias() allows us to create an expression which we can
+    filter on later.
+
+    This function uses SQLite's json_extract function to pull the value of a
+    given field into a CharField which does support __contains.  For example
+    querying for Users with the CoreDeveloper role in SQL looks like this:
+
+        SELECT *
+         FROM jobserver_user
+        WHERE json_extract(roles, '$')
+         LIKE '%jobserver.authorization.roles.CoreDeveloper%';
+
+    To replicate this query via the ORM one can use it like this:
+
+        User.objects.alias(extracted=ExtractRoles("roles")).filter(
+            extracted__contains="CoreDeveloper"
+        )
+    """
+
+    function = "json_extract"
+    template = "%(function)s(%(expressions)s, '$')"
+    output_field = models.CharField()
+
+
 class RolesField(models.JSONField):
     """
     Custom Model Field to link our Role classes to a Model

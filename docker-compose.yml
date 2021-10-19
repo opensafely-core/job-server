@@ -2,24 +2,13 @@
 version: "3.6"
 
 services:
-  db:
-    image: "postgres:13"
-    environment:
-      POSTGRES_USER: user
-      POSTGRES_PASSWORD: pass
-      POSTGRES_DB: jobserver
-    ports:
-      - "5432:5432"
-    volumes:
-      - postgres_data:/var/lib/postgresql/data/
-
   job-server:
     build: .
     command: /app/manage.py runserver 0.0.0.0:8000
     environment:
       - ADMIN_USERS
       - AUTHORIZATION_ORGS
-      - DATABASE_URL=postgres://user:pass@db:5432/jobserver
+      - DATABASE_URL
       - DEBUG
       - GITHUB_TOKEN
       - SECRET_KEY=${SECRET_KEY:-12345}
@@ -29,6 +18,3 @@ services:
       - "8000:8000"
     volumes:
       - .:/app
-
-volumes:
-  postgres_data:
