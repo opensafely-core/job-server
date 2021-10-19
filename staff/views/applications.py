@@ -20,6 +20,7 @@ class ApplicationDetail(View):
         pages = [page.review_context() for page in wizard.get_pages()]
 
         ctx = {
+            "application": application,
             "researchers": application.researcher_registrations.order_by("created_at"),
             "pages": pages,
         }
