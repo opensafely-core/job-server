@@ -21,6 +21,9 @@ from .wizard import Wizard
 
 
 def notify_slack(application, msg):
+    if settings.DEBUG:
+        return
+
     f = furl(settings.BASE_URL)
     f.path = application.get_staff_url()
     slack_client.chat_postMessage(
