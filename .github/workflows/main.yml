@@ -104,21 +104,6 @@ jobs:
     needs: [assets, format, lint, sort, upgrade]
     runs-on: ubuntu-latest
 
-    services:
-      postgres:
-        image: postgres:13
-        env:
-          POSTGRES_USER: user
-          POSTGRES_PASSWORD: password
-          POSTGRES_DB: jobserver
-        ports:
-          - 5432:5432
-        options: >-
-          --health-cmd pg_isready
-          --health-interval 10s
-          --health-timeout 5s
-          --health-retries 5
-
     steps:
       - uses: actions/checkout@v2
       - uses: "actions/setup-python@v2"
@@ -134,7 +119,6 @@ jobs:
 
       - name: Run tests
         env:
-          DATABASE_URL: postgres://user:password@localhost/jobserver
           SECRET_KEY: 12345
           SOCIAL_AUTH_GITHUB_KEY: test
           SOCIAL_AUTH_GITHUB_SECRET: test

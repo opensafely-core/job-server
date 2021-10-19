@@ -14,7 +14,6 @@ incuna-mail
 itsdangerous
 litecli
 markdown
-psycopg2-binary
 pybadges
 pydantic
 pygments
