@@ -12,7 +12,7 @@
       <hr />
       <div class="d-flex justify-content-between align-items-center">
         <h3 id="{{ page.key }}">{{ page.title }}</h3>
-        <a href="{% url 'applications:page' application.pk page.key %}">Change<span class="sr-only"> {{ field.label|lower }}</span></a>
+        <a href="{% url 'applications:page' application.pk_hash page.key %}">Change<span class="sr-only"> {{ field.label|lower }}</span></a>
       </div>
 
       {% for fieldset in page.fieldsets %}
