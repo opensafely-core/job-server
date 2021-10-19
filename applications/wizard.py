@@ -162,8 +162,10 @@ class WizardPage:
 
     def redirect_to_next_page(self):
         if (next_page_key := self.wizard.get_next_page_key(self.key)) is None:
-            return redirect("applications:confirmation", pk=self.application.pk)
+            return redirect(
+                "applications:confirmation", pk_hash=self.application.pk_hash
+            )
         else:
             return redirect(
-                "applications:page", pk=self.application.pk, key=next_page_key
+                "applications:page", pk_hash=self.application.pk_hash, key=next_page_key
             )

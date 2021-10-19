@@ -35,12 +35,12 @@ urlpatterns = [
     path("apply/sign-in", sign_in, name="sign-in"),
     path("apply/terms/", terms, name="terms"),
     path("applications/", ApplicationList.as_view(), name="list"),
-    path("applications/<int:pk>/", PageRedirect.as_view(), name="detail"),
-    path("applications/<int:pk>/page/<str:key>/", page, name="page"),
+    path("applications/<str:pk_hash>/", PageRedirect.as_view(), name="detail"),
+    path("applications/<str:pk_hash>/page/<str:key>/", page, name="page"),
     path(
-        "applications/<int:pk>/confirmation/",
+        "applications/<str:pk_hash>/confirmation/",
         Confirmation.as_view(),
         name="confirmation",
     ),
-    path("applications/<int:pk>/researchers/", include(researcher_urls)),
+    path("applications/<str:pk_hash>/researchers/", include(researcher_urls)),
 ]

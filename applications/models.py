@@ -3,6 +3,8 @@ from django.db import models
 from django.urls import reverse
 from django.utils import timezone
 
+from jobserver import hash_utils
+
 
 YES_NO_CHOICES = [
     (True, "Yes"),
@@ -30,13 +32,18 @@ class Application(models.Model):
     completed_at = models.DateTimeField(null=True)
 
     def __str__(self):
-        return f"Application {self.pk} by {self.created_by.name}"
+        return f"Application {self.pk_hash} by {self.created_by.name}"
+
+    @property
+    def pk_hash(self):
+        """Return the short hash identifying this Application."""
+        return hash_utils.hash(self.pk)
 
     def get_absolute_url(self):
-        return reverse("applications:detail", kwargs={"pk": self.pk})
+        return reverse("applications:detail", kwargs={"pk_hash": self.pk_hash})
 
     def get_staff_url(self):
-        return reverse("staff:application-detail", kwargs={"pk": self.pk})
+        return reverse("staff:application-detail", kwargs={"pk_hash": self.pk_hash})
 
     @property
     def is_study_research(self):
@@ -215,11 +222,11 @@ class ResearcherRegistration(models.Model):
     def get_delete_url(self):
         return reverse(
             "applications:researcher-delete",
-            kwargs={"pk": self.application.pk, "researcher_pk": self.pk},
+            kwargs={"pk_hash": self.application.pk_hash, "researcher_pk": self.pk},
         )
 
     def get_edit_url(self):
         return reverse(
             "applications:researcher-edit",
-            kwargs={"pk": self.application.pk, "researcher_pk": self.pk},
+            kwargs={"pk_hash": self.application.pk_hash, "researcher_pk": self.pk},
         )

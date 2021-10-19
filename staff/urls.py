@@ -20,7 +20,7 @@ app_name = "staff"
 
 application_urls = [
     path("", ApplicationList.as_view(), name="application-list"),
-    path("<int:pk>/", ApplicationDetail.as_view(), name="application-detail"),
+    path("<str:pk_hash>/", ApplicationDetail.as_view(), name="application-detail"),
 ]
 
 backend_urls = [
