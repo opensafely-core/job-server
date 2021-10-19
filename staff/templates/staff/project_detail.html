@@ -40,7 +40,10 @@
 
     <div class="d-flex">
       <a class="btn btn-danger mr-1" href="{{ project.get_edit_url }}">Edit</a>
-      <a class="btn btn-primary" href="{{ project.get_absolute_url }}">View on Site</a>
+      <a class="btn btn-primary mr-1" href="{{ project.get_absolute_url }}">View on Site</a>
+      <a class="btn btn-primary" href="{% url 'staff:project-add-member' slug=project.slug %}">
+        Add Members
+      </a>
     </div>
   </div>
 </div>
@@ -50,14 +53,46 @@
 <div class="container">
   <div class="row">
     <div class="col col-lg-9 col-xl-8">
+
+      <h2>Members</h2>
+      <div class="list-group mb-3">
+        {% for membership in memberships %}
+        <div class="list-group-item d-flex justify-content-between align-items-center">
+          <div>
+            <a href="{{ membership.user.get_staff_url}}">
+              <span>{{ membership.user.username }}</span>
+              {% if membership.user.get_full_name %}
+              <small class="ml-1 text-muted">({{ membership.user.get_full_name }})</small>
+              {% endif %}
+            </a>
+            {% for role in membership.roles %}
+            <span class="badge badge-pill badge-secondary">{{ role.display_name }}</span>
+            {% endfor %}
+          </div>
+          <form method="POST" action="{% url 'staff:project-remove-member' slug=project.slug %}">
+            {% csrf_token %}
+            <input type="hidden" name="username" value="{{ user.username }}" />
+            <button class="btn btn-sm btn-danger" type="submit">
+              Remove <span class="sr-only">from {{ project.name }}</span>
+            </button>
+          </form>
+        </div>
+      {% empty %}
+        <p class="list-group-item">No members</p>
+      {% endfor %}
+    </div>
+
       <h2>Workspaces</h2>
-        <div class="list-group">
-          {% for workspace in workspaces %}
-          <a href="{{ workspace.get_staff_url }}" class="list-group-item list-group-item-action">
-            {{ workspace.name }}
-          </a>
-        {% endfor %}
-      </div>
+      <div class="list-group">
+        {% for workspace in workspaces %}
+        <a href="{{ workspace.get_staff_url }}" class="list-group-item list-group-item-action">
+          {{ workspace.name }}
+        </a>
+      {% empty %}
+        <p class="list-group-item">No workspaces</p>
+      {% endfor %}
+    </div>
+
     </div>
     <div class="col col-lg-3 col-xl-4">
       <div class="card mb-3">
@@ -65,7 +100,7 @@
           Organisation
         </h2>
         <p class="card-body mb-0">
-          <a href="{{ project.org.get_absolute_url }}">{{ project.org.name }}</a>
+          <a href="{{ project.org.get_staff_url }}">{{ project.org.name }}</a>
         </p>
       </div>
       <div class="card mb-3">

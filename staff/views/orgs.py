@@ -2,18 +2,18 @@ from django.contrib import messages
 from django.db.models.functions import Lower
 from django.shortcuts import get_object_or_404, redirect
 from django.utils.decorators import method_decorator
-from django.views.generic import FormView, ListView, UpdateView, View
+from django.views.generic import CreateView, FormView, ListView, UpdateView, View
 
 from jobserver.authorization import CoreDeveloper
 from jobserver.authorization.decorators import require_role
-from jobserver.models import Org, OrgMembership, User
+from jobserver.models import Org, OrgMembership, Project, User
 
-from ..forms import OrgAddMemberForm
+from ..forms import AddMemberForm
 
 
 @method_decorator(require_role(CoreDeveloper), name="dispatch")
 class OrgDetail(FormView):
-    form_class = OrgAddMemberForm
+    form_class = AddMemberForm
     template_name = "staff/org_detail.html"
 
     def dispatch(self, request, *args, **kwargs):
@@ -44,13 +44,6 @@ class OrgDetail(FormView):
         return super().get_initial() | {
             "users": self.object.members.values_list("pk", flat=True),
         }
-
-    def post(self, request, *args, **kwargs):
-        form = self.get_form()
-        if form.is_valid():
-            return self.form_valid(form)
-        else:
-            return self.form_invalid(form)
 
 
 @method_decorator(require_role(CoreDeveloper), name="dispatch")
@@ -83,6 +76,31 @@ class OrgList(ListView):
             qs = qs.filter(name__icontains=q)
 
         return qs
+
+
+@method_decorator(require_role(CoreDeveloper), name="dispatch")
+class OrgProjectCreate(CreateView):
+    fields = ["name"]
+    model = Project
+    template_name = "staff/org_project_create.html"
+
+    def dispatch(self, request, *args, **kwargs):
+        self.org = get_object_or_404(Org, slug=self.kwargs["slug"])
+
+        return super().dispatch(request, *args, **kwargs)
+
+    def form_valid(self, form):
+        project = form.save(commit=False)
+        project.created_by = self.request.user
+        project.org = self.org
+        project.save()
+
+        return redirect(project.get_staff_url())
+
+    def get_context_data(self, **kwargs):
+        return super().get_context_data() | {
+            "org": self.org,
+        }
 
 
 @method_decorator(require_role(CoreDeveloper), name="dispatch")

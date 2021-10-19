@@ -1,10 +1,17 @@
 import pytest
+from django.contrib.auth.models import AnonymousUser
 from django.contrib.messages.storage.fallback import FallbackStorage
 from django.core.exceptions import PermissionDenied
 from django.http import Http404
 
 from jobserver.utils import set_from_qs
-from staff.views.orgs import OrgDetail, OrgEdit, OrgList, OrgRemoveMember
+from staff.views.orgs import (
+    OrgDetail,
+    OrgEdit,
+    OrgList,
+    OrgProjectCreate,
+    OrgRemoveMember,
+)
 
 from ....factories import OrgFactory, OrgMembershipFactory, UserFactory
 
@@ -148,6 +155,55 @@ def test_orglist_unauthorized(rf):
 
     with pytest.raises(PermissionDenied):
         OrgList.as_view()(request)
+
+
+def tests_orgprojectcreate_get_success(rf, core_developer):
+    org = OrgFactory()
+
+    request = rf.get("/")
+    request.user = core_developer
+
+    response = OrgProjectCreate.as_view()(request, slug=org.slug)
+
+    assert response.status_code == 200
+    assert response.context_data["org"] == org
+
+
+def tests_orgprojectcreate_post_success(rf, core_developer):
+    org = OrgFactory()
+
+    assert org.projects.count() == 0
+
+    request = rf.post("/", {"name": "Test Project"})
+    request.user = core_developer
+
+    response = OrgProjectCreate.as_view()(request, slug=org.slug)
+
+    assert response.status_code == 302
+
+    project = org.projects.first()
+    assert project is not None
+    assert response.url == project.get_staff_url()
+    assert project.created_by == core_developer
+    assert project.org == org
+
+
+def tests_orgprojectcreate_unauthorized(rf, core_developer):
+    org = OrgFactory()
+
+    request = rf.get("/")
+    request.user = AnonymousUser()
+
+    with pytest.raises(PermissionDenied):
+        OrgProjectCreate.as_view()(request, slug=org.slug)
+
+
+def tests_orgprojectcreate_unknown_org(rf, core_developer):
+    request = rf.get("/")
+    request.user = core_developer
+
+    with pytest.raises(Http404):
+        OrgProjectCreate.as_view()(request, slug="")
 
 
 def test_orgremovemember_success(rf, core_developer):

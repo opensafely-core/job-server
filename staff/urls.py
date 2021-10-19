@@ -3,8 +3,14 @@ from django.urls import include, path
 from .views.applications import ApplicationDetail, ApplicationList
 from .views.backends import BackendDetail, BackendEdit, BackendList, BackendRotateToken
 from .views.index import Index
-from .views.orgs import OrgDetail, OrgEdit, OrgList, OrgRemoveMember
-from .views.projects import ProjectDetail, ProjectEdit, ProjectList
+from .views.orgs import OrgDetail, OrgEdit, OrgList, OrgProjectCreate, OrgRemoveMember
+from .views.projects import (
+    ProjectAddMember,
+    ProjectDetail,
+    ProjectEdit,
+    ProjectList,
+    ProjectRemoveMember,
+)
 from .views.repos import RepoList
 from .views.users import UserDetail, UserList, UserSetOrgs
 from .views.workspaces import WorkspaceDetail, WorkspaceList
@@ -31,13 +37,20 @@ backend_urls = [
 org_urls = [
     path("", OrgList.as_view(), name="org-list"),
     path("<slug>/", OrgDetail.as_view(), name="org-detail"),
+    path("<slug>/add-project/", OrgProjectCreate.as_view(), name="org-project-create"),
     path("<slug>/edit/", OrgEdit.as_view(), name="org-edit"),
     path("<slug>/remove-member/", OrgRemoveMember.as_view(), name="org-remove-member"),
 ]
 project_urls = [
     path("", ProjectList.as_view(), name="project-list"),
     path("<slug>/", ProjectDetail.as_view(), name="project-detail"),
+    path("<slug>/add-member/", ProjectAddMember.as_view(), name="project-add-member"),
     path("<slug>/edit/", ProjectEdit.as_view(), name="project-edit"),
+    path(
+        "<slug>/remove-member/",
+        ProjectRemoveMember.as_view(),
+        name="project-remove-member",
+    ),
 ]
 
 user_urls = [
