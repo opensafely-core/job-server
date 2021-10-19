@@ -6,12 +6,21 @@ from django.db import migrations
 def add_backends(apps, schema_editor):
     Backend = apps.get_model("jobserver", "Backend")
 
-    Backend.objects.create(name="emis", display_name="EMIS")
-    Backend.objects.create(name="expectations", display_name="expectations")
+    Backend.objects.create(name="databricks", slug="databricks")
+    Backend.objects.create(name="EMIS", slug="emis", is_active=True)
+    Backend.objects.create(name="expectations", slug="expectations")
+    Backend.objects.create(name="Graphnet", slug="graphnet")
     Backend.objects.create(
-        name="tpp",
-        display_name="TPP",
+        name="Test",
+        slug="test",
+        level_4_url="https://test.opensafely.org",
+    )
+    Backend.objects.create(
+        name="TPP",
+        slug="tpp",
+        level_4_url="http://localhost:8001",
         parent_directory="/d/Level4Files/workspaces",
+        is_active=True,
     )
 
 
