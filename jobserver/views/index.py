@@ -7,7 +7,9 @@ class Index(TemplateView):
     template_name = "index.html"
 
     def get_context_data(self, **kwargs):
-        job_requests = JobRequest.objects.order_by("-created_at")[:5]
+        job_requests = JobRequest.objects.select_related(
+            "workspace", "workspace__project", "workspace__project__org"
+        ).order_by("-created_at")[:5]
         workspaces = (
             Workspace.objects.filter(is_archived=False)
             .select_related("project", "project__org")
