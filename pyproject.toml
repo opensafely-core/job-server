@@ -2,9 +2,21 @@
 exclude = '''
 (
   /(
-      \.git         # exclude a few common directories in the
-    | \.direnv
+      \.direnv
+    | \.git
+    | \.github
+    | \.ipynb_checkpoints
+    | \.pytest_cache
     | \.venv
+    | assets
+    | coverage
+    | htmlcov
+    | node_modules
+    | outputs
+    | releases
+    | snippets
+    | static
+    | staticfiles
     | venv
   )/
 )
