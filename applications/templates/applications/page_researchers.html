@@ -64,7 +64,7 @@
   <div class="d-flex justify-content-end">
     <a
       class="btn btn-sm btn-outline-primary"
-      href="{% url 'applications:researcher-add' pk=application.pk %}?next={{ request.path }}">
+      href="{% url 'applications:researcher-add' application.pk_hash %}?next={{ request.path }}">
       Add new researcher
     </a>
   </div>
