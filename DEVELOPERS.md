@@ -3,6 +3,8 @@
 - [Local development](#local-development)
   - [Native](#native)
     - [Prerequisites](#prerequisites)
+    - [`just` commands](#just-commands)
+    - [Postgres](#postgres)
     - [Steps](#steps)
   - [Docker Compose](#docker-compose)
   - [Frontend development (CSS/JS)](#frontend-development-cssjs)
@@ -37,11 +39,85 @@ _Note:_ you will need the [Bitwarden CLI tool](https://bitwarden.com/help/articl
 - **Pip**
 - **Node.js v16.x** ([fnm](https://github.com/Schniz/fnm#installation) is recommended)
 - **npm v7.x**
+- **Postgres**
 
 #### `just` commands
 
 Each `just` command sets up a dev environment as part of running it.
 If you want to maintain your own virtualenv make sure you have activated it before running a `just` command and it will be used instead.
+
+
+#### Postgres
+
+If you're comfortable with running a database in docker-compose you can run
+
+```sh
+docker-compose up db
+```
+
+Or install it natively for your OS following the instructions below.
+
+##### Installing on macOS
+
+[Postgres.app](https://postgresapp.com/) is the easiest way to run Postgres on macOS, you can install it from homebrew (casks) with:
+
+```sh
+brew install --cask postgres-unofficial
+```
+
+You will need to add its bin directory to your path for the CLI tools to work.
+
+Postico is a popular GUI for Postgres:
+
+```sh
+brew install --cask postico
+```
+
+
+##### Installing on Linux
+
+Install postgresql with your package manager of choice.
+
+[This guide](http://meshy.co.uk/posts/postgresql-without-passwords) explains how to set up ident (password-less) auth, and set some options for faster, but more dangerous, performance.
+
+If you need to upgrade an installation the [ArchWiki](https://wiki.archlinux.org/title/PostgreSQL#Upgrading_PostgreSQL) is a good reference.
+
+
+##### Creating a database
+
+You'll need a database in Postgres to work with, run:
+
+```sh
+psql -c "create database jobserver"
+```
+
+
+##### Restoring Backups
+
+Copies of production can be restored to a local database using a dump pulled from production.
+They can be copied with:
+
+```sh
+scp <dokku2>:/var/lib/dokku/data/storage/job-server/jobserver.dump jobserver.dump
+```
+
+(replace `<dokku2>` with the appropriate address)
+
+Restore the dump with:
+
+```sh
+pg_restore --clean --if-exists --no-acl --no-owner -d jobserver jobserver.dump
+```
+
+Note: This assumes ident auth (the default in Postgres.app) is set up.
+
+
+If using the docker-compose stack you'll need to do:
+
+```sh
+docker exec job-server-job-server-1 bash -c "pg_restore --clean --if-exists --no-acl --no-owner -d \$DATABASE_URL jobserver.dump"
+```
+
 
 #### Steps
 
