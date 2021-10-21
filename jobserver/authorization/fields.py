@@ -3,7 +3,7 @@ import collections
 from django.contrib.postgres.fields import ArrayField
 from django.db import models
 
-from .parsing import _ensure_role_paths, parse_roles
+from .parsing import _ensure_role_paths, parse_role, parse_roles
 from .utils import dotted_path
 
 
@@ -72,7 +72,7 @@ class RoleField(models.TextField):
 
     def from_db_value(self, value, expression, connection):
         """Convert dotted path to role object"""
-        return parse_roles([value])
+        return parse_role(value)
 
     def get_prep_value(self, role):
         """Convert Role class to a dotted path for storage in the db"""
@@ -92,7 +92,7 @@ class RoleField(models.TextField):
         if not isinstance(path, str):  # already converted
             return path
 
-        return parse_roles([path])
+        return parse_role(path)
 
 
 class RolesArrayField(ArrayField):

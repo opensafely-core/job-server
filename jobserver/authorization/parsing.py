@@ -18,9 +18,15 @@ def _ensure_role_paths(paths):
     raise ValueError(msg)
 
 
+def parse_role(path):
+    _ensure_role_paths([path])
+
+    return import_string(path)
+
+
 def parse_roles(paths):
     """Convert Role dotted paths to Role objects"""
 
     _ensure_role_paths(paths)
 
-    return [import_string(p) for p in paths]
+    return [parse_role(p) for p in paths]
