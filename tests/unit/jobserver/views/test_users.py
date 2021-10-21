@@ -6,24 +6,24 @@ from jobserver.views.users import Settings, login_view
 from ....factories import UserFactory
 
 
-def test_login_get_no_path(rf):
-    request = rf.get("login/")
+def test_login_no_path(rf):
+    request = rf.get("/")
     request.user = AnonymousUser()
     response = login_view(request)
 
     assert response.status_code == 200
 
 
-def test_login_get_safe_path(rf):
-    request = rf.get("login/?next=/")
+def test_login_safe_path(rf):
+    request = rf.get("/?next=/")
     request.user = AnonymousUser()
     response = login_view(request)
 
     assert response.status_code == 200
 
 
-def test_login_get_unsafe_path(rf):
-    request = rf.get("login/?next=https://steal-your-bank-details.com/")
+def test_login_unsafe_path(rf):
+    request = rf.get("/?next=https://steal-your-bank-details.com/")
     request.user = AnonymousUser()
     response = login_view(request)
 
