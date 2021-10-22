@@ -29,6 +29,37 @@
       {% endfor %}
       {% endfor %}
 
+      {% if page.wizard_page.page_instance.last_reviewed_at is not None %}
+      <h2 class="h3 mb-3">OpenSAFELY review</h2>
+        <ul>
+          <li>
+            Page last reviewed at: {{ page.wizard_page.page_instance.last_reviewed_at }}
+          </li>
+
+          {% if page.wizard_page.page_instance.is_approved is None %}
+          <li>
+            Page is still awaiting an approval decision.
+          </li>
+          {% elif not page.wizard_page.page_instance.is_approved %}
+          <li>
+            Page not approved &cross;
+          </li>
+          {% else %}
+          <li>
+            Page approved &checkmark;
+          </li>
+          {% endif %}
+
+          {% if page.wizard_page.page_instance.notes %}
+          <li>Reviewer's notes:
+            <br>
+            {{ page.wizard_page.page_instance.notes }}
+          </li>
+          {% endif %}
+        </ul>
+
+      {% endif %}
+
       {% endfor %}
 
       <section class="mb-3 pb-3 border-bottom">
