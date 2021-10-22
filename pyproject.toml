@@ -25,11 +25,11 @@ exclude = '''
 [tool.coverage.run]
 branch = true
 omit = [
+  "*/migrations/*",
   "jobserver/asgi.py",
   "jobserver/management/commands/count_rows.py",
   "jobserver/management/commands/ensure_admins.py",
   "jobserver/management/commands/release.py",
-  "jobserver/migrations/*",
   "jobserver/settings.py",
   "jobserver/wsgi.py",
   "services/sentry.py",
