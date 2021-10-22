@@ -37,6 +37,7 @@
           <thead>
             <tr>
               <th>Created</th>
+              <th>First Run</th>
               <th>Repo</th>
               <th>Workspace</th>
               <th>Project</th>
@@ -46,6 +47,7 @@
             {% for repo in repos %}
             <tr>
               <td class="text-nowrap">{{ repo.created_at|date:"d M Y" }}</td>
+              <td class="text-nowrap">{{ repo.workspace.first_run|date:"d M Y" }}</td>
               <td><a href="{{ repo.url }}">{{ repo.name }}</a></td>
               <td><a href="{{ repo.workspace.get_staff_url }}">{{ repo.workspace.name }}</a></td>
               <td><a href="{{ repo.workspace.project.get_staff_url }}">{{ repo.workspace.project.name }}</a></td>
