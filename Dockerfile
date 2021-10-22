@@ -1,4 +1,4 @@
-FROM node:16-buster AS nodeassets
+FROM node:16-bullseye AS nodeassets
 WORKDIR /usr/src/app
 
 COPY package*.json ./
@@ -8,7 +8,7 @@ COPY . ./
 ARG VITE_SENTRY_DSN
 RUN npm run build
 
-FROM python:3.9-buster
+FROM python:3.9-bullseye
 
 # Don't cache PyPI downloads or wheels.
 # Don't use pyc files or __pycache__ folders.
