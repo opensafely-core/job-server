@@ -2,7 +2,8 @@ import pytest
 from rest_framework.exceptions import NotAuthenticated
 
 from jobserver.api import get_backend_from_token
-from jobserver.models import Backend
+
+from ....factories import BackendFactory
 
 
 def test_token_backend_empty_token():
@@ -16,11 +17,11 @@ def test_token_backend_no_token():
 
 
 def test_token_backend_success(monkeypatch):
-    monkeypatch.setenv("BACKENDS", "tpp")
+    backend = BackendFactory(slug="tpp")
 
-    tpp = Backend.objects.get(slug="tpp")
+    monkeypatch.setenv("BACKENDS", backend.slug)
 
-    assert get_backend_from_token(tpp.auth_token) == tpp
+    assert get_backend_from_token(backend.auth_token) == backend
 
 
 def test_token_backend_unknown_backend():

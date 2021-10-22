@@ -2,23 +2,21 @@ from datetime import datetime
 
 from django.utils import timezone
 
-from jobserver.models import Backend
-
-from ....factories import StatsFactory
+from ....factories import BackendFactory, StatsFactory
 
 
 def test_stats_str_with_last_seen(freezer):
-    tpp = Backend.objects.get(slug="tpp")
+    backend = BackendFactory(slug="test")
 
     last_seen = datetime(2020, 12, 25, 10, 11, 12, tzinfo=timezone.utc)
-    stats = StatsFactory(backend=tpp, api_last_seen=last_seen, url="/foo")
+    stats = StatsFactory(backend=backend, api_last_seen=last_seen, url="/foo")
 
-    assert str(stats) == "tpp | 2020-12-25 10:11:12 | /foo"
+    assert str(stats) == "test | 2020-12-25 10:11:12 | /foo"
 
 
 def test_stats_str_without_last_seen(freezer):
-    tpp = Backend.objects.get(slug="tpp")
+    backend = BackendFactory(slug="test")
 
-    stats = StatsFactory(backend=tpp, api_last_seen=None, url="")
+    stats = StatsFactory(backend=backend, api_last_seen=None, url="")
 
-    assert str(stats) == "tpp | never | "
+    assert str(stats) == "test | never | "

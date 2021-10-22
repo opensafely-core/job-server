@@ -37,12 +37,15 @@ def test_backenddetail_success(rf, core_developer):
 
 
 def test_backendlist_success(rf, core_developer):
+    BackendFactory.create_batch(3)
+
     request = rf.get("/")
     request.user = core_developer
+
     response = BackendList.as_view()(request)
 
     assert response.status_code == 200
-    assert len(response.context_data["object_list"]) == 6
+    assert len(response.context_data["object_list"]) == 3
 
 
 def test_backendrotatetoken_success(rf, core_developer):

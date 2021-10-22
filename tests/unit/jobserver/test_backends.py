@@ -30,6 +30,10 @@ def test_get_configured_backends_empty(monkeypatch):
 
 def test_get_configured_backends_space_around_comma(monkeypatch):
     monkeypatch.setenv("BACKENDS", "tpp , expectations")
+
+    BackendFactory(slug="expectations")
+    BackendFactory(slug="tpp")
+
     backends = get_configured_backends()
 
     assert backends == {"expectations", "tpp"}
@@ -37,6 +41,10 @@ def test_get_configured_backends_space_around_comma(monkeypatch):
 
 def test_get_configured_backends_success(monkeypatch):
     monkeypatch.setenv("BACKENDS", "tpp,expectations")
+
+    BackendFactory(slug="expectations")
+    BackendFactory(slug="tpp")
+
     backends = get_configured_backends()
 
     assert backends == {"expectations", "tpp"}

@@ -5,11 +5,13 @@ from jobserver.backends import backends_to_choices
 from jobserver.forms import JobRequestCreateForm, WorkspaceCreateForm
 from jobserver.models import Backend
 
+from ...factories import BackendFactory
+
 
 def test_jobrequestcreateform_with_single_backend():
-    emis = Backend.objects.get(slug="emis")
-    choices = backends_to_choices([emis])
-    form = JobRequestCreateForm({"backend": "emis"}, backends=choices)
+    backend = BackendFactory()
+    choices = backends_to_choices([backend])
+    form = JobRequestCreateForm({"backend": backend.slug}, backends=choices)
 
     assert "backend" in form.fields
     assert form.fields["backend"].choices == choices
