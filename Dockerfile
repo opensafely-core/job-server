@@ -19,6 +19,11 @@ ENV PIP_NO_CACHE_DIR=1 \
 
 WORKDIR /app
 
+RUN apt-get update && \
+    apt-get install --no-install-recommends -y postgresql-client=13+225 && \
+    apt-get clean && \
+    rm -rf /var/lib/apt/lists/*
+
 # Only requirements to cache them in docker layer so we can skip package
 # installation if they haven't changed
 COPY requirements.prod.txt .
