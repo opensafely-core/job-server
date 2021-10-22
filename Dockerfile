@@ -1,4 +1,4 @@
-FROM node:16-buster AS nodeassets
+FROM node:16-bullseye AS nodeassets
 WORKDIR /usr/src/app
 
 COPY package*.json ./
@@ -8,7 +8,7 @@ COPY . ./
 ARG VITE_SENTRY_DSN
 RUN npm run build
 
-FROM python:3.9-buster
+FROM python:3.9-bullseye
 
 # Don't cache PyPI downloads or wheels.
 # Don't use pyc files or __pycache__ folders.
@@ -18,6 +18,11 @@ ENV PIP_NO_CACHE_DIR=1 \
     PYTHONUNBUFFERED=1
 
 WORKDIR /app
+
+RUN apt-get update && \
+    apt-get install --no-install-recommends -y postgresql-client=13+225 && \
+    apt-get clean && \
+    rm -rf /var/lib/apt/lists/*
 
 # Only requirements to cache them in docker layer so we can skip package
 # installation if they haven't changed
