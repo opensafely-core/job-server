@@ -138,15 +138,24 @@
           <div class="list-group mb-3">
             {% for application in applications %}
             <a class="list-group-item list-group-item-action" href="{{ application.get_staff_url }}">
+
               <div>
                 Application {{ application.pk }}
                 {% if application.studyinformationpage.study_name %}
                 ({{ application.studyinformationpage.study_name }})
                 {% endif %}
               </div>
+
               <div>
-                <small class="text-muted">started {{ application.created_at|date }}</small>
+                <small class="text-muted">Started on {{ application.created_at|date }}</small>
               </div>
+
+              {% if application.completed_at %}
+              <div>
+                <small class="text-muted">Submitted on {{ application.completed_at|date }}</small>
+              </div>
+              {% endif %}
+
             </a>
             {% empty %}
             <p class="list-group-item">No applications.</p>
