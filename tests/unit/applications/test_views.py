@@ -114,7 +114,7 @@ def test_notify_slack_not_called_in_debug_mode(mocker, settings):
     mocked_slack = mocker.patch("applications.views.slack_client", autospec=True)
     settings.DEBUG = True
 
-    assert notify_slack(ApplicationFactory(), "test") is None
+    assert notify_slack(ApplicationFactory(), UserFactory(), "test") is None
 
     assert mocked_slack.chat_postMessage.call_count == 0
 
