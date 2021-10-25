@@ -9,7 +9,7 @@ from django.contrib.auth.models import UserManager as BaseUserManager
 from django.core import signing
 from django.core.validators import validate_slug
 from django.db import models, transaction
-from django.db.models import Q
+from django.db.models import Min, Q
 from django.urls import reverse
 from django.utils import timezone
 from django.utils.text import slugify
@@ -141,6 +141,16 @@ class Job(models.Model):
         return Runtime(int(hours), int(minutes), int(seconds), int(total_seconds))
 
 
+class JobRequestManager(models.Manager):
+    def get_queryset(self):
+        return (
+            super()
+            .get_queryset()
+            .prefetch_related("jobs")
+            .annotate(started_at=Min("jobs__started_at"))
+        )
+
+
 class JobRequest(models.Model):
     """
     A request to run a Job
@@ -173,6 +183,8 @@ class JobRequest(models.Model):
     project_definition = models.TextField(default="")
 
     created_at = models.DateTimeField(default=timezone.now)
+
+    objects = JobRequestManager()
 
     def get_absolute_url(self):
         return reverse(
@@ -276,15 +288,6 @@ class JobRequest(models.Model):
         minutes, seconds = divmod(remainder, 60)
 
         return Runtime(int(hours), int(minutes), int(seconds))
-
-    @property
-    def started_at(self):
-        first_job = self.jobs.exclude(started_at=None).order_by("started_at").first()
-
-        if not first_job:
-            return
-
-        return first_job.started_at
 
     @property
     def status(self):

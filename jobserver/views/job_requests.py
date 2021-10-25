@@ -30,16 +30,13 @@ def filter_by_status(job_requests, status):
         # value.
         return job_requests
 
-    job_requests = job_requests.prefetch_related("jobs")
-    return [r for r in job_requests if r.status.lower() == status]
+    return [r for r in job_requests.all() if r.status.lower() == status]
 
 
 class JobRequestCancel(View):
     def post(self, request, *args, **kwargs):
         try:
-            job_request = JobRequest.objects.prefetch_related("jobs").get(
-                pk=self.kwargs["pk"]
-            )
+            job_request = JobRequest.objects.get(pk=self.kwargs["pk"])
         except JobRequest.DoesNotExist:
             raise Http404
 
@@ -156,18 +153,12 @@ class JobRequestCreate(CreateView):
         return {"will_notify": self.workspace.should_notify}
 
     def get_latest_job_request(self):
-        return (
-            self.workspace.job_requests.prefetch_related("jobs")
-            .order_by("-created_at")
-            .first()
-        )
+        return self.workspace.job_requests.order_by("-created_at").first()
 
 
 class JobRequestDetail(DetailView):
     model = JobRequest
-    queryset = JobRequest.objects.select_related(
-        "created_by", "workspace"
-    ).prefetch_related("jobs")
+    queryset = JobRequest.objects.select_related("created_by", "workspace")
     template_name = "job_request_detail.html"
 
     def get_context_data(self, **kwargs):
@@ -221,11 +212,7 @@ class JobRequestList(FormMixin, ListView):
         return context
 
     def get_queryset(self):
-        qs = (
-            JobRequest.objects.prefetch_related("jobs")
-            .select_related("backend", "workspace")
-            .order_by("-pk")
-        )
+        qs = JobRequest.objects.select_related("backend", "workspace").order_by("-pk")
 
         q = self.request.GET.get("q")
         if q:
