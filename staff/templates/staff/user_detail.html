@@ -132,6 +132,28 @@
 
         {% include "components/form_roles.html" with field=form.roles label="Roles" name="roles" %}
 
+        <div class="form-group mb-5">
+          <h2 class="h4">Authored Applications</h2>
+
+          <div class="list-group mb-3">
+            {% for application in applications %}
+            <a class="list-group-item list-group-item-action" href="{{ application.get_staff_url }}">
+              <div>
+                Application {{ application.pk }}
+                {% if application.studyinformationpage.study_name %}
+                ({{ application.studyinformationpage.study_name }})
+                {% endif %}
+              </div>
+              <div>
+                <small class="text-muted">started {{ application.created_at|date }}</small>
+              </div>
+            </a>
+            {% empty %}
+            <p class="list-group-item">No applications.</p>
+            {% endfor %}
+          </div>
+        </div>
+
         <div class="form-group">
           <button class="btn btn-primary" type="submit">Save</button>
         </div>
