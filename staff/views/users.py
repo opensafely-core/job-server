@@ -39,6 +39,7 @@ class UserDetail(UpdateView):
         return redirect(self.object.get_staff_url())
 
     def get_context_data(self, **kwargs):
+        applications = self.object.applications.order_by("-created_at")
         orgs = [
             {
                 "name": m.org.name,
@@ -56,6 +57,7 @@ class UserDetail(UpdateView):
             for m in self.object.project_memberships.order_by("project__name")
         ]
         return super().get_context_data(**kwargs) | {
+            "applications": applications,
             "orgs": orgs,
             "projects": projects,
         }
