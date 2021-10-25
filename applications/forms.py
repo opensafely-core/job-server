@@ -21,11 +21,43 @@ class PageFormBase(forms.ModelForm):
                 self.fields[name] = YesNoField()
 
 
+def coerce_to_bool(value):
+    """
+    Coerce the given value to a boolean
+
+    Expects a boolean, or a string with the values:
+        * true
+        * True
+        * false
+        * False
+
+    Field.has_changed() calls this function with the initial value of the field
+    when testing if it has changed.  Since this is used with YesNoField this
+    means initial will be a boolean value.  It also guards against unexpected
+    strings since it's parsing POST data.
+    """
+    if isinstance(value, bool):
+        return value
+
+    if not isinstance(value, str):
+        msg = f'"{value}" was of type {type(value).__name__}, expected bool or string'
+        raise TypeError(msg)
+
+    if value.lower() == "true":
+        return True
+
+    if value.lower() == "false":
+        return False
+
+    msg = f'Expected string value to be one of: true, True, false, or False, got "{value}"'
+    raise ValueError(msg)
+
+
 class YesNoField(forms.TypedChoiceField):
     def __init__(self, *args, **kwargs):
         super().__init__(
             choices=YES_NO_CHOICES,
-            coerce=lambda x: x == "True",
+            coerce=coerce_to_bool,
             empty_value=None,
             required=False,
             widget=forms.RadioSelect,

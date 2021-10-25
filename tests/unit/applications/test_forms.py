@@ -1,6 +1,37 @@
+import pytest
 from django import forms
 
-from applications.forms import ResearcherRegistrationSubmissionForm, YesNoField
+from applications.forms import (
+    ResearcherRegistrationSubmissionForm,
+    YesNoField,
+    coerce_to_bool,
+)
+
+
+def test_coerce_with_booleans():
+    assert coerce_to_bool(True)
+    assert not coerce_to_bool(False)
+
+
+def test_coerce_with_expected_strings():
+    assert coerce_to_bool("true")
+    assert coerce_to_bool("True")
+    assert not coerce_to_bool("false")
+    assert not coerce_to_bool("False")
+
+
+def test_coerce_with_incorrect_type():
+    msg = '^"3" was of type int, expected bool or string$'
+    with pytest.raises(TypeError, match=msg):
+        coerce_to_bool(3)
+
+
+def test_coerce_with_unexpected_string():
+    msg = (
+        '^Expected string value to be one of: true, True, false, or False, got "test"$'
+    )
+    with pytest.raises(ValueError, match=msg):
+        coerce_to_bool("test")
 
 
 def test_required_fields():
