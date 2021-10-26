@@ -1,5 +1,6 @@
 from django.core.exceptions import ObjectDoesNotExist
 from django.db import models
+from django.db.models import Q
 from django.urls import reverse
 from django.utils import timezone
 
@@ -13,6 +14,12 @@ YES_NO_CHOICES = [
 
 
 class Application(models.Model):
+    approved_by = models.ForeignKey(
+        "jobserver.User",
+        on_delete=models.CASCADE,
+        null=True,
+        related_name="approved_applications",
+    )
     created_by = models.ForeignKey(
         "jobserver.User",
         on_delete=models.CASCADE,
@@ -30,6 +37,18 @@ class Application(models.Model):
 
     created_at = models.DateTimeField(default=timezone.now)
     completed_at = models.DateTimeField(null=True)
+    approved_at = models.DateTimeField(null=True)
+
+    class Meta:
+        constraints = [
+            models.CheckConstraint(
+                check=(
+                    Q(approved_at=None) & Q(approved_by=None)
+                    | ~Q(approved_at=None) & ~Q(approved_by=None)
+                ),
+                name="%(app_label)s_%(class)s_both_approved_at_and_approved_by_set",
+            )
+        ]
 
     def __str__(self):
         return f"Application {self.pk_hash} by {self.created_by.name}"
@@ -41,6 +60,9 @@ class Application(models.Model):
 
     def get_absolute_url(self):
         return reverse("applications:detail", kwargs={"pk_hash": self.pk_hash})
+
+    def get_approve_url(self):
+        return reverse("staff:application-approve", kwargs={"pk_hash": self.pk_hash})
 
     def get_staff_url(self):
         return reverse("staff:application-detail", kwargs={"pk_hash": self.pk_hash})
