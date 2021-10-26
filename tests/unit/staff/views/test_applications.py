@@ -4,9 +4,73 @@ from django.http import Http404
 from django.utils import timezone
 
 from jobserver.utils import set_from_qs
-from staff.views.applications import ApplicationDetail, ApplicationList
+from staff.views.applications import (
+    ApplicationApprove,
+    ApplicationDetail,
+    ApplicationList,
+)
 
-from ....factories import ApplicationFactory, UserFactory
+from ....factories import ApplicationFactory, OrgFactory, UserFactory
+
+
+def test_applicationapprove_already_approved(rf, core_developer):
+    application = ApplicationFactory(
+        approved_at=timezone.now(),
+        approved_by=core_developer,
+    )
+
+    request = rf.get("/")
+    request.user = core_developer
+
+    response = ApplicationApprove.as_view()(request, pk_hash=application.pk_hash)
+
+    assert response.status_code == 302
+    assert response.url == application.get_staff_url()
+
+
+def test_applicationapprove_get_success(rf, core_developer, complete_application):
+    request = rf.get("/")
+    request.user = core_developer
+
+    response = ApplicationApprove.as_view()(
+        request, pk_hash=complete_application.pk_hash
+    )
+
+    assert response.status_code == 200
+    assert response.context_data["application"] == complete_application
+
+
+def test_applicationapprove_post_success(rf, core_developer, complete_application):
+    assert complete_application.approved_at is None
+    assert complete_application.approved_by is None
+
+    org = OrgFactory()
+
+    data = {
+        "project_name": complete_application.studyinformationpage.study_name,
+        "org": str(org.pk),
+    }
+    request = rf.post("/", data)
+    request.user = core_developer
+
+    response = ApplicationApprove.as_view()(
+        request, pk_hash=complete_application.pk_hash
+    )
+
+    assert response.status_code == 302, response.context_data["form"].errors
+
+    complete_application.refresh_from_db()
+
+    assert complete_application.approved_at
+    assert complete_application.approved_by == core_developer
+
+
+def test_applicationapprove_with_unknown_application(rf, core_developer):
+    request = rf.get("/")
+    request.user = core_developer
+
+    with pytest.raises(Http404):
+        ApplicationApprove.as_view()(request, pk_hash="")
 
 
 def test_applicationdetail_success_with_complete_application(

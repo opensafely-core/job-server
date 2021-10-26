@@ -2,7 +2,18 @@ from django import forms
 
 from jobserver.authorization.forms import RolesForm
 from jobserver.backends import backends_to_choices
-from jobserver.models import Backend
+from jobserver.models import Backend, Org
+
+
+class ApplicationApproveForm(forms.Form):
+    project_name = forms.CharField(help_text="Update the study name if necessary")
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+
+        orgs = Org.objects.order_by("name")
+
+        self.fields["org"] = forms.ModelChoiceField(queryset=orgs)
 
 
 class AddMemberForm(forms.Form):
