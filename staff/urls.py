@@ -1,6 +1,6 @@
 from django.urls import include, path
 
-from .views.applications import ApplicationDetail, ApplicationList
+from .views.applications import ApplicationApprove, ApplicationDetail, ApplicationList
 from .views.backends import BackendDetail, BackendEdit, BackendList, BackendRotateToken
 from .views.index import Index
 from .views.orgs import OrgDetail, OrgEdit, OrgList, OrgProjectCreate, OrgRemoveMember
@@ -21,6 +21,11 @@ app_name = "staff"
 application_urls = [
     path("", ApplicationList.as_view(), name="application-list"),
     path("<str:pk_hash>/", ApplicationDetail.as_view(), name="application-detail"),
+    path(
+        "<str:pk_hash>/approve/",
+        ApplicationApprove.as_view(),
+        name="application-approve",
+    ),
 ]
 
 backend_urls = [

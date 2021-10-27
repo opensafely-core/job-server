@@ -1,5 +1,15 @@
 from jobserver.models import Backend
-from staff.forms import UserForm
+from staff.forms import ApplicationApproveForm, UserForm
+
+from ...factories import OrgFactory
+
+
+def test_applicationapproveform_success():
+    org = OrgFactory(slug="test-org")
+
+    form = ApplicationApproveForm({"project_name": "test project", "org": str(org.pk)})
+
+    assert form.is_valid(), form.errors
 
 
 def test_userform_success():

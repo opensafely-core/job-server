@@ -1,6 +1,24 @@
+import pytest
+from django.db import IntegrityError
 from django.urls import reverse
+from django.utils import timezone
 
 from ...factories import ApplicationFactory, ResearcherRegistrationFactory, UserFactory
+
+
+def test_application_constraint_approved_at_and_approved_by_both_set():
+    ApplicationFactory(approved_at=timezone.now(), approved_by=UserFactory())
+
+
+@pytest.mark.django_db(transaction=True)
+def test_application_constraint_missing_approved_at_or_approved_by():
+    msg = '^new row for relation "applications_application" violates check constraint "applications_application_both_approved_at_and_approved_by_set"'
+
+    with pytest.raises(IntegrityError, match=msg):
+        ApplicationFactory(approved_at=timezone.now(), approved_by=None)
+
+    with pytest.raises(IntegrityError, match=msg):
+        ApplicationFactory(approved_at=None, approved_by=UserFactory())
 
 
 def test_application_get_absolute_url():

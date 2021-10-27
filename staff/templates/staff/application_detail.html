@@ -36,10 +36,37 @@
       <li>
         <strong>Created at:</strong> {{ application.created_at }}
       </li>
+
+      {% if application.approved_by %}
+      <li>
+        <strong>Approved by:</strong>
+        <a href="{{ application.approved_by.get_staff_url }}">{{ application.approved_by.name }}</a>
+      </li>
+      {% endif %}
+
+      {% if application.approved_at %}
+      <li>
+        <strong>Approved at:</strong> {{ application.approved_at }}
+      </li>
+      {% endif %}
+
+      {% if application.project %}
+      <li>
+        <strong>Project:</strong>
+        <a href="{{ application.project.get_staff_url }}">{{ application.project.name }}</a>
+      </li>
+      {% endif %}
     </ul>
 
     <div class="d-flex">
-      <a class="btn btn-primary" href="{{ application.get_absolute_url }}">View on Site</a>
+      <a class="btn btn-primary mr-1" href="{{ application.get_absolute_url }}">View on Site</a>
+      <a class="btn btn-primary{% if application.approved_at %} disabled{% endif %}"
+        {% if application.approved_at %}
+        aria-disabled="true"
+        {% endif %}
+        href="{{ application.get_approve_url }}">
+        Approve
+      </a>
     </div>
   </div>
 </div>
