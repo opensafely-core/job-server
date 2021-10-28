@@ -2,7 +2,7 @@ from django import forms
 from first import first
 
 from .authorization.forms import RolesForm
-from .models import JobRequest, Org, User, Workspace
+from .models import JobRequest, User, Workspace
 
 
 class JobRequestCreateForm(forms.ModelForm):
@@ -43,14 +43,6 @@ class JobRequestCreateForm(forms.ModelForm):
 
 class JobRequestSearchForm(forms.Form):
     identifier = forms.CharField()
-
-
-class OrgCreateForm(forms.ModelForm):
-    class Meta:
-        fields = [
-            "name",
-        ]
-        model = Org
 
 
 class ProjectInvitationForm(RolesForm):

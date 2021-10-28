@@ -1,8 +1,7 @@
 import pytest
 from django.http import Http404
 
-from jobserver.models import Org
-from jobserver.views.orgs import OrgCreate, OrgDetail, OrgList
+from jobserver.views.orgs import OrgDetail, OrgList
 
 from ....factories import (
     OrgFactory,
@@ -11,38 +10,6 @@ from ....factories import (
     UserFactory,
     WorkspaceFactory,
 )
-
-
-def test_orgcreate_get_success(rf, core_developer):
-    oxford = OrgFactory(name="University of Oxford")
-    ebmdatalab = OrgFactory(name="EBMDataLab")
-
-    request = rf.get("/")
-    request.user = core_developer
-    response = OrgCreate.as_view()(request)
-
-    assert response.status_code == 200
-
-    orgs = response.context_data["orgs"]
-    assert len(orgs) == 3
-    assert orgs[1] == ebmdatalab
-    assert orgs[2] == oxford
-
-
-def test_orgcreate_post_success(rf, core_developer):
-    request = rf.post("/", {"name": "A New Org"})
-    request.user = core_developer
-    response = OrgCreate.as_view()(request)
-
-    assert response.status_code == 302
-
-    orgs = Org.objects.all()
-    assert len(orgs) == 2
-
-    org = orgs[1]
-    assert org.name == "A New Org"
-    assert org.created_by == core_developer
-    assert response.url == org.get_absolute_url()
 
 
 def test_orgdetail_success(rf):

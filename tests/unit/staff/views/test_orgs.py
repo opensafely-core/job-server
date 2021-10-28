@@ -4,8 +4,10 @@ from django.contrib.messages.storage.fallback import FallbackStorage
 from django.core.exceptions import PermissionDenied
 from django.http import Http404
 
+from jobserver.models import Org
 from jobserver.utils import set_from_qs
 from staff.views.orgs import (
+    OrgCreate,
     OrgDetail,
     OrgEdit,
     OrgList,
@@ -14,6 +16,32 @@ from staff.views.orgs import (
 )
 
 from ....factories import OrgFactory, OrgMembershipFactory, UserFactory
+
+
+def test_orgcreate_get_success(rf, core_developer):
+    request = rf.get("/")
+    request.user = core_developer
+
+    response = OrgCreate.as_view()(request)
+
+    assert response.status_code == 200
+
+
+def test_orgcreate_post_success(rf, core_developer):
+    request = rf.post("/", {"name": "A New Org"})
+    request.user = core_developer
+
+    response = OrgCreate.as_view()(request)
+
+    assert response.status_code == 302
+
+    orgs = Org.objects.all()
+    assert len(orgs) == 2
+
+    org = orgs[1]
+    assert org.name == "A New Org"
+    assert org.created_by == core_developer
+    assert response.url == org.get_staff_url()
 
 
 def test_orgdetail_get_success(rf, core_developer):

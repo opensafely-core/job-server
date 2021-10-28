@@ -36,6 +36,7 @@ from jobserver.views import (
     workspaces,
 )
 from staff.views import backends as staff_backends
+from staff.views import orgs as staff_orgs
 from staff.views import projects as staff_projects
 from staff.views import users as staff_users
 from staff.views import workspaces as staff_workspaces
@@ -89,6 +90,7 @@ def test_url_redirects(client, url, redirect):
         ("/staff/backends/42/", staff_backends.BackendDetail),
         ("/staff/backends/42/edit/", staff_backends.BackendEdit),
         ("/staff/backends/42/rotate-token/", staff_backends.BackendRotateToken),
+        ("/staff/orgs/add/", staff_orgs.OrgCreate),
         ("/staff/projects/", staff_projects.ProjectList),
         ("/staff/projects/p/", staff_projects.ProjectDetail),
         ("/staff/projects/p/edit/", staff_projects.ProjectEdit),
@@ -101,7 +103,6 @@ def test_url_redirects(client, url, redirect):
         ("/login/github/", social_django_auth_view),
         ("/logout/", LogoutView),
         ("/orgs/", orgs.OrgList),
-        ("/orgs/new/", orgs.OrgCreate),
         ("/settings/", users.Settings),
         ("/status/", status.Status),
         ("/o/", orgs.OrgDetail),
