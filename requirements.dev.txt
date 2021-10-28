@@ -104,7 +104,7 @@ django-upgrade==1.4.0 \
     --hash=sha256:4718851fdf1b04f3d79d4fabb4b1ff2b0e6fa15ce867116684eae456ad31598f \
     --hash=sha256:9307d5935ce1ddba9c127c3955cbd58c350aef237e4b83b544ac4b5095054a52
     # via -r requirements.dev.in
-factory_boy==3.2.1 \
+factory-boy==3.2.1 \
     --hash=sha256:a98d277b0c047c75eb6e4ab8508a7f81fb03d2cb21986f627913546ef7a2a55e \
     --hash=sha256:eb02a7dd1b577ef606b75a253b9818e6f9eaf996d94449c9d5ebb124f90dc795
     # via -r requirements.dev.in
@@ -352,9 +352,9 @@ requests==2.26.0 \
     # via
     #   -c requirements.prod.txt
     #   responses
-responses==0.14.0 \
-    --hash=sha256:57bab4e9d4d65f31ea5caf9de62095032c4d81f591a8fac2f5858f7777b8567b \
-    --hash=sha256:93f774a762ee0e27c0d9d7e06227aeda9ff9f5f69392f72bb6c6b73f8763563e
+responses==0.15.0 \
+    --hash=sha256:5955ad3468fe8eb5fb736cdab4943457b7768f8670fa3624b4e26ff52dfe20c0 \
+    --hash=sha256:866757987d1962aa908d9c8b3185739faefd72a359e95459de0c2e4e5369c9b2
     # via -r requirements.dev.in
 six==1.16.0 \
     --hash=sha256:1e61c37477a1626458e36f7b1d82aa5c9b094fa4802892072e49de9c60c4c926 \
