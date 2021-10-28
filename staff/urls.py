@@ -3,7 +3,14 @@ from django.urls import include, path
 from .views.applications import ApplicationApprove, ApplicationDetail, ApplicationList
 from .views.backends import BackendDetail, BackendEdit, BackendList, BackendRotateToken
 from .views.index import Index
-from .views.orgs import OrgDetail, OrgEdit, OrgList, OrgProjectCreate, OrgRemoveMember
+from .views.orgs import (
+    OrgCreate,
+    OrgDetail,
+    OrgEdit,
+    OrgList,
+    OrgProjectCreate,
+    OrgRemoveMember,
+)
 from .views.projects import (
     ProjectAddMember,
     ProjectDetail,
@@ -41,6 +48,7 @@ backend_urls = [
 
 org_urls = [
     path("", OrgList.as_view(), name="org-list"),
+    path("add/", OrgCreate.as_view(), name="org-create"),
     path("<slug>/", OrgDetail.as_view(), name="org-detail"),
     path("<slug>/add-project/", OrgProjectCreate.as_view(), name="org-project-create"),
     path("<slug>/edit/", OrgEdit.as_view(), name="org-edit"),

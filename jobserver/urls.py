@@ -33,7 +33,7 @@ from .views.job_requests import (
     JobRequestList,
 )
 from .views.jobs import JobCancel, JobDetail, JobDetailRedirect
-from .views.orgs import OrgCreate, OrgDetail, OrgList
+from .views.orgs import OrgDetail, OrgList
 from .views.projects import (
     ProjectAcceptInvite,
     ProjectCancelInvite,
@@ -243,11 +243,6 @@ project_urls = [
     path("<str:workspace_slug>/", include(workspace_urls)),
 ]
 
-org_urls = [
-    path("", OrgList.as_view(), name="org-list"),
-    path("new/", OrgCreate.as_view(), name="org-create"),
-]
-
 urlpatterns = [
     path("", Index.as_view()),
     path(
@@ -271,7 +266,7 @@ urlpatterns = [
     path("jobs/<identifier>/", JobDetailRedirect.as_view(), name="job-detail"),
     path("login/", login_view, name="login"),
     path("logout/", LogoutView.as_view(), name="logout"),
-    path("orgs/", include(org_urls)),
+    path("orgs/", OrgList.as_view(), name="org-list"),
     path("settings/", Settings.as_view(), name="settings"),
     path("staff/", include("staff.urls", namespace="staff")),
     path("status/", Status.as_view(), name="status"),

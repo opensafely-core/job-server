@@ -5,10 +5,24 @@ from django.utils.decorators import method_decorator
 from django.views.generic import CreateView, FormView, ListView, UpdateView, View
 
 from jobserver.authorization import CoreDeveloper
-from jobserver.authorization.decorators import require_role
+from jobserver.authorization.decorators import require_permission, require_role
 from jobserver.models import Org, OrgMembership, Project, User
 
 from ..forms import AddMemberForm
+
+
+@method_decorator(require_permission("org_create"), name="dispatch")
+class OrgCreate(CreateView):
+    fields = ["name"]
+    model = Org
+    template_name = "staff/org_create.html"
+
+    def form_valid(self, form):
+        org = form.save(commit=False)
+        org.created_by = self.request.user
+        org.save()
+
+        return redirect(org.get_staff_url())
 
 
 @method_decorator(require_role(CoreDeveloper), name="dispatch")

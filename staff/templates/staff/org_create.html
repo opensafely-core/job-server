@@ -1,0 +1,60 @@
+{% extends "staff/base.html" %}
+
+{% block metatitle %}Create an organisation: Staff Area | OpenSAFELY Jobs{% endblock metatitle %}
+
+{% block breadcrumbs %}
+<nav class="breadcrumb-container breadcrumb--danger" aria-label="breadcrumb">
+  <div class="container">
+    <ol class="breadcrumb rounded-0 mb-0 px-0">
+      <li class="breadcrumb-item">
+        <a href="{% url 'staff:index' %}">Staff area</a>
+      </li>
+      <li class="breadcrumb-item">
+        <a href="{% url 'staff:org-list' %}">Organisations</a>
+      </li>
+      <li class="breadcrumb-item active" aria-current="page">
+        Create an organisation
+      </li>
+    </ol>
+  </div>
+</nav>
+{% endblock breadcrumbs %}
+
+{% block jumbotron %}
+<div class="jumbotron jumbotron-fluid jumbotron--danger pt-md-2">
+  <div class="container">
+    <h1 class="display-4">Create a organisation</h1>
+  </div>
+</div>
+{% endblock jumbotron %}
+
+{% block staff_content %}
+<div class="container">
+  <div class="row">
+    <div class="col-lg-9 col-xl-8">
+      <form method="POST">
+        {% csrf_token %}
+        <fieldset>
+          <legend class="h3 mb-3">
+            Organisation details
+          </legend>
+
+          {% if form.non_field_errors %}
+            <ul>
+              {% for error in form.non_field_errors %}
+                <li class="text-danger">{{ error }}</li>
+              {% endfor %}
+            </ul>
+          {% endif %}
+
+          {% include "components/form_text.html" with field=form.name label="Organisation name" name="name" %}
+
+        </fieldset>
+
+        <button class="btn btn-success" type="submit">Create</button>
+
+      </form>
+    </div>
+  </div>
+</div>
+{% endblock staff_content %}

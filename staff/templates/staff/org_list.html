@@ -21,6 +21,12 @@
 <div class="jumbotron jumbotron-fluid jumbotron--danger pt-md-2">
   <div class="container">
     <h1 class="display-4">Organisations</h1>
+
+    <div class="d-flex">
+      <a class="btn btn-primary" href="{% url 'staff:org-create' %}">
+        Create an Organisation
+      </a>
+    </div>
   </div>
 </div>
 {% endblock jumbotron %}
