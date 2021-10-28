@@ -49,7 +49,7 @@
         {% for application in application_list %}
         <a href="{{ application.get_staff_url }}" class="d-flex align-items-center list-group-item list-group-item-action">
           <span class="mr-3">
-            {{ application.pk }} by {{ application.created_by.name }}
+            {{ application.pk_hash }} by {{ application.created_by.name }}
             <small class="text-muted">(started {{ application.created_at|date }})</small>
           </span>
         </a>

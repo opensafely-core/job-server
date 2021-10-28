@@ -140,7 +140,7 @@
             <a class="list-group-item list-group-item-action" href="{{ application.get_staff_url }}">
 
               <div>
-                Application {{ application.pk }}
+                Application {{ application.pk_hash }}
                 {% if application.studyinformationpage.study_name %}
                 ({{ application.studyinformationpage.study_name }})
                 {% endif %}

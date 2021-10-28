@@ -1,6 +1,6 @@
 {% extends "staff/base.html" %}
 
-{% block metatitle %}Application {{ application.pk }}: Staff Area | OpenSAFELY Jobs{% endblock metatitle %}
+{% block metatitle %}Application {{ application.pk_hash }}: Staff Area | OpenSAFELY Jobs{% endblock metatitle %}
 
 {% block breadcrumbs %}
 <nav class="breadcrumb-container breadcrumb--danger" aria-label="breadcrumb">
@@ -13,7 +13,7 @@
         <a href="{% url 'staff:application-list' %}">Applications</a>
       </li>
       <li class="breadcrumb-item active" aria-current="page">
-        Application {{ application.pk }}
+        Application {{ application.pk_hash }}
       </li>
     </ol>
   </div>
@@ -23,7 +23,7 @@
 {% block jumbotron %}
 <div class="jumbotron jumbotron-fluid jumbotron--danger pt-md-2">
   <div class="container">
-    <h1 class="display-4">Application {{ application.pk }}</h1>
+    <h1 class="display-4">Application {{ application.pk_hash }}</h1>
 
     <ul class="list-unstyled lead">
       {% if application.created_by %}
