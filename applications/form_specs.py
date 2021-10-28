@@ -234,7 +234,7 @@ form_specs = [
                 fields=[
                     Field(
                         name="hra_ires_id",
-                        label="HRA / IRSE ID",
+                        label="HRA / IRAS ID",
                     ),
                     Field(
                         name="hra_rec_reference",
