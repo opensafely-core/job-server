@@ -5,6 +5,32 @@ from jobserver.backends import backends_to_choices
 from jobserver.models import Backend, Org
 
 
+def iter_user_choices(users):
+    for user in users:
+        full_name = user.get_full_name()
+        label = f"{user.username} ({full_name})" if full_name else user.username
+
+        yield user.pk, label
+
+
+class PickUserMixin:
+    """
+    A generic form for picking Users to link to another object.
+
+    We connect users to different objects (eg Orgs) via membership models.  In
+    the Staff Area we want a UI to handle creating those connections.  In
+    particular we want to order Users by their username, ignoring case, and
+    display them with both username and full name.
+    """
+
+    def __init__(self, users, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+
+        choices = list(iter_user_choices(users))
+
+        self.fields["users"] = forms.MultipleChoiceField(choices=choices)
+
+
 class ApplicationApproveForm(forms.Form):
     project_name = forms.CharField(help_text="Update the study name if necessary")
 
@@ -16,30 +42,11 @@ class ApplicationApproveForm(forms.Form):
         self.fields["org"] = forms.ModelChoiceField(queryset=orgs)
 
 
-class AddMemberForm(forms.Form):
-    """
-    A generic form for adding Members to another object.
-
-    We connect users to different objects (eg Orgs) via membership models.  In
-    the Staff Area we want a UI to handle creating those connections.
-    """
-
-    def __init__(self, users, *args, **kwargs):
-        super().__init__(*args, **kwargs)
-
-        self.fields["users"] = forms.MultipleChoiceField(
-            choices=list(self.build_user_choices(users)),
-        )
-
-    def build_user_choices(self, users):
-        for user in users:
-            full_name = user.get_full_name()
-            label = f"{user.username} ({full_name})" if full_name else user.username
-
-            yield user.pk, label
+class OrgAddMemberForm(PickUserMixin, forms.Form):
+    pass
 
 
-class ProjectAddMemberForm(RolesForm, AddMemberForm):
+class ProjectAddMemberForm(PickUserMixin, RolesForm):
     pass
 
 

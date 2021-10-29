@@ -8,7 +8,7 @@ from jobserver.authorization import CoreDeveloper
 from jobserver.authorization.decorators import require_permission, require_role
 from jobserver.models import Org, OrgMembership, Project, User
 
-from ..forms import AddMemberForm
+from ..forms import OrgAddMemberForm
 
 
 @method_decorator(require_permission("org_create"), name="dispatch")
@@ -27,7 +27,7 @@ class OrgCreate(CreateView):
 
 @method_decorator(require_role(CoreDeveloper), name="dispatch")
 class OrgDetail(FormView):
-    form_class = AddMemberForm
+    form_class = OrgAddMemberForm
     template_name = "staff/org_detail.html"
 
     def dispatch(self, request, *args, **kwargs):
