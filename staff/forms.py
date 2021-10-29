@@ -62,6 +62,7 @@ class ProjectEditForm(forms.ModelForm):
         fields = [
             "name",
             "copilot",
+            "copilot_support_ends_at",
             "uses_new_release_flow",
         ]
         model = Project
@@ -70,7 +71,8 @@ class ProjectEditForm(forms.ModelForm):
         super().__init__(*args, **kwargs)
 
         users = users.order_by(Lower("username"))
-        self.fields["copilot"] = UserModelChoiceField(queryset=users)
+        self.fields["copilot"] = UserModelChoiceField(queryset=users, required=False)
+        self.fields["copilot_support_ends_at"].required = False
 
 
 class UserForm(RolesForm):

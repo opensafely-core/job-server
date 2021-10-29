@@ -69,6 +69,27 @@
         </div>
 
         <div class="form-group">
+          <label class="font-weight-bold" for="id_copilot_support_ends_at">
+            Co-pilot support ends at
+          </label>
+
+          <input
+            type="date"
+            class="form-control"
+            id="id_copilot_support_ends_at"
+            name="copilot_support_ends_at"
+            aria-describedby="{{ name }}HelpBlock"
+            {% if form.copilot_support_ends_at.value %}
+            value="{{ form.copilot_support_ends_at.value|date:"Y-m-d" }}"
+            {% endif %}
+          />
+
+          {% for error in form.copilot_support_ends_at.errors %}
+          <p class="text-danger">{{ error }}</p>
+          {% endfor %}
+        </div>
+
+        <div class="form-group">
           <fieldset>
             <legend class="pt-3">Feature flags</legend>
             <div class="custom-control custom-checkbox">

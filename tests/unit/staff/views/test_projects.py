@@ -115,6 +115,7 @@ def test_projectedit_post_success(rf, core_developer):
     data = {
         "name": "new-name",
         "copilot": str(new_copilot.pk),
+        "copilot_support_ends_at": "",
         "uses_new_release_flow": True,
     }
     request = rf.post("/", data)
