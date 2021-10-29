@@ -1,4 +1,5 @@
 from django import forms
+from django.db.models.functions import Lower
 
 from jobserver.authorization.forms import RolesForm
 from jobserver.backends import backends_to_choices
@@ -26,6 +27,7 @@ class PickUserMixin:
     def __init__(self, users, *args, **kwargs):
         super().__init__(*args, **kwargs)
 
+        users = users.order_by(Lower("username"))
         choices = list(iter_user_choices(users))
 
         self.fields["users"] = forms.MultipleChoiceField(choices=choices)

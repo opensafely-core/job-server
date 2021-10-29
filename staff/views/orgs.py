@@ -51,7 +51,7 @@ class OrgDetail(FormView):
     def get_form_kwargs(self):
         members = self.object.members.values_list("pk", flat=True)
         return super().get_form_kwargs() | {
-            "users": User.objects.exclude(pk__in=members).order_by("username"),
+            "users": User.objects.exclude(pk__in=members),
         }
 
     def get_initial(self):
