@@ -1,4 +1,5 @@
 from django.contrib import messages
+from django.db import transaction
 from django.db.models.functions import Lower
 from django.shortcuts import get_object_or_404, redirect
 from django.utils.decorators import method_decorator
@@ -36,8 +37,14 @@ class OrgDetail(FormView):
         return super().dispatch(request, *args, **kwargs)
 
     def form_valid(self, form):
-        for user in form.cleaned_data["users"]:
-            self.object.memberships.create(user_id=user, created_by=self.request.user)
+        users = form.cleaned_data["users"]
+
+        with transaction.atomic():
+            for user in users:
+                self.object.memberships.create(
+                    user=user,
+                    created_by=self.request.user,
+                )
 
         return redirect(self.object.get_staff_url())
 

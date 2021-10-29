@@ -18,6 +18,7 @@ from ....factories import ProjectFactory, ProjectMembershipFactory, UserFactory
 
 def test_projectaddmember_get_success(rf, core_developer):
     project = ProjectFactory()
+    UserFactory(username="beng", first_name="Ben", last_name="Goldacre")
 
     request = rf.get("/")
     request.user = core_developer
@@ -26,6 +27,7 @@ def test_projectaddmember_get_success(rf, core_developer):
 
     assert response.status_code == 200
     assert response.context_data["project"] == project
+    assert "beng (Ben Goldacre)" in response.rendered_content
 
 
 def test_projectaddmember_post_success(rf, core_developer):

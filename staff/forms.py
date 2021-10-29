@@ -6,15 +6,17 @@ from jobserver.backends import backends_to_choices
 from jobserver.models import Backend, Org
 
 
-def iter_user_choices(users):
-    for user in users:
-        full_name = user.get_full_name()
-        label = f"{user.username} ({full_name})" if full_name else user.username
-
-        yield user.pk, label
+def user_label_from_instance(obj):
+    full_name = obj.get_full_name()
+    return f"{obj.username} ({full_name})" if full_name else obj.username
 
 
-class PickUserMixin:
+class UserModelMultipleChoiceField(forms.ModelMultipleChoiceField):
+    def label_from_instance(self, obj):
+        return user_label_from_instance(obj)
+
+
+class PickUsersMixin:
     """
     A generic form for picking Users to link to another object.
 
@@ -28,9 +30,7 @@ class PickUserMixin:
         super().__init__(*args, **kwargs)
 
         users = users.order_by(Lower("username"))
-        choices = list(iter_user_choices(users))
-
-        self.fields["users"] = forms.MultipleChoiceField(choices=choices)
+        self.fields["users"] = UserModelMultipleChoiceField(queryset=users)
 
 
 class ApplicationApproveForm(forms.Form):
@@ -44,11 +44,11 @@ class ApplicationApproveForm(forms.Form):
         self.fields["org"] = forms.ModelChoiceField(queryset=orgs)
 
 
-class OrgAddMemberForm(PickUserMixin, forms.Form):
+class OrgAddMemberForm(PickUsersMixin, forms.Form):
     pass
 
 
-class ProjectAddMemberForm(PickUserMixin, RolesForm):
+class ProjectAddMemberForm(PickUsersMixin, RolesForm):
     pass
 
 

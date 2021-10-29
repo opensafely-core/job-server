@@ -25,9 +25,7 @@ class ProjectAddMember(FormView):
 
     def form_valid(self, form):
         roles = form.cleaned_data["roles"]
-        user_pks = form.cleaned_data["users"]
-
-        users = User.objects.filter(pk__in=user_pks)
+        users = form.cleaned_data["users"]
 
         with transaction.atomic():
             for user in users:
