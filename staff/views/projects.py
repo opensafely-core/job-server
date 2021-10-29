@@ -10,7 +10,7 @@ from jobserver.authorization.decorators import require_role
 from jobserver.authorization.utils import roles_for
 from jobserver.models import Org, Project, ProjectMembership, User
 
-from ..forms import ProjectAddMemberForm
+from ..forms import ProjectAddMemberForm, ProjectEditForm
 
 
 @method_decorator(require_role(CoreDeveloper), name="dispatch")
@@ -72,9 +72,14 @@ class ProjectDetail(DetailView):
 
 @method_decorator(require_role(CoreDeveloper), name="dispatch")
 class ProjectEdit(UpdateView):
-    fields = ["name", "uses_new_release_flow"]
+    form_class = ProjectEditForm
     model = Project
     template_name = "staff/project_edit.html"
+
+    def get_form_kwargs(self):
+        return super().get_form_kwargs() | {
+            "users": User.objects.all(),
+        }
 
     def get_success_url(self):
         return self.object.get_staff_url()

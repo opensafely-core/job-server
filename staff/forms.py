@@ -3,12 +3,17 @@ from django.db.models.functions import Lower
 
 from jobserver.authorization.forms import RolesForm
 from jobserver.backends import backends_to_choices
-from jobserver.models import Backend, Org
+from jobserver.models import Backend, Org, Project
 
 
 def user_label_from_instance(obj):
     full_name = obj.get_full_name()
     return f"{obj.username} ({full_name})" if full_name else obj.username
+
+
+class UserModelChoiceField(forms.ModelChoiceField):
+    def label_from_instance(self, obj):
+        return user_label_from_instance(obj)
 
 
 class UserModelMultipleChoiceField(forms.ModelMultipleChoiceField):
@@ -50,6 +55,22 @@ class OrgAddMemberForm(PickUsersMixin, forms.Form):
 
 class ProjectAddMemberForm(PickUsersMixin, RolesForm):
     pass
+
+
+class ProjectEditForm(forms.ModelForm):
+    class Meta:
+        fields = [
+            "name",
+            "copilot",
+            "uses_new_release_flow",
+        ]
+        model = Project
+
+    def __init__(self, users, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+
+        users = users.order_by(Lower("username"))
+        self.fields["copilot"] = UserModelChoiceField(queryset=users)
 
 
 class UserForm(RolesForm):

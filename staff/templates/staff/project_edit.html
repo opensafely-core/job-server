@@ -1,5 +1,12 @@
 {% extends "staff/base.html" %}
 
+{% load static %}
+
+{% block extra_styles %}
+<link rel="stylesheet" href="{% static 'vendor/select2.min.css' %}">
+<link rel="stylesheet" href="{% static 'vendor/select2-bootstrap4.min.css' %}">
+{% endblock %}
+
 {% block metatitle %}Edit {{ project.name }}: Staff Area | OpenSAFELY Jobs{% endblock metatitle %}
 
 {% block breadcrumbs %}
@@ -40,7 +47,28 @@
 
         <div class="form-group">
           {% include "components/form_text.html" with field=form.name label="Project name" name="name" %}
+        </div>
 
+        <div class="form-group">
+          <label class="font-weight-bold" for="id_copilot">Co-pilot</label>
+
+          <select id="id_copilot" name="copilot" class="form-control">
+            {% for value, label in form.fields.copilot.choices %}
+            <option
+              value="{{ value }}"
+              {% if form.copilot.value == value %}selected{% endif %}
+            >
+              {{ label }}
+            </option>
+            {% endfor %}
+          </select>
+
+          {% for error in form.copilot.errors %}
+          <p class="text-danger">{{ error }}</p>
+          {% endfor %}
+        </div>
+
+        <div class="form-group">
           <fieldset>
             <legend class="pt-3">Feature flags</legend>
             <div class="custom-control custom-checkbox">
@@ -68,3 +96,15 @@
   </div>
 </div>
 {% endblock staff_content %}
+
+{% block extra_js %}
+<script type="text/javascript" src="{% static 'vendor/select2.min.js' %}"></script>
+<script type="text/javascript">
+  $(document).ready(function() {
+    $('#id_copilot').select2({
+      placeholder: "Select a co-pilot",
+      theme: "bootstrap4",
+    });
+  });
+</script>
+{% endblock %}
