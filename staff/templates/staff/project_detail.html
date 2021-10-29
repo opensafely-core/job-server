@@ -1,5 +1,7 @@
 {% extends "staff/base.html" %}
 
+{% load humanize %}
+
 {% block metatitle %}{{ project.name }}: Staff Area | OpenSAFELY Jobs{% endblock metatitle %}
 
 {% block breadcrumbs %}
@@ -105,11 +107,26 @@
       </div>
       <div class="card mb-3">
         <h2 class="card-header h5">
-          Co-pilot
+          Co-piloting
         </h2>
-        <p class="card-body mb-0">
-          <a href="{{ project.copilot.get_staff_url }}">{{ project.copilot.name }}</a>
-        </p>
+        <div class="card-body mb-0">
+          <p>
+            <strong>Co-pilot</strong>
+            <br />
+            {% if project.copilot %}
+            <a href="{{ project.copilot.get_staff_url }}">{{ project.copilot.name }}</a>
+            {% else %}
+            -
+            {% endif %}
+          </p>
+          <p class="mb-0">
+            <strong>Support window ends</strong>
+            <br />
+            <time title="{{ project.copilot_support_ends_at|default_if_none:"-" }}">
+              {{ project.copilot_support_ends_at|naturaltime|default_if_none:"-" }}
+            </time>
+          </p>
+        </div>
       </div>
       <div class="card mb-3">
         <h2 class="card-header h5">
