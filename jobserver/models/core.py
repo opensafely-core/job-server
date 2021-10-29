@@ -431,6 +431,8 @@ class Project(models.Model):
     name = models.TextField(unique=True)
     slug = models.SlugField(max_length=255, unique=True)
 
+    copilot_support_ends_at = models.DateTimeField(null=True)
+
     created_at = models.DateTimeField(default=timezone.now)
 
     # TODO: Remove this once all Projects are ready to move to the new release
