@@ -132,7 +132,7 @@
 
         {% include "components/form_roles.html" with field=form.roles label="Roles" name="roles" %}
 
-        <div class="form-group mb-5">
+        <div class="form-group mb-3">
           <h2 class="h4">Authored Applications</h2>
 
           <div class="list-group mb-3">
@@ -159,6 +159,20 @@
             </a>
             {% empty %}
             <p class="list-group-item">No applications.</p>
+            {% endfor %}
+          </div>
+        </div>
+
+        <div class="form-group mb-5">
+          <h2 class="h4">Co-piloted Projects</h2>
+
+          <div class="list-group mb-3">
+            {% for project in copiloted_projects %}
+            <a class="list-group-item list-group-item-action" href="{{ project.get_staff_url }}">
+              {{ project.name }}
+            </a>
+            {% empty %}
+            <p class="list-group-item">No co-piloted projects.</p>
             {% endfor %}
           </div>
         </div>
