@@ -14,6 +14,13 @@ YES_NO_CHOICES = [
 
 
 class Application(models.Model):
+    class Statuses(models.TextChoices):
+        APPROVED_FULLY = "approved_fully", "Approved Fully"
+        APPROVED_SUBJECT_TO = "approved_subject_to", "Approved Subject To"
+        COMPLETED = "completed", "Completed"
+        ONGOING = "ongoing", "Ongoing"
+        REJECTED = "rejected", "Rejected"
+
     approved_by = models.ForeignKey(
         "jobserver.User",
         on_delete=models.CASCADE,
@@ -33,6 +40,8 @@ class Application(models.Model):
         related_name="applications",
     )
 
+    status = models.TextField(choices=Statuses.choices, default=Statuses.ONGOING)
+    status_comment = models.TextField(default="")
     has_agreed_to_terms = models.BooleanField(default=False)
 
     created_at = models.DateTimeField(default=timezone.now)
