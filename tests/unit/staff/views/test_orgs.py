@@ -36,9 +36,9 @@ def test_orgcreate_post_success(rf, core_developer):
     assert response.status_code == 302
 
     orgs = Org.objects.all()
-    assert len(orgs) == 2
+    assert len(orgs) == 1
 
-    org = orgs[1]
+    org = orgs.first()
     assert org.name == "A New Org"
     assert org.created_by == core_developer
     assert response.url == org.get_staff_url()
