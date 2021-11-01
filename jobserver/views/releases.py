@@ -283,7 +283,9 @@ class WorkspaceReleaseList(View):
                 "title": build_title(r),
                 "view_url": r.get_absolute_url(),
             }
-            for r in workspace.releases.order_by("-created_at")
+            for r in workspace.releases.select_related("created_by")
+            .prefetch_related("files")
+            .order_by("-created_at")
         ]
 
         context = {
