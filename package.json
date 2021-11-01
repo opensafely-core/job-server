@@ -13,14 +13,13 @@
     "test:single": "jest --watch --coverage --"
   },
   "devDependencies": {
-    "@babel/preset-env": "^7.16.0",
-    "@babel/preset-react": "^7.16.0",
+    "@swc/core": "^1.2.106",
+    "@swc/jest": "^0.2.5",
     "@testing-library/jest-dom": "^5.14.1",
     "@testing-library/react": "^12.1.2",
     "@testing-library/user-event": "^13.5.0",
     "@vitejs/plugin-legacy": "^1.6.2",
     "autoprefixer": "^10.4.0",
-    "babel-jest": "^27.3.1",
     "cssnano": "^5.0.8",
     "eslint": "^7.32.0",
     "eslint-config-airbnb": "^18.2.1",

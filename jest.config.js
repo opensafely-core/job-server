@@ -26,4 +26,7 @@ module.exports = async () => ({
     "<rootDir>/assets/src/scripts/outputs-viewer/tests/jest-setup.js",
   ],
   testEnvironment: "jsdom",
+  transform: {
+    "^.+\\.(t|j)sx?$": "@swc/jest",
+  },
 });
