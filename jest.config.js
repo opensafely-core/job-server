@@ -21,9 +21,16 @@ module.exports = async () => ({
   },
   roots: ["<rootDir>/assets/src/scripts/outputs-viewer"],
   setupFilesAfterEnv: [
-    "regenerator-runtime/runtime",
     "window-resizeto/polyfill",
     "<rootDir>/assets/src/scripts/outputs-viewer/tests/jest-setup.js",
   ],
-  testEnvironment: "jsdom",
+  testEnvironment: "jest-environment-jsdom",
+  transform: {
+    "^.+\\.(t|j)sx?$": [
+      "@swc/jest",
+      {
+        sourceMaps: true,
+      },
+    ],
+  },
 });
