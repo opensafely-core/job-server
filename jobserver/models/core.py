@@ -409,6 +409,12 @@ class Project(models.Model):
     Papers which are produced as a result of the work.
     """
 
+    copilot = models.ForeignKey(
+        "User",
+        null=True,
+        on_delete=models.SET_NULL,
+        related_name="copiloted_projects",
+    )
     created_by = models.ForeignKey(
         "User",
         null=True,

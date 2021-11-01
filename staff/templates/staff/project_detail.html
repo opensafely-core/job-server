@@ -71,7 +71,7 @@
           </div>
           <form method="POST" action="{% url 'staff:project-remove-member' slug=project.slug %}">
             {% csrf_token %}
-            <input type="hidden" name="username" value="{{ user.username }}" />
+            <input type="hidden" name="username" value="{{ membership.user.username }}" />
             <button class="btn btn-sm btn-danger" type="submit">
               Remove <span class="sr-only">from {{ project.name }}</span>
             </button>
@@ -101,6 +101,14 @@
         </h2>
         <p class="card-body mb-0">
           <a href="{{ project.org.get_staff_url }}">{{ project.org.name }}</a>
+        </p>
+      </div>
+      <div class="card mb-3">
+        <h2 class="card-header h5">
+          Co-pilot
+        </h2>
+        <p class="card-body mb-0">
+          <a href="{{ project.copilot.get_staff_url }}">{{ project.copilot.name }}</a>
         </p>
       </div>
       <div class="card mb-3">

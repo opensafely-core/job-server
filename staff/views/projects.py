@@ -10,7 +10,7 @@ from jobserver.authorization.decorators import require_role
 from jobserver.authorization.utils import roles_for
 from jobserver.models import Org, Project, ProjectMembership, User
 
-from ..forms import ProjectAddMemberForm
+from ..forms import ProjectAddMemberForm, ProjectEditForm
 
 
 @method_decorator(require_role(CoreDeveloper), name="dispatch")
@@ -25,9 +25,7 @@ class ProjectAddMember(FormView):
 
     def form_valid(self, form):
         roles = form.cleaned_data["roles"]
-        user_pks = form.cleaned_data["users"]
-
-        users = User.objects.filter(pk__in=user_pks)
+        users = form.cleaned_data["users"]
 
         with transaction.atomic():
             for user in users:
@@ -49,7 +47,7 @@ class ProjectAddMember(FormView):
         members = self.project.members.values_list("pk", flat=True)
         return super().get_form_kwargs() | {
             "available_roles": roles_for(ProjectMembership),
-            "users": User.objects.exclude(pk__in=members).order_by("username"),
+            "users": User.objects.exclude(pk__in=members),
         }
 
     def get_initial(self):
@@ -74,9 +72,14 @@ class ProjectDetail(DetailView):
 
 @method_decorator(require_role(CoreDeveloper), name="dispatch")
 class ProjectEdit(UpdateView):
-    fields = ["name", "uses_new_release_flow"]
+    form_class = ProjectEditForm
     model = Project
     template_name = "staff/project_edit.html"
+
+    def get_form_kwargs(self):
+        return super().get_form_kwargs() | {
+            "users": User.objects.all(),
+        }
 
     def get_success_url(self):
         return self.object.get_staff_url()

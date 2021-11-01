@@ -1,8 +1,41 @@
 from django import forms
+from django.db.models.functions import Lower
 
 from jobserver.authorization.forms import RolesForm
 from jobserver.backends import backends_to_choices
-from jobserver.models import Backend, Org
+from jobserver.models import Backend, Org, Project
+
+
+def user_label_from_instance(obj):
+    full_name = obj.get_full_name()
+    return f"{obj.username} ({full_name})" if full_name else obj.username
+
+
+class UserModelChoiceField(forms.ModelChoiceField):
+    def label_from_instance(self, obj):
+        return user_label_from_instance(obj)
+
+
+class UserModelMultipleChoiceField(forms.ModelMultipleChoiceField):
+    def label_from_instance(self, obj):
+        return user_label_from_instance(obj)
+
+
+class PickUsersMixin:
+    """
+    A generic form for picking Users to link to another object.
+
+    We connect users to different objects (eg Orgs) via membership models.  In
+    the Staff Area we want a UI to handle creating those connections.  In
+    particular we want to order Users by their username, ignoring case, and
+    display them with both username and full name.
+    """
+
+    def __init__(self, users, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+
+        users = users.order_by(Lower("username"))
+        self.fields["users"] = UserModelMultipleChoiceField(queryset=users)
 
 
 class ApplicationApproveForm(forms.Form):
@@ -16,31 +49,28 @@ class ApplicationApproveForm(forms.Form):
         self.fields["org"] = forms.ModelChoiceField(queryset=orgs)
 
 
-class AddMemberForm(forms.Form):
-    """
-    A generic form for adding Members to another object.
+class OrgAddMemberForm(PickUsersMixin, forms.Form):
+    pass
 
-    We connect users to different objects (eg Orgs) via membership models.  In
-    the Staff Area we want a UI to handle creating those connections.
-    """
+
+class ProjectAddMemberForm(PickUsersMixin, RolesForm):
+    pass
+
+
+class ProjectEditForm(forms.ModelForm):
+    class Meta:
+        fields = [
+            "name",
+            "copilot",
+            "uses_new_release_flow",
+        ]
+        model = Project
 
     def __init__(self, users, *args, **kwargs):
         super().__init__(*args, **kwargs)
 
-        self.fields["users"] = forms.MultipleChoiceField(
-            choices=list(self.build_user_choices(users)),
-        )
-
-    def build_user_choices(self, users):
-        for user in users:
-            full_name = user.get_full_name()
-            label = f"{user.username} ({full_name})" if full_name else user.username
-
-            yield user.pk, label
-
-
-class ProjectAddMemberForm(RolesForm, AddMemberForm):
-    pass
+        users = users.order_by(Lower("username"))
+        self.fields["copilot"] = UserModelChoiceField(queryset=users)
 
 
 class UserForm(RolesForm):

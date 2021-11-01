@@ -1,4 +1,5 @@
 from django.contrib import messages
+from django.db import transaction
 from django.db.models.functions import Lower
 from django.shortcuts import get_object_or_404, redirect
 from django.utils.decorators import method_decorator
@@ -8,7 +9,7 @@ from jobserver.authorization import CoreDeveloper
 from jobserver.authorization.decorators import require_permission, require_role
 from jobserver.models import Org, OrgMembership, Project, User
 
-from ..forms import AddMemberForm
+from ..forms import OrgAddMemberForm
 
 
 @method_decorator(require_permission("org_create"), name="dispatch")
@@ -27,7 +28,7 @@ class OrgCreate(CreateView):
 
 @method_decorator(require_role(CoreDeveloper), name="dispatch")
 class OrgDetail(FormView):
-    form_class = AddMemberForm
+    form_class = OrgAddMemberForm
     template_name = "staff/org_detail.html"
 
     def dispatch(self, request, *args, **kwargs):
@@ -36,8 +37,14 @@ class OrgDetail(FormView):
         return super().dispatch(request, *args, **kwargs)
 
     def form_valid(self, form):
-        for user in form.cleaned_data["users"]:
-            self.object.memberships.create(user_id=user, created_by=self.request.user)
+        users = form.cleaned_data["users"]
+
+        with transaction.atomic():
+            for user in users:
+                self.object.memberships.create(
+                    user=user,
+                    created_by=self.request.user,
+                )
 
         return redirect(self.object.get_staff_url())
 
@@ -51,7 +58,7 @@ class OrgDetail(FormView):
     def get_form_kwargs(self):
         members = self.object.members.values_list("pk", flat=True)
         return super().get_form_kwargs() | {
-            "users": User.objects.exclude(pk__in=members).order_by("username"),
+            "users": User.objects.exclude(pk__in=members),
         }
 
     def get_initial(self):

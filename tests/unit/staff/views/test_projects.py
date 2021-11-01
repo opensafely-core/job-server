@@ -18,6 +18,7 @@ from ....factories import ProjectFactory, ProjectMembershipFactory, UserFactory
 
 def test_projectaddmember_get_success(rf, core_developer):
     project = ProjectFactory()
+    UserFactory(username="beng", first_name="Ben", last_name="Goldacre")
 
     request = rf.get("/")
     request.user = core_developer
@@ -26,6 +27,7 @@ def test_projectaddmember_get_success(rf, core_developer):
 
     assert response.status_code == 200
     assert response.context_data["project"] == project
+    assert "beng (Ben Goldacre)" in response.rendered_content
 
 
 def test_projectaddmember_post_success(rf, core_developer):
@@ -84,12 +86,15 @@ def test_projectdetail_success(rf, core_developer):
 def test_projectedit_get_success(rf, core_developer):
     project = ProjectFactory()
 
+    UserFactory(username="beng", first_name="Ben", last_name="Goldacre")
+
     request = rf.get("/")
     request.user = core_developer
 
     response = ProjectEdit.as_view()(request, slug=project.slug)
 
     assert response.status_code == 200
+    assert "beng (Ben Goldacre)" in response.rendered_content
 
 
 def test_projectedit_get_unauthorized(rf):
@@ -105,8 +110,11 @@ def test_projectedit_get_unauthorized(rf):
 def test_projectedit_post_success(rf, core_developer):
     project = ProjectFactory(uses_new_release_flow=False)
 
+    new_copilot = UserFactory()
+
     data = {
         "name": "new-name",
+        "copilot": str(new_copilot.pk),
         "uses_new_release_flow": True,
     }
     request = rf.post("/", data)
@@ -119,6 +127,7 @@ def test_projectedit_post_success(rf, core_developer):
 
     project.refresh_from_db()
     assert project.name == "new-name"
+    assert project.copilot == new_copilot
     assert project.uses_new_release_flow
 
 

@@ -40,6 +40,7 @@ class UserDetail(UpdateView):
 
     def get_context_data(self, **kwargs):
         applications = self.object.applications.order_by("-created_at")
+        copiloted_projects = self.object.copiloted_projects.order_by(Lower("name"))
         orgs = [
             {
                 "name": m.org.name,
@@ -58,6 +59,7 @@ class UserDetail(UpdateView):
         ]
         return super().get_context_data(**kwargs) | {
             "applications": applications,
+            "copiloted_projects": copiloted_projects,
             "orgs": orgs,
             "projects": projects,
         }
