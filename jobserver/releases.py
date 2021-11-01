@@ -143,13 +143,15 @@ def workspace_files(workspace):
 
     Returns a mapping of the workspace-relative file name (which includes
     backend) to its RequestFile model.
-
-    We use Python to find the latest version of each file because SQLite
-    doesn't support DISTINCT ON so we can't use
-    `.distinct("release__created_at")`.
     """
+
+    files = (
+        workspace.files.select_related("release", "release__backend")
+        .order_by("name", "-release__created_at")
+        .distinct("name", "release__created_at")
+    )
     index = {}
-    for rfile in workspace.files.order_by("-release__created_at"):
+    for rfile in files:
         workspace_path = f"{rfile.release.backend.slug}/{rfile.name}"
         if workspace_path not in index:
             index[workspace_path] = rfile
