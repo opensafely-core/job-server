@@ -2,10 +2,13 @@ import pytest
 from django.utils import timezone
 
 from jobserver.backends import (
+    backends,
     backends_to_choices,
+    ensure_backends,
     get_configured_backends,
     show_warning,
 )
+from jobserver.models import Backend
 
 from ...factories import BackendFactory
 from ...utils import minutes_ago
@@ -19,6 +22,28 @@ def test_backends_to_choices():
 
     assert choices[0] == ("test1", "Display One")
     assert choices[1] == ("test2", "Display Two")
+
+
+def test_ensure_backends_existing_backends():
+    BackendFactory(pk=3, name="TEST", slug="testing")
+
+    assert Backend.objects.count() == 1
+
+    ensure_backends()
+
+    assert Backend.objects.count() == len(backends)
+
+    tpp = Backend.objects.get(pk=3)
+    assert tpp.name == "TPP"
+    assert tpp.slug == "tpp"
+
+
+def test_ensure_backends_no_backends():
+    assert Backend.objects.count() == 0
+
+    ensure_backends()
+
+    assert Backend.objects.count() == len(backends)
 
 
 def test_get_configured_backends_empty(monkeypatch):
