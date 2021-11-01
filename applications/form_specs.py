@@ -108,11 +108,11 @@ form_specs = [
             Fieldset(
                 label="Simple description",
                 fields=[
-                    # Convert to textarea
                     Field(
                         name="description",
                         label="Provide a short lay description of your study purpose for the general public",
                         help_text=snippet("description-help_text"),
+                        template_name="components/form_textarea.html",
                     ),
                 ],
             ),
@@ -234,7 +234,7 @@ form_specs = [
                 fields=[
                     Field(
                         name="hra_ires_id",
-                        label="HRA / IRSE ID",
+                        label="HRA / IRAS ID",
                     ),
                     Field(
                         name="hra_rec_reference",
