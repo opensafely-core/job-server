@@ -1,4 +1,4 @@
-import debounce from "lodash/debounce";
+import debounce from "just-debounce-it";
 import { useState, useEffect } from "react";
 
 // Hook
