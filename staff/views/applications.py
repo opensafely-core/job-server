@@ -3,7 +3,7 @@ from django.shortcuts import get_object_or_404, redirect
 from django.template.response import TemplateResponse
 from django.utils import timezone
 from django.utils.decorators import method_decorator
-from django.views.generic import FormView, ListView, View
+from django.views.generic import FormView, ListView, UpdateView, View
 
 from applications.form_specs import form_specs
 from applications.models import Application
@@ -91,6 +91,25 @@ class ApplicationDetail(View):
                 form.save()
 
         return redirect("staff:application-detail", application.pk_hash)
+
+
+@method_decorator(require_role(CoreDeveloper), name="dispatch")
+class ApplicationEdit(UpdateView):
+    fields = [
+        "status",
+        "status_comment",
+    ]
+    model = Application
+    template_name = "staff/application_edit.html"
+
+    def get_object(self):
+        return get_object_or_404(
+            Application,
+            pk=unhash_or_404(self.kwargs["pk_hash"]),
+        )
+
+    def get_success_url(self):
+        return self.object.get_staff_url()
 
 
 @method_decorator(require_role(CoreDeveloper), name="dispatch")
