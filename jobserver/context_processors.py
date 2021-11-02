@@ -2,6 +2,7 @@ import functools
 
 import structlog
 from django.conf import settings
+from django.db.models import Max
 from django.urls import reverse
 
 from .authorization import CoreDeveloper, has_role
@@ -22,18 +23,16 @@ def backend_warnings(request):
             return
 
         for backend in backends:
-            try:
-                last_seen = (
-                    backend.stats.order_by("-api_last_seen").first().api_last_seen
-                )
-            except AttributeError:
+            if backend.api_last_seen is None:
                 logger.info(f"No stats found for backend '{backend.slug}'")
                 continue
 
-            if show_warning(last_seen):
+            if show_warning(backend.api_last_seen):
                 yield backend.name
 
-    backends = Backend.objects.filter(is_active=True)
+    backends = Backend.objects.filter(is_active=True).annotate(
+        api_last_seen=Max("stats__api_last_seen")
+    )
     return {"backend_warnings": list(iter_warnings(backends))}
 
 

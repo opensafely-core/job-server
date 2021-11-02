@@ -25,11 +25,12 @@ exclude = '''
 [tool.coverage.run]
 branch = true
 omit = [
+  "*/migrations/*",
   "jobserver/asgi.py",
   "jobserver/management/commands/count_rows.py",
   "jobserver/management/commands/ensure_admins.py",
+  "jobserver/management/commands/ensure_backends.py",
   "jobserver/management/commands/release.py",
-  "jobserver/migrations/*",
   "jobserver/settings.py",
   "jobserver/wsgi.py",
   "services/sentry.py",
@@ -51,7 +52,7 @@ skip_glob = [".direnv", "venv", ".venv"]
 use_parentheses = true
 
 [tool.pytest.ini_options]
-addopts = "--disable-network --tb=native"
+addopts = "--disable-network --tb=native --no-migrations"
 DJANGO_SETTINGS_MODULE = "jobserver.settings"
 env = [
   "AUTHORIZATION_ORGS=opensafely",

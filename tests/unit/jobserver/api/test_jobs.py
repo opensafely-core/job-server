@@ -11,7 +11,7 @@ from jobserver.api.jobs import (
     update_stats,
 )
 from jobserver.authorization import CoreDeveloper, OrgCoordinator, ProjectDeveloper
-from jobserver.models import Backend, Job, JobRequest, Stats
+from jobserver.models import Job, JobRequest, Stats
 from tests.factories import (
     BackendFactory,
     JobFactory,
@@ -38,11 +38,11 @@ def test_token_backend_no_token():
 
 
 def test_token_backend_success(monkeypatch):
-    monkeypatch.setenv("BACKENDS", "tpp")
+    backend = BackendFactory(slug="tpp")
 
-    tpp = Backend.objects.get(slug="tpp")
+    monkeypatch.setenv("BACKENDS", backend.slug)
 
-    assert get_backend_from_token(tpp.auth_token) == tpp
+    assert get_backend_from_token(backend.auth_token) == backend
 
 
 def test_token_backend_unknown_backend():
@@ -499,37 +499,29 @@ def test_jobapiupdate_unknown_job_request(api_rf):
 
 
 def test_jobrequestapilist_filter_by_backend(api_rf):
-    JobRequestFactory(backend=Backend.objects.get(slug="expectations"))
-    JobRequestFactory(backend=Backend.objects.get(slug="tpp"))
+    backend = BackendFactory()
+    JobRequestFactory(backend=backend)
+    JobRequestFactory()
 
-    request = api_rf.get("/?backend=expectations")
+    request = api_rf.get(f"/?backend={backend.slug}")
     response = JobRequestAPIList.as_view()(request)
 
     assert response.status_code == 200, response.data
     assert len(response.data["results"]) == 1
 
 
-def test_jobrequestapilist_filter_by_databricks(api_rf):
-    job_request = JobRequestFactory(backend=Backend.objects.get(slug="databricks"))
-    JobRequestFactory(backend=Backend.objects.get(slug="tpp"))
+def test_jobrequestapilist_filter_by_backend_with_mismatched(api_rf, mocker):
+    backend1 = BackendFactory()
+    JobRequestFactory(backend=backend1)
 
-    request = api_rf.get("/?backend=nhsd")
-    response = JobRequestAPIList.as_view()(request)
-
-    assert response.status_code == 200, response.data
-    assert len(response.data["results"]) == 1
-    assert response.data["results"][0]["identifier"] == job_request.identifier
-
-
-def test_jobrequestapilist_filter_by_databricks_with_mismatched(api_rf, mocker):
-    tpp = Backend.objects.get(slug="tpp")
-
-    JobRequestFactory(backend=tpp)
-    job_request = JobRequestFactory(backend=Backend.objects.get(slug="emis"))
+    backend2 = BackendFactory()
+    job_request = JobRequestFactory(backend=backend2)
 
     mocked_sentry = mocker.patch("jobserver.api.jobs.sentry_sdk", autospec=True)
 
-    request = api_rf.get("/?backend=emis", HTTP_AUTHORIZATION=tpp.auth_token)
+    request = api_rf.get(
+        f"/?backend={backend2.slug}", HTTP_AUTHORIZATION=backend1.auth_token
+    )
     response = JobRequestAPIList.as_view()(request)
 
     assert response.status_code == 200, response.data
@@ -537,6 +529,18 @@ def test_jobrequestapilist_filter_by_databricks_with_mismatched(api_rf, mocker):
     assert response.data["results"][0]["identifier"] == job_request.identifier
 
     assert mocked_sentry.capture_message.call_count == 1
+
+
+def test_jobrequestapilist_filter_by_databricks(api_rf):
+    job_request = JobRequestFactory(backend=BackendFactory(slug="databricks"))
+    JobRequestFactory(backend=BackendFactory())
+
+    request = api_rf.get("/?backend=nhsd")
+    response = JobRequestAPIList.as_view()(request)
+
+    assert response.status_code == 200, response.data
+    assert len(response.data["results"]) == 1
+    assert response.data["results"][0]["identifier"] == job_request.identifier
 
 
 def test_jobrequestapilist_get_only(api_rf):

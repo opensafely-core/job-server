@@ -5,7 +5,7 @@ from django.core.exceptions import BadRequest
 from django.http import Http404
 
 from jobserver.authorization import ProjectDeveloper
-from jobserver.models import Backend, JobRequest
+from jobserver.models import JobRequest
 from jobserver.views.job_requests import (
     JobRequestCancel,
     JobRequestCreate,
@@ -15,6 +15,7 @@ from jobserver.views.job_requests import (
 )
 
 from ....factories import (
+    BackendFactory,
     BackendMembershipFactory,
     JobFactory,
     JobRequestFactory,
@@ -112,7 +113,7 @@ def test_jobrequestcancel_unknown_job_request(rf):
 def test_jobrequestcreate_get_success(rf, mocker, user):
     workspace = WorkspaceFactory()
 
-    BackendMembershipFactory(backend=Backend.objects.get(slug="tpp"), user=user)
+    BackendMembershipFactory(user=user)
     ProjectMembershipFactory(
         project=workspace.project, user=user, roles=[ProjectDeveloper]
     )
@@ -149,7 +150,7 @@ def test_jobrequestcreate_get_success(rf, mocker, user):
 def test_jobrequestcreate_get_with_permission(rf, mocker, user):
     workspace = WorkspaceFactory()
 
-    BackendMembershipFactory(backend=Backend.objects.get(slug="tpp"), user=user)
+    BackendMembershipFactory(user=user)
     ProjectMembershipFactory(
         project=workspace.project, user=user, roles=[ProjectDeveloper]
     )
@@ -186,7 +187,7 @@ def test_jobrequestcreate_get_with_permission(rf, mocker, user):
 def test_jobrequestcreate_get_with_project_yaml_errors(rf, mocker, user):
     workspace = WorkspaceFactory()
 
-    BackendMembershipFactory(backend=Backend.objects.get(slug="tpp"), user=user)
+    BackendMembershipFactory(user=user)
     ProjectMembershipFactory(
         project=workspace.project, user=user, roles=[ProjectDeveloper]
     )
@@ -214,11 +215,10 @@ def test_jobrequestcreate_get_with_project_yaml_errors(rf, mocker, user):
 
 
 def test_jobrequestcreate_post_success(rf, mocker, monkeypatch, user):
-    monkeypatch.setenv("BACKENDS", "tpp")
-
+    backend = BackendFactory()
     workspace = WorkspaceFactory()
 
-    BackendMembershipFactory(backend=Backend.objects.get(slug="tpp"), user=user)
+    BackendMembershipFactory(backend=backend, user=user)
     ProjectMembershipFactory(
         project=workspace.project, user=user, roles=[ProjectDeveloper]
     )
@@ -239,7 +239,7 @@ def test_jobrequestcreate_post_success(rf, mocker, monkeypatch, user):
     )
 
     data = {
-        "backend": "tpp",
+        "backend": backend.slug,
         "requested_actions": ["twiddle"],
         "callback_url": "test",
     }
@@ -259,18 +259,18 @@ def test_jobrequestcreate_post_success(rf, mocker, monkeypatch, user):
     job_request = JobRequest.objects.first()
     assert job_request.created_by == user
     assert job_request.workspace == workspace
-    assert job_request.backend.slug == "tpp"
+    assert job_request.backend.slug == backend.slug
     assert job_request.requested_actions == ["twiddle"]
     assert job_request.sha == "abc123"
     assert not job_request.jobs.exists()
 
 
 def test_jobrequestcreate_post_with_invalid_backend(rf, mocker, monkeypatch, user):
-    monkeypatch.setenv("BACKENDS", "tpp,emis")
-
+    backend1 = BackendFactory()
+    backend2 = BackendFactory()
     workspace = WorkspaceFactory()
 
-    BackendMembershipFactory(backend=Backend.objects.get(slug="tpp"), user=user)
+    BackendMembershipFactory(backend=backend1, user=user)
     ProjectMembershipFactory(
         project=workspace.project, user=user, roles=[ProjectDeveloper]
     )
@@ -291,7 +291,7 @@ def test_jobrequestcreate_post_with_invalid_backend(rf, mocker, monkeypatch, use
     )
 
     data = {
-        "backend": "emis",
+        "backend": backend2.slug,
         "requested_actions": ["twiddle"],
         "callback_url": "test",
     }
@@ -307,18 +307,17 @@ def test_jobrequestcreate_post_with_invalid_backend(rf, mocker, monkeypatch, use
 
     assert response.status_code == 200
     assert response.context_data["form"].errors["backend"] == [
-        "Select a valid choice. emis is not one of the available choices."
+        f"Select a valid choice. {backend2.slug} is not one of the available choices."
     ]
 
 
 def test_jobrequestcreate_post_with_notifications_default(
     rf, mocker, monkeypatch, user
 ):
-    monkeypatch.setenv("BACKENDS", "tpp")
-
+    backend = BackendFactory()
     workspace = WorkspaceFactory(should_notify=True)
 
-    BackendMembershipFactory(backend=Backend.objects.get(slug="tpp"), user=user)
+    BackendMembershipFactory(backend=backend, user=user)
     ProjectMembershipFactory(
         project=workspace.project, user=user, roles=[ProjectDeveloper]
     )
@@ -339,7 +338,7 @@ def test_jobrequestcreate_post_with_notifications_default(
     )
 
     data = {
-        "backend": "tpp",
+        "backend": backend.slug,
         "requested_actions": ["twiddle"],
         "callback_url": "test",
         "will_notify": "True",
@@ -360,7 +359,7 @@ def test_jobrequestcreate_post_with_notifications_default(
     job_request = JobRequest.objects.first()
     assert job_request.created_by == user
     assert job_request.workspace == workspace
-    assert job_request.backend.slug == "tpp"
+    assert job_request.backend.slug == backend.slug
     assert job_request.requested_actions == ["twiddle"]
     assert job_request.sha == "abc123"
     assert job_request.will_notify
@@ -369,11 +368,10 @@ def test_jobrequestcreate_post_with_notifications_default(
 def test_jobrequestcreate_post_with_notifications_override(
     rf, mocker, monkeypatch, user
 ):
-    monkeypatch.setenv("BACKENDS", "tpp")
-
+    backend = BackendFactory()
     workspace = WorkspaceFactory(should_notify=True)
 
-    BackendMembershipFactory(backend=Backend.objects.get(slug="tpp"), user=user)
+    BackendMembershipFactory(backend=backend, user=user)
     ProjectMembershipFactory(
         project=workspace.project, user=user, roles=[ProjectDeveloper]
     )
@@ -394,7 +392,7 @@ def test_jobrequestcreate_post_with_notifications_override(
     )
 
     data = {
-        "backend": "tpp",
+        "backend": backend.slug,
         "requested_actions": ["twiddle"],
         "callback_url": "test",
         "will_notify": "False",
@@ -415,7 +413,7 @@ def test_jobrequestcreate_post_with_notifications_override(
     job_request = JobRequest.objects.first()
     assert job_request.created_by == user
     assert job_request.workspace == workspace
-    assert job_request.backend.slug == "tpp"
+    assert job_request.backend.slug == backend.slug
     assert job_request.requested_actions == ["twiddle"]
     assert job_request.sha == "abc123"
     assert not job_request.will_notify
@@ -580,16 +578,16 @@ def test_jobrequestlist_filters_exist(rf):
 
 
 def test_jobrequestlist_filter_by_backend(rf):
-    emis = Backend.objects.get(slug="emis")
-    job_request = JobRequestFactory(backend=emis)
+    backend1 = BackendFactory()
+    job_request = JobRequestFactory(backend=backend1)
     JobFactory.create_batch(2, job_request=job_request)
 
-    tpp = Backend.objects.get(slug="tpp")
-    job_request = JobRequestFactory(backend=tpp)
+    backend2 = BackendFactory()
+    job_request = JobRequestFactory(backend=backend2)
     JobFactory.create_batch(2, job_request=job_request)
 
     # Build a RequestFactory instance
-    request = rf.get(f"/?backend={emis.pk}")
+    request = rf.get(f"/?backend={backend1.pk}")
     request.user = UserFactory()
     response = JobRequestList.as_view()(request)
 

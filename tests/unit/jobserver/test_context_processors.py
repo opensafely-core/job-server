@@ -9,9 +9,8 @@ from jobserver.context_processors import (
     nav,
     staff_nav,
 )
-from jobserver.models import Backend
 
-from ...factories import JobRequestFactory, StatsFactory, UserFactory
+from ...factories import BackendFactory, JobRequestFactory, StatsFactory, UserFactory
 from ...utils import minutes_ago
 
 
@@ -19,12 +18,12 @@ def test_backend_warnings_with_debug_on(rf, settings):
     settings.DEBUG = True
 
     # set up some stats which should show up a warning in normal circumstances
-    tpp = Backend.objects.get(slug="tpp")
+    backend = BackendFactory(is_active=True)
 
-    JobRequestFactory(backend=tpp)
+    JobRequestFactory(backend=backend)
 
     last_seen = minutes_ago(timezone.now(), 10)
-    StatsFactory(backend=tpp, api_last_seen=last_seen)
+    StatsFactory(backend=backend, api_last_seen=last_seen)
 
     request = rf.get("/")
     output = backend_warnings(request)
@@ -33,10 +32,10 @@ def test_backend_warnings_with_debug_on(rf, settings):
 
 
 def test_backend_warnings_with_no_warnings(rf):
-    tpp = Backend.objects.get(slug="tpp")
+    backend = BackendFactory(is_active=True)
 
     last_seen = minutes_ago(timezone.now(), 1)
-    StatsFactory(backend=tpp, api_last_seen=last_seen)
+    StatsFactory(backend=backend, api_last_seen=last_seen)
 
     request = rf.get("/")
     output = backend_warnings(request)
@@ -45,17 +44,18 @@ def test_backend_warnings_with_no_warnings(rf):
 
 
 def test_backend_warnings_with_warnings(rf):
-    tpp = Backend.objects.get(slug="tpp")
+    backend = BackendFactory(is_active=True)
+    BackendFactory(is_active=True)
 
-    JobRequestFactory(backend=tpp)
+    JobRequestFactory(backend=backend)
 
     last_seen = minutes_ago(timezone.now(), 10)
-    StatsFactory(backend=tpp, api_last_seen=last_seen)
+    StatsFactory(backend=backend, api_last_seen=last_seen)
 
     request = rf.get("/")
     output = backend_warnings(request)
 
-    assert output["backend_warnings"] == ["TPP"]
+    assert output["backend_warnings"] == [backend.name]
 
 
 def test_can_view_staff_area_with_core_developer(rf, core_developer):

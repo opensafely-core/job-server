@@ -1,7 +1,8 @@
 from jobserver.models import Backend
+from jobserver.utils import set_from_qs
 from staff.forms import ApplicationApproveForm, UserForm
 
-from ...factories import OrgFactory
+from ...factories import BackendFactory, OrgFactory
 
 
 def test_applicationapproveform_success():
@@ -13,27 +14,24 @@ def test_applicationapproveform_success():
 
 
 def test_userform_success():
-    available_backends = Backend.objects.filter(slug__in=["emis", "tpp", "test"])
+    backend1 = BackendFactory()
+    backend2 = BackendFactory()
+    BackendFactory()
 
     data = {
-        "backends": ["emis", "tpp"],
+        "backends": [backend1.slug, backend2.slug],
         "is_superuser": ["on"],
         "roles": [],
     }
-
     form = UserForm(
-        available_backends=available_backends,
+        available_backends=Backend.objects.all(),
         available_roles=[],
         data=data,
     )
 
     assert form.is_valid(), form.errors
 
-    output = set(form.cleaned_data["backends"].values_list("slug", flat=True))
-    expected = set(
-        Backend.objects.filter(slug__in=["emis", "tpp"]).values_list("slug", flat=True)
-    )
-    assert output == expected
+    assert set_from_qs(form.cleaned_data["backends"]) == {backend1.pk, backend2.pk}
 
     assert form.cleaned_data["is_superuser"]
 
@@ -58,10 +56,12 @@ def test_userform_with_no_backends():
 
 
 def test_userform_with_unknown_backend():
-    available_backends = Backend.objects.filter(slug__in=["emis", "tpp", "test"])
+    BackendFactory.create_batch(5)
+
+    available_backends = Backend.objects.exclude(slug="unknown")
 
     data = {
-        "backends": ["emis", "tpp", "unknown"],
+        "backends": ["unknown"],
         "is_superuser": [""],
         "roles": [],
     }

@@ -139,7 +139,7 @@ jobs:
           SOCIAL_AUTH_GITHUB_KEY: test
           SOCIAL_AUTH_GITHUB_SECRET: test
         run: |
-          just test
+          just test --migrations
 
   lint-dockerfile:
     runs-on: ubuntu-latest

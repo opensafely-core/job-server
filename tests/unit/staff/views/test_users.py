@@ -8,11 +8,11 @@ from jobserver.authorization import (
     ProjectCoordinator,
     TechnicalReviewer,
 )
-from jobserver.models import Backend
 from jobserver.utils import set_from_qs
 from staff.views.users import UserDetail, UserList, UserSetOrgs
 
 from ....factories import (
+    BackendFactory,
     BackendMembershipFactory,
     OrgFactory,
     OrgMembershipFactory,
@@ -29,8 +29,8 @@ def test_userdetail_get_success(rf, core_developer):
     user = UserFactory(roles=[OutputPublisher, TechnicalReviewer])
 
     # link the user to some Backends
-    user.backend_memberships.create(backend=Backend.objects.get(slug="test"))
-    user.backend_memberships.create(backend=Backend.objects.get(slug="tpp"))
+    BackendMembershipFactory(user=user)
+    BackendMembershipFactory(user=user)
 
     # link the user to the Org
     OrgMembershipFactory(org=org, user=user)
@@ -71,14 +71,16 @@ def test_userdetail_get_success(rf, core_developer):
 
 
 def test_userdetail_post_success(rf, core_developer):
+    backend = BackendFactory()
+
     org = OrgFactory()
     project1 = ProjectFactory(org=org)
     project2 = ProjectFactory(org=org)
     user = UserFactory(roles=[OutputPublisher, TechnicalReviewer])
 
     # link the user to some Backends
-    user.backend_memberships.create(backend=Backend.objects.get(slug="test"))
-    user.backend_memberships.create(backend=Backend.objects.get(slug="tpp"))
+    BackendMembershipFactory(user=user)
+    BackendMembershipFactory(user=user)
 
     # link the user to the Org
     OrgMembershipFactory(org=org, user=user)
@@ -88,7 +90,7 @@ def test_userdetail_post_success(rf, core_developer):
     ProjectMembershipFactory(project=project2, user=user)
 
     data = {
-        "backends": ["test"],
+        "backends": [backend.slug],
         "is_superuser": ["on"],
         "roles": ["jobserver.authorization.roles.OutputPublisher"],
     }
@@ -101,7 +103,7 @@ def test_userdetail_post_success(rf, core_developer):
     assert response.url == user.get_staff_url()
 
     user.refresh_from_db()
-    assert list(user.backends.values_list("slug", flat=True)) == ["test"]
+    assert set_from_qs(user.backends.all()) == {backend.pk}
     assert user.roles == [OutputPublisher]
     assert user.is_superuser
 
@@ -113,8 +115,8 @@ def test_userdetail_post_with_unknown_backend(rf, core_developer):
     user = UserFactory(roles=[OutputPublisher, TechnicalReviewer])
 
     # link the user to some Backends
-    user.backend_memberships.create(backend=Backend.objects.get(slug="test"))
-    user.backend_memberships.create(backend=Backend.objects.get(slug="tpp"))
+    BackendMembershipFactory(user=user)
+    BackendMembershipFactory(user=user)
 
     # link the user to the Org
     OrgMembershipFactory(org=org, user=user)
@@ -152,14 +154,15 @@ def test_userdetail_post_with_unknown_backend(rf, core_developer):
 
 
 def test_userdetail_post_with_unknown_role(rf, core_developer):
+
     org = OrgFactory()
     project1 = ProjectFactory(org=org)
     project2 = ProjectFactory(org=org)
     user = UserFactory(roles=[OutputPublisher, TechnicalReviewer])
 
     # link the user to some Backends
-    user.backend_memberships.create(backend=Backend.objects.get(slug="test"))
-    user.backend_memberships.create(backend=Backend.objects.get(slug="tpp"))
+    BackendMembershipFactory(user=user)
+    BackendMembershipFactory(user=user)
 
     # link the user to the Org
     OrgMembershipFactory(org=org, user=user)
@@ -169,7 +172,7 @@ def test_userdetail_post_with_unknown_role(rf, core_developer):
     ProjectMembershipFactory(project=project2, user=user)
 
     data = {
-        "backends": ["test", "tpp"],
+        "backends": list(user.backends.values_list("slug", flat=True)),
         "is_superuser": ["on"],
         "roles": ["not-a-real-role"],
     }
@@ -213,13 +216,12 @@ def test_userdetail_without_core_dev_role(rf):
 
 
 def test_userlist_filter_by_backend(rf, core_developer):
-    emis = Backend.objects.get(slug="emis")
-    tpp = Backend.objects.get(slug="tpp")
+    backend = BackendFactory()
 
-    BackendMembershipFactory(user=UserFactory(), backend=emis)
-    BackendMembershipFactory(user=UserFactory(), backend=tpp)
+    BackendMembershipFactory(user=UserFactory(), backend=backend)
+    BackendMembershipFactory(user=UserFactory())
 
-    request = rf.get(f"/?backend={emis.pk}")
+    request = rf.get(f"/?backend={backend.pk}")
     request.user = core_developer
 
     response = UserList.as_view()(request)

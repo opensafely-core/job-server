@@ -9,7 +9,7 @@ from django.http import Http404
 from django.utils import timezone
 
 from jobserver.authorization import ProjectCollaborator, ProjectDeveloper
-from jobserver.models import Backend, Workspace
+from jobserver.models import Workspace
 from jobserver.views.workspaces import (
     WorkspaceArchiveToggle,
     WorkspaceBackendFiles,
@@ -796,12 +796,12 @@ def test_workspacelog_filter_by_one_backend(rf):
         project=workspace.project, user=user, roles=[ProjectDeveloper]
     )
 
-    job_request1 = JobRequestFactory(
-        workspace=workspace, backend=Backend.objects.get(slug="test")
-    )
-    JobRequestFactory(workspace=workspace, backend=Backend.objects.get(slug="tpp"))
+    backend = BackendFactory()
+    job_request1 = JobRequestFactory(workspace=workspace, backend=backend)
 
-    request = rf.get("/?backend=test")
+    JobRequestFactory(workspace=workspace, backend=BackendFactory())
+
+    request = rf.get(f"/?backend={backend.slug}")
     request.user = user
 
     response = WorkspaceLog.as_view()(
@@ -823,18 +823,20 @@ def test_workspacelog_filter_by_several_backends(rf):
         project=workspace.project, user=user, roles=[ProjectDeveloper]
     )
 
-    JobRequestFactory(workspace=workspace, backend=Backend.objects.get(slug="emis"))
-    job_request1 = JobRequestFactory(
-        workspace=workspace, backend=Backend.objects.get(slug="expectations")
-    )
-    job_request2 = JobRequestFactory(
-        workspace=workspace, backend=Backend.objects.get(slug="test")
-    )
-    job_request3 = JobRequestFactory(
-        workspace=workspace, backend=Backend.objects.get(slug="tpp")
-    )
+    JobRequestFactory(workspace=workspace, backend=BackendFactory())
 
-    request = rf.get("/?backend=expectations&backend=test&backend=tpp")
+    backend1 = BackendFactory()
+    job_request1 = JobRequestFactory(workspace=workspace, backend=backend1)
+
+    backend2 = BackendFactory()
+    job_request2 = JobRequestFactory(workspace=workspace, backend=backend2)
+
+    backend3 = BackendFactory()
+    job_request3 = JobRequestFactory(workspace=workspace, backend=backend3)
+
+    request = rf.get(
+        f"/?backend={backend1.slug}&backend={backend2.slug}&backend={backend3.slug}"
+    )
     request.user = user
 
     response = WorkspaceLog.as_view()(

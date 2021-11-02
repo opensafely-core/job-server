@@ -14,15 +14,10 @@ from jobserver.authorization.roles import (
     ProjectCollaborator,
     ProjectDeveloper,
 )
-from jobserver.models import (
-    Backend,
-    JobRequest,
-    ProjectInvitation,
-    ProjectMembership,
-    User,
-)
+from jobserver.models import JobRequest, ProjectInvitation, ProjectMembership, User
 
 from ....factories import (
+    BackendFactory,
     JobFactory,
     JobRequestFactory,
     OrgFactory,
@@ -1026,17 +1021,16 @@ def test_workspace_get_action_status_lut_no_jobs():
 
 
 def test_workspace_get_action_status_lut_with_backend():
-    emis = Backend.objects.get(slug="emis")
-    tpp = Backend.objects.get(slug="tpp")
     workspace1 = WorkspaceFactory()
-    job_request = JobRequestFactory(backend=emis, workspace=workspace1)
+    job_request = JobRequestFactory(backend=BackendFactory(), workspace=workspace1)
     JobFactory(job_request=job_request, action="action1", status="pending")
 
     now = timezone.now()
 
+    backend = BackendFactory()
     workspace2 = WorkspaceFactory()
 
-    job_request1 = JobRequestFactory(backend=tpp, workspace=workspace2)
+    job_request1 = JobRequestFactory(backend=backend, workspace=workspace2)
     # action1 (succeeded) & action2 (failure)
     JobFactory(
         job_request=job_request1,
@@ -1051,7 +1045,7 @@ def test_workspace_get_action_status_lut_with_backend():
         created_at=minutes_ago(now, 6),
     )
 
-    job_request2 = JobRequestFactory(backend=tpp, workspace=workspace2)
+    job_request2 = JobRequestFactory(backend=backend, workspace=workspace2)
     # action2 (succeeded) & action3 (failed)
     JobFactory(
         job_request=job_request2,
@@ -1066,7 +1060,7 @@ def test_workspace_get_action_status_lut_with_backend():
         created_at=minutes_ago(now, 4),
     )
 
-    job_request3 = JobRequestFactory(backend=tpp, workspace=workspace2)
+    job_request3 = JobRequestFactory(backend=backend, workspace=workspace2)
     # action2 (failed)
     JobFactory(
         job_request=job_request3,
@@ -1075,7 +1069,7 @@ def test_workspace_get_action_status_lut_with_backend():
         created_at=minutes_ago(now, 2),
     )
 
-    job_request4 = JobRequestFactory(backend=tpp, workspace=workspace2)
+    job_request4 = JobRequestFactory(backend=backend, workspace=workspace2)
     # action3 (succeeded) & action4 (failed)
     JobFactory(
         job_request=job_request4,
@@ -1090,7 +1084,7 @@ def test_workspace_get_action_status_lut_with_backend():
         created_at=minutes_ago(now, 1),
     )
 
-    output = workspace2.get_action_status_lut(backend="tpp")
+    output = workspace2.get_action_status_lut(backend=backend.slug)
     expected = {
         "action1": "succeeded",
         "action2": "failed",
