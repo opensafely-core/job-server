@@ -64,7 +64,7 @@
     "select2": "^4.0.13",
     "tablesorter": "^2.31.3",
     "whatwg-fetch": "^3.6.2",
-    "zustand": "^3.6.2"
+    "zustand": "^3.6.3"
   },
   "eslintConfig": {
     "extends": [
