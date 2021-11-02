@@ -81,16 +81,34 @@
         </div>
       </form>
       <div class="list-group list-unstyled">
+
         {% for application in application_list %}
-        <a href="{{ application.get_staff_url }}" class="d-flex align-items-center list-group-item list-group-item-action">
-          <span class="mr-3">
-            {{ application.pk_hash }} by {{ application.created_by.name }}
-            <small class="text-muted">(started {{ application.created_at|date }})</small>
-          </span>
-        </a>
+        <div class="list-group-item">
+          <p class="mb-2 d-flex justify-content-between align-items-center">
+
+            <a href="{{ application.get_staff_url }}" class="d-flex align-items-center">
+              <span class="mr-3">
+                {{ application.pk_hash }} by {{ application.created_by.name }}
+                <small class="text-muted">(started {{ application.created_at|date }})</small>
+              </span>
+            </a>
+
+            <span>{{ application.get_status_display }}</span>
+
+          </p>
+
+          {% if application.status_comment %}
+          <p class="mb-0">
+            <small class="text-muted">{{ application.status_comment|linebreaksbr }}</small>
+          </p>
+          {% endif %}
+
+        </div>
         {% endfor %}
+
       </div>
     </div>
+
   </div>
 </div>
 {% endblock staff_content %}
