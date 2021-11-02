@@ -102,17 +102,20 @@ class ApplicationList(ListView):
     def get_context_data(self, **kwargs):
         return super().get_context_data(**kwargs) | {
             "q": self.request.GET.get("q", ""),
+            "statuses": Application.Statuses,
         }
 
     def get_queryset(self):
         qs = super().get_queryset()
 
-        q = self.request.GET.get("q")
-        if q:
+        if q := self.request.GET.get("q"):
             qs = qs.filter(
                 Q(created_by__first_name__icontains=q)
                 | Q(created_by__last_name__icontains=q)
                 | Q(created_by__username__icontains=q)
             )
+
+        if status := self.request.GET.get("status"):
+            qs = qs.filter(status=status)
 
         return qs

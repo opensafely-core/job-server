@@ -3,6 +3,7 @@ from django.core.exceptions import ObjectDoesNotExist, PermissionDenied
 from django.http import Http404
 from django.utils import timezone
 
+from applications.models import Application
 from jobserver.utils import set_from_qs
 from staff.views.applications import (
     ApplicationApprove,
@@ -214,6 +215,17 @@ def test_applicationdetail_post_with_incomplete_application(
     # Check that a page instance has not been created
     with pytest.raises(ObjectDoesNotExist):
         application.researcherdetailspage
+
+
+def test_userlist_filter_by_status(rf, core_developer):
+    ApplicationFactory(status=Application.Statuses.APPROVED_FULLY)
+
+    request = rf.get("/?status=approved_fully")
+    request.user = core_developer
+
+    response = ApplicationList.as_view()(request)
+
+    assert len(response.context_data["object_list"]) == 1
 
 
 def test_applicationlist_search(rf, core_developer):
