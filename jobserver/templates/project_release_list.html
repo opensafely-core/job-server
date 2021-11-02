@@ -38,7 +38,7 @@
     </p>
 
     {% for release in releases %}
-    {% include "_release_list.html" with r=release %}
+    {% include "_release_list.html" with org_slug=project.org.slug project_slug=project.slug workspace_slug=release.workspace.name r=release %}
     {% endfor %}
 
   </div>
