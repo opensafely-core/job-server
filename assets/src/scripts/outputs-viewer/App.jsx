@@ -7,7 +7,7 @@ import PublishButton from "./components/Button/PublishButton";
 import FileList from "./components/FileList/FileList";
 import Toast from "./components/Toast/Toast";
 import Viewer from "./components/Viewer/Viewer";
-import useStore from "./stores/use-store";
+import { useFiles } from "./context/FilesProvider";
 
 const queryClient = new QueryClient({
   defaultOptions: {
@@ -19,7 +19,10 @@ const queryClient = new QueryClient({
 });
 
 function App() {
-  const { basePath, listVisible, prepareUrl, publishUrl } = useStore();
+  const {
+    dispatch,
+    state: { basePath, listVisible, prepareUrl, publishUrl },
+  } = useFiles();
   const hasButtons = prepareUrl || publishUrl;
 
   return (
@@ -37,7 +40,12 @@ function App() {
           <div className="col-lg-3">
             <button
               className="d-block d-lg-none btn btn-secondary mb-3"
-              onClick={() => useStore.setState({ listVisible: !listVisible })}
+              onClick={() =>
+                dispatch({
+                  type: "update",
+                  state: { listVisible: !listVisible },
+                })
+              }
               type="button"
             >
               {listVisible ? "Hide" : "Show"} file list

@@ -1,6 +1,6 @@
 import axios from "axios";
 import { useQuery } from "react-query";
-import useStore from "../stores/use-store";
+import { useFiles } from "../context/FilesProvider";
 import { toastError } from "../utils/toast";
 
 export function longestStartingSubstr(array) {
@@ -37,7 +37,9 @@ export function sortedFiles(files) {
 }
 
 function useFileList() {
-  const { filesUrl, authToken } = useStore();
+  const {
+    state: { filesUrl, authToken },
+  } = useFiles();
 
   return useQuery(
     "FILE_LIST",

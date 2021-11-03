@@ -1,6 +1,6 @@
 import axios from "axios";
 import { useQuery } from "react-query";
-import useStore from "../stores/use-store";
+import { useFiles } from "../context/FilesProvider";
 import { canDisplay, isCsv, isImg } from "../utils/file-type-match";
 import { toastError } from "../utils/toast";
 
@@ -16,7 +16,9 @@ function convertBlobToBase64(blob) {
 }
 
 function useFile(file) {
-  const { authToken } = useStore();
+  const {
+    state: { authToken },
+  } = useFiles();
 
   return useQuery(
     ["FILE", file.url],

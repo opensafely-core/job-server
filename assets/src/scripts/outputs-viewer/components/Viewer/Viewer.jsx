@@ -1,6 +1,6 @@
 import React from "react";
+import { useFiles } from "../../context/FilesProvider";
 import useFile from "../../hooks/use-file";
-import useStore from "../../stores/use-store";
 import {
   canDisplay,
   isCsv,
@@ -17,7 +17,9 @@ import Text from "../Text/Text";
 import Wrapper from "./Wrapper";
 
 function Viewer() {
-  const { file } = useStore();
+  const {
+    state: { file },
+  } = useFiles();
   const { data, error, isLoading, isError } = useFile(file, {
     enabled: !!(file.url && canDisplay(file)),
   });

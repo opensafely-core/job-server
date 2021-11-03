@@ -1,9 +1,11 @@
 import PropTypes from "prop-types";
 import React from "react";
-import useStore from "../../stores/use-store";
+import { useFiles } from "../../context/FilesProvider";
 
 function NoPreview({ error }) {
-  const { file } = useStore();
+  const {
+    state: { file },
+  } = useFiles();
 
   return (
     <>
