@@ -5,35 +5,10 @@ from django.db import models
 from django.urls import reverse
 from django.utils import timezone
 
-from ..backends import get_configured_backends
-
 
 def generate_token():
     """Generate a random token string."""
     return binascii.hexlify(os.urandom(20)).decode()
-
-
-class BackendManager(models.Manager):
-    def get_queryset(self):
-        """
-        Override default QuerySet to limit backends to those configured
-
-        We want to limit the available backends from the database to those
-        configured in the environment without changing the backed in model
-        validation. Each Backend is created via a migration.  This function
-        limits which backends can be looked up via the ORM to the set listed in
-        the env.
-        """
-        # lookup configured backends on demand to make testing easier
-        configured_backends = get_configured_backends()
-
-        qs = super().get_queryset()
-
-        if not configured_backends:
-            # if no backends are configured, make all available
-            return qs
-
-        return qs.filter(slug__in=configured_backends)
 
 
 class Backend(models.Model):
@@ -52,8 +27,6 @@ class Backend(models.Model):
 
     created_at = models.DateTimeField(default=timezone.now)
     updated_at = models.DateTimeField(auto_now=True)
-
-    objects = BackendManager()
 
     def __str__(self):
         return self.slug

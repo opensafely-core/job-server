@@ -11,7 +11,6 @@ dokku$ dokku git:set job-server deploy-branch main
 
 ```bash
 dokku config:set job-server ADMIN_USERS='xxx'
-dokku config:set job-server BACKENDS='tpp,emis'
 dokku config:set job-server BASE_URL='https://jobs.opensafely.org'
 dokku config:set job-server DATABASE_URL='postgres://localhost/jobserver'
 dokku config:set job-server EMAIL_BACKEND='anymail.backends.mailgun.EmailBackend'

@@ -37,10 +37,8 @@ def test_token_backend_no_token():
         get_backend_from_token("")
 
 
-def test_token_backend_success(monkeypatch):
+def test_token_backend_success():
     backend = BackendFactory(slug="tpp")
-
-    monkeypatch.setenv("BACKENDS", backend.slug)
 
     assert get_backend_from_token(backend.auth_token) == backend
 
