@@ -1,5 +1,8 @@
 {% extends "staff/base.html" %}
 
+{% load querystring_tools %}
+{% load selected_filter %}
+
 {% block metatitle %}Applications: Staff Area | OpenSAFELY Jobs{% endblock metatitle %}
 
 {% block breadcrumbs %}
@@ -28,6 +31,38 @@
 {% block staff_content %}
 <div class="container">
   <div class="row">
+    <div class="col col-lg-3 col-xl-4">
+      <h2 class="h3">Filters</h2>
+
+      {% if request.GET %}
+      <div class="mb-3">
+        <a href="{% url 'staff:application-list' %}">Clear All</a>
+      </div>
+      {% endif %}
+
+      {% if statuses %}
+      <h3 class="h4">Statuses</h3>
+      <div class="btn-group-vertical w-100 mb-4" role="group" aria-label="Filter by status">
+        {% for status in statuses %}
+        {% is_filter_selected key="status" value=status.value as is_active %}
+        <a
+          {% if is_active %}aria-pressed="true"{% endif %}
+          class="btn btn-outline-primary btn-block text-left {% if is_active %}active{% endif %}"
+          href="
+            {% if is_active %}
+              {% url_without_querystring status=status.value %}
+            {% else %}
+              {% url_with_querystring status=status.value %}
+            {% endif %}
+          "
+        >
+            {{ status.label }}
+        </a>
+        {% endfor %}
+      </div>
+      {% endif %}
+    </div>
+
     <div class="col col-lg-9 col-xl-8">
       <form method="GET" class="mb-4">
         <div class="form-inline w-100 d-flex flex-nowrap">
@@ -46,16 +81,34 @@
         </div>
       </form>
       <div class="list-group list-unstyled">
+
         {% for application in application_list %}
-        <a href="{{ application.get_staff_url }}" class="d-flex align-items-center list-group-item list-group-item-action">
-          <span class="mr-3">
-            {{ application.pk_hash }} by {{ application.created_by.name }}
-            <small class="text-muted">(started {{ application.created_at|date }})</small>
-          </span>
-        </a>
+        <div class="list-group-item">
+          <p class="mb-2 d-flex justify-content-between align-items-center">
+
+            <a href="{{ application.get_staff_url }}" class="d-flex align-items-center">
+              <span class="mr-3">
+                {{ application.pk_hash }} by {{ application.created_by.name }}
+                <small class="text-muted">(started {{ application.created_at|date }})</small>
+              </span>
+            </a>
+
+            <span>{{ application.get_status_display }}</span>
+
+          </p>
+
+          {% if application.status_comment %}
+          <p class="mb-0">
+            <small class="text-muted">{{ application.status_comment|linebreaksbr }}</small>
+          </p>
+          {% endif %}
+
+        </div>
         {% endfor %}
+
       </div>
     </div>
+
   </div>
 </div>
 {% endblock staff_content %}

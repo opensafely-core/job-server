@@ -3,7 +3,7 @@ from django.shortcuts import get_object_or_404, redirect
 from django.template.response import TemplateResponse
 from django.utils import timezone
 from django.utils.decorators import method_decorator
-from django.views.generic import FormView, ListView, View
+from django.views.generic import FormView, ListView, UpdateView, View
 
 from applications.form_specs import form_specs
 from applications.models import Application
@@ -94,6 +94,25 @@ class ApplicationDetail(View):
 
 
 @method_decorator(require_role(CoreDeveloper), name="dispatch")
+class ApplicationEdit(UpdateView):
+    fields = [
+        "status",
+        "status_comment",
+    ]
+    model = Application
+    template_name = "staff/application_edit.html"
+
+    def get_object(self):
+        return get_object_or_404(
+            Application,
+            pk=unhash_or_404(self.kwargs["pk_hash"]),
+        )
+
+    def get_success_url(self):
+        return self.object.get_staff_url()
+
+
+@method_decorator(require_role(CoreDeveloper), name="dispatch")
 class ApplicationList(ListView):
     model = Application
     ordering = "-created_at"
@@ -102,17 +121,20 @@ class ApplicationList(ListView):
     def get_context_data(self, **kwargs):
         return super().get_context_data(**kwargs) | {
             "q": self.request.GET.get("q", ""),
+            "statuses": Application.Statuses,
         }
 
     def get_queryset(self):
         qs = super().get_queryset()
 
-        q = self.request.GET.get("q")
-        if q:
+        if q := self.request.GET.get("q"):
             qs = qs.filter(
                 Q(created_by__first_name__icontains=q)
                 | Q(created_by__last_name__icontains=q)
                 | Q(created_by__username__icontains=q)
             )
+
+        if status := self.request.GET.get("status"):
+            qs = qs.filter(status=status)
 
         return qs

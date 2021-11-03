@@ -3,10 +3,12 @@ from django.core.exceptions import ObjectDoesNotExist, PermissionDenied
 from django.http import Http404
 from django.utils import timezone
 
+from applications.models import Application
 from jobserver.utils import set_from_qs
 from staff.views.applications import (
     ApplicationApprove,
     ApplicationDetail,
+    ApplicationEdit,
     ApplicationList,
 )
 
@@ -216,6 +218,17 @@ def test_applicationdetail_post_with_incomplete_application(
         application.researcherdetailspage
 
 
+def test_userlist_filter_by_status(rf, core_developer):
+    ApplicationFactory(status=Application.Statuses.APPROVED_FULLY)
+
+    request = rf.get("/?status=approved_fully")
+    request.user = core_developer
+
+    response = ApplicationList.as_view()(request)
+
+    assert len(response.context_data["object_list"]) == 1
+
+
 def test_applicationlist_search(rf, core_developer):
     app1 = ApplicationFactory(created_by=UserFactory(first_name="ben"))
     app2 = ApplicationFactory(created_by=UserFactory(username="ben"))
@@ -230,6 +243,55 @@ def test_applicationlist_search(rf, core_developer):
 
     assert len(response.context_data["object_list"]) == 2
     assert set_from_qs(response.context_data["object_list"]) == {app1.pk, app2.pk}
+
+
+def test_applicationedit_get_success(rf, core_developer):
+    application = ApplicationFactory()
+
+    request = rf.get("/")
+    request.user = core_developer
+
+    response = ApplicationEdit.as_view()(request, pk_hash=application.pk_hash)
+
+    assert response.status_code == 200
+
+
+def test_applicationedit_post_success(rf, core_developer):
+    application = ApplicationFactory(status=Application.Statuses.ONGOING)
+
+    data = {
+        "status": Application.Statuses.COMPLETED,
+        "status_comment": "Completed and ready for review",
+    }
+    request = rf.post("/", data)
+    request.user = core_developer
+
+    response = ApplicationEdit.as_view()(request, pk_hash=application.pk_hash)
+
+    assert response.status_code == 302, response.context_data["form"].errors
+    assert response.url == application.get_staff_url()
+
+    application.refresh_from_db()
+    assert application.status == Application.Statuses.COMPLETED
+    assert application.status_comment == "Completed and ready for review"
+
+
+def test_applicationedit_unknown_application(rf, core_developer):
+    request = rf.get("/")
+    request.user = core_developer
+
+    with pytest.raises(Http404):
+        ApplicationEdit.as_view()(request, pk_hash="")
+
+
+def test_applicationedit_without_core_dev_role(rf):
+    application = ApplicationFactory()
+
+    request = rf.get("/")
+    request.user = UserFactory()
+
+    with pytest.raises(PermissionDenied):
+        ApplicationEdit.as_view()(request, pk_hash=application.pk_hash)
 
 
 def test_applicationlist_success(rf, core_developer):

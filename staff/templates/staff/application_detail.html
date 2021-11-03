@@ -59,6 +59,7 @@
     </ul>
 
     <div class="d-flex">
+      <a class="btn btn-danger mr-1" href="{{ application.get_edit_url }}">Edit</a>
       <a class="btn btn-primary mr-1" href="{{ application.get_absolute_url }}">View on Site</a>
       <a class="btn btn-primary{% if application.approved_at %} disabled{% endif %}"
         {% if application.approved_at %}
@@ -76,11 +77,21 @@
 <div class="container">
   <div class="row">
     <div class="col">
-      <ul>
-        {% for page in pages %}
-          <li><a href="#{{ page.key }}">{{ page.title }}</a> ({{ page.status }})</li>
-        {% endfor %}
-      </ul>
+
+      <div class="row">
+        <div class="col">
+          <ul>
+            {% for page in pages %}
+              <li><a href="#{{ page.key }}">{{ page.title }}</a> ({{ page.status }})</li>
+            {% endfor %}
+          </ul>
+        </div>
+        <div class="col">
+          <h3>Status</h3>
+          <p class="mb-2"><i>{{ application.get_status_display }}</i></p>
+          <p>{{ application.status_comment|linebreaksbr }}</p>
+        </div>
+      </div>
 
       <form method="post">
         {% csrf_token %}
