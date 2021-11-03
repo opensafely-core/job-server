@@ -3,7 +3,6 @@ import userEvent from "@testing-library/user-event";
 import React from "react";
 import PrepareButton from "../../../components/Button/PrepareButton";
 import * as useFileList from "../../../hooks/use-file-list";
-import useStore from "../../../stores/use-store";
 import * as toast from "../../../utils/toast";
 import { server, rest } from "../../__mocks__/server";
 import { fileList } from "../../helpers/files";
@@ -20,12 +19,6 @@ describe("<PrepareButton />", () => {
   const fileIds = ["abc1", "abc2", "abc3", "abc4"];
 
   beforeEach(() => {
-    useStore.setState((state) => ({
-      ...state,
-      csrfToken,
-      prepareUrl: urls.prepare,
-    }));
-
     /**
      * Mock window
      */
@@ -44,7 +37,11 @@ describe("<PrepareButton />", () => {
       data: [],
     }));
 
-    const { container } = render(<PrepareButton />);
+    const { container } = render(
+      <PrepareButton />,
+      {},
+      { csrfToken, prepareUrl: urls.prepare }
+    );
 
     expect(container).toBeEmptyDOMElement();
   });
@@ -54,7 +51,7 @@ describe("<PrepareButton />", () => {
       data: fileList,
     }));
 
-    render(<PrepareButton />);
+    render(<PrepareButton />, {}, { csrfToken, prepareUrl: urls.prepare });
 
     expect(screen.getByRole("button")).toHaveTextContent("Publish");
   });
@@ -78,7 +75,7 @@ describe("<PrepareButton />", () => {
       })
     );
 
-    render(<PrepareButton />);
+    render(<PrepareButton />, {}, { csrfToken, prepareUrl: urls.prepare });
 
     expect(screen.getByRole("button")).toHaveTextContent("Publish");
 
@@ -110,7 +107,7 @@ describe("<PrepareButton />", () => {
       })
     );
 
-    render(<PrepareButton />);
+    render(<PrepareButton />, {}, { csrfToken, prepareUrl: urls.prepare });
 
     expect(screen.getByRole("button")).toHaveTextContent("Publish");
 
@@ -149,7 +146,7 @@ describe("<PrepareButton />", () => {
       })
     );
 
-    render(<PrepareButton />);
+    render(<PrepareButton />, {}, { csrfToken, prepareUrl: urls.prepare });
 
     expect(screen.getByRole("button")).toHaveTextContent("Publish");
 

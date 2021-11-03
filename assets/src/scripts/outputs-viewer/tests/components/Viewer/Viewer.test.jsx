@@ -1,7 +1,6 @@
 /* eslint-disable no-console */
 import React from "react";
 import Viewer from "../../../components/Viewer/Viewer";
-import useStore from "../../../stores/use-store";
 import { server, rest } from "../../__mocks__/server";
 import {
   blankFile,
@@ -20,20 +19,8 @@ import {
 import { screen, render, waitFor } from "../../test-utils";
 
 describe("<Viewer />", () => {
-  beforeEach(() => {
-    useStore.setState((state) => ({
-      ...state,
-      file: htmlFile,
-    }));
-  });
-
   it("returns null if no file URL", async () => {
-    useStore.setState((state) => ({
-      ...state,
-      file: blankFile,
-    }));
-
-    const { container } = render(<Viewer />);
+    const { container } = render(<Viewer />, {}, { file: blankFile });
     expect(container).toBeEmptyDOMElement();
   });
 
@@ -44,7 +31,7 @@ describe("<Viewer />", () => {
       )
     );
 
-    render(<Viewer />);
+    render(<Viewer />, {}, { file: htmlFile });
     await waitFor(() => expect(screen.getByText("Loading...")).toBeVisible());
   });
 
@@ -57,7 +44,7 @@ describe("<Viewer />", () => {
       )
     );
 
-    render(<Viewer />);
+    render(<Viewer />, {}, { file: htmlFile });
     await waitFor(() =>
       expect(screen.getByText("Error: Network Error")).toBeVisible()
     );
@@ -72,7 +59,7 @@ describe("<Viewer />", () => {
       )
     );
 
-    render(<Viewer />);
+    render(<Viewer />, {}, { file: htmlFile });
     await waitFor(() =>
       expect(
         screen.getByText("We cannot show a preview of this file.")
@@ -83,18 +70,13 @@ describe("<Viewer />", () => {
   it("returns <NoPreview /> for invalid file type", async () => {
     console.error = jest.fn();
 
-    useStore.setState((state) => ({
-      ...state,
-      file: jsFile,
-    }));
-
     server.use(
-      rest.get(`http://localhost${htmlFile.url}`, (req, res, ctx) =>
+      rest.get(`http://localhost${jsFile.url}`, (req, res, ctx) =>
         res.once(ctx.status(200), ctx.json())
       )
     );
 
-    render(<Viewer />);
+    render(<Viewer />, {}, { file: jsFile });
     await waitFor(() =>
       expect(
         screen.getByText("We cannot show a preview of this file.")
@@ -111,7 +93,7 @@ describe("<Viewer />", () => {
       )
     );
 
-    render(<Viewer />);
+    render(<Viewer />, {}, { file: htmlFile });
     await waitFor(() =>
       expect(
         screen.getByText("We cannot show a preview of this file.")
@@ -122,18 +104,13 @@ describe("<Viewer />", () => {
   it("returns <NoPreview /> for too large CSV", async () => {
     console.error = jest.fn();
 
-    useStore.setState((state) => ({
-      ...state,
-      file: { ...csvFile, size: 5000001 },
-    }));
-
     server.use(
       rest.get(`http://localhost${csvFile.url}`, (req, res, ctx) =>
         res.once(ctx.status(200), ctx.body(csvExample))
       )
     );
 
-    render(<Viewer />);
+    render(<Viewer />, {}, { file: { ...csvFile, size: 5000001 } });
     await waitFor(() =>
       expect(
         screen.getByText("We cannot show a preview of this file.")
@@ -142,18 +119,13 @@ describe("<Viewer />", () => {
   });
 
   it("returns <NoPreview /> for failed PNG", async () => {
-    useStore.setState((state) => ({
-      ...state,
-      file: pngFile,
-    }));
-
     server.use(
       rest.get(`http://localhost${pngFile.url}`, (req, res) =>
         res.networkError("Failed to connect")
       )
     );
 
-    render(<Viewer />);
+    render(<Viewer />, {}, { file: pngFile });
     await waitFor(() =>
       expect(
         screen.getByText("We cannot show a preview of this file.")
@@ -162,34 +134,24 @@ describe("<Viewer />", () => {
   });
 
   it("returns <Table /> for CSV", async () => {
-    useStore.setState((state) => ({
-      ...state,
-      file: csvFile,
-    }));
-
     server.use(
       rest.get(`http://localhost${csvFile.url}`, (req, res, ctx) =>
         res.once(ctx.status(200), ctx.json(csvExample))
       )
     );
 
-    render(<Viewer />);
+    render(<Viewer />, {}, { file: csvFile });
     await waitFor(() => expect(screen.getByRole("table")).toBeVisible());
   });
 
   it("returns <Iframe /> for HTML", async () => {
-    useStore.setState((state) => ({
-      ...state,
-      file: htmlFile,
-    }));
-
     server.use(
       rest.get(`http://localhost${htmlFile.url}`, (req, res, ctx) =>
         res.once(ctx.status(200), ctx.json(htmlExample))
       )
     );
 
-    const { container } = render(<Viewer />);
+    const { container } = render(<Viewer />, {}, { file: htmlFile });
 
     await waitFor(() => {
       const iframe = container.querySelector("iframe");
@@ -198,11 +160,6 @@ describe("<Viewer />", () => {
   });
 
   it("returns <Image /> for PNG", async () => {
-    useStore.setState((state) => ({
-      ...state,
-      file: pngFile,
-    }));
-
     server.use(
       rest.get(`http://localhost${pngFile.url}`, (req, res, ctx) =>
         res.once(
@@ -213,41 +170,33 @@ describe("<Viewer />", () => {
       )
     );
 
-    render(<Viewer />);
+    render(<Viewer />, {}, { file: pngFile });
 
-    await waitFor(() => expect(screen.getByRole("img").src).toBe(pngExample));
+    await waitFor(() =>
+      expect(screen.getByRole("img").src).toBe(`http://localhost${pngFile.url}`)
+    );
   });
 
   it("returns <Text /> for TXT", async () => {
-    useStore.setState((state) => ({
-      ...state,
-      file: txtFile,
-    }));
-
     server.use(
       rest.get(`http://localhost${txtFile.url}`, (req, res, ctx) =>
         res.once(ctx.status(200), ctx.json(txtExample))
       )
     );
 
-    render(<Viewer />);
+    render(<Viewer />, {}, { file: txtFile });
 
     await waitFor(() => expect(screen.getByText(txtExample)).toBeVisible());
   });
 
   it("returns <Text /> for JSON", async () => {
-    useStore.setState((state) => ({
-      ...state,
-      file: jsonFile,
-    }));
-
     server.use(
       rest.get(`http://localhost${jsonFile.url}`, (req, res, ctx) =>
         res.once(ctx.status(200), ctx.json(jsonExample))
       )
     );
 
-    render(<Viewer />);
+    render(<Viewer />, {}, { file: jsonFile });
 
     await waitFor(() =>
       expect(screen.getByText(JSON.stringify(jsonExample))).toBeVisible()

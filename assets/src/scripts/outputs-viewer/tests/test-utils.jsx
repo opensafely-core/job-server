@@ -49,6 +49,8 @@ const createWrapper =
     );
   };
 
+export const wrapper = createWrapper();
+
 const customRender = (ui, options, filesContext) =>
   render(ui, {
     wrapper: createWrapper({ filesContext }),

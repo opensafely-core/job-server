@@ -1,18 +1,10 @@
 import React from "react";
 import NoPreview from "../../../components/NoPreview/NoPreview";
-import useStore from "../../../stores/use-store";
 import { server, rest } from "../../__mocks__/server";
 import { pngFile } from "../../helpers/files";
 import { render, screen, waitFor } from "../../test-utils";
 
 describe("<NoPreview />", () => {
-  beforeEach(() => {
-    useStore.setState((state) => ({
-      ...state,
-      file: pngFile,
-    }));
-  });
-
   it("shows the no preview message", async () => {
     server.use(
       rest.get(`http://localhost${pngFile.url}`, (req, res, ctx) =>
@@ -20,7 +12,7 @@ describe("<NoPreview />", () => {
       )
     );
 
-    render(<NoPreview />);
+    render(<NoPreview />, {}, { file: pngFile });
 
     await waitFor(
       () =>
@@ -38,7 +30,7 @@ describe("<NoPreview />", () => {
       )
     );
 
-    render(<NoPreview error={err} />);
+    render(<NoPreview error={err} />, {}, { file: pngFile });
 
     await waitFor(
       () =>
