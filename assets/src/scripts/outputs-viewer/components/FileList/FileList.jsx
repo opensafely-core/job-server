@@ -1,3 +1,4 @@
+import PropTypes from "prop-types";
 import React, { createRef, useEffect, useRef, useState } from "react";
 import { useHistory, useLocation } from "react-router-dom";
 import { FixedSizeList } from "react-window";
@@ -8,14 +9,11 @@ import prettyFileSize from "../../utils/pretty-file-size";
 import classes from "./FileList.module.scss";
 import Filter from "./Filter";
 
-function FileList() {
+function FileList({ listVisible, setListVisible }) {
   const [files, setFiles] = useState([]);
   const [listHeight, setListHeight] = useState(0);
 
-  const {
-    state: { listVisible },
-    dispatch,
-  } = useFiles();
+  const { dispatch } = useFiles();
   const { data, isError, isLoading } = useFileList();
   const history = useHistory();
   const location = useLocation();
@@ -46,12 +44,12 @@ function FileList() {
       (hasScrollbarX ? 17 : 0);
 
     if (largeViewport) {
-      dispatch({ type: "update", state: { listVisible: true } });
+      setListVisible(true);
       return setListHeight(fileListHeight);
     }
 
     return setListHeight(fileListHeight);
-  }, [dispatch, data, files, windowSize]);
+  }, [files, listVisible, setListVisible, windowSize]);
 
   useEffect(() => {
     const item = files.filter(
@@ -132,3 +130,8 @@ function FileList() {
 }
 
 export default FileList;
+
+FileList.propTypes = {
+  listVisible: PropTypes.bool.isRequired,
+  setListVisible: PropTypes.func.isRequired,
+};

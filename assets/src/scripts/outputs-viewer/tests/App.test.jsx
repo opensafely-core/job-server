@@ -36,6 +36,8 @@ describe("<App />", () => {
 
     render(<App />);
 
+    window.resizeTo(500, 500);
+
     await waitFor(() => {
       expect(screen.queryAllByRole("listitem").length).toBe(fileList.length);
       expect(screen.queryAllByRole("listitem")[0].textContent).toBe(

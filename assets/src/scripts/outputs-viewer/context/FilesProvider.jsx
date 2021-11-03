@@ -23,8 +23,6 @@ function FilesProvider({ children, initialValue }) {
     prepareUrl: "",
     publishUrl: "",
 
-    listVisible: false,
-
     file: {
       name: "",
       url: "",

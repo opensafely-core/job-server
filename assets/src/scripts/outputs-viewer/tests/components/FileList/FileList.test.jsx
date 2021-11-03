@@ -1,12 +1,19 @@
 /* eslint-disable no-console */
 import userEvent from "@testing-library/user-event";
-import React from "react";
+import React, { useState } from "react";
 import FileList from "../../../components/FileList/FileList";
 import { rest, server } from "../../__mocks__/server";
 import { csvFile, fileList, pngFile } from "../../helpers/files";
 import { render, screen, waitFor, history } from "../../test-utils";
 
 describe("<FileList />", () => {
+  const FileListWrapper = () => {
+    const [listVisible, setListVisible] = useState(false);
+    return (
+      <FileList listVisible={listVisible} setListVisible={setListVisible} />
+    );
+  };
+
   it("returns a loading state", async () => {
     server.use(
       rest.get(`http://localhost/`, (req, res, ctx) =>
@@ -14,7 +21,7 @@ describe("<FileList />", () => {
       )
     );
 
-    render(<FileList />);
+    render(<FileListWrapper />);
 
     await waitFor(() => expect(screen.getByText("Loading…")).toBeVisible());
   });
@@ -28,7 +35,7 @@ describe("<FileList />", () => {
       )
     );
 
-    render(<FileList />);
+    render(<FileListWrapper />);
 
     await waitFor(() =>
       expect(screen.getByText("Error: Unable to load files")).toBeVisible()
@@ -42,7 +49,7 @@ describe("<FileList />", () => {
       )
     );
 
-    render(<FileList />);
+    render(<FileListWrapper />);
 
     await waitFor(() => {
       expect(screen.queryAllByRole("listitem").length).toBe(fileList.length);
@@ -59,7 +66,7 @@ describe("<FileList />", () => {
       )
     );
 
-    render(<FileList />);
+    render(<FileListWrapper />);
 
     await waitFor(() => {
       expect(screen.queryAllByRole("listitem").length).toBe(fileList.length);
@@ -80,7 +87,7 @@ describe("<FileList />", () => {
       )
     );
 
-    render(<FileList />);
+    render(<FileListWrapper />);
 
     await waitFor(() => {
       expect(screen.queryAllByRole("listitem").length).toBe(fileList.length);
@@ -108,7 +115,7 @@ describe("<FileList />", () => {
       )
     );
 
-    const { container } = render(<FileList />);
+    const { container } = render(<FileListWrapper />);
 
     await waitFor(() => {
       expect(screen.queryAllByRole("listitem").length).toBe(fileList.length);
@@ -145,7 +152,7 @@ describe("<FileList />", () => {
       )
     );
 
-    const { container } = render(<FileList />);
+    const { container } = render(<FileListWrapper />);
 
     await waitFor(() => {
       expect(screen.queryAllByRole("listitem").length).toBe(2);

@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useState } from "react";
 import { QueryClient, QueryClientProvider } from "react-query";
 import { ReactQueryDevtools } from "react-query/devtools";
 import { BrowserRouter } from "react-router-dom";
@@ -20,9 +20,9 @@ const queryClient = new QueryClient({
 
 function App() {
   const {
-    dispatch,
-    state: { basePath, listVisible, prepareUrl, publishUrl },
+    state: { basePath, prepareUrl, publishUrl },
   } = useFiles();
+  const [listVisible, setListVisible] = useState(true);
   const hasButtons = prepareUrl || publishUrl;
 
   return (
@@ -40,17 +40,15 @@ function App() {
           <div className="col-lg-3">
             <button
               className="d-block d-lg-none btn btn-secondary mb-3"
-              onClick={() =>
-                dispatch({
-                  type: "update",
-                  state: { listVisible: !listVisible },
-                })
-              }
+              onClick={() => setListVisible(!listVisible)}
               type="button"
             >
               {listVisible ? "Hide" : "Show"} file list
             </button>
-            <FileList />
+            <FileList
+              listVisible={listVisible}
+              setListVisible={setListVisible}
+            />
           </div>
           <div className="col-lg-9">
             <Viewer />
