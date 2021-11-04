@@ -1,13 +1,15 @@
 import axios from "axios";
 import React from "react";
 import { useMutation } from "react-query";
+import { useFiles } from "../../context/FilesProvider";
 import useFileList from "../../hooks/use-file-list";
-import useStore from "../../stores/use-store";
 import { toastDismiss, toastError } from "../../utils/toast";
 import Button from "./Button";
 
 function PrepareButton() {
-  const { csrfToken, prepareUrl } = useStore();
+  const {
+    state: { csrfToken, prepareUrl },
+  } = useFiles();
   const { data: fileList } = useFileList();
   const toastId = "PrepareButton";
 

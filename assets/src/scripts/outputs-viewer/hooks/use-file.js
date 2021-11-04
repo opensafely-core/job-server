@@ -1,22 +1,13 @@
 import axios from "axios";
 import { useQuery } from "react-query";
-import useStore from "../stores/use-store";
+import { useFiles } from "../context/FilesProvider";
 import { canDisplay, isCsv, isImg } from "../utils/file-type-match";
 import { toastError } from "../utils/toast";
 
-function convertBlobToBase64(blob) {
-  return new Promise((resolve, reject) => {
-    const reader = new FileReader();
-    reader.onerror = reject;
-    reader.onload = () => {
-      resolve(reader.result);
-    };
-    reader.readAsDataURL(blob);
-  });
-}
-
 function useFile(file) {
-  const { authToken } = useStore();
+  const {
+    state: { authToken },
+  } = useFiles();
 
   return useQuery(
     ["FILE", file.url],
@@ -32,7 +23,7 @@ function useFile(file) {
       if (isCsv(file) && file.size > 5000000) return {};
 
       // If the file is an image
-      // grab the blob and encode it as Base64
+      // check the file loads, then return the file URL
       if (isImg(file))
         return axios
           .get(file.url, {
@@ -42,7 +33,7 @@ function useFile(file) {
             responseType: "blob",
           })
           .then((response) => response.data)
-          .then((blob) => convertBlobToBase64(blob))
+          .then(() => file.url)
           .catch((error) => {
             throw error?.response?.data?.detail || error?.message;
           });

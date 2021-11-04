@@ -1,13 +1,19 @@
 /* eslint-disable no-console */
 import userEvent from "@testing-library/user-event";
-import React from "react";
+import React, { useState } from "react";
 import FileList from "../../../components/FileList/FileList";
-import useStore from "../../../stores/use-store";
 import { rest, server } from "../../__mocks__/server";
 import { csvFile, fileList, pngFile } from "../../helpers/files";
 import { render, screen, waitFor, history } from "../../test-utils";
 
 describe("<FileList />", () => {
+  const FileListWrapper = () => {
+    const [listVisible, setListVisible] = useState(false);
+    return (
+      <FileList listVisible={listVisible} setListVisible={setListVisible} />
+    );
+  };
+
   it("returns a loading state", async () => {
     server.use(
       rest.get(`http://localhost/`, (req, res, ctx) =>
@@ -15,7 +21,7 @@ describe("<FileList />", () => {
       )
     );
 
-    render(<FileList />);
+    render(<FileListWrapper />);
 
     await waitFor(() => expect(screen.getByText("Loading…")).toBeVisible());
   });
@@ -29,7 +35,7 @@ describe("<FileList />", () => {
       )
     );
 
-    render(<FileList />);
+    render(<FileListWrapper />);
 
     await waitFor(() =>
       expect(screen.getByText("Error: Unable to load files")).toBeVisible()
@@ -43,7 +49,7 @@ describe("<FileList />", () => {
       )
     );
 
-    render(<FileList />);
+    render(<FileListWrapper />);
 
     await waitFor(() => {
       expect(screen.queryAllByRole("listitem").length).toBe(fileList.length);
@@ -53,14 +59,14 @@ describe("<FileList />", () => {
     });
   });
 
-  it("updates the store and history with the clicked file", async () => {
+  it("updates the history with the clicked file", async () => {
     server.use(
       rest.get(`http://localhost/`, (req, res, ctx) =>
         res(ctx.status(200), ctx.json({ files: fileList }))
       )
     );
 
-    render(<FileList />);
+    render(<FileListWrapper />);
 
     await waitFor(() => {
       expect(screen.queryAllByRole("listitem").length).toBe(fileList.length);
@@ -70,8 +76,6 @@ describe("<FileList />", () => {
     });
 
     userEvent.click(screen.queryAllByRole("link")[0]);
-
-    await waitFor(() => expect(useStore.getState().file).toEqual(csvFile));
 
     expect(history.location.pathname).toBe(`/${csvFile.name}`);
   });
@@ -83,7 +87,7 @@ describe("<FileList />", () => {
       )
     );
 
-    render(<FileList />);
+    render(<FileListWrapper />);
 
     await waitFor(() => {
       expect(screen.queryAllByRole("listitem").length).toBe(fileList.length);
@@ -93,16 +97,13 @@ describe("<FileList />", () => {
     });
     userEvent.click(screen.queryAllByRole("link")[0]);
 
-    await waitFor(() => expect(useStore.getState().file).toEqual(csvFile));
     expect(history.location.pathname).toBe(`/${csvFile.name}`);
 
     userEvent.click(screen.queryAllByRole("link")[1]);
-    await waitFor(() => expect(useStore.getState().file).toEqual(pngFile));
     expect(history.location.pathname).toBe(`/${pngFile.name}`);
     expect(history.index).toBe(2);
 
     userEvent.click(screen.queryAllByRole("link")[1]);
-    await waitFor(() => expect(useStore.getState().file).toEqual(pngFile));
     expect(history.location.pathname).toBe(`/${pngFile.name}`);
     expect(history.index).toBe(2);
   });
@@ -114,7 +115,7 @@ describe("<FileList />", () => {
       )
     );
 
-    const { container } = render(<FileList />);
+    const { container } = render(<FileListWrapper />);
 
     await waitFor(() => {
       expect(screen.queryAllByRole("listitem").length).toBe(fileList.length);
@@ -151,7 +152,7 @@ describe("<FileList />", () => {
       )
     );
 
-    const { container } = render(<FileList />);
+    const { container } = render(<FileListWrapper />);
 
     await waitFor(() => {
       expect(screen.queryAllByRole("listitem").length).toBe(2);

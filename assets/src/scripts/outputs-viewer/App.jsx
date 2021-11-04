@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useState } from "react";
 import { QueryClient, QueryClientProvider } from "react-query";
 import { ReactQueryDevtools } from "react-query/devtools";
 import { BrowserRouter } from "react-router-dom";
@@ -7,7 +7,7 @@ import PublishButton from "./components/Button/PublishButton";
 import FileList from "./components/FileList/FileList";
 import Toast from "./components/Toast/Toast";
 import Viewer from "./components/Viewer/Viewer";
-import useStore from "./stores/use-store";
+import { useFiles } from "./context/FilesProvider";
 
 const queryClient = new QueryClient({
   defaultOptions: {
@@ -19,7 +19,10 @@ const queryClient = new QueryClient({
 });
 
 function App() {
-  const { basePath, listVisible, prepareUrl, publishUrl } = useStore();
+  const {
+    state: { basePath, prepareUrl, publishUrl },
+  } = useFiles();
+  const [listVisible, setListVisible] = useState(true);
   const hasButtons = prepareUrl || publishUrl;
 
   return (
@@ -37,12 +40,15 @@ function App() {
           <div className="col-lg-3">
             <button
               className="d-block d-lg-none btn btn-secondary mb-3"
-              onClick={() => useStore.setState({ listVisible: !listVisible })}
+              onClick={() => setListVisible(!listVisible)}
               type="button"
             >
               {listVisible ? "Hide" : "Show"} file list
             </button>
-            <FileList />
+            <FileList
+              listVisible={listVisible}
+              setListVisible={setListVisible}
+            />
           </div>
           <div className="col-lg-9">
             <Viewer />

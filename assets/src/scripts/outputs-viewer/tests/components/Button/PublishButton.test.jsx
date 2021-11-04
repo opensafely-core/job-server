@@ -2,7 +2,6 @@
 import userEvent from "@testing-library/user-event";
 import React from "react";
 import PublishButton from "../../../components/Button/PublishButton";
-import useStore from "../../../stores/use-store";
 import * as toast from "../../../utils/toast";
 import { server, rest } from "../../__mocks__/server";
 import { render, screen, waitFor } from "../../test-utils";
@@ -16,12 +15,6 @@ describe("<PublishButton />", () => {
   const csrfToken = "abc123";
 
   beforeEach(() => {
-    useStore.setState((state) => ({
-      ...state,
-      csrfToken,
-      publishUrl: urls.publish,
-    }));
-
     /**
      * Mock window
      */
@@ -38,7 +31,7 @@ describe("<PublishButton />", () => {
   });
 
   it("shows the button", () => {
-    render(<PublishButton />);
+    render(<PublishButton />, {}, { csrfToken, publishUrl: urls.publish });
 
     expect(screen.getByRole("button")).toHaveTextContent("Publish");
   });
@@ -53,7 +46,7 @@ describe("<PublishButton />", () => {
       })
     );
 
-    render(<PublishButton />);
+    render(<PublishButton />, {}, { csrfToken, publishUrl: urls.publish });
 
     expect(screen.getByRole("button")).toHaveTextContent("Confirm Publish?");
 
@@ -80,7 +73,7 @@ describe("<PublishButton />", () => {
       })
     );
 
-    render(<PublishButton />);
+    render(<PublishButton />, {}, { csrfToken, publishUrl: urls.publish });
 
     expect(screen.getByRole("button")).toHaveTextContent("Confirm Publish?");
 
@@ -114,7 +107,7 @@ describe("<PublishButton />", () => {
       })
     );
 
-    render(<PublishButton />);
+    render(<PublishButton />, {}, { csrfToken, publishUrl: urls.publish });
 
     expect(screen.getByRole("button")).toHaveTextContent("Confirm Publish?");
 

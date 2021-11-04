@@ -1,12 +1,14 @@
 import axios from "axios";
 import React from "react";
 import { useMutation } from "react-query";
-import useStore from "../../stores/use-store";
+import { useFiles } from "../../context/FilesProvider";
 import { toastDismiss, toastError } from "../../utils/toast";
 import Button from "./Button";
 
 function PublishButton() {
-  const { csrfToken, publishUrl } = useStore();
+  const {
+    state: { csrfToken, publishUrl },
+  } = useFiles();
   const toastId = "PublishButton";
 
   const mutation = useMutation(

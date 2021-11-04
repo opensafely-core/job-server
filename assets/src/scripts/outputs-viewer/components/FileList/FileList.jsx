@@ -1,19 +1,20 @@
+import PropTypes from "prop-types";
 import React, { createRef, useEffect, useRef, useState } from "react";
 import { useHistory, useLocation } from "react-router-dom";
 import { FixedSizeList } from "react-window";
+import { useFiles } from "../../context/FilesProvider";
 import useFileList from "../../hooks/use-file-list";
 import useWindowSize from "../../hooks/use-window-size";
-import useStore from "../../stores/use-store";
 import prettyFileSize from "../../utils/pretty-file-size";
 import classes from "./FileList.module.scss";
 import Filter from "./Filter";
 
-function FileList() {
+function FileList({ listVisible, setListVisible }) {
   const [files, setFiles] = useState([]);
   const [listHeight, setListHeight] = useState(0);
 
+  const { dispatch } = useFiles();
   const { data, isError, isLoading } = useFileList();
-  const { listVisible } = useStore();
   const history = useHistory();
   const location = useLocation();
 
@@ -43,12 +44,12 @@ function FileList() {
       (hasScrollbarX ? 17 : 0);
 
     if (largeViewport) {
-      useStore.setState({ listVisible: true });
+      setListVisible(true);
       return setListHeight(fileListHeight);
     }
 
     return setListHeight(fileListHeight);
-  }, [files, windowSize]);
+  }, [files, listVisible, setListVisible, windowSize]);
 
   useEffect(() => {
     const item = files.filter(
@@ -56,9 +57,9 @@ function FileList() {
     )[0];
 
     if (item) {
-      useStore.setState({ file: { ...item } });
+      dispatch({ type: "update", state: { file: { ...item } } });
     }
-  }, [files, location]);
+  }, [dispatch, data, files, location]);
 
   if (isLoading) {
     return (
@@ -94,7 +95,7 @@ function FileList() {
     }
 
     history.push(itemName);
-    return useStore.setState({ file: { ...item } });
+    return dispatch({ type: "update", state: { file: { ...item } } });
   };
 
   return (
@@ -129,3 +130,8 @@ function FileList() {
 }
 
 export default FileList;
+
+FileList.propTypes = {
+  listVisible: PropTypes.bool.isRequired,
+  setListVisible: PropTypes.func.isRequired,
+};

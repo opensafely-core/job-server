@@ -1,10 +1,12 @@
 import PropTypes from "prop-types";
 import React, { useLayoutEffect, useState } from "react";
+import { useFiles } from "../../context/FilesProvider";
 import useWindowSize from "../../hooks/use-window-size";
-import useStore from "../../stores/use-store";
 
 function Iframe({ data }) {
-  const { file } = useStore();
+  const {
+    state: { file },
+  } = useFiles();
   const windowSize = useWindowSize();
   const [frameHeight, setFrameHeight] = useState(0);
   const id = encodeURIComponent(file.url).replace(/\W/g, "");
