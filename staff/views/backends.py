@@ -1,9 +1,25 @@
 from django.shortcuts import get_object_or_404, redirect
 from django.utils.decorators import method_decorator
-from django.views.generic import DetailView, ListView, UpdateView, View
+from django.views.generic import CreateView, DetailView, ListView, UpdateView, View
 
 from jobserver.authorization.decorators import require_manage_backends
 from jobserver.models import Backend
+
+
+@method_decorator(require_manage_backends, name="dispatch")
+class BackendCreate(CreateView):
+    fields = [
+        "name",
+        "slug",
+        "parent_directory",
+        "level_4_url",
+        "is_active",
+    ]
+    model = Backend
+    template_name = "staff/backend_create.html"
+
+    def get_success_url(self):
+        return self.object.get_staff_url()
 
 
 @method_decorator(require_manage_backends, name="dispatch")

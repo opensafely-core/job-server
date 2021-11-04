@@ -1,0 +1,70 @@
+{% extends "staff/base.html" %}
+
+{% block metatitle %}Create a backend: Staff Area | OpenSAFELY Jobs{% endblock metatitle %}
+
+{% block breadcrumbs %}
+<nav class="breadcrumb-container breadcrumb--danger" aria-label="breadcrumb">
+  <div class="container">
+    <ol class="breadcrumb rounded-0 mb-0 px-0">
+      <li class="breadcrumb-item">
+        <a href="{% url 'staff:index' %}">Staff area</a>
+      </li>
+      <li class="breadcrumb-item">
+        <a href="{% url 'staff:backend-list' %}">Backends</a>
+      </li>
+      <li class="breadcrumb-item active" aria-current="page">
+        Create a backend
+      </li>
+    </ol>
+  </div>
+</nav>
+{% endblock breadcrumbs %}
+
+{% block jumbotron %}
+<div class="jumbotron jumbotron-fluid jumbotron--danger pt-md-2">
+  <div class="container">
+    <h1 class="display-4">Create a backend</h1>
+  </div>
+</div>
+{% endblock jumbotron %}
+
+{% block staff_content %}
+<div class="container">
+  <div class="row">
+    <div class="col-lg-9 col-xl-8">
+      <form method="POST">
+        {% csrf_token %}
+        <fieldset>
+          <legend class="h3 mb-3">
+            Backend details
+          </legend>
+
+          {% if form.non_field_errors %}
+            <ul>
+              {% for error in form.non_field_errors %}
+                <li class="text-danger">{{ error }}</li>
+              {% endfor %}
+            </ul>
+          {% endif %}
+
+          {% include "components/form_text.html" with field=form.name label="Name" name="name" %}
+
+          {% include "components/form_text.html" with field=form.slug label="Slug" name="slug" %}
+
+          {% include "components/form_text.html" with field=form.parent_directory label="Parent Directory" name="parent_directory" %}
+
+          {% include "components/form_text.html" with field=form.level_4_url label="Level 4 URL" name="level_4_url" %}
+
+          <div class="form-group">
+            {% include "components/form_checkbox.html" with field=form.is_active label="Is this backend active?" name="is_active" %}
+          </div>
+
+        </fieldset>
+
+        <button class="btn btn-success" type="submit">Create</button>
+
+      </form>
+    </div>
+  </div>
+</div>
+{% endblock staff_content %}

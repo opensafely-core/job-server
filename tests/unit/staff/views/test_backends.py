@@ -1,6 +1,8 @@
 from django.urls import reverse
 
+from jobserver.models import Backend
 from staff.views.backends import (
+    BackendCreate,
     BackendDetail,
     BackendEdit,
     BackendList,
@@ -8,6 +10,37 @@ from staff.views.backends import (
 )
 
 from ....factories import BackendFactory
+
+
+def test_backendcreate_get_success(rf, core_developer):
+    request = rf.get("/")
+    request.user = core_developer
+
+    response = BackendCreate.as_view()(request)
+
+    assert response.status_code == 200
+
+
+def test_backendcreate_post_success(rf, core_developer):
+    data = {
+        "name": "New Backend",
+        "slug": "new-backend",
+    }
+    request = rf.post("/", data)
+    request.user = core_developer
+
+    response = BackendCreate.as_view()(request)
+
+    assert response.status_code == 302, response.context_data["form"].errors
+
+    backends = Backend.objects.all()
+    assert len(backends) == 1
+
+    backend = backends.first()
+    assert backend.name == "New Backend"
+    assert backend.slug == "new-backend"
+    assert backend.auth_token
+    assert response.url == backend.get_staff_url()
 
 
 def test_backendedit_success(rf, core_developer):

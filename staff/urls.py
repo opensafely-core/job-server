@@ -6,7 +6,13 @@ from .views.applications import (
     ApplicationEdit,
     ApplicationList,
 )
-from .views.backends import BackendDetail, BackendEdit, BackendList, BackendRotateToken
+from .views.backends import (
+    BackendCreate,
+    BackendDetail,
+    BackendEdit,
+    BackendList,
+    BackendRotateToken,
+)
 from .views.index import Index
 from .views.orgs import (
     OrgCreate,
@@ -43,6 +49,7 @@ application_urls = [
 
 backend_urls = [
     path("", BackendList.as_view(), name="backend-list"),
+    path("add/", BackendCreate.as_view(), name="backend-create"),
     path("<int:pk>/", BackendDetail.as_view(), name="backend-detail"),
     path("<int:pk>/edit/", BackendEdit.as_view(), name="backend-edit"),
     path(
