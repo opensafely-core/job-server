@@ -2,7 +2,7 @@ from jobserver.models import Backend
 from jobserver.utils import set_from_qs
 from staff.forms import ApplicationApproveForm, UserForm
 
-from ...factories import BackendFactory, OrgFactory
+from ...factories import BackendFactory, OrgFactory, ProjectFactory
 
 
 def test_applicationapproveform_success():
@@ -11,6 +11,18 @@ def test_applicationapproveform_success():
     form = ApplicationApproveForm({"project_name": "test project", "org": str(org.pk)})
 
     assert form.is_valid(), form.errors
+
+
+def test_applicationapproveform_with_duplicate_project_name():
+    org = OrgFactory()
+    project = ProjectFactory()
+
+    form = ApplicationApproveForm({"project_name": project.name, "org": str(org.pk)})
+
+    assert not form.is_valid()
+    assert form.errors == {
+        "project_name": [f'Project "{project.name}" already exists.']
+    }
 
 
 def test_userform_success():
