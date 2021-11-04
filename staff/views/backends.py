@@ -30,7 +30,10 @@ class BackendDetail(DetailView):
 
 @method_decorator(require_manage_backends, name="dispatch")
 class BackendEdit(UpdateView):
-    fields = ["level_4_url"]
+    fields = [
+        "level_4_url",
+        "is_active",
+    ]
     model = Backend
     template_name = "staff/backend_edit.html"
 

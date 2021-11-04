@@ -49,6 +49,10 @@
         {% include "components/form_text.html" with field=form.level_4_url label="Level 4 URL" name="level_4_url" %}
 
         <div class="form-group">
+          {% include "components/form_checkbox.html" with field=form.is_active label="Is this backend active?" name="is_active" %}
+        </div>
+
+        <div class="form-group">
           <button class="btn btn-primary" type="submit">Save</button>
         </div>
 
