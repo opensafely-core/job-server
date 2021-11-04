@@ -17,13 +17,13 @@ class Backend(models.Model):
     slug = models.SlugField(max_length=255, unique=True)
     name = models.TextField()
 
-    parent_directory = models.TextField(default="")
+    parent_directory = models.TextField(default="", blank=True)
     is_active = models.BooleanField(default=False)
 
     auth_token = models.TextField(default=generate_token)
 
     # track where release-hatch is serving files from
-    level_4_url = models.TextField(default="")
+    level_4_url = models.TextField(default="", blank=True)
 
     created_at = models.DateTimeField(default=timezone.now)
     updated_at = models.DateTimeField(auto_now=True)
