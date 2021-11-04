@@ -46,28 +46,7 @@
         </ul>
         {% endif %}
 
-        <div class="form-group row mb-5">
-          <label for="id_level_4_url" class="col-sm-2 col-form-label">Level 4 URL</label>
-          <div class="col-sm-10">
-            <input
-              type="text"
-              class="form-control"
-              name="level_4_url"
-              {% if form.level_4_url.value %}
-              value="{{ form.level_4_url.value }}"
-              {% endif %}
-              id="id_level_4_url">
-          </div>
-
-          {% if form.level_4_url.errors %}
-          <ul class="pl-3 mb-1">
-            {% for error in form.roles.errors %}
-            <li class="text-danger">{{ error }}</li>
-            {% endfor %}
-          </ul>
-          {% endif %}
-
-        </div>
+        {% include "components/form_text.html" with field=form.level_4_url label="Level 4 URL" name="level_4_url" %}
 
         <div class="form-group">
           <button class="btn btn-primary" type="submit">Save</button>
