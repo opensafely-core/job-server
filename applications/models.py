@@ -140,6 +140,12 @@ class StudyPurposePage(AbstractPage):
     author_name = models.TextField(blank=True)
     author_email = models.TextField(blank=True)
     author_organisation = models.TextField(blank=True)
+    is_covid_prevention = models.BooleanField(default=False)
+    is_risk_from_covid = models.BooleanField(default=False)
+    is_post_covid_health_impacts = models.BooleanField(default=False)
+    is_covid_vaccine_eligibility_or_coverage = models.BooleanField(default=False)
+    is_covid_vaccine_effectiveness_or_safety = models.BooleanField(default=False)
+    is_other_impacts_of_covid = models.BooleanField(default=False)
 
 
 class StudyDataPage(AbstractPage):
