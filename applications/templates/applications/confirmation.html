@@ -24,7 +24,7 @@
           {{ field.label }}
           {% if not field.is_valid %}*{% endif %}
         </dt>
-        <dd class="col-6">{{ field.value }}</dd>
+        <dd class="col-6" style="whitespace:pre-wrap">{{ field.value|linebreaksbr }}</dd>
       </dl>
       {% endfor %}
       {% endfor %}
