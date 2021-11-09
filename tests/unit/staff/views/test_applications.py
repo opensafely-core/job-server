@@ -1,4 +1,5 @@
 import pytest
+from django.contrib.messages.storage.fallback import FallbackStorage
 from django.core.exceptions import ObjectDoesNotExist, PermissionDenied
 from django.http import Http404
 from django.utils import timezone
@@ -15,19 +16,20 @@ from staff.views.applications import (
 from ....factories import ApplicationFactory, OrgFactory, UserFactory
 
 
-def test_applicationapprove_already_approved(rf, core_developer):
-    application = ApplicationFactory(
-        approved_at=timezone.now(),
-        approved_by=core_developer,
-    )
+def test_applicationapprove_already_approved(rf, core_developer, complete_application):
+    complete_application.approved_at = timezone.now()
+    complete_application.approved_by = core_developer
+    complete_application.save()
 
     request = rf.get("/")
     request.user = core_developer
 
-    response = ApplicationApprove.as_view()(request, pk_hash=application.pk_hash)
+    response = ApplicationApprove.as_view()(
+        request, pk_hash=complete_application.pk_hash
+    )
 
     assert response.status_code == 302
-    assert response.url == application.get_staff_url()
+    assert response.url == complete_application.get_staff_url()
 
 
 def test_applicationapprove_get_success(rf, core_developer, complete_application):
@@ -73,6 +75,29 @@ def test_applicationapprove_with_unknown_application(rf, core_developer):
 
     with pytest.raises(Http404):
         ApplicationApprove.as_view()(request, pk_hash="")
+
+
+def test_applicationapprove_without_study_information_page(rf, core_developer):
+    application = ApplicationFactory()
+
+    request = rf.get("/")
+    request.user = core_developer
+
+    # set up messages framework
+    request.session = "session"
+    messages = FallbackStorage(request)
+    request._messages = messages
+
+    response = ApplicationApprove.as_view()(request, pk_hash=application.pk_hash)
+
+    assert response.status_code == 302
+    assert response.url == application.get_staff_url()
+
+    # check we have a message for the user
+    messages = list(messages)
+    assert len(messages) == 1
+    msg = "The Study Information page must be filled in before an Application can be approved."
+    assert str(messages[0]) == msg
 
 
 def test_applicationdetail_success_with_complete_application(

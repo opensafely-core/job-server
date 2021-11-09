@@ -1,3 +1,4 @@
+from django.contrib import messages
 from django.db.models import Q
 from django.shortcuts import get_object_or_404, redirect
 from django.template.response import TemplateResponse
@@ -25,6 +26,11 @@ class ApplicationApprove(FormView):
         self.application = get_object_or_404(
             Application, pk=unhash_or_404(self.kwargs["pk_hash"])
         )
+
+        if not hasattr(self.application, "studyinformationpage"):
+            msg = "The Study Information page must be filled in before an Application can be approved."
+            messages.error(request, msg)
+            return redirect(self.application.get_staff_url())
 
         if self.application.approved_at:
             return redirect(self.application.get_staff_url())
