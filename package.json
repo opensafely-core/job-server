@@ -50,7 +50,7 @@
     "axios": "^0.24.0",
     "bootstrap": "^4.6.1",
     "jquery": "^3.5.1",
-    "just-debounce-it": "^2.1.1",
+    "just-debounce-it": "^3.0.0",
     "list.js": "^2.3.0",
     "pretty-bytes": "^5.6.0",
     "prop-types": "^15.7.2",
