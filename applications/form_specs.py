@@ -140,6 +140,35 @@ form_specs = [
                     ),
                 ],
             ),
+            Fieldset(
+                label="Topic areas",
+                fields=[
+                    Field(
+                        name="is_covid_prevention",
+                        label="COVID transmission/prevalence/non-pharmaceutical prevention",
+                    ),
+                    Field(
+                        name="is_risk_from_covid",
+                        label="Risk from COVID (short term) [e.g. hospitalisation/death]",
+                    ),
+                    Field(
+                        name="is_post_covid_health_impacts",
+                        label="Post-COVID health impacts [e.g. long COVID]",
+                    ),
+                    Field(
+                        name="is_covid_vaccine_eligibility_or_coverage",
+                        label="COVID vaccine eligibility/coverage",
+                    ),
+                    Field(
+                        name="is_covid_vaccine_effectiveness_or_safety",
+                        label="COVID vaccine effectiveness/safety",
+                    ),
+                    Field(
+                        name="is_other_impacts_of_covid",
+                        label="Other/indirect impacts of COVID on health/healthcare",
+                    ),
+                ],
+            ),
         ],
     ),
     Form(
