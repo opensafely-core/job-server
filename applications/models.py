@@ -153,6 +153,13 @@ class StudyDataPage(AbstractPage):
     need_record_level_data = models.BooleanField(null=True, choices=YES_NO_CHOICES)
 
 
+class DatasetsPage(AbstractPage):
+    needs_icnarc = models.BooleanField(default=False)
+    needs_isaric = models.BooleanField(default=False)
+    needs_ons_cis = models.BooleanField(default=False)
+    needs_phosp = models.BooleanField(default=False)
+
+
 class RecordLevelDataPage(AbstractPage):
     record_level_data_reasons = models.TextField(blank=True)
 

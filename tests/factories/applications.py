@@ -6,6 +6,7 @@ from applications.models import (
     Application,
     CmoPriorityListPage,
     ContactDetailsPage,
+    DatasetsPage,
     LegalBasisPage,
     PreviousEhrExperiencePage,
     RecordLevelDataPage,
@@ -84,6 +85,16 @@ class StudyDataPageFactory(AbstractPageFactory):
 
     data_meets_purpose = factory.Sequence(lambda n: f"data meets purpose {n}")
     need_record_level_data = factory.fuzzy.FuzzyChoice([True, False])
+
+
+class DatasetsPageFactory(AbstractPageFactory):
+    class Meta:
+        model = DatasetsPage
+
+    needs_icnarc = factory.fuzzy.FuzzyChoice([True, False])
+    needs_isaric = factory.fuzzy.FuzzyChoice([True, False])
+    needs_ons_cis = factory.fuzzy.FuzzyChoice([True, False])
+    needs_phosp = factory.fuzzy.FuzzyChoice([True, False])
 
 
 class RecordLevelDataPageFactory(AbstractPageFactory):

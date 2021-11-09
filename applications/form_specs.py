@@ -1,3 +1,5 @@
+from django.utils.safestring import mark_safe
+
 from jobserver.snippets import render_snippet as snippet
 
 from . import models
@@ -194,6 +196,40 @@ form_specs = [
                     Field(
                         name="need_record_level_data",
                         label="Are you requesting record level data?",
+                    ),
+                ],
+            ),
+        ],
+    ),
+    Form(
+        key="datasets",
+        model=models.DatasetsPage,
+        title="Datasets",
+        sub_title="",
+        rubric=snippet("datasets-rubric"),
+        fieldsets=[
+            Fieldset(
+                label="Please confirm if you need to access any of the following datasets",
+                fields=[
+                    Field(
+                        name="needs_icnarc",
+                        label=mark_safe('<a href="https://www.icnarc.org/">ICNARC</a>'),
+                    ),
+                    Field(
+                        name="needs_isaric",
+                        label=mark_safe('<a href="https://isaric4c.net/">ISARIC</a>'),
+                    ),
+                    Field(
+                        name="needs_ons_cis",
+                        label=mark_safe(
+                            '<a href="https://www.ons.gov.uk/peoplepopulationandcommunity/healthandsocialcare/conditionsanddiseases/methodologies/covid19infectionsurveypilotmethodsandfurtherinformation#covid-19-infection-survey">ONS-CIS (community infection survey)</a>'
+                        ),
+                    ),
+                    Field(
+                        name="needs_phosp",
+                        label=mark_safe(
+                            '<a href="https://www.leicesterbrc.nihr.ac.uk/themes/respiratory/research/phosp-covid/">PHOSP</a>'
+                        ),
                     ),
                 ],
             ),
