@@ -48,6 +48,14 @@ class ApplicationApproveForm(forms.Form):
 
         self.fields["org"] = forms.ModelChoiceField(queryset=orgs)
 
+    def clean_project_name(self):
+        project_name = self.cleaned_data["project_name"]
+
+        if Project.objects.filter(name=project_name).exists():
+            raise forms.ValidationError(f'Project "{project_name}" already exists.')
+
+        return project_name
+
 
 class OrgAddMemberForm(PickUsersMixin, forms.Form):
     pass
