@@ -136,7 +136,7 @@ class ProjectCollaborator:
     """
 
     display_name = "Project Collaborator"
-    description = ""
+    description = "View unpublished outputs released from Level 4 to the Jobs site."
     models = [
         "jobserver.models.core.ProjectInvitation",
         "jobserver.models.core.ProjectMembership",
@@ -180,7 +180,9 @@ class ProjectDeveloper:
     """
 
     display_name = "Project Developer"
-    description = "An external user who is developing and executing code to analyse data in OpenSAFELY; they will likely want to review (and flag for release) their own outputs."
+    description = (
+        "Run and cancel Jobs, publish released outputs, and manage workspaces."
+    )
     models = [
         "jobserver.models.core.ProjectInvitation",
         "jobserver.models.core.ProjectMembership",
