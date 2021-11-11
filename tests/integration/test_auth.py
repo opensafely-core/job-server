@@ -47,9 +47,6 @@ def test_login_pipeline(client, mocker):
         ]
         rsps.add(responses.GET, emails_url, json=emails_data, status=200)
 
-        membership_url = "https://api.github.com/orgs/opensafely/members/dummy-user"
-        rsps.add(responses.GET, membership_url, status=204)
-
         mocker.patch("jobserver.pipeline.slack_client", autospec=True)
 
         # set a dummy state value in the test Client's session to match the
@@ -108,7 +105,7 @@ def test_login_with_get_request_fails(client):
     assert response.status_code == 405
 
 
-def test_login_pipeline_without_gitub_token(client):
+def test_login_pipeline_without_gitub_token(client, mocker):
     """
     Test the Auth Pipeline with an incoming request but no GitHub API access
 
@@ -149,8 +146,7 @@ def test_login_pipeline_without_gitub_token(client):
         ]
         rsps.add(responses.GET, emails_url, json=emails_data, status=200)
 
-        membership_url = "https://api.github.com/orgs/opensafely/members/dummy-user"
-        rsps.add(responses.GET, membership_url, status=401)
+        mocker.patch("jobserver.pipeline.slack_client", autospec=True)
 
         # set a dummy state value in the test Client's session to match the
         # value in redirect_url below

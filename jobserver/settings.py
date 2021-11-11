@@ -194,7 +194,7 @@ LOGGING = logging_config_dict
 
 # Auth
 AUTHENTICATION_BACKENDS = [
-    "jobserver.github.GithubOrganizationOAuth2",
+    "social_core.backends.github.GithubOAuth2",
 ]
 AUTH_USER_MODEL = "jobserver.User"
 LOGIN_REDIRECT_URL = "/"
