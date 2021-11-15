@@ -9,14 +9,12 @@ function Wrapper({ children }) {
   } = useFiles();
 
   return (
-    <>
-      <div className="card">
-        <div className="card-header">
-          <Metadata file={file} />
-        </div>
-        <div className="card-body">{children}</div>
+    <div className="card">
+      <div className="card-header">
+        <Metadata file={file} />
       </div>
-    </>
+      <div className="card-body">{children}</div>
+    </div>
   );
 }
 
