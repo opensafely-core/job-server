@@ -7,12 +7,12 @@ import { csvFile, fileList, pngFile } from "../../helpers/files";
 import { render, screen, waitFor, history } from "../../test-utils";
 
 describe("<FileList />", () => {
-  const FileListWrapper = () => {
+  function FileListWrapper() {
     const [listVisible, setListVisible] = useState(false);
     return (
       <FileList listVisible={listVisible} setListVisible={setListVisible} />
     );
-  };
+  }
 
   it("returns a loading state", async () => {
     server.use(

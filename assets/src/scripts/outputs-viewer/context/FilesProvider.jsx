@@ -30,7 +30,7 @@ function FilesProvider({ children, initialValue }) {
     ...initialValue,
   });
 
-  const value = { state, dispatch };
+  const value = React.useMemo(() => ({ state, dispatch }), [state, dispatch]);
   return (
     <FilesContext.Provider value={value}>{children}</FilesContext.Provider>
   );
