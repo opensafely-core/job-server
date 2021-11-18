@@ -184,9 +184,8 @@ form_specs = [
                 label="",
                 fields=[
                     Field(
-                        name="data_meets_purpose",
-                        label="State how the data you have requested meets your purpose",
-                        template_name="components/form_textarea.html",
+                        name="need_record_level_data",
+                        label="Does your study need access to patient level data?",
                     ),
                 ],
             ),
@@ -194,8 +193,10 @@ form_specs = [
                 label="",
                 fields=[
                     Field(
-                        name="need_record_level_data",
-                        label="Are you requesting record level data?",
+                        name="data_meets_purpose",
+                        label="If NO, please explain why using OpenSAFELY is necessary to answer your study question(s)",
+                        help_text=snippet("patient-level"),
+                        template_name="components/form_textarea.html",
                     ),
                 ],
             ),
