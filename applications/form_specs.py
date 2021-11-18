@@ -307,7 +307,7 @@ form_specs = [
                     ),
                     Field(
                         name="institutional_rec_reference",
-                        label="Institutional REC reference",
+                        label="If using ONS-CIS, ONS ethics approval reference",
                     ),
                 ],
             ),
