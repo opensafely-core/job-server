@@ -1,4 +1,3 @@
-# noqa: INP001
 from services.logging import logging_config_dict
 
 
