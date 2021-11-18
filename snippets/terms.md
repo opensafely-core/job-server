@@ -1,7 +1,7 @@
 ## Conditions of OpenSAFELY data use
 * OpenSAFELY operates as a trusted research platform; no record level data is permitted to be extracted from the platform.
-* All outputs from the OpenSAFELY-EMIS/-TPP NHS England COVID-19 research platform must be aggregated data with [small number suppression](https://securedatagroup.org/sdc-handbook/) applied.
-* Currently the data held can only be analysed for **COVID-19 related purposes**.
+* The data held in the OpenSAFELY-EMIS/-TPP NHS England COVID-19 research platform can only be analysed for **COVID-19 related purposes**.
+* All outputs must be aggregated data with [small number suppression](https://securedatagroup.org/sdc-handbook/) applied.
 * At this time, studies must not release any information (e.g. name, listsize) that identifies, or could identify, Sustainability and Transformation Partnerships (STPs), Local Authorities, Clinical Commissioning Groups (CCGs) and individual GP practices.
 
 ## OpenSAFELY Policies
