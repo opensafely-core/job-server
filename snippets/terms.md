@@ -11,9 +11,9 @@ It is important you familiarise yourself with the following policies:
 - [Acknowledgement and Sharing/Publication Policy](https://www.opensafely.org/policies-for-researchers/#acknowledgment-and-data-sharing--publication-policy)
 - [Information Governance and Ethics content Policy](https://www.opensafely.org/policies-for-researchers/#information-governance-and-ethics-content-policy).
 
-NNHS England ([the Data Controller for OpenSAFELY](https://www.england.nhs.uk/contact-us/privacy-notice/how-we-use-your-information/covid-19-response/coronavirus-covid-19-research-platform/)) oversees the final approval for all publication ready papers, reports or presentations, principally to check that the outputs align with the stated application purpose; NHS England has been extremely supportive of all research and analyses to date. The usual response time for approval is 1-2 weeks. There are other datasets we hold ([such as ICNARC, ISARIC, ONS-CIS](https://www.opensafely.org/policies-for-researchers/#for-the-datasets-listed-below)), which require additional approvals from their source institutions.  
+NHS England ([the Data Controller for OpenSAFELY](https://www.england.nhs.uk/contact-us/privacy-notice/how-we-use-your-information/covid-19-response/coronavirus-covid-19-research-platform/)) oversees the final approval for all publication ready papers, reports or presentations, principally to check that the outputs align with the stated application purpose; NHS England has been extremely supportive of all research and analyses to date. The usual response time for approval is 1-2 weeks. There are other datasets we hold ([such as ICNARC, ISARIC, ONS-CIS](https://www.opensafely.org/policies-for-researchers/#for-the-datasets-listed-below)), which require additional approvals from their source institutions.  
 
-Following approval, as part of the [principles you are signing up to](https://www.opensafely.org/principles/, at or before the time when your results are published (as  manuscripts, official reports and presentations), we expect you to make your project's GitHub repository public in order to share:
+Following approval, as part of the [principles you are signing up to](https://www.opensafely.org/principles/), at or before the time when your results are published (as  manuscripts, official reports and presentations), we expect you to make your project's GitHub repository public in order to share:
 
 * all study definition code
 * all codelists
@@ -27,7 +27,7 @@ In addition, OpenSAFELY will create a public dashboard listing for all approved 
 * description of purpose
 * contact email of study lead(s)
 * affiliated organisation
-* when first code run against the patient data
+* when code is first run against the patient data
 * link to GitHub repository (to be made public at most 12 months after first code executed, and in almost all cases at the time of results dissemination)
 * links to published material (supplied by researchers)
 
