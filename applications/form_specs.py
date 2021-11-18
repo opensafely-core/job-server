@@ -238,7 +238,7 @@ form_specs = [
     Form(
         key="record-level-data",
         model=models.RecordLevelDataPage,
-        title="Record level data",
+        title="Backend data environment (TPP and EMIS)",
         sub_title="",
         rubric="",
         fieldsets=[
@@ -247,7 +247,8 @@ form_specs = [
                 fields=[
                     Field(
                         name="record_level_data_reasons",
-                        label="Explain why you require access to record level data",
+                        label="If requesting OpenSAFELY-EMIS access please specify the justification",
+                        help_text=snippet("emis_justification"),
                         template_name="components/form_textarea.html",
                     ),
                 ],
