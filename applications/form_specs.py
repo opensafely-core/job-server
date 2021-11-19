@@ -119,30 +119,6 @@ form_specs = [
                 ],
             ),
             Fieldset(
-                label="Study lead",
-                fields=[
-                    Field(
-                        name="author_name",
-                        label="Study lead name",
-                        attributes=Attributes(
-                            autocomplete="name",
-                        ),
-                    ),
-                    Field(
-                        name="author_email",
-                        label="Study lead email address",
-                        attributes=email_attrs,
-                    ),
-                    Field(
-                        name="author_organisation",
-                        label="Study lead organisation",
-                        attributes=Attributes(
-                            autocomplete="organization",
-                        ),
-                    ),
-                ],
-            ),
-            Fieldset(
                 label="Topic areas",
                 fields=[
                     Field(
@@ -168,6 +144,30 @@ form_specs = [
                     Field(
                         name="is_other_impacts_of_covid",
                         label="Other/indirect impacts of COVID on health/healthcare",
+                    ),
+                ],
+            ),
+            Fieldset(
+                label="Study lead(s)",
+                fields=[
+                    Field(
+                        name="author_name",
+                        label="Name(s)",
+                        attributes=Attributes(
+                            autocomplete="name",
+                        ),
+                    ),
+                    Field(
+                        name="author_email",
+                        label="Email(s)",
+                        attributes=email_attrs,
+                    ),
+                    Field(
+                        name="author_organisation",
+                        label="Organisation(s)",
+                        attributes=Attributes(
+                            autocomplete="organization",
+                        ),
                     ),
                 ],
             ),
