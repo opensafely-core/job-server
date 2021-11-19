@@ -8,4 +8,4 @@ Other helpful resources:
 
 For reference, the [OpenSAFELY favourable Health Research Authority (HRA) opinion](https://www.hra.nhs.uk/planning-and-improving-research/application-summaries/research-summaries/open-corona-research-platform-phase-i-covid-19/). 
 
-An [example of a favourable HRA opinion](https://www.hra.nhs.uk/planning-and-improving-research/application-summaries/research-summaries/effectiveness-of-covid-19-vaccines-covid-19/) for another external researcher
+An [example of a favourable HRA opinion](https://www.hra.nhs.uk/planning-and-improving-research/application-summaries/research-summaries/effectiveness-of-covid-19-vaccines-covid-19/) for another external researcher.
