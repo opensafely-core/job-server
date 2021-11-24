@@ -1,5 +1,7 @@
-All contents of the application form (except mobile phone numbers and email addresses of individuals who are NOT study leads) will be placed in the public domain, on the OpenSAFELY and / or NHS England websites. This is in keeping with our [transparency principles](https://www.opensafely.org/about/). 
+All contents of the application form*, including the emails the project leads for the dashboard of approved projects, will be placed in the public domain, such as on the OpenSAFELY or NHS England websites. This is in keeping with our [transparency principles](https://www.opensafely.org/about/). 
 
-We will use this information to contact you regarding your application.
+*_This will not apply to any mobile phone numbers supplied, or emails of other individuals who are not project leads._
+
+We will use this information to contact you regarding your application. Be aware, members of the public may similarly contact you to discuss your project.
 
 NHS England will carry out appropriate checks to confirm the applicant's relationship with their affiliated organisation. This may include asking the applicant or their organisation for necessary documentation.
