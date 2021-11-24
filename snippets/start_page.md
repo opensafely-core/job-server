@@ -1,7 +1,7 @@
 ## What data can I access via OpenSAFELY?
 Our [documentation](https://docs.opensafely.org/) lists the available [data sources](https://docs.opensafely.org/en/latest/dataset-intro/).
 
-The OpenSAFELY reports site details the [data schema](https://reports.opensafely.org/reports/opensafely-tpp-database-schema/) for datasets and the [last import date](https://reports.opensafely.org/reports/opensafely-tpp-database-builds/) for that data.
+The OpenSAFELY reports site details the [database schema](https://reports.opensafely.org/reports/opensafely-tpp-database-schema/) for datasets and the [last import date](https://reports.opensafely.org/reports/opensafely-tpp-database-builds/) for that data.
 
 ## Before you begin
 You will need:
