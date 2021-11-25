@@ -6,4 +6,4 @@ If you decide to attend a [UK Data Service course][3], you should specify in you
 
 [1]: https://uksa.statisticsauthority.gov.uk/digitaleconomyact-research-statistics/better-useofdata-for-research-information-for-researchers/list-of-accredited-researchers-and-research-projects-under-the-research-strand-of-the-digital-economy-act/
 [2]: https://researchaccreditationservice.ons.gov.uk/ons/ONS_registration.ofml
-[3]: https://www.ukdataservice.ac.uk/news-and-events/events
+[3]: https://ukdataservice.ac.uk/training-events/?topic=safe-researcher
