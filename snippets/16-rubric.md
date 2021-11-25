@@ -3,7 +3,7 @@ There are two levels of access to OpenSAFELY available for researchers:
 * **access to the OpenSAFELY results server (also referred to as the Level 4 environment)**
     * where you review your study results before applying disclosure controls and requesting their release
 * **access to OpenSAFELY's GitHub organisation**
-    * where you write your study code, which is then executed against the patient data held on the results server; where you view results that have been released from the results server (after disclosure controls have been applied)
+    * where you store your study code, which is then executed against the patient data held on the results server; where you view results that have been released from the results server (after disclosure controls have been applied)
 
 We ask that you think very carefully about how many researchers apply for access to the OpenSAFELY results server. As a security measure, this should typically be the main study author only.
 
