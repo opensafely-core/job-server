@@ -54,6 +54,10 @@
             <strong>Level 4 URL:</strong>
             <code>{{ backend.level_4_url|default:"-" }}</code>
           </li>
+          <li class="list-group-item">
+            <strong>Active:</strong>
+            {% if backend.is_active %}✓{% else %}❌{% endif %}
+          </li>
         </ul>
       </div>
     </div>

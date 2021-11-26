@@ -1,11 +1,9 @@
-import pytest
 from django.utils import timezone
 
 from jobserver.backends import (
     backends,
     backends_to_choices,
     ensure_backends,
-    get_configured_backends,
     show_warning,
 )
 from jobserver.models import Backend
@@ -44,42 +42,6 @@ def test_ensure_backends_no_backends():
     ensure_backends()
 
     assert Backend.objects.count() == len(backends)
-
-
-def test_get_configured_backends_empty(monkeypatch):
-    monkeypatch.setenv("BACKENDS", "")
-    backends = get_configured_backends()
-
-    assert backends == set()
-
-
-def test_get_configured_backends_space_around_comma(monkeypatch):
-    monkeypatch.setenv("BACKENDS", "tpp , expectations")
-
-    BackendFactory(slug="expectations")
-    BackendFactory(slug="tpp")
-
-    backends = get_configured_backends()
-
-    assert backends == {"expectations", "tpp"}
-
-
-def test_get_configured_backends_success(monkeypatch):
-    monkeypatch.setenv("BACKENDS", "tpp,expectations")
-
-    BackendFactory(slug="expectations")
-    BackendFactory(slug="tpp")
-
-    backends = get_configured_backends()
-
-    assert backends == {"expectations", "tpp"}
-
-
-def test_get_configured_backends_unknown_backend(monkeypatch):
-    monkeypatch.setenv("BACKENDS", "tpp,dog,expectations")
-
-    with pytest.raises(Exception, match="Unknown backends: dog"):
-        get_configured_backends()
 
 
 def test_show_warning_last_seen_is_none():

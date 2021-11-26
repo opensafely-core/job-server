@@ -1,24 +1,6 @@
 from django.urls import reverse
 
-from jobserver.models import Backend
-
 from ....factories import BackendFactory, BackendMembershipFactory, UserFactory
-
-
-def test_backend_no_configured_backends(monkeypatch):
-    BackendFactory.create_batch(6)
-
-    monkeypatch.setenv("BACKENDS", "")
-
-    assert Backend.objects.count() == 6
-
-
-def test_backend_one_configured_backend(monkeypatch):
-    backend = BackendFactory(slug="tpp")
-
-    monkeypatch.setenv("BACKENDS", backend.slug)
-
-    assert Backend.objects.count() == 1
 
 
 def test_backend_get_edit_url():

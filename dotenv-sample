@@ -24,9 +24,5 @@ DJANGO_VITE_DEV_MODE=False
 # PRODUCTION ONLY
 # You only need to set the values below in Production by default.
 
-# Set this to a comma-delimited list of Backends you want to be enabled for the
-# platform
-BACKENDS=test
-
 # Token for frontend Sentry error tracking DSN
 VITE_SENTRY_DSN=
