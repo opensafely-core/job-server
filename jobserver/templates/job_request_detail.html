@@ -5,13 +5,13 @@
 {% load static %}
 
 {% block extra_meta %}
-<meta property="og:title" content="{{ jobrequest.requested_actions|length }} Action{{ jobrequest.requested_actions|pluralize }} Requested" />
+<meta property="og:title" content="{{ job_request.requested_actions|length }} Action{{ job_request.requested_actions|pluralize }} Requested" />
 <meta property="og:type" content="website" />
 <meta property="og:url" content="{{ request.build_absolute_uri }}" />
-<meta property="og:description" content="Workspace: {{ jobrequest.workspace.name }}" />
+<meta property="og:description" content="Workspace: {{ job_request.workspace.name }}" />
 {% endblock extra_meta %}
 
-{% block metatitle %}Job request: {{ jobrequest.pk }} - {{ jobrequest.workspace.name }} | OpenSAFELY Jobs{% endblock metatitle %}
+{% block metatitle %}Job request: {{ job_request.pk }} - {{ job_request.workspace.name }} | OpenSAFELY Jobs{% endblock metatitle %}
 
 {% block extra_styles %}
 <link rel="stylesheet" href="{% static 'highlighting.css' %}">
@@ -26,25 +26,25 @@
       </li>
 
       <li class="breadcrumb-item">
-        <a href="{{ jobrequest.workspace.project.org.get_absolute_url }}">
-          {{ jobrequest.workspace.project.org.name }}
+        <a href="{{ job_request.workspace.project.org.get_absolute_url }}">
+          {{ job_request.workspace.project.org.name }}
         </a>
       </li>
 
       <li class="breadcrumb-item">
-        <a href="{{ jobrequest.workspace.project.get_absolute_url }}">
-          {{ jobrequest.workspace.project.name }}
+        <a href="{{ job_request.workspace.project.get_absolute_url }}">
+          {{ job_request.workspace.project.name }}
         </a>
       </li>
 
       <li class="breadcrumb-item">
-        <a href="{{ jobrequest.workspace.get_absolute_url }}">
-          {{ jobrequest.workspace.name }}
+        <a href="{{ job_request.workspace.get_absolute_url }}">
+          {{ job_request.workspace.name }}
         </a>
       </li>
 
       <li class="breadcrumb-item active" aria-current="page">
-        Job request: {{ jobrequest.id }}
+        Job request: {{ job_request.id }}
       </li>
     </ol>
   </div>
@@ -54,19 +54,19 @@
 {% block jumbotron %}
 <div class="jumbotron jumbotron-fluid">
   <div class="container">
-    <h1>Job request: {{ jobrequest.pk }}</h1>
+    <h1>Job request: {{ job_request.pk }}</h1>
 
     <ul class="list-unstyled lead">
-      <li><strong>ID:</strong> <code>{{ jobrequest.identifier }}</code></li>
+      <li><strong>ID:</strong> <code>{{ job_request.identifier }}</code></li>
       <li>
         <strong>Workspace:</strong>
-        <a href="{{ jobrequest.workspace.get_absolute_url }}">
-          {{ jobrequest.workspace.name }}
+        <a href="{{ job_request.workspace.get_absolute_url }}">
+          {{ job_request.workspace.name }}
         </a>
       </li>
     </ul>
 
-    <a class="btn btn-primary" href="{{ jobrequest.get_repo_url }}">
+    <a class="btn btn-primary" href="{{ job_request.get_repo_url }}">
       View Repo
     </a>
 
@@ -75,10 +75,10 @@
     </a>
 
     {% if user_can_cancel_jobs %}
-      <form class="d-inline-block" method="POST" action="{{ jobrequest.get_cancel_url }}">
+      <form class="d-inline-block" method="POST" action="{{ job_request.get_cancel_url }}">
         {% csrf_token %}
         <button
-          {% if jobrequest.is_completed %}
+          {% if job_request.is_completed %}
             aria-disabled="true"
             disabled
             tabindex="-1"
@@ -100,9 +100,9 @@
   <div class="row">
     <div class="col-lg-8">
       <p>
-        This page shows the technical details of what happened when authorised researcher {{ jobrequest.created_by.name }} requested one or
+        This page shows the technical details of what happened when authorised researcher {{ job_request.created_by.name }} requested one or
         more actions to be run against real patient data in the
-        <a href="{{ jobrequest.workspace.project.get_absolute_url }}">{{ jobrequest.workspace.project.name }} project</a>, within a secure environment.
+        <a href="{{ job_request.workspace.project.get_absolute_url }}">{{ job_request.workspace.project.name }} project</a>, within a secure environment.
       </p>
 
       <p>
@@ -114,7 +114,7 @@
         <code>moderately_sensitive</code> can be requested for release to the public, via a controlled output review service.
       </p>
 
-      {% if not jobrequest.is_invalid %}
+      {% if not job_request.is_invalid %}
         <section class="pt-3">
           <h2 class="h3">Jobs</h2>
           <div class="table-responsive">
@@ -127,7 +127,7 @@
                 </tr>
               </thead>
               <tbody>
-                {% for job in jobrequest.jobs.all %}
+                {% for job in job_request.jobs.all %}
                 <tr>
                   <td>
                     <a class="btn btn-link p-0 text-monospace font-weight-bold" href="{{ job.get_absolute_url }}">
@@ -166,9 +166,9 @@
           <p class="card-subtitle mb-0">State is inferred from the related Jobs.</p>
         </div>
         <div class="card-body">
-          <p class="mb-0"><strong>Status:</strong> {{ jobrequest.status|capfirst }}</p>
-          {% if jobrequest.is_invalid %}
-            <pre class="text-wrap mb-0 mt-3">{{ jobrequest.jobs.first.status_message }}</pre>
+          <p class="mb-0"><strong>Status:</strong> {{ job_request.status|capfirst }}</p>
+          {% if job_request.is_invalid %}
+            <pre class="text-wrap mb-0 mt-3">{{ job_request.jobs.first.status_message }}</pre>
           {% endif %}
         </div>
       </div>
@@ -181,28 +181,28 @@
           <ul class="list-unstyled mb-0">
             <li>
               <strong>Created:</strong>
-              <time title="{{ jobrequest.created_at|date:"Y-m-d H:i:sO" }}">
-                {{ jobrequest.created_at|naturaltime }}
+              <time title="{{ job_request.created_at|date:"Y-m-d H:i:sO" }}">
+                {{ job_request.created_at|naturaltime }}
               </time>
             </li>
 
             <li>
               <strong>Started:</strong>
-              <time title="{{ jobrequest.started_at|default_if_none:"" }}">
-                {{ jobrequest.started_at|naturaltime|default_if_none:"-" }}
+              <time title="{{ job_request.started_at|default_if_none:"" }}">
+                {{ job_request.started_at|naturaltime|default_if_none:"-" }}
               </time>
             </li>
 
             <li>
               <strong>Finished:</strong>
-              <time title="{{ jobrequest.completed_at|default_if_none:"" }}">
-                {{ jobrequest.completed_at|naturaltime|default_if_none:"-"}}
+              <time title="{{ job_request.completed_at|default_if_none:"" }}">
+                {{ job_request.completed_at|naturaltime|default_if_none:"-"}}
               </time>
             </li>
 
             <li>
               <strong>Runtime:</strong>
-              <span>{% runtime jobrequest.runtime %}</span>
+              <span>{% runtime job_request.runtime %}</span>
             </li>
           </ul>
         </div>
@@ -214,7 +214,7 @@
             <dl class="mb-0">
               <dt>Backend:</dt>
               <dd class="d-inline-flex mb-0 align-items-center">
-                <code>{{ jobrequest.backend|upper }}</code>
+                <code>{{ job_request.backend|upper }}</code>
               </dd>
             </dl>
           </li>
@@ -222,8 +222,8 @@
             <dl class="mb-0">
               <dt>Workspace:</dt>
               <dd class=" mb-0">
-                <a href="{{ jobrequest.workspace.get_absolute_url }}">
-                  {{ jobrequest.workspace.name }}
+                <a href="{{ job_request.workspace.get_absolute_url }}">
+                  {{ job_request.workspace.name }}
                 </a>
               </dd>
             </dl>
@@ -231,20 +231,20 @@
           <li class="list-group-item">
             <dl class="mb-0">
               <dt>Branch:</dt>
-              <dd class=" mb-0"><code>{{ jobrequest.workspace.branch }}</code></dd>
+              <dd class=" mb-0"><code>{{ job_request.workspace.branch }}</code></dd>
             </dl>
           </li>
           <li class="list-group-item">
             <dl class="mb-0">
               <dt>Creator:</dt>
-              <dd class=" mb-0">{{ jobrequest.created_by.username }}</dd>
+              <dd class=" mb-0">{{ job_request.created_by.username }}</dd>
             </dl>
           </li>
           <li class="list-group-item">
             <dl class="mb-0">
               <dt>Force run dependencies:</dt>
               <dd class=" mb-0">
-                {{ jobrequest.force_run_dependencies }}
+                {{ job_request.force_run_dependencies }}
               </dd>
             </dl>
           </li>
@@ -252,8 +252,8 @@
             <dl class="mb-0">
               <dt>Git Commit Hash:</dt>
               <dd class=" mb-0">
-                <a href="{{ jobrequest.get_repo_url }}">
-                  {{ jobrequest.sha|slice:7|default:"-" }}
+                <a href="{{ job_request.get_repo_url }}">
+                  {{ job_request.sha|slice:7|default:"-" }}
                 </a>
               </dd>
             </dl>
@@ -261,7 +261,7 @@
           <li class="list-group-item">
             <strong class="d-block">Requested actions:</strong>
             <ul class="list-unstyled">
-              {% for action in jobrequest.requested_actions %}
+              {% for action in job_request.requested_actions %}
                 <li><code>{{ action }}</code></li>
               {% endfor %}
             </ul>

@@ -1,10 +1,12 @@
 from django.contrib import messages
+from django.core.exceptions import MultipleObjectsReturned
 from django.db import transaction
 from django.db.models import Q
 from django.http import Http404
 from django.shortcuts import get_object_or_404, redirect
+from django.template.response import TemplateResponse
 from django.utils.safestring import mark_safe
-from django.views.generic import CreateView, DetailView, ListView, RedirectView, View
+from django.views.generic import CreateView, ListView, RedirectView, View
 from django.views.generic.edit import FormMixin
 
 from ..authorization import CoreDeveloper, has_permission, has_role
@@ -156,28 +158,40 @@ class JobRequestCreate(CreateView):
         return self.workspace.job_requests.order_by("-created_at").first()
 
 
-class JobRequestDetail(DetailView):
-    model = JobRequest
-    queryset = JobRequest.objects.select_related("created_by", "workspace")
-    template_name = "job_request_detail.html"
+class JobRequestDetail(View):
+    def get(self, request, *args, **kwargs):
+        try:
+            job_request = JobRequest.objects.select_related(
+                "created_by", "workspace"
+            ).get(
+                workspace__project__org__slug=self.kwargs["org_slug"],
+                workspace__project__slug=self.kwargs["project_slug"],
+                workspace__name=self.kwargs["workspace_slug"],
+                pk=self.kwargs["pk"],
+            )
+        except (JobRequest.DoesNotExist, MultipleObjectsReturned):
+            raise Http404
 
-    def get_context_data(self, **kwargs):
-        can_cancel_jobs = self.object.created_by == self.request.user or has_permission(
-            self.request.user, "job_cancel", project=self.object.workspace.project
+        can_cancel_jobs = job_request.created_by == request.user or has_permission(
+            request.user, "job_cancel", project=job_request.workspace.project
         )
 
         project_definition = mark_safe(
             render_definition(
-                self.object.project_definition,
-                self.object.get_file_url,
+                job_request.project_definition,
+                job_request.get_file_url,
             )
         )
 
-        return super().get_context_data(**kwargs) | {
+        context = {
+            "job_request": job_request,
             "project_definition": project_definition,
-            "project_yaml_url": self.object.get_file_url("project.yaml"),
+            "project_yaml_url": job_request.get_file_url("project.yaml"),
             "user_can_cancel_jobs": can_cancel_jobs,
+            "user_can_cancel_jobs": can_cancel_jobs,
+            "view": self,
         }
+        return TemplateResponse(request, "job_request_detail.html", context=context)
 
 
 class JobRequestDetailRedirect(RedirectView):

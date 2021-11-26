@@ -503,7 +503,13 @@ def test_jobrequestdetail_with_job_request_creator(rf):
     request = rf.get("/")
     request.user = user
 
-    response = JobRequestDetail.as_view()(request, pk=job_request.pk)
+    response = JobRequestDetail.as_view()(
+        request,
+        org_slug=job_request.workspace.project.org.slug,
+        project_slug=job_request.workspace.project.slug,
+        workspace_slug=job_request.workspace.name,
+        pk=job_request.pk,
+    )
 
     assert response.status_code == 200
     assert "Cancel" in response.rendered_content
@@ -520,7 +526,13 @@ def test_jobrequestdetail_with_permission(rf):
     request = rf.get("/")
     request.user = user
 
-    response = JobRequestDetail.as_view()(request, pk=job_request.pk)
+    response = JobRequestDetail.as_view()(
+        request,
+        org_slug=job_request.workspace.project.org.slug,
+        project_slug=job_request.workspace.project.slug,
+        workspace_slug=job_request.workspace.name,
+        pk=job_request.pk,
+    )
 
     assert response.status_code == 200
     assert "Cancel" in response.rendered_content
@@ -532,9 +544,31 @@ def test_jobrequestdetail_with_unauthenticated_user(rf):
     request = rf.get("/")
     request.user = AnonymousUser()
 
-    response = JobRequestDetail.as_view()(request, pk=job_request.pk)
+    response = JobRequestDetail.as_view()(
+        request,
+        org_slug=job_request.workspace.project.org.slug,
+        project_slug=job_request.workspace.project.slug,
+        workspace_slug=job_request.workspace.name,
+        pk=job_request.pk,
+    )
 
     assert response.status_code == 200
+
+
+def test_jobrequestdetail_with_unknown_job_request(rf):
+    workspace = WorkspaceFactory()
+
+    request = rf.get("/")
+    request.user = UserFactory()
+
+    with pytest.raises(Http404):
+        JobRequestDetail.as_view()(
+            request,
+            org_slug=workspace.project.org.slug,
+            project_slug=workspace.project.slug,
+            workspace_slug=workspace.name,
+            pk=0,
+        )
 
 
 def test_jobrequestdetail_without_permission(rf):
@@ -543,7 +577,13 @@ def test_jobrequestdetail_without_permission(rf):
     request = rf.get("/")
     request.user = UserFactory()
 
-    response = JobRequestDetail.as_view()(request, pk=job_request.pk)
+    response = JobRequestDetail.as_view()(
+        request,
+        org_slug=job_request.workspace.project.org.slug,
+        project_slug=job_request.workspace.project.slug,
+        workspace_slug=job_request.workspace.name,
+        pk=job_request.pk,
+    )
 
     assert response.status_code == 200
     assert "Cancel" not in response.rendered_content
@@ -799,7 +839,6 @@ def test_jobrequestlist_with_permission(rf):
     job_request = JobRequestFactory()
     JobFactory(job_request=job_request)
     JobFactory(job_request=job_request)
-
     request = rf.get("/")
     request.user = UserFactory(is_superuser=False, roles=[])
     response = JobRequestList.as_view()(request)
