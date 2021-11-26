@@ -41,7 +41,7 @@ class Application(models.Model):
     )
 
     status = models.TextField(choices=Statuses.choices, default=Statuses.ONGOING)
-    status_comment = models.TextField(default="")
+    status_comment = models.TextField(default="", blank=True)
     has_agreed_to_terms = models.BooleanField(default=False)
 
     created_at = models.DateTimeField(default=timezone.now)
