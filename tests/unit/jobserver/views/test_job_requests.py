@@ -503,7 +503,13 @@ def test_jobrequestdetail_with_job_request_creator(rf):
     request = rf.get("/")
     request.user = user
 
-    response = JobRequestDetail.as_view()(request, pk=job_request.pk)
+    response = JobRequestDetail.as_view()(
+        request,
+        org_slug=job_request.workspace.project.org.slug,
+        project_slug=job_request.workspace.project.slug,
+        workspace_slug=job_request.workspace.name,
+        pk=job_request.pk,
+    )
 
     assert response.status_code == 200
     assert "Cancel" in response.rendered_content
@@ -520,7 +526,13 @@ def test_jobrequestdetail_with_permission(rf):
     request = rf.get("/")
     request.user = user
 
-    response = JobRequestDetail.as_view()(request, pk=job_request.pk)
+    response = JobRequestDetail.as_view()(
+        request,
+        org_slug=job_request.workspace.project.org.slug,
+        project_slug=job_request.workspace.project.slug,
+        workspace_slug=job_request.workspace.name,
+        pk=job_request.pk,
+    )
 
     assert response.status_code == 200
     assert "Cancel" in response.rendered_content
@@ -532,7 +544,13 @@ def test_jobrequestdetail_with_unauthenticated_user(rf):
     request = rf.get("/")
     request.user = AnonymousUser()
 
-    response = JobRequestDetail.as_view()(request, pk=job_request.pk)
+    response = JobRequestDetail.as_view()(
+        request,
+        org_slug=job_request.workspace.project.org.slug,
+        project_slug=job_request.workspace.project.slug,
+        workspace_slug=job_request.workspace.name,
+        pk=job_request.pk,
+    )
 
     assert response.status_code == 200
 
@@ -543,7 +561,13 @@ def test_jobrequestdetail_without_permission(rf):
     request = rf.get("/")
     request.user = UserFactory()
 
-    response = JobRequestDetail.as_view()(request, pk=job_request.pk)
+    response = JobRequestDetail.as_view()(
+        request,
+        org_slug=job_request.workspace.project.org.slug,
+        project_slug=job_request.workspace.project.slug,
+        workspace_slug=job_request.workspace.name,
+        pk=job_request.pk,
+    )
 
     assert response.status_code == 200
     assert "Cancel" not in response.rendered_content

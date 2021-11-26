@@ -157,8 +157,6 @@ class JobRequestCreate(CreateView):
 
 
 class JobRequestDetail(DetailView):
-    model = JobRequest
-    queryset = JobRequest.objects.select_related("created_by", "workspace")
     template_name = "job_request_detail.html"
 
     def get_context_data(self, **kwargs):
@@ -178,6 +176,14 @@ class JobRequestDetail(DetailView):
             "project_yaml_url": self.object.get_file_url("project.yaml"),
             "user_can_cancel_jobs": can_cancel_jobs,
         }
+
+    def get_object(self):
+        return JobRequest.objects.select_related("created_by", "workspace").get(
+            workspace__project__org__slug=self.kwargs["org_slug"],
+            workspace__project__slug=self.kwargs["project_slug"],
+            workspace__name=self.kwargs["workspace_slug"],
+            pk=self.kwargs["pk"],
+        )
 
 
 class JobRequestDetailRedirect(RedirectView):
