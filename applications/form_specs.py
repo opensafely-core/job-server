@@ -385,39 +385,6 @@ form_specs = [
         ],
     ),
     Form(
-        key="legal-basis",
-        model=models.LegalBasisPage,
-        title="Legal basis and common law duty",
-        sub_title="",
-        rubric="",
-        fieldsets=[
-            Fieldset(
-                label="Legal basis for record level data",
-                fields=[
-                    Field(
-                        name="legal_basis_for_accessing_data_under_dpa",
-                        label="State the legal basis for accessing the data under data protection law",
-                        help_text=snippet("10-fieldset0-field0-help_text"),
-                        template_name="components/form_textarea.html",
-                        optional=True,
-                    ),
-                ],
-            ),
-            Fieldset(
-                label="Common law duty",
-                fields=[
-                    Field(
-                        name="how_is_duty_of_confidentiality_satisfied",
-                        label="State how you are satisfying or setting aside the common law duty of confidentiality",
-                        help_text=snippet("10-fieldset1-field0-help_text"),
-                        template_name="components/form_textarea.html",
-                        optional=True,
-                    ),
-                ],
-            ),
-        ],
-    ),
-    Form(
         key="study-funding",
         model=models.StudyFundingPage,
         title="Study funding",

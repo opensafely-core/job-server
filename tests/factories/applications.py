@@ -7,7 +7,6 @@ from applications.models import (
     CmoPriorityListPage,
     ContactDetailsPage,
     DatasetsPage,
-    LegalBasisPage,
     PreviousEhrExperiencePage,
     RecordLevelDataPage,
     ReferencesPage,
@@ -139,18 +138,6 @@ class CmoPriorityListPageFactory(AbstractPageFactory):
         model = CmoPriorityListPage
 
     is_on_cmo_priority_list = factory.fuzzy.FuzzyChoice([True, False])
-
-
-class LegalBasisPageFactory(AbstractPageFactory):
-    class Meta:
-        model = LegalBasisPage
-
-    legal_basis_for_accessing_data_under_dpa = factory.Sequence(
-        lambda n: f"legal basis {n}"
-    )
-    how_is_duty_of_confidentiality_satisfied = factory.Sequence(
-        lambda n: f"confidentiality {n}"
-    )
 
 
 class StudyFundingPageFactory(AbstractPageFactory):
