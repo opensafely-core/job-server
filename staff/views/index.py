@@ -20,6 +20,7 @@ configured_searches = [
             "created_by__first_name",
             "created_by__last_name",
             "created_by__username",
+            "researcher_registrations__name",
         ],
         "order_by": "created_at",
     },

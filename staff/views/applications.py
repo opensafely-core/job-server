@@ -138,6 +138,7 @@ class ApplicationList(ListView):
                 Q(created_by__first_name__icontains=q)
                 | Q(created_by__last_name__icontains=q)
                 | Q(created_by__username__icontains=q)
+                | Q(researcher_registrations__name__icontains=q)
             )
 
         if status := self.request.GET.get("status"):
