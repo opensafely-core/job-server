@@ -5,13 +5,21 @@
     name="{{ name }}"
     id="id_{{ name }}"
     {% if field.value %}checked{% endif %}
+  />
+
+  <label
+    class="custom-control-label"
+    for="id_{{ name }}"
   >
-    <label
-      class="custom-control-label"
-      for="id_{{ name }}"
-    >
-      {{ label }}
-    </label>
+    {{ label }}
+  </label>
+
+  {% if field.help_text %}
+  <div id="{{ name }}HelpBlock" class="form-text text-muted form__help-text mt-2">
+    {{ field.help_text }}
+  </div>
+  {% endif %}
+
 </div>
 
 {% if field.errors %}
