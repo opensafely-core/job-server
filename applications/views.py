@@ -163,6 +163,12 @@ def page(request, pk_hash, key):
     # check the user can access this application
     validate_application_access(request.user, application)
 
+    if application.approved_at:
+        messages.warning(
+            request, "This application has been approved and can no longer be edited"
+        )
+        return redirect("applications:confirmation", pk_hash=application.pk_hash)
+
     try:
         wizard_page = Wizard(application, form_specs).get_page(key)
     except ValueError:
