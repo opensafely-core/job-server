@@ -160,7 +160,6 @@ form_specs = [
                     Field(
                         name="author_email",
                         label="Email(s)",
-                        attributes=email_attrs,
                     ),
                     Field(
                         name="author_organisation",
