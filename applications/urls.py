@@ -20,6 +20,11 @@ researcher_urls = [
     path("", RedirectView.as_view(pattern_name="applications:researcher-add")),
     path("add", ResearcherCreate.as_view(), name="researcher-add"),
     path(
+        "<int:researcher_pk>/",
+        RedirectView.as_view(pattern_name="applications:researcher-edit"),
+        name="researcher-detail",
+    ),
+    path(
         "<int:researcher_pk>/delete/",
         ResearcherDelete.as_view(),
         name="researcher-delete",

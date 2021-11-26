@@ -132,7 +132,7 @@
               {{ researcher.name }}
               <small class="text-muted">({{ researcher.email }})</small>
             </span>
-            <a class="btn btn-sm btn-primary" href="{{ researcher.get_edit_url }}">View on Site</a>
+            <a class="btn btn-sm btn-primary" href="{{ researcher.get_absolute_url }}">View on Site</a>
           </div>
           {% endfor %}
         </div>

@@ -48,6 +48,20 @@ def test_application_str():
     assert str(application) == f"Application {application.pk_hash} by Ben Seb"
 
 
+def test_researcherregistration_get_absolute_url():
+    researcher = ResearcherRegistrationFactory()
+
+    url = researcher.get_absolute_url()
+
+    assert url == reverse(
+        "applications:researcher-detail",
+        kwargs={
+            "pk_hash": researcher.application.pk_hash,
+            "researcher_pk": researcher.pk,
+        },
+    )
+
+
 def test_researcherregistration_get_delete_url():
     researcher = ResearcherRegistrationFactory()
 

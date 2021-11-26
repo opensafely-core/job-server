@@ -269,6 +269,12 @@ class ResearcherRegistration(models.Model):
     def __str__(self):
         return self.name
 
+    def get_absolute_url(self):
+        return reverse(
+            "applications:researcher-detail",
+            kwargs={"pk_hash": self.application.pk_hash, "researcher_pk": self.pk},
+        )
+
     def get_delete_url(self):
         return reverse(
             "applications:researcher-delete",
