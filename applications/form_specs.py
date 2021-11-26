@@ -197,6 +197,7 @@ form_specs = [
                         label="If NO, please explain why using OpenSAFELY is necessary to answer your study question(s)",
                         help_text=snippet("patient-level"),
                         template_name="components/form_textarea.html",
+                        optional=True,
                     ),
                 ],
             ),
@@ -310,6 +311,7 @@ form_specs = [
                     Field(
                         name="institutional_rec_reference",
                         label="If using ONS-CIS, ONS ethics approval reference",
+                        optional=True,
                     ),
                 ],
             ),
@@ -330,6 +332,7 @@ form_specs = [
                     Field(
                         name="institutional_rec_reference",
                         label="Institutional REC reference",
+                        optional=True,
                     ),
                 ],
             ),
@@ -342,15 +345,18 @@ form_specs = [
                         attributes=Attributes(
                             autocapitalize="words",
                         ),
+                        optional=True,
                     ),
                     Field(
                         name="sponsor_email",
                         label="Sponsor email address",
                         attributes=email_attrs,
+                        optional=True,
                     ),
                     Field(
                         name="sponsor_job_role",
                         label="Sponsor job role",
+                        optional=True,
                     ),
                 ],
             ),
