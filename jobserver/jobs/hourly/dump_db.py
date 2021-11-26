@@ -21,19 +21,18 @@ class Job(HourlyJob):
             sys.exit(1)
 
         try:
-            with output.open() as f:
-                # We use the "custom" output format for pg_dump to get smaller
-                # files, the docs have more detail on why it can be useful:
-                # https://www.postgresql.org/docs/14/app-pgdump.html
-                subprocess.check_call(
-                    [
-                        "pg_dump",
-                        "--format=c",
-                        "--no-acl",
-                        "--no-owner",
-                        database_url,
-                    ],
-                    stdout=f,
-                )
+            # We use the "custom" output format for pg_dump to get smaller
+            # files, the docs have more detail on why it can be useful:
+            # https://www.postgresql.org/docs/14/app-pgdump.html
+            subprocess.check_call(
+                [
+                    "pg_dump",
+                    "--format=c",
+                    "--no-acl",
+                    "--no-owner",
+                    "--file={output}",
+                    database_url,
+                ],
+            )
         except Exception as e:
             sys.exit(e)
