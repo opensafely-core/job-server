@@ -555,6 +555,22 @@ def test_jobrequestdetail_with_unauthenticated_user(rf):
     assert response.status_code == 200
 
 
+def test_jobrequestdetail_with_unknown_job_request(rf):
+    workspace = WorkspaceFactory()
+
+    request = rf.get("/")
+    request.user = UserFactory()
+
+    with pytest.raises(Http404):
+        JobRequestDetail.as_view()(
+            request,
+            org_slug=workspace.project.org.slug,
+            project_slug=workspace.project.slug,
+            workspace_slug=workspace.name,
+            pk=0,
+        )
+
+
 def test_jobrequestdetail_without_permission(rf):
     job_request = JobRequestFactory()
 
@@ -823,7 +839,6 @@ def test_jobrequestlist_with_permission(rf):
     job_request = JobRequestFactory()
     JobFactory(job_request=job_request)
     JobFactory(job_request=job_request)
-
     request = rf.get("/")
     request.user = UserFactory(is_superuser=False, roles=[])
     response = JobRequestList.as_view()(request)
