@@ -90,6 +90,14 @@ def test_researcherregistration_get_edit_url():
     )
 
 
+def test_researcherregistration_get_staff_edit_url():
+    researcher = ResearcherRegistrationFactory()
+
+    url = researcher.get_staff_edit_url()
+
+    assert url == reverse("staff:researcher-edit", kwargs={"pk": researcher.pk})
+
+
 def test_researcherregistration_str():
     researcher = ResearcherRegistrationFactory()
 

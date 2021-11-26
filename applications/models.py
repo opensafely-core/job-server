@@ -286,3 +286,6 @@ class ResearcherRegistration(models.Model):
             "applications:researcher-edit",
             kwargs={"pk_hash": self.application.pk_hash, "researcher_pk": self.pk},
         )
+
+    def get_staff_edit_url(self):
+        return reverse("staff:researcher-edit", kwargs={"pk": self.pk})
