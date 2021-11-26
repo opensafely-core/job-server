@@ -18,7 +18,10 @@ class Backend(models.Model):
     name = models.TextField()
 
     parent_directory = models.TextField(default="", blank=True)
-    is_active = models.BooleanField(default=False)
+    is_active = models.BooleanField(
+        default=False,
+        help_text="Is this backend currently active on the platform?  Connectivity warnings are only shown for active backends.",
+    )
 
     auth_token = models.TextField(default=generate_token)
 
