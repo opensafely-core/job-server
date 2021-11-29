@@ -8,10 +8,11 @@ updates:
     reviewers:
       - "ghickman"
     open-pull-requests-limit: 20
+
   - package-ecosystem: "npm"
     directory: "/"
     schedule:
-      interval: "daily"
+      interval: "weekly"
     reviewers:
       - "tomodwyer"
     open-pull-requests-limit: 20
