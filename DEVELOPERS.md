@@ -152,9 +152,7 @@ python manage.py ensure_admins
 
 **Build the assets:**
 
-```sh
-npm run build
-```
+See the [Compiling assets](#compiling-assets) section.
 
 **Run the dev server:**
 
@@ -198,8 +196,9 @@ This will start the Vite dev server at [localhost:3000](http://localhost:3000/) 
 To view the compiled assets:
 
 1. Update the `.env` file to `DJANGO_VITE_DEV_MODE=False`
-2. Run `npm run build`
-3. Run `python manage.py collectstatic`
+2. Run `npm ci`
+3. Run `npm run build`
+4. Run `python manage.py collectstatic`
 
 Vite builds the assets and outputs them to the `assets/dist` folder.
 
