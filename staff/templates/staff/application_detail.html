@@ -98,7 +98,13 @@
 
         {% for page in pages %}
           <hr />
-          <h3 id="{{ page.key }}">{{ page.title }}</h3>
+          <div class="d-flex justify-content-between align-items-center">
+            <h3 id="{{ page.key }}">{{ page.title }}</h3>
+            <a class="btn btn-sm btn-primary"
+                href="{% url 'applications:page' application.pk_hash page.key %}">
+              View on Site
+            </a>
+          </div>
 
           {% if page.started %}
             {% for fieldset in page.fieldsets %}
