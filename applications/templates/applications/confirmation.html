@@ -41,7 +41,7 @@
             Page is still awaiting an approval decision.
           </li>
           {% elif not page.wizard_page.page_instance.is_approved %}
-          <li>
+          <li class="text-danger">
             Page not approved &cross;
           </li>
           {% else %}
