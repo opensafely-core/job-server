@@ -134,16 +134,6 @@ class JobAPIUpdate(APIView):
                     # notifications here to avoid creating false positives.
                     should_notify = False
 
-                if "internal error" in job.status_message.lower():
-                    # bubble internal errors encountered with a job up to
-                    # sentry so we can get notifications they've happened
-                    with sentry_sdk.push_scope() as scope:
-                        scope.set_tag("backend", job_request.backend.slug)
-                        scope.set_tag(
-                            "job", request.build_absolute_uri(job.get_absolute_url())
-                        )
-                        sentry_sdk.capture_message("Job encountered an internal error")
-
                 if not job_request.will_notify:
                     continue
 

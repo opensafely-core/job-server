@@ -428,13 +428,11 @@ def test_jobapiupdate_post_only(api_rf):
     assert JobAPIUpdate.as_view()(request).status_code == 405
 
 
-def test_jobapiupdate_post_with_internal_error(api_rf, mocker):
+def test_jobapiupdate_post_with_internal_error(api_rf):
     backend = BackendFactory()
     job_request = JobRequestFactory()
 
     now = timezone.now()
-
-    mocked_sentry_sdk = mocker.patch("jobserver.api.jobs.sentry_sdk", autospec=True)
 
     data = [
         {
@@ -462,8 +460,6 @@ def test_jobapiupdate_post_with_internal_error(api_rf, mocker):
     response = JobAPIUpdate.as_view()(request_2)
 
     assert response.status_code == 200, response.data
-
-    mocked_sentry_sdk.capture_message.assert_called_once()
 
 
 def test_jobapiupdate_unknown_job_request(api_rf):
@@ -508,14 +504,12 @@ def test_jobrequestapilist_filter_by_backend(api_rf):
     assert len(response.data["results"]) == 1
 
 
-def test_jobrequestapilist_filter_by_backend_with_mismatched(api_rf, mocker):
+def test_jobrequestapilist_filter_by_backend_with_mismatched(api_rf):
     backend1 = BackendFactory()
     JobRequestFactory(backend=backend1)
 
     backend2 = BackendFactory()
     job_request = JobRequestFactory(backend=backend2)
-
-    mocked_sentry = mocker.patch("jobserver.api.jobs.sentry_sdk", autospec=True)
 
     request = api_rf.get(
         f"/?backend={backend2.slug}", HTTP_AUTHORIZATION=backend1.auth_token
@@ -525,8 +519,6 @@ def test_jobrequestapilist_filter_by_backend_with_mismatched(api_rf, mocker):
     assert response.status_code == 200, response.data
     assert len(response.data["results"]) == 1
     assert response.data["results"][0]["identifier"] == job_request.identifier
-
-    assert mocked_sentry.capture_message.call_count == 1
 
 
 def test_jobrequestapilist_filter_by_databricks(api_rf):
