@@ -173,9 +173,7 @@ describe("<Viewer />", () => {
     render(<Viewer />, {}, { file: pngFile });
 
     await waitFor(() =>
-      expect(screen.getByRole("img").src).toBe(
-        `data:image/png;base64,W29iamVjdCBPYmplY3Rd`
-      )
+      expect(screen.getByRole("img").src).toBe(`http://localhost/imgSrc`)
     );
   });
 
