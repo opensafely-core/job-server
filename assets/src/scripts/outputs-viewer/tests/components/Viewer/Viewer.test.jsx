@@ -10,7 +10,7 @@ import {
   htmlFile,
   pngFile,
   jsFile,
-  pngExample,
+  // pngExample,
   txtFile,
   txtExample,
   jsonFile,
