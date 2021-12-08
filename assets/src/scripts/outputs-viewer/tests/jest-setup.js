@@ -34,3 +34,11 @@ window.matchMedia =
       removeListener() {},
     };
   };
+
+function noOp() {
+  return "imgSrc";
+}
+
+if (typeof window.URL.createObjectURL === "undefined") {
+  Object.defineProperty(window.URL, "createObjectURL", { value: noOp });
+}

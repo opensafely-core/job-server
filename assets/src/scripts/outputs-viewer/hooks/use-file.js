@@ -4,17 +4,6 @@ import { useFiles } from "../context/FilesProvider";
 import { canDisplay, isCsv, isImg } from "../utils/file-type-match";
 import { toastError } from "../utils/toast";
 
-// function convertBlobToBase64(blob) {
-//   return new Promise((resolve, reject) => {
-//     const reader = new FileReader();
-//     reader.onerror = reject;
-//     reader.onload = () => {
-//       resolve(reader.result);
-//     };
-//     reader.readAsDataURL(blob);
-//   });
-// }
-
 function useFile(file) {
   const {
     state: { authToken },
