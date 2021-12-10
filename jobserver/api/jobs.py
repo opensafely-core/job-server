@@ -230,10 +230,6 @@ class JobRequestAPIList(ListAPIView):
         # Prioritise GET arg then self.backend (from authenticated requests)
         query_arg_backend = self.request.GET.get("backend", None)
 
-        # short term special case
-        if query_arg_backend == "nhsd":
-            query_arg_backend = "databricks"
-
         db_backend = getattr(self.backend, "slug", None)
 
         # send a warning to Sentry if the query arg and token-linked backend
