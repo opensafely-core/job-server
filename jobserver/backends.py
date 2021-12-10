@@ -42,7 +42,7 @@ backends = [
     {
         "id": 4,
         "name": "NHSD REF",
-        "slug": "NHSD REF",
+        "slug": "NHSD-REF",
         "is_active": False,
         "level_4_url": "",
     },
@@ -56,7 +56,7 @@ backends = [
     {
         "id": 8,
         "name": "NHSD DEV",
-        "slug": "NHSD DEV",
+        "slug": "NHSD-DEV",
         "is_active": False,
         "level_4_url": "",
     },
