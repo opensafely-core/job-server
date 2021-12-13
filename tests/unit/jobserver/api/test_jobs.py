@@ -497,28 +497,11 @@ def test_jobrequestapilist_filter_by_backend(api_rf):
     JobRequestFactory(backend=backend)
     JobRequestFactory()
 
-    request = api_rf.get(f"/?backend={backend.slug}")
+    request = api_rf.get("/", HTTP_AUTHORIZATION=backend.auth_token)
     response = JobRequestAPIList.as_view()(request)
 
     assert response.status_code == 200, response.data
     assert len(response.data["results"]) == 1
-
-
-def test_jobrequestapilist_filter_by_backend_with_mismatched(api_rf):
-    backend1 = BackendFactory()
-    JobRequestFactory(backend=backend1)
-
-    backend2 = BackendFactory()
-    job_request = JobRequestFactory(backend=backend2)
-
-    request = api_rf.get(
-        f"/?backend={backend2.slug}", HTTP_AUTHORIZATION=backend1.auth_token
-    )
-    response = JobRequestAPIList.as_view()(request)
-
-    assert response.status_code == 200, response.data
-    assert len(response.data["results"]) == 1
-    assert response.data["results"][0]["identifier"] == job_request.identifier
 
 
 def test_jobrequestapilist_get_only(api_rf):
