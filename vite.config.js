@@ -24,6 +24,7 @@ const config = {
     emptyOutDir: true,
   },
   clearScreen: false,
+  css: { preprocessorOptions: { scss: { charset: false } } },
   plugins: [
     legacy({
       additionalLegacyPolyfills: [
