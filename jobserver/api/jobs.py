@@ -1,11 +1,9 @@
 import itertools
 import operator
 
-import sentry_sdk
 import structlog
 from django.http import Http404
 from django.utils import timezone
-from first import first
 from rest_framework import serializers
 from rest_framework.exceptions import ValidationError
 from rest_framework.generics import ListAPIView
@@ -226,25 +224,8 @@ class JobRequestAPIList(ListAPIView):
             .distinct()
         )
 
-        # filter JobRequests by Backend name
-        # Prioritise GET arg then self.backend (from authenticated requests)
-        query_arg_backend = self.request.GET.get("backend", None)
-
-        db_backend = getattr(self.backend, "slug", None)
-
-        # send a warning to Sentry if the query arg and token-linked backend
-        # names differ
-        if query_arg_backend and db_backend and query_arg_backend != db_backend:
-            sentry_sdk.set_context(
-                "backend_values",
-                {
-                    "query_arg": query_arg_backend,
-                    "token": db_backend,
-                },
-            )
-            sentry_sdk.capture_message("Backend mismatch between query arg and token")
-
-        if backend_slug := first([query_arg_backend, db_backend]):
+        backend_slug = getattr(self.backend, "slug", None)
+        if backend_slug is not None:
             qs = qs.filter(backend__slug=backend_slug)
 
         return qs
