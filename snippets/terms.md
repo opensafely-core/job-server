@@ -38,7 +38,7 @@ In addition, OpenSAFELY will create a public dashboard listing for all [approved
 
 This public dashboard is supplementary to the [live public audit log of all analyses](https://jobs.opensafely.org/).
 
-## How the OpenSAFELY team supports
+## How the OpenSAFELY team supports you
 We have written [detailed documentation](https://docs.opensafely.org/) about the platform including a [getting started guide](https://docs.opensafely.org/getting-started/).
 
 We have a [Q&A forum](https://github.com/opensafely/documentation/discussions).
