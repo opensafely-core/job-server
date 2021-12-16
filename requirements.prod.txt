@@ -163,9 +163,9 @@ django-cache-url==3.2.3 \
     --hash=sha256:5514ca3a2075c6b956b3d0a5c540654d32b004e76340d7bdabf6661135b5f218 \
     --hash=sha256:c1d45626ae8a206267c1263aa7a3461e2e186be2e939bcbd8c660e25851ddac8
     # via environs
-django-debug-toolbar==3.2.3 \
-    --hash=sha256:516702e1d71302bbc06059fa3c41efd1a3bd9cbb5580fc793343118d95b309e0 \
-    --hash=sha256:95880677ea846ba1077d02305fd5e2b25e1da096e1d4a735b665e3340fa2ae79
+django-debug-toolbar==3.2.4 \
+    --hash=sha256:644bbd5c428d3283aa9115722471769cac1bec189edf3a0c855fd8ff870375a9 \
+    --hash=sha256:6b633b6cfee24f232d73569870f19aa86c819d750e7f3e833f2344a9eb4b4409
     # via -r requirements.prod.in
 django-extensions==3.1.5 \
     --hash=sha256:28e1e1bf49f0e00307ba574d645b0af3564c981a6dfc87209d48cb98f77d0b1a \
