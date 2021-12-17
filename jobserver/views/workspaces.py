@@ -207,9 +207,7 @@ class WorkspaceDetail(View):
         )
 
         # should we display the releases section for this workspace?
-        can_use_releases = workspace.project.uses_new_release_flow and (
-            can_view_files or can_view_releases or can_view_outputs
-        )
+        can_use_releases = can_view_files or can_view_releases or can_view_outputs
 
         try:
             repo_is_private = get_repo_is_private(
