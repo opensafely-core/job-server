@@ -73,7 +73,16 @@ logging_config_dict = {
             "level": env.str("DJANGO_LOG_LEVEL", default="INFO"),
             "propagate": False,
         },
-        "gunicorn": {"handlers": ["console"], "level": "INFO", "propagate": False},
+        "gunicorn.access": {
+            "handlers": ["console"],
+            "level": "INFO",
+            "propagate": False,
+        },
+        "gunicorn.error": {
+            "handlers": ["console"],
+            "level": "INFO",
+            "propagate": False,
+        },
         "django_structlog": {
             "handlers": ["console"],
             "level": "INFO",
