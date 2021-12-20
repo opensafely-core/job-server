@@ -50,11 +50,11 @@
 <div class="row">
   <div class="col-lg-8 offset-lg-2">
     {% if latest_files.can_view_files %}
-      {% include "_release_list.html" with r=latest_files %}
+      {% include "_release_list.html" with org_slug=workspace.project.org.slug project_slug=workspace.project.slug workspace_slug=workspace.name r=latest_files %}
     {% endif %}
 
     {% for release in releases %}
-      {% include "_release_list.html" with r=release %}
+      {% include "_release_list.html" with org_slug=workspace.project.org.slug project_slug=workspace.project.slug workspace_slug=workspace.name r=release %}
     {% endfor %}
   </div>
 </div>

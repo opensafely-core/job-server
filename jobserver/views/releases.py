@@ -1,5 +1,6 @@
 from django.contrib.humanize.templatetags.humanize import naturaltime
 from django.db import transaction
+from django.db.models import Prefetch
 from django.http import FileResponse, Http404
 from django.shortcuts import get_object_or_404, redirect
 from django.template.response import TemplateResponse
@@ -24,7 +25,15 @@ class ProjectReleaseList(View):
         releases = (
             Release.objects.filter(workspace__project=project)
             .order_by("-created_at")
-            .select_related("workspace")
+            .select_related(
+                "created_by",
+                "workspace",
+                "workspace__project",
+                "workspace__project__org",
+            )
+            .prefetch_related(
+                Prefetch("files", queryset=ReleaseFile.objects.order_by("name"))
+            )
         )
         if not releases.exists():
             raise Http404
@@ -49,10 +58,11 @@ class ProjectReleaseList(View):
             {
                 "can_view_files": can_view_files and r.files.exists(),
                 "download_url": r.get_download_url(),
-                "files": r.files.order_by("name"),
+                "files": r.files.all(),
                 "id": r.pk,
                 "title": build_title(r),
                 "view_url": r.get_absolute_url(),
+                "workspace": r.workspace,
             }
             for r in releases
         ]
@@ -278,13 +288,15 @@ class WorkspaceReleaseList(View):
             {
                 "can_view_files": can_view_files and r.files.exists(),
                 "download_url": r.get_download_url(),
-                "files": r.files.order_by("name"),
+                "files": r.files.all(),
                 "id": r.pk,
                 "title": build_title(r),
                 "view_url": r.get_absolute_url(),
             }
             for r in workspace.releases.select_related("created_by")
-            .prefetch_related("files")
+            .prefetch_related(
+                Prefetch("files", queryset=ReleaseFile.objects.order_by("name"))
+            )
             .order_by("-created_at")
         ]
 

@@ -86,6 +86,26 @@ def test_releasefile_get_absolute_url():
     )
 
 
+def test_releasefile_get_delete_url():
+    files = {"file.txt": b"contents"}
+    release = ReleaseFactory(ReleaseUploadsFactory(files))
+
+    file = release.files.first()
+
+    url = file.get_delete_url()
+
+    assert url == reverse(
+        "release-file-delete",
+        kwargs={
+            "org_slug": release.workspace.project.org.slug,
+            "project_slug": release.workspace.project.slug,
+            "workspace_slug": release.workspace.name,
+            "pk": release.id,
+            "release_file_id": file.pk,
+        },
+    )
+
+
 def test_releasefile_ulid():
     release = ReleaseFactory(ReleaseUploadsFactory(["file1.txt"]))
     rfile = release.files.first()

@@ -39,7 +39,11 @@
             <td class="d-flex justify-content-between align-items-center">
 
               <div>
-                <a href="{{ file.get_absolute_url }}" {% if file.is_deleted %}class="btn-link disabled"{% endif %}>
+                <a href="{% url 'release-detail' org_slug=org_slug project_slug=project_slug workspace_slug=workspace_slug pk=r.id path=file.path %}"
+                  {% if file.is_deleted %}
+                  class="btn-link disabled"
+                  {% endif %}
+                  >
                   <code>{{ file.name }}</code>
                 </a>
 
@@ -52,7 +56,9 @@
               </div>
 
               {% if user_can_delete_files %}
-              <form method="POST" action="{{ file.get_delete_url }}">
+              <form method="POST"
+                action="{% url 'release-file-delete' org_slug=org_slug project_slug=project_slug workspace_slug=workspace_slug pk=r.id release_file_id=file.pk %}"
+                >
                 {% csrf_token %}
 
                 <button
