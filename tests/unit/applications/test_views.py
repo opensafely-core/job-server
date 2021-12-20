@@ -3,6 +3,7 @@ from django.contrib.auth.models import AnonymousUser
 from django.contrib.messages.storage.fallback import FallbackStorage
 from django.http import Http404
 from django.urls import reverse
+from django.utils import timezone
 
 from applications.form_specs import form_specs
 from applications.models import Application, ResearcherRegistration, TypeOfStudyPage
@@ -396,6 +397,34 @@ def test_page_post_with_invalid_prerequisite(rf):
         "applications:page",
         kwargs={"pk_hash": application.pk_hash, "key": "cmo-priority-list"},
     )
+
+
+def test_page_with_approved_application(rf):
+    user = UserFactory()
+    application = ApplicationFactory(
+        created_by=user, approved_at=timezone.now(), approved_by=user
+    )
+
+    request = rf.get("/")
+    request.user = user
+
+    # set up messages framework
+    request.session = "session"
+    messages = FallbackStorage(request)
+    request._messages = messages
+
+    response = page(request, pk_hash=application.pk_hash, key="study-purpose")
+
+    assert response.status_code == 302
+    assert response.url == reverse(
+        "applications:confirmation", kwargs={"pk_hash": application.pk_hash}
+    )
+
+    # check we have a message for the user
+    messages = list(messages)
+    assert len(messages) == 1
+    msg = "This application has been approved and can no longer be edited"
+    assert str(messages[0]) == msg
 
 
 def test_approved_page_becomes_unapproved_on_edit(rf):
