@@ -272,6 +272,7 @@ urlpatterns = [
     path("status/", Status.as_view(), name="status"),
     path("workspaces/", RedirectView.as_view(url="/")),
     path("__debug__/", include(debug_toolbar.urls)),
+    path("__reload__/", include("django_browser_reload.urls")),
     path(
         "<str:org_slug>/",
         include(

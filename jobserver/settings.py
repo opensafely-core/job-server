@@ -48,8 +48,9 @@ INSTALLED_APPS = [
     "staff",
     "anymail",
     "debug_toolbar",
-    "django_vite",
+    "django_browser_reload",
     "django_extensions",
+    "django_vite",
     "rest_framework",
     "social_django",
     "django.contrib.auth",
@@ -61,6 +62,7 @@ INSTALLED_APPS = [
 ]
 
 MIDDLEWARE = [
+    "django_browser_reload.middleware.BrowserReloadMiddleware",
     "django.middleware.security.SecurityMiddleware",
     "whitenoise.middleware.WhiteNoiseMiddleware",
     "debug_toolbar.middleware.DebugToolbarMiddleware",
