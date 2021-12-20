@@ -1,6 +1,8 @@
 from django import forms
 from django.db.models.functions import Lower
 
+from applications.forms import YesNoField
+from applications.models import ResearcherRegistration
 from jobserver.authorization.forms import RolesForm
 from jobserver.backends import backends_to_choices
 from jobserver.models import Backend, Org, Project
@@ -81,6 +83,33 @@ class ProjectEditForm(forms.ModelForm):
         users = users.order_by(Lower("username"))
         self.fields["copilot"] = UserModelChoiceField(queryset=users, required=False)
         self.fields["copilot_support_ends_at"].required = False
+
+
+class ResearcherRegistrationEditForm(forms.ModelForm):
+    does_researcher_need_server_access = YesNoField()
+    has_taken_safe_researcher_training = YesNoField()
+    phone_type = forms.TypedChoiceField(
+        choices=ResearcherRegistration.PhoneTypes.choices,
+        empty_value=None,
+        required=False,
+        widget=forms.RadioSelect,
+    )
+
+    class Meta:
+        fields = [
+            "name",
+            "job_title",
+            "email",
+            "does_researcher_need_server_access",
+            "telephone",
+            "phone_type",
+            "has_taken_safe_researcher_training",
+            "training_with_org",
+            "training_passed_at",
+            "daa",
+            "github_username",
+        ]
+        model = ResearcherRegistration
 
 
 class UserForm(RolesForm):

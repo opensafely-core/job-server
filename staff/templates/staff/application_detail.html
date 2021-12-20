@@ -138,7 +138,21 @@
               {{ researcher.name }}
               <small class="text-muted">({{ researcher.email }})</small>
             </span>
-            <a class="btn btn-sm btn-primary" href="{{ researcher.get_edit_url }}">View on Site</a>
+
+            <span>
+              {% if researcher.daa %}
+              <a href="{{ researcher.daa }}">DAA</a>
+              {% else %}
+              No DAA
+              {% endif %}
+              |
+              GitHub username: {{ researcher.github_username|default:"-" }}
+            </span>
+
+            <div>
+              <a class="btn btn-sm btn-danger" href="{{ researcher.get_staff_edit_url }}">Edit</a>
+              <a class="btn btn-sm btn-primary" href="{{ researcher.get_absolute_url }}">View on Site</a>
+            </div>
           </div>
           {% endfor %}
         </div>

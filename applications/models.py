@@ -261,10 +261,19 @@ class ResearcherRegistration(models.Model):
     training_with_org = models.TextField(blank=True)
     training_passed_at = models.DateTimeField(null=True, blank=True)
 
+    daa = models.URLField(null=True, blank=True)
+    github_username = models.TextField(default="", blank=True)
+
     created_at = models.DateTimeField(default=timezone.now)
 
     def __str__(self):
         return self.name
+
+    def get_absolute_url(self):
+        return reverse(
+            "applications:researcher-detail",
+            kwargs={"pk_hash": self.application.pk_hash, "researcher_pk": self.pk},
+        )
 
     def get_delete_url(self):
         return reverse(
@@ -277,3 +286,6 @@ class ResearcherRegistration(models.Model):
             "applications:researcher-edit",
             kwargs={"pk_hash": self.application.pk_hash, "researcher_pk": self.pk},
         )
+
+    def get_staff_edit_url(self):
+        return reverse("staff:researcher-edit", kwargs={"pk": self.pk})
