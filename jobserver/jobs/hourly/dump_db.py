@@ -29,7 +29,7 @@ class Job(HourlyJob):
                 "--format=c",
                 "--no-acl",
                 "--no-owner",
-                "--file={output}",
+                f"--file={output}",
                 database_url,
             ],
         )
