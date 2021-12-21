@@ -1,5 +1,6 @@
 attrs<21
 django-anymail[mailgun]
+django-browser-reload
 django-debug-toolbar
 django-extensions
 django-permissions-policy
