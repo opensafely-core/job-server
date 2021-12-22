@@ -624,6 +624,15 @@ class ProjectMembership(models.Model):
             },
         )
 
+    def get_staff_edit_url(self):
+        return reverse(
+            "staff:project-membership-edit",
+            kwargs={
+                "slug": self.project.slug,
+                "pk": self.pk,
+            },
+        )
+
     def get_staff_remove_url(self):
         return reverse(
             "staff:project-membership-remove",

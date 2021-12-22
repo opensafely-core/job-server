@@ -3,13 +3,14 @@ from django.contrib.messages.storage.fallback import FallbackStorage
 from django.core.exceptions import PermissionDenied
 from django.http import Http404
 
-from jobserver.authorization import ProjectDeveloper
-from jobserver.utils import set_from_qs
+from jobserver.authorization import ProjectCoordinator, ProjectDeveloper
+from jobserver.utils import dotted_path, set_from_qs
 from staff.views.projects import (
     ProjectAddMember,
     ProjectDetail,
     ProjectEdit,
     ProjectList,
+    ProjectMembershipEdit,
     ProjectMembershipRemove,
 )
 
@@ -193,6 +194,48 @@ def test_projectlist_unauthorized(rf):
             org_slug=project.org.slug,
             project_slug=project.slug,
         )
+
+
+def test_projectmembershipedit_success(rf, core_developer):
+    project = ProjectFactory()
+    user = UserFactory()
+
+    ProjectMembershipFactory(project=project, user=user, roles=[ProjectCoordinator])
+
+    membership = ProjectMembershipFactory(project=project, user=UserFactory())
+
+    request = rf.post("/", {"roles": [dotted_path(ProjectDeveloper)]})
+    request.user = core_developer
+
+    response = ProjectMembershipEdit.as_view()(
+        request, slug=project.slug, pk=membership.pk
+    )
+
+    assert response.status_code == 302
+    assert response.url == project.get_staff_url()
+
+    membership.refresh_from_db()
+    assert membership.roles == [ProjectDeveloper]
+
+
+def test_projectmembershipedit_unknown_membership(rf, core_developer):
+    project = ProjectFactory()
+
+    ProjectMembershipFactory(project=project, user=UserFactory())
+
+    request = rf.get("/")
+    request.user = core_developer
+
+    with pytest.raises(Http404):
+        ProjectMembershipEdit.as_view()(request, slug=project.slug, pk="0")
+
+
+def test_projectmembershipedit_unauthorized(rf):
+    request = rf.get("/")
+    request.user = UserFactory()
+
+    with pytest.raises(PermissionDenied):
+        ProjectMembershipEdit.as_view()(request)
 
 
 def test_projectmembershipremove_success(rf, core_developer):

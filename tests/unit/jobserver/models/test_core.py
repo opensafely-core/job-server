@@ -700,6 +700,21 @@ def test_projectinvitation_str():
     assert str(invitation) == "ben | DataLab"
 
 
+def test_projectmembership_get_staff_edit_url():
+    project = ProjectFactory()
+    membership = ProjectMembershipFactory(project=project)
+
+    url = membership.get_staff_edit_url()
+
+    assert url == reverse(
+        "staff:project-membership-edit",
+        kwargs={
+            "slug": project.slug,
+            "pk": membership.pk,
+        },
+    )
+
+
 def test_projectmembership_get_staff_remove_url():
     project = ProjectFactory()
     membership = ProjectMembershipFactory(project=project)

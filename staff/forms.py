@@ -85,6 +85,10 @@ class ProjectEditForm(forms.ModelForm):
         self.fields["copilot_support_ends_at"].required = False
 
 
+class ProjectMembershipForm(RolesForm):
+    pass
+
+
 class ResearcherRegistrationEditForm(forms.ModelForm):
     does_researcher_need_server_access = YesNoField()
     has_taken_safe_researcher_training = YesNoField()
