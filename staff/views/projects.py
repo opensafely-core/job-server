@@ -110,7 +110,7 @@ class ProjectList(ListView):
 
 
 @method_decorator(require_role(CoreDeveloper), name="dispatch")
-class ProjectRemoveMember(View):
+class ProjectMembershipRemove(View):
     def post(self, request, *args, **kwargs):
         project = get_object_or_404(Project, slug=self.kwargs["slug"])
         username = request.POST.get("username", None)

@@ -10,7 +10,7 @@ from staff.views.projects import (
     ProjectDetail,
     ProjectEdit,
     ProjectList,
-    ProjectRemoveMember,
+    ProjectMembershipRemove,
 )
 
 from ....factories import ProjectFactory, ProjectMembershipFactory, UserFactory
@@ -65,7 +65,7 @@ def test_projectaddmember_unknown_project(rf, core_developer):
     request.user = core_developer
 
     with pytest.raises(Http404):
-        ProjectRemoveMember.as_view()(request, slug="test")
+        ProjectAddMember.as_view()(request, slug="test")
 
 
 def test_projectdetail_success(rf, core_developer):
@@ -195,7 +195,7 @@ def test_projectlist_unauthorized(rf):
         )
 
 
-def test_projectremovemember_success(rf, core_developer):
+def test_projectmembershipremove_success(rf, core_developer):
     project = ProjectFactory()
     user = UserFactory()
 
@@ -209,7 +209,7 @@ def test_projectremovemember_success(rf, core_developer):
     messages = FallbackStorage(request)
     request._messages = messages
 
-    response = ProjectRemoveMember.as_view()(request, slug=project.slug)
+    response = ProjectMembershipRemove.as_view()(request, slug=project.slug)
 
     assert response.status_code == 302
     assert response.url == project.get_staff_url()
@@ -223,23 +223,23 @@ def test_projectremovemember_success(rf, core_developer):
     assert str(messages[0]) == f"Removed {user.username} from {project.name}"
 
 
-def test_projectremovemember_unauthorized(rf):
+def test_projectmembershipremove_unauthorized(rf):
     request = rf.post("/")
     request.user = UserFactory()
 
     with pytest.raises(PermissionDenied):
-        ProjectRemoveMember.as_view()(request)
+        ProjectMembershipRemove.as_view()(request)
 
 
-def test_projectremovemember_unknown_project(rf, core_developer):
+def test_projectmembershipremove_unknown_project(rf, core_developer):
     request = rf.post("/")
     request.user = core_developer
 
     with pytest.raises(Http404):
-        ProjectRemoveMember.as_view()(request, slug="test")
+        ProjectMembershipRemove.as_view()(request, slug="test")
 
 
-def test_projectremovemember_unknown_member(rf, core_developer):
+def test_projectmembershipremove_unknown_member(rf, core_developer):
     project = ProjectFactory()
 
     assert project.memberships.count() == 0
@@ -252,7 +252,7 @@ def test_projectremovemember_unknown_member(rf, core_developer):
     messages = FallbackStorage(request)
     request._messages = messages
 
-    response = ProjectRemoveMember.as_view()(request, slug=project.slug)
+    response = ProjectMembershipRemove.as_view()(request, slug=project.slug)
     assert response.status_code == 302
     assert response.url == project.get_staff_url()
 
