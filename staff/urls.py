@@ -27,7 +27,8 @@ from .views.projects import (
     ProjectDetail,
     ProjectEdit,
     ProjectList,
-    ProjectRemoveMember,
+    ProjectMembershipEdit,
+    ProjectMembershipRemove,
 )
 from .views.repos import RepoList
 from .views.researchers import ResearcherEdit
@@ -74,9 +75,14 @@ project_urls = [
     path("<slug>/add-member/", ProjectAddMember.as_view(), name="project-add-member"),
     path("<slug>/edit/", ProjectEdit.as_view(), name="project-edit"),
     path(
-        "<slug>/remove-member/",
-        ProjectRemoveMember.as_view(),
-        name="project-remove-member",
+        "<slug>/members/<pk>/edit/",
+        ProjectMembershipEdit.as_view(),
+        name="project-membership-edit",
+    ),
+    path(
+        "<slug>/members/<pk>/remove/",
+        ProjectMembershipRemove.as_view(),
+        name="project-membership-remove",
     ),
 ]
 

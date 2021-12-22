@@ -10,7 +10,7 @@ from jobserver.authorization.decorators import require_role
 from jobserver.authorization.utils import roles_for
 from jobserver.models import Org, Project, ProjectMembership, User
 
-from ..forms import ProjectAddMemberForm, ProjectEditForm
+from ..forms import ProjectAddMemberForm, ProjectEditForm, ProjectMembershipForm
 
 
 @method_decorator(require_role(CoreDeveloper), name="dispatch")
@@ -110,7 +110,43 @@ class ProjectList(ListView):
 
 
 @method_decorator(require_role(CoreDeveloper), name="dispatch")
-class ProjectRemoveMember(View):
+class ProjectMembershipEdit(UpdateView):
+    context_object_name = "membership"
+    form_class = ProjectMembershipForm
+    model = ProjectMembership
+    template_name = "staff/project_membership_edit.html"
+
+    def form_valid(self, form):
+        self.object.roles = form.cleaned_data["roles"]
+        self.object.save()
+
+        return redirect(self.object.project.get_staff_url())
+
+    def get_form_kwargs(self, **kwargs):
+        kwargs = super().get_form_kwargs(**kwargs)
+
+        # ProjectMembershipForm isn't a ModelForm so don't pass instance to it
+        del kwargs["instance"]
+
+        kwargs["available_roles"] = roles_for(ProjectMembership)
+
+        return kwargs
+
+    def get_initial(self):
+        return super().get_initial() | {
+            "roles": self.object.roles,
+        }
+
+    def get_object(self):
+        return get_object_or_404(
+            ProjectMembership,
+            project__slug=self.kwargs["slug"],
+            pk=self.kwargs["pk"],
+        )
+
+
+@method_decorator(require_role(CoreDeveloper), name="dispatch")
+class ProjectMembershipRemove(View):
     def post(self, request, *args, **kwargs):
         project = get_object_or_404(Project, slug=self.kwargs["slug"])
         username = request.POST.get("username", None)
