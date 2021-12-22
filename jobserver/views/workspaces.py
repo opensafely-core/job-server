@@ -337,7 +337,7 @@ class WorkspaceLatestOutputsDownload(View):
         # get the latest files as an iterable of ReleaseFile instances
         latest_files = workspace_files(workspace).values()
 
-        zf = build_outputs_zip(latest_files)
+        zf = build_outputs_zip(latest_files, request.build_absolute_uri)
         return FileResponse(
             zf,
             as_attachment=True,
