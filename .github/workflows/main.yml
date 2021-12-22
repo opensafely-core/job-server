@@ -43,6 +43,8 @@ jobs:
       - uses: "actions/setup-python@v2"
         with:
           python-version: "3.9"
+          cache: "pip"
+          cache-dependency-path: requirements.*.txt
       - uses: extractions/setup-just@v1
       - run: ls -lah ${{ github.workspace }}
       - name: Check formatting
@@ -57,6 +59,8 @@ jobs:
       - uses: "actions/setup-python@v2"
         with:
           python-version: "3.9"
+          cache: "pip"
+          cache-dependency-path: requirements.*.txt
       - uses: extractions/setup-just@v1
       - name: Check linting
         run: |
@@ -70,6 +74,8 @@ jobs:
       - uses: "actions/setup-python@v2"
         with:
           python-version: "3.9"
+          cache: "pip"
+          cache-dependency-path: requirements.*.txt
       - uses: extractions/setup-just@v1
       - name: Check import sorting
         run: |
@@ -83,6 +89,8 @@ jobs:
       - uses: "actions/setup-python@v2"
         with:
           python-version: "3.9"
+          cache: "pip"
+          cache-dependency-path: requirements.*.txt
       - uses: extractions/setup-just@v1
       - name: Check for syntax upgrades
         run: |
@@ -112,6 +120,8 @@ jobs:
       - uses: "actions/setup-python@v2"
         with:
           python-version: "3.9"
+          cache: "pip"
+          cache-dependency-path: requirements.*.txt
       - uses: extractions/setup-just@v1
 
       - name: Retrieve assets
