@@ -71,7 +71,7 @@
             <span class="badge badge-pill badge-secondary">{{ role.display_name }}</span>
             {% endfor %}
           </div>
-          <form method="POST" action="{% url 'staff:project-remove-member' slug=project.slug %}">
+          <form method="POST" action="{{ membership.get_staff_remove_url }}">
             {% csrf_token %}
             <input type="hidden" name="username" value="{{ membership.user.username }}" />
             <button class="btn btn-sm btn-danger" type="submit">

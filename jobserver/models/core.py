@@ -624,6 +624,15 @@ class ProjectMembership(models.Model):
             },
         )
 
+    def get_staff_remove_url(self):
+        return reverse(
+            "staff:project-membership-remove",
+            kwargs={
+                "slug": self.project.slug,
+                "pk": self.pk,
+            },
+        )
+
 
 class UserQuerySet(models.QuerySet):
     def filter_by_role(self, role):

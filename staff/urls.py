@@ -74,9 +74,9 @@ project_urls = [
     path("<slug>/add-member/", ProjectAddMember.as_view(), name="project-add-member"),
     path("<slug>/edit/", ProjectEdit.as_view(), name="project-edit"),
     path(
-        "<slug>/remove-member/",
+        "<slug>/members/<pk>/remove/",
         ProjectRemoveMember.as_view(),
-        name="project-remove-member",
+        name="project-membership-remove",
     ),
 ]
 
