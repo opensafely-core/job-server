@@ -37,7 +37,7 @@ def build_hatch_token_and_url(*, backend, workspace, user, expiry=None):
     return token, f.url
 
 
-def build_outputs_zip(release_files):
+def build_outputs_zip(release_files, url_builder_func):
     # create an in memory stream so we don't need to write the file to disk
     in_memory_zf = io.BytesIO()
 
@@ -45,7 +45,20 @@ def build_outputs_zip(release_files):
     # archive
     with zipfile.ZipFile(in_memory_zf, "w") as zip_obj:
         for rfile in release_files:
-            zip_obj.write(rfile.absolute_path(), arcname=rfile.name)
+            if not rfile.is_deleted:
+                zip_obj.write(rfile.absolute_path(), arcname=rfile.name)
+                continue
+
+            # explain why an on-disk file was deleted, and potentially
+            # overwrite the previously unredacted version.
+            name = rfile.deleted_by.name if rfile.deleted_by else "Unknown"
+            deleted_at = rfile.deleted_at if rfile.deleted_at else "Unknown"
+            first_line = f"This file was redacted by {name} on {deleted_at}"
+
+            url = url_builder_func(rfile.get_absolute_url())
+            second_line = f"For more information see: {url}"
+
+            zip_obj.writestr(rfile.name, f"{first_line}\n\n{second_line}")
 
     # rewind the file stream to the start
     in_memory_zf.seek(0)

@@ -140,7 +140,7 @@ class ReleaseDownload(View):
         ):
             raise Http404
 
-        zf = build_outputs_zip(release.files.all())
+        zf = build_outputs_zip(release.files.all(), request.build_absolute_uri)
         return FileResponse(
             zf,
             as_attachment=True,
@@ -237,7 +237,7 @@ class SnapshotDownload(View):
         if snapshot.is_draft and not can_view_unpublished_files:
             raise Http404
 
-        zf = build_outputs_zip(snapshot.files.all())
+        zf = build_outputs_zip(snapshot.files.all(), request.build_absolute_uri)
         return FileResponse(
             zf,
             as_attachment=True,

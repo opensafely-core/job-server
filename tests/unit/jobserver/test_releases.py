@@ -54,7 +54,7 @@ def test_build_hatch_token_and_url_with_custom_expires():
 def test_build_outputs_zip():
     release = ReleaseFactory(ReleaseUploadsFactory(["test1"]))
 
-    zf = releases.build_outputs_zip(release.files.all())
+    zf = releases.build_outputs_zip(release.files.all(), None)
 
     with zipfile.ZipFile(zf, "r") as zip_obj:
         assert zip_obj.testzip() is None
@@ -69,6 +69,42 @@ def test_build_outputs_zip():
 
         # check the zipped files contents match the original files contents
         assert zipped_contents == original_contents
+
+
+def test_build_outputs_zip_with_missing_files():
+    paths = ["test1", "test2", "test3", "test4", "test5"]
+    release = ReleaseFactory(ReleaseUploadsFactory(paths))
+
+    files = release.files.all()
+
+    # delete a couple of files
+    files.get(name="test2").absolute_path().unlink()
+    files.get(name="test4").absolute_path().unlink()
+
+    zf = releases.build_outputs_zip(files, lambda u: u)
+
+    with zipfile.ZipFile(zf, "r") as zip_obj:
+        assert zip_obj.testzip() is None
+
+        assert zip_obj.namelist() == paths
+
+        # check ReleaseFile on-disk contents matches their zipped contents
+        for name in ["test1", "test3", "test5"]:
+            with open(files.get(name=name).absolute_path(), "rb") as f:
+                original_contents = f.read()
+
+            with zip_obj.open(name) as f:
+                zipped_contents = f.read()
+
+            assert zipped_contents == original_contents
+
+        for name in ["test2", "test4"]:
+            with zip_obj.open(name) as f:
+                zipped_contents = f.read().decode()
+
+            rfile = files.get(name=name)
+            assert rfile.get_absolute_url() in zipped_contents, zipped_contents
+            assert "Unknown" in zipped_contents, zipped_contents
 
 
 def test_build_spa_base_url():
