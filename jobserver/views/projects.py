@@ -123,7 +123,7 @@ class ProjectDetail(DetailView):
             project=self.object,
         )
 
-        workspaces = self.object.workspaces.order_by("name")
+        workspaces = self.object.workspaces.order_by("is_archived", "name")
 
         repos = sorted(set(workspaces.values_list("repo", flat=True)))
 
