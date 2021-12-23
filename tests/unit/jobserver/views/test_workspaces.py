@@ -1157,13 +1157,16 @@ def test_workspaceoutputlist_without_snapshots(rf, freezer):
     request = rf.get("/")
     request.user = UserFactory(roles=[ProjectCollaborator])
 
-    with pytest.raises(Http404):
-        WorkspaceOutputList.as_view()(
-            request,
-            org_slug=workspace.project.org.slug,
-            project_slug=workspace.project.slug,
-            workspace_slug=workspace.name,
-        )
+    response = WorkspaceOutputList.as_view()(
+        request,
+        org_slug=workspace.project.org.slug,
+        project_slug=workspace.project.slug,
+        workspace_slug=workspace.name,
+    )
+
+    assert response.status_code == 200
+    assert len(response.context_data["snapshots"]) == 0
+    assert "No outputs have been published" in response.rendered_content
 
 
 def test_workspaceoutputlist_unknown_workspace(rf):
