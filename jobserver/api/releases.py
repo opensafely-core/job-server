@@ -239,7 +239,7 @@ class ReleaseAPI(APIView):
         """A list of files for this Release."""
         release = get_object_or_404(Release, id=release_id)
         validate_release_access(request, release.workspace)
-        files = {f.name: f for f in release.files.all()}
+        files = {f.name: f for f in release.files.select_related("created_by")}
         return Response(generate_index(files))
 
 
@@ -261,7 +261,7 @@ class SnapshotAPI(APIView):
         )
 
         validate_snapshot_access(request, snapshot)
-        files = {f.name: f for f in snapshot.files.all()}
+        files = {f.name: f for f in snapshot.files.select_related("created_by")}
 
         return Response(generate_index(files))
 
