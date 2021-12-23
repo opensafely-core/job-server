@@ -23,7 +23,9 @@
 {% block jumbotron %}
 <div class="jumbotron jumbotron-fluid jumbotron--danger pt-md-2">
   <div class="container">
-    <h1 class="display-4">Application {{ application.pk_hash }}</h1>
+    <h1 class="display-4"{% if application.is_deleted %} style="text-decoration:line-through"{% endif %}>
+      Application {{ application.pk_hash }}
+    </h1>
 
     <ul class="list-unstyled lead">
       {% if application.created_by %}
@@ -36,6 +38,19 @@
       <li>
         <strong>Created at:</strong> {{ application.created_at }}
       </li>
+
+      {% if application.deleted_by %}
+      <li>
+        <strong>Deleted by:</strong>
+        <a href="{{ application.deleted_by.get_staff_url }}">{{ application.deleted_by.name }}</a>
+      </li>
+      {% endif %}
+
+      {% if application.deleted_at %}
+      <li>
+        <strong>Deleted at:</strong> {{ application.deleted_at }}
+      </li>
+      {% endif %}
 
       {% if application.approved_by %}
       <li>
@@ -60,6 +75,10 @@
 
     <div class="d-flex">
       <a class="btn btn-danger mr-1" href="{{ application.get_edit_url }}">Edit</a>
+      <form method="POST" action="{{ application.get_staff_delete_url }}">
+        {% csrf_token %}
+        <button class="btn btn-danger mr-1" type="submit">Delete</button>
+      </form>
       <a class="btn btn-primary mr-1" href="{{ application.get_absolute_url }}">View on Site</a>
       <a class="btn btn-primary{% if application.approved_at %} disabled{% endif %}"
         {% if application.approved_at %}

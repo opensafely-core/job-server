@@ -96,6 +96,9 @@ class Application(models.Model):
     def get_restore_url(self):
         return reverse("applications:restore", kwargs={"pk_hash": self.pk_hash})
 
+    def get_staff_delete_url(self):
+        return reverse("staff:application-delete", kwargs={"pk_hash": self.pk_hash})
+
     def get_staff_url(self):
         return reverse("staff:application-detail", kwargs={"pk_hash": self.pk_hash})
 

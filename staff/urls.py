@@ -5,6 +5,7 @@ from .views.applications import (
     ApplicationDetail,
     ApplicationEdit,
     ApplicationList,
+    ApplicationRemove,
 )
 from .views.backends import (
     BackendCreate,
@@ -42,11 +43,14 @@ app_name = "staff"
 application_urls = [
     path("", ApplicationList.as_view(), name="application-list"),
     path("<str:pk_hash>/", ApplicationDetail.as_view(), name="application-detail"),
-    path("<str:pk_hash>/edit/", ApplicationEdit.as_view(), name="application-edit"),
     path(
         "<str:pk_hash>/approve/",
         ApplicationApprove.as_view(),
         name="application-approve",
+    ),
+    path("<str:pk_hash>/edit/", ApplicationEdit.as_view(), name="application-edit"),
+    path(
+        "<str:pk_hash>/delete/", ApplicationRemove.as_view(), name="application-delete"
     ),
 ]
 

@@ -27,6 +27,11 @@ class ApplicationApprove(FormView):
             Application, pk=unhash_or_404(self.kwargs["pk_hash"])
         )
 
+        if self.application.is_deleted:
+            msg = f"Application {self.application.pk_hash} has been deleted, you need to restore it before you can approve it."
+            messages.error(request, msg)
+            return redirect("staff:application-list")
+
         if not hasattr(self.application, "studyinformationpage"):
             msg = "The Study Information page must be filled in before an Application can be approved."
             messages.error(request, msg)
@@ -64,27 +69,34 @@ class ApplicationApprove(FormView):
 
 @method_decorator(require_role(CoreDeveloper), name="dispatch")
 class ApplicationDetail(View):
-    def get(self, request, *args, **kwargs):
-        application = get_object_or_404(
+    def dispatch(self, request, *args, **kwargs):
+        self.application = get_object_or_404(
             Application, pk=unhash_or_404(self.kwargs["pk_hash"])
         )
-        wizard = Wizard(application, form_specs)
+
+        if self.application.is_deleted:
+            msg = f"Application {self.application.pk_hash} has been deleted, you need to restore it before you can view it."
+            messages.error(request, msg)
+            return redirect("staff:application-list")
+
+        return super().dispatch(request, *args, **kwargs)
+
+    def get(self, request, *args, **kwargs):
+        wizard = Wizard(self.application, form_specs)
         pages = [page.review_context() for page in wizard.get_pages()]
 
         ctx = {
-            "application": application,
-            "researchers": application.researcher_registrations.order_by("created_at"),
+            "application": self.application,
+            "researchers": self.application.researcher_registrations.order_by(
+                "created_at"
+            ),
             "pages": pages,
         }
 
         return TemplateResponse(request, "staff/application_detail.html", ctx)
 
     def post(self, request, *args, **kwargs):
-        application = get_object_or_404(
-            Application, pk=unhash_or_404(self.kwargs["pk_hash"])
-        )
-
-        wizard = Wizard(application, form_specs)
+        wizard = Wizard(self.application, form_specs)
         pages = list(wizard.get_pages())
 
         review_time = timezone.now()
@@ -96,7 +108,7 @@ class ApplicationDetail(View):
                 form.instance.reviewed_by = request.user
                 form.save()
 
-        return redirect("staff:application-detail", application.pk_hash)
+        return redirect("staff:application-detail", self.application.pk_hash)
 
 
 @method_decorator(require_role(CoreDeveloper), name="dispatch")
@@ -108,11 +120,23 @@ class ApplicationEdit(UpdateView):
     model = Application
     template_name = "staff/application_edit.html"
 
-    def get_object(self):
-        return get_object_or_404(
-            Application,
-            pk=unhash_or_404(self.kwargs["pk_hash"]),
+    def dispatch(self, request, *args, **kwargs):
+        self.application = get_object_or_404(
+            Application, pk=unhash_or_404(self.kwargs["pk_hash"])
         )
+
+        if self.application.is_deleted:
+            msg = f"Application {self.application.pk_hash} has been deleted, you need to restore it before you can edit it."
+            messages.error(request, msg)
+            return redirect("staff:application-list")
+
+        return super().dispatch(request, *args, **kwargs)
+
+    def get_object(self):
+        # we're leaning heavily on UpdateView for this view, so instead of
+        # overriding multiple methods to use self.application instead of the
+        # expected self.object we can set it once here.
+        return self.application
 
     def get_success_url(self):
         return self.object.get_staff_url()
@@ -145,3 +169,22 @@ class ApplicationList(ListView):
             qs = qs.filter(status=status)
 
         return qs
+
+
+@method_decorator(require_role(CoreDeveloper), name="dispatch")
+class ApplicationRemove(View):
+    def post(self, request, *args, **kwargs):
+        application = get_object_or_404(
+            Application,
+            pk=unhash_or_404(self.kwargs["pk_hash"]),
+        )
+
+        if application.is_deleted:
+            messages.error(request, "Application has already been deleted")
+            return redirect(application.get_staff_url())
+
+        application.deleted_at = timezone.now()
+        application.deleted_by = request.user
+        application.save()
+
+        return redirect("staff:application-list")
