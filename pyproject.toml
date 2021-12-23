@@ -31,6 +31,7 @@ omit = [
   "jobserver/management/commands/count_rows.py",
   "jobserver/management/commands/ensure_admins.py",
   "jobserver/management/commands/ensure_backends.py",
+  "jobserver/management/commands/inflate_release_files.py",
   "jobserver/management/commands/release.py",
   "jobserver/settings.py",
   "jobserver/wsgi.py",
