@@ -44,7 +44,13 @@
           <a href="{{ application.get_absolute_url }}">
             Application {{ application.pk_hash }} started on {{ application.created_at|date }}
           </a>
-          <span>{{ application.get_status_display }}</span>
+          <div class="d-flex justify-content-between align-items-center">
+            <span>{{ application.get_status_display }}</span>
+            <form class="ml-2" method="POST" action="{{ application.get_delete_url }}">
+              {% csrf_token %}
+              <button class="btn btn-sm btn-danger" type="submit">Delete</button>
+            </form>
+          </div>
         </div>
         {% endfor %}
       </div>

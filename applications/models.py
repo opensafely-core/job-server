@@ -87,6 +87,9 @@ class Application(models.Model):
     def get_approve_url(self):
         return reverse("staff:application-approve", kwargs={"pk_hash": self.pk_hash})
 
+    def get_delete_url(self):
+        return reverse("applications:delete", kwargs={"pk_hash": self.pk_hash})
+
     def get_edit_url(self):
         return reverse("staff:application-edit", kwargs={"pk_hash": self.pk_hash})
 

@@ -9,6 +9,7 @@ from applications.form_specs import form_specs
 from applications.models import Application, ResearcherRegistration, TypeOfStudyPage
 from applications.views import (
     ApplicationList,
+    ApplicationRemove,
     Confirmation,
     PageRedirect,
     ResearcherCreate,
@@ -38,6 +39,69 @@ def test_applicationlist_success(rf):
 
     assert response.status_code == 200
     assert len(response.context_data["applications"]) == 5
+
+
+def test_applicationremove_already_deleted(rf):
+    user = UserFactory()
+    application = ApplicationFactory(
+        created_by=user,
+        deleted_at=timezone.now(),
+        deleted_by=user,
+    )
+
+    request = rf.post("/")
+    request.user = user
+
+    # set up messages framework
+    request.session = "session"
+    messages = FallbackStorage(request)
+    request._messages = messages
+
+    response = ApplicationRemove.as_view()(request, pk_hash=application.pk_hash)
+
+    assert response.status_code == 302
+    assert response.url == reverse("applications:list")
+
+    # check we have a message for the user
+    messages = list(messages)
+    assert len(messages) == 1
+    msg = f"Application {application.pk_hash} has already been deleted"
+    assert str(messages[0]) == msg
+
+
+def test_applicationremove_success(rf):
+    user = UserFactory()
+    application = ApplicationFactory(created_by=user)
+
+    request = rf.post("/")
+    request.user = user
+
+    response = ApplicationRemove.as_view()(request, pk_hash=application.pk_hash)
+
+    assert response.status_code == 302
+    assert response.url == reverse("applications:list")
+
+    application.refresh_from_db()
+    assert application.deleted_at
+    assert application.deleted_by == user
+
+
+def test_applicationremove_wrong_user(rf):
+    application = ApplicationFactory()
+
+    request = rf.post("/")
+    request.user = UserFactory()
+
+    with pytest.raises(Http404):
+        ApplicationRemove.as_view()(request, pk_hash=application.pk_hash)
+
+
+def test_applicationremove_unknown_application(rf):
+    request = rf.post("/")
+    request.user = UserFactory()
+
+    with pytest.raises(Http404):
+        ApplicationRemove.as_view()(request, pk_hash="")
 
 
 def test_confirmation_get_success(rf, incomplete_application):
@@ -424,6 +488,32 @@ def test_page_with_approved_application(rf):
     messages = list(messages)
     assert len(messages) == 1
     msg = "This application has been approved and can no longer be edited"
+    assert str(messages[0]) == msg
+
+
+def test_page_with_deleted_application(rf):
+    user = UserFactory()
+    application = ApplicationFactory(
+        created_by=user, deleted_at=timezone.now(), deleted_by=user
+    )
+
+    request = rf.get("/")
+    request.user = user
+
+    # set up messages framework
+    request.session = "session"
+    messages = FallbackStorage(request)
+    request._messages = messages
+
+    response = page(request, pk_hash=application.pk_hash, key="study-purpose")
+
+    assert response.status_code == 302
+    assert response.url == reverse("applications:list")
+
+    # check we have a message for the user
+    messages = list(messages)
+    assert len(messages) == 1
+    msg = f"Application {application.pk_hash} has been deleted, you need to restore it before you can view it."
     assert str(messages[0]) == msg
 
 
