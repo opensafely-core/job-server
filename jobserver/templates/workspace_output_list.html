@@ -75,6 +75,8 @@
         </div>
 
       </li>
+      {% empty %}
+      <li><p>No outputs have been published for {{ workspace.name }} yet.</p></li>
       {% endfor %}
     </ul>
   </div>
