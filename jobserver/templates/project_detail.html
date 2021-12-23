@@ -64,11 +64,16 @@
           <ul class="list-unstyled mb-0">
             {% for workspace in workspaces %}
               <li class="list-group-item d-flex align-items-center">
-                <span class="mr-3">
-                  <a href="{{ workspace.get_absolute_url }}">
-                    {{ workspace.name }}
-                  </a>
-                </span>
+                <div class="mr-3">
+                  <span class="mr-1">
+                    <a href="{{ workspace.get_absolute_url }}">
+                      {{ workspace.name }}
+                    </a>
+                  </span>
+                  {% if workspace.is_archived %}
+                  <span class="badge badge-pill badge-secondary">Archived</span>
+                  {% endif %}
+                </div>
                 <a class="btn btn-sm btn-primary ml-auto" href="{{ workspace.get_logs_url }}">
                   Logs
                 </a>
