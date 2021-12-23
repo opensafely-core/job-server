@@ -32,6 +32,12 @@ class Application(models.Model):
         on_delete=models.CASCADE,
         related_name="applications",
     )
+    deleted_by = models.ForeignKey(
+        "jobserver.User",
+        on_delete=models.CASCADE,
+        null=True,
+        related_name="deleted_applications",
+    )
     # completed application's project
     project = models.ForeignKey(
         "jobserver.Project",
@@ -47,16 +53,24 @@ class Application(models.Model):
     created_at = models.DateTimeField(default=timezone.now)
     completed_at = models.DateTimeField(null=True)
     approved_at = models.DateTimeField(null=True)
+    deleted_at = models.DateTimeField(null=True)
 
     class Meta:
         constraints = [
             models.CheckConstraint(
                 check=(
-                    Q(approved_at=None) & Q(approved_by=None)
-                    | ~Q(approved_at=None) & ~Q(approved_by=None)
+                    (Q(approved_at=None) & Q(approved_by=None))
+                    | (~Q(approved_at=None) & ~Q(approved_by=None))
                 ),
                 name="%(app_label)s_%(class)s_both_approved_at_and_approved_by_set",
-            )
+            ),
+            models.CheckConstraint(
+                check=(
+                    (Q(deleted_at=None) & Q(deleted_by=None))
+                    | (~Q(deleted_at=None) & ~Q(deleted_by=None))
+                ),
+                name="%(app_label)s_%(class)s_both_deleted_at_and_deleted_by_set",
+            ),
         ]
 
     def __str__(self):
@@ -78,6 +92,10 @@ class Application(models.Model):
 
     def get_staff_url(self):
         return reverse("staff:application-detail", kwargs={"pk_hash": self.pk_hash})
+
+    @property
+    def is_deleted(self):
+        return self.deleted_at or self.deleted_by
 
     @property
     def is_study_research(self):

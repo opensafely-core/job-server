@@ -41,6 +41,15 @@ def test_application_get_staff_url():
     )
 
 
+def test_application_is_deleted():
+    assert not ApplicationFactory().is_deleted
+
+    application = ApplicationFactory(
+        deleted_at=timezone.now(), deleted_by=UserFactory()
+    )
+    assert application.is_deleted
+
+
 def test_application_str():
     user = UserFactory(first_name="Ben", last_name="Seb")
     application = ApplicationFactory(created_by=user)
