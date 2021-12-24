@@ -35,7 +35,7 @@
       </li>
 
       <li class="breadcrumb-item active" aria-current="page">
-        {{ backend.display_name }} Files
+        {{ backend.name }} Files
       </li>
     </ol>
   </div>
@@ -47,12 +47,12 @@
   <div class="container">
     <h1>Level 4 outputs from {{ workspace.name }}</h1>
     <p class="lead prose-width">
-      Medium privacy (Level 4) files currently on <strong>{{ backend.display_name }}</strong>
+      Medium privacy (Level 4) files currently on <strong>{{ backend.name }}</strong>
       in the <strong>{{ workspace.name }}</strong> workspace.
     </p>
     <p>
       You can see these outputs because you have access to the Level 4 environment on the
-      {{ backend.display_name }} backend and have been assigned the ProjectDeveloper role.
+      {{ backend.name }} backend and have been assigned the ProjectDeveloper role.
     </p>
     <a class="btn btn btn-success" href="{{ release.get_download_url }}">
       Download
