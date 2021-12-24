@@ -67,6 +67,22 @@ class ProjectAddMemberForm(PickUsersMixin, RolesForm):
     pass
 
 
+class ProjectCreateForm(forms.ModelForm):
+    class Meta:
+        fields = [
+            "name",
+            "org",
+        ]
+        model = Project
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+
+        orgs = Org.objects.order_by("name")
+
+        self.fields["org"] = forms.ModelChoiceField(queryset=orgs)
+
+
 class ProjectEditForm(forms.ModelForm):
     class Meta:
         fields = [

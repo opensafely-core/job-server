@@ -4,9 +4,11 @@ from django.core.exceptions import PermissionDenied
 from django.http import Http404
 
 from jobserver.authorization import ProjectCoordinator, ProjectDeveloper
+from jobserver.models import Project
 from jobserver.utils import dotted_path, set_from_qs
 from staff.views.projects import (
     ProjectAddMember,
+    ProjectCreate,
     ProjectDetail,
     ProjectEdit,
     ProjectList,
@@ -14,7 +16,12 @@ from staff.views.projects import (
     ProjectMembershipRemove,
 )
 
-from ....factories import ProjectFactory, ProjectMembershipFactory, UserFactory
+from ....factories import (
+    OrgFactory,
+    ProjectFactory,
+    ProjectMembershipFactory,
+    UserFactory,
+)
 
 
 def test_projectaddmember_get_success(rf, core_developer):
@@ -67,6 +74,37 @@ def test_projectaddmember_unknown_project(rf, core_developer):
 
     with pytest.raises(Http404):
         ProjectAddMember.as_view()(request, slug="test")
+
+
+def test_projectcreate_post_success(rf, core_developer):
+    org = OrgFactory()
+
+    assert not Project.objects.exists()
+
+    data = {
+        "name": "new-name",
+        "org": org.pk,
+    }
+    request = rf.post("/", data)
+    request.user = core_developer
+
+    response = ProjectCreate.as_view()(request)
+
+    assert response.status_code == 302, response.context_data["form"].errors
+
+    project = Project.objects.first()
+    assert response.url == project.get_staff_url()
+    assert project.created_by == core_developer
+    assert project.name == "new-name"
+    assert project.org == org
+
+
+def test_projectcreate_unauthorized(rf):
+    request = rf.get("/")
+    request.user = UserFactory()
+
+    with pytest.raises(PermissionDenied):
+        ProjectCreate.as_view()(request)
 
 
 def test_projectdetail_success(rf, core_developer):
@@ -294,7 +332,6 @@ def test_projectmembershipremove_unknown_member(rf, core_developer):
     request.session = "session"
     messages = FallbackStorage(request)
     request._messages = messages
-
     response = ProjectMembershipRemove.as_view()(request, slug=project.slug)
     assert response.status_code == 302
     assert response.url == project.get_staff_url()
