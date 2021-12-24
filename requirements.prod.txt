@@ -183,9 +183,6 @@ django-permissions-policy==4.6.0 \
     --hash=sha256:5434d526e4390c1e8ba2d273d31e8473c4703b2b653a4eaf9d23bac5a7655dca \
     --hash=sha256:ab1984a0e2f67c795b6b3ee023a825402234056ee0cb5af26220ce95f9a394bf
     # via -r requirements.prod.in
-django-rest-framework==0.1.0 \
-    --hash=sha256:47a8f496fa69e3b6bd79f68dd7a1527d907d6b77f009e9db7cf9bb21cc565e4a
-    # via -r requirements.prod.in
 django-structlog==2.2.0 \
     --hash=sha256:0443d39d27bf34258a375a2dfd1a0ae51f24bedce88beae55c1b69f3c09af922 \
     --hash=sha256:d6eb180963c7baf381ad7035e9afc7ecb7031246cb640f16925fe72f7712a2a1
@@ -197,7 +194,7 @@ django-vite==1.2.1 \
 djangorestframework==3.12.4 \
     --hash=sha256:6d1d59f623a5ad0509fe0d6bfe93cbdfe17b8116ebc8eda86d45f6e16e819aaf \
     --hash=sha256:f747949a8ddac876e879190df194b925c177cdeb725a099db1460872f7c0a7f2
-    # via django-rest-framework
+    # via -r requirements.prod.in
 environs[django]==9.4.0 \
     --hash=sha256:b1cb81fbc0568d85c8ca32328e17bd756a2bb16cff54371d18d15d1832b692aa \
     --hash=sha256:b5a197f70c590e8ad2d60d145ea2a2e90d4b1b05cdd04f8e18132d2760123971
