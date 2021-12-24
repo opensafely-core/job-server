@@ -1,11 +1,10 @@
-from datetime import datetime
+from datetime import datetime, timezone
 
 from django.db.models import Min
 from django.template.response import TemplateResponse
 from django.utils.decorators import method_decorator
 from django.views.generic import View
 from first import first
-from pytz import utc
 
 from jobserver.authorization import CoreDeveloper
 from jobserver.authorization.decorators import require_role
@@ -45,7 +44,7 @@ class RepoList(View):
             # we want Nones pushed to the end of our list so we sort them
             # by a date in the far flung future.  Should this code still be
             # running on that date, sorry!
-            return datetime(9999, 1, 1, tzinfo=utc)
+            return datetime(9999, 1, 1, tzinfo=timezone.utc)
 
         workspaces = sorted(workspaces, key=sort_by_first_run)
 
