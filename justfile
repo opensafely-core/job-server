@@ -18,7 +18,7 @@ default:
 
 check-for-upgrades: devenv
     # run pyupgrade but does not change files
-    $BIN/pyupgrade --py39-plus \
+    $BIN/pyupgrade --py310-plus \
         $(find applications -name "*.py" -type f) \
         $(find jobserver -name "*.py" -type f) \
         $(find services -name "*.py" -type f) \
@@ -139,7 +139,7 @@ upgrade env package="": virtualenv
 virtualenv:
     #!/usr/bin/env bash
     # allow users to specify python version in .env
-    PYTHON_VERSION=${PYTHON_VERSION:-python3.9}
+    PYTHON_VERSION=${PYTHON_VERSION:-python3.10}
 
     # create venv and upgrade pip
     test -d $VIRTUAL_ENV || { $PYTHON_VERSION -m venv $VIRTUAL_ENV && $PIP install --upgrade pip; }
