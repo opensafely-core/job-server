@@ -19,7 +19,7 @@
     "@testing-library/react": "^12.1.2",
     "@testing-library/user-event": "^13.5.0",
     "@vitejs/plugin-legacy": "^1.6.4",
-    "autoprefixer": "^10.4.0",
+    "autoprefixer": "^10.4.1",
     "babel-jest": "^27.4.5",
     "cssnano": "^5.0.13",
     "eslint": "^8.5.0",
