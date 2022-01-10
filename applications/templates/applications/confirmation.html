@@ -53,7 +53,7 @@
           {% if page.wizard_page.page_instance.notes %}
           <li>Reviewer's notes:
             <br>
-            {{ page.wizard_page.page_instance.notes }}
+            {{ page.wizard_page.page_instance.notes|linebreaksbr }}
           </li>
           {% endif %}
         </ul>
