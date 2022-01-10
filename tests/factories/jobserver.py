@@ -6,7 +6,6 @@ from datetime import datetime
 import factory
 import factory.fuzzy
 from django.utils import timezone
-from pytz import utc
 from social_django.models import UserSocialAuth
 
 from jobserver import releases
@@ -215,7 +214,7 @@ class StatsFactory(factory.django.DjangoModelFactory):
 
     backend = factory.SubFactory("tests.factories.BackendFactory")
 
-    api_last_seen = factory.Faker("date_time", tzinfo=utc)
+    api_last_seen = factory.Faker("date_time", tzinfo=timezone.utc)
 
 
 class UserFactory(factory.django.DjangoModelFactory):

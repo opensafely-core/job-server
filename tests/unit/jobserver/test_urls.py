@@ -145,9 +145,17 @@ def test_url_redirects(client, url, redirect):
 )
 def test_url_resolution(url, view):
     """Test each URL resolves to the expected view function or class"""
-    resolved_view = resolve(url).func
+    match = resolve(url)
 
+    # get the actual class for a CBV.  View.as_view() constructs a new wrapper
+    # function to be the callable which url resolution calls when a view is
+    # accessed.  We don't want that callable at this point in the test because
+    # we're just checking configuration.
+    if hasattr(match.func, "view_class"):
+        resolved_view = match.func.view_class
+    else:
+        resolved_view = match.func
     assert dotted_path(resolved_view) == dotted_path(view), url
 
-    msg = f"Resolved view '{resolved_view}' is a class. Did you forget `.as_view()`?"
-    assert not inspect.isclass(resolved_view), msg
+    msg = f"Resolved view '{match.func}' is a class. Did you forget `.as_view()`?"
+    assert not inspect.isclass(match.func), msg

@@ -1,6 +1,6 @@
 import factory
 import factory.fuzzy
-from pytz import utc
+from django.utils import timezone
 
 from applications.models import (
     Application,
@@ -42,10 +42,10 @@ class AbstractPageFactory(factory.django.DjangoModelFactory):
     notes = factory.Sequence(lambda n: f"note {n}")
     is_approved = factory.fuzzy.FuzzyChoice([True, False])
 
-    last_reviewed_at = factory.Faker("date_time", tzinfo=utc)
+    last_reviewed_at = factory.Faker("date_time", tzinfo=timezone.utc)
 
-    created_at = factory.Faker("date_time", tzinfo=utc)
-    updated_at = factory.Faker("date_time", tzinfo=utc)
+    created_at = factory.Faker("date_time", tzinfo=timezone.utc)
+    updated_at = factory.Faker("date_time", tzinfo=timezone.utc)
 
 
 class ContactDetailsPageFactory(AbstractPageFactory):
@@ -191,4 +191,4 @@ class ResearcherRegistrationFactory(factory.django.DjangoModelFactory):
 
     application = factory.SubFactory("tests.factories.ApplicationFactory")
     has_taken_safe_researcher_training = True
-    training_passed_at = factory.Faker("date_time", tzinfo=utc)
+    training_passed_at = factory.Faker("date_time", tzinfo=timezone.utc)
