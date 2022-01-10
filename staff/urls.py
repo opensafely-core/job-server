@@ -24,6 +24,7 @@ from .views.orgs import (
 )
 from .views.projects import (
     ProjectAddMember,
+    ProjectCreate,
     ProjectDetail,
     ProjectEdit,
     ProjectList,
@@ -71,6 +72,7 @@ org_urls = [
 ]
 project_urls = [
     path("", ProjectList.as_view(), name="project-list"),
+    path("add/", ProjectCreate.as_view(), name="project-create"),
     path("<slug>/", ProjectDetail.as_view(), name="project-detail"),
     path("<slug>/add-member/", ProjectAddMember.as_view(), name="project-add-member"),
     path("<slug>/edit/", ProjectEdit.as_view(), name="project-edit"),

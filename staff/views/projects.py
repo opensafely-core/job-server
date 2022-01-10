@@ -3,14 +3,26 @@ from django.db import transaction
 from django.db.models.functions import Lower
 from django.shortcuts import get_object_or_404, redirect
 from django.utils.decorators import method_decorator
-from django.views.generic import DetailView, FormView, ListView, UpdateView, View
+from django.views.generic import (
+    CreateView,
+    DetailView,
+    FormView,
+    ListView,
+    UpdateView,
+    View,
+)
 
 from jobserver.authorization import CoreDeveloper
 from jobserver.authorization.decorators import require_role
 from jobserver.authorization.utils import roles_for
 from jobserver.models import Org, Project, ProjectMembership, User
 
-from ..forms import ProjectAddMemberForm, ProjectEditForm, ProjectMembershipForm
+from ..forms import (
+    ProjectAddMemberForm,
+    ProjectCreateForm,
+    ProjectEditForm,
+    ProjectMembershipForm,
+)
 
 
 @method_decorator(require_role(CoreDeveloper), name="dispatch")
@@ -54,6 +66,19 @@ class ProjectAddMember(FormView):
         return super().get_initial() | {
             "users": self.project.members.values_list("pk", flat=True),
         }
+
+
+@method_decorator(require_role(CoreDeveloper), name="dispatch")
+class ProjectCreate(CreateView):
+    form_class = ProjectCreateForm
+    template_name = "staff/project_create.html"
+
+    def form_valid(self, form):
+        project = form.save(commit=False)
+        project.created_by = self.request.user
+        project.save()
+
+        return redirect(project.get_staff_url())
 
 
 @method_decorator(require_role(CoreDeveloper), name="dispatch")
