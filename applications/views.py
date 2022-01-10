@@ -7,7 +7,7 @@ from django.template.response import TemplateResponse
 from django.urls import reverse
 from django.utils import timezone
 from django.utils.decorators import method_decorator
-from django.views.generic import CreateView, ListView, RedirectView, UpdateView, View
+from django.views.generic import CreateView, RedirectView, UpdateView, View
 from furl import furl
 
 from jobserver.authorization import has_permission
@@ -71,12 +71,16 @@ def get_next_url(get_args):
 
 
 @method_decorator(login_required, name="dispatch")
-class ApplicationList(ListView):
-    context_object_name = "applications"
-    template_name = "applications/application_list.html"
+class ApplicationList(View):
+    def get(self, request, *args, **kwargs):
+        applications = Application.objects.filter(created_by=self.request.user)
 
-    def get_queryset(self):
-        return Application.objects.filter(created_by=self.request.user, deleted_at=None)
+        context = {
+            "applications": applications.filter(deleted_at=None),
+            "deleted_applications": applications.exclude(deleted_at=None),
+        }
+
+        return TemplateResponse(request, "applications/application_list.html", context)
 
 
 @method_decorator(login_required, name="dispatch")
@@ -99,6 +103,25 @@ class ApplicationRemove(View):
         application.deleted_at = timezone.now()
         application.deleted_by = request.user
         application.save()
+
+        return redirect("applications:list")
+
+
+@method_decorator(login_required, name="dispatch")
+class ApplicationRestore(View):
+    def post(self, request, *args, **kwargs):
+        application = get_object_or_404(
+            Application,
+            pk=unhash_or_404(self.kwargs["pk_hash"]),
+        )
+
+        if application.created_by != request.user:
+            raise Http404
+
+        if application.is_deleted:
+            application.deleted_at = None
+            application.deleted_by = None
+            application.save()
 
         return redirect("applications:list")
 

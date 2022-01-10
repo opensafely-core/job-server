@@ -83,6 +83,7 @@ def test_url_redirects(client, url, redirect):
         ("/applications/42/page/42/", applications.page),
         ("/applications/42/confirmation/", applications.Confirmation),
         ("/applications/42/delete/", applications.ApplicationRemove),
+        ("/applications/42/restore/", applications.ApplicationRestore),
         ("/applications/42/researchers/add", applications.ResearcherCreate),
         ("/applications/42/researchers/42/delete/", applications.ResearcherDelete),
         ("/applications/42/researchers/42/edit/", applications.ResearcherEdit),

@@ -10,6 +10,7 @@ from applications.models import Application, ResearcherRegistration, TypeOfStudy
 from applications.views import (
     ApplicationList,
     ApplicationRemove,
+    ApplicationRestore,
     Confirmation,
     PageRedirect,
     ResearcherCreate,
@@ -102,6 +103,57 @@ def test_applicationremove_unknown_application(rf):
 
     with pytest.raises(Http404):
         ApplicationRemove.as_view()(request, pk_hash="")
+
+
+def test_applicationrestore_already_deleted(rf):
+    user = UserFactory()
+    application = ApplicationFactory(
+        created_by=user,
+        deleted_at=timezone.now(),
+        deleted_by=user,
+    )
+
+    request = rf.post("/")
+    request.user = user
+
+    response = ApplicationRestore.as_view()(request, pk_hash=application.pk_hash)
+
+    assert response.status_code == 302
+    assert response.url == reverse("applications:list")
+
+
+def test_applicationrestore_success(rf):
+    user = UserFactory()
+    application = ApplicationFactory(created_by=user)
+
+    request = rf.post("/")
+    request.user = user
+
+    response = ApplicationRestore.as_view()(request, pk_hash=application.pk_hash)
+
+    assert response.status_code == 302
+    assert response.url == reverse("applications:list")
+
+    application.refresh_from_db()
+    assert not application.is_deleted
+
+
+def test_applicationrestore_wrong_user(rf):
+    application = ApplicationFactory()
+
+    request = rf.post("/")
+    request.user = UserFactory()
+
+    with pytest.raises(Http404):
+        ApplicationRestore.as_view()(request, pk_hash=application.pk_hash)
+
+
+def test_applicationrestore_unknown_application(rf):
+    request = rf.post("/")
+    request.user = UserFactory()
+
+    with pytest.raises(Http404):
+        ApplicationRestore.as_view()(request, pk_hash="")
 
 
 def test_confirmation_get_success(rf, incomplete_application):
