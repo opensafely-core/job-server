@@ -232,6 +232,7 @@ SILENCED_SYSTEM_CHECKS = [
 # https://docs.djangoproject.com/en/3.2/ref/settings/#std:setting-CSRF_COOKIE_SECURE
 CSRF_COOKIE_SECURE = not DEBUG
 SESSION_COOKIE_SECURE = not DEBUG
+CSRF_TRUSTED_ORIGINS = [BASE_URL]
 
 # https://developer.mozilla.org/en-US/docs/Web/HTTP/Headers/X-Frame-Options#directives
 X_FRAME_OPTIONS = "SAMEORIGIN"
