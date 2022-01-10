@@ -155,7 +155,7 @@ class ApplicationList(ListView):
         }
 
     def get_queryset(self):
-        qs = super().get_queryset()
+        qs = super().get_queryset().select_related("created_by")
 
         if q := self.request.GET.get("q"):
             qs = qs.filter(
