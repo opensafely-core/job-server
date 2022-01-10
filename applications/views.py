@@ -94,6 +94,10 @@ class ApplicationRemove(View):
         if application.created_by != request.user:
             raise Http404
 
+        if application.is_approved:
+            messages.error(request, "You cannot delete an approved Application.")
+            return redirect("applications:list")
+
         if application.is_deleted:
             messages.error(
                 request, f"Application {application.pk_hash} has already been deleted"

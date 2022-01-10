@@ -179,6 +179,10 @@ class ApplicationRemove(View):
             pk=unhash_or_404(self.kwargs["pk_hash"]),
         )
 
+        if application.is_approved:
+            messages.error(request, "You cannot delete an approved Application.")
+            return redirect(application.get_staff_url())
+
         if application.is_deleted:
             messages.error(request, "Application has already been deleted")
             return redirect(application.get_staff_url())

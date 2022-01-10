@@ -106,6 +106,10 @@ class Application(models.Model):
         return reverse("staff:application-detail", kwargs={"pk_hash": self.pk_hash})
 
     @property
+    def is_approved(self):
+        return self.approved_at or self.approved_by
+
+    @property
     def is_deleted(self):
         return self.deleted_at or self.deleted_by
 

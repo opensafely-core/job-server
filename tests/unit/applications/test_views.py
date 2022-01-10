@@ -42,6 +42,31 @@ def test_applicationlist_success(rf):
     assert len(response.context_data["applications"]) == 5
 
 
+def test_applicationremove_already_approved(rf):
+    user = UserFactory()
+    application = ApplicationFactory(
+        created_by=user, approved_at=timezone.now(), approved_by=user
+    )
+
+    request = rf.post("/")
+    request.user = user
+
+    # set up messages framework
+    request.session = "session"
+    messages = FallbackStorage(request)
+    request._messages = messages
+
+    response = ApplicationRemove.as_view()(request, pk_hash=application.pk_hash)
+
+    assert response.status_code == 302
+    assert response.url == reverse("applications:list")
+
+    # check we have a message for the user
+    messages = list(messages)
+    assert len(messages) == 1
+    assert str(messages[0]) == "You cannot delete an approved Application."
+
+
 def test_applicationremove_already_deleted(rf):
     user = UserFactory()
     application = ApplicationFactory(
