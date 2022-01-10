@@ -8,7 +8,7 @@ COPY . ./
 ARG VITE_SENTRY_DSN
 RUN npm run build
 
-FROM python:3.9-bullseye
+FROM python:3.10-bullseye
 
 # Don't cache PyPI downloads or wheels.
 # Don't use pyc files or __pycache__ folders.
