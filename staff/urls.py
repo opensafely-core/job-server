@@ -6,6 +6,7 @@ from .views.applications import (
     ApplicationEdit,
     ApplicationList,
     ApplicationRemove,
+    ApplicationRestore,
 )
 from .views.backends import (
     BackendCreate,
@@ -51,6 +52,11 @@ application_urls = [
     path("<str:pk_hash>/edit/", ApplicationEdit.as_view(), name="application-edit"),
     path(
         "<str:pk_hash>/delete/", ApplicationRemove.as_view(), name="application-delete"
+    ),
+    path(
+        "<str:pk_hash>/restore/",
+        ApplicationRestore.as_view(),
+        name="application-restore",
     ),
 ]
 

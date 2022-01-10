@@ -188,3 +188,19 @@ class ApplicationRemove(View):
         application.save()
 
         return redirect("staff:application-list")
+
+
+@method_decorator(require_role(CoreDeveloper), name="dispatch")
+class ApplicationRestore(View):
+    def post(self, request, *args, **kwargs):
+        application = get_object_or_404(
+            Application,
+            pk=unhash_or_404(self.kwargs["pk_hash"]),
+        )
+
+        if application.is_deleted:
+            application.deleted_at = None
+            application.deleted_by = None
+            application.save()
+
+        return redirect("staff:application-list")

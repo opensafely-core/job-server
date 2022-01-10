@@ -90,6 +90,7 @@ def test_url_redirects(client, url, redirect):
         ("/applications/42/researchers/42/edit/", applications.ResearcherEdit),
         ("/event-log/", job_requests.JobRequestList),
         ("/staff/applications/42/delete/", staff_applications.ApplicationRemove),
+        ("/staff/applications/42/restore/", staff_applications.ApplicationRestore),
         ("/staff/backends/", staff_backends.BackendList),
         ("/staff/backends/42/", staff_backends.BackendDetail),
         ("/staff/backends/42/edit/", staff_backends.BackendEdit),

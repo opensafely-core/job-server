@@ -84,27 +84,32 @@
 
         {% for application in application_list %}
         <div class="list-group-item">
-          <p class="mb-2 d-flex justify-content-between align-items-center">
+          <div class="mb-2 d-flex justify-content-between align-items-center">
 
-          <a href="{{ application.get_staff_url }}"
-             class="d-flex align-items-center{% if application.is_deleted %} text-secondary{% endif %}"
-             {% if application.is_deleted %}
-             style="text-decoration:line-through"
-             {% endif %}
-             >
+            {% if not application.is_deleted %}
+            <a href="{{ application.get_staff_url }}" class="d-flex align-items-center">
               <span class="mr-3">
                 {{ application.pk_hash }} by {{ application.created_by.name }}
                 <small class="text-muted">(started {{ application.created_at|date }})</small>
               </span>
             </a>
-
-            {% if application.is_deleted %}
-            <span class="text-secondary">Deleted</span>
             {% else %}
-            <span>{{ application.get_status_display }}</span>
+            <span class="mr-3 text-secondary" style="text-decoration:line-through">
+              {{ application.pk_hash }} by {{ application.created_by.name }}
+              <small class="text-muted">(started {{ application.created_at|date }})</small>
+            </span>
             {% endif %}
 
-          </p>
+            {% if not application.is_deleted %}
+            <span>{{ application.get_status_display }}</span>
+            {% else %}
+            <form method="POST" action="{{ application.get_staff_restore_url }}">
+              {% csrf_token %}
+              <button class="btn btn-sm btn-danger" type="submit">Restore</button>
+            </form>
+            {% endif %}
+
+          </div>
 
           {% if application.status_comment %}
           <p class="mb-0">

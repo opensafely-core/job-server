@@ -13,6 +13,7 @@ from staff.views.applications import (
     ApplicationEdit,
     ApplicationList,
     ApplicationRemove,
+    ApplicationRestore,
 )
 
 from ....factories import ApplicationFactory, OrgFactory, UserFactory
@@ -470,3 +471,46 @@ def test_applicationremove_without_core_dev_role(rf):
 
     with pytest.raises(PermissionDenied):
         ApplicationRemove.as_view()(request, pk_hash=application.pk_hash)
+
+
+def test_applicationrestore_already_deleted(rf, core_developer):
+    application = ApplicationFactory(
+        deleted_at=timezone.now(), deleted_by=UserFactory()
+    )
+
+    request = rf.post("/")
+    request.user = core_developer
+
+    response = ApplicationRestore.as_view()(request, pk_hash=application.pk_hash)
+
+    assert response.status_code == 302
+    assert response.url == reverse("staff:application-list")
+
+
+def test_applicationrestore_success(rf, core_developer):
+    application = ApplicationFactory()
+
+    request = rf.post("/")
+    request.user = core_developer
+
+    response = ApplicationRestore.as_view()(request, pk_hash=application.pk_hash)
+
+    assert response.status_code == 302
+    assert response.url == reverse("staff:application-list")
+
+
+def test_applicationrestore_unknown_application(rf, core_developer):
+    request = rf.post("/")
+    request.user = core_developer
+
+    with pytest.raises(Http404):
+        ApplicationRestore.as_view()(request, pk_hash="")
+
+
+def test_applicationrestore_without_core_dev_role(rf):
+    application = ApplicationFactory()
+
+    request = rf.post("/")
+    request.user = UserFactory()
+    with pytest.raises(PermissionDenied):
+        ApplicationRestore.as_view()(request, pk_hash=application.pk_hash)

@@ -61,6 +61,26 @@ def test_application_get_restore_url():
     )
 
 
+def test_application_get_staff_delete_url():
+    application = ApplicationFactory()
+
+    url = application.get_staff_delete_url()
+
+    return url == reverse(
+        "staff:application-delete", kwargs={"pk_hash": application.pk_hash}
+    )
+
+
+def test_application_get_staff_restore_url():
+    application = ApplicationFactory()
+
+    url = application.get_staff_restore_url()
+
+    return url == reverse(
+        "staff:application-restore", kwargs={"pk_hash": application.pk_hash}
+    )
+
+
 def test_application_get_staff_url():
     application = ApplicationFactory()
 
