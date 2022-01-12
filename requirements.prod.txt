@@ -227,9 +227,9 @@ jinja2==2.11.3 \
     --hash=sha256:03e47ad063331dd6a3f04a43eddca8a966a26ba0c5b7207a9a9e4e08f1b29419 \
     --hash=sha256:a6d58433de0ae800347cab1fa3043cebbabe8baa9d29e668f1c768cb87a333c6
     # via pybadges
-litecli==1.6.0 \
-    --hash=sha256:4d274e1475b4d3bb32384838830bc4a8388992b7cb8119aa8cffc7ffaa0167f9 \
-    --hash=sha256:fa716dff5dae3db83580d24446b6891d85e1d7797f2705ff107fe38139c44030
+litecli==1.7.0 \
+    --hash=sha256:6e6062aadb65203d3ef7b90ac51ca505c70d49637fac8ea093559410de725ba0 \
+    --hash=sha256:7123b6628e403ccff54123c646c9132c99631efdd78b8ae4e1a1d3aa7e05ba8f
     # via -r requirements.prod.in
 markdown==3.3.6 \
     --hash=sha256:76df8ae32294ec39dcf89340382882dfa12975f87f45c3ed1ecdb1e8cefc7006 \
@@ -412,9 +412,9 @@ pydantic==1.9.0 \
     --hash=sha256:f5a64b64ddf4c99fe201ac2724daada8595ada0d102ab96d019c1555c2d6441d \
     --hash=sha256:f947352c3434e8b937e3aa8f96f47bdfe6d92779e44bb3f41e4c213ba6a32145
     # via -r requirements.prod.in
-pygments==2.11.2 \
-    --hash=sha256:44238f1b60a76d78fc8ca0528ee429702aae011c265fe6a8dd8b63049ae41c65 \
-    --hash=sha256:4e426f72023d88d03b2fa258de560726ce890ff3b630f88c21cbb8b2503b8c6a
+pygments==2.11.1 \
+    --hash=sha256:59b895e326f0fb0d733fd28c6839bd18ad0687ba20efc26d4277fd1d30b971f4 \
+    --hash=sha256:9135c1af61eec0f650cd1ea1ed8ce298e54d56bcd8cc2ef46edd7702c171337c
     # via
     #   -r requirements.prod.in
     #   cli-helpers
