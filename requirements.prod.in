@@ -13,7 +13,7 @@ furl
 gunicorn
 incuna-mail
 itsdangerous
-litecli
+pgcli
 markdown
 psycopg2-binary
 pybadges
