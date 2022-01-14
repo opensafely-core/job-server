@@ -162,9 +162,9 @@ django-anymail[mailgun]==8.4 \
     --hash=sha256:2e8307e84f0a12f9283469017094a8246db9a0fc608ac17dd1027ee011ece986 \
     --hash=sha256:671a338de43b8e414d48c6d16aac1df54d2f24f916e1073f9f60aef5acffaf89
     # via -r requirements.prod.in
-django-browser-reload==1.2.0 \
-    --hash=sha256:aae28aa1af8ac85ae257d260a84bef6e78f2132a5c0a99ed05099ec2e7a794bc \
-    --hash=sha256:ef3b7a92c3170999d40ce3a2a0dc6aa8e82ad77ae9cbc4a386485db94f3e0398
+django-browser-reload==1.3.0 \
+    --hash=sha256:3f9ce1578d23b9ab6af4bf3c9a4416cfea4c9af9e8aca81e0973157a76588285 \
+    --hash=sha256:790e4d9c0a9738437d41ac812741c3f52cc8cd65edad426cabb2f85bde6b94cc
     # via -r requirements.prod.in
 django-cache-url==3.2.3 \
     --hash=sha256:5514ca3a2075c6b956b3d0a5c540654d32b004e76340d7bdabf6661135b5f218 \
