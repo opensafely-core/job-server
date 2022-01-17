@@ -247,14 +247,15 @@ pytest-mock==3.6.1 \
 pytest-network==0.0.1 \
     --hash=sha256:7b109e2ad27f4ab0f13c1796a9b419bab1d503ea3b5ae3ca37363486ccceaa3f
     # via -r requirements.dev.in
-pytest-subtests==0.5.0 \
-    --hash=sha256:5bd1e4bf0eda4c89a6cd42b0ee28e1d2ca0848de3fd67ad8cdd6d559ed00f120 \
-    --hash=sha256:ae0e920b76f23acf28fb6265d5a83aa39b688af1cf30b2b402ac7094ccbc6bdf
+pytest-subtests==0.6.0 \
+    --hash=sha256:3ebd306a8dcf75133f1742f288c82f36426ebcf8a132d4ee89782d20e84fc13a \
+    --hash=sha256:fb2fe6f95a80003c70055226077c784f40bc31f1994c3e2a99d5668f16730db6
     # via -r requirements.dev.in
 python-dateutil==2.8.2 \
     --hash=sha256:0123cacc1627ae19ddf3c27a5de5bd67ee4586fbdd6440d9748f8abb483d3e86 \
     --hash=sha256:961d03dc3453ebbc59dbdea9e4e11c5651520a876d0f4db161e8674aae935da9
     # via
+    #   -c requirements.prod.txt
     #   faker
     #   freezegun
 pyupgrade==2.31.0 \
