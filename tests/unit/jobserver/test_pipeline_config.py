@@ -1,12 +1,11 @@
 import pytest
 from furl import furl
-from yaml.scanner import ScannerError
+from pipeline.models import Pipeline
 
 from jobserver.pipeline_config import (
     get_actions,
     get_project,
     link_run_scripts,
-    load_yaml,
     map_run_scripts_to_links,
     render_definition,
 )
@@ -35,14 +34,19 @@ def link_func(path):
     return f.url
 
 
-def test_get_actions_empty_needs():
-    dummy = {
-        "actions": {
-            "frobnicate": {
-                "needs": None,
-            }
+def test_get_actions_missing_needs():
+    dummy = Pipeline(
+        **{
+            "version": 3,
+            "expectations": {},
+            "actions": {
+                "frobnicate": {
+                    "run": "test",
+                    "outputs": {"highly_sensitive": {"cohort": "/some/path"}},
+                },
+            },
         }
-    }
+    )
     output = list(get_actions(dummy, {"frobnicate": "test"}))
 
     expected = [
@@ -53,14 +57,23 @@ def test_get_actions_empty_needs():
 
 
 def test_get_actions_no_run_all():
-    dummy = {
-        "actions": {
-            "frobnicate": {},
-            "run_all": {
-                "needs": ["frobnicate"],
+    dummy = Pipeline(
+        **{
+            "version": 3,
+            "expectations": {},
+            "actions": {
+                "frobnicate": {
+                    "run": "test1",
+                    "outputs": {"highly_sensitive": {"cohort": "/some/path"}},
+                },
+                "run_all": {
+                    "needs": ["frobnicate"],
+                    "run": "test2",
+                    "outputs": {"highly_sensitive": {"cohort": "/some/path"}},
+                },
             },
         }
-    }
+    )
 
     action_status_lut = {
         "frobnicate": "running",
@@ -77,11 +90,18 @@ def test_get_actions_no_run_all():
 
 
 def test_get_actions_success():
-    content = {
-        "actions": {
-            "frobnicate": {},
+    content = Pipeline(
+        **{
+            "version": 3,
+            "expectations": {},
+            "actions": {
+                "frobnicate": {
+                    "run": "test",
+                    "outputs": {"highly_sensitive": {"cohort": "/some/path"}},
+                },
+            },
         }
-    }
+    )
     output = list(get_actions(content, {"frobnicate": "test"}))
 
     expected = [
@@ -146,16 +166,6 @@ def test_link_run_scripts():
     ]
 
     assert output == expected
-
-
-def test_load_yaml_invalid_yaml():
-    dummy_yaml = """
-    <<<<<<< HEAD
-    actions:
-      frobnicate:
-    """
-    with pytest.raises(ScannerError):
-        load_yaml(dummy_yaml)
 
 
 def test_map_run_scripts_to_links():

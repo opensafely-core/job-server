@@ -9,13 +9,14 @@ from django.utils.safestring import mark_safe
 from django.views.generic import CreateView, ListView, RedirectView, View
 from django.views.generic.edit import FormMixin
 from opentelemetry import trace
+from pipeline import load_pipeline
 
 from ..authorization import CoreDeveloper, has_permission, has_role
 from ..backends import backends_to_choices
 from ..forms import JobRequestCreateForm, JobRequestSearchForm
 from ..github import get_branch_sha
 from ..models import Backend, JobRequest, User, Workspace
-from ..pipeline_config import get_actions, get_project, load_yaml, render_definition
+from ..pipeline_config import get_actions, get_project, render_definition
 from ..utils import raise_if_not_int
 
 
@@ -111,7 +112,7 @@ class JobRequestCreate(CreateView):
                 self.workspace.repo_name,
                 self.workspace.branch,
             )
-            data = load_yaml(self.project)
+            data = load_pipeline(self.project)
         except Exception as e:
             self.actions = []
             # this is a bit nasty, need to mirror what get/post would set up for us

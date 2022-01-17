@@ -12,6 +12,7 @@ djangorestframework
 environs[django]
 first
 furl
+https://github.com/opensafely-core/pipeline/archive/refs/tags/v0.0.3.zip#egg=opensafely-pipeline
 gunicorn
 incuna-mail
 itsdangerous
@@ -22,7 +23,6 @@ pybadges
 pydantic
 pygments
 python-ulid
-pyyaml
 opentelemetry-exporter-otlp
 opentelemetry-instrumentation-django
 opentelemetry-sdk

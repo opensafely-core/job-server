@@ -1,4 +1,3 @@
-import yaml
 from pygments import highlight
 from pygments.formatters import HtmlFormatter
 from pygments.lexers import YamlLexer
@@ -6,23 +5,20 @@ from pygments.lexers import YamlLexer
 from .github import get_branch, get_file
 
 
-def get_actions(project, status_lut):
-    """Get actions from project.yaml for this Workspace"""
-    # ensure there's always a run_all action
-    if "run_all" not in project["actions"]:
-        project["actions"]["run_all"] = {"needs": list(project["actions"].keys())}
-
-    for action, children in project["actions"].items():
-        needs = children.get("needs", []) if children else []
-
-        # handle needs being defined but empty
-        if needs is None:
-            needs = []
+def get_actions(config, status_lut):
+    """Get actions from a pipeline config for this Workspace"""
+    for action, children in config.actions.items():
+        needs = sorted(children.needs)
 
         # get latest status for this action from the lookup table
         status = status_lut.get(action, "-")
 
-        yield {"name": action, "needs": sorted(needs), "status": status}
+        yield {"name": action, "needs": needs, "status": status}
+
+    # ensure there's always a run_all action
+    if "run_all" not in config.actions:
+        all_actions = list(config.actions.keys())
+        yield {"name": "run_all", "needs": all_actions, "status": "-"}
 
 
 def get_project(org, repo, branch):
@@ -74,10 +70,6 @@ def link_run_scripts(line, link_func):
 
         url = link_func(part)
         yield f'<a href="{url}">{label}</a>'
-
-
-def load_yaml(content):
-    return yaml.safe_load(content)
 
 
 def map_run_scripts_to_links(content, link_func):
