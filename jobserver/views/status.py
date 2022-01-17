@@ -1,4 +1,5 @@
 from django.db.models import Count
+from django.db.models.functions import Lower
 from django.template.response import TemplateResponse
 from django.views.generic import View
 
@@ -43,6 +44,6 @@ class Status(View):
                 "show_warning": show_warning(last_seen),
             }
 
-        backends = Backend.objects.all()
+        backends = Backend.objects.order_by(Lower("name"))
         context = {"backends": [get_stats(b) for b in backends]}
         return TemplateResponse(request, "status.html", context)

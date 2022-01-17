@@ -28,7 +28,7 @@
 {% block content %}
 <div class="container">
   <div class="row">
-    {% for backend in backends|dictsort:"name.lower" %}
+    {% for backend in backends %}
       <div class="col-lg-6">
         <div class="card mb-5">
           <h2 class="card-header h3">{{ backend.name }}</h2>
