@@ -2,7 +2,7 @@ import pytest
 from furl import furl
 from yaml.scanner import ScannerError
 
-from jobserver.project import (
+from jobserver.pipeline_config import (
     get_actions,
     get_project,
     link_run_scripts,
@@ -92,16 +92,24 @@ def test_get_actions_success():
 
 
 def test_get_project_no_branch(mocker):
-    mocker.patch("jobserver.project.get_file", autospec=True, return_value=None),
-    mocker.patch("jobserver.project.get_branch", autospec=True, return_value=None)
+    mocker.patch(
+        "jobserver.pipeline_config.get_file", autospec=True, return_value=None
+    ),
+    mocker.patch(
+        "jobserver.pipeline_config.get_branch", autospec=True, return_value=None
+    )
 
     with pytest.raises(Exception, match="Missing branch: 'main'"):
         get_project("opensafely", "test", "main")
 
 
 def test_get_project_no_project_yaml(mocker):
-    mocker.patch("jobserver.project.get_file", autospec=True, return_value=None),
-    mocker.patch("jobserver.project.get_branch", autospec=True, return_value=True)
+    mocker.patch(
+        "jobserver.pipeline_config.get_file", autospec=True, return_value=None
+    ),
+    mocker.patch(
+        "jobserver.pipeline_config.get_branch", autospec=True, return_value=True
+    )
 
     with pytest.raises(Exception, match="Could not find project.yaml"):
         get_project("opensafely", "test", "main")
@@ -112,8 +120,12 @@ def test_get_project_success(mocker):
     actions:
       frobnicate:
     """
-    mocker.patch("jobserver.project.get_file", autospec=True, return_value=dummy)
-    mocker.patch("jobserver.project.get_branch", autospec=True, return_value=True)
+    mocker.patch(
+        "jobserver.pipeline_config.get_file", autospec=True, return_value=dummy
+    )
+    mocker.patch(
+        "jobserver.pipeline_config.get_branch", autospec=True, return_value=True
+    )
 
     assert get_project("opensafely", "test", "main") == dummy
 

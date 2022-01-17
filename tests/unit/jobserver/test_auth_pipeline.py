@@ -1,4 +1,4 @@
-from jobserver.pipeline import notify_on_new_user, set_notifications_email
+from jobserver.auth_pipeline import notify_on_new_user, set_notifications_email
 
 from ...factories import UserFactory
 
