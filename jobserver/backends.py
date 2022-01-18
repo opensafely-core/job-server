@@ -9,7 +9,7 @@ backends = [
         "name": "EMIS",
         "slug": "emis",
         "is_active": True,
-        "level_4_url": "https://localhost:8001",
+        "level_4_url": "http://localhost:8001",
     },
     {
         "id": 2,
