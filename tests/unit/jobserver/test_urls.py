@@ -35,6 +35,7 @@ from jobserver.views import (
     users,
     workspaces,
 )
+from staff.views import applications as staff_applications
 from staff.views import backends as staff_backends
 from staff.views import orgs as staff_orgs
 from staff.views import projects as staff_projects
@@ -82,10 +83,18 @@ def test_url_redirects(client, url, redirect):
         ("/applications/", applications.ApplicationList),
         ("/applications/42/page/42/", applications.page),
         ("/applications/42/confirmation/", applications.Confirmation),
+        ("/applications/42/delete/", applications.ApplicationRemove),
+        ("/applications/42/restore/", applications.ApplicationRestore),
         ("/applications/42/researchers/add", applications.ResearcherCreate),
         ("/applications/42/researchers/42/delete/", applications.ResearcherDelete),
         ("/applications/42/researchers/42/edit/", applications.ResearcherEdit),
         ("/event-log/", job_requests.JobRequestList),
+        ("/staff/applications/", staff_applications.ApplicationList),
+        ("/staff/applications/42/", staff_applications.ApplicationDetail),
+        ("/staff/applications/42/approve/", staff_applications.ApplicationApprove),
+        ("/staff/applications/42/edit/", staff_applications.ApplicationEdit),
+        ("/staff/applications/42/delete/", staff_applications.ApplicationRemove),
+        ("/staff/applications/42/restore/", staff_applications.ApplicationRestore),
         ("/staff/backends/", staff_backends.BackendList),
         ("/staff/backends/42/", staff_backends.BackendDetail),
         ("/staff/backends/42/edit/", staff_backends.BackendEdit),

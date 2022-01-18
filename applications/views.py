@@ -5,8 +5,9 @@ from django.http import Http404
 from django.shortcuts import get_object_or_404, redirect
 from django.template.response import TemplateResponse
 from django.urls import reverse
+from django.utils import timezone
 from django.utils.decorators import method_decorator
-from django.views.generic import CreateView, ListView, RedirectView, UpdateView, View
+from django.views.generic import CreateView, RedirectView, UpdateView, View
 from furl import furl
 
 from jobserver.authorization import has_permission
@@ -70,12 +71,63 @@ def get_next_url(get_args):
 
 
 @method_decorator(login_required, name="dispatch")
-class ApplicationList(ListView):
-    context_object_name = "applications"
-    template_name = "applications/application_list.html"
+class ApplicationList(View):
+    def get(self, request, *args, **kwargs):
+        applications = Application.objects.filter(created_by=self.request.user)
 
-    def get_queryset(self):
-        return Application.objects.filter(created_by=self.request.user)
+        context = {
+            "applications": applications.filter(deleted_at=None),
+            "deleted_applications": applications.exclude(deleted_at=None),
+        }
+
+        return TemplateResponse(request, "applications/application_list.html", context)
+
+
+@method_decorator(login_required, name="dispatch")
+class ApplicationRemove(View):
+    def post(self, request, *args, **kwargs):
+        application = get_object_or_404(
+            Application,
+            pk=unhash_or_404(self.kwargs["pk_hash"]),
+        )
+
+        if application.created_by != request.user:
+            raise Http404
+
+        if application.is_approved:
+            messages.error(request, "You cannot delete an approved Application.")
+            return redirect("applications:list")
+
+        if application.is_deleted:
+            messages.error(
+                request, f"Application {application.pk_hash} has already been deleted"
+            )
+            return redirect("applications:list")
+
+        application.deleted_at = timezone.now()
+        application.deleted_by = request.user
+        application.save()
+
+        return redirect("applications:list")
+
+
+@method_decorator(login_required, name="dispatch")
+class ApplicationRestore(View):
+    def post(self, request, *args, **kwargs):
+        application = get_object_or_404(
+            Application,
+            pk=unhash_or_404(self.kwargs["pk_hash"]),
+        )
+
+        if application.created_by != request.user:
+            raise Http404
+
+        if application.is_deleted:
+            application.deleted_at = None
+            application.deleted_by = None
+            application.save()
+
+        return redirect("applications:list")
 
 
 class PageRedirect(RedirectView):
@@ -159,6 +211,11 @@ class ResearcherEdit(UpdateView):
 @login_required
 def page(request, pk_hash, key):
     application = get_object_or_404(Application, pk=unhash_or_404(pk_hash))
+
+    if application.is_deleted:
+        msg = f"Application {application.pk_hash} has been deleted, you need to restore it before you can view it."
+        messages.error(request, msg)
+        return redirect("applications:list")
 
     # check the user can access this application
     validate_application_access(request.user, application)

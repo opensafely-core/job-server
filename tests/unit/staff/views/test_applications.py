@@ -2,6 +2,7 @@ import pytest
 from django.contrib.messages.storage.fallback import FallbackStorage
 from django.core.exceptions import ObjectDoesNotExist, PermissionDenied
 from django.http import Http404
+from django.urls import reverse
 from django.utils import timezone
 
 from applications.models import Application
@@ -11,6 +12,8 @@ from staff.views.applications import (
     ApplicationDetail,
     ApplicationEdit,
     ApplicationList,
+    ApplicationRemove,
+    ApplicationRestore,
 )
 
 from ....factories import ApplicationFactory, OrgFactory, UserFactory
@@ -67,6 +70,34 @@ def test_applicationapprove_post_success(rf, core_developer, complete_applicatio
 
     assert complete_application.approved_at
     assert complete_application.approved_by == core_developer
+
+
+def test_applicationapprove_with_deleted_application(
+    rf, core_developer, complete_application
+):
+    application = complete_application
+    application.deleted_at = timezone.now()
+    application.deleted_by = core_developer
+    application.save()
+
+    request = rf.get("/")
+    request.user = core_developer
+
+    # set up messages framework
+    request.session = "session"
+    messages = FallbackStorage(request)
+    request._messages = messages
+
+    response = ApplicationApprove.as_view()(request, pk_hash=application.pk_hash)
+
+    assert response.status_code == 302
+    assert response.url == reverse("staff:application-list")
+
+    # check we have a message for the user
+    messages = list(messages)
+    assert len(messages) == 1
+    msg = f"Application {complete_application.pk_hash} has been deleted, you need to restore it before you can approve it."
+    assert str(messages[0]) == msg
 
 
 def test_applicationapprove_with_unknown_application(rf, core_developer):
@@ -138,6 +169,34 @@ def test_applicationdetail_success_with_incomplete_application(
     assert response.context_data["pages"][0]["started"] is True
     assert "Mickey Mouse" in response.rendered_content
     assert "User has not started this page" in response.rendered_content
+
+
+def test_applicationdetail_with_deleted_application(
+    rf, core_developer, complete_application
+):
+    application = complete_application
+    application.deleted_at = timezone.now()
+    application.deleted_by = core_developer
+    application.save()
+
+    request = rf.get("/")
+    request.user = core_developer
+
+    # set up messages framework
+    request.session = "session"
+    messages = FallbackStorage(request)
+    request._messages = messages
+
+    response = ApplicationDetail.as_view()(request, pk_hash=application.pk_hash)
+
+    assert response.status_code == 302
+    assert response.url == reverse("staff:application-list")
+
+    # check we have a message for the user
+    messages = list(messages)
+    assert len(messages) == 1
+    msg = f"Application {complete_application.pk_hash} has been deleted, you need to restore it before you can view it."
+    assert str(messages[0]) == msg
 
 
 def test_applicationdetail_with_unknown_user(rf, core_developer):
@@ -309,6 +368,34 @@ def test_applicationedit_unknown_application(rf, core_developer):
         ApplicationEdit.as_view()(request, pk_hash="")
 
 
+def test_applicationedit_with_deleted_application(
+    rf, core_developer, complete_application
+):
+    application = complete_application
+    application.deleted_at = timezone.now()
+    application.deleted_by = core_developer
+    application.save()
+
+    request = rf.get("/")
+    request.user = core_developer
+
+    # set up messages framework
+    request.session = "session"
+    messages = FallbackStorage(request)
+    request._messages = messages
+
+    response = ApplicationEdit.as_view()(request, pk_hash=application.pk_hash)
+
+    assert response.status_code == 302
+    assert response.url == reverse("staff:application-list")
+
+    # check we have a message for the user
+    messages = list(messages)
+    assert len(messages) == 1
+    msg = f"Application {complete_application.pk_hash} has been deleted, you need to restore it before you can edit it."
+    assert str(messages[0]) == msg
+
+
 def test_applicationedit_without_core_dev_role(rf):
     application = ApplicationFactory()
 
@@ -330,3 +417,124 @@ def test_applicationlist_success(rf, core_developer):
     assert response.status_code == 200
 
     assert len(response.context_data["object_list"]) == 5
+
+
+def test_applicationremove_already_approved(rf, core_developer):
+    application = ApplicationFactory(
+        approved_at=timezone.now(), approved_by=core_developer
+    )
+
+    request = rf.post("/")
+    request.user = core_developer
+
+    # set up messages framework
+    request.session = "session"
+    messages = FallbackStorage(request)
+    request._messages = messages
+
+    response = ApplicationRemove.as_view()(request, pk_hash=application.pk_hash)
+
+    assert response.status_code == 302
+    assert response.url == application.get_staff_url()
+
+    # check we have a message for the user
+    messages = list(messages)
+    assert len(messages) == 1
+    assert str(messages[0]) == "You cannot delete an approved Application."
+
+
+def test_applicationremove_already_deleted(rf, core_developer):
+    application = ApplicationFactory(
+        deleted_at=timezone.now(), deleted_by=UserFactory()
+    )
+
+    request = rf.post("/")
+    request.user = core_developer
+
+    # set up messages framework
+    request.session = "session"
+    messages = FallbackStorage(request)
+    request._messages = messages
+
+    response = ApplicationRemove.as_view()(request, pk_hash=application.pk_hash)
+
+    assert response.status_code == 302
+    assert response.url == application.get_staff_url()
+
+    # check we have a message for the user
+    messages = list(messages)
+    assert len(messages) == 1
+    assert str(messages[0]) == "Application has already been deleted"
+
+
+def test_applicationremove_success(rf, core_developer):
+    application = ApplicationFactory()
+
+    request = rf.post("/")
+    request.user = core_developer
+
+    response = ApplicationRemove.as_view()(request, pk_hash=application.pk_hash)
+
+    assert response.status_code == 302
+    assert response.url == reverse("staff:application-list")
+
+
+def test_applicationremove_unknown_application(rf, core_developer):
+    request = rf.post("/")
+    request.user = core_developer
+
+    with pytest.raises(Http404):
+        ApplicationRemove.as_view()(request, pk_hash="")
+
+
+def test_applicationremove_without_core_dev_role(rf):
+    application = ApplicationFactory()
+
+    request = rf.post("/")
+    request.user = UserFactory()
+
+    with pytest.raises(PermissionDenied):
+        ApplicationRemove.as_view()(request, pk_hash=application.pk_hash)
+
+
+def test_applicationrestore_already_deleted(rf, core_developer):
+    application = ApplicationFactory(
+        deleted_at=timezone.now(), deleted_by=UserFactory()
+    )
+
+    request = rf.post("/")
+    request.user = core_developer
+
+    response = ApplicationRestore.as_view()(request, pk_hash=application.pk_hash)
+
+    assert response.status_code == 302
+    assert response.url == reverse("staff:application-list")
+
+
+def test_applicationrestore_success(rf, core_developer):
+    application = ApplicationFactory()
+
+    request = rf.post("/")
+    request.user = core_developer
+
+    response = ApplicationRestore.as_view()(request, pk_hash=application.pk_hash)
+
+    assert response.status_code == 302
+    assert response.url == reverse("staff:application-list")
+
+
+def test_applicationrestore_unknown_application(rf, core_developer):
+    request = rf.post("/")
+    request.user = core_developer
+
+    with pytest.raises(Http404):
+        ApplicationRestore.as_view()(request, pk_hash="")
+
+
+def test_applicationrestore_without_core_dev_role(rf):
+    application = ApplicationFactory()
+
+    request = rf.post("/")
+    request.user = UserFactory()
+    with pytest.raises(PermissionDenied):
+        ApplicationRestore.as_view()(request, pk_hash=application.pk_hash)

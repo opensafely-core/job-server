@@ -31,6 +31,56 @@ def test_application_get_absolute_url():
     )
 
 
+def test_application_get_edit_url():
+    application = ApplicationFactory()
+
+    url = application.get_edit_url()
+
+    return url == reverse(
+        "staff:application-edit", kwargs={"pk_hash": application.pk_hash}
+    )
+
+
+def test_application_get_delete_url():
+    application = ApplicationFactory()
+
+    url = application.get_delete_url()
+
+    return url == reverse(
+        "applications:delete", kwargs={"pk_hash": application.pk_hash}
+    )
+
+
+def test_application_get_restore_url():
+    application = ApplicationFactory()
+
+    url = application.get_restore_url()
+
+    return url == reverse(
+        "applications:restore", kwargs={"pk_hash": application.pk_hash}
+    )
+
+
+def test_application_get_staff_delete_url():
+    application = ApplicationFactory()
+
+    url = application.get_staff_delete_url()
+
+    return url == reverse(
+        "staff:application-delete", kwargs={"pk_hash": application.pk_hash}
+    )
+
+
+def test_application_get_staff_restore_url():
+    application = ApplicationFactory()
+
+    url = application.get_staff_restore_url()
+
+    return url == reverse(
+        "staff:application-restore", kwargs={"pk_hash": application.pk_hash}
+    )
+
+
 def test_application_get_staff_url():
     application = ApplicationFactory()
 
@@ -39,6 +89,15 @@ def test_application_get_staff_url():
     return url == reverse(
         "staff:application-detail", kwargs={"pk_hash": application.pk_hash}
     )
+
+
+def test_application_is_deleted():
+    assert not ApplicationFactory().is_deleted
+
+    application = ApplicationFactory(
+        deleted_at=timezone.now(), deleted_by=UserFactory()
+    )
+    assert application.is_deleted
 
 
 def test_application_str():

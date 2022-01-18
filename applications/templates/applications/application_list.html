@@ -32,22 +32,50 @@
 
 {% block content %}
 <article class="container" id="applicationForm">
-  {% if applications %}
+  {% if applications or deleted_applications %}
   <div class="row">
+
     <div class="col-12">
       <p>These are individual OpenSAFELY applications that have been started by you.</p>
     </div>
+
     <div class="col col-lg-9 col-xl-8">
-      <div class="list-group list-unstyled">
+
+      <div class="list-group list-unstyled mb-4">
         {% for application in applications %}
         <div class="list-group-item d-flex justify-content-between align-items-center">
           <a href="{{ application.get_absolute_url }}">
             Application {{ application.pk_hash }} started on {{ application.created_at|date }}
           </a>
-          <span>{{ application.get_status_display }}</span>
+          <div class="d-flex justify-content-between align-items-center">
+            <span>{{ application.get_status_display }}</span>
+            <form class="ml-2" method="POST" action="{{ application.get_delete_url }}">
+              {% csrf_token %}
+              <button class="btn btn-sm btn-danger" type="submit">Delete</button>
+            </form>
+          </div>
         </div>
         {% endfor %}
       </div>
+
+      <p>These are your deleted OpenSAFELY applications.</p>
+
+      <div class="list-group list-unstyled">
+        {% for application in deleted_applications %}
+        <div class="list-group-item d-flex justify-content-between align-items-center">
+          <p>
+            Application {{ application.pk_hash }} started on {{ application.created_at|date }}
+          </p>
+          <div class="d-flex justify-content-between align-items-center">
+            <form class="ml-2" method="POST" action="{{ application.get_restore_url }}">
+              {% csrf_token %}
+              <button class="btn btn-sm btn-danger" type="submit">Restore</button>
+            </form>
+          </div>
+        </div>
+        {% endfor %}
+      </div>
+
     </div>
   </div>
   {% else %}

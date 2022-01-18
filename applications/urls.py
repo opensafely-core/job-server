@@ -3,6 +3,8 @@ from django.views.generic import RedirectView, TemplateView
 
 from .views import (
     ApplicationList,
+    ApplicationRemove,
+    ApplicationRestore,
     Confirmation,
     PageRedirect,
     ResearcherCreate,
@@ -46,6 +48,14 @@ urlpatterns = [
         "applications/<str:pk_hash>/confirmation/",
         Confirmation.as_view(),
         name="confirmation",
+    ),
+    path(
+        "applications/<str:pk_hash>/delete/", ApplicationRemove.as_view(), name="delete"
+    ),
+    path(
+        "applications/<str:pk_hash>/restore/",
+        ApplicationRestore.as_view(),
+        name="restore",
     ),
     path("applications/<str:pk_hash>/researchers/", include(researcher_urls)),
 ]
