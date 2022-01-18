@@ -46,6 +46,7 @@ clean:
 # ensure dev requirements installed and up to date
 devenv: prodenv requirements-dev && install-precommit
     #!/usr/bin/env bash
+    set -eu
     # exit if .txt file has not changed since we installed them (-nt == "newer than', but we negate with || to avoid error exit code)
     test requirements.dev.txt -nt $VIRTUAL_ENV/.dev || exit 0
 
@@ -79,6 +80,7 @@ lint: devenv
 # ensure prod requirements installed and up to date
 prodenv: requirements-prod
     #!/usr/bin/env bash
+    set -eu
     # exit if .txt file has not changed since we installed them (-nt == "newer than', but we negate with || to avoid error exit code)
     test requirements.prod.txt -nt $VIRTUAL_ENV/.prod || exit 0
 
