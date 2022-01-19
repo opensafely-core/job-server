@@ -103,9 +103,9 @@ charset-normalizer==2.0.2 \
     --hash=sha256:3c502a35807c9df35697b0f44b1d65008f83071ff29c69677c7c22573bc5a45a \
     --hash=sha256:951567c2f7433a70ab63f1be67e5ee05d3925d9423306ecb71a3b272757bcc95
     # via requests
-cli-helpers[styles]==2.1.0 \
-    --hash=sha256:6fe25b8fa78030a88f41b2af9ae4699bb341970773b444bd522f3627bd4485f2 \
-    --hash=sha256:dd6f164310f7d86fa3da1f82043a9c784e44a02ad49be932a80624261e56979b
+cli-helpers[styles]==2.2.1 \
+    --hash=sha256:0ccc1cfcda1ac64dc7ed83d7013055cf19e5979d29e56c21f3b692de01555aae \
+    --hash=sha256:e1a67c6e2cd95857fe50f7640549c65af8df5c4d7666af4e6d8c8ee7dbb694b4
     # via pgcli
 click==8.0.1 \
     --hash=sha256:8c04c11192119b1ef78ea049e0a6f0463e4c48ef00a30160c704337586f3ad7a \
@@ -326,9 +326,9 @@ pendulum==2.1.2 \
     --hash=sha256:f888f2d2909a414680a29ae74d0592758f2b9fcdee3549887779cd4055e975db \
     --hash=sha256:fb53ffa0085002ddd43b6ca61a7b34f2d4d7c3ed66f931fe599e1a531b42af9b
     # via pgcli
-pgcli==3.3.0 \
-    --hash=sha256:3d0ed40df691d60254ccb4d5654a52c1c6373f77d2b3cf6a90aea6ee99fea439 \
-    --hash=sha256:6b9b65ed851eb65cedcf4a6d1e8992822e33cf1917309c8d10cd5daeb280bde3
+pgcli==3.3.1 \
+    --hash=sha256:88cc7153c892125387568b888c1ae7657dfdd4aff9828b0e2afd97aee0331bfb \
+    --hash=sha256:fccc9e55ca68a4ad0887acfa2991afb3b8af93f3cce9ada249e6ad89879933a1
     # via -r requirements.prod.in
 pgspecial==1.13.0 \
     --hash=sha256:3847e205b19469f16ded05bda24b4758056d67ade4075a5ded4ce6628a9bad01 \
@@ -602,9 +602,6 @@ structlog==21.1.0 \
 tabulate[widechars]==0.8.9 \
     --hash=sha256:d7c013fe7abbc5e491394e10fa845f8f32fe54f8dc60c6622c6cf482d25d47e4 \
     --hash=sha256:eb1d13f25760052e8931f2ef80aaf6045a6cceb47514db8beab24cded16f13a7
-    # via cli-helpers
-terminaltables==3.1.0 \
-    --hash=sha256:f3eb0eb92e3833972ac36796293ca0906e998dc3be91fbe1f8615b331b853b81
     # via cli-helpers
 typing-extensions==3.10.0.0 \
     --hash=sha256:0ac0f89795dd19de6b97debb0c6af1c70987fd80a2d62d1958f7e56fcc31b497 \
