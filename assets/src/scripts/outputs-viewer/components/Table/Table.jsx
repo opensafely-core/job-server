@@ -2,7 +2,6 @@
 import PropTypes from "prop-types";
 import React from "react";
 import { readString } from "react-papaparse";
-import NoPreview from "../NoPreview/NoPreview";
 
 function TableCell({ cell }) {
   return <td>{cell}</td>;
@@ -23,8 +22,6 @@ function Table({ data }) {
     chunk: true,
     complete: (results) => results,
   }).data;
-
-  if (jsonData.length >= 5000) return <NoPreview />;
 
   if (jsonData.length >= 1000) {
     return (
