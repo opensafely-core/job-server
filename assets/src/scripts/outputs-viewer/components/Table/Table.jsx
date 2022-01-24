@@ -1,7 +1,7 @@
 /* eslint-disable react/no-array-index-key */
 import PropTypes from "prop-types";
 import React from "react";
-import { readString } from "react-papaparse";
+import { usePapaParse } from "react-papaparse";
 
 function TableCell({ cell }) {
   return <td>{cell}</td>;
@@ -18,6 +18,8 @@ function TableRow({ row }) {
 }
 
 function Table({ data }) {
+  const { readString } = usePapaParse();
+
   const jsonData = readString(data, {
     chunk: true,
     complete: (results) => results,
