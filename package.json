@@ -46,7 +46,7 @@
     "window-resizeto": "^0.0.2"
   },
   "dependencies": {
-    "@sentry/react": "^6.16.1",
+    "@sentry/react": "^6.17.0",
     "@ttskch/select2-bootstrap4-theme": "^1.5.2",
     "axios": "^0.24.0",
     "bootstrap": "^4.6.1",
