@@ -92,10 +92,9 @@ class JobRequestCreate(CreateView):
         action_status_lut = self.workspace.get_action_status_lut()
 
         # build actions as list or render the exception to the page
-        gh_org = self.request.user.orgs.first().github_orgs[0]
         try:
             self.project = get_project(
-                gh_org,
+                self.workspace.repo_owner,
                 self.workspace.repo_name,
                 self.workspace.branch,
             )
@@ -112,8 +111,11 @@ class JobRequestCreate(CreateView):
 
     @transaction.atomic
     def form_valid(self, form):
-        gh_org = self.request.user.orgs.first().github_orgs[0]
-        sha = get_branch_sha(gh_org, self.workspace.repo_name, self.workspace.branch)
+        sha = get_branch_sha(
+            self.workspace.repo_owner,
+            self.workspace.repo_name,
+            self.workspace.branch,
+        )
 
         backend = Backend.objects.get(slug=form.cleaned_data.pop("backend"))
         backend.job_requests.create(
