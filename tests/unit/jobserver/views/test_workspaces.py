@@ -29,6 +29,8 @@ from ....factories import (
     BackendMembershipFactory,
     JobFactory,
     JobRequestFactory,
+    OrgFactory,
+    OrgMembershipFactory,
     ProjectFactory,
     ProjectMembershipFactory,
     ReleaseFactory,
@@ -318,6 +320,26 @@ def test_workspacecreate_without_github(rf, mocker, user):
         "please reload the page to try again."
     )
     assert str(messages[0]) == expected
+
+
+def test_workspacecreate_without_github_orgs(rf):
+    user = UserFactory()
+
+    org = OrgFactory(github_orgs=[])
+    OrgMembershipFactory(org=org, user=user)
+
+    project = ProjectFactory(org=org)
+    ProjectMembershipFactory(project=project, user=user, roles=[ProjectDeveloper])
+
+    request = rf.get("/")
+    request.user = user
+
+    response = WorkspaceCreate.as_view()(
+        request, org_slug=project.org.slug, project_slug=project.slug
+    )
+
+    assert response.status_code == 200
+    assert response.template_name == "workspace_create_no_github_orgs.html"
 
 
 def test_workspacecreate_without_permission(rf, user):

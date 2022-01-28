@@ -5,6 +5,7 @@ from django.http import FileResponse, Http404, HttpResponse
 from django.shortcuts import get_object_or_404, redirect
 from django.template.response import TemplateResponse
 from django.views.generic import CreateView, ListView, View
+from first import first
 from furl import furl
 from pybadges import badge
 
@@ -120,7 +121,13 @@ class WorkspaceCreate(CreateView):
         if not can_create_workspaces:
             raise Http404
 
-        gh_org = self.request.user.orgs.first().github_orgs[0]
+        gh_org = first(self.request.user.orgs.first().github_orgs)
+        if gh_org is None:
+            return TemplateResponse(
+                request,
+                "workspace_create_no_github_orgs.html",
+                context={"project": self.project},
+            )
 
         try:
             self.repos_with_branches = list(get_repos_with_branches(gh_org))
