@@ -12,7 +12,13 @@ env = Env()
 AUTHORIZATION_ORGS = env.list("AUTHORIZATION_ORGS")
 BASE_URL = "https://api.github.com"
 GITHUB_TOKEN = env.str("GITHUB_TOKEN")
-USER_AGENT = "OpenSAFELY Jobs"
+
+
+session = requests.Session()
+session.headers = {
+    "Authorization": f"bearer {GITHUB_TOKEN}",
+    "User-Agent": "OpenSAFELY Jobs",
+}
 
 
 def _get_query_page(*, query, session, cursor, **kwargs):
@@ -60,12 +66,6 @@ def _iter_query_results(query, **kwargs):
     wraps the actual API calls done in _get_query_page and tracks the cursor.
     one.
     """
-    session = requests.Session()
-    session.headers = {
-        "Authorization": f"bearer {GITHUB_TOKEN}",
-        "User-Agent": USER_AGENT,
-    }
-
     cursor = ""
     while True:
         data = _get_query_page(
@@ -96,10 +96,8 @@ def get_branch(org, repo, branch):
 
     headers = {
         "Accept": "application/vnd.github.v3+json",
-        "Authorization": f"token {GITHUB_TOKEN}",
-        "User-Agent": USER_AGENT,
     }
-    r = requests.get(f.url, headers=headers)
+    r = session.get(f.url, headers=headers)
 
     if r.status_code == 404:
         return
@@ -131,10 +129,8 @@ def get_file(org, repo, branch):
 
     headers = {
         "Accept": "application/vnd.github.3.raw",
-        "Authorization": f"token {GITHUB_TOKEN}",
-        "User-Agent": USER_AGENT,
     }
-    r = requests.get(f.url, headers=headers)
+    r = session.get(f.url, headers=headers)
 
     if r.status_code == 404:
         return
@@ -154,10 +150,8 @@ def get_repo(org, repo):
 
     headers = {
         "Accept": "application/vnd.github.v3+json",
-        "Authorization": f"token {GITHUB_TOKEN}",
-        "User-Agent": USER_AGENT,
     }
-    r = requests.get(f.url, headers=headers)
+    r = session.get(f.url, headers=headers)
 
     if r.status_code == 404:
         return
@@ -268,11 +262,9 @@ def is_member_of_org(org, username):
 
     headers = {
         "Accept": "application/vnd.github.v3+json",
-        "Authorization": f"token {GITHUB_TOKEN}",
-        "User-Agent": USER_AGENT,
     }
 
-    r = requests.get(f.url, headers=headers)
+    r = session.get(f.url, headers=headers)
 
     if r.status_code == 204:
         return True

@@ -27,7 +27,6 @@ def test_get_branch():
     call = responses.calls[0]
 
     # check the headers are correct
-    assert "token" in call.request.headers["Authorization"]
     assert call.request.headers["Accept"] == "application/vnd.github.v3+json"
     assert call.response.text == '{"test": "test"}'
 
@@ -78,7 +77,6 @@ def test_get_file():
     call = responses.calls[0]
 
     # check the headers are correct
-    assert "token" in call.request.headers["Authorization"]
     assert call.request.headers["Accept"] == "application/vnd.github.3.raw"
 
     assert call.response.text == "a file!"
@@ -96,7 +94,6 @@ def test_get_file_missing_project_yml():
     call = responses.calls[0]
 
     # check the headers are correct
-    assert "token" in call.request.headers["Authorization"]
     assert call.request.headers["Accept"] == "application/vnd.github.3.raw"
 
     assert output is None
@@ -114,7 +111,6 @@ def test_get_repo():
     call = responses.calls[0]
 
     # check the headers are correct
-    assert "token" in call.request.headers["Authorization"]
     assert call.request.headers["Accept"] == "application/vnd.github.v3+json"
     assert call.response.text == '{"test": "test"}'
 
@@ -133,7 +129,6 @@ def test_get_repo_is_private():
     call = responses.calls[0]
 
     # check the headers are correct
-    assert "token" in call.request.headers["Authorization"]
     assert call.request.headers["Accept"] == "application/vnd.github.v3+json"
     assert call.response.text == '{"private": true}'
 
@@ -152,7 +147,6 @@ def test_get_repo_is_private_with_unknown_repo():
     call = responses.calls[0]
 
     # check the headers are correct
-    assert "token" in call.request.headers["Authorization"]
     assert call.request.headers["Accept"] == "application/vnd.github.v3+json"
 
     assert is_private is None
@@ -170,7 +164,6 @@ def test_get_repo_with_unknown_repo():
     call = responses.calls[0]
 
     # check the headers are correct
-    assert "token" in call.request.headers["Authorization"]
     assert call.request.headers["Accept"] == "application/vnd.github.v3+json"
 
     assert output is None
@@ -218,9 +211,6 @@ def test_get_repos_with_branches():
 
     assert len(responses.calls) == 2
 
-    # check the headers are correct
-    assert "bearer" in responses.calls[0].request.headers["Authorization"]
-
     assert len(output) == 2
     assert output[0]["name"] == "test-repo"
     assert output[0]["branches"][0] == "branch1"
@@ -264,9 +254,6 @@ def test_get_repos_with_dates():
 
     assert len(responses.calls) == 2
 
-    # check the headers are correct
-    assert "bearer" in responses.calls[0].request.headers["Authorization"]
-
     assert len(output) == 2
     assert output[0]["name"] == "test-repo"
 
@@ -281,7 +268,6 @@ def test_is_member_of_org_failure(monkeypatch):
 
     # check the headers are correct
     call = responses.calls[0]
-    assert "token" in call.request.headers["Authorization"]
     assert call.request.headers["Accept"] == "application/vnd.github.v3+json"
     assert not call.response.text
 
@@ -296,7 +282,6 @@ def test_is_member_of_org_success(monkeypatch):
 
     # check the headers are correct
     call = responses.calls[0]
-    assert "token" in call.request.headers["Authorization"]
     assert call.request.headers["Accept"] == "application/vnd.github.v3+json"
     assert not call.response.text
 
