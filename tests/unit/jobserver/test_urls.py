@@ -100,6 +100,7 @@ def test_url_redirects(client, url, redirect):
         ("/staff/backends/42/edit/", staff_backends.BackendEdit),
         ("/staff/backends/42/rotate-token/", staff_backends.BackendRotateToken),
         ("/staff/orgs/add/", staff_orgs.OrgCreate),
+        ("/staff/orgs/o/add-github-org/", staff_orgs.org_add_github_org),
         ("/staff/orgs/o/remove-github-org/", staff_orgs.OrgRemoveGitHubOrg),
         ("/staff/projects/", staff_projects.ProjectList),
         ("/staff/projects/p/", staff_projects.ProjectDetail),

@@ -41,6 +41,10 @@ const config = {
           dest: "./assets/dist/vendor",
         },
         {
+          src: "./node_modules/htmx.org/dist/htmx.min.js",
+          dest: "./assets/dist/vendor",
+        },
+        {
           src: "./node_modules/jquery/dist/jquery.slim.min.*",
           dest: "./assets/dist/vendor",
         },

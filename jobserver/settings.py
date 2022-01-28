@@ -50,6 +50,7 @@ INSTALLED_APPS = [
     "debug_toolbar",
     "django_browser_reload",
     "django_extensions",
+    "django_htmx",
     "django_vite",
     "rest_framework",
     "social_django",
@@ -74,6 +75,7 @@ MIDDLEWARE = [
     "django.middleware.clickjacking.XFrameOptionsMiddleware",
     "django_structlog.middlewares.RequestMiddleware",
     "social_django.middleware.SocialAuthExceptionMiddleware",
+    "django_htmx.middleware.HtmxMiddleware",
 ]
 
 ROOT_URLCONF = "jobserver.urls"

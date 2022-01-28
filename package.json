@@ -50,6 +50,7 @@
     "@ttskch/select2-bootstrap4-theme": "^1.5.2",
     "axios": "^0.24.0",
     "bootstrap": "^4.6.1",
+    "htmx.org": "^1.6.1",
     "jquery": "^3.5.1",
     "just-debounce-it": "^3.0.1",
     "list.js": "^2.3.0",

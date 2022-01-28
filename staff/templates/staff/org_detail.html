@@ -62,7 +62,7 @@
     <div class="col col-lg-9 col-xl-8">
 
       <h2 class="h3">GitHub Orgs</h2>
-      {% if github_orgs %}
+
       <div class="list-group mb-4">
         {% for github_org in github_orgs %}
         <div class="list-group-item d-flex justify-content-between align-items-center">
@@ -79,10 +79,16 @@
           </div>
         </div>
         {% endfor %}
+        <div class="list-group-item list-group-item-success">
+          <button
+            class="btn ml-n2"
+            hx-get="{% url 'staff:org-add-github-org' slug=org.slug %}"
+            hx-swap="outerHTML"
+            type="button">
+            Add a GitHub organisation
+          </button>
+        </div>
       </div>
-      {% else %}
-      <p class="mb-4">No GitHub Orgs</p>
-      {% endif %}
 
       <h2 class="h3">Members</h2>
 
@@ -150,6 +156,7 @@
 {% endblock staff_content %}
 
 {% block extra_js %}
+<script type="text/javascript" src="{% static 'vendor/htmx.min.js' %}"></script>
 <script type="text/javascript" src="{% static 'vendor/select2.min.js' %}"></script>
 <script type="text/javascript">
   $(document).ready(function() {

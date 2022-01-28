@@ -14,9 +14,84 @@ from staff.views.orgs import (
     OrgProjectCreate,
     OrgRemoveGitHubOrg,
     OrgRemoveMember,
+    org_add_github_org,
 )
 
 from ....factories import OrgFactory, OrgMembershipFactory, UserFactory
+
+
+def test_orgaddgithuborg_get_success(rf, core_developer):
+    org = OrgFactory(github_orgs=["one", "two"])
+
+    request = rf.get("/")
+    request.htmx = True
+    request.user = core_developer
+
+    response = org_add_github_org(request, slug=org.slug)
+
+    assert response.status_code == 200
+    assert response.context_data["form"]
+
+
+def test_orgaddgithuborg_not_htmx(rf, core_developer):
+    org = OrgFactory()
+
+    request = rf.get("/")
+    request.htmx = False
+    request.user = core_developer
+
+    response = org_add_github_org(request, slug=org.slug)
+
+    assert response.status_code == 302
+    assert response.url == org.get_staff_url()
+
+
+def test_orgaddgithuborg_post_invalid_form(rf, core_developer):
+    org = OrgFactory(github_orgs=["one", "two"])
+
+    request = rf.post("/", {"foo": "three"})
+    request.htmx = True
+    request.user = core_developer
+
+    response = org_add_github_org(request, slug=org.slug)
+
+    assert response.status_code == 200
+    assert response.context_data["form"].errors
+
+    org.refresh_from_db()
+    assert org.github_orgs == ["one", "two"]
+
+
+def test_orgaddgithuborg_post_success(rf, core_developer):
+    org = OrgFactory(github_orgs=["one", "two"])
+
+    request = rf.post("/", {"name": "three"})
+    request.htmx = True
+    request.user = core_developer
+
+    response = org_add_github_org(request, slug=org.slug)
+
+    assert response.status_code == 302
+    assert response.url == org.get_staff_url()
+
+    org.refresh_from_db()
+    assert org.github_orgs == ["one", "two", "three"]
+
+
+def test_orgaddgithuborg_unauthorized(rf, core_developer):
+    request = rf.post("/")
+    request.user = UserFactory()
+
+    with pytest.raises(PermissionDenied):
+        org_add_github_org(request)
+
+
+def test_orgaddgithuborg_unknown_org(rf, core_developer):
+    request = rf.post("/")
+    request.user = core_developer
+
+    with pytest.raises(Http404):
+        org_add_github_org(request, slug="test")
 
 
 def test_orgcreate_get_success(rf, core_developer):

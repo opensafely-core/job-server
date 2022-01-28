@@ -24,6 +24,7 @@ from .views.orgs import (
     OrgProjectCreate,
     OrgRemoveGitHubOrg,
     OrgRemoveMember,
+    org_add_github_org,
 )
 from .views.projects import (
     ProjectAddMember,
@@ -77,6 +78,7 @@ org_urls = [
     path("", OrgList.as_view(), name="org-list"),
     path("add/", OrgCreate.as_view(), name="org-create"),
     path("<slug>/", OrgDetail.as_view(), name="org-detail"),
+    path("<slug>/add-github-org/", org_add_github_org, name="org-add-github-org"),
     path("<slug>/add-project/", OrgProjectCreate.as_view(), name="org-project-create"),
     path("<slug>/edit/", OrgEdit.as_view(), name="org-edit"),
     path("<slug>/remove-member/", OrgRemoveMember.as_view(), name="org-remove-member"),
