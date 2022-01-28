@@ -1,3 +1,6 @@
+import concurrent
+import operator
+
 import requests
 from django.contrib import messages
 from django.contrib.auth.decorators import login_required
@@ -17,6 +20,12 @@ from ..emails import send_project_invite_email
 from ..forms import ProjectInvitationForm, ProjectMembershipForm
 from ..github import get_repo_is_private
 from ..models import Org, Project, ProjectInvitation, ProjectMembership, Snapshot, User
+
+
+# Create a global threadpool for getting repos.  This lets us have a single
+# pool across all requests and saves the overhead from setting up threads on
+# each request.
+repo_thread_pool = concurrent.futures.ThreadPoolExecutor(thread_name_prefix="get_repo")
 
 
 @method_decorator(login_required, name="dispatch")
@@ -125,13 +134,15 @@ class ProjectDetail(DetailView):
 
         workspaces = self.object.workspaces.order_by("is_archived", "name")
 
-        repos = sorted(set(workspaces.values_list("repo", flat=True)))
+        repos = set(workspaces.values_list("repo", flat=True))
 
         return super().get_context_data(**kwargs) | {
             "can_create_workspaces": can_create_workspaces,
             "can_manage_members": can_manage_members,
             "outputs": self.get_outputs(workspaces),
-            "repos": list(self.get_repos(repos)),
+            "repos": list(
+                sorted(self.iter_repos(repos), key=operator.itemgetter("name"))
+            ),
             "workspaces": workspaces,
         }
 
@@ -161,8 +172,8 @@ class ProjectDetail(DetailView):
 
         return Snapshot.objects.filter(pk__in=snapshot_pks).order_by("-published_at")
 
-    def get_repos(self, repo_urls):
-        for url in repo_urls:
+    def iter_repos(self, repo_urls):
+        def get_repo(url):
             f = furl(url)
 
             try:
@@ -170,11 +181,14 @@ class ProjectDetail(DetailView):
             except requests.HTTPError:
                 is_private = None
 
-            yield {
+            return {
                 "name": f.path.segments[1],
                 "url": url,
                 "is_private": is_private,
             }
+
+        # use the threadpool to parallelise the repo requests
+        yield from repo_thread_pool.map(get_repo, repo_urls, timeout=30)
 
 
 class ProjectInvitationCreate(CreateView):
