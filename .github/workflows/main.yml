@@ -97,7 +97,7 @@ jobs:
 
     steps:
       - uses: actions/checkout@v2
-      - uses: hadolint/hadolint-action@v1.6.0
+      - uses: hadolint/hadolint-action@d7b38582334d9ac11c12021c16f21d63015fa250
 
   deploy:
     needs: [test, lint-dockerfile]
