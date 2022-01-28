@@ -60,6 +60,21 @@
 <div class="container">
   <div class="row">
     <div class="col col-lg-9 col-xl-8">
+
+      <h2 class="h3">GitHub Orgs</h2>
+      {% if github_orgs %}
+      <div class="list-group mb-4">
+        {% for github_org in github_orgs %}
+        <div class="list-group-item d-flex justify-content-between align-items-center">
+          <span>{{ github_org }}</span>
+          <a class="btn btn-sm btn-primary" href="https://github.com/{{ github_org }}">View on GitHub</a>
+        </div>
+        {% endfor %}
+      </div>
+      {% else %}
+      <p class="mb-4">No GitHub Orgs</p>
+      {% endif %}
+
       <h2 class="h3">Members</h2>
 
       <form method="POST" class="mb-3">
