@@ -126,6 +126,23 @@ class OrgProjectCreate(CreateView):
 
 
 @method_decorator(require_role(CoreDeveloper), name="dispatch")
+class OrgRemoveGitHubOrg(View):
+    def post(self, request, *args, **kwargs):
+        org = get_object_or_404(Org, slug=self.kwargs["slug"])
+        name = request.POST.get("name", None)
+
+        try:
+            org.github_orgs.remove(name)
+        except ValueError:
+            messages.error(request, f"{name} is not assigned to {org.name}")
+        else:
+            org.save()
+            messages.success(request, f"Removed {name} from {org.name}")
+
+        return redirect(org.get_staff_url())
+
+
+@method_decorator(require_role(CoreDeveloper), name="dispatch")
 class OrgRemoveMember(View):
     def post(self, request, *args, **kwargs):
         org = get_object_or_404(Org, slug=self.kwargs["slug"])

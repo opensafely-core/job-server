@@ -22,6 +22,7 @@ from .views.orgs import (
     OrgEdit,
     OrgList,
     OrgProjectCreate,
+    OrgRemoveGitHubOrg,
     OrgRemoveMember,
 )
 from .views.projects import (
@@ -79,6 +80,11 @@ org_urls = [
     path("<slug>/add-project/", OrgProjectCreate.as_view(), name="org-project-create"),
     path("<slug>/edit/", OrgEdit.as_view(), name="org-edit"),
     path("<slug>/remove-member/", OrgRemoveMember.as_view(), name="org-remove-member"),
+    path(
+        "<slug>/remove-github-org/",
+        OrgRemoveGitHubOrg.as_view(),
+        name="org-remove-github-org",
+    ),
 ]
 project_urls = [
     path("", ProjectList.as_view(), name="project-list"),
