@@ -14,7 +14,7 @@ updates:
     schedule:
       interval: "weekly"
     allow:
-      dependency-type: "production"
+      - dependency-type: "production"
     reviewers:
       - "tomodwyer"
     open-pull-requests-limit: 20
