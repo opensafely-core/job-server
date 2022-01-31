@@ -132,32 +132,6 @@
           <p class="lead">There are no pending invitations for this project.</p>
         {% endif %}
 
-        {# Staff-only admin #}
-        {% if user_can_change_release_process %}
-          <div class="pt-5 mt-5 border-top" id="staff-admin">
-            <h2 class="h3 mb-3">Staff-only administration</h2>
-
-            <form method="POST" action="{{ project.get_release_process_toggle_url }}">
-              {% csrf_token %}
-              <fieldset>
-                <legend class="h4 mb-3">
-                  New release flow
-                </legend>
-
-                <div class="form-group">
-                  <p class="mb-0">Does this project use the new release flow?</p>
-                  <p class="text-capitalize"><strong>{{ form.uses_new_release_flow|yesno }}</strong></p>
-                </div>
-
-                <button class="btn btn-danger" type="submit">
-                  Use
-                  {% if project.uses_new_release_flow %}new{% else %}new{% endif %}
-                  release flow
-                </button>
-              </fieldset>
-            </form>
-          </div>
-        {% endif %}
       </div>
     </div>
   </div>
