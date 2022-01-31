@@ -150,7 +150,7 @@ class ProjectFeatureFlags(TemplateView):
 
 @method_decorator(require_role(CoreDeveloper), name="dispatch")
 class ProjectList(ListView):
-    queryset = Project.objects.select_related("org").order_by("name")
+    queryset = Project.objects.select_related("org").order_by(Lower("name"))
     template_name = "staff/project_list.html"
 
     def get_context_data(self, **kwargs):
