@@ -78,7 +78,7 @@ DEFAULT_KEY = 7901
 def hash(m, length=DEFAULT_LENGTH, key=DEFAULT_KEY):  # noqa: A001
     """Hash integer m to give a string."""
 
-    N = 16 ** length
+    N = 16**length
     assert key % 2 == 1
 
     if not 0 <= m < N:
@@ -93,7 +93,7 @@ def hash(m, length=DEFAULT_LENGTH, key=DEFAULT_KEY):  # noqa: A001
 def unhash(h, length=DEFAULT_LENGTH, key=DEFAULT_KEY):
     """Unhash string h to give an integer."""
 
-    N = 16 ** length
+    N = 16**length
     assert key % 2 == 1
 
     if len(h) != length:
