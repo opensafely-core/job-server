@@ -29,6 +29,7 @@ from .views.projects import (
     ProjectCreate,
     ProjectDetail,
     ProjectEdit,
+    ProjectFeatureFlags,
     ProjectList,
     ProjectMembershipEdit,
     ProjectMembershipRemove,
@@ -86,6 +87,11 @@ project_urls = [
     path("<slug>/", ProjectDetail.as_view(), name="project-detail"),
     path("<slug>/add-member/", ProjectAddMember.as_view(), name="project-add-member"),
     path("<slug>/edit/", ProjectEdit.as_view(), name="project-edit"),
+    path(
+        "<slug>/feature-flags/",
+        ProjectFeatureFlags.as_view(),
+        name="project-feature-flags",
+    ),
     path(
         "<slug>/members/<pk>/edit/",
         ProjectMembershipEdit.as_view(),

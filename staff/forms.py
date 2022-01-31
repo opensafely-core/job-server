@@ -100,6 +100,15 @@ class ProjectEditForm(forms.ModelForm):
         self.fields["copilot_support_ends_at"].required = False
 
 
+class ProjectFeatureFlagsForm(forms.Form):
+    flip_to = forms.ChoiceField(
+        choices=[
+            ("enable", "enable"),
+            ("disable", "disable"),
+        ],
+    )
+
+
 class ProjectMembershipForm(RolesForm):
     pass
 

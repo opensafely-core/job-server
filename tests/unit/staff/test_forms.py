@@ -1,6 +1,6 @@
 from jobserver.models import Backend
 from jobserver.utils import set_from_qs
-from staff.forms import ApplicationApproveForm, UserForm
+from staff.forms import ApplicationApproveForm, ProjectFeatureFlagsForm, UserForm
 
 from ...factories import BackendFactory, OrgFactory, ProjectFactory
 
@@ -23,6 +23,17 @@ def test_applicationapproveform_with_duplicate_project_name():
     assert form.errors == {
         "project_name": [f'Project "{project.name}" already exists.']
     }
+
+
+def test_projectfeatureflagsform_with_unknown_value():
+    form = ProjectFeatureFlagsForm({"flip_to": "test"})
+
+    assert not form.is_valid()
+
+    expected = {
+        "flip_to": ["Select a valid choice. test is not one of the available choices."]
+    }
+    assert form.errors == expected
 
 
 def test_userform_success():
