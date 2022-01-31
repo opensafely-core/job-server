@@ -7,14 +7,14 @@ from jobserver import hash_utils
 def test_roundtrip_1():
     # Verify that for every integer between 0 and 65535, hashing the integer and
     # unhashing the result returns the same integer.
-    for m in range(2 ** 16):
+    for m in range(2**16):
         assert hash_utils.unhash(hash_utils.hash(m)) == m
 
 
 def test_roundtrip_2():
     # Verify that for every hash string between "0000" and "ffff", unhashing the has and
     # hashing the result returns the same string.
-    for m_hash in range(2 ** 16):
+    for m_hash in range(2**16):
         # Construct a hash from an integer.  For the meaning of m_hash and h, see module
         # docstring in hash_utils.py.
         h = hex(m_hash)[2:].rjust(4, "0")
@@ -26,7 +26,7 @@ def test_invalid_hash_input():
         hash_utils.hash(-1)
 
     with pytest.raises(ValueError):
-        hash_utils.hash(2 ** 16 + 1)
+        hash_utils.hash(2**16 + 1)
 
 
 def test_invalid_unhash_input():
