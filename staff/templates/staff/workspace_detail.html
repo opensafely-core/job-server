@@ -37,6 +37,7 @@
     </ul>
 
     <div class="d-flex">
+      <a class="btn btn-danger mr-1" href="{{ workspace.get_staff_edit_url }}">Edit</a>
       <a class="btn btn-primary" href="{{ workspace.get_absolute_url }}">View on Site</a>
     </div>
   </div>
@@ -106,6 +107,26 @@
           <p class="card-body mb-0">
             <a href="{{ workspace.repo }}/tree/{{ workspace.branch }}">{{ workspace.repo_owner }}/{{ workspace.repo_name }}</a>
           </p>
+        </li>
+        <li class="card mb-3">
+          <h2 class="card-header h5">
+            Feature flags
+          </h2>
+          <ul class="list-group list-group-flush">
+            <li
+                class="
+                       list-group-item
+                       {% if workspace.uses_new_release_flow %}
+                       list-group-item-success
+                       {% else %}
+                       list-group-item-warning
+                       {% endif %}
+                       "
+                >
+                <strong>Jobs site release process:</strong>
+                {% if workspace.uses_new_release_flow %}Enabled{% else %}Disabled{% endif %}
+            </li>
+          </ul>
         </li>
       </ul>
     </div>

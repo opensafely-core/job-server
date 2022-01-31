@@ -36,7 +36,7 @@ from .views.projects import (
 from .views.repos import RepoList
 from .views.researchers import ResearcherEdit
 from .views.users import UserDetail, UserList, UserSetOrgs
-from .views.workspaces import WorkspaceDetail, WorkspaceList
+from .views.workspaces import WorkspaceDetail, WorkspaceEdit, WorkspaceList
 
 
 app_name = "staff"
@@ -111,6 +111,7 @@ user_urls = [
 workspace_urls = [
     path("", WorkspaceList.as_view(), name="workspace-list"),
     path("<slug>/", WorkspaceDetail.as_view(), name="workspace-detail"),
+    path("<slug>/edit/", WorkspaceEdit.as_view(), name="workspace-edit"),
 ]
 
 urlpatterns = [

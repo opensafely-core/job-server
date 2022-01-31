@@ -923,14 +923,6 @@ def test_workspace_get_files_url():
     )
 
 
-def test_workspace_get_staff_url():
-    workspace = WorkspaceFactory()
-
-    url = workspace.get_staff_url()
-
-    assert url == reverse("staff:workspace-detail", kwargs={"slug": workspace.name})
-
-
 def test_workspace_get_jobs_url():
     workspace = WorkspaceFactory()
 
@@ -1044,6 +1036,22 @@ def test_workspace_get_statuses_url():
     workspace = WorkspaceFactory()
     url = workspace.get_statuses_url()
     assert url == reverse("api:workspace-statuses", kwargs={"name": workspace.name})
+
+
+def test_workspace_get_staff_url():
+    workspace = WorkspaceFactory()
+
+    url = workspace.get_staff_url()
+
+    assert url == reverse("staff:workspace-detail", kwargs={"slug": workspace.name})
+
+
+def test_workspace_get_staff_edit_url():
+    workspace = WorkspaceFactory()
+
+    url = workspace.get_staff_edit_url()
+
+    assert url == reverse("staff:workspace-edit", kwargs={"slug": workspace.name})
 
 
 def test_workspace_get_action_status_lut_no_jobs():

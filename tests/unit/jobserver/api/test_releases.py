@@ -988,15 +988,15 @@ def test_validate_upload_access_unknown_user(rf):
 def test_workspacestatusapi_success(api_rf):
     request = api_rf.get("/")
 
-    project1 = ProjectFactory(uses_new_release_flow=True)
-    workspace1 = WorkspaceFactory(project=project1)
+    project1 = ProjectFactory()
+    workspace1 = WorkspaceFactory(project=project1, uses_new_release_flow=True)
 
     response = WorkspaceStatusAPI.as_view()(request, workspace_id=workspace1.name)
     assert response.status_code == 200
     assert response.data["uses_new_release_flow"]
 
-    project2 = ProjectFactory(uses_new_release_flow=False)
-    workspace2 = WorkspaceFactory(project=project2)
+    project2 = ProjectFactory()
+    workspace2 = WorkspaceFactory(project=project2, uses_new_release_flow=False)
 
     response = WorkspaceStatusAPI.as_view()(request, workspace_id=workspace2.name)
     assert response.status_code == 200

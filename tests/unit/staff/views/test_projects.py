@@ -147,7 +147,7 @@ def test_projectedit_get_unauthorized(rf):
 
 
 def test_projectedit_post_success(rf, core_developer):
-    project = ProjectFactory(uses_new_release_flow=False)
+    project = ProjectFactory()
 
     new_copilot = UserFactory()
 
@@ -155,7 +155,6 @@ def test_projectedit_post_success(rf, core_developer):
         "name": "new-name",
         "copilot": str(new_copilot.pk),
         "copilot_support_ends_at": "",
-        "uses_new_release_flow": True,
     }
     request = rf.post("/", data)
     request.user = core_developer
@@ -168,7 +167,6 @@ def test_projectedit_post_success(rf, core_developer):
     project.refresh_from_db()
     assert project.name == "new-name"
     assert project.copilot == new_copilot
-    assert project.uses_new_release_flow
 
 
 def test_projectedit_post_unauthorized(rf):

@@ -89,7 +89,6 @@ class ProjectEditForm(forms.ModelForm):
             "name",
             "copilot",
             "copilot_support_ends_at",
-            "uses_new_release_flow",
         ]
         model = Project
 
