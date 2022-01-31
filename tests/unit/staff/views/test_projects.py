@@ -181,6 +181,14 @@ def test_projectedit_post_unauthorized(rf):
         ProjectEdit.as_view()(request, slug=project.slug)
 
 
+def test_projectedit_post_unknown_project(rf, core_developer):
+    request = rf.post("/")
+    request.user = core_developer
+
+    with pytest.raises(Http404):
+        ProjectEdit.as_view()(request, slug="")
+
+
 def test_projectfeatureflags_get_success(rf, core_developer):
     project = ProjectFactory()
     WorkspaceFactory.create_batch(1, project=project, uses_new_release_flow=True)
