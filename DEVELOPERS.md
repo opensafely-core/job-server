@@ -111,6 +111,10 @@ pg_restore --clean --if-exists --no-acl --no-owner -d jobserver jobserver.dump
 
 Note: This assumes ident auth (the default in Postgres.app) is set up.
 
+Note: `pg_restore` will throw errors in various scenarios, which can often be ignored.
+The important line to check for (typically at the very end) is `errors ignored on restore: N`.
+Where `N` should match the number of errors you got.
+
 
 If using the docker-compose stack you'll need to do:
 
