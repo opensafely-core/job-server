@@ -59,6 +59,10 @@ class ApplicationApproveForm(forms.Form):
         return project_name
 
 
+class OrgAddGitHubOrgForm(forms.Form):
+    name = forms.CharField()
+
+
 class OrgAddMemberForm(PickUsersMixin, forms.Form):
     pass
 

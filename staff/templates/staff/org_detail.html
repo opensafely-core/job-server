@@ -60,6 +60,36 @@
 <div class="container">
   <div class="row">
     <div class="col col-lg-9 col-xl-8">
+
+      <h2 class="h3">GitHub Orgs</h2>
+
+      <div class="list-group mb-4">
+        {% for github_org in github_orgs %}
+        <div class="list-group-item d-flex justify-content-between align-items-center">
+          <span>{{ github_org }}</span>
+          <div class="d-flex justify-content-between">
+            <a class="btn btn-sm btn-primary mr-2" href="https://github.com/{{ github_org }}">View on GitHub</a>
+            <form method="POST" action="{% url 'staff:org-remove-github-org' slug=org.slug %}">
+              {% csrf_token %}
+              <input type="hidden" name="name" value="{{ github_org }}" />
+              <button class="btn btn-sm btn-danger" type="submit">
+                Remove <span class="sr-only">from {{ org.name }}</span>
+              </button>
+            </form>
+          </div>
+        </div>
+        {% endfor %}
+        <div class="list-group-item list-group-item-success">
+          <button
+            class="btn ml-n2"
+            hx-get="{% url 'staff:org-add-github-org' slug=org.slug %}"
+            hx-swap="outerHTML"
+            type="button">
+            Add a GitHub organisation
+          </button>
+        </div>
+      </div>
+
       <h2 class="h3">Members</h2>
 
       <form method="POST" class="mb-3">
@@ -126,6 +156,7 @@
 {% endblock staff_content %}
 
 {% block extra_js %}
+<script type="text/javascript" src="{% static 'vendor/htmx.min.js' %}"></script>
 <script type="text/javascript" src="{% static 'vendor/select2.min.js' %}"></script>
 <script type="text/javascript">
   $(document).ready(function() {

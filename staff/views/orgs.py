@@ -2,6 +2,7 @@ from django.contrib import messages
 from django.db import transaction
 from django.db.models.functions import Lower
 from django.shortcuts import get_object_or_404, redirect
+from django.template.response import TemplateResponse
 from django.utils.decorators import method_decorator
 from django.views.generic import CreateView, FormView, ListView, UpdateView, View
 
@@ -9,7 +10,33 @@ from jobserver.authorization import CoreDeveloper
 from jobserver.authorization.decorators import require_permission, require_role
 from jobserver.models import Org, OrgMembership, Project, User
 
-from ..forms import OrgAddMemberForm
+from ..forms import OrgAddGitHubOrgForm, OrgAddMemberForm
+
+
+@require_role(CoreDeveloper)
+def org_add_github_org(request, slug):
+    org = get_object_or_404(Org, slug=slug)
+
+    if not request.htmx:
+        return redirect(org.get_staff_url())
+
+    if request.POST:
+        form = OrgAddGitHubOrgForm(data=request.POST)
+    else:
+        form = OrgAddGitHubOrgForm()
+
+    if request.GET or not form.is_valid():
+        return TemplateResponse(
+            context={"form": form, "org": org},
+            request=request,
+            template="staff/org_add_github_orgs.htmx.html",
+        )
+
+    name = form.cleaned_data["name"]
+    org.github_orgs.append(name)
+    org.save()
+
+    return redirect(org.get_staff_url())
 
 
 @method_decorator(require_permission("org_create"), name="dispatch")
@@ -50,6 +77,7 @@ class OrgDetail(FormView):
 
     def get_context_data(self, **kwargs):
         return super().get_context_data(**kwargs) | {
+            "github_orgs": sorted(self.object.github_orgs),
             "members": self.object.members.order_by(Lower("username")),
             "org": self.object,
             "projects": self.object.projects.order_by("name"),
@@ -122,6 +150,23 @@ class OrgProjectCreate(CreateView):
         return super().get_context_data() | {
             "org": self.org,
         }
+
+
+@method_decorator(require_role(CoreDeveloper), name="dispatch")
+class OrgRemoveGitHubOrg(View):
+    def post(self, request, *args, **kwargs):
+        org = get_object_or_404(Org, slug=self.kwargs["slug"])
+        name = request.POST.get("name", None)
+
+        try:
+            org.github_orgs.remove(name)
+        except ValueError:
+            messages.error(request, f"{name} is not assigned to {org.name}")
+        else:
+            org.save()
+            messages.success(request, f"Removed {name} from {org.name}")
+
+        return redirect(org.get_staff_url())
 
 
 @method_decorator(require_role(CoreDeveloper), name="dispatch")

@@ -6,6 +6,7 @@ from datetime import timedelta
 import structlog
 from django.contrib.auth.models import AbstractUser
 from django.contrib.auth.models import UserManager as BaseUserManager
+from django.contrib.postgres.fields import ArrayField
 from django.core import signing
 from django.core.validators import validate_slug
 from django.db import models, transaction
@@ -343,7 +344,7 @@ class Org(models.Model):
     logo = models.TextField(default="", blank=True)
 
     # track which GitHub Organisations this Org has access to
-    github_orgs = models.JSONField(default=default_github_orgs)
+    github_orgs = ArrayField(models.TextField(), default=default_github_orgs)
 
     created_at = models.DateTimeField(default=timezone.now)
 

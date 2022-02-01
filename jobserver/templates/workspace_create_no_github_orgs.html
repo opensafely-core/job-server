@@ -1,0 +1,52 @@
+{% extends "base.html" %}
+
+{% block metatitle %}Create a workspace: {{ project.name }} | OpenSAFELY Jobs{% endblock metatitle %}
+
+{% block breadcrumbs %}
+<nav class="breadcrumb-container" aria-label="breadcrumb">
+  <div class="container">
+    <ol class="breadcrumb rounded-0 mb-0 px-0">
+      <li class="breadcrumb-item">
+        <a href="/">Home</a>
+      </li>
+      <li class="breadcrumb-item">
+        <a href="{{ project.org.get_absolute_url }}">
+          {{ project.org.name }}
+        </a>
+      </li>
+      <li class="breadcrumb-item">
+        <a href="{{ project.get_absolute_url }}">
+          {{ project.name }}
+        </a>
+      </li>
+      <li class="breadcrumb-item active" aria-current="page">
+        Create a workspace
+      </li>
+    </ol>
+  </div>
+</nav>
+{% endblock breadcrumbs %}
+
+{% block jumbotron %}
+<div class="jumbotron jumbotron-fluid">
+  <div class="container">
+    <h1>Create a workspace</h1>
+    <p class="lead">{{ project.name }}</p>
+  </div>
+</div>
+{% endblock jumbotron %}
+
+{% block content %}
+<div class="container">
+  <div class="row">
+    <div class="col-lg-9 col-xl-8">
+
+      <p>
+        Your organisation, {{ project.org.name }}, has no GitHub organisations
+        associated with it, please contact support.
+      </p>
+
+    </div>
+  </div>
+</div>
+{% endblock content %}

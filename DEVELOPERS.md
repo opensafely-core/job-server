@@ -200,9 +200,7 @@ This will start the Vite dev server at [localhost:3000](http://localhost:3000/) 
 To view the compiled assets:
 
 1. Update the `.env` file to `DJANGO_VITE_DEV_MODE=False`
-2. Run `npm ci`
-3. Run `npm run build`
-4. Run `python manage.py collectstatic`
+2. Run `just rebuild-static`
 
 Vite builds the assets and outputs them to the `assets/dist` folder.
 

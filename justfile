@@ -148,3 +148,10 @@ virtualenv:
 
     # ensure we have pip-tools so we can run pip-compile
     test -e $BIN/pip-compile || $PIP install pip-tools
+
+
+# update npm deps, build payload, and collect for Django
+rebuild-static:
+    npm ci
+    npm run build
+    $BIN/python manage.py collectstatic --no-input
