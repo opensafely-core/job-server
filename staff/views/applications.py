@@ -54,7 +54,8 @@ class ApplicationApprove(FormView):
         self.application.project = project
         self.application.save()
 
-        return redirect(self.application.get_staff_url())
+        # redirect to the project since that's the object we've created
+        return redirect(project.get_staff_url())
 
     def get_context_data(self, **kwargs):
         return super().get_context_data(**kwargs) | {
