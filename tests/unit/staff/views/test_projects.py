@@ -11,6 +11,7 @@ from staff.views.projects import (
     ProjectCreate,
     ProjectDetail,
     ProjectEdit,
+    ProjectFeatureFlags,
     ProjectList,
     ProjectMembershipEdit,
     ProjectMembershipRemove,
@@ -21,6 +22,7 @@ from ....factories import (
     ProjectFactory,
     ProjectMembershipFactory,
     UserFactory,
+    WorkspaceFactory,
 )
 
 
@@ -147,7 +149,7 @@ def test_projectedit_get_unauthorized(rf):
 
 
 def test_projectedit_post_success(rf, core_developer):
-    project = ProjectFactory(uses_new_release_flow=False)
+    project = ProjectFactory()
 
     new_copilot = UserFactory()
 
@@ -155,7 +157,6 @@ def test_projectedit_post_success(rf, core_developer):
         "name": "new-name",
         "copilot": str(new_copilot.pk),
         "copilot_support_ends_at": "",
-        "uses_new_release_flow": True,
     }
     request = rf.post("/", data)
     request.user = core_developer
@@ -168,7 +169,6 @@ def test_projectedit_post_success(rf, core_developer):
     project.refresh_from_db()
     assert project.name == "new-name"
     assert project.copilot == new_copilot
-    assert project.uses_new_release_flow
 
 
 def test_projectedit_post_unauthorized(rf):
@@ -179,6 +179,94 @@ def test_projectedit_post_unauthorized(rf):
 
     with pytest.raises(PermissionDenied):
         ProjectEdit.as_view()(request, slug=project.slug)
+
+
+def test_projectedit_post_unknown_project(rf, core_developer):
+    request = rf.post("/")
+    request.user = core_developer
+
+    with pytest.raises(Http404):
+        ProjectEdit.as_view()(request, slug="")
+
+
+def test_projectfeatureflags_get_success(rf, core_developer):
+    project = ProjectFactory()
+    WorkspaceFactory.create_batch(1, project=project, uses_new_release_flow=True)
+    WorkspaceFactory.create_batch(3, project=project, uses_new_release_flow=False)
+
+    request = rf.get("/")
+    request.user = core_developer
+
+    response = ProjectFeatureFlags.as_view()(request, slug=project.slug)
+
+    assert response.status_code == 200
+    assert response.context_data["enabled_count"] == 1
+    assert response.context_data["disabled_count"] == 3
+
+
+def test_projectfeatureflags_post_success_disable(rf, core_developer):
+    project = ProjectFactory()
+    WorkspaceFactory.create_batch(5, project=project)
+
+    request = rf.post("/", {"flip_to": "disable"})
+    request.user = core_developer
+
+    response = ProjectFeatureFlags.as_view()(request, slug=project.slug)
+
+    assert response.status_code == 302, response.context_data["form"].errors
+    assert response.url == project.get_staff_feature_flags_url()
+
+    project.refresh_from_db()
+    assert project.workspaces.filter(uses_new_release_flow=False).count() == 5
+
+
+def test_projectfeatureflags_post_success_enable(rf, core_developer):
+    project = ProjectFactory()
+    WorkspaceFactory.create_batch(5, project=project)
+
+    request = rf.post("/", {"flip_to": "enable"})
+    request.user = core_developer
+
+    response = ProjectFeatureFlags.as_view()(request, slug=project.slug)
+
+    assert response.status_code == 302, response.context_data["form"].errors
+    assert response.url == project.get_staff_feature_flags_url()
+
+    project.refresh_from_db()
+    assert project.workspaces.filter(uses_new_release_flow=True).count() == 5
+
+
+def test_projectfeatureflags_post_with_invalid_value(rf, core_developer):
+    project = ProjectFactory()
+
+    request = rf.post("/", {"flip_to": "test"})
+    request.user = core_developer
+
+    response = ProjectFeatureFlags.as_view()(request, slug=project.slug)
+
+    assert response.status_code == 200, response.url
+    expected = {
+        "flip_to": ["Select a valid choice. test is not one of the available choices."]
+    }
+    assert response.context_data["form"].errors == expected
+
+
+def test_projectfeatureflags_unauthorized(rf):
+    project = ProjectFactory()
+
+    request = rf.get("/")
+    request.user = UserFactory()
+
+    with pytest.raises(PermissionDenied):
+        ProjectFeatureFlags.as_view()(request, slug=project.slug)
+
+
+def test_projectfeatureflags_unknown_project(rf, core_developer):
+    request = rf.get("/")
+    request.user = core_developer
+
+    with pytest.raises(Http404):
+        ProjectFeatureFlags.as_view()(request, slug="")
 
 
 def test_projectlist_filter_by_org(rf, core_developer):

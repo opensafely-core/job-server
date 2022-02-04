@@ -436,10 +436,6 @@ class Project(models.Model):
 
     created_at = models.DateTimeField(default=timezone.now)
 
-    # TODO: Remove this once all Projects are ready to move to the new release
-    # process
-    uses_new_release_flow = models.BooleanField(default=True)
-
     def __str__(self):
         return f"{self.org.name} | {self.name}"
 
@@ -472,6 +468,9 @@ class Project(models.Model):
 
     def get_staff_url(self):
         return reverse("staff:project-detail", kwargs={"slug": self.slug})
+
+    def get_staff_feature_flags_url(self):
+        return reverse("staff:project-feature-flags", kwargs={"slug": self.slug})
 
     def save(self, *args, **kwargs):
         if not self.slug:
@@ -795,6 +794,10 @@ class Workspace(models.Model):
 
     db = models.TextField(choices=[("full", "Full database")], default="full")
 
+    # TODO: Remove this once all Projects are ready to move to the new release
+    # process
+    uses_new_release_flow = models.BooleanField(default=True)
+
     created_at = models.DateTimeField(default=timezone.now)
 
     def __str__(self):
@@ -832,9 +835,6 @@ class Workspace(models.Model):
                 "workspace_slug": self.name,
             },
         )
-
-    def get_staff_url(self):
-        return reverse("staff:workspace-detail", kwargs={"slug": self.name})
 
     def get_jobs_url(self):
         return reverse(
@@ -911,6 +911,12 @@ class Workspace(models.Model):
             "api:release-workspace",
             kwargs={"workspace_name": self.name},
         )
+
+    def get_staff_url(self):
+        return reverse("staff:workspace-detail", kwargs={"slug": self.name})
+
+    def get_staff_edit_url(self):
+        return reverse("staff:workspace-edit", kwargs={"slug": self.name})
 
     def get_statuses_url(self):
         return reverse("api:workspace-statuses", kwargs={"name": self.name})

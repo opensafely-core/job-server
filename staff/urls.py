@@ -31,6 +31,7 @@ from .views.projects import (
     ProjectCreate,
     ProjectDetail,
     ProjectEdit,
+    ProjectFeatureFlags,
     ProjectList,
     ProjectMembershipEdit,
     ProjectMembershipRemove,
@@ -38,7 +39,7 @@ from .views.projects import (
 from .views.repos import RepoList
 from .views.researchers import ResearcherEdit
 from .views.users import UserDetail, UserList, UserSetOrgs
-from .views.workspaces import WorkspaceDetail, WorkspaceList
+from .views.workspaces import WorkspaceDetail, WorkspaceEdit, WorkspaceList
 
 
 app_name = "staff"
@@ -95,6 +96,11 @@ project_urls = [
     path("<slug>/add-member/", ProjectAddMember.as_view(), name="project-add-member"),
     path("<slug>/edit/", ProjectEdit.as_view(), name="project-edit"),
     path(
+        "<slug>/feature-flags/",
+        ProjectFeatureFlags.as_view(),
+        name="project-feature-flags",
+    ),
+    path(
         "<slug>/members/<pk>/edit/",
         ProjectMembershipEdit.as_view(),
         name="project-membership-edit",
@@ -119,6 +125,7 @@ user_urls = [
 workspace_urls = [
     path("", WorkspaceList.as_view(), name="workspace-list"),
     path("<slug>/", WorkspaceDetail.as_view(), name="workspace-detail"),
+    path("<slug>/edit/", WorkspaceEdit.as_view(), name="workspace-edit"),
 ]
 
 urlpatterns = [

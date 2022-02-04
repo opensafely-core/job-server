@@ -1,6 +1,6 @@
 from django.db.models import Q
 from django.utils.decorators import method_decorator
-from django.views.generic import DetailView, ListView
+from django.views.generic import DetailView, ListView, UpdateView
 
 from jobserver.authorization import CoreDeveloper
 from jobserver.authorization.decorators import require_role
@@ -12,6 +12,17 @@ class WorkspaceDetail(DetailView):
     model = Workspace
     slug_field = "name"
     template_name = "staff/workspace_detail.html"
+
+
+@method_decorator(require_role(CoreDeveloper), name="dispatch")
+class WorkspaceEdit(UpdateView):
+    fields = ["uses_new_release_flow"]
+    model = Workspace
+    slug_field = "name"
+    template_name = "staff/workspace_edit.html"
+
+    def get_success_url(self):
+        return self.object.get_staff_url()
 
 
 @method_decorator(require_role(CoreDeveloper), name="dispatch")

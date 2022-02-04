@@ -335,9 +335,7 @@ class WorkspaceStatusAPI(RetrieveAPIView):
     queryset = Workspace.objects.all()
 
     class serializer_class(serializers.Serializer):
-        uses_new_release_flow = serializers.BooleanField(
-            source="project.uses_new_release_flow"
-        )
+        uses_new_release_flow = serializers.BooleanField()
 
 
 def serve_file(request, rfile):

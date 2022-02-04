@@ -93,7 +93,6 @@ class ProjectEditForm(forms.ModelForm):
             "name",
             "copilot",
             "copilot_support_ends_at",
-            "uses_new_release_flow",
         ]
         model = Project
 
@@ -103,6 +102,15 @@ class ProjectEditForm(forms.ModelForm):
         users = users.order_by(Lower("username"))
         self.fields["copilot"] = UserModelChoiceField(queryset=users, required=False)
         self.fields["copilot_support_ends_at"].required = False
+
+
+class ProjectFeatureFlagsForm(forms.Form):
+    flip_to = forms.ChoiceField(
+        choices=[
+            ("enable", "enable"),
+            ("disable", "disable"),
+        ],
+    )
 
 
 class ProjectMembershipForm(RolesForm):

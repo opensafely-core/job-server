@@ -43,9 +43,10 @@
     <div class="d-flex">
       <a class="btn btn-danger mr-1" href="{{ project.get_edit_url }}">Edit</a>
       <a class="btn btn-primary mr-1" href="{{ project.get_absolute_url }}">View on Site</a>
-      <a class="btn btn-primary" href="{% url 'staff:project-add-member' slug=project.slug %}">
+      <a class="btn btn-primary mr-1" href="{% url 'staff:project-add-member' slug=project.slug %}">
         Add Members
       </a>
+      <a class="btn btn-primary mr-1" href="{{ project.get_staff_feature_flags_url }}">Feature Flags</a>
     </div>
   </div>
 </div>
@@ -133,26 +134,6 @@
             </time>
           </p>
         </div>
-      </div>
-      <div class="card mb-3">
-        <h2 class="card-header h5">
-          Feature flags
-        </h2>
-        <ul class="list-group list-group-flush">
-          <li
-            class="
-              list-group-item
-              {% if project.uses_new_release_flow %}
-                list-group-item-success
-              {% else %}
-                list-group-item-warning
-              {% endif %}
-            "
-          >
-            <strong>Jobs site release process:</strong>
-            {% if project.uses_new_release_flow %}Enabled{% else %}Disabled{% endif %}
-          </li>
-        </ul>
       </div>
     </div>
   </div>
