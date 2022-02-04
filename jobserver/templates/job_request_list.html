@@ -91,10 +91,10 @@
 
         <select id="filter_status" class="mr-2" name="status">
           <option value="">------</option>
-          {% for workspace in workspaces %}
-          {% is_filter_selected key="workspace" value=workspace.pk as is_active %}
-          <option value="{{ workspace.pk }}"{% if is_active %} selected="selected"{% endif %}>
-            {{ workspace.name }}
+          {% for status in statuses %}
+          {% is_filter_selected key="status" value=status as is_active %}
+          <option value="{{ status }}"{% if is_active %} selected="selected"{% endif %}>
+            {{ status }}
           </option>
           {% endfor %}
         </select>
