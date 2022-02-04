@@ -82,6 +82,22 @@
             <div class="input-group-append">
               <button class="btn btn-secondary" type="submit" id="searchByIdentifier">Go</button>
             </div>
+
+            {% for error in form.identifier.errors %}
+            <p class="text-center text-danger pt-3">{{ error }}</p>
+            {% endfor %}
+
+          </div>
+          <div class="row">
+            <div class="col-12">
+              {% if form.non_field_errors %}
+              <ul class="pt-3">
+                {% for error in form.non_field_errors %}
+                <li class="text-danger">{{ error }}</li>
+                {% endfor %}
+              </ul>
+              {% endif %}
+            </div>
           </div>
         </form>
       </div>
@@ -164,21 +180,6 @@
     <div class="col">
       {% if is_core_dev %}
       <div class="container">
-        <div class="row">
-          <div class="col-12">
-            {% if form.non_field_errors %}
-            <ul class="pt-3">
-              {% for error in form.non_field_errors %}
-              <li class="text-danger">{{ error }}</li>
-              {% endfor %}
-            </ul>
-            {% endif %}
-
-            {% for error in form.identifier.errors %}
-            <p class="text-center text-danger pt-3">{{ error }}</p>
-            {% endfor %}
-          </div>
-        </div>
       </div>
       {% endif %}
 
