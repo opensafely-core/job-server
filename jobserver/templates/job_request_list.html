@@ -32,104 +32,155 @@
 
 <div class="job-list container-fluid">
 
-  <h2>All Jobs</h2>
-
-  <div class="row">
-    <div class="col">
-
-      <form class="form d-flex align-items-center mb-4" method="GET">
-        <input
-          class="form-control mr-2"
-          type="search"
-          placeholder="Search by Job action or ID"
-          aria-label="Search"
-          name="q" />
-        <button class="btn btn-outline-success my-2 my-sm-0" type="submit">Search</button>
-      </form>
-
-      {% if is_core_dev %}
-      <div class="mb-4">
-
-        {% if form.non_field_errors %}
-        <ul>
-          {% for error in form.non_field_errors %}
-          <li class="text-danger">{{ error }}</li>
-          {% endfor %}
-        </ul>
-        {% endif %}
-
-        <form class="form d-flex align-items-center mb-1" method="POST">
-          {% csrf_token %}
-          <input
-            class="form-control mr-2"
-            type="search"
-            placeholder="Look up JobRequest by Identifier"
-            aria-label="Go"
-            name="identifier" />
-          <button class="btn btn-outline-success my-2 my-sm-0" type="submit">Go</button>
-
-        </form>
-
-        {% for error in form.identifier.errors %}
-        <p class="text-danger" style="margin-left:.75rem">{{ error }}</p>
-        {% endfor %}
-
+  <div class="container">
+    <div class="row">
+      <div class="col-12 mb-2">
+        <h1>All Jobs</h1>
       </div>
-      {% endif %}
+    </div>
+  </div>
 
-      <hr />
+  <div class="container">
 
-      <form method="GET" class="form-inline justify-content-between">
-        <select id="filter_backend" class="mr-2" name="backend">
-          <option value="">------</option>
-          {% for backend in backends %}
-          {% is_filter_selected key="backend" value=backend.pk as is_active %}
-          <option value="{{ backend.pk }}"{% if is_active %} selected="selected"{% endif %}>
-            {{ backend.name }}
-          </option>
-          {% endfor %}
-        </select>
+    <div class="row">
+      <div class="col-12">
+        <h2 class="h3">Search jobs</h2>
+      </div>
+      <div class="col-xl-7 col-lg-8 col-md-9">
+        <form method="GET">
+          <div class="input-group mb-3">
+            <input
+              type="search"
+              class="form-control"
+              placeholder="Search by Job action or ID"
+              aria-label="Search by Job action or ID"
+              aria-describedby="seachByJobOrId"
+              name="q"
+            />
+            <div class="input-group-append">
+              <button class="btn btn-primary" type="submit" id="seachByJobOrId">Search</button>
+            </div>
+          </div>
+        </form>
+      </div>
+    </div>
 
-        <select id="filter_status" class="mr-2" name="status">
-          <option value="">------</option>
-          {% for status in statuses %}
-          {% is_filter_selected key="status" value=status as is_active %}
-          <option value="{{ status }}"{% if is_active %} selected="selected"{% endif %}>
-            {{ status }}
-          </option>
-          {% endfor %}
-        </select>
+    {% if is_core_dev %}
+    <div class="row">
+      <div class="col-xl-7 col-lg-8 col-md-9">
+        <form method="POST">
+          {% csrf_token %}
+          <div class="input-group mb-3">
+            <input
+              type="search"
+              class="form-control"
+              placeholder="Look up JobRequest by Identifier"
+              aria-label="Look up JobRequest by Identifier"
+              aria-describedby="searchByIdentifier"
+              name="identifier"
+            />
+            <div class="input-group-append">
+              <button class="btn btn-secondary" type="submit" id="searchByIdentifier">Go</button>
+            </div>
+          </div>
+        </form>
+      </div>
+    </div>
+    {% endif %}
 
-        <select id="filter_user" class="mr-2" name="username">
-          <option value="">------</option>
-          {% for username, name in users.items %}
-          {% is_filter_selected key="username" value=username as is_active %}
-          <option value="{{ username }}"{% if is_active %}selected="selected"{% endif %}>
-            {{ name }}
-          </option>
-          {% endfor %}
-        </select>
+    <div class="row pt-2 pb-4">
+      <form method="GET" class="container">
+        <fieldset>
+          <legend class="border-top pt-3 h4">Filter jobs by</legend>
+          <div class="form-row">
 
-        <select id="filter_workspace" class="mr-2" name="workspace">
-          <option value="">------</option>
-          {% for workspace in workspaces %}
-          {% is_filter_selected key="workspace" value=workspace.pk as is_active %}
-          <option value="{{ workspace.pk }}"{% if is_active %} selected="selected"{% endif %}>
-            {{ workspace.name }}
-          </option>
-          {% endfor %}
-        </select>
+            <div class="col col-md-3">
+              <select id="filter_backend" style="width: 100%" name="backend">
+                <option value="">------</option>
+                {% for backend in backends %}
+                {% is_filter_selected key="backend" value=backend.pk as is_active %}
+                <option value="{{ backend.pk }}"{% if is_active %} selected="selected"{% endif %}>
+                  {{ backend.name }}
+                </option>
+                {% endfor %}
+              </select>
+            </div>
 
-        <button type="submit" class="btn btn-sm btn-primary">Filter</button>
+            <div class="col col-md-2">
+              <select id="filter_status" style="width: 100%" name="status">
+                <option value="">------</option>
+                {% for status in statuses %}
+                {% is_filter_selected key="status" value=status as is_active %}
+                <option value="{{ status }}"{% if is_active %} selected="selected"{% endif %}>
+                  {{ status }}
+                </option>
+                {% endfor %}
+              </select>
+            </div>
+
+            <div class="col col-md-3">
+              <select id="filter_user" style="width: 100%" name="username">
+                <option value="">------</option>
+                {% for username, name in users.items %}
+                {% is_filter_selected key="username" value=username as is_active %}
+                <option value="{{ username }}"{% if is_active %}selected="selected"{% endif %}>
+                  {{ name }}
+                </option>
+                {% endfor %}
+              </select>
+            </div>
+
+            <div class="col col-md-3">
+              <select id="filter_workspace" style="width: 100%" name="workspace">
+                <option value="">------</option>
+                {% for workspace in workspaces %}
+                {% is_filter_selected key="workspace" value=workspace.pk as is_active %}
+                <option value="{{ workspace.pk }}"{% if is_active %} selected="selected"{% endif %}>
+                  {{ workspace.name }}
+                </option>
+                {% endfor %}
+              </select>
+            </div>
+
+            <div class="col col-md-1">
+              <button type="submit" class="btn btn-outline-primary">Filter</button>
+            </div>
+          </div>
+        </fieldset>
       </form>
 
       {% if request.GET or not page_obj %}
-      <div class="mt-4 mb-2 d-flex justify-content-center">
-        <a href="{% url 'job-list' %}">Clear all filters</a>
+      <div class="col-12 pt-3">
+        <a href="{% url 'job-list' %}">
+          Clear all filters
+        </a>
       </div>
       {% endif %}
 
-      <hr />
+    </div>
+  </div>
+
+  <div class="row pt-1 border-top">
+    <div class="col">
+      {% if is_core_dev %}
+      <div class="container">
+        <div class="row">
+          <div class="col-12">
+            {% if form.non_field_errors %}
+            <ul class="pt-3">
+              {% for error in form.non_field_errors %}
+              <li class="text-danger">{{ error }}</li>
+              {% endfor %}
+            </ul>
+            {% endif %}
+
+            {% for error in form.identifier.errors %}
+            <p class="text-center text-danger pt-3">{{ error }}</p>
+            {% endfor %}
+          </div>
+        </div>
+      </div>
+      {% endif %}
 
       {% if not page_obj %}
       <div class="text-center">
