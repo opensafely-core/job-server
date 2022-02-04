@@ -19,7 +19,7 @@ def reset_workspace_release_flag(apps, schema_editor):
 class Migration(migrations.Migration):
 
     dependencies = [
-        ("jobserver", "0004_add_workspace_uses_new_release_flow"),
+        ("jobserver", "0008_add_workspace_uses_new_release_flow"),
     ]
 
     operations = [

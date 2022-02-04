@@ -6,7 +6,7 @@ from django.db import migrations
 class Migration(migrations.Migration):
 
     dependencies = [
-        ("jobserver", "0005_copy_project_release_flag_to_workspaces"),
+        ("jobserver", "0009_copy_project_release_flag_to_workspaces"),
     ]
 
     operations = [

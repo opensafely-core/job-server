@@ -6,7 +6,7 @@ from django.db import migrations, models
 class Migration(migrations.Migration):
 
     dependencies = [
-        ("jobserver", "0003_alter_backend_is_active"),
+        ("jobserver", "0007_rename_org_github_orgs2_to_github_orgs"),
     ]
 
     operations = [
