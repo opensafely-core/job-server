@@ -16,3 +16,17 @@ $(() => {
     });
   });
 });
+
+const modalsBtns = document.querySelectorAll('[data-toggle="modal"]');
+
+modalsBtns.forEach((btn) => {
+  btn.addEventListener("click", () => {
+    const workspaceName = btn.getAttribute("data-workspace-name");
+    const workspaceContentName = btn.getAttribute("data-workspace-content");
+    const workspaceContentHTML =
+      document.getElementById(workspaceContentName).innerHTML;
+
+    document.getElementById("jobModalTitle").textContent = workspaceName;
+    document.getElementById("jobModalBody").innerHTML = workspaceContentHTML;
+  });
+});

@@ -1,92 +1,119 @@
 {% load humanize %}
 {% load runtime %}
 
-<div class="container-fluid">
-  {% include "_job_request_pagination.html" %}
-
-  <div class="job-requests">
-    <div class="d-flex">
-      <div class="status"></div>
-      {% if show_workspace %}
-      <div class="workspace"><strong>Workspace</strong></div>
-      {% endif %}
-      <div class="d-none d-md-block backend"></div>
-      <div class="d-none d-md-block job-count"><strong>Jobs</strong></div>
-      <div class="d-none d-md-block action"><strong>Requested Action</strong></div>
-      <div id="started-at-header" class="started-at"><strong>Started At</strong></div>
-    </div>
-
-    {% for group in page_obj %}
-    <div class="job-request">
-      <div class="d-flex align-items-center py-2">
-        <div class="status status-icon {{ group.status }}"></div>
+{% include "_job_request_pagination.html" %}
+<div class="table-responsive">
+  <table class="table table-striped">
+    <thead>
+      <tr>
+        <th>Status</th>
         {% if show_workspace %}
-        <div class="text-truncate workspace">{{ group.workspace.name }}</div>
+        <th>Workspace</th>
         {% endif %}
-        <div class="d-none d-md-block backend">
-            <span class="badge badge-secondary">{{ group.backend|upper }}</span>
-        </div>
-        <div class="d-none d-md-block job-count">{{ group.num_completed }}/{{ group.jobs.all|length }}</div>
-        <div class="d-none d-md-block action text-truncate" title="{{ group.requested_actions|join:"," }}">
-          {{ group.requested_actions|join:"," }}
-        </div>
-        <div class="started-at">{{ group.started_at|date:"Y-m-d H:i:sO"|default:"-" }}</div>
-        <div class="mx-2">
+        <th>Backend</th>
+        <th>Requested Action</th>
+        <th>Started At</th>
+        <th>View jobs</th>
+      </tr>
+    </thead>
+    <tbody>
+      {% for group in page_obj %}
+      <tr>
+        <td>
+          <div class="status status-icon {{ group.status }}"></div>
+          <span class="sr-only">{{ group.status }}</span>
+        </td>
+        {% if show_workspace %}
+        <td>
+          <span class="text-truncate">{{ group.workspace.name }}</span>
+        </td>
+        {% endif %}
+        <td>
+          <span class="badge badge-secondary">{{ group.backend|upper }}</span>
+        </td>
+        <td class="text-monospace">{{ group.num_completed }}/{{ group.jobs.all|length }}</td>
+        <td>
+          <span data-toggle="tooltip" data-placement="top" title="{{ group.started_at|date:"Y-m-d H:i:sO"|default:"-" }}">
+            {{ group.started_at|naturaltime }}
+          </span>
+        </td>
+        <td>
           <button
-            class="btn btn-sm btn-primary"
-            {% if not group.jobs.exists %}
-            disabled
-            {% endif %}
             type="button"
-            data-toggle="collapse"
-            data-target="#group-{{ group.pk }}"
-            aria-expanded="false"
-            aria-controls="group-{{ group.pk }}"
-            >
-              <span class="collapse--show">Show</span>
-              <span class="collapse--hide">Hide</span>
-              <span class="d-none d-md-inline">jobs</span>
+            class="btn btn-primary"
+            data-toggle="modal"
+            data-target="#jobModal"
+            data-workspace-name="{{ group.workspace.name }}"
+            data-workspace-content="group-{{ group.pk }}"
+          >
+            Show Jobs
           </button>
-        </div>
-      </div>
-
-      {% if group.jobs.exists %}
-      <div id="group-{{ group.pk }}" class="jobs collapse">
-        <div class="grid">
-          <span class="pl-3"></span>
-          <span class="d-none d-lg-inline"><strong>ID</strong></span>
-          <span><strong>Action</strong></span>
-          <span><strong>Runtime</strong></span>
-          <span class="d-none d-lg-inline"><strong>Status Message</strong></span>
-          <span></span>
-
-          {% for job in group.jobs.all %}
-          <span class="pl-3 d-block"><div class="status-icon {{ job.status }}"></div></span>
-          <span class="d-none d-lg-inline">
-            <small>{{ job.identifier }}</small>
-          </span>
-          <span>{{ job.action }}</span>
-          <span {% if job.started_at %} title="{{ job.started_at|naturaltime }}"{% endif %}>
-            <small>{% runtime job.runtime %}</small>
-          </span>
-          <span class="d-none d-lg-inline text-truncate" title="{{ job.status_message }}">
-            {{ job.status_message|default:"-" }}
-          </span>
-          <span>
-            <a class="btn btn-sm btn-secondary text-white" href="{{ job.get_absolute_url }}">
-              View
-            </a>
-          </span>
-          {% endfor %}
-        </div>
-
-      </div>
-      {% endif %}
-
-    </div>
-    {% endfor %}  {# end of page_obj loop #}
-
-  </div>
-
+          {% if group.jobs.exists %}
+          <div id="group-{{ group.pk }}" class="d-none">
+            <div class="table-responsive">
+              <table class="table table-striped">
+                <thead>
+                  <tr>
+                    <th>Status</th>
+                    <th>ID</th>
+                    <th>Action</th>
+                    <th>Runtime</th>
+                    <th>Status Message</th>
+                    <th><span class="sr-only">More</span></th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {% for job in group.jobs.all %}
+                  <tr>
+                    <td>
+                      <div class="status status-icon {{ job.status }}"></div>
+                      <span class="sr-only">{{ job.status }}</span>
+                    </td>
+                    <td class="text-monospace small">
+                      {{ job.identifier }}
+                    </td>
+                    <td class="text-monospace small">
+                      {{ job.action }}
+                    </td>
+                    <td {% if job.started_at %} title="{{ job.started_at|naturaltime }}"{% endif %}>
+                      {% runtime job.runtime %}
+                    </td>
+                    <td class="text-truncate" title="{{ job.status_message }}">
+                      {{ job.status_message|default:"-" }}
+                    </td>
+                    <td>
+                      <a class="btn btn-sm btn-outline-primary" href="{{ job.get_absolute_url }}">
+                        View
+                      </a>
+                    </td>
+                  </tr>
+                  {% endfor %}
+                </tbody>
+              </table>
+            </div>
+          </div>
+          {% endif %}
+        </td>
+      </tr>
+      {% endfor %}
+    </tbody>
+  </table>
   {% include "_job_request_pagination.html" %}
+</div>
+
+<div class="modal fade" id="jobModal" tabindex="-1" aria-labelledby="jobModalLabel" aria-hidden="true">
+  <div class="modal-dialog modal-dialog-centered modal-dialog-scrollable modal-xl">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title" id="jobModalTitle"></h5>
+        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+          <span aria-hidden="true">&times;</span>
+        </button>
+      </div>
+      <div class="modal-body" id="jobModalBody"></div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+      </div>
+    </div>
+  </div>
 </div>

@@ -3,3 +3,7 @@
 $(function () {
   $("[data-tooltip=warning]").tooltip();
 });
+
+$(function () {
+  $('[data-toggle="tooltip"]').tooltip();
+});
