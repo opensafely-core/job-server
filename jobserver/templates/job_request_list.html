@@ -4,6 +4,7 @@
 {% load runtime %}
 {% load selected_filter %}
 {% load static %}
+{% load django_vite %}
 
 {% block extra_styles %}
 <link rel="stylesheet" href="{% static 'vendor/select2.min.css' %}">
@@ -148,28 +149,7 @@
 
 {% block extra_js %}
 <script type="text/javascript" src="{% static 'vendor/select2.min.js' %}"></script>
-<script type="text/javascript">
-  $(document).ready(function() {
-    $('#filter_backend').select2({
-      placeholder: "Backend",
-      selectionCssClass: ":all:",
-      theme: "bootstrap4",
-    });
-    $('#filter_status').select2({
-      placeholder: "Status",
-      selectionCssClass: ":all:",
-      theme: "bootstrap4",
-    });
-    $('#filter_user').select2({
-      placeholder: "User",
-      selectionCssClass: ":all:",
-      theme: "bootstrap4",
-    });
-    $('#filter_workspace').select2({
-      placeholder: "Workspace",
-      selectionCssClass: ":all: mr-2",
-      theme: "bootstrap4",
-    });
-  });
-</script>
+{% vite_asset 'assets/src/scripts/event-log.js' %}
+{% vite_legacy_polyfills %}
+{% vite_legacy_asset 'assets/src/scripts/event-log-legacy.js' %}
 {% endblock %}

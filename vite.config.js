@@ -17,6 +17,7 @@ const config = {
         job_request_create: "./assets/src/scripts/job_request_create.js",
         main: "./assets/src/scripts/main.js",
         workspace_create: "./assets/src/scripts/workspace_create.js",
+        "event-log": "./assets/src/scripts/event-log.js",
         "outputs-viewer": "./assets/src/scripts/outputs-viewer/index.jsx",
       },
     },
