@@ -11,21 +11,26 @@
         <th>Workspace</th>
         {% endif %}
         <th>Backend</th>
-        <th>Requested Action</th>
-        <th>Started At</th>
+        <th>Jobs finished</th>
+        <th>Started</th>
         <th>View jobs</th>
       </tr>
     </thead>
     <tbody>
       {% for group in page_obj %}
       <tr>
-        <td>
-          <div class="status status-icon {{ group.status }}"></div>
-          <span class="sr-only">{{ group.status }}</span>
+        <td style="width: 0">
+          <div
+            class="status status-icon {{ group.status }} mx-auto my-1"
+            data-toggle="tooltip"
+            data-placement="right"
+            title="{{ group.status|capfirst }}">
+          </div>
+          <span class="sr-only">{{ group.status|capfirst }}</span>
         </td>
         {% if show_workspace %}
         <td>
-          <span class="text-truncate">{{ group.workspace.name }}</span>
+          <span class="text-break">{{ group.workspace.name }}</span>
         </td>
         {% endif %}
         <td>
@@ -40,7 +45,7 @@
         <td>
           <button
             type="button"
-            class="btn btn-outline-primary btn-sm"
+            class="btn btn-outline-primary btn-sm text-nowrap"
             data-toggle="modal"
             data-target="#jobModal"
             data-workspace-name="{{ group.workspace.name }}"
@@ -58,7 +63,7 @@
                     <th>ID</th>
                     <th>Action</th>
                     <th>Runtime</th>
-                    <th>Status Message</th>
+                    <th>Status message</th>
                     <th><span class="sr-only">More</span></th>
                   </tr>
                 </thead>
