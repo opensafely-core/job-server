@@ -46,7 +46,7 @@
     "window-resizeto": "^0.0.2"
   },
   "dependencies": {
-    "@sentry/react": "^6.17.0",
+    "@sentry/react": "^6.17.4",
     "@ttskch/select2-bootstrap4-theme": "^1.5.2",
     "axios": "^0.24.0",
     "bootstrap": "^4.6.1",
@@ -59,8 +59,8 @@
     "react": "^17.0.2",
     "react-dom": "^17.0.2",
     "react-hot-toast": "^2.2.0",
-    "react-papaparse": "^4.0.1",
-    "react-query": "^3.34.12",
+    "react-papaparse": "^4.0.2",
+    "react-query": "^3.34.14",
     "react-router-dom": "^5.3.0",
     "react-window": "^1.8.6",
     "select2": "^4.0.13",
