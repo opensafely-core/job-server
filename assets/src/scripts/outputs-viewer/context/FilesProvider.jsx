@@ -19,7 +19,7 @@ function FilesProvider({ children, initialValue }) {
     authToken: "",
     basePath: "",
     csrfToken: "",
-    filesUrl: "",
+    filesUrl: "/",
     prepareUrl: "",
     publishUrl: "",
 

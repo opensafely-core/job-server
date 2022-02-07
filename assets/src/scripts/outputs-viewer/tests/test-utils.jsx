@@ -34,7 +34,7 @@ const createWrapper =
           authToken: "",
           basePath: "",
           csrfToken: "",
-          filesUrl: "",
+          filesUrl: "/",
           prepareUrl: "",
           publishUrl: "",
           ...filesContext,
