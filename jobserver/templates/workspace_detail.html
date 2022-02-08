@@ -121,7 +121,7 @@
             <dl class="mb-0">
               <dt class="d-inline-block">Repo:</dt>
               <dd class="d-inline-flex mb-0 align-items-center">
-                <a class="mr-1" href="{{ workspace.repo }}">{{ workspace.repo_name }}</a>
+                <a class="mr-1" href="{{ workspace.repo }}/tree/{{ workspace.branch }}/">{{ workspace.repo_name }}</a>
                 {% if repo_is_private is not None %}
                 <span
                   class="
@@ -177,7 +177,7 @@
         <a href="{{ workspace.project.get_absolute_url }}">{{ workspace.project.name }}</a>
         project on all of the secure services ("backends") supported by
         OpenSAFELY.  On each backend, the directory includes code from the
-        <a href="{{ workspace.repo }}">repository</a>,
+        <a href="{{ workspace.repo }}/tree/{{ workspace.branch }}/">repository</a>,
         and the results of running it against real data ("jobs"). Researchers can
         request jobs are run from this page.
       </p>
