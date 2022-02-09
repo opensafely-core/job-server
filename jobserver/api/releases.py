@@ -39,7 +39,7 @@ class ReleaseNotificationAPICreate(CreateAPIView):
         token = request.headers.get("Authorization")
 
         # require auth for all requests
-        get_backend_from_token(token)
+        self.backend = get_backend_from_token(token)
 
         return super().initial(request, *args, **kwargs)
 
@@ -49,12 +49,14 @@ class ReleaseNotificationAPICreate(CreateAPIView):
         if "files" in data:
             files = data["files"]
             message = [
-                f"{data['created_by']} released {len(files)} outputs from {data['path']}:"
+                f"{data['created_by']} released {len(files)} outputs from {data['path']} on {self.backend.name}:"
             ]
             for f in files:
                 message.append(f"`{f}`")
         else:
-            message = [f"{data['created_by']} released outputs from {data['path']}"]
+            message = [
+                f"{data['created_by']} released outputs from {data['path']} on {self.backend.name}"
+            ]
 
         try:
             slack_client.chat_postMessage(

@@ -294,7 +294,7 @@ def test_releasenotificationapicreate_success(api_rf, mocker):
     # check we called the slack API in the expected way
     mock.chat_postMessage.assert_called_once_with(
         channel="opensafely-outputs",
-        text="test user released outputs from /path/to/outputs",
+        text=f"test user released outputs from /path/to/outputs on {backend.name}",
     )
 
 
@@ -319,7 +319,7 @@ def test_releasenotificationapicreate_success_with_files(api_rf, mocker):
     mock.chat_postMessage.assert_called_once_with(
         channel="opensafely-outputs",
         text=(
-            "test user released 2 outputs from /path/to/outputs:\n"
+            f"test user released 2 outputs from /path/to/outputs on {backend.name}:\n"
             "`output/file1.txt`\n"
             "`output/file2.txt`"
         ),
@@ -353,7 +353,7 @@ def test_releasenotificationapicreate_with_failed_slack_update(
     # check we called the slack API in the expected way
     mock.chat_postMessage.assert_called_once_with(
         channel="opensafely-outputs",
-        text="test user released outputs from /path/to/outputs",
+        text=f"test user released outputs from /path/to/outputs on {backend.name}",
     )
 
     # check we logged the slack failure
