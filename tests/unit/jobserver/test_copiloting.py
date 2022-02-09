@@ -8,7 +8,7 @@ from jobserver.copiloting import notify_impending_copilot_windows_closing
 from ...factories import ProjectFactory
 
 
-def test_notify_impending_copilot_windows_closing_multiple_projects(mocker):
+def test_notify_impending_copilot_windows_closing_multiple_projects(slack_messages):
     project1 = ProjectFactory(
         copilot_support_ends_at=timezone.now() + timedelta(days=1)
     )
@@ -19,8 +19,6 @@ def test_notify_impending_copilot_windows_closing_multiple_projects(mocker):
         copilot_support_ends_at=timezone.now() + timedelta(days=3)
     )
 
-    mocked_slack = mocker.patch("jobserver.copiloting.slack_client", autospec=True)
-
     assert notify_impending_copilot_windows_closing() is None
 
     def line(project):
@@ -28,23 +26,22 @@ def test_notify_impending_copilot_windows_closing_multiple_projects(mocker):
         url = f"http://localhost:8000{project.get_staff_url()}"
         return f"\n * <{url}|{project.name}> ({end_date})"
 
-    message = f"Projects with support window ending soon:{line(project1)}{line(project2)}{line(project3)}"
+    expected = f"Projects with support window ending soon:{line(project1)}{line(project2)}{line(project3)}"
 
-    assert mocked_slack.chat_postMessage.call_count == 1
-    mocked_slack.chat_postMessage.assert_called_with(
-        channel="co-pilot-support",
-        text=message,
-    )
+    assert len(slack_messages) == 1
+    text, channel = slack_messages[0]
+    assert channel == "co-pilot-support"
+    assert text == expected
 
 
-def test_notify_impending_copilot_windows_closing_no_projects(mocker, log_output):
+def test_notify_impending_copilot_windows_closing_no_projects(
+    slack_messages, log_output
+):
     assert len(log_output.entries) == 0, log_output.entries
-
-    mocked_slack = mocker.patch("jobserver.copiloting.slack_client", autospec=True)
 
     assert notify_impending_copilot_windows_closing() is None
 
-    mocked_slack.chat_postMessage.assert_not_called()
+    assert len(slack_messages) == 0
 
     # check we logged the lack of projects
     assert len(log_output.entries) == 1, log_output.entries
@@ -54,30 +51,17 @@ def test_notify_impending_copilot_windows_closing_no_projects(mocker, log_output
     }
 
 
-def test_notify_impending_copilot_windows_closing_one_project(mocker):
+def test_notify_impending_copilot_windows_closing_one_project(slack_messages):
     project = ProjectFactory(copilot_support_ends_at=timezone.now() + timedelta(days=3))
-
-    mocked_slack = mocker.patch("jobserver.copiloting.slack_client", autospec=True)
 
     assert notify_impending_copilot_windows_closing() is None
 
     end_date = naturalday(project.copilot_support_ends_at)
     url = f"http://localhost:8000{project.get_staff_url()}"
     line = f"\n * <{url}|{project.name}> ({end_date})"
-    message = f"Projects with support window ending soon:{line}"
+    expected = f"Projects with support window ending soon:{line}"
 
-    assert mocked_slack.chat_postMessage.call_count == 1
-    mocked_slack.chat_postMessage.assert_called_with(
-        channel="co-pilot-support",
-        text=message,
-    )
-
-
-def test_notify_impending_copilot_windows_closing_with_DEBUG(mocker, settings):
-    settings.DEBUG = True
-
-    mocked_slack = mocker.patch("jobserver.copiloting.slack_client", autospec=True)
-
-    assert notify_impending_copilot_windows_closing() is None
-
-    mocked_slack.chat_postMessage.assert_not_called()
+    assert len(slack_messages) == 1
+    text, channel = slack_messages[0]
+    assert channel == "co-pilot-support"
+    assert text == expected

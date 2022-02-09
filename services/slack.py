@@ -16,6 +16,9 @@ client = WebClient(token=slack_token)
 
 
 def post(text, channel):
+    if settings.DEBUG:  # pragma: no cover
+        return
+
     try:
         client.chat_postMessage(channel=channel, text=text)
     except SlackApiError:

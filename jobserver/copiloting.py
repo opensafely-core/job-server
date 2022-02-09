@@ -1,13 +1,10 @@
 from datetime import timedelta
 
 import structlog
-from django.conf import settings
-from django.contrib.humanize.templatetags.humanize import naturalday
 from django.utils import timezone
-from furl import furl
 
 from jobserver.models import Project
-from services.slack import client as slack_client
+from jobserver.slacks import notify_copilot_windows_closing
 
 
 logger = structlog.get_logger(__name__)
@@ -29,9 +26,6 @@ def notify_impending_copilot_windows_closing(days=5):
         https://api.slack.com/reference/surfaces/formatting#linking-urls
 
     """
-    if settings.DEBUG:
-        return
-
     start_date = timezone.now()
     end_date = start_date + timedelta(days=days)
     projects = Project.objects.filter(
@@ -44,18 +38,4 @@ def notify_impending_copilot_windows_closing(days=5):
         )
         return
 
-    def build_line(p):
-        f = furl(settings.BASE_URL)
-        f.path = p.get_staff_url()
-
-        end_date = naturalday(p.copilot_support_ends_at)
-
-        return f"\n * <{f.url}|{p.name}> ({end_date})"
-
-    project_urls = [build_line(p) for p in projects]
-    message = f"Projects with support window ending soon:{''.join(project_urls)}"
-
-    slack_client.chat_postMessage(
-        channel="co-pilot-support",
-        text=message,
-    )
+    notify_copilot_windows_closing(projects)

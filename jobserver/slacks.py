@@ -4,6 +4,8 @@
 These functions should always take a `channel` argument, so that we can test them on a different channel.
 """
 
+from django.contrib.humanize.templatetags.humanize import naturalday
+
 from services import slack
 
 
@@ -56,3 +58,34 @@ def notify_release_file_uploaded(rfile, channel="opensafely-outputs"):
 
     message = f"{user_url} uploaded {file_url} ({size} Mb) to a {release_url} for {workspace_url} from `{release.backend.name}`"
     slack.post(message, channel)
+
+
+def notify_new_user(user, channel="job-server-registrations"):
+    slack.post(
+        text=f"New user ({user.username}) registered: {slack.link(user.get_staff_url())}",
+        channel=channel,
+    )
+
+
+def notify_application(application, user, msg, channel="job-server-applications"):
+    """
+    Send a message to slack about an Application instance
+
+    Derives URLs from the given Application and User instances, to build the
+    Slack message using the given msg prefix.
+    """
+    slack.post(
+        text=f"{msg} by {slack.link(user.get_staff_url(), user.username)}: {slack.link(application.get_staff_url())}",
+        channel=channel,
+    )
+
+
+def notify_copilot_windows_closing(projects, channel="co-pilot-support"):
+    def build_line(p):
+        end_date = naturalday(p.copilot_support_ends_at)
+        return f"\n * {slack.link(p.get_staff_url(), p.name)} ({end_date})"
+
+    project_urls = [build_line(p) for p in projects]
+    message = f"Projects with support window ending soon:{''.join(project_urls)}"
+
+    slack.post(text=message, channel=channel)

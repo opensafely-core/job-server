@@ -6,7 +6,7 @@ from furl import furl
 from jobserver.models import User
 
 
-def test_login_pipeline(client, mocker):
+def test_login_pipeline(client, slack_messages):
     """
     Test the Auth Pipeline with an incoming request
 
@@ -46,8 +46,6 @@ def test_login_pipeline(client, mocker):
             },
         ]
         rsps.add(responses.GET, emails_url, json=emails_data, status=200)
-
-        mocker.patch("jobserver.pipeline.slack_client", autospec=True)
 
         # set a dummy state value in the test Client's session to match the
         # value in redirect_url below
@@ -105,7 +103,7 @@ def test_login_with_get_request_fails(client):
     assert response.status_code == 405
 
 
-def test_login_pipeline_without_gitub_token(client, mocker):
+def test_login_pipeline_without_gitub_token(client, slack_messages):
     """
     Test the Auth Pipeline with an incoming request but no GitHub API access
 
@@ -145,8 +143,6 @@ def test_login_pipeline_without_gitub_token(client, mocker):
             },
         ]
         rsps.add(responses.GET, emails_url, json=emails_data, status=200)
-
-        mocker.patch("jobserver.pipeline.slack_client", autospec=True)
 
         # set a dummy state value in the test Client's session to match the
         # value in redirect_url below
