@@ -1,3 +1,4 @@
+import pytest
 from django.conf import settings
 from django.urls import reverse
 from django.utils import timezone
@@ -110,6 +111,14 @@ def test_releasefile_ulid():
     release = ReleaseFactory(ReleaseUploadsFactory(["file1.txt"]))
     rfile = release.files.first()
     assert rfile.ulid.timestamp
+
+
+def test_releasefile_size():
+    release = ReleaseFactory(ReleaseUploadsFactory({"file1.txt": b"a" * 1024}))
+    rfile = release.files.first()
+    assert rfile.size == pytest.approx(0.001, 0.1)
+    rfile.absolute_path().unlink()
+    assert rfile.size == 0
 
 
 def test_snapshot_str():

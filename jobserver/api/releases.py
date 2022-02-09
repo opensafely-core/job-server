@@ -16,14 +16,12 @@ from rest_framework.generics import CreateAPIView, RetrieveAPIView
 from rest_framework.parsers import FileUploadParser, JSONParser
 from rest_framework.response import Response
 from rest_framework.views import APIView
-from slack_sdk.errors import SlackApiError
 
-from jobserver import releases
+from jobserver import releases, slacks
 from jobserver.api import get_backend_from_token
 from jobserver.authorization import has_permission
 from jobserver.models import Release, ReleaseFile, Snapshot, User, Workspace
 from jobserver.utils import set_from_qs
-from services.slack import client as slack_client
 
 
 logger = structlog.get_logger(__name__)
@@ -33,7 +31,9 @@ class ReleaseNotificationAPICreate(CreateAPIView):
     class serializer_class(serializers.Serializer):
         created_by = serializers.CharField()
         path = serializers.CharField()
-        files = serializers.ListField(child=serializers.CharField(), required=False)
+        files = serializers.ListField(
+            child=serializers.CharField(), required=False, default=None
+        )
 
     def initial(self, request, *args, **kwargs):
         token = request.headers.get("Authorization")
@@ -44,21 +44,9 @@ class ReleaseNotificationAPICreate(CreateAPIView):
         return super().initial(request, *args, **kwargs)
 
     def perform_create(self, serializer):
-        data = serializer.data
-
-        if "files" in data:
-            files = data["files"]
-            message = [
-                f"{data['created_by']} released {len(files)} outputs from {data['path']} on {self.backend.name}:"
-            ]
-            for f in files:
-                message.append(f"`{f}`")
-        else:
-            message = [
-                f"{data['created_by']} released outputs from {data['path']} on {self.backend.name}"
-            ]
-
-        post_slack_message(text="\n".join(message), channel="opensafely-outputs")
+        kwargs = serializer.data
+        kwargs["backend"] = self.backend
+        slacks.notify_github_release(**kwargs)
 
 
 def validate_upload_access(request, workspace):
@@ -169,7 +157,7 @@ class ReleaseWorkspaceAPI(APIView):
         except releases.ReleaseFileAlreadyExists as exc:
             raise ValidationError({"detail": str(exc)})
 
-        notify_release_created(release)
+        slacks.notify_release_created(release)
 
         response = Response(status=201)
         response["Location"] = request.build_absolute_uri(release.get_api_url())
@@ -228,7 +216,7 @@ class ReleaseAPI(APIView):
         except releases.ReleaseFileAlreadyExists as exc:
             raise ValidationError({"detail": str(exc)})
 
-        notify_release_file_uploaded(rfile, user)
+        slacks.notify_release_file_uploaded(rfile)
 
         response = Response(status=201)
         response.headers["File-Id"] = rfile.id
@@ -361,41 +349,3 @@ def serve_file(request, rfile):
         response = FileResponse(path.open("rb"))
 
     return response
-
-
-def slack_url(text, url):
-    return f"<{url}|{text}>"
-
-
-def notify_release_created(release):
-    workspace_url = slack_url(
-        f"workspace {release.workspace.name}", release.workspace.get_absolute_url()
-    )
-    release_url = slack_url(f"release {release.id}", release.get_absolute_url())
-    user_url = slack_url(
-        f"user {release.created_by.name}", release.created_by.get_staff_url()
-    )
-
-    message = f"New {release_url} by {user_url} for {workspace_url} from {release.backend.name}"
-
-    post_slack_message(message, "opensafely-outputs")
-
-
-def notify_release_file_uploaded(rfile, user):
-    release = rfile.release
-    user_url = slack_url(f"user {user.name}", user.get_staff_url())
-    release_url = slack_url(f"release {release.id}", release.get_absolute_url())
-    file_url = slack_url(f"file {rfile.name}", rfile.get_absolute_url())
-
-    message = (
-        f"{user_url} upload {file_url} to {release_url} from {release.backend.name}"
-    )
-    post_slack_message(message, "opensafely-outputs")
-
-
-def post_slack_message(text, channel):
-    try:
-        slack_client.chat_postMessage(channel=channel, text=text)
-    except SlackApiError:
-        # log and don't block the response
-        logger.exception("Failed to notify slack")

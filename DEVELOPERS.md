@@ -222,6 +222,18 @@ just test
 
 More details on testing can be found in [TESTING.md](TESTING.md).
 
+### Slack Testing
+
+With a valid bot token, you can run tests and have any slack messages generated
+actually sent to a test channel by setting some environment variables:
+
+```
+export SLACK_BOT_TOKEN=...
+export SLACK_TEST_CHANNEL=job-server-testing
+just test
+```
+
+
 ## Backends
 
 Backends in this project represent a [job runner](https://github.com/opensafely-core/job-runner) instance somewhere.

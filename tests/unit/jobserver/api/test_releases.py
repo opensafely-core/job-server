@@ -3,7 +3,6 @@ import json
 import pytest
 from django.utils import timezone
 from rest_framework.exceptions import NotAuthenticated
-from slack_sdk.errors import SlackApiError
 
 from jobserver.api.releases import (
     ReleaseAPI,
@@ -232,8 +231,7 @@ def test_releaseapi_post_no_user(api_rf):
     assert response.status_code == 403
 
 
-def test_releaseapi_post_success(api_rf, mocker):
-    mock = mocker.patch("jobserver.api.releases.slack_client", autospec=True)
+def test_releaseapi_post_success(api_rf, slack_messages):
     creating_user = UserFactory()
     uploading_user = UserFactory(roles=[OutputChecker])
     uploads = ReleaseUploadsFactory(["file.txt"])
@@ -261,16 +259,13 @@ def test_releaseapi_post_success(api_rf, mocker):
     assert response.headers["Location"].endswith(f"/releases/file/{rfile.id}")
     assert response.headers["File-Id"] == rfile.id
 
-    assert mock.chat_postMessage.call_count == 1
-    kwargs = mock.chat_postMessage.mock_calls[0].kwargs
-    assert kwargs["channel"] == "opensafely-outputs"
-    assert (
-        f"<{uploading_user.get_staff_url()}|user {uploading_user.name}>"
-        in kwargs["text"]
-    )
-    assert f"<{release.get_absolute_url()}|release {release.id}>" in kwargs["text"]
-    assert f"<{rfile.get_absolute_url()}|file {rfile.name}>" in kwargs["text"]
-    assert release.backend.name in kwargs["text"]
+    assert len(slack_messages) == 1
+    text, channel = slack_messages[0]
+    assert channel == "opensafely-outputs"
+    assert f"{uploading_user.get_staff_url()}|{uploading_user.name}>" in text
+    assert f"{release.get_absolute_url()}|release>" in text
+    assert f"{rfile.get_absolute_url()}|{rfile.name}>" in text
+    assert release.backend.name in text
 
 
 def test_releaseapi_post_unknown_release(api_rf):
@@ -292,10 +287,8 @@ def test_releaseapi_post_with_no_backend_token(api_rf):
     assert response.status_code == 403
 
 
-def test_releasenotificationapicreate_success(api_rf, mocker):
-    backend = BackendFactory()
-
-    mock = mocker.patch("jobserver.api.releases.slack_client", autospec=True)
+def test_releasenotificationapicreate_success(api_rf, slack_messages):
+    backend = BackendFactory(name="test")
 
     data = {
         "created_by": "test user",
@@ -309,16 +302,14 @@ def test_releasenotificationapicreate_success(api_rf, mocker):
     assert response.status_code == 201, response.data
 
     # check we called the slack API in the expected way
-    mock.chat_postMessage.assert_called_once_with(
-        channel="opensafely-outputs",
-        text=f"test user released outputs from /path/to/outputs on {backend.name}",
-    )
+    assert len(slack_messages) == 1
+    text, channel = slack_messages[0]
+    assert channel == "opensafely-outputs"
+    assert text == f"test user released outputs from /path/to/outputs on {backend.name}"
 
 
-def test_releasenotificationapicreate_success_with_files(api_rf, mocker):
-    backend = BackendFactory()
-
-    mock = mocker.patch("jobserver.api.releases.slack_client", autospec=True)
+def test_releasenotificationapicreate_success_with_files(api_rf, slack_messages):
+    backend = BackendFactory(name="test")
 
     data = {
         "created_by": "test user",
@@ -333,53 +324,14 @@ def test_releasenotificationapicreate_success_with_files(api_rf, mocker):
     assert response.status_code == 201, response.data
 
     # check we called the slack API in the expected way
-    mock.chat_postMessage.assert_called_once_with(
-        channel="opensafely-outputs",
-        text=(
-            f"test user released 2 outputs from /path/to/outputs on {backend.name}:\n"
-            "`output/file1.txt`\n"
-            "`output/file2.txt`"
-        ),
+    assert len(slack_messages) == 1
+    text, channel = slack_messages[0]
+    assert channel == "opensafely-outputs"
+    assert text == (
+        f"test user released 2 outputs from /path/to/outputs on {backend.name}:\n"
+        "`output/file1.txt`\n"
+        "`output/file2.txt`"
     )
-
-
-def test_releasenotificationapicreate_with_failed_slack_update(
-    api_rf, mocker, log_output
-):
-    backend = BackendFactory()
-
-    assert len(log_output.entries) == 0, log_output.entries
-
-    # have the slack API client raise an exception
-    mock = mocker.patch("jobserver.api.releases.slack_client", autospec=True)
-    mock.chat_postMessage.side_effect = SlackApiError(
-        message="an error", response={"error": "an error occurred"}
-    )
-
-    data = {
-        "created_by": "test user",
-        "path": "/path/to/outputs",
-    }
-    request = api_rf.post("/", data, HTTP_AUTHORIZATION=backend.auth_token)
-    request.user = UserFactory()
-
-    response = ReleaseNotificationAPICreate.as_view()(request)
-
-    assert response.status_code == 201, response.data
-
-    # check we called the slack API in the expected way
-    mock.chat_postMessage.assert_called_once_with(
-        channel="opensafely-outputs",
-        text=f"test user released outputs from /path/to/outputs on {backend.name}",
-    )
-
-    # check we logged the slack failure
-    assert len(log_output.entries) == 1, log_output.entries
-    assert log_output.entries[0] == {
-        "exc_info": True,
-        "event": "Failed to notify slack",
-        "log_level": "error",
-    }
 
 
 def test_releaseworkspaceapi_get_unknown_workspace(api_rf):
@@ -468,8 +420,7 @@ def test_releaseworkspaceapi_get_without_permission(api_rf):
     assert response.status_code == 403
 
 
-def test_releaseworkspaceapi_post_create_release(api_rf, mocker):
-    mock = mocker.patch("jobserver.api.releases.slack_client", autospec=True)
+def test_releaseworkspaceapi_post_create_release(api_rf, slack_messages):
     user = UserFactory(roles=[OutputChecker])
     workspace = WorkspaceFactory()
     ProjectMembershipFactory(user=user, project=workspace.project)
@@ -496,15 +447,14 @@ def test_releaseworkspaceapi_post_create_release(api_rf, mocker):
     assert response["Release-Id"] == str(release.id)
     assert response["Location"] == f"http://testserver{release.get_api_url()}"
 
-    assert mock.chat_postMessage.call_count == 1
-    kwargs = mock.chat_postMessage.mock_calls[0].kwargs
-    assert kwargs["channel"] == "opensafely-outputs"
-    assert f"<{user.get_staff_url()}|user {user.name}>" in kwargs["text"]
-    assert f"<{release.get_absolute_url()}|release {release.id}>" in kwargs["text"]
-    assert (
-        f"<{workspace.get_absolute_url()}|workspace {workspace.name}>" in kwargs["text"]
-    )
-    assert backend.name in kwargs["text"]
+    assert len(slack_messages) == 1
+    text, channel = slack_messages[0]
+
+    assert channel == "opensafely-outputs"
+    assert f"{user.get_staff_url()}|{user.name}>" in text
+    assert f"{release.get_absolute_url()}|release>" in text
+    assert f"{workspace.get_absolute_url()}|{workspace.name}>" in text
+    assert backend.name in text
 
 
 def test_releaseworkspaceapi_post_release_already_exists(api_rf):
