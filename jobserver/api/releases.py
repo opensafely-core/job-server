@@ -58,13 +58,7 @@ class ReleaseNotificationAPICreate(CreateAPIView):
                 f"{data['created_by']} released outputs from {data['path']} on {self.backend.name}"
             ]
 
-        try:
-            slack_client.chat_postMessage(
-                channel="opensafely-outputs", text="\n".join(message)
-            )
-        except SlackApiError:
-            # log and don't block the response
-            logger.exception("Failed to notify slack")
+        post_slack_message(text="\n".join(message), channel="opensafely-outputs")
 
 
 def validate_upload_access(request, workspace):
@@ -175,6 +169,8 @@ class ReleaseWorkspaceAPI(APIView):
         except releases.ReleaseFileAlreadyExists as exc:
             raise ValidationError({"detail": str(exc)})
 
+        notify_release_created(release)
+
         response = Response(status=201)
         response["Location"] = request.build_absolute_uri(release.get_api_url())
         response["Release-Id"] = release.id
@@ -231,6 +227,8 @@ class ReleaseAPI(APIView):
             )
         except releases.ReleaseFileAlreadyExists as exc:
             raise ValidationError({"detail": str(exc)})
+
+        notify_release_file_uploaded(rfile, user)
 
         response = Response(status=201)
         response.headers["File-Id"] = rfile.id
@@ -363,3 +361,41 @@ def serve_file(request, rfile):
         response = FileResponse(path.open("rb"))
 
     return response
+
+
+def slack_url(text, url):
+    return f"<{url}|{text}>"
+
+
+def notify_release_created(release):
+    workspace_url = slack_url(
+        f"workspace {release.workspace.name}", release.workspace.get_absolute_url()
+    )
+    release_url = slack_url(f"release {release.id}", release.get_absolute_url())
+    user_url = slack_url(
+        f"user {release.created_by.name}", release.created_by.get_staff_url()
+    )
+
+    message = f"New {release_url} by {user_url} for {workspace_url} from {release.backend.name}"
+
+    post_slack_message(message, "opensafely-outputs")
+
+
+def notify_release_file_uploaded(rfile, user):
+    release = rfile.release
+    user_url = slack_url(f"user {user.name}", user.get_staff_url())
+    release_url = slack_url(f"release {release.id}", release.get_absolute_url())
+    file_url = slack_url(f"file {rfile.name}", rfile.get_absolute_url())
+
+    message = (
+        f"{user_url} upload {file_url} to {release_url} from {release.backend.name}"
+    )
+    post_slack_message(message, "opensafely-outputs")
+
+
+def post_slack_message(text, channel):
+    try:
+        slack_client.chat_postMessage(channel=channel, text=text)
+    except SlackApiError:
+        # log and don't block the response
+        logger.exception("Failed to notify slack")

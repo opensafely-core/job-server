@@ -232,12 +232,18 @@ def test_releaseapi_post_no_user(api_rf):
     assert response.status_code == 403
 
 
-def test_releaseapi_post_success(api_rf):
-    user = UserFactory(roles=[OutputChecker])
+def test_releaseapi_post_success(api_rf, mocker):
+    mock = mocker.patch("jobserver.api.releases.slack_client", autospec=True)
+    creating_user = UserFactory()
+    uploading_user = UserFactory(roles=[OutputChecker])
     uploads = ReleaseUploadsFactory(["file.txt"])
-    release = ReleaseFactory(uploads, uploaded=False)
+    backend = BackendFactory(name="test-backend")
+    release = ReleaseFactory(
+        uploads, uploaded=False, created_by=creating_user, backend=backend
+    )
 
-    BackendMembershipFactory(backend=release.backend, user=user)
+    BackendMembershipFactory(backend=release.backend, user=creating_user)
+    BackendMembershipFactory(backend=release.backend, user=uploading_user)
 
     request = api_rf.post(
         "/",
@@ -245,7 +251,7 @@ def test_releaseapi_post_success(api_rf):
         data=uploads[0].contents,
         HTTP_CONTENT_DISPOSITION=f"attachment; filename={uploads[0].filename}",
         HTTP_AUTHORIZATION=release.backend.auth_token,
-        HTTP_OS_USER=user.username,
+        HTTP_OS_USER=uploading_user.username,
     )
 
     response = ReleaseAPI.as_view()(request, release_id=release.id)
@@ -254,6 +260,17 @@ def test_releaseapi_post_success(api_rf):
     assert response.status_code == 201
     assert response.headers["Location"].endswith(f"/releases/file/{rfile.id}")
     assert response.headers["File-Id"] == rfile.id
+
+    assert mock.chat_postMessage.call_count == 1
+    kwargs = mock.chat_postMessage.mock_calls[0].kwargs
+    assert kwargs["channel"] == "opensafely-outputs"
+    assert (
+        f"<{uploading_user.get_staff_url()}|user {uploading_user.name}>"
+        in kwargs["text"]
+    )
+    assert f"<{release.get_absolute_url()}|release {release.id}>" in kwargs["text"]
+    assert f"<{rfile.get_absolute_url()}|file {rfile.name}>" in kwargs["text"]
+    assert release.backend.name in kwargs["text"]
 
 
 def test_releaseapi_post_unknown_release(api_rf):
@@ -451,12 +468,13 @@ def test_releaseworkspaceapi_get_without_permission(api_rf):
     assert response.status_code == 403
 
 
-def test_releaseworkspaceapi_post_create_release(api_rf):
+def test_releaseworkspaceapi_post_create_release(api_rf, mocker):
+    mock = mocker.patch("jobserver.api.releases.slack_client", autospec=True)
     user = UserFactory(roles=[OutputChecker])
     workspace = WorkspaceFactory()
     ProjectMembershipFactory(user=user, project=workspace.project)
 
-    backend = BackendFactory(auth_token="test")
+    backend = BackendFactory(auth_token="test", name="test-backend")
     BackendMembershipFactory(backend=backend, user=user)
 
     assert Release.objects.count() == 0
@@ -477,6 +495,16 @@ def test_releaseworkspaceapi_post_create_release(api_rf):
     release = Release.objects.first()
     assert response["Release-Id"] == str(release.id)
     assert response["Location"] == f"http://testserver{release.get_api_url()}"
+
+    assert mock.chat_postMessage.call_count == 1
+    kwargs = mock.chat_postMessage.mock_calls[0].kwargs
+    assert kwargs["channel"] == "opensafely-outputs"
+    assert f"<{user.get_staff_url()}|user {user.name}>" in kwargs["text"]
+    assert f"<{release.get_absolute_url()}|release {release.id}>" in kwargs["text"]
+    assert (
+        f"<{workspace.get_absolute_url()}|workspace {workspace.name}>" in kwargs["text"]
+    )
+    assert backend.name in kwargs["text"]
 
 
 def test_releaseworkspaceapi_post_release_already_exists(api_rf):
