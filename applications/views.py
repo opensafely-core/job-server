@@ -1,4 +1,3 @@
-from django.conf import settings
 from django.contrib import messages
 from django.contrib.auth.decorators import login_required
 from django.http import Http404
@@ -8,11 +7,10 @@ from django.urls import reverse
 from django.utils import timezone
 from django.utils.decorators import method_decorator
 from django.views.generic import CreateView, RedirectView, UpdateView, View
-from furl import furl
 
 from jobserver.authorization import has_permission
 from jobserver.hash_utils import unhash_or_404
-from services.slack import client as slack_client
+from jobserver.slacks import notify_application
 
 from .emails import send_submitted_application_email
 from .form_specs import form_specs
@@ -20,37 +18,6 @@ from .forms import ResearcherRegistrationPageForm
 from .models import Application, ResearcherRegistration
 from .researchers import build_researcher_form
 from .wizard import Wizard
-
-
-def notify_slack(application, user, msg):
-    """
-    Send a message to slack about an Application instance
-
-    Derives URLs from the given Application and User instances, to build the
-    Slack message using the given msg prefix.
-    """
-    if settings.DEBUG:
-        return
-
-    f = furl(settings.BASE_URL)
-
-    # build user URL
-    f.path = user.get_staff_url()
-    user_url = f.url
-
-    # build application URL
-    f.path = application.get_staff_url()
-    application_url = f.url
-
-    # build message
-    # slack uses it's mrkdwn format for links:
-    # https://api.slack.com/reference/surfaces/formatting#linking-urls
-    message = f"{msg} by <{user_url}|{user.username}>: {application_url}"
-
-    slack_client.chat_postMessage(
-        channel="job-server-applications",
-        text=message,
-    )
 
 
 def validate_application_access(user, application):
@@ -265,7 +232,7 @@ def terms(request):
 
     application = Application.objects.create(created_by=request.user)
 
-    notify_slack(application, request.user, "New application started")
+    notify_application(application, request.user, "New application started")
 
     return redirect(
         "applications:page", pk_hash=application.pk_hash, key=form_specs[0].key
@@ -310,7 +277,9 @@ class Confirmation(View):
         if not self.wizard.is_valid():
             return self.get(request, *args, **kwargs)
 
-        notify_slack(self.wizard.application, request.user, "Application submitted")
+        notify_application(
+            self.wizard.application, request.user, "Application submitted"
+        )
 
         send_submitted_application_email(request.user.email, self.wizard.application)
 

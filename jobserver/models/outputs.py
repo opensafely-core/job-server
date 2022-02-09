@@ -177,6 +177,14 @@ class ReleaseFile(models.Model):
         """Has the file on disk been deleted?"""
         return not self.absolute_path().exists()
 
+    @property
+    def size(self):
+        """Returns size in Mb."""
+        try:
+            return self.absolute_path().stat().st_size / (1024 * 1024)
+        except Exception:
+            return 0
+
 
 class Snapshot(models.Model):
     """A "frozen" copy of the ReleaseFiles for a Workspace."""

@@ -17,7 +17,6 @@ from applications.views import (
     ResearcherDelete,
     ResearcherEdit,
     get_next_url,
-    notify_slack,
     page,
     sign_in,
     terms,
@@ -206,7 +205,9 @@ def test_confirmation_post_invalid(rf, incomplete_application):
     assert response.status_code == 200
 
 
-def test_confirmation_post_success(rf, complete_application, mailoutbox, mocker):
+def test_confirmation_post_success(
+    rf, complete_application, mailoutbox, slack_messages
+):
     request = rf.post("/")
     request.user = complete_application.created_by
 
@@ -214,8 +215,6 @@ def test_confirmation_post_success(rf, complete_application, mailoutbox, mocker)
     request.session = "session"
     messages = FallbackStorage(request)
     request._messages = messages
-
-    mocked_slack = mocker.patch("applications.views.slack_client", autospec=True)
 
     mail_count = len(mailoutbox)
 
@@ -230,7 +229,7 @@ def test_confirmation_post_success(rf, complete_application, mailoutbox, mocker)
     msg = "Application submitted"
     assert str(messages[0]) == msg
 
-    assert mocked_slack.chat_postMessage.call_count == 1
+    assert len(slack_messages) == 1
 
     assert len(mailoutbox) == mail_count + 1
 
@@ -250,15 +249,6 @@ def test_getnexturl_without_next_arg(rf):
     output = get_next_url(request.GET)
 
     assert output == reverse("applications:list")
-
-
-def test_notify_slack_not_called_in_debug_mode(mocker, settings):
-    mocked_slack = mocker.patch("applications.views.slack_client", autospec=True)
-    settings.DEBUG = True
-
-    assert notify_slack(ApplicationFactory(), UserFactory(), "test") is None
-
-    assert mocked_slack.chat_postMessage.call_count == 0
 
 
 def test_pageredirect_success(rf):
@@ -639,11 +629,9 @@ def test_terms_get_success(rf):
     assert response.status_code == 200
 
 
-def test_terms_post_success(rf, mocker):
+def test_terms_post_success(rf, slack_messages):
     request = rf.post("/")
     request.user = UserFactory()
-
-    mocker.patch("applications.views.slack_client", autospec=True)
 
     assert Application.objects.count() == 0
     response = terms(request)

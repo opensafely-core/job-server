@@ -1,8 +1,11 @@
+import os
+
 import pytest
 import structlog
 from django.conf import settings
 from structlog.testing import LogCapture
 
+import services.slack
 from applications.form_specs import form_specs
 from jobserver.authorization.roles import CoreDeveloper
 
@@ -77,3 +80,23 @@ def incomplete_application():
         factory = getattr(application_factories, factory_name)
         factory(application=application)
     return application
+
+
+slack_token = os.environ.get("SLACK_BOT_TOKEN")
+slack_test_channel = os.environ.get("SLACK_TEST_CHANNEL")
+
+
+@pytest.fixture
+def slack_messages(monkeypatch, enable_network):
+    messages = []
+
+    actual_post = services.slack.post
+
+    def post(text, channel):
+        messages.append((text, channel))
+
+        if slack_token and slack_test_channel:  # pragma: no cover
+            actual_post(text, slack_test_channel)
+
+    monkeypatch.setattr("services.slack.post", post)
+    return messages
