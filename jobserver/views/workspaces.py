@@ -45,7 +45,7 @@ class WorkspaceArchiveToggle(View):
         workspace.is_archived = form.cleaned_data["is_archived"]
         workspace.save()
 
-        return redirect("/")
+        return redirect(workspace.project)
 
 
 class WorkspaceBackendFiles(View):
