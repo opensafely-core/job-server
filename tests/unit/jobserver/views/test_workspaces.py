@@ -61,7 +61,7 @@ def test_workspacearchivetoggle_success(rf):
     )
 
     assert response.status_code == 302
-    assert response.url == "/"
+    assert response.url == workspace.project.get_absolute_url()
 
     workspace.refresh_from_db()
     assert workspace.is_archived
