@@ -5,9 +5,15 @@ updates:
     directory: "/"
     schedule:
       interval: "daily"
-    reviewers:
-      - "ghickman"
-    open-pull-requests-limit: 20
+    allow:
+      - dependency-type: "production"
+
+  - package-ecosystem: "pip"
+    directory: "/"
+    schedule:
+      interval: "monthly"
+    allow:
+      - dependency-type: "development"
 
   - package-ecosystem: "npm"
     directory: "/"
