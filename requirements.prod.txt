@@ -146,9 +146,9 @@ dj-email-url==1.0.2 \
     --hash=sha256:15148141c6ef123636e4ca3663e95231ed94ca5ed267e91977e5a4397be8b34c \
     --hash=sha256:838fd4ded9deba53ae757debef431e25fa7fca31d3948b3c4808ccdc84fab2b7
     # via environs
-django==4.0.1 \
-    --hash=sha256:2485eea3cc4c3bae13080dee866ebf90ba9f98d1afe8fda89bfb0eb2e218ef86 \
-    --hash=sha256:7cd8e8a3ed2bc0dfda05ce1e53a9c81b30eefd7aa350e538a18884475e4d4ce2
+django==4.0.2 \
+    --hash=sha256:110fb58fb12eca59e072ad59fc42d771cd642dd7a2f2416582aa9da7a8ef954a \
+    --hash=sha256:996495c58bff749232426c88726d8cd38d24c94d7c1d80835aafffa9bc52985a
     # via
     #   django-anymail
     #   django-browser-reload
