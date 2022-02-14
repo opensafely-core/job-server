@@ -19,15 +19,8 @@ jobs:
 
       - name: Get metadata for Dependabot PRs
         run: |
-          mkdir -p outputs
-          echo ${{ steps.dependabot-metadata }} > outputs/dependabot.json
-          echo ${{ github.event }} > outputs/event.json
+          echo ${{ steps.dependabot-metadata }}
+          echo ${{ github.event }}
         env:
           PR_URL: ${{ github.event.pull_request.html_url }}
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-
-      - name: Store json payload
-        uses: actions/upload-artifact@v2
-        with:
-          name: outputs
-          path: outputs/
