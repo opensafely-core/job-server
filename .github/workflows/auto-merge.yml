@@ -1,0 +1,33 @@
+name: Explore dependabot metadata
+
+on:
+  pull_request_target:
+  push:
+  workflow_dispatch:
+
+permissions:
+  pull-requests: write
+  contents: write
+
+jobs:
+  dependabot:
+    runs-on: ubuntu-latest
+    if: ${{ github.actor == 'dependabot[bot]' }}
+    steps:
+      - name: Dependabot metadata
+        id: dependabot-metadata
+        uses: dependabot/fetch-metadata@v1.1.1
+        with:
+          github-token: "${{ secrets.GITHUB_TOKEN }}"
+
+      - name: Get metadata for Dependabot PRs
+        run: cat ${{ steps.dependabot-metadata.outputs.updated-dependencies-json }} > updated-dependencies.json
+        env:
+          PR_URL: ${{ github.event.pull_request.html_url }}
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Store json payload
+        uses: actions/upload-artifact@v2
+        with:
+          name: updated-dependencies
+          path: updated-dependencies.json
