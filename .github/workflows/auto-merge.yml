@@ -1,9 +1,6 @@
 name: Explore dependabot metadata
 
-on:
-  pull_request_target:
-  push:
-  workflow_dispatch:
+on: pull_request_target
 
 permissions:
   pull-requests: write
@@ -21,7 +18,10 @@ jobs:
           github-token: "${{ secrets.GITHUB_TOKEN }}"
 
       - name: Get metadata for Dependabot PRs
-        run: cat ${{ steps.dependabot-metadata.outputs.updated-dependencies-json }} > updated-dependencies.json
+        run: |
+          mkdir -p outputs
+          echo ${{ steps.dependabot-metadata }} > outputs/dependabot.json
+          echo ${{ github.event }} > outputs/event.json
         env:
           PR_URL: ${{ github.event.pull_request.html_url }}
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
@@ -29,5 +29,5 @@ jobs:
       - name: Store json payload
         uses: actions/upload-artifact@v2
         with:
-          name: updated-dependencies
-          path: updated-dependencies.json
+          name: outputs
+          path: outputs/
