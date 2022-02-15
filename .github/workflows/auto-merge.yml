@@ -20,8 +20,8 @@ jobs:
       - name: Get metadata for Dependabot PRs
         run: |
           echo ${{ toJSON(github.actor) }}
-          echo ${{ toJSON(github.pull_request.labels) }}
-          echo ${{ contains(github.pull_request.labels.*.name, 'python') }}
+          echo ${{ toJSON(github.event.pull_request.labels) }}
+          echo ${{ contains(github.event.pull_request.labels.*.name, 'python') }}
           echo ${{ toJSON(steps.dependabot-metadata) }}
           echo ${{ toJSON(github.event) }}
         env:
