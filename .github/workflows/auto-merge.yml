@@ -9,7 +9,7 @@ permissions:
 jobs:
   dependabot:
     runs-on: ubuntu-latest
-    if: ${{ github.actor == 'dependabot[bot]' && contains(github.pull_request.labels.*.name, 'python') }}
+    if: ${{ github.actor == 'dependabot[bot]' }}
     steps:
       - name: Dependabot metadata
         id: dependabot-metadata
@@ -19,6 +19,9 @@ jobs:
 
       - name: Get metadata for Dependabot PRs
         run: |
+          echo ${{ toJSON(github.actor) }}
+          echo ${{ toJSON(github.pull_request.labels) }}
+          echo ${{ contains(github.pull_request.labels.*.name, 'python') }}
           echo ${{ toJSON(steps.dependabot-metadata) }}
           echo ${{ toJSON(github.event) }}
         env:
