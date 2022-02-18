@@ -580,9 +580,9 @@ six==1.16.0 \
     #   incuna-mail
     #   orderedmultidict
     #   python-dateutil
-slack-sdk==3.14.1 \
-    --hash=sha256:306d3647509fcfbd4ebe5dba19386ead329e85d297366805dbeac543bbd60904 \
-    --hash=sha256:b1a007072d2e98978cf906ff3452641ea4ab185e4eddbc27b087bbd9a8043ff0
+slack-sdk==3.15.0 \
+    --hash=sha256:232a713bce4f856ae87dfa4ac19f493ffbcba7fed5ec584a57f5f34d313c2377 \
+    --hash=sha256:c13daa11871904b2001b0c145bef535ea6e3033f0e524c6784dc8b8bdbaf3060
     # via -r requirements.prod.in
 social-auth-app-django==5.0.0 \
     --hash=sha256:52241a25445a010ab1c108bafff21fc5522d5c8cd0d48a92c39c7371824b065d \
