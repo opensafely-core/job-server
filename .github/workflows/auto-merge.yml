@@ -1,6 +1,6 @@
-name: Explore dependabot metadata
+name: Auto-merge Dependabot Python updates
 
-on: pull_request_target
+on: pull_request
 
 permissions:
   pull-requests: write
@@ -11,16 +11,12 @@ jobs:
     runs-on: ubuntu-latest
     if: ${{ github.actor == 'dependabot[bot]' && contains(github.event.pull_request.labels.*.name, 'python') }}
     steps:
-      - name: Dependabot metadata
-        id: dependabot-metadata
-        uses: dependabot/fetch-metadata@v1.1.1
-        with:
-          github-token: "${{ secrets.GITHUB_TOKEN }}"
-
-      - name: Get metadata for Dependabot PRs
+      - name: Enable auto-merge for Dependabot PRs
         run: |
-          echo ${{ toJSON(steps.dependabot-metadata) }}
-          echo ${{ toJSON(github.event) }}
+          set -eu
+
+          gh pr review --approve "$PR_URL"
+          gh pr merge --auto --merge "$PR_URL"
         env:
           PR_URL: ${{ github.event.pull_request.html_url }}
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
