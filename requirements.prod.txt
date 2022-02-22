@@ -331,9 +331,9 @@ pendulum==2.1.2 \
     --hash=sha256:f888f2d2909a414680a29ae74d0592758f2b9fcdee3549887779cd4055e975db \
     --hash=sha256:fb53ffa0085002ddd43b6ca61a7b34f2d4d7c3ed66f931fe599e1a531b42af9b
     # via pgcli
-pgcli==3.3.1 \
-    --hash=sha256:88cc7153c892125387568b888c1ae7657dfdd4aff9828b0e2afd97aee0331bfb \
-    --hash=sha256:fccc9e55ca68a4ad0887acfa2991afb3b8af93f3cce9ada249e6ad89879933a1
+pgcli==3.4.0 \
+    --hash=sha256:2e6aef687de576a953cf11f66d34337f85f2458d6c06b30a7186bbdb12a5bf07 \
+    --hash=sha256:d566c6eda99aad1a27680bdfd74657e25bc0586d04eaf0b1626bb58bde75cfb6
     # via -r requirements.prod.in
 pgspecial==1.13.0 \
     --hash=sha256:3847e205b19469f16ded05bda24b4758056d67ade4075a5ded4ce6628a9bad01 \
