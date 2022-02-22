@@ -11,7 +11,7 @@ You will need:
 - contact details for the individuals who will write the study code and/or review the results (individuals can have different levels of platform access, described later)
 - to have completed the OpenSAFELY [Getting Started guide](https://docs.opensafely.org/getting-started/)
 
-Importantly, if your study is **research**, you will need HRA Approval and a favourable opinion from an NHS Research Ethics Committee, both via the HRA IRAS process.
+Importantly, if your study is **research**, you will need a favourable opinion from an NHS Research Ethics Committee, obtained via the HRA IRAS process. [Note: the HRA and HCRW Approval step is NOT required, therefore, on your IRAS form, for question 3a choose the option "This study does not involve the NHS”.]
 
 If your study is a **service evaluation/audit**, you will need to evidence this (explained later), obtain a favouable opinion from a local / institutional Research Ethics Committee and provide evidence of support from a senior sponsor, such as an NHSE/X national clinical lead, band 9, director, or the sponsor might be a member of SAGE, JCVI, etc.
 
