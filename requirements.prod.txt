@@ -230,9 +230,9 @@ itsdangerous==2.1.0 \
     --hash=sha256:29285842166554469a56d427addc0843914172343784cb909695fdbe90a3e129 \
     --hash=sha256:d848fcb8bc7d507c4546b448574e8a44fc4ea2ba84ebf8d783290d53e81992f5
     # via -r requirements.prod.in
-jinja2==2.11.3 \
-    --hash=sha256:03e47ad063331dd6a3f04a43eddca8a966a26ba0c5b7207a9a9e4e08f1b29419 \
-    --hash=sha256:a6d58433de0ae800347cab1fa3043cebbabe8baa9d29e668f1c768cb87a333c6
+jinja2==3.0.3 \
+    --hash=sha256:077ce6014f7b40d03b47d1f1ca4b0fc8328a692bd284016f806ed0eaca390ad8 \
+    --hash=sha256:611bb273cd68f3b993fabdc4064fc858c5b47a973cb5aa7999ec1ba405c87cd7
     # via pybadges
 markdown==3.3.6 \
     --hash=sha256:76df8ae32294ec39dcf89340382882dfa12975f87f45c3ed1ecdb1e8cefc7006 \
@@ -416,9 +416,9 @@ psycopg2-binary==2.9.3 \
     --hash=sha256:e847774f8ffd5b398a75bc1c18fbb56564cda3d629fe68fd81971fece2d3c67e \
     --hash=sha256:ffb7a888a047696e7f8240d649b43fb3644f14f0ee229077e7f6b9f9081635bd
     # via -r requirements.prod.in
-pybadges==2.2.1 \
-    --hash=sha256:4f6edc7e4e124caec2975f14adaabfef681c8eff0be6f374a8c21a918e75458f \
-    --hash=sha256:bd4c35ac2c40b33c70095739d9423c3b0e400c508c5665de7eb427c399a40d42
+pybadges==3.0.0 \
+    --hash=sha256:5af6bcefc5d7324a6f56d502eefb67e0aa35d7d805d11e78446ec2d4c01d1638 \
+    --hash=sha256:a93e6203993156f144666956be1a643dd233662e3793203f6d1cac2185a2f948
     # via -r requirements.prod.in
 pycparser==2.20 \
     --hash=sha256:2d475327684562c3a96cc71adf7dc8c4f0565175cf86b6d7a404ff4c771f15f0 \
