@@ -42,6 +42,14 @@
         Settings
       </a>
     {% endif %}
+
+    {% if project.slug == "opensafely-testing" %}
+    <div class="alert alert-warning mt-3" role="warning">
+      This project exists for testing purposes only.
+      More information can be found in the
+      <a href="https://docs.opensafely.org/developer-access-policy/">OpenSAFELY testing policy</a>.
+    </div>
+    {% endif %}
   </div>
 </div>
 {% endblock jumbotron %}
