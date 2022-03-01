@@ -5,8 +5,11 @@ from datetime import timedelta
 from pathlib import Path
 
 from django.db import transaction
+from django.http import FileResponse
 from django.utils import timezone
 from furl import furl
+from rest_framework.exceptions import NotFound
+from rest_framework.response import Response
 
 from .models import Release, ReleaseFile
 from .models.outputs import absolute_file_path
@@ -148,6 +151,31 @@ def handle_file_upload(release, backend, user, upload, filename):
         raise
 
     return rfile
+
+
+def serve_file(request, rfile):
+    """Serve a ReleaseFile as the response.
+
+    If Releases-Redirect header is set, use nginx's X-Accel-Redirect to serve
+    response. Else just serve the bytes directly (for dev).
+    """
+    path = rfile.absolute_path()
+    # check the file actually exists on disk
+    if not path.exists():
+        raise NotFound
+
+    internal_redirect = request.headers.get("Releases-Redirect")
+    if internal_redirect:
+        # we're behind nginx, so use X-Accel-Redirect to serve the file
+        # from nginx, relative to RELEASES_STORAGE.
+        response = Response()
+        response.headers["X-Accel-Redirect"] = f"{internal_redirect}/{rfile.path}"
+    else:
+        # serve directly from django in dev use regular django response to
+        # bypass DRFs renderer framework and just serve bytes
+        response = FileResponse(path.open("rb"))
+
+    return response
 
 
 def workspace_files(workspace):

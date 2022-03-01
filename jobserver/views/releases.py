@@ -11,7 +11,12 @@ from django.views.generic import View
 
 from ..authorization import has_permission
 from ..models import Project, Release, ReleaseFile, Snapshot, Workspace
-from ..releases import build_outputs_zip, build_spa_base_url, workspace_files
+from ..releases import (
+    build_outputs_zip,
+    build_spa_base_url,
+    serve_file,
+    workspace_files,
+)
 
 
 class ProjectReleaseList(View):
@@ -78,6 +83,18 @@ class ProjectReleaseList(View):
             "project_release_list.html",
             context=context,
         )
+
+
+class PublishedSnapshotFile(View):
+    def get(self, request, *args, **kwargs):
+        """Return the content of a specific ReleaseFile which has been published"""
+        rfile = get_object_or_404(ReleaseFile, id=self.kwargs["file_id"])
+
+        is_published = rfile.snapshots.exclude(published_at=None).exists()
+        if not is_published:
+            raise Http404
+
+        return serve_file(request, rfile)
 
 
 class ReleaseDetail(View):

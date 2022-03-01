@@ -158,6 +158,21 @@ class ReleaseFile(models.Model):
 
     def get_api_url(self):
         """The API url that will serve up this file."""
+        if getattr(self, "is_published", False):
+            # This is a hack so the view for viewing a published ReleaseFile
+            # can pass down the knowledge that a ReleaseFile has been
+            # published, avoid O(N) queries on views which aren't expecting to
+            # have to add `.select_related("snapshot")` to a QuerySet.
+            return reverse(
+                "published-file",
+                kwargs={
+                    "org_slug": self.workspace.project.org.slug,
+                    "project_slug": self.workspace.project.slug,
+                    "workspace_slug": self.workspace.name,
+                    "file_id": self.id,
+                },
+            )
+
         return reverse("api:release-file", kwargs={"file_id": self.id})
 
     def get_delete_url(self):

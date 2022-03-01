@@ -107,6 +107,39 @@ def test_releasefile_get_delete_url():
     )
 
 
+def test_releasefile_get_api_url_without_is_published():
+    files = {"file.txt": b"contents"}
+    release = ReleaseFactory(ReleaseUploadsFactory(files))
+
+    file = release.files.first()
+
+    url = file.get_api_url()
+
+    assert url == reverse("api:release-file", kwargs={"file_id": file.id})
+
+
+def test_releasefile_get_api_url_with_is_published():
+    files = {"file.txt": b"contents"}
+    release = ReleaseFactory(ReleaseUploadsFactory(files))
+
+    file = release.files.first()
+
+    # mirror the SnapshotAPI view setting this value on the ReleaseFile object.
+    setattr(file, "is_published", True)
+
+    url = file.get_api_url()
+
+    assert url == reverse(
+        "published-file",
+        kwargs={
+            "org_slug": release.workspace.project.org.slug,
+            "project_slug": release.workspace.project.slug,
+            "workspace_slug": release.workspace.name,
+            "file_id": file.id,
+        },
+    )
+
+
 def test_releasefile_ulid():
     release = ReleaseFactory(ReleaseUploadsFactory(["file1.txt"]))
     rfile = release.files.first()
