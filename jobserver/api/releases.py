@@ -249,7 +249,12 @@ class SnapshotAPI(APIView):
         )
 
         validate_snapshot_access(request, snapshot)
-        files = {f.name: f for f in snapshot.files.select_related("created_by")}
+        files = {
+            f.name: f
+            for f in snapshot.files.select_related(
+                "created_by", "release", "release__backend"
+            )
+        }
 
         return Response(generate_index(files))
 
