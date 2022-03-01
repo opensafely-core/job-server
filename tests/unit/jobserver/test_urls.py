@@ -144,6 +144,7 @@ def test_url_redirects(client, url, redirect):
         ("/o/p/w/outputs/42/", releases.SnapshotDetail),
         ("/o/p/w/outputs/42/download/", releases.SnapshotDownload),
         ("/o/p/w/outputs/42/file.txt", releases.SnapshotDetail),
+        ("/o/p/w/published/42/", releases.PublishedSnapshotFile),
         ("/o/p/w/releases/", releases.WorkspaceReleaseList),
         ("/o/p/w/releases/42/", releases.ReleaseDetail),
         ("/o/p/w/releases/42/download/", releases.ReleaseDownload),

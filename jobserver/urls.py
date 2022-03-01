@@ -46,6 +46,7 @@ from .views.projects import (
 )
 from .views.releases import (
     ProjectReleaseList,
+    PublishedSnapshotFile,
     ReleaseDetail,
     ReleaseDownload,
     ReleaseFileDelete,
@@ -167,6 +168,10 @@ outputs_urls = [
     ),
 ]
 
+published_files_urls = [
+    path("<file_id>/", PublishedSnapshotFile.as_view(), name="published-file"),
+]
+
 releases_urls = [
     path(
         "",
@@ -207,6 +212,7 @@ workspace_urls = [
         name="workspace-notifications-toggle",
     ),
     path("outputs/", include(outputs_urls)),
+    path("published/", include(published_files_urls)),
     path("releases/", include(releases_urls)),
     path("<int:pk>/", JobRequestDetail.as_view(), name="job-request-detail"),
     path("<int:pk>/cancel/", JobRequestCancel.as_view(), name="job-request-cancel"),

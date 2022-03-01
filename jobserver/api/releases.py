@@ -2,16 +2,11 @@ import cgi
 
 import structlog
 from django.db import transaction
-from django.http import FileResponse
+from django.db.models import Value
 from django.shortcuts import get_object_or_404
 from django.utils import timezone
 from rest_framework import serializers
-from rest_framework.exceptions import (
-    NotAuthenticated,
-    NotFound,
-    ParseError,
-    ValidationError,
-)
+from rest_framework.exceptions import NotAuthenticated, ParseError, ValidationError
 from rest_framework.generics import CreateAPIView, RetrieveAPIView
 from rest_framework.parsers import FileUploadParser, JSONParser
 from rest_framework.response import Response
@@ -21,6 +16,7 @@ from jobserver import releases, slacks
 from jobserver.api import get_backend_from_token
 from jobserver.authorization import has_permission
 from jobserver.models import Release, ReleaseFile, Snapshot, User, Workspace
+from jobserver.releases import serve_file
 from jobserver.utils import set_from_qs
 
 
@@ -81,7 +77,6 @@ def validate_release_access(request, workspace):
 
     This validation uses Django's regular User auth.
     """
-    # TODO: check if release is published
     if request.user.is_anonymous:
         raise NotAuthenticated("Invalid user or token")
 
@@ -248,8 +243,22 @@ class SnapshotAPI(APIView):
             pk=self.kwargs["snapshot_id"],
         )
 
+        # grab whether the Snapshot has been published so we can annotate a
+        # static value to each ReleaseFile in the query below.
+        is_published = snapshot.published_at is not None
+
         validate_snapshot_access(request, snapshot)
-        files = {f.name: f for f in snapshot.files.select_related("created_by")}
+        files = {
+            f.name: f
+            for f in snapshot.files.select_related(
+                "created_by",
+                "release",
+                "release__backend",
+                "workspace",
+                "workspace__project",
+                "workspace__project__org",
+            ).annotate(is_published=Value(is_published))
+        }
 
         return Response(generate_index(files))
 
@@ -324,28 +333,3 @@ class WorkspaceStatusAPI(RetrieveAPIView):
 
     class serializer_class(serializers.Serializer):
         uses_new_release_flow = serializers.BooleanField()
-
-
-def serve_file(request, rfile):
-    """Serve a ReleaseFile as the response.
-
-    If Releases-Redirect header is set, use nginx's X-Accel-Redirect to serve
-    response. Else just serve the bytes directly (for dev).
-    """
-    path = rfile.absolute_path()
-    # check the file actually exists on disk
-    if not path.exists():
-        raise NotFound
-
-    internal_redirect = request.headers.get("Releases-Redirect")
-    if internal_redirect:
-        # we're behind nginx, so use X-Accel-Redirect to serve the file
-        # from nginx, relative to RELEASES_STORAGE.
-        response = Response()
-        response.headers["X-Accel-Redirect"] = f"{internal_redirect}/{rfile.path}"
-    else:
-        # serve directly from django in dev use regular django response to
-        # bypass DRFs renderer framework and just serve bytes
-        response = FileResponse(path.open("rb"))
-
-    return response

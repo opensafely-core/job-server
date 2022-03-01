@@ -6,6 +6,7 @@ from django.utils import timezone
 from jobserver.authorization import OutputChecker, OutputPublisher, ProjectCollaborator
 from jobserver.views.releases import (
     ProjectReleaseList,
+    PublishedSnapshotFile,
     ReleaseDetail,
     ReleaseDownload,
     ReleaseFileDelete,
@@ -114,22 +115,63 @@ def test_projectreleaselist_with_delete_permission(rf):
     assert "Delete" in response.rendered_content
 
 
-def test_releasedetail_no_path_success(rf):
-    release = ReleaseFactory(ReleaseUploadsFactory(["test1"]))
+def test_publishedsnapshotfile_success(rf):
+    release = ReleaseFactory(ReleaseUploadsFactory({"file1.txt": b"test"}))
+    snapshot = SnapshotFactory(published_at=timezone.now())
+    snapshot.files.set(release.files.all())
+
+    rfile = release.files.first()
 
     request = rf.get("/")
-    request.user = UserFactory(roles=[ProjectCollaborator])
+    request.user = AnonymousUser()
 
-    response = ReleaseDetail.as_view()(
+    response = PublishedSnapshotFile.as_view()(
         request,
         org_slug=release.workspace.project.org.slug,
         project_slug=release.workspace.project.slug,
         workspace_slug=release.workspace.name,
-        pk=release.id,
-        path="",
+        file_id=rfile.id,
     )
 
     assert response.status_code == 200
+    assert b"".join(response.streaming_content) == b"test"
+    assert response.headers["Content-Type"] == "text/plain"
+
+
+def test_publishedsnapshotfile_with_unknown_release_file(rf):
+    workspace = WorkspaceFactory()
+
+    request = rf.get("/")
+    request.user = AnonymousUser()
+
+    with pytest.raises(Http404):
+        PublishedSnapshotFile.as_view()(
+            request,
+            org_slug=workspace.project.org.slug,
+            project_slug=workspace.project.slug,
+            workspace_slug=workspace.name,
+            file_id="",
+        )
+
+
+def test_publishedsnapshotfile_with_unpublished_release_file(rf):
+    release = ReleaseFactory(ReleaseUploadsFactory(["test1"]))
+    snapshot = SnapshotFactory(published_at=None)
+    snapshot.files.set(release.files.all())
+
+    rfile = release.files.first()
+
+    request = rf.get("/")
+    request.user = AnonymousUser()
+
+    with pytest.raises(Http404):
+        PublishedSnapshotFile.as_view()(
+            request,
+            org_slug=release.workspace.project.org.slug,
+            project_slug=release.workspace.project.slug,
+            workspace_slug=release.workspace.name,
+            file_id=rfile.id,
+        )
 
 
 def test_releasedetail_unknown_release(rf):
