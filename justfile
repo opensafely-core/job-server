@@ -155,3 +155,6 @@ rebuild-static:
     npm ci
     npm run build
     $BIN/python manage.py collectstatic --no-input
+
+load-dev-data: devenv
+    $BIN/python manage.py loaddata backends
