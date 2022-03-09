@@ -3,6 +3,7 @@ __pycache__/
 .env
 .envrc
 .idea/
+.venv/
 /assets/dist
 /assets/stats.html
 /coverage
