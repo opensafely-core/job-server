@@ -74,6 +74,31 @@ def test_jobrequestcancel_success(rf):
     assert "test3" in job_request.cancelled_actions
 
 
+def test_jobrequestcancel_partially_completed(rf):
+    job_request = JobRequestFactory(cancelled_actions=[])
+    JobFactory(job_request=job_request, action="test1", status="failed")
+    JobFactory(job_request=job_request, action="test2", status="succeeded")
+    JobFactory(job_request=job_request, action="test3", status="running")
+    JobFactory(job_request=job_request, action="test4", status="pending")
+
+    user = UserFactory()
+
+    ProjectMembershipFactory(
+        project=job_request.workspace.project, user=user, roles=[ProjectDeveloper]
+    )
+
+    request = rf.post("/")
+    request.user = user
+
+    response = JobRequestCancel.as_view()(request, pk=job_request.pk)
+
+    assert response.status_code == 302
+    assert response.url == job_request.get_absolute_url()
+
+    job_request.refresh_from_db()
+    assert sorted(job_request.cancelled_actions) == ["test3", "test4"]
+
+
 def test_jobrequestcancel_with_job_request_creator(rf):
     user = UserFactory()
     job_request = JobRequestFactory(cancelled_actions=[], created_by=user)
