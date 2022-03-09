@@ -119,9 +119,13 @@ Where `N` should match the number of errors you got.
 If using the docker-compose stack you'll need to do:
 
 ```sh
-docker exec job-server-job-server-1 bash -c "pg_restore --clean --if-exists --no-acl --no-owner -d \$DATABASE_URL jobserver.dump"
+docker exec job-server_job-server_1 bash -c "pg_restore --clean --if-exists --no-acl --no-owner -d \$DATABASE_URL jobserver.dump"
 ```
 
+Note that this runs on the job-server container; if you haven't already, you'll also need to first ensure the job-server container is running:
+```sh
+docker-compose up --build job-server
+```
 
 #### Steps
 
