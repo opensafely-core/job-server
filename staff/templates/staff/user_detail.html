@@ -63,6 +63,14 @@
             A list of backends {{ user.username }} has access to.
           </p>
 
+          <p>
+            Once you've
+            <a href="https://docs.google.com/spreadsheets/d/1rmFdaUz2BFedLL9cgVk-PDWINeLAeupR0TYoS8Btlh0/edit#gid=0&range=Q1">
+              confirmed the user has signed a DAA and their application has been approved
+            </a>,
+            grant them access to only the backends their study requires.
+          </p>
+
           <ul class="list-group mb-5">
             {% for value, label in form.backends.field.choices %}
             <li class="list-group-item">
