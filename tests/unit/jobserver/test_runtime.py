@@ -14,6 +14,12 @@ def test_lessthan60_failure():
         less_than_60(None, "an_attribute", 61)
 
 
+def test_runtime_bool():
+    assert Runtime(1, 3, 42)
+
+    assert not Runtime(0, 0, 0)
+
+
 def test_runtime_defaults():
     runtime = Runtime()
 

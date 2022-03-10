@@ -128,10 +128,10 @@ class Job(models.Model):
     @property
     def runtime(self):
         if not self.is_completed:
-            return
+            return Runtime(0, 0, 0)
 
         if self.started_at is None or self.completed_at is None:
-            return
+            return Runtime(0, 0, 0)
 
         delta = self.completed_at - self.started_at
         total_seconds = delta.total_seconds()
@@ -273,7 +273,7 @@ class JobRequest(models.Model):
         delta of the first start time and last completed time.
         """
         if self.started_at is None:
-            return
+            return Runtime(0, 0, 0)
 
         def runtime_in_seconds(job):
             if job.started_at is None or job.completed_at is None:

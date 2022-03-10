@@ -103,20 +103,20 @@ def test_job_runtime_not_completed():
     job = JobFactory(status="running", started_at=timezone.now())
 
     # an uncompleted job has no runtime
-    assert job.runtime is None
+    assert not job.runtime
 
 
 def test_job_runtime_not_started():
     job = JobFactory(status="pending")
 
     # an unstarted job has no runtime
-    assert job.runtime is None
+    assert not job.runtime
 
 
 def test_job_runtime_without_timestamps():
     job = JobFactory(status="succeeded", started_at=None, completed_at=None)
 
-    assert job.runtime is None
+    assert not job.runtime
 
 
 def test_job_str():
