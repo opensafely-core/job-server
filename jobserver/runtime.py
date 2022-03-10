@@ -18,3 +18,9 @@ class Runtime:
             return False
 
         return True
+
+    def __str__(self):
+        if not self:
+            return "-"
+
+        return f"{self.hours:02d}:{self.minutes:02d}:{self.seconds:02d}"

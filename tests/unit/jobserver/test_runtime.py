@@ -29,6 +29,16 @@ def test_runtime_defaults():
     assert runtime.total_seconds == 0
 
 
+def test_runtime_str_success():
+    r = Runtime(hours=1, minutes=37, seconds=12)
+
+    assert str(r) == "01:37:12"
+
+
+def test_runtime_str_with_zero_runtime():
+    assert str(Runtime(0, 0, 0)) == "-"
+
+
 def test_runtime_validation():
     with pytest.raises(ValueError):
         Runtime(hours=1, minutes=62, seconds=3)

@@ -1,7 +1,6 @@
 {% extends "base.html" %}
 
 {% load humanize %}
-{% load runtime %}
 {% load status_tools %}
 
 {% block extra_meta %}
@@ -199,7 +198,7 @@
 
           <div class="list-group-item">
             <strong>Duration:</strong>
-            <span>{% runtime job.runtime %}</span>
+            <span>{{ job.runtime }}</span>
             <p class="text-muted mb-0 mt-1">
               How long the job ran for on the secure backend, this includes time
               spent copying files, and waiting to be checked by the backend.

@@ -1,7 +1,6 @@
 {% extends "base.html" %}
 
 {% load humanize %}
-{% load runtime %}
 {% load static %}
 
 {% block extra_meta %}
@@ -202,7 +201,7 @@
 
             <li>
               <strong>Runtime:</strong>
-              <span>{% runtime job_request.runtime %}</span>
+              <span>{{ job_request.runtime }}</span>
             </li>
           </ul>
         </div>
