@@ -480,9 +480,9 @@ python-dotenv==0.18.0 \
     --hash=sha256:dd8fe852847f4fbfadabf6183ddd4c824a9651f02d51714fa075c95561959c7d \
     --hash=sha256:effaac3c1e58d89b3ccb4d04a40dc7ad6e0275fda25fd75ae9d323e2465e202d
     # via environs
-python-ulid==1.0.3 \
-    --hash=sha256:5dd8b969312a40e2212cec9c1ad63f25d4b6eafd92ee3195883e0287b6e9d19e \
-    --hash=sha256:8704dc20f547f531fe3a41d4369842d737a0f275403b909d0872e7ea0fe8d6f2
+python-ulid==1.1.0 \
+    --hash=sha256:5fb5e4a91db8ca93e8938a613360b3def299b60d41f847279a8c39c9b2e9c65e \
+    --hash=sha256:88c952f6be133dbede19c907d72d26717d2691ec8421512b573144794d891e24
     # via -r requirements.prod.in
 python3-openid==3.2.0 \
     --hash=sha256:33fbf6928f401e0b790151ed2b5290b02545e8775f982485205a066f874aaeaf \
