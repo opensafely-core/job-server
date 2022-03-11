@@ -1,6 +1,5 @@
 {% extends "base.html" %}
 
-{% load runtime %}
 {% load humanize %}
 {% load django_vite %}
 
@@ -332,7 +331,7 @@
       <li title="{{ latest_job_request.created_at|date:"Y-m-d H:i:sO" }}">
         <strong>Created:</strong> {{ latest_job_request.created_at|naturaltime }}
       </li>
-      <li><strong>Total Runtime:</strong> {% runtime latest_job_request.runtime %}</li>
+      <li><strong>Total Runtime:</strong> {{ latest_job_request.runtime }}</li>
       <li><strong>Requested Actions:</strong> {{ latest_job_request.requested_actions|join:", " }}</li>
     </ul>
 
@@ -347,7 +346,7 @@
       <span class="pl-3"><div class="status-icon {{ job.status }}"></div></span>
       <span>{{ job.action }}</span>
       <span {% if job.started_at %} title="{{ job.started_at|naturaltime }}"{% endif %}>
-        <small>{% runtime job.runtime %}</small>
+        <small>{{ job.runtime }}</small>
       </span>
       <span class="d-none d-lg-inline text-truncate" title="{{ job.status_message }}">
         {{ job.status_message|default:"-" }}

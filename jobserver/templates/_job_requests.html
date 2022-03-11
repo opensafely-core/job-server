@@ -1,5 +1,4 @@
 {% load humanize %}
-{% load runtime %}
 
 <div class="container-fluid">
   {% include "_job_request_pagination.html" %}
@@ -67,7 +66,7 @@
           </span>
           <span>{{ job.action }}</span>
           <span {% if job.started_at %} title="{{ job.started_at|naturaltime }}"{% endif %}>
-            <small>{% runtime job.runtime %}</small>
+            <small>{{ job.runtime }}</small>
           </span>
           <span class="d-none d-lg-inline text-truncate" title="{{ job.status_message }}">
             {{ job.status_message|default:"-" }}
