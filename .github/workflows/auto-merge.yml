@@ -1,4 +1,4 @@
-name: Auto-merge Dependabot Python updates
+name: Approve and enable auto-merge for Dependabot updates
 
 on: pull_request
 
@@ -9,8 +9,28 @@ permissions:
 jobs:
   dependabot:
     runs-on: ubuntu-latest
-    if: ${{ github.actor == 'dependabot[bot]' && contains(github.event.pull_request.labels.*.name, 'python') }}
+    if: ${{ github.actor == 'dependabot[bot]' }}
     steps:
+      - name: Dependabot metadata
+        id: metadata
+        uses: dependabot/fetch-metadata@v1.1.1
+        with:
+          github-token: "${{ secrets.GITHUB_TOKEN }}"
+
+      - name: Checkout branch
+        uses: actions/checkout@v2
+
+      - name: Check we're dealing with Python updates
+        id: check-labels
+        run: |
+          if gh pr view --json labels -q .labels | grep -q '"name":"python"'; then
+            echo ::set-output name=is-python-dependency::'y'
+          fi
+
+      - name: Fail if dependency update did not update a requirements file
+        if: ${{ ! startsWith(steps.check-labels.outputs.is-python-dependency, 'y') }}
+        run: /bin/false
+
       - name: Enable auto-merge for Dependabot PRs
         run: |
           set -eu
