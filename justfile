@@ -107,17 +107,15 @@ test *ARGS: devenv
 
 
 # run the various dev checks but does not change any files
-check: devenv format lint sort check-for-upgrades
-
-
-check-for-upgrades: devenv
-    # run pyupgrade but does not change files
+check: devenv
+    $BIN/black --check .
+    $BIN/isort --check-only --diff .
+    $BIN/flake8
     $BIN/pyupgrade --py310-plus \
         $(find applications -name "*.py" -type f) \
         $(find jobserver -name "*.py" -type f) \
         $(find services -name "*.py" -type f) \
         $(find tests -name "*.py" -type f)
-
     $BIN/django-upgrade --target-version=3.2 \
         $(find applications -name "*.py" -type f) \
         $(find jobserver -name "*.py" -type f) \
@@ -129,16 +127,6 @@ check-for-upgrades: devenv
 fix: devenv
     $BIN/black .
     $BIN/isort .
-
-
-# runs black but does not change any files
-format: devenv
-    $BIN/black --check .
-
-
-# runs flake8 but does not change any files
-lint: devenv
-    $BIN/flake8
 
 
 load-dev-data: devenv
@@ -155,8 +143,3 @@ rebuild-static:
     npm ci
     npm run build
     $BIN/python manage.py collectstatic --no-input
-
-
-# runs isort but does not change any files
-sort: devenv
-    $BIN/isort --check-only --diff .
