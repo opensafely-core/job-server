@@ -16,65 +16,22 @@ default:
     @{{ just_executable() }} --list
 
 
-check-for-upgrades: devenv
-    # run pyupgrade but does not change files
-    $BIN/pyupgrade --py310-plus \
-        $(find applications -name "*.py" -type f) \
-        $(find jobserver -name "*.py" -type f) \
-        $(find services -name "*.py" -type f) \
-        $(find tests -name "*.py" -type f)
-
-    $BIN/django-upgrade --target-version=3.2 \
-        $(find applications -name "*.py" -type f) \
-        $(find jobserver -name "*.py" -type f) \
-        $(find services -name "*.py" -type f) \
-        $(find tests -name "*.py" -type f)
-
-
-# run the various dev checks but does not change any files
-check: devenv format lint sort check-for-upgrades
-
-
 # clean up temporary files
 clean:
     rm -rf .venv
 
 
-# && dependencies are run after the recipe has run. Needs just>=0.9.9. This is
-# a killer feature over Makefiles.
-#
-# ensure dev requirements installed and up to date
-devenv: prodenv requirements-dev && install-precommit
+# ensure valid virtualenv
+virtualenv:
     #!/usr/bin/env bash
-    set -eu
-    # exit if .txt file has not changed since we installed them (-nt == "newer than', but we negate with || to avoid error exit code)
-    test requirements.dev.txt -nt $VIRTUAL_ENV/.dev || exit 0
+    # allow users to specify python version in .env
+    PYTHON_VERSION=${PYTHON_VERSION:-python3.10}
 
-    $PIP install -r requirements.dev.txt
-    touch $VIRTUAL_ENV/.dev
+    # create venv and upgrade pip
+    test -d $VIRTUAL_ENV || { $PYTHON_VERSION -m venv $VIRTUAL_ENV && $PIP install --upgrade pip; }
 
-
-# fix formatting and import sort ordering
-fix: devenv
-    $BIN/black .
-    $BIN/isort .
-
-
-# runs black but does not change any files
-format: devenv
-    $BIN/black --check .
-
-
-# ensure precommit is installed
-install-precommit:
-    #!/usr/bin/env bash
-    BASE_DIR=$(git rev-parse --show-toplevel)
-    test -f $BASE_DIR/.git/hooks/pre-commit || $BIN/pre-commit install
-
-
-# runs flake8 but does not change any files
-lint: devenv
-    $BIN/flake8
+    # ensure we have pip-tools so we can run pip-compile
+    test -e $BIN/pip-compile || $PIP install pip-tools
 
 
 _compile src dst *args: virtualenv
@@ -105,14 +62,33 @@ prodenv: requirements-prod
     touch $VIRTUAL_ENV/.prod
 
 
-# runs isort but does not change any files
-sort: devenv
-    $BIN/isort --check-only --diff .
+# && dependencies are run after the recipe has run. Needs just>=0.9.9. This is
+# a killer feature over Makefiles.
+#
+# ensure dev requirements installed and up to date
+devenv: prodenv requirements-dev && install-precommit
+    #!/usr/bin/env bash
+    set -eu
+    # exit if .txt file has not changed since we installed them (-nt == "newer than', but we negate with || to avoid error exit code)
+    test requirements.dev.txt -nt $VIRTUAL_ENV/.dev || exit 0
+
+    $PIP install -r requirements.dev.txt
+    touch $VIRTUAL_ENV/.dev
 
 
-# Run the dev project
-run: devenv
-    $BIN/python manage.py runserver
+# ensure precommit is installed
+install-precommit:
+    #!/usr/bin/env bash
+    BASE_DIR=$(git rev-parse --show-toplevel)
+    test -f $BASE_DIR/.git/hooks/pre-commit || $BIN/pre-commit install
+
+
+# upgrade dev or prod dependencies (specify package to upgrade single package, all by default)
+upgrade env package="": virtualenv
+    #!/usr/bin/env bash
+    opts="--upgrade"
+    test -z "{{ package }}" || opts="--upgrade-package {{ package }}"
+    FORCE=true {{ just_executable() }} requirements-{{ env }} $opts
 
 
 # *ARGS is variadic, 0 or more. This allows us to do `just test -k match`, for example.
@@ -130,25 +106,48 @@ test *ARGS: devenv
         {{ ARGS }}
 
 
-# upgrade dev or prod dependencies (specify package to upgrade single package, all by default)
-upgrade env package="": virtualenv
-    #!/usr/bin/env bash
-    opts="--upgrade"
-    test -z "{{ package }}" || opts="--upgrade-package {{ package }}"
-    FORCE=true {{ just_executable() }} requirements-{{ env }} $opts
+# run the various dev checks but does not change any files
+check: devenv format lint sort check-for-upgrades
 
 
-# ensure valid virtualenv
-virtualenv:
-    #!/usr/bin/env bash
-    # allow users to specify python version in .env
-    PYTHON_VERSION=${PYTHON_VERSION:-python3.10}
+check-for-upgrades: devenv
+    # run pyupgrade but does not change files
+    $BIN/pyupgrade --py310-plus \
+        $(find applications -name "*.py" -type f) \
+        $(find jobserver -name "*.py" -type f) \
+        $(find services -name "*.py" -type f) \
+        $(find tests -name "*.py" -type f)
 
-    # create venv and upgrade pip
-    test -d $VIRTUAL_ENV || { $PYTHON_VERSION -m venv $VIRTUAL_ENV && $PIP install --upgrade pip; }
+    $BIN/django-upgrade --target-version=3.2 \
+        $(find applications -name "*.py" -type f) \
+        $(find jobserver -name "*.py" -type f) \
+        $(find services -name "*.py" -type f) \
+        $(find tests -name "*.py" -type f)
 
-    # ensure we have pip-tools so we can run pip-compile
-    test -e $BIN/pip-compile || $PIP install pip-tools
+
+# fix formatting and import sort ordering
+fix: devenv
+    $BIN/black .
+    $BIN/isort .
+
+
+# runs black but does not change any files
+format: devenv
+    $BIN/black --check .
+
+
+# runs flake8 but does not change any files
+lint: devenv
+    $BIN/flake8
+
+
+load-dev-data: devenv
+    $BIN/python manage.py loaddata backends
+
+
+# Run the dev project
+run: devenv
+    $BIN/python manage.py runserver
 
 
 # update npm deps, build payload, and collect for Django
@@ -157,5 +156,7 @@ rebuild-static:
     npm run build
     $BIN/python manage.py collectstatic --no-input
 
-load-dev-data: devenv
-    $BIN/python manage.py loaddata backends
+
+# runs isort but does not change any files
+sort: devenv
+    $BIN/isort --check-only --diff .
