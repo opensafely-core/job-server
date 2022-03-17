@@ -38,6 +38,14 @@
       <li>
         <strong>Created at:</strong> {{ project.created_at }}
       </li>
+
+      {% if application %}
+      <li>
+        <strong>Application:</strong>
+        <a href="{{ application.get_staff_url }}">{{ application.pk_hash }} by {{ application.created_by.name }}</a>
+      </li>
+      {% endif %}
+
     </ul>
 
     <div class="d-flex">

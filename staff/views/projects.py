@@ -90,6 +90,7 @@ class ProjectDetail(DetailView):
 
     def get_context_data(self, **kwargs):
         return super().get_context_data(**kwargs) | {
+            "application": self.object.applications.first(),
             "memberships": self.object.memberships.select_related("user").order_by(
                 Lower("user__username")
             ),
