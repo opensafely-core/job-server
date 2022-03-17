@@ -47,7 +47,10 @@ class ApplicationApprove(FormView):
         project_name = form.cleaned_data["project_name"]
 
         # create Project with the chosen org
-        project = org.projects.create(name=project_name)
+        project = org.projects.create(
+            name=project_name,
+            created_by=self.request.user,
+        )
 
         self.application.approved_at = timezone.now()
         self.application.approved_by = self.request.user
