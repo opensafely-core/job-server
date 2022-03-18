@@ -2,7 +2,7 @@ from django import forms
 from django.db.models.functions import Lower
 
 from applications.forms import YesNoField
-from applications.models import ResearcherRegistration
+from applications.models import Application, ResearcherRegistration
 from jobserver.authorization.forms import RolesForm
 from jobserver.backends import backends_to_choices
 from jobserver.models import Backend, Org, Project
@@ -111,6 +111,28 @@ class ProjectFeatureFlagsForm(forms.Form):
             ("disable", "disable"),
         ],
     )
+
+
+class ProjectLinkApplicationForm(forms.Form):
+    application = forms.CharField()
+
+    def __init__(self, instance, *args, **kwargs):
+        # this is used by a subclass of UpdateView, which expects a ModelForm,
+        # so all we're doing here is dropping the `instance` arg.
+        super().__init__(*args, **kwargs)
+
+    def clean_application(self):
+        pk = self.cleaned_data["application"]
+
+        try:
+            application = Application.objects.get(pk=pk)
+        except Application.DoesNotExist:
+            raise forms.ValidationError("Unknown Application")
+
+        if application.project:
+            raise forms.ValidationError("Can't link Application to multiple Projects")
+
+        return application
 
 
 class ProjectMembershipForm(RolesForm):

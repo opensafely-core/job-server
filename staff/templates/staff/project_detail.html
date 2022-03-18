@@ -1,6 +1,7 @@
 {% extends "staff/base.html" %}
 
 {% load humanize %}
+{% load static %}
 
 {% block metatitle %}{{ project.name }}: Staff Area | OpenSAFELY Jobs{% endblock metatitle %}
 
@@ -39,12 +40,22 @@
         <strong>Created at:</strong> {{ project.created_at }}
       </li>
 
-      {% if application %}
       <li>
         <strong>Application:</strong>
-        <a href="{{ application.get_staff_url }}">{{ application.pk_hash }} by {{ application.created_by.name }}</a>
+
+        {% if application %}
+        <a href="{{ application.get_staff_url }}">
+          {{ application.pk_hash }} by {{ application.created_by.name }}
+        </a>
+        {% else %}
+        <a href="{% url 'staff:project-link-application' slug=project.slug %}"
+          class="btn btn-sm btn-primary"
+          >
+          Find and Link
+        </a>
+        {% endif %}
+
       </li>
-      {% endif %}
 
     </ul>
 

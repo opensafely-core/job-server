@@ -1,8 +1,13 @@
 from jobserver.models import Backend
 from jobserver.utils import set_from_qs
-from staff.forms import ApplicationApproveForm, ProjectFeatureFlagsForm, UserForm
+from staff.forms import (
+    ApplicationApproveForm,
+    ProjectFeatureFlagsForm,
+    ProjectLinkApplicationForm,
+    UserForm,
+)
 
-from ...factories import BackendFactory, OrgFactory, ProjectFactory
+from ...factories import ApplicationFactory, BackendFactory, OrgFactory, ProjectFactory
 
 
 def test_applicationapproveform_success():
@@ -34,6 +39,39 @@ def test_projectfeatureflagsform_with_unknown_value():
         "flip_to": ["Select a valid choice. test is not one of the available choices."]
     }
     assert form.errors == expected
+
+
+def test_projectlinkapplicationform_success():
+    application = ApplicationFactory(project=None)
+
+    form = ProjectLinkApplicationForm(
+        data={"application": application.pk}, instance=None
+    )
+    assert form.is_valid(), form.errors
+
+    assert form.cleaned_data["application"] == application
+
+
+def test_projectlinkapplicationform_with_already_linked_application():
+    application = ApplicationFactory(project=ProjectFactory())
+
+    form = ProjectLinkApplicationForm(
+        data={"application": application.pk}, instance=None
+    )
+
+    assert not form.is_valid()
+
+    assert form.errors == {
+        "application": ["Can't link Application to multiple Projects"]
+    }
+
+
+def test_projectlinkapplicationform_with_unknown_application():
+    form = ProjectLinkApplicationForm(data={"application": "0"}, instance=None)
+
+    assert not form.is_valid()
+
+    assert form.errors == {"application": ["Unknown Application"]}
 
 
 def test_userform_success():

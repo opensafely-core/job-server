@@ -3,6 +3,7 @@ from django.contrib.messages.storage.fallback import FallbackStorage
 from django.core.exceptions import PermissionDenied
 from django.http import Http404
 
+from applications.models import Application
 from jobserver.authorization import ProjectCoordinator, ProjectDeveloper
 from jobserver.models import Project
 from jobserver.utils import dotted_path, set_from_qs
@@ -12,12 +13,14 @@ from staff.views.projects import (
     ProjectDetail,
     ProjectEdit,
     ProjectFeatureFlags,
+    ProjectLinkApplication,
     ProjectList,
     ProjectMembershipEdit,
     ProjectMembershipRemove,
 )
 
 from ....factories import (
+    ApplicationFactory,
     OrgFactory,
     ProjectFactory,
     ProjectMembershipFactory,
@@ -269,6 +272,110 @@ def test_projectfeatureflags_unknown_project(rf, core_developer):
         ProjectFeatureFlags.as_view()(request, slug="")
 
 
+def test_projectlinkapplication_get_empty_application_list(rf, core_developer):
+    ApplicationFactory(status=Application.Statuses.ONGOING)
+    ApplicationFactory(status=Application.Statuses.REJECTED)
+
+    project = ProjectFactory()
+
+    request = rf.get("/")
+    request.user = core_developer
+
+    response = ProjectLinkApplication.as_view()(request, slug=project.slug)
+
+    assert response.status_code == 200
+
+    assert not response.context_data["applications"]
+
+
+def test_projectlinkapplication_get_success(rf, core_developer):
+    approved_fully = ApplicationFactory(
+        project=None,
+        status=Application.Statuses.APPROVED_FULLY,
+    )
+    approved_subject_to = ApplicationFactory(
+        project=None,
+        status=Application.Statuses.APPROVED_SUBJECT_TO,
+    )
+    completed = ApplicationFactory(
+        project=None,
+        status=Application.Statuses.COMPLETED,
+    )
+    ApplicationFactory(
+        project=None,
+        status=Application.Statuses.ONGOING,
+    )
+    ApplicationFactory(
+        project=None,
+        status=Application.Statuses.REJECTED,
+    )
+
+    project = ProjectFactory()
+
+    request = rf.get("/")
+    request.user = core_developer
+
+    response = ProjectLinkApplication.as_view()(request, slug=project.slug)
+
+    assert response.status_code == 200
+
+    applications = response.context_data["applications"]
+    assert len(applications) == 3
+
+    assert set(applications) == {approved_fully, approved_subject_to, completed}
+
+
+def test_projectlinkapplication_post_success(rf, core_developer):
+    application = ApplicationFactory(
+        project=None,
+        status=Application.Statuses.COMPLETED,
+    )
+    project = ProjectFactory()
+
+    request = rf.post("/", {"application": application.pk})
+    request.user = core_developer
+
+    response = ProjectLinkApplication.as_view()(request, slug=project.slug)
+
+    assert response.status_code == 302, response.context_data["form"].errors
+    assert response.url == project.get_staff_url()
+
+    application.refresh_from_db()
+    assert application.project == project
+
+
+def test_projectlinkapplication_post_unknown_application(rf, core_developer):
+    project = ProjectFactory()
+
+    request = rf.post("/", {"application": "0"})
+    request.user = core_developer
+
+    response = ProjectLinkApplication.as_view()(request, slug=project.slug)
+
+    assert response.status_code == 200
+    assert response.context_data["form"].errors == {
+        "application": ["Unknown Application"]
+    }
+
+
+def test_projectlinkapplication_unauthorized(rf):
+    project = ProjectFactory()
+
+    request = rf.get("/")
+    request.user = UserFactory()
+
+    with pytest.raises(PermissionDenied):
+        ProjectLinkApplication.as_view()(request, slug=project.slug)
+
+
+def test_projectlinkapplication_unknown_project(rf, core_developer):
+    request = rf.get("/")
+    request.user = core_developer
+
+    with pytest.raises(Http404):
+        ProjectLinkApplication.as_view()(request, slug="")
+
+
 def test_projectlist_filter_by_org(rf, core_developer):
     project = ProjectFactory()
     ProjectFactory.create_batch(2)
@@ -415,7 +522,6 @@ def test_projectmembershipremove_unknown_member(rf, core_developer):
 
     request = rf.post("/", {"username": "test"})
     request.user = core_developer
-
     # set up messages framework
     request.session = "session"
     messages = FallbackStorage(request)
@@ -423,6 +529,5 @@ def test_projectmembershipremove_unknown_member(rf, core_developer):
     response = ProjectMembershipRemove.as_view()(request, slug=project.slug)
     assert response.status_code == 302
     assert response.url == project.get_staff_url()
-
     project.refresh_from_db()
     assert project.memberships.count() == 0

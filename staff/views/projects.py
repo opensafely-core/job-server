@@ -13,6 +13,7 @@ from django.views.generic import (
     View,
 )
 
+from applications.models import Application
 from jobserver.authorization import CoreDeveloper
 from jobserver.authorization.decorators import require_role
 from jobserver.authorization.utils import roles_for
@@ -23,6 +24,7 @@ from ..forms import (
     ProjectCreateForm,
     ProjectEditForm,
     ProjectFeatureFlagsForm,
+    ProjectLinkApplicationForm,
     ProjectMembershipForm,
 )
 
@@ -150,6 +152,39 @@ class ProjectFeatureFlags(TemplateView):
 
 
 @method_decorator(require_role(CoreDeveloper), name="dispatch")
+class ProjectLinkApplication(UpdateView):
+    form_class = ProjectLinkApplicationForm
+    model = Project
+    template_name = "staff/project_link_application.html"
+
+    def form_valid(self, form):
+        application = form.cleaned_data["application"]
+
+        self.object.applications.add(application)
+        self.object.save()
+
+        return redirect(self.object.get_staff_url())
+
+    def get_context_data(self, **kwargs):
+        # get applications that we can consider done, or at least not clearly
+        # not-done
+        ignored_statuses = [
+            Application.Statuses.ONGOING,
+            Application.Statuses.REJECTED,
+        ]
+        applications = (
+            Application.objects.filter(project=None)
+            .exclude(status__in=ignored_statuses)
+            .select_related("created_by")
+            .order_by("-created_at")
+        )
+
+        return super().get_context_data(**kwargs) | {
+            "applications": applications,
+        }
+
+
+@method_decorator(require_role(CoreDeveloper), name="dispatch")
 class ProjectList(ListView):
     queryset = Project.objects.select_related("org").order_by(Lower("name"))
     template_name = "staff/project_list.html"
@@ -221,5 +256,4 @@ class ProjectMembershipRemove(View):
             pass
 
         messages.success(request, f"Removed {username} from {project.name}")
-
         return redirect(project.get_staff_url())
