@@ -70,6 +70,8 @@ def test_applicationapprove_post_success(rf, core_developer, complete_applicatio
 
     assert complete_application.approved_at
     assert complete_application.approved_by == core_developer
+    assert complete_application.project
+    assert complete_application.project.created_by == core_developer
 
 
 def test_applicationapprove_with_deleted_application(
