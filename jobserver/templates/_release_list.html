@@ -24,7 +24,7 @@
         data-target="#release-{{ r.id }}-files"
         aria-expanded="false"
         aria-controls="release-{{ r.id }}-files">
-        Files
+        List{% if r.can_view_files %} ({{ r.files | length }} files){% endif %}
       </button>
     </div>
   </div>
