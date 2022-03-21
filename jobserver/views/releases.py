@@ -291,7 +291,7 @@ class WorkspaceReleaseList(View):
             "download_url": workspace.get_latest_outputs_download_url(),
             "files": latest_files,
             "id": "latest",
-            "title": "Latest outputs",
+            "title": "All outputs - the most recent version of each file",
             "view_url": workspace.get_latest_outputs_url(),
         }
 
