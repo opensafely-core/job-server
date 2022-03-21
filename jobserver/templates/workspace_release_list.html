@@ -47,8 +47,8 @@
 {% endblock jumbotron %}
 
 {% block content %}
-<div class="row">
-  <div class="col-lg-8 offset-lg-2">
+<div class="container">
+  <ul class="list-group">
     {% if latest_files.can_view_files %}
       {% include "_release_list.html" with org_slug=workspace.project.org.slug project_slug=workspace.project.slug workspace_slug=workspace.name r=latest_files %}
     {% endif %}
@@ -56,6 +56,6 @@
     {% for release in releases %}
       {% include "_release_list.html" with org_slug=workspace.project.org.slug project_slug=workspace.project.slug workspace_slug=workspace.name r=release %}
     {% endfor %}
-  </div>
+  </ul>
 </div>
 {% endblock %}
