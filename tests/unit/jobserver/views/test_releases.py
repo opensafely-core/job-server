@@ -655,7 +655,7 @@ def test_workspacereleaselist_authenticated_to_view_not_delete(rf):
     assert len(response.context_data["releases"]) == 1
 
     assert all(r["can_view_files"] for r in response.context_data["releases"])
-    assert "Latest outputs" in response.rendered_content
+    assert "All outputs" in response.rendered_content
 
     assert not response.context_data["user_can_delete_files"]
     assert "Delete" not in response.rendered_content
@@ -679,7 +679,7 @@ def test_workspacereleaselist_authenticated_to_view_and_delete(rf):
     assert len(response.context_data["releases"]) == 1
 
     assert all(r["can_view_files"] for r in response.context_data["releases"])
-    assert "Latest outputs" in response.rendered_content
+    assert "All outputs" in response.rendered_content
 
     assert response.context_data["user_can_delete_files"]
     assert "Delete" in response.rendered_content
@@ -718,7 +718,7 @@ def test_workspacereleaselist_unauthenticated(rf):
     assert response.context_data["workspace"] == workspace
     assert len(response.context_data["releases"]) == 1
 
-    assert "Latest outputs" not in response.rendered_content
+    assert "All outputs" not in response.rendered_content
 
 
 def test_workspacereleaselist_unknown_workspace(rf):
