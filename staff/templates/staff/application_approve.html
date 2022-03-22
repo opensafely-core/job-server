@@ -64,7 +64,17 @@
           <legend class="h3 mb-3">Set project details</legend>
 
           <div class="form-group">
-            <label class="font-weight-bold" for="id_org">Select an org</label>
+            <div class="d-flex justify-content-between align-items-center">
+              <label class="font-weight-bold" for="id_org">Select an org</label>
+              <button
+                hx-get="{% url 'staff:application-add-org' pk_hash=application.pk_hash %}"
+                hx-target="#modal-container"
+                hx-trigger="click"
+                class="btn btn-sm btn-primary"
+                >
+                Add
+              </button>
+            </div>
             <select id="id_org" name="org" required>
               {% for value, label in form.fields.org.choices %}
                 <option value="{{ value }}">{{ label }}</option>
@@ -85,9 +95,12 @@
   </div>
 </div>
 
+<div id="modal-container"></div>
+
 {% endblock %}
 
 {% block extra_js %}
+<script type="text/javascript" src="{% static 'vendor/htmx.min.js' %}"></script>
 <script type="text/javascript" src="{% static 'vendor/select2.min.js' %}"></script>
 <script type="text/javascript">
   $(document).ready(function() {

@@ -1,0 +1,61 @@
+{% load static %}
+
+<div id="modal-backdrop" class="modal-backdrop fade show" style="display:block;"></div>
+
+<div id="modal" class="modal fade show" tabindex="-1" style="display:block;" role="dialog">
+  <div class="modal-dialog modal-dialog-centered" role="document">
+    <div class="modal-content">
+
+      <form method="POST">
+        {% csrf_token %}
+
+        <div class="modal-header">
+          <h5 class="modal-title">Create an organisation</h5>
+          <button type="button" class="close" onclick="closeModal()">
+            <span aria-hidden="true">&times;</span>
+          </button>
+        </div>
+
+        <div class="modal-body">
+          {% if form.non_field_errors %}
+            <ul>
+              {% for error in form.non_field_errors %}
+                <li class="text-danger">{{ error }}</li>
+              {% endfor %}
+            </ul>
+          {% endif %}
+
+          {% include "components/form_text.html" with field=form.name label="Organisation name" name="name" %}
+        </div>
+
+        <div class="modal-footer">
+          <button
+            class="btn btn-success"
+            hx-post="{% url 'staff:application-add-org' pk_hash=application.pk_hash %}"
+            hx-trigger="click"
+            hx-target="#modal-container"
+            hx-swap="outerHTML"
+            >
+            Create
+          </button>
+        </div>
+
+    </div>
+  </div>
+</div>
+
+<script type="text/javascript">
+function closeModal() {
+  const container = document.getElementById("modal-container")
+  const backdrop = document.getElementById("modal-backdrop")
+  const modal = document.getElementById("modal")
+
+  modal.classList.remove("show")
+  backdrop.classList.remove("show")
+
+  setTimeout(function() {
+      container.removeChild(backdrop)
+      container.removeChild(modal)
+  }, 200)
+}
+</script>
