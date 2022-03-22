@@ -41,14 +41,8 @@ class PickUsersMixin:
 
 
 class ApplicationApproveForm(forms.Form):
+    org = forms.ModelChoiceField(queryset=Org.objects.order_by("name"))
     project_name = forms.CharField(help_text="Update the study name if necessary")
-
-    def __init__(self, *args, **kwargs):
-        super().__init__(*args, **kwargs)
-
-        orgs = Org.objects.order_by("name")
-
-        self.fields["org"] = forms.ModelChoiceField(queryset=orgs)
 
     def clean_project_name(self):
         project_name = self.cleaned_data["project_name"]
