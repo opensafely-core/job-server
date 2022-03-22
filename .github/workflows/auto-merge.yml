@@ -23,6 +23,8 @@ jobs:
       - name: Check we're dealing with Python updates
         id: check-labels
         run: |
+          gh auth login
+
           if gh pr view --json labels -q .labels | grep -q '"name":"python"'; then
             echo ::set-output name=is-python-dependency::'y'
           fi
