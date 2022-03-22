@@ -16,28 +16,50 @@ default:
     @{{ just_executable() }} --list
 
 
-check-for-upgrades: devenv
-    # run pyupgrade but does not change files
-    $BIN/pyupgrade --py310-plus \
-        $(find applications -name "*.py" -type f) \
-        $(find jobserver -name "*.py" -type f) \
-        $(find services -name "*.py" -type f) \
-        $(find tests -name "*.py" -type f)
-
-    $BIN/django-upgrade --target-version=3.2 \
-        $(find applications -name "*.py" -type f) \
-        $(find jobserver -name "*.py" -type f) \
-        $(find services -name "*.py" -type f) \
-        $(find tests -name "*.py" -type f)
-
-
-# run the various dev checks but does not change any files
-check: devenv format lint sort check-for-upgrades
-
-
 # clean up temporary files
 clean:
     rm -rf .venv
+
+
+# ensure valid virtualenv
+virtualenv:
+    #!/usr/bin/env bash
+    # allow users to specify python version in .env
+    PYTHON_VERSION=${PYTHON_VERSION:-python3.10}
+
+    # create venv and upgrade pip
+    test -d $VIRTUAL_ENV || { $PYTHON_VERSION -m venv $VIRTUAL_ENV && $PIP install --upgrade pip; }
+
+    # ensure we have pip-tools so we can run pip-compile
+    test -e $BIN/pip-compile || $PIP install pip-tools
+
+
+_compile src dst *args: virtualenv
+    #!/usr/bin/env bash
+    # exit if src file is older than dst file (-nt = 'newer than', but we negate with || to avoid error exit code)
+    test "${FORCE:-}" = "true" -o {{ src }} -nt {{ dst }} || exit 0
+    $BIN/pip-compile --allow-unsafe --generate-hashes --output-file={{ dst }} {{ src }} {{ args }}
+
+
+# update requirements.prod.txt if requirements.prod.in has changed
+requirements-prod *args:
+    {{ just_executable() }} _compile requirements.prod.in requirements.prod.txt {{ args }}
+
+
+# update requirements.dev.txt if requirements.dev.in has changed
+requirements-dev *args: requirements-prod
+    {{ just_executable() }} _compile requirements.dev.in requirements.dev.txt {{ args }}
+
+
+# ensure prod requirements installed and up to date
+prodenv: requirements-prod
+    #!/usr/bin/env bash
+    set -eu
+    # exit if .txt file has not changed since we installed them (-nt == "newer than', but we negate with || to avoid error exit code)
+    test requirements.prod.txt -nt $VIRTUAL_ENV/.prod || exit 0
+
+    $PIP install -r requirements.prod.txt
+    touch $VIRTUAL_ENV/.prod
 
 
 # && dependencies are run after the recipe has run. Needs just>=0.9.9. This is
@@ -54,17 +76,6 @@ devenv: prodenv requirements-dev && install-precommit
     touch $VIRTUAL_ENV/.dev
 
 
-# fix formatting and import sort ordering
-fix: devenv
-    $BIN/black .
-    $BIN/isort .
-
-
-# runs black but does not change any files
-format: devenv
-    $BIN/black --check .
-
-
 # ensure precommit is installed
 install-precommit:
     #!/usr/bin/env bash
@@ -72,46 +83,12 @@ install-precommit:
     test -f $BASE_DIR/.git/hooks/pre-commit || $BIN/pre-commit install
 
 
-# runs flake8 but does not change any files
-lint: devenv
-    $BIN/flake8
-
-
-# ensure prod requirements installed and up to date
-prodenv: requirements-prod
+# upgrade dev or prod dependencies (specify package to upgrade single package, all by default)
+upgrade env package="": virtualenv
     #!/usr/bin/env bash
-    set -eu
-    # exit if .txt file has not changed since we installed them (-nt == "newer than', but we negate with || to avoid error exit code)
-    test requirements.prod.txt -nt $VIRTUAL_ENV/.prod || exit 0
-
-    $PIP install -r requirements.prod.txt
-    touch $VIRTUAL_ENV/.prod
-
-
-# update requirements.dev.txt if requirements.dev.in has changed
-requirements-dev: requirements-prod
-    #!/usr/bin/env bash
-    # exit if .in file is older than .txt file (-nt = 'newer than', but we negate with || to avoid error exit code)
-    test requirements.dev.in -nt requirements.dev.txt || exit 0
-    $COMPILE --output-file=requirements.dev.txt requirements.dev.in
-
-
-# update requirements.prod.txt if requirement.prod.in has changed
-requirements-prod: virtualenv
-    #!/usr/bin/env bash
-    # exit if .in file is older than .txt file (-nt = 'newer than', but we negate with || to avoid error exit code)
-    test requirements.prod.in -nt requirements.prod.txt || exit 0
-    $COMPILE --output-file=requirements.prod.txt requirements.prod.in
-
-
-# runs isort but does not change any files
-sort: devenv
-    $BIN/isort --check-only --diff .
-
-
-# Run the dev project
-run: devenv
-    $BIN/python manage.py runserver
+    opts="--upgrade"
+    test -z "{{ package }}" || opts="--upgrade-package {{ package }}"
+    FORCE=true {{ just_executable() }} requirements-{{ env }} $opts
 
 
 # *ARGS is variadic, 0 or more. This allows us to do `just test -k match`, for example.
@@ -129,25 +106,28 @@ test *ARGS: devenv
         {{ ARGS }}
 
 
-# upgrade dev or prod dependencies (all by default, specify package to upgrade single package)
-upgrade env package="": virtualenv
-    #!/usr/bin/env bash
-    opts="--upgrade"
-    test -z "{{ package }}" || opts="--upgrade-package {{ package }}"
-    $COMPILE $opts --output-file=requirements.{{ env }}.txt requirements.{{ env }}.in
+# run the various dev checks but does not change any files
+check: devenv
+    $BIN/black --check .
+    $BIN/isort --check-only --diff .
+    $BIN/flake8
+    $BIN/pyupgrade --py310-plus $(find applications jobserver services tests -name "*.py" -type f)
+    $BIN/django-upgrade --target-version=3.2 $(find applications jobserver services tests -name "*.py" -type f)
 
 
-# ensure valid virtualenv
-virtualenv:
-    #!/usr/bin/env bash
-    # allow users to specify python version in .env
-    PYTHON_VERSION=${PYTHON_VERSION:-python3.10}
+# fix formatting and import sort ordering
+fix: devenv
+    $BIN/black .
+    $BIN/isort .
 
-    # create venv and upgrade pip
-    test -d $VIRTUAL_ENV || { $PYTHON_VERSION -m venv $VIRTUAL_ENV && $PIP install --upgrade pip; }
 
-    # ensure we have pip-tools so we can run pip-compile
-    test -e $BIN/pip-compile || $PIP install pip-tools
+load-dev-data: devenv
+    $BIN/python manage.py loaddata backends
+
+
+# Run the dev project
+run: devenv
+    $BIN/python manage.py runserver
 
 
 # update npm deps, build payload, and collect for Django
@@ -155,6 +135,3 @@ rebuild-static:
     npm ci
     npm run build
     $BIN/python manage.py collectstatic --no-input
-
-load-dev-data: devenv
-    $BIN/python manage.py loaddata backends
