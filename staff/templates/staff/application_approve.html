@@ -77,7 +77,10 @@
             </div>
             <select id="id_org" name="org" required>
               {% for value, label in form.fields.org.choices %}
-                <option value="{{ value }}">{{ label }}</option>
+                <option
+                  value="{{ value }}"
+                  {% if form.org.value == value %}selected{% endif %}
+                  >{{ label }}</option>
               {% endfor %}
             </select>
 

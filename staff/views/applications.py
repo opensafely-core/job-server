@@ -46,7 +46,9 @@ def application_add_org(request, pk_hash):
     org.created_by = request.user
     org.save()
 
-    return HttpResponseClientRedirect(application.get_approve_url())
+    return HttpResponseClientRedirect(
+        application.get_approve_url() + f"?org-slug={org.slug}"
+    )
 
 
 @method_decorator(require_role(CoreDeveloper), name="dispatch")
@@ -101,7 +103,16 @@ class ApplicationApprove(FormView):
     def get_initial(self):
         # set the value of project_name from the study_name field in the
         # application form
-        return {"project_name": self.application.studyinformationpage.study_name}
+        initial = {"project_name": self.application.studyinformationpage.study_name}
+
+        # set the Org if a slug is included in the query args
+        if org_slug := self.request.GET.get("org-slug"):
+            try:
+                initial["org"] = Org.objects.get(slug=org_slug)
+            except Org.DoesNotExist:
+                pass
+
+        return initial
 
 
 @method_decorator(require_role(CoreDeveloper), name="dispatch")

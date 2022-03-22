@@ -120,6 +120,37 @@ def test_applicationapprove_get_success(rf, core_developer, complete_application
 
     assert response.status_code == 200
     assert response.context_data["application"] == complete_application
+    assert response.context_data["form"]["org"].initial is None
+
+
+def test_applicationapprove_get_with_org_slug(rf, core_developer, complete_application):
+    org = OrgFactory()
+
+    request = rf.get("/", {"org-slug": org.slug})
+    request.user = core_developer
+
+    response = ApplicationApprove.as_view()(
+        request, pk_hash=complete_application.pk_hash
+    )
+
+    assert response.status_code == 200
+    assert response.context_data["application"] == complete_application
+    assert response.context_data["form"]["org"].initial == org
+
+
+def test_applicationapprove_get_with_org_slug_and_unknown_org(
+    rf, core_developer, complete_application
+):
+    request = rf.get("/", {"org-slug": "0"})
+    request.user = core_developer
+
+    response = ApplicationApprove.as_view()(
+        request, pk_hash=complete_application.pk_hash
+    )
+
+    assert response.status_code == 200
+    assert response.context_data["application"] == complete_application
+    assert response.context_data["form"]["org"].initial is None
 
 
 def test_applicationapprove_post_success(rf, core_developer, complete_application):
