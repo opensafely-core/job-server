@@ -111,16 +111,8 @@ check: devenv
     $BIN/black --check .
     $BIN/isort --check-only --diff .
     $BIN/flake8
-    $BIN/pyupgrade --py310-plus \
-        $(find applications -name "*.py" -type f) \
-        $(find jobserver -name "*.py" -type f) \
-        $(find services -name "*.py" -type f) \
-        $(find tests -name "*.py" -type f)
-    $BIN/django-upgrade --target-version=3.2 \
-        $(find applications -name "*.py" -type f) \
-        $(find jobserver -name "*.py" -type f) \
-        $(find services -name "*.py" -type f) \
-        $(find tests -name "*.py" -type f)
+    $BIN/pyupgrade --py310-plus $(find applications jobserver services tests -name "*.py" -type f)
+    $BIN/django-upgrade --target-version=3.2 $(find applications jobserver services tests -name "*.py" -type f)
 
 
 # fix formatting and import sort ordering
