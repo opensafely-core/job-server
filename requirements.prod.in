@@ -1,4 +1,4 @@
-attrs<21
+attrs<22
 django-anymail[mailgun]
 django-browser-reload
 django-debug-toolbar
