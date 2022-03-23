@@ -17,11 +17,6 @@ jobs:
         with:
           github-token: "${{ secrets.GITHUB_TOKEN }}"
 
-      - name: Checkout branch
-        uses: actions/checkout@v2
-        with:
-          fetch-depth: 0
-
       - name: Check we're dealing with Python updates
         id: check-labels
         run: |
