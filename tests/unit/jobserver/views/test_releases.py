@@ -751,8 +751,8 @@ def test_workspacereleaselist_build_files_for_latest(rf):
     )
 
     assert response.status_code == 200
-    assert response.context_data["latest_files"]["id"] == "latest"
-    files = response.context_data["latest_files"]["files"]
+    assert response.context_data["latest_release"]["id"] == "latest"
+    files = response.context_data["latest_release"]["files"]
     assert all(f["detail_url"].__func__ == ReleaseFile.get_latest_url for f in files)
 
 

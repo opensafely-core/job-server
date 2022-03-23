@@ -49,8 +49,8 @@
 {% block content %}
 <div class="container">
   <ul class="list-group">
-    {% if latest_files.can_view_files %}
-      {% include "_release_list.html" with org_slug=workspace.project.org.slug project_slug=workspace.project.slug workspace_slug=workspace.name r=latest_files %}
+    {% if latest_release.can_view_files %}
+      {% include "_release_list.html" with org_slug=workspace.project.org.slug project_slug=workspace.project.slug workspace_slug=workspace.name r=latest_release %}
     {% endif %}
 
     {% for release in releases %}

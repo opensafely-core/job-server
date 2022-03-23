@@ -298,7 +298,7 @@ class WorkspaceReleaseList(View):
         latest_files = list(
             sorted(workspace_files(workspace).values(), key=lambda rf: rf.name)
         )
-        latest_files = {
+        latest_release = {
             "can_view_files": can_view_files and bool(latest_files),
             "download_url": workspace.get_latest_outputs_download_url(),
             "files": build_files(latest_files, "get_latest_url"),
@@ -330,7 +330,7 @@ class WorkspaceReleaseList(View):
         ]
 
         context = {
-            "latest_files": latest_files,
+            "latest_release": latest_release,
             "releases": releases,
             "user_can_delete_files": can_delete_files,
             "workspace": workspace,
