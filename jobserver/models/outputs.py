@@ -187,6 +187,17 @@ class ReleaseFile(models.Model):
             },
         )
 
+    def get_latest_url(self):
+        return reverse(
+            "workspace-latest-outputs-detail",
+            kwargs={
+                "org_slug": self.release.workspace.project.org.slug,
+                "project_slug": self.release.workspace.project.slug,
+                "workspace_slug": self.release.workspace.name,
+                "path": self.name,
+            },
+        )
+
     @property
     def is_deleted(self):
         """Has the file on disk been deleted?"""

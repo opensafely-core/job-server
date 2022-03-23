@@ -283,13 +283,25 @@ class WorkspaceReleaseList(View):
             project=workspace.project,
         )
 
+        def build_files(files, url_method_name):
+            return [
+                {
+                    "pk": f.pk,
+                    "name": f.name,
+                    "is_deleted": f.is_deleted,
+                    "deleted_by": f.deleted_by,
+                    "detail_url": getattr(f, url_method_name),
+                }
+                for f in files
+            ]
+
         latest_files = list(
             sorted(workspace_files(workspace).values(), key=lambda rf: rf.name)
         )
         latest_files = {
             "can_view_files": can_view_files and bool(latest_files),
             "download_url": workspace.get_latest_outputs_download_url(),
-            "files": latest_files,
+            "files": build_files(latest_files, "get_latest_url"),
             "id": "latest",
             "title": "All outputs - the most recent version of each file",
             "view_url": workspace.get_latest_outputs_url(),
@@ -305,7 +317,7 @@ class WorkspaceReleaseList(View):
             {
                 "can_view_files": can_view_files and r.files.exists(),
                 "download_url": r.get_download_url(),
-                "files": r.files.all(),
+                "files": build_files(r.files.all(), "get_absolute_url"),
                 "id": r.pk,
                 "title": build_title(r),
                 "view_url": r.get_absolute_url(),

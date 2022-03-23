@@ -107,6 +107,25 @@ def test_releasefile_get_delete_url():
     )
 
 
+def test_releasefile_get_latest_url():
+    files = {"file.txt": b"contents"}
+    release = ReleaseFactory(ReleaseUploadsFactory(files))
+
+    file = release.files.first()
+
+    url = file.get_latest_url()
+
+    assert url == reverse(
+        "workspace-latest-outputs-detail",
+        kwargs={
+            "org_slug": release.workspace.project.org.slug,
+            "project_slug": release.workspace.project.slug,
+            "workspace_slug": release.workspace.name,
+            "path": file.name,
+        },
+    )
+
+
 def test_releasefile_get_api_url_without_is_published():
     files = {"file.txt": b"contents"}
     release = ReleaseFactory(ReleaseUploadsFactory(files))
