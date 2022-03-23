@@ -4,6 +4,7 @@ from django.http import Http404
 from django.utils import timezone
 
 from jobserver.authorization import OutputChecker, OutputPublisher, ProjectCollaborator
+from jobserver.models.outputs import ReleaseFile
 from jobserver.views.releases import (
     ProjectReleaseList,
     PublishedSnapshotFile,
@@ -733,3 +734,42 @@ def test_workspacereleaselist_unknown_workspace(rf):
             project_slug=project.slug,
             workspace_slug="",
         )
+
+
+def test_workspacereleaselist_build_files_for_latest(rf):
+    workspace = WorkspaceFactory()
+    ReleaseFactory(ReleaseUploadsFactory(["test1"]), workspace=workspace)
+
+    request = rf.get("/")
+    request.user = UserFactory(roles=[OutputChecker, ProjectCollaborator])
+
+    response = WorkspaceReleaseList.as_view()(
+        request,
+        org_slug=workspace.project.org.slug,
+        project_slug=workspace.project.slug,
+        workspace_slug=workspace.name,
+    )
+
+    assert response.status_code == 200
+    assert response.context_data["latest_files"]["id"] == "latest"
+    files = response.context_data["latest_files"]["files"]
+    assert all(f["detail_url"].__func__ == ReleaseFile.get_latest_url for f in files)
+
+
+def test_workspacereleaselist_build_files_for_releases(rf):
+    workspace = WorkspaceFactory()
+    ReleaseFactory(ReleaseUploadsFactory(["test1"]), workspace=workspace)
+
+    request = rf.get("/")
+    request.user = UserFactory(roles=[OutputChecker, ProjectCollaborator])
+
+    response = WorkspaceReleaseList.as_view()(
+        request,
+        org_slug=workspace.project.org.slug,
+        project_slug=workspace.project.slug,
+        workspace_slug=workspace.name,
+    )
+
+    assert response.status_code == 200
+    files = response.context_data["releases"][0]["files"]
+    assert all(f["detail_url"].__func__ == ReleaseFile.get_absolute_url for f in files)

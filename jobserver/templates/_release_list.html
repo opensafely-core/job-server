@@ -37,7 +37,7 @@
         {% for file in r.files %}
         <li class="list-group-item d-flex align-items-center justify-content-between">
           <span class="d-flex align-items-baseline">
-            <a href="{% url 'release-detail' org_slug=org_slug project_slug=project_slug workspace_slug=workspace_slug pk=r.id path=file.path %}"
+            <a href="{{ file.detail_url }}"
               {% if file.is_deleted %}
               class="btn-link disabled"
               {% endif %}
