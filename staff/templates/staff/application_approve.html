@@ -64,18 +64,8 @@
           <legend class="h3 mb-3">Set project details</legend>
 
           <div class="form-group">
-            <div class="d-flex justify-content-between align-items-center">
-              <label class="font-weight-bold" for="id_org">Select an org</label>
-              <button
-                hx-get="{% url 'staff:application-add-org' pk_hash=application.pk_hash %}"
-                hx-target="#modal-container"
-                hx-trigger="click"
-                class="btn btn-sm btn-primary"
-                >
-                Add
-              </button>
-            </div>
-            <select id="id_org" name="org" required>
+            <label class="font-weight-bold" for="id_org">Select an org</label>
+            <select id="id_org" name="org" aria-describedby="orgHelpBlock" required>
               {% for value, label in form.fields.org.choices %}
                 <option
                   value="{{ value }}"
@@ -83,6 +73,17 @@
                   >{{ label }}</option>
               {% endfor %}
             </select>
+            <p id="orgHelpBlock" class="form-text text-muted">
+              If the org doesn't exist, you can
+              <button
+                hx-get="{% url 'staff:application-add-org' pk_hash=application.pk_hash %}"
+                hx-target="#dialog"
+                hx-trigger="click"
+                class="btn btn-link m-0 p-0 border-0 font-weight-bold align-baseline"
+                >
+                add a new org
+              </button>
+            </p>
 
             {% for error in form.orgs.errors %}
               <p class="text-danger">{{ error }}</p>
@@ -98,7 +99,9 @@
   </div>
 </div>
 
-<div id="modal-container"></div>
+<div id="modal" class="modal fade" tabindex="-1">
+  <div id="dialog" class="modal-dialog" hx-target="this"></div>
+</div>
 
 {% endblock %}
 
@@ -114,5 +117,28 @@
       width: "100%"
     });
   });
+</script>
+<script>
+  (function () {
+    htmx.on("htmx:afterSwap", (e) => {
+      // Response targeting #dialog => show the modal
+      if (e.detail.target.id == "dialog") {
+        $("#modal").modal("show");
+      }
+    });
+
+    htmx.on("htmx:beforeSwap", (e) => {
+      // Empty response targeting #dialog => hide the modal
+      if (e.detail.target.id == "dialog" && !e.detail.xhr.response) {
+        $("#modal").modal("hide");
+        e.detail.shouldSwap = false;
+      }
+    });
+
+    // Remove dialog content after hiding
+    $("#modal").on("hidden.bs.modal", () => {
+      $("#dialog").empty();
+    });
+  })();
 </script>
 {% endblock %}
