@@ -290,6 +290,7 @@ class WorkspaceReleaseList(View):
                     "name": f.name,
                     "is_deleted": f.is_deleted,
                     "deleted_by": f.deleted_by,
+                    "deleted_at": f.deleted_at,
                     "detail_url": getattr(f, url_method_name),
                 }
                 for f in files
