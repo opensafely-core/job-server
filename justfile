@@ -91,6 +91,11 @@ upgrade env package="": virtualenv
     FORCE=true {{ just_executable() }} requirements-{{ env }} $opts
 
 
+# Run the dev project with telemetry
+run-telemetry: devenv
+    $BIN/opentelemetry-instrument $BIN/python manage.py runserver --noreload
+
+
 # *ARGS is variadic, 0 or more. This allows us to do `just test -k match`, for example.
 # Run the tests
 test *ARGS: devenv

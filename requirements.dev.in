@@ -23,3 +23,6 @@ pytest-network
 pytest-subtests
 pyupgrade
 responses
+opentelemetry-instrumentation-django
+opentelemetry-sdk
+requests
