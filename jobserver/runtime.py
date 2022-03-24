@@ -1,4 +1,4 @@
-import attr
+from attrs import define, field
 
 
 def less_than_60(instance, attribute, value):
@@ -6,12 +6,12 @@ def less_than_60(instance, attribute, value):
         raise ValueError(f"{attribute} should be less than 60")
 
 
-@attr.s
+@define
 class Runtime:
-    hours: int = attr.ib(default=0)
-    minutes: int = attr.ib(default=0, validator=[less_than_60])
-    seconds: int = attr.ib(default=0, validator=[less_than_60])
-    total_seconds: int = attr.ib(default=0)
+    hours: int = 0
+    minutes: int = field(default=0, validator=[less_than_60])
+    seconds: int = field(default=0, validator=[less_than_60])
+    total_seconds: int = 0
 
     def __bool__(self):
         if self.hours == 0 and self.minutes == 0 and self.seconds == 0:
