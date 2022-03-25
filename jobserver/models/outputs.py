@@ -194,7 +194,7 @@ class ReleaseFile(models.Model):
                 "org_slug": self.release.workspace.project.org.slug,
                 "project_slug": self.release.workspace.project.slug,
                 "workspace_slug": self.release.workspace.name,
-                "path": self.name,
+                "path": f"{self.release.backend.slug}/{self.name}",
             },
         )
 
