@@ -121,7 +121,7 @@ def test_releasefile_get_latest_url():
             "org_slug": release.workspace.project.org.slug,
             "project_slug": release.workspace.project.slug,
             "workspace_slug": release.workspace.name,
-            "path": file.name,
+            "path": f"{release.backend.slug}/{file.name}",
         },
     )
 
