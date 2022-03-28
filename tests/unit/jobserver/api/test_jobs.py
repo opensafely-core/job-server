@@ -428,9 +428,10 @@ def test_jobapiupdate_post_only(api_rf):
     assert JobAPIUpdate.as_view()(request).status_code == 405
 
 
-def test_jobapiupdate_post_with_internal_error(api_rf):
+def test_jobapiupdate_post_with_internal_error(api_rf, mocker):
     backend = BackendFactory()
     job_request = JobRequestFactory()
+    mocked_sentry = mocker.patch("jobserver.api.jobs.sentry_sdk", autospec=True)
 
     now = timezone.now()
 
@@ -453,6 +454,7 @@ def test_jobapiupdate_post_with_internal_error(api_rf):
     )
     JobAPIUpdate.as_view()(request_1)
 
+    data[0]["status"] = "failed"
     data[0]["status_message"] = "Internal error"
     request_2 = api_rf.post(
         "/", HTTP_AUTHORIZATION=backend.auth_token, data=data, format="json"
@@ -460,6 +462,8 @@ def test_jobapiupdate_post_with_internal_error(api_rf):
     response = JobAPIUpdate.as_view()(request_2)
 
     assert response.status_code == 200, response.data
+
+    mocked_sentry.capture_message.assert_called_once()
 
 
 def test_jobapiupdate_unknown_job_request(api_rf):
