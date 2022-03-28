@@ -1,6 +1,7 @@
 import itertools
 import operator
 
+import sentry_sdk
 import structlog
 from django.http import Http404
 from django.utils import timezone
@@ -116,7 +117,7 @@ class JobAPIUpdate(APIView):
                     # check to see if the Job is about to transition to completed
                     # (failed or succeeded) so we can notify after the update
                     completed = ["failed", "succeeded"]
-                    should_notify = (
+                    newly_completed = (
                         job.status not in completed and job_data["status"] in completed
                     )
                     # update Job "manually" so we can make the check above for
@@ -130,24 +131,11 @@ class JobAPIUpdate(APIView):
                     # For newly created jobs we can't check if they've just
                     # transition to "completed" so we knowingly skip potential
                     # notifications here to avoid creating false positives.
-                    should_notify = False
+                    newly_completed = False
 
-                if not job_request.will_notify:
-                    continue
-
-                if not should_notify:
-                    # Job didn't move into the completed state (it might have
-                    # already been there though)
-                    continue
-
-                send_finished_notification(
-                    job_request.created_by.notifications_email,
-                    job,
-                )
-                log.info(
-                    "Notified requesting user of completed job",
-                    user_id=job_request.created_by_id,
-                )
+                # We only send notifications or alerts for newly completed jobs
+                if newly_completed:
+                    handle_alerts_and_notifications(request, job_request, job, log)
 
         log.info(
             "Created or updated Jobs",
@@ -159,6 +147,26 @@ class JobAPIUpdate(APIView):
         update_stats(self.backend, request.path)
 
         return Response({"status": "success"}, status=200)
+
+
+def handle_alerts_and_notifications(request, job_request, job, log):
+    if "internal error" in job.status_message.lower():
+        # bubble internal errors encountered with a job up to
+        # sentry so we can get notifications they've happened
+        with sentry_sdk.push_scope() as scope:
+            scope.set_tag("backend", job_request.backend.slug)
+            scope.set_tag("job", request.build_absolute_uri(job.get_absolute_url()))
+            sentry_sdk.capture_message("Job encountered an internal error")
+
+    if job_request.will_notify:
+        send_finished_notification(
+            job_request.created_by.notifications_email,
+            job,
+        )
+        log.info(
+            "Notified requesting user of completed job",
+            user_id=job_request.created_by_id,
+        )
 
 
 class WorkspaceSerializer(serializers.ModelSerializer):
