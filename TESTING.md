@@ -21,7 +21,7 @@ Job Server uses a three layer testing pyramid, with the following layers from to
 
 Below we describe how we draw the lines between each of those layers.
 
-Much like the developer tooling at The DataLab we define these layers as an ideal guide that should be adhered by default, but in the knowledge that things can deviate if there is a good reason.
+Much like the developer tooling at Bennett Institute for Applied Data Science we define these layers as an ideal guide that should be adhered by default, but in the knowledge that things can deviate if there is a good reason.
 
 
 ### Unit Tests

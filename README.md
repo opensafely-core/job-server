@@ -22,7 +22,7 @@ Frontend assets are managed in [Node.js](https://nodejs.org/) using [npm](https:
 CI is handled by [GitHub Actions](https://github.com/features/actions) where the tests and tooling are run.
 After a successful merge to `main` a deployment is run.
 
-Errors are logged to the DataLab [Sentry](https://sentry.io) account.
+Errors are logged to the Bennett Institute [Sentry](https://sentry.io) account.
 
 ## Developer docs
 

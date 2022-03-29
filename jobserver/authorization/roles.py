@@ -43,8 +43,8 @@ class DataInvestigator:
     """
     Has access to Level 2 pseudonymised data, typically over a SQL browser, to
     understand and debug raw underlying data. Sometimes a core developer, and
-    in rare and exceptional cases, a study developer.  Typically DataLab staff
-    only.
+    in rare and exceptional cases, a study developer.  Typically Bennett
+    Institute staff only.
     """
 
     display_name = "Data Investigator"
