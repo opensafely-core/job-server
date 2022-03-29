@@ -6,4 +6,4 @@ We will need the following information:
 
 3. evidence of support from a senior sponsor, usually an NHSE/X individual, such as a national clinical lead, band 9, director, or the sponsor might be a member of SAGE, JCVI, etc.
 
-Note: for the existing approved DataLab/LSHTM Service Restoration Observatory and Aftershocks workstream, sponsorship is not required, but may be requested on a case-by-case basis by the OpenSAFELY team.
+Note: for the existing approved Bennett Institute/LSHTM Service Restoration Observatory and Aftershocks workstream, sponsorship is not required, but may be requested on a case-by-case basis by the OpenSAFELY team.

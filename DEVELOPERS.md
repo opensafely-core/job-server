@@ -1,10 +1,15 @@
 # Developer documentation
 
 - [Local development](#local-development)
+  - [Development credentials](#development-credentials)
   - [Native](#native)
     - [Prerequisites](#prerequisites)
     - [`just` commands](#just-commands)
     - [Postgres](#postgres)
+      - [Installing on macOS](#installing-on-macos)
+      - [Installing on Linux](#installing-on-linux)
+      - [Creating a database](#creating-a-database)
+      - [Restoring Backups](#restoring-backups)
     - [Steps](#steps)
   - [Docker Compose](#docker-compose)
   - [Frontend development (CSS/JS)](#frontend-development-cssjs)
@@ -12,9 +17,8 @@
   - [Compiling assets](#compiling-assets)
 - [Deployment](#deployment)
 - [Testing](#testing)
-- [Adding new backends](#adding-new-backends)
-  - [Steps to add a backend](#steps-to-add-a-backend)
-  - [Why add a backend?](#why-add-a-backend)
+  - [Slack Testing](#slack-testing)
+- [Backends](#backends)
 
 ## Local development
 
@@ -214,7 +218,7 @@ Vite builds the assets and outputs them to the `assets/dist` folder.
 
 It is currently configured to be deployed Heroku-style, and requires the environment variables defined in `dotenv-sample`.
 
-The DataLab job server is deployed to our `dokku2` instance, instructions are are in [INSTALL.md](INSTALL.md).
+The Bennett Institute job server is deployed to our `dokku2` instance, instructions are are in [INSTALL.md](INSTALL.md).
 
 ## Testing
 
