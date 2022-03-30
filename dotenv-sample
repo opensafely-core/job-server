@@ -29,3 +29,7 @@ DJANGO_VITE_DEV_MODE=False
 
 # Token for frontend Sentry error tracking DSN
 VITE_SENTRY_DSN=
+
+export OTEL_EXPORTER_OTLP_ENDPOINT="https://api.honeycomb.io"
+export OTEL_EXPORTER_OTLP_HEADERS="x-honeycomb-team=VALIDKEY1234,x-honeycomb-dataset=job-server"
+export OTEL_SERVICE_NAME="job-server"
