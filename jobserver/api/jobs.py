@@ -117,8 +117,8 @@ class JobAPIUpdate(APIView):
                         defaults={**job_data},
                     )
 
-                    span.set_attribute("job_id", str(job.id))
-                    span.set_attribute("identifier", job.identifier)
+                    span.set_attribute("db_id", str(job.id))
+                    span.set_attribute("job_identifier", job.identifier)
 
                     if not created:
                         updated_job_ids.append(str(job.id))
