@@ -119,6 +119,9 @@ class JobAPIUpdate(APIView):
 
                     span.set_attribute("db_id", str(job.id))
                     span.set_attribute("job_identifier", job.identifier)
+                    span.set_attribute("backend", job_request.backend)
+                    span.set_attribute("created_by", job_request.created_by)
+                    span.set_attribute("workspace", job_request.workspace)
 
                     if not created:
                         updated_job_ids.append(str(job.id))
