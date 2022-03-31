@@ -1,1 +1,1 @@
-web: opentelemetry-instrument gunicorn jobserver.wsgi --config=gunicorn.conf.py
+web: gunicorn jobserver.wsgi --config=gunicorn.conf.py

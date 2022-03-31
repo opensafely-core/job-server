@@ -11,3 +11,9 @@ logconfig_dict = logging_config_dict
 
 # workers
 workers = 3
+
+
+def post_fork(server, worker):
+    from opentelemetry.instrumentation.auto_instrumentation import (  # noqa: F401
+        sitecustomize,
+    )
