@@ -132,8 +132,6 @@ class JobAPIUpdate(APIView):
 
                         span.set_attribute("previous_status", job.status)
                         span.set_attribute("status", job_data["status"])
-                        span.set_attribute("started_at", job.started_at)
-                        span.set_attribute("completed_at", job.completed_at)
 
                         # update Job "manually" so we can make the check above for
                         # status transition
@@ -141,6 +139,9 @@ class JobAPIUpdate(APIView):
                             setattr(job, key, value)
                         job.save()
                         job.refresh_from_db()
+
+                        span.set_attribute("started_at", job.started_at)
+                        span.set_attribute("completed_at", job.completed_at)
                     else:
                         created_job_ids.append(str(job.id))
                         # For newly created jobs we can't check if they've just
