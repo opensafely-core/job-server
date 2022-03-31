@@ -5,6 +5,7 @@ import sentry_sdk
 import structlog
 from django.http import Http404
 from django.utils import timezone
+from opentelemetry import trace
 from rest_framework import serializers
 from rest_framework.exceptions import ValidationError
 from rest_framework.generics import ListAPIView
@@ -50,6 +51,7 @@ class JobAPIUpdate(APIView):
 
     def post(self, request, *args, **kwargs):
         log = logger.new()
+        tracer = trace.get_tracer_provider().get_tracer(__name__)
 
         serializer = self.serializer_class(data=request.data, many=True)
         serializer.is_valid(raise_exception=True)
@@ -102,40 +104,48 @@ class JobAPIUpdate(APIView):
             created_job_ids = []
             updated_job_ids = []
             for job_data in jobs:
-                # remove this value from the data, it's going to be set by
-                # creating/updating Job instances via the JobRequest instances
-                # related Jobs manager (ie job_request.jobs)
-                job_data.pop("job_request_id")
+                with tracer.start_as_current_span("update_job"):
+                    span = trace.get_current_span()
 
-                job, created = job_request.jobs.get_or_create(
-                    identifier=job_data["identifier"],
-                    defaults={**job_data},
-                )
+                    # remove this value from the data, it's going to be set by
+                    # creating/updating Job instances via the JobRequest instances
+                    # related Jobs manager (ie job_request.jobs)
+                    job_data.pop("job_request_id")
 
-                if not created:
-                    updated_job_ids.append(str(job.id))
-                    # check to see if the Job is about to transition to completed
-                    # (failed or succeeded) so we can notify after the update
-                    completed = ["failed", "succeeded"]
-                    newly_completed = (
-                        job.status not in completed and job_data["status"] in completed
+                    job, created = job_request.jobs.get_or_create(
+                        identifier=job_data["identifier"],
+                        defaults={**job_data},
                     )
-                    # update Job "manually" so we can make the check above for
-                    # status transition
-                    for key, value in job_data.items():
-                        setattr(job, key, value)
-                    job.save()
-                    job.refresh_from_db()
-                else:
-                    created_job_ids.append(str(job.id))
-                    # For newly created jobs we can't check if they've just
-                    # transition to "completed" so we knowingly skip potential
-                    # notifications here to avoid creating false positives.
-                    newly_completed = False
 
-                # We only send notifications or alerts for newly completed jobs
-                if newly_completed:
-                    handle_alerts_and_notifications(request, job_request, job, log)
+                    span.set_attribute("job_id", str(job.id))
+                    if not created:
+                        updated_job_ids.append(str(job.id))
+                        # check to see if the Job is about to transition to completed
+                        # (failed or succeeded) so we can notify after the update
+                        completed = ["failed", "succeeded"]
+                        newly_completed = (
+                            job.status not in completed
+                            and job_data["status"] in completed
+                        )
+                        span.set_attribute("previous_status", job.status)
+                        span.set_attribute("status", job_data["status"])
+                        # update Job "manually" so we can make the check above for
+                        # status transition
+                        for key, value in job_data.items():
+                            setattr(job, key, value)
+                        job.save()
+                        job.refresh_from_db()
+                    else:
+                        created_job_ids.append(str(job.id))
+                        # For newly created jobs we can't check if they've just
+                        # transition to "completed" so we knowingly skip potential
+                        # notifications here to avoid creating false positives.
+                        newly_completed = False
+                        span.set_attribute("status", "newly_created")
+
+                    # We only send notifications or alerts for newly completed jobs
+                    if newly_completed:
+                        handle_alerts_and_notifications(request, job_request, job, log)
 
         log.info(
             "Created or updated Jobs",
