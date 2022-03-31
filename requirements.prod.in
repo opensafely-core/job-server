@@ -22,6 +22,7 @@ pydantic
 pygments
 python-ulid
 pyyaml
+opentelemetry-exporter-otlp
 opentelemetry-instrumentation-django
 opentelemetry-sdk
 requests
