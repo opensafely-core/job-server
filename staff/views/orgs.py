@@ -17,9 +17,6 @@ from ..forms import OrgAddGitHubOrgForm, OrgAddMemberForm
 def org_add_github_org(request, slug):
     org = get_object_or_404(Org, slug=slug)
 
-    if not request.htmx:
-        return redirect(org.get_staff_url())
-
     if request.POST:
         form = OrgAddGitHubOrgForm(data=request.POST)
     else:
