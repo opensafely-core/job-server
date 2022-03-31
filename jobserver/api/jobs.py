@@ -117,7 +117,9 @@ class JobAPIUpdate(APIView):
                         defaults={**job_data},
                     )
 
-                    span.set_attribute("job_id", str(job.id))
+                    span.set_attribute("db_id", str(job.id))
+                    span.set_attribute("job_identifier", job.identifier)
+
                     if not created:
                         updated_job_ids.append(str(job.id))
                         # check to see if the Job is about to transition to completed
@@ -127,14 +129,19 @@ class JobAPIUpdate(APIView):
                             job.status not in completed
                             and job_data["status"] in completed
                         )
+
                         span.set_attribute("previous_status", job.status)
                         span.set_attribute("status", job_data["status"])
+
                         # update Job "manually" so we can make the check above for
                         # status transition
                         for key, value in job_data.items():
                             setattr(job, key, value)
                         job.save()
                         job.refresh_from_db()
+
+                        span.set_attribute("started_at", job.started_at)
+                        span.set_attribute("completed_at", job.completed_at)
                     else:
                         created_job_ids.append(str(job.id))
                         # For newly created jobs we can't check if they've just
