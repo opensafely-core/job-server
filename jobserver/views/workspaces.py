@@ -121,6 +121,17 @@ class WorkspaceCreate(CreateView):
         if not can_create_workspaces:
             raise Http404
 
+        if not self.request.user.orgs.exists():
+            message = (
+                "Your user account has no organisation associated with it, "
+                "please contact your Co-Pilot or support."
+            )
+            return TemplateResponse(
+                request,
+                "workspace_create_error.html",
+                context={"message": message, "project": self.project},
+            )
+
         gh_org = first(self.request.user.orgs.first().github_orgs)
         if gh_org is None:
             message = (

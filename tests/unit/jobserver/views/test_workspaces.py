@@ -342,6 +342,23 @@ def test_workspacecreate_without_github_orgs(rf):
     assert response.template_name == "workspace_create_error.html"
 
 
+def test_workspacecreate_without_org(rf):
+    user = UserFactory()
+
+    project = ProjectFactory()
+    ProjectMembershipFactory(project=project, user=user, roles=[ProjectDeveloper])
+
+    request = rf.get("/")
+    request.user = user
+
+    response = WorkspaceCreate.as_view()(
+        request, org_slug=project.org.slug, project_slug=project.slug
+    )
+
+    assert response.status_code == 200
+    assert response.template_name == "workspace_create_error.html"
+
+
 def test_workspacecreate_without_permission(rf, user):
     project = ProjectFactory()
 
