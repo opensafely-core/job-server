@@ -339,7 +339,7 @@ def test_workspacecreate_without_github_orgs(rf):
     )
 
     assert response.status_code == 200
-    assert response.template_name == "workspace_create_no_github_orgs.html"
+    assert response.template_name == "workspace_create_error.html"
 
 
 def test_workspacecreate_without_permission(rf, user):
