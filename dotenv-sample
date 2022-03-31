@@ -33,3 +33,6 @@ VITE_SENTRY_DSN=
 export OTEL_EXPORTER_OTLP_ENDPOINT="https://api.honeycomb.io"
 export OTEL_EXPORTER_OTLP_HEADERS="x-honeycomb-team=VALIDKEY1234,x-honeycomb-dataset=job-server"
 export OTEL_SERVICE_NAME="job-server"
+# OTEL requires these, it needs to access settings before other stuff has initialised
+DJANGO_SETTINGS_MODULE="jobserver.settings"
+PYTHONPATH="/usr/local/bin/python"
