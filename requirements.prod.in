@@ -22,8 +22,6 @@ pydantic
 pygments
 python-ulid
 pyyaml
-opentelemetry-instrumentation-django
-opentelemetry-sdk
 requests
 sentry-sdk
 slack-sdk
