@@ -119,9 +119,9 @@ class JobAPIUpdate(APIView):
 
                     span.set_attribute("db_id", str(job.id))
                     span.set_attribute("job_identifier", job.identifier)
-                    span.set_attribute("backend", job_request.backend)
-                    span.set_attribute("created_by", job_request.created_by)
-                    span.set_attribute("workspace", job_request.workspace)
+                    span.set_attribute("backend", str(job_request.backend))
+                    span.set_attribute("created_by", str(job_request.created_by))
+                    span.set_attribute("workspace", str(job_request.workspace))
 
                     if not created:
                         updated_job_ids.append(str(job.id))
@@ -143,8 +143,8 @@ class JobAPIUpdate(APIView):
                         job.save()
                         job.refresh_from_db()
 
-                        span.set_attribute("started_at", job.started_at)
-                        span.set_attribute("completed_at", job.completed_at)
+                        span.set_attribute("started_at", str(job.started_at))
+                        span.set_attribute("completed_at", str(job.completed_at))
                     else:
                         created_job_ids.append(str(job.id))
                         # For newly created jobs we can't check if they've just
