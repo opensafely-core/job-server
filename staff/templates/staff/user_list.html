@@ -124,12 +124,38 @@
 
       <div class="list-group list-unstyled">
         {% for user in object_list %}
-        <a href="{{ user.get_staff_url }}" class="d-flex align-items-center list-group-item list-group-item-action">
-          {{ user.username }}
-          {% if user.get_full_name %}
-          <span class="text-muted ml-2 font-weight-normal">({{ user.get_full_name }})</span>
-          {% endif %}
-        </a>
+        <div class="d-flex justify-content-between align-items-center list-group-item list-group-item-action">
+
+          <a href="{{ user.get_staff_url }}" class="d-flex align-items-center">
+            {{ user.username }}
+            {% if user.get_full_name %}
+            <span class="text-muted ml-2 font-weight-normal">({{ user.get_full_name }})</span>
+            {% endif %}
+          </a>
+
+          <div>
+
+            {% if not user.backend_exists %}
+            <span class="badge badge-danger" title="This user is missing a link to 1 or more Backends">
+              Backend
+            </span>
+            {% endif %}
+
+            {% if not user.org_exists %}
+            <span class="badge badge-danger" title="This user is missing a link to 1 or more Orgs">
+              Org
+            </span>
+            {% endif %}
+
+            {% if not user.project_exists %}
+            <span class="badge badge-warning"title="This user is missing a link to 1 or more Projects">
+              Project
+            </span>
+            {% endif %}
+
+          </div>
+
+        </div>
         {% endfor %}
       </div>
     </div>

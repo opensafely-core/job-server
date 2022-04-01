@@ -1,7 +1,7 @@
 import inspect
 
 from django.db import transaction
-from django.db.models import Q
+from django.db.models import Exists, OuterRef, Q
 from django.db.models.functions import Lower
 from django.shortcuts import get_object_or_404, redirect
 from django.utils.decorators import method_decorator
@@ -10,7 +10,7 @@ from django.views.generic import FormView, ListView, UpdateView
 from jobserver.authorization import roles
 from jobserver.authorization.decorators import require_permission
 from jobserver.authorization.utils import roles_for
-from jobserver.models import Backend, Org, User
+from jobserver.models import Backend, Org, Project, User
 from jobserver.utils import raise_if_not_int
 
 from ..forms import UserForm, UserOrgsForm
@@ -87,7 +87,7 @@ class UserDetail(UpdateView):
 
 @method_decorator(require_permission("user_manage"), name="dispatch")
 class UserList(ListView):
-    queryset = User.objects.order_by(Lower("username"))
+    model = User
     template_name = "staff/user_list.html"
 
     def get_context_data(self, **kwargs):
@@ -103,6 +103,21 @@ class UserList(ListView):
     def get_queryset(self):
         qs = super().get_queryset()
 
+        # lazily build up some queries for annotation below (Exists uses a
+        # subquery, hence the use of OuterRef)
+        backends = Org.objects.filter(members=OuterRef("pk"))
+        orgs = Org.objects.filter(members=OuterRef("pk"))
+        projects = Project.objects.filter(members=OuterRef("pk"))
+
+        # annotate the existance of various related objects so we can add
+        # badges if they're missing
+        qs = qs.annotate(
+            backend_exists=Exists(backends),
+            org_exists=Exists(orgs),
+            project_exists=Exists(projects),
+        ).order_by(Lower("username"))
+
+        # filter on the search query
         q = self.request.GET.get("q")
         if q:
             qs = qs.filter(
