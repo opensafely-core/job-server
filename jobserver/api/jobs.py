@@ -119,9 +119,21 @@ class JobAPIUpdate(APIView):
 
                     span.set_attribute("db_id", str(job.id))
                     span.set_attribute("job_identifier", job.identifier)
-                    span.set_attribute("backend", job_request.backend)
-                    span.set_attribute("created_by", job_request.created_by)
-                    span.set_attribute("workspace", job_request.workspace)
+                    span.set_attribute("backend_slug", job_request.backend.slug)
+                    span.set_attribute("created_by", job_request.created_by.username)
+                    span.set_attribute("workspace_name", job_request.workspace.name)
+                    span.set_attribute("workspace_repo", job_request.workspace.repo)
+                    span.set_attribute("workspace_branch", job_request.workspace.branch)
+                    span.set_attribute(
+                        "workspace_uses_new_release_flow",
+                        job_request.workspace.uses_new_release_flow,
+                    )
+                    span.set_attribute(
+                        "project_name", job_request.workspace.project.slug
+                    )
+                    span.set_attribute(
+                        "org_name", job_request.workspace.project.org.slug
+                    )
 
                     if not created:
                         updated_job_ids.append(str(job.id))
@@ -143,8 +155,12 @@ class JobAPIUpdate(APIView):
                         job.save()
                         job.refresh_from_db()
 
-                        span.set_attribute("started_at", job.started_at)
-                        span.set_attribute("completed_at", job.completed_at)
+                        if job.started_at is not None:
+                            span.set_attribute("started_at", job.started_at.isoformat())
+                        if job.completed_at is not None:
+                            span.set_attribute(
+                                "completed_at", job.completed_at.isoformat()
+                            )
                     else:
                         created_job_ids.append(str(job.id))
                         # For newly created jobs we can't check if they've just
