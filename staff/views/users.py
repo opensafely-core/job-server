@@ -1,5 +1,7 @@
 import inspect
 
+import structlog
+from django.core.exceptions import FieldError
 from django.db import transaction
 from django.db.models import Exists, OuterRef, Q
 from django.db.models.functions import Lower
@@ -14,6 +16,9 @@ from jobserver.models import Backend, Org, Project, User
 from jobserver.utils import raise_if_not_int
 
 from ..forms import UserForm, UserOrgsForm
+
+
+logger = structlog.get_logger(__name__)
 
 
 @method_decorator(require_permission("user_manage"), name="dispatch")
@@ -95,8 +100,9 @@ class UserList(ListView):
 
         return super().get_context_data(**kwargs) | {
             "backends": Backend.objects.order_by("slug"),
-            "q": self.request.GET.get("q", ""),
+            "missing_names": ["backend", "org", "project"],
             "orgs": Org.objects.order_by("name"),
+            "q": self.request.GET.get("q", ""),
             "roles": all_roles,
         }
 
@@ -105,7 +111,7 @@ class UserList(ListView):
 
         # lazily build up some queries for annotation below (Exists uses a
         # subquery, hence the use of OuterRef)
-        backends = Org.objects.filter(members=OuterRef("pk"))
+        backends = Backend.objects.filter(members=OuterRef("pk"))
         orgs = Org.objects.filter(members=OuterRef("pk"))
         projects = Project.objects.filter(members=OuterRef("pk"))
 
@@ -129,6 +135,12 @@ class UserList(ListView):
         if backend := self.request.GET.get("backend"):
             raise_if_not_int(backend)
             qs = qs.filter(backends__pk=backend)
+
+        if missing := self.request.GET.get("missing"):
+            try:
+                qs = qs.filter(**{f"{missing}_exists": False})
+            except FieldError:
+                logger.debug(f"Unknown related object: {missing}")
 
         if org := self.request.GET.get("org"):
             qs = qs.filter(orgs__slug=org)

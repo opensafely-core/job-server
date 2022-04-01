@@ -237,6 +237,34 @@ def test_userlist_filter_by_invalid_backend(rf, core_developer):
         UserList.as_view()(request)
 
 
+def test_userlist_filter_by_invalid_missing(rf, core_developer):
+    request = rf.get("/?missing=test")
+    request.user = core_developer
+
+    response = UserList.as_view()(request)
+
+    assert list(response.context_data["object_list"]) == [core_developer]
+
+
+def test_userlist_filter_by_missing(rf, core_developer):
+    backend = BackendFactory()
+
+    BackendMembershipFactory(
+        user=UserFactory(),
+        created_by=core_developer,
+        backend=backend,
+    )
+
+    user = UserFactory()
+
+    request = rf.get("/?missing=backend")
+    request.user = core_developer
+
+    response = UserList.as_view()(request)
+
+    assert list(response.context_data["object_list"]) == [core_developer, user]
+
+
 def test_userlist_filter_by_org(rf, core_developer):
     org1 = OrgFactory()
     org2 = OrgFactory()
@@ -352,6 +380,5 @@ def test_usersetorgs_post_success(rf, core_developer):
 def test_usersetorgs_unknown_user(rf, core_developer):
     request = rf.get("/")
     request.user = core_developer
-
     with pytest.raises(Http404):
         UserSetOrgs.as_view()(request, username="")

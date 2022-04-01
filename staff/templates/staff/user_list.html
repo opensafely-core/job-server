@@ -62,6 +62,26 @@
       </div>
       {% endif %}
 
+      <h3 class="h4">Missing</h3>
+      <div class="btn-group-vertical w-100 mb-4" role="group" aria-label="Filter by missing links">
+        {% for missing_name in missing_names %}
+        {% is_filter_selected key="missing" value=missing_name as is_active %}
+        <a
+          {% if is_active %}aria-pressed="true"{% endif %}
+          class="btn btn-outline-primary btn-block text-left {% if is_active %}active{% endif %}"
+          href="
+            {% if is_active %}
+              {% url_without_querystring missing=missing_name %}
+            {% else %}
+              {% url_with_querystring missing=missing_name %}
+            {% endif %}
+          "
+        >
+            {{ missing_name|title }}
+        </a>
+        {% endfor %}
+      </div>
+
       {% if roles %}
       <h3 class="h4">Role</h3>
       <div class="btn-group-vertical w-100 mb-4" role="group" aria-label="Filter by role">
