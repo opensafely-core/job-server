@@ -143,8 +143,8 @@ class JobAPIUpdate(APIView):
                         job.save()
                         job.refresh_from_db()
 
-                        span.set_attribute("started_at", str(job.started_at))
-                        span.set_attribute("completed_at", str(job.completed_at))
+                        span.set_attribute("started_at", job.started_at.isoformat())
+                        span.set_attribute("completed_at", job.completed_at.isoformat())
                     else:
                         created_job_ids.append(str(job.id))
                         # For newly created jobs we can't check if they've just
