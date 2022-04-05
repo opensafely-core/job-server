@@ -1,3 +1,5 @@
+import functools
+
 from django.contrib import messages
 from django.db.models import Q
 from django.shortcuts import get_object_or_404, redirect
@@ -11,7 +13,7 @@ from applications.models import Application
 from applications.wizard import Wizard
 from jobserver.authorization import CoreDeveloper
 from jobserver.authorization.decorators import require_role
-from jobserver.hash_utils import unhash_or_404
+from jobserver.hash_utils import unhash, unhash_or_404
 
 from ..forms import ApplicationApproveForm
 
@@ -162,12 +164,26 @@ class ApplicationList(ListView):
         qs = super().get_queryset().select_related("created_by")
 
         if q := self.request.GET.get("q"):
-            qs = qs.filter(
-                Q(created_by__first_name__icontains=q)
-                | Q(created_by__last_name__icontains=q)
-                | Q(created_by__username__icontains=q)
-                | Q(researcher_registrations__name__icontains=q)
-            )
+            filters = {
+                "created_by__first_name__icontains": q,
+                "created_by__last_name__icontains": q,
+                "created_by__username__icontains": q,
+                "researcher_registrations__name__icontains": q,
+            }
+
+            # Application identifiers are hashes of their PK
+            try:
+                filters["pk"] = unhash(q)
+            except ValueError:
+                pass
+
+            # build up Q objects OR'd together.  We need to build them with
+            # functools.reduce so we can optionally add the PK filter to the
+            # list
+            qwargs = (Q(**{k: v}) for k, v in filters.items())
+            qwargs = functools.reduce(Q.__or__, qwargs)
+
+            qs = qs.filter(qwargs)
 
         if status := self.request.GET.get("status"):
             qs = qs.filter(status=status)
