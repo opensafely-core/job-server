@@ -33,19 +33,6 @@ def test_orgaddgithuborg_get_success(rf, core_developer):
     assert response.context_data["form"]
 
 
-def test_orgaddgithuborg_not_htmx(rf, core_developer):
-    org = OrgFactory()
-
-    request = rf.get("/")
-    request.htmx = False
-    request.user = core_developer
-
-    response = org_add_github_org(request, slug=org.slug)
-
-    assert response.status_code == 302
-    assert response.url == org.get_staff_url()
-
-
 def test_orgaddgithuborg_post_invalid_form(rf, core_developer):
     org = OrgFactory(github_orgs=["one", "two"])
 

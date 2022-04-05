@@ -62,6 +62,26 @@
       </div>
       {% endif %}
 
+      <h3 class="h4">Missing</h3>
+      <div class="btn-group-vertical w-100 mb-4" role="group" aria-label="Filter by missing links">
+        {% for missing_name in missing_names %}
+        {% is_filter_selected key="missing" value=missing_name as is_active %}
+        <a
+          {% if is_active %}aria-pressed="true"{% endif %}
+          class="btn btn-outline-primary btn-block text-left {% if is_active %}active{% endif %}"
+          href="
+            {% if is_active %}
+              {% url_without_querystring missing=missing_name %}
+            {% else %}
+              {% url_with_querystring missing=missing_name %}
+            {% endif %}
+          "
+        >
+            {{ missing_name|title }}
+        </a>
+        {% endfor %}
+      </div>
+
       {% if roles %}
       <h3 class="h4">Role</h3>
       <div class="btn-group-vertical w-100 mb-4" role="group" aria-label="Filter by role">
@@ -124,12 +144,38 @@
 
       <div class="list-group list-unstyled">
         {% for user in object_list %}
-        <a href="{{ user.get_staff_url }}" class="d-flex align-items-center list-group-item list-group-item-action">
-          {{ user.username }}
-          {% if user.get_full_name %}
-          <span class="text-muted ml-2 font-weight-normal">({{ user.get_full_name }})</span>
-          {% endif %}
-        </a>
+        <div class="d-flex justify-content-between align-items-center list-group-item list-group-item-action">
+
+          <a href="{{ user.get_staff_url }}" class="d-flex align-items-center">
+            {{ user.username }}
+            {% if user.get_full_name %}
+            <span class="text-muted ml-2 font-weight-normal">({{ user.get_full_name }})</span>
+            {% endif %}
+          </a>
+
+          <div>
+
+            {% if not user.backend_exists %}
+            <span class="badge badge-danger" title="This user is missing a link to 1 or more Backends">
+              Backend
+            </span>
+            {% endif %}
+
+            {% if not user.org_exists %}
+            <span class="badge badge-danger" title="This user is missing a link to 1 or more Orgs">
+              Org
+            </span>
+            {% endif %}
+
+            {% if not user.project_exists %}
+            <span class="badge badge-warning"title="This user is missing a link to 1 or more Projects">
+              Project
+            </span>
+            {% endif %}
+
+          </div>
+
+        </div>
         {% endfor %}
       </div>
     </div>

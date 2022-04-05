@@ -45,6 +45,30 @@
 <div class="container">
   <div class="row">
     <div class="col col-lg-9 col-xl-8">
+
+      {% if not orgs or not user.backends.exists %}
+      <div class="alert alert-danger" role="alert">
+        <p>
+          A user <strong>requires</strong> access to certain resources to be
+          able to use the Jobs site.  The following are missing for this user:
+        </p>
+        <ul>
+          {% if not user.backends.exists %}
+          <li><a href="#backends">Backends</a></li>
+          {% endif %}
+          {% if not orgs %}
+          <li><a href="#orgs">Orgs</a></li>
+          {% endif %}
+        </ul>
+      </div>
+      {% endif %}
+
+      {% if not projects %}
+      <div class="alert alert-warning" role="alert">
+        A user would ideally have access to one or more <a href="#projects">Projects</a>.
+      </div>
+      {% endif %}
+
       <form method="POST">
         {% csrf_token %}
 
@@ -57,7 +81,7 @@
         {% endif %}
 
         <div class="form-group">
-          <h2 class="h4">Backends</h2>
+          <h2 id="backends" class="h4">Backends</h2>
 
           <p>
             A list of backends {{ user.username }} has access to.
@@ -105,7 +129,7 @@
 
         <div class="form-group mb-5">
           <div class="d-flex justify-content-between align-items-center">
-            <h2 class="h4">Organisations</h2>
+            <h2 id="orgs" class="h4">Organisations</h2>
             <a class="btn btn-sm btn-primary" href="{% url 'staff:user-set-orgs' username=user.username %}">
               Add to organisation
             </a>
@@ -124,7 +148,7 @@
         </div>
 
         <div class="form-group mb-5">
-          <h2 class="h4">Projects</h2>
+          <h2 id="projects" class="h4">Projects</h2>
 
           <div class="list-group mb-3">
             {% for project in projects %}
