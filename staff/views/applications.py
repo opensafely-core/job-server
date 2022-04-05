@@ -188,7 +188,7 @@ class ApplicationList(ListView):
         if status := self.request.GET.get("status"):
             qs = qs.filter(status=status)
 
-        return qs
+        return qs.distinct()
 
 
 @method_decorator(require_role(CoreDeveloper), name="dispatch")
