@@ -47,7 +47,7 @@ def test_projectreleaselist_success(rf):
     workspace1 = WorkspaceFactory(project=project)
     workspace2 = WorkspaceFactory(project=project)
 
-    ReleaseFactory(
+    r1 = ReleaseFactory(
         ReleaseUploadsFactory(["test1", "test2"]),
         workspace=workspace1,
     )
@@ -69,6 +69,10 @@ def test_projectreleaselist_success(rf):
 
     assert response.context_data["project"] == project
     assert len(response.context_data["releases"]) == 2
+    assert (
+        f"Files released by {r1.created_by.name} from {r1.backend.name}"
+        in response.rendered_content
+    )
 
 
 def test_projectreleaselist_unknown_workspace(rf):
@@ -639,7 +643,7 @@ def test_snapshotdownload_with_no_files(rf):
 
 def test_workspacereleaselist_authenticated_to_view_not_delete(rf):
     workspace = WorkspaceFactory()
-    ReleaseFactory(ReleaseUploadsFactory(["test1"]), workspace=workspace)
+    release = ReleaseFactory(ReleaseUploadsFactory(["test1"]), workspace=workspace)
 
     request = rf.get("/")
     request.user = UserFactory(roles=[ProjectCollaborator])
@@ -660,6 +664,10 @@ def test_workspacereleaselist_authenticated_to_view_not_delete(rf):
 
     assert not response.context_data["user_can_delete_files"]
     assert "Delete" not in response.rendered_content
+    assert (
+        f"Files released by {release.created_by.name} from {release.backend.name}"
+        in response.rendered_content
+    )
 
 
 def test_workspacereleaselist_authenticated_to_view_and_delete(rf):

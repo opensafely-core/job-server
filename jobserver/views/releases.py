@@ -56,7 +56,7 @@ class ProjectReleaseList(View):
             url = f'<a href="{release.workspace.get_absolute_url()}">{release.workspace.name}</a>'
 
             return mark_safe(
-                f"Files released by {name} in the {url} workspace {created_at}"
+                f"Files released by {name} from {release.backend.name} in the {url} workspace {created_at}"
             )
 
         releases = [
@@ -309,7 +309,7 @@ class WorkspaceReleaseList(View):
         }
 
         def build_title(release):
-            suffix = f" by {release.created_by.name} {naturaltime(release.created_at)}"
+            suffix = f" by {release.created_by.name} from {release.backend.name} {naturaltime(release.created_at)}"
             prefix = "Files released" if release.files else "Released"
 
             return prefix + suffix
