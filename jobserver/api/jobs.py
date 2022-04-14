@@ -156,6 +156,8 @@ class JobAPIUpdate(APIView):
                         job.save()
                         job.refresh_from_db()
 
+                        if job.created_at is not None:
+                            span.set_attribute("created_at", job.created_at.isoformat())
                         if job.started_at is not None:
                             span.set_attribute("started_at", job.started_at.isoformat())
                         if job.completed_at is not None:
