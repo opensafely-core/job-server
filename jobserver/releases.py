@@ -7,6 +7,7 @@ from pathlib import Path
 from django.db import transaction
 from django.http import FileResponse
 from django.utils import timezone
+from django.utils.http import http_date
 from furl import furl
 from rest_framework.exceptions import NotFound
 from rest_framework.response import Response
@@ -174,6 +175,10 @@ def serve_file(request, rfile):
         # serve directly from django in dev use regular django response to
         # bypass DRFs renderer framework and just serve bytes
         response = FileResponse(path.open("rb"))
+
+    # set Last-Modified header as per:
+    # https://developer.mozilla.org/en-US/docs/Web/HTTP/Headers/Last-Modified
+    response.headers["Last-Modified"] = http_date(rfile.created_at.timestamp())
 
     return response
 

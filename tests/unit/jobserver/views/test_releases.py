@@ -141,6 +141,7 @@ def test_publishedsnapshotfile_success(rf):
     assert response.status_code == 200
     assert b"".join(response.streaming_content) == b"test"
     assert response.headers["Content-Type"] == "text/plain"
+    assert response.headers["Last-Modified"]
 
 
 def test_publishedsnapshotfile_with_unknown_release_file(rf):
