@@ -707,9 +707,25 @@ class User(AbstractUser):
     # has the User been approved by an admin?
     is_approved = models.BooleanField(default=False)
 
+    # PATs are generated for bot users.  They can only be generated via a shell
+    # so they can't be accidentally exposed via the UI.
+    pat_token = models.TextField(null=True, unique=True)
+    pat_expires_at = models.DateTimeField(null=True)
+
     roles = RolesField()
 
     objects = UserManager()
+
+    class Meta:
+        constraints = [
+            models.CheckConstraint(
+                check=(
+                    (Q(pat_expires_at=None) & Q(pat_token=None))
+                    | (~Q(pat_expires_at=None) & ~Q(pat_token=None))
+                ),
+                name="%(app_label)s_%(class)s_both_pat_expires_at_and_pat_token_set",
+            ),
+        ]
 
     def get_all_permissions(self):
         """
