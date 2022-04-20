@@ -7,6 +7,7 @@ from django.template.response import TemplateResponse
 from django.views.generic import CreateView, ListView, View
 from first import first
 from furl import furl
+from opentelemetry import trace
 from pybadges import badge
 
 from ..authorization import has_permission
@@ -372,16 +373,20 @@ class WorkspaceLog(ListView):
     template_name = "workspace_log.html"
 
     def dispatch(self, request, *args, **kwargs):
-        try:
-            self.workspace = Workspace.objects.get(
-                project__org__slug=self.kwargs["org_slug"],
-                project__slug=self.kwargs["project_slug"],
-                name=self.kwargs["workspace_slug"],
-            )
-        except Workspace.DoesNotExist:
-            return redirect("/")
+        tracer = trace.get_tracer(__name__)
+        with tracer.start_as_current_span("WorkspaceLog"):
+            try:
+                with tracer.start_as_current_span("get workspace"):
+                    self.workspace = Workspace.objects.get(
+                        project__org__slug=self.kwargs["org_slug"],
+                        project__slug=self.kwargs["project_slug"],
+                        name=self.kwargs["workspace_slug"],
+                    )
+            except Workspace.DoesNotExist:
+                return redirect("/")
 
-        return super().dispatch(request, *args, **kwargs)
+            with tracer.start_as_current_span("super().dispatch"):
+                return super().dispatch(request, *args, **kwargs)
 
     def get_context_data(self, **kwargs):
         # limit backends to those the workspace uses
