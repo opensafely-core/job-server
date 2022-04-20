@@ -8,6 +8,7 @@ from django.template.response import TemplateResponse
 from django.utils.safestring import mark_safe
 from django.views.generic import CreateView, ListView, RedirectView, View
 from django.views.generic.edit import FormMixin
+from opentelemetry import trace
 
 from ..authorization import CoreDeveloper, has_permission, has_role
 from ..backends import backends_to_choices
@@ -216,55 +217,63 @@ class JobRequestList(FormMixin, ListView):
     template_name = "job_request_list.html"
 
     def get_context_data(self, **kwargs):
-        # only get Users created via GitHub OAuth
-        users = User.objects.exclude(social_auth=None)
-        users = sorted(users, key=lambda u: u.name.lower())
+        tracer = trace.get_tracer(__name__)
+        with tracer.start_as_current_span("get_context_data"):
+            # only get Users created via GitHub OAuth
+            users = User.objects.exclude(social_auth=None)
+            users = sorted(users, key=lambda u: u.name.lower())
 
-        workspaces = Workspace.objects.filter(is_archived=False).order_by("name")
+            workspaces = Workspace.objects.filter(is_archived=False).order_by("name")
 
-        # filter object list based on status arg
-        filtered_object_list = filter_by_status(
-            self.object_list, self.request.GET.get("status")
-        )
-        context = super().get_context_data(object_list=filtered_object_list, **kwargs)
+            # filter object list based on status arg
+            filtered_object_list = filter_by_status(
+                self.object_list, self.request.GET.get("status")
+            )
+            context = super().get_context_data(
+                object_list=filtered_object_list, **kwargs
+            )
 
-        context["backends"] = Backend.objects.order_by("slug")
-        context["is_core_dev"] = has_role(self.request.user, CoreDeveloper)
-        context["statuses"] = ["failed", "running", "pending", "succeeded"]
-        context["users"] = {u.username: u.name for u in users}
-        context["workspaces"] = workspaces
-        return context
+            context["backends"] = Backend.objects.order_by("slug")
+            context["is_core_dev"] = has_role(self.request.user, CoreDeveloper)
+            context["statuses"] = ["failed", "running", "pending", "succeeded"]
+            context["users"] = {u.username: u.name for u in users}
+            context["workspaces"] = workspaces
+            return context
 
     def get_queryset(self):
-        qs = JobRequest.objects.select_related("backend", "workspace").order_by("-pk")
+        tracer = trace.get_tracer(__name__)
+        with tracer.start_as_current_span("get_queryset"):
+            qs = JobRequest.objects.select_related("backend", "workspace").order_by(
+                "-pk"
+            )
 
-        q = self.request.GET.get("q")
-        if q:
-            qwargs = Q(jobs__action__icontains=q) | Q(jobs__identifier__icontains=q)
-            try:
-                q = int(q)
-            except ValueError:
-                qs = qs.filter(qwargs)
-            else:
-                # if the query looks enough like a number for int() to handle
-                # it then we can look for a job number
-                qs = qs.filter(qwargs | Q(jobs__pk=q))
+            q = self.request.GET.get("q")
+            if q:
+                qwargs = Q(jobs__action__icontains=q) | Q(jobs__identifier__icontains=q)
+                try:
+                    q = int(q)
+                except ValueError:
+                    qs = qs.filter(qwargs)
+                else:
+                    # if the query looks enough like a number for int() to handle
+                    # it then we can look for a job number
+                    qs = qs.filter(qwargs | Q(jobs__pk=q))
 
-        backend = self.request.GET.get("backend")
-        if backend:
-            raise_if_not_int(backend)
-            qs = qs.filter(backend_id=backend)
+            backend = self.request.GET.get("backend")
+            if backend:
+                raise_if_not_int(backend)
+                qs = qs.filter(backend_id=backend)
 
-        username = self.request.GET.get("username")
-        if username:
-            qs = qs.filter(created_by__username=username)
+            username = self.request.GET.get("username")
+            if username:
+                qs = qs.filter(created_by__username=username)
 
-        workspace = self.request.GET.get("workspace")
-        if workspace:
-            raise_if_not_int(workspace)
-            qs = qs.filter(workspace_id=workspace)
+            workspace = self.request.GET.get("workspace")
+            if workspace:
+                raise_if_not_int(workspace)
+                qs = qs.filter(workspace_id=workspace)
 
-        return qs
+            return qs
 
     def form_valid(self, form):
         identifier = form.cleaned_data["identifier"]
