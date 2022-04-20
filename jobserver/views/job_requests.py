@@ -8,14 +8,18 @@ from django.template.response import TemplateResponse
 from django.utils.safestring import mark_safe
 from django.views.generic import CreateView, ListView, RedirectView, View
 from django.views.generic.edit import FormMixin
+from opentelemetry import trace
 
 from ..authorization import CoreDeveloper, has_permission, has_role
 from ..backends import backends_to_choices
 from ..forms import JobRequestCreateForm, JobRequestSearchForm
 from ..github import get_branch_sha
-from ..models import Backend, JobRequest, User, Workspace, tracer
+from ..models import Backend, JobRequest, User, Workspace
 from ..project import get_actions, get_project, load_yaml, render_definition
 from ..utils import raise_if_not_int
+
+
+tracer = trace.get_tracer(__name__)
 
 
 def filter_by_status(job_requests, status):

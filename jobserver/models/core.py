@@ -16,7 +16,6 @@ from django.utils import timezone
 from django.utils.text import slugify
 from environs import Env
 from furl import furl
-from opentelemetry import trace
 
 from ..authorization.fields import RolesField
 from ..authorization.utils import strings_to_roles
@@ -25,7 +24,6 @@ from ..runtime import Runtime
 
 env = Env()
 logger = structlog.get_logger(__name__)
-tracer = trace.get_tracer(__name__)
 
 
 def default_github_orgs():
