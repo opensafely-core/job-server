@@ -30,13 +30,14 @@ def filter_by_status(job_requests, status):
     However, the construction of that property isn't easily converted to a
     QuerySet, hence this function.
     """
-    if status not in ["failed", "running", "pending", "succeeded"]:
-        # status is taken from a GET query arg so we need to treat it as user
-        # input, returning the full JobRequest QuerySet if it's not a valid
-        # value.
-        return job_requests
+    with tracer.start_as_current_span("filter_by_status"):
+        if status not in ["failed", "running", "pending", "succeeded"]:
+            # status is taken from a GET query arg so we need to treat it as user
+            # input, returning the full JobRequest QuerySet if it's not a valid
+            # value.
+            return job_requests
 
-    return [r for r in job_requests.all() if r.status.lower() == status]
+        return [r for r in job_requests.all() if r.status.lower() == status]
 
 
 class JobRequestCancel(View):
