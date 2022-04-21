@@ -65,6 +65,7 @@ True
 True
 """
 
+from django.contrib.auth.hashers import make_password
 from django.http import Http404
 
 
@@ -88,6 +89,16 @@ def hash(m, length=DEFAULT_LENGTH, key=DEFAULT_KEY):  # noqa: A001
     assert 0 <= m_hash < N
 
     return hex(m_hash)[2:].rjust(length, "0")
+
+
+def hash_user_pat(token):
+    """
+    Utility function to hash a token for User PATs
+
+    The hashingn algorithm for this is controlled by the PASSWORD_HASHERS
+    setting.
+    """
+    return make_password(token, salt="user_pat")
 
 
 def unhash(h, length=DEFAULT_LENGTH, key=DEFAULT_KEY):

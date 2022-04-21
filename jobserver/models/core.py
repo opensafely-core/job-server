@@ -1,7 +1,7 @@
 import base64
 import itertools
 import secrets
-from datetime import timedelta
+from datetime import date, timedelta
 
 import structlog
 from django.contrib.auth.models import AbstractUser
@@ -17,9 +17,11 @@ from django.utils.text import slugify
 from environs import Env
 from furl import furl
 from opentelemetry import trace
+from sentry_sdk import capture_message
 
 from ..authorization.fields import RolesField
 from ..authorization.utils import strings_to_roles
+from ..hash_utils import hash_user_pat
 from ..runtime import Runtime
 
 
@@ -792,6 +794,53 @@ class User(AbstractUser):
     def name(self):
         """Unify the available names for a User."""
         return self.get_full_name() or self.username
+
+    def rotate_token(self):
+        # ticket to look at signing request
+        expires_at = timezone.now() + timedelta(days=90)
+
+        # store as datetime in case we want to compare with a datetime or
+        # increase resolution later.
+        expires_at = expires_at.replace(hour=0, minute=0, second=0, microsecond=0)
+
+        # suffix the token with the expiry date so it's clearer to users of it
+        # when it will expire
+        token = f"{secrets.token_hex(32)}-{expires_at.date().isoformat()}"
+
+        # we're going to check the token against ones passed to the service,
+        # but we don't want to expose ourselves to timing attacks.  So we're
+        # storing it in the db as a hased string using Django's password
+        # hashing tools and then comparing (in User.is_valid_pat()) with
+        # secrets.compare_digest to avoid a timing attack there.
+        hashed_token = hash_user_pat(token)
+
+        self.pat_expires_at = expires_at
+        self.pat_token = hashed_token
+        self.save(update_fields=["pat_token", "pat_expires_at"])
+
+        # return the unhashed token so it can be passed to a consuming service
+        return token
+
+    @classmethod
+    def is_valid_pat(cls, full_token):
+        if full_token is None:
+            return False
+
+        username, _, token = full_token.partition(":")
+
+        user = User.objects.filter(username=username).first()
+        if user is None:
+            return False
+
+        pat_token = hash_user_pat(token)
+        if not secrets.compare_digest(pat_token, user.pat_token):
+            return False
+
+        if user.pat_expires_at.date() < date.today():
+            capture_message(f"Expired token for {user.username}")
+            return False
+
+        return True
 
 
 class Workspace(models.Model):

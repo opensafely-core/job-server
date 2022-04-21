@@ -75,8 +75,12 @@ def validate_upload_access(request, workspace):
 def validate_release_access(request, workspace):
     """Validate this request can access releases for this workspace.
 
-    This validation uses Django's regular User auth.
+    This validation uses a User PAT OR Django's regular User auth.
     """
+    auth_header = request.headers.get("Authorization")
+    if User.is_valid_pat(auth_header):
+        return
+
     if request.user.is_anonymous:
         raise NotAuthenticated("Invalid user or token")
 
