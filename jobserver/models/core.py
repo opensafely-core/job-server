@@ -16,6 +16,7 @@ from django.utils import timezone
 from django.utils.text import slugify
 from environs import Env
 from furl import furl
+from opentelemetry import trace
 
 from ..authorization.fields import RolesField
 from ..authorization.utils import strings_to_roles
@@ -24,6 +25,7 @@ from ..runtime import Runtime
 
 env = Env()
 logger = structlog.get_logger(__name__)
+tracer = trace.get_tracer(__name__)
 
 
 def default_github_orgs():
@@ -292,40 +294,46 @@ class JobRequest(models.Model):
 
     @property
     def status(self):
-        prefetched_jobs = (
-            hasattr(self, "_prefetched_objects_cache")
-            and "jobs" in self._prefetched_objects_cache
-        )
-        if not prefetched_jobs:
-            # require Jobs are prefetched to get statuses since we have to
-            # query every Job for the logic below to work
-            raise Exception("JobRequest queries must prefetch jobs.")
+        with tracer.start_as_current_span("JobRequest.status"):
+            prefetched_jobs = (
+                hasattr(self, "_prefetched_objects_cache")
+                and "jobs" in self._prefetched_objects_cache
+            )
+            if not prefetched_jobs:
+                # require Jobs are prefetched to get statuses since we have to
+                # query every Job for the logic below to work
+                raise Exception("JobRequest queries must prefetch jobs.")
 
-        # always make use of prefetched Jobs, so we don't execute O(N) queries
-        # each time.
-        statuses = [j.status for j in self.jobs.all()]
+            # always make use of prefetched Jobs, so we don't execute O(N) queries
+            # each time.
+            with tracer.start_as_current_span("collate statuses"):
+                statuses = [j.status for j in self.jobs.all()]
 
-        # when they're all the same, just use that
-        if len(set(statuses)) == 1:
-            return statuses[0]
+            # when they're all the same, just use that
+            with tracer.start_as_current_span("check for unique status"):
+                if len(set(statuses)) == 1:
+                    return statuses[0]
 
-        # if any status is running then the JobRequest is running
-        if "running" in statuses:
-            return "running"
+            # if any status is running then the JobRequest is running
+            with tracer.start_as_current_span("check for running status"):
+                if "running" in statuses:
+                    return "running"
 
-        # we've eliminated all statuses being the same so any pending statuses
-        # at this point mean there are other Jobs which are
-        # running/failed/succeeded so the request is still running
-        if "pending" in statuses:
-            return "running"
+            # we've eliminated all statuses being the same so any pending statuses
+            # at this point mean there are other Jobs which are
+            # running/failed/succeeded so the request is still running
+            with tracer.start_as_current_span("check for pending status"):
+                if "pending" in statuses:
+                    return "running"
 
-        # now we know we have no pending or running Jobs left, that leaves us
-        # with failed or succeeded and a JobRequest is failed if any of its
-        # Jobs have failed.
-        if "failed" in statuses:
-            return "failed"
+            # now we know we have no pending or running Jobs left, that leaves us
+            # with failed or succeeded and a JobRequest is failed if any of its
+            # Jobs have failed.
+            with tracer.start_as_current_span("check for failed status"):
+                if "failed" in statuses:
+                    return "failed"
 
-        return "unknown"
+            return "unknown"
 
 
 class Org(models.Model):
