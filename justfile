@@ -77,7 +77,7 @@ devenv: prodenv requirements-dev && install-precommit
 
 
 # ensure precommit is installed
-install-precommit:
+install-precommit: devenv
     #!/usr/bin/env bash
     BASE_DIR=$(git rev-parse --show-toplevel)
     test -f $BASE_DIR/.git/hooks/pre-commit || $BIN/pre-commit install
