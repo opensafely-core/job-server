@@ -166,7 +166,9 @@ cffi==1.15.0 \
     --hash=sha256:f6f824dc3bce0edab5f427efcfb1d63ee75b6fcb7282900ccaf925be84efb0fc \
     --hash=sha256:fd8a250edc26254fe5b33be00402e6d287f562b6a5b2152dec302fa15bb3e997 \
     --hash=sha256:ffaa5c925128e29efbde7301d8ecaf35c8c60ffbcd6a1ffd3a552177c8e5e796
-    # via cryptography
+    # via
+    #   argon2-cffi-bindings
+    #   cryptography
 charset-normalizer==2.0.12 \
     --hash=sha256:2857e29ff0d34db842cd7ca3230549d1a697f96ee6d3fb071cfa6c7393832597 \
     --hash=sha256:6881edbebdb17b39b4eaaa821b438bf6eddffb4468cf344f09f89def34a8b1df
@@ -226,9 +228,9 @@ dj-email-url==1.0.5 \
     --hash=sha256:64257c4f9d8139a4af8e5267229d32260e433fbf257b0cf8fc855bb0cc39ca7d \
     --hash=sha256:ef36f8a324ec57cf3be5c7a7ef44ed6900ca0208624a918ab33adc1cf6427b39
     # via environs
-django==4.0.3 \
-    --hash=sha256:1239218849e922033a35d2a2f777cb8bee18bd725416744074f455f34ff50d0c \
-    --hash=sha256:77ff2e7050e3324c9b67e29b6707754566f58514112a9ac73310f60cd5261930
+django==4.0.4 \
+    --hash=sha256:07c8638e7a7f548dc0acaaa7825d84b7bd42b10e8d22268b3d572946f1e9b687 \
+    --hash=sha256:4e8177858524417563cc0430f29ea249946d831eacb0068a1455686587df40b5
     # via
     #   django-anymail
     #   django-browser-reload
@@ -423,6 +425,9 @@ oauthlib==3.2.0 \
     # via
     #   requests-oauthlib
     #   social-auth-core
+opensafely-pipeline @ https://github.com/opensafely-core/pipeline/archive/refs/tags/v0.0.3.zip \
+    --hash=sha256:cefffa137f3fc380722eb07a5fefbd4b333b60c01b81503cb22c4ab7540ae9ac
+    # via -r requirements.prod.in
 opentelemetry-api==1.10.0 \
     --hash=sha256:210178a9bc0c3b62290d604b6351b17fbccbc5eb0ac475ec60dd22242529d226 \
     --hash=sha256:ee56d74d8576807d86e0791bcfa44ec2c9abeec3f5ea080de09fd5fe7c442655
@@ -485,9 +490,6 @@ opentelemetry-util-http==0.29b0 \
     # via
     #   opentelemetry-instrumentation-django
     #   opentelemetry-instrumentation-wsgi
-opensafely-pipeline @ https://github.com/opensafely-core/pipeline/archive/refs/tags/v0.0.3.zip \
-    --hash=sha256:cefffa137f3fc380722eb07a5fefbd4b333b60c01b81503cb22c4ab7540ae9ac
-    # via -r requirements.prod.in
 orderedmultidict==1.0.1 \
     --hash=sha256:04070bbb5e87291cc9bfa51df413677faf2141c73c61d2a5f7b26bea3cd882ad \
     --hash=sha256:43c839a17ee3cdd62234c47deca1a8508a3f2ca1d0678a3bf791c87cf84adbf3
@@ -833,7 +835,9 @@ tabulate[widechars]==0.8.9 \
 typing-extensions==4.1.1 \
     --hash=sha256:1a9462dcc3347a79b1f1c0271fbe79e844580bb598bafa1ed208b94da3cdcd42 \
     --hash=sha256:21c85e0fe4b9a155d0799430b0ad741cdce7e359660ccbd8b530613e8df88ce2
-    # via pydantic
+    # via
+    #   opentelemetry-sdk
+    #   pydantic
 urllib3==1.26.8 \
     --hash=sha256:000ca7f471a233c2251c6c7023ee85305721bfdf18621ebff4fd17a8653427ed \
     --hash=sha256:0e7c33d9a63e7ddfcb86780aac87befc2fbddf46c58dbb487e0855f7ceec283c
@@ -923,4 +927,8 @@ wrapt==1.14.0 \
 setuptools==60.9.3 \
     --hash=sha256:2347b2b432c891a863acadca2da9ac101eae6169b1d3dfee2ec605ecd50dbfe5 \
     --hash=sha256:e4f30b9f84e5ab3decf945113119649fec09c1fc3507c6ebffec75646c56e62b
-    # via gunicorn
+    # via
+    #   gunicorn
+    #   opentelemetry-api
+    #   opentelemetry-instrumentation
+    #   opentelemetry-sdk
