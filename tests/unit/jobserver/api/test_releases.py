@@ -1,6 +1,7 @@
 import json
 
 import pytest
+from django.contrib.auth.models import AnonymousUser
 from django.utils import timezone
 from rest_framework.exceptions import NotAuthenticated
 
@@ -13,6 +14,7 @@ from jobserver.api.releases import (
     SnapshotCreateAPI,
     SnapshotPublishAPI,
     WorkspaceStatusAPI,
+    validate_release_access,
     validate_upload_access,
 )
 from jobserver.authorization import (
@@ -917,6 +919,18 @@ def test_snapshotpublishapi_without_permission(api_rf):
     )
 
     assert response.status_code == 403
+
+
+def test_validate_release_access_with_auth_header(rf):
+    user = UserFactory()
+    workspace = WorkspaceFactory()
+
+    token = user.rotate_token()
+
+    request = rf.get("/", HTTP_AUTHORIZATION=f"{user.username}:{token}")
+    request.user = AnonymousUser()
+
+    assert validate_release_access(request, workspace) is None
 
 
 def test_validate_upload_access_no_permission(rf):

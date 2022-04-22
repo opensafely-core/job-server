@@ -211,6 +211,14 @@ SOCIAL_AUTH_GITHUB_KEY = env.str("SOCIAL_AUTH_GITHUB_KEY")
 SOCIAL_AUTH_GITHUB_SECRET = env.str("SOCIAL_AUTH_GITHUB_SECRET")
 SOCIAL_AUTH_GITHUB_SCOPE = ["user:email"]
 
+# Passwords
+# https://docs.djangoproject.com/en/4.0/ref/settings/#password-hashers
+# We're currently using this to hash PATs for bot Users which are only used for
+# API access, and need to be reasonably fast.
+PASSWORD_HASHERS = [
+    "django.contrib.auth.hashers.Argon2PasswordHasher",
+]
+
 
 # Messages
 # https://docs.djangoproject.com/en/3.0/ref/contrib/messages/

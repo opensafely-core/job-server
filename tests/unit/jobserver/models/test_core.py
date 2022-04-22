@@ -857,6 +857,78 @@ def test_user_is_unapproved_by_default():
     assert not UserFactory().is_approved
 
 
+def test_user_rotate_token(freezer):
+    user = UserFactory()
+
+    assert user.pat_token is None
+    assert user.pat_expires_at is None
+
+    # shift time to a date in the past
+    freezer.move_to("2022-04-07")
+
+    # set the user's pat_token and pat_expires_at
+    token = user.rotate_token()
+
+    # check the unhashed token has the pat_expires_at included
+    assert token.endswith(user.pat_expires_at.date().isoformat())
+
+    expires_at1 = user.pat_expires_at
+    token1 = user.pat_token
+
+    assert expires_at1
+    assert token1
+
+    # shift time forward a couple of days and update pat_* fields
+    freezer.move_to("2022-04-09")
+    user.rotate_token()
+
+    assert user.pat_expires_at > expires_at1
+    assert user.pat_token != token1
+
+
+def test_user_valid_pat_success():
+    user = UserFactory()
+    token = user.rotate_token()
+
+    full_token = f"{user.username}:{token}"
+
+    assert User.is_valid_pat(full_token)
+
+
+def test_user_valid_pat_with_empty_token():
+    assert not User.is_valid_pat("")
+    assert not User.is_valid_pat(None)
+
+
+def test_user_valid_pat_with_expired_token(freezer):
+    user = UserFactory()
+    token = user.rotate_token()
+    user.pat_expires_at = timezone.now() - timedelta(days=1)
+    user.save()
+
+    full_token = f"{user.username}:{token}"
+
+    assert not User.is_valid_pat(full_token)
+
+
+def test_user_valid_pat_with_invalid_token():
+    user = UserFactory()
+    user.rotate_token()
+
+    full_token = f"{user.username}:invalid"
+
+    assert not User.is_valid_pat(full_token)
+
+
+def test_user_valid_pat_with_unknown_user():
+    user = UserFactory()
+    token = user.rotate_token()
+
+    full_token = f"unknown:{token}"
+
+    assert not User.is_valid_pat(full_token)
+
+
 def test_userqueryset_success():
     user1 = UserFactory(roles=[CoreDeveloper, OutputChecker])
     user2 = UserFactory(roles=[OutputChecker])
