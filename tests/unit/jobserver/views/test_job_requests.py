@@ -144,8 +144,15 @@ def test_jobrequestcreate_get_success(rf, mocker, user):
     )
 
     dummy_yaml = """
+    version: 3
+    expectations:
+      population_size: 1000
     actions:
       twiddle:
+        run: test
+        outputs:
+          moderately_sensitive:
+            cohort: /path/to/output.csv
     """
     mocker.patch(
         "jobserver.views.job_requests.get_project",
@@ -181,8 +188,15 @@ def test_jobrequestcreate_get_with_permission(rf, mocker, user):
     )
 
     dummy_yaml = """
+    version: 3
+    expectations:
+      population_size: 1000
     actions:
       twiddle:
+        run: test
+        outputs:
+          moderately_sensitive:
+            cohort: /path/to/output.csv
     """
     mocker.patch(
         "jobserver.views.job_requests.get_project",
@@ -249,8 +263,15 @@ def test_jobrequestcreate_post_success(rf, mocker, monkeypatch, user):
     )
 
     dummy_yaml = """
+    version: 3
+    expectations:
+      population_size: 1000
     actions:
       twiddle:
+        run: test
+        outputs:
+          moderately_sensitive:
+            cohort: /path/to/output.csv
     """
     mocker.patch(
         "jobserver.views.job_requests.get_project",
@@ -348,8 +369,15 @@ def test_jobrequestcreate_post_with_notifications_default(
     )
 
     dummy_yaml = """
+    version: 3
+    expectations:
+      population_size: 1000
     actions:
       twiddle:
+        run: test
+        outputs:
+          moderately_sensitive:
+            cohort: /path/to/output.csv
     """
     mocker.patch(
         "jobserver.views.job_requests.get_project",
@@ -402,8 +430,15 @@ def test_jobrequestcreate_post_with_notifications_override(
     )
 
     dummy_yaml = """
+    version: 3
+    expectations:
+      population_size: 1000
     actions:
       twiddle:
+        run: test
+        outputs:
+          moderately_sensitive:
+            cohort: /path/to/output.csv
     """
     mocker.patch(
         "jobserver.views.job_requests.get_project",

@@ -293,8 +293,8 @@ SOCIAL_AUTH_PIPELINE = [
     "social_core.pipeline.social_auth.associate_user",
     "social_core.pipeline.social_auth.load_extra_data",
     "social_core.pipeline.user.user_details",
-    "jobserver.pipeline.set_notifications_email",
-    "jobserver.pipeline.notify_on_new_user",
+    "jobserver.auth_pipeline.set_notifications_email",
+    "jobserver.auth_pipeline.notify_on_new_user",
 ]
 
 # Sentry
