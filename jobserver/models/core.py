@@ -790,6 +790,20 @@ class User(AbstractUser):
     def get_staff_url(self):
         return reverse("staff:user-detail", kwargs={"username": self.username})
 
+    def has_valid_pat(self, full_token):
+        if not full_token:
+            return False
+
+        pat_token = hash_user_pat(full_token)
+        if not secrets.compare_digest(pat_token, self.pat_token):
+            return False
+
+        if self.pat_expires_at.date() < date.today():
+            capture_message(f"Expired token for {self.username}")
+            return False
+
+        return True
+
     @property
     def name(self):
         """Unify the available names for a User."""
@@ -820,27 +834,6 @@ class User(AbstractUser):
 
         # return the unhashed token so it can be passed to a consuming service
         return token
-
-    @classmethod
-    def is_valid_pat(cls, full_token):
-        if full_token is None:
-            return False
-
-        username, _, token = full_token.partition(":")
-
-        user = User.objects.filter(username=username).first()
-        if user is None:
-            return False
-
-        pat_token = hash_user_pat(token)
-        if not secrets.compare_digest(pat_token, user.pat_token):
-            return False
-
-        if user.pat_expires_at.date() < date.today():
-            capture_message(f"Expired token for {user.username}")
-            return False
-
-        return True
 
 
 class Workspace(models.Model):

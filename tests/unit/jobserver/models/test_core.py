@@ -890,14 +890,14 @@ def test_user_valid_pat_success():
     user = UserFactory()
     token = user.rotate_token()
 
-    full_token = f"{user.username}:{token}"
-
-    assert User.is_valid_pat(full_token)
+    assert user.has_valid_pat(token)
 
 
 def test_user_valid_pat_with_empty_token():
-    assert not User.is_valid_pat("")
-    assert not User.is_valid_pat(None)
+    user = UserFactory()
+
+    assert not user.has_valid_pat("")
+    assert not user.has_valid_pat(None)
 
 
 def test_user_valid_pat_with_expired_token(freezer):
@@ -906,27 +906,14 @@ def test_user_valid_pat_with_expired_token(freezer):
     user.pat_expires_at = timezone.now() - timedelta(days=1)
     user.save()
 
-    full_token = f"{user.username}:{token}"
-
-    assert not User.is_valid_pat(full_token)
+    assert not user.has_valid_pat(token)
 
 
 def test_user_valid_pat_with_invalid_token():
     user = UserFactory()
     user.rotate_token()
 
-    full_token = f"{user.username}:invalid"
-
-    assert not User.is_valid_pat(full_token)
-
-
-def test_user_valid_pat_with_unknown_user():
-    user = UserFactory()
-    token = user.rotate_token()
-
-    full_token = f"unknown:{token}"
-
-    assert not User.is_valid_pat(full_token)
+    assert not user.has_valid_pat("invalid")
 
 
 def test_userqueryset_success():

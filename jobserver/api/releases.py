@@ -6,7 +6,12 @@ from django.db.models import Value
 from django.shortcuts import get_object_or_404
 from django.utils import timezone
 from rest_framework import serializers
-from rest_framework.exceptions import NotAuthenticated, ParseError, ValidationError
+from rest_framework.exceptions import (
+    NotAuthenticated,
+    ParseError,
+    PermissionDenied,
+    ValidationError,
+)
 from rest_framework.generics import CreateAPIView, RetrieveAPIView
 from rest_framework.parsers import FileUploadParser, JSONParser
 from rest_framework.response import Response
@@ -77,8 +82,16 @@ def validate_release_access(request, workspace):
 
     This validation uses a User PAT OR Django's regular User auth.
     """
-    auth_header = request.headers.get("Authorization")
-    if User.is_valid_pat(auth_header):
+    if auth_header := request.headers.get("Authorization"):
+        username, _, token = auth_header.partition(":")
+
+        user = User.objects.filter(username=username).first()
+        if user is None:
+            raise NotAuthenticated("Invalid user")
+
+        if not user.has_valid_pat(token):
+            raise PermissionDenied
+
         return
 
     if request.user.is_anonymous:

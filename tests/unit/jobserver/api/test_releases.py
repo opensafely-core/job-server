@@ -3,7 +3,7 @@ import json
 import pytest
 from django.contrib.auth.models import AnonymousUser
 from django.utils import timezone
-from rest_framework.exceptions import NotAuthenticated
+from rest_framework.exceptions import NotAuthenticated, PermissionDenied
 
 from jobserver.api.releases import (
     ReleaseAPI,
@@ -921,7 +921,7 @@ def test_snapshotpublishapi_without_permission(api_rf):
     assert response.status_code == 403
 
 
-def test_validate_release_access_with_auth_header(rf):
+def test_validate_release_access_with_auth_header_success(rf):
     user = UserFactory()
     workspace = WorkspaceFactory()
 
@@ -931,6 +931,33 @@ def test_validate_release_access_with_auth_header(rf):
     request.user = AnonymousUser()
 
     assert validate_release_access(request, workspace) is None
+
+
+def test_validate_release_access_with_auth_header_and_invalid_token(rf):
+    user = UserFactory()
+    workspace = WorkspaceFactory()
+
+    # set a token so the user is considered a bot
+    user.rotate_token()
+
+    request = rf.get("/", HTTP_AUTHORIZATION=f"{user.username}:invalid")
+    request.user = AnonymousUser()
+
+    with pytest.raises(PermissionDenied):
+        validate_release_access(request, workspace)
+
+
+def test_validate_release_access_with_auth_header_and_unknown_user(rf):
+    user = UserFactory()
+    workspace = WorkspaceFactory()
+
+    token = user.rotate_token()
+
+    request = rf.get("/", HTTP_AUTHORIZATION=f"0:{token}")
+    request.user = AnonymousUser()
+
+    with pytest.raises(NotAuthenticated):
+        validate_release_access(request, workspace)
 
 
 def test_validate_upload_access_no_permission(rf):
