@@ -65,6 +65,5 @@ env = [
 ]
 filterwarnings = [
     "error",
-    "ignore:'debug_toolbar':django.utils.deprecation.RemovedInDjango41Warning:django",
     "ignore::pytest.PytestUnraisableExceptionWarning:",
 ]
