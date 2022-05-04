@@ -30,7 +30,7 @@ jobs:
         run: npm run build
 
       - name: Store assets
-        uses: actions/upload-artifact@v2
+        uses: actions/upload-artifact@v3
         with:
           name: node-assets
           path: assets/dist
