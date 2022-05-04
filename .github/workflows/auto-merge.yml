@@ -22,17 +22,17 @@ jobs:
           # use ref here so we're on the HEAD of the PR branch
           ref: ${{ github.event.pull_request.head.ref }}
 
-      - name: Check we're dealing with Python updates
+      - name: Check we're dealing with Action or Python updates
         id: check-labels
         run: |
-          if gh pr view --json labels -q .labels | grep -q '"name":"python"'; then
-            echo ::set-output name=is-python-dependency::'y'
+          if gh pr view --json labels -q .labels | grep -q '"name":"github_actions"|"name":"python"'; then
+            echo ::set-output name=is-wanted-dependency::'y'
           fi
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
-      - name: Fail if dependency update did not update a requirements file
-        if: ${{ ! startsWith(steps.check-labels.outputs.is-python-dependency, 'y') }}
+      - name: Fail if dependency update did not update an action or requirements file
+        if: ${{ ! startsWith(steps.check-labels.outputs.is-wanted-dependency, 'y') }}
         run: /bin/false
 
       - name: Enable auto-merge for Dependabot PRs
