@@ -25,7 +25,7 @@ jobs:
       - name: Check we're dealing with Action or Python updates
         id: check-labels
         run: |
-          if gh pr view --json labels -q .labels | grep -q '"name":"github_actions"|"name":"python"'; then
+          if gh pr view --json labels -q .labels | grep -q -E '"name":"github_actions"|"name":"python"'; then
             echo ::set-output name=is-wanted-dependency::'y'
           fi
         env:
