@@ -50,7 +50,7 @@ jobs:
         run: just check
 
   test:
-    needs: [assets, check]
+    needs: [assets]
     runs-on: ubuntu-latest
 
     services:
