@@ -2,11 +2,13 @@ import functools
 
 from django.contrib import messages
 from django.db.models import Q
+from django.forms.models import modelform_factory
 from django.shortcuts import get_object_or_404, redirect
 from django.template.response import TemplateResponse
 from django.utils import timezone
 from django.utils.decorators import method_decorator
 from django.views.generic import FormView, ListView, UpdateView, View
+from django_htmx.http import HttpResponseClientRedirect
 
 from applications.form_specs import form_specs
 from applications.models import Application
@@ -14,8 +16,39 @@ from applications.wizard import Wizard
 from jobserver.authorization import CoreDeveloper
 from jobserver.authorization.decorators import require_role
 from jobserver.hash_utils import unhash, unhash_or_404
+from jobserver.models import Org
 
 from ..forms import ApplicationApproveForm
+
+
+@require_role(CoreDeveloper)
+def application_add_org(request, pk_hash):
+    application = get_object_or_404(Application, pk=unhash_or_404(pk_hash))
+
+    if not request.htmx:
+        return redirect(application.get_approve_url())
+
+    OrgCreateForm = modelform_factory(Org, fields=["name"])
+
+    if request.POST:
+        form = OrgCreateForm(data=request.POST)
+    else:
+        form = OrgCreateForm()
+
+    if request.GET or not form.is_valid():
+        return TemplateResponse(
+            context={"form": form, "application": application},
+            request=request,
+            template="staff/org_create.htmx.html",
+        )
+
+    org = form.save(commit=False)
+    org.created_by = request.user
+    org.save()
+
+    return HttpResponseClientRedirect(
+        application.get_approve_url() + f"?org-slug={org.slug}"
+    )
 
 
 @method_decorator(require_role(CoreDeveloper), name="dispatch")
@@ -70,7 +103,16 @@ class ApplicationApprove(FormView):
     def get_initial(self):
         # set the value of project_name from the study_name field in the
         # application form
-        return {"project_name": self.application.studyinformationpage.study_name}
+        initial = {"project_name": self.application.studyinformationpage.study_name}
+
+        # set the Org if a slug is included in the query args
+        if org_slug := self.request.GET.get("org-slug"):
+            try:
+                initial["org"] = Org.objects.get(slug=org_slug)
+            except Org.DoesNotExist:
+                pass
+
+        return initial
 
 
 @method_decorator(require_role(CoreDeveloper), name="dispatch")
