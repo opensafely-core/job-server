@@ -66,4 +66,5 @@ env = [
 filterwarnings = [
     "error",
     "ignore::pytest.PytestUnraisableExceptionWarning:",
+    "ignore:distutils Version classes are deprecated:DeprecationWarning:pytest_freezegun"
 ]
