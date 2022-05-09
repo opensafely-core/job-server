@@ -39,5 +39,9 @@ const updateStatuses = (urlBase) => {
 };
 
 const urlBase = document.getElementById("apiUrl").textContent;
+
+// run this on page load
+updateStatuses(urlBase);
+
 // poll the backend every 10s
 window.setInterval(updateStatuses, 10000, urlBase);

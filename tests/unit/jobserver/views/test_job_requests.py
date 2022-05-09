@@ -173,8 +173,8 @@ def test_jobrequestcreate_get_success(rf, mocker, user):
     assert response.status_code == 200
 
     assert response.context_data["actions"] == [
-        {"name": "twiddle", "needs": [], "status": "-"},
-        {"name": "run_all", "needs": ["twiddle"], "status": "-"},
+        {"name": "twiddle", "needs": []},
+        {"name": "run_all", "needs": ["twiddle"]},
     ]
     assert response.context_data["workspace"] == workspace
 
@@ -217,8 +217,8 @@ def test_jobrequestcreate_get_with_permission(rf, mocker, user):
     assert response.status_code == 200
 
     assert response.context_data["actions"] == [
-        {"name": "twiddle", "needs": [], "status": "-"},
-        {"name": "run_all", "needs": ["twiddle"], "status": "-"},
+        {"name": "twiddle", "needs": []},
+        {"name": "run_all", "needs": ["twiddle"]},
     ]
     assert response.context_data["workspace"] == workspace
 

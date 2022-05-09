@@ -47,11 +47,11 @@ def test_get_actions_missing_needs():
             },
         }
     )
-    output = list(get_actions(dummy, {"frobnicate": "test"}))
+    output = list(get_actions(dummy))
 
     expected = [
-        {"name": "frobnicate", "needs": [], "status": "test"},
-        {"name": "run_all", "needs": ["frobnicate"], "status": "-"},
+        {"name": "frobnicate", "needs": []},
+        {"name": "run_all", "needs": ["frobnicate"]},
     ]
     assert output == expected
 
@@ -75,16 +75,11 @@ def test_get_actions_no_run_all():
         }
     )
 
-    action_status_lut = {
-        "frobnicate": "running",
-        "twiddle": "pending",
-    }
-
-    output = list(get_actions(dummy, action_status_lut))
+    output = list(get_actions(dummy))
 
     expected = [
-        {"name": "frobnicate", "needs": [], "status": "running"},
-        {"name": "run_all", "needs": ["frobnicate"], "status": "-"},
+        {"name": "frobnicate", "needs": []},
+        {"name": "run_all", "needs": ["frobnicate"]},
     ]
     assert output == expected
 
@@ -102,11 +97,11 @@ def test_get_actions_success():
             },
         }
     )
-    output = list(get_actions(content, {"frobnicate": "test"}))
+    output = list(get_actions(content))
 
     expected = [
-        {"name": "frobnicate", "needs": [], "status": "test"},
-        {"name": "run_all", "needs": ["frobnicate"], "status": "-"},
+        {"name": "frobnicate", "needs": []},
+        {"name": "run_all", "needs": ["frobnicate"]},
     ]
     assert output == expected
 

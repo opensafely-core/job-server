@@ -103,8 +103,6 @@ class JobRequestCreate(CreateView):
         if not request.user.backends.exists():
             raise Http404
 
-        action_status_lut = self.workspace.get_action_status_lut()
-
         # build actions as list or render the exception to the page
         try:
             self.project = get_project(
@@ -120,7 +118,7 @@ class JobRequestCreate(CreateView):
             context = self.get_context_data(actions_error=str(e))
             return self.render_to_response(context=context)
 
-        self.actions = list(get_actions(data, action_status_lut))
+        self.actions = list(get_actions(data))
         return super().dispatch(request, *args, **kwargs)
 
     @transaction.atomic
