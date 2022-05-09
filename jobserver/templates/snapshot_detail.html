@@ -79,7 +79,7 @@
           {{ snapshot.published_at|date:"D M Y" }} at {{ snapshot.published_at|date:"H:i" }}
         {% endif %}
       </p>
-      <a class="btn btn btn-{% if snapshot.is_draft %}success{% else %}light{% endif %}" href="{{ release.get_download_url }}">
+      <a class="btn btn btn-{% if snapshot.is_draft %}success{% else %}light{% endif %}" href="{{ snapshot.get_download_url }}">
         Download
       </a>
     </div>
