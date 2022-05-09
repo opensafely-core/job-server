@@ -301,16 +301,20 @@ class SnapshotCreateAPI(APIView):
         file_ids = set(data["file_ids"])
         files = ReleaseFile.objects.filter(pk__in=file_ids)
 
-        rfile_ids = set_from_qs(files)
+        # check all ReleaseFile IDs submitted are valid IDs
+        if missing := file_ids - set_from_qs(files):
+            raise ParseError(f"Unknown file IDs: {', '.join(missing)}")
+
+        # only look at files which haven't been deleted (redacted)
+        files = [f for f in files if f.absolute_path().exists()]
+
+        rfile_ids = {f.pk for f in files}
         snapshot_ids = [set_from_qs(s.files.all()) for s in workspace.snapshots.all()]
         if rfile_ids in snapshot_ids:
             msg = (
                 "A release with the current files already exists, please use that one."
             )
             raise ParseError(msg)
-
-        if missing := file_ids - set_from_qs(files):
-            raise ParseError(f"Unknown file IDs: {', '.join(missing)}")
 
         snapshot = Snapshot.objects.create(created_by=request.user, workspace=workspace)
         snapshot.files.set(files)
