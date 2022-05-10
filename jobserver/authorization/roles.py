@@ -2,6 +2,7 @@ from .permissions import (
     application_manage,
     backend_manage,
     job_cancel,
+    job_request_pick_ref,
     job_run,
     org_create,
     project_invite_members,
@@ -83,6 +84,19 @@ class OnboardingAgent:
         "jobserver.models.core.User",
     ]
     permissions = []
+
+
+class OpensafelyInteractive:
+    """Use OSI specific parts of the site during the MVP"""
+
+    display_name = "OpenSAFELY Interactive"
+    description = ""
+    models = [
+        "jobserver.models.core.User",
+    ]
+    permissions = [
+        job_request_pick_ref,
+    ]
 
 
 class OrgCoordinator:
