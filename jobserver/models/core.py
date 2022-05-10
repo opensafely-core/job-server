@@ -962,6 +962,16 @@ class Workspace(models.Model):
             },
         )
 
+    def get_pick_ref_url(self):
+        return reverse(
+            "job-request-pick-ref",
+            kwargs={
+                "org_slug": self.project.org.slug,
+                "project_slug": self.project.slug,
+                "workspace_slug": self.name,
+            },
+        )
+
     def get_releases_url(self):
         return reverse(
             "workspace-release-list",

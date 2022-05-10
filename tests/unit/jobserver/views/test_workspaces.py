@@ -7,7 +7,11 @@ from django.contrib.messages.storage.fallback import FallbackStorage
 from django.http import Http404
 from django.utils import timezone
 
-from jobserver.authorization import ProjectCollaborator, ProjectDeveloper
+from jobserver.authorization import (
+    OpensafelyInteractive,
+    ProjectCollaborator,
+    ProjectDeveloper,
+)
 from jobserver.models import Workspace
 from jobserver.views.workspaces import (
     WorkspaceArchiveToggle,
@@ -475,6 +479,37 @@ def test_workspacedetail_authorized_run_jobs(rf, mocker):
 
     assert response.status_code == 200
     assert response.context_data["user_can_run_jobs"]
+    assert response.context_data["run_jobs_url"] == workspace.get_jobs_url()
+
+
+def test_workspacedetail_authorized_run_jobs_with_opensafely_interactive_role(
+    rf, mocker
+):
+    workspace = WorkspaceFactory()
+    user = UserFactory(roles=[OpensafelyInteractive])
+
+    ProjectMembershipFactory(
+        project=workspace.project, user=user, roles=[ProjectDeveloper]
+    )
+
+    mocker.patch(
+        "jobserver.views.workspaces.get_repo_is_private",
+        autospec=True,
+        return_value=True,
+    )
+
+    request = rf.get("/")
+    request.user = user
+
+    response = WorkspaceDetail.as_view()(
+        request,
+        org_slug=workspace.project.org.slug,
+        project_slug=workspace.project.slug,
+        workspace_slug=workspace.name,
+    )
+
+    assert response.status_code == 200
+    assert response.context_data["run_jobs_url"] == workspace.get_pick_ref_url()
 
 
 def test_workspacedetail_authorized_view_snaphots(rf, mocker):
