@@ -107,11 +107,12 @@ class JobRequestCreate(CreateView):
             raise Http404
 
         # build actions as list or render the exception to the page
+        ref = self.kwargs.get("ref", self.workspace.branch)
         try:
             self.project = get_project(
                 self.workspace.repo_owner,
                 self.workspace.repo_name,
-                self.workspace.branch,
+                ref,
             )
             data = load_pipeline(self.project)
         except Exception as e:

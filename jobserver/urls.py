@@ -201,6 +201,11 @@ workspace_urls = [
         name="job-request-create",
     ),
     path(
+        "run-jobs/<str:ref>/",
+        JobRequestCreate.as_view(),
+        name="job-request-create",
+    ),
+    path(
         "archive-toggle/",
         WorkspaceArchiveToggle.as_view(),
         name="workspace-archive-toggle",

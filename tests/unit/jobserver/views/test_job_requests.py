@@ -136,7 +136,8 @@ def test_jobrequestcancel_unknown_job_request(rf):
         JobRequestCancel.as_view()(request, pk=0)
 
 
-def test_jobrequestcreate_get_success(rf, mocker, user):
+@pytest.mark.parametrize("ref", [None, "abc"])
+def test_jobrequestcreate_get_success(ref, rf, mocker, user):
     workspace = WorkspaceFactory()
 
     BackendMembershipFactory(user=user)
@@ -169,6 +170,7 @@ def test_jobrequestcreate_get_success(rf, mocker, user):
         org_slug=workspace.project.org.slug,
         project_slug=workspace.project.slug,
         workspace_slug=workspace.name,
+        ref=ref,
     )
 
     assert response.status_code == 200
