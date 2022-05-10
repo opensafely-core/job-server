@@ -1,3 +1,5 @@
+import functools
+
 from django.contrib import messages
 from django.core.exceptions import MultipleObjectsReturned
 from django.db import transaction
@@ -8,13 +10,14 @@ from django.template.response import TemplateResponse
 from django.utils.safestring import mark_safe
 from django.views.generic import CreateView, ListView, RedirectView, View
 from django.views.generic.edit import FormMixin
+from first import first
 from opentelemetry import trace
 from pipeline import load_pipeline
 
 from ..authorization import CoreDeveloper, has_permission, has_role
 from ..backends import backends_to_choices
 from ..forms import JobRequestCreateForm, JobRequestSearchForm
-from ..github import get_branch_sha
+from ..github import get_branch_sha, get_commits
 from ..models import Backend, JobRequest, User, Workspace
 from ..pipeline_config import get_actions, get_project, render_definition
 from ..utils import raise_if_not_int
@@ -305,3 +308,51 @@ class JobRequestList(FormMixin, ListView):
             return self.form_valid(form)
         else:
             return self.form_invalid(form)
+
+
+class JobRequestPickRef(View):
+    def get(self, request, *args, **kwargs):
+        workspace = get_object_or_404(
+            Workspace,
+            project__org__slug=self.kwargs["org_slug"],
+            project__slug=self.kwargs["project_slug"],
+            name=self.kwargs["workspace_slug"],
+        )
+
+        if not has_permission(request.user, "job_request_pick_ref"):
+            return redirect(workspace.get_jobs_url())
+
+        if workspace.is_archived:
+            msg = (
+                "You cannot create Jobs for an archived Workspace."
+                "Please contact an admin if you need to have it unarchved."
+            )
+            messages.error(request, msg)
+            return redirect(workspace)
+
+        # jobs need to be run on a backend so the user needs to have access to
+        # at least one
+        if not request.user.backends.exists():
+            raise Http404
+
+        response = functools.partial(
+            TemplateResponse, request, "job_request_pick_ref.html"
+        )
+
+        try:
+            commits = get_commits(
+                workspace.repo_owner,
+                workspace.repo_name,
+            )
+        except Exception as e:
+            return response(context={"error": str(e), "workspace": workspace})
+
+        commits = [
+            {
+                "sha": c["commit"]["tree"]["sha"],
+                "message": first(c["commit"]["message"].split("\n")),
+            }
+            for c in commits
+        ]
+
+        return response(context={"commits": commits, "workspace": workspace})

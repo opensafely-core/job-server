@@ -116,6 +116,27 @@ def get_branch_sha(org, repo, branch):
     return branch["commit"]["sha"]
 
 
+def get_commits(org, repo, limit=10):
+
+    f = furl(BASE_URL)
+    f.path.segments += [
+        "repos",
+        org,
+        repo,
+        "commits",
+    ]
+    f.args["per_page"] = limit
+
+    headers = {
+        "Accept": "application/vnd.github.v3+json",
+    }
+    r = session.get(f.url, headers=headers)
+
+    r.raise_for_status()
+
+    return r.json()
+
+
 def get_file(org, repo, branch):
     f = furl(BASE_URL)
     f.path.segments += [
