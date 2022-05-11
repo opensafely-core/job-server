@@ -2,7 +2,6 @@ import zipfile
 
 import pytest
 import requests
-import responses
 from django.contrib.auth.models import AnonymousUser
 from django.contrib.messages.storage.fallback import FallbackStorage
 from django.http import Http404
@@ -254,7 +253,6 @@ def test_workspacecreate_get_without_permission(rf):
         )
 
 
-@responses.activate
 def test_workspacecreate_post_success(rf, mocker, user):
     project = ProjectFactory()
     ProjectMembershipFactory(project=project, user=user, roles=[ProjectDeveloper])
@@ -1029,7 +1027,6 @@ def test_workspacelog_with_unauthenticated_user(rf):
     assert response.status_code == 200
 
 
-@responses.activate
 def test_workspacenotificationstoggle_success(rf):
     workspace = WorkspaceFactory(should_notify=True)
     user = UserFactory()
@@ -1056,7 +1053,6 @@ def test_workspacenotificationstoggle_success(rf):
     assert not workspace.should_notify
 
 
-@responses.activate
 def test_workspacenotificationstoggle_without_permission(rf, user):
     workspace = WorkspaceFactory()
     user = UserFactory()
