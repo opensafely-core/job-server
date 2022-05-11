@@ -15,6 +15,7 @@
   - [Frontend development (CSS/JS)](#frontend-development-cssjs)
   - [Running the local asset server](#running-the-local-asset-server)
   - [Compiling assets](#compiling-assets)
+  - [Data Setup](#data-setup)
 - [Deployment](#deployment)
 - [Testing](#testing)
   - [Slack Testing](#slack-testing)
@@ -99,7 +100,9 @@ psql -c "create database jobserver"
 ##### Restoring Backups
 
 Copies of production can be restored to a local database using a dump pulled from production.
-They can be copied with:
+If you do not have access to pull production backups, follow the [data setup section](#data-setup) instead of restoring a backup.
+
+Backups can be copied with:
 
 ```sh
 scp <dokku2>:/var/lib/dokku/data/storage/job-server/jobserver.dump jobserver.dump
@@ -213,6 +216,29 @@ To view the compiled assets:
 Vite builds the assets and outputs them to the `assets/dist` folder.
 
 [Django Staticfiles app](https://docs.djangoproject.com/en/3.2/ref/contrib/staticfiles/) then collects the files and places them in the `staticfiles/assets` folder, with the manifest file located at `staticfiles/manifest.json`.
+
+### Data Setup
+Sometimes it's useful to have a fresh local installation or you may not have authorization to download a production backup.
+In that situation you can follow the steps below to set up your local copy of the site:
+
+1. Create [a GitHub OAuth application](https://github.com/settings/applications/new).
+   * The callback URL must be `http://localhost:8000/complete/github/`.
+   * The other fields don't matter too much for local development.
+1. Register a user account on your local version of job-server by clicking Login
+1. Set the `SOCIAL_AUTH_GITHUB_KEY` and `SOCIAL_AUTH_GITHUB_KEY` environment variables with values from that OAuth application.
+1. Give your user the `CoreDeveloper` role by:
+   * Setting the `ADMIN_USERS` environment variable to include your username.
+   * Running `python manage.py ensure_admins`.
+1. Click on your avatar in the top right-hand corner of the site to access the Staff Area.
+1. Create an Org, Project, and Backend in the Staff Area.
+1. On your User page in the Staff Area link it to the Backend and Org you created.
+1. Assign your user account to the Project with `ProjectDeveloper` and `ProjectCollaborator` roles on the Project page within the Staff Area.
+1. Navigate to the Project page in the main site using the "View on Site" button.
+1. Create a Workspace for the Project.
+1. Create a JobRequest in the Workspace.
+
+If you need one or more Jobs linked to the JobRequest you will need to create them in the database or with the Django shell.
+
 
 ## Deployment
 
