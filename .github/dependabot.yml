@@ -7,6 +7,7 @@ updates:
       interval: "daily"
     allow:
       - dependency-type: "production"
+    reviewers:
 
   - package-ecosystem: "pip"
     directory: "/"
@@ -14,6 +15,7 @@ updates:
       interval: "monthly"
     allow:
       - dependency-type: "development"
+    reviewers:
 
   - package-ecosystem: "npm"
     directory: "/"
