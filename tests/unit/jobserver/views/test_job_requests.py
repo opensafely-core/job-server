@@ -256,7 +256,8 @@ def test_jobrequestcreate_get_with_project_yaml_errors(rf, mocker, user):
     assert response.context_data["actions_error"] == "test error"
 
 
-def test_jobrequestcreate_post_success(rf, mocker, monkeypatch, user):
+@pytest.mark.parametrize("ref", [None, "abc"])
+def test_jobrequestcreate_post_success(ref, rf, mocker, monkeypatch, user):
     backend = BackendFactory()
     workspace = WorkspaceFactory()
 
@@ -281,11 +282,12 @@ def test_jobrequestcreate_post_success(rf, mocker, monkeypatch, user):
         autospec=True,
         return_value=dummy_yaml,
     )
-    mocker.patch(
-        "jobserver.views.job_requests.get_branch_sha",
-        autospec=True,
-        return_value="abc123",
-    )
+    if ref is None:
+        mocker.patch(
+            "jobserver.views.job_requests.get_branch_sha",
+            autospec=True,
+            return_value="abc123",
+        )
 
     data = {
         "backend": backend.slug,
@@ -300,6 +302,7 @@ def test_jobrequestcreate_post_success(rf, mocker, monkeypatch, user):
         org_slug=workspace.project.org.slug,
         project_slug=workspace.project.slug,
         workspace_slug=workspace.name,
+        ref=ref,
     )
 
     assert response.status_code == 302, response.context_data["form"].errors
@@ -310,7 +313,7 @@ def test_jobrequestcreate_post_success(rf, mocker, monkeypatch, user):
     assert job_request.workspace == workspace
     assert job_request.backend.slug == backend.slug
     assert job_request.requested_actions == ["twiddle"]
-    assert job_request.sha == "abc123"
+    assert job_request.sha == ref or "abc123"
     assert not job_request.jobs.exists()
 
 

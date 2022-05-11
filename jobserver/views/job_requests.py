@@ -127,11 +127,13 @@ class JobRequestCreate(CreateView):
 
     @transaction.atomic
     def form_valid(self, form):
-        sha = get_branch_sha(
-            self.workspace.repo_owner,
-            self.workspace.repo_name,
-            self.workspace.branch,
-        )
+        if (sha := self.kwargs.get("ref")) is None:
+            # if a ref wasn't passed in the URL convert the branch to a sha
+            sha = get_branch_sha(
+                self.workspace.repo_owner,
+                self.workspace.repo_name,
+                self.workspace.branch,
+            )
 
         backend = Backend.objects.get(slug=form.cleaned_data.pop("backend"))
         backend.job_requests.create(
@@ -355,5 +357,4 @@ class JobRequestPickRef(View):
             }
             for c in commits
         ]
-
         return response(context={"commits": commits, "workspace": workspace})
