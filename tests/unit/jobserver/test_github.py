@@ -1,6 +1,5 @@
 import pytest
 import requests
-import responses
 
 from jobserver.github import (
     _iter_query_results,
@@ -15,8 +14,7 @@ from jobserver.github import (
 )
 
 
-@responses.activate
-def test_get_branch():
+def test_get_branch(responses):
     expected_url = "https://api.github.com/repos/opensafely/some_repo/branches/main"
     responses.add(responses.GET, expected_url, json={"test": "test"}, status=200)
 
@@ -33,8 +31,7 @@ def test_get_branch():
     assert output == {"test": "test"}
 
 
-@responses.activate
-def test_get_branch_with_missing_branch():
+def test_get_branch_with_missing_branch(responses):
     expected_url = "https://api.github.com/repos/opensafely/some_repo/branches/main"
     responses.add(responses.GET, expected_url, status=404)
 
@@ -65,8 +62,7 @@ def test_get_branch_sha_with_missing_branch(mocker):
     assert output is None
 
 
-@responses.activate
-def test_get_file():
+def test_get_file(responses):
     expected_url = "https://api.github.com/repos/opensafely/some_repo/contents/project.yaml?ref=main"
     responses.add(responses.GET, expected_url, body="a file!", status=200)
 
@@ -82,8 +78,7 @@ def test_get_file():
     assert call.response.text == "a file!"
 
 
-@responses.activate
-def test_get_file_missing_project_yml():
+def test_get_file_missing_project_yml(responses):
     expected_url = "https://api.github.com/repos/opensafely/some_repo/contents/project.yaml?ref=missing_project"
     responses.add(responses.GET, expected_url, status=404)
 
@@ -99,8 +94,7 @@ def test_get_file_missing_project_yml():
     assert output is None
 
 
-@responses.activate
-def test_get_repo():
+def test_get_repo(responses):
     expected_url = "https://api.github.com/repos/opensafely/some_repo"
     responses.add(responses.GET, expected_url, json={"test": "test"}, status=200)
 
@@ -117,8 +111,7 @@ def test_get_repo():
     assert output == {"test": "test"}
 
 
-@responses.activate
-def test_get_repo_is_private():
+def test_get_repo_is_private(responses):
     expected_url = "https://api.github.com/repos/opensafely/some_repo"
     responses.add(responses.GET, expected_url, json={"private": True}, status=200)
 
@@ -135,8 +128,7 @@ def test_get_repo_is_private():
     assert is_private
 
 
-@responses.activate
-def test_get_repo_is_private_with_unknown_repo():
+def test_get_repo_is_private_with_unknown_repo(responses):
     expected_url = "https://api.github.com/repos/opensafely/some_repo"
     responses.add(responses.GET, expected_url, status=404)
 
@@ -152,8 +144,7 @@ def test_get_repo_is_private_with_unknown_repo():
     assert is_private is None
 
 
-@responses.activate
-def test_get_repo_with_unknown_repo():
+def test_get_repo_with_unknown_repo(responses):
     expected_url = "https://api.github.com/repos/opensafely/some_repo"
     responses.add(responses.GET, expected_url, status=404)
 
@@ -169,8 +160,7 @@ def test_get_repo_with_unknown_repo():
     assert output is None
 
 
-@responses.activate
-def test_get_repos_with_branches():
+def test_get_repos_with_branches(responses):
     def data(hasNextPage):
         return {
             "data": {
@@ -216,8 +206,7 @@ def test_get_repos_with_branches():
     assert output[0]["branches"][0] == "branch1"
 
 
-@responses.activate
-def test_get_repos_with_dates():
+def test_get_repos_with_dates(responses):
     def data(hasNextPage):
         return {
             "data": {
@@ -258,8 +247,7 @@ def test_get_repos_with_dates():
     assert output[0]["name"] == "test-repo"
 
 
-@responses.activate
-def test_is_member_of_org_failure(monkeypatch):
+def test_is_member_of_org_failure(monkeypatch, responses):
     monkeypatch.setenv("GITHUB_TESTING_TOKEN", "test")
     membership_url = "https://api.github.com/orgs/testing/members/dummy-user"
     responses.add(responses.GET, membership_url, status=404)
@@ -272,8 +260,7 @@ def test_is_member_of_org_failure(monkeypatch):
     assert not call.response.text
 
 
-@responses.activate
-def test_is_member_of_org_success(monkeypatch):
+def test_is_member_of_org_success(monkeypatch, responses):
     monkeypatch.setenv("GITHUB_TESTING_TOKEN", "test")
     membership_url = "https://api.github.com/orgs/testing/members/dummy-user"
     responses.add(responses.GET, membership_url, status=204)
@@ -286,8 +273,7 @@ def test_is_member_of_org_success(monkeypatch):
     assert not call.response.text
 
 
-@responses.activate
-def test_is_member_of_org_without_github(monkeypatch):
+def test_is_member_of_org_without_github(monkeypatch, responses):
     monkeypatch.setenv("GITHUB_TESTING_TOKEN", "test")
     membership_url = "https://api.github.com/orgs/testing/members/dummy-user"
     responses.add(responses.GET, membership_url, status=401)
@@ -296,8 +282,7 @@ def test_is_member_of_org_without_github(monkeypatch):
         is_member_of_org("testing", "dummy-user")
 
 
-@responses.activate
-def test_iter_query_results_200_error():
+def test_iter_query_results_200_error(responses):
     # graphql API returns errors in with a 200 response
     def data(hasNextPage):
         # example error from prod
