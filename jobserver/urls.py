@@ -31,6 +31,7 @@ from .views.job_requests import (
     JobRequestDetail,
     JobRequestDetailRedirect,
     JobRequestList,
+    JobRequestPickRef,
 )
 from .views.jobs import JobCancel, JobDetail, JobDetailRedirect
 from .views.orgs import OrgDetail, OrgList
@@ -200,6 +201,11 @@ workspace_urls = [
         name="job-request-create",
     ),
     path(
+        "run-jobs/<str:ref>/",
+        JobRequestCreate.as_view(),
+        name="job-request-create",
+    ),
+    path(
         "archive-toggle/",
         WorkspaceArchiveToggle.as_view(),
         name="workspace-archive-toggle",
@@ -212,6 +218,7 @@ workspace_urls = [
         name="workspace-notifications-toggle",
     ),
     path("outputs/", include(outputs_urls)),
+    path("pick-commit/", JobRequestPickRef.as_view(), name="job-request-pick-ref"),
     path("published/", include(published_files_urls)),
     path("releases/", include(releases_urls)),
     path("<int:pk>/", JobRequestDetail.as_view(), name="job-request-detail"),

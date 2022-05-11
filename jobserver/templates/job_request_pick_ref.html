@@ -1,0 +1,77 @@
+{% extends "base.html" %}
+
+{% load humanize %}
+
+{% block content %}
+
+<nav aria-label="breadcrumb">
+  <ol class="breadcrumb">
+
+    <li class="breadcrumb-item"><a href="/">Home</a></li>
+
+    <li class="breadcrumb-item">
+      <a href="{{ workspace.project.org.get_absolute_url }}">
+        {{ workspace.project.org.name }}
+      </a>
+    </li>
+
+    <li class="breadcrumb-item">
+      <a href="{{ workspace.project.get_absolute_url }}">
+        {{ workspace.project.name }}
+      </a>
+    </li>
+
+    <li class="breadcrumb-item">
+      <a href="{{ workspace.get_absolute_url }}">
+        {{ workspace.name }}
+      </a>
+    </li>
+
+    <li class="breadcrumb-item active" aria-current="page">Pick Commit</li>
+
+  </ol>
+</nav>
+
+<div class="row">
+  <div class="col-lg-8 offset-lg-2">
+    <h3 class="mb-3">{{ workspace.name }}</h3>
+
+    <p>
+      Click on a commit below to run jobs with the <code>project.yaml</code>
+      from that commit.
+    </p>
+
+  </div>
+</div>
+
+{% if error %}
+<div class="row">
+  <div class="col-lg-8 offset-lg-2 my-5">
+
+    <p>An error occurred while trying to get commits for this workspace:</p>
+
+    <pre class="text-left">{{ error }}</pre>
+
+  </div>
+</div>
+{% endif %}
+
+{% if commits %}
+<div class="row job-create mt-3">
+  <div class="col-lg-8 offset-lg-2">
+
+    <ul class="list-group">
+      {% for commit in commits %}
+      <li class="list-group-item list-group-item-action">
+        <a href="{% url 'job-request-create' org_slug=workspace.project.org.slug project_slug=workspace.project.slug workspace_slug=workspace.name ref=commit.sha %}">
+          {{ commit.message }}
+        </a>
+      </li>
+      {% endfor %}
+    </ul>
+
+  </div>
+</div>
+{% endif %}
+
+{% endblock content %}

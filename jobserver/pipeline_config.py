@@ -5,20 +5,17 @@ from pygments.lexers import YamlLexer
 from .github import get_branch, get_file
 
 
-def get_actions(config, status_lut):
+def get_actions(config):
     """Get actions from a pipeline config for this Workspace"""
     for action, children in config.actions.items():
         needs = sorted(children.needs)
 
-        # get latest status for this action from the lookup table
-        status = status_lut.get(action, "-")
-
-        yield {"name": action, "needs": needs, "status": status}
+        yield {"name": action, "needs": needs}
 
     # ensure there's always a run_all action
     if "run_all" not in config.actions:
         all_actions = list(config.actions.keys())
-        yield {"name": "run_all", "needs": all_actions, "status": "-"}
+        yield {"name": "run_all", "needs": all_actions}
 
 
 def get_project(org, repo, branch):

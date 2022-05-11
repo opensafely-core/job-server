@@ -4,7 +4,7 @@ from django.contrib.messages.storage.fallback import FallbackStorage
 from django.core.exceptions import BadRequest
 from django.http import Http404
 
-from jobserver.authorization import ProjectDeveloper
+from jobserver.authorization import OpensafelyInteractive, ProjectDeveloper
 from jobserver.models import JobRequest
 from jobserver.views.job_requests import (
     JobRequestCancel,
@@ -12,6 +12,7 @@ from jobserver.views.job_requests import (
     JobRequestDetail,
     JobRequestDetailRedirect,
     JobRequestList,
+    JobRequestPickRef,
 )
 
 from ....factories import (
@@ -135,7 +136,8 @@ def test_jobrequestcancel_unknown_job_request(rf):
         JobRequestCancel.as_view()(request, pk=0)
 
 
-def test_jobrequestcreate_get_success(rf, mocker, user):
+@pytest.mark.parametrize("ref", [None, "abc"])
+def test_jobrequestcreate_get_success(ref, rf, mocker, user):
     workspace = WorkspaceFactory()
 
     BackendMembershipFactory(user=user)
@@ -168,13 +170,14 @@ def test_jobrequestcreate_get_success(rf, mocker, user):
         org_slug=workspace.project.org.slug,
         project_slug=workspace.project.slug,
         workspace_slug=workspace.name,
+        ref=ref,
     )
 
     assert response.status_code == 200
 
     assert response.context_data["actions"] == [
-        {"name": "twiddle", "needs": [], "status": "-"},
-        {"name": "run_all", "needs": ["twiddle"], "status": "-"},
+        {"name": "twiddle", "needs": []},
+        {"name": "run_all", "needs": ["twiddle"]},
     ]
     assert response.context_data["workspace"] == workspace
 
@@ -217,8 +220,8 @@ def test_jobrequestcreate_get_with_permission(rf, mocker, user):
     assert response.status_code == 200
 
     assert response.context_data["actions"] == [
-        {"name": "twiddle", "needs": [], "status": "-"},
-        {"name": "run_all", "needs": ["twiddle"], "status": "-"},
+        {"name": "twiddle", "needs": []},
+        {"name": "run_all", "needs": ["twiddle"]},
     ]
     assert response.context_data["workspace"] == workspace
 
@@ -253,7 +256,8 @@ def test_jobrequestcreate_get_with_project_yaml_errors(rf, mocker, user):
     assert response.context_data["actions_error"] == "test error"
 
 
-def test_jobrequestcreate_post_success(rf, mocker, monkeypatch, user):
+@pytest.mark.parametrize("ref", [None, "abc"])
+def test_jobrequestcreate_post_success(ref, rf, mocker, monkeypatch, user):
     backend = BackendFactory()
     workspace = WorkspaceFactory()
 
@@ -278,11 +282,12 @@ def test_jobrequestcreate_post_success(rf, mocker, monkeypatch, user):
         autospec=True,
         return_value=dummy_yaml,
     )
-    mocker.patch(
-        "jobserver.views.job_requests.get_branch_sha",
-        autospec=True,
-        return_value="abc123",
-    )
+    if ref is None:
+        mocker.patch(
+            "jobserver.views.job_requests.get_branch_sha",
+            autospec=True,
+            return_value="abc123",
+        )
 
     data = {
         "backend": backend.slug,
@@ -297,6 +302,7 @@ def test_jobrequestcreate_post_success(rf, mocker, monkeypatch, user):
         org_slug=workspace.project.org.slug,
         project_slug=workspace.project.slug,
         workspace_slug=workspace.name,
+        ref=ref,
     )
 
     assert response.status_code == 302, response.context_data["form"].errors
@@ -307,7 +313,7 @@ def test_jobrequestcreate_post_success(rf, mocker, monkeypatch, user):
     assert job_request.workspace == workspace
     assert job_request.backend.slug == backend.slug
     assert job_request.requested_actions == ["twiddle"]
-    assert job_request.sha == "abc123"
+    assert job_request.sha == ref or "abc123"
     assert not job_request.jobs.exists()
 
 
@@ -917,3 +923,138 @@ def test_jobrequestlist_without_permission(rf):
     response = JobRequestList.as_view()(request)
     assert response.status_code == 200
     assert "Look up JobRequest by Identifier" not in response.rendered_content
+
+
+def test_jobrequestpickref_success(rf, mocker):
+    user = UserFactory(roles=[OpensafelyInteractive])
+    BackendMembershipFactory(user=user)
+    workspace = WorkspaceFactory()
+
+    data = [
+        {
+            "commit": {
+                "message": "test",
+                "tree": {"sha": "123"},
+            }
+        },
+    ]
+    mocker.patch(
+        "jobserver.views.job_requests.get_commits", autospec=True, return_value=data
+    )
+
+    request = rf.get("/")
+    request.user = user
+
+    response = JobRequestPickRef.as_view()(
+        request,
+        org_slug=workspace.project.org.slug,
+        project_slug=workspace.project.slug,
+        workspace_slug=workspace.name,
+    )
+
+    assert response.status_code == 200
+
+    assert response.context_data["commits"] == [{"message": "test", "sha": "123"}]
+
+
+def test_jobrequestpickref_unauthorized(rf):
+    workspace = WorkspaceFactory()
+
+    request = rf.get("/")
+    request.user = UserFactory()
+
+    response = JobRequestPickRef.as_view()(
+        request,
+        org_slug=workspace.project.org.slug,
+        project_slug=workspace.project.slug,
+        workspace_slug=workspace.name,
+    )
+
+    assert response.status_code == 302
+    assert response.url == workspace.get_jobs_url()
+
+
+def test_jobrequestpickref_with_archived_workspace(rf):
+    workspace = WorkspaceFactory(is_archived=True)
+
+    request = rf.get("/")
+    request.user = UserFactory(roles=[OpensafelyInteractive])
+
+    # set up messages framework
+    request.session = "session"
+    messages = FallbackStorage(request)
+    request._messages = messages
+
+    response = JobRequestPickRef.as_view()(
+        request,
+        org_slug=workspace.project.org.slug,
+        project_slug=workspace.project.slug,
+        workspace_slug=workspace.name,
+    )
+
+    assert response.status_code == 302
+    assert response.url == workspace.get_absolute_url()
+
+    # check we have a message for the user
+    messages = list(messages)
+    assert len(messages) == 1
+
+    expected = (
+        "You cannot create Jobs for an archived Workspace."
+        "Please contact an admin if you need to have it unarchved."
+    )
+    assert str(messages[0]) == expected
+
+
+def test_jobrequestpickref_with_commits_error(rf, mocker):
+    user = UserFactory(roles=[OpensafelyInteractive])
+    BackendMembershipFactory(user=user)
+    workspace = WorkspaceFactory()
+
+    mocker.patch(
+        "jobserver.views.job_requests.get_commits",
+        autospec=True,
+        side_effect=Exception(),
+    )
+
+    request = rf.get("/")
+    request.user = user
+
+    response = JobRequestPickRef.as_view()(
+        request,
+        org_slug=workspace.project.org.slug,
+        project_slug=workspace.project.slug,
+        workspace_slug=workspace.name,
+    )
+
+    assert response.status_code == 200
+    assert "error" in response.context_data
+
+
+def test_jobrequestpickref_with_no_backends(rf):
+    workspace = WorkspaceFactory()
+
+    request = rf.get("/")
+    request.user = UserFactory(roles=[OpensafelyInteractive])
+
+    with pytest.raises(Http404):
+        JobRequestPickRef.as_view()(
+            request,
+            org_slug=workspace.project.org.slug,
+            project_slug=workspace.project.slug,
+            workspace_slug=workspace.name,
+        )
+
+
+def test_jobrequestpickref_unknown_workspace(rf):
+    project = ProjectFactory()
+
+    request = rf.get("/")
+
+    with pytest.raises(Http404):
+        JobRequestPickRef.as_view()(
+            request,
+            org_slug=project.org.slug,
+            project_slug=project.slug,
+            workspace_slug="",
+        )

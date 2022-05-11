@@ -239,8 +239,14 @@ class WorkspaceDetail(View):
         except requests.HTTPError:
             repo_is_private = None
 
+        if has_permission(request.user, "job_request_pick_ref"):
+            run_jobs_url = workspace.get_pick_ref_url()
+        else:
+            run_jobs_url = workspace.get_jobs_url()
+
         context = {
             "repo_is_private": repo_is_private,
+            "run_jobs_url": run_jobs_url,
             "user_can_archive_workspace": can_archive_workspace,
             "user_can_run_jobs": can_run_jobs,
             "user_can_use_releases": can_use_releases,
