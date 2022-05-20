@@ -5,7 +5,7 @@ services:
   db:
     image: "postgres:13"
     environment:
-      POSTGRES_USER: user
+      POSTGRES_USER: jobsuser
       POSTGRES_PASSWORD: pass
       POSTGRES_DB: jobserver
     ports:
@@ -19,7 +19,7 @@ services:
     environment:
       - ADMIN_USERS
       - AUTHORIZATION_ORGS
-      - DATABASE_URL=postgres://user:pass@db:5432/jobserver
+      - DATABASE_URL=postgres://jobsuser:pass@db:5432/jobserver
       - DEBUG
       - GITHUB_TOKEN
       - SECRET_KEY=${SECRET_KEY:-12345}
