@@ -7,7 +7,7 @@ ADMIN_USERS=dummy
 AUTHORIZATION_ORGS=opensafely
 
 # Update with relevant username/password if necessary
-DATABASE_URL=postgres://user:pass@localhost:5432/jobserver
+DATABASE_URL=postgres://jobsuser:pass@localhost:5432/jobserver
 
 # Turn on debug
 DEBUG=1

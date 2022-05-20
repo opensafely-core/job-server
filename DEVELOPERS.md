@@ -26,12 +26,10 @@
 ### Development credentials
 
 _Note:_ you will need the [Bitwarden CLI tool](https://bitwarden.com/help/article/cli/) installed in order to access passwords, but it is not a requirement.
-- There is an existing `dotenv-sample` template that you can use to base
-  your own `.env` file on.
+
+- Create a `.env` file; there is an existing `dotenv-sample` template that you can use to base your own `.env` file on.
 - Use `bw` to login to the Bitwarden account.
-- When logged in to Bitwarden, run `scripts/dev-env.sh
-  <env_file_target>` to retrieve and write the credentials to the target
-  environment file specified.
+- When logged in to Bitwarden, run `scripts/dev-env.sh .env` to retrieve and write the credentials to the target environment file specified.
   - `.env` is already in `.gitignore` to help prevent an accidental
     commit of credentials.
 
@@ -93,7 +91,15 @@ If you need to upgrade an installation the [ArchWiki](https://wiki.archlinux.org
 You'll need a database in Postgres to work with, run:
 
 ```sh
-psql -c "create database jobserver"
+psql -c "CREATE DATABASE jobserver"
+```
+
+On Linux, you'll also need to create the user with relevant permissions:
+```
+psql -c "
+CREATE ROLE jobsuser PASSWORD 'pass' NOSUPERUSER CREATEDB;
+GRANT ALL PRIVILEGES on database jobserver to jobsuser;
+"
 ```
 
 
