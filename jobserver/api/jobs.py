@@ -188,13 +188,21 @@ class JobAPIUpdate(APIView):
 
 
 def handle_alerts_and_notifications(request, job_request, job, log):
-    if "internal error" in job.status_message.lower():
-        # bubble internal errors encountered with a job up to
-        # sentry so we can get notifications they've happened
-        with sentry_sdk.push_scope() as scope:
-            scope.set_tag("backend", job_request.backend.slug)
-            scope.set_tag("job", request.build_absolute_uri(job.get_absolute_url()))
-            sentry_sdk.capture_message("Job encountered an internal error")
+    error_messages = {
+        "internal error": "Job encountered an internal error",
+        "something went wrong with the database": "Job encountered an unexpected database error",
+        "ran out of memory": "Job encountered an out of memory error",
+    }
+
+    for message_fragment, sentry_message in error_messages.items():
+        if message_fragment in job.status_message.lower():
+            # bubble errors encountered with a job up to
+            # sentry so we can get notifications they've happened
+            with sentry_sdk.push_scope() as scope:
+                scope.set_tag("backend", job_request.backend.slug)
+                scope.set_tag("job", request.build_absolute_uri(job.get_absolute_url()))
+                sentry_sdk.capture_message(sentry_message)
+            break
 
     if job_request.will_notify:
         send_finished_notification(

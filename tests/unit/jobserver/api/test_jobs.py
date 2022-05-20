@@ -428,7 +428,15 @@ def test_jobapiupdate_post_only(api_rf):
     assert JobAPIUpdate.as_view()(request).status_code == 405
 
 
-def test_jobapiupdate_post_with_internal_error(api_rf, mocker):
+@pytest.mark.parametrize(
+    "error_message",
+    [
+        "Internal error",
+        "Something went wrong with the database, please contact tech support",
+        "Ran out of memory (limit for this job was 6GB)",
+    ],
+)
+def test_jobapiupdate_post_with_errors(api_rf, mocker, error_message):
     backend = BackendFactory()
     job_request = JobRequestFactory()
     mocked_sentry = mocker.patch("jobserver.api.jobs.sentry_sdk", autospec=True)
@@ -455,7 +463,7 @@ def test_jobapiupdate_post_with_internal_error(api_rf, mocker):
     JobAPIUpdate.as_view()(request_1)
 
     data[0]["status"] = "failed"
-    data[0]["status_message"] = "Internal error"
+    data[0]["status_message"] = error_message
     request_2 = api_rf.post(
         "/", HTTP_AUTHORIZATION=backend.auth_token, data=data, format="json"
     )
