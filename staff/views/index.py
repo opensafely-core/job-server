@@ -21,6 +21,7 @@ configured_searches = [
             "created_by__last_name",
             "created_by__username",
             "researcher_registrations__name",
+            "researcher_registrations__github_username",
             "studyinformationpage__study_name",
         ],
         "order_by": "created_at",
