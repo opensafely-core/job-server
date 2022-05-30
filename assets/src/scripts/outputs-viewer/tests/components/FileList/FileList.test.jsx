@@ -97,13 +97,13 @@ describe("<FileList />", () => {
     });
     userEvent.click(screen.queryAllByRole("link")[0]);
 
-    expect(history.location.pathname).toBe(`/${csvFile.name}`);
+    expect(history.location.pathname).toBe(`/${pngFile.name}`);
 
-    userEvent.click(screen.queryAllByRole("link")[1]);
+    userEvent.click(screen.queryAllByRole("link")[0]);
     expect(history.location.pathname).toBe(`/${pngFile.name}`);
     expect(history.index).toBe(2);
 
-    userEvent.click(screen.queryAllByRole("link")[1]);
+    userEvent.click(screen.queryAllByRole("link")[0]);
     expect(history.location.pathname).toBe(`/${pngFile.name}`);
     expect(history.index).toBe(2);
   });
