@@ -12,6 +12,7 @@ import Filter from "./Filter";
 function FileList({ listVisible, setListVisible }) {
   const [files, setFiles] = useState([]);
   const [listHeight, setListHeight] = useState(0);
+  const [fileIndex, setFileIndex] = useState(null);
 
   const { dispatch } = useFiles();
   const { data, isError, isLoading } = useFileList();
@@ -52,12 +53,13 @@ function FileList({ listVisible, setListVisible }) {
   }, [files, listVisible, setListVisible, windowSize]);
 
   useEffect(() => {
-    const item = files.filter(
+    const selectedItem = files.findIndex(
       (file) => `/${file.name}` === location.pathname
-    )[0];
+    );
 
-    if (item) {
-      dispatch({ type: "update", state: { file: { ...item } } });
+    if (files[selectedItem]) {
+      setFileIndex(selectedItem);
+      dispatch({ type: "update", state: { file: { ...files[selectedItem] } } });
     }
   }, [dispatch, data, files, location]);
 
@@ -113,14 +115,25 @@ function FileList({ listVisible, setListVisible }) {
           width="100%"
         >
           {({ index, style }) => (
-            <li style={style}>
-              <a
-                href={files[index].url}
-                onClick={(e) => selectFile({ e, item: files[index] })}
-                title={`File size: ${prettyFileSize(files[index].size)}`}
-              >
-                {files[index].shortName}
-              </a>
+            <li
+              className={`${classes.listItem}
+                ${fileIndex === index ? classes.selected : null}
+              `}
+              style={style}
+            >
+              {fileIndex === index ? (
+                <span>{files[index].shortName}</span>
+              ) : (
+                <a
+                  className={classes.listItemLink}
+                  disabled={`/${files[index].name}` === location.pathname}
+                  href={files[index].url}
+                  onClick={(e) => selectFile({ e, item: files[index] })}
+                  title={`File size: ${prettyFileSize(files[index].size)}`}
+                >
+                  {files[index].shortName}
+                </a>
+              )}
             </li>
           )}
         </FixedSizeList>
