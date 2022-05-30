@@ -42,11 +42,3 @@ function noOp() {
 if (typeof window.URL.createObjectURL === "undefined") {
   Object.defineProperty(window.URL, "createObjectURL", { value: noOp });
 }
-
-if (typeof window.crypto === "undefined") {
-  window.crypto = {
-    randomUUID() {
-      return "bf45ec45-644c-4113-9ade-a87d0e5c5bcb";
-    },
-  };
-}
