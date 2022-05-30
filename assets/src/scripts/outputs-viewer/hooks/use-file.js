@@ -6,7 +6,7 @@ import { toastError } from "../utils/toast";
 
 function useFile(file) {
   const {
-    state: { authToken },
+    state: { authToken, uuid },
   } = useFiles();
 
   return useQuery(
@@ -22,11 +22,14 @@ function useFile(file) {
       // don't try to return the data
       if (isCsv(file) && file.size > 5000000) return {};
 
+      // Combine file URL with UUID
+      const fileURL = `${file.url}?${uuid}`;
+
       // If the file is an image
       // grab the blob and create a URL for the blob
       if (isImg(file))
         return axios
-          .get(file.url, {
+          .get(fileURL, {
             headers: {
               Authorization: authToken,
             },
@@ -39,7 +42,7 @@ function useFile(file) {
           });
 
       return axios
-        .get(file.url, {
+        .get(fileURL, {
           headers: {
             Authorization: authToken,
           },

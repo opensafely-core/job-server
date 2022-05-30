@@ -15,6 +15,8 @@ function filesReducer(state, action) {
 }
 
 function FilesProvider({ children, initialValue }) {
+  const uuid = crypto.randomUUID();
+
   const [state, dispatch] = React.useReducer(filesReducer, {
     authToken: "",
     basePath: "",
@@ -27,6 +29,8 @@ function FilesProvider({ children, initialValue }) {
       name: "",
       url: "",
     },
+
+    uuid,
     ...initialValue,
   });
 
