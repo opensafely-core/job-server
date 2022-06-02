@@ -145,9 +145,6 @@ def test_jobrequest_completed_at_success():
 
     jr = JobRequest.objects.get(pk=job_request.pk)
 
-    # now this fails as you might expect
-    assert not jr.completed_at
-
     assert jr.completed_at == test_completed_at
     assert jr.completed_at == job2.completed_at
 
