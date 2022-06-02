@@ -1,3 +1,5 @@
+from datetime import timedelta
+
 from django.core.exceptions import MultipleObjectsReturned
 from django.http import Http404
 from django.shortcuts import get_object_or_404, redirect
@@ -48,12 +50,19 @@ class JobDetail(View):
         can_cancel_jobs = job.job_request.created_by == request.user or has_permission(
             request.user, "job_cancel", project=job.job_request.workspace.project
         )
+        honeycomb_context_starttime = job.created_at - timedelta(minutes=1)
+
+        honeycomb_context_endtime = None
+        if job.completed_at is not None:
+            honeycomb_context_endtime = job.completed_at + timedelta(minutes=3)
 
         context = {
             "job": job,
             "object": job,
             "user_can_cancel_jobs": can_cancel_jobs,
             "view": self,
+            "honeycomb_context_starttime": honeycomb_context_starttime,
+            "honeycomb_context_endtime": honeycomb_context_endtime,
         }
 
         return TemplateResponse(request, "job_detail.html", context=context)

@@ -1,6 +1,7 @@
 import pytest
 from django.contrib.auth.models import AnonymousUser
 from django.http import Http404
+from django.utils import timezone
 
 from jobserver.authorization import ProjectDeveloper
 from jobserver.views.jobs import JobCancel, JobDetail, JobDetailRedirect
@@ -130,6 +131,30 @@ def test_jobdetail_with_anonymous_user(rf):
 
 def test_jobdetail_with_permission(rf):
     job = JobFactory()
+    user = UserFactory()
+
+    ProjectMembershipFactory(
+        project=job.job_request.workspace.project, user=user, roles=[ProjectDeveloper]
+    )
+
+    request = rf.get("/")
+    request.user = user
+
+    response = JobDetail.as_view()(
+        request,
+        org_slug=job.job_request.workspace.project.org.slug,
+        project_slug=job.job_request.workspace.project.slug,
+        workspace_slug=job.job_request.workspace.name,
+        pk=job.job_request.pk,
+        identifier=job.identifier,
+    )
+
+    assert response.status_code == 200
+    assert "Cancel" in response.rendered_content
+
+
+def test_jobdetail_with_permission_with_completed_at(rf):
+    job = JobFactory(completed_at=timezone.now())
     user = UserFactory()
 
     ProjectMembershipFactory(
