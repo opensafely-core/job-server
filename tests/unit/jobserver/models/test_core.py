@@ -135,6 +135,10 @@ def test_jobrequest_completed_at_success():
     job1, job2 = JobFactory.create_batch(2, job_request=job_request, status="succeeded")
 
     jr = JobRequest.objects.get(pk=job_request.pk)
+
+    # this unexpectedly succeeds
+    assert not jr.completed_at
+
     assert jr.completed_at == job2.completed_at
 
 
