@@ -227,6 +227,29 @@
                 </a>
               </strong>
             </li>
+            <li>
+              <strong>
+                <a href="https://ui.honeycomb.io/the-datalab/datasets/job-server?query=%7B%22start_time%22%3A{{ honeycomb_context_starttime|date:'U'|default_if_none:'1646312416' }}%2C%22end_time%22%3A{{ honeycomb_context_endtime|date:'U' }}%2C%22granularity%22%3A0%2C%22breakdowns%22%3A%5B%22status%22%5D%2C%22calculations%22%3A%5B%7B%22op%22%3A%22COUNT%22%7D%5D%2C%22filters%22%3A%5B%7B%22column%22%3A%22name%22%2C%22op%22%3A%22%3D%22%2C%22value%22%3A%22update_job%22%7D,%7B%22column%22%3A%22status_change%22%2C%22op%22%3A%22%3D%22%2C%22value%22%3Atrue%7D%5D%2C%22filter_combination%22%3A%22AND%22%2C%22orders%22%3A%5B%7B%22op%22%3A%22COUNT%22%2C%22order%22%3A%22descending%22%7D%5D%2C%22havings%22%3A%5B%5D%2C%22limit%22%3A100%7D">
+                  Job requests concurrent with this job request 1
+                </a>
+               </strong>
+              (time period to be tweaked)
+            </li>
+
+            <li>
+              <strong>TODO: Job requests concurrent with this job request 2:</strong>
+              <a href="https://ui.honeycomb.io/the-datalab/datasets/job-server?query=%7B%22start_time%22%3A{{ honeycomb_context_starttime|date:'U'|default_if_none:'1646312416' }}%2C%22end_time%22%3A{{ honeycomb_context_endtime|date:'U' }}%2C%22granularity%22%3A0%2C%22breakdowns%22%3A%5B%22status%22%5D%2C%22calculations%22%3A%5B%7B%22op%22%3A%22COUNT%22%7D%5D%2C%22filters%22%3A%5B%7B%22column%22%3A%22name%22%2C%22op%22%3A%22%3D%22%2C%22value%22%3A%22update_job%22%7D,%7B%22column%22%3A%22status_change%22%2C%22op%22%3A%22%3D%22%2C%22value%22%3Atrue%7D%5D%2C%22filter_combination%22%3A%22AND%22%2C%22orders%22%3A%5B%7B%22op%22%3A%22COUNT%22%2C%22order%22%3A%22descending%22%7D%5D%2C%22havings%22%3A%5B%5D%2C%22limit%22%3A100%7D">Here</a> (count status=running with no group_by?)
+            </li>
+
+            <li>
+              <strong>Largest Job requests runtimes concurrent with this job request:</strong>
+              <a href="https://ui.honeycomb.io/the-datalab/datasets/job-server?query=%7B%22start_time%22%3A{{ honeycomb_context_starttime|date:'U'|default_if_none:'1646312416' }}%2C%22end_time%22%3A{{ honeycomb_context_endtime|date:'U' }}%2C%22granularity%22%3A0%2C%22breakdowns%22%3A%5B%22job_request_identifier%22%5D%2C%22calculations%22%3A%5B%7B%22op%22%3A%22MAX%22%2C%22column%22%3A%22current_runtime%22%7D%5D%2C%22filters%22%3A%5B%7B%22column%22%3A%22name%22%2C%22op%22%3A%22%3D%22%2C%22value%22%3A%22update_job%22%7D%5D%2C%22filter_combination%22%3A%22AND%22%2C%22orders%22%3A%5B%7B%22column%22%3A%22current_runtime%22%2C%22op%22%3A%22MAX%22%2C%22order%22%3A%22descending%22%7D%5D%2C%22havings%22%3A%5B%5D%2C%22limit%22%3A100%7D">Here</a> (time period to be tweaked)
+            </li>
+
+            <li>
+              <strong>All recent job requests of this workspace:</strong>
+              <a href="https://ui.honeycomb.io/the-datalab/datasets/job-server?query=%7B%22time_range%22%3A5184000%2C%22granularity%22%3A0%2C%22breakdowns%22%3A%5B%22job_request_identifier%22%5D%2C%22calculations%22%3A%5B%7B%22op%22%3A%22COUNT%22%7D%5D%2C%22filters%22%3A%5B%7B%22column%22%3A%22name%22%2C%22op%22%3A%22%3D%22%2C%22value%22%3A%22update_job%22%7D%2C%7B%22column%22%3A%22project_name%22%2C%22op%22%3A%22%3D%22%2C%22value%22%3A%22{{ job_request.workspace.project.slug }}%22%7D%5D%2C%22filter_combination%22%3A%22AND%22%2C%22orders%22%3A%5B%7B%22op%22%3A%22COUNT%22%2C%22order%22%3A%22descending%22%7D%5D%2C%22havings%22%3A%5B%5D%2C%22limit%22%3A100%7D">here</a>
+            </li>
           </ul>
         </div>
       </div>
