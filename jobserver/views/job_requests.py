@@ -205,7 +205,10 @@ class JobRequestDetail(View):
         )
 
         honeycomb_context_starttime = job_request.created_at - timedelta(days=2)
-        honeycomb_context_endtime = job_request.completed_at + timedelta(days=2)
+
+        honeycomb_context_endtime = None
+        if job_request.completed_at is not None:
+            honeycomb_context_endtime = job_request.completed_at + timedelta(days=2)
 
         context = {
             "honeycomb_context_starttime": honeycomb_context_starttime,

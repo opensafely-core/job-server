@@ -3,6 +3,7 @@ from django.contrib.auth.models import AnonymousUser
 from django.contrib.messages.storage.fallback import FallbackStorage
 from django.core.exceptions import BadRequest
 from django.http import Http404
+from django.utils import timezone
 
 from jobserver.authorization import OpensafelyInteractive, ProjectDeveloper
 from jobserver.models import JobRequest
@@ -583,6 +584,37 @@ def test_jobrequestdetail_with_job_request_creator(rf):
 
 def test_jobrequestdetail_with_permission(rf):
     job_request = JobRequestFactory()
+
+    user = UserFactory()
+
+    ProjectMembershipFactory(
+        project=job_request.workspace.project, user=user, roles=[ProjectDeveloper]
+    )
+
+    request = rf.get("/")
+    request.user = user
+
+    response = JobRequestDetail.as_view()(
+        request,
+        org_slug=job_request.workspace.project.org.slug,
+        project_slug=job_request.workspace.project.slug,
+        workspace_slug=job_request.workspace.name,
+        pk=job_request.pk,
+    )
+
+    assert response.status_code == 200
+    assert "Cancel" in response.rendered_content
+
+
+def test_jobrequestdetail_with_permission_with_completed_at(rf):
+    job_request = JobRequestFactory()
+
+    JobFactory(
+        job_request=job_request,
+        status="succeeded",
+        completed_at=timezone.now(),
+    )
+
     user = UserFactory()
 
     ProjectMembershipFactory(
