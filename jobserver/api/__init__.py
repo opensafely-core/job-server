@@ -1,4 +1,5 @@
-from rest_framework.exceptions import NotAuthenticated
+from rest_framework.authentication import BaseAuthentication
+from rest_framework.exceptions import NotAuthenticated, PermissionDenied
 
 from jobserver.models import Backend
 
@@ -31,3 +32,10 @@ def get_backend_from_token(token):
         return Backend.objects.get(auth_token=token)
     except Backend.DoesNotExist:
         raise NotAuthenticated("Invalid token")
+
+
+class NoAuthentication(BaseAuthentication):
+    """Prevent authentication"""
+
+    def authenticate(self, request):
+        raise PermissionDenied("authentication is not allowed by default")

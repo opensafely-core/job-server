@@ -7,6 +7,7 @@ from django.http import Http404
 from django.utils import timezone
 from opentelemetry import trace
 from rest_framework import serializers
+from rest_framework.authentication import SessionAuthentication
 from rest_framework.exceptions import ValidationError
 from rest_framework.generics import ListAPIView
 from rest_framework.response import Response
@@ -29,6 +30,8 @@ def update_stats(backend, url):
 
 
 class JobAPIUpdate(APIView):
+    authentication_classes = [SessionAuthentication]
+
     class serializer_class(serializers.Serializer):
         job_request_id = serializers.CharField()
         identifier = serializers.CharField()
@@ -232,6 +235,8 @@ class WorkspaceSerializer(serializers.ModelSerializer):
 
 
 class JobRequestAPIList(ListAPIView):
+    authentication_classes = []
+
     class serializer_class(serializers.ModelSerializer):
         backend = serializers.CharField(source="backend.slug")
         created_by = serializers.CharField(source="created_by.username")
@@ -287,6 +292,8 @@ class JobRequestAPIList(ListAPIView):
 
 
 class UserAPIDetail(APIView):
+    authentication_classes = []
+
     def initial(self, request, *args, **kwargs):
         token = request.headers.get("Authorization")
 
@@ -309,6 +316,7 @@ class UserAPIDetail(APIView):
 
 
 class WorkspaceStatusesAPI(APIView):
+    authentication_classes = [SessionAuthentication]
     permission_classes = []
 
     def get(self, request, *args, **kwargs):
