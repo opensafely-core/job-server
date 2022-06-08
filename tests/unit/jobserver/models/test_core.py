@@ -130,11 +130,22 @@ def test_jobrequest_completed_at_no_jobs():
 
 
 def test_jobrequest_completed_at_success():
+    test_completed_at = timezone.now()
+
     job_request = JobRequestFactory()
 
-    job1, job2 = JobFactory.create_batch(2, job_request=job_request, status="succeeded")
+    JobFactory(
+        job_request=job_request,
+        status="succeeded",
+        completed_at=(test_completed_at - timedelta(minutes=1)),
+    )
+    job2 = JobFactory(
+        job_request=job_request, status="succeeded", completed_at=test_completed_at
+    )
 
     jr = JobRequest.objects.get(pk=job_request.pk)
+
+    assert jr.completed_at == test_completed_at
     assert jr.completed_at == job2.completed_at
 
 
