@@ -1,3 +1,5 @@
+TEST
+
 # OpenSAFELY Job Server
 
 This is the Web UI for requesting Jobs are run within the [OpenSAFELY platform](https://opensafely.org), and viewing their logs.
