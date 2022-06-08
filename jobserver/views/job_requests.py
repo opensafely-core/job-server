@@ -1,4 +1,5 @@
 import functools
+from datetime import timedelta
 
 from django.contrib import messages
 from django.core.exceptions import MultipleObjectsReturned
@@ -195,6 +196,7 @@ class JobRequestDetail(View):
         can_cancel_jobs = job_request.created_by == request.user or has_permission(
             request.user, "job_cancel", project=job_request.workspace.project
         )
+        timedelta(days=1)
 
         project_definition = mark_safe(
             render_definition(
