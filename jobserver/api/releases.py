@@ -19,7 +19,7 @@ from rest_framework.response import Response
 from rest_framework.views import APIView
 
 from jobserver import releases, slacks
-from jobserver.api import get_backend_from_token
+from jobserver.api.authentication import get_backend_from_token
 from jobserver.authorization import has_permission
 from jobserver.models import Release, ReleaseFile, Snapshot, User, Workspace
 from jobserver.releases import serve_file

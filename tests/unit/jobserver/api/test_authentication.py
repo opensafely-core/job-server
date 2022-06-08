@@ -1,9 +1,16 @@
 import pytest
-from rest_framework.exceptions import NotAuthenticated
+from rest_framework.exceptions import NotAuthenticated, PermissionDenied
 
-from jobserver.api import get_backend_from_token
+from jobserver.api.authentication import NoAuthentication, get_backend_from_token
 
 from ....factories import BackendFactory
+
+
+def test_noauthentication_permission_denied(api_rf):
+    request = api_rf.get("/")
+
+    with pytest.raises(PermissionDenied):
+        NoAuthentication().authenticate(request)
 
 
 def test_token_backend_empty_token():

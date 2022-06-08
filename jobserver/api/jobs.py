@@ -13,7 +13,7 @@ from rest_framework.generics import ListAPIView
 from rest_framework.response import Response
 from rest_framework.views import APIView
 
-from jobserver.api import get_backend_from_token
+from jobserver.api.authentication import get_backend_from_token
 from jobserver.emails import send_finished_notification
 from jobserver.models import JobRequest, Stats, User, Workspace
 
