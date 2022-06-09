@@ -6,7 +6,7 @@ from django.shortcuts import get_object_or_404, redirect
 from django.template.response import TemplateResponse
 from django.views.generic import RedirectView, View
 
-from ..authorization import has_permission
+from ..authorization import CoreDeveloper, has_permission, has_role
 from ..models import Job
 
 
@@ -50,6 +50,9 @@ class JobDetail(View):
         can_cancel_jobs = job.job_request.created_by == request.user or has_permission(
             request.user, "job_cancel", project=job.job_request.workspace.project
         )
+
+        honeycomb_can_view_links = has_role(self.request.user, CoreDeveloper)
+
         honeycomb_context_starttime = job.created_at - timedelta(minutes=1)
 
         honeycomb_context_endtime = None
@@ -61,6 +64,7 @@ class JobDetail(View):
             "object": job,
             "user_can_cancel_jobs": can_cancel_jobs,
             "view": self,
+            "honeycomb_can_view_links": honeycomb_can_view_links,
             "honeycomb_context_starttime": honeycomb_context_starttime,
             "honeycomb_context_endtime": honeycomb_context_endtime,
         }
