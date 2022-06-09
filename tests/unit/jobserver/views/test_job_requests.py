@@ -5,7 +5,11 @@ from django.core.exceptions import BadRequest
 from django.http import Http404
 from django.utils import timezone
 
-from jobserver.authorization import OpensafelyInteractive, ProjectDeveloper
+from jobserver.authorization import (
+    CoreDeveloper,
+    OpensafelyInteractive,
+    ProjectDeveloper,
+)
 from jobserver.models import JobRequest
 from jobserver.views.job_requests import (
     JobRequestCancel,
@@ -606,6 +610,26 @@ def test_jobrequestdetail_with_permission(rf):
     assert "Cancel" in response.rendered_content
 
 
+def test_jobrequestdetail_with_permission_core_developer(rf):
+    job_request = JobRequestFactory()
+
+    user = UserFactory(roles=[CoreDeveloper])
+
+    request = rf.get("/")
+    request.user = user
+
+    response = JobRequestDetail.as_view()(
+        request,
+        org_slug=job_request.workspace.project.org.slug,
+        project_slug=job_request.workspace.project.slug,
+        workspace_slug=job_request.workspace.name,
+        pk=job_request.pk,
+    )
+
+    assert response.status_code == 200
+    assert "Honeycomb" in response.rendered_content
+
+
 def test_jobrequestdetail_with_permission_with_completed_at(rf):
     job_request = JobRequestFactory()
 
@@ -651,6 +675,7 @@ def test_jobrequestdetail_with_unauthenticated_user(rf):
     )
 
     assert response.status_code == 200
+    assert "Honeycomb" not in response.rendered_content
 
 
 def test_jobrequestdetail_with_unknown_job_request(rf):
