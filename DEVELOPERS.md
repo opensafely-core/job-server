@@ -231,7 +231,7 @@ In that situation you can follow the steps below to set up your local copy of th
    * The callback URL must be `http://localhost:8000/complete/github/`.
    * The other fields don't matter too much for local development.
 1. Register a user account on your local version of job-server by clicking Login
-1. Set the `SOCIAL_AUTH_GITHUB_KEY` and `SOCIAL_AUTH_GITHUB_KEY` environment variables with values from that OAuth application.
+1. Set the `SOCIAL_AUTH_GITHUB_KEY` (aka "Client ID") and `SOCIAL_AUTH_GITHUB_SECRET` environment variables with values from that OAuth application.
 1. Give your user the `CoreDeveloper` role by:
    * Setting the `ADMIN_USERS` environment variable to include your username.
    * Running `python manage.py ensure_admins`.
