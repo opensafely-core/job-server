@@ -181,7 +181,7 @@ class JobRequest(models.Model):
 
     force_run_dependencies = models.BooleanField(default=False)
     cancelled_actions = models.JSONField(default=list)
-    requested_actions = models.JSONField()
+    requested_actions = ArrayField(models.TextField())
     sha = models.TextField()
     identifier = models.TextField(default=new_id, unique=True)
     will_notify = models.BooleanField(default=False)
