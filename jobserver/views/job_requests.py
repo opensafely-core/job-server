@@ -196,6 +196,7 @@ class JobRequestDetail(View):
         can_cancel_jobs = job_request.created_by == request.user or has_permission(
             request.user, "job_cancel", project=job_request.workspace.project
         )
+        honeycomb_can_view_links = has_role(self.request.user, CoreDeveloper)
 
         project_definition = mark_safe(
             render_definition(
@@ -211,6 +212,7 @@ class JobRequestDetail(View):
             honeycomb_context_endtime = job_request.completed_at + timedelta(days=2)
 
         context = {
+            "honeycomb_can_view_links": honeycomb_can_view_links,
             "honeycomb_context_starttime": honeycomb_context_starttime,
             "honeycomb_context_endtime": honeycomb_context_endtime,
             "job_request": job_request,
