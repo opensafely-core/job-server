@@ -209,23 +209,20 @@
       <div class="card mb-3">
         <div class="card-header">
           <h2 class="h5">Monitoring</h2>
-          <p class="card-subtitle mb-0">Honeycomb.io login required.</p>
+          <p class="card-subtitle small mb-0">Honeycomb login required</p>
         </div>
         <div class="card-body">
-          <ul class="list-unstyled mb-0">
+          <h3 class="h6">Events count for:</h3>
+          <ul class="pl-3 mb-0">
             <li>
-              <strong>
-                <a href="https://ui.honeycomb.io/the-datalab/datasets/job-server?query=%7B%22start_time%22%3A{{ honeycomb_context_starttime|date:'U'|default_if_none:'1646312416' }}%2C%22end_time%22%3A{{ honeycomb_context_endtime|date:'U' }}%2C%22granularity%22%3A0%2C%22breakdowns%22%3A%5B%22status%22%5D%2C%22calculations%22%3A%5B%7B%22op%22%3A%22COUNT%22%7D%5D%2C%22filters%22%3A%5B%7B%22column%22%3A%22name%22%2C%22op%22%3A%22%3D%22%2C%22value%22%3A%22update_job%22%7D,%7B%22column%22%3A%22job_request_identifier%22%2C%22op%22%3A%22%3D%22%2C%22value%22%3A%22{{ job_request.identifier }}%22%7D%5D%2C%22filter_combination%22%3A%22AND%22%2C%22orders%22%3A%5B%7B%22op%22%3A%22COUNT%22%2C%22order%22%3A%22descending%22%7D%5D%2C%22havings%22%3A%5B%5D%2C%22limit%22%3A100%7D">
-                  Events count for this job request
-                </a>
-              </strong>
+              <a href="https://ui.honeycomb.io/the-datalab/datasets/job-server?query=%7B%22start_time%22%3A{{ honeycomb_context_starttime|date:'U'|default_if_none:'1646312416' }}%2C%22end_time%22%3A{{ honeycomb_context_endtime|date:'U' }}%2C%22granularity%22%3A0%2C%22breakdowns%22%3A%5B%22status%22%5D%2C%22calculations%22%3A%5B%7B%22op%22%3A%22COUNT%22%7D%5D%2C%22filters%22%3A%5B%7B%22column%22%3A%22name%22%2C%22op%22%3A%22%3D%22%2C%22value%22%3A%22update_job%22%7D,%7B%22column%22%3A%22job_request_identifier%22%2C%22op%22%3A%22%3D%22%2C%22value%22%3A%22{{ job_request.identifier }}%22%7D%5D%2C%22filter_combination%22%3A%22AND%22%2C%22orders%22%3A%5B%7B%22op%22%3A%22COUNT%22%2C%22order%22%3A%22descending%22%7D%5D%2C%22havings%22%3A%5B%5D%2C%22limit%22%3A100%7D">
+                This job request
+              </a>
             </li>
             <li>
-              <strong>
-                <a href="https://ui.honeycomb.io/the-datalab/datasets/job-server?query=%7B%22start_time%22%3A{{ honeycomb_context_starttime|date:'U'|default_if_none:'1646312416' }}%2C%22end_time%22%3A{{ honeycomb_context_endtime|date:'U' }}%2C%22granularity%22%3A0%2C%22breakdowns%22%3A%5B%22status%22,%22action%22,%22job_identifier%22%5D%2C%22calculations%22%3A%5B%7B%22op%22%3A%22COUNT%22%7D%5D%2C%22filters%22%3A%5B%7B%22column%22%3A%22name%22%2C%22op%22%3A%22%3D%22%2C%22value%22%3A%22update_job%22%7D,%7B%22column%22%3A%22status%22%2C%22op%22%3A%22%3D%22%2C%22value%22%3A%22running%22%7D,%7B%22column%22%3A%22job_request_identifier%22%2C%22op%22%3A%22%3D%22%2C%22value%22%3A%22{{ job_request.identifier }}%22%7D%5D%2C%22filter_combination%22%3A%22AND%22%2C%22orders%22%3A%5B%7B%22op%22%3A%22COUNT%22%2C%22order%22%3A%22descending%22%7D%5D%2C%22havings%22%3A%5B%5D%2C%22limit%22%3A100%7D">
-                  Events count for running jobs from this job request
-                </a>
-              </strong>
+              <a href="https://ui.honeycomb.io/the-datalab/datasets/job-server?query=%7B%22start_time%22%3A{{ honeycomb_context_starttime|date:'U'|default_if_none:'1646312416' }}%2C%22end_time%22%3A{{ honeycomb_context_endtime|date:'U' }}%2C%22granularity%22%3A0%2C%22breakdowns%22%3A%5B%22status%22,%22action%22,%22job_identifier%22%5D%2C%22calculations%22%3A%5B%7B%22op%22%3A%22COUNT%22%7D%5D%2C%22filters%22%3A%5B%7B%22column%22%3A%22name%22%2C%22op%22%3A%22%3D%22%2C%22value%22%3A%22update_job%22%7D,%7B%22column%22%3A%22status%22%2C%22op%22%3A%22%3D%22%2C%22value%22%3A%22running%22%7D,%7B%22column%22%3A%22job_request_identifier%22%2C%22op%22%3A%22%3D%22%2C%22value%22%3A%22{{ job_request.identifier }}%22%7D%5D%2C%22filter_combination%22%3A%22AND%22%2C%22orders%22%3A%5B%7B%22op%22%3A%22COUNT%22%2C%22order%22%3A%22descending%22%7D%5D%2C%22havings%22%3A%5B%5D%2C%22limit%22%3A100%7D">
+                Running jobs from this job request
+              </a>
             </li>
           </ul>
         </div>
