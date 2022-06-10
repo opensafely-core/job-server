@@ -166,7 +166,7 @@ class JobRequest(models.Model):
     """
 
     backend = models.ForeignKey(
-        "Backend", on_delete=models.PROTECT, null=True, related_name="job_requests"
+        "Backend", on_delete=models.PROTECT, related_name="job_requests"
     )
     created_by = models.ForeignKey(
         "User",
