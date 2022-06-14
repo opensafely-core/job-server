@@ -29,7 +29,7 @@ def notify_github_release(
     slack.post(text="\n".join(message), channel=channel)
 
 
-def notify_release_created(release, channel="opensafely-outputs"):
+def notify_release_created(release, channel="opensafely-releases"):
     workspace_url = slack.link(
         release.workspace.get_absolute_url(), release.workspace.name
     )
@@ -41,7 +41,7 @@ def notify_release_created(release, channel="opensafely-outputs"):
     slack.post(message, channel)
 
 
-def notify_release_file_uploaded(rfile, channel="opensafely-outputs"):
+def notify_release_file_uploaded(rfile, channel="opensafely-releases"):
     release = rfile.release
     user = rfile.created_by
 
