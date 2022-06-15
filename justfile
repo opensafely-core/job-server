@@ -132,6 +132,7 @@ load-dev-data: devenv
 
 # Run the dev project
 run: devenv
+    $BIN/python manage.py migrate
     $BIN/python manage.py runserver
 
 
