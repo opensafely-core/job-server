@@ -263,7 +263,7 @@ def test_releaseapi_post_success(api_rf, slack_messages):
 
     assert len(slack_messages) == 1
     text, channel = slack_messages[0]
-    assert channel == "opensafely-outputs"
+    assert channel == "opensafely-releases"
     assert f"{uploading_user.get_staff_url()}|{uploading_user.name}>" in text
     assert f"{release.get_absolute_url()}|release>" in text
     assert f"{rfile.get_absolute_url()}|{rfile.name}>" in text
@@ -306,7 +306,7 @@ def test_releasenotificationapicreate_success(api_rf, slack_messages):
     # check we called the slack API in the expected way
     assert len(slack_messages) == 1
     text, channel = slack_messages[0]
-    assert channel == "opensafely-outputs"
+    assert channel == "opensafely-releases"
     assert text == f"test user released outputs from /path/to/outputs on {backend.name}"
 
 
@@ -328,7 +328,7 @@ def test_releasenotificationapicreate_success_with_files(api_rf, slack_messages)
     # check we called the slack API in the expected way
     assert len(slack_messages) == 1
     text, channel = slack_messages[0]
-    assert channel == "opensafely-outputs"
+    assert channel == "opensafely-releases"
     assert text == (
         f"test user released 2 outputs from /path/to/outputs on {backend.name}:\n"
         "`output/file1.txt`\n"
@@ -452,7 +452,7 @@ def test_releaseworkspaceapi_post_create_release(api_rf, slack_messages):
     assert len(slack_messages) == 1
     text, channel = slack_messages[0]
 
-    assert channel == "opensafely-outputs"
+    assert channel == "opensafely-releases"
     assert f"{user.get_staff_url()}|{user.name}>" in text
     assert f"{release.get_absolute_url()}|release>" in text
     assert f"{workspace.get_absolute_url()}|{workspace.name}>" in text
