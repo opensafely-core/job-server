@@ -152,6 +152,7 @@ def test_jobdetail_with_permission(rf):
 
     assert response.status_code == 200
     assert "Cancel" in response.rendered_content
+    assert "Honeycomb" not in response.rendered_content
 
 
 def test_jobdetail_with_core_developer(rf):
@@ -171,7 +172,7 @@ def test_jobdetail_with_core_developer(rf):
     )
 
     assert response.status_code == 200
-    assert "Cancel" in response.rendered_content
+    assert "Cancel" not in response.rendered_content
     assert "Honeycomb" in response.rendered_content
 
 
