@@ -10,7 +10,7 @@ from services import slack
 
 
 def notify_github_release(
-    path, created_by, files, backend, channel="opensafely-outputs"
+    path, created_by, files, backend, channel="opensafely-releases"
 ):
     """
     path: path on level 4 server
