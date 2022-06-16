@@ -628,6 +628,7 @@ def test_jobrequestdetail_with_permission_core_developer(rf):
 
     assert response.status_code == 200
     assert "Honeycomb" in response.rendered_content
+    assert "end_time%22%3A1651959120" in response.rendered_content
 
 
 def test_jobrequestdetail_with_permission_with_completed_at(rf):
