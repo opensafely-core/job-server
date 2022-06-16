@@ -106,6 +106,14 @@ class ProjectEdit(UpdateView):
     model = Project
     template_name = "staff/project_edit.html"
 
+    def get_context_data(self, **kwargs):
+        # we don't have a nice way to override the type of text input
+        # components yet so doing this here is a bit of a hack because we can't
+        # construct dicts in a template
+        return super().get_context_data(**kwargs) | {
+            "extra_field_attributes": {"type": "number"},
+        }
+
     def get_form_kwargs(self):
         return super().get_form_kwargs() | {
             "users": User.objects.all(),
