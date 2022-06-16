@@ -24,7 +24,7 @@ def test_notify_impending_copilot_windows_closing_multiple_projects(slack_messag
     def line(project):
         end_date = naturalday(project.copilot_support_ends_at)
         url = f"http://localhost:8000{project.get_staff_url()}"
-        return f"\n * <{url}|{project.name}> ({end_date})"
+        return f"\n * <{url}|{project.title}> ({end_date})"
 
     expected = f"Projects with support window ending soon:{line(project1)}{line(project2)}{line(project3)}"
 
@@ -58,7 +58,7 @@ def test_notify_impending_copilot_windows_closing_one_project(slack_messages):
 
     end_date = naturalday(project.copilot_support_ends_at)
     url = f"http://localhost:8000{project.get_staff_url()}"
-    line = f"\n * <{url}|{project.name}> ({end_date})"
+    line = f"\n * <{url}|{project.title}> ({end_date})"
     expected = f"Projects with support window ending soon:{line}"
 
     assert len(slack_messages) == 1

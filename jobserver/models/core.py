@@ -499,6 +499,13 @@ class Project(models.Model):
 
         return super().save(*args, **kwargs)
 
+    @property
+    def title(self):
+        if self.number is None:
+            return self.name
+
+        return f"{self.number} - {self.name}"
+
 
 class ProjectInvitation(models.Model):
     """
@@ -539,7 +546,7 @@ class ProjectInvitation(models.Model):
         unique_together = ["project", "user"]
 
     def __str__(self):
-        return f"{self.user.username} | {self.project.name}"
+        return f"{self.user.username} | {self.project.title}"
 
     @transaction.atomic
     def create_membership(self):
@@ -623,7 +630,7 @@ class ProjectMembership(models.Model):
         unique_together = ["project", "user"]
 
     def __str__(self):
-        return f"{self.user.username} | {self.project.name}"
+        return f"{self.user.username} | {self.project.title}"
 
     def get_edit_url(self):
         return reverse(

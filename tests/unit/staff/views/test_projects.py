@@ -496,7 +496,7 @@ def test_projectmembershipremove_success(rf, core_developer):
     # check we have a message for the user
     messages = list(messages)
     assert len(messages) == 1
-    assert str(messages[0]) == f"Removed {user.username} from {project.name}"
+    assert str(messages[0]) == f"Removed {user.username} from {project.title}"
 
 
 def test_projectmembershipremove_unauthorized(rf):

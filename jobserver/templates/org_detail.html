@@ -62,7 +62,7 @@
         <div class="list-group list-unstyled">
           {% for project in projects %}
             <a href="{{ project.get_absolute_url }}" class="list-group-item list-group-item-action">
-              {{ project.name }}
+              {{ project.title }}
             </a>
           {% endfor %}
         </div>

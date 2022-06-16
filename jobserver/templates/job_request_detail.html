@@ -32,7 +32,7 @@
 
       <li class="breadcrumb-item">
         <a href="{{ job_request.workspace.project.get_absolute_url }}">
-          {{ job_request.workspace.project.name }}
+          {{ job_request.workspace.project.title }}
         </a>
       </li>
 
@@ -101,7 +101,7 @@
       <p>
         This page shows the technical details of what happened when authorised researcher {{ job_request.created_by.name }} requested one or
         more actions to be run against real patient data in the
-        <a href="{{ job_request.workspace.project.get_absolute_url }}">{{ job_request.workspace.project.name }} project</a>, within a secure environment.
+        <a href="{{ job_request.workspace.project.get_absolute_url }}">{{ job_request.workspace.project.title }} project</a>, within a secure environment.
       </p>
 
       <p>

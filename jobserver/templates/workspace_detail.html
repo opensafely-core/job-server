@@ -44,7 +44,7 @@
 
       <li class="breadcrumb-item">
         <a href="{{ workspace.project.get_absolute_url }}">
-          {{ workspace.project.name }}
+          {{ workspace.project.title }}
         </a>
       </li>
 
@@ -64,7 +64,7 @@
         <h1>{{ workspace.name }}</h1>
         <p class="lead">
           <strong>Project:</strong>
-          <a href="{{ workspace.project.get_absolute_url }}">{{ workspace.project.name }}</a>
+          <a href="{{ workspace.project.get_absolute_url }}">{{ workspace.project.title }}</a>
         </p>
 
         <div>
@@ -174,7 +174,7 @@
     <div class="col-lg-8">
       <p>
         This is an OpenSAFELY workspace.  It represents a working directory for the
-        <a href="{{ workspace.project.get_absolute_url }}">{{ workspace.project.name }}</a>
+        <a href="{{ workspace.project.get_absolute_url }}">{{ workspace.project.title }}</a>
         project on all of the secure services ("backends") supported by
         OpenSAFELY.  On each backend, the directory includes code from the
         <a href="{{ workspace.repo }}/tree/{{ workspace.branch }}/">repository</a>,

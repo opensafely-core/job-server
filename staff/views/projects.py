@@ -255,5 +255,5 @@ class ProjectMembershipRemove(View):
         except ProjectMembership.DoesNotExist:
             pass
 
-        messages.success(request, f"Removed {username} from {project.name}")
+        messages.success(request, f"Removed {username} from {project.title}")
         return redirect(project.get_staff_url())

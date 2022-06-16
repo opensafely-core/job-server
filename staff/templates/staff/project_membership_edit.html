@@ -1,6 +1,6 @@
 {% extends "staff/base.html" %}
 
-{% block metatitle %}{{ membership.user.name }}: {{ membership.project.name }} | OpenSAFELY Jobs{% endblock metatitle %}
+{% block metatitle %}{{ membership.user.name }}: {{ membership.project.title }} | OpenSAFELY Jobs{% endblock metatitle %}
 
 {% block breadcrumbs %}
 <nav class="breadcrumb-container" aria-label="breadcrumb">
@@ -16,7 +16,7 @@
       </li>
       <li class="breadcrumb-item">
         <a href="{{ membership.project.get_absolute_url }}">
-          {{ membership.project.name }}
+          {{ membership.project.title }}
         </a>
       </li>
       <li class="breadcrumb-item">
@@ -73,7 +73,7 @@
           </legend>
           <input type="hidden" name="member_pk" value="{{ membership.pk }}" />
 
-          <p class="form-label">Do you want to remove {{ membership.user.name }} from {{ membership.project.name }}?</p>
+          <p class="form-label">Do you want to remove {{ membership.user.name }} from {{ membership.project.title }}?</p>
         </fieldset>
 
         <button class="btn btn-danger" type="submit">Remove</button>

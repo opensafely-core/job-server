@@ -629,6 +629,14 @@ def test_project_str():
     assert str(project) == "test-org | Very Good Project"
 
 
+def test_project_title():
+    project = ProjectFactory(number=None)
+    assert project.title == project.name
+
+    project = ProjectFactory(name="test", number=123)
+    assert project.title == "123 - test"
+
+
 def test_projectinvitation_create_membership():
     invite = ProjectInvitationFactory(accepted_at=None, membership=None)
 
