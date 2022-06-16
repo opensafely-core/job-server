@@ -8,6 +8,7 @@ from django.db.models import Q
 from django.http import Http404
 from django.shortcuts import get_object_or_404, redirect
 from django.template.response import TemplateResponse
+from django.utils import timezone
 from django.utils.safestring import mark_safe
 from django.views.generic import CreateView, ListView, RedirectView, View
 from django.views.generic.edit import FormMixin
@@ -207,7 +208,7 @@ class JobRequestDetail(View):
 
         honeycomb_context_starttime = job_request.created_at - timedelta(days=2)
 
-        honeycomb_context_endtime = None
+        honeycomb_context_endtime = timezone.now()
         if job_request.completed_at is not None:
             honeycomb_context_endtime = job_request.completed_at + timedelta(days=2)
 
