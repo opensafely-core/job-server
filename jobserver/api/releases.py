@@ -6,6 +6,7 @@ from django.db.models import Value
 from django.shortcuts import get_object_or_404
 from django.utils import timezone
 from rest_framework import serializers
+from rest_framework.authentication import SessionAuthentication
 from rest_framework.exceptions import (
     NotAuthenticated,
     ParseError,
@@ -18,7 +19,7 @@ from rest_framework.response import Response
 from rest_framework.views import APIView
 
 from jobserver import releases, slacks
-from jobserver.api import get_backend_from_token
+from jobserver.api.authentication import get_backend_from_token
 from jobserver.authorization import has_permission
 from jobserver.models import Release, ReleaseFile, Snapshot, User, Workspace
 from jobserver.releases import serve_file
@@ -29,6 +30,8 @@ logger = structlog.get_logger(__name__)
 
 
 class ReleaseNotificationAPICreate(CreateAPIView):
+    authentication_classes = [SessionAuthentication]
+
     class serializer_class(serializers.Serializer):
         created_by = serializers.CharField()
         path = serializers.CharField()
@@ -149,6 +152,7 @@ def generate_index(files):
 class ReleaseWorkspaceAPI(APIView):
     """Listing current files and creating new Releases for a workspace."""
 
+    authentication_classes = [SessionAuthentication]
     parsers = [JSONParser]
 
     class FilesSerializer(serializers.Serializer):
@@ -185,6 +189,8 @@ class ReleaseWorkspaceAPI(APIView):
 
 
 class ReleaseAPI(APIView):
+    authentication_classes = [SessionAuthentication]
+
     # DRF file upload does not use multipart, is just a simple byte stream
     parser_classes = [FileUploadParser]
 
@@ -244,6 +250,8 @@ class ReleaseAPI(APIView):
 
 
 class ReleaseFileAPI(APIView):
+    authentication_classes = [SessionAuthentication]
+
     def get(self, request, file_id):
         """Return the content of a specific ReleaseFile"""
         rfile = get_object_or_404(ReleaseFile, id=file_id)
@@ -252,6 +260,8 @@ class ReleaseFileAPI(APIView):
 
 
 class SnapshotAPI(APIView):
+    authentication_classes = [SessionAuthentication]
+
     def get(self, request, *args, **kwargs):
         """A list of files for this Snapshot."""
         snapshot = get_object_or_404(
@@ -281,6 +291,8 @@ class SnapshotAPI(APIView):
 
 
 class SnapshotCreateAPI(APIView):
+    authentication_classes = [SessionAuthentication]
+
     class serializer_class(serializers.Serializer):
         file_ids = serializers.ListField(child=serializers.CharField())
 
@@ -323,6 +335,8 @@ class SnapshotCreateAPI(APIView):
 
 
 class SnapshotPublishAPI(APIView):
+    authentication_classes = [SessionAuthentication]
+
     def post(self, request, *args, **kwargs):
         snapshot = get_object_or_404(
             Snapshot,
@@ -348,6 +362,7 @@ class SnapshotPublishAPI(APIView):
 
 
 class WorkspaceStatusAPI(RetrieveAPIView):
+    authentication_classes = [SessionAuthentication]
     lookup_field = "name"
     lookup_url_kwarg = "workspace_id"
     queryset = Workspace.objects.all()

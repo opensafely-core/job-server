@@ -1,4 +1,5 @@
 import os
+import textwrap
 
 import pytest
 import structlog
@@ -100,3 +101,29 @@ def slack_messages(monkeypatch, enable_network):
 
     monkeypatch.setattr("services.slack.post", post)
     return messages
+
+
+@pytest.fixture
+def pipeline_config():
+    """
+    A miniminal, valid pipeline/project.yaml configuration
+    """
+    config = """
+      version: 3
+
+      expectations:
+        population_size: 1000
+
+      actions:
+        generate_dataset:
+          run: >
+            databuilder:v0 generate_dataset
+              --dataset-definition analysis/dataset_definition.py
+              --dummy-data-file dummy_data.csv
+              --output output/dataset.csv
+          outputs:
+            highly_sensitive:
+              dataset: output/dataset.csv
+
+    """
+    return textwrap.dedent(config)
