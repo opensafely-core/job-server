@@ -21,4 +21,4 @@ NOTE: For NHSE/I/X applicants review by a local / institutional Research Ethics 
 
 ## How we use your data
 
-We use data submitted by this form as described in [NHS England's privacy policy](https://www.england.nhs.uk/contact-us/privacy-notice/how-we-use-your-information/our-workforce/).
+We use data submitted by this form as described in [our privacy policy](https://www.opensafely.org/privacy/).
