@@ -155,6 +155,7 @@ def test_jobdetail_with_permission(rf):
     assert "Honeycomb" not in response.rendered_content
 
 
+@pytest.mark.freeze_time("2022-06-16 12:00")
 def test_jobdetail_with_core_developer(rf):
     job = JobFactory()
     user = UserFactory(roles=[CoreDeveloper])
@@ -174,15 +175,13 @@ def test_jobdetail_with_core_developer(rf):
     assert response.status_code == 200
     assert "Cancel" not in response.rendered_content
     assert "Honeycomb" in response.rendered_content
+    assert "%22end_time%22%3A1655380800%2C" in response.rendered_content
 
 
-def test_jobdetail_with_permission_with_completed_at(rf):
+@pytest.mark.freeze_time("2022-06-15 13:00")
+def test_jobdetail_with_core_developer_with_completed_at(rf):
     job = JobFactory(completed_at=timezone.now())
-    user = UserFactory()
-
-    ProjectMembershipFactory(
-        project=job.job_request.workspace.project, user=user, roles=[ProjectDeveloper]
-    )
+    user = UserFactory(roles=[CoreDeveloper])
 
     request = rf.get("/")
     request.user = user
@@ -197,7 +196,9 @@ def test_jobdetail_with_permission_with_completed_at(rf):
     )
 
     assert response.status_code == 200
-    assert "Cancel" in response.rendered_content
+    assert "Cancel" not in response.rendered_content
+    assert "Honeycomb" in response.rendered_content
+    assert "%22end_time%22%3A1655298180%2C" in response.rendered_content
 
 
 def test_jobdetail_with_job_creator(rf):

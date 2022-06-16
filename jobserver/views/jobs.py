@@ -4,6 +4,7 @@ from django.core.exceptions import MultipleObjectsReturned
 from django.http import Http404
 from django.shortcuts import get_object_or_404, redirect
 from django.template.response import TemplateResponse
+from django.utils import timezone
 from django.views.generic import RedirectView, View
 
 from ..authorization import CoreDeveloper, has_permission, has_role
@@ -55,7 +56,7 @@ class JobDetail(View):
 
         honeycomb_context_starttime = job.created_at - timedelta(minutes=1)
 
-        honeycomb_context_endtime = None
+        honeycomb_context_endtime = timezone.now()
         if job.completed_at is not None:
             honeycomb_context_endtime = job.completed_at + timedelta(minutes=3)
 
