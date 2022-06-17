@@ -43,6 +43,7 @@ class PickUsersMixin:
 class ApplicationApproveForm(forms.Form):
     org = forms.ModelChoiceField(queryset=Org.objects.order_by("name"))
     project_name = forms.CharField(help_text="Update the study name if necessary")
+    project_number = forms.IntegerField()
 
     def clean_project_name(self):
         project_name = self.cleaned_data["project_name"]
@@ -51,6 +52,16 @@ class ApplicationApproveForm(forms.Form):
             raise forms.ValidationError(f'Project "{project_name}" already exists.')
 
         return project_name
+
+    def clean_project_number(self):
+        project_number = self.cleaned_data["project_number"]
+
+        if Project.objects.filter(number=project_number).exists():
+            raise forms.ValidationError(
+                f'Project with number "{project_number}" already exists.'
+            )
+
+        return project_number
 
 
 class OrgAddGitHubOrgForm(forms.Form):

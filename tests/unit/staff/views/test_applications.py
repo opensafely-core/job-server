@@ -18,7 +18,7 @@ from staff.views.applications import (
     application_add_org,
 )
 
-from ....factories import ApplicationFactory, OrgFactory, UserFactory
+from ....factories import ApplicationFactory, OrgFactory, ProjectFactory, UserFactory
 
 
 def test_applicationaddorg_get_success(rf, core_developer):
@@ -111,6 +111,8 @@ def test_applicationapprove_already_approved(rf, core_developer, complete_applic
 
 
 def test_applicationapprove_get_success(rf, core_developer, complete_application):
+    ProjectFactory(number=7)  # check default is set via Form.initial
+
     request = rf.get("/")
     request.user = core_developer
 
@@ -121,6 +123,7 @@ def test_applicationapprove_get_success(rf, core_developer, complete_application
     assert response.status_code == 200
     assert response.context_data["application"] == complete_application
     assert response.context_data["form"]["org"].initial is None
+    assert response.context_data["form"]["project_number"].initial == 8
 
 
 def test_applicationapprove_get_with_org_slug(rf, core_developer, complete_application):
@@ -161,6 +164,7 @@ def test_applicationapprove_post_success(rf, core_developer, complete_applicatio
 
     data = {
         "project_name": complete_application.studyinformationpage.study_name,
+        "project_number": "42",
         "org": str(org.pk),
     }
     request = rf.post("/", data)
@@ -178,6 +182,7 @@ def test_applicationapprove_post_success(rf, core_developer, complete_applicatio
     assert complete_application.approved_by == core_developer
     assert complete_application.project
     assert complete_application.project.created_by == core_developer
+    assert complete_application.project.number == 42
 
 
 def test_applicationapprove_with_deleted_application(

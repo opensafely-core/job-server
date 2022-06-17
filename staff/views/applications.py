@@ -1,7 +1,7 @@
 import functools
 
 from django.contrib import messages
-from django.db.models import Q
+from django.db.models import Max, Q, Value
 from django.forms.models import modelform_factory
 from django.shortcuts import get_object_or_404, redirect
 from django.template.response import TemplateResponse
@@ -16,7 +16,7 @@ from applications.wizard import Wizard
 from jobserver.authorization import CoreDeveloper
 from jobserver.authorization.decorators import require_role
 from jobserver.hash_utils import unhash, unhash_or_404
-from jobserver.models import Org
+from jobserver.models import Org, Project
 
 from ..forms import ApplicationApproveForm
 
@@ -80,10 +80,12 @@ class ApplicationApprove(FormView):
     def form_valid(self, form):
         org = form.cleaned_data["org"]
         project_name = form.cleaned_data["project_name"]
+        project_number = form.cleaned_data["project_number"]
 
         # create Project with the chosen org
         project = org.projects.create(
             name=project_name,
+            number=project_number,
             created_by=self.request.user,
         )
 
@@ -101,9 +103,16 @@ class ApplicationApprove(FormView):
         }
 
     def get_initial(self):
+        project_number = Project.objects.filter(number__isnull=False).aggregate(
+            largest_number=Max("number") + Value(1)
+        )["largest_number"]
+
         # set the value of project_name from the study_name field in the
         # application form
-        initial = {"project_name": self.application.studyinformationpage.study_name}
+        initial = {
+            "project_name": self.application.studyinformationpage.study_name,
+            "project_number": project_number,
+        }
 
         # set the Org if a slug is included in the query args
         if org_slug := self.request.GET.get("org-slug"):
