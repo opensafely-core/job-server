@@ -7,7 +7,7 @@
 <link rel="stylesheet" href="{% static 'vendor/select2-bootstrap4.min.css' %}">
 {% endblock %}
 
-{% block metatitle %}Invite users: {{ project.name }} | OpenSAFELY Jobs{% endblock metatitle %}
+{% block metatitle %}Invite users: {{ project.title }} | OpenSAFELY Jobs{% endblock metatitle %}
 
 {% block breadcrumbs %}
 <nav class="breadcrumb-container" aria-label="breadcrumb">
@@ -23,7 +23,7 @@
       </li>
       <li class="breadcrumb-item">
         <a href="{{ project.get_absolute_url }}">
-          {{ project.name }}
+          {{ project.title }}
         </a>
       </li>
       <li class="breadcrumb-item active" aria-current="page">
@@ -39,7 +39,7 @@
   <div class="container">
     <h1>Invite users</h1>
     <p class="lead">
-      Invite users to collaborate on {{ project.name }}
+      Invite users to collaborate on {{ project.title }}
     </p>
   </div>
 </div>

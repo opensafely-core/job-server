@@ -1,6 +1,6 @@
 {% extends "staff/base.html" %}
 
-{% block metatitle %}{{ project.name }}: Staff Area | OpenSAFELY Jobs{% endblock metatitle %}
+{% block metatitle %}{{ project.title }}: Staff Area | OpenSAFELY Jobs{% endblock metatitle %}
 
 {% block breadcrumbs %}
 <nav class="breadcrumb-container breadcrumb--danger" aria-label="breadcrumb">
@@ -13,7 +13,7 @@
         <a href="{% url 'staff:project-list' %}">Projects</a>
       </li>
       <li class="breadcrumb-item">
-        <a href="{{ project.get_staff_url }}">{{ project.name }}</a>
+        <a href="{{ project.get_staff_url }}">{{ project.title }}</a>
       </li>
       <li class="breadcrumb-item active" aria-current="page">
         Feature flags
@@ -26,7 +26,7 @@
 {% block jumbotron %}
 <div class="jumbotron jumbotron-fluid jumbotron--danger pt-md-2">
   <div class="container">
-    <h1 class="display-4">{{ project.name }}</h1>
+    <h1 class="display-4">{{ project.title }}</h1>
   </div>
 </div>
 {% endblock jumbotron %}

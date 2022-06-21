@@ -7,7 +7,7 @@
 <link rel="stylesheet" href="{% static 'vendor/select2-bootstrap4.min.css' %}">
 {% endblock %}
 
-{% block metatitle %}Invite users: {{ project.name }} | OpenSAFELY Jobs{% endblock metatitle %}
+{% block metatitle %}Invite users: {{ project.title }} | OpenSAFELY Jobs{% endblock metatitle %}
 
 {% block breadcrumbs %}
 <nav class="breadcrumb-container breadcrumb--danger" aria-label="breadcrumb">
@@ -91,6 +91,7 @@
           </div>
 
           {% include "components/form_text.html" with field=form.project_name label="Set the project name" name="project_name" %}
+          {% include "components/form_text.html" with field=form.project_number label="Set the project number" name="project_number" %}
         </fieldset>
 
         <button class="btn btn-success" type="submit">Approve Application</button>

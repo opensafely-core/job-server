@@ -3,7 +3,7 @@
 {% load humanize %}
 {% load roles %}
 
-{% block metatitle %}Settings: {{ project.name }} | OpenSAFELY Jobs{% endblock metatitle %}
+{% block metatitle %}Settings: {{ project.title }} | OpenSAFELY Jobs{% endblock metatitle %}
 
 {% block breadcrumbs %}
 <nav class="breadcrumb-container" aria-label="breadcrumb">
@@ -19,7 +19,7 @@
       </li>
       <li class="breadcrumb-item">
         <a href="{{ project.get_absolute_url }}">
-          {{ project.name }}
+          {{ project.title }}
         </a>
       </li>
       <li class="breadcrumb-item active" aria-current="page">
@@ -34,7 +34,7 @@
 <div class="jumbotron jumbotron-fluid">
   <div class="container">
     <h1>Settings</h1>
-    <p class="lead">{{ project.name }}</p>
+    <p class="lead">{{ project.title }}</p>
   </div>
 </div>
 {% endblock jumbotron %}

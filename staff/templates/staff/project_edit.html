@@ -7,7 +7,7 @@
 <link rel="stylesheet" href="{% static 'vendor/select2-bootstrap4.min.css' %}">
 {% endblock %}
 
-{% block metatitle %}Edit {{ project.name }}: Staff Area | OpenSAFELY Jobs{% endblock metatitle %}
+{% block metatitle %}Edit {{ project.title }}: Staff Area | OpenSAFELY Jobs{% endblock metatitle %}
 
 {% block breadcrumbs %}
 <nav class="breadcrumb-container breadcrumb--danger" aria-label="breadcrumb">
@@ -20,7 +20,7 @@
         <a href="{% url 'staff:project-list' %}">Projects</a>
       </li>
       <li class="breadcrumb-item">
-        <a href="{{ project.get_staff_url }}">{{ project.name }}</a>
+        <a href="{{ project.get_staff_url }}">{{ project.title }}</a>
       </li>
       <li class="breadcrumb-item active" aria-current="page">
         Edit
@@ -33,7 +33,7 @@
 {% block jumbotron %}
 <div class="jumbotron jumbotron-fluid jumbotron--danger pt-md-2">
   <div class="container">
-    <h1 class="display-4">Edit: {{ project.name }}</h1>
+    <h1 class="display-4">Edit: {{ project.title }}</h1>
   </div>
 </div>
 {% endblock jumbotron %}
@@ -47,6 +47,10 @@
 
         <div class="form-group">
           {% include "components/form_text.html" with field=form.name label="Project name" name="name" %}
+        </div>
+
+        <div class="form-group">
+          {% include "components/form_text.html" with field=form.number label="Project number" name="number" extra_attributes=extra_field_attributes %}
         </div>
 
         <div class="form-group">

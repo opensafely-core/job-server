@@ -441,10 +441,21 @@ class Project(models.Model):
 
     name = models.TextField(unique=True)
     slug = models.SlugField(max_length=255, unique=True)
+    number = models.IntegerField(null=True)
 
     copilot_support_ends_at = models.DateTimeField(null=True)
 
     created_at = models.DateTimeField(default=timezone.now)
+
+    class Meta:
+        # only consider uniqueness of number when it's not null
+        constraints = [
+            models.UniqueConstraint(
+                fields=["number"],
+                name="unique_number_ignore_null",
+                condition=Q(number__isnull=False),
+            )
+        ]
 
     def __str__(self):
         return f"{self.org.name} | {self.name}"
@@ -488,6 +499,13 @@ class Project(models.Model):
 
         return super().save(*args, **kwargs)
 
+    @property
+    def title(self):
+        if self.number is None:
+            return self.name
+
+        return f"{self.number} - {self.name}"
+
 
 class ProjectInvitation(models.Model):
     """
@@ -528,7 +546,7 @@ class ProjectInvitation(models.Model):
         unique_together = ["project", "user"]
 
     def __str__(self):
-        return f"{self.user.username} | {self.project.name}"
+        return f"{self.user.username} | {self.project.title}"
 
     @transaction.atomic
     def create_membership(self):
@@ -612,7 +630,7 @@ class ProjectMembership(models.Model):
         unique_together = ["project", "user"]
 
     def __str__(self):
-        return f"{self.user.username} | {self.project.name}"
+        return f"{self.user.username} | {self.project.title}"
 
     def get_edit_url(self):
         return reverse(

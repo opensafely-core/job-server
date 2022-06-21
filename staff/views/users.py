@@ -56,7 +56,7 @@ class UserDetail(UpdateView):
         ]
         projects = [
             {
-                "name": m.project.name,
+                "name": m.project.title,
                 "roles": sorted(r.display_name for r in m.roles),
                 "staff_url": m.project.get_staff_url(),
             }

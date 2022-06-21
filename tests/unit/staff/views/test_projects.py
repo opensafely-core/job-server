@@ -152,12 +152,13 @@ def test_projectedit_get_unauthorized(rf):
 
 
 def test_projectedit_post_success(rf, core_developer):
-    project = ProjectFactory()
+    project = ProjectFactory(name="test", number=123)
 
     new_copilot = UserFactory()
 
     data = {
         "name": "new-name",
+        "number": 456,
         "copilot": str(new_copilot.pk),
         "copilot_support_ends_at": "",
     }
@@ -171,6 +172,7 @@ def test_projectedit_post_success(rf, core_developer):
 
     project.refresh_from_db()
     assert project.name == "new-name"
+    assert project.number == 456
     assert project.copilot == new_copilot
 
 
@@ -496,7 +498,7 @@ def test_projectmembershipremove_success(rf, core_developer):
     # check we have a message for the user
     messages = list(messages)
     assert len(messages) == 1
-    assert str(messages[0]) == f"Removed {user.username} from {project.name}"
+    assert str(messages[0]) == f"Removed {user.username} from {project.title}"
 
 
 def test_projectmembershipremove_unauthorized(rf):

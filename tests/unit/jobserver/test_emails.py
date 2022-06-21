@@ -59,10 +59,10 @@ def test_send_project_invite_email(mailoutbox):
     m = mailoutbox[0]
 
     assert inviter.name in m.subject
-    assert project.name in m.subject
+    assert project.title in m.subject
 
     assert inviter.name in m.body
-    assert project.name in m.body
+    assert project.title in m.body
     assert invite.get_invitation_url() in m.body
     assert settings.BASE_URL in m.body
 

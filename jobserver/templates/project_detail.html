@@ -2,7 +2,7 @@
 
 {% load humanize %}
 
-{% block metatitle %}{{ project.name }} | OpenSAFELY Jobs{% endblock metatitle %}
+{% block metatitle %}{{ project.title }} | OpenSAFELY Jobs{% endblock metatitle %}
 
 {% block breadcrumbs %}
 <nav class="breadcrumb-container" aria-label="breadcrumb">
@@ -17,7 +17,7 @@
         </a>
       </li>
       <li class="breadcrumb-item active" aria-current="page">
-        {{ project.name }}
+        {{ project.title }}
       </li>
     </ol>
   </div>
@@ -27,7 +27,7 @@
 {% block jumbotron %}
 <div class="jumbotron jumbotron-fluid pt-md-2">
   <div class="container">
-    <h1>{{ project.name }}</h1>
+    <h1>{{ project.title }}</h1>
     <p class="lead">
       {% if project.description %}
         {{ project.description }}

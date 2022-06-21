@@ -33,14 +33,14 @@ def send_project_invite_email(email, project, invite):
 
     context = {
         "inviter_name": invite.created_by.name,
-        "project_name": project.name,
+        "project_name": project.title,
         "url": f.url,
     }
 
     send(
         to=email,
         sender="notifications@jobs.opensafely.org",
-        subject=f"OpenSAFELY Project Invite from {invite.created_by.name} to {project.name}",
+        subject=f"OpenSAFELY Project Invite from {invite.created_by.name} to {project.title}",
         template_name="emails/project_invite.txt",
         context=context,
     )

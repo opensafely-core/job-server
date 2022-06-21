@@ -106,6 +106,14 @@ class ProjectEdit(UpdateView):
     model = Project
     template_name = "staff/project_edit.html"
 
+    def get_context_data(self, **kwargs):
+        # we don't have a nice way to override the type of text input
+        # components yet so doing this here is a bit of a hack because we can't
+        # construct dicts in a template
+        return super().get_context_data(**kwargs) | {
+            "extra_field_attributes": {"type": "number"},
+        }
+
     def get_form_kwargs(self):
         return super().get_form_kwargs() | {
             "users": User.objects.all(),
@@ -186,7 +194,7 @@ class ProjectLinkApplication(UpdateView):
 
 @method_decorator(require_role(CoreDeveloper), name="dispatch")
 class ProjectList(ListView):
-    queryset = Project.objects.select_related("org").order_by(Lower("name"))
+    queryset = Project.objects.select_related("org").order_by("number", Lower("name"))
     template_name = "staff/project_list.html"
 
     def get_context_data(self, **kwargs):
@@ -255,5 +263,5 @@ class ProjectMembershipRemove(View):
         except ProjectMembership.DoesNotExist:
             pass
 
-        messages.success(request, f"Removed {username} from {project.name}")
+        messages.success(request, f"Removed {username} from {project.title}")
         return redirect(project.get_staff_url())

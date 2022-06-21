@@ -13,7 +13,13 @@ from ...factories import ApplicationFactory, BackendFactory, OrgFactory, Project
 def test_applicationapproveform_success():
     org = OrgFactory(slug="test-org")
 
-    form = ApplicationApproveForm({"project_name": "test project", "org": str(org.pk)})
+    form = ApplicationApproveForm(
+        {
+            "project_name": "test project",
+            "project_number": "42",
+            "org": str(org.pk),
+        }
+    )
 
     assert form.is_valid(), form.errors
 
@@ -22,11 +28,35 @@ def test_applicationapproveform_with_duplicate_project_name():
     org = OrgFactory()
     project = ProjectFactory()
 
-    form = ApplicationApproveForm({"project_name": project.name, "org": str(org.pk)})
+    form = ApplicationApproveForm(
+        {
+            "project_name": project.name,
+            "project_number": "42",
+            "org": str(org.pk),
+        }
+    )
 
     assert not form.is_valid()
     assert form.errors == {
         "project_name": [f'Project "{project.name}" already exists.']
+    }
+
+
+def test_applicationapproveform_with_duplicate_project_number():
+    org = OrgFactory()
+    project = ProjectFactory(number=42)
+
+    form = ApplicationApproveForm(
+        {
+            "project_name": "test",
+            "project_number": "42",
+            "org": str(org.pk),
+        }
+    )
+
+    assert not form.is_valid()
+    assert form.errors == {
+        "project_number": [f'Project with number "{project.number}" already exists.']
     }
 
 
