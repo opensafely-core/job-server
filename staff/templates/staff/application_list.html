@@ -61,6 +61,28 @@
         {% endfor %}
       </div>
       {% endif %}
+
+      {% if users %}
+      <h3 class="h4">Authors</h3>
+      <div class="btn-group-vertical w-100 mb-4" role="group" aria-label="Filter by status">
+        {% for user in users %}
+        {% is_filter_selected key="user" value=user.value as is_active %}
+        <a
+          {% if is_active %}aria-pressed="true"{% endif %}
+          class="btn btn-outline-primary btn-block text-left {% if is_active %}active{% endif %}"
+          href="
+            {% if is_active %}
+              {% url_without_querystring user=user.username %}
+            {% else %}
+              {% url_with_querystring user=user.username %}
+            {% endif %}
+          "
+        >
+            {{ user.name }}
+        </a>
+        {% endfor %}
+      </div>
+      {% endif %}
     </div>
 
     <div class="col col-lg-9 col-xl-8">
