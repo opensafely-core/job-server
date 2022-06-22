@@ -415,7 +415,7 @@ def test_applicationdetail_post_with_incomplete_application(
         application.researcherdetailspage
 
 
-def test_userlist_filter_by_status(rf, core_developer):
+def test_applicationlist_filter_by_status(rf, core_developer):
     ApplicationFactory(status=Application.Statuses.APPROVED_FULLY)
 
     request = rf.get("/?status=approved_fully")
@@ -424,6 +424,18 @@ def test_userlist_filter_by_status(rf, core_developer):
     response = ApplicationList.as_view()(request)
 
     assert len(response.context_data["object_list"]) == 1
+
+
+def test_applicationlist_filter_by_user(rf, core_developer):
+    ApplicationFactory.create_batch(5)
+    application = ApplicationFactory()
+
+    request = rf.get(f"/?user={application.created_by.username}")
+    request.user = core_developer
+
+    response = ApplicationList.as_view()(request)
+
+    assert list(response.context_data["object_list"]) == [application]
 
 
 def test_applicationlist_search(rf, core_developer):

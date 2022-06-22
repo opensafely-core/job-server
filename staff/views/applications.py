@@ -16,7 +16,7 @@ from applications.wizard import Wizard
 from jobserver.authorization import CoreDeveloper
 from jobserver.authorization.decorators import require_role
 from jobserver.hash_utils import unhash, unhash_or_404
-from jobserver.models import Org, Project
+from jobserver.models import Org, Project, User
 
 from ..forms import ApplicationApproveForm
 
@@ -206,9 +206,16 @@ class ApplicationList(ListView):
     template_name = "staff/application_list.html"
 
     def get_context_data(self, **kwargs):
+        # sort in Python because `User.name` is a property to pick either
+        # get_full_name() or username depending on which one has been populated
+        users = sorted(
+            User.objects.filter(applications__isnull=False).distinct(),
+            key=lambda u: u.name.lower(),
+        )
         return super().get_context_data(**kwargs) | {
             "q": self.request.GET.get("q", ""),
             "statuses": Application.Statuses,
+            "users": users,
         }
 
     def get_queryset(self):
@@ -239,6 +246,9 @@ class ApplicationList(ListView):
 
         if status := self.request.GET.get("status"):
             qs = qs.filter(status=status)
+
+        if user := self.request.GET.get("user"):
+            qs = qs.filter(created_by__username=user)
 
         return qs.distinct()
 
