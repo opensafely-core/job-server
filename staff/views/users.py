@@ -60,7 +60,9 @@ class UserDetail(UpdateView):
                 "roles": sorted(r.display_name for r in m.roles),
                 "staff_url": m.project.get_staff_url(),
             }
-            for m in self.object.project_memberships.order_by("project__name")
+            for m in self.object.project_memberships.order_by(
+                "project__number", Lower("project__name")
+            )
         ]
         return super().get_context_data(**kwargs) | {
             "applications": applications,
