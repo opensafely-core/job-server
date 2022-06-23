@@ -1,10 +1,45 @@
+import functools
+from datetime import datetime, timedelta
+
+import pytest
 from django.utils import timezone
 from first import first
 
-from jobserver.views.status import Status
+from jobserver.views.status import PerBackendStatus, Status
 
 from ....factories import BackendFactory, JobFactory, JobRequestFactory, StatsFactory
 from ....utils import minutes_ago
+
+
+dt = functools.partial(datetime, tzinfo=timezone.utc)
+
+
+@pytest.mark.freeze_time("2022-3-23")  # set a fixed time to work against
+@pytest.mark.parametrize(
+    "alert_timeout,last_seen,expected_status",
+    [
+        (timedelta(minutes=5), dt(2022, 3, 22), 503),
+        (timedelta(days=42), dt(2022, 3, 16), 200),
+    ],
+    ids=["missing", "not_missing"],
+)
+def test_perbackendstatus(rf, freezer, alert_timeout, last_seen, expected_status):
+    backend = BackendFactory(alert_timeout=alert_timeout)
+    StatsFactory(backend=backend, api_last_seen=last_seen)
+
+    request = rf.get("/")
+    response = PerBackendStatus.as_view()(request, backend=backend.slug)
+
+    assert response.status_code == expected_status
+
+
+def test_perbackendstatus_not_checked_in(rf):
+    backend = BackendFactory(alert_timeout=timedelta(days=1))
+
+    request = rf.get("/")
+    response = PerBackendStatus.as_view()(request, backend=backend.slug)
+
+    assert response.status_code == 200
 
 
 def test_status_healthy(rf):

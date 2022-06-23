@@ -58,6 +58,10 @@
             <strong>Active:</strong>
             {% if backend.is_active %}✓{% else %}❌{% endif %}
           </li>
+          <li class="list-group-item">
+            <strong>Missing threshold:</strong>
+            <time datetime="" title="">{{ missing_threshold }}</time>
+          </li>
         </ul>
       </div>
     </div>
