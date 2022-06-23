@@ -1,5 +1,6 @@
 import binascii
 import os
+from datetime import timedelta
 
 from django.db import models
 from django.urls import reverse
@@ -27,6 +28,9 @@ class Backend(models.Model):
 
     # track where release-hatch is serving files from
     level_4_url = models.TextField(default="", blank=True)
+
+    # how long until we consider a backend to be missing
+    alert_timeout = models.DurationField(default=timedelta(minutes=5))
 
     created_at = models.DateTimeField(default=timezone.now)
     updated_at = models.DateTimeField(auto_now=True)
