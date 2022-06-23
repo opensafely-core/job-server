@@ -1,5 +1,6 @@
 {% extends "base.html" %}
 
+{% load duration_tools %}
 {% load humanize %}
 
 {% block metatitle %}Status | OpenSAFELY Jobs{% endblock metatitle %}
@@ -57,7 +58,7 @@
               <dl class="mb-0">
                 <dt class="d-inline-block">Threshold for missing:</dt>
                 <dd class="d-inline-block mb-0 text-capitalize">
-                  <span>{{ backend.alert_timeout }}</span>
+                  <span>{{ backend.alert_timeout|duration }}</span>
                 </dd>
               </dl>
             </li>

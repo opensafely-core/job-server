@@ -1,5 +1,7 @@
 {% extends "staff/base.html" %}
 
+{% load duration_tools %}
+
 {% block metatitle %}{{ backend.name }}: Staff Area | OpenSAFELY Jobs{% endblock metatitle %}
 
 {% block breadcrumbs %}
@@ -60,7 +62,7 @@
           </li>
           <li class="list-group-item">
             <strong>Missing threshold:</strong>
-            <time datetime="" title="">{{ missing_threshold }}</time>
+            <span>{{ backend.missing_threshold|duration }}</span>
           </li>
         </ul>
       </div>
