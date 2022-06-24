@@ -56,7 +56,7 @@ def test_status_healthy(rf):
 
     output = first(response.context_data["backends"])
 
-    assert output["last_seen"] == last_seen.strftime("%Y-%m-%d %H:%M:%S")
+    assert output["last_seen"] == last_seen
     assert output["queue"]["acked"] == 3
     assert output["queue"]["unacked"] == 0
     assert not output["show_warning"]
@@ -69,7 +69,7 @@ def test_status_no_last_seen(rf):
     response = Status.as_view()(request)
 
     output = first(response.context_data["backends"])
-    assert output["last_seen"] == "never"
+    assert output["last_seen"] is None
     assert not output["show_warning"]
 
 
@@ -84,7 +84,7 @@ def test_status_unacked_jobs_but_recent_api_contact(rf):
 
     output = first(response.context_data["backends"])
 
-    assert output["last_seen"] == last_seen.strftime("%Y-%m-%d %H:%M:%S")
+    assert output["last_seen"] == last_seen
     assert not output["show_warning"]
 
 
@@ -104,7 +104,7 @@ def test_status_unhealthy(rf):
     response = Status.as_view()(request)
 
     output = first(response.context_data["backends"])
-    assert output["last_seen"] == last_seen.strftime("%Y-%m-%d %H:%M:%S")
+    assert output["last_seen"] == last_seen
     assert output["queue"]["acked"] == 2
     assert output["queue"]["unacked"] == 1
     assert output["show_warning"]

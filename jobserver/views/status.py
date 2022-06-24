@@ -35,12 +35,6 @@ class PerBackendStatus(View):
 
 class Status(View):
     def get(self, request, *args, **kwargs):
-        def format_last_seen(last_seen):
-            if last_seen is None:
-                return "never"
-
-            return last_seen.strftime("%Y-%m-%d %H:%M:%S")
-
         def get_stats(backend):
             acked = (
                 backend.job_requests.annotate(num_jobs=Count("jobs"))
@@ -62,7 +56,8 @@ class Status(View):
 
             return {
                 "name": backend.name,
-                "last_seen": format_last_seen(last_seen),
+                "alert_timeout": backend.alert_timeout,
+                "last_seen": last_seen,
                 "queue": {
                     "acked": acked,
                     "unacked": unacked,

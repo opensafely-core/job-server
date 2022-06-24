@@ -1,5 +1,7 @@
 {% extends "base.html" %}
 
+{% load humanize %}
+
 {% block metatitle %}Status | OpenSAFELY Jobs{% endblock metatitle %}
 
 {% block breadcrumbs %}
@@ -31,13 +33,31 @@
     {% for backend in backends %}
       <div class="col-lg-6">
         <div class="card mb-5">
-          <h2 class="card-header h3">{{ backend.name }}</h2>
+          <div class="card-header d-flex justify-content-between align-items-center">
+            <h2 class="h3">{{ backend.name }}</h2>
+            {% if backend.show_warning %}
+            <span class="badge badge-danger">missing</span>
+            {% endif %}
+          </div>
           <ul class="list-group list-group-flush">
             <li class="list-group-item">
               <dl class="mb-0">
                 <dt class="d-inline-block">Runner last seen:</dt>
                 <dd class="d-inline-block mb-0 text-capitalize">
-                  <time datetime="{{ backend.last_seen }}">{{ backend.last_seen }}</time>
+                  <span
+                    {% if backend.show_warning %}class="text-danger"{% endif %}
+                    title="{{ backend.last_seen|date:"c" }}"
+                  >
+                    {{ backend.last_seen }}
+                  </span>
+                </dd>
+              </dl>
+            </li>
+            <li class="list-group-item">
+              <dl class="mb-0">
+                <dt class="d-inline-block">Threshold for missing:</dt>
+                <dd class="d-inline-block mb-0 text-capitalize">
+                  <span>{{ backend.alert_timeout }}</span>
                 </dd>
               </dl>
             </li>
@@ -54,11 +74,6 @@
               </dl>
             </li>
           </ul>
-          {% if backend.show_warning %}
-            <div class="card-footer text-danger font-weight-bold">
-              {{ backend.name }} runner not seen for at least 5 mins
-            </div>
-          {% endif %}
         </div>
       </div>
     {% endfor %}
