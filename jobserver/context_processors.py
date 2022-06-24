@@ -27,7 +27,7 @@ def backend_warnings(request):
                 logger.info(f"No stats found for backend '{backend.slug}'")
                 continue
 
-            if show_warning(backend.api_last_seen):
+            if show_warning(backend.api_last_seen, backend.alert_timeout):
                 yield backend.name
 
     backends = Backend.objects.filter(is_active=True).annotate(

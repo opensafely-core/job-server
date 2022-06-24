@@ -1,10 +1,45 @@
+import functools
+from datetime import datetime, timedelta
+
+import pytest
 from django.utils import timezone
 from first import first
 
-from jobserver.views.status import Status
+from jobserver.views.status import PerBackendStatus, Status
 
 from ....factories import BackendFactory, JobFactory, JobRequestFactory, StatsFactory
 from ....utils import minutes_ago
+
+
+dt = functools.partial(datetime, tzinfo=timezone.utc)
+
+
+@pytest.mark.freeze_time("2022-3-23")  # set a fixed time to work against
+@pytest.mark.parametrize(
+    "alert_timeout,last_seen,expected_status",
+    [
+        (timedelta(minutes=5), dt(2022, 3, 22), 503),
+        (timedelta(days=42), dt(2022, 3, 16), 200),
+    ],
+    ids=["missing", "not_missing"],
+)
+def test_perbackendstatus(rf, freezer, alert_timeout, last_seen, expected_status):
+    backend = BackendFactory(alert_timeout=alert_timeout)
+    StatsFactory(backend=backend, api_last_seen=last_seen)
+
+    request = rf.get("/")
+    response = PerBackendStatus.as_view()(request, backend=backend.slug)
+
+    assert response.status_code == expected_status
+
+
+def test_perbackendstatus_not_checked_in(rf):
+    backend = BackendFactory(alert_timeout=timedelta(days=1))
+
+    request = rf.get("/")
+    response = PerBackendStatus.as_view()(request, backend=backend.slug)
+
+    assert response.status_code == 200
 
 
 def test_status_healthy(rf):
@@ -21,7 +56,7 @@ def test_status_healthy(rf):
 
     output = first(response.context_data["backends"])
 
-    assert output["last_seen"] == last_seen.strftime("%Y-%m-%d %H:%M:%S")
+    assert output["last_seen"] == last_seen
     assert output["queue"]["acked"] == 3
     assert output["queue"]["unacked"] == 0
     assert not output["show_warning"]
@@ -34,7 +69,7 @@ def test_status_no_last_seen(rf):
     response = Status.as_view()(request)
 
     output = first(response.context_data["backends"])
-    assert output["last_seen"] == "never"
+    assert output["last_seen"] is None
     assert not output["show_warning"]
 
 
@@ -49,7 +84,7 @@ def test_status_unacked_jobs_but_recent_api_contact(rf):
 
     output = first(response.context_data["backends"])
 
-    assert output["last_seen"] == last_seen.strftime("%Y-%m-%d %H:%M:%S")
+    assert output["last_seen"] == last_seen
     assert not output["show_warning"]
 
 
@@ -69,7 +104,7 @@ def test_status_unhealthy(rf):
     response = Status.as_view()(request)
 
     output = first(response.context_data["backends"])
-    assert output["last_seen"] == last_seen.strftime("%Y-%m-%d %H:%M:%S")
+    assert output["last_seen"] == last_seen
     assert output["queue"]["acked"] == 2
     assert output["queue"]["unacked"] == 1
     assert output["show_warning"]
