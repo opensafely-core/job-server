@@ -62,7 +62,7 @@ class Status(View):
                     "acked": acked,
                     "unacked": unacked,
                 },
-                "show_warning": show_warning(last_seen),
+                "show_warning": show_warning(last_seen, backend.alert_timeout),
             }
 
         backends = Backend.objects.order_by(Lower("name"))

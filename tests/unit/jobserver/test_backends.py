@@ -1,3 +1,5 @@
+from datetime import timedelta
+
 from django.utils import timezone
 
 from jobserver.backends import backends_to_choices, show_warning
@@ -17,19 +19,19 @@ def test_backends_to_choices():
 
 
 def test_show_warning_last_seen_is_none():
-    assert show_warning(None) is False
+    assert show_warning(None, timedelta()) is False
 
 
 def test_show_warning_last_seen_equal_threhold(freezer):
     last_seen = minutes_ago(timezone.now(), 3)
-    assert show_warning(last_seen, minutes=3) is True
+    assert show_warning(last_seen, timedelta(minutes=3)) is True
+
+
+def test_show_warning_last_seen_greater_than_threshold(freezer):
+    last_seen = minutes_ago(timezone.now(), 6)
+    assert show_warning(last_seen, timedelta(minutes=5)) is True
 
 
 def test_show_warning_last_seen_less_than_threhold(freezer):
     last_seen = minutes_ago(timezone.now(), 2)
-    assert show_warning(last_seen, minutes=3) is False
-
-
-def test_show_warning_success(freezer):
-    last_seen = minutes_ago(timezone.now(), 6)
-    assert show_warning(last_seen) is True
+    assert show_warning(last_seen, timedelta(minutes=3)) is False
