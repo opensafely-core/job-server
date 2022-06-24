@@ -157,7 +157,7 @@ describe("<PrepareButton />", () => {
     );
     await waitFor(() =>
       expect(toastError).toHaveBeenCalledWith({
-        message: "Error: Request failed with status code 500",
+        message: "AxiosError: Request failed with status code 500",
         prepareUrl: urls.prepare,
         toastId: "PrepareButton",
         url: "http://localhost/",

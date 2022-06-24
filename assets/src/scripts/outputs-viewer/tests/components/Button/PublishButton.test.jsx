@@ -118,7 +118,7 @@ describe("<PublishButton />", () => {
     );
     await waitFor(() =>
       expect(toastError).toHaveBeenCalledWith({
-        message: "Error: Request failed with status code 500",
+        message: "AxiosError: Request failed with status code 500",
         publishUrl: urls.publish,
         toastId: "PublishButton",
         url: "http://localhost/",
