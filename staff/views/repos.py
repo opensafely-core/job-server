@@ -20,7 +20,7 @@ class RepoList(View):
         private_repos = [repo for repo in all_repos if repo["is_private"]]
 
         # get workspaces with the first run job started_at annotated on
-        workspaces = Workspace.objects.select_related("project").annotate(
+        workspaces = Workspace.objects.select_related("created_by", "project").annotate(
             first_run=Min("job_requests__jobs__started_at")
         )
 
