@@ -41,6 +41,7 @@
               <th>Repo</th>
               <th>Workspace</th>
               <th>Project</th>
+              <th>Contact</th>
             </tr>
           </thead>
           <tbody>
@@ -51,6 +52,7 @@
               <td><a href="{{ repo.url }}">{{ repo.name }}</a></td>
               <td><a href="{{ repo.workspace.get_staff_url }}">{{ repo.workspace.name }}</a></td>
               <td><a href="{{ repo.workspace.project.get_staff_url }}">{{ repo.workspace.project.title }}</a></td>
+              <td><a href="{{ repo.workspace.created_by.get_staff_url }}">{{ repo.workspace.created_by.email }}</a></td>
             </tr>
             {% endfor %}
           </tbody>
