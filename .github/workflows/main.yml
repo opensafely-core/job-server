@@ -100,7 +100,7 @@ jobs:
       - uses: hadolint/hadolint-action@f988afea3da57ee48710a9795b6bb677cc901183
 
   deploy:
-    needs: [test, lint-dockerfile]
+    needs: [check, test, lint-dockerfile]
     runs-on: ubuntu-latest
 
     if: github.ref == 'refs/heads/main'
