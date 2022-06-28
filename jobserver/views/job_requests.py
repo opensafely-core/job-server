@@ -1,6 +1,7 @@
 import functools
 from datetime import timedelta
 
+from django.conf import settings
 from django.contrib import messages
 from django.core.exceptions import MultipleObjectsReturned
 from django.db import transaction
@@ -103,9 +104,18 @@ class JobRequestCreate(CreateView):
             messages.error(request, msg)
             return redirect(self.workspace)
 
+        # some backends might need to be disabled.  This view only uses
+        # backends the user can see so we look them up here, removing the
+        # relevant ones from the QS before we check if there are any below.
+        # The form, in get_form_kwargs, will also use the backends constructed
+        # here to be consistent.
+        self.backends = request.user.backends.all()
+        if settings.DISABLE_CREATING_JOBS:
+            self.backends = self.backends.exclude(Q(slug="emis") | Q(slug="tpp"))
+
         # jobs need to be run on a backend so the user needs to have access to
         # at least one
-        if not request.user.backends.exists():
+        if not self.backends.exists():
             raise Http404
 
         # build actions as list or render the exception to the page
@@ -160,16 +170,10 @@ class JobRequestCreate(CreateView):
         }
 
     def get_form_kwargs(self):
-        kwargs = super().get_form_kwargs()
-        kwargs["actions"] = [a["name"] for a in self.actions]
-
-        # get backends from the current user
-        backends = Backend.objects.filter(
-            memberships__in=self.request.user.backend_memberships.all()
-        )
-        kwargs["backends"] = backends_to_choices(backends)
-
-        return kwargs
+        return super().get_form_kwargs() | {
+            "actions": [a["name"] for a in self.actions],
+            "backends": backends_to_choices(self.backends),
+        }
 
     def get_initial(self):
         # derive will_notify for the JobRequestCreateForm from the Workspace
