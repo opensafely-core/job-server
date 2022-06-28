@@ -1139,6 +1139,27 @@ def test_jobrequestpickref_with_archived_workspace(rf):
     assert str(messages[0]) == expected
 
 
+def test_jobrequestpickref_get_with_all_backends_removed(rf, settings, user):
+    settings.DISABLE_CREATING_JOBS = True
+
+    user = UserFactory(roles=[OpensafelyInteractive])
+    workspace = WorkspaceFactory()
+
+    BackendMembershipFactory(backend=BackendFactory(slug="tpp"), user=user)
+    BackendMembershipFactory(backend=BackendFactory(slug="emis"), user=user)
+
+    request = rf.get("/")
+    request.user = user
+
+    with pytest.raises(Http404):
+        JobRequestPickRef.as_view()(
+            request,
+            org_slug=workspace.project.org.slug,
+            project_slug=workspace.project.slug,
+            workspace_slug=workspace.name,
+        )
+
+
 def test_jobrequestpickref_with_commits_error(rf, mocker):
     user = UserFactory(roles=[OpensafelyInteractive])
     BackendMembershipFactory(user=user)

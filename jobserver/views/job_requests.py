@@ -349,9 +349,16 @@ class JobRequestPickRef(View):
             messages.error(request, msg)
             return redirect(workspace)
 
+        # some backends might need to be disabled.  This view only uses
+        # backends the user can see so we look them up here, removing the
+        # relevant ones from the QS before we check if there are any below.
+        backends = request.user.backends.all()
+        if settings.DISABLE_CREATING_JOBS:
+            backends = backends.exclude(Q(slug="emis") | Q(slug="tpp"))
+
         # jobs need to be run on a backend so the user needs to have access to
         # at least one
-        if not request.user.backends.exists():
+        if not backends.exists():
             raise Http404
 
         response = functools.partial(
