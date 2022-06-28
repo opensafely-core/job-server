@@ -187,6 +187,31 @@ def test_jobrequestcreate_get_success(ref, rf, mocker, user):
     assert response.context_data["workspace"] == workspace
 
 
+def test_jobrequestcreate_get_with_all_backends_removed(rf, settings, user):
+    settings.DISABLE_CREATING_JOBS = True
+
+    tpp = BackendFactory(slug="tpp")
+    emis = BackendFactory(slug="emis")
+    workspace = WorkspaceFactory()
+
+    BackendMembershipFactory(backend=tpp, user=user)
+    BackendMembershipFactory(backend=emis, user=user)
+    ProjectMembershipFactory(
+        project=workspace.project, user=user, roles=[ProjectDeveloper]
+    )
+
+    request = rf.get("/")
+    request.user = user
+
+    with pytest.raises(Http404):
+        JobRequestCreate.as_view()(
+            request,
+            org_slug=workspace.project.org.slug,
+            project_slug=workspace.project.slug,
+            workspace_slug=workspace.name,
+        )
+
+
 def test_jobrequestcreate_get_with_permission(rf, mocker, user):
     workspace = WorkspaceFactory()
 
@@ -259,6 +284,55 @@ def test_jobrequestcreate_get_with_project_yaml_errors(rf, mocker, user):
 
     assert response.context_data["actions"] == []
     assert response.context_data["actions_error"] == "test error"
+
+
+def test_jobrequestcreate_get_with_some_backends_removed(rf, mocker, settings, user):
+    settings.DISABLE_CREATING_JOBS = True
+
+    backend = BackendFactory()
+    emis = BackendFactory(slug="emis")
+    tpp = BackendFactory(slug="tpp")
+
+    workspace = WorkspaceFactory()
+
+    BackendMembershipFactory(backend=backend, user=user)
+    BackendMembershipFactory(backend=emis, user=user)
+    BackendMembershipFactory(backend=tpp, user=user)
+    ProjectMembershipFactory(
+        project=workspace.project, user=user, roles=[ProjectDeveloper]
+    )
+
+    dummy_yaml = """
+    actions:
+      twiddle:
+    """
+    mocker.patch(
+        "jobserver.views.job_requests.get_project",
+        autospec=True,
+        return_value=dummy_yaml,
+    )
+    mocker.patch(
+        "jobserver.views.job_requests.get_branch_sha",
+        autospec=True,
+        return_value="abc123",
+    )
+
+    request = rf.get("/")
+    request.user = user
+
+    response = JobRequestCreate.as_view()(
+        request,
+        org_slug=workspace.project.org.slug,
+        project_slug=workspace.project.slug,
+        workspace_slug=workspace.name,
+    )
+
+    assert response.status_code == 200
+
+    # confirm we only have the one remaining backend in the form here
+    assert response.context_data["form"]["backend"].field.choices == [
+        (backend.slug, backend.name)
+    ]
 
 
 @pytest.mark.parametrize("ref", [None, "abc"])
@@ -1063,6 +1137,27 @@ def test_jobrequestpickref_with_archived_workspace(rf):
         "Please contact an admin if you need to have it unarchved."
     )
     assert str(messages[0]) == expected
+
+
+def test_jobrequestpickref_get_with_all_backends_removed(rf, settings, user):
+    settings.DISABLE_CREATING_JOBS = True
+
+    user = UserFactory(roles=[OpensafelyInteractive])
+    workspace = WorkspaceFactory()
+
+    BackendMembershipFactory(backend=BackendFactory(slug="tpp"), user=user)
+    BackendMembershipFactory(backend=BackendFactory(slug="emis"), user=user)
+
+    request = rf.get("/")
+    request.user = user
+
+    with pytest.raises(Http404):
+        JobRequestPickRef.as_view()(
+            request,
+            org_slug=workspace.project.org.slug,
+            project_slug=workspace.project.slug,
+            workspace_slug=workspace.name,
+        )
 
 
 def test_jobrequestpickref_with_commits_error(rf, mocker):

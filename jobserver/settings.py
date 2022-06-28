@@ -302,6 +302,7 @@ initialise_sentry()
 
 
 # PROJECT SETTINGS
+DISABLE_CREATING_JOBS = env.bool("DISABLE_CREATING_JOBS", default=False)
 
 # Releases storage location.
 # Note: we deliberately don't use MEDIA_ROOT/MEDIA_URL here, to avoid any
