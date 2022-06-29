@@ -198,7 +198,7 @@ def test_jobdetail_with_core_developer_with_completed_at(rf):
     assert response.status_code == 200
     assert "Cancel" not in response.rendered_content
     assert "Honeycomb" in response.rendered_content
-    assert "%22end_time%22%3A1655298180%2C" in response.rendered_content
+    assert "%22end_time%22%3A1655298060%2C" in response.rendered_content
 
 
 def test_jobdetail_with_job_creator(rf):

@@ -63,7 +63,7 @@ class JobDetail(View):
 
         honeycomb_context_endtime = timezone.now()
         if job.completed_at is not None:
-            honeycomb_context_endtime = job.completed_at + timedelta(minutes=3)
+            honeycomb_context_endtime = job.completed_at + timedelta(minutes=1)
 
         context = {
             "job": job,
