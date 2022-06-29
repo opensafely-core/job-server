@@ -192,9 +192,10 @@
           <ul class="list-unstyled mb-0">
             {% if user_can_view_files %}
               <li class="list-group-item">
-                <a href="{{ workspace.get_files_url }}">
+                <a class="mr-1" href="{{ workspace.get_files_url }}">
                   Level 4 Outputs
                 </a>
+                <span class="badge badge-pill badge-info">VPN Required</span>
               </li>
             {% endif %}
             {% if user_can_view_releases %}
