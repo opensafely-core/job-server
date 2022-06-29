@@ -20,7 +20,9 @@
       <div class="d-flex align-items-center py-2">
         <div class="status status-icon {{ group.status }}"></div>
         {% if show_workspace %}
-        <div class="text-truncate workspace">{{ group.workspace.name }}</div>
+        <div class="text-truncate workspace">
+          <a href="{{ group.workspace.get_absolute_url }}">{{ group.workspace.name }}</a>
+        </div>
         {% endif %}
         <div class="d-none d-md-block backend">
             <span class="badge badge-secondary">{{ group.backend|upper }}</span>
