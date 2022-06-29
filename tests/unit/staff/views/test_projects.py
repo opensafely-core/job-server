@@ -7,6 +7,7 @@ from applications.models import Application
 from jobserver.authorization import ProjectCoordinator, ProjectDeveloper
 from jobserver.models import Project
 from jobserver.utils import dotted_path, set_from_qs
+from redirects.models import Redirect
 from staff.views.projects import (
     ProjectAddMember,
     ProjectCreate,
@@ -152,6 +153,42 @@ def test_projectedit_get_unauthorized(rf):
 
 
 def test_projectedit_post_success(rf, core_developer):
+    old_org = OrgFactory()
+    project = ProjectFactory(org=old_org, name="test", number=123)
+
+    new_copilot = UserFactory()
+    new_org = OrgFactory()
+
+    data = {
+        "name": "new-name",
+        "number": 456,
+        "copilot": str(new_copilot.pk),
+        "copilot_support_ends_at": "",
+        "org": str(new_org.pk),
+    }
+    request = rf.post("/", data)
+    request.user = core_developer
+
+    response = ProjectEdit.as_view()(request, slug=project.slug)
+
+    assert response.status_code == 302, response.context_data["form"].errors
+    assert response.url == project.get_staff_url()
+
+    project.refresh_from_db()
+    assert project.name == "new-name"
+    assert project.number == 456
+    assert project.copilot == new_copilot
+    assert project.org == new_org
+
+    Redirect.objects.count() == 1
+    redirect = Redirect.objects.first()
+    assert redirect.project == project
+    assert redirect.old_url == project.get_absolute_url().replace(
+        project.org.get_absolute_url(), old_org.get_absolute_url()
+    )
+
+
+def test_projectedit_post_success_when_not_changing_org(rf, core_developer):
     project = ProjectFactory(name="test", number=123)
 
     new_copilot = UserFactory()
@@ -161,6 +198,7 @@ def test_projectedit_post_success(rf, core_developer):
         "number": 456,
         "copilot": str(new_copilot.pk),
         "copilot_support_ends_at": "",
+        "org": str(project.org.pk),
     }
     request = rf.post("/", data)
     request.user = core_developer

@@ -99,6 +99,7 @@ class ProjectEditForm(forms.ModelForm):
             "number",
             "copilot",
             "copilot_support_ends_at",
+            "org",
         ]
         model = Project
 
