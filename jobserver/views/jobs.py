@@ -54,6 +54,11 @@ class JobDetail(View):
 
         honeycomb_can_view_links = has_role(self.request.user, CoreDeveloper)
 
+        # Add arbitrary small timedeltas to the start and end times.
+        # If we use the exact start and end times of a job, we do not
+        # reliably see the first and last honeycomb events relating to that job.
+        # This could be due to clock skew, '>' rather than '>=' comparators
+        # and/or other factors.
         honeycomb_context_starttime = job.created_at - timedelta(minutes=1)
 
         honeycomb_context_endtime = timezone.now()
