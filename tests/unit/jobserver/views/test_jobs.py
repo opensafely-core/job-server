@@ -1,8 +1,9 @@
 import pytest
 from django.contrib.auth.models import AnonymousUser
 from django.http import Http404
+from django.utils import timezone
 
-from jobserver.authorization import ProjectDeveloper
+from jobserver.authorization import CoreDeveloper, ProjectDeveloper
 from jobserver.views.jobs import JobCancel, JobDetail, JobDetailRedirect
 
 from ....factories import (
@@ -126,6 +127,7 @@ def test_jobdetail_with_anonymous_user(rf):
 
     assert response.status_code == 200
     assert "Cancel" not in response.rendered_content
+    assert "Honeycomb" not in response.rendered_content
 
 
 def test_jobdetail_with_permission(rf):
@@ -150,6 +152,53 @@ def test_jobdetail_with_permission(rf):
 
     assert response.status_code == 200
     assert "Cancel" in response.rendered_content
+    assert "Honeycomb" not in response.rendered_content
+
+
+@pytest.mark.freeze_time("2022-06-16 12:00")
+def test_jobdetail_with_core_developer(rf):
+    job = JobFactory()
+    user = UserFactory(roles=[CoreDeveloper])
+
+    request = rf.get("/")
+    request.user = user
+
+    response = JobDetail.as_view()(
+        request,
+        org_slug=job.job_request.workspace.project.org.slug,
+        project_slug=job.job_request.workspace.project.slug,
+        workspace_slug=job.job_request.workspace.name,
+        pk=job.job_request.pk,
+        identifier=job.identifier,
+    )
+
+    assert response.status_code == 200
+    assert "Cancel" not in response.rendered_content
+    assert "Honeycomb" in response.rendered_content
+    assert "%22end_time%22%3A1655380800%2C" in response.rendered_content
+
+
+@pytest.mark.freeze_time("2022-06-15 13:00")
+def test_jobdetail_with_core_developer_with_completed_at(rf):
+    job = JobFactory(completed_at=timezone.now())
+    user = UserFactory(roles=[CoreDeveloper])
+
+    request = rf.get("/")
+    request.user = user
+
+    response = JobDetail.as_view()(
+        request,
+        org_slug=job.job_request.workspace.project.org.slug,
+        project_slug=job.job_request.workspace.project.slug,
+        workspace_slug=job.job_request.workspace.name,
+        pk=job.job_request.pk,
+        identifier=job.identifier,
+    )
+
+    assert response.status_code == 200
+    assert "Cancel" not in response.rendered_content
+    assert "Honeycomb" in response.rendered_content
+    assert "%22end_time%22%3A1655298060%2C" in response.rendered_content
 
 
 def test_jobdetail_with_job_creator(rf):
