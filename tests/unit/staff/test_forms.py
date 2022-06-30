@@ -1,7 +1,8 @@
-from jobserver.models import Backend
+from jobserver.models import Backend, User
 from jobserver.utils import set_from_qs
 from staff.forms import (
     ApplicationApproveForm,
+    ProjectEditForm,
     ProjectFeatureFlagsForm,
     ProjectLinkApplicationForm,
     UserForm,
@@ -58,6 +59,19 @@ def test_applicationapproveform_with_duplicate_project_number():
     assert form.errors == {
         "project_number": [f'Project with number "{project.number}" already exists.']
     }
+
+
+def test_projecteditform_number_is_not_required():
+    """
+    Ensure Project.number isn't required by ProjectEditForm
+
+    Project.number is nullable while we get all project data ported into this
+    project.
+    """
+    users = User.objects.all()
+
+    assert ProjectEditForm(data={"name": "test"}, users=users).is_valid()
+    assert ProjectEditForm(data={"name": "test", "number": 123}, users=users).is_valid()
 
 
 def test_projectfeatureflagsform_with_unknown_value():

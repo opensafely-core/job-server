@@ -105,6 +105,8 @@ class ProjectEditForm(forms.ModelForm):
     def __init__(self, users, *args, **kwargs):
         super().__init__(*args, **kwargs)
 
+        self.fields["number"].required = False
+
         users = users.order_by(Lower("username"))
         self.fields["copilot"] = UserModelChoiceField(queryset=users, required=False)
         self.fields["copilot_support_ends_at"].required = False
