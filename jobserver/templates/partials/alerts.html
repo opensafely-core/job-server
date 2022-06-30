@@ -10,6 +10,12 @@
   </div>
 {% endfor %}
 
+{% if settings.DISABLE_CREATING_JOBS %}
+<div class="alert alert-warning text-center mb-0" role="alert">
+  Creating jobs is temporarily unavailable, please try again later.
+</div>
+{% endif %}
+
 {% for message in messages %}
   <div class="alert {{ message.tags }} alert-dismissible mb-0" role="alert">
     <button type="button" class="close" data-dismiss="alert" aria-label="Close">
