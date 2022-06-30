@@ -42,6 +42,10 @@ def can_view_staff_area(request):
     return {"user_can_view_staff_area": can_view_staff_area}
 
 
+def disable_creating_jobs(request):
+    return {"disable_creating_jobs": settings.DISABLE_CREATING_JOBS}
+
+
 def staff_nav(request):
     if not has_role(request.user, CoreDeveloper):
         return {"staff_nav": []}
