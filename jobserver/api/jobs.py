@@ -207,6 +207,10 @@ def handle_alerts_and_notifications(request, job_request, job, log):
             with sentry_sdk.push_scope() as scope:
                 scope.set_tag("backend", job_request.backend.slug)
                 scope.set_tag("job", request.build_absolute_uri(job.get_absolute_url()))
+                scope.set_tag(
+                    "docs",
+                    "https://github.com/opensafely-core/backend-server/blob/main/jobrunner/playbook.md",
+                )
                 sentry_sdk.capture_message(sentry_message)
             break
 
