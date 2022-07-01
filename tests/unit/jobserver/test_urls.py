@@ -118,7 +118,6 @@ def test_url_redirects(client, url, redirect):
         ("/settings/", users.Settings),
         ("/status/", status.Status),
         ("/o/", orgs.OrgDetail),
-        ("/o/new-project/", projects.ProjectCreate),
         ("/o/p/", projects.ProjectDetail),
         ("/o/p/accept-invite/42/", projects.ProjectAcceptInvite),
         ("/o/p/cancel-invite/", projects.ProjectCancelInvite),

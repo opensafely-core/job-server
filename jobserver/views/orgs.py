@@ -26,14 +26,12 @@ class OrgDetail(DetailView):
 
             return redirect(workspace)
 
-        is_member = request.user in org.members.all()
         projects = org.projects.order_by("name")
 
         return TemplateResponse(
             request,
             "org_detail.html",
             context={
-                "is_member": is_member,
                 "org": org,
                 "projects": projects,
             },

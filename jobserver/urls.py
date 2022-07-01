@@ -38,7 +38,6 @@ from .views.orgs import OrgDetail, OrgList
 from .views.projects import (
     ProjectAcceptInvite,
     ProjectCancelInvite,
-    ProjectCreate,
     ProjectDetail,
     ProjectInvitationCreate,
     ProjectMembershipEdit,
@@ -292,11 +291,6 @@ urlpatterns = [
         include(
             [
                 path("", OrgDetail.as_view(), name="org-detail"),
-                path(
-                    "new-project/",
-                    ProjectCreate.as_view(),
-                    name="project-create",
-                ),
                 path(
                     "<str:project_slug>/",
                     include(project_urls),

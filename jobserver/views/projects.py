@@ -15,11 +15,11 @@ from django.views.generic import CreateView, DetailView, UpdateView, View
 from furl import furl
 from sentry_sdk import capture_exception
 
-from ..authorization import ProjectDeveloper, has_permission, roles_for
+from ..authorization import has_permission, roles_for
 from ..emails import send_project_invite_email
 from ..forms import ProjectInvitationForm, ProjectMembershipForm
 from ..github import get_repo_is_private
-from ..models import Org, Project, ProjectInvitation, ProjectMembership, Snapshot, User
+from ..models import Project, ProjectInvitation, ProjectMembership, Snapshot, User
 
 
 # Create a global threadpool for getting repos.  This lets us have a single
@@ -73,41 +73,6 @@ class ProjectCancelInvite(View):
         invite.delete()
 
         return redirect(invite.project.get_settings_url())
-
-
-@method_decorator(login_required, name="dispatch")
-class ProjectCreate(CreateView):
-    fields = ["name"]
-    model = Project
-    template_name = "project_create.html"
-
-    def dispatch(self, request, *args, **kwargs):
-        self.org = get_object_or_404(Org, slug=self.kwargs["org_slug"])
-
-        if request.user not in self.org.members.all():
-            raise Http404
-
-        return super().dispatch(request, *args, **kwargs)
-
-    @transaction.atomic()
-    def form_valid(self, form):
-        project = form.save(commit=False)
-        project.created_by = self.request.user
-        project.org = self.org
-        project.save()
-
-        project.memberships.create(
-            user=self.request.user,
-            roles=[ProjectDeveloper],
-        )
-
-        return redirect(project)
-
-    def get_context_data(self, **kwargs):
-        return super().get_context_data(
-            org=self.org,
-            **kwargs,
-        )
 
 
 class ProjectDetail(DetailView):
