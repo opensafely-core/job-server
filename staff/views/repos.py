@@ -1,6 +1,6 @@
-from datetime import datetime, timezone
+import operator
 
-from django.db.models import Min
+from django.db.models.functions import Least
 from django.template.response import TemplateResponse
 from django.utils.decorators import method_decorator
 from django.views.generic import View
@@ -24,7 +24,9 @@ class RepoList(View):
 
         # get workspaces with the first run job started_at annotated on
         workspaces = Workspace.objects.select_related("created_by", "project").annotate(
-            first_run=Min("job_requests__jobs__started_at")
+            first_run=Least(
+                "job_requests__jobs__started_at", "job_requests__jobs__created_at"
+            )
         )
 
         # build up a list of dicts with repo URL and the first started_at date
@@ -38,18 +40,7 @@ class RepoList(View):
             }
             for w in workspaces
         ]
-
-        def sort_by_first_run(w):
-            if w["first_run"] is not None:
-                return w["first_run"]
-
-            # sorted won't compare NoneType and datetime, rightly so, but
-            # we want Nones pushed to the end of our list so we sort them
-            # by a date in the far flung future.  Should this code still be
-            # running on that date, sorry!
-            return datetime(9999, 1, 1, tzinfo=timezone.utc)
-
-        workspaces = sorted(workspaces, key=sort_by_first_run)
+        workspaces = sorted(workspaces, key=operator.itemgetter("first_run"))
 
         def merge_data(repo):
             """
