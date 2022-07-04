@@ -4,8 +4,6 @@ import requests
 from jobserver.github import (
     GitHubAPI,
     _iter_query_results,
-    get_branch,
-    get_branch_sha,
     get_file,
     get_repo,
     get_repo_is_private,
@@ -32,54 +30,6 @@ def test_githubapi_url(parts, query_args, expected):
     api = GitHubAPI(_session=None)
 
     assert api._url(parts, query_args) == f"https://api.github.com{expected}"
-
-
-def test_get_branch(responses):
-    expected_url = "https://api.github.com/repos/opensafely/some_repo/branches/main"
-    responses.add(responses.GET, expected_url, json={"test": "test"}, status=200)
-
-    output = get_branch("opensafely", "some_repo", "main")
-
-    assert len(responses.calls) == 1
-
-    call = responses.calls[0]
-
-    # check the headers are correct
-    assert call.request.headers["Accept"] == "application/vnd.github.v3+json"
-    assert call.response.text == '{"test": "test"}'
-
-    assert output == {"test": "test"}
-
-
-def test_get_branch_with_missing_branch(responses):
-    expected_url = "https://api.github.com/repos/opensafely/some_repo/branches/main"
-    responses.add(responses.GET, expected_url, status=404)
-
-    output = get_branch("opensafely", "some_repo", "main")
-
-    assert len(responses.calls) == 1
-    assert output is None
-
-
-def test_get_branch_sha(mocker):
-    data = {
-        "commit": {
-            "sha": "abc123",
-        }
-    }
-    mocker.patch("jobserver.github.get_branch", autospec=True, return_value=data)
-
-    output = get_branch_sha("opensafely", "some_repo", "main")
-
-    assert output == "abc123"
-
-
-def test_get_branch_sha_with_missing_branch(mocker):
-    mocker.patch("jobserver.github.get_branch", autospec=True, return_value=None)
-
-    output = get_branch_sha("opensafely", "some_repo", "main")
-
-    assert output is None
 
 
 def test_get_file(responses):

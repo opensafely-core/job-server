@@ -85,6 +85,36 @@ class GitHubAPI:
 
         return f.url
 
+    def get_branch(self, org, repo, branch):
+        path_segments = [
+            "repos",
+            org,
+            repo,
+            "branches",
+            branch,
+        ]
+        url = self._url(path_segments)
+
+        headers = {
+            "Accept": "application/vnd.github.v3+json",
+        }
+        r = self._get(url, headers=headers)
+
+        if r.status_code == 404:
+            return
+
+        r.raise_for_status()
+
+        return r.json()
+
+    def get_branch_sha(self, org, repo, branch):
+        branch = self.get_branch(org, repo, branch)
+
+        if branch is None:
+            return
+
+        return branch["commit"]["sha"]
+
     def get_commits(self, org, repo, limit=10):
         path_segments = [
             "repos",
@@ -171,38 +201,6 @@ def _iter_query_results(query, **kwargs):
 
         # update the cursor we pass into the GraphQL query
         cursor = data["pageInfo"]["endCursor"]
-
-
-def get_branch(org, repo, branch):
-    f = furl(BASE_URL)
-    f.path.segments += [
-        "repos",
-        org,
-        repo,
-        "branches",
-        branch,
-    ]
-
-    headers = {
-        "Accept": "application/vnd.github.v3+json",
-    }
-    r = session.get(f.url, headers=headers)
-
-    if r.status_code == 404:
-        return
-
-    r.raise_for_status()
-
-    return r.json()
-
-
-def get_branch_sha(org, repo, branch):
-    branch = get_branch(org, repo, branch)
-
-    if branch is None:
-        return
-
-    return branch["commit"]["sha"]
 
 
 def get_file(org, repo, branch):

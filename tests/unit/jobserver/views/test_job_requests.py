@@ -312,16 +312,11 @@ def test_jobrequestcreate_get_with_some_backends_removed(rf, mocker, settings, u
         autospec=True,
         return_value=dummy_yaml,
     )
-    mocker.patch(
-        "jobserver.views.job_requests.get_branch_sha",
-        autospec=True,
-        return_value="abc123",
-    )
 
     request = rf.get("/")
     request.user = user
 
-    response = JobRequestCreate.as_view()(
+    response = JobRequestCreate.as_view(get_github_api=FakeGitHubAPI)(
         request,
         org_slug=workspace.project.org.slug,
         project_slug=workspace.project.slug,
@@ -362,12 +357,6 @@ def test_jobrequestcreate_post_success(ref, rf, mocker, monkeypatch, user):
         autospec=True,
         return_value=dummy_yaml,
     )
-    if ref is None:
-        mocker.patch(
-            "jobserver.views.job_requests.get_branch_sha",
-            autospec=True,
-            return_value="abc123",
-        )
 
     data = {
         "backend": backend.slug,
@@ -377,7 +366,7 @@ def test_jobrequestcreate_post_success(ref, rf, mocker, monkeypatch, user):
     request = rf.post("/", data)
     request.user = user
 
-    response = JobRequestCreate.as_view()(
+    response = JobRequestCreate.as_view(get_github_api=FakeGitHubAPI)(
         request,
         org_slug=workspace.project.org.slug,
         project_slug=workspace.project.slug,
@@ -416,11 +405,6 @@ def test_jobrequestcreate_post_with_invalid_backend(rf, mocker, monkeypatch, use
         autospec=True,
         return_value=dummy_yaml,
     )
-    mocker.patch(
-        "jobserver.views.job_requests.get_branch_sha",
-        autospec=True,
-        return_value="abc123",
-    )
 
     data = {
         "backend": backend2.slug,
@@ -430,7 +414,7 @@ def test_jobrequestcreate_post_with_invalid_backend(rf, mocker, monkeypatch, use
     request = rf.post("/", data)
     request.user = user
 
-    response = JobRequestCreate.as_view()(
+    response = JobRequestCreate.as_view(get_github_api=FakeGitHubAPI)(
         request,
         org_slug=workspace.project.org.slug,
         project_slug=workspace.project.slug,
@@ -470,11 +454,6 @@ def test_jobrequestcreate_post_with_notifications_default(
         autospec=True,
         return_value=dummy_yaml,
     )
-    mocker.patch(
-        "jobserver.views.job_requests.get_branch_sha",
-        autospec=True,
-        return_value="abc123",
-    )
 
     data = {
         "backend": backend.slug,
@@ -485,7 +464,7 @@ def test_jobrequestcreate_post_with_notifications_default(
     request = rf.post("/", data)
     request.user = user
 
-    response = JobRequestCreate.as_view()(
+    response = JobRequestCreate.as_view(get_github_api=FakeGitHubAPI)(
         request,
         org_slug=workspace.project.org.slug,
         project_slug=workspace.project.slug,
@@ -531,11 +510,6 @@ def test_jobrequestcreate_post_with_notifications_override(
         autospec=True,
         return_value=dummy_yaml,
     )
-    mocker.patch(
-        "jobserver.views.job_requests.get_branch_sha",
-        autospec=True,
-        return_value="abc123",
-    )
 
     data = {
         "backend": backend.slug,
@@ -546,7 +520,7 @@ def test_jobrequestcreate_post_with_notifications_override(
     request = rf.post("/", data)
     request.user = user
 
-    response = JobRequestCreate.as_view()(
+    response = JobRequestCreate.as_view(get_github_api=FakeGitHubAPI)(
         request,
         org_slug=workspace.project.org.slug,
         project_slug=workspace.project.slug,
