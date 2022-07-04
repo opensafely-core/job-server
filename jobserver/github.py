@@ -20,6 +20,77 @@ session.headers = {
 }
 
 
+class GitHubAPI:
+    """
+    A thin wrapper around requests, furl, and the GitHub API.
+
+    Initialising this class with a token will set that token in the sessions
+    headers.
+
+    "public" functions should construct a URL and make requests against the
+    session object attached to the instance.
+
+    This object is not expected to be used in most tests so we can avoid mocking.
+    """
+
+    base_url = "https://api.github.com"
+
+    def __init__(self, _session=session, token=None):
+        """
+        Initialise the wrapper with a session and maybe token
+
+        We pass in the session here so that tests can pass in a fake object to
+        test internals.
+        """
+        self.session = _session
+        self.token = token
+
+    def _get(self, *args, **kwargs):
+        return self._request("get", *args, **kwargs)
+
+    def _post(self, *args, **kwargs):
+        return self._request("post", *args, **kwargs)
+
+    def _request(self, method, *args, **kwargs):
+        """
+        Thin wrapper of requests.Session._request()
+
+        This wrapper exists solely to inject the Authorization header if a
+        token has been set on the current instance and that headers hasn't
+        already been set in a given requests headers.
+
+        This solves a tension between using an application-level session object
+        and wanting GitHubAPI instance-level authentication.  We want to
+        support the use of different tokens for typical running (eg in prod),
+        verification tests (eg in CI), and the ability to query the API without
+        a token (less likely but can be useful) so we can't just set the header
+        on the session when it's defined at the module level.  However if we
+        set it on the session then it persists beyond the life time of a given
+        GitHubAPI instance.
+        """
+        headers = kwargs.pop("headers", {})
+
+        if self.token and "Authorization" not in headers:
+            headers = headers | {"Authorization": f"bearer {self.token}"}
+
+        return self.session.request(method, *args, headers=headers, **kwargs)
+
+    def _url(self, path_segments, query_args=None):
+        f = furl(self.base_url)
+
+        f.path.segments = path_segments
+
+        if query_args:
+            f.add(query_args)
+
+        return f.url
+
+
+def _get_github_api():
+    """Simple invocation wrapper of GitHubAPI"""
+    return GitHubAPI(_session=session, token=GITHUB_TOKEN)  # pragma: no cover
+
+
 def _get_query_page(*, query, session, cursor, **kwargs):
     """
     Get a page of the given query

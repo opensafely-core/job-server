@@ -2,6 +2,7 @@ import pytest
 import requests
 
 from jobserver.github import (
+    GitHubAPI,
     _iter_query_results,
     get_branch,
     get_branch_sha,
@@ -13,6 +14,25 @@ from jobserver.github import (
     get_repos_with_dates,
     is_member_of_org,
 )
+
+
+@pytest.mark.parametrize(
+    "parts,query_args,expected",
+    [
+        ([], None, ""),
+        ([], {"key": "value"}, "?key=value"),
+        (["path", "to", "page"], None, "/path/to/page"),
+        (
+            ["path", "to", "page"],
+            {"key": "value"},
+            "/path/to/page?key=value",
+        ),
+    ],
+)
+def test_githubapi_url(parts, query_args, expected):
+    api = GitHubAPI(_session=None)
+
+    assert api._url(parts, query_args) == f"https://api.github.com{expected}"
 
 
 def test_get_branch(responses):
