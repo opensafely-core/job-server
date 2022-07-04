@@ -134,6 +134,29 @@ class GitHubAPI:
 
         return r.json()
 
+    def get_file(self, org, repo, branch):
+        path_segments = [
+            "repos",
+            org,
+            repo,
+            "contents",
+            "project.yaml",
+        ]
+        query_args = {"ref": branch}
+        url = self._url(path_segments, query_args)
+
+        headers = {
+            "Accept": "application/vnd.github.3.raw",
+        }
+        r = self._get(url, headers=headers)
+
+        if r.status_code == 404:
+            return
+
+        r.raise_for_status()
+
+        return r.text
+
 
 def _get_github_api():
     """Simple invocation wrapper of GitHubAPI"""
@@ -201,30 +224,6 @@ def _iter_query_results(query, **kwargs):
 
         # update the cursor we pass into the GraphQL query
         cursor = data["pageInfo"]["endCursor"]
-
-
-def get_file(org, repo, branch):
-    f = furl(BASE_URL)
-    f.path.segments += [
-        "repos",
-        org,
-        repo,
-        "contents",
-        "project.yaml",
-    ]
-    f.args["ref"] = branch
-
-    headers = {
-        "Accept": "application/vnd.github.3.raw",
-    }
-    r = session.get(f.url, headers=headers)
-
-    if r.status_code == 404:
-        return
-
-    r.raise_for_status()
-
-    return r.text
 
 
 def get_repo(org, repo):

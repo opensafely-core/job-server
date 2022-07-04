@@ -2,7 +2,7 @@ from pygments import highlight
 from pygments.formatters import HtmlFormatter
 from pygments.lexers import YamlLexer
 
-from .github import _get_github_api, get_file
+from .github import _get_github_api
 
 
 def get_actions(config):
@@ -19,12 +19,14 @@ def get_actions(config):
 
 
 def get_project(org, repo, branch, get_github_api=_get_github_api):
-    content = get_file(org, repo, branch)
+    github_api = get_github_api()
+
+    content = github_api.get_file(org, repo, branch)
 
     if content is not None:
         return content
 
-    if get_github_api().get_branch(org, repo, branch) is None:
+    if github_api.get_branch(org, repo, branch) is None:
         raise Exception(f"Missing branch: '{branch}'")
 
     raise Exception("Could not find project.yaml")

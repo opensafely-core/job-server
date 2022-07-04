@@ -4,7 +4,6 @@ import requests
 from jobserver.github import (
     GitHubAPI,
     _iter_query_results,
-    get_file,
     get_repo,
     get_repo_is_private,
     get_repos_with_branches,
@@ -30,38 +29,6 @@ def test_githubapi_url(parts, query_args, expected):
     api = GitHubAPI(_session=None)
 
     assert api._url(parts, query_args) == f"https://api.github.com{expected}"
-
-
-def test_get_file(responses):
-    expected_url = "https://api.github.com/repos/opensafely/some_repo/contents/project.yaml?ref=main"
-    responses.add(responses.GET, expected_url, body="a file!", status=200)
-
-    get_file("opensafely", "some_repo", "main")
-
-    assert len(responses.calls) == 1
-
-    call = responses.calls[0]
-
-    # check the headers are correct
-    assert call.request.headers["Accept"] == "application/vnd.github.3.raw"
-
-    assert call.response.text == "a file!"
-
-
-def test_get_file_missing_project_yml(responses):
-    expected_url = "https://api.github.com/repos/opensafely/some_repo/contents/project.yaml?ref=missing_project"
-    responses.add(responses.GET, expected_url, status=404)
-
-    output = get_file("opensafely", "some_repo", "missing_project")
-
-    assert len(responses.calls) == 1
-
-    call = responses.calls[0]
-
-    # check the headers are correct
-    assert call.request.headers["Accept"] == "application/vnd.github.3.raw"
-
-    assert output is None
 
 
 def test_get_repo(responses):

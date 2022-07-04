@@ -1,3 +1,6 @@
+import textwrap
+
+
 class FakeGitHubAPI:
     def get_branch(self, org, repo, branch):
         return {
@@ -18,3 +21,11 @@ class FakeGitHubAPI:
                 },
             }
         ]
+
+    def get_file(self, org, repo, branch):
+        return textwrap.dedent(
+            """
+            actions:
+              frobnicate:
+            """
+        )
