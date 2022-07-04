@@ -42,6 +42,7 @@ from ....factories import (
     UserFactory,
     WorkspaceFactory,
 )
+from ....fakes import FakeGitHubAPI
 from ....utils import minutes_ago
 
 
@@ -373,7 +374,7 @@ def test_workspacecreate_without_permission(rf, user):
         )
 
 
-def test_workspacedetail_authorized_archive_workspaces(rf, mocker):
+def test_workspacedetail_authorized_archive_workspaces(rf):
     workspace = WorkspaceFactory()
     user = UserFactory()
 
@@ -381,16 +382,10 @@ def test_workspacedetail_authorized_archive_workspaces(rf, mocker):
         project=workspace.project, user=user, roles=[ProjectDeveloper]
     )
 
-    mocker.patch(
-        "jobserver.views.workspaces.get_repo_is_private",
-        autospec=True,
-        return_value=True,
-    )
-
     request = rf.get("/")
     request.user = user
 
-    response = WorkspaceDetail.as_view()(
+    response = WorkspaceDetail.as_view(get_github_api=FakeGitHubAPI)(
         request,
         org_slug=workspace.project.org.slug,
         project_slug=workspace.project.slug,
@@ -401,23 +396,17 @@ def test_workspacedetail_authorized_archive_workspaces(rf, mocker):
     assert response.context_data["user_can_archive_workspace"]
 
 
-def test_workspacedetail_authorized_view_files(rf, mocker):
+def test_workspacedetail_authorized_view_files(rf):
     backend = BackendFactory(level_4_url="http://test/")
     user = UserFactory(roles=[ProjectCollaborator])
     workspace = WorkspaceFactory()
 
     BackendMembershipFactory(backend=backend, user=user)
 
-    mocker.patch(
-        "jobserver.views.workspaces.get_repo_is_private",
-        autospec=True,
-        return_value=True,
-    )
-
     request = rf.get("/")
     request.user = user
 
-    response = WorkspaceDetail.as_view()(
+    response = WorkspaceDetail.as_view(get_github_api=FakeGitHubAPI)(
         request,
         org_slug=workspace.project.org.slug,
         project_slug=workspace.project.slug,
@@ -428,21 +417,15 @@ def test_workspacedetail_authorized_view_files(rf, mocker):
     assert response.context_data["user_can_view_files"]
 
 
-def test_workspacedetail_authorized_view_releases(rf, mocker):
+def test_workspacedetail_authorized_view_releases(rf):
     workspace = WorkspaceFactory()
 
     ReleaseFactory([], uploaded=True, workspace=workspace)
 
-    mocker.patch(
-        "jobserver.views.workspaces.get_repo_is_private",
-        autospec=True,
-        return_value=True,
-    )
-
     request = rf.get("/")
     request.user = UserFactory()
 
-    response = WorkspaceDetail.as_view()(
+    response = WorkspaceDetail.as_view(get_github_api=FakeGitHubAPI)(
         request,
         org_slug=workspace.project.org.slug,
         project_slug=workspace.project.slug,
@@ -453,7 +436,7 @@ def test_workspacedetail_authorized_view_releases(rf, mocker):
     assert response.context_data["user_can_view_releases"]
 
 
-def test_workspacedetail_authorized_run_jobs(rf, mocker):
+def test_workspacedetail_authorized_run_jobs(rf):
     workspace = WorkspaceFactory()
     user = UserFactory()
 
@@ -461,16 +444,10 @@ def test_workspacedetail_authorized_run_jobs(rf, mocker):
         project=workspace.project, user=user, roles=[ProjectDeveloper]
     )
 
-    mocker.patch(
-        "jobserver.views.workspaces.get_repo_is_private",
-        autospec=True,
-        return_value=True,
-    )
-
     request = rf.get("/")
     request.user = user
 
-    response = WorkspaceDetail.as_view()(
+    response = WorkspaceDetail.as_view(get_github_api=FakeGitHubAPI)(
         request,
         org_slug=workspace.project.org.slug,
         project_slug=workspace.project.slug,
@@ -482,9 +459,7 @@ def test_workspacedetail_authorized_run_jobs(rf, mocker):
     assert response.context_data["run_jobs_url"] == workspace.get_jobs_url()
 
 
-def test_workspacedetail_authorized_run_jobs_with_opensafely_interactive_role(
-    rf, mocker
-):
+def test_workspacedetail_authorized_run_jobs_with_opensafely_interactive_role(rf):
     workspace = WorkspaceFactory()
     user = UserFactory(roles=[OpensafelyInteractive])
 
@@ -492,16 +467,10 @@ def test_workspacedetail_authorized_run_jobs_with_opensafely_interactive_role(
         project=workspace.project, user=user, roles=[ProjectDeveloper]
     )
 
-    mocker.patch(
-        "jobserver.views.workspaces.get_repo_is_private",
-        autospec=True,
-        return_value=True,
-    )
-
     request = rf.get("/")
     request.user = user
 
-    response = WorkspaceDetail.as_view()(
+    response = WorkspaceDetail.as_view(get_github_api=FakeGitHubAPI)(
         request,
         org_slug=workspace.project.org.slug,
         project_slug=workspace.project.slug,
@@ -512,20 +481,14 @@ def test_workspacedetail_authorized_run_jobs_with_opensafely_interactive_role(
     assert response.context_data["run_jobs_url"] == workspace.get_pick_ref_url()
 
 
-def test_workspacedetail_authorized_view_snaphots(rf, mocker):
+def test_workspacedetail_authorized_view_snaphots(rf):
     workspace = WorkspaceFactory()
     SnapshotFactory(workspace=workspace, published_at=timezone.now())
-
-    mocker.patch(
-        "jobserver.views.workspaces.get_repo_is_private",
-        autospec=True,
-        return_value=True,
-    )
 
     request = rf.get("/")
     request.user = UserFactory()
 
-    response = WorkspaceDetail.as_view()(
+    response = WorkspaceDetail.as_view(get_github_api=FakeGitHubAPI)(
         request,
         org_slug=workspace.project.org.slug,
         project_slug=workspace.project.slug,
@@ -536,19 +499,13 @@ def test_workspacedetail_authorized_view_snaphots(rf, mocker):
     assert response.context_data["user_can_view_outputs"]
 
 
-def test_workspacedetail_logged_out(rf, mocker):
+def test_workspacedetail_logged_out(rf):
     workspace = WorkspaceFactory()
-
-    mocker.patch(
-        "jobserver.views.workspaces.get_repo_is_private",
-        autospec=True,
-        return_value=True,
-    )
 
     request = rf.get("/")
     request.user = AnonymousUser()
 
-    response = WorkspaceDetail.as_view()(
+    response = WorkspaceDetail.as_view(get_github_api=FakeGitHubAPI)(
         request,
         org_slug=workspace.project.org.slug,
         project_slug=workspace.project.slug,
@@ -571,19 +528,13 @@ def test_workspacedetail_logged_out(rf, mocker):
     assert not response.context_data["user_can_view_outputs"]
 
 
-def test_workspacedetail_unauthorized(rf, mocker):
+def test_workspacedetail_unauthorized(rf):
     workspace = WorkspaceFactory()
-
-    mocker.patch(
-        "jobserver.views.workspaces.get_repo_is_private",
-        autospec=True,
-        return_value=True,
-    )
 
     request = rf.get("/")
     request.user = UserFactory()
 
-    response = WorkspaceDetail.as_view()(
+    response = WorkspaceDetail.as_view(get_github_api=FakeGitHubAPI)(
         request,
         org_slug=workspace.project.org.slug,
         project_slug=workspace.project.slug,
@@ -620,19 +571,17 @@ def test_workspacedetail_unknown_workspace(rf):
         )
 
 
-def test_workspacedetail_with_no_github(rf, mocker):
+def test_workspacedetail_with_no_github(rf):
     workspace = WorkspaceFactory()
-
-    mocker.patch(
-        "jobserver.views.workspaces.get_repo_is_private",
-        autospec=True,
-        side_effect=requests.HTTPError,
-    )
 
     request = rf.get("/")
     request.user = UserFactory()
 
-    response = WorkspaceDetail.as_view()(
+    class BrokenGitHubAPI:
+        def get_repo_is_private(self, *args):
+            raise requests.HTTPError
+
+    response = WorkspaceDetail.as_view(get_github_api=BrokenGitHubAPI)(
         request,
         org_slug=workspace.project.org.slug,
         project_slug=workspace.project.slug,

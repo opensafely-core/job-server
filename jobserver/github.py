@@ -157,6 +157,34 @@ class GitHubAPI:
 
         return r.text
 
+    def get_repo(self, org, repo):
+        path_segments = [
+            "repos",
+            org,
+            repo,
+        ]
+        url = self._url(path_segments)
+
+        headers = {
+            "Accept": "application/vnd.github.v3+json",
+        }
+        r = self._get(url, headers=headers)
+
+        if r.status_code == 404:
+            return
+
+        r.raise_for_status()
+
+        return r.json()
+
+    def get_repo_is_private(self, org, repo):
+        repo = self.get_repo(org, repo)
+
+        if repo is None:
+            return None
+
+        return repo["private"]
+
 
 def _get_github_api():
     """Simple invocation wrapper of GitHubAPI"""
@@ -224,36 +252,6 @@ def _iter_query_results(query, **kwargs):
 
         # update the cursor we pass into the GraphQL query
         cursor = data["pageInfo"]["endCursor"]
-
-
-def get_repo(org, repo):
-    f = furl(BASE_URL)
-    f.path.segments += [
-        "repos",
-        org,
-        repo,
-    ]
-
-    headers = {
-        "Accept": "application/vnd.github.v3+json",
-    }
-    r = session.get(f.url, headers=headers)
-
-    if r.status_code == 404:
-        return
-
-    r.raise_for_status()
-
-    return r.json()
-
-
-def get_repo_is_private(org, repo):
-    repo = get_repo(org, repo)
-
-    if repo is None:
-        return None
-
-    return repo["private"]
 
 
 def get_repos_with_branches(org):

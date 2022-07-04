@@ -16,7 +16,7 @@ from ..forms import (
     WorkspaceCreateForm,
     WorkspaceNotificationsToggleForm,
 )
-from ..github import get_repo_is_private, get_repos_with_branches
+from ..github import _get_github_api, get_repos_with_branches
 from ..models import Backend, JobRequest, Project, Workspace
 from ..releases import (
     build_hatch_token_and_url,
@@ -188,6 +188,8 @@ class WorkspaceCreate(CreateView):
 
 
 class WorkspaceDetail(View):
+    get_github_api = staticmethod(_get_github_api)
+
     def get(self, request, *args, **kwargs):
         workspace = get_object_or_404(
             Workspace,
@@ -233,7 +235,7 @@ class WorkspaceDetail(View):
         can_use_releases = can_view_files or can_view_releases or can_view_outputs
 
         try:
-            repo_is_private = get_repo_is_private(
+            repo_is_private = self.get_github_api().get_repo_is_private(
                 workspace.repo_owner, workspace.repo_name
             )
         except requests.HTTPError:

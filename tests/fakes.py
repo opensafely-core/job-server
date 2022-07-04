@@ -29,3 +29,11 @@ class FakeGitHubAPI:
               frobnicate:
             """
         )
+
+    def get_repo(self, org, repo):
+        return {
+            "private": True,
+        }
+
+    def get_repo_is_private(self, org, repo):
+        return self.get_repo(org, repo)["private"]

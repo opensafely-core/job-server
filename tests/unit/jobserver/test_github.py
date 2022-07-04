@@ -4,8 +4,6 @@ import requests
 from jobserver.github import (
     GitHubAPI,
     _iter_query_results,
-    get_repo,
-    get_repo_is_private,
     get_repos_with_branches,
     get_repos_with_dates,
     is_member_of_org,
@@ -29,72 +27,6 @@ def test_githubapi_url(parts, query_args, expected):
     api = GitHubAPI(_session=None)
 
     assert api._url(parts, query_args) == f"https://api.github.com{expected}"
-
-
-def test_get_repo(responses):
-    expected_url = "https://api.github.com/repos/opensafely/some_repo"
-    responses.add(responses.GET, expected_url, json={"test": "test"}, status=200)
-
-    output = get_repo("opensafely", "some_repo")
-
-    assert len(responses.calls) == 1
-
-    call = responses.calls[0]
-
-    # check the headers are correct
-    assert call.request.headers["Accept"] == "application/vnd.github.v3+json"
-    assert call.response.text == '{"test": "test"}'
-
-    assert output == {"test": "test"}
-
-
-def test_get_repo_is_private(responses):
-    expected_url = "https://api.github.com/repos/opensafely/some_repo"
-    responses.add(responses.GET, expected_url, json={"private": True}, status=200)
-
-    is_private = get_repo_is_private("opensafely", "some_repo")
-
-    assert len(responses.calls) == 1
-
-    call = responses.calls[0]
-
-    # check the headers are correct
-    assert call.request.headers["Accept"] == "application/vnd.github.v3+json"
-    assert call.response.text == '{"private": true}'
-
-    assert is_private
-
-
-def test_get_repo_is_private_with_unknown_repo(responses):
-    expected_url = "https://api.github.com/repos/opensafely/some_repo"
-    responses.add(responses.GET, expected_url, status=404)
-
-    is_private = get_repo_is_private("opensafely", "some_repo")
-
-    assert len(responses.calls) == 1
-
-    call = responses.calls[0]
-
-    # check the headers are correct
-    assert call.request.headers["Accept"] == "application/vnd.github.v3+json"
-
-    assert is_private is None
-
-
-def test_get_repo_with_unknown_repo(responses):
-    expected_url = "https://api.github.com/repos/opensafely/some_repo"
-    responses.add(responses.GET, expected_url, status=404)
-
-    output = get_repo("opensafely", "some_repo")
-
-    assert len(responses.calls) == 1
-
-    call = responses.calls[0]
-
-    # check the headers are correct
-    assert call.request.headers["Accept"] == "application/vnd.github.v3+json"
-
-    assert output is None
 
 
 def test_get_repos_with_branches(responses):
