@@ -1,5 +1,6 @@
 import operator
 
+from django.db.models import Count
 from django.db.models.functions import Least
 from django.template.response import TemplateResponse
 from django.utils.decorators import method_decorator
@@ -25,6 +26,8 @@ class RepoList(View):
         # get workspaces with the first run job started_at annotated on
         workspaces = (
             Workspace.objects.exclude(project__slug="opensafely-testing")
+            .annotate(num_jobs=Count("job_requests__jobs"))
+            .filter(num_jobs__gt=0)
             .select_related("created_by", "project")
             .annotate(
                 first_run=Least(
