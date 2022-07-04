@@ -6,7 +6,7 @@ from ....factories import JobFactory, JobRequestFactory, WorkspaceFactory
 from ....utils import minutes_ago
 
 
-def test_workspacelist_success(rf, core_developer, mocker):
+def test_repolist_success(rf, core_developer, mocker):
     now = timezone.now()
 
     workspace1 = WorkspaceFactory(repo="https://github.com/opensafely-core/job-server")
@@ -39,18 +39,21 @@ def test_workspacelist_success(rf, core_developer, mocker):
                 "url": "https://github.com/opensafely-core/job-runner",
                 "is_private": True,
                 "created_at": timezone.now(),
+                "topics": ["test"],
             },
             {
                 "name": "job-server",
                 "url": "https://github.com/opensafely-core/job-server",
                 "is_private": True,
                 "created_at": timezone.now(),
+                "topics": ["test"],
             },
             {
                 "name": "test",
                 "url": "test",
                 "is_private": True,
                 "created_at": timezone.now(),
+                "topics": ["test"],
             },
         ],
     )

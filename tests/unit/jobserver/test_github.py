@@ -235,6 +235,15 @@ def test_get_repos_with_dates(responses):
                                     "url": "http://example.com/test/test/",
                                     "isPrivate": True,
                                     "createdAt": "2021-10-07T13:37:00Z",
+                                    "repositoryTopics": {
+                                        "nodes": [
+                                            {
+                                                "topic": {
+                                                    "name": "test",
+                                                }
+                                            }
+                                        ]
+                                    },
                                 }
                             ],
                             "pageInfo": {
@@ -261,6 +270,52 @@ def test_get_repos_with_dates(responses):
 
     assert len(output) == 2
     assert output[0]["name"] == "test-repo"
+    assert output[0]["topics"] == ["test"]
+
+
+def test_get_repos_with_dates_without_topics(responses):
+    def data(hasNextPage):
+        return {
+            "data": {
+                "organization": {
+                    "team": {
+                        "repositories": {
+                            "nodes": [
+                                {
+                                    "name": "test-repo",
+                                    "url": "http://example.com/test/test/",
+                                    "isPrivate": True,
+                                    "createdAt": "2021-10-07T13:37:00Z",
+                                    "repositoryTopics": {
+                                        "nodes": [],
+                                    },
+                                }
+                            ],
+                            "pageInfo": {
+                                "endCursor": "test-cursor",
+                                "hasNextPage": hasNextPage,
+                            },
+                        }
+                    }
+                }
+            }
+        }
+
+    expected_url = "https://api.github.com/graphql"
+    responses.add(
+        responses.POST, url=expected_url, json=data(hasNextPage=True), status=200
+    )
+    responses.add(
+        responses.POST, url=expected_url, json=data(hasNextPage=False), status=200
+    )
+
+    output = list(get_repos_with_dates())
+
+    assert len(responses.calls) == 2
+
+    assert len(output) == 2
+    assert output[0]["name"] == "test-repo"
+    assert output[0]["topics"] == []
 
 
 def test_is_member_of_org_failure(monkeypatch, responses):

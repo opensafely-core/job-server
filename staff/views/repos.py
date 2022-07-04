@@ -17,6 +17,9 @@ class RepoList(View):
     def get(self, request, *args, **kwargs):
         all_repos = list(get_repos_with_dates())
 
+        # remove repos with the non-research topic
+        all_repos = [r for r in all_repos if "non-research" not in r["topics"]]
+
         private_repos = [repo for repo in all_repos if repo["is_private"]]
 
         # get workspaces with the first run job started_at annotated on
