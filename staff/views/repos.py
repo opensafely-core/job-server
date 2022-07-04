@@ -1,8 +1,10 @@
 import operator
+from datetime import timedelta
 
 from django.db.models import Count
 from django.db.models.functions import Least
 from django.template.response import TemplateResponse
+from django.utils import timezone
 from django.utils.decorators import method_decorator
 from django.views.generic import View
 from first import first
@@ -23,6 +25,8 @@ class RepoList(View):
 
         private_repos = [repo for repo in all_repos if repo["is_private"]]
 
+        eleven_months_ago = timezone.now() - timedelta(days=30 * 11)
+
         # get workspaces with the first run job started_at annotated on
         workspaces = (
             Workspace.objects.exclude(project__slug="opensafely-testing")
@@ -34,6 +38,7 @@ class RepoList(View):
                     "job_requests__jobs__started_at", "job_requests__jobs__created_at"
                 )
             )
+            .filter(first_run__lt=eleven_months_ago)
         )
 
         # build up a list of dicts with repo URL and the first started_at date
