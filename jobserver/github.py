@@ -85,6 +85,25 @@ class GitHubAPI:
 
         return f.url
 
+    def get_commits(self, org, repo, limit=10):
+        path_segments = [
+            "repos",
+            org,
+            repo,
+            "commits",
+        ]
+        query_args = {"per_page": limit}
+        url = self._url(path_segments, query_args)
+
+        headers = {
+            "Accept": "application/vnd.github.v3+json",
+        }
+        r = self._get(url, headers=headers)
+
+        r.raise_for_status()
+
+        return r.json()
+
 
 def _get_github_api():
     """Simple invocation wrapper of GitHubAPI"""
@@ -184,27 +203,6 @@ def get_branch_sha(org, repo, branch):
         return
 
     return branch["commit"]["sha"]
-
-
-def get_commits(org, repo, limit=10):
-
-    f = furl(BASE_URL)
-    f.path.segments += [
-        "repos",
-        org,
-        repo,
-        "commits",
-    ]
-    f.args["per_page"] = limit
-
-    headers = {
-        "Accept": "application/vnd.github.v3+json",
-    }
-    r = session.get(f.url, headers=headers)
-
-    r.raise_for_status()
-
-    return r.json()
 
 
 def get_file(org, repo, branch):

@@ -31,6 +31,7 @@ from ....factories import (
     UserSocialAuthFactory,
     WorkspaceFactory,
 )
+from ....fakes import FakeGitHubAPI
 
 
 def test_jobrequestcancel_already_completed(rf):
@@ -1058,27 +1059,15 @@ def test_jobrequestlist_without_permission(rf):
     assert "Look up JobRequest by Identifier" not in response.rendered_content
 
 
-def test_jobrequestpickref_success(rf, mocker):
+def test_jobrequestpickref_success(rf):
     user = UserFactory(roles=[OpensafelyInteractive])
     BackendMembershipFactory(user=user)
     workspace = WorkspaceFactory()
 
-    data = [
-        {
-            "commit": {
-                "message": "test",
-                "tree": {"sha": "123"},
-            }
-        },
-    ]
-    mocker.patch(
-        "jobserver.views.job_requests.get_commits", autospec=True, return_value=data
-    )
-
     request = rf.get("/")
     request.user = user
 
-    response = JobRequestPickRef.as_view()(
+    response = JobRequestPickRef.as_view(get_github_api=FakeGitHubAPI)(
         request,
         org_slug=workspace.project.org.slug,
         project_slug=workspace.project.slug,
@@ -1087,7 +1076,9 @@ def test_jobrequestpickref_success(rf, mocker):
 
     assert response.status_code == 200
 
-    assert response.context_data["commits"] == [{"message": "test", "sha": "123"}]
+    assert response.context_data["commits"] == [
+        {"message": "I am a short message title", "sha": "abc123"}
+    ]
 
 
 def test_jobrequestpickref_unauthorized(rf):
@@ -1160,21 +1151,19 @@ def test_jobrequestpickref_get_with_all_backends_removed(rf, settings, user):
         )
 
 
-def test_jobrequestpickref_with_commits_error(rf, mocker):
+def test_jobrequestpickref_with_commits_error(rf):
     user = UserFactory(roles=[OpensafelyInteractive])
     BackendMembershipFactory(user=user)
     workspace = WorkspaceFactory()
 
-    mocker.patch(
-        "jobserver.views.job_requests.get_commits",
-        autospec=True,
-        side_effect=Exception(),
-    )
+    class BrokenGitHubAPI:
+        def __init__(self):
+            raise Exception()
 
     request = rf.get("/")
     request.user = user
 
-    response = JobRequestPickRef.as_view()(
+    response = JobRequestPickRef.as_view(get_github_api=BrokenGitHubAPI)(
         request,
         org_slug=workspace.project.org.slug,
         project_slug=workspace.project.slug,

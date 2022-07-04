@@ -6,7 +6,6 @@ from jobserver.github import (
     _iter_query_results,
     get_branch,
     get_branch_sha,
-    get_commits,
     get_file,
     get_repo,
     get_repo_is_private,
@@ -81,21 +80,6 @@ def test_get_branch_sha_with_missing_branch(mocker):
     output = get_branch_sha("opensafely", "some_repo", "main")
 
     assert output is None
-
-
-def test_get_commits(responses):
-    expected_url = "https://api.github.com/repos/opensafely/some_repo/commits"
-    responses.add(responses.GET, expected_url, json={"test": "test"}, status=200)
-
-    commits = get_commits("opensafely", "some_repo")
-
-    assert len(responses.calls) == 1
-
-    call = responses.calls[0]
-
-    assert call.response.text == '{"test": "test"}'
-
-    assert commits == {"test": "test"}
 
 
 def test_get_file(responses):
@@ -403,6 +387,5 @@ def test_iter_query_results_200_error(responses):
     )
 
     query = ""  # empty query as we're not going to execute it
-
     with pytest.raises(RuntimeError):
         list(_iter_query_results(query))
