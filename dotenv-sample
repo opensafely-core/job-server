@@ -2,10 +2,6 @@
 # Note: the Users must exist first
 ADMIN_USERS=dummy
 
-# Set this to a comma-delimited list of GitHub Organisations you want to have
-# access to the platform
-AUTHORIZATION_ORGS=opensafely
-
 # Update with relevant username/password if necessary
 DATABASE_URL=postgres://jobsuser:pass@localhost:5432/jobserver
 

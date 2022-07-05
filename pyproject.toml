@@ -57,7 +57,6 @@ use_parentheses = true
 addopts = "--disable-network --tb=native --no-migrations"
 DJANGO_SETTINGS_MODULE = "jobserver.settings"
 env = [
-  "AUTHORIZATION_ORGS=opensafely",
   "GITHUB_TOKEN=empty",
   "SECRET_KEY=12345",
   "SOCIAL_AUTH_GITHUB_KEY=test",

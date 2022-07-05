@@ -18,7 +18,6 @@ services:
     command: /app/manage.py runserver 0.0.0.0:8000
     environment:
       - ADMIN_USERS
-      - AUTHORIZATION_ORGS
       - DATABASE_URL=postgres://jobsuser:pass@db:5432/jobserver
       - DEBUG
       - GITHUB_TOKEN

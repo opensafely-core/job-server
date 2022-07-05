@@ -9,7 +9,6 @@ from furl import furl
 env = Env()
 
 
-AUTHORIZATION_ORGS = env.list("AUTHORIZATION_ORGS")
 BASE_URL = "https://api.github.com"
 GITHUB_TOKEN = env.str("GITHUB_TOKEN")
 
