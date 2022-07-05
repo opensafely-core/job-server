@@ -14,7 +14,6 @@ GITHUB_TOKEN = env.str("GITHUB_TOKEN")
 
 session = requests.Session()
 session.headers = {
-    "Authorization": f"bearer {GITHUB_TOKEN}",
     "User-Agent": "OpenSAFELY Jobs",
 }
 
