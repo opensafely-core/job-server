@@ -1,12 +1,10 @@
 import pytest
-import requests
 
 from jobserver.github import (
     GitHubAPI,
     _iter_query_results,
     get_repos_with_branches,
     get_repos_with_dates,
-    is_member_of_org,
 )
 
 
@@ -169,41 +167,6 @@ def test_get_repos_with_dates_without_topics(responses):
     assert len(output) == 2
     assert output[0]["name"] == "test-repo"
     assert output[0]["topics"] == []
-
-
-def test_is_member_of_org_failure(monkeypatch, responses):
-    monkeypatch.setenv("GITHUB_TESTING_TOKEN", "test")
-    membership_url = "https://api.github.com/orgs/testing/members/dummy-user"
-    responses.add(responses.GET, membership_url, status=404)
-
-    assert not is_member_of_org("testing", "dummy-user")
-
-    # check the headers are correct
-    call = responses.calls[0]
-    assert call.request.headers["Accept"] == "application/vnd.github.v3+json"
-    assert not call.response.text
-
-
-def test_is_member_of_org_success(monkeypatch, responses):
-    monkeypatch.setenv("GITHUB_TESTING_TOKEN", "test")
-    membership_url = "https://api.github.com/orgs/testing/members/dummy-user"
-    responses.add(responses.GET, membership_url, status=204)
-
-    assert is_member_of_org("testing", "dummy-user")
-
-    # check the headers are correct
-    call = responses.calls[0]
-    assert call.request.headers["Accept"] == "application/vnd.github.v3+json"
-    assert not call.response.text
-
-
-def test_is_member_of_org_without_github(monkeypatch, responses):
-    monkeypatch.setenv("GITHUB_TESTING_TOKEN", "test")
-    membership_url = "https://api.github.com/orgs/testing/members/dummy-user"
-    responses.add(responses.GET, membership_url, status=401)
-
-    with pytest.raises(requests.HTTPError):
-        is_member_of_org("testing", "dummy-user")
 
 
 def test_iter_query_results_200_error(responses):

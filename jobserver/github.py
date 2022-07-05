@@ -344,28 +344,3 @@ def get_repos_with_dates():
             "created_at": created_at,
             "topics": topics,
         }
-
-
-def is_member_of_org(org, username):
-    # https://docs.github.com/en/rest/reference/orgs#check-organization-membership-for-a-user
-    f = furl(BASE_URL)
-    f.path.segments += [
-        "orgs",
-        org,
-        "members",
-        username,
-    ]
-
-    headers = {
-        "Accept": "application/vnd.github.v3+json",
-    }
-
-    r = session.get(f.url, headers=headers)
-
-    if r.status_code == 204:
-        return True
-
-    if r.status_code in (302, 404):
-        return False
-
-    r.raise_for_status()
