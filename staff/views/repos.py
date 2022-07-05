@@ -76,6 +76,10 @@ class RepoList(View):
             return repo | {"workspace": workspace}
 
         repos = list(merge_data(r) for r in private_repos)
+        repos = list(
+            r | {"has_releases": "github-releases" in r["topics"]} for r in repos
+        )
+
         repos = sorted(repos, key=lambda r: r["created_at"])
 
         return TemplateResponse(request, "staff/repo_list.html", {"repos": repos})
