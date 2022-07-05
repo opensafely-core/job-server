@@ -224,20 +224,14 @@ def test_workspacebackendfiles_without_permission(rf):
         )
 
 
-def test_workspacecreate_get_success(rf, mocker, user):
+def test_workspacecreate_get_success(rf, user):
     project = ProjectFactory()
     ProjectMembershipFactory(project=project, user=user, roles=[ProjectDeveloper])
-
-    mocker.patch(
-        "jobserver.views.workspaces.get_repos_with_branches",
-        autospec=True,
-        return_value=[{"name": "test", "url": "test", "branches": ["main"]}],
-    )
 
     request = rf.get("/")
     request.user = user
 
-    response = WorkspaceCreate.as_view()(
+    response = WorkspaceCreate.as_view(get_github_api=FakeGitHubAPI)(
         request, org_slug=project.org.slug, project_slug=project.slug
     )
 
@@ -258,44 +252,32 @@ def test_workspacecreate_get_without_permission(rf):
         )
 
 
-def test_workspacecreate_post_success(rf, mocker, user):
+def test_workspacecreate_post_success(rf, user):
     project = ProjectFactory()
     ProjectMembershipFactory(project=project, user=user, roles=[ProjectDeveloper])
-
-    mocker.patch(
-        "jobserver.views.workspaces.get_repos_with_branches",
-        autospec=True,
-        return_value=[{"name": "Test", "url": "test", "branches": ["test"]}],
-    )
 
     data = {
         "name": "Test",
         "repo": "test",
-        "branch": "test",
+        "branch": "main",
     }
     request = rf.post("/", data)
     request.user = user
 
-    response = WorkspaceCreate.as_view()(
+    response = WorkspaceCreate.as_view(get_github_api=FakeGitHubAPI)(
         request, org_slug=project.org.slug, project_slug=project.slug
     )
 
-    assert response.status_code == 302
+    assert response.status_code == 302, response.context_data["form"].errors
 
     workspace = Workspace.objects.first()
     assert response.url == workspace.get_absolute_url()
     assert workspace.created_by == user
 
 
-def test_workspacecreate_without_github(rf, mocker, user):
+def test_workspacecreate_without_github(rf, user):
     project = ProjectFactory()
     ProjectMembershipFactory(project=project, user=user, roles=[ProjectDeveloper])
-
-    mocker.patch(
-        "jobserver.views.workspaces.get_repos_with_branches",
-        autospec=True,
-        side_effect=requests.HTTPError,
-    )
 
     request = rf.get("/")
     request.user = user
@@ -305,7 +287,11 @@ def test_workspacecreate_without_github(rf, mocker, user):
     messages = FallbackStorage(request)
     request._messages = messages
 
-    response = WorkspaceCreate.as_view()(
+    class BrokenGitHubAPI:
+        def get_repos_with_branches(self, *args):
+            raise requests.HTTPError
+
+    response = WorkspaceCreate.as_view(get_github_api=BrokenGitHubAPI)(
         request, org_slug=project.org.slug, project_slug=project.slug
     )
 

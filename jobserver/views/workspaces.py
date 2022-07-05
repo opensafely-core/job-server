@@ -16,7 +16,7 @@ from ..forms import (
     WorkspaceCreateForm,
     WorkspaceNotificationsToggleForm,
 )
-from ..github import _get_github_api, get_repos_with_branches
+from ..github import _get_github_api
 from ..models import Backend, JobRequest, Project, Workspace
 from ..releases import (
     build_hatch_token_and_url,
@@ -106,6 +106,7 @@ class WorkspaceBackendFiles(View):
 
 class WorkspaceCreate(CreateView):
     form_class = WorkspaceCreateForm
+    get_github_api = staticmethod(_get_github_api)
     model = Workspace
     template_name = "workspace_create.html"
 
@@ -146,7 +147,9 @@ class WorkspaceCreate(CreateView):
             )
 
         try:
-            self.repos_with_branches = list(get_repos_with_branches(gh_org))
+            self.repos_with_branches = list(
+                self.get_github_api().get_repos_with_branches(gh_org)
+            )
         except requests.HTTPError:
             # gracefully handle not being able to access GitHub's API
             msg = (

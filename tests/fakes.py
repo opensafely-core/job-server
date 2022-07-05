@@ -1,4 +1,7 @@
 import textwrap
+from datetime import datetime
+
+from django.utils import timezone
 
 
 class FakeGitHubAPI:
@@ -37,3 +40,44 @@ class FakeGitHubAPI:
 
     def get_repo_is_private(self, org, repo):
         return self.get_repo(org, repo)["private"]
+
+    def get_repos_with_branches(self, org):
+        return [
+            {
+                "name": "test",
+                "url": "test",
+                "branches": ["main"],
+            },
+        ]
+
+    def get_repos_with_dates(self):
+        return [
+            {
+                "name": "job-runner",
+                "url": "https://github.com/opensafely-core/job-runner",
+                "is_private": True,
+                "created_at": timezone.now(),
+                "topics": ["test"],
+            },
+            {
+                "name": "job-server",
+                "url": "https://github.com/opensafely-core/job-server",
+                "is_private": True,
+                "created_at": timezone.now(),
+                "topics": ["test"],
+            },
+            {
+                "name": "test",
+                "url": "test",
+                "is_private": True,
+                "created_at": timezone.now(),
+                "topics": ["test"],
+            },
+            {
+                "name": "predates-job-server",
+                "url": "test-url",
+                "is_private": True,
+                "created_at": datetime(2020, 7, 31, tzinfo=timezone.utc),
+                "topics": [],
+            },
+        ]

@@ -11,14 +11,16 @@ from first import first
 
 from jobserver.authorization import CoreDeveloper
 from jobserver.authorization.decorators import require_role
-from jobserver.github import get_repos_with_dates
+from jobserver.github import _get_github_api
 from jobserver.models import Workspace
 
 
 @method_decorator(require_role(CoreDeveloper), name="dispatch")
 class RepoList(View):
+    get_github_api = staticmethod(_get_github_api)
+
     def get(self, request, *args, **kwargs):
-        all_repos = list(get_repos_with_dates())
+        all_repos = list(self.get_github_api().get_repos_with_dates())
 
         # remove repos with the non-research topic
         all_repos = [r for r in all_repos if "non-research" not in r["topics"]]
