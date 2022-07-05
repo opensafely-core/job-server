@@ -1,5 +1,5 @@
 import operator
-from datetime import timedelta
+from datetime import datetime, timedelta
 
 from django.db.models import Count
 from django.db.models.functions import Least
@@ -79,6 +79,28 @@ class RepoList(View):
         repos = list(
             r | {"has_releases": "github-releases" in r["topics"]} for r in repos
         )
+
+        def exclude_never_run_repos(repos):
+            """
+            Exclude repos which we think can't have run a job
+
+            Repos created after 2021-01-01 will almost certainly have used the
+            job-server and thus if they have no workspace or jobs they haven't
+            executed code on a backend.
+            """
+            for repo in repos:
+                before_job_server = repo["created_at"] < datetime(
+                    2021, 1, 1, tzinfo=timezone.utc
+                )
+
+                has_run_jobs = repo["workspace"] and repo["workspace"].first_run
+
+                if before_job_server and not has_run_jobs:
+                    continue
+
+                yield repo
+
+        repos = list(exclude_never_run_repos(repos))
 
         repos = sorted(repos, key=lambda r: r["created_at"])
 

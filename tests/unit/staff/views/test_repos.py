@@ -1,4 +1,4 @@
-from datetime import timedelta
+from datetime import datetime, timedelta
 
 from django.utils import timezone
 
@@ -29,6 +29,9 @@ def test_repolist_success(rf, core_developer, mocker):
     jr_4 = JobRequestFactory(workspace=workspace4)
     JobFactory(job_request=jr_4, started_at=None)
 
+    workspace5 = WorkspaceFactory(repo="test-url")
+    JobRequestFactory(workspace=workspace5)
+
     request = rf.get("/")
     request.user = core_developer
 
@@ -56,6 +59,13 @@ def test_repolist_success(rf, core_developer, mocker):
                 "is_private": True,
                 "created_at": timezone.now(),
                 "topics": ["test"],
+            },
+            {
+                "name": "predates-job-server",
+                "url": "test-url",
+                "is_private": True,
+                "created_at": datetime(2020, 7, 31, tzinfo=timezone.utc),
+                "topics": [],
             },
         ],
     )
