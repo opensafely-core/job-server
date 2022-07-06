@@ -1,7 +1,10 @@
-from datetime import datetime, timezone
+import operator
+from datetime import datetime, timedelta
 
-from django.db.models import Min
+from django.db.models import Count
+from django.db.models.functions import Least
 from django.template.response import TemplateResponse
+from django.utils import timezone
 from django.utils.decorators import method_decorator
 from django.views.generic import View
 from first import first
@@ -17,11 +20,25 @@ class RepoList(View):
     def get(self, request, *args, **kwargs):
         all_repos = list(get_repos_with_dates())
 
+        # remove repos with the non-research topic
+        all_repos = [r for r in all_repos if "non-research" not in r["topics"]]
+
         private_repos = [repo for repo in all_repos if repo["is_private"]]
 
+        eleven_months_ago = timezone.now() - timedelta(days=30 * 11)
+
         # get workspaces with the first run job started_at annotated on
-        workspaces = Workspace.objects.select_related("created_by", "project").annotate(
-            first_run=Min("job_requests__jobs__started_at")
+        workspaces = (
+            Workspace.objects.exclude(project__slug="opensafely-testing")
+            .annotate(num_jobs=Count("job_requests__jobs"))
+            .filter(num_jobs__gt=0)
+            .select_related("created_by", "project")
+            .annotate(
+                first_run=Least(
+                    "job_requests__jobs__started_at", "job_requests__jobs__created_at"
+                )
+            )
+            .filter(first_run__lt=eleven_months_ago)
         )
 
         # build up a list of dicts with repo URL and the first started_at date
@@ -35,18 +52,7 @@ class RepoList(View):
             }
             for w in workspaces
         ]
-
-        def sort_by_first_run(w):
-            if w["first_run"] is not None:
-                return w["first_run"]
-
-            # sorted won't compare NoneType and datetime, rightly so, but
-            # we want Nones pushed to the end of our list so we sort them
-            # by a date in the far flung future.  Should this code still be
-            # running on that date, sorry!
-            return datetime(9999, 1, 1, tzinfo=timezone.utc)
-
-        workspaces = sorted(workspaces, key=sort_by_first_run)
+        workspaces = sorted(workspaces, key=operator.itemgetter("first_run"))
 
         def merge_data(repo):
             """
@@ -70,6 +76,32 @@ class RepoList(View):
             return repo | {"workspace": workspace}
 
         repos = list(merge_data(r) for r in private_repos)
+        repos = list(
+            r | {"has_releases": "github-releases" in r["topics"]} for r in repos
+        )
+
+        def exclude_never_run_repos(repos):
+            """
+            Exclude repos which we think can't have run a job
+
+            Repos created after 2021-01-01 will almost certainly have used the
+            job-server and thus if they have no workspace or jobs they haven't
+            executed code on a backend and can be excluded.
+            """
+            for repo in repos:
+                before_job_server = repo["created_at"] < datetime(
+                    2021, 1, 1, tzinfo=timezone.utc
+                )
+
+                has_run_jobs = repo["workspace"] and repo["workspace"].first_run
+
+                if before_job_server and not has_run_jobs:
+                    continue
+
+                yield repo
+
+        repos = list(exclude_never_run_repos(repos))
+
         repos = sorted(repos, key=lambda r: r["created_at"])
 
         return TemplateResponse(request, "staff/repo_list.html", {"repos": repos})

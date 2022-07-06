@@ -247,6 +247,13 @@ def get_repos_with_dates():
               url
               isPrivate
               createdAt
+              repositoryTopics(first: 100) {
+                nodes {
+                  topic {
+                    name
+                  }
+                }
+              }
             }
             pageInfo {
                 endCursor
@@ -263,11 +270,16 @@ def get_repos_with_dates():
             tzinfo=timezone.utc
         )
 
+        topics = []
+        if repo["repositoryTopics"]["nodes"]:
+            topics = [n["topic"]["name"] for n in repo["repositoryTopics"]["nodes"]]
+
         yield {
             "name": repo["name"],
             "url": repo["url"],
             "is_private": repo["isPrivate"],
             "created_at": created_at,
+            "topics": topics,
         }
 
 
