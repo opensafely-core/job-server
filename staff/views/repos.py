@@ -86,7 +86,7 @@ class RepoList(View):
 
             Repos created after 2021-01-01 will almost certainly have used the
             job-server and thus if they have no workspace or jobs they haven't
-            executed code on a backend.
+            executed code on a backend and can be excluded.
             """
             for repo in repos:
                 before_job_server = repo["created_at"] < datetime(
