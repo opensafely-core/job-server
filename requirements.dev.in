@@ -20,6 +20,6 @@ pytest-env
 pytest-freezegun
 pytest-mock
 pytest-network
-pytest-responses
 pytest-subtests
 pyupgrade
+responses

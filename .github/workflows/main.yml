@@ -86,6 +86,7 @@ jobs:
       - name: Run tests
         env:
           DATABASE_URL: postgres://user:password@localhost/jobserver
+          GITHUB_TOKEN_TESTING: ${{ secrets.OPENSAFELY_GITHUB_TESTING_ORG_PAT }}
           SECRET_KEY: 12345
           SOCIAL_AUTH_GITHUB_KEY: test
           SOCIAL_AUTH_GITHUB_SECRET: test
