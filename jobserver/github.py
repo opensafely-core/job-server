@@ -288,10 +288,10 @@ class GitHubAPI:
                 "branches": branches,
             }
 
-    def get_repos_with_dates(self):
+    def get_repos_with_dates(self, org):
         query = """
-        query reposAndBranches($cursor: String) {
-          organization(login: "opensafely") {
+        query reposAndBranches($cursor: String, $org_name: String!) {
+          organization(login: $org_name) {
             team(slug: "researchers") {
               repositories(first: 100, after: $cursor) {
                 nodes {
@@ -316,7 +316,7 @@ class GitHubAPI:
           }
         }
         """
-        results = list(self._iter_query_results(query))
+        results = list(self._iter_query_results(query, org_name=org))
         for repo in results:
             created_at = datetime.strptime(
                 repo["createdAt"], "%Y-%m-%dT%H:%M:%SZ"

@@ -20,7 +20,7 @@ class RepoList(View):
     get_github_api = staticmethod(_get_github_api)
 
     def get(self, request, *args, **kwargs):
-        all_repos = list(self.get_github_api().get_repos_with_dates())
+        all_repos = list(self.get_github_api().get_repos_with_dates("opensafely"))
 
         # remove repos with the non-research topic
         all_repos = [r for r in all_repos if "non-research" not in r["topics"]]

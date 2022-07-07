@@ -50,7 +50,7 @@ class FakeGitHubAPI:
             },
         ]
 
-    def get_repos_with_dates(self):
+    def get_repos_with_dates(self, org):
         return [
             {
                 "name": "job-runner",
