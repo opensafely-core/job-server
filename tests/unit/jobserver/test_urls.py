@@ -39,6 +39,7 @@ from staff.views import applications as staff_applications
 from staff.views import backends as staff_backends
 from staff.views import orgs as staff_orgs
 from staff.views import projects as staff_projects
+from staff.views import redirects as staff_redirects
 from staff.views import users as staff_users
 from staff.views import workspaces as staff_workspaces
 
@@ -106,6 +107,8 @@ def test_url_redirects(client, url, redirect):
         ("/staff/projects/p/", staff_projects.ProjectDetail),
         ("/staff/projects/p/edit/", staff_projects.ProjectEdit),
         ("/staff/projects/p/feature-flags/", staff_projects.ProjectFeatureFlags),
+        ("/staff/redirects/", staff_redirects.RedirectList),
+        ("/staff/redirects/42/", staff_redirects.RedirectDetail),
         ("/staff/users/", staff_users.UserList),
         ("/staff/users/<username>/", staff_users.UserDetail),
         ("/staff/workspaces/", staff_workspaces.WorkspaceList),

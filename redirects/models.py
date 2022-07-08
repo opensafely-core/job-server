@@ -3,6 +3,7 @@ from datetime import timedelta
 from django.core.exceptions import ValidationError
 from django.db import models
 from django.db.models import Q
+from django.urls import reverse
 from django.utils import timezone
 from first import first
 
@@ -68,10 +69,20 @@ class Redirect(models.Model):
             ),
         ]
 
+    def get_staff_url(self):
+        return reverse("staff:redirect-detail", kwargs={"pk": self.pk})
+
+    def get_staff_delete_url(self):
+        return reverse("staff:redirect-delete", kwargs={"pk": self.pk})
+
     @property
     def obj(self):
         """Work out which object we're pointing to"""
         return first([self.project, self.workspace])
+
+    @property
+    def type(self):  # noqa: A003
+        return self.obj.__class__.__name__
 
     def save(self, *args, **kwargs):
         # TODO: check old_url doesn't match any path for the given redirect target

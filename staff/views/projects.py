@@ -96,6 +96,7 @@ class ProjectDetail(DetailView):
             "memberships": self.object.memberships.select_related("user").order_by(
                 Lower("user__username")
             ),
+            "redirects": self.object.redirects.order_by("old_url"),
             "workspaces": self.object.workspaces.order_by("name"),
         }
 

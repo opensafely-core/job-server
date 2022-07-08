@@ -48,7 +48,7 @@
 <div class="container">
   <div class="row">
     <div class="col col-lg-9 col-xl-8">
-     <section class="card">
+     <section class="card mb-3">
         <div class="card-header">
           <h2 class="card-title">Details</h2>
         </div>
@@ -81,6 +81,18 @@
           </div>
         </div>
       </section>
+
+      <h2>Redirects</h2>
+      <div class="list-group mb-3">
+        {% for redirect in redirects %}
+        <a href="{{ redirect.get_staff_url }}" class="list-group-item list-group-item-action">
+          {{ redirect.old_url }}
+        </a>
+        {% empty %}
+          <p class="list-group-item">No redirects</p>
+        {% endfor %}
+      </div>
+
     </div>
     <div class="col col-lg-3 col-xl-4">
       <ul class="list-unstyled">

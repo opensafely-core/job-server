@@ -15,6 +15,11 @@ class WorkspaceDetail(DetailView):
     slug_field = "name"
     template_name = "staff/workspace_detail.html"
 
+    def get_context_data(self, **kwargs):
+        return super().get_context_data(**kwargs) | {
+            "redirects": self.object.redirects.order_by("old_url"),
+        }
+
 
 @method_decorator(require_role(CoreDeveloper), name="dispatch")
 class WorkspaceEdit(UpdateView):
