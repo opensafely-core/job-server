@@ -24,6 +24,7 @@ exclude = '''
 
 [tool.coverage.run]
 branch = true
+dynamic_context = "test_function"
 omit = [
   "*/migrations/*",
   "jobserver/asgi.py",
@@ -43,6 +44,7 @@ fail_under = 100
 skip_covered = true
 
 [tool.coverage.html]
+show_contexts = true
 
 [tool.isort]
 force_grid_wrap = 0
