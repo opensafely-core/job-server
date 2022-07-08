@@ -132,7 +132,7 @@ class GitHubAPI:
                 break
 
             # update the cursor we pass into the GraphQL query
-            cursor = data["pageInfo"]["endCursor"]
+            cursor = data["pageInfo"]["endCursor"]  # pragma: no cover
 
     def _url(self, path_segments, query_args=None):
         f = furl(self.base_url)
