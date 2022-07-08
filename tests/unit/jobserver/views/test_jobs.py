@@ -222,7 +222,7 @@ def test_jobdetail_with_job_creator(rf):
     assert "Cancel" in response.rendered_content
 
 
-def test_jobdetail_with_partial_identifier_failure(rf, mocker):
+def test_jobdetail_with_partial_identifier_failure(rf):
     job_request = JobRequestFactory()
     JobFactory(job_request=job_request, identifier="123abc")
     JobFactory(job_request=job_request, identifier="123def")
