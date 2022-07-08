@@ -257,7 +257,7 @@ The Bennett Institute job server is deployed to our `dokku2` instance, instructi
 Run the tests with:
 
 ```sh
-just test
+just test-dev
 ```
 
 More details on testing can be found in [TESTING.md](TESTING.md).
@@ -270,7 +270,7 @@ actually sent to a test channel by setting some environment variables:
 ```
 export SLACK_BOT_TOKEN=...
 export SLACK_TEST_CHANNEL=job-server-testing
-just test
+just test-dev
 ```
 
 
