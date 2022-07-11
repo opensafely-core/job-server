@@ -735,8 +735,6 @@ class User(AbstractBaseUser):
             "unique": "A user with that username already exists.",
         },
     )
-    first_name = models.CharField(max_length=150, blank=True)
-    last_name = models.CharField(max_length=150, blank=True)
     email = models.EmailField(blank=True)
 
     # fullname instead of full_name because social auth already provides that
