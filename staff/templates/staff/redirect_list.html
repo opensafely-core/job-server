@@ -31,7 +31,7 @@
 {% block staff_content %}
 <div class="container">
   <div class="row">
-    <div class="col col-lg-3 col-xl-4">
+    <div class="col-12 col-lg-3 col-xl-4">
       <h2 class="h3">Filters</h2>
 
       {% if request.GET %}
@@ -128,7 +128,7 @@
 
     </div>
 
-    <div class="col col-lg-9 col-xl-8">
+    <div class="col-12 col-lg-9 col-xl-8">
       <form class="form d-flex align-items-center mb-4" method="GET">
       <input
         class="form-control mr-2"
@@ -142,44 +142,39 @@
         <button class="btn btn-outline-primary my-2 my-sm-0" type="submit">Search</button>
       </form>
 
-      <div class="list-group list-unstyled">
-        {% for redirect in object_list %}
-        <div class="d-flex justify-content-between align-items-center list-group-item">
-
-          <div class="w-100">
-
-            <div class="row">
-              <div class="col-sm-2 text-right">Type:</div>
-              <div class="col-sm-10">
-                {{ redirect.type }}
-              </div>
-            </div>
-
-            <div class="row">
-              <div class="col-sm-2 text-right">From:</div>
-              <div class="col-sm-10">
-                <a href="{{ redirect.old_url }}"><code>{{ redirect.old_url }}</code></a>
-              </div>
-            </div>
-
-            <div class="row">
-              <div class="col-sm-2 text-right">To:</div>
-              <div class="col-sm-10">
-                {% with destination_url=redirect.obj.get_absolute_url %}
-                <a href="{{ destination_url }}"><code>{{ destination_url }}</code></a>
-                {% endwith %}
-              </div>
-            </div>
-
-          </div>
-
-          <div>
-            <a href="{{ redirect.get_staff_url }}" class="btn btn-sm btn-primary">View</a>
-          </div>
-
-        </div>
-        {% endfor %}
+      {% for redirect in object_list %}
+      <div class="table-responsive table-bordered mb-3">
+        <table class="table table-sm mb-0">
+          <tr>
+            <th class="table-active pr-3" style="width: 0" scope="row">Type</th>
+            <td>{{ redirect.type }}</td>
+            <td rowspan="3" class="align-middle text-center" style="width: 0">
+              <a href="{{ redirect.get_staff_url }}" class="btn btn-sm btn-primary mx-1">
+                View
+              </a>
+            </td>
+          </tr>
+          <tr>
+            <th class="table-active" scope="row">From</th>
+            <td>
+              <a href="{{ redirect.old_url }}">
+                <code>{{ redirect.old_url }}</code>
+              </a>
+            </td>
+          </tr>
+          <tr>
+            <th class="table-active" scope="row">To</th>
+            <td>
+              {% with destination_url=redirect.obj.get_absolute_url %}
+              <a href="{{ destination_url }}">
+                <code>{{ destination_url }}</code>
+              </a>
+              {% endwith %}
+            </td>
+          </tr>
+        </table>
       </div>
+      {% endfor %}
     </div>
   </div>
 </div>
