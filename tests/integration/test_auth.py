@@ -71,8 +71,7 @@ def test_login_pipeline(client, slack_messages):
     # ensure we only have one User and it's constructed as expected
     assert User.objects.count() == 1
     user = User.objects.first()
-    assert user.first_name == "Test"
-    assert user.last_name == "User"
+    assert user.fullname == "Test User"
     assert user.email == "test@example.com"
     assert user.notifications_email == "test@example.com"
     assert user.is_active

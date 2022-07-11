@@ -101,10 +101,10 @@ def test_application_is_deleted():
 
 
 def test_application_str():
-    user = UserFactory(first_name="Ben", last_name="Seb")
+    user = UserFactory(fullname="Ben Goldacre")
     application = ApplicationFactory(created_by=user)
 
-    assert str(application) == f"Application {application.pk_hash} by Ben Seb"
+    assert str(application) == f"Application {application.pk_hash} by Ben Goldacre"
 
 
 def test_researcherregistration_get_absolute_url():

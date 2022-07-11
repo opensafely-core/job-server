@@ -4,8 +4,10 @@ import secrets
 from datetime import date, timedelta
 
 import structlog
-from django.contrib.auth.models import AbstractUser
+from django.contrib.auth.models import AbstractBaseUser
+from django.contrib.auth.models import UserManager
 from django.contrib.auth.models import UserManager as BaseUserManager
+from django.contrib.auth.validators import UnicodeUsernameValidator
 from django.contrib.postgres.fields import ArrayField
 from django.core import signing
 from django.core.validators import validate_slug
@@ -685,7 +687,7 @@ class UserQuerySet(models.QuerySet):
         return self.filter(roles__contains=[role])
 
 
-class UserManager(BaseUserManager.from_queryset(UserQuerySet)):
+class UserManager(BaseUserManager.from_queryset(UserQuerySet), UserManager):
     """
     Custom Manager built from the custom QuerySet above
 
@@ -696,7 +698,7 @@ class UserManager(BaseUserManager.from_queryset(UserQuerySet)):
     pass
 
 
-class User(AbstractUser):
+class User(AbstractBaseUser):
     """
     A custom User model used throughout the codebase
 
@@ -722,6 +724,26 @@ class User(AbstractUser):
         through_fields=["user", "project"],
     )
 
+    username_validator = UnicodeUsernameValidator()
+    username = models.TextField(
+        unique=True,
+        validators=[username_validator],
+        error_messages={"unique": "A user with that username already exists."},
+    )
+    email = models.EmailField(blank=True)
+
+    # fullname instead of full_name because social auth already provides that
+    # field name and life is too short to work out which class we should map
+    # fullname -> full_name in.
+    # TODO: rename name and remove the name property once all users have filled
+    # in their names
+    fullname = models.TextField(default="")
+
+    is_active = models.BooleanField(default=True)
+    is_staff = models.BooleanField(default=False)
+    is_superuser = models.BooleanField(default=False)
+    date_joined = models.DateTimeField("date joined", default=timezone.now)
+
     notifications_email = models.TextField(default="")
 
     # has the User been approved by an admin?
@@ -736,6 +758,10 @@ class User(AbstractUser):
 
     objects = UserManager()
 
+    EMAIL_FIELD = "email"
+    USERNAME_FIELD = "username"
+    REQUIRED_FIELDS = ["email"]
+
     class Meta:
         constraints = [
             models.CheckConstraint(
@@ -746,6 +772,10 @@ class User(AbstractUser):
                 name="%(app_label)s_%(class)s_both_pat_expires_at_and_pat_token_set",
             ),
         ]
+
+    def clean(self):
+        super().clean()
+        self.email = self.__class__.objects.normalize_email(self.email)
 
     def get_all_permissions(self):
         """
@@ -805,6 +835,10 @@ class User(AbstractUser):
             "projects": projects,
         }
 
+    def get_full_name(self):
+        """Support Django's User contract"""
+        return self.fullname
+
     def get_staff_url(self):
         return reverse("staff:user-detail", kwargs={"username": self.username})
 
@@ -825,7 +859,7 @@ class User(AbstractUser):
     @property
     def name(self):
         """Unify the available names for a User."""
-        return self.get_full_name() or self.username
+        return self.fullname or self.username
 
     def rotate_token(self):
         # ticket to look at signing request

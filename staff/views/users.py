@@ -37,7 +37,6 @@ class UserDetail(UpdateView):
         for backend in form.cleaned_data["backends"]:
             backend.memberships.create(user=self.object, created_by=self.request.user)
 
-        self.object.is_superuser = form.cleaned_data["is_superuser"]
         self.object.roles = form.cleaned_data["roles"]
         self.object.save()
 
@@ -87,7 +86,6 @@ class UserDetail(UpdateView):
     def get_initial(self):
         return super().get_initial() | {
             "backends": self.object.backends.values_list("slug", flat=True),
-            "is_superuser": self.object.is_superuser,
             "roles": self.object.roles,
         }
 
@@ -128,11 +126,7 @@ class UserList(ListView):
         # filter on the search query
         q = self.request.GET.get("q")
         if q:
-            qs = qs.filter(
-                Q(username__icontains=q)
-                | Q(first_name__icontains=q)
-                | Q(last_name__icontains=q)
-            )
+            qs = qs.filter(Q(username__icontains=q) | Q(fullname__icontains=q))
 
         if backend := self.request.GET.get("backend"):
             raise_if_not_int(backend)

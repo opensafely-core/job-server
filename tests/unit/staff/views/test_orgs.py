@@ -109,7 +109,7 @@ def test_orgcreate_post_success(rf, core_developer):
 
 def test_orgdetail_get_success(rf, core_developer):
     org = OrgFactory()
-    UserFactory(username="beng", first_name="Ben", last_name="Goldacre")
+    UserFactory(username="beng", fullname="Ben Goldacre")
 
     request = rf.get("/")
     request.user = core_developer
