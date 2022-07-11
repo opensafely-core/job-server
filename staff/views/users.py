@@ -126,11 +126,7 @@ class UserList(ListView):
         # filter on the search query
         q = self.request.GET.get("q")
         if q:
-            qs = qs.filter(
-                Q(username__icontains=q)
-                | Q(first_name__icontains=q)
-                | Q(last_name__icontains=q)
-            )
+            qs = qs.filter(Q(username__icontains=q) | Q(fullname__icontains=q))
 
         if backend := self.request.GET.get("backend"):
             raise_if_not_int(backend)

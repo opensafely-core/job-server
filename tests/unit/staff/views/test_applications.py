@@ -439,7 +439,7 @@ def test_applicationlist_filter_by_user(rf, core_developer):
 
 
 def test_applicationlist_search(rf, core_developer):
-    app1 = ApplicationFactory(created_by=UserFactory(first_name="ben"))
+    app1 = ApplicationFactory(created_by=UserFactory(fullname="ben g"))
     app2 = ApplicationFactory(created_by=UserFactory(username="ben"))
     ApplicationFactory(created_by=UserFactory(username="seb"))
 

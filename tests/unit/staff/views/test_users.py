@@ -307,7 +307,7 @@ def test_userlist_filter_by_invalid_role(rf, core_developer):
 
 def test_userlist_find_by_username(rf, core_developer):
     UserFactory(username="ben")
-    UserFactory(first_name="ben")
+    UserFactory(fullname="ben g")
     UserFactory(username="seb")
 
     request = rf.get("/?q=ben")

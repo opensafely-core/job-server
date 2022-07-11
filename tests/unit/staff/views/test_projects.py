@@ -31,7 +31,7 @@ from ....factories import (
 
 def test_projectaddmember_get_success(rf, core_developer):
     project = ProjectFactory()
-    UserFactory(username="beng", first_name="Ben", last_name="Goldacre")
+    UserFactory(username="beng", fullname="Ben Goldacre")
 
     request = rf.get("/")
     request.user = core_developer
@@ -130,7 +130,7 @@ def test_projectdetail_success(rf, core_developer):
 def test_projectedit_get_success(rf, core_developer):
     project = ProjectFactory()
 
-    UserFactory(username="beng", first_name="Ben", last_name="Goldacre")
+    UserFactory(username="beng", fullname="Ben Goldacre")
 
     request = rf.get("/")
     request.user = core_developer

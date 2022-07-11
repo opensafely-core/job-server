@@ -766,15 +766,9 @@ def test_projectmembership_str():
     assert str(membership) == "ben | DataLab"
 
 
-def test_user_name_with_first_and_last_name():
-    user = UserFactory(first_name="first", last_name="last")
-
-    assert user.name == "first last"
-
-
-def test_user_name_without_first_and_last_name():
-    user = UserFactory()
-    assert user.name == user.username
+def test_user_name():
+    assert UserFactory(fullname="first last", username="test").name == "first last"
+    assert UserFactory(username="username").name == "username"
 
 
 def test_user_get_all_permissions():

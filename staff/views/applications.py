@@ -223,8 +223,7 @@ class ApplicationList(ListView):
 
         if q := self.request.GET.get("q"):
             filters = {
-                "created_by__first_name__icontains": q,
-                "created_by__last_name__icontains": q,
+                "created_by__fullname__icontains": q,
                 "created_by__username__icontains": q,
                 "researcher_registrations__name__icontains": q,
                 "researcher_registrations__github_username__icontains": q,

@@ -739,6 +739,13 @@ class User(AbstractBaseUser):
     last_name = models.CharField(max_length=150, blank=True)
     email = models.EmailField(blank=True)
 
+    # fullname instead of full_name because social auth already provides that
+    # field name and life is too short to work out which class we should map
+    # fullname -> full_name in.
+    # TODO: rename name and remove the name property once all users have filled
+    # in their names
+    fullname = models.TextField(default="")
+
     is_active = models.BooleanField(
         "active",
         default=True,
@@ -854,10 +861,8 @@ class User(AbstractBaseUser):
         }
 
     def get_full_name(self):
-        """
-        Return the first_name plus the last_name, with a space in between.
-        """
-        return f"{self.first_name} {self.last_name}".strip()
+        """Support Django's User contract"""
+        return self.fullname
 
     def get_staff_url(self):
         return reverse("staff:user-detail", kwargs={"username": self.username})
@@ -879,7 +884,7 @@ class User(AbstractBaseUser):
     @property
     def name(self):
         """Unify the available names for a User."""
-        return self.get_full_name() or self.username
+        return self.fullname or self.username
 
     def rotate_token(self):
         # ticket to look at signing request

@@ -17,8 +17,7 @@ configured_searches = [
     {
         "model": Application,
         "fields": [
-            "created_by__first_name",
-            "created_by__last_name",
+            "created_by__fullname",
             "created_by__username",
             "researcher_registrations__name",
             "researcher_registrations__github_username",
@@ -44,8 +43,7 @@ configured_searches = [
     {
         "model": User,
         "fields": [
-            "first_name",
-            "last_name",
+            "fullname",
             "orgs__name",
             "projects__name",
             "username",
