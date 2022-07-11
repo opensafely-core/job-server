@@ -4,8 +4,10 @@ import secrets
 from datetime import date, timedelta
 
 import structlog
-from django.contrib.auth.models import AbstractUser
+from django.contrib.auth.models import AbstractBaseUser
+from django.contrib.auth.models import UserManager
 from django.contrib.auth.models import UserManager as BaseUserManager
+from django.contrib.auth.validators import UnicodeUsernameValidator
 from django.contrib.postgres.fields import ArrayField
 from django.core import signing
 from django.core.validators import validate_slug
@@ -685,7 +687,7 @@ class UserQuerySet(models.QuerySet):
         return self.filter(roles__contains=[role])
 
 
-class UserManager(BaseUserManager.from_queryset(UserQuerySet)):
+class UserManager(BaseUserManager.from_queryset(UserQuerySet), UserManager):
     """
     Custom Manager built from the custom QuerySet above
 
@@ -696,7 +698,7 @@ class UserManager(BaseUserManager.from_queryset(UserQuerySet)):
     pass
 
 
-class User(AbstractUser):
+class User(AbstractBaseUser):
     """
     A custom User model used throughout the codebase
 
@@ -722,6 +724,44 @@ class User(AbstractUser):
         through_fields=["user", "project"],
     )
 
+    username_validator = UnicodeUsernameValidator()
+
+    username = models.CharField(
+        max_length=150,
+        unique=True,
+        help_text="Required. 150 characters or fewer. Letters, digits and @/./+/-/_ only.",
+        validators=[username_validator],
+        error_messages={
+            "unique": "A user with that username already exists.",
+        },
+    )
+    first_name = models.CharField(max_length=150, blank=True)
+    last_name = models.CharField(max_length=150, blank=True)
+    email = models.EmailField(blank=True)
+
+    is_active = models.BooleanField(
+        "active",
+        default=True,
+        help_text=(
+            "Designates whether this user should be treated as active. "
+            "Unselect this instead of deleting accounts."
+        ),
+    )
+    is_staff = models.BooleanField(
+        "staff status",
+        default=False,
+        help_text="Designates whether the user can log into this admin site.",
+    )
+    is_superuser = models.BooleanField(
+        "superuser status",
+        default=False,
+        help_text=(
+            "Designates that this user has all permissions without "
+            "explicitly assigning them."
+        ),
+    )
+    date_joined = models.DateTimeField("date joined", default=timezone.now)
+
     notifications_email = models.TextField(default="")
 
     # has the User been approved by an admin?
@@ -736,6 +776,10 @@ class User(AbstractUser):
 
     objects = UserManager()
 
+    EMAIL_FIELD = "email"
+    USERNAME_FIELD = "username"
+    REQUIRED_FIELDS = ["email"]
+
     class Meta:
         constraints = [
             models.CheckConstraint(
@@ -746,6 +790,10 @@ class User(AbstractUser):
                 name="%(app_label)s_%(class)s_both_pat_expires_at_and_pat_token_set",
             ),
         ]
+
+    def clean(self):
+        super().clean()
+        self.email = self.__class__.objects.normalize_email(self.email)
 
     def get_all_permissions(self):
         """
@@ -804,6 +852,12 @@ class User(AbstractUser):
             "orgs": orgs,
             "projects": projects,
         }
+
+    def get_full_name(self):
+        """
+        Return the first_name plus the last_name, with a space in between.
+        """
+        return f"{self.first_name} {self.last_name}".strip()
 
     def get_staff_url(self):
         return reverse("staff:user-detail", kwargs={"username": self.username})
