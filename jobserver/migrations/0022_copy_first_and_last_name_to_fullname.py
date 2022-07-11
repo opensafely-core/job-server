@@ -19,7 +19,7 @@ def copy_first_and_last_name_to_fullname(apps, schema_editor):
     User = apps.get_model("jobserver", "User")
 
     for user in User.objects.all():
-        user.fullname = f"{user.first_name} {user.last_name}"
+        user.fullname = f"{user.first_name} {user.last_name}".strip()
         user.save(update_fields=["fullname"])
 
 
