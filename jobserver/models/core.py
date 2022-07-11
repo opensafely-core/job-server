@@ -725,9 +725,7 @@ class User(AbstractBaseUser):
     )
 
     username_validator = UnicodeUsernameValidator()
-
-    username = models.CharField(
-        max_length=150,
+    username = models.TextField(
         unique=True,
         validators=[username_validator],
         error_messages={"unique": "A user with that username already exists."},
