@@ -1039,7 +1039,7 @@ def test_jobrequestlist_with_permission(rf):
     JobFactory(job_request=job_request)
     JobFactory(job_request=job_request)
     request = rf.get("/")
-    request.user = UserFactory(is_superuser=False, roles=[])
+    request.user = UserFactory(roles=[])
     response = JobRequestList.as_view()(request)
 
     assert response.status_code == 200

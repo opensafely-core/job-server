@@ -37,7 +37,6 @@ class UserDetail(UpdateView):
         for backend in form.cleaned_data["backends"]:
             backend.memberships.create(user=self.object, created_by=self.request.user)
 
-        self.object.is_superuser = form.cleaned_data["is_superuser"]
         self.object.roles = form.cleaned_data["roles"]
         self.object.save()
 
@@ -87,7 +86,6 @@ class UserDetail(UpdateView):
     def get_initial(self):
         return super().get_initial() | {
             "backends": self.object.backends.values_list("slug", flat=True),
-            "is_superuser": self.object.is_superuser,
             "roles": self.object.roles,
         }
 

@@ -91,7 +91,6 @@ def test_userdetail_post_success(rf, core_developer):
 
     data = {
         "backends": [backend.slug],
-        "is_superuser": ["on"],
         "roles": ["jobserver.authorization.roles.OutputPublisher"],
     }
     request = rf.post("/", data)
@@ -105,7 +104,6 @@ def test_userdetail_post_success(rf, core_developer):
     user.refresh_from_db()
     assert set_from_qs(user.backends.all()) == {backend.pk}
     assert user.roles == [OutputPublisher]
-    assert user.is_superuser
 
 
 def test_userdetail_post_with_unknown_backend(rf, core_developer):
@@ -127,7 +125,6 @@ def test_userdetail_post_with_unknown_backend(rf, core_developer):
 
     data = {
         "backends": ["not-a-real-backend"],
-        "is_superuser": [""],
         "roles": ["jobserver.authorization.roles.OutputPublisher"],
     }
     request = rf.post("/", data)
@@ -173,7 +170,6 @@ def test_userdetail_post_with_unknown_role(rf, core_developer):
 
     data = {
         "backends": list(user.backends.values_list("slug", flat=True)),
-        "is_superuser": ["on"],
         "roles": ["not-a-real-role"],
     }
     request = rf.post("/", data)

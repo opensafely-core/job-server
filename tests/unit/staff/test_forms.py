@@ -125,7 +125,6 @@ def test_userform_success():
 
     data = {
         "backends": [backend1.slug, backend2.slug],
-        "is_superuser": ["on"],
         "roles": [],
     }
     form = UserForm(
@@ -138,15 +137,12 @@ def test_userform_success():
 
     assert set_from_qs(form.cleaned_data["backends"]) == {backend1.pk, backend2.pk}
 
-    assert form.cleaned_data["is_superuser"]
-
 
 def test_userform_with_no_backends():
     available_backends = Backend.objects.filter(slug__in=["tpp"])
 
     data = {
         "backends": [],
-        "is_superuser": ["on"],
         "roles": [],
     }
 
@@ -167,7 +163,6 @@ def test_userform_with_unknown_backend():
 
     data = {
         "backends": ["unknown"],
-        "is_superuser": [""],
         "roles": [],
     }
 
