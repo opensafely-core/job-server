@@ -142,39 +142,42 @@
         <button class="btn btn-outline-primary my-2 my-sm-0" type="submit">Search</button>
       </form>
 
-      {% for redirect in object_list %}
-      <div class="table-responsive table-bordered mb-3">
+      <div class="table-responsive-md table-bordered mb-3">
         <table class="table table-sm mb-0">
-          <tr>
-            <th class="table-active pr-3" style="width: 0" scope="row">Type</th>
-            <td>{{ redirect.type }}</td>
-            <td rowspan="3" class="align-middle text-center" style="width: 0">
-              <a href="{{ redirect.get_staff_url }}" class="btn btn-sm btn-primary mx-1">
-                View
-              </a>
-            </td>
-          </tr>
-          <tr>
-            <th class="table-active" scope="row">From</th>
-            <td>
-              <a href="{{ redirect.old_url }}">
-                <code>{{ redirect.old_url }}</code>
-              </a>
-            </td>
-          </tr>
-          <tr>
-            <th class="table-active" scope="row">To</th>
-            <td>
-              {% with destination_url=redirect.obj.get_absolute_url %}
-              <a href="{{ destination_url }}">
-                <code>{{ destination_url }}</code>
-              </a>
-              {% endwith %}
-            </td>
-          </tr>
+          <caption class="sr-only">List of redirects</caption>
+          {% for redirect in object_list %}
+          <tbody aria-label="{{ redirect.old_url }} redirect">
+            <tr>
+              <th class="table-active pr-3" style="width: 0" scope="row">Type</th>
+              <td>{{ redirect.type }}</td>
+              <td rowspan="3" class="align-middle text-center" style="width: 0">
+                <a href="{{ redirect.get_staff_url }}" class="btn btn-sm btn-primary mx-1">
+                  View
+                </a>
+              </td>
+            </tr>
+            <tr>
+              <th class="table-active" scope="row">From</th>
+              <td>
+                <a href="{{ redirect.old_url }}">
+                  <code>{{ redirect.old_url }}</code>
+                </a>
+              </td>
+            </tr>
+            <tr>
+              <th class="table-active" scope="row">To</th>
+              <td>
+                {% with destination_url=redirect.obj.get_absolute_url %}
+                <a href="{{ destination_url }}">
+                  <code>{{ destination_url }}</code>
+                </a>
+                {% endwith %}
+              </td>
+            </tr>
+          </tbody>
+          {% endfor %}
         </table>
       </div>
-      {% endfor %}
     </div>
   </div>
 </div>
