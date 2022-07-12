@@ -24,6 +24,7 @@ def login_view(request):
 @method_decorator(login_required, name="dispatch")
 class Settings(UpdateView):
     fields = [
+        "fullname",
         "notifications_email",
     ]
     template_name = "settings.html"
