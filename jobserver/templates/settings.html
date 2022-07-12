@@ -31,6 +31,12 @@
   <div class="row">
     <div class="col-lg-9 col-xl-8">
 
+      {% if not form.fullname.value %}
+      <div class="alert alert-warning">
+        Your OpenSAFELY profile is missing information, please add your name to your account.
+      </div>
+      {% endif %}
+
       <form method="POST">
         {% csrf_token %}
 
