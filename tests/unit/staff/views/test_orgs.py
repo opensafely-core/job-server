@@ -191,16 +191,35 @@ def test_orgedit_get_unauthorized(rf):
 def test_orgedit_post_success(rf, core_developer):
     org = OrgFactory()
 
-    request = rf.post("/", {"name": "new-name"})
+    data = {"name": "New Name", "slug": "new-name"}
+    request = rf.post("/", data)
     request.user = core_developer
 
     response = OrgEdit.as_view()(request, slug=org.slug)
 
     assert response.status_code == 302, response.context_data["form"].errors
-    assert response.url == org.get_staff_url()
 
     org.refresh_from_db()
-    assert org.name == "new-name"
+    assert response.url == org.get_staff_url()
+    assert org.name == "New Name"
+    assert org.slug == "new-name"
+
+
+def test_orgedit_post_success_when_not_changing_slug(rf, core_developer):
+    org = OrgFactory(slug="slug")
+
+    data = {"name": "New Name", "slug": "slug"}
+    request = rf.post("/", data)
+    request.user = core_developer
+
+    response = OrgEdit.as_view()(request, slug=org.slug)
+
+    assert response.status_code == 302, response.context_data["form"].errors
+
+    org.refresh_from_db()
+    assert response.url == org.get_staff_url()
+    assert org.name == "New Name"
+    assert org.slug == "slug"
 
 
 def test_orgedit_post_unauthorized(rf):

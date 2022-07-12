@@ -96,12 +96,29 @@ class OrgDetail(FormView):
 class OrgEdit(UpdateView):
     fields = [
         "name",
+        "slug",
     ]
     model = Org
     template_name = "staff/org_edit.html"
 
-    def get_success_url(self):
-        return self.object.get_staff_url()
+    def form_valid(self, form):
+        # look up the original object from the database because the form will
+        # mutation self.object under us
+        old = self.get_object()
+
+        new = form.save()
+
+        # check changed_data here instead of comparing self.object.slug to
+        # new.slug because self.object is mutated when ModelForm._post_clean
+        # updates the instance it was passed.  This is because form.instance is
+        # set from the passed in self.object.
+        if "slug" in form.changed_data:
+            new.redirects.create(
+                created_by=self.request.user,
+                old_url=old.get_absolute_url(),
+            )
+
+        return redirect(new.get_staff_url())
 
 
 @method_decorator(require_role(CoreDeveloper), name="dispatch")

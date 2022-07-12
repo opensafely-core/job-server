@@ -38,9 +38,9 @@
       <form class="mb-3" method="POST">
         {% csrf_token %}
 
-        <div class="form-group">
-          {% include "components/form_text.html" with field=form.name label="Org name" name="name" %}
-        </div>
+        {% include "components/form_text.html" with field=form.name label="Org name" name="name" %}
+
+        {% include "components/form_text.html" with field=form.slug label="URL slug" name="slug" %}
 
         <div class="form-group">
           <button class="btn btn-primary" type="submit">Save</button>
