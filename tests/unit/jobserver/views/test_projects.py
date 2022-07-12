@@ -31,6 +31,7 @@ from ....factories import (
     UserFactory,
     WorkspaceFactory,
 )
+from ....fakes import FakeGitHubAPI
 from ....utils import minutes_ago
 
 
@@ -189,7 +190,7 @@ def test_projectcancelinvite_without_manage_members_permission(rf):
         )
 
 
-def test_projectdetail_success(rf, mocker):
+def test_projectdetail_success(rf):
     org = OrgFactory()
     project = ProjectFactory(org=org)
     WorkspaceFactory.create_batch(
@@ -198,16 +199,10 @@ def test_projectdetail_success(rf, mocker):
         repo="https://github.com/opensafely/some-research",
     )
 
-    mocker.patch(
-        "jobserver.views.projects.get_repo_is_private",
-        autospec=True,
-        return_value=True,
-    )
-
     request = rf.get("/")
     request.user = UserFactory()
 
-    response = ProjectDetail.as_view()(
+    response = ProjectDetail.as_view(get_github_api=FakeGitHubAPI)(
         request, org_slug=org.slug, project_slug=project.slug
     )
 
@@ -226,7 +221,7 @@ def test_projectdetail_success(rf, mocker):
     assert "Edit" not in response.context_data
 
 
-def test_projectdetail_with_multiple_releases(rf, freezer, mocker):
+def test_projectdetail_with_multiple_releases(rf, freezer):
     project = ProjectFactory()
 
     now = timezone.now()
@@ -245,17 +240,11 @@ def test_projectdetail_with_multiple_releases(rf, freezer, mocker):
     workspace4 = WorkspaceFactory(project=project)
     snapshot5 = SnapshotFactory(workspace=workspace4, published_at=minutes_ago(now, 4))
 
-    mocker.patch(
-        "jobserver.views.projects.get_repo_is_private",
-        autospec=True,
-        return_value=True,
-    )
-
     request = rf.get("/")
     # FIXME: remove this role when releases is deployed to all users
     request.user = UserFactory(roles=[CoreDeveloper])
 
-    response = ProjectDetail.as_view()(
+    response = ProjectDetail.as_view(get_github_api=FakeGitHubAPI)(
         request, org_slug=project.org.slug, project_slug=project.slug
     )
 
@@ -276,20 +265,18 @@ def test_projectdetail_with_multiple_releases(rf, freezer, mocker):
     assert snapshot4 not in snapshots
 
 
-def test_projectdetail_with_no_github(rf, mocker):
+def test_projectdetail_with_no_github(rf):
     project = ProjectFactory()
     WorkspaceFactory(project=project)
-
-    mocker.patch(
-        "jobserver.views.projects.get_repo_is_private",
-        autospec=True,
-        side_effect=requests.HTTPError,
-    )
 
     request = rf.get("/")
     request.user = UserFactory()
 
-    response = ProjectDetail.as_view()(
+    class BrokenGitHubAPI:
+        def get_repo_is_private(self, *args):
+            raise requests.HTTPError
+
+    response = ProjectDetail.as_view(get_github_api=BrokenGitHubAPI)(
         request, org_slug=project.org.slug, project_slug=project.slug
     )
 
@@ -302,19 +289,13 @@ def test_projectdetail_with_no_github(rf, mocker):
     assert "Public" not in response.rendered_content
 
 
-def test_projectdetail_with_no_releases(rf, mocker):
+def test_projectdetail_with_no_releases(rf):
     project = ProjectFactory()
-
-    mocker.patch(
-        "jobserver.views.projects.get_repo_is_private",
-        autospec=True,
-        return_value=True,
-    )
 
     request = rf.get("/")
     request.user = UserFactory()
 
-    response = ProjectDetail.as_view()(
+    response = ProjectDetail.as_view(get_github_api=FakeGitHubAPI)(
         request, org_slug=project.org.slug, project_slug=project.slug
     )
 

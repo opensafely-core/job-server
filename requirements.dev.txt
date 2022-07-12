@@ -250,7 +250,6 @@ pytest==7.0.1 \
     #   pytest-freezegun
     #   pytest-mock
     #   pytest-network
-    #   pytest-responses
     #   pytest-subtests
 pytest-cov==3.0.0 \
     --hash=sha256:578d5d15ac4a25e5f961c938b85a05b09fdaae9deef3bb6de9a6e766622ca7a6 \
@@ -273,9 +272,6 @@ pytest-mock==3.8.2 \
     # via -r requirements.dev.in
 pytest-network==0.0.1 \
     --hash=sha256:7b109e2ad27f4ab0f13c1796a9b419bab1d503ea3b5ae3ca37363486ccceaa3f
-    # via -r requirements.dev.in
-pytest-responses==0.5.0 \
-    --hash=sha256:6fffd7412294c8a01ccfec05ae51910db76aeb0df877c5fac16c64991cb465e6
     # via -r requirements.dev.in
 pytest-subtests==0.8.0 \
     --hash=sha256:46eb376022e926950816ccc23502de3277adcc1396652ddb3328ce0289052c4d \
@@ -336,7 +332,7 @@ requests==2.28.1 \
 responses==0.20.0 \
     --hash=sha256:18831bc2d72443b67664d98038374a6fa1f27eaaff4dd9a7d7613723416fea3c \
     --hash=sha256:644905bc4fb8a18fa37e3882b2ac05e610fe8c2f967d327eed669e314d94a541
-    # via pytest-responses
+    # via -r requirements.dev.in
 six==1.16.0 \
     --hash=sha256:1e61c37477a1626458e36f7b1d82aa5c9b094fa4802892072e49de9c60c4c926 \
     --hash=sha256:8abb2f1d86890a2dfb989f9a77cfcfd3e47c2a354b01111771326f8aa26e0254

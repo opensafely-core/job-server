@@ -18,7 +18,7 @@ from sentry_sdk import capture_exception
 from ..authorization import has_permission, roles_for
 from ..emails import send_project_invite_email
 from ..forms import ProjectInvitationForm, ProjectMembershipForm
-from ..github import get_repo_is_private
+from ..github import _get_github_api
 from ..models import Project, ProjectInvitation, ProjectMembership, Snapshot, User
 
 
@@ -76,6 +76,7 @@ class ProjectCancelInvite(View):
 
 
 class ProjectDetail(DetailView):
+    get_github_api = staticmethod(_get_github_api)
     template_name = "project_detail.html"
 
     def get_object(self):
@@ -142,7 +143,7 @@ class ProjectDetail(DetailView):
             f = furl(url)
 
             try:
-                is_private = get_repo_is_private(*f.path.segments)
+                is_private = self.get_github_api().get_repo_is_private(*f.path.segments)
             except requests.HTTPError:
                 is_private = None
 

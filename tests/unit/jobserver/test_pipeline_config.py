@@ -1,3 +1,5 @@
+import textwrap
+
 import pytest
 from furl import furl
 from pipeline.models import Pipeline
@@ -9,6 +11,8 @@ from jobserver.pipeline_config import (
     map_run_scripts_to_links,
     render_definition,
 )
+
+from ...fakes import FakeGitHubAPI
 
 
 dummy_project = {
@@ -106,43 +110,43 @@ def test_get_actions_success():
     assert output == expected
 
 
-def test_get_project_no_branch(mocker):
-    mocker.patch(
-        "jobserver.pipeline_config.get_file", autospec=True, return_value=None
-    ),
-    mocker.patch(
-        "jobserver.pipeline_config.get_branch", autospec=True, return_value=None
-    )
+def test_get_project_no_branch():
+    class BrokenGitHubAPI:
+        def get_branch(self, *args):
+            return None
+
+        def get_file(self, *args):
+            pass
 
     with pytest.raises(Exception, match="Missing branch: 'main'"):
-        get_project("opensafely", "test", "main")
+        get_project("opensafely", "test", "main", get_github_api=BrokenGitHubAPI)
 
 
-def test_get_project_no_project_yaml(mocker):
-    mocker.patch(
-        "jobserver.pipeline_config.get_file", autospec=True, return_value=None
-    ),
-    mocker.patch(
-        "jobserver.pipeline_config.get_branch", autospec=True, return_value=True
-    )
+def test_get_project_no_project_yaml():
+    class BrokenGitHubAPI:
+        def get_branch(self, *args):
+            return True
+
+        def get_file(self, *args):
+            pass
 
     with pytest.raises(Exception, match="Could not find project.yaml"):
-        get_project("opensafely", "test", "main")
+        get_project("opensafely", "test", "main", get_github_api=BrokenGitHubAPI)
 
 
-def test_get_project_success(mocker):
-    dummy = """
-    actions:
-      frobnicate:
-    """
-    mocker.patch(
-        "jobserver.pipeline_config.get_file", autospec=True, return_value=dummy
-    )
-    mocker.patch(
-        "jobserver.pipeline_config.get_branch", autospec=True, return_value=True
+def test_get_project_success():
+    pipeline_config = get_project(
+        "opensafely", "test", "main", get_github_api=FakeGitHubAPI
     )
 
-    assert get_project("opensafely", "test", "main") == dummy
+    expected = textwrap.dedent(
+        """
+        actions:
+          frobnicate:
+        """
+    )
+
+    assert pipeline_config == expected
 
 
 def test_link_run_scripts():

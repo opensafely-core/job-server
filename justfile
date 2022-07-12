@@ -96,19 +96,29 @@ run-telemetry: devenv
     $BIN/opentelemetry-instrument $BIN/python manage.py runserver --noreload
 
 
-# *ARGS is variadic, 0 or more. This allows us to do `just test -k match`, for example.
-# Run the tests
-test *ARGS: devenv
+test-base *args: devenv
     $BIN/python manage.py collectstatic --no-input
-    $BIN/python -m pytest \
-        --cov=applications \
-        --cov=jobserver \
-        --cov=staff \
-        --cov=services \
-        --cov=tests \
-        --cov-report=html \
-        --cov-report=term-missing:skip-covered \
-        {{ ARGS }}
+    $BIN/coverage run \
+        --branch \
+        --source=applications,jobserver,services,staff,tests \
+        --module pytest \
+        {{ args }}
+
+
+test-dev *args:
+    {{ just_executable() }} test-base \
+        '-m "not verification"' \
+        {{ args }}
+
+    # run with || so they both run regardless of failures
+    $BIN/coverage report --omit=jobserver/github.py,"tests/verification/*" \
+    || $BIN/coverage html --omit=jobserver/github.py,"tests/verification/*"
+
+
+test *args:
+    {{ just_executable() }} test-base {{ args }}
+
+    $BIN/coverage report || $BIN/coverage html
 
 
 # run the various dev checks but does not change any files

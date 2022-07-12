@@ -20,7 +20,7 @@ from pipeline import load_pipeline
 from ..authorization import CoreDeveloper, has_permission, has_role
 from ..backends import backends_to_choices
 from ..forms import JobRequestCreateForm, JobRequestSearchForm
-from ..github import get_branch_sha, get_commits
+from ..github import _get_github_api
 from ..models import Backend, JobRequest, User, Workspace
 from ..pipeline_config import get_actions, get_project, render_definition
 from ..utils import raise_if_not_int
@@ -80,6 +80,7 @@ class JobRequestCancel(View):
 
 class JobRequestCreate(CreateView):
     form_class = JobRequestCreateForm
+    get_github_api = staticmethod(_get_github_api)
     model = JobRequest
     template_name = "job_request_create.html"
 
@@ -141,7 +142,7 @@ class JobRequestCreate(CreateView):
     def form_valid(self, form):
         if (sha := self.kwargs.get("ref")) is None:
             # if a ref wasn't passed in the URL convert the branch to a sha
-            sha = get_branch_sha(
+            sha = self.get_github_api().get_branch_sha(
                 self.workspace.repo_owner,
                 self.workspace.repo_name,
                 self.workspace.branch,
@@ -330,6 +331,8 @@ class JobRequestList(FormMixin, ListView):
 
 
 class JobRequestPickRef(View):
+    get_github_api = staticmethod(_get_github_api)
+
     def get(self, request, *args, **kwargs):
         workspace = get_object_or_404(
             Workspace,
@@ -366,7 +369,7 @@ class JobRequestPickRef(View):
         )
 
         try:
-            commits = get_commits(
+            commits = self.get_github_api().get_commits(
                 workspace.repo_owner,
                 workspace.repo_name,
             )

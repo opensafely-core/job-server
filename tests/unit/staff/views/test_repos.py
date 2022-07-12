@@ -1,14 +1,15 @@
-from datetime import datetime, timedelta
+from datetime import timedelta
 
 from django.utils import timezone
 
 from staff.views.repos import RepoList
 
 from ....factories import JobFactory, JobRequestFactory, WorkspaceFactory
+from ....fakes import FakeGitHubAPI
 from ....utils import minutes_ago
 
 
-def test_repolist_success(rf, core_developer, mocker):
+def test_repolist_success(rf, core_developer):
     eleven_months_ago = timezone.now() - timedelta(days=30 * 11)
 
     workspace1 = WorkspaceFactory(repo="https://github.com/opensafely-core/job-server")
@@ -35,42 +36,7 @@ def test_repolist_success(rf, core_developer, mocker):
     request = rf.get("/")
     request.user = core_developer
 
-    mocker.patch(
-        "staff.views.repos.get_repos_with_dates",
-        autospec=True,
-        return_value=[
-            {
-                "name": "job-runner",
-                "url": "https://github.com/opensafely-core/job-runner",
-                "is_private": True,
-                "created_at": timezone.now(),
-                "topics": ["test"],
-            },
-            {
-                "name": "job-server",
-                "url": "https://github.com/opensafely-core/job-server",
-                "is_private": True,
-                "created_at": timezone.now(),
-                "topics": ["test"],
-            },
-            {
-                "name": "test",
-                "url": "test",
-                "is_private": True,
-                "created_at": timezone.now(),
-                "topics": ["test"],
-            },
-            {
-                "name": "predates-job-server",
-                "url": "test-url",
-                "is_private": True,
-                "created_at": datetime(2020, 7, 31, tzinfo=timezone.utc),
-                "topics": [],
-            },
-        ],
-    )
-
-    response = RepoList.as_view()(request)
+    response = RepoList.as_view(get_github_api=FakeGitHubAPI)(request)
 
     assert response.status_code == 200
 

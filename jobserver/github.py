@@ -9,299 +9,332 @@ from furl import furl
 env = Env()
 
 
-BASE_URL = "https://api.github.com"
 GITHUB_TOKEN = env.str("GITHUB_TOKEN")
 
 
 session = requests.Session()
 session.headers = {
-    "Authorization": f"bearer {GITHUB_TOKEN}",
     "User-Agent": "OpenSAFELY Jobs",
 }
 
 
-def _get_query_page(*, query, session, cursor, **kwargs):
+class GitHubAPI:
     """
-    Get a page of the given query
+    A thin wrapper around requests, furl, and the GitHub API.
 
-    This uses the GraphQL API to avoid making O(N) calls to GitHub's (v3) REST
-    API.  The passed cursor is a GraphQL cursor [1] allowing us to call this
-    function in a loop, passing in the responses cursor to advance our view of
-    the data.
+    Initialising this class with a token will set that token in the sessions
+    headers.
 
-    [1]: https://graphql.org/learn/pagination/#end-of-list-counts-and-connections
+    "public" functions should construct a URL and make requests against the
+    session object attached to the instance.
+
+    This object is not expected to be used in most tests so we can avoid mocking.
     """
-    # use GraphQL variables to avoid string interpolation
-    variables = {"cursor": cursor, **kwargs}
-    payload = {"query": query, "variables": variables}
 
-    r = session.post("https://api.github.com/graphql", json=payload)
-    r.raise_for_status()
-    results = r.json()
+    base_url = "https://api.github.com"
 
-    # In some cases graphql will return a 200 response when there are errors.
-    # https://sachee.medium.com/200-ok-error-handling-in-graphql-7ec869aec9bc
-    # Handling things robustly is complex and query specific, so here we simply
-    # take the absence of 'data' as an error, rather than the presence of
-    # 'errors' key.
-    if "data" not in results:
-        raise RuntimeError(
-            f"graphql query failed\n\nquery:\n{query}\n\nresponse:\n{json.dumps(results, indent=2)}"
-        )
+    def __init__(self, _session=session, token=None):
+        """
+        Initialise the wrapper with a session and maybe token
 
-    return results["data"]["organization"]["team"]["repositories"]
+        We pass in the session here so that tests can pass in a fake object to
+        test internals.
+        """
+        self.session = _session
+        self.token = token
 
+    def _get(self, *args, **kwargs):
+        return self._request("get", *args, **kwargs)
 
-def _iter_query_results(query, **kwargs):
-    """
-    Get results from a GraphQL query
+    def _post(self, *args, **kwargs):
+        return self._request("post", *args, **kwargs)
 
-    Given a GraphQL query, return all results across one or more pages as a
-    single generator.  We currently assume all results live under
+    def _request(self, method, *args, **kwargs):
+        """
+        Thin wrapper of requests.Session._request()
 
-        data.organization.team.repositories
+        This wrapper exists solely to inject the Authorization header if a
+        token has been set on the current instance and that headers hasn't
+        already been set in a given requests headers.
 
-    GitHub's GraphQL API provides cursor-based pagination, so this function
-    wraps the actual API calls done in _get_query_page and tracks the cursor.
-    one.
-    """
-    cursor = ""
-    while True:
-        data = _get_query_page(
-            query=query,
-            session=session,
-            cursor=cursor,
-            **kwargs,
-        )
+        This solves a tension between using an application-level session object
+        and wanting GitHubAPI instance-level authentication.  We want to
+        support the use of different tokens for typical running (eg in prod),
+        verification tests (eg in CI), and the ability to query the API without
+        a token (less likely but can be useful) so we can't just set the header
+        on the session when it's defined at the module level.  However if we
+        set it on the session then it persists beyond the life time of a given
+        GitHubAPI instance.
+        """
+        headers = kwargs.pop("headers", {})
 
-        yield from data["nodes"]
+        if self.token and "Authorization" not in headers:
+            headers = headers | {"Authorization": f"bearer {self.token}"}
 
-        if not data["pageInfo"]["hasNextPage"]:
-            break
+        return self.session.request(method, *args, headers=headers, **kwargs)
 
-        # update the cursor we pass into the GraphQL query
-        cursor = data["pageInfo"]["endCursor"]
+    def _get_query_page(self, *, query, session, cursor, **kwargs):
+        """
+        Get a page of the given query
 
+        This uses the GraphQL API to avoid making O(N) calls to GitHub's (v3) REST
+        API.  The passed cursor is a GraphQL cursor [1] allowing us to call this
+        function in a loop, passing in the responses cursor to advance our view of
+        the data.
 
-def get_branch(org, repo, branch):
-    f = furl(BASE_URL)
-    f.path.segments += [
-        "repos",
-        org,
-        repo,
-        "branches",
-        branch,
-    ]
+        [1]: https://graphql.org/learn/pagination/#end-of-list-counts-and-connections
+        """
+        # use GraphQL variables to avoid string interpolation
+        variables = {"cursor": cursor, **kwargs}
+        payload = {"query": query, "variables": variables}
 
-    headers = {
-        "Accept": "application/vnd.github.v3+json",
-    }
-    r = session.get(f.url, headers=headers)
+        r = self._post("https://api.github.com/graphql", json=payload)
+        r.raise_for_status()
+        results = r.json()
 
-    if r.status_code == 404:
-        return
+        # In some cases graphql will return a 200 response when there are errors.
+        # https://sachee.medium.com/200-ok-error-handling-in-graphql-7ec869aec9bc
+        # Handling things robustly is complex and query specific, so here we simply
+        # take the absence of 'data' as an error, rather than the presence of
+        # 'errors' key.
+        if "data" not in results:
+            raise RuntimeError(
+                f"graphql query failed\n\nquery:\n{query}\n\nresponse:\n{json.dumps(results, indent=2)}"
+            )
 
-    r.raise_for_status()
+        return results["data"]["organization"]["team"]["repositories"]
 
-    return r.json()
+    def _iter_query_results(self, query, **kwargs):
+        """
+        Get results from a GraphQL query
 
+        Given a GraphQL query, return all results across one or more pages as a
+        single generator.  We currently assume all results live under
 
-def get_branch_sha(org, repo, branch):
-    branch = get_branch(org, repo, branch)
+            data.organization.team.repositories
 
-    if branch is None:
-        return
+        GitHub's GraphQL API provides cursor-based pagination, so this function
+        wraps the actual API calls done in _get_query_page and tracks the cursor.
+        one.
+        """
+        cursor = ""
+        while True:
+            data = self._get_query_page(
+                query=query,
+                session=session,
+                cursor=cursor,
+                **kwargs,
+            )
 
-    return branch["commit"]["sha"]
+            yield from data["nodes"]
 
+            if not data["pageInfo"]["hasNextPage"]:
+                break
 
-def get_commits(org, repo, limit=10):
+            # update the cursor we pass into the GraphQL query
+            cursor = data["pageInfo"]["endCursor"]  # pragma: no cover
 
-    f = furl(BASE_URL)
-    f.path.segments += [
-        "repos",
-        org,
-        repo,
-        "commits",
-    ]
-    f.args["per_page"] = limit
+    def _url(self, path_segments, query_args=None):
+        f = furl(self.base_url)
 
-    headers = {
-        "Accept": "application/vnd.github.v3+json",
-    }
-    r = session.get(f.url, headers=headers)
+        f.path.segments = path_segments
 
-    r.raise_for_status()
+        if query_args:
+            f.add(query_args)
 
-    return r.json()
+        return f.url
 
+    def get_branch(self, org, repo, branch):
+        path_segments = [
+            "repos",
+            org,
+            repo,
+            "branches",
+            branch,
+        ]
+        url = self._url(path_segments)
 
-def get_file(org, repo, branch):
-    f = furl(BASE_URL)
-    f.path.segments += [
-        "repos",
-        org,
-        repo,
-        "contents",
-        "project.yaml",
-    ]
-    f.args["ref"] = branch
+        headers = {
+            "Accept": "application/vnd.github.v3+json",
+        }
+        r = self._get(url, headers=headers)
 
-    headers = {
-        "Accept": "application/vnd.github.3.raw",
-    }
-    r = session.get(f.url, headers=headers)
+        if r.status_code == 404:
+            return
 
-    if r.status_code == 404:
-        return
+        r.raise_for_status()
 
-    r.raise_for_status()
+        return r.json()
 
-    return r.text
+    def get_branch_sha(self, org, repo, branch):
+        branch = self.get_branch(org, repo, branch)
 
+        if branch is None:
+            return
 
-def get_repo(org, repo):
-    f = furl(BASE_URL)
-    f.path.segments += [
-        "repos",
-        org,
-        repo,
-    ]
+        return branch["commit"]["sha"]
 
-    headers = {
-        "Accept": "application/vnd.github.v3+json",
-    }
-    r = session.get(f.url, headers=headers)
+    def get_commits(self, org, repo, limit=10):
+        path_segments = [
+            "repos",
+            org,
+            repo,
+            "commits",
+        ]
+        query_args = {"per_page": limit}
+        url = self._url(path_segments, query_args)
 
-    if r.status_code == 404:
-        return
+        headers = {
+            "Accept": "application/vnd.github.v3+json",
+        }
+        r = self._get(url, headers=headers)
 
-    r.raise_for_status()
+        r.raise_for_status()
 
-    return r.json()
+        return r.json()
 
+    def get_file(self, org, repo, branch):
+        path_segments = [
+            "repos",
+            org,
+            repo,
+            "contents",
+            "project.yaml",
+        ]
+        query_args = {"ref": branch}
+        url = self._url(path_segments, query_args)
 
-def get_repo_is_private(org, repo):
-    repo = get_repo(org, repo)
+        headers = {
+            "Accept": "application/vnd.github.3.raw",
+        }
+        r = self._get(url, headers=headers)
 
-    if repo is None:
-        return None
+        if r.status_code == 404:
+            return
 
-    return repo["private"]
+        r.raise_for_status()
 
+        return r.text
 
-def get_repos_with_branches(org):
-    """
-    Get Repos (with branches) from the OpenSAFELY Researchers Team
+    def get_repo(self, org, repo):
+        path_segments = [
+            "repos",
+            org,
+            repo,
+        ]
+        url = self._url(path_segments)
 
-    This uses the GraphQL API to avoid making O(N) calls to GitHub's (v3) REST
-    API.  The passed cursor is a GraphQL cursor [1] allowing us to call this
-    function in a loop, passing in the responses cursor to advance our view of
-    the data.
+        headers = {
+            "Accept": "application/vnd.github.v3+json",
+        }
+        r = self._get(url, headers=headers)
 
-    [1]: https://graphql.org/learn/pagination/#end-of-list-counts-and-connections
-    """
-    query = """
-    query reposAndBranches($cursor: String, $org_name: String!) {
-      organization(login: $org_name) {
-        team(slug: "researchers") {
-          repositories(first: 100, after: $cursor) {
-            nodes {
-              name
-              url
-              refs(refPrefix: "refs/heads/", first: 100) {
+        if r.status_code == 404:
+            return
+
+        r.raise_for_status()
+
+        return r.json()
+
+    def get_repo_is_private(self, org, repo):
+        repo = self.get_repo(org, repo)
+
+        if repo is None:
+            return None
+
+        return repo["private"]
+
+    def get_repos_with_branches(self, org):
+        """
+        Get Repos (with branches) from the OpenSAFELY Researchers Team
+
+        This uses the GraphQL API to avoid making O(N) calls to GitHub's (v3) REST
+        API.  The passed cursor is a GraphQL cursor [1] allowing us to call this
+        function in a loop, passing in the responses cursor to advance our view of
+        the data.
+
+        [1]: https://graphql.org/learn/pagination/#end-of-list-counts-and-connections
+        """
+        query = """
+        query reposAndBranches($cursor: String, $org_name: String!) {
+          organization(login: $org_name) {
+            team(slug: "researchers") {
+              repositories(first: 100, after: $cursor) {
                 nodes {
                   name
-                }
-              }
-            }
-            pageInfo {
-                endCursor
-                hasNextPage
-            }
-          }
-        }
-      }
-    }
-    """
-    results = list(_iter_query_results(query, org_name=org))
-    for repo in results:
-        branches = [b["name"] for b in repo["refs"]["nodes"]]
-
-        yield {
-            "name": repo["name"],
-            "url": repo["url"],
-            "branches": branches,
-        }
-
-
-def get_repos_with_dates():
-    query = """
-    query reposAndBranches($cursor: String) {
-      organization(login: "opensafely") {
-        team(slug: "researchers") {
-          repositories(first: 100, after: $cursor) {
-            nodes {
-              name
-              url
-              isPrivate
-              createdAt
-              repositoryTopics(first: 100) {
-                nodes {
-                  topic {
-                    name
+                  url
+                  refs(refPrefix: "refs/heads/", first: 100) {
+                    nodes {
+                      name
+                    }
                   }
                 }
+                pageInfo {
+                    endCursor
+                    hasNextPage
+                }
               }
-            }
-            pageInfo {
-                endCursor
-                hasNextPage
             }
           }
         }
-      }
-    }
-    """
-    results = list(_iter_query_results(query))
-    for repo in results:
-        created_at = datetime.strptime(repo["createdAt"], "%Y-%m-%dT%H:%M:%SZ").replace(
-            tzinfo=timezone.utc
-        )
+        """
+        results = list(self._iter_query_results(query, org_name=org))
+        for repo in results:
+            branches = [b["name"] for b in repo["refs"]["nodes"]]
 
-        topics = []
-        if repo["repositoryTopics"]["nodes"]:
-            topics = [n["topic"]["name"] for n in repo["repositoryTopics"]["nodes"]]
+            yield {
+                "name": repo["name"],
+                "url": repo["url"],
+                "branches": branches,
+            }
 
-        yield {
-            "name": repo["name"],
-            "url": repo["url"],
-            "is_private": repo["isPrivate"],
-            "created_at": created_at,
-            "topics": topics,
+    def get_repos_with_dates(self, org):
+        query = """
+        query reposAndBranches($cursor: String, $org_name: String!) {
+          organization(login: $org_name) {
+            team(slug: "researchers") {
+              repositories(first: 100, after: $cursor) {
+                nodes {
+                  name
+                  url
+                  isPrivate
+                  createdAt
+                  repositoryTopics(first: 100) {
+                    nodes {
+                      topic {
+                        name
+                      }
+                    }
+                  }
+                }
+                pageInfo {
+                    endCursor
+                    hasNextPage
+                }
+              }
+            }
+          }
         }
+        """
+        results = list(self._iter_query_results(query, org_name=org))
+        for repo in results:
+            created_at = datetime.strptime(
+                repo["createdAt"], "%Y-%m-%dT%H:%M:%SZ"
+            ).replace(tzinfo=timezone.utc)
+
+            topics = []
+            if repo["repositoryTopics"]["nodes"]:
+                topics = [n["topic"]["name"] for n in repo["repositoryTopics"]["nodes"]]
+
+            yield {
+                "name": repo["name"],
+                "url": repo["url"],
+                "is_private": repo["isPrivate"],
+                "created_at": created_at,
+                "topics": topics,
+            }
 
 
-def is_member_of_org(org, username):
-    # https://docs.github.com/en/rest/reference/orgs#check-organization-membership-for-a-user
-    f = furl(BASE_URL)
-    f.path.segments += [
-        "orgs",
-        org,
-        "members",
-        username,
-    ]
-
-    headers = {
-        "Accept": "application/vnd.github.v3+json",
-    }
-
-    r = session.get(f.url, headers=headers)
-
-    if r.status_code == 204:
-        return True
-
-    if r.status_code in (302, 404):
-        return False
-
-    r.raise_for_status()
+def _get_github_api():
+    """Simple invocation wrapper of GitHubAPI"""
+    return GitHubAPI(_session=session, token=GITHUB_TOKEN)  # pragma: no cover
