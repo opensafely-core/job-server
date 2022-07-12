@@ -78,6 +78,7 @@ MIDDLEWARE = [
     "django_structlog.middlewares.RequestMiddleware",
     "social_django.middleware.SocialAuthExceptionMiddleware",
     "django_htmx.middleware.HtmxMiddleware",
+    "jobserver.middleware.RequireNameMiddleware",
 ]
 
 ROOT_URLCONF = "jobserver.urls"
