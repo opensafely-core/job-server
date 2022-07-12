@@ -45,6 +45,7 @@ ALLOWED_HOSTS = ["*"]
 INSTALLED_APPS = [
     "applications",
     "jobserver",
+    "redirects",
     "staff",
     "anymail",
     "debug_toolbar",
@@ -63,6 +64,7 @@ INSTALLED_APPS = [
 ]
 
 MIDDLEWARE = [
+    "redirects.middleware.RedirectsMiddleware",
     "django_browser_reload.middleware.BrowserReloadMiddleware",
     "django.middleware.security.SecurityMiddleware",
     "whitenoise.middleware.WhiteNoiseMiddleware",

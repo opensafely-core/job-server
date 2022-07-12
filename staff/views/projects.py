@@ -96,6 +96,7 @@ class ProjectDetail(DetailView):
             "memberships": self.object.memberships.select_related("user").order_by(
                 Lower("user__username")
             ),
+            "redirects": self.object.redirects.order_by("old_url"),
             "workspaces": self.object.workspaces.order_by("name"),
         }
 
@@ -105,6 +106,26 @@ class ProjectEdit(UpdateView):
     form_class = ProjectEditForm
     model = Project
     template_name = "staff/project_edit.html"
+
+    @transaction.atomic()
+    def form_valid(self, form):
+        # look up the original object from the database because the form will
+        # mutation self.object under us
+        old = self.get_object()
+
+        form.save()
+
+        # check changed_data here instead of comparing self.object.project to
+        # new.project because self.object is mutated when ModelForm._post_clean
+        # updates the instance it was passed.  This is because form.instance is
+        # set from the passed in self.object.
+        if "org" in form.changed_data:
+            self.object.redirects.create(
+                created_by=self.request.user,
+                old_url=old.get_absolute_url(),
+            )
+
+        return redirect(self.object.get_staff_url())
 
     def get_context_data(self, **kwargs):
         # we don't have a nice way to override the type of text input
@@ -118,9 +139,6 @@ class ProjectEdit(UpdateView):
         return super().get_form_kwargs() | {
             "users": User.objects.all(),
         }
-
-    def get_success_url(self):
-        return self.object.get_staff_url()
 
 
 @method_decorator(require_role(CoreDeveloper), name="dispatch")

@@ -1,4 +1,6 @@
+from django.db import transaction
 from django.db.models import Q
+from django.shortcuts import redirect
 from django.utils.decorators import method_decorator
 from django.views.generic import DetailView, ListView, UpdateView
 
@@ -13,16 +15,38 @@ class WorkspaceDetail(DetailView):
     slug_field = "name"
     template_name = "staff/workspace_detail.html"
 
+    def get_context_data(self, **kwargs):
+        return super().get_context_data(**kwargs) | {
+            "redirects": self.object.redirects.order_by("old_url"),
+        }
+
 
 @method_decorator(require_role(CoreDeveloper), name="dispatch")
 class WorkspaceEdit(UpdateView):
-    fields = ["uses_new_release_flow"]
+    fields = ["project", "uses_new_release_flow"]
     model = Workspace
     slug_field = "name"
     template_name = "staff/workspace_edit.html"
 
-    def get_success_url(self):
-        return self.object.get_staff_url()
+    @transaction.atomic()
+    def form_valid(self, form):
+        # look up the original object from the database because the form will
+        # mutation self.object under us
+        old = self.get_object()
+
+        form.save()
+
+        # check changed_data here instead of comparing self.object.project to
+        # new.project because self.object is mutated when ModelForm._post_clean
+        # updates the instance it was passed.  This is because form.instance is
+        # set from the passed in self.object.
+        if "project" in form.changed_data:
+            self.object.redirects.create(
+                created_by=self.request.user,
+                old_url=old.get_absolute_url(),
+            )
+
+        return redirect(self.object.get_staff_url())
 
 
 @method_decorator(require_role(CoreDeveloper), name="dispatch")

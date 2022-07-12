@@ -68,10 +68,16 @@ def test_projecteditform_number_is_not_required():
     Project.number is nullable while we get all project data ported into this
     project.
     """
+    org = OrgFactory()
     users = User.objects.all()
 
-    assert ProjectEditForm(data={"name": "test"}, users=users).is_valid()
-    assert ProjectEditForm(data={"name": "test", "number": 123}, users=users).is_valid()
+    form = ProjectEditForm(data={"name": "test", "org": str(org.pk)}, users=users)
+    assert form.is_valid(), form.errors
+
+    form = ProjectEditForm(
+        data={"name": "test", "org": str(org.pk), "number": 123}, users=users
+    )
+    assert form.is_valid(), form.errors
 
 
 def test_projectfeatureflagsform_with_unknown_value():

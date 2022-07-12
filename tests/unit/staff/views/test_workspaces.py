@@ -2,9 +2,10 @@ import pytest
 from django.core.exceptions import PermissionDenied
 from django.http import Http404
 
+from redirects.models import Redirect
 from staff.views.workspaces import WorkspaceDetail, WorkspaceEdit, WorkspaceList
 
-from ....factories import UserFactory, WorkspaceFactory
+from ....factories import OrgFactory, ProjectFactory, UserFactory, WorkspaceFactory
 
 
 def test_workspacedetail_success(rf, core_developer):
@@ -51,9 +52,17 @@ def test_workspaceedit_get_success(rf, core_developer):
 
 
 def test_workspaceedit_post_success(rf, core_developer):
-    workspace = WorkspaceFactory(uses_new_release_flow=False)
+    org = OrgFactory()
+    old_project = ProjectFactory(org=org)
+    workspace = WorkspaceFactory(project=old_project, uses_new_release_flow=False)
 
-    request = rf.post("/", {"uses_new_release_flow": True})
+    new_project = ProjectFactory(org=org)
+
+    data = {
+        "project": str(new_project.pk),
+        "uses_new_release_flow": True,
+    }
+    request = rf.post("/", data)
     request.user = core_developer
 
     response = WorkspaceEdit.as_view()(request, slug=workspace.name)
@@ -63,6 +72,33 @@ def test_workspaceedit_post_success(rf, core_developer):
 
     workspace.refresh_from_db()
     assert workspace.uses_new_release_flow
+
+    Redirect.objects.count() == 1
+    redirect = Redirect.objects.first()
+    assert redirect.workspace == workspace
+    assert redirect.old_url == workspace.get_absolute_url().replace(
+        workspace.project.get_absolute_url(), old_project.get_absolute_url()
+    )
+
+
+def test_workspaceedit_post_success_when_not_changing_project(rf, core_developer):
+    project = ProjectFactory()
+    workspace = WorkspaceFactory(project=project, uses_new_release_flow=False)
+
+    data = {
+        "project": str(project.pk),
+        "uses_new_release_flow": True,
+    }
+    request = rf.post("/", data)
+    request.user = core_developer
+
+    response = WorkspaceEdit.as_view()(request, slug=workspace.name)
+
+    assert response.status_code == 302, response.context_data["form"].errors
+    assert response.url == workspace.get_staff_url()
+
+    workspace.refresh_from_db()
+    assert not workspace.redirects.exists()
 
 
 def test_workspaceedit_unauthorized(rf):
@@ -105,7 +141,5 @@ def test_workspacelist_success(rf, core_developer):
     request.user = core_developer
 
     response = WorkspaceList.as_view()(request)
-
     assert response.status_code == 200
-
     assert len(response.context_data["object_list"]) == 5
