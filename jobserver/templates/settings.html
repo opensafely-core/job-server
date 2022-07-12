@@ -30,26 +30,16 @@
 <div class="container">
   <div class="row">
     <div class="col-lg-9 col-xl-8">
+
       <form method="POST">
         {% csrf_token %}
-        <fieldset>
-          <legend class="h3 mb-3">
-            Notification email
-          </legend>
-          <div class="form-group">
-            <label for="id_notifications_email">Email address</label>
-            <input
-              class="form-control"
-              id="id_notifications_email"
-              name="notifications_email"
-              required
-              type="email"
-              value="{{ form.notifications_email.value }}"
-            />
-          </div>
-        </fieldset>
+
+        {% include "components/form_text.html" with field=form.notifications_email label="Notification email" name="notifications_email" %}
+
         <button class="btn btn-primary" type="submit">Save</button>
+
       </form>
+
     </div>
   </div>
 </div>
