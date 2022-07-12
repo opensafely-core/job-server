@@ -2,7 +2,7 @@ from django import forms
 from first import first
 
 from .authorization.forms import RolesForm
-from .models import JobRequest, User, Workspace
+from .models import JobRequest, Workspace
 
 
 class JobRequestCreateForm(forms.ModelForm):
@@ -63,14 +63,6 @@ class ProjectInvitationForm(RolesForm):
 
 class ProjectMembershipForm(RolesForm):
     pass
-
-
-class SettingsForm(forms.ModelForm):
-    class Meta:
-        fields = [
-            "notifications_email",
-        ]
-        model = User
 
 
 class WorkspaceArchiveToggleForm(forms.Form):
