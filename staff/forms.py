@@ -5,7 +5,7 @@ from applications.forms import YesNoField
 from applications.models import Application, ResearcherRegistration
 from jobserver.authorization.forms import RolesForm
 from jobserver.backends import backends_to_choices
-from jobserver.models import Backend, Org, Project
+from jobserver.models import Backend, Org, Project, Workspace
 
 
 def user_label_from_instance(obj):
@@ -205,4 +205,20 @@ class UserOrgsForm(forms.Form):
             queryset=available_orgs,
             required=False,
             widget=forms.CheckboxSelectMultiple,
+        )
+
+
+class WorkspaceEditForm(forms.ModelForm):
+    class Meta:
+        fields = [
+            "project",
+            "uses_new_release_flow",
+        ]
+        model = Workspace
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+
+        self.fields["project"].queryset = Project.objects.order_by(
+            "number", Lower("name")
         )
