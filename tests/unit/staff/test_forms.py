@@ -71,12 +71,16 @@ def test_projecteditform_number_is_not_required():
     org = OrgFactory()
     users = User.objects.all()
 
-    form = ProjectEditForm(data={"name": "test", "org": str(org.pk)}, users=users)
+    data = {
+        "name": "Test",
+        "slug": "test",
+        "org": str(org.pk),
+    }
+
+    form = ProjectEditForm(data=data, users=users)
     assert form.is_valid(), form.errors
 
-    form = ProjectEditForm(
-        data={"name": "test", "org": str(org.pk), "number": 123}, users=users
-    )
+    form = ProjectEditForm(data=data | {"number": 123}, users=users)
     assert form.is_valid(), form.errors
 
 

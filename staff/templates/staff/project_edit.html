@@ -46,6 +46,7 @@
         {% csrf_token %}
 
         {% include "components/form_text.html" with field=form.name label="Project name" name="name" %}
+        {% include "components/form_text.html" with field=form.slug label="URL slug" name="slug" %}
         {% include "components/form_text.html" with field=form.number label="Project number" name="number" extra_attributes=extra_field_attributes %}
 
         <div class="form-group">

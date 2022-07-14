@@ -96,6 +96,7 @@ class ProjectEditForm(forms.ModelForm):
     class Meta:
         fields = [
             "name",
+            "slug",
             "number",
             "copilot",
             "copilot_support_ends_at",
