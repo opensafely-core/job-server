@@ -208,6 +208,11 @@ class UserOrgsForm(forms.Form):
         )
 
 
+class WorkspaceModelChoiceField(forms.ModelChoiceField):
+    def label_from_instance(self, obj):
+        return obj.title
+
+
 class WorkspaceEditForm(forms.ModelForm):
     class Meta:
         fields = [
@@ -219,6 +224,6 @@ class WorkspaceEditForm(forms.ModelForm):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
 
-        self.fields["project"].queryset = Project.objects.order_by(
-            "number", Lower("name")
+        self.fields["project"] = WorkspaceModelChoiceField(
+            queryset=Project.objects.order_by("number", Lower("name")),
         )
