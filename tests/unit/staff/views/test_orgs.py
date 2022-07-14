@@ -188,10 +188,13 @@ def test_orgedit_get_unauthorized(rf):
         OrgEdit.as_view()(request, slug=org.slug)
 
 
-def test_orgedit_post_success(rf, core_developer):
+def test_orgedit_post_success(rf, core_developer, tmp_path):
+    logo = tmp_path / "new_logo.png"
+    logo.write_text("test")
+
     org = OrgFactory()
 
-    data = {"name": "New Name", "slug": "new-name"}
+    data = {"name": "New Name", "slug": "new-name", "logo_file": logo.open()}
     request = rf.post("/", data)
     request.user = core_developer
 
@@ -203,12 +206,16 @@ def test_orgedit_post_success(rf, core_developer):
     assert response.url == org.get_staff_url()
     assert org.name == "New Name"
     assert org.slug == "new-name"
+    assert org.logo_file
 
 
-def test_orgedit_post_success_when_not_changing_slug(rf, core_developer):
+def test_orgedit_post_success_when_not_changing_slug(rf, core_developer, tmp_path):
+    logo = tmp_path / "new_logo.png"
+    logo.write_text("test")
+
     org = OrgFactory(slug="slug")
 
-    data = {"name": "New Name", "slug": "slug"}
+    data = {"name": "New Name", "slug": "slug", "logo_file": logo.open()}
     request = rf.post("/", data)
     request.user = core_developer
 
