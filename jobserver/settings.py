@@ -94,6 +94,7 @@ TEMPLATES = [
                 "django.template.context_processors.request",
                 "django.contrib.auth.context_processors.auth",
                 "django.contrib.messages.context_processors.messages",
+                "django.template.context_processors.media",
                 "jobserver.context_processors.backend_warnings",
                 "jobserver.context_processors.can_view_staff_area",
                 "jobserver.context_processors.staff_nav",
@@ -195,6 +196,12 @@ WHITENOISE_SKIP_COMPRESS_EXTENSIONS = (
     "xz",
     "zip",
 )
+
+
+# User uploaded files
+# https://docs.djangoproject.com/en/4.0/topics/files/
+MEDIA_ROOT = BASE_DIR / "uploads"
+MEDIA_URL = "/uploads/"
 
 
 # Logging

@@ -1,6 +1,7 @@
 import debug_toolbar
 import social_django.views as social_django_views
 from django.conf import settings
+from django.conf.urls.static import static
 from django.contrib.auth.views import LogoutView
 from django.urls import include, path
 from django.views.decorators.csrf import csrf_exempt
@@ -298,4 +299,4 @@ urlpatterns = [
             ]
         ),
     ),
-]
+] + static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
