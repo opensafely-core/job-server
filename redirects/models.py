@@ -18,6 +18,12 @@ def validate_not_empty(value):
 
 
 class Redirect(models.Model):
+    org = models.ForeignKey(
+        "jobserver.Org",
+        on_delete=models.CASCADE,
+        related_name="redirects",
+        null=True,
+    )
     project = models.ForeignKey(
         "jobserver.Project",
         on_delete=models.CASCADE,
@@ -62,8 +68,9 @@ class Redirect(models.Model):
             ),
             models.CheckConstraint(
                 check=(
-                    Q(project__isnull=True, workspace__isnull=False)
-                    | Q(project__isnull=False, workspace__isnull=True)
+                    Q(org__isnull=False, project__isnull=True, workspace__isnull=True)
+                    | Q(org__isnull=True, project__isnull=False, workspace__isnull=True)
+                    | Q(org__isnull=True, project__isnull=True, workspace__isnull=False)
                 ),
                 name="%(app_label)s_%(class)s_only_one_target_model_set",
             ),
