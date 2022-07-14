@@ -77,6 +77,10 @@ const config = {
           dest: "./assets/dist/vendor/tablesorter",
         },
         {
+          src: "./node_modules/bs-custom-file-input/dist/bs-custom-file-input.min*",
+          dest: "./assets/dist/vendor/bs-custom-file-input",
+        },
+        {
           src: "./assets/src/js/*",
           dest: "./assets/dist/js",
         },
