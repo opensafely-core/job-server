@@ -66,9 +66,15 @@ def test_settings_get(rf):
 
 def test_settings_post(rf):
     UserFactory()
-    user2 = UserFactory(notifications_email="original@example.com")
+    user2 = UserFactory(
+        fullname="Ben Goldacre",
+        notifications_email="original@example.com",
+    )
 
-    data = {"notifications_email": "changed@example.com"}
+    data = {
+        "fullname": "Mr Testerson",
+        "notifications_email": "changed@example.com",
+    }
     request = rf.post("/", data)
     request.user = user2
 
@@ -78,12 +84,14 @@ def test_settings_post(rf):
     request._messages = messages
 
     response = Settings.as_view()(request)
+
     assert response.status_code == 302
     assert response.url == "/"
 
     user2.refresh_from_db()
 
     assert user2.notifications_email == "changed@example.com"
+    assert user2.fullname == "Mr Testerson"
 
     messages = list(messages)
     assert len(messages) == 1

@@ -7,7 +7,6 @@ from django.utils.decorators import method_decorator
 from django.views.defaults import bad_request
 from django.views.generic import UpdateView
 
-from ..forms import SettingsForm
 from ..utils import is_safe_path
 
 
@@ -24,7 +23,10 @@ def login_view(request):
 
 @method_decorator(login_required, name="dispatch")
 class Settings(UpdateView):
-    form_class = SettingsForm
+    fields = [
+        "fullname",
+        "notifications_email",
+    ]
     template_name = "settings.html"
     success_url = "/"
 
