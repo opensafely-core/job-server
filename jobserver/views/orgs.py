@@ -1,3 +1,4 @@
+from django.db.models.functions import Lower
 from django.http import Http404
 from django.shortcuts import redirect
 from django.template.response import TemplateResponse
@@ -26,7 +27,7 @@ class OrgDetail(DetailView):
 
             return redirect(workspace)
 
-        projects = org.projects.order_by("name")
+        projects = org.projects.order_by("number", Lower("name"))
 
         return TemplateResponse(
             request,
