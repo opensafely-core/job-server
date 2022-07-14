@@ -97,6 +97,7 @@ class OrgEdit(UpdateView):
     fields = [
         "name",
         "slug",
+        "logo_file",
     ]
     model = Org
     template_name = "staff/org_edit.html"

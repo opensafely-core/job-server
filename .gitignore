@@ -12,3 +12,4 @@ jobserver.dump
 node_modules/
 releases
 staticfiles
+uploads
