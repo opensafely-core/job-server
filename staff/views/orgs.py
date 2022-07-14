@@ -77,7 +77,7 @@ class OrgDetail(FormView):
             "github_orgs": sorted(self.object.github_orgs),
             "members": self.object.members.order_by(Lower("username")),
             "org": self.object,
-            "projects": self.object.projects.order_by("name"),
+            "projects": self.object.projects.order_by("number", Lower("name")),
         }
 
     def get_form_kwargs(self):
