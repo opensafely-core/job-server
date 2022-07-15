@@ -144,7 +144,7 @@
           </h2>
           <ul class="card-body list-unstyled">
             {% for user in project.members.all %}
-              {% if project.org not in request.user.orgs.all %}
+              {% if not project_org_in_user_orgs %}
               <li>{{ user.name }}</li>
               {% else %}
               <li class="mb-3">

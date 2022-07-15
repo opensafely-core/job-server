@@ -105,6 +105,7 @@ class ProjectDetail(View):
             "repos": list(
                 sorted(self.iter_repos(repos), key=operator.itemgetter("name"))
             ),
+            "project_org_in_user_orgs": project.org in request.user.orgs.all(),
             "workspaces": workspaces,
         }
 
