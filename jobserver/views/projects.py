@@ -7,6 +7,7 @@ from django.contrib.auth.decorators import login_required
 from django.core import signing
 from django.db import transaction
 from django.db.models import OuterRef, Subquery
+from django.db.models.functions import Lower
 from django.http import Http404
 from django.shortcuts import get_object_or_404, redirect
 from django.template.response import TemplateResponse
@@ -93,6 +94,9 @@ class ProjectDetail(View):
             request.user, "project_membership_edit", project=project
         )
 
+        memberships = project.memberships.select_related("user").order_by(
+            Lower("user__fullname"), "user__username"
+        )
         workspaces = project.workspaces.order_by("is_archived", "name")
 
         repos = set(workspaces.values_list("repo", flat=True))
@@ -100,6 +104,7 @@ class ProjectDetail(View):
         context = {
             "can_create_workspaces": can_create_workspaces,
             "can_manage_members": can_manage_members,
+            "memberships": memberships,
             "outputs": self.get_outputs(workspaces),
             "project": project,
             "repos": list(
