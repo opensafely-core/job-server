@@ -28,7 +28,6 @@ class Settings(UpdateView):
         "notifications_email",
     ]
     template_name = "settings.html"
-    success_url = "/"
 
     def form_valid(self, form):
         response = super().form_valid(form)
@@ -39,3 +38,6 @@ class Settings(UpdateView):
 
     def get_object(self):
         return self.request.user
+
+    def get_success_url(self):
+        return self.request.GET.get("next", "/")
