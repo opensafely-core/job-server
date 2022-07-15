@@ -113,19 +113,19 @@ class ProjectEdit(UpdateView):
         # mutation self.object under us
         old = self.get_object()
 
-        form.save()
+        new = form.save()
 
         # check changed_data here instead of comparing self.object.project to
         # new.project because self.object is mutated when ModelForm._post_clean
         # updates the instance it was passed.  This is because form.instance is
         # set from the passed in self.object.
-        if "org" in form.changed_data:
-            self.object.redirects.create(
+        if {"org", "slug"} & set(form.changed_data):
+            new.redirects.create(
                 created_by=self.request.user,
                 old_url=old.get_absolute_url(),
             )
 
-        return redirect(self.object.get_staff_url())
+        return redirect(new.get_staff_url())
 
     def get_context_data(self, **kwargs):
         # we don't have a nice way to override the type of text input

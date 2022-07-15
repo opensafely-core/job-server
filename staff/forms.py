@@ -5,7 +5,7 @@ from applications.forms import YesNoField
 from applications.models import Application, ResearcherRegistration
 from jobserver.authorization.forms import RolesForm
 from jobserver.backends import backends_to_choices
-from jobserver.models import Backend, Org, Project
+from jobserver.models import Backend, Org, Project, Workspace
 
 
 def user_label_from_instance(obj):
@@ -96,6 +96,7 @@ class ProjectEditForm(forms.ModelForm):
     class Meta:
         fields = [
             "name",
+            "slug",
             "number",
             "copilot",
             "copilot_support_ends_at",
@@ -205,4 +206,25 @@ class UserOrgsForm(forms.Form):
             queryset=available_orgs,
             required=False,
             widget=forms.CheckboxSelectMultiple,
+        )
+
+
+class WorkspaceModelChoiceField(forms.ModelChoiceField):
+    def label_from_instance(self, obj):
+        return obj.title
+
+
+class WorkspaceEditForm(forms.ModelForm):
+    class Meta:
+        fields = [
+            "project",
+            "uses_new_release_flow",
+        ]
+        model = Workspace
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+
+        self.fields["project"] = WorkspaceModelChoiceField(
+            queryset=Project.objects.order_by("number", Lower("name")),
         )

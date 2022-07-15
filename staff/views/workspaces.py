@@ -8,6 +8,8 @@ from jobserver.authorization import CoreDeveloper
 from jobserver.authorization.decorators import require_role
 from jobserver.models import Workspace
 
+from ..forms import WorkspaceEditForm
+
 
 @method_decorator(require_role(CoreDeveloper), name="dispatch")
 class WorkspaceDetail(DetailView):
@@ -23,7 +25,7 @@ class WorkspaceDetail(DetailView):
 
 @method_decorator(require_role(CoreDeveloper), name="dispatch")
 class WorkspaceEdit(UpdateView):
-    fields = ["project", "uses_new_release_flow"]
+    form_class = WorkspaceEditForm
     model = Workspace
     slug_field = "name"
     template_name = "staff/workspace_edit.html"
