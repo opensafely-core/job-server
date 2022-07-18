@@ -37,7 +37,7 @@ def test_index_with_authenticated_user_in_multiple_orgs(rf, user):
     response = Index.as_view()(request)
 
     assert "Pick an organisation" in response.rendered_content
-    assert "Add a New Workspace" in response.rendered_content
+    assert "Create a new workspace" in response.rendered_content
 
 
 def test_index_with_authenticated_user_in_one_org(rf, user):
@@ -50,7 +50,7 @@ def test_index_with_authenticated_user_in_one_org(rf, user):
     response = Index.as_view()(request)
 
     assert "Pick a project" in response.rendered_content
-    assert "Add a New Workspace" in response.rendered_content
+    assert "Create a new workspace" in response.rendered_content
 
 
 def test_index_with_authenticated_user_in_zero_orgs(rf):
@@ -63,7 +63,7 @@ def test_index_with_authenticated_user_in_zero_orgs(rf):
     response = Index.as_view()(request)
 
     assert "Pick a project" not in response.rendered_content
-    assert "Add a New Workspace" not in response.rendered_content
+    assert "Create a new workspace" not in response.rendered_content
 
 
 def test_index_with_unauthenticated_user(rf):
@@ -80,4 +80,4 @@ def test_index_with_unauthenticated_user(rf):
 
     assert response.status_code == 200
 
-    assert "Add a New Workspace" not in response.rendered_content
+    assert "Create a new workspace" not in response.rendered_content
