@@ -101,6 +101,10 @@ class ProjectDetail(View):
 
         repos = set(workspaces.values_list("repo", flat=True))
 
+        project_org_in_user_orgs = False
+        if request.user.is_authenticated:
+            project_org_in_user_orgs = project.org in request.user.orgs.all()
+
         context = {
             "can_create_workspaces": can_create_workspaces,
             "can_manage_members": can_manage_members,
@@ -110,7 +114,7 @@ class ProjectDetail(View):
             "repos": list(
                 sorted(self.iter_repos(repos), key=operator.itemgetter("name"))
             ),
-            "project_org_in_user_orgs": project.org in request.user.orgs.all(),
+            "project_org_in_user_orgs": project_org_in_user_orgs,
             "workspaces": workspaces,
         }
 
