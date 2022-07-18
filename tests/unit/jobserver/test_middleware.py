@@ -25,6 +25,7 @@ def test_requirenamemiddleware_without_fullname_set(rf):
     response = RequireNameMiddleware(get_response)(request)
 
     assert response.status_code == 302
+    assert response.url == "/settings/?next=/"
 
 
 def test_requirenamemiddleware_with_exempt_url(rf):

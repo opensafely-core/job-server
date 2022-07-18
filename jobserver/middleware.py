@@ -1,4 +1,5 @@
 from django.shortcuts import redirect
+from django.urls import reverse
 
 
 class RequireNameMiddleware:
@@ -50,4 +51,4 @@ class RequireNameMiddleware:
         if request.user.fullname != "":
             return self.get_response(request)
 
-        return redirect("settings")
+        return redirect(reverse("settings") + f"?next={request.path}")
