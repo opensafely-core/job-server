@@ -1,5 +1,6 @@
 import pytest
 import requests
+from django.contrib.auth.models import AnonymousUser
 from django.contrib.messages.storage.fallback import FallbackStorage
 from django.http import Http404
 from django.utils import timezone
@@ -190,7 +191,8 @@ def test_projectcancelinvite_without_manage_members_permission(rf):
         )
 
 
-def test_projectdetail_success(rf):
+@pytest.mark.parametrize("user", [UserFactory, AnonymousUser])
+def test_projectdetail_success(rf, user):
     org = OrgFactory()
     project = ProjectFactory(org=org)
     WorkspaceFactory.create_batch(
@@ -200,7 +202,11 @@ def test_projectdetail_success(rf):
     )
 
     request = rf.get("/")
-    request.user = UserFactory()
+
+    # instantiate here because pytest-django disables db access by default and
+    # our global fixture to re-enable it doesn't trigger early enough for the
+    # parametrize call
+    request.user = user()
 
     response = ProjectDetail.as_view(get_github_api=FakeGitHubAPI)(
         request, org_slug=org.slug, project_slug=project.slug
