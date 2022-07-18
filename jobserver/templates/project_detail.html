@@ -143,14 +143,14 @@
             Researchers
           </h2>
           <ul class="card-body list-unstyled">
-            {% for user in project.members.all %}
-              {% if project.org not in request.user.orgs.all %}
-              <li>{{ user.name }}</li>
+            {% for membership in memberships %}
+              {% if not project_org_in_user_orgs %}
+              <li>{{ membership.user.name }}</li>
               {% else %}
               <li class="mb-3">
-                <span>{{ user.name }}</span>
+                <span>{{ membership.user.name }}</span>
                 <ul class="list-unstyled">
-                  {% for role in user.roles %}
+                  {% for role in membership.roles %}
                   <li>
                     <span class="badge badge-pill badge-secondary">
                       {{ role.display_name }}

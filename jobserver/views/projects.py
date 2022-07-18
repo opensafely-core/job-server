@@ -7,11 +7,13 @@ from django.contrib.auth.decorators import login_required
 from django.core import signing
 from django.db import transaction
 from django.db.models import OuterRef, Subquery
+from django.db.models.functions import Lower
 from django.http import Http404
 from django.shortcuts import get_object_or_404, redirect
+from django.template.response import TemplateResponse
 from django.utils.decorators import method_decorator
 from django.utils.html import escape
-from django.views.generic import CreateView, DetailView, UpdateView, View
+from django.views.generic import CreateView, UpdateView, View
 from furl import furl
 from sentry_sdk import capture_exception
 
@@ -75,42 +77,44 @@ class ProjectCancelInvite(View):
         return redirect(invite.project.get_settings_url())
 
 
-class ProjectDetail(DetailView):
+class ProjectDetail(View):
     get_github_api = staticmethod(_get_github_api)
-    template_name = "project_detail.html"
 
-    def get_object(self):
-        return get_object_or_404(
+    def get(self, request, *args, **kwargs):
+        project = get_object_or_404(
             Project,
             slug=self.kwargs["project_slug"],
             org__slug=self.kwargs["org_slug"],
         )
 
-    def get_context_data(self, **kwargs):
         can_create_workspaces = has_permission(
-            self.request.user,
-            "workspace_create",
-            project=self.object,
+            request.user, "workspace_create", project=project
         )
         can_manage_members = has_permission(
-            self.request.user,
-            "project_membership_edit",
-            project=self.object,
+            request.user, "project_membership_edit", project=project
         )
 
-        workspaces = self.object.workspaces.order_by("is_archived", "name")
+        memberships = project.memberships.select_related("user").order_by(
+            Lower("user__fullname"), "user__username"
+        )
+        workspaces = project.workspaces.order_by("is_archived", "name")
 
         repos = set(workspaces.values_list("repo", flat=True))
 
-        return super().get_context_data(**kwargs) | {
+        context = {
             "can_create_workspaces": can_create_workspaces,
             "can_manage_members": can_manage_members,
+            "memberships": memberships,
             "outputs": self.get_outputs(workspaces),
+            "project": project,
             "repos": list(
                 sorted(self.iter_repos(repos), key=operator.itemgetter("name"))
             ),
+            "project_org_in_user_orgs": project.org in request.user.orgs.all(),
             "workspaces": workspaces,
         }
+
+        return TemplateResponse(request, "project_detail.html", context=context)
 
     def get_outputs(self, workspaces):
         """
