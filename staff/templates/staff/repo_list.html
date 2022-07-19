@@ -50,7 +50,12 @@
               <td class="text-nowrap">{{ repo.created_at|date:"d M Y" }}</td>
               <td class="text-nowrap">{{ repo.first_run|date:"d M Y" }}</td>
               <td><a href="{{ repo.url }}">{{ repo.name }}</a></td>
-              <td><a href="{{ repo.workspace.get_staff_url }}">{{ repo.workspace.name }}</a></td>
+              <td>
+                <a href="{{ repo.workspace.get_staff_url }}">{{ repo.workspace.name }}</a>
+                {% if repo.workspaces|length > 1 %}
+                (+{{ repo.workspaces|length }})
+                {% endif %}
+              </td>
               <td><a href="{{ repo.workspace.created_by.get_staff_url }}">{{ repo.workspace.created_by.email }}</a></td>
               {% if repo.has_releases %}
               <td class="text-danger">✓</td>
