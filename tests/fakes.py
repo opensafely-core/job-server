@@ -53,31 +53,45 @@ class FakeGitHubAPI:
     def get_repos_with_dates(self, org):
         return [
             {
-                "name": "job-runner",
-                "url": "https://github.com/opensafely-core/job-runner",
-                "is_private": True,
-                "created_at": timezone.now(),
-                "topics": ["test"],
-            },
-            {
-                "name": "job-server",
-                "url": "https://github.com/opensafely-core/job-server",
-                "is_private": True,
-                "created_at": timezone.now(),
-                "topics": ["test"],
-            },
-            {
-                "name": "test",
-                "url": "test",
-                "is_private": True,
-                "created_at": timezone.now(),
-                "topics": ["test"],
-            },
-            {
                 "name": "predates-job-server",
-                "url": "test-url",
+                "url": "https://github.com/opensafely/predates-job-server",
                 "is_private": True,
                 "created_at": datetime(2020, 7, 31, tzinfo=timezone.utc),
+                "topics": ["github-releases"],
+            },
+            {
+                "name": "research-repo-1",
+                "url": "https://github.com/opensafely/research-repo-1",
+                "is_private": True,
+                "created_at": timezone.now(),
+                "topics": ["github-releases"],
+            },
+            {
+                "name": "research-repo-2",
+                "url": "https://github.com/opensafely/research-repo-2",
+                "is_private": True,
+                "created_at": timezone.now(),
+                "topics": [],
+            },
+            {
+                "name": "research-repo-3",
+                "url": "https://github.com/opensafely/research-repo-3",
+                "is_private": False,
+                "created_at": timezone.now(),
+                "topics": ["github-releases"],
+            },
+            {
+                "name": "no workspaces or jobs",
+                "url": "https://github.com/opensafely/research-repo-4",
+                "is_private": True,
+                "created_at": timezone.now(),
+                "topics": [],
+            },
+            {
+                "name": "jobs haven't run",
+                "url": "https://github.com/opensafely/research-repo-5",
+                "is_private": True,
+                "created_at": timezone.now(),
                 "topics": [],
             },
         ]
