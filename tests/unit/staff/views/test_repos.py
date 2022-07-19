@@ -9,39 +9,86 @@ from ....fakes import FakeGitHubAPI
 from ....utils import minutes_ago
 
 
-def test_repolist_success(rf, core_developer):
+def test_repolist_success(rf, django_assert_num_queries, core_developer):
     eleven_months_ago = timezone.now() - timedelta(days=30 * 11)
 
-    workspace1 = WorkspaceFactory(repo="https://github.com/opensafely-core/job-server")
-    jr_1 = JobRequestFactory(workspace=workspace1)
-    JobFactory(job_request=jr_1, started_at=minutes_ago(eleven_months_ago, 3))
-    JobFactory(job_request=jr_1, started_at=minutes_ago(eleven_months_ago, 2))
-    JobFactory(job_request=jr_1, started_at=minutes_ago(eleven_months_ago, 1))
+    # 3 private repos
+    # 1 public repo
+    # 3, 2, 1 workspaces respectively for 3 private repos
 
-    workspace2 = WorkspaceFactory(repo="https://github.com/opensafely-core/job-runner")
-    jr_2 = JobRequestFactory(workspace=workspace2)
-    JobFactory(job_request=jr_2, started_at=minutes_ago(eleven_months_ago, 2))
+    # research-repo-1
+    rr1_workspace_1 = WorkspaceFactory(
+        repo="https://github.com/opensafely/research-repo-1"
+    )
+    rr1_jr_1 = JobRequestFactory(workspace=rr1_workspace_1)
+    JobFactory(job_request=rr1_jr_1, started_at=minutes_ago(eleven_months_ago, 3))
+    JobFactory(job_request=rr1_jr_1, started_at=minutes_ago(eleven_months_ago, 2))
+    JobFactory(job_request=rr1_jr_1, started_at=minutes_ago(eleven_months_ago, 1))
 
-    workspace3 = WorkspaceFactory(repo="https://github.com/opensafely-core/job-server")
-    jr_3 = JobRequestFactory(workspace=workspace3)
-    JobFactory(job_request=jr_3, started_at=minutes_ago(eleven_months_ago, 10))
+    rr1_workspace_2 = WorkspaceFactory(
+        repo="https://github.com/opensafely/research-repo-1"
+    )
+    rr1_jr_2 = JobRequestFactory(workspace=rr1_workspace_2)
+    JobFactory(job_request=rr1_jr_2, started_at=minutes_ago(eleven_months_ago, 4))
+    JobFactory(job_request=rr1_jr_2, started_at=minutes_ago(eleven_months_ago, 5))
 
-    workspace4 = WorkspaceFactory(repo="https://github.com/opensafely-core/job-server")
-    jr_4 = JobRequestFactory(workspace=workspace4)
-    JobFactory(job_request=jr_4, started_at=None)
+    rr1_workspace_3 = WorkspaceFactory(
+        repo="https://github.com/opensafely/research-repo-1"
+    )
+    rr1_jr_3 = JobRequestFactory(workspace=rr1_workspace_3)
+    JobFactory(job_request=rr1_jr_3, started_at=minutes_ago(eleven_months_ago, 10))
 
-    workspace5 = WorkspaceFactory(repo="test-url")
-    JobRequestFactory(workspace=workspace5)
+    # research-repo-2
+    rr2_workspace_1 = WorkspaceFactory(
+        repo="https://github.com/opensafely/research-repo-2"
+    )
+    rr2_jr_1 = JobRequestFactory(workspace=rr2_workspace_1)
+    JobFactory(job_request=rr2_jr_1, started_at=minutes_ago(eleven_months_ago, 30))
+    JobFactory(job_request=rr2_jr_1, started_at=minutes_ago(eleven_months_ago, 20))
+    JobFactory(job_request=rr2_jr_1, started_at=None)
+
+    rr2_workspace_2 = WorkspaceFactory(
+        repo="https://github.com/opensafely/research-repo-2"
+    )
+    rr2_jr_2 = JobRequestFactory(workspace=rr2_workspace_2)
+    JobFactory(job_request=rr2_jr_2, started_at=minutes_ago(eleven_months_ago, 17))
+    JobFactory(job_request=rr2_jr_2, started_at=minutes_ago(eleven_months_ago, 13))
+
+    # research-repo-3
+    rr3_workspace_1 = WorkspaceFactory(
+        repo="https://github.com/opensafely/research-repo-3"
+    )
+    rr3_jr_1 = JobRequestFactory(workspace=rr3_workspace_1)
+    JobFactory(job_request=rr3_jr_1, started_at=minutes_ago(eleven_months_ago, 42))
+    JobFactory(job_request=rr3_jr_1, started_at=minutes_ago(eleven_months_ago, 38))
+
+    # research-repo-5
+    rr5_workspace_1 = WorkspaceFactory(
+        repo="https://github.com/opensafely/research-repo-5"
+    )
+    rr5_jr_1 = JobRequestFactory(workspace=rr5_workspace_1)
+    JobFactory(job_request=rr5_jr_1, started_at=None)
 
     request = rf.get("/")
     request.user = core_developer
 
-    response = RepoList.as_view(get_github_api=FakeGitHubAPI)(request)
+    with django_assert_num_queries(1):
+        response = RepoList.as_view(get_github_api=FakeGitHubAPI)(request)
 
     assert response.status_code == 200
 
-    job_runner, job_server, _ = sorted(
-        response.context_data["repos"], key=lambda r: r["name"]
-    )
-    assert job_runner["workspace"].first_run == minutes_ago(eleven_months_ago, 2)
-    assert job_server["workspace"].first_run == minutes_ago(eleven_months_ago, 10)
+    predates_job_server, research_repo_1, research_repo_2 = response.context_data[
+        "repos"
+    ]
+
+    assert predates_job_server["first_run"] is None
+    assert predates_job_server["has_releases"]
+    assert predates_job_server["workspace"] is None
+
+    assert research_repo_1["first_run"] == minutes_ago(eleven_months_ago, 10)
+    assert research_repo_1["has_releases"]
+    assert research_repo_1["workspace"] == rr1_workspace_3
+
+    assert research_repo_2["first_run"] == minutes_ago(eleven_months_ago, 30)
+    assert not research_repo_2["has_releases"]
+    assert research_repo_2["workspace"] == rr2_workspace_1
