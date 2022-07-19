@@ -88,6 +88,9 @@ logging_config_dict = {
             "level": "INFO",
             "propagate": False,
         },
+        "applications": {"handlers": ["console"], "level": "INFO", "propagate": False},
         "jobserver": {"handlers": ["console"], "level": "INFO", "propagate": False},
+        "services": {"handlers": ["console"], "level": "INFO", "propagate": False},
+        "staff": {"handlers": ["console"], "level": "INFO", "propagate": False},
     },
 }
