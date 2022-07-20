@@ -201,8 +201,6 @@ class ApplicationEdit(UpdateView):
 
 @method_decorator(require_role(CoreDeveloper), name="dispatch")
 class ApplicationList(ListView):
-    model = Application
-    ordering = "-created_at"
     template_name = "staff/application_list.html"
 
     def get_context_data(self, **kwargs):
@@ -219,7 +217,9 @@ class ApplicationList(ListView):
         }
 
     def get_queryset(self):
-        qs = super().get_queryset().select_related("created_by")
+        qs = Application.objects.select_related("created_by", "project").order_by(
+            "-created_at"
+        )
 
         if q := self.request.GET.get("q"):
             filters = {
