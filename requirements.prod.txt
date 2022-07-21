@@ -767,9 +767,9 @@ ruamel-yaml-clib==0.2.6 \
     --hash=sha256:dc6a613d6c74eef5a14a214d433d06291526145431c3b964f5e16529b1842bed \
     --hash=sha256:de9c6b8a1ba52919ae919f3ae96abb72b994dd0350226e28f3686cb4f142165c
     # via ruamel-yaml
-sentry-sdk==1.7.2 \
-    --hash=sha256:6f460da98b730d671510af18f119f96d01e3ba027ac0e985871abb3aede1c514 \
-    --hash=sha256:95fd321f583dfcfaf279a0b2cdc83d8d28c8b7cca4d2959fc4539bb4fecb56a0
+sentry-sdk==1.8.0 \
+    --hash=sha256:5daae00f91dd72d9bb1a65307221fe291417a7b9c30527de3a6f0d9be4ddf08d \
+    --hash=sha256:9c68e82f7b1ad78aee6cdef57c2c0f6781ddd9ffa8848f4503c5a8e02b360eea
     # via -r requirements.prod.in
 setproctitle==1.2.2 \
     --hash=sha256:077943272d0490b3f43d17379432d5e49c263f608fdf4cf624b419db762ca72b \
