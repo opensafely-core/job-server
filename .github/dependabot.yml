@@ -5,17 +5,6 @@ updates:
     directory: "/"
     schedule:
       interval: "daily"
-    allow:
-      - dependency-type: "production"
-    reviewers:
-
-  - package-ecosystem: "pip"
-    directory: "/"
-    schedule:
-      interval: "monthly"
-    allow:
-      - dependency-type: "development"
-    reviewers:
 
   - package-ecosystem: "npm"
     directory: "/"
