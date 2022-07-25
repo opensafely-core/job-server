@@ -2,6 +2,7 @@ from datetime import timedelta
 
 import pytest
 from django.core import signing
+from django.db import IntegrityError
 from django.urls import reverse
 from django.utils import timezone
 
@@ -764,6 +765,23 @@ def test_projectmembership_str():
     membership = ProjectMembershipFactory(project=project, user=user)
 
     assert str(membership) == "ben | DataLab"
+
+
+def test_user_constraints_pat_token_and_pat_expires_at_both_set():
+    UserFactory(pat_token="test", pat_expires_at=timezone.now())
+
+
+def test_user_constraints_pat_token_and_pat_expires_at_neither_set():
+    UserFactory(pat_token=None, pat_expires_at=None)
+
+
+@pytest.mark.django_db(transaction=True)
+def test_user_constraints_missing_pat_token_or_pat_expires_at():
+    with pytest.raises(IntegrityError):
+        UserFactory(pat_token=None, pat_expires_at=timezone.now())
+
+    with pytest.raises(IntegrityError):
+        UserFactory(pat_token="test", pat_expires_at=None)
 
 
 def test_user_name():

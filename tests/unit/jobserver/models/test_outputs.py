@@ -1,10 +1,12 @@
 import pytest
 from django.conf import settings
+from django.db import IntegrityError
 from django.urls import reverse
 from django.utils import timezone
 
 from tests.factories import (
     ReleaseFactory,
+    ReleaseFileFactory,
     ReleaseUploadsFactory,
     SnapshotFactory,
     UserFactory,
@@ -65,6 +67,27 @@ def test_release_file_absolute_path():
     path = rfile.absolute_path()
     assert path == expected
     assert path.read_text() == "test_absolute_path"
+
+
+def test_releasefile_constraints_deleted_at_and_deleted_by_both_set():
+    upload = ReleaseUploadsFactory({"file1.txt": b"test"})[0]
+    ReleaseFileFactory(upload, deleted_at=timezone.now(), deleted_by=UserFactory())
+
+
+def test_releasefile_constraints_deleted_at_and_deleted_by_neither_set():
+    upload = ReleaseUploadsFactory({"file1.txt": b"test"})[0]
+    ReleaseFileFactory(upload, deleted_at=None, deleted_by=None)
+
+
+@pytest.mark.django_db(transaction=True)
+def test_releasefile_constraints_missing_deleted_at_or_deleted_by():
+    upload = ReleaseUploadsFactory({"file1.txt": b"test"})[0]
+
+    with pytest.raises(IntegrityError):
+        ReleaseFileFactory(upload, deleted_at=None, deleted_by=UserFactory())
+
+    with pytest.raises(IntegrityError):
+        ReleaseFileFactory(upload, deleted_at=timezone.now(), deleted_by=None)
 
 
 def test_releasefile_get_absolute_url():

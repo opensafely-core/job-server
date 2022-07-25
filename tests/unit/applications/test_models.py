@@ -6,12 +6,24 @@ from django.utils import timezone
 from ...factories import ApplicationFactory, ResearcherRegistrationFactory, UserFactory
 
 
-def test_application_constraint_approved_at_and_approved_by_both_set():
+def test_application_constraints_approved_at_and_approved_by_both_set():
     ApplicationFactory(approved_at=timezone.now(), approved_by=UserFactory())
 
 
+def test_application_constraints_approved_at_and_approved_by_neither_set():
+    ApplicationFactory(approved_at=None, approved_by=None)
+
+
+def test_application_constraints_deleted_at_and_deleted_by_both_set():
+    ApplicationFactory(deleted_at=timezone.now(), deleted_by=UserFactory())
+
+
+def test_application_constraints_deleted_at_and_deleted_by_neither_set():
+    ApplicationFactory(deleted_at=None, deleted_by=None)
+
+
 @pytest.mark.django_db(transaction=True)
-def test_application_constraint_missing_approved_at_or_approved_by():
+def test_application_constraints_missing_approved_at_or_approved_by():
     msg = '^new row for relation "applications_application" violates check constraint "applications_application_both_approved_at_and_approved_by_set"'
 
     with pytest.raises(IntegrityError, match=msg):
@@ -19,6 +31,15 @@ def test_application_constraint_missing_approved_at_or_approved_by():
 
     with pytest.raises(IntegrityError, match=msg):
         ApplicationFactory(approved_at=None, approved_by=UserFactory())
+
+
+@pytest.mark.django_db(transaction=True)
+def test_application_constraints_missing_deleted_at_or_deleted_by():
+    with pytest.raises(IntegrityError):
+        ApplicationFactory(deleted_at=timezone.now(), deleted_by=None)
+
+    with pytest.raises(IntegrityError):
+        ApplicationFactory(deleted_at=None, deleted_by=UserFactory())
 
 
 def test_application_get_absolute_url():
