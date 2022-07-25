@@ -130,6 +130,10 @@ check: devenv
     $BIN/django-upgrade --target-version=3.2 $(find applications jobserver services tests -name "*.py" -type f)
 
 
+check-migrations: devenv
+    $BIN/python manage.py makemigrations --dry-run --check
+
+
 # fix formatting and import sort ordering
 fix: devenv
     $BIN/black .
