@@ -77,13 +77,7 @@ def test_repolist_success(rf, django_assert_num_queries, core_developer):
 
     assert response.status_code == 200
 
-    predates_job_server, research_repo_1, research_repo_2 = response.context_data[
-        "repos"
-    ]
-
-    assert predates_job_server["first_run"] is None
-    assert predates_job_server["has_releases"]
-    assert predates_job_server["workspace"] is None
+    research_repo_1, research_repo_2 = response.context_data["repos"]
 
     assert research_repo_1["first_run"] == minutes_ago(eleven_months_ago, 10)
     assert research_repo_1["has_releases"]

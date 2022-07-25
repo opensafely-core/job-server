@@ -28,9 +28,8 @@ class RepoList(View):
 
         Repos should be:
          * Private
+         * not have `non-research` topic
          * first job was run > 11 months ago
-           OR
-         * no workspaces/jobs AND has github-releases topic
         """
         all_repos = list(self.get_github_api().get_repos_with_dates("opensafely"))
 
@@ -99,15 +98,9 @@ class RepoList(View):
 
             We're already working with private repos here so we check
 
-            * Has the `github-releases` topic
             * Has jobs or a workspace
             * First job to run happened over 11 months ago
             """
-            if repo["has_releases"]:
-                # it has outputs released to it so assume code has been run to
-                # make those
-                return True
-
             if not (repo["workspaces"] and repo["has_jobs"]):
                 logger.info("No workspaces/jobs", url=repo["url"])
                 return False
