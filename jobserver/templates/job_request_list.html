@@ -147,7 +147,7 @@
 
 {% block extra_js %}
 <script type="text/javascript" src="{% static 'vendor/select2.min.js' %}"></script>
-<script type="text/javascript">
+<script type="text/javascript" nonce="{{ request.csp_nonce }}">
   $(document).ready(function() {
     $('#filter_backend').select2({
       placeholder: "Backend",

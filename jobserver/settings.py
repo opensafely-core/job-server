@@ -261,6 +261,16 @@ CSRF_TRUSTED_ORIGINS = [BASE_URL]
 X_FRAME_OPTIONS = "SAMEORIGIN"
 
 
+# CSP
+# https://django-csp.readthedocs.io/en/latest/configuration.html
+CSP_DEFAULT_SRC = ["'self'"]
+CSP_IMG_SRC = ["*", "data:"]
+CSP_SCRIPT_SRC = ["'self'"]
+
+# which directives to set a nonce for
+CSP_INCLUDE_NONCE_IN = ["script-src"]
+
+
 # THIRD PARTY SETTINGS
 
 # Anymail
