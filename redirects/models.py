@@ -61,8 +61,16 @@ class Redirect(models.Model):
         constraints = [
             models.CheckConstraint(
                 check=(
-                    (Q(deleted_at=None) & Q(deleted_by=None))
-                    | (~Q(deleted_at=None) & ~Q(deleted_by=None))
+                    Q(
+                        deleted_at__isnull=True,
+                        deleted_by__isnull=True,
+                    )
+                    | (
+                        Q(
+                            deleted_at__isnull=False,
+                            deleted_by__isnull=False,
+                        )
+                    )
                 ),
                 name="%(app_label)s_%(class)s_both_deleted_at_and_deleted_by_set",
             ),

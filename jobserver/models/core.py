@@ -767,8 +767,14 @@ class User(AbstractBaseUser):
         constraints = [
             models.CheckConstraint(
                 check=(
-                    (Q(pat_expires_at=None) & Q(pat_token=None))
-                    | (~Q(pat_expires_at=None) & ~Q(pat_token=None))
+                    Q(
+                        pat_expires_at__isnull=True,
+                        pat_token__isnull=True,
+                    )
+                    | Q(
+                        pat_expires_at__isnull=False,
+                        pat_token__isnull=False,
+                    )
                 ),
                 name="%(app_label)s_%(class)s_both_pat_expires_at_and_pat_token_set",
             ),
