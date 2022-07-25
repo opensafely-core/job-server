@@ -52,3 +52,15 @@ class RequireNameMiddleware:
             return self.get_response(request)
 
         return redirect(reverse("settings") + f"?next={request.path}")
+
+
+class XSSFilteringMiddleware:
+    def __init__(self, get_response):
+        self.get_response = get_response
+
+    def __call__(self, request):
+        response = self.get_response(request)
+
+        response.headers.setdefault("X-XSS-Protection", "1; mode=block")
+
+        return response

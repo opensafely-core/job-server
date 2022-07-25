@@ -81,6 +81,7 @@ MIDDLEWARE = [
     "django_htmx.middleware.HtmxMiddleware",
     "jobserver.middleware.RequireNameMiddleware",
     "csp.middleware.CSPMiddleware",
+    "jobserver.middleware.XSSFilteringMiddleware",
 ]
 
 ROOT_URLCONF = "jobserver.urls"
