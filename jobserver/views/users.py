@@ -11,7 +11,7 @@ from ..utils import is_safe_path
 
 
 def login_view(request):
-    next_url = request.GET.get("next", "/")
+    next_url = request.GET.get("next") or "/"
     if not is_safe_path(next_url):
         return bad_request(request, SuspiciousOperation)
 

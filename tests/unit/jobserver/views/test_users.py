@@ -6,6 +6,16 @@ from jobserver.views.users import Settings, login_view
 from ....factories import UserFactory
 
 
+def test_login_empty_next(rf):
+    request = rf.get("/?next=")
+    request.user = UserFactory()
+
+    response = login_view(request)
+
+    assert response.status_code == 302
+    assert response.url == "/"
+
+
 def test_login_no_path(rf):
     request = rf.get("/")
     request.user = AnonymousUser()
