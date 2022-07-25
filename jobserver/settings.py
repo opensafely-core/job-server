@@ -283,7 +283,7 @@ CSP_INCLUDE_NONCE_IN = ["script-src-elem"]
 if DJANGO_VITE_DEV_MODE:
     CSP_CONNECT_SRC = ["ws://localhost:3000/static/"]
     CSP_FONT_SRC = ["'self'", "data:"]
-    CSP_SCRIPT_SRC_ELEM = ["'self'", "http://localhost:3000"]
+    CSP_SCRIPT_SRC_ELEM = ["'self'", "https://plausible.io", "http://localhost:3000"]
     CSP_STYLE_SRC_ELEM = ["'self'", "'unsafe-inline'"]
 
 
