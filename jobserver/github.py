@@ -267,6 +267,13 @@ class GitHubAPI:
                     name
                   }
                 }
+                repositoryTopics(first: 100) {
+                  nodes {
+                    topic {
+                      name
+                    }
+                  }
+                }
               }
               pageInfo {
                   endCursor
@@ -279,6 +286,13 @@ class GitHubAPI:
         results = list(self._iter_query_results(query, org_name=org))
         for repo in results:
             branches = [b["name"] for b in repo["refs"]["nodes"]]
+
+            topics = []
+            if repo["repositoryTopics"]["nodes"]:
+                topics = [n["topic"]["name"] for n in repo["repositoryTopics"]["nodes"]]
+
+            if "non-research" in topics:
+                continue  # ignore non-research repos
 
             yield {
                 "name": repo["name"],
