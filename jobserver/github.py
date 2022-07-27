@@ -102,7 +102,7 @@ class GitHubAPI:
                 f"graphql query failed\n\nquery:\n{query}\n\nresponse:\n{json.dumps(results, indent=2)}"
             )
 
-        return results["data"]["organization"]["team"]["repositories"]
+        return results["data"]["organization"]["repositories"]
 
     def _iter_query_results(self, query, **kwargs):
         """
@@ -117,7 +117,7 @@ class GitHubAPI:
         wraps the actual API calls done in _get_query_page and tracks the cursor.
         one.
         """
-        cursor = ""
+        cursor = None
         while True:
             data = self._get_query_page(
                 query=query,
@@ -258,21 +258,26 @@ class GitHubAPI:
         query = """
         query reposAndBranches($cursor: String, $org_name: String!) {
           organization(login: $org_name) {
-            team(slug: "researchers") {
-              repositories(first: 100, after: $cursor) {
-                nodes {
-                  name
-                  url
-                  refs(refPrefix: "refs/heads/", first: 100) {
-                    nodes {
+            repositories(first: 100, after: $cursor) {
+              nodes {
+                name
+                url
+                refs(refPrefix: "refs/heads/", first: 100) {
+                  nodes {
+                    name
+                  }
+                }
+                repositoryTopics(first: 100) {
+                  nodes {
+                    topic {
                       name
                     }
                   }
                 }
-                pageInfo {
-                    endCursor
-                    hasNextPage
-                }
+              }
+              pageInfo {
+                  endCursor
+                  hasNextPage
               }
             }
           }
@@ -281,6 +286,13 @@ class GitHubAPI:
         results = list(self._iter_query_results(query, org_name=org))
         for repo in results:
             branches = [b["name"] for b in repo["refs"]["nodes"]]
+
+            topics = []
+            if repo["repositoryTopics"]["nodes"]:
+                topics = [n["topic"]["name"] for n in repo["repositoryTopics"]["nodes"]]
+
+            if "non-research" in topics:
+                continue  # ignore non-research repos
 
             yield {
                 "name": repo["name"],
@@ -292,25 +304,23 @@ class GitHubAPI:
         query = """
         query reposAndBranches($cursor: String, $org_name: String!) {
           organization(login: $org_name) {
-            team(slug: "researchers") {
-              repositories(first: 100, after: $cursor) {
-                nodes {
-                  name
-                  url
-                  isPrivate
-                  createdAt
-                  repositoryTopics(first: 100) {
-                    nodes {
-                      topic {
-                        name
-                      }
+            repositories(first: 100, after: $cursor) {
+              nodes {
+                name
+                url
+                isPrivate
+                createdAt
+                repositoryTopics(first: 100) {
+                  nodes {
+                    topic {
+                      name
                     }
                   }
                 }
-                pageInfo {
-                    endCursor
-                    hasNextPage
-                }
+              }
+              pageInfo {
+                  endCursor
+                  hasNextPage
               }
             }
           }
