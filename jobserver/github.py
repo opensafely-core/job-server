@@ -117,7 +117,7 @@ class GitHubAPI:
         wraps the actual API calls done in _get_query_page and tracks the cursor.
         one.
         """
-        cursor = ""
+        cursor = None
         while True:
             data = self._get_query_page(
                 query=query,
