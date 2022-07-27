@@ -143,6 +143,19 @@ class ReleaseFile(models.Model):
             )
         ]
 
+    def __format__(self, format_spec):
+        match format_spec:
+            case "b":
+                return f"{self.size:,}b"
+            case "Kb":
+                value = round(self.size / 1024, 2)
+                return f"{value:,}Kb"
+            case "Mb":
+                value = round(self.size / (1024 * 1024), 2)
+                return f"{value:,}Mb"
+            case _:
+                return super().__format__(format_spec)
+
     def absolute_path(self):
         return absolute_file_path(self.path)
 
