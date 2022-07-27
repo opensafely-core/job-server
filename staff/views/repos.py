@@ -63,6 +63,7 @@ class RepoList(View):
             workspaces = [
                 w for w in all_workspaces if repo["url"].lower() == w.repo.lower()
             ]
+            workspaces = sorted(workspaces, key=lambda w: w.name.lower())
 
             # get workspaces which have run jobs
             with_jobs = [w for w in workspaces if w.first_run]
