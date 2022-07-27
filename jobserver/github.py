@@ -102,7 +102,7 @@ class GitHubAPI:
                 f"graphql query failed\n\nquery:\n{query}\n\nresponse:\n{json.dumps(results, indent=2)}"
             )
 
-        return results["data"]["organization"]["team"]["repositories"]
+        return results["data"]["organization"]["repositories"]
 
     def _iter_query_results(self, query, **kwargs):
         """
@@ -258,21 +258,19 @@ class GitHubAPI:
         query = """
         query reposAndBranches($cursor: String, $org_name: String!) {
           organization(login: $org_name) {
-            team(slug: "researchers") {
-              repositories(first: 100, after: $cursor) {
-                nodes {
-                  name
-                  url
-                  refs(refPrefix: "refs/heads/", first: 100) {
-                    nodes {
-                      name
-                    }
+            repositories(first: 100, after: $cursor) {
+              nodes {
+                name
+                url
+                refs(refPrefix: "refs/heads/", first: 100) {
+                  nodes {
+                    name
                   }
                 }
-                pageInfo {
-                    endCursor
-                    hasNextPage
-                }
+              }
+              pageInfo {
+                  endCursor
+                  hasNextPage
               }
             }
           }
@@ -292,25 +290,23 @@ class GitHubAPI:
         query = """
         query reposAndBranches($cursor: String, $org_name: String!) {
           organization(login: $org_name) {
-            team(slug: "researchers") {
-              repositories(first: 100, after: $cursor) {
-                nodes {
-                  name
-                  url
-                  isPrivate
-                  createdAt
-                  repositoryTopics(first: 100) {
-                    nodes {
-                      topic {
-                        name
-                      }
+            repositories(first: 100, after: $cursor) {
+              nodes {
+                name
+                url
+                isPrivate
+                createdAt
+                repositoryTopics(first: 100) {
+                  nodes {
+                    topic {
+                      name
                     }
                   }
                 }
-                pageInfo {
-                    endCursor
-                    hasNextPage
-                }
+              }
+              pageInfo {
+                  endCursor
+                  hasNextPage
               }
             }
           }
