@@ -1,9 +1,8 @@
 import PropTypes from "prop-types";
 import React from "react";
-import classes from "./Text.module.scss";
 
 function Text({ data }) {
-  return <pre className={classes.txt}>{data}</pre>;
+  return <pre className="txt">{data}</pre>;
 }
 
 export default Text;

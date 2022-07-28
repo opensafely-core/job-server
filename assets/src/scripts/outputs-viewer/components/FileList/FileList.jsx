@@ -6,7 +6,6 @@ import { useFiles } from "../../context/FilesProvider";
 import useFileList from "../../hooks/use-file-list";
 import useWindowSize from "../../hooks/use-window-size";
 import prettyFileSize from "../../utils/pretty-file-size";
-import classes from "./FileList.module.scss";
 import Filter from "./Filter";
 
 function FileList({ listVisible, setListVisible }) {
@@ -65,7 +64,7 @@ function FileList({ listVisible, setListVisible }) {
 
   if (isLoading) {
     return (
-      <div className={`${classes.list} card p-2`}>
+      <div className="list card p-2">
         <ul>
           <li>Loading…</li>
         </ul>
@@ -75,7 +74,7 @@ function FileList({ listVisible, setListVisible }) {
 
   if (isError) {
     return (
-      <div className={`${classes.list} card p-2`}>
+      <div className="list card p-2">
         <ul>
           <li>Error: Unable to load files</li>
         </ul>
@@ -101,12 +100,12 @@ function FileList({ listVisible, setListVisible }) {
   };
 
   return (
-    <div className={`${classes.sidebar} ${listVisible ? "d-block" : "d-none"}`}>
+    <div className={`sidebar ${listVisible ? "d-block" : "d-none"}`}>
       <Filter files={data} listRef={listRef} setFiles={setFiles} />{" "}
       <div className="card pt-2">
         <FixedSizeList
           ref={listRef}
-          className={classes.list}
+          className="list"
           height={listHeight}
           innerElementType="ul"
           itemCount={files.length}
@@ -116,16 +115,16 @@ function FileList({ listVisible, setListVisible }) {
         >
           {({ index, style }) => (
             <li
-              className={`${classes.listItem}
-                ${fileIndex === index ? classes.selected : null}
-              `}
+              className={`list-item ${
+                fileIndex === index && "list-item--selected"
+              }`}
               style={style}
             >
               {fileIndex === index ? (
                 <span>{files[index].shortName}</span>
               ) : (
                 <a
-                  className={classes.listItemLink}
+                  className="list-item__link"
                   disabled={`/${files[index].name}` === location.pathname}
                   href={files[index].url}
                   onClick={(e) => selectFile({ e, item: files[index] })}
