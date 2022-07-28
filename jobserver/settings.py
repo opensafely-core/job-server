@@ -265,26 +265,36 @@ X_FRAME_OPTIONS = "SAMEORIGIN"
 # CSP
 # https://django-csp.readthedocs.io/en/latest/configuration.html
 CSP_REPORT_ONLY = DEBUG
-CSP_DEFAULT_SRC = ["'self'"]
+CSP_DEFAULT_SRC = ["'none'"]
+CSP_CONNECT_SRC = ["'self'", "https://plausible.io"]
 CSP_FONT_SRC = ["'self'"]
 CSP_IMG_SRC = [
     "'self'",
+    "blob:",
     "data: w3.org/svg/2000",
     "https://github.com",
     "https://avatars.githubusercontent.com",
 ]
-CSP_SCRIPT_SRC_ELEM = ["'self'", "https://plausible.io"]
-CSP_STYLE_SRC_ELEM = ["'self'"]
+CSP_MANIFEST_SRC = ["'self'"]
+
+# Duplicate the *_ELEM settings for Firefox
+# https://bugzilla.mozilla.org/show_bug.cgi?id=1529338
+CSP_SCRIPT_SRC = CSP_SCRIPT_SRC_ELEM = ["'self'", "https://plausible.io"]
+CSP_STYLE_SRC = CSP_STYLE_SRC_ELEM = ["'self'"]
 
 # which directives to set a nonce for
 CSP_INCLUDE_NONCE_IN = ["script-src-elem"]
 
 # configure django-csp to work with Vite when using it in dev mode
 if DJANGO_VITE_DEV_MODE:
-    CSP_CONNECT_SRC = ["ws://localhost:3000/static/"]
+    CSP_CONNECT_SRC = ["'self'", "ws://localhost:3000/static/"]
     CSP_FONT_SRC = ["'self'", "data:"]
-    CSP_SCRIPT_SRC_ELEM = ["'self'", "https://plausible.io", "http://localhost:3000"]
-    CSP_STYLE_SRC_ELEM = ["'self'", "'unsafe-inline'"]
+    CSP_SCRIPT_SRC = CSP_SCRIPT_SRC_ELEM = [
+        "'self'",
+        "https://plausible.io",
+        "http://localhost:3000",
+    ]
+    CSP_STYLE_SRC = CSP_STYLE_SRC_ELEM = ["'self'", "'unsafe-inline'"]
 
 
 # THIRD PARTY SETTINGS
