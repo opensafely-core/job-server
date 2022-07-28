@@ -26,11 +26,7 @@ function Metadata({ file }) {
       </li>
       <li className="list-inline-item ml-auto">
         <div className="sr-only">Last modified at: </div>
-        <time
-          className="file-date"
-          dateTime={fileDateAbs}
-          title={fileDateAbs}
-        >
+        <time className="file-date" dateTime={fileDateAbs} title={fileDateAbs}>
           {fileDate}
         </time>
       </li>
