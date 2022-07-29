@@ -1,5 +1,6 @@
 from django.conf import settings
 from django.db import models
+from django.db.models import Q
 from django.urls import reverse
 from django.utils import timezone
 from ulid import ULID
@@ -129,13 +130,13 @@ class ReleaseFile(models.Model):
             models.CheckConstraint(
                 name="%(app_label)s_%(class)s_deleted_fields_both_set",
                 check=(
-                    models.Q(
-                        deleted_at=None,
-                        deleted_by=None,
+                    Q(
+                        deleted_at__isnull=True,
+                        deleted_by__isnull=True,
                     )
-                    | ~models.Q(
-                        deleted_at=None,
-                        deleted_by=None,
+                    | Q(
+                        deleted_at__isnull=False,
+                        deleted_by__isnull=False,
                     )
                 ),
             )

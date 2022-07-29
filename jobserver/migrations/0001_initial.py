@@ -771,17 +771,6 @@ class Migration(migrations.Migration):
                 "unique_together": {("backend", "url")},
             },
         ),
-        migrations.AddConstraint(
-            model_name="releasefile",
-            constraint=models.CheckConstraint(
-                check=models.Q(
-                    models.Q(("deleted_at", None), ("deleted_by", None)),
-                    models.Q(("deleted_at", None), ("deleted_by", None), _negated=True),
-                    _connector="OR",
-                ),
-                name="jobserver_releasefile_deleted_fields_both_set",
-            ),
-        ),
         migrations.AlterUniqueTogether(
             name="projectmembership",
             unique_together={("project", "user")},

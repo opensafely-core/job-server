@@ -116,7 +116,7 @@ def create_release(workspace, backend, created_by, requested_files, **kwargs):
 
 
 @transaction.atomic
-def handle_file_upload(release, backend, user, upload, filename):
+def handle_file_upload(release, backend, user, upload, filename, **kwargs):
     """Validate and save an uploaded file to disk and database.
 
     Does basic detection of re-uploads of the same file, to avoid duplication.
@@ -145,6 +145,7 @@ def handle_file_upload(release, backend, user, upload, filename):
             name=filename,
             path=str(relative_path),
             filehash=calculated_hash,
+            **kwargs,
         )
     except Exception:
         # something went wrong, clean up file, they will need to reupload

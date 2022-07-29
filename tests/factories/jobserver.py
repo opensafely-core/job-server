@@ -206,6 +206,7 @@ def ReleaseFileFactory(
         created_by,
         upload.stream,
         upload.filename,
+        **kwargs,
     )
 
 
