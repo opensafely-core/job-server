@@ -1,4 +1,5 @@
 import itertools
+import json
 import operator
 
 import sentry_sdk
@@ -189,8 +190,8 @@ class JobAPIUpdate(APIView):
 
         # store backend state sent up from job-runner.  We might rename the
         # header this is passed in at some point but now this is good enough.
-        if flags := request.headers.get("Flags", {}):
-            self.backend.jobrunner_state = flags
+        if flags := request.headers.get("Flags", ""):
+            self.backend.jobrunner_state = json.loads(flags)
             self.backend.save(update_fields=["jobrunner_state"])
 
         # record use of the API

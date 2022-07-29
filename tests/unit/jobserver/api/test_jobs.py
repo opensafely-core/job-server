@@ -501,7 +501,7 @@ def test_jobapiupdate_post_with_flags(api_rf):
 
     flags = json.dumps(
         {
-            "mode": {"v": "", "ts": "1659092411.5025"},
+            "mode": {"v": "test", "ts": "1659092411.5025"},
             "paused": {"v": " ", "ts": "1657099752.16788"},
             "db-maintenance": {"v": "", "ts": "1657194377.72893"},
         },
@@ -521,7 +521,7 @@ def test_jobapiupdate_post_with_flags(api_rf):
     assert Job.objects.count() == 1
 
     backend.refresh_from_db()
-    assert backend.jobrunner_state
+    assert backend.jobrunner_state["mode"]["v"] == "test"
 
 
 def test_jobapiupdate_unknown_job_request(api_rf):
