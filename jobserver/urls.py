@@ -55,7 +55,7 @@ from .views.releases import (
     SnapshotDownload,
     WorkspaceReleaseList,
 )
-from .views.status import PerBackendStatus, Status
+from .views.status import DBAvailability, PerBackendStatus, Status
 from .views.users import Settings, login_view
 from .views.workspaces import (
     WorkspaceArchiveToggle,
@@ -189,6 +189,16 @@ releases_urls = [
     path("<str:pk>/<path:path>", ReleaseDetail.as_view(), name="release-detail"),
 ]
 
+status_urls = [
+    path("", Status.as_view(), name="status"),
+    path("<slug:backend>/", PerBackendStatus.as_view(), name="status-backend"),
+    path(
+        "<slug:backend>/db-availability/",
+        DBAvailability.as_view(),
+        name="status-db-availability",
+    ),
+]
+
 workspace_urls = [
     path(
         "",
@@ -282,8 +292,7 @@ urlpatterns = [
     path("orgs/", OrgList.as_view(), name="org-list"),
     path("settings/", Settings.as_view(), name="settings"),
     path("staff/", include("staff.urls", namespace="staff")),
-    path("status/", Status.as_view(), name="status"),
-    path("status/<backend>/", PerBackendStatus.as_view(), name="status-backend"),
+    path("status/", include(status_urls)),
     path("workspaces/", RedirectView.as_view(url="/")),
     path("__debug__/", include(debug_toolbar.urls)),
     path("__reload__/", include("django_browser_reload.urls")),

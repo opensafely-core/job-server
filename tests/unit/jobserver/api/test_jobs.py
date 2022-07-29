@@ -1,3 +1,5 @@
+import json
+
 import pytest
 from django.utils import timezone
 from rest_framework.exceptions import NotAuthenticated
@@ -474,6 +476,52 @@ def test_jobapiupdate_post_with_errors(api_rf, mocker, error_message):
     assert response.status_code == 200, response.data
 
     mocked_sentry.capture_message.assert_called_once()
+
+
+def test_jobapiupdate_post_with_flags(api_rf):
+    backend = BackendFactory()
+    job_request = JobRequestFactory()
+
+    now = timezone.now()
+
+    data = [
+        {
+            "identifier": "job1",
+            "job_request_id": job_request.identifier,
+            "action": "test-action",
+            "status": "running",
+            "status_code": "",
+            "status_message": "",
+            "created_at": minutes_ago(now, 2),
+            "started_at": minutes_ago(now, 1),
+            "updated_at": now,
+            "completed_at": None,
+        }
+    ]
+
+    flags = json.dumps(
+        {
+            "mode": {"v": "", "ts": "1659092411.5025"},
+            "paused": {"v": " ", "ts": "1657099752.16788"},
+            "db-maintenance": {"v": "", "ts": "1657194377.72893"},
+        },
+        separators=(",", ":"),
+    )
+
+    request = api_rf.post(
+        "/",
+        data=data,
+        format="json",
+        HTTP_AUTHORIZATION=backend.auth_token,
+        HTTP_FLAGS=flags,
+    )
+    response = JobAPIUpdate.as_view()(request)
+
+    assert response.status_code == 200, response.data
+    assert Job.objects.count() == 1
+
+    backend.refresh_from_db()
+    assert backend.jobrunner_state
 
 
 def test_jobapiupdate_unknown_job_request(api_rf):

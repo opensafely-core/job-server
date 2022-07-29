@@ -187,6 +187,12 @@ class JobAPIUpdate(APIView):
             updated_job_ids=",".join(updated_job_ids),
         )
 
+        # store backend state sent up from job-runner.  We might rename the
+        # header this is passed in at some point but now this is good enough.
+        if flags := request.headers.get("Flags", {}):
+            self.backend.jobrunner_state = flags
+            self.backend.save(update_fields=["jobrunner_state"])
+
         # record use of the API
         update_stats(self.backend, request.path)
 

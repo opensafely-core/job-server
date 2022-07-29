@@ -1,3 +1,5 @@
+from datetime import datetime
+
 from django.db.models import Count
 from django.db.models.functions import Lower
 from django.http import HttpResponse
@@ -8,6 +10,29 @@ from django.views.generic import View
 
 from ..backends import show_warning
 from ..models import Backend
+
+
+class DBAvailability(View):
+    def get(self, request, *args, **kwargs):
+        backend = get_object_or_404(Backend, slug=self.kwargs["backend"])
+
+        if backend.slug != "tpp":
+            return HttpResponse(
+                f"DB maintenance mode not implemented in {backend.name}"
+            )
+
+        mode = backend.jobrunner_state.get("mode", {})
+
+        # conver the timestamp into
+        suffix = ""
+        if timestamp := mode.get("ts", ""):
+            dt = datetime.fromtimestamp(float(timestamp)).isoformat()
+            suffix = f" (since {dt}) "
+
+        if mode.get("v", "") == "db-maintenance":
+            return HttpResponse(f"DB maintenance mode on{suffix}", status=503)
+
+        return HttpResponse(f"DB maintenance mode off{suffix}")
 
 
 class PerBackendStatus(View):

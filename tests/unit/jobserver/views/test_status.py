@@ -1,17 +1,51 @@
 import functools
+import time
 from datetime import datetime, timedelta
 
 import pytest
 from django.utils import timezone
 from first import first
 
-from jobserver.views.status import PerBackendStatus, Status
+from jobserver.views.status import DBAvailability, PerBackendStatus, Status
 
 from ....factories import BackendFactory, JobFactory, JobRequestFactory, StatsFactory
 from ....utils import minutes_ago
 
 
 dt = functools.partial(datetime, tzinfo=timezone.utc)
+
+
+def test_dbavailability_in_db_maintenance(rf):
+    backend = BackendFactory(
+        slug="tpp",
+        jobrunner_state={"mode": {"v": "db-maintenance", "ts": time.time()}},
+    )
+
+    request = rf.get("/")
+
+    response = DBAvailability.as_view()(request, backend=backend.slug)
+
+    assert response.status_code == 503
+
+
+def test_dbavailability_non_tpp(rf):
+    backend = BackendFactory(slug="test")
+
+    request = rf.get("/")
+
+    response = DBAvailability.as_view()(request, backend=backend.slug)
+
+    assert response.status_code == 200
+
+
+def test_dbavailability_out_of_db_maintenance(rf):
+    backend = BackendFactory(slug="tpp")
+
+    request = rf.get("/")
+
+    response = DBAvailability.as_view()(request, backend=backend.slug)
+
+    assert response.status_code == 200
 
 
 @pytest.mark.freeze_time("2022-3-23")  # set a fixed time to work against
