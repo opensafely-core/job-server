@@ -1,5 +1,3 @@
-from datetime import datetime
-
 from django.db.models import Count
 from django.db.models.functions import Lower
 from django.http import HttpResponse
@@ -26,8 +24,7 @@ class DBAvailability(View):
         # conver the timestamp into
         suffix = ""
         if timestamp := mode.get("ts", ""):
-            dt = datetime.fromtimestamp(float(timestamp)).isoformat()
-            suffix = f" (since {dt}) "
+            suffix = f" (since {timestamp}) "
 
         if mode.get("v", "") == "db-maintenance":
             return HttpResponse(f"DB maintenance mode on{suffix}", status=503)
