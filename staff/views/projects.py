@@ -1,5 +1,6 @@
 from django.contrib import messages
 from django.db import transaction
+from django.db.models import Q
 from django.db.models.functions import Lower
 from django.shortcuts import get_object_or_404, redirect
 from django.utils.decorators import method_decorator
@@ -226,7 +227,7 @@ class ProjectList(ListView):
 
         q = self.request.GET.get("q")
         if q:
-            qs = qs.filter(name__icontains=q)
+            qs = qs.filter(Q(name__icontains=q) | Q(number__icontains=q))
 
         org = self.request.GET.get("org")
         if org:

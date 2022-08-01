@@ -37,7 +37,7 @@ configured_searches = [
     },
     {
         "model": Project,
-        "fields": ["name", "slug"],
+        "fields": ["name", "slug", "number"],
         "order_by": "name",
     },
     {
