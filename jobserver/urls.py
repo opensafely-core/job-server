@@ -25,6 +25,7 @@ from jobserver.api.releases import (
     WorkspaceStatusAPI,
 )
 
+from .views.badges import WorkspaceNumJobs, WorkspaceNumPublished, WorkspaceNumReleased
 from .views.index import Index
 from .views.job_requests import (
     JobRequestCancel,
@@ -68,7 +69,6 @@ from .views.workspaces import (
     WorkspaceLog,
     WorkspaceNotificationsToggle,
     WorkspaceOutputList,
-    WorkspaceOutputsBadge,
 )
 
 
@@ -151,7 +151,6 @@ outputs_urls = [
         WorkspaceLatestOutputsDetail.as_view(),
         name="workspace-latest-outputs-detail",
     ),
-    path("badge/", WorkspaceOutputsBadge.as_view(), name="workspace-outputs-badge"),
     path(
         "<int:pk>/",
         SnapshotDetail.as_view(),
@@ -204,6 +203,28 @@ workspace_urls = [
         "",
         WorkspaceDetail.as_view(),
         name="workspace-detail",
+    ),
+    path(
+        "badges/",
+        include(
+            [
+                path(
+                    "num-jobs/",
+                    WorkspaceNumJobs.as_view(),
+                    name="workspace-badge-num-jobs",
+                ),
+                path(
+                    "num-published/",
+                    WorkspaceNumPublished.as_view(),
+                    name="workspace-badge-num-published",
+                ),
+                path(
+                    "num-released/",
+                    WorkspaceNumReleased.as_view(),
+                    name="workspace-badge-num-released",
+                ),
+            ]
+        ),
     ),
     path(
         "run-jobs/",

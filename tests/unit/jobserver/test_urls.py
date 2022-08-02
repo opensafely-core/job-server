@@ -25,6 +25,7 @@ from jobserver.api.releases import (
 )
 from jobserver.utils import dotted_path
 from jobserver.views import (
+    badges,
     index,
     job_requests,
     jobs,
@@ -133,6 +134,9 @@ def test_url_redirects(client, url, redirect):
         ("/o/p/w/", workspaces.WorkspaceDetail),
         ("/o/p/w/run-jobs/", job_requests.JobRequestCreate),
         ("/o/p/w/archive-toggle/", workspaces.WorkspaceArchiveToggle),
+        ("/o/p/w/badges/num-published/", badges.WorkspaceNumPublished),
+        ("/o/p/w/badges/num-jobs/", badges.WorkspaceNumJobs),
+        ("/o/p/w/badges/num-released/", badges.WorkspaceNumReleased),
         ("/o/p/w/files/", workspaces.WorkspaceFileList),
         ("/o/p/w/files/tpp/", workspaces.WorkspaceBackendFiles),
         ("/o/p/w/files/tpp/file.txt", workspaces.WorkspaceBackendFiles),
@@ -142,7 +146,6 @@ def test_url_redirects(client, url, redirect):
         ("/o/p/w/outputs/latest/", workspaces.WorkspaceLatestOutputsDetail),
         ("/o/p/w/outputs/latest/download/", workspaces.WorkspaceLatestOutputsDownload),
         ("/o/p/w/outputs/latest/file.txt", workspaces.WorkspaceLatestOutputsDetail),
-        ("/o/p/w/outputs/badge/", workspaces.WorkspaceOutputsBadge),
         ("/o/p/w/outputs/42/", releases.SnapshotDetail),
         ("/o/p/w/outputs/42/download/", releases.SnapshotDownload),
         ("/o/p/w/outputs/42/file.txt", releases.SnapshotDetail),
