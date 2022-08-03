@@ -76,7 +76,7 @@
               class="
                 relative inline-flex md:flex h-full items-center text-oxford transition-colors duration-200 rounded px-2 py-2 md:py-0 -ml-2 md:ml-0
                 hover:text-bn-strawberry-700
-                focus:text-bn-strawberry-700 focus:outline-none focus:ring-2 focus:ring-inset focus:ring-oxford-500
+                focus:text-bn-strawberry-700 focus:outline-none focus:ring-2 focus:ring-oxford-500
                 before:hidden before:md:inline before:md:absolute before:-top-4 before:mt-[1px] before:h-1 before:left-1/2 before:-translate-x-1 before:bg-bn-strawberry-300 before:w-1 before:transition-all before:opacity-0
                 before:hover:w-full before:hover:opacity-100 before:hover:left-0 before:hover:translate-x-0
                 {% if location.is_active %}border-t-oxford-600/50 text-oxford-600{% endif %}
@@ -89,11 +89,13 @@
           </li>
         {% endfor %}
 
-        <li :class="isMobileNavVisible ? 'w-full items-stretch' : 'relative flex items-center ml-1'">
+        <li :class="isMobileNavVisible ? 'w-full' : 'relative flex items-center ml-1'">
           {% if not user.is_authenticated %}
             <a
               class="
-                inline-block -mx-2 p-2 rounded  whitespace-nowrap text-oxford hover:text-bn-strawberry-700 focus:text-bn-strawberry-700 focus:outline-none focus:ring-2 focus:ring-inset focus:ring-oxford-500
+                relative inline-flex self-start -mx-2 p-2 rounded whitespace-nowrap text-oxford transition-colors duration-200
+                hover:text-bn-strawberry-700
+                focus:text-bn-strawberry-700 focus:outline-none focus:ring-2 focus:ring-oxford-500
                 md:bg-bn-strawberry-200 md:border md:border-bn-strawberry-300 md:px-4 md:mx-0 md:leading-none md:transition-all
                 md:hover:bg-bn-strawberry-100 md:hover:border-bn-strawberry-400 md:hover:scale-110 md:hover:shadow-lg
                 md:focus:bg-bn-strawberry-100 md:focus:text-bn-strawberry-700 md:focus:border-bn-strawberry-400 md:focus:scale-110 md:focus:shadow-lg md:focus:outline-none md:focus:ring-2 md:focus:ring-offset-2 md:focus:ring-oxford-500
@@ -143,7 +145,7 @@
             {% if user_can_view_staff_area %}
             <li>
               <a
-                class="inline-block md:block px-2 md:px-4 py-2 rounded md:rounded-none text-oxford hover:text-bn-strawberry-700 md:hover:bg-oxford-50 focus:text-bn-strawberry-700 focus:outline-none focus:ring-2 focus:ring-inset focus:ring-oxford-500"
+                class="inline-block md:block px-2 md:px-4 py-2 rounded md:rounded-none text-oxford hover:text-bn-strawberry-700 md:hover:bg-oxford-50 focus:text-bn-strawberry-700 focus:outline-none focus:ring-2 focus:ring-oxford-500 md:focus:ring-inset"
                 href="{% url 'settings' %}"
               >
                 🚨 Staff Area 🚨
@@ -152,7 +154,7 @@
             {% endif %}
             <li>
               <a
-                class="inline-block md:block px-2 md:px-4 py-2 rounded md:rounded-none text-oxford hover:text-bn-strawberry-700 md:hover:bg-oxford-50 focus:text-bn-strawberry-700 focus:outline-none focus:ring-2 focus:ring-inset focus:ring-oxford-500"
+                class="inline-block md:block px-2 md:px-4 py-2 rounded md:rounded-none text-oxford hover:text-bn-strawberry-700 md:hover:bg-oxford-50 focus:text-bn-strawberry-700 focus:outline-none focus:ring-2 focus:ring-oxford-500 md:focus:ring-inset"
                 href="{% url 'settings' %}"
               >
                 Settings
@@ -160,7 +162,7 @@
             </li>
             <li>
               <a
-                class="inline-block md:block px-2 md:px-4 py-2 rounded md:rounded-none text-oxford hover:text-bn-strawberry-700 md:hover:bg-oxford-50 focus:text-bn-strawberry-700 focus:outline-none focus:ring-2 focus:ring-inset focus:ring-oxford-500"
+                class="inline-block md:block px-2 md:px-4 py-2 rounded md:rounded-none text-oxford hover:text-bn-strawberry-700 md:hover:bg-oxford-50 focus:text-bn-strawberry-700 focus:outline-none focus:ring-2 focus:ring-oxford-500 md:focus:ring-inset"
                 href="{% url 'applications:list' %}"
               >
                 Applications
@@ -168,7 +170,7 @@
             </li>
             <li>
               <a
-                class="inline-block md:block px-2 md:px-4 py-2 rounded md:rounded-none text-oxford hover:text-bn-strawberry-700 md:hover:bg-oxford-50 focus:text-bn-strawberry-700 focus:outline-none focus:ring-2 focus:ring-inset focus:ring-oxford-500"
+                class="inline-block md:block px-2 md:px-4 py-2 rounded md:rounded-none text-oxford hover:text-bn-strawberry-700 md:hover:bg-oxford-50 focus:text-bn-strawberry-700 focus:outline-none focus:ring-2 focus:ring-oxford-500 md:focus:ring-inset"
                 href="{% url 'logout' %}"
               >
                 Logout
