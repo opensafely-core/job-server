@@ -35,7 +35,7 @@
       </ol>
     </nav>
 
-    <main class="flex-grow">
+    <main class="flex-grow mt-6">
       {% include 'partials/alerts.html' %}
 
       {% block jumbotron %}{% endblock %}
@@ -44,6 +44,8 @@
         {% block content %}{% endblock %}
       </div>
     </main>
+
+    {% include '_components/footer.html' %}
 
     {% vite_legacy_polyfills %}
     {% vite_legacy_asset 'assets/src/scripts/tw.js' %}
