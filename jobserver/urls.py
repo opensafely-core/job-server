@@ -267,7 +267,7 @@ project_urls = [
 ]
 
 urlpatterns = [
-    path("", Index.as_view()),
+    path("", Index.as_view(), name="home"),
     path(
         "login/<str:backend>/",
         csrf_exempt(require_POST(social_django_views.auth)),
