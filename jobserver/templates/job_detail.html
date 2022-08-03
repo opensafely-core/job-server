@@ -13,43 +13,13 @@
 {% block metatitle %}Job request: {{ job.action }} - {{ job.job_request.id }} - {{ job.job_request.workspace.name }} | OpenSAFELY Jobs{% endblock metatitle %}
 
 {% block breadcrumbs %}
-<nav class="breadcrumb-container" aria-label="breadcrumb">
-  <div class="container">
-    <ol class="breadcrumb rounded-0 mb-0 px-0">
-      <li class="breadcrumb-item">
-        <a href="/">Home</a>
-      </li>
-
-      <li class="breadcrumb-item">
-        <a href="{{ job.job_request.workspace.project.org.get_absolute_url }}">
-          {{ job.job_request.workspace.project.org.name }}
-        </a>
-      </li>
-
-      <li class="breadcrumb-item">
-        <a href="{{ job.job_request.workspace.project.get_absolute_url }}">
-          {{ job.job_request.workspace.project.title }}
-        </a>
-      </li>
-
-      <li class="breadcrumb-item">
-        <a href="{{ job.job_request.workspace.get_absolute_url }}">
-          {{ job.job_request.workspace.name }}
-        </a>
-      </li>
-
-      <li class="breadcrumb-item">
-        <a href="{{ job.job_request.get_absolute_url }}">
-          {{ job.job_request.id }}
-        </a>
-      </li>
-
-      <li class="breadcrumb-item active" aria-current="page">
-        {{ job.action }}
-      </li>
-    </ol>
-  </div>
-</nav>
+  {% url 'home' as home_url %}
+  {% include "_components/breadcrumb.html" with title="Home" url=home_url %}
+  {% include "_components/breadcrumb.html" with location="Organisation" title=job.job_request.workspace.project.org.name url=job.job_request.workspace.project.org.get_absolute_url %}
+  {% include "_components/breadcrumb.html" with location="Project" title=job.job_request.workspace.project.title url=job.job_request.workspace.project.get_absolute_url %}
+  {% include "_components/breadcrumb.html" with location="Workspace" title=job.job_request.workspace.name url=job.job_request.workspace.get_absolute_url %}
+  {% include "_components/breadcrumb.html" with location="Job request" title=job.job_request.id url=job.job_request.get_absolute_url %}
+  {% include "_components/breadcrumb.html" with location="Action" title=job.action active=True %}
 {% endblock breadcrumbs %}
 
 {% block jumbotron %}

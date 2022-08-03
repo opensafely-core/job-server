@@ -1,0 +1,168 @@
+<header
+  class="
+    bg-gradient-to-r from-oxford-200/25 via-bn-roman-200/40 to-bn-strawberry-200/30
+    after:absolute after:h-1 after:w-full after:opacity-75 after:bg-gradient-to-r after:from-oxford-600 after:via-bn-roman-600 after:to-bn-strawberry-600
+  "
+  x-data="{
+    isMobileNavVisible: false,
+    isUserSubnavVisible: false,
+    get hideMobileNavOnResize() {
+      if ($screen('md') || $screen('lg') || $screen('xl')) {
+        return (this.isMobileNavVisible = false);
+      }
+      return this.isMobileNavVisible;
+    },
+    hideAllNavs() {
+      this.isMobileNavVisible = false;
+      this.isUserSubnavVisible = false;
+    },
+  }"
+  x-on:keyup.escape.window="hideAllNavs()"
+  x-title="Header"
+>
+  <nav class="relative container xl:max-w-screen-xl flex justify-center items-center flex-wrap py-3 gap-y-2">
+    <p class="relative z-30 flex-shrink-0 flex items-center mr-4 text-xl font-extrabold tracking-tight leading-none text-stone-700">
+      {% url 'home' as url %}
+      <a
+        class="
+          group relative p-2 -ml-2 bg-transparent rounded overflow-hidden focus:text-bn-strawberry-600 focus:outline-none focus:ring-2 focus:ring-oxford-500
+          after:absolute after:bottom-1 after:h-[2px] after:left-2 after:bg-bn-strawberry-300 after:w-1 after:transition-all after:opacity-0
+          after:hover:w-11/12 after:hover:opacity-100
+        "
+        href="{% url 'home' %}"
+      >
+        <span class="transition-colors ease-in duration-150 text-oxford group-hover:text-bn-strawberry-700 group-focus:text-bn-strawberry-700">
+          OpenSAFELY
+        </span>
+        <span class="transition-colors ease-in duration-300 text-oxford-600 group-hover:text-bn-strawberry-700 group-focus:text-bn-strawberry-700">
+          Jobs
+        </span>
+      </a>
+    </p>
+    <button
+      @click="isMobileNavVisible = !isMobileNavVisible"
+      class="
+        flex relative z-30 md:hidden
+        border border-oxford/25 rounded p-1 ml-auto transition-colors text-oxford duration-200
+        hover:text-bn-strawberry-700 hover:border-bn-strawberry-500 hover:bg-bn-strawberry-50
+        focus:text-bn-strawberry-700 focus:border-bn-strawberry-500 focus:bg-bn-strawberry-50 focus:outline-none focus:ring focus:ring-offset-2 focus:ring-offset-bn-strawberry-50 focus:ring-oxford-500
+      ">
+      <span class="sr-only">
+        Toggle menu
+      </span>
+      {% include "_icons/menu-outline.svg" with html_class="h-6 w-6" x_bind_class="isMobileNavVisible && 'hidden'" %}
+      {% include "_icons/x-outline.svg" with html_class="h-6 w-6" x_bind_class="!isMobileNavVisible && 'hidden'" %}
+    </button>
+    <div
+      @click="isMobileNavVisible = false"
+      class="z-20 fixed inset-0 bg-black bg-opacity-25"
+      x-description="Mobile menu overlay, show/hide based on mobile menu state."
+      x-show="hideMobileNavOnResize"
+      x-transition:enter-end="opacity-100"
+      x-transition:enter-start="opacity-0"
+      x-transition:enter="duration-150 ease-out"
+      x-transition:leave-end="opacity-0"
+      x-transition:leave-start="opacity-100"
+      x-transition:leave="duration-150 ease-in"
+      ></div>
+    <div
+      class="ml-auto"
+      :class="isMobileNavVisible ? 'absolute z-20 top-1 w-full' : 'hidden md:flex'"
+    >
+      <ul :class="isMobileNavVisible ? 'flex flex-col rounded shadow-xl pt-14 pb-2 px-4 mx-1 bg-white font-semibold text-base' : 'flex flex-row text-sm font-semibold gap-4'">
+        {% for location in nav %}
+          <li>
+            <a
+              class="
+                relative inline-flex md:flex h-full items-center text-oxford transition-colors duration-200 rounded px-2 py-2 md:py-0 -ml-2 md:ml-0
+                hover:text-bn-strawberry-700
+                focus:text-bn-strawberry-700 focus:outline-none focus:ring-2 focus:ring-inset focus:ring-oxford-500
+                before:hidden before:md:inline before:md:absolute before:-top-4 before:mt-[1px] before:h-1 before:left-1/2 before:-translate-x-1 before:bg-bn-strawberry-300 before:w-1 before:transition-all before:opacity-0
+                before:hover:w-full before:hover:opacity-100 before:hover:left-0 before:hover:translate-x-0
+                {% if location.is_active %}border-t-oxford-600/50 text-oxford-600{% endif %}
+              "
+              href="{{ location.url }}"
+            >
+              {{ location.name }}
+              {% if location.is_active %}<span class="sr-only">(current)</span>{% endif %}
+            </a>
+          </li>
+        {% endfor %}
+
+        <li :class="isMobileNavVisible ? 'w-full items-stretch' : 'relative flex items-center ml-1'">
+          <button
+            @click="isUserSubnavVisible = !isUserSubnavVisible"
+            aria-haspopup="true"
+            class="
+              hidden md:flex relative bg-white rounded-full text-sm focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-oxford-500
+              before:absolute before:-top-4 before:mt-[1px] before:h-1 before:left-1/2 before:-translate-x-1 before:bg-bn-strawberry-300 before:w-1 before:transition-all before:opacity-0
+              before:hover:w-full before:hover:opacity-100 before:hover:left-0 before:hover:translate-x-0
+            "
+            id="userSubNav"
+            title="Open user menu"
+            type="button"
+            x-bind:aria-expanded="isUserSubnavVisible.toString()"
+          >
+            <span class="sr-only">Open user menu</span>
+            <img class="h-8 w-8 rounded-full" src="https://github.com/{{ request.user.username }}.png?size=60" alt="{{ request.user.username }} avatar">
+          </button>
+          <span class="sr-only md:hidden">User options</span>
+          <ul
+            @click.outside="isUserSubnavVisible = false"
+            aria-labelledby="userSubNav"
+            aria-orientation="vertical"
+            :class="
+              isMobileNavVisible ?
+              'relative shadow-none ring-0 text-base -mx-4 px-2 pt-2 mt-2 border-t border-t-slate-200 !transition-none' :
+              'origin-top-right absolute top-full mt-2 right-0 z-10 w-48 rounded-md shadow-lg overflow-hidden bg-white ring-1 ring-black ring-opacity-5 focus:outline-none text-sm'
+            "
+            role="menu"
+            tabindex="-1"
+            x-show="isUserSubnavVisible || isMobileNavVisible"
+            x-transition:enter="transition ease-out duration-200"
+            x-transition:enter-start="opacity-0 scale-95"
+            x-transition:enter-end="opacity-100 scale-100"
+            x-transition:leave="transition ease-in duration-75"
+            x-transition:leave-start="opacity-100 scale-100"
+            x-transition:leave-end="opacity-0 scale-95"
+          >
+            {% if user_can_view_staff_area %}
+            <li>
+              <a
+                class="inline-block md:block px-2 md:px-4 py-2 rounded md:rounded-none text-oxford hover:text-bn-strawberry-700 md:hover:bg-oxford-50 focus:text-bn-strawberry-700 focus:outline-none focus:ring-2 focus:ring-inset focus:ring-oxford-500"
+                href="{% url 'settings' %}"
+              >
+                🚨 Staff Area 🚨
+              </a>
+            </li>
+            {% endif %}
+            <li>
+              <a
+                class="inline-block md:block px-2 md:px-4 py-2 rounded md:rounded-none text-oxford hover:text-bn-strawberry-700 md:hover:bg-oxford-50 focus:text-bn-strawberry-700 focus:outline-none focus:ring-2 focus:ring-inset focus:ring-oxford-500"
+                href="{% url 'settings' %}"
+              >
+                Settings
+              </a>
+            </li>
+            <li>
+              <a
+                class="inline-block md:block px-2 md:px-4 py-2 rounded md:rounded-none text-oxford hover:text-bn-strawberry-700 md:hover:bg-oxford-50 focus:text-bn-strawberry-700 focus:outline-none focus:ring-2 focus:ring-inset focus:ring-oxford-500"
+                href="{% url 'applications:list' %}"
+              >
+                Applications
+              </a>
+            </li>
+            <li>
+              <a
+                class="inline-block md:block px-2 md:px-4 py-2 rounded md:rounded-none text-oxford hover:text-bn-strawberry-700 md:hover:bg-oxford-50 focus:text-bn-strawberry-700 focus:outline-none focus:ring-2 focus:ring-inset focus:ring-oxford-500"
+                href="{% url 'logout' %}"
+              >
+                Logout
+              </a>
+            </li>
+          </div>
+        </li>
+      </ul>
+    </div>
+  </nav>
+</header>

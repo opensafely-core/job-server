@@ -25,20 +25,25 @@
   </head>
 
   <body class="flex flex-col min-h-screen text-slate">
-    {% block staff_nav %}{% endblock %}
-    {% include 'partials/header.html' %}
+    {% include "_components/skip-link.html" %}
+    {% include '_components/header.html' %}
+
+    {# Breadcrumbs #}
+    <nav class="bg-slate-50 border-b border-slate-200 pt-3 pb-2" aria-label="Breadcrumb">
+      <ol role="list" class="container xl:max-w-screen-xl flex flex-wrap gap-x-1 text-sm font-medium leading-none">
+        {% block breadcrumbs %}{% endblock %}
+      </ol>
+    </nav>
 
     <main class="flex-grow">
       {% include 'partials/alerts.html' %}
-      {% block breadcrumbs %}{% endblock %}
+
       {% block jumbotron %}{% endblock %}
 
-      <div class="pt-3">
+      <div class="container xl:max-w-screen-xl py-12" id="content">
         {% block content %}{% endblock %}
       </div>
     </main>
-
-    {% include 'partials/footer.html' %}
 
     {% vite_legacy_polyfills %}
     {% vite_legacy_asset 'assets/src/scripts/tw.js' %}
