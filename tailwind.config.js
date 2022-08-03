@@ -3,6 +3,16 @@ const defaultTheme = require("tailwindcss/defaultTheme");
 /** @type {import('tailwindcss').Config} */
 module.exports = {
   content: ["./jobserver/templates/**/*.html"],
+  safelist: [
+    "-bottom-1",
+    "-bottom-2",
+    "-bottom-3",
+    "-bottom-4",
+    "-bottom-5",
+    "-bottom-6",
+    "-bottom-7",
+    "-bottom-8",
+  ],
   theme: {
     extend: {
       fontFamily: {
@@ -177,6 +187,7 @@ module.exports = {
         },
       },
       transitionProperty: {
+        scale: "transform",
         "scale-opacity": "transform, opacity",
       },
     },

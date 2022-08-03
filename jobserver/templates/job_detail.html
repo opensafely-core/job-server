@@ -24,9 +24,18 @@
 
 {% block content %}
 <div class="md:flex md:items-center md:justify-between md:space-x-5">
-  <h1 class="text-4xl font-bold text-slate-900">{{ job.action }}</h1>
+  <h1 class="text-3xl break-all md:bread-words md:text-4xl font-bold text-slate-900">{{ job.action }}</h1>
   <div class="mt-6 flex flex-col-reverse justify-stretch space-y-4 space-y-reverse sm:flex-row-reverse sm:justify-end sm:space-x-reverse sm:space-y-0 sm:space-x-3 md:mt-0 md:flex-row md:space-x-3">
-    <button type="button" class="inline-flex items-center justify-center px-4 py-2 border border-transparent text-sm font-medium rounded-md shadow-sm text-white bg-bn-ribbon-600 hover:bg-bn-ribbon-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-offset-slate-100 focus:ring-bn-ribbon-500">Cancel</button>
+    {% if user_can_cancel_jobs %}
+      <form class="d-inline-block" method="POST" action="{{ job.get_cancel_url }}">
+        {% csrf_token %}
+          {% if job.is_completed or job.action in job.job_request.cancelled_actions %}
+            {% include "_components/button.html" with type="submit" disabled=True tooltip="This job can no longer be cancelled" content="Cancel "|add:job.action only %}
+          {% else %}
+            {% include "_components/button.html" with type="submit" variant="danger" content="Cancel "|add:job.action only %}
+          {% endif %}
+      </form>
+    {% endif %}
   </div>
 </div>
 
@@ -42,7 +51,7 @@
                 <div class="relative flex space-x-3">
                   <div>
                     <span class="h-8 w-8 rounded-full bg-oxford-400 flex items-center justify-center ring-8 ring-white">
-                      <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                      <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 text-white" fill="none" viewBox="0 0 24 24" height="24" width="24" stroke="currentColor" stroke-width="2">
                         <path stroke-linecap="round" stroke-linejoin="round" d="M15.232 5.232l3.536 3.536m-2.036-5.036a2.5 2.5 0 113.536 3.536L6.5 21.036H3v-3.572L16.732 3.732z" />
                       </svg>
                     </span>
@@ -66,7 +75,7 @@
                   <div class="relative flex space-x-3">
                     <div>
                       <span class="h-8 w-8 rounded-full bg-bn-roman-500 flex items-center justify-center ring-8 ring-white">
-                        <svg xmlns="http://www.w3.org/2000/svg" class="w-5 h-5 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                        <svg xmlns="http://www.w3.org/2000/svg" class="w-5 h-5 text-white" fill="none" viewBox="0 0 24 24" height="24" width="24" stroke="currentColor" stroke-width="2">
                           <path stroke-linecap="round" stroke-linejoin="round" d="M5 19a2 2 0 01-2-2V7a2 2 0 012-2h4l2 2h4a2 2 0 012 2v1M5 19h14a2 2 0 002-2v-5a2 2 0 00-2-2H9a2 2 0 00-2 2v5a2 2 0 01-2 2z" />
                         </svg>
                       </span>
@@ -90,7 +99,7 @@
                   <div class="relative flex space-x-3">
                     <div>
                       <span class="h-8 w-8 rounded-full bg-green-500 flex items-center justify-center ring-8 ring-white">
-                        <svg xmlns="http://www.w3.org/2000/svg" class="w-5 h-5 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                        <svg xmlns="http://www.w3.org/2000/svg" class="w-5 h-5 text-white" fill="none" viewBox="0 0 24 24" height="24" width="24" stroke="currentColor" stroke-width="2">
                           <path stroke-linecap="round" stroke-linejoin="round" d="M5 13l4 4L19 7" />
                         </svg>
                       </span>
@@ -114,7 +123,7 @@
                   <div class="relative flex space-x-3">
                     <div>
                       <span class="h-8 w-8 rounded-full bg-bn-flamenco-400 flex items-center justify-center ring-8 ring-white">
-                        <svg xmlns="http://www.w3.org/2000/svg" class="w-5 h-5 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                        <svg xmlns="http://www.w3.org/2000/svg" class="w-5 h-5 text-white" fill="none" viewBox="0 0 24 24" height="24" width="24" stroke="currentColor" stroke-width="2">
                           <path stroke-linecap="round" stroke-linejoin="round" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
                         </svg>
                       </span>
@@ -138,7 +147,7 @@
                   <div class="relative flex space-x-3">
                     <div>
                       <span class="h-8 w-8 rounded-full bg-bn-ribbon-400 flex items-center justify-center ring-8 ring-white">
-                        <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                        <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 text-white" fill="none" viewBox="0 0 24 24" height="24" width="24" stroke="currentColor" stroke-width="2">
                           <path stroke-linecap="round" stroke-linejoin="round" d="M5.636 18.364a9 9 0 010-12.728m12.728 0a9 9 0 010 12.728m-9.9-2.829a5 5 0 010-7.07m7.072 0a5 5 0 010 7.07M13 12a1 1 0 11-2 0 1 1 0 012 0z" />
                         </svg>
                       </span>
@@ -163,51 +172,46 @@
       </section>
 
       <div class="space-y-6 lg:col-start-2 lg:col-span-2">
-        <!-- Description list-->
         <section aria-labelledby="applicant-information-title">
           <div class="bg-white shadow sm:rounded-lg">
             <div class="px-4 py-5 sm:px-6">
               <dl class="grid grid-cols-1 gap-x-4 gap-y-8 sm:grid-cols-2">
                 <div class="sm:col-span-1">
-                  <dt class="text-sm font-medium text-slate-500">Job identifier</dt>
+                  <dt class="text-sm font-semibold text-slate-600">Job identifier</dt>
                   <dd class="mt-1 text-sm text-slate-900">{{ job.identifier }}</dd>
                 </div>
                 <div class="sm:col-span-1">
-                  <dt class="text-sm font-medium text-slate-500">Job request</dt>
+                  <dt class="text-sm font-semibold text-slate-600">Job request</dt>
                   <dd class="mt-1 text-sm text-slate-900">{{ job.job_request_id }}</dd>
                 </div>
                 <div class="sm:col-span-1">
-                  <dt class="text-sm font-medium text-slate-500">Requested by</dt>
+                  <dt class="text-sm font-semibold text-slate-600">Requested by</dt>
                   <dd class="mt-1 text-sm text-slate-900">{{ job.job_request.created_by.username }}</dd>
                 </div>
                 <div class="sm:col-span-1">
-                  <dt class="text-sm font-medium text-slate-500">Branch</dt>
+                  <dt class="text-sm font-semibold text-slate-600">Branch</dt>
                   <dd class="mt-1 text-sm text-slate-900">{{ job.job_request.workspace.branch }}</dd>
                 </div>
                 <div class="sm:col-span-1">
-                  <dt class="text-sm font-medium text-slate-500">Backend</dt>
+                  <dt class="text-sm font-semibold text-slate-600">Backend</dt>
                   <dd class="mt-1 text-sm text-slate-900">{{ job.job_request.backend }}</dd>
                 </div>
                 <div class="sm:col-span-1">
-                  <dt class="text-sm font-medium text-slate-500">Status</dt>
+                  <dt class="text-sm font-semibold text-slate-600">Status</dt>
                   <dd class="mt-1 text-sm text-slate-900">{{ job.status|capfirst }}</dd>
                 </div>
                 <div class="sm:col-span-2">
-                  <dt class="text-sm font-medium text-slate-500">Status message</dt>
+                  <dt class="text-sm font-semibold text-slate-600">Status message</dt>
                   <dd class="mt-1 text-sm text-slate-900">
                     {% if job.status_message %}
                       {{ job.status_message }}
                     {% else %}
                       -
                     {% endif %}
-
-                              {% if job.action in job.job_request.cancelled_actions %}
-            <p class="list-group-item list-group-item-danger mb-0">
-              A User has requested this Job is cancelled.
-            </p>
-          {% endif %}
-
-          {% status_hint job %}
+                    {% if job.action in job.job_request.cancelled_actions %}
+                      <p>A User has requested this Job is cancelled.</p>
+                    {% endif %}
+                    {% status_hint job %}
                   </dd>
                 </div>
               </dl>

@@ -1,0 +1,44 @@
+{% if type == "link" %}
+  <a
+    href="{{ href }}"
+    {% if external %}
+      rel="noopener noreferrer"
+      target="_blank"
+    {% endif %}
+{% else %}
+  <button
+    type="{{ type|default:"button" }}"
+    {% if disabled %}disabled{% endif %}
+{% endif %}
+
+    class="
+      inline-flex items-center justify-center px-4 py-2 border border-transparent text-sm font-medium rounded-md shadow-sm text-white no-transition transition-all duration-200
+      {% if disabled %}
+        cursor-not-allowed bg-slate-300 text-slate-800
+      {% elif variant == "danger" %}
+        bg-bn-ribbon-600
+        hover:bg-bn-ribbon-700
+        focus:ring-bn-ribbon-500 focus:ring-offset-white
+      {% endif %}
+
+      {% if not disabled %}
+        hover:scale-105 hover:shadow-lg
+        focus:outline-none focus:ring-2 focus:ring-offset-2
+      {% endif %}
+
+      {% if tooltip %}
+        relative group
+      {% endif %}
+    ">
+
+      {{ content }}
+
+{% if tooltip %}
+  {% include "_components/tooltip.html" with bottom="4" content=tooltip only %}
+{% endif %}
+
+{% if type == "link" %}
+  </a>
+{% else %}
+  </button>
+{% endif %}
