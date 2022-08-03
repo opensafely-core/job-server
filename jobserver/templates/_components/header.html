@@ -27,8 +27,9 @@
     <details
       class="group ml-auto"
       open
-      id="mainNav"
-      :open="isMainNavOpen"
+      x-bind:open="isMainNavOpen"
+      x-on:click.outside="closeMainNav"
+      x-on:keyup.escape.window="closeMainNav"
     >
       <summary
         class="
@@ -87,7 +88,9 @@
           <details
             class="group relative"
             open
-            :open="isUserNavOpen"
+            x-bind:open="isUserNavOpen"
+            x-on:click.outside="closeUserNav"
+            x-on:keyup.escape.window="closeUserNav"
           >
             <summary
               class="

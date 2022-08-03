@@ -25,6 +25,13 @@ document.addEventListener("alpine:init", () => {
           return (this.showMainNav = !this.showMainNav);
         }
       },
+      closeMainNav() {
+        if (this.largerThanMd) {
+          return (this.showMainNav = true);
+        } else {
+          this.showMainNav = false;
+        }
+      },
 
       showUserNav: false,
       get isUserNavOpen() {
@@ -38,6 +45,13 @@ document.addEventListener("alpine:init", () => {
           return (this.showUserNav = !this.showUserNav);
         } else {
           this.showUserNav = true;
+        }
+      },
+      closeUserNav() {
+        if (this.largerThanMd) {
+          return (this.showUserNav = false);
+        } else {
+          this.showUserNav = this.showUserNav;
         }
       },
     };
