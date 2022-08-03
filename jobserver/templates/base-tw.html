@@ -2,7 +2,7 @@
 {% load django_vite %}
 
 <!DOCTYPE html>
-<html lang="en" class="min-h-screen">
+<html lang="en" class="no-js min-h-screen">
   <head>
     <meta charset="UTF-8">
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
@@ -12,6 +12,11 @@
     <meta property="og:site_name" content="OpenSAFELY Jobs" />
 
     {% block extra_meta %}{% endblock %}
+
+    <script type="module">
+      document.documentElement.classList.remove('no-js');
+      document.documentElement.classList.add('js');
+    </script>
 
     {% vite_hmr_client %}
     {% vite_asset 'assets/src/scripts/tw.js' %}

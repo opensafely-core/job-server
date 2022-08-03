@@ -176,6 +176,9 @@ module.exports = {
           "2xl": "3rem",
         },
       },
+      transitionProperty: {
+        "scale-opacity": "transform, opacity",
+      },
     },
   },
   plugins: [require("@tailwindcss/typography"), require("@tailwindcss/forms")],

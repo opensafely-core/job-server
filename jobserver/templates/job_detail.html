@@ -52,15 +52,7 @@
                         <span class="block">Created by the secure backend:</span>
                         <time class="font-medium text-slate-900 group relative cursor-pointer" datetime="{{ job.created_at|date:"Y-m-d H:i:sO" }}">
                           {{ job.created_at|naturaltime }}
-                          <span class="opacity-0 scale-0 z-40 group-hover:opacity-100 group-hover:scale-100 transition-all absolute bg-transparent pb-3 -bottom-3 translate-y-full left-1/2 -translate-x-1/2">
-                            <span class="
-                                text-sm text-semibold font-mono w-full min-w-fit whitespace-nowrap bg-bn-ribbon-200 text-bn-ribbon-900 py-2 px-3 rounded shadow-xl text-left relative
-                                before:block before:absolute before:-top-1 before:h-3 before:w-3 before:bg-bn-ribbon-200 before:left-1/2 before:-translate-x-1/2 before:rotate-45 before:z-0
-                              "
-                            >
-                              {{ job.created_at|date:"d M Y H:i:s e" }}
-                            </span>
-                          </span>
+                          {% include "_components/tooltip.html" with class="font-mono" bottom="4" content=job.created_at|date:"d M Y H:i:s e" only %}
                         </time>
                       </p>
                   </div>
@@ -84,15 +76,7 @@
                           <span class="block">Moved to the pending or running state on the secure backend:</span>
                           <time class="font-medium text-slate-900 group relative cursor-pointer" datetime="{{ job.started_at|date:"Y-m-d H:i:sO"|default_if_none:"-" }}">
                             {{ job.started_at|naturaltime|default_if_none:"-" }}
-                            <span class="opacity-0 scale-0 z-40 group-hover:opacity-100 group-hover:scale-100 transition-all absolute bg-transparent pb-3 -bottom-3 translate-y-full left-1/2 -translate-x-1/2">
-                              <span class="
-                                  text-sm text-semibold font-mono w-full min-w-fit whitespace-nowrap bg-bn-ribbon-200 text-bn-ribbon-900 py-2 px-3 rounded shadow-xl text-left relative
-                                  before:block before:absolute before:-top-1 before:h-3 before:w-3 before:bg-bn-ribbon-200 before:left-1/2 before:-translate-x-1/2 before:rotate-45 before:z-0
-                                "
-                              >
-                                {{ job.started_at|date:"d M Y H:i:s e"|default_if_none:"-" }}
-                              </span>
-                            </span>
+                            {% include "_components/tooltip.html" with class="font-mono" bottom="4" content=job.started_at|date:"d M Y H:i:s e"|default_if_none:"-" only %}
                           </time>
                         </p>
                     </div>
@@ -116,15 +100,7 @@
                           <span class="block">Finished running on the secure backend:</span>
                           <time class="font-medium text-slate-900 group relative cursor-pointer" datetime="{{ job.completed_at|date:"Y-m-d H:i:sO"|default_if_none:"-" }}">
                             {{ job.completed_at|naturaltime|default_if_none:"-" }}
-                            <span class="opacity-0 scale-0 z-40 group-hover:opacity-100 group-hover:scale-100 transition-all absolute bg-transparent pb-3 -bottom-3 translate-y-full left-1/2 -translate-x-1/2">
-                              <span class="
-                                  text-sm text-semibold font-mono w-full min-w-fit whitespace-nowrap bg-bn-ribbon-200 text-bn-ribbon-900 py-2 px-3 rounded shadow-xl text-left relative
-                                  before:block before:absolute before:-top-1 before:h-3 before:w-3 before:bg-bn-ribbon-200 before:left-1/2 before:-translate-x-1/2 before:rotate-45 before:z-0
-                                "
-                              >
-                                {{ job.completed_at|date:"d M Y H:i:s e"|default_if_none:"-" }}
-                              </span>
-                            </span>
+                            {% include "_components/tooltip.html" with class="font-mono" bottom="4" content=job.completed_at|date:"d M Y H:i:s e"|default_if_none:"-" only %}
                           </time>
                         </p>
                     </div>
@@ -172,15 +148,7 @@
                           <span class="block">Last update by secure backend:</span>
                           <time class="font-medium text-slate-900 group relative cursor-pointer" datetime="{{ job.updated_at|date:"Y-m-d H:i:sO"|default_if_none:"-" }}">
                             {{ job.updated_at|naturaltime|default_if_none:"-" }}
-                            <span class="opacity-0 scale-0 z-40 group-hover:opacity-100 group-hover:scale-100 transition-all absolute bg-transparent pb-3 -bottom-3 translate-y-full left-1/2 -translate-x-1/2">
-                              <span class="
-                                  text-sm text-semibold font-mono w-full min-w-fit whitespace-nowrap bg-bn-ribbon-200 text-bn-ribbon-900 py-2 px-3 rounded shadow-xl text-left relative
-                                  before:block before:absolute before:-top-1 before:h-3 before:w-3 before:bg-bn-ribbon-200 before:left-1/2 before:-translate-x-1/2 before:rotate-45 before:z-0
-                                "
-                              >
-                                {{ job.updated_at|date:"d M Y H:i:s e"|default_if_none:"-" }}
-                              </span>
-                            </span>
+                            {% include "_components/tooltip.html" with class="font-mono" bottom="4" content=job.updated_at|date:"d M Y H:i:s e"|default_if_none:"-" only %}
                           </time>
                         </p>
                     </div>
