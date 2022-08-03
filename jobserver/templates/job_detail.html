@@ -32,9 +32,9 @@
       <form class="d-inline-block" method="POST" action="{{ job.get_cancel_url }}">
         {% csrf_token %}
           {% if job.is_completed or job.action in job.job_request.cancelled_actions %}
-            {% include "_components/button.html" with type="submit" disabled=True tooltip="This job can no longer be cancelled" content="Cancel "|add:job.action only %}
+            {% include "_components/button.html" with type="submit" disabled=True tooltip="This job can no longer be cancelled" content="Cancel this job" only %}
           {% else %}
-            {% include "_components/button.html" with type="submit" variant="danger" content="Cancel "|add:job.action only %}
+            {% include "_components/button.html" with type="submit" variant="danger" content="Cancel this job" only %}
           {% endif %}
       </form>
     {% endif %}
@@ -99,7 +99,7 @@
           <dt class="text-sm font-semibold text-slate-600">Backend</dt>
           <dd class="mt-1 text-sm text-slate-900">{{ job.job_request.backend }}</dd>
         </div>
-        <div class="sm:col-span-1">
+        <div class="sm:col-span-2">
           <dt class="text-sm font-semibold text-slate-600">Status</dt>
           <dd class="mt-1 text-sm text-slate-900">{{ job.status|capfirst }}</dd>
         </div>
