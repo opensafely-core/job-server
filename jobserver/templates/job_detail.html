@@ -15,9 +15,9 @@
 {% block breadcrumbs %}
   {% url 'home' as home_url %}
   {% include "_components/breadcrumb.html" with title="Home" url=home_url %}
-  {% include "_components/breadcrumb.html" with location="Organisation" title=job.job_request.workspace.project.org.name url=job.job_request.workspace.project.org.get_absolute_url %}
-  {% include "_components/breadcrumb.html" with location="Project" title=job.job_request.workspace.project.title url=job.job_request.workspace.project.get_absolute_url %}
-  {% include "_components/breadcrumb.html" with location="Workspace" title=job.job_request.workspace.name url=job.job_request.workspace.get_absolute_url %}
+  {% include "_components/breadcrumb.html" with location="Organisation" truncate=True title=job.job_request.workspace.project.org.name url=job.job_request.workspace.project.org.get_absolute_url %}
+  {% include "_components/breadcrumb.html" with location="Project" truncate=True title=job.job_request.workspace.project.title url=job.job_request.workspace.project.get_absolute_url %}
+  {% include "_components/breadcrumb.html" with location="Workspace" truncate=True title=job.job_request.workspace.name url=job.job_request.workspace.get_absolute_url %}
   {% include "_components/breadcrumb.html" with location="Job request" title=job.job_request.id url=job.job_request.get_absolute_url %}
   {% include "_components/breadcrumb.html" with location="Action" title=job.action active=True %}
 {% endblock breadcrumbs %}
