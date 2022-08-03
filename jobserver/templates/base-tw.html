@@ -24,7 +24,7 @@
     <link rel="manifest" href="{% static 'manifest.webmanifest' %}">
   </head>
 
-  <body class="flex flex-col min-h-screen text-slate">
+  <body class="flex flex-col min-h-screen text-slate bg-slate-100">
     {% include "_components/skip-link.html" %}
     {% include '_components/header.html' %}
 
@@ -35,12 +35,10 @@
       </ol>
     </nav>
 
-    <main class="flex-grow mt-6">
+    <main class="flex-grow pb-12">
       {% include 'partials/alerts.html' %}
 
-      {% block jumbotron %}{% endblock %}
-
-      <div class="container xl:max-w-screen-xl py-12" id="content">
+      <div class="container xl:max-w-screen-xl py-6 md:py-8" id="content">
         {% block content %}{% endblock %}
       </div>
     </main>

@@ -22,202 +22,260 @@
   {% include "_components/breadcrumb.html" with location="Action" title=job.action active=True %}
 {% endblock breadcrumbs %}
 
-{% block jumbotron %}
-<div class="jumbotron jumbotron-fluid">
-  <div class="container">
-    <h1><code class="text-body">{{ job.action }}</code></h1>
-
-    <ul class="list-unstyled lead">
-      <li><strong>ID:</strong> <code>{{ job.identifier }}</code></li>
-    </ul>
-
-    <p class="lead">
-      This page describes a "job", an action (<code>{{ job.action }}</code>) requested by the
-      user, and run on a secure backend (<code>{{ job.job_request.backend.name }}</code>).
-    </p>
-
-    {% if user_can_cancel_jobs %}
-      <form class="d-inline-block" method="POST" action="{{ job.get_cancel_url }}">
-        {% csrf_token %}
-      <button
-          {% if job.is_completed or job.action in job.job_request.cancelled_actions %}
-            aria-disabled="true"
-            disabled
-            tabindex="-1"
-            title="Job cannot be cancelled"
-          {% endif %}
-          class="btn btn-block btn-danger"
-          type="submit"
-        >
-          Cancel
-        </button>
-      </form>
-      <p class="text-muted">Cancelling this job will cancel both the current job and any subsequent jobs that depend on it.</p>
-    {% endif %}
+{% block content %}
+<div class="md:flex md:items-center md:justify-between md:space-x-5">
+  <h1 class="text-4xl font-bold text-slate-900">{{ job.action }}</h1>
+  <div class="mt-6 flex flex-col-reverse justify-stretch space-y-4 space-y-reverse sm:flex-row-reverse sm:justify-end sm:space-x-reverse sm:space-y-0 sm:space-x-3 md:mt-0 md:flex-row md:space-x-3">
+    <button type="button" class="inline-flex items-center justify-center px-4 py-2 border border-transparent text-sm font-medium rounded-md shadow-sm text-white bg-bn-ribbon-600 hover:bg-bn-ribbon-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-offset-slate-100 focus:ring-bn-ribbon-500">Cancel</button>
   </div>
 </div>
-{% endblock jumbotron %}
 
-{% block content %}
-<div class="container">
-  <div class="row">
-    <div class="col-lg-6">
-      <section class="card mb-3">
-        <h2 class="card-header h4 mb-0">State</h2>
-        <div class="list-group list-group-flush">
-          <p class="list-group-item mb-0">
-            <strong>Status:</strong>
-            <code>{{ job.status|capfirst }}</code>
-          </p>
-          <div class="list-group-item">
-            <strong>Status message:</strong>
-            {% if job.status_message %}
-              <pre class="text-wrap mb-0 mt-1">{{ job.status_message }}</pre>
-            {% else %}
-              -
-            {% endif %}
+<div class="mt-8 grid grid-cols-1 gap-6 lg:grid-flow-col-dense lg:grid-cols-3">
+  <section aria-labelledby="timeline-title" class="lg:col-start-1 lg:col-span-1">
+    <div class="bg-white shadow sm:rounded-lg overflow-hidden">
+      <h2 id="timeline-title" class="text-lg font-semibold text-slate-900 px-4 pt-5 sm:px-6">Timeline</h2>
+        <div class="mt-6 flow-root px-4 pb-5 sm:px-6">
+          <ul role="list" class="-mb-8">
+            <li>
+              <div class="relative pb-8">
+                <span class="absolute top-4 left-4 -ml-px h-full w-0.5 bg-slate-200" aria-hidden="true"></span>
+                <div class="relative flex space-x-3">
+                  <div>
+                    <span class="h-8 w-8 rounded-full bg-oxford-400 flex items-center justify-center ring-8 ring-white">
+                      <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                        <path stroke-linecap="round" stroke-linejoin="round" d="M15.232 5.232l3.536 3.536m-2.036-5.036a2.5 2.5 0 113.536 3.536L6.5 21.036H3v-3.572L16.732 3.732z" />
+                      </svg>
+                    </span>
+                  </div>
+                  <div class="min-w-0 flex-1 flex justify-between space-x-4">
+                      <p class="text-sm text-slate-500">
+                        <span class="block">Created by the secure backend:</span>
+                        <time class="font-medium text-slate-900 group relative cursor-pointer" datetime="{{ job.created_at|date:"Y-m-d H:i:sO" }}">
+                          {{ job.created_at|naturaltime }}
+                          <span class="opacity-0 scale-0 z-40 group-hover:opacity-100 group-hover:scale-100 transition-all absolute bg-transparent pb-3 -bottom-3 translate-y-full left-1/2 -translate-x-1/2">
+                            <span class="
+                                text-sm text-semibold font-mono w-full min-w-fit whitespace-nowrap bg-bn-ribbon-200 text-bn-ribbon-900 py-2 px-3 rounded shadow-xl text-left relative
+                                before:block before:absolute before:-top-1 before:h-3 before:w-3 before:bg-bn-ribbon-200 before:left-1/2 before:-translate-x-1/2 before:rotate-45 before:z-0
+                              "
+                            >
+                              {{ job.created_at|date:"d M Y H:i:s e" }}
+                            </span>
+                          </span>
+                        </time>
+                      </p>
+                  </div>
+                </div>
+              </div>
+            </li>
+
+              <li>
+                <div class="relative pb-8">
+                  <span class="absolute top-4 left-4 -ml-px h-full w-0.5 bg-slate-200" aria-hidden="true"></span>
+                  <div class="relative flex space-x-3">
+                    <div>
+                      <span class="h-8 w-8 rounded-full bg-bn-roman-500 flex items-center justify-center ring-8 ring-white">
+                        <svg xmlns="http://www.w3.org/2000/svg" class="w-5 h-5 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                          <path stroke-linecap="round" stroke-linejoin="round" d="M5 19a2 2 0 01-2-2V7a2 2 0 012-2h4l2 2h4a2 2 0 012 2v1M5 19h14a2 2 0 002-2v-5a2 2 0 00-2-2H9a2 2 0 00-2 2v5a2 2 0 01-2 2z" />
+                        </svg>
+                      </span>
+                    </div>
+                    <div class="min-w-0 flex-1 flex justify-between space-x-4">
+                        <p class="text-sm text-slate-500">
+                          <span class="block">Moved to the pending or running state on the secure backend:</span>
+                          <time class="font-medium text-slate-900 group relative cursor-pointer" datetime="{{ job.started_at|date:"Y-m-d H:i:sO"|default_if_none:"-" }}">
+                            {{ job.started_at|naturaltime|default_if_none:"-" }}
+                            <span class="opacity-0 scale-0 z-40 group-hover:opacity-100 group-hover:scale-100 transition-all absolute bg-transparent pb-3 -bottom-3 translate-y-full left-1/2 -translate-x-1/2">
+                              <span class="
+                                  text-sm text-semibold font-mono w-full min-w-fit whitespace-nowrap bg-bn-ribbon-200 text-bn-ribbon-900 py-2 px-3 rounded shadow-xl text-left relative
+                                  before:block before:absolute before:-top-1 before:h-3 before:w-3 before:bg-bn-ribbon-200 before:left-1/2 before:-translate-x-1/2 before:rotate-45 before:z-0
+                                "
+                              >
+                                {{ job.started_at|date:"d M Y H:i:s e"|default_if_none:"-" }}
+                              </span>
+                            </span>
+                          </time>
+                        </p>
+                    </div>
+                  </div>
+                </div>
+              </li>
+
+              <li>
+                <div class="relative pb-8">
+                  <span class="absolute top-4 left-4 -ml-px h-full w-0.5 bg-slate-200" aria-hidden="true"></span>
+                  <div class="relative flex space-x-3">
+                    <div>
+                      <span class="h-8 w-8 rounded-full bg-green-500 flex items-center justify-center ring-8 ring-white">
+                        <svg xmlns="http://www.w3.org/2000/svg" class="w-5 h-5 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                          <path stroke-linecap="round" stroke-linejoin="round" d="M5 13l4 4L19 7" />
+                        </svg>
+                      </span>
+                    </div>
+                    <div class="min-w-0 flex-1 flex justify-between space-x-4">
+                        <p class="text-sm text-slate-500">
+                          <span class="block">Finished running on the secure backend:</span>
+                          <time class="font-medium text-slate-900 group relative cursor-pointer" datetime="{{ job.completed_at|date:"Y-m-d H:i:sO"|default_if_none:"-" }}">
+                            {{ job.completed_at|naturaltime|default_if_none:"-" }}
+                            <span class="opacity-0 scale-0 z-40 group-hover:opacity-100 group-hover:scale-100 transition-all absolute bg-transparent pb-3 -bottom-3 translate-y-full left-1/2 -translate-x-1/2">
+                              <span class="
+                                  text-sm text-semibold font-mono w-full min-w-fit whitespace-nowrap bg-bn-ribbon-200 text-bn-ribbon-900 py-2 px-3 rounded shadow-xl text-left relative
+                                  before:block before:absolute before:-top-1 before:h-3 before:w-3 before:bg-bn-ribbon-200 before:left-1/2 before:-translate-x-1/2 before:rotate-45 before:z-0
+                                "
+                              >
+                                {{ job.completed_at|date:"d M Y H:i:s e"|default_if_none:"-" }}
+                              </span>
+                            </span>
+                          </time>
+                        </p>
+                    </div>
+                  </div>
+                </div>
+              </li>
+
+              <li>
+                <div class="relative pb-8">
+                  <span class="absolute top-4 left-4 -ml-px h-full w-0.5 bg-slate-200" aria-hidden="true"></span>
+                  <div class="relative flex space-x-3">
+                    <div>
+                      <span class="h-8 w-8 rounded-full bg-bn-flamenco-400 flex items-center justify-center ring-8 ring-white">
+                        <svg xmlns="http://www.w3.org/2000/svg" class="w-5 h-5 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                          <path stroke-linecap="round" stroke-linejoin="round" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
+                        </svg>
+                      </span>
+                    </div>
+                    <div class="min-w-0 flex-1 flex justify-between space-x-4">
+                        <p class="text-sm text-slate-500">
+                          <span class="block">Time spent running on the secure backend:</span>
+                          <span class="font-medium text-slate-900">
+                            {{ job.runtime }}
+                          </span>
+                        </p>
+                    </div>
+                  </div>
+                </div>
+              </li>
+
+
+
+              <li>
+                <div class="relative pb-8">
+                  <div class="relative flex space-x-3">
+                    <div>
+                      <span class="h-8 w-8 rounded-full bg-bn-ribbon-400 flex items-center justify-center ring-8 ring-white">
+                        <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                          <path stroke-linecap="round" stroke-linejoin="round" d="M5.636 18.364a9 9 0 010-12.728m12.728 0a9 9 0 010 12.728m-9.9-2.829a5 5 0 010-7.07m7.072 0a5 5 0 010 7.07M13 12a1 1 0 11-2 0 1 1 0 012 0z" />
+                        </svg>
+                      </span>
+                    </div>
+                    <div class="min-w-0 flex-1 flex justify-between space-x-4">
+                        <p class="text-sm text-slate-500">
+                          <span class="block">Last update by secure backend:</span>
+                          <time class="font-medium text-slate-900 group relative cursor-pointer" datetime="{{ job.updated_at|date:"Y-m-d H:i:sO"|default_if_none:"-" }}">
+                            {{ job.updated_at|naturaltime|default_if_none:"-" }}
+                            <span class="opacity-0 scale-0 z-40 group-hover:opacity-100 group-hover:scale-100 transition-all absolute bg-transparent pb-3 -bottom-3 translate-y-full left-1/2 -translate-x-1/2">
+                              <span class="
+                                  text-sm text-semibold font-mono w-full min-w-fit whitespace-nowrap bg-bn-ribbon-200 text-bn-ribbon-900 py-2 px-3 rounded shadow-xl text-left relative
+                                  before:block before:absolute before:-top-1 before:h-3 before:w-3 before:bg-bn-ribbon-200 before:left-1/2 before:-translate-x-1/2 before:rotate-45 before:z-0
+                                "
+                              >
+                                {{ job.updated_at|date:"d M Y H:i:s e"|default_if_none:"-" }}
+                              </span>
+                            </span>
+                          </time>
+                        </p>
+                    </div>
+                  </div>
+                </div>
+              </li>
+            </ul>
           </div>
-          {% if job.action in job.job_request.cancelled_actions %}
+
+          <p class="bg-slate-50 text-sm font-medium text-slate-600 px-4 py-5 sm:px-6">These timestamps are generated and stored using the UTC timezone on the {{ job.job_request.backend|upper }} secure backend.</p>
+        </div>
+      </section>
+
+      <div class="space-y-6 lg:col-start-2 lg:col-span-2">
+        <!-- Description list-->
+        <section aria-labelledby="applicant-information-title">
+          <div class="bg-white shadow sm:rounded-lg">
+            <div class="px-4 py-5 sm:px-6">
+              <dl class="grid grid-cols-1 gap-x-4 gap-y-8 sm:grid-cols-2">
+                <div class="sm:col-span-1">
+                  <dt class="text-sm font-medium text-slate-500">Job identifier</dt>
+                  <dd class="mt-1 text-sm text-slate-900">{{ job.identifier }}</dd>
+                </div>
+                <div class="sm:col-span-1">
+                  <dt class="text-sm font-medium text-slate-500">Job request</dt>
+                  <dd class="mt-1 text-sm text-slate-900">{{ job.job_request_id }}</dd>
+                </div>
+                <div class="sm:col-span-1">
+                  <dt class="text-sm font-medium text-slate-500">Requested by</dt>
+                  <dd class="mt-1 text-sm text-slate-900">{{ job.job_request.created_by.username }}</dd>
+                </div>
+                <div class="sm:col-span-1">
+                  <dt class="text-sm font-medium text-slate-500">Branch</dt>
+                  <dd class="mt-1 text-sm text-slate-900">{{ job.job_request.workspace.branch }}</dd>
+                </div>
+                <div class="sm:col-span-1">
+                  <dt class="text-sm font-medium text-slate-500">Backend</dt>
+                  <dd class="mt-1 text-sm text-slate-900">{{ job.job_request.backend }}</dd>
+                </div>
+                <div class="sm:col-span-1">
+                  <dt class="text-sm font-medium text-slate-500">Status</dt>
+                  <dd class="mt-1 text-sm text-slate-900">{{ job.status|capfirst }}</dd>
+                </div>
+                <div class="sm:col-span-2">
+                  <dt class="text-sm font-medium text-slate-500">Status message</dt>
+                  <dd class="mt-1 text-sm text-slate-900">
+                    {% if job.status_message %}
+                      {{ job.status_message }}
+                    {% else %}
+                      -
+                    {% endif %}
+
+                              {% if job.action in job.job_request.cancelled_actions %}
             <p class="list-group-item list-group-item-danger mb-0">
               A User has requested this Job is cancelled.
             </p>
           {% endif %}
 
           {% status_hint job %}
-        </div>
-      </section>
-
-      <section class="card">
-        <h2 class="card-header h4 mb-0">Config</h2>
-        <ul class="list-group list-group-flush">
-          <li class="list-group-item">
-            <strong>Backend:</strong>
-            <ul class="list-unstyled">
-              <li><code>{{ job.job_request.backend }}</code></li>
-            </ul>
-          </li>
-          <li class="list-group-item">
-            <strong>Workspace:</strong>
-            <ul class="list-unstyled">
-              <li>
-                <a href="{{ job.job_request.workspace.get_absolute_url }}">
-                  {{ job.job_request.workspace.name }}
-                </a>
-              </li>
-            </ul>
-          </li>
-          <li class="list-group-item">
-            <strong>Branch:</strong>
-            <ul class="list-unstyled">
-              <li><code>{{ job.job_request.workspace.branch }}</code></li>
-            </ul>
-          </li>
-          {% if job.job_request_id %}
-            <li class="list-group-item">
-              <strong>Request:</strong>
-              <ul class="list-unstyled">
-                <li>
-                  <a href="{{ job.job_request.get_absolute_url }}">
-                    {{ job.job_request_id }} by {{ job.job_request.created_by.username }}
-                  </a>
-                </li>
-              </ul>
-            </li>
-          {% endif %}
-        </ul>
-      </section>
-    </div>
-    <div class="col-lg-6">
-      <section class="card mb-3">
-        <div class="card-header">
-          <h2 class="card-title">Timings</h2>
-          <p class="card-subtitle">
-            The timestamps below are generated and stored using the
-            <a href="https://en.wikipedia.org/wiki/Coordinated_Universal_Time">UTC</a>
-            timezone on the secure backend which created this job,
-            <code>{{ job.job_request.backend.name }}</code>.
-          </p>
-        </div>
-        <div class="list-group list-group-flush">
-          <div class="list-group-item">
-            <strong>Created:</strong>
-            <time datetime="{{ job.created_at|date:"Y-m-d H:i:sO" }}" title="{{ job.created_at|date:"Y-m-d H:i:sO" }}">
-              {{ job.created_at|naturaltime }}
-            </time>
-            <p class="text-muted mb-0 mt-1">When the job was created by the secure backend.</p>
-          </div>
-
-          <div class="list-group-item">
-            <strong>Acknowledged:</strong>
-            <time datetime="{{ job.started_at|date:"Y-m-d H:i:sO"|default_if_none:"" }}" title="{{ job.started_at|date:"Y-m-d H:i:sO"|default_if_none:"" }}">
-              {{ job.started_at|naturaltime|default_if_none:"-" }}
-            </time>
-            <p class="text-muted mb-0 mt-1">
-              When the job moved to the pending or running state on the secure backend.
-            </p>
-          </div>
-
-          <div class="list-group-item">
-            <strong>Finished:</strong>
-            <time datetime="{{ job.completed_at|date:"Y-m-d H:i:sO"|default_if_none:"" }}" title="{{ job.completed_at|date:"Y-m-d H:i:sO"|default_if_none:"" }}">
-              {{ job.completed_at|naturaltime|default_if_none:"-"}}
-            </time>
-            <p class="text-muted mb-0 mt-1">
-              When the job finished running on the secure backend.
-            </p>
-          </div>
-
-          <div class="list-group-item">
-            <strong>Duration:</strong>
-            <span>{{ job.runtime }}</span>
-            <p class="text-muted mb-0 mt-1">
-              How long the job ran for on the secure backend, this includes time
-              spent copying files, and waiting to be checked by the backend.
-            </p>
-          </div>
-
-          <div class="list-group-item">
-            <strong>Last Updated by Backend:</strong>
-            <time datetime="{{ job.updated_at|date:"Y-m-d H:i:sO"|default_if_none:"" }}" title="{{ job.updated_at|date:"Y-m-d H:i:sO"|default_if_none:"" }}">
-              {{ job.updated_at|naturaltime|default_if_none:"-" }}
-            </time>
-            <p class="text-muted mb-0 mt-1">
-              How long ago did the secure backend update the website about this
-              job.
-            </p>
-          </div>
-
-          {% if job.is_missing_updates %}
-            <div class="list-group-item list-group-item-warning">
-              <p class="mb-0">
-                This Job has not been updated for over 30 minutes, some of the data
-                on this page could be stale.
-              </p>
+                  </dd>
+                </div>
+              </dl>
             </div>
-          {% endif %}
-        </div>
-      </section>
-
-      {% if honeycomb_can_view_links %}
-      <section class="card mb-3">
-        <div class="card-header">
-          <h2 class="card-title">Monitoring</h2>
-          <p class="card-subtitle mb-0">Honeycomb login required</p>
-        </div>
-        <div class="card-body">
-          <ul class="pl-3 mb-0">
-            <li>
-              <a href="https://ui.honeycomb.io/bennett-institute-for-applied-data-science/environments/production/datasets/job-server?query=%7B%22start_time%22%3A{{ honeycomb_context_starttime|date:'U'|default_if_none:'1646312416' }}%2C%22end_time%22%3A{{ honeycomb_context_endtime|date:'U' }}%2C%22granularity%22%3A0%2C%22breakdowns%22%3A%5B%22status%22%5D%2C%22calculations%22%3A%5B%7B%22op%22%3A%22COUNT%22%7D%5D%2C%22filters%22%3A%5B%7B%22column%22%3A%22name%22%2C%22op%22%3A%22%3D%22%2C%22value%22%3A%22update_job%22%7D,%7B%22column%22%3A%22job_identifier%22%2C%22op%22%3A%22%3D%22%2C%22value%22%3A%22{{ job.identifier }}%22%7D%5D%2C%22filter_combination%22%3A%22AND%22%2C%22orders%22%3A%5B%7B%22op%22%3A%22COUNT%22%2C%22order%22%3A%22descending%22%7D%5D%2C%22havings%22%3A%5B%5D%2C%22limit%22%3A100%7D">
-                All monitoring events for this job
-              </a>
-            </li>
-            </li>
-          </ul>
-        </div>
-      </section>
-      {% endif %}
+          </div>
+        </section>
+      </div>
     </div>
-  </div>
-</div>
+  </section>
+
+{# {% if job.is_missing_updates %} #}
+  {# <div class="list-group-item list-group-item-warning"> #}
+    {# <p class="mb-0"> #}
+      {# This Job has not been updated for over 30 minutes, some of the data #}
+      {# on this page could be stale. #}
+    {# </p> #}
+  {# </div> #}
+{# {% endif %} #}
+{#  #}
+{# {% if honeycomb_can_view_links %} #}
+{# <section class="card mb-3"> #}
+  {# <div class="card-header"> #}
+    {# <h2 class="card-title">Monitoring</h2> #}
+    {# <p class="card-subtitle mb-0">Honeycomb login required</p> #}
+  {# </div> #}
+  {# <div class="card-body"> #}
+    {# <ul class="pl-3 mb-0"> #}
+      {# <li> #}
+        {# <a href="https://ui.honeycomb.io/bennett-institute-for-applied-data-science/environments/production/datasets/job-server?query=%7B%22start_time%22%3A{{ honeycomb_context_starttime|date:'U'|default_if_none:'1646312416' }}%2C%22end_time%22%3A{{ honeycomb_context_endtime|date:'U' }}%2C%22granularity%22%3A0%2C%22breakdowns%22%3A%5B%22status%22%5D%2C%22calculations%22%3A%5B%7B%22op%22%3A%22COUNT%22%7D%5D%2C%22filters%22%3A%5B%7B%22column%22%3A%22name%22%2C%22op%22%3A%22%3D%22%2C%22value%22%3A%22update_job%22%7D,%7B%22column%22%3A%22job_identifier%22%2C%22op%22%3A%22%3D%22%2C%22value%22%3A%22{{ job.identifier }}%22%7D%5D%2C%22filter_combination%22%3A%22AND%22%2C%22orders%22%3A%5B%7B%22op%22%3A%22COUNT%22%2C%22order%22%3A%22descending%22%7D%5D%2C%22havings%22%3A%5B%5D%2C%22limit%22%3A100%7D"> #}
+          {# All monitoring events for this job #}
+        {# </a> #}
+      {# </li> #}
+      {# </li> #}
+    {# </ul> #}
+  {# </div> #}
+{# </section> #}
+{# {% endif %} #}
 
 {% endblock content %}
