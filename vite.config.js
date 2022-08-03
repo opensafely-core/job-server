@@ -18,6 +18,7 @@ const config = {
         main: "./assets/src/scripts/main.js",
         workspace_create: "./assets/src/scripts/workspace_create.js",
         "outputs-viewer": "./assets/src/scripts/outputs-viewer/index.jsx",
+        "tw": "./assets/src/scripts/tw.js",
       },
     },
     outDir: "assets/dist",
