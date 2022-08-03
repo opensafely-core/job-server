@@ -1,12 +1,51 @@
-import Screen from "@alpine-collective/toolkit-screen";
-import Alpine from "alpinejs";
+import Alpine from "alpinejs/packages/csp/dist/module.esm";
+import Screen from "@alpine-collective/toolkit-screen/dist/module.esm";
 import "../styles/tw.css";
 
 Alpine.plugin(Screen);
 
-window.Alpine = Alpine;
+document.addEventListener("alpine:init", () => {
+  Alpine.data("header", function () {
+    return {
+      get largerThanMd() {
+        return this.$screen("md");
+      },
 
-Alpine.start();
+      showMainNav: false,
+      get isMainNavOpen() {
+        if (this.largerThanMd) {
+          return true;
+        }
+        return this.showMainNav;
+      },
+      clickMainNav() {
+        if (this.largerThanMd) {
+          this.showMainNav = true;
+        } else {
+          return (this.showMainNav = !this.showMainNav);
+        }
+      },
+
+      showUserNav: false,
+      get isUserNavOpen() {
+        if (!this.largerThanMd) {
+          return true;
+        }
+        return this.showUserNav;
+      },
+      clickUserNav() {
+        if (this.largerThanMd) {
+          return (this.showUserNav = !this.showUserNav);
+        } else {
+          this.showUserNav = true;
+        }
+      },
+    };
+  });
+});
+
+window.Alpine = Alpine;
+window.Alpine.start();
 
 // Remove no-transition class after page load
 document
