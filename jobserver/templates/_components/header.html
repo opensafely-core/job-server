@@ -50,8 +50,8 @@
       <span class="sr-only">
         Toggle menu
       </span>
-      {% include "_icons/menu-outline.svg" with html_class="h-6 w-6" x_bind_class="isMobileNavVisible && 'hidden'" %}
-      {% include "_icons/x-outline.svg" with html_class="h-6 w-6" x_bind_class="!isMobileNavVisible && 'hidden'" %}
+      {% include "_icons/menu-outline.svg" with class="h-6 w-6" x_bind_class="isMobileNavVisible && 'hidden'" only %}
+      {% include "_icons/x-outline.svg" with class="h-6 w-6" x_bind_class="!isMobileNavVisible && 'hidden'" only %}
     </button>
     <div
       @click="isMobileNavVisible = false"
