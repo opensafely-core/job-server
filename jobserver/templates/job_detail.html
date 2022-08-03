@@ -130,7 +130,7 @@
       </div>
       <ul class="flow-root px-4 py-2 sm:px-6 sm:py-5 border-t border-slate-200 list-disc text-sm">
         <li class="ml-4">
-          {% include "_components/link.html" with href="https://ui.honeycomb.io/bennett-institute-for-applied-data-science/environments/production/datasets/job-server?query=%7B%22start_time%22%3A{{ honeycomb_context_starttime|date:'U'|default_if_none:'1646312416' }}%2C%22end_time%22%3A{{ honeycomb_context_endtime|date:'U' }}%2C%22granularity%22%3A0%2C%22breakdowns%22%3A%5B%22status%22%5D%2C%22calculations%22%3A%5B%7B%22op%22%3A%22COUNT%22%7D%5D%2C%22filters%22%3A%5B%7B%22column%22%3A%22name%22%2C%22op%22%3A%22%3D%22%2C%22value%22%3A%22update_job%22%7D,%7B%22column%22%3A%22job_identifier%22%2C%22op%22%3A%22%3D%22%2C%22value%22%3A%22{{ job.identifier }}%22%7D%5D%2C%22filter_combination%22%3A%22AND%22%2C%22orders%22%3A%5B%7B%22op%22%3A%22COUNT%22%2C%22order%22%3A%22descending%22%7D%5D%2C%22havings%22%3A%5B%5D%2C%22limit%22%3A100%7D" text="All monitoring events for this job" only %}
+          {% include "_components/link.html" with href=honeycomb_link text="All monitoring events for this job" only %}
         </li>
       </ul>
     </section>
