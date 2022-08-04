@@ -1,7 +1,7 @@
 <li class="flex items-center">
   {% if title == "Home" %}
     <a href="{{ url }}" class="text-slate-400 hover:text-slate-500 p-2">
-      {% include "_icons/home-outline.svg" with class="flex-shrink-0 h-5 w-5" only %}
+      {% icon_home_outline class="flex-shrink-0 h-5 w-5" %}
       <span class="sr-only">{{ title }}</span>
     </a>
   {% else %}
@@ -16,7 +16,7 @@
       </span>
 
       {% if location %}
-        {% include "_components/tooltip.html" with bottom="2" content=location only %}
+        {% tooltip position="-bottom-2" content=location %}
       {% endif %}
 
     {% if url %}
@@ -27,6 +27,6 @@
   {% endif %}
 
   {% if not active %}
-    {% include "_icons/chevron-right-outline.svg" with class="flex-shrink-0 h-5 w-5 text-oxford/25 only" %}
+    {% icon_chevron_right_outline class="flex-shrink-0 h-5 w-5 text-oxford/25" %}
   {% endif %}
 </li>

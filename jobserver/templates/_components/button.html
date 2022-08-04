@@ -1,14 +1,13 @@
 {% if type == "link" %}
   <a
-    href="{{ href }}"
+    {% attrs href %}
     {% if external %}
       rel="noopener noreferrer"
       target="_blank"
     {% endif %}
 {% else %}
   <button
-    type="{{ type|default:"button" }}"
-    {% if disabled %}disabled{% endif %}
+    {% attrs disabled type=type|default:"button" id name %}
 {% endif %}
 
     class="
@@ -31,10 +30,10 @@
       {% endif %}
     ">
 
-      {{ content }}
+      {{ children }}
 
 {% if tooltip %}
-  {% include "_components/tooltip.html" with bottom="4" content=tooltip only %}
+  {% tooltip position="-bottom-4" content=tooltip %}
 {% endif %}
 
 {% if type == "link" %}

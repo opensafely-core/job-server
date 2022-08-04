@@ -13,15 +13,15 @@
         <ul class="flex flex-col gap-2 items-center md:items-start">
           <li class="flex">
             {% url 'home' as home_url %}
-            {% include "_components/link.html" with text="Home" href=home_url only %}
+            {% link text="Home" href=home_url %}
           </li>
           <li class="flex">
             {% url 'org-list' as orgs_url %}
-            {% include "_components/link.html" with text="Organisations" href=orgs_url only %}
+            {% link text="Organisations" href=orgs_url %}
           </li>
           {% for location in nav %}
           <li class="flex">
-            {% include "_components/link.html" with text=location.name href=location.url only %}
+            {% link text=location.name href=location.url %}
           </li>
           {% endfor %}
         </ul>
@@ -32,16 +32,16 @@
         </h2>
         <ul class="flex flex-col gap-2 items-center md:items-start">
           <li class="flex">
-            {% include "_components/link.html" with text="Documentation" href="https://docs.opensafely.org/" only %}
+            {% link text="Documentation" href="https://docs.opensafely.org/" %}
           </li>
           <li class="flex">
-            {% include "_components/link.html" with text="OpenSAFELY" href="https://www.opensafely.org/" only %}
+            {% link text="OpenSAFELY" href="https://www.opensafely.org/" %}
           </li>
           <li class="flex">
-            {% include "_components/link.html" with text="OpenSAFELY Blog" href="https://www.opensafely.org/blog/" only %}
+            {% link text="OpenSAFELY Blog" href="https://www.opensafely.org/blog/" %}
           </li>
           <li class="flex">
-            {% include "_components/link.html" with text="OpenSAFELY Service Status" href="https://status.opensafely.org/" only %}
+            {% link text="OpenSAFELY Service Status" href="https://status.opensafely.org/" %}
           </li>
         </ul>
       </div>
@@ -51,23 +51,23 @@
         </h2>
         <ul class="flex flex-col gap-2 items-center md:items-start">
           <li class="flex">
-            {% include "_components/link.html" with text="Bennett Institute for Applied Data Science" href="https://www.bennett.ox.ac.uk/" new_tab=True only %}
+            {% link text="Bennett Institute for Applied Data Science" href="https://www.bennett.ox.ac.uk/" new_tab=True %}
           </li>
           <li class="flex">
-            {% include "_components/link.html" with text="Nuffield Department of Primary Care Health Sciences" href="https://www.phc.ox.ac.uk/" new_tab=True only %}
+            {% link text="Nuffield Department of Primary Care Health Sciences" href="https://www.phc.ox.ac.uk/" new_tab=True %}
           </li>
           <li class="flex">
-            {% include "_components/link.html" with text="University of Oxford" href="https://www.ox.ac.uk/" new_tab=True only %}
+            {% link text="University of Oxford" href="https://www.ox.ac.uk/" new_tab=True %}
           </li>
           <li class="flex">
-            {% include "_components/link.html" with text="Privacy Policy" href="https://www.opensafely.org/privacy/" new_tab=True only %}
+            {% link text="Privacy Policy" href="https://www.opensafely.org/privacy/" new_tab=True %}
           </li>
         </ul>
       </div>
       <div class="pt-6 text-slate-600 lg:col-span-3">
         <h2 class="sr-only">Copyright statement</h2>
         <p>
-          © University of Oxford for the Bennett Institute for Applied Data Science {% now 'Y' %}. This work may be copied freely for non-commercial research and study. If you wish to do any of the other acts restricted by the copyright you should apply in writing to {% spaceless %}{% include "_components/link.html" with text="bennett@phc.ox.ac.uk" href="mailto:bennett@phc.ox.ac.uk" only %}{% endspaceless %}.
+          © University of Oxford for the Bennett Institute for Applied Data Science {% now 'Y' %}. This work may be copied freely for non-commercial research and study. If you wish to do any of the other acts restricted by the copyright you should apply in writing to {% spaceless %}{% link text="bennett@phc.ox.ac.uk" href="mailto:bennett@phc.ox.ac.uk" %}{% endspaceless %}.
         </p>
       </div>
     </div>
