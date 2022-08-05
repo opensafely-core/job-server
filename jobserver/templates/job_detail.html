@@ -1,4 +1,4 @@
-{% extends "base-tw.html" %}
+{% extends "base.html" %}
 
 {% load humanize %}
 {% load status_tools %}
@@ -13,127 +13,239 @@
 {% block metatitle %}Job request: {{ job.action }} - {{ job.job_request.id }} - {{ job.job_request.workspace.name }} | OpenSAFELY Jobs{% endblock metatitle %}
 
 {% block breadcrumbs %}
-  {% url 'home' as home_url %}
-  {% breadcrumb title="Home" url=home_url %}
-  {% breadcrumb location="Organisation" truncate=True title=job.job_request.workspace.project.org.name url=job.job_request.workspace.project.org.get_absolute_url %}
-  {% breadcrumb location="Project" truncate=True title=job.job_request.workspace.project.title url=job.job_request.workspace.project.get_absolute_url %}
-  {% breadcrumb location="Workspace" truncate=True title=job.job_request.workspace.name url=job.job_request.workspace.get_absolute_url %}
-  {% breadcrumb location="Job request" title=job.job_request.id url=job.job_request.get_absolute_url %}
-  {% breadcrumb location="Action" title=job.action active=True %}
+<nav class="breadcrumb-container" aria-label="breadcrumb">
+  <div class="container">
+    <ol class="breadcrumb rounded-0 mb-0 px-0">
+      <li class="breadcrumb-item">
+        <a href="/">Home</a>
+      </li>
+
+      <li class="breadcrumb-item">
+        <a href="{{ job.job_request.workspace.project.org.get_absolute_url }}">
+          {{ job.job_request.workspace.project.org.name }}
+        </a>
+      </li>
+
+      <li class="breadcrumb-item">
+        <a href="{{ job.job_request.workspace.project.get_absolute_url }}">
+          {{ job.job_request.workspace.project.title }}
+        </a>
+      </li>
+
+      <li class="breadcrumb-item">
+        <a href="{{ job.job_request.workspace.get_absolute_url }}">
+          {{ job.job_request.workspace.name }}
+        </a>
+      </li>
+
+      <li class="breadcrumb-item">
+        <a href="{{ job.job_request.get_absolute_url }}">
+          {{ job.job_request.id }}
+        </a>
+      </li>
+
+      <li class="breadcrumb-item active" aria-current="page">
+        {{ job.action }}
+      </li>
+    </ol>
+  </div>
+</nav>
 {% endblock breadcrumbs %}
 
-{% block content %}
-<div class="md:flex md:items-center md:justify-between md:space-x-5">
-  <h1 class="text-3xl break-all md:bread-words md:text-4xl font-bold text-slate-900">
-    {{ job.action }}
-  </h1>
-  <div class="mt-6 flex flex-col-reverse justify-stretch space-y-4 space-y-reverse sm:flex-row-reverse sm:justify-end sm:space-x-reverse sm:space-y-0 sm:space-x-3 md:mt-0 md:flex-row md:space-x-3">
+{% block jumbotron %}
+<div class="jumbotron jumbotron-fluid">
+  <div class="container">
+    <h1><code class="text-body">{{ job.action }}</code></h1>
+
+    <ul class="list-unstyled lead">
+      <li><strong>ID:</strong> <code>{{ job.identifier }}</code></li>
+    </ul>
+
+    <p class="lead">
+      This page describes a "job", an action (<code>{{ job.action }}</code>) requested by the
+      user, and run on a secure backend (<code>{{ job.job_request.backend.name }}</code>).
+    </p>
+
     {% if user_can_cancel_jobs %}
       <form class="d-inline-block" method="POST" action="{{ job.get_cancel_url }}">
         {% csrf_token %}
+      <button
           {% if job.is_completed or job.action in job.job_request.cancelled_actions %}
-            {% #button type="submit" disabled=True tooltip="This job can no longer be cancelled" %}
-              Cancel this job
-            {% /button %}
-          {% else %}
-            {% #button type="submit" variant="danger" %}
-              Cancel this job
-            {% /button %}
+            aria-disabled="true"
+            disabled
+            tabindex="-1"
+            title="Job cannot be cancelled"
           {% endif %}
+          class="btn btn-block btn-danger"
+          type="submit"
+        >
+          Cancel
+        </button>
       </form>
+      <p class="text-muted">Cancelling this job will cancel both the current job and any subsequent jobs that depend on it.</p>
     {% endif %}
   </div>
 </div>
+{% endblock jumbotron %}
 
-{% if job.is_missing_updates %}
-  {% alert variant="warning" title="Attention needed" text="This Job has not been updated for over 30 minutes, some of the data on this page could be stale." %}
-{% endif %}
-
-<div class="mt-8 grid grid-cols-1 gap-6 lg:grid-flow-col-dense lg:grid-cols-3">
-  <section aria-labelledby="timeline-title" class="lg:col-start-1 lg:col-span-1">
-    <div class="bg-white shadow sm:rounded-lg overflow-hidden">
-      <h2 id="timeline-title" class="text-lg font-semibold text-slate-900 px-4 py-2 sm:px-6 sm:py-3">
-        Timeline
-      </h2>
-      <ul class="flow-root px-4 py-2 sm:px-6 sm:py-5 border-t border-slate-200 -mb-8">
-        {% #timeline_item background="blue" title="Created by the secure backend:" job_time=job.created_at %}
-          {% icon_pencil_outline class="h-5 w-5" %}
-        {% /timeline_item %}
-        {% #timeline_item background="purple" title="Moved to the pending or running state on the secure backend:" job_time=job.started_at %}
-          {% icon_folder_open_outline class="h-5 w-5" %}
-        {% /timeline_item %}
-        {% #timeline_item background="green" title="Finished running on the secure backend:" job_time=job.completed_at %}
-          {% icon_check_outline class="h-5 w-5" %}
-        {% /timeline_item %}
-        {% #timeline_item background="yellow" title="Time spent running on the secure backend:" content=job.runtime %}
-          {% icon_clock_outline class="h-5 w-5" %}
-        {% /timeline_item %}
-        {% #timeline_item background="pink" title="Last update by secure backend:" job_time=job.updated_at last=True %}
-          {% icon_status_online_outline class="h-5 w-5" %}
-        {% /timeline_item %}
-      </ul>
-
-      <p class="bg-slate-50 text-sm font-medium text-slate-600 px-4 py-2 sm:px-6 sm:py-4">
-        These timestamps are generated and stored using the UTC timezone on the {{ job.job_request.backend|upper }} secure backend.
-      </p>
-    </div>
-  </section>
-
-  <div class="space-y-6 md:space-y-6 lg:col-start-2 lg:col-span-2">
-    <section aria-labelledby="job-information-title" class="bg-white shadow sm:rounded-lg">
-      <h2 id="job-information-title" class="text-lg font-semibold text-slate-900 px-4 py-2 sm:px-6 sm:py-3">
-        Job information
-      </h2>
-      <dl class="grid grid-cols-1 gap-x-4 gap-y-8 sm:grid-cols-2 px-4 py-2 sm:px-6 sm:py-5 border-t border-slate-200">
-        <div class="sm:col-span-1">
-          {% #description_item title="Job identifier" %}{{ job.identifier }}{% /description_item %}
-        </div>
-        <div class="sm:col-span-1">
-          {% #description_item title="Job request" %}{{ job.job_request_id }}{% /description_item %}
-        </div>
-        <div class="sm:col-span-1">
-          {% #description_item title="Requested by" %}{{ job.job_request.created_by.username }}{% /description_item %}
-        </div>
-        <div class="sm:col-span-1">
-          {% #description_item title="Branch" %}{{ job.job_request.workspace.branch }}{% /description_item %}
-        </div>
-        <div class="sm:col-span-1">
-          {% #description_item title="Backend" %}{{ job.job_request.backend }}{% /description_item %}
-        </div>
-        <div class="sm:col-span-2">
-          {% #description_item title="Status" %}{{ job.status|capfirst }}{% /description_item %}
-        </div>
-        <div class="sm:col-span-2">
-          {% #description_item title="Status message" %}
+{% block content %}
+<div class="container">
+  <div class="row">
+    <div class="col-lg-6">
+      <section class="card mb-3">
+        <h2 class="card-header h4 mb-0">State</h2>
+        <div class="list-group list-group-flush">
+          <p class="list-group-item mb-0">
+            <strong>Status:</strong>
+            <code>{{ job.status|capfirst }}</code>
+          </p>
+          <div class="list-group-item">
+            <strong>Status message:</strong>
             {% if job.status_message %}
-              {{ job.status_message }}
+              <pre class="text-wrap mb-0 mt-1">{{ job.status_message }}</pre>
             {% else %}
               -
             {% endif %}
-            {% if job.action in job.job_request.cancelled_actions %}
-              <p>A User has requested this Job is cancelled.</p>
-            {% endif %}
-            {% status_hint job %}
-          {% /description_item %}
-        </div>
-      </dl>
-    </section>
+          </div>
+          {% if job.action in job.job_request.cancelled_actions %}
+            <p class="list-group-item list-group-item-danger mb-0">
+              A User has requested this Job is cancelled.
+            </p>
+          {% endif %}
 
-    {% if honeycomb_can_view_links %}
-    <section aria-labelledby="monitoring-title" class="bg-white shadow sm:rounded-lg overflow-hidden">
-      <div class="px-4 py-2 sm:px-6 sm:py-3">
-        <h2 id="monitoring-title" class="text-lg font-semibold text-slate-900">
-          Monitoring
-        </h2>
-        <p class="text-slate-600 text-sm">Honeycomb login required</p>
-      </div>
-      <ul class="flow-root px-4 py-2 sm:px-6 sm:py-5 border-t border-slate-200 list-disc text-sm">
-        <li class="ml-4">
-          {% link href=honeycomb_link text="All monitoring events for this job" %}
-        </li>
-      </ul>
-    </section>
-    {% endif %}
+          {% status_hint job %}
+        </div>
+      </section>
+
+      <section class="card">
+        <h2 class="card-header h4 mb-0">Config</h2>
+        <ul class="list-group list-group-flush">
+          <li class="list-group-item">
+            <strong>Backend:</strong>
+            <ul class="list-unstyled">
+              <li><code>{{ job.job_request.backend }}</code></li>
+            </ul>
+          </li>
+          <li class="list-group-item">
+            <strong>Workspace:</strong>
+            <ul class="list-unstyled">
+              <li>
+                <a href="{{ job.job_request.workspace.get_absolute_url }}">
+                  {{ job.job_request.workspace.name }}
+                </a>
+              </li>
+            </ul>
+          </li>
+          <li class="list-group-item">
+            <strong>Branch:</strong>
+            <ul class="list-unstyled">
+              <li><code>{{ job.job_request.workspace.branch }}</code></li>
+            </ul>
+          </li>
+          {% if job.job_request_id %}
+            <li class="list-group-item">
+              <strong>Request:</strong>
+              <ul class="list-unstyled">
+                <li>
+                  <a href="{{ job.job_request.get_absolute_url }}">
+                    {{ job.job_request_id }} by {{ job.job_request.created_by.username }}
+                  </a>
+                </li>
+              </ul>
+            </li>
+          {% endif %}
+        </ul>
+      </section>
+    </div>
+    <div class="col-lg-6">
+      <section class="card mb-3">
+        <div class="card-header">
+          <h2 class="card-title">Timings</h2>
+          <p class="card-subtitle">
+            The timestamps below are generated and stored using the
+            <a href="https://en.wikipedia.org/wiki/Coordinated_Universal_Time">UTC</a>
+            timezone on the secure backend which created this job,
+            <code>{{ job.job_request.backend.name }}</code>.
+          </p>
+        </div>
+        <div class="list-group list-group-flush">
+          <div class="list-group-item">
+            <strong>Created:</strong>
+            <time datetime="{{ job.created_at|date:"Y-m-d H:i:sO" }}" title="{{ job.created_at|date:"Y-m-d H:i:sO" }}">
+              {{ job.created_at|naturaltime }}
+            </time>
+            <p class="text-muted mb-0 mt-1">When the job was created by the secure backend.</p>
+          </div>
+
+          <div class="list-group-item">
+            <strong>Acknowledged:</strong>
+            <time datetime="{{ job.started_at|date:"Y-m-d H:i:sO"|default_if_none:"" }}" title="{{ job.started_at|date:"Y-m-d H:i:sO"|default_if_none:"" }}">
+              {{ job.started_at|naturaltime|default_if_none:"-" }}
+            </time>
+            <p class="text-muted mb-0 mt-1">
+              When the job moved to the pending or running state on the secure backend.
+            </p>
+          </div>
+
+          <div class="list-group-item">
+            <strong>Finished:</strong>
+            <time datetime="{{ job.completed_at|date:"Y-m-d H:i:sO"|default_if_none:"" }}" title="{{ job.completed_at|date:"Y-m-d H:i:sO"|default_if_none:"" }}">
+              {{ job.completed_at|naturaltime|default_if_none:"-"}}
+            </time>
+            <p class="text-muted mb-0 mt-1">
+              When the job finished running on the secure backend.
+            </p>
+          </div>
+
+          <div class="list-group-item">
+            <strong>Duration:</strong>
+            <span>{{ job.runtime }}</span>
+            <p class="text-muted mb-0 mt-1">
+              How long the job ran for on the secure backend, this includes time
+              spent copying files, and waiting to be checked by the backend.
+            </p>
+          </div>
+
+          <div class="list-group-item">
+            <strong>Last Updated by Backend:</strong>
+            <time datetime="{{ job.updated_at|date:"Y-m-d H:i:sO"|default_if_none:"" }}" title="{{ job.updated_at|date:"Y-m-d H:i:sO"|default_if_none:"" }}">
+              {{ job.updated_at|naturaltime|default_if_none:"-" }}
+            </time>
+            <p class="text-muted mb-0 mt-1">
+              How long ago did the secure backend update the website about this
+              job.
+            </p>
+          </div>
+
+          {% if job.is_missing_updates %}
+            <div class="list-group-item list-group-item-warning">
+              <p class="mb-0">
+                This Job has not been updated for over 30 minutes, some of the data
+                on this page could be stale.
+              </p>
+            </div>
+          {% endif %}
+        </div>
+      </section>
+
+      {% if honeycomb_can_view_links %}
+      <section class="card mb-3">
+        <div class="card-header">
+          <h2 class="card-title">Monitoring</h2>
+          <p class="card-subtitle mb-0">Honeycomb login required</p>
+        </div>
+        <div class="card-body">
+          <ul class="pl-3 mb-0">
+            <li>
+              <a href="{{ honeycomb_link }}">All monitoring events for this job</a>
+            </li>
+            </li>
+          </ul>
+        </div>
+      </section>
+      {% endif %}
+    </div>
   </div>
 </div>
+
 {% endblock content %}
