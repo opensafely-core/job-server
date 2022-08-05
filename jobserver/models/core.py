@@ -554,6 +554,14 @@ class ProjectMembership(models.Model):
 class Repo(models.Model):
     url = models.TextField(unique=True)
 
+    researcher_signed_off_at = models.DateTimeField(null=True)
+    researcher_signed_off_by = models.ForeignKey(
+        "User",
+        on_delete=models.PROTECT,
+        null=True,
+        related_name="repos_signed_off_by_researcher",
+    )
+
     def __str__(self):
         return self.url
 
@@ -830,6 +838,14 @@ class Workspace(models.Model):
     # TODO: Remove this once all Projects are ready to move to the new release
     # process
     uses_new_release_flow = models.BooleanField(default=True)
+
+    signed_off_at = models.DateTimeField(null=True)
+    signed_off_by = models.ForeignKey(
+        "User",
+        on_delete=models.PROTECT,
+        null=True,
+        related_name="workspaces_signed_off",
+    )
 
     created_at = models.DateTimeField(default=timezone.now)
 
