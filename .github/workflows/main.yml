@@ -10,6 +10,7 @@ jobs:
 
     steps:
       - uses: actions/checkout@v2
+      - uses: extractions/setup-just@v1
 
       - name: Install Node.js
         uses: actions/setup-node@v3
@@ -18,7 +19,7 @@ jobs:
           cache: 'npm'
 
       - name: Install node_modules
-        run: npm ci
+        run: just assets-install
 
       - name: Lint assets
         run: npm run lint
@@ -27,7 +28,7 @@ jobs:
         run: npm run test:coverage
 
       - name: Build assets
-        run: npm run build
+        run: just assets-build
 
       - name: Store assets
         uses: actions/upload-artifact@v3
