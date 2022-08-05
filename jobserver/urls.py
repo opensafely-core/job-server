@@ -48,6 +48,7 @@ from .views.releases import (
     SnapshotDownload,
     WorkspaceReleaseList,
 )
+from .views.repos import SignOffRepo
 from .views.status import DBAvailability, PerBackendStatus, Status
 from .views.users import Settings, login_view
 from .views.workspaces import (
@@ -266,6 +267,7 @@ urlpatterns = [
     path("login/", login_view, name="login"),
     path("logout/", LogoutView.as_view(), name="logout"),
     path("orgs/", OrgList.as_view(), name="org-list"),
+    path("publish-repo/<repo_url>/", SignOffRepo.as_view(), name="repo-sign-off"),
     path("settings/", Settings.as_view(), name="settings"),
     path("staff/", include("staff.urls", namespace="staff")),
     path("status/", include(status_urls)),

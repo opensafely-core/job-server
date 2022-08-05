@@ -1,0 +1,38 @@
+{% extends "base.html" %}
+
+{% block content %}
+<p>
+  The repo <a href="{{ repo.url }}"><code>{{ repo.name }}</code></a> is
+  currently {{ repo.status }}.
+</p>
+
+<p>These workspaces are linked to the repo:</p>
+
+<form method="POST">
+  {% csrf_token %}
+
+  {% for workspace in workspaces %}
+  <div>
+    <ul>
+      <li>Workspace: <a href="{{ workspace.get_absolute_url }}">{{ workspace.name }}</a></li>
+      <li>
+        Workspace status:
+        {% if workspace.is_archived %}
+        <span class="badge badge-sm badge-secondary">Archived</span>
+        {% else %}
+        <span class="badge badge-sm badge-primary">Active</span>
+        {% endif %}
+      </li>
+      <li>Branch: <a href="{{ workspace.branch }}">{{ workspace.branch }}</a></li>
+      <li>Readme: <a href="{{ workspace.get_readme_url }}">view on GitHub</a></li>
+      <li>Branch exists on GitHub: {% if workspace.branch_exists %}Yes{% else %}No{% endif %}</li>
+    </ul>
+  </div>
+  {% endfor %}
+
+  <p>by clicking this button, etc</p>
+
+  <button class="btn btn-sm btn-primary" type="submit">Agree</button>
+
+</form>
+{% endblock %}

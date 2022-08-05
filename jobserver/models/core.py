@@ -2,6 +2,7 @@ import base64
 import itertools
 import secrets
 from datetime import date, timedelta
+from urllib.parse import quote
 
 import structlog
 from django.contrib.auth.models import AbstractBaseUser
@@ -565,6 +566,9 @@ class Repo(models.Model):
     def __str__(self):
         return self.url
 
+    def get_sign_off_url(self):
+        return reverse("repo-sign-off", kwargs={"repo_url": quote(self.url, safe="")})
+
     @property
     def name(self):
         """Convert repo URL -> repo name"""
@@ -954,6 +958,15 @@ class Workspace(models.Model):
                 "workspace_slug": self.name,
             },
         )
+
+    def get_readme_url(self):
+        f = furl(self.repo)
+        f.path.segments += [
+            "blob",
+            self.branch,
+            "README.md",
+        ]
+        return f.url
 
     def get_releases_url(self):
         return reverse(

@@ -1,11 +1,15 @@
+from datetime import timedelta
+
 import requests
 from csp.decorators import csp_exempt
 from django.contrib import messages
 from django.db import transaction
 from django.db.models import Q
+from django.db.models.functions import Least
 from django.http import FileResponse, Http404, HttpResponse
 from django.shortcuts import get_object_or_404, redirect
 from django.template.response import TemplateResponse
+from django.utils import timezone
 from django.views.generic import CreateView, ListView, View
 from first import first
 from furl import furl
@@ -19,7 +23,7 @@ from ..forms import (
     WorkspaceNotificationsToggleForm,
 )
 from ..github import _get_github_api
-from ..models import Backend, JobRequest, Project, Repo, Workspace
+from ..models import Backend, Job, JobRequest, Project, Repo, Workspace
 from ..releases import (
     build_hatch_token_and_url,
     build_outputs_zip,
@@ -224,6 +228,24 @@ class WorkspaceDetail(View):
             name=self.kwargs["workspace_slug"],
         )
 
+        # get the first job for this workspace's repo
+        first_job = (
+            Job.objects.filter(job_request__workspace__repo=workspace.repo)
+            .annotate(run_at=Least("started_at", "created_at"))
+            .order_by("run_at")
+            .first()
+        )
+
+        # if the first job to run against this workspace's repo was more than
+        # 11 months ago then show a warning
+        eleven_months_ago = timezone.now() - timedelta(days=30 * 11)
+
+        is_member = request.user in workspace.project.members.all()
+
+        show_publish_repo_warning = (
+            is_member and first_job and first_job.run_at < eleven_months_ago
+        )
+
         is_privileged_user = has_permission(
             request.user, "release_file_view", project=workspace.project
         )
@@ -275,7 +297,9 @@ class WorkspaceDetail(View):
         honeycomb_can_view_links = has_role(self.request.user, CoreDeveloper)
 
         context = {
+            "first_job": first_job,
             "repo_is_private": repo_is_private,
+            "show_publish_repo_warning": show_publish_repo_warning,
             "run_jobs_url": run_jobs_url,
             "user_can_archive_workspace": can_archive_workspace,
             "user_can_run_jobs": can_run_jobs,

@@ -112,6 +112,22 @@
 
 {% block content %}
 <div class="container">
+  {% if show_publish_repo_warning %}
+  <div class="alert alert-warning alert-dismissible" role="alert">
+    <div class="row">
+      <div class="col">
+        <p>
+          The <a href="{{ first_job.get_absolute_url }}">first job</a> to run
+          against the repo for this workspace ran over 11 months ago.  As per
+          our platform policy we ask that repositories are made public 12
+          months after they are first executed against patient data.
+
+        </p>
+        <a class="btn btn-sm btn-success" href="{{ workspace.repo.get_sign_off_url }}">Read more</a>
+      </div>
+    </div>
+  </div>
+  {% endif %}
   <div class="row">
     <div class="col-lg-4">
       <div class="card mb-3 mb-lg-0">
