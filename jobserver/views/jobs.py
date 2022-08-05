@@ -61,11 +61,9 @@ class JobDetail(View):
         # This could be due to clock skew, '>' rather than '>=' comparators
         # and/or other factors.
         honeycomb_context_starttime = job.created_at - timedelta(minutes=1)
-        honeycomb_context_starttime_unix = 1646312416
-        if job.created_at is not None:
-            honeycomb_context_starttime_unix = calendar.timegm(
-                honeycomb_context_starttime.timetuple()
-            )
+        honeycomb_context_starttime_unix = calendar.timegm(
+            honeycomb_context_starttime.timetuple()
+        )
 
         honeycomb_context_endtime = timezone.now()
         if job.completed_at is not None:
