@@ -288,7 +288,7 @@ CSP_INCLUDE_NONCE_IN = ["script-src", "script-src-elem"]
 # configure django-csp to work with Vite when using it in dev mode
 if DJANGO_VITE_DEV_MODE:
     CSP_CONNECT_SRC = ["'self'", "ws://localhost:3000/static/", "https://plausible.io"]
-    CSP_FONT_SRC = ["'self'", "http://localhost:3000"]
+    CSP_FONT_SRC = ["'self'", "data:"]
     CSP_SCRIPT_SRC = CSP_SCRIPT_SRC_ELEM = [
         "'self'",
         "https://plausible.io",
