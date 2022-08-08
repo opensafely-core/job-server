@@ -56,7 +56,6 @@ class JobAPIUpdate(APIView):
         return super().initial(request, *args, **kwargs)
 
     def post(self, request, *args, **kwargs):
-        log = logger.new()
         tracer = trace.get_tracer_provider().get_tracer(__name__)
 
         serializer = self.serializer_class(data=request.data, many=True)
@@ -92,7 +91,7 @@ class JobAPIUpdate(APIView):
             job_request = job_request_lut[jr_identifier]
 
             # bind the job request ID to further logs so looking them up in the UI is easier
-            log = log.bind(job_request=job_request.id)
+            structlog.contextvars.bind_contextvars(job_request=job_request.id)
 
             database_jobs = job_request.jobs.all()
 
@@ -180,9 +179,9 @@ class JobAPIUpdate(APIView):
 
                     # We only send notifications or alerts for newly completed jobs
                     if newly_completed:
-                        handle_alerts_and_notifications(request, job_request, job, log)
+                        handle_alerts_and_notifications(request, job_request, job)
 
-        log.info(
+        logger.info(
             "Created or updated Jobs",
             created_job_ids=",".join(created_job_ids),
             updated_job_ids=",".join(updated_job_ids),
@@ -200,7 +199,7 @@ class JobAPIUpdate(APIView):
         return Response({"status": "success"}, status=200)
 
 
-def handle_alerts_and_notifications(request, job_request, job, log):
+def handle_alerts_and_notifications(request, job_request, job):
     error_messages = {
         "internal error": "Job encountered an internal error",
         "something went wrong with the database": "Job encountered an unexpected database error",
@@ -226,7 +225,7 @@ def handle_alerts_and_notifications(request, job_request, job, log):
             job_request.created_by.notifications_email,
             job,
         )
-        log.info(
+        logger.info(
             "Notified requesting user of completed job",
             user_id=job_request.created_by_id,
         )
