@@ -1,11 +1,11 @@
-from jobserver.authorization import ProjectCoordinator, ProjectDeveloper
+from jobserver.authorization import ProjectCollaborator, ProjectDeveloper
 from jobserver.authorization.forms import RolesForm
 
 
 def test_rolesform_creation():
     form = RolesForm(
-        initial={"roles": [ProjectCoordinator]},
-        available_roles=[ProjectCoordinator, ProjectDeveloper],
+        initial={"roles": [ProjectCollaborator]},
+        available_roles=[ProjectCollaborator, ProjectDeveloper],
     )
 
     choices = form.fields["roles"].choices
@@ -15,13 +15,13 @@ def test_rolesform_creation():
     ) in choices
 
     initial = form.fields["roles"].initial
-    assert initial == ["jobserver.authorization.roles.ProjectCoordinator"]
+    assert initial == ["jobserver.authorization.roles.ProjectCollaborator"]
 
 
 def test_rolesform_no_initial():
     form = RolesForm(
         data={"roles": ["test"]},
-        available_roles=[ProjectCoordinator, ProjectDeveloper],
+        available_roles=[ProjectCollaborator, ProjectDeveloper],
     )
 
     assert not form.is_valid()
@@ -33,8 +33,8 @@ def test_rolesform_no_initial():
 def test_rolesform_invalid_roles():
     form = RolesForm(
         data={"roles": ["test"]},
-        initial={"roles": [ProjectCoordinator]},
-        available_roles=[ProjectCoordinator, ProjectDeveloper],
+        initial={"roles": [ProjectCollaborator]},
+        available_roles=[ProjectCollaborator, ProjectDeveloper],
     )
 
     assert not form.is_valid()
@@ -46,8 +46,8 @@ def test_rolesform_invalid_roles():
 def test_rolesform_produces_role_classes():
     form = RolesForm(
         data={"roles": ["jobserver.authorization.roles.ProjectDeveloper"]},
-        initial={"roles": [ProjectCoordinator]},
-        available_roles=[ProjectCoordinator, ProjectDeveloper],
+        initial={"roles": [ProjectCollaborator]},
+        available_roles=[ProjectCollaborator, ProjectDeveloper],
     )
 
     assert form.is_valid(), form.errors
@@ -57,7 +57,7 @@ def test_rolesform_produces_role_classes():
 
 def test_rolesform_with_no_roles():
     form = RolesForm(
-        available_roles=[ProjectCoordinator],
+        available_roles=[ProjectCollaborator],
         data={"roles": []},
     )
 

@@ -36,15 +36,7 @@ from .views.job_requests import (
 )
 from .views.jobs import JobCancel, JobDetail, JobDetailRedirect
 from .views.orgs import OrgDetail, OrgList
-from .views.projects import (
-    ProjectAcceptInvite,
-    ProjectCancelInvite,
-    ProjectDetail,
-    ProjectInvitationCreate,
-    ProjectMembershipEdit,
-    ProjectMembershipRemove,
-    ProjectSettings,
-)
+from .views.projects import ProjectDetail
 from .views.releases import (
     ProjectReleaseList,
     PublishedSnapshotFile,
@@ -239,30 +231,8 @@ workspace_urls = [
 
 project_urls = [
     path("", ProjectDetail.as_view(), name="project-detail"),
-    path(
-        "accept-invite/<signed_pk>/",
-        ProjectAcceptInvite.as_view(),
-        name="project-accept-invite",
-    ),
-    path("cancel-invite/", ProjectCancelInvite.as_view(), name="project-cancel-invite"),
-    path(
-        "invite-users/",
-        ProjectInvitationCreate.as_view(),
-        name="project-invitation-create",
-    ),
-    path(
-        "members/<int:pk>/edit",
-        ProjectMembershipEdit.as_view(),
-        name="project-membership-edit",
-    ),
-    path(
-        "members/<int:pk>/remove",
-        ProjectMembershipRemove.as_view(),
-        name="project-membership-remove",
-    ),
     path("new-workspace/", WorkspaceCreate.as_view(), name="workspace-create"),
     path("releases/", ProjectReleaseList.as_view(), name="project-release-list"),
-    path("settings/", ProjectSettings.as_view(), name="project-settings"),
     path("<str:workspace_slug>/", include(workspace_urls)),
 ]
 

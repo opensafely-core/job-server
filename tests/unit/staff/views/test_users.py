@@ -5,7 +5,7 @@ from django.http import Http404
 from jobserver.authorization import (
     OutputPublisher,
     ProjectCollaborator,
-    ProjectCoordinator,
+    ProjectDeveloper,
     TechnicalReviewer,
 )
 from jobserver.utils import set_from_qs
@@ -36,7 +36,7 @@ def test_userdetail_get_success(rf, core_developer):
     OrgMembershipFactory(org=org, user=user)
 
     # link the user to the Projects
-    ProjectMembershipFactory(project=project1, user=user, roles=[ProjectCoordinator])
+    ProjectMembershipFactory(project=project1, user=user, roles=[ProjectDeveloper])
     ProjectMembershipFactory(project=project2, user=user, roles=[ProjectCollaborator])
 
     request = rf.get("/")
@@ -57,7 +57,7 @@ def test_userdetail_get_success(rf, core_developer):
     assert response.context_data["projects"] == [
         {
             "name": project1.name,
-            "roles": ["Project Coordinator"],
+            "roles": ["Project Developer"],
             "staff_url": project1.get_staff_url(),
         },
         {

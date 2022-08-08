@@ -17,7 +17,6 @@ from jobserver.models import (
     Org,
     OrgMembership,
     Project,
-    ProjectInvitation,
     ProjectMembership,
     Snapshot,
     Stats,
@@ -92,14 +91,6 @@ class ProjectFactory(factory.django.DjangoModelFactory):
 
     name = factory.Sequence(lambda n: f"Project {n}")
     slug = factory.Sequence(lambda n: f"project-{n}")
-
-
-class ProjectInvitationFactory(factory.django.DjangoModelFactory):
-    class Meta:
-        model = ProjectInvitation
-
-    project = factory.SubFactory("tests.factories.ProjectFactory")
-    user = factory.SubFactory("tests.factories.UserFactory")
 
 
 class ProjectMembershipFactory(factory.django.DjangoModelFactory):

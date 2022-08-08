@@ -3,16 +3,9 @@ from datetime import timedelta
 from django.conf import settings
 from django.utils import timezone
 
-from jobserver.emails import send_finished_notification, send_project_invite_email
+from jobserver.emails import send_finished_notification
 
-from ...factories import (
-    JobFactory,
-    JobRequestFactory,
-    ProjectFactory,
-    ProjectInvitationFactory,
-    UserFactory,
-    WorkspaceFactory,
-)
+from ...factories import JobFactory, JobRequestFactory, WorkspaceFactory
 
 
 def test_send_finished_notification(mailoutbox):
@@ -45,25 +38,3 @@ def test_send_finished_notification(mailoutbox):
     assert settings.BASE_URL in m.body
 
     assert list(m.to) == ["test@example.com"]
-
-
-def test_send_project_invite_email(mailoutbox):
-    project = ProjectFactory()
-    invitee = UserFactory()
-    inviter = UserFactory()
-
-    invite = ProjectInvitationFactory(created_by=inviter, project=project, user=invitee)
-
-    send_project_invite_email(invitee.notifications_email, project, invite)
-
-    m = mailoutbox[0]
-
-    assert inviter.name in m.subject
-    assert project.title in m.subject
-
-    assert inviter.name in m.body
-    assert project.title in m.body
-    assert invite.get_invitation_url() in m.body
-    assert settings.BASE_URL in m.body
-
-    assert list(m.to) == [invitee.notifications_email]

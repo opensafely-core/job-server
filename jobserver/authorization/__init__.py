@@ -8,7 +8,6 @@ from .roles import (
     OutputChecker,
     OutputPublisher,
     ProjectCollaborator,
-    ProjectCoordinator,
     ProjectDeveloper,
     TechnicalReviewer,
 )
@@ -25,7 +24,6 @@ __all__ = [
     "OutputChecker",
     "OutputPublisher",
     "ProjectCollaborator",
-    "ProjectCoordinator",
     "ProjectDeveloper",
     "TechnicalReviewer",
     "has_permission",

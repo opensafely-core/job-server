@@ -4,7 +4,6 @@ from django.contrib.auth.models import AnonymousUser
 from jobserver.authorization import (
     OutputPublisher,
     ProjectCollaborator,
-    ProjectCoordinator,
     ProjectDeveloper,
     has_permission,
     has_role,
@@ -43,7 +42,7 @@ def test_has_permission_unauthenticated():
 def test_has_roles_failure():
     user = UserFactory(roles=[OutputPublisher])
 
-    assert not has_role(user, ProjectCoordinator)
+    assert not has_role(user, ProjectCollaborator)
 
 
 def test_has_roles_success():
@@ -55,7 +54,7 @@ def test_has_roles_success():
 def test_has_role_unauthenticated():
     user = AnonymousUser()
 
-    assert not has_role(user, ProjectCoordinator)
+    assert not has_role(user, ProjectCollaborator)
 
 
 def test_has_role_with_context_failure():
@@ -88,8 +87,7 @@ def test_has_role_with_context_success():
 def test_roles_for_success():
     output = roles_for(ProjectMembership)
 
-    expected = [ProjectCollaborator, ProjectCoordinator, ProjectDeveloper]
-    assert output == expected
+    assert output == [ProjectCollaborator, ProjectDeveloper]
 
 
 def test_strings_to_roles_success():
