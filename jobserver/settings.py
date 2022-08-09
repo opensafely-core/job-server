@@ -280,7 +280,7 @@ CSP_MANIFEST_SRC = ["'self'"]
 # Duplicate the *_ELEM settings for Firefox
 # https://bugzilla.mozilla.org/show_bug.cgi?id=1529338
 CSP_SCRIPT_SRC = CSP_SCRIPT_SRC_ELEM = ["'self'", "https://plausible.io"]
-CSP_STYLE_SRC = CSP_STYLE_SRC_ELEM = ["'self'"]
+CSP_STYLE_SRC = CSP_STYLE_SRC_ELEM = ["'self'", "'unsafe-inline'"]
 
 # which directives to set a nonce for
 CSP_INCLUDE_NONCE_IN = ["script-src", "script-src-elem"]
@@ -294,11 +294,6 @@ if DJANGO_VITE_DEV_MODE:
         "https://plausible.io",
         "http://localhost:3000",
     ]
-    CSP_STYLE_SRC = CSP_STYLE_SRC_ELEM = [
-        "'self'",
-        "'unsafe-inline'",
-    ]
-
 
 # THIRD PARTY SETTINGS
 
