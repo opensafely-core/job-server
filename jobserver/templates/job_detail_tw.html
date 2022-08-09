@@ -52,40 +52,31 @@
 {% endif %}
 
 <div class="mt-8 grid grid-cols-1 gap-6 lg:grid-flow-col-dense lg:grid-cols-3">
-  <section aria-labelledby="timeline-title" class="lg:col-start-1 lg:col-span-1">
-    <div class="bg-white shadow sm:rounded-lg overflow-hidden">
-      <h2 id="timeline-title" class="text-lg font-semibold text-slate-900 px-4 py-2 sm:px-6 sm:py-3">
-        Timeline
-      </h2>
-      <ul class="flow-root px-4 py-2 sm:px-6 sm:py-5 border-t border-slate-200 -mb-8">
-        {% #timeline_item background="blue" title="Created by the secure backend:" job_time=job.created_at %}
-          {% icon_pencil_outline class="h-5 w-5" %}
-        {% /timeline_item %}
-        {% #timeline_item background="purple" title="Moved to the pending or running state on the secure backend:" job_time=job.started_at %}
-          {% icon_folder_open_outline class="h-5 w-5" %}
-        {% /timeline_item %}
-        {% #timeline_item background="green" title="Finished running on the secure backend:" job_time=job.completed_at %}
-          {% icon_check_outline class="h-5 w-5" %}
-        {% /timeline_item %}
-        {% #timeline_item background="yellow" title="Time spent running on the secure backend:" content=job.runtime %}
-          {% icon_clock_outline class="h-5 w-5" %}
-        {% /timeline_item %}
-        {% #timeline_item background="pink" title="Last update by secure backend:" job_time=job.updated_at last=True %}
-          {% icon_status_online_outline class="h-5 w-5" %}
-        {% /timeline_item %}
-      </ul>
-
-      <p class="bg-slate-50 text-sm font-medium text-slate-600 px-4 py-2 sm:px-6 sm:py-4">
-        These timestamps are generated and stored using the UTC timezone on the {{ job.job_request.backend|upper }} secure backend.
-      </p>
-    </div>
-  </section>
+  {% #card title="Timeline" %}
+    <ul class="flow-root px-4 py-2 sm:px-6 sm:py-5 border-t border-slate-200 -mb-8">
+      {% #timeline_item background="blue" title="Created by the secure backend:" job_time=job.created_at %}
+        {% icon_pencil_outline class="h-5 w-5" %}
+      {% /timeline_item %}
+      {% #timeline_item background="purple" title="Moved to the pending or running state on the secure backend:" job_time=job.started_at %}
+        {% icon_folder_open_outline class="h-5 w-5" %}
+      {% /timeline_item %}
+      {% #timeline_item background="green" title="Finished running on the secure backend:" job_time=job.completed_at %}
+        {% icon_check_outline class="h-5 w-5" %}
+      {% /timeline_item %}
+      {% #timeline_item background="yellow" title="Time spent running on the secure backend:" content=job.runtime %}
+        {% icon_clock_outline class="h-5 w-5" %}
+      {% /timeline_item %}
+      {% #timeline_item background="pink" title="Last update by secure backend:" job_time=job.updated_at last=True %}
+        {% icon_status_online_outline class="h-5 w-5" %}
+      {% /timeline_item %}
+    </ul>
+    <p class="bg-slate-50 text-sm font-medium text-slate-600 px-4 py-2 sm:px-6 sm:py-4">
+      These timestamps are generated and stored using the UTC timezone on the {{ job.job_request.backend|upper }} secure backend.
+    </p>
+  {% /card %}
 
   <div class="space-y-6 md:space-y-6 lg:col-start-2 lg:col-span-2">
-    <section aria-labelledby="job-information-title" class="bg-white shadow sm:rounded-lg">
-      <h2 id="job-information-title" class="text-lg font-semibold text-slate-900 px-4 py-2 sm:px-6 sm:py-3">
-        Job information
-      </h2>
+    {% #card title="Job information" %}
       <dl class="grid grid-cols-1 gap-x-4 gap-y-8 sm:grid-cols-2 px-4 py-2 sm:px-6 sm:py-5 border-t border-slate-200">
         <div class="sm:col-span-1">
           {% #description_item title="Job identifier" %}{{ job.identifier }}{% /description_item %}
@@ -119,22 +110,17 @@
           {% /description_item %}
         </div>
       </dl>
-    </section>
+    {% /card %}
 
     {% if honeycomb_can_view_links %}
-    <section aria-labelledby="monitoring-title" class="bg-white shadow sm:rounded-lg overflow-hidden">
-      <div class="px-4 py-2 sm:px-6 sm:py-3">
-        <h2 id="monitoring-title" class="text-lg font-semibold text-slate-900">
-          Monitoring
-        </h2>
-        <p class="text-slate-600 text-sm">Honeycomb login required</p>
-      </div>
-      <ul class="flow-root px-4 py-2 sm:px-6 sm:py-5 border-t border-slate-200 list-disc text-sm">
-        <li class="ml-4">
-          {% link href=honeycomb_link text="All monitoring events for this job" %}
-        </li>
-      </ul>
-    </section>
+      {% #card title="Monitoring" subtitle="Honeycomb login required" %}
+        <ul class="flow-root px-4 py-2 sm:px-6 sm:py-5 border-t border-slate-200 list-disc text-sm">
+          <li class="ml-4">
+            {% link href=honeycomb_link text="All monitoring events for this job" %}
+          </li>
+        </ul>
+      </section>
+      {% /card %}
     {% endif %}
   </div>
 </div>

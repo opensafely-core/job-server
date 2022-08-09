@@ -3,6 +3,7 @@ components:
   breadcrumb: "_components/breadcrumb.html"
   breadcrumbs: "_components/breadcrumbs.html"
   button: "_components/button.html"
+  card: "_components/card.html"
   description_item: "_components/description-item.html"
   footer: "_components/footer.html"
   header: "_components/header.html"
