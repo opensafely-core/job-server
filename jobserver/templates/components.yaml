@@ -3,6 +3,8 @@ components:
   breadcrumb: "_components/breadcrumb.html"
   button: "_components/button.html"
   description_item: "_components/description-item.html"
+  footer: "_components/footer.html"
+  header: "_components/header.html"
   link: "_components/link.html"
   skip_link: "_components/skip-link.html"
   timeline_item: "_components/timeline-item.html"

@@ -13,7 +13,7 @@
 
     {% block extra_meta %}{% endblock %}
 
-    <script type="module">
+    <script type="module" nonce="{{ request.csp_nonce }}">
       document.documentElement.classList.remove('no-js');
       document.documentElement.classList.add('js');
     </script>
@@ -31,7 +31,7 @@
 
   <body class="flex flex-col min-h-screen text-slate bg-slate-100">
     {% skip_link %}
-    {% include '_components/header.html' %}
+    {% header nav=nav user=user request=request user_can_view_staff_area=user_can_view_staff_area %}
 
     {# Breadcrumbs #}
     <nav class="bg-slate-50 border-b border-slate-200 pt-2 pb-1" aria-label="Breadcrumb">
@@ -48,7 +48,7 @@
       </div>
     </main>
 
-    {% include '_components/footer.html' %}
+    {% footer nav=nav %}
 
     {% vite_legacy_polyfills %}
     {% vite_legacy_asset 'assets/src/scripts/tw.js' %}
