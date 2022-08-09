@@ -150,68 +150,69 @@
       <p>Pick one or more actions to run:</p>
 
       <div class="form-group mb-5">
-
-        <div class="d-flex">
-          <span style="width:68px"></span>
-          <strong class="flex-grow-1">Action</strong>
-          <strong style="margin-right:80px;width:52px;">Status</strong>
+        <div class="container px-3 py-2">
+          <div class="row font-weight-bold">
+            <div class="col-2 col-sm-1"></div>
+            <div class="col-7 col-sm-8">Action</div>
+            <div class="col-1"></div>
+            <div class="col-2">Status</div>
+          </div>
         </div>
 
-        <div class="accordion" id="actions" aria-describedby="actions_help_block">
+
+        <div class="accordion mb-2" id="actions" aria-describedby="actions_help_block">
           {% for action in actions %}
+
           <div class="card">
-
-            <div
-              id="heading-{{ action.name }}"
-              class="card-header d-flex align-items-center"
-              style="padding:.5rem"
-              >
-
-              <div class="btn-group-toggle mr-3" data-toggle="buttons">
-                <label class="btn btn-sm btn-outline-success">
-                  <input type="checkbox" name="requested_actions" value="{{ action.name }}" /> Run
-                </label>
+            <div class="card-header px-3">
+              <div class="row">
+                <div class="col-2 col-sm-1">
+                  <div class="btn-group-toggle" data-toggle="buttons">
+                    <label class="btn btn-sm btn-outline-success">
+                      <input type="checkbox" name="requested_actions" value="{{ action.name }}" /> Run
+                    </label>
+                  </div>
+                </div>
+                <div class="col-7 col-sm-8">
+                  <code class="text-truncate" title="{{ action.name }}">
+                    {{ action.name }}
+                  </code>
+                </div>
+                <div class="col-1">
+                  <span class="mr-3 d-flex justify-content-center">
+                    <div class="status-icon unknown" title="-"></div>
+                  </span>
+                </div>
+                <div class="col-2">
+                  {% if action.needs %}
+                  <button
+                    class="btn btn-sm btn-secondary"
+                    type="button"
+                    data-toggle="collapse"
+                    data-target="#collapse-{{ action.name }}"
+                    aria-expanded="true"
+                    aria-controls="collapse-{{ action.name }}">
+                    Needs
+                  </button>
+                  {% endif %}
+                </div>
               </div>
-
-              <code class="flex-grow-1 mr-3 text-truncate" title="{{ action.name }}">
-                {{ action.name }}
-              </code>
-
-              <span class="mr-3 d-flex justify-content-center" style="width:52px">
-                <div class="status-icon unknown" title="-"></div>
-              </span>
-
-              <div style="width:60px">
-                {% if action.needs %}
-                <button
-                  class="btn btn-sm btn-secondary"
-                  type="button"
-                  data-toggle="collapse"
-                  data-target="#collapse-{{ action.name }}"
-                  aria-expanded="true"
-                  aria-controls="collapse-{{ action.name }}">
-                  Needs
-                </button>
-                {% endif %}
-              </div>
-
             </div>
-
             <div
               id="collapse-{{ action.name }}"
               class="collapse"
               aria-labelledby="heading-{{ action.name }}"
               data-parent="#actions">
               <div class="card-body">
-                <ul>
+                <ul class="mb-0">
                   {% for need in action.needs %}
                   <li><code>{{ need }}</code></li>
                   {% endfor %}
                 </ul>
               </div>
             </div>
-
           </div>
+
           {% endfor %}
         </div>
 
