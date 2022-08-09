@@ -1,7 +1,8 @@
 import hashlib
-from datetime import datetime, timezone
+from datetime import datetime
 
 import itsdangerous
+from django.utils import timezone
 from pydantic import BaseModel, Field, ValidationError, root_validator, validator
 
 
@@ -82,7 +83,7 @@ class AuthToken(BaseModel):
     @validator("expiry")
     def check_expiry(cls, expiry):
         """Enforce the token has not expired."""
-        if datetime.now(timezone.utc) > expiry:
+        if timezone.now() > expiry:
             raise ValueError(f"token expired on {expiry.isoformat()}")
         return expiry
 
