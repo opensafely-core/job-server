@@ -159,14 +159,12 @@
               </dd>
             </dl>
           </li>
-          {% if workspace.created_by %}
-            <li class="list-group-item">
-              <dl class="mb-0">
-                <dt class="d-inline-block">Created by:</dt>
-                <dd class="d-inline-block mb-0">{{ workspace.created_by.name }}</dd>
-              </dl>
-            </li>
-          {% endif %}
+          <li class="list-group-item">
+            <dl class="mb-0">
+              <dt class="d-inline-block">Created by:</dt>
+              <dd class="d-inline-block mb-0">{{ workspace.created_by.name }}</dd>
+            </dl>
+          </li>
         </ul>
       </div>
     </div>
