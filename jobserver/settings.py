@@ -264,7 +264,7 @@ X_FRAME_OPTIONS = "SAMEORIGIN"
 
 # CSP
 # https://django-csp.readthedocs.io/en/latest/configuration.html
-CSP_REPORT_ONLY = DEBUG
+CSP_REPORT_ONLY = True
 CSP_DEFAULT_SRC = ["'none'"]
 CSP_CONNECT_SRC = ["'self'", "https://plausible.io"]
 CSP_FONT_SRC = ["'self'"]
