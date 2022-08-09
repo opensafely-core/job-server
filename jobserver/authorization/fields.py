@@ -22,7 +22,7 @@ class RolesField(models.JSONField):
     def from_db_value(self, value, expression, connection):
         paths = super().from_db_value(value, expression, connection)
 
-        if paths is None:
+        if not paths:
             return paths
 
         return parse_roles(paths)
