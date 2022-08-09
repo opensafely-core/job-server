@@ -2,6 +2,7 @@ argon2-cffi
 attrs
 django-anymail[mailgun]
 django-browser-reload
+django-csp
 django-debug-toolbar
 django-extensions
 django-htmx

@@ -1,7 +1,6 @@
 import PropTypes from "prop-types";
 import React from "react";
 import prettyFileSize from "../../utils/pretty-file-size";
-import classes from "./Metadata.module.scss";
 
 function Metadata({ file }) {
   const fileSize = prettyFileSize(file.size);
@@ -17,7 +16,7 @@ function Metadata({ file }) {
     <ul className="list-inline small text-monospace d-flex mb-0">
       <li className="list-inline-item">
         <a
-          className={`${classes.fileLink} d-flex`}
+          className="file-link d-flex"
           href={file.url}
           rel="noreferrer noopener"
           target="filePreview"
@@ -27,15 +26,11 @@ function Metadata({ file }) {
       </li>
       <li className="list-inline-item ml-auto">
         <div className="sr-only">Last modified at: </div>
-        <time
-          className={classes.fileDate}
-          dateTime={fileDateAbs}
-          title={fileDateAbs}
-        >
+        <time className="file-date" dateTime={fileDateAbs} title={fileDateAbs}>
           {fileDate}
         </time>
       </li>
-      <li className={`list-inline-item ${classes.spacer}`}>{fileSize}</li>
+      <li className="list-inline-item spacer">{fileSize}</li>
     </ul>
   );
 }

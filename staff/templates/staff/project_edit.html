@@ -119,7 +119,7 @@
 
 {% block extra_js %}
 <script type="text/javascript" src="{% static 'vendor/select2.min.js' %}"></script>
-<script type="text/javascript">
+<script type="text/javascript" nonce="{{ request.csp_nonce }}">
   $(document).ready(function() {
     $('#id_copilot').select2({
       placeholder: "Select a co-pilot",

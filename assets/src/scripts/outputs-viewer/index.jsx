@@ -3,6 +3,7 @@ import React from "react";
 import ReactDOM from "react-dom";
 import App from "./App";
 import { FilesProvider } from "./context/FilesProvider";
+import "../../styles/outputs-viewer.scss";
 
 Sentry.init({
   dsn: import.meta.env.VITE_SENTRY_DSN,

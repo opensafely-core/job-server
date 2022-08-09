@@ -67,6 +67,7 @@ MIDDLEWARE = [
     "redirects.middleware.RedirectsMiddleware",
     "django_browser_reload.middleware.BrowserReloadMiddleware",
     "django.middleware.security.SecurityMiddleware",
+    "django_permissions_policy.PermissionsPolicyMiddleware",
     "whitenoise.middleware.WhiteNoiseMiddleware",
     "debug_toolbar.middleware.DebugToolbarMiddleware",
     "django.contrib.sessions.middleware.SessionMiddleware",
@@ -79,6 +80,8 @@ MIDDLEWARE = [
     "social_django.middleware.SocialAuthExceptionMiddleware",
     "django_htmx.middleware.HtmxMiddleware",
     "jobserver.middleware.RequireNameMiddleware",
+    "csp.middleware.CSPMiddleware",
+    "jobserver.middleware.XSSFilteringMiddleware",
 ]
 
 ROOT_URLCONF = "jobserver.urls"
@@ -258,6 +261,39 @@ CSRF_TRUSTED_ORIGINS = [BASE_URL]
 # https://developer.mozilla.org/en-US/docs/Web/HTTP/Headers/X-Frame-Options#directives
 X_FRAME_OPTIONS = "SAMEORIGIN"
 
+
+# CSP
+# https://django-csp.readthedocs.io/en/latest/configuration.html
+CSP_REPORT_ONLY = True
+CSP_DEFAULT_SRC = ["'none'"]
+CSP_CONNECT_SRC = ["'self'", "https://plausible.io"]
+CSP_FONT_SRC = ["'self'"]
+CSP_IMG_SRC = [
+    "'self'",
+    "blob:",
+    "data: w3.org/svg/2000",
+    "https://github.com",
+    "https://avatars.githubusercontent.com",
+]
+CSP_MANIFEST_SRC = ["'self'"]
+
+# Duplicate the *_ELEM settings for Firefox
+# https://bugzilla.mozilla.org/show_bug.cgi?id=1529338
+CSP_SCRIPT_SRC = CSP_SCRIPT_SRC_ELEM = ["'self'", "https://plausible.io"]
+CSP_STYLE_SRC = CSP_STYLE_SRC_ELEM = ["'self'", "'unsafe-inline'"]
+
+# which directives to set a nonce for
+CSP_INCLUDE_NONCE_IN = ["script-src", "script-src-elem"]
+
+# configure django-csp to work with Vite when using it in dev mode
+if DJANGO_VITE_DEV_MODE:
+    CSP_CONNECT_SRC = ["'self'", "ws://localhost:3000/static/", "https://plausible.io"]
+    CSP_FONT_SRC = ["'self'", "data:"]
+    CSP_SCRIPT_SRC = CSP_SCRIPT_SRC_ELEM = [
+        "'self'",
+        "https://plausible.io",
+        "http://localhost:3000",
+    ]
 
 # THIRD PARTY SETTINGS
 
