@@ -1,6 +1,7 @@
 components:
   alert: "_components/alert.html"
   breadcrumb: "_components/breadcrumb.html"
+  breadcrumbs: "_components/breadcrumbs.html"
   button: "_components/button.html"
   description_item: "_components/description-item.html"
   footer: "_components/footer.html"

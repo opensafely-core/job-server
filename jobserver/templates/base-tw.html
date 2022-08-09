@@ -33,12 +33,7 @@
     {% skip_link %}
     {% header nav=nav user=user request=request user_can_view_staff_area=user_can_view_staff_area %}
 
-    {# Breadcrumbs #}
-    <nav class="bg-slate-50 border-b border-slate-200 pt-2 pb-1" aria-label="Breadcrumb">
-      <ol role="list" class="container xl:max-w-screen-xl flex flex-wrap gap-x-1 text-sm font-medium leading-none">
-        {% block breadcrumbs %}{% endblock %}
-      </ol>
-    </nav>
+    {% block breadcrumbs %}{% endblock %}
 
     <main class="flex-grow pb-12">
       {% include 'partials/alerts.html' %}
