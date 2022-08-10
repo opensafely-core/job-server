@@ -1,0 +1,32 @@
+<li class="flex items-center">
+  {% if title == "Home" %}
+    <a href="{{ url }}" class="text-slate-400 hover:text-slate-500 p-1 lg:p-2">
+      {% icon_home_outline class="flex-shrink-0 h-5 w-5" %}
+      <span class="sr-only">{{ title }}</span>
+    </a>
+  {% else %}
+    {% if url %}
+      <a href="{{ url }}" class="-ml-1 p-1 lg:p-2 group relative inline-flex whitespace-nowrap leading-none text-slate-600 hover:text-bn-roman-700">
+    {% else %}
+      <span class="-ml-1 p-1 lg:p-2 relative inline-flex leading-none text-slate-600">
+    {% endif %}
+
+      <span class="inline-block {% if truncate %}overflow-hidden text-ellipsis max-w-[20ch] md:max-w-[30ch]{% endif %}">
+        {{ title }}
+      </span>
+
+      {% if location %}
+        {% tooltip position="-bottom-2" content=location %}
+      {% endif %}
+
+    {% if url %}
+      </a>
+    {% else %}
+      </span>
+    {% endif %}
+  {% endif %}
+
+  {% if not active %}
+    {% icon_chevron_right_outline class="flex-shrink-0 h-5 w-5 text-oxford/25" %}
+  {% endif %}
+</li>

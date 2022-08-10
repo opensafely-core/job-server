@@ -1,20 +1,13 @@
 /* eslint-disable import/no-extraneous-dependencies */
-const autoprefixer = require("autoprefixer");
-const cssnano = require("cssnano");
 const path = require("path");
-const url = require("postcss-url");
-
-const options = {
-  url: "inline",
-  basePath: path.resolve("assets/src/styles"),
-};
 
 module.exports = ({ env }) => ({
-  plugins:
-    env === "production"
-      ? [
-          autoprefixer(),
-          cssnano({
+  plugins: {
+    tailwindcss: {},
+    autoprefixer: {},
+    cssnano:
+      env === "production"
+        ? {
             preset: [
               "default",
               {
@@ -22,7 +15,14 @@ module.exports = ({ env }) => ({
                 discardComments: { removeAll: true },
               },
             ],
-          }),
-        ]
-      : [url(options)],
+          }
+        : false,
+    "postcss-url":
+      env !== "production"
+        ? {
+            url: "inline",
+            basePath: path.resolve("assets/src/styles"),
+          }
+        : false,
+  },
 });

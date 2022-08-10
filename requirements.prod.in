@@ -30,5 +30,6 @@ opentelemetry-sdk
 requests
 sentry-sdk
 slack-sdk
+slippers
 social-auth-app-django
 whitenoise[brotli]

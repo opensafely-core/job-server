@@ -1,0 +1,5 @@
+{% var title_class=title_class|default:"text-sm font-semibold text-slate-600" %}
+{% var details_class=details_class|default:"mt-1 text-sm text-slate-900" %}
+
+<dt class="{{ title_class }}">{{ title }}</dt>
+<dd class="{{ details_class }}">{{ children }}</dd>

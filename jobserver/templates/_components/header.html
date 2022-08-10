@@ -1,0 +1,154 @@
+<header
+  class="
+    bg-gradient-to-r from-oxford-200/25 via-bn-roman-200/40 to-bn-strawberry-200/30
+    after:absolute after:h-1 after:w-full after:opacity-75 after:bg-gradient-to-r after:from-oxford-600 after:via-bn-roman-600 after:to-bn-strawberry-600
+  "
+  x-data="header"
+>
+  <nav class="relative container xl:max-w-screen-xl flex justify-center items-center flex-wrap py-3 gap-y-2">
+    <p class="relative z-30 flex-shrink-0 flex items-center mr-4 text-xl font-extrabold tracking-tight leading-none text-stone-700">
+      {% url 'home' as url %}
+      <a
+        class="
+          group relative p-2 -ml-2 bg-transparent rounded overflow-hidden focus:text-bn-strawberry-600 focus:outline-none focus:ring-2 focus:ring-oxford-500
+          after:absolute after:bottom-1 after:h-[2px] after:left-2 after:bg-bn-strawberry-300 after:w-1 after:transition-all after:opacity-0
+          after:hover:w-11/12 after:hover:opacity-100
+        "
+        href="{% url 'home' %}"
+      >
+        <span class="transition-colors ease-in duration-150 text-oxford group-hover:text-bn-strawberry-700 group-focus:text-bn-strawberry-700">
+          OpenSAFELY
+        </span>
+        <span class="transition-colors ease-in duration-300 text-oxford-600 group-hover:text-bn-strawberry-700 group-focus:text-bn-strawberry-700">
+          Jobs
+        </span>
+      </a>
+    </p>
+    <details
+      class="group ml-auto"
+      open
+      x-bind:open="isMainNavOpen"
+      x-on:click.outside="closeMainNav"
+      x-on:keyup.escape.window="closeMainNav"
+    >
+      <summary
+        class="
+          list-none flex relative z-30 md:hidden cursor-pointer border border-oxford/25 rounded p-1 ml-auto transition-colors text-oxford duration-200
+          hover:text-bn-strawberry-700 hover:border-bn-strawberry-500 hover:bg-bn-strawberry-50
+          focus:text-bn-strawberry-700 focus:border-bn-strawberry-500 focus:bg-bn-strawberry-50 focus:outline-none focus:ring focus:ring-offset-2 focus:ring-offset-bn-strawberry-50 focus:ring-oxford-500
+        "
+        x-on:click.prevent="clickMainNav"
+      >
+        <span class="sr-only">Toggle menu</span>
+        {% icon_menu_outline class="h-6 w-6 group-open:hidden" %}
+        {% icon_x_outline class="h-6 w-6 hidden group-open:flex" %}
+      </summary>
+      <ul
+        class="
+          absolute z-20 top-1 w-full left-0 flex flex-col rounded shadow-xl pt-14 pb-2 px-4 bg-white text-sm font-semibold
+          md:relative md:z-auto md:top-auto md:w-auto md:left-auto md:flex-row md:gap-4 md:bg-transparent md:rounded-none md:shadow-none md:mx-1 md:p-0
+        "
+      >
+        {% for location in nav %}
+        <li>
+          <a
+            class="
+              relative inline-flex md:flex h-full items-center text-oxford transition-colors duration-200 rounded px-2 py-2 md:py-0 -ml-2 md:ml-0
+              hover:text-bn-strawberry-700
+              focus:text-bn-strawberry-700 focus:outline-none focus:ring-2 focus:ring-oxford-500
+              before:hidden before:md:inline before:md:absolute before:-top-4 before:mt-0.5 before:h-1 before:left-1/2 before:-translate-x-1 before:bg-bn-strawberry-300 before:w-1 before:transition-all before:opacity-0
+              before:hover:w-full before:hover:opacity-100 before:hover:left-0 before:hover:translate-x-0
+              {% if location.is_active %}border-t-oxford-600/50 text-oxford-600{% endif %}
+            "
+            href="{{ location.url }}"
+          >
+            {{ location.name }}
+            {% if location.is_active %}<span class="sr-only">(current)</span>{% endif %}
+          </a>
+        </li>
+        {% endfor %}
+        {% if not user.is_authenticated %}
+          <li>
+            <a
+              class="
+                relative inline-flex self-start -mx-2 p-2 rounded whitespace-nowrap text-oxford transition-colors duration-200
+                hover:text-bn-strawberry-700
+                focus:text-bn-strawberry-700 focus:outline-none focus:ring-2 focus:ring-oxford-500
+                md:bg-bn-strawberry-200 md:border md:border-bn-strawberry-300 md:px-4 md:mx-0 md:leading-none md:transition-all
+                md:hover:bg-bn-strawberry-100 md:hover:border-bn-strawberry-400 md:hover:scale-110 md:hover:shadow-lg
+                md:focus:bg-bn-strawberry-100 md:focus:text-bn-strawberry-700 md:focus:border-bn-strawberry-400 md:focus:scale-110 md:focus:shadow-lg md:focus:outline-none md:focus:ring-2 md:focus:ring-offset-2 md:focus:ring-oxford-500
+              "
+              href="{% url "login" %}?next={{ request.path }}"
+              rel="nofollow"
+            >
+              Login
+            </a>
+          </li>
+        {% else %}
+        <li>
+          <details
+            class="group relative"
+            open
+            x-bind:open="isUserNavOpen"
+            x-on:click.outside="closeUserNav"
+            x-on:keyup.escape.window="closeUserNav"
+          >
+            <summary
+              class="
+                hidden md:inline-flex list-none cursor-pointer relative bg-white rounded-full text-sm focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-oxford-500
+                before:absolute before:-top-4 before:mt-0.5 before:h-1 before:left-1/2 before:-translate-x-1 before:bg-bn-strawberry-300 before:w-1 before:transition-all before:opacity-0
+                before:hover:w-full before:hover:opacity-100 before:hover:left-0 before:hover:translate-x-0
+              "
+              x-on:click.prevent="clickUserNav"
+            >
+              <span class="sr-only">Toggle user menu</span>
+              <img class="h-8 w-8 rounded-full" src="https://github.com/{{ request.user.username }}.png?size=64" alt="{{ request.user.username }} avatar">
+            </summary>
+            <ul
+              class="
+                relative shadow-none ring-0 text-base -mx-4 px-2 pt-2 mt-2 border-t border-t-slate-200 !transition-none
+                md:absolute md:mx-0 md:px-0 md:border-0 md:origin-top-right md:top-full md:mt-2 md:right-0 md:z-10 md:w-48 md:rounded-md md:shadow-lg md:overflow-hidden md:bg-white md:ring-1 md:ring-black md:ring-opacity-5 md:focus:outline-none md:text-sm
+              "
+            >
+              {% if user_can_view_staff_area %}
+              <li>
+                <a
+                  class="inline-block md:block px-2 md:px-4 py-2 rounded md:rounded-none text-oxford hover:text-bn-strawberry-700 md:hover:bg-oxford-50 focus:text-bn-strawberry-700 focus:outline-none focus:ring-2 focus:ring-oxford-500 md:focus:ring-inset"
+                  href="{% url 'settings' %}"
+                >
+                  🚨 Staff Area 🚨
+                </a>
+              </li>
+              {% endif %}
+              <li>
+                <a
+                  class="inline-block md:block px-2 md:px-4 py-2 rounded md:rounded-none text-oxford hover:text-bn-strawberry-700 md:hover:bg-oxford-50 focus:text-bn-strawberry-700 focus:outline-none focus:ring-2 focus:ring-oxford-500 md:focus:ring-inset"
+                  href="{% url 'settings' %}"
+                >
+                  Settings
+                </a>
+              </li>
+              <li>
+                <a
+                  class="inline-block md:block px-2 md:px-4 py-2 rounded md:rounded-none text-oxford hover:text-bn-strawberry-700 md:hover:bg-oxford-50 focus:text-bn-strawberry-700 focus:outline-none focus:ring-2 focus:ring-oxford-500 md:focus:ring-inset"
+                  href="{% url 'applications:list' %}"
+                >
+                  Applications
+                </a>
+              </li>
+              <li>
+                <a
+                  class="inline-block md:block px-2 md:px-4 py-2 rounded md:rounded-none text-oxford hover:text-bn-strawberry-700 md:hover:bg-oxford-50 focus:text-bn-strawberry-700 focus:outline-none focus:ring-2 focus:ring-oxford-500 md:focus:ring-inset"
+                  href="{% url 'logout' %}"
+                >
+                  Logout
+                </a>
+              </li>
+            </ul>
+          </details>
+        </li>
+        {% endif %}
+      </ul>
+    </details>
+  </nav>
+</header>

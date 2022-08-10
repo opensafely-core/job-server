@@ -1,0 +1,85 @@
+<footer
+  class="
+    relative bg-gradient-to-r from-oxford-200/50 via-purple-200/50 to-pink-200/50 pt-12 pb-16 text-oxford
+    before:absolute before:-top-1 before:h-1 before:w-full before:opacity-75 before:bg-gradient-to-r before:from-oxford-600 before:via-bn-roman-600 before:to-bn-strawberry-600
+  "
+>
+  <div class="container xl:max-w-screen-xl text-sm">
+    <div class="grid grid-flow-row grid-cols-1 text-center md:text-left md:grid-cols-2 lg:grid-cols-3 gap-8 mb-6">
+      <div>
+        <h2 class="text-oxford text-lg font-bold tracking-tight pb-2">
+          OpenSAFELY Jobs
+        </h2>
+        <ul class="flex flex-col gap-y-4 gap-x-2 md:gap-y-2 items-center md:items-start">
+          <li class="flex">
+            {% url 'home' as home_url %}
+            {% link text="Home" href=home_url %}
+          </li>
+          <li class="flex">
+            {% url 'org-list' as orgs_url %}
+            {% link text="Organisations" href=orgs_url %}
+          </li>
+          {% for location in nav %}
+          <li class="flex">
+            {% link text=location.name href=location.url %}
+          </li>
+          {% endfor %}
+        </ul>
+      </div>
+      <div>
+        <h2 class="text-oxford text-lg font-bold tracking-tight pb-2">
+          OpenSAFELY
+        </h2>
+        <ul class="flex flex-col gap-y-4 gap-x-2 md:gap-y-2 items-center md:items-start">
+          <li class="flex">
+            {% link text="Documentation" href="https://docs.opensafely.org/" %}
+          </li>
+          <li class="flex">
+            {% link text="OpenSAFELY" href="https://www.opensafely.org/" %}
+          </li>
+          <li class="flex">
+            {% link text="OpenSAFELY Blog" href="https://www.opensafely.org/blog/" %}
+          </li>
+          <li class="flex">
+            {% link text="OpenSAFELY Service Status" href="https://status.opensafely.org/" %}
+          </li>
+        </ul>
+      </div>
+      <div>
+        <h2 class="text-oxford text-lg font-bold tracking-tight pb-2">
+          More
+        </h2>
+        <ul class="flex flex-col gap-y-4 gap-x-2 md:gap-y-2 items-center md:items-start">
+          <li class="flex">
+            {% link text="Bennett Institute for Applied Data Science" href="https://www.bennett.ox.ac.uk/" new_tab=True %}
+          </li>
+          <li class="flex">
+            {% link text="Nuffield Department of Primary Care Health Sciences" href="https://www.phc.ox.ac.uk/" new_tab=True %}
+          </li>
+          <li class="flex">
+            {% link text="University of Oxford" href="https://www.ox.ac.uk/" new_tab=True %}
+          </li>
+          <li class="flex">
+            {% link text="Privacy Policy" href="https://www.opensafely.org/privacy/" new_tab=True %}
+          </li>
+        </ul>
+      </div>
+      <div class="pt-6 text-slate-600 lg:col-span-3">
+        <h2 class="sr-only">Copyright statement</h2>
+        <p>
+          © University of Oxford for the Bennett Institute for Applied Data Science {% now 'Y' %}. This work may be copied freely for non-commercial research and study. If you wish to do any of the other acts restricted by the copyright you should apply in writing to {% spaceless %}{% link text="bennett@phc.ox.ac.uk" href="mailto:bennett@phc.ox.ac.uk" %}{% endspaceless %}.
+        </p>
+      </div>
+    </div>
+  </div>
+  <div class="container xl:max-w-screen-xl flex flex-col lg:flex-row items-center justify-between gap-8 mt-8 pt-8 border-t border-white/50">
+    <a class="hover:scale-105 focus:scale-105 transition-transform"
+      href="https://www.bennett.ox.ac.uk/">
+      <img class="h-24" width="220" height="96" src="https://www.bennett.ox.ac.uk/images/logos/bennett-brand.svg" alt="Bennett Institute logo">
+    </a>
+    <p class="text-2xl lg:text-3xl font-extrabold text-oxford text-center lg:text-left">
+      OpenSAFELY is a project from&nbsp;the<br>
+      Bennett Institute for Applied Data Science
+    </p>
+  </div>
+</footer>

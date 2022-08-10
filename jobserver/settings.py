@@ -53,6 +53,7 @@ INSTALLED_APPS = [
     "django_extensions",
     "django_htmx",
     "django_vite",
+    "slippers",
     "rest_framework",
     "social_django",
     "django.contrib.auth",
@@ -104,6 +105,7 @@ TEMPLATES = [
                 "jobserver.context_processors.nav",
                 "jobserver.context_processors.disable_creating_jobs",
             ],
+            "builtins": ["slippers.templatetags.slippers"],
         },
     },
 ]

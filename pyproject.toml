@@ -70,6 +70,7 @@ filterwarnings = [
     "ignore::pytest.PytestUnraisableExceptionWarning:",
     "ignore:distutils Version classes are deprecated:DeprecationWarning:pytest_freezegun",
     "ignore:'django_extensions' defines default_app_config:django.utils.deprecation.RemovedInDjango41Warning:django",
+    "ignore:'slippers' defines default_app_config:django.utils.deprecation.RemovedInDjango41Warning:django",
 ]
 markers = [
   "verification: tests that verify fakes",

@@ -1,0 +1,40 @@
+{% load humanize %}
+
+<li class="relative pb-8">
+  {% if not last %}
+    <span class="absolute top-4 left-4 -ml-px h-full w-0.5 bg-slate-200" aria-hidden="true"></span>
+  {% endif %}
+  <div class="relative flex space-x-3">
+    <span class="h-8 w-8 rounded-full flex items-center justify-center
+      {% if background == "blue" %}
+        bg-oxford-400
+      {% elif background == "purple" %}
+        bg-bn-roman-500
+      {% elif background == "green" %}
+        bg-green-500
+      {% elif background == "yellow" %}
+        bg-bn-flamenco-400
+      {% elif background == "pink" %}
+        bg-bn-ribbon-400
+      {% endif %}
+      text-white
+    ">
+      {{ children }}
+    </span>
+    <div class="min-w-0 flex-1 flex justify-between space-x-4">
+      <p class="text-sm text-slate-500">
+        <span class="block">{{ title }}</span>
+        {% if job_time %}
+          <time class="font-medium text-slate-900 group relative cursor-pointer" datetime="{{ job_time|date:"Y-m-d H:i:sO" }}">
+            {{ job_time|naturaltime }}
+            {% tooltip class="font-mono" position="-bottom-4" content=job_time|date:"d M Y H:i:s e" %}
+          </time>
+        {% else %}
+          <span class="font-medium text-slate-900">
+            {{ content }}
+          </span>
+        {% endif %}
+      </p>
+    </div>
+  </div>
+</li>
