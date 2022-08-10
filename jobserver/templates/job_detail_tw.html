@@ -48,7 +48,9 @@
 </div>
 
 {% if job.is_missing_updates %}
-  {% alert variant="warning" title="Attention needed" text="This Job has not been updated for over 30 minutes, some of the data on this page could be stale." %}
+  {% #alert variant="warning" title="Attention needed" %}
+    This Job has not been updated for over 30 minutes, some of the data on this page could be stale.
+  {% /alert %}
 {% endif %}
 
 <div class="mt-8 grid grid-cols-1 gap-6 lg:grid-flow-col-dense lg:grid-cols-3">
