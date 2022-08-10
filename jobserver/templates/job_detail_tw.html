@@ -54,7 +54,7 @@
 {% endif %}
 
 <div class="mt-8 grid grid-cols-1 gap-6 lg:grid-flow-col-dense lg:grid-cols-3">
-  {% #card title="Timeline" %}
+  {% #card title="Timeline" class="lg:col-start-1 lg:col-span-1" %}
     <ul class="flow-root px-4 py-2 sm:px-6 sm:py-5 border-t border-slate-200 -mb-8">
       {% #timeline_item background="blue" title="Created by the secure backend:" job_time=job.created_at %}
         {% icon_pencil_outline class="h-5 w-5" %}
