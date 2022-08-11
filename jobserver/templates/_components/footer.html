@@ -1,7 +1,9 @@
+{% load static %}
+
 <footer
   class="
-    relative bg-gradient-to-r from-oxford-200/50 via-purple-200/50 to-pink-200/50 pt-12 pb-16 text-oxford
-    before:absolute before:-top-1 before:h-1 before:w-full before:opacity-75 before:bg-gradient-to-r before:from-oxford-600 before:via-bn-roman-600 before:to-bn-strawberry-600
+    relative bg-gradient-to-r from-oxford-200/20 via-bn-roman-200/35 to-bn-strawberry-200/25 pt-12 pb-16 text-oxford
+    before:absolute before:-top-1 before:h-1 before:w-full before:bg-gradient-to-r before:from-oxford-600/60 before:via-bn-roman-600/70 before:to-bn-strawberry-600/60
   "
 >
   <div class="container xl:max-w-screen-xl text-sm">
@@ -75,7 +77,7 @@
   <div class="container xl:max-w-screen-xl flex flex-col lg:flex-row items-center justify-between gap-8 mt-8 pt-8 border-t border-white/50">
     <a class="hover:scale-105 focus:scale-105 transition-transform"
       href="https://www.bennett.ox.ac.uk/">
-      <img class="h-24" width="220" height="96" src="https://www.bennett.ox.ac.uk/images/logos/bennett-brand.svg" alt="Bennett Institute logo">
+      <img class="h-24" width="220" height="96" src="{% static 'bennett-logo.svg' %}" alt="Bennett Institute logo">
     </a>
     <p class="text-2xl lg:text-3xl font-extrabold text-oxford text-center lg:text-left">
       OpenSAFELY is a project from&nbsp;the<br>
