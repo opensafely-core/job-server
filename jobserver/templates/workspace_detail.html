@@ -215,6 +215,23 @@
       </div>
       {% endif %}
 
+      {% if honeycomb_can_view_links %}
+      <div class="card border pt-3">
+        <h2 class="h5 card-header border border-bottom-0">
+          Monitoring <span class="badge badge-pill badge-info">Honeycomb login Required</span>
+        </h2>
+
+        <div class="list-group list-group-flush">
+          <ul class="list-unstyled mb-0">
+              <li class="list-group-item">
+                <a class="mr-1" href="{{ honeycomb_link }}">
+                  Heatmap of runtimes for completed jobs in this workspace
+                </a>
+              </li>
+          </ul>
+        </div>
+      </div>
+      {% endif %}
     </div>
   </div>
 </div>
