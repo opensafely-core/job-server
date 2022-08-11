@@ -147,7 +147,7 @@ load-dev-data: devenv
 # Run the dev project
 run: devenv
     $BIN/python manage.py migrate
-    $BIN/python manage.py runserver
+    $BIN/python manage.py runserver localhost:8000
 
 
 # Remove built assets and collected static files
