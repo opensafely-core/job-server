@@ -5,8 +5,6 @@ from .permissions import (
     job_request_pick_ref,
     job_run,
     org_create,
-    project_invite_members,
-    project_membership_edit,
     project_review,
     release_file_delete,
     release_file_upload,
@@ -158,31 +156,6 @@ class ProjectCollaborator:
     ]
     permissions = [
         release_file_view,
-    ]
-
-
-class ProjectCoordinator:
-    """
-    The responsible party for a Project
-
-    They are responsible for:
-     - all administrative and permissions aspects of the project
-     - they are the single point of contact for the OpenSAFELY team
-     - they may be the external study PI, or Study Developer.
-
-    A Project can only have one Project Coordinator.
-    """
-
-    display_name = "Project Coordinator"
-    description = "An administrator for the Project."
-    models = [
-        "jobserver.models.core.ProjectInvitation",
-        "jobserver.models.core.ProjectMembership",
-        "jobserver.models.core.User",
-    ]
-    permissions = [
-        project_invite_members,
-        project_membership_edit,
     ]
 
 

@@ -37,11 +37,6 @@
         the "logs" buttons below to explore more.
       {% endif %}
     </p>
-    {% if can_manage_members %}
-      <a class="btn btn-primary" href="{% url 'project-settings' org_slug=project.org.slug project_slug=project.slug %}">
-        Settings
-      </a>
-    {% endif %}
 
     {% if project.slug == "opensafely-testing" %}
     <div class="alert alert-warning mt-3" role="warning">

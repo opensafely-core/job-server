@@ -9,9 +9,8 @@ from django.contrib.auth.models import UserManager
 from django.contrib.auth.models import UserManager as BaseUserManager
 from django.contrib.auth.validators import UnicodeUsernameValidator
 from django.contrib.postgres.fields import ArrayField
-from django.core import signing
 from django.core.validators import validate_slug
-from django.db import models, transaction
+from django.db import models
 from django.db.models import Min, Q
 from django.urls import reverse
 from django.utils import timezone
@@ -472,21 +471,9 @@ class Project(models.Model):
     def get_edit_url(self):
         return reverse("staff:project-edit", kwargs={"slug": self.slug})
 
-    def get_invitation_url(self):
-        return reverse(
-            "project-invitation-create",
-            kwargs={"org_slug": self.org.slug, "project_slug": self.slug},
-        )
-
     def get_releases_url(self):
         return reverse(
             "project-release-list",
-            kwargs={"org_slug": self.org.slug, "project_slug": self.slug},
-        )
-
-    def get_settings_url(self):
-        return reverse(
-            "project-settings",
             kwargs={"org_slug": self.org.slug, "project_slug": self.slug},
         )
 
@@ -508,96 +495,6 @@ class Project(models.Model):
             return self.name
 
         return f"{self.number} - {self.name}"
-
-
-class ProjectInvitation(models.Model):
-    """
-    Models an Invitation to join a Project
-
-    If accepted an Invite is linked to a ProjectMembership.
-    """
-
-    created_by = models.ForeignKey(
-        "User",
-        on_delete=models.SET_NULL,
-        related_name="created_project_invitations",
-        null=True,
-    )
-    membership = models.ForeignKey(
-        "ProjectMembership",
-        on_delete=models.CASCADE,
-        related_name="invitations",
-        null=True,
-    )
-    project = models.ForeignKey(
-        "Project",
-        on_delete=models.CASCADE,
-        related_name="invitations",
-    )
-    user = models.ForeignKey(
-        "User",
-        on_delete=models.CASCADE,
-        related_name="project_invitations",
-    )
-
-    roles = RolesField()
-
-    created_at = models.DateTimeField(default=timezone.now)
-    accepted_at = models.DateTimeField(null=True)
-
-    class Meta:
-        unique_together = ["project", "user"]
-
-    def __str__(self):
-        return f"{self.user.username} | {self.project.title}"
-
-    @transaction.atomic
-    def create_membership(self):
-        self.accepted_at = timezone.now()
-
-        membership = ProjectMembership.objects.create(
-            project=self.project,
-            user=self.user,
-            roles=self.roles,
-        )
-        self.membership = membership
-
-        self.save()
-
-    def get_cancel_url(self):
-        return reverse(
-            "project-cancel-invite",
-            kwargs={
-                "org_slug": self.project.org.slug,
-                "project_slug": self.project.slug,
-            },
-        )
-
-    @classmethod
-    def get_from_signed_pk(cls, value):
-        """Look up a ProjectInvitation from a signed PK"""
-        unsigned_pk = ProjectInvitation.signer().unsign(value)
-
-        return ProjectInvitation.objects.get(pk=unsigned_pk)
-
-    def get_invitation_url(self):
-        return reverse(
-            "project-accept-invite",
-            kwargs={
-                "org_slug": self.project.org.slug,
-                "project_slug": self.project.slug,
-                "signed_pk": self.signed_pk,
-            },
-        )
-
-    @property
-    def signed_pk(self):
-        return ProjectInvitation.signer().sign(self.pk)
-
-    @staticmethod
-    def signer():
-        """Provide a salted signer instance for Project Invitations"""
-        return signing.Signer(salt="project-invitation")
 
 
 class ProjectMembership(models.Model):
@@ -634,26 +531,6 @@ class ProjectMembership(models.Model):
 
     def __str__(self):
         return f"{self.user.username} | {self.project.title}"
-
-    def get_edit_url(self):
-        return reverse(
-            "project-membership-edit",
-            kwargs={
-                "org_slug": self.project.org.slug,
-                "project_slug": self.project.slug,
-                "pk": self.pk,
-            },
-        )
-
-    def get_remove_url(self):
-        return reverse(
-            "project-membership-remove",
-            kwargs={
-                "org_slug": self.project.org.slug,
-                "project_slug": self.project.slug,
-                "pk": self.pk,
-            },
-        )
 
     def get_staff_edit_url(self):
         return reverse(

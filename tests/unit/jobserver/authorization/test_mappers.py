@@ -1,4 +1,4 @@
-from jobserver.authorization import CoreDeveloper, OrgCoordinator, ProjectCoordinator
+from jobserver.authorization import CoreDeveloper, OrgCoordinator, ProjectCollaborator
 from jobserver.authorization.mappers import (
     get_org_roles_for_user,
     get_project_roles_for_user,
@@ -46,11 +46,11 @@ def test_get_project_roles_for_user_with_roles():
     project = ProjectFactory()
     user = UserFactory(roles=[CoreDeveloper])
 
-    ProjectMembershipFactory(project=project, user=user, roles=[ProjectCoordinator])
+    ProjectMembershipFactory(project=project, user=user, roles=[ProjectCollaborator])
 
     roles = get_project_roles_for_user(project, user)
 
-    assert roles == [ProjectCoordinator]
+    assert roles == [ProjectCollaborator]
 
 
 def test_get_project_roles_for_user_unknown_membership():

@@ -4,7 +4,7 @@ from django.core.exceptions import PermissionDenied
 from django.http import Http404
 
 from applications.models import Application
-from jobserver.authorization import ProjectCoordinator, ProjectDeveloper
+from jobserver.authorization import ProjectCollaborator, ProjectDeveloper
 from jobserver.models import Project
 from jobserver.utils import dotted_path, set_from_qs
 from redirects.models import Redirect
@@ -477,7 +477,7 @@ def test_projectmembershipedit_success(rf, core_developer):
     project = ProjectFactory()
     user = UserFactory()
 
-    ProjectMembershipFactory(project=project, user=user, roles=[ProjectCoordinator])
+    ProjectMembershipFactory(project=project, user=user, roles=[ProjectCollaborator])
 
     membership = ProjectMembershipFactory(project=project, user=UserFactory())
 
