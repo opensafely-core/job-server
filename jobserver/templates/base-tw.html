@@ -29,7 +29,7 @@
     <link rel="manifest" href="{% static 'manifest.webmanifest' %}">
   </head>
 
-  <body class="flex flex-col min-h-screen text-slate bg-slate-100">
+  <body class="flex flex-col min-h-screen text-slate bg-white">
     {% skip_link %}
     {% header nav=nav user=user request=request user_can_view_staff_area=user_can_view_staff_area %}
 
@@ -37,7 +37,7 @@
 
     {% include "partials/alerts-tw.html" %}
 
-    <main class="min-h-[66vh] flex-grow pb-12">
+    <main class="min-h-[66vh] flex-grow pb-12 bg-slate-100">
       <div class="container xl:max-w-screen-xl py-6 md:py-8" id="content">
         {% block content %}{% endblock %}
       </div>
