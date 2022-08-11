@@ -188,7 +188,7 @@ assets-build:
 
 
 # Collect the static files
-assets-collect:
+assets-collect: devenv
     #!/usr/bin/env bash
     set -eu
 
