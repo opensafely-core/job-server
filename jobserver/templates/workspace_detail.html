@@ -113,19 +113,20 @@
 {% block content %}
 <div class="container">
   {% if show_publish_repo_warning %}
-  <div class="alert alert-warning alert-dismissible" role="alert">
-    <div class="row">
-      <div class="col">
-        <p>
-          The <a href="{{ first_job.get_absolute_url }}">first job</a> to run
-          against the repo for this workspace ran over 11 months ago.  As per
-          our platform policy we ask that repositories are made public 12
-          months after they are first executed against patient data.
-
-        </p>
-        <a class="btn btn-sm btn-success" href="{{ workspace.repo.get_sign_off_url }}">Read more</a>
-      </div>
-    </div>
+  <div class="alert alert-warning mb-5" role="alert">
+    <h2 class="h4 alert-link mb-3">Repository is current private</h2>
+    <p>
+      The <a href="{{ first_job.get_absolute_url }}" class="alert-link">first
+      job to run against the git repository</a> for this workspace ran over 11
+      months ago.  As per our platform policy, we ask that repositories are
+      made public 12 months after they are first executed against patient data.
+    </p>
+    <hr>
+    <p class="mb-0">
+      <a class="alert-link" href="{{ workspace.repo.get_sign_off_url }}">
+        Change repository visibility &rarr;
+      </a>
+    </p>
   </div>
   {% endif %}
   <div class="row">
