@@ -8,6 +8,7 @@ from django.http import Http404
 from django.utils import timezone
 
 from jobserver.authorization import (
+    CoreDeveloper,
     OpensafelyInteractive,
     ProjectCollaborator,
     ProjectDeveloper,
@@ -484,6 +485,28 @@ def test_workspacedetail_authorized_view_snaphots(rf):
 
     assert response.status_code == 200
     assert response.context_data["user_can_view_outputs"]
+
+
+def test_workspacedetail_authorized_honeycomb(rf):
+    workspace = WorkspaceFactory()
+    SnapshotFactory(workspace=workspace, published_at=timezone.now())
+
+    request = rf.get("/")
+    request.user = UserFactory(roles=[CoreDeveloper])
+
+    response = WorkspaceDetail.as_view(get_github_api=FakeGitHubAPI)(
+        request,
+        org_slug=workspace.project.org.slug,
+        project_slug=workspace.project.slug,
+        workspace_slug=workspace.name,
+    )
+
+    assert response.status_code == 200
+    assert "Honeycomb" in response.rendered_content
+    assert (
+        "workspace_name%22%2C%22op%22%3A%22%3D%22%2C%22value%22%3A%22workspace-329"
+        in response.rendered_content
+    )
 
 
 def test_workspacedetail_logged_out(rf):

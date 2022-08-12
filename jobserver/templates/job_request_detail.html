@@ -221,6 +221,11 @@
               </a>
             </li>
             <li>
+              <a href="https://ui.honeycomb.io/bennett-institute-for-applied-data-science/environments/production/datasets/job-server?query=%7B%22start_time%22%3A1658222043%2C%22end_time%22%3A1659015327%2C%22granularity%22%3A0%2C%22breakdowns%22%3A%5B%22action%22%2C%22status%22%2C%22job_identifier%22%5D%2C%22calculations%22%3A%5B%7B%22op%22%3A%22COUNT%22%7D%5D%2C%22filters%22%3A%5B%7B%22column%22%3A%22name%22%2C%22op%22%3A%22%3D%22%2C%22value%22%3A%22update_job%22%7D%2C%7B%22column%22%3A%22job_request_identifier%22%2C%22op%22%3A%22%3D%22%2C%22value%22%3A%22xglmbwz5iy6ojuzo%22%7D%5D%2C%22filter_combination%22%3A%22AND%22%2C%22orders%22%3A%5B%7B%22column%22%3A%22job_identifier%22%2C%22order%22%3A%22ascending%22%7D%5D%2C%22havings%22%3A%5B%5D%2C%22limit%22%3A100%7D">
+                This job request, grouped by job
+              </a>
+            </li>
+            <li>
               <a href="https://ui.honeycomb.io/bennett-institute-for-applied-data-science/environments/production/datasets/job-server?query=%7B%22start_time%22%3A{{ honeycomb_context_starttime|date:'U'|default_if_none:'1646312416' }}%2C%22end_time%22%3A{{ honeycomb_context_endtime|date:'U' }}%2C%22granularity%22%3A0%2C%22breakdowns%22%3A%5B%22status%22,%22action%22,%22job_identifier%22%5D%2C%22calculations%22%3A%5B%7B%22op%22%3A%22COUNT%22%7D%5D%2C%22filters%22%3A%5B%7B%22column%22%3A%22name%22%2C%22op%22%3A%22%3D%22%2C%22value%22%3A%22update_job%22%7D,%7B%22column%22%3A%22status%22%2C%22op%22%3A%22%3D%22%2C%22value%22%3A%22running%22%7D,%7B%22column%22%3A%22job_request_identifier%22%2C%22op%22%3A%22%3D%22%2C%22value%22%3A%22{{ job_request.identifier }}%22%7D%5D%2C%22filter_combination%22%3A%22AND%22%2C%22orders%22%3A%5B%7B%22op%22%3A%22COUNT%22%2C%22order%22%3A%22descending%22%7D%5D%2C%22havings%22%3A%5B%5D%2C%22limit%22%3A100%7D">
                 Running jobs from this job request
               </a>
