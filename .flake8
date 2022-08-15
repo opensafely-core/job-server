@@ -1,5 +1,5 @@
 [flake8]
-exclude = .direnv,.venv,venv
+extend-exclude = .direnv,.github,.ipynb_checkpoints,.pytest_cache,.venv,assets,coverage,doc,htmlcov,node_modules,releases,snippets,static,staticfiles,uploads,venv
 extend-select = \
     W504  # match black&PEP8 putting binary operators after new lines
 ignore = \
