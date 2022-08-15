@@ -1,4 +1,3 @@
-import axios from "axios";
 import React from "react";
 import { useMutation } from "react-query";
 import { useFiles } from "../../context/FilesProvider";
@@ -14,22 +13,23 @@ function PrepareButton() {
   const toastId = "PrepareButton";
 
   const mutation = useMutation(
-    ({ fileIds }) =>
-      axios
-        .post(
-          prepareUrl,
-          { file_ids: fileIds },
-          {
-            headers: {
-              "Content-Type": "application/json",
-              "X-CSRFToken": csrfToken,
-            },
-          }
-        )
-        .then((response) => response.data)
-        .catch((error) => {
-          throw error?.response?.data?.detail || error;
-        }),
+    async ({ fileIds }) => {
+      const response = await fetch(prepareUrl, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          "X-CSRFToken": csrfToken,
+        },
+        body: JSON.stringify({ file_ids: fileIds }),
+      });
+
+      if (!response.ok) {
+        const err = await response.json();
+        throw new Error(err.detail);
+      }
+
+      return response.json();
+    },
     {
       mutationKey: "PREPARE_RELEASE",
       onMutate: () => {
@@ -39,9 +39,9 @@ function PrepareButton() {
         // redirect to URL returned from the API
         window.location.href = data.url;
       },
-      onError: (err) => {
+      onError: (error) => {
         toastError({
-          message: `${err}`,
+          message: `${error}`,
           toastId,
           prepareUrl,
           url: document.location.href,
