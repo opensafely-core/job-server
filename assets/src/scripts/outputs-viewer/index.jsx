@@ -2,7 +2,6 @@ import * as Sentry from "@sentry/react";
 import React from "react";
 import ReactDOM from "react-dom";
 import App from "./App";
-import { FilesProvider } from "./context/FilesProvider";
 import "../../styles/outputs-viewer.scss";
 
 Sentry.init({
@@ -14,18 +13,7 @@ const element = document.getElementById("outputsSPA");
 
 ReactDOM.render(
   <React.StrictMode>
-    <FilesProvider
-      initialValue={{
-        authToken: element.dataset.authToken,
-        basePath: element.dataset.basePath,
-        csrfToken: element.dataset.csrfToken,
-        filesUrl: element.dataset.filesUrl,
-        prepareUrl: element.dataset.prepareUrl,
-        publishUrl: element.dataset.publishUrl,
-      }}
-    >
-      <App element={element} />
-    </FilesProvider>
+    <App {...element.dataset} element={element} />
   </React.StrictMode>,
   element
 );

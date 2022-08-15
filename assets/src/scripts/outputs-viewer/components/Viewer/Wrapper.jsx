@@ -1,17 +1,12 @@
 import PropTypes from "prop-types";
 import React from "react";
-import { useFiles } from "../../context/FilesProvider";
 import Metadata from "../Metadata/Metadata";
 
-function Wrapper({ children }) {
-  const {
-    state: { file },
-  } = useFiles();
-
+function Wrapper({ children, selectedFile }) {
   return (
     <div className="card">
       <div className="card-header">
-        <Metadata file={file} />
+        <Metadata selectedFile={selectedFile} />
       </div>
       <div className="card-body">{children}</div>
     </div>

@@ -1,28 +1,23 @@
 import { useQuery } from "@tanstack/react-query";
-import { useFiles } from "../context/FilesProvider";
 import { canDisplay, isCsv, isImg } from "../utils/file-type-match";
 import { toastError } from "../utils/toast";
 
-function useFile(file) {
-  const {
-    state: { authToken, uuid },
-  } = useFiles();
-
+function useFile({ authToken, selectedFile, uuid }) {
   return useQuery(
-    ["FILE", file.url],
+    ["FILE", selectedFile.url],
     async () => {
       // If we can't display the file type
       // or the file size is too large (>20mb)
       // don't try to return the data
-      if (!canDisplay(file) || file.size > 20000000) return {};
+      if (!canDisplay(selectedFile) || selectedFile.size > 20000000) return {};
 
       // If the file is a CSV
       // and the file size is too large (>5mb)
       // don't try to return the data
-      if (isCsv(file) && file.size > 5000000) return {};
+      if (isCsv(selectedFile) && selectedFile.size > 5000000) return {};
 
       // Combine file URL with UUID
-      const fileURL = `${file.url}?${uuid}`;
+      const fileURL = `${selectedFile.url}?${uuid}`;
 
       const response = await fetch(fileURL, {
         headers: {
@@ -34,7 +29,7 @@ function useFile(file) {
 
       // If the file is an image
       // grab the blob and create a URL for the blob
-      if (isImg(file)) {
+      if (isImg(selectedFile)) {
         const blob = await response.blob();
         return URL.createObjectURL(blob);
       }
@@ -45,9 +40,9 @@ function useFile(file) {
     {
       onError: () => {
         toastError({
-          message: `${file.shortName} - Unable to load file`,
-          toastId: file.url,
-          fileUrl: file.url,
+          message: `${selectedFile.shortName} - Unable to load file`,
+          toastId: selectedFile.url,
+          fileUrl: selectedFile.url,
           url: document.location.href,
         });
       },

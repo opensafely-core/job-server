@@ -1,13 +1,10 @@
 import { useMutation } from "@tanstack/react-query";
+import PropTypes from "prop-types";
 import React from "react";
-import { useFiles } from "../../context/FilesProvider";
 import { toastDismiss, toastError } from "../../utils/toast";
 import Button from "./Button";
 
-function PublishButton() {
-  const {
-    state: { csrfToken, publishUrl },
-  } = useFiles();
+function PublishButton({ csrfToken, publishUrl }) {
   const toastId = "PublishButton";
 
   const mutation = useMutation(
@@ -58,3 +55,8 @@ function PublishButton() {
 }
 
 export default PublishButton;
+
+PublishButton.propTypes = {
+  csrfToken: PropTypes.string.isRequired,
+  publishUrl: PropTypes.string.isRequired,
+};

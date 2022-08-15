@@ -2,19 +2,23 @@ import PropTypes from "prop-types";
 import React, { createRef, useEffect, useRef, useState } from "react";
 import { useHistory, useLocation } from "react-router-dom";
 import { FixedSizeList } from "react-window";
-import { useFiles } from "../../context/FilesProvider";
 import useFileList from "../../hooks/use-file-list";
 import useWindowSize from "../../hooks/use-window-size";
 import prettyFileSize from "../../utils/pretty-file-size";
 import Filter from "./Filter";
 
-function FileList({ listVisible, setListVisible }) {
+function FileList({
+  authToken,
+  filesUrl,
+  listVisible,
+  setSelectedFile,
+  setListVisible,
+}) {
   const [files, setFiles] = useState([]);
   const [listHeight, setListHeight] = useState(0);
   const [fileIndex, setFileIndex] = useState(null);
 
-  const { dispatch } = useFiles();
-  const { data, isError, isLoading } = useFileList();
+  const { data, isError, isLoading } = useFileList({ authToken, filesUrl });
   const history = useHistory();
   const location = useLocation();
 
@@ -58,9 +62,9 @@ function FileList({ listVisible, setListVisible }) {
 
     if (files[selectedItem]) {
       setFileIndex(selectedItem);
-      dispatch({ type: "update", state: { file: { ...files[selectedItem] } } });
+      setSelectedFile(files[selectedItem]);
     }
-  }, [dispatch, data, files, location]);
+  }, [data, files, location, setSelectedFile]);
 
   if (isLoading) {
     return (
@@ -96,7 +100,7 @@ function FileList({ listVisible, setListVisible }) {
     }
 
     history.push(itemName);
-    return dispatch({ type: "update", state: { file: { ...item } } });
+    return setSelectedFile(item);
   };
 
   return (

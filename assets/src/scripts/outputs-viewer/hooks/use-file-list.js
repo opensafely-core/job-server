@@ -1,5 +1,4 @@
 import { useQuery } from "@tanstack/react-query";
-import { useFiles } from "../context/FilesProvider";
 import { toastError } from "../utils/toast";
 
 export function longestStartingSubstr(array) {
@@ -35,11 +34,7 @@ export function sortedFiles(files) {
   ];
 }
 
-function useFileList() {
-  const {
-    state: { filesUrl, authToken },
-  } = useFiles();
-
+function useFileList({ authToken, filesUrl }) {
   return useQuery(
     ["FILE_LIST"],
     async () => {

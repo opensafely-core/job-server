@@ -2,9 +2,9 @@ import PropTypes from "prop-types";
 import React from "react";
 import prettyFileSize from "../../utils/pretty-file-size";
 
-function Metadata({ file }) {
-  const fileSize = prettyFileSize(file.size);
-  const date = new Date(file.date);
+function Metadata({ selectedFile }) {
+  const fileSize = prettyFileSize(selectedFile.size);
+  const date = new Date(selectedFile.date);
   const fileDateAbs = date.toISOString();
   const fileDate = new Intl.DateTimeFormat("en-GB", {
     timeZone: "UTC",
@@ -17,11 +17,11 @@ function Metadata({ file }) {
       <li className="list-inline-item">
         <a
           className="file-link d-flex"
-          href={file.url}
+          href={selectedFile.url}
           rel="noreferrer noopener"
           target="filePreview"
         >
-          {file.name}
+          {selectedFile.name}
         </a>
       </li>
       <li className="list-inline-item ml-auto">
@@ -38,7 +38,7 @@ function Metadata({ file }) {
 export default Metadata;
 
 Metadata.propTypes = {
-  file: PropTypes.shape({
+  selectedFile: PropTypes.shape({
     date: PropTypes.string.isRequired,
     name: PropTypes.string.isRequired,
     size: PropTypes.number.isRequired,

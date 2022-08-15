@@ -1,5 +1,4 @@
 import React from "react";
-import { useFiles } from "../../context/FilesProvider";
 import useFile from "../../hooks/use-file";
 import {
   canDisplay,
@@ -16,19 +15,17 @@ import Table from "../Table/Table";
 import Text from "../Text/Text";
 import Wrapper from "./Wrapper";
 
-function Viewer() {
-  const {
-    state: { file },
-  } = useFiles();
-  const { data, error, isLoading, isError } = useFile(file, {
-    enabled: !!(file.url && canDisplay(file)),
-  });
-
-  if (!file.url) return null;
+function Viewer({ authToken, selectedFile, uuid }) {
+  const { data, error, isLoading, isError } = useFile(
+    { authToken, selectedFile, uuid },
+    {
+      enabled: !!(selectedFile.url && canDisplay(selectedFile)),
+    }
+  );
 
   if (isLoading) {
     return (
-      <Wrapper>
+      <Wrapper selectedFile={selectedFile}>
         <span>Loading...</span>
       </Wrapper>
     );
@@ -36,31 +33,33 @@ function Viewer() {
 
   if (isError || !data) {
     return (
-      <Wrapper>
-        <NoPreview error={error} />
+      <Wrapper selectedFile={selectedFile}>
+        <NoPreview error={error} selectedFile={selectedFile} />
       </Wrapper>
     );
   }
 
-  const incompatibleFileType = !canDisplay(file);
+  const incompatibleFileType = !canDisplay(selectedFile);
   const emptyData =
     data && Object.keys(data).length === 0 && data.constructor === Object;
 
   if (incompatibleFileType || emptyData) {
     return (
-      <Wrapper>
-        <NoPreview error={error} />
+      <Wrapper selectedFile={selectedFile}>
+        <NoPreview error={error} selectedFile={selectedFile} />
       </Wrapper>
     );
   }
 
   return (
-    <Wrapper>
-      {isCsv(file) ? <Table data={data} /> : null}
-      {isHtml(file) ? <Iframe data={data} /> : null}
-      {isImg(file) ? <Image data={data} /> : null}
-      {isTxt(file) ? <Text data={data} /> : null}
-      {isJson(file) ? <Text data={JSON.stringify(data)} /> : null}
+    <Wrapper selectedFile={selectedFile}>
+      {isCsv(selectedFile) ? <Table data={data} /> : null}
+      {isHtml(selectedFile) && (
+        <Iframe data={data} selectedFile={selectedFile} />
+      )}
+      {isImg(selectedFile) ? <Image data={data} /> : null}
+      {isTxt(selectedFile) ? <Text data={data} /> : null}
+      {isJson(selectedFile) ? <Text data={JSON.stringify(data)} /> : null}
     </Wrapper>
   );
 }
