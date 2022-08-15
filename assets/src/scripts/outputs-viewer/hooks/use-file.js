@@ -1,4 +1,4 @@
-import { useQuery } from "react-query";
+import { useQuery } from "@tanstack/react-query";
 import { useFiles } from "../context/FilesProvider";
 import { canDisplay, isCsv, isImg } from "../utils/file-type-match";
 import { toastError } from "../utils/toast";

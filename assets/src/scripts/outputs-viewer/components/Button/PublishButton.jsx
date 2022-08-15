@@ -1,5 +1,5 @@
+import { useMutation } from "@tanstack/react-query";
 import React from "react";
-import { useMutation } from "react-query";
 import { useFiles } from "../../context/FilesProvider";
 import { toastDismiss, toastError } from "../../utils/toast";
 import Button from "./Button";

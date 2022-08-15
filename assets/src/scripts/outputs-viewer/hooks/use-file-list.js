@@ -1,4 +1,4 @@
-import { useQuery } from "react-query";
+import { useQuery } from "@tanstack/react-query";
 import { useFiles } from "../context/FilesProvider";
 import { toastError } from "../utils/toast";
 
@@ -41,7 +41,7 @@ function useFileList() {
   } = useFiles();
 
   return useQuery(
-    "FILE_LIST",
+    ["FILE_LIST"],
     async () => {
       const response = await fetch(filesUrl, {
         headers: {

@@ -1,8 +1,8 @@
 /* eslint-disable no-console, import/no-extraneous-dependencies */
+import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { render } from "@testing-library/react";
 import { createMemoryHistory } from "history";
 import React from "react";
-import { QueryClient, QueryClientProvider, setLogger } from "react-query";
 import { Router } from "react-router-dom";
 import { FilesProvider } from "../context/FilesProvider";
 
@@ -19,13 +19,12 @@ const createWrapper =
           retry: false,
         },
       },
-    });
-
-    setLogger({
-      log: console.log,
-      warn: console.warn,
-      // ✅ no more errors on the console
-      error: () => {},
+      logger: {
+        log: console.log,
+        warn: console.warn,
+        // ✅ no more errors on the console
+        error: () => {},
+      },
     });
 
     return (
