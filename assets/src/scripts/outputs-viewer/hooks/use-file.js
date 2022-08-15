@@ -1,4 +1,3 @@
-import axios from "axios";
 import { useQuery } from "react-query";
 import { useFiles } from "../context/FilesProvider";
 import { canDisplay, isCsv, isImg } from "../utils/file-type-match";
@@ -25,37 +24,28 @@ function useFile(file) {
       // Combine file URL with UUID
       const fileURL = `${file.url}?${uuid}`;
 
+      const response = await fetch(fileURL, {
+        headers: {
+          Authorization: authToken,
+        },
+      });
+
+      if (!response.ok) throw new Error();
+
       // If the file is an image
       // grab the blob and create a URL for the blob
-      if (isImg(file))
-        return axios
-          .get(fileURL, {
-            headers: {
-              Authorization: authToken,
-            },
-            responseType: "blob",
-          })
-          .then((response) => response.data)
-          .then((blob) => URL.createObjectURL(blob))
-          .catch((error) => {
-            throw error?.response?.data?.detail || error?.message;
-          });
+      if (isImg(file)) {
+        const blob = await response.blob();
+        return URL.createObjectURL(blob);
+      }
 
-      return axios
-        .get(fileURL, {
-          headers: {
-            Authorization: authToken,
-          },
-        })
-        .then((response) => response.data)
-        .catch((error) => {
-          throw error?.response?.data?.detail || error?.message;
-        });
+      // Otherwise return the text of the data
+      return response.text();
     },
     {
-      onError: (error) => {
+      onError: () => {
         toastError({
-          message: `${file.shortName} - ${error}`,
+          message: `${file.shortName} - Unable to load file`,
           toastId: file.url,
           fileUrl: file.url,
           url: document.location.href,
