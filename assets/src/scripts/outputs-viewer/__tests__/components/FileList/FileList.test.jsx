@@ -1,27 +1,28 @@
 /* eslint-disable no-console, no-unused-vars, react/prop-types */
 import userEvent from "@testing-library/user-event";
 import React, { useState } from "react";
+import { describe, expect, it, vi } from "vitest";
 import FileList from "../../../components/FileList/FileList";
 import { rest, server } from "../../__mocks__/server";
 import { csvFile, fileList, pngFile } from "../../helpers/files";
 import props from "../../helpers/props";
 import { render, screen, waitFor, history } from "../../test-utils";
 
-describe("<FileList />", () => {
-  function FileListWrapper() {
-    const [listVisible, setListVisible] = useState(false);
-    const [selectedFile, setSelectedFile] = useState(false);
-    return (
-      <FileList
-        authToken={props.authToken}
-        filesUrl={props.filesUrl}
-        listVisible={listVisible}
-        setListVisible={setListVisible}
-        setSelectedFile={setSelectedFile}
-      />
-    );
-  }
+function FileListWrapper() {
+  const [listVisible, setListVisible] = useState(false);
+  const [_, setSelectedFile] = useState(false);
+  return (
+    <FileList
+      authToken={props.authToken}
+      filesUrl={props.filesUrl}
+      listVisible={listVisible}
+      setListVisible={setListVisible}
+      setSelectedFile={setSelectedFile}
+    />
+  );
+}
 
+describe("<FileList />", () => {
   it("returns a loading state", async () => {
     server.use(
       rest.get(props.filesUrl, (req, res, ctx) =>
@@ -35,7 +36,7 @@ describe("<FileList />", () => {
   });
 
   it("returns error state for network error", async () => {
-    console.error = jest.fn();
+    console.error = vi.fn();
 
     server.use(
       rest.get(props.filesUrl, (req, res) =>
@@ -147,12 +148,10 @@ describe("<FileList />", () => {
 
     window.resizeTo(500, 500);
     const fixedSizeList = container.querySelector(".card > div");
-    jest
-      .spyOn(fixedSizeList, "clientWidth", "get")
-      .mockImplementation(() => 100);
-    jest
-      .spyOn(fixedSizeList, "scrollWidth", "get")
-      .mockImplementation(() => 1000);
+    vi.spyOn(fixedSizeList, "clientWidth", "get").mockImplementation(() => 100);
+    vi.spyOn(fixedSizeList, "scrollWidth", "get").mockImplementation(
+      () => 1000
+    );
 
     await waitFor(() =>
       expect(window.getComputedStyle(fixedSizeList, null).height).toBe("553px")

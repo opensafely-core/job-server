@@ -6,7 +6,7 @@ export default {
   authToken: "authToken",
   basePath: "/",
   csrfToken: "abc123",
-  filesUrl: "http://localhost/files-url",
+  filesUrl: "http://localhost:3000/files-url",
   prepareUrl: null,
   publishUrl: null,
 };

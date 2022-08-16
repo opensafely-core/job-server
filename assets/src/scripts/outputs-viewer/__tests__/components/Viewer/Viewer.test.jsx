@@ -1,5 +1,6 @@
 /* eslint-disable no-console */
 import React from "react";
+import { describe, expect, it, vi } from "vitest";
 import Viewer from "../../../components/Viewer/Viewer";
 import { server, rest } from "../../__mocks__/server";
 import {
@@ -22,7 +23,7 @@ import { screen, render, waitFor } from "../../test-utils";
 describe("<Viewer />", () => {
   it("returns a loading state", async () => {
     server.use(
-      rest.get(`http://localhost${htmlFile.url}`, (req, res, ctx) =>
+      rest.get(`http://localhost:3000${htmlFile.url}`, (req, res, ctx) =>
         res.once(ctx.status(200), ctx.json(htmlExample))
       )
     );
@@ -40,9 +41,9 @@ describe("<Viewer />", () => {
   });
 
   it("returns <NoPreview /> for network error", async () => {
-    console.error = jest.fn();
+    console.error = vi.fn();
     server.use(
-      rest.get(`http://localhost${htmlFile.url}`, (req, res) =>
+      rest.get(`http://localhost:3000${htmlFile.url}`, (req, res) =>
         res.networkError("Failed to connect")
       )
     );
@@ -62,9 +63,9 @@ describe("<Viewer />", () => {
   });
 
   it("returns <NoPreview /> for no data", async () => {
-    console.error = jest.fn();
+    console.error = vi.fn();
     server.use(
-      rest.get(`http://localhost${htmlFile.url}`, (req, res, ctx) =>
+      rest.get(`http://localhost:3000${htmlFile.url}`, (req, res, ctx) =>
         res.once(ctx.status(200), ctx.json())
       )
     );
@@ -86,9 +87,9 @@ describe("<Viewer />", () => {
   });
 
   it("returns <NoPreview /> for invalid file type", async () => {
-    console.error = jest.fn();
+    console.error = vi.fn();
     server.use(
-      rest.get(`http://localhost${jsFile.url}`, (req, res, ctx) =>
+      rest.get(`http://localhost:3000${jsFile.url}`, (req, res, ctx) =>
         res.once(ctx.status(200), ctx.json({}))
       )
     );
@@ -110,9 +111,9 @@ describe("<Viewer />", () => {
   });
 
   it("returns <NoPreview /> for empty data", async () => {
-    console.error = jest.fn();
+    console.error = vi.fn();
     server.use(
-      rest.get(`http://localhost${htmlFile.url}`, (req, res, ctx) =>
+      rest.get(`http://localhost:3000${htmlFile.url}`, (req, res, ctx) =>
         res.once(ctx.status(200), ctx.body())
       )
     );
@@ -134,9 +135,9 @@ describe("<Viewer />", () => {
   });
 
   it("returns <NoPreview /> for too large CSV", async () => {
-    console.error = jest.fn();
+    console.error = vi.fn();
     server.use(
-      rest.get(`http://localhost${csvFile.url}`, (req, res, ctx) =>
+      rest.get(`http://localhost:3000${csvFile.url}`, (req, res, ctx) =>
         res.once(ctx.status(200), ctx.body(csvExample))
       )
     );
@@ -159,7 +160,7 @@ describe("<Viewer />", () => {
 
   it("returns <NoPreview /> for failed PNG", async () => {
     server.use(
-      rest.get(`http://localhost${pngFile.url}`, (req, res) =>
+      rest.get(`http://localhost:3000${pngFile.url}`, (req, res) =>
         res.networkError("Failed to connect")
       )
     );
@@ -182,7 +183,7 @@ describe("<Viewer />", () => {
 
   it("returns <Table /> for CSV", async () => {
     server.use(
-      rest.get(`http://localhost${csvFile.url}`, (req, res, ctx) =>
+      rest.get(`http://localhost:3000${csvFile.url}`, (req, res, ctx) =>
         res.once(ctx.status(200), ctx.json(csvExample))
       )
     );
@@ -201,7 +202,7 @@ describe("<Viewer />", () => {
 
   it("returns <Iframe /> for HTML", async () => {
     server.use(
-      rest.get(`http://localhost${htmlFile.url}`, (req, res, ctx) =>
+      rest.get(`http://localhost:3000${htmlFile.url}`, (req, res, ctx) =>
         res.once(ctx.status(200), ctx.json(htmlExample))
       )
     );
@@ -225,7 +226,7 @@ describe("<Viewer />", () => {
 
   it("returns <Image /> for PNG", async () => {
     server.use(
-      rest.get(`http://localhost${pngFile.url}`, (req, res, ctx) =>
+      rest.get(`http://localhost:3000${pngFile.url}`, (req, res, ctx) =>
         res.once(
           ctx.set("Content-Type", "image/png"),
           ctx.status(200),
@@ -243,14 +244,15 @@ describe("<Viewer />", () => {
         uuid={uuid}
       />
     );
+
     await waitFor(() =>
-      expect(screen.getByRole("img").src).toBe(`http://localhost/imgSrc`)
+      expect(screen.getByRole("img").src).toBe(`http://localhost:3000/imgSrc`)
     );
   });
 
   it("returns <Text /> for TXT", async () => {
     server.use(
-      rest.get(`http://localhost${txtFile.url}`, (req, res, ctx) =>
+      rest.get(`http://localhost:3000${txtFile.url}`, (req, res, ctx) =>
         res.once(ctx.status(200), ctx.json(txtExample))
       )
     );
@@ -271,7 +273,7 @@ describe("<Viewer />", () => {
 
   it("returns <Text /> for JSON", async () => {
     server.use(
-      rest.get(`http://localhost${jsonFile.url}`, (req, res, ctx) =>
+      rest.get(`http://localhost:3000${jsonFile.url}`, (req, res, ctx) =>
         res.once(ctx.status(200), ctx.json({ ...jsonExample }))
       )
     );

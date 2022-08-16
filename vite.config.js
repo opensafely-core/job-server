@@ -18,7 +18,7 @@ const config = {
         main: "./assets/src/scripts/main.js",
         workspace_create: "./assets/src/scripts/workspace_create.js",
         "outputs-viewer": "./assets/src/scripts/outputs-viewer/index.jsx",
-        "tw": "./assets/src/scripts/tw.js",
+        tw: "./assets/src/scripts/tw.js",
       },
     },
     outDir: "assets/dist",
@@ -93,6 +93,22 @@ const config = {
       brotliSize: true,
     }),
   ],
+  test: {
+    globals: true,
+    environment: "jsdom",
+    root: "./assets/src/scripts/outputs-viewer/",
+    setupFiles: [
+      "assets/src/scripts/outputs-viewer/__tests__/jest-setup.js",
+      "window-resizeto/polyfill",
+    ],
+    coverage: {
+      provider: "c8",
+      lines: 90,
+      functions: 90,
+      branches: 90,
+      statements: -10,
+    },
+  },
 };
 
 export default config;

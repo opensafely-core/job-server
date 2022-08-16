@@ -1,4 +1,5 @@
 import React from "react";
+import { describe, expect, it } from "vitest";
 import Table from "../../../components/Table/Table";
 import { csvExample, csvFile } from "../../helpers/files";
 import { render, screen } from "../../test-utils";

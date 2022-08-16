@@ -1,12 +1,13 @@
 import userEvent from "@testing-library/user-event";
 import React from "react";
+import { describe, expect, it, vi } from "vitest";
 import Filter from "../../../components/FileList/Filter";
 import { fileList, htmlFile } from "../../helpers/files";
 import { render, screen, waitFor } from "../../test-utils";
 
 describe("<Filter />", () => {
-  const setFiles = jest.fn();
-  const listRef = jest.fn();
+  const setFiles = vi.fn();
+  const listRef = vi.fn();
 
   it("shows the filter", async () => {
     render(<Filter files={fileList} listRef={listRef} setFiles={setFiles} />);

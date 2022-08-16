@@ -1,4 +1,5 @@
 import React from "react";
+import { describe, expect, it } from "vitest";
 import Image from "../../../components/Image/Image";
 import { pngExample } from "../../helpers/files";
 import { render, screen } from "../../test-utils";

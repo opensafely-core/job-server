@@ -1,5 +1,6 @@
 import userEvent from "@testing-library/user-event";
 import React from "react";
+import { describe, expect, it } from "vitest";
 import App from "../App";
 import { fileList } from "./helpers/files";
 import props, { prepareUrl, publishUrl } from "./helpers/props";
@@ -34,7 +35,7 @@ describe("<App />", () => {
     });
 
     expect(screen.getByRole("button").textContent).toEqual("Hide file list");
-    userEvent.click(screen.getByRole("button"));
+    await userEvent.click(screen.getByRole("button"));
     expect(screen.getByRole("button").textContent).toEqual("Show file list");
   });
 

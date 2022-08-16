@@ -1,6 +1,7 @@
 /* eslint-disable no-console */
 import userEvent from "@testing-library/user-event";
 import React from "react";
+import { afterAll, beforeEach, describe, expect, it, vi } from "vitest";
 import PublishButton from "../../../components/Button/PublishButton";
 import * as toast from "../../../utils/toast";
 import { server, rest } from "../../__mocks__/server";
@@ -8,7 +9,7 @@ import props, { publishUrl } from "../../helpers/props";
 import { render, screen, waitFor } from "../../test-utils";
 
 describe("<PublishButton />", () => {
-  const mockResponse = jest.fn();
+  const mockResponse = vi.fn();
   const { csrfToken } = props;
 
   beforeEach(() => {
@@ -24,7 +25,7 @@ describe("<PublishButton />", () => {
   });
 
   afterAll(() => {
-    jest.resetAllMocks();
+    vi.resetAllMocks();
   });
 
   it("shows the button", () => {
@@ -47,10 +48,10 @@ describe("<PublishButton />", () => {
   });
 
   it("show the JSON error message", async () => {
-    const toastError = jest.fn();
-    console.error = jest.fn();
+    const toastError = vi.fn();
+    console.error = vi.fn();
 
-    jest.spyOn(toast, "toastError").mockImplementation(toastError);
+    vi.spyOn(toast, "toastError").mockImplementation(toastError);
 
     server.use(
       rest.post(publishUrl, (req, res, ctx) => {
@@ -75,16 +76,16 @@ describe("<PublishButton />", () => {
         message: "Error: Invalid user token",
         publishUrl,
         toastId: "PublishButton",
-        url: "http://localhost/",
+        url: "http://localhost:3000/",
       })
     );
   });
 
   it("show the server error message", async () => {
-    const toastError = jest.fn();
-    console.error = jest.fn();
+    const toastError = vi.fn();
+    console.error = vi.fn();
 
-    jest.spyOn(toast, "toastError").mockImplementation(toastError);
+    vi.spyOn(toast, "toastError").mockImplementation(toastError);
 
     server.use(
       rest.post(publishUrl, (req, res, ctx) => {
@@ -109,7 +110,7 @@ describe("<PublishButton />", () => {
         message: "Error",
         publishUrl,
         toastId: "PublishButton",
-        url: "http://localhost/",
+        url: "http://localhost:3000/",
       })
     );
   });

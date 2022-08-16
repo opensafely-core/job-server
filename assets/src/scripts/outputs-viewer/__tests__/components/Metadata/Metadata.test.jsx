@@ -1,4 +1,5 @@
 import React from "react";
+import { describe, expect, it, test, vi } from "vitest";
 import Metadata from "../../../components/Metadata/Metadata";
 import { pngFile } from "../../helpers/files";
 import { render, screen } from "../../test-utils";
@@ -29,7 +30,7 @@ describe("<Metadata />", () => {
 
     // File link
     expect(screen.getByRole("link").href).toBe(
-      `http://localhost${pngFile.url}`
+      `http://localhost:3000${pngFile.url}`
     );
 
     // Absolute date
@@ -46,7 +47,7 @@ describe("<Metadata />", () => {
 
   it("shows unknown for file size if file size not provided", () => {
     // eslint-disable-next-line no-console
-    console.error = jest.fn();
+    console.error = vi.fn();
 
     render(
       <Metadata
@@ -59,7 +60,7 @@ describe("<Metadata />", () => {
 
     // File link
     expect(screen.getByRole("link").href).toBe(
-      `http://localhost${pngFile.url}`
+      `http://localhost:3000${pngFile.url}`
     );
 
     // Absolute date

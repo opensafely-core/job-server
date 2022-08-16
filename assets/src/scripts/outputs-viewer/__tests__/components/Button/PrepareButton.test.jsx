@@ -1,6 +1,7 @@
 /* eslint-disable no-console */
 import userEvent from "@testing-library/user-event";
 import React from "react";
+import { afterAll, beforeEach, describe, expect, it, vi } from "vitest";
 import PrepareButton from "../../../components/Button/PrepareButton";
 import * as useFileList from "../../../hooks/use-file-list";
 import * as toast from "../../../utils/toast";
@@ -30,11 +31,11 @@ describe("<PrepareButton />", () => {
   });
 
   afterAll(() => {
-    jest.resetAllMocks();
+    vi.resetAllMocks();
   });
 
   it("hides the element if there are no files", () => {
-    jest.spyOn(useFileList, "default").mockImplementation(() => ({
+    vi.spyOn(useFileList, "default").mockImplementation(() => ({
       data: [],
     }));
 
@@ -51,7 +52,7 @@ describe("<PrepareButton />", () => {
   });
 
   it("shows if there are files", () => {
-    jest.spyOn(useFileList, "default").mockImplementation(() => ({
+    vi.spyOn(useFileList, "default").mockImplementation(() => ({
       data: fileList,
     }));
 
@@ -68,7 +69,7 @@ describe("<PrepareButton />", () => {
   });
 
   it("triggers a mutation on click", async () => {
-    jest.spyOn(useFileList, "default").mockImplementation(() => ({
+    vi.spyOn(useFileList, "default").mockImplementation(() => ({
       data: fileList,
     }));
 
@@ -106,14 +107,14 @@ describe("<PrepareButton />", () => {
   });
 
   it("show the JSON error message", async () => {
-    const toastError = jest.fn();
-    console.error = jest.fn();
+    const toastError = vi.fn();
+    console.error = vi.fn();
 
-    jest.spyOn(useFileList, "default").mockImplementation(() => ({
+    vi.spyOn(useFileList, "default").mockImplementation(() => ({
       data: fileList,
     }));
 
-    jest.spyOn(toast, "toastError").mockImplementation(toastError);
+    vi.spyOn(toast, "toastError").mockImplementation(toastError);
 
     server.use(
       rest.post(prepareUrl, (req, res, ctx) => {
@@ -146,20 +147,20 @@ describe("<PrepareButton />", () => {
         message: "Error: Invalid user token",
         prepareUrl,
         toastId: "PrepareButton",
-        url: "http://localhost/",
+        url: "http://localhost:3000/",
       })
     );
   });
 
   it("show the server error message", async () => {
-    const toastError = jest.fn();
-    console.error = jest.fn();
+    const toastError = vi.fn();
+    console.error = vi.fn();
 
-    jest.spyOn(useFileList, "default").mockImplementation(() => ({
+    vi.spyOn(useFileList, "default").mockImplementation(() => ({
       data: fileList,
     }));
 
-    jest.spyOn(toast, "toastError").mockImplementation(toastError);
+    vi.spyOn(toast, "toastError").mockImplementation(toastError);
 
     server.use(
       rest.post(prepareUrl, (req, res, ctx) => {
@@ -192,7 +193,7 @@ describe("<PrepareButton />", () => {
         message: "Error",
         prepareUrl,
         toastId: "PrepareButton",
-        url: "http://localhost/",
+        url: "http://localhost:3000/",
       })
     );
   });

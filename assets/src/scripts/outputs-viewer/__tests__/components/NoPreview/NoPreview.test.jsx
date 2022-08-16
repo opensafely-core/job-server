@@ -1,4 +1,5 @@
 import React from "react";
+import { describe, expect, it } from "vitest";
 import NoPreview from "../../../components/NoPreview/NoPreview";
 import { server, rest } from "../../__mocks__/server";
 import { pngFile } from "../../helpers/files";

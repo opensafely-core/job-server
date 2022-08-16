@@ -1,3 +1,4 @@
+import { describe, expect, it } from "vitest";
 import { longestStartingSubstr, sortedFiles } from "../../hooks/use-file-list";
 
 describe("useFileList hook", () => {
