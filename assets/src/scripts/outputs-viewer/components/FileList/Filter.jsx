@@ -1,3 +1,4 @@
+import throttle from "just-throttle";
 import PropTypes from "prop-types";
 import React, { useEffect, useState } from "react";
 
@@ -6,17 +7,16 @@ function Filter({ files, listRef, setFiles }) {
 
   useEffect(() => {
     if (filter) {
-      const timer = setTimeout(
+      return throttle(
         () =>
           setFiles(
             files.filter((state) =>
               state.shortName.toLowerCase().includes(filter.toLowerCase())
             )
           ),
-        350
+        500,
+        { leading: false, trailing: true }
       );
-
-      return () => clearTimeout(timer);
     }
 
     return setFiles(files);
