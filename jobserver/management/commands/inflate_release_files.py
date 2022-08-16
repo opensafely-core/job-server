@@ -125,7 +125,7 @@ class Command(BaseCommand):
             ".txt": make_text,
         }
 
-        for release_file in ReleaseFile.objects.all():
+        for release_file in ReleaseFile.objects.filter(deleted_at=None):
             path = release_file.absolute_path()
 
             if path.exists():
