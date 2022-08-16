@@ -12,7 +12,7 @@ describe("<NoPreview />", () => {
       )
     );
 
-    render(<NoPreview selectedFile={pngFile} />);
+    render(<NoPreview fileUrl={pngFile.url} />);
 
     await waitFor(
       () =>
@@ -30,7 +30,7 @@ describe("<NoPreview />", () => {
       )
     );
 
-    render(<NoPreview error={err} selectedFile={pngFile} />);
+    render(<NoPreview error={err} fileUrl={pngFile.url} />);
 
     await waitFor(
       () =>

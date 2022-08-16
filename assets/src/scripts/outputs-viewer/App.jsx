@@ -19,7 +19,7 @@ const queryClient = new QueryClient({
 });
 
 function App({
-  authToken = "",
+  authToken,
   basePath,
   csrfToken,
   filesUrl,
@@ -104,6 +104,11 @@ App.propTypes = {
   basePath: datasetProps.basePath.isRequired,
   csrfToken: datasetProps.csrfToken.isRequired,
   filesUrl: datasetProps.filesUrl.isRequired,
-  prepareUrl: datasetProps.prepareUrl.isRequired,
-  publishUrl: datasetProps.publishUrl.isRequired,
+  prepareUrl: datasetProps.prepareUrl,
+  publishUrl: datasetProps.publishUrl,
+};
+
+App.defaultProps = {
+  prepareUrl: null,
+  publishUrl: null,
 };

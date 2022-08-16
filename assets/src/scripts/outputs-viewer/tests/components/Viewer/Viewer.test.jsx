@@ -16,6 +16,7 @@ import {
   jsonFile,
   jsonExample,
 } from "../../helpers/files";
+import props, { uuid } from "../../helpers/props";
 import { screen, render, waitFor } from "../../test-utils";
 
 describe("<Viewer />", () => {
@@ -25,7 +26,16 @@ describe("<Viewer />", () => {
         res.once(ctx.status(200), ctx.json(htmlExample))
       )
     );
-    render(<Viewer selectedFile={blankFile} />);
+    render(
+      <Viewer
+        authToken={props.authToken}
+        fileName={blankFile.name}
+        fileShortName={blankFile.shortName}
+        fileSize={blankFile.size}
+        fileUrl={blankFile.url}
+        uuid={uuid}
+      />
+    );
     await waitFor(() => expect(screen.getByText("Loading...")).toBeVisible());
   });
 
@@ -36,7 +46,16 @@ describe("<Viewer />", () => {
         res.networkError("Failed to connect")
       )
     );
-    render(<Viewer selectedFile={htmlFile} />);
+    render(
+      <Viewer
+        authToken={props.authToken}
+        fileName={htmlFile.name}
+        fileShortName={htmlFile.shortName}
+        fileSize={htmlFile.size}
+        fileUrl={htmlFile.url}
+        uuid={uuid}
+      />
+    );
     await waitFor(() =>
       expect(screen.getByText("Error: Network request failed")).toBeVisible()
     );
@@ -49,7 +68,16 @@ describe("<Viewer />", () => {
         res.once(ctx.status(200), ctx.json())
       )
     );
-    render(<Viewer selectedFile={htmlFile} />);
+    render(
+      <Viewer
+        authToken={props.authToken}
+        fileName={htmlFile.name}
+        fileShortName={htmlFile.shortName}
+        fileSize={htmlFile.size}
+        fileUrl={htmlFile.url}
+        uuid={uuid}
+      />
+    );
     await waitFor(() =>
       expect(
         screen.getByText("We cannot show a preview of this file.")
@@ -64,7 +92,16 @@ describe("<Viewer />", () => {
         res.once(ctx.status(200), ctx.json({}))
       )
     );
-    render(<Viewer selectedFile={jsFile} />);
+    render(
+      <Viewer
+        authToken={props.authToken}
+        fileName={jsFile.name}
+        fileShortName={jsFile.shortName}
+        fileSize={jsFile.size}
+        fileUrl={jsFile.url}
+        uuid={uuid}
+      />
+    );
     await waitFor(() =>
       expect(
         screen.getByText("We cannot show a preview of this file.")
@@ -79,7 +116,16 @@ describe("<Viewer />", () => {
         res.once(ctx.status(200), ctx.body())
       )
     );
-    render(<Viewer selectedFile={htmlFile} />);
+    render(
+      <Viewer
+        authToken={props.authToken}
+        fileName={htmlFile.name}
+        fileShortName={htmlFile.shortName}
+        fileSize={htmlFile.size}
+        fileUrl={htmlFile.url}
+        uuid={uuid}
+      />
+    );
     await waitFor(() =>
       expect(
         screen.getByText("We cannot show a preview of this file.")
@@ -94,7 +140,16 @@ describe("<Viewer />", () => {
         res.once(ctx.status(200), ctx.body(csvExample))
       )
     );
-    render(<Viewer selectedFile={{ ...csvFile, size: 5000001 }} />);
+    render(
+      <Viewer
+        authToken={props.authToken}
+        fileName={csvFile.name}
+        fileShortName={csvFile.shortName}
+        fileSize={5000001}
+        fileUrl={csvFile.url}
+        uuid={uuid}
+      />
+    );
     await waitFor(() =>
       expect(
         screen.getByText("We cannot show a preview of this file.")
@@ -108,7 +163,16 @@ describe("<Viewer />", () => {
         res.networkError("Failed to connect")
       )
     );
-    render(<Viewer selectedFile={pngFile} />);
+    render(
+      <Viewer
+        authToken={props.authToken}
+        fileName={pngFile.name}
+        fileShortName={pngFile.shortName}
+        fileSize={pngFile.size}
+        fileUrl={pngFile.url}
+        uuid={uuid}
+      />
+    );
     await waitFor(() =>
       expect(
         screen.getByText("We cannot show a preview of this file.")
@@ -122,7 +186,16 @@ describe("<Viewer />", () => {
         res.once(ctx.status(200), ctx.json(csvExample))
       )
     );
-    render(<Viewer selectedFile={csvFile} />);
+    render(
+      <Viewer
+        authToken={props.authToken}
+        fileName={csvFile.name}
+        fileShortName={csvFile.shortName}
+        fileSize={csvFile.size}
+        fileUrl={csvFile.url}
+        uuid={uuid}
+      />
+    );
     await waitFor(() => expect(screen.getByRole("table")).toBeVisible());
   });
 
@@ -132,7 +205,16 @@ describe("<Viewer />", () => {
         res.once(ctx.status(200), ctx.json(htmlExample))
       )
     );
-    const { container } = render(<Viewer selectedFile={htmlFile} />);
+    const { container } = render(
+      <Viewer
+        authToken={props.authToken}
+        fileName={htmlFile.name}
+        fileShortName={htmlFile.shortName}
+        fileSize={htmlFile.size}
+        fileUrl={htmlFile.url}
+        uuid={uuid}
+      />
+    );
     await waitFor(() => {
       const iframe = container.querySelector("iframe");
       return expect(iframe.getAttribute("srcDoc")).toContain(
@@ -151,7 +233,16 @@ describe("<Viewer />", () => {
         )
       )
     );
-    render(<Viewer selectedFile={pngFile} />);
+    render(
+      <Viewer
+        authToken={props.authToken}
+        fileName={pngFile.name}
+        fileShortName={pngFile.shortName}
+        fileSize={pngFile.size}
+        fileUrl={pngFile.url}
+        uuid={uuid}
+      />
+    );
     await waitFor(() =>
       expect(screen.getByRole("img").src).toBe(`http://localhost/imgSrc`)
     );
@@ -163,7 +254,16 @@ describe("<Viewer />", () => {
         res.once(ctx.status(200), ctx.json(txtExample))
       )
     );
-    render(<Viewer selectedFile={txtFile} />);
+    render(
+      <Viewer
+        authToken={props.authToken}
+        fileName={txtFile.name}
+        fileShortName={txtFile.shortName}
+        fileSize={txtFile.size}
+        fileUrl={txtFile.url}
+        uuid={uuid}
+      />
+    );
     await waitFor(() =>
       expect(screen.getByText(`"${txtExample}"`)).toBeVisible()
     );
@@ -175,7 +275,16 @@ describe("<Viewer />", () => {
         res.once(ctx.status(200), ctx.json({ ...jsonExample }))
       )
     );
-    render(<Viewer selectedFile={jsonFile} />);
+    render(
+      <Viewer
+        authToken={props.authToken}
+        fileName={jsonFile.name}
+        fileShortName={jsonFile.shortName}
+        fileSize={jsonFile.size}
+        fileUrl={jsonFile.url}
+        uuid={uuid}
+      />
+    );
     await waitFor(() => {
       expect(screen.getByText(JSON.stringify(jsonExample))).toBeVisible();
     });

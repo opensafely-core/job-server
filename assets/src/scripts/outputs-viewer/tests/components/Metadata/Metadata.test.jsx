@@ -4,8 +4,28 @@ import { pngFile } from "../../helpers/files";
 import { render, screen } from "../../test-utils";
 
 describe("<Metadata />", () => {
+  test("if date is invalid, return nothing", () => {
+    render(
+      <Metadata
+        fileDate="asdadsdasd"
+        fileName={pngFile.name}
+        fileSize={pngFile.size}
+        fileUrl={pngFile.url}
+      />
+    );
+
+    expect(screen.queryByText("01/01/2021, 10:11")).not.toBeInTheDocument();
+  });
+
   it("show metadata", () => {
-    render(<Metadata {...pngFile} />);
+    render(
+      <Metadata
+        fileDate={pngFile.date}
+        fileName={pngFile.name}
+        fileSize={pngFile.size}
+        fileUrl={pngFile.url}
+      />
+    );
 
     // File link
     expect(screen.getByRole("link").href).toBe(
@@ -28,7 +48,14 @@ describe("<Metadata />", () => {
     // eslint-disable-next-line no-console
     console.error = jest.fn();
 
-    render(<Metadata {...pngFile} size={0} />);
+    render(
+      <Metadata
+        fileDate={pngFile.date}
+        fileName={pngFile.name}
+        fileSize={0}
+        fileUrl={pngFile.url}
+      />
+    );
 
     // File link
     expect(screen.getByRole("link").href).toBe(

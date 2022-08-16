@@ -6,7 +6,11 @@ import { render } from "../../test-utils";
 describe("<Iframe />", () => {
   it("displays the iFrame data", async () => {
     const { container } = render(
-      <Iframe data={htmlExample} selectedFile={htmlFile} />
+      <Iframe
+        data={htmlExample}
+        fileName={htmlFile.name}
+        fileUrl={htmlFile.url}
+      />
     );
     const iframe = container.querySelector("iframe");
 
@@ -19,7 +23,11 @@ describe("<Iframe />", () => {
     window.resizeTo(500, 500);
 
     const { container } = render(
-      <Iframe data={htmlExample} selectedFile={htmlFile} />
+      <Iframe
+        data={htmlExample}
+        fileName={htmlFile.name}
+        fileUrl={htmlFile.url}
+      />
     );
     const iframe = container.querySelector("iframe");
 
@@ -30,7 +38,11 @@ describe("<Iframe />", () => {
     window.resizeTo(1200, 1200);
 
     const { container } = render(
-      <Iframe data={htmlExample} selectedFile={htmlFile} />
+      <Iframe
+        data={htmlExample}
+        fileName={htmlFile.name}
+        fileUrl={htmlFile.url}
+      />
     );
     const iframe = container.querySelector("iframe");
 

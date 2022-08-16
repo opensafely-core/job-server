@@ -49,4 +49,12 @@ describe("<App />", () => {
       screen.getByRole("button", { name: "Confirm Publish?" })
     ).toBeVisible();
   });
+
+  it("shows the Viewer if a file is selected", async () => {
+    render(<App {...props} />);
+
+    userEvent.click(screen.queryAllByRole("link")[0]);
+    expect(screen.getByText("Last modified at:")).toBeVisible();
+    expect(screen.getByText("Loading...")).toBeVisible();
+  });
 });

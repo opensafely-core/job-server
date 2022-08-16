@@ -15,7 +15,7 @@ describe("<PrepareButton />", () => {
     redirect: "http://localhost/prepare-redirect",
   };
 
-  const { csrfToken } = props;
+  const { authToken, csrfToken, filesUrl } = props;
 
   const fileIds = ["abc1", "abc2", "abc3", "abc4"];
 
@@ -39,7 +39,12 @@ describe("<PrepareButton />", () => {
     }));
 
     const { container } = render(
-      <PrepareButton csrfToken={csrfToken} prepareUrl={prepareUrl} />
+      <PrepareButton
+        authToken={authToken}
+        csrfToken={csrfToken}
+        filesUrl={filesUrl}
+        prepareUrl={prepareUrl}
+      />
     );
 
     expect(container).toBeEmptyDOMElement();
@@ -50,7 +55,14 @@ describe("<PrepareButton />", () => {
       data: fileList,
     }));
 
-    render(<PrepareButton csrfToken={csrfToken} prepareUrl={prepareUrl} />);
+    render(
+      <PrepareButton
+        authToken={authToken}
+        csrfToken={csrfToken}
+        filesUrl={filesUrl}
+        prepareUrl={prepareUrl}
+      />
+    );
 
     expect(screen.getByRole("button")).toHaveTextContent("Publish");
   });
@@ -74,7 +86,14 @@ describe("<PrepareButton />", () => {
       })
     );
 
-    render(<PrepareButton csrfToken={csrfToken} prepareUrl={prepareUrl} />);
+    render(
+      <PrepareButton
+        authToken={authToken}
+        csrfToken={csrfToken}
+        filesUrl={filesUrl}
+        prepareUrl={prepareUrl}
+      />
+    );
 
     expect(screen.getByRole("button")).toHaveTextContent("Publish");
 
@@ -106,7 +125,14 @@ describe("<PrepareButton />", () => {
       })
     );
 
-    render(<PrepareButton csrfToken={csrfToken} prepareUrl={prepareUrl} />);
+    render(
+      <PrepareButton
+        authToken={authToken}
+        csrfToken={csrfToken}
+        filesUrl={filesUrl}
+        prepareUrl={prepareUrl}
+      />
+    );
 
     expect(screen.getByRole("button")).toHaveTextContent("Publish");
 
@@ -145,7 +171,14 @@ describe("<PrepareButton />", () => {
       })
     );
 
-    render(<PrepareButton csrfToken={csrfToken} prepareUrl={prepareUrl} />);
+    render(
+      <PrepareButton
+        authToken={authToken}
+        csrfToken={csrfToken}
+        filesUrl={filesUrl}
+        prepareUrl={prepareUrl}
+      />
+    );
 
     expect(screen.getByRole("button")).toHaveTextContent("Publish");
 

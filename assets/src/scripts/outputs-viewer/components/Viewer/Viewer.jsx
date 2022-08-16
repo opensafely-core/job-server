@@ -31,12 +31,12 @@ function Viewer({
       // If we can't display the file type
       // or the file size is too large (>20mb)
       // don't try to return the data
-      if (!canDisplay(fileName) || fileSize > 20000000) return {};
+      if (!canDisplay(fileName) || fileSize > 20000000) return false;
 
       // If the file is a CSV
       // and the file size is too large (>5mb)
       // don't try to return the data
-      if (isCsv(fileName) && fileSize > 5000000) return {};
+      if (isCsv(fileName) && fileSize > 5000000) return false;
 
       // Combine file URL with UUID
       const fileURL = `${fileUrl}?${uuid}`;

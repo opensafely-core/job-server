@@ -6,7 +6,6 @@ module.exports = async () => ({
     "!**/vendor/**",
     "!<rootDir>/assets/src/scripts/outputs-viewer/tests/*",
     "!<rootDir>/assets/src/scripts/outputs-viewer/index.jsx",
-    "!<rootDir>/assets/src/scripts/outputs-viewer/context/FilesProvider.jsx",
   ],
   coverageThreshold: {
     global: {
