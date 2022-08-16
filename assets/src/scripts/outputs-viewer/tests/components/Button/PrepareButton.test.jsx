@@ -6,6 +6,7 @@ import * as useFileList from "../../../hooks/use-file-list";
 import * as toast from "../../../utils/toast";
 import { server, rest } from "../../__mocks__/server";
 import { fileList } from "../../helpers/files";
+import props, { prepareUrl } from "../../helpers/props";
 import { render, screen, waitFor } from "../../test-utils";
 
 describe("<PrepareButton />", () => {
@@ -14,7 +15,7 @@ describe("<PrepareButton />", () => {
     redirect: "http://localhost/prepare-redirect",
   };
 
-  const csrfToken = "abc123";
+  const { csrfToken } = props;
 
   const fileIds = ["abc1", "abc2", "abc3", "abc4"];
 
@@ -38,9 +39,7 @@ describe("<PrepareButton />", () => {
     }));
 
     const { container } = render(
-      <PrepareButton />,
-      {},
-      { csrfToken, prepareUrl: urls.prepare }
+      <PrepareButton csrfToken={csrfToken} prepareUrl={prepareUrl} />
     );
 
     expect(container).toBeEmptyDOMElement();
@@ -51,7 +50,7 @@ describe("<PrepareButton />", () => {
       data: fileList,
     }));
 
-    render(<PrepareButton />, {}, { csrfToken, prepareUrl: urls.prepare });
+    render(<PrepareButton csrfToken={csrfToken} prepareUrl={prepareUrl} />);
 
     expect(screen.getByRole("button")).toHaveTextContent("Publish");
   });
@@ -62,7 +61,7 @@ describe("<PrepareButton />", () => {
     }));
 
     server.use(
-      rest.post(urls.prepare, (req, res, ctx) => {
+      rest.post(prepareUrl, (req, res, ctx) => {
         // eslint-disable-next-line no-underscore-dangle
         expect(req.headers._headers["x-csrftoken"]).toBe(csrfToken);
         expect(req.body.file_ids).toEqual(fileIds);
@@ -75,7 +74,7 @@ describe("<PrepareButton />", () => {
       })
     );
 
-    render(<PrepareButton />, {}, { csrfToken, prepareUrl: urls.prepare });
+    render(<PrepareButton csrfToken={csrfToken} prepareUrl={prepareUrl} />);
 
     expect(screen.getByRole("button")).toHaveTextContent("Publish");
 
@@ -98,7 +97,7 @@ describe("<PrepareButton />", () => {
     jest.spyOn(toast, "toastError").mockImplementation(toastError);
 
     server.use(
-      rest.post(urls.prepare, (req, res, ctx) => {
+      rest.post(prepareUrl, (req, res, ctx) => {
         // eslint-disable-next-line no-underscore-dangle
         expect(req.headers._headers["x-csrftoken"]).toBe(csrfToken);
         expect(req.body.file_ids).toEqual(fileIds);
@@ -107,7 +106,7 @@ describe("<PrepareButton />", () => {
       })
     );
 
-    render(<PrepareButton />, {}, { csrfToken, prepareUrl: urls.prepare });
+    render(<PrepareButton csrfToken={csrfToken} prepareUrl={prepareUrl} />);
 
     expect(screen.getByRole("button")).toHaveTextContent("Publish");
 
@@ -118,8 +117,8 @@ describe("<PrepareButton />", () => {
     );
     await waitFor(() =>
       expect(toastError).toHaveBeenCalledWith({
-        message: "Invalid user token",
-        prepareUrl: urls.prepare,
+        message: "Error: Invalid user token",
+        prepareUrl,
         toastId: "PrepareButton",
         url: "http://localhost/",
       })
@@ -137,16 +136,16 @@ describe("<PrepareButton />", () => {
     jest.spyOn(toast, "toastError").mockImplementation(toastError);
 
     server.use(
-      rest.post(urls.prepare, (req, res, ctx) => {
+      rest.post(prepareUrl, (req, res, ctx) => {
         // eslint-disable-next-line no-underscore-dangle
         expect(req.headers._headers["x-csrftoken"]).toBe(csrfToken);
         expect(req.body.file_ids).toEqual(fileIds);
 
-        return res(ctx.status(500));
+        return res(ctx.status(500), ctx.json({}));
       })
     );
 
-    render(<PrepareButton />, {}, { csrfToken, prepareUrl: urls.prepare });
+    render(<PrepareButton csrfToken={csrfToken} prepareUrl={prepareUrl} />);
 
     expect(screen.getByRole("button")).toHaveTextContent("Publish");
 
@@ -157,8 +156,8 @@ describe("<PrepareButton />", () => {
     );
     await waitFor(() =>
       expect(toastError).toHaveBeenCalledWith({
-        message: "AxiosError: Request failed with status code 500",
-        prepareUrl: urls.prepare,
+        message: "Error",
+        prepareUrl,
         toastId: "PrepareButton",
         url: "http://localhost/",
       })

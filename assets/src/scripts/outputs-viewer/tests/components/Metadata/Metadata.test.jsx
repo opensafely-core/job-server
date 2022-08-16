@@ -5,7 +5,7 @@ import { render, screen } from "../../test-utils";
 
 describe("<Metadata />", () => {
   it("show metadata", () => {
-    render(<Metadata file={pngFile} />);
+    render(<Metadata {...pngFile} />);
 
     // File link
     expect(screen.getByRole("link").href).toBe(
@@ -28,7 +28,7 @@ describe("<Metadata />", () => {
     // eslint-disable-next-line no-console
     console.error = jest.fn();
 
-    render(<Metadata file={{ ...pngFile, size: null }} />);
+    render(<Metadata {...pngFile} size={0} />);
 
     // File link
     expect(screen.getByRole("link").href).toBe(

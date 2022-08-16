@@ -12,7 +12,7 @@ describe("<NoPreview />", () => {
       )
     );
 
-    render(<NoPreview />, {}, { file: pngFile });
+    render(<NoPreview selectedFile={pngFile} />);
 
     await waitFor(
       () =>
@@ -22,7 +22,7 @@ describe("<NoPreview />", () => {
   });
 
   it("shows an error message", async () => {
-    const err = "There was an error";
+    const err = { message: "There was an error" };
 
     server.use(
       rest.get(`http://localhost${pngFile.url}`, (req, res, ctx) =>
@@ -30,13 +30,15 @@ describe("<NoPreview />", () => {
       )
     );
 
-    render(<NoPreview error={err} />, {}, { file: pngFile });
+    render(<NoPreview error={err} selectedFile={pngFile} />);
 
     await waitFor(
       () =>
         expect(screen.getByText("We cannot show a preview of this file."))
           .toBeVisible
     );
-    await waitFor(() => expect(screen.getByText(`Error: ${err}`)).toBeVisible);
+    await waitFor(
+      () => expect(screen.getByText(`Error: There was an error`)).toBeVisible
+    );
   });
 });

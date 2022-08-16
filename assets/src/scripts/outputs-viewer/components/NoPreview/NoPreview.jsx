@@ -4,7 +4,7 @@ import React from "react";
 function NoPreview({ error, selectedFile }) {
   return (
     <>
-      {error ? <p>Error: {error}</p> : null}
+      {error ? <p>Error: {error.message}</p> : null}
       <p>We cannot show a preview of this file.</p>
       <p className="mb-0">
         <a href={selectedFile.url} rel="noreferrer noopener" target="_blank">
@@ -18,7 +18,9 @@ function NoPreview({ error, selectedFile }) {
 export default NoPreview;
 
 NoPreview.propTypes = {
-  error: PropTypes.string,
+  error: PropTypes.shape({
+    message: PropTypes.string,
+  }),
 };
 
 NoPreview.defaultProps = {

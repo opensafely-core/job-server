@@ -41,7 +41,8 @@ function Viewer({ authToken, selectedFile, uuid }) {
 
   const incompatibleFileType = !canDisplay(selectedFile);
   const emptyData =
-    data && Object.keys(data).length === 0 && data.constructor === Object;
+    (data && Object.keys(data).length === 0 && data.constructor === Object) ||
+    data.size === 0;
 
   if (incompatibleFileType || emptyData) {
     return (
@@ -59,7 +60,7 @@ function Viewer({ authToken, selectedFile, uuid }) {
       )}
       {isImg(selectedFile) ? <Image data={data} /> : null}
       {isTxt(selectedFile) ? <Text data={data} /> : null}
-      {isJson(selectedFile) ? <Text data={JSON.stringify(data)} /> : null}
+      {isJson(selectedFile) ? <Text data={data} /> : null}
     </Wrapper>
   );
 }

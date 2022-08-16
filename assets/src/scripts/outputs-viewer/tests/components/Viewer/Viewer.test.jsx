@@ -19,47 +19,37 @@ import {
 import { screen, render, waitFor } from "../../test-utils";
 
 describe("<Viewer />", () => {
-  it("returns null if no file URL", async () => {
-    const { container } = render(<Viewer />, {}, { file: blankFile });
-    expect(container).toBeEmptyDOMElement();
-  });
-
   it("returns a loading state", async () => {
     server.use(
       rest.get(`http://localhost${htmlFile.url}`, (req, res, ctx) =>
         res.once(ctx.status(200), ctx.json(htmlExample))
       )
     );
-
-    render(<Viewer />, {}, { file: htmlFile });
+    render(<Viewer selectedFile={blankFile} />);
     await waitFor(() => expect(screen.getByText("Loading...")).toBeVisible());
   });
 
   it("returns <NoPreview /> for network error", async () => {
     console.error = jest.fn();
-
     server.use(
       rest.get(`http://localhost${htmlFile.url}`, (req, res) =>
         res.networkError("Failed to connect")
       )
     );
-
-    render(<Viewer />, {}, { file: htmlFile });
+    render(<Viewer selectedFile={htmlFile} />);
     await waitFor(() =>
-      expect(screen.getByText("Error: Network Error")).toBeVisible()
+      expect(screen.getByText("Error: Network request failed")).toBeVisible()
     );
   });
 
   it("returns <NoPreview /> for no data", async () => {
     console.error = jest.fn();
-
     server.use(
       rest.get(`http://localhost${htmlFile.url}`, (req, res, ctx) =>
         res.once(ctx.status(200), ctx.json())
       )
     );
-
-    render(<Viewer />, {}, { file: htmlFile });
+    render(<Viewer selectedFile={htmlFile} />);
     await waitFor(() =>
       expect(
         screen.getByText("We cannot show a preview of this file.")
@@ -69,14 +59,12 @@ describe("<Viewer />", () => {
 
   it("returns <NoPreview /> for invalid file type", async () => {
     console.error = jest.fn();
-
     server.use(
       rest.get(`http://localhost${jsFile.url}`, (req, res, ctx) =>
-        res.once(ctx.status(200), ctx.json())
+        res.once(ctx.status(200), ctx.json({}))
       )
     );
-
-    render(<Viewer />, {}, { file: jsFile });
+    render(<Viewer selectedFile={jsFile} />);
     await waitFor(() =>
       expect(
         screen.getByText("We cannot show a preview of this file.")
@@ -86,14 +74,12 @@ describe("<Viewer />", () => {
 
   it("returns <NoPreview /> for empty data", async () => {
     console.error = jest.fn();
-
     server.use(
       rest.get(`http://localhost${htmlFile.url}`, (req, res, ctx) =>
-        res.once(ctx.status(200), ctx.body({}))
+        res.once(ctx.status(200), ctx.body())
       )
     );
-
-    render(<Viewer />, {}, { file: htmlFile });
+    render(<Viewer selectedFile={htmlFile} />);
     await waitFor(() =>
       expect(
         screen.getByText("We cannot show a preview of this file.")
@@ -103,14 +89,12 @@ describe("<Viewer />", () => {
 
   it("returns <NoPreview /> for too large CSV", async () => {
     console.error = jest.fn();
-
     server.use(
       rest.get(`http://localhost${csvFile.url}`, (req, res, ctx) =>
         res.once(ctx.status(200), ctx.body(csvExample))
       )
     );
-
-    render(<Viewer />, {}, { file: { ...csvFile, size: 5000001 } });
+    render(<Viewer selectedFile={{ ...csvFile, size: 5000001 }} />);
     await waitFor(() =>
       expect(
         screen.getByText("We cannot show a preview of this file.")
@@ -124,8 +108,7 @@ describe("<Viewer />", () => {
         res.networkError("Failed to connect")
       )
     );
-
-    render(<Viewer />, {}, { file: pngFile });
+    render(<Viewer selectedFile={pngFile} />);
     await waitFor(() =>
       expect(
         screen.getByText("We cannot show a preview of this file.")
@@ -139,8 +122,7 @@ describe("<Viewer />", () => {
         res.once(ctx.status(200), ctx.json(csvExample))
       )
     );
-
-    render(<Viewer />, {}, { file: csvFile });
+    render(<Viewer selectedFile={csvFile} />);
     await waitFor(() => expect(screen.getByRole("table")).toBeVisible());
   });
 
@@ -150,12 +132,12 @@ describe("<Viewer />", () => {
         res.once(ctx.status(200), ctx.json(htmlExample))
       )
     );
-
-    const { container } = render(<Viewer />, {}, { file: htmlFile });
-
+    const { container } = render(<Viewer selectedFile={htmlFile} />);
     await waitFor(() => {
       const iframe = container.querySelector("iframe");
-      return expect(iframe.getAttribute("srcDoc")).toBe(htmlExample);
+      return expect(iframe.getAttribute("srcDoc")).toContain(
+        JSON.stringify(htmlExample)
+      );
     });
   });
 
@@ -169,9 +151,7 @@ describe("<Viewer />", () => {
         )
       )
     );
-
-    render(<Viewer />, {}, { file: pngFile });
-
+    render(<Viewer selectedFile={pngFile} />);
     await waitFor(() =>
       expect(screen.getByRole("img").src).toBe(`http://localhost/imgSrc`)
     );
@@ -183,23 +163,21 @@ describe("<Viewer />", () => {
         res.once(ctx.status(200), ctx.json(txtExample))
       )
     );
-
-    render(<Viewer />, {}, { file: txtFile });
-
-    await waitFor(() => expect(screen.getByText(txtExample)).toBeVisible());
+    render(<Viewer selectedFile={txtFile} />);
+    await waitFor(() =>
+      expect(screen.getByText(`"${txtExample}"`)).toBeVisible()
+    );
   });
 
   it("returns <Text /> for JSON", async () => {
     server.use(
       rest.get(`http://localhost${jsonFile.url}`, (req, res, ctx) =>
-        res.once(ctx.status(200), ctx.json(jsonExample))
+        res.once(ctx.status(200), ctx.json({ ...jsonExample }))
       )
     );
-
-    render(<Viewer />, {}, { file: jsonFile });
-
-    await waitFor(() =>
-      expect(screen.getByText(JSON.stringify(jsonExample))).toBeVisible()
-    );
+    render(<Viewer selectedFile={jsonFile} />);
+    await waitFor(() => {
+      expect(screen.getByText(JSON.stringify(jsonExample))).toBeVisible();
+    });
   });
 });

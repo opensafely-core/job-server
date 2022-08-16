@@ -79,7 +79,7 @@ export const blankFile = {
   user: "",
   date: "",
   sha256: "",
-  size: "",
+  size: 0,
   is_deleted: "",
   shortName: "",
 };

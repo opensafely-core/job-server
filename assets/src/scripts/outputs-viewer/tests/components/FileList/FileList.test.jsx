@@ -4,19 +4,27 @@ import React, { useState } from "react";
 import FileList from "../../../components/FileList/FileList";
 import { rest, server } from "../../__mocks__/server";
 import { csvFile, fileList, pngFile } from "../../helpers/files";
+import props from "../../helpers/props";
 import { render, screen, waitFor, history } from "../../test-utils";
 
 describe("<FileList />", () => {
   function FileListWrapper() {
     const [listVisible, setListVisible] = useState(false);
+    const [selectedFile, setSelectedFile] = useState(false);
     return (
-      <FileList listVisible={listVisible} setListVisible={setListVisible} />
+      <FileList
+        authToken={props.authToken}
+        filesUrl={props.filesUrl}
+        listVisible={listVisible}
+        setListVisible={setListVisible}
+        setSelectedFile={setSelectedFile}
+      />
     );
   }
 
   it("returns a loading state", async () => {
     server.use(
-      rest.get(`http://localhost/`, (req, res, ctx) =>
+      rest.get(props.filesUrl, (req, res, ctx) =>
         res.once(ctx.status(200), ctx.json({ files: ["hello", "world"] }))
       )
     );
@@ -30,7 +38,7 @@ describe("<FileList />", () => {
     console.error = jest.fn();
 
     server.use(
-      rest.get(`http://localhost/`, (req, res) =>
+      rest.get(props.filesUrl, (req, res) =>
         res.networkError("Failed to connect")
       )
     );
@@ -43,12 +51,6 @@ describe("<FileList />", () => {
   });
 
   it("returns a file list", async () => {
-    server.use(
-      rest.get(`http://localhost/`, (req, res, ctx) =>
-        res(ctx.status(200), ctx.json({ files: fileList }))
-      )
-    );
-
     render(<FileListWrapper />);
 
     await waitFor(() => {
@@ -60,12 +62,6 @@ describe("<FileList />", () => {
   });
 
   it("updates the history with the clicked file", async () => {
-    server.use(
-      rest.get(`http://localhost/`, (req, res, ctx) =>
-        res(ctx.status(200), ctx.json({ files: fileList }))
-      )
-    );
-
     render(<FileListWrapper />);
 
     await waitFor(() => {
@@ -81,12 +77,6 @@ describe("<FileList />", () => {
   });
 
   it("doesn't update if the click file is already showing", async () => {
-    server.use(
-      rest.get(`http://localhost/`, (req, res, ctx) =>
-        res(ctx.status(200), ctx.json({ files: fileList }))
-      )
-    );
-
     render(<FileListWrapper />);
 
     await waitFor(() => {
@@ -109,12 +99,6 @@ describe("<FileList />", () => {
   });
 
   it("sets the FileList height", async () => {
-    server.use(
-      rest.get(`http://localhost/`, (req, res, ctx) =>
-        res(ctx.status(200), ctx.json({ files: fileList }))
-      )
-    );
-
     const { container } = render(<FileListWrapper />);
 
     await waitFor(() => {
@@ -136,7 +120,7 @@ describe("<FileList />", () => {
 
   it("adds 17px to list height for horizontal scrollbar", async () => {
     server.use(
-      rest.get(`http://localhost/`, (req, res, ctx) =>
+      rest.get(props.filesUrl, (req, res, ctx) =>
         res(
           ctx.status(200),
           ctx.json({

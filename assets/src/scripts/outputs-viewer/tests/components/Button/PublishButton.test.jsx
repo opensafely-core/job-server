@@ -4,15 +4,12 @@ import React from "react";
 import PublishButton from "../../../components/Button/PublishButton";
 import * as toast from "../../../utils/toast";
 import { server, rest } from "../../__mocks__/server";
+import props, { publishUrl } from "../../helpers/props";
 import { render, screen, waitFor } from "../../test-utils";
 
 describe("<PublishButton />", () => {
   const mockResponse = jest.fn();
-  const urls = {
-    publish: "http://localhost/publish",
-    redirect: "http://localhost/prepare-redirect",
-  };
-  const csrfToken = "abc123";
+  const { csrfToken } = props;
 
   beforeEach(() => {
     /**
@@ -31,22 +28,13 @@ describe("<PublishButton />", () => {
   });
 
   it("shows the button", () => {
-    render(<PublishButton />, {}, { csrfToken, publishUrl: urls.publish });
+    render(<PublishButton csrfToken={csrfToken} publishUrl={publishUrl} />);
 
     expect(screen.getByRole("button")).toHaveTextContent("Publish");
   });
 
   it("triggers a mutation on click", async () => {
-    server.use(
-      rest.post(urls.publish, (req, res, ctx) => {
-        // eslint-disable-next-line no-underscore-dangle
-        expect(req.headers._headers["x-csrftoken"]).toBe(csrfToken);
-
-        return res(ctx.json({}));
-      })
-    );
-
-    render(<PublishButton />, {}, { csrfToken, publishUrl: urls.publish });
+    render(<PublishButton csrfToken={csrfToken} publishUrl={publishUrl} />);
 
     expect(screen.getByRole("button")).toHaveTextContent("Confirm Publish?");
 
@@ -65,7 +53,7 @@ describe("<PublishButton />", () => {
     jest.spyOn(toast, "toastError").mockImplementation(toastError);
 
     server.use(
-      rest.post(urls.publish, (req, res, ctx) => {
+      rest.post(publishUrl, (req, res, ctx) => {
         // eslint-disable-next-line no-underscore-dangle
         expect(req.headers._headers["x-csrftoken"]).toBe(csrfToken);
 
@@ -73,7 +61,7 @@ describe("<PublishButton />", () => {
       })
     );
 
-    render(<PublishButton />, {}, { csrfToken, publishUrl: urls.publish });
+    render(<PublishButton csrfToken={csrfToken} publishUrl={publishUrl} />);
 
     expect(screen.getByRole("button")).toHaveTextContent("Confirm Publish?");
 
@@ -84,8 +72,8 @@ describe("<PublishButton />", () => {
     );
     await waitFor(() =>
       expect(toastError).toHaveBeenCalledWith({
-        message: "Invalid user token",
-        publishUrl: urls.publish,
+        message: "Error: Invalid user token",
+        publishUrl,
         toastId: "PublishButton",
         url: "http://localhost/",
       })
@@ -99,15 +87,15 @@ describe("<PublishButton />", () => {
     jest.spyOn(toast, "toastError").mockImplementation(toastError);
 
     server.use(
-      rest.post(urls.publish, (req, res, ctx) => {
+      rest.post(publishUrl, (req, res, ctx) => {
         // eslint-disable-next-line no-underscore-dangle
         expect(req.headers._headers["x-csrftoken"]).toBe(csrfToken);
 
-        return res(ctx.status(500));
+        return res(ctx.status(500), ctx.json({}));
       })
     );
 
-    render(<PublishButton />, {}, { csrfToken, publishUrl: urls.publish });
+    render(<PublishButton csrfToken={csrfToken} publishUrl={publishUrl} />);
 
     expect(screen.getByRole("button")).toHaveTextContent("Confirm Publish?");
 
@@ -118,8 +106,8 @@ describe("<PublishButton />", () => {
     );
     await waitFor(() =>
       expect(toastError).toHaveBeenCalledWith({
-        message: "AxiosError: Request failed with status code 500",
-        publishUrl: urls.publish,
+        message: "Error",
+        publishUrl,
         toastId: "PublishButton",
         url: "http://localhost/",
       })

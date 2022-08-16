@@ -1,58 +1,58 @@
-/* eslint-disable no-console, import/no-extraneous-dependencies */
+/* eslint-disable no-console, import/no-extraneous-dependencies, react/prop-types */
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { render } from "@testing-library/react";
 import { createMemoryHistory } from "history";
 import React from "react";
 import { Router } from "react-router-dom";
-import { FilesProvider } from "../context/FilesProvider";
 
 export const history = createMemoryHistory();
 
-const createWrapper =
-  ({ filesContext } = {}) =>
-  // eslint-disable-next-line react/prop-types
-  ({ children }) => {
-    const queryClient = new QueryClient({
-      defaultOptions: {
-        queries: {
-          // ✅ turns retries off
-          retry: false,
-        },
+const createTestQueryClient = () =>
+  new QueryClient({
+    defaultOptions: {
+      queries: {
+        // ✅ turns retries off
+        retry: false,
       },
-      logger: {
-        log: console.log,
-        warn: console.warn,
-        // ✅ no more errors on the console
-        error: () => {},
-      },
-    });
+    },
+    logger: {
+      log: console.log,
+      warn: console.warn,
+      // ✅ no more errors on the console
+      error: () => {},
+    },
+  });
 
-    return (
-      <FilesProvider
-        initialValue={{
-          authToken: "",
-          basePath: "",
-          csrfToken: "",
-          filesUrl: "/",
-          prepareUrl: "",
-          publishUrl: "",
-          ...filesContext,
-        }}
-      >
-        <Router history={history}>
-          <QueryClientProvider client={queryClient}>
-            {children}
-          </QueryClientProvider>
-        </Router>
-      </FilesProvider>
-    );
+export function renderWithClient(ui) {
+  const testQueryClient = createTestQueryClient();
+  const { rerender, ...result } = render(
+    <QueryClientProvider client={testQueryClient}>{ui}</QueryClientProvider>
+  );
+  return {
+    ...result,
+    rerender: (rerenderUi) =>
+      rerender(
+        <QueryClientProvider client={testQueryClient}>
+          {rerenderUi}
+        </QueryClientProvider>
+      ),
   };
+}
 
-export const wrapper = createWrapper();
+export function createWrapper() {
+  const testQueryClient = createTestQueryClient();
+  return ({ children }) => (
+    <Router history={history}>
+      <QueryClientProvider client={testQueryClient}>
+        {children}
+      </QueryClientProvider>
+    </Router>
+  );
+}
 
-const customRender = (ui, options, filesContext) =>
+const customRender = (ui, options) =>
   render(ui, {
-    wrapper: createWrapper({ filesContext }),
+    wrapper: createWrapper(),
     ...options,
   });
 

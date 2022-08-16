@@ -10,7 +10,8 @@
     "test": "jest",
     "test:watch": "jest --watch",
     "test:coverage": "jest --coverage",
-    "test:single": "jest --watch --coverage --"
+    "test:single": "jest --watch --",
+    "test:single:coverage": "jest --watch --coverage --"
   },
   "devDependencies": {
     "@babel/preset-env": "^7.18.2",

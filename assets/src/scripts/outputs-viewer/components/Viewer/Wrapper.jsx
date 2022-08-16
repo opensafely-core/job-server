@@ -6,7 +6,7 @@ function Wrapper({ children, selectedFile }) {
   return (
     <div className="card">
       <div className="card-header">
-        <Metadata selectedFile={selectedFile} />
+        <Metadata {...selectedFile} />
       </div>
       <div className="card-body">{children}</div>
     </div>
