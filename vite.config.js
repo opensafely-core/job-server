@@ -98,7 +98,7 @@ const config = {
     environment: "jsdom",
     root: "./assets/src/scripts/outputs-viewer/",
     setupFiles: [
-      "assets/src/scripts/outputs-viewer/__tests__/jest-setup.js",
+      "assets/src/scripts/outputs-viewer/__tests__/test-setup.js",
       "window-resizeto/polyfill",
     ],
     coverage: {
