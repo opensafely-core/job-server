@@ -1,3 +1,4 @@
+import PropTypes from "prop-types";
 import React from "react";
 import useFile from "../../hooks/use-file";
 import {
@@ -8,6 +9,7 @@ import {
   isJson,
   isTxt,
 } from "../../utils/file-type-match";
+import { datasetProps, selectedFileProps } from "../../utils/props";
 import Iframe from "../Iframe/Iframe";
 import Image from "../Image/Image";
 import NoPreview from "../NoPreview/NoPreview";
@@ -66,3 +68,9 @@ function Viewer({ authToken, selectedFile, uuid }) {
 }
 
 export default Viewer;
+
+Viewer.propTypes = {
+  authToken: datasetProps.authToken.isRequired,
+  selectedFile: PropTypes.shape(selectedFileProps).isRequired,
+  uuid: PropTypes.number.isRequired,
+};

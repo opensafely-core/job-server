@@ -1,11 +1,12 @@
 import PropTypes from "prop-types";
 import React, { useLayoutEffect, useState } from "react";
 import useWindowSize from "../../hooks/use-window-size";
+import { selectedFileProps } from "../../utils/props";
 
-function Iframe({ data, selectedFile }) {
+function Iframe({ data, selectedFile: { name, url } }) {
   const windowSize = useWindowSize();
   const [frameHeight, setFrameHeight] = useState(0);
-  const id = encodeURIComponent(selectedFile.url).replace(/\W/g, "");
+  const id = encodeURIComponent(url).replace(/\W/g, "");
 
   useLayoutEffect(() => {
     if (document.getElementById(id)) {
@@ -29,9 +30,9 @@ function Iframe({ data, selectedFile }) {
       frameBorder="0"
       height={frameHeight}
       id={id}
-      src={selectedFile.url}
+      src={url}
       srcDoc={data}
-      title={selectedFile.name}
+      title={name}
       width="100%"
     />
   );
@@ -41,4 +42,8 @@ export default Iframe;
 
 Iframe.propTypes = {
   data: PropTypes.string.isRequired,
+  selectedFile: PropTypes.shape({
+    name: selectedFileProps.name.isRequired,
+    url: selectedFileProps.name.isRequired,
+  }).isRequired,
 };

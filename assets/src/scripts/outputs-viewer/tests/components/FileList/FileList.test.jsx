@@ -1,4 +1,4 @@
-/* eslint-disable no-console */
+/* eslint-disable no-console, no-unused-vars, react/prop-types */
 import userEvent from "@testing-library/user-event";
 import React, { useState } from "react";
 import FileList from "../../../components/FileList/FileList";

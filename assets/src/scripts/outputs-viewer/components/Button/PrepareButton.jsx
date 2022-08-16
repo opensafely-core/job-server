@@ -1,11 +1,11 @@
 import { useMutation } from "@tanstack/react-query";
-import PropTypes from "prop-types";
 import React from "react";
 import useFileList from "../../hooks/use-file-list";
+import { datasetProps } from "../../utils/props";
 import { toastDismiss, toastError } from "../../utils/toast";
 import Button from "./Button";
 
-function PrepareButton({ authToken, csrfToken, prepareUrl, filesUrl }) {
+function PrepareButton({ authToken, csrfToken, filesUrl, prepareUrl }) {
   const { data: fileList } = useFileList({ authToken, filesUrl });
   const toastId = "PrepareButton";
 
@@ -63,6 +63,8 @@ function PrepareButton({ authToken, csrfToken, prepareUrl, filesUrl }) {
 export default PrepareButton;
 
 PrepareButton.propTypes = {
-  csrfToken: PropTypes.string.isRequired,
-  prepareUrl: PropTypes.string.isRequired,
+  authToken: datasetProps.authToken.isRequired,
+  csrfToken: datasetProps.csrfToken.isRequired,
+  filesUrl: datasetProps.filesUrl.isRequired,
+  prepareUrl: datasetProps.prepareUrl.isRequired,
 };

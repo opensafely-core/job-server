@@ -5,14 +5,15 @@ import { FixedSizeList } from "react-window";
 import useFileList from "../../hooks/use-file-list";
 import useWindowSize from "../../hooks/use-window-size";
 import prettyFileSize from "../../utils/pretty-file-size";
+import { datasetProps } from "../../utils/props";
 import Filter from "./Filter";
 
 function FileList({
   authToken,
   filesUrl,
   listVisible,
-  setSelectedFile,
   setListVisible,
+  setSelectedFile,
 }) {
   const [files, setFiles] = useState([]);
   const [listHeight, setListHeight] = useState(0);
@@ -148,6 +149,9 @@ function FileList({
 export default FileList;
 
 FileList.propTypes = {
+  authToken: datasetProps.authToken.isRequired,
+  filesUrl: datasetProps.filesUrl.isRequired,
   listVisible: PropTypes.bool.isRequired,
   setListVisible: PropTypes.func.isRequired,
+  setSelectedFile: PropTypes.func.isRequired,
 };

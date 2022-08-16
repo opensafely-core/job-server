@@ -1,5 +1,6 @@
 import PropTypes from "prop-types";
 import React from "react";
+import { selectedFileProps } from "../../utils/props";
 
 function NoPreview({ error, selectedFile }) {
   return (
@@ -21,6 +22,7 @@ NoPreview.propTypes = {
   error: PropTypes.shape({
     message: PropTypes.string,
   }),
+  selectedFile: PropTypes.shape(selectedFileProps).isRequired,
 };
 
 NoPreview.defaultProps = {

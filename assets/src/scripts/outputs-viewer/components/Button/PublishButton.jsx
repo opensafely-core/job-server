@@ -1,6 +1,6 @@
 import { useMutation } from "@tanstack/react-query";
-import PropTypes from "prop-types";
 import React from "react";
+import { datasetProps } from "../../utils/props";
 import { toastDismiss, toastError } from "../../utils/toast";
 import Button from "./Button";
 
@@ -57,6 +57,6 @@ function PublishButton({ csrfToken, publishUrl }) {
 export default PublishButton;
 
 PublishButton.propTypes = {
-  csrfToken: PropTypes.string.isRequired,
-  publishUrl: PropTypes.string.isRequired,
+  csrfToken: datasetProps.csrfToken.isRequired,
+  publishUrl: datasetProps.publishUrl.isRequired,
 };

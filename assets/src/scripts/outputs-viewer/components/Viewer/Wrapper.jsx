@@ -1,5 +1,6 @@
 import PropTypes from "prop-types";
 import React from "react";
+import { selectedFileProps } from "../../utils/props";
 import Metadata from "../Metadata/Metadata";
 
 function Wrapper({ children, selectedFile }) {
@@ -17,4 +18,5 @@ export default Wrapper;
 
 Wrapper.propTypes = {
   children: PropTypes.node.isRequired,
+  selectedFile: PropTypes.shape(selectedFileProps).isRequired,
 };
