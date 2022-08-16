@@ -2,7 +2,6 @@ import { useMutation } from "@tanstack/react-query";
 import React from "react";
 import { datasetProps } from "../../utils/props";
 import { toastDismiss, toastError } from "../../utils/toast";
-import Button from "./Button";
 
 function PublishButton({ csrfToken, publishUrl }) {
   const toastId = "PublishButton";
@@ -23,7 +22,7 @@ function PublishButton({ csrfToken, publishUrl }) {
         throw new Error(err.detail);
       }
 
-      return response.json();
+      return response.text();
     },
     {
       mutationKey: "PUBLISH_RELEASE",
@@ -46,11 +45,17 @@ function PublishButton({ csrfToken, publishUrl }) {
   );
 
   return (
-    <Button
-      isLoading={mutation.isLoading}
-      onClickFn={() => mutation.mutate()}
-      text={{ default: "Confirm Publish?", loading: "Confirming…" }}
-    />
+    <button
+      className={`btn btn-${mutation.isLoading ? "secondary" : "primary"}`}
+      disabled={mutation.isLoading}
+      onClick={(e) => {
+        e.preventDefault();
+        return mutation.mutate();
+      }}
+      type="button"
+    >
+      {mutation.isLoading ? "Confirming…" : "Confirm Publish?"}
+    </button>
   );
 }
 

@@ -5,6 +5,7 @@ import { BrowserRouter } from "react-router-dom";
 import PrepareButton from "./components/Button/PrepareButton";
 import PublishButton from "./components/Button/PublishButton";
 import FileList from "./components/FileList/FileList";
+import Metadata from "./components/Metadata/Metadata";
 import Toast from "./components/Toast/Toast";
 import Viewer from "./components/Viewer/Viewer";
 import { datasetProps } from "./utils/props";
@@ -27,12 +28,7 @@ function App({
 }) {
   const uuid = Date.now();
   const [listVisible, setListVisible] = useState(true);
-  const [selectedFile, setSelectedFile] = useState({
-    date: Date.now(),
-    name: "",
-    size: 0,
-    url: "",
-  });
+  const [selectedFile, setSelectedFile] = useState();
 
   return (
     <BrowserRouter basename={basePath}>
@@ -72,12 +68,25 @@ function App({
             />
           </div>
           <div className="col-lg-9">
-            {selectedFile.name && (
-              <Viewer
-                authToken={authToken}
-                selectedFile={selectedFile}
-                uuid={uuid}
-              />
+            {selectedFile && (
+              <div className="card">
+                <Metadata
+                  fileDate={selectedFile.date}
+                  fileName={selectedFile.name}
+                  fileSize={selectedFile.size}
+                  fileUrl={selectedFile.url}
+                />
+                <div className="card-body">
+                  <Viewer
+                    authToken={authToken}
+                    fileName={selectedFile.name}
+                    fileShortName={selectedFile.shortName}
+                    fileSize={selectedFile.size}
+                    fileUrl={selectedFile.url}
+                    uuid={uuid}
+                  />
+                </div>
+              </div>
             )}
           </div>
         </div>

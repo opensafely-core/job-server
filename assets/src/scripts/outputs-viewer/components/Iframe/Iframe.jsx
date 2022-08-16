@@ -3,10 +3,10 @@ import React, { useLayoutEffect, useState } from "react";
 import useWindowSize from "../../hooks/use-window-size";
 import { selectedFileProps } from "../../utils/props";
 
-function Iframe({ data, selectedFile: { name, url } }) {
+function Iframe({ data, fileName, fileUrl }) {
   const windowSize = useWindowSize();
   const [frameHeight, setFrameHeight] = useState(0);
-  const id = encodeURIComponent(url).replace(/\W/g, "");
+  const id = encodeURIComponent(fileUrl).replace(/\W/g, "");
 
   useLayoutEffect(() => {
     if (document.getElementById(id)) {
@@ -30,9 +30,9 @@ function Iframe({ data, selectedFile: { name, url } }) {
       frameBorder="0"
       height={frameHeight}
       id={id}
-      src={url}
+      src={fileUrl}
       srcDoc={data}
-      title={name}
+      title={fileName}
       width="100%"
     />
   );
@@ -42,8 +42,6 @@ export default Iframe;
 
 Iframe.propTypes = {
   data: PropTypes.string.isRequired,
-  selectedFile: PropTypes.shape({
-    name: selectedFileProps.name.isRequired,
-    url: selectedFileProps.name.isRequired,
-  }).isRequired,
+  fileName: selectedFileProps.name.isRequired,
+  fileUrl: selectedFileProps.url.isRequired,
 };

@@ -1,6 +1,6 @@
+import { useQuery } from "@tanstack/react-query";
 import PropTypes from "prop-types";
 import React from "react";
-import useFile from "../../hooks/use-file";
 import {
   canDisplay,
   isCsv,
@@ -10,60 +10,85 @@ import {
   isTxt,
 } from "../../utils/file-type-match";
 import { datasetProps, selectedFileProps } from "../../utils/props";
+import { toastError } from "../../utils/toast";
 import Iframe from "../Iframe/Iframe";
 import Image from "../Image/Image";
 import NoPreview from "../NoPreview/NoPreview";
 import Table from "../Table/Table";
 import Text from "../Text/Text";
-import Wrapper from "./Wrapper";
 
-function Viewer({ authToken, selectedFile, uuid }) {
-  const { data, error, isLoading, isError } = useFile(
-    { authToken, selectedFile, uuid },
+function Viewer({
+  authToken,
+  fileName,
+  fileShortName,
+  fileSize,
+  fileUrl,
+  uuid,
+}) {
+  const { data, error, isLoading, isError } = useQuery(
+    ["FILE", fileUrl],
+    async () => {
+      // If we can't display the file type
+      // or the file size is too large (>20mb)
+      // don't try to return the data
+      if (!canDisplay(fileName) || fileSize > 20000000) return {};
+
+      // If the file is a CSV
+      // and the file size is too large (>5mb)
+      // don't try to return the data
+      if (isCsv(fileName) && fileSize > 5000000) return {};
+
+      // Combine file URL with UUID
+      const fileURL = `${fileUrl}?${uuid}`;
+
+      const response = await fetch(fileURL, {
+        headers: {
+          Authorization: authToken,
+        },
+      });
+
+      if (!response.ok) throw new Error();
+
+      // If the file is an image
+      // grab the blob and create a URL for the blob
+      if (isImg(fileName)) {
+        const blob = await response.blob();
+        return URL.createObjectURL(blob);
+      }
+
+      // Otherwise return the text of the data
+      return response.text();
+    },
     {
-      enabled: !!(selectedFile.url && canDisplay(selectedFile)),
+      onError: () => {
+        toastError({
+          fileUrl,
+          message: `${fileShortName} - Unable to load file`,
+          toastId: fileUrl,
+          url: document.location.href,
+        });
+      },
     }
   );
 
   if (isLoading) {
-    return (
-      <Wrapper selectedFile={selectedFile}>
-        <span>Loading...</span>
-      </Wrapper>
-    );
+    return <span>Loading...</span>;
   }
 
-  if (isError || !data) {
-    return (
-      <Wrapper selectedFile={selectedFile}>
-        <NoPreview error={error} selectedFile={selectedFile} />
-      </Wrapper>
-    );
-  }
-
-  const incompatibleFileType = !canDisplay(selectedFile);
-  const emptyData =
-    (data && Object.keys(data).length === 0 && data.constructor === Object) ||
-    data.size === 0;
-
-  if (incompatibleFileType || emptyData) {
-    return (
-      <Wrapper selectedFile={selectedFile}>
-        <NoPreview error={error} selectedFile={selectedFile} />
-      </Wrapper>
-    );
+  if (isError || !data || !canDisplay(fileName)) {
+    return <NoPreview error={error} fileUrl={fileUrl} />;
   }
 
   return (
-    <Wrapper selectedFile={selectedFile}>
-      {isCsv(selectedFile) ? <Table data={data} /> : null}
-      {isHtml(selectedFile) && (
-        <Iframe data={data} selectedFile={selectedFile} />
+    <>
+      {isCsv(fileName) ? <Table data={data} /> : null}
+      {isHtml(fileName) && (
+        <Iframe data={data} fileName={fileName} fileUrl={fileUrl} />
       )}
-      {isImg(selectedFile) ? <Image data={data} /> : null}
-      {isTxt(selectedFile) ? <Text data={data} /> : null}
-      {isJson(selectedFile) ? <Text data={data} /> : null}
-    </Wrapper>
+      {isImg(fileName) ? <Image data={data} /> : null}
+      {isTxt(fileName) ? <Text data={data} /> : null}
+      {isJson(fileName) ? <Text data={data} /> : null}
+    </>
   );
 }
 
@@ -71,6 +96,9 @@ export default Viewer;
 
 Viewer.propTypes = {
   authToken: datasetProps.authToken.isRequired,
-  selectedFile: PropTypes.shape(selectedFileProps).isRequired,
+  fileName: selectedFileProps.name.isRequired,
+  fileShortName: selectedFileProps.shortName.isRequired,
+  fileSize: selectedFileProps.size.isRequired,
+  fileUrl: selectedFileProps.url.isRequired,
   uuid: PropTypes.number.isRequired,
 };

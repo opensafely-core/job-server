@@ -3,7 +3,6 @@ import React from "react";
 import useFileList from "../../hooks/use-file-list";
 import { datasetProps } from "../../utils/props";
 import { toastDismiss, toastError } from "../../utils/toast";
-import Button from "./Button";
 
 function PrepareButton({ authToken, csrfToken, filesUrl, prepareUrl }) {
   const { data: fileList } = useFileList({ authToken, filesUrl });
@@ -52,11 +51,17 @@ function PrepareButton({ authToken, csrfToken, filesUrl, prepareUrl }) {
   const fileIds = fileList.map((f) => f.id);
 
   return (
-    <Button
-      isLoading={mutation.isLoading}
-      onClickFn={() => mutation.mutate({ fileIds })}
-      text={{ default: "Publish", loading: "Publishing…" }}
-    />
+    <button
+      className={`btn btn-${mutation.isLoading ? "secondary" : "primary"}`}
+      disabled={mutation.isLoading}
+      onClick={(e) => {
+        e.preventDefault();
+        return mutation.mutate({ fileIds });
+      }}
+      type="button"
+    >
+      {mutation.isLoading ? "Publishing…" : "Publish"}
+    </button>
   );
 }
 

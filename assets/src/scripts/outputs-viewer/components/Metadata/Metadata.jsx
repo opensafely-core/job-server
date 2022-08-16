@@ -1,65 +1,60 @@
-import PropTypes from "prop-types";
-import React, { useEffect, useState } from "react";
+import React from "react";
 import prettyFileSize from "../../utils/pretty-file-size";
+import { selectedFileProps } from "../../utils/props";
 
-function Metadata({ date, name, size, url }) {
-  const fileSize = prettyFileSize(size);
-  const [isValidDate, setIsValidDate] = useState();
+function Metadata({ fileDate, fileName, fileSize, fileUrl }) {
+  const fileDateValue = () => {
+    if (Date.parse(fileDate)) {
+      const getDate = new Date(fileDate);
 
-  useEffect(() => {
-    if (date !== "") {
-      setIsValidDate(true);
+      return {
+        absolute: getDate.toISOString(),
+        formatted: new Intl.DateTimeFormat("en-GB", {
+          timeZone: "UTC",
+          dateStyle: "short",
+          timeStyle: "short",
+        }).format(getDate),
+      };
     }
-  }, [date]);
-
-  let getDate;
-  let fileDateAbs;
-  let fileDate;
-
-  if (isValidDate) {
-    getDate = new Date(date);
-    fileDateAbs = getDate.toISOString();
-    fileDate = new Intl.DateTimeFormat("en-GB", {
-      timeZone: "UTC",
-      dateStyle: "short",
-      timeStyle: "short",
-    }).format(getDate);
-  }
+    return false;
+  };
 
   return (
-    <ul className="list-inline small text-monospace d-flex mb-0">
-      <li className="list-inline-item">
-        <a
-          className="file-link d-flex"
-          href={url}
-          rel="noreferrer noopener"
-          target="filePreview"
-        >
-          {name}
-        </a>
-      </li>
-      {isValidDate && (
-        <li className="list-inline-item ml-auto">
-          <div className="sr-only">Last modified at: </div>
-          <time
-            className="file-date"
-            dateTime={fileDateAbs}
-            title={fileDateAbs}
+    <div className="card-header">
+      <ul className="list-inline small text-monospace d-flex mb-0">
+        <li className="list-inline-item mr-auto">
+          <a
+            className="file-link d-flex"
+            href={fileUrl}
+            rel="noreferrer noopener"
+            target="filePreview"
           >
-            {fileDate}
-          </time>
+            {fileName}
+          </a>
         </li>
-      )}
-      <li className="list-inline-item spacer">{fileSize}</li>
-    </ul>
+        {fileDateValue() && (
+          <li className="list-inline-item">
+            <div className="sr-only">Last modified at: </div>
+            <time
+              className="file-date"
+              dateTime={fileDateValue().absolute}
+              title={fileDateValue().absolute}
+            >
+              {fileDateValue().formatted}
+            </time>
+          </li>
+        )}
+        <li className="list-inline-item spacer">{prettyFileSize(fileSize)}</li>
+      </ul>
+    </div>
   );
 }
 
 export default Metadata;
 
 Metadata.propTypes = {
-  date: PropTypes.string.isRequired,
-  name: PropTypes.string.isRequired,
-  size: PropTypes.number.isRequired,
-  url: PropTypes.string.isRequired,
+  fileDate: selectedFileProps.date.isRequired,
+  fileName: selectedFileProps.name.isRequired,
+  fileSize: selectedFileProps.size.isRequired,
+  fileUrl: selectedFileProps.url.isRequired,
 };
