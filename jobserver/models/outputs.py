@@ -126,6 +126,7 @@ class ReleaseFile(models.Model):
 
     created_at = models.DateTimeField(default=timezone.now)
     deleted_at = models.DateTimeField(null=True)
+    uploaded_at = models.DateTimeField(null=True)
 
     class Meta:
         constraints = [
