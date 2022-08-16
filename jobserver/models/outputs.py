@@ -121,6 +121,7 @@ class ReleaseFile(models.Model):
     path = models.TextField()
     # the sha256 hash of the file
     filehash = models.TextField()
+    size = models.IntegerField()  # bytes
 
     created_at = models.DateTimeField(default=timezone.now)
     deleted_at = models.DateTimeField(null=True)
@@ -141,6 +142,19 @@ class ReleaseFile(models.Model):
                 ),
             )
         ]
+
+    def __format__(self, format_spec):
+        match format_spec:
+            case "b":
+                return f"{self.size:,}b"
+            case "Kb":
+                value = round(self.size / 1024, 2)
+                return f"{value:,}Kb"
+            case "Mb":
+                value = round(self.size / (1024 * 1024), 2)
+                return f"{value:,}Mb"
+            case _:
+                return super().__format__(format_spec)
 
     def absolute_path(self):
         return absolute_file_path(self.path)
@@ -203,14 +217,6 @@ class ReleaseFile(models.Model):
     def is_deleted(self):
         """Has the file on disk been deleted?"""
         return not self.absolute_path().exists()
-
-    @property
-    def size(self):
-        """Returns size in Mb."""
-        try:
-            return self.absolute_path().stat().st_size / (1024 * 1024)
-        except Exception:
-            return 0
 
 
 class Snapshot(models.Model):

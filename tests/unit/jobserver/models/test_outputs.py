@@ -188,12 +188,17 @@ def test_releasefile_ulid():
     assert rfile.ulid.timestamp
 
 
-def test_releasefile_size():
-    release = ReleaseFactory(ReleaseUploadsFactory({"file1.txt": b"a" * 1024}))
+def test_releasefile_format():
+    release = ReleaseFactory(ReleaseUploadsFactory({"file1.txt": b"a"}))
+
     rfile = release.files.first()
-    assert rfile.size == pytest.approx(0.001, 0.1)
-    rfile.absolute_path().unlink()
-    assert rfile.size == 0
+    rfile.size = 3.2 * 1024 * 1024  # 3.2Mb
+    rfile.save()
+
+    assert f"{rfile:b}" == "3,355,443.2b"
+    assert f"{rfile:Kb}" == "3,276.8Kb"
+    assert f"{rfile:Mb}" == "3.2Mb"
+    assert f"{rfile}".startswith("ReleaseFile object")
 
 
 def test_snapshot_str():

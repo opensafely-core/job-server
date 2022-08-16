@@ -56,7 +56,7 @@ def notify_release_file_uploaded(rfile, channel="opensafely-releases"):
     if size < 1:  # pragma: no cover
         size = "<1"
 
-    message = f"{user_url} uploaded {file_url} ({size} Mb) to a {release_url} for {workspace_url} from `{release.backend.name}`"
+    message = f"{user_url} uploaded {file_url} ({rfile:Mb}) to a {release_url} for {workspace_url} from `{release.backend.name}`"
     slack.post(message, channel)
 
 

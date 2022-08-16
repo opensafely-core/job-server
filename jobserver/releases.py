@@ -145,6 +145,7 @@ def handle_file_upload(release, backend, user, upload, filename, **kwargs):
             name=filename,
             path=str(relative_path),
             filehash=calculated_hash,
+            size=absolute_path.stat().st_size,
             **kwargs,
         )
     except Exception:

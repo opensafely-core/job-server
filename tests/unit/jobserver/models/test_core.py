@@ -381,21 +381,22 @@ def test_jobrequest_runtime_success():
     assert job_request.runtime.seconds == 0
 
 
-def test_jobrequest_status_all_jobs_the_same(subtests):
-    status_groups = [
-        ["failed", "failed", "failed", "failed"],
-        ["pending", "pending", "pending", "pending"],
-        ["running", "running", "running", "running"],
-        ["succeeded", "succeeded", "succeeded", "succeeded"],
-    ]
-    for statuses in status_groups:
-        with subtests.test(statuses=statuses):
-            job_request = JobRequestFactory()
-            for status in statuses:
-                JobFactory(job_request=job_request, status=status)
+@pytest.mark.parametrize(
+    "statuses,expected",
+    [
+        (["failed", "failed", "failed", "failed"], "failed"),
+        (["pending", "pending", "pending", "pending"], "pending"),
+        (["running", "running", "running", "running"], "running"),
+        (["succeeded", "succeeded", "succeeded", "succeeded"], "succeeded"),
+    ],
+)
+def test_jobrequest_status_all_jobs_the_same(statuses, expected):
+    job_request = JobRequestFactory()
+    for status in statuses:
+        JobFactory(job_request=job_request, status=status)
 
-            jr = JobRequest.objects.get(pk=job_request.pk)
-            assert jr.status == statuses[0]
+    jr = JobRequest.objects.get(pk=job_request.pk)
+    assert jr.status == expected
 
 
 def test_jobrequest_status_running_in_job_statuses():
