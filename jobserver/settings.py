@@ -170,6 +170,7 @@ STATICFILES_DIRS = [
 STATIC_ROOT = os.path.join(BASE_DIR, "staticfiles")
 STATIC_URL = "/static/"
 
+DJANGO_VITE_DEV_SERVER_PORT = 5173
 DJANGO_VITE_ASSETS_PATH = "/static/"
 DJANGO_VITE_DEV_MODE = env.bool("DJANGO_VITE_DEV_MODE", default=False)
 DJANGO_VITE_MANIFEST_PATH = os.path.join(BASE_DIR, "staticfiles", "manifest.json")
@@ -292,7 +293,7 @@ CSP_INCLUDE_NONCE_IN = ["script-src", "script-src-elem"]
 if DJANGO_VITE_DEV_MODE:
     CSP_CONNECT_SRC = [
         "'self'",
-        "ws://localhost:3000/static/",
+        "ws://localhost:5173/static/",
         "https://plausible.io",
         "https://sentry.io",
     ]
@@ -300,7 +301,7 @@ if DJANGO_VITE_DEV_MODE:
     CSP_SCRIPT_SRC = CSP_SCRIPT_SRC_ELEM = [
         "'self'",
         "https://plausible.io",
-        "http://localhost:3000",
+        "http://localhost:5173",
     ]
     CSP_STYLE_SRC = CSP_STYLE_SRC_ELEM = ["'self'", "'unsafe-inline'"]
 

@@ -16,7 +16,7 @@
     "@testing-library/jest-dom": "^5.16.4",
     "@testing-library/react": "^12.1.5",
     "@testing-library/user-event": "^13.5.0",
-    "@vitejs/plugin-legacy": "^1.8.2",
+    "@vitejs/plugin-legacy": "^2.0.1",
     "@vitest/coverage-c8": "^0.22.0",
     "autoprefixer": "^10.4.8",
     "cssnano": "^5.1.13",
@@ -38,7 +38,7 @@
     "rollup-plugin-copy": "^3.4.0",
     "rollup-plugin-visualizer": "^5.7.1",
     "sass": "^1.54.4",
-    "vite": "2.9.12",
+    "vite": "3.0.8",
     "vitest": "^0.22.0",
     "window-resizeto": "^0.0.2"
   },
