@@ -1,6 +1,4 @@
-import axios from "axios";
-import { useQuery } from "react-query";
-import { useFiles } from "../context/FilesProvider";
+import { useQuery } from "@tanstack/react-query";
 import { toastError } from "../utils/toast";
 
 export function longestStartingSubstr(array) {
@@ -36,29 +34,25 @@ export function sortedFiles(files) {
   ];
 }
 
-function useFileList() {
-  const {
-    state: { filesUrl, authToken },
-  } = useFiles();
-
+function useFileList({ authToken, filesUrl }) {
   return useQuery(
-    "FILE_LIST",
-    async () =>
-      axios
-        .get(filesUrl, {
-          headers: {
-            Authorization: authToken,
-          },
-        })
-        .then((response) => response.data)
-        .catch((error) => {
-          throw error?.response?.data?.detail || error.message;
-        }),
+    ["FILE_LIST"],
+    async () => {
+      const response = await fetch(filesUrl, {
+        headers: {
+          Authorization: authToken,
+        },
+      });
+
+      if (!response.ok) throw new Error();
+
+      return response.json();
+    },
     {
       select: (data) => sortedFiles(data.files),
-      onError: (error) => {
+      onError: () => {
         toastError({
-          message: `${error}`,
+          message: "Unable to load files",
           toastId: filesUrl,
           filesUrl,
           url: document.location.href,

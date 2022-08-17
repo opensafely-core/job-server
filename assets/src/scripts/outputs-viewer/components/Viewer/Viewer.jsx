@@ -1,6 +1,6 @@
+import { useQuery } from "@tanstack/react-query";
+import PropTypes from "prop-types";
 import React from "react";
-import { useFiles } from "../../context/FilesProvider";
-import useFile from "../../hooks/use-file";
 import {
   canDisplay,
   isCsv,
@@ -9,60 +9,96 @@ import {
   isJson,
   isTxt,
 } from "../../utils/file-type-match";
+import { datasetProps, selectedFileProps } from "../../utils/props";
+import { toastError } from "../../utils/toast";
 import Iframe from "../Iframe/Iframe";
 import Image from "../Image/Image";
 import NoPreview from "../NoPreview/NoPreview";
 import Table from "../Table/Table";
 import Text from "../Text/Text";
-import Wrapper from "./Wrapper";
 
-function Viewer() {
-  const {
-    state: { file },
-  } = useFiles();
-  const { data, error, isLoading, isError } = useFile(file, {
-    enabled: !!(file.url && canDisplay(file)),
-  });
+function Viewer({
+  authToken,
+  fileName,
+  fileShortName,
+  fileSize,
+  fileUrl,
+  uuid,
+}) {
+  const { data, error, isLoading, isError } = useQuery(
+    ["FILE", fileUrl],
+    async () => {
+      // If we can't display the file type
+      // or the file size is too large (>20mb)
+      // don't try to return the data
+      if (!canDisplay(fileName) || fileSize > 20000000) return false;
 
-  if (!file.url) return null;
+      // If the file is a CSV
+      // and the file size is too large (>5mb)
+      // don't try to return the data
+      if (isCsv(fileName) && fileSize > 5000000) return false;
+
+      // Combine file URL with UUID
+      const fileURL = `${fileUrl}?${uuid}`;
+
+      const response = await fetch(fileURL, {
+        headers: {
+          Authorization: authToken,
+        },
+      });
+
+      if (!response.ok) throw new Error();
+
+      // If the file is an image
+      // grab the blob and create a URL for the blob
+      if (isImg(fileName)) {
+        const blob = await response.blob();
+        return URL.createObjectURL(blob);
+      }
+
+      // Otherwise return the text of the data
+      return response.text();
+    },
+    {
+      onError: () => {
+        toastError({
+          fileUrl,
+          message: `${fileShortName} - Unable to load file`,
+          toastId: fileUrl,
+          url: document.location.href,
+        });
+      },
+    }
+  );
 
   if (isLoading) {
-    return (
-      <Wrapper>
-        <span>Loading...</span>
-      </Wrapper>
-    );
+    return <span>Loading...</span>;
   }
 
-  if (isError || !data) {
-    return (
-      <Wrapper>
-        <NoPreview error={error} />
-      </Wrapper>
-    );
-  }
-
-  const incompatibleFileType = !canDisplay(file);
-  const emptyData =
-    data && Object.keys(data).length === 0 && data.constructor === Object;
-
-  if (incompatibleFileType || emptyData) {
-    return (
-      <Wrapper>
-        <NoPreview error={error} />
-      </Wrapper>
-    );
+  if (isError || !data || !canDisplay(fileName)) {
+    return <NoPreview error={error} fileUrl={fileUrl} />;
   }
 
   return (
-    <Wrapper>
-      {isCsv(file) ? <Table data={data} /> : null}
-      {isHtml(file) ? <Iframe data={data} /> : null}
-      {isImg(file) ? <Image data={data} /> : null}
-      {isTxt(file) ? <Text data={data} /> : null}
-      {isJson(file) ? <Text data={JSON.stringify(data)} /> : null}
-    </Wrapper>
+    <>
+      {isCsv(fileName) ? <Table data={data} /> : null}
+      {isHtml(fileName) && (
+        <Iframe data={data} fileName={fileName} fileUrl={fileUrl} />
+      )}
+      {isImg(fileName) ? <Image data={data} /> : null}
+      {isTxt(fileName) ? <Text data={data} /> : null}
+      {isJson(fileName) ? <Text data={data} /> : null}
+    </>
   );
 }
 
 export default Viewer;
+
+Viewer.propTypes = {
+  authToken: datasetProps.authToken.isRequired,
+  fileName: selectedFileProps.name.isRequired,
+  fileShortName: selectedFileProps.shortName.isRequired,
+  fileSize: selectedFileProps.size.isRequired,
+  fileUrl: selectedFileProps.url.isRequired,
+  uuid: PropTypes.number.isRequired,
+};
