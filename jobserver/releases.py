@@ -1,13 +1,13 @@
 import hashlib
 import io
 import zipfile
-from datetime import timedelta
+from datetime import datetime, timedelta, timezone
 from pathlib import Path
 
 from django.db import transaction
 from django.http import FileResponse
-from django.utils import timezone
 from django.utils.http import http_date
+from django.utils.timezone import now
 from furl import furl
 from rest_framework.exceptions import NotFound
 from rest_framework.response import Response
@@ -29,7 +29,7 @@ def build_hatch_token_and_url(*, backend, workspace, user, expiry=None):
     f.path.segments += ["workspace", workspace.name]
 
     if expiry is None:
-        expiry = timezone.now() + timedelta(minutes=30)
+        expiry = now() + timedelta(minutes=30)
 
     builder = AuthToken(
         url=f.url,
@@ -137,6 +137,8 @@ def handle_file_upload(release, backend, user, upload, filename, **kwargs):
     absolute_path.parent.mkdir(parents=True, exist_ok=True)
     absolute_path.write_bytes(data)
 
+    mtime = datetime.fromtimestamp(absolute_path.stat().st_mtime, tz=timezone.utc)
+
     try:
         rfile = ReleaseFile.objects.create(
             release=release,
@@ -145,6 +147,7 @@ def handle_file_upload(release, backend, user, upload, filename, **kwargs):
             name=filename,
             path=str(relative_path),
             filehash=calculated_hash,
+            mtime=mtime,
             size=absolute_path.stat().st_size,
             **kwargs,
         )
