@@ -504,7 +504,7 @@ def test_workspacedetail_authorized_honeycomb(rf):
     assert response.status_code == 200
     assert "Honeycomb" in response.rendered_content
     assert (
-        "workspace_name%22%2C%22op%22%3A%22%3D%22%2C%22value%22%3A%22workspace-329"
+        f"workspace_name%22%2C%22op%22%3A%22%3D%22%2C%22value%22%3A%22{workspace.name}"
         in response.rendered_content
     )
 

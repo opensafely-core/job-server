@@ -177,7 +177,7 @@ def test_jobdetail_with_core_developer(rf):
     assert "Honeycomb" in response.rendered_content
     assert "%22end_time%22%3A1655380800%2C" in response.rendered_content
     assert (
-        "workspace_name%22%2C%22op%22%3A%22%3D%22%2C%22value%22%3A%22workspace-246"
+        f"workspace_name%22%2C%22op%22%3A%22%3D%22%2C%22value%22%3A%22{job.job_request.workspace.name}"
         in response.rendered_content
     )
 
