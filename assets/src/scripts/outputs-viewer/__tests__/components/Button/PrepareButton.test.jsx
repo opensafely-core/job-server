@@ -12,7 +12,6 @@ import { render, screen, waitFor } from "../../test-utils";
 
 describe("<PrepareButton />", () => {
   const urls = {
-    prepare: "http://localhost/prepare",
     redirect: "http://localhost/prepare-redirect",
   };
 
@@ -69,15 +68,15 @@ describe("<PrepareButton />", () => {
   });
 
   it("triggers a mutation on click", async () => {
+    const user = userEvent.setup();
     vi.spyOn(useFileList, "default").mockImplementation(() => ({
       data: fileList,
     }));
 
     server.use(
-      rest.post(prepareUrl, (req, res, ctx) => {
-        // eslint-disable-next-line no-underscore-dangle
-        expect(req.headers._headers["x-csrftoken"]).toBe(csrfToken);
-        expect(req.body.file_ids).toEqual(fileIds);
+      rest.post(prepareUrl, async (req, res, ctx) => {
+        const jsonBody = await req.json();
+        await expect(jsonBody.file_ids).toEqual(fileIds);
 
         return res(
           ctx.json({
@@ -98,7 +97,7 @@ describe("<PrepareButton />", () => {
 
     expect(screen.getByRole("button")).toHaveTextContent("Publish");
 
-    userEvent.click(screen.getByRole("button"));
+    await user.click(screen.getByRole("button"));
 
     await waitFor(() =>
       expect(screen.getByRole("button")).toHaveTextContent("Publishing…")
@@ -107,6 +106,7 @@ describe("<PrepareButton />", () => {
   });
 
   it("show the JSON error message", async () => {
+    const user = userEvent.setup();
     const toastError = vi.fn();
     console.error = vi.fn();
 
@@ -117,10 +117,9 @@ describe("<PrepareButton />", () => {
     vi.spyOn(toast, "toastError").mockImplementation(toastError);
 
     server.use(
-      rest.post(prepareUrl, (req, res, ctx) => {
-        // eslint-disable-next-line no-underscore-dangle
-        expect(req.headers._headers["x-csrftoken"]).toBe(csrfToken);
-        expect(req.body.file_ids).toEqual(fileIds);
+      rest.post(prepareUrl, async (req, res, ctx) => {
+        const jsonBody = await req.json();
+        await expect(jsonBody.file_ids).toEqual(fileIds);
 
         return res(ctx.status(403), ctx.json({ detail: "Invalid user token" }));
       })
@@ -137,7 +136,7 @@ describe("<PrepareButton />", () => {
 
     expect(screen.getByRole("button")).toHaveTextContent("Publish");
 
-    userEvent.click(screen.getByRole("button"));
+    await user.click(screen.getByRole("button"));
 
     await waitFor(() =>
       expect(screen.getByRole("button")).toHaveTextContent("Publishing…")
@@ -153,6 +152,7 @@ describe("<PrepareButton />", () => {
   });
 
   it("show the server error message", async () => {
+    const user = userEvent.setup();
     const toastError = vi.fn();
     console.error = vi.fn();
 
@@ -163,10 +163,9 @@ describe("<PrepareButton />", () => {
     vi.spyOn(toast, "toastError").mockImplementation(toastError);
 
     server.use(
-      rest.post(prepareUrl, (req, res, ctx) => {
-        // eslint-disable-next-line no-underscore-dangle
-        expect(req.headers._headers["x-csrftoken"]).toBe(csrfToken);
-        expect(req.body.file_ids).toEqual(fileIds);
+      rest.post(prepareUrl, async (req, res, ctx) => {
+        const jsonBody = await req.json();
+        await expect(jsonBody.file_ids).toEqual(fileIds);
 
         return res(ctx.status(500), ctx.json({}));
       })
@@ -183,7 +182,7 @@ describe("<PrepareButton />", () => {
 
     expect(screen.getByRole("button")).toHaveTextContent("Publish");
 
-    userEvent.click(screen.getByRole("button"));
+    await user.click(screen.getByRole("button"));
 
     await waitFor(() =>
       expect(screen.getByRole("button")).toHaveTextContent("Publishing…")

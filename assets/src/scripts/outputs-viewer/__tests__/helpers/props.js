@@ -1,5 +1,5 @@
-export const prepareUrl = "http://localhost/prepare-url";
-export const publishUrl = "http://localhost/publish-url";
+export const prepareUrl = "http://localhost:3000/prepare-url";
+export const publishUrl = "http://localhost:3000/publish-url";
 export const uuid = Date.now();
 
 export default {
