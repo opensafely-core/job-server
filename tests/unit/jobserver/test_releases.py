@@ -1,3 +1,4 @@
+import hashlib
 import random
 import string
 import zipfile
@@ -111,6 +112,55 @@ def test_build_spa_base_url():
     base = releases.build_spa_base_url("/a/page/with/file.csv", "with/file.csv")
 
     assert base == "/a/page/"
+
+
+def test_create_release_new_style_reupload():
+    uploads = ReleaseUploadsFactory({"file1.txt": b"test"})
+    release = ReleaseFactory(uploads)
+
+    filehash = hashlib.sha256(b"test").hexdigest()
+    files = [
+        {
+            "name": "file1.txt",
+            "path": "path/to/file1.txt",
+            "url": "",
+            "size": 4,
+            "sha256": filehash,
+            "mtime": "2022-08-17T13:37Z",
+            "metadata": {},
+        }
+    ]
+
+    with pytest.raises(releases.ReleaseFileAlreadyExists):
+        releases.create_release(
+            release.workspace, release.backend, release.created_by, files
+        )
+
+
+def test_create_release_new_style_success():
+    backend = BackendFactory()
+    workspace = WorkspaceFactory()
+    user = UserFactory()
+    files = [
+        {
+            "name": "file1.txt",
+            "path": "path/to/file1.txt",
+            "url": "",
+            "size": 7,
+            "sha256": "hash",
+            "mtime": "2022-08-17T13:37Z",
+            "metadata": {},
+        }
+    ]
+
+    release = releases.create_release(workspace, backend, user, files)
+
+    assert release.requested_files == files
+    assert release.files.count() == 1
+
+    rfile = release.files.first()
+    rfile.filehash == "hash"
+    rfile.size == 7
 
 
 def test_create_release_success():
