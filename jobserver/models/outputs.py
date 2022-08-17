@@ -122,6 +122,7 @@ class ReleaseFile(models.Model):
     # the sha256 hash of the file
     filehash = models.TextField()
     size = models.IntegerField()  # bytes
+    mtime = models.DateTimeField(null=True)
 
     created_at = models.DateTimeField(default=timezone.now)
     deleted_at = models.DateTimeField(null=True)
