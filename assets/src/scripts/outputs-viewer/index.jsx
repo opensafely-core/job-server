@@ -1,6 +1,7 @@
 import * as Sentry from "@sentry/react";
 import React from "react";
-import ReactDOM from "react-dom";
+import { createRoot } from "react-dom/client";
+import { BrowserRouter } from "react-router-dom";
 import App from "./App";
 import "../../styles/outputs-viewer.scss";
 
@@ -10,10 +11,12 @@ Sentry.init({
 });
 
 const element = document.getElementById("outputsSPA");
+const root = createRoot(element);
 
-ReactDOM.render(
+root.render(
   <React.StrictMode>
-    <App {...element.dataset} element={element} />
-  </React.StrictMode>,
-  element
+    <BrowserRouter basename={element.basePath}>
+      <App {...element.dataset} element={element} />
+    </BrowserRouter>
+  </React.StrictMode>
 );
