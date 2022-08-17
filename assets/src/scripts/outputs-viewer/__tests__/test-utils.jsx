@@ -2,10 +2,10 @@
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { render } from "@testing-library/react";
 import { createMemoryHistory } from "history";
-import React from "react";
-import { Router } from "react-router-dom";
+import * as React from "react";
+import { unstable_HistoryRouter as HistoryRouter } from "react-router-dom";
 
-export const history = createMemoryHistory();
+export const history = createMemoryHistory({ window });
 
 const createTestQueryClient = () =>
   new QueryClient({
@@ -42,11 +42,11 @@ export function renderWithClient(ui) {
 export function createWrapper() {
   const testQueryClient = createTestQueryClient();
   return ({ children }) => (
-    <Router history={history}>
+    <HistoryRouter history={history}>
       <QueryClientProvider client={testQueryClient}>
         {children}
       </QueryClientProvider>
-    </Router>
+    </HistoryRouter>
   );
 }
 

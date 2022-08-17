@@ -18,25 +18,27 @@ describe("<Filter />", () => {
   });
 
   it("filters on text input", async () => {
+    const user = userEvent.setup();
     render(<Filter files={fileList} listRef={listRef} setFiles={setFiles} />);
 
     const searchbox = screen.getByRole("searchbox", { name: "Find a file…" });
     expect(searchbox).toBeVisible();
-    userEvent.type(searchbox, "html");
+    await user.type(searchbox, "html");
 
     await waitFor(() => expect(setFiles).toHaveBeenLastCalledWith([htmlFile]));
   });
 
   it("clears filter on clearing of input", async () => {
+    const user = userEvent.setup();
     render(<Filter files={fileList} listRef={listRef} setFiles={setFiles} />);
 
     const searchbox = screen.getByRole("searchbox", { name: "Find a file…" });
     expect(searchbox).toBeVisible();
-    userEvent.type(searchbox, "html");
+    await user.type(searchbox, "html");
 
     await waitFor(() => expect(setFiles).toHaveBeenLastCalledWith([htmlFile]));
 
-    userEvent.clear(searchbox);
+    await user.clear(searchbox);
 
     await waitFor(() => expect(setFiles).toHaveBeenLastCalledWith(fileList));
   });

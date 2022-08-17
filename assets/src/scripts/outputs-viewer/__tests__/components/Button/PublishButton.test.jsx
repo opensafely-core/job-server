@@ -35,11 +35,12 @@ describe("<PublishButton />", () => {
   });
 
   it("triggers a mutation on click", async () => {
+    const user = userEvent.setup();
     render(<PublishButton csrfToken={csrfToken} publishUrl={publishUrl} />);
 
     expect(screen.getByRole("button")).toHaveTextContent("Confirm Publish?");
 
-    userEvent.click(screen.getByRole("button"));
+    await user.click(screen.getByRole("button"));
 
     await waitFor(() =>
       expect(screen.getByRole("button")).toHaveTextContent("Confirming…")
@@ -48,25 +49,23 @@ describe("<PublishButton />", () => {
   });
 
   it("show the JSON error message", async () => {
+    const user = userEvent.setup();
     const toastError = vi.fn();
     console.error = vi.fn();
 
     vi.spyOn(toast, "toastError").mockImplementation(toastError);
 
     server.use(
-      rest.post(publishUrl, (req, res, ctx) => {
-        // eslint-disable-next-line no-underscore-dangle
-        expect(req.headers._headers["x-csrftoken"]).toBe(csrfToken);
-
-        return res(ctx.status(403), ctx.json({ detail: "Invalid user token" }));
-      })
+      rest.post(publishUrl, (req, res, ctx) =>
+        res(ctx.status(403), ctx.json({ detail: "Invalid user token" }))
+      )
     );
 
     render(<PublishButton csrfToken={csrfToken} publishUrl={publishUrl} />);
 
     expect(screen.getByRole("button")).toHaveTextContent("Confirm Publish?");
 
-    userEvent.click(screen.getByRole("button"));
+    await user.click(screen.getByRole("button"));
 
     await waitFor(() =>
       expect(screen.getByRole("button")).toHaveTextContent("Confirming…")
@@ -82,25 +81,23 @@ describe("<PublishButton />", () => {
   });
 
   it("show the server error message", async () => {
+    const user = userEvent.setup();
     const toastError = vi.fn();
     console.error = vi.fn();
 
     vi.spyOn(toast, "toastError").mockImplementation(toastError);
 
     server.use(
-      rest.post(publishUrl, (req, res, ctx) => {
-        // eslint-disable-next-line no-underscore-dangle
-        expect(req.headers._headers["x-csrftoken"]).toBe(csrfToken);
-
-        return res(ctx.status(500), ctx.json({}));
-      })
+      rest.post(publishUrl, (req, res, ctx) =>
+        res(ctx.status(500), ctx.json({}))
+      )
     );
 
     render(<PublishButton csrfToken={csrfToken} publishUrl={publishUrl} />);
 
     expect(screen.getByRole("button")).toHaveTextContent("Confirm Publish?");
 
-    userEvent.click(screen.getByRole("button"));
+    await user.click(screen.getByRole("button"));
 
     await waitFor(() =>
       expect(screen.getByRole("button")).toHaveTextContent("Confirming…")

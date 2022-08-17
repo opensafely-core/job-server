@@ -1,6 +1,6 @@
 import PropTypes from "prop-types";
 import React, { createRef, useEffect, useRef, useState } from "react";
-import { useHistory, useLocation } from "react-router-dom";
+import { useNavigate, useLocation } from "react-router-dom";
 import { FixedSizeList } from "react-window";
 import useFileList from "../../hooks/use-file-list";
 import useWindowSize from "../../hooks/use-window-size";
@@ -20,7 +20,7 @@ function FileList({
   const [fileIndex, setFileIndex] = useState(null);
 
   const { data, isError, isLoading } = useFileList({ authToken, filesUrl });
-  const history = useHistory();
+  const navigate = useNavigate();
   const location = useLocation();
 
   const windowSize = useWindowSize();
@@ -100,7 +100,7 @@ function FileList({
       return null;
     }
 
-    history.push(itemName);
+    navigate(itemName);
     return setSelectedFile(item);
   };
 

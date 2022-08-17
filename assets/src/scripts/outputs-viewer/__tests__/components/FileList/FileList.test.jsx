@@ -63,6 +63,7 @@ describe("<FileList />", () => {
   });
 
   it("updates the history with the clicked file", async () => {
+    const user = userEvent.setup();
     render(<FileListWrapper />);
 
     await waitFor(() => {
@@ -72,12 +73,14 @@ describe("<FileList />", () => {
       );
     });
 
-    userEvent.click(screen.queryAllByRole("link")[0]);
+    await user.click(screen.queryAllByRole("link")[0]);
 
     expect(history.location.pathname).toBe(`/${csvFile.name}`);
   });
 
   it("doesn't update if the click file is already showing", async () => {
+    const user = userEvent.setup();
+    history.replace("/");
     render(<FileListWrapper />);
 
     await waitFor(() => {
@@ -86,16 +89,16 @@ describe("<FileList />", () => {
         fileList[0].shortName
       );
     });
-    userEvent.click(screen.queryAllByRole("link")[0]);
 
-    expect(history.location.pathname).toBe(`/${pngFile.name}`);
+    await user.click(screen.getByText(csvFile.shortName));
+    expect(history.location.pathname).toBe(`/${csvFile.name}`);
 
-    userEvent.click(screen.queryAllByRole("link")[0]);
-    expect(history.location.pathname).toBe(`/${pngFile.name}`);
+    await user.click(screen.getByText(csvFile.shortName));
+    await expect(history.location.pathname).toBe(`/${csvFile.name}`);
     expect(history.index).toBe(2);
 
-    userEvent.click(screen.queryAllByRole("link")[0]);
-    expect(history.location.pathname).toBe(`/${pngFile.name}`);
+    await user.click(screen.getByText(csvFile.shortName));
+    expect(history.location.pathname).toBe(`/${csvFile.name}`);
     expect(history.index).toBe(2);
   });
 

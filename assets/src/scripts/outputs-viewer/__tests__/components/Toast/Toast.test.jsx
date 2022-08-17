@@ -45,6 +45,8 @@ describe("<Toast />", () => {
   });
 
   it("dismisses the toast", async () => {
+    const user = userEvent.setup();
+
     toast("This is a notification");
     render(<Toast />);
 
@@ -57,7 +59,7 @@ describe("<Toast />", () => {
       screen.getByRole("button").classList.contains("btn-outline-secondary")
     ).toBe(true);
 
-    userEvent.click(screen.getByRole("button"));
+    await user.click(screen.getByRole("button"));
     expect(toast.dismiss).toHaveBeenCalledTimes(1);
   });
 });
