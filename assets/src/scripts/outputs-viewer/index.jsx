@@ -15,7 +15,7 @@ const root = createRoot(element);
 
 root.render(
   <React.StrictMode>
-    <BrowserRouter basename={element.basePath}>
+    <BrowserRouter basename={element.dataset.basePath}>
       <App {...element.dataset} element={element} />
     </BrowserRouter>
   </React.StrictMode>
