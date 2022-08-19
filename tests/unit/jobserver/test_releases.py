@@ -1,6 +1,5 @@
 import hashlib
-import random
-import string
+import io
 import zipfile
 from datetime import timedelta
 
@@ -11,14 +10,8 @@ from django.utils import timezone
 from jobserver import releases
 from jobserver.models import ReleaseFile
 from jobserver.models.outputs import absolute_file_path
-from tests.factories import (
-    BackendFactory,
-    ReleaseFactory,
-    ReleaseFileFactory,
-    ReleaseUploadsFactory,
-    UserFactory,
-    WorkspaceFactory,
-)
+from tests.factories import BackendFactory, UserFactory, WorkspaceFactory
+from tests.factories.releases import ReleaseFileFactory
 
 from ...utils import minutes_ago
 
@@ -52,29 +45,27 @@ def test_build_hatch_token_and_url_with_custom_expires():
     )
 
 
-def test_build_outputs_zip():
-    release = ReleaseFactory(ReleaseUploadsFactory(["test1"]))
-
+def test_build_outputs_zip(release):
     zf = releases.build_outputs_zip(release.files.all(), None)
 
     with zipfile.ZipFile(zf, "r") as zip_obj:
         assert zip_obj.testzip() is None
 
-        assert zip_obj.namelist() == ["test1"]
+        assert zip_obj.namelist() == ["file1.txt"]
 
         with open(release.files.first().absolute_path(), "rb") as f:
             original_contents = f.read()
 
-        with zip_obj.open("test1") as f:
+        with zip_obj.open("file1.txt") as f:
             zipped_contents = f.read()
 
         # check the zipped files contents match the original files contents
         assert zipped_contents == original_contents
 
 
-def test_build_outputs_zip_with_missing_files():
-    paths = ["test1", "test2", "test3", "test4", "test5"]
-    release = ReleaseFactory(ReleaseUploadsFactory(paths))
+def test_build_outputs_zip_with_missing_files(build_release_with_files):
+    names = ["test1", "test2", "test3", "test4", "test5"]
+    release = build_release_with_files(names)
 
     files = release.files.all()
 
@@ -87,7 +78,7 @@ def test_build_outputs_zip_with_missing_files():
     with zipfile.ZipFile(zf, "r") as zip_obj:
         assert zip_obj.testzip() is None
 
-        assert zip_obj.namelist() == paths
+        assert zip_obj.namelist() == names
 
         # check ReleaseFile on-disk contents matches their zipped contents
         for name in ["test1", "test3", "test5"]:
@@ -115,17 +106,15 @@ def test_build_spa_base_url():
 
 
 def test_create_release_new_style_reupload():
-    uploads = ReleaseUploadsFactory({"file1.txt": b"test"})
-    release = ReleaseFactory(uploads)
+    rfile = ReleaseFileFactory(name="file1.txt", filehash="hash")
 
-    filehash = hashlib.sha256(b"test").hexdigest()
     files = [
         {
             "name": "file1.txt",
             "path": "path/to/file1.txt",
             "url": "",
             "size": 4,
-            "sha256": filehash,
+            "sha256": "hash",
             "mtime": "2022-08-17T13:37Z",
             "metadata": {},
         }
@@ -133,7 +122,10 @@ def test_create_release_new_style_reupload():
 
     with pytest.raises(releases.ReleaseFileAlreadyExists):
         releases.create_release(
-            release.workspace, release.backend, release.created_by, files
+            rfile.release.workspace,
+            rfile.release.backend,
+            rfile.release.created_by,
+            files,
         )
 
 
@@ -173,48 +165,56 @@ def test_create_release_success():
 
 
 def test_create_release_reupload():
-    uploads = ReleaseUploadsFactory({"file1.txt": b"test"})
-    release = ReleaseFactory(uploads)
-    rfile = release.files.first()
-    files = {"file1.txt": rfile.filehash}
+    rfile = ReleaseFileFactory(name="file1.txt", filehash="hash")
+    files = {"file1.txt": "hash"}
     with pytest.raises(releases.ReleaseFileAlreadyExists):
         releases.create_release(
-            release.workspace, release.backend, release.created_by, files
+            rfile.release.workspace,
+            rfile.release.backend,
+            rfile.release.created_by,
+            files,
         )
 
 
-def test_handle_release_upload_file_created():
-    uploads = ReleaseUploadsFactory({"file1.txt": b"test"})
-    release = ReleaseFactory(uploads, uploaded=False)
+def test_handle_release_upload_file_created(build_release, file_content):
+    release = build_release(["file1.txt"])
+
+    filehash = hashlib.sha256(file_content).hexdigest()
+    stream = io.BytesIO(file_content)
 
     rfile = releases.handle_file_upload(
         release,
         release.backend,
         release.created_by,
-        uploads[0].stream,
-        uploads[0].filename,
+        stream,
+        "file1.txt",
     )
     assert rfile.name == "file1.txt"
     assert rfile.path == f"{release.workspace.name}/releases/{release.id}/file1.txt"
-    assert rfile.filehash == uploads[0].filehash
+    assert rfile.filehash == filehash
 
 
-def test_handle_release_upload_exists_in_db_and_not_on_disk():
-    uploads = ReleaseUploadsFactory({"file1.txt": b"test"})
-    existing = ReleaseFileFactory(uploads[0])
-    existing.uploaded_at = None
-    existing.save()
+def test_handle_release_upload_exists_in_db_and_not_on_disk(file_content):
+    filehash = hashlib.sha256(file_content).hexdigest()
+    stream = io.BytesIO(file_content)
+
+    existing = ReleaseFileFactory(
+        name="file1.txt",
+        path="foo/file1.txt",
+        filehash=filehash,
+        uploaded_at=None,
+    )
 
     # check out test setup is correct
-    assert existing.filehash == uploads[0].filehash
+    assert existing.filehash == filehash
 
     # upload same files
     releases.handle_file_upload(
         existing.release,
         existing.release.backend,
         existing.created_by,
-        uploads[0].stream,
-        uploads[0].filename,
+        stream,
+        "file1.txt",
     )
 
     existing.refresh_from_db()
@@ -223,12 +223,9 @@ def test_handle_release_upload_exists_in_db_and_not_on_disk():
     assert existing.absolute_path().exists()
 
 
-def test_handle_release_upload_exists_in_db_and_on_disk():
-    uploads = ReleaseUploadsFactory({"file1.txt": b"test"})
-    existing = ReleaseFileFactory(uploads[0])
-
-    # check out test setup is correct
-    assert existing.filehash == uploads[0].filehash
+def test_handle_release_upload_exists_in_db_and_on_disk(release):
+    existing = release.files.first()
+    stream = io.BytesIO(existing.absolute_path().read_bytes())
 
     # upload same files
     with pytest.raises(releases.ReleaseFileAlreadyExists):
@@ -236,34 +233,33 @@ def test_handle_release_upload_exists_in_db_and_on_disk():
             existing.release,
             existing.release.backend,
             existing.created_by,
-            uploads[0].stream,
-            uploads[0].filename,
+            stream,
+            existing.name,
         )
 
 
-def test_handle_release_upload_exists_with_incorrect_filehash():
-    uploads = ReleaseUploadsFactory({"file1.txt": b"test"})
-    existing = ReleaseFileFactory(uploads[0])
+def test_handle_release_upload_exists_with_incorrect_filehash(file_content):
+    stream = io.BytesIO(file_content)
 
-    existing.absolute_path().unlink()
-    existing.uploaded_at = None
-    existing.filehash = "test"
-    existing.save(update_fields=["filehash", "uploaded_at"])
-    existing.refresh_from_db()
+    existing = ReleaseFileFactory(
+        name="file1.txt",
+        path="foo/file1.txt",
+        filehash="hash",
+        uploaded_at=None,
+    )
 
     with pytest.raises(Exception, match="^Contents of uploaded"):
         releases.handle_file_upload(
             existing.release,
             existing.release.backend,
             existing.created_by,
-            uploads[0].stream,
-            uploads[0].filename,
+            stream,
+            "file1.txt",
         )
 
 
-def test_handle_release_upload_db_error(monkeypatch):
-    uploads = ReleaseUploadsFactory({"file1.txt": b"test"})
-    release = ReleaseFactory(uploads, uploaded=False)
+def test_handle_release_upload_db_error(monkeypatch, build_release):
+    release = build_release(["file1.txt"])
 
     monkeypatch.setattr(ReleaseFile.objects, "create", raise_error)
     with pytest.raises(DatabaseError):
@@ -271,12 +267,12 @@ def test_handle_release_upload_db_error(monkeypatch):
             release,
             release.backend,
             release.created_by,
-            uploads[0].stream,
-            uploads[0].filename,
+            io.BytesIO(b"test"),
+            "file1.txt",
         )
 
     # check the file has been deleted due to the error
-    rpath = f"{release.workspace.name}/releases/{release.id}/{uploads[0].filename}"
+    rpath = f"{release.workspace.name}/releases/{release.id}/file1.txt"
     assert not absolute_file_path(rpath).exists()
 
 
@@ -286,10 +282,16 @@ def test_workspace_files_no_releases():
     assert releases.workspace_files(workspace) == {}
 
 
-def test_workspace_files_one_release():
+def test_workspace_files_one_release(build_release):
     backend = BackendFactory(slug="backend")
-    uploads = ReleaseUploadsFactory(["test1", "test2", "test3"])
-    release = ReleaseFactory(uploads, backend=backend)
+    names = ["test1", "test2", "test3"]
+    release = build_release(names, backend=backend)
+    for name in names:
+        ReleaseFileFactory(
+            release=release,
+            workspace=release.workspace,
+            name=name,
+        )
 
     output = releases.workspace_files(release.workspace)
 
@@ -300,51 +302,46 @@ def test_workspace_files_one_release():
     }
 
 
-def test_workspace_files_many_releases(freezer):
+def test_workspace_files_many_releases(freezer, build_release_with_files):
     now = timezone.now()
 
     backend1 = BackendFactory(slug="backend1")
     backend2 = BackendFactory(slug="backend2")
     workspace = WorkspaceFactory()
 
-    def uploads(files):
-        """Generate files with unique contents."""
-        content = "".join(random.choice(string.ascii_letters) for i in range(10))
-        return ReleaseUploadsFactory({f: content.encode("utf8") for f in files})
-
-    ReleaseFactory(
-        uploads(["test1", "test2", "test3"]),
+    build_release_with_files(
+        ["test1", "test2", "test3"],
         workspace=workspace,
         backend=backend1,
         created_at=minutes_ago(now, 10),
     )
-    ReleaseFactory(
-        uploads(["test2", "test3"]),
+    build_release_with_files(
+        ["test2", "test3"],
         workspace=workspace,
         backend=backend1,
         created_at=minutes_ago(now, 8),
     )
-    release3 = ReleaseFactory(
-        uploads(["test2"]),
+    release3 = build_release_with_files(
+        ["test2"],
         workspace=workspace,
         backend=backend1,
         created_at=minutes_ago(now, 6),
     )
-    release4 = ReleaseFactory(
-        uploads(["test1", "test3"]),
+    release4 = build_release_with_files(
+        ["test1", "test3"],
         workspace=workspace,
         backend=backend1,
         created_at=minutes_ago(now, 4),
     )
-    release5 = ReleaseFactory(
-        uploads(["test1"]),
+    release5 = build_release_with_files(
+        ["test1"],
         workspace=workspace,
         backend=backend1,
         created_at=minutes_ago(now, 2),
     )
     # different backend, same file name, more recent
-    release6 = ReleaseFactory(
-        uploads(["test1"]),
+    release6 = build_release_with_files(
+        ["test1"],
         workspace=workspace,
         backend=backend2,
         created_at=minutes_ago(now, 1),

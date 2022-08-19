@@ -19,12 +19,11 @@ from jobserver.views.releases import (
 from ....factories import (
     OrgFactory,
     ProjectFactory,
-    ReleaseFactory,
-    ReleaseUploadsFactory,
     SnapshotFactory,
     UserFactory,
     WorkspaceFactory,
 )
+from ....factories.releases import ReleaseFactory, ReleaseFileFactory
 
 
 def test_projectreleaselist_no_releases(rf):
@@ -42,19 +41,13 @@ def test_projectreleaselist_no_releases(rf):
         )
 
 
-def test_projectreleaselist_success(rf):
+def test_projectreleaselist_success(rf, build_release):
     project = ProjectFactory()
     workspace1 = WorkspaceFactory(project=project)
     workspace2 = WorkspaceFactory(project=project)
 
-    r1 = ReleaseFactory(
-        ReleaseUploadsFactory(["test1", "test2"]),
-        workspace=workspace1,
-    )
-    ReleaseFactory(
-        ReleaseUploadsFactory(["test3", "test4"]),
-        workspace=workspace2,
-    )
+    r1 = build_release(["test1", "test2"], workspace=workspace1)
+    build_release(["test3", "test4"], workspace=workspace2)
 
     request = rf.get("/")
     request.user = UserFactory()
@@ -88,19 +81,13 @@ def test_projectreleaselist_unknown_workspace(rf):
         )
 
 
-def test_projectreleaselist_with_delete_permission(rf):
+def test_projectreleaselist_with_delete_permission(rf, build_release_with_files):
     project = ProjectFactory()
     workspace1 = WorkspaceFactory(project=project)
     workspace2 = WorkspaceFactory(project=project)
 
-    ReleaseFactory(
-        ReleaseUploadsFactory(["test1", "test2"]),
-        workspace=workspace1,
-    )
-    ReleaseFactory(
-        ReleaseUploadsFactory(["test3", "test4"]),
-        workspace=workspace2,
-    )
+    build_release_with_files(("test1", "test2"), workspace=workspace1)
+    build_release_with_files(["test3", "test4"], workspace=workspace2)
 
     request = rf.get("/")
     request.user = UserFactory(roles=[OutputChecker, ProjectCollaborator])
@@ -120,10 +107,10 @@ def test_projectreleaselist_with_delete_permission(rf):
     assert "Delete" in response.rendered_content
 
 
-def test_publishedsnapshotfile_success(rf):
-    release = ReleaseFactory(ReleaseUploadsFactory({"file1.txt": b"test"}))
+def test_publishedsnapshotfile_success(rf, release):
+    rfile = release.files.first()
     snapshot = SnapshotFactory(published_at=timezone.now())
-    snapshot.files.set(release.files.all())
+    snapshot.files.add(rfile)
 
     rfile = release.files.first()
 
@@ -139,7 +126,7 @@ def test_publishedsnapshotfile_success(rf):
     )
 
     assert response.status_code == 200
-    assert b"".join(response.streaming_content) == b"test"
+    assert b"".join(response.streaming_content) == rfile.absolute_path().read_bytes()
     assert response.headers["Content-Type"] == "text/plain"
     assert response.headers["Last-Modified"]
 
@@ -160,8 +147,7 @@ def test_publishedsnapshotfile_with_unknown_release_file(rf):
         )
 
 
-def test_publishedsnapshotfile_with_unpublished_release_file(rf):
-    release = ReleaseFactory(ReleaseUploadsFactory(["test1"]))
+def test_publishedsnapshotfile_with_unpublished_release_file(rf, release):
     snapshot = SnapshotFactory(published_at=None)
     snapshot.files.set(release.files.all())
 
@@ -194,9 +180,7 @@ def test_releasedetail_unknown_release(rf):
         )
 
 
-def test_releasedetail_with_path_success(rf):
-    release = ReleaseFactory(ReleaseUploadsFactory(["test1"]))
-
+def test_releasedetail_with_path_success(rf, release):
     request = rf.get("/")
     request.user = UserFactory(roles=[ProjectCollaborator])
 
@@ -212,9 +196,7 @@ def test_releasedetail_with_path_success(rf):
     assert response.status_code == 200
 
 
-def test_releasedetail_without_permission(rf):
-    release = ReleaseFactory(ReleaseUploadsFactory(["test1"]))
-
+def test_releasedetail_without_permission(rf, release):
     request = rf.get("/")
     request.user = UserFactory()
 
@@ -229,7 +211,7 @@ def test_releasedetail_without_permission(rf):
 
 
 def test_releasedetail_without_files(rf):
-    release = ReleaseFactory(uploads=[], uploaded=False)
+    release = ReleaseFactory()
 
     request = rf.get("/")
     request.user = UserFactory(roles=[ProjectCollaborator])
@@ -245,7 +227,7 @@ def test_releasedetail_without_files(rf):
 
 
 def test_releasedownload_release_with_no_files(rf):
-    release = ReleaseFactory(uploads=[], uploaded=False)
+    release = ReleaseFactory()
 
     request = rf.get("/")
     request.user = UserFactory(roles=[ProjectCollaborator])
@@ -260,9 +242,7 @@ def test_releasedownload_release_with_no_files(rf):
         )
 
 
-def test_releasedownload_success(rf):
-    release = ReleaseFactory(ReleaseUploadsFactory(["test1"]))
-
+def test_releasedownload_success(rf, release):
     request = rf.get("/")
     request.user = UserFactory(roles=[ProjectCollaborator])
 
@@ -293,9 +273,7 @@ def test_releasedownload_unknown_release(rf):
         )
 
 
-def test_releasedownload_without_permission(rf):
-    release = ReleaseFactory(ReleaseUploadsFactory(["test1"]))
-
+def test_releasedownload_without_permission(rf, release):
     request = rf.get("/")
     request.user = UserFactory()
 
@@ -310,12 +288,7 @@ def test_releasedownload_without_permission(rf):
 
 
 def test_releasefiledelete_no_file_on_disk(rf):
-    release = ReleaseFactory(ReleaseUploadsFactory(["file1.txt"]))
-    rfile = release.files.first()
-
-    assert rfile.absolute_path().exists()
-    rfile.absolute_path().unlink()
-    assert not rfile.absolute_path().exists()
+    rfile = ReleaseFileFactory()
 
     request = rf.post("/")
     request.user = UserFactory(roles=[OutputChecker])
@@ -323,20 +296,17 @@ def test_releasefiledelete_no_file_on_disk(rf):
     with pytest.raises(Http404):
         ReleaseFileDelete.as_view()(
             request,
-            org_slug=release.workspace.project.org.slug,
-            project_slug=release.workspace.project.slug,
-            workspace_slug=release.workspace.name,
-            pk=release.pk,
+            org_slug=rfile.release.workspace.project.org.slug,
+            project_slug=rfile.release.workspace.project.slug,
+            workspace_slug=rfile.release.workspace.name,
+            pk=rfile.release.pk,
             release_file_id=rfile.pk,
         )
 
 
-def test_releasefiledelete_success(rf, freezer):
-    release = ReleaseFactory(ReleaseUploadsFactory({"file1.txt": b"test"}))
+def test_releasefiledelete_success(rf, freezer, release):
     rfile = release.files.first()
     user = UserFactory(roles=[OutputChecker])
-
-    assert rfile.absolute_path().exists()
 
     request = rf.post("/")
     request.user = user
@@ -360,7 +330,7 @@ def test_releasefiledelete_success(rf, freezer):
 
 
 def test_releasefiledelete_unknown_release_file(rf):
-    release = ReleaseFactory([], uploaded=False)
+    release = ReleaseFactory()
 
     request = rf.post("/")
     request.user = UserFactory()
@@ -376,11 +346,8 @@ def test_releasefiledelete_unknown_release_file(rf):
         )
 
 
-def test_releasefiledelete_without_permission(rf):
-    release = ReleaseFactory(ReleaseUploadsFactory(["file1.txt"]))
+def test_releasefiledelete_without_permission(rf, release):
     rfile = release.files.first()
-
-    assert rfile.absolute_path().exists()
 
     request = rf.post("/")
     request.user = UserFactory()
@@ -531,11 +498,10 @@ def test_snapshotdetail_unknown_snapshot(rf):
         )
 
 
-def test_snapshotdownload_published_with_permission(rf):
+def test_snapshotdownload_published_with_permission(rf, release):
     workspace = WorkspaceFactory()
-    ReleaseFactory(ReleaseUploadsFactory(["test1"]), workspace=workspace)
     snapshot = SnapshotFactory(workspace=workspace, published_at=timezone.now())
-    snapshot.files.set(workspace.files.all())
+    snapshot.files.set(release.files.all())
 
     request = rf.get("/")
     request.user = UserFactory(roles=[ProjectCollaborator])
@@ -551,11 +517,10 @@ def test_snapshotdownload_published_with_permission(rf):
     assert response.status_code == 200
 
 
-def test_snapshotdownload_published_without_permission(rf):
+def test_snapshotdownload_published_without_permission(rf, release):
     workspace = WorkspaceFactory()
-    ReleaseFactory(ReleaseUploadsFactory(["test1"]), workspace=workspace)
     snapshot = SnapshotFactory(workspace=workspace, published_at=timezone.now())
-    snapshot.files.set(workspace.files.all())
+    snapshot.files.set(release.files.all())
 
     request = rf.get("/")
     request.user = UserFactory()
@@ -587,11 +552,10 @@ def test_snapshotdownload_unknown_snapshot(rf):
         )
 
 
-def test_snapshotdownload_unpublished_with_permission(rf):
+def test_snapshotdownload_unpublished_with_permission(rf, release):
     workspace = WorkspaceFactory()
-    ReleaseFactory(ReleaseUploadsFactory(["test1"]), workspace=workspace)
     snapshot = SnapshotFactory(workspace=workspace, published_at=None)
-    snapshot.files.set(workspace.files.all())
+    snapshot.files.set(release.files.all())
 
     request = rf.get("/")
     request.user = UserFactory(roles=[ProjectCollaborator])
@@ -607,11 +571,10 @@ def test_snapshotdownload_unpublished_with_permission(rf):
     assert response.status_code == 200
 
 
-def test_snapshotdownload_unpublished_without_permission(rf):
+def test_snapshotdownload_unpublished_without_permission(rf, release):
     workspace = WorkspaceFactory()
-    ReleaseFactory(ReleaseUploadsFactory(["test1"]), workspace=workspace)
     snapshot = SnapshotFactory(workspace=workspace, published_at=None)
-    snapshot.files.set(workspace.files.all())
+    snapshot.files.set(release.files.all())
 
     request = rf.get("/")
     request.user = UserFactory()
@@ -642,9 +605,11 @@ def test_snapshotdownload_with_no_files(rf):
         )
 
 
-def test_workspacereleaselist_authenticated_to_view_not_delete(rf):
+def test_workspacereleaselist_authenticated_to_view_not_delete(
+    rf, build_release_with_files
+):
     workspace = WorkspaceFactory()
-    release = ReleaseFactory(ReleaseUploadsFactory(["test1"]), workspace=workspace)
+    release = build_release_with_files(["test1"], workspace=workspace)
 
     request = rf.get("/")
     request.user = UserFactory(roles=[ProjectCollaborator])
@@ -671,9 +636,11 @@ def test_workspacereleaselist_authenticated_to_view_not_delete(rf):
     )
 
 
-def test_workspacereleaselist_authenticated_to_view_and_delete(rf):
+def test_workspacereleaselist_authenticated_to_view_and_delete(
+    rf, build_release_with_files
+):
     workspace = WorkspaceFactory()
-    ReleaseFactory(ReleaseUploadsFactory(["test1"]), workspace=workspace)
+    build_release_with_files(["test1"], workspace=workspace)
 
     request = rf.get("/")
     request.user = UserFactory(roles=[OutputChecker, ProjectCollaborator])
@@ -710,9 +677,9 @@ def test_workspacereleaselist_no_releases(rf):
         )
 
 
-def test_workspacereleaselist_unauthenticated(rf):
+def test_workspacereleaselist_unauthenticated(rf, build_release):
     workspace = WorkspaceFactory()
-    ReleaseFactory(ReleaseUploadsFactory(["test1"]), workspace=workspace)
+    build_release(["test1"], workspace=workspace)
 
     request = rf.get("/")
     request.user = AnonymousUser()
@@ -745,9 +712,9 @@ def test_workspacereleaselist_unknown_workspace(rf):
         )
 
 
-def test_workspacereleaselist_build_files_for_latest(rf):
+def test_workspacereleaselist_build_files_for_latest(rf, build_release):
     workspace = WorkspaceFactory()
-    ReleaseFactory(ReleaseUploadsFactory(["test1"]), workspace=workspace)
+    build_release(["test1"], workspace=workspace)
 
     request = rf.get("/")
     request.user = UserFactory(roles=[OutputChecker, ProjectCollaborator])
@@ -765,9 +732,9 @@ def test_workspacereleaselist_build_files_for_latest(rf):
     assert all(f["detail_url"].__func__ == ReleaseFile.get_latest_url for f in files)
 
 
-def test_workspacereleaselist_build_files_for_releases(rf):
+def test_workspacereleaselist_build_files_for_releases(rf, build_release):
     workspace = WorkspaceFactory()
-    ReleaseFactory(ReleaseUploadsFactory(["test1"]), workspace=workspace)
+    build_release(["test1"], workspace=workspace)
 
     request = rf.get("/")
     request.user = UserFactory(roles=[OutputChecker, ProjectCollaborator])

@@ -1,20 +1,12 @@
 from django.urls import reverse
 from django.utils import timezone
 
-from ..factories import (
-    ReleaseFactory,
-    ReleaseUploadsFactory,
-    SnapshotFactory,
-    UserFactory,
-    WorkspaceFactory,
-)
+from ..factories import SnapshotFactory, UserFactory, WorkspaceFactory
 
 
-def test_published_output_access(client):
+def test_published_output_access(client, release):
     user = UserFactory()
     workspace = WorkspaceFactory()
-    uploads = ReleaseUploadsFactory({"file1.txt": b"test1"})
-    release = ReleaseFactory(uploads, workspace=workspace)
     snapshot = SnapshotFactory(
         workspace=workspace, published_by=user, published_at=timezone.now()
     )
@@ -33,10 +25,8 @@ def test_published_output_access(client):
     assert response.status_code == 200
 
 
-def test_unpublished_output_access(client):
+def test_unpublished_output_access(client, release):
     workspace = WorkspaceFactory()
-    uploads = ReleaseUploadsFactory({"file1.txt": b"test1"})
-    release = ReleaseFactory(uploads, workspace=workspace)
     snapshot = SnapshotFactory(workspace=workspace)
     snapshot.files.set(release.files.all())
 
