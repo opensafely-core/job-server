@@ -221,6 +221,31 @@ class ReleaseFile(models.Model):
         return not self.absolute_path().exists()
 
 
+class ReleaseFileReview(models.Model):
+    class Statuses(models.TextChoices):
+        APPROVED = "APPROVED", "Approved"
+        REJECTED = "REJECTED", "Rejected"
+
+    created_by = models.ForeignKey(
+        "User",
+        on_delete=models.CASCADE,
+        related_name="release_file_reviews",
+    )
+    release_file = models.ForeignKey(
+        "ReleaseFile",
+        on_delete=models.CASCADE,
+        related_name="reviews",
+    )
+
+    status = models.TextField(choices=Statuses.choices)
+    metadata = models.JSONField()
+    review = models.JSONField()
+
+    # no default here because this needs to match for all reviews created at
+    # the same time.
+    created_at = models.DateTimeField()
+
+
 class Snapshot(models.Model):
     """A "frozen" copy of the ReleaseFiles for a Workspace."""
 
