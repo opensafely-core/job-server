@@ -21,6 +21,23 @@ class ReleaseFileAlreadyExists(Exception):
     pass
 
 
+def _build_paths(release, filename, data):
+    """
+    Build the absolute path for a given filename as part of a release
+
+    We group the directory structure by workspace for 2 reasons:
+    1. avoid dumping everything in one big directory.
+    2. much easier for human operators to navigate on disk if needed.
+    """
+    relative_path = (
+        Path(release.workspace.name) / "releases" / str(release.id) / filename
+    )
+    absolute_path = absolute_file_path(relative_path)
+    absolute_path.parent.mkdir(parents=True, exist_ok=True)
+
+    return relative_path, absolute_path
+
+
 def build_hatch_token_and_url(*, backend, workspace, user, expiry=None):
     """Build an auth token and base URL for talking to release hatch"""
     # build the base URL for which we want the auth token to authenticate,
@@ -146,36 +163,59 @@ def handle_file_upload(release, backend, user, upload, filename, **kwargs):
     # TODO: enforce a max upload size?
     data = upload.read()
     calculated_hash = hashlib.sha256(data).hexdigest()
-    check_not_already_uploaded(filename, calculated_hash, backend)
+    relative_path, absolute_path = _build_paths(release, filename, data)
 
-    # We group the directory structure by workspace for 2 reasons:
-    # 1. avoid dumping everything in one big directory.
-    # 2. much easier for human operators to navigate on disk if needed.
-    relative_path = (
-        Path(release.workspace.name) / "releases" / str(release.id) / filename
-    )
-    absolute_path = absolute_file_path(relative_path)
-    absolute_path.parent.mkdir(parents=True, exist_ok=True)
-    absolute_path.write_bytes(data)
+    # Check if this filename for this release has been uploaded before.
+    rfile = ReleaseFile.objects.filter(
+        release=release,
+        release__backend=backend,
+        name=filename,
+    ).first()
 
-    mtime = datetime.fromtimestamp(absolute_path.stat().st_mtime, tz=timezone.utc)
+    if not rfile:  # old flow
+        absolute_path.write_bytes(data)
 
-    try:
-        rfile = ReleaseFile.objects.create(
-            release=release,
-            workspace=release.workspace,
-            created_by=user,
-            name=filename,
-            path=str(relative_path),
-            filehash=calculated_hash,
-            mtime=mtime,
-            size=absolute_path.stat().st_size,
-            **kwargs,
+        mtime = datetime.fromtimestamp(absolute_path.stat().st_mtime, tz=timezone.utc)
+        size = absolute_path.stat().st_size
+
+        try:
+            return ReleaseFile.objects.create(
+                release=release,
+                workspace=release.workspace,
+                created_by=user,
+                uploaded_at=now(),
+                name=filename,
+                path=str(relative_path),
+                filehash=calculated_hash,
+                mtime=mtime,
+                size=size,
+                **kwargs,
+            )
+        except Exception:
+            # something went wrong, clean up file, they will need to reupload
+            absolute_path.unlink(missing_ok=True)
+            raise
+
+    # New flow
+
+    # _is_ on disk
+    if rfile.absolute_path().exists():
+        # existence of a ReleaseFile isn't an error case now but a file-on-disk
+        # having already been uploaded is
+        raise ReleaseFileAlreadyExists(
+            f"This version of '{filename}' has already been uploaded from backend '{backend.slug}'"
         )
-    except Exception:
-        # something went wrong, clean up file, they will need to reupload
-        absolute_path.unlink(missing_ok=True)
-        raise
+
+    # We have a ReleaseFile but no file-on-disk, but we still need to confirm
+    # the uploaded files hash matches what was sent to us when the ReleaseFile
+    # and Release were created.
+    if rfile.filehash != calculated_hash:
+        raise Exception
+
+    absolute_path.write_bytes(data)
+    rfile.path = str(relative_path)
+    rfile.uploaded_at = now()
+    rfile.save(update_fields=["path", "uploaded_at"])
 
     return rfile
 

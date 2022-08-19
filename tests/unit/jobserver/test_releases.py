@@ -199,7 +199,30 @@ def test_handle_release_upload_file_created():
     assert rfile.filehash == uploads[0].filehash
 
 
-def test_handle_release_upload_already_exists():
+def test_handle_release_upload_exists_in_db_and_not_on_disk():
+    uploads = ReleaseUploadsFactory({"file1.txt": b"test"})
+    existing = ReleaseFileFactory(uploads[0])
+    existing.absolute_path().unlink()
+
+    # check out test setup is correct
+    assert existing.filehash == uploads[0].filehash
+
+    # upload same files
+    releases.handle_file_upload(
+        existing.release,
+        existing.release.backend,
+        existing.created_by,
+        uploads[0].stream,
+        uploads[0].filename,
+    )
+
+    existing.refresh_from_db()
+
+    assert existing.uploaded_at
+    assert existing.absolute_path().exists()
+
+
+def test_handle_release_upload_exists_in_db_and_on_disk():
     uploads = ReleaseUploadsFactory({"file1.txt": b"test"})
     existing = ReleaseFileFactory(uploads[0])
 
@@ -208,6 +231,25 @@ def test_handle_release_upload_already_exists():
 
     # upload same files
     with pytest.raises(releases.ReleaseFileAlreadyExists):
+        releases.handle_file_upload(
+            existing.release,
+            existing.release.backend,
+            existing.created_by,
+            uploads[0].stream,
+            uploads[0].filename,
+        )
+
+
+def test_handle_release_upload_exists_with_incorrect_filehash():
+    uploads = ReleaseUploadsFactory({"file1.txt": b"test"})
+    existing = ReleaseFileFactory(uploads[0])
+
+    existing.absolute_path().unlink()
+    existing.filehash = "test"
+    existing.save(update_fields=["filehash"])
+    existing.refresh_from_db()
+
+    with pytest.raises(Exception):
         releases.handle_file_upload(
             existing.release,
             existing.release.backend,
