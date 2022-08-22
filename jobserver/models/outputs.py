@@ -51,6 +51,9 @@ class Release(models.Model):
     # list of files requested for release
     requested_files = models.JSONField()
 
+    metadata = models.JSONField(null=True)
+    review = models.JSONField(null=True)
+
     def get_absolute_url(self):
         return reverse(
             "release-detail",
@@ -123,6 +126,8 @@ class ReleaseFile(models.Model):
     filehash = models.TextField()
     size = models.IntegerField()  # bytes
     mtime = models.DateTimeField()
+
+    metadata = models.JSONField(null=True)
 
     created_at = models.DateTimeField(default=timezone.now)
     deleted_at = models.DateTimeField(null=True)
@@ -238,8 +243,7 @@ class ReleaseFileReview(models.Model):
     )
 
     status = models.TextField(choices=Statuses.choices)
-    metadata = models.JSONField()
-    review = models.JSONField()
+    comments = models.JSONField()
 
     # no default here because this needs to match for all reviews created at
     # the same time.
