@@ -9,7 +9,7 @@ from .core import (
     User,
     Workspace,
 )
-from .outputs import Release, ReleaseFile, Snapshot
+from .outputs import Release, ReleaseFile, ReleaseFileReview, Snapshot
 from .stats import Stats
 
 
@@ -24,6 +24,7 @@ __all__ = [
     "ProjectMembership",
     "Release",
     "ReleaseFile",
+    "ReleaseFileReview",
     "Snapshot",
     "Stats",
     "User",

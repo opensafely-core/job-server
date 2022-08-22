@@ -10,6 +10,7 @@ from jobserver.api.releases import (
     ReleaseFileAPI,
     ReleaseNotificationAPICreate,
     ReleaseWorkspaceAPI,
+    ReviewAPI,
     SnapshotAPI,
     SnapshotCreateAPI,
     SnapshotPublishAPI,
@@ -23,7 +24,7 @@ from jobserver.authorization import (
     ProjectCollaborator,
     ProjectDeveloper,
 )
-from jobserver.models import Release
+from jobserver.models import Release, ReleaseFileReview
 from jobserver.utils import set_from_qs
 from tests.factories import (
     BackendFactory,
@@ -36,6 +37,7 @@ from tests.factories import (
     UserFactory,
     WorkspaceFactory,
 )
+from tests.factories import releases as new_style
 
 
 def test_releaseapi_get_unknown_release(api_rf):
@@ -667,6 +669,122 @@ def test_releasefileapi_without_permission(api_rf):
     assert response.status_code == 403
 
 
+def test_reviewapi_without_permission(api_rf):
+    release = new_style.ReleaseFactory()
+
+    data = {
+        "files": [],
+        "metadata": {},
+        "review": {},
+    }
+    request = api_rf.post("/", data=data, format="json")
+
+    response = ReviewAPI.as_view()(request, release_id=release.pk)
+
+    assert response.status_code == 200, response.data
+
+
+def test_reviewapi_unknown_filename_or_content(api_rf):
+    release = new_style.ReleaseFactory()
+    new_style.ReleaseFileFactory(release=release, name="test1", filehash="test1")
+    new_style.ReleaseFileFactory(release=release, name="test2", filehash="test2")
+
+    data = {
+        "files": [
+            {
+                "name": "unknown",
+                "url": "url",
+                "size": 7,
+                "sha256": "test1",
+                "date": timezone.now(),
+                "metadata": {},
+                "review": {
+                    "status": "APPROVED",
+                    "comments": {"test": "foo"},
+                },
+            },
+            {
+                "name": "test2",
+                "url": "url",
+                "size": 7,
+                "sha256": "unknown",
+                "date": timezone.now(),
+                "metadata": {},
+                "review": {
+                    "status": "REJECTED",
+                    "comments": {"test": "bar"},
+                },
+            },
+        ],
+        "metadata": {},
+        "review": {},
+    }
+
+    request = api_rf.post("/", data=data, format="json")
+    request.user = UserFactory(roles=[OutputChecker])
+
+    response = ReviewAPI.as_view()(request, release_id=release.pk)
+
+    assert response.status_code == 400, response.data
+
+
+def test_reviewapi_success(api_rf):
+    release = new_style.ReleaseFactory()
+    new_style.ReleaseFileFactory(release=release, name="test1", filehash="test1")
+    new_style.ReleaseFileFactory(release=release, name="test2", filehash="test2")
+
+    data = {
+        "files": [
+            {
+                "name": "test1",
+                "url": "url",
+                "size": 7,
+                "sha256": "test1",
+                "date": timezone.now(),
+                "metadata": {},
+                "review": {
+                    "status": "APPROVED",
+                    "comments": {"test": "foo"},
+                },
+            },
+            {
+                "name": "test2",
+                "url": "url",
+                "size": 7,
+                "sha256": "test2",
+                "date": timezone.now(),
+                "metadata": {},
+                "review": {
+                    "status": "REJECTED",
+                    "comments": {"test": "bar"},
+                },
+            },
+        ],
+        "metadata": {},
+        "review": {"foo": "bar"},
+    }
+
+    request = api_rf.post("/", data=data, format="json")
+    request.user = UserFactory(roles=[OutputChecker])
+
+    response = ReviewAPI.as_view()(request, release_id=release.pk)
+
+    assert response.status_code == 200, response.data
+
+    release.refresh_from_db()
+    assert release.review == {"foo": "bar"}
+
+    review1, review2 = ReleaseFileReview.objects.filter(
+        release_file__release=release
+    ).order_by("release_file__name")
+
+    assert review1.status == "APPROVED"
+    assert review1.comments == {"test": "foo"}
+
+    assert review2.status == "REJECTED"
+    assert review2.comments == {"test": "bar"}
+
+
 def test_snapshotapi_published_with_anonymous_user(api_rf, freezer):
     snapshot = SnapshotFactory(published_at=timezone.now())
 
@@ -1016,7 +1134,6 @@ def test_workspacestatusapi_success(api_rf):
 
     project2 = ProjectFactory()
     workspace2 = WorkspaceFactory(project=project2, uses_new_release_flow=False)
-
     response = WorkspaceStatusAPI.as_view()(request, workspace_id=workspace2.name)
     assert response.status_code == 200
     assert not response.data["uses_new_release_flow"]

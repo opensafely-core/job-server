@@ -8,7 +8,6 @@ import factory.fuzzy
 from django.utils import timezone
 from social_django.models import UserSocialAuth
 
-from jobserver import releases
 from jobserver.models import (
     Backend,
     BackendMembership,
@@ -23,6 +22,7 @@ from jobserver.models import (
     User,
     Workspace,
 )
+from jobserver.releases import create_release, handle_file_upload
 
 
 class BackendFactory(factory.django.DjangoModelFactory):
@@ -147,7 +147,7 @@ def ReleaseFactory(
     created_by = created_by or UserFactory()
     backend = backend or BackendFactory()
     workspace = workspace or WorkspaceFactory()
-    release = releases.create_release(
+    release = create_release(
         workspace=workspace,
         backend=backend,
         created_by=created_by,
@@ -192,7 +192,7 @@ def ReleaseFileFactory(
     )
 
     # use the business logic to actually create it.
-    return releases.handle_file_upload(
+    return handle_file_upload(
         release,
         backend,
         created_by,
