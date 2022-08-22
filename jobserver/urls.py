@@ -19,6 +19,7 @@ from jobserver.api.releases import (
     ReleaseFileAPI,
     ReleaseNotificationAPICreate,
     ReleaseWorkspaceAPI,
+    ReviewAPI,
     SnapshotAPI,
     SnapshotCreateAPI,
     SnapshotPublishAPI,
@@ -104,6 +105,11 @@ api_urls = [
         "releases/release/<str:release_id>",
         ReleaseAPI.as_view(),
         name="release",
+    ),
+    path(
+        "releases/release/<str:release_id>/reviews",
+        ReviewAPI.as_view(),
+        name="release-review",
     ),
     path(
         "releases/file/<file_id>",

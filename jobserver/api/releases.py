@@ -1,5 +1,6 @@
 import cgi
 
+import sentry_sdk
 import structlog
 from django.db import transaction
 from django.db.models import Value
@@ -21,12 +22,38 @@ from rest_framework.views import APIView
 from jobserver import releases, slacks
 from jobserver.api.authentication import get_backend_from_token
 from jobserver.authorization import has_permission
-from jobserver.models import Release, ReleaseFile, Snapshot, User, Workspace
+from jobserver.models import (
+    Release,
+    ReleaseFile,
+    ReleaseFileReview,
+    Snapshot,
+    User,
+    Workspace,
+)
 from jobserver.releases import serve_file
 from jobserver.utils import set_from_qs
 
 
 logger = structlog.get_logger(__name__)
+
+
+class UnknownFiles(Exception):
+    pass
+
+
+class ReviewSerializer(serializers.Serializer):
+    status = serializers.ChoiceField(choices=ReleaseFileReview.Statuses.choices)
+    comments = serializers.DictField()
+
+
+class FileSerializer(serializers.Serializer):
+    name = serializers.CharField()
+    url = serializers.CharField()
+    size = serializers.IntegerField()
+    sha256 = serializers.CharField()
+    date = serializers.DateTimeField()
+    metadata = serializers.DictField()
+    review = ReviewSerializer()
 
 
 class ReleaseNotificationAPICreate(CreateAPIView):
@@ -51,6 +78,30 @@ class ReleaseNotificationAPICreate(CreateAPIView):
         kwargs = serializer.data
         kwargs["backend"] = self.backend
         slacks.notify_github_release(**kwargs)
+
+
+def validate_files(db_files, payload_files):
+    # check all the listed files already exist
+    existing_files = {f.name: f.filehash for f in db_files}
+    reviewed_files = {f["name"]: f["sha256"] for f in payload_files}
+
+    unknown_filenames = reviewed_files.keys() - existing_files.keys()
+    known_files = {
+        k: v for k, v in reviewed_files.items() if k not in unknown_filenames
+    }
+    mismatched_hashes = known_files.items() - existing_files.items()
+
+    if not (unknown_filenames and mismatched_hashes):
+        return
+
+    msg = []
+
+    for unknown in unknown_filenames:
+        msg.append(f"Unknown file {unknown}")
+    for name, sha in mismatched_hashes:
+        msg.append(f"Expected sha {sha} for file {name}")
+
+    raise UnknownFiles(msg)
 
 
 def validate_upload_access(request, workspace):
@@ -257,6 +308,48 @@ class ReleaseFileAPI(APIView):
         rfile = get_object_or_404(ReleaseFile, id=file_id)
         validate_release_access(request, rfile.workspace)
         return serve_file(request, rfile)
+
+
+class ReviewAPI(APIView):
+    authentication_classes = [SessionAuthentication]
+
+    class ReleaseSerializer(serializers.Serializer):
+        files = FileSerializer(many=True)
+        metadata = serializers.DictField()
+        review = serializers.DictField()
+
+    def post(self, request, *args, **kwargs):
+        release = get_object_or_404(Release, id=self.kwargs["release_id"])
+        db_files = release.files.all()
+
+        serializer = self.ReleaseSerializer(data=request.data)
+        serializer.is_valid(raise_exception=True)
+        payload_files = serializer.validated_data["files"]
+
+        try:
+            validate_files(db_files, payload_files)
+        except UnknownFiles as e:
+            sentry_sdk.capture_exception(e)
+            raise ValidationError(e)
+
+        with transaction.atomic():
+            release.review = serializer.validated_data["review"]
+            release.save(update_fields=["review"])
+
+            created_at = timezone.now()  # reviews are created at the same time
+
+            # create review objects for each file in the files list
+            for file in payload_files:
+                rfile = db_files.get(name=file["name"], filehash=file["sha256"])
+
+                rfile.reviews.create(
+                    created_at=created_at,
+                    created_by=request.user,
+                    status=file["review"]["status"],
+                    comments=file["review"]["comments"],
+                )
+
+        return Response()
 
 
 class SnapshotAPI(APIView):
