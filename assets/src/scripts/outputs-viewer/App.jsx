@@ -17,10 +17,18 @@ const queryClient = new QueryClient({
   },
 });
 
-function App({ authToken, csrfToken, filesUrl, prepareUrl, publishUrl }) {
+function App({
+  authToken,
+  csrfToken,
+  filesUrl,
+  prepareUrl,
+  publishUrl,
+  reviewUrl,
+}) {
   const uuid = Date.now();
   const [listVisible, setListVisible] = useState(true);
   const [selectedFile, setSelectedFile] = useState();
+  const isReview = !!reviewUrl;
 
   return (
     <QueryClientProvider client={queryClient}>

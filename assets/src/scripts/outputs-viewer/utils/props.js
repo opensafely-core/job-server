@@ -7,6 +7,7 @@ export const datasetProps = {
   filesUrl: PropTypes.string,
   prepareUrl: PropTypes.string,
   publishUrl: PropTypes.string,
+  reviewUrl: PropTypes.string,
 };
 
 export const selectedFileProps = {
