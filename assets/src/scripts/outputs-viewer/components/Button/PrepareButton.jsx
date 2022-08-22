@@ -1,5 +1,6 @@
 import { useMutation } from "@tanstack/react-query";
 import React from "react";
+import { Button } from "react-bootstrap";
 import useFileList from "../../hooks/use-file-list";
 import { datasetProps } from "../../utils/props";
 import { toastDismiss, toastError } from "../../utils/toast";
@@ -51,17 +52,17 @@ function PrepareButton({ authToken, csrfToken, filesUrl, prepareUrl }) {
   const fileIds = fileList.map((f) => f.id);
 
   return (
-    <button
-      className={`btn btn-${mutation.isLoading ? "secondary" : "primary"}`}
+    <Button
       disabled={mutation.isLoading}
       onClick={(e) => {
         e.preventDefault();
         return mutation.mutate({ fileIds });
       }}
       type="button"
+      variant={mutation.isLoading ? "secondary" : "primary"}
     >
       {mutation.isLoading ? "Publishing…" : "Publish"}
-    </button>
+    </Button>
   );
 }
 
