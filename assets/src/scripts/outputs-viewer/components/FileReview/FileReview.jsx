@@ -2,7 +2,7 @@ import React from "react";
 import { Button, Form } from "react-bootstrap";
 import useFileStore from "../../stores/use-file-store";
 
-function FileReview({ selectedFile: { id } }) {
+function FileReview({ selectedFile }) {
   const { addCheckedFile, isFileChecked, removeCheckedFile, checkedFiles } =
     useFileStore((state) => ({
       addCheckedFile: state.addCheckedFile,
@@ -17,30 +17,31 @@ function FileReview({ selectedFile: { id } }) {
   }));
 
   const toggleFileCheck = () => {
-    if (isFileChecked(id)) {
-      return removeCheckedFile(id);
+    if (isFileChecked(selectedFile)) {
+      return removeCheckedFile(selectedFile);
     }
-    return addCheckedFile(id);
+    return addCheckedFile(selectedFile);
   };
-
-  console.log({ checkedFiles });
 
   return (
     <div className="mb-3">
       <Button
         onClick={() => toggleFileCheck()}
         size="sm"
-        variant={isFileChecked(id) ? "danger" : "success"}
+        variant={isFileChecked(selectedFile) ? "danger" : "success"}
       >
-        {isFileChecked(id)
+        {isFileChecked(selectedFile)
           ? "Remove file from review request"
           : "Add file to review request"}
       </Button>
-      {isFileChecked(id) ? (
+      {isFileChecked(selectedFile) ? (
         <Form className="mt-3">
-          <Form.Group className="mb-3" controlId={`${id}-fileForm.context`}>
+          <Form.Group
+            className="mb-3"
+            controlId={`${selectedFile.id}-fileForm.context`}
+          >
             <Form.Label className="mb-0 font-weight-bold">
-              Describe what the file contains
+              Describe what this file contains
             </Form.Label>
             <Form.Text muted>
               <strong>For example:</strong> Monthly hospitalisation counts of
@@ -53,15 +54,17 @@ function FileReview({ selectedFile: { id } }) {
               as="textarea"
               className="mt-2"
               onChange={(e) =>
-                setFileMeta(id, "fileForm.context", e.target.value)
+                setFileMeta(selectedFile, "fileForm.context", e.target.value)
               }
               rows={4}
-              value={getFileMeta(id, "fileForm.context")}
+              value={getFileMeta(selectedFile, "fileForm.context")}
             />
           </Form.Group>
-          <Form.Group controlId={`${id}-fileForm.disclosureControl`}>
+          <Form.Group
+            controlId={`${selectedFile.id}-fileForm.disclosureControl`}
+          >
             <Form.Label className="mb-0 font-weight-bold">
-              Describe how you have ensured that the files are non-disclosive
+              Describe how you have ensured that this file is non-disclosive
             </Form.Label>
             <Form.Text muted>
               <strong>For example:</strong> Low number suppression has been
@@ -73,10 +76,14 @@ function FileReview({ selectedFile: { id } }) {
               as="textarea"
               className="mt-2"
               onChange={(e) =>
-                setFileMeta(id, "fileForm.disclosureControl", e.target.value)
+                setFileMeta(
+                  selectedFile,
+                  "fileForm.disclosureControl",
+                  e.target.value
+                )
               }
               rows={4}
-              value={getFileMeta(id, "fileForm.disclosureControl")}
+              value={getFileMeta(selectedFile, "fileForm.disclosureControl")}
             />
           </Form.Group>
         </Form>
