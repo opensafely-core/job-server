@@ -4,6 +4,7 @@ import zipfile
 from datetime import timedelta
 
 import pytest
+from django.conf import settings
 from django.db import DatabaseError
 from django.utils import timezone
 
@@ -12,6 +13,8 @@ from jobserver.models import ReleaseFile
 from jobserver.models.outputs import absolute_file_path
 from tests.factories import (
     BackendFactory,
+    OrgFactory,
+    OrgMembershipFactory,
     ReleaseFileFactory,
     UserFactory,
     WorkspaceFactory,
@@ -112,6 +115,65 @@ def test_build_spa_base_url():
     base = releases.build_spa_base_url("/a/page/with/file.csv", "with/file.csv")
 
     assert base == "/a/page/"
+
+
+def test_create_github_issue_external_success(build_release_with_files):
+    release = build_release_with_files(["file1.txt", "graph.png"])
+
+    class CapturingAPI:
+        def create_issue(self, org, repo, title, body, labels):
+            # capture all the values so they can interrogated later
+            self.org = org
+            self.repo = repo
+            self.title = title
+            self.body = body
+            self.labels = labels
+
+    issue = CapturingAPI()
+
+    releases.create_github_issue(release, github_api=issue)
+
+    assert issue.title == release.workspace.name
+
+    # check we have URLs to everything
+    assert settings.BASE_URL in issue.body
+    assert release.created_by.get_staff_url() in issue.body
+    assert release.get_absolute_url() in issue.body
+    assert release.workspace.get_absolute_url() in issue.body
+
+    # check dedent worked as expected
+    assert not issue.body.startswith(" ")
+
+
+def test_create_github_issue_internal_success(build_release_with_files):
+    org = OrgFactory(slug="datalab")
+    user = UserFactory()
+    OrgMembershipFactory(org=org, user=user)
+    release = build_release_with_files(["file1.txt", "graph.png"], created_by=user)
+
+    class CapturingAPI:
+        def create_issue(self, org, repo, title, body, labels):
+            # capture all the values so they can interrogated later
+            self.org = org
+            self.repo = repo
+            self.title = title
+            self.body = body
+            self.labels = labels
+
+    issue = CapturingAPI()
+
+    releases.create_github_issue(release, github_api=issue)
+
+    assert issue.title == release.workspace.name
+
+    # check we have URLs to everything
+    assert settings.BASE_URL in issue.body
+    assert release.created_by.get_staff_url() in issue.body
+    assert release.get_absolute_url() in issue.body
+    assert release.workspace.get_absolute_url() in issue.body
+
+    # check dedent worked as expected
+    assert not issue.body.startswith(" ")
 
 
 def test_create_release_new_style_reupload():
@@ -283,6 +345,21 @@ def test_handle_release_upload_db_error(monkeypatch, build_release):
     # check the file has been deleted due to the error
     rpath = f"{release.workspace.name}/releases/{release.id}/file1.txt"
     assert not absolute_file_path(rpath).exists()
+
+
+def test_size_formatter_bytes():
+    assert releases.size_formatter(0) == "0b"
+    assert releases.size_formatter(742) == "742b"
+
+
+def test_size_formatter_kilobytes():
+    assert releases.size_formatter(1024) == "1.0Kb"
+    assert releases.size_formatter(1400) == "1.37Kb"
+
+
+def test_size_formatter_megabytes():
+    assert releases.size_formatter(1048576) == "1.0Mb"
+    assert releases.size_formatter(1600000) == "1.53Mb"
 
 
 def test_workspace_files_no_releases():
