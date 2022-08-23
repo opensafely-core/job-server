@@ -7,9 +7,11 @@ import ToggleFileReview from "./components/Button/ToggleFileReview";
 import FileList from "./components/FileList/FileList";
 import FileReview from "./components/FileReview/FileReview";
 import Metadata from "./components/Metadata/Metadata";
+import ReviewModal from "./components/Review/Modal";
 import Toast from "./components/Toast/Toast";
 import Viewer from "./components/Viewer/Viewer";
 import useReviewState from "./hooks/use-review-state";
+import useAppStore from "./stores/use-app-store";
 import useFileStore from "./stores/use-file-store";
 import { datasetProps } from "./utils/props";
 
@@ -24,6 +26,11 @@ function App({
   const uuid = Date.now();
   const [listVisible, setListVisible] = useState(true);
   const [selectedFile, setSelectedFile] = useState();
+  const { showModal, isModalOpen } = useAppStore((state) => ({
+    showModal: state.showModal,
+    isModalOpen: state.isModalOpen,
+  }));
+  const checkedFiles = useFileStore((state) => state.checkedFiles);
   const removeAllCheckedFiles = useFileStore(
     (state) => state.removeAllCheckedFiles
   );
@@ -35,41 +42,45 @@ function App({
   return (
     <>
       {isReview && (
-        <Row>
-          <Col className="d-flex mb-3">
-            {isReviewView ? (
-              <Button
-                className="ml-auto"
-                onClick={() => setReviewEdit()}
-                variant="success"
-              >
-                Prepare a review request
-              </Button>
-            ) : null}
-
-            {isReviewEdit ? (
-              <>
+        <>
+          {isModalOpen && <ReviewModal />}
+          <Row>
+            <Col className="d-flex mb-3">
+              {isReviewView ? (
                 <Button
                   className="ml-auto"
-                  onClick={() => null}
+                  onClick={() => setReviewEdit()}
                   variant="success"
                 >
-                  Submit review request
+                  Prepare a review request
                 </Button>
-                <Button
-                  className="ml-2"
-                  onClick={() => {
-                    setReviewView();
-                    removeAllCheckedFiles();
-                  }}
-                  variant="danger"
-                >
-                  Cancel review request
-                </Button>
-              </>
-            ) : null}
-          </Col>
-        </Row>
+              ) : null}
+
+              {isReviewEdit ? (
+                <>
+                  <Button
+                    className="ml-auto"
+                    disabled={!checkedFiles.length}
+                    onClick={() => showModal()}
+                    variant="success"
+                  >
+                    Submit review request
+                  </Button>
+                  <Button
+                    className="ml-2"
+                    onClick={() => {
+                      setReviewView();
+                      removeAllCheckedFiles();
+                    }}
+                    variant="danger"
+                  >
+                    Cancel review request
+                  </Button>
+                </>
+              ) : null}
+            </Col>
+          </Row>
+        </>
       )}
       {(prepareUrl || publishUrl) && !isReview ? (
         <Row className="mb-2">

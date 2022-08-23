@@ -3,23 +3,28 @@ import create from "zustand";
 const useFileStore = create((set, get) => ({
   checkedFiles: [],
 
-  isFileChecked: (id) => get().checkedFiles.some((file) => file.id === id),
-  addCheckedFile: (id) => {
-    if (get().isFileChecked(id)) {
+  isFileChecked: (file) =>
+    get().checkedFiles.some((checked) => checked.id === file.id),
+  addCheckedFile: (file) => {
+    if (get().isFileChecked(file)) {
       return null;
     }
 
     return set((state) => ({
-      checkedFiles: [{ id, meta: {} }, ...state.checkedFiles],
+      checkedFiles: [{ ...file, meta: {} }, ...state.checkedFiles],
     }));
   },
-  removeCheckedFile: (id) =>
+  removeCheckedFile: (file) =>
     set((state) => ({
-      checkedFiles: [...state.checkedFiles].filter((file) => file.id !== id),
+      checkedFiles: [...state.checkedFiles].filter(
+        (checked) => checked.id !== file.id
+      ),
     })),
 
-  setFileMeta: (id, field, text) => {
-    const fileIndex = get().checkedFiles.findIndex((file) => file.id === id);
+  setFileMeta: (file, field, text) => {
+    const fileIndex = get().checkedFiles.findIndex(
+      (checked) => checked.id === file.id
+    );
     Object.assign(get().checkedFiles[fileIndex], {
       meta: {
         ...get().checkedFiles[fileIndex].meta,
@@ -29,8 +34,10 @@ const useFileStore = create((set, get) => ({
 
     set((state) => ({ checkedFiles: [...state.checkedFiles] }));
   },
-  getFileMeta: (id, field) => {
-    const fileIndex = get().checkedFiles.findIndex((file) => file.id === id);
+  getFileMeta: (file, field) => {
+    const fileIndex = get().checkedFiles.findIndex(
+      (checked) => checked.id === file.id
+    );
     return get().checkedFiles[fileIndex].meta[field];
   },
 

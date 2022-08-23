@@ -67,7 +67,7 @@ function FileList({
             >
               {isReviewEdit ? (
                 <FormCheck
-                  checked={isFileChecked(file.id)}
+                  checked={isFileChecked(file)}
                   label={file.shortName}
                   readOnly
                 />
