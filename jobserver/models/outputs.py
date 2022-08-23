@@ -1,4 +1,5 @@
 from django.conf import settings
+from django.core.serializers.json import DjangoJSONEncoder
 from django.db import models
 from django.db.models import Q
 from django.urls import reverse
@@ -49,7 +50,7 @@ class Release(models.Model):
     status = models.TextField(choices=Statuses.choices, default=Statuses.REQUESTED)
 
     # list of files requested for release
-    requested_files = models.JSONField()
+    requested_files = models.JSONField(encoder=DjangoJSONEncoder)
 
     metadata = models.JSONField(null=True)
     review = models.JSONField(null=True)
