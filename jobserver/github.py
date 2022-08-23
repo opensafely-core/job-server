@@ -144,6 +144,30 @@ class GitHubAPI:
 
         return f.url
 
+    def create_issue(self, org, repo, title, body, labels):
+        path_segments = [
+            "repos",
+            org,
+            repo,
+            "issues",
+        ]
+        url = self._url(path_segments)
+
+        payload = {
+            "title": title,
+            "body": body,
+            "labels": labels,
+        }
+
+        headers = {
+            "Accept": "application/vnd.github.v3+json",
+        }
+        r = self._post(url, headers=headers, json=payload)
+
+        r.raise_for_status()
+
+        return r.json()
+
     def get_branch(self, org, repo, branch):
         path_segments = [
             "repos",
