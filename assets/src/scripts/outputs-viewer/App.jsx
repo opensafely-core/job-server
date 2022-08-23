@@ -1,15 +1,16 @@
-import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
-import { ReactQueryDevtools } from "@tanstack/react-query-devtools";
 import React, { useState } from "react";
 import { Button, Card, Col, Row } from "react-bootstrap";
 // import { useLocation } from "react-router-dom";
 import PrepareButton from "./components/Button/PrepareButton";
 import PublishButton from "./components/Button/PublishButton";
+import ToggleFileReview from "./components/Button/ToggleFileReview";
 import FileList from "./components/FileList/FileList";
+import FileReview from "./components/FileReview/FileReview";
 import Metadata from "./components/Metadata/Metadata";
 import Toast from "./components/Toast/Toast";
 import Viewer from "./components/Viewer/Viewer";
 import useReviewState from "./hooks/use-review-state";
+import useFileStore from "./stores/use-file-store";
 import { datasetProps } from "./utils/props";
 
 function App({
@@ -23,8 +24,10 @@ function App({
   const uuid = Date.now();
   const [listVisible, setListVisible] = useState(true);
   const [selectedFile, setSelectedFile] = useState();
-  const [checkedIds, setCheckedIds] = useState([]);
-  const { isReviewEdit, isReviewView, toggleReviewState, setReviewView } =
+  const removeAllCheckedFiles = useFileStore(
+    (state) => state.removeAllCheckedFiles
+  );
+  const { isReviewEdit, isReviewView, setReviewEdit, setReviewView } =
     useReviewState();
 
   const isReview = !!reviewUrl;
@@ -34,26 +37,36 @@ function App({
       {isReview && (
         <Row>
           <Col className="d-flex mb-3">
-            <Button
-              className="ml-auto"
-              onClick={() => toggleReviewState()}
-              variant="success"
-            >
-              {isReviewView
-                ? "Prepare a review request"
-                : "Submit review request"}
-            </Button>
-            {isReviewEdit ? (
+            {isReviewView ? (
               <Button
-                className="ml-2"
-                onClick={() => {
-                  setReviewView();
-                  setCheckedIds([]);
-                }}
-                variant="danger"
+                className="ml-auto"
+                onClick={() => setReviewEdit()}
+                variant="success"
               >
-                Cancel review request
+                Prepare a review request
               </Button>
+            ) : null}
+
+            {isReviewEdit ? (
+              <>
+                <Button
+                  className="ml-auto"
+                  onClick={() => null}
+                  variant="success"
+                >
+                  Submit review request
+                </Button>
+                <Button
+                  className="ml-2"
+                  onClick={() => {
+                    setReviewView();
+                    removeAllCheckedFiles();
+                  }}
+                  variant="danger"
+                >
+                  Cancel review request
+                </Button>
+              </>
             ) : null}
           </Col>
         </Row>
@@ -85,18 +98,9 @@ function App({
           >
             {listVisible ? "Hide" : "Show"} file list
           </Button>
-          {isReview && isReviewEdit ? (
-            <Button
-              className="mb-3"
-              // onClick={() => toggleReviewState()}
-              variant="secondary"
-            >
-              Add all files to request
-            </Button>
-          ) : null}
+          {/* {isReview && isReviewEdit ? <ToggleFileReview /> : null} */}
           <FileList
             authToken={authToken}
-            checkedIds={checkedIds}
             filesUrl={filesUrl}
             isReviewEdit={isReviewEdit}
             listVisible={listVisible}
@@ -108,27 +112,7 @@ function App({
         <Col lg={9}>
           {selectedFile && (
             <>
-              {isReviewEdit ? (
-                <Button
-                  className="mb-3"
-                  onClick={() => {
-                    if (checkedIds.includes(selectedFile.id)) {
-                      return setCheckedIds(
-                        checkedIds.filter((f) => f !== selectedFile.id)
-                      );
-                    }
-                    return setCheckedIds([...checkedIds, selectedFile.id]);
-                  }}
-                  variant={
-                    checkedIds.includes(selectedFile.id) ? "danger" : "success"
-                  }
-                >
-                  {checkedIds.includes(selectedFile.id)
-                    ? "Remove file from review request"
-                    : "Add file to review request"}
-                </Button>
-              ) : null}
-
+              {isReviewEdit ? <FileReview selectedFile={selectedFile} /> : null}
               <Card>
                 <Metadata
                   fileDate={selectedFile.date}
@@ -152,7 +136,6 @@ function App({
         </Col>
       </Row>
       <Toast />
-      <ReactQueryDevtools initialIsOpen={false} />
     </>
   );
 }

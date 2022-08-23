@@ -69,7 +69,8 @@
     "select2": "^4.0.13",
     "tablesorter": "^2.31.3",
     "tailwindcss": "^3.1.8",
-    "whatwg-fetch": "^3.6.2"
+    "whatwg-fetch": "^3.6.2",
+    "zustand": "^4.1.1"
   },
   "eslintConfig": {
     "extends": [
