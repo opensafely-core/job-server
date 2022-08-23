@@ -27,12 +27,17 @@ function useReviewState() {
     return setReviewState("view");
   }
 
+  function setReviewEdit() {
+    return setReviewState("edit");
+  }
+
   return {
     isReviewEdit,
     isReviewView,
+    setReviewEdit,
+    setReviewView,
     state: reviewState,
     toggleReviewState,
-    setReviewView,
   };
 }
 

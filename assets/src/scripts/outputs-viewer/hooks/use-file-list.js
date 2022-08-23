@@ -34,7 +34,7 @@ export function sortedFiles(files) {
   ];
 }
 
-function useFileList({ authToken, filesUrl }) {
+function useFileList({ authToken, filesUrl, setSelectedFile, location }) {
   return useQuery(
     ["FILE_LIST"],
     async () => {
@@ -57,6 +57,11 @@ function useFileList({ authToken, filesUrl }) {
           filesUrl,
           url: document.location.href,
         });
+      },
+      onSuccess: (data) => {
+        setSelectedFile(
+          data.find((file) => location.pathname.substring(1) === file.name)
+        );
       },
     }
   );

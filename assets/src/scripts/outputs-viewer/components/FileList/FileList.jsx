@@ -1,17 +1,9 @@
 import PropTypes from "prop-types";
-import React, { createRef, useEffect, useRef, useState } from "react";
-import {
-  Card,
-  Form,
-  FormCheck,
-  ListGroup,
-  ListGroupItem,
-} from "react-bootstrap";
-import { Link, useNavigate, useLocation } from "react-router-dom";
-import { FixedSizeList } from "react-window";
+import React, { createRef, useState } from "react";
+import { Card, FormCheck, ListGroup } from "react-bootstrap";
+import { Link, useLocation } from "react-router-dom";
 import useFileList from "../../hooks/use-file-list";
-import useWindowSize from "../../hooks/use-window-size";
-import prettyFileSize from "../../utils/pretty-file-size";
+import useFileStore from "../../stores/use-file-store";
 import { datasetProps } from "../../utils/props";
 import Filter from "./Filter";
 
@@ -24,21 +16,20 @@ function FileList({
   setSelectedFile,
   selectedFile,
 }) {
-  const { data, isError, isLoading, isSuccess } = useFileList({
-    authToken,
-    filesUrl,
-  });
   const [files, setFiles] = useState([]);
   const listRef = createRef();
   const location = useLocation();
+  const { isFileChecked } = useFileStore((state) => ({
+    isFileChecked: state.isFileChecked,
+    checkedFiles: state.checkedFiles, // Update when checkedFiles changes
+  }));
 
-  useEffect(() => {
-    if (isSuccess && !selectedFile) {
-      setSelectedFile(
-        data.find((file) => location.pathname.substring(1) === file.name)
-      );
-    }
-  }, [data, isSuccess, location.pathname, setSelectedFile, selectedFile]);
+  const { data, isError, isLoading } = useFileList({
+    authToken,
+    filesUrl,
+    setSelectedFile,
+    location,
+  });
 
   if (isLoading) {
     return (
@@ -76,7 +67,7 @@ function FileList({
             >
               {isReviewEdit ? (
                 <FormCheck
-                  checked={checkedIds.includes(file.id)}
+                  checked={isFileChecked(file.id)}
                   label={file.shortName}
                   readOnly
                 />
