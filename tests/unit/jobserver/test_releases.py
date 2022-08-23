@@ -148,7 +148,7 @@ def test_create_release_new_style_success():
             "url": "",
             "size": 7,
             "sha256": "hash",
-            "mtime": "2022-08-17T13:37Z",
+            "date": "2022-08-17T13:37Z",
             "metadata": {},
         }
     ]
