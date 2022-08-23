@@ -434,17 +434,31 @@ def test_releaseworkspaceapi_post_create_release(api_rf, slack_messages):
 
     assert Release.objects.count() == 0
 
+    data = {
+        "files": [
+            {
+                "name": "file1.txt",
+                "url": "url",
+                "size": 7,
+                "sha256": "hash",
+                "date": timezone.now(),
+                "metadata": {},
+            }
+        ],
+        "metadata": {},
+        "review": {},
+    }
     request = api_rf.post(
         "/",
-        content_type="application/json",
-        data=json.dumps({"files": {"file1.txt": "hash"}}),
+        data=data,
+        format="json",
         HTTP_AUTHORIZATION="test",
         HTTP_OS_USER=user.username,
     )
 
     response = ReleaseWorkspaceAPI.as_view()(request, workspace_name=workspace.name)
 
-    assert response.status_code == 201
+    assert response.status_code == 201, response.data
     assert Release.objects.count() == 1
 
     release = Release.objects.first()
@@ -464,16 +478,35 @@ def test_releaseworkspaceapi_post_create_release(api_rf, slack_messages):
 def test_releaseworkspaceapi_post_release_already_exists(api_rf):
     user = UserFactory(roles=[OutputChecker])
 
-    release = ReleaseFactory(ReleaseUploadsFactory(["file.txt"]), created_by=user)
-    rfile = release.files.first()
+    release = new_style.ReleaseFactory()
+    rfile = new_style.ReleaseFileFactory(
+        release=release,
+        created_by=user,
+        name="file.txt",
+        filehash="hash",
+    )
 
     BackendMembershipFactory(backend=release.backend, user=user)
     ProjectMembershipFactory(project=release.workspace.project, user=user)
 
+    data = {
+        "files": [
+            {
+                "name": rfile.name,
+                "url": "url",
+                "size": 7,
+                "sha256": rfile.filehash,
+                "date": timezone.now(),
+                "metadata": {},
+            }
+        ],
+        "metadata": {},
+        "review": {},
+    }
     request = api_rf.post(
         "/",
-        content_type="application/json",
-        data=json.dumps({"files": {"file.txt": rfile.filehash}}),
+        data=data,
+        format="json",
         HTTP_AUTHORIZATION=release.backend.auth_token,
         HTTP_OS_USER=user.username,
     )
