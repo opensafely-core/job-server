@@ -19,7 +19,6 @@ const useFileStore = create((set, get) => ({
           date: file.date,
           sha256: file.sha256,
           size: file.size,
-          shortName: "data-003.csv",
           metadata: {},
         },
         ...state.checkedFiles,
