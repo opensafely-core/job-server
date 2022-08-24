@@ -53,13 +53,13 @@ class FileSerializer(serializers.Serializer):
     sha256 = serializers.CharField()
     date = serializers.DateTimeField()
     metadata = serializers.DictField()
-    review = ReviewSerializer(required=False)
+    review = ReviewSerializer(allow_null=True)
 
 
 class ReleaseSerializer(serializers.Serializer):
     files = FileSerializer(many=True)
     metadata = serializers.DictField()
-    review = serializers.DictField()
+    review = serializers.DictField(allow_null=True)
 
 
 class ReleaseNotificationAPICreate(CreateAPIView):

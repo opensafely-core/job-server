@@ -443,10 +443,11 @@ def test_releaseworkspaceapi_post_create_release(api_rf, slack_messages):
                 "sha256": "hash",
                 "date": timezone.now(),
                 "metadata": {},
+                "review": None,
             }
         ],
         "metadata": {},
-        "review": {},
+        "review": None,
     }
     request = api_rf.post(
         "/",
@@ -498,6 +499,7 @@ def test_releaseworkspaceapi_post_release_already_exists(api_rf):
                 "sha256": rfile.filehash,
                 "date": timezone.now(),
                 "metadata": {},
+                "review": None,
             }
         ],
         "metadata": {},
