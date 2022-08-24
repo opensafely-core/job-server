@@ -1,11 +1,9 @@
-import React from "react";
+import React, { useEffect } from "react";
 import {
-  Accordion,
   Button,
   Card,
   Col,
   Form,
-  FormCheck,
   ListGroup,
   Modal,
   Row,
@@ -17,6 +15,17 @@ function ReviewModal() {
   const checkedFiles = useFileStore((state) => state.checkedFiles);
   const isModalOpen = useAppStore((state) => state.isModalOpen);
   const hideModal = useAppStore((state) => state.hideModal);
+  const { formData, getFormDataMeta, setFormDataFiles, setFormDataMeta } =
+    useFileStore((state) => ({
+      formData: state.formData,
+      getFormDataMeta: state.getFormDataMeta,
+      setFormDataFiles: state.setFormDataFiles,
+      setFormDataMeta: state.setFormDataMeta,
+    }));
+
+  useEffect(() => {
+    setFormDataFiles(checkedFiles);
+  }, [checkedFiles, isModalOpen, setFormDataFiles]);
 
   return (
     <Modal
@@ -71,7 +80,7 @@ function ReviewModal() {
         <Row className="py-3">
           <Col md={{ span: 10, offset: 1 }} xl={{ span: 8, offset: 2 }}>
             <h2 className="h4">Additional information</h2>
-            <Form>
+            <Form id="modalForm">
               <Form.Group controlId="additionalInformation-1">
                 <Form.Label className="mb-0 font-weight-bold">
                   Describe why the data release is necessary to help you meet
@@ -81,19 +90,12 @@ function ReviewModal() {
                 <Form.Control
                   as="textarea"
                   className="mt-2"
+                  onChange={(e) =>
+                    setFormDataMeta("dataRelease", e.target.value)
+                  }
                   required
-                  // onChange={(e) =>
-                  //   setFileMeta(
-                  //     selectedFile,
-                  //     "fileForm.disclosureControl",
-                  //     e.target.value
-                  //   )
-                  // }
                   rows={4}
-                  // value={getFileMeta(
-                  //   selectedFile,
-                  //   "fileForm.disclosureControl"
-                  // )}
+                  value={getFormDataMeta("dataRelease")}
                 />
                 <Form.Text muted>
                   The number of study outputs requested for review must be kept
@@ -109,7 +111,7 @@ function ReviewModal() {
               <Form.Group className="mt-4">
                 <Form.Label
                   className="mb-0 font-weight-bold"
-                  htmlFor="additionalInformation-2"
+                  htmlFor="readAndAdhere"
                 >
                   Confirm that you have read the{" "}
                   <a
@@ -131,15 +133,18 @@ function ReviewModal() {
                 </Form.Label>
                 <Form.Switch
                   className="mt-2"
-                  id="additionalInformation-2"
+                  id="readAndAdhere"
                   label="I confirm the above statement"
+                  onChange={(e) =>
+                    setFormDataMeta("readAndAdhere", e.target.checked)
+                  }
                   type="switch"
                 />
               </Form.Group>
               <Form.Group className="mt-4">
                 <Form.Label
                   className="mb-0 font-weight-bold"
-                  htmlFor="additionalInformation-3"
+                  htmlFor="disclosureControls"
                 >
                   Have you applied all necessary and relevant disclosure
                   controls to the data for release,{" "}
@@ -154,15 +159,18 @@ function ReviewModal() {
                 </Form.Label>
                 <Form.Switch
                   className="mt-2"
-                  id="additionalInformation-3"
+                  id="disclosureControls"
                   label="I have applied all necessary and relevant disclosure controls"
+                  onChange={(e) =>
+                    setFormDataMeta("disclosureControls", e.target.checked)
+                  }
                   type="switch"
                 />
               </Form.Group>
               <Form.Group className="mt-4">
                 <Form.Label
                   className="mb-0 font-weight-bold"
-                  htmlFor="additionalInformation-4"
+                  htmlFor="fileTypes"
                 >
                   Only the following file types will be reviewed: HTML; TXT;
                   CSV; SVG; JPG.
@@ -173,17 +181,28 @@ function ReviewModal() {
                 </Form.Text>
                 <Form.Switch
                   className="mt-2"
-                  id="additionalInformation-4"
+                  id="fileTypes"
                   label="My request only contains the above file types"
+                  onChange={(e) =>
+                    setFormDataMeta("fileTypes", e.target.checked)
+                  }
                   type="switch"
                 />
               </Form.Group>
             </Form>
+            <pre className="mt-5">{JSON.stringify(formData, null, 2)}</pre>
           </Col>
         </Row>
       </Modal.Body>
       <Modal.Footer>
-        <Button variant="success">Submit request</Button>
+        <Button
+          form="modalForm"
+          onClick={() => checkForm()}
+          type="submit"
+          variant="success"
+        >
+          Submit request
+        </Button>
         <Button onClick={hideModal} variant="secondary">
           Edit request
         </Button>
