@@ -628,6 +628,30 @@ def test_releasefileapi_with_deleted_file(api_rf):
     assert response.status_code == 404, response.data
 
 
+def test_releasefileapi_with_no_file_on_disk(api_rf, build_release):
+    release = build_release(["file1.txt"])
+    rfile = ReleaseFileFactory(
+        release=release,
+        workspace=release.workspace,
+        name="file1.txt",
+        uploaded_at=None,
+    )
+    user = UserFactory()
+
+    ProjectMembershipFactory(
+        user=user,
+        project=release.workspace.project,
+        roles=[ProjectCollaborator],
+    )
+
+    request = api_rf.get("/")
+    request.user = user
+
+    response = ReleaseFileAPI.as_view()(request, file_id=rfile.id)
+
+    assert response.status_code == 404, response.data
+
+
 def test_releasefileapi_with_nginx_redirect(api_rf, build_release_with_files):
     release = build_release_with_files(["file.txt"])
     rfile = release.files.first()
