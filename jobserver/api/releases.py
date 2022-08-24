@@ -308,7 +308,9 @@ class ReleaseFileAPI(APIView):
 
     def get(self, request, file_id):
         """Return the content of a specific ReleaseFile"""
-        rfile = get_object_or_404(ReleaseFile, id=file_id)
+        # treat a deleted file as missing
+        release_files = ReleaseFile.objects.filter(deleted_at=None, deleted_by=None)
+        rfile = get_object_or_404(release_files, id=file_id)
         validate_release_access(request, rfile.workspace)
         return serve_file(request, rfile)
 
