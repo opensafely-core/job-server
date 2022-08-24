@@ -3,13 +3,14 @@ import { Button, Form } from "react-bootstrap";
 import useFileStore from "../../stores/use-file-store";
 
 function FileReview({ selectedFile }) {
-  const { addCheckedFile, isFileChecked, removeCheckedFile, checkedFiles } =
-    useFileStore((state) => ({
+  const { addCheckedFile, isFileChecked, removeCheckedFile } = useFileStore(
+    (state) => ({
       addCheckedFile: state.addCheckedFile,
       removeCheckedFile: state.removeCheckedFile,
       checkedFiles: state.checkedFiles,
       isFileChecked: state.isFileChecked,
-    }));
+    })
+  );
 
   const { setFileMeta, getFileMeta } = useFileStore((state) => ({
     setFileMeta: state.setFileMeta,
@@ -54,10 +55,10 @@ function FileReview({ selectedFile }) {
               as="textarea"
               className="mt-2"
               onChange={(e) =>
-                setFileMeta(selectedFile, "fileForm.context", e.target.value)
+                setFileMeta(selectedFile, "context", e.target.value)
               }
               rows={4}
-              value={getFileMeta(selectedFile, "fileForm.context")}
+              value={getFileMeta(selectedFile, "context")}
             />
           </Form.Group>
           <Form.Group
@@ -76,14 +77,10 @@ function FileReview({ selectedFile }) {
               as="textarea"
               className="mt-2"
               onChange={(e) =>
-                setFileMeta(
-                  selectedFile,
-                  "fileForm.disclosureControl",
-                  e.target.value
-                )
+                setFileMeta(selectedFile, "disclosureControl", e.target.value)
               }
               rows={4}
-              value={getFileMeta(selectedFile, "fileForm.disclosureControl")}
+              value={getFileMeta(selectedFile, "disclosureControl")}
             />
           </Form.Group>
         </Form>
