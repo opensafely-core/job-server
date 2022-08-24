@@ -202,7 +202,8 @@ def test_handle_release_upload_file_created():
 def test_handle_release_upload_exists_in_db_and_not_on_disk():
     uploads = ReleaseUploadsFactory({"file1.txt": b"test"})
     existing = ReleaseFileFactory(uploads[0])
-    existing.absolute_path().unlink()
+    existing.uploaded_at = None
+    existing.save()
 
     # check out test setup is correct
     assert existing.filehash == uploads[0].filehash

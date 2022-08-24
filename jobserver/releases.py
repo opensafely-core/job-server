@@ -199,7 +199,7 @@ def handle_file_upload(release, backend, user, upload, filename, **kwargs):
     # New flow
 
     # _is_ on disk
-    if rfile.absolute_path().exists():
+    if rfile.uploaded_at:
         # existence of a ReleaseFile isn't an error case now but a file-on-disk
         # having already been uploaded is
         raise ReleaseFileAlreadyExists(
