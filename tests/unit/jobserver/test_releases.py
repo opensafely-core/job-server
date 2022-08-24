@@ -246,11 +246,12 @@ def test_handle_release_upload_exists_with_incorrect_filehash():
     existing = ReleaseFileFactory(uploads[0])
 
     existing.absolute_path().unlink()
+    existing.uploaded_at = None
     existing.filehash = "test"
-    existing.save(update_fields=["filehash"])
+    existing.save(update_fields=["filehash", "uploaded_at"])
     existing.refresh_from_db()
 
-    with pytest.raises(Exception):
+    with pytest.raises(Exception, match="^Contents of uploaded"):
         releases.handle_file_upload(
             existing.release,
             existing.release.backend,
