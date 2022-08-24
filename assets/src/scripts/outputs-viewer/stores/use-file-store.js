@@ -5,30 +5,41 @@ const useFileStore = create((set, get) => ({
   checkedFiles: [],
 
   isFileChecked: (file) =>
-    get().checkedFiles.some((checked) => checked.id === file.id),
+    get().checkedFiles.some((checked) => checked.url === file.url),
   addCheckedFile: (file) => {
     if (get().isFileChecked(file)) {
       return null;
     }
 
     return set((state) => ({
-      checkedFiles: [{ ...file, meta: {} }, ...state.checkedFiles],
+      checkedFiles: [
+        {
+          name: file.name,
+          url: file.url,
+          date: file.date,
+          sha256: file.sha256,
+          size: file.size,
+          shortName: "data-003.csv",
+          metadata: {},
+        },
+        ...state.checkedFiles,
+      ],
     }));
   },
   removeCheckedFile: (file) =>
     set((state) => ({
       checkedFiles: [...state.checkedFiles].filter(
-        (checked) => checked.id !== file.id
+        (checked) => checked.url !== file.url
       ),
     })),
 
   setFileMeta: (file, field, text) => {
     const fileIndex = get().checkedFiles.findIndex(
-      (checked) => checked.id === file.id
+      (checked) => checked.url === file.url
     );
     Object.assign(get().checkedFiles[fileIndex], {
-      meta: {
-        ...get().checkedFiles[fileIndex].meta,
+      metadata: {
+        ...get().checkedFiles[fileIndex].metadata,
         [field]: text,
       },
     });
@@ -37,9 +48,9 @@ const useFileStore = create((set, get) => ({
   },
   getFileMeta: (file, field) => {
     const fileIndex = get().checkedFiles.findIndex(
-      (checked) => checked.id === file.id
+      (checked) => checked.url === file.url
     );
-    return get().checkedFiles[fileIndex].meta[field];
+    return get().checkedFiles[fileIndex].metadata[field];
   },
 
   // isAllFilesChecked: () => null,
@@ -48,7 +59,7 @@ const useFileStore = create((set, get) => ({
 
   formData: {
     files: [],
-    meta: {
+    metadata: {
       dataRelease: "",
       readAndAdhere: false,
       disclosureControls: false,
@@ -60,10 +71,10 @@ const useFileStore = create((set, get) => ({
     set((state) => ({
       formData: {
         ...state.formData,
-        meta: { ...state.formData.meta, [field]: val },
+        metadata: { ...state.formData.metadata, [field]: val },
       },
     })),
-  getFormDataMeta: (field) => get().formData?.meta?.[field],
+  getFormDataMeta: (field) => get().formData?.metadata?.[field],
 }));
 
 export default useFileStore;

@@ -43,22 +43,22 @@ function ReviewModal() {
           <Col>
             <h2 className="h4 mpb-3">Files requested</h2>
             {checkedFiles.map((file) => (
-              <Card key={file.id} className="mb-3">
+              <Card key={file.sha256} className="mb-3">
                 <Card.Header className="font-weight-bold">
                   {file.shortName}
                 </Card.Header>
-                {(file.meta["fileForm.context"] ||
-                  file.meta["fileForm.disclosureControl"]) && (
+                {(file.metadata?.context ||
+                  file.metadata?.disclosureControl) && (
                   <ListGroup variant="flush">
-                    {file.meta["fileForm.context"] && (
+                    {file.metadata?.context && (
                       <ListGroup.Item>
                         <p className="mb-0">
                           <strong>Describe what this file contains:</strong>
                         </p>
-                        <p className="mb-0">{file.meta["fileForm.context"]}</p>
+                        <p className="mb-0">{file.metadata?.context}</p>
                       </ListGroup.Item>
                     )}
-                    {file.meta["fileForm.disclosureControl"] && (
+                    {file.metadata?.disclosureControl && (
                       <ListGroup.Item>
                         <p className="mb-0">
                           <strong>
@@ -67,7 +67,7 @@ function ReviewModal() {
                           </strong>
                         </p>
                         <p className="mb-0">
-                          {file.meta["fileForm.disclosureControl"]}
+                          {file.metadata?.disclosureControl}
                         </p>
                       </ListGroup.Item>
                     )}
