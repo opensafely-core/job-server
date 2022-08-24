@@ -267,7 +267,7 @@ class ReleaseAPI(APIView):
         _, params = cgi.parse_header(request.headers["Content-Disposition"])
         filename = params["filename"]
 
-        if filename not in release.requested_files:
+        if filename not in {f["name"] for f in release.requested_files}:
             raise ValidationError(
                 {"detail": f"File {filename} not requested in release {release.id}"}
             )
