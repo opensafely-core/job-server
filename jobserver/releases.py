@@ -199,7 +199,7 @@ def handle_file_upload(release, backend, user, upload, filename, **kwargs):
     # New flow
 
     # _is_ on disk
-    if rfile.absolute_path().exists():
+    if rfile.uploaded_at:
         # existence of a ReleaseFile isn't an error case now but a file-on-disk
         # having already been uploaded is
         raise ReleaseFileAlreadyExists(
@@ -210,7 +210,8 @@ def handle_file_upload(release, backend, user, upload, filename, **kwargs):
     # the uploaded files hash matches what was sent to us when the ReleaseFile
     # and Release were created.
     if rfile.filehash != calculated_hash:
-        raise Exception
+        msg = "Contents of uploaded file does not match the file which a review was requested for"
+        raise Exception(msg)
 
     absolute_path.write_bytes(data)
     rfile.path = str(relative_path)

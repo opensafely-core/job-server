@@ -120,6 +120,7 @@ def test_releaseapi_post_already_uploaded(api_rf, tmp_path):
         release=release,
         name="file.txt",
         path=Path(release.workspace.name) / "releases" / str(release.id) / "file.txt",
+        uploaded_at=timezone.now(),
     )
     content = "".join(random.choice(string.ascii_letters) for i in range(10))
     content = content.encode("utf8")

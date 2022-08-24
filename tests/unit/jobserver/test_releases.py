@@ -202,7 +202,8 @@ def test_handle_release_upload_file_created():
 def test_handle_release_upload_exists_in_db_and_not_on_disk():
     uploads = ReleaseUploadsFactory({"file1.txt": b"test"})
     existing = ReleaseFileFactory(uploads[0])
-    existing.absolute_path().unlink()
+    existing.uploaded_at = None
+    existing.save()
 
     # check out test setup is correct
     assert existing.filehash == uploads[0].filehash
@@ -245,11 +246,12 @@ def test_handle_release_upload_exists_with_incorrect_filehash():
     existing = ReleaseFileFactory(uploads[0])
 
     existing.absolute_path().unlink()
+    existing.uploaded_at = None
     existing.filehash = "test"
-    existing.save(update_fields=["filehash"])
+    existing.save(update_fields=["filehash", "uploaded_at"])
     existing.refresh_from_db()
 
-    with pytest.raises(Exception):
+    with pytest.raises(Exception, match="^Contents of uploaded"):
         releases.handle_file_upload(
             existing.release,
             existing.release.backend,
