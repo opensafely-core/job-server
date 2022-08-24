@@ -1,3 +1,4 @@
+/* eslint-disable no-return-assign */
 import create from "zustand";
 
 const useFileStore = create((set, get) => ({
@@ -44,6 +45,25 @@ const useFileStore = create((set, get) => ({
   // isAllFilesChecked: () => null,
   // addAllCheckedFiles: () => null,
   removeAllCheckedFiles: () => set(() => ({ checkedFiles: [] })),
+
+  formData: {
+    files: [],
+    meta: {
+      dataRelease: "",
+      readAndAdhere: false,
+      disclosureControls: false,
+      fileTypes: false,
+    },
+  },
+  setFormDataFiles: (files) => set(() => ({ formData: { files } })),
+  setFormDataMeta: (field, val) =>
+    set((state) => ({
+      formData: {
+        ...state.formData,
+        meta: { ...state.formData.meta, [field]: val },
+      },
+    })),
+  getFormDataMeta: (field) => get().formData?.meta?.[field],
 }));
 
 export default useFileStore;
