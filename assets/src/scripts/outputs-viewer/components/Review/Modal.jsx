@@ -45,7 +45,7 @@ function ReviewModal() {
             {checkedFiles.map((file) => (
               <Card key={file.sha256} className="mb-3">
                 <Card.Header className="font-weight-bold">
-                  {file.shortName}
+                  {file.name}
                 </Card.Header>
                 {(file.metadata?.context ||
                   file.metadata?.disclosureControl) && (
