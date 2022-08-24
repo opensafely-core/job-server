@@ -1,4 +1,8 @@
+import hashlib
 import json
+import random
+import string
+from pathlib import Path
 
 import pytest
 from django.contrib.auth.models import AnonymousUser
@@ -104,10 +108,22 @@ def test_releaseapi_get_without_permission(api_rf):
     assert response.status_code == 403
 
 
-def test_releaseapi_post_already_uploaded(api_rf):
+def test_releaseapi_post_already_uploaded(api_rf, tmp_path):
     user = UserFactory(roles=[OutputChecker])
-    uploads = ReleaseUploadsFactory(["file.txt"])
-    release = ReleaseFactory(uploads, uploaded=True)
+
+    release = new_style.ReleaseFactory(requested_files=[{"name": "file.txt"}])
+    # mirror path building until we can abstract this into a fixture
+    path = tmp_path / "releases" / release.workspace.name / "releases" / str(release.id)
+    path.mkdir(parents=True)
+
+    rfile = new_style.ReleaseFileFactory(
+        release=release,
+        name="file.txt",
+        path=Path(release.workspace.name) / "releases" / str(release.id) / "file.txt",
+    )
+    content = "".join(random.choice(string.ascii_letters) for i in range(10))
+    content = content.encode("utf8")
+    rfile.absolute_path().write_bytes(content)
 
     BackendMembershipFactory(backend=release.backend, user=user)
 
@@ -116,8 +132,8 @@ def test_releaseapi_post_already_uploaded(api_rf):
     request = api_rf.post(
         "/",
         content_type="application/octet-stream",
-        data=uploads[0].contents,
-        HTTP_CONTENT_DISPOSITION=f"attachment; filename={uploads[0].filename}",
+        data=content,
+        HTTP_CONTENT_DISPOSITION="attachment; filename=file.txt",
         HTTP_AUTHORIZATION=release.backend.auth_token,
         HTTP_OS_USER=user.username,
     )
@@ -132,17 +148,18 @@ def test_releaseapi_post_already_uploaded(api_rf):
 
 def test_releaseapi_post_bad_backend(api_rf):
     user = UserFactory(roles=[OutputChecker])
-    uploads = ReleaseUploadsFactory(["output/file.txt"])
-    release = ReleaseFactory(uploads, uploaded=False)
+    release = new_style.ReleaseFactory(requested_files=[{"name": "file.txt"}])
 
     bad_backend = BackendFactory()
     BackendMembershipFactory(backend=bad_backend, user=user)
 
+    content = "".join(random.choice(string.ascii_letters) for i in range(10))
+    content = content.encode("utf8")
     request = api_rf.post(
         "/",
         content_type="application/octet-stream",
-        data=uploads[0].contents,
-        HTTP_CONTENT_DISPOSITION=f"attachment; filename={uploads[0].filename}",
+        data=content,
+        HTTP_CONTENT_DISPOSITION="attachment; filename=file.txt",
         HTTP_AUTHORIZATION=bad_backend.auth_token,
         HTTP_OS_USER=user.username,
     )
@@ -166,15 +183,16 @@ def test_releaseapi_post_bad_backend_token(api_rf):
 
 def test_releaseapi_post_bad_filename(api_rf):
     user = UserFactory(roles=[OutputChecker])
-    uploads = ReleaseUploadsFactory(["file.txt"])
-    release = ReleaseFactory(uploads, uploaded=False)
+    release = new_style.ReleaseFactory()
 
     BackendMembershipFactory(backend=release.backend, user=user)
 
+    content = "".join(random.choice(string.ascii_letters) for i in range(10))
+    content = content.encode("utf8")
     request = api_rf.post(
         "/",
         content_type="application/octet-stream",
-        data=uploads[0].contents,
+        data=content,
         HTTP_CONTENT_DISPOSITION="attachment; filename=wrongname.txt",
         HTTP_AUTHORIZATION=release.backend.auth_token,
         HTTP_OS_USER=user.username,
@@ -238,10 +256,22 @@ def test_releaseapi_post_no_user(api_rf):
 def test_releaseapi_post_success(api_rf, slack_messages):
     creating_user = UserFactory()
     uploading_user = UserFactory(roles=[OutputChecker])
-    uploads = ReleaseUploadsFactory(["file.txt"])
+
     backend = BackendFactory(name="test-backend")
-    release = ReleaseFactory(
-        uploads, uploaded=False, created_by=creating_user, backend=backend
+    release = new_style.ReleaseFactory(
+        backend=backend,
+        created_by=creating_user,
+        requested_files=[{"name": "file.txt"}],
+    )
+    content = "".join(random.choice(string.ascii_letters) for i in range(10))
+    content = content.encode("utf8")
+    filehash = hashlib.sha256(content).hexdigest()
+    rfile = new_style.ReleaseFileFactory(
+        release=release,
+        created_by=uploading_user,
+        name="file.txt",
+        path="test/file.txt",
+        filehash=filehash,
     )
 
     BackendMembershipFactory(backend=release.backend, user=creating_user)
@@ -250,8 +280,8 @@ def test_releaseapi_post_success(api_rf, slack_messages):
     request = api_rf.post(
         "/",
         content_type="application/octet-stream",
-        data=uploads[0].contents,
-        HTTP_CONTENT_DISPOSITION=f"attachment; filename={uploads[0].filename}",
+        data=content,
+        HTTP_CONTENT_DISPOSITION="attachment; filename=file.txt",
         HTTP_AUTHORIZATION=release.backend.auth_token,
         HTTP_OS_USER=uploading_user.username,
     )
@@ -259,7 +289,7 @@ def test_releaseapi_post_success(api_rf, slack_messages):
     response = ReleaseAPI.as_view()(request, release_id=release.id)
 
     rfile = release.files.first()
-    assert response.status_code == 201
+    assert response.status_code == 201, response.data
     assert response.headers["Location"].endswith(f"/releases/file/{rfile.id}")
     assert response.headers["File-Id"] == rfile.id
 
