@@ -53,7 +53,13 @@ class FileSerializer(serializers.Serializer):
     sha256 = serializers.CharField()
     date = serializers.DateTimeField()
     metadata = serializers.DictField()
-    review = ReviewSerializer()
+    review = ReviewSerializer(required=False)
+
+
+class ReleaseSerializer(serializers.Serializer):
+    files = FileSerializer(many=True)
+    metadata = serializers.DictField()
+    review = serializers.DictField()
 
 
 class ReleaseNotificationAPICreate(CreateAPIView):
@@ -206,16 +212,13 @@ class ReleaseWorkspaceAPI(APIView):
     authentication_classes = [SessionAuthentication]
     parsers = [JSONParser]
 
-    class FilesSerializer(serializers.Serializer):
-        files = serializers.DictField(child=serializers.CharField())
-
     def post(self, request, workspace_name):
         """Create a new Release for this workspace."""
         workspace = get_object_or_404(Workspace, name=workspace_name)
         backend, user = validate_upload_access(request, workspace)
 
         # parse the requested files
-        serializer = self.FilesSerializer(data=request.data)
+        serializer = ReleaseSerializer(data=request.data)
         serializer.is_valid(raise_exception=True)
         files = serializer.validated_data["files"]
 
@@ -313,16 +316,11 @@ class ReleaseFileAPI(APIView):
 class ReviewAPI(APIView):
     authentication_classes = [SessionAuthentication]
 
-    class ReleaseSerializer(serializers.Serializer):
-        files = FileSerializer(many=True)
-        metadata = serializers.DictField()
-        review = serializers.DictField()
-
     def post(self, request, *args, **kwargs):
         release = get_object_or_404(Release, id=self.kwargs["release_id"])
         db_files = release.files.all()
 
-        serializer = self.ReleaseSerializer(data=request.data)
+        serializer = ReleaseSerializer(data=request.data)
         serializer.is_valid(raise_exception=True)
         payload_files = serializer.validated_data["files"]
 
