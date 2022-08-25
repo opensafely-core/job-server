@@ -1,6 +1,5 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import { Button, Card, Col, Row } from "react-bootstrap";
-// import { useLocation } from "react-router-dom";
 import PrepareButton from "./components/Button/PrepareButton";
 import PublishButton from "./components/Button/PublishButton";
 import FileList from "./components/FileList/FileList";
@@ -38,13 +37,24 @@ function App({
 
   const isReview = !!reviewUrl;
 
+  useEffect(
+    () =>
+      useAppStore.setState({
+        authToken,
+        csrfToken,
+        filesUrl,
+        prepareUrl,
+        publishUrl,
+        reviewUrl,
+      }),
+    [] // eslint-disable-line react-hooks/exhaustive-deps
+  );
+
   return (
     <>
       {isReview && (
         <>
-          {isModalOpen && (
-            <ReviewModal csrfToken={csrfToken} reviewUrl={reviewUrl} />
-          )}
+          {isModalOpen && <ReviewModal />}
           <Row>
             <Col className="d-flex mb-3">
               {isReviewView ? (

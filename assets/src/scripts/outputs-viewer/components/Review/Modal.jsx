@@ -14,10 +14,16 @@ import useFileStore from "../../stores/use-file-store";
 import { datasetProps } from "../../utils/props";
 import { toastError } from "../../utils/toast";
 
-function ReviewModal({ csrfToken, reviewUrl }) {
+function ReviewModal() {
   const checkedFiles = useFileStore((state) => state.checkedFiles);
-  const isModalOpen = useAppStore((state) => state.isModalOpen);
-  const hideModal = useAppStore((state) => state.hideModal);
+  const [hideModal, isModalOpen] = useAppStore((state) => [
+    state.hideModal,
+    state.isModalOpen,
+  ]);
+  const [csrfToken, reviewUrl] = useAppStore((state) => [
+    state.csrfToken,
+    state.reviewUrl,
+  ]);
   const { formData, getFormDataMeta, setFormDataFiles, setFormDataMeta } =
     useFileStore((state) => ({
       formData: state.formData,

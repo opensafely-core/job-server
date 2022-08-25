@@ -1,4 +1,5 @@
 /* eslint-disable no-return-assign */
+import { mountStoreDevtool } from "simple-zustand-devtools";
 import create from "zustand";
 
 const useFileStore = create((set, get) => ({
@@ -77,3 +78,7 @@ const useFileStore = create((set, get) => ({
 }));
 
 export default useFileStore;
+
+if (process.env.NODE_ENV === "development") {
+  mountStoreDevtool("Store1", useFileStore);
+}

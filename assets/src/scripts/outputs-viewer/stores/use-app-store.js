@@ -1,3 +1,4 @@
+import { mountStoreDevtool } from "simple-zustand-devtools";
 import create from "zustand";
 
 const useAppStore = create((set) => ({
@@ -7,3 +8,7 @@ const useAppStore = create((set) => ({
 }));
 
 export default useAppStore;
+
+if (process.env.NODE_ENV === "development") {
+  mountStoreDevtool("Store1", useAppStore);
+}
