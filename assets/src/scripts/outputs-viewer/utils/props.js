@@ -20,4 +20,5 @@ export const selectedFileProps = {
   size: PropTypes.number,
   url: PropTypes.string,
   user: PropTypes.string,
+  metadata: PropTypes.object,
 };
