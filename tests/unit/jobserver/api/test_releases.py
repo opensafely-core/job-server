@@ -33,11 +33,12 @@ from tests.factories import (
     BackendMembershipFactory,
     ProjectFactory,
     ProjectMembershipFactory,
+    ReleaseFactory,
+    ReleaseFileFactory,
     SnapshotFactory,
     UserFactory,
     WorkspaceFactory,
 )
-from tests.factories.releases import ReleaseFactory, ReleaseFileFactory
 
 
 def test_releaseapi_get_unknown_release(api_rf):

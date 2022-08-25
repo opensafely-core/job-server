@@ -15,9 +15,14 @@ import services.slack
 from applications.form_specs import form_specs
 from jobserver.authorization.roles import CoreDeveloper
 
-from .factories import OrgFactory, OrgMembershipFactory, UserFactory
+from .factories import (
+    OrgFactory,
+    OrgMembershipFactory,
+    ReleaseFactory,
+    ReleaseFileFactory,
+    UserFactory,
+)
 from .factories import applications as application_factories
-from .factories.releases import ReleaseFactory, ReleaseFileFactory
 
 
 @pytest.fixture(autouse=True)

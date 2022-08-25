@@ -37,11 +37,12 @@ from ....factories import (
     OrgMembershipFactory,
     ProjectFactory,
     ProjectMembershipFactory,
+    ReleaseFactory,
+    ReleaseFileFactory,
     SnapshotFactory,
     UserFactory,
     WorkspaceFactory,
 )
-from ....factories.releases import ReleaseFactory, ReleaseFileFactory
 from ....fakes import FakeGitHubAPI
 from ....utils import minutes_ago
 

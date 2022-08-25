@@ -19,11 +19,12 @@ from jobserver.views.releases import (
 from ....factories import (
     OrgFactory,
     ProjectFactory,
+    ReleaseFactory,
+    ReleaseFileFactory,
     SnapshotFactory,
     UserFactory,
     WorkspaceFactory,
 )
-from ....factories.releases import ReleaseFactory, ReleaseFileFactory
 
 
 def test_projectreleaselist_no_releases(rf):

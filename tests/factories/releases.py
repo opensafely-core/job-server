@@ -21,7 +21,7 @@ class ReleaseFileFactory(factory.django.DjangoModelFactory):
         model = ReleaseFile
 
     created_by = factory.SubFactory("tests.factories.UserFactory")
-    release = factory.SubFactory("tests.factories.releases.ReleaseFactory")
+    release = factory.SubFactory("tests.factories.ReleaseFactory")
     workspace = factory.SubFactory("tests.factories.WorkspaceFactory")
 
     mtime = factory.Faker("date_time", tzinfo=timezone.utc)

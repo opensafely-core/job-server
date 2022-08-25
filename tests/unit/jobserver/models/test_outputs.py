@@ -4,8 +4,12 @@ from django.db import IntegrityError
 from django.urls import reverse
 from django.utils import timezone
 
-from tests.factories import SnapshotFactory, UserFactory
-from tests.factories.releases import ReleaseFactory, ReleaseFileFactory
+from tests.factories import (
+    ReleaseFactory,
+    ReleaseFileFactory,
+    SnapshotFactory,
+    UserFactory,
+)
 
 
 def test_release_get_absolute_url():

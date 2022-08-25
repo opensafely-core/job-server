@@ -10,8 +10,12 @@ from django.utils import timezone
 from jobserver import releases
 from jobserver.models import ReleaseFile
 from jobserver.models.outputs import absolute_file_path
-from tests.factories import BackendFactory, UserFactory, WorkspaceFactory
-from tests.factories.releases import ReleaseFileFactory
+from tests.factories import (
+    BackendFactory,
+    ReleaseFileFactory,
+    UserFactory,
+    WorkspaceFactory,
+)
 
 from ...utils import minutes_ago
 
