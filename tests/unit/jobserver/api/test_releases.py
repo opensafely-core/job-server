@@ -89,6 +89,7 @@ def test_releaseapi_get_with_permission(api_rf, build_release_with_files):
                 "sha256": rfile.filehash,
                 "is_deleted": False,
                 "backend": release.backend.name,
+                "metadata": None,
             }
         ],
     }
@@ -388,6 +389,7 @@ def test_releaseworkspaceapi_get_with_permission(api_rf, build_release_with_file
                 "sha256": rfile2.filehash,
                 "is_deleted": False,
                 "backend": release2.backend.name,
+                "metadata": None,
             },
             {
                 "name": "backend1/file1.txt",
@@ -399,6 +401,7 @@ def test_releaseworkspaceapi_get_with_permission(api_rf, build_release_with_file
                 "sha256": rfile1.filehash,
                 "is_deleted": False,
                 "backend": release1.backend.name,
+                "metadata": None,
             },
         ],
     }

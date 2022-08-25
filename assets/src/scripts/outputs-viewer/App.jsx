@@ -141,6 +141,7 @@ function App({
                   fileName={selectedFile.name}
                   fileSize={selectedFile.size}
                   fileUrl={selectedFile.url}
+                  metadata={selectedFile.metadata}
                 />
                 <Card.Body>
                   <Viewer

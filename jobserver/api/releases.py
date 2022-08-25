@@ -200,6 +200,7 @@ def generate_index(files):
                 size=get_size(rfile),
                 is_deleted=rfile.deleted_at or not rfile.absolute_path().exists(),
                 backend=rfile.release.backend.name,
+                metadata=rfile.metadata,
             )
             for name, rfile in files.items()
         ],
