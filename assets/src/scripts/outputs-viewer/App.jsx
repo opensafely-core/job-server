@@ -3,7 +3,6 @@ import { Button, Card, Col, Row } from "react-bootstrap";
 // import { useLocation } from "react-router-dom";
 import PrepareButton from "./components/Button/PrepareButton";
 import PublishButton from "./components/Button/PublishButton";
-import ToggleFileReview from "./components/Button/ToggleFileReview";
 import FileList from "./components/FileList/FileList";
 import FileReview from "./components/FileReview/FileReview";
 import Metadata from "./components/Metadata/Metadata";
@@ -43,7 +42,9 @@ function App({
     <>
       {isReview && (
         <>
-          {isModalOpen && <ReviewModal />}
+          {isModalOpen && (
+            <ReviewModal csrfToken={csrfToken} reviewUrl={reviewUrl} />
+          )}
           <Row>
             <Col className="d-flex mb-3">
               {isReviewView ? (
@@ -159,10 +160,11 @@ App.propTypes = {
   filesUrl: datasetProps.filesUrl.isRequired,
   prepareUrl: datasetProps.prepareUrl,
   publishUrl: datasetProps.publishUrl,
-  reviewUrl: datasetProps.reviewUrl.isRequired,
+  reviewUrl: datasetProps.reviewUrl,
 };
 
 App.defaultProps = {
   prepareUrl: null,
   publishUrl: null,
+  reviewUrl: null,
 };
