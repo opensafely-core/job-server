@@ -227,10 +227,11 @@ def serve_file(request, rfile):
     If Releases-Redirect header is set, use nginx's X-Accel-Redirect to serve
     response. Else just serve the bytes directly (for dev).
     """
-    path = rfile.absolute_path()
-    # check the file actually exists on disk
-    if not path.exists():
+    # check the file has been uploaded
+    if not rfile.uploaded_at:
         raise NotFound
+
+    path = rfile.absolute_path()
 
     internal_redirect = request.headers.get("Releases-Redirect")
     if internal_redirect:

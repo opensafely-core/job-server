@@ -1,6 +1,3 @@
-import hashlib
-import io
-from dataclasses import dataclass
 from datetime import datetime
 
 import factory
@@ -22,7 +19,6 @@ from jobserver.models import (
     User,
     Workspace,
 )
-from jobserver.releases import create_release, handle_file_upload
 
 
 class BackendFactory(factory.django.DjangoModelFactory):
@@ -107,99 +103,6 @@ class SnapshotFactory(factory.django.DjangoModelFactory):
 
     created_by = factory.SubFactory("tests.factories.UserFactory")
     workspace = factory.SubFactory("tests.factories.WorkspaceFactory")
-
-
-@dataclass
-class ReleaseUpload:
-    filename: str
-    contents: bytes
-    filehash: str = ""
-
-    def __post_init__(self):
-        if not self.filehash:  # pragma: no cover
-            self.filehash = hashlib.sha256(self.contents).hexdigest()
-
-    @property
-    def stream(self):
-        return io.BytesIO(self.contents)
-
-
-def ReleaseUploadsFactory(files):
-    if isinstance(files, list):
-        files = {f: f.encode("utf8") for f in files}
-
-    return [ReleaseUpload(filename=k, contents=v) for k, v in files.items()]
-
-
-def ReleaseFactory(
-    uploads, uploaded=True, workspace=None, backend=None, created_by=None, **kwargs
-):
-    """Factory for Release objects.
-
-    You must supply a list of ReleaseUpload's as the first argument. If you
-    want an 'empty' release, pass uploaded=False.
-
-    Not a Factory Boy factory, as the need for files on disk and
-    file hashes to be known ahead of time to create valid objects
-    just does not work with Factory Boy.
-    """
-
-    created_by = created_by or UserFactory()
-    backend = backend or BackendFactory()
-    workspace = workspace or WorkspaceFactory()
-    release = create_release(
-        workspace=workspace,
-        backend=backend,
-        created_by=created_by,
-        requested_files={u.filename: u.filehash for u in uploads},
-        **kwargs,
-    )
-
-    # create the ReleaseFile objects
-    if uploaded:
-        for upload in uploads:
-            ReleaseFileFactory(
-                upload,
-                release=release,
-                backend=backend,
-                workspace=workspace,
-                created_by=created_by,
-            )
-
-    return release
-
-
-def ReleaseFileFactory(
-    upload, release=None, created_by=None, workspace=None, backend=None, **kwargs
-):
-    """Factory for ReleaseFile objects.
-
-    You must supply a ReleaseUpload as the first argument.
-
-    Not a Factory Boy factory, as the need for files on disk and
-    file hashes to be known ahead of time to create valid objects
-    just does not work with Factory Boy.
-    """
-    created_by = created_by or UserFactory()
-    backend = backend or BackendFactory()
-    workspace = workspace or WorkspaceFactory()
-    release = release or ReleaseFactory(
-        [upload],
-        uploaded=False,
-        workspace=workspace,
-        backend=backend,
-        created_by=created_by,
-    )
-
-    # use the business logic to actually create it.
-    return handle_file_upload(
-        release,
-        backend,
-        created_by,
-        upload.stream,
-        upload.filename,
-        **kwargs,
-    )
 
 
 class StatsFactory(factory.django.DjangoModelFactory):

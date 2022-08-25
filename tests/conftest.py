@@ -1,16 +1,27 @@
+import hashlib
 import os
+import random
+import string
 import textwrap
+from pathlib import Path
 
 import pytest
 import structlog
 from django.conf import settings
+from django.utils import timezone
 from structlog.testing import LogCapture
 
 import services.slack
 from applications.form_specs import form_specs
 from jobserver.authorization.roles import CoreDeveloper
 
-from .factories import OrgFactory, OrgMembershipFactory, UserFactory
+from .factories import (
+    OrgFactory,
+    OrgMembershipFactory,
+    ReleaseFactory,
+    ReleaseFileFactory,
+    UserFactory,
+)
 from .factories import applications as application_factories
 
 
@@ -81,6 +92,97 @@ def incomplete_application():
         factory = getattr(application_factories, factory_name)
         factory(application=application)
     return application
+
+
+@pytest.fixture
+def build_release(build_release_path):
+    def func(names, **kwargs):
+        requested_files = [{"name": n} for n in names]
+        release = ReleaseFactory(requested_files=requested_files, **kwargs)
+
+        build_release_path(release)
+
+        return release
+
+    return func
+
+
+@pytest.fixture
+def build_release_with_files(build_release, build_release_file):
+    """Build a Release and generate some files for the given names"""
+
+    def func(names, **kwargs):
+        release = build_release(names, **kwargs)
+
+        for name in names:
+            build_release_file(release, name)
+
+        return release
+
+    return func
+
+
+@pytest.fixture
+def build_release_file(file_content):
+    """
+    Build a ReleaseFile
+
+    Given a Release instance and a filename create both the ReleaseFile object
+    and the on-disk file with random content from the file_content fixture.
+    """
+
+    def func(release, name):
+        # build a relative path for the file
+        path = Path(release.workspace.name) / "releases" / str(release.id) / name
+
+        rfile = ReleaseFileFactory(
+            release=release,
+            workspace=release.workspace,
+            name=name,
+            path=path,
+            filehash=hashlib.sha256(file_content).hexdigest(),
+            size=len(file_content),
+            uploaded_at=timezone.now(),
+        )
+
+        # write the file to disk
+        rfile.absolute_path().write_bytes(file_content)
+
+        return rfile
+
+    return func
+
+
+@pytest.fixture
+def build_release_path(tmp_path):
+    """Build the path and directories for a Release directory"""
+
+    def func(release):
+        path = (
+            tmp_path
+            / "releases"
+            / release.workspace.name
+            / "releases"
+            / str(release.id)
+        )
+        path.mkdir(parents=True)
+
+        return path
+
+    return func
+
+
+@pytest.fixture
+def file_content():
+    """Generate random file content ready for writing to disk"""
+    content = "".join(random.choice(string.ascii_letters) for i in range(10))
+    return content.encode("utf-8")
+
+
+@pytest.fixture
+def release(build_release_with_files):
+    """Generate a Release instance with both a ReleaseFile and on-disk file"""
+    return build_release_with_files(["file1.txt"])
 
 
 slack_token = os.environ.get("SLACK_BOT_TOKEN")

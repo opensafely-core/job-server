@@ -1,8 +1,6 @@
-import hashlib
 import json
 import random
 import string
-from pathlib import Path
 
 import pytest
 from django.contrib.auth.models import AnonymousUser
@@ -36,12 +34,11 @@ from tests.factories import (
     ProjectFactory,
     ProjectMembershipFactory,
     ReleaseFactory,
-    ReleaseUploadsFactory,
+    ReleaseFileFactory,
     SnapshotFactory,
     UserFactory,
     WorkspaceFactory,
 )
-from tests.factories import releases as new_style
 
 
 def test_releaseapi_get_unknown_release(api_rf):
@@ -53,7 +50,7 @@ def test_releaseapi_get_unknown_release(api_rf):
 
 
 def test_releaseapi_get_with_anonymous_user(api_rf):
-    release = ReleaseFactory(ReleaseUploadsFactory(["file.txt"]))
+    release = ReleaseFactory()
 
     request = api_rf.get("/")
 
@@ -62,8 +59,8 @@ def test_releaseapi_get_with_anonymous_user(api_rf):
     assert response.status_code == 403
 
 
-def test_releaseapi_get_with_permission(api_rf):
-    release = ReleaseFactory(ReleaseUploadsFactory(["file.txt"]))
+def test_releaseapi_get_with_permission(api_rf, build_release_with_files):
+    release = build_release_with_files(["file.txt"])
     rfile = release.files.first()
 
     ProjectMembershipFactory(
@@ -88,7 +85,7 @@ def test_releaseapi_get_with_permission(api_rf):
                 "url": f"/api/v2/releases/file/{rfile.id}",
                 "user": rfile.created_by.username,
                 "date": rfile.created_at.isoformat(),
-                "size": 8,
+                "size": rfile.size,
                 "sha256": rfile.filehash,
                 "is_deleted": False,
                 "backend": release.backend.name,
@@ -98,7 +95,7 @@ def test_releaseapi_get_with_permission(api_rf):
 
 
 def test_releaseapi_get_without_permission(api_rf):
-    release = ReleaseFactory(ReleaseUploadsFactory(["file.txt"]))
+    release = ReleaseFactory()
 
     request = api_rf.get("/")
     request.user = UserFactory()
@@ -108,23 +105,9 @@ def test_releaseapi_get_without_permission(api_rf):
     assert response.status_code == 403
 
 
-def test_releaseapi_post_already_uploaded(api_rf, tmp_path):
+def test_releaseapi_post_already_uploaded(api_rf, build_release_with_files):
     user = UserFactory(roles=[OutputChecker])
-
-    release = new_style.ReleaseFactory(requested_files=[{"name": "file.txt"}])
-    # mirror path building until we can abstract this into a fixture
-    path = tmp_path / "releases" / release.workspace.name / "releases" / str(release.id)
-    path.mkdir(parents=True)
-
-    rfile = new_style.ReleaseFileFactory(
-        release=release,
-        name="file.txt",
-        path=Path(release.workspace.name) / "releases" / str(release.id) / "file.txt",
-        uploaded_at=timezone.now(),
-    )
-    content = "".join(random.choice(string.ascii_letters) for i in range(10))
-    content = content.encode("utf8")
-    rfile.absolute_path().write_bytes(content)
+    release = build_release_with_files(["file.txt"])
 
     BackendMembershipFactory(backend=release.backend, user=user)
 
@@ -133,7 +116,7 @@ def test_releaseapi_post_already_uploaded(api_rf, tmp_path):
     request = api_rf.post(
         "/",
         content_type="application/octet-stream",
-        data=content,
+        data="test",
         HTTP_CONTENT_DISPOSITION="attachment; filename=file.txt",
         HTTP_AUTHORIZATION=release.backend.auth_token,
         HTTP_OS_USER=user.username,
@@ -147,9 +130,9 @@ def test_releaseapi_post_already_uploaded(api_rf, tmp_path):
     assert release.files.count() == count_before
 
 
-def test_releaseapi_post_bad_backend(api_rf):
+def test_releaseapi_post_bad_backend(api_rf, build_release, file_content):
     user = UserFactory(roles=[OutputChecker])
-    release = new_style.ReleaseFactory(requested_files=[{"name": "file.txt"}])
+    release = build_release(["output/file.txt"])
 
     bad_backend = BackendFactory()
     BackendMembershipFactory(backend=bad_backend, user=user)
@@ -159,8 +142,8 @@ def test_releaseapi_post_bad_backend(api_rf):
     request = api_rf.post(
         "/",
         content_type="application/octet-stream",
-        data=content,
-        HTTP_CONTENT_DISPOSITION="attachment; filename=file.txt",
+        data=file_content,
+        HTTP_CONTENT_DISPOSITION="attachment; filename=output/file.txt",
         HTTP_AUTHORIZATION=bad_backend.auth_token,
         HTTP_OS_USER=user.username,
     )
@@ -172,8 +155,7 @@ def test_releaseapi_post_bad_backend(api_rf):
 
 
 def test_releaseapi_post_bad_backend_token(api_rf):
-    uploads = ReleaseUploadsFactory(["file.txt"])
-    release = ReleaseFactory(uploads, uploaded=False)
+    release = ReleaseFactory()
 
     request = api_rf.post("/", HTTP_AUTHORIZATION="invalid")
 
@@ -182,9 +164,9 @@ def test_releaseapi_post_bad_backend_token(api_rf):
     assert response.status_code == 403
 
 
-def test_releaseapi_post_bad_filename(api_rf):
+def test_releaseapi_post_bad_filename(api_rf, build_release, file_content):
     user = UserFactory(roles=[OutputChecker])
-    release = new_style.ReleaseFactory()
+    release = build_release(["file.txt"])
 
     BackendMembershipFactory(backend=release.backend, user=user)
 
@@ -193,7 +175,7 @@ def test_releaseapi_post_bad_filename(api_rf):
     request = api_rf.post(
         "/",
         content_type="application/octet-stream",
-        data=content,
+        data=file_content,
         HTTP_CONTENT_DISPOSITION="attachment; filename=wrongname.txt",
         HTTP_AUTHORIZATION=release.backend.auth_token,
         HTTP_OS_USER=user.username,
@@ -206,8 +188,7 @@ def test_releaseapi_post_bad_filename(api_rf):
 
 
 def test_releaseapi_post_bad_user(api_rf):
-    uploads = ReleaseUploadsFactory(["file.txt"])
-    release = ReleaseFactory(uploads, uploaded=False)
+    release = ReleaseFactory()
 
     request = api_rf.post(
         "/",
@@ -222,14 +203,13 @@ def test_releaseapi_post_bad_user(api_rf):
 
 def test_releaseapi_post_no_files(api_rf):
     user = UserFactory(roles=[OutputChecker])
-    uploads = ReleaseUploadsFactory(["file.txt"])
-    release = ReleaseFactory(uploads, uploaded=False)
+    release = ReleaseFactory()
 
     BackendMembershipFactory(backend=release.backend, user=user)
 
     request = api_rf.post(
         "/",
-        HTTP_CONTENT_DISPOSITION=f"attachment; filename={uploads[0].filename}",
+        HTTP_CONTENT_DISPOSITION="attachment; filename=file1.txt",
         HTTP_AUTHORIZATION=release.backend.auth_token,
         HTTP_OS_USER=user.username,
     )
@@ -241,8 +221,7 @@ def test_releaseapi_post_no_files(api_rf):
 
 
 def test_releaseapi_post_no_user(api_rf):
-    uploads = ReleaseUploadsFactory(["file.txt"])
-    release = ReleaseFactory(uploads, uploaded=False)
+    release = ReleaseFactory()
 
     request = api_rf.post(
         "/",
@@ -254,26 +233,12 @@ def test_releaseapi_post_no_user(api_rf):
     assert response.status_code == 403
 
 
-def test_releaseapi_post_success(api_rf, slack_messages):
+def test_releaseapi_post_success(api_rf, slack_messages, build_release, file_content):
     creating_user = UserFactory()
     uploading_user = UserFactory(roles=[OutputChecker])
-
     backend = BackendFactory(name="test-backend")
-    release = new_style.ReleaseFactory(
-        backend=backend,
-        created_by=creating_user,
-        requested_files=[{"name": "file.txt"}],
-    )
-    content = "".join(random.choice(string.ascii_letters) for i in range(10))
-    content = content.encode("utf8")
-    filehash = hashlib.sha256(content).hexdigest()
-    rfile = new_style.ReleaseFileFactory(
-        release=release,
-        created_by=uploading_user,
-        name="file.txt",
-        path="test/file.txt",
-        filehash=filehash,
-    )
+
+    release = build_release(["file.txt"], backend=backend, created_by=creating_user)
 
     BackendMembershipFactory(backend=release.backend, user=creating_user)
     BackendMembershipFactory(backend=release.backend, user=uploading_user)
@@ -281,7 +246,7 @@ def test_releaseapi_post_success(api_rf, slack_messages):
     request = api_rf.post(
         "/",
         content_type="application/octet-stream",
-        data=content,
+        data=file_content,
         HTTP_CONTENT_DISPOSITION="attachment; filename=file.txt",
         HTTP_AUTHORIZATION=release.backend.auth_token,
         HTTP_OS_USER=uploading_user.username,
@@ -312,8 +277,7 @@ def test_releaseapi_post_unknown_release(api_rf):
 
 
 def test_releaseapi_post_with_no_backend_token(api_rf):
-    uploads = ReleaseUploadsFactory(["file.txt"])
-    release = ReleaseFactory(uploads, uploaded=False)
+    release = ReleaseFactory()
 
     request = api_rf.post("/")
 
@@ -387,7 +351,7 @@ def test_releaseworkspaceapi_get_with_anonymous_user(api_rf):
     assert response.status_code == 403
 
 
-def test_releaseworkspaceapi_get_with_permission(api_rf):
+def test_releaseworkspaceapi_get_with_permission(api_rf, build_release_with_files):
     workspace = WorkspaceFactory()
     backend1 = BackendFactory(slug="backend1")
     backend2 = BackendFactory(slug="backend2")
@@ -397,18 +361,14 @@ def test_releaseworkspaceapi_get_with_permission(api_rf):
     )
 
     # two release for same filename but different content
-    release1 = ReleaseFactory(
-        ReleaseUploadsFactory({"file1.txt": b"backend1"}),
-        workspace=workspace,
-        backend=backend1,
-        created_by=user,
+    release1 = build_release_with_files(
+        ["file1.txt"], workspace=workspace, backend=backend1, created_by=user
     )
-    release2 = ReleaseFactory(
-        ReleaseUploadsFactory({"file1.txt": b"backend2"}),
-        workspace=workspace,
-        backend=backend2,
-        created_by=user,
+    rfile1 = release1.files.first()
+    release2 = build_release_with_files(
+        ["file1.txt"], workspace=workspace, backend=backend2, created_by=user
     )
+    rfile2 = release2.files.first()
 
     request = api_rf.get("/")
     request.user = user
@@ -420,23 +380,23 @@ def test_releaseworkspaceapi_get_with_permission(api_rf):
         "files": [
             {
                 "name": "backend2/file1.txt",
-                "id": release2.files.first().pk,
-                "url": f"/api/v2/releases/file/{release2.files.first().id}",
-                "user": user.username,
-                "date": release2.files.first().created_at.isoformat(),
-                "size": 8,
-                "sha256": release2.files.first().filehash,
+                "id": rfile2.pk,
+                "url": f"/api/v2/releases/file/{rfile2.id}",
+                "user": rfile2.created_by.username,
+                "date": rfile2.created_at.isoformat(),
+                "size": rfile2.size,
+                "sha256": rfile2.filehash,
                 "is_deleted": False,
                 "backend": release2.backend.name,
             },
             {
                 "name": "backend1/file1.txt",
-                "id": release1.files.first().pk,
-                "url": f"/api/v2/releases/file/{release1.files.first().id}",
-                "user": user.username,
-                "date": release1.files.first().created_at.isoformat(),
-                "size": 8,
-                "sha256": release1.files.first().filehash,
+                "id": rfile1.pk,
+                "url": f"/api/v2/releases/file/{rfile1.id}",
+                "user": rfile1.created_by.username,
+                "date": rfile1.created_at.isoformat(),
+                "size": rfile1.size,
+                "sha256": rfile1.filehash,
                 "is_deleted": False,
                 "backend": release1.backend.name,
             },
@@ -510,8 +470,8 @@ def test_releaseworkspaceapi_post_create_release(api_rf, slack_messages):
 def test_releaseworkspaceapi_post_release_already_exists(api_rf):
     user = UserFactory(roles=[OutputChecker])
 
-    release = new_style.ReleaseFactory()
-    rfile = new_style.ReleaseFileFactory(
+    release = ReleaseFactory()
+    rfile = ReleaseFileFactory(
         release=release,
         created_by=user,
         name="file.txt",
@@ -642,8 +602,7 @@ def test_releasefileapi_get_unknown_file(api_rf):
 
 
 def test_releasefileapi_with_anonymous_user(api_rf):
-    release = ReleaseFactory(ReleaseUploadsFactory(["file1.txt"]))
-    rfile = release.files.first()
+    rfile = ReleaseFileFactory()
 
     request = api_rf.get("/")
 
@@ -653,9 +612,31 @@ def test_releasefileapi_with_anonymous_user(api_rf):
 
 
 def test_releasefileapi_with_deleted_file(api_rf):
-    uploads = ReleaseUploadsFactory({"file.txt": b"test"})
-    release = ReleaseFactory(uploads)
-    rfile = release.files.first()
+    rfile = ReleaseFileFactory(deleted_at=timezone.now(), deleted_by=UserFactory())
+    user = UserFactory()
+
+    ProjectMembershipFactory(
+        user=user,
+        project=rfile.release.workspace.project,
+        roles=[ProjectCollaborator],
+    )
+
+    request = api_rf.get("/")
+    request.user = user
+
+    response = ReleaseFileAPI.as_view()(request, file_id=rfile.id)
+
+    assert response.status_code == 404, response.data
+
+
+def test_releasefileapi_with_no_file_on_disk(api_rf, build_release):
+    release = build_release(["file1.txt"])
+    rfile = ReleaseFileFactory(
+        release=release,
+        workspace=release.workspace,
+        name="file1.txt",
+        uploaded_at=None,
+    )
     user = UserFactory()
 
     ProjectMembershipFactory(
@@ -664,20 +645,16 @@ def test_releasefileapi_with_deleted_file(api_rf):
         roles=[ProjectCollaborator],
     )
 
-    # delete file
-    rfile.absolute_path().unlink()
-
     request = api_rf.get("/")
     request.user = user
 
     response = ReleaseFileAPI.as_view()(request, file_id=rfile.id)
 
-    assert response.status_code == 404
+    assert response.status_code == 404, response.data
 
 
-def test_releasefileapi_with_nginx_redirect(api_rf):
-    uploads = ReleaseUploadsFactory({"file.txt": b"test"})
-    release = ReleaseFactory(uploads)
+def test_releasefileapi_with_nginx_redirect(api_rf, build_release_with_files):
+    release = build_release_with_files(["file.txt"])
     rfile = release.files.first()
     user = UserFactory()
 
@@ -700,9 +677,8 @@ def test_releasefileapi_with_nginx_redirect(api_rf):
     )
 
 
-def test_releasefileapi_with_permission(api_rf):
-    uploads = ReleaseUploadsFactory({"file.txt": b"test"})
-    release = ReleaseFactory(uploads)
+def test_releasefileapi_with_permission(api_rf, build_release_with_files):
+    release = build_release_with_files(["file1.txt"])
     rfile = release.files.first()
     user = UserFactory()
 
@@ -719,13 +695,12 @@ def test_releasefileapi_with_permission(api_rf):
     response = ReleaseFileAPI.as_view()(request, file_id=rfile.id)
 
     assert response.status_code == 200
-    assert b"".join(response.streaming_content) == b"test"
+    assert b"".join(response.streaming_content) == rfile.absolute_path().read_bytes()
     assert response.headers["Content-Type"] == "text/plain"
 
 
 def test_releasefileapi_without_permission(api_rf):
-    release = ReleaseFactory(ReleaseUploadsFactory(["file1.txt"]))
-    rfile = release.files.first()
+    rfile = ReleaseFileFactory()
 
     request = api_rf.get("/")
     request.user = UserFactory()  # logged in, but no permission
@@ -736,7 +711,7 @@ def test_releasefileapi_without_permission(api_rf):
 
 
 def test_reviewapi_without_permission(api_rf):
-    release = new_style.ReleaseFactory()
+    release = ReleaseFactory()
 
     data = {
         "files": [],
@@ -751,9 +726,9 @@ def test_reviewapi_without_permission(api_rf):
 
 
 def test_reviewapi_unknown_filename_or_content(api_rf):
-    release = new_style.ReleaseFactory()
-    new_style.ReleaseFileFactory(release=release, name="test1", filehash="test1")
-    new_style.ReleaseFileFactory(release=release, name="test2", filehash="test2")
+    release = ReleaseFactory()
+    ReleaseFileFactory(release=release, name="test1", filehash="test1")
+    ReleaseFileFactory(release=release, name="test2", filehash="test2")
 
     data = {
         "files": [
@@ -795,9 +770,9 @@ def test_reviewapi_unknown_filename_or_content(api_rf):
 
 
 def test_reviewapi_success(api_rf):
-    release = new_style.ReleaseFactory()
-    new_style.ReleaseFileFactory(release=release, name="test1", filehash="test1")
-    new_style.ReleaseFileFactory(release=release, name="test2", filehash="test2")
+    release = ReleaseFactory()
+    ReleaseFileFactory(release=release, name="test1", filehash="test1")
+    ReleaseFileFactory(release=release, name="test2", filehash="test2")
 
     data = {
         "files": [
@@ -960,10 +935,9 @@ def test_snapshotcreate_unknown_files(api_rf):
     assert "Unknown file IDs" in response.data["detail"], response.data
 
 
-def test_snapshotcreate_with_existing_snapshot(api_rf):
+def test_snapshotcreate_with_existing_snapshot(api_rf, build_release_with_files):
     workspace = WorkspaceFactory()
-    uploads = ReleaseUploadsFactory({"file1.txt": b"test1"})
-    release = ReleaseFactory(uploads, workspace=workspace)
+    release = build_release_with_files(["file1.txt"])
     snapshot = SnapshotFactory(workspace=workspace)
     snapshot.files.set(release.files.all())
 
@@ -983,18 +957,18 @@ def test_snapshotcreate_with_existing_snapshot(api_rf):
     assert msg in response.data["detail"], response.data
 
 
-def test_snapshotcreate_with_permission(api_rf):
+def test_snapshotcreate_with_permission(api_rf, build_release_with_files):
     workspace = WorkspaceFactory()
-    uploads = ReleaseUploadsFactory(
-        {
-            "file1.txt": b"test1",
-            "file2.txt": b"test2",
-            "file3.txt": b"test3",
-            "file4.txt": b"test4",
-            "file5.txt": b"test5",
-        }
+    release = build_release_with_files(
+        [
+            "file1.txt",
+            "file2.txt",
+            "file3.txt",
+            "file4.txt",
+            "file5.txt",
+        ],
+        workspace=workspace,
     )
-    release = ReleaseFactory(uploads, workspace=workspace)
 
     user = UserFactory()
     ProjectMembershipFactory(

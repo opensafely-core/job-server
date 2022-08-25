@@ -38,7 +38,7 @@ from ....factories import (
     ProjectFactory,
     ProjectMembershipFactory,
     ReleaseFactory,
-    ReleaseUploadsFactory,
+    ReleaseFileFactory,
     SnapshotFactory,
     UserFactory,
     WorkspaceFactory,
@@ -407,8 +407,7 @@ def test_workspacedetail_authorized_view_files(rf):
 
 def test_workspacedetail_authorized_view_releases(rf):
     workspace = WorkspaceFactory()
-
-    ReleaseFactory([], uploaded=True, workspace=workspace)
+    ReleaseFactory(workspace=workspace)
 
     request = rf.get("/")
     request.user = UserFactory()
@@ -764,10 +763,10 @@ def test_workspacelatestoutputsdownload_no_files(rf):
         )
 
 
-def test_workspacelatestoutputsdownload_success(rf):
+def test_workspacelatestoutputsdownload_success(rf, build_release_with_files):
     workspace = WorkspaceFactory()
-    ReleaseFactory(ReleaseUploadsFactory(["test1", "test2"]), workspace=workspace)
-    ReleaseFactory(ReleaseUploadsFactory(["test3"]), workspace=workspace)
+    build_release_with_files(["test1", "test2"], workspace=workspace)
+    build_release_with_files(["test3"], workspace=workspace)
 
     request = rf.get("/")
     request.user = UserFactory(roles=[ProjectCollaborator])
@@ -805,7 +804,7 @@ def test_workspacelatestoutputsdownload_unknown_workspace(rf):
 
 def test_workspacelatestoutputsdownload_without_permission(rf):
     workspace = WorkspaceFactory()
-    ReleaseFactory(ReleaseUploadsFactory(["test1"]), workspace=workspace)
+    ReleaseFileFactory(workspace=workspace)
 
     request = rf.get("/")
     request.user = UserFactory()
@@ -1081,39 +1080,20 @@ def test_workspacenotificationstoggle_unknown_workspace(rf):
         )
 
 
-def test_workspaceoutputlist_success(rf, freezer):
+def test_workspaceoutputlist_success(rf, freezer, build_release_with_files):
     workspace = WorkspaceFactory()
 
     now = timezone.now()
 
-    ReleaseFactory(
-        ReleaseUploadsFactory({"file1.txt": b"text", "file2.txt": b"text"}),
-        workspace=workspace,
-    )
+    build_release_with_files(["file1.txt", "file2.txt"], workspace=workspace)
     snapshot1 = SnapshotFactory(workspace=workspace, published_at=minutes_ago(now, 3))
     snapshot1.files.set(workspace.files.all())
 
-    ReleaseFactory(
-        ReleaseUploadsFactory(
-            {
-                "file2.txt": b"text2",
-                "file3.txt": b"text",
-            }
-        ),
-        workspace=workspace,
-    )
+    build_release_with_files(["file2.txt", "file3.txt"], workspace=workspace)
     snapshot2 = SnapshotFactory(workspace=workspace)
     snapshot2.files.set(workspace.files.all())
 
-    ReleaseFactory(
-        ReleaseUploadsFactory(
-            {
-                "file2.txt": b"text2",
-                "file3.txt": b"text",
-            }
-        ),
-        workspace=workspace,
-    )
+    build_release_with_files(["file2.txt", "file3.txt"], workspace=workspace)
 
     request = rf.get("/")
     request.user = UserFactory(roles=[ProjectCollaborator])
@@ -1129,39 +1109,20 @@ def test_workspaceoutputlist_success(rf, freezer):
     assert len(response.context_data["snapshots"]) == 2
 
 
-def test_workspaceoutputlist_without_permission(rf, freezer):
+def test_workspaceoutputlist_without_permission(rf, freezer, build_release_with_files):
     workspace = WorkspaceFactory()
 
     now = timezone.now()
 
-    ReleaseFactory(
-        ReleaseUploadsFactory({"file1.txt": b"text", "file2.txt": b"text"}),
-        workspace=workspace,
-    )
+    build_release_with_files(["file1.txt", "file2.txt"], workspace=workspace)
     snapshot1 = SnapshotFactory(workspace=workspace, published_at=minutes_ago(now, 3))
     snapshot1.files.set(workspace.files.all())
 
-    ReleaseFactory(
-        ReleaseUploadsFactory(
-            {
-                "file2.txt": b"text2",
-                "file3.txt": b"text",
-            }
-        ),
-        workspace=workspace,
-    )
+    build_release_with_files(["file2.txt", "file3.txt"], workspace=workspace)
     snapshot2 = SnapshotFactory(workspace=workspace, published_at=None)
     snapshot2.files.set(workspace.files.all())
 
-    ReleaseFactory(
-        ReleaseUploadsFactory(
-            {
-                "file2.txt": b"text2",
-                "file3.txt": b"text",
-            }
-        ),
-        workspace=workspace,
-    )
+    build_release_with_files(["file2.txt", "file3.txt"], workspace=workspace)
 
     request = rf.get("/")
     request.user = UserFactory()
@@ -1212,13 +1173,10 @@ def test_workspaceoutputlist_unknown_workspace(rf):
         )
 
 
-def test_workspaceoutputsbadge_with_published_outputs(rf):
+def test_workspaceoutputsbadge_with_published_outputs(rf, build_release_with_files):
     workspace = WorkspaceFactory()
 
-    ReleaseFactory(
-        ReleaseUploadsFactory({"file1.txt": b"text", "file2.txt": b"text"}),
-        workspace=workspace,
-    )
+    build_release_with_files(["file1.txt", "file2.txt"], workspace=workspace)
     snapshot = SnapshotFactory(workspace=workspace, published_at=timezone.now())
     snapshot.files.set(workspace.files.all())
 

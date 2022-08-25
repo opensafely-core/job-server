@@ -1,5 +1,15 @@
 # Testing
 
+- [General Layout](#general-layout)
+- [Testing Pyramid](#testing-pyramid)
+  - [Unit Tests](#unit-tests)
+  - [Integration](#integration)
+  - [End-to-end](#end-to-end)
+- [Tooling](#tooling)
+- [Verified Fakes](#verified-fakes)
+- [Useful Flows](#useful-flows)
+- [Testing Releases](#testing-releases)
+
 ## General Layout
 Tests live in the `tests` directory split into the three types of layers of test they cover.
 
@@ -62,9 +72,7 @@ The expectation is that these tests will check user flows work as expected, eg "
 ## Tooling
 We use [coverage.py](https://coverage.readthedocs.io/) to check test coverage on the code base and require 100% coverage for CI to pass.
 
-[FactoryBoy](https://factoryboy.readthedocs.io/) provides most of our model factories for easy creation of model instances inside tests.
-Where FactoryBoy isn't a good fit a factory class should attempt to work as much like a FactoryBoy class factory as possible.
-`ReleaseFactory` is a good example of where we've already done that.
+[FactoryBoy](https://factoryboy.readthedocs.io/) provides our model factories for easy creation of model instances inside tests.
 
 [PyTest fixtures](https://docs.pytest.org/en/6.2.x/fixture.html) provide useful helpers for the tests.
 They are also the ideal place to build up combinations of factorys, eg [the `user` fixture](https://github.com/opensafely-core/job-server/blob/62a376aa120542d246efd854bc1d4de1b70a60cf/tests/conftest.py#L63-L77) which provides a User with associated Org.
@@ -89,3 +97,41 @@ Below is [very!] non-exhaustive list of useful methods we have found to make run
 * `pytest -k <partial test name>`: working on a new view? `pytest -k yourviewname` is a quick way to only run those tests.
 * `pytest --lf`: run the tests which failed in the last run, good for iteratively fixing tests.
 * `pytest -x`: stop at the first test failure, good for iteratively working through known broken tests.
+
+
+## Testing Releases
+Releases, and their associated ReleaseFiles, are an area of the codebase where a little extra care needs to be taken.  ReleaseFiles can have on-disk files associated with them, and setting up the paths to do this requires knowledge of the parent Release as well.
+
+To aid in testing these we have some fixtures which orchestrate pieces of the different layers for you.
+
+Fixtures prefixed with `build_` return functions so you have some control over the output.
+If you need full control then drop down to the relevant factories.
+
+The 4 you're most likely to use are:
+
+`build_release`
+Returns a builder function which takes a list of name strings and kwargs.
+A `ReleaseFile` will be created for each name you specify.
+kwargs will be passed down to the `ReleaseFactory` constructor.
+It returns a `Release` instance.
+
+`build_release_with_files`
+Just like `build_release` this returns a builder function with takes a list of name strings and any kwargs for `ReleaseFactory`, but also creates the files on disk for you.
+
+`file_content`
+Returns a bytes literal of random content.
+This is useful when you're testing the upload of files and need content for the upload.
+The other fixtures use this to generate their content.
+
+`release`
+Returns a `Release` instance with one attached `ReleaseFile` and an on-disk file with random content in it.  The `ReleaseFile`s name is `file1.txt`.
+This is built on top of all the other fixtures.
+
+
+There are some lower level functions which might be useful in some instances:
+
+`build_release_path`
+Generates the path for a given `Release` instance and makes sure it exists on disk.
+
+`build_release_file`
+Builds a `ReleaseFile` instance with the given name, for the given `Release` and write a file to disk.
