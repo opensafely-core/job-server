@@ -4,7 +4,6 @@ import { Card, FormCheck, ListGroup } from "react-bootstrap";
 import { Link, useLocation } from "react-router-dom";
 import useFileList from "../../hooks/use-file-list";
 import useFileStore from "../../stores/use-file-store";
-import { datasetProps } from "../../utils/props";
 import Filter from "./Filter";
 
 function FileList({ isReviewEdit, listVisible, setSelectedFile }) {
@@ -74,8 +73,6 @@ function FileList({ isReviewEdit, listVisible, setSelectedFile }) {
 export default FileList;
 
 FileList.propTypes = {
-  authToken: datasetProps.authToken.isRequired,
-  filesUrl: datasetProps.filesUrl.isRequired,
   isReviewEdit: PropTypes.bool,
   listVisible: PropTypes.bool.isRequired,
   setSelectedFile: PropTypes.func.isRequired,
