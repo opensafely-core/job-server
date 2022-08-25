@@ -5,6 +5,7 @@ from datetime import timedelta
 from django.db import models
 from django.urls import reverse
 from django.utils import timezone
+from furl import furl
 
 
 def generate_token():
@@ -42,6 +43,9 @@ class Backend(models.Model):
 
     def get_edit_url(self):
         return reverse("staff:backend-edit", kwargs={"pk": self.pk})
+
+    def get_request_release_url(self):
+        return (furl(self.level_4_url) / "release").url
 
     def get_rotate_url(self):
         return reverse("staff:backend-rotate-token", kwargs={"pk": self.pk})

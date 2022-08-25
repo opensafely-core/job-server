@@ -95,6 +95,7 @@ class WorkspaceBackendFiles(View):
             "backend": backend,
             "base_path": base_path,
             "files_url": f.url,
+            "review_url": backend.get_request_release_url(),
             "workspace": workspace,
         }
         response = TemplateResponse(
