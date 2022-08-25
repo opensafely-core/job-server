@@ -1,4 +1,5 @@
 import { useQuery } from "@tanstack/react-query";
+import { useLocation } from "react-router-dom";
 import { toastError } from "../utils/toast";
 
 export function longestStartingSubstr(array) {
@@ -34,7 +35,9 @@ export function sortedFiles(files) {
   ];
 }
 
-function useFileList({ authToken, filesUrl, setSelectedFile, location }) {
+function useFileList({ authToken, filesUrl, setSelectedFile }) {
+  const location = useLocation();
+
   return useQuery(
     ["FILE_LIST"],
     async () => {
@@ -59,7 +62,9 @@ function useFileList({ authToken, filesUrl, setSelectedFile, location }) {
         });
       },
       onSuccess: (data) => {
-        setSelectedFile(
+        if (!setSelectedFile) return null;
+
+        return setSelectedFile(
           data.find((file) => location.pathname.substring(1) === file.name)
         );
       },
