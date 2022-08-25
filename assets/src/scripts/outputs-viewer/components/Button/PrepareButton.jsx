@@ -3,7 +3,6 @@ import React from "react";
 import { Button } from "react-bootstrap";
 import useFileList from "../../hooks/use-file-list";
 import useAppStore from "../../stores/use-app-store";
-import { datasetProps } from "../../utils/props";
 import { toastDismiss, toastError } from "../../utils/toast";
 
 function PrepareButton() {
@@ -72,10 +71,3 @@ function PrepareButton() {
 }
 
 export default PrepareButton;
-
-PrepareButton.propTypes = {
-  authToken: datasetProps.authToken.isRequired,
-  csrfToken: datasetProps.csrfToken.isRequired,
-  filesUrl: datasetProps.filesUrl.isRequired,
-  prepareUrl: datasetProps.prepareUrl.isRequired,
-};
