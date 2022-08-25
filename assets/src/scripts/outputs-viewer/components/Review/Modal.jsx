@@ -1,3 +1,4 @@
+import { useMutation } from "@tanstack/react-query";
 import React, { useEffect } from "react";
 import {
   Button,
@@ -10,8 +11,9 @@ import {
 } from "react-bootstrap";
 import useAppStore from "../../stores/use-app-store";
 import useFileStore from "../../stores/use-file-store";
+import { toastError } from "../../utils/toast";
 
-function ReviewModal() {
+function ReviewModal({ csrfToken, reviewUrl }) {
   const checkedFiles = useFileStore((state) => state.checkedFiles);
   const isModalOpen = useAppStore((state) => state.isModalOpen);
   const hideModal = useAppStore((state) => state.hideModal);
@@ -22,6 +24,41 @@ function ReviewModal() {
       setFormDataFiles: state.setFormDataFiles,
       setFormDataMeta: state.setFormDataMeta,
     }));
+
+  const mutation = useMutation(
+    async () => {
+      const response = await fetch(reviewUrl, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          "X-CSRFToken": csrfToken,
+        },
+        body: JSON.stringify({ ...formData }),
+      });
+
+      if (!response.ok) {
+        const err = await response.json();
+        throw new Error(err.detail);
+      }
+
+      return response.json();
+    },
+    {
+      mutationKey: "PREPARE_RELEASE",
+      onSuccess: (data) => {
+        // redirect to URL returned from the API
+        window.location.href = data.url;
+      },
+      onError: (error) => {
+        toastError({
+          message: `${error}`,
+          toastId: "reviewModal",
+          reviewUrl,
+          url: document.location.href,
+        });
+      },
+    }
+  );
 
   useEffect(() => {
     setFormDataFiles(checkedFiles);
@@ -190,14 +227,13 @@ function ReviewModal() {
                 />
               </Form.Group>
             </Form>
-            <pre className="mt-5">{JSON.stringify(formData, null, 2)}</pre>
           </Col>
         </Row>
       </Modal.Body>
       <Modal.Footer>
         <Button
           form="modalForm"
-          onClick={() => checkForm()}
+          onClick={() => mutation.mutate()}
           type="submit"
           variant="success"
         >
