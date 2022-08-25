@@ -4,12 +4,12 @@ import zipfile
 from datetime import datetime, timedelta, timezone
 from pathlib import Path
 
+import sentry_sdk
 from django.db import transaction
 from django.http import FileResponse
 from django.utils.http import http_date
 from django.utils.timezone import now
 from furl import furl
-from rest_framework.exceptions import NotFound
 from rest_framework.response import Response
 
 from .models import Release, ReleaseFile
@@ -227,11 +227,35 @@ def serve_file(request, rfile):
     If Releases-Redirect header is set, use nginx's X-Accel-Redirect to serve
     response. Else just serve the bytes directly (for dev).
     """
-    # check the file has been uploaded
-    if not rfile.uploaded_at:
-        raise NotFound
+    if rfile.deleted_at is not None:
+        return Response(
+            f"This file was redacted by {rfile.deleted_by.username} on {rfile.deleted_at}",
+            status=200,
+            content_type="text/plain",
+        )
+    if rfile.uploaded_at is None:
+        return Response(
+            f"This file has not yet been uploaded from the {rfile.release.backend.name} backend.",
+            status=200,
+            content_type="text/plain",
+        )
 
     path = rfile.absolute_path()
+    # check the file actually exists on disk
+    if not path.exists():
+        # this is a system error - somehow a file got deleted without recording
+        # that it was deleted
+        with sentry_sdk.push_scope() as scope:
+            scope.set_tag("release", rfile.release.id)
+            scope.set_tag("release_file", rfile.id)
+            scope.set_tag("filepath", str(path))
+            sentry_sdk.capture_message("ReleaseFile data file missing on disk")
+
+        return Response(
+            "Error: file not found. This has been reported the the OpenSAFELY team",
+            status=200,
+            content_type="text/plain",
+        )
 
     internal_redirect = request.headers.get("Releases-Redirect")
     if internal_redirect:

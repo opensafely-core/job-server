@@ -359,3 +359,46 @@ def test_workspace_files_many_releases(freezer, build_release_with_files):
         "backend1/test2": release3.files.get(name="test2"),
         "backend2/test1": release6.files.get(name="test1"),
     }
+
+
+def test_serve_file_deleted(api_rf):
+    user = UserFactory()
+    rfile = ReleaseFileFactory(deleted_at=timezone.now(), deleted_by=user)
+    request = api_rf.post("/")
+
+    response = releases.serve_file(request, rfile)
+    assert user.name in response.data
+    assert str(rfile.deleted_at) in response.data
+
+
+def test_serve_file_not_uploaded(api_rf):
+    rfile = ReleaseFileFactory()
+    request = api_rf.post("/")
+
+    response = releases.serve_file(request, rfile)
+    assert "not yet been uploaded" in response.data
+    assert rfile.release.backend.name in response.data
+
+
+def test_serve_file_not_found(api_rf):
+    rfile = ReleaseFileFactory(uploaded_at=timezone.now())
+    request = api_rf.post("/")
+
+    response = releases.serve_file(request, rfile)
+    assert "file not found" in response.data
+
+
+def test_serve_file_redirect(release, api_rf):
+    rfile = release.files.first()
+    request = api_rf.post("/", HTTP_RELEASES_REDIRECT="/internal")
+
+    response = releases.serve_file(request, rfile)
+    assert response.headers["X-Accel-Redirect"] == f"/internal/{rfile.path}"
+
+
+def test_serve_file_success(release, api_rf):
+    rfile = release.files.first()
+    request = api_rf.post("/")
+
+    response = releases.serve_file(request, rfile)
+    assert isinstance(response, releases.FileResponse)
