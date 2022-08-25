@@ -9,12 +9,10 @@ import Filter from "./Filter";
 
 function FileList({
   authToken,
-  checkedIds,
   filesUrl,
   isReviewEdit,
   listVisible,
   setSelectedFile,
-  selectedFile,
 }) {
   const [files, setFiles] = useState([]);
   const listRef = createRef();
@@ -87,6 +85,11 @@ export default FileList;
 FileList.propTypes = {
   authToken: datasetProps.authToken.isRequired,
   filesUrl: datasetProps.filesUrl.isRequired,
+  isReviewEdit: PropTypes.bool,
   listVisible: PropTypes.bool.isRequired,
   setSelectedFile: PropTypes.func.isRequired,
+};
+
+FileList.defaultProps = {
+  isReviewEdit: false,
 };

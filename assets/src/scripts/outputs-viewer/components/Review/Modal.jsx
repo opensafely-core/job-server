@@ -11,6 +11,7 @@ import {
 } from "react-bootstrap";
 import useAppStore from "../../stores/use-app-store";
 import useFileStore from "../../stores/use-file-store";
+import { datasetProps } from "../../utils/props";
 import { toastError } from "../../utils/toast";
 
 function ReviewModal({ csrfToken, reviewUrl }) {
@@ -248,3 +249,8 @@ function ReviewModal({ csrfToken, reviewUrl }) {
 }
 
 export default ReviewModal;
+
+ReviewModal.propTypes = {
+  csrfToken: datasetProps.csrfToken.isRequired,
+  reviewUrl: datasetProps.reviewUrl.isRequired,
+};

@@ -1,6 +1,6 @@
 import create from "zustand";
 
-const useAppStore = create((set, get) => ({
+const useAppStore = create((set) => ({
   isModalOpen: false,
   showModal: () => set(() => ({ isModalOpen: true })),
   hideModal: () => set(() => ({ isModalOpen: false })),
