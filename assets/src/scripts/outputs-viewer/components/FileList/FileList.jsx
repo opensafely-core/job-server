@@ -7,13 +7,7 @@ import useFileStore from "../../stores/use-file-store";
 import { datasetProps } from "../../utils/props";
 import Filter from "./Filter";
 
-function FileList({
-  authToken,
-  filesUrl,
-  isReviewEdit,
-  listVisible,
-  setSelectedFile,
-}) {
+function FileList({ isReviewEdit, listVisible, setSelectedFile }) {
   const [files, setFiles] = useState([]);
   const listRef = createRef();
   const location = useLocation();
@@ -23,10 +17,7 @@ function FileList({
   }));
 
   const { data, isError, isLoading } = useFileList({
-    authToken,
-    filesUrl,
     setSelectedFile,
-    location,
   });
 
   if (isLoading) {
