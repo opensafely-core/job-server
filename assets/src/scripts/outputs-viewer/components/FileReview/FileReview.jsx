@@ -1,6 +1,7 @@
 import React from "react";
 import { Button, Form } from "react-bootstrap";
 import useFileStore from "../../stores/use-file-store";
+import { selectedFileProps } from "../../utils/props";
 
 function FileReview({ selectedFile }) {
   const { addCheckedFile, isFileChecked, removeCheckedFile } = useFileStore(
@@ -90,3 +91,7 @@ function FileReview({ selectedFile }) {
 }
 
 export default FileReview;
+
+FileReview.propTypes = {
+  selectedFile: selectedFileProps.isRequired,
+};
