@@ -224,7 +224,7 @@ class ReleaseFile(models.Model):
     @property
     def is_deleted(self):
         """Has the file on disk been deleted?"""
-        return not self.absolute_path().exists()
+        return self.deleted_at is not None
 
 
 class ReleaseFileReview(models.Model):
