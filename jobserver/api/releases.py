@@ -198,7 +198,7 @@ def generate_index(files):
                 date=rfile.created_at.isoformat(),
                 sha256=rfile.filehash,
                 size=get_size(rfile),
-                is_deleted=rfile.deleted_at or not rfile.absolute_path().exists(),
+                is_deleted=rfile.is_deleted,
                 backend=rfile.release.backend.name,
             )
             for name, rfile in files.items()
@@ -411,7 +411,7 @@ class SnapshotCreateAPI(APIView):
             raise ParseError(f"Unknown file IDs: {', '.join(missing)}")
 
         # only look at files which haven't been deleted (redacted)
-        files = [f for f in files if f.absolute_path().exists()]
+        files = [f for f in files if not f.is_deleted]
 
         rfile_ids = {f.pk for f in files}
         snapshot_ids = [set_from_qs(s.files.all()) for s in workspace.snapshots.all()]
