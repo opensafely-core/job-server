@@ -182,7 +182,7 @@ def validate_snapshot_access(request, snapshot):
 def generate_index(files):
     """Generate a JSON list of files as expected by the SPA."""
 
-    return dict(
+    output = dict(
         files=[
             dict(
                 name=name,
@@ -194,10 +194,18 @@ def generate_index(files):
                 size=rfile.size,
                 is_deleted=rfile.is_deleted,
                 backend=rfile.release.backend.name,
+                metadata=rfile.metadata,
+                review=None,
             )
             for name, rfile in files.items()
         ],
     )
+
+    # validate our output data with the serializer, without having to encode
+    # all the source lookups into the serializer itself
+    FileSerializer(data=output, many=True).is_valid()
+
+    return output
 
 
 class ReleaseWorkspaceAPI(APIView):
