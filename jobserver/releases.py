@@ -228,7 +228,7 @@ def serve_file(request, rfile):
     response. Else just serve the bytes directly (for dev).
     """
     # check the file has been uploaded
-    if not rfile.uploaded_at:
+    if not rfile.uploaded_at or rfile.is_deleted:
         raise NotFound
 
     path = rfile.absolute_path()

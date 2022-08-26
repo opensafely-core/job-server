@@ -68,21 +68,26 @@ def test_build_outputs_zip(release):
 
 
 def test_build_outputs_zip_with_missing_files(build_release_with_files):
-    names = ["test1", "test2", "test3", "test4", "test5"]
-    release = build_release_with_files(names)
+    release = build_release_with_files(["test1", "test3", "test5"])
 
-    files = release.files.all()
+    # create a couple of deleted files
+    user = UserFactory()
+    ReleaseFileFactory(
+        release=release, name="test2", deleted_at=timezone.now(), deleted_by=user
+    )
+    ReleaseFileFactory(
+        release=release, name="test4", deleted_at=timezone.now(), deleted_by=user
+    )
 
-    # delete a couple of files
-    files.get(name="test2").absolute_path().unlink()
-    files.get(name="test4").absolute_path().unlink()
+    release.requested_files.append([{"name": "test2"}, {"name": "test4"}])
+    files = release.files.order_by("name")
 
     zf = releases.build_outputs_zip(files, lambda u: u)
 
     with zipfile.ZipFile(zf, "r") as zip_obj:
         assert zip_obj.testzip() is None
 
-        assert zip_obj.namelist() == names
+        assert zip_obj.namelist() == ["test1", "test2", "test3", "test4", "test5"]
 
         # check ReleaseFile on-disk contents matches their zipped contents
         for name in ["test1", "test3", "test5"]:
@@ -100,7 +105,7 @@ def test_build_outputs_zip_with_missing_files(build_release_with_files):
 
             rfile = files.get(name=name)
             assert rfile.get_absolute_url() in zipped_contents, zipped_contents
-            assert "Unknown" in zipped_contents, zipped_contents
+            assert "This file was redacted by" in zipped_contents, zipped_contents
 
 
 def test_build_spa_base_url():

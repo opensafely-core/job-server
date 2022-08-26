@@ -288,6 +288,23 @@ def test_releasedownload_without_permission(rf, release):
         )
 
 
+def test_releasefiledelete_deleted_file(rf):
+    rfile = ReleaseFileFactory(deleted_at=timezone.now(), deleted_by=UserFactory())
+
+    request = rf.post("/")
+    request.user = UserFactory(roles=[OutputChecker])
+
+    with pytest.raises(Http404):
+        ReleaseFileDelete.as_view()(
+            request,
+            org_slug=rfile.release.workspace.project.org.slug,
+            project_slug=rfile.release.workspace.project.slug,
+            workspace_slug=rfile.release.workspace.name,
+            pk=rfile.release.pk,
+            release_file_id=rfile.pk,
+        )
+
+
 def test_releasefiledelete_no_file_on_disk(rf):
     rfile = ReleaseFileFactory()
 

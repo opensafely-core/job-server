@@ -180,7 +180,7 @@ class ReleaseFileDelete(View):
             pk=self.kwargs["release_file_id"],
         )
 
-        if not rfile.absolute_path().exists():
+        if rfile.is_deleted or not rfile.absolute_path().exists():
             raise Http404
 
         if not has_permission(
