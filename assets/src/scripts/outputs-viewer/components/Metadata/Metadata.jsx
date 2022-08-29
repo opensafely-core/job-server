@@ -2,7 +2,7 @@ import React from "react";
 import prettyFileSize from "../../utils/pretty-file-size";
 import { selectedFileProps } from "../../utils/props";
 
-function Metadata({ fileDate, fileName, fileSize, fileUrl, metadata }) {
+function Metadata({ fileDate, fileName, fileSize, fileUrl }) {
   const fileDateValue = () => {
     if (Date.parse(fileDate)) {
       const getDate = new Date(fileDate);
@@ -18,13 +18,6 @@ function Metadata({ fileDate, fileName, fileSize, fileUrl, metadata }) {
     }
     return false;
   };
-
-  const derp = Object.keys(metadata).map((key) => (
-    <div key={key} className="mt-3">
-      <strong>{key}</strong>
-      <div>{metadata[key]}</div>
-    </div>
-  ));
 
   return (
     <div className="card-header">
@@ -53,7 +46,6 @@ function Metadata({ fileDate, fileName, fileSize, fileUrl, metadata }) {
         )}
         <li className="list-inline-item spacer">{prettyFileSize(fileSize)}</li>
       </ul>
-      <div>{derp}</div>
     </div>
   );
 }
@@ -65,5 +57,4 @@ Metadata.propTypes = {
   fileName: selectedFileProps.name.isRequired,
   fileSize: selectedFileProps.size.isRequired,
   fileUrl: selectedFileProps.url.isRequired,
-  metadata: selectedFileProps.metadata.isRequired,
 };
