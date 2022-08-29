@@ -237,7 +237,9 @@ class ReleaseWorkspaceAPI(APIView):
         releases.create_github_issue(release, self.get_github_api())
 
         response = Response(status=201)
-        response["Location"] = request.build_absolute_uri(release.get_api_url())
+        response["Release-Location"] = request.build_absolute_uri(
+            release.get_absolute_url()
+        )
         response["Release-Id"] = release.id
         return response
 
