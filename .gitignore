@@ -13,3 +13,4 @@ node_modules/
 releases
 staticfiles
 uploads
+/release-hatch
