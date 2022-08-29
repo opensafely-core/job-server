@@ -1,4 +1,6 @@
 import { useQuery } from "@tanstack/react-query";
+import { useLocation } from "react-router-dom";
+import useAppStore from "../stores/use-app-store";
 import { toastError } from "../utils/toast";
 
 export function longestStartingSubstr(array) {
@@ -34,9 +36,15 @@ export function sortedFiles(files) {
   ];
 }
 
-function useFileList({ authToken, filesUrl }) {
+function useFileList({ setSelectedFile }) {
+  const location = useLocation();
+  const [authToken, filesUrl] = useAppStore((state) => [
+    state.authToken,
+    state.filesUrl,
+  ]);
+
   return useQuery(
-    ["FILE_LIST"],
+    ["FILE_LIST", authToken, filesUrl],
     async () => {
       const response = await fetch(filesUrl, {
         headers: {
@@ -57,6 +65,13 @@ function useFileList({ authToken, filesUrl }) {
           filesUrl,
           url: document.location.href,
         });
+      },
+      onSuccess: (data) => {
+        if (!setSelectedFile) return null;
+
+        return setSelectedFile(
+          data.find((file) => location.pathname.substring(1) === file.name)
+        );
       },
     }
   );

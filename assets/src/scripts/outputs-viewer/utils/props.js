@@ -7,6 +7,7 @@ export const datasetProps = {
   filesUrl: PropTypes.string,
   prepareUrl: PropTypes.string,
   publishUrl: PropTypes.string,
+  reviewUrl: PropTypes.string,
 };
 
 export const selectedFileProps = {
@@ -19,4 +20,5 @@ export const selectedFileProps = {
   size: PropTypes.number,
   url: PropTypes.string,
   user: PropTypes.string,
+  metadata: PropTypes.object,
 };
