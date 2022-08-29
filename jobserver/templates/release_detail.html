@@ -59,5 +59,13 @@
 {% endblock jumbotron %}
 
 {% block content %}
+<div class="container-fluid">
+  <div class="row">
+    <div class="col">
+      <pre>{{ release.metadata }}</pre>
+    </div>
+  </div>
+</div>
+
 {% include "outputs-spa.html" %}
 {% endblock %}

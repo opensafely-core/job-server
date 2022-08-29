@@ -24,8 +24,8 @@ jobs:
       - name: Lint assets
         run: npm run lint
 
-      - name: Run JS tests
-        run: npm run test:coverage
+      # - name: Run JS tests
+      #   run: npm run test:coverage
 
       - name: Build assets
         run: just assets-build
