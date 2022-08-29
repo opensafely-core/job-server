@@ -1,6 +1,5 @@
 import { useMutation } from "@tanstack/react-query";
 import React from "react";
-import { Button } from "react-bootstrap";
 import { datasetProps } from "../../utils/props";
 import { toastDismiss, toastError } from "../../utils/toast";
 
@@ -46,17 +45,17 @@ function PublishButton({ csrfToken, publishUrl }) {
   );
 
   return (
-    <Button
+    <button
+      className={`btn btn-${mutation.isLoading ? "secondary" : "primary"}`}
       disabled={mutation.isLoading}
       onClick={(e) => {
         e.preventDefault();
         return mutation.mutate();
       }}
       type="button"
-      variant={mutation.isLoading ? "secondary" : "primary"}
     >
       {mutation.isLoading ? "Confirming…" : "Confirm Publish?"}
-    </Button>
+    </button>
   );
 }
 

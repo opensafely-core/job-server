@@ -1,16 +1,11 @@
 import { useMutation } from "@tanstack/react-query";
 import React from "react";
-import { Button } from "react-bootstrap";
 import useFileList from "../../hooks/use-file-list";
-import useAppStore from "../../stores/use-app-store";
+import { datasetProps } from "../../utils/props";
 import { toastDismiss, toastError } from "../../utils/toast";
 
-function PrepareButton() {
-  const { data: fileList } = useFileList({ setSelectedFile: null });
-  const [csrfToken, prepareUrl] = useAppStore((state) => [
-    state.csrfToken,
-    state.prepareUrl,
-  ]);
+function PrepareButton({ authToken, csrfToken, filesUrl, prepareUrl }) {
+  const { data: fileList } = useFileList({ authToken, filesUrl });
   const toastId = "PrepareButton";
 
   const mutation = useMutation(
@@ -56,18 +51,25 @@ function PrepareButton() {
   const fileIds = fileList.map((f) => f.id);
 
   return (
-    <Button
+    <button
+      className={`btn btn-${mutation.isLoading ? "secondary" : "primary"}`}
       disabled={mutation.isLoading}
       onClick={(e) => {
         e.preventDefault();
         return mutation.mutate({ fileIds });
       }}
       type="button"
-      variant={mutation.isLoading ? "secondary" : "primary"}
     >
       {mutation.isLoading ? "Publishing…" : "Publish"}
-    </Button>
+    </button>
   );
 }
 
 export default PrepareButton;
+
+PrepareButton.propTypes = {
+  authToken: datasetProps.authToken.isRequired,
+  csrfToken: datasetProps.csrfToken.isRequired,
+  filesUrl: datasetProps.filesUrl.isRequired,
+  prepareUrl: datasetProps.prepareUrl.isRequired,
+};
