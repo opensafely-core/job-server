@@ -18,6 +18,7 @@ exclude = '''
     | static
     | staticfiles
     | venv
+    | release-hatch
   )/
 )
 '''

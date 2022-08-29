@@ -203,3 +203,8 @@ assets-collect: devenv
 assets: assets-install assets-build assets-collect
 
 assets-rebuild: assets-clean assets
+
+
+
+release-hatch:
+    ./scripts/local-release-hatch.sh
