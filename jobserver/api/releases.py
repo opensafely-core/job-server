@@ -33,6 +33,8 @@ from jobserver.models import (
 from jobserver.releases import serve_file
 from jobserver.utils import set_from_qs
 
+from ..github import _get_github_api
+
 
 logger = structlog.get_logger(__name__)
 
@@ -212,6 +214,7 @@ class ReleaseWorkspaceAPI(APIView):
     """Listing current files and creating new Releases for a workspace."""
 
     authentication_classes = [SessionAuthentication]
+    get_github_api = staticmethod(_get_github_api)
     parsers = [JSONParser]
 
     def post(self, request, workspace_name):
@@ -230,6 +233,8 @@ class ReleaseWorkspaceAPI(APIView):
             raise ValidationError({"detail": str(exc)})
 
         slacks.notify_release_created(release)
+        # TODO: test this with only a subset of users
+        releases.create_github_issue(release, self.get_github_api())
 
         response = Response(status=201)
         response["Location"] = request.build_absolute_uri(release.get_api_url())

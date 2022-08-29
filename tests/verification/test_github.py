@@ -46,6 +46,25 @@ def compare(fake, real):
             compare(fake[key], real[key])
 
 
+def test_create_issue(enable_network, github_api):
+    # use a private repo to test here so we can mirror what the output checkers
+    # are doing
+    args = [
+        "opensafely-testing",
+        "github-api-testing-private",
+        "Test Issue",
+        "test content",
+        ["testing"],
+    ]
+
+    real = github_api.create_issue(*args)
+    fake = FakeGitHubAPI().create_issue(*args)
+
+    compare(fake, real)
+
+    assert real is not None
+
+
 def test_get_branch(enable_network, github_api):
     args = ["opensafely-testing", "github-api-testing", "main"]
 

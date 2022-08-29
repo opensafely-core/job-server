@@ -5,6 +5,9 @@ from django.utils import timezone
 
 
 class FakeGitHubAPI:
+    def create_issue(self, org, repo, title, body, labels):
+        return {}
+
     def get_branch(self, org, repo, branch):
         return {
             "commit": {

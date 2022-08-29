@@ -39,6 +39,7 @@ from tests.factories import (
     UserFactory,
     WorkspaceFactory,
 )
+from tests.fakes import FakeGitHubAPI
 
 
 def test_releaseapi_get_unknown_release(api_rf):
@@ -338,7 +339,9 @@ def test_releasenotificationapicreate_success_with_files(api_rf, slack_messages)
 def test_releaseworkspaceapi_get_unknown_workspace(api_rf):
     request = api_rf.get("/")
 
-    response = ReleaseWorkspaceAPI.as_view()(request, workspace_name="")
+    response = ReleaseWorkspaceAPI.as_view(get_github_api=FakeGitHubAPI)(
+        request, workspace_name=""
+    )
 
     assert response.status_code == 404
 
@@ -348,7 +351,9 @@ def test_releaseworkspaceapi_get_with_anonymous_user(api_rf):
 
     request = api_rf.get("/")
 
-    response = ReleaseWorkspaceAPI.as_view()(request, workspace_name=workspace.name)
+    response = ReleaseWorkspaceAPI.as_view(get_github_api=FakeGitHubAPI)(
+        request, workspace_name=workspace.name
+    )
 
     assert response.status_code == 403
 
@@ -375,7 +380,9 @@ def test_releaseworkspaceapi_get_with_permission(api_rf, build_release_with_file
     request = api_rf.get("/")
     request.user = user
 
-    response = ReleaseWorkspaceAPI.as_view()(request, workspace_name=workspace.name)
+    response = ReleaseWorkspaceAPI.as_view(get_github_api=FakeGitHubAPI)(
+        request, workspace_name=workspace.name
+    )
 
     assert response.status_code == 200
     assert response.data == {
@@ -416,7 +423,9 @@ def test_releaseworkspaceapi_get_without_permission(api_rf):
     request = api_rf.get("/")
     request.user = UserFactory()
 
-    response = ReleaseWorkspaceAPI.as_view()(request, workspace_name=workspace.name)
+    response = ReleaseWorkspaceAPI.as_view(get_github_api=FakeGitHubAPI)(
+        request, workspace_name=workspace.name
+    )
 
     assert response.status_code == 403
 
@@ -454,7 +463,9 @@ def test_releaseworkspaceapi_post_create_release(api_rf, slack_messages):
         HTTP_OS_USER=user.username,
     )
 
-    response = ReleaseWorkspaceAPI.as_view()(request, workspace_name=workspace.name)
+    response = ReleaseWorkspaceAPI.as_view(get_github_api=FakeGitHubAPI)(
+        request, workspace_name=workspace.name
+    )
 
     assert response.status_code == 201, response.data
     assert Release.objects.count() == 1
@@ -510,7 +521,7 @@ def test_releaseworkspaceapi_post_release_already_exists(api_rf):
         HTTP_OS_USER=user.username,
     )
 
-    response = ReleaseWorkspaceAPI.as_view()(
+    response = ReleaseWorkspaceAPI.as_view(get_github_api=FakeGitHubAPI)(
         request, workspace_name=release.workspace.name
     )
 
@@ -522,7 +533,9 @@ def test_releaseworkspaceapi_post_release_already_exists(api_rf):
 def test_releaseworkspaceapi_post_unknown_workspace(api_rf):
     request = api_rf.post("/")
 
-    response = ReleaseWorkspaceAPI.as_view()(request, workspace_name="")
+    response = ReleaseWorkspaceAPI.as_view(get_github_api=FakeGitHubAPI)(
+        request, workspace_name=""
+    )
 
     assert response.status_code == 404
 
@@ -533,7 +546,9 @@ def test_releaseworkspaceapi_post_with_bad_backend_token(api_rf):
 
     request = api_rf.post("/", HTTP_AUTHORIZATION="invalid")
 
-    response = ReleaseWorkspaceAPI.as_view()(request, workspace_name=workspace.name)
+    response = ReleaseWorkspaceAPI.as_view(get_github_api=FakeGitHubAPI)(
+        request, workspace_name=workspace.name
+    )
 
     assert response.status_code == 403
 
@@ -555,7 +570,9 @@ def test_releaseworkspaceapi_post_with_bad_json(api_rf):
         HTTP_OS_USER=user.username,
     )
 
-    response = ReleaseWorkspaceAPI.as_view()(request, workspace_name=workspace.name)
+    response = ReleaseWorkspaceAPI.as_view(get_github_api=FakeGitHubAPI)(
+        request, workspace_name=workspace.name
+    )
 
     assert response.status_code == 400
 
@@ -570,7 +587,9 @@ def test_releaseworkspaceapi_post_with_bad_user(api_rf):
         HTTP_OS_USER="baduser",
     )
 
-    response = ReleaseWorkspaceAPI.as_view()(request, workspace_name=workspace.name)
+    response = ReleaseWorkspaceAPI.as_view(get_github_api=FakeGitHubAPI)(
+        request, workspace_name=workspace.name
+    )
 
     assert response.status_code == 403
 
@@ -580,7 +599,9 @@ def test_releaseworkspaceapi_post_without_backend_token(api_rf):
 
     request = api_rf.post("/")
 
-    response = ReleaseWorkspaceAPI.as_view()(request, workspace_name=workspace.name)
+    response = ReleaseWorkspaceAPI.as_view(get_github_api=FakeGitHubAPI)(
+        request, workspace_name=workspace.name
+    )
 
     assert response.status_code == 403
 
@@ -594,7 +615,9 @@ def test_releaseworkspaceapi_post_without_user(api_rf):
         HTTP_AUTHORIZATION="test",
     )
 
-    response = ReleaseWorkspaceAPI.as_view()(request, workspace_name=workspace.name)
+    response = ReleaseWorkspaceAPI.as_view(get_github_api=FakeGitHubAPI)(
+        request, workspace_name=workspace.name
+    )
 
     assert response.status_code == 403
 
