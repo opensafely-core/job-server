@@ -84,18 +84,18 @@ class WorkspaceBackendFiles(View):
             user=request.user,
         )
 
-        # add the path we're going to initialise the SPA with to the URL the
-        # token was created for.
-        f = furl(url)  # assume URL is a string
-        f.path.segments += ["current"]
+        # build the relevant URLs for the SPA by adding the necessary paths to
+        # the URL the token was created for.
+        files_url = (furl(url) / "current").url
+        review_url = (furl(url) / "release").url
 
         base_path = build_spa_base_url(request.path, self.kwargs.get("path", ""))
         context = {
             "auth_token": auth_token,
             "backend": backend,
             "base_path": base_path,
-            "files_url": f.url,
-            "review_url": backend.get_request_release_url(),
+            "files_url": files_url,
+            "review_url": review_url,
             "workspace": workspace,
         }
         response = TemplateResponse(

@@ -11,12 +11,6 @@ def test_backend_get_edit_url():
     assert url == reverse("staff:backend-edit", kwargs={"pk": backend.pk})
 
 
-def test_backend_get_request_release_url():
-    backend = BackendFactory(level_4_url="http://example.com/")
-
-    assert backend.get_request_release_url() == "http://example.com/release"
-
-
 def test_backend_get_rotate_url():
     backend = BackendFactory(auth_token="test")
 
