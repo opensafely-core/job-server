@@ -53,7 +53,8 @@ function ReviewModal() {
       mutationKey: "PREPARE_RELEASE",
       onSuccess: (headers) => {
         // redirect to URL returned from the API
-        window.location.href = headers.location;
+        console.log(headers["Release-Location"]);
+        // window.location.href = headers["Release-Location"];
       },
       onError: (error) => {
         toastError({
