@@ -19,8 +19,8 @@ function ReviewModal() {
     state.hideModal,
     state.isModalOpen,
   ]);
-  const [csrfToken, reviewUrl] = useAppStore((state) => [
-    state.csrfToken,
+  const [authToken, reviewUrl] = useAppStore((state) => [
+    state.authToken,
     state.reviewUrl,
   ]);
   const { formData, getFormDataMeta, setFormDataFiles, setFormDataMeta } =
@@ -36,8 +36,8 @@ function ReviewModal() {
       const response = await fetch(reviewUrl, {
         method: "POST",
         headers: {
+          Authorization: authToken,
           "Content-Type": "application/json",
-          "X-CSRFToken": csrfToken,
         },
         body: JSON.stringify({ ...formData }),
       });
