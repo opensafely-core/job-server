@@ -240,7 +240,6 @@ class ReleaseWorkspaceAPI(APIView):
         response["Release-Location"] = request.build_absolute_uri(
             release.get_absolute_url()
         )
-        response["Release-Id"] = release.id
         return response
 
     def get(self, request, workspace_name):
