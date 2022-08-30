@@ -47,18 +47,13 @@ function ReviewModal() {
         throw new Error(err.detail);
       }
 
-      const data = await response.json();
-      const { headers } = response;
-
-      return { data, headers };
+      return response.json();
     },
     {
       mutationKey: "PREPARE_RELEASE",
-      onSuccess: ({ data, headers }) => {
-        console.log({ data, headers });
-
+      onSuccess: (data) => {
         // redirect to URL returned from the API
-        window.location.href = headers["Release-Location"];
+        window.location.href = data.release_url;
       },
       onError: (error) => {
         toastError({
@@ -128,7 +123,13 @@ function ReviewModal() {
         <Row className="py-3">
           <Col md={{ span: 10, offset: 1 }} xl={{ span: 8, offset: 2 }}>
             <h2 className="h4">Additional information</h2>
-            <Form id="modalForm">
+            <Form
+              id="modalForm"
+              onSubmit={(e) => {
+                e.preventDefault();
+                mutation.mutate();
+              }}
+            >
               <Form.Group controlId="additionalInformation-1">
                 <Form.Label className="mb-0 font-weight-bold">
                   Describe why the data release is necessary to help you meet
@@ -244,7 +245,10 @@ function ReviewModal() {
       <Modal.Footer>
         <Button
           form="modalForm"
-          onClick={() => mutation.mutate()}
+          onClick={(e) => {
+            e.preventDefault();
+            mutation.mutate();
+          }}
           type="submit"
           variant="success"
         >
