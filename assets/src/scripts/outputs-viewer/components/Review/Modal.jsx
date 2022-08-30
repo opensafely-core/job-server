@@ -47,18 +47,13 @@ function ReviewModal() {
         throw new Error(err.detail);
       }
 
-      const data = await response.json();
-      const { headers } = response;
-
-      return { data, headers };
+      return response.json();
     },
     {
       mutationKey: "PREPARE_RELEASE",
-      onSuccess: ({ data, headers }) => {
-        console.log({ data, headers });
-
+      onSuccess: (data) => {
         // redirect to URL returned from the API
-        window.location.href = data["release_url"];
+        window.location.href = data.release_url;
       },
       onError: (error) => {
         toastError({
