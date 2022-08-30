@@ -168,6 +168,7 @@ def create_release(workspace, backend, created_by, requested_files, **kwargs):
                 filehash=f["sha256"],
                 size=f["size"],
                 mtime=f["date"],
+                metadata=f["metadata"],
             )
 
     return release

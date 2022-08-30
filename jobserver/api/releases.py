@@ -226,9 +226,12 @@ class ReleaseWorkspaceAPI(APIView):
         serializer = ReleaseSerializer(data=request.data)
         serializer.is_valid(raise_exception=True)
         files = serializer.validated_data["files"]
+        metadata = serializer.validated_data["metadata"]
 
         try:
-            release = releases.create_release(workspace, backend, user, files)
+            release = releases.create_release(
+                workspace, backend, user, files, metadata=metadata
+            )
         except releases.ReleaseFileAlreadyExists as exc:
             raise ValidationError({"detail": str(exc)})
 
