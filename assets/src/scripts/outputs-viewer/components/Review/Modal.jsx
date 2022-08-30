@@ -47,11 +47,16 @@ function ReviewModal() {
         throw new Error(err.detail);
       }
 
-      return response.headers;
+      const data = await response.json();
+      const { headers } = response;
+
+      return { data, headers };
     },
     {
       mutationKey: "PREPARE_RELEASE",
-      onSuccess: (headers) => {
+      onSuccess: ({ data, headers }) => {
+        console.log({ data, headers });
+
         // redirect to URL returned from the API
         window.location.href = headers["Release-Location"];
       },
