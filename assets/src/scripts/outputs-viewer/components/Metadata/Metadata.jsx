@@ -19,14 +19,13 @@ function Metadata({ fileDate, fileName, fileSize, fileUrl, metadata }) {
     return false;
   };
 
-  const renderMetadata = (data) => {
+  const renderMetadata = (data) =>
     Object.keys(data).map((key) => (
       <div key={key} className="mt-3">
         <strong>{key}</strong>
         <div>{data[key]}</div>
       </div>
     ));
-  };
 
   return (
     <div className="card-header">
