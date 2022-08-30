@@ -233,10 +233,15 @@ class ReleaseWorkspaceAPI(APIView):
             raise ValidationError({"detail": str(exc)})
 
         slacks.notify_release_created(release)
-        # TODO: test this with only a subset of users
-        releases.create_github_issue(release, self.get_github_api())
+
+        # Current osrelease workflow should not create a Github issues, so allow that to be supressed
+        if request.headers.get("Suppress-Github-Issue") is None:  # pragma: no cover
+            releases.create_github_issue(release, self.get_github_api())
 
         response = Response(status=201)
+        # this is required for osrelease
+        response["Release-Id"] = str(release.id)
+        # this is required for the SPA to redirect
         response["Release-Location"] = request.build_absolute_uri(
             release.get_absolute_url()
         )
