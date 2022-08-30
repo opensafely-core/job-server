@@ -472,9 +472,9 @@ def test_releaseworkspaceapi_post_create_release(api_rf, slack_messages):
 
     release = Release.objects.first()
     assert response["Release-Id"] == str(release.id)
-    assert (
-        response["Release-Location"] == f"http://testserver{release.get_absolute_url()}"
-    )
+    assert response.data["release_id"] == str(release.id)
+    assert response.data["release_url"].startswith("http://testserver/")
+    assert response.data["release_url"].endswith(f"/releases/{release.id}/")
 
     assert len(slack_messages) == 1
     text, channel = slack_messages[0]

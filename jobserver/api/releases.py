@@ -238,13 +238,14 @@ class ReleaseWorkspaceAPI(APIView):
         if request.headers.get("Suppress-Github-Issue") is None:  # pragma: no cover
             releases.create_github_issue(release, self.get_github_api())
 
-        response = Response(status=201)
-        # this is required for osrelease
+        body = {
+            "release_id": str(release.id),
+            "release_url": request.build_absolute_uri(release.get_absolute_url()),
+        }
+
+        response = Response(body, status=201)
+        # this is required for osrelease currently
         response["Release-Id"] = str(release.id)
-        # this is required for the SPA to redirect
-        response["Release-Location"] = request.build_absolute_uri(
-            release.get_absolute_url()
-        )
         return response
 
     def get(self, request, workspace_name):
