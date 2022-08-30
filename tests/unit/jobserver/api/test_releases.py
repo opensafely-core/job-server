@@ -471,6 +471,7 @@ def test_releaseworkspaceapi_post_create_release(api_rf, slack_messages):
     assert Release.objects.count() == 1
 
     release = Release.objects.first()
+    assert response["Release-Id"] == str(release.id)
     assert (
         response["Release-Location"] == f"http://testserver{release.get_absolute_url()}"
     )
