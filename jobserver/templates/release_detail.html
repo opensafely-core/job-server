@@ -59,13 +59,23 @@
 {% endblock jumbotron %}
 
 {% block content %}
-<div class="container-fluid">
+{% if release.metadata %}
+<div class="container-fluid mb-3">
   <div class="row">
     <div class="col">
-      <pre>{{ release.metadata }}</pre>
+      Review details
+      <div>
+        {% for k, v in release.metadata.items %}
+        <span class="mr-3">
+          <strong>{{ k }}:</strong>
+          <span>{{ v }}</span>
+        </span>
+        {% endfor %}
+      </div>
     </div>
   </div>
 </div>
+{% endif %}
 
 {% include "outputs-spa.html" %}
 {% endblock %}
