@@ -41,13 +41,26 @@ function Viewer({
       // Combine file URL with UUID
       const fileURL = `${fileUrl}?${uuid}`;
 
-      const response = await fetch(fileURL, {
+      let response = await fetch(fileURL, {
         headers: {
           Authorization: authToken,
         },
       });
 
       if (!response.ok) throw new Error();
+
+      // check if reidrected to release-hatch for an un-uploaded file
+      if (
+        response.headers.has("Location") &&
+        response.headers.has("Authorization")
+      ) {
+        response = await fetch(response.headers.get("Location"), {
+          headers: {
+            Authorization: response.headers.get("Authorization"),
+          },
+        });
+        if (!response.ok) throw new Error();
+      }
 
       // If the file is an image
       // grab the blob and create a URL for the blob

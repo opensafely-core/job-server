@@ -134,11 +134,14 @@ class ReleaseDetail(View):
             "files_url": reverse("api:release", kwargs={"release_id": release.id}),
             "release": release,
         }
-        return TemplateResponse(
+        response = TemplateResponse(
             request,
             "release_detail.html",
             context=context,
         )
+        # we may view level 4 for un-uploaded files
+        response._csp_update = {"connect-src": release.backend.level_4_url}
+        return response
 
 
 class ReleaseDownload(View):

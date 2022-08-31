@@ -7,6 +7,7 @@ import pytest
 from django.conf import settings
 from django.db import DatabaseError
 from django.utils import timezone
+from rest_framework.exceptions import NotFound
 
 from jobserver import releases
 from jobserver.models import ReleaseFile
@@ -345,6 +346,19 @@ def test_handle_release_upload_db_error(monkeypatch, build_release):
     # check the file has been deleted due to the error
     rpath = f"{release.workspace.name}/releases/{release.id}/file1.txt"
     assert not absolute_file_path(rpath).exists()
+
+
+def test_serve_file(rf):
+    # FIXME: we only serve a file if it's found.  While testing the
+    # multi-select/review flow in the SPA we removed the only path which called
+    # serve_file with a deleted file to have it redirect to release-hatch.  We
+    # might not keep that path in so we're not removing this guard from
+    # serve_file(), but we still want to maintain coverage.
+    rfile = ReleaseFile(deleted_at=timezone.now(), deleted_by=UserFactory())
+    request = rf.get("/")
+
+    with pytest.raises(NotFound):
+        releases.serve_file(request, rfile)
 
 
 def test_size_formatter_bytes():
