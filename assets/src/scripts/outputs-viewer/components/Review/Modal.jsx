@@ -216,28 +216,6 @@ function ReviewModal() {
                   type="switch"
                 />
               </Form.Group>
-              <Form.Group className="mt-4">
-                <Form.Label
-                  className="mb-0 font-weight-bold"
-                  htmlFor="fileTypes"
-                >
-                  Only the following file types will be reviewed: HTML; TXT;
-                  CSV; SVG; JPG.
-                </Form.Label>
-                <Form.Text muted>
-                  Please email datarelease@opensafely.org if you need additional
-                  file types
-                </Form.Text>
-                <Form.Switch
-                  className="mt-2"
-                  id="fileTypes"
-                  label="My request only contains the above file types"
-                  onChange={(e) =>
-                    setFormDataMeta("fileTypes", e.target.checked)
-                  }
-                  type="switch"
-                />
-              </Form.Group>
             </Form>
           </Col>
         </Row>
