@@ -1,6 +1,7 @@
 /* eslint-disable react/no-array-index-key */
 import PropTypes from "prop-types";
 import React from "react";
+import { Table as BTable } from "react-bootstrap";
 import { usePapaParse } from "react-papaparse";
 
 function TableCell({ cell }) {
@@ -46,13 +47,13 @@ function Table({ data }) {
 
   return (
     <div className="table-responsive">
-      <table className="table table-striped">
+      <BTable>
         <tbody>
           {jsonData.map((row, i) => (
             <TableRow key={i} row={row} />
           ))}
         </tbody>
-      </table>
+      </BTable>
     </div>
   );
 }

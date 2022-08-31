@@ -1,5 +1,6 @@
 import PropTypes from "prop-types";
 import React, { createRef, useEffect, useRef, useState } from "react";
+import { Card } from "react-bootstrap";
 import { useNavigate, useLocation } from "react-router-dom";
 import { FixedSizeList } from "react-window";
 import useFileList from "../../hooks/use-file-list";
@@ -107,7 +108,7 @@ function FileList({
   return (
     <div className={`sidebar ${listVisible ? "d-block" : "d-none"}`}>
       <Filter files={data} listRef={listRef} setFiles={setFiles} />{" "}
-      <div className="card pt-2">
+      <Card className="pt-2">
         <FixedSizeList
           ref={listRef}
           className="list"
@@ -141,7 +142,7 @@ function FileList({
             </li>
           )}
         </FixedSizeList>
-      </div>
+      </Card>
     </div>
   );
 }

@@ -1,5 +1,6 @@
 import PropTypes from "prop-types";
 import React, { useEffect, useState } from "react";
+import { Form } from "react-bootstrap";
 
 function Filter({ files, listRef, setFiles }) {
   const [filter, setFilter] = useState("");
@@ -28,21 +29,19 @@ function Filter({ files, listRef, setFiles }) {
   }
 
   return (
-    <label className="w-100" htmlFor="filterFiles">
-      <span className="sr-only">Find a file…</span>
-      <input
+    <Form.Group className="mb-1" controlId="filterFiles">
+      <Form.Label className="sr-only">Find a file…</Form.Label>
+      <Form.Control
         autoCapitalize="off"
         autoComplete="off"
         autoCorrect="off"
-        className="form-control mb-0"
-        id="filterFiles"
         onChange={(e) => filterOnChange(e)}
         placeholder="Find a file…"
         spellCheck="false"
         type="search"
         value={filter}
       />
-    </label>
+    </Form.Group>
   );
 }
 

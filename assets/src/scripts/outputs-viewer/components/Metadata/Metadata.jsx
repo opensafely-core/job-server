@@ -20,33 +20,31 @@ function Metadata({ fileDate, fileName, fileSize, fileUrl }) {
   };
 
   return (
-    <div className="card-header">
-      <ul className="list-inline small text-monospace d-flex mb-0">
-        <li className="list-inline-item mr-auto">
-          <a
-            className="file-link d-flex"
-            href={fileUrl}
-            rel="noreferrer noopener"
-            target="filePreview"
+    <ul className="list-inline small text-monospace d-flex flex-column flex-md-row mb-0">
+      <li className="list-inline-item mr-auto">
+        <a
+          className="file-link d-flex"
+          href={fileUrl}
+          rel="noreferrer noopener"
+          target="filePreview"
+        >
+          {fileName}
+        </a>
+      </li>
+      {fileDateValue() && (
+        <li className="list-inline-item">
+          <div className="sr-only">Last modified at: </div>
+          <time
+            className="file-date"
+            dateTime={fileDateValue().absolute}
+            title={fileDateValue().absolute}
           >
-            {fileName}
-          </a>
+            {fileDateValue().formatted}
+          </time>
         </li>
-        {fileDateValue() && (
-          <li className="list-inline-item">
-            <div className="sr-only">Last modified at: </div>
-            <time
-              className="file-date"
-              dateTime={fileDateValue().absolute}
-              title={fileDateValue().absolute}
-            >
-              {fileDateValue().formatted}
-            </time>
-          </li>
-        )}
-        <li className="list-inline-item spacer">{prettyFileSize(fileSize)}</li>
-      </ul>
-    </div>
+      )}
+      <li className="list-inline-item spacer">{prettyFileSize(fileSize)}</li>
+    </ul>
   );
 }
 

@@ -1,6 +1,7 @@
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { ReactQueryDevtools } from "@tanstack/react-query-devtools";
 import React, { useState } from "react";
+import { Button, Card, Col, Row } from "react-bootstrap";
 import PrepareButton from "./components/Button/PrepareButton";
 import PublishButton from "./components/Button/PublishButton";
 import FileList from "./components/FileList/FileList";
@@ -25,8 +26,8 @@ function App({ authToken, csrfToken, filesUrl, prepareUrl, publishUrl }) {
   return (
     <QueryClientProvider client={queryClient}>
       {(prepareUrl || publishUrl) && (
-        <div className="row mb-2">
-          <div className="col">
+        <Row className="mb-2">
+          <Col>
             {prepareUrl && (
               <PrepareButton
                 authToken={authToken}
@@ -38,18 +39,19 @@ function App({ authToken, csrfToken, filesUrl, prepareUrl, publishUrl }) {
             {publishUrl && (
               <PublishButton csrfToken={csrfToken} publishUrl={publishUrl} />
             )}
-          </div>
-        </div>
+          </Col>
+        </Row>
       )}
-      <div className="row mb-3">
-        <div className="col-lg-3">
-          <button
-            className="d-block d-lg-none btn btn-secondary mb-3"
+      <Row className="mb-3">
+        <Col lg={3}>
+          <Button
+            className="d-block d-lg-none mb-3"
             onClick={() => setListVisible(!listVisible)}
             type="button"
+            variant="secondary"
           >
             {listVisible ? "Hide" : "Show"} file list
-          </button>
+          </Button>
           <FileList
             authToken={authToken}
             filesUrl={filesUrl}
@@ -57,17 +59,19 @@ function App({ authToken, csrfToken, filesUrl, prepareUrl, publishUrl }) {
             setListVisible={setListVisible}
             setSelectedFile={setSelectedFile}
           />
-        </div>
-        <div className="col-lg-9">
+        </Col>
+        <Col lg={9}>
           {selectedFile && (
-            <div className="card">
-              <Metadata
-                fileDate={selectedFile.date}
-                fileName={selectedFile.name}
-                fileSize={selectedFile.size}
-                fileUrl={selectedFile.url}
-              />
-              <div className="card-body">
+            <Card>
+              <Card.Header>
+                <Metadata
+                  fileDate={selectedFile.date}
+                  fileName={selectedFile.name}
+                  fileSize={selectedFile.size}
+                  fileUrl={selectedFile.url}
+                />
+              </Card.Header>
+              <Card.Body>
                 <Viewer
                   authToken={authToken}
                   fileName={selectedFile.name}
@@ -76,11 +80,11 @@ function App({ authToken, csrfToken, filesUrl, prepareUrl, publishUrl }) {
                   fileUrl={selectedFile.url}
                   uuid={uuid}
                 />
-              </div>
-            </div>
+              </Card.Body>
+            </Card>
           )}
-        </div>
-      </div>
+        </Col>
+      </Row>
       <Toast />
       <ReactQueryDevtools initialIsOpen={false} />
     </QueryClientProvider>
