@@ -2,7 +2,7 @@ import React from "react";
 import prettyFileSize from "../../utils/pretty-file-size";
 import { selectedFileProps } from "../../utils/props";
 
-function Metadata({ fileDate, fileName, fileSize, fileUrl, metadata }) {
+function Metadata({ fileDate, fileName, fileSize, fileUrl }) {
   const fileDateValue = () => {
     if (Date.parse(fileDate)) {
       const getDate = new Date(fileDate);
@@ -19,43 +19,32 @@ function Metadata({ fileDate, fileName, fileSize, fileUrl, metadata }) {
     return false;
   };
 
-  const renderMetadata = (data) =>
-    Object.keys(data).map((key) => (
-      <div key={key} className="mt-3">
-        <strong>{key}</strong>
-        <div>{data[key]}</div>
-      </div>
-    ));
-
   return (
-    <div className="card-header">
-      <ul className="list-inline small text-monospace d-flex mb-0">
-        <li className="list-inline-item mr-auto">
-          <a
-            className="file-link d-flex"
-            href={fileUrl}
-            rel="noreferrer noopener"
-            target="filePreview"
+    <ul className="list-inline small text-monospace d-flex flex-column flex-md-row mb-0">
+      <li className="list-inline-item mr-auto">
+        <a
+          className="file-link d-flex"
+          href={fileUrl}
+          rel="noreferrer noopener"
+          target="filePreview"
+        >
+          {fileName}
+        </a>
+      </li>
+      {fileDateValue() && (
+        <li className="list-inline-item">
+          <div className="sr-only">Last modified at: </div>
+          <time
+            className="file-date"
+            dateTime={fileDateValue().absolute}
+            title={fileDateValue().absolute}
           >
-            {fileName}
-          </a>
+            {fileDateValue().formatted}
+          </time>
         </li>
-        {fileDateValue() && (
-          <li className="list-inline-item">
-            <div className="sr-only">Last modified at: </div>
-            <time
-              className="file-date"
-              dateTime={fileDateValue().absolute}
-              title={fileDateValue().absolute}
-            >
-              {fileDateValue().formatted}
-            </time>
-          </li>
-        )}
-        <li className="list-inline-item spacer">{prettyFileSize(fileSize)}</li>
-      </ul>
-      <div>{metadata && renderMetadata(metadata)}</div>
-    </div>
+      )}
+      <li className="list-inline-item spacer">{prettyFileSize(fileSize)}</li>
+    </ul>
   );
 }
 
@@ -66,9 +55,4 @@ Metadata.propTypes = {
   fileName: selectedFileProps.name.isRequired,
   fileSize: selectedFileProps.size.isRequired,
   fileUrl: selectedFileProps.url.isRequired,
-  metadata: selectedFileProps.metadata,
-};
-
-Metadata.defaultProps = {
-  metadata: null,
 };

@@ -67,11 +67,9 @@
     "react-router-dom": "^6.3.0",
     "react-window": "^1.8.7",
     "select2": "^4.0.13",
-    "simple-zustand-devtools": "^1.1.0",
     "tablesorter": "^2.31.3",
     "tailwindcss": "^3.1.8",
-    "whatwg-fetch": "^3.6.2",
-    "zustand": "^4.1.1"
+    "whatwg-fetch": "^3.6.2"
   },
   "eslintConfig": {
     "extends": [
