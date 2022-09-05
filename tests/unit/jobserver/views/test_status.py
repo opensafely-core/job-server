@@ -6,7 +6,7 @@ import pytest
 from django.utils import timezone
 from first import first
 
-from jobserver.views.status import DBAvailability, PerBackendStatus, Status
+from jobserver.views.status import MaintenanceMode, PerBackendStatus, Status
 
 from ....factories import BackendFactory, JobFactory, JobRequestFactory, StatsFactory
 from ....utils import minutes_ago
@@ -23,7 +23,7 @@ def test_dbavailability_in_db_maintenance(rf):
 
     request = rf.get("/")
 
-    response = DBAvailability.as_view()(request, backend=backend.slug)
+    response = MaintenanceMode.as_view()(request, backend=backend.slug)
 
     assert response.status_code == 503
 
@@ -33,7 +33,7 @@ def test_dbavailability_non_tpp(rf):
 
     request = rf.get("/")
 
-    response = DBAvailability.as_view()(request, backend=backend.slug)
+    response = MaintenanceMode.as_view()(request, backend=backend.slug)
 
     assert response.status_code == 200
 
@@ -43,7 +43,7 @@ def test_dbavailability_out_of_db_maintenance(rf):
 
     request = rf.get("/")
 
-    response = DBAvailability.as_view()(request, backend=backend.slug)
+    response = MaintenanceMode.as_view()(request, backend=backend.slug)
 
     assert response.status_code == 200
 

@@ -48,7 +48,7 @@ from .views.releases import (
     SnapshotDownload,
     WorkspaceReleaseList,
 )
-from .views.status import DBAvailability, PerBackendStatus, Status
+from .views.status import MaintenanceMode, PerBackendStatus, Status
 from .views.users import Settings, login_view
 from .views.workspaces import (
     WorkspaceArchiveToggle,
@@ -191,9 +191,9 @@ status_urls = [
     path("", Status.as_view(), name="status"),
     path("<slug:backend>/", PerBackendStatus.as_view(), name="status-backend"),
     path(
-        "<slug:backend>/db-availability/",
-        DBAvailability.as_view(),
-        name="status-db-availability",
+        "<slug:backend>/maintenance-mode/",
+        MaintenanceMode.as_view(),
+        name="status-maintenance-mode",
     ),
 ]
 

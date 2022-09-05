@@ -10,7 +10,7 @@ from ..backends import show_warning
 from ..models import Backend
 
 
-class DBAvailability(View):
+class MaintenanceMode(View):
     def get(self, request, *args, **kwargs):
         backend = get_object_or_404(Backend, slug=self.kwargs["backend"])
 
