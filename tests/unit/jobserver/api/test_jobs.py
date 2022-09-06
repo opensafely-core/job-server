@@ -697,6 +697,11 @@ def test_jobrequestapilist_success(api_rf):
         job_request4.identifier,
     }
 
+    job_request_data = response.data["results"][0]
+    assert job_request_data["identifier"] == job_request4.identifier
+    assert job_request_data["project"] == workspace.project.slug
+    assert job_request_data["orgs"] == [workspace.project.org.slug]
+
 
 def test_userapidetail_success(api_rf):
     backend = BackendFactory()
