@@ -23,6 +23,10 @@ class ReleaseFileAlreadyExists(Exception):
     pass
 
 
+class ReleaseFileHashMismatch(Exception):
+    pass
+
+
 def size_formatter(value):
     """
     Format the value, in bytes, with a size suffix
@@ -284,7 +288,7 @@ def handle_file_upload(release, backend, user, upload, filename, **kwargs):
     # and Release were created.
     if rfile.filehash != calculated_hash:
         msg = "Contents of uploaded file does not match the file which a review was requested for"
-        raise Exception(msg)
+        raise ReleaseFileHashMismatch(msg)
 
     absolute_path.write_bytes(data)
     rfile.path = str(relative_path)

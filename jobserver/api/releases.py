@@ -302,7 +302,10 @@ class ReleaseAPI(APIView):
             rfile = releases.handle_file_upload(
                 release, backend, user, upload, filename
             )
-        except releases.ReleaseFileAlreadyExists as exc:
+        except (
+            releases.ReleaseFileAlreadyExists,
+            releases.ReleaseFileHashMismatch,
+        ) as exc:
             raise ValidationError({"detail": str(exc)})
 
         slacks.notify_release_file_uploaded(rfile)
