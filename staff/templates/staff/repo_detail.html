@@ -1,0 +1,138 @@
+{% extends "staff/base.html" %}
+
+{% load humanize %}
+{% load static %}
+
+{% block metatitle %}{{ repo.name }}: Staff Area | OpenSAFELY Jobs{% endblock metatitle %}
+
+{% block breadcrumbs %}
+<nav class="breadcrumb-container breadcrumb--danger" aria-label="breadcrumb">
+  <div class="container">
+    <ol class="breadcrumb rounded-0 mb-0 px-0">
+      <li class="breadcrumb-item">
+        <a href="{% url 'staff:index' %}">Staff area</a>
+      </li>
+      <li class="breadcrumb-item">
+        <a href="{% url 'staff:repo-list' %}">Repos</a>
+      </li>
+      <li class="breadcrumb-item active" aria-current="page">
+        {{ repo.name }}
+      </li>
+    </ol>
+  </div>
+</nav>
+{% endblock breadcrumbs %}
+
+{% block jumbotron %}
+<div class="jumbotron jumbotron-fluid jumbotron--danger pt-md-2">
+  <div class="container">
+    <h1 class="display-4">{{ repo.name }}</h1>
+
+    <ul class="list-unstyled lead">
+      <li>
+        <strong>GitHub Org:</strong>
+        {{ repo.owner.login }}
+      </li>
+      <li>
+        <strong>Status:</strong>
+        <span>
+          {% if repo.is_private %}Private{% else %}Public{% endif %}
+        </span>
+      </li>
+    </ul>
+
+    <div class="d-flex">
+      <a class="btn btn-primary mr-1" href="{{ repo.url }}">Open on GitHub</a>
+    </div>
+  </div>
+</div>
+{% endblock jumbotron %}
+
+{% block staff_content %}
+<div class="container">
+  <div class="row">
+    <div class="col col-lg-9 col-xl-8">
+
+      <h2>Workspaces</h2>
+
+      {% for workspace in workspaces %}
+      <div class="card mb-3">
+
+        <h2 class="card-header h5 d-flex justify-content-between">
+          <a href="{{ workspace.get_staff_url }}">{{ workspace.name }}</a>
+          {% if workspace.is_archived %}
+          <span class="badge badge-secondary">Archived</span>
+          {% endif %}
+        </h2>
+
+        <div class="card-body mb-0">
+
+          <div>
+            <h6>Users</h6>
+            <ul class="list-unstyled">
+              {% for user in workspace.job_requesting_users %}
+              <li>
+                <a href="{{ user.get_staff_url }}">{{ user.name }}</a>
+                {% if workspace.created_by.pk == user.pk %}
+                <span class="badge badge-sm badge-secondary">Creator</span>
+                {% endif %}
+              </li>
+              {% endfor %}
+            </ul>
+          </div>
+
+        </div>
+      </div>
+      {% endfor %}
+
+    </div>
+
+    <div class="col col-lg-3 col-xl-4">
+
+      <div class="card mb-3">
+        <h2 class="card-header h5">
+          Dates
+        </h2>
+        <div class="card-body mb-0">
+          <p>
+            <strong>Created:</strong>
+            <span title="{{ repo.created_at.isoformat }}">{{ repo.created_at }}</span>
+          </p>
+          <p>
+            <strong>First job run:</strong>
+            <span title="{{ first_job_ran_at.isoformat }}">{{ first_job_ran_at }}</span>
+          </p>
+          <p>
+            <strong>Last job run:</strong>
+            <span title="{{ last_job_ran_at.isoformat }}">{{ last_job_ran_at }}</span>
+          </p>
+          <p>
+            <strong>12 month limit:</strong>
+            <span title="{{ twelve_month_limit.isoformat }}">
+              {{ twelve_month_limit|naturalday }}
+            </span>
+          </p>
+        </div>
+      </div>
+
+      <div class="card mb-3">
+        <h2 class="card-header h5">
+          Info
+        </h2>
+        <div class="card-body mb-0">
+          <p>
+            <strong>Has outputs on GitHub:</strong>
+            {% if has_releases %}
+            <strong class="text-danger">YES</strong>
+            {% else %}
+            <span class="text-success">NO</span>
+            {% endif %}
+          </p>
+        </div>
+      </div>
+    </div>
+
+  </div>
+
+</div>
+{% endblock staff_content %}

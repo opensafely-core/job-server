@@ -52,11 +52,7 @@
           <tbody>
             {% for repo in repos %}
             <tr>
-              <td>
-                <a href="{{ repo.url }}">
-                  {{ repo.name }}
-                </a>
-              </td>
+              <td><a href="{% url 'staff:repo-detail' repo_url=repo.quoted_url %}">{{ repo.name }}</a></td>
 
               <td>
                 {% if repo.workspaces|length > 1 %}
