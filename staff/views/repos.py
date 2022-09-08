@@ -15,7 +15,7 @@ from furl import furl
 from jobserver.authorization import CoreDeveloper
 from jobserver.authorization.decorators import require_role
 from jobserver.github import _get_github_api
-from jobserver.models import Job, User, Workspace
+from jobserver.models import Job, Project, User, Workspace
 
 
 logger = structlog.get_logger(__name__)
@@ -37,7 +37,7 @@ class RepoDetail(View):
 
         workspaces = (
             Workspace.objects.filter(repo__url=url)
-            .select_related("created_by", "project", "project__org")
+            .select_related("signed_off_by", "created_by", "project", "project__org")
             .order_by("name")
         )
         users = User.objects.filter(job_requests__workspace__in=workspaces).distinct()
@@ -47,6 +47,7 @@ class RepoDetail(View):
         )
         first_job_ran_at = ran_at(jobs.order_by("first_run").first())
         last_job_ran_at = ran_at(jobs.order_by("-first_run").first())
+        num_signed_off = sum(1 for w in workspaces if w.signed_off_at)
 
         twelve_month_limit = first_job_ran_at + timedelta(days=365)
 
@@ -72,6 +73,8 @@ class RepoDetail(View):
                 users = [workspace.created_by, *users]
 
             return {
+                "signed_off_at": workspace.signed_off_at,
+                "signed_off_by": workspace.signed_off_by,
                 "created_by": workspace.created_by,
                 "get_staff_url": workspace.get_staff_url,
                 "is_archived": workspace.is_archived,
@@ -79,12 +82,15 @@ class RepoDetail(View):
                 "name": workspace.name,
             }
 
+        projects = Project.objects.filter(workspaces__in=workspaces)
         workspaces = [build_workspace(w, users) for w in workspaces]
 
         context = {
             "first_job_ran_at": first_job_ran_at,
             "has_releases": "github-releases" in repo["topics"],
             "last_job_ran_at": last_job_ran_at,
+            "num_signed_off": num_signed_off,
+            "projects": projects,
             "repo": repo,
             "repo_url": url,
             "twelve_month_limit": twelve_month_limit,
@@ -161,11 +167,15 @@ class RepoList(View):
             # has this repo ever had jobs run with it?
             has_jobs = sum(w.num_jobs for w in workspaces) > 0
 
+            # how many of the workspaces have been signed-off for being published?
+            signed_off = sum(1 for w in workspaces if w.signed_off_at)
+
             return repo | {
                 "first_run": first_run,
                 "has_jobs": has_jobs,
                 "has_releases": "github-releases" in repo["topics"],
                 "quoted_url": quote(repo["url"], safe=""),
+                "signed_off": signed_off,
                 "workspace": workspace,
                 "workspaces": workspaces,
             }

@@ -81,6 +81,18 @@
             </ul>
           </div>
 
+          <div>
+            <h6>Signed-off?</h6>
+            <p>
+            {% if workspace.signed_off_at %}
+              By {{ workspace.signed_off_by.name }}
+              at {{ workspace.signed_off_at|date:"G:i jS F Y" }}
+            {% else %}
+            No
+            {% endif %}
+            </p>
+          </div>
+
         </div>
       </div>
       {% endfor %}
@@ -112,6 +124,35 @@
               {{ twelve_month_limit|naturalday }}
             </span>
           </p>
+        </div>
+      </div>
+
+      <div class="card mb-3">
+        <h2 class="card-header h5">
+          Sign-offs
+        </h2>
+        <div class="card-body mb-0">
+          <p>
+            <strong>Workspaces:</strong>
+            <span>{{ num_signed_off }}/{{ workspaces|length }}</span>
+          </p>
+          <p>
+            <strong>Internal:</strong>
+            <span>DATE GOES HERE</span>
+          </p>
+        </div>
+      </div>
+
+      <div class="card mb-3">
+        <h2 class="card-header h5">
+          Project(s)
+        </h2>
+        <div class="card-body mb-0">
+          {% for project in projects %}
+          <p>
+            <a href="{{ project.get_staff_url }}">{{ project.title }}</a>
+          </p>
+          {% endfor %}
         </div>
       </div>
 
