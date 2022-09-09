@@ -23,6 +23,11 @@
 <div class="jumbotron jumbotron-fluid jumbotron--danger pt-md-2">
   <div class="container">
     <h1 class="display-4">OpenSAFELY Private Repos</h1>
+    <div class="row">
+      <p class="lead col-lg-9">
+        This table contains all private repos attached to one or more workspaces, where code was first run more than 11 months ago.
+      </p>
+    </div>
   </div>
 </div>
 {% endblock jumbotron %}
@@ -33,35 +38,71 @@
     <div class="col">
       <button type="button" class="reset btn btn-outline-primary mb-3" data-column="0" data-filter="">Reset filters</button>
       <div class="table-responsive">
-        <table class="table table-striped">
+        <table class="table table-striped table-sm table--repo">
           <thead>
             <tr>
-              <th>Created</th>
-              <th>First Run</th>
               <th>Repo</th>
-              <th>Workspace</th>
+              <th>Workspaces</th>
               <th>Contact</th>
-              <th>Released to GH?</th>
+              <th>Created on</th>
+              <th class="text-nowrap">Job first run on</th>
+              <th class="text-nowrap">Files released to GitHub</th>
             </tr>
           </thead>
           <tbody>
             {% for repo in repos %}
             <tr>
-              <td class="text-nowrap">{{ repo.created_at|date:"d M Y" }}</td>
-              <td class="text-nowrap">{{ repo.first_run|date:"d M Y" }}</td>
-              <td><a href="{{ repo.url }}">{{ repo.name }}</a></td>
               <td>
-                <ul class="list-unstyled">
-                  {% for workspace in repo.workspaces %}
-                  <li><a href="{{ workspace.get_staff_url }}">{{ workspace.name }}</a></li>
-                  {% endfor %}
-                </ul>
+                <a href="{{ repo.url }}">
+                  {{ repo.name }}
+                </a>
               </td>
-              <td><a href="{{ repo.workspace.created_by.get_staff_url }}">{{ repo.workspace.created_by.email }}</a></td>
+
+              <td>
+                {% if repo.workspaces|length > 1 %}
+                  <details>
+                    <summary>
+                      <span class="summary--show">Show</span>
+                      <span class="summary--hide">Hide</span>
+                      {{ repo.workspaces|length }} workspaces
+                    </summary>
+                    <ul class="mt-1 mb-0 pl-2 ml-2">
+                      {% for workspace in repo.workspaces %}
+                      <li>
+                        <a href="{{ workspace.get_staff_url }}">
+                          {{ workspace.name }}
+                        </a>
+                      </li>
+                      {% endfor %}
+                    </ul>
+                  </details>
+                {% else %}
+                  {% for workspace in repo.workspaces %}
+                    <a href="{{ workspace.get_staff_url }}">
+                      {{ workspace.name }}
+                    </a>
+                  {% endfor %}
+                {% endif %}
+              </td>
+
+              <td>
+                <a href="{{ repo.workspace.created_by.get_staff_url }}">
+                  {{ repo.workspace.created_by.name }}
+                </a>
+              </td>
+
+              <td class="text-nowrap text-monospace">
+                <span class="pr-3">{{ repo.created_at|date:"d M Y" }}</span>
+              </td>
+
+              <td class="text-nowrap text-monospace">
+                <span class="pr-3">{{ repo.first_run|date:"d M Y" }}</span>
+              </td>
+
               {% if repo.has_releases %}
-              <td class="text-danger">✓</td>
+                <td class="text-center text-danger font-weight-bold">YES</td>
               {% else %}
-              <td class="text-success">✘</td>
+                <td class="text-center text-success">No</td>
               {% endif %}
             </tr>
             {% endfor %}
