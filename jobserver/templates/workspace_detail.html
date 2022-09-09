@@ -123,31 +123,15 @@
               <dd class="d-inline-flex mb-0 align-items-center">
                 <a class="mr-1" href="{{ workspace.repo }}/tree/{{ workspace.branch }}/">{{ workspace.repo_name }}</a>
               </dd>
-              <dd class="d-inline-flex mb-0 align-items-center">
-                {% if repo_is_private %}
-                <span
-                  class="
-                    badge badge-pill
-                    badge-warning
-                  ">
-                  Private
-                </span>
-                {% elif repo_is_private is not None %}
-                <span
-                  class="
-                    badge badge-pill
-                    badge-success
-                  ">
-                  Public
-                </span>
-                {% endif %}
-              </dd>
               {% if repo_is_private %}
-              <dd class="d-inline-block mb-0">
-                <details>In accordance with the <a href='https://www.opensafely.org/about/#transparency-and-public-logs'>Principles of OpenSAFELY</a> we expect all code from all users to be made public.
-                  However, some GitHub repositories may be private during the development stage of a project, which means any links to them from this site will return a '404 Not Found' error unless you are logged in and have the relevant permissions.
-                </details>
-              </dd>
+              <p class="mt-2 mb-1">This repo is not publicly viewable.</p>
+              <details class="small">
+                <summary class="font-weight-bold text-primary">Why is this repo private?</summary>
+                <div class="pl-3">
+                  <p class="my-1">In accordance with the <a href="https://www.opensafely.org/about/#transparency-and-public-logs">Principles of OpenSAFELY</a> we expect all code from all users to be made public.</p>
+                  <p class="mb-0">However, some GitHub repositories may be private during the development stage of a project, which means any links to them from this site will return a '404 Not Found' error unless you are logged in and have the relevant permissions.</p>
+                </div>
+              </details>
               {% endif %}
             </dl>
           </li>
