@@ -24,7 +24,7 @@ Following approval, as part of the [principles you are signing up to](https://ww
 * all codelists
 * all results released from the platform (with disclosure controls applied)
 
-**NOTE:** In line with OpenSAFELY's [open science philosophy](https://www.opensafely.org/about/#contributing-to-best-practice-around-open-science), we will automatically make your GitHub repository public (to include the project's study definition code, codelists and released results) 12 months after any code has been executed against the pseudonymised patient records.
+**NOTE:** In accordance with the [Principles of OpenSAFELY](https://www.opensafely.org/about/#transparency-and-public-logs), we expect all code from all users to be made public. A repository must be made public if it forms part of a publication. Even when there is no publication, we expect all repositories to become public within twelve months after code execution.
 
 ## Your data in public OpenSAFELY dashboards
 In addition, OpenSAFELY will create a public dashboard listing for all [approved projects](https://www.opensafely.org/approved-projects/), including:
@@ -33,7 +33,7 @@ In addition, OpenSAFELY will create a public dashboard listing for all [approved
 * contact email of project lead(s)
 * affiliated organisation
 * when code is first run against the patient data
-* link to GitHub repository (to be made public at most 12 months after first code executed, and in almost all cases at the time of results dissemination)
+* links to the GitHub repositories
 * links to published material (supplied by researchers)
 
 This public dashboard is supplementary to the [live public audit log of all analyses](https://jobs.opensafely.org/).
