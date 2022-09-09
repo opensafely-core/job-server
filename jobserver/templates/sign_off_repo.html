@@ -52,6 +52,33 @@
   <section class="border-top pt-4 mt-4">
     <div class="row">
       <div class="col-lg-8">
+        <h2>Read and agree</h2>
+        <p class="lead">By signing off a workspace below you are confirming you have:</p>
+        <ul class="list-unstyled">
+          <li class="d-flex align-items-center mb-2">
+            {% icon_check_outline class="text-success mr-2" %}
+            <span>Read and understood the <a href="https://www.opensafely.org/about/#transparency-and-public-logs">Transparency and public logs</a> section of the OpenSAFELY website</span>
+          </li>
+          <li class="d-flex align-items-center mb-2">
+            {% icon_check_outline class="text-success mr-2" %}
+            <span>Checked the workspace for disclosive information</span>
+          </li>
+          <li class="d-flex align-items-center mb-2">
+            {% icon_check_outline class="text-success mr-2" %}
+            <span>Updated README's on each branch to match the <a href="#">OpenSAFELY guidance</a></span>
+          </li>
+          <li class="d-flex align-items-center mb-2">
+            {% icon_check_outline class="text-success mr-2" %}
+            <span>The authority to request the change of visibility</span>
+          </li>
+        </ul>
+      </div>
+    </div>
+  </section>
+
+  <section class="border-top pt-4 mt-4">
+    <div class="row">
+      <div class="col-lg-8">
         <h2>Linked workspaces</h2>
         <p class="mb-4">The following workspaces are linked to this repository:</p>
         {% for workspace in workspaces %}
@@ -103,33 +130,6 @@
           </ul>
         </div>
         {% endfor %}
-      </div>
-    </div>
-  </section>
-
-  <section class="border-top pt-4 mt-4">
-    <div class="row">
-      <div class="col-lg-8">
-        <h2>Read and agree</h2>
-        <p class="lead">By submitting this form, please confirm you have:</p>
-        <ul class="list-unstyled">
-          <li class="d-flex align-items-center mb-2">
-            {% icon_check_outline class="text-success mr-2" %}
-            <span>Read and understood the <a href="https://www.opensafely.org/about/#transparency-and-public-logs">Transparency and public logs</a> section of the OpenSAFELY website</span>
-          </li>
-          <li class="d-flex align-items-center mb-2">
-            {% icon_check_outline class="text-success mr-2" %}
-            <span>Checked the above workspaces for disclosive information</span>
-          </li>
-          <li class="d-flex align-items-center mb-2">
-            {% icon_check_outline class="text-success mr-2" %}
-            <span>Updated README's on each branch to match the <a href="#">OpenSAFELY guidance</a></span>
-          </li>
-          <li class="d-flex align-items-center mb-2">
-            {% icon_check_outline class="text-success mr-2" %}
-            <span>The authority to request the change of visibility</span>
-          </li>
-        </ul>
       </div>
     </div>
   </section>
