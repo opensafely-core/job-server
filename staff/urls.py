@@ -39,7 +39,7 @@ from .views.projects import (
     ProjectMembershipRemove,
 )
 from .views.redirects import RedirectDelete, RedirectDetail, RedirectList
-from .views.repos import RepoList
+from .views.repos import RepoDetail, RepoList
 from .views.researchers import ResearcherEdit
 from .views.users import UserDetail, UserList, UserSetOrgs
 from .views.workspaces import WorkspaceDetail, WorkspaceEdit, WorkspaceList
@@ -131,6 +131,11 @@ redirect_urls = [
     path("<int:pk>/delete/", RedirectDelete.as_view(), name="redirect-delete"),
 ]
 
+repo_urls = [
+    path("", RepoList.as_view(), name="repo-list"),
+    path("<repo_url>/", RepoDetail.as_view(), name="repo-detail"),
+]
+
 researcher_urls = [
     path("<int:pk>/edit/", ResearcherEdit.as_view(), name="researcher-edit"),
 ]
@@ -154,8 +159,8 @@ urlpatterns = [
     path("orgs/", include(org_urls)),
     path("projects/", include(project_urls)),
     path("redirects/", include(redirect_urls)),
+    path("repos/", include(repo_urls)),
     path("researchers/", include(researcher_urls)),
-    path("repos/", RepoList.as_view(), name="repo-list"),
     path("users/", include(user_urls)),
     path("workspaces/", include(workspace_urls)),
 ]

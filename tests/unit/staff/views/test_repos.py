@@ -1,12 +1,63 @@
 from datetime import timedelta
+from urllib.parse import quote
 
+import pytest
+from django.contrib.auth.models import AnonymousUser
+from django.core.exceptions import PermissionDenied
 from django.utils import timezone
 
-from staff.views.repos import RepoList
+from staff.views.repos import RepoDetail, RepoList, ran_at
 
-from ....factories import JobFactory, JobRequestFactory, WorkspaceFactory
+from ....factories import JobFactory, JobRequestFactory, UserFactory, WorkspaceFactory
 from ....fakes import FakeGitHubAPI
 from ....utils import minutes_ago
+
+
+def test_ran_at():
+    created = minutes_ago(timezone.now(), 1)
+    started = timezone.now()
+
+    assert ran_at(JobFactory(created_at=created, started_at=None)) == created
+    assert ran_at(JobFactory(created_at=created, started_at=started)) == started
+
+
+def test_repodetail_success(rf, core_developer):
+    repo_url = "https://github.com/opensafely-testing/github-api-testing"
+
+    workspace1 = WorkspaceFactory(repo=repo_url)
+    job_request1 = JobRequestFactory(workspace=workspace1)
+    JobFactory(job_request=job_request1, created_at=timezone.now())
+
+    workspace2 = WorkspaceFactory(repo=repo_url)
+    job_request2 = JobRequestFactory(workspace=workspace2)
+    JobFactory(job_request=job_request2, created_at=timezone.now())
+
+    user = UserFactory()
+    workspace3 = WorkspaceFactory(repo=repo_url, created_by=user)
+    job_request3 = JobRequestFactory(workspace=workspace3, created_by=user)
+    JobFactory(job_request=job_request3, created_at=timezone.now())
+
+    workspace4 = WorkspaceFactory(repo=repo_url)
+    job_request4 = JobRequestFactory(workspace=workspace4)
+    JobFactory(job_request=job_request4, created_at=timezone.now())
+
+    request = rf.get("/")
+    request.user = core_developer
+
+    response = RepoDetail.as_view(get_github_api=FakeGitHubAPI)(
+        request, repo_url=quote(repo_url)
+    )
+
+    assert response.status_code == 200
+    assert len(response.context_data["workspaces"]) == 4
+
+
+def test_repodetail_unauthorized(rf):
+    request = rf.get("/")
+    request.user = AnonymousUser()
+
+    with pytest.raises(PermissionDenied):
+        RepoDetail.as_view(get_github_api=FakeGitHubAPI)(request, repo_url="test")
 
 
 def test_repolist_success(rf, django_assert_num_queries, core_developer):
@@ -86,3 +137,11 @@ def test_repolist_success(rf, django_assert_num_queries, core_developer):
     assert research_repo_2["first_run"] == minutes_ago(eleven_months_ago, 30)
     assert not research_repo_2["has_releases"]
     assert research_repo_2["workspace"] == rr2_workspace_1
+
+
+def test_repolist_unauthorized(rf):
+    request = rf.get("/")
+    request.user = AnonymousUser()
+
+    with pytest.raises(PermissionDenied):
+        RepoList.as_view(get_github_api=FakeGitHubAPI)(request)

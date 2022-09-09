@@ -38,6 +38,7 @@ class FakeGitHubAPI:
 
     def get_repo(self, org, repo):
         return {
+            "topics": ["github-releases"],
             "private": True,
         }
 
