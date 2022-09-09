@@ -320,6 +320,8 @@ class JobRequestAPIList(ListAPIView):
         backend = serializers.CharField(source="backend.slug")
         created_by = serializers.CharField(source="created_by.username")
         workspace = WorkspaceSerializer()
+        project = serializers.CharField(source="workspace.project.slug")
+        orgs = serializers.SerializerMethodField()
 
         class Meta:
             fields = [
@@ -332,8 +334,13 @@ class JobRequestAPIList(ListAPIView):
                 "created_by",
                 "created_at",
                 "workspace",
+                "project",
+                "orgs",
             ]
             model = JobRequest
+
+        def get_orgs(self, obj):
+            return [obj.workspace.project.org.slug]
 
     def initial(self, request, *args, **kwargs):
         token = request.headers.get("Authorization")
@@ -358,7 +365,13 @@ class JobRequestAPIList(ListAPIView):
             JobRequest.objects.filter(
                 jobs__completed_at__isnull=True,
             )
-            .select_related("created_by", "workspace", "workspace__created_by")
+            .select_related(
+                "created_by",
+                "workspace",
+                "workspace__created_by",
+                "workspace__project",
+                "workspace__project__org",
+            )
             .order_by("-created_at")
             .distinct()
         )
