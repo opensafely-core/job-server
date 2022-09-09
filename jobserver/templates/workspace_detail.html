@@ -122,16 +122,33 @@
               <dt class="d-inline-block">Repo:</dt>
               <dd class="d-inline-flex mb-0 align-items-center">
                 <a class="mr-1" href="{{ workspace.repo }}/tree/{{ workspace.branch }}/">{{ workspace.repo_name }}</a>
-                {% if repo_is_private is not None %}
+              </dd>
+              <dd class="d-inline-flex mb-0 align-items-center">
+                {% if repo_is_private %}
                 <span
                   class="
                     badge badge-pill
-                    badge-{% if repo_is_private %}warning{% else %}success{% endif %}
-                ">
-                  {% if repo_is_private %}Private{% else %}Public{% endif %}
+                    badge-warning
+                  ">
+                  Private
+                </span>
+                {% elif repo_is_private is not None %}
+                <span
+                  class="
+                    badge badge-pill
+                    badge-success
+                  ">
+                  Public
                 </span>
                 {% endif %}
               </dd>
+              {% if repo_is_private %}
+              <dd class="d-inline-block mb-0">
+                <details>In accordance with the <a href='https://www.opensafely.org/about/#transparency-and-public-logs'>Principles of OpenSAFELY</a> we expect all code from all users to be made public.
+                  However, some GitHub repositories may be private during the development stage of a project, which means any links to them from this site will return a '404 Not Found' error unless you are logged in and have the relevant permissions.
+                </details>
+              </dd>
+              {% endif %}
             </dl>
           </li>
           <li class="list-group-item">

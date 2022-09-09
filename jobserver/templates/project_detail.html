@@ -108,6 +108,11 @@
                     </span>
                   {% endif %}
                 </li>
+                {% if repo.is_private %}
+                  <li><details>In accordance with the <a href='https://www.opensafely.org/about/#transparency-and-public-logs'>Principles of OpenSAFELY</a> we expect all code from all users to be made public.
+                    However, some GitHub repositories may be private during the development stage of a project, which means any links to them from this site will return a '404 Not Found' error unless you are logged in and have the relevant permissions.
+                  </details></li>
+                {% endif %}
               {% endfor %}
             </ul>
           </li>
