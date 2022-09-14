@@ -96,8 +96,7 @@ run-telemetry: devenv
     $BIN/opentelemetry-instrument $BIN/python manage.py runserver --noreload
 
 
-test-base *args: devenv
-    $BIN/python manage.py collectstatic --no-input
+test-base *args: assets
     $BIN/coverage run \
         --branch \
         --source=applications,jobserver,services,staff,tests \
