@@ -1,4 +1,5 @@
 import requests
+from csp.decorators import csp_exempt
 from django.contrib import messages
 from django.db.models import Q
 from django.http import FileResponse, Http404, HttpResponse
@@ -58,6 +59,7 @@ class WorkspaceBackendFiles(View):
     Workspace.
     """
 
+    @csp_exempt
     def get(self, request, *args, **kwargs):
         workspace = get_object_or_404(
             Workspace,
@@ -320,6 +322,7 @@ class WorkspaceLatestOutputsDetail(View):
     Workspace.
     """
 
+    @csp_exempt
     def get(self, request, *args, **kwargs):
         workspace = get_object_or_404(
             Workspace,
