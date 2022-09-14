@@ -1,3 +1,4 @@
+from csp.decorators import csp_exempt
 from django.contrib.humanize.templatetags.humanize import naturaltime
 from django.db import transaction
 from django.db.models import Prefetch
@@ -102,6 +103,7 @@ class PublishedSnapshotFile(View):
 
 
 class ReleaseDetail(View):
+    @csp_exempt
     def get(self, request, *args, **kwargs):
         """
         Orchestrate viewing of a Release in the SPA
@@ -205,6 +207,7 @@ class ReleaseFileDelete(View):
 
 
 class SnapshotDetail(View):
+    @csp_exempt
     def get(self, request, *args, **kwargs):
         snapshot = get_object_or_404(
             Snapshot,
