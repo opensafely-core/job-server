@@ -116,7 +116,7 @@
               </span>
             </a>
             {% else %}
-            <span class="mr-3 text-secondary" style="text-decoration:line-through">
+            <span class="mr-3 text-secondary text-line-through">
               {{ application.pk_hash }} by {{ application.created_by.name }}
               <small class="text-muted">(started {{ application.created_at|date }})</small>
             </span>
