@@ -39,18 +39,16 @@
     <div class="row">
       <div class="col-lg-8">
         <h2 class="h5">Your progress</h2>
-        <div class="progress">
-          <div
-            class="progress-bar"
-            role="progressbar"
-            style="width: {{ progress_percent }}%"
-            aria-valuenow="{{ progress_percent }}"
-            aria-valuemin="0"
-            aria-valuemax="100"
+        <label class="prg" for="progressbar">
+          <span class="sr-only">Form progress</span>
+          <progress
+            class="prg__bar"
+            id="progressbar"
+            max="100"
+            value="{{ progress_percent }}"
           >
-            {{ progress_percent }}%
-          </div>
-        </div>
+          </progress>
+        </label>
       </div>
     </div>
   </div>

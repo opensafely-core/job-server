@@ -17,3 +17,27 @@
 .text-pre-wrap {
   white-space: pre-wrap;
 }
+
+.prg,
+.prg__bar {
+  height: 1rem;
+  width: 100%;
+}
+
+.prg__bar {
+  -webkit-appearance: none;
+  appearance: none;
+  border-radius: 0.25rem;
+  overflow: hidden;
+  position: relative;
+}
+
+.prg__bar::-webkit-progress-bar {
+  background-color: #e9ecef;
+  border-radius: 0;
+}
+
+.prg__bar::-webkit-progress-value {
+  background-color: $oxford-600;
+  border-radius: 0;
+}
