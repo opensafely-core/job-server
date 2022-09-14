@@ -23,7 +23,7 @@
 {% block jumbotron %}
 <div class="jumbotron jumbotron-fluid jumbotron--danger pt-md-2">
   <div class="container">
-    <h1 class="display-4"{% if application.is_deleted %} style="text-decoration:line-through"{% endif %}>
+    <h1 class="display-4{% if application.is_deleted %} text-line-through{% endif %}">
       Application {{ application.pk_hash }}
     </h1>
 
@@ -132,7 +132,7 @@
               {% for field in fieldset.fields %}
               <dl class="row mb-1">
                 <dt class="col-6 mb-2">{{ field.label }}</dt>
-                <dd class="col-6" style="white-space:pre-wrap">{{ field.value|linebreaksbr }}</dd>
+                <dd class="col-6 text-pre-wrap">{{ field.value|linebreaksbr }}</dd>
               </dl>
               {% endfor %}
             {% endfor %}
