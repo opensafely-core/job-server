@@ -1,5 +1,7 @@
-{% var title_class=title_class|default:"text-sm font-semibold text-slate-600" %}
-{% var details_class=details_class|default:"mt-1 text-sm text-slate-900" %}
+{% var title_class=title_class|default:"text-sm font-medium text-slate-900" %}
+{% var details_class=details_class|default:"mt-1 text-sm text-slate-900 sm:col-span-3 sm:mt-0" %}
 
-<dt class="{{ title_class }}">{{ title }}</dt>
-<dd class="{{ details_class }}">{{ children }}</dd>
+<div class="even:bg-white odd:bg-slate-50 px-2 py-4 sm:grid sm:grid-cols-4 sm:gap-3 sm:px-6">
+	<dt class="{{ title_class }}">{{ title }}</dt>
+	<dd class="{{ details_class }}">{{ children }}</dd>
+</div>
