@@ -60,16 +60,18 @@
         {% icon_pencil_outline class="h-5 w-5" %}
       {% /timeline_item %}
 
-      {% #timeline_item background="purple" title="Moved to the pending or running state on the backend:" job_time=job.started_at %}
-        {% icon_folder_open_outline class="h-5 w-5" %}
-      {% /timeline_item %}
+      {% if job.started_at %}
+        {% #timeline_item background="purple" title="Moved to the pending or running state on the backend:" job_time=job.started_at %}
+          {% icon_folder_open_outline class="h-5 w-5" %}
+        {% /timeline_item %}
+      {% endif %}
 
       {% if job.status == "pending" %}
-        {% #timeline_item background="yellow" title="Pending run on the backend:" job_time=job.completed_at %}
+        {% #timeline_item background="yellow" title="Pending run on the backend" job_time=job.completed_at %}
           {% icon_ellipsis_horizontal_outline class="h-5 w-5" %}
         {% /timeline_item %}
       {% elif job.status == "running" %}
-        {% #timeline_item background="blue" title="Running on the backend:" job_time=job.completed_at %}
+        {% #timeline_item background="blue" title="Running on the backend" job_time=job.completed_at %}
           {% icon_ellipsis_horizontal_outline class="h-5 w-5" %}
         {% /timeline_item %}
       {% elif job.status == "failed" %}
@@ -82,9 +84,11 @@
         {% /timeline_item %}
       {% endif %}
 
-      {% #timeline_item background="stone" title="Time spent running on the backend:" content=job.runtime %}
-        {% icon_clock_outline class="h-5 w-5" %}
-      {% /timeline_item %}
+      {% if job.runtime %}
+        {% #timeline_item background="stone" title="Time spent running on the backend:" content=job.runtime %}
+          {% icon_clock_outline class="h-5 w-5" %}
+        {% /timeline_item %}
+      {% endif %}
 
       {% #timeline_item background="slate" title="Last update by backend:" job_time=job.updated_at last=True %}
         {% icon_status_online_outline class="h-5 w-5" %}
