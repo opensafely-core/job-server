@@ -37,6 +37,7 @@ class UserDetail(UpdateView):
         for backend in form.cleaned_data["backends"]:
             backend.memberships.create(user=self.object, created_by=self.request.user)
 
+        self.object.fullname = form.cleaned_data["fullname"]
         self.object.roles = form.cleaned_data["roles"]
         self.object.save()
 
@@ -81,6 +82,7 @@ class UserDetail(UpdateView):
         return kwargs | {
             "available_backends": Backend.objects.order_by("slug"),
             "available_roles": available_roles,
+            "fullname": self.object.fullname,
         }
 
     def get_initial(self):

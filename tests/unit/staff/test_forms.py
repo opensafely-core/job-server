@@ -141,6 +141,7 @@ def test_userform_success():
         available_backends=Backend.objects.all(),
         available_roles=[],
         data=data,
+        fullname="",
     )
 
     assert form.is_valid(), form.errors
@@ -160,6 +161,7 @@ def test_userform_with_no_backends():
         available_backends=available_backends,
         available_roles=[],
         data=data,
+        fullname="",
     )
 
     assert form.is_valid()
@@ -180,6 +182,7 @@ def test_userform_with_unknown_backend():
         available_backends=available_backends,
         available_roles=[],
         data=data,
+        fullname="",
     )
 
     assert not form.is_valid()

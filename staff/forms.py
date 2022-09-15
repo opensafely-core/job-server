@@ -177,7 +177,11 @@ class ResearcherRegistrationEditForm(forms.ModelForm):
 
 
 class UserForm(RolesForm):
+    fullname = forms.CharField(required=False)
+
     def __init__(self, *, available_backends, **kwargs):
+        fullname = kwargs.pop("fullname")
+
         super().__init__(**kwargs)
 
         # build choices from the available backends
@@ -188,6 +192,7 @@ class UserForm(RolesForm):
             required=False,
             widget=forms.CheckboxSelectMultiple,
         )
+        self.fields["fullname"].initial = fullname
 
     def clean_backends(self):
         """Convert backend names to Backend instances"""

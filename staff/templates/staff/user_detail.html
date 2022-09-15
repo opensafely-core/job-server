@@ -80,6 +80,8 @@
         </ul>
         {% endif %}
 
+        {% include "components/form_text.html" with field=form.fullname label="Full name" name="fullname" %}
+
         <div class="form-group">
           <h2 id="backends" class="h4">Backends</h2>
 
