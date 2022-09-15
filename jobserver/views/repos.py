@@ -32,6 +32,7 @@ def build_workspace(workspace, get_github_api=_get_github_api):
         "is_archived": workspace.is_archived,
         "name": workspace.name,
         "get_readme_url": workspace.get_readme_url(),
+        "project": workspace.project,
     }
 
 
