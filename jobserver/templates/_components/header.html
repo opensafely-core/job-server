@@ -107,14 +107,14 @@
             <ul
               class="
                 relative shadow-none ring-0 text-sm -mx-4 px-2 pt-2 mt-2 border-t border-t-slate-200 !transition-none
-                md:absolute md:text-base md:mx-0 md:px-0 md:pt-0 md:border-0 md:origin-top-right md:top-full md:mt-2 md:right-0 md:z-10 md:w-48 md:rounded-md md:shadow-lg md:overflow-hidden md:bg-white md:ring-1 md:ring-black md:ring-opacity-5 md:focus:outline-none md:text-sm
+                md:absolute md:mx-0 md:px-0 md:pt-0 md:border-0 md:origin-top-right md:top-full md:mt-2 md:right-0 md:z-10 md:w-48 md:rounded-md md:shadow-lg md:overflow-hidden md:bg-white md:ring-1 md:ring-black md:ring-opacity-5 md:focus:outline-none md:text-sm
               "
             >
               {% if user_can_view_staff_area %}
               <li>
                 <a
                   class="inline-block md:block px-2 md:px-4 py-2 rounded md:rounded-none text-oxford hover:text-bn-strawberry-700 md:hover:bg-oxford-50 focus:text-bn-strawberry-700 focus:outline-none focus:ring-2 focus:ring-oxford-500 md:focus:ring-inset"
-                  href="{% url 'settings' %}"
+                  href="{% url 'staff:index' %}"
                 >
                   🚨 Staff Area 🚨
                 </a>
