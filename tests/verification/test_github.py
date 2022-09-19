@@ -80,6 +80,39 @@ def test_get_branch_with_missing_branch(enable_network, github_api):
     assert github_api.get_branch("opensafely-testing", "some_repo", "missing") is None
 
 
+def test_get_branches(enable_network, github_api):
+    args = ["opensafely-testing", "github-api-testing"]
+
+    real = github_api.get_branches(*args)
+    fake = FakeGitHubAPI().get_branches(*args)
+
+    compare(fake, real)
+
+    assert real is not None
+
+
+def test_get_branches_with_unknown_org(enable_network, github_api):
+    args = ["opensafely-not-real", "github-api-testing"]
+
+    real = github_api.get_branches(*args)
+    fake = FakeGitHubAPI().get_branches(*args)
+
+    compare(fake, real)
+
+    assert real == []
+
+
+def test_get_branches_with_unknown_repo(enable_network, github_api):
+    args = ["opensafely-testing", "github-api-not-real"]
+
+    real = github_api.get_branches(*args)
+    fake = FakeGitHubAPI().get_branches(*args)
+
+    compare(fake, real)
+
+    assert real == []
+
+
 def test_get_branch_sha(enable_network, github_api):
     args = ["opensafely-testing", "github-api-testing", "test-get_branch_sha"]
 

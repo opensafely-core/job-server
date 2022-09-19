@@ -63,6 +63,9 @@ def test_signoffrepo_get_success_with_broken_github(rf):
         def get_branch(self, owner, repo, branch):
             return {}
 
+        def get_branches(self, owner, repo):
+            return []
+
         def get_repo_is_private(self, owner, repo):
             raise requests.HTTPError()
 

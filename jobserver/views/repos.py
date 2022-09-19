@@ -14,9 +14,9 @@ from ..github import _get_github_api
 from ..models import ProjectMembership, Repo
 
 
-def build_workspace(workspace, get_github_api=_get_github_api):
+def build_workspace(workspace, github_api):
     branch_exists = bool(
-        get_github_api().get_branch(
+        github_api.get_branch(
             workspace.repo.owner,
             workspace.repo.name,
             workspace.branch,
@@ -94,10 +94,10 @@ class SignOffRepo(TemplateView):
         return redirect(self.repo.get_sign_off_url())
 
     def render_to_response(self):
+        github_api = self.get_github_api()
+
         try:
-            is_private = self.get_github_api().get_repo_is_private(
-                self.repo.owner, self.repo.name
-            )
+            is_private = github_api.get_repo_is_private(self.repo.owner, self.repo.name)
         except requests.HTTPError:
             is_private = None
 
@@ -108,9 +108,17 @@ class SignOffRepo(TemplateView):
             "url": self.repo.url,
         }
 
-        workspaces = [build_workspace(w, self.get_github_api) for w in self.workspaces]
+        workspaces = [build_workspace(w, github_api) for w in self.workspaces]
+
+        # build up a list of branches without a workspace
+        branches = [
+            b["name"] for b in github_api.get_branches(self.repo.owner, self.repo.name)
+        ]
+        workspace_branches = [w["branch"] for w in workspaces]
+        branches = [b for b in branches if b not in workspace_branches]
 
         context = super().get_context_data() | {
+            "branches": branches,
             "repo": repo,
             "workspaces": workspaces,
         }

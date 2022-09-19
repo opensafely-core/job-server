@@ -190,6 +190,27 @@ class GitHubAPI:
 
         return r.json()
 
+    def get_branches(self, org, repo):
+        path_segments = [
+            "repos",
+            org,
+            repo,
+            "branches",
+        ]
+        url = self._url(path_segments)
+
+        headers = {
+            "Accept": "application/vnd.github.v3+json",
+        }
+        r = self._get(url, headers=headers)
+
+        if r.status_code == 404:
+            return []
+
+        r.raise_for_status()
+
+        return r.json()
+
     def get_branch_sha(self, org, repo, branch):
         branch = self.get_branch(org, repo, branch)
 

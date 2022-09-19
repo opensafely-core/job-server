@@ -134,6 +134,19 @@
           </ul>
         </div>
         {% endfor %}
+
+        {% if branches %}
+        <h2>Other branches</h2>
+        <p class="mb-4">The following branches have no workspaces:</p>
+        {% for branch in branches %}
+        <ul class="list-group">
+          <a href="" class="list-group-item list-group-item-action">
+            {{ branch }}
+          </a>
+        </ul>
+        {% endfor %}
+        {% endif %}
+
       </div>
     </div>
   </section>
