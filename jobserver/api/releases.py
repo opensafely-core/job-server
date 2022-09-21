@@ -2,6 +2,7 @@ import cgi
 
 import sentry_sdk
 import structlog
+from csp.decorators import csp_exempt
 from django.db import transaction
 from django.db.models import Value
 from django.shortcuts import get_object_or_404
@@ -327,6 +328,7 @@ class ReleaseAPI(APIView):
 class ReleaseFileAPI(APIView):
     authentication_classes = [SessionAuthentication]
 
+    @csp_exempt
     def get(self, request, file_id):
         """Return the content of a specific ReleaseFile"""
         # treat a deleted file as missing
