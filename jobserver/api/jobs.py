@@ -233,6 +233,7 @@ def handle_alerts_and_notifications(request, job_request, job):
 
 class WorkspaceSerializer(serializers.ModelSerializer):
     created_by = serializers.CharField(source="created_by.username", default=None)
+    repo = serializers.CharField(source="repo.url", default=None)
 
     class Meta:
         fields = [
