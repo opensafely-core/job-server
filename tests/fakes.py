@@ -1,7 +1,7 @@
 import textwrap
-from datetime import datetime
+from datetime import datetime, timezone
 
-from django.utils import timezone
+from django.utils.timezone import now
 
 
 class FakeGitHubAPI:
@@ -67,35 +67,35 @@ class FakeGitHubAPI:
                 "name": "research-repo-1",
                 "url": "https://github.com/opensafely/research-repo-1",
                 "is_private": True,
-                "created_at": timezone.now(),
+                "created_at": now(),
                 "topics": ["github-releases"],
             },
             {
                 "name": "research-repo-2",
                 "url": "https://github.com/opensafely/research-repo-2",
                 "is_private": True,
-                "created_at": timezone.now(),
+                "created_at": now(),
                 "topics": [],
             },
             {
                 "name": "research-repo-3",
                 "url": "https://github.com/opensafely/research-repo-3",
                 "is_private": False,
-                "created_at": timezone.now(),
+                "created_at": now(),
                 "topics": ["github-releases"],
             },
             {
                 "name": "no workspaces or jobs",
                 "url": "https://github.com/opensafely/research-repo-4",
                 "is_private": True,
-                "created_at": timezone.now(),
+                "created_at": now(),
                 "topics": [],
             },
             {
                 "name": "jobs haven't run",
                 "url": "https://github.com/opensafely/research-repo-5",
                 "is_private": True,
-                "created_at": timezone.now(),
+                "created_at": now(),
                 "topics": [],
             },
         ]

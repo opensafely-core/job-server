@@ -1,8 +1,7 @@
-from datetime import datetime
+from datetime import datetime, timezone
 
 import factory
 import factory.fuzzy
-from django.utils import timezone
 from social_django.models import UserSocialAuth
 
 from jobserver.models import (

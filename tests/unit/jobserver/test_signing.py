@@ -1,8 +1,9 @@
 import json
 import secrets
-from datetime import datetime, timedelta, timezone
+from datetime import timedelta
 
 import pytest
+from django.utils import timezone
 from pydantic import ValidationError
 from pydantic.json import pydantic_encoder
 
@@ -26,7 +27,7 @@ def test_token_sign_verify_roundtrip(secret_key):
     token1 = signing.AuthToken(
         url="https://example.com/url",
         user="user",
-        expiry=datetime.now(timezone.utc) + timedelta(minutes=1),
+        expiry=timezone.now() + timedelta(minutes=1),
     )
     token_string = token1.sign(secret_key, "salt")
 
@@ -39,7 +40,7 @@ def test_token_object_url_invalid():
         signing.AuthToken(
             url="bad",
             user="user",
-            expiry=datetime.now(timezone.utc) + timedelta(minutes=1),
+            expiry=timezone.now() + timedelta(minutes=1),
         )
 
 
@@ -48,7 +49,7 @@ def test_token_object_expired():
         signing.AuthToken(
             url="https://example.com/url",
             user="user",
-            expiry=datetime.now(timezone.utc) - timedelta(minutes=1),
+            expiry=timezone.now() - timedelta(minutes=1),
         )
 
 
@@ -56,7 +57,7 @@ def test_token_verify_mismatched_secrets():
     payload = dict(
         url="https://example.com/url",
         user="user",
-        expiry=datetime.now(timezone.utc) + timedelta(minutes=1),
+        expiry=timezone.now() + timedelta(minutes=1),
     )
     token = create_raw_token(payload, "secret1" * 10)
 
@@ -76,7 +77,7 @@ def test_token_verify_expired(secret_key):
     payload = dict(
         url="https://example.com/url",
         user="user",
-        expiry=datetime.now(timezone.utc) - timedelta(minutes=1),
+        expiry=timezone.now() - timedelta(minutes=1),
     )
     token = create_raw_token(payload, secret_key)
     with pytest.raises(signing.AuthToken.Expired):
@@ -87,7 +88,7 @@ def test_token_verify_wrong_all_the_things(secret_key):
     payload = dict(
         url="bad url",
         # missing user
-        expiry=datetime.now(timezone.utc) - timedelta(minutes=1),
+        expiry=timezone.now() - timedelta(minutes=1),
     )
     token = create_raw_token(payload, secret_key)
     with pytest.raises(ValidationError) as exc_info:
