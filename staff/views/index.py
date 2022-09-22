@@ -52,7 +52,7 @@ configured_searches = [
     },
     {
         "model": Workspace,
-        "fields": ["name", "repo"],
+        "fields": ["name", "repo__url"],
         "order_by": "name",
     },
 ]

@@ -5,7 +5,13 @@ from django.http import Http404
 from redirects.models import Redirect
 from staff.views.workspaces import WorkspaceDetail, WorkspaceEdit, WorkspaceList
 
-from ....factories import OrgFactory, ProjectFactory, UserFactory, WorkspaceFactory
+from ....factories import (
+    OrgFactory,
+    ProjectFactory,
+    RepoFactory,
+    UserFactory,
+    WorkspaceFactory,
+)
 
 
 def test_workspacedetail_success(rf, core_developer):
@@ -121,7 +127,7 @@ def test_workspaceedit_unknown_workspace(rf, core_developer):
 
 def test_workspacelist_search(rf, core_developer):
     WorkspaceFactory(name="ben")
-    WorkspaceFactory(repo="ben")
+    WorkspaceFactory(repo=RepoFactory(url="ben"))
     WorkspaceFactory(name="seb")
 
     request = rf.get("/?q=ben")

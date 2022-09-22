@@ -199,7 +199,7 @@ def create_github_issue(
     def link(title, url):
         return f"[{title}]({url})"
 
-    github_repo = link(release.workspace.repo_name, release.workspace.repo)
+    github_repo = link(release.workspace.repo.name, release.workspace.repo.url)
     requested_by = link(release.created_by.name, release.created_by.get_staff_url())
     release_url = link(release.id, base_url / release.get_absolute_url())
     workspace_url = link(

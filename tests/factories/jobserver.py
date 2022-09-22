@@ -13,6 +13,7 @@ from jobserver.models import (
     OrgMembership,
     Project,
     ProjectMembership,
+    Repo,
     Snapshot,
     Stats,
     User,
@@ -96,6 +97,13 @@ class ProjectMembershipFactory(factory.django.DjangoModelFactory):
     user = factory.SubFactory("tests.factories.UserFactory")
 
 
+class RepoFactory(factory.django.DjangoModelFactory):
+    class Meta:
+        model = Repo
+
+    url = factory.Sequence(lambda n: f"http://example.com/org-{n}/repo-{n}")
+
+
 class SnapshotFactory(factory.django.DjangoModelFactory):
     class Meta:
         model = Snapshot
@@ -134,7 +142,7 @@ class WorkspaceFactory(factory.django.DjangoModelFactory):
         model = Workspace
 
     project = factory.SubFactory("tests.factories.ProjectFactory")
+    repo = factory.SubFactory("tests.factories.RepoFactory")
     created_by = factory.SubFactory("tests.factories.UserFactory")
 
     name = factory.Sequence(lambda n: f"workspace-{n}")
-    repo = factory.Sequence(lambda n: "http://example.com/org-{n}/repo-{n}")

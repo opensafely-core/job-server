@@ -67,6 +67,6 @@ class WorkspaceList(ListView):
 
         q = self.request.GET.get("q")
         if q:
-            qs = qs.filter(Q(name__icontains=q) | Q(repo__icontains=q))
+            qs = qs.filter(Q(name__icontains=q) | Q(repo__url__icontains=q))
 
         return qs
