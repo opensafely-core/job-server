@@ -6,6 +6,7 @@ from .core import (
     OrgMembership,
     Project,
     ProjectMembership,
+    Repo,
     User,
     Workspace,
 )
@@ -25,6 +26,7 @@ __all__ = [
     "Release",
     "ReleaseFile",
     "ReleaseFileReview",
+    "Repo",
     "Snapshot",
     "Stats",
     "User",

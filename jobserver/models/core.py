@@ -551,6 +551,31 @@ class ProjectMembership(models.Model):
         )
 
 
+class Repo(models.Model):
+    url = models.TextField(unique=True)
+
+    def __str__(self):
+        return self.url
+
+    @property
+    def name(self):
+        """Convert repo URL -> repo name"""
+        return self._url().path.segments[-1]
+
+    @property
+    def owner(self):
+        """Convert repo URL -> repo owner"""
+        return self._url().path.segments[0]
+
+    def _url(self):
+        f = furl(self.url)
+
+        if not f.path:
+            raise Exception("Repo URL not in expected format, appears to have no path")
+
+        return f
+
+
 class UserQuerySet(models.QuerySet):
     def filter_by_role(self, role):
         """
@@ -784,6 +809,12 @@ class Workspace(models.Model):
         "Project",
         on_delete=models.PROTECT,
         related_name="workspaces",
+    )
+    repo_fk = models.ForeignKey(
+        "Repo",
+        on_delete=models.PROTECT,
+        related_name="workspaces",
+        null=True,
     )
 
     name = models.TextField(unique=True, validators=[validate_slug])

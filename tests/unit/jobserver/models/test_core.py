@@ -24,6 +24,7 @@ from ....factories import (
     OrgMembershipFactory,
     ProjectFactory,
     ProjectMembershipFactory,
+    RepoFactory,
     UserFactory,
     WorkspaceFactory,
 )
@@ -619,6 +620,10 @@ def test_projectmembership_str():
     membership = ProjectMembershipFactory(project=project, user=user)
 
     assert str(membership) == "ben | DataLab"
+
+
+def test_repo_str():
+    assert str(RepoFactory(url="test")) == "test"
 
 
 def test_user_constraints_pat_token_and_pat_expires_at_both_set():
