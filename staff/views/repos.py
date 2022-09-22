@@ -35,7 +35,7 @@ class RepoDetail(View):
         repo = self.get_github_api().get_repo(org, name)
 
         workspaces = (
-            Workspace.objects.filter(repo=url)
+            Workspace.objects.filter(repo__url=url)
             .select_related("created_by", "project", "project__org")
             .order_by("name")
         )
@@ -119,7 +119,7 @@ class RepoList(View):
 
         all_workspaces = list(
             Workspace.objects.exclude(project__slug="opensafely-testing")
-            .select_related("created_by", "project")
+            .select_related("created_by", "project", "repo")
             .annotate(num_jobs=Count("job_requests__jobs"))
             .annotate(
                 first_run=Min(
@@ -140,7 +140,7 @@ class RepoList(View):
             """
             # get workspaces just for this repo
             workspaces = [
-                w for w in all_workspaces if repo["url"].lower() == w.repo.lower()
+                w for w in all_workspaces if repo["url"].lower() == w.repo.url.lower()
             ]
             workspaces = sorted(workspaces, key=lambda w: w.name.lower())
 

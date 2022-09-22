@@ -1,6 +1,7 @@
 import requests
 from csp.decorators import csp_exempt
 from django.contrib import messages
+from django.db import transaction
 from django.db.models import Q
 from django.http import FileResponse, Http404, HttpResponse
 from django.shortcuts import get_object_or_404, redirect
@@ -18,7 +19,7 @@ from ..forms import (
     WorkspaceNotificationsToggleForm,
 )
 from ..github import _get_github_api
-from ..models import Backend, JobRequest, Project, Workspace
+from ..models import Backend, JobRequest, Project, Repo, Workspace
 from ..releases import (
     build_hatch_token_and_url,
     build_outputs_zip,
@@ -180,11 +181,17 @@ class WorkspaceCreate(CreateView):
 
         return super().dispatch(request, *args, **kwargs)
 
+    @transaction.atomic()
     def form_valid(self, form):
-        workspace = form.save(commit=False)
-        workspace.created_by = self.request.user
-        workspace.project = self.project
-        workspace.save()
+        repo, _ = Repo.objects.get_or_create(url=form.cleaned_data["repo"])
+
+        workspace = Workspace.objects.create(
+            name=form.cleaned_data["name"],
+            branch=form.cleaned_data["branch"],
+            created_by=self.request.user,
+            project=self.project,
+            repo=repo,
+        )
 
         return redirect(workspace)
 
@@ -195,8 +202,13 @@ class WorkspaceCreate(CreateView):
             **kwargs,
         )
 
-    def get_form_kwargs(self):
-        return super().get_form_kwargs() | {
+    def get_form_kwargs(self, **kwargs):
+        kwargs = super().get_form_kwargs(**kwargs)
+
+        # WorkspaceCreateForm isn't a ModelForm so don't pass instance to it
+        del kwargs["instance"]
+
+        return kwargs | {
             "repos_with_branches": self.repos_with_branches,
         }
 
@@ -250,7 +262,7 @@ class WorkspaceDetail(View):
 
         try:
             repo_is_private = self.get_github_api().get_repo_is_private(
-                workspace.repo_owner, workspace.repo_name
+                workspace.repo.owner, workspace.repo.name
             )
         except requests.HTTPError:
             repo_is_private = None

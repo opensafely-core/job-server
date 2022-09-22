@@ -8,7 +8,13 @@ from django.utils import timezone
 
 from staff.views.repos import RepoDetail, RepoList, ran_at
 
-from ....factories import JobFactory, JobRequestFactory, UserFactory, WorkspaceFactory
+from ....factories import (
+    JobFactory,
+    JobRequestFactory,
+    RepoFactory,
+    UserFactory,
+    WorkspaceFactory,
+)
 from ....fakes import FakeGitHubAPI
 from ....utils import minutes_ago
 
@@ -22,22 +28,22 @@ def test_ran_at():
 
 
 def test_repodetail_success(rf, core_developer):
-    repo_url = "https://github.com/opensafely-testing/github-api-testing"
+    repo = RepoFactory(url="https://github.com/opensafely-testing/github-api-testing")
 
-    workspace1 = WorkspaceFactory(repo=repo_url)
+    workspace1 = WorkspaceFactory(repo=repo)
     job_request1 = JobRequestFactory(workspace=workspace1)
     JobFactory(job_request=job_request1, created_at=timezone.now())
 
-    workspace2 = WorkspaceFactory(repo=repo_url)
+    workspace2 = WorkspaceFactory(repo=repo)
     job_request2 = JobRequestFactory(workspace=workspace2)
     JobFactory(job_request=job_request2, created_at=timezone.now())
 
     user = UserFactory()
-    workspace3 = WorkspaceFactory(repo=repo_url, created_by=user)
+    workspace3 = WorkspaceFactory(repo=repo, created_by=user)
     job_request3 = JobRequestFactory(workspace=workspace3, created_by=user)
     JobFactory(job_request=job_request3, created_at=timezone.now())
 
-    workspace4 = WorkspaceFactory(repo=repo_url)
+    workspace4 = WorkspaceFactory(repo=repo)
     job_request4 = JobRequestFactory(workspace=workspace4)
     JobFactory(job_request=job_request4, created_at=timezone.now())
 
@@ -45,7 +51,7 @@ def test_repodetail_success(rf, core_developer):
     request.user = core_developer
 
     response = RepoDetail.as_view(get_github_api=FakeGitHubAPI)(
-        request, repo_url=quote(repo_url)
+        request, repo_url=quote(repo.url)
     )
 
     assert response.status_code == 200
@@ -68,46 +74,38 @@ def test_repolist_success(rf, django_assert_num_queries, core_developer):
     # 3, 2, 1 workspaces respectively for 3 private repos
 
     # research-repo-1
-    rr1_workspace_1 = WorkspaceFactory(
-        repo="https://github.com/opensafely/research-repo-1"
-    )
+    repo1 = RepoFactory(url="https://github.com/opensafely/research-repo-1")
+    rr1_workspace_1 = WorkspaceFactory(repo=repo1)
     rr1_jr_1 = JobRequestFactory(workspace=rr1_workspace_1)
     JobFactory(job_request=rr1_jr_1, started_at=minutes_ago(eleven_months_ago, 3))
     JobFactory(job_request=rr1_jr_1, started_at=minutes_ago(eleven_months_ago, 2))
     JobFactory(job_request=rr1_jr_1, started_at=minutes_ago(eleven_months_ago, 1))
 
-    rr1_workspace_2 = WorkspaceFactory(
-        repo="https://github.com/opensafely/research-repo-1"
-    )
+    rr1_workspace_2 = WorkspaceFactory(repo=repo1)
     rr1_jr_2 = JobRequestFactory(workspace=rr1_workspace_2)
     JobFactory(job_request=rr1_jr_2, started_at=minutes_ago(eleven_months_ago, 4))
     JobFactory(job_request=rr1_jr_2, started_at=minutes_ago(eleven_months_ago, 5))
 
-    rr1_workspace_3 = WorkspaceFactory(
-        repo="https://github.com/opensafely/research-repo-1"
-    )
+    rr1_workspace_3 = WorkspaceFactory(repo=repo1)
     rr1_jr_3 = JobRequestFactory(workspace=rr1_workspace_3)
     JobFactory(job_request=rr1_jr_3, started_at=minutes_ago(eleven_months_ago, 10))
 
     # research-repo-2
-    rr2_workspace_1 = WorkspaceFactory(
-        repo="https://github.com/opensafely/research-repo-2"
-    )
+    repo2 = RepoFactory(url="https://github.com/opensafely/research-repo-2")
+    rr2_workspace_1 = WorkspaceFactory(repo=repo2)
     rr2_jr_1 = JobRequestFactory(workspace=rr2_workspace_1)
     JobFactory(job_request=rr2_jr_1, started_at=minutes_ago(eleven_months_ago, 30))
     JobFactory(job_request=rr2_jr_1, started_at=minutes_ago(eleven_months_ago, 20))
     JobFactory(job_request=rr2_jr_1, started_at=None)
 
-    rr2_workspace_2 = WorkspaceFactory(
-        repo="https://github.com/opensafely/research-repo-2"
-    )
+    rr2_workspace_2 = WorkspaceFactory(repo=repo2)
     rr2_jr_2 = JobRequestFactory(workspace=rr2_workspace_2)
     JobFactory(job_request=rr2_jr_2, started_at=minutes_ago(eleven_months_ago, 17))
     JobFactory(job_request=rr2_jr_2, started_at=minutes_ago(eleven_months_ago, 13))
 
     # research-repo-3
     rr3_workspace_1 = WorkspaceFactory(
-        repo="https://github.com/opensafely/research-repo-3"
+        repo=RepoFactory(url="https://github.com/opensafely/research-repo-3")
     )
     rr3_jr_1 = JobRequestFactory(workspace=rr3_workspace_1)
     JobFactory(job_request=rr3_jr_1, started_at=minutes_ago(eleven_months_ago, 42))
@@ -115,7 +113,7 @@ def test_repolist_success(rf, django_assert_num_queries, core_developer):
 
     # research-repo-5
     rr5_workspace_1 = WorkspaceFactory(
-        repo="https://github.com/opensafely/research-repo-5"
+        repo=RepoFactory(url="https://github.com/opensafely/research-repo-5")
     )
     rr5_jr_1 = JobRequestFactory(workspace=rr5_workspace_1)
     JobFactory(job_request=rr5_jr_1, started_at=None)

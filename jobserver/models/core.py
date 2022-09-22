@@ -227,7 +227,7 @@ class JobRequest(models.Model):
         )
 
     def get_file_url(self, path):
-        f = furl(self.workspace.repo)
+        f = furl(self.workspace.repo.url)
 
         if not self.sha:
             logger.info("No SHA found", job_request_pk=self.pk)
@@ -238,7 +238,7 @@ class JobRequest(models.Model):
         return f.url
 
     def get_repo_url(self):
-        f = furl(self.workspace.repo)
+        f = furl(self.workspace.repo.url)
 
         if not self.sha:
             logger.info("No SHA found", job_request_pk=self.pk)
@@ -831,7 +831,7 @@ class Workspace(models.Model):
     created_at = models.DateTimeField(default=timezone.now)
 
     def __str__(self):
-        return f"{self.name} ({self.repo})"
+        return f"{self.name} ({self.repo.url})"
 
     def get_absolute_url(self):
         return reverse(
@@ -983,22 +983,3 @@ class Workspace(models.Model):
             action_status_lut[action] = job.status
 
         return action_status_lut
-
-    @property
-    def repo_name(self):
-        """Convert repo URL -> repo name"""
-        f = furl(self.repo)
-
-        if not f.path:
-            raise Exception("Repo URL not in expected format, appears to have no path")
-
-        return f.path.segments[-1]
-
-    @property
-    def repo_owner(self):
-        """Convert repo URL -> repo name"""
-        f = furl(self.repo)
-
-        if not f.path:
-            raise Exception("Repo URL not in expected format, appears to have no path")
-        return f.path.segments[0]

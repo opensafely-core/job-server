@@ -65,7 +65,7 @@ def test_workspacecreateform_success_with_upper_case_names():
     form = WorkspaceCreateForm(repos_with_branches, data)
 
     assert form.is_valid()
-    assert form.cleaned_data["name"] == "test"
+    assert form.cleaned_data["name"] == "test", form.cleaned_data["name"]
 
 
 def test_workspacecreateform_unknown_branch():
@@ -85,7 +85,7 @@ def test_workspacecreateform_unknown_branch():
     }
 
     with pytest.raises(ValidationError) as e:
-        form.clean_branch()
+        form.clean()
 
     assert e.value.message.startswith("Unknown branch")
 
@@ -107,6 +107,6 @@ def test_workspacecreateform_unknown_repo():
     }
 
     with pytest.raises(ValidationError) as e:
-        form.clean_branch()
+        form.clean()
 
     assert e.value.message.startswith("Unknown repo")

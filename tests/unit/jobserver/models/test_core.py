@@ -192,7 +192,8 @@ def test_jobrequest_get_cancel_url():
 
 
 def test_jobrequest_get_project_yaml_url_no_sha():
-    workspace = WorkspaceFactory(repo="http://example.com/opensafely/some_repo")
+    repo = RepoFactory(url="http://example.com/opensafely/some_repo")
+    workspace = WorkspaceFactory(repo=repo)
     job_request = JobRequestFactory(workspace=workspace)
 
     url = job_request.get_file_url("test-blah.foo")
@@ -201,7 +202,8 @@ def test_jobrequest_get_project_yaml_url_no_sha():
 
 
 def test_jobrequest_get_project_yaml_url_success():
-    workspace = WorkspaceFactory(repo="http://example.com/opensafely/some_repo")
+    repo = RepoFactory(url="http://example.com/opensafely/some_repo")
+    workspace = WorkspaceFactory(repo=repo)
     job_request = JobRequestFactory(workspace=workspace, sha="abc123")
 
     url = job_request.get_file_url("test-blah.foo")
@@ -210,7 +212,8 @@ def test_jobrequest_get_project_yaml_url_success():
 
 
 def test_jobrequest_get_repo_url_no_sha():
-    workspace = WorkspaceFactory(repo="http://example.com/opensafely/some_repo")
+    repo = RepoFactory(url="http://example.com/opensafely/some_repo")
+    workspace = WorkspaceFactory(repo=repo)
     job_request = JobRequestFactory(workspace=workspace)
 
     url = job_request.get_repo_url()
@@ -219,7 +222,8 @@ def test_jobrequest_get_repo_url_no_sha():
 
 
 def test_jobrequest_get_repo_url_success():
-    workspace = WorkspaceFactory(repo="http://example.com/opensafely/some_repo")
+    repo = RepoFactory(url="http://example.com/opensafely/some_repo")
+    workspace = WorkspaceFactory(repo=repo)
     job_request = JobRequestFactory(workspace=workspace, sha="abc123")
 
     url = job_request.get_repo_url()
@@ -620,6 +624,24 @@ def test_projectmembership_str():
     membership = ProjectMembershipFactory(project=project, user=user)
 
     assert str(membership) == "ben | DataLab"
+
+
+def test_repo_name_no_path():
+    with pytest.raises(Exception, match="not in expected format"):
+        RepoFactory(url="http://example.com").name
+
+
+def test_repo_name_success():
+    assert RepoFactory(url="http://example.com/foo/test").name == "test"
+
+
+def test_repo_owner_no_path():
+    with pytest.raises(Exception, match="not in expected format"):
+        RepoFactory(url="http://example.com").owner
+
+
+def test_repo_owner_success():
+    assert RepoFactory(url="http://example.com/foo/test").owner == "foo"
 
 
 def test_repo_str():
@@ -1177,32 +1199,8 @@ def test_workspace_get_action_status_lut_without_backend():
     assert output == expected
 
 
-def test_workspace_repo_name_no_path():
-    workspace = WorkspaceFactory(repo="http://example.com")
-
-    with pytest.raises(Exception, match="not in expected format"):
-        workspace.repo_name
-
-
-def test_workspace_repo_name_success():
-    workspace = WorkspaceFactory(repo="http://example.com/foo/test")
-    assert workspace.repo_name == "test"
-
-
-def test_workspace_repo_owner_no_path():
-    workspace = WorkspaceFactory(repo="http://example.com")
-
-    with pytest.raises(Exception, match="not in expected format"):
-        workspace.repo_owner
-
-
-def test_workspace_repo_owner_success():
-    workspace = WorkspaceFactory(repo="http://example.com/foo/test")
-    assert workspace.repo_owner == "foo"
-
-
 def test_workspace_str():
-    workspace = WorkspaceFactory(
-        name="Corellian Engineering Corporation", repo="Corellia"
-    )
+    repo = RepoFactory(url="Corellia")
+    workspace = WorkspaceFactory(name="Corellian Engineering Corporation", repo=repo)
+
     assert str(workspace) == "Corellian Engineering Corporation (Corellia)"

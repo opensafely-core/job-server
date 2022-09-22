@@ -39,7 +39,7 @@ class ProjectDetail(View):
         )
         workspaces = project.workspaces.order_by("is_archived", "name")
 
-        repos = set(workspaces.values_list("repo", flat=True))
+        repos = set(workspaces.values_list("repo__url", flat=True))
 
         project_org_in_user_orgs = False
         if request.user.is_authenticated:

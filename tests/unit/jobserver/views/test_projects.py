@@ -12,6 +12,7 @@ from jobserver.views.projects import ProjectDetail
 from ....factories import (
     OrgFactory,
     ProjectFactory,
+    RepoFactory,
     SnapshotFactory,
     UserFactory,
     WorkspaceFactory,
@@ -24,11 +25,8 @@ from ....utils import minutes_ago
 def test_projectdetail_success(rf, user):
     org = OrgFactory()
     project = ProjectFactory(org=org)
-    WorkspaceFactory.create_batch(
-        3,
-        project=project,
-        repo="https://github.com/opensafely/some-research",
-    )
+    repo = RepoFactory(url="https://github.com/opensafely/some-research")
+    WorkspaceFactory.create_batch(3, project=project, repo=repo)
 
     request = rf.get("/")
 

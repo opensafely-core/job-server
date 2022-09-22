@@ -2,7 +2,7 @@ from django import forms
 from first import first
 
 from .authorization.forms import RolesForm
-from .models import JobRequest, Workspace
+from .models import JobRequest
 
 
 class JobRequestCreateForm(forms.ModelForm):
@@ -53,21 +53,11 @@ class WorkspaceArchiveToggleForm(forms.Form):
     is_archived = forms.BooleanField(required=False)
 
 
-class WorkspaceCreateForm(forms.ModelForm):
-    class Meta:
-        fields = [
-            "name",
-            "repo",
-            "branch",
-        ]
-        help_texts = {
-            "name": """
-                Enter a descriptive name which makes this workspace easy to
-                identify.  It will also be the name of the directory in which
-                you will find results after jobs from this workspace are run.
-            """
-        }
-        model = Workspace
+class WorkspaceCreateForm(forms.Form):
+    name = forms.CharField(
+        help_text="Enter a descriptive name which makes this workspace easy to identify.  It will also be the name of the directory in which you will find results after jobs from this workspace are run."
+    )
+    branch = forms.CharField()
 
     def __init__(self, repos_with_branches, *args, **kwargs):
         super().__init__(*args, **kwargs)
@@ -97,9 +87,10 @@ class WorkspaceCreateForm(forms.ModelForm):
             choices=branch_choices,
         )
 
-    def clean_branch(self):
-        repo_url = self.cleaned_data["repo"]
-        branch = self.cleaned_data["branch"]
+    def clean(self):
+        cleaned_data = super().clean()
+        repo_url = cleaned_data["repo"]
+        branch = cleaned_data["branch"]
 
         repo = first(self.repos_with_branches, key=lambda r: r["url"] == repo_url)
         if repo is None:
@@ -110,7 +101,6 @@ class WorkspaceCreateForm(forms.ModelForm):
         branches = [b.lower() for b in repo["branches"]]
         if branch.lower() not in branches:
             raise forms.ValidationError(f'Unknown branch "{branch}"')
-        return branch
 
     def clean_name(self):
         name = self.cleaned_data["name"]

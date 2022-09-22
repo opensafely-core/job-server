@@ -143,7 +143,7 @@ class WorkspaceFactory(factory.django.DjangoModelFactory):
         model = Workspace
 
     project = factory.SubFactory("tests.factories.ProjectFactory")
+    repo = factory.SubFactory("tests.factories.RepoFactory")
     created_by = factory.SubFactory("tests.factories.UserFactory")
 
     name = factory.Sequence(lambda n: f"workspace-{n}")
-    repo = factory.Sequence(lambda n: "http://example.com/org-{n}/repo-{n}")

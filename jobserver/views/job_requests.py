@@ -123,8 +123,8 @@ class JobRequestCreate(CreateView):
         ref = self.kwargs.get("ref", self.workspace.branch)
         try:
             self.project = get_project(
-                self.workspace.repo_owner,
-                self.workspace.repo_name,
+                self.workspace.repo.owner,
+                self.workspace.repo.name,
                 ref,
             )
             data = load_pipeline(self.project)
@@ -143,8 +143,8 @@ class JobRequestCreate(CreateView):
         if (sha := self.kwargs.get("ref")) is None:
             # if a ref wasn't passed in the URL convert the branch to a sha
             sha = self.get_github_api().get_branch_sha(
-                self.workspace.repo_owner,
-                self.workspace.repo_name,
+                self.workspace.repo.owner,
+                self.workspace.repo.name,
                 self.workspace.branch,
             )
 
@@ -370,8 +370,8 @@ class JobRequestPickRef(View):
 
         try:
             commits = self.get_github_api().get_commits(
-                workspace.repo_owner,
-                workspace.repo_name,
+                workspace.repo.owner,
+                workspace.repo.name,
             )
         except Exception as e:
             return response(context={"error": str(e), "workspace": workspace})
