@@ -810,7 +810,7 @@ class Workspace(models.Model):
         on_delete=models.PROTECT,
         related_name="workspaces",
     )
-    repo_fk = models.ForeignKey(
+    repo = models.ForeignKey(
         "Repo",
         on_delete=models.PROTECT,
         related_name="workspaces",
@@ -818,7 +818,6 @@ class Workspace(models.Model):
     )
 
     name = models.TextField(unique=True, validators=[validate_slug])
-    repo = models.TextField(db_index=True)
     branch = models.TextField()
     is_archived = models.BooleanField(default=False)
     should_notify = models.BooleanField(default=False)
