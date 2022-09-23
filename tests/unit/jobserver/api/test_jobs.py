@@ -1,4 +1,5 @@
 import json
+from collections import OrderedDict
 
 import pytest
 from django.utils import timezone
@@ -663,23 +664,54 @@ def test_jobrequestapilist_produce_stats_when_authed(api_rf):
 
 
 def test_jobrequestapilist_success(api_rf):
-    workspace = WorkspaceFactory()
+    now = timezone.now()
+
+    # Python's datetime.isoformat does not support military timezones, so to
+    # get the UTC suffix of "Z" we're using this function to wrap strftime.
+    now_iso = now.strftime("%Y-%m-%dT%H:%M:%S.%fZ")
+
+    project = ProjectFactory()
+    workspace = WorkspaceFactory(project=project, created_at=now)
 
     # all completed
-    job_request1 = JobRequestFactory(workspace=workspace)
-    JobFactory.create_batch(2, job_request=job_request1, completed_at=timezone.now())
+    backend1 = BackendFactory(slug="test-1")
+    job_request1 = JobRequestFactory(
+        backend=backend1, workspace=workspace, created_at=now, identifier="jr1"
+    )
+    JobFactory.create_batch(2, job_request=job_request1, completed_at=now)
 
     # some completed
-    job_request2 = JobRequestFactory(workspace=workspace)
-    JobFactory(job_request=job_request2, completed_at=timezone.now())
-    JobFactory(job_request=job_request2, completed_at=None)
+    backend2 = BackendFactory(slug="test-2")
+    job_request2 = JobRequestFactory(
+        backend=backend2,
+        workspace=workspace,
+        created_at=now,
+        identifier="jr2",
+        requested_actions=["frob", "wizzle"],
+    )
+    JobFactory(job_request=job_request2, completed_at=now, action="frob")
+    JobFactory(job_request=job_request2, completed_at=None, action="wizzle")
 
     # none completed
-    job_request3 = JobRequestFactory(workspace=workspace)
-    JobFactory.create_batch(2, job_request=job_request3, completed_at=None)
+    job_request3 = JobRequestFactory(
+        backend=backend2,
+        workspace=workspace,
+        created_at=now,
+        identifier="jr3",
+        requested_actions=["frobnicate", "wibble"],
+    )
+    JobFactory(job_request=job_request3, completed_at=None, action="frobnicate")
+    JobFactory(job_request=job_request3, completed_at=None, action="wibble")
 
     #  no jobs
-    job_request4 = JobRequestFactory(workspace=workspace)
+    backend3 = BackendFactory(slug="test-3")
+    job_request4 = JobRequestFactory(
+        backend=backend3,
+        workspace=workspace,
+        created_at=now,
+        identifier="jr4",
+        requested_actions=["analyse"],
+    )
 
     assert JobRequest.objects.count() == 4
 
@@ -687,20 +719,81 @@ def test_jobrequestapilist_success(api_rf):
     response = JobRequestAPIList.as_view()(request)
 
     assert response.status_code == 200
-    assert response.data["count"] == 3
-    assert len(response.data["results"]) == 3
 
-    identifiers = {j["identifier"] for j in response.data["results"]}
-    assert identifiers == {
-        job_request2.identifier,
-        job_request3.identifier,
-        job_request4.identifier,
-    }
+    def dictify(od):
+        """Recursively convert OrderedDicts to dicts"""
+        return {
+            k: dictify(v) if isinstance(v, OrderedDict) else v for k, v in od.items()
+        }
 
-    job_request_data = response.data["results"][0]
-    assert job_request_data["identifier"] == job_request4.identifier
-    assert job_request_data["project"] == workspace.project.slug
-    assert job_request_data["orgs"] == [workspace.project.org.slug]
+    results = [dictify(r) for r in response.data["results"]]
+
+    # sort results based on the manually set identifiers because we don't care
+    # about ordering here
+    results = list(sorted(results, key=lambda r: r["identifier"]))
+
+    assert results == [
+        {
+            "backend": "test-2",
+            "cancelled_actions": [],
+            "created_at": now_iso,
+            "created_by": job_request2.created_by.username,
+            "force_run_dependencies": False,
+            "identifier": job_request2.identifier,
+            "orgs": [project.org.slug],
+            "project": project.slug,
+            "requested_actions": ["frob", "wizzle"],
+            "sha": "",
+            "workspace": {
+                "name": workspace.name,
+                "repo": workspace.repo.url,
+                "branch": "",
+                "db": "full",
+                "created_by": workspace.created_by.username,
+                "created_at": now_iso,
+            },
+        },
+        {
+            "backend": "test-2",
+            "cancelled_actions": [],
+            "created_at": now_iso,
+            "created_by": job_request3.created_by.username,
+            "force_run_dependencies": False,
+            "identifier": job_request3.identifier,
+            "orgs": [project.org.slug],
+            "project": project.slug,
+            "requested_actions": ["frobnicate", "wibble"],
+            "sha": "",
+            "workspace": {
+                "name": workspace.name,
+                "repo": workspace.repo.url,
+                "branch": "",
+                "db": "full",
+                "created_by": workspace.created_by.username,
+                "created_at": now_iso,
+            },
+        },
+        {
+            "backend": "test-3",
+            "cancelled_actions": [],
+            "created_at": now_iso,
+            "created_by": job_request4.created_by.username,
+            "force_run_dependencies": False,
+            "identifier": job_request4.identifier,
+            "orgs": [project.org.slug],
+            "project": project.slug,
+            "requested_actions": ["analyse"],
+            "sha": "",
+            "workspace": {
+                "name": workspace.name,
+                "repo": workspace.repo.url,
+                "branch": "",
+                "db": "full",
+                "created_by": workspace.created_by.username,
+                "created_at": now_iso,
+            },
+        },
+    ]
 
 
 def test_userapidetail_success(api_rf):
