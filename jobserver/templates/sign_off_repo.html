@@ -1,5 +1,7 @@
 {% extends "base.html" %}
 
+{% load humanize %}
+
 {% block metatitle %}Change repository visibility: {{ repo.name }} | OpenSAFELY Jobs{% endblock metatitle %}
 
 {% block breadcrumbs %}
@@ -44,11 +46,29 @@
     The repo <a href="{{ repo.url }}"><code>{{ repo.name }}</code></a> is
     currently <strong>{{ repo.status }}</strong>.
   </p>
+  {% if not repo.researcher_signed_off_at %}
   <p class="lead">As per our platform policy, this repository should now be publicly visible.
     <br>
     You can use this page to request that the repository is set to be publicly visible.
   </p>
+  {% endif %}
 
+  {% if repo.researcher_signed_off_at %}
+  <section class="border-top pt-4 mt-4">
+    <div class="row">
+      <div class="col-lg-8">
+        <p>
+          This repository was signed off to be made public by
+          {{ repo.researcher_signed_off_by.name }} on {{ repo.researcher_signed_off_at }}
+          If you think this was done in error, please
+          <a href="https://www.opensafely.org/contact/">contact us</a>.
+        </p>
+      </div>
+    </div>
+  </section>
+  {% endif %}
+
+  {% if not repo.researcher_signed_off_at %}
   <section class="border-top pt-4 mt-4">
     <div class="row">
       <div class="col-lg-8">
@@ -188,6 +208,7 @@
       </div>
     </div>
   </div>
+  {% endif %}
 
   <section class="pt-2 mt-2">
 

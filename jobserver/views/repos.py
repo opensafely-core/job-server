@@ -104,6 +104,8 @@ class SignOffRepo(TemplateView):
         repo = {
             "is_private": is_private,
             "name": f"{self.repo.owner}/{self.repo.name}",
+            "researcher_signed_off_at": self.repo.researcher_signed_off_at,
+            "researcher_signed_off_by": self.repo.researcher_signed_off_by,
             "status": "private" if is_private else "public",
             "url": self.repo.url,
         }
