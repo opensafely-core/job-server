@@ -74,6 +74,18 @@
                 <dd class="d-inline-block mb-0 text-capitalize">{{ backend.queue.acked }}</dd>
               </dl>
             </li>
+            <li class="list-group-item">
+              <dl class="mb-0">
+                <dt class="d-inline-block">Running:</dt>
+                <dd class="d-inline-block mb-0 text-capitalize">{{ backend.queue.running }}</dd>
+              </dl>
+            </li>
+            <li class="list-group-item">
+              <dl class="mb-0">
+                <dt class="d-inline-block">Pending:</dt>
+                <dd class="d-inline-block mb-0 text-capitalize">{{ backend.queue.pending }}</dd>
+              </dl>
+            </li>
           </ul>
         </div>
       </div>

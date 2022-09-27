@@ -7,7 +7,7 @@ from django.utils import timezone
 from django.views.generic import View
 
 from ..backends import show_warning
-from ..models import Backend
+from ..models import Backend, Job
 
 
 class DBAvailability(View):
@@ -68,6 +68,20 @@ class Status(View):
                 .filter(num_jobs=0)
                 .count()
             )
+            counts_by_status = (
+                Job.objects.filter(
+                    job_request__backend=backend,
+                    status__in=["running", "pending"],
+                )
+                .values("status")
+                .annotate(count=Count("status"))
+            )
+            pending = running = 0
+            for result in counts_by_status:
+                if result["status"] == "pending":
+                    pending = result["count"]
+                if result["status"] == "running":
+                    running = result["count"]
 
             try:
                 last_seen = (
@@ -83,6 +97,8 @@ class Status(View):
                 "queue": {
                     "acked": acked,
                     "unacked": unacked,
+                    "running": running,
+                    "pending": pending,
                 },
                 "show_warning": show_warning(last_seen, backend.alert_timeout),
             }

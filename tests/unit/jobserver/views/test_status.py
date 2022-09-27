@@ -142,3 +142,33 @@ def test_status_unhealthy(rf):
     assert output["queue"]["acked"] == 2
     assert output["queue"]["unacked"] == 1
     assert output["show_warning"]
+
+
+def test_status_counts_all_running_jobs(rf):
+    backend = BackendFactory()
+
+    # create jobs with the same backend and different job requests
+    job_request = JobRequestFactory(backend=backend)
+    JobFactory.create_batch(2, job_request=job_request, status="running")
+    JobFactory.create_batch(1, job_request__backend=backend, status="running")
+
+    request = rf.get("/")
+    response = Status.as_view()(request)
+
+    output = first(response.context_data["backends"])
+    assert output["queue"]["running"] == 3
+
+
+def test_status_counts_all_pending_jobs(rf):
+    backend = BackendFactory()
+
+    # create jobs with the same backend and different job requests
+    job_request = JobRequestFactory(backend=backend)
+    JobFactory.create_batch(2, job_request=job_request, status="pending")
+    JobFactory.create_batch(1, job_request__backend=backend, status="pending")
+
+    request = rf.get("/")
+    response = Status.as_view()(request)
+
+    output = first(response.context_data["backends"])
+    assert output["queue"]["pending"] == 3
