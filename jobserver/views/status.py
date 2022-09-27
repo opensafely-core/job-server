@@ -68,12 +68,20 @@ class Status(View):
                 .filter(num_jobs=0)
                 .count()
             )
-            running = Job.objects.filter(
-                job_request__backend=backend, status="running"
-            ).count()
-            pending = Job.objects.filter(
-                job_request__backend=backend, status="pending"
-            ).count()
+            counts_by_status = (
+                Job.objects.filter(
+                    job_request__backend=backend,
+                    status__in=["running", "pending"],
+                )
+                .values("status")
+                .annotate(count=Count("status"))
+            )
+            pending = running = 0
+            for result in counts_by_status:
+                if result["status"] == "pending":
+                    pending = result["count"]
+                if result["status"] == "running":
+                    running = result["count"]
 
             try:
                 last_seen = (
