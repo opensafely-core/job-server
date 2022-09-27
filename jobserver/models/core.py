@@ -682,6 +682,9 @@ class User(AbstractBaseUser):
             ),
         ]
 
+    def __str__(self):
+        return self.name
+
     def clean(self):
         super().clean()
         self.email = self.__class__.objects.normalize_email(self.email)
