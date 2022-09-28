@@ -8,7 +8,7 @@
 <meta property="og:title" content="{{ workspace.name }}" />
 <meta property="og:type" content="website" />
 <meta property="og:url" content="{{ request.build_absolute_uri }}" />
-<meta property="og:description" content="Repo: {{ workspace.repo_name }} ({{ workspace.branch }})" />
+<meta property="og:description" content="Repo: {{ workspace.repo.name }} ({{ workspace.branch }})" />
 {% endblock extra_meta %}
 
 {% block breadcrumbs %}
@@ -121,7 +121,7 @@
             <dl class="mb-0">
               <dt class="d-inline-block">Repo:</dt>
               <dd class="d-inline-flex mb-0 align-items-center">
-                <a class="mr-1" href="{{ workspace.repo }}/tree/{{ workspace.branch }}/">{{ workspace.repo_name }}</a>
+                <a class="mr-1" href="{{ workspace.repo.url }}/tree/{{ workspace.branch }}/">{{ workspace.repo.name }}</a>
               </dd>
               {% if repo_is_private %}
               <p class="mt-2 mb-1">This repo is not publicly viewable.</p>
@@ -176,7 +176,7 @@
         <a href="{{ workspace.project.get_absolute_url }}">{{ workspace.project.title }}</a>
         project on all of the secure services ("backends") supported by
         OpenSAFELY.  On each backend, the directory includes code from the
-        <a href="{{ workspace.repo }}/tree/{{ workspace.branch }}/">repository</a>,
+        <a href="{{ workspace.repo.url }}/tree/{{ workspace.branch }}/">repository</a>,
         and the results of running it against real data ("jobs"). Researchers can
         request jobs are run from this page.
       </p>
