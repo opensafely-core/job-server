@@ -555,6 +555,14 @@ class ProjectMembership(models.Model):
 class Repo(models.Model):
     url = models.TextField(unique=True)
 
+    internal_signed_off_at = models.DateTimeField(null=True)
+    internal_signed_off_by = models.ForeignKey(
+        "User",
+        on_delete=models.PROTECT,
+        related_name="internally_signed_off_repos",
+        null=True,
+    )
+
     researcher_signed_off_at = models.DateTimeField(null=True)
     researcher_signed_off_by = models.ForeignKey(
         "User",
