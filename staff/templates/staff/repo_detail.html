@@ -36,13 +36,13 @@
       <li>
         <strong>Status:</strong>
         <span>
-          {% if repo.is_private %}Private{% else %}Public{% endif %}
+          {% if repo.private %}Private{% else %}Public{% endif %}
         </span>
       </li>
     </ul>
 
     <div class="d-flex">
-      <a class="btn btn-primary mr-1" href="{{ repo.url }}">Open on GitHub</a>
+      <a class="btn btn-primary mr-1" href="{{ repo.html_url }}">Open on GitHub</a>
     </div>
   </div>
 </div>
