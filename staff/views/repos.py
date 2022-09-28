@@ -2,6 +2,7 @@ from datetime import timedelta
 from urllib.parse import quote, unquote
 
 import structlog
+from csp.decorators import csp_exempt
 from django.db.models import Count, Min
 from django.db.models.functions import Least, Lower
 from django.template.response import TemplateResponse
@@ -101,6 +102,7 @@ class RepoDetail(View):
 class RepoList(View):
     get_github_api = staticmethod(_get_github_api)
 
+    @csp_exempt
     def get(self, request, *args, **kwargs):
         """
         List private repos which are in need of converting to public
