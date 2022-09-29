@@ -648,6 +648,17 @@ def test_repo_get_staff_feature_flags_url():
     )
 
 
+def test_repo_get_staff_sign_off_url():
+    repo = RepoFactory()
+
+    url = repo.get_staff_sign_off_url()
+
+    assert url == reverse(
+        "staff:repo-sign-off",
+        kwargs={"repo_url": repo.quoted_url},
+    )
+
+
 def test_repo_get_staff_url():
     repo = RepoFactory()
 

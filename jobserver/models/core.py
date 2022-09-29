@@ -583,6 +583,9 @@ class Repo(models.Model):
     def get_staff_feature_flags_url(self):
         return reverse("staff:repo-feature-flags", kwargs={"repo_url": self.quoted_url})
 
+    def get_staff_sign_off_url(self):
+        return reverse("staff:repo-sign-off", kwargs={"repo_url": self.quoted_url})
+
     def get_staff_url(self):
         return reverse("staff:repo-detail", kwargs={"repo_url": self.quoted_url})
 
