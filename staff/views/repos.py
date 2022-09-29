@@ -93,6 +93,7 @@ class RepoDetail(View):
             "repo": {
                 "created_at": api_repo["created_at"],
                 "feature_flags_url": repo.get_staff_feature_flags_url(),
+                "internal_signed_off_at": repo.internal_signed_off_at,
                 "is_private": api_repo["private"],
                 "name": repo.name,
                 "owner": repo.owner,

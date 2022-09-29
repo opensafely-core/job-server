@@ -139,7 +139,13 @@
           </p>
           <p>
             <strong>Internal:</strong>
-            <span>DATE GOES HERE</span>
+            {% if repo.internal_signed_off_at %}
+            <span title="{{ repo.internal_signed_off_at.isoformat }}">
+              {{ repo.internal_signed_off_at }}
+            </span>
+            {% else %}
+            <span>-</span>
+            {% endif %}
           </p>
         </div>
       </div>
