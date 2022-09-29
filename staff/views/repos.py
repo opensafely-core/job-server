@@ -11,7 +11,6 @@ from django.utils import timezone
 from django.utils.decorators import method_decorator
 from django.views.generic import UpdateView, View
 from first import first
-from furl import furl
 
 from jobserver.authorization import CoreDeveloper
 from jobserver.authorization.decorators import require_role
@@ -33,18 +32,13 @@ class RepoDetail(View):
     get_github_api = staticmethod(_get_github_api)
 
     def get(self, request, *args, **kwargs):
-        url = unquote(self.kwargs["repo_url"])
+        repo = get_object_or_404(Repo, url=unquote(self.kwargs["repo_url"]))
 
-        org, name = furl(url).path.segments
-        repo = self.get_github_api().get_repo(org, name)
+        api_repo = self.get_github_api().get_repo(repo.owner, repo.name)
 
-        db_repo = get_object_or_404(Repo, url=url)
-
-        workspaces = (
-            Workspace.objects.filter(repo__url=url)
-            .select_related("signed_off_by", "created_by", "project", "project__org")
-            .order_by("name")
-        )
+        workspaces = repo.workspaces.select_related(
+            "signed_off_by", "created_by", "project", "project__org"
+        ).order_by("name")
         users = User.objects.filter(job_requests__workspace__in=workspaces).distinct()
 
         jobs = Job.objects.filter(job_request__workspace__in=workspaces).annotate(
@@ -92,13 +86,18 @@ class RepoDetail(View):
 
         context = {
             "first_job_ran_at": first_job_ran_at,
-            "has_releases": "github-releases" in repo["topics"],
+            "has_releases": "github-releases" in api_repo["topics"],
             "last_job_ran_at": last_job_ran_at,
             "num_signed_off": num_signed_off,
             "projects": projects,
-            "repo": repo,
-            "repo_url": url,
-            "repo_feature_flags_url": db_repo.get_staff_feature_flags_url(),
+            "repo": {
+                "created_at": api_repo["created_at"],
+                "feature_flags_url": repo.get_staff_feature_flags_url(),
+                "is_private": api_repo["private"],
+                "name": repo.name,
+                "owner": repo.owner,
+                "url": repo.url,
+            },
             "twelve_month_limit": twelve_month_limit,
             "workspaces": workspaces,
         }

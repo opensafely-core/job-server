@@ -45,6 +45,7 @@ class FakeGitHubAPI:
 
     def get_repo(self, org, repo):
         return {
+            "created_at": "2020-07-31T13:37:00Z",
             "topics": ["github-releases"],
             "private": True,
         }
