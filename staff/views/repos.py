@@ -85,7 +85,11 @@ class RepoDetail(View):
                 "name": workspace.name,
             }
 
-        projects = Project.objects.filter(workspaces__in=workspaces)
+        projects = (
+            Project.objects.filter(workspaces__in=workspaces)
+            .distinct()
+            .order_by("name")
+        )
         workspaces = [build_workspace(w, users) for w in workspaces]
 
         context = {
