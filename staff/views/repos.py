@@ -1,8 +1,11 @@
+import textwrap
 from datetime import timedelta
 from urllib.parse import quote, unquote
 
 import structlog
 from csp.decorators import csp_exempt
+from django.conf import settings
+from django.db import transaction
 from django.db.models import Count, Min
 from django.db.models.functions import Least, Lower
 from django.shortcuts import get_object_or_404, redirect
@@ -11,6 +14,7 @@ from django.utils import timezone
 from django.utils.decorators import method_decorator
 from django.views.generic import UpdateView, View
 from first import first
+from furl import furl
 
 from jobserver.authorization import CoreDeveloper
 from jobserver.authorization.decorators import require_role
@@ -95,8 +99,10 @@ class RepoDetail(View):
                 "feature_flags_url": repo.get_staff_feature_flags_url(),
                 "internal_signed_off_at": repo.internal_signed_off_at,
                 "is_private": api_repo["private"],
+                "get_staff_sign_off_url": repo.get_staff_sign_off_url(),
                 "name": repo.name,
                 "owner": repo.owner,
+                "researcher_signed_off_at": repo.researcher_signed_off_at,
                 "url": repo.url,
             },
             "twelve_month_limit": twelve_month_limit,
@@ -244,3 +250,39 @@ class RepoList(View):
         repos = [r for r in repos if select(r)]
 
         return TemplateResponse(request, "staff/repo_list.html", {"repos": repos})
+
+
+@method_decorator(require_role(CoreDeveloper), name="dispatch")
+class RepoSignOff(View):
+    get_github_api = staticmethod(_get_github_api)
+
+    def post(self, request, *args, **kwargs):
+        repo = get_object_or_404(Repo, url=unquote(self.kwargs["repo_url"]))
+
+        full_name = f"{repo.owner}/{repo.name}"
+        staff_area_url = (furl(settings.BASE_URL) / repo.get_staff_url()).url
+
+        body = f"""
+        The [{full_name}]({repo.url}) repo is ready to be made public.
+
+        Requested by: {request.user.name}
+
+        Useful links:
+        * [Repo settings]({repo.url}/settings)
+        * [Repo in Staff Area]({staff_area_url})
+        """
+
+        with transaction.atomic():
+            self.get_github_api().create_issue(
+                "ebmdatalab",
+                "tech-support",
+                f"Switch {repo.name} repo to public",
+                textwrap.dedent(body),
+                [],
+            )
+
+            repo.internal_signed_off_at = timezone.now()
+            repo.internal_signed_off_by = request.user
+            repo.save()
+
+        return redirect(repo.get_staff_url())

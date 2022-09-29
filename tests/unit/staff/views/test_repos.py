@@ -7,7 +7,13 @@ from django.core.exceptions import PermissionDenied
 from django.http import Http404
 from django.utils import timezone
 
-from staff.views.repos import RepoDetail, RepoFeatureFlags, RepoList, ran_at
+from staff.views.repos import (
+    RepoDetail,
+    RepoFeatureFlags,
+    RepoList,
+    RepoSignOff,
+    ran_at,
+)
 
 from ....factories import (
     JobFactory,
@@ -218,3 +224,37 @@ def test_repolist_unauthorized(rf):
 
     with pytest.raises(PermissionDenied):
         RepoList.as_view(get_github_api=FakeGitHubAPI)(request)
+
+
+def test_reposignoff_success(rf, core_developer):
+    repo = RepoFactory()
+
+    request = rf.post("/")
+    request.user = core_developer
+
+    response = RepoSignOff.as_view(get_github_api=FakeGitHubAPI)(
+        request, repo_url=repo.url
+    )
+
+    assert response.status_code == 302
+    assert response.url == repo.get_staff_url()
+
+    repo.refresh_from_db()
+    assert repo.internal_signed_off_at
+    assert repo.internal_signed_off_by
+
+
+def test_reposignoff_unauthorized(rf):
+    request = rf.post("/")
+    request.user = AnonymousUser()
+
+    with pytest.raises(PermissionDenied):
+        RepoSignOff.as_view(get_github_api=FakeGitHubAPI)(request)
+
+
+def test_reposignoff_unknown_repo(rf, core_developer):
+    request = rf.post("/")
+    request.user = core_developer
+
+    with pytest.raises(Http404):
+        RepoSignOff.as_view(get_github_api=FakeGitHubAPI)(request, repo_url="test")

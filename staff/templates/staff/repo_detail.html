@@ -44,6 +44,16 @@
     <div class="d-flex">
       <a class="btn btn-primary mr-1" href="{{ repo.url }}">Open on GitHub</a>
       <a class="btn btn-primary mr-1" href="{{ repo_feature_flags_url }}">Feature Flags</a>
+      <form method="POST" action="{{ repo.get_staff_sign_off_url }}">
+        {% csrf_token %}
+        <button
+          class="btn btn-danger mr-1"
+          type="submit"
+          {% if not repo.researcher_signed_off_at or repo.internal_signed_off_at %}
+          disabled
+          {% endif %}
+          >Sign off</button>
+      </form>
     </div>
   </div>
 </div>
