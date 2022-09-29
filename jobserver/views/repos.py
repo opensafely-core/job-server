@@ -119,7 +119,10 @@ class SignOffRepo(TemplateView):
         workspace_branches = [w["branch"] for w in workspaces]
         branches = [b for b in branches if b not in workspace_branches]
 
+        workspaces_signed_off = not self.workspaces.filter(signed_off_at=None).exists()
+
         context = super().get_context_data() | {
+            "workspaces_signed_off": workspaces_signed_off,
             "branches": branches,
             "repo": repo,
             "workspaces": workspaces,

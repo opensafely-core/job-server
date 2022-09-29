@@ -207,6 +207,8 @@
       </div>
     </section>
 
+    {% if workspaces_signed_off %}
+
     <section class="border-top pt-4 mt-4">
       <div class="alert alert-danger" role="alert">
         <p class="lead">
@@ -246,6 +248,7 @@
         </div>
       </div>
     </div>
+    {% endif %}
   {% endif %}
 </div>
 {% endblock %}
