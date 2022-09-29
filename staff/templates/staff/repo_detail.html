@@ -148,6 +148,16 @@
             <span>{{ num_signed_off }}/{{ workspaces|length }}</span>
           </p>
           <p>
+            <strong>Researcher:</strong>
+            {% if repo.researcher_signed_off_at %}
+            <span title="{{ repo.researcher_signed_off_at.isoformat }}">
+              {{ repo.researcher_signed_off_at }}
+            </span>
+            {% else %}
+            <span>-</span>
+            {% endif %}
+          </p>
+          <p>
             <strong>Internal:</strong>
             {% if repo.internal_signed_off_at %}
             <span title="{{ repo.internal_signed_off_at.isoformat }}">
