@@ -181,9 +181,9 @@
                       <p class="mb-0">
                         {% icon_check_outline class="text-success mr-1" %}
                         Signed off for publishing by {{ workspace.signed_off_by.name }}
-                        at <span title="{{ workspace.signed_off_at.isoformat }}">
+                        at <time datetime="{{ workspace.signed_off_at.isoformat }}">
                           {{ workspace.signed_off_at|date:"G:i jS F Y" }}
-                        </span>
+                        </time>
                       </p>
                       {% endif %}
                   </ul>
