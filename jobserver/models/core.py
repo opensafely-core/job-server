@@ -563,11 +563,19 @@ class Repo(models.Model):
         related_name="repos_signed_off_by_researcher",
     )
 
+    # enable sign off flow for this repo
+    has_sign_offs_enabled = models.BooleanField(default=False)
+
     def __str__(self):
         return self.url
 
     def get_sign_off_url(self):
         return reverse("repo-sign-off", kwargs={"repo_url": quote(self.url, safe="")})
+
+    def get_staff_feature_flags_url(self):
+        return reverse(
+            "staff:repo-feature-flags", kwargs={"repo_url": quote(self.url, safe="")}
+        )
 
     @property
     def name(self):

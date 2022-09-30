@@ -21,7 +21,7 @@ from ....fakes import FakeGitHubAPI
 def test_signoffrepo_get_success(rf):
     user = UserFactory()
     project = ProjectFactory()
-    repo = RepoFactory(url="http://example.com/owner/name")
+    repo = RepoFactory(url="http://example.com/owner/name", has_sign_offs_enabled=True)
 
     ProjectMembershipFactory(project=project, user=user)
 
@@ -49,7 +49,7 @@ def test_signoffrepo_get_success(rf):
 def test_signoffrepo_get_success_with_broken_github(rf):
     user = UserFactory()
     project = ProjectFactory()
-    repo = RepoFactory(url="http://example.com/owner/name")
+    repo = RepoFactory(url="http://example.com/owner/name", has_sign_offs_enabled=True)
 
     ProjectMembershipFactory(project=project, user=user)
 
@@ -87,28 +87,36 @@ def test_signoffrepo_get_success_with_broken_github(rf):
 def test_signoffrepo_member_with_no_workspaces(rf):
     user = UserFactory()
     project = ProjectFactory()
+    repo = RepoFactory(has_sign_offs_enabled=True)
+    WorkspaceFactory.create_batch(5)
 
     ProjectMembershipFactory(project=project, user=user)
-
-    WorkspaceFactory.create_batch(5)
 
     request = rf.get("/")
     request.user = user
 
     with pytest.raises(Http404):
-        SignOffRepo.as_view(get_github_api=FakeGitHubAPI())(request, repo_url="test")
+        SignOffRepo.as_view(get_github_api=FakeGitHubAPI())(request, repo_url=repo.url)
 
 
-def test_signoffrepo_not_a_project_member(rf):
-    workspace = WorkspaceFactory()
+def test_signoffrepo_sign_offs_disabled(rf):
+    repo = RepoFactory()
 
     request = rf.get("/")
     request.user = UserFactory()
 
     with pytest.raises(Http404):
-        SignOffRepo.as_view(get_github_api=FakeGitHubAPI)(
-            request, repo_url=workspace.repo.url
-        )
+        SignOffRepo.as_view(get_github_api=FakeGitHubAPI)(request, repo_url=repo.url)
+
+
+def test_signoffrepo_not_a_project_member(rf):
+    repo = RepoFactory(has_sign_offs_enabled=True)
+
+    request = rf.get("/")
+    request.user = UserFactory()
+
+    with pytest.raises(Http404):
+        SignOffRepo.as_view(get_github_api=FakeGitHubAPI)(request, repo_url=repo.url)
 
 
 def test_signoffrepo_post_all_workspaces_signed_off_and_name(rf):
@@ -119,7 +127,7 @@ def test_signoffrepo_post_all_workspaces_signed_off_and_name(rf):
     project = ProjectFactory()
     ProjectMembershipFactory(project=project, user=user)
 
-    repo = RepoFactory()
+    repo = RepoFactory(has_sign_offs_enabled=True)
     WorkspaceFactory(project=project, repo=repo, signed_off_at=now, signed_off_by=user)
     WorkspaceFactory(
         project=project,
@@ -147,7 +155,11 @@ def test_signoffrepo_post_all_workspaces_signed_off_and_no_name(rf):
     project = ProjectFactory()
     ProjectMembershipFactory(project=project, user=user)
 
-    repo = RepoFactory(researcher_signed_off_at=None, researcher_signed_off_by=None)
+    repo = RepoFactory(
+        researcher_signed_off_at=None,
+        researcher_signed_off_by=None,
+        has_sign_offs_enabled=True,
+    )
     WorkspaceFactory.create_batch(
         3,
         project=project,
@@ -176,7 +188,7 @@ def test_signoffrepo_post_no_signed_off_workspaces_and_no_name(rf):
     project = ProjectFactory()
     ProjectMembershipFactory(project=project, user=user)
 
-    repo = RepoFactory()
+    repo = RepoFactory(has_sign_offs_enabled=True)
     WorkspaceFactory(project=project, repo=repo)
     WorkspaceFactory(project=project, repo=repo)
 
@@ -204,7 +216,7 @@ def test_signoffrepo_post_no_signed_off_workspaces_and_no_name(rf):
 def test_signoffrepo_post_partially_signed_off_workspaces_and_name(rf):
     user = UserFactory()
     project = ProjectFactory()
-    repo = RepoFactory()
+    repo = RepoFactory(has_sign_offs_enabled=True)
     workspace = WorkspaceFactory(project=project, repo=repo)
 
     ProjectMembershipFactory(project=project, user=user)
@@ -226,7 +238,10 @@ def test_signoffrepo_post_partially_signed_off_workspaces_and_name(rf):
 def test_signoffrepo_post_partially_signed_off_workspaces_and_no_name(rf):
     user = UserFactory()
     project = ProjectFactory()
-    repo = RepoFactory(url="https://github.com/opensafely-testing/github-api-testing")
+    repo = RepoFactory(
+        url="https://github.com/opensafely-testing/github-api-testing",
+        has_sign_offs_enabled=True,
+    )
     WorkspaceFactory(project=project, repo=repo)
 
     ProjectMembershipFactory(project=project, user=user)

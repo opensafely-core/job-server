@@ -638,6 +638,17 @@ def test_repo_get_sign_off_url():
     )
 
 
+def test_repo_get_staff_feature_flags_url():
+    repo = RepoFactory()
+
+    url = repo.get_staff_feature_flags_url()
+
+    assert url == reverse(
+        "staff:repo-feature-flags",
+        kwargs={"repo_url": quote(repo.url, safe="")},
+    )
+
+
 def test_repo_name_no_path():
     with pytest.raises(Exception, match="not in expected format"):
         RepoFactory(url="http://example.com").name

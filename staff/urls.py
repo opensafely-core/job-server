@@ -39,7 +39,7 @@ from .views.projects import (
     ProjectMembershipRemove,
 )
 from .views.redirects import RedirectDelete, RedirectDetail, RedirectList
-from .views.repos import RepoDetail, RepoList
+from .views.repos import RepoDetail, RepoFeatureFlags, RepoList
 from .views.researchers import ResearcherEdit
 from .views.users import UserDetail, UserList, UserSetOrgs
 from .views.workspaces import WorkspaceDetail, WorkspaceEdit, WorkspaceList
@@ -134,6 +134,11 @@ redirect_urls = [
 repo_urls = [
     path("", RepoList.as_view(), name="repo-list"),
     path("<repo_url>/", RepoDetail.as_view(), name="repo-detail"),
+    path(
+        "<repo_url>/feature-flags/",
+        RepoFeatureFlags.as_view(),
+        name="repo-feature-flags",
+    ),
 ]
 
 researcher_urls = [
