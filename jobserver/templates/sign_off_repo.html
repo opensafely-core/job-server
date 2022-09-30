@@ -222,27 +222,46 @@
       </div>
     </section>
 
-    <button type="button" class="btn btn-danger font-weight-bold mt-2 pt-2" data-toggle="modal" data-target="#confirmConvertModal">
+    <button type="button" class="btn btn-danger font-weight-bold mt-2 pt-2" data-toggle="modal" data-target="#confirmRepoVisibility">
       Request visibility is set to public
     </button>
 
-    <div class="modal fade" id="confirmConvertModal" tabindex="-1" aria-labelledby="confirmConvertModalLabel" aria-hidden="true">
-      <div class="modal-dialog">
+    <div class="modal fade" id="confirmRepoVisibility" tabindex="-1" aria-labelledby="confirmRepoVisibilityLabel" aria-hidden="true">
+      <div class="modal-dialog modal-xl">
         <div class="modal-content">
           <div class="modal-header">
-            <h5 class="modal-title" id="confirmConvertModalLabel">Modal title</h5>
+            <h3 class="modal-title" id="confirmRepoVisibilityLabel">Request visibility is set to public</h3>
             <button type="button" class="close" data-dismiss="modal" aria-label="Close">
               <span aria-hidden="true">&times;</span>
             </button>
           </div>
           <div class="modal-body">
-            ...
+            <p>The following workspaces have been signed off:</p>
+            <ul class="list-group mb-3">
+              {% for workspace in workspaces %}
+                <li class="list-group-item list-group-item-success">
+                  {% icon_check_outline class="text-success mr-1" %}{{ workspace.name }}<br />
+                  <small>Signed off for publishing by {{ workspace.signed_off_by.name }} at <time datetime="{{ workspace.signed_off_at.isoformat }}">{{ workspace.signed_off_at|date:"G:i jS F Y" }}</time></small>
+                </li>
+              {% endfor %}
+            </ul>
+            {% if branches %}
+            <p>This will also make the following branches public:</p>
+            {% for branch in branches %}
+              <ul class="list-group">
+                <li class="list-group-item">
+                  {{ branch }}
+                </li>
+              </ul>
+            {% endfor %}
+          {% endif %}
+          <p class="mt-3 mb-0 lead">You can now trigger a request to set the repository to public.</p>
           </div>
           <div class="modal-footer">
             <form method="POST">
               {% csrf_token %}
               <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
-              <button class="btn btn-danger" type="submit">Change visibility</button>
+              <button class="btn btn-danger" type="submit">Request visibility is set to public</button>
             </form>
           </div>
         </div>
