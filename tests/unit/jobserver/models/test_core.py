@@ -1,4 +1,5 @@
 from datetime import timedelta
+from urllib.parse import quote
 
 import pytest
 from django.db import IntegrityError
@@ -624,6 +625,28 @@ def test_projectmembership_str():
     membership = ProjectMembershipFactory(project=project, user=user)
 
     assert str(membership) == "ben | DataLab"
+
+
+def test_repo_get_sign_off_url():
+    repo = RepoFactory()
+
+    url = repo.get_sign_off_url()
+
+    assert url == reverse(
+        "repo-sign-off",
+        kwargs={"repo_url": quote(repo.url, safe="")},
+    )
+
+
+def test_repo_get_staff_feature_flags_url():
+    repo = RepoFactory()
+
+    url = repo.get_staff_feature_flags_url()
+
+    assert url == reverse(
+        "staff:repo-feature-flags",
+        kwargs={"repo_url": quote(repo.url, safe="")},
+    )
 
 
 def test_repo_name_no_path():

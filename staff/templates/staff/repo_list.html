@@ -47,6 +47,7 @@
               <th>Created on</th>
               <th class="text-nowrap">Job first run on</th>
               <th class="text-nowrap">Files released to GitHub</th>
+              <th>Sign-offs</th>
             </tr>
           </thead>
           <tbody>
@@ -100,6 +101,7 @@
               {% else %}
                 <td class="text-center text-success">No</td>
               {% endif %}
+              <td class="text-center">{{ repo.signed_off }}/{{ repo.workspaces|length }}</td>
             </tr>
             {% endfor %}
           </tbody>

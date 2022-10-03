@@ -2,6 +2,7 @@ import base64
 import itertools
 import secrets
 from datetime import date, timedelta
+from urllib.parse import quote
 
 import structlog
 from django.contrib.auth.models import AbstractBaseUser
@@ -554,8 +555,27 @@ class ProjectMembership(models.Model):
 class Repo(models.Model):
     url = models.TextField(unique=True)
 
+    researcher_signed_off_at = models.DateTimeField(null=True)
+    researcher_signed_off_by = models.ForeignKey(
+        "User",
+        on_delete=models.PROTECT,
+        null=True,
+        related_name="repos_signed_off_by_researcher",
+    )
+
+    # enable sign off flow for this repo
+    has_sign_offs_enabled = models.BooleanField(default=False)
+
     def __str__(self):
         return self.url
+
+    def get_sign_off_url(self):
+        return reverse("repo-sign-off", kwargs={"repo_url": quote(self.url, safe="")})
+
+    def get_staff_feature_flags_url(self):
+        return reverse(
+            "staff:repo-feature-flags", kwargs={"repo_url": quote(self.url, safe="")}
+        )
 
     @property
     def name(self):
@@ -831,6 +851,14 @@ class Workspace(models.Model):
     # process
     uses_new_release_flow = models.BooleanField(default=True)
 
+    signed_off_at = models.DateTimeField(null=True)
+    signed_off_by = models.ForeignKey(
+        "User",
+        on_delete=models.PROTECT,
+        null=True,
+        related_name="workspaces_signed_off",
+    )
+
     created_at = models.DateTimeField(default=timezone.now)
 
     def __str__(self):
@@ -938,6 +966,15 @@ class Workspace(models.Model):
                 "workspace_slug": self.name,
             },
         )
+
+    def get_readme_url(self):
+        f = furl(self.repo)
+        f.path.segments += [
+            "blob",
+            self.branch,
+            "README.md",
+        ]
+        return f.url
 
     def get_releases_url(self):
         return reverse(

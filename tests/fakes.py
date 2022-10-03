@@ -15,6 +15,13 @@ class FakeGitHubAPI:
             }
         }
 
+    def get_branches(self, org, repo):
+        return [
+            {
+                "name": "test",
+            },
+        ]
+
     def get_branch_sha(self, org, repo, branch):
         return self.get_branch(org, repo, branch)["commit"]["sha"]
 

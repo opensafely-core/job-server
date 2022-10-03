@@ -18,6 +18,7 @@ $(() => {
         "form-control",
         "form-control",
         "form-control",
+        "form-control",
       ],
     },
   });

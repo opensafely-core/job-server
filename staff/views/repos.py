@@ -5,17 +5,20 @@ import structlog
 from csp.decorators import csp_exempt
 from django.db.models import Count, Min
 from django.db.models.functions import Least, Lower
+from django.shortcuts import get_object_or_404, redirect
 from django.template.response import TemplateResponse
 from django.utils import timezone
 from django.utils.decorators import method_decorator
-from django.views.generic import View
+from django.views.generic import UpdateView, View
 from first import first
 from furl import furl
 
 from jobserver.authorization import CoreDeveloper
 from jobserver.authorization.decorators import require_role
 from jobserver.github import _get_github_api
-from jobserver.models import Job, User, Workspace
+from jobserver.models import Job, Project, Repo, User, Workspace
+
+from ..forms import RepoFeatureFlagsForm
 
 
 logger = structlog.get_logger(__name__)
@@ -35,9 +38,11 @@ class RepoDetail(View):
         org, name = furl(url).path.segments
         repo = self.get_github_api().get_repo(org, name)
 
+        db_repo = get_object_or_404(Repo, url=url)
+
         workspaces = (
             Workspace.objects.filter(repo__url=url)
-            .select_related("created_by", "project", "project__org")
+            .select_related("signed_off_by", "created_by", "project", "project__org")
             .order_by("name")
         )
         users = User.objects.filter(job_requests__workspace__in=workspaces).distinct()
@@ -47,6 +52,7 @@ class RepoDetail(View):
         )
         first_job_ran_at = ran_at(jobs.order_by("first_run").first())
         last_job_ran_at = ran_at(jobs.order_by("-first_run").first())
+        num_signed_off = sum(1 for w in workspaces if w.signed_off_at)
 
         twelve_month_limit = first_job_ran_at + timedelta(days=365)
 
@@ -72,6 +78,8 @@ class RepoDetail(View):
                 users = [workspace.created_by, *users]
 
             return {
+                "signed_off_at": workspace.signed_off_at,
+                "signed_off_by": workspace.signed_off_by,
                 "created_by": workspace.created_by,
                 "get_staff_url": workspace.get_staff_url,
                 "is_archived": workspace.is_archived,
@@ -79,14 +87,18 @@ class RepoDetail(View):
                 "name": workspace.name,
             }
 
+        projects = Project.objects.filter(workspaces__in=workspaces)
         workspaces = [build_workspace(w, users) for w in workspaces]
 
         context = {
             "first_job_ran_at": first_job_ran_at,
             "has_releases": "github-releases" in repo["topics"],
             "last_job_ran_at": last_job_ran_at,
+            "num_signed_off": num_signed_off,
+            "projects": projects,
             "repo": repo,
             "repo_url": url,
+            "repo_feature_flags_url": db_repo.get_staff_feature_flags_url(),
             "twelve_month_limit": twelve_month_limit,
             "workspaces": workspaces,
         }
@@ -96,6 +108,32 @@ class RepoDetail(View):
             "staff/repo_detail.html",
             context=context,
         )
+
+
+@method_decorator(require_role(CoreDeveloper), name="dispatch")
+class RepoFeatureFlags(UpdateView):
+    model = Repo
+    form_class = RepoFeatureFlagsForm
+    template_name = "staff/repo_feature_flags.html"
+
+    def form_valid(self, form):
+        # the form validation ensures this is enable|disable
+        enable = form.cleaned_data["flip_to"] == "enable"
+        self.object.has_sign_offs_enabled = enable
+        self.object.save()
+
+        return redirect(self.object.get_staff_feature_flags_url())
+
+    def get_object(self):
+        return get_object_or_404(Repo, url=unquote(self.kwargs["repo_url"]))
+
+    def get_form_kwargs(self):
+        kwargs = super().get_form_kwargs()
+
+        # RepoFeatureFlagsForm isn't a ModelForm so don't pass instance to it
+        del kwargs["instance"]
+
+        return kwargs
 
 
 @method_decorator(require_role(CoreDeveloper), name="dispatch")
@@ -161,11 +199,15 @@ class RepoList(View):
             # has this repo ever had jobs run with it?
             has_jobs = sum(w.num_jobs for w in workspaces) > 0
 
+            # how many of the workspaces have been signed-off for being published?
+            signed_off = sum(1 for w in workspaces if w.signed_off_at)
+
             return repo | {
                 "first_run": first_run,
                 "has_jobs": has_jobs,
                 "has_releases": "github-releases" in repo["topics"],
                 "quoted_url": quote(repo["url"], safe=""),
+                "signed_off": signed_off,
                 "workspace": workspace,
                 "workspaces": workspaces,
             }
