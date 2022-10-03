@@ -1,0 +1,33 @@
+# Load .env files by default
+set dotenv-load := true
+
+
+build env="dev":
+    #!/usr/bin/env bash
+
+    # set build args for prod builds
+    export BUILD_DATE=$(date -u +'%y-%m-%dT%H:%M:%SZ')
+    export GITREF=$(git rev-parse --short HEAD)
+
+    # build the thing
+    docker-compose build --pull {{ env }}
+
+
+# run tests in dev container
+test *args="": build
+    docker-compose run --rm test bash -c "coverage run --branch --source=applications,jobserver,services,staff,tests --module pytest && coverage report || coverage html"
+
+
+# run dev server in dev container
+serve: build
+    docker-compose up dev
+
+
+# run command in dev container
+run *args="bash": build
+    docker-compose run --rm dev {{ args }}
+
+
+# exec command in existing dev container
+exec *args="bash": build
+    docker-compose exec dev {{ args }}

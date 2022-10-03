@@ -108,6 +108,22 @@ jobs:
     steps:
       - uses: actions/checkout@v3
       - uses: hadolint/hadolint-action@f988afea3da57ee48710a9795b6bb677cc901183  # v2.1.0
+        with:
+          dockerfile: docker/Dockerfile
+
+  docker-test:
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v3
+      - uses: extractions/setup-just@aa5d15c144db4585980a44ebfdd2cf337c4f14cb  # v1.4.0
+
+      - name: Build docker image and run tests in it
+        env:
+          GITHUB_TOKEN_TESTING: ${{ secrets.OPENSAFELY_GITHUB_TESTING_ORG_PAT }}
+        run: |
+          # build docker and run test
+          just docker-test
 
   deploy:
     needs: [check, test, lint-dockerfile]
