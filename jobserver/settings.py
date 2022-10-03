@@ -268,6 +268,7 @@ X_FRAME_OPTIONS = "SAMEORIGIN"
 # CSP
 # https://django-csp.readthedocs.io/en/latest/configuration.html
 CSP_REPORT_ONLY = False
+CSP_EXCLUDE_URL_PREFIXES = ("/api/",)
 CSP_REPORT_URI = [env.str("CSP_REPORT_URI", default="")]
 CSP_DEFAULT_SRC = ["'none'"]
 CSP_CONNECT_SRC = ["'self'", "https://plausible.io", "https://sentry.io"]
