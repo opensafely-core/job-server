@@ -64,6 +64,11 @@ def staff_nav(request):
             "url": reverse("staff:backend-list"),
         },
         {
+            "name": "Dashboards",
+            "is_active": _active(reverse("staff:dashboard:index")),
+            "url": reverse("staff:dashboard:index"),
+        },
+        {
             "name": "Orgs",
             "is_active": _active(reverse("staff:org-list")),
             "url": reverse("staff:org-list"),

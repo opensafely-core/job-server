@@ -1,6 +1,7 @@
 {% extends "staff/base.html" %}
 
-{% load static %}
+{% load querystring_tools %}
+{% load selected_filter %}
 
 {% block metatitle %}Repos: Staff Area | OpenSAFELY Jobs{% endblock metatitle %}
 
@@ -12,7 +13,7 @@
         <a href="{% url 'staff:index' %}">Staff area</a>
       </li>
       <li class="breadcrumb-item active" aria-current="page">
-        OpenSAFELY Private Repos
+        Repos
       </li>
     </ol>
   </div>
@@ -22,102 +23,71 @@
 {% block jumbotron %}
 <div class="jumbotron jumbotron-fluid jumbotron--danger pt-md-2">
   <div class="container">
-    <h1 class="display-4">OpenSAFELY Private Repos</h1>
-    <div class="row">
-      <p class="lead col-lg-9">
-        This table contains all private repos attached to one or more workspaces, where code was first run more than 11 months ago.
-      </p>
-    </div>
+    <h1 class="display-4">Repos</h1>
   </div>
 </div>
 {% endblock jumbotron %}
 
 {% block staff_content %}
-<div class="container-fluid">
+<div class="container">
   <div class="row">
-    <div class="col">
-      <button type="button" class="reset btn btn-outline-primary mb-3" data-column="0" data-filter="">Reset filters</button>
-      <div class="table-responsive">
-        <table class="table table-striped table-sm table--repo">
-          <thead>
-            <tr>
-              <th>Repo</th>
-              <th>Workspaces</th>
-              <th>Contact</th>
-              <th>Created on</th>
-              <th class="text-nowrap">Job first run on</th>
-              <th class="text-nowrap">Files released to GitHub</th>
-              <th>Sign-offs</th>
-            </tr>
-          </thead>
-          <tbody>
-            {% for repo in repos %}
-            <tr>
-              <td><a href="{% url 'staff:repo-detail' repo_url=repo.quoted_url %}">{{ repo.name }}</a></td>
+    <div class="col col-lg-3 col-xl-4">
+      <h2 class="h3">Filters</h2>
 
-              <td>
-                {% if repo.workspaces|length > 1 %}
-                  <details>
-                    <summary>
-                      <span class="summary--show">Show</span>
-                      <span class="summary--hide">Hide</span>
-                      {{ repo.workspaces|length }} workspaces
-                    </summary>
-                    <ul class="mt-1 mb-0 pl-2 ml-2">
-                      {% for workspace in repo.workspaces %}
-                      <li>
-                        <a href="{{ workspace.get_staff_url }}">
-                          {{ workspace.name }}
-                        </a>
-                      </li>
-                      {% endfor %}
-                    </ul>
-                  </details>
-                {% else %}
-                  {% for workspace in repo.workspaces %}
-                    <a href="{{ workspace.get_staff_url }}">
-                      {{ workspace.name }}
-                    </a>
-                  {% endfor %}
-                {% endif %}
-              </td>
-
-              <td>
-                <a href="{{ repo.workspace.created_by.get_staff_url }}">
-                  {{ repo.workspace.created_by.name }}
-                </a>
-              </td>
-
-              <td class="text-nowrap text-monospace">
-                <span class="pr-3">{{ repo.created_at|date:"d M Y" }}</span>
-              </td>
-
-              <td class="text-nowrap text-monospace">
-                <span class="pr-3">{{ repo.first_run|date:"d M Y" }}</span>
-              </td>
-
-              {% if repo.has_releases %}
-                <td class="text-center text-danger font-weight-bold">YES</td>
-              {% else %}
-                <td class="text-center text-success">No</td>
-              {% endif %}
-              <td class="text-center">{{ repo.signed_off }}/{{ repo.workspaces|length }}</td>
-            </tr>
-            {% endfor %}
-          </tbody>
-        </table>
+      {% if request.GET %}
+      <div class="mb-3">
+        <a href="{% url 'staff:repo-list' %}">Clear All</a>
       </div>
+      {% endif %}
+
+      <h3 class="h4">Orgs</h3>
+      <div class="btn-group-vertical w-100 mb-4" role="group" aria-label="Filter by org">
+        {% for org in orgs %}
+        {% is_filter_selected key="org" value=org.slug as is_active %}
+        <a
+          {% if is_active %}aria-pressed="true"{% endif %}
+          class="btn btn-outline-primary btn-block text-left {% if is_active %}active{% endif %}"
+          href="
+            {% if is_active %}
+              {% url_without_querystring org=org.slug %}
+            {% else %}
+              {% url_with_querystring org=org.slug %}
+            {% endif %}
+          "
+        >
+            {{ org.name }}
+        </a>
+        {% endfor %}
+      </div>
+
+    </div>
+
+    <div class="col col-lg-9 col-xl-8">
+      <form class="form d-flex align-items-center mb-4" method="GET">
+      <input
+        class="form-control mr-2"
+        type="search"
+        placeholder="Search by repo name"
+        aria-label="Search"
+        {% if q %}
+        value="{{ q }}"
+        {% endif %}
+        name="q" />
+        <button class="btn btn-outline-primary my-2 my-sm-0" type="submit">Search</button>
+      </form>
+
+      {% if object_list %}
+      <div class="list-group list-unstyled">
+        {% for repo in object_list %}
+        <a href="{{ repo.get_staff_url }}" class="d-flex align-items-center list-group-item list-group-item-action">
+          {{ repo.name }}
+        </a>
+        {% endfor %}
+      </div>
+      {% else %}
+      <p class="text-center">No repos found for this filter.</p>
+      {% endif %}
     </div>
   </div>
 </div>
 {% endblock staff_content %}
-
-{% block extra_styles %}
-<link rel="stylesheet" href="{% static 'vendor/tablesorter/theme.bootstrap_4.min.css' %}">
-{% endblock %}
-
-{% block extra_js %}
-<script src="{% static 'vendor/tablesorter/jquery.tablesorter.min.js' %}"></script>
-<script src="{% static 'vendor/tablesorter/jquery.tablesorter.widgets.min.js' %}"></script>
-<script src="{% static 'js/tablesorter.js' %}"></script>
-{% endblock %}
