@@ -16,6 +16,7 @@ from .views.backends import (
     BackendList,
     BackendRotateToken,
 )
+from .views.dashboards import DashboardIndex
 from .views.index import Index
 from .views.orgs import (
     OrgCreate,
@@ -39,7 +40,13 @@ from .views.projects import (
     ProjectMembershipRemove,
 )
 from .views.redirects import RedirectDelete, RedirectDetail, RedirectList
-from .views.repos import RepoDetail, RepoFeatureFlags, RepoList, RepoSignOff
+from .views.repos import (
+    PrivateReposDashboard,
+    RepoDetail,
+    RepoFeatureFlags,
+    RepoList,
+    RepoSignOff,
+)
 from .views.researchers import ResearcherEdit
 from .views.users import UserDetail, UserList, UserSetOrgs
 from .views.workspaces import WorkspaceDetail, WorkspaceEdit, WorkspaceList
@@ -81,6 +88,11 @@ backend_urls = [
         BackendRotateToken.as_view(),
         name="backend-rotate-token",
     ),
+]
+
+dashboard_urls = [
+    path("", DashboardIndex.as_view(), name="index"),
+    path("repos", PrivateReposDashboard.as_view(), name="repos"),
 ]
 
 org_urls = [
@@ -162,6 +174,7 @@ urlpatterns = [
     path("", Index.as_view(), name="index"),
     path("applications/", include(application_urls)),
     path("backends/", include(backend_urls)),
+    path("dashboards/", include((dashboard_urls, "dashboards"), namespace="dashboard")),
     path("orgs/", include(org_urls)),
     path("projects/", include(project_urls)),
     path("redirects/", include(redirect_urls)),
