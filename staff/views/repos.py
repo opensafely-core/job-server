@@ -1,8 +1,11 @@
+import textwrap
 from datetime import timedelta
 from urllib.parse import quote, unquote
 
 import structlog
 from csp.decorators import csp_exempt
+from django.conf import settings
+from django.db import transaction
 from django.db.models import Count, Min
 from django.db.models.functions import Least, Lower
 from django.shortcuts import get_object_or_404, redirect
@@ -33,18 +36,13 @@ class RepoDetail(View):
     get_github_api = staticmethod(_get_github_api)
 
     def get(self, request, *args, **kwargs):
-        url = unquote(self.kwargs["repo_url"])
+        repo = get_object_or_404(Repo, url=unquote(self.kwargs["repo_url"]))
 
-        org, name = furl(url).path.segments
-        repo = self.get_github_api().get_repo(org, name)
+        api_repo = self.get_github_api().get_repo(repo.owner, repo.name)
 
-        db_repo = get_object_or_404(Repo, url=url)
-
-        workspaces = (
-            Workspace.objects.filter(repo__url=url)
-            .select_related("signed_off_by", "created_by", "project", "project__org")
-            .order_by("name")
-        )
+        workspaces = repo.workspaces.select_related(
+            "signed_off_by", "created_by", "project", "project__org"
+        ).order_by("name")
         users = User.objects.filter(job_requests__workspace__in=workspaces).distinct()
 
         jobs = Job.objects.filter(job_request__workspace__in=workspaces).annotate(
@@ -87,18 +85,30 @@ class RepoDetail(View):
                 "name": workspace.name,
             }
 
-        projects = Project.objects.filter(workspaces__in=workspaces)
+        projects = (
+            Project.objects.filter(workspaces__in=workspaces)
+            .distinct()
+            .order_by("name")
+        )
         workspaces = [build_workspace(w, users) for w in workspaces]
 
         context = {
             "first_job_ran_at": first_job_ran_at,
-            "has_releases": "github-releases" in repo["topics"],
+            "has_releases": "github-releases" in api_repo["topics"],
             "last_job_ran_at": last_job_ran_at,
             "num_signed_off": num_signed_off,
             "projects": projects,
-            "repo": repo,
-            "repo_url": url,
-            "repo_feature_flags_url": db_repo.get_staff_feature_flags_url(),
+            "repo": {
+                "created_at": api_repo["created_at"],
+                "feature_flags_url": repo.get_staff_feature_flags_url(),
+                "internal_signed_off_at": repo.internal_signed_off_at,
+                "is_private": api_repo["private"],
+                "get_staff_sign_off_url": repo.get_staff_sign_off_url(),
+                "name": repo.name,
+                "owner": repo.owner,
+                "researcher_signed_off_at": repo.researcher_signed_off_at,
+                "url": repo.url,
+            },
             "twelve_month_limit": twelve_month_limit,
             "workspaces": workspaces,
         }
@@ -244,3 +254,39 @@ class RepoList(View):
         repos = [r for r in repos if select(r)]
 
         return TemplateResponse(request, "staff/repo_list.html", {"repos": repos})
+
+
+@method_decorator(require_role(CoreDeveloper), name="dispatch")
+class RepoSignOff(View):
+    get_github_api = staticmethod(_get_github_api)
+
+    def post(self, request, *args, **kwargs):
+        repo = get_object_or_404(Repo, url=unquote(self.kwargs["repo_url"]))
+
+        full_name = f"{repo.owner}/{repo.name}"
+        staff_area_url = (furl(settings.BASE_URL) / repo.get_staff_url()).url
+
+        body = f"""
+        The [{full_name}]({repo.url}) repo is ready to be made public.
+
+        Requested by: {request.user.name}
+
+        Useful links:
+        * [Repo settings]({repo.url}/settings)
+        * [Repo in Staff Area]({staff_area_url})
+        """
+
+        with transaction.atomic():
+            self.get_github_api().create_issue(
+                "ebmdatalab",
+                "tech-support",
+                f"Switch {repo.name} repo to public",
+                textwrap.dedent(body),
+                [],
+            )
+
+            repo.internal_signed_off_at = timezone.now()
+            repo.internal_signed_off_by = request.user
+            repo.save()
+
+        return redirect(repo.get_staff_url())

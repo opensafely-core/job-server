@@ -555,6 +555,14 @@ class ProjectMembership(models.Model):
 class Repo(models.Model):
     url = models.TextField(unique=True)
 
+    internal_signed_off_at = models.DateTimeField(null=True)
+    internal_signed_off_by = models.ForeignKey(
+        "User",
+        on_delete=models.PROTECT,
+        related_name="internally_signed_off_repos",
+        null=True,
+    )
+
     researcher_signed_off_at = models.DateTimeField(null=True)
     researcher_signed_off_by = models.ForeignKey(
         "User",
@@ -570,12 +578,16 @@ class Repo(models.Model):
         return self.url
 
     def get_sign_off_url(self):
-        return reverse("repo-sign-off", kwargs={"repo_url": quote(self.url, safe="")})
+        return reverse("repo-sign-off", kwargs={"repo_url": self.quoted_url})
 
     def get_staff_feature_flags_url(self):
-        return reverse(
-            "staff:repo-feature-flags", kwargs={"repo_url": quote(self.url, safe="")}
-        )
+        return reverse("staff:repo-feature-flags", kwargs={"repo_url": self.quoted_url})
+
+    def get_staff_sign_off_url(self):
+        return reverse("staff:repo-sign-off", kwargs={"repo_url": self.quoted_url})
+
+    def get_staff_url(self):
+        return reverse("staff:repo-detail", kwargs={"repo_url": self.quoted_url})
 
     @property
     def name(self):
@@ -586,6 +598,10 @@ class Repo(models.Model):
     def owner(self):
         """Convert repo URL -> repo owner"""
         return self._url().path.segments[0]
+
+    @property
+    def quoted_url(self):
+        return quote(self.url, safe="")
 
     def _url(self):
         f = furl(self.url)
@@ -1021,5 +1037,4 @@ class Workspace(models.Model):
             # get the latest status for an action
             job = jobs.filter(action=action).order_by("-created_at").first()
             action_status_lut[action] = job.status
-
         return action_status_lut

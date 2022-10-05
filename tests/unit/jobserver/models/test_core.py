@@ -1,5 +1,4 @@
 from datetime import timedelta
-from urllib.parse import quote
 
 import pytest
 from django.db import IntegrityError
@@ -634,7 +633,7 @@ def test_repo_get_sign_off_url():
 
     assert url == reverse(
         "repo-sign-off",
-        kwargs={"repo_url": quote(repo.url, safe="")},
+        kwargs={"repo_url": repo.quoted_url},
     )
 
 
@@ -645,8 +644,27 @@ def test_repo_get_staff_feature_flags_url():
 
     assert url == reverse(
         "staff:repo-feature-flags",
-        kwargs={"repo_url": quote(repo.url, safe="")},
+        kwargs={"repo_url": repo.quoted_url},
     )
+
+
+def test_repo_get_staff_sign_off_url():
+    repo = RepoFactory()
+
+    url = repo.get_staff_sign_off_url()
+
+    assert url == reverse(
+        "staff:repo-sign-off",
+        kwargs={"repo_url": repo.quoted_url},
+    )
+
+
+def test_repo_get_staff_url():
+    repo = RepoFactory()
+
+    url = repo.get_staff_url()
+
+    assert url == reverse("staff:repo-detail", kwargs={"repo_url": repo.quoted_url})
 
 
 def test_repo_name_no_path():

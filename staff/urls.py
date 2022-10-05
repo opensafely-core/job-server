@@ -39,7 +39,7 @@ from .views.projects import (
     ProjectMembershipRemove,
 )
 from .views.redirects import RedirectDelete, RedirectDetail, RedirectList
-from .views.repos import RepoDetail, RepoFeatureFlags, RepoList
+from .views.repos import RepoDetail, RepoFeatureFlags, RepoList, RepoSignOff
 from .views.researchers import ResearcherEdit
 from .views.users import UserDetail, UserList, UserSetOrgs
 from .views.workspaces import WorkspaceDetail, WorkspaceEdit, WorkspaceList
@@ -139,6 +139,7 @@ repo_urls = [
         RepoFeatureFlags.as_view(),
         name="repo-feature-flags",
     ),
+    path("<repo_url>/sign-off/", RepoSignOff.as_view(), name="repo-sign-off"),
 ]
 
 researcher_urls = [
