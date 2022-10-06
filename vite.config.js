@@ -29,11 +29,7 @@ const config = {
   css: { preprocessorOptions: { scss: { charset: false } } },
   plugins: [
     legacy({
-      additionalLegacyPolyfills: [
-        "regenerator-runtime/runtime",
-        "whatwg-fetch",
-      ],
-      targets: ["ie >= 11"],
+      targets: ["chrome >= 81, not dead"],
     }),
     copy({
       targets: [
