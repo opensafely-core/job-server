@@ -22,7 +22,6 @@ const config = {
     },
     outDir: "assets/dist",
     emptyOutDir: true,
-    sourcemap: "hidden",
   },
   clearScreen: false,
   css: { preprocessorOptions: { scss: { charset: false } } },
