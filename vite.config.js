@@ -1,6 +1,5 @@
 /* eslint-disable import/no-extraneous-dependencies */
 import legacy from "@vitejs/plugin-legacy";
-import { visualizer } from "rollup-plugin-visualizer";
 import { viteStaticCopy } from "vite-plugin-static-copy";
 
 /**
@@ -82,10 +81,6 @@ const config = {
           dest: "js",
         },
       ],
-    }),
-    visualizer({
-      filename: "assets/stats.html",
-      brotliSize: true,
     }),
   ],
   test: {
