@@ -24,7 +24,6 @@ const config = {
     emptyOutDir: true,
   },
   clearScreen: false,
-  css: { preprocessorOptions: { scss: { charset: false } } },
   plugins: [
     legacy({
       targets: ["chrome >= 81, not dead"],
