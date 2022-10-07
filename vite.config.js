@@ -1,7 +1,6 @@
 /* eslint-disable import/no-extraneous-dependencies */
 import legacy from "@vitejs/plugin-legacy";
-import copy from "rollup-plugin-copy";
-import { visualizer } from "rollup-plugin-visualizer";
+import { viteStaticCopy } from "vite-plugin-static-copy";
 
 /**
  * @type {import('vite').UserConfig}
@@ -23,74 +22,63 @@ const config = {
     },
     outDir: "assets/dist",
     emptyOutDir: true,
-    sourcemap: "hidden",
   },
   clearScreen: false,
-  css: { preprocessorOptions: { scss: { charset: false } } },
   plugins: [
     legacy({
-      additionalLegacyPolyfills: [
-        "regenerator-runtime/runtime",
-        "whatwg-fetch",
-      ],
-      targets: ["ie >= 11"],
+      targets: ["chrome >= 81, not dead"],
     }),
-    copy({
+    viteStaticCopy({
       targets: [
         {
           src: "./node_modules/bootstrap/dist/js/bootstrap.bundle.min.*",
-          dest: "./assets/dist/vendor",
+          dest: "vendor",
         },
         {
           src: "./node_modules/htmx.org/dist/htmx.min.js",
-          dest: "./assets/dist/vendor",
+          dest: "vendor",
         },
         {
           src: "./node_modules/jquery/dist/jquery.slim.min.*",
-          dest: "./assets/dist/vendor",
+          dest: "vendor",
         },
         {
           src: "./node_modules/list.js/dist/list.min.*",
-          dest: "./assets/dist/vendor",
+          dest: "vendor",
         },
         {
           src: "./node_modules/select2/dist/css/select2.min.css",
-          dest: "./assets/dist/vendor",
+          dest: "vendor",
         },
         {
           src: "./node_modules/select2/dist/js/select2.min.js",
-          dest: "./assets/dist/vendor",
+          dest: "vendor",
         },
         {
           src: "./node_modules/@ttskch/select2-bootstrap4-theme/dist/select2-bootstrap4.min.css",
-          dest: "./assets/dist/vendor",
+          dest: "vendor",
         },
         {
           src: "./node_modules/tablesorter/dist/js/jquery.tablesorter.min.js",
-          dest: "./assets/dist/vendor/tablesorter",
+          dest: "vendor/tablesorter",
         },
         {
           src: "./node_modules/tablesorter/dist/js/jquery.tablesorter.widgets.min.js",
-          dest: "./assets/dist/vendor/tablesorter",
+          dest: "vendor/tablesorter",
         },
         {
           src: "./node_modules/tablesorter/dist/css/theme.bootstrap_4.min.css",
-          dest: "./assets/dist/vendor/tablesorter",
+          dest: "vendor/tablesorter",
         },
         {
           src: "./node_modules/bs-custom-file-input/dist/bs-custom-file-input.min*",
-          dest: "./assets/dist/vendor/bs-custom-file-input",
+          dest: "vendor/bs-custom-file-input",
         },
         {
           src: "./assets/src/js/*",
-          dest: "./assets/dist/js",
+          dest: "js",
         },
       ],
-      hook: "writeBundle",
-    }),
-    visualizer({
-      filename: "assets/stats.html",
-      brotliSize: true,
     }),
   ],
   test: {
