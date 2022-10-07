@@ -9,17 +9,23 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-      - uses: actions/checkout@v2
+      - uses: actions/checkout@v3
       - uses: extractions/setup-just@v1
 
       - name: Install Node.js
         uses: actions/setup-node@v3
         with:
           node-version: "16"
-          cache: 'npm'
+
+      - name: Cache dependencies
+        uses: actions/cache@v3
+        with:
+          path: ~/.npm
+          key: npm-${{ hashFiles('package-lock.json') }}
+          restore-keys: npm-
 
       - name: Install node_modules
-        run: just assets-install
+        run: npm ci --ignore-scripts
 
       - name: Lint assets
         run: npm run lint
