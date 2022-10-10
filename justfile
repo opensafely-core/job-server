@@ -149,6 +149,10 @@ run: devenv
     $BIN/python manage.py runserver localhost:8000
 
 
+run-prod: prodenv
+    $BIN/gunicorn -c gunicorn.conf.py jobserver.wsgi
+
+
 # Remove built assets and collected static files
 assets-clean:
     rm -rf assets/dist
