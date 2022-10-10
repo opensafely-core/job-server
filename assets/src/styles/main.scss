@@ -325,3 +325,50 @@ legend {
     border-top-color: white !important;
   }
 }
+
+#eventLog {
+  .no-wrap {
+    width: 0;
+    white-space: nowrap;
+  }
+
+  .dont-break-out {
+    overflow-wrap: break-word;
+    word-wrap: break-word;
+    word-break: break-word;
+  }
+
+  button[aria-expanded="true"] {
+    .expanded--show {
+      display: inline-flex;
+    }
+
+    .expanded--hide {
+      display: none;
+    }
+  }
+
+  button[aria-expanded="false"] {
+    .expanded--show {
+      display: none;
+    }
+
+    .expanded--hide {
+      display: inline-flex;
+    }
+  }
+
+  .table .child-table {
+    > td {
+      border: 2px solid #dee2e6;
+      border-top: 0;
+      margin-top: -1px;
+      margin-bottom: 1rem;
+      padding: 0;
+    }
+
+    .table {
+      margin-bottom: 0;
+    }
+  }
+}
