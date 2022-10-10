@@ -1,3 +1,5 @@
+import os
+
 from opentelemetry import trace
 from opentelemetry.exporter.otlp.proto.grpc.trace_exporter import OTLPSpanExporter
 from opentelemetry.sdk.resources import Resource
@@ -25,10 +27,10 @@ def post_fork(server, worker):
     resource = Resource.create(attributes={"service.name": "job-server"})
 
     trace.set_tracer_provider(TracerProvider(resource=resource))
-    span_processor = BatchSpanProcessor(
-        OTLPSpanExporter(endpoint="https://api.honeycomb.io")
-    )
-    trace.get_tracer_provider().add_span_processor(span_processor)
+
+    if "OTEL_EXPORTER_OTLP_ENDPOINT" in os.environ:
+        span_processor = BatchSpanProcessor(OTLPSpanExporter())
+        trace.get_tracer_provider().add_span_processor(span_processor)
 
     from opentelemetry.instrumentation.auto_instrumentation import (  # noqa: F401
         sitecustomize,
