@@ -26,6 +26,8 @@ pygments
 python-ulid
 opentelemetry-exporter-otlp
 opentelemetry-instrumentation-django
+opentelemetry-instrumentation-requests
+opentelemetry-instrumentation-psycopg2
 opentelemetry-sdk
 requests
 sentry-sdk
