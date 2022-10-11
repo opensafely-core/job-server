@@ -156,6 +156,28 @@ def test_jobdetail_with_permission(rf):
 
 
 @pytest.mark.freeze_time("2022-06-16 12:00")
+def test_jobdetail_with_core_developer_no_trace(rf):
+    job = JobFactory(trace_context={})
+    user = UserFactory(roles=[CoreDeveloper])
+
+    request = rf.get("/")
+    request.user = user
+
+    response = JobDetail.as_view()(
+        request,
+        org_slug=job.job_request.workspace.project.org.slug,
+        project_slug=job.job_request.workspace.project.slug,
+        workspace_slug=job.job_request.workspace.name,
+        pk=job.job_request.pk,
+        identifier=job.identifier,
+    )
+
+    assert response.status_code == 200
+    assert "Cancel" not in response.rendered_content
+    assert "Honeycomb" not in response.rendered_content
+
+
+@pytest.mark.freeze_time("2022-06-16 12:00")
 def test_jobdetail_with_core_developer(rf):
     job = JobFactory()
     user = UserFactory(roles=[CoreDeveloper])
@@ -175,11 +197,7 @@ def test_jobdetail_with_core_developer(rf):
     assert response.status_code == 200
     assert "Cancel" not in response.rendered_content
     assert "Honeycomb" in response.rendered_content
-    assert "%22end_time%22%3A1655380800%2C" in response.rendered_content
-    assert (
-        f"workspace_name%22%2C%22op%22%3A%22%3D%22%2C%22value%22%3A%22{job.job_request.workspace.name}"
-        in response.rendered_content
-    )
+    assert "trace_end_ts=1655380800" in response.rendered_content
 
 
 @pytest.mark.freeze_time("2022-06-15 13:00")
@@ -202,7 +220,7 @@ def test_jobdetail_with_core_developer_with_completed_at(rf):
     assert response.status_code == 200
     assert "Cancel" not in response.rendered_content
     assert "Honeycomb" in response.rendered_content
-    assert "%22end_time%22%3A1655298060%2C" in response.rendered_content
+    assert "trace_end_ts=1655298060" in response.rendered_content
 
 
 def test_jobdetail_with_job_creator(rf):

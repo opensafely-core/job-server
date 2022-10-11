@@ -70,6 +70,7 @@ filterwarnings = [
     "error",
     "ignore::pytest.PytestUnraisableExceptionWarning:",
     "ignore:distutils Version classes are deprecated:DeprecationWarning:pytest_freezegun",
+    "ignore:Call to deprecated method __init__:DeprecationWarning:",
 ]
 markers = [
   "verification: tests that verify fakes",

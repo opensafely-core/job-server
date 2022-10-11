@@ -6,6 +6,7 @@ from django.shortcuts import get_object_or_404, redirect
 from django.template.response import TemplateResponse
 from django.utils import timezone
 from django.views.generic import RedirectView, View
+from furl import furl
 
 from ..authorization import CoreDeveloper, has_permission, has_role
 from ..models import Job
@@ -59,27 +60,39 @@ class JobDetail(View):
         # reliably see the first and last honeycomb events relating to that job.
         # This could be due to clock skew, '>' rather than '>=' comparators
         # and/or other factors.
-        honeycomb_context_starttime = int(
+        honeycomb_starttime_unix = int(
             (job.created_at - timedelta(minutes=1)).timestamp()
         )
 
-        honeycomb_context_endtime = timezone.now()
+        honeycomb_endtime = timezone.now()
         if job.completed_at is not None:
-            honeycomb_context_endtime = job.completed_at + timedelta(minutes=1)
+            honeycomb_endtime = job.completed_at + timedelta(minutes=1)
 
-        honeycomb_context_endtime_unix = int(honeycomb_context_endtime.timestamp())
+        honeycomb_endtime_unix = int(honeycomb_endtime.timestamp())
 
         context = {
             "job": job,
             "object": job,
             "user_can_cancel_jobs": can_cancel_jobs,
             "view": self,
-            "honeycomb_can_view_links": honeycomb_can_view_links,
-            "honeycomb_this_job_link": f"https://ui.honeycomb.io/bennett-institute-for-applied-data-science/environments/production/datasets/job-server?query=%7B%22start_time%22%3A{honeycomb_context_starttime}%2C%22end_time%22%3A{honeycomb_context_endtime_unix}%2C%22granularity%22%3A0%2C%22breakdowns%22%3A%5B%22status%22%5D%2C%22calculations%22%3A%5B%7B%22op%22%3A%22COUNT%22%7D%5D%2C%22filters%22%3A%5B%7B%22column%22%3A%22name%22%2C%22op%22%3A%22%3D%22%2C%22value%22%3A%22update_job%22%7D,%7B%22column%22%3A%22job_identifier%22%2C%22op%22%3A%22%3D%22%2C%22value%22%3A%22{job.identifier}%22%7D%5D%2C%22filter_combination%22%3A%22AND%22%2C%22orders%22%3A%5B%7B%22op%22%3A%22COUNT%22%2C%22order%22%3A%22descending%22%7D%5D%2C%22havings%22%3A%5B%5D%2C%22limit%22%3A100%7D",
-            "honeycomb_this_job_request_link": f"https://ui.honeycomb.io/bennett-institute-for-applied-data-science/environments/production/datasets/job-server?query=%7B%22start_time%22%3A{honeycomb_context_starttime}%2C%22end_time%22%3A{honeycomb_context_endtime_unix}%2C%22granularity%22%3A0%2C%22breakdowns%22%3A%5B%22status%22%5D%2C%22calculations%22%3A%5B%7B%22op%22%3A%22COUNT%22%7D%5D%2C%22filters%22%3A%5B%7B%22column%22%3A%22name%22%2C%22op%22%3A%22%3D%22%2C%22value%22%3A%22update_job%22%7D,%7B%22column%22%3A%22job_request_identifier%22%2C%22op%22%3A%22%3D%22%2C%22value%22%3A%22{job.job_request.identifier}%22%7D%5D%2C%22filter_combination%22%3A%22AND%22%2C%22orders%22%3A%5B%7B%22op%22%3A%22COUNT%22%2C%22order%22%3A%22descending%22%7D%5D%2C%22havings%22%3A%5B%5D%2C%22limit%22%3A100%7D",
-            "honeycomb_this_action_this_workspace_link": f"https://ui.honeycomb.io/bennett-institute-for-applied-data-science/environments/production/datasets/job-server?query=%7B%22time_range%22%3A2419200%2C%22granularity%22%3A0%2C%22breakdowns%22%3A%5B%22status%22%5D%2C%22calculations%22%3A%5B%7B%22op%22%3A%22COUNT%22%7D%2C%7B%22op%22%3A%22MAX%22%2C%22column%22%3A%22current_runtime%22%7D%5D%2C%22filters%22%3A%5B%7B%22column%22%3A%22name%22%2C%22op%22%3A%22%3D%22%2C%22value%22%3A%22update_job%22%7D%2C%7B%22column%22%3A%22workspace_name%22%2C%22op%22%3A%22%3D%22%2C%22value%22%3A%22{job.job_request.workspace.name}%22%7D%2C%7B%22column%22%3A%22action%22%2C%22op%22%3A%22%3D%22%2C%22value%22%3A%22{job.action}%22%7D%5D%2C%22filter_combination%22%3A%22AND%22%2C%22orders%22%3A%5B%7B%22op%22%3A%22COUNT%22%2C%22order%22%3A%22descending%22%7D%5D%2C%22havings%22%3A%5B%5D%2C%22limit%22%3A100%7D",
-            "honeycomb_this_action_all_workspaces_link": f"https://ui.honeycomb.io/bennett-institute-for-applied-data-science/environments/production/datasets/job-server?query=%7B%22time_range%22%3A2419200%2C%22granularity%22%3A0%2C%22breakdowns%22%3A%5B%22status%22%2C%22workspace_name%22%2C%22job_identifier%22%5D%2C%22calculations%22%3A%5B%7B%22op%22%3A%22MAX%22%2C%22column%22%3A%22current_runtime%22%7D%2C%7B%22op%22%3A%22COUNT%22%7D%5D%2C%22filters%22%3A%5B%7B%22column%22%3A%22name%22%2C%22op%22%3A%22%3D%22%2C%22value%22%3A%22update_job%22%7D%2C%7B%22column%22%3A%22action%22%2C%22op%22%3A%22%3D%22%2C%22value%22%3A%22{job.action}%22%7D%5D%2C%22filter_combination%22%3A%22AND%22%2C%22orders%22%3A%5B%7B%22column%22%3A%22current_runtime%22%2C%22op%22%3A%22MAX%22%2C%22order%22%3A%22descending%22%7D%5D%2C%22havings%22%3A%5B%5D%2C%22limit%22%3A100%7D",
+            "honeycomb_links": {},
         }
+
+        if honeycomb_can_view_links:
+            # TODO: make this configurable?
+            jobs_honeycomb_url = furl(
+                "https://ui.honeycomb.io/bennet/environments/production/datasets/jobrunner"
+            )
+            if job.trace_id:
+                trace_link = jobs_honeycomb_url / "trace"
+                trace_link.add(
+                    {
+                        "trace_id": job.trace_id,
+                        "trace_start_ts": honeycomb_starttime_unix,
+                        "trace_end_ts": honeycomb_endtime_unix,
+                    }
+                )
+                context["honeycomb_links"]["Job Trace"] = trace_link.url
 
         if has_role(request.user, CoreDeveloper):
             template_name = "job_detail_tw.html"

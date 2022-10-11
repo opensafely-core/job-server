@@ -9,6 +9,10 @@ import pytest
 import structlog
 from django.conf import settings
 from django.utils import timezone
+from opentelemetry import trace
+from opentelemetry.sdk.trace import TracerProvider
+from opentelemetry.sdk.trace.export import SimpleSpanProcessor
+from opentelemetry.sdk.trace.export.in_memory_span_exporter import InMemorySpanExporter
 from structlog.testing import LogCapture
 
 import services.slack
@@ -25,9 +29,26 @@ from .factories import (
 from .factories import applications as application_factories
 
 
+# set up tracing for tests
+provider = TracerProvider()
+trace.set_tracer_provider(provider)
+test_exporter = InMemorySpanExporter()
+provider.add_span_processor(SimpleSpanProcessor(test_exporter))
+
+
+def get_trace():
+    """Return all spans traced during this test."""
+    return test_exporter.get_finished_spans()  # pragma: no cover
+
+
 @pytest.fixture(autouse=True)
 def enable_db_access_for_all_tests(db):
     pass
+
+
+@pytest.fixture(autouse=True)
+def clear_all_traces():
+    test_exporter.clear()
 
 
 @pytest.fixture
