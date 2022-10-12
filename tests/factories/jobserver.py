@@ -2,6 +2,8 @@ from datetime import datetime, timezone
 
 import factory
 import factory.fuzzy
+from opentelemetry import trace
+from opentelemetry.trace.propagation.tracecontext import TraceContextTextMapPropagator
 from social_django.models import UserSocialAuth
 
 from jobserver.models import (
@@ -19,6 +21,18 @@ from jobserver.models import (
     User,
     Workspace,
 )
+
+
+def generate_traceparent():
+    """Generate an OTel trace context, as would be passed up from job-runner."""
+    ctx = {}
+    tracer = trace.get_tracer("jobs")
+    root = tracer.start_span("JOB")
+
+    with trace.use_span(root, end_on_exit=False):
+        TraceContextTextMapPropagator().inject(ctx)
+
+    return ctx
 
 
 class BackendFactory(factory.django.DjangoModelFactory):
@@ -50,6 +64,8 @@ class JobFactory(factory.django.DjangoModelFactory):
     identifier = factory.Sequence(lambda n: f"identifier-{n}")
 
     updated_at = factory.fuzzy.FuzzyDateTime(datetime(2020, 1, 1, tzinfo=timezone.utc))
+
+    trace_context = factory.LazyFunction(generate_traceparent)
 
 
 class JobRequestFactory(factory.django.DjangoModelFactory):

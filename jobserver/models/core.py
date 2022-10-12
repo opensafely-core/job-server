@@ -18,6 +18,7 @@ from django.utils import timezone
 from django.utils.text import slugify
 from environs import Env
 from furl import furl
+from opentelemetry.trace import propagation
 from sentry_sdk import capture_message
 
 from ..authorization.fields import RolesField
@@ -72,6 +73,9 @@ class Job(models.Model):
     updated_at = models.DateTimeField(null=True)
     started_at = models.DateTimeField(null=True)
     completed_at = models.DateTimeField(null=True)
+
+    # send from job-runner so we can link direct to a trace
+    trace_context = models.JSONField(null=True)
 
     class Meta:
         ordering = ["pk"]
@@ -144,6 +148,18 @@ class Job(models.Model):
         minutes, seconds = divmod(remainder, 60)
 
         return Runtime(int(hours), int(minutes), int(seconds), int(total_seconds))
+
+    @property
+    def trace_id(self):
+        if not self.trace_context:
+            return None  # pragma: no cover
+
+        # this rediculous dance is just because of OTel spec silliness
+        ctx = propagation.tracecontext.TraceContextTextMapPropagator().extract(
+            carrier=self.trace_context
+        )
+        span_ctx = propagation.get_current_span(ctx).get_span_context()
+        return span_ctx.trace_id
 
 
 class JobRequestManager(models.Manager):

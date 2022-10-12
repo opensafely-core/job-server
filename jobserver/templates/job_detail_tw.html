@@ -156,22 +156,14 @@
       </dl>
     {% /card %}
 
-    {% if honeycomb_can_view_links %}
+    {% if honeycomb_links %}
       {% #card title="Monitoring" subtitle="Honeycomb login required" container %}
-        All monitoring events for:
         <ul class="flow-root list-disc text-sm">
-          <li class="ml-4">
-            {% link href=honeycomb_this_job_link text="This job" %}
-          </li>
-          <li class="ml-4">
-            {% link href=honeycomb_this_job_request_link text="This job and other jobs in the same job request" %}
-          </li>
-          <li class="ml-4">
-            {% link href=honeycomb_this_action_this_workspace_link text="All jobs for this action in this workspace in the last 28 days" %}
-          </li>
-          <li class="ml-4">
-            {% link href=honeycomb_this_action_all_workspaces_link text="All jobs for this action in all workspaces in the last 28 days" %}
-          </li>
+            {% for name, link in honeycomb_links.items %}
+                <li class="ml-4">
+                    <a href="{{ link }}">{{ name }}</a>
+                </li>
+            {% endfor %}
         </ul>
       </section>
       {% /card %}

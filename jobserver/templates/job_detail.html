@@ -228,7 +228,7 @@
         </div>
       </section>
 
-      {% if honeycomb_can_view_links %}
+      {% if honeycomb_links %}
       <section class="card mb-3">
         <div class="card-header">
           <h2 class="card-title">Monitoring</h2>
@@ -236,19 +236,11 @@
         </div>
         <div class="card-body">
           <ul class="pl-3 mb-0">
-            All monitoring events for:
-            <li>
-              <a href="{{ honeycomb_this_job_link }}">This job</a>
-            </li>
-            <li>
-              <a href="{{ honeycomb_this_job_request_link }}">This job and other jobs in the same job request</a>
-            </li>
-            <li>
-              <a href="{{ honeycomb_this_action_this_workspace_link }}">All jobs for this action in this workspace in the last 28 days</a>
-            </li>
-            <li>
-              <a href="{{ honeycomb_this_action_all_workspaces_link }}">All jobs for this action in all workspaces in the last 28 days</a>
-            </li>
+            {% for name, link in honeycomb_links.items %}
+                <li>
+                    <a href="{{ link }}">{{ name }}</a>
+                </li>
+            {% endfor %}
           </ul>
         </div>
       </section>
