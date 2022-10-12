@@ -26,6 +26,7 @@ from jobserver.api.releases import (
     WorkspaceStatusAPI,
 )
 
+from .views.errors import bad_request, page_not_found, permission_denied, server_error
 from .views.index import Index
 from .views.job_requests import (
     JobRequestCancel,
@@ -252,6 +253,10 @@ urlpatterns = [
     ),
     path("", include("social_django.urls", namespace="social")),
     path("", include("applications.urls")),
+    path("400", bad_request, name="bad_request"),
+    path("403", permission_denied, name="permission_denied"),
+    path("404", page_not_found, name="page_not_found"),
+    path("500", server_error, name="server_error"),
     path("favicon.ico", RedirectView.as_view(url=settings.STATIC_URL + "favicon.ico")),
     path("robots.txt", RedirectView.as_view(url=settings.STATIC_URL + "robots.txt")),
     path("api/v2/", include((api_urls, "api"))),
@@ -287,3 +292,8 @@ urlpatterns = [
         ),
     ),
 ] + static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
+
+handler400 = bad_request
+handler403 = permission_denied
+handler404 = page_not_found
+handler500 = server_error
