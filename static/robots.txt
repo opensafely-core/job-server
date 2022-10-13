@@ -3,6 +3,7 @@ Disallow: /api/
 Disallow: /applications/
 Disallow: /complete/
 Disallow: /disconnect/
+Disallow: /event-log/
 Disallow: /login/
 Disallow: /logout/
 Disallow: /settings/
