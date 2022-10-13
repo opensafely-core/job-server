@@ -306,6 +306,12 @@ if DJANGO_VITE_DEV_MODE:
     ]
     CSP_STYLE_SRC = CSP_STYLE_SRC_ELEM = ["'self'", "'unsafe-inline'"]
 
+
+# CSRF error view
+# https://docs.djangoproject.com/en/4.1/ref/settings/#csrf-failure-view
+CSRF_FAILURE_VIEW = "jobserver.views.errors.csrf_failure"
+
+
 # THIRD PARTY SETTINGS
 
 # Anymail
