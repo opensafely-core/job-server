@@ -87,7 +87,7 @@ class JobDetail(View):
                 trace_link = jobs_honeycomb_url / "trace"
                 trace_link.add(
                     {
-                        "trace_id": job.trace_id,
+                        "trace_id": f"{job.trace_id:x}",
                         "trace_start_ts": honeycomb_starttime_unix,
                         "trace_end_ts": honeycomb_endtime_unix,
                     }
