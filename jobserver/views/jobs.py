@@ -81,7 +81,7 @@ class JobDetail(View):
         if honeycomb_can_view_links:
             # TODO: make this configurable?
             jobs_honeycomb_url = furl(
-                "https://ui.honeycomb.io/bennet/environments/production/datasets/jobrunner"
+                "https://ui.honeycomb.io/bennett-institute-for-applied-data-science/environments/production/datasets/jobrunner"
             )
             if job.trace_id:
                 trace_link = jobs_honeycomb_url / "trace"
