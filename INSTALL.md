@@ -19,6 +19,7 @@ dokku config:set job-server GITHUB_TOKEN='xxx'
 dokku config:set job-server MAILGUN_API_KEY='xxx'
 dokku config:set job-server OTEL_EXPORTER_OTLP_ENDPOINT='https://api.honeycomb.io'
 dokku config:set job-server OTEL_EXPORTER_OTLP_HEADERS='x-honeycomb-team=xxx,x-honeycomb-dataset=job-server'
+# disabling some instrumentations may be necessary depending on honeycomb quota
 dokku config:set job-server OTEL_PYTHON_DISABLED_INSTRUMENTATIONS='psycopg2'
 dokku config:set job-server OTEL_SERVICE_NAME='job-server'
 dokku config:set job-server SECRET_KEY='xxx'
