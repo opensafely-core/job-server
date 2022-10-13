@@ -1,14 +1,11 @@
-from datetime import timedelta
-
 from django.core.exceptions import MultipleObjectsReturned
 from django.http import Http404
 from django.shortcuts import get_object_or_404, redirect
 from django.template.response import TemplateResponse
-from django.utils import timezone
 from django.views.generic import RedirectView, View
-from furl import furl
 
 from ..authorization import CoreDeveloper, has_permission, has_role
+from ..honeycomb import format_trace_link
 from ..models import Job
 
 
@@ -55,21 +52,6 @@ class JobDetail(View):
 
         honeycomb_can_view_links = has_role(self.request.user, CoreDeveloper)
 
-        # Add arbitrary small timedeltas to the start and end times.
-        # If we use the exact start and end times of a job, we do not
-        # reliably see the first and last honeycomb events relating to that job.
-        # This could be due to clock skew, '>' rather than '>=' comparators
-        # and/or other factors.
-        honeycomb_starttime_unix = int(
-            (job.created_at - timedelta(minutes=1)).timestamp()
-        )
-
-        honeycomb_endtime = timezone.now()
-        if job.completed_at is not None:
-            honeycomb_endtime = job.completed_at + timedelta(minutes=1)
-
-        honeycomb_endtime_unix = int(honeycomb_endtime.timestamp())
-
         context = {
             "job": job,
             "object": job,
@@ -78,21 +60,9 @@ class JobDetail(View):
             "honeycomb_links": {},
         }
 
-        if honeycomb_can_view_links:
-            # TODO: make this configurable?
-            jobs_honeycomb_url = furl(
-                "https://ui.honeycomb.io/bennett-institute-for-applied-data-science/environments/production/datasets/jobrunner"
-            )
-            if job.trace_id:
-                trace_link = jobs_honeycomb_url / "trace"
-                trace_link.add(
-                    {
-                        "trace_id": f"{job.trace_id:x}",
-                        "trace_start_ts": honeycomb_starttime_unix,
-                        "trace_end_ts": honeycomb_endtime_unix,
-                    }
-                )
-                context["honeycomb_links"]["Job Trace"] = trace_link.url
+        honeycomb_trace_link = format_trace_link(job)
+        if honeycomb_can_view_links and honeycomb_trace_link:
+            context["honeycomb_links"]["Job Trace"] = honeycomb_trace_link
 
         if has_role(request.user, CoreDeveloper):
             template_name = "job_detail_tw.html"
