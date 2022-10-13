@@ -1,24 +1,22 @@
 {% extends 'base-tw.html' %}
 
 {% block content %}
-<div class="container min-h-full px-4 py-16 sm:px-6 sm:py-24 md:grid md:place-items-center lg:px-8">
-  <div class="max-w-max mx-auto">
-    <div class="sm:flex">
-      <p class="text-4xl font-extrabold text-oxford-600 sm:text-5xl">{{ error_code }}</p>
-      <div class="sm:ml-6">
-        <div class="sm:border-l sm:border-slate-200 sm:pl-6">
-          <h1 class="text-4xl font-extrabold text-slate-900 tracking-tight sm:text-5xl">{{ error_name }}</h1>
-          <p class="mt-2 text-base text-slate-500">{{ error_message }}</p>
-        </div>
-        <div class="mt-10 flex flex-col gap-3 sm:flex-row sm:border-l sm:border-transparent sm:pl-6">
-          {% url 'home' as home_url %}
-          {% #button href=home_url type="link" variant="primary" %}
-            Go to the home page
-          {% /button %}
-          {% #button href="mailto:tech@opensafely.org" type="link" variant="secondary" %}
-            Contact support
-          {% /button %}
-        </div>
+<div class="min-h-full px-4 py-16 sm:px-6 sm:py-24 md:grid md:place-items-center lg:px-8">
+  <div class="sm:flex">
+    <p class="text-4xl font-extrabold text-oxford-600 sm:text-5xl">{{ error_code }}</p>
+    <div class="sm:ml-6">
+      <div class="sm:border-l sm:border-slate-200 sm:pl-6">
+        <h1 class="text-4xl font-extrabold text-slate-900 tracking-tight sm:text-5xl">{{ error_name }}</h1>
+        <p class="mt-2 text-base text-slate-500">{{ error_message }}</p>
+      </div>
+      <div class="mt-10 flex flex-col gap-3 sm:flex-row sm:border-l sm:border-transparent sm:pl-6">
+        {% url 'home' as home_url %}
+        {% #button href=home_url type="link" variant="primary" %}
+          Go to the home page
+        {% /button %}
+        {% #button href="mailto:tech@opensafely.org" type="link" variant="secondary" %}
+          Contact support
+        {% /button %}
       </div>
     </div>
   </div>
