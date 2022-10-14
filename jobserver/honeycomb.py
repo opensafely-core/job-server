@@ -1,3 +1,4 @@
+import json
 from datetime import timedelta
 
 from django.utils import timezone
@@ -11,17 +12,23 @@ def format_trace_id(trace_id):
     return f"{trace_id:032x}"
 
 
-def format_honeycomb_timestamps(job):
+def format_honeycomb_timestamps(job_like):
+    """Return UNIX timestamps for the start and end of a job-like.
+    Will accept a job or a job_request.
+    """
+
     # Add arbitrary small timedeltas to the start and end times.
     # If we use the exact start and end times of a job, we do not
     # reliably see the first and last honeycomb events relating to that job.
     # This could be due to clock skew, '>' rather than '>=' comparators
     # and/or other factors.
-    honeycomb_starttime_unix = int((job.created_at - timedelta(minutes=1)).timestamp())
+    honeycomb_starttime_unix = int(
+        (job_like.created_at - timedelta(minutes=1)).timestamp()
+    )
 
     honeycomb_endtime = timezone.now()
-    if job.completed_at is not None:
-        honeycomb_endtime = job.completed_at + timedelta(minutes=1)
+    if job_like.completed_at is not None:
+        honeycomb_endtime = job_like.completed_at + timedelta(minutes=1)
 
     honeycomb_endtime_unix = int(honeycomb_endtime.timestamp())
     return {
@@ -30,15 +37,19 @@ def format_honeycomb_timestamps(job):
     }
 
 
+def honeycomb_furl():
+    # TODO: make this configurable?
+    return furl(
+        "https://ui.honeycomb.io/bennett-institute-for-applied-data-science/environments/production/datasets/jobrunner"
+    )
+
+
 def format_trace_link(job):
     """Generate a url that links to the trace of a job in honeycomb"""
     if not job.trace_id:
         return None
 
-    # TODO: make this configurable?
-    jobs_honeycomb_url = furl(
-        "https://ui.honeycomb.io/bennett-institute-for-applied-data-science/environments/production/datasets/jobrunner"
-    )
+    jobs_honeycomb_url = honeycomb_furl()
     trace_link = jobs_honeycomb_url / "trace"
     honeycomb_timestamps = format_honeycomb_timestamps(job)
     trace_link.add(
@@ -49,3 +60,36 @@ def format_trace_link(job):
         }
     )
     return trace_link.url
+
+
+def format_jobrequest_concurrency_link(job_request):
+    jobs_honeycomb_url = honeycomb_furl()
+
+    honeycomb_timestamps = format_honeycomb_timestamps(job_request)
+
+    query_json = {
+        "start_time": honeycomb_timestamps["honeycomb_starttime_unix"],
+        "end_time": honeycomb_timestamps["honeycomb_endtime_unix"],
+        "granularity": 0,
+        "breakdowns": ["name"],
+        "calculations": [{"op": "CONCURRENCY"}],
+        "filters": [
+            {"column": "enter_state", "op": "!=", "value": "true"},
+            {"column": "name", "op": "!=", "value": "RUN"},
+            {"column": "name", "op": "!=", "value": "JOB"},
+            {"column": "name", "op": "!=", "value": "job"},
+            {"column": "job_request", "op": "=", "value": job_request.identifier},
+        ],
+        "filter_combination": "AND",
+        "orders": [{"op": "CONCURRENCY", "order": "descending"}],
+        "havings": [],
+        "limit": 1000,
+    }
+
+    jobs_honeycomb_url.add(
+        {
+            "query": json.dumps(query_json, separators=(",", ":")),
+        }
+    )
+
+    return jobs_honeycomb_url.url

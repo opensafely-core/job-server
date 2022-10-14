@@ -1,5 +1,4 @@
 import functools
-from datetime import timedelta
 
 from django.conf import settings
 from django.contrib import messages
@@ -9,7 +8,6 @@ from django.db.models import Q
 from django.http import Http404
 from django.shortcuts import get_object_or_404, redirect
 from django.template.response import TemplateResponse
-from django.utils import timezone
 from django.utils.safestring import mark_safe
 from django.views.generic import CreateView, ListView, RedirectView, View
 from django.views.generic.edit import FormMixin
@@ -20,6 +18,7 @@ from ..authorization import CoreDeveloper, has_permission, has_role
 from ..backends import backends_to_choices
 from ..forms import JobRequestCreateForm, JobRequestSearchForm
 from ..github import _get_github_api
+from ..honeycomb import format_jobrequest_concurrency_link
 from ..models import Backend, JobRequest, User, Workspace
 from ..pipeline_config import get_actions, get_project, render_definition
 from ..utils import raise_if_not_int
@@ -206,16 +205,9 @@ class JobRequestDetail(View):
             )
         )
 
-        honeycomb_context_starttime = job_request.created_at - timedelta(days=2)
-
-        honeycomb_context_endtime = timezone.now()
-        if job_request.completed_at is not None:
-            honeycomb_context_endtime = job_request.completed_at + timedelta(days=2)
-
         context = {
             "honeycomb_can_view_links": honeycomb_can_view_links,
-            "honeycomb_context_starttime": honeycomb_context_starttime,
-            "honeycomb_context_endtime": honeycomb_context_endtime,
+            "honeycomb_links": {},
             "job_request": job_request,
             "project_definition": project_definition,
             "project_yaml_url": job_request.get_file_url("project.yaml"),
@@ -223,6 +215,12 @@ class JobRequestDetail(View):
             "user_can_cancel_jobs": can_cancel_jobs,
             "view": self,
         }
+
+        if honeycomb_can_view_links:
+            context["honeycomb_links"][
+                "Job Request concurrency"
+            ] = format_jobrequest_concurrency_link(job_request)
+
         return TemplateResponse(request, "job_request_detail.html", context=context)
 
 
