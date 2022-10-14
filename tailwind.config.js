@@ -179,6 +179,7 @@ module.exports = {
       transitionProperty: {
         scale: "transform",
         "scale-opacity": "transform, opacity",
+        buttons: "background-color, box-shadow, color",
       },
     },
   },
