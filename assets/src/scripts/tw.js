@@ -55,8 +55,3 @@ document.addEventListener("alpine:init", () => {
 
 window.Alpine = Alpine;
 window.Alpine.start();
-
-// Remove no-transition class after page load
-document
-  .querySelectorAll(".no-transition")
-  .forEach((item) => item.classList.remove("no-transition"));

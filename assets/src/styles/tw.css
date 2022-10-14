@@ -2,11 +2,6 @@
 @tailwind components;
 @tailwind utilities;
 
-.js .no-transition,
-.js .no-transition * {
-  transition-duration: 0ms !important;
-}
-
 summary.list-none::-webkit-details-marker {
   @apply hidden;
 }
