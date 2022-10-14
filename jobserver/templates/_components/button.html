@@ -11,7 +11,7 @@
 {% endif %}
 
     class="
-      inline-flex items-center justify-center px-4 py-2 border border-transparent text-sm font-medium rounded-md shadow-sm text-white no-transition transition-all duration-200
+      inline-flex items-center justify-center px-4 py-2 border border-transparent text-sm font-medium rounded-md shadow-sm text-white transition-buttons duration-200
       {% if disabled %}
         cursor-not-allowed bg-slate-300 text-slate-800
       {% elif variant == "primary" %}
@@ -29,7 +29,7 @@
       {% endif %}
 
       {% if not disabled %}
-        hover:scale-105 hover:shadow-lg
+        hover:shadow-lg
         focus:outline-none focus:ring-2 focus:ring-offset-2
       {% endif %}
 
