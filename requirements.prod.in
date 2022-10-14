@@ -24,7 +24,7 @@ pybadges
 pydantic
 pygments
 python-ulid
-opentelemetry-exporter-otlp
+opentelemetry-exporter-otlp-proto-http
 opentelemetry-instrumentation-django
 opentelemetry-instrumentation-requests
 opentelemetry-instrumentation-psycopg2
