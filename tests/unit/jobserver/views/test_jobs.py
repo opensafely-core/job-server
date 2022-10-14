@@ -175,11 +175,13 @@ def test_jobdetail_with_core_developer_no_trace(rf):
     assert response.status_code == 200
     assert "Cancel" not in response.rendered_content
     assert "Honeycomb" not in response.rendered_content
+    assert "Job Trace" not in response.rendered_content
 
 
 @pytest.mark.freeze_time("2022-06-16 12:00")
 def test_jobdetail_with_core_developer(rf):
-    job = JobFactory()
+    job_request = JobRequestFactory()
+    job = JobFactory(job_request=job_request)
     user = UserFactory(roles=[CoreDeveloper])
 
     request = rf.get("/")
@@ -198,11 +200,15 @@ def test_jobdetail_with_core_developer(rf):
     assert "Cancel" not in response.rendered_content
     assert "Honeycomb" in response.rendered_content
     assert "trace_end_ts=1655380800" in response.rendered_content
+    assert "Job Request concurrency" in response.rendered_content
+    assert job_request.identifier in response.rendered_content
 
 
 @pytest.mark.freeze_time("2022-06-15 13:00")
 def test_jobdetail_with_core_developer_with_completed_at(rf):
-    job = JobFactory(completed_at=timezone.now())
+    job_request = JobRequestFactory()
+    job = JobFactory(job_request=job_request, completed_at=timezone.now())
+
     user = UserFactory(roles=[CoreDeveloper])
 
     request = rf.get("/")
@@ -220,7 +226,10 @@ def test_jobdetail_with_core_developer_with_completed_at(rf):
     assert response.status_code == 200
     assert "Cancel" not in response.rendered_content
     assert "Honeycomb" in response.rendered_content
+    assert "Job Trace" in response.rendered_content
     assert "trace_end_ts=1655298060" in response.rendered_content
+    assert "Job Request concurrency" in response.rendered_content
+    assert job_request.identifier in response.rendered_content
 
 
 def test_jobdetail_with_job_creator(rf):

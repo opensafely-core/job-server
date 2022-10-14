@@ -5,8 +5,8 @@ from django.template.response import TemplateResponse
 from django.views.generic import RedirectView, View
 
 from ..authorization import CoreDeveloper, has_permission, has_role
-from ..honeycomb import format_trace_link
-from ..models import Job
+from ..honeycomb import format_jobrequest_concurrency_link, format_trace_link
+from ..models import Job, JobRequest
 
 
 class JobCancel(View):
@@ -63,6 +63,18 @@ class JobDetail(View):
         honeycomb_trace_link = format_trace_link(job)
         if honeycomb_can_view_links and honeycomb_trace_link:
             context["honeycomb_links"]["Job Trace"] = honeycomb_trace_link
+
+            # Look this up manually, because if we use job.job_request, the
+            # JobRequest will not have prefetched all associated Jobs, and
+            # we will be unable to use JobRequest.completed_at (as it relies on
+            # JobRequest.status)
+            related_job_request = JobRequest.objects.filter(
+                jobs__identifier=job.identifier
+            ).first()
+
+            context["honeycomb_links"][
+                "Job Request concurrency"
+            ] = format_jobrequest_concurrency_link(related_job_request)
 
         if has_role(request.user, CoreDeveloper):
             template_name = "job_detail_tw.html"
