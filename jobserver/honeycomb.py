@@ -27,6 +27,10 @@ def format_honeycomb_timestamps(job_like):
     )
 
     honeycomb_endtime = timezone.now()
+
+    if job_like.status not in ["failed", "succeeded"]:
+        honeycomb_endtime = timezone.now() + timedelta(days=1)
+
     if job_like.completed_at is not None:
         honeycomb_endtime = job_like.completed_at + timedelta(minutes=1)
 

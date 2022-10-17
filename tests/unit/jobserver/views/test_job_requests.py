@@ -662,6 +662,9 @@ def test_jobrequestdetail_with_permission(rf):
 @pytest.mark.freeze_time("2022-06-16 12:00")
 def test_jobrequestdetail_with_permission_core_developer(rf):
     job_request = JobRequestFactory()
+    job = JobFactory(  # noqa: F841
+        job_request=job_request, completed_at=timezone.now(), status="succeeded"
+    )
 
     user = UserFactory(roles=[CoreDeveloper])
 
@@ -678,7 +681,7 @@ def test_jobrequestdetail_with_permission_core_developer(rf):
 
     assert response.status_code == 200
     assert "Honeycomb" in response.rendered_content
-    assert "%22end_time%22%3A1655380800%2C" in response.rendered_content
+    assert "%22end_time%22%3A1655380860%2C" in response.rendered_content
 
 
 def test_jobrequestdetail_with_permission_with_completed_at(rf):
