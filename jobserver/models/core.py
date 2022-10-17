@@ -437,12 +437,6 @@ class Project(models.Model):
         on_delete=models.SET_NULL,
         related_name="copiloted_projects",
     )
-    created_by = models.ForeignKey(
-        "User",
-        null=True,
-        on_delete=models.SET_NULL,
-        related_name="created_projects",
-    )
 
     org = models.ForeignKey(
         "Org",
@@ -457,6 +451,20 @@ class Project(models.Model):
     copilot_support_ends_at = models.DateTimeField(null=True)
 
     created_at = models.DateTimeField(default=timezone.now)
+    created_by = models.ForeignKey(
+        "User",
+        null=True,
+        on_delete=models.SET_NULL,
+        related_name="created_projects",
+    )
+
+    updated_at = models.DateTimeField(auto_now=True)
+    updated_by = models.ForeignKey(
+        "User",
+        on_delete=models.PROTECT,
+        related_name="projects_updated",
+        null=True,
+    )
 
     class Meta:
         # only consider uniqueness of number when it's not null
