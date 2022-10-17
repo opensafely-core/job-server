@@ -9,6 +9,7 @@ from jobserver.honeycomb import (
     format_trace_id,
     format_trace_link,
 )
+from jobserver.models import JobRequest
 
 from ...factories import JobFactory, JobRequestFactory
 
@@ -26,11 +27,41 @@ def test_format_trace_id_hexadecimal_leading_zeros():
 
 
 @pytest.mark.freeze_time("2022-06-15 13:00")
-def test_format_honeycomb_timestamps():
-    job = JobFactory(completed_at=timezone.now())
+def test_format_honeycomb_timestamps_job():
+    job = JobFactory(completed_at=timezone.now(), status="succeeded")
     honeycomb_timestamps = format_honeycomb_timestamps(job)
     assert honeycomb_timestamps["honeycomb_starttime_unix"] == 1655297940
     assert honeycomb_timestamps["honeycomb_endtime_unix"] == 1655298060
+
+
+@pytest.mark.freeze_time("2022-06-15 13:00")
+def test_format_honeycomb_timestamps_jobrequest():
+    job_request = JobRequestFactory()
+    job = JobFactory(  # noqa: F841
+        job_request=job_request, completed_at=timezone.now(), status="succeeded"
+    )
+    prefetched_job_request = JobRequest.objects.filter(
+        identifier=job_request.identifier
+    ).first()
+
+    honeycomb_timestamps = format_honeycomb_timestamps(prefetched_job_request)
+    assert honeycomb_timestamps["honeycomb_starttime_unix"] == 1655297940
+    # 1 minute in the future
+    assert honeycomb_timestamps["honeycomb_endtime_unix"] == 1655298060
+
+
+@pytest.mark.freeze_time("2022-06-15 13:00")
+def test_format_honeycomb_timestamps_jobrequest_unfinished():
+    job_request = JobRequestFactory()
+    job = JobFactory(job_request=job_request, status="executing")  # noqa: F841
+    prefetched_job_request = JobRequest.objects.filter(
+        identifier=job_request.identifier
+    ).first()
+
+    honeycomb_timestamps = format_honeycomb_timestamps(prefetched_job_request)
+    assert honeycomb_timestamps["honeycomb_starttime_unix"] == 1655297940
+    # 1 day in the future
+    assert honeycomb_timestamps["honeycomb_endtime_unix"] == 1655384400
 
 
 @pytest.mark.freeze_time("2022-06-15 13:00")
@@ -44,8 +75,29 @@ def test_format_trace_link():
 @pytest.mark.freeze_time("2022-10-12 17:00")
 def test_format_jobrequest_concurrency_link():
     job_request = JobRequestFactory(identifier="jpbaeldzjqqiaolg")
+    job = JobFactory(  # noqa: F841
+        job_request=job_request, completed_at=timezone.now(), status="succeeded"
+    )
+    prefetched_job_request = JobRequest.objects.filter(
+        identifier=job_request.identifier
+    ).first()
 
-    url = format_jobrequest_concurrency_link(job_request)
-    expected_url = "https://ui.honeycomb.io/bennett-institute-for-applied-data-science/environments/production/datasets/jobrunner?query=%7B%22start_time%22%3A1665593940%2C%22end_time%22%3A1665594000%2C%22granularity%22%3A0%2C%22breakdowns%22%3A%5B%22name%22%5D%2C%22calculations%22%3A%5B%7B%22op%22%3A%22CONCURRENCY%22%7D%5D%2C%22filters%22%3A%5B%7B%22column%22%3A%22enter_state%22%2C%22op%22%3A%22!%3D%22%2C%22value%22%3A%22true%22%7D%2C%7B%22column%22%3A%22name%22%2C%22op%22%3A%22!%3D%22%2C%22value%22%3A%22RUN%22%7D%2C%7B%22column%22%3A%22name%22%2C%22op%22%3A%22!%3D%22%2C%22value%22%3A%22JOB%22%7D%2C%7B%22column%22%3A%22name%22%2C%22op%22%3A%22!%3D%22%2C%22value%22%3A%22job%22%7D%2C%7B%22column%22%3A%22job_request%22%2C%22op%22%3A%22%3D%22%2C%22value%22%3A%22jpbaeldzjqqiaolg%22%7D%5D%2C%22filter_combination%22%3A%22AND%22%2C%22orders%22%3A%5B%7B%22op%22%3A%22CONCURRENCY%22%2C%22order%22%3A%22descending%22%7D%5D%2C%22havings%22%3A%5B%5D%2C%22limit%22%3A1000%7D"
+    url = format_jobrequest_concurrency_link(prefetched_job_request)
+    expected_url = "https://ui.honeycomb.io/bennett-institute-for-applied-data-science/environments/production/datasets/jobrunner?query=%7B%22start_time%22%3A1665593940%2C%22end_time%22%3A1665594060%2C%22granularity%22%3A0%2C%22breakdowns%22%3A%5B%22name%22%5D%2C%22calculations%22%3A%5B%7B%22op%22%3A%22CONCURRENCY%22%7D%5D%2C%22filters%22%3A%5B%7B%22column%22%3A%22enter_state%22%2C%22op%22%3A%22!%3D%22%2C%22value%22%3A%22true%22%7D%2C%7B%22column%22%3A%22name%22%2C%22op%22%3A%22!%3D%22%2C%22value%22%3A%22RUN%22%7D%2C%7B%22column%22%3A%22name%22%2C%22op%22%3A%22!%3D%22%2C%22value%22%3A%22JOB%22%7D%2C%7B%22column%22%3A%22name%22%2C%22op%22%3A%22!%3D%22%2C%22value%22%3A%22job%22%7D%2C%7B%22column%22%3A%22job_request%22%2C%22op%22%3A%22%3D%22%2C%22value%22%3A%22jpbaeldzjqqiaolg%22%7D%5D%2C%22filter_combination%22%3A%22AND%22%2C%22orders%22%3A%5B%7B%22op%22%3A%22CONCURRENCY%22%2C%22order%22%3A%22descending%22%7D%5D%2C%22havings%22%3A%5B%5D%2C%22limit%22%3A1000%7D"
 
+    assert "start_time%22%3A1665593940" in url
+    assert "end_time%22%3A1665594060" in url
     assert unquote(url) == unquote(expected_url)
+
+
+@pytest.mark.freeze_time("2022-10-12 17:00")
+def test_format_jobrequest_concurrency_link_unfinished():
+    job_request = JobRequestFactory(identifier="jpbaeldzjqqiaolg")
+    job = JobFactory(job_request=job_request, status="executing")  # noqa: F841
+    prefetched_job_request = JobRequest.objects.filter(
+        identifier=job_request.identifier
+    ).first()
+
+    url = format_jobrequest_concurrency_link(prefetched_job_request)
+    assert "start_time%22%3A1665593940" in url
+    assert "end_time%22%3A1665680400" in url
