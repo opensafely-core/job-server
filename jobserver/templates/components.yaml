@@ -6,6 +6,7 @@ components:
   card: "_components/card.html"
   description_item: "_components/description-item.html"
   footer: "_components/footer.html"
+  form_input: "_components/form/input.html"
   header: "_components/header.html"
   link: "_components/link.html"
   skip_link: "_components/skip-link.html"
