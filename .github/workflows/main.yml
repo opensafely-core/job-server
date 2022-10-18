@@ -46,7 +46,7 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-      - uses: actions/checkout@v2
+      - uses: actions/checkout@v3
       - uses: "actions/setup-python@v4"
         with:
           python-version: "3.10"
@@ -76,7 +76,7 @@ jobs:
           --health-retries 5
 
     steps:
-      - uses: actions/checkout@v2
+      - uses: actions/checkout@v3
       - uses: "actions/setup-python@v4"
         with:
           python-version: "3.10"
@@ -106,7 +106,7 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-      - uses: actions/checkout@v2
+      - uses: actions/checkout@v3
       - uses: hadolint/hadolint-action@f988afea3da57ee48710a9795b6bb677cc901183
 
   deploy:
@@ -118,7 +118,7 @@ jobs:
     concurrency: deploy-production
 
     steps:
-      - uses: actions/checkout@v2
+      - uses: actions/checkout@v3
         with:
           fetch-depth: 0
 
