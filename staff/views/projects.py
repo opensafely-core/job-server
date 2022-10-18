@@ -114,7 +114,9 @@ class ProjectEdit(UpdateView):
         # mutation self.object under us
         old = self.get_object()
 
-        new = form.save()
+        new = form.save(commit=False)
+        new.updated_by = self.request.user
+        new.save()
 
         # check changed_data here instead of comparing self.object.project to
         # new.project because self.object is mutated when ModelForm._post_clean

@@ -87,6 +87,7 @@ class ApplicationApprove(FormView):
             name=project_name,
             number=project_number,
             created_by=self.request.user,
+            updated_by=self.request.user,
         )
 
         self.application.approved_at = timezone.now()

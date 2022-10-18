@@ -182,6 +182,7 @@ def test_applicationapprove_post_success(rf, core_developer, complete_applicatio
     assert complete_application.approved_by == core_developer
     assert complete_application.project
     assert complete_application.project.created_by == core_developer
+    assert complete_application.project.updated_by == core_developer
     assert complete_application.project.number == 42
 
 
