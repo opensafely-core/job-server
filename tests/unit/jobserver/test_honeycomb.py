@@ -61,7 +61,7 @@ def test_format_honeycomb_timestamps_jobrequest_unfinished():
     honeycomb_timestamps = format_honeycomb_timestamps(prefetched_job_request)
     assert honeycomb_timestamps["honeycomb_starttime_unix"] == 1655297940
     # 1 day in the future
-    assert honeycomb_timestamps["honeycomb_endtime_unix"] == 1655384400
+    assert honeycomb_timestamps["honeycomb_endtime_unix"] == 1655301600
 
 
 @pytest.mark.freeze_time("2022-06-15 13:00")
@@ -100,4 +100,4 @@ def test_format_jobrequest_concurrency_link_unfinished():
 
     url = format_jobrequest_concurrency_link(prefetched_job_request)
     assert "start_time%22%3A1665593940" in url
-    assert "end_time%22%3A1665680400" in url
+    assert "end_time%22%3A1665597600" in url
