@@ -48,7 +48,7 @@
 </div>
 
 {% if job.is_missing_updates %}
-  {% #alert variant="warning" title="Attention needed" %}
+  {% #alert variant="warning" title="Attention needed" class="mt-4" %}
     This Job has not been updated for over 30 minutes, some of the data on this page could be stale.
   {% /alert %}
 {% endif %}
@@ -165,7 +165,6 @@
                 </li>
             {% endfor %}
         </ul>
-      </section>
       {% /card %}
     {% endif %}
   </div>
