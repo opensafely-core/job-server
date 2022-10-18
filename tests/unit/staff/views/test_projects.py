@@ -181,6 +181,7 @@ def test_projectedit_post_success(rf, core_developer):
     assert updated.number == 456
     assert updated.copilot == new_copilot
     assert updated.org == new_org
+    assert updated.updated_by == core_developer
 
     Redirect.objects.count() == 1
     redirect = Redirect.objects.first()
