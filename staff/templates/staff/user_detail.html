@@ -33,6 +33,15 @@
         {{ user.get_full_name }}
       </li>
       {% endif %}
+
+      <li>
+        {% if user.notifications_email %}
+        {{ user.notifications_email }}
+        {% else %}
+        {{ user.email }}
+        {% endif %}
+      </li>
+
       <li>
         <strong>Created at:</strong> {{ user.date_joined }}
       </li>
