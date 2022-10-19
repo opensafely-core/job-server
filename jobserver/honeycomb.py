@@ -93,6 +93,7 @@ def format_jobrequest_concurrency_link(job_request):
     jobs_honeycomb_url.add(
         {
             "query": json.dumps(query_json, separators=(",", ":")),
+            "useStackedGraphs": None,
         }
     )
 

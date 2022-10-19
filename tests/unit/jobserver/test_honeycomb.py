@@ -83,10 +83,11 @@ def test_format_jobrequest_concurrency_link():
     ).first()
 
     url = format_jobrequest_concurrency_link(prefetched_job_request)
-    expected_url = "https://ui.honeycomb.io/bennett-institute-for-applied-data-science/environments/production/datasets/jobrunner?query=%7B%22start_time%22%3A1665593940%2C%22end_time%22%3A1665594060%2C%22granularity%22%3A0%2C%22breakdowns%22%3A%5B%22name%22%5D%2C%22calculations%22%3A%5B%7B%22op%22%3A%22CONCURRENCY%22%7D%5D%2C%22filters%22%3A%5B%7B%22column%22%3A%22enter_state%22%2C%22op%22%3A%22!%3D%22%2C%22value%22%3A%22true%22%7D%2C%7B%22column%22%3A%22name%22%2C%22op%22%3A%22!%3D%22%2C%22value%22%3A%22RUN%22%7D%2C%7B%22column%22%3A%22name%22%2C%22op%22%3A%22!%3D%22%2C%22value%22%3A%22JOB%22%7D%2C%7B%22column%22%3A%22name%22%2C%22op%22%3A%22!%3D%22%2C%22value%22%3A%22job%22%7D%2C%7B%22column%22%3A%22job_request%22%2C%22op%22%3A%22%3D%22%2C%22value%22%3A%22jpbaeldzjqqiaolg%22%7D%5D%2C%22filter_combination%22%3A%22AND%22%2C%22orders%22%3A%5B%7B%22op%22%3A%22CONCURRENCY%22%2C%22order%22%3A%22descending%22%7D%5D%2C%22havings%22%3A%5B%5D%2C%22limit%22%3A1000%7D"
+    expected_url = "https://ui.honeycomb.io/bennett-institute-for-applied-data-science/environments/production/datasets/jobrunner?query=%7B%22start_time%22%3A1665593940%2C%22end_time%22%3A1665594060%2C%22granularity%22%3A0%2C%22breakdowns%22%3A%5B%22name%22%5D%2C%22calculations%22%3A%5B%7B%22op%22%3A%22CONCURRENCY%22%7D%5D%2C%22filters%22%3A%5B%7B%22column%22%3A%22enter_state%22%2C%22op%22%3A%22!%3D%22%2C%22value%22%3A%22true%22%7D%2C%7B%22column%22%3A%22name%22%2C%22op%22%3A%22!%3D%22%2C%22value%22%3A%22RUN%22%7D%2C%7B%22column%22%3A%22name%22%2C%22op%22%3A%22!%3D%22%2C%22value%22%3A%22JOB%22%7D%2C%7B%22column%22%3A%22name%22%2C%22op%22%3A%22!%3D%22%2C%22value%22%3A%22job%22%7D%2C%7B%22column%22%3A%22job_request%22%2C%22op%22%3A%22%3D%22%2C%22value%22%3A%22jpbaeldzjqqiaolg%22%7D%5D%2C%22filter_combination%22%3A%22AND%22%2C%22orders%22%3A%5B%7B%22op%22%3A%22CONCURRENCY%22%2C%22order%22%3A%22descending%22%7D%5D%2C%22havings%22%3A%5B%5D%2C%22limit%22%3A1000%7D&useStackedGraphs"
 
     assert "start_time%22%3A1665593940" in url
     assert "end_time%22%3A1665594060" in url
+    assert "useStackedGraphs" in url
     assert unquote(url) == unquote(expected_url)
 
 
