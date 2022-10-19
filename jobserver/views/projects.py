@@ -2,11 +2,12 @@ import concurrent
 import operator
 
 import requests
+from django.core.exceptions import PermissionDenied
 from django.db.models import Min, OuterRef, Subquery
 from django.db.models.functions import Least, Lower
 from django.shortcuts import get_object_or_404
 from django.template.response import TemplateResponse
-from django.views.generic import View
+from django.views.generic import UpdateView, View
 from furl import furl
 
 from ..authorization import has_permission
@@ -34,6 +35,8 @@ class ProjectDetail(View):
             request.user, "workspace_create", project=project
         )
 
+        is_member = project.members.filter(username=request.user.username).exists()
+
         memberships = project.memberships.select_related("user").order_by(
             Lower("user__fullname"), "user__username"
         )
@@ -59,6 +62,7 @@ class ProjectDetail(View):
         context = {
             "can_create_workspaces": can_create_workspaces,
             "first_job_ran_at": first_job_ran_at,
+            "is_member": is_member,
             "memberships": memberships,
             "outputs": self.get_outputs(workspaces),
             "project": project,
@@ -114,3 +118,27 @@ class ProjectDetail(View):
 
         # use the threadpool to parallelise the repo requests
         yield from repo_thread_pool.map(get_repo, repo_urls, timeout=30)
+
+
+class ProjectEdit(UpdateView):
+    fields = [
+        "status",
+        "status_description",
+    ]
+    model = Project
+    template_name = "project_edit.html"
+
+    def get_object(self):
+        project = get_object_or_404(
+            Project,
+            org__slug=self.kwargs["org_slug"],
+            slug=self.kwargs["project_slug"],
+        )
+
+        if not project.members.filter(username=self.request.user.username).exists():
+            raise PermissionDenied
+
+        return project
+
+    def get_success_url(self):
+        return self.object.get_absolute_url()

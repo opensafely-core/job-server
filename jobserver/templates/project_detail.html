@@ -37,6 +37,9 @@
         the "logs" buttons below to explore more.
       {% endif %}
     </p>
+    {% if is_member %}
+    <a class="btn btn-primary" href="{{ project.get_edit_url }}">Edit</a>
+    {% endif %}
 
     {% if project.slug == "opensafely-testing" %}
     <div class="alert alert-warning mt-3" role="warning">

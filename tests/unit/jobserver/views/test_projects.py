@@ -1,19 +1,21 @@
 import pytest
 import requests
 from django.contrib.auth.models import AnonymousUser
+from django.core.exceptions import PermissionDenied
 from django.http import Http404
 from django.utils import timezone
 
 from jobserver.authorization import CoreDeveloper
-from jobserver.models import Snapshot
+from jobserver.models import Project, Snapshot
 from jobserver.utils import set_from_qs
-from jobserver.views.projects import ProjectDetail
+from jobserver.views.projects import ProjectDetail, ProjectEdit
 
 from ....factories import (
     JobFactory,
     JobRequestFactory,
     OrgFactory,
     ProjectFactory,
+    ProjectMembershipFactory,
     RepoFactory,
     SnapshotFactory,
     UserFactory,
@@ -175,3 +177,80 @@ def test_projectdetail_unknown_project(rf):
 
     with pytest.raises(Http404):
         ProjectDetail.as_view()(request, org_slug=org.slug, project_slug="test")
+
+
+def test_projectedit_get_success(rf):
+    project = ProjectFactory()
+
+    user = UserFactory()
+    ProjectMembershipFactory(project=project, user=user)
+
+    request = rf.get("/")
+    request.user = user
+
+    response = ProjectEdit.as_view()(
+        request, org_slug=project.org.slug, project_slug=project.slug
+    )
+
+    assert response.status_code == 200
+
+
+def test_projectedit_post_success(rf):
+    project = ProjectFactory(status=Project.Statuses.POSTPONED)
+
+    user = UserFactory()
+    ProjectMembershipFactory(project=project, user=user)
+
+    data = {
+        "status": Project.Statuses.ONGOING,
+        "status_description": "test",
+    }
+    request = rf.post("/", data=data)
+    request.user = user
+
+    response = ProjectEdit.as_view()(
+        request, org_slug=project.org.slug, project_slug=project.slug
+    )
+
+    assert response.status_code == 302
+    assert response.url == project.get_absolute_url()
+
+    project.refresh_from_db()
+    assert project.status == Project.Statuses.ONGOING
+    assert project.status_description == "test"
+
+
+def test_projectedit_unknown_org(rf):
+    project = ProjectFactory()
+
+    request = rf.get("/")
+    request.user = UserFactory()
+
+    with pytest.raises(Http404):
+        ProjectEdit.as_view()(request, org_slug="test", project_slug=project.slug)
+
+
+def test_projectedit_unknown_project(rf):
+    org = OrgFactory()
+
+    request = rf.get("/")
+    request.user = UserFactory()
+
+    with pytest.raises(Http404):
+        ProjectEdit.as_view()(request, org_slug=org.slug, project_slug="test")
+
+
+@pytest.mark.parametrize("user", [UserFactory, AnonymousUser])
+def test_projectedit_without_permissions(rf, user):
+    project = ProjectFactory()
+
+    request = rf.get("/")
+    # instantiate here because pytest-django disables db access by default and
+    # our global fixture to re-enable it doesn't trigger early enough for the
+    # parametrize call
+    request.user = user()
+
+    with pytest.raises(PermissionDenied):
+        ProjectEdit.as_view()(
+            request, org_slug=project.org.slug, project_slug=project.slug
+        )

@@ -496,6 +496,12 @@ class Project(models.Model):
         )
 
     def get_edit_url(self):
+        return reverse(
+            "project-edit",
+            kwargs={"org_slug": self.org.slug, "project_slug": self.slug},
+        )
+
+    def get_staff_edit_url(self):
         return reverse("staff:project-edit", kwargs={"slug": self.slug})
 
     def get_releases_url(self):
