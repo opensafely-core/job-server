@@ -1,6 +1,5 @@
 <div {% attrs class %}>
   <label
-    {% attrs class=label_class name=id %}
     class="inline-block font-semibold text-slate-900 cursor-pointer"
     for="{{ field.id_for_label }}"
   >
@@ -16,7 +15,7 @@
 
   <div class="relative">
     <input
-      {% attrs autocapitalize autocomplete autocorrect class=input_class inputmode name=field.html_name required value=field.value %}
+      {% attrs autocapitalize autocomplete autocorrect inputmode name=field.html_name required value=field.value %}
       class="mt-1 block w-full rounded-md border-slate-300 text-slate-900 shadow-sm focus:border-oxford-500 focus:ring-oxford-500 sm:text-sm invalid:border-bn-ribbon-600 invalid:ring-bn-ribbon-600 invalid:ring-1"
       id="{{ field.auto_id }}"
       type="{% if type %}{{ type }}{% else %}text{% endif %}"
