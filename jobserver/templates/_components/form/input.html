@@ -13,9 +13,16 @@
     {% endif %}
   </label>
   <input
-    {% attrs class=input_class name required type value %}
+    {% attrs class=input_class name required value %}
+
     class="mt-1 block w-full rounded-md border-slate-300 text-slate-900 shadow-sm focus:border-oxford-500 focus:ring-oxford-500 sm:text-sm invalid:border-bn-ribbon-700 invalid:ring-bn-ribbon-700 invalid:ring-1"
     id="id_{{ name }}"
     name="{{ name }}"
+
+    {% if type %}
+      type="{{ type }}"
+    {% else %}
+      type="text"
+    {% endif %}
   >
 </div>
