@@ -1,7 +1,6 @@
 {% extends "base.html" %}
 
 {% load humanize %}
-{% load status_tools %}
 
 {% block extra_meta %}
 <meta property="og:title" content="Action: {{ job.action }}" />
@@ -113,7 +112,14 @@
             </p>
           {% endif %}
 
-          {% status_hint job %}
+          {% if log_path %}
+          <small class="d-block mb-1">
+            The job exited with an error. You can check the log output by logging
+            into the {job.job_request.backend.name} server and looking at:
+          </small>
+
+          <pre>{{ log_path }}</pre>
+          {% endif %}
         </div>
       </section>
 
