@@ -19,6 +19,7 @@ from django.utils.text import slugify
 from environs import Env
 from furl import furl
 from opentelemetry.trace import propagation
+from opentelemetry.trace.propagation import tracecontext
 from sentry_sdk import capture_message
 
 from ..authorization.fields import RolesField
@@ -155,7 +156,7 @@ class Job(models.Model):
             return None  # pragma: no cover
 
         # this rediculous dance is just because of OTel spec silliness
-        ctx = propagation.tracecontext.TraceContextTextMapPropagator().extract(
+        ctx = tracecontext.TraceContextTextMapPropagator().extract(
             carrier=self.trace_context
         )
         span_ctx = propagation.get_current_span(ctx).get_span_context()
