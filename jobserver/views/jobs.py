@@ -1,3 +1,5 @@
+import os
+
 from django.core.exceptions import MultipleObjectsReturned
 from django.http import Http404
 from django.shortcuts import get_object_or_404, redirect
@@ -52,8 +54,23 @@ class JobDetail(View):
 
         honeycomb_can_view_links = has_role(self.request.user, CoreDeveloper)
 
+        # we need all HTML to be in HTML files, so we built this here and make
+        # use of it in the template rather than looking it up with a templatetag
+        # (previously status_tools).  It isn't ideal to have here but until we
+        # have more than one backend-specific error code it makes sense to keep
+        # things together.
+        log_path = ""
+        if job.job_request.backend.slug == "tpp" and job.status_code == "nonzero_exit":
+            log_path = os.path.join(
+                job.job_request.backend.parent_directory,
+                job.job_request.workspace.name,
+                "metadata",
+                f"{job.action}.log",
+            )
+
         context = {
             "job": job,
+            "log_path": log_path,
             "object": job,
             "user_can_cancel_jobs": can_cancel_jobs,
             "view": self,

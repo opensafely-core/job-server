@@ -7,6 +7,7 @@ from jobserver.authorization import CoreDeveloper, ProjectDeveloper
 from jobserver.views.jobs import JobCancel, JobDetail, JobDetailRedirect
 
 from ....factories import (
+    BackendFactory,
     JobFactory,
     JobRequestFactory,
     ProjectMembershipFactory,
@@ -253,6 +254,32 @@ def test_jobdetail_with_job_creator(rf):
 
     assert response.status_code == 200
     assert "Cancel" in response.rendered_content
+
+
+def test_jobdetail_with_nonzero_exit_code(rf):
+    backend = BackendFactory(slug="tpp", parent_directory="/var/test")
+    job_request = JobRequestFactory(backend=backend)
+    job = JobFactory(
+        job_request=job_request, action="my_action", status_code="nonzero_exit"
+    )
+
+    request = rf.get("/")
+    request.user = UserFactory()
+
+    response = JobDetail.as_view()(
+        request,
+        org_slug=job.job_request.workspace.project.org.slug,
+        project_slug=job.job_request.workspace.project.slug,
+        workspace_slug=job.job_request.workspace.name,
+        pk=job.job_request.pk,
+        identifier=job.identifier,
+    )
+
+    assert response.status_code == 200
+    assert (
+        response.context_data["log_path"]
+        == f"/var/test/{job_request.workspace.name}/metadata/my_action.log"
+    )
 
 
 def test_jobdetail_with_partial_identifier_failure(rf):

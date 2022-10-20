@@ -1,7 +1,6 @@
 {% extends "base-tw.html" %}
 
 {% load humanize %}
-{% load status_tools %}
 
 {% block extra_meta %}
 <meta property="og:title" content="Action: {{ job.action }}" />
@@ -129,7 +128,14 @@
           {% if job.action in job.job_request.cancelled_actions %}
             <p>A User has requested this Job is cancelled.</p>
           {% endif %}
-          {% status_hint job %}
+          {% if log_path %}
+          <small class="d-block mb-1">
+            The job exited with an error. You can check the log output by logging
+            into the {job.job_request.backend.name} server and looking at:
+          </small>
+
+          <pre>{{ log_path }}</pre>
+          {% endif %}
         {% /description_item %}
 
         {% #description_item title="Job identifier" %}
