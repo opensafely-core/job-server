@@ -2,8 +2,8 @@ import concurrent
 import operator
 
 import requests
-from django.db.models import OuterRef, Subquery
-from django.db.models.functions import Lower
+from django.db.models import Min, OuterRef, Subquery
+from django.db.models.functions import Least, Lower
 from django.shortcuts import get_object_or_404
 from django.template.response import TemplateResponse
 from django.views.generic import View
@@ -11,7 +11,7 @@ from furl import furl
 
 from ..authorization import has_permission
 from ..github import _get_github_api
-from ..models import Project, Snapshot
+from ..models import Job, Project, Snapshot
 
 
 # Create a global threadpool for getting repos.  This lets us have a single
@@ -45,8 +45,20 @@ class ProjectDetail(View):
         if request.user.is_authenticated:
             project_org_in_user_orgs = project.org in request.user.orgs.all()
 
+        job = (
+            Job.objects.filter(job_request__workspace__project=project)
+            .annotate(first_run=Min(Least("started_at", "created_at")))
+            .order_by("first_run")
+            .first()
+        )
+        if job:
+            first_job_ran_at = job.started_at or job.created_at
+        else:
+            first_job_ran_at = None
+
         context = {
             "can_create_workspaces": can_create_workspaces,
+            "first_job_ran_at": first_job_ran_at,
             "memberships": memberships,
             "outputs": self.get_outputs(workspaces),
             "project": project,

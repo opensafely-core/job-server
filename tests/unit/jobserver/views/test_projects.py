@@ -10,6 +10,8 @@ from jobserver.utils import set_from_qs
 from jobserver.views.projects import ProjectDetail
 
 from ....factories import (
+    JobFactory,
+    JobRequestFactory,
     OrgFactory,
     ProjectFactory,
     RepoFactory,
@@ -26,7 +28,9 @@ def test_projectdetail_success(rf, user):
     org = OrgFactory()
     project = ProjectFactory(org=org)
     repo = RepoFactory(url="https://github.com/opensafely/some-research")
-    WorkspaceFactory.create_batch(3, project=project, repo=repo)
+    workspace = WorkspaceFactory(project=project, repo=repo)
+    job_request = JobRequestFactory(workspace=workspace)
+    JobFactory(job_request=job_request, started_at=timezone.now())
 
     request = rf.get("/")
 
@@ -120,6 +124,21 @@ def test_projectdetail_with_no_github(rf):
     assert response.context_data["repos"][0]["is_private"] is None
     assert "Private" not in response.rendered_content
     assert "Public" not in response.rendered_content
+
+
+def test_projectdetail_with_no_jobs(rf):
+    project = ProjectFactory()
+
+    request = rf.get("/")
+    request.user = UserFactory()
+
+    response = ProjectDetail.as_view(get_github_api=FakeGitHubAPI)(
+        request, org_slug=project.org.slug, project_slug=project.slug
+    )
+
+    assert response.status_code == 200
+
+    assert response.context_data["first_job_ran_at"] is None
 
 
 def test_projectdetail_with_no_releases(rf):
