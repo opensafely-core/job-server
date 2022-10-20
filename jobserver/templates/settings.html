@@ -1,54 +1,39 @@
-{% extends "base.html" %}
+{% extends "base-tw.html" %}
+
+{% block metatitle %}Settings | OpenSAFELY Jobs{% endblock metatitle %}
 
 {% block breadcrumbs %}
-<nav class="breadcrumb-container" aria-label="breadcrumb">
-  <div class="container">
-    <ol class="breadcrumb rounded-0 mb-0 px-0">
-      <li class="breadcrumb-item">
-        <a href="/">Home</a>
-      </li>
-      <li class="breadcrumb-item">
-        {{ request.user.username }}
-      </li>
-      <li class="breadcrumb-item active" aria-current="page">
-        Settings
-      </li>
-    </ol>
-  </div>
-</nav>
+  {% #breadcrumbs %}
+    {% url 'home' as home_url %}
+    {% breadcrumb title="Home" url=home_url %}
+
+    {% url 'settings' as settings_url %}
+    {% breadcrumb location=settings_url title="Settings" active=True %}
+  {% /breadcrumbs %}
 {% endblock breadcrumbs %}
 
-{% block jumbotron %}
-<div class="jumbotron jumbotron-fluid pt-md-2">
-  <div class="container">
-    <h1 class="display-4">Settings</h1>
-  </div>
-</div>
-{% endblock jumbotron %}
-
 {% block content %}
-<div class="container">
-  <div class="row">
-    <div class="col-lg-9 col-xl-8">
+  <section class="grid md:grid-cols-3">
+    <h1 class="md:col-span-3 text-3xl break-all md:bread-words md:text-4xl font-bold text-slate-900">
+      Settings
+    </h1>
 
-      {% if not form.fullname.value %}
-      <div class="alert alert-warning">
+    {% if not form.fullname.value %}
+      {% #alert variant="warning" title="Update needed" class="md:col-span-2 mt-4" %}
         Your OpenSAFELY profile is missing information, please add your name to your account.
-      </div>
-      {% endif %}
+      {% /alert %}
+    {% endif %}
 
-      <form method="POST">
-        {% csrf_token %}
+    <form method="POST" class="md:col-span-2 mt-6">
+      {% csrf_token %}
 
-        {% include "components/form_text.html" with field=form.fullname label="Name" name="fullname" %}
-
-        {% include "components/form_text.html" with field=form.notifications_email label="Notification email" name="notifications_email" %}
-
-        <button class="btn btn-primary" type="submit">Save</button>
-
-      </form>
-
-    </div>
-  </div>
-</div>
+      {% #card title="Your account" class="w-full" container_class="flex flex-col gap-y-4 items-start" container=True %}
+        {% form_input autocapitalize="words" autocomplete="name" autocorrect="on" class="min-w-full" field=form.fullname label="Full name" required=True type="text" %}
+        {% form_input autocapitalize="off" autocomplete="email" autocorrect="off" class="min-w-full" field=form.notifications_email inputmode="email" required=True type="email" %}
+        {% #button type="submit" variant="primary" %}
+          Save your settings
+        {% /button %}
+      {% /card %}
+    </form>
+  </section>
 {% endblock %}
