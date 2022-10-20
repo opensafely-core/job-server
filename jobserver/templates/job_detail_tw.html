@@ -164,12 +164,12 @@
 
     {% if honeycomb_links %}
       {% #card title="Monitoring" subtitle="Honeycomb login required" container %}
-        <ul class="flow-root list-disc text-sm">
-            {% for name, link in honeycomb_links.items %}
-                <li class="ml-4">
-                    <a href="{{ link }}">{{ name }}</a>
-                </li>
-            {% endfor %}
+        <ul class="flex flex-col gap-y-1.5 list-disc text-sm">
+          {% for name, link in honeycomb_links.items %}
+            <li class="ml-4">
+              {% link href=link text=name new_tab=True %}
+            </li>
+          {% endfor %}
         </ul>
       {% /card %}
     {% endif %}
