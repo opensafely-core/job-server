@@ -122,13 +122,39 @@
 
         <li class="card mb-3">
           <h2 class="card-header h5">
-            Created
+            Timeline
           </h2>
-          <p class="card-body mb-0">
-            <time datetime="{{ project.created_at|date:"Y-m-d H:i:sO" }}" title="{{ project.created_at|date:"Y-m-d H:i:sO" }}">
-              {{ project.created_at|naturaltime }}
-            </time>
-          </p>
+          <div class="card-body mb-0">
+            <div class="mb-3">
+              <strong>Created:</strong>
+              <time datetime="{{ project.created_at|date:"Y-m-d H:i:sO" }}" title="{{ project.created_at|date:"Y-m-d H:i:sO" }}">
+                {{ project.created_at|naturaltime }}
+              </time>
+            </div>
+
+            <div class="mb-0">
+              <strong>Code first run:</strong>
+
+              {% if first_job_ran_at %}
+              <time datetime="{{ first_job_ran_at|date:"Y-m-d H:i:sO" }}" title="{{ first_job_ran_at|date:"Y-m-d H:i:sO" }}">
+                {{ first_job_ran_at|naturaltime }}
+              </time>
+              {% if first_job_ran_at < project.created_at %}
+              <details class="small mt-1">
+                <summary class="font-weight-bold text-primary">Why is this job older than the project?</summary>
+                <div class="pl-3">
+                  <p class="mb-0">
+                    The concept of projects were added to this site after
+                    workspaces, so some workspaces predate their projects.
+                  </p>
+                </div>
+              </details>
+              {% endif %}
+              {% else %}
+              No code has run yet.
+              {% endif %}
+            </div>
+          </div>
         </li>
 
         <li class="card mb-3">
