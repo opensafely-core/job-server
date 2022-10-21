@@ -1,0 +1,76 @@
+{% extends "base.html" %}
+
+{% load humanize %}
+
+{% block metatitle %}Edit {{ project.title }} | OpenSAFELY Jobs{% endblock metatitle %}
+
+{% block breadcrumbs %}
+<nav class="breadcrumb-container" aria-label="breadcrumb">
+  <div class="container">
+    <ol class="breadcrumb rounded-0 mb-0 px-0">
+      <li class="breadcrumb-item">
+        <a href="/">Home</a>
+      </li>
+      <li class="breadcrumb-item">
+        <a href="{{ project.org.get_absolute_url }}">
+          {{ project.org.name }}
+        </a>
+      </li>
+      <li class="breadcrumb-item">
+        <a href="{{ project.get_absolute_url }}">
+          {{ project.name }}
+        </a>
+      </li>
+      <li class="breadcrumb-item active" aria-current="page">
+        Edit
+      </li>
+    </ol>
+  </div>
+</nav>
+{% endblock breadcrumbs %}
+
+{% block jumbotron %}
+<div class="jumbotron jumbotron-fluid pt-md-2">
+  <div class="container">
+    <h1>Edit {{ project.title }}</h1>
+  </div>
+</div>
+{% endblock jumbotron %}
+
+{% block content %}
+<div class="container">
+  <div class="row">
+   <div class="mb-3 mb-lg-0 col-lg-8">
+     <form class="mb-3" method="POST">
+        {% csrf_token %}
+
+        <div class="form-group">
+          <label class="font-weight-bold" for="id_status">Status</label>
+
+          <select id="id_status" name="status" class="form-control">
+            {% for value, label in form.fields.status.choices %}
+            <option
+              value="{{ value }}"
+              {% if form.status.value|stringformat:"s" == value|stringformat:"s" %}selected{% endif %}
+            >
+              {{ label }}
+            </option>
+            {% endfor %}
+          </select>
+
+          {% for error in form.status.errors %}
+          <p class="text-danger">{{ error }}</p>
+          {% endfor %}
+        </div>
+
+        {% include "components/form_text.html" with field=form.status_description label="Status descriptionn" name="status_description" %}
+
+        <button class="btn btn-primary" type="submit">
+          Save
+        </button>
+      </form>
+    </div>
+
+  </div>
+</div>
+{% endblock %}

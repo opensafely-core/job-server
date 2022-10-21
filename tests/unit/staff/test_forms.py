@@ -1,4 +1,4 @@
-from jobserver.models import Backend, User
+from jobserver.models import Backend, Project, User
 from jobserver.utils import set_from_qs
 from staff.forms import (
     ApplicationApproveForm,
@@ -75,6 +75,7 @@ def test_projecteditform_number_is_not_required():
         "name": "Test",
         "slug": "test",
         "org": str(org.pk),
+        "status": Project.Statuses.RETIRED,
     }
 
     form = ProjectEditForm(data=data, users=users)

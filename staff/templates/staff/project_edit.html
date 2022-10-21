@@ -108,6 +108,31 @@
           {% endfor %}
         </div>
 
+        <div class="form-group">
+          <label class="font-weight-bold" for="id_status">Status</label>
+
+          <select id="id_status" name="status" class="form-control">
+            {% for value, label in form.fields.status.choices %}
+            <option
+              value="{{ value }}"
+              {% if form.status.value|stringformat:"s" == value|stringformat:"s" %}selected{% endif %}
+            >
+              {{ label }}
+            </option>
+            {% endfor %}
+          </select>
+
+          {% for error in form.status.errors %}
+          <p class="text-danger">{{ error }}</p>
+          {% endfor %}
+        </div>
+
+        <div class="form-group">
+          <label class="font-weight-bold" for="id_status_description">Status description</label>
+
+          <textarea name="status_description" class="form-control" id="id_status_description" rows="3">{{ project.status_description }}</textarea>
+        </div>
+
         <button class="btn btn-primary" type="submit">
           Save
         </button>

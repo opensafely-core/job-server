@@ -166,6 +166,8 @@ def test_projectedit_post_success(rf, core_developer):
         "copilot": str(new_copilot.pk),
         "copilot_support_ends_at": "",
         "org": str(new_org.pk),
+        "status": Project.Statuses.COMPLETED,
+        "status_description": "",
     }
     request = rf.post("/", data)
     request.user = core_developer
@@ -203,6 +205,8 @@ def test_projectedit_post_success_when_not_changing_org_or_slug(rf, core_develop
         "copilot": str(new_copilot.pk),
         "copilot_support_ends_at": "",
         "org": str(project.org.pk),
+        "status": Project.Statuses.POSTPONED,
+        "status_description": "",
     }
     request = rf.post("/", data)
     request.user = core_developer

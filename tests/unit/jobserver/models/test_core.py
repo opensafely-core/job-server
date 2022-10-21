@@ -534,6 +534,17 @@ def test_project_get_edit_url():
 
     url = project.get_edit_url()
 
+    assert url == reverse(
+        "project-edit",
+        kwargs={"org_slug": project.org.slug, "project_slug": project.slug},
+    )
+
+
+def test_project_get_staff_edit_url():
+    project = ProjectFactory()
+
+    url = project.get_staff_edit_url()
+
     assert url == reverse("staff:project-edit", kwargs={"slug": project.slug})
 
 

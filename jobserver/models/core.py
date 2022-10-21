@@ -432,6 +432,12 @@ class Project(models.Model):
     Papers which are produced as a result of the work.
     """
 
+    class Statuses(models.TextChoices):
+        ONGOING = "ongoing", "Ongoing"
+        COMPLETED = "completed", "Completed"
+        POSTPONED = "postponed", "Postponed"
+        RETIRED = "retired", "Retired"
+
     copilot = models.ForeignKey(
         "User",
         null=True,
@@ -450,6 +456,9 @@ class Project(models.Model):
     number = models.IntegerField(null=True)
 
     copilot_support_ends_at = models.DateTimeField(null=True)
+
+    status = models.TextField(choices=Statuses.choices, default=Statuses.ONGOING)
+    status_description = models.TextField(default="", blank=True)
 
     created_at = models.DateTimeField(default=timezone.now)
     created_by = models.ForeignKey(
@@ -487,6 +496,12 @@ class Project(models.Model):
         )
 
     def get_edit_url(self):
+        return reverse(
+            "project-edit",
+            kwargs={"org_slug": self.org.slug, "project_slug": self.slug},
+        )
+
+    def get_staff_edit_url(self):
         return reverse("staff:project-edit", kwargs={"slug": self.slug})
 
     def get_releases_url(self):

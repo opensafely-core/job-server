@@ -37,6 +37,9 @@
         the "logs" buttons below to explore more.
       {% endif %}
     </p>
+    {% if is_member %}
+    <a class="btn btn-primary" href="{{ project.get_edit_url }}">Edit</a>
+    {% endif %}
 
     {% if project.slug == "opensafely-testing" %}
     <div class="alert alert-warning mt-3" role="warning">
@@ -89,6 +92,17 @@
 
     <div class="col-lg-4">
       <ul class="list-unstyled">
+        <li class="card mb-3">
+          <h2 class="card-header h5">
+            Status
+          </h2>
+          <p class="card-body mb-0">
+            {{ project.get_status_display }}
+          </p>
+          {% if project.status_description %}
+          <p>{{ project.status_description }}</p>
+          {% endif %}
+        </li>
         {% if repos %}
           <li class="card mb-3">
             <h2 class="card-header h5">
