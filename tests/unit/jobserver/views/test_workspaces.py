@@ -124,7 +124,6 @@ def test_workspacebackendfiles_success(rf):
     )
 
     assert response.status_code == 200
-    assert response._csp_update == {"connect-src": backend.level_4_url}
 
 
 def test_workspacebackendfiles_unknown_backend(rf):
