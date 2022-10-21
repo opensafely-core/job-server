@@ -93,9 +93,7 @@ class JobDetail(View):
                 "Job Request concurrency"
             ] = format_jobrequest_concurrency_link(related_job_request)
 
-        template_name = "job_detail.html"
-
-        return TemplateResponse(request, template_name, context=context)
+        return TemplateResponse(request, "job_detail.html", context=context)
 
 
 class JobDetailRedirect(RedirectView):
