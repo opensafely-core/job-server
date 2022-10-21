@@ -78,10 +78,11 @@ class WorkspaceBackendFiles(View):
         if request.user not in backend.members.all():
             raise Http404
 
-        # we treat the ability to run jobs in this workspace and the ability to
-        # interact with the backend (checked above) as permission to also view
-        # the files those jobs have output
-        if not has_permission(request.user, "job_run", project=workspace.project):
+        if not has_permission(
+            request.user,
+            "unreleased_outputs_view",
+            project=workspace.project,
+        ):
             raise Http404
 
         auth_token, url = build_hatch_token_and_url(
@@ -326,10 +327,11 @@ class WorkspaceFileList(View):
             name=self.kwargs["workspace_slug"],
         )
 
-        # we treat the ability to run jobs in this workspace and the ability to
-        # interact with at least one backend (checked below) as permission to
-        # also view the files those jobs have output on the backends
-        if not has_permission(request.user, "job_run", project=workspace.project):
+        if not has_permission(
+            request.user,
+            "unreleased_outputs_view",
+            project=workspace.project,
+        ):
             raise Http404
 
         backends = request.user.backends.exclude(level_4_url="").order_by("slug")

@@ -746,6 +746,7 @@ def test_user_get_all_permissions():
                     "job_cancel",
                     "job_run",
                     "snapshot_create",
+                    "unreleased_outputs_view",
                     "workspace_archive",
                     "workspace_create",
                     "workspace_toggle_notifications",
