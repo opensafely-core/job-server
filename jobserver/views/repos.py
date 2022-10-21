@@ -1,3 +1,4 @@
+import itertools
 from urllib.parse import unquote
 
 import requests
@@ -8,10 +9,11 @@ from django.shortcuts import get_object_or_404, redirect
 from django.template.response import TemplateResponse
 from django.utils import timezone
 from django.utils.decorators import method_decorator
-from django.views.generic import TemplateView
+from django.views.generic import TemplateView, View
+from furl import furl
 
 from ..github import _get_github_api
-from ..models import ProjectMembership, Repo
+from ..models import Org, Project, ProjectMembership, Repo
 
 
 def build_workspace(workspace, github_api):
@@ -34,6 +36,52 @@ def build_workspace(workspace, github_api):
         "get_readme_url": workspace.get_readme_url(),
         "project": workspace.project,
     }
+
+
+class RepoHandler(View):
+    def get(self, request, *args, **kwargs):
+        repo_url = unquote(self.kwargs["repo_url"])
+
+        known_orgs = set(
+            itertools.chain.from_iterable(
+                Org.objects.values_list("github_orgs", flat=True)
+            )
+        )
+        allowed_orgs = tuple(f"https://github.com/{org}" for org in known_orgs)
+
+        if not repo_url.startswith(allowed_orgs):
+            raise Http404
+
+        try:
+            repo = Repo.objects.get(url=repo_url)
+        except Repo.DoesNotExist:
+            f = furl(repo_url)
+
+            # ensure we have owner and name parts of the URL, even if they're meaningless
+            if len(f.path.segments) < 2:
+                raise Http404
+
+            context = {
+                "projects": [],
+                "repo": {
+                    "owner": f.path.segments[-2],
+                    "name": f.path.segments[-1],
+                    "url": repo_url,
+                },
+            }
+            return TemplateResponse(request, "project_repo_list.html", context=context)
+
+        projects = Project.objects.filter(workspaces__repo=repo).distinct()
+
+        if projects.count() == 1:
+            return redirect(projects.first())
+
+        context = {
+            "projects": projects,
+            "repo": repo,
+        }
+
+        return TemplateResponse(request, "project_repo_list.html", context=context)
 
 
 @method_decorator(login_required, name="dispatch")

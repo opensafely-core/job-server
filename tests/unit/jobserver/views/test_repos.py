@@ -2,13 +2,15 @@ from urllib.parse import quote
 
 import pytest
 import requests
+from django.contrib.auth.models import AnonymousUser
 from django.contrib.messages.storage.fallback import FallbackStorage
 from django.http import Http404
 from django.utils import timezone
 
-from jobserver.views.repos import SignOffRepo
+from jobserver.views.repos import RepoHandler, SignOffRepo
 
 from ....factories import (
+    OrgFactory,
     ProjectFactory,
     ProjectMembershipFactory,
     RepoFactory,
@@ -16,6 +18,73 @@ from ....factories import (
     WorkspaceFactory,
 )
 from ....fakes import FakeGitHubAPI
+
+
+def test_repohandler_with_broken_repo_url(rf):
+    # set up an org with the GitHub org we use in the URL below so it passes
+    # the allowlist validation
+    OrgFactory(github_orgs=["opensafely-testing"])
+
+    request = rf.get("/")
+    request.user = AnonymousUser()
+
+    with pytest.raises(Http404):
+        RepoHandler.as_view()(request, repo_url="https://github.com/opensafely-testing")
+
+
+@pytest.mark.parametrize("url", ["http://example.com", "http://github.com/not-us"])
+def test_repohandler_with_disallowed_url(rf, url):
+    request = rf.get("/")
+    request.user = AnonymousUser()
+
+    with pytest.raises(Http404):
+        RepoHandler.as_view()(request, repo_url=url)
+
+
+def test_repohandler_repo_with_multiple_projects(rf):
+    repo = RepoFactory(url="https://github.com/opensafely/foo")
+
+    project1 = ProjectFactory()
+    WorkspaceFactory(project=project1, repo=repo)
+
+    project2 = ProjectFactory()
+    WorkspaceFactory(project=project2, repo=repo)
+
+    request = rf.get("/")
+    request.user = AnonymousUser()
+
+    response = RepoHandler.as_view()(request, repo_url=repo.quoted_url)
+
+    assert response.status_code == 200
+
+
+def test_repohandler_repo_with_one_project(rf):
+    project = ProjectFactory()
+    repo = RepoFactory(url="https://github.com/opensafely/foo")
+    WorkspaceFactory(project=project, repo=repo)
+
+    request = rf.get("/")
+    request.user = AnonymousUser()
+
+    response = RepoHandler.as_view()(request, repo_url=repo.quoted_url)
+
+    assert response.status_code == 302
+    assert response.url == project.get_absolute_url()
+
+
+def test_repohandler_with_unknown_repo(rf):
+    # set up an org with the GitHub org we use in the URL below so it passes
+    # the allowlist validation
+    OrgFactory(github_orgs=["opensafely-testing"])
+
+    request = rf.get("/")
+    request.user = AnonymousUser()
+
+    repo_url = quote("https://github.com/opensafely-testing/unknown-repo", safe="")
+
+    response = RepoHandler.as_view()(request, repo_url=repo_url)
+
+    assert response.status_code == 200
 
 
 def test_signoffrepo_get_success(rf):
