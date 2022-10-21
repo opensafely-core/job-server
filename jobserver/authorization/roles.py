@@ -11,6 +11,7 @@ from .permissions import (
     release_file_view,
     snapshot_create,
     snapshot_publish,
+    unreleased_outputs_view,
     user_manage,
     workspace_archive,
     workspace_create,
@@ -123,6 +124,7 @@ class OutputChecker:
     permissions = [
         release_file_delete,
         release_file_upload,
+        unreleased_outputs_view,
     ]
 
 
@@ -179,6 +181,7 @@ class ProjectDeveloper:
         job_cancel,
         job_run,
         snapshot_create,
+        unreleased_outputs_view,
         workspace_archive,
         workspace_create,
         workspace_toggle_notifications,
