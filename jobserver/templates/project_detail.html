@@ -92,6 +92,17 @@
 
     <div class="col-lg-4">
       <ul class="list-unstyled">
+        <li class="card mb-3">
+          <h2 class="card-header h5">
+            Status
+          </h2>
+          <p class="card-body mb-0">
+            {{ project.get_status_display }}
+          </p>
+          {% if project.status_description %}
+          <p>{{ project.status_description }}</p>
+          {% endif %}
+        </li>
         {% if repos %}
           <li class="card mb-3">
             <h2 class="card-header h5">
