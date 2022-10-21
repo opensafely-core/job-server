@@ -102,40 +102,39 @@
     {% #card title="Job information" %}
       <dl class="border-t border-slate-200 sm:divide-y sm:divide-slate-200">
         {% #description_item title="Status" %}
-          <span
-            class="
-              inline-flex items-center rounded -mt-0.5 px-2 py-0.5 text-sm font-medium
-              {% if job.status == "pending" %}
-                bg-bn-flamenco-200 text-bn-flamenco-900
-              {% elif job.status == "running" %}
-                bg-blue-200 text-blue-900
-              {% elif job.status == "failed" %}
-                bg-red-200 text-red-900
-              {% elif job.status == "succeeded" %}
-                bg-green-200 text-green-900
-              {% endif %}
-            ">
-            {{ job.status|capfirst }}
-          </span>
-        {% /description_item %}
+          <div class="flex flex-col gap-y-2">
+            <span
+              class="
+                inline-flex self-start items-center rounded -mt-0.5 px-2 py-0.5 text-base font-semibold
+                {% if job.status == "pending" %}
+                  bg-bn-flamenco-200 text-bn-flamenco-900
+                {% elif job.status == "running" %}
+                  bg-blue-200 text-blue-900
+                {% elif job.status == "failed" %}
+                  bg-red-200 text-red-900
+                {% elif job.status == "succeeded" %}
+                  bg-green-200 text-green-900
+                {% endif %}
+              ">
+              {{ job.status|capfirst }}
+            </span>
 
-        {% #description_item title="Status message" %}
-          {% if job.status_message %}
-            {{ job.status_message }}
-          {% else %}
-            -
-          {% endif %}
-          {% if job.action in job.job_request.cancelled_actions %}
-            <p>A User has requested this Job is cancelled.</p>
-          {% endif %}
-          {% if log_path %}
-          <small class="d-block mb-1">
-            The job exited with an error. You can check the log output by logging
-            into the {job.job_request.backend.name} server and looking at:
-          </small>
+            {% if job.status_message %}
+              <p>{{ job.status_message }}</p>
+            {% endif %}
 
-          <pre>{{ log_path }}</pre>
-          {% endif %}
+            {% if job.action in job.job_request.cancelled_actions %}
+              <p>A User has requested this Job is cancelled.</p>
+            {% endif %}
+
+            {% if log_path %}
+              <p>
+                The job exited with an error. You can check the log output by logging
+                into the {{ job.job_request.backend.name }} server and looking at:
+              </p>
+              <pre class="break-all whitespace-pre-wrap">{{ log_path }}</pre>
+            {% endif %}
+          </div>
         {% /description_item %}
 
         {% #description_item title="Job identifier" %}
