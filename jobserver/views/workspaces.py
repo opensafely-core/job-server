@@ -104,19 +104,12 @@ class WorkspaceBackendFiles(View):
             "review_url": review_url,
             "workspace": workspace,
         }
-        response = TemplateResponse(
+
+        return TemplateResponse(
             request,
             "workspace_backend_files.html",
             context=context,
         )
-
-        # dynamically set the the connect-src CSP directive for the current
-        # backend.  CSPMiddleware will pick this up (it's what the package's
-        # @csp_update decorator does) and merge it into the headers for this
-        # response.
-        response._csp_update = {"connect-src": backend.level_4_url}
-
-        return response
 
 
 class WorkspaceCreate(CreateView):
