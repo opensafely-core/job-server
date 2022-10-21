@@ -15,9 +15,9 @@
   {% #breadcrumbs %}
     {% url 'home' as home_url %}
     {% breadcrumb title="Home" url=home_url %}
-    {% breadcrumb location="Organisation" truncate=True title=job.job_request.workspace.project.org.name url=job.job_request.workspace.project.org.get_absolute_url %}
-    {% breadcrumb location="Project" truncate=True title=job.job_request.workspace.project.title url=job.job_request.workspace.project.get_absolute_url %}
-    {% breadcrumb location="Workspace" truncate=True title=job.job_request.workspace.name url=job.job_request.workspace.get_absolute_url %}
+    {% breadcrumb location="Organisation" title=job.job_request.workspace.project.org.name url=job.job_request.workspace.project.org.get_absolute_url %}
+    {% breadcrumb location="Project" title=job.job_request.workspace.project.title url=job.job_request.workspace.project.get_absolute_url %}
+    {% breadcrumb location="Workspace" title=job.job_request.workspace.name url=job.job_request.workspace.get_absolute_url %}
     {% breadcrumb location="Job request" title=job.job_request.id url=job.job_request.get_absolute_url %}
     {% breadcrumb location="Action" title=job.action active=True %}
   {% /breadcrumbs %}
@@ -52,7 +52,7 @@
   {% /alert %}
 {% endif %}
 
-<div class="mt-8 grid grid-cols-1 gap-6 lg:grid-flow-col-dense lg:grid-cols-3">
+<div class="grid grid-cols-1 gap-6 lg:grid-flow-col-dense mt-2 md:mt-8 lg:grid-cols-3">
   {% #card title="Timeline" class="lg:col-start-1 lg:col-span-1" container=True %}
     <ul class="flow-root">
       {% #timeline_item background="blue" title="Created by the backend:" job_time=job.created_at %}
@@ -93,19 +93,19 @@
         {% icon_status_online_outline class="h-5 w-5" %}
       {% /timeline_item %}
     </ul>
-    <p class="bg-slate-50 text-sm font-medium text-slate-600 px-4 py-2 -mx-4 -my-2 sm:px-6 sm:py-5 sm:-mb-5 sm:-mx-6">
+    <p class="bg-slate-50 text-sm font-medium text-slate-600 px-4 py-2 -mx-4 -my-3 md:px-6 md:py-5 md:-mb-5 md:-mx-6">
       These timestamps are generated and stored using the UTC timezone on the {{ job.job_request.backend|upper }} backend.
     </p>
   {% /card %}
 
   <div class="space-y-6 md:space-y-6 lg:col-start-2 lg:col-span-2">
     {% #card title="Job information" %}
-      <dl class="border-t border-slate-200 sm:divide-y sm:divide-slate-200">
+      <dl class="border-t border-slate-200 pb-3 sm:divide-y sm:divide-slate-200">
         {% #description_item title="Status" %}
           <div class="flex flex-col gap-y-2">
             <span
               class="
-                inline-flex self-start items-center rounded -mt-0.5 px-2 py-0.5 text-base font-semibold
+                inline-flex self-start items-center rounded -mt-0.5 px-2 py-0.5 font-semibold sm:text-base
                 {% if job.status == "pending" %}
                   bg-bn-flamenco-200 text-bn-flamenco-900
                 {% elif job.status == "running" %}
