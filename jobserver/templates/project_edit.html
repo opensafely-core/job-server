@@ -63,7 +63,7 @@
           {% endfor %}
         </div>
 
-        {% include "components/form_text.html" with field=form.status_description label="Status description" name="status_description" %}
+        {% include "components/form_textarea.html" with field=form.status_description label="Status description" name="status_description" %}
 
         <button class="btn btn-primary" type="submit">
           Save
