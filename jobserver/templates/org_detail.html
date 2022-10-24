@@ -13,6 +13,33 @@
 {% endblock breadcrumbs %}
 
 {% block content %}
+  <div class="
+    mb-6 mt-3 flex flex-col gap-8 items-center text-center
+    md:mt-0 md:flex-row md:text-left
+  ">
+    {% if org.logo_file %}
+      <img
+        alt="{{ org.title }} logo"
+        class="w-36 h-36 aspect-square rounded-full outline outline-4 outline-white overflow-hidden flex-shrink-0"
+        height="144"
+        src="{{ org.logo_file.url }}"
+        width="144"
+      />
+    {% endif %}
+    <div class="flex-grow flex flex-col gap-y-4 md:gap-y-2">
+      <h1 class="text-3xl tracking-tight break-all md:bread-words md:text-4xl font-bold text-slate-900">
+        {{ org.name }}
+      </h1>
+      <p class="font-lg text-slate-600">
+        {% if org.description %}
+          {{ org.description }}
+        {% else %}
+          {{ org.name }} is an organisation which uses OpenSAFELY to deliver research projects.
+        {% endif %}
+      </p>
+    </div>
+  </div>
+
   {% if projects %}
     {% #card title="Projects" subtitle="OpenSAFELY projects started by "|add:org.name %}
       <ul role="list" class="divide-y divide-slate-200 border-t border-t-slate-200">
