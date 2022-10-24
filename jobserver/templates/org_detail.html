@@ -14,13 +14,13 @@
 
 {% block content %}
   <div class="
-    mb-6 mt-3 flex flex-col gap-8 items-center text-center
+    mb-6 mt-3 flex flex-col gap-6 items-center text-center
     md:mt-0 md:flex-row md:text-left
   ">
     {% if org.logo_file %}
       <img
         alt="{{ org.title }} logo"
-        class="w-36 h-36 aspect-square rounded-full outline outline-4 outline-white overflow-hidden flex-shrink-0"
+        class="w-36 h-36 p-4 bg-white aspect-square rounded-2xl border border-slate-200 shadow-sm overflow-hidden flex-shrink-0"
         height="144"
         src="{{ org.logo_file.url }}"
         width="144"
