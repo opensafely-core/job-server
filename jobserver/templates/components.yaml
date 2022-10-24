@@ -13,6 +13,7 @@ components:
   timeline_item: "_components/timeline-item.html"
   tooltip: "_components/tooltip.html"
 
+  icon_calendar_outline: "_icons/calendar-outline.svg"
   icon_check_outline: "_icons/check-outline.svg"
   icon_chevron_right_outline: "_icons/chevron-right-outline.svg"
   icon_clock_outline: "_icons/clock-outline.svg"
@@ -24,5 +25,7 @@ components:
   icon_menu_outline: "_icons/menu-outline.svg"
   icon_mini_exclamation_circle: "_icons/mini/exclamation-circle.svg"
   icon_pencil_outline: "_icons/pencil-outline.svg"
+  icon_rectangle_stack_outline: "_icons/rectangle-stack-outline.svg"
   icon_status_online_outline: "_icons/status-online-outline.svg"
+  icon_user_group_outline: "_icons/user-group-outline.svg"
   icon_x_outline: "_icons/x-outline.svg"

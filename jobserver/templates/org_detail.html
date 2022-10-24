@@ -14,6 +14,49 @@
 
 {% block content %}
   {% if projects %}
+    {% #card title="Projects" subtitle="OpenSAFELY projects started by "|add:org.name %}
+      <ul role="list" class="divide-y divide-slate-200 border-t border-t-slate-200">
+        {% for project in projects %}
+          <li>
+            <a href="{{ project.get_absolute_url }}" class="block hover:bg-slate-50">
+              <div class="px-4 py-4 sm:px-6">
+                <div class="flex items-center justify-between">
+                  <p class="truncate text-sm font-semibold text-oxford-600">
+                    {{ project.title }}
+                  </p>
+                  <div class="ml-2 flex flex-shrink-0">
+                    <p class="inline-flex rounded-full bg-green-100 px-2 text-xs font-semibold leading-5 text-green-800">
+                      {{ project.get_status_display }}
+                    </p>
+                  </div>
+                </div>
+                <div class="mt-2 sm:flex sm:justify-between">
+                  <div class="sm:flex">
+                    <p class="flex items-center text-sm text-slate-500">
+                      {% icon_user_group_outline class="mr-1.5 h-5 w-5 flex-shrink-0 text-slate-400" %}
+                      {{ project.memberships.all|length }}
+                      user{{ project.memberships.all|length|pluralize }}
+                    </p>
+                    <p class="flex items-center text-sm text-slate-500 mt-2 sm:mt-0 sm:ml-6">
+                      {% icon_rectangle_stack_outline class="mr-1.5 h-5 w-5 flex-shrink-0 text-slate-400" %}
+                      {{ project.workspaces.all|length }}
+                      workspace{{ project.workspaces.all|length|pluralize }}
+                    </p>
+                  </div>
+                  <div class="mt-2 flex items-center text-sm text-slate-500 sm:mt-0">
+                    {% icon_calendar_outline class="mr-1.5 h-5 w-5 flex-shrink-0 text-slate-400" %}
+                    <time datetime="{{ project.created_at|date:"Y-m-d H:i:sO" }}">
+                      <span class="sr-only">Project created:</span>
+                      {{ project.created_at|date:"d M Y" }}
+                    </time>
+                  </div>
+                </div>
+              </div>
+            </a>
+          </li>
+        {% endfor %}
+      </ul>
+    {% /card %}
   {% else %}
     {% #card %}
       <div class="text-center py-8">
