@@ -13,4 +13,18 @@
 {% endblock breadcrumbs %}
 
 {% block content %}
+  {% if projects %}
+  {% else %}
+    {% #card %}
+      <div class="text-center py-8">
+        {% icon_folder_outline class="mx-auto h-12 w-12 text-slate-400" %}
+        <h2 class="mt-2 text-lg font-semibold text-slate-900">
+          No projects
+        </h2>
+        <p class="mt-2 text-base text-slate-600">
+          This organisation has not created any projects yet
+        </p>
+      </div>
+    {% /card %}
+  {% endif %}
 {% endblock %}

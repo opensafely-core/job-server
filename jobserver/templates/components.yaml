@@ -18,6 +18,7 @@ components:
   icon_clock_outline: "_icons/clock-outline.svg"
   icon_ellipsis_horizontal_outline: "_icons/ellipsis-horizontal-outline.svg"
   icon_exclamation_solid: "_icons/exclamation-solid.svg"
+  icon_folder_outline: "_icons/folder-outline.svg"
   icon_folder_open_outline: "_icons/folder-open-outline.svg"
   icon_home_outline: "_icons/home-outline.svg"
   icon_menu_outline: "_icons/menu-outline.svg"
