@@ -72,13 +72,13 @@
                   <div class="sm:flex">
                     <p class="flex items-center text-sm text-slate-600">
                       {% icon_user_group_outline class="mr-1.5 h-5 w-5 flex-shrink-0 text-slate-400" %}
-                      {{ project.memberships.all|length }}
-                      user{{ project.memberships.all|length|pluralize }}
+                      {{ project.member_count }}
+                      user{{ project.member_count|pluralize }}
                     </p>
                     <p class="flex items-center text-sm text-slate-600 mt-2 sm:mt-0 sm:ml-6">
                       {% icon_rectangle_stack_outline class="mr-1.5 h-5 w-5 flex-shrink-0 text-slate-400" %}
-                      {{ project.workspaces.all|length }}
-                      workspace{{ project.workspaces.all|length|pluralize }}
+                      {{ project.workspace_count }}
+                      workspace{{ project.workspace_count|pluralize }}
                     </p>
                   </div>
                   <div class="mt-2 flex items-center text-sm text-slate-600 sm:mt-0">

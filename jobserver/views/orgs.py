@@ -1,3 +1,4 @@
+from django.db.models import Count
 from django.db.models.functions import Lower
 from django.http import Http404
 from django.shortcuts import redirect
@@ -27,7 +28,13 @@ class OrgDetail(DetailView):
 
             return redirect(workspace)
 
-        projects = org.projects.order_by("number", Lower("name"))
+        projects = (
+            org.projects.annotate(member_count=Count("memberships", distinct=True))
+            .annotate(
+                workspace_count=Count("workspaces", distinct=True),
+            )
+            .order_by("number", Lower("name"))
+        )
 
         return TemplateResponse(
             request,
