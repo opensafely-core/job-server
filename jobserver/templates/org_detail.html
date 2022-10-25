@@ -1,72 +1,112 @@
-{% extends "base.html" %}
+{% extends "base-tw.html" %}
 
 {% block metatitle %}{{ org.name }} | OpenSAFELY Jobs{% endblock metatitle %}
 
 {% block breadcrumbs %}
-<nav class="breadcrumb-container" aria-label="breadcrumb">
-  <div class="container">
-    <ol class="breadcrumb rounded-0 mb-0 px-0">
-      <li class="breadcrumb-item">
-        <a href="/">Home</a>
-      </li>
-      <li class="breadcrumb-item active" aria-current="page">
-        {{ org.name }}
-      </li>
-    </ol>
-  </div>
-</nav>
+  {% #breadcrumbs %}
+    {% url "home" as home_url %}
+    {% breadcrumb title="Home" url=home_url %}
+    {% url "org-list" as orgs_url %}
+    {% breadcrumb title="Organisations" url=orgs_url %}
+    {% breadcrumb location="Organisation" active=True title=org.name %}
+  {% /breadcrumbs %}
 {% endblock breadcrumbs %}
 
-{% block jumbotron %}
-<div class="jumbotron jumbotron-fluid pt-md-2">
-  <div class="container">
-    <div class="d-flex flex-column flex-md-row align-items-center">
-      {% if org.logo_file %}
-        <img
-          class="mr-md-5 rounded"
-          height="200"
-          src="{{ org.logo_file.url }}"
-          width="200"
-        />
-      {% endif %}
-      <div>
-        <h1 class="pt-4 pt-md-0">{{ org.name }}</h1>
-        <p class="lead">
-          {% if org.description %}
-            {{ org.description }}
-          {% else %}
-            This is an organisation which uses OpenSAFELY to deliver research
-            projects. Every project it has started is listed below.
-          {% endif %}
-        </p>
-      </div>
+{% block content %}
+  <div class="
+    mb-6 mt-3 flex flex-col gap-6 items-center text-center
+    md:mt-0 md:flex-row md:text-left
+  ">
+    {% if org.logo_file %}
+      <img
+        alt="{{ org.title }} logo"
+        class="w-36 h-36 p-4 bg-white aspect-square rounded-2xl border border-slate-200 shadow-sm overflow-hidden flex-shrink-0"
+        height="144"
+        src="{{ org.logo_file.url }}"
+        width="144"
+      />
+    {% endif %}
+    <div class="flex-grow flex flex-col gap-y-4 md:gap-y-2">
+      <h1 class="text-3xl tracking-tight break-all md:bread-words md:text-4xl font-bold text-slate-900">
+        {{ org.name }}
+      </h1>
+      <p class="font-lg text-slate-600">
+        {% if org.description %}
+          {{ org.description }}
+        {% else %}
+          {{ org.name }} is an organisation which uses OpenSAFELY to deliver research projects.
+        {% endif %}
+      </p>
     </div>
   </div>
-</div>
-{% endblock jumbotron %}
 
-{% block content %}
-<div class="container">
   {% if projects %}
-    <div class="row">
-      <div class="col-12">
-        <h3>Projects</h3>
-        <p>These are individual OpenSAFELY projects that have been started by {{ org.name }}.</p>
-      </div>
-      <div class="col col-lg-9 col-xl-8">
-        <div class="list-group list-unstyled">
-          {% for project in projects %}
-            <a href="{{ project.get_absolute_url }}" class="list-group-item list-group-item-action">
-              {{ project.title }}
+    {% #card title="Projects" subtitle="OpenSAFELY projects started by "|add:org.name %}
+      <ul role="list" class="divide-y divide-slate-200 border-t border-t-slate-200">
+        {% for project in projects %}
+          <li>
+            <a href="{{ project.get_absolute_url }}" class="block transition-colors duration-200 hover:bg-oxford-50">
+              <div class="px-4 py-4 sm:px-6">
+                <div class="flex items-center justify-between">
+                  <p class="truncate text-base font-semibold text-oxford-600">
+                    {{ project.title }}
+                  </p>
+                  <div class="ml-2 flex flex-shrink-0">
+                    <p class="
+                      inline-flex rounded-full px-2 text-xs font-semibold leading-5
+                      {% if project.status == "retired" %}
+                        bg-bn-flamenco-200 text-bn-flamenco-900
+                      {% elif project.status == "ongoing" %}
+                        bg-blue-200 text-blue-900
+                      {% elif project.status == "postponed" %}
+                        bg-red-200 text-red-900
+                      {% elif project.status == "completed" %}
+                        bg-green-200 text-green-900
+                      {% endif %}
+                    ">
+                      <span class="sr-only">Status:</span>
+                      {{ project.get_status_display }}
+                    </p>
+                  </div>
+                </div>
+                <div class="mt-2 sm:flex sm:justify-between">
+                  <div class="sm:flex">
+                    <p class="flex items-center text-sm text-slate-600">
+                      {% icon_user_group_outline class="mr-1.5 h-5 w-5 flex-shrink-0 text-slate-400" %}
+                      {{ project.member_count }}
+                      user{{ project.member_count|pluralize }}
+                    </p>
+                    <p class="flex items-center text-sm text-slate-600 mt-2 sm:mt-0 sm:ml-6">
+                      {% icon_rectangle_stack_outline class="mr-1.5 h-5 w-5 flex-shrink-0 text-slate-400" %}
+                      {{ project.workspace_count }}
+                      workspace{{ project.workspace_count|pluralize }}
+                    </p>
+                  </div>
+                  <div class="mt-2 flex items-center text-sm text-slate-600 sm:mt-0">
+                    {% icon_calendar_outline class="mr-1.5 h-5 w-5 flex-shrink-0 text-slate-400" %}
+                    <time datetime="{{ project.created_at|date:"Y-m-d H:i:sO" }}">
+                      <span class="sr-only">Project created:</span>
+                      {{ project.created_at|date:"d M Y" }}
+                    </time>
+                  </div>
+                </div>
+              </div>
             </a>
-          {% endfor %}
-        </div>
-      </div>
-    </div>
+          </li>
+        {% endfor %}
+      </ul>
+    {% /card %}
   {% else %}
-    <p class="lead">
-      There are no projects for this organisation yet.
-    </p>
+    {% #card %}
+      <div class="text-center py-8">
+        {% icon_folder_outline class="mx-auto h-12 w-12 text-slate-400" %}
+        <h2 class="mt-2 text-lg font-semibold text-slate-900">
+          No projects
+        </h2>
+        <p class="mt-2 text-base text-slate-600">
+          This organisation has not created any projects yet
+        </p>
+      </div>
+    {% /card %}
   {% endif %}
-</div>
 {% endblock %}
