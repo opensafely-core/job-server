@@ -60,6 +60,24 @@ def test_projectdetail_success(rf, user):
     assert "Edit" not in response.context_data
 
 
+def test_projectdetail_with_description(rf, complete_application):
+    project = ProjectFactory()
+
+    complete_application.project = project
+    complete_application.save()
+
+    request = rf.get("/")
+    request.user = UserFactory()
+
+    response = ProjectDetail.as_view(get_github_api=FakeGitHubAPI)(
+        request, org_slug=project.org.slug, project_slug=project.slug
+    )
+
+    assert response.status_code == 200
+
+    assert "Description" not in response.context_data
+
+
 def test_projectdetail_with_multiple_releases(rf, freezer):
     project = ProjectFactory()
 

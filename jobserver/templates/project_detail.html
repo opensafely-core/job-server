@@ -56,6 +56,19 @@
 <div class="container">
   <div class="row">
     <div class="mb-3 mb-lg-0 col-lg-8">
+
+      {% if description %}
+      <div class="card mb-3">
+        <h2 class="h5 card-header border border-bottom-0">
+          Description
+        </h2>
+
+        <p class="card-body mb-0">
+          {{ description }}
+        </p>
+      </div>
+      {% endif %}
+
       <div class="card border-0">
         <h2 class="h5 card-header border border-bottom-0">
           Workspaces

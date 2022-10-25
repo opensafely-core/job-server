@@ -25,8 +25,9 @@ class ProjectDetail(View):
     get_github_api = staticmethod(_get_github_api)
 
     def get(self, request, *args, **kwargs):
+        projects = Project.objects.prefetch_related("applications")
         project = get_object_or_404(
-            Project,
+            projects,
             slug=self.kwargs["project_slug"],
             org__slug=self.kwargs["org_slug"],
         )
@@ -59,8 +60,16 @@ class ProjectDetail(View):
         else:
             first_job_ran_at = None
 
+        # FIXME: once all our data has been linked up this should always be
+        # available to the Project
+        if project.applications.exists():
+            description = project.applications.first().studypurposepage.description
+        else:
+            description = None
+
         context = {
             "can_create_workspaces": can_create_workspaces,
+            "description": description,
             "first_job_ran_at": first_job_ran_at,
             "is_member": is_member,
             "memberships": memberships,
