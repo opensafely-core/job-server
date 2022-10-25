@@ -200,6 +200,21 @@
         request jobs are run from this page.
       </p>
 
+      {% comment %}
+      Remove this check once we can rely on the purpose field
+      {% endcomment %}
+      {% if workspace.purpose %}
+      <div class="card mb-3">
+        <h2 class="h5 card-header">
+          Purpose
+        </h2>
+
+        <p class="card-body mb-0">
+          {{ workspace.purpose }}
+        </p>
+      </div>
+      {% endif %}
+
       {% if user_can_use_releases %}
       <div class="card border-0">
         <h2 class="h5 card-header border border-bottom-0">
