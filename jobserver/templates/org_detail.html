@@ -19,8 +19,8 @@
   ">
     {% if org.logo_file %}
       <img
-        alt="{{ org.title }} logo"
-        class="w-36 h-36 p-4 bg-white aspect-square rounded-2xl border border-slate-200 shadow-sm overflow-hidden flex-shrink-0"
+        alt="{{ org.name }} logo"
+        class="w-36 h-36 bg-white aspect-square rounded-2xl border border-slate-200 shadow-sm overflow-hidden flex-shrink-0"
         height="144"
         src="{{ org.logo_file.url }}"
         width="144"
@@ -98,7 +98,7 @@
     {% /card %}
   {% else %}
     {% #card %}
-      <div class="text-center py-8">
+      <div class="text-center p-8">
         {% icon_folder_outline class="mx-auto h-12 w-12 text-slate-400" %}
         <h2 class="mt-2 text-lg font-semibold text-slate-900">
           No projects
