@@ -45,10 +45,10 @@
       <ul role="list" class="divide-y divide-slate-200 border-t border-t-slate-200">
         {% for project in projects %}
           <li>
-            <a href="{{ project.get_absolute_url }}" class="block hover:bg-slate-50">
+            <a href="{{ project.get_absolute_url }}" class="block transition-colors duration-200 hover:bg-oxford-50">
               <div class="px-4 py-4 sm:px-6">
                 <div class="flex items-center justify-between">
-                  <p class="truncate text-sm font-semibold text-oxford-600">
+                  <p class="truncate text-base font-semibold text-oxford-600">
                     {{ project.title }}
                   </p>
                   <div class="ml-2 flex flex-shrink-0">
@@ -70,18 +70,18 @@
                 </div>
                 <div class="mt-2 sm:flex sm:justify-between">
                   <div class="sm:flex">
-                    <p class="flex items-center text-sm text-slate-500">
+                    <p class="flex items-center text-sm text-slate-600">
                       {% icon_user_group_outline class="mr-1.5 h-5 w-5 flex-shrink-0 text-slate-400" %}
                       {{ project.memberships.all|length }}
                       user{{ project.memberships.all|length|pluralize }}
                     </p>
-                    <p class="flex items-center text-sm text-slate-500 mt-2 sm:mt-0 sm:ml-6">
+                    <p class="flex items-center text-sm text-slate-600 mt-2 sm:mt-0 sm:ml-6">
                       {% icon_rectangle_stack_outline class="mr-1.5 h-5 w-5 flex-shrink-0 text-slate-400" %}
                       {{ project.workspaces.all|length }}
                       workspace{{ project.workspaces.all|length|pluralize }}
                     </p>
                   </div>
-                  <div class="mt-2 flex items-center text-sm text-slate-500 sm:mt-0">
+                  <div class="mt-2 flex items-center text-sm text-slate-600 sm:mt-0">
                     {% icon_calendar_outline class="mr-1.5 h-5 w-5 flex-shrink-0 text-slate-400" %}
                     <time datetime="{{ project.created_at|date:"Y-m-d H:i:sO" }}">
                       <span class="sr-only">Project created:</span>
