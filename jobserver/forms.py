@@ -57,6 +57,7 @@ class WorkspaceCreateForm(forms.Form):
     name = forms.CharField(
         help_text="Enter a descriptive name which makes this workspace easy to identify.  It will also be the name of the directory in which you will find results after jobs from this workspace are run."
     )
+    purpose = forms.CharField(help_text="Describe the purpose of this workspace.")
     branch = forms.CharField()
 
     def __init__(self, repos_with_branches, *args, **kwargs):

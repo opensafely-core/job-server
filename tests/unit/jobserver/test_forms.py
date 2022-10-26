@@ -35,6 +35,7 @@ def test_workspacecreateform_success():
         "db": "slice",
         "repo": "http://example.com/derp/test-repo",
         "branch": "test-branch",
+        "purpose": "test",
     }
     repos_with_branches = [
         {
@@ -54,6 +55,7 @@ def test_workspacecreateform_success_with_upper_case_names():
         "db": "full",
         "repo": "http://example.com/derp/test-repo",
         "branch": "test-branch",
+        "purpose": "test",
     }
     repos_with_branches = [
         {

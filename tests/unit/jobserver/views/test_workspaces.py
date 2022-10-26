@@ -261,6 +261,7 @@ def test_workspacecreate_post_success(rf, user):
         "name": "Test",
         "repo": "test",
         "branch": "main",
+        "purpose": "test",
     }
     request = rf.post("/", data)
     request.user = user
