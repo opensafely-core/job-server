@@ -1,47 +1,62 @@
-{% extends "base.html" %}
+{% extends "base-tw.html" %}
 
 {% block metatitle %}Organisations | OpenSAFELY Jobs{% endblock metatitle %}
 
 {% block breadcrumbs %}
-<nav class="breadcrumb-container" aria-label="breadcrumb">
-  <div class="container">
-    <ol class="breadcrumb rounded-0 mb-0 px-0">
-      <li class="breadcrumb-item">
-        <a href="/">Home</a>
-      </li>
-      <li class="breadcrumb-item active" aria-current="page">
-        Organisations
-      </li>
-    </ol>
-  </div>
-</nav>
+  {% #breadcrumbs %}
+    {% url "home" as home_url %}
+    {% breadcrumb title="Home" url=home_url %}
+    {% breadcrumb title="Organisations" active=True %}
+  {% /breadcrumbs %}
 {% endblock breadcrumbs %}
 
-{% block jumbotron %}
-<div class="jumbotron jumbotron-fluid pt-md-2">
-  <div class="container">
-    <h1 class="display-4">Organisations</h1>
-  </div>
-</div>
-{% endblock jumbotron %}
-
 {% block content %}
-<div class="container">
-  <div class="row">
-    <div class="col col-lg-9 col-xl-8">
-      <div class="list-group list-unstyled">
-        {% for org in object_list %}
-          <a href="{{ org.get_absolute_url }}" class="d-flex align-items-center list-group-item list-group-item-action">
-            <span class="mr-3">{{ org.name }}</span>
-            {% if org.projects.exists %}
-              <span class="ml-auto badge badge-primary badge-pill">
-                {{ org.projects.count }} project{{ org.projects.count|pluralize }}
-              </span>
-            {% endif %}
-          </a>
-        {% endfor %}
-      </div>
-    </div>
+  <div class="
+    mb-6 mt-3 flex flex-col gap-y-4 md:gap-y-2 text-center
+    md:mt-0 md:text-left
+  ">
+    <h1 class="text-3xl tracking-tight break-all md:bread-words md:text-4xl font-bold text-slate-900">
+      Organisations
+    </h1>
+    <p class="font-lg text-slate-600">
+      Organisations using OpenSAFELY to deliver research projects.
+    </p>
   </div>
-</div>
+
+  {% #card %}
+    <ul role="list" class="divide-y divide-slate-200 border-t border-t-slate-200 rounded-lg">
+      {% for org in object_list %}
+        <li>
+          <a href="{{ org.get_absolute_url }}" class="block transition-colors duration-200 hover:bg-oxford-50">
+            <div class="flex items-center gap-x-3 px-4 py-3">
+              {% if org.logo_file %}
+                <img
+                  alt="{{ org.name }} logo"
+                  class="w-16 h-16 bg-white border border-slate-300 shadow-sm rounded-md overflow-hidden flex-shrink-0"
+                  height="144"
+                  src="{{ org.logo_file.url }}"
+                  width="144"
+                />
+              {% else %}
+                <span class="w-16 h-16 bg-slate-100 border border-slate-300 rounded-md overflow-hidden flex-shrink-0"></span>
+              {% endif %}
+              <div class="flex flex-col md:flex-row min-w-0 md:justify-between md:flex-grow">
+                <p class="truncate text-base font-semibold text-oxford-600">
+                  {{ org.name }}
+                </p>
+                <div class="mt-1 flex items-center text-sm text-slate-600 whitespace-nowrap md:mt-0 md:ml-2">
+                  {% icon_rectangle_stack_outline class="mr-1.5 h-5 w-5 flex-shrink-0 text-slate-400" %}
+                  {% if org.projects.exists %}
+                    {{ org.projects.count }} project{{ org.projects.count|pluralize }}
+                  {% else %}
+                    No projects
+                  {% endif %}
+                </div>
+              </div>
+            </div>
+          </a>
+        </li>
+      {% endfor %}
+    </ul>
+  {% /card %}
 {% endblock %}
