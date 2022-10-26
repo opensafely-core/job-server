@@ -46,8 +46,8 @@
                 </p>
                 <div class="mt-1 flex items-center text-sm text-slate-600 whitespace-nowrap md:mt-0 md:ml-2">
                   {% icon_rectangle_stack_outline class="mr-1.5 h-5 w-5 flex-shrink-0 text-slate-400" %}
-                  {% if org.projects.exists %}
-                    {{ org.projects.count }} project{{ org.projects.count|pluralize }}
+                  {% if org.project_count %}
+                    {{ org.project_count }} project{{ org.project_count|pluralize }}
                   {% else %}
                     No projects
                   {% endif %}

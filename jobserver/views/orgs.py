@@ -47,5 +47,5 @@ class OrgDetail(DetailView):
 
 
 class OrgList(ListView):
-    queryset = Org.objects.order_by("name")
+    queryset = Org.objects.annotate(project_count=Count("projects")).order_by("name")
     template_name = "org_list.html"
