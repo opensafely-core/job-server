@@ -109,5 +109,9 @@ class WorkspaceCreateForm(forms.Form):
         return name.lower()
 
 
+class WorkspaceEditForm(forms.Form):
+    purpose = forms.CharField(help_text="Describe the purpose of this workspace.")
+
+
 class WorkspaceNotificationsToggleForm(forms.Form):
     should_notify = forms.BooleanField(required=False)

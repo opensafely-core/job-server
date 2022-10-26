@@ -940,6 +940,21 @@ def test_workspace_get_archive_toggle_url():
     )
 
 
+def test_workspace_get_edit_url():
+    workspace = WorkspaceFactory()
+
+    url = workspace.get_edit_url()
+
+    assert url == reverse(
+        "workspace-edit",
+        kwargs={
+            "org_slug": workspace.project.org.slug,
+            "project_slug": workspace.project.slug,
+            "workspace_slug": workspace.name,
+        },
+    )
+
+
 def test_workspace_get_files_url():
     workspace = WorkspaceFactory()
 

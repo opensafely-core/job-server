@@ -4,6 +4,7 @@ import pytest
 import requests
 from django.contrib.auth.models import AnonymousUser
 from django.contrib.messages.storage.fallback import FallbackStorage
+from django.core.exceptions import PermissionDenied
 from django.http import Http404
 from django.utils import timezone
 
@@ -19,6 +20,7 @@ from jobserver.views.workspaces import (
     WorkspaceBackendFiles,
     WorkspaceCreate,
     WorkspaceDetail,
+    WorkspaceEdit,
     WorkspaceFileList,
     WorkspaceLatestOutputsDetail,
     WorkspaceLatestOutputsDownload,
@@ -600,6 +602,65 @@ def test_workspacedetail_with_no_github(rf):
     assert response.status_code == 200
 
     assert response.context_data["repo_is_private"] is None
+
+
+def test_workspaceedit_get_success(rf):
+    user = UserFactory()
+    workspace = WorkspaceFactory()
+    ProjectMembershipFactory(
+        project=workspace.project, user=user, roles=[ProjectDeveloper]
+    )
+
+    request = rf.get("/")
+    request.user = user
+
+    response = WorkspaceEdit.as_view()(
+        request,
+        org_slug=workspace.project.org.slug,
+        project_slug=workspace.project.slug,
+        workspace_slug=workspace.name,
+    )
+
+    assert response.status_code == 200
+
+
+def test_workspaceedit_get_without_permission(rf):
+    workspace = WorkspaceFactory()
+
+    request = rf.get("/")
+    request.user = UserFactory()
+
+    with pytest.raises(PermissionDenied):
+        WorkspaceEdit.as_view()(
+            request,
+            org_slug=workspace.project.org.slug,
+            project_slug=workspace.project.slug,
+            workspace_slug=workspace.name,
+        )
+
+
+def test_workspaceedit_post_success(rf):
+    user = UserFactory()
+    workspace = WorkspaceFactory()
+    ProjectMembershipFactory(
+        project=workspace.project, user=user, roles=[ProjectDeveloper]
+    )
+
+    request = rf.post("/", {"purpose": "test"})
+    request.user = user
+
+    response = WorkspaceEdit.as_view()(
+        request,
+        org_slug=workspace.project.org.slug,
+        project_slug=workspace.project.slug,
+        workspace_slug=workspace.name,
+    )
+
+    assert response.status_code == 302, response.context_data["form"].errors
+    assert response.url == workspace.get_absolute_url()
+
+    workspace.refresh_from_db()
+    assert workspace.purpose == "test"
 
 
 def test_workspacefilelist_success(rf):

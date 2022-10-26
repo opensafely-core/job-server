@@ -68,6 +68,7 @@
         </p>
 
         <div>
+          <a class="btn btn-danger mr-1" href="{{ workspace.get_edit_url }}">Edit</a>
           {% if user_can_run_jobs %}
             <a class="btn btn-primary mr-1" href="{{ run_jobs_url }}">Run Jobs</a>
           {% endif %}

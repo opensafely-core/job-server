@@ -3,6 +3,7 @@ from datetime import timedelta
 import requests
 from csp.decorators import csp_exempt
 from django.contrib import messages
+from django.core.exceptions import PermissionDenied
 from django.db import transaction
 from django.db.models import Q
 from django.db.models.functions import Least
@@ -10,7 +11,7 @@ from django.http import FileResponse, Http404, HttpResponse
 from django.shortcuts import get_object_or_404, redirect
 from django.template.response import TemplateResponse
 from django.utils import timezone
-from django.views.generic import CreateView, ListView, View
+from django.views.generic import CreateView, FormView, ListView, View
 from first import first
 from furl import furl
 from pybadges import badge
@@ -19,6 +20,7 @@ from ..authorization import CoreDeveloper, has_permission, has_role
 from ..forms import (
     WorkspaceArchiveToggleForm,
     WorkspaceCreateForm,
+    WorkspaceEditForm,
     WorkspaceNotificationsToggleForm,
 )
 from ..github import _get_github_api
@@ -310,6 +312,42 @@ class WorkspaceDetail(View):
             "workspace_detail.html",
             context=context,
         )
+
+
+class WorkspaceEdit(FormView):
+    form_class = WorkspaceEditForm
+    template_name = "workspace_edit.html"
+
+    def dispatch(self, request, *args, **kwargs):
+        self.workspace = get_object_or_404(
+            Workspace,
+            project__org__slug=self.kwargs["org_slug"],
+            project__slug=self.kwargs["project_slug"],
+            name=self.kwargs["workspace_slug"],
+        )
+
+        can_create_workspaces = has_permission(
+            self.request.user,
+            "workspace_create",
+            project=self.workspace.project,
+        )
+        if not can_create_workspaces:
+            raise PermissionDenied
+
+        return super().dispatch(request, *args, **kwargs)
+
+    def form_valid(self, form):
+        self.workspace.purpose = form.cleaned_data["purpose"]
+        self.workspace.save()
+        return redirect(self.workspace)
+
+    def get_context_data(self, **kwargs):
+        return super().get_context_data(**kwargs) | {
+            "workspace": self.workspace,
+        }
+
+    def get_initial(self):
+        return {"purpose": self.workspace.purpose}
 
 
 class WorkspaceFileList(View):

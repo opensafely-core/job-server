@@ -936,6 +936,16 @@ class Workspace(models.Model):
     def get_create_snapshot_api_url(self):
         return reverse("api:snapshot-create", kwargs={"workspace_id": self.name})
 
+    def get_edit_url(self):
+        return reverse(
+            "workspace-edit",
+            kwargs={
+                "org_slug": self.project.org.slug,
+                "project_slug": self.project.slug,
+                "workspace_slug": self.name,
+            },
+        )
+
     def get_files_url(self):
         return reverse(
             "workspace-files-list",
