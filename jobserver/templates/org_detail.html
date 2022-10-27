@@ -53,21 +53,15 @@
                     {{ project.title }}
                   </p>
                   <div class="ml-2 flex flex-shrink-0">
-                    <p class="
-                      inline-flex rounded-full px-2 text-xs font-semibold leading-5
-                      {% if project.status == "retired" %}
-                        bg-bn-flamenco-200 text-bn-flamenco-900
-                      {% elif project.status == "ongoing" %}
-                        bg-blue-200 text-blue-900
-                      {% elif project.status == "postponed" %}
-                        bg-red-200 text-red-900
-                      {% elif project.status == "completed" %}
-                        bg-green-200 text-green-900
-                      {% endif %}
-                    ">
-                      <span class="sr-only">Status:</span>
-                      {{ project.get_status_display }}
-                    </p>
+                    {% if project.status == "retired" %}
+                      {% pill sr_only="Status:" variant="warning" text=project.get_status_display %}
+                    {% elif project.status == "ongoing" %}
+                      {% pill sr_only="Status:" variant="primary" text=project.get_status_display %}
+                    {% elif project.status == "postponed" %}
+                      {% pill sr_only="Status:" variant="danger" text=project.get_status_display %}
+                    {% elif project.status == "completed" %}
+                      {% pill sr_only="Status:" variant="success" text=project.get_status_display %}
+                    {% endif %}
                   </div>
                 </div>
                 <div class="mt-2 sm:flex sm:justify-between">

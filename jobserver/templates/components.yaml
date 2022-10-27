@@ -10,6 +10,7 @@ components:
   form_input: "_components/form/input.html"
   header: "_components/header.html"
   link: "_components/link.html"
+  pill: "_components/pill.html"
   skip_link: "_components/skip-link.html"
   timeline_item: "_components/timeline-item.html"
   tooltip: "_components/tooltip.html"
