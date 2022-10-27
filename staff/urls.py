@@ -16,7 +16,7 @@ from .views.backends import (
     BackendList,
     BackendRotateToken,
 )
-from .views.dashboards import DashboardIndex
+from .views.dashboards.index import DashboardIndex
 from .views.index import Index
 from .views.orgs import (
     OrgCreate,
