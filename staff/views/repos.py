@@ -204,7 +204,17 @@ class RepoDetail(View):
         )
         workspaces = [build_workspace(w, users) for w in workspaces]
 
+        def build_contact(user):
+            return (
+                f"{user.fullname} <{user.notifications_email}>"
+                if user.fullname
+                else user.notifications_email
+            )
+
+        contacts = ", ".join({build_contact(w["created_by"]) for w in workspaces})
+
         context = {
+            "contacts": contacts,
             "first_job_ran_at": first_job_ran_at,
             "has_releases": "github-releases" in api_repo["topics"],
             "last_job_ran_at": last_job_ran_at,
