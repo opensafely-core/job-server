@@ -892,6 +892,7 @@ class Workspace(models.Model):
     branch = models.TextField()
     is_archived = models.BooleanField(default=False)
     should_notify = models.BooleanField(default=False)
+    purpose = models.TextField(default="")
 
     db = models.TextField(choices=[("full", "Full database")], default="full")
 
@@ -934,6 +935,16 @@ class Workspace(models.Model):
 
     def get_create_snapshot_api_url(self):
         return reverse("api:snapshot-create", kwargs={"workspace_id": self.name})
+
+    def get_edit_url(self):
+        return reverse(
+            "workspace-edit",
+            kwargs={
+                "org_slug": self.project.org.slug,
+                "project_slug": self.project.slug,
+                "workspace_slug": self.name,
+            },
+        )
 
     def get_files_url(self):
         return reverse(

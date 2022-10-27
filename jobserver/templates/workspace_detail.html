@@ -68,6 +68,7 @@
         </p>
 
         <div>
+          <a class="btn btn-danger mr-1" href="{{ workspace.get_edit_url }}">Edit</a>
           {% if user_can_run_jobs %}
             <a class="btn btn-primary mr-1" href="{{ run_jobs_url }}">Run Jobs</a>
           {% endif %}
@@ -200,8 +201,23 @@
         request jobs are run from this page.
       </p>
 
+      {% comment %}
+      Remove this check once we can rely on the purpose field
+      {% endcomment %}
+      {% if workspace.purpose %}
+      <div class="card mb-3">
+        <h2 class="h5 card-header">
+          Purpose
+        </h2>
+
+        <p class="card-body mb-0">
+          {{ workspace.purpose }}
+        </p>
+      </div>
+      {% endif %}
+
       {% if user_can_use_releases %}
-      <div class="card border-0">
+      <div class="card border-0 mb-3">
         <h2 class="h5 card-header border border-bottom-0">
           Releases
         </h2>
@@ -236,7 +252,7 @@
       {% endif %}
 
       {% if honeycomb_can_view_links %}
-      <div class="card border pt-3">
+      <div class="card border-0">
         <h2 class="h5 card-header border border-bottom-0">
           Monitoring <span class="badge badge-pill badge-info">Honeycomb login Required</span>
         </h2>

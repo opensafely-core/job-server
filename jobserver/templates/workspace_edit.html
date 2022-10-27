@@ -1,0 +1,73 @@
+{% extends "base.html" %}
+
+{% block metatitle %}Edit: {{ workspace.name }} | OpenSAFELY Jobs{% endblock metatitle %}
+
+{% block breadcrumbs %}
+<nav class="breadcrumb-container" aria-label="breadcrumb">
+  <div class="container">
+    <ol class="breadcrumb rounded-0 mb-0 px-0">
+      <li class="breadcrumb-item">
+        <a href="/">Home</a>
+      </li>
+      <li class="breadcrumb-item">
+        <a href="{{ workspace.project.org.get_absolute_url }}">
+          {{ workspace.project.org.name }}
+        </a>
+      </li>
+      <li class="breadcrumb-item">
+        <a href="{{ workspace.project.get_absolute_url }}">
+          {{ workspace.project.title }}
+        </a>
+      </li>
+      <li class="breadcrumb-item">
+        <a href="{{ workspace.get_absolute_url }}">
+          {{ workspace.name }}
+        </a>
+      </li>
+      <li class="breadcrumb-item active" aria-current="page">
+        edit
+      </li>
+    </ol>
+  </div>
+</nav>
+{% endblock breadcrumbs %}
+
+{% block jumbotron %}
+<div class="jumbotron jumbotron-fluid">
+  <div class="container">
+    <h1>Edit {{ workspace.name }}</h1>
+  </div>
+</div>
+{% endblock jumbotron %}
+
+{% block content %}
+<div class="container">
+  <div class="row">
+    <div class="col-lg-9 col-xl-8">
+
+      <form method="POST">
+        {% csrf_token %}
+        <fieldset class="mb-2">
+          <legend class="h3 mb-3">Workspace details</legend>
+
+          {% if form.non_field_errors %}
+            <ul>
+              {% for error in form.non_field_errors %}
+                <li class="text-danger">{{ error }}</li>
+              {% endfor %}
+            </ul>
+          {% endif %}
+
+          {% include "components/form_textarea.html" with field=form.purpose label="Workspace purpose" name="purpose" %}
+
+        </fieldset>
+
+        <button type="submit" class="btn btn-success">
+          Save
+        </button>
+
+      </form>
+    </div>
+  </div>
+</div>
+{% endblock content %}

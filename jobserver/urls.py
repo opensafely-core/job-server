@@ -57,6 +57,7 @@ from .views.workspaces import (
     WorkspaceBackendFiles,
     WorkspaceCreate,
     WorkspaceDetail,
+    WorkspaceEdit,
     WorkspaceFileList,
     WorkspaceLatestOutputsDetail,
     WorkspaceLatestOutputsDownload,
@@ -205,6 +206,7 @@ workspace_urls = [
         WorkspaceDetail.as_view(),
         name="workspace-detail",
     ),
+    path("edit/", WorkspaceEdit.as_view(), name="workspace-edit"),
     path(
         "run-jobs/",
         JobRequestCreate.as_view(),

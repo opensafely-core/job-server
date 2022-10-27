@@ -57,6 +57,7 @@
           {% endif %}
 
           {% include "components/form_text.html" with field=form.name label="Workspace name" name="name" %}
+          {% include "components/form_textarea.html" with field=form.purpose label="Workspace purpose" name="purpose" %}
 
           <div class="form-group">
             <label for="id_repo" class="col-form-label font-weight-bold">GitHub repo</label>
