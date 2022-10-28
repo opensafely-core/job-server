@@ -3,12 +3,13 @@
 {% block metatitle %}{{ org.name }} | OpenSAFELY Jobs{% endblock metatitle %}
 
 {% block breadcrumbs %}
+  {% url "home" as home_url %}
+  {% url "org-list" as orgs_url %}
+
   {% #breadcrumbs %}
-    {% url "home" as home_url %}
     {% breadcrumb title="Home" url=home_url %}
-    {% url "org-list" as orgs_url %}
     {% breadcrumb title="Organisations" url=orgs_url %}
-    {% breadcrumb location="Organisation" active=True title=org.name %}
+    {% breadcrumb title=org.name active=True %}
   {% /breadcrumbs %}
 {% endblock breadcrumbs %}
 
@@ -27,7 +28,7 @@
       />
     {% endif %}
     <div class="flex-grow flex flex-col gap-y-4 md:gap-y-2">
-      <h1 class="text-3xl tracking-tight break-all md:bread-words md:text-4xl font-bold text-slate-900">
+      <h1 class="text-3xl tracking-tight break-words md:text-4xl font-bold text-slate-900">
         {{ org.name }}
       </h1>
       <p class="font-lg text-slate-600">
