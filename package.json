@@ -67,7 +67,7 @@
     "react-window": "^1.8.7",
     "select2": "^4.0.13",
     "tablesorter": "^2.31.3",
-    "tailwindcss": "^3.1.8",
+    "tailwindcss": "^3.2.1",
     "whatwg-fetch": "^3.6.2"
   },
   "eslintConfig": {
