@@ -26,13 +26,13 @@
       {{ children }}
     </span>
     <div class="min-w-0 flex-1 flex justify-between space-x-4">
-      {% if job_time or content %}
+      {% if time or content %}
         <p class="text-sm text-slate-500">
           <span class="block">{{ title }}</span>
-          {% if job_time %}
-            <time class="font-medium text-slate-900 group relative cursor-pointer" datetime="{{ job_time|date:"Y-m-d H:i:sO" }}">
-              {{ job_time|naturaltime }}
-              {% tooltip class="font-mono" position="-bottom-4" content=job_time|date:"d M Y H:i:s e" %}
+          {% if time %}
+            <time class="font-medium text-slate-900 group relative cursor-pointer" datetime="{{ time|date:"Y-m-d H:i:sO" }}">
+              {{ time|naturaltime }}
+              {% tooltip class="font-mono" position="-bottom-4" content=time|date:"d M Y H:i:s e" %}
             </time>
           {% else %}
             <span class="font-medium text-slate-900">
