@@ -71,4 +71,99 @@
       </div>
     </div>
   </div>
+
+  <div class="grid grid-cols-1 gap-6 lg:grid-flow-col-dense mt-2 md:mt-8 lg:grid-cols-3">
+    {% if workspaces %}
+      {% #card title="Workspaces" class="lg:col-span-2" %}
+        <ul role="list" class="divide-y divide-slate-200 border-t border-t-slate-200">
+          {% for workspace in workspaces %}
+            <li>
+              <a href="{{ workspace.get_absolute_url }}" class="block transition-colors duration-200 hover:bg-oxford-50">
+                <div class="px-4 py-4 sm:px-6">
+                  <div class="flex items-center justify-between">
+                    <p class="truncate text-base font-semibold text-oxford-600">
+                      {{ workspace.name }}
+                    </p>
+                    <div class="ml-2 flex flex-shrink-0">
+                      {% if project.status == "retired" %}
+                        {% pill sr_only="Status:" variant="warning" text=project.get_status_display %}
+                      {% elif project.status == "ongoing" %}
+                        {% pill sr_only="Status:" variant="primary" text=project.get_status_display %}
+                      {% elif project.status == "postponed" %}
+                        {% pill sr_only="Status:" variant="danger" text=project.get_status_display %}
+                      {% elif project.status == "completed" %}
+                        {% pill sr_only="Status:" variant="success" text=project.get_status_display %}
+                      {% endif %}
+                    </div>
+                  </div>
+                  <div class="mt-2 sm:flex sm:justify-between">
+                    <div class="sm:flex">
+                      <p class="flex items-center text-sm text-slate-600">
+                        {% icon_github_outline class="mr-1.5 h-5 w-5 flex-shrink-0 text-slate-400" %}
+                        {{ workspace.repo.name }}
+                      </p>
+                      <p class="flex items-center text-sm text-slate-600 mt-2 sm:mt-0 sm:ml-6">
+                        {% icon_branches_outline class="mr-1.5 h-5 w-5 flex-shrink-0 text-slate-400" %}
+                        {{ workspace.branch }}
+                      </p>
+                    </div>
+                    <div class="mt-2 flex items-center text-sm text-slate-600 sm:mt-0">
+                      {% icon_calendar_outline class="mr-1.5 h-5 w-5 flex-shrink-0 text-slate-400" %}
+                      <time datetime="{{ workspace.created_at|date:"Y-m-d H:i:sO" }}">
+                        <span class="sr-only">Workspace created:</span>
+                        {{ workspace.created_at|date:"d M Y" }}
+                      </time>
+                    </div>
+                  </div>
+                </div>
+              </a>
+            </li>
+          {% endfor %}
+        </ul>
+      {% /card %}
+    {% else %}
+      {% #card class="lg:col-span-2" %}
+        <div class="text-center p-8">
+          {% icon_folder_outline class="mx-auto h-12 w-12 text-slate-400" %}
+          <h2 class="mt-2 text-lg font-semibold text-slate-900">
+            No workspaces
+          </h2>
+          <p class="mt-2 text-base text-slate-600">
+            This projects does not have any workspaces yet
+          </p>
+        </div>
+      {% /card %}
+    {% endif %}
+
+    {% #card title="Project timeline" class="lg:col-span-1" container=True %}
+      <ul class="flow-root {% if not first_job_ran_at or first_job_ran_at > project.created_at %}-mb-6{% endif %}">
+        {% #timeline_item background="blue" title="Project created:" job_time=project.created_at %}
+          {% icon_pencil_outline class="h-5 w-5" %}
+        {% /timeline_item %}
+
+        {% if first_job_ran_at %}
+          {% #timeline_item background="green" title="Code first run:" job_time=first_job_ran_at last=True %}
+            {% icon_code_bracket_outline class="h-5 w-5" %}
+          {% /timeline_item %}
+        {% else %}
+          {% #timeline_item background="yellow" title="Code first run:" content="No code has run" last=True %}
+            {% icon_code_bracket_outline class="h-5 w-5" %}
+          {% /timeline_item %}
+        {% endif %}
+      </ul>
+      {% if first_job_ran_at < project.created_at %}
+        <div class="bg-slate-50 text-sm font-medium text-slate-600 px-4 py-2 -mx-4 -my-3 md:px-6 md:py-5 md:-mb-5 md:-mx-6">
+          <details class="">
+            <summary class="">
+              Why was the project created after code was first run?
+            </summary>
+            <p class="">
+              The concept of projects were added to this site after
+              workspaces, so some workspaces predate their projects.
+            </p>
+          </details>
+        </div>
+      {% endif %}
+    {% /card %}
+  </div>
 {% endblock %}
