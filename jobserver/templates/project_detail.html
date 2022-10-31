@@ -15,6 +15,16 @@
 {% endblock breadcrumbs %}
 
 {% block content %}
+  {% if project.slug == "opensafely-testing" %}
+    {% #alert variant="warning" title="This is a test project" class="mb-6" %}
+      This project exists for testing purposes only.
+      More information can be found in the
+      {% spaceless %}
+        {% link text="OpenSAFELY testing policy" href="https://docs.opensafely.org/developer-access-policy/" %}
+      {% endspaceless %}.
+    {% /alert %}
+  {% endif %}
+
   <div class="
     mb-6 mt-0 flex flex-col gap-4 text-center
     sm:mt-2 sm:flex-row sm:text-left
