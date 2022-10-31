@@ -15,203 +15,50 @@
 {% endblock breadcrumbs %}
 
 {% block content %}
-<div class="jumbotron jumbotron-fluid pt-md-2">
-  <div class="container">
-    <h1>{{ project.title }}</h1>
-    <p class="lead">
-      {% if project.description %}
-        {{ project.description }}
-      {% else %}
-        This is an OpenSAFELY project. Every time a researcher runs their
-        analytic code against patient data, it is audited in public here. Use
-        the "logs" buttons below to explore more.
+  <div class="
+    mb-6 mt-0 flex flex-col gap-4 text-center
+    sm:mt-2 sm:flex-row sm:text-left
+    md:mt-0 md:gap-6
+  ">
+    <div class="flex-shrink-0 flex flex-col items-center">
+      {% if project.org.logo_file %}
+        <img
+          alt="{{ project.org.name }} logo"
+          class="w-24 h-24 bg-white aspect-square rounded-2xl border border-slate-200 shadow-sm overflow-hidden flex-shrink-0 mt-1 mb-2"
+          height="144"
+          src="{{ project.org.logo_file.url }}"
+          width="144"
+        />
       {% endif %}
-    </p>
-    {% if is_member %}
-    <a class="btn btn-primary" href="{{ project.get_edit_url }}">Edit</a>
-    {% endif %}
-
-    {% if project.slug == "opensafely-testing" %}
-    <div class="alert alert-warning mt-3" role="warning">
-      This project exists for testing purposes only.
-      More information can be found in the
-      <a href="https://docs.opensafely.org/developer-access-policy/">OpenSAFELY testing policy</a>.
-    </div>
-    {% endif %}
-  </div>
-</div>
-<div class="container">
-  <div class="row">
-    <div class="mb-3 mb-lg-0 col-lg-8">
-      <div class="card border-0">
-        <h2 class="h5 card-header border border-bottom-0">
-          Workspaces
-        </h2>
-
-        <div class="list-group list-group-flush">
-          {% if can_create_workspaces %}
-            <a class="list-group-item list-group-item-success border-bottom-0" href="{% url 'workspace-create' org_slug=project.org.slug project_slug=project.slug %}">
-              Create a new workspace &nearr;
-            </a>
-          {% endif %}
-          <ul class="list-unstyled mb-0">
-            {% for workspace in workspaces %}
-              <li class="list-group-item d-flex align-items-center">
-                <div class="mr-3">
-                  <span class="mr-1">
-                    <a href="{{ workspace.get_absolute_url }}">
-                      {{ workspace.name }}
-                    </a>
-                  </span>
-                  {% if workspace.is_archived %}
-                  <span class="badge badge-pill badge-secondary">Archived</span>
-                  {% endif %}
-                </div>
-                <a class="btn btn-sm btn-primary ml-auto" href="{{ workspace.get_logs_url }}">
-                  Logs
-                </a>
-              </li>
-            {% endfor %}
-          </ul>
-        </div>
+      <div>
+        {% if project.status == "retired" %}
+          {% pill sr_only="Status:" variant="warning" text=project.get_status_display %}
+        {% elif project.status == "ongoing" %}
+          {% pill sr_only="Status:" variant="primary" text=project.get_status_display %}
+        {% elif project.status == "postponed" %}
+          {% pill sr_only="Status:" variant="danger" text=project.get_status_display %}
+        {% elif project.status == "completed" %}
+          {% pill sr_only="Status:" variant="success" text=project.get_status_display %}
+        {% endif %}
       </div>
     </div>
-
-    <div class="col-lg-4">
-      <ul class="list-unstyled">
-        <li class="card mb-3">
-          <h2 class="card-header h5">
-            Status
-          </h2>
-          <p class="card-body mb-0">
-            {{ project.get_status_display }}
-          </p>
-          {% if project.status_description %}
-          <p>{{ project.status_description }}</p>
+    <div class="flex-grow flex flex-col gap-y-4 sm:gap-y-2">
+      <h1 class="text-3xl tracking-tight break-words sm:text-4xl font-bold text-slate-900">
+        {{ project.name }}
+      </h1>
+      <div class="max-w-prose font-lg">
+        <p class="text-slate-600">
+          {% if project.description %}
+            {{ project.description }}
+          {% else %}
+            {{ project.name }} is an OpenSAFELY project from
+            {% spaceless %}
+              {% link href=project.org.get_absolute_url text=project.org.name %}
+            {% endspaceless %}. Every time a researcher runs their analytic
+            code against patient data, it is audited in public here.
           {% endif %}
-        </li>
-        {% if repos %}
-          <li class="card mb-3">
-            <h2 class="card-header h5">
-              Repos
-            </h2>
-            <ul class="list-group list-group-flush">
-              {% for repo in repos %}
-                {% if repo.is_private %}
-                  <li class="list-group-item">
-                    <a href="{{ repo.url }}">
-                      {{ repo.name }}
-                    </a>
-                    <p class="mt-1 mb-1">This repo is not publicly viewable.</p>
-                    <details class="small">
-                      <summary class="font-weight-bold text-primary">Why is this repo private?</summary>
-                      <div class="pl-3">
-                        <p class="my-1">In accordance with the <a href="https://www.opensafely.org/about/#transparency-and-public-logs">Principles of OpenSAFELY</a> we expect all code from all users to be made public.</p>
-                        <p class="mb-0">However, some GitHub repositories may be private during the development stage of a project, which means any links to them from this site will return a '404 Not Found' error unless you are logged in and have the relevant permissions.</p>
-                      </div>
-                    </details>
-                  </li>
-                {% else %}
-                  <a href="{{ repo.url }}" class="list-group-item list-group-item-action">
-                    {{ repo.name }}
-                  </a>
-                {% endif %}
-              {% endfor %}
-            </ul>
-          </li>
-        {% endif %}
-
-        <li class="card mb-3">
-          <h2 class="card-header h5">
-            Timeline
-          </h2>
-          <div class="card-body mb-0">
-            <div class="mb-3">
-              <strong>Created:</strong>
-              <time datetime="{{ project.created_at|date:"Y-m-d H:i:sO" }}" title="{{ project.created_at|date:"Y-m-d H:i:sO" }}">
-                {{ project.created_at|naturaltime }}
-              </time>
-            </div>
-
-            <div class="mb-0">
-              <strong>Code first run:</strong>
-
-              {% if first_job_ran_at %}
-              <time datetime="{{ first_job_ran_at|date:"Y-m-d H:i:sO" }}" title="{{ first_job_ran_at|date:"Y-m-d H:i:sO" }}">
-                {{ first_job_ran_at|naturaltime }}
-              </time>
-              {% if first_job_ran_at < project.created_at %}
-              <details class="small mt-1">
-                <summary class="font-weight-bold text-primary">Why is this job older than the project?</summary>
-                <div class="pl-3">
-                  <p class="mb-0">
-                    The concept of projects were added to this site after
-                    workspaces, so some workspaces predate their projects.
-                  </p>
-                </div>
-              </details>
-              {% endif %}
-              {% else %}
-              No code has run yet.
-              {% endif %}
-            </div>
-          </div>
-        </li>
-
-        <li class="card mb-3">
-          <h2 class="card-header h5">
-            Organisation
-          </h2>
-          <p class="card-body mb-0">
-            <a href="{{ project.org.get_absolute_url }}">{{ project.org.name }}</a>
-          </p>
-        </li>
-
-        <li class="card mb-3">
-          <h2 class="card-header h5">
-            Researchers
-          </h2>
-          <ul class="card-body list-unstyled">
-            {% for membership in memberships %}
-              {% if not project_org_in_user_orgs %}
-              <li>{{ membership.user.name }}</li>
-              {% else %}
-              <li class="mb-3">
-                <span>{{ membership.user.name }}</span>
-                <ul class="list-unstyled">
-                  {% for role in membership.roles %}
-                  <li>
-                    <span class="badge badge-pill badge-secondary">
-                      {{ role.display_name }}
-                    </span>
-                  </li>
-                  {% endfor %}
-                </ul>
-              </li>
-              {% endif %}
-            {% endfor %}
-          </ul>
-        </li>
-
-        {% if outputs %}
-        <li class="card">
-          <h2 class="card-header h5">
-            Outputs
-          </h2>
-          <ul class="card-body list-unstyled">
-            {% for snapshot in outputs %}
-              <li>
-                <a href="{{ snapshot.get_absolute_url }}">
-                  Published on {{ snapshot.created_at|date:"Y-m-d" }}
-                </a>
-              </li>
-            {% endfor %}
-          </ul>
-        </li>
-        {% endif %}
-
-      </ul>
+        </p>
+      </div>
     </div>
   </div>
-</div>
 {% endblock %}
