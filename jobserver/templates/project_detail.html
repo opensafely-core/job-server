@@ -25,72 +25,75 @@
     {% /alert %}
   {% endif %}
 
-  <div class="grid grid-cols-1 gap-6 lg:grid-cols-3">
-    <div class="grid lg:lg:grid-cols-3 lg:col-span-3">
-      <div class="
-        mb-6 mt-0 flex flex-col gap-4 text-center
-        sm:mt-2 sm:flex-row sm:text-left
-        md:mt-0 md:gap-6
-        lg:col-span-2
-      ">
-        <div class="flex-shrink-0 flex flex-col items-center">
-          {% if project.org.logo_file %}
-            <img
-              alt="{{ project.org.name }} logo"
-              class="w-24 h-24 bg-white aspect-square rounded-2xl border border-slate-200 shadow-sm overflow-hidden flex-shrink-0 mt-1 mb-2"
-              height="144"
-              src="{{ project.org.logo_file.url }}"
-              width="144"
-            />
-          {% endif %}
-          <div>
-            {% if workspace.status == "archived" %}
-              {% pill sr_only="Status:" variant="warning" text=project.get_status_display %}
-            {% elif project.status == "ongoing" %}
-              {% pill sr_only="Status:" variant="primary" text=project.get_status_display %}
-            {% elif project.status == "postponed" %}
-              {% pill sr_only="Status:" variant="danger" text=project.get_status_display %}
-            {% elif project.status == "completed" %}
-              {% pill sr_only="Status:" variant="success" text=project.get_status_display %}
-            {% endif %}
-          </div>
-        </div>
-        <div class="flex-grow flex flex-col gap-y-4 sm:gap-y-2">
-          <h1 class="text-3xl tracking-tight break-words sm:text-4xl font-bold text-slate-900">
-            {{ project.name }}
-          </h1>
-          <div class="max-w-prose font-lg">
-            <p class="text-slate-600">
-              {% if project.description %}
-                {{ project.description }}
-              {% else %}
-                {{ project.name }} is an OpenSAFELY project from
-                {% spaceless %}
-                  {% link href=project.org.get_absolute_url text=project.org.name %}
-                {% endspaceless %}. Every time a researcher runs their analytic
-                code against patient data, it is audited in public here.
-              {% endif %}
-            </p>
-          </div>
-          {% if project.status_description %}
-            {% #alert variant="info" title="Project "|add:project.status class="mt-3 !shadow-none border" no_icon %}
-              {{ project.status_description }}
-            {% /alert %}
+  <div class="grid grid-cols-1 lg:lg:grid-cols-3 lg:col-span-3">
+    <div class="
+      mb-6 mt-0 flex flex-col gap-4 text-center
+      sm:mt-2 sm:flex-row sm:text-left
+      md:mt-0 md:gap-6
+      lg:col-span-2
+    ">
+      <div class="flex-shrink-0 flex flex-col items-center">
+        {% if project.org.logo_file %}
+          <img
+            alt="{{ project.org.name }} logo"
+            class="w-24 h-24 bg-white aspect-square rounded-2xl border border-slate-200 shadow-sm overflow-hidden flex-shrink-0 mt-1 mb-2"
+            height="144"
+            src="{{ project.org.logo_file.url }}"
+            width="144"
+          />
+        {% endif %}
+        <div>
+          {% if workspace.status == "archived" %}
+            {% pill sr_only="Status:" variant="warning" text=project.get_status_display %}
+          {% elif project.status == "ongoing" %}
+            {% pill sr_only="Status:" variant="primary" text=project.get_status_display %}
+          {% elif project.status == "postponed" %}
+            {% pill sr_only="Status:" variant="danger" text=project.get_status_display %}
+          {% elif project.status == "completed" %}
+            {% pill sr_only="Status:" variant="success" text=project.get_status_display %}
           {% endif %}
         </div>
       </div>
-      {% if is_member %}
-        <div class="flex flex-row justify-end items-start">
-          {% #button href=project.get_edit_url type="link" variant="secondary" %}
-            Edit workspace
-            {% icon_pencil_outline class="h-4 w-4 ml-2 -mr-2" %}
-          {% /button %}
+
+      <div class="flex-grow flex flex-col gap-y-4 sm:gap-y-2">
+        <h1 class="text-3xl tracking-tight break-words sm:text-4xl font-bold text-slate-900">
+          {{ project.name }}
+        </h1>
+        <div class="max-w-prose font-lg text-slate-600">
+          {% if project.description %}
+            {{ project.description }}
+          {% else %}
+            <p>
+              {{ project.name }} is an OpenSAFELY project from
+              {% spaceless %}
+                {% link href=project.org.get_absolute_url text=project.org.name %}
+              {% endspaceless %}. Every time a researcher runs their analytic
+              code against patient data, it is audited in public here.
+            </p>
+          {% endif %}
+          </p>
         </div>
-      {% endif %}
+        {% if project.status_description %}
+          {% #alert variant="info" title="Project "|add:project.status class="mt-3 !shadow-none border" no_icon %}
+            {{ project.status_description }}
+          {% /alert %}
+        {% endif %}
+      </div>
     </div>
 
+    {% if is_member %}
+      <div class="flex flex-row mb-6 justify-center lg:mb-0 lg:justify-end lg:items-start">
+        {% #button href=project.get_edit_url type="link" variant="secondary" %}
+          Edit workspace
+          {% icon_pencil_outline class="h-4 w-4 ml-2 -mr-2" %}
+        {% /button %}
+      </div>
+    {% endif %}
+  </div>
+
+  <div class="grid grid-cols-1 gap-6 lg:grid-cols-3">
     {% if workspaces %}
-      {% #card class="lg:col-span-2" %}
+      {% #card class="lg:col-span-2" aria_labelled_by="workspaces-title" %}
         <div class="px-4 py-2 sm:px-6 sm:py-3">
           <div class="flex flex-wrap items-center justify-between sm:flex-nowrap">
             <h2 id="workspaces-title" class="text-xl font-semibold tracking-tight text-slate-900">
@@ -105,44 +108,57 @@
           </div>
         </div>
 
-        <ul role="list" class="divide-y divide-slate-200 border-t border-t-slate-200">
+        <ul aria-label="Workspaces within &quot;{{ project.name }}&quot;" class="divide-y divide-slate-200 border-t border-t-slate-200">
           {% for workspace in workspaces %}
-            <li>
-              <a href="{{ workspace.get_absolute_url }}" class="block transition-colors duration-200 hover:bg-oxford-50">
-                <div class="px-4 py-4 sm:px-6">
-                  <div class="flex items-center justify-between">
-                    <p class="truncate text-base font-semibold text-oxford-600">
+            <li class="relative transition-colors hover:bg-oxford-50 group">
+              <dl class="flex flex-col gap-2 px-4 py-4 sm:px-6">
+                <div class="flex">
+                  <dt class="sr-only">Workspace:</dt>
+                  <dd class="
+                    text-base font-semibold text-oxford-600 transition-colors truncate
+                    group-hover:text-oxford-900
+                    group-focus:text-oxford-900
+                  ">
+                    <a
+                      class="
+                        focus:bg-oxford-50 focus:outline-none focus:ring-2 focus:ring-inset
+                        before:absolute before:top-0 before:bottom-0 before:right-0 before:left-0 before:h-full before:w-full"
+                      href="{{ workspace.get_absolute_url }}"
+                    >
                       {{ workspace.name }}
-                    </p>
-                    <div class="ml-2 flex flex-shrink-0">
+                    </a>
+                  </dd>
+                  <div class="ml-auto">
+                    <dt class="sr-only">Status:</dt>
+                    <dd class="ml-2 flex-shrink-0">
                       {% if workspace.is_archived %}
-                        {% pill sr_only="Status:" variant="warning" text="Archived" %}
+                        {% pill variant="warning" text="Archived" %}
                       {% else %}
-                        {% pill sr_only="Status:" variant="primary" text="Active" %}
+                        {% pill variant="primary" text="Active" %}
                       {% endif %}
-                    </div>
-                  </div>
-                  <div class="mt-2 sm:flex sm:justify-between">
-                    <div class="sm:flex">
-                      <p class="flex items-center text-sm text-slate-600">
-                        {% icon_github_outline class="mr-1.5 h-5 w-5 flex-shrink-0 text-slate-400" %}
-                        {{ workspace.repo.name }}
-                      </p>
-                      <p class="flex items-center text-sm text-slate-600 mt-2 sm:mt-0 sm:ml-6">
-                        {% icon_branches_outline class="mr-1.5 h-5 w-5 flex-shrink-0 text-slate-400" %}
-                        {{ workspace.branch }}
-                      </p>
-                    </div>
-                    <div class="mt-2 flex items-center text-sm text-slate-600 sm:mt-0">
-                      {% icon_calendar_outline class="mr-1.5 h-5 w-5 flex-shrink-0 text-slate-400" %}
-                      <time datetime="{{ workspace.created_at|date:"Y-m-d H:i:sO" }}">
-                        <span class="sr-only">Workspace created:</span>
-                        {{ workspace.created_at|date:"d M Y" }}
-                      </time>
-                    </div>
+                    </dd>
                   </div>
                 </div>
-              </a>
+                <div class="flex flex-col gap-2 text-sm text-slate-600 sm:flex-row sm:gap-x-4">
+                  <dt class="sr-only">GitHub repository:</dt>
+                  <dd class="flex flex-row items-start">
+                    {% icon_github_outline class="mr-1.5 h-5 w-5 flex-shrink-0 text-slate-400" %}
+                    {{ workspace.repo.name }}
+                  </dd>
+                  <dt class="sr-only">Git branch:</dt>
+                  <dd class="flex flex-row items-start">
+                    {% icon_branches_outline class="mr-1.5 h-5 w-5 flex-shrink-0 text-slate-400" %}
+                    {{ workspace.branch }}
+                  </dd>
+                  <dt class="sr-only">Created at:</dt>
+                  <dd class="flex flex-row items-start sm:ml-auto">
+                    {% icon_calendar_outline class="mr-1.5 h-5 w-5 flex-shrink-0 text-slate-400" %}
+                    <time datetime="{{ workspace.created_at|date:"Y-m-d H:i:sO" }}">
+                      {{ workspace.created_at|date:"d M Y" }}
+                    </time>
+                  </dd>
+                </div>
+              </dl>
             </li>
           {% endfor %}
         </ul>
@@ -203,7 +219,7 @@
                     "
                     href="{{ repo.url }}"
                   >
-                    {{ repo.name }}{{ repo.name }}{{ repo.name }}
+                    {{ repo.name }}
                   </a>
                 </li>
               {% endif %}
@@ -218,7 +234,7 @@
             {% for repo in repos|dictsort:"is_private" %}
               {% if repo.is_private %}
                 <li class="break-words px-4 py-3 font-semibold sm:px-6">
-                  {{ repo.name }}{{ repo.name }}{{ repo.name }}
+                  {{ repo.name }}
                 </li>
               {% endif %}
             {% endfor %}

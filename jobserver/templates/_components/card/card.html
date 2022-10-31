@@ -1,6 +1,10 @@
 <section
   {% attrs class %}
-  aria-labelledby="{{ title | slugify }}-title"
+  {% if aria_labelled_by %}
+    aria-labelledby="{{ aria_labelled_by }}"
+  {% else %}
+    aria-labelledby="{{ title | slugify }}-title"
+  {% endif %}
 >
   <div class="bg-white shadow rounded-lg overflow-hidden">
     {% if title or subtitle %}
