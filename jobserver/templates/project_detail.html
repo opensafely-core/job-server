@@ -25,56 +25,86 @@
     {% /alert %}
   {% endif %}
 
-  <div class="
-    mb-6 mt-0 flex flex-col gap-4 text-center
-    sm:mt-2 sm:flex-row sm:text-left
-    md:mt-0 md:gap-6
-  ">
-    <div class="flex-shrink-0 flex flex-col items-center">
-      {% if project.org.logo_file %}
-        <img
-          alt="{{ project.org.name }} logo"
-          class="w-24 h-24 bg-white aspect-square rounded-2xl border border-slate-200 shadow-sm overflow-hidden flex-shrink-0 mt-1 mb-2"
-          height="144"
-          src="{{ project.org.logo_file.url }}"
-          width="144"
-        />
-      {% endif %}
-      <div>
-        {% if project.status == "retired" %}
-          {% pill sr_only="Status:" variant="warning" text=project.get_status_display %}
-        {% elif project.status == "ongoing" %}
-          {% pill sr_only="Status:" variant="primary" text=project.get_status_display %}
-        {% elif project.status == "postponed" %}
-          {% pill sr_only="Status:" variant="danger" text=project.get_status_display %}
-        {% elif project.status == "completed" %}
-          {% pill sr_only="Status:" variant="success" text=project.get_status_display %}
-        {% endif %}
-      </div>
-    </div>
-    <div class="flex-grow flex flex-col gap-y-4 sm:gap-y-2">
-      <h1 class="text-3xl tracking-tight break-words sm:text-4xl font-bold text-slate-900">
-        {{ project.name }}
-      </h1>
-      <div class="max-w-prose font-lg">
-        <p class="text-slate-600">
-          {% if project.description %}
-            {{ project.description }}
-          {% else %}
-            {{ project.name }} is an OpenSAFELY project from
-            {% spaceless %}
-              {% link href=project.org.get_absolute_url text=project.org.name %}
-            {% endspaceless %}. Every time a researcher runs their analytic
-            code against patient data, it is audited in public here.
+  <div class="grid grid-cols-1 gap-6 lg:grid-cols-3">
+    <div class="grid lg:lg:grid-cols-3 lg:col-span-3">
+      <div class="
+        mb-6 mt-0 flex flex-col gap-4 text-center
+        sm:mt-2 sm:flex-row sm:text-left
+        md:mt-0 md:gap-6
+        lg:col-span-2
+      ">
+        <div class="flex-shrink-0 flex flex-col items-center">
+          {% if project.org.logo_file %}
+            <img
+              alt="{{ project.org.name }} logo"
+              class="w-24 h-24 bg-white aspect-square rounded-2xl border border-slate-200 shadow-sm overflow-hidden flex-shrink-0 mt-1 mb-2"
+              height="144"
+              src="{{ project.org.logo_file.url }}"
+              width="144"
+            />
           {% endif %}
-        </p>
+          <div>
+            {% if workspace.status == "archived" %}
+              {% pill sr_only="Status:" variant="warning" text=project.get_status_display %}
+            {% elif project.status == "ongoing" %}
+              {% pill sr_only="Status:" variant="primary" text=project.get_status_display %}
+            {% elif project.status == "postponed" %}
+              {% pill sr_only="Status:" variant="danger" text=project.get_status_display %}
+            {% elif project.status == "completed" %}
+              {% pill sr_only="Status:" variant="success" text=project.get_status_display %}
+            {% endif %}
+          </div>
+        </div>
+        <div class="flex-grow flex flex-col gap-y-4 sm:gap-y-2">
+          <h1 class="text-3xl tracking-tight break-words sm:text-4xl font-bold text-slate-900">
+            {{ project.name }}
+          </h1>
+          <div class="max-w-prose font-lg">
+            <p class="text-slate-600">
+              {% if project.description %}
+                {{ project.description }}
+              {% else %}
+                {{ project.name }} is an OpenSAFELY project from
+                {% spaceless %}
+                  {% link href=project.org.get_absolute_url text=project.org.name %}
+                {% endspaceless %}. Every time a researcher runs their analytic
+                code against patient data, it is audited in public here.
+              {% endif %}
+            </p>
+          </div>
+          {% if project.status_description %}
+            {% #alert variant="info" title="Project "|add:project.status class="mt-3 !shadow-none border" no_icon %}
+              {{ project.status_description }}
+            {% /alert %}
+          {% endif %}
+        </div>
       </div>
+      {% if is_member %}
+        <div class="flex flex-row justify-end items-start">
+          {% #button href=project.get_edit_url type="link" variant="secondary" %}
+            Edit workspace
+            {% icon_pencil_outline class="h-4 w-4 ml-2 -mr-2" %}
+          {% /button %}
+        </div>
+      {% endif %}
     </div>
-  </div>
 
-  <div class="grid grid-cols-1 gap-6 lg:grid-flow-col-dense mt-2 md:mt-8 lg:grid-cols-3">
     {% if workspaces %}
-      {% #card title="Workspaces" class="lg:col-span-2" %}
+      {% #card class="lg:col-span-2" %}
+        <div class="px-4 py-2 sm:px-6 sm:py-3">
+          <div class="flex flex-wrap items-center justify-between sm:flex-nowrap">
+            <h2 id="workspaces-title" class="text-xl font-semibold tracking-tight text-slate-900">
+              Workspaces
+            </h2>
+            {% if can_create_workspaces %}
+              {% url 'workspace-create' org_slug=project.org.slug project_slug=project.slug as new_workspace_url %}
+              {% #button href=new_workspace_url type="link" variant="primary" %}
+                Create a new workspace
+              {% /button %}
+            {% endif %}
+          </div>
+        </div>
+
         <ul role="list" class="divide-y divide-slate-200 border-t border-t-slate-200">
           {% for workspace in workspaces %}
             <li>
@@ -85,14 +115,10 @@
                       {{ workspace.name }}
                     </p>
                     <div class="ml-2 flex flex-shrink-0">
-                      {% if project.status == "retired" %}
-                        {% pill sr_only="Status:" variant="warning" text=project.get_status_display %}
-                      {% elif project.status == "ongoing" %}
-                        {% pill sr_only="Status:" variant="primary" text=project.get_status_display %}
-                      {% elif project.status == "postponed" %}
-                        {% pill sr_only="Status:" variant="danger" text=project.get_status_display %}
-                      {% elif project.status == "completed" %}
-                        {% pill sr_only="Status:" variant="success" text=project.get_status_display %}
+                      {% if workspace.is_archived %}
+                        {% pill sr_only="Status:" variant="warning" text="Archived" %}
+                      {% else %}
+                        {% pill sr_only="Status:" variant="primary" text="Active" %}
                       {% endif %}
                     </div>
                   </div>
@@ -164,18 +190,20 @@
 
       {% if repos %}
         {% #card title="Public repos" %}
-          <ul role="list" class="divide-y divide-slate-200 border-t border-t-slate-200">
+          <ul role="list" class="divide-y divide-slate-200 border-t border-t-slate-200 text-sm">
             {% for repo in repos|dictsort:"is_private" %}
               {% if not repo.is_private %}
                 <li>
-                  <a href="{{ repo.get_absolute_url }}" class="block transition-colors duration-200 hover:bg-oxford-50">
-                    <div class="px-4 py-4 sm:px-6">
-                      <div class="flex items-center justify-between">
-                        <p class="truncate text-base font-semibold text-oxford-600">
-                          {{ repo.name }}
-                        </p>
-                      </div>
-                    </div>
+                  <a
+                    class="
+                      block transition-colors duration-200 px-4 py-3 font-semibold text-oxford-600
+                      hover:bg-oxford-50
+                      focus:bg-oxford-50 focus:outline-none focus:ring-2 focus:ring-inset
+                      sm:px-6
+                    "
+                    href="{{ repo.url }}"
+                  >
+                    {{ repo.name }}{{ repo.name }}{{ repo.name }}
                   </a>
                 </li>
               {% endif %}
@@ -185,20 +213,12 @@
       {% endif %}
 
       {% if repos %}
-        {% #card title="Private repos" subtitle="These repos are not publicly viewable" %}
-          <ul role="list" class="divide-y divide-slate-200 border-t border-t-slate-200">
+        {% #card title="Private repos" subtitle="These repos are currently not publicly visible" %}
+          <ul role="list" class="divide-y divide-slate-200 border-t border-t-slate-200 text-sm">
             {% for repo in repos|dictsort:"is_private" %}
               {% if repo.is_private %}
-                <li>
-                  <span href="{{ repo.get_absolute_url }}" class="block">
-                    <div class="px-4 py-4 sm:px-6">
-                      <div class="flex flex-col">
-                        <p class="truncate text-base font-semibold">
-                          {{ repo.name }}
-                        </p>
-                      </div>
-                    </div>
-                  </span>
+                <li class="break-words px-4 py-3 font-semibold sm:px-6">
+                  {{ repo.name }}{{ repo.name }}{{ repo.name }}
                 </li>
               {% endif %}
             {% endfor %}

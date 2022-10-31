@@ -4,18 +4,28 @@
   {% var icon_color="text-bn-flamenco-400" %}
   {% var title_color="text-bn-flamenco-900" %}
   {% var text_color="text-bn-flamenco-800" %}
+{% elif variant == "info" %}
+  {% var bg="bg-white" %}
+  {% var icon="_icons/exclamation-solid.svg" %}
+  {% var icon_color="text-slate-400" %}
+  {% var title_color="text-slate-900" %}
+  {% var text_color="text-slate-700" %}
 {% endif %}
 
 <div class="rounded-lg shadow p-4 {{ bg }} {{ class }}">
-  <div class="flex">
-    <div class="flex-shrink-0">
-      {% include icon with class="h-7 w-7 "|add:icon_color only %}
-    </div>
-    <div class="ml-3">
+  {% if not no_icon %}
+    <div class="flex">
+      <div class="flex-shrink-0">
+        {% include icon with class="h-7 w-7 "|add:icon_color only %}
+      </div>
+      <div class="ml-3">
+  {% endif %}
       <h2 class="font-bold text-lg tracking-tight {{ title_color }}">
         {{ title }}
       </h3>
       <p class="mt-1 {{ text_color }}">{{ children }}</p>
+  {% if not no_icon %}
     </div>
   </div>
+  {% endif %}
 </div>
