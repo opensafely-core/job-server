@@ -93,9 +93,11 @@
         {% icon_status_online_outline class="h-5 w-5" %}
       {% /timeline_item %}
     </ul>
-    <p class="bg-slate-50 text-sm font-medium text-slate-600 px-4 py-2 -mx-4 -my-3 md:px-6 md:py-5 md:-mb-5 md:-mx-6">
-      These timestamps are generated and stored using the UTC timezone on the {{ job.job_request.backend|upper }} backend.
-    </p>
+    {% #card_footer %}
+      <p class="text-sm font-medium text-slate-600">
+        These timestamps are generated and stored using the UTC timezone on the {{ job.job_request.backend|upper }} backend.
+      </p>
+    {% /card_footer %}
   {% /card %}
 
   <div class="space-y-6 md:space-y-6 lg:col-start-2 lg:col-span-2">

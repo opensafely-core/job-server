@@ -4,6 +4,7 @@ components:
   breadcrumbs: "_components/breadcrumbs.html"
   button: "_components/button.html"
   card: "_components/card.html"
+  card_footer: "_components/card-footer.html"
   description_item: "_components/description-item.html"
   footer: "_components/footer.html"
   form_input: "_components/form/input.html"
