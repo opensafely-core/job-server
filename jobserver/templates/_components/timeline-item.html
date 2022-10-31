@@ -1,6 +1,6 @@
 {% load humanize %}
 
-<li class="relative {% if padding_bottom %}pb-8{% endif %}">
+<li class="relative {% if not no_padding_bottom %}pb-8{% endif %}">
   {% if not last %}
     <span class="absolute top-4 left-4 -ml-px h-full w-0.5 bg-slate-200" aria-hidden="true"></span>
   {% endif %}

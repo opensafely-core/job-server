@@ -55,41 +55,41 @@
 <div class="grid grid-cols-1 gap-6 lg:grid-flow-col-dense mt-2 md:mt-8 lg:grid-cols-3">
   {% #card title="Timeline" class="lg:col-start-1 lg:col-span-1" container=True %}
     <ul class="flow-root">
-      {% #timeline_item background="blue" title="Created by the backend:" time=job.created_at padding_bottom=True %}
+      {% #timeline_item background="blue" title="Created by the backend:" time=job.created_at %}
         {% icon_pencil_outline class="h-5 w-5" %}
       {% /timeline_item %}
 
       {% if job.started_at %}
-        {% #timeline_item background="purple" title="Moved to the pending or running state on the backend:" time=job.started_at padding_bottom=True %}
+        {% #timeline_item background="purple" title="Moved to the pending or running state on the backend:" time=job.started_at %}
           {% icon_folder_open_outline class="h-5 w-5" %}
         {% /timeline_item %}
       {% endif %}
 
       {% if job.status == "pending" %}
-        {% #timeline_item background="yellow" title="Pending run on the backend" time=job.completed_at padding_bottom=True %}
+        {% #timeline_item background="yellow" title="Pending run on the backend" time=job.completed_at %}
           {% icon_ellipsis_horizontal_outline class="h-5 w-5" %}
         {% /timeline_item %}
       {% elif job.status == "running" %}
-        {% #timeline_item background="blue" title="Running on the backend" time=job.completed_at padding_bottom=True %}
+        {% #timeline_item background="blue" title="Running on the backend" time=job.completed_at %}
           {% icon_ellipsis_horizontal_outline class="h-5 w-5" %}
         {% /timeline_item %}
       {% elif job.status == "failed" %}
-        {% #timeline_item background="pink" title="Failed running on the backend:" time=job.completed_at padding_bottom=True %}
+        {% #timeline_item background="pink" title="Failed running on the backend:" time=job.completed_at %}
           {% icon_x_outline class="h-5 w-5" %}
         {% /timeline_item %}
       {% elif job.status == "succeeded" %}
-        {% #timeline_item background="green" title="Finished running on the backend:" time=job.completed_at padding_bottom=True %}
+        {% #timeline_item background="green" title="Finished running on the backend:" time=job.completed_at %}
           {% icon_check_outline class="h-5 w-5" %}
         {% /timeline_item %}
       {% endif %}
 
       {% if job.runtime %}
-        {% #timeline_item background="stone" title="Time spent running on the backend:" content=job.runtime padding_bottom=True %}
+        {% #timeline_item background="stone" title="Time spent running on the backend:" content=job.runtime %}
           {% icon_clock_outline class="h-5 w-5" %}
         {% /timeline_item %}
       {% endif %}
 
-      {% #timeline_item background="slate" title="Last update by backend:" time=job.updated_at last=True padding_bottom=True %}
+      {% #timeline_item background="slate" title="Last update by backend:" time=job.updated_at last=True %}
         {% icon_status_online_outline class="h-5 w-5" %}
       {% /timeline_item %}
     </ul>
