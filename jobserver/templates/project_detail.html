@@ -135,35 +135,121 @@
       {% /card %}
     {% endif %}
 
-    {% #card title="Project timeline" class="lg:col-span-1" container=True %}
-      <ul class="flow-root {% if not first_job_ran_at or first_job_ran_at > project.created_at %}-mb-6{% endif %}">
-        {% #timeline_item background="blue" title="Project created:" job_time=project.created_at %}
-          {% icon_pencil_outline class="h-5 w-5" %}
-        {% /timeline_item %}
+    <div class="lg:col-start-3 lg:col-span-1 gap-y-6 flex flex-col">
+      {% #card title="Project timeline" container=True %}
+        <ul class="flow-root {% if not first_job_ran_at or first_job_ran_at > project.created_at %}-mb-6{% endif %}">
+          {% #timeline_item background="blue" title="Project created:" job_time=project.created_at %}
+            {% icon_pencil_outline class="h-5 w-5" %}
+          {% /timeline_item %}
 
-        {% if first_job_ran_at %}
-          {% #timeline_item background="green" title="Code first run:" job_time=first_job_ran_at last=True %}
-            {% icon_code_bracket_outline class="h-5 w-5" %}
-          {% /timeline_item %}
-        {% else %}
-          {% #timeline_item background="yellow" title="Code first run:" content="No code has run" last=True %}
-            {% icon_code_bracket_outline class="h-5 w-5" %}
-          {% /timeline_item %}
+          {% if first_job_ran_at %}
+            {% #timeline_item background="green" title="Code first run:" job_time=first_job_ran_at last=True %}
+              {% icon_code_bracket_outline class="h-5 w-5" %}
+            {% /timeline_item %}
+          {% else %}
+            {% #timeline_item background="yellow" title="Code first run:" content="No code has run" last=True %}
+              {% icon_code_bracket_outline class="h-5 w-5" %}
+            {% /timeline_item %}
+          {% endif %}
+        </ul>
+        {% if first_job_ran_at < project.created_at %}
+          <div class="bg-slate-50 text-sm font-medium text-slate-600 px-4 py-2 -mx-4 -my-3 md:px-6 md:py-5 md:-mb-5 md:-mx-6">
+            <details class="">
+              <summary class="">
+                Why was the project created after code was first run?
+              </summary>
+              <p class="">
+                The concept of projects were added to this site after
+                workspaces, so some workspaces predate their projects.
+              </p>
+            </details>
+          </div>
         {% endif %}
-      </ul>
-      {% if first_job_ran_at < project.created_at %}
-        <div class="bg-slate-50 text-sm font-medium text-slate-600 px-4 py-2 -mx-4 -my-3 md:px-6 md:py-5 md:-mb-5 md:-mx-6">
-          <details class="">
-            <summary class="">
-              Why was the project created after code was first run?
-            </summary>
-            <p class="">
-              The concept of projects were added to this site after
-              workspaces, so some workspaces predate their projects.
-            </p>
-          </details>
-        </div>
+      {% /card %}
+
+      {% if repos %}
+        {% #card title="Public repos" %}
+          <ul role="list" class="divide-y divide-slate-200 border-t border-t-slate-200">
+            {% for repo in repos|dictsort:"is_private" %}
+              <li>
+                {% if not repo.is_private %}
+                  <a href="{{ repo.get_absolute_url }}" class="block transition-colors duration-200 hover:bg-oxford-50">
+                    <div class="px-4 py-4 sm:px-6">
+                      <div class="flex items-center justify-between">
+                        <p class="truncate text-base font-semibold text-oxford-600">
+                          {{ repo.name }}
+                        </p>
+                      </div>
+                    </div>
+                  </a>
+                {% endif %}
+              </li>
+            {% endfor %}
+          </ul>
+        {% /card %}
       {% endif %}
-    {% /card %}
+
+      {% if repos %}
+        {% #card title="Private repos" %}
+          <p class="mt-1 mb-1">This repo is not publicly viewable.</p>
+          <details class="small">
+            <summary class="font-weight-bold text-primary">Why is this repo private?</summary>
+            <div class="pl-3">
+              <p class="my-1">In accordance with the <a href="https://www.opensafely.org/about/#transparency-and-public-logs">Principles of OpenSAFELY</a> we expect all code from all users to be made public.</p>
+              <p class="mb-0">However, some GitHub repositories may be private during the development stage of a project, which means any links to them from this site will return a '404 Not Found' error unless you are logged in and have the relevant permissions.</p>
+            </div>
+          </details>
+          <ul role="list" class="divide-y divide-slate-200 border-t border-t-slate-200">
+            {% for repo in repos|dictsort:"is_private" %}
+              <li>
+                {% if repo.is_private %}
+                  <span href="{{ repo.get_absolute_url }}" class="block">
+                    <div class="px-4 py-4 sm:px-6">
+                      <div class="flex flex-col">
+                        <p class="truncate text-base font-semibold">
+                          {{ repo.name }}
+                        </p>
+                      </div>
+                    </div>
+                  </span>
+                {% endif %}
+              </li>
+            {% endfor %}
+          </ul>
+        {% /card %}
+      {% endif %}
+
+      {% if outputs %}
+        {% #card title="Outputs" %}
+          <ul role="list" class="divide-y divide-slate-200 border-t border-t-slate-200">
+            {% for output in outputs %}
+              <li>
+                <a href="{{ output.get_absolute_url }}" class="block transition-colors duration-200 hover:bg-oxford-50">
+                  <div class="px-4 py-4 sm:px-6">
+                    <p class="truncate text-base font-semibold text-oxford-600">
+                      Published on {{ output.created_at|date:"Y-m-d" }}
+                    </p>
+                  </div>
+                </a>
+              </li>
+            {% endfor %}
+          </ul>
+        {% /card %}
+      {% endif %}
+
+      {% if memberships %}
+        {% #card title="Researchers" %}
+          <div class="border-t border-t-slate-200">
+            <ul role="list" class="list-disc flex flex-col gap-y-1 py-4 pr-4 sm:pr-6 sm:ml-5 sm:pl-4">
+              {% for membership in memberships %}
+                <li>
+                  {{ membership.user.name }}
+                </li>
+              {% endfor %}
+            </ul>
+          </div>
+        {% /card %}
+      {% endif %}
+    </div>
   </div>
 {% endblock %}
