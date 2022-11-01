@@ -1,7 +1,7 @@
 components:
   alert: "_components/alert.html"
-  breadcrumb: "_components/breadcrumb.html"
-  breadcrumbs: "_components/breadcrumbs.html"
+  breadcrumb: "_components/breadcrumbs/breadcrumb.html"
+  breadcrumbs: "_components/breadcrumbs/breadcrumbs-container.html"
   button: "_components/button.html"
   card: "_components/card/card.html"
   card_footer: "_components/card/card-footer.html"
