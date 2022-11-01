@@ -177,7 +177,7 @@
 
     <div class="lg:col-start-3 lg:col-span-1 gap-y-6 flex flex-col">
       {% #card title="Project timeline" container=True %}
-        <ul class="flow-root {% if not first_job_ran_at or first_job_ran_at > project.created_at %}-mb-6{% endif %}">
+        <ul class="flow-root">
           {% #timeline_item background="blue" title="Project created:" time=project.created_at %}
             {% icon_pencil_outline class="h-5 w-5" %}
           {% /timeline_item %}
