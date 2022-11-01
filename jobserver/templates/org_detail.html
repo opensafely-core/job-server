@@ -43,7 +43,7 @@
 
   {% if projects %}
     {% #card title="Projects" subtitle="OpenSAFELY projects started by "|add:org.name %}
-      <ul role="list" class="divide-y divide-slate-200 border-t border-t-slate-200">
+      {% #list_group %}
         {% for project in projects %}
           <li>
             <a href="{{ project.get_absolute_url }}" class="block transition-colors duration-200 hover:bg-oxford-50">
@@ -89,7 +89,7 @@
             </a>
           </li>
         {% endfor %}
-      </ul>
+      {% /list_group %}
     {% /card %}
   {% else %}
     {% #card %}
