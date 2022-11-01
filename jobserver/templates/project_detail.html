@@ -204,7 +204,7 @@
 
       {% if repos %}
         {% #card title="Public repos" %}
-          <ul role="list" class="divide-y divide-slate-200 border-t border-t-slate-200 text-sm">
+          {% #list_group small=True %}
             {% for repo in repos|dictsort:"is_private" %}
               {% if not repo.is_private %}
                 {% #list_group_item href=repo.url %}
@@ -212,7 +212,7 @@
                 {% /list_group_item%}
               {% endif %}
             {% endfor %}
-          </ul>
+          {% /list_group %}
         {% /card %}
       {% endif %}
 
