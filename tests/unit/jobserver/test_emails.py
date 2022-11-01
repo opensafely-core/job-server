@@ -3,9 +3,18 @@ from datetime import timedelta
 from django.conf import settings
 from django.utils import timezone
 
-from jobserver.emails import send_finished_notification
+from jobserver.emails import (
+    send_finished_notification,
+    send_researcher_repo_signed_off_notification,
+)
 
-from ...factories import JobFactory, JobRequestFactory, WorkspaceFactory
+from ...factories import (
+    JobFactory,
+    JobRequestFactory,
+    RepoFactory,
+    UserFactory,
+    WorkspaceFactory,
+)
 
 
 def test_send_finished_notification(mailoutbox):
@@ -38,3 +47,24 @@ def test_send_finished_notification(mailoutbox):
     assert settings.BASE_URL in m.body
 
     assert list(m.to) == ["test@example.com"]
+
+
+def test_send_researcher_repo_signed_off_notification(mailoutbox):
+    user1 = UserFactory()
+    user2 = UserFactory()
+    user3 = UserFactory()
+
+    repo = RepoFactory(
+        researcher_signed_off_at=timezone.now(),
+        researcher_signed_off_by=user1,
+    )
+    WorkspaceFactory(created_by=user1, repo=repo)
+    WorkspaceFactory(created_by=user2, repo=repo)
+    WorkspaceFactory(created_by=user3, repo=repo)
+
+    send_researcher_repo_signed_off_notification(repo)
+
+    m = mailoutbox[0]
+
+    assert list(m.to) == []
+    assert list(m.bcc) == [user1.email, user2.email, user3.email]
