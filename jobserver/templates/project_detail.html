@@ -42,17 +42,15 @@
             width="144"
           />
         {% endif %}
-        <div>
-          {% if workspace.status == "archived" %}
-            {% pill sr_only="Status:" variant="warning" text=project.get_status_display %}
-          {% elif project.status == "ongoing" %}
-            {% pill sr_only="Status:" variant="primary" text=project.get_status_display %}
-          {% elif project.status == "postponed" %}
-            {% pill sr_only="Status:" variant="danger" text=project.get_status_display %}
-          {% elif project.status == "completed" %}
-            {% pill sr_only="Status:" variant="success" text=project.get_status_display %}
-          {% endif %}
-        </div>
+        {% if workspace.status == "archived" %}
+          {% pill sr_only="Status:" variant="warning" text=project.get_status_display %}
+        {% elif project.status == "ongoing" %}
+          {% pill sr_only="Status:" variant="primary" text=project.get_status_display %}
+        {% elif project.status == "postponed" %}
+          {% pill sr_only="Status:" variant="danger" text=project.get_status_display %}
+        {% elif project.status == "completed" %}
+          {% pill sr_only="Status:" variant="success" text=project.get_status_display %}
+        {% endif %}
       </div>
 
       <div class="flex-grow flex flex-col gap-y-4 sm:gap-y-2">
@@ -209,19 +207,9 @@
           <ul role="list" class="divide-y divide-slate-200 border-t border-t-slate-200 text-sm">
             {% for repo in repos|dictsort:"is_private" %}
               {% if not repo.is_private %}
-                <li>
-                  <a
-                    class="
-                      block transition-colors duration-200 px-4 py-3 font-semibold text-oxford-600
-                      hover:bg-oxford-50
-                      focus:bg-oxford-50 focus:outline-none focus:ring-2 focus:ring-inset
-                      sm:px-6
-                    "
-                    href="{{ repo.url }}"
-                  >
-                    {{ repo.name }}
-                  </a>
-                </li>
+                {% #list_group_item href=repo.url %}
+                  {{ repo.name }}
+                {% /list_group_item%}
               {% endif %}
             {% endfor %}
           </ul>
@@ -230,15 +218,15 @@
 
       {% if repos %}
         {% #card title="Private repos" subtitle="These repos are currently not publicly visible" %}
-          <ul role="list" class="divide-y divide-slate-200 border-t border-t-slate-200 text-sm">
+          {% #list_group small=True %}
             {% for repo in repos|dictsort:"is_private" %}
               {% if repo.is_private %}
-                <li class="break-words px-4 py-3 font-semibold sm:px-6">
+                {% #list_group_item href=repo.url %}
                   {{ repo.name }}
-                </li>
+                {% /list_group_item%}
               {% endif %}
             {% endfor %}
-          </ul>
+          {% /list_group %}
           {% #card_footer no_container=True %}
             <div class="prose prose-sm">
               <p>In accordance with the <a href="https://www.opensafely.org/about/#transparency-and-public-logs">Principles of OpenSAFELY</a> we expect all code from all users to be made public.</p>
@@ -250,23 +238,13 @@
 
       {% if outputs %}
         {% #card title="Outputs" %}
-          <ul role="list" class="divide-y divide-slate-200 border-t border-t-slate-200 text-sm">
+          {% #list_group small=True %}
             {% for output in outputs %}
-              <li>
-                <a
-                  class="
-                    block transition-colors duration-200 px-4 py-3 font-semibold text-oxford-600
-                    hover:bg-oxford-50
-                    focus:bg-oxford-50 focus:outline-none focus:ring-2 focus:ring-inset
-                    sm:px-6
-                  "
-                  href="{{ output.get_absolute_url }}"
-                >
-                  Published on {{ output.created_at|date:"Y-m-d" }}
-                </a>
-              </li>
+              {% #list_group_item href=output.get_absolute_url %}
+                Published on {{ output.created_at|date:"Y-m-d" }}
+              {% /list_group_item%}
             {% endfor %}
-          </ul>
+          {% /list_group %}
         {% /card %}
       {% endif %}
 
@@ -275,14 +253,13 @@
           <div class="border-t border-t-slate-200">
             <ul role="list" class="text-sm list-disc flex flex-col gap-y-1 py-4 pr-4 sm:pr-6 sm:ml-5 sm:pl-4">
               {% for membership in memberships %}
-                <li>
-                  {{ membership.user.name }}
-                </li>
+                <li>{{ membership.user.name }}</li>
               {% endfor %}
             </ul>
           </div>
         {% /card %}
       {% endif %}
+
     </div>
   </div>
 {% endblock %}
