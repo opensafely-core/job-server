@@ -47,8 +47,8 @@ def test_projectdetail_success(rf, user):
 
     assert response.status_code == 200
 
-    assert len(response.context_data["repos"]) == 1
-    assert response.context_data["repos"] == [
+    assert not response.context_data["public_repos"]
+    assert response.context_data["private_repos"] == [
         {
             "name": "some-research",
             "url": "https://github.com/opensafely/some-research",
@@ -123,8 +123,8 @@ def test_projectdetail_with_no_github(rf):
 
     # check there is no public/private badge when GitHub returns an
     # unsuccessful response
-    assert response.context_data["repos"][0]["is_private"] is None
-    assert "Private" not in response.rendered_content
+    assert not response.context_data["public_repos"]
+    assert response.context_data["private_repos"][0]["is_private"] is None
     assert "Public" not in response.rendered_content
 
 

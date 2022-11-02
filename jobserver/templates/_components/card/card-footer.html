@@ -1,3 +1,13 @@
-<div class="bg-slate-50 px-4 py-2 -mx-4 -my-3 md:px-6 md:py-5 md:-mb-5 md:-mx-6">
+<div
+  class="
+    bg-slate-50 px-4 py-2
+    md:px-6 md:py-5
+
+    {% if not no_container %}
+      -mx-4 mt-6
+      md:-mb-5 md:-mx-6
+    {% endif %}
+  "
+>
   {{ children }}
 </div>

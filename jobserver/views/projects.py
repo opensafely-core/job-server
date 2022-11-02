@@ -42,8 +42,6 @@ class ProjectDetail(View):
         )
         workspaces = project.workspaces.order_by("is_archived", "name")
 
-        repos = set(workspaces.values_list("repo__url", flat=True))
-
         project_org_in_user_orgs = False
         if request.user.is_authenticated:
             project_org_in_user_orgs = project.org in request.user.orgs.all()
@@ -59,6 +57,17 @@ class ProjectDetail(View):
         else:
             first_job_ran_at = None
 
+        repo_urls = set(workspaces.values_list("repo__url", flat=True))
+        all_repos = list(self.iter_repos(repo_urls))
+        private_repos = sorted(
+            (r for r in all_repos if r["is_private"] or r["is_private"] is None),
+            key=operator.itemgetter("name"),
+        )
+        public_repos = sorted(
+            (r for r in all_repos if r["is_private"] is False),
+            key=operator.itemgetter("name"),
+        )
+
         context = {
             "can_create_workspaces": can_create_workspaces,
             "first_job_ran_at": first_job_ran_at,
@@ -66,9 +75,8 @@ class ProjectDetail(View):
             "memberships": memberships,
             "outputs": self.get_outputs(workspaces),
             "project": project,
-            "repos": list(
-                sorted(self.iter_repos(repos), key=operator.itemgetter("name"))
-            ),
+            "private_repos": private_repos,
+            "public_repos": public_repos,
             "project_org_in_user_orgs": project_org_in_user_orgs,
             "workspaces": workspaces,
         }
