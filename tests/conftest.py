@@ -212,6 +212,7 @@ slack_test_channel = os.environ.get("SLACK_TEST_CHANNEL")
 
 @pytest.fixture
 def slack_messages(monkeypatch, enable_network):
+    """A mailoutbox style fixture for slack messages"""
     messages = []
 
     actual_post = services.slack.post

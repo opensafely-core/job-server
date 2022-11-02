@@ -89,3 +89,17 @@ def notify_copilot_windows_closing(projects, channel="co-pilot-support"):
     message = f"Projects with support window ending soon:{''.join(project_urls)}"
 
     slack.post(text=message, channel=channel)
+
+
+def notify_copilots_of_repo_sign_off(repo, channel="co-pilot-support"):
+    repo_name = f"{repo.owner}/{repo.name}"
+    repo_link = slack.link(repo.get_staff_url(), repo_name)
+
+    user_link = slack.link(
+        repo.researcher_signed_off_by.get_staff_url(),
+        repo.researcher_signed_off_by.name,
+    )
+
+    message = f"The {repo_link} repo was signed off by {user_link}"
+
+    slack.post(text=message, channel=channel)
