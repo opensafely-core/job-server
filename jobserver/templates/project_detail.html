@@ -119,7 +119,7 @@
           {% for workspace in workspaces %}
             <li class="relative transition-colors hover:bg-oxford-50 group">
               <dl class="flex flex-col gap-2 px-4 py-4 sm:px-6">
-                <div class="flex">
+                <div class="flex gap-x-2">
                   <dt class="sr-only">Workspace:</dt>
                   <dd class="
                     text-base font-semibold text-oxford-600 transition-colors truncate
@@ -135,9 +135,8 @@
                       {{ workspace.name }}
                     </a>
                   </dd>
-                  <div class="ml-auto">
                     <dt class="sr-only">Status:</dt>
-                    <dd class="ml-2 flex-shrink-0">
+                  <dd class="ml-auto flex-shrink-0">
                       {% if workspace.is_archived %}
                         {% pill variant="warning" text="Archived" %}
                       {% else %}
