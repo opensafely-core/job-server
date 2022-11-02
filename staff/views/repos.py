@@ -211,7 +211,7 @@ class RepoDetail(View):
                 else user.notifications_email
             )
 
-        contacts = ", ".join({build_contact(w["created_by"]) for w in workspaces})
+        contacts = "; ".join({build_contact(w["created_by"]) for w in workspaces})
 
         context = {
             "contacts": contacts,
