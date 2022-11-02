@@ -16,7 +16,8 @@ from .views.backends import (
     BackendList,
     BackendRotateToken,
 )
-from .views.dashboards import DashboardIndex
+from .views.dashboards.copiloting import Copiloting
+from .views.dashboards.index import DashboardIndex
 from .views.index import Index
 from .views.orgs import (
     OrgCreate,
@@ -92,6 +93,7 @@ backend_urls = [
 
 dashboard_urls = [
     path("", DashboardIndex.as_view(), name="index"),
+    path("copiloting/", Copiloting.as_view(), name="copiloting"),
     path("repos", PrivateReposDashboard.as_view(), name="repos"),
 ]
 
