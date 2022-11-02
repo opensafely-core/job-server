@@ -1,4 +1,8 @@
-from jobserver.auth_pipeline import notify_on_new_user, set_notifications_email
+from jobserver.auth_pipeline import (
+    notify_on_new_user,
+    set_fullname,
+    set_notifications_email,
+)
 
 from ...factories import UserFactory
 
@@ -20,6 +24,33 @@ def test_notify_on_new_user_with_new_user(slack_messages):
     text, channel = slack_messages[0]
     assert channel == "job-server-registrations"
     assert text == f"New user ({user.username}) registered: <{url}>"
+
+
+def test_set_fullname_already_set():
+    user = UserFactory(fullname="Testy Mctesterson")
+
+    set_fullname(user, details={"fullname": "test"})
+
+    user.refresh_from_db()
+    assert user.fullname == "Testy Mctesterson"
+
+
+def test_set_fullname_empty():
+    user = UserFactory()
+
+    set_fullname(user, details={"fullname": "test"})
+
+    user.refresh_from_db()
+    assert user.fullname == "test"
+
+
+def test_set_fullname_empty_fullname_in_details():
+    user = UserFactory()
+
+    set_fullname(user, details={"fullname": ""})
+
+    user.refresh_from_db()
+    assert user.fullname == ""
 
 
 def test_set_notifications_email_already_set():

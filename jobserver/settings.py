@@ -357,9 +357,11 @@ SOCIAL_AUTH_PIPELINE = [
     "social_core.pipeline.social_auth.associate_user",
     "social_core.pipeline.social_auth.load_extra_data",
     "social_core.pipeline.user.user_details",
+    "jobserver.auth_pipeline.set_fullname",
     "jobserver.auth_pipeline.set_notifications_email",
     "jobserver.auth_pipeline.notify_on_new_user",
 ]
+SOCIAL_AUTH_PROTECTED_USER_FIELDS = ["fullname"]
 
 # Sentry
 initialise_sentry()
