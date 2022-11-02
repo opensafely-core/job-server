@@ -219,7 +219,9 @@ def test_signoffrepo_post_all_workspaces_signed_off_and_name(rf):
     assert not repo.researcher_signed_off_at
 
 
-def test_signoffrepo_post_all_workspaces_signed_off_and_no_name(rf, mailoutbox):
+def test_signoffrepo_post_all_workspaces_signed_off_and_no_name(
+    rf, mailoutbox, slack_messages
+):
     user = UserFactory()
     project = ProjectFactory()
     ProjectMembershipFactory(project=project, user=user)
@@ -252,6 +254,7 @@ def test_signoffrepo_post_all_workspaces_signed_off_and_no_name(rf, mailoutbox):
     assert repo.researcher_signed_off_by
 
     assert len(mailoutbox) == 1
+    assert len(slack_messages) == 1
 
 
 def test_signoffrepo_post_no_signed_off_workspaces_and_no_name(rf):

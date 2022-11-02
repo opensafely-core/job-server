@@ -15,6 +15,7 @@ from furl import furl
 from ..emails import send_researcher_repo_signed_off_notification
 from ..github import _get_github_api
 from ..models import Org, Project, ProjectMembership, Repo
+from ..slacks import notify_copilots_of_repo_sign_off
 
 
 def build_workspace(workspace, github_api):
@@ -132,6 +133,9 @@ class SignOffRepo(TemplateView):
             # notify the workspace creators this has happened so they get a
             # chance to contact us if there is an error
             send_researcher_repo_signed_off_notification(self.repo)
+
+            # notify the copilots that a repo has been signed off by a user
+            notify_copilots_of_repo_sign_off(self.repo)
 
             return redirect("/")
 
