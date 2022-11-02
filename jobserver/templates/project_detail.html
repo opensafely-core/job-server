@@ -135,29 +135,28 @@
                       {{ workspace.name }}
                     </a>
                   </dd>
-                    <dt class="sr-only">Status:</dt>
+                  <dt class="sr-only">Status:</dt>
                   <dd class="ml-auto flex-shrink-0">
-                      {% if workspace.is_archived %}
-                        {% pill variant="warning" text="Archived" %}
-                      {% else %}
-                        {% pill variant="primary" text="Active" %}
-                      {% endif %}
-                    </dd>
-                  </div>
+                    {% if workspace.is_archived %}
+                      {% pill variant="warning" text="Archived" %}
+                    {% else %}
+                      {% pill variant="primary" text="Active" %}
+                    {% endif %}
+                  </dd>
                 </div>
                 <div class="flex flex-col gap-2 text-sm text-slate-600 sm:flex-row sm:gap-x-4">
                   <dt class="sr-only">GitHub repository:</dt>
-                  <dd class="flex flex-row items-start">
+                  <dd class="flex flex-row items-start overflow-hidden max-w-[50%]">
                     {% icon_github_outline class="mr-1.5 h-5 w-5 flex-shrink-0 text-slate-400" %}
-                    {{ workspace.repo.name }}
+                    <span class="truncate">{{ workspace.repo.name }}</span>
                   </dd>
                   <dt class="sr-only">Git branch:</dt>
-                  <dd class="flex flex-row items-start">
+                  <dd class="flex flex-row items-start overflow-hidden max-w-[50%]">
                     {% icon_branches_outline class="mr-1.5 h-5 w-5 flex-shrink-0 text-slate-400" %}
-                    {{ workspace.branch }}
+                    <span class="truncate">{{ workspace.branch }}</span>
                   </dd>
                   <dt class="sr-only">Created at:</dt>
-                  <dd class="flex flex-row items-start sm:ml-auto">
+                  <dd class="flex flex-row flex-shrink-0 items-start sm:ml-auto">
                     {% icon_calendar_outline class="mr-1.5 h-5 w-5 flex-shrink-0 text-slate-400" %}
                     <time datetime="{{ workspace.created_at|date:"Y-m-d H:i:sO" }}">
                       {{ workspace.created_at|date:"d M Y" }}
