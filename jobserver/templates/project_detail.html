@@ -60,6 +60,11 @@
         {% elif project.status == "completed" %}
           {% pill sr_only="Status:" variant="success" text=project.get_status_display %}
         {% endif %}
+        {% if request.user.is_authenticated and project.number %}
+          {% #pill sr_only="Project number:" class="mt-2" variant="info" %}
+            #{{ project.number }}
+          {% /pill %}
+        {% endif %}
       </div>
 
       <div class="flex-grow flex flex-col gap-y-4 sm:gap-y-2">
