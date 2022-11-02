@@ -2,7 +2,7 @@
 
 {% load humanize %}
 
-{% block metatitle %}{{ project.title }} | OpenSAFELY Jobs{% endblock metatitle %}
+{% block metatitle %}{{ project.name }} | OpenSAFELY Jobs{% endblock metatitle %}
 
 {% block breadcrumbs %}
   {% url "home" as home_url %}
@@ -10,7 +10,7 @@
   {% #breadcrumbs %}
     {% breadcrumb title="Home" url=home_url %}
     {% breadcrumb title=project.org.name url=project.org.get_absolute_url location="Organisation" %}
-    {% breadcrumb title=project.title active=True location="Project" %}
+    {% breadcrumb title=project.name active=True location="Project" %}
   {% /breadcrumbs %}
 {% endblock breadcrumbs %}
 
