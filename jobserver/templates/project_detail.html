@@ -256,12 +256,23 @@
             <ul
               class="
                 text-sm list-disc flex flex-col gap-y-1 px-4 py-3 ml-4
-                md:px-6 md:py-5 md:ml-5
+                md:px-6 md:py-4 md:ml-5
               "
               role="list"
             >
               {% for membership in memberships %}
-                <li>{{ membership.user.name }}</li>
+                {% if not project_org_in_user_orgs %}
+                  <li>{{ membership.user.name }}</li>
+                {% else %}
+                  <li>
+                    {{ membership.user.name }}
+                    <ul class="list-disc ml-4 mb-1">
+                      {% for role in membership.roles %}
+                        <li>{{ role.display_name }}</li>
+                      {% endfor %}
+                    </ul>
+                  </li>
+                  {% endif %}
               {% endfor %}
             </ul>
           </div>
