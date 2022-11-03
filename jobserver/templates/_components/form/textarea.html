@@ -14,22 +14,19 @@
   </label>
 
   <div class="relative">
-    <select
-      {% attrs name=field.html_name required %}
-      class="mt-1 block w-full rounded-md border-slate-300 text-slate-900 shadow-sm focus:border-oxford-500 focus:ring-oxford-500 sm:text-sm invalid:border-bn-ribbon-600 invalid:ring-bn-ribbon-600 invalid:ring-1"
+    <textarea
+      {% attrs autocapitalize autocomplete autocorrect inputmode name=field.html_name required rows %}
+      class="
+        mt-1 block w-full rounded-md border-slate-300 text-slate-900 shadow-sm
+        {% if not resize %}resize-none{% endif %}
+        sm:text-sm
+        focus:border-oxford-500 focus:ring-oxford-500
+        invalid:border-bn-ribbon-600 invalid:ring-bn-ribbon-600 invalid:ring-1
+
+      "
       id="{{ field.auto_id }}"
-    >
-      {% for value, label in choices %}
-        <option
-          {% if selected|stringformat:"s" == value|stringformat:"s" %}
-            selected
-          {% endif %}
-          value="{{ value }}"
-        >
-          {{ label }}
-        </option>
-      {% endfor %}
-    </select>
+      type="{% if type %}{{ type }}{% else %}text{% endif %}"
+    >{% if field.value %}{{ field.value }}{% endif %}</textarea>
 
     {% if field.errors %}
       <div class="pointer-events-none absolute inset-y-0 right-0 flex items-center pr-3">
