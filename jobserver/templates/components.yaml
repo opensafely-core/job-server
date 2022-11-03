@@ -8,6 +8,8 @@ components:
   description_item: "_components/description-item.html"
   footer: "_components/footer.html"
   form_input: "_components/form/input.html"
+  form_select: "_components/form/select.html"
+  form_textarea: "_components/form/textarea.html"
   header: "_components/header.html"
   link: "_components/link.html"
   list_group: "_components/list-group/list-group.html"

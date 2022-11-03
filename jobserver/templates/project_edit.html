@@ -1,76 +1,36 @@
-{% extends "base.html" %}
+{% extends "base-tw.html" %}
 
 {% load humanize %}
 
 {% block metatitle %}Edit {{ project.title }} | OpenSAFELY Jobs{% endblock metatitle %}
 
 {% block breadcrumbs %}
-<nav class="breadcrumb-container" aria-label="breadcrumb">
-  <div class="container">
-    <ol class="breadcrumb rounded-0 mb-0 px-0">
-      <li class="breadcrumb-item">
-        <a href="/">Home</a>
-      </li>
-      <li class="breadcrumb-item">
-        <a href="{{ project.org.get_absolute_url }}">
-          {{ project.org.name }}
-        </a>
-      </li>
-      <li class="breadcrumb-item">
-        <a href="{{ project.get_absolute_url }}">
-          {{ project.name }}
-        </a>
-      </li>
-      <li class="breadcrumb-item active" aria-current="page">
-        Edit
-      </li>
-    </ol>
-  </div>
-</nav>
+  {% url "home" as home_url %}
+
+  {% #breadcrumbs %}
+    {% breadcrumb title="Home" url=home_url %}
+    {% breadcrumb title=project.org.name url=project.org.get_absolute_url location="Organisation" %}
+    {% breadcrumb title=project.name url=project.get_absolute_url location="Project" %}
+    {% breadcrumb title="Edit" active=True %}
+  {% /breadcrumbs %}
 {% endblock breadcrumbs %}
 
-{% block jumbotron %}
-<div class="jumbotron jumbotron-fluid pt-md-2">
-  <div class="container">
-    <h1>Edit {{ project.title }}</h1>
-  </div>
-</div>
-{% endblock jumbotron %}
-
 {% block content %}
-<div class="container">
-  <div class="row">
-   <div class="mb-3 mb-lg-0 col-lg-8">
-     <form class="mb-3" method="POST">
-        {% csrf_token %}
+  <section class="grid md:grid-cols-3">
+    <h1 class="md:col-span-3 text-3xl break-words md:text-4xl font-bold text-slate-900">
+      Settings
+    </h1>
 
-        <div class="form-group">
-          <label class="font-weight-bold" for="id_status">Status</label>
+    <form method="POST" class="md:col-span-2 mt-6">
+      {% csrf_token %}
 
-          <select id="id_status" name="status" class="form-control">
-            {% for value, label in form.fields.status.choices %}
-            <option
-              value="{{ value }}"
-              {% if form.status.value|stringformat:"s" == value|stringformat:"s" %}selected{% endif %}
-            >
-              {{ label }}
-            </option>
-            {% endfor %}
-          </select>
-
-          {% for error in form.status.errors %}
-          <p class="text-danger">{{ error }}</p>
-          {% endfor %}
-        </div>
-
-        {% include "components/form_textarea.html" with field=form.status_description label="Status description" name="status_description" %}
-
-        <button class="btn btn-primary" type="submit">
-          Save
-        </button>
-      </form>
-    </div>
-
-  </div>
-</div>
+      {% #card title="Edit "|add:project.name class="w-full" container_class="flex flex-col gap-y-4 items-start" container=True %}
+        {% form_select class="min-w-[50%]" field=form.status choices=form.fields.status.choices selected=form.status.value %}
+        {% form_textarea class="min-w-[65ch]" field=form.status_description resize=False rows="8" %}
+        {% #button class="mt-2" type="submit" variant="primary" %}
+          Submit
+        {% /button %}
+      {% /card %}
+    </form>
+  </section>
 {% endblock %}
