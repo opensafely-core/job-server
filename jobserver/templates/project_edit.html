@@ -1,41 +1,19 @@
-{% extends "base.html" %}
+{% extends "base-tw.html" %}
 
 {% load humanize %}
 
 {% block metatitle %}Edit {{ project.title }} | OpenSAFELY Jobs{% endblock metatitle %}
 
 {% block breadcrumbs %}
-<nav class="breadcrumb-container" aria-label="breadcrumb">
-  <div class="container">
-    <ol class="breadcrumb rounded-0 mb-0 px-0">
-      <li class="breadcrumb-item">
-        <a href="/">Home</a>
-      </li>
-      <li class="breadcrumb-item">
-        <a href="{{ project.org.get_absolute_url }}">
-          {{ project.org.name }}
-        </a>
-      </li>
-      <li class="breadcrumb-item">
-        <a href="{{ project.get_absolute_url }}">
-          {{ project.name }}
-        </a>
-      </li>
-      <li class="breadcrumb-item active" aria-current="page">
-        Edit
-      </li>
-    </ol>
-  </div>
-</nav>
-{% endblock breadcrumbs %}
+  {% url "home" as home_url %}
 
-{% block jumbotron %}
-<div class="jumbotron jumbotron-fluid pt-md-2">
-  <div class="container">
-    <h1>Edit {{ project.title }}</h1>
-  </div>
-</div>
-{% endblock jumbotron %}
+  {% #breadcrumbs %}
+    {% breadcrumb title="Home" url=home_url %}
+    {% breadcrumb title=project.org.name url=project.org.get_absolute_url location="Organisation" %}
+    {% breadcrumb title=project.name url=project.get_absolute_url location="Project" %}
+    {% breadcrumb title="Edit" active=True %}
+  {% /breadcrumbs %}
+{% endblock breadcrumbs %}
 
 {% block content %}
 <div class="container">
