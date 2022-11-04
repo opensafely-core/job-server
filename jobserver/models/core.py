@@ -606,6 +606,8 @@ class Repo(models.Model):
     # enable sign off flow for this repo
     has_sign_offs_enabled = models.BooleanField(default=False)
 
+    has_github_outputs = models.BooleanField(default=False)
+
     def __str__(self):
         return self.url
 
