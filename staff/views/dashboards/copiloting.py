@@ -17,8 +17,12 @@ class Copiloting(TemplateView):
     template_name = "staff/dashboards/copiloting.html"
 
     def get_context_data(self, **kwargs):
+        # these orgs are not copiloted so we can ignore them here
+        excluded_org_slugs = ["datalab", "lshtm"]
+
         projects = (
             Project.objects.select_related("copilot", "org")
+            .exclude(org__slug__in=excluded_org_slugs)
             .annotate(
                 workspace_count=Count("workspaces", distinct=True),
                 job_request_count=Count("workspaces__job_requests", distinct=True),
@@ -35,6 +39,7 @@ class Copiloting(TemplateView):
 
         release_files_by_project = itertools.groupby(
             ReleaseFile.objects.select_related("workspace__project")
+            .exclude(workspace__project__org__slug__in=excluded_org_slugs)
             .order_by("workspace__project__pk")
             .iterator(),
             key=lambda f: f.workspace.project.pk,
