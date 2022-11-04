@@ -116,9 +116,16 @@
           <h2 class="card-header h5">
             Repo
           </h2>
-          <p class="card-body mb-0">
-            <a href="{{ workspace.repo.url }}/tree/{{ workspace.branch }}">{{ workspace.repo.owner }}/{{ workspace.repo.name }}</a>
-          </p>
+          <div class="card-body">
+            <p>
+              <a href="{{ workspace.repo.get_staff_url }}">{{ workspace.repo.owner }}/{{ workspace.repo.name }}</a>
+            </p>
+            <p class="mb-0">
+            <a class="btn btn-sm btn-primary" href="{{ workspace.repo.url }}/tree/{{ workspace.branch }}">
+              View branch on GitHub
+            </a>
+            </p>
+          </div>
         </li>
         <li class="card mb-3">
           <h2 class="card-header h5">
