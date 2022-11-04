@@ -3,6 +3,8 @@ __pycache__/
 .env
 .envrc
 .idea/
+.ipynb_checkpoints
+.pytest_cache
 .venv/
 /assets/dist
 /assets/stats.html

@@ -1,24 +1,11 @@
 [tool.black]
-exclude = '''
+extend-exclude = '''
 (
   /(
-      \.direnv
-    | \.git
-    | \.github
-    | \.ipynb_checkpoints
-    | \.pytest_cache
-    | \.venv
-    | assets
-    | coverage
-    | htmlcov
-    | node_modules
+      assets
     | outputs
-    | releases
     | snippets
     | static
-    | staticfiles
-    | venv
-    | release-hatch
   )/
 )
 '''
