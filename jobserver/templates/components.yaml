@@ -37,5 +37,6 @@ components:
   icon_pencil_outline: "_icons/pencil-outline.svg"
   icon_rectangle_stack_outline: "_icons/rectangle-stack-outline.svg"
   icon_status_online_outline: "_icons/status-online-outline.svg"
+  icon_user_outline: "_icons/user-outline.svg"
   icon_user_group_outline: "_icons/user-group-outline.svg"
   icon_x_outline: "_icons/x-outline.svg"
