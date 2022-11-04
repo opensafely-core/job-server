@@ -2,7 +2,7 @@
 
 {% load static %}
 
-{% block metatitle %}Copiloting Dashboard: Staff Area | OpenSAFELY Jobs{% endblock metatitle %}
+{% block metatitle %}Projects Dashboard: Staff Area | OpenSAFELY Jobs{% endblock metatitle %}
 
 {% block breadcrumbs %}
 <nav class="breadcrumb-container breadcrumb--danger" aria-label="breadcrumb">
@@ -15,7 +15,7 @@
         <a href="{% url 'staff:dashboards:index' %}">Dashboards</a>
       </li>
       <li class="breadcrumb-item active" aria-current="page">
-        Copiloting
+        Projects
       </li>
     </ol>
   </div>
@@ -25,10 +25,10 @@
 {% block jumbotron %}
 <div class="jumbotron jumbotron-fluid jumbotron--danger pt-md-2">
   <div class="container">
-    <h1 class="display-4">Copiloting</h1>
+    <h1 class="display-4">Projects</h1>
     <div class="row">
       <p class="lead col-lg-9">
-        Projects with various counts useful to copilots.
+        A list of all projects on OpenSAFELY
       </p>
     </div>
   </div>
@@ -87,5 +87,5 @@
 {% block extra_js %}
 <script src="{% static 'vendor/tablesorter/jquery.tablesorter.min.js' %}"></script>
 <script src="{% static 'vendor/tablesorter/jquery.tablesorter.widgets.min.js' %}"></script>
-<script src="{% static 'js/copiloting-tablesorter.js' %}"></script>
+<script src="{% static 'js/projects-tablesorter.js' %}"></script>
 {% endblock %}
