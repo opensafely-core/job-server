@@ -93,6 +93,12 @@ class SignOffRepo(TemplateView):
     def dispatch(self, request, *args, **kwargs):
         self.repo = get_object_or_404(Repo, url=unquote(self.kwargs["repo_url"]))
 
+        self.github_api = self.get_github_api()
+        try:
+            self.api_repo = self.github_api.get_repo(self.repo.owner, self.repo.name)
+        except requests.HTTPError:
+            self.api_repo = None
+
         if not self.repo.has_sign_offs_enabled:
             raise Http404
 
@@ -134,8 +140,9 @@ class SignOffRepo(TemplateView):
             # chance to contact us if there is an error
             send_researcher_repo_signed_off_notification(self.repo)
 
-            # notify the copilots that a repo has been signed off by a user
-            notify_copilots_of_repo_sign_off(self.repo)
+            if "github-releases" not in self.api_repo["topics"]:
+                # notify the copilots that a repo has been signed off by a user
+                notify_copilots_of_repo_sign_off(self.repo)
 
             return redirect("/")
 
@@ -156,12 +163,7 @@ class SignOffRepo(TemplateView):
         return redirect(self.repo.get_sign_off_url())
 
     def render_to_response(self):
-        github_api = self.get_github_api()
-
-        try:
-            is_private = github_api.get_repo_is_private(self.repo.owner, self.repo.name)
-        except requests.HTTPError:
-            is_private = None
+        is_private = self.api_repo["private"] if self.api_repo else None
 
         repo = {
             "is_private": is_private,
@@ -172,11 +174,12 @@ class SignOffRepo(TemplateView):
             "url": self.repo.url,
         }
 
-        workspaces = [build_workspace(w, github_api) for w in self.workspaces]
+        workspaces = [build_workspace(w, self.github_api) for w in self.workspaces]
 
         # build up a list of branches without a workspace
         branches = [
-            b["name"] for b in github_api.get_branches(self.repo.owner, self.repo.name)
+            b["name"]
+            for b in self.github_api.get_branches(self.repo.owner, self.repo.name)
         ]
         workspace_branches = [w["branch"] for w in workspaces]
         branches = [b for b in branches if b not in workspace_branches]
