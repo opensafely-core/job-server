@@ -20,6 +20,7 @@ components:
   tooltip: "_components/tooltip.html"
 
   icon_branches_outline: "_icons/branches-outline.svg"
+  icon_building_library_outline: "_icons/building-library-outline.svg"
   icon_calendar_outline: "_icons/calendar-outline.svg"
   icon_check_outline: "_icons/check-outline.svg"
   icon_chevron_right_outline: "_icons/chevron-right-outline.svg"
