@@ -135,7 +135,7 @@ def test_signoffrepo_get_success_with_broken_github(rf):
         def get_branches(self, owner, repo):
             return []
 
-        def get_repo_is_private(self, owner, repo):
+        def get_repo(self, owner, repo):
             raise requests.HTTPError()
 
     response = SignOffRepo.as_view(get_github_api=BrokenGitHubAPI)(
@@ -165,7 +165,7 @@ def test_signoffrepo_member_with_no_workspaces(rf):
     request.user = user
 
     with pytest.raises(Http404):
-        SignOffRepo.as_view(get_github_api=FakeGitHubAPI())(request, repo_url=repo.url)
+        SignOffRepo.as_view(get_github_api=FakeGitHubAPI)(request, repo_url=repo.url)
 
 
 def test_signoffrepo_sign_offs_disabled(rf):
@@ -219,7 +219,7 @@ def test_signoffrepo_post_all_workspaces_signed_off_and_name(rf):
     assert not repo.researcher_signed_off_at
 
 
-def test_signoffrepo_post_all_workspaces_signed_off_and_no_name(
+def test_signoffrepo_post_all_workspaces_signed_off_and_no_name_with_github_outputs(
     rf, mailoutbox, slack_messages
 ):
     user = UserFactory()
@@ -243,6 +243,52 @@ def test_signoffrepo_post_all_workspaces_signed_off_and_no_name(
     request.user = user
 
     response = SignOffRepo.as_view(get_github_api=FakeGitHubAPI)(
+        request, repo_url=repo.url
+    )
+
+    assert response.status_code == 302
+    assert response.url == "/"
+
+    repo.refresh_from_db()
+    assert repo.researcher_signed_off_at
+    assert repo.researcher_signed_off_by
+
+    assert len(mailoutbox) == 1
+    assert len(slack_messages) == 0
+
+
+def test_signoffrepo_post_all_workspaces_signed_off_and_no_name_without_github_outputs(
+    rf, mailoutbox, slack_messages
+):
+    user = UserFactory()
+    project = ProjectFactory()
+    ProjectMembershipFactory(project=project, user=user)
+
+    repo = RepoFactory(
+        researcher_signed_off_at=None,
+        researcher_signed_off_by=None,
+        has_sign_offs_enabled=True,
+    )
+    WorkspaceFactory.create_batch(
+        3,
+        project=project,
+        repo=repo,
+        signed_off_at=timezone.now(),
+        signed_off_by=user,
+    )
+
+    class FakeGitHubAPIWithoutOutputs(FakeGitHubAPI):
+        def get_repo(self, owner, repo):
+            return {
+                "created_at": "2020-07-31T13:37:00Z",
+                "topics": [],
+                "private": True,
+            }
+
+    request = rf.post("/")
+    request.user = user
+
+    response = SignOffRepo.as_view(get_github_api=FakeGitHubAPIWithoutOutputs)(
         request, repo_url=repo.url
     )
 
