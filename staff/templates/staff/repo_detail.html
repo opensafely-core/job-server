@@ -198,7 +198,7 @@
         <div class="card-body mb-0">
           <p>
             <strong>Has outputs on GitHub:</strong>
-            {% if has_releases %}
+            {% if repo.has_github_outputs %}
             <strong class="text-danger">YES</strong>
             {% else %}
             <span class="text-success">NO</span>

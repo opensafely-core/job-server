@@ -135,7 +135,7 @@ def test_signoffrepo_get_success_with_broken_github(rf):
         def get_branches(self, owner, repo):
             return []
 
-        def get_repo(self, owner, repo):
+        def get_repo_is_private(self, owner, repo):
             raise requests.HTTPError()
 
     response = SignOffRepo.as_view(get_github_api=BrokenGitHubAPI)(
@@ -230,6 +230,7 @@ def test_signoffrepo_post_all_workspaces_signed_off_and_no_name_with_github_outp
         researcher_signed_off_at=None,
         researcher_signed_off_by=None,
         has_sign_offs_enabled=True,
+        has_github_outputs=True,
     )
     WorkspaceFactory.create_batch(
         3,
@@ -268,6 +269,7 @@ def test_signoffrepo_post_all_workspaces_signed_off_and_no_name_without_github_o
         researcher_signed_off_at=None,
         researcher_signed_off_by=None,
         has_sign_offs_enabled=True,
+        has_github_outputs=False,
     )
     WorkspaceFactory.create_batch(
         3,
@@ -277,18 +279,10 @@ def test_signoffrepo_post_all_workspaces_signed_off_and_no_name_without_github_o
         signed_off_by=user,
     )
 
-    class FakeGitHubAPIWithoutOutputs(FakeGitHubAPI):
-        def get_repo(self, owner, repo):
-            return {
-                "created_at": "2020-07-31T13:37:00Z",
-                "topics": [],
-                "private": True,
-            }
-
     request = rf.post("/")
     request.user = user
 
-    response = SignOffRepo.as_view(get_github_api=FakeGitHubAPIWithoutOutputs)(
+    response = SignOffRepo.as_view(get_github_api=FakeGitHubAPI)(
         request, repo_url=repo.url
     )
 
