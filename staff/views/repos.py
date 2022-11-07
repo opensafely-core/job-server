@@ -4,7 +4,6 @@ from urllib.parse import quote, unquote
 
 import structlog
 from csp.decorators import csp_exempt
-from django.conf import settings
 from django.db import transaction
 from django.db.models import Count, Min
 from django.db.models.functions import Least, Lower
@@ -14,7 +13,6 @@ from django.utils import timezone
 from django.utils.decorators import method_decorator
 from django.views.generic import ListView, UpdateView, View
 from first import first
-from furl import furl
 
 from jobserver.authorization import CoreDeveloper
 from jobserver.authorization.decorators import require_role
@@ -300,16 +298,13 @@ class RepoSignOff(View):
         repo = get_object_or_404(Repo, url=unquote(self.kwargs["repo_url"]))
 
         full_name = f"{repo.owner}/{repo.name}"
-        staff_area_url = (furl(settings.BASE_URL) / repo.get_staff_url()).url
 
         body = f"""
         The [{full_name}]({repo.url}) repo is ready to be made public.
 
-        Requested by: {request.user.name}
+        This repo has been checked and approved by {request.user.name}.
 
-        Useful links:
-        * [Repo settings]({repo.url}/settings)
-        * [Repo in Staff Area]({staff_area_url})
+        An owner of the `opensafely` org is required to make this change, they can do so on the [repo settings page]({repo.url}/settings).
         """
 
         with transaction.atomic():
