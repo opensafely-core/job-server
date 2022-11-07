@@ -100,7 +100,7 @@ class PrivateReposDashboard(View):
             return repo | {
                 "first_run": first_run,
                 "has_jobs": has_jobs,
-                "has_releases": "github-releases" in repo["topics"],
+                "has_github_outputs": "github-releases" in repo["topics"],
                 "quoted_url": quote(repo["url"], safe=""),
                 "signed_off": signed_off,
                 "workspace": workspace,
