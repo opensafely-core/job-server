@@ -98,11 +98,11 @@ def test_privatereposdashboard_success(rf, django_assert_num_queries, core_devel
     research_repo_1, research_repo_2 = response.context_data["repos"]
 
     assert research_repo_1["first_run"] == minutes_ago(eleven_months_ago, 10)
-    assert research_repo_1["has_releases"]
+    assert research_repo_1["has_github_outputs"]
     assert research_repo_1["workspace"] == rr1_workspace_3
 
     assert research_repo_2["first_run"] == minutes_ago(eleven_months_ago, 30)
-    assert not research_repo_2["has_releases"]
+    assert not research_repo_2["has_github_outputs"]
     assert research_repo_2["workspace"] == rr2_workspace_1
 
 
@@ -227,7 +227,7 @@ def test_repofeatureflags_unknown_repo(rf, core_developer):
         RepoFeatureFlags.as_view()(request, repo_url="")
 
 
-def test_projectlist_filter_by_org(rf, core_developer):
+def test_repolist_filter_by_org(rf, core_developer):
     repo = RepoFactory()
     RepoFactory.create_batch(2)
     WorkspaceFactory(repo=repo)
@@ -240,7 +240,19 @@ def test_projectlist_filter_by_org(rf, core_developer):
     assert len(response.context_data["object_list"]) == 1
 
 
-def test_projectlist_find_by_name(rf, core_developer):
+def test_repolist_filter_by_outputs(rf, core_developer):
+    RepoFactory(has_github_outputs=False)
+    RepoFactory.create_batch(2, has_github_outputs=True)
+
+    request = rf.get("/?has_outputs=yes")
+    request.user = core_developer
+
+    response = RepoList.as_view()(request)
+
+    assert len(response.context_data["object_list"]) == 2
+
+
+def test_repolist_find_by_name(rf, core_developer):
     repo1 = RepoFactory(url="age-test-distribution")
     repo2 = RepoFactory(url="ghickman-testing")
     RepoFactory(url="sro-measures")

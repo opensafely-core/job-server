@@ -98,7 +98,7 @@ class PrivateReposDashboard(View):
             return repo | {
                 "first_run": first_run,
                 "has_jobs": has_jobs,
-                "has_releases": "github-releases" in repo["topics"],
+                "has_github_outputs": "github-releases" in repo["topics"],
                 "quoted_url": quote(repo["url"], safe=""),
                 "signed_off": signed_off,
                 "workspace": workspace,
@@ -214,13 +214,13 @@ class RepoDetail(View):
         context = {
             "contacts": contacts,
             "first_job_ran_at": first_job_ran_at,
-            "has_releases": "github-releases" in api_repo["topics"],
             "last_job_ran_at": last_job_ran_at,
             "num_signed_off": num_signed_off,
             "projects": projects,
             "repo": {
                 "created_at": api_repo["created_at"],
                 "get_staff_feature_flags_url": repo.get_staff_feature_flags_url(),
+                "has_github_outputs": repo.has_github_outputs,
                 "internal_signed_off_at": repo.internal_signed_off_at,
                 "is_private": api_repo["private"],
                 "get_staff_sign_off_url": repo.get_staff_sign_off_url(),
@@ -283,6 +283,9 @@ class RepoList(ListView):
         # filter on the search query
         if q := self.request.GET.get("q"):
             qs = qs.filter(url__icontains=q)
+
+        if has_outputs := self.request.GET.get("has_outputs") == "yes":
+            qs = qs.filter(has_github_outputs=has_outputs)
 
         if org := self.request.GET.get("org"):
             qs = qs.filter(workspaces__project__org__slug=org)

@@ -96,7 +96,7 @@
                 <span class="pr-3">{{ repo.first_run|date:"d M Y" }}</span>
               </td>
 
-              {% if repo.has_releases %}
+              {% if repo.has_github_outputs %}
                 <td class="text-center text-danger font-weight-bold">YES</td>
               {% else %}
                 <td class="text-center text-success">No</td>
