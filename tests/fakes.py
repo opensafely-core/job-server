@@ -6,7 +6,9 @@ from django.utils.timezone import now
 
 class FakeGitHubAPI:
     def create_issue(self, org, repo, title, body, labels):
-        return {}  # pragma: no cover
+        return {
+            "html_url": "http://example.com",
+        }
 
     def get_branch(self, org, repo, branch):
         return {

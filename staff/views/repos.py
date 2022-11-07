@@ -4,6 +4,7 @@ from urllib.parse import quote, unquote
 
 import structlog
 from csp.decorators import csp_exempt
+from django.contrib import messages
 from django.db import transaction
 from django.db.models import Count, Min
 from django.db.models.functions import Least, Lower
@@ -11,6 +12,7 @@ from django.shortcuts import get_object_or_404, redirect
 from django.template.response import TemplateResponse
 from django.utils import timezone
 from django.utils.decorators import method_decorator
+from django.utils.safestring import mark_safe
 from django.views.generic import ListView, UpdateView, View
 from first import first
 
@@ -308,15 +310,25 @@ class RepoSignOff(View):
         """
 
         with transaction.atomic():
-            self.get_github_api().create_issue(
+            data = self.get_github_api().create_issue(
                 "ebmdatalab",
                 "tech-support",
                 f"Switch {repo.name} repo to public",
                 textwrap.dedent(body),
                 [],
             )
+            issue_url = data["html_url"]
 
             repo.internal_signed_off_at = timezone.now()
             repo.internal_signed_off_by = request.user
             repo.save()
+
+            tech_support_url = f'<a href="{issue_url}">ticket has been created</a>'
+            messages.success(
+                request,
+                mark_safe(
+                    f"A {tech_support_url} for tech-support, they have been notified in #tech-support-channel",
+                ),
+            )
+
         return redirect(repo.get_staff_url())
