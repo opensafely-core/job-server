@@ -286,6 +286,9 @@ class RepoList(ListView):
         if q := self.request.GET.get("q"):
             qs = qs.filter(url__icontains=q)
 
+        if has_outputs := self.request.GET.get("has_outputs") == "yes":
+            qs = qs.filter(has_github_outputs=has_outputs)
+
         if org := self.request.GET.get("org"):
             qs = qs.filter(workspaces__project__org__slug=org)
 
