@@ -40,7 +40,7 @@
   <div class="grid grid-cols-1 gap-6 lg:grid-cols-3">
     <div class="
       flex flex-col items-center gap-y-4
-      lg:flex-row lg:flex-wrap lg:items-start lg:col-span-2
+      lg:flex-row lg:flex-wrap lg:items-start lg:col-span-2 lg:mb-4
     ">
       <div class="flex flex-col text-center items-center gap-y-4 lg:flex-row lg:text-left lg:items-start">
         {% if workspace.project.org.logo_file %}
@@ -75,41 +75,27 @@
               <span class="truncate">{{ workspace.project.name }}</span>
             </dd>
           </dl>
-          <p class="max-w-prose font-lg text-slate-600 mb-1">
-            This is an OpenSAFELY workspace.  It represents a working directory for the
-            {% link text=workspace.project.title href=workspace.project.get_absolute_url %}
-            project on all of the secure services ("backends") supported by
-            OpenSAFELY.
-          </p>
-          <p class="max-w-prose font-lg text-slate-600">
-            On each backend, the directory includes code from the
-            {% spaceless %}
-              {% link text="repository" href=workspace.repo.url|add:"/tree/"|add:workspace.branch %}
-            {% endspaceless %},
-            and the results of running it against real data ("jobs").
-            Researchers can request jobs are run from this page.
-          </p>
+
+          <div class="flex flex-row gap-x-2 mt-2 lg:items-start">
+            {% #button href=workspace.get_edit_url type="link" variant="secondary" %}
+              Edit workspace
+              {% icon_pencil_outline class="h-4 w-4 ml-2 -mr-2" %}
+            {% /button %}
+
+            {% if user_can_run_jobs %}
+              {% #button href=run_jobs_url type="link" variant="success" %}
+                Run jobs
+                {% icon_play_outline class="h-4 w-4 ml-2 -mr-2" %}
+              {% /button %}
+            {% endif %}
+
+            {% #button href=workspace.get_logs_url type="link" variant="primary" %}
+              View logs
+              {% icon_queue_list_outline class="h-4 w-4 ml-2 -mr-2" %}
+            {% /button %}
+          </div>
         </div>
       </div>
-    </div>
-
-    <div class="flex flex-row justify-center lg:justify-end lg:items-start">
-      {% #button href=workspace.get_edit_url type="link" variant="secondary" class="rounded-r-none" %}
-        Edit workspace
-        {% icon_pencil_outline class="h-4 w-4 ml-2 -mr-2" %}
-      {% /button %}
-
-      {% if user_can_run_jobs %}
-        {% #button href=run_jobs_url type="link" variant="success" class="rounded-none" %}
-          Run jobs
-          {% icon_play_outline class="h-4 w-4 ml-2 -mr-2" %}
-        {% /button %}
-      {% endif %}
-
-      {% #button href=workspace.get_logs_url type="link" variant="primary" class="rounded-l-none" %}
-        View logs
-        {% icon_queue_list_outline class="h-4 w-4 ml-2 -mr-2" %}
-      {% /button %}
     </div>
 
     <div class="space-y-6 md:space-y-6 lg:col-span-1 lg:row-start-2">
@@ -210,6 +196,23 @@
           </p>
         {% /alert %}
       {% endif %}
+
+      {% #card container=True class="font-lg text-slate-700" %}
+        <p class="mb-1">
+          This is an OpenSAFELY workspace.  It represents a working directory for the
+          {% link text=workspace.project.title href=workspace.project.get_absolute_url %}
+          project on all of the secure services ("backends") supported by
+          OpenSAFELY.
+        </p>
+        <p>
+          On each backend, the directory includes code from the
+          {% spaceless %}
+            {% link text="repository" href=workspace.repo.url|add:"/tree/"|add:workspace.branch %}
+          {% endspaceless %},
+          and the results of running it against real data ("jobs").
+          Researchers can request jobs are run from this page.
+        </p>
+      {% /card %}
 
       {# Remove this check once we can rely on the purpose field #}
       {% if workspace.purpose %}
