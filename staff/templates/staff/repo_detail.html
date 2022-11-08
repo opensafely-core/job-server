@@ -46,11 +46,22 @@
       <a class="btn btn-primary mr-1" href="{{ repo.get_staff_feature_flags_url }}">Feature Flags</a>
       <form method="POST" action="{{ repo.get_staff_sign_off_url }}">
         {% csrf_token %}
+
         <button
           class="btn btn-danger mr-1"
           type="submit"
-          {% if not repo.researcher_signed_off_at or repo.internal_signed_off_at %}
+          {% if disabled.not_ready %}
           disabled
+          data-toggle="tooltip" data-placement="bottom"
+          title="A researcher has not yet signed this repo off"
+          {% elif disabled.no_permission %}
+          disabled
+          data-toggle="tooltip" data-placement="bottom"
+          title="The SignOffRepoWithOutputs role is required to sign off repos with outputs on GitHub"
+          {% elif disabled.already_signed_off %}
+          disabled
+          data-toggle="tooltip" data-placement="bottom"
+          title="This repo has already been internally signed off"
           {% endif %}
           >Sign off</button>
       </form>
@@ -212,3 +223,11 @@
 
 </div>
 {% endblock staff_content %}
+
+{% block extra_js %}
+<script type="text/javascript" nonce="{{ request.csp_nonce }}">
+  $(document).ready(function () {
+    $('[data-toggle="tooltip"]').tooltip()
+  });
+</script>
+{% endblock %}
