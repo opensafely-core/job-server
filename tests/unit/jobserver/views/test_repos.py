@@ -101,7 +101,7 @@ def test_signoffrepo_get_success(rf):
     request.user = user
 
     response = SignOffRepo.as_view(get_github_api=FakeGitHubAPI)(
-        request, repo_url=quote(repo.url)
+        request, repo_url=repo.quoted_url
     )
 
     assert response.status_code == 200
@@ -139,7 +139,7 @@ def test_signoffrepo_get_success_with_broken_github(rf):
             raise requests.HTTPError()
 
     response = SignOffRepo.as_view(get_github_api=BrokenGitHubAPI)(
-        request, repo_url=quote(repo.url)
+        request, repo_url=repo.quoted_url
     )
 
     assert response.status_code == 200
@@ -165,7 +165,9 @@ def test_signoffrepo_member_with_no_workspaces(rf):
     request.user = user
 
     with pytest.raises(Http404):
-        SignOffRepo.as_view(get_github_api=FakeGitHubAPI)(request, repo_url=repo.url)
+        SignOffRepo.as_view(get_github_api=FakeGitHubAPI)(
+            request, repo_url=repo.quoted_url
+        )
 
 
 def test_signoffrepo_sign_offs_disabled(rf):
@@ -175,7 +177,9 @@ def test_signoffrepo_sign_offs_disabled(rf):
     request.user = UserFactory()
 
     with pytest.raises(Http404):
-        SignOffRepo.as_view(get_github_api=FakeGitHubAPI)(request, repo_url=repo.url)
+        SignOffRepo.as_view(get_github_api=FakeGitHubAPI)(
+            request, repo_url=repo.quoted_url
+        )
 
 
 def test_signoffrepo_not_a_project_member(rf):
@@ -185,7 +189,9 @@ def test_signoffrepo_not_a_project_member(rf):
     request.user = UserFactory()
 
     with pytest.raises(Http404):
-        SignOffRepo.as_view(get_github_api=FakeGitHubAPI)(request, repo_url=repo.url)
+        SignOffRepo.as_view(get_github_api=FakeGitHubAPI)(
+            request, repo_url=repo.quoted_url
+        )
 
 
 def test_signoffrepo_post_all_workspaces_signed_off_and_name(rf):
@@ -210,7 +216,7 @@ def test_signoffrepo_post_all_workspaces_signed_off_and_name(rf):
     request.user = user
 
     response = SignOffRepo.as_view(get_github_api=FakeGitHubAPI)(
-        request, repo_url=repo.url
+        request, repo_url=repo.quoted_url
     )
 
     assert response.status_code == 200
@@ -244,7 +250,7 @@ def test_signoffrepo_post_all_workspaces_signed_off_and_no_name_with_github_outp
     request.user = user
 
     response = SignOffRepo.as_view(get_github_api=FakeGitHubAPI)(
-        request, repo_url=repo.url
+        request, repo_url=repo.quoted_url
     )
 
     assert response.status_code == 302
@@ -283,7 +289,7 @@ def test_signoffrepo_post_all_workspaces_signed_off_and_no_name_without_github_o
     request.user = user
 
     response = SignOffRepo.as_view(get_github_api=FakeGitHubAPI)(
-        request, repo_url=repo.url
+        request, repo_url=repo.quoted_url
     )
 
     assert response.status_code == 302
@@ -315,7 +321,7 @@ def test_signoffrepo_post_no_signed_off_workspaces_and_no_name(rf):
     request._messages = messages
 
     response = SignOffRepo.as_view(get_github_api=FakeGitHubAPI)(
-        request, repo_url=repo.url
+        request, repo_url=repo.quoted_url
     )
     assert response.status_code == 200
 
@@ -339,7 +345,7 @@ def test_signoffrepo_post_partially_signed_off_workspaces_and_name(rf):
     request.user = user
 
     response = SignOffRepo.as_view(get_github_api=FakeGitHubAPI)(
-        request, repo_url=repo.url
+        request, repo_url=repo.quoted_url
     )
 
     assert response.status_code == 302
@@ -369,7 +375,7 @@ def test_signoffrepo_post_partially_signed_off_workspaces_and_no_name(rf):
     request._messages = messages
 
     response = SignOffRepo.as_view(get_github_api=FakeGitHubAPI)(
-        request, repo_url=repo.url
+        request, repo_url=repo.quoted_url
     )
 
     assert response.status_code == 200
