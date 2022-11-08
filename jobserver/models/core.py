@@ -611,6 +611,9 @@ class Repo(models.Model):
     def __str__(self):
         return self.url
 
+    def get_handler_url(self):
+        return reverse("repo-handler", kwargs={"repo_url": self.quoted_url})
+
     def get_sign_off_url(self):
         return reverse("repo-sign-off", kwargs={"repo_url": self.quoted_url})
 

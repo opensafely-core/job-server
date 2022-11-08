@@ -637,6 +637,14 @@ def test_projectmembership_str():
     assert str(membership) == "ben | DataLab"
 
 
+def test_repo_get_handler_url():
+    repo = RepoFactory()
+
+    url = repo.get_handler_url()
+
+    assert url == reverse("repo-handler", kwargs={"repo_url": repo.quoted_url})
+
+
 def test_repo_get_sign_off_url():
     repo = RepoFactory()
 
