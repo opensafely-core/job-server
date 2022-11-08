@@ -184,10 +184,21 @@ class SignOffRepo(TemplateView):
 
         workspaces_signed_off = not self.workspaces.filter(signed_off_at=None).exists()
 
+        # TODO: when we have dealt with all the cross-project repos and are
+        # enforcing repos can't be used acrosss projects this check can be
+        # skipped.
+        projects = Project.objects.filter(workspaces__repo=self.repo).distinct()
+        if projects.count() == 1:
+            sign_off_url = self.repo.get_sign_off_url()
+            project_url = projects.first().get_edit_url() + f"?next={sign_off_url}"
+        else:
+            project_url = self.repo.get_handler_url()
+
         context = super().get_context_data() | {
             "workspaces_signed_off": workspaces_signed_off,
             "branches": branches,
             "repo": repo,
+            "project_url": project_url,
             "workspaces": workspaces,
         }
 

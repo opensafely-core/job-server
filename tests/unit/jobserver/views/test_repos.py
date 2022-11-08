@@ -87,7 +87,39 @@ def test_repohandler_with_unknown_repo(rf):
     assert response.status_code == 200
 
 
-def test_signoffrepo_get_success(rf):
+def test_signoffrepo_get_success_with_multiple_projects(rf):
+    user = UserFactory()
+    project1 = ProjectFactory()
+    project2 = ProjectFactory()
+    repo = RepoFactory(url="http://example.com/owner/name", has_sign_offs_enabled=True)
+
+    ProjectMembershipFactory(project=project1, user=user)
+
+    workspaces1 = WorkspaceFactory.create_batch(5, project=project1, repo=repo)
+    workspaces2 = WorkspaceFactory.create_batch(5, project=project2, repo=repo)
+    workspaces = workspaces1 + workspaces2
+    WorkspaceFactory.create_batch(5, project=project1)
+
+    request = rf.get("/")
+    request.user = user
+
+    response = SignOffRepo.as_view(get_github_api=FakeGitHubAPI)(
+        request, repo_url=repo.quoted_url
+    )
+
+    assert response.status_code == 200
+
+    expected = {w["name"] for w in response.context_data["workspaces"]}
+    assert {w.name for w in workspaces} == expected
+
+    assert response.context_data["project_url"] == repo.get_handler_url()
+    assert response.context_data["repo"]["is_private"]
+    assert response.context_data["repo"]["name"] == "owner/name"
+    assert response.context_data["repo"]["status"] == "private"
+    assert response.context_data["repo"]["url"] == repo.url
+
+
+def test_signoffrepo_get_success_with_one_project(rf):
     user = UserFactory()
     project = ProjectFactory()
     repo = RepoFactory(url="http://example.com/owner/name", has_sign_offs_enabled=True)
@@ -109,6 +141,9 @@ def test_signoffrepo_get_success(rf):
     expected = {w["name"] for w in response.context_data["workspaces"]}
     assert {w.name for w in workspaces} == expected
 
+    project_url = project.get_edit_url() + f"?next={repo.get_sign_off_url()}"
+
+    assert response.context_data["project_url"] == project_url
     assert response.context_data["repo"]["is_private"]
     assert response.context_data["repo"]["name"] == "owner/name"
     assert response.context_data["repo"]["status"] == "private"

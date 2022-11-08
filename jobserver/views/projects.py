@@ -149,4 +149,4 @@ class ProjectEdit(UpdateView):
         return project
 
     def get_success_url(self):
-        return self.object.get_absolute_url()
+        return self.request.GET.get("next") or self.object.get_absolute_url()

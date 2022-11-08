@@ -220,6 +220,31 @@ def test_projectedit_post_success(rf):
     assert project.status_description == "test"
 
 
+def test_projectedit_post_success_with_next(rf):
+    project = ProjectFactory(status=Project.Statuses.POSTPONED)
+
+    user = UserFactory()
+    ProjectMembershipFactory(project=project, user=user)
+
+    data = {
+        "status": Project.Statuses.ONGOING,
+        "status_description": "test",
+    }
+    request = rf.post("/?next=foo", data=data)
+    request.user = user
+
+    response = ProjectEdit.as_view()(
+        request, org_slug=project.org.slug, project_slug=project.slug
+    )
+
+    assert response.status_code == 302
+    assert response.url == "foo"
+
+    project.refresh_from_db()
+    assert project.status == Project.Statuses.ONGOING
+    assert project.status_description == "test"
+
+
 def test_projectedit_unknown_org(rf):
     project = ProjectFactory()
 
