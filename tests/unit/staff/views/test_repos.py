@@ -3,6 +3,7 @@ from urllib.parse import quote
 
 import pytest
 from django.contrib.auth.models import AnonymousUser
+from django.contrib.messages.storage.fallback import FallbackStorage
 from django.core.exceptions import PermissionDenied
 from django.http import Http404
 from django.utils import timezone
@@ -292,6 +293,11 @@ def test_reposignoff_success(rf, core_developer):
     request = rf.post("/")
     request.user = core_developer
 
+    # set up messages framework
+    request.session = "session"
+    messages = FallbackStorage(request)
+    request._messages = messages
+
     response = RepoSignOff.as_view(get_github_api=FakeGitHubAPI)(
         request, repo_url=repo.url
     )
@@ -302,6 +308,14 @@ def test_reposignoff_success(rf, core_developer):
     repo.refresh_from_db()
     assert repo.internal_signed_off_at
     assert repo.internal_signed_off_by
+
+    # check we have a message for the user
+    messages = list(messages)
+    assert len(messages) == 1
+    assert (
+        str(messages[0])
+        == 'A <a href="http://example.com">ticket has been created</a> for tech-support, they have been notified in #tech-support-channel'
+    )
 
 
 def test_reposignoff_unauthorized(rf):
