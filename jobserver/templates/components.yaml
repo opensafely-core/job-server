@@ -35,6 +35,8 @@ components:
   icon_menu_outline: "_icons/menu-outline.svg"
   icon_mini_exclamation_circle: "_icons/mini/exclamation-circle.svg"
   icon_pencil_outline: "_icons/pencil-outline.svg"
+  icon_play_outline: "_icons/play-outline.svg"
+  icon_queue_list_outline: "_icons/queue-list-outline.svg"
   icon_rectangle_stack_outline: "_icons/rectangle-stack-outline.svg"
   icon_status_online_outline: "_icons/status-online-outline.svg"
   icon_user_outline: "_icons/user-outline.svg"

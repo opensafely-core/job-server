@@ -93,54 +93,82 @@
       </div>
     </div>
 
-    <div>
-      <a href="{{ workspace.get_edit_url }}">Edit</a>
+    <div class="flex flex-row justify-center lg:justify-end lg:items-start">
+      {% #button href=workspace.get_edit_url type="link" variant="secondary" class="rounded-r-none" %}
+        Edit workspace
+        {% icon_pencil_outline class="h-4 w-4 ml-2 -mr-2" %}
+      {% /button %}
+
       {% if user_can_run_jobs %}
-        <a href="{{ run_jobs_url }}">Run Jobs</a>
+        {% #button href=run_jobs_url type="link" variant="success" class="rounded-none" %}
+          Run jobs
+          {% icon_play_outline class="h-4 w-4 ml-2 -mr-2" %}
+        {% /button %}
       {% endif %}
-      <a href="{{ workspace.get_logs_url }}">View logs</a>
 
-      {% if user_can_archive_workspace %}
-        <form method="POST" action="{{ workspace.get_archive_toggle_url }}" class="mb-2">
-          {% csrf_token %}
-          <input type="hidden" name="is_archived" value="{{ workspace.is_archived|yesno:",True" }}" />
-
-          <button class="btn btn-{% if not workspace.is_archived %}danger{% else %}secondary{% endif %}" type="submit">
-            {% if not workspace.is_archived %}
-              Archive workspace
-            {% else %}
-              Unarchive workspace
-            {% endif %}
-          </button>
-        </form>
-
-        <form method="POST" action="{{ workspace.get_notifications_toggle_url }}">
-          {% csrf_token %}
-          <input type="hidden" name="should_notify" value="{{ workspace.should_notify|yesno:",True" }}" />
-
-          <button class="btn btn-{% if workspace.should_notify %}warning{% else %}success{% endif %}" type="submit">
-            {% if workspace.should_notify %}Disable{% else %}Enable{% endif %} notifications
-          </button>
-        </form>
-      {% endif %}
+      {% #button href=workspace.get_logs_url type="link" variant="primary" class="rounded-l-none" %}
+        View logs
+        {% icon_queue_list_outline class="h-4 w-4 ml-2 -mr-2" %}
+      {% /button %}
     </div>
 
     <div class="space-y-6 md:space-y-6 lg:col-span-1 lg:row-start-2">
+      {% if user_can_archive_workspace %}
+        {% #card title="Workspace admin" class="text-center" container=True %}
+          <form method="POST" action="{{ workspace.get_archive_toggle_url }}" class="mb-2">
+            {% csrf_token %}
+            <input type="hidden" name="is_archived" value="{{ workspace.is_archived|yesno:",True" }}" />
+
+            {% if workspace.is_archived %}
+              {% #button variant="primary" type="submit" %}
+                Unarchive workspace
+              {% /button %}
+            {% else %}
+              {% #button variant="danger" type="submit" class="" %}
+                Archive workspace
+              {% /button %}
+            {% endif %}
+          </form>
+
+          <form method="POST" action="{{ workspace.get_notifications_toggle_url }}">
+            {% csrf_token %}
+            <input type="hidden" name="should_notify" value="{{ workspace.should_notify|yesno:",True" }}" />
+
+            {% if workspace.should_notify %}
+              {% #button variant="warning" type="submit" %}
+                Disable notifications
+              {% /button %}
+            {% else %}
+              {% #button variant="success" type="submit" %}
+                Enable notification
+              {% /button %}
+            {% endif %}
+          </form>
+        {% /card %}
+      {% endif %}
+
       {% #card title="Job information" %}
         <dl class="border-t border-slate-200 sm:divide-y sm:divide-slate-200">
           {% #description_item title="Repo" %}
             {% link text=workspace.repo.name href=workspace.repo.url %}
 
-              {# {% if repo_is_private %} #}
-              {# <p class="mt-2 mb-1">This repo is not publicly viewable.</p> #}
-              {# <details class="small"> #}
-                {# <summary class="font-weight-bold text-primary">Why is this repo private?</summary> #}
-                {# <div class="pl-3"> #}
-                  {# <p class="my-1">In accordance with the <a href="https://www.opensafely.org/about/#transparency-and-public-logs">Principles of OpenSAFELY</a> we expect all code from all users to be made public.</p> #}
-                  {# <p class="mb-0">However, some GitHub repositories may be private during the development stage of a project, which means any links to them from this site will return a '404 Not Found' error unless you are logged in and have the relevant permissions.</p> #}
-                {# </div> #}
-              {# </details> #}
-              {# {% endif %} #}
+              {% if repo_is_private %}
+                <p class="mt-2 mb-1">This repo is not publicly viewable.</p>
+                <details class="group">
+                  <summary
+                    class="
+                      text-oxford-600 font-semibold cursor-pointer
+                      hover:text-oxford-900 hover:underline
+                    "
+                  >
+                    Why is this repo private?
+                  </summary>
+                  <div class="pl-3">
+                    <p class="my-1">In accordance with the <a href="https://www.opensafely.org/about/#transparency-and-public-logs">Principles of OpenSAFELY</a> we expect all code from all users to be made public.</p>
+                    <p class="mb-0">However, some GitHub repositories may be private during the development stage of a project, which means any links to them from this site will return a '404 Not Found' error unless you are logged in and have the relevant permissions.</p>
+                  </div>
+                </details>
+              {% endif %}
           {% /description_item %}
 
           {% #description_item title="Branch" %}
@@ -167,7 +195,7 @@
       {% /card %}
     </div>
 
-    <div class="grid gap-6 lg:col-span-2">
+    <div class="grid gap-6 place-content-start lg:col-span-2">
       {% if workspace.repo.has_sign_offs_enabled and show_publish_repo_warning %}
         {% #alert variant="warning" title="Repository is current private" %}
           <p class="text-sm mb-2">
