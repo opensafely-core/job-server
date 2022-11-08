@@ -9,6 +9,7 @@ from .permissions import (
     release_file_delete,
     release_file_upload,
     release_file_view,
+    repo_sign_off_with_outputs,
     snapshot_create,
     snapshot_publish,
     unreleased_outputs_view,
@@ -185,6 +186,19 @@ class ProjectDeveloper:
         workspace_archive,
         workspace_create,
         workspace_toggle_notifications,
+    ]
+
+
+class SignOffRepoWithOutputs:
+    """Internally sign off repos with outputs hosted on GitHub"""
+
+    display_name = "Sign Off Repos with Outputs"
+    description = "Internally sign off repos with outputs hosted on GitHub"
+    models = [
+        "jobserver.models.core.User",
+    ]
+    permissions = [
+        repo_sign_off_with_outputs,
     ]
 
 
