@@ -254,7 +254,7 @@ def test_signoffrepo_post_all_workspaces_signed_off_and_no_name_with_github_outp
     assert repo.researcher_signed_off_at
     assert repo.researcher_signed_off_by
 
-    assert len(mailoutbox) == 1
+    assert len(mailoutbox) == 2
     assert len(slack_messages) == 0
 
 

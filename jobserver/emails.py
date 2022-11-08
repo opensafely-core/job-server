@@ -29,21 +29,35 @@ def send_finished_notification(email, job):
     )
 
 
-def send_researcher_repo_signed_off_notification(repo):
+def send_repo_signed_off_notification_to_researchers(repo):
     creators = User.objects.filter(workspaces__repo=repo)
     emails = [
         u.notifications_email if u.notifications_email else u.email for u in creators
     ]
-
-    context = {
-        "repo": repo,
-    }
 
     send(
         to=[],
         bcc=emails,
         sender="notifications@jobs.opensafely.org",
         subject=f"Repo {repo.owner}/{repo.name} was signed off by {repo.researcher_signed_off_by.name}",
-        template_name="emails/notify_repo_signed_off.txt",
-        context=context,
+        template_name="emails/notify_researcher_repo_signed_off.txt",
+        context={"repo": repo},
+    )
+
+
+def send_repo_signed_off_notification_to_staff(repo):
+    numbers = [w.project.number for w in repo.workspaces.all() if w.project.number]
+    numbers = ",".join(numbers) if numbers else "X"
+    subject = (
+        f"[{numbers}] - Historic repo with outputs - sign off required {repo.name}"
+    )
+
+    staff_url = (furl(settings.BASE_URL) / repo.get_staff_url()).url
+
+    send(
+        to=["publications@opensafely.org"],
+        sender="notifications@jobs.opensafely.org",
+        subject=subject,
+        template_name="emails/notify_staff_repo_signed_off.txt",
+        context={"repo": repo, "staff_url": staff_url},
     )

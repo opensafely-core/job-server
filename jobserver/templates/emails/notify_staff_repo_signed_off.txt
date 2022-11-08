@@ -1,0 +1,7 @@
+{{ staff_url }}
+
+The repository, {{ repo.name }}, has been signed off by {{ repo.researcher_signed_off_by.name }}.
+
+This historic Github repo contains outputs released from a backend, and needs additional sign off.
+
+You can view the repo, with all relevant details, here: {{ staff_url }}
