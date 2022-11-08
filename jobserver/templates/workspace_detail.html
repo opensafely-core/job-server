@@ -42,60 +42,42 @@
       flex flex-col items-center gap-y-4
       lg:flex-row lg:flex-wrap lg:items-start lg:col-span-2 lg:mb-4
     ">
-      <div class="flex flex-col text-center items-center gap-y-4 lg:flex-row lg:text-left lg:items-start">
-        {% if workspace.project.org.logo_file %}
-          <img
-            alt="{{ workspace.project.org.name }} logo"
-            class="w-24 h-24 bg-white aspect-square rounded-2xl border border-slate-200 shadow-sm overflow-hidden flex-shrink-0"
-            height="144"
-            src="{{ workspace.project.org.logo_file.url }}"
-            width="144"
-          />
-        {% else %}
-          <span class="grid place-content-center w-24 h-24 bg-white border border-slate-300 rounded-md overflow-hidden flex-shrink-0">
-            <span class="text-xs text-slate-600 tracking-tighter leading-4 p-1">
-              {{ workspace.project.org.name }}
-            </span>
-          </span>
-        {% endif %}
+      <div class="flex flex-col text-center items-center gap-y-2 lg:text-left lg:items-start">
+        <h1 class="text-3xl tracking-tight break-words font-bold text-slate-900 sm:text-4xl">
+          {{ workspace.name }}
+        </h1>
+        <dl class="flex flex-col gap-2 text-sm text-slate-600 items-center sm:flex-row sm:gap-x-6 sm:justify-center lg:justify-start">
+          <dt class="sr-only">Organisation:</dt>
+          <dd class="flex flex-row items-start overflow-hidden">
+            {% icon_building_library_outline class="mr-1.5 h-5 w-5 flex-shrink-0 text-slate-400" %}
+            <span class="truncate">{{ workspace.project.org.name }}</span>
+          </dd>
+          <dt class="sr-only">Project:</dt>
+          <dd class="flex flex-row items-start overflow-hidden">
+            {% icon_rectangle_stack_outline class="mr-1.5 h-5 w-5 flex-shrink-0 text-slate-400" %}
+            <span class="truncate">{{ workspace.project.name }}</span>
+          </dd>
+        </dl>
 
-        <div class="flex flex-col gap-y-2 flex-grow lg:ml-4">
-          <h1 class="text-3xl tracking-tight break-words font-bold text-slate-900 sm:text-4xl">
-            {{ workspace.name }}
-          </h1>
-          <dl class="flex flex-col gap-2 text-sm text-slate-600 items-center sm:flex-row sm:gap-x-6 sm:justify-center lg:justify-start">
-            <dt class="sr-only">Organisation:</dt>
-            <dd class="flex flex-row items-start overflow-hidden">
-              {% icon_building_library_outline class="mr-1.5 h-5 w-5 flex-shrink-0 text-slate-400" %}
-              <span class="truncate">{{ workspace.project.org.name }}</span>
-            </dd>
-            <dt class="sr-only">Project:</dt>
-            <dd class="flex flex-row items-start overflow-hidden">
-              {% icon_rectangle_stack_outline class="mr-1.5 h-5 w-5 flex-shrink-0 text-slate-400" %}
-              <span class="truncate">{{ workspace.project.name }}</span>
-            </dd>
-          </dl>
-
-          <div class="flex flex-col sm:flex-row gap-2 mt-2 lg:items-start">
-            {% if is_member %}
-              {% #button href=workspace.get_edit_url type="link" variant="secondary" %}
-                Edit workspace
-                {% icon_pencil_outline class="h-4 w-4 ml-2 -mr-2" %}
-              {% /button %}
-            {% endif %}
-
-            {% if user_can_run_jobs %}
-              {% #button href=run_jobs_url type="link" variant="success" %}
-                Run jobs
-                {% icon_play_outline class="h-4 w-4 ml-2 -mr-2" %}
-              {% /button %}
-            {% endif %}
-
-            {% #button href=workspace.get_logs_url type="link" variant="primary" %}
-              View logs
-              {% icon_queue_list_outline class="h-4 w-4 ml-2 -mr-2" %}
+        <div class="flex flex-col mt-2 sm:flex-row gap-2 lg:items-start">
+          {% if is_member %}
+            {% #button href=workspace.get_edit_url type="link" variant="secondary" %}
+              Edit workspace
+              {% icon_pencil_outline class="h-4 w-4 ml-2 -mr-2" %}
             {% /button %}
-          </div>
+          {% endif %}
+
+          {% if user_can_run_jobs %}
+            {% #button href=run_jobs_url type="link" variant="success" %}
+              Run jobs
+              {% icon_play_outline class="h-4 w-4 ml-2 -mr-2" %}
+            {% /button %}
+          {% endif %}
+
+          {% #button href=workspace.get_logs_url type="link" variant="primary" %}
+            View logs
+            {% icon_queue_list_outline class="h-4 w-4 ml-2 -mr-2" %}
+          {% /button %}
         </div>
       </div>
     </div>
