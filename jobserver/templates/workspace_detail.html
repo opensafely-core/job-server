@@ -77,10 +77,12 @@
           </dl>
 
           <div class="flex flex-col sm:flex-row gap-2 mt-2 lg:items-start">
-            {% #button href=workspace.get_edit_url type="link" variant="secondary" %}
-              Edit workspace
-              {% icon_pencil_outline class="h-4 w-4 ml-2 -mr-2" %}
-            {% /button %}
+            {% if is_member %}
+              {% #button href=workspace.get_edit_url type="link" variant="secondary" %}
+                Edit workspace
+                {% icon_pencil_outline class="h-4 w-4 ml-2 -mr-2" %}
+              {% /button %}
+            {% endif %}
 
             {% if user_can_run_jobs %}
               {% #button href=run_jobs_url type="link" variant="success" %}

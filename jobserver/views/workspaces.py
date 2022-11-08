@@ -294,6 +294,7 @@ class WorkspaceDetail(View):
 
         context = {
             "first_job": first_job,
+            "is_member": is_member,
             "repo_is_private": repo_is_private,
             "show_publish_repo_warning": show_publish_repo_warning,
             "run_jobs_url": run_jobs_url,
