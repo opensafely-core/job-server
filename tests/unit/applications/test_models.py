@@ -47,7 +47,7 @@ def test_application_get_absolute_url():
 
     url = application.get_absolute_url()
 
-    return url == reverse(
+    assert url == reverse(
         "applications:detail", kwargs={"pk_hash": application.pk_hash}
     )
 
@@ -57,7 +57,7 @@ def test_application_get_edit_url():
 
     url = application.get_edit_url()
 
-    return url == reverse(
+    assert url == reverse(
         "staff:application-edit", kwargs={"pk_hash": application.pk_hash}
     )
 
@@ -67,7 +67,7 @@ def test_application_get_delete_url():
 
     url = application.get_delete_url()
 
-    return url == reverse(
+    assert url == reverse(
         "applications:delete", kwargs={"pk_hash": application.pk_hash}
     )
 
@@ -77,7 +77,7 @@ def test_application_get_restore_url():
 
     url = application.get_restore_url()
 
-    return url == reverse(
+    assert url == reverse(
         "applications:restore", kwargs={"pk_hash": application.pk_hash}
     )
 
@@ -87,7 +87,7 @@ def test_application_get_staff_delete_url():
 
     url = application.get_staff_delete_url()
 
-    return url == reverse(
+    assert url == reverse(
         "staff:application-delete", kwargs={"pk_hash": application.pk_hash}
     )
 
@@ -97,7 +97,7 @@ def test_application_get_staff_restore_url():
 
     url = application.get_staff_restore_url()
 
-    return url == reverse(
+    assert url == reverse(
         "staff:application-restore", kwargs={"pk_hash": application.pk_hash}
     )
 
@@ -107,7 +107,7 @@ def test_application_get_staff_url():
 
     url = application.get_staff_url()
 
-    return url == reverse(
+    assert url == reverse(
         "staff:application-detail", kwargs={"pk_hash": application.pk_hash}
     )
 
