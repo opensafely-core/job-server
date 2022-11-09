@@ -1,4 +1,4 @@
-{% extends "base.html" %}
+{% extends "base-tw.html" %}
 
 {% load humanize %}
 {% load static %}
@@ -17,274 +17,273 @@
 {% endblock extra_styles %}
 
 {% block breadcrumbs %}
-<nav class="breadcrumb-container" aria-label="breadcrumb">
-  <div class="container">
-    <ol class="breadcrumb rounded-0 mb-0 px-0">
-      <li class="breadcrumb-item">
-        <a href="/">Home</a>
-      </li>
-
-      <li class="breadcrumb-item">
-        <a href="{{ job_request.workspace.project.org.get_absolute_url }}">
-          {{ job_request.workspace.project.org.name }}
-        </a>
-      </li>
-
-      <li class="breadcrumb-item">
-        <a href="{{ job_request.workspace.project.get_absolute_url }}">
-          {{ job_request.workspace.project.title }}
-        </a>
-      </li>
-
-      <li class="breadcrumb-item">
-        <a href="{{ job_request.workspace.get_absolute_url }}">
-          {{ job_request.workspace.name }}
-        </a>
-      </li>
-
-      <li class="breadcrumb-item active" aria-current="page">
-        Job request: {{ job_request.id }}
-      </li>
-    </ol>
-  </div>
-</nav>
+  {% #breadcrumbs %}
+    {% url 'home' as home_url %}
+    {% breadcrumb title="Home" url=home_url %}
+    {% breadcrumb location="Organisation" title=job_request.workspace.project.org.name url=job_request.workspace.project.org.get_absolute_url %}
+    {% breadcrumb location="Project" title=job_request.workspace.project.title url=job_request.workspace.project.get_absolute_url %}
+    {% breadcrumb location="Workspace" title=job_request.workspace.name url=job_request.workspace.get_absolute_url %}
+    {% breadcrumb location="Job request" title=job_request.id active=True %}
+  {% /breadcrumbs %}
 {% endblock breadcrumbs %}
 
-{% block jumbotron %}
-<div class="jumbotron jumbotron-fluid">
-  <div class="container">
-    <h1>Job request: {{ job_request.pk }}</h1>
-
-    <ul class="list-unstyled lead">
-      <li><strong>ID:</strong> <code>{{ job_request.identifier }}</code></li>
-      <li>
-        <strong>Workspace:</strong>
-        <a href="{{ job_request.workspace.get_absolute_url }}">
-          {{ job_request.workspace.name }}
-        </a>
-      </li>
-    </ul>
-
-    <a class="btn btn-primary" href="{{ job_request.get_repo_url }}">
-      View Repo
-    </a>
-
-    <a class="btn btn-secondary" href="{{ project_yaml_url }}">
-      View project.yaml
-    </a>
-
-    {% if user_can_cancel_jobs %}
-      <form class="d-inline-block" method="POST" action="{{ job_request.get_cancel_url }}">
-        {% csrf_token %}
-        <button
-          {% if job_request.is_completed %}
-            aria-disabled="true"
-            disabled
-            tabindex="-1"
-            title="Job request cannot be cancelled"
-          {% endif %}
-          class="btn btn-danger"
-          type="submit"
-        >
-          Cancel
-        </button>
-      </form>
-    {% endif %}
-  </div>
-</div>
-{% endblock jumbotron %}
-
 {% block content %}
-<div class="container">
-  <div class="row">
-    <div class="col-lg-8">
-      <p>
-        This page shows the technical details of what happened when authorised researcher {{ job_request.created_by.name }} requested one or
-        more actions to be run against real patient data in the
-        <a href="{{ job_request.workspace.project.get_absolute_url }}">{{ job_request.workspace.project.title }} project</a>, within a secure environment.
-      </p>
+  <div class="grid grid-cols-1 gap-6 lg:grid-cols-6">
+    <div class="
+      flex flex-col items-center gap-y-4
+      lg:flex-row lg:flex-wrap lg:items-start lg:col-span-4 lg:mb-4
+    ">
+      <div class="flex flex-col text-center items-center gap-y-2 lg:text-left lg:items-start">
+        <h1 class="text-3xl tracking-tight break-words font-bold text-slate-900 sm:text-4xl">
+          Job request: {{ job_request.pk }}
+        </h1>
+        <dl class="flex flex-col gap-2 text-sm text-slate-600 items-center sm:flex-row sm:gap-x-6 sm:justify-center lg:justify-start">
+          <dt class="sr-only">Workspace:</dt>
+          <dd class="flex flex-row items-start overflow-hidden">
+            {# TODO: Fix this icon #}
+            {% icon_building_library_outline class="mr-1.5 h-5 w-5 flex-shrink-0 text-slate-400" %}
+            <span class="truncate">{{ job_request.workspace.name }}</span>
+          </dd>
+          <dt class="sr-only">ID:</dt>
+          <dd class="flex flex-row items-start overflow-hidden">
+            {# TODO: Fix this icon #}
+            {% icon_rectangle_stack_outline class="mr-1.5 h-5 w-5 flex-shrink-0 text-slate-400" %}
+            <span class="truncate">{{ job_request.identifier }}</span>
+          </dd>
+        </dl>
 
-      <p>
-        By cross-referencing the indicated Requested Actions with the Pipeline section below, you can infer what
-        <a href="https://docs.opensafely.org/security-levels/">security level</a> various outputs were written to. Outputs
-        marked as <code>highly_sensitive</code> can never be viewed directly by a
-        researcher; they can only request that code runs against them. Outputs marked as <code>moderately_sensitive</code> can be
-        viewed by an approved researcher by logging into a highly secure environment. Only outputs marked as
-        <code>moderately_sensitive</code> can be requested for release to the public, via a controlled output review service.
-      </p>
+        <div class="flex flex-col mt-2 sm:flex-row gap-2 lg:items-start">
+          {% #button href=job_request.get_repo_url type="link" variant="primary" %}
+            {% icon_github_outline class="h-4 w-4 mr-2" %}
+            View repo
+          {% /button %}
+
+          {% #button href=project_yaml_url type="link" variant="secondary" %}
+            View project.yaml
+          {% /button %}
+
+          {% if user_can_cancel_jobs %}
+            <form class="d-inline-block" method="POST" action="{{ job_request.get_cancel_url }}">
+              {% csrf_token %}
+              {% if job_request.is_completed %}
+                {% #button type="submit" disabled=True tooltip="This job request can no longer be cancelled" %}
+                  Cancel this job
+                {% /button %}
+              {% else %}
+                {% #button type="submit" variant="danger" %}
+                  Cancel this job
+                {% /button %}
+              {% endif %}
+            </form>
+          {% endif %}
+        </div>
+      </div>
+    </div>
+
+    <div class="lg:col-span-4 flex flex-col gap-y-6">
+      {% #card container=True %}
+        <div class="flex flex-col gap-y-4 text-slate-700">
+          <p>
+            This page shows the technical details of what happened when
+            authorised researcher
+            <strong>{{ job_request.created_by.name }}</strong>
+            requested one or more actions to be run against real patient data
+            in the
+            {% spaceless %}
+              {% link text="project" href=job_request.workspace.project.title %}
+            {% endspaceless %}, within a secure environment.
+          </p>
+          <p>
+            By cross-referencing the indicated Requested Actions with the
+            Pipeline section below, you can infer what
+            {% link text="security level" href="https://docs.opensafely.org/security-levels/" %}
+            various outputs were written to. Outputs marked as
+            {% #code %}highly_sensitive{% /code %}
+            can never be viewed directly by a researcher; they can only
+            request that code runs against them. Outputs marked as
+            {% #code %}moderately_sensitive{% /code %}
+            can be viewed by an approved researcher by logging into a highly
+            secure environment. Only outputs marked as
+            {% #code %}moderately_sensitive{% /code %}
+            can be requested for release to the public, via a controlled
+            output review service.
+          </p>
+        </div>
+      {% /card %}
 
       {% if not job_request.is_invalid %}
-        <section class="pt-3">
-          <h2 class="h3">Jobs</h2>
-          <div class="table-responsive">
-            <table class="table table-striped">
-              <thead class="thead-light">
-                <tr>
-                  <th>ID</th>
-                  <th>Status</th>
-                  <th>Action</th>
-                </tr>
-              </thead>
-              <tbody>
-                {% for job in job_request.jobs.all %}
-                <tr>
-                  <td>
-                    <a class="btn btn-link p-0 text-monospace font-weight-bold" href="{{ job.get_absolute_url }}">
-                      {{ job.identifier }}
-                    </a>
-                  </td>
-                  <td>{{ job.status }}</td>
-                  <td>{{ job.action }}</td>
-                </tr>
-                {% endfor %}
-              </tbody>
-            </table>
-          </div>
-        </section>
+        {% #card title="Jobs" %}
+          <ul class="divide-y divide-slate-200 border-t border-t-slate-200">
+            {% for job in job_request.jobs.all %}
+              <li class="relative transition-colors hover:bg-oxford-50 group">
+                <dl class="flex flex-col gap-2 px-4 py-4 sm:px-6">
+                  <div class="flex gap-x-2">
+                    <dt class="sr-only">Action:</dt>
+                    <dd class="
+                      text-base font-semibold text-oxford-600 transition-colors truncate
+                      group-hover:text-oxford-900
+                      group-focus:text-oxford-900
+                    ">
+                      <a
+                        class="
+                          focus:bg-oxford-50 focus:outline-none focus:ring-2 focus:ring-inset
+                          before:absolute before:top-0 before:bottom-0 before:right-0 before:left-0 before:h-full before:w-full"
+                        href="{{ job.get_absolute_url }}"
+                      >
+                        {{ job.action }}
+                      </a>
+                    </dd>
+                    <dt class="sr-only">Status:</dt>
+                    <dd class="ml-auto flex-shrink-0">
+                      {% if job.status == "pending" %}
+                        {% pill sr_only="Status:" variant="warning" text=job.status|capfirst %}
+                      {% elif job.status == "running" %}
+                        {% pill sr_only="Status:" variant="primary" text=job.status|capfirst %}
+                      {% elif job.status == "failed" %}
+                        {% pill sr_only="Status:" variant="danger" text=job.status|capfirst %}
+                      {% elif job.status == "succeeded" %}
+                        {% pill sr_only="Status:" variant="success" text=job.status|capfirst %}
+                      {% endif %}
+                    </dd>
+                  </div>
+                  <div class="flex flex-col gap-2 text-sm text-slate-600 sm:flex-row sm:gap-x-4">
+                    <dt class="sr-only">Job identifier:</dt>
+                    <dd class="flex flex-row items-start overflow-hidden sm:max-w-[50%]">
+                      {% icon_code_bracket_outline class="mr-1.5 h-5 w-5 flex-shrink-0 text-slate-400" %}
+                      <span class="truncate font-mono uppercase tracking-wide font-semibold">
+                        {{ job.identifier }}
+                      </span>
+                    </dd>
+                  </div>
+                </dl>
+              </li>
+            {% endfor %}
+          </ul>
+        {% /card %}
       {% endif %}
 
       {% if project_definition %}
-        <section class="pt-3">
-          <h2 class="h3">Pipeline</h2>
-          <details class="card overflow-hidden">
-            <summary class="btn btn-link card-header font-weight-bold">
-              <span class="summary--show">Show</span>
-              <span class="summary--hide">Hide</span>
-              project.yaml
+        {% #card title="Pipeline" container=True %}
+          <details
+            class="
+              group bg-oxford-50 border border-l-4 border-oxford-700/95 overflow-hidden rounded
+              open:bg-white
+            "
+          >
+            <summary class="cursor-pointer list-none p-4 py-2 transition-colors hover:bg-oxford-100 hover:text-oxford-900">
+              <span class="text-lg font-semibold text-oxford">
+                <span class="group-open:hidden inline-flex">Show</span>
+                <span class="group-open:inline-flex hidden">Hide</span>
+                project.yaml
+              </span>
             </summary>
-            {{ project_definition }}
+
+            <div class="p-4 bg-[#f8f8f8] overflow-scroll">
+              {{ project_definition }}
+            </div>
           </details>
-        </section>
+        {% /card %}
       {% endif %}
-
     </div>
-    <div class="col-lg-4">
-      <div class="card mb-3">
-        <div class="card-header">
-          <h2 class="h5">State</h2>
-          <p class="card-subtitle mb-0">State is inferred from the related Jobs.</p>
-        </div>
-        <div class="card-body">
-          <p class="mb-0"><strong>Status:</strong> {{ job_request.status|capfirst }}</p>
-          {% if job_request.is_invalid %}
-            <pre class="text-wrap mb-0 mt-3">{{ job_request.jobs.first.status_message }}</pre>
+
+    <div class="lg:col-span-2 flex flex-col gap-y-6">
+      {% #card title="Timeline" container=True %}
+        <ul class="flow-root">
+          {% #timeline_item background="blue" title="Created:" time=job_request.created_at %}
+            {% icon_pencil_outline class="h-5 w-5" %}
+          {% /timeline_item %}
+
+          {% if job_request.started_at %}
+            {% #timeline_item background="purple" title="Started:" time=job_request.started_at %}
+              {% icon_folder_open_outline class="h-5 w-5" %}
+            {% /timeline_item %}
           {% endif %}
-        </div>
-      </div>
-      <div class="card mb-3">
-        <div class="card-header">
-          <h2 class="h5">Timings</h2>
-          <p class="card-subtitle mb-0">Timings set to UTC timezone.</p>
-        </div>
-        <div class="card-body">
-          <ul class="list-unstyled mb-0">
-            <li>
-              <strong>Created:</strong>
-              <time title="{{ job_request.created_at|date:"Y-m-d H:i:sO" }}">
-                {{ job_request.created_at|naturaltime }}
-              </time>
-            </li>
 
-            <li>
-              <strong>Started:</strong>
-              <time title="{{ job_request.started_at|default_if_none:"" }}">
-                {{ job_request.started_at|naturaltime|default_if_none:"-" }}
-              </time>
-            </li>
+          {% #timeline_item background="green" title="Finished:" time=job_request.completed_at %}
+            {% icon_check_outline class="h-5 w-5" %}
+          {% /timeline_item %}
 
-            <li>
-              <strong>Finished:</strong>
-              <time title="{{ job_request.completed_at|default_if_none:"" }}">
-                {{ job_request.completed_at|naturaltime|default_if_none:"-"}}
-              </time>
-            </li>
+          {% #timeline_item background="stone" title="Runtime:" time=job_request.runtime no_padding_bottom=True last=True %}
+            {% icon_clock_outline class="h-5 w-5" %}
+          {% /timeline_item %}
+        </ul>
+        {% #card_footer %}
+          <p class="text-sm font-medium text-slate-600">
+            These timestamps are generated and stored using the UTC timezone on the {{ job.job_request.backend|upper }} backend.
+          </p>
+        {% /card_footer %}
+      {% /card %}
 
-            <li>
-              <strong>Runtime:</strong>
-              <span>{{ job_request.runtime }}</span>
-            </li>
-          </ul>
-        </div>
-      </div>
-      {% if honeycomb_can_view_links %}
-      <div class="card mb-3">
-        <div class="card-header">
-          <h2 class="h5">Monitoring</h2>
-          <p class="card-subtitle small mb-0">Honeycomb login required</p>
-        </div>
-        <div class="card-body">
-          <ul class="pl-3 mb-0">
-            {% for name, link in honeycomb_links.items %}
-                <li>
-                    <a href="{{ link }}">{{ name }}</a>
-                </li>
-            {% endfor %}
-          </ul>
-        </div>
-      </div>
-      {% endif %}
-      <div class="card mb-3">
-        <h2 class="card-header h5">Config</h2>
-        <ul class="list-group list-group-flush">
-          <li class="list-group-item">
-            <dl class="mb-0">
-              <dt>Backend:</dt>
-              <dd class="d-inline-flex mb-0 align-items-center">
-                <code>{{ job_request.backend|upper }}</code>
-              </dd>
-            </dl>
-          </li>
-          <li class="list-group-item">
-            <dl class="mb-0">
-              <dt>Workspace:</dt>
-              <dd class=" mb-0">
-                <a href="{{ job_request.workspace.get_absolute_url }}">
-                  {{ job_request.workspace.name }}
-                </a>
-              </dd>
-            </dl>
-          </li>
-          <li class="list-group-item">
-            <dl class="mb-0">
-              <dt>Branch:</dt>
-              <dd class=" mb-0"><code>{{ job_request.workspace.branch }}</code></dd>
-            </dl>
-          </li>
-          <li class="list-group-item">
-            <dl class="mb-0">
-              <dt>Creator:</dt>
-              <dd class=" mb-0">{{ job_request.created_by.username }}</dd>
-            </dl>
-          </li>
-          <li class="list-group-item">
-            <dl class="mb-0">
-              <dt>Force run dependencies:</dt>
-              <dd class=" mb-0">
-                {{ job_request.force_run_dependencies }}
-              </dd>
-            </dl>
-          </li>
-          <li class="list-group-item">
-            <dl class="mb-0">
-              <dt>Git Commit Hash:</dt>
-              <dd class=" mb-0">
-                <a href="{{ job_request.get_repo_url }}">
-                  {{ job_request.sha|slice:7|default:"-" }}
-                </a>
-              </dd>
-            </dl>
-          </li>
-          <li class="list-group-item">
-            <strong class="d-block">Requested actions:</strong>
-            <ul class="list-unstyled">
+      {% #card title="Job information" %}
+        <dl class="border-t border-slate-200 sm:divide-y sm:divide-slate-200">
+          {% #description_item title="Status" stacked=True %}
+            <div class="flex flex-col gap-y-2">
+              <span
+                class="
+                  inline-flex self-start items-center rounded -mt-0.5 px-2 py-0.5 font-semibold
+                  {% if job_request.status == "pending" %}
+                    bg-bn-flamenco-200 text-bn-flamenco-900
+                  {% elif job_request.status == "running" %}
+                    bg-blue-200 text-blue-900
+                  {% elif job_request.status == "failed" %}
+                    bg-red-200 text-red-900
+                  {% elif job_request.status == "succeeded" %}
+                    bg-green-200 text-green-900
+                  {% endif %}
+                ">
+                {{ job_request.status|capfirst }}
+              </span>
+              {% if job_request.status == "failed" %}
+                <pre class="break-words whitespace-pre-wrap">{{ job_request.jobs.first.status_message }}</pre>
+              {% endif %}
+            </div>
+          {% /description_item %}
+          {% #description_item title="Backend" stacked=True %}
+            {{ job_request.backend|upper }}
+          {% /description_item %}
+          {% #description_item title="Workspace" stacked=True %}
+            {% link href=job_request.workspace.get_absolute_url text=job_request.workspace.name %}
+          {% /description_item %}
+          {% #description_item title="Requested by" stacked=True %}
+            {{ job_request.created_by.name }}
+            {% /description_item %}
+          {% #description_item title="Branch" stacked=True %}
+            {{ job_request.workspace.branch }}
+          {% /description_item %}
+          {% #description_item title="Force run dependencies" stacked=True %}
+            {{ job_request.force_run_dependencies|yesno|capfirst }}
+          {% /description_item %}
+          {% #description_item title="Git commit hash" stacked=True %}
+            {% link href=job_request.get_repo_url text=job_request.sha|slice:7|default:"-" %}
+          {% /description_item %}
+          {% #description_item title="Requested actions" stacked=True %}
+            <ul
+              class="
+                text-sm list-disc flex flex-col gap-y-1 ml-4 py-2
+                md:ml-3 md:py-0
+              "
+            >
               {% for action in job_request.requested_actions %}
-                <li><code>{{ action }}</code></li>
+                <li class="break-words">
+                  {% #code class="text-xs" %}{{ action }}{% /code %}
+                </li>
               {% endfor %}
             </ul>
-          </li>
-        </ul>
-      </div>
+          {% /description_item %}
+        </dl>
+      {% /card %}
+
+      {% if honeycomb_can_view_links %}
+        {% #card title="Monitoring" subtitle="Honeycomb login required" %}
+          {% #list_group small=True %}
+            {% for name, link in honeycomb_links.items %}
+              {% #list_group_item href=link %}
+                {{ name }}
+              {% /list_group_item %}
+            {% endfor %}
+          {% /list_group %}
+        {% /card %}
+      {% endif %}
     </div>
   </div>
-</div>
 {% endblock content %}

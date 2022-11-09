@@ -1,7 +1,20 @@
 {% var title_class=title_class|default:"font-bold sm:text-sm sm:font-semibold text-slate-900" %}
 {% var details_class=details_class|default:"mt-1 text-sm text-slate-900 pl-3 ml-0.5 border-l-2 border-l-slate-200 sm:pl-0 sm:ml-0 sm:border-l-0 sm:col-span-3 sm:mt-0" %}
 
-<div class="md:even:bg-white md:odd:bg-slate-50 px-3 py-2 sm:grid sm:grid-cols-4 sm:gap-3 md:py-4 md:px-6">
-	<dt class="{{ title_class }}">{{ title }}</dt>
+<div
+	class="
+		px-3 py-2
+		{% if stacked %}
+			flex flex-col gap-y-1
+		{% else %}
+			sm:grid sm:grid-cols-4 sm:gap-3
+		{% endif %}
+		md:py-4 md:px-6
+		md:even:bg-white md:odd:bg-slate-50
+	">
+	<dt
+		class="
+			{{ title_class }}
+		">{{ title }}</dt>
 	<dd class="{{ details_class }}">{{ children }}</dd>
 </div>

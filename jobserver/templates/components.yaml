@@ -5,6 +5,7 @@ components:
   button: "_components/button.html"
   card: "_components/card/card.html"
   card_footer: "_components/card/card-footer.html"
+  code: "_components/code.html"
   description_item: "_components/description-item.html"
   footer: "_components/footer.html"
   form_input: "_components/form/input.html"

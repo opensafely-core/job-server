@@ -32,15 +32,15 @@
     {% if user_can_cancel_jobs %}
       <form class="d-inline-block" method="POST" action="{{ job.get_cancel_url }}">
         {% csrf_token %}
-          {% if job.is_completed or job.action in job.job_request.cancelled_actions %}
-            {% #button type="submit" disabled=True tooltip="This job can no longer be cancelled" %}
-              Cancel this job
-            {% /button %}
-          {% else %}
-            {% #button type="submit" variant="danger" %}
-              Cancel this job
-            {% /button %}
-          {% endif %}
+        {% if job.is_completed or job.action in job.job_request.cancelled_actions %}
+          {% #button type="submit" disabled=True tooltip="This job can no longer be cancelled" %}
+            Cancel this job
+          {% /button %}
+        {% else %}
+          {% #button type="submit" variant="danger" %}
+            Cancel this job
+          {% /button %}
+        {% endif %}
       </form>
     {% endif %}
   </div>
