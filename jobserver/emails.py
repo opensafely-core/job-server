@@ -36,7 +36,7 @@ def send_repo_signed_off_notification_to_researchers(repo):
     ]
 
     send(
-        to=[],
+        to="notifications@jobs.opensafely.org",
         bcc=emails,
         sender="notifications@jobs.opensafely.org",
         subject=f"Repo {repo.owner}/{repo.name} was signed off by {repo.researcher_signed_off_by.name}",
