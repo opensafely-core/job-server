@@ -146,6 +146,92 @@ def test_repodetail_success(rf, core_developer):
     assert len(response.context_data["workspaces"]) == 4
 
 
+def test_repodetail_sign_off_disabled_when_already_internally_signed_off(
+    rf, core_developer
+):
+    repo = RepoFactory(
+        researcher_signed_off_at=timezone.now(),
+        researcher_signed_off_by=UserFactory(),
+        internal_signed_off_at=timezone.now(),
+        internal_signed_off_by=UserFactory(),
+    )
+    workspace = WorkspaceFactory(repo=repo)
+    job_request = JobRequestFactory(workspace=workspace)
+    JobFactory(job_request=job_request)
+
+    request = rf.get("/")
+    request.user = core_developer
+
+    response = RepoDetail.as_view(get_github_api=FakeGitHubAPI)(
+        request, repo_url=quote(repo.url)
+    )
+
+    assert response.status_code == 200
+    assert response.context_data["disabled"] == {
+        "already_signed_off": True,
+        "no_permission": False,
+        "not_ready": False,
+    }
+    assert (
+        "This repo has already been internally signed off" in response.rendered_content
+    )
+
+
+def test_repodetail_sign_off_disabled_when_repo_has_github_outputs_but_user_is_missing_role(
+    rf, core_developer
+):
+    repo = RepoFactory(
+        has_github_outputs=True,
+        researcher_signed_off_at=timezone.now(),
+        researcher_signed_off_by=UserFactory(),
+    )
+    workspace = WorkspaceFactory(repo=repo)
+    job_request = JobRequestFactory(workspace=workspace)
+    JobFactory(job_request=job_request)
+
+    request = rf.get("/")
+    request.user = core_developer
+
+    response = RepoDetail.as_view(get_github_api=FakeGitHubAPI)(
+        request, repo_url=quote(repo.url)
+    )
+
+    assert response.status_code == 200
+    assert response.context_data["disabled"] == {
+        "already_signed_off": False,
+        "no_permission": True,
+        "not_ready": False,
+    }
+    assert (
+        "The SignOffRepoWithOutputs role is required to sign off repos with outputs on GitHub"
+        in response.rendered_content
+    )
+
+
+def test_repodetail_sign_off_disabled_when_repo_missing_researcher_sign_off(
+    rf, core_developer
+):
+    repo = RepoFactory()
+    workspace = WorkspaceFactory(repo=repo)
+    job_request = JobRequestFactory(workspace=workspace)
+    JobFactory(job_request=job_request)
+
+    request = rf.get("/")
+    request.user = core_developer
+
+    response = RepoDetail.as_view(get_github_api=FakeGitHubAPI)(
+        request, repo_url=quote(repo.url)
+    )
+
+    assert response.status_code == 200
+    assert response.context_data["disabled"] == {
+        "already_signed_off": False,
+        "no_permission": False,
+        "not_ready": True,
+    }
+    assert "A researcher has not yet signed this repo off" in response.rendered_content
+
+
 def test_repodetail_unauthorized(rf):
     request = rf.get("/")
     request.user = AnonymousUser()
@@ -332,3 +418,32 @@ def test_reposignoff_unknown_repo(rf, core_developer):
 
     with pytest.raises(Http404):
         RepoSignOff.as_view(get_github_api=FakeGitHubAPI)(request, repo_url="test")
+
+
+def test_reposignoff_without_sign_off_role(rf, core_developer):
+    repo = RepoFactory(has_github_outputs=True)
+
+    request = rf.post("/")
+    request.user = core_developer
+
+    # set up messages framework
+    request.session = "session"
+    messages = FallbackStorage(request)
+    request._messages = messages
+
+    response = RepoSignOff.as_view(get_github_api=FakeGitHubAPI)(
+        request, repo_url=repo.url
+    )
+
+    assert response.status_code == 302
+    assert response.url == repo.get_staff_url()
+
+    repo.refresh_from_db()
+    assert repo.internal_signed_off_at is None
+    assert repo.internal_signed_off_by is None
+
+    # check we have a message for the user
+    messages = list(messages)
+    assert len(messages) == 1
+    msg = "The SignOffRepoWithOutputs role is required to sign off repos with outputs hosted on GitHub"
+    assert str(messages[0]) == msg

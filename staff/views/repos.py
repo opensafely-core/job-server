@@ -16,7 +16,7 @@ from django.utils.safestring import mark_safe
 from django.views.generic import ListView, UpdateView, View
 from first import first
 
-from jobserver.authorization import CoreDeveloper
+from jobserver.authorization import CoreDeveloper, has_permission
 from jobserver.authorization.decorators import require_role
 from jobserver.github import _get_github_api
 from jobserver.models import Job, Org, Project, Repo, User, Workspace
@@ -213,9 +213,18 @@ class RepoDetail(View):
 
         contacts = "; ".join({build_contact(w["created_by"]) for w in workspaces})
 
+        # the sign off button for staff has 3 ways it can be disabled
+        disabled = {
+            "already_signed_off": repo.internal_signed_off_at is not None,
+            "no_permission": repo.has_github_outputs
+            and not has_permission(request.user, "repo_sign_off_with_outputs"),
+            "not_ready": repo.researcher_signed_off_at is None,
+        }
+
         context = {
             "contacts": contacts,
             "first_job_ran_at": first_job_ran_at,
+            "disabled": disabled,
             "last_job_ran_at": last_job_ran_at,
             "num_signed_off": num_signed_off,
             "projects": projects,
@@ -301,6 +310,13 @@ class RepoSignOff(View):
 
     def post(self, request, *args, **kwargs):
         repo = get_object_or_404(Repo, url=unquote(self.kwargs["repo_url"]))
+
+        if repo.has_github_outputs and not has_permission(
+            request.user, "repo_sign_off_with_outputs"
+        ):
+            msg = "The SignOffRepoWithOutputs role is required to sign off repos with outputs hosted on GitHub"
+            messages.error(request, msg)
+            return redirect(repo.get_staff_url())
 
         full_name = f"{repo.owner}/{repo.name}"
 
