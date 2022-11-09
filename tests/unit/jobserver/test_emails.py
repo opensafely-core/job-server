@@ -5,7 +5,7 @@ from django.utils import timezone
 
 from jobserver.emails import (
     send_finished_notification,
-    send_researcher_repo_signed_off_notification,
+    send_repo_signed_off_notification_to_researchers,
 )
 
 from ...factories import (
@@ -49,7 +49,7 @@ def test_send_finished_notification(mailoutbox):
     assert list(m.to) == ["test@example.com"]
 
 
-def test_send_researcher_repo_signed_off_notification(mailoutbox):
+def test_send_repo_signed_off_notification_to_researchers(mailoutbox):
     user1 = UserFactory()
     user2 = UserFactory()
     user3 = UserFactory()
@@ -62,7 +62,7 @@ def test_send_researcher_repo_signed_off_notification(mailoutbox):
     WorkspaceFactory(created_by=user2, repo=repo)
     WorkspaceFactory(created_by=user3, repo=repo)
 
-    send_researcher_repo_signed_off_notification(repo)
+    send_repo_signed_off_notification_to_researchers(repo)
 
     m = mailoutbox[0]
 

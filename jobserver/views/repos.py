@@ -12,7 +12,10 @@ from django.utils.decorators import method_decorator
 from django.views.generic import TemplateView, View
 from furl import furl
 
-from ..emails import send_researcher_repo_signed_off_notification
+from ..emails import (
+    send_repo_signed_off_notification_to_researchers,
+    send_repo_signed_off_notification_to_staff,
+)
 from ..github import _get_github_api
 from ..models import Org, Project, ProjectMembership, Repo
 from ..slacks import notify_copilots_of_repo_sign_off
@@ -132,11 +135,13 @@ class SignOffRepo(TemplateView):
 
             # notify the workspace creators this has happened so they get a
             # chance to contact us if there is an error
-            send_researcher_repo_signed_off_notification(self.repo)
+            send_repo_signed_off_notification_to_researchers(self.repo)
 
             if not self.repo.has_github_outputs:
                 # notify the copilots that a repo has been signed off by a user
                 notify_copilots_of_repo_sign_off(self.repo)
+            else:
+                send_repo_signed_off_notification_to_staff(self.repo)
 
             return redirect("/")
 
