@@ -100,6 +100,7 @@ class ProjectEditForm(forms.ModelForm):
             "number",
             "copilot",
             "copilot_support_ends_at",
+            "copilot_notes",
             "status",
             "status_description",
             "org",

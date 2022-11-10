@@ -108,6 +108,7 @@
           {% endfor %}
         </div>
 
+        {% include "components/form_textarea.html" with field=form.copilot_notes label="Co-pilot notes" name="copilot_notes" %}
 
         <div class="form-group">
           <label class="font-weight-bold" for="id_status">Status</label>
