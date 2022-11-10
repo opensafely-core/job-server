@@ -460,6 +460,8 @@ class Project(models.Model):
     status = models.TextField(choices=Statuses.choices, default=Statuses.ONGOING)
     status_description = models.TextField(default="", blank=True)
 
+    copilot_notes = models.TextField(default="", blank=True)
+
     created_at = models.DateTimeField(default=timezone.now)
     created_by = models.ForeignKey(
         "User",

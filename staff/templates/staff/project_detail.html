@@ -163,6 +163,10 @@
               {{ project.copilot_support_ends_at|naturaltime|default_if_none:"-" }}
             </time>
           </p>
+          <div class="mt-3 mb-0">
+            <strong>Notes</strong>
+            <p>{{ project.copilot_notes|linebreaksbr|default:"-" }}</p>
+          </div>
         </div>
       </div>
     </div>

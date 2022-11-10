@@ -50,6 +50,25 @@
         {% include "components/form_text.html" with field=form.number label="Project number" name="number" extra_attributes=extra_field_attributes %}
 
         <div class="form-group">
+          <label class="font-weight-bold" for="id_org">Org</label>
+
+          <select id="id_org" name="org" class="form-control">
+            {% for value, label in form.fields.org.choices %}
+            <option
+              value="{{ value }}"
+              {% if form.org.value|stringformat:"s" == value|stringformat:"s" %}selected{% endif %}
+            >
+              {{ label }}
+            </option>
+            {% endfor %}
+          </select>
+
+          {% for error in form.org.errors %}
+          <p class="text-danger">{{ error }}</p>
+          {% endfor %}
+        </div>
+
+        <div class="form-group">
           <label class="font-weight-bold" for="id_copilot">Co-pilot</label>
 
           <select id="id_copilot" name="copilot" class="form-control">
@@ -89,24 +108,7 @@
           {% endfor %}
         </div>
 
-        <div class="form-group">
-          <label class="font-weight-bold" for="id_org">Org</label>
-
-          <select id="id_org" name="org" class="form-control">
-            {% for value, label in form.fields.org.choices %}
-            <option
-              value="{{ value }}"
-              {% if form.org.value|stringformat:"s" == value|stringformat:"s" %}selected{% endif %}
-            >
-              {{ label }}
-            </option>
-            {% endfor %}
-          </select>
-
-          {% for error in form.org.errors %}
-          <p class="text-danger">{{ error }}</p>
-          {% endfor %}
-        </div>
+        {% include "components/form_textarea.html" with field=form.copilot_notes label="Co-pilot notes" name="copilot_notes" %}
 
         <div class="form-group">
           <label class="font-weight-bold" for="id_status">Status</label>
@@ -127,11 +129,7 @@
           {% endfor %}
         </div>
 
-        <div class="form-group">
-          <label class="font-weight-bold" for="id_status_description">Status description</label>
-
-          <textarea name="status_description" class="form-control" id="id_status_description" rows="3">{{ project.status_description }}</textarea>
-        </div>
+        {% include "components/form_textarea.html" with field=form.status_description label="Status description" name="status_description" %}
 
         <button class="btn btn-primary" type="submit">
           Save
