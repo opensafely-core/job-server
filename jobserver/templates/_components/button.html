@@ -26,6 +26,14 @@
         bg-bn-ribbon-600
         hover:bg-bn-ribbon-700
         focus:ring-bn-ribbon-500 focus:ring-offset-white
+      {% elif variant == "warning" %}
+        bg-bn-flamenco-600
+        hover:bg-bn-flamenco-700
+        focus:ring-bn-flamenco-500 focus:ring-offset-white
+      {% elif variant == "success" %}
+        bg-green-600
+        hover:bg-green-700
+        focus:ring-green-500 focus:ring-offset-white
       {% endif %}
 
       {% if not disabled %}

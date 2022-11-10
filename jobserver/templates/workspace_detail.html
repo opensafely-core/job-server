@@ -1,4 +1,4 @@
-{% extends "base.html" %}
+{% extends "base-tw.html" %}
 
 {% load humanize %}
 
@@ -12,263 +12,240 @@
 {% endblock extra_meta %}
 
 {% block breadcrumbs %}
-{% if workspace.is_archived %}
-  <div class="alert alert-warning text-center mb-0" role="warning">
-    <div class="container">
-      <div class="row">
-        <div class="col">
-          <p>
-            This Workspace has been archived.  Logs are still available but new Jobs can no longer be requested.
-          </p>
-          <p class="mb-0">
-            If you think this has been done in error, please contact an <a href="mailto:team@opensafely.org">admin</a>.
-          </p>
-        </div>
-      </div>
-    </div>
-  </div>
-{% endif %}
-
-<nav class="breadcrumb-container" aria-label="breadcrumb">
-  <div class="container">
-    <ol class="breadcrumb rounded-0 mb-0 px-0">
-      <li class="breadcrumb-item">
-        <a href="/">Home</a>
-      </li>
-
-      <li class="breadcrumb-item">
-        <a href="{{ workspace.project.org.get_absolute_url }}">
-          {{ workspace.project.org.name }}
-        </a>
-      </li>
-
-      <li class="breadcrumb-item">
-        <a href="{{ workspace.project.get_absolute_url }}">
-          {{ workspace.project.title }}
-        </a>
-      </li>
-
-      <li class="breadcrumb-item active" aria-current="page">
-        {{ workspace.name }}
-      </li>
-    </ol>
-  </div>
-</nav>
+  {% #breadcrumbs %}
+    {% url 'home' as home_url %}
+    {% breadcrumb title="Home" url=home_url %}
+    {% breadcrumb location="Organisation" title=workspace.project.org.name url=workspace.project.org.get_absolute_url %}
+    {% breadcrumb location="Project" title=workspace.project.name url=workspace.project.get_absolute_url %}
+    {% breadcrumb location="Workspace" title=workspace.name active=True %}
+  {% /breadcrumbs %}
 {% endblock breadcrumbs %}
 
-{% block jumbotron %}
-<div class="jumbotron jumbotron-fluid pt-md-2">
-  <div class="container">
-    <div class="row">
-      <div class="col-lg-8 col-xl-9 d-flex flex-column align-items-start justify-content-center">
-        <h1>{{ workspace.name }}</h1>
-        <p class="lead">
-          <strong>Project:</strong>
-          <a href="{{ workspace.project.get_absolute_url }}">{{ workspace.project.title }}</a>
-        </p>
+{% block content %}
+  {% if workspace.is_archived %}
+    {% #alert variant="warning" title="Archived Workspace" class="mb-6" %}
+      <p class="text-sm mb-2">
+        This Workspace has been archived.
+        Logs are still available but new Jobs can no longer be requested.
+      </p>
+      <p class="text-sm">
+        If you think this has been done in error,
+        {% spaceless %}
+          {% link text="contact an admin" href="mailto:team@opensafely.org" %}
+        {% endspaceless %}.
+      </p>
+    {% /alert %}
+  {% endif %}
 
-        <div>
-          <a class="btn btn-danger mr-1" href="{{ workspace.get_edit_url }}">Edit</a>
-          {% if user_can_run_jobs %}
-            <a class="btn btn-primary mr-1" href="{{ run_jobs_url }}">Run Jobs</a>
-          {% endif %}
-          <a class="btn btn-secondary" href="{{ workspace.get_logs_url }}">View logs</a>
+  <div class="grid grid-cols-1 gap-6 lg:grid-cols-3">
+    <div class="flex flex-col text-center items-center gap-y-2 lg:text-left lg:items-start lg:col-span-full">
+      <div class="flex flex-col items-center gap-y-2 lg:gap-y-0 lg:flex-row lg:justify-between lg:items-start w-full">
+        <div class="order-2 lg:mr-auto lg:order-1">
+          <h1 class="text-3xl tracking-tight break-words font-bold text-slate-900 sm:text-4xl">
+            {{ workspace.name }} {{ workspace.name }} {{ workspace.name }} {{ workspace.name }}
+          </h1>
+          <dl class="flex flex-col gap-2 text-sm text-slate-600 items-center sm:flex-row sm:gap-x-6 sm:justify-center lg:justify-start">
+            <dt class="sr-only">Organisation:</dt>
+            <dd class="flex flex-row items-start overflow-hidden">
+              {% icon_building_library_outline class="mr-1.5 h-5 w-5 flex-shrink-0 text-slate-400" %}
+              <span class="truncate">{{ workspace.project.org.name }}</span>
+            </dd>
+            <dt class="sr-only">Project:</dt>
+            <dd class="flex flex-row items-start overflow-hidden">
+              {% icon_rectangle_stack_outline class="mr-1.5 h-5 w-5 flex-shrink-0 text-slate-400" %}
+              <span class="truncate">{{ workspace.project.name }}</span>
+            </dd>
+          </dl>
         </div>
-      </div>
-
-      <div class="mt-3 mt-lg-0 col col-md-6 col-lg-4 col-xl-3">
-        {% if user_can_archive_workspace %}
-          <div class="card text-center">
-            <h2 class="card-header h5">Workspace admin</h2>
-            <div class="card-body d-flex flex-column align-items-center">
-              <form method="POST" action="{{ workspace.get_archive_toggle_url }}" class="mb-2">
-                {% csrf_token %}
-                <input type="hidden" name="is_archived" value="{{ workspace.is_archived|yesno:",True" }}" />
-
-                <button class="btn btn-{% if not workspace.is_archived %}danger{% else %}secondary{% endif %}" type="submit">
-                  {% if not workspace.is_archived %}
-                    Archive workspace
-                  {% else %}
-                    Unarchive workspace
-                  {% endif %}
-                </button>
-              </form>
-
-              <form method="POST" action="{{ workspace.get_notifications_toggle_url }}">
-                {% csrf_token %}
-                <input type="hidden" name="should_notify" value="{{ workspace.should_notify|yesno:",True" }}" />
-
-                <button class="btn btn-{% if workspace.should_notify %}warning{% else %}success{% endif %}" type="submit">
-                  {% if workspace.should_notify %}Disable{% else %}Enable{% endif %} notifications
-                </button>
-              </form>
-            </div>
+        {% if user_can_view_staff_area %}
+          <div class="order-1 lg:order-2 flex-shrink-0">
+            {% #button href=workspace.get_staff_url type="link" variant="danger" class="flex-shrink-0" %}
+              View in Staff Area
+              {% icon_lifebuoy_outline class="h-4 w-4 ml-2 -mr-2" %}
+            {% /button %}
           </div>
         {% endif %}
       </div>
-    </div>
-  </div>
-</div>
-{% endblock jumbotron %}
 
-{% block content %}
-<div class="container">
-  {% if workspace.repo.has_sign_offs_enabled %}
-  {% if show_publish_repo_warning %}
-  <div class="alert alert-warning mb-5" role="alert">
-    <h2 class="h4 alert-link mb-3">Repository is current private</h2>
-    <p>
-      The <a href="{{ first_job.get_absolute_url }}" class="alert-link">first
-      job to run against the git repository</a> for this workspace ran over 11
-      months ago.  As per our platform policy, we ask that repositories are
-      made public 12 months after they are first executed against patient data.
-    </p>
-    <hr>
-    <p class="mb-0">
-      <a class="alert-link" href="{{ workspace.repo.get_sign_off_url }}">
-        Change repository visibility &rarr;
-      </a>
-    </p>
-  </div>
-  {% endif %}
-  {% endif %}
-  <div class="row">
-    <div class="col-lg-4">
-      <div class="card mb-3 mb-lg-0">
-        <h2 class="card-header h5">Details</h2>
-        <ul class="list-group list-group-flush">
-          <li class="list-group-item">
-            <dl class="mb-0">
-              <dt class="d-inline-block">Repo:</dt>
-              <dd class="d-inline-flex mb-0 align-items-center">
-                <a class="mr-1" href="{{ workspace.repo.url }}/tree/{{ workspace.branch }}/">{{ workspace.repo.name }}</a>
-              </dd>
+      <div class="flex flex-col mt-2 sm:flex-row gap-2 lg:items-start">
+        {% if is_member %}
+          {% #button href=workspace.get_edit_url type="link" variant="secondary" %}
+            Edit workspace
+            {% icon_pencil_outline class="h-4 w-4 ml-2 -mr-2" %}
+          {% /button %}
+        {% endif %}
+
+        {% if user_can_run_jobs %}
+          {% #button href=run_jobs_url type="link" variant="success" %}
+            Run jobs
+            {% icon_play_outline class="h-4 w-4 ml-2 -mr-2" %}
+          {% /button %}
+        {% endif %}
+
+        {% #button href=workspace.get_logs_url type="link" variant="primary" %}
+          View logs
+          {% icon_queue_list_outline class="h-4 w-4 ml-2 -mr-2" %}
+        {% /button %}
+      </div>
+    </div>
+
+    <div class="space-y-6 md:space-y-6 lg:col-span-1 lg:row-start-2">
+      {% if user_can_archive_workspace %}
+        {% #card title="Workspace admin" class="text-center" container=True %}
+          <form method="POST" action="{{ workspace.get_archive_toggle_url }}" class="mb-2">
+            {% csrf_token %}
+            <input type="hidden" name="is_archived" value="{{ workspace.is_archived|yesno:",True" }}" />
+
+            {% if workspace.is_archived %}
+              {% #button variant="primary" type="submit" %}
+                Unarchive workspace
+              {% /button %}
+            {% else %}
+              {% #button variant="danger" type="submit" class="" %}
+                Archive workspace
+              {% /button %}
+            {% endif %}
+          </form>
+
+          <form method="POST" action="{{ workspace.get_notifications_toggle_url }}">
+            {% csrf_token %}
+            <input type="hidden" name="should_notify" value="{{ workspace.should_notify|yesno:",True" }}" />
+
+            {% if workspace.should_notify %}
+              {% #button variant="warning" type="submit" %}
+                Disable notifications
+              {% /button %}
+            {% else %}
+              {% #button variant="success" type="submit" %}
+                Enable notification
+              {% /button %}
+            {% endif %}
+          </form>
+        {% /card %}
+      {% endif %}
+
+      {% #card title="Job information" %}
+        <dl class="border-t border-slate-200 sm:divide-y sm:divide-slate-200">
+          {% #description_item title="Repo" %}
+            {% link text=workspace.repo.name href=workspace.repo.url %}
+
               {% if repo_is_private %}
-              <p class="mt-2 mb-1">This repo is not publicly viewable.</p>
-              <details class="small">
-                <summary class="font-weight-bold text-primary">Why is this repo private?</summary>
-                <div class="pl-3">
-                  <p class="my-1">In accordance with the <a href="https://www.opensafely.org/about/#transparency-and-public-logs">Principles of OpenSAFELY</a> we expect all code from all users to be made public.</p>
-                  <p class="mb-0">However, some GitHub repositories may be private during the development stage of a project, which means any links to them from this site will return a '404 Not Found' error unless you are logged in and have the relevant permissions.</p>
-                </div>
-              </details>
+                <p class="mt-2 mb-1">This repo is not publicly viewable.</p>
+                <details class="group">
+                  <summary
+                    class="
+                      text-oxford-600 font-semibold cursor-pointer
+                      hover:text-oxford-900 hover:underline
+                    "
+                  >
+                    Why is this repo private?
+                  </summary>
+                  <div class="pl-3">
+                    <p class="my-1">In accordance with the <a href="https://www.opensafely.org/about/#transparency-and-public-logs">Principles of OpenSAFELY</a> we expect all code from all users to be made public.</p>
+                    <p class="mb-0">However, some GitHub repositories may be private during the development stage of a project, which means any links to them from this site will return a '404 Not Found' error unless you are logged in and have the relevant permissions.</p>
+                  </div>
+                </details>
               {% endif %}
-            </dl>
-          </li>
-          <li class="list-group-item">
-            <dl class="mb-0">
-              <dt class="d-inline-block">Branch:</dt>
-              <dd class="d-inline-block mb-0">{{ workspace.branch }}</dd>
-            </dl>
-          </li>
-          <li class="list-group-item">
-            <dl class="mb-0">
-              <dt class="d-inline-block">Database:</dt>
-              <dd class="d-inline-block mb-0">{{ workspace.db }}</dd>
-            </dl>
-          </li>
-          <li class="list-group-item">
-            <dl class="mb-0">
-              <dt class="d-inline-block">Created:</dt>
-              <dd class="d-inline-block mb-0">
-                <time
-                  datetime="{{ workspace.created_at|date:"Y-m-d H:i:sO" }}"
-                  title="{{ workspace.created_at|date:"Y-m-d H:i:sO" }}"
-                >
-                  {{ workspace.created_at|naturaltime }}
-                </time>
-              </dd>
-            </dl>
-          </li>
-          <li class="list-group-item">
-            <dl class="mb-0">
-              <dt class="d-inline-block">Created by:</dt>
-              <dd class="d-inline-block mb-0">{{ workspace.created_by.name }}</dd>
-            </dl>
-          </li>
-        </ul>
-      </div>
+          {% /description_item %}
+
+          {% #description_item title="Branch" %}
+            {% link text=workspace.branch href=workspace.repo.url|add:"/tree/"|add:workspace.branch %}
+          {% /description_item %}
+
+          {% #description_item title="Database" %}
+            {{ workspace.db }}
+          {% /description_item %}
+
+          {% #description_item title="Created" %}
+            <time
+              datetime="{{ workspace.created_at|date:"Y-m-d H:i:sO" }}"
+              title="{{ workspace.created_at|date:"Y-m-d H:i:sO" }}"
+            >
+              {{ workspace.created_at|naturaltime }}
+            </time>
+          {% /description_item %}
+
+          {% #description_item title="Created by" %}
+            {{ workspace.created_by.name }}
+          {% /description_item %}
+        </dl>
+      {% /card %}
     </div>
 
-    <div class="col-lg-8">
-      <p>
-        This is an OpenSAFELY workspace.  It represents a working directory for the
-        <a href="{{ workspace.project.get_absolute_url }}">{{ workspace.project.title }}</a>
-        project on all of the secure services ("backends") supported by
-        OpenSAFELY.  On each backend, the directory includes code from the
-        <a href="{{ workspace.repo.url }}/tree/{{ workspace.branch }}/">repository</a>,
-        and the results of running it against real data ("jobs"). Researchers can
-        request jobs are run from this page.
-      </p>
+    <div class="grid gap-6 place-content-start lg:col-span-2">
+      {% if workspace.repo.has_sign_offs_enabled and show_publish_repo_warning %}
+        {% #alert variant="warning" title="Repository is current private" %}
+          <p class="text-sm mb-2">
+            The
+            {% link text="first job to run against the git repository" href=first_job.get_absolute_url %}
+            for this workspace ran over 11 months ago.  As per our platform
+            policy, we ask that repositories are made public 12 months after
+            they are first executed against patient data.
+          </p>
+          <p class="text-sm">
+            {% link text="Change repository visibility &rarr;" href=workspace.repo.get_sign_off_url %}
+          </p>
+        {% /alert %}
+      {% endif %}
 
-      {% comment %}
-      Remove this check once we can rely on the purpose field
-      {% endcomment %}
-      {% if workspace.purpose %}
-      <div class="card mb-3">
-        <h2 class="h5 card-header">
-          Purpose
-        </h2>
-
-        <p class="card-body mb-0">
-          {{ workspace.purpose }}
+      {% #card container=True class="font-lg text-slate-700" %}
+        <p class="mb-1">
+          This is an OpenSAFELY workspace.  It represents a working directory for the
+          {% link text=workspace.project.title href=workspace.project.get_absolute_url %}
+          project on all of the secure services ("backends") supported by
+          OpenSAFELY.
         </p>
-      </div>
+        <p>
+          On each backend, the directory includes code from the
+          {% spaceless %}
+            {% link text="repository" href=workspace.repo.url|add:"/tree/"|add:workspace.branch %}
+          {% endspaceless %},
+          and the results of running it against real data ("jobs").
+          Researchers can request jobs are run from this page.
+        </p>
+      {% /card %}
+
+      {# Remove this check once we can rely on the purpose field #}
+      {% if workspace.purpose %}
+        {% #card title="Workspace purpose" container=True %}
+          <p class="prose">
+            {{ workspace.purpose }}
+          </p>
+        {% /card %}
       {% endif %}
 
       {% if user_can_use_releases %}
-      <div class="card border-0 mb-3">
-        <h2 class="h5 card-header border border-bottom-0">
-          Releases
-        </h2>
-
-        <div class="list-group list-group-flush">
-          <ul class="list-unstyled mb-0">
+        {% #card title="Releases" %}
+          {% #list_group small=True %}
             {% if user_can_view_files %}
-              <li class="list-group-item">
-                <a class="mr-1" href="{{ workspace.get_files_url }}">
-                  Level 4 Outputs
-                </a>
-                <span class="badge badge-pill badge-info">VPN Required</span>
-              </li>
+              {% #list_group_item href=workspace.get_files_url %}
+                <span class="mr-2">Level 4 Outputs</span>
+                {% pill text="VPN Required" variant="primary" %}
+              {% /list_group_item%}
             {% endif %}
+
             {% if user_can_view_releases %}
-              <li class="list-group-item">
-                <a href="{{ workspace.get_releases_url }}">
-                  Released Outputs
-                </a>
-              </li>
+              {% #list_group_item href=workspace.get_releases_url %}
+                Released Outputs
+              {% /list_group_item%}
             {% endif %}
+
             {% if user_can_view_outputs %}
-              <li class="list-group-item">
-                <a href="{{ workspace.get_outputs_url }}">
-                  Published Outputs
-                </a>
-              </li>
+              {% #list_group_item href=workspace.get_outputs_url %}
+                Published Outputs
+              {% /list_group_item%}
             {% endif %}
-          </ul>
-        </div>
-      </div>
+          {% /list_group %}
+        {% /card %}
       {% endif %}
 
-      {% if honeycomb_can_view_links %}
-      <div class="card border-0">
-        <h2 class="h5 card-header border border-bottom-0">
-          Monitoring <span class="badge badge-pill badge-info">Honeycomb login Required</span>
-        </h2>
-
-        <div class="list-group list-group-flush">
-          <ul class="list-unstyled mb-0">
-              <li class="list-group-item">
-                <a class="mr-1" href="{{ honeycomb_link }}">
-                  Heatmap of runtimes for completed jobs in this workspace
-                </a>
-              </li>
-          </ul>
-        </div>
-      </div>
-      {% endif %}
+      {% #card title="Monitoring" subtitle="Honeycomb login required" %}
+        {% #list_group small=True %}
+          {% #list_group_item href=honeycomb_link %}
+            Heatmap of runtimes for completed jobs in this workspace
+          {% /list_group_item%}
+        {% /list_group %}
+      {% /card %}
     </div>
   </div>
-</div>
 {% endblock content %}

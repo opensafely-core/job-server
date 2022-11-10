@@ -2,6 +2,6 @@
 @tailwind components;
 @tailwind utilities;
 
-summary.list-none::-webkit-details-marker {
+summary::-webkit-details-marker {
   @apply hidden;
 }
