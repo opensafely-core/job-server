@@ -50,6 +50,25 @@
         {% include "components/form_text.html" with field=form.number label="Project number" name="number" extra_attributes=extra_field_attributes %}
 
         <div class="form-group">
+          <label class="font-weight-bold" for="id_org">Org</label>
+
+          <select id="id_org" name="org" class="form-control">
+            {% for value, label in form.fields.org.choices %}
+            <option
+              value="{{ value }}"
+              {% if form.org.value|stringformat:"s" == value|stringformat:"s" %}selected{% endif %}
+            >
+              {{ label }}
+            </option>
+            {% endfor %}
+          </select>
+
+          {% for error in form.org.errors %}
+          <p class="text-danger">{{ error }}</p>
+          {% endfor %}
+        </div>
+
+        <div class="form-group">
           <label class="font-weight-bold" for="id_copilot">Co-pilot</label>
 
           <select id="id_copilot" name="copilot" class="form-control">
@@ -89,24 +108,6 @@
           {% endfor %}
         </div>
 
-        <div class="form-group">
-          <label class="font-weight-bold" for="id_org">Org</label>
-
-          <select id="id_org" name="org" class="form-control">
-            {% for value, label in form.fields.org.choices %}
-            <option
-              value="{{ value }}"
-              {% if form.org.value|stringformat:"s" == value|stringformat:"s" %}selected{% endif %}
-            >
-              {{ label }}
-            </option>
-            {% endfor %}
-          </select>
-
-          {% for error in form.org.errors %}
-          <p class="text-danger">{{ error }}</p>
-          {% endfor %}
-        </div>
 
         <div class="form-group">
           <label class="font-weight-bold" for="id_status">Status</label>
