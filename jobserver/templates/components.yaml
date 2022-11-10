@@ -33,6 +33,7 @@ components:
   icon_folder_outline: "_icons/folder-outline.svg"
   icon_github_outline: "_icons/github-outline.svg"
   icon_home_outline: "_icons/home-outline.svg"
+  icon_lifebuoy_outline: "_icons/lifebuoy-outline.svg"
   icon_menu_outline: "_icons/menu-outline.svg"
   icon_mini_exclamation_circle: "_icons/mini/exclamation-circle.svg"
   icon_pencil_outline: "_icons/pencil-outline.svg"
