@@ -210,6 +210,17 @@
               </ul>
             {% endfor %}
           {% endif %}
+
+          {% if repo.has_github_outputs %}
+          <div class="alert alert-secondary mt-5" role="alert">
+            <h2>Outputs</h2>
+            <p class="mb-4">
+              This repository has outputs released to GitHub.  By agreeing to
+              make this repository public you are also agreeing the repo has
+              appropriate data released (i.e. had disclosure controls applied).
+            </p>
+          </div>
+          {% endif %}
         </div>
       </div>
     </section>
