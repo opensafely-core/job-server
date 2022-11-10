@@ -128,11 +128,7 @@
           {% endfor %}
         </div>
 
-        <div class="form-group">
-          <label class="font-weight-bold" for="id_status_description">Status description</label>
-
-          <textarea name="status_description" class="form-control" id="id_status_description" rows="3">{{ project.status_description }}</textarea>
-        </div>
+        {% include "components/form_textarea.html" with field=form.status_description label="Status description" name="status_description" %}
 
         <button class="btn btn-primary" type="submit">
           Save
