@@ -90,8 +90,9 @@
     </div>
 
     <div class="space-y-6 md:space-y-6 lg:col-span-1 lg:row-start-2">
-      {% if user_can_archive_workspace %}
+      {% if is_member %}
         {% #card title="Workspace admin" class="text-center" container=True %}
+          {% if user_can_archive_workspace %}
           <form method="POST" action="{{ workspace.get_archive_toggle_url }}" class="mb-2">
             {% csrf_token %}
             <input type="hidden" name="is_archived" value="{{ workspace.is_archived|yesno:",True" }}" />
@@ -106,6 +107,7 @@
               {% /button %}
             {% endif %}
           </form>
+          {% endif %}
 
           <form method="POST" action="{{ workspace.get_notifications_toggle_url }}">
             {% csrf_token %}
