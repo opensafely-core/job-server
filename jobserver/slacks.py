@@ -92,8 +92,7 @@ def notify_copilot_windows_closing(projects, channel="co-pilot-support"):
 
 
 def notify_copilots_of_repo_sign_off(repo, channel="co-pilot-support"):
-    repo_name = f"{repo.owner}/{repo.name}"
-    repo_link = slack.link(repo.get_staff_url(), repo_name)
+    repo_link = slack.link(repo.get_staff_url(), repo.name)
 
     user_link = slack.link(
         repo.researcher_signed_off_by.get_staff_url(),

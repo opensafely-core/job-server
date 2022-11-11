@@ -69,7 +69,6 @@ class RepoHandler(View):
             context = {
                 "projects": [],
                 "repo": {
-                    "owner": f.path.segments[-2],
                     "name": f.path.segments[-1],
                     "url": repo_url,
                 },
@@ -172,7 +171,7 @@ class SignOffRepo(TemplateView):
         repo = {
             "has_github_outputs": self.repo.has_github_outputs,
             "is_private": is_private,
-            "name": f"{self.repo.owner}/{self.repo.name}",
+            "name": self.repo.name,
             "researcher_signed_off_at": self.repo.researcher_signed_off_at,
             "researcher_signed_off_by": self.repo.researcher_signed_off_by,
             "status": "private" if is_private else "public",
