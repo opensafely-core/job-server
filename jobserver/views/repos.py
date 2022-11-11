@@ -36,10 +36,12 @@ def build_workspace(workspace, github_api):
         "branch": workspace.branch,
         "branch_exists": branch_exists,
         "get_absolute_url": workspace.get_absolute_url(),
+        "get_edit_url": workspace.get_edit_url(),
         "is_archived": workspace.is_archived,
         "name": workspace.name,
         "get_readme_url": workspace.get_readme_url(),
         "project": workspace.project,
+        "purpose": workspace.purpose,
     }
 
 
