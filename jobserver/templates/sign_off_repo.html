@@ -244,8 +244,6 @@
       </div>
     </section>
 
-    {% if workspaces_signed_off %}
-
     <section class="border-top pt-4 mt-4">
       <div class="alert alert-danger" role="alert">
         <p class="lead">
@@ -261,7 +259,19 @@
       </div>
     </section>
 
-    <button type="button" class="btn btn-danger font-weight-bold mt-2 pt-2" data-toggle="modal" data-target="#confirmRepoVisibility">
+    <button
+      type="button"
+      class="btn btn-danger font-weight-bold mt-2 pt-2"
+      {% if not workspaces_signed_off %}
+      disabled
+      data-toggle="tooltip"
+      data-placement="bottom"
+      title="All workspaces must be signed off before a repo can be signed off"
+      {% else %}
+      data-toggle="modal"
+      data-target="#confirmRepoVisibility"
+      {% endif %}
+      >
       Request visibility is set to public
     </button>
 
@@ -306,7 +316,14 @@
         </div>
       </div>
     </div>
-    {% endif %}
   {% endif %}
 </div>
+{% endblock %}
+
+{% block extra_js %}
+<script type="text/javascript" nonce="{{ request.csp_nonce }}">
+  $(document).ready(function () {
+    $('[data-toggle="tooltip"]').tooltip()
+  });
+</script>
 {% endblock %}
