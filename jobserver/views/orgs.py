@@ -33,7 +33,7 @@ class OrgDetail(DetailView):
             .annotate(
                 workspace_count=Count("workspaces", distinct=True),
             )
-            .order_by("number", Lower("name"))
+            .order_by(Lower("name"))
         )
 
         return TemplateResponse(
