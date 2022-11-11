@@ -109,6 +109,12 @@
           </form>
           {% endif %}
 
+          {% if repo_is_private %}
+          {% #button variant="warning" type="link" href=workspace.repo.get_sign_off_url class="mb-2" %}
+            Change repo visibility
+          {% /button %}
+          {% endif %}
+
           <form method="POST" action="{{ workspace.get_notifications_toggle_url }}">
             {% csrf_token %}
             <input type="hidden" name="should_notify" value="{{ workspace.should_notify|yesno:",True" }}" />
