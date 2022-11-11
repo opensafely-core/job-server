@@ -90,8 +90,9 @@
     </div>
 
     <div class="space-y-6 md:space-y-6 lg:col-span-1 lg:row-start-2">
-      {% if user_can_archive_workspace %}
+      {% if is_member %}
         {% #card title="Workspace admin" class="text-center" container=True %}
+          {% if user_can_archive_workspace %}
           <form method="POST" action="{{ workspace.get_archive_toggle_url }}" class="mb-2">
             {% csrf_token %}
             <input type="hidden" name="is_archived" value="{{ workspace.is_archived|yesno:",True" }}" />
@@ -106,6 +107,13 @@
               {% /button %}
             {% endif %}
           </form>
+          {% endif %}
+
+          {% if repo_is_private %}
+          {% #button variant="warning" type="link" href=workspace.repo.get_sign_off_url class="mb-2" %}
+            Change repo visibility
+          {% /button %}
+          {% endif %}
 
           <form method="POST" action="{{ workspace.get_notifications_toggle_url }}">
             {% csrf_token %}
