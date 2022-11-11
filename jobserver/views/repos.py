@@ -170,6 +170,7 @@ class SignOffRepo(TemplateView):
             is_private = None
 
         repo = {
+            "has_github_outputs": self.repo.has_github_outputs,
             "is_private": is_private,
             "name": f"{self.repo.owner}/{self.repo.name}",
             "researcher_signed_off_at": self.repo.researcher_signed_off_at,
