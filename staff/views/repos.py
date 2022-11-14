@@ -318,10 +318,8 @@ class RepoSignOff(View):
             messages.error(request, msg)
             return redirect(repo.get_staff_url())
 
-        full_name = f"{repo.owner}/{repo.name}"
-
         body = f"""
-        The [{full_name}]({repo.url}) repo is ready to be made public.
+        The [{repo.name}]({repo.url}) repo is ready to be made public.
 
         This repo has been checked and approved by {request.user.name}.
 

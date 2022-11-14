@@ -1,13 +1,13 @@
 {% extends "base-tw.html" %}
 
-{% block metatitle %}Repo: {{ repo.owner }}/{{ repo.name }} | OpenSAFELY Jobs{% endblock metatitle %}
+{% block metatitle %}Repo: {{ repo.name }} | OpenSAFELY Jobs{% endblock metatitle %}
 
 {% block breadcrumbs %}
   {% #breadcrumbs %}
     {% url "home" as home_url %}
     {% breadcrumb title="Home" url=home_url %}
     {% breadcrumb title="Repo" %}
-    {% breadcrumb title=repo.owner|add:"/"|add:repo.name active=True %}
+    {% breadcrumb title=repo.name active=True %}
   {% /breadcrumbs %}
 {% endblock breadcrumbs %}
 
@@ -57,7 +57,7 @@
           No projects
         </h2>
         <div class="prose prose-sm mt-2 mx-auto">
-          <p>This code in the {{ repo.owner }}/{{ repo.name }} repository has not yet been run on the OpenSAFELY platform.</p>
+          <p>This code in the {{ repo.name }} repository has not yet been run on the OpenSAFELY platform.</p>
           <p> Once its code has been run on the platform you can reload this page and you will get redirected to the relevant project.</p>
         </div>
       </div>

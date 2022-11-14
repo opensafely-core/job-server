@@ -114,7 +114,7 @@ def test_signoffrepo_get_success_with_multiple_projects(rf):
 
     assert response.context_data["project_url"] == repo.get_handler_url()
     assert response.context_data["repo"]["is_private"]
-    assert response.context_data["repo"]["name"] == "owner/name"
+    assert response.context_data["repo"]["name"] == "name"
     assert response.context_data["repo"]["status"] == "private"
     assert response.context_data["repo"]["url"] == repo.url
 
@@ -145,7 +145,7 @@ def test_signoffrepo_get_success_with_one_project(rf):
 
     assert response.context_data["project_url"] == project_url
     assert response.context_data["repo"]["is_private"]
-    assert response.context_data["repo"]["name"] == "owner/name"
+    assert response.context_data["repo"]["name"] == "name"
     assert response.context_data["repo"]["status"] == "private"
     assert response.context_data["repo"]["url"] == repo.url
 
@@ -183,7 +183,7 @@ def test_signoffrepo_get_success_with_broken_github(rf):
     assert {w.name for w in workspaces} == expected
 
     assert response.context_data["repo"]["is_private"] is None
-    assert response.context_data["repo"]["name"] == "owner/name"
+    assert response.context_data["repo"]["name"] == "name"
     assert response.context_data["repo"]["status"] == "public"
     assert response.context_data["repo"]["url"] == repo.url
 

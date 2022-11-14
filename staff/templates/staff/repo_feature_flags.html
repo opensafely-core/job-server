@@ -1,6 +1,6 @@
 {% extends "staff/base.html" %}
 
-{% block metatitle %}{{ repo.owner }}/{{ repo.name }}: Staff Area | OpenSAFELY Jobs{% endblock metatitle %}
+{% block metatitle %}{{ repo.name }}: Staff Area | OpenSAFELY Jobs{% endblock metatitle %}
 
 {% block breadcrumbs %}
 <nav class="breadcrumb-container breadcrumb--danger" aria-label="breadcrumb">
@@ -13,7 +13,7 @@
         <a href="{% url 'staff:repo-list' %}">Repos</a>
       </li>
       <li class="breadcrumb-item">
-        <a href="{{ repo.get_staff_url }}">{{ repo.owner }}/{{ repo.name }}</a>
+        <a href="{{ repo.get_staff_url }}">{{ repo.name }}</a>
       </li>
       <li class="breadcrumb-item active" aria-current="page">
         Feature flags
@@ -26,7 +26,7 @@
 {% block jumbotron %}
 <div class="jumbotron jumbotron-fluid jumbotron--danger pt-md-2">
   <div class="container">
-    <h1 class="display-4">{{ repo.owner }}/{{ repo.name }}</h1>
+    <h1 class="display-4">{{ repo.name }}</h1>
   </div>
 </div>
 {% endblock jumbotron %}
