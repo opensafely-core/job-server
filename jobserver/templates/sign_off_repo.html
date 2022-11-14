@@ -246,6 +246,13 @@
             </a>.
           </p>
 
+          {% if project_status %}
+          <p>
+            <strong>Current status:</strong>
+            <span>{{ project_status }}</span>
+          </p>
+          {% endif %}
+
           <p>
             <a class="btn btn-outline-success" href="{{ project_url }}">Review project</a>
           </p>

@@ -197,15 +197,19 @@ class SignOffRepo(TemplateView):
         # skipped.
         projects = Project.objects.filter(workspaces__repo=self.repo).distinct()
         if projects.count() == 1:
+            project = projects.first()
+            project_status = project.get_status_display()
             sign_off_url = self.repo.get_sign_off_url()
-            project_url = projects.first().get_edit_url() + f"?next={sign_off_url}"
+            project_url = project.get_edit_url() + f"?next={sign_off_url}"
         else:
+            project_status = None
             project_url = self.repo.get_handler_url()
 
         context = super().get_context_data() | {
             "workspaces_signed_off": workspaces_signed_off,
             "branches": branches,
             "repo": repo,
+            "project_status": project_status,
             "project_url": project_url,
             "workspaces": workspaces,
         }
