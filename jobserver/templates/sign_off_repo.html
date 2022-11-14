@@ -156,6 +156,15 @@
                       <a href="{{ workspace.get_absolute_url }}">{{ workspace.name }}</a>
                     </li>
                     <li class="list-group-item">
+                      <div class="d-flex align-items-center">
+                        <strong>Purpose:</strong>
+                        <span class="d-block flex-grow-1 text-truncate ml-1">{{ workspace.purpose|default:"-" }}</span>
+                        <a class="btn btn-sm btn-primary ml-2" href="{{ workspace.get_edit_url }}">
+                          Edit
+                        </a>
+                      </div>
+                    </li>
+                    <li class="list-group-item">
                       <strong>Project:</strong>
                       <a href="{{ workspace.project.get_absolute_url }}">{{ workspace.project.title }}</a>
                     </li>
@@ -237,8 +246,15 @@
             </a>.
           </p>
 
+          {% if project_status %}
           <p>
-            <a class="btn btn-outline-success" href="{{ project_url }}">View project</a>
+            <strong>Current status:</strong>
+            <span>{{ project_status }}</span>
+          </p>
+          {% endif %}
+
+          <p>
+            <a class="btn btn-primary" href="{{ project_url }}">Review project</a>
           </p>
         </div>
       </div>
