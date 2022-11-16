@@ -117,6 +117,44 @@ jobs:
         with:
           dockerfile: docker/Dockerfile
 
+  docker-smoketest:
+    runs-on: ubuntu-latest
+
+    services:
+      postgres:
+        image: postgres:13
+        env:
+          POSTGRES_USER: user
+          POSTGRES_PASSWORD: password
+          POSTGRES_DB: jobserver
+        ports:
+          - 5432:5432
+        options: >-
+          --health-cmd pg_isready
+          --health-interval 10s
+          --health-timeout 5s
+          --health-retries 5
+
+    steps:
+      - uses: actions/checkout@v3
+
+      - name: Run prod image and see if it can serve a basic test
+        env:
+          DOCKER_BUILDKIT: 1
+          COMPOSE_DOCKER_CLI_BUILD: 1
+          COMPOSE_PROJECT_NAME: job-server
+        run: |
+          cat >> .env <<EOL
+          DATABASE_URL=postgres://user:password@172.17.0.1/jobserver
+          DJANGO_VITE_DEV_MODE=False
+          GITHUB_TOKEN=
+          SECRET_KEY=12345
+          SOCIAL_AUTH_GITHUB_KEY=test
+          SOCIAL_AUTH_GITHUB_SECRET=test
+          EOL
+          docker-compose -f docker/docker-compose.yaml up --detach prod
+          bash check.sh
+
   docker-test:
     runs-on: ubuntu-latest
 
