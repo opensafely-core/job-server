@@ -39,138 +39,7 @@
     </details>
     <hr>
 
-    <section>
-      <h2>Breadcrumbs</h2>
-
-      <h3><code>breadcrumb.html</code></h3>
-      <h4>Properties</h4>
-      <ul>
-        <li><code>active</code>: [boolean] - true if the current page matches this breadcrumb item</li>
-        <li><code>location</code>: [string] - shows a tooltip on hvoer displaying the text</li>
-        <li><code>title</code>: [string] - the text to display for the breadcrumb</li>
-        <li><code>url</code>: [string] - the anchor href for the breadcrumb</li>
-      </ul>
-      <div class="not-prose mb-4">
-        <pre><code class="language-django">{% verbatim breadcrumbs %}{# Title is special, if it is equal to "home" then the home icon will show #}
-{% breadcrumb title="Home" url=home_url %}
-
-{# URL will make the breadcrumb contain an anchor link #}
-{% breadcrumb location="Organisation" title="Bennett Institute for Applied Data Science" url="#" %}
-
-{# Active will make the breadcrumb not contain a link #}
-{% breadcrumb location="Action" title="create_components" active=True %}
-{% endverbatim breadcrumbs %}</code></pre>
-      </div>
-      <hr>
-
-      <h3><code>breadcrumbs-container.html</code></h3>
-      <h4>Properties</h4>
-      <ul>
-        <li><code>children</code>: display the children components</li>
-      </ul>
-      <div class="not-prose mb-4">
-        <pre><code class="language-django">{% verbatim breadcrumbs_container %}{% #breadcrumbs %}
-  {# Children components go here #}
-{% /breadcrumbs %}{% endverbatim breadcrumbs_container %}</code></pre>
-      </div>
-      <hr>
-
-      <h3>Example</h3>
-      <div class="not-prose relative w-screen max-w-5xl left-1/2 -translate-x-1/2 p-8 bg-slate-200 border boder-slate-500 rounded">{% #breadcrumbs %}
-        {% url 'home' as home_url %}
-        {% breadcrumb title="Home" url=home_url %}
-        {% breadcrumb location="Organisation" title="Bennett Institute for Applied Data Science" url="#" %}
-        {% breadcrumb location="Project" title="UI Components" url="#" %}
-        {% breadcrumb location="Workspace" title="Slippers" url="#" %}
-        {% breadcrumb location="Job request" title="2022" url="#" %}
-        {% breadcrumb location="Action" title="create_components" active=True %}
-      {% /breadcrumbs %}</div>
-      <div class="not-prose relative w-screen max-w-5xl left-1/2 -translate-x-1/2 p-8 bg-slate-200 border boder-slate-500 rounded">
-      <pre><code class="language-django">{% verbatim myblock %}{% #breadcrumbs %}
-    {% url 'home' as home_url %}
-    {% breadcrumb title="Home" url=home_url %}
-    {% breadcrumb location="Organisation" title="Bennett Institute for Applied Data Science" url="#" %}
-    {% breadcrumb location="Project" title="UI Components" url="#" %}
-    {% breadcrumb location="Workspace" title="Slippers" url="#" %}
-    {% breadcrumb location="Job request" title="2022" url="#" %}
-    {% breadcrumb location="Action" title="create_components" active=True %}
-  {% /breadcrumbs %}{% endverbatim myblock %}</code></pre></div>
-
-    </section>
-
-    <hr>
-
-    <section>
-      <h2>Card</h2>
-      <h3>Card</h3>
-      <ul>
-        <li><code>aria_labelled_by</code></li>
-        <li><code>children</code></li>
-        <li><code>class</code></li>
-        <li><code>container_class</code></li>
-        <li><code>container</code></li>
-        <li><code>subtitle</code></li>
-        <li><code>title</code></li>
-      </ul>
-      <div class="not-prose flex flex-col gap-y-8 relative w-screen max-w-5xl left-1/2 -translate-x-1/2 p-8 bg-slate-200 border boder-slate-500 rounded">
-        <pre><code class="language-django">{% verbatim %}{% #card class="bg-red-50" title="Hola mundo" subtitle="Hallo welt" %}{% endverbatim %}
-  {% filter force_escape %}<span class="text-bn-ribbon-600">Hello world</span>{% endfilter %}
-{% verbatim %}{% /card %}{% endverbatim %}</code></pre>
-      </div>
-      <h3>Card footer</h3>
-      <ul>
-        <li><code>children</code></li>
-        <li><code>no_container</code></li>
-      </ul>
-      <div class="not-prose flex flex-col gap-y-8 relative w-screen max-w-5xl left-1/2 -translate-x-1/2 p-8 bg-slate-200 border boder-slate-500 rounded">
-        <pre><code class="language-django">{% verbatim %}{% #card_footer no_container=False %}{% endverbatim %}
-  {% filter force_escape %}<span class="text-bn-egg-500">Hello world</span>{% endfilter %}
-{% verbatim %}{% /card %}{% endverbatim %}</code></pre>
-      </div>
-      <h3>Example</h3>
-      <div class="not-prose flex flex-col gap-y-8 relative w-screen max-w-5xl left-1/2 -translate-x-1/2 p-8 bg-slate-200 border boder-slate-500 rounded">
-        <div class="flex flex-row gap-x-8 items-center">
-          {% #card class="bg-red-50" title="Hola mundo" subtitle="Hallo welt" container=True class="w-full max-w-lg mx-auto" %}
-            <p class="text-oxford-700 text-lg font-semibold">Hello world</p>
-            {% #card_footer %}
-              <p class="text-sm text-slate-600">Bonjour le monde</p>
-            {% /card_footer %}
-          {% /card %}
-        </div>
-        <pre><code class="language-django">{% verbatim %}{% #card class="bg-red-50" title="Hola mundo" subtitle="Hallo welt" container=True class="w-full max-w-lg mx-auto" %}{% endverbatim %}
-  {% filter force_escape %}<p class="text-oxford-700 text-lg font-semibold">Hello world</p>{% endfilter %}
-  {% verbatim %}{% #card_footer %}{% endverbatim %}
-    {% filter force_escape %}<p class="text-sm text-slate-600">Bonjour le monde</p>{% endfilter %}
-  {% verbatim %}{% /card_footer %}{% endverbatim %}
-{% verbatim %}{% /card %}{% endverbatim %}</code></pre>
-      </div>
-    </section>
-
-    <section>
-      <h2>Forms</h2>
-      <ul>
-        <li><code></code></li>
-      </ul>
-      <div class="not-prose flex flex-col gap-y-8 relative w-screen max-w-5xl left-1/2 -translate-x-1/2 p-8 bg-slate-200 border boder-slate-500 rounded">
-        <div class="flex flex-row gap-x-8 items-center">
-          {# {% example_here %} #}
-        </div>
-        <pre><code class="language-django">{% verbatim %}code here{% endverbatim %}</code></pre>
-      </div>
-    </section>
-    <section>
-      <h2>List group</h2>
-      <ul>
-        <li><code></code></li>
-      </ul>
-      <div class="not-prose flex flex-col gap-y-8 relative w-screen max-w-5xl left-1/2 -translate-x-1/2 p-8 bg-slate-200 border boder-slate-500 rounded">
-        <div class="flex flex-row gap-x-8 items-center">
-          {# {% example_here %} #}
-        </div>
-        <pre><code class="language-django">{% verbatim %}code here{% endverbatim %}</code></pre>
-      </div>
-    </section>
-    <section>
+    <section id="alert">
       <h2>Alert</h2>
       <ul>
         <li><code>children</code></li>
@@ -195,7 +64,65 @@
 {% /alert %}{% endverbatim %}</code></pre>
       </div>
     </section>
-    <section>
+
+    <section id="breadcrumbsSection">
+      <h2>Breadcrumbs</h2>
+
+      <h3><code>Breadcrumb item</code></h3>
+      <h4>Properties</h4>
+      <ul>
+        <li><code>active</code>: [boolean] - true if the current page matches this breadcrumb item</li>
+        <li><code>location</code>: [string] - shows a tooltip on hvoer displaying the text</li>
+        <li><code>title</code>: [string] - the text to display for the breadcrumb</li>
+        <li><code>url</code>: [string] - the anchor href for the breadcrumb</li>
+      </ul>
+      <div class="not-prose mb-4">
+        <pre><code class="language-django">{% verbatim breadcrumbs %}{# Title is special, if it is equal to "home" then the home icon will show #}
+{% breadcrumb title="Home" url=home_url %}
+
+{# URL will make the breadcrumb contain an anchor link #}
+{% breadcrumb location="Organisation" title="Bennett Institute for Applied Data Science" url="#" %}
+
+{# Active will make the breadcrumb not contain a link #}
+{% breadcrumb location="Action" title="create_components" active=True %}
+{% endverbatim breadcrumbs %}</code></pre>
+      </div>
+      <hr>
+
+      <h3><code>Breadcrumbs list</code></h3>
+      <h4>Properties</h4>
+      <ul>
+        <li><code>children</code>: display the children components</li>
+      </ul>
+      <div class="not-prose mb-4">
+        <pre><code class="language-django">{% verbatim breadcrumbs_container %}{% #breadcrumbs %}
+  {# Children components go here #}
+{% /breadcrumbs %}{% endverbatim breadcrumbs_container %}</code></pre>
+      </div>
+
+      <div class="not-prose relative w-screen max-w-5xl left-1/2 -translate-x-1/2 p-8 bg-slate-200 border boder-slate-500 rounded">{% #breadcrumbs %}
+        {% url 'home' as home_url %}
+        {% breadcrumb title="Home" url=home_url %}
+        {% breadcrumb location="Organisation" title="Bennett Institute for Applied Data Science" url="#" %}
+        {% breadcrumb location="Project" title="UI Components" url="#" %}
+        {% breadcrumb location="Workspace" title="Slippers" url="#" %}
+        {% breadcrumb location="Job request" title="2022" url="#" %}
+        {% breadcrumb location="Action" title="create_components" active=True %}
+      {% /breadcrumbs %}</div>
+      <div class="not-prose relative w-screen max-w-5xl left-1/2 -translate-x-1/2 p-8 bg-slate-200 border boder-slate-500 rounded">
+      <pre><code class="language-django">{% verbatim myblock %}{% #breadcrumbs %}
+    {% url 'home' as home_url %}
+    {% breadcrumb title="Home" url=home_url %}
+    {% breadcrumb location="Organisation" title="Bennett Institute for Applied Data Science" url="#" %}
+    {% breadcrumb location="Project" title="UI Components" url="#" %}
+    {% breadcrumb location="Workspace" title="Slippers" url="#" %}
+    {% breadcrumb location="Job request" title="2022" url="#" %}
+    {% breadcrumb location="Action" title="create_components" active=True %}
+  {% /breadcrumbs %}{% endverbatim myblock %}</code></pre></div>
+
+    </section>
+
+    <section id="buttonSection">
       <h2>Button</h2>
       <ul>
         <li><code>children</code></li>
@@ -222,7 +149,54 @@
 {% #button disabled=True class="hover:scale-110 transition-transform" %}Disabled button with custom class{% /button %}{% endverbatim %}</code></pre>
       </div>
     </section>
-    <section>
+
+    <section id="cardSection">
+      <h2>Card</h2>
+      <h3>Card</h3>
+      <ul>
+        <li><code>aria_labelled_by</code></li>
+        <li><code>children</code></li>
+        <li><code>class</code></li>
+        <li><code>container_class</code></li>
+        <li><code>container</code></li>
+        <li><code>subtitle</code></li>
+        <li><code>title</code></li>
+      </ul>
+      <div class="not-prose flex flex-col gap-y-8 relative w-screen max-w-5xl left-1/2 -translate-x-1/2 p-8 bg-slate-200 border boder-slate-500 rounded">
+        <pre><code class="language-django">{% verbatim %}{% #card class="bg-red-50" title="Hola mundo" subtitle="Hallo welt" %}{% endverbatim %}
+  {% filter force_escape %}<span class="text-bn-ribbon-600">Hello world</span>{% endfilter %}
+{% verbatim %}{% /card %}{% endverbatim %}</code></pre>
+      </div>
+      <h3>Card footer</h3>
+      <ul>
+        <li><code>children</code></li>
+        <li><code>no_container</code></li>
+      </ul>
+      <div class="not-prose flex flex-col gap-y-8 relative w-screen max-w-5xl left-1/2 -translate-x-1/2 p-8 bg-slate-200 border boder-slate-500 rounded">
+        <pre><code class="language-django">{% verbatim %}{% #card_footer no_container=False %}{% endverbatim %}
+  {% filter force_escape %}<span class="text-bn-egg-500">Hello world</span>{% endfilter %}
+{% verbatim %}{% /card %}{% endverbatim %}</code></pre>
+      </div>
+
+      <div class="not-prose flex flex-col gap-y-8 relative w-screen max-w-5xl left-1/2 -translate-x-1/2 p-8 bg-slate-200 border boder-slate-500 rounded">
+        <div class="flex flex-row gap-x-8 items-center">
+          {% #card class="bg-red-50" title="Hola mundo" subtitle="Hallo welt" container=True class="w-full max-w-lg mx-auto" %}
+            <p class="text-oxford-700 text-lg font-semibold">Hello world</p>
+            {% #card_footer %}
+              <p class="text-sm text-slate-600">Bonjour le monde</p>
+            {% /card_footer %}
+          {% /card %}
+        </div>
+        <pre><code class="language-django">{% verbatim %}{% #card class="bg-red-50" title="Hola mundo" subtitle="Hallo welt" container=True class="w-full max-w-lg mx-auto" %}{% endverbatim %}
+  {% filter force_escape %}<p class="text-oxford-700 text-lg font-semibold">Hello world</p>{% endfilter %}
+  {% verbatim %}{% #card_footer %}{% endverbatim %}
+    {% filter force_escape %}<p class="text-sm text-slate-600">Bonjour le monde</p>{% endfilter %}
+  {% verbatim %}{% /card_footer %}{% endverbatim %}
+{% verbatim %}{% /card %}{% endverbatim %}</code></pre>
+      </div>
+    </section>
+
+    <section id="codeSection">
       <h2>Code</h2>
       <ul>
         <li><code>class</code></li>
@@ -242,7 +216,7 @@
       </div>
     </section>
 
-    <section>
+    <section id="descriptionSection">
       <h2>Description Item</h2>
       <ul>
         <li><code>children</code></li>
@@ -262,17 +236,7 @@
       </div>
     </section>
 
-    <section>
-      <h2>Header</h2>
-      <div class="not-prose flex flex-col gap-y-8 relative w-screen max-w-5xl left-1/2 -translate-x-1/2 p-8 bg-slate-200 border boder-slate-500 rounded">
-        <div class="block relative">
-          {% header nav=nav %}
-        </div>
-        <pre><code class="language-django">{% verbatim %}{% header %}{% endverbatim %}</code></pre>
-      </div>
-    </section>
-
-    <section>
+    <section id="footerSection">
       <h2>Footer</h2>
       <div class="not-prose flex flex-col gap-y-8 relative w-screen max-w-5xl left-1/2 -translate-x-1/2 p-8 bg-slate-200 border boder-slate-500 rounded">
         <div class="flex flex-row gap-x-8 items-center">
@@ -282,7 +246,98 @@
       </div>
     </section>
 
-    <section>
+    <section id="formSection">
+      <h2>Forms</h2>
+      <h3>Input</h3>
+      <ul>
+        <li><code>autocapitalize</code></li>
+        <li><code>autocomplete</code></li>
+        <li><code>autocorrect</code></li>
+        <li><code>class</code></li>
+        <li><code>field</code>
+          <ul>
+            <li><code>auto_id</code></li>
+            <li><code>errors</code></li>
+            <li><code>html_name</code></li>
+            <li><code>id_for_label</code></li>
+            <li><code>label</code></li>
+            <li><code>value</code></li>
+          </ul>
+        </li>
+        <li><code>inputmode</code></li>
+        <li><code>label</code></li>
+        <li><code>required</code></li>
+        <li><code>type</code></li>
+      </ul>
+      <div class="not-prose flex flex-col gap-y-8 relative w-screen max-w-5xl left-1/2 -translate-x-1/2 p-8 bg-slate-200 border boder-slate-500 rounded">
+        <div class="flex flex-col gap-y-4 items-start max-w-xl w-full mx-auto">
+          {% form_input type="email" label="Email address" required=True field=example_form_email %}
+          {% form_input type="text" label="Phone number" inputmode="number" autocapitalize=False autocomplete=False autocorrect=False %}
+          {% form_input type="search" label="Search the site"%}
+        </div>
+        <pre><code class="language-django">{% verbatim %}{% form_input type="email" label="Email address" required=True %}
+{% form_input type="text" label="Phone number" inputmode="number" autocapitalize=False autocomplete=False autocorrect=False %}
+{% form_input type="search" label="Search the site"%}{% endverbatim %}</code></pre>
+      </div>
+      <h3>Select</h3>
+      <ul>
+        <li><code>choices</code></li>
+        <li><code>class</code></li>
+        <li><code>field</code>
+          <ul>
+            <li><code>auto_id</code></li>
+            <li><code>errors</code></li>
+            <li><code>html_name</code></li>
+            <li><code>id_for_label</code></li>
+            <li><code>label</code></li>
+          </ul>
+        </li>
+        <li><code>label</code></li>
+        <li><code>required</code></li>
+        <li><code>selected</code></li>
+      </ul>
+      <div class="not-prose flex flex-col gap-y-8 relative w-screen max-w-5xl left-1/2 -translate-x-1/2 p-8 bg-slate-200 border boder-slate-500 rounded">
+        {% form_select class="w-full max-w-lg mx-auto" label="Select a language" required=True field=example_form_select choices=example_form_select.choices selected=example_form_select.value %}
+        <pre><code class="language-django">{% verbatim %}{% form_select class="w-full max-w-lg mx-auto" label="Select a language" required=True field=example_form_select choices=example_form_select.choices selected=example_form_select.value %}{% endverbatim %}</code></pre>
+      </div>
+      <h3>Textarea</h3>
+      <ul>
+        <li><code>autocapitalize</code></li>
+        <li><code>autocomplete</code></li>
+        <li><code>autocorrect</code></li>
+        <li><code>class</code></li>
+        <li><code>field</code>
+          <ul>
+            <li><code>auto_id</code></li>
+            <li><code>errors</code></li>
+            <li><code>html_name</code></li>
+            <li><code>id_for_label</code></li>
+            <li><code>label</code></li>
+            <li><code>value</code></li>
+          </ul>
+        </li>
+        <li><code>inputmode</code></li>
+        <li><code>label</code></li>
+        <li><code>required</code></li>
+        <li><code>rows</code></li>
+      </ul>
+      <div class="not-prose flex flex-col gap-y-8 relative w-screen max-w-5xl left-1/2 -translate-x-1/2 p-8 bg-slate-200 border boder-slate-500 rounded">
+        {% form_textarea class="max-w-lg w-full mx-auto" field=example_form_textarea label="Enter a short description of the project" resize=True rows=8 %}
+        <pre><code class="language-django">{% verbatim %}{% form_textarea class="max-w-lg w-full mx-auto" field=example_form_textarea label="Enter a short description of the project" resize=True rows=8 %}{% endverbatim %}</code></pre>
+      </div>
+    </section>
+
+    <section id="headerSection">
+      <h2>Header</h2>
+      <div class="not-prose flex flex-col gap-y-8 relative w-screen max-w-5xl left-1/2 -translate-x-1/2 p-8 bg-slate-200 border boder-slate-500 rounded">
+        <div class="block relative">
+          {% header nav=nav %}
+        </div>
+        <pre><code class="language-django">{% verbatim %}{% header %}{% endverbatim %}</code></pre>
+      </div>
+    </section>
+
+    <section id="linkSection">
       <h2>Link</h2>
       <ul>
         <li><code>href</code></li>
@@ -297,7 +352,36 @@
       </div>
     </section>
 
-    <section>
+    <section id="listGroupSection">
+      <h2>List group</h2>
+      <h3>List group container</h3>
+      <ul>
+        <li><code>children</code></li>
+        <li><code>small</code></li>
+      </ul>
+      <div class="not-prose flex flex-col gap-y-8 relative w-screen max-w-5xl left-1/2 -translate-x-1/2 p-8 bg-slate-200 border boder-slate-500 rounded">
+        <pre><code class="language-django">{% verbatim %}{% #list_group %}content in here{% /list_group %}{% endverbatim %}</code></pre>
+      </div>
+      <h3>List group item</h3>
+      <ul>
+        <li><code>children</code></li>
+        <li><code>href</code></li>
+      </ul>
+      <div class="not-prose flex flex-col gap-y-8 relative w-screen max-w-5xl left-1/2 -translate-x-1/2 p-8 bg-slate-200 border boder-slate-500 rounded">
+        {% #card %}
+          {% #list_group %}
+            {% #list_group_item href="https://www.example.com/" %}Example dot com{% /list_group_item %}
+          {% /list_group %}
+        {% /card %}
+        <pre><code class="language-django">{% verbatim %}{% #card %}
+  {% #list_group %}
+    {% #list_group_item href="https://www.example.com/" %}Example dot com{% /list_group_item %}
+  {% /list_group %}
+{% /card %}{% endverbatim %}</code></pre>
+      </div>
+    </section>
+
+    <section id="pillSection">
       <h2>Pill</h2>
 
       <h3>Properties</h3>
@@ -325,7 +409,7 @@
       </div>
     </section>
 
-    <section>
+    <section id="skipLinkSection">
       <h2>Skip link</h2>
       <div class="not-prose flex flex-col gap-y-8 relative w-screen max-w-5xl left-1/2 -translate-x-1/2 p-8 bg-slate-200 border boder-slate-500 rounded">
         <div class="flex flex-row gap-x-8 items-center">
@@ -336,7 +420,7 @@
       </div>
     </section>
 
-    <section>
+    <section id="timelineSection">
       <h2>Timeline</h2>
       <h3>Timeline item</h3>
       <ul>
@@ -371,7 +455,7 @@
       </div>
     </section>
 
-    <section>
+    <section id="tooltipSection">
       <h2>Tooltip</h2>
       <ul>
         <li><code>class</code></li>
