@@ -1,0 +1,76 @@
+{% extends 'base-tw.html' %}
+
+{% load django_vite %}
+
+{% block content %}
+  <div class="prose mx-auto relative">
+    <h1>UI Components</h1>
+    <p>A gallery for the available components for building OpenSAFELY Jobs pages.</p>
+
+    <section>
+      <h2>Breadcrumbs</h2>
+
+      <h3><code>breadcrumb.html</code></h3>
+      <h4>Properties</h4>
+      <ul>
+        <li><code>active</code>: [boolean] - true if the current page matches this breadcrumb item</li>
+        <li><code>location</code>: [string] - shows a tooltip on hvoer displaying the text</li>
+        <li><code>title</code>: [string] - the text to display for the breadcrumb</li>
+        <li><code>url</code>: [string] - the anchor href for the breadcrumb</li>
+      </ul>
+      <div class="not-prose mb-4">
+        <pre><code class="language-django">{% verbatim breadcrumbs %}{# Title is special, if it is equal to "home" then the home icon will show #}
+{% breadcrumb title="Home" url=home_url %}
+
+{# URL will make the breadcrumb contain an anchor link #}
+{% breadcrumb location="Organisation" title="Bennett Institute for Applied Data Science" url="#" %}
+
+{# Active will make the breadcrumb not contain a link #}
+{% breadcrumb location="Action" title="create_components" active=True %}
+{% endverbatim breadcrumbs %}</code></pre>
+      </div>
+      <hr>
+
+      <h3><code>breadcrumbs-container.html</code></h3>
+      <h4>Properties</h4>
+      <ul>
+        <li><code>children</code>: display the children components</li>
+      </ul>
+      <div class="not-prose mb-4">
+        <pre><code class="language-django">{% verbatim breadcrumbs_container %}{% #breadcrumbs %}
+  {# Children components go here #}
+{% /breadcrumbs %}{% endverbatim breadcrumbs_container %}</code></pre>
+      </div>
+      <hr>
+
+      <h3>Example</h3>
+      <div class="not-prose mb-4">
+      <pre><code class="language-django">{% verbatim myblock %}{% #breadcrumbs %}
+    {% url 'home' as home_url %}
+    {% breadcrumb title="Home" url=home_url %}
+    {% breadcrumb location="Organisation" title="Bennett Institute for Applied Data Science" url="#" %}
+    {% breadcrumb location="Project" title="UI Components" url="#" %}
+    {% breadcrumb location="Workspace" title="Slippers" url="#" %}
+    {% breadcrumb location="Job request" title="2022" url="#" %}
+    {% breadcrumb location="Action" title="create_components" active=True %}
+  {% /breadcrumbs %}{% endverbatim myblock %}</code></pre></div>
+
+  <div class="not-prose relative w-screen max-w-5xl left-1/2 -translate-x-1/2 p-8 bg-slate-300">{% #breadcrumbs %}
+    {% url 'home' as home_url %}
+    {% breadcrumb title="Home" url=home_url %}
+    {% breadcrumb location="Organisation" title="Bennett Institute for Applied Data Science" url="#" %}
+    {% breadcrumb location="Project" title="UI Components" url="#" %}
+    {% breadcrumb location="Workspace" title="Slippers" url="#" %}
+    {% breadcrumb location="Job request" title="2022" url="#" %}
+    {% breadcrumb location="Action" title="create_components" active=True %}
+  {% /breadcrumbs %}</div>
+
+    </section>
+
+    <hr>
+  </div>
+{% endblock %}
+
+{% block extra_js %}
+  {% vite_asset 'assets/src/scripts/highlight.js' %}
+{% endblock %}
