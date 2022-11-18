@@ -1,6 +1,7 @@
 {% extends 'base-tw.html' %}
 
 {% load django_vite %}
+{% load humanize %}
 
 {% block content %}
   <div class="prose mx-auto relative">
@@ -9,18 +10,31 @@
 
     <details
       class="
-        group bg-oxford-50 border border-l-4 border-oxford-700/95 overflow-hidden rounded
+        group bg-oxford-50 border border-l-4 border-oxford-700/95 overflow-hidden rounded not-prose
         open:bg-white
       "
-      id="table-of-contents"
+      open
     >
-      <summary class="cursor-pointer list-none p-4 py-2 transition-colors hover:bg-oxford-100 hover:text-oxford-900">
+      <summary
+        class="
+          cursor-pointer list-none p-4 py-2 transition-colors
+          hover:bg-oxford-100 hover:text-oxford-900
+          group-open:border-b
+        "
+      >
         <span class="text-lg font-semibold text-oxford">
           <span class="group-open:hidden inline-flex">Show</span>
           <span class="group-open:inline-flex hidden">Hide</span>
           components list
         </span>
       </summary>
+      <ul
+        class="
+          m-2 ml-8 pl-2 list-disc
+          [&_a]:text-oxford-600 [&_a]:font-semibold [&_a:hover]:text-oxford-900 [&_a:hover]:underline
+        "
+        id="table-of-contents"
+      ></ul>
     </details>
     <hr>
 
@@ -131,7 +145,105 @@
       </div>
     </section>
 
-    <hr>
+    <section>
+      <h2>Forms</h2>
+      <ul>
+        <li><code></code></li>
+      </ul>
+      <div class="not-prose flex flex-col gap-y-8 relative w-screen max-w-5xl left-1/2 -translate-x-1/2 p-8 bg-white border boder-slate-500 rounded">
+        <div class="flex flex-row gap-x-8 items-center">
+          {# {% example_here %} #}
+        </div>
+        <pre><code class="language-django">{% verbatim %}code here{% endverbatim %}</code></pre>
+      </div>
+    </section>
+    <section>
+      <h2>List group</h2>
+      <ul>
+        <li><code></code></li>
+      </ul>
+      <div class="not-prose flex flex-col gap-y-8 relative w-screen max-w-5xl left-1/2 -translate-x-1/2 p-8 bg-white border boder-slate-500 rounded">
+        <div class="flex flex-row gap-x-8 items-center">
+          {# {% example_here %} #}
+        </div>
+        <pre><code class="language-django">{% verbatim %}code here{% endverbatim %}</code></pre>
+      </div>
+    </section>
+    <section>
+      <h2>Alert</h2>
+      <ul>
+        <li><code></code></li>
+      </ul>
+      <div class="not-prose flex flex-col gap-y-8 relative w-screen max-w-5xl left-1/2 -translate-x-1/2 p-8 bg-white border boder-slate-500 rounded">
+        <div class="flex flex-row gap-x-8 items-center">
+          {# {% example_here %} #}
+        </div>
+        <pre><code class="language-django">{% verbatim %}code here{% endverbatim %}</code></pre>
+      </div>
+    </section>
+    <section>
+      <h2>Button</h2>
+      <ul>
+        <li><code></code></li>
+      </ul>
+      <div class="not-prose flex flex-col gap-y-8 relative w-screen max-w-5xl left-1/2 -translate-x-1/2 p-8 bg-white border boder-slate-500 rounded">
+        <div class="flex flex-row gap-x-8 items-center">
+          {# {% example_here %} #}
+        </div>
+        <pre><code class="language-django">{% verbatim %}code here{% endverbatim %}</code></pre>
+      </div>
+    </section>
+    <section>
+      <h2>Code</h2>
+      <ul>
+        <li><code></code></li>
+      </ul>
+      <div class="not-prose flex flex-col gap-y-8 relative w-screen max-w-5xl left-1/2 -translate-x-1/2 p-8 bg-white border boder-slate-500 rounded">
+        <div class="flex flex-row gap-x-8 items-center">
+          {# {% example_here %} #}
+        </div>
+        <pre><code class="language-django">{% verbatim %}code here{% endverbatim %}</code></pre>
+      </div>
+    </section>
+
+    <section>
+      <h2>Header</h2>
+      <ul>
+        <li><code></code></li>
+      </ul>
+      <div class="not-prose flex flex-col gap-y-8 relative w-screen max-w-5xl left-1/2 -translate-x-1/2 p-8 bg-white border boder-slate-500 rounded">
+        <div class="flex flex-row gap-x-8 items-center">
+          {# {% example_here %} #}
+        </div>
+        <pre><code class="language-django">{% verbatim %}code here{% endverbatim %}</code></pre>
+      </div>
+    </section>
+
+    <section>
+      <h2>Footer</h2>
+      <ul>
+        <li><code></code></li>
+      </ul>
+      <div class="not-prose flex flex-col gap-y-8 relative w-screen max-w-5xl left-1/2 -translate-x-1/2 p-8 bg-white border boder-slate-500 rounded">
+        <div class="flex flex-row gap-x-8 items-center">
+          {# {% example_here %} #}
+        </div>
+        <pre><code class="language-django">{% verbatim %}code here{% endverbatim %}</code></pre>
+      </div>
+    </section>
+
+    <section>
+      <h2>Link</h2>
+      <ul>
+        <li><code></code></li>
+      </ul>
+      <div class="not-prose flex flex-col gap-y-8 relative w-screen max-w-5xl left-1/2 -translate-x-1/2 p-8 bg-white border boder-slate-500 rounded">
+        <div class="flex flex-row gap-x-8 items-center">
+          {# {% example_here %} #}
+        </div>
+        <pre><code class="language-django">{% verbatim %}code here{% endverbatim %}</code></pre>
+      </div>
+    </section>
 
     <section>
       <h2>Pill</h2>
@@ -158,6 +270,62 @@
 {% pill variant="primary" text="Primary" %}
 {% pill variant="success" text="Success" %}
 {% pill variant="warning" text="Warning" %}{% endverbatim %}</code></pre>
+      </div>
+    </section>
+
+    <section>
+      <h2>Skip link</h2>
+      <ul>
+        <li><code></code></li>
+      </ul>
+      <div class="not-prose flex flex-col gap-y-8 relative w-screen max-w-5xl left-1/2 -translate-x-1/2 p-8 bg-white border boder-slate-500 rounded">
+        <div class="flex flex-row gap-x-8 items-center">
+          {# {% example_here %} #}
+        </div>
+        <pre><code class="language-django">{% verbatim %}code here{% endverbatim %}</code></pre>
+      </div>
+    </section>
+
+    <section>
+      <h2>Timeline</h2>
+      <h3>Timeline item</h3>
+      <ul>
+        <li><code>background</code></li>
+        <li><code>children</code></li>
+        <li><code>content</code></li>
+        <li><code>last</code></li>
+        <li><code>no_padding_bottom</code></li>
+        <li><code>time</code></li>
+        <li><code>title</code></li>
+      </ul>
+      <div class="not-prose flex flex-col gap-y-8 relative w-screen max-w-5xl left-1/2 -translate-x-1/2 p-8 bg-white border boder-slate-500 rounded">
+        <div class="flex flex-row gap-x-8 items-center">
+          {% #card title="Timeline" class="w-full" container=True %}
+            <ul class="flow-root">
+              {% #timeline_item background="blue" title="Created by the backend:" time=example_date last=True no_padding_bottom=True %}
+                {% icon_pencil_outline class="h-5 w-5" %}
+              {% /timeline_item %}
+            </ul>
+          {% /card %}
+        </div>
+        <pre><code class="language-django">{% verbatim %}code here{% endverbatim %}</code></pre>
+      </div>
+    </section>
+
+    <section>
+      <h2>Tooltip</h2>
+      <ul>
+        <li><code>class</code></li>
+        <li><code>content</code></li>
+      </ul>
+      <div class="not-prose flex flex-col gap-y-8 relative w-screen max-w-5xl left-1/2 -translate-x-1/2 p-8 bg-white border boder-slate-500 rounded">
+        <div class="flex flex-row gap-x-8 items-center">
+          <div class="relative group cursor-pointer">
+            Hover here to see a tooltip
+            {% tooltip content="I am the tooltip!" %}
+          </div>
+        </div>
+        <pre><code class="language-django">{% verbatim %}code here{% endverbatim %}</code></pre>
       </div>
     </section>
 

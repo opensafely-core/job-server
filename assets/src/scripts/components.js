@@ -11,8 +11,7 @@ const anchors = new AnchorJS();
 document.addEventListener("DOMContentLoaded", () => {
   anchors.add('.prose :where(h2):not(:where([class~="not-prose"] *))');
 
-  const ul = document.createElement("ul");
-  document.getElementById("table-of-contents").appendChild(ul);
+  const ul = document.getElementById("table-of-contents");
 
   anchors.elements.forEach((heading) =>
     ul.insertAdjacentHTML(
