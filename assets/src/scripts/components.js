@@ -41,11 +41,4 @@ document.addEventListener("DOMContentLoaded", () => {
       </li>`
     );
   });
-
-  document.querySelectorAll("section").forEach((section) => {
-    section.insertAdjacentHTML(
-      "beforeend",
-      `<a class="inline-flex mt-6" href="#table-of-contents">Back to menu</a>`
-    );
-  });
 });
