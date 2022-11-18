@@ -86,6 +86,54 @@
     <hr>
 
     <section>
+      <h2>Card</h2>
+      <h3>Card</h3>
+      <ul>
+        <li><code>aria_labelled_by</code></li>
+        <li><code>children</code></li>
+        <li><code>class</code></li>
+        <li><code>container_class</code></li>
+        <li><code>container</code></li>
+        <li><code>subtitle</code></li>
+        <li><code>title</code></li>
+      </ul>
+      <div class="not-prose flex flex-col gap-y-8 relative w-screen max-w-5xl left-1/2 -translate-x-1/2 p-8 bg-white border boder-slate-500 rounded">
+        <pre><code class="language-django">{% verbatim %}{% #card class="bg-red-50" title="Hola mundo" subtitle="Hallo welt" %}{% endverbatim %}
+  {% filter force_escape %}<span class="text-bn-ribbon-600">Hello world</span>{% endfilter %}
+{% verbatim %}{% /card %}{% endverbatim %}</code></pre>
+      </div>
+      <h3>Card footer</h3>
+      <ul>
+        <li><code>children</code></li>
+        <li><code>no_container</code></li>
+      </ul>
+      <div class="not-prose flex flex-col gap-y-8 relative w-screen max-w-5xl left-1/2 -translate-x-1/2 p-8 bg-white border boder-slate-500 rounded">
+        <pre><code class="language-django">{% verbatim %}{% #card_footer no_container=False %}{% endverbatim %}
+  {% filter force_escape %}<span class="text-bn-egg-500">Hello world</span>{% endfilter %}
+{% verbatim %}{% /card %}{% endverbatim %}</code></pre>
+      </div>
+      <h3>Example</h3>
+      <div class="not-prose flex flex-col gap-y-8 relative w-screen max-w-5xl left-1/2 -translate-x-1/2 p-8 bg-white border boder-slate-500 rounded">
+        <div class="flex flex-row gap-x-8 items-center">
+          {% #card class="bg-red-50" title="Hola mundo" subtitle="Hallo welt" container=True class="w-full max-w-lg mx-auto" %}
+            <p class="text-oxford-700 text-lg font-semibold">Hello world</p>
+            {% #card_footer %}
+              <p class="text-sm text-slate-600">Bonjour le monde</p>
+            {% /card_footer %}
+          {% /card %}
+        </div>
+        <pre><code class="language-django">{% verbatim %}{% #card class="bg-red-50" title="Hola mundo" subtitle="Hallo welt" container=True class="w-full max-w-lg mx-auto" %}{% endverbatim %}
+  {% filter force_escape %}<p class="text-oxford-700 text-lg font-semibold">Hello world</p>{% endfilter %}
+  {% verbatim %}{% #card_footer %}{% endverbatim %}
+    {% filter force_escape %}<p class="text-sm text-slate-600">Bonjour le monde</p>{% endfilter %}
+  {% verbatim %}{% /card_footer %}{% endverbatim %}
+{% verbatim %}{% /card %}{% endverbatim %}</code></pre>
+      </div>
+    </section>
+
+    <hr>
+
+    <section>
       <h2>Pill</h2>
 
       <h3>Properties</h3>
@@ -97,7 +145,7 @@
       </ul>
 
       <div class="not-prose flex flex-col gap-y-8 relative w-screen max-w-5xl left-1/2 -translate-x-1/2 p-8 bg-white border boder-slate-500 rounded">
-        <div class="flex flex-row gap-x-8 items-center mx-auto">
+        <div class="flex flex-row gap-x-8 items-center">
           {% pill variant="danger" text="Danger" %}
           {% pill variant="info" text="Info" %}
           {% pill variant="primary" text="Primary" %}
@@ -112,6 +160,20 @@
 {% pill variant="warning" text="Warning" %}{% endverbatim %}</code></pre>
       </div>
     </section>
+
+    {# Template #}
+    {# <section> #}
+      {# <h2>Title</h2> #}
+      {# <ul> #}
+        {# <li><code></code></li> #}
+      {# </ul> #}
+      {# <div class="not-prose flex flex-col gap-y-8 relative w-screen max-w-5xl left-1/2 -translate-x-1/2 p-8 bg-white border boder-slate-500 rounded"> #}
+        {# <div class="flex flex-row gap-x-8 items-center"> #}
+          {# {% example_here %} #}
+        {# </div> #}
+        {# <pre><code class="language-django">{% verbatim %}code here{% endverbatim %}</code></pre> #}
+      {# </div> #}
+    {# </section> #}
   </div>
 {% endblock %}
 
