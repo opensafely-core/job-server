@@ -1,15 +1,15 @@
 <span class="
-  inline-flex rounded-full px-2 text-xs font-semibold leading-5
+  inline-flex rounded-full px-2 text-xs font-semibold leading-5 border
   {% if variant == "warning" %}
-    bg-bn-flamenco-200 text-bn-flamenco-900
+    bg-bn-flamenco-200 text-bn-flamenco-900 border-bn-flamenco-200
   {% elif variant == "primary" %}
-    bg-blue-200 text-blue-900
+    bg-blue-200 text-blue-900 border-blue-200
   {% elif variant == "danger" %}
-    bg-red-200 text-red-900
+    bg-red-200 text-red-900 border-red-200
   {% elif variant == "success" %}
-    bg-green-200 text-green-900
+    bg-green-200 text-green-900 border-green-200
   {% elif variant == "info" %}
-    bg-white text-slate-600
+    bg-white text-slate-600 border-slate-200
   {% endif %}
   {{ class }}
 ">

@@ -44,7 +44,16 @@
       <hr>
 
       <h3>Example</h3>
-      <div class="not-prose mb-4">
+      <div class="not-prose relative w-screen max-w-5xl left-1/2 -translate-x-1/2 p-8 bg-white border boder-slate-500 rounded">{% #breadcrumbs %}
+        {% url 'home' as home_url %}
+        {% breadcrumb title="Home" url=home_url %}
+        {% breadcrumb location="Organisation" title="Bennett Institute for Applied Data Science" url="#" %}
+        {% breadcrumb location="Project" title="UI Components" url="#" %}
+        {% breadcrumb location="Workspace" title="Slippers" url="#" %}
+        {% breadcrumb location="Job request" title="2022" url="#" %}
+        {% breadcrumb location="Action" title="create_components" active=True %}
+      {% /breadcrumbs %}</div>
+      <div class="not-prose relative w-screen max-w-5xl left-1/2 -translate-x-1/2 p-8 bg-white border boder-slate-500 rounded">
       <pre><code class="language-django">{% verbatim myblock %}{% #breadcrumbs %}
     {% url 'home' as home_url %}
     {% breadcrumb title="Home" url=home_url %}
@@ -55,19 +64,37 @@
     {% breadcrumb location="Action" title="create_components" active=True %}
   {% /breadcrumbs %}{% endverbatim myblock %}</code></pre></div>
 
-  <div class="not-prose relative w-screen max-w-5xl left-1/2 -translate-x-1/2 p-8 bg-slate-300">{% #breadcrumbs %}
-    {% url 'home' as home_url %}
-    {% breadcrumb title="Home" url=home_url %}
-    {% breadcrumb location="Organisation" title="Bennett Institute for Applied Data Science" url="#" %}
-    {% breadcrumb location="Project" title="UI Components" url="#" %}
-    {% breadcrumb location="Workspace" title="Slippers" url="#" %}
-    {% breadcrumb location="Job request" title="2022" url="#" %}
-    {% breadcrumb location="Action" title="create_components" active=True %}
-  {% /breadcrumbs %}</div>
-
     </section>
 
     <hr>
+
+    <section>
+      <h2>Pill</h2>
+
+      <h3>Properties</h3>
+      <ul>
+        <li><code>children</code></li>
+        <li><code>sr_only</code></li>
+        <li><code>text</code></li>
+        <li><code>variant</code></li>
+      </ul>
+
+      <div class="not-prose flex flex-col gap-y-8 relative w-screen max-w-5xl left-1/2 -translate-x-1/2 p-8 bg-white border boder-slate-500 rounded">
+        <div class="flex flex-row gap-x-8 items-center mx-auto">
+          {% pill variant="danger" text="Danger" %}
+          {% pill variant="info" text="Info" %}
+          {% pill variant="primary" text="Primary" %}
+          {% pill variant="success" text="Success" %}
+          {% pill variant="warning" text="Warning" %}
+        </div>
+
+        <pre><code class="language-django">{% verbatim %}{% pill variant="danger" text="Danger" %}
+{% pill variant="info" text="Info" %}
+{% pill variant="primary" text="Primary" %}
+{% pill variant="success" text="Success" %}
+{% pill variant="warning" text="Warning" %}{% endverbatim %}</code></pre>
+      </div>
+    </section>
   </div>
 {% endblock %}
 
