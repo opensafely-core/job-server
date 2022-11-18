@@ -9,18 +9,30 @@ hljs.highlightAll();
 const anchors = new AnchorJS();
 
 document.addEventListener("DOMContentLoaded", () => {
-  anchors.add('.prose :where(h2):not(:where([class~="not-prose"] *))');
+  anchors.add('.prose :where(h2, h3):not(:where([class~="not-prose"] *))');
 
   const ul = document.getElementById("table-of-contents");
 
-  anchors.elements.forEach((heading) =>
-    ul.insertAdjacentHTML(
+  anchors.elements.forEach((heading) => {
+    if (heading.tagName === "H3") {
+      return ul.querySelector("li:last-of-type ul").insertAdjacentHTML(
+        "beforeend",
+        `<li>
+          <a href="#${heading.id}">
+            ${heading.textContent}
+          </a>
+        </li>`
+      );
+    }
+
+    return ul.insertAdjacentHTML(
       "beforeend",
       `<li>
         <a href="#${heading.id}">
           ${heading.textContent}
         </a>
+        ${heading.parentElement.querySelector("h3") ? `<ul></ul>` : ""}
       </li>`
-    )
-  );
+    );
+  });
 });
