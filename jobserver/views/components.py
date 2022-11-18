@@ -21,7 +21,7 @@ def components(request):
             ["english", "English"],
             ["french", "French"],
             ["german", "German"],
-            ["spanish", "SPanish"],
+            ["spanish", "Spanish"],
         ],
         "errors": {},
         "html_name": "language-select",
