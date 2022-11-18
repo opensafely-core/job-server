@@ -1,9 +1,9 @@
 from datetime import datetime
 
-from django.shortcuts import render
+from django.template.response import TemplateResponse
 
 
-def Components(request):
+def components(request):
     example_date = datetime.utcfromtimestamp(1667317153)
     example_form_email = {
         "auto_id": "id_notifications_email",
@@ -39,7 +39,7 @@ def Components(request):
         "value": "",
     }
 
-    return render(
+    return TemplateResponse(
         request,
         "_components/index.html",
         context={
