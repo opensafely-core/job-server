@@ -1,19 +1,25 @@
-import AnchorJS from "anchor-js";
 import hljs from "highlight.js/lib/core";
 import django from "highlight.js/lib/languages/django";
+import slugify from "slugify";
 import "highlight.js/styles/github-dark.css";
 
 hljs.registerLanguage("django", django);
 hljs.highlightAll();
 
-const anchors = new AnchorJS();
-
 document.addEventListener("DOMContentLoaded", () => {
-  anchors.add('.prose :where(h2, h3):not(:where([class~="not-prose"] *))');
+  const anchors = document.querySelectorAll(
+    '.prose :where(h2, h3):not(:where([class~="not-prose"] *))'
+  );
 
   const ul = document.getElementById("table-of-contents");
 
-  anchors.elements.forEach((heading) => {
+  anchors.forEach((heading) => {
+    // eslint-disable-next-line no-param-reassign
+    heading.id = `${slugify(heading.textContent, {
+      lower: true,
+      strict: true,
+    })}`;
+
     if (heading.tagName === "H3") {
       return ul.querySelector("li:last-of-type ul").insertAdjacentHTML(
         "beforeend",
@@ -33,6 +39,13 @@ document.addEventListener("DOMContentLoaded", () => {
         </a>
         ${heading.parentElement.querySelector("h3") ? `<ul></ul>` : ""}
       </li>`
+    );
+  });
+
+  document.querySelectorAll("section").forEach((section) => {
+    section.insertAdjacentHTML(
+      "beforeend",
+      `<a class="inline-flex mt-6" href="#table-of-contents">Back to menu</a>`
     );
   });
 });

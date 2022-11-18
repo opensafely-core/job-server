@@ -4,7 +4,11 @@
 {% load humanize %}
 
 {% block content %}
-  <div class="prose mx-auto relative">
+  <div class="
+    prose mx-auto relative flex flex-col
+    [&_section+section]:mt-24 [&_section+section]:pt-24 [&_section+section]:border-t
+    [&_section>h2]:mt-0
+  ">
     <h1>UI Components</h1>
     <p>A gallery for the available components for building OpenSAFELY Jobs pages.</p>
 
