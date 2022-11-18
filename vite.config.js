@@ -13,7 +13,7 @@ const config = {
       input: {
         index: "./assets/src/scripts/index.js",
         "application-form": "./assets/src/scripts/application-form.js",
-        highlight: "./assets/src/scripts/highlight.js",
+        components: "./assets/src/scripts/components.js",
         job_request_create: "./assets/src/scripts/job_request_create.js",
         main: "./assets/src/scripts/main.js",
         "outputs-viewer": "./assets/src/scripts/outputs-viewer/index.jsx",
