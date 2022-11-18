@@ -42,10 +42,10 @@
     <section id="alert">
       <h2>Alert</h2>
       <ul>
-        <li><code>children</code></li>
-        <li><code>class</code></li>
-        <li><code>no_icon</code></li>
-        <li><code>variant</code></li>
+        <li><code>children</code>: [html] - display the children components</li>
+        <li><code>class</code>: [string] - add HTML classes to the component</li>
+        <li><code>no_icon</code>: [boolean] - if true, remove the icon</li>
+        <li><code>variant</code>: [string] - select styling colour and icon for component</li>
       </ul>
       <div class="not-prose flex flex-col gap-y-8 relative w-screen max-w-5xl left-1/2 -translate-x-1/2 p-8 bg-slate-200 border boder-slate-500 rounded">
         <div class="flex flex-col gap-8 items-center">
@@ -92,7 +92,7 @@
       <h3><code>Breadcrumbs list</code></h3>
       <h4>Properties</h4>
       <ul>
-        <li><code>children</code>: display the children components</li>
+        <li><code>children</code>: [html] - display the children components</li>
       </ul>
       <div class="not-prose mb-4">
         <pre><code class="language-django">{% verbatim breadcrumbs_container %}{% #breadcrumbs %}
@@ -125,16 +125,16 @@
     <section id="buttonSection">
       <h2>Button</h2>
       <ul>
-        <li><code>children</code></li>
-        <li><code>class</code></li>
-        <li><code>disabled</code></li>
-        <li><code>external</code></li>
-        <li><code>href</code></li>
-        <li><code>id</code></li>
-        <li><code>name</code></li>
-        <li><code>tooltip</code></li>
-        <li><code>type</code></li>
-        <li><code>variant</code></li>
+        <li><code>children</code>: [html] - display the children components</li>
+        <li><code>class</code>: [string] - add HTML classes to the component</li>
+        <li><code>disabled</code>: [boolean] - if true, stops users from interacting with the component</li>
+        <li><code>external</code>: [boolean] - used with `type="link"` to open link in a new tab</li>
+        <li><code>href</code>: [string] - used with `type="link"` to add href to anchor tag</li>
+        <li><code>id</code>: [string] - HTML element ID</li>
+        <li><code>name</code>: [string] - HTML element name</li>
+        <li><code>tooltip</code>: [string] - if added, will show the string on hover</li>
+        <li><code>type</code>: [string] - switch between a button or anchor element</li>
+        <li><code>variant</code>: [string] - select styling colour for component</li>
       </ul>
       <div class="not-prose flex flex-col gap-y-8 relative w-screen max-w-5xl left-1/2 -translate-x-1/2 p-8 bg-slate-200 border boder-slate-500 rounded">
         <div class="flex flex-row gap-x-8 items-center">
@@ -154,13 +154,13 @@
       <h2>Card</h2>
       <h3>Card</h3>
       <ul>
-        <li><code>aria_labelled_by</code></li>
-        <li><code>children</code></li>
-        <li><code>class</code></li>
-        <li><code>container_class</code></li>
-        <li><code>container</code></li>
-        <li><code>subtitle</code></li>
-        <li><code>title</code></li>
+        <li><code>aria_labelled_by</code>: [string] - if using a custom heading, add aria signposting to the associated heading</li>
+        <li><code>children</code>: [html] - display the children components</li>
+        <li><code>class</code>: [string] - add HTML classes to the outer section component</li>
+        <li><code>container</code>: [boolean] - add padding and margin to the children container</li>
+        <li><code>container_class</code>: [string] - add HTML classes to the container div</li>
+        <li><code>subtitle</code>: [string] - display a title for the card</li>
+        <li><code>title</code>: [string] - display a subtitle for the card</li>
       </ul>
       <div class="not-prose flex flex-col gap-y-8 relative w-screen max-w-5xl left-1/2 -translate-x-1/2 p-8 bg-slate-200 border boder-slate-500 rounded">
         <pre><code class="language-django">{% verbatim %}{% #card class="bg-red-50" title="Hola mundo" subtitle="Hallo welt" %}{% endverbatim %}
@@ -169,8 +169,8 @@
       </div>
       <h3>Card footer</h3>
       <ul>
-        <li><code>children</code></li>
-        <li><code>no_container</code></li>
+        <li><code>children</code>: [html] - display the children components</li>
+        <li><code>no_container</code>: [boolean] - if true, remove all padding from the footer</li>
       </ul>
       <div class="not-prose flex flex-col gap-y-8 relative w-screen max-w-5xl left-1/2 -translate-x-1/2 p-8 bg-slate-200 border boder-slate-500 rounded">
         <pre><code class="language-django">{% verbatim %}{% #card_footer no_container=False %}{% endverbatim %}
@@ -199,8 +199,8 @@
     <section id="codeSection">
       <h2>Code</h2>
       <ul>
-        <li><code>class</code></li>
-        <li><code>children</code></li>
+        <li><code>class</code>: [string] - add HTML classes to the component</li>
+        <li><code>children</code>: [html] - display the children components</li>
       </ul>
       <div class="not-prose flex flex-col gap-y-8 relative w-screen max-w-5xl left-1/2 -translate-x-1/2 p-8 bg-white border boder-slate-500 rounded">
         <div class="flex flex-row gap-x-8 items-center">
@@ -219,10 +219,10 @@
     <section id="descriptionSection">
       <h2>Description Item</h2>
       <ul>
-        <li><code>children</code></li>
-        <li><code>details_class</code></li>
-        <li><code>title</code></li>
-        <li><code>title_class</code></li>
+        <li><code>children</code>: [html] - display the children components</li>
+        <li><code>details_class</code>: [string] - add HTML classes to the dt component</li>
+        <li><code>title</code>: [string] - add title text</li>
+        <li><code>title_class</code>: [string] - add HTML classes to the dd component</li>
       </ul>
       <div class="not-prose flex flex-col gap-y-8 relative w-screen max-w-5xl left-1/2 -translate-x-1/2 p-8 bg-slate-200 border boder-slate-500 rounded">
         <div class="flex flex-row gap-x-8 items-center">
@@ -250,24 +250,24 @@
       <h2>Forms</h2>
       <h3>Input</h3>
       <ul>
-        <li><code>autocapitalize</code></li>
-        <li><code>autocomplete</code></li>
-        <li><code>autocorrect</code></li>
-        <li><code>class</code></li>
-        <li><code>field</code>
+        <li><a href="https://developer.mozilla.org/en-US/docs/Web/HTML/Global_attributes/autocapitalize"><code>autocapitalize</code></a></li>
+        <li><a href="https://developer.mozilla.org/en-US/docs/Web/HTML/Attributes/autocomplete"><code>autocomplete</code></a></li>
+        <li><a href="https://developer.mozilla.org/en-US/docs/Web/HTML/Element/Input#autocorrect"><code>autocorrect</code></a></li>
+        <li><code>class</code>: [string] - add HTML classes to the component</li>
+        <li><code>field</code> - passed from Django
           <ul>
-            <li><code>auto_id</code></li>
-            <li><code>errors</code></li>
-            <li><code>html_name</code></li>
-            <li><code>id_for_label</code></li>
-            <li><code>label</code></li>
-            <li><code>value</code></li>
+            <li><a href="https://devdocs.io/django~4.1/ref/forms/api#django.forms.Form.auto_id"><code>auto_id</code></a></li>
+            <li><a href="https://devdocs.io/django~4.1/ref/forms/api#django.forms.Form.errors"><code>errors</code></a></li>
+            <li><a href="https://devdocs.io/django~4.1/ref/forms/api#django.forms.BoundField.html_name"><code>html_name</code></a></li>
+            <li><a href="https://devdocs.io/django~4.1/ref/forms/api#django.forms.BoundField.id_for_label"><code>id_for_label</code></a></li>
+            <li><a href="https://devdocs.io/django~4.1/ref/forms/api#django.forms.BoundField.label"><code>label</code></a></li>
+            <li><a href="https://devdocs.io/django~4.1/ref/forms/api#django.forms.BoundField.value"><code>value</code></a></li>
           </ul>
         </li>
-        <li><code>inputmode</code></li>
-        <li><code>label</code></li>
-        <li><code>required</code></li>
-        <li><code>type</code></li>
+        <li><a href="https://developer.mozilla.org/en-US/docs/Web/HTML/Global_attributes/inputmode"><code>inputmode</code></a></li>
+        <li><code>label</code>: [string] - overwrite the label passed from Django</li>
+        <li><a href="https://developer.mozilla.org/en-US/docs/Web/HTML/Attributes/required"><code>required</code></a></li>
+        <li><a href="https://developer.mozilla.org/en-US/docs/Web/HTML/Element/input#input_types"><code>type</code></a></li>
       </ul>
       <div class="not-prose flex flex-col gap-y-8 relative w-screen max-w-5xl left-1/2 -translate-x-1/2 p-8 bg-slate-200 border boder-slate-500 rounded">
         <div class="flex flex-col gap-y-4 items-start max-w-xl w-full mx-auto">
@@ -281,20 +281,20 @@
       </div>
       <h3>Select</h3>
       <ul>
-        <li><code>choices</code></li>
-        <li><code>class</code></li>
+        <li><code>choices</code>: [dict] - dict of [value, label] for the options</li>
+        <li><code>class</code>: [string] - add HTML classes to the component</li>
         <li><code>field</code>
           <ul>
-            <li><code>auto_id</code></li>
-            <li><code>errors</code></li>
-            <li><code>html_name</code></li>
-            <li><code>id_for_label</code></li>
-            <li><code>label</code></li>
+            <li><a href="https://devdocs.io/django~4.1/ref/forms/api#django.forms.Form.auto_id"><code>auto_id</code></a></li>
+            <li><a href="https://devdocs.io/django~4.1/ref/forms/api#django.forms.Form.errors"><code>errors</code></a></li>
+            <li><a href="https://devdocs.io/django~4.1/ref/forms/api#django.forms.BoundField.html_name"><code>html_name</code></a></li>
+            <li><a href="https://devdocs.io/django~4.1/ref/forms/api#django.forms.BoundField.id_for_label"><code>id_for_label</code></a></li>
+            <li><a href="https://devdocs.io/django~4.1/ref/forms/api#django.forms.BoundField.label"><code>label</code></a></li>
           </ul>
         </li>
-        <li><code>label</code></li>
-        <li><code>required</code></li>
-        <li><code>selected</code></li>
+        <li><code>label</code>: [string] - overwrite the label passed from Django</li>
+        <li><a href="https://developer.mozilla.org/en-US/docs/Web/HTML/Attributes/required"><code>required</code></a></li>
+        <li><code>selected</code>: [string] - matches value of choice for preselected option</li>
       </ul>
       <div class="not-prose flex flex-col gap-y-8 relative w-screen max-w-5xl left-1/2 -translate-x-1/2 p-8 bg-slate-200 border boder-slate-500 rounded">
         {% form_select class="w-full max-w-lg mx-auto" label="Select a language" required=True field=example_form_select choices=example_form_select.choices selected=example_form_select.value %}
@@ -302,24 +302,24 @@
       </div>
       <h3>Textarea</h3>
       <ul>
-        <li><code>autocapitalize</code></li>
-        <li><code>autocomplete</code></li>
-        <li><code>autocorrect</code></li>
-        <li><code>class</code></li>
+        <li><a href="https://developer.mozilla.org/en-US/docs/Web/HTML/Global_attributes/autocapitalize"><code>autocapitalize</code></a></li>
+        <li><a href="https://developer.mozilla.org/en-US/docs/Web/HTML/Attributes/autocomplete"><code>autocomplete</code></a></li>
+        <li><a href="https://developer.mozilla.org/en-US/docs/Web/HTML/Element/Input#autocorrect"><code>autocorrect</code></a></li>
+        <li><code>class</code>: [string] - add HTML classes to the component</li>
         <li><code>field</code>
           <ul>
-            <li><code>auto_id</code></li>
-            <li><code>errors</code></li>
-            <li><code>html_name</code></li>
-            <li><code>id_for_label</code></li>
-            <li><code>label</code></li>
-            <li><code>value</code></li>
+            <li><a href="https://devdocs.io/django~4.1/ref/forms/api#django.forms.Form.auto_id"><code>auto_id</code></a></li>
+            <li><a href="https://devdocs.io/django~4.1/ref/forms/api#django.forms.Form.errors"><code>errors</code></a></li>
+            <li><a href="https://devdocs.io/django~4.1/ref/forms/api#django.forms.BoundField.html_name"><code>html_name</code></a></li>
+            <li><a href="https://devdocs.io/django~4.1/ref/forms/api#django.forms.BoundField.id_for_label"><code>id_for_label</code></a></li>
+            <li><a href="https://devdocs.io/django~4.1/ref/forms/api#django.forms.BoundField.label"><code>label</code></a></li>
+            <li><a href="https://devdocs.io/django~4.1/ref/forms/api#django.forms.BoundField.value"><code>value</code></a></li>
           </ul>
         </li>
-        <li><code>inputmode</code></li>
-        <li><code>label</code></li>
-        <li><code>required</code></li>
-        <li><code>rows</code></li>
+        <li><a href="https://developer.mozilla.org/en-US/docs/Web/HTML/Global_attributes/inputmode"><code>inputmode</code></a></li>
+        <li><code>label</code>: [string] - overwrite the label passed from Django</li>
+        <li><a href="https://developer.mozilla.org/en-US/docs/Web/HTML/Attributes/required"><code>required</code></a></li>
+        <li><a href="https://developer.mozilla.org/en-US/docs/Web/HTML/Element/textarea#attr-rows"><code>rows</code></a></li>
       </ul>
       <div class="not-prose flex flex-col gap-y-8 relative w-screen max-w-5xl left-1/2 -translate-x-1/2 p-8 bg-slate-200 border boder-slate-500 rounded">
         {% form_textarea class="max-w-lg w-full mx-auto" field=example_form_textarea label="Enter a short description of the project" resize=True rows=8 %}
@@ -340,9 +340,9 @@
     <section id="linkSection">
       <h2>Link</h2>
       <ul>
-        <li><code>href</code></li>
-        <li><code>new_tab</code></li>
-        <li><code>text</code></li>
+        <li><code>href</code>: [string] - href for the anchor tag</li>
+        <li><code>new_tab</code>: [boolean] - if true, opens link in a new tab</li>
+        <li><code>text</code>: [string] - link text to display</li>
       </ul>
       <div class="not-prose flex flex-col gap-y-8 relative w-screen max-w-5xl left-1/2 -translate-x-1/2 p-8 bg-slate-200 border boder-slate-500 rounded">
         <div class="flex flex-row gap-x-8 items-center">
@@ -356,16 +356,16 @@
       <h2>List group</h2>
       <h3>List group container</h3>
       <ul>
-        <li><code>children</code></li>
-        <li><code>small</code></li>
+        <li><code>children</code>: [html] - display the children components</li>
+        <li><code>small</code>: [boolean] - if true, reduces padding and font size</li>
       </ul>
       <div class="not-prose flex flex-col gap-y-8 relative w-screen max-w-5xl left-1/2 -translate-x-1/2 p-8 bg-slate-200 border boder-slate-500 rounded">
         <pre><code class="language-django">{% verbatim %}{% #list_group %}content in here{% /list_group %}{% endverbatim %}</code></pre>
       </div>
       <h3>List group item</h3>
       <ul>
-        <li><code>children</code></li>
-        <li><code>href</code></li>
+        <li><code>children</code>: [html] - display the children components</li>
+        <li><code>href</code>: [string] - href for the anchor tag</li>
       </ul>
       <div class="not-prose flex flex-col gap-y-8 relative w-screen max-w-5xl left-1/2 -translate-x-1/2 p-8 bg-slate-200 border boder-slate-500 rounded">
         {% #card %}
@@ -386,10 +386,10 @@
 
       <h3>Properties</h3>
       <ul>
-        <li><code>children</code></li>
-        <li><code>sr_only</code></li>
-        <li><code>text</code></li>
-        <li><code>variant</code></li>
+        <li><code>children</code>: [html] - display the children components</li>
+        <li><code>sr_only</code>: [string] - add explainer text for screen readers</li>
+        <li><code>text</code>: [string] - text to display in the component</li>
+        <li><code>variant</code>: [string] - select styling colours for the component</li>
       </ul>
 
       <div class="not-prose flex flex-col gap-y-8 relative w-screen max-w-5xl left-1/2 -translate-x-1/2 p-8 bg-slate-200 border boder-slate-500 rounded">
@@ -424,13 +424,13 @@
       <h2>Timeline</h2>
       <h3>Timeline item</h3>
       <ul>
-        <li><code>background</code></li>
-        <li><code>children</code></li>
-        <li><code>content</code></li>
-        <li><code>last</code></li>
-        <li><code>no_padding_bottom</code></li>
-        <li><code>time</code></li>
-        <li><code>title</code></li>
+        <li><code>background</code>: [string] - select the background color for the icon</li> {# TODO: change this to "variant" #}
+        <li><code>children</code>: [html] - display the children components</li>
+        <li><code>content</code>: [string] - text to display if not passing a time</li>
+        <li><code>last</code>: [boolean] - if true, removes line running between icons</li>
+        <li><code>no_padding_bottom</code>: [boolean] - if true, remove bottom padding</li>
+        <li><code>time</code>: [date] - provide a Django date to display natural time and tooltip for exact time stamp</li>
+        <li><code>title</code>: [string] - text to display above time or content</li>
       </ul>
       <div class="not-prose flex flex-col gap-y-8 relative w-screen max-w-5xl left-1/2 -translate-x-1/2 p-8 bg-slate-200 border boder-slate-500 rounded">
         <div class="flex flex-row gap-x-8 items-center">
@@ -458,8 +458,8 @@
     <section id="tooltipSection">
       <h2>Tooltip</h2>
       <ul>
-        <li><code>class</code></li>
-        <li><code>content</code></li>
+        <li><code>class</code>: [string] - add HTML classes to the component</li>
+        <li><code>content</code>: [string] - text for the tooltip to display when hovered</li>
       </ul>
       <div class="not-prose flex flex-col gap-y-8 relative w-screen max-w-5xl left-1/2 -translate-x-1/2 p-8 bg-slate-200 border boder-slate-500 rounded">
         <div class="flex flex-row gap-x-8 items-center">
