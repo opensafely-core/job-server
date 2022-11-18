@@ -46,293 +46,288 @@
     The repo <a href="{{ repo.url }}"><code>{{ repo.name }}</code></a> is
     currently <strong>{{ repo.status }}</strong>.
   </p>
-  {% if not repo.researcher_signed_off_at %}
   <p class="lead">
     As per our platform policy, this repository should now be publicly visible.
+    {% if not repo.researcher_signed_off_at %}
     <br>
     You can use this page to request that the repository is set to be publicly visible.
+    {% endif %}
   </p>
   <p>
     Read more about
     <a href="https://docs.opensafely.org/repositories/">GitHub Repository visibility in the OpenSAFELY Docs</a>.
   </p>
-  {% endif %}
 
-  {% if repo.researcher_signed_off_at %}
   <section class="border-top pt-4 mt-4">
     <div class="row">
       <div class="col-lg-8">
-        <div class="card text-white bg-success">
-          <div class="card-body">
-            <p class="card-text">
-              This repository was signed off to be made public by
-              {{ repo.researcher_signed_off_by.name }} on {{ repo.researcher_signed_off_at }}
-              If you think this was done in error, please email
-              <a class="text-white" href="mailto:publications@opensafely.org">publications@opensafely.org</a>.
-            </p>
-          </div>
+        <h2>Read and agree</h2>
+        <p class="lead">By signing off a workspace below you are confirming you have:</p>
+        <ul class="list-unstyled">
+          <li class="d-flex align-items-center mb-2">
+            {% icon_check_outline class="text-success mr-2" %}
+            <span>Read and understood the <a href="https://www.opensafely.org/about/#transparency-and-public-logs">Transparency and public logs</a> section of the OpenSAFELY website</span>
+          </li>
+          <li class="d-flex align-items-center mb-2">
+            {% icon_check_outline class="text-success mr-2" %}
+            <span>Checked the repository, including all branches, for disclosive information</span>
+          </li>
+          <li class="d-flex align-items-center mb-2">
+            {% icon_check_outline class="text-success mr-2" %}
+            <span>
+              Updated READMEs on each branch to match the
+              <a href="https://docs.opensafely.org/publishing-repo/">OpenSAFELY guidance</a>
+            </span>
+          </li>
+          <li class="d-flex align-items-center mb-2">
+            {% icon_check_outline class="text-success mr-2" %}
+            <span>Added or updated the purpose</span>
+          </li>
+          <li class="d-flex align-items-center mb-2">
+            {% icon_check_outline class="text-success mr-2" %}
+            <span>Permission to make the workspace public</span>
+          </li>
+        </ul>
+      </div>
+    </div>
+  </section>
+
+  <section class="border-top pt-4 mt-4">
+    <div class="row">
+      <div class="col-lg-8">
+        <h2>Linked workspaces</h2>
+        <p class="mb-4">The following workspaces are linked to this repository:</p>
+        <div class="accordion" id="linkedWorkspaces">
+          {% for workspace in workspaces %}
+            <div class="card {% if workspace.signed_off_at %}border-success{% else %}border-warning{% endif %}">
+              <div
+                class="
+                  card-header d-flex justify-content-between align-items-center
+                  {% if workspace.signed_off_at %}
+                    bg-success
+                  {% else %}
+                    bg-warning
+                  {% endif %}
+                "
+              >
+                <h3 class="card-title mr-3 mb-0" id="heading{{ workspace.name }}">
+                  <button
+                    aria-controls="{{ workspace.name }}"
+                    aria-expanded="{% if workspace.signed_off_at %}false{% else %}true{% endif %}"
+                    class="
+                      btn btn-block font-weight-bold text-left collapsed
+                      {% if workspace.signed_off_at %}text-white{% endif %}
+                    "
+                    data-target="#{{ workspace.name }}"
+                    data-toggle="collapse"
+                    type="button"
+                  >{{ workspace.name }}</button>
+                </h3>
+                {% if workspace.is_archived %}
+                  <span class="badge badge-sm badge-secondary">Archived</span>
+                {% else %}
+                  <span class="badge badge-sm badge-primary">Active</span>
+                {% endif %}
+              </div>
+              <div id="{{ workspace.name }}" class="collapse {% if not workspace.signed_off_at %}show{% endif %}" aria-labelledby="heading{{ workspace.name }}">
+                <ul class="list-group list-group-flush">
+                  <li class="list-group-item">
+                    <strong>Workspace:</strong>
+                    <a href="{{ workspace.get_absolute_url }}">{{ workspace.name }}</a>
+                  </li>
+                  <li class="list-group-item">
+                    <div class="d-flex align-items-center">
+                      <strong>Purpose:</strong>
+                      <span class="d-block flex-grow-1 text-truncate ml-1">{{ workspace.purpose|default:"-" }}</span>
+                      <a class="btn btn-sm btn-primary ml-2" href="{{ workspace.get_edit_url }}">
+                        Edit
+                      </a>
+                    </div>
+                  </li>
+                  <li class="list-group-item">
+                    <strong>Project:</strong>
+                    <a href="{{ workspace.project.get_absolute_url }}">{{ workspace.project.title }}</a>
+                  </li>
+                  <li class="list-group-item">
+                    <strong>Branch:</strong>
+                    {% if workspace.branch_exists %}
+                      <a href="{{ workspace.branch }}">
+                        <code>{{ workspace.branch }}</code>
+                      </a>
+                    {% else %}
+                      <code>{{ workspace.branch }}</code>
+                      &mdash; this branch does not exist in the GitHub Repository
+                    {% endif %}
+                  </li>
+                  <li class="list-group-item">
+                    <strong>Readme:</strong>
+                    <a href="{{ workspace.get_readme_url }}">
+                      README.md
+                    </a>
+                  </li>
+                  <li class="list-group-item">
+                    {% if not workspace.signed_off_at %}
+                    <p class="font-weight-bold mb-2">I confirm I agree to the above conditions for this workspace, and sign off on this repository being made public.</p>
+                    <form method="POST">
+                      {% csrf_token %}
+                      <input type="hidden" name="name" value="{{ workspace.name }}" />
+                      <button type="submit" class="btn btn-outline-success">Sign off {{ workspace.name }}</button>
+                    </form>
+                    {% else %}
+                    <p class="mb-0">
+                      {% icon_check_outline class="text-success mr-1" %}
+                      Signed off for publishing by {{ workspace.signed_off_by.name }}
+                      at <time datetime="{{ workspace.signed_off_at.isoformat }}">
+                        {{ workspace.signed_off_at|date:"G:i jS F Y" }}
+                      </time>
+                    </p>
+                    {% endif %}
+                </ul>
+              </div>
+            </div>
+          {% endfor %}
         </div>
+
+        {% if branches %}
+          <h2 class="mt-5">Other branches</h2>
+          <p class="mb-4">The following branches have no workspaces:</p>
+          {% for branch in branches %}
+            <ul class="list-group">
+              <li class="list-group-item">
+                {{ branch }}
+              </li>
+            </ul>
+          {% endfor %}
+        {% endif %}
+
+        {% if repo.has_github_outputs %}
+        <div class="alert alert-secondary mt-5" role="alert">
+          <h2>Outputs</h2>
+          <p class="mb-4">
+            This repository has outputs released to GitHub.  By agreeing to
+            make this repository public you are also agreeing the repo has
+            appropriate data released (i.e. had disclosure controls applied).
+          </p>
+        </div>
+        {% endif %}
+      </div>
+    </div>
+  </section>
+
+  <section class="border-top pt-4 mt-4">
+    <div class="row">
+      <div class="col-lg-8">
+        <h2>Project</h2>
+        <p>
+          By signing off the repository below you are confirming you have
+          updated the status of the project. You can read how to do this on
+          <a href="https://docs.opensafely.org/jobs-site/#updating-project-status">
+            the OpenSAFELY documentation site
+          </a>.
+        </p>
+
+        {% if project_status %}
+        <p>
+          <strong>Current status:</strong>
+          <span>{{ project_status }}</span>
+        </p>
+        {% endif %}
+
+        <p>
+          <a class="btn btn-primary" href="{{ project_url }}">Review project</a>
+        </p>
+      </div>
+    </div>
+  </section>
+
+  {% if not repo.researcher_signed_off_at %}
+  <section class="border-top pt-4 mt-4">
+    <div class="alert alert-danger" role="alert">
+      <p class="lead">
+        By requesting this visibility change, you are agreeing that the
+        repository can be made public, and that you have the authority to
+        make that decision. It will trigger a request to OpenSAFELY technical
+        support, who will then make the repository public on your behalf.
+      </p>
+      <hr>
+      <p class="mb-0">
+        If you have any questions about this process, please contact {% link text="publications@opensafely.org" href="mailto:publications@opensafely.org" %} before continuing.
+      </p>
+    </div>
+  </section>
+
+  <button
+    type="button"
+    class="btn btn-danger font-weight-bold mt-2 pt-2"
+    {% if not workspaces_signed_off %}
+    disabled
+    data-toggle="tooltip"
+    data-placement="bottom"
+    title="All workspaces must be signed off before a repo can be signed off"
+    {% else %}
+    data-toggle="modal"
+    data-target="#confirmRepoVisibility"
+    {% endif %}
+    >
+    Request visibility is set to public
+  </button>
+
+  <div class="modal fade" id="confirmRepoVisibility" tabindex="-1" aria-labelledby="confirmRepoVisibilityLabel" aria-hidden="true">
+    <div class="modal-dialog modal-xl">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h3 class="modal-title" id="confirmRepoVisibilityLabel">Request visibility is set to public</h3>
+          <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+            <span aria-hidden="true">&times;</span>
+          </button>
+        </div>
+        <div class="modal-body">
+          <p>The following workspaces have been signed off:</p>
+          <ul class="list-group mb-3">
+            {% for workspace in workspaces %}
+              <li class="list-group-item list-group-item-success">
+                {% icon_check_outline class="text-success mr-1" %}{{ workspace.name }}<br />
+                <small>Signed off for publishing by {{ workspace.signed_off_by.name }} at <time datetime="{{ workspace.signed_off_at.isoformat }}">{{ workspace.signed_off_at|date:"G:i jS F Y" }}</time></small>
+              </li>
+            {% endfor %}
+          </ul>
+          {% if branches %}
+          <p>This will also make the following branches public:</p>
+          {% for branch in branches %}
+            <ul class="list-group">
+              <li class="list-group-item">
+                {{ branch }}
+              </li>
+            </ul>
+          {% endfor %}
+        {% endif %}
+        <p class="mt-3 mb-0 lead">You can now trigger a request to set the repository to public.</p>
+        </div>
+        <div class="modal-footer">
+          <form method="POST">
+            {% csrf_token %}
+            <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+            <button class="btn btn-danger" type="submit">Request visibility is set to public</button>
+          </form>
+        </div>
+      </div>
+    </div>
+  </div>
+  {% else %}
+  <section class="border-top pt-4 mt-4">
+    <div class="card text-white bg-success">
+      <div class="card-body">
+        <p class="card-text">
+          This repository was signed off to be made public by
+          {{ repo.researcher_signed_off_by.name }} on {{ repo.researcher_signed_off_at }}
+          If you think this was done in error, please email
+          <a class="text-white" href="mailto:publications@opensafely.org">publications@opensafely.org</a>.
+        </p>
       </div>
     </div>
   </section>
   {% endif %}
 
-  {% if not repo.researcher_signed_off_at %}
-    <section class="border-top pt-4 mt-4">
-      <div class="row">
-        <div class="col-lg-8">
-          <h2>Read and agree</h2>
-          <p class="lead">By signing off a workspace below you are confirming you have:</p>
-          <ul class="list-unstyled">
-            <li class="d-flex align-items-center mb-2">
-              {% icon_check_outline class="text-success mr-2" %}
-              <span>Read and understood the <a href="https://www.opensafely.org/about/#transparency-and-public-logs">Transparency and public logs</a> section of the OpenSAFELY website</span>
-            </li>
-            <li class="d-flex align-items-center mb-2">
-              {% icon_check_outline class="text-success mr-2" %}
-              <span>Checked the repository, including all branches, for disclosive information</span>
-            </li>
-            <li class="d-flex align-items-center mb-2">
-              {% icon_check_outline class="text-success mr-2" %}
-              <span>
-                Updated READMEs on each branch to match the
-                <a href="https://docs.opensafely.org/publishing-repo/">OpenSAFELY guidance</a>
-              </span>
-            </li>
-            <li class="d-flex align-items-center mb-2">
-              {% icon_check_outline class="text-success mr-2" %}
-              <span>Added or updated the purpose</span>
-            </li>
-            <li class="d-flex align-items-center mb-2">
-              {% icon_check_outline class="text-success mr-2" %}
-              <span>Permission to make the workspace public</span>
-            </li>
-          </ul>
-        </div>
-      </div>
-    </section>
-
-    <section class="border-top pt-4 mt-4">
-      <div class="row">
-        <div class="col-lg-8">
-          <h2>Linked workspaces</h2>
-          <p class="mb-4">The following workspaces are linked to this repository:</p>
-          <div class="accordion" id="linkedWorkspaces">
-            {% for workspace in workspaces %}
-              <div class="card {% if workspace.signed_off_at %}border-success{% else %}border-warning{% endif %}">
-                <div
-                  class="
-                    card-header d-flex justify-content-between align-items-center
-                    {% if workspace.signed_off_at %}
-                      bg-success
-                    {% else %}
-                      bg-warning
-                    {% endif %}
-                  "
-                >
-                  <h3 class="card-title mr-3 mb-0" id="heading{{ workspace.name }}">
-                    <button
-                      aria-controls="{{ workspace.name }}"
-                      aria-expanded="{% if workspace.signed_off_at %}false{% else %}true{% endif %}"
-                      class="
-                        btn btn-block font-weight-bold text-left collapsed
-                        {% if workspace.signed_off_at %}text-white{% endif %}
-                      "
-                      data-target="#{{ workspace.name }}"
-                      data-toggle="collapse"
-                      type="button"
-                    >{{ workspace.name }}</button>
-                  </h3>
-                  {% if workspace.is_archived %}
-                    <span class="badge badge-sm badge-secondary">Archived</span>
-                  {% else %}
-                    <span class="badge badge-sm badge-primary">Active</span>
-                  {% endif %}
-                </div>
-                <div id="{{ workspace.name }}" class="collapse {% if not workspace.signed_off_at %}show{% endif %}" aria-labelledby="heading{{ workspace.name }}">
-                  <ul class="list-group list-group-flush">
-                    <li class="list-group-item">
-                      <strong>Workspace:</strong>
-                      <a href="{{ workspace.get_absolute_url }}">{{ workspace.name }}</a>
-                    </li>
-                    <li class="list-group-item">
-                      <div class="d-flex align-items-center">
-                        <strong>Purpose:</strong>
-                        <span class="d-block flex-grow-1 text-truncate ml-1">{{ workspace.purpose|default:"-" }}</span>
-                        <a class="btn btn-sm btn-primary ml-2" href="{{ workspace.get_edit_url }}">
-                          Edit
-                        </a>
-                      </div>
-                    </li>
-                    <li class="list-group-item">
-                      <strong>Project:</strong>
-                      <a href="{{ workspace.project.get_absolute_url }}">{{ workspace.project.title }}</a>
-                    </li>
-                    <li class="list-group-item">
-                      <strong>Branch:</strong>
-                      {% if workspace.branch_exists %}
-                        <a href="{{ workspace.branch }}">
-                          <code>{{ workspace.branch }}</code>
-                        </a>
-                      {% else %}
-                        <code>{{ workspace.branch }}</code>
-                        &mdash; this branch does not exist in the GitHub Repository
-                      {% endif %}
-                    </li>
-                    <li class="list-group-item">
-                      <strong>Readme:</strong>
-                      <a href="{{ workspace.get_readme_url }}">
-                        README.md
-                      </a>
-                    </li>
-                    <li class="list-group-item">
-                      {% if not workspace.signed_off_at %}
-                      <p class="font-weight-bold mb-2">I confirm I agree to the above conditions for this workspace, and sign off on this repository being made public.</p>
-                      <form method="POST">
-                        {% csrf_token %}
-                        <input type="hidden" name="name" value="{{ workspace.name }}" />
-                        <button type="submit" class="btn btn-outline-success">Sign off {{ workspace.name }}</button>
-                      </form>
-                      {% else %}
-                      <p class="mb-0">
-                        {% icon_check_outline class="text-success mr-1" %}
-                        Signed off for publishing by {{ workspace.signed_off_by.name }}
-                        at <time datetime="{{ workspace.signed_off_at.isoformat }}">
-                          {{ workspace.signed_off_at|date:"G:i jS F Y" }}
-                        </time>
-                      </p>
-                      {% endif %}
-                  </ul>
-                </div>
-              </div>
-            {% endfor %}
-          </div>
-
-          {% if branches %}
-            <h2 class="mt-5">Other branches</h2>
-            <p class="mb-4">The following branches have no workspaces:</p>
-            {% for branch in branches %}
-              <ul class="list-group">
-                <li class="list-group-item">
-                  {{ branch }}
-                </li>
-              </ul>
-            {% endfor %}
-          {% endif %}
-
-          {% if repo.has_github_outputs %}
-          <div class="alert alert-secondary mt-5" role="alert">
-            <h2>Outputs</h2>
-            <p class="mb-4">
-              This repository has outputs released to GitHub.  By agreeing to
-              make this repository public you are also agreeing the repo has
-              appropriate data released (i.e. had disclosure controls applied).
-            </p>
-          </div>
-          {% endif %}
-        </div>
-      </div>
-    </section>
-
-    <section class="border-top pt-4 mt-4">
-      <div class="row">
-        <div class="col-lg-8">
-          <h2>Project</h2>
-          <p>
-            By signing off the repository below you are confirming you have
-            updated the status of the project. You can read how to do this on
-            <a href="https://docs.opensafely.org/jobs-site/#updating-project-status">
-              the OpenSAFELY documentation site
-            </a>.
-          </p>
-
-          {% if project_status %}
-          <p>
-            <strong>Current status:</strong>
-            <span>{{ project_status }}</span>
-          </p>
-          {% endif %}
-
-          <p>
-            <a class="btn btn-primary" href="{{ project_url }}">Review project</a>
-          </p>
-        </div>
-      </div>
-    </section>
-
-    <section class="border-top pt-4 mt-4">
-      <div class="alert alert-danger" role="alert">
-        <p class="lead">
-          By requesting this visibility change, you are agreeing that the
-          repository can be made public, and that you have the authority to
-          make that decision. It will trigger a request to OpenSAFELY technical
-          support, who will then make the repository public on your behalf.
-        </p>
-        <hr>
-        <p class="mb-0">
-          If you have any questions about this process, please contact {% link text="publications@opensafely.org" href="mailto:publications@opensafely.org" %} before continuing.
-        </p>
-      </div>
-    </section>
-
-    <button
-      type="button"
-      class="btn btn-danger font-weight-bold mt-2 pt-2"
-      {% if not workspaces_signed_off %}
-      disabled
-      data-toggle="tooltip"
-      data-placement="bottom"
-      title="All workspaces must be signed off before a repo can be signed off"
-      {% else %}
-      data-toggle="modal"
-      data-target="#confirmRepoVisibility"
-      {% endif %}
-      >
-      Request visibility is set to public
-    </button>
-
-    <div class="modal fade" id="confirmRepoVisibility" tabindex="-1" aria-labelledby="confirmRepoVisibilityLabel" aria-hidden="true">
-      <div class="modal-dialog modal-xl">
-        <div class="modal-content">
-          <div class="modal-header">
-            <h3 class="modal-title" id="confirmRepoVisibilityLabel">Request visibility is set to public</h3>
-            <button type="button" class="close" data-dismiss="modal" aria-label="Close">
-              <span aria-hidden="true">&times;</span>
-            </button>
-          </div>
-          <div class="modal-body">
-            <p>The following workspaces have been signed off:</p>
-            <ul class="list-group mb-3">
-              {% for workspace in workspaces %}
-                <li class="list-group-item list-group-item-success">
-                  {% icon_check_outline class="text-success mr-1" %}{{ workspace.name }}<br />
-                  <small>Signed off for publishing by {{ workspace.signed_off_by.name }} at <time datetime="{{ workspace.signed_off_at.isoformat }}">{{ workspace.signed_off_at|date:"G:i jS F Y" }}</time></small>
-                </li>
-              {% endfor %}
-            </ul>
-            {% if branches %}
-            <p>This will also make the following branches public:</p>
-            {% for branch in branches %}
-              <ul class="list-group">
-                <li class="list-group-item">
-                  {{ branch }}
-                </li>
-              </ul>
-            {% endfor %}
-          {% endif %}
-          <p class="mt-3 mb-0 lead">You can now trigger a request to set the repository to public.</p>
-          </div>
-          <div class="modal-footer">
-            <form method="POST">
-              {% csrf_token %}
-              <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
-              <button class="btn btn-danger" type="submit">Request visibility is set to public</button>
-            </form>
-          </div>
-        </div>
-      </div>
-    </div>
-  {% endif %}
 </div>
 {% endblock %}
 
