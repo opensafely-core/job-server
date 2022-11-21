@@ -10,7 +10,7 @@ from django.utils import timezone
 from pipeline import load_pipeline
 from rest_framework import serializers
 from rest_framework.authentication import SessionAuthentication
-from rest_framework.exceptions import NotAuthenticated, ValidationError
+from rest_framework.exceptions import NotAuthenticated
 from rest_framework.generics import ListAPIView
 from rest_framework.response import Response
 from rest_framework.views import APIView
@@ -59,15 +59,8 @@ class JobAPIUpdate(APIView):
         serializer = self.serializer_class(data=request.data, many=True)
         serializer.is_valid(raise_exception=True)
 
-        incoming_job_request_ids = {j["job_request_id"] for j in serializer.data}
-
-        # error if we find JobRequest IDs in the payload which aren't in the database.
-        job_request_ids = set(JobRequest.objects.values_list("identifier", flat=True))
-        missing_ids = incoming_job_request_ids - job_request_ids
-        if missing_ids:
-            raise ValidationError(f"Unknown JobRequest IDs: {', '.join(missing_ids)}")
-
         # get JobRequest instances based on the identifiers in the payload
+        incoming_job_request_ids = {j["job_request_id"] for j in serializer.data}
         job_requests = JobRequest.objects.filter(
             identifier__in=incoming_job_request_ids
         )
@@ -88,7 +81,15 @@ class JobAPIUpdate(APIView):
             jobs = list(jobs)
 
             # get the JobRequest for this identifier
-            job_request = job_request_lut[jr_identifier]
+            job_request = job_request_lut.get(jr_identifier)
+            if job_request is None:
+                # we don't expect this to happen under normal circumstances, but it's
+                # now no longer a protocol violation for job-runner to tell us about
+                # JobRequests we didn't ask about, so we shouldn't error here
+                logger.info(
+                    "Ignoring unrecognised JobRequest", job_request_id=jr_identifier
+                )
+                continue
 
             # bind the job request ID to further logs so looking them up in the UI is easier
             structlog.contextvars.bind_contextvars(job_request=job_request.id)

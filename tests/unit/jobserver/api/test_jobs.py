@@ -551,8 +551,9 @@ def test_jobapiupdate_unknown_job_request(api_rf):
     )
     response = JobAPIUpdate.as_view()(request)
 
-    assert response.status_code == 400, response.data
-    assert "Unknown JobRequest IDs" in response.data[0]
+    # Jobs associated with unknown requests should be ignored
+    assert response.status_code == 200, response.data
+    assert not Job.objects.exists()
 
 
 def test_jobrequestapicreate_invalid_token(api_rf):
