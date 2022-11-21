@@ -20,6 +20,9 @@ from jobserver.emails import send_finished_notification
 from jobserver.models import Backend, JobRequest, Stats, User, Workspace
 
 
+COMPLETED_STATES = {"failed", "succeeded"}
+
+
 logger = structlog.get_logger(__name__)
 
 
@@ -121,9 +124,9 @@ class JobAPIUpdate(APIView):
                     updated_job_ids.append(str(job.id))
                     # check to see if the Job is about to transition to completed
                     # (failed or succeeded) so we can notify after the update
-                    completed = ["failed", "succeeded"]
                     newly_completed = (
-                        job.status not in completed and job_data["status"] in completed
+                        job.status not in COMPLETED_STATES
+                        and job_data["status"] in COMPLETED_STATES
                     )
 
                     # update Job "manually" so we can make the check above for
@@ -135,10 +138,9 @@ class JobAPIUpdate(APIView):
 
                 else:
                     created_job_ids.append(str(job.id))
-                    # For newly created jobs we can't check if they've just
-                    # transition to "completed" so we knowingly skip potential
-                    # notifications here to avoid creating false positives.
-                    newly_completed = False
+                    # For newly created jobs we can't tell if they've just transitioned
+                    # to completed so we assume they have to avoid missing notifications
+                    newly_completed = job_data["status"] in COMPLETED_STATES
 
                 # We only send notifications or alerts for newly completed jobs
                 if newly_completed:
