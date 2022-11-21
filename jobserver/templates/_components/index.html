@@ -6,8 +6,7 @@
 {% block content %}
   <details
     class="
-      fixed top-0 left-0 inline-flex z-50
-      group bg-oxford-50 border border-l-4 border-oxford-700/95 overflow-hidden rounded
+      fixed top-4 left-4 inline-flex z-50 group bg-oxford-50 border border-l-4 border-oxford-700/95 overflow-hidden rounded
       open:bg-white
     "
     open
@@ -27,7 +26,7 @@
     </summary>
     <ul
       class="
-        m-2 ml-8 px-2 list-disc
+        m-2 pl-8 pr-4 list-disc overflow-y-auto max-h-[75vh]
         [&_a]:text-oxford-600 [&_a]:font-semibold [&_a:hover]:text-oxford-900 [&_a:hover]:underline
         [&_ul_li]:list-[circle] [&_ul_li]:ml-4
       "
@@ -143,7 +142,7 @@
         <li><code>variant</code>: [string] - select styling colour for component</li>
       </ul>
       <div class="not-prose flex flex-col gap-y-8 relative w-screen max-w-5xl left-1/2 -translate-x-1/2 p-8 bg-slate-200 border boder-slate-500 rounded">
-        <div class="flex flex-row gap-x-8 items-center">
+        <div class="flex flex-col md:flex-row gap-8 items-center">
           {% #button type="link" href="#" variant="danger" %}Danger link{% /button %}
           {% #button type="submit" variant="success" %}Submit success{% /button %}
           {% #button tooltip="I am the tooltip" variant="warning" %}Warning with a tooltip{% /button %}
@@ -397,7 +396,7 @@
       </ul>
 
       <div class="not-prose flex flex-col gap-y-8 relative w-screen max-w-5xl left-1/2 -translate-x-1/2 p-8 bg-slate-200 border boder-slate-500 rounded">
-        <div class="flex flex-row gap-x-8 items-center">
+        <div class="flex flex-col gap-8 md:flex-row items-center">
           {% pill variant="danger" text="Danger" %}
           {% pill variant="info" text="Info" %}
           {% pill variant="primary" text="Primary" %}
