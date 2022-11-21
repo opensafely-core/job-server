@@ -82,6 +82,8 @@ class JobAPIUpdate(APIView):
         jobs_by_request = itertools.groupby(
             serializer.data, key=operator.itemgetter("job_request_id")
         )
+        created_job_ids = []
+        updated_job_ids = []
         for jr_identifier, jobs in jobs_by_request:
             jobs = list(jobs)
 
@@ -103,9 +105,6 @@ class JobAPIUpdate(APIView):
             if identifiers_to_delete:
                 job_request.jobs.filter(identifier__in=identifiers_to_delete).delete()
 
-            # grab Job IDs instead of logging for every Job in the payload (which gets very noisy)
-            created_job_ids = []
-            updated_job_ids = []
             for job_data in jobs:
                 # remove this value from the data, it's going to be set by
                 # creating/updating Job instances via the JobRequest instances
