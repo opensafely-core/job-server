@@ -181,7 +181,7 @@
     </div>
 
     <div class="grid gap-6 place-content-start lg:col-span-2">
-      {% if workspace.repo.has_sign_offs_enabled and show_publish_repo_warning %}
+      {% if show_publish_repo_warning %}
         {% #alert variant="warning" title="Repository is currently private" %}
           <p class="text-sm mb-2">
             The

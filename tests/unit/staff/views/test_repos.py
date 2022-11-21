@@ -11,7 +11,6 @@ from django.utils import timezone
 from staff.views.repos import (
     PrivateReposDashboard,
     RepoDetail,
-    RepoFeatureFlags,
     RepoList,
     RepoSignOff,
     ran_at,
@@ -238,80 +237,6 @@ def test_repodetail_unauthorized(rf):
 
     with pytest.raises(PermissionDenied):
         RepoDetail.as_view(get_github_api=FakeGitHubAPI)(request, repo_url="test")
-
-
-def test_repofeatureflags_get_success(rf, core_developer):
-    repo = RepoFactory()
-
-    request = rf.get("/")
-    request.user = core_developer
-
-    response = RepoFeatureFlags.as_view()(request, repo_url=repo.url)
-
-    assert response.status_code == 200
-
-
-def test_repofeatureflags_post_success_disable(rf, core_developer):
-    repo = RepoFactory(has_sign_offs_enabled=True)
-
-    request = rf.post("/", {"flip_to": "disable"})
-    request.user = core_developer
-
-    response = RepoFeatureFlags.as_view()(request, repo_url=repo.url)
-
-    assert response.status_code == 302, response.context_data["form"].errors
-    assert response.url == repo.get_staff_feature_flags_url()
-
-    repo.refresh_from_db()
-    assert not repo.has_sign_offs_enabled
-
-
-def test_repofeatureflags_post_success_enable(rf, core_developer):
-    repo = RepoFactory(has_sign_offs_enabled=False)
-
-    request = rf.post("/", {"flip_to": "enable"})
-    request.user = core_developer
-
-    response = RepoFeatureFlags.as_view()(request, repo_url=repo.url)
-
-    assert response.status_code == 302, response.context_data["form"].errors
-    assert response.url == repo.get_staff_feature_flags_url()
-
-    repo.refresh_from_db()
-    assert repo.has_sign_offs_enabled
-
-
-def test_repofeatureflags_post_with_invalid_value(rf, core_developer):
-    repo = RepoFactory()
-
-    request = rf.post("/", {"flip_to": "test"})
-    request.user = core_developer
-
-    response = RepoFeatureFlags.as_view()(request, repo_url=repo.url)
-
-    assert response.status_code == 200, response.url
-    expected = {
-        "flip_to": ["Select a valid choice. test is not one of the available choices."]
-    }
-    assert response.context_data["form"].errors == expected
-
-
-def test_repofeatureflags_unauthorized(rf):
-    repo = RepoFactory()
-
-    request = rf.get("/")
-    request.user = UserFactory()
-
-    with pytest.raises(PermissionDenied):
-        RepoFeatureFlags.as_view()(request, repo_url=repo.url)
-
-
-def test_repofeatureflags_unknown_repo(rf, core_developer):
-    request = rf.get("/")
-    request.user = core_developer
-
-    with pytest.raises(Http404):
-        RepoFeatureFlags.as_view()(request, repo_url="")
 
 
 def test_repolist_filter_by_org(rf, core_developer):

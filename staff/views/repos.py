@@ -13,15 +13,13 @@ from django.template.response import TemplateResponse
 from django.utils import timezone
 from django.utils.decorators import method_decorator
 from django.utils.safestring import mark_safe
-from django.views.generic import ListView, UpdateView, View
+from django.views.generic import ListView, View
 from first import first
 
 from jobserver.authorization import CoreDeveloper, has_permission
 from jobserver.authorization.decorators import require_role
 from jobserver.github import _get_github_api
 from jobserver.models import Job, Org, Project, Repo, User, Workspace
-
-from ..forms import RepoFeatureFlagsForm
 
 
 logger = structlog.get_logger(__name__)
@@ -230,7 +228,6 @@ class RepoDetail(View):
             "projects": projects,
             "repo": {
                 "created_at": api_repo["created_at"],
-                "get_staff_feature_flags_url": repo.get_staff_feature_flags_url(),
                 "has_github_outputs": repo.has_github_outputs,
                 "internal_signed_off_at": repo.internal_signed_off_at,
                 "is_private": api_repo["private"],
@@ -249,32 +246,6 @@ class RepoDetail(View):
             "staff/repo_detail.html",
             context=context,
         )
-
-
-@method_decorator(require_role(CoreDeveloper), name="dispatch")
-class RepoFeatureFlags(UpdateView):
-    model = Repo
-    form_class = RepoFeatureFlagsForm
-    template_name = "staff/repo_feature_flags.html"
-
-    def form_valid(self, form):
-        # the form validation ensures this is enable|disable
-        enable = form.cleaned_data["flip_to"] == "enable"
-        self.object.has_sign_offs_enabled = enable
-        self.object.save()
-
-        return redirect(self.object.get_staff_feature_flags_url())
-
-    def get_object(self):
-        return get_object_or_404(Repo, url=unquote(self.kwargs["repo_url"]))
-
-    def get_form_kwargs(self):
-        kwargs = super().get_form_kwargs()
-
-        # RepoFeatureFlagsForm isn't a ModelForm so don't pass instance to it
-        del kwargs["instance"]
-
-        return kwargs
 
 
 @method_decorator(require_role(CoreDeveloper), name="dispatch")

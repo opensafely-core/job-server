@@ -43,7 +43,6 @@
 
     <div class="d-flex">
       <a class="btn btn-primary mr-1" href="{{ repo.url }}">Open on GitHub</a>
-      <a class="btn btn-primary mr-1" href="{{ repo.get_staff_feature_flags_url }}">Feature Flags</a>
       <form method="POST" action="{{ repo.get_staff_sign_off_url }}">
         {% csrf_token %}
 

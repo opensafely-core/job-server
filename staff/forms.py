@@ -152,15 +152,6 @@ class ProjectMembershipForm(RolesForm):
     pass
 
 
-class RepoFeatureFlagsForm(forms.Form):
-    flip_to = forms.ChoiceField(
-        choices=[
-            ("enable", "enable"),
-            ("disable", "disable"),
-        ],
-    )
-
-
 class ResearcherRegistrationEditForm(forms.ModelForm):
     does_researcher_need_server_access = YesNoField()
     has_taken_safe_researcher_training = YesNoField()
