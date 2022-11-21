@@ -26,6 +26,7 @@ from jobserver.api.releases import (
     WorkspaceStatusAPI,
 )
 
+from .views.components import components
 from .views.errors import bad_request, page_not_found, permission_denied, server_error
 from .views.index import Index
 from .views.job_requests import (
@@ -280,6 +281,7 @@ urlpatterns = [
     path("settings/", Settings.as_view(), name="settings"),
     path("staff/", include("staff.urls", namespace="staff")),
     path("status/", include(status_urls)),
+    path("ui-components/", components),
     path("workspaces/", RedirectView.as_view(url="/")),
     path("__debug__/", include(debug_toolbar.urls)),
     path("__reload__/", include("django_browser_reload.urls")),

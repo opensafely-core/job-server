@@ -8,3 +8,4 @@ Disallow: /login/
 Disallow: /logout/
 Disallow: /settings/
 Disallow: /staff/
+Disallow: /ui-components/

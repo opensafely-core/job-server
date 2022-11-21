@@ -13,11 +13,12 @@ const config = {
       input: {
         index: "./assets/src/scripts/index.js",
         "application-form": "./assets/src/scripts/application-form.js",
+        components: "./assets/src/scripts/components.js",
         job_request_create: "./assets/src/scripts/job_request_create.js",
         main: "./assets/src/scripts/main.js",
-        workspace_create: "./assets/src/scripts/workspace_create.js",
         "outputs-viewer": "./assets/src/scripts/outputs-viewer/index.jsx",
         tw: "./assets/src/scripts/tw.js",
+        workspace_create: "./assets/src/scripts/workspace_create.js",
       },
     },
     outDir: "assets/dist",
