@@ -91,7 +91,7 @@ def test_signoffrepo_get_success_with_multiple_projects(rf):
     user = UserFactory()
     project1 = ProjectFactory()
     project2 = ProjectFactory()
-    repo = RepoFactory(url="http://example.com/owner/name", has_sign_offs_enabled=True)
+    repo = RepoFactory(url="http://example.com/owner/name")
 
     ProjectMembershipFactory(project=project1, user=user)
 
@@ -122,7 +122,7 @@ def test_signoffrepo_get_success_with_multiple_projects(rf):
 def test_signoffrepo_get_success_with_one_project(rf):
     user = UserFactory()
     project = ProjectFactory()
-    repo = RepoFactory(url="http://example.com/owner/name", has_sign_offs_enabled=True)
+    repo = RepoFactory(url="http://example.com/owner/name")
 
     ProjectMembershipFactory(project=project, user=user)
 
@@ -153,7 +153,7 @@ def test_signoffrepo_get_success_with_one_project(rf):
 def test_signoffrepo_get_success_with_broken_github(rf):
     user = UserFactory()
     project = ProjectFactory()
-    repo = RepoFactory(url="http://example.com/owner/name", has_sign_offs_enabled=True)
+    repo = RepoFactory(url="http://example.com/owner/name")
 
     ProjectMembershipFactory(project=project, user=user)
 
@@ -191,7 +191,7 @@ def test_signoffrepo_get_success_with_broken_github(rf):
 def test_signoffrepo_member_with_no_workspaces(rf):
     user = UserFactory()
     project = ProjectFactory()
-    repo = RepoFactory(has_sign_offs_enabled=True)
+    repo = RepoFactory()
     WorkspaceFactory.create_batch(5)
 
     ProjectMembershipFactory(project=project, user=user)
@@ -218,7 +218,7 @@ def test_signoffrepo_sign_offs_disabled(rf):
 
 
 def test_signoffrepo_not_a_project_member(rf):
-    repo = RepoFactory(has_sign_offs_enabled=True)
+    repo = RepoFactory()
 
     request = rf.get("/")
     request.user = UserFactory()
@@ -237,7 +237,7 @@ def test_signoffrepo_post_all_workspaces_signed_off_and_name(rf):
     project = ProjectFactory()
     ProjectMembershipFactory(project=project, user=user)
 
-    repo = RepoFactory(has_sign_offs_enabled=True)
+    repo = RepoFactory()
     WorkspaceFactory(project=project, repo=repo, signed_off_at=now, signed_off_by=user)
     WorkspaceFactory(
         project=project,
@@ -270,7 +270,6 @@ def test_signoffrepo_post_all_workspaces_signed_off_and_no_name_with_github_outp
     repo = RepoFactory(
         researcher_signed_off_at=None,
         researcher_signed_off_by=None,
-        has_sign_offs_enabled=True,
         has_github_outputs=True,
     )
     WorkspaceFactory.create_batch(
@@ -309,7 +308,6 @@ def test_signoffrepo_post_all_workspaces_signed_off_and_no_name_without_github_o
     repo = RepoFactory(
         researcher_signed_off_at=None,
         researcher_signed_off_by=None,
-        has_sign_offs_enabled=True,
         has_github_outputs=False,
     )
     WorkspaceFactory.create_batch(
@@ -343,7 +341,7 @@ def test_signoffrepo_post_no_signed_off_workspaces_and_no_name(rf):
     project = ProjectFactory()
     ProjectMembershipFactory(project=project, user=user)
 
-    repo = RepoFactory(has_sign_offs_enabled=True)
+    repo = RepoFactory()
     WorkspaceFactory(project=project, repo=repo)
     WorkspaceFactory(project=project, repo=repo)
 
@@ -371,7 +369,7 @@ def test_signoffrepo_post_no_signed_off_workspaces_and_no_name(rf):
 def test_signoffrepo_post_partially_signed_off_workspaces_and_name(rf):
     user = UserFactory()
     project = ProjectFactory()
-    repo = RepoFactory(has_sign_offs_enabled=True)
+    repo = RepoFactory()
     workspace = WorkspaceFactory(project=project, repo=repo)
 
     ProjectMembershipFactory(project=project, user=user)
@@ -393,10 +391,7 @@ def test_signoffrepo_post_partially_signed_off_workspaces_and_name(rf):
 def test_signoffrepo_post_partially_signed_off_workspaces_and_no_name(rf):
     user = UserFactory()
     project = ProjectFactory()
-    repo = RepoFactory(
-        url="https://github.com/opensafely-testing/github-api-testing",
-        has_sign_offs_enabled=True,
-    )
+    repo = RepoFactory(url="https://github.com/opensafely-testing/github-api-testing")
     WorkspaceFactory(project=project, repo=repo)
 
     ProjectMembershipFactory(project=project, user=user)

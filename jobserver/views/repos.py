@@ -97,9 +97,6 @@ class SignOffRepo(TemplateView):
     def dispatch(self, request, *args, **kwargs):
         self.repo = get_object_or_404(Repo, url=unquote(self.kwargs["repo_url"]))
 
-        if not self.repo.has_sign_offs_enabled:
-            raise Http404
-
         self.workspaces = self.repo.workspaces.select_related(
             "created_by", "project", "project__org"
         ).order_by("name")
