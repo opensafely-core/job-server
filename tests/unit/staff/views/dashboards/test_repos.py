@@ -67,7 +67,7 @@ def test_privatereposdashboard_success(rf, django_assert_num_queries, core_devel
     request = rf.get("/")
     request.user = core_developer
 
-    with django_assert_num_queries(1):
+    with django_assert_num_queries(2):
         response = PrivateReposDashboard.as_view(get_github_api=FakeGitHubAPI)(request)
 
     assert response.status_code == 200

@@ -14,7 +14,7 @@ from first import first
 from jobserver.authorization import CoreDeveloper
 from jobserver.authorization.decorators import require_role
 from jobserver.github import _get_github_api
-from jobserver.models import Workspace
+from jobserver.models import Project, Workspace
 
 
 logger = structlog.get_logger(__name__)
@@ -55,6 +55,8 @@ class PrivateReposDashboard(View):
             )
         )
 
+        all_projects = list(Project.objects.all())
+
         def enhance(repo):
             """
             Enhance the repo dict from get_repos_with_dates() with workspace data
@@ -67,6 +69,9 @@ class PrivateReposDashboard(View):
                 w for w in all_workspaces if repo["url"].lower() == w.repo.url.lower()
             ]
             workspaces = sorted(workspaces, key=lambda w: w.name.lower())
+
+            project_ids = [w.project_id for w in workspaces]
+            projects = [p for p in all_projects if p.pk in project_ids]
 
             # get workspaces which have run jobs
             with_jobs = [w for w in workspaces if w.first_run]
@@ -90,6 +95,7 @@ class PrivateReposDashboard(View):
                 "first_run": first_run,
                 "has_jobs": has_jobs,
                 "has_github_outputs": "github-releases" in repo["topics"],
+                "projects": projects,
                 "quoted_url": quote(repo["url"], safe=""),
                 "signed_off": signed_off,
                 "workspace": workspace,
