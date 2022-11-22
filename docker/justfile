@@ -18,16 +18,26 @@ test *args="": build
     docker-compose run --rm test bash -c "coverage run --branch --source=applications,jobserver,services,staff,tests --module pytest && coverage report || coverage html"
 
 
-# run dev server in dev container
-serve: build
-    docker-compose up dev
+# run server in dev|prod container
+serve env="dev" *args="":
+    {{ just_executable() }} build {{ env }}
+    docker-compose up {{ args }} {{ env }}
 
 
-# run command in dev container
-run *args="bash": build
-    docker-compose run --rm dev {{ args }}
+# run command in dev|prod container
+run env="dev" *args="bash":
+    {{ just_executable() }} build {{ env }}
+    docker-compose run --rm {{ env }} {{ args }}
 
 
-# exec command in existing dev container
-exec *args="bash": build
-    docker-compose exec dev {{ args }}
+# exec command in existing dev|prod container
+exec env="dev" *args="bash":
+    {{ just_executable() }} build {{ env }}
+    docker-compose exec {{ env }} {{ args }}
+
+
+# run a basic functional smoke test against a running job-server
+smoke-test host="http://localhost:8000":
+    #!/bin/bash
+    set -eu
+    curl -I {{ host }} -s --compressed --fail --retry 10 --retry-delay 2 --retry-connrefused

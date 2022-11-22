@@ -18,19 +18,12 @@ COPY docker/dependencies.txt /tmp/dependencies.txt
 RUN --mount=type=cache,target=/var/cache/apt \
     /root/docker-apt-install.sh /tmp/dependencies.txt
 
-ENV DJANGO_SETTINGS_MODULE="jobserver.settings" \
-    DJANGO_VITE_DEV_MODE=False \
-    OTEL_SERVICE_NAME="job-server" \
-    PYTHONPATH="/usr/local/bin/python"
 
 #################################################
 #
 # Create node image.
 #
 FROM node:16 AS node-builder
-COPY --from=base-python /root/docker-apt-install.sh /root/docker-apt-install.sh
-
-RUN /root/docker-apt-install.sh rsync
 
 WORKDIR /usr/src/app
 RUN mkdir -p ./assets
@@ -66,7 +59,6 @@ RUN --mount=type=cache,target=/var/cache/apt \
 
 # Install everything in venv for isolation from system python libraries
 RUN python3.10 -m venv /opt/venv
-ENV VIRTUAL_ENV=/opt/venv/ PATH="/opt/venv/bin:$PATH"
 
 # The cache mount means a) /root/.cache is not in the image, and b) it's preserved
 # between docker builds locally, for faster dev rebuild.
@@ -76,8 +68,8 @@ COPY requirements.prod.txt /tmp/requirements.prod.txt
 # DL3013: we always want latest pip/setuptools/wheel, at least for now
 # hadolint ignore=DL3042,DL3013
 RUN --mount=type=cache,target=/root/.cache \
-    python -m pip install -U pip setuptools wheel && \
-    python -m pip install --require-hashes --requirement /tmp/requirements.prod.txt
+    /opt/venv/bin/python -m pip install -U pip setuptools wheel && \
+    /opt/venv/bin/python -m pip install --require-hashes --requirement /tmp/requirements.prod.txt
 
 
 ##################################################
@@ -109,7 +101,13 @@ COPY --from=builder /opt/venv /opt/venv
 # are readable by all.
 COPY --from=node-builder /usr/src/app/assets/dist /opt/assets
 
-ENV VIRTUAL_ENV=/opt/venv/ PATH="/opt/venv/bin:$PATH" BUILT_ASSETS=/opt/assets PYTHONPATH=/app
+ENV VIRTUAL_ENV=/opt/venv/  \
+    PATH="/opt/venv/bin:$PATH"  \
+    PYTHONPATH=/app  \
+    BUILT_ASSETS=/opt/assets  \
+    DJANGO_SETTINGS_MODULE="jobserver.settings" \
+    DJANGO_VITE_DEV_MODE=False \
+    OTEL_SERVICE_NAME="job-server"
 
 ##################################################
 #

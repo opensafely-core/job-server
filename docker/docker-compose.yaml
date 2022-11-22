@@ -12,9 +12,8 @@ services:
     volumes:
       - postgres_data:/var/lib/postgresql/data/
 
-  prod:
-    # image name, both locally and public
-    image: job-server
+  # base service, exists to hold common config, but is not actually used directly
+  base:
     build:
       context: ..
       # path relative to context
@@ -31,17 +30,29 @@ services:
         # env vars supplied by just
         - BUILD_DATE
         - GITREF
+    environment:
+      # anything we run using this docker-compose file is in development, and thus we force the use of the db service.
+      - DATABASE_URL=postgres://user:pass@db:5432/jobserver
     # use dockers builitin PID daemon
     init: true
     ports:
       - "8000:8000"
+
+  # prod service. Used to build prod image and run/test it locally
+  prod:
+    # image name, both locally and public
+    image: job-server
+    extends:
+      service: base
+    depends_on: [db]
+
 
   # base development service
   # broken out so we can have a common base for dev and test since depends_on
   # can't be used in the target of an extends
   dev-base:
     extends:
-      service: prod
+      service: base
     image: job-server-dev
     build:
       # the dev stage in the Dockerfile
@@ -49,9 +60,6 @@ services:
     # paths relative to docker-compose.yaml file
     env_file:
       - ../.env
-    environment:
-      # override db hostname, so we can reach it within the container
-      - DATABASE_URL=postgres://user:pass@db:5432/jobserver
     volumes:
       - ..:/app
 
@@ -72,7 +80,6 @@ services:
       - ../.test.env
     environment:
       # override db hostname, so we can reach it within the container
-      - DATABASE_URL=postgres://user:pass@db:5432/jobserver
       - GITHUB_TOKEN_TESTING
     command: bash -c "coverage run --branch --source=applications,jobserver,services,staff,tests --module pytest && coverage report || coverage html"
 

@@ -20,6 +20,10 @@ logconfig_dict = logging_config_dict
 # workers
 workers = 3
 
+# listen
+port = 8000
+bind = "0.0.0.0"
+
 
 def post_fork(server, worker):
     server.log.info("Worker spawned (pid: %s)", worker.pid)
