@@ -71,11 +71,17 @@ class Copiloting(TemplateView):
                     "get_staff_url": project.get_staff_url(),
                     "job_request_count": project.job_request_count,
                     "name": project.name,
+                    "number": project.number,
                     "org": project.org,
                     "workspace_count": project.workspace_count,
                 }
 
-        projects = list(iter_projects(projects, file_counts_by_project))
+        projects = list(
+            sorted(
+                iter_projects(projects, file_counts_by_project),
+                key=lambda p: p["name"].lower(),
+            )
+        )
 
         return super().get_context_data(**kwargs) | {
             "projects": projects,

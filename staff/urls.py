@@ -19,6 +19,7 @@ from .views.backends import (
 from .views.dashboards.copiloting import Copiloting
 from .views.dashboards.index import DashboardIndex
 from .views.dashboards.projects import ProjectsDashboard
+from .views.dashboards.repos import PrivateReposDashboard
 from .views.index import Index
 from .views.orgs import (
     OrgCreate,
@@ -42,7 +43,7 @@ from .views.projects import (
     ProjectMembershipRemove,
 )
 from .views.redirects import RedirectDelete, RedirectDetail, RedirectList
-from .views.repos import PrivateReposDashboard, RepoDetail, RepoList, RepoSignOff
+from .views.repos import RepoDetail, RepoList, RepoSignOff
 from .views.researchers import ResearcherEdit
 from .views.users import UserDetail, UserList, UserSetOrgs
 from .views.workspaces import WorkspaceDetail, WorkspaceEdit, WorkspaceList

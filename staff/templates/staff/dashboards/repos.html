@@ -11,6 +11,9 @@
       <li class="breadcrumb-item">
         <a href="{% url 'staff:index' %}">Staff area</a>
       </li>
+      <li class="breadcrumb-item">
+        <a href="{% url 'staff:dashboards:index' %}">Dashboards</a>
+      </li>
       <li class="breadcrumb-item active" aria-current="page">
         OpenSAFELY Private Repos
       </li>
@@ -42,6 +45,7 @@
           <thead>
             <tr>
               <th>Repo</th>
+              <th>Project(s)</th>
               <th>Workspaces</th>
               <th>Contact</th>
               <th>Created on</th>
@@ -54,6 +58,41 @@
             {% for repo in repos %}
             <tr>
               <td><a href="{% url 'staff:repo-detail' repo_url=repo.quoted_url %}">{{ repo.name }}</a></td>
+
+              <td>
+                {% if repo.projects|length > 1 %}
+                  <details>
+                    <summary>
+                      <span class="summary--show">Show</span>
+                      <span class="summary--hide">Hide</span>
+                      {{ repo.projects|length }} projects
+                    </summary>
+                    <ul class="mt-1 mb-0 pl-2 ml-2">
+                      {% for project in repo.projects %}
+                      <li>
+                        <a href="{{ project.get_staff_url }}">
+                          {% if project.number %}
+                          {{ project.number }}
+                          {% else %}
+                          {{ project.name }}
+                          {% endif %}
+                        </a>
+                      </li>
+                      {% endfor %}
+                    </ul>
+                  </details>
+                {% else %}
+                  {% for project in repo.projects %}
+                    <a href="{{ project.get_staff_url }}">
+                      {% if project.number %}
+                      {{ project.number }}
+                      {% else %}
+                      {{ project.name }}
+                      {% endif %}
+                    </a>
+                  {% endfor %}
+                {% endif %}
+              </td>
 
               <td>
                 {% if repo.workspaces|length > 1 %}

@@ -56,7 +56,12 @@
           <tbody>
             {% for project in projects %}
             <tr>
-              <td><a href="{{ project.get_staff_url }}">{{ project.name }}</a></td>
+              <td>
+                <a href="{{ project.get_staff_url }}">
+                  {{ project.name }}
+                  {% if project.number %} ({{ project.number }}){% endif %}
+                </a>
+              </td>
               <td><a href="{{ project.org.get_staff_url }}">{{ project.org.name }}</a></td>
               <td>
                 {% if project.copilot %}

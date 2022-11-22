@@ -2,7 +2,7 @@ import itertools
 
 from csp.decorators import csp_exempt
 from django.db.models import Count, Min
-from django.db.models.functions import Least
+from django.db.models.functions import Least, Lower
 from django.utils.decorators import method_decorator
 from django.views.generic import TemplateView
 
@@ -29,7 +29,7 @@ class ProjectsDashboard(TemplateView):
                     )
                 ),
             )
-            .order_by("name")
+            .order_by(Lower("name"))
             .iterator()
         )
 
@@ -66,6 +66,7 @@ class ProjectsDashboard(TemplateView):
                     "get_staff_url": project.get_staff_url(),
                     "job_request_count": project.job_request_count,
                     "name": project.name,
+                    "number": project.number,
                     "org": project.org,
                     "workspace_count": project.workspace_count,
                 }
