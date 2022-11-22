@@ -144,15 +144,13 @@
                       {% endif %}
                     </dd>
                   </div>
-                  <div class="relative z-40 flex flex-col gap-2 text-sm text-slate-600 sm:flex-row sm:gap-x-4">
-                    <dt class="sr-only">Job identifier:</dt>
-                    <dd class="flex flex-row items-start overflow-hidden sm:max-w-[50%]">
-                      {% icon_code_bracket_outline class="mr-1.5 h-5 w-5 flex-shrink-0 text-slate-400" %}
-                      <code class="font-mono font-semibold text-oxford-800 tracking-widest truncate">
-                        {{ job.identifier }}
-                      </code>
-                    </dd>
-                  </div>
+                  <dt class="sr-only">Job identifier:</dt>
+                  <dd class="inline-flex flex-row items-start mr-auto overflow-hidden max-w-full relative z-40">
+                    {% icon_code_bracket_outline class="mr-1.5 h-5 w-5 flex-shrink-0 text-slate-400" %}
+                    <code class="font-mono font-semibold text-sm text-slate-600 tracking-widest truncate">
+                      {{ job.identifier }}
+                    </code>
+                  </dd>
                 </dl>
               </li>
             {% endfor %}
