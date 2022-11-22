@@ -71,6 +71,7 @@ class Copiloting(TemplateView):
                     "get_staff_url": project.get_staff_url(),
                     "job_request_count": project.job_request_count,
                     "name": project.name,
+                    "number": project.number,
                     "org": project.org,
                     "workspace_count": project.workspace_count,
                 }
