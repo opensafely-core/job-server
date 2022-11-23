@@ -70,7 +70,7 @@ class ProjectReleaseList(View):
                 "download_url": r.get_download_url(),
                 "files": r.files.all(),
                 "id": r.pk,
-                "title": build_title(r),
+                "build_title": build_title(r),
                 "view_url": r.get_absolute_url(),
                 "workspace": r.workspace,
             }
