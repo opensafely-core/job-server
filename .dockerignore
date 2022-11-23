@@ -1,5 +1,6 @@
 .coverage
 .direnv
+.env
 .flake8
 .github
 .pre-commit-config.yaml
