@@ -5,13 +5,14 @@ from django.utils import timezone
 
 from jobserver.honeycomb import (
     format_honeycomb_timestamps,
+    format_job_actions_link,
     format_jobrequest_concurrency_link,
     format_trace_id,
     format_trace_link,
 )
 from jobserver.models import JobRequest
 
-from ...factories import JobFactory, JobRequestFactory
+from ...factories import JobFactory, JobRequestFactory, WorkspaceFactory
 
 
 def test_format_trace_id_hexadecimal():
@@ -88,6 +89,28 @@ def test_format_jobrequest_concurrency_link():
     assert "start_time%22%3A1665593940" in url
     assert "end_time%22%3A1665594060" in url
     assert "useStackedGraphs" in url
+    assert unquote(url) == unquote(expected_url)
+
+
+@pytest.mark.freeze_time("2022-10-12 17:00")
+def test_format_job_actions_link():
+    workspace = WorkspaceFactory(name="my_test_workspace")
+    job_request = JobRequestFactory(identifier="jpbaeldzjqqiaolg", workspace=workspace)
+    job = JobFactory(  # noqa: F841
+        job_request=job_request,
+        completed_at=timezone.now(),
+        status="succeeded",
+        action="my_sample_action",
+    )
+
+    url = format_job_actions_link(job)
+    expected_url = "https://ui.honeycomb.io/bennett-institute-for-applied-data-science/environments/production/datasets/jobrunner?query=%7B%22time_range%22%3A2419200%2C%22granularity%22%3A0%2C%22breakdowns%22%3A%5B%5D%2C%22calculations%22%3A%5B%7B%22op%22%3A%22HEATMAP%22%2C%22column%22%3A%22duration_minutes%22%7D%5D%2C%22filters%22%3A%5B%7B%22column%22%3A%22workspace%22%2C%22op%22%3A%22%3D%22%2C%22value%22%3A%22my_test_workspace%22%7D%2C%7B%22column%22%3A%22action%22%2C%22op%22%3A%22%3D%22%2C%22value%22%3A%22my_sample_action%22%7D%2C%7B%22column%22%3A%22name%22%2C%22op%22%3A%22%3D%22%2C%22value%22%3A%22EXECUTING%22%7D%5D%2C%22filter_combination%22%3A%22AND%22%2C%22orders%22%3A%5B%5D%2C%22havings%22%3A%5B%5D%2C%22limit%22%3A1000%7D"
+
+    assert "time_range%22%3A2419200" in url
+    assert "start_time" not in url
+    assert "end_time" not in url
+    assert '"workspace","op":"=","value":"my_test_workspace"' in unquote(url)
+    assert '"action","op":"=","value":"my_sample_action"' in unquote(url)
     assert unquote(url) == unquote(expected_url)
 
 

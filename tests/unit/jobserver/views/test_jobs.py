@@ -201,6 +201,11 @@ def test_jobdetail_with_core_developer(rf):
     assert "Cancel" not in response.rendered_content
     assert "Honeycomb" in response.rendered_content
     assert "trace_end_ts=1655380800" in response.rendered_content
+    assert "Historic job runs" in response.rendered_content
+    assert (
+        "%22action%22%2C%22op%22%3A%22%3D%22%2C%22value%22%3A%22my_sample_action%22"
+        in response.rendered_content
+    )
     assert "Job Request concurrency" in response.rendered_content
     assert job_request.identifier in response.rendered_content
 

@@ -98,3 +98,30 @@ def format_jobrequest_concurrency_link(job_request):
     )
 
     return jobs_honeycomb_url.url
+
+
+def format_job_actions_link(job):
+    jobs_honeycomb_url = honeycomb_furl()
+
+    # 28 days
+    time_range_seconds = 2419200
+
+    query_json = {
+        "time_range": time_range_seconds,
+        "granularity": 0,
+        "breakdowns": [],
+        "calculations": [{"op": "HEATMAP", "column": "duration_minutes"}],
+        "filters": [
+            {"column": "workspace", "op": "=", "value": job.job_request.workspace.name},
+            {"column": "action", "op": "=", "value": job.action},
+            {"column": "name", "op": "=", "value": "EXECUTING"},
+        ],
+        "filter_combination": "AND",
+        "orders": [],
+        "havings": [],
+        "limit": 1000,
+    }
+
+    jobs_honeycomb_url.add({"query": json.dumps(query_json, separators=(",", ":"))})
+
+    return jobs_honeycomb_url.url
