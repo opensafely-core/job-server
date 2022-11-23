@@ -60,6 +60,7 @@ document.addEventListener("alpine:init", () => {
     },
 
     trigger: {
+      // eslint-disable-next-line func-names
       "@click": function () {
         this.open = !this.open;
         this.$refs.dialogue.classList.toggle("hidden");
