@@ -46,6 +46,7 @@ services:
       service: base
     depends_on: [db]
     environment:
+      - GITHUB_TOKEN=
       - SECRET_KEY=12345
       - SOCIAL_AUTH_GITHUB_KEY=test
       - SOCIAL_AUTH_GITHUB_SECRET=test
