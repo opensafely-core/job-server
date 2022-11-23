@@ -55,14 +55,14 @@
               </ul>
             </span>
             {% if release.can_view_files %}
-            <div class="flex-shrink-0 ml-auto">
-              {% #button class="min-w-[8ch] rounded-r-none" variant="success" type="link" href=release.view_url %}
+            <div class="flex-shrink-0 flex flex-col gap-2 sm:gap-0 sm:flex-row sm:ml-auto">
+              {% #button class="min-w-[8ch] sm:rounded-r-none" variant="success" type="link" href=release.view_url %}
                 View
               {% /button %}
-              {% #button class="min-w-[12ch] -ml-1 rounded-none" variant="primary" type="link" href=release.download_url %}
+              {% #button class="min-w-[12ch] sm:-ml-1 sm:rounded-none" variant="primary" type="link" href=release.download_url %}
                 Download all
               {% /button %}
-              {% #button class="min-w-[16ch] -ml-1 rounded-l-none" variant="secondary" x_bind="trigger" %}
+              {% #button class="min-w-[16ch] sm:-ml-1 sm:rounded-l-none" variant="secondary" x_bind="trigger" %}
                 List
                 {% if release.can_view_files %}
                 ({{ release.files | length }} file{{ release.files | length | pluralize }})
