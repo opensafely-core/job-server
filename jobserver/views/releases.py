@@ -51,26 +51,15 @@ class ProjectReleaseList(View):
             request.user, "release_file_view", project=project
         )
 
-        def build_title(release):
-            created_at = naturaltime(release.created_at)
-            created_at = (
-                f'<span title="{release.created_at.isoformat()}">{created_at}</span>'
-            )
-
-            name = release.created_by.name
-            url = f'<a href="{release.workspace.get_absolute_url()}">{release.workspace.name}</a>'
-
-            return mark_safe(
-                f"Files released by {name} from {release.backend.name} in the {url} workspace {created_at}"
-            )
-
         releases = [
             {
+                "backend": r.backend,
                 "can_view_files": can_view_files and r.files.exists(),
+                "created_at": r.created_at,
+                "created_by": r.created_by,
                 "download_url": r.get_download_url(),
                 "files": r.files.all(),
                 "id": r.pk,
-                "build_title": build_title(r),
                 "view_url": r.get_absolute_url(),
                 "workspace": r.workspace,
             }

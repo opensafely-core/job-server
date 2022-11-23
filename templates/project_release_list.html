@@ -2,8 +2,7 @@
 
 {% load humanize %}
 
-{% block metatitle %}Releases: {{ workspace.name }} | OpenSAFELY Jobs{% endblock metatitle %}
-
+{% block metatitle %}Releases: {{ project.name }} | OpenSAFELY Jobs{% endblock metatitle %}
 
 {% block breadcrumbs %}
   {% url "home" as home_url %}
@@ -36,7 +35,79 @@
   {% #card title="Releases" %}
     {% #list_group %}
       {% for release in releases %}
-        {% include "_release_list-tw.html" with org_slug=project.org.slug project_slug=project.slug workspace_slug=release.workspace.name r=release %}
+        <li class="flex flex-col justify-center px-4 py-3 break-words md:px-6"
+            x-data="dropdown"
+            x-title="release-{{ release.id }}"
+        >
+          <div class="flex flex-col md:flex-row gap-2 items-center justify-between">
+            <span class="mr-auto">
+              Files released by {{ release.created_by.name }}
+              <ul>
+                <li><strong>Workspace:</strong> {% link href=release.workspace.get_absolute_url text=release.workspace.name %}</li>
+                <li><strong>Backend:</strong> {{ release.backend.name }}</li>
+                <li>
+                  <strong>Created:</strong>
+                  <time class="font-medium text-slate-900 group relative cursor-pointer" datetime="{{ release.created_at|date:"Y-m-d H:i:sO" }}">
+                    {{ release.created_at|naturaltime }}
+                    {% tooltip class="font-mono" position="-bottom-4" content=release.created_at|date:"d M Y H:i:s e" %}
+                  </time>
+                </li>
+              </ul>
+            </span>
+            {% if release.can_view_files %}
+            <div class="flex-shrink-0 ml-auto">
+              {% #button class="min-w-[8ch] rounded-r-none" variant="success" type="link" href=release.view_url %}
+                View
+              {% /button %}
+              {% #button class="min-w-[12ch] -ml-1 rounded-none" variant="primary" type="link" href=release.download_url %}
+                Download all
+              {% /button %}
+              {% #button class="min-w-[16ch] -ml-1 rounded-l-none" variant="secondary" x_bind="trigger" %}
+                List
+                {% if release.can_view_files %}
+                ({{ release.files | length }} file{{ release.files | length | pluralize }})
+                {% endif %}
+              {% /button %}
+            </div>
+            {% endif %}
+          </div>
+          {% if release.can_view_files %}
+          <div
+            aria-expanded="false"
+            class="my-2 border-l-4 border-l-oxford-200 border-r border-r-slate-200 border-b border-b-slate-200"
+            x-cloak
+            x-ref="dialogue"
+          >
+            {% #list_group small %}
+              {% for file in release.files %}
+                {% #list_group_item href=file.detail_url disabled=file.is_deleted class="flex flex-row justify-between items-center flex-wrap gap-2" %}
+                  <code class="truncate">{{ file.name }}</code>
+
+                  {% if file.is_deleted %}
+                  <span class="text-xs text-slate-600 font-normal mr-auto">
+                    (Deleted by {{ file.deleted_by.name }} at {{ file.deleted_at|date:"Y-m-d H:i:sO" }})
+                  </span>
+                  {% endif %}
+
+                  {% if user_can_delete_files and not file.is_deleted %}
+                  <form
+                    action="{% url "release-file-delete" org_slug=project.org.slug project_slug=project.slug workspace_slug=release.workspace.name pk=release.id release_file_id=file.pk %}"
+                    class="ml-auto"
+                    method="POST"
+                  >
+                    {% csrf_token %}
+
+                    {% #button class="flex-shrink-0 whitespace-nowrap" small type="submit" variant="danger" %}
+                      Delete file
+                    {% /button %}
+                  </form>
+                  {% endif %}
+                {% /list_group_item %}
+              {% endfor %}
+            {% /list_group %}
+          </div>
+          {% endif %}
+        </li>
       {% endfor %}
     {% /list_group %}
   {% /card %}
