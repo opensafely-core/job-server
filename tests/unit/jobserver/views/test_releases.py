@@ -63,10 +63,8 @@ def test_projectreleaselist_success(rf, build_release):
 
     assert response.context_data["project"] == project
     assert len(response.context_data["releases"]) == 2
-    assert (
-        f"Files released by {r1.created_by.name} from {r1.backend.name}"
-        in response.rendered_content
-    )
+    assert f"Files released by {r1.created_by.name}" in response.rendered_content
+    assert f"{r1.backend.name}" in response.rendered_content
 
 
 def test_projectreleaselist_unknown_workspace(rf):
