@@ -39,7 +39,7 @@
             x-data="dropdown"
             x-title="release-{{ release.id }}"
         >
-          <div class="flex flex-col md:flex-row gap-2 items-center justify-between">
+          <div class="flex flex-col md:flex-row gap-2 items-start justify-between">
             <span class="mr-auto">
               Files released by {{ release.created_by.name }}
               <ul>
@@ -56,13 +56,13 @@
             </span>
             {% if release.can_view_files %}
             <div class="flex-shrink-0 flex flex-col gap-2 sm:gap-0 sm:flex-row sm:ml-auto">
-              {% #button class="min-w-[8ch] sm:rounded-r-none" variant="success" type="link" href=release.view_url %}
+              {% #button class="min-w-[8ch] sm:rounded-r-none" variant="success-outline" type="link" href=release.view_url %}
                 View
               {% /button %}
-              {% #button class="min-w-[12ch] sm:-ml-1 sm:rounded-none" variant="primary" type="link" href=release.download_url %}
+              {% #button class="min-w-[12ch] sm:rounded-none sm:border-x-0" variant="primary-outline" type="link" href=release.download_url %}
                 Download all
               {% /button %}
-              {% #button class="min-w-[16ch] sm:-ml-1 sm:rounded-l-none" variant="secondary" x_bind="trigger" %}
+              {% #button class="min-w-[16ch] sm:rounded-l-none" variant="secondary-outline" x_bind="trigger" %}
                 List
                 {% if release.can_view_files %}
                 ({{ release.files | length }} file{{ release.files | length | pluralize }})
