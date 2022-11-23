@@ -5,6 +5,10 @@
       hover:bg-oxford-50
       focus:bg-oxford-50 focus:outline-none focus:ring-2 focus:ring-inset
       sm:px-6
+      {% if disabled %}
+      pointer-events-none cursor-not-allowed text-slate-700
+      {% endif %}
+      {{ class }}
     "
     href="{{ href }}"
   >

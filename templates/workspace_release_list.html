@@ -1,70 +1,48 @@
-{% extends "base.html" %}
+{% extends "base-tw.html" %}
 
 {% load humanize %}
 
 {% block metatitle %}Releases: {{ workspace.name }} | OpenSAFELY Jobs{% endblock metatitle %}
 
 {% block breadcrumbs %}
-<nav class="breadcrumb-container" aria-label="breadcrumb">
-  <div class="container">
-    <ol class="breadcrumb rounded-0 mb-0 px-0">
-      <li class="breadcrumb-item">
-        <a href="/">Home</a>
-      </li>
-
-      <li class="breadcrumb-item">
-        <a href="{{ workspace.project.org.get_absolute_url }}">
-          {{ workspace.project.org.name }}
-        </a>
-      </li>
-
-      <li class="breadcrumb-item">
-        <a href="{{ workspace.project.get_absolute_url }}">
-          {{ workspace.project.title }}
-        </a>
-      </li>
-
-      <li class="breadcrumb-item">
-        <a href="{{ workspace.get_absolute_url }}">
-          {{ workspace.name }}
-        </a>
-      </li>
-
-      <li class="breadcrumb-item active" aria-current="page">
-        Releases
-      </li>
-    </ol>
-  </div>
-</nav>
+  {% #breadcrumbs %}
+    {% url 'home' as home_url %}
+    {% breadcrumb title="Home" url=home_url %}
+    {% breadcrumb location="Organisation" title=workspace.project.org.name url=workspace.project.org.get_absolute_url %}
+    {% breadcrumb location="Project" title=workspace.project.name url=workspace.project.get_absolute_url %}
+    {% breadcrumb location="Workspace" title=workspace.name url=workspace.get_absolute_url %}
+    {% breadcrumb title="Releases" active=True %}
+  {% /breadcrumbs %}
 {% endblock breadcrumbs %}
 
-{% block jumbotron %}
-<div class="jumbotron jumbotron-fluid">
-  <div class="container">
-    <h1>Releases for the {{ workspace.name }} workspace</h1>
-    <p class="lead">
+{% block content %}
+<div class="flex flex-col gap-4">
+  <h1 class="text-3xl break-words pt-2 md:pt-0 md:text-4xl font-bold text-slate-900">
+    Releases for the {{ workspace.name }} workspace
+  </h1>
+  <div class="text-slate-700 flex flex-col gap-y-2 max-w-prose">
+    <p>
       Each release listed below contains one or more files released from a
       secure research backend to the website. Some releases have been
       redacted for privacy reasons.
     </p>
-    <p class="lead">
+    <p>
       The buttons below are disabled if a release has been redacted or if you
       do not have permission to view them.
     </p>
   </div>
-</div>
-{% endblock jumbotron %}
 
-{% block content %}
-<div class="container">
-  <ul class="list-group">
-    {% if latest_release.can_view_files %}
-      {% include "_release_list.html" with org_slug=workspace.project.org.slug project_slug=workspace.project.slug workspace_slug=workspace.name r=latest_release %}
-    {% endif %}
+  {% #card title="Releases" %}
+    {% #list_group %}
+      {% if latest_release.can_view_files %}
+        {% include "_release_list-tw.html" with org_slug=workspace.project.org.slug project_slug=workspace.project.slug workspace_slug=workspace.name r=latest_release %}
+      {% endif %}
 
-    {% for release in releases %}
-      {% include "_release_list.html" with org_slug=workspace.project.org.slug project_slug=workspace.project.slug workspace_slug=workspace.name r=release %}
-    {% endfor %}
-  </ul>
+      {% for release in releases %}
+        {% include "_release_list-tw.html" with org_slug=workspace.project.org.slug project_slug=workspace.project.slug workspace_slug=workspace.name r=release %}
+      {% endfor %}
+    {% /list_group %}
+  {% /card %}
 </div>
+
 {% endblock %}

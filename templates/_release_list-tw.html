@@ -1,0 +1,64 @@
+{% load humanize %}
+
+<li class="
+  flex flex-col justify-center px-4 py-3 md:px-6 break-words
+"
+x-data="dropdown"
+x-title="release-{{ r.id }}"
+>
+  <div class="flex flex-col md:flex-row md:flex-wrap gap-2 items-center justify-between">
+    <span class="mr-auto">{% link href=r.view_url text=r.title %}</span>
+
+    {% if r.can_view_files %}
+    <div class="flex-shrink-0 ml-auto">
+      {% #button class="min-w-[16ch]" variant="primary" type="link" href=r.download_url %}
+        Download all
+      {% /button %}
+      {% #button class="min-w-[16ch] ml-0.5" variant="secondary" x_bind="trigger" %}
+        List
+          {% if r.can_view_files %}
+            ({{ r.files | length }} file{{ r.files | length | pluralize }})
+          {% endif %}
+      {% /button %}
+    </div>
+    {% else %}
+    {% endif %}
+  </div>
+
+  {% if r.can_view_files %}
+  <div
+    aria-expanded="false"
+    class="my-2 border-l-4 border-l-oxford-200 border-r border-r-slate-200"
+    x-cloak
+    x-ref="dialogue"
+  >
+    {% #list_group small %}
+      {% for file in r.files %}
+        {% #list_group_item href=file.detail_url disabled=file.is_deleted class="flex flex-row justify-between items-center flex-wrap gap-2" %}
+          <code class="truncate">{{ file.name }}</code>
+
+          {% if not file.is_deleted %}
+          <span class="text-xs text-slate-600 font-normal mr-auto">
+            (Deleted by {{ file.deleted_by.name }} at {{ file.deleted_at|date:"Y-m-d H:i:sO" }})
+          </span>
+          {% endif %}
+
+          {% if user_can_delete_files and not file.is_deleted %}
+          <form
+            action="{% url "release-file-delete" org_slug=org_slug project_slug=project_slug workspace_slug=workspace_slug pk=r.id release_file_id=file.pk %}"
+            class="ml-auto"
+            method="POST"
+          >
+            {% csrf_token %}
+
+            {% #button class="flex-shrink-0 whitespace-nowrap" small type="submit" variant="danger" %}
+              Delete file
+            {% /button %}
+          </form>
+          {% endif %}
+        {% /list_group_item %}
+      {% endfor %}
+    {% /list_group %}
+  </div>
+  {% endif %}
+</li>
