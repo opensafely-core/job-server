@@ -1,6 +1,8 @@
-{% extends "applications_base.html" %}
+{% extends "applications/base.html" %}
 
-{% block metatitle %}Apply: Sign In | OpenSAFELY Jobs{% endblock metatitle %}
+{% load snippet %}
+
+{% block metatitle %}Apply: Terms | OpenSAFELY Jobs{% endblock metatitle %}
 
 {% block breadcrumbs %}
 <nav class="breadcrumb-container" aria-label="breadcrumb">
@@ -13,7 +15,7 @@
         <a href="{% url 'applications:start' %}">Apply</a>
       </li>
       <li class="breadcrumb-item active" aria-current="page">
-        Sign In
+        Terms
       </li>
     </ol>
   </div>
@@ -25,11 +27,12 @@
   <div class="container">
     <div class="d-flex flex-column flex-md-row align-items-center">
       <div>
-        <h1 class="display-4">Sign in to GitHub</h1>
+        <h1 class="display-4">Terms of use of OpenSAFELY</h1>
 
         <p class="lead">
-          If your application is approved, you will be able to submit study
-          code to run on OpenSAFELY via GitHub.
+          This section details the terms of use of OpenSAFELY. By agreeing to
+          these terms, you can continue to submit your access request. Please
+          review the terms carefully.
         </p>
       </div>
     </div>
@@ -40,16 +43,17 @@
 {% block content %}
 <article class="container" id="applicationForm">
   <div class="row">
-    <div class="col">
-      <p>
-        By signing in to your GitHub account here, your OpenSAFELY access
-        request is associated with your GitHub user account.
-      </p>
+    <div class="col-lg-8">
+      {% snippet "terms" %}
 
-      <form method="POST" action="{% url "auth-login" "github" %}">
-        <input type="hidden" name="next" value="{% url 'applications:terms' %}" />
-        <button type="submit" class="btn btn-success">Sign in to GitHub</button>
+      <form method="POST">
+        {% csrf_token %}
+
+        <button class="btn btn-lg btn-success mt-3" type="submit">
+          Continue
+        </button>
       </form>
+
     </div>
   </div>
 </article>
