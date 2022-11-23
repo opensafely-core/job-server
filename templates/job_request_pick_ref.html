@@ -1,77 +1,67 @@
-{% extends "base.html" %}
+{% extends "base-tw.html" %}
 
 {% load humanize %}
 
+{% block metatitle %}{{ workspace.name }}: Pick commit | OpenSAFELY Jobs{% endblock metatitle %}
+
+{% block breadcrumbs %}
+  {% #breadcrumbs %}
+    {% url 'home' as home_url %}
+    {% breadcrumb title="Home" url=home_url %}
+    {% breadcrumb location="Organisation" title=workspace.project.org.name url=workspace.project.org.get_absolute_url %}
+    {% breadcrumb location="Project" title=workspace.project.name url=workspace.project.get_absolute_url %}
+    {% breadcrumb location="Workspace" title=workspace.name url=workspace.get_absolute_url %}
+    {% breadcrumb title="Pick commit" active=True %}
+  {% /breadcrumbs %}
+{% endblock breadcrumbs %}
+
 {% block content %}
-
-<nav aria-label="breadcrumb">
-  <ol class="breadcrumb">
-
-    <li class="breadcrumb-item"><a href="/">Home</a></li>
-
-    <li class="breadcrumb-item">
-      <a href="{{ workspace.project.org.get_absolute_url }}">
-        {{ workspace.project.org.name }}
-      </a>
-    </li>
-
-    <li class="breadcrumb-item">
-      <a href="{{ workspace.project.get_absolute_url }}">
-        {{ workspace.project.title }}
-      </a>
-    </li>
-
-    <li class="breadcrumb-item">
-      <a href="{{ workspace.get_absolute_url }}">
-        {{ workspace.name }}
-      </a>
-    </li>
-
-    <li class="breadcrumb-item active" aria-current="page">Pick Commit</li>
-
-  </ol>
-</nav>
-
-<div class="row">
-  <div class="col-lg-8 offset-lg-2">
-    <h3 class="mb-3">{{ workspace.name }}</h3>
-
-    <p>
+<div
+  class="
+    mb-6 mt-3 flex flex-col gap-6 items-center text-center
+    md:mt-0 md:flex-row md:text-left
+  "
+>
+  {% if workspace.project.org.logo_file %}
+  <img
+    alt="{{ workspace.project.org.name }} logo"
+    class="w-36 h-36 bg-white aspect-square rounded-2xl border border-slate-200 shadow-sm overflow-hidden flex-shrink-0"
+    height="144"
+    src="{{ workspace.project.org.logo_file.url }}"
+    width="144"
+  />
+  {% endif %}
+  <div class="flex-grow flex flex-col gap-y-4 md:gap-y-2">
+    <h1 class="text-3xl tracking-tight break-words md:text-4xl font-bold text-slate-900">
+      {{ workspace.name }}
+    </h1>
+    <p class="font-lg text-slate-600">
       Click on a commit below to run jobs with the <code>project.yaml</code>
       from that commit.
     </p>
-
   </div>
 </div>
 
 {% if error %}
-<div class="row">
-  <div class="col-lg-8 offset-lg-2 my-5">
-
-    <p>An error occurred while trying to get commits for this workspace:</p>
-
-    <pre class="text-left">{{ error }}</pre>
-
-  </div>
-</div>
+{% #alert title="An error occurred" class="max-w-3xl mb-6" variant="warning" %}
+  <p class="mb-4">An error occurred while trying to get commits for this workspace:</p>
+  {% #code %}{{ error }}{% /code %}
+{% /alert %}
 {% endif %}
 
 {% if commits %}
-<div class="row job-create mt-3">
-  <div class="col-lg-8 offset-lg-2">
-
-    <ul class="list-group">
-      {% for commit in commits %}
-      <li class="list-group-item list-group-item-action">
-        <a href="{% url 'job-request-create' org_slug=workspace.project.org.slug project_slug=workspace.project.slug workspace_slug=workspace.name ref=commit.sha %}">
-          {{ commit.message }}
-        </a>
-      </li>
-      {% endfor %}
-    </ul>
-
-  </div>
-</div>
+{% #card title="Commits" class="max-w-3xl" %}
+  {% #list_group %}
+    {% for commit in commits %}
+      {% url 'job-request-create' org_slug=workspace.project.org.slug project_slug=workspace.project.slug workspace_slug=workspace.name ref=commit.sha as commit_url %}
+      {% #list_group_item href=commit_url %}
+        {{ commit.message }}
+        <span class="block text-sm text-slate-600">
+          SHA: {{ commit.sha }}
+        </span>
+      {% /list_group_item %}
+    {% endfor %}
+  {% /list_group %}
+{% /card %}
 {% endif %}
-
 {% endblock content %}
