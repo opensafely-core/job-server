@@ -134,13 +134,16 @@ class JobAPIUpdate(APIView):
                     for key, value in job_data.items():
                         setattr(job, key, value)
                     job.save()
-                    job.refresh_from_db()
 
                 else:
                     created_job_ids.append(str(job.id))
                     # For newly created jobs we can't tell if they've just transitioned
                     # to completed so we assume they have to avoid missing notifications
                     newly_completed = job_data["status"] in COMPLETED_STATES
+
+                # round trip the Job to the db so all fields are converted to
+                # their python representations
+                job.refresh_from_db()
 
                 # We only send notifications or alerts for newly completed jobs
                 if newly_completed:

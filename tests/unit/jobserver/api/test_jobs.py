@@ -413,6 +413,38 @@ def test_jobapiupdate_notifications_on_without_move_to_completed(api_rf, mocker)
     assert response.status_code == 200
 
 
+def test_jobapiupdate_post_job_request_error(api_rf):
+    backend = BackendFactory()
+    job_request = JobRequestFactory(will_notify=True)
+
+    now = timezone.now().isoformat()
+
+    assert Job.objects.count() == 0
+
+    data = [
+        {
+            "identifier": "job1",
+            "job_request_id": job_request.identifier,
+            "action": "__error__",
+            "status": "failed",
+            "status_code": "",
+            "status_message": "",
+            "created_at": now,
+            "started_at": now,
+            "updated_at": now,
+            "completed_at": now,
+        },
+    ]
+
+    request = api_rf.post(
+        "/", HTTP_AUTHORIZATION=backend.auth_token, data=data, format="json"
+    )
+    response = JobAPIUpdate.as_view()(request)
+
+    assert response.status_code == 200, response.data
+    assert Job.objects.count() == 1
+
+
 def test_jobapiupdate_post_only(api_rf):
     backend = BackendFactory()
 
