@@ -38,7 +38,7 @@ RUN --mount=type=cache,target=/usr/src/app/.npm \
 COPY vite.config.js tailwind.config.js postcss.config.js ./
 COPY assets/src ./assets/src
 
-RUN --mount=type=cache,target=./npm --mount=type=bind,source=jobserver/templates,target=/usr/src/app/jobserver/templates npm run build
+RUN --mount=type=cache,target=./npm --mount=type=bind,source=templates,target=/usr/src/app/templates npm run build
 
 ##################################################
 #
