@@ -5,6 +5,7 @@ from django.http import Http404
 from django.shortcuts import get_object_or_404, redirect
 from django.template.response import TemplateResponse
 from django.views.generic import RedirectView, View
+from furl import furl
 
 from ..authorization import CoreDeveloper, has_permission, has_role
 from ..honeycomb import (
@@ -64,6 +65,7 @@ class JobDetail(View):
         # have more than one backend-specific error code it makes sense to keep
         # things together.
         log_path = ""
+        log_path_url = ""
         if job.job_request.backend.slug == "tpp" and job.status_code == "nonzero_exit":
             log_path = os.path.join(
                 job.job_request.backend.parent_directory,
@@ -71,10 +73,18 @@ class JobDetail(View):
                 "metadata",
                 f"{job.action}.log",
             )
+            url = (
+                furl(job.job_request.workspace.get_files_url())
+                / "metadata"
+                / f"{job.action}.log"
+            )
+            url.path.normalize()
+            log_path_url = url.url
 
         context = {
             "job": job,
             "log_path": log_path,
+            "log_path_url": log_path_url,
             "object": job,
             "user_can_cancel_jobs": can_cancel_jobs,
             "view": self,

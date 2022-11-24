@@ -131,11 +131,13 @@
 
             {% if log_path %}
               <p>
-                The job exited with an error. You can check the log output by logging
-                into the {{ job.job_request.backend.name }} server and looking at:
+                You can check the log output by viewing it in the {% link text="outputs viewer" href=log_path_url %}
+                {% pill text="VPN Required" variant="primary" %}
               </p>
-              <pre class="break-all whitespace-pre-wrap">{{ log_path }}</pre>
-            {% endif %}
+              <p>
+                Alternatively, view the file directly at: <pre class="break-all whitespace-pre-wrap">{{ log_path }}</pre>
+              </p>
+              {% endif %}
           </div>
         {% /description_item %}
 
