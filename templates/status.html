@@ -31,33 +31,38 @@
         </div>
       </div>
       <div>
-        {% #description_item title="Runner last seen" stacked=True %}
+        {% #description_item title="Last contact with "|add:backend.name|add:" backend" stacked=True %}
           <time
             class="
-              font-medium text-slate-900 group relative cursor-pointer
-              {% if backend.last_seen %}text-bn-ribbon-900{% endif %}
+              text-slate-900 group relative cursor-pointer
+              {% if not backend.last_seen %}text-bn-ribbon-900{% endif %}
             "
             datetime="{{ backend.last_seen|date:"Y-m-d H:i:sO" }}">
             {{ backend.last_seen|naturaltime }}
+            {% if backend.last_seen %}
             {% tooltip class="font-mono" position="-bottom-4" content=backend.last_seen|date:"d M Y H:i:s e" %}
+            {% endif %}
           </time>
         {% /description_item %}
-        {% #description_item title="Threshold for missing" stacked=True %}
-          {{ backend.alert_timeout|duration }}
-        {% /description_item %}
-        {% #description_item title="Unacked Jobs" stacked=True %}
+        {% #description_item title="Job requests sent from OpenSAFELY Jobs" stacked=True %}
           {{ backend.queue.unacked }}
         {% /description_item %}
-        {% #description_item title="Acked Jobs" stacked=True %}
+        {% #description_item title="Job requests received by "|add:backend.name|add:" backend" stacked=True %}
           {{ backend.queue.acked }}
         {% /description_item %}
-        {% #description_item title="Running" stacked=True %}
-          {{ backend.queue.running }}
-        {% /description_item %}
-        {% #description_item title="Pending" stacked=True %}
+        {% #description_item title="Pending jobs" stacked=True %}
           {{ backend.queue.pending }}
         {% /description_item %}
+        {% #description_item title="Running jobs" stacked=True %}
+          {{ backend.queue.running }}
+        {% /description_item %}
       </div>
+      {% #card_footer no_container class="border-t border-t-slate-200" %}
+        <p class="text-sm font-medium text-slate-600">
+          {{ backend.name }} backend is unavailable if OpenSAFELY Jobs does
+          not receive a response for {{ backend.alert_timeout|duration }}.
+        </p>
+      {% /card_footer %}
     {% /card %}
   {% endfor %}
 </div>
