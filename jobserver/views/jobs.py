@@ -7,7 +7,11 @@ from django.template.response import TemplateResponse
 from django.views.generic import RedirectView, View
 
 from ..authorization import CoreDeveloper, has_permission, has_role
-from ..honeycomb import format_jobrequest_concurrency_link, format_trace_link
+from ..honeycomb import (
+    format_job_actions_link,
+    format_jobrequest_concurrency_link,
+    format_trace_link,
+)
 from ..models import Job, JobRequest
 
 
@@ -92,6 +96,10 @@ class JobDetail(View):
             context["honeycomb_links"][
                 "Job Request concurrency"
             ] = format_jobrequest_concurrency_link(related_job_request)
+
+            context["honeycomb_links"]["Historic job runs"] = format_job_actions_link(
+                job
+            )
 
         return TemplateResponse(request, "job_detail.html", context=context)
 
