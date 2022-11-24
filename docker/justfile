@@ -40,7 +40,7 @@ exec env="dev" *args="bash":
 smoke-test host="http://localhost:8000":
     #!/bin/bash
     set -eu
-    curl -I {{ host }} -s --compressed --fail --retry 10 --retry-delay 2 --retry-connrefused
+    curl -I {{ host }} -s --compressed --fail --retry 20 --retry-delay 1 --retry-all-errors
 
 
 # manually run the docker db. Useful if you want to use it but with venv based dev env

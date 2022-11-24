@@ -195,32 +195,22 @@ assets-build:
     touch assets/dist/.written
 
 
-# Collect the static files
-assets-collect: devenv
-    #!/usr/bin/env bash
-    set -eu
+# Ensure django's collectstatic is run if needed
+collectstatic: devenv
+    ./scripts/collect-me-maybe.sh $BIN/python
 
-    # exit if nothing has changed in the built assets since we last collected staticfiles.
-    # -nt == "newer than", but we negate with || to avoid error exit code
-    test assets/dist/.written -nt staticfiles/.written || exit 0
+# install npm toolchaing, build and collect assets
+assets: assets-install assets-build collectstatic
 
-    $BIN/python manage.py collectstatic --no-input
-    touch staticfiles/.written
-
-
-assets: assets-install assets-build assets-collect
-
+# rebuild all npm/static assets
 assets-rebuild: assets-clean assets
 
 
+# run a local release hatch instance, including adding and configuring a backend to use with it.
 release-hatch:
     ./scripts/local-release-hatch.sh
 
-
-# run docker-compose based db for development
-docker-db:
-    docker-compose -f docker/docker-compose.yaml up -d db
-
+# note these are just aliases for the docker/justfile commands. We add them just for autocompletion from the root dir
 
 # build docker image env=dev|prod
 docker-build env="dev": _env

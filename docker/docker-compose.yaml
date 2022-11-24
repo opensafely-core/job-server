@@ -20,10 +20,6 @@ services:
       dockerfile: docker/Dockerfile
       # the prod stage in the Dockerfile
       target: job-server-prod
-      # should speed up the build in CI, where we have a cold cache
-      cache_from:  # should speed up the build in CI, where we have a cold cache
-        - ghcr.io/opensafely-core/base-docker
-        - ghcr.io/opensafely-core/job-server
       args:
         # this makes the image work for later cache_from: usage
         - BUILDKIT_INLINE_CACHE=1
@@ -67,6 +63,9 @@ services:
       - ../.env
     volumes:
       - ..:/app
+      # this gives the dev containers a persistant cache for staticfiles, which
+      # allows us to avoid rerunning collectstatic if nothing has changed
+      - staticfiles:/opt/staticfiles
 
   dev:
     extends:
@@ -90,3 +89,4 @@ services:
 
 volumes:
   postgres_data:
+  staticfiles:

@@ -82,8 +82,8 @@ RUN --mount=type=cache,target=/root/.cache \
 # Not including the code at this stage has two benefits:
 #
 # 1) this image only rebuilds when the handlful of files needed to build
-# job-server-base changes. If we do `COPY . /app` now, this will rebuild when
-# *any* file changes.
+#    job-server-base changes. If we do `COPY . /app` now, this will rebuild when
+#    *any* file changes.
 #
 # 2) Ensures we *have* to mount the volume for dev image, as there's no embedded
 #    version of the code. Otherwise, we could end up accidentally using the
@@ -101,10 +101,37 @@ COPY --from=builder /opt/venv /opt/venv
 # are readable by all.
 COPY --from=node-builder /usr/src/app/assets/dist /opt/assets
 
+# Asset and staticfile management
+#
+# We support two dev environment side-by-side. Docker-based, which is the same
+# everywhere, and the same as production. And host-based, which can mean OSX
+# or some version linux. Windows not supported, currently
+#
+# Both dev envs have tooling and config to generate js assets and to run
+# django's collectstatic. In the host-based tooling, these are written to
+# ./assets/dist and ./staticfiles respectively. When we run the dev image, we
+# mount the host directory in, which means that by default, the tooling when
+# run inside the dev container would write to those same directories, which
+# would overwrite the host's files.
+#
+# This is problem because if the host is OSX, this will break some npm stuff,
+# and the collectfiles will race between the host-based and docker-based to
+# write those files. There can also be file permissions issues.
+#
+# To solve this we parameterize those locations via BUILT_ASSETS and
+# STATIC_ROOT env vars, and within the docker image set them to paths outside
+# of /app, so they do not clash in anyway with the host-based generated files.
+#
+# We do this in both dev and prod docker images. The ./staticfiles and
+# ./assets/dist directories are excluded in .dockerignore, so the prod image
+# only ever has the files it builds. As the app dir is mounted in the dev
+# image, it can see them, but the use of these separate directories means it
+# will never use them.
 ENV VIRTUAL_ENV=/opt/venv/  \
     PATH="/opt/venv/bin:$PATH"  \
     PYTHONPATH=/app  \
     BUILT_ASSETS=/opt/assets  \
+    STATIC_ROOT=/opt/staticfiles \
     DJANGO_SETTINGS_MODULE="jobserver.settings" \
     DJANGO_VITE_DEV_MODE=False \
     OTEL_SERVICE_NAME="job-server"
