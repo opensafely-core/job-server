@@ -104,7 +104,7 @@ def test_format_job_actions_link():
     )
 
     url = format_job_actions_link(job)
-    expected_url = "https://ui.honeycomb.io/bennett-institute-for-applied-data-science/environments/production/datasets/jobrunner?query=%7B%22time_range%22%3A2419200%2C%22granularity%22%3A0%2C%22breakdowns%22%3A%5B%5D%2C%22calculations%22%3A%5B%7B%22op%22%3A%22HEATMAP%22%2C%22column%22%3A%22duration_minutes%22%7D%5D%2C%22filters%22%3A%5B%7B%22column%22%3A%22workspace%22%2C%22op%22%3A%22%3D%22%2C%22value%22%3A%22my_test_workspace%22%7D%2C%7B%22column%22%3A%22action%22%2C%22op%22%3A%22%3D%22%2C%22value%22%3A%22my_sample_action%22%7D%2C%7B%22column%22%3A%22name%22%2C%22op%22%3A%22%3D%22%2C%22value%22%3A%22EXECUTING%22%7D%5D%2C%22filter_combination%22%3A%22AND%22%2C%22orders%22%3A%5B%5D%2C%22havings%22%3A%5B%5D%2C%22limit%22%3A1000%7D"
+    expected_url = "https://ui.honeycomb.io/bennett-institute-for-applied-data-science/environments/production/datasets/jobrunner?query=%7B%22time_range%22%3A2419200%2C%22granularity%22%3A0%2C%22breakdowns%22%3A%5B%5D%2C%22calculations%22%3A%5B%7B%22op%22%3A%22HEATMAP%22%2C%22column%22%3A%22duration_minutes%22%7D%5D%2C%22filters%22%3A%5B%7B%22column%22%3A%22workspace%22%2C%22op%22%3A%22%3D%22%2C%22value%22%3A%22my_test_workspace%22%7D%2C%7B%22column%22%3A%22action%22%2C%22op%22%3A%22%3D%22%2C%22value%22%3A%22my_sample_action%22%7D%2C%7B%22column%22%3A%22name%22%2C%22op%22%3A%22%3D%22%2C%22value%22%3A%22EXECUTING%22%7D%2C%7B%22column%22%3A%22tick%22%2C%22op%22%3A%22does-not-exist%22%7D%5D%2C%22filter_combination%22%3A%22AND%22%2C%22orders%22%3A%5B%5D%2C%22havings%22%3A%5B%5D%2C%22limit%22%3A1000%7D"
 
     assert "time_range%22%3A2419200" in url
     assert "start_time" not in url
