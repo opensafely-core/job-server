@@ -127,7 +127,7 @@ jobs:
         with:
           app-name: "job-server"
           dokku-host: ${{ secrets.DOKKU_HOST }}
-          ssh-private-key: ${{ secrets.DOKKU2_DEPLOY_SSH_KEY }}
+          ssh-private-key: ${{ secrets.DOKKU4_DEPLOY_SSH_KEY }}
           remote-branch: "main"
 
       - name: Create Sentry release
