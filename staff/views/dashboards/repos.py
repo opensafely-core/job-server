@@ -3,8 +3,8 @@ from urllib.parse import quote
 
 import structlog
 from csp.decorators import csp_exempt
-from django.db.models import Count, Min
-from django.db.models.functions import Least
+from django.db.models import Count, Min, Prefetch
+from django.db.models.functions import Least, Lower
 from django.template.response import TemplateResponse
 from django.utils import timezone
 from django.utils.decorators import method_decorator
@@ -14,7 +14,7 @@ from first import first
 from jobserver.authorization import CoreDeveloper
 from jobserver.authorization.decorators import require_role
 from jobserver.github import _get_github_api
-from jobserver.models import Project, Workspace
+from jobserver.models import Project, Repo, Workspace
 
 
 logger = structlog.get_logger(__name__)
@@ -135,4 +135,45 @@ class PrivateReposDashboard(View):
 
         return TemplateResponse(
             request, "staff/dashboards/repos.html", {"repos": repos}
+        )
+
+
+@method_decorator(require_role(CoreDeveloper), name="dispatch")
+class ReposWithMultipleProjects(View):
+    @csp_exempt
+    def get(self, request, *args, **kwargs):
+        def iter_repos():
+            repos = (
+                Repo.objects.annotate(
+                    project_count=Count("workspaces__project", distinct=True)
+                )
+                .filter(project_count__gte=2)
+                .prefetch_related(
+                    Prefetch(
+                        "workspaces",
+                        Workspace.objects.order_by("name"),
+                        to_attr="ordered_workspaces",
+                    ),
+                    # Prefetch(
+                    #     "workspaces__project", Project.objects.all(), to_attr="derp"
+                    # ),
+                )
+                .order_by(Lower("url"))
+            )
+
+            for repo in repos:
+                projects = Project.objects.filter(workspaces__repo=repo).distinct()
+                yield {
+                    "has_github_outputs": repo.has_github_outputs,
+                    "name": repo.name,
+                    "projects": projects,
+                    "quoted_url": repo.quoted_url,
+                    "workspaces": repo.ordered_workspaces,
+                }
+
+        repos = list(iter_repos())
+        return TemplateResponse(
+            request,
+            "staff/dashboards/repos_with_multiple_projects.html",
+            {"repos": repos},
         )
