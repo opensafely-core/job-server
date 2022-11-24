@@ -226,7 +226,7 @@ class WorkspaceDetail(View):
 
         # get the first job for this workspace's repo
         first_job = (
-            Job.objects.filter(job_request__workspace__repo=workspace.repo)
+            Job.objects.filter(job_request__workspace__project=workspace.project)
             .annotate(run_at=Least("started_at", "created_at"))
             .order_by("run_at")
             .first()

@@ -39,11 +39,16 @@ class RepoDetail(View):
         workspaces = repo.workspaces.select_related(
             "signed_off_by", "created_by", "project", "project__org"
         ).order_by("name")
+        projects = (
+            Project.objects.filter(workspaces__in=workspaces)
+            .distinct()
+            .order_by("name")
+        )
         users = User.objects.filter(job_requests__workspace__in=workspaces).distinct()
 
-        jobs = Job.objects.filter(job_request__workspace__in=workspaces).annotate(
-            first_run=Min(Least("started_at", "created_at"))
-        )
+        jobs = Job.objects.filter(
+            job_request__workspace__project__in=projects
+        ).annotate(first_run=Min(Least("started_at", "created_at")))
         first_job_ran_at = ran_at(jobs.order_by("first_run").first())
         last_job_ran_at = ran_at(jobs.order_by("-first_run").first())
         num_signed_off = sum(1 for w in workspaces if w.signed_off_at)
@@ -81,11 +86,6 @@ class RepoDetail(View):
                 "name": workspace.name,
             }
 
-        projects = (
-            Project.objects.filter(workspaces__in=workspaces)
-            .distinct()
-            .order_by("name")
-        )
         workspaces = [build_workspace(w, users) for w in workspaces]
 
         def build_contact(user):

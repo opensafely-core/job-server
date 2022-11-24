@@ -45,17 +45,20 @@ class PrivateReposDashboard(View):
             Workspace.objects.exclude(project__slug="opensafely-testing")
             .select_related("created_by", "project", "repo")
             .annotate(num_jobs=Count("job_requests__jobs"))
-            .annotate(
+        )
+
+        all_projects = list(
+            Project.objects.annotate(
                 first_run=Min(
                     Least(
-                        "job_requests__jobs__started_at",
-                        "job_requests__jobs__created_at",
+                        "workspaces__job_requests__jobs__started_at",
+                        "workspaces__job_requests__jobs__created_at",
                     )
                 ),
             )
         )
 
-        all_projects = list(Project.objects.all())
+        project_first_runs = {p.pk: p.first_run for p in all_projects}
 
         def enhance(repo):
             """
@@ -69,21 +72,22 @@ class PrivateReposDashboard(View):
                 w for w in all_workspaces if repo["url"].lower() == w.repo.url.lower()
             ]
             workspaces = sorted(workspaces, key=lambda w: w.name.lower())
+            workspace = first(workspaces)
+            contact = workspace.created_by if workspace else None
 
+            # build projects using the workspace.project_ids from workspaces
+            # so we can also use those IDs for the first_run calculation below
             project_ids = [w.project_id for w in workspaces]
             projects = [p for p in all_projects if p.pk in project_ids]
 
-            # get workspaces which have run jobs
-            with_jobs = [w for w in workspaces if w.first_run]
-
-            # sorting by a datetime puts the workspaces into oldest job first
-            with_jobs = sorted(with_jobs, key=lambda w: w.first_run)
-
-            # get the first workspace to have run a job
-            workspace = first(with_jobs, key=lambda w: w.first_run)
-
-            # get first_run as either None or a datetime
-            first_run = workspace.first_run if workspace else None
+            # get the first run for any job in a Project.  project_first_runs
+            # is a dict of project_id: first_run (datetime) which we use as a
+            # lookup table for this repo's projects.  A project might not have
+            # a first run so we have to drop those before using min because we
+            # can't compare datetimes and nones.
+            first_runs = (project_first_runs[project_id] for project_id in project_ids)
+            first_runs = [x for x in first_runs if x]
+            first_run = min(first_runs) if first_runs else None
 
             # has this repo ever had jobs run with it?
             has_jobs = sum(w.num_jobs for w in workspaces) > 0
@@ -92,13 +96,13 @@ class PrivateReposDashboard(View):
             signed_off = sum(1 for w in workspaces if w.signed_off_at)
 
             return repo | {
+                "contact": contact,
                 "first_run": first_run,
                 "has_jobs": has_jobs,
                 "has_github_outputs": "github-releases" in repo["topics"],
                 "projects": projects,
                 "quoted_url": quote(repo["url"], safe=""),
                 "signed_off": signed_off,
-                "workspace": workspace,
                 "workspaces": workspaces,
             }
 

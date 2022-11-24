@@ -76,11 +76,9 @@ def test_privatereposdashboard_success(rf, django_assert_num_queries, core_devel
 
     assert research_repo_1["first_run"] == minutes_ago(eleven_months_ago, 10)
     assert research_repo_1["has_github_outputs"]
-    assert research_repo_1["workspace"] == rr1_workspace_3
 
     assert research_repo_2["first_run"] == minutes_ago(eleven_months_ago, 30)
     assert not research_repo_2["has_github_outputs"]
-    assert research_repo_2["workspace"] == rr2_workspace_1
 
 
 def test_privatereposdashboard_unauthorized(rf):
