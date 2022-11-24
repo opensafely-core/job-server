@@ -1,1 +1,1 @@
-You will need to email any supporting documents to <amir.mehrkar@phc.ox.ac.uk>.
+You will need to email any supporting documents to <applications@opensafely.org>.

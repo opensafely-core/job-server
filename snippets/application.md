@@ -2,7 +2,7 @@
 which has been established by NHS England and NHSX; NHS England is the data controller.**
 
 Please complete ALL sections;
-email the completed form to amir.mehrkar@phc.ox.ac.uk.
+email the completed form to applications@opensafely.org.
 If you require assistance in completing the form,
 please contact the email above and a member of the team will contact you.
 
