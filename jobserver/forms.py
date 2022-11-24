@@ -2,7 +2,7 @@ from django import forms
 from first import first
 
 from .authorization.forms import RolesForm
-from .models import JobRequest, Workspace
+from .models import JobRequest, Project, Workspace
 
 
 class JobRequestCreateForm(forms.ModelForm):
@@ -60,9 +60,10 @@ class WorkspaceCreateForm(forms.Form):
     purpose = forms.CharField(help_text="Describe the purpose of this workspace.")
     branch = forms.CharField()
 
-    def __init__(self, repos_with_branches, *args, **kwargs):
+    def __init__(self, project, repos_with_branches, *args, **kwargs):
         super().__init__(*args, **kwargs)
 
+        self.project = project
         self.repos_with_branches = repos_with_branches
 
         # construct the repo Form field
@@ -90,8 +91,11 @@ class WorkspaceCreateForm(forms.Form):
 
     def clean(self):
         cleaned_data = super().clean()
-        repo_url = cleaned_data["repo"]
-        branch = cleaned_data["branch"]
+        repo_url = cleaned_data.get("repo")
+        branch = cleaned_data.get("branch")
+
+        if not (repo_url and branch):
+            return
 
         repo = first(self.repos_with_branches, key=lambda r: r["url"] == repo_url)
         if repo is None:
@@ -112,6 +116,21 @@ class WorkspaceCreateForm(forms.Form):
             )
 
         return name
+
+    def clean_repo(self):
+        repo = self.cleaned_data["repo"]
+
+        projects = Project.objects.filter(workspaces__repo__url=repo)
+        if not projects.exists():
+            # if the repo isn't used by any projects then we're good to go
+            return repo
+
+        if self.project not in projects:
+            raise forms.ValidationError(
+                "This repo has already been used in another project, please pick a different one"
+            )
+
+        return repo
 
 
 class WorkspaceEditForm(forms.Form):
