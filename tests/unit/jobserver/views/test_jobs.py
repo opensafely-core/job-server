@@ -182,7 +182,9 @@ def test_jobdetail_with_core_developer_no_trace(rf):
 @pytest.mark.freeze_time("2022-06-16 12:00")
 def test_jobdetail_with_core_developer(rf):
     job_request = JobRequestFactory()
-    job = JobFactory(job_request=job_request, status="succeeded")
+    job = JobFactory(
+        job_request=job_request, status="succeeded", action="my_sample_action"
+    )
     user = UserFactory(roles=[CoreDeveloper])
 
     request = rf.get("/")
