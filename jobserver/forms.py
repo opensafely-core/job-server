@@ -2,7 +2,7 @@ from django import forms
 from first import first
 
 from .authorization.forms import RolesForm
-from .models import JobRequest
+from .models import JobRequest, Workspace
 
 
 class JobRequestCreateForm(forms.ModelForm):
@@ -54,7 +54,7 @@ class WorkspaceArchiveToggleForm(forms.Form):
 
 
 class WorkspaceCreateForm(forms.Form):
-    name = forms.CharField(
+    name = forms.SlugField(
         help_text="Enter a descriptive name which makes this workspace easy to identify.  It will also be the name of the directory in which you will find results after jobs from this workspace are run."
     )
     purpose = forms.CharField(help_text="Describe the purpose of this workspace.")
@@ -104,9 +104,14 @@ class WorkspaceCreateForm(forms.Form):
             raise forms.ValidationError(f'Unknown branch "{branch}"')
 
     def clean_name(self):
-        name = self.cleaned_data["name"]
+        name = self.cleaned_data["name"].lower()
 
-        return name.lower()
+        if Workspace.objects.filter(name=name).exists():
+            raise forms.ValidationError(
+                f'A workspace with the name "{name}" already exists, please choose a unique one.'
+            )
+
+        return name
 
 
 class WorkspaceEditForm(forms.Form):

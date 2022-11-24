@@ -5,7 +5,27 @@ from jobserver.backends import backends_to_choices
 from jobserver.forms import JobRequestCreateForm, WorkspaceCreateForm
 from jobserver.models import Backend
 
-from ...factories import BackendFactory
+from ...factories import BackendFactory, WorkspaceFactory
+
+
+def test_jobrequestcreateform_with_duplicate_name():
+    WorkspaceFactory(name="test")
+
+    data = {
+        "name": "test",
+        "repo": "test",
+        "branch": "test",
+        "purpose": "test",
+    }
+    repos_with_branches = [{"name": "test", "url": "test", "branches": ["test"]}]
+    form = WorkspaceCreateForm(repos_with_branches, data)
+    form.is_valid()
+
+    assert form.errors == {
+        "name": [
+            'A workspace with the name "test" already exists, please choose a unique one.'
+        ]
+    }
 
 
 def test_jobrequestcreateform_with_single_backend():
