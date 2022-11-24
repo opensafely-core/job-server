@@ -1,4 +1,4 @@
-{% extends "base.html" %}
+{% extends "base-tw.html" %}
 
 {% load duration_tools %}
 {% load humanize %}
@@ -6,90 +6,59 @@
 {% block metatitle %}Status | OpenSAFELY Jobs{% endblock metatitle %}
 
 {% block breadcrumbs %}
-<nav class="breadcrumb-container" aria-label="breadcrumb">
-  <div class="container">
-    <ol class="breadcrumb rounded-0 mb-0 px-0">
-      <li class="breadcrumb-item">
-        <a href="/">Home</a>
-      </li>
-      <li class="breadcrumb-item active" aria-current="page">
-        Status
-      </li>
-    </ol>
-  </div>
-</nav>
+  {% #breadcrumbs %}
+    {% url 'home' as home_url %}
+    {% breadcrumb title="Home" url=home_url %}
+    {% breadcrumb title="Status" active=True %}
+  {% /breadcrumbs %}
 {% endblock breadcrumbs %}
 
-{% block jumbotron %}
-<div class="jumbotron jumbotron-fluid pt-md-2">
-  <div class="container">
-    <h1 class="display-4">Status</h1>
-  </div>
-</div>
-{% endblock jumbotron %}
-
 {% block content %}
-<div class="container">
-  <div class="row">
-    {% for backend in backends %}
-      <div class="col-lg-6">
-        <div class="card mb-5">
-          <div class="card-header d-flex justify-content-between align-items-center">
-            <h2 class="h3">{{ backend.name }}</h2>
-            {% if backend.show_warning %}
-            <span class="badge badge-danger">missing</span>
-            {% endif %}
-          </div>
-          <ul class="list-group list-group-flush">
-            <li class="list-group-item">
-              <dl class="mb-0">
-                <dt class="d-inline-block">Runner last seen:</dt>
-                <dd class="d-inline-block mb-0 text-capitalize">
-                  <span
-                    {% if backend.show_warning %}class="text-danger"{% endif %}
-                    title="{{ backend.last_seen|date:"c" }}"
-                  >
-                    {{ backend.last_seen }}
-                  </span>
-                </dd>
-              </dl>
-            </li>
-            <li class="list-group-item">
-              <dl class="mb-0">
-                <dt class="d-inline-block">Threshold for missing:</dt>
-                <dd class="d-inline-block mb-0 text-capitalize">
-                  <span>{{ backend.alert_timeout|duration }}</span>
-                </dd>
-              </dl>
-            </li>
-            <li class="list-group-item">
-              <dl class="mb-0">
-                <dt class="d-inline-block">Unacked Jobs:</dt>
-                <dd class="d-inline-block mb-0 text-capitalize">{{ backend.queue.unacked }}</dd>
-              </dl>
-            </li>
-            <li class="list-group-item">
-              <dl class="mb-0">
-                <dt class="d-inline-block">Acked Jobs:</dt>
-                <dd class="d-inline-block mb-0 text-capitalize">{{ backend.queue.acked }}</dd>
-              </dl>
-            </li>
-            <li class="list-group-item">
-              <dl class="mb-0">
-                <dt class="d-inline-block">Running:</dt>
-                <dd class="d-inline-block mb-0 text-capitalize">{{ backend.queue.running }}</dd>
-              </dl>
-            </li>
-            <li class="list-group-item">
-              <dl class="mb-0">
-                <dt class="d-inline-block">Pending:</dt>
-                <dd class="d-inline-block mb-0 text-capitalize">{{ backend.queue.pending }}</dd>
-              </dl>
-            </li>
-          </ul>
+<h1 class="text-3xl break-words pt-2 pb-4 md:pt-0 md:pb-6 md:text-4xl font-bold text-slate-900">
+  Status
+</h1>
+<div class="grid gap-8 md:grid-cols-2 lg:grid-cols-3">
+  {% for backend in backends %}
+    {% #card %}
+      <div class="px-4 py-2 sm:px-6 sm:py-3">
+        <div class="flex flex-wrap items-center justify-between sm:flex-nowrap">
+          <h2 id="workspaces-title" class="text-xl font-semibold tracking-tight text-slate-900">
+            {{ backend.name }}
+          </h2>
+          {% if backend.show_warning %}
+          {% pill variant="warning" text="Missing" %}
+          {% endif %}
         </div>
       </div>
-    {% endfor %}
-  </div>
+      <div>
+        {% #description_item title="Runner last seen" stacked=True %}
+          <time
+            class="
+              font-medium text-slate-900 group relative cursor-pointer
+              {% if backend.last_seen %}text-bn-ribbon-900{% endif %}
+            "
+            datetime="{{ backend.last_seen|date:"Y-m-d H:i:sO" }}">
+            {{ backend.last_seen|naturaltime }}
+            {% tooltip class="font-mono" position="-bottom-4" content=backend.last_seen|date:"d M Y H:i:s e" %}
+          </time>
+        {% /description_item %}
+        {% #description_item title="Threshold for missing" stacked=True %}
+          {{ backend.alert_timeout|duration }}
+        {% /description_item %}
+        {% #description_item title="Unacked Jobs" stacked=True %}
+          {{ backend.queue.unacked }}
+        {% /description_item %}
+        {% #description_item title="Acked Jobs" stacked=True %}
+          {{ backend.queue.acked }}
+        {% /description_item %}
+        {% #description_item title="Running" stacked=True %}
+          {{ backend.queue.running }}
+        {% /description_item %}
+        {% #description_item title="Pending" stacked=True %}
+          {{ backend.queue.pending }}
+        {% /description_item %}
+      </div>
+    {% /card %}
+  {% endfor %}
 </div>
 {% endblock %}

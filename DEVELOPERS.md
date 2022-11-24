@@ -19,6 +19,7 @@
 - [Deployment](#deployment)
 - [Testing](#testing)
   - [Slack Testing](#slack-testing)
+- [Components](#components)
 - [Backends](#backends)
 
 ## Local development
@@ -272,6 +273,13 @@ export SLACK_BOT_TOKEN=...
 export SLACK_TEST_CHANNEL=job-server-testing
 just test-dev
 ```
+
+
+## Components
+
+Job Server uses the Slippers library to build reusable components.
+
+To view the existing components, and see what attributes they receive, [visit the UI gallery](https://jobs.opensafely.org/ui-components/).
 
 
 ## Backends

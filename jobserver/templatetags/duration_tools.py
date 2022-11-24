@@ -30,12 +30,12 @@ def duration(td):
     minutes, seconds = divmod(remaining_seconds, 60)
 
     if hours:
-        output += f"{int(hours)}hours "
+        output += f"{int(hours)} hours "
 
     if minutes:
-        output += f"{int(minutes)}minutes "
+        output += f"{int(minutes)} minutes "
 
     if seconds:
-        output += f"{int(seconds)}seconds"
+        output += f"{int(seconds)} seconds"
 
     return output.strip()

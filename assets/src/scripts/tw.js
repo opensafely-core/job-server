@@ -51,6 +51,23 @@ document.addEventListener("alpine:init", () => {
       return null;
     },
   }));
+
+  Alpine.data("dropdown", () => ({
+    open: false,
+
+    init() {
+      this.$refs.dialogue.classList.add("hidden");
+    },
+
+    trigger: {
+      // eslint-disable-next-line func-names
+      "@click": function () {
+        this.open = !this.open;
+        this.$refs.dialogue.classList.toggle("hidden");
+        this.$refs.dialogue.setAttribute("aria-expanded", this.open);
+      },
+    },
+  }));
 });
 
 window.Alpine = Alpine;

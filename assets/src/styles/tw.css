@@ -10,3 +10,7 @@ summary::-webkit-details-marker {
   overflow-wrap: break-word;
   word-wrap: break-word;
 }
+
+[x-cloak] {
+  @apply !hidden;
+}

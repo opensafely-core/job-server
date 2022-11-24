@@ -1,60 +1,115 @@
-{% extends "base.html" %}
+{% extends "base-tw.html" %}
 
 {% load humanize %}
 
-{% block metatitle %}Releases: {{ workspace.name }} | OpenSAFELY Jobs{% endblock metatitle %}
+{% block metatitle %}Releases: {{ project.name }} | OpenSAFELY Jobs{% endblock metatitle %}
 
 {% block breadcrumbs %}
-<nav class="breadcrumb-container" aria-label="breadcrumb">
-  <div class="container">
-    <ol class="breadcrumb rounded-0 mb-0 px-0">
-      <li class="breadcrumb-item">
-        <a href="/">Home</a>
-      </li>
+  {% url "home" as home_url %}
 
-      <li class="breadcrumb-item">
-        <a href="{{ project.org.get_absolute_url }}">
-          {{ project.org.name }}
-        </a>
-      </li>
-
-      <li class="breadcrumb-item">
-        <a href="{{ project.get_absolute_url }}">
-          {{ project.title }}
-        </a>
-      </li>
-
-      <li class="breadcrumb-item active" aria-current="page">
-        Releases
-      </li>
-    </ol>
-  </div>
-</nav>
+  {% #breadcrumbs %}
+    {% breadcrumb title="Home" url=home_url %}
+    {% breadcrumb title=project.org.name url=project.org.get_absolute_url location="Organisation" %}
+    {% breadcrumb title=project.name url=project.get_absolute_url location="Project" %}
+    {% breadcrumb title="Releases" active=True %}
+  {% /breadcrumbs %}
 {% endblock breadcrumbs %}
 
-{% block jumbotron %}
-<div class="jumbotron jumbotron-fluid">
-  <div class="container">
-    <h1>Releases for the {{ project.name }} project</h1>
-    <p class="lead">
+{% block content %}
+<div class="flex flex-col gap-4">
+  <h1 class="text-3xl break-words pt-2 md:pt-0 md:text-4xl font-bold text-slate-900">
+    Releases for the {{ project.name }} project
+  </h1>
+  <div class="text-slate-700 flex flex-col gap-y-2 max-w-prose">
+    <p>
       Each release listed below contains one or more files released from a
       secure research backend to the Jobs site. Some releases have been
       redacted for privacy reasons.
     </p>
-    <p class="lead">
-      The buttons below will be disabled if a release has been redacted or if
-      you do not have permission to view them.
+    <p>
+      The buttons below are disabled if a release has been redacted or if you
+      do not have permission to view them.
     </p>
   </div>
-</div>
-{% endblock jumbotron %}
 
-{% block content %}
-<div class="container">
-  <div class="list-group">
-    {% for release in releases %}
-    {% include "_release_list.html" with org_slug=project.org.slug project_slug=project.slug workspace_slug=release.workspace.name r=release %}
-    {% endfor %}
-  </div>
+  {% #card title="Releases" %}
+    {% #list_group %}
+      {% for release in releases %}
+        <li class="flex flex-col justify-center px-4 py-3 break-words md:px-6"
+            x-data="dropdown"
+            x-title="release-{{ release.id }}"
+        >
+          <div class="flex flex-col md:flex-row gap-2 items-start justify-between">
+            <span class="mr-auto">
+              Files released by {{ release.created_by.name }}
+              <ul>
+                <li><strong>Workspace:</strong> {% link href=release.workspace.get_absolute_url text=release.workspace.name %}</li>
+                <li><strong>Backend:</strong> {{ release.backend.name }}</li>
+                <li>
+                  <strong>Created:</strong>
+                  <time class="font-medium text-slate-900 group relative cursor-pointer" datetime="{{ release.created_at|date:"Y-m-d H:i:sO" }}">
+                    {{ release.created_at|naturaltime }}
+                    {% tooltip class="font-mono" position="-bottom-4" content=release.created_at|date:"d M Y H:i:s e" %}
+                  </time>
+                </li>
+              </ul>
+            </span>
+            {% if release.can_view_files %}
+            <div class="flex-shrink-0 flex flex-col gap-2 sm:gap-0 sm:flex-row sm:ml-auto">
+              {% #button class="min-w-[8ch] sm:rounded-r-none" variant="success-outline" type="link" href=release.view_url %}
+                View
+              {% /button %}
+              {% #button class="min-w-[12ch] sm:rounded-none sm:border-x-0" variant="primary-outline" type="link" href=release.download_url %}
+                Download all
+              {% /button %}
+              {% #button class="min-w-[16ch] sm:rounded-l-none" variant="secondary-outline" x_bind="trigger" %}
+                List
+                {% if release.can_view_files %}
+                ({{ release.files | length }} file{{ release.files | length | pluralize }})
+                {% endif %}
+              {% /button %}
+            </div>
+            {% endif %}
+          </div>
+          {% if release.can_view_files %}
+          <div
+            aria-expanded="false"
+            class="my-2 border-l-4 border-l-oxford-200 border-r border-r-slate-200 border-b border-b-slate-200"
+            x-cloak
+            x-ref="dialogue"
+          >
+            {% #list_group small %}
+              {% for file in release.files %}
+                {% #list_group_item href=file.detail_url disabled=file.is_deleted class="flex flex-row justify-between items-center flex-wrap gap-2" %}
+                  <code class="truncate">{{ file.name }}</code>
+
+                  {% if file.is_deleted %}
+                  <span class="text-xs text-slate-600 font-normal mr-auto">
+                    (Deleted by {{ file.deleted_by.name }} at {{ file.deleted_at|date:"Y-m-d H:i:sO" }})
+                  </span>
+                  {% endif %}
+
+                  {% if user_can_delete_files and not file.is_deleted %}
+                  <form
+                    action="{% url "release-file-delete" org_slug=project.org.slug project_slug=project.slug workspace_slug=release.workspace.name pk=release.id release_file_id=file.pk %}"
+                    class="ml-auto"
+                    method="POST"
+                  >
+                    {% csrf_token %}
+
+                    {% #button class="flex-shrink-0 whitespace-nowrap" small type="submit" variant="danger" %}
+                      Delete file
+                    {% /button %}
+                  </form>
+                  {% endif %}
+                {% /list_group_item %}
+              {% endfor %}
+            {% /list_group %}
+          </div>
+          {% endif %}
+        </li>
+      {% endfor %}
+    {% /list_group %}
+  {% /card %}
 </div>
 {% endblock %}
