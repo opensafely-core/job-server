@@ -115,6 +115,7 @@ def format_job_actions_link(job):
             {"column": "workspace", "op": "=", "value": job.job_request.workspace.name},
             {"column": "action", "op": "=", "value": job.action},
             {"column": "name", "op": "=", "value": "EXECUTING"},
+            {"column": "tick", "op": "does-not-exist"},
         ],
         "filter_combination": "AND",
         "orders": [],
