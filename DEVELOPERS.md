@@ -111,10 +111,8 @@ If you do not have access to pull production backups, follow the [data setup sec
 Backups can be copied with:
 
 ```sh
-scp <dokku2>:/var/lib/dokku/data/storage/job-server/jobserver.dump jobserver.dump
+scp dokku2:/var/lib/dokku/data/storage/job-server/jobserver.dump jobserver.dump
 ```
-
-(replace `<dokku2>` with the appropriate address)
 
 Restore the dump with:
 
@@ -129,16 +127,13 @@ The important line to check for (typically at the very end) is `errors ignored o
 Where `N` should match the number of errors you got.
 
 
-If using the docker-compose stack you'll need to do:
+If using the docker stack you just need to do (note this will wipe your current
+dev db).
 
 ```sh
-docker exec job-server_job-server_1 bash -c "pg_restore --clean --if-exists --no-acl --no-owner -d \$DATABASE_URL jobserver.dump"
+just docker/restore-db jobserver.dump
 ```
 
-Note that this runs on the job-server container; if you haven't already, you'll also need to first ensure the job-server container is running:
-```sh
-docker-compose up --build job-server
-```
 
 #### Steps
 
