@@ -79,6 +79,9 @@
             {% endspaceless %}. Every time a researcher runs their analytic
             code against patient data, it is audited in public here.
           </p>
+          <p class="mt-4">
+          {% link href=project.get_approved_url text="View project purpose" %}
+          </p>
         </div>
         {% if project.status_description %}
           {% #alert variant="info" title="Project "|add:project.status class="mt-3 !shadow-none border" no_icon %}
