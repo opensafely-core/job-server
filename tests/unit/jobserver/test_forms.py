@@ -8,27 +8,6 @@ from jobserver.models import Backend
 from ...factories import BackendFactory, ProjectFactory, RepoFactory, WorkspaceFactory
 
 
-def test_jobrequestcreateform_with_duplicate_name():
-    project = ProjectFactory()
-    WorkspaceFactory(name="test")
-
-    data = {
-        "name": "test",
-        "repo": "test",
-        "branch": "test",
-        "purpose": "test",
-    }
-    repos_with_branches = [{"name": "test", "url": "test", "branches": ["test"]}]
-    form = WorkspaceCreateForm(project, repos_with_branches, data)
-    form.is_valid()
-
-    assert form.errors == {
-        "name": [
-            'A workspace with the name "test" already exists, please choose a unique one.'
-        ]
-    }
-
-
 def test_jobrequestcreateform_with_single_backend():
     backend = BackendFactory()
     choices = backends_to_choices([backend])
@@ -137,6 +116,27 @@ def test_workspacecreateform_unknown_repo():
         form.clean()
 
     assert e.value.message.startswith("Unknown repo")
+
+
+def test_workspacecreateform_with_duplicate_name():
+    project = ProjectFactory()
+    WorkspaceFactory(name="test")
+
+    data = {
+        "name": "test",
+        "repo": "test",
+        "branch": "test",
+        "purpose": "test",
+    }
+    repos_with_branches = [{"name": "test", "url": "test", "branches": ["test"]}]
+    form = WorkspaceCreateForm(project, repos_with_branches, data)
+    form.is_valid()
+
+    assert form.errors == {
+        "name": [
+            'A workspace with the name "test" already exists, please choose a unique one.'
+        ]
+    }
 
 
 def test_workspacecreateform_repo_used_in_another_project():
