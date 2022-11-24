@@ -50,7 +50,7 @@
         </div>
       </div>
 
-      <div class="card">
+      <div class="card mb-3">
         <div class="card-body">
           <h5 class="card-title">Repos</h5>
           <p class="card-text">
@@ -58,6 +58,16 @@
             was first run more than 11 months ago.
           </p>
           <a href="{% url 'staff:dashboards:repos' %}" class="btn btn-primary">View</a>
+        </div>
+      </div>
+
+      <div class="card mb-3">
+        <div class="card-body">
+          <h5 class="card-title">Repos with multiple projects</h5>
+          <p class="card-text">
+            Repos with multiple projects.
+          </p>
+          <a href="{% url 'staff:dashboards:repos-with-multiple-projects' %}" class="btn btn-primary">View</a>
         </div>
       </div>
 

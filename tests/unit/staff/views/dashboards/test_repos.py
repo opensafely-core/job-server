@@ -5,9 +5,18 @@ from django.contrib.auth.models import AnonymousUser
 from django.core.exceptions import PermissionDenied
 from django.utils import timezone
 
-from staff.views.dashboards.repos import PrivateReposDashboard
+from staff.views.dashboards.repos import (
+    PrivateReposDashboard,
+    ReposWithMultipleProjects,
+)
 
-from .....factories import JobFactory, JobRequestFactory, RepoFactory, WorkspaceFactory
+from .....factories import (
+    JobFactory,
+    JobRequestFactory,
+    ProjectFactory,
+    RepoFactory,
+    WorkspaceFactory,
+)
 from .....fakes import FakeGitHubAPI
 from .....utils import minutes_ago
 
@@ -89,3 +98,41 @@ def test_privatereposdashboard_unauthorized(rf):
 
     with pytest.raises(PermissionDenied):
         PrivateReposDashboard.as_view()(request)
+
+
+def test_reposwithmultipleprojects_success(
+    rf, django_assert_num_queries, core_developer
+):
+
+    # research-repo-1
+    repo1 = RepoFactory(url="https://github.com/opensafely/repo-1")
+    WorkspaceFactory(repo=repo1)
+    WorkspaceFactory(repo=repo1)
+
+    repo2 = RepoFactory(url="https://github.com/opensafely/repo-2")
+    WorkspaceFactory(repo=repo2)
+    WorkspaceFactory(repo=repo2)
+
+    repo3 = RepoFactory(url="https://github.com/opensafely/repo-3")
+    WorkspaceFactory.create_batch(5, repo=repo3, project=ProjectFactory())
+
+    request = rf.get("/")
+    request.user = core_developer
+
+    with django_assert_num_queries(2):
+        response = ReposWithMultipleProjects.as_view()(request)
+
+    assert response.status_code == 200
+
+    assert len(response.context_data["repos"]) == 2
+    assert {r["name"] for r in response.context_data["repos"]} == {
+        repo1.name,
+        repo2.name,
+    }
+
+
+def test_reposwithmultipleprojects_unauthorized(rf):
+    request = rf.get("/")
+    request.user = AnonymousUser()
+    with pytest.raises(PermissionDenied):
+        ReposWithMultipleProjects.as_view()(request)
