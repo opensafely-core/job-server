@@ -72,7 +72,7 @@ skip_covered = true
 show_contexts = true
 
 [tool.pytest.ini_options]
-addopts = "--disable-network --tb=native --no-migrations --ignore=./release-hatch"
+addopts = "--disable-network --tb=native --no-migrations --ignore=./release-hatch --maxprocesses=6"
 DJANGO_SETTINGS_MODULE = "jobserver.settings"
 env = [
   "GITHUB_TOKEN=empty",

@@ -16,7 +16,7 @@ build env="dev":
 
 # run tests in dev container
 test *args="": build
-    docker-compose run --rm test bash -c "coverage run --branch --source=applications,interactive,jobserver,services,staff,tests --module pytest && coverage report || coverage html"
+    docker-compose run --rm test bash -c "coverage erase && coverage run --branch --source=applications,interactive,jobserver,redirects,services,staff,tests --module pytest {{ args }} && coverage combine && coverage report || coverage html"
 
 
 # run server in dev|prod container
