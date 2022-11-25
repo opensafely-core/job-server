@@ -26,6 +26,13 @@ omit = [
   "jobserver/wsgi.py",
   "services/sentry.py",
 ]
+source = [
+  "applications",
+  "jobserver",
+  "services",
+  "staff",
+  "tests",
+]
 
 [tool.coverage.report]
 fail_under = 100
