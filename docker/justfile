@@ -4,6 +4,7 @@ set dotenv-load := true
 
 build env="dev":
     #!/usr/bin/env bash
+    test -z "${SKIP_BUILD:-}" || { echo "SKIP_BUILD set"; exit 0; }
 
     # set build args for prod builds
     export BUILD_DATE=$(date -u +'%y-%m-%dT%H:%M:%SZ')
@@ -22,7 +23,6 @@ test *args="": build
 serve env="dev" *args="":
     {{ just_executable() }} build {{ env }}
     docker-compose up {{ args }} {{ env }}
-
 
 # run command in dev|prod container
 run env="dev" *args="bash":
