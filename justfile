@@ -22,7 +22,7 @@ clean:
 
 
 # ensure valid virtualenv
-virtualenv:
+virtualenv: _env
     #!/usr/bin/env bash
     # allow users to specify python version in .env
     PYTHON_VERSION=${PYTHON_VERSION:-python3.10}
@@ -32,6 +32,11 @@ virtualenv:
 
     # ensure we have pip-tools so we can run pip-compile
     test -e $BIN/pip-compile || $PIP install pip-tools
+
+
+_env:
+    #!/usr/bin/env bash
+    test -f .env || cp dotenv-sample .env
 
 
 _compile src dst *args: virtualenv
@@ -190,24 +195,48 @@ assets-build:
     touch assets/dist/.written
 
 
-# Collect the static files
-assets-collect: devenv
-    #!/usr/bin/env bash
-    set -eu
+# Ensure django's collectstatic is run if needed
+collectstatic: devenv
+    ./scripts/collect-me-maybe.sh $BIN/python
 
-    # exit if nothing has changed in the built assets since we last collected staticfiles.
-    # -nt == "newer than", but we negate with || to avoid error exit code
-    test assets/dist/.written -nt staticfiles/.written || exit 0
+# install npm toolchaing, build and collect assets
+assets: assets-install assets-build collectstatic
 
-    $BIN/python manage.py collectstatic --no-input
-    touch staticfiles/.written
-
-
-assets: assets-install assets-build assets-collect
-
+# rebuild all npm/static assets
 assets-rebuild: assets-clean assets
 
 
-
+# run a local release hatch instance, including adding and configuring a backend to use with it.
 release-hatch:
     ./scripts/local-release-hatch.sh
+
+# note these are just aliases for the docker/justfile commands. We add them just for autocompletion from the root dir
+
+# build docker image env=dev|prod
+docker-build env="dev": _env
+    {{ just_executable() }} docker/build {{ env }}
+
+
+# run tests in the dev docker container
+docker-test *args="": _env
+    {{ just_executable() }} docker/test {{ args }}
+
+
+# run server in dev or prod docker container
+docker-serve env="dev" *args="": _env
+    {{ just_executable() }} docker/serve {{ env }} {{ args }}
+
+
+# run cmd in dev or prod docker container
+docker-run env="dev" *args="bash": _env
+    {{ just_executable() }} docker/run {{ env }} {{ args }}
+
+
+# exec command in an existing dev docker container
+docker-exec env="dev" *args="bash": _env
+    {{ just_executable() }} docker/exec {{ env }} {{ args }}
+
+
+# run basic smoke test against a running job-server
+docker-smoke-test host="http://localhost:8000": _env
+    {{ just_executable() }} docker/smoke-test {{ host }}

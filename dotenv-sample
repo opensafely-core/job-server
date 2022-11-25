@@ -1,9 +1,9 @@
 # Set this to a comma-delimited list of User's username.
 # Note: the Users must exist first
-ADMIN_USERS=dummy
+ADMIN_USERS=
 
-# Update with relevant username/password if necessary
-DATABASE_URL=postgres://jobsuser:pass@localhost:5432/jobserver
+# Uncomment and update with relevant username/password if necessary
+# DATABASE_URL=postgres://user:pass@localhost:5432/jobserver
 
 # Turn on debug
 DEBUG=1

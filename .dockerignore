@@ -1,9 +1,22 @@
+.coverage
 .direnv
+.env
 .flake8
 .github
 .pre-commit-config.yaml
 .venv
-pyproject.toml
-tests
-venv
+coverage
+doc
+htmlcov
 node_modules
+outputs
+pyproject.toml
+release-hatch
+tests
+uploads
+venv
+workspaces
+# docker image builds its own dir
+staticfiles
+# dockerfile image build its own dir
+assets/dist

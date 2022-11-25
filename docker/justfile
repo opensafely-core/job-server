@@ -1,0 +1,71 @@
+# Load .env files by default
+set dotenv-load := true
+
+
+build env="dev":
+    #!/usr/bin/env bash
+
+    # set build args for prod builds
+    export BUILD_DATE=$(date -u +'%y-%m-%dT%H:%M:%SZ')
+    export GITREF=$(git rev-parse --short HEAD)
+
+    # build the thing
+    docker-compose build --pull {{ env }}
+
+
+# run tests in dev container
+test *args="": build
+    docker-compose run --rm test bash -c "coverage run --branch --source=applications,jobserver,services,staff,tests --module pytest && coverage report || coverage html"
+
+
+# run server in dev|prod container
+serve env="dev" *args="":
+    {{ just_executable() }} build {{ env }}
+    docker-compose up {{ args }} {{ env }}
+
+
+# run command in dev|prod container
+run env="dev" *args="bash":
+    {{ just_executable() }} build {{ env }}
+    docker-compose run --rm {{ env }} {{ args }}
+
+
+# exec command in existing dev|prod container
+exec env="dev" *args="bash":
+    {{ just_executable() }} build {{ env }}
+    docker-compose exec {{ env }} {{ args }}
+
+
+# run a basic functional smoke test against a running job-server
+smoke-test host="http://localhost:8000":
+    #!/bin/bash
+    set -eu
+    curl -I {{ host }} -s --compressed --fail --retry 20 --retry-delay 1 --retry-all-errors
+
+
+# manually run the docker db. Useful if you want to use it but with venv based dev env
+db:
+    docker-compose up -d db
+
+
+# stop and remove all job-server containers
+clean:
+    #!/bin/bash
+    set -eux
+    . .env
+    docker-compose down
+    docker container prune --force --filter label=com.docker.compose.project=$COMPOSE_PROJECT_NAME
+
+# remove all state
+clean-volumes: clean
+    #!/bin/bash
+    set -eux
+    docker volume rm -f job-server_postgres_data job-server_staticfiles
+
+
+# restore the db from a dump file. Will wipe and reset your current docker dev db.
+restore-db dump="jobserver.dump": clean-volumes  db
+    #!/bin/bash
+    set -eux
+    path=$(realpath ../{{ dump }})
+    docker-compose run -v "$path:/tmp/jobserver.dump" --entrypoint bash --rm dev -c "pg_restore --clean --if-exists --no-acl --no-owner -d \$DATABASE_URL /tmp/jobserver.dump"

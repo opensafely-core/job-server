@@ -1,0 +1,92 @@
+# note: we do not run prod service with docker-compose, we use it just for
+# configuring the production build
+services:
+  db:
+    image: "postgres:13"
+    environment:
+      POSTGRES_USER: user
+      POSTGRES_PASSWORD: pass
+      POSTGRES_DB: jobserver
+    ports:
+      - "6543:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data/
+
+  # base service, exists to hold common config, but is not actually used directly
+  base:
+    build:
+      context: ..
+      # path relative to context
+      dockerfile: docker/Dockerfile
+      # the prod stage in the Dockerfile
+      target: job-server-prod
+      args:
+        # this makes the image work for later cache_from: usage
+        - BUILDKIT_INLINE_CACHE=1
+        # env vars supplied by just
+        - BUILD_DATE
+        - GITREF
+    environment:
+      # anything we run using this docker-compose file is in development, and thus we force the use of the db service.
+      - DATABASE_URL=postgres://user:pass@db:5432/jobserver
+    # use dockers builitin PID daemon
+    init: true
+    ports:
+      - "8000:8000"
+
+  # prod service. Used to build prod image and run/test it locally
+  prod:
+    # image name, both locally and public
+    image: job-server
+    extends:
+      service: base
+    depends_on: [db]
+    environment:
+      - GITHUB_TOKEN=
+      - SECRET_KEY=12345
+      - SOCIAL_AUTH_GITHUB_KEY=test
+      - SOCIAL_AUTH_GITHUB_SECRET=test
+
+
+  # base development service
+  # broken out so we can have a common base for dev and test since depends_on
+  # can't be used in the target of an extends
+  dev-base:
+    extends:
+      service: base
+    image: job-server-dev
+    build:
+      # the dev stage in the Dockerfile
+      target: job-server-dev
+    # paths relative to docker-compose.yaml file
+    env_file:
+      - ../.env
+    volumes:
+      - ..:/app
+      # this gives the dev containers a persistant cache for staticfiles, which
+      # allows us to avoid rerunning collectstatic if nothing has changed
+      - staticfiles:/opt/staticfiles
+
+  dev:
+    extends:
+      service: dev-base
+    depends_on: [db]
+    # override command
+    command: /app/manage.py runserver 0.0.0.0:8000
+
+  # test runner service - uses dev-image with a different commnd
+  test:
+    extends:
+      service: dev-base
+    depends_on: [db]
+    # different default test env
+    env_file:
+      - ../.test.env
+    environment:
+      # override db hostname, so we can reach it within the container
+      - GITHUB_TOKEN_TESTING
+    command: bash -c "coverage run --branch --source=applications,jobserver,services,staff,tests --module pytest && coverage report || coverage html"
+
+volumes:
+  postgres_data:
+  staticfiles:
