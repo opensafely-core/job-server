@@ -4,7 +4,7 @@ Other helpful resources:
 
 * the [HRA definitions of research, service evaluation and audit](http://www.hra-decisiontools.org.uk/research/docs/DefiningResearchTable_Oct2017-1.pdf)
 * the [HRA “is it research” decision tool](http://www.hra-decisiontools.org.uk/research/)
-* if  you are still unsure, you can write to the HRA directly (please contact OpenSAFELY to discuss further)
+* if  you are still unsure, email the HRA directly on queries@hra.nhs.uk (please contact OpenSAFELY to discuss further if necessary)
 
 For reference, the [OpenSAFELY favourable Health Research Authority (HRA) opinion](https://www.hra.nhs.uk/planning-and-improving-research/application-summaries/research-summaries/open-corona-research-platform-phase-i-covid-19/). 
 
