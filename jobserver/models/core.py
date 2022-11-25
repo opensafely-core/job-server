@@ -497,6 +497,14 @@ class Project(models.Model):
             kwargs={"org_slug": self.org.slug, "project_slug": self.slug},
         )
 
+    def get_approved_url(self):
+        f = furl("https://www.opensafely.org/approved-projects")
+
+        if self.number:
+            f.fragment = f"project-{self.number}"
+
+        return f.url
+
     def get_edit_url(self):
         return reverse(
             "project-edit",

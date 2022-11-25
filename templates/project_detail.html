@@ -72,17 +72,15 @@
           {{ project.name }}
         </h1>
         <div class="max-w-prose font-lg text-slate-600">
-          {% if project.description %}
-            {{ project.description }}
-          {% else %}
-            <p>
-              {{ project.name }} is an OpenSAFELY project from
-              {% spaceless %}
-                {% link href=project.org.get_absolute_url text=project.org.name %}
-              {% endspaceless %}. Every time a researcher runs their analytic
-              code against patient data, it is audited in public here.
-            </p>
-          {% endif %}
+          <p>
+            {{ project.name }} is an OpenSAFELY project from
+            {% spaceless %}
+              {% link href=project.org.get_absolute_url text=project.org.name %}
+            {% endspaceless %}. Every time a researcher runs their analytic
+            code against patient data, it is audited in public here.
+          </p>
+          <p class="mt-4">
+          {% link href=project.get_approved_url text="View project purpose" %}
           </p>
         </div>
         {% if project.status_description %}
