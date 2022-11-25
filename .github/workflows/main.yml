@@ -157,7 +157,7 @@ jobs:
           path: /tmp/job-server.tar.gz
 
       - name: Import docker image
-        run: gunzip -c /tmp/job-server.tar.tz | docker load
+        run: gunzip -c /tmp/job-server.tar.gz | docker load
 
         # now, this build should be a no-op
       - name: Build docker image
