@@ -101,6 +101,11 @@ coverage==6.5.0 \
     --hash=sha256:f4f05d88d9a80ad3cac6244d36dd89a3c00abc16371769f1340101d3cb899fc3 \
     --hash=sha256:f642e90754ee3e06b0e7e51bce3379590e76b7f76b708e1a71ff043f87025c84 \
     --hash=sha256:fc2af30ed0d5ae0b1abdb4ebdce598eafd5b35397d4d75deb341a614d333d987
+    # via
+    #   coverage-enable-subprocess
+coverage-enable-subprocess==1.0 \
+    --hash=sha256:27982522339ec77662965e0d859da5662162962c874d54d2250426506818cbdc \
+    --hash=sha256:fdbd3dc9532007cd87ef84f38e16024c5b0ccb4ab2d1755225a7edf937acc011
     # via -r requirements.dev.in
 distlib==0.3.2 \
     --hash=sha256:106fef6dc37dd8c0e2c0a60d3fca3e77460a48907f335fa28420463a6f799736 \

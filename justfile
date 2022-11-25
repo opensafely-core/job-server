@@ -8,6 +8,9 @@ export VIRTUAL_ENV  := `echo ${VIRTUAL_ENV:-.venv}`
 export BIN := VIRTUAL_ENV + "/bin"
 export PIP := BIN + "/python -m pip"
 
+export COVERAGE_PROCESS_START := "pyproject.toml"
+
+
 # list available commands
 default:
     @{{ just_executable() }} --list
@@ -129,6 +132,7 @@ run-telemetry: devenv
 
 
 test-base *args: assets
+    $BIN/coverage erase
     $BIN/coverage run --module pytest {{ args }}
 
 
@@ -136,6 +140,8 @@ test-dev *args:
     {{ just_executable() }} test-base \
         '-m "not verification and not slow_test"' \
         {{ args }}
+
+    $BIN/coverage combine
 
     # run with || so they both run regardless of failures
     $BIN/coverage report --omit=interactive/opencodelists.py,jobserver/github.py,tests/integration/test_interactive.py,"tests/verification/*" \
@@ -145,6 +151,7 @@ test-dev *args:
 test *args:
     {{ just_executable() }} test-base {{ args }}
 
+    $BIN/coverage combine
     $BIN/coverage report || $BIN/coverage html
 
 

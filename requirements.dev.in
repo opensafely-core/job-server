@@ -6,6 +6,7 @@
 
 black
 coverage[toml]
+coverage-enable-subprocess
 django-upgrade
 factory_boy
 opensafely
