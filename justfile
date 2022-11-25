@@ -103,7 +103,6 @@ run-telemetry: devenv
 
 test-base *args: assets
     $BIN/coverage run \
-        --branch \
         --source=applications,jobserver,services,staff,tests \
         --module pytest \
         {{ args }}
