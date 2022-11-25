@@ -174,9 +174,9 @@ jobs:
       - name: Deploy image
         run: |
             ssh-agent -a $SSH_AUTH_SOCK > /dev/null
-            ssh-add - <<< "${{ secrets.DOKKU2_DEPLOY_SSH_KEY }}"
+            ssh-add - <<< "${{ secrets.DOKKU4_DEPLOY_SSH_KEY }}"
             SHA=$(docker inspect --format='{{index .RepoDigests 0}}' $PUBLIC_IMAGE_NAME:latest)
-            ssh -o "UserKnownHostsFile=/dev/null" -o "StrictHostKeyChecking=no" dokku@dokku2.ebmdatalab.net git:from-image job-server $SHA
+            ssh -o "UserKnownHostsFile=/dev/null" -o "StrictHostKeyChecking=no" dokku@dokku4.ebmdatalab.net git:from-image job-server $SHA
 
       - name: Create Sentry release
         uses: getsentry/action-release@426b54786363ee2ecb27129f04b99cf714a36d38
