@@ -5,6 +5,7 @@
 # pip-compile --generate-hashes --output-file=requirements.dev.txt requirements.dev.in
 
 black
+coverage[toml]
 django-upgrade
 factory_boy
 flake8
@@ -14,7 +15,6 @@ flake8-no-pep420
 isort
 pip-tools
 pre-commit
-pytest-cov
 pytest-django
 pytest-env
 pytest-freezegun
