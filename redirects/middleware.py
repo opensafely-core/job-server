@@ -36,11 +36,17 @@ class RedirectsMiddleware:
             .first()
         )
 
-        if redirection:
+        if not redirection:
+            # there's no direct or indirect match so let the request continue
+            return self.get_response(request)
+
+        if redirection.old_url == request.path:
             return redirect(
                 redirection.obj.get_absolute_url(),
                 permanent=True,
             )
 
-        # there's no direct or indirect match so let the request continue
-        return self.get_response(request)
+        new_url = request.path.replace(
+            redirection.old_url, redirection.obj.get_absolute_url()
+        )
+        return redirect(new_url, permanent=True)

@@ -17,7 +17,7 @@ def test_redirectsmiddleware_known_url_via_prefix(rf):
 
     response = RedirectsMiddleware(get_response)(request)
 
-    assert response.url == project.get_absolute_url()
+    assert response.url == project.get_absolute_url() + "test"
 
 
 def test_redirectsmiddleware_known_url_with_direct_match(rf):
