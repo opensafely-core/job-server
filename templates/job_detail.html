@@ -130,12 +130,12 @@
             {% endif %}
 
             {% if log_path %}
-              <p>
-                You can check the log output by viewing it in the {% link text="outputs viewer" href=log_path_url %}
+              <p class="text-slate-600">
+                You can check the log output in the {% link text="outputs viewer" href=log_path_url %}
                 {% pill text="VPN Required" variant="primary" %}
               </p>
-              <p>
-                Alternatively, view the file directly at: <pre class="break-all whitespace-pre-wrap">{{ log_path }}</pre>
+              <p class="text-slate-600">
+                Alternatively, view the file on the {{ job.job_request.backend.name }} server at: <pre class="text-slate-500 break-all whitespace-pre-wrap">{{ log_path }}</pre>
               </p>
               {% endif %}
           </div>
