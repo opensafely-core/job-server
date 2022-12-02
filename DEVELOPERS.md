@@ -21,6 +21,7 @@
   - [Slack Testing](#slack-testing)
 - [Components](#components)
 - [Backends](#backends)
+- [Rotating the GitHub token](#rotating-the-github-token)
 
 ## Local development
 
@@ -286,3 +287,14 @@ This has allowed us some benefits:
 
 - API requests can be tied directly to a Backend (eg get all JobRequests for TPP).
 - Per-Backend API stats collection is trivial because requests are tied to a Backend via auth.
+
+
+## Rotating the GitHub token
+1. Log into the `opensafely-readonly` GitHub account (credentials are in Bitwarden).
+1. Got to the [Personal access tokens (classic) page](https://github.com/settings/tokens).
+1. Click on `job-server-api-token`.
+1. Click "Regenerate token".
+1. Set the expiry to 90 days.
+1. Copy the new token.
+1. ssh into `dokku4.ebmdatalab.net`
+1. Run: `dokku config:set job-server GITHUB_TOKEN=<the new token>`
