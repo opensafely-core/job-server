@@ -47,6 +47,7 @@
               <th>Project</th>
               <th>Organisation</th>
               <th>Copilot</th>
+              <th>Status</th>
               <th class="text-right">Number of workspaces</th>
               <th class="text-right">Number of job requests run</th>
               <th class="text-right">Date of first run job</th>
@@ -70,6 +71,7 @@
                 Unknown
                 {% endif %}
               </td>
+              <td>{{ project.status }}</td>
               <td class="text-right">{{ project.workspace_count }}</td>
               <td class="text-right">{{ project.job_request_count }}</td>
               <td class="text-right text-nowrap text-monospace">{{ project.date_first_run|date:"d M Y" }}</td>
