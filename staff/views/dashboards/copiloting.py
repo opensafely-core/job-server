@@ -73,6 +73,7 @@ class Copiloting(TemplateView):
                     "name": project.name,
                     "number": project.number,
                     "org": project.org,
+                    "status": project.get_status_display(),
                     "workspace_count": project.workspace_count,
                 }
 
