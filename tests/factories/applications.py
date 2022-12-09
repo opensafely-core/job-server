@@ -5,7 +5,6 @@ import factory.fuzzy
 
 from applications.models import (
     Application,
-    CmoPriorityListPage,
     ContactDetailsPage,
     DatasetsPage,
     PreviousEhrExperiencePage,
@@ -132,13 +131,6 @@ class SponsorDetailsPageFactory(AbstractPageFactory):
     sponsor_email = factory.Sequence(lambda n: f"sponsor{n}@example.com")
     sponsor_job_role = factory.Faker("job")
     institutional_rec_reference = factory.Sequence(lambda n: f"Institutional REC {n}")
-
-
-class CmoPriorityListPageFactory(AbstractPageFactory):
-    class Meta:
-        model = CmoPriorityListPage
-
-    is_on_cmo_priority_list = factory.fuzzy.FuzzyChoice([True, False])
 
 
 class StudyFundingPageFactory(AbstractPageFactory):
