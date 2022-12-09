@@ -438,6 +438,16 @@ class Project(models.Model):
         POSTPONED = "postponed", "Postponed"
         RETIRED = "retired", "Retired"
 
+        # we expect these to go away and be replaced with first class support
+        # for linking out to papers and reports but for now we need to track
+        # them so they're statuses.
+        ONGOING_LINKED = "ongoing-and-linked", "Ongoing - paper/report linked"
+        COMPLETED_LINKED = "completed-and-linked", "Completed - paper/report linked"
+        COMPLETED_AWAITING = (
+            "completed-and-awaiting",
+            "Completed - awaiting paper/report",
+        )
+
     copilot = models.ForeignKey(
         "User",
         null=True,
