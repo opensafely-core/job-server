@@ -526,7 +526,7 @@ def test_page_post_with_invalid_prerequisite(rf):
     assert response.status_code == 302
     assert response.url == reverse(
         "applications:page",
-        kwargs={"pk_hash": application.pk_hash, "key": "cmo-priority-list"},
+        kwargs={"pk_hash": application.pk_hash, "key": "study-funding"},
     )
 
 

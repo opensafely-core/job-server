@@ -365,25 +365,6 @@ form_specs = [
         ),
     ),
     Form(
-        key="cmo-priority-list",
-        model=models.CmoPriorityListPage,
-        title="Chief Medical Officer priority list",
-        sub_title="",
-        rubric="",
-        fieldsets=[
-            Fieldset(
-                label="",
-                fields=[
-                    Field(
-                        name="is_on_cmo_priority_list",
-                        label="Is your research on the CMO Priority list?",
-                        help_text=snippet("is_on_cmo_priority_list_help_text"),
-                    ),
-                ],
-            ),
-        ],
-    ),
-    Form(
         key="study-funding",
         model=models.StudyFundingPage,
         title="Study funding",
