@@ -166,7 +166,7 @@ def test_projectedit_post_success(rf, core_developer):
         "copilot": str(new_copilot.pk),
         "copilot_support_ends_at": "",
         "org": str(new_org.pk),
-        "status": Project.Statuses.COMPLETED,
+        "status": Project.Statuses.COMPLETED_AWAITING,
         "status_description": "",
     }
     request = rf.post("/", data)
