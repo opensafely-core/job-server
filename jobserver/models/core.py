@@ -434,7 +434,6 @@ class Project(models.Model):
 
     class Statuses(models.TextChoices):
         ONGOING = "ongoing", "Ongoing"
-        COMPLETED = "completed", "Completed"
         POSTPONED = "postponed", "Postponed"
         RETIRED = "retired", "Retired"
 
