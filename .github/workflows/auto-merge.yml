@@ -31,11 +31,8 @@ jobs:
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
-      - name: Fail if dependency update did not update an action or requirements file
-        if: ${{ ! startsWith(steps.check-labels.outputs.is-wanted-dependency, 'y') }}
-        run: /bin/false
-
       - name: Enable auto-merge for Dependabot PRs
+        if: ${{ startsWith(steps.check-labels.outputs.is-wanted-dependency, 'y') }}
         run: |
           set -eu
 
