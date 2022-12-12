@@ -136,7 +136,6 @@ def test_url_redirects(client, url, redirect):
         ("/o/p/w/outputs/latest/", workspaces.WorkspaceLatestOutputsDetail),
         ("/o/p/w/outputs/latest/download/", workspaces.WorkspaceLatestOutputsDownload),
         ("/o/p/w/outputs/latest/file.txt", workspaces.WorkspaceLatestOutputsDetail),
-        ("/o/p/w/outputs/badge/", workspaces.WorkspaceOutputsBadge),
         ("/o/p/w/outputs/42/", releases.SnapshotDetail),
         ("/o/p/w/outputs/42/download/", releases.SnapshotDownload),
         ("/o/p/w/outputs/42/file.txt", releases.SnapshotDetail),

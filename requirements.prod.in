@@ -20,7 +20,6 @@ itsdangerous
 markdown
 pgcli
 psycopg2-binary
-pybadges
 pydantic
 pygments
 python-ulid
