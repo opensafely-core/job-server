@@ -18,12 +18,12 @@
 {% endblock breadcrumbs %}
 
 {% block content %}
-  {% if project.slug == "opensafely-testing" %}
-    {% #alert variant="warning" title="This is a test project" class="mb-6" %}
-      This project exists for testing purposes only.
+  {% if project.slug == "opensafely-internal" %}
+    {% #alert variant="warning" title="This is an internal OpenSAFELY project" class="mb-6" %}
+      This project exists for internal purposes only.
       More information can be found in the
       {% spaceless %}
-        {% link text="OpenSAFELY testing policy" href="https://docs.opensafely.org/developer-access-policy/" %}
+        {% link text="OpenSAFELY access policy" href="https://docs.opensafely.org/developer-access-policy/" %}
       {% endspaceless %}.
     {% /alert %}
   {% endif %}
