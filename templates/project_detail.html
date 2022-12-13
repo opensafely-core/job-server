@@ -181,6 +181,12 @@
           <p class="mt-2 text-base text-slate-600">
             This projects does not have any workspaces yet
           </p>
+          {% if can_create_workspaces %}
+            {% url 'workspace-create' org_slug=project.org.slug project_slug=project.slug as new_workspace_url %}
+            {% #button class="mt-4" href=new_workspace_url type="link" variant="primary" %}
+              Create a new workspace
+            {% /button %}
+          {% endif %}
         </div>
       {% /card %}
     {% endif %}
