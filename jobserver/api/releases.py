@@ -1,4 +1,4 @@
-import cgi
+from email.message import Message
 
 import sentry_sdk
 import structlog
@@ -37,6 +37,19 @@ from ..github import _get_github_api
 
 
 logger = structlog.get_logger(__name__)
+
+
+def get_filename(headers):
+    """
+    Get the filename from the Content-Disposition header
+
+    DRF validates and parses the Content-Disposition header, but sadly
+    strips any directory paths from the filename. We need those paths, so
+    we need to reparse the header to get them.
+    """
+    m = Message()
+    m["Content-Disposition"] = headers["Content-Disposition"]
+    return m.get_filename()
 
 
 class UnknownFiles(Exception):
@@ -279,11 +292,7 @@ class ReleaseAPI(APIView):
         except KeyError:
             raise ValidationError({"detail": "No data uploaded"})
 
-        # DRF validates and parses the Content-Disposition header, but sadly
-        # strips any directory paths from the filename. We need those paths, so
-        # we need to reparse the header to get them.
-        _, params = cgi.parse_header(request.headers["Content-Disposition"])
-        filename = params["filename"]
+        filename = get_filename(request.headers)
 
         if filename not in {f["name"] for f in release.requested_files}:
             raise ValidationError(
