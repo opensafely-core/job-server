@@ -223,6 +223,10 @@ def test_confirmation_post_success(
     assert response.status_code == 302
     assert response.url == reverse("applications:list")
 
+    saved_app = Application.objects.get(pk=complete_application.pk)
+    assert saved_app.status == Application.Statuses.SUBMITTED
+    assert saved_app.submitted_by == request.user
+
     # check we have a message for the user
     messages = list(messages)
     assert len(messages) == 1
