@@ -162,6 +162,16 @@
         {% #description_item title="Backend" %}
           {{ job.job_request.backend|upper }}
         {% /description_item %}
+
+        {% #description_item title="Action" %}
+          <code class="font-mono text-oxford-800 tracking-widest">
+            {{ job.action }}
+          </code>
+        {% /description_item %}
+
+        {% #description_item title="Run command" %}
+          {% #code %}{{ job.run_command }}{% /code %}
+        {% /description_item %}
       </dl>
     {% /card %}
 

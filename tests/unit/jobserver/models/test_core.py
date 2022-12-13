@@ -87,6 +87,31 @@ def test_job_is_missing_updates_completed():
     assert not JobFactory(status="failed").is_missing_updates
 
 
+def test_job_run_command_empty_project_definition():
+    job_request = JobRequestFactory(project_definition="")
+
+    assert JobFactory(job_request=job_request).run_command is None
+
+
+def test_job_run_command_success():
+    pipeline = """
+    version: 3.0
+    expectations:
+      population_size: 1000
+    actions:
+      my_action:
+        run: cowsay research!
+        outputs:
+          moderately_sensitive:
+            log: logs/cowsay.log
+    """
+
+    job_request = JobRequestFactory(project_definition=pipeline)
+    job = JobFactory(job_request=job_request, action="my_action")
+
+    assert job.run_command == "cowsay research!"
+
+
 def test_job_runtime():
     duration = timedelta(hours=1, minutes=2, seconds=3)
     started_at = timezone.now() - duration

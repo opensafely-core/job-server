@@ -20,6 +20,7 @@ from environs import Env
 from furl import furl
 from opentelemetry.trace import propagation
 from opentelemetry.trace.propagation import tracecontext
+from pipeline import load_pipeline
 from sentry_sdk import capture_message
 
 from ..authorization.fields import RolesField
@@ -133,6 +134,19 @@ class Job(models.Model):
         delta = now - self.updated_at
 
         return delta > threshold
+
+    @property
+    def run_command(self):
+        if not self.job_request.project_definition:
+            return
+
+        # load job_request's project_definition into pipeline and get the
+        # command for this job
+        pipeline = load_pipeline(self.job_request.project_definition)
+        command = pipeline.actions[self.action].run.run
+
+        # remove newlines and extra spaces
+        return command.replace("\n", "").replace("  ", " ")
 
     @property
     def runtime(self):
