@@ -30,18 +30,18 @@ class Application(models.Model):
     )
     approved_by = models.ForeignKey(
         "jobserver.User",
-        on_delete=models.CASCADE,
+        on_delete=models.PROTECT,
         null=True,
         related_name="approved_applications",
     )
     created_by = models.ForeignKey(
         "jobserver.User",
-        on_delete=models.CASCADE,
+        on_delete=models.PROTECT,
         related_name="applications",
     )
     deleted_by = models.ForeignKey(
         "jobserver.User",
-        on_delete=models.CASCADE,
+        on_delete=models.PROTECT,
         null=True,
         related_name="deleted_applications",
     )
@@ -178,7 +178,7 @@ class AbstractPage(models.Model):
     application = models.OneToOneField("Application", on_delete=models.CASCADE)
     reviewed_by = models.ForeignKey(
         "jobserver.User",
-        on_delete=models.CASCADE,
+        on_delete=models.PROTECT,
         null=True,
     )
 
@@ -308,7 +308,7 @@ class ResearcherRegistration(models.Model):
 
     application = models.ForeignKey(
         "Application",
-        on_delete=models.CASCADE,
+        on_delete=models.PROTECT,
         related_name="researcher_registrations",
     )
     user = models.ForeignKey(
