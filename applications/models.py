@@ -18,9 +18,16 @@ class Application(models.Model):
         APPROVED_FULLY = "approved_fully", "Approved Fully"
         APPROVED_SUBJECT_TO = "approved_subject_to", "Approved Subject To"
         COMPLETED = "completed", "Completed"
+        SUBMITTED = "submitted", "Submitted"
         ONGOING = "ongoing", "Ongoing"
         REJECTED = "rejected", "Rejected"
 
+    submitted_by = models.ForeignKey(
+        "jobserver.User",
+        on_delete=models.PROTECT,
+        null=True,
+        related_name="submitted_applications",
+    )
     approved_by = models.ForeignKey(
         "jobserver.User",
         on_delete=models.CASCADE,
@@ -51,6 +58,7 @@ class Application(models.Model):
     has_agreed_to_terms = models.BooleanField(default=False)
 
     created_at = models.DateTimeField(default=timezone.now)
+    submitted_at = models.DateTimeField(null=True)
     completed_at = models.DateTimeField(null=True)
     approved_at = models.DateTimeField(null=True)
     deleted_at = models.DateTimeField(null=True)
@@ -86,6 +94,21 @@ class Application(models.Model):
                     )
                 ),
                 name="%(app_label)s_%(class)s_both_deleted_at_and_deleted_by_set",
+            ),
+            models.CheckConstraint(
+                check=(
+                    Q(
+                        submitted_at__isnull=True,
+                        submitted_by__isnull=True,
+                    )
+                    | (
+                        Q(
+                            submitted_at__isnull=False,
+                            submitted_by__isnull=False,
+                        )
+                    )
+                ),
+                name="%(app_label)s_%(class)s_both_submitted_at_and_submitted_by_set",
             ),
         ]
 

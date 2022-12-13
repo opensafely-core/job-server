@@ -245,6 +245,7 @@ class Confirmation(View):
         application = get_object_or_404(
             Application, pk=unhash_or_404(self.kwargs["pk_hash"])
         )
+        self.application = application
 
         # check the user can access this application
         validate_application_access(request.user, application)
@@ -258,11 +259,12 @@ class Confirmation(View):
 
         researchers = [
             build_researcher_form(r)
-            for r in self.wizard.application.researcher_registrations.order_by("name")
+            for r in self.application.researcher_registrations.order_by("name")
         ]
         context = {
-            "application": self.wizard.application,
+            "application": self.application,
             "is_valid": self.wizard.is_valid(),
+            "can_be_submitted": self.application.status == Application.Statuses.ONGOING,
             "pages": pages,
             "researchers": researchers,
         }
@@ -277,11 +279,14 @@ class Confirmation(View):
         if not self.wizard.is_valid():
             return self.get(request, *args, **kwargs)
 
-        notify_application(
-            self.wizard.application, request.user, "Application submitted"
-        )
+        self.application.submitted_at = timezone.now()
+        self.application.submitted_by = self.request.user
+        self.application.status = Application.Statuses.SUBMITTED
+        self.application.save()
 
-        send_submitted_application_email(request.user.email, self.wizard.application)
+        notify_application(self.application, request.user, "Application submitted")
+
+        send_submitted_application_email(request.user.email, self.application)
 
         messages.success(request, "Application submitted")
         return redirect("applications:list")

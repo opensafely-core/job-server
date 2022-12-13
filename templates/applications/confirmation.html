@@ -151,9 +151,13 @@
           {% if not is_valid %}
           disabled
           aria-disabled="true"
+          {% elif not can_be_submitted %}
+          disabled
+          aria-disabled="true"
+          title="Application has been submitted"
           {% endif %}
         >
-          Submit
+          Submit for approval
         </button>
       </form>
 
