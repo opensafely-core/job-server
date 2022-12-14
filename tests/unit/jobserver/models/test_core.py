@@ -93,6 +93,24 @@ def test_job_run_command_empty_project_definition():
     assert JobFactory(job_request=job_request).run_command is None
 
 
+def test_job_run_command_error_action():
+    pipeline = """
+    version: 3.0
+    expectations:
+      population_size: 1000
+    actions:
+      my_action:
+        run: cowsay research!
+        outputs:
+          moderately_sensitive:
+            log: logs/cowsay.log
+    """
+
+    job_request = JobRequestFactory(project_definition=pipeline)
+
+    assert JobFactory(job_request=job_request, action="__error__").run_command is None
+
+
 def test_job_run_command_success():
     pipeline = """
     version: 3.0
@@ -1307,5 +1325,4 @@ def test_workspace_get_action_status_lut_without_backend():
 def test_workspace_str():
     repo = RepoFactory(url="Corellia")
     workspace = WorkspaceFactory(name="Corellian Engineering Corporation", repo=repo)
-
     assert str(workspace) == "Corellian Engineering Corporation (Corellia)"
