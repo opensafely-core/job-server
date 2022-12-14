@@ -143,7 +143,11 @@ class Job(models.Model):
         # load job_request's project_definition into pipeline and get the
         # command for this job
         pipeline = load_pipeline(self.job_request.project_definition)
-        command = pipeline.actions[self.action].run.run
+
+        if action := pipeline.actions.get(self.action):
+            command = action.run.run
+        else:
+            return  # unknown action, likely __error__
 
         # remove newlines and extra spaces
         return command.replace("\n", "").replace("  ", " ")
