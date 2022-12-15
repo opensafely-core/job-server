@@ -7,12 +7,8 @@ from django.template.response import TemplateResponse
 from django.views.generic import RedirectView, View
 from furl import furl
 
+from .. import honeycomb
 from ..authorization import CoreDeveloper, has_permission, has_role
-from ..honeycomb import (
-    format_job_actions_link,
-    format_jobrequest_concurrency_link,
-    format_trace_link,
-)
 from ..models import Job, JobRequest
 
 
@@ -81,6 +77,26 @@ class JobDetail(View):
             url.path.normalize()
             log_path_url = url.url
 
+        honeycomb_links = {}
+        if honeycomb_can_view_links:
+            trace_link = honeycomb.trace_link(job)
+            if trace_link:  # pragma: no cover
+                honeycomb_links["Job Trace"] = trace_link
+            honeycomb_links["Live Status"] = honeycomb.status_link(job)
+
+            # Look this up manually, because if we use job.job_request, the
+            # JobRequest will not have prefetched all associated Jobs, and
+            # we will be unable to use JobRequest.completed_at (as it relies on
+            # JobRequest.status)
+            job_request = JobRequest.objects.filter(
+                jobs__identifier=job.identifier
+            ).first()
+
+            honeycomb_links["Job Request"] = honeycomb.jobrequest_link(job_request)
+            honeycomb_links[
+                "Previous runs of this action"
+            ] = honeycomb.previous_actions_link(job)
+
         context = {
             "job": job,
             "log_path": log_path,
@@ -88,28 +104,8 @@ class JobDetail(View):
             "object": job,
             "user_can_cancel_jobs": can_cancel_jobs,
             "view": self,
-            "honeycomb_links": {},
+            "honeycomb_links": honeycomb_links,
         }
-
-        honeycomb_trace_link = format_trace_link(job)
-        if honeycomb_can_view_links and honeycomb_trace_link:
-            context["honeycomb_links"]["Job Trace"] = honeycomb_trace_link
-
-            # Look this up manually, because if we use job.job_request, the
-            # JobRequest will not have prefetched all associated Jobs, and
-            # we will be unable to use JobRequest.completed_at (as it relies on
-            # JobRequest.status)
-            related_job_request = JobRequest.objects.filter(
-                jobs__identifier=job.identifier
-            ).first()
-
-            context["honeycomb_links"][
-                "Job Request concurrency"
-            ] = format_jobrequest_concurrency_link(related_job_request)
-
-            context["honeycomb_links"]["Historic job runs"] = format_job_actions_link(
-                job
-            )
 
         return TemplateResponse(request, "job_detail.html", context=context)
 

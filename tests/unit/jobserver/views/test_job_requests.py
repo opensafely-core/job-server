@@ -5,6 +5,7 @@ from django.core.exceptions import BadRequest
 from django.http import Http404
 from django.utils import timezone
 
+from jobserver import honeycomb
 from jobserver.authorization import (
     CoreDeveloper,
     OpensafelyInteractive,
@@ -681,7 +682,13 @@ def test_jobrequestdetail_with_permission_core_developer(rf):
 
     assert response.status_code == 200
     assert "Honeycomb" in response.rendered_content
-    assert "%22end_time%22%3A1655380860%2C" in response.rendered_content
+
+    # job_requests have prefetch restrictions on them
+    prefetched_job_request = JobRequest.objects.filter(
+        identifier=job_request.identifier
+    ).first()
+    url = honeycomb.jobrequest_link(prefetched_job_request)
+    assert url in response.rendered_content
 
 
 def test_jobrequestdetail_with_permission_with_completed_at(rf):

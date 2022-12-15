@@ -14,11 +14,11 @@ from django.views.generic.edit import FormMixin
 from first import first
 from pipeline import load_pipeline
 
+from .. import honeycomb
 from ..authorization import CoreDeveloper, has_permission, has_role
 from ..backends import backends_to_choices
 from ..forms import JobRequestCreateForm, JobRequestSearchForm
 from ..github import _get_github_api
-from ..honeycomb import format_jobrequest_concurrency_link
 from ..models import Backend, JobRequest, User, Workspace
 from ..pipeline_config import get_actions, get_project, render_definition
 from ..utils import raise_if_not_int
@@ -217,9 +217,9 @@ class JobRequestDetail(View):
         }
 
         if honeycomb_can_view_links:
-            context["honeycomb_links"][
-                "Job Request concurrency"
-            ] = format_jobrequest_concurrency_link(job_request)
+            context["honeycomb_links"]["Job Request"] = honeycomb.jobrequest_link(
+                job_request
+            )
 
         return TemplateResponse(request, "job_request_detail.html", context=context)
 
