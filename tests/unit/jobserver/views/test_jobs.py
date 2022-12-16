@@ -223,10 +223,12 @@ def test_jobdetail_with_core_developer_with_completed_at(rf):
     assert "Honeycomb" in response.rendered_content
     assert "Job Trace" in response.rendered_content
     assert "trace_end_ts=1655298060" in response.rendered_content
-    assert (
-        f"%7B%22column%22%3A%22job_request%22%2C%22op%22%3A%22%3D%22%2C%22value%22%3A%22{job_request.identifier}%22%7D"
-        in response.rendered_content
-    )
+    # job_requests have prefretch restrictions on them
+    prefetched_job_request = JobRequest.objects.filter(
+        identifier=job_request.identifier
+    ).first()
+    url = honeycomb.jobrequest_link(prefetched_job_request)
+    assert url in response.rendered_content
     assert job_request.identifier in response.rendered_content
 
 
