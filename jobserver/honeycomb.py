@@ -5,6 +5,50 @@ from django.utils import timezone
 from furl import furl
 
 
+def honeycomb_furl():
+    # TODO: make this configurable?
+    return furl(
+        "https://ui.honeycomb.io/bennett-institute-for-applied-data-science/environments/production/datasets/jobrunner"
+    )
+
+
+DEFAULT_QUERY = {
+    "granularity": 0,
+    "breakdowns": [],
+    "calculations": [],
+    "filters": [],
+    "filter_combination": "AND",
+    "orders": [],
+    "havings": [],
+    "limit": 1000,
+}
+
+
+class TemplatedUrl:
+    def __init__(self, stacked=False, **kwargs):
+        self.query = DEFAULT_QUERY.copy()
+        self.query.update(kwargs)
+        self.stacked = stacked
+
+    @property
+    def url(self):
+        url = honeycomb_furl()
+        url.add({"query": json.dumps(self.query, separators=(",", ":"))})
+        if self.stacked:
+            url.add({"useStackedGraphs": None})
+        return url.url
+
+    @classmethod
+    def parse(cls, urlstring):
+        parsed = furl(urlstring)
+        query = json.loads(parsed.args["query"])
+        url = cls(
+            stacked="useStackedGraphs" in parsed.args,
+            **query,
+        )
+        return url
+
+
 def format_trace_id(trace_id):
     """Format the trace_id for Honeycomb.
     Hexadecimal without the 0x prefix and with leading zeros.
@@ -22,107 +66,90 @@ def format_honeycomb_timestamps(job_like):
     # reliably see the first and last honeycomb events relating to that job.
     # This could be due to clock skew, '>' rather than '>=' comparators
     # and/or other factors.
-    honeycomb_starttime_unix = int(
-        (job_like.created_at - timedelta(minutes=1)).timestamp()
-    )
+    start_time = int((job_like.created_at - timedelta(minutes=1)).timestamp())
 
-    honeycomb_endtime = timezone.now()
+    end_time = timezone.now()
 
     if job_like.status not in ["failed", "succeeded"]:
-        honeycomb_endtime = timezone.now() + timedelta(hours=1)
+        end_time = timezone.now() + timedelta(hours=1)
 
     if job_like.completed_at is not None:
-        honeycomb_endtime = job_like.completed_at + timedelta(minutes=1)
+        end_time = job_like.completed_at + timedelta(minutes=1)
 
-    honeycomb_endtime_unix = int(honeycomb_endtime.timestamp())
-    return {
-        "honeycomb_starttime_unix": honeycomb_starttime_unix,
-        "honeycomb_endtime_unix": honeycomb_endtime_unix,
-    }
+    end_time = int(end_time.timestamp())
+
+    return (start_time, end_time)
 
 
-def honeycomb_furl():
-    # TODO: make this configurable?
-    return furl(
-        "https://ui.honeycomb.io/bennett-institute-for-applied-data-science/environments/production/datasets/jobrunner"
-    )
-
-
-def format_trace_link(job):
+def trace_link(job):
     """Generate a url that links to the trace of a job in honeycomb"""
-    if not job.trace_id:
+    # very old jobs won't have trace ids
+    if not job.trace_id:  # pragma: no cover
         return None
 
     jobs_honeycomb_url = honeycomb_furl()
     trace_link = jobs_honeycomb_url / "trace"
-    honeycomb_timestamps = format_honeycomb_timestamps(job)
+    start, end = format_honeycomb_timestamps(job)
     trace_link.add(
         {
             "trace_id": format_trace_id(job.trace_id),
-            "trace_start_ts": honeycomb_timestamps["honeycomb_starttime_unix"],
-            "trace_end_ts": honeycomb_timestamps["honeycomb_endtime_unix"],
+            "trace_start_ts": start,
+            "trace_end_ts": end,
         }
     )
     return trace_link.url
 
 
-def format_jobrequest_concurrency_link(job_request):
-    jobs_honeycomb_url = honeycomb_furl()
+def status_link(job):
+    start, end = format_honeycomb_timestamps(job)
+    url = TemplatedUrl(
+        start_time=start,
+        end_time=end,
+        breakdowns=["name"],
+        calculations=[{"op": "CONCURRENCY"}],
+        orders=[{"op": "CONCURRENCY", "order": "descending"}],
+        stacked=True,
+        filters=[
+            {"column": "scope", "op": "=", "value": "ticks"},
+            {"column": "job", "op": "=", "value": job.id},
+        ],
+    )
+    return url.url
 
-    honeycomb_timestamps = format_honeycomb_timestamps(job_request)
 
-    query_json = {
-        "start_time": honeycomb_timestamps["honeycomb_starttime_unix"],
-        "end_time": honeycomb_timestamps["honeycomb_endtime_unix"],
-        "granularity": 0,
-        "breakdowns": ["name"],
-        "calculations": [{"op": "CONCURRENCY"}],
-        "filters": [
+def jobrequest_link(job_request):
+    start, end = format_honeycomb_timestamps(job_request)
+    url = TemplatedUrl(
+        start_time=start,
+        end_time=end,
+        breakdowns=["name"],
+        calculations=[{"op": "CONCURRENCY"}],
+        orders=[{"op": "CONCURRENCY", "order": "descending"}],
+        stacked=True,
+        filters=[
+            {"column": "scope", "op": "=", "value": "jobs"},
             {"column": "enter_state", "op": "!=", "value": "true"},
             {"column": "name", "op": "!=", "value": "RUN"},
             {"column": "name", "op": "!=", "value": "JOB"},
             {"column": "name", "op": "!=", "value": "job"},
             {"column": "job_request", "op": "=", "value": job_request.identifier},
         ],
-        "filter_combination": "AND",
-        "orders": [{"op": "CONCURRENCY", "order": "descending"}],
-        "havings": [],
-        "limit": 1000,
-    }
-
-    jobs_honeycomb_url.add(
-        {
-            "query": json.dumps(query_json, separators=(",", ":")),
-            "useStackedGraphs": None,
-        }
     )
+    return url.url
 
-    return jobs_honeycomb_url.url
 
-
-def format_job_actions_link(job):
-    jobs_honeycomb_url = honeycomb_furl()
-
+def previous_actions_link(job):
     # 28 days
     time_range_seconds = 2419200
 
-    query_json = {
-        "time_range": time_range_seconds,
-        "granularity": 0,
-        "breakdowns": [],
-        "calculations": [{"op": "HEATMAP", "column": "duration_minutes"}],
-        "filters": [
+    url = TemplatedUrl(
+        time_range=time_range_seconds,
+        calculations=[{"op": "HEATMAP", "column": "duration_minutes"}],
+        filters=[
+            {"column": "scope", "op": "=", "value": "jobs"},
             {"column": "workspace", "op": "=", "value": job.job_request.workspace.name},
             {"column": "action", "op": "=", "value": job.action},
             {"column": "name", "op": "=", "value": "EXECUTING"},
-            {"column": "tick", "op": "does-not-exist"},
         ],
-        "filter_combination": "AND",
-        "orders": [],
-        "havings": [],
-        "limit": 1000,
-    }
-
-    jobs_honeycomb_url.add({"query": json.dumps(query_json, separators=(",", ":"))})
-
-    return jobs_honeycomb_url.url
+    )
+    return url.url
