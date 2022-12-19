@@ -534,7 +534,7 @@ def test_page_post_with_invalid_prerequisite(rf):
     )
 
 
-def test_page_with_approved_application(rf):
+def test_page_with_approved_application_and_non_staff_user(rf):
     user = UserFactory()
     application = ApplicationFactory(
         created_by=user, approved_at=timezone.now(), approved_by=user
@@ -560,6 +560,19 @@ def test_page_with_approved_application(rf):
     assert len(messages) == 1
     msg = "This application has been approved and can no longer be edited"
     assert str(messages[0]) == msg
+
+
+def test_page_with_approved_application_and_staff_user(rf, core_developer):
+    application = ApplicationFactory(
+        approved_at=timezone.now(), approved_by=core_developer
+    )
+
+    request = rf.get("/")
+    request.user = core_developer
+
+    response = page(request, pk_hash=application.pk_hash, key="study-purpose")
+
+    assert response.status_code == 200
 
 
 def test_page_with_deleted_application(rf):
