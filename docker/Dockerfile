@@ -58,7 +58,7 @@ RUN --mount=type=cache,target=/var/cache/apt \
     /root/docker-apt-install.sh /tmp/build-dependencies.txt
 
 # Install everything in venv for isolation from system python libraries
-RUN python3.10 -m venv /opt/venv
+RUN python3.11 -m venv /opt/venv
 
 # The cache mount means a) /root/.cache is not in the image, and b) it's preserved
 # between docker builds locally, for faster dev rebuild.
