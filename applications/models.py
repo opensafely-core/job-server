@@ -21,6 +21,7 @@ class Application(models.Model):
         SUBMITTED = "submitted", "Submitted"
         ONGOING = "ongoing", "Ongoing"
         REJECTED = "rejected", "Rejected"
+        DEFERRED = "deferred", "Deferred"
 
     submitted_by = models.ForeignKey(
         "jobserver.User",
