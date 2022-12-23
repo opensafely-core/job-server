@@ -13,6 +13,13 @@ FROM ghcr.io/opensafely-core/base-docker:22.04 as base-python
 # docker clean up that deletes that cache on every apt install
 RUN rm -f /etc/apt/apt.conf.d/docker-clean
 
+# ensure fully working base python3.11 installation using deadsnakes ppa
+# see: https://gist.github.com/tiran/2dec9e03c6f901814f6d1e8dad09528e
+# use space efficient utility from base image
+RUN --mount=type=cache,target=/var/cache/apt \
+    echo "deb http://ppa.launchpad.net/deadsnakes/ppa/ubuntu jammy main" > /etc/apt/sources.list.d/deadsnakes-ppa.list &&\
+    /usr/lib/apt/apt-helper download-file 'https://keyserver.ubuntu.com/pks/lookup?op=get&search=0xf23c5a6cf475977595c89f51ba6932366a755776' /etc/apt/trusted.gpg.d/deadsnakes.asc
+
 # install any additional system dependencies
 COPY docker/dependencies.txt /tmp/dependencies.txt
 RUN --mount=type=cache,target=/var/cache/apt \
@@ -58,7 +65,7 @@ RUN --mount=type=cache,target=/var/cache/apt \
     /root/docker-apt-install.sh /tmp/build-dependencies.txt
 
 # Install everything in venv for isolation from system python libraries
-RUN python3.10 -m venv /opt/venv
+RUN python3.11 -m venv /opt/venv
 
 # The cache mount means a) /root/.cache is not in the image, and b) it's preserved
 # between docker builds locally, for faster dev rebuild.
