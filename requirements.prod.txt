@@ -765,9 +765,9 @@ six==1.16.0 \
     #   incuna-mail
     #   orderedmultidict
     #   python-dateutil
-slack-sdk==3.19.2 \
-    --hash=sha256:336365512ee8620a7227c6780af28d3a69db3387653fbeee156bc391cbbdbf47 \
-    --hash=sha256:8b36a0c1cd99426df1e7dea9ad55838cafe9de46db88a4c9e4ee787da718a00a
+slack-sdk==3.19.5 \
+    --hash=sha256:0b52bb32a87c71f638b9eb47e228dffeebf89de5e762684ef848276f9f186c84 \
+    --hash=sha256:47fb4af596243fe6585a92f3034de21eb2104a55cc9fd59a92ef3af17cf9ddd8
     # via -r requirements.prod.in
 slippers==0.5.0 \
     --hash=sha256:413281c8a82f9940bbbcb60dcc42d075162b5ff25a6e254c9076b6bb0deaf746 \
