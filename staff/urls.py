@@ -7,7 +7,6 @@ from .views.applications import (
     ApplicationList,
     ApplicationRemove,
     ApplicationRestore,
-    application_add_org,
 )
 from .views.backends import (
     BackendCreate,
@@ -58,11 +57,6 @@ application_urls = [
         "<str:pk_hash>/approve/",
         ApplicationApprove.as_view(),
         name="application-approve",
-    ),
-    path(
-        "<str:pk_hash>/approve/add-org/",
-        application_add_org,
-        name="application-add-org",
     ),
     path("<str:pk_hash>/edit/", ApplicationEdit.as_view(), name="application-edit"),
     path(

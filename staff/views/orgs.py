@@ -5,6 +5,7 @@ from django.shortcuts import get_object_or_404, redirect
 from django.template.response import TemplateResponse
 from django.utils.decorators import method_decorator
 from django.views.generic import CreateView, FormView, ListView, UpdateView, View
+from django_htmx.http import HttpResponseClientRedirect
 
 from jobserver.authorization import CoreDeveloper
 from jobserver.authorization.decorators import require_permission, require_role
@@ -40,14 +41,32 @@ def org_add_github_org(request, slug):
 class OrgCreate(CreateView):
     fields = ["name"]
     model = Org
-    template_name = "staff/org_create.html"
 
     def form_valid(self, form):
         org = form.save(commit=False)
         org.created_by = self.request.user
         org.save()
 
-        return redirect(org.get_staff_url())
+        org_detail = org.get_staff_url()
+
+        if not self.request.htmx:
+            return redirect(org_detail)
+
+        # HTMX clients should pass ?next={{ request.path }} in the template,
+        # but we can fall back to a sensible location otherwise
+        next_url = self.request.GET.get("next") or org_detail
+        return HttpResponseClientRedirect(next_url)
+
+    def get_context_data(self, **kwargs):
+        return super().get_context_data() | {
+            "next": self.request.GET.get("next") or "",
+        }
+
+    def get_template_names(self):
+        suffix = ".htmx" if self.request.htmx else ""
+        template_name = f"staff/org_create{suffix}.html"
+
+        return [template_name]
 
 
 @method_decorator(require_role(CoreDeveloper), name="dispatch")

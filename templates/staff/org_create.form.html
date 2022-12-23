@@ -1,0 +1,17 @@
+<form method="POST" hx-post="{% url 'staff:org-create' %}?next={{ next }}">
+  {% csrf_token %}
+
+  {% if form.non_field_errors %}
+    <ul>
+      {% for error in form.non_field_errors %}
+        <li class="text-danger">{{ error }}</li>
+      {% endfor %}
+    </ul>
+  {% endif %}
+
+  {% include "components/form_text.html" with field=form.name label="Organisation name" name="name" %}
+
+  <button class="btn btn-success" type="submit">
+    Create
+  </button>
+</form>

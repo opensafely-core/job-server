@@ -2,13 +2,11 @@ import functools
 
 from django.contrib import messages
 from django.db.models import Max, Q, Value
-from django.forms.models import modelform_factory
 from django.shortcuts import get_object_or_404, redirect
 from django.template.response import TemplateResponse
 from django.utils import timezone
 from django.utils.decorators import method_decorator
 from django.views.generic import FormView, ListView, UpdateView, View
-from django_htmx.http import HttpResponseClientRedirect
 
 from applications.form_specs import form_specs
 from applications.models import Application
@@ -19,36 +17,6 @@ from jobserver.hash_utils import unhash, unhash_or_404
 from jobserver.models import Org, Project, User
 
 from ..forms import ApplicationApproveForm
-
-
-@require_role(CoreDeveloper)
-def application_add_org(request, pk_hash):
-    application = get_object_or_404(Application, pk=unhash_or_404(pk_hash))
-
-    if not request.htmx:
-        return redirect(application.get_approve_url())
-
-    OrgCreateForm = modelform_factory(Org, fields=["name"])
-
-    if request.POST:
-        form = OrgCreateForm(data=request.POST)
-    else:
-        form = OrgCreateForm()
-
-    if request.GET or not form.is_valid():
-        return TemplateResponse(
-            context={"form": form, "application": application},
-            request=request,
-            template="staff/org_create.htmx.html",
-        )
-
-    org = form.save(commit=False)
-    org.created_by = request.user
-    org.save()
-
-    return HttpResponseClientRedirect(
-        application.get_approve_url() + f"?org-slug={org.slug}"
-    )
 
 
 @method_decorator(require_role(CoreDeveloper), name="dispatch")
