@@ -37,8 +37,9 @@ RUN --mount=type=cache,target=/usr/src/app/.npm \
 # just copy in the files `npm run build` needs
 COPY vite.config.js tailwind.config.js postcss.config.js ./
 COPY assets/src ./assets/src
+COPY templates ./templates
 
-RUN --mount=type=cache,target=./npm --mount=type=bind,source=templates,target=/usr/src/app/templates npm run build
+RUN --mount=type=cache,target=./npm npm run build
 
 ##################################################
 #
