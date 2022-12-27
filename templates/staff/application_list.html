@@ -1,5 +1,6 @@
 {% extends "staff/base.html" %}
 
+{% load humanize %}
 {% load querystring_tools %}
 {% load selected_filter %}
 
@@ -133,8 +134,21 @@
 
           </div>
 
+          {% if application.submitted_at %}
+          <div>
+            <small>
+              Submitted:
+              <time datetime="{{ application.submitted_at }}">{{ application.submitted_at|naturalday }}</time>
+            </small>
+          </div>
+          {% endif %}
+
           {% if application.project %}
-          <small><a href="{{ application.project.get_staff_url }}">Project {{ application.project.number }}</a></small>
+          <div>
+            <small>
+              <a href="{{ application.project.get_staff_url }}">Project {{ application.project.number }}</a>
+            </small>
+          </div>
           {% endif %}
 
           {% if application.status_comment %}
