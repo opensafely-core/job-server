@@ -76,7 +76,7 @@
         {% endif %}
 
         {% if user_can_run_jobs %}
-          {% #button href=run_jobs_url type="link" variant="success" %}
+          {% #button href=run_jobs_url type="link" variant="success" disabled="Running jobs is disabled for archived workspaces" %}
             Run jobs
             {% icon_play_outline class="h-4 w-4 ml-2 -mr-2" %}
           {% /button %}
