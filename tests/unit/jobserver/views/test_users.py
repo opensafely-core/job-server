@@ -35,9 +35,11 @@ def test_login_safe_path(rf):
 def test_login_unsafe_path(rf):
     request = rf.get("/?next=https://steal-your-bank-details.com/")
     request.user = AnonymousUser()
+
     response = login_view(request)
 
-    assert response.status_code == 400
+    assert response.status_code == 200
+    assert response.context_data["next_url"] == ""
 
 
 def test_login_already_logged_with_next_url(rf):
