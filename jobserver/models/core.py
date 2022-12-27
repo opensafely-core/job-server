@@ -4,6 +4,7 @@ import secrets
 from datetime import date, timedelta
 from urllib.parse import quote
 
+import pydantic
 import structlog
 from django.contrib.auth.models import AbstractBaseUser
 from django.contrib.auth.models import UserManager
@@ -142,7 +143,10 @@ class Job(models.Model):
 
         # load job_request's project_definition into pipeline and get the
         # command for this job
-        pipeline = load_pipeline(self.job_request.project_definition)
+        try:
+            pipeline = load_pipeline(self.job_request.project_definition)
+        except pydantic.ValidationError:
+            return  # we don't have a valid config
 
         if action := pipeline.actions.get(self.action):
             command = action.run.run
