@@ -109,7 +109,7 @@
                 <p>{{ error }}</p>
                 {% endfor %}
               </dt>
-              <dd class="col-5">{{ form.get_phone_type_display|default:"Not supplied" }}</dd>
+              <dd class="col-5">{{ form.phone_type.value|default:"Not supplied" }}</dd>
             </dl>
 
             <dl class="row">
