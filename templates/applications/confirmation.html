@@ -86,6 +86,11 @@
                 Email{% if form.email.errors %}*{% endif %}:
               </dt>
               <dd class="col-5">{{ form.email.value }}</dd>
+
+              <dt class="col-7{% if form.github_username.errors %} text-danger{% endif %}">
+                GitHub username{% if form.github_username.errors %}*{% endif %}:
+              </dt>
+              <dd class="col-5">{{ form.github_username.value }}</dd>
             </dl>
 
             <dl class="row">
