@@ -78,6 +78,7 @@ class ResearcherRegistrationPageForm(forms.ModelForm):
             "name",
             "job_title",
             "email",
+            "github_username",
             "does_researcher_need_server_access",
             "telephone",
             "phone_type",

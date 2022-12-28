@@ -322,6 +322,7 @@ class ResearcherRegistration(models.Model):
     name = models.TextField()
     job_title = models.TextField()
     email = models.TextField()
+    github_username = models.TextField()
 
     does_researcher_need_server_access = models.BooleanField(
         null=True, choices=YES_NO_CHOICES
