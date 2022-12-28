@@ -493,6 +493,11 @@ class Project(models.Model):
 
     copilot_notes = models.TextField(default="", blank=True)
 
+    # OSI applications will be done externally.
+    # Unfortunately we can't validate this in the db with a CheckConstraint
+    # because we can't reference the FK's related_name there.
+    application_url = models.TextField(default="")
+
     created_at = models.DateTimeField(default=timezone.now)
     created_by = models.ForeignKey(
         "User",
@@ -510,13 +515,13 @@ class Project(models.Model):
     )
 
     class Meta:
-        # only consider uniqueness of number when it's not null
         constraints = [
+            # only consider uniqueness of number when it's not null
             models.UniqueConstraint(
                 fields=["number"],
                 name="unique_number_ignore_null",
                 condition=Q(number__isnull=False),
-            )
+            ),
         ]
 
     def __str__(self):
