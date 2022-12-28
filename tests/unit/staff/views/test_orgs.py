@@ -128,7 +128,7 @@ def test_orgcreate_post_htmx_success_with_next(rf, core_developer):
     response = OrgCreate.as_view()(request)
 
     assert response.status_code == 200
-    assert response.headers["HX-Redirect"] == "/next/page/"
+    assert response.headers["HX-Redirect"] == "/next/page/?org-slug=a-new-org"
 
 
 def test_orgcreate_post_htmx_success_without_next(rf, core_developer):
@@ -141,7 +141,8 @@ def test_orgcreate_post_htmx_success_without_next(rf, core_developer):
     assert response.status_code == 200
 
     org = Org.objects.first()
-    assert response.headers["HX-Redirect"] == org.get_staff_url()
+    expected = org.get_staff_url() + "?org-slug=a-new-org"
+    assert response.headers["HX-Redirect"] == expected
 
 
 def test_orgdetail_get_success(rf, core_developer):

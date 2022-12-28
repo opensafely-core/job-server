@@ -57,6 +57,7 @@ class OrgCreate(CreateView):
         url = get_redirect_url(
             self.request.GET,
             org_detail,
+            {"org-slug": org.slug},
         )
         return HttpResponseClientRedirect(url)
 
