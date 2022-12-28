@@ -741,7 +741,7 @@ class User(AbstractBaseUser):
         validators=[username_validator],
         error_messages={"unique": "A user with that username already exists."},
     )
-    email = models.EmailField(blank=True)
+    email = models.EmailField(blank=True, unique=True)
 
     # fullname instead of full_name because social auth already provides that
     # field name and life is too short to work out which class we should map
