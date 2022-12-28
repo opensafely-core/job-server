@@ -83,6 +83,7 @@ def test_orgaddgithuborg_unknown_org(rf, core_developer):
 
 def test_orgcreate_get_success(rf, core_developer):
     request = rf.get("/")
+    request.htmx = False
     request.user = core_developer
 
     response = OrgCreate.as_view()(request)
@@ -90,8 +91,20 @@ def test_orgcreate_get_success(rf, core_developer):
     assert response.status_code == 200
 
 
+def test_orgcreate_get_htmx_success(rf, core_developer):
+    request = rf.get("/")
+    request.htmx = True
+    request.user = core_developer
+
+    response = OrgCreate.as_view()(request)
+
+    assert response.status_code == 200
+    assert response.template_name == ["staff/org_create.htmx.html"]
+
+
 def test_orgcreate_post_success(rf, core_developer):
     request = rf.post("/", {"name": "A New Org"})
+    request.htmx = False
     request.user = core_developer
 
     response = OrgCreate.as_view()(request)
@@ -105,6 +118,30 @@ def test_orgcreate_post_success(rf, core_developer):
     assert org.name == "A New Org"
     assert org.created_by == core_developer
     assert response.url == org.get_staff_url()
+
+
+def test_orgcreate_post_htmx_success_with_next(rf, core_developer):
+    request = rf.post("/?next=/next/page/", {"name": "A New Org"})
+    request.htmx = True
+    request.user = core_developer
+
+    response = OrgCreate.as_view()(request)
+
+    assert response.status_code == 200
+    assert response.headers["HX-Redirect"] == "/next/page/"
+
+
+def test_orgcreate_post_htmx_success_without_next(rf, core_developer):
+    request = rf.post("/", {"name": "A New Org"})
+    request.htmx = True
+    request.user = core_developer
+
+    response = OrgCreate.as_view()(request)
+
+    assert response.status_code == 200
+
+    org = Org.objects.first()
+    assert response.headers["HX-Redirect"] == org.get_staff_url()
 
 
 def test_orgdetail_get_success(rf, core_developer):

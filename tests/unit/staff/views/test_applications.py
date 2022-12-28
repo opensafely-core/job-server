@@ -6,7 +6,6 @@ from django.urls import reverse
 from django.utils import timezone
 
 from applications.models import Application
-from jobserver.models import Org
 from jobserver.utils import set_from_qs
 from staff.views.applications import (
     ApplicationApprove,
@@ -15,83 +14,9 @@ from staff.views.applications import (
     ApplicationList,
     ApplicationRemove,
     ApplicationRestore,
-    application_add_org,
 )
 
 from ....factories import ApplicationFactory, OrgFactory, ProjectFactory, UserFactory
-
-
-def test_applicationaddorg_get_success(rf, core_developer):
-    application = ApplicationFactory()
-
-    request = rf.get("/")
-    request.htmx = True
-    request.user = core_developer
-
-    response = application_add_org(request, pk_hash=application.pk_hash)
-
-    assert response.status_code == 200
-    assert "modal" in response.rendered_content
-
-
-def test_applicationaddorg_post_existing_org(rf, core_developer):
-    application = ApplicationFactory()
-    org = OrgFactory()
-
-    request = rf.post("/", {"name": org.name})
-    request.htmx = True
-    request.user = core_developer
-
-    response = application_add_org(request, pk_hash=application.pk_hash)
-
-    assert response.status_code == 200
-    assert response.context_data["form"].errors
-
-
-def test_applicationaddorg_post_success(rf, core_developer):
-    application = ApplicationFactory()
-
-    request = rf.post("/", {"name": "Test Org"})
-    request.htmx = True
-    request.user = core_developer
-
-    response = application_add_org(request, pk_hash=application.pk_hash)
-
-    assert response.status_code == 200
-
-    destination = application.get_approve_url() + "?org-slug=test-org"
-    assert response.headers["HX-Redirect"] == destination
-
-    assert Org.objects.filter(name="Test Org").exists()
-
-
-def test_applicationaddorg_unknown_application(rf, core_developer):
-    request = rf.get("/")
-    request.user = core_developer
-
-    with pytest.raises(Http404):
-        application_add_org(request, pk_hash="test")
-
-
-def test_applicationaddorg_without_core_dev_role(rf):
-    request = rf.get("/")
-    request.user = UserFactory()
-
-    with pytest.raises(PermissionDenied):
-        application_add_org(request)
-
-
-def test_applicationaddorg_without_htmx(rf, core_developer):
-    application = ApplicationFactory()
-
-    request = rf.get("/")
-    request.htmx = False
-    request.user = core_developer
-
-    response = application_add_org(request, pk_hash=application.pk_hash)
-
-    assert response.status_code == 302
-    assert response.url == application.get_approve_url()
 
 
 def test_applicationapprove_already_approved(rf, core_developer, complete_application):

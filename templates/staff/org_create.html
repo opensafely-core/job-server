@@ -32,28 +32,9 @@
 <div class="container">
   <div class="row">
     <div class="col-lg-9 col-xl-8">
-      <form method="POST">
-        {% csrf_token %}
-        <fieldset>
-          <legend class="h3 mb-3">
-            Organisation details
-          </legend>
 
-          {% if form.non_field_errors %}
-            <ul>
-              {% for error in form.non_field_errors %}
-                <li class="text-danger">{{ error }}</li>
-              {% endfor %}
-            </ul>
-          {% endif %}
+      {% include "staff/org_create.form.html" %}
 
-          {% include "components/form_text.html" with field=form.name label="Organisation name" name="name" %}
-
-        </fieldset>
-
-        <button class="btn btn-success" type="submit">Create</button>
-
-      </form>
     </div>
   </div>
 </div>

@@ -1,11 +1,6 @@
-{% load static %}
-
-<div class="modal-dialog modal-dialog-centered" role="document">
-  <div class="modal-content">
-
-    <form method="POST" hx-post="{% url 'staff:application-add-org' pk_hash=application.pk_hash %}">
-      {% csrf_token %}
-
+<div id="modal" class="modal fade" tabindex="-1">
+  <div class="modal-dialog modal-dialog-centered" role="document">
+    <div class="modal-content">
       <div class="modal-header">
         <h5 class="modal-title">Create an organisation</h5>
         <button type="button" class="close" data-dismiss="modal">
@@ -14,22 +9,8 @@
       </div>
 
       <div class="modal-body">
-        {% if form.non_field_errors %}
-          <ul>
-            {% for error in form.non_field_errors %}
-              <li class="text-danger">{{ error }}</li>
-            {% endfor %}
-          </ul>
-        {% endif %}
-
-        {% include "components/form_text.html" with field=form.name label="Organisation name" name="name" %}
+        {% include "staff/org_create.form.html" %}
       </div>
-
-      <div class="modal-footer">
-        <button class="btn btn-success" type="submit">
-          Create
-        </button>
-      </div>
-
+    </div>
   </div>
 </div>

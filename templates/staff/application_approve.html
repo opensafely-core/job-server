@@ -7,7 +7,7 @@
 <link rel="stylesheet" href="{% static 'vendor/select2-bootstrap4.min.css' %}">
 {% endblock %}
 
-{% block metatitle %}Invite users: {{ project.title }} | OpenSAFELY Jobs{% endblock metatitle %}
+{% block metatitle %}Approve application: {{ project.title }} | OpenSAFELY Jobs{% endblock metatitle %}
 
 {% block breadcrumbs %}
 <nav class="breadcrumb-container breadcrumb--danger" aria-label="breadcrumb">
@@ -76,7 +76,7 @@
             <p id="orgHelpBlock" class="form-text text-muted">
               If the org doesn't exist, you can
               <button
-                hx-get="{% url 'staff:application-add-org' pk_hash=application.pk_hash %}"
+                hx-get="{% url 'staff:org-create' %}?next={{ request.path }}"
                 hx-target="#dialog"
                 hx-trigger="click"
                 class="btn btn-link m-0 p-0 border-0 font-weight-bold align-baseline"
@@ -100,9 +100,7 @@
   </div>
 </div>
 
-<div id="modal" class="modal fade" tabindex="-1">
-  <div id="dialog" class="modal-dialog" hx-target="this"></div>
-</div>
+<div id="dialog" class="modal-dialog" hx-target="this"></div>
 
 {% endblock %}
 
