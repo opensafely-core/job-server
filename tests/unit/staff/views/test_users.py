@@ -8,10 +8,12 @@ from jobserver.authorization import (
     ProjectDeveloper,
     TechnicalReviewer,
 )
+from jobserver.models import User
 from jobserver.utils import set_from_qs
-from staff.views.users import UserDetail, UserList, UserSetOrgs
+from staff.views.users import UserCreate, UserDetail, UserList, UserSetOrgs
 
 from ....factories import (
+    ApplicationFactory,
     BackendFactory,
     BackendMembershipFactory,
     OrgFactory,
@@ -20,6 +22,112 @@ from ....factories import (
     ProjectMembershipFactory,
     UserFactory,
 )
+
+
+def test_usercreate_get_success(rf, core_developer):
+    request = rf.get("/")
+    request.user = core_developer
+
+    response = UserCreate.as_view()(request)
+
+    assert response.status_code == 200
+
+
+def test_usercreate_get_success_with_org_slug(rf, core_developer):
+    org = OrgFactory()
+
+    request = rf.get(f"/?org-slug={org.slug}")
+    request.user = core_developer
+
+    response = UserCreate.as_view()(request)
+
+    assert response.status_code == 200
+    assert response.context_data["form"].initial["org"] == org
+
+
+def test_usercreate_get_success_with_project_slug(rf, core_developer):
+    project = ProjectFactory()
+
+    request = rf.get(f"/?project-slug={project.slug}")
+    request.user = core_developer
+
+    response = UserCreate.as_view()(request)
+
+    assert response.status_code == 200
+    assert response.context_data["form"].initial["project"] == project
+
+
+def test_usercreate_get_success_with_unknown_args(rf, core_developer):
+    request = rf.get("/?org-slug=test&project-slug=test")
+    request.user = core_developer
+
+    response = UserCreate.as_view()(request)
+
+    assert response.status_code == 200
+    assert "org" not in response.context_data["form"].initial
+    assert "project" not in response.context_data["form"].initial
+
+
+def test_usercreate_post_success_with_application_url(rf, core_developer):
+    org = OrgFactory()
+    project = ProjectFactory()
+
+    data = {
+        "application_url": "example.com",
+        "org": org.pk,
+        "project": project.pk,
+        "name": "New Name-Name",
+        "email": "test@example.com",
+    }
+    request = rf.post("/", data)
+    request.user = core_developer
+
+    response = UserCreate.as_view()(request)
+
+    assert response.status_code == 302, response.context_data["form"].errors
+
+    user = User.objects.get(email="test@example.com")
+    assert response.url == user.get_staff_url()
+    assert user.created_by == core_developer
+    assert user.name == "New Name-Name"
+    assert user.orgs.first() == org
+    assert user.projects.first() == project
+    assert user.projects.first().application_url == "http://example.com"
+
+
+def test_usercreate_post_success_without_application_url(rf, core_developer):
+    org = OrgFactory()
+    project = ProjectFactory()
+    ApplicationFactory(project=project)
+
+    data = {
+        "org": org.pk,
+        "project": project.pk,
+        "name": "New Name-Name",
+        "email": "test@example.com",
+    }
+    request = rf.post("/", data)
+    request.user = core_developer
+
+    response = UserCreate.as_view()(request)
+
+    assert response.status_code == 302, response.context_data["form"].errors
+
+    user = User.objects.get(email="test@example.com")
+    assert response.url == user.get_staff_url()
+    assert user.created_by == core_developer
+    assert user.name == "New Name-Name"
+    assert user.orgs.first() == org
+    assert user.projects.first() == project
+    assert not user.projects.first().application_url
+
+
+def test_usercreate_unauthorized(rf):
+    request = rf.get("/")
+    request.user = UserFactory()
+
+    with pytest.raises(PermissionDenied):
+        UserCreate.as_view()(request)
 
 
 def test_userdetail_get_success(rf, core_developer):
