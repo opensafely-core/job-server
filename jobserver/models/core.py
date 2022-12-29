@@ -770,6 +770,15 @@ class User(AbstractBaseUser):
     pat_token = models.TextField(null=True, unique=True)
     pat_expires_at = models.DateTimeField(null=True)
 
+    # normally this would be nullable but we are only creating users for
+    # Interactive users currently
+    created_by = models.ForeignKey(
+        "User",
+        null=True,
+        on_delete=models.SET_NULL,
+        related_name="created_users",
+    )
+
     roles = RolesField()
 
     objects = UserManager()
