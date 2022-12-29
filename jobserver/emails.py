@@ -1,4 +1,5 @@
 from django.conf import settings
+from django.urls import reverse
 from furl import furl
 from incuna_mail import send
 
@@ -25,6 +26,25 @@ def send_finished_notification(email, job):
         sender="notifications@jobs.opensafely.org",
         subject=f"{job.status}: [os {workspace_name}] {job.action}",
         template_name="emails/notify_finished.txt",
+        context=context,
+    )
+
+
+def send_github_login_email(user):
+    login_url = furl(settings.BASE_URL) / reverse(
+        "auth-login", kwargs={"backend": "github"}
+    )
+
+    context = {
+        "url": login_url,
+    }
+
+    send(
+        to=user.email,
+        subject="OpenSAFELY password reset request",
+        sender="notifications@jobs.opensafely.org",
+        reply_to=["OpenSAFELY Team <team@opensafely.org>"],
+        template_name="emails/login_via_github.txt",
         context=context,
     )
 
@@ -60,4 +80,21 @@ def send_repo_signed_off_notification_to_staff(repo):
         subject=subject,
         template_name="emails/notify_staff_repo_signed_off.txt",
         context={"repo": repo, "staff_url": staff_url},
+    )
+
+
+def send_reset_password_email(user):
+    reset_url = furl(settings.BASE_URL) / user.get_password_reset_url()
+
+    context = {
+        "url": reset_url,
+    }
+
+    send(
+        to=user.email,
+        subject="OpenSAFELY password reset request",
+        sender="notifications@jobs.opensafely.org",
+        reply_to=["OpenSAFELY Team <team@opensafely.org>"],
+        template_name="emails/reset_password.txt",
+        context=context,
     )

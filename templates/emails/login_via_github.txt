@@ -1,0 +1,9 @@
+A request to reset your password has been made.
+
+If you did not make this request then you can safely ignore this email.
+
+You registered with OpenSAFELY by using your GitHub and as such have no password reset.
+
+Please use the link below to log into the Job site directly.  You can also do so by clicking the login button in the top right of the page.
+
+{{ url }}

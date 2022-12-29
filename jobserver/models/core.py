@@ -9,6 +9,7 @@ import structlog
 from django.contrib.auth.models import AbstractBaseUser
 from django.contrib.auth.models import UserManager
 from django.contrib.auth.models import UserManager as BaseUserManager
+from django.contrib.auth.tokens import PasswordResetTokenGenerator
 from django.contrib.auth.validators import UnicodeUsernameValidator
 from django.contrib.postgres.fields import ArrayField
 from django.core.validators import validate_slug
@@ -16,6 +17,8 @@ from django.db import models
 from django.db.models import Min, Q
 from django.urls import reverse
 from django.utils import timezone
+from django.utils.encoding import force_bytes
+from django.utils.http import urlsafe_base64_encode
 from django.utils.text import slugify
 from environs import Env
 from furl import furl
@@ -871,6 +874,12 @@ class User(AbstractBaseUser):
     def get_full_name(self):
         """Support Django's User contract"""
         return self.fullname
+
+    def get_password_reset_url(self):
+        uid = urlsafe_base64_encode(force_bytes(self.pk))
+        token = PasswordResetTokenGenerator().make_token(self)
+
+        return reverse("set-password", kwargs={"uidb64": uid, "token": token})
 
     def get_staff_url(self):
         return reverse("staff:user-detail", kwargs={"username": self.username})
