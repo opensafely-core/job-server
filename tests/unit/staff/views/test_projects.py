@@ -82,6 +82,49 @@ def test_projectaddmember_unknown_project(rf, core_developer):
         ProjectAddMember.as_view()(request, slug="test")
 
 
+def test_projectcreate_get_success(rf, core_developer):
+    request = rf.get("/")
+    request.htmx = False
+    request.user = core_developer
+
+    response = ProjectCreate.as_view()(request)
+
+    assert response.status_code == 200
+
+
+def test_projectcreate_post_htmx_success_with_next(rf, core_developer):
+    data = {
+        "name": "new-name",
+        "org": OrgFactory().pk,
+    }
+    request = rf.post("/?next=/next/page/", data)
+    request.htmx = True
+    request.user = core_developer
+
+    response = ProjectCreate.as_view()(request)
+
+    assert response.status_code == 200
+    assert response.headers["HX-Redirect"] == "/next/page/?project-slug=new-name"
+
+
+def test_projectcreate_post_htmx_success_without_next(rf, core_developer):
+    data = {
+        "name": "new-name",
+        "org": OrgFactory().pk,
+    }
+    request = rf.post("/", data)
+    request.htmx = True
+    request.user = core_developer
+
+    response = ProjectCreate.as_view()(request)
+
+    assert response.status_code == 200
+
+    project = Project.objects.first()
+    expected = project.get_staff_url() + "?project-slug=new-name"
+    assert response.headers["HX-Redirect"] == expected
+
+
 def test_projectcreate_post_success(rf, core_developer):
     org = OrgFactory()
 
@@ -92,6 +135,7 @@ def test_projectcreate_post_success(rf, core_developer):
         "org": org.pk,
     }
     request = rf.post("/", data)
+    request.htmx = False
     request.user = core_developer
 
     response = ProjectCreate.as_view()(request)

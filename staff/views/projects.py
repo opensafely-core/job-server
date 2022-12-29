@@ -13,6 +13,7 @@ from django.views.generic import (
     UpdateView,
     View,
 )
+from django_htmx.http import HttpResponseClientRedirect
 
 from applications.models import Application
 from jobserver.authorization import CoreDeveloper
@@ -28,6 +29,8 @@ from ..forms import (
     ProjectLinkApplicationForm,
     ProjectMembershipForm,
 )
+from ..htmx_tools import get_redirect_url
+from ..querystring_tools import get_query_args
 
 
 @method_decorator(require_role(CoreDeveloper), name="dispatch")
@@ -76,14 +79,34 @@ class ProjectAddMember(FormView):
 @method_decorator(require_role(CoreDeveloper), name="dispatch")
 class ProjectCreate(CreateView):
     form_class = ProjectCreateForm
-    template_name = "staff/project_create.html"
 
     def form_valid(self, form):
         project = form.save(commit=False)
         project.created_by = self.request.user
         project.save()
 
-        return redirect(project.get_staff_url())
+        project_detail = project.get_staff_url()
+
+        if not self.request.htmx:
+            return redirect(project_detail)
+
+        url = get_redirect_url(
+            self.request.GET,
+            project_detail,
+            {"project-slug": project.slug},
+        )
+        return HttpResponseClientRedirect(url)
+
+    def get_context_data(self, **kwargs):
+        return super().get_context_data() | {
+            "query_args": get_query_args(self.request.GET),
+        }
+
+    def get_template_names(self):
+        suffix = ".htmx" if self.request.htmx else ""
+        template_name = f"staff/project_create{suffix}.html"
+
+        return [template_name]
 
 
 @method_decorator(require_role(CoreDeveloper), name="dispatch")

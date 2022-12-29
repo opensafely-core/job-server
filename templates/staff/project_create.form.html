@@ -1,0 +1,32 @@
+<form method="POST" hx-post="{% url 'staff:project-create' %}{{ query_args }}">
+  {% csrf_token %}
+
+  {% if form.non_field_errors %}
+    <ul>
+      {% for error in form.non_field_errors %}
+        <li class="text-danger">{{ error }}</li>
+      {% endfor %}
+    </ul>
+  {% endif %}
+
+  <fieldset class="mb-3">
+    <legend class="h3 mb-3">Set project details</legend>
+
+    <div class="form-group">
+      <label class="font-weight-bold" for="id_org">Select an org</label>
+      <select id="id_org" name="org" required class="w-100">
+        {% for value, label in form.fields.org.choices %}
+          <option value="{{ value }}">{{ label }}</option>
+        {% endfor %}
+      </select>
+
+      {% for error in form.orgs.errors %}
+        <p class="text-danger">{{ error }}</p>
+      {% endfor %}
+    </div>
+
+    {% include "components/form_text.html" with field=form.name label="Set the project name" name="name" %}
+  </fieldset>
+
+  <button class="btn btn-success" type="submit">Create</button>
+</form>
