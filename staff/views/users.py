@@ -12,6 +12,7 @@ from django.views.generic import FormView, ListView, UpdateView
 from jobserver.authorization import InteractiveReporter, roles
 from jobserver.authorization.decorators import require_permission
 from jobserver.authorization.utils import roles_for
+from jobserver.emails import send_welcome_email
 from jobserver.models import Backend, Job, Org, Project, ProjectMembership, User
 from jobserver.utils import raise_if_not_int
 
@@ -74,7 +75,7 @@ class UserCreate(FormView):
             project=project, user=user, roles=[InteractiveReporter]
         )
 
-        # TODO: email user with password [reset] link
+        send_welcome_email(user)
 
         return redirect(user.get_staff_url())
 

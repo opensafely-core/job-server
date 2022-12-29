@@ -98,3 +98,22 @@ def send_reset_password_email(user):
         template_name="emails/reset_password.txt",
         context=context,
     )
+
+
+def send_welcome_email(user):
+    reset_url = furl(settings.BASE_URL) / user.get_password_reset_url()
+
+    context = {
+        "domain": settings.BASE_URL,
+        "name": user.name,
+        "url": reset_url,
+    }
+
+    send(
+        to=user.email,
+        subject="Welcome to OpenSAFELY",
+        sender="notifications@jobs.opensafely.org",
+        reply_to=["OpenSAFELY Team <team@opensafely.org>"],
+        template_name="emails/welcome.txt",
+        context=context,
+    )
