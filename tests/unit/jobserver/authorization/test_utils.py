@@ -2,6 +2,7 @@ import pytest
 from django.contrib.auth.models import AnonymousUser
 
 from jobserver.authorization import (
+    InteractiveReporter,
     OutputPublisher,
     ProjectCollaborator,
     ProjectDeveloper,
@@ -87,7 +88,7 @@ def test_has_role_with_context_success():
 def test_roles_for_success():
     output = roles_for(ProjectMembership)
 
-    assert output == [ProjectCollaborator, ProjectDeveloper]
+    assert output == [InteractiveReporter, ProjectCollaborator, ProjectDeveloper]
 
 
 def test_strings_to_roles_success():
