@@ -44,6 +44,7 @@ ALLOWED_HOSTS = ["*"]
 # Application definition
 INSTALLED_APPS = [
     "applications",
+    "interactive",
     "jobserver",
     "redirects",
     "staff",
