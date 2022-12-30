@@ -1,10 +1,8 @@
 from django.contrib import messages
 from django.contrib.auth.decorators import login_required
-from django.core.exceptions import SuspiciousOperation
 from django.shortcuts import redirect
 from django.template.response import TemplateResponse
 from django.utils.decorators import method_decorator
-from django.views.defaults import bad_request
 from django.views.generic import UpdateView
 
 from ..utils import is_safe_path
@@ -13,7 +11,7 @@ from ..utils import is_safe_path
 def login_view(request):
     next_url = request.GET.get("next") or "/"
     if not is_safe_path(next_url):
-        return bad_request(request, SuspiciousOperation)
+        next_url = ""
 
     if request.user.is_authenticated:
         return redirect(next_url)
