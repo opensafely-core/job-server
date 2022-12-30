@@ -255,6 +255,7 @@ workspace_urls = [
 project_urls = [
     path("", ProjectDetail.as_view(), name="project-detail"),
     path("edit/", ProjectEdit.as_view(), name="project-edit"),
+    path("interactive/", include("interactive.urls")),
     path("new-workspace/", WorkspaceCreate.as_view(), name="workspace-create"),
     path("releases/", ProjectReleaseList.as_view(), name="project-release-list"),
     path("<str:workspace_slug>/", include(workspace_urls)),

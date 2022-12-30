@@ -565,6 +565,10 @@ class Project(models.Model):
     def get_staff_feature_flags_url(self):
         return reverse("staff:project-feature-flags", kwargs={"slug": self.slug})
 
+    @property
+    def interactive_workspace(self):
+        return self.workspaces.get(name=f"{self.slug}-interactive")
+
     def save(self, *args, **kwargs):
         if not self.slug:
             self.slug = slugify(self.name)

@@ -1,4 +1,5 @@
 from django.db import models
+from django.urls import reverse
 from django.utils import timezone
 from furl import furl
 from timeflake.extensions.django import TimeflakePrimaryKeyBinary
@@ -40,6 +41,16 @@ class AnalysisRequest(models.Model):
 
     def __str__(self):
         return f"{self.title} ({self.codelist_slug})"
+
+    def get_absolute_url(self):
+        return reverse(
+            "interactive:analysis-detail",
+            kwargs={
+                "org_slug": self.project.org.slug,
+                "project_slug": self.project.slug,
+                "pk": self.id,
+            },
+        )
 
     def get_codelist_url(self):
         oc = furl("https://www.opencodelists.org/codelist/")

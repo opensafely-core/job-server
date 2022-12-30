@@ -1,4 +1,21 @@
+from django.urls import reverse
+
 from ...factories import AnalysisRequestFactory, UserFactory
+
+
+def test_get_absolute_url():
+    analysis_request = AnalysisRequestFactory()
+
+    url = analysis_request.get_absolute_url()
+
+    assert url == reverse(
+        "interactive:analysis-detail",
+        kwargs={
+            "org_slug": analysis_request.project.org.slug,
+            "project_slug": analysis_request.project.slug,
+            "pk": analysis_request.pk,
+        },
+    )
 
 
 def test_get_codelist_url():
