@@ -111,6 +111,33 @@ def test_job_run_command_error_action():
     assert JobFactory(job_request=job_request, action="__error__").run_command is None
 
 
+def test_job_run_command_invalid_project_definition():
+    """
+    Test an invalid project definition
+    """
+    pipeline = """
+    version: 3.0
+    expectations:
+      population_size: 1000
+    actions:
+      my_action:
+        run: cowsay research!
+        outputs:
+          moderately_sensitive:
+            log: logs/cowsay.log
+      another_action:
+        needs: [my_action]
+        run: cowsay research!
+        outputs:
+          moderately_sensitive:
+            log: logs/cowsay.log
+    """
+
+    job_request = JobRequestFactory(project_definition=pipeline)
+
+    assert JobFactory(job_request=job_request).run_command is None
+
+
 def test_job_run_command_success():
     pipeline = """
     version: 3.0
