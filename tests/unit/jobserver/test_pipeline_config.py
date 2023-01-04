@@ -228,31 +228,31 @@ def test_render_definition():
             log: logs/analysis.log
     """
 
-    expected = """<div class="card-body my-0 rounded-0 highlight"><pre><span></span><span class="nt">version</span><span class="p">:</span><span class="w"> </span><span class="s">&quot;3.0&quot;</span><span class="w"></span>
+    expected = """<div class="card-body my-0 rounded-0 highlight"><pre><span></span><span class="nt">version</span><span class="p">:</span><span class="w"> </span><span class="s">&quot;3.0&quot;</span>
 
-<span class="w">    </span><span class="nt">expectations</span><span class="p">:</span><span class="w"></span>
-<span class="w">      </span><span class="nt">population_size</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">100000</span><span class="w"></span>
+<span class="w">    </span><span class="nt">expectations</span><span class="p">:</span>
+<span class="w">      </span><span class="nt">population_size</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">100000</span>
 
-<span class="w">    </span><span class="nt">actions</span><span class="p">:</span><span class="w"></span>
-<span class="w">      </span><span class="nt">generate_cohort</span><span class="p">:</span><span class="w"></span>
-<span class="w">        </span><span class="nt">run</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">cohortextractor:latest generate_cohort --study-definition study_definition</span><span class="w"></span>
-<span class="w">        </span><span class="nt">outputs</span><span class="p">:</span><span class="w"></span>
-<span class="w">          </span><span class="nt">highly_sensitive</span><span class="p">:</span><span class="w"></span>
-<span class="w">            </span><span class="nt">cohort</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">output/input.csv</span><span class="w"></span>
+<span class="w">    </span><span class="nt">actions</span><span class="p">:</span>
+<span class="w">      </span><span class="nt">generate_cohort</span><span class="p">:</span>
+<span class="w">        </span><span class="nt">run</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">cohortextractor:latest generate_cohort --study-definition study_definition</span>
+<span class="w">        </span><span class="nt">outputs</span><span class="p">:</span>
+<span class="w">          </span><span class="nt">highly_sensitive</span><span class="p">:</span>
+<span class="w">            </span><span class="nt">cohort</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">output/input.csv</span>
 
-<span class="w">      </span><span class="nt">run_model</span><span class="p">:</span><span class="w"></span>
-<span class="w">        </span><span class="nt">run</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">stata-mp:latest <a href="example.com/analysis/model.do">analysis/model.do</a></span><span class="w"></span>
-<span class="w">        </span><span class="nt">needs</span><span class="p">:</span><span class="w"> </span><span class="p p-Indicator">[</span><span class="nv">generate_cohortMAIN</span><span class="p p-Indicator">]</span><span class="w"></span>
-<span class="w">        </span><span class="nt">outputs</span><span class="p">:</span><span class="w"></span>
-<span class="w">          </span><span class="nt">moderately_sensitive</span><span class="p">:</span><span class="w"></span>
-<span class="w">            </span><span class="nt">log</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">logs/model.log</span><span class="w"></span>
+<span class="w">      </span><span class="nt">run_model</span><span class="p">:</span>
+<span class="w">        </span><span class="nt">run</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">stata-mp:latest <a href="example.com/analysis/model.do">analysis/model.do</a></span>
+<span class="w">        </span><span class="nt">needs</span><span class="p">:</span><span class="w"> </span><span class="p p-Indicator">[</span><span class="nv">generate_cohortMAIN</span><span class="p p-Indicator">]</span>
+<span class="w">        </span><span class="nt">outputs</span><span class="p">:</span>
+<span class="w">          </span><span class="nt">moderately_sensitive</span><span class="p">:</span>
+<span class="w">            </span><span class="nt">log</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">logs/model.log</span>
 
-<span class="w">      </span><span class="nt">draw_graphs</span><span class="p">:</span><span class="w"></span>
-<span class="w">        </span><span class="nt">run</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">python:latest python <a href="example.com/analysis/time_series_plots.py">analysis/time_series_plots.py</a></span><span class="w"></span>
-<span class="w">        </span><span class="nt">needs</span><span class="p">:</span><span class="w"> </span><span class="p p-Indicator">[</span><span class="nv">run_model</span><span class="p p-Indicator">]</span><span class="w"></span>
-<span class="w">        </span><span class="nt">outputs</span><span class="p">:</span><span class="w"></span>
-<span class="w">          </span><span class="nt">moderately_sensitive</span><span class="p">:</span><span class="w"></span>
-<span class="w">            </span><span class="nt">log</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">logs/analysis.log</span><span class="w"></span>
+<span class="w">      </span><span class="nt">draw_graphs</span><span class="p">:</span>
+<span class="w">        </span><span class="nt">run</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">python:latest python <a href="example.com/analysis/time_series_plots.py">analysis/time_series_plots.py</a></span>
+<span class="w">        </span><span class="nt">needs</span><span class="p">:</span><span class="w"> </span><span class="p p-Indicator">[</span><span class="nv">run_model</span><span class="p p-Indicator">]</span>
+<span class="w">        </span><span class="nt">outputs</span><span class="p">:</span>
+<span class="w">          </span><span class="nt">moderately_sensitive</span><span class="p">:</span>
+<span class="w">            </span><span class="nt">log</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">logs/analysis.log</span>
 </pre></div>\n"""
 
     output = render_definition(dummy_yaml, link_func)
