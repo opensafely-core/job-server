@@ -76,6 +76,25 @@ form_specs = [
         ],
     ),
     Form(
+        key="commercial-involvement",
+        model=models.CommercialInvolvementPage,
+        title="Commercial Involvement",
+        sub_title="",
+        rubric=snippet("commercial-involvement-rubric"),
+        fieldsets=[
+            Fieldset(
+                label="",
+                fields=[
+                    Field(
+                        name="details",
+                        label="Details",
+                        template_name="components/form_textarea.html",
+                    ),
+                ],
+            ),
+        ],
+    ),
+    Form(
         key="study-information",
         model=models.StudyInformationPage,
         title="Study information",
