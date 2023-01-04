@@ -210,7 +210,7 @@ class CommercialInvolvementPage(AbstractPage):
 
 class StudyInformationPage(AbstractPage):
     study_name = models.TextField(blank=True)
-    study_purpose = models.TextField(blank=True)
+    study_purpose = models.CharField(blank=True, max_length=1500)
 
 
 class StudyPurposePage(AbstractPage):
