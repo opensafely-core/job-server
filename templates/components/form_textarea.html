@@ -1,4 +1,4 @@
-<div class="form-group">
+<div class="form-group" {% if "maxlength" in extra_attributes %}data-character-count{% endif %}>
 
   <label class="font-weight-bold" for="id_{{ name }}">
     {{ label }}
@@ -26,11 +26,11 @@
   >{% if field.value %}{{ field.value }}{% endif %}</textarea>
 
   {% if "maxlength" in extra_attributes %}
-  <div class="text-right">
-    <div id="character_counter">
-      <span id="typed_characters">0</span>/1500
-    </div>
-  </div>
+  <p class="text-right">
+    <span data-character-counter>
+      <span data-typed-characters>0</span>/1500
+    </span>
+  </p>
   {% endif %}
 
   {% if field.help_text %}
