@@ -138,6 +138,26 @@ def test_job_run_command_invalid_project_definition():
     assert JobFactory(job_request=job_request).run_command is None
 
 
+def test_job_run_command_invalid_project_definition_yaml():
+    """
+    Test an invalid project definition
+    """
+    pipeline = """
+    version: 3.0
+    expectations:
+      population_size: 1000
+    actions:
+      my_action:
+        run: cowsay research!
+      my_action:
+        run: cowsay research!
+    """
+
+    job_request = JobRequestFactory(project_definition=pipeline)
+
+    assert JobFactory(job_request=job_request).run_command is None
+
+
 def test_job_run_command_success():
     pipeline = """
     version: 3.0

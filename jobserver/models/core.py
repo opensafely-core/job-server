@@ -21,7 +21,7 @@ from environs import Env
 from furl import furl
 from opentelemetry.trace import propagation
 from opentelemetry.trace.propagation import tracecontext
-from pipeline import load_pipeline
+from pipeline import YAMLError, load_pipeline
 from sentry_sdk import capture_message
 
 from ..authorization.fields import RolesField
@@ -145,7 +145,7 @@ class Job(models.Model):
         # command for this job
         try:
             pipeline = load_pipeline(self.job_request.project_definition)
-        except pydantic.ValidationError:
+        except (pydantic.ValidationError, YAMLError):
             return  # we don't have a valid config
 
         if action := pipeline.actions.get(self.action):
