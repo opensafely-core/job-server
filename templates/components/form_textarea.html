@@ -17,6 +17,12 @@
     {% if field.field.required %}
     required
     {% endif %}
+
+    {# add extra form attributes here #}
+    {% for attr_name, attr_value in extra_attributes.items %}
+    {{ attr_name }}={{ attr_value }}
+    {% endfor %}
+
   >{% if field.value %}{{ field.value }}{% endif %}</textarea>
 
   {% if field.help_text %}
