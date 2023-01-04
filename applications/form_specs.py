@@ -114,7 +114,7 @@ form_specs = [
                         label="What is the purpose for which you are requesting access to the OpenSAFELY data?",
                         help_text=snippet("study_purpose-help_text"),
                         template_name="components/form_textarea.html",
-                        attributes=Attributes(max_length=1500),
+                        attributes=Attributes(maxlength=1500),
                     ),
                 ],
             ),

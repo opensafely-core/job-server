@@ -25,14 +25,13 @@
 
   >{% if field.value %}{{ field.value }}{% endif %}</textarea>
 
-  {% if "max_length" in extra_attributes %}
+  {% if "maxlength" in extra_attributes %}
   <div class="text-right">
     <div id="character_counter">
       <span id="typed_characters">0</span>/1500
     </div>
   </div>
   {% endif %}
-
 
   {% if field.help_text %}
     <div id="{{ name }}HelpBlock" class="form-text text-muted form__help-text mt-2">
