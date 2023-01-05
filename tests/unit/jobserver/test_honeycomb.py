@@ -66,6 +66,30 @@ def test_trace_link():
 
 
 @pytest.mark.freeze_time("2022-10-12 17:00")
+def test_status_link():
+    job = JobFactory(completed_at=timezone.now(), identifier="test_identifier")
+    url = honeycomb.status_link(job)
+    parsed = honeycomb.TemplatedUrl.parse(url)
+
+    assert parsed.stacked
+    assert parsed.query == {
+        "breakdowns": ["name"],
+        "calculations": [{"op": "CONCURRENCY"}],
+        "end_time": 1665594060,
+        "filter_combination": "AND",
+        "filters": [
+            {"column": "scope", "op": "=", "value": "ticks"},
+            {"column": "job", "op": "=", "value": "test_identifier"},
+        ],
+        "granularity": 0,
+        "havings": [],
+        "limit": 1000,
+        "orders": [{"op": "CONCURRENCY", "order": "descending"}],
+        "start_time": 1665593940,
+    }
+
+
+@pytest.mark.freeze_time("2022-10-12 17:00")
 def test_jobrequest_link():
     job_request = JobRequestFactory(identifier="jpbaeldzjqqiaolg")
     job = JobFactory(  # noqa: F841
