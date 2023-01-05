@@ -45,7 +45,8 @@ characterCounts.forEach((formGroup) => {
 
     /**
      * Change the character counter text colour to "orange" if the typed
-     * characters number is between 200 to 250. If more, then change the colour to "red".
+     * characters number is between 1400 to 1450. If more, then change the
+     * colour to "red".
      */
     if (typedCharacters >= 1400 && typedCharacters < 1450) {
       characterCounterElement.classList.remove("text-danger");
