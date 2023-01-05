@@ -111,7 +111,7 @@ def status_link(job):
         stacked=True,
         filters=[
             {"column": "scope", "op": "=", "value": "ticks"},
-            {"column": "job", "op": "=", "value": job.id},
+            {"column": "job", "op": "=", "value": job.identifier},
         ],
     )
     return url.url
