@@ -12,7 +12,7 @@ from django.views.generic import FormView, ListView, UpdateView
 from jobserver.authorization import roles
 from jobserver.authorization.decorators import require_permission
 from jobserver.authorization.utils import roles_for
-from jobserver.models import Backend, Org, Project, User
+from jobserver.models import Backend, Job, Org, Project, User
 from jobserver.utils import raise_if_not_int
 
 from ..forms import UserForm, UserOrgsForm
@@ -46,6 +46,9 @@ class UserDetail(UpdateView):
     def get_context_data(self, **kwargs):
         applications = self.object.applications.order_by("-created_at")
         copiloted_projects = self.object.copiloted_projects.order_by(Lower("name"))
+        jobs = Job.objects.filter(job_request__created_by=self.object).order_by(
+            "-created_at"
+        )[:10]
         orgs = [
             {
                 "name": m.org.name,
@@ -67,6 +70,7 @@ class UserDetail(UpdateView):
         return super().get_context_data(**kwargs) | {
             "applications": applications,
             "copiloted_projects": copiloted_projects,
+            "jobs": jobs,
             "orgs": orgs,
             "projects": projects,
         }
