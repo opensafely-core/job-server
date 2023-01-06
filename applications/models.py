@@ -259,6 +259,7 @@ class SponsorDetailsPage(AbstractPage):
     sponsor_email = models.TextField(blank=True)
     sponsor_job_role = models.TextField(blank=True)
     institutional_rec_reference = models.TextField(blank=True)
+    is_member_of_bennett_or_lshtm = models.BooleanField(default=False)
 
 
 class CmoPriorityListPage(AbstractPage):

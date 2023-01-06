@@ -349,6 +349,15 @@ form_specs = [
                 label="",
                 fields=[
                     Field(
+                        name="is_member_of_bennett_or_lshtm",
+                        label="I am a member of the Bennett Institute/LSHTM conducting a study conforming to the Service Restoration Observatory and Aftershocks workstream",
+                    )
+                ],
+            ),
+            Fieldset(
+                label="",
+                fields=[
+                    Field(
                         name="institutional_rec_reference",
                         label="Institutional REC reference",
                         optional=True,
