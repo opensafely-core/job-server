@@ -225,6 +225,52 @@
         </div>
 
       </form>
+
+      <div id="jobs" class="mt-5">
+
+        <div class="d-flex justify-content-between">
+          <h2 class="h4">Jobs</h2>
+          <div>
+            <a class="btn btn-sm btn-primary" href="{% url 'job-list' %}?username={{ user.username }}">
+              View all ({{ jobs|length }})
+            </a>
+          </div>
+        </div>
+
+        <table class="table">
+          <thead>
+            <tr>
+              <th scope="col">Status</th>
+              <th scope="col">Job</th>
+              <th scope="col">Created</th>
+              <th scope="col">Runtime</th>
+            </tr>
+          </thead>
+          <tbody>
+            {% for job in jobs %}
+            <tr>
+              <td>
+                <div
+                  class="status status-icon {{ job.status }}"
+                  data-placement="bottom"
+                  data-toggle="tooltip"
+                  title="{{ job.status|capfirst }}"
+                >
+              </td>
+              <td><a href="{{ job.get_absolute_url }}">{{ job.identifier }}</a></td>
+              <td>
+                <time datetime="{{ job.created_at.isoformat }}">
+                  {{ job.created_at }}
+                </time>
+              </td>
+              <td>{{ job.runtime }}</td>
+            </tr>
+            {% endfor %}
+          </tbody>
+        </table>
+
+      </div>
+
     </div>
   </div>
 </div>
