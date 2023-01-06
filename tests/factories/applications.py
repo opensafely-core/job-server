@@ -5,6 +5,7 @@ import factory.fuzzy
 
 from applications.models import (
     Application,
+    CommercialInvolvementPage,
     ContactDetailsPage,
     DatasetsPage,
     PreviousEhrExperiencePage,
@@ -58,6 +59,13 @@ class ContactDetailsPageFactory(AbstractPageFactory):
     job_title = factory.Faker("job")
     team_name = factory.Sequence(lambda n: f"team {n}")
     organisation = factory.Sequence(lambda n: f"org {n}")
+
+
+class CommercialInvolvementPageFactory(AbstractPageFactory):
+    class Meta:
+        model = CommercialInvolvementPage
+
+    details = factory.Sequence(lambda n: f"details {n}")
 
 
 class StudyInformationPageFactory(AbstractPageFactory):

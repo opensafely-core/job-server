@@ -1,0 +1,1 @@
+Please specify if you have any industry/commercial involvement in your project, including funding. Also, specify if the funder expects to have involvement in the protocol design, early sight of results and / or input into the manuscripts/reports.

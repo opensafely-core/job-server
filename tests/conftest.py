@@ -108,7 +108,7 @@ def complete_application():
 @pytest.fixture
 def incomplete_application():
     application = application_factories.ApplicationFactory()
-    for form_spec in form_specs[:10]:
+    for form_spec in form_specs[:11]:
         factory_name = form_spec.model.__name__ + "Factory"
         factory = getattr(application_factories, factory_name)
         factory(application=application)

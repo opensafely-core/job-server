@@ -204,6 +204,10 @@ class ContactDetailsPage(AbstractPage):
     organisation = models.TextField(blank=True)
 
 
+class CommercialInvolvementPage(AbstractPage):
+    details = models.TextField(blank=True)
+
+
 class StudyInformationPage(AbstractPage):
     study_name = models.TextField(blank=True)
     study_purpose = models.TextField(blank=True)
