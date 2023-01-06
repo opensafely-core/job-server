@@ -141,6 +141,7 @@ class Attributes:
     autocapitalize: str | None = None
     spellcheck: str | None = None
     autocorrect: str | None = None
+    maxlength: str | None = None
 
     def form_context(self):
         return {k: v for k, v in asdict(self).items() if v is not None}
