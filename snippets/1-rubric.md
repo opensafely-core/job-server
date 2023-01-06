@@ -1,4 +1,4 @@
-All contents of the application form*, including the emails the project leads for the dashboard of approved projects, will be placed in the public domain, such as on the OpenSAFELY or NHS England websites. This is in keeping with our [transparency principles](https://www.opensafely.org/about/). 
+All contents of the application form*, including the emails of the Study Leads, will be placed in the public domain, such as on the OpenSAFELY or NHS England websites. This is in keeping with our [transparency principles](https://www.opensafely.org/about/). 
 
 *_This will not apply to any mobile phone numbers supplied, or emails of other individuals who are not project leads._
 
