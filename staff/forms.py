@@ -226,6 +226,7 @@ class WorkspaceEditForm(forms.ModelForm):
     class Meta:
         fields = [
             "project",
+            "is_archived",
             "uses_new_release_flow",
         ]
         model = Workspace
