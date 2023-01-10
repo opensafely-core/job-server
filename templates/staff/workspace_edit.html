@@ -58,6 +58,23 @@
         </div>
 
         <div class="form-group">
+          <div class="custom-control custom-checkbox">
+            <input
+                type="checkbox"
+                class="custom-control-input"
+                id="id_is_archived"
+                name="is_archived"
+                {% if form.is_archived.value %}
+                checked
+                {% endif %}
+                />
+            <label class="custom-control-label" for="id_is_archived">
+              Archived
+            </label>
+          </div>
+        </div>
+
+        <div class="form-group">
           <fieldset>
             <legend class="pt-3">Feature flags</legend>
             <div class="custom-control custom-checkbox">
