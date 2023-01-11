@@ -210,11 +210,11 @@ class CommercialInvolvementPage(AbstractPage):
 
 class StudyInformationPage(AbstractPage):
     study_name = models.TextField(blank=True)
-    study_purpose = models.CharField(blank=True, max_length=1500)
+    study_purpose = models.TextField(blank=True)
 
 
 class StudyPurposePage(AbstractPage):
-    description = models.TextField(blank=True)
+    description = models.CharField(blank=True, max_length=1500)
     author_name = models.TextField(blank=True)
     author_email = models.TextField(blank=True)
     author_organisation = models.TextField(blank=True)
