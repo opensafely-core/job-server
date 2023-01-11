@@ -48,7 +48,7 @@ from staff.views import workspaces as staff_workspaces
     "url,redirect",
     [
         ("/applications/42/", "/applications/42/page/contact-details/"),
-        ("/applications/42/researchers/", "/applications/42/researchers/add"),
+        ("/applications/42/researchers/", "/applications/42/researchers/add/"),
         ("/favicon.ico", "/static/favicon.ico"),
         ("/event-list/", "/event-log/"),
         ("/jobs/", "/event-log/"),
@@ -86,7 +86,7 @@ def test_url_redirects(client, url, redirect):
         ("/applications/42/confirmation/", applications.Confirmation),
         ("/applications/42/delete/", applications.ApplicationRemove),
         ("/applications/42/restore/", applications.ApplicationRestore),
-        ("/applications/42/researchers/add", applications.ResearcherCreate),
+        ("/applications/42/researchers/add/", applications.ResearcherCreate),
         ("/applications/42/researchers/42/delete/", applications.ResearcherDelete),
         ("/applications/42/researchers/42/edit/", applications.ResearcherEdit),
         ("/event-log/", job_requests.JobRequestList),

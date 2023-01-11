@@ -20,7 +20,7 @@ app_name = "applications"
 
 researcher_urls = [
     path("", RedirectView.as_view(pattern_name="applications:researcher-add")),
-    path("add", ResearcherCreate.as_view(), name="researcher-add"),
+    path("add/", ResearcherCreate.as_view(), name="researcher-add"),
     path(
         "<int:researcher_pk>/",
         RedirectView.as_view(
