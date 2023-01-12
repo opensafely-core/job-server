@@ -47,6 +47,10 @@
         <a href="{{ application.get_staff_url }}">
           {{ application.pk_hash }} by {{ application.created_by.name }}
         </a>
+        {% elif project.application_url %}
+        <a class="btn btn-sm btn-primary" href="{{ project.application_url }}">
+          View
+        </a>
         {% else %}
         <a href="{% url 'staff:project-link-application' slug=project.slug %}"
           class="btn btn-sm btn-primary"
