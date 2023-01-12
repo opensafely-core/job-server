@@ -78,6 +78,7 @@ class ProjectDetail(View):
             "private_repos": private_repos,
             "public_repos": public_repos,
             "project_org_in_user_orgs": project_org_in_user_orgs,
+            "status": self.get_status(project),
             "workspaces": workspaces,
         }
 
@@ -108,6 +109,25 @@ class ProjectDetail(View):
         )
 
         return Snapshot.objects.filter(pk__in=snapshot_pks).order_by("-published_at")
+
+    def get_status(self, project):
+        # break up the choice label into a title and optional sub title
+        title, _, sub_title = project.get_status_display().partition(" - ")
+
+        variants_lut = {
+            "completed-and-awaiting": "success",
+            "completed-and-linked": "success",
+            "ongoing": "info",
+            "ongoing-and-linked": "info",
+            "postponed": "danger",
+            "retired": "warning",
+        }
+
+        return {
+            "title": title,
+            "sub_title": sub_title,
+            "variant": variants_lut[project.status],
+        }
 
     def iter_repos(self, repo_urls):
         def get_repo(url):

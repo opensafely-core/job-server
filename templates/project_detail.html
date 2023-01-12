@@ -51,15 +51,12 @@
             </span>
           </span>
         {% endif %}
-        {% if workspace.status == "archived" %}
-          {% pill sr_only="Status:" variant="warning" text=project.get_status_display %}
-        {% elif project.status == "ongoing" %}
-          {% pill sr_only="Status:" variant="primary" text=project.get_status_display %}
-        {% elif project.status == "postponed" %}
-          {% pill sr_only="Status:" variant="danger" text=project.get_status_display %}
-        {% elif project.status == "completed" %}
-          {% pill sr_only="Status:" variant="success" text=project.get_status_display %}
+
+        {% pill sr_only="Status:" variant=status.variant text=status.title %}
+        {% if status.sub_title %}
+        {% pill class="mt-2" variant="info" text=status.sub_title %}
         {% endif %}
+
         {% if request.user.is_authenticated and project.number %}
           {% #pill sr_only="Project number:" class="mt-2" variant="info" %}
             #{{ project.number }}
