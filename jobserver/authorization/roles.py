@@ -1,5 +1,6 @@
 from .permissions import (
     analysis_request_create,
+    analysis_request_view,
     application_manage,
     backend_manage,
     job_cancel,
@@ -82,6 +83,7 @@ class InteractiveReporter:
     ]
     permissions = [
         analysis_request_create,
+        analysis_request_view,
     ]
 
 

@@ -1,4 +1,5 @@
 analysis_request_create = "analysis_request_create"
+analysis_request_view = "analysis_request_view"
 application_manage = "application_manage"
 backend_manage = "backend_manage"
 job_cancel = "job_cancel"
