@@ -1,10 +1,12 @@
 from django.contrib import messages
 from django.contrib.auth.decorators import login_required
+from django.contrib.auth.views import PasswordResetConfirmView
 from django.shortcuts import redirect
 from django.template.response import TemplateResponse
 from django.utils.decorators import method_decorator
 from django.views.generic import FormView, UpdateView
 
+from ..authorization import InteractiveReporter
 from ..emails import send_github_login_email, send_reset_password_email
 from ..forms import ResetPasswordForm
 from ..models import User
@@ -47,6 +49,34 @@ class ResetPassword(FormView):
             self.request, "Your password reset request was successfully sent."
         )
         return redirect("/")
+
+
+class SetPassword(PasswordResetConfirmView):
+    post_reset_login = True
+    post_reset_login_backend = "django.contrib.auth.backends.ModelBackend"
+    success_url = "/"
+    template_name = "set_password.html"
+
+    def get_success_url(self):
+        # the authorization framework doesn't support getting all roles for a
+        # user across all objects, so we hae to manually do it here.
+        roles = set(self.request.user.roles)
+        for membership in self.request.user.project_memberships.all():
+            roles |= set(membership.roles)
+
+        # treat users with only the InteractiveReporter role as interactive users.
+        # we'll have users with this role along with others, eg for staff, but
+        # they likely don't want to be redirected on login.
+        if roles != {InteractiveReporter}:
+            return "/"
+
+        # if the user is logging in via this view, so with an email address and
+        # password, _and_ has the InteractiveReporter role then they should
+        # definitely be an interactive user.
+
+        # TODO: add a page for users who have 2+ projects
+        project = self.request.user.projects.first()
+        return project.get_interactive_url()
 
 
 @method_decorator(login_required, name="dispatch")

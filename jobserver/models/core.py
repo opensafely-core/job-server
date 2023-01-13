@@ -566,6 +566,12 @@ class Project(models.Model):
             kwargs={"org_slug": self.org.slug, "project_slug": self.slug},
         )
 
+    def get_interactive_url(self):
+        return reverse(
+            "interactive:analysis-create",
+            kwargs={"org_slug": self.org.slug, "project_slug": self.slug},
+        )
+
     def get_staff_edit_url(self):
         return reverse("staff:project-edit", kwargs={"slug": self.slug})
 

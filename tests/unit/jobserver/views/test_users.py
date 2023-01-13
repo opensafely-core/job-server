@@ -1,9 +1,17 @@
 from django.contrib.auth.models import AnonymousUser
 from django.contrib.messages.storage.fallback import FallbackStorage
+from django.utils.encoding import force_bytes
+from django.utils.http import urlsafe_base64_encode
 
+from jobserver.authorization import InteractiveReporter
 from jobserver.views.users import ResetPassword, Settings, login_view
 
-from ....factories import UserFactory, UserSocialAuthFactory
+from ....factories import (
+    ProjectFactory,
+    ProjectMembershipFactory,
+    UserFactory,
+    UserSocialAuthFactory,
+)
 
 
 def test_login_empty_next(rf):
@@ -134,6 +142,44 @@ def test_resetpassword_post_unknown_user(rf, mailoutbox):
     messages = list(messages)
     assert len(messages) == 1
     assert str(messages[0]) == "Your password reset request was successfully sent."
+
+
+def test_setpassword_with_interactive_role(client):
+    project = ProjectFactory()
+    user = UserFactory(fullname="test", password="test", roles=[InteractiveReporter])
+    ProjectMembershipFactory(project=project, user=user)
+
+    uid = urlsafe_base64_encode(force_bytes(user.pk))
+
+    response = client.get(user.get_password_reset_url(), follow=True)
+    assert response.status_code == 200
+    reset_url = f"/reset-password/{uid}/set-password/"
+    assert response.redirect_chain == [(reset_url, 302)]
+
+    data = {"new_password1": "testtest1234", "new_password2": "testtest1234"}
+    response = client.post(reset_url, data, follow=True)
+    assert response.status_code == 200
+    reset_url = f"/reset-password/{uid}/set-password/"
+    assert response.redirect_chain == [(project.get_interactive_url(), 302)]
+
+
+def test_setpassword_without_interactive_role(rf, client):
+    project = ProjectFactory()
+    user = UserFactory(fullname="test", password="test")
+    ProjectMembershipFactory(project=project, user=user)
+
+    uid = urlsafe_base64_encode(force_bytes(user.pk))
+
+    response = client.get(user.get_password_reset_url(), follow=True)
+    assert response.status_code == 200
+    reset_url = f"/reset-password/{uid}/set-password/"
+    assert response.redirect_chain == [(reset_url, 302)]
+
+    data = {"new_password1": "testtest1234", "new_password2": "testtest1234"}
+    response = client.post(reset_url, data, follow=True)
+    assert response.status_code == 200
+    reset_url = f"/reset-password/{uid}/set-password/"
+    assert response.redirect_chain == [("/", 302)]
 
 
 def test_settings_get(rf):

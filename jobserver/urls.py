@@ -2,7 +2,7 @@ import debug_toolbar
 import social_django.views as social_django_views
 from django.conf import settings
 from django.conf.urls.static import static
-from django.contrib.auth.views import LogoutView, PasswordResetConfirmView
+from django.contrib.auth.views import LogoutView
 from django.urls import include, path
 from django.views.decorators.csrf import csrf_exempt
 from django.views.decorators.http import require_POST
@@ -52,7 +52,7 @@ from .views.releases import (
 )
 from .views.repos import RepoHandler, SignOffRepo
 from .views.status import DBAvailability, PerBackendStatus, Status
-from .views.users import ResetPassword, Settings, login_view
+from .views.users import ResetPassword, SetPassword, Settings, login_view
 from .views.workspaces import (
     WorkspaceArchiveToggle,
     WorkspaceBackendFiles,
@@ -191,16 +191,7 @@ releases_urls = [
 
 reset_password_urls = [
     path("", ResetPassword.as_view(), name="reset-password"),
-    path(
-        "<str:uidb64>/<str:token>/",
-        PasswordResetConfirmView.as_view(
-            post_reset_login=True,
-            post_reset_login_backend="django.contrib.auth.backends.ModelBackend",
-            success_url="/",
-            template_name="set_password.html",
-        ),
-        name="set-password",
-    ),
+    path("<str:uidb64>/<str:token>/", SetPassword.as_view(), name="set-password"),
 ]
 
 status_urls = [
