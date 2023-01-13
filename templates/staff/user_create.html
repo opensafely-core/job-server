@@ -1,0 +1,176 @@
+{% extends "staff/base.html" %}
+
+{% load static %}
+
+{% block extra_styles %}
+<link rel="stylesheet" href="{% static 'vendor/select2.min.css' %}">
+<link rel="stylesheet" href="{% static 'vendor/select2-bootstrap4.min.css' %}">
+{% endblock %}
+
+{% block metatitle %}Create a user: Staff Area | OpenSAFELY Jobs{% endblock metatitle %}
+
+{% block breadcrumbs %}
+<nav class="breadcrumb-container breadcrumb--danger" aria-label="breadcrumb">
+  <div class="container">
+    <ol class="breadcrumb rounded-0 mb-0 px-0">
+      <li class="breadcrumb-item">
+        <a href="{% url 'staff:index' %}">Staff area</a>
+      </li>
+      <li class="breadcrumb-item">
+        <a href="{% url 'staff:user-list' %}">Users</a>
+      </li>
+      <li class="breadcrumb-item active" aria-current="page">
+        Create a user
+      </li>
+    </ol>
+  </div>
+</nav>
+{% endblock breadcrumbs %}
+
+{% block jumbotron %}
+<div class="jumbotron jumbotron-fluid jumbotron--danger pt-md-2">
+  <div class="container">
+    <h1 class="display-4">Create interactive user</h1>
+  </div>
+</div>
+{% endblock jumbotron %}
+
+{% block staff_content %}
+<div class="container">
+  <div class="row">
+    <div class="col-lg-9 col-xl-8">
+      <h2 class="sr-only">Create a Project</h2>
+
+      <p>
+        Creating a user here will set up an account for a user who can only use
+        the Interactive portion of the site.  Please ensure users are part of an
+        <strong>approved application</strong>.
+      </p>
+
+      <form class="mt-3 pt-3" method="POST">
+        {% csrf_token %}
+
+        {% if form.non_field_errors %}
+          <ul>
+            {% for error in form.non_field_errors %}
+              <li class="text-danger">{{ error }}</li>
+            {% endfor %}
+          </ul>
+        {% endif %}
+
+        <fieldset class="mb-3">
+          <legend class="h3 mb-3">Set the user's details</legend>
+
+          {% include "components/form_text.html" with field=form.application_url label="Application URL" name="application_url" %}
+
+          <div class="form-group">
+            <label class="font-weight-bold" for="id_org">Select an org</label>
+            <select id="id_org" name="org" aria-describedby="orgHelpBlock" required>
+              {% for value, label in form.fields.org.choices %}
+                <option
+                  value="{{ value }}"
+                  {% if form.org.value == value %}selected{% endif %}
+                  >{{ label }}</option>
+              {% endfor %}
+            </select>
+            <p id="orgHelpBlock" class="form-text text-muted">
+              If the org doesn't exist, you can
+              <button
+                hx-get="{% url 'staff:org-create' %}{{ query_args }}"
+                hx-target="#dialog"
+                hx-trigger="click"
+                class="btn btn-link m-0 p-0 border-0 font-weight-bold align-baseline"
+                >
+                add a new org
+              </button>
+            </p>
+
+            {% for error in form.orgs.errors %}
+              <p class="text-danger">{{ error }}</p>
+            {% endfor %}
+          </div>
+
+          <div class="form-group">
+            <label class="font-weight-bold" for="id_project">Select an project</label>
+            <select id="id_project" name="project" aria-describedby="projectHelpBlock" required>
+              {% for value, label in form.fields.project.choices %}
+                <option
+                  value="{{ value }}"
+                  {% if form.project.value == value %}selected{% endif %}
+                  >{{ label }}</option>
+              {% endfor %}
+            </select>
+            <p id="projectHelpBlock" class="form-text text-muted">
+              If the project doesn't exist, you can
+              <button
+                hx-get="{% url 'staff:project-create' %}{{ query_args }}"
+                hx-target="#dialog"
+                hx-trigger="click"
+                class="btn btn-link m-0 p-0 border-0 font-weight-bold align-baseline"
+                >
+                add a new project
+              </button>
+            </p>
+
+            {% for error in form.projects.errors %}
+              <p class="text-danger">{{ error }}</p>
+            {% endfor %}
+          </div>
+
+          {% include "components/form_text.html" with field=form.name label="Name" name="name" %}
+          {% include "components/form_text.html" with field=form.email label="Email address" name="email" %}
+        </fieldset>
+
+        <button class="btn btn-success" type="submit">Create</button>
+      </form>
+    </div>
+  </div>
+</div>
+
+<div id="dialog" class="modal-dialog" hx-target="this"></div>
+
+{% endblock staff_content %}
+
+{% block extra_js %}
+<script type="text/javascript" src="{% static 'vendor/htmx.min.js' %}"></script>
+<script type="text/javascript" src="{% static 'vendor/select2.min.js' %}"></script>
+<script type="text/javascript" nonce="{{ request.csp_nonce }}">
+  $(document).ready(function() {
+    $('#id_org').select2({
+      placeholder: "Select an org for the user",
+      selectionCssClass: ":all:",
+      theme: "bootstrap4",
+      width: "100%"
+    });
+    $('#id_project').select2({
+      placeholder: "Select a project for the user",
+      selectionCssClass: ":all:",
+      theme: "bootstrap4",
+      width: "100%"
+    });
+  });
+</script>
+<script nonce="{{ request.csp_nonce }}">
+  (function () {
+    htmx.on("htmx:afterSwap", (e) => {
+      // Response targeting #dialog => show the modal
+      if (e.detail.target.id === "dialog") {
+        $("#modal").modal("show");
+      }
+    });
+
+    htmx.on("htmx:beforeSwap", (e) => {
+      // Empty response targeting #dialog => hide the modal
+      if (e.detail.target.id === "dialog" && !e.detail.xhr.response) {
+        $("#modal").modal("hide");
+        e.detail.shouldSwap = false;
+      }
+    });
+
+    // Remove dialog content after hiding
+    $("#modal").on("hidden.bs.modal", () => {
+      $("#dialog").empty();
+    });
+  })();
+</script>
+{% endblock %}

@@ -44,7 +44,7 @@ from .views.projects import (
 from .views.redirects import RedirectDelete, RedirectDetail, RedirectList
 from .views.repos import RepoDetail, RepoList, RepoSignOff
 from .views.researchers import ResearcherEdit
-from .views.users import UserDetail, UserList, UserSetOrgs
+from .views.users import UserCreate, UserDetail, UserList, UserSetOrgs
 from .views.workspaces import WorkspaceDetail, WorkspaceEdit, WorkspaceList
 
 
@@ -153,6 +153,7 @@ researcher_urls = [
 
 user_urls = [
     path("", UserList.as_view(), name="user-list"),
+    path("add/", UserCreate.as_view(), name="user-create"),
     path("<username>/", UserDetail.as_view(), name="user-detail"),
     path("<username>/set-orgs/", UserSetOrgs.as_view(), name="user-set-orgs"),
 ]

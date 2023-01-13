@@ -493,6 +493,11 @@ class Project(models.Model):
 
     copilot_notes = models.TextField(default="", blank=True)
 
+    # OSI applications will be done externally.
+    # Unfortunately we can't validate this in the db with a CheckConstraint
+    # because we can't reference the FK's related_name there.
+    application_url = models.TextField(default="")
+
     created_at = models.DateTimeField(default=timezone.now)
     created_by = models.ForeignKey(
         "User",
@@ -510,17 +515,17 @@ class Project(models.Model):
     )
 
     class Meta:
-        # only consider uniqueness of number when it's not null
         constraints = [
+            # only consider uniqueness of number when it's not null
             models.UniqueConstraint(
                 fields=["number"],
                 name="unique_number_ignore_null",
                 condition=Q(number__isnull=False),
-            )
+            ),
         ]
 
     def __str__(self):
-        return f"{self.org.name} | {self.name}"
+        return f"{self.org.name} | {self.title}"
 
     def get_absolute_url(self):
         return reverse(
@@ -741,7 +746,7 @@ class User(AbstractBaseUser):
         validators=[username_validator],
         error_messages={"unique": "A user with that username already exists."},
     )
-    email = models.EmailField(blank=True)
+    email = models.EmailField(blank=True, unique=True)
 
     # fullname instead of full_name because social auth already provides that
     # field name and life is too short to work out which class we should map
@@ -765,13 +770,21 @@ class User(AbstractBaseUser):
     pat_token = models.TextField(null=True, unique=True)
     pat_expires_at = models.DateTimeField(null=True)
 
+    # normally this would be nullable but we are only creating users for
+    # Interactive users currently
+    created_by = models.ForeignKey(
+        "User",
+        null=True,
+        on_delete=models.SET_NULL,
+        related_name="created_users",
+    )
+
     roles = RolesField()
 
     objects = UserManager()
 
     EMAIL_FIELD = "email"
-    USERNAME_FIELD = "username"
-    REQUIRED_FIELDS = ["email"]
+    USERNAME_FIELD = "email"
 
     class Meta:
         constraints = [

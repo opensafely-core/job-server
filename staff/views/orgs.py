@@ -12,6 +12,8 @@ from jobserver.authorization.decorators import require_permission, require_role
 from jobserver.models import Org, OrgMembership, Project, User
 
 from ..forms import OrgAddGitHubOrgForm, OrgAddMemberForm
+from ..htmx_tools import get_redirect_url
+from ..querystring_tools import get_query_args
 
 
 @require_role(CoreDeveloper)
@@ -52,14 +54,16 @@ class OrgCreate(CreateView):
         if not self.request.htmx:
             return redirect(org_detail)
 
-        # HTMX clients should pass ?next={{ request.path }} in the template,
-        # but we can fall back to a sensible location otherwise
-        next_url = self.request.GET.get("next") or org_detail
-        return HttpResponseClientRedirect(next_url)
+        url = get_redirect_url(
+            self.request.GET,
+            org_detail,
+            {"org-slug": org.slug},
+        )
+        return HttpResponseClientRedirect(url)
 
     def get_context_data(self, **kwargs):
         return super().get_context_data() | {
-            "next": self.request.GET.get("next") or "",
+            "query_args": get_query_args(self.request.GET),
         }
 
     def get_template_names(self):

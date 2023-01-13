@@ -9,16 +9,74 @@ from django.shortcuts import get_object_or_404, redirect
 from django.utils.decorators import method_decorator
 from django.views.generic import FormView, ListView, UpdateView
 
-from jobserver.authorization import roles
+from jobserver.authorization import InteractiveReporter, roles
 from jobserver.authorization.decorators import require_permission
 from jobserver.authorization.utils import roles_for
-from jobserver.models import Backend, Job, Org, Project, User
+from jobserver.models import Backend, Job, Org, Project, ProjectMembership, User
 from jobserver.utils import raise_if_not_int
 
-from ..forms import UserForm, UserOrgsForm
+from ..forms import UserCreateForm, UserForm, UserOrgsForm
+from ..querystring_tools import merge_query_args
 
 
 logger = structlog.get_logger(__name__)
+
+
+@method_decorator(require_permission("user_manage"), name="dispatch")
+class UserCreate(FormView):
+    form_class = UserCreateForm
+    template_name = "staff/user_create.html"
+
+    def get_context_data(self, **kwargs):
+        query_args = merge_query_args(self.request.GET, {"next": self.request.path}).url
+
+        return super().get_context_data(**kwargs) | {
+            "query_args": query_args,
+        }
+
+    def get_initial(self):
+        initial = {}
+
+        # set the Org if a slug is included in the query args
+        if org_slug := self.request.GET.get("org-slug"):
+            try:
+                initial["org"] = Org.objects.get(slug=org_slug)
+            except Org.DoesNotExist:
+                pass
+
+        # set the Project if a slug is included in the query args
+        if project_slug := self.request.GET.get("project-slug"):
+            try:
+                initial["project"] = Project.objects.get(slug=project_slug)
+            except Project.DoesNotExist:
+                pass
+
+        return initial
+
+    @transaction.atomic()
+    def form_valid(self, form):
+        user = User.objects.create(
+            fullname=form.cleaned_data["name"],
+            email=form.cleaned_data["email"],
+            username=form.cleaned_data["email"],
+            created_by=self.request.user,
+            is_active=True,
+        )
+
+        user.orgs.add(form.cleaned_data["org"])
+
+        project = form.cleaned_data["project"]
+        if application_url := form.cleaned_data.get("application_url"):
+            project.application_url = application_url
+            project.save()
+
+        ProjectMembership.objects.create(
+            project=project, user=user, roles=[InteractiveReporter]
+        )
+
+        # TODO: email user with password [reset] link
+
+        return redirect(user.get_staff_url())
 
 
 @method_decorator(require_permission("user_manage"), name="dispatch")

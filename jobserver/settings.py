@@ -207,6 +207,7 @@ LOGGING = logging_config_dict
 # Auth
 AUTHENTICATION_BACKENDS = [
     "social_core.backends.github.GithubOAuth2",
+    "django.contrib.auth.backends.ModelBackend",
 ]
 AUTH_USER_MODEL = "jobserver.User"
 LOGIN_REDIRECT_URL = "/"
@@ -219,8 +220,6 @@ SOCIAL_AUTH_GITHUB_SCOPE = ["user:email"]
 
 # Passwords
 # https://docs.djangoproject.com/en/4.0/ref/settings/#password-hashers
-# We're currently using this to hash PATs for bot Users which are only used for
-# API access, and need to be reasonably fast.
 PASSWORD_HASHERS = [
     "django.contrib.auth.hashers.Argon2PasswordHasher",
 ]

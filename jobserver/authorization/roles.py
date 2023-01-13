@@ -1,4 +1,5 @@
 from .permissions import (
+    analysis_request_create,
     application_manage,
     backend_manage,
     job_cancel,
@@ -68,6 +69,20 @@ class GovernanceReviewer:
         "jobserver.models.core.User",
     ]
     permissions = []
+
+
+class InteractiveReporter:
+    """Use the interactive UI"""
+
+    display_name = "Interactive Reporter"
+    description = ""
+    models = [
+        "jobserver.models.core.ProjectMembership",
+        "jobserver.models.core.User",
+    ]
+    permissions = [
+        analysis_request_create,
+    ]
 
 
 class OnboardingAgent:
