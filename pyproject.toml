@@ -15,6 +15,7 @@ branch = true
 dynamic_context = "test_function"
 omit = [
   "*/migrations/*",
+  "applications/management/commands/fix_truncated_data.py",
   "jobserver/asgi.py",
   "jobserver/jobs/*",
   "jobserver/management/commands/count_rows.py",
