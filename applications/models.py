@@ -214,7 +214,7 @@ class StudyInformationPage(AbstractPage):
 
 
 class StudyPurposePage(AbstractPage):
-    description = models.CharField(blank=True, max_length=1500)
+    description = models.TextField(blank=True)
     author_name = models.TextField(blank=True)
     author_email = models.TextField(blank=True)
     author_organisation = models.TextField(blank=True)
