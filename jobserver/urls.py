@@ -2,7 +2,7 @@ import debug_toolbar
 import social_django.views as social_django_views
 from django.conf import settings
 from django.conf.urls.static import static
-from django.contrib.auth.views import LogoutView
+from django.contrib.auth.views import LogoutView, PasswordResetConfirmView
 from django.urls import include, path
 from django.views.decorators.csrf import csrf_exempt
 from django.views.decorators.http import require_POST
@@ -52,7 +52,7 @@ from .views.releases import (
 )
 from .views.repos import RepoHandler, SignOffRepo
 from .views.status import DBAvailability, PerBackendStatus, Status
-from .views.users import Settings, login_view
+from .views.users import ResetPassword, Settings, login_view
 from .views.workspaces import (
     WorkspaceArchiveToggle,
     WorkspaceBackendFiles,
@@ -189,6 +189,20 @@ releases_urls = [
     path("<str:pk>/<path:path>", ReleaseDetail.as_view(), name="release-detail"),
 ]
 
+reset_password_urls = [
+    path("", ResetPassword.as_view(), name="reset-password"),
+    path(
+        "<str:uidb64>/<str:token>/",
+        PasswordResetConfirmView.as_view(
+            post_reset_login=True,
+            post_reset_login_backend="django.contrib.auth.backends.ModelBackend",
+            success_url="/",
+            template_name="set_password.html",
+        ),
+        name="set-password",
+    ),
+]
+
 status_urls = [
     path("", Status.as_view(), name="status"),
     path("<slug:backend>/", PerBackendStatus.as_view(), name="status-backend"),
@@ -276,6 +290,7 @@ urlpatterns = [
     path("orgs/", OrgList.as_view(), name="org-list"),
     path("publish-repo/<repo_url>/", SignOffRepo.as_view(), name="repo-sign-off"),
     path("repo/<repo_url>/", RepoHandler.as_view(), name="repo-handler"),
+    path("reset-password/", include(reset_password_urls)),
     path("settings/", Settings.as_view(), name="settings"),
     path("staff/", include("staff.urls", namespace="staff")),
     path("status/", include(status_urls)),

@@ -1,9 +1,12 @@
 from datetime import timedelta
 
 import pytest
+from django.contrib.auth.tokens import PasswordResetTokenGenerator
 from django.db import IntegrityError
 from django.urls import reverse
 from django.utils import timezone
+from django.utils.encoding import force_bytes
+from django.utils.http import urlsafe_base64_encode
 
 from jobserver.authorization.roles import (
     CoreDeveloper,
@@ -907,6 +910,19 @@ def test_user_get_all_roles_empty():
         "orgs": [],
     }
     assert output == expected
+
+
+def test_user_get_password_reset_url():
+    user = UserFactory()
+
+    url = user.get_password_reset_url()
+
+    uid = urlsafe_base64_encode(force_bytes(user.pk))
+    token = PasswordResetTokenGenerator().make_token(user)
+    assert url == reverse(
+        "set-password",
+        kwargs={"uidb64": uid, "token": token},
+    )
 
 
 def test_user_get_staff_url():

@@ -1,9 +1,9 @@
 from django.contrib.auth.models import AnonymousUser
 from django.contrib.messages.storage.fallback import FallbackStorage
 
-from jobserver.views.users import Settings, login_view
+from jobserver.views.users import ResetPassword, Settings, login_view
 
-from ....factories import UserFactory
+from ....factories import UserFactory, UserSocialAuthFactory
 
 
 def test_login_empty_next(rf):
@@ -60,6 +60,80 @@ def test_login_already_logged_with_no_next_url(rf):
 
     assert response.status_code == 302
     assert response.url == "/"
+
+
+def test_resetpassword_get_success(rf):
+    request = rf.get("/")
+
+    response = ResetPassword.as_view()(request)
+
+    assert response.status_code == 200
+
+
+def test_resetpassword_post_email_only_user(rf, mailoutbox):
+    user = UserFactory()
+
+    request = rf.post("/", {"email": user.email})
+
+    # set up messages framework
+    request.session = "session"
+    messages = FallbackStorage(request)
+    request._messages = messages
+
+    response = ResetPassword.as_view()(request)
+
+    assert response.status_code == 302, response.context_data["form"].errors
+    assert response.url == "/"
+
+    assert len(mailoutbox) == 1
+    assert "reset-password" in mailoutbox[0].body
+
+    messages = list(messages)
+    assert len(messages) == 1
+    assert str(messages[0]) == "Your password reset request was successfully sent."
+
+
+def test_resetpassword_post_github_user(rf, mailoutbox):
+    user = UserSocialAuthFactory().user
+
+    request = rf.post("/", {"email": user.email})
+
+    # set up messages framework
+    request.session = "session"
+    messages = FallbackStorage(request)
+    request._messages = messages
+
+    response = ResetPassword.as_view()(request)
+
+    assert response.status_code == 302, response.context_data["form"].errors
+    assert response.url == "/"
+
+    assert len(mailoutbox) == 1
+    assert "github" in mailoutbox[0].body
+
+    messages = list(messages)
+    assert len(messages) == 1
+    assert str(messages[0]) == "Your password reset request was successfully sent."
+
+
+def test_resetpassword_post_unknown_user(rf, mailoutbox):
+    request = rf.post("/", {"email": "test@example.com"})
+
+    # set up messages framework
+    request.session = "session"
+    messages = FallbackStorage(request)
+    request._messages = messages
+
+    response = ResetPassword.as_view()(request)
+
+    assert response.status_code == 302, response.context_data["form"].errors
+    assert response.url == "/"
+
+    assert len(mailoutbox) == 0
+
+    messages = list(messages)
+    assert len(messages) == 1
+    assert str(messages[0]) == "Your password reset request was successfully sent."
 
 
 def test_settings_get(rf):
