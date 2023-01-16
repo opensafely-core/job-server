@@ -13,7 +13,15 @@ from jobserver.authorization import InteractiveReporter, roles
 from jobserver.authorization.decorators import require_permission
 from jobserver.authorization.utils import roles_for
 from jobserver.emails import send_welcome_email
-from jobserver.models import Backend, Job, Org, Project, ProjectMembership, User
+from jobserver.models import (
+    Backend,
+    Job,
+    Org,
+    Project,
+    ProjectMembership,
+    User,
+    Workspace,
+)
 from jobserver.utils import raise_if_not_int
 
 from ..forms import UserCreateForm, UserForm, UserOrgsForm
@@ -74,6 +82,11 @@ class UserCreate(FormView):
         ProjectMembership.objects.create(
             project=project, user=user, roles=[InteractiveReporter]
         )
+
+        try:
+            project.interactive_workspace
+        except Workspace.DoesNotExist:
+            project.create_interactive_workspace(self.request.user)
 
         send_welcome_email(user)
 
