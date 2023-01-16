@@ -1,16 +1,14 @@
+from django.core.exceptions import PermissionDenied
 from django.shortcuts import get_object_or_404, redirect
-from django.utils.decorators import method_decorator
 from django.views.generic import DetailView, TemplateView
 
-from jobserver.authorization import CoreDeveloper
-from jobserver.authorization.decorators import require_role
+from jobserver.authorization import has_permission
 from jobserver.models import Backend, Project
 
 from .dates import END_DATE, START_DATE
 from .models import AnalysisRequest
 
 
-@method_decorator(require_role(CoreDeveloper), name="dispatch")
 class AnalysisRequestCreate(TemplateView):
     template_name = "interactive/analysis_request_create.html"
 
@@ -25,6 +23,11 @@ class AnalysisRequestCreate(TemplateView):
             org__slug=self.kwargs["org_slug"],
             slug=self.kwargs["project_slug"],
         )
+
+        if not has_permission(
+            request.user, "analysis_request_create", project=self.project
+        ):
+            raise PermissionDenied
 
         return super().dispatch(request, *args, **kwargs)
 
@@ -65,8 +68,19 @@ class AnalysisRequestCreate(TemplateView):
         return redirect(analysis_request)
 
 
-@method_decorator(require_role(CoreDeveloper), name="dispatch")
 class AnalysisRequestDetail(DetailView):
     context_object_name = "analysis_request"
     model = AnalysisRequest
     template_name = "interactive/analysis_request_detail.html"
+
+    def get_object(self, queryset=None):
+        obj = super().get_object(queryset=queryset)
+
+        if not has_permission(
+            self.request.user,
+            "analysis_request_view",
+            project=self.object.job_request.workspace.project,
+        ):
+            raise PermissionDenied
+
+        return obj
