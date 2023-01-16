@@ -30,7 +30,7 @@ class AnalysisRequest(models.Model):
     end_date = models.DateField()
     commit_sha = models.TextField()
 
-    complete_email_sent_at = models.DateTimeField(default=timezone.now)
+    complete_email_sent_at = models.DateTimeField(null=True)
 
     created_at = models.DateTimeField(default=timezone.now)
     created_by = models.ForeignKey(
