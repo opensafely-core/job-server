@@ -1,0 +1,87 @@
+{% extends "base-tw.html" %}
+
+{% load humanize %}
+
+{% block metatitle %}{{ analysis_request.project.name }} Analysis | OpenSAFELY Jobs{% endblock metatitle %}
+{% block extra_meta %}
+<meta name="description" content="{{ analysis_request.project.name }} is an OpenSAFELY project from {{ analysis_request.project.org.name }}. Every time a researcher runs their analytic code against patient data, it is audited in public here.">
+{% endblock %}
+
+{% block breadcrumbs %}
+  {% url "home" as home_url %}
+
+  {% #breadcrumbs %}
+    {% breadcrumb title="Home" url=home_url %}
+    {% breadcrumb title=analysis_request.project.org.name url=analysis_request.project.org.get_absolute_url location="Organisation" %}
+    {% breadcrumb title=analysis_request.project.name url=analysis_request.project.get_absolute_url location="Project" %}
+    {% breadcrumb title="View an analysis" active=True %}
+  {% /breadcrumbs %}
+{% endblock breadcrumbs %}
+
+{% block content %}
+<div class="mb-5">
+  <h1 class="text-3xl tracking-tight break-words sm:text-4xl font-bold text-slate-900">
+    Analysis for {{ analysis_request.project.name }}
+  </h1>
+</div>
+
+<div>
+
+  {% #card title="Job Request" class="mb-5" %}
+    <dl class="border-t border-slate-200 sm:divide-y sm:divide-slate-200">
+      {% #description_item title="Workspace" %}
+        {% link href=analysis_request.job_request.workspace.get_absolute_url text=analysis_request.job_request.workspace.name %}
+      {% /description_item %}
+
+      {% #description_item title="Backend" %}
+        {{ analysis_request.job_request.backend.name }}
+      {% /description_item %}
+
+      {% #description_item title="Created by" %}
+        {{ analysis_request.created_by.fullname }}
+      {% /description_item %}
+
+      {% #description_item title="SHA" %}
+        {{ analysis_request.job_request.sha|default:"EMPTY" }}
+      {% /description_item %}
+
+      {% #description_item title="Force run deps?" %}
+        {{ analysis_request.job_request.force_run_dependencies|yesno }}
+      {% /description_item %}
+
+      {% #description_item title="Actions" %}
+        {{ analysis_request.job_request.requested_actions }}
+      {% /description_item %}
+    </dl>
+  {% /card %}
+
+  {% #card title="Analysis Request" %}
+    <dl class="border-t border-slate-200 sm:divide-y sm:divide-slate-200">
+      {% #description_item title="Created by" %}
+        {{ analysis_request.created_by.fullname }}
+      {% /description_item %}
+
+      {% #description_item title="Title" %}
+        {{ analysis_request.title }}
+      {% /description_item %}
+
+      {% #description_item title="Start date" %}
+        {{ analysis_request.start_date }}
+      {% /description_item %}
+
+      {% #description_item title="End date" %}
+        {{ analysis_request.end_date }}
+      {% /description_item %}
+
+      {% #description_item title="Codelist name" %}
+        {{ analysis_request.codelist_title }}
+      {% /description_item %}
+
+      {% #description_item title="Codelist slug" %}
+        {{ analysis_request.codelist_slug }}
+      {% /description_item %}
+    </dl>
+  {% /card %}
+
+</div>
+{% endblock %}
