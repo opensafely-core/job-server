@@ -1,0 +1,11 @@
+Hi {{ name }},
+
+Thank you for your interest in OpenSAFELY.
+
+Please click on the link to finish setting up your account:
+
+{{ url }}
+
+Once you've setup your account, you'll be logged into to the website, {{ domain }}, and taken to the "Request an analysis" page where you can design and request your analysis.
+
+Once your analysis has been run, we will send you an email with instructions on how to view the results.
