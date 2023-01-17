@@ -76,10 +76,17 @@
         {% endif %}
 
         {% if user_can_run_jobs %}
-          {% #button href=run_jobs_url type="link" variant="success" %}
-            Run jobs
-            {% icon_play_outline class="h-4 w-4 ml-2 -mr-2" %}
-          {% /button %}
+          {% if workspace.is_archived %}
+            {% #button type="button" variant="info" disabled=True tooltip="Jobs cannot be run on an archived workspace" %}
+              Run jobs
+              {% icon_play_outline class="h-4 w-4 ml-2 -mr-2" %}
+            {% /button %}
+          {% else %}
+            {% #button href=run_jobs_url type="link" variant="success" %}
+              Run jobs
+              {% icon_play_outline class="h-4 w-4 ml-2 -mr-2" %}
+            {% /button %}
+          {% endif %}
         {% endif %}
 
         {% #button href=workspace.get_logs_url type="link" variant="primary" %}
