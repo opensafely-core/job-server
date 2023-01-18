@@ -22,6 +22,12 @@ class AnalysisRequest(models.Model):
         on_delete=models.PROTECT,
         related_name="analysis_requests",
     )
+    report = models.ForeignKey(
+        "jobserver.Report",
+        on_delete=models.SET_NULL,
+        related_name="analysis_requests",
+        null=True,
+    )
 
     title = models.TextField()
     codelist_slug = models.TextField()

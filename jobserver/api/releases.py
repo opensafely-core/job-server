@@ -1,7 +1,9 @@
+import os
 from email.message import Message
 
 import sentry_sdk
 import structlog
+from django.core.exceptions import ValidationError as DjangoValidationError
 from django.db import transaction
 from django.db.models import Value
 from django.shortcuts import get_object_or_404
@@ -19,6 +21,7 @@ from rest_framework.parsers import FileUploadParser, JSONParser
 from rest_framework.response import Response
 from rest_framework.views import APIView
 
+from interactive.models import AnalysisRequest
 from jobserver import releases, slacks
 from jobserver.api.authentication import get_backend_from_token
 from jobserver.authorization import has_permission
@@ -26,6 +29,7 @@ from jobserver.models import (
     Release,
     ReleaseFile,
     ReleaseFileReview,
+    Report,
     Snapshot,
     User,
     Workspace,
@@ -50,6 +54,44 @@ def get_filename(headers):
     m = Message()
     m["Content-Disposition"] = headers["Content-Disposition"]
     return m.get_filename()
+
+
+def maybe_create_report(rfile, filename, user):
+    """
+    Reports are created for the released HTML outputs of each AnalysisRequest
+
+    We match released outputs to their AnalysisRequest by setting the output
+    filenames in their project.yaml to the AnalysisRequest's PK value.
+
+    This function looks for HTML files with a name matching an AnalysisRequest
+    PK, banking on ULIDs being unique enough for there to not be a clash here.
+    """
+    name, ext = os.path.splitext(filename)
+    if ext == ".html":
+        # TODO: this try block exists to handle TimeflakePrimaryKeyBinary raising
+        # a ValidationError when the input isn't a valid timeflake string, rather
+        # than being a good ORM citizen and raising the relevant ObjectDoesNotExist
+        # subclass.  We have to import ValidationError as DjangoValidationError
+        # because DRF ships it's own ValidationError but these are not the same
+        # Exception.
+        # The try block here can go away if we fix the problem with the timeflake
+        # field.
+        try:
+            analysis_request = AnalysisRequest.objects.filter(pk=name).first()
+        except (AnalysisRequest.DoesNotExist, DjangoValidationError):
+            pass
+        else:
+            report = Report.objects.create(
+                release_file=rfile,
+                title=analysis_request.title,
+                description="TODO fill from AR",
+                created_by=user,
+                updated_by=user,
+            )
+            analysis_request.report = report
+            analysis_request.save(update_fields=["report"])
+            # TODO: notify the AR creator a report has been created
+            # notify some staff…?
 
 
 class UnknownFiles(Exception):
@@ -319,6 +361,8 @@ class ReleaseAPI(APIView):
             raise ValidationError({"detail": str(exc)})
 
         slacks.notify_release_file_uploaded(rfile)
+
+        maybe_create_report(rfile, filename, user)
 
         response = Response(status=201)
         response.headers["File-Id"] = rfile.id
