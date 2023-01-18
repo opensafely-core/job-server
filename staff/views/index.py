@@ -7,6 +7,7 @@ from django.utils.decorators import method_decorator
 from django.views.generic import View
 
 from applications.models import Application
+from interactive.models import AnalysisRequest
 from jobserver.authorization import CoreDeveloper
 from jobserver.authorization.decorators import require_role
 from jobserver.models import Backend, Org, Project, User, Workspace
@@ -14,6 +15,16 @@ from jobserver.models import Backend, Org, Project, User, Workspace
 
 # configure searchable models here, each must have get_staff_url defined
 configured_searches = [
+    {
+        "model": AnalysisRequest,
+        "fields": [
+            "created_by__fullname",
+            "created_by__username",
+            "project__name",
+            "title",
+        ],
+        "order_by": "created_at",
+    },
     {
         "model": Application,
         "fields": [
