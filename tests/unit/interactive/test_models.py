@@ -3,7 +3,7 @@ from django.urls import reverse
 from ...factories import AnalysisRequestFactory, UserFactory
 
 
-def test_get_absolute_url():
+def test_analysisrequest_get_absolute_url():
     analysis_request = AnalysisRequestFactory()
 
     url = analysis_request.get_absolute_url()
@@ -18,7 +18,7 @@ def test_get_absolute_url():
     )
 
 
-def test_get_codelist_url():
+def test_analysisrequest_get_codelist_url():
     analysis_request = AnalysisRequestFactory()
 
     url = analysis_request.get_codelist_url()
@@ -29,7 +29,7 @@ def test_get_codelist_url():
     )
 
 
-def test_get_stuff_url():
+def test_analysisrequest_get_stuff_url():
     analysis_request = AnalysisRequestFactory()
 
     url = analysis_request.get_staff_url()
@@ -39,7 +39,7 @@ def test_get_stuff_url():
     )
 
 
-def test_str():
+def test_analysisrequest_str():
     analysis_request = AnalysisRequestFactory()
 
     assert (
@@ -48,19 +48,19 @@ def test_str():
     )
 
 
-def test_visible_to_creator():
+def test_analysisrequest_visible_to_creator():
     analysis_request = AnalysisRequestFactory()
 
     assert analysis_request.visible_to(analysis_request.created_by)
 
 
-def test_visible_to_staff(core_developer):
+def test_analysisrequest_visible_to_staff(core_developer):
     analysis_request = AnalysisRequestFactory()
 
     assert analysis_request.visible_to(core_developer)
 
 
-def test_visible_to_other_user():
+def test_analysisrequest_visible_to_other_user():
     analysis_request = AnalysisRequestFactory()
 
     assert not analysis_request.visible_to(UserFactory())
