@@ -28,6 +28,7 @@ from ....factories import (
     ProjectFactory,
     ProjectMembershipFactory,
     RepoFactory,
+    ReportFactory,
     UserFactory,
     WorkspaceFactory,
 )
@@ -805,6 +806,10 @@ def test_repo_owner_success():
 
 def test_repo_str():
     assert str(RepoFactory(url="test")) == "test"
+
+
+def test_report_str():
+    assert str(ReportFactory(title="test")) == "test"
 
 
 def test_user_constraints_pat_token_and_pat_expires_at_both_set():
