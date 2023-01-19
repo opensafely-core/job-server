@@ -1,4 +1,5 @@
 from django.db import models
+from django.urls import reverse
 from django.utils import timezone
 from django_extensions.db.fields import AutoSlugField
 
@@ -38,3 +39,6 @@ class Report(models.Model):
 
     def __str__(self):
         return self.title
+
+    def get_staff_url(self):
+        return reverse("staff:report-detail", kwargs={"pk": self.pk})

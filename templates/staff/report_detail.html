@@ -1,0 +1,93 @@
+{% extends "staff/base.html" %}
+
+{% load humanize %}
+
+{% block metatitle %}{{ report.title }}: Staff Area | OpenSAFELY Jobs{% endblock metatitle %}
+
+{% block breadcrumbs %}
+<nav class="breadcrumb-container breadcrumb--danger" aria-label="breadcrumb">
+  <div class="container">
+    <ol class="breadcrumb rounded-0 mb-0 px-0">
+      <li class="breadcrumb-item">
+        <a href="{% url 'staff:index' %}">Staff area</a>
+      </li>
+      <li class="breadcrumb-item">
+        <a href="{% url 'staff:report-list' %}">Reports</a>
+      </li>
+      <li class="breadcrumb-item active" aria-current="page">
+        {{ report.title }}
+      </li>
+    </ol>
+  </div>
+</nav>
+{% endblock breadcrumbs %}
+
+{% block jumbotron %}
+<div class="jumbotron jumbotron-fluid jumbotron--danger pt-md-2">
+  <div class="container">
+    <h1 class="display-4">{{ report.title }}</h1>
+
+    <ul class="list-unstyled lead">
+      <li>
+        <strong>Created by:</strong>
+        <a href="{{ report.created_by.get_staff_url }}">{{ report.created_by.name }}</a>
+      </li>
+
+      <li>
+        <strong>Created at:</strong> {{ report.created_at }}
+      </li>
+    </ul>
+
+    <div class="d-flex">
+      <a class="btn btn-primary mr-1" href="{{ report.release_file.get_absolute_url }}">View released output</a>
+    </div>
+  </div>
+</div>
+{% endblock jumbotron %}
+
+{% block staff_content %}
+<div class="container">
+  <div class="row">
+    <div class="col col-lg-9 col-xl-8">
+     <section class="card mb-3">
+        <div class="card-header">
+          <h2 class="card-title">Details</h2>
+        </div>
+
+        <div class="list-group list-group-flush">
+          <div class="list-group-item">
+            <strong>Description:</strong>
+            <p>
+              {{ report.description }}
+            </p>
+          </div>
+        </div>
+      </section>
+    </div>
+    <div class="col col-lg-3 col-xl-4">
+      <ul class="list-unstyled">
+        <li class="card mb-3">
+          <h2 class="card-header h5">
+            Organisation
+          </h2>
+          <p class="card-body mb-0">
+            <a href="{{ report.release_file.workspace.project.org.get_staff_url }}">
+              {{ report.release_file.workspace.project.org.name }}
+            </a>
+          </p>
+        </li>
+        <li class="card mb-3">
+          <h2 class="card-header h5">
+            Project
+          </h2>
+          <p class="card-body mb-0">
+            <a href="{{ report.release_file.workspace.project.get_staff_url }}">
+              {{ report.release_file.workspace.project.title }}
+            </a>
+          </p>
+        </li>
+      </ul>
+    </div>
+  </div>
+</div>
+{% endblock staff_content %}
