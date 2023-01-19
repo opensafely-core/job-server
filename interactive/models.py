@@ -30,7 +30,7 @@ class AnalysisRequest(models.Model):
     end_date = models.DateField()
     commit_sha = models.TextField()
 
-    complete_email_sent_at = models.DateTimeField(default=timezone.now)
+    complete_email_sent_at = models.DateTimeField(null=True)
 
     created_at = models.DateTimeField(default=timezone.now)
     created_by = models.ForeignKey(
@@ -55,6 +55,9 @@ class AnalysisRequest(models.Model):
     def get_codelist_url(self):
         oc = furl("https://www.opencodelists.org/codelist/")
         return (oc / self.codelist_slug).url
+
+    def get_staff_url(self):
+        return reverse("staff:analysis-request-detail", kwargs={"pk": self.pk})
 
     def visible_to(self, user):
         return self.created_by == user or has_role(user, CoreDeveloper)

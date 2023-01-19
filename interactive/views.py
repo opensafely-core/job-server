@@ -77,9 +77,7 @@ class AnalysisRequestDetail(DetailView):
         obj = super().get_object(queryset=queryset)
 
         if not has_permission(
-            self.request.user,
-            "analysis_request_view",
-            project=self.object.job_request.workspace.project,
+            self.request.user, "analysis_request_view", project=obj.project
         ):
             raise PermissionDenied
 

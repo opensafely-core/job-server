@@ -1,5 +1,6 @@
 from django.urls import include, path
 
+from .views.analysis_requests import AnalysisRequestDetail, AnalysisRequestList
 from .views.applications import (
     ApplicationApprove,
     ApplicationDetail,
@@ -49,6 +50,12 @@ from .views.workspaces import WorkspaceDetail, WorkspaceEdit, WorkspaceList
 
 
 app_name = "staff"
+
+
+analysis_request_urls = [
+    path("", AnalysisRequestList.as_view(), name="analysis-request-list"),
+    path("<str:pk>/", AnalysisRequestDetail.as_view(), name="analysis-request-detail"),
+]
 
 application_urls = [
     path("", ApplicationList.as_view(), name="application-list"),
@@ -166,6 +173,7 @@ workspace_urls = [
 
 urlpatterns = [
     path("", Index.as_view(), name="index"),
+    path("analysis-requests/", include(analysis_request_urls)),
     path("applications/", include(application_urls)),
     path("backends/", include(backend_urls)),
     path("dashboards/", include((dashboard_urls, "dashboards"), namespace="dashboard")),

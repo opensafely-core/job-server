@@ -29,6 +29,16 @@ def test_get_codelist_url():
     )
 
 
+def test_get_stuff_url():
+    analysis_request = AnalysisRequestFactory()
+
+    url = analysis_request.get_staff_url()
+
+    assert url == reverse(
+        "staff:analysis-request-detail", kwargs={"pk": analysis_request.pk}
+    )
+
+
 def test_str():
     analysis_request = AnalysisRequestFactory()
 
