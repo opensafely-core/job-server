@@ -1,5 +1,6 @@
 argon2-cffi
 attrs
+bs4
 django-anymail[mailgun]
 django-browser-reload
 django-csp
@@ -17,6 +18,7 @@ https://github.com/opensafely-core/pipeline/archive/refs/tags/v0.0.3.zip#egg=ope
 gunicorn
 incuna-mail
 itsdangerous
+lxml
 markdown
 pgcli
 psycopg2-binary

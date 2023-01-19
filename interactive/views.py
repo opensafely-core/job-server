@@ -4,6 +4,7 @@ from django.views.generic import DetailView, TemplateView
 
 from jobserver.authorization import has_permission
 from jobserver.models import Backend, Project
+from jobserver.reports import process_html
 
 from .dates import END_DATE, START_DATE
 from .models import AnalysisRequest
@@ -82,3 +83,10 @@ class AnalysisRequestDetail(DetailView):
             raise PermissionDenied
 
         return obj
+
+    def get_context_data(self, **kwargs):
+        report = process_html(self.object.report_content)
+
+        return super().get_context_data(**kwargs) | {
+            "report": report,
+        }

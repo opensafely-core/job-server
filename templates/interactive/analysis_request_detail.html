@@ -1,8 +1,10 @@
 {% extends "base-tw.html" %}
 
+{% load django_vite %}
 {% load humanize %}
 
 {% block metatitle %}{{ analysis_request.project.name }} Analysis | OpenSAFELY Jobs{% endblock metatitle %}
+
 {% block extra_meta %}
 <meta name="description" content="{{ analysis_request.project.name }} is an OpenSAFELY project from {{ analysis_request.project.org.name }}. Every time a researcher runs their analytic code against patient data, it is audited in public here.">
 {% endblock %}
@@ -83,5 +85,39 @@
     </dl>
   {% /card %}
 
+  {% if report %}
+  <div>
+    {{ report }}
+  </div>
+  {% endif %}
+
 </div>
+{% endblock %}
+
+{% block extra_js %}
+  <script type="text/x-mathjax-config">
+    MathJax.Hub.Config({
+      tex2jax: {
+        inlineMath: [
+          ["$", "$"],
+          ["\\(", "\\)"],
+        ],
+        displayMath: [
+          ["$$", "$$"],
+          ["\\[", "\\]"],
+        ],
+        processEscapes: true,
+        processEnvironments: true,
+      },
+      // Center justify equations in code and markdown cells. Elsewhere
+      // we use CSS to left justify single line equations in code cells.
+      displayAlign: "center",
+      "HTML-CSS": {
+        styles: { ".MathJax_Display": { margin: 0 } },
+        linebreaks: { automatic: true },
+      },
+    });
+  </script>
+
+  {% vite_legacy_polyfills %}
 {% endblock %}
