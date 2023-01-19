@@ -22,6 +22,7 @@
 - [Components](#components)
 - [Backends](#backends)
 - [Rotating the GitHub token](#rotating-the-github-token)
+- [Interactive testing](#interactive-testing)
 
 ## Local development
 
@@ -298,3 +299,9 @@ This has allowed us some benefits:
 1. Copy the new token.
 1. ssh into `dokku4.ebmdatalab.net`
 1. Run: `dokku config:set job-server GITHUB_TOKEN=<the new token>`
+
+
+## Interactive Testing
+To help us build out interactive functionality in this project the `add_osi_report` management command has been added.
+
+This takes a username of an existing user and sets up various objects to generate an Analysis with a related Report.

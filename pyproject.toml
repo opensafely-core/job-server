@@ -18,6 +18,7 @@ omit = [
   "applications/management/commands/fix_truncated_data.py",
   "jobserver/asgi.py",
   "jobserver/jobs/*",
+  "jobserver/management/commands/add_osi_report.py",
   "jobserver/management/commands/count_rows.py",
   "jobserver/management/commands/ensure_admins.py",
   "jobserver/management/commands/ensure_backends.py",
