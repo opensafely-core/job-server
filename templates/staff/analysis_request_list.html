@@ -41,6 +41,38 @@
       </div>
       {% endif %}
 
+      <h3 class="h4">Has Report</h3>
+      <div class="btn-group-vertical w-100 mb-4" role="group" aria-label="Filter by having a report">
+        {% is_filter_selected key="has_report" value="yes" as is_active %}
+        <a
+          {% if is_active %}aria-pressed="true"{% endif %}
+          class="btn btn-outline-primary btn-block text-left {% if is_active %}active{% endif %}"
+          href="
+            {% if is_active %}
+              {% url_without_querystring has_report="yes" %}
+            {% else %}
+              {% url_with_querystring has_report="yes" %}
+            {% endif %}
+          "
+        >
+          Yes
+        </a>
+        {% is_filter_selected key="has_report" value="no" as is_active %}
+        <a
+          {% if is_active %}aria-pressed="true"{% endif %}
+          class="btn btn-outline-primary btn-block text-left {% if is_active %}active{% endif %}"
+          href="
+            {% if is_active %}
+              {% url_without_querystring has_report="no" %}
+            {% else %}
+              {% url_with_querystring has_report="no" %}
+            {% endif %}
+          "
+        >
+          No
+        </a>
+      </div>
+
       {% if projects %}
       <h3 class="h4">Projects</h3>
       <div class="btn-group-vertical w-100 mb-4" role="group" aria-label="Filter by project">

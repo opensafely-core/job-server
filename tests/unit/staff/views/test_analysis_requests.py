@@ -5,7 +5,12 @@ from django.http import Http404
 from jobserver.utils import set_from_qs
 from staff.views.analysis_requests import AnalysisRequestDetail, AnalysisRequestList
 
-from ....factories import AnalysisRequestFactory, ProjectFactory, UserFactory
+from ....factories import (
+    AnalysisRequestFactory,
+    ProjectFactory,
+    ReportFactory,
+    UserFactory,
+)
 
 
 def test_analysisrequestdetail_success(rf, core_developer):
@@ -50,6 +55,33 @@ def test_analysisrequestlist_filter_by_project(rf, core_developer):
 
     assert response.status_code == 200
     assert set_from_qs(response.context_data["object_list"]) == {ar1.pk, ar3.pk}
+
+
+def test_analysisrequestlist_filter_by_report_no(rf, core_developer):
+    ar1 = AnalysisRequestFactory()
+    AnalysisRequestFactory(report=ReportFactory())
+    ar3 = AnalysisRequestFactory()
+
+    request = rf.get("/?has_report=no")
+    request.user = core_developer
+
+    response = AnalysisRequestList.as_view()(request)
+
+    assert response.status_code == 200
+    assert set_from_qs(response.context_data["object_list"]) == {ar1.pk, ar3.pk}
+
+
+def test_analysisrequestlist_filter_by_report_yes(rf, core_developer):
+    ar1 = AnalysisRequestFactory(report=ReportFactory())
+    AnalysisRequestFactory.create_batch(2)
+
+    request = rf.get("/?has_report=yes")
+    request.user = core_developer
+
+    response = AnalysisRequestList.as_view()(request)
+
+    assert response.status_code == 200
+    assert set_from_qs(response.context_data["object_list"]) == {ar1.pk}
 
 
 def test_analysisrequestlist_filter_by_user(rf, core_developer):

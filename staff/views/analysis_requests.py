@@ -81,6 +81,11 @@ class AnalysisRequestList(ListView):
 
             qs = qs.filter(qwargs)
 
+        if self.request.GET.get("has_report") == "yes":
+            qs = qs.exclude(report=None)
+        if self.request.GET.get("has_report") == "no":
+            qs = qs.filter(report=None)
+
         if project := self.request.GET.get("project"):
             qs = qs.filter(project__slug=project)
 
