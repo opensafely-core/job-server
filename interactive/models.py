@@ -22,6 +22,12 @@ class AnalysisRequest(models.Model):
         on_delete=models.PROTECT,
         related_name="analysis_requests",
     )
+    report = models.ForeignKey(
+        "jobserver.Report",
+        on_delete=models.SET_NULL,
+        related_name="analysis_requests",
+        null=True,
+    )
 
     title = models.TextField()
     codelist_slug = models.TextField()
@@ -58,6 +64,17 @@ class AnalysisRequest(models.Model):
 
     def get_staff_url(self):
         return reverse("staff:analysis-request-detail", kwargs={"pk": self.pk})
+
+    @property
+    def report_content(self):
+        if not self.report:
+            return ""
+
+        path = self.report.release_file.absolute_path()
+        if not path.exists():
+            return ""
+
+        return path.read_text()
 
     def visible_to(self, user):
         return self.created_by == user or has_role(user, CoreDeveloper)

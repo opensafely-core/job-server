@@ -29,8 +29,10 @@ from jobserver.authorization import (
 from jobserver.models import Release, ReleaseFileReview
 from jobserver.utils import set_from_qs
 from tests.factories import (
+    AnalysisRequestFactory,
     BackendFactory,
     BackendMembershipFactory,
+    JobRequestFactory,
     ProjectFactory,
     ProjectMembershipFactory,
     ReleaseFactory,
@@ -251,6 +253,102 @@ def test_releaseapi_post_success(api_rf, slack_messages, build_release, file_con
         content_type="application/octet-stream",
         data=file_content,
         HTTP_CONTENT_DISPOSITION="attachment; filename=file.txt",
+        HTTP_AUTHORIZATION=release.backend.auth_token,
+        HTTP_OS_USER=uploading_user.username,
+    )
+
+    response = ReleaseAPI.as_view()(request, release_id=release.id)
+
+    rfile = release.files.first()
+    assert response.status_code == 201, response.data
+    assert response.headers["Location"].endswith(f"/releases/file/{rfile.id}")
+    assert response.headers["File-Id"] == rfile.id
+
+    assert len(slack_messages) == 1
+    text, channel = slack_messages[0]
+    assert channel == "opensafely-releases"
+    assert f"{uploading_user.get_staff_url()}|{uploading_user.name}>" in text
+    assert f"{release.get_absolute_url()}|release>" in text
+    assert f"{rfile.get_absolute_url()}|{rfile.name}>" in text
+    assert release.backend.name in text
+
+
+def test_releaseapi_post_success_for_analysis_request(
+    api_rf, slack_messages, build_release, file_content
+):
+    creating_user = UserFactory()
+    uploading_user = UserFactory(roles=[OutputChecker])
+    backend = BackendFactory(name="test-backend")
+
+    job_request = JobRequestFactory(created_by=creating_user)
+    analysis_request = AnalysisRequestFactory(
+        created_by=creating_user, job_request=job_request
+    )
+
+    assert not analysis_request.report
+
+    filename = f"{analysis_request.pk}.html"
+
+    release = build_release([filename], backend=backend, created_by=creating_user)
+
+    BackendMembershipFactory(backend=release.backend, user=creating_user)
+    BackendMembershipFactory(backend=release.backend, user=uploading_user)
+
+    request = api_rf.post(
+        "/",
+        content_type="application/octet-stream",
+        data=file_content,
+        HTTP_CONTENT_DISPOSITION=f"attachment; filename={filename}",
+        HTTP_AUTHORIZATION=release.backend.auth_token,
+        HTTP_OS_USER=uploading_user.username,
+    )
+
+    response = ReleaseAPI.as_view()(request, release_id=release.id)
+
+    rfile = release.files.first()
+    assert response.status_code == 201, response.data
+    assert response.headers["Location"].endswith(f"/releases/file/{rfile.id}")
+    assert response.headers["File-Id"] == rfile.id
+
+    assert len(slack_messages) == 1
+    text, channel = slack_messages[0]
+    assert channel == "opensafely-releases"
+    assert f"{uploading_user.get_staff_url()}|{uploading_user.name}>" in text
+    assert f"{release.get_absolute_url()}|release>" in text
+    assert f"{rfile.get_absolute_url()}|{rfile.name}>" in text
+    assert release.backend.name in text
+
+    analysis_request.refresh_from_db()
+    assert analysis_request.report
+
+
+def test_releaseapi_post_success_for_html_not_linked_to_an_analysis_request(
+    api_rf, slack_messages, build_release, file_content
+):
+    """
+    Test the ReleaseAPI post handler with an HTML file
+
+    We need to split up the "is HTML file AND name matches an AnalysisRequest"
+    conditional so that we can deal with TimeflakePrimaryKeyBinary raising
+    ValidationErrors for invalid input, as opposed to ObjectDoesNotExist.
+
+    Once that is fixed we can remove this test and coverage should still
+    be appeased.
+    """
+    creating_user = UserFactory()
+    uploading_user = UserFactory(roles=[OutputChecker])
+    backend = BackendFactory(name="test-backend")
+
+    release = build_release(["file.html"], backend=backend, created_by=creating_user)
+
+    BackendMembershipFactory(backend=release.backend, user=creating_user)
+    BackendMembershipFactory(backend=release.backend, user=uploading_user)
+
+    request = api_rf.post(
+        "/",
+        content_type="application/octet-stream",
+        data=file_content,
+        HTTP_CONTENT_DISPOSITION="attachment; filename=file.html",
         HTTP_AUTHORIZATION=release.backend.auth_token,
         HTTP_OS_USER=uploading_user.username,
     )

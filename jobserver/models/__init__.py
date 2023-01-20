@@ -11,6 +11,7 @@ from .core import (
     Workspace,
 )
 from .outputs import Release, ReleaseFile, ReleaseFileReview, Snapshot
+from .reports import Report
 from .stats import Stats
 
 
@@ -27,6 +28,7 @@ __all__ = [
     "ReleaseFile",
     "ReleaseFileReview",
     "Repo",
+    "Report",
     "Snapshot",
     "Stats",
     "User",

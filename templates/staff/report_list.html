@@ -4,7 +4,7 @@
 {% load querystring_tools %}
 {% load selected_filter %}
 
-{% block metatitle %}Analysis Requests: Staff Area | OpenSAFELY Jobs{% endblock metatitle %}
+{% block metatitle %}Reports: Staff Area | OpenSAFELY Jobs{% endblock metatitle %}
 
 {% block breadcrumbs %}
 <nav class="breadcrumb-container breadcrumb--danger" aria-label="breadcrumb">
@@ -14,7 +14,7 @@
         <a href="{% url 'staff:index' %}">Staff area</a>
       </li>
       <li class="breadcrumb-item active" aria-current="page">
-        Analysis Requests
+        Reports
       </li>
     </ol>
   </div>
@@ -24,7 +24,7 @@
 {% block jumbotron %}
 <div class="jumbotron jumbotron-fluid jumbotron--danger pt-md-2">
   <div class="container">
-    <h1 class="display-4">Analysis Requests</h1>
+    <h1 class="display-4">Reports</h1>
   </div>
 </div>
 {% endblock jumbotron %}
@@ -41,51 +41,41 @@
       </div>
       {% endif %}
 
-      <h3 class="h4">Has Report</h3>
-      <div class="btn-group-vertical w-100 mb-4" role="group" aria-label="Filter by having a report">
-        {% is_filter_selected key="has_report" value="yes" as is_active %}
+      {% if orgs %}
+      <h3 class="h4">Orgs</h3>
+      <div class="btn-group-vertical w-100 mb-4" role="group" aria-label="Filter by org">
+        {% for org in orgs %}
+        {% is_filter_selected key="org" value=org.slug as is_active %}
         <a
           {% if is_active %}aria-pressed="true"{% endif %}
           class="btn btn-outline-primary btn-block text-left {% if is_active %}active{% endif %}"
           href="
             {% if is_active %}
-              {% url_without_querystring has_report="yes" %}
+              {% url_without_querystring org=org.slug %}
             {% else %}
-              {% url_with_querystring has_report="yes" %}
+              {% url_with_querystring org=org.slug %}
             {% endif %}
           "
         >
-          Yes
+            {{ org.name }}
         </a>
-        {% is_filter_selected key="has_report" value="no" as is_active %}
-        <a
-          {% if is_active %}aria-pressed="true"{% endif %}
-          class="btn btn-outline-primary btn-block text-left {% if is_active %}active{% endif %}"
-          href="
-            {% if is_active %}
-              {% url_without_querystring has_report="no" %}
-            {% else %}
-              {% url_with_querystring has_report="no" %}
-            {% endif %}
-          "
-        >
-          No
-        </a>
+        {% endfor %}
       </div>
+      {% endif %}
 
       {% if projects %}
       <h3 class="h4">Projects</h3>
       <div class="btn-group-vertical w-100 mb-4" role="group" aria-label="Filter by project">
         {% for project in projects %}
-        {% is_filter_selected key="project" value=project.slug as is_active %}
+        {% is_filter_selected key="project" value=project.value as is_active %}
         <a
           {% if is_active %}aria-pressed="true"{% endif %}
           class="btn btn-outline-primary btn-block text-left {% if is_active %}active{% endif %}"
           href="
             {% if is_active %}
-              {% url_without_querystring project=project.slug %}
+              {% url_without_querystring project=project.value %}
             {% else %}
-              {% url_with_querystring project=project.slug %}
+              {% url_with_querystring project=project.value %}
             {% endif %}
           "
         >
@@ -96,10 +86,10 @@
       {% endif %}
 
       {% if users %}
-      <h3 class="h4">Authors</h3>
+      <h3 class="h4">Creators</h3>
       <div class="btn-group-vertical w-100 mb-4" role="group" aria-label="Filter by author">
         {% for user in users %}
-        {% is_filter_selected key="user" value=user.username as is_active %}
+        {% is_filter_selected key="user" value=user.value as is_active %}
         <a
           {% if is_active %}aria-pressed="true"{% endif %}
           class="btn btn-outline-primary btn-block text-left {% if is_active %}active{% endif %}"
@@ -121,12 +111,12 @@
     <div class="col col-lg-9 col-xl-8">
       <form method="GET" class="mb-4">
         <div class="form-inline w-100 d-flex flex-nowrap">
-          <label for="requestSearch" class="sr-only">Search by name of request author</label>
+          <label for="reportSearch" class="sr-only">Search by name of report or author</label>
           <input
             class="form-control mr-sm-2 w-100"
-            id="requestSearch"
+            id="reportSearch"
             name="q"
-            placeholder="Search by name of request author"
+            placeholder="Search by name of report or author"
             type="search"
             {% if q %}
               value="{{ q }}"
@@ -137,10 +127,10 @@
       </form>
 
       <div class="list-group list-unstyled">
-        {% for analysis_request in object_list %}
-        <a class="list-group-item list-group-item-action" href="{{ analysis_request.get_staff_url }}">
-          {{ analysis_request.title }} by {{ analysis_request.created_by.name }}
-          <small class="text-muted">(created {{ analysis_request.created_at|date }})</small>
+        {% for report in object_list %}
+        <a class="list-group-item list-group-item-action" href="{{ report.get_staff_url }}">
+          {{ report.title }} by {{ report.created_by.name }}
+          <small class="text-muted">(created {{ report.created_at|date }})</small>
         </a>
         {% endfor %}
       </div>

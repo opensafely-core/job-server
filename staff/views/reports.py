@@ -1,51 +1,34 @@
 import functools
 
-from django.core.exceptions import ValidationError
 from django.db.models import Q
 from django.db.models.functions import Lower
-from django.http import Http404
 from django.utils.decorators import method_decorator
 from django.views.generic import DetailView, ListView
 
-from interactive.models import AnalysisRequest
 from jobserver.authorization import CoreDeveloper
 from jobserver.authorization.decorators import require_role
-from jobserver.models import Project, User
+from jobserver.models import Org, Project, Report, User
 
 
 @method_decorator(require_role(CoreDeveloper), name="dispatch")
-class AnalysisRequestDetail(DetailView):
-    context_object_name = "analysis_request"
-    model = AnalysisRequest
-    template_name = "staff/analysis_request_detail.html"
-
-    def get_object(self, queryset=None):
-        try:
-            return super().get_object(queryset=queryset)
-        except ValidationError:
-            # TimeflakePrimaryKeyBinary raises a ValidationError when the given
-            # value isn't a valid timeflake value and doesn't reraise that as
-            # a DoesNotExist exception so mirror DetailView.get_objects handling
-            # of DoesNotExist here.
-            raise Http404("No Analysis Request found matching the query")
-
-    def get_queryset(self):
-        return (
-            super()
-            .get_queryset()
-            .select_related("created_by", "project", "project__org")
-        )
+class ReportDetail(DetailView):
+    model = Report
+    template_name = "staff/report_detail.html"
 
 
 @method_decorator(require_role(CoreDeveloper), name="dispatch")
-class AnalysisRequestList(ListView):
-    context_object_name = "analysis_request"
-    model = AnalysisRequest
-    template_name = "staff/analysis_request_list.html"
+class ReportList(ListView):
+    model = Report
+    template_name = "staff/report_list.html"
 
     def get_context_data(self, **kwargs):
+        orgs = (
+            Org.objects.filter(projects__workspaces__files__reports__isnull=False)
+            .distinct()
+            .order_by(Lower("name"))
+        )
         projects = (
-            Project.objects.filter(analysis_requests__isnull=False)
+            Project.objects.filter(workspaces__files__reports__isnull=False)
             .distinct()
             .order_by("number", Lower("name"))
         )
@@ -53,23 +36,34 @@ class AnalysisRequestList(ListView):
         # sort in Python because `User.name` is a property to pick either
         # get_full_name() or username depending on which one has been populated
         users = sorted(
-            User.objects.filter(analysis_requests__isnull=False).distinct(),
+            User.objects.filter(reports_created__isnull=False).distinct(),
             key=lambda u: u.name.lower(),
         )
         return super().get_context_data(**kwargs) | {
+            "orgs": orgs,
             "projects": projects,
             "users": users,
         }
 
     def get_queryset(self):
-        qs = super().get_queryset().select_related("created_by").order_by("-created_at")
+        qs = (
+            super()
+            .get_queryset()
+            .select_related(
+                "created_by",
+                "release_file",
+                "release_file__workspace",
+                "release_file__workspace__project",
+                "release_file__workspace__project__org",
+            )
+            .order_by("-created_at")
+        )
 
         if q := self.request.GET.get("q"):
             fields = [
                 "created_by__fullname",
                 "created_by__username",
                 "title",
-                "codelist_name",
             ]
 
             # build up Q objects OR'd together.  We need to build them with
@@ -81,14 +75,13 @@ class AnalysisRequestList(ListView):
 
             qs = qs.filter(qwargs)
 
-        if self.request.GET.get("has_report") == "yes":
-            qs = qs.exclude(report=None)
-        if self.request.GET.get("has_report") == "no":
-            qs = qs.filter(report=None)
+        if org := self.request.GET.get("org"):
+            qs = qs.filter(release_file__workspace__project__org__slug=org)
 
         if project := self.request.GET.get("project"):
-            qs = qs.filter(project__slug=project)
+            qs = qs.filter(release_file__workspace__project__slug=project)
 
         if user := self.request.GET.get("user"):
             qs = qs.filter(created_by__username=user)
+
         return qs.distinct()
