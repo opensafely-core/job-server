@@ -55,7 +55,9 @@ app_name = "staff"
 
 analysis_request_urls = [
     path("", AnalysisRequestList.as_view(), name="analysis-request-list"),
-    path("<str:pk>/", AnalysisRequestDetail.as_view(), name="analysis-request-detail"),
+    path(
+        "<str:slug>/", AnalysisRequestDetail.as_view(), name="analysis-request-detail"
+    ),
 ]
 
 application_urls = [

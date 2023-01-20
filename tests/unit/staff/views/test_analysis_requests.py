@@ -19,7 +19,7 @@ def test_analysisrequestdetail_success(rf, core_developer):
     request = rf.get("/")
     request.user = core_developer
 
-    response = AnalysisRequestDetail.as_view()(request, pk=analysis_request.pk)
+    response = AnalysisRequestDetail.as_view()(request, slug=analysis_request.slug)
 
     assert response.status_code == 200
 
@@ -31,7 +31,7 @@ def test_analysisrequestdetail_unauthorized(rf):
     request.user = UserFactory()
 
     with pytest.raises(PermissionDenied):
-        AnalysisRequestDetail.as_view()(request, pk=analysis_request.pk)
+        AnalysisRequestDetail.as_view()(request, slug=analysis_request.slug)
 
 
 def test_analysisrequestdetail_unknown_analysis_request(rf, core_developer):
@@ -39,7 +39,7 @@ def test_analysisrequestdetail_unknown_analysis_request(rf, core_developer):
     request.user = core_developer
 
     with pytest.raises(Http404):
-        AnalysisRequestDetail.as_view()(request, pk="")
+        AnalysisRequestDetail.as_view()(request, slug="")
 
 
 def test_analysisrequestlist_filter_by_project(rf, core_developer):

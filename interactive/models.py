@@ -1,6 +1,7 @@
 from django.db import models
 from django.urls import reverse
 from django.utils import timezone
+from django.utils.text import slugify
 from furl import furl
 from ulid import ULID
 
@@ -31,6 +32,7 @@ class AnalysisRequest(models.Model):
     )
 
     title = models.TextField()
+    slug = models.SlugField(max_length=255, unique=True)
     codelist_slug = models.TextField()
     codelist_name = models.TextField()
     start_date = models.DateField()
@@ -55,7 +57,7 @@ class AnalysisRequest(models.Model):
             kwargs={
                 "org_slug": self.project.org.slug,
                 "project_slug": self.project.slug,
-                "pk": self.id,
+                "slug": self.slug,
             },
         )
 
@@ -64,7 +66,7 @@ class AnalysisRequest(models.Model):
         return (oc / self.codelist_slug).url
 
     def get_staff_url(self):
-        return reverse("staff:analysis-request-detail", kwargs={"pk": self.pk})
+        return reverse("staff:analysis-request-detail", kwargs={"slug": self.slug})
 
     @property
     def report_content(self):
@@ -76,6 +78,12 @@ class AnalysisRequest(models.Model):
             return ""
 
         return path.read_text()
+
+    def save(self, *args, **kwargs):
+        if not self.slug:
+            self.slug = slugify(self.title)
+
+        return super().save(*args, **kwargs)
 
     @property
     def ulid(self):
