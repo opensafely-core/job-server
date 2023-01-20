@@ -1,5 +1,4 @@
 import factory
-import timeflake
 
 from interactive.dates import END_DATE, START_DATE
 from interactive.models import AnalysisRequest
@@ -9,8 +8,8 @@ class AnalysisRequestFactory(factory.django.DjangoModelFactory):
     class Meta:
         model = AnalysisRequest
 
-    id = factory.LazyAttribute(lambda _: timeflake.random())  # noqa: A003
     title = factory.Sequence(lambda n: f"Analysis Request {n}")
+    slug = factory.Sequence(lambda n: f"analysis-request-{n}")
     start_date = START_DATE
     end_date = END_DATE
     codelist_name = "Asthma annual review QOF"

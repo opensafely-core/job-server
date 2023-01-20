@@ -1,9 +1,7 @@
 import functools
 
-from django.core.exceptions import ValidationError
 from django.db.models import Q
 from django.db.models.functions import Lower
-from django.http import Http404
 from django.utils.decorators import method_decorator
 from django.views.generic import DetailView, ListView
 
@@ -18,16 +16,6 @@ class AnalysisRequestDetail(DetailView):
     context_object_name = "analysis_request"
     model = AnalysisRequest
     template_name = "staff/analysis_request_detail.html"
-
-    def get_object(self, queryset=None):
-        try:
-            return super().get_object(queryset=queryset)
-        except ValidationError:
-            # TimeflakePrimaryKeyBinary raises a ValidationError when the given
-            # value isn't a valid timeflake value and doesn't reraise that as
-            # a DoesNotExist exception so mirror DetailView.get_objects handling
-            # of DoesNotExist here.
-            raise Http404("No Analysis Request found matching the query")
 
     def get_queryset(self):
         return (

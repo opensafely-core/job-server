@@ -3,7 +3,6 @@ from email.message import Message
 
 import sentry_sdk
 import structlog
-from django.core.exceptions import ValidationError as DjangoValidationError
 from django.db import transaction
 from django.db.models import Value
 from django.shortcuts import get_object_or_404
@@ -67,31 +66,19 @@ def maybe_create_report(rfile, filename, user):
     PK, banking on ULIDs being unique enough for there to not be a clash here.
     """
     name, ext = os.path.splitext(filename)
-    if ext == ".html":
-        # TODO: this try block exists to handle TimeflakePrimaryKeyBinary raising
-        # a ValidationError when the input isn't a valid timeflake string, rather
-        # than being a good ORM citizen and raising the relevant ObjectDoesNotExist
-        # subclass.  We have to import ValidationError as DjangoValidationError
-        # because DRF ships it's own ValidationError but these are not the same
-        # Exception.
-        # The try block here can go away if we fix the problem with the timeflake
-        # field.
-        try:
-            analysis_request = AnalysisRequest.objects.filter(pk=name).first()
-        except (AnalysisRequest.DoesNotExist, DjangoValidationError):
-            pass
-        else:
-            report = Report.objects.create(
-                release_file=rfile,
-                title=analysis_request.title,
-                description="TODO fill from AR",
-                created_by=user,
-                updated_by=user,
-            )
-            analysis_request.report = report
-            analysis_request.save(update_fields=["report"])
-            # TODO: notify the AR creator a report has been created
-            # notify some staff…?
+    analysis_request = AnalysisRequest.objects.filter(pk=name).first()
+    if ext == ".html" and analysis_request:
+        report = Report.objects.create(
+            release_file=rfile,
+            title=analysis_request.title,
+            description="TODO fill from AR",
+            created_by=user,
+            updated_by=user,
+        )
+        analysis_request.report = report
+        analysis_request.save(update_fields=["report"])
+        # TODO: notify the AR creator a report has been created
+        # notify some staff…?
 
 
 class UnknownFiles(Exception):
