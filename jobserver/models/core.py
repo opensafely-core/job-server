@@ -1009,11 +1009,6 @@ class User(AbstractBaseUser):
 class Workspace(models.Model):
     """Models a working directory on a Backend server."""
 
-    created_by = models.ForeignKey(
-        "User",
-        on_delete=models.CASCADE,
-        related_name="workspaces",
-    )
     project = models.ForeignKey(
         "Project",
         on_delete=models.PROTECT,
@@ -1047,6 +1042,45 @@ class Workspace(models.Model):
     )
 
     created_at = models.DateTimeField(default=timezone.now)
+    created_by = models.ForeignKey(
+        "User",
+        on_delete=models.CASCADE,
+        related_name="workspaces",
+    )
+
+    class Meta:
+        constraints = [
+            models.CheckConstraint(
+                check=(
+                    Q(
+                        created_at__isnull=True,
+                        created_by__isnull=True,
+                    )
+                    | (
+                        Q(
+                            created_at__isnull=False,
+                            created_by__isnull=False,
+                        )
+                    )
+                ),
+                name="%(app_label)s_%(class)s_both_created_at_and_created_by_set",
+            ),
+            models.CheckConstraint(
+                check=(
+                    Q(
+                        signed_off_at__isnull=True,
+                        signed_off_by__isnull=True,
+                    )
+                    | (
+                        Q(
+                            signed_off_at__isnull=False,
+                            signed_off_by__isnull=False,
+                        )
+                    )
+                ),
+                name="%(app_label)s_%(class)s_both_signed_off_at_and_signed_off_by_set",
+            ),
+        ]
 
     def __str__(self):
         return f"{self.name} ({self.repo.url})"

@@ -1,3 +1,5 @@
+import pytest
+from django.db import IntegrityError
 from django.urls import reverse
 from django.utils import timezone
 
@@ -8,9 +10,33 @@ from ....factories import (
     OrgFactory,
     ProjectFactory,
     RepoFactory,
+    UserFactory,
     WorkspaceFactory,
 )
 from ....utils import minutes_ago
+
+
+@pytest.mark.parametrize("field", ["created_at", "created_by"])
+def test_workspace_created_check_constraint_missing_one(field):
+    with pytest.raises(IntegrityError):
+        WorkspaceFactory(**{field: None})
+
+
+def test_workspace_constraints_published_at_and_published_by_both_set():
+    WorkspaceFactory(signed_off_at=timezone.now(), signed_off_by=UserFactory())
+
+
+def test_workspace_constraints_signed_off_at_and_signed_off_by_neither_set():
+    WorkspaceFactory(signed_off_at=None, signed_off_by=None)
+
+
+@pytest.mark.django_db(transaction=True)
+def test_workspace_constraints_missing_signed_off_at_or_signed_off_by():
+    with pytest.raises(IntegrityError):
+        WorkspaceFactory(signed_off_at=None, signed_off_by=UserFactory())
+
+    with pytest.raises(IntegrityError):
+        WorkspaceFactory(signed_off_at=timezone.now(), signed_off_by=None)
 
 
 def test_workspace_get_absolute_url():
