@@ -74,7 +74,11 @@ def test_status_link():
     assert parsed.stacked
     assert parsed.query == {
         "breakdowns": ["name"],
-        "calculations": [{"op": "CONCURRENCY"}],
+        "calculations": [
+            {"op": "CONCURRENCY"},
+            {"op": "AVG", "column": "cpu_percentage"},
+            {"op": "AVG", "column": "memory_used"},
+        ],
         "end_time": 1665594060,
         "filter_combination": "AND",
         "filters": [
@@ -84,7 +88,7 @@ def test_status_link():
         "granularity": 0,
         "havings": [],
         "limit": 1000,
-        "orders": [{"op": "CONCURRENCY", "order": "descending"}],
+        "orders": [],
         "start_time": 1665593940,
     }
 
