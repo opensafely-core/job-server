@@ -18,7 +18,7 @@ def test_analysisrequest_get_absolute_url():
         kwargs={
             "org_slug": analysis_request.project.org.slug,
             "project_slug": analysis_request.project.slug,
-            "pk": analysis_request.pk,
+            "slug": analysis_request.slug,
         },
     )
 
@@ -40,7 +40,7 @@ def test_analysisrequest_get_stuff_url():
     url = analysis_request.get_staff_url()
 
     assert url == reverse(
-        "staff:analysis-request-detail", kwargs={"pk": analysis_request.pk}
+        "staff:analysis-request-detail", kwargs={"slug": analysis_request.slug}
     )
 
 

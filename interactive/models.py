@@ -1,15 +1,17 @@
 from django.db import models
 from django.urls import reverse
 from django.utils import timezone
+from django.utils.text import slugify
 from furl import furl
-from timeflake.extensions.django import TimeflakePrimaryKeyBinary
+from ulid import ULID
 
 from jobserver.authorization import CoreDeveloper, has_role
+from jobserver.models.common import new_ulid_str
 
 
 class AnalysisRequest(models.Model):
-    id = TimeflakePrimaryKeyBinary(  # noqa: A003
-        error_messages={"invalid": "Invalid timeflake id"}
+    id = models.CharField(  # noqa: A003
+        default=new_ulid_str, max_length=26, primary_key=True, editable=False
     )
 
     job_request = models.OneToOneField(
@@ -30,6 +32,7 @@ class AnalysisRequest(models.Model):
     )
 
     title = models.TextField()
+    slug = models.SlugField(max_length=255, unique=True)
     codelist_slug = models.TextField()
     codelist_name = models.TextField()
     start_date = models.DateField()
@@ -54,7 +57,7 @@ class AnalysisRequest(models.Model):
             kwargs={
                 "org_slug": self.project.org.slug,
                 "project_slug": self.project.slug,
-                "pk": self.id,
+                "slug": self.slug,
             },
         )
 
@@ -63,7 +66,7 @@ class AnalysisRequest(models.Model):
         return (oc / self.codelist_slug).url
 
     def get_staff_url(self):
-        return reverse("staff:analysis-request-detail", kwargs={"pk": self.pk})
+        return reverse("staff:analysis-request-detail", kwargs={"slug": self.slug})
 
     @property
     def report_content(self):
@@ -75,6 +78,16 @@ class AnalysisRequest(models.Model):
             return ""
 
         return path.read_text()
+
+    def save(self, *args, **kwargs):
+        if not self.slug:
+            self.slug = slugify(self.title)
+
+        return super().save(*args, **kwargs)
+
+    @property
+    def ulid(self):
+        return ULID.from_str(self.id)
 
     def visible_to(self, user):
         return self.created_by == user or has_role(user, CoreDeveloper)

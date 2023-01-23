@@ -7,5 +7,5 @@ app_name = "interactive"
 
 urlpatterns = [
     path("", AnalysisRequestCreate.as_view(), name="analysis-create"),
-    path("<str:pk>/", AnalysisRequestDetail.as_view(), name="analysis-detail"),
+    path("<str:slug>/", AnalysisRequestDetail.as_view(), name="analysis-detail"),
 ]

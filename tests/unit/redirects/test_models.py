@@ -36,9 +36,7 @@ def test_redirect_all_target_objects():
     """
     fields = get_target_fields()
 
-    kwargs = {
-        f.related_model.__name__.lower(): get_factory(f.related_model)() for f in fields
-    }
+    kwargs = {f.name: get_factory(f.related_model)() for f in fields}
 
     with pytest.raises(IntegrityError):
         RedirectFactory(**kwargs)
@@ -52,9 +50,7 @@ def test_redirect_each_target_object():
     targets over time and we don't want to avoid testing those by accident.
     """
     for field in get_target_fields():
-        kwargs = {
-            field.related_model.__name__.lower(): get_factory(field.related_model)()
-        }
+        kwargs = {field.name: get_factory(field.related_model)()}
         RedirectFactory(**kwargs)
 
 

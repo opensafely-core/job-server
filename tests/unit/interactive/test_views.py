@@ -79,7 +79,7 @@ def test_analysisrequestdetail_success(rf):
         request,
         org_slug=analysis_request.project.org.slug,
         project_slug=analysis_request.project.slug,
-        pk=analysis_request.pk,
+        slug=analysis_request.slug,
     )
 
     assert response.status_code == 200
@@ -95,7 +95,7 @@ def test_analysisrequestdetail_with_global_interactivereporter(rf):
         request,
         org_slug=analysis_request.project.org.slug,
         project_slug=analysis_request.project.slug,
-        pk=analysis_request.pk,
+        slug=analysis_request.slug,
     )
 
     assert response.status_code == 200
@@ -115,7 +115,7 @@ def test_analysisrequestdetail_with_interactivereporter_on_another_project(rf):
             request,
             org_slug=analysis_request.project.org.slug,
             project_slug=analysis_request.project.slug,
-            pk=analysis_request.pk,
+            slug=analysis_request.slug,
         )
 
 
@@ -130,5 +130,5 @@ def test_analysisrequestdetail_with_no_interactivereporter_role(rf):
             request,
             org_slug=analysis_request.project.org.slug,
             project_slug=analysis_request.project.slug,
-            pk=analysis_request.pk,
+            slug=analysis_request.slug,
         )
