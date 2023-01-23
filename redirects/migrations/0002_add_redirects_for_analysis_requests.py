@@ -7,7 +7,7 @@ from django.db import migrations, models
 class Migration(migrations.Migration):
 
     dependencies = [
-        ("interactive", "0008_ensure_analysis_request_slug"),
+        ("interactive", "0001_initial"),
         ("redirects", "0001_initial"),
     ]
 
