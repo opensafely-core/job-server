@@ -40,13 +40,6 @@ class Release(models.Model):
         on_delete=models.PROTECT,
         related_name="releases",
     )
-    created_at = models.DateTimeField(default=timezone.now)
-    # the user who requested the release
-    created_by = models.ForeignKey(
-        "User",
-        on_delete=models.PROTECT,
-        related_name="releases",
-    )
     status = models.TextField(choices=Statuses.choices, default=Statuses.REQUESTED)
 
     # list of files requested for release
@@ -54,6 +47,32 @@ class Release(models.Model):
 
     metadata = models.JSONField(null=True)
     review = models.JSONField(null=True)
+
+    created_at = models.DateTimeField(default=timezone.now)
+    created_by = models.ForeignKey(
+        "User",
+        on_delete=models.PROTECT,
+        related_name="releases",
+    )
+
+    class Meta:
+        constraints = [
+            models.CheckConstraint(
+                check=(
+                    Q(
+                        created_at__isnull=True,
+                        created_by__isnull=True,
+                    )
+                    | (
+                        Q(
+                            created_at__isnull=False,
+                            created_by__isnull=False,
+                        )
+                    )
+                ),
+                name="%(app_label)s_%(class)s_both_created_at_and_created_by_set",
+            ),
+        ]
 
     def get_absolute_url(self):
         return reverse(

@@ -12,6 +12,12 @@ from tests.factories import (
 )
 
 
+@pytest.mark.parametrize("field", ["created_at", "created_by"])
+def test_release_created_check_constraint_missing_one(field):
+    with pytest.raises(IntegrityError):
+        ReleaseFactory(**{field: None})
+
+
 def test_release_get_absolute_url():
     release = ReleaseFactory()
 
