@@ -1,7 +1,51 @@
 import pytest
+from django.db import IntegrityError
 from django.urls import reverse
+from django.utils import timezone
 
-from ....factories import RepoFactory
+from ....factories import RepoFactory, UserFactory
+
+
+def test_repo_constraints_internal_signed_off_at_and_internal_signed_off_by_both_set():
+    RepoFactory(
+        internal_signed_off_at=timezone.now(), internal_signed_off_by=UserFactory()
+    )
+
+
+def test_repo_constraints_internal_signed_off_at_and_internal_signed_off_by_neither_set():
+    RepoFactory(internal_signed_off_at=None, internal_signed_off_by=None)
+
+
+@pytest.mark.django_db(transaction=True)
+def test_repo_constraints_missing_internal_signed_off_at_or_internal_signed_off_by():
+    with pytest.raises(IntegrityError):
+        RepoFactory(internal_signed_off_at=None, internal_signed_off_by=UserFactory())
+
+    with pytest.raises(IntegrityError):
+        RepoFactory(internal_signed_off_at=timezone.now(), internal_signed_off_by=None)
+
+
+def test_repo_constraints_researcher_signed_off_at_and_researcher_signed_off_by_both_set():
+    RepoFactory(
+        researcher_signed_off_at=timezone.now(), researcher_signed_off_by=UserFactory()
+    )
+
+
+def test_repo_constraints_researcher_signed_off_at_and_researcher_signed_off_by_neither_set():
+    RepoFactory(researcher_signed_off_at=None, researcher_signed_off_by=None)
+
+
+@pytest.mark.django_db(transaction=True)
+def test_repo_constraints_missing_researcher_signed_off_at_or_researcher_signed_off_by():
+    with pytest.raises(IntegrityError):
+        RepoFactory(
+            researcher_signed_off_at=None, researcher_signed_off_by=UserFactory()
+        )
+
+    with pytest.raises(IntegrityError):
+        RepoFactory(
+            researcher_signed_off_at=timezone.now(), researcher_signed_off_by=None
+        )
 
 
 def test_repo_get_handler_url():

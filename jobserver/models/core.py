@@ -678,6 +678,7 @@ class ProjectMembership(models.Model):
 
 class Repo(models.Model):
     url = models.TextField(unique=True)
+    has_github_outputs = models.BooleanField(default=False)
 
     internal_signed_off_at = models.DateTimeField(null=True)
     internal_signed_off_by = models.ForeignKey(
@@ -695,7 +696,39 @@ class Repo(models.Model):
         related_name="repos_signed_off_by_researcher",
     )
 
-    has_github_outputs = models.BooleanField(default=False)
+    class Meta:
+        constraints = [
+            models.CheckConstraint(
+                check=(
+                    Q(
+                        internal_signed_off_at__isnull=True,
+                        internal_signed_off_by__isnull=True,
+                    )
+                    | (
+                        Q(
+                            internal_signed_off_at__isnull=False,
+                            internal_signed_off_by__isnull=False,
+                        )
+                    )
+                ),
+                name="%(app_label)s_%(class)s_both_internal_signed_off_at_and_internal_signed_off_by_set",
+            ),
+            models.CheckConstraint(
+                check=(
+                    Q(
+                        researcher_signed_off_at__isnull=True,
+                        researcher_signed_off_by__isnull=True,
+                    )
+                    | (
+                        Q(
+                            researcher_signed_off_at__isnull=False,
+                            researcher_signed_off_by__isnull=False,
+                        )
+                    )
+                ),
+                name="%(app_label)s_%(class)s_both_researcher_signed_off_at_and_researcher_signed_off_by_set",
+            ),
+        ]
 
     def __str__(self):
         return self.url
