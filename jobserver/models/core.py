@@ -213,8 +213,6 @@ class JobRequest(models.Model):
     created_by = models.ForeignKey(
         "User",
         on_delete=models.CASCADE,
-        null=True,
-        blank=True,
         related_name="job_requests",
     )
     workspace = models.ForeignKey(
