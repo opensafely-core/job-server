@@ -1,6 +1,7 @@
 from datetime import timedelta
 
 import pytest
+from django.db import IntegrityError
 from django.urls import reverse
 from django.utils import timezone
 
@@ -8,6 +9,12 @@ from jobserver.models import JobRequest
 
 from ....factories import JobFactory, JobRequestFactory, RepoFactory, WorkspaceFactory
 from ....utils import minutes_ago, seconds_ago
+
+
+@pytest.mark.parametrize("field", ["created_at", "created_by"])
+def test_jobrequest_created_check_constraint_missing_one(field):
+    with pytest.raises(IntegrityError):
+        JobRequestFactory(**{field: None})
 
 
 def test_jobrequest_completed_at_no_jobs():

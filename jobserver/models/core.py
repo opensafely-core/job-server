@@ -210,11 +210,6 @@ class JobRequest(models.Model):
     backend = models.ForeignKey(
         "Backend", on_delete=models.PROTECT, related_name="job_requests"
     )
-    created_by = models.ForeignKey(
-        "User",
-        on_delete=models.CASCADE,
-        related_name="job_requests",
-    )
     workspace = models.ForeignKey(
         "Workspace", on_delete=models.CASCADE, related_name="job_requests"
     )
@@ -228,8 +223,32 @@ class JobRequest(models.Model):
     project_definition = models.TextField(default="")
 
     created_at = models.DateTimeField(default=timezone.now)
+    created_by = models.ForeignKey(
+        "User",
+        on_delete=models.CASCADE,
+        related_name="job_requests",
+    )
 
     objects = JobRequestManager()
+
+    class Meta:
+        constraints = [
+            models.CheckConstraint(
+                check=(
+                    Q(
+                        created_at__isnull=True,
+                        created_by__isnull=True,
+                    )
+                    | (
+                        Q(
+                            created_at__isnull=False,
+                            created_by__isnull=False,
+                        )
+                    )
+                ),
+                name="%(app_label)s_%(class)s_both_created_at_and_created_by_set",
+            ),
+        ]
 
     def get_absolute_url(self):
         return reverse(
