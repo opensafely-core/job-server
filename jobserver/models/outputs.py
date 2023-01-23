@@ -115,12 +115,6 @@ class ReleaseFile(models.Model):
     def ulid(self):
         return ULID.from_str(self.id)
 
-    deleted_by = models.ForeignKey(
-        "User",
-        on_delete=models.PROTECT,
-        null=True,
-        related_name="deleted_files",
-    )
     release = models.ForeignKey(
         "Release",
         on_delete=models.PROTECT,
@@ -132,11 +126,6 @@ class ReleaseFile(models.Model):
         related_name="files",
     )
     # the user who approved the release
-    created_by = models.ForeignKey(
-        "User",
-        on_delete=models.PROTECT,
-        related_name="released_files",
-    )
 
     # name is path from the POV of the researcher, e.g "outputs/file1.txt"
     name = models.TextField()
@@ -150,13 +139,40 @@ class ReleaseFile(models.Model):
     metadata = models.JSONField(null=True)
 
     created_at = models.DateTimeField(default=timezone.now)
+    created_by = models.ForeignKey(
+        "User",
+        on_delete=models.PROTECT,
+        related_name="released_files",
+    )
+
     deleted_at = models.DateTimeField(null=True)
+    deleted_by = models.ForeignKey(
+        "User",
+        on_delete=models.PROTECT,
+        null=True,
+        related_name="deleted_files",
+    )
+
     uploaded_at = models.DateTimeField(null=True)
 
     class Meta:
         constraints = [
             models.CheckConstraint(
-                name="%(app_label)s_%(class)s_deleted_fields_both_set",
+                check=(
+                    Q(
+                        created_at__isnull=True,
+                        created_by__isnull=True,
+                    )
+                    | (
+                        Q(
+                            created_at__isnull=False,
+                            created_by__isnull=False,
+                        )
+                    )
+                ),
+                name="%(app_label)s_%(class)s_both_created_at_and_created_by_set",
+            ),
+            models.CheckConstraint(
                 check=(
                     Q(
                         deleted_at__isnull=True,
@@ -167,7 +183,8 @@ class ReleaseFile(models.Model):
                         deleted_by__isnull=False,
                     )
                 ),
-            )
+                name="%(app_label)s_%(class)s_both_deleted_at_and_deleted_by_set",
+            ),
         ]
 
     def __format__(self, format_spec):

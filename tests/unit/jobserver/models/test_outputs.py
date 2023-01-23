@@ -75,6 +75,12 @@ def test_releasefile_absolute_path(release):
     assert path.read_text()
 
 
+@pytest.mark.parametrize("field", ["created_at", "created_by"])
+def test_releasefile_created_check_constraint_missing_one(field):
+    with pytest.raises(IntegrityError):
+        ReleaseFileFactory(**{field: None})
+
+
 def test_releasefile_constraints_deleted_at_and_deleted_by_both_set():
     ReleaseFileFactory(deleted_at=timezone.now(), deleted_by=UserFactory())
 
