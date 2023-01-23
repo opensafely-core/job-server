@@ -25,10 +25,11 @@ DEFAULT_QUERY = {
 
 
 class TemplatedUrl:
-    def __init__(self, stacked=False, **kwargs):
+    def __init__(self, stacked=False, omit_missing=False, **kwargs):
         self.query = DEFAULT_QUERY.copy()
         self.query.update(kwargs)
         self.stacked = stacked
+        self.omit_missing = omit_missing
 
     @property
     def url(self):
@@ -36,6 +37,8 @@ class TemplatedUrl:
         url.add({"query": json.dumps(self.query, separators=(",", ":"))})
         if self.stacked:
             url.add({"useStackedGraphs": None})
+        if self.omit_missing:
+            url.add({"omitMissingValues": None})
         return url.url
 
     @classmethod
@@ -44,6 +47,7 @@ class TemplatedUrl:
         query = json.loads(parsed.args["query"])
         url = cls(
             stacked="useStackedGraphs" in parsed.args,
+            omit_missing="omitMissingValues" in parsed.args,
             **query,
         )
         return url
@@ -106,9 +110,13 @@ def status_link(job):
         start_time=start,
         end_time=end,
         breakdowns=["name"],
-        calculations=[{"op": "CONCURRENCY"}],
-        orders=[{"op": "CONCURRENCY", "order": "descending"}],
+        calculations=[
+            {"op": "CONCURRENCY"},
+            {"op": "AVG", "column": "cpu_percentage"},
+            {"op": "AVG", "column": "memory_used"},
+        ],
         stacked=True,
+        omit_missing=True,
         filters=[
             {"column": "scope", "op": "=", "value": "ticks"},
             {"column": "job", "op": "=", "value": job.identifier},
