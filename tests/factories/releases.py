@@ -2,7 +2,7 @@ from datetime import timezone
 
 import factory
 
-from jobserver.models import Release, ReleaseFile, ReleaseFileReview
+from jobserver.models import Release, ReleaseFile, ReleaseFileReview, Snapshot
 
 
 class ReleaseFactory(factory.django.DjangoModelFactory):
@@ -34,3 +34,11 @@ class ReleaseFileReviewFactory(factory.django.DjangoModelFactory):
 
     created_by = factory.SubFactory("tests.factories.UserFactory")
     release_file = factory.SubFactory("tests.factories.ReleaseFileFactory")
+
+
+class SnapshotFactory(factory.django.DjangoModelFactory):
+    class Meta:
+        model = Snapshot
+
+    created_by = factory.SubFactory("tests.factories.UserFactory")
+    workspace = factory.SubFactory("tests.factories.WorkspaceFactory")

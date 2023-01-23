@@ -108,7 +108,7 @@ def test_projectreleaselist_with_delete_permission(rf, build_release_with_files)
 
 def test_publishedsnapshotfile_success(rf, release):
     rfile = release.files.first()
-    snapshot = SnapshotFactory(published_at=timezone.now())
+    snapshot = SnapshotFactory(published_by=UserFactory(), published_at=timezone.now())
     snapshot.files.add(rfile)
 
     rfile = release.files.first()
@@ -380,7 +380,7 @@ def test_releasefiledelete_without_permission(rf, release):
 
 
 def test_snapshotdetail_published_logged_out(rf):
-    snapshot = SnapshotFactory(published_at=timezone.now())
+    snapshot = SnapshotFactory(published_by=UserFactory(), published_at=timezone.now())
 
     request = rf.get("/")
     request.user = AnonymousUser()
@@ -397,7 +397,7 @@ def test_snapshotdetail_published_logged_out(rf):
 
 
 def test_snapshotdetail_published_with_permission(rf):
-    snapshot = SnapshotFactory(published_at=timezone.now())
+    snapshot = SnapshotFactory(published_by=UserFactory(), published_at=timezone.now())
 
     request = rf.get("/")
     request.user = UserFactory(roles=[ProjectCollaborator])
@@ -414,7 +414,7 @@ def test_snapshotdetail_published_with_permission(rf):
 
 
 def test_snapshotdetail_published_without_permission(rf):
-    snapshot = SnapshotFactory(published_at=timezone.now())
+    snapshot = SnapshotFactory(published_by=UserFactory(), published_at=timezone.now())
 
     request = rf.get("/")
     request.user = UserFactory()
@@ -516,7 +516,9 @@ def test_snapshotdetail_unknown_snapshot(rf):
 
 def test_snapshotdownload_published_with_permission(rf, release):
     workspace = WorkspaceFactory()
-    snapshot = SnapshotFactory(workspace=workspace, published_at=timezone.now())
+    snapshot = SnapshotFactory(
+        workspace=workspace, published_by=UserFactory(), published_at=timezone.now()
+    )
     snapshot.files.set(release.files.all())
 
     request = rf.get("/")
@@ -535,7 +537,9 @@ def test_snapshotdownload_published_with_permission(rf, release):
 
 def test_snapshotdownload_published_without_permission(rf, release):
     workspace = WorkspaceFactory()
-    snapshot = SnapshotFactory(workspace=workspace, published_at=timezone.now())
+    snapshot = SnapshotFactory(
+        workspace=workspace, published_by=UserFactory(), published_at=timezone.now()
+    )
     snapshot.files.set(release.files.all())
 
     request = rf.get("/")

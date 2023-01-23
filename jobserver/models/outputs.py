@@ -313,20 +313,9 @@ class Snapshot(models.Model):
         DRAFT = "draft", "Draft"
         PUBLISHED = "published", "Published"
 
-    created_by = models.ForeignKey(
-        "User",
-        on_delete=models.PROTECT,
-        related_name="snapshots",
-    )
     files = models.ManyToManyField(
         "ReleaseFile",
         related_name="snapshots",
-    )
-    published_by = models.ForeignKey(
-        "User",
-        null=True,
-        on_delete=models.PROTECT,
-        related_name="published_snapshots",
     )
     workspace = models.ForeignKey(
         "Workspace",
@@ -335,7 +324,53 @@ class Snapshot(models.Model):
     )
 
     created_at = models.DateTimeField(default=timezone.now)
+    created_by = models.ForeignKey(
+        "User",
+        on_delete=models.PROTECT,
+        related_name="snapshots",
+    )
+
     published_at = models.DateTimeField(null=True)
+    published_by = models.ForeignKey(
+        "User",
+        null=True,
+        on_delete=models.PROTECT,
+        related_name="published_snapshots",
+    )
+
+    class Meta:
+        constraints = [
+            models.CheckConstraint(
+                check=(
+                    Q(
+                        created_at__isnull=True,
+                        created_by__isnull=True,
+                    )
+                    | (
+                        Q(
+                            created_at__isnull=False,
+                            created_by__isnull=False,
+                        )
+                    )
+                ),
+                name="%(app_label)s_%(class)s_both_created_at_and_created_by_set",
+            ),
+            models.CheckConstraint(
+                check=(
+                    Q(
+                        published_at__isnull=True,
+                        published_by__isnull=True,
+                    )
+                    | (
+                        Q(
+                            published_at__isnull=False,
+                            published_by__isnull=False,
+                        )
+                    )
+                ),
+                name="%(app_label)s_%(class)s_both_published_at_and_published_by_set",
+            ),
+        ]
 
     def __str__(self):
         status = "Published" if self.published_at else "Draft"

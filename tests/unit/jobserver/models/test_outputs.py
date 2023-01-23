@@ -197,14 +197,27 @@ def test_releasefilereview_created_check_constraint_missing_one(field):
         ReleaseFileReviewFactory(**{field: None})
 
 
-def test_snapshot_str():
-    user = UserFactory()
+@pytest.mark.parametrize("field", ["created_at", "created_by"])
+def test_snapshot_created_check_constraint_missing_one(field):
+    with pytest.raises(IntegrityError):
+        SnapshotFactory(**{field: None})
 
-    snapshot = SnapshotFactory(created_by=user, published_at=timezone.now())
-    assert str(snapshot) == f"Published Snapshot made by {user.username}"
 
-    snapshot = SnapshotFactory(created_by=user)
-    assert str(snapshot) == f"Draft Snapshot made by {user.username}"
+def test_snapshot_constraints_published_at_and_published_by_both_set():
+    SnapshotFactory(published_at=timezone.now(), published_by=UserFactory())
+
+
+def test_snapshot_constraints_published_at_and_published_by_neither_set():
+    SnapshotFactory(published_at=None, published_by=None)
+
+
+@pytest.mark.django_db(transaction=True)
+def test_snapshot_constraints_missing_published_at_or_published_by():
+    with pytest.raises(IntegrityError):
+        SnapshotFactory(published_at=None, published_by=UserFactory())
+
+    with pytest.raises(IntegrityError):
+        SnapshotFactory(published_at=timezone.now(), published_by=None)
 
 
 def test_snapshot_get_absolute_url():
@@ -272,4 +285,17 @@ def test_snapshot_is_draft():
 
 
 def test_snapshot_is_published():
-    assert SnapshotFactory(published_at=timezone.now()).is_published
+    snapshot = SnapshotFactory(published_by=UserFactory(), published_at=timezone.now())
+    assert snapshot.is_published
+
+
+def test_snapshot_str():
+    user = UserFactory()
+
+    snapshot = SnapshotFactory(
+        created_by=user, published_by=user, published_at=timezone.now()
+    )
+    assert str(snapshot) == f"Published Snapshot made by {user.username}"
+
+    snapshot = SnapshotFactory(created_by=user)
+    assert str(snapshot) == f"Draft Snapshot made by {user.username}"

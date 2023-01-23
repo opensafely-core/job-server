@@ -16,7 +16,6 @@ from jobserver.models import (
     Project,
     ProjectMembership,
     Repo,
-    Snapshot,
     Stats,
     User,
     Workspace,
@@ -118,14 +117,6 @@ class RepoFactory(factory.django.DjangoModelFactory):
         model = Repo
 
     url = factory.Sequence(lambda n: f"http://example.com/org-{n}/repo-{n}")
-
-
-class SnapshotFactory(factory.django.DjangoModelFactory):
-    class Meta:
-        model = Snapshot
-
-    created_by = factory.SubFactory("tests.factories.UserFactory")
-    workspace = factory.SubFactory("tests.factories.WorkspaceFactory")
 
 
 class StatsFactory(factory.django.DjangoModelFactory):
