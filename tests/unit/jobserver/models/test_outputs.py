@@ -7,6 +7,7 @@ from django.utils import timezone
 from tests.factories import (
     ReleaseFactory,
     ReleaseFileFactory,
+    ReleaseFileReviewFactory,
     SnapshotFactory,
     UserFactory,
 )
@@ -188,6 +189,12 @@ def test_releasefile_format():
     assert f"{rfile:Kb}" == "3,276.8Kb"
     assert f"{rfile:Mb}" == "3.2Mb"
     assert f"{rfile}".startswith("ReleaseFile object")
+
+
+@pytest.mark.parametrize("field", ["created_at", "created_by"])
+def test_releasefilereview_created_check_constraint_missing_one(field):
+    with pytest.raises(IntegrityError):
+        ReleaseFileReviewFactory(**{field: None})
 
 
 def test_snapshot_str():
