@@ -80,6 +80,14 @@
   <div class="row">
     <div class="col col-lg-9 col-xl-8">
 
+      <h2>Status</h2>
+      <div class="list-group mb-3">
+        <p>
+          <strong>Status:</strong> {{ project.get_status_display }}
+        </p>
+        <p><strong>Description:</strong> {{ project.status_description|default:"-" }}</p>
+      </div>
+
       <h2>Members</h2>
       <div class="list-group mb-3">
         {% for membership in memberships %}
@@ -109,34 +117,35 @@
             </form>
           </div>
         </div>
-      {% empty %}
-        <p class="list-group-item">No members</p>
-      {% endfor %}
+        {% empty %}
+          <p class="list-group-item">No members</p>
+        {% endfor %}
+      </div>
+
+      <h2>Workspaces</h2>
+      <div class="list-group mb-3">
+        {% for workspace in workspaces %}
+        <a href="{{ workspace.get_staff_url }}" class="list-group-item list-group-item-action">
+          {{ workspace.name }}
+        </a>
+        {% empty %}
+          <p class="list-group-item">No workspaces</p>
+        {% endfor %}
+      </div>
+
+      <h2>Redirects</h2>
+      <div class="list-group mb-3">
+        {% for redirect in redirects %}
+        <a href="{{ redirect.get_staff_url }}" class="list-group-item list-group-item-action">
+          {{ redirect.old_url }}
+        </a>
+        {% empty %}
+          <p class="list-group-item">No redirects</p>
+        {% endfor %}
+      </div>
+
     </div>
 
-    <h2>Workspaces</h2>
-    <div class="list-group mb-3">
-      {% for workspace in workspaces %}
-      <a href="{{ workspace.get_staff_url }}" class="list-group-item list-group-item-action">
-        {{ workspace.name }}
-      </a>
-      {% empty %}
-        <p class="list-group-item">No workspaces</p>
-      {% endfor %}
-    </div>
-
-    <h2>Redirects</h2>
-    <div class="list-group mb-3">
-      {% for redirect in redirects %}
-      <a href="{{ redirect.get_staff_url }}" class="list-group-item list-group-item-action">
-        {{ redirect.old_url }}
-      </a>
-      {% empty %}
-        <p class="list-group-item">No redirects</p>
-      {% endfor %}
-    </div>
-
-    </div>
     <div class="col col-lg-3 col-xl-4">
       <div class="card mb-3">
         <h2 class="card-header h5">

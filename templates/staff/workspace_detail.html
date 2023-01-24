@@ -63,6 +63,11 @@
           </div>
 
           <div class="list-group-item">
+            <strong>Purpose</strong>
+            <p class="text-muted mb-0 mt-1">{{ workspace.purpose|default:"-" }}</p>
+          </div>
+
+          <div class="list-group-item">
             <strong>Notify when jobs finish:</strong>
             {% if workspace.should_notify %}Enabled{% else %}Disabled{% endif %}
             <p class="text-muted mb-0 mt-1">
