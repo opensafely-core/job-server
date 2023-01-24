@@ -252,6 +252,12 @@ form_specs = [
                             '<a href="https://www.leicesterbrc.nihr.ac.uk/themes/respiratory/research/phosp-covid/">PHOSP</a>'
                         ),
                     ),
+                    Field(
+                        name="needs_ukrr",
+                        label=mark_safe(
+                            '<a href="https://ukkidney.org/">UK Renal Registry (UKRR)</a>'
+                        ),
+                    ),
                 ],
             ),
         ],

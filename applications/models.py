@@ -236,6 +236,7 @@ class DatasetsPage(AbstractPage):
     needs_isaric = models.BooleanField(default=False)
     needs_ons_cis = models.BooleanField(default=False)
     needs_phosp = models.BooleanField(default=False)
+    needs_ukrr = models.BooleanField(default=False)
 
 
 class RecordLevelDataPage(AbstractPage):
