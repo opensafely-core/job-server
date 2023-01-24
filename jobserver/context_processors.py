@@ -73,6 +73,11 @@ def nav(request):
     is_active = functools.partial(_is_active, request)
 
     items = [
+        NavItem(
+            name="Projects",
+            url_name="your-projects",
+            predicate=lambda request: request.user.is_authenticated,
+        ),
         NavItem(name="Event Log", url_name="job-list"),
         NavItem(name="Status", url_name="status"),
     ]

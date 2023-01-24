@@ -39,7 +39,7 @@ from .views.job_requests import (
 )
 from .views.jobs import JobCancel, JobDetail, JobDetailRedirect
 from .views.orgs import OrgDetail, OrgList
-from .views.projects import ProjectDetail, ProjectEdit
+from .views.projects import ProjectDetail, ProjectEdit, YourProjectList
 from .views.releases import (
     ProjectReleaseList,
     PublishedSnapshotFile,
@@ -280,6 +280,7 @@ urlpatterns = [
     path("login/", login_view, name="login"),
     path("logout/", LogoutView.as_view(), name="logout"),
     path("orgs/", OrgList.as_view(), name="org-list"),
+    path("projects", YourProjectList.as_view(), name="your-projects"),
     path("publish-repo/<repo_url>/", SignOffRepo.as_view(), name="repo-sign-off"),
     path("repo/<repo_url>/", RepoHandler.as_view(), name="repo-handler"),
     path("reset-password/", include(reset_password_urls)),

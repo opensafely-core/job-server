@@ -2,12 +2,14 @@ import concurrent
 import operator
 
 import requests
+from django.contrib.auth.decorators import login_required
 from django.core.exceptions import PermissionDenied
-from django.db.models import Min, OuterRef, Subquery
+from django.db.models import Count, Min, OuterRef, Subquery
 from django.db.models.functions import Least, Lower
 from django.shortcuts import get_object_or_404
 from django.template.response import TemplateResponse
-from django.views.generic import UpdateView, View
+from django.utils.decorators import method_decorator
+from django.views.generic import ListView, UpdateView, View
 from furl import furl
 
 from ..authorization import has_permission
@@ -178,3 +180,14 @@ class ProjectEdit(UpdateView):
 
     def get_success_url(self):
         return self.request.GET.get("next") or self.object.get_absolute_url()
+
+
+@method_decorator(login_required, name="dispatch")
+class YourProjectList(ListView):
+    model = Project
+    template_name = "your/project_list.html"
+
+    def get_queryset(self):
+        return self.request.user.projects.annotate(
+            workspace_count=Count("workspaces", distinct=True)
+        ).all()

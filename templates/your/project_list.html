@@ -1,0 +1,51 @@
+{% extends "base-tw.html" %}
+
+{% block metatitle %}Your projects | OpenSAFELY Jobs{% endblock metatitle %}
+
+{% block breadcrumbs %}
+  {% #breadcrumbs %}
+    {% url "home" as home_url %}
+    {% breadcrumb title="Home" url=home_url %}
+    {% breadcrumb title="Your projects" active=True %}
+  {% /breadcrumbs %}
+{% endblock breadcrumbs %}
+
+{% block content %}
+  <div class="
+    mb-6 mt-3 flex flex-col gap-y-4 md:gap-y-2 text-center
+    md:mt-0 md:text-left
+  ">
+    <h1 class="text-3xl tracking-tight break-words md:text-4xl font-bold text-slate-900">
+      Your projects
+    </h1>
+    <p class="font-lg text-slate-600">
+      Your projects on OpenSAFELY
+    </p>
+  </div>
+
+  {% #card %}
+    {% #list_group %}
+      {% for project in object_list %}
+        <li>
+          <a href="{{ project.get_absolute_url }}" class="block transition-colors duration-200 hover:bg-oxford-50">
+            <div class="flex items-center gap-x-3 px-4 py-3">
+              <div class="flex flex-col md:flex-row min-w-0 md:justify-between md:flex-grow">
+                <p class="truncate text-base font-semibold text-oxford-600">
+                  {{ project.name }}
+                </p>
+                <div class="mt-1 flex items-center text-sm text-slate-600 whitespace-nowrap md:mt-0 md:ml-2">
+                  {% icon_rectangle_stack_outline class="mr-1.5 h-5 w-5 flex-shrink-0 text-slate-400" %}
+                  {% if project.workspace_count %}
+                    {{ project.workspace_count }} workspace{{ project.workspace_count|pluralize }}
+                  {% else %}
+                    No workspaces
+                  {% endif %}
+                </div>
+              </div>
+            </div>
+          </a>
+        </li>
+      {% endfor %}
+    {% /list_group %}
+  {% /card %}
+{% endblock %}

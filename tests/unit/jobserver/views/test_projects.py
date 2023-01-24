@@ -1,5 +1,6 @@
 import pytest
 import requests
+from django.conf import settings
 from django.contrib.auth.models import AnonymousUser
 from django.core.exceptions import PermissionDenied
 from django.http import Http404
@@ -8,7 +9,7 @@ from django.utils import timezone
 from jobserver.authorization import CoreDeveloper
 from jobserver.models import Project, Snapshot
 from jobserver.utils import set_from_qs
-from jobserver.views.projects import ProjectDetail, ProjectEdit
+from jobserver.views.projects import ProjectDetail, ProjectEdit, YourProjectList
 
 from ....factories import (
     JobFactory,
@@ -295,3 +296,43 @@ def test_projectedit_without_permissions(rf, user):
         ProjectEdit.as_view()(
             request, org_slug=project.org.slug, project_slug=project.slug
         )
+
+
+def test_yourprojectlist_logged_out(rf):
+    request = rf.get("/")
+    request.user = AnonymousUser()
+
+    response = YourProjectList.as_view()(request)
+
+    assert response.status_code == 302
+    assert response.url == f"{settings.LOGIN_URL}?next=/"
+
+
+def test_yourprojectlist_success(rf):
+    user = UserFactory()
+
+    p1 = ProjectFactory()
+    ProjectMembershipFactory(project=p1, user=user)
+
+    ProjectFactory()
+
+    p3 = ProjectFactory()
+    ProjectMembershipFactory(project=p3, user=user)
+
+    request = rf.get("/")
+    request.user = user
+
+    response = YourProjectList.as_view()(request)
+
+    assert response.status_code == 200
+    assert set_from_qs(response.context_data["object_list"]) == {p1.pk, p3.pk}
+
+
+def test_yourprojectlist_with_no_projects(rf):
+    request = rf.get("/")
+    request.user = UserFactory()
+
+    response = YourProjectList.as_view()(request)
+
+    assert response.status_code == 200
+    assert set_from_qs(response.context_data["object_list"]) == set()

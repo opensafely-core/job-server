@@ -1,4 +1,5 @@
 import pytest
+from django.contrib.auth.models import AnonymousUser
 from django.urls import reverse
 from django.utils import timezone
 from first import first
@@ -91,9 +92,20 @@ def test_staff_nav_selected_urls(rf, core_developer, url_name):
     assert all(u["is_active"] is False for u in unselected_urls)
 
 
-def test_nav_jobs(rf):
+def test_nav_jobs_authenticated(rf):
     request = rf.get(reverse("job-list"))
     request.user = UserFactory()
+
+    projects, jobs, status = nav(request)["nav"]
+
+    assert jobs["is_active"] is True
+    assert projects["is_active"] is False
+    assert status["is_active"] is False
+
+
+def test_nav_jobs_unauthenticated(rf):
+    request = rf.get(reverse("job-list"))
+    request.user = AnonymousUser()
 
     jobs, status = nav(request)["nav"]
 
@@ -101,9 +113,31 @@ def test_nav_jobs(rf):
     assert status["is_active"] is False
 
 
-def test_nav_status(rf):
+def test_nav_projects_authenticated(rf):
+    request = rf.get(reverse("your-projects"))
+    request.user = UserFactory()
+
+    projects, jobs, status = nav(request)["nav"]
+
+    assert jobs["is_active"] is False
+    assert projects["is_active"] is True
+    assert status["is_active"] is False
+
+
+def test_nav_status_authenticated(rf):
     request = rf.get(reverse("status"))
     request.user = UserFactory()
+
+    projects, jobs, status = nav(request)["nav"]
+
+    assert jobs["is_active"] is False
+    assert projects["is_active"] is False
+    assert status["is_active"] is True
+
+
+def test_nav_status_unauthenticated(rf):
+    request = rf.get(reverse("status"))
+    request.user = AnonymousUser()
 
     jobs, status = nav(request)["nav"]
 
