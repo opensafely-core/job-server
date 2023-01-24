@@ -12,7 +12,7 @@ class Index(TemplateView):
         ).order_by("-created_at")[:5]
         workspaces = (
             Workspace.objects.filter(is_archived=False)
-            .select_related("project", "project__org")
+            .select_related("project", "project__org", "repo")
             .order_by("name")
         )
 
