@@ -76,8 +76,8 @@ def test_status_link():
         "breakdowns": ["name"],
         "calculations": [
             {"op": "CONCURRENCY"},
-            {"op": "AVG", "column": "cpu_percentage"},
-            {"op": "AVG", "column": "memory_used"},
+            {"op": "MAX", "column": "cpu_percentage"},
+            {"op": "MAX", "column": "memory_used"},
         ],
         "end_time": 1665594060,
         "filter_combination": "AND",
@@ -108,17 +108,18 @@ def test_jobrequest_link():
     parsed = honeycomb.TemplatedUrl.parse(url)
 
     assert parsed.stacked
+    assert parsed.omit_missing
     assert parsed.query == {
-        "breakdowns": ["name"],
-        "calculations": [{"op": "CONCURRENCY"}],
+        "breakdowns": ["job", "name"],
+        "calculations": [
+            {"op": "CONCURRENCY"},
+            {"op": "MAX", "column": "cpu_percentage"},
+            {"op": "MAX", "column": "memory_used"},
+        ],
         "end_time": 1665594060,
         "filter_combination": "AND",
         "filters": [
-            {"column": "scope", "op": "=", "value": "jobs"},
-            {"column": "enter_state", "op": "!=", "value": "true"},
-            {"column": "name", "op": "!=", "value": "RUN"},
-            {"column": "name", "op": "!=", "value": "JOB"},
-            {"column": "name", "op": "!=", "value": "job"},
+            {"column": "scope", "op": "=", "value": "ticks"},
             {"column": "job_request", "op": "=", "value": "jpbaeldzjqqiaolg"},
         ],
         "granularity": 0,

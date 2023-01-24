@@ -112,8 +112,8 @@ def status_link(job):
         breakdowns=["name"],
         calculations=[
             {"op": "CONCURRENCY"},
-            {"op": "AVG", "column": "cpu_percentage"},
-            {"op": "AVG", "column": "memory_used"},
+            {"op": "MAX", "column": "cpu_percentage"},
+            {"op": "MAX", "column": "memory_used"},
         ],
         stacked=True,
         omit_missing=True,
@@ -130,16 +130,17 @@ def jobrequest_link(job_request):
     url = TemplatedUrl(
         start_time=start,
         end_time=end,
-        breakdowns=["name"],
-        calculations=[{"op": "CONCURRENCY"}],
+        breakdowns=["job", "name"],
+        calculations=[
+            {"op": "CONCURRENCY"},
+            {"op": "MAX", "column": "cpu_percentage"},
+            {"op": "MAX", "column": "memory_used"},
+        ],
         orders=[{"op": "CONCURRENCY", "order": "descending"}],
         stacked=True,
+        omit_missing=True,
         filters=[
-            {"column": "scope", "op": "=", "value": "jobs"},
-            {"column": "enter_state", "op": "!=", "value": "true"},
-            {"column": "name", "op": "!=", "value": "RUN"},
-            {"column": "name", "op": "!=", "value": "JOB"},
-            {"column": "name", "op": "!=", "value": "job"},
+            {"column": "scope", "op": "=", "value": "ticks"},
             {"column": "job_request", "op": "=", "value": job_request.identifier},
         ],
     )
