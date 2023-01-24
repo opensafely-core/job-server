@@ -111,8 +111,8 @@ test-dev *args:
         {{ args }}
 
     # run with || so they both run regardless of failures
-    $BIN/coverage report --omit=jobserver/github.py,"tests/verification/*" \
-    || $BIN/coverage html --omit=jobserver/github.py,"tests/verification/*"
+    $BIN/coverage report --omit=interactive/opencodelists.py,jobserver/github.py,"tests/verification/*" \
+    || $BIN/coverage html --omit=interactive/opencodelists.py,jobserver/github.py,"tests/verification/*"
 
 
 test *args:
