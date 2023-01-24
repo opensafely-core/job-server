@@ -961,7 +961,7 @@ def test_reviewapi_success(api_rf):
 
 
 def test_snapshotapi_published_with_anonymous_user(api_rf, freezer):
-    snapshot = SnapshotFactory(published_at=timezone.now())
+    snapshot = SnapshotFactory(published_by=UserFactory(), published_at=timezone.now())
 
     request = api_rf.get("/")
 
@@ -976,7 +976,7 @@ def test_snapshotapi_published_with_anonymous_user(api_rf, freezer):
 
 
 def test_snapshotapi_published_with_permission(api_rf):
-    snapshot = SnapshotFactory(published_at=timezone.now())
+    snapshot = SnapshotFactory(published_by=UserFactory(), published_at=timezone.now())
     user = UserFactory(roles=[ProjectCollaborator])
 
     request = api_rf.get("/")
@@ -993,7 +993,7 @@ def test_snapshotapi_published_with_permission(api_rf):
 
 
 def test_snapshotapi_published_without_permission(api_rf):
-    snapshot = SnapshotFactory(published_at=timezone.now())
+    snapshot = SnapshotFactory(published_by=UserFactory(), published_at=timezone.now())
 
     request = api_rf.get("/")
     request.user = UserFactory()  # logged in, but no permission
@@ -1144,7 +1144,7 @@ def test_snapshotcreate_without_permission(api_rf):
 
 
 def test_snapshotpublishapi_already_published(api_rf):
-    snapshot = SnapshotFactory(published_at=timezone.now())
+    snapshot = SnapshotFactory(published_by=UserFactory(), published_at=timezone.now())
 
     assert snapshot.is_published
 

@@ -40,13 +40,6 @@ class Release(models.Model):
         on_delete=models.PROTECT,
         related_name="releases",
     )
-    created_at = models.DateTimeField(default=timezone.now)
-    # the user who requested the release
-    created_by = models.ForeignKey(
-        "User",
-        on_delete=models.PROTECT,
-        related_name="releases",
-    )
     status = models.TextField(choices=Statuses.choices, default=Statuses.REQUESTED)
 
     # list of files requested for release
@@ -54,6 +47,32 @@ class Release(models.Model):
 
     metadata = models.JSONField(null=True)
     review = models.JSONField(null=True)
+
+    created_at = models.DateTimeField(default=timezone.now)
+    created_by = models.ForeignKey(
+        "User",
+        on_delete=models.PROTECT,
+        related_name="releases",
+    )
+
+    class Meta:
+        constraints = [
+            models.CheckConstraint(
+                check=(
+                    Q(
+                        created_at__isnull=True,
+                        created_by__isnull=True,
+                    )
+                    | (
+                        Q(
+                            created_at__isnull=False,
+                            created_by__isnull=False,
+                        )
+                    )
+                ),
+                name="%(app_label)s_%(class)s_both_created_at_and_created_by_set",
+            ),
+        ]
 
     def get_absolute_url(self):
         return reverse(
@@ -96,12 +115,6 @@ class ReleaseFile(models.Model):
     def ulid(self):
         return ULID.from_str(self.id)
 
-    deleted_by = models.ForeignKey(
-        "User",
-        on_delete=models.PROTECT,
-        null=True,
-        related_name="deleted_files",
-    )
     release = models.ForeignKey(
         "Release",
         on_delete=models.PROTECT,
@@ -113,11 +126,6 @@ class ReleaseFile(models.Model):
         related_name="files",
     )
     # the user who approved the release
-    created_by = models.ForeignKey(
-        "User",
-        on_delete=models.PROTECT,
-        related_name="released_files",
-    )
 
     # name is path from the POV of the researcher, e.g "outputs/file1.txt"
     name = models.TextField()
@@ -131,13 +139,40 @@ class ReleaseFile(models.Model):
     metadata = models.JSONField(null=True)
 
     created_at = models.DateTimeField(default=timezone.now)
+    created_by = models.ForeignKey(
+        "User",
+        on_delete=models.PROTECT,
+        related_name="released_files",
+    )
+
     deleted_at = models.DateTimeField(null=True)
+    deleted_by = models.ForeignKey(
+        "User",
+        on_delete=models.PROTECT,
+        null=True,
+        related_name="deleted_files",
+    )
+
     uploaded_at = models.DateTimeField(null=True)
 
     class Meta:
         constraints = [
             models.CheckConstraint(
-                name="%(app_label)s_%(class)s_deleted_fields_both_set",
+                check=(
+                    Q(
+                        created_at__isnull=True,
+                        created_by__isnull=True,
+                    )
+                    | (
+                        Q(
+                            created_at__isnull=False,
+                            created_by__isnull=False,
+                        )
+                    )
+                ),
+                name="%(app_label)s_%(class)s_both_created_at_and_created_by_set",
+            ),
+            models.CheckConstraint(
                 check=(
                     Q(
                         deleted_at__isnull=True,
@@ -148,7 +183,8 @@ class ReleaseFile(models.Model):
                         deleted_by__isnull=False,
                     )
                 ),
-            )
+                name="%(app_label)s_%(class)s_both_deleted_at_and_deleted_by_set",
+            ),
         ]
 
     def __format__(self, format_spec):
@@ -232,11 +268,6 @@ class ReleaseFileReview(models.Model):
         APPROVED = "APPROVED", "Approved"
         REJECTED = "REJECTED", "Rejected"
 
-    created_by = models.ForeignKey(
-        "User",
-        on_delete=models.CASCADE,
-        related_name="release_file_reviews",
-    )
     release_file = models.ForeignKey(
         "ReleaseFile",
         on_delete=models.CASCADE,
@@ -249,6 +280,30 @@ class ReleaseFileReview(models.Model):
     # no default here because this needs to match for all reviews created at
     # the same time.
     created_at = models.DateTimeField()
+    created_by = models.ForeignKey(
+        "User",
+        on_delete=models.CASCADE,
+        related_name="release_file_reviews",
+    )
+
+    class Meta:
+        constraints = [
+            models.CheckConstraint(
+                check=(
+                    Q(
+                        created_at__isnull=True,
+                        created_by__isnull=True,
+                    )
+                    | (
+                        Q(
+                            created_at__isnull=False,
+                            created_by__isnull=False,
+                        )
+                    )
+                ),
+                name="%(app_label)s_%(class)s_both_created_at_and_created_by_set",
+            ),
+        ]
 
 
 class Snapshot(models.Model):
@@ -258,20 +313,9 @@ class Snapshot(models.Model):
         DRAFT = "draft", "Draft"
         PUBLISHED = "published", "Published"
 
-    created_by = models.ForeignKey(
-        "User",
-        on_delete=models.PROTECT,
-        related_name="snapshots",
-    )
     files = models.ManyToManyField(
         "ReleaseFile",
         related_name="snapshots",
-    )
-    published_by = models.ForeignKey(
-        "User",
-        null=True,
-        on_delete=models.PROTECT,
-        related_name="published_snapshots",
     )
     workspace = models.ForeignKey(
         "Workspace",
@@ -280,7 +324,53 @@ class Snapshot(models.Model):
     )
 
     created_at = models.DateTimeField(default=timezone.now)
+    created_by = models.ForeignKey(
+        "User",
+        on_delete=models.PROTECT,
+        related_name="snapshots",
+    )
+
     published_at = models.DateTimeField(null=True)
+    published_by = models.ForeignKey(
+        "User",
+        null=True,
+        on_delete=models.PROTECT,
+        related_name="published_snapshots",
+    )
+
+    class Meta:
+        constraints = [
+            models.CheckConstraint(
+                check=(
+                    Q(
+                        created_at__isnull=True,
+                        created_by__isnull=True,
+                    )
+                    | (
+                        Q(
+                            created_at__isnull=False,
+                            created_by__isnull=False,
+                        )
+                    )
+                ),
+                name="%(app_label)s_%(class)s_both_created_at_and_created_by_set",
+            ),
+            models.CheckConstraint(
+                check=(
+                    Q(
+                        published_at__isnull=True,
+                        published_by__isnull=True,
+                    )
+                    | (
+                        Q(
+                            published_at__isnull=False,
+                            published_by__isnull=False,
+                        )
+                    )
+                ),
+                name="%(app_label)s_%(class)s_both_published_at_and_published_by_set",
+            ),
+        ]
 
     def __str__(self):
         status = "Published" if self.published_at else "Draft"

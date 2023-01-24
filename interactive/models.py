@@ -1,4 +1,5 @@
 from django.db import models
+from django.db.models import Q
 from django.urls import reverse
 from django.utils import timezone
 from django.utils.text import slugify
@@ -47,6 +48,25 @@ class AnalysisRequest(models.Model):
         on_delete=models.PROTECT,
         related_name="analysis_requests",
     )
+
+    class Meta:
+        constraints = [
+            models.CheckConstraint(
+                check=(
+                    Q(
+                        created_at__isnull=True,
+                        created_by__isnull=True,
+                    )
+                    | (
+                        Q(
+                            created_at__isnull=False,
+                            created_by__isnull=False,
+                        )
+                    )
+                ),
+                name="%(app_label)s_%(class)s_both_created_at_and_created_by_set",
+            ),
+        ]
 
     def __str__(self):
         return f"{self.title} ({self.codelist_slug})"

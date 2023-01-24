@@ -66,18 +66,34 @@ def test_projectdetail_with_multiple_releases(rf, freezer):
     now = timezone.now()
 
     workspace1 = WorkspaceFactory(project=project)
-    snapshot1 = SnapshotFactory(workspace=workspace1, published_at=minutes_ago(now, 2))
-    snapshot2 = SnapshotFactory(workspace=workspace1, published_at=minutes_ago(now, 3))
+    snapshot1 = SnapshotFactory(
+        workspace=workspace1,
+        published_by=UserFactory(),
+        published_at=minutes_ago(now, 2),
+    )
+    snapshot2 = SnapshotFactory(
+        workspace=workspace1,
+        published_by=UserFactory(),
+        published_at=minutes_ago(now, 3),
+    )
 
     workspace2 = WorkspaceFactory(project=project)
-    snapshot3 = SnapshotFactory(workspace=workspace2, published_at=minutes_ago(now, 1))
+    snapshot3 = SnapshotFactory(
+        workspace=workspace2,
+        published_by=UserFactory(),
+        published_at=minutes_ago(now, 1),
+    )
 
     # unpublished
     workspace3 = WorkspaceFactory(project=project)
     snapshot4 = SnapshotFactory(workspace=workspace3, published_at=None)
 
     workspace4 = WorkspaceFactory(project=project)
-    snapshot5 = SnapshotFactory(workspace=workspace4, published_at=minutes_ago(now, 4))
+    snapshot5 = SnapshotFactory(
+        workspace=workspace4,
+        published_by=UserFactory(),
+        published_at=minutes_ago(now, 4),
+    )
 
     request = rf.get("/")
     # FIXME: remove this role when releases is deployed to all users

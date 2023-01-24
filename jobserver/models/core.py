@@ -210,11 +210,6 @@ class JobRequest(models.Model):
     backend = models.ForeignKey(
         "Backend", on_delete=models.PROTECT, related_name="job_requests"
     )
-    created_by = models.ForeignKey(
-        "User",
-        on_delete=models.CASCADE,
-        related_name="job_requests",
-    )
     workspace = models.ForeignKey(
         "Workspace", on_delete=models.CASCADE, related_name="job_requests"
     )
@@ -228,8 +223,32 @@ class JobRequest(models.Model):
     project_definition = models.TextField(default="")
 
     created_at = models.DateTimeField(default=timezone.now)
+    created_by = models.ForeignKey(
+        "User",
+        on_delete=models.CASCADE,
+        related_name="job_requests",
+    )
 
     objects = JobRequestManager()
+
+    class Meta:
+        constraints = [
+            models.CheckConstraint(
+                check=(
+                    Q(
+                        created_at__isnull=True,
+                        created_by__isnull=True,
+                    )
+                    | (
+                        Q(
+                            created_at__isnull=False,
+                            created_by__isnull=False,
+                        )
+                    )
+                ),
+                name="%(app_label)s_%(class)s_both_created_at_and_created_by_set",
+            ),
+        ]
 
     def get_absolute_url(self):
         return reverse(
@@ -659,6 +678,7 @@ class ProjectMembership(models.Model):
 
 class Repo(models.Model):
     url = models.TextField(unique=True)
+    has_github_outputs = models.BooleanField(default=False)
 
     internal_signed_off_at = models.DateTimeField(null=True)
     internal_signed_off_by = models.ForeignKey(
@@ -676,7 +696,39 @@ class Repo(models.Model):
         related_name="repos_signed_off_by_researcher",
     )
 
-    has_github_outputs = models.BooleanField(default=False)
+    class Meta:
+        constraints = [
+            models.CheckConstraint(
+                check=(
+                    Q(
+                        internal_signed_off_at__isnull=True,
+                        internal_signed_off_by__isnull=True,
+                    )
+                    | (
+                        Q(
+                            internal_signed_off_at__isnull=False,
+                            internal_signed_off_by__isnull=False,
+                        )
+                    )
+                ),
+                name="%(app_label)s_%(class)s_both_internal_signed_off_at_and_internal_signed_off_by_set",
+            ),
+            models.CheckConstraint(
+                check=(
+                    Q(
+                        researcher_signed_off_at__isnull=True,
+                        researcher_signed_off_by__isnull=True,
+                    )
+                    | (
+                        Q(
+                            researcher_signed_off_at__isnull=False,
+                            researcher_signed_off_by__isnull=False,
+                        )
+                    )
+                ),
+                name="%(app_label)s_%(class)s_both_researcher_signed_off_at_and_researcher_signed_off_by_set",
+            ),
+        ]
 
     def __str__(self):
         return self.url
@@ -957,11 +1009,6 @@ class User(AbstractBaseUser):
 class Workspace(models.Model):
     """Models a working directory on a Backend server."""
 
-    created_by = models.ForeignKey(
-        "User",
-        on_delete=models.CASCADE,
-        related_name="workspaces",
-    )
     project = models.ForeignKey(
         "Project",
         on_delete=models.PROTECT,
@@ -995,6 +1042,45 @@ class Workspace(models.Model):
     )
 
     created_at = models.DateTimeField(default=timezone.now)
+    created_by = models.ForeignKey(
+        "User",
+        on_delete=models.CASCADE,
+        related_name="workspaces",
+    )
+
+    class Meta:
+        constraints = [
+            models.CheckConstraint(
+                check=(
+                    Q(
+                        created_at__isnull=True,
+                        created_by__isnull=True,
+                    )
+                    | (
+                        Q(
+                            created_at__isnull=False,
+                            created_by__isnull=False,
+                        )
+                    )
+                ),
+                name="%(app_label)s_%(class)s_both_created_at_and_created_by_set",
+            ),
+            models.CheckConstraint(
+                check=(
+                    Q(
+                        signed_off_at__isnull=True,
+                        signed_off_by__isnull=True,
+                    )
+                    | (
+                        Q(
+                            signed_off_at__isnull=False,
+                            signed_off_by__isnull=False,
+                        )
+                    )
+                ),
+                name="%(app_label)s_%(class)s_both_signed_off_at_and_signed_off_by_set",
+            ),
+        ]
 
     def __str__(self):
         return f"{self.name} ({self.repo.url})"

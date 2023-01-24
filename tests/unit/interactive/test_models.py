@@ -1,3 +1,5 @@
+import pytest
+from django.db import IntegrityError
 from django.urls import reverse
 
 from ...factories import (
@@ -6,6 +8,12 @@ from ...factories import (
     ReportFactory,
     UserFactory,
 )
+
+
+@pytest.mark.parametrize("field", ["created_at", "created_by"])
+def test_analysisrequest_created_check_constraint_missing_one(field):
+    with pytest.raises(IntegrityError):
+        AnalysisRequestFactory(**{field: None})
 
 
 def test_analysisrequest_get_absolute_url():

@@ -471,7 +471,9 @@ def test_workspacedetail_authorized_run_jobs_with_opensafely_interactive_role(rf
 
 def test_workspacedetail_authorized_view_snaphots(rf):
     workspace = WorkspaceFactory()
-    SnapshotFactory(workspace=workspace, published_at=timezone.now())
+    SnapshotFactory(
+        workspace=workspace, published_by=UserFactory(), published_at=timezone.now()
+    )
 
     request = rf.get("/")
     request.user = UserFactory()
@@ -489,7 +491,9 @@ def test_workspacedetail_authorized_view_snaphots(rf):
 
 def test_workspacedetail_authorized_honeycomb(rf):
     workspace = WorkspaceFactory()
-    SnapshotFactory(workspace=workspace, published_at=timezone.now())
+    SnapshotFactory(
+        workspace=workspace, published_by=UserFactory(), published_at=timezone.now()
+    )
 
     request = rf.get("/")
     request.user = UserFactory(roles=[CoreDeveloper])
@@ -1146,7 +1150,11 @@ def test_workspaceoutputlist_success(rf, freezer, build_release_with_files):
     now = timezone.now()
 
     build_release_with_files(["file1.txt", "file2.txt"], workspace=workspace)
-    snapshot1 = SnapshotFactory(workspace=workspace, published_at=minutes_ago(now, 3))
+    snapshot1 = SnapshotFactory(
+        workspace=workspace,
+        published_by=UserFactory(),
+        published_at=minutes_ago(now, 3),
+    )
     snapshot1.files.set(workspace.files.all())
 
     build_release_with_files(["file2.txt", "file3.txt"], workspace=workspace)
@@ -1175,7 +1183,11 @@ def test_workspaceoutputlist_without_permission(rf, freezer, build_release_with_
     now = timezone.now()
 
     build_release_with_files(["file1.txt", "file2.txt"], workspace=workspace)
-    snapshot1 = SnapshotFactory(workspace=workspace, published_at=minutes_ago(now, 3))
+    snapshot1 = SnapshotFactory(
+        workspace=workspace,
+        published_by=UserFactory(),
+        published_at=minutes_ago(now, 3),
+    )
     snapshot1.files.set(workspace.files.all())
 
     build_release_with_files(["file2.txt", "file3.txt"], workspace=workspace)

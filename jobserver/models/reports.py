@@ -1,4 +1,5 @@
 from django.db import models
+from django.db.models import Q
 from django.urls import reverse
 from django.utils import timezone
 from django_extensions.db.fields import AutoSlugField
@@ -36,6 +37,55 @@ class Report(models.Model):
         related_name="reports_published",
         null=True,
     )
+
+    class Meta:
+        constraints = [
+            models.CheckConstraint(
+                check=(
+                    Q(
+                        created_at__isnull=True,
+                        created_by__isnull=True,
+                    )
+                    | (
+                        Q(
+                            created_at__isnull=False,
+                            created_by__isnull=False,
+                        )
+                    )
+                ),
+                name="%(app_label)s_%(class)s_both_created_at_and_created_by_set",
+            ),
+            models.CheckConstraint(
+                check=(
+                    Q(
+                        published_at__isnull=True,
+                        published_by__isnull=True,
+                    )
+                    | (
+                        Q(
+                            published_at__isnull=False,
+                            published_by__isnull=False,
+                        )
+                    )
+                ),
+                name="%(app_label)s_%(class)s_both_published_at_and_published_by_set",
+            ),
+            models.CheckConstraint(
+                check=(
+                    Q(
+                        updated_at__isnull=True,
+                        updated_by__isnull=True,
+                    )
+                    | (
+                        Q(
+                            updated_at__isnull=False,
+                            updated_by__isnull=False,
+                        )
+                    )
+                ),
+                name="%(app_label)s_%(class)s_both_updated_at_and_updated_by_set",
+            ),
+        ]
 
     def __str__(self):
         return self.title
