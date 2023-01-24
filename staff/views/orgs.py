@@ -34,6 +34,7 @@ def org_add_github_org(request, slug):
 
     name = form.cleaned_data["name"]
     org.github_orgs.append(name)
+    org.updated_by = request.user
     org.save()
 
     return redirect(org.get_staff_url())
@@ -47,6 +48,7 @@ class OrgCreate(CreateView):
     def form_valid(self, form):
         org = form.save(commit=False)
         org.created_by = self.request.user
+        org.updated_by = self.request.user
         org.save()
 
         org_detail = org.get_staff_url()
@@ -130,7 +132,9 @@ class OrgEdit(UpdateView):
         # mutation self.object under us
         old = self.get_object()
 
-        new = form.save()
+        new = form.save(commit=False)
+        new.updated_by = self.request.user
+        new.save()
 
         # check changed_data here instead of comparing self.object.slug to
         # new.slug because self.object is mutated when ModelForm._post_clean
@@ -179,6 +183,7 @@ class OrgProjectCreate(CreateView):
     def form_valid(self, form):
         project = form.save(commit=False)
         project.created_by = self.request.user
+        project.updated_by = self.request.user
         project.org = self.org
         project.save()
 
@@ -201,6 +206,7 @@ class OrgRemoveGitHubOrg(View):
         except ValueError:
             messages.error(request, f"{name} is not assigned to {org.name}")
         else:
+            org.updated_by = request.user
             org.save()
             messages.success(request, f"Removed {name} from {org.name}")
 

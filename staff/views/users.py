@@ -17,6 +17,7 @@ from jobserver.models import (
     Backend,
     Job,
     Org,
+    OrgMembership,
     Project,
     ProjectMembership,
     User,
@@ -72,7 +73,11 @@ class UserCreate(FormView):
             is_active=True,
         )
 
-        user.orgs.add(form.cleaned_data["org"])
+        OrgMembership.objects.create(
+            created_by=self.request.user,
+            org=form.cleaned_data["org"],
+            user=user,
+        )
 
         project = form.cleaned_data["project"]
         if application_url := form.cleaned_data.get("application_url"):
@@ -80,7 +85,10 @@ class UserCreate(FormView):
             project.save()
 
         ProjectMembership.objects.create(
-            project=project, user=user, roles=[InteractiveReporter]
+            created_by=self.request.user,
+            project=project,
+            user=user,
+            roles=[InteractiveReporter],
         )
 
         try:

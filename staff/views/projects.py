@@ -83,6 +83,7 @@ class ProjectCreate(CreateView):
     def form_valid(self, form):
         project = form.save(commit=False)
         project.created_by = self.request.user
+        project.updated_by = self.request.user
         project.save()
 
         project_detail = project.get_staff_url()
