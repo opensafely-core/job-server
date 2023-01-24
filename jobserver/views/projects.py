@@ -40,7 +40,9 @@ class ProjectDetail(View):
         memberships = project.memberships.select_related("user").order_by(
             Lower("user__fullname"), "user__username"
         )
-        workspaces = project.workspaces.order_by("is_archived", "name")
+        workspaces = project.workspaces.select_related("repo").order_by(
+            "is_archived", "name"
+        )
 
         project_org_in_user_orgs = False
         if request.user.is_authenticated:
@@ -108,7 +110,13 @@ class ProjectDetail(View):
             "latest_snapshot", flat=True
         )
 
-        return Snapshot.objects.filter(pk__in=snapshot_pks).order_by("-published_at")
+        return (
+            Snapshot.objects.filter(pk__in=snapshot_pks)
+            .select_related(
+                "workspace", "workspace__project", "workspace__project__org"
+            )
+            .order_by("-published_at")
+        )
 
     def get_status(self, project):
         # break up the choice label into a title and optional sub title
