@@ -102,6 +102,7 @@ class DatasetsPageFactory(AbstractPageFactory):
     needs_isaric = factory.fuzzy.FuzzyChoice([True, False])
     needs_ons_cis = factory.fuzzy.FuzzyChoice([True, False])
     needs_phosp = factory.fuzzy.FuzzyChoice([True, False])
+    needs_ukrr = factory.fuzzy.FuzzyChoice([True, False])
 
 
 class RecordLevelDataPageFactory(AbstractPageFactory):

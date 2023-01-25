@@ -136,6 +136,7 @@ def test_successful_application(client, mailoutbox, slack_messages):
         "needs_isaric": "",
         "needs_ons_cis": "yes",
         "needs_phosp": "",
+        "needs_ukrr": "yes",
     }
     response = client.post(url("datasets"), data, follow=True)
     assert response.status_code == 200
@@ -145,6 +146,7 @@ def test_successful_application(client, mailoutbox, slack_messages):
     assert not page.needs_isaric
     assert page.needs_ons_cis
     assert not page.needs_phosp
+    assert page.needs_ukrr
 
     # record-level-data
     data = {
