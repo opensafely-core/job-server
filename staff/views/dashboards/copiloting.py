@@ -18,7 +18,7 @@ class Copiloting(TemplateView):
 
     def get_context_data(self, **kwargs):
         # these orgs are not copiloted so we can ignore them here
-        excluded_org_slugs = ["datalab", "lshtm"]
+        excluded_org_slugs = ["datalab", "lshtm", "university-of-bristol"]
 
         projects = (
             Project.objects.select_related("copilot", "org")
