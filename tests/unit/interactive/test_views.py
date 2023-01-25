@@ -13,6 +13,7 @@ from ...factories import (
     UserFactory,
     WorkspaceFactory,
 )
+from ...fakes import FakeOpenCodelistsAPI
 
 
 def test_analysisrequestcreate_get_success(rf):
@@ -24,9 +25,9 @@ def test_analysisrequestcreate_get_success(rf):
     request = rf.get("/")
     request.user = user
 
-    response = AnalysisRequestCreate.as_view()(
-        request, org_slug=project.org.slug, project_slug=project.slug
-    )
+    response = AnalysisRequestCreate.as_view(
+        get_opencodelists_api=FakeOpenCodelistsAPI
+    )(request, org_slug=project.org.slug, project_slug=project.slug)
 
     assert response.status_code == 200
     assert response.context_data["project"] == project
@@ -40,14 +41,18 @@ def test_analysisrequestcreate_post_success(rf):
 
     ProjectMembershipFactory(project=project, user=user, roles=[InteractiveReporter])
 
-    request = rf.post("/", {})
+    data = {
+        "codelist_a": "bennett/medication-codelist/medication123",
+        "codelist_b": "bennett/event-codelist/event123",
+    }
+    request = rf.post("/", data)
     request.user = user
 
-    response = AnalysisRequestCreate.as_view()(
-        request, org_slug=project.org.slug, project_slug=project.slug
-    )
+    response = AnalysisRequestCreate.as_view(
+        get_opencodelists_api=FakeOpenCodelistsAPI
+    )(request, org_slug=project.org.slug, project_slug=project.slug)
 
-    assert response.status_code == 302
+    assert response.status_code == 302, response.context_data["form"].errors
 
     analysis_request = AnalysisRequest.objects.first()
     assert response.url == analysis_request.get_absolute_url()
