@@ -44,6 +44,12 @@ def test_analysisrequestcreate_post_success(rf):
     data = {
         "codelist_a": "bennett/medication-codelist/medication123",
         "codelist_b": "bennett/event-codelist/event123",
+        "frequency": "test",
+        "time_value": "test",
+        "time_scale": "test",
+        "time_event": "test",
+        "filter_population": "test",
+        "demographics": "age",
     }
     request = rf.post("/", data)
     request.user = user

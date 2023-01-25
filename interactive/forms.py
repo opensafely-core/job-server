@@ -1,11 +1,27 @@
 from django import forms
 
 
+DEMOGRAPHICS = [
+    "age",
+    "ethnicity",
+    "imd",
+    "region",
+    "sex",
+]
+
+
 def codelists_to_choices(codelists):
     return [(c["slug"], c["name"]) for c in codelists]
 
 
 class AnalysisRequestForm(forms.Form):
+    frequency = forms.CharField()
+    time_value = forms.CharField()
+    time_scale = forms.CharField()
+    time_event = forms.CharField()
+    filter_population = forms.CharField()
+    demographics = forms.MultipleChoiceField(choices=[(d, "") for d in DEMOGRAPHICS])
+
     def __init__(self, *args, **kwargs):
         events = kwargs.pop("events")
         medications = kwargs.pop("medications")
