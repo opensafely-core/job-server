@@ -98,3 +98,7 @@ def test_analysisrequest_report_content_with_no_release_file():
 
 def test_analysisrequest_report_content_with_no_report():
     assert AnalysisRequestFactory().report_content == ""
+
+
+def test_analysisrequest_ulid():
+    assert AnalysisRequestFactory().ulid.timestamp
