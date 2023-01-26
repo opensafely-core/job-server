@@ -1,4 +1,5 @@
 import zipfile
+from datetime import timedelta
 
 import pytest
 import requests
@@ -40,6 +41,7 @@ from ....factories import (
     ProjectMembershipFactory,
     ReleaseFactory,
     ReleaseFileFactory,
+    RepoFactory,
     SnapshotFactory,
     UserFactory,
     WorkspaceFactory,
@@ -383,6 +385,82 @@ def test_workspacedetail_authorized_archive_workspaces(rf):
 
     assert response.status_code == 200
     assert response.context_data["user_can_archive_workspace"]
+
+
+def test_workspacedetail_authorized_public_repo_hide_change_visibility_banner(rf):
+    project = ProjectFactory()
+
+    # a workspace with a "private" repo which ran its first job > 11 months ago
+    private = WorkspaceFactory(
+        project=project, repo=RepoFactory(url="http://example.com/repo/private")
+    )
+    job_request = JobRequestFactory(workspace=private)
+    JobFactory(job_request=job_request, started_at=timezone.now() - timedelta(weeks=52))
+
+    # the workspace we're viewing, which is using a "public" repo
+    workspace = WorkspaceFactory(
+        project=project, repo=RepoFactory(url="http://example.com/repo/public")
+    )
+
+    user = UserFactory()
+    BackendMembershipFactory(user=user)
+    ProjectMembershipFactory(project=project, user=user, roles=[ProjectDeveloper])
+
+    # this is what defines "private"
+    class AnotherFakeGitHubAPI:
+        def get_repo_is_private(self, owner, name):
+            return name.startswith("private")
+
+    request = rf.get("/")
+    request.user = user
+
+    response = WorkspaceDetail.as_view(get_github_api=AnotherFakeGitHubAPI)(
+        request,
+        org_slug=project.org.slug,
+        project_slug=project.slug,
+        workspace_slug=workspace.name,
+    )
+
+    assert response.status_code == 200
+    assert not response.context_data["show_publish_repo_warning"]
+
+
+def test_workspacedetail_authorized_private_repo_show_change_visibility_banner(rf):
+    project = ProjectFactory()
+
+    # a workspace with a "private" repo which ran its first job > 11 months ago
+    private = WorkspaceFactory(
+        project=project, repo=RepoFactory(url="http://example.com/repo/private1")
+    )
+    job_request = JobRequestFactory(workspace=private)
+    JobFactory(job_request=job_request, started_at=timezone.now() - timedelta(weeks=52))
+
+    # the workspace we're viewing, which is also using a "private" repo
+    workspace = WorkspaceFactory(
+        project=project, repo=RepoFactory(url="http://example.com/repo/private2")
+    )
+
+    user = UserFactory()
+    BackendMembershipFactory(user=user)
+    ProjectMembershipFactory(project=project, user=user, roles=[ProjectDeveloper])
+
+    # this is what defines "private"
+    class AnotherFakeGitHubAPI:
+        def get_repo_is_private(self, owner, name):
+            return name.startswith("private")
+
+    request = rf.get("/")
+    request.user = user
+
+    response = WorkspaceDetail.as_view(get_github_api=AnotherFakeGitHubAPI)(
+        request,
+        org_slug=project.org.slug,
+        project_slug=project.slug,
+        workspace_slug=workspace.name,
+    )
+
+    assert response.status_code == 200
+    assert response.context_data["show_publish_repo_warning"]
 
 
 def test_workspacedetail_authorized_view_files(rf):

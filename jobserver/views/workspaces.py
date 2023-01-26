@@ -238,8 +238,18 @@ class WorkspaceDetail(View):
 
         is_member = request.user in workspace.project.members.all()
 
+        try:
+            repo_is_private = self.get_github_api().get_repo_is_private(
+                workspace.repo.owner, workspace.repo.name
+            )
+        except requests.HTTPError:
+            repo_is_private = None
+
         show_publish_repo_warning = (
-            is_member and first_job and first_job.run_at < eleven_months_ago
+            is_member
+            and first_job
+            and first_job.run_at < eleven_months_ago
+            and repo_is_private
         )
 
         is_privileged_user = has_permission(
@@ -277,13 +287,6 @@ class WorkspaceDetail(View):
 
         # should we display the releases section for this workspace?
         can_use_releases = can_view_files or can_view_releases or can_view_outputs
-
-        try:
-            repo_is_private = self.get_github_api().get_repo_is_private(
-                workspace.repo.owner, workspace.repo.name
-            )
-        except requests.HTTPError:
-            repo_is_private = None
 
         if has_permission(request.user, "job_request_pick_ref"):
             run_jobs_url = workspace.get_pick_ref_url()
