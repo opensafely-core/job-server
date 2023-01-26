@@ -19,6 +19,7 @@ const config = {
         interactive: "assets/src/scripts/interactive/main.jsx",
         job_request_create: "./assets/src/scripts/job_request_create.js",
         main: "./assets/src/scripts/main.js",
+        staff: "./assets/src/scripts/staff.js",
         tw: "./assets/src/scripts/tw.js",
         workspace_create: "./assets/src/scripts/workspace_create.js",
       },

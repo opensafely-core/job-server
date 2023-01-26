@@ -5,17 +5,22 @@
     "dev": "vite",
     "build": "vite build",
     "serve": "vite preview",
-    "lint": "eslint \"./assets/src/**/*.{js,jsx}\"",
-    "lint:fix": "eslint \"./assets/src/**/*.{js,jsx}\" --fix",
+    "lint": "eslint \"./assets/src/**/*.{js,jsx,ts,tsx}\"",
+    "lint:fix": "eslint \"./assets/src/**/*.{js,jsx,ts,tsx}\" --fix",
     "test": "npx vitest run",
     "test:watch": "npx vitest",
     "test:coverage": "npx vitest run --coverage",
-    "test:single": "npx vitest -t"
+    "test:single": "npx vitest -t",
+    "check": "npm run lint && npx tsc"
   },
   "devDependencies": {
     "@testing-library/jest-dom": "^5.16.5",
     "@testing-library/react": "^13.4.0",
     "@testing-library/user-event": "^14.4.3",
+    "@types/react": "^18.0.27",
+    "@types/react-dom": "^18.0.10",
+    "@typescript-eslint/eslint-plugin": "^5.49.0",
+    "@typescript-eslint/parser": "^5.49.0",
     "@vitejs/plugin-legacy": "^3.0.2",
     "@vitejs/plugin-react-swc": "^3.0.1",
     "@vitest/coverage-c8": "^0.28.2",
@@ -23,6 +28,7 @@
     "cssnano": "^5.1.14",
     "eslint": "^8.32.0",
     "eslint-config-airbnb": "^19.0.4",
+    "eslint-config-airbnb-typescript": "^17.0.0",
     "eslint-config-prettier": "^8.6.0",
     "eslint-plugin-import": "^2.27.5",
     "eslint-plugin-jsx-a11y": "^6.7.1",
@@ -72,60 +78,5 @@
     "tablesorter": "^2.31.3",
     "tailwindcss": "^3.2.4",
     "whatwg-fetch": "^3.6.2"
-  },
-  "eslintConfig": {
-    "extends": [
-      "airbnb",
-      "airbnb/hooks",
-      "prettier"
-    ],
-    "plugins": [
-      "prettier",
-      "testing-library"
-    ],
-    "rules": {
-      "prettier/prettier": "error",
-      "react/jsx-props-no-spreading": "off",
-      "react/jsx-sort-props": [
-        "error",
-        {
-          "ignoreCase": true,
-          "reservedFirst": true
-        }
-      ],
-      "react/function-component-definition": [
-        2,
-        {
-          "namedComponents": "function-declaration",
-          "unnamedComponents": "arrow-function"
-        }
-      ],
-      "import/order": [
-        "error",
-        {
-          "groups": [
-            [
-              "builtin",
-              "external",
-              "internal"
-            ],
-            "parent",
-            "sibling",
-            "index"
-          ],
-          "newlines-between": "never",
-          "alphabetize": {
-            "order": "asc",
-            "caseInsensitive": true
-          }
-        }
-      ]
-    },
-    "env": {
-      "browser": true
-    },
-    "parserOptions": {
-      "ecmaVersion": 2020
-    }
   }
 }
