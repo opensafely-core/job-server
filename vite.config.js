@@ -11,13 +11,13 @@ const config = {
     manifest: true,
     rollupOptions: {
       input: {
-        index: "./assets/src/scripts/index.js",
         "application-form": "./assets/src/scripts/application-form.js",
+        "outputs-viewer": "./assets/src/scripts/outputs-viewer/index.jsx",
         components: "./assets/src/scripts/components.js",
+        index: "./assets/src/scripts/index.js",
+        interactive: "assets/src/scripts/interactive/main.jsx",
         job_request_create: "./assets/src/scripts/job_request_create.js",
         main: "./assets/src/scripts/main.js",
-        "outputs-viewer": "./assets/src/scripts/outputs-viewer/index.jsx",
-        staff: "./assets/src/scripts/staff.js",
         tw: "./assets/src/scripts/tw.js",
         workspace_create: "./assets/src/scripts/workspace_create.js",
       },

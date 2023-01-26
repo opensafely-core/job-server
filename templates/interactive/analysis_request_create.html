@@ -1,5 +1,6 @@
 {% extends "base-tw.html" %}
 
+{% load django_vite %}
 {% load humanize %}
 
 {% block metatitle %}{{ project.name }} | OpenSAFELY Jobs{% endblock metatitle %}
@@ -19,18 +20,15 @@
 {% endblock breadcrumbs %}
 
 {% block content %}
+{{ events|json_script:"codelist_events" }}
+{{ medications|json_script:"codelist_medications" }}
 <div
-  data-events="{{ events }}"
-  data-medications="{{ medications }}"
+  id="osi"
+  data-events="codelist_events"
+  data-medications="codelist_medications">
 </div>
+{% endblock %}
 
-<div>
-  <h3>Events</h3>
-  <pre>{{ events|pprint }}</pre>
-</div>
-
-<div>
-  <h3>Medications</h3>
-  <pre>{{ medications|pprint }}</pre>
-</div>
+{% block extra_js %}
+  {% vite_asset "assets/src/scripts/interactive/main.jsx" %}
 {% endblock %}
