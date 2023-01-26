@@ -1,4 +1,9 @@
 {% extends "base.html" %}
+{% load django_vite %}
+
+{% block extra_meta %}
+{% vite_asset "assets/src/scripts/staff.js" %}
+{% endblock extra_meta %}
 
 {% block staff_nav %}
 <nav class="navbar navbar-expand-lg navbar-dark bg-danger py-lg-2">
