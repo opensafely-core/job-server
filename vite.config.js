@@ -1,5 +1,6 @@
 /* eslint-disable import/no-extraneous-dependencies */
 import legacy from "@vitejs/plugin-legacy";
+import react from "@vitejs/plugin-react-swc";
 import { viteStaticCopy } from "vite-plugin-static-copy";
 
 /**
@@ -27,6 +28,7 @@ const config = {
   },
   clearScreen: false,
   plugins: [
+    react(),
     legacy({
       targets: ["chrome >= 81, not dead"],
     }),
@@ -87,10 +89,7 @@ const config = {
     globals: true,
     environment: "jsdom",
     root: "./assets/src/scripts/outputs-viewer/",
-    setupFiles: [
-      "__tests__/test-setup.js",
-      "window-resizeto/polyfill",
-    ],
+    setupFiles: ["__tests__/test-setup.js", "window-resizeto/polyfill"],
     coverage: {
       provider: "c8",
       lines: 90,
