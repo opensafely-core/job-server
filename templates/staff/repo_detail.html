@@ -46,23 +46,33 @@
       <form method="POST" action="{{ repo.get_staff_sign_off_url }}">
         {% csrf_token %}
 
+        {% if disabled %}
+        <span
+          class="d-inline-block mr-1"
+          data-placement="bottom"
+          data-toggle="tooltip"
+          tabindex="0"
+          title="
+            {% if disabled.not_ready %}
+            A researcher has not yet signed this repo off
+            {% elif disabled.no_permission %}
+            The SignOffRepoWithOutputs role is required to sign off repos with outputs on GitHub
+            {% elif disabled.already_signed_off %}
+            This repo has already been internally signed off
+            {% endif %}
+          "
+        >
+        {% endif %}
         <button
-          class="btn btn-danger mr-1"
-          type="submit"
-          {% if disabled.not_ready %}
+          class="btn btn-danger no-pointer-events"
           disabled
-          data-toggle="tooltip" data-placement="bottom"
-          title="A researcher has not yet signed this repo off"
-          {% elif disabled.no_permission %}
-          disabled
-          data-toggle="tooltip" data-placement="bottom"
-          title="The SignOffRepoWithOutputs role is required to sign off repos with outputs on GitHub"
-          {% elif disabled.already_signed_off %}
-          disabled
-          data-toggle="tooltip" data-placement="bottom"
-          title="This repo has already been internally signed off"
-          {% endif %}
-          >Sign off to make public</button>
+          type="button"
+        >Sign off to make public</button>
+        {% if disabled %}
+        </span>
+        {% else %}
+        <button class="btn btn-danger mr-1" type="submit">Sign off to make public</button>
+        {% endif %}
       </form>
     </div>
   </div>
