@@ -1,6 +1,7 @@
 import * as Sentry from "@sentry/react";
 import React from "react";
 import { createRoot } from "react-dom/client";
+import App from "./App";
 
 Sentry.init({
   dsn: import.meta.env.VITE_SENTRY_DSN,
@@ -15,6 +16,6 @@ console.log({ element });
 
 root.render(
   <React.StrictMode>
-    <h1>Silence is golden</h1>
+    <App />
   </React.StrictMode>
 );
