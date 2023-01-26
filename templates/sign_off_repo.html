@@ -330,11 +330,3 @@
 
 </div>
 {% endblock %}
-
-{% block extra_js %}
-<script type="text/javascript" nonce="{{ request.csp_nonce }}">
-  $(document).ready(function () {
-    $('[data-toggle="tooltip"]').tooltip()
-  });
-</script>
-{% endblock %}
