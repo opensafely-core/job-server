@@ -156,11 +156,18 @@ def test_setpassword_with_interactive_role(client):
     reset_url = f"/reset-password/{uid}/set-password/"
     assert response.redirect_chain == [(reset_url, 302)]
 
+    # don't follow the redirect here because it goes to AnalysisRequestCreate
+    # which wants to hit the network to look up codelists on OpenCodelists.
+    # Switching to a RequestFactory for this assertion also isn't ideal because
+    # Django's PasswordResetConfirmView (which SetPassword subclasses) performs
+    # a redirect to avoid exposing the reset token in the URL (saving it to the
+    # session), and testing that would involve testing a lot of Django's code,
+    # which they have already tested, when we only care that the final redirect
+    # is performed correctly.
     data = {"new_password1": "testtest1234", "new_password2": "testtest1234"}
-    response = client.post(reset_url, data, follow=True)
-    assert response.status_code == 200
-    reset_url = f"/reset-password/{uid}/set-password/"
-    assert response.redirect_chain == [(project.get_interactive_url(), 302)]
+    response = client.post(reset_url, data, follow=False)
+    assert response.status_code == 302
+    assert response.url == project.get_interactive_url()
 
 
 def test_setpassword_without_interactive_role(rf, client):

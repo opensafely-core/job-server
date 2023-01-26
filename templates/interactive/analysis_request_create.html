@@ -19,15 +19,18 @@
 {% endblock breadcrumbs %}
 
 {% block content %}
+<div
+  data-events="{{ events }}"
+  data-medications="{{ medications }}"
+</div>
+
 <div>
-  <form method="POST">
-    {% csrf_token %}
+  <h3>Events</h3>
+  <pre>{{ events|pprint }}</pre>
+</div>
 
-    <p>I'm a form</p>
-
-    {% #button class="mt-2" type="submit" variant="primary" %}
-      Submit
-    {% /button %}
-  </form>
+<div>
+  <h3>Medications</h3>
+  <pre>{{ medications|pprint }}</pre>
 </div>
 {% endblock %}

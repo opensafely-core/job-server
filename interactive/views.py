@@ -1,16 +1,20 @@
 from django.core.exceptions import PermissionDenied
 from django.shortcuts import get_object_or_404, redirect
-from django.views.generic import DetailView, TemplateView
+from django.views.generic import DetailView, FormView
 
 from jobserver.authorization import has_permission
 from jobserver.models import Backend, Project
 from jobserver.reports import process_html
 
 from .dates import END_DATE, START_DATE
+from .forms import AnalysisRequestForm
 from .models import AnalysisRequest
+from .opencodelists import _get_opencodelists_api
 
 
-class AnalysisRequestCreate(TemplateView):
+class AnalysisRequestCreate(FormView):
+    form_class = AnalysisRequestForm
+    get_opencodelists_api = staticmethod(_get_opencodelists_api)
     template_name = "interactive/analysis_request_create.html"
 
     def dispatch(self, request, *args, **kwargs):
@@ -30,14 +34,13 @@ class AnalysisRequestCreate(TemplateView):
         ):
             raise PermissionDenied
 
+        api = self.get_opencodelists_api()
+        self.events = api.get_codelists("snomedct")
+        self.medications = api.get_codelists("dmd")
+
         return super().dispatch(request, *args, **kwargs)
 
-    def get_context_data(self, **kwargs):
-        return super().get_context_data(**kwargs) | {
-            "project": self.project,
-        }
-
-    def post(self, request, *args, **kwargs):
+    def form_valid(self, form):
         # OSI v1 does the following:
         # * copy the report template over, interpolating details into project.yaml
         # * commit to repo
@@ -49,7 +52,7 @@ class AnalysisRequestCreate(TemplateView):
         # build up the functionality of interactive
         job_request = self.project.interactive_workspace.job_requests.create(
             backend=Backend.objects.get(slug="tpp"),
-            created_by=request.user,
+            created_by=self.request.user,
             sha="",
             project_definition="",
             force_run_dependencies=True,
@@ -58,7 +61,7 @@ class AnalysisRequestCreate(TemplateView):
         analysis_request = AnalysisRequest.objects.create(
             job_request=job_request,
             project=self.project,
-            created_by=request.user,
+            created_by=self.request.user,
             title="get from form",
             start_date=START_DATE,
             end_date=END_DATE,
@@ -67,6 +70,19 @@ class AnalysisRequestCreate(TemplateView):
         )
 
         return redirect(analysis_request)
+
+    def get_context_data(self, **kwargs):
+        return super().get_context_data(**kwargs) | {
+            "events": self.events,
+            "medications": self.medications,
+            "project": self.project,
+        }
+
+    def get_form_kwargs(self):
+        return super().get_form_kwargs() | {
+            "events": self.events,
+            "medications": self.medications,
+        }
 
 
 class AnalysisRequestDetail(DetailView):

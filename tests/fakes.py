@@ -109,3 +109,19 @@ class FakeGitHubAPI:
                 "topics": [],
             },
         ]
+
+
+class FakeOpenCodelistsAPI:
+    def get_codelists(self, coding_system):
+        return [
+            {
+                "slug": "bennett/event-codelist/event123",
+                "name": "Event Codelist",
+                "organisation": "Bennett Institute",
+            },
+            {
+                "slug": "bennett/medication-codelist/medication123",
+                "name": "Medication Codelist",
+                "organisation": "Bennett Institute",
+            },
+        ]
