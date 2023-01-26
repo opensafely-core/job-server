@@ -463,6 +463,26 @@ def test_workspacedetail_authorized_private_repo_show_change_visibility_banner(r
     assert response.context_data["show_publish_repo_warning"]
 
 
+def test_workspacedetail_authorized_toggle_notifications(rf):
+    user = UserFactory(roles=[ProjectDeveloper])
+    workspace = WorkspaceFactory()
+
+    BackendMembershipFactory(user=user)
+
+    request = rf.get("/")
+    request.user = user
+
+    response = WorkspaceDetail.as_view(get_github_api=FakeGitHubAPI)(
+        request,
+        org_slug=workspace.project.org.slug,
+        project_slug=workspace.project.slug,
+        workspace_slug=workspace.name,
+    )
+
+    assert response.status_code == 200
+    assert response.context_data["user_can_toggle_notifications"]
+
+
 def test_workspacedetail_authorized_view_files(rf):
     backend = BackendFactory(level_4_url="http://test/")
     user = UserFactory(roles=[ProjectCollaborator])
@@ -647,6 +667,10 @@ def test_workspacedetail_unauthorized(rf):
     #   OR doesn't have the right permission to see outputs
     #   AND there are no published Snapshots to show the user.
     assert not response.context_data["user_can_view_outputs"]
+
+    # this is false because only a user with ProjectDeveloper should be able
+    # to do this
+    assert not response.context_data["user_can_toggle_notifications"]
 
 
 def test_workspacedetail_unknown_workspace(rf):

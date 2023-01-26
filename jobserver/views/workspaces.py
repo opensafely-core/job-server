@@ -284,6 +284,9 @@ class WorkspaceDetail(View):
         can_run_jobs = has_permission(
             request.user, "job_run", project=workspace.project
         )
+        can_toggle_notifications = has_permission(
+            request.user, "workspace_toggle_notifications", project=workspace.project
+        )
 
         # should we display the releases section for this workspace?
         can_use_releases = can_view_files or can_view_releases or can_view_outputs
@@ -303,6 +306,7 @@ class WorkspaceDetail(View):
             "run_jobs_url": run_jobs_url,
             "user_can_archive_workspace": can_archive_workspace,
             "user_can_run_jobs": can_run_jobs,
+            "user_can_toggle_notifications": can_toggle_notifications,
             "user_can_use_releases": can_use_releases,
             "user_can_view_files": can_view_files,
             "user_can_view_outputs": can_view_outputs,
