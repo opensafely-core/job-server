@@ -1,5 +1,6 @@
 import { useWizard } from "react-use-wizard";
-import { FormDataTypes, useFormStore } from "../../stores/form";
+import { useFormStore } from "../../stores";
+import { FormDataTypes } from "../../types";
 import { scrollToTop } from "../../utils";
 import { Button } from "../Button";
 import EventsBefore from "../Diagrams/EventsBefore";

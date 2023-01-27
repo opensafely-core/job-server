@@ -5,7 +5,8 @@ import {
   endDate,
   filterPopulation,
 } from "../../data/form-fields";
-import { FormDataTypes, useFormStore } from "../../stores/form";
+import { useFormStore } from "../../stores";
+import { FormDataTypes } from "../../types";
 import { delay, scrollToTop } from "../../utils";
 import { Button } from "../Button";
 import { lines as multiLines } from "../CodelistBuilder";

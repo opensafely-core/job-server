@@ -1,5 +1,6 @@
 import { endDate } from "../data/form-fields";
-import { useFormStore, FormDataTypes } from "../stores/form";
+import { useFormStore } from "../stores";
+import { FormDataTypes } from "../types";
 import { classNames } from "../utils";
 
 export const lines = [

@@ -1,5 +1,4 @@
 import { array, lazy, number, object, string, TestContext } from "yup";
-import { codelistData } from "./codelists";
 import {
   builderTimeEvents,
   builderTimeScales,
@@ -10,10 +9,10 @@ import {
 const codelist = object()
   .shape({
     label: string().required("Select a codelist"),
-    organisation: string().required("Select a codelist"),
+    organisation: string(),
     value: string().required("Select a codelist"),
     type: string()
-      .oneOf(codelistData.map((type) => type.id))
+      // .oneOf(codelistData.map((type) => type.id))
       .required(),
   })
   .required("Select a codelist");

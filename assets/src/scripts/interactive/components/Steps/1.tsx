@@ -1,7 +1,8 @@
 import { Form, Formik } from "formik";
 import { useWizard } from "react-use-wizard";
 import { step1Schema } from "../../data/schema";
-import { FormDataTypes, useFormStore } from "../../stores/form";
+import { useFormStore } from "../../stores";
+import { FormDataTypes } from "../../types";
 import { scrollToTop } from "../../utils";
 import { Button } from "../Button";
 import CodelistBuilder from "../CodelistBuilder";

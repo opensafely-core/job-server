@@ -8,14 +8,16 @@ Sentry.init({
   tracesSampleRate: 1.0,
 });
 
-const element = document.getElementById("osi");
-const root = createRoot(element as HTMLElement);
+const element: HTMLElement | null = document.getElementById("osi");
+if (!element) throw new Error("Failed to find the root element");
 
-// eslint-disable-next-line no-console
-console.log({ element });
+const root = createRoot(element);
+const { dataset } = element;
+if (!dataset.events || !dataset.medications)
+  throw new Error("Codelist data not provided");
 
 root.render(
   <React.StrictMode>
-    <App />
+    <App events={dataset.events} medications={dataset.medications} />
   </React.StrictMode>
 );

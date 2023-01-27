@@ -1,5 +1,5 @@
 import { useFormikContext } from "formik";
-import { useFormStore } from "../../stores/form";
+import { useFormStore } from "../../stores";
 import Button from "./Button";
 
 function CodelistButton({

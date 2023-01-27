@@ -1,11 +1,8 @@
 import { Listbox, Transition } from "@headlessui/react";
 import { CheckIcon, ChevronUpDownIcon } from "@heroicons/react/20/solid";
 import { Fragment } from "react";
-import {
-  FormDataTypes,
-  FormDataCodelistTypes,
-  useFormStore,
-} from "../stores/form";
+import { useFormStore } from "../stores";
+import { FormDataTypes, FormSingleCodelist } from "../types";
 import { classNames } from "../utils";
 
 function SelectBoxOption({
@@ -13,7 +10,7 @@ function SelectBoxOption({
   value,
 }: {
   label: string;
-  value: FormDataCodelistTypes;
+  value: FormSingleCodelist;
 }) {
   return (
     <Listbox.Option
@@ -56,7 +53,7 @@ function SelectBox({
   handleChange,
   name,
 }: {
-  defaultValue: FormDataCodelistTypes;
+  defaultValue: FormSingleCodelist;
   handleChange: Function;
   name: string;
 }) {

@@ -1,7 +1,7 @@
 import { Dialog, Transition } from "@headlessui/react";
 import { useFormikContext } from "formik";
 import { Fragment, useState } from "react";
-import { useFormStore } from "../stores/form";
+import { useFormStore } from "../stores";
 
 export default function FormDebug() {
   const formik = useFormikContext();
