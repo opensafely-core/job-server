@@ -560,13 +560,13 @@ pendulum==2.1.2 \
     --hash=sha256:f888f2d2909a414680a29ae74d0592758f2b9fcdee3549887779cd4055e975db \
     --hash=sha256:fb53ffa0085002ddd43b6ca61a7b34f2d4d7c3ed66f931fe599e1a531b42af9b
     # via pgcli
-pgcli==3.4.1 \
-    --hash=sha256:3005a1909e81d52587a14d021e110b0763af20a7874de75c188146e9438d1418 \
-    --hash=sha256:f03930187e27d60df658ca8a04fb601ec5d7476c735f2b1542c6adec5cac8fe2
+pgcli==3.5.0 \
+    --hash=sha256:0bcef2c628bae8443822f647e1b67680f219798625adf7ffa0920049056088a1 \
+    --hash=sha256:cc448d95159fc0903d36182992778a096eda5752d660d47671383c8e2bf633f1
     # via -r requirements.prod.in
-pgspecial==1.13.1 \
-    --hash=sha256:5716c470f358cf74914b8155bf48d6a8deb8f70aa6eccf8bddaacc44dfee46e4 \
-    --hash=sha256:d5dab96690908275916dc2c622efae217f142e08165fa366949d41cbc5658701
+pgspecial==2.0.1 \
+    --hash=sha256:64443bbc9ad09b57d0f4dcbb38eff44d52853b7418c9ea52f5857abe1bb534ec \
+    --hash=sha256:fbdfbb355e99e0514870e32cb0bfd2a01848364511037ab92040635f29417a50
     # via pgcli
 prompt-toolkit==3.0.28 \
     --hash=sha256:30129d870dcb0b3b6a53efdc9d0a83ea96162ffd28ffe077e94215b233dc670c \
@@ -598,18 +598,9 @@ protobuf==3.20.3 \
     # via
     #   googleapis-common-protos
     #   opentelemetry-proto
-psycopg2==2.9.3 \
-    --hash=sha256:06f32425949bd5fe8f625c49f17ebb9784e1e4fe928b7cce72edc36fb68e4c0c \
-    --hash=sha256:0762c27d018edbcb2d34d51596e4346c983bd27c330218c56c4dc25ef7e819bf \
-    --hash=sha256:083707a696e5e1c330af2508d8fab36f9700b26621ccbcb538abe22e15485362 \
-    --hash=sha256:34b33e0162cfcaad151f249c2649fd1030010c16f4bbc40a604c1cb77173dcf7 \
-    --hash=sha256:4295093a6ae3434d33ec6baab4ca5512a5082cc43c0505293087b8a46d108461 \
-    --hash=sha256:8cf3878353cc04b053822896bc4922b194792df9df2f1ad8da01fb3043602126 \
-    --hash=sha256:8e841d1bf3434da985cc5ef13e6f75c8981ced601fd70cc6bf33351b91562981 \
-    --hash=sha256:9572e08b50aed176ef6d66f15a21d823bb6f6d23152d35e8451d7d2d18fdac56 \
-    --hash=sha256:a81e3866f99382dfe8c15a151f1ca5fde5815fde879348fe5a9884a7c092a305 \
-    --hash=sha256:cb10d44e6694d763fa1078a26f7f6137d69f555a78ec85dc2ef716c37447e4b2 \
-    --hash=sha256:d3ca6421b942f60c008f81a3541e8faf6865a28d5a9b48544b0ee4f40cac7fca
+psycopg==3.1.8 \
+    --hash=sha256:59b4a71536b146925513c0234dfd1dc42b81e65d56ce5335dff4813434dbc113 \
+    --hash=sha256:b1500c42063abaa01d30b056f0b300826b8dd8d586900586029a294ce74af327
     # via
     #   pgcli
     #   pgspecial
@@ -842,6 +833,14 @@ setproctitle==1.2.2 \
     --hash=sha256:e8ef655eab26e83ec105ce79036bb87e5f2bf8ba2d6f48afdd9595ef7647fcf4 \
     --hash=sha256:fbf914179dc4540ee6bfd8228b4cc1f1f6fb12dad66b72b5c9b955b222403220
     # via pgcli
+setuptools==60.9.3 \
+    --hash=sha256:2347b2b432c891a863acadca2da9ac101eae6169b1d3dfee2ec605ecd50dbfe5 \
+    --hash=sha256:e4f30b9f84e5ab3decf945113119649fec09c1fc3507c6ebffec75646c56e62b
+    # via
+    #   gunicorn
+    #   opentelemetry-api
+    #   opentelemetry-instrumentation
+    #   opentelemetry-sdk
 six==1.16.0 \
     --hash=sha256:1e61c37477a1626458e36f7b1d82aa5c9b094fa4802892072e49de9c60c4c926 \
     --hash=sha256:8abb2f1d86890a2dfb989f9a77cfcfd3e47c2a354b01111771326f8aa26e0254
@@ -892,6 +891,7 @@ typing-extensions==4.4.0 \
     --hash=sha256:16fa4864408f655d35ec496218b85f79b3437c829e93320c7c9215ccfd92489e
     # via
     #   opentelemetry-sdk
+    #   psycopg
     #   pydantic
 urllib3==1.26.8 \
     --hash=sha256:000ca7f471a233c2251c6c7023ee85305721bfdf18621ebff4fd17a8653427ed \
@@ -978,13 +978,3 @@ wrapt==1.14.1 \
     #   deprecated
     #   opentelemetry-instrumentation
     #   opentelemetry-instrumentation-dbapi
-
-# The following packages are considered to be unsafe in a requirements file:
-setuptools==60.9.3 \
-    --hash=sha256:2347b2b432c891a863acadca2da9ac101eae6169b1d3dfee2ec605ecd50dbfe5 \
-    --hash=sha256:e4f30b9f84e5ab3decf945113119649fec09c1fc3507c6ebffec75646c56e62b
-    # via
-    #   gunicorn
-    #   opentelemetry-api
-    #   opentelemetry-instrumentation
-    #   opentelemetry-sdk
