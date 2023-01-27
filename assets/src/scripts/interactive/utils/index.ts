@@ -1,3 +1,5 @@
+import { OpenCodelist } from "../types";
+
 export function classNames(...classes: (string | null | undefined)[]) {
   return classes.filter(Boolean).join(" ");
 }
@@ -20,5 +22,16 @@ export function delay(ms: number) {
 
 export function getCodelistPageData(scriptID: string) {
   const scriptTag = document.getElementById(scriptID);
-  return scriptTag?.textContent ? JSON.parse(scriptTag?.textContent) : null;
+  if (!scriptTag?.textContent) return [];
+
+  const getJson: OpenCodelist[] = JSON.parse(scriptTag?.textContent);
+
+  const configureJson = getJson.map((codelist) => ({
+    label: codelist.name,
+    organisation: codelist.organisation,
+    type: scriptID,
+    value: codelist.slug,
+  }));
+
+  return configureJson;
 }

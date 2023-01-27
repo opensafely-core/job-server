@@ -2,7 +2,7 @@ import { Tab } from "@headlessui/react";
 import { useFormikContext } from "formik";
 import { useState } from "react";
 import { useFormStore, usePageData } from "../stores";
-import { FormDataTypes, FormSingleCodelist, PageCodelistGroup } from "../types";
+import { CodelistGroup, FormDataTypes, SingleCodelist } from "../types";
 import TabList from "./Tabs/TabList";
 import TabPanel from "./Tabs/TabPanel";
 
@@ -26,9 +26,9 @@ function CodelistSearch({ id, label }: { id: number; label: string }) {
       as="div"
       className="mb-8"
       defaultIndex={pageData.findIndex(
-        (type: PageCodelistGroup) =>
-          type.id ===
-          (formData?.[codelistID as keyof FormDataTypes] as FormSingleCodelist)
+        (group: CodelistGroup) =>
+          group.id ===
+          (formData?.[codelistID as keyof FormDataTypes] as SingleCodelist)
             ?.type
       )}
       onChange={() => {

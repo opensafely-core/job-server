@@ -5,7 +5,7 @@ import {
   endDate,
 } from "../data/form-fields";
 import { useFormStore } from "../stores";
-import { FormDataTypes, FormSingleCodelist } from "../types";
+import { FormDataTypes, SingleCodelist } from "../types";
 import { classNames } from "../utils";
 import InputError from "./InputError";
 import SelectBox from "./SelectBox";
@@ -23,7 +23,7 @@ function CodelistBuilder() {
   const { values, setFieldValue, errors, touched } =
     useFormikContext<FormikValues>();
 
-  const handleChange = (selectedItem: FormSingleCodelist) => {
+  const handleChange = (selectedItem: SingleCodelist) => {
     if (selectedItem === values.codelistA) {
       setFieldValue("codelistA", values.codelistB);
       setFieldValue("codelistB", selectedItem);

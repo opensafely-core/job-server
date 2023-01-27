@@ -1,11 +1,11 @@
 import { create } from "zustand";
-import { PageCodelistGroup } from "../types";
+import { CodelistGroup } from "../types";
 
 export const useFormStore = create(() => ({
   formData: {},
 }));
 
-const pageData: PageCodelistGroup[] = [];
+const pageData: CodelistGroup[] = [];
 export const usePageData = create(() => ({
   pageData,
 }));

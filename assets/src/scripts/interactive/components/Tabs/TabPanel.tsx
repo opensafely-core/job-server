@@ -6,11 +6,7 @@ import {
   FormikTouched,
   useFormikContext,
 } from "formik";
-import {
-  FormDataTypes,
-  OpenCodelistSingleCodelist,
-  PageCodelistGroup,
-} from "../../types";
+import { CodelistGroup, FormDataTypes, SingleCodelist } from "../../types";
 import { classNames } from "../../utils";
 import ComboboxItem from "../ComboboxItem";
 import InputError from "../InputError";
@@ -21,7 +17,7 @@ function TabPanel({
   query,
   setQuery,
 }: {
-  codelistGroup: PageCodelistGroup;
+  codelistGroup: CodelistGroup;
   codelistID: string;
   query: string;
   setQuery: Function;
@@ -53,14 +49,9 @@ function TabPanel({
             <Combobox
               defaultValue={field.value}
               name={field.name}
-              onChange={(e) => {
+              onChange={(selectedItem) => {
                 setTouched({ ...touched, [codelistID]: true });
-                setFieldValue(field.name, {
-                  label: e.name,
-                  organisation: e.organisation,
-                  value: e.slug,
-                  type: codelistGroup.id,
-                });
+                setFieldValue(field.name, selectedItem);
               }}
             >
               <div className="relative w-full max-w-prose">
@@ -69,9 +60,7 @@ function TabPanel({
                     "block w-full pl-3 pr-10 py-2 border-2 border-gray-400 rounded-md shadow-sm placeholder-gray-400",
                     "focus:cursor-text focus:outline-none focus:ring-oxford-500 focus:border-oxford-500"
                   )}
-                  displayValue={(codelist: OpenCodelistSingleCodelist) =>
-                    codelist.name
-                  }
+                  displayValue={(codelist: SingleCodelist) => codelist.label}
                   onChange={(event) => setQuery(event.target.value)}
                   placeholder="Type 3 or more characters to find a codelist"
                 />

@@ -1,6 +1,6 @@
 import { Combobox } from "@headlessui/react";
 import { CheckIcon } from "@heroicons/react/20/solid";
-import { PageCodelistGroup } from "../types";
+import { CodelistGroup, SingleCodelist } from "../types";
 import { classNames } from "../utils";
 
 function ComboboxItem({
@@ -8,15 +8,13 @@ function ComboboxItem({
   codelistGroup,
 }: {
   query: string;
-  codelistGroup: PageCodelistGroup;
+  codelistGroup: CodelistGroup;
 }) {
-  const filteredCodelists = (
-    codelists: { name: string; organisation: string; slug: string }[]
-  ) =>
+  const filteredCodelists = (codelists: SingleCodelist[]) =>
     query.length < 2
       ? codelists
       : codelists.filter((codelist) =>
-          codelist.name.toLowerCase().includes(query.toLowerCase())
+          codelist.label.toLowerCase().includes(query.toLowerCase())
         );
 
   if (query.length < 3) {
@@ -38,10 +36,10 @@ function ComboboxItem({
   return (
     <>
       {filteredCodelists(
-        codelistGroup.codelists.sort((a, b) => a.name.localeCompare(b.name))
+        codelistGroup.codelists.sort((a, b) => a.label.localeCompare(b.label))
       ).map((codelist) => (
         <Combobox.Option
-          key={codelist.slug}
+          key={codelist.value}
           className={({ active }) =>
             classNames(
               "relative cursor-pointer select-none py-2 pl-10 pr-4",
@@ -58,7 +56,7 @@ function ComboboxItem({
                   selected ? "font-medium" : "font-normal"
                 )}
               >
-                <span>{codelist.name}</span>
+                <span>{codelist.label}</span>
                 <span
                   className={`block text-sm ${
                     active ? "text-white" : "text-gray-600"

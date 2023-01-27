@@ -1,28 +1,28 @@
-export interface OpenCodelistSingleCodelist {
+export interface OpenCodelist {
   name: string;
   organisation: string;
   slug: string;
 }
 
-export interface PageCodelistGroup {
-  name: string;
-  id: string;
-  codelists: OpenCodelistSingleCodelist[];
-}
-
-export interface FormSingleCodelist {
+export interface SingleCodelist {
   label: string;
   organisation: string;
-  value: string;
   type: string;
+  value: string;
+}
+
+export interface CodelistGroup {
+  name: string;
+  id: string;
+  codelists: SingleCodelist[];
 }
 
 export interface FormDataTypes {
-  codelist0?: FormSingleCodelist;
-  codelist1?: FormSingleCodelist;
+  codelist0?: SingleCodelist;
+  codelist1?: SingleCodelist;
   frequency?: string;
-  codelistA?: FormSingleCodelist;
-  codelistB?: FormSingleCodelist;
+  codelistA?: SingleCodelist;
+  codelistB?: SingleCodelist;
   timeValue?: number;
   timeScale?: string;
   timeEvent?: string;
