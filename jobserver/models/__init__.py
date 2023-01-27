@@ -17,7 +17,7 @@ from .outputs import (
     ReleaseFileReview,
     Snapshot,
 )
-from .reports import Report
+from .reports import Report, ReportPublishRequest
 from .stats import Stats
 
 
@@ -36,6 +36,7 @@ __all__ = [
     "ReleaseFileReview",
     "Repo",
     "Report",
+    "ReportPublishRequest",
     "Snapshot",
     "Stats",
     "User",

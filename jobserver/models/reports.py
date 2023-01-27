@@ -92,3 +92,90 @@ class Report(models.Model):
 
     def get_staff_url(self):
         return reverse("staff:report-detail", kwargs={"pk": self.pk})
+
+
+class ReportPublishRequest(models.Model):
+    release_file_publish_request = models.OneToOneField(
+        "ReleaseFilePublishRequest",
+        on_delete=models.CASCADE,
+        related_name="report_publish_request",
+    )
+    report = models.OneToOneField(
+        "Report",
+        on_delete=models.CASCADE,
+        related_name="publish_request",
+    )
+
+    approved_at = models.DateTimeField(null=True)
+    approved_by = models.ForeignKey(
+        "User",
+        on_delete=models.PROTECT,
+        related_name="report_publish_requests_approved",
+        null=True,
+    )
+
+    created_at = models.DateTimeField(default=timezone.now)
+    created_by = models.ForeignKey(
+        "jobserver.User",
+        on_delete=models.PROTECT,
+        related_name="report_publish_requests_created",
+    )
+
+    updated_at = models.DateTimeField(auto_now=True)
+    updated_by = models.ForeignKey(
+        "jobserver.User",
+        on_delete=models.PROTECT,
+        related_name="report_publish_requests_updated",
+    )
+
+    class Meta:
+        constraints = [
+            models.CheckConstraint(
+                check=(
+                    Q(
+                        approved_at__isnull=True,
+                        approved_by__isnull=True,
+                    )
+                    | (
+                        Q(
+                            approved_at__isnull=False,
+                            approved_by__isnull=False,
+                        )
+                    )
+                ),
+                name="%(app_label)s_%(class)s_both_approved_at_and_approved_by_set",
+            ),
+            models.CheckConstraint(
+                check=(
+                    Q(
+                        created_at__isnull=True,
+                        created_by__isnull=True,
+                    )
+                    | (
+                        Q(
+                            created_at__isnull=False,
+                            created_by__isnull=False,
+                        )
+                    )
+                ),
+                name="%(app_label)s_%(class)s_both_created_at_and_created_by_set",
+            ),
+            models.CheckConstraint(
+                check=(
+                    Q(
+                        updated_at__isnull=True,
+                        updated_by__isnull=True,
+                    )
+                    | (
+                        Q(
+                            updated_at__isnull=False,
+                            updated_by__isnull=False,
+                        )
+                    )
+                ),
+                name="%(app_label)s_%(class)s_both_updated_at_and_updated_by_set",
+            ),
+        ]
+
+    def __str__(self):
+        return f"Publish request for report: {self.report.title}"
