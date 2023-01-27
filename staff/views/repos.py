@@ -3,6 +3,7 @@ from datetime import timedelta
 from urllib.parse import unquote
 
 import structlog
+from attrs import define
 from django.contrib import messages
 from django.db import transaction
 from django.db.models import Min
@@ -97,13 +98,25 @@ class RepoDetail(View):
 
         contacts = "; ".join({build_contact(w["created_by"]) for w in workspaces})
 
-        # the sign off button for staff has 3 ways it can be disabled
-        disabled = {
-            "already_signed_off": repo.internal_signed_off_at is not None,
-            "no_permission": repo.has_github_outputs
-            and not has_permission(request.user, "repo_sign_off_with_outputs"),
-            "not_ready": repo.researcher_signed_off_at is None,
-        }
+        @define
+        class Disabled:
+            already_signed_off: bool
+            no_permission: bool
+            not_ready: bool
+
+            def __bool__(self):
+                # gather the outcome of all the instance vars to define the
+                # boolean state of the whole object
+                return any(
+                    [self.already_signed_off, self.no_permission, self.not_ready]
+                )
+
+        can_sign_off = has_permission(request.user, "repo_sign_off_with_outputs")
+        disabled = Disabled(
+            already_signed_off=repo.internal_signed_off_at is not None,
+            no_permission=repo.has_github_outputs and not can_sign_off,
+            not_ready=repo.researcher_signed_off_at is None,
+        )
 
         context = {
             "contacts": contacts,
