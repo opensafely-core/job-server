@@ -80,11 +80,9 @@ def test_repodetail_sign_off_disabled_when_already_internally_signed_off(
     )
 
     assert response.status_code == 200
-    assert response.context_data["disabled"] == {
-        "already_signed_off": True,
-        "no_permission": False,
-        "not_ready": False,
-    }
+    assert response.context_data["disabled"].already_signed_off
+    assert not response.context_data["disabled"].no_permission
+    assert not response.context_data["disabled"].not_ready
     assert (
         "This repo has already been internally signed off" in response.rendered_content
     )
@@ -110,11 +108,10 @@ def test_repodetail_sign_off_disabled_when_repo_has_github_outputs_but_user_is_m
     )
 
     assert response.status_code == 200
-    assert response.context_data["disabled"] == {
-        "already_signed_off": False,
-        "no_permission": True,
-        "not_ready": False,
-    }
+
+    assert not response.context_data["disabled"].already_signed_off
+    assert response.context_data["disabled"].no_permission
+    assert not response.context_data["disabled"].not_ready
     assert (
         "The SignOffRepoWithOutputs role is required to sign off repos with outputs on GitHub"
         in response.rendered_content
@@ -137,11 +134,9 @@ def test_repodetail_sign_off_disabled_when_repo_missing_researcher_sign_off(
     )
 
     assert response.status_code == 200
-    assert response.context_data["disabled"] == {
-        "already_signed_off": False,
-        "no_permission": False,
-        "not_ready": True,
-    }
+    assert not response.context_data["disabled"].already_signed_off
+    assert not response.context_data["disabled"].no_permission
+    assert response.context_data["disabled"].not_ready
     assert "A researcher has not yet signed this repo off" in response.rendered_content
 
 
