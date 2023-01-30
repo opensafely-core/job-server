@@ -3,11 +3,11 @@ import functools
 import structlog
 from django.conf import settings
 from django.db.models import Max
-from django.urls import reverse
 
 from .authorization import CoreDeveloper, has_role
 from .backends import show_warning
 from .models import Backend
+from .nav import NavItem, iter_nav
 
 
 logger = structlog.get_logger(__name__)
@@ -50,83 +50,31 @@ def staff_nav(request):
     if not has_role(request.user, CoreDeveloper):
         return {"staff_nav": []}
 
-    _active = functools.partial(_is_active, request)
+    is_active = functools.partial(_is_active, request)
 
-    options = [
-        {
-            "name": "Analysis Requests",
-            "is_active": _active(reverse("staff:analysis-request-list")),
-            "url": reverse("staff:analysis-request-list"),
-        },
-        {
-            "name": "Applications",
-            "is_active": _active(reverse("staff:application-list")),
-            "url": reverse("staff:application-list"),
-        },
-        {
-            "name": "Backends",
-            "is_active": _active(reverse("staff:backend-list")),
-            "url": reverse("staff:backend-list"),
-        },
-        {
-            "name": "Dashboards",
-            "is_active": _active(reverse("staff:dashboard:index")),
-            "url": reverse("staff:dashboard:index"),
-        },
-        {
-            "name": "Orgs",
-            "is_active": _active(reverse("staff:org-list")),
-            "url": reverse("staff:org-list"),
-        },
-        {
-            "name": "Redirects",
-            "is_active": _active(reverse("staff:redirect-list")),
-            "url": reverse("staff:redirect-list"),
-        },
-        {
-            "name": "Projects",
-            "is_active": _active(reverse("staff:project-list")),
-            "url": reverse("staff:project-list"),
-        },
-        {
-            "name": "Reports",
-            "is_active": _active(reverse("staff:report-list")),
-            "url": reverse("staff:report-list"),
-        },
-        {
-            "name": "Repos",
-            "is_active": _active(reverse("staff:repo-list")),
-            "url": reverse("staff:repo-list"),
-        },
-        {
-            "name": "Users",
-            "is_active": _active(reverse("staff:user-list")),
-            "url": reverse("staff:user-list"),
-        },
-        {
-            "name": "Workspaces",
-            "is_active": _active(reverse("staff:workspace-list")),
-            "url": reverse("staff:workspace-list"),
-        },
+    items = [
+        NavItem(name="Analysis Requests", url_name="staff:analysis-request-list"),
+        NavItem(name="Applications", url_name="staff:application-list"),
+        NavItem(name="Backends", url_name="staff:backend-list"),
+        NavItem(name="Dashboards", url_name="staff:dashboard:index"),
+        NavItem(name="Orgs", url_name="staff:org-list"),
+        NavItem(name="Redirects", url_name="staff:redirect-list"),
+        NavItem(name="Projects", url_name="staff:project-list"),
+        NavItem(name="Reports", url_name="staff:report-list"),
+        NavItem(name="Repos", url_name="staff:repo-list"),
+        NavItem(name="Users", url_name="staff:user-list"),
+        NavItem(name="Workspaces", url_name="staff:workspace-list"),
     ]
 
-    return {"staff_nav": options}
+    return {"staff_nav": list(iter_nav(items, request, is_active))}
 
 
 def nav(request):
-    _active = functools.partial(_is_active, request)
+    is_active = functools.partial(_is_active, request)
 
-    return {
-        "nav": [
-            {
-                "name": "Event Log",
-                "is_active": _active(reverse("job-list")),
-                "url": reverse("job-list"),
-            },
-            {
-                "name": "Status",
-                "is_active": _active(reverse("status")),
-                "url": reverse("status"),
-            },
-        ],
-    }
+    items = [
+        NavItem(name="Event Log", url_name="job-list"),
+        NavItem(name="Status", url_name="status"),
+    ]
+
+    return {"nav": list(iter_nav(items, request, is_active))}
