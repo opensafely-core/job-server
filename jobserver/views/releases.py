@@ -12,12 +12,8 @@ from django.views.generic import View
 
 from ..authorization import has_permission
 from ..models import Project, Release, ReleaseFile, Snapshot, Workspace
-from ..releases import (
-    build_outputs_zip,
-    build_spa_base_url,
-    serve_file,
-    workspace_files,
-)
+from ..releases import build_outputs_zip, serve_file, workspace_files
+from ..utils import build_spa_base_url
 
 
 class ProjectReleaseList(View):

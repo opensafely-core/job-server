@@ -112,12 +112,6 @@ def test_build_outputs_zip_with_missing_files(build_release_with_files):
             assert "This file was redacted by" in zipped_contents, zipped_contents
 
 
-def test_build_spa_base_url():
-    base = releases.build_spa_base_url("/a/page/with/file.csv", "with/file.csv")
-
-    assert base == "/a/page/"
-
-
 def test_create_github_issue_external_success(build_release_with_files):
     release = build_release_with_files(["file1.txt", "graph.png"])
 

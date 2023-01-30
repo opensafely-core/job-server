@@ -1,8 +1,14 @@
 from jobserver.authorization import OutputChecker
 from jobserver.models import Job
-from jobserver.utils import dotted_path, is_safe_path, set_from_qs
+from jobserver.utils import build_spa_base_url, dotted_path, is_safe_path, set_from_qs
 
 from ...factories import JobFactory
+
+
+def test_build_spa_base_url():
+    base = build_spa_base_url("/a/page/with/file.csv", "with/file.csv")
+
+    assert base == "/a/page/"
 
 
 def test_dotted_path():

@@ -24,12 +24,8 @@ from ..forms import (
 )
 from ..github import _get_github_api
 from ..models import Backend, Job, JobRequest, Project, Repo, Workspace
-from ..releases import (
-    build_hatch_token_and_url,
-    build_outputs_zip,
-    build_spa_base_url,
-    workspace_files,
-)
+from ..releases import build_hatch_token_and_url, build_outputs_zip, workspace_files
+from ..utils import build_spa_base_url
 
 
 class WorkspaceArchiveToggle(View):
