@@ -16,3 +16,4 @@ releases
 staticfiles
 uploads
 /release-hatch
+/assets/src/scripts/outputs-viewer/coverage
