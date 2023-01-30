@@ -5,6 +5,7 @@ from django.views.generic import DetailView, FormView
 from jobserver.authorization import has_permission
 from jobserver.models import Backend, Project
 from jobserver.reports import process_html
+from jobserver.utils import build_spa_base_url
 
 from .dates import END_DATE, START_DATE
 from .forms import AnalysisRequestForm
@@ -72,7 +73,9 @@ class AnalysisRequestCreate(FormView):
         return redirect(analysis_request)
 
     def get_context_data(self, **kwargs):
+        base_path = build_spa_base_url(self.request.path, self.kwargs.get("path", ""))
         return super().get_context_data(**kwargs) | {
+            "base_path": base_path,
             "events": self.events,
             "medications": self.medications,
             "project": self.project,
