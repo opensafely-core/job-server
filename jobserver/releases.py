@@ -111,22 +111,6 @@ def build_outputs_zip(release_files, url_builder_func):
     return in_memory_zf
 
 
-def build_spa_base_url(full_path, file_path):
-    """
-    Break the full path of a page down into the URL path without any file path
-
-    Given a URL such as
-
-        /org/project/workspace/releases/string/path/to/file.csv
-
-    we want to tell the SPA about the page path
-
-        /org/project/workspace/releases/string/
-
-    """
-    return full_path.removesuffix(file_path)
-
-
 def check_not_already_uploaded(filename, filehash, backend):
     """Check if this filename/filehash combination has been uploaded before."""
     duplicate = ReleaseFile.objects.filter(

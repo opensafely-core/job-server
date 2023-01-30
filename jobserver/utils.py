@@ -3,6 +3,22 @@ from urllib.parse import urlparse
 from django.core.exceptions import BadRequest
 
 
+def build_spa_base_url(full_path, file_path):
+    """
+    Break the full path of a page down into the URL path without any file path
+
+    Given a URL such as
+
+        /org/project/workspace/releases/string/path/to/file.csv
+
+    we want to tell the SPA about the page path
+
+        /org/project/workspace/releases/string/
+
+    """
+    return full_path.removesuffix(file_path)
+
+
 def dotted_path(cls):
     """Get the dotted path for a given class"""
     return f"{cls.__module__}.{cls.__qualname__}"
