@@ -1,5 +1,4 @@
-import { Wizard } from "react-use-wizard";
-import { Step0, Step1, Step2, Step3, Step4, Step5 } from "./components/Steps";
+import { Outlet } from "react-router-dom";
 import Wrapper from "./components/Wrapper";
 import { usePageData } from "./stores";
 import { getCodelistPageData } from "./utils";
@@ -21,14 +20,9 @@ function App({ events, medications }: { events: string; medications: string }) {
   });
 
   return (
-    <Wizard wrapper={<Wrapper />}>
-      <Step0 />
-      <Step1 />
-      <Step2 />
-      <Step3 />
-      <Step4 />
-      <Step5 />
-    </Wizard>
+    <Wrapper>
+      <Outlet />
+    </Wrapper>
   );
 }
 

@@ -1,13 +1,15 @@
 import * as React from "react";
-import { useWizard } from "react-use-wizard";
-import { classNames, scrollToTop } from "../utils";
+import { useLocation, useNavigate } from "react-router-dom";
+import { classNames } from "../utils";
 
 function Wrapper({
   children,
 }: {
   children?: React.ReactNode;
 }): React.ReactElement {
-  const { isFirstStep, isLastStep, previousStep } = useWizard();
+  const location = useLocation();
+  const navigate = useNavigate();
+  const isFirstPage = location.pathname === "/";
 
   return (
     <main className="min-h-[66vh] flex-grow pb-12 bg-gray-100">
@@ -23,17 +25,14 @@ function Wrapper({
 
         <section>
           <div className="bg-white p-6 shadow rounded">
-            {!isFirstStep && !isLastStep ? (
+            {!isFirstPage ? (
               <button
                 className={classNames(
                   "text-sm font-semibold underline underline-offset-4 text-gray-600 decoration-gray-300 mb-4 flex -mt-1",
                   "hover:text-oxford-600 hover:decoration-oxford-200",
                   "focus-within:text-oxford-600 focus-within:no-underline focus-within:outline-offset-4 focus-within:outline-oxford-400"
                 )}
-                onClick={() => {
-                  scrollToTop();
-                  previousStep();
-                }}
+                onClick={() => navigate(-1)}
                 type="button"
               >
                 &larr; Back

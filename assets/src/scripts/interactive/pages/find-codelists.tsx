@@ -1,39 +1,39 @@
 import { Form, Formik } from "formik";
 import { useState } from "react";
-import { useWizard } from "react-use-wizard";
-import { frequency } from "../../data/form-fields";
-import { step0Schema } from "../../data/schema";
-import { useFormStore } from "../../stores";
-import { FormDataTypes } from "../../types";
-import { scrollToTop } from "../../utils";
-import { Button } from "../Button";
-import CodelistButton from "../Button/CodelistButton";
-import CodelistSearch from "../CodelistSearch";
-import Fieldset from "../Fieldset";
-import FormDebug from "../FormDebug";
-import InputError from "../InputError";
-import RadioButton from "../RadioButton";
+import { useNavigate } from "react-router-dom";
+import { Button } from "../components/Button";
+import CodelistButton from "../components/Button/CodelistButton";
+import CodelistSearch from "../components/CodelistSearch";
+import Fieldset from "../components/Fieldset";
+import FormDebug from "../components/FormDebug";
+import InputError from "../components/InputError";
+import RadioButton from "../components/RadioButton";
+import { frequency } from "../data/form-fields";
+import { step0Schema } from "../data/schema";
+import { useFormStore } from "../stores";
+import { FormDataTypes } from "../types";
 
-function Step1() {
+function FindCodelists() {
   const formData: FormDataTypes = useFormStore((state) => state.formData);
   const [secondCodelist, setSecondCodelist]: [boolean, Function] = useState(
     !!formData.codelist1
   );
-  const { handleStep, nextStep } = useWizard();
-
-  handleStep(() => scrollToTop());
+  const navigate = useNavigate();
 
   return (
     <Formik
       initialValues={{
         codelist0: formData.codelist0 || "",
-        codelist1: formData.codelist1 || "",
+        codelist1: formData.codelist1 || undefined,
         frequency: formData.frequency || "",
       }}
       onSubmit={(values, actions) => {
         actions.validateForm().then(() => {
           useFormStore.setState({ formData: { ...formData, ...values } });
-          nextStep();
+          if (secondCodelist) {
+            return navigate("/build-query");
+          }
+          return navigate("/review-query");
         });
       }}
       validateOnMount
@@ -78,4 +78,4 @@ function Step1() {
   );
 }
 
-export default Step1;
+export default FindCodelists;

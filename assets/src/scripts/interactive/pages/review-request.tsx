@@ -1,30 +1,24 @@
 import { useState } from "react";
-import { useWizard } from "react-use-wizard";
-import {
-  demographics,
-  endDate,
-  filterPopulation,
-} from "../../data/form-fields";
-import { useFormStore } from "../../stores";
-import { FormDataTypes } from "../../types";
-import { delay, scrollToTop } from "../../utils";
-import { Button } from "../Button";
-import { lines as multiLines } from "../CodelistBuilder";
-import { lines as singleLines } from "../CodelistSingle";
-import ReviewLineItem from "../ReviewLineItem";
+import { useNavigate } from "react-router-dom";
+import { Button } from "../components/Button";
+import { lines as multiLines } from "../components/CodelistBuilder";
+import ReviewLineItem from "../components/ReviewLineItem";
+import { demographics, endDate, filterPopulation } from "../data/form-fields";
+import { useFormStore } from "../stores";
+import { FormDataTypes } from "../types";
+import { delay } from "../utils";
+import { lines as singleLines } from "./review-query";
 
-function Step5() {
+function ReviewRequest() {
+  const navigate = useNavigate();
   const formData: FormDataTypes = useFormStore((state) => state.formData);
-  const { handleStep, nextStep } = useWizard();
   const [isSubmitting, setIsSubmitting] = useState(false);
 
   const handleClick = async () => {
     setIsSubmitting(true);
     await delay(1000);
-    nextStep();
+    navigate("/success");
   };
-
-  handleStep(() => scrollToTop());
 
   return (
     <>
@@ -32,26 +26,26 @@ function Step5() {
       <div className="mt-5 border-t border-gray-200">
         <dl className="divide-y divide-gray-200">
           {!formData.codelist1 && formData.codelist0?.label ? (
-            <ReviewLineItem step={0} title="Codelist">
+            <ReviewLineItem page="/build-query" title="Codelist">
               {formData.codelist0.label}
             </ReviewLineItem>
           ) : null}
 
           {formData.codelist1?.label && formData.codelist0?.label ? (
-            <ReviewLineItem step={0} title="Codelists">
+            <ReviewLineItem page="/build-query" title="Codelists">
               {formData.codelist0.label},<br />
               {formData.codelist1.label}
             </ReviewLineItem>
           ) : null}
 
-          <ReviewLineItem step={0} title="Frequency">
+          <ReviewLineItem page="/build-query" title="Frequency">
             {`${formData.frequency
               ?.slice(0, 1)
               .toUpperCase()}${formData.frequency?.slice(1)}`}
           </ReviewLineItem>
 
           {formData.codelistA?.label && formData.codelistB?.label ? (
-            <ReviewLineItem step={1} title="Report request">
+            <ReviewLineItem page="/build-query" title="Report request">
               <span className="block font-semibold">
                 {formData.codelistA.label}
               </span>
@@ -74,7 +68,7 @@ function Step5() {
           ) : null}
 
           {!formData.codelist1 && formData.codelist0?.label ? (
-            <ReviewLineItem step={1} title="Report request">
+            <ReviewLineItem page="/review-query" title="Report request">
               {`${singleLines[0]} `}
               <span className="block font-semibold">
                 {formData.codelist0?.label}
@@ -86,7 +80,7 @@ function Step5() {
             </ReviewLineItem>
           ) : null}
 
-          <ReviewLineItem step={3} title="Filter population">
+          <ReviewLineItem page="/filter-request" title="Filter population">
             {
               filterPopulation.items.filter(
                 (item) => item.value === formData.filterPopulation
@@ -95,7 +89,7 @@ function Step5() {
           </ReviewLineItem>
 
           <ReviewLineItem
-            step={3}
+            page="/filter-request"
             title="Break down the report by demographics"
           >
             <ul>
@@ -136,4 +130,4 @@ function Step5() {
   );
 }
 
-export default Step5;
+export default ReviewRequest;

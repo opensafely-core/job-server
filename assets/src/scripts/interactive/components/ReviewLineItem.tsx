@@ -1,16 +1,16 @@
 import React from "react";
-import { useWizard } from "react-use-wizard";
+import { useNavigate } from "react-router-dom";
 
 function ReviewLineItem({
   title,
   children,
-  step,
+  page,
 }: {
   title: string;
   children: React.ReactNode;
-  step: number;
+  page: string;
 }) {
-  const { goToStep } = useWizard();
+  const navigate = useNavigate();
 
   return (
     <div className="py-4 sm:grid sm:grid-cols-3 sm:gap-4 sm:py-5">
@@ -20,7 +20,7 @@ function ReviewLineItem({
         <span className="ml-4 flex-shrink-0">
           <button
             className="rounded-md bg-white font-medium text-oxford-600 hover:text-oxford-500 focus:outline-none focus:ring-2 focus:ring-oxford-500 focus:ring-offset-2"
-            onClick={() => goToStep(step)}
+            onClick={() => navigate(page)}
             type="button"
           >
             Edit

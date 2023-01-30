@@ -75,7 +75,6 @@
     "react-hot-toast": "^2.4.0",
     "react-papaparse": "^4.1.0",
     "react-router-dom": "^6.7.0",
-    "react-use-wizard": "^2.2.1",
     "react-window": "^1.8.8",
     "select2": "^4.0.13",
     "slugify": "^1.6.5",

@@ -1,22 +1,19 @@
 import { Form, Formik } from "formik";
-import { useWizard } from "react-use-wizard";
-import { demographics, filterPopulation } from "../../data/form-fields";
-import { step3Schema } from "../../data/schema";
-import { useFormStore } from "../../stores";
-import { FormDataTypes } from "../../types";
-import { scrollToTop } from "../../utils";
-import { Button } from "../Button";
-import Checkbox from "../Checkbox";
-import Fieldset from "../Fieldset";
-import FormDebug from "../FormDebug";
-import InputError from "../InputError";
-import RadioButton from "../RadioButton";
+import { useNavigate } from "react-router-dom";
+import { Button } from "../components/Button";
+import Checkbox from "../components/Checkbox";
+import Fieldset from "../components/Fieldset";
+import FormDebug from "../components/FormDebug";
+import InputError from "../components/InputError";
+import RadioButton from "../components/RadioButton";
+import { demographics, filterPopulation } from "../data/form-fields";
+import { step3Schema } from "../data/schema";
+import { useFormStore } from "../stores";
+import { FormDataTypes } from "../types";
 
-function Step4() {
+function FilterRequest() {
+  const navigate = useNavigate();
   const formData: FormDataTypes = useFormStore((state) => state.formData);
-  const { handleStep, nextStep } = useWizard();
-
-  handleStep(() => scrollToTop());
 
   return (
     <Formik
@@ -27,7 +24,7 @@ function Step4() {
       onSubmit={(values, actions) => {
         actions.validateForm().then(() => {
           useFormStore.setState({ formData: { ...formData, ...values } });
-          nextStep();
+          navigate("/review-request");
         });
       }}
       validateOnMount
@@ -80,4 +77,4 @@ function Step4() {
   );
 }
 
-export default Step4;
+export default FilterRequest;
