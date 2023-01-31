@@ -7,9 +7,6 @@ export VIRTUAL_ENV  := `echo ${VIRTUAL_ENV:-.venv}`
 # TODO: make it /scripts on windows?
 export BIN := VIRTUAL_ENV + "/bin"
 export PIP := BIN + "/python -m pip"
-# enforce our chosen pip compile flags
-export COMPILE := BIN + "/pip-compile --allow-unsafe --generate-hashes"
-
 
 # list available commands
 default:
@@ -43,7 +40,7 @@ _compile src dst *args: virtualenv
     #!/usr/bin/env bash
     # exit if src file is older than dst file (-nt = 'newer than', but we negate with || to avoid error exit code)
     test "${FORCE:-}" = "true" -o {{ src }} -nt {{ dst }} || exit 0
-    $BIN/pip-compile --allow-unsafe --generate-hashes --output-file={{ dst }} {{ src }} {{ args }}
+    $BIN/pip-compile --allow-unsafe --generate-hashes --strip-extras --output-file={{ dst }} {{ src }} {{ args }}
 
 
 # update requirements.prod.txt if requirements.prod.in has changed
@@ -59,11 +56,13 @@ requirements-dev *args: requirements-prod
 # ensure prod requirements installed and up to date
 prodenv: requirements-prod
     #!/usr/bin/env bash
-    set -eu
+    set -eux
     # exit if .txt file has not changed since we installed them (-nt == "newer than', but we negate with || to avoid error exit code)
     test requirements.prod.txt -nt $VIRTUAL_ENV/.prod || exit 0
 
-    $PIP install -r requirements.prod.txt
+    # --no-deps is recommended when using hashes, and also worksaround a bug with constraints and hashes.
+    # https://pip.pypa.io/en/stable/topics/secure-installs/#do-not-use-setuptools-directly
+    $PIP install --no-deps -r requirements.prod.txt
     touch $VIRTUAL_ENV/.prod
 
 
@@ -77,7 +76,9 @@ devenv: prodenv requirements-dev && install-precommit
     # exit if .txt file has not changed since we installed them (-nt == "newer than', but we negate with || to avoid error exit code)
     test requirements.dev.txt -nt $VIRTUAL_ENV/.dev || exit 0
 
-    $PIP install -r requirements.dev.txt
+    # --no-deps is recommended when using hashes, and also worksaround a bug with constraints and hashes.
+    # https://pip.pypa.io/en/stable/topics/secure-installs/#do-not-use-setuptools-directly
+    $PIP install --no-deps -r requirements.dev.txt
     touch $VIRTUAL_ENV/.dev
 
 
