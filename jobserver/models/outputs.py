@@ -263,6 +263,73 @@ class ReleaseFile(models.Model):
         return self.deleted_at is not None
 
 
+class ReleaseFilePublishRequest(models.Model):
+    files = models.ManyToManyField(
+        "ReleaseFile",
+        related_name="publish_requests",
+    )
+    snapshot = models.OneToOneField(
+        "Snapshot",
+        on_delete=models.SET_NULL,
+        related_name="publish_requests",
+        null=True,
+    )
+    workspace = models.ForeignKey(
+        "Workspace",
+        on_delete=models.PROTECT,
+        related_name="publish_requests",
+    )
+
+    approved_at = models.DateTimeField(null=True)
+    approved_by = models.ForeignKey(
+        "jobserver.User",
+        on_delete=models.PROTECT,
+        related_name="release_file_publish_requests_approved",
+        null=True,
+    )
+
+    created_at = models.DateTimeField(default=timezone.now)
+    created_by = models.ForeignKey(
+        "User",
+        on_delete=models.CASCADE,
+        related_name="release_file_publish_requests",
+    )
+
+    class Meta:
+        constraints = [
+            models.CheckConstraint(
+                check=(
+                    Q(
+                        approved_at__isnull=True,
+                        approved_by__isnull=True,
+                    )
+                    | (
+                        Q(
+                            approved_at__isnull=False,
+                            approved_by__isnull=False,
+                        )
+                    )
+                ),
+                name="%(app_label)s_%(class)s_both_approved_at_and_approved_by_set",
+            ),
+            models.CheckConstraint(
+                check=(
+                    Q(
+                        created_at__isnull=True,
+                        created_by__isnull=True,
+                    )
+                    | (
+                        Q(
+                            created_at__isnull=False,
+                            created_by__isnull=False,
+                        )
+                    )
+                ),
+                name="%(app_label)s_%(class)s_both_created_at_and_created_by_set",
+            ),
+        ]
+
+
 class ReleaseFileReview(models.Model):
     class Statuses(models.TextChoices):
         APPROVED = "APPROVED", "Approved"
