@@ -77,7 +77,7 @@ COPY requirements.prod.txt /tmp/requirements.prod.txt
 # hadolint ignore=DL3042,DL3013
 RUN --mount=type=cache,target=/root/.cache \
     /opt/venv/bin/python -m pip install -U pip setuptools wheel && \
-    /opt/venv/bin/python -m pip install --require-hashes --requirement /tmp/requirements.prod.txt
+    /opt/venv/bin/python -m pip install --no-deps --require-hashes --requirement /tmp/requirements.prod.txt
 
 
 ##################################################
