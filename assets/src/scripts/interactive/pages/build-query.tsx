@@ -1,9 +1,11 @@
 import { Form, Formik } from "formik";
 import { useNavigate } from "react-router-dom";
+import * as Yup from "yup";
 import { Button } from "../components/Button";
 import CodelistBuilder from "../components/CodelistBuilder";
 import FormDebug from "../components/FormDebug";
-import { step1Schema } from "../data/schema";
+import { builderTimeEvents, builderTimeScales } from "../data/form-fields";
+import { codelistSchema } from "../data/schema";
 import { useFormStore } from "../stores";
 import { FormDataTypes } from "../types";
 import { requiredLoader } from "../utils";
@@ -12,6 +14,18 @@ export const QueryBuilderLoader = () =>
   requiredLoader({
     fields: ["codelist0", "codelist1", "frequency"],
   });
+
+const validationSchema = Yup.object().shape({
+  codelistA: codelistSchema(),
+  codelistB: codelistSchema(),
+  timeValue: Yup.number().required(),
+  timeScale: Yup.string()
+    .oneOf(builderTimeScales.map((event) => event.value))
+    .required(),
+  timeEvent: Yup.string()
+    .oneOf(builderTimeEvents.map((event) => event.value))
+    .required(),
+});
 
 function QueryBuilder() {
   const navigate = useNavigate();
@@ -33,7 +47,7 @@ function QueryBuilder() {
         });
       }}
       validateOnMount
-      validationSchema={step1Schema}
+      validationSchema={validationSchema}
     >
       {({ isValid }) => (
         <Form>

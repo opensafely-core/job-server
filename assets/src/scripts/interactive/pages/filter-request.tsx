@@ -1,5 +1,6 @@
 import { Form, Formik } from "formik";
 import { useNavigate } from "react-router-dom";
+import * as Yup from "yup";
 import { Button } from "../components/Button";
 import Checkbox from "../components/Checkbox";
 import Fieldset from "../components/Fieldset";
@@ -7,7 +8,6 @@ import FormDebug from "../components/FormDebug";
 import InputError from "../components/InputError";
 import RadioButton from "../components/RadioButton";
 import { demographics, filterPopulation } from "../data/form-fields";
-import { step3Schema } from "../data/schema";
 import { useFormStore } from "../stores";
 import { FormDataTypes } from "../types";
 import { requiredLoader } from "../utils";
@@ -16,6 +16,17 @@ export const FilterRequestLoader = () =>
   requiredLoader({
     fields: ["codelist0", "frequency"],
   });
+
+const validationSchema = Yup.object().shape({
+  filterPopulation: Yup.string()
+    .oneOf(filterPopulation.items.map((item) => item.value))
+    .required("Select a filter for the population"),
+  demographics: Yup.array()
+    .of(Yup.string().oneOf(demographics.items.map((item) => item.value)))
+    .min(1)
+    .max(demographics.items.length)
+    .required(),
+});
 
 function FilterRequest() {
   const navigate = useNavigate();
@@ -34,7 +45,7 @@ function FilterRequest() {
         });
       }}
       validateOnMount
-      validationSchema={step3Schema}
+      validationSchema={validationSchema}
     >
       {({ errors, isValid, touched }) => (
         <Form>

@@ -1,6 +1,7 @@
 import { Form, Formik } from "formik";
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
+import * as Yup from "yup";
 import { Button } from "../components/Button";
 import CodelistButton from "../components/Button/CodelistButton";
 import CodelistSearch from "../components/CodelistSearch";
@@ -9,9 +10,35 @@ import FormDebug from "../components/FormDebug";
 import InputError from "../components/InputError";
 import RadioButton from "../components/RadioButton";
 import { frequency } from "../data/form-fields";
-import { step0Schema } from "../data/schema";
+import { codelistSchema } from "../data/schema";
 import { useFormStore } from "../stores";
 import { FormDataTypes } from "../types";
+
+const validationSchema = (secondCodelist: Boolean) =>
+  Yup.lazy(() =>
+    Yup.object({
+      codelist0: codelistSchema(),
+      codelist1: secondCodelist
+        ? codelistSchema().test(
+            "compare_codelists",
+            "Codelists cannot be the same, please change one codelist",
+            (value: string, testContext: Yup.TestContext) => {
+              if (
+                Object.entries(testContext.parent.codelist0).toString() ===
+                Object.entries(value).toString()
+              ) {
+                return false;
+              }
+
+              return true;
+            }
+          )
+        : undefined,
+      frequency: Yup.string()
+        .oneOf(frequency.items.map((item) => item.value))
+        .required("Select a frequency"),
+    })
+  );
 
 function FindCodelists() {
   const formData: FormDataTypes = useFormStore((state) => state.formData);
@@ -37,7 +64,7 @@ function FindCodelists() {
         });
       }}
       validateOnMount
-      validationSchema={step0Schema(secondCodelist)}
+      validationSchema={validationSchema(secondCodelist)}
     >
       {({ errors, isValid, touched }) => (
         <Form>
