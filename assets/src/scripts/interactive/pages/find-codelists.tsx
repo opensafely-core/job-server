@@ -11,41 +11,39 @@ import InputError from "../components/InputError";
 import RadioButton from "../components/RadioButton";
 import { frequency } from "../data/form-fields";
 import { codelistSchema } from "../data/schema";
-import { useFormStore } from "../stores";
+import { useFormStore, usePageData } from "../stores";
 import { FormDataTypes } from "../types";
-
-const validationSchema = (secondCodelist: Boolean) =>
-  Yup.lazy(() =>
-    Yup.object({
-      codelist0: codelistSchema(),
-      codelist1: secondCodelist
-        ? codelistSchema().test(
-            "compare_codelists",
-            "Codelists cannot be the same, please change one codelist",
-            (value: string, testContext: Yup.TestContext) => {
-              if (
-                Object.entries(testContext.parent.codelist0).toString() ===
-                Object.entries(value).toString()
-              ) {
-                return false;
-              }
-
-              return true;
-            }
-          )
-        : undefined,
-      frequency: Yup.string()
-        .oneOf(frequency.items.map((item) => item.value))
-        .required("Select a frequency"),
-    })
-  );
 
 function FindCodelists() {
   const formData: FormDataTypes = useFormStore((state) => state.formData);
+  const { pageData } = usePageData.getState();
   const [secondCodelist, setSecondCodelist]: [boolean, Function] = useState(
     !!formData.codelist1
   );
   const navigate = useNavigate();
+
+  const validationSchema = Yup.object({
+    codelist0: codelistSchema(pageData),
+    codelist1: secondCodelist
+      ? codelistSchema(pageData).test(
+          "compare_codelists",
+          "Codelists cannot be the same, please change one codelist",
+          (value: string, testContext: Yup.TestContext) => {
+            if (
+              Object.entries(testContext.parent.codelist0).toString() ===
+              Object.entries(value).toString()
+            ) {
+              return false;
+            }
+
+            return true;
+          }
+        )
+      : null,
+    frequency: Yup.string()
+      .oneOf(frequency.items.map((item) => item.value))
+      .required("Select a frequency"),
+  });
 
   return (
     <Formik
@@ -64,7 +62,7 @@ function FindCodelists() {
         });
       }}
       validateOnMount
-      validationSchema={validationSchema(secondCodelist)}
+      validationSchema={validationSchema}
     >
       {({ errors, isValid, touched }) => (
         <Form>

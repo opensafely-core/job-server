@@ -43,3 +43,7 @@ export function requiredLoader({ fields }: { fields: string[] }) {
 
   return null;
 }
+
+export function isObject(a: any) {
+  return !!a && a.constructor === Object;
+}

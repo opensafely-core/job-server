@@ -17,20 +17,20 @@ export const FilterRequestLoader = () =>
     fields: ["codelist0", "frequency"],
   });
 
-const validationSchema = Yup.object().shape({
-  filterPopulation: Yup.string()
-    .oneOf(filterPopulation.items.map((item) => item.value))
-    .required("Select a filter for the population"),
-  demographics: Yup.array()
-    .of(Yup.string().oneOf(demographics.items.map((item) => item.value)))
-    .min(1)
-    .max(demographics.items.length)
-    .required(),
-});
-
 function FilterRequest() {
   const navigate = useNavigate();
   const formData: FormDataTypes = useFormStore((state) => state.formData);
+
+  const validationSchema = Yup.object().shape({
+    filterPopulation: Yup.string()
+      .oneOf(filterPopulation.items.map((item) => item.value))
+      .required("Select a filter for the population"),
+    demographics: Yup.array()
+      .of(Yup.string().oneOf(demographics.items.map((item) => item.value)))
+      .min(1)
+      .max(demographics.items.length)
+      .required(),
+  });
 
   return (
     <Formik

@@ -6,7 +6,7 @@ import CodelistBuilder from "../components/CodelistBuilder";
 import FormDebug from "../components/FormDebug";
 import { builderTimeEvents, builderTimeScales } from "../data/form-fields";
 import { codelistSchema } from "../data/schema";
-import { useFormStore } from "../stores";
+import { useFormStore, usePageData } from "../stores";
 import { FormDataTypes } from "../types";
 import { requiredLoader } from "../utils";
 
@@ -15,21 +15,22 @@ export const QueryBuilderLoader = () =>
     fields: ["codelist0", "codelist1", "frequency"],
   });
 
-const validationSchema = Yup.object().shape({
-  codelistA: codelistSchema(),
-  codelistB: codelistSchema(),
-  timeValue: Yup.number().required(),
-  timeScale: Yup.string()
-    .oneOf(builderTimeScales.map((event) => event.value))
-    .required(),
-  timeEvent: Yup.string()
-    .oneOf(builderTimeEvents.map((event) => event.value))
-    .required(),
-});
-
 function QueryBuilder() {
   const navigate = useNavigate();
+  const { pageData } = usePageData.getState();
   const formData: FormDataTypes = useFormStore((state) => state.formData);
+
+  const validationSchema = Yup.object().shape({
+    codelistA: codelistSchema(pageData),
+    codelistB: codelistSchema(pageData),
+    timeValue: Yup.number().required(),
+    timeScale: Yup.string()
+      .oneOf(builderTimeScales.map((event) => event.value))
+      .required(),
+    timeEvent: Yup.string()
+      .oneOf(builderTimeEvents.map((event) => event.value))
+      .required(),
+  });
 
   return (
     <Formik
