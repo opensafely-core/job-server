@@ -38,6 +38,8 @@ In addition, OpenSAFELY will create a public dashboard listing for all [approved
 
 This public dashboard is supplementary to the [live public audit log of all analyses](https://jobs.opensafely.org/).
 
+**NOTE:** All study GitHub repositories (to include the study definition code, codelists and released results) be made public 12 months after any code has been executed against the underlying patient data. This recommendation is applied to the application as a whole, not to individual studies, analyses or workspaces conducted as part of an application.   
+
 ## How the OpenSAFELY team supports you
 We have written [detailed documentation](https://docs.opensafely.org/) about the platform including a [getting started guide](https://docs.opensafely.org/getting-started/).
 
