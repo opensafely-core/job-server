@@ -4,7 +4,7 @@ Date: 2022-05-04
 
 ## Status
 
-Accepted
+Superseded by: Use string ULID for Analysis Request DB ids
 
 ## Context
 
