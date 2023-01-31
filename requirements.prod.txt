@@ -470,9 +470,9 @@ opentelemetry-api==1.13.0 \
     #   opentelemetry-instrumentation-requests
     #   opentelemetry-instrumentation-wsgi
     #   opentelemetry-sdk
-opentelemetry-exporter-otlp-proto-http==1.13.0 \
-    --hash=sha256:c7dea746eee7497903223094c2dfd7fe18d0f88c4ba1bb533fb93df64ff6834e \
-    --hash=sha256:cc126ff096d4d1b7afd34a5ab453d3d9efa3c09ee9bf2795af93484fcabedb69
+opentelemetry-exporter-otlp-proto-http==1.15.0 \
+    --hash=sha256:11b2c814249a49b22f6cca7a06b05701f561d577b747f3660dfd67b6eb9daf9c \
+    --hash=sha256:3ec2a02196c8a54bf5cbf7fe623a5238625638e83b6047a983bdf96e2bbb74c0
     # via -r requirements.prod.in
 opentelemetry-instrumentation==0.34b0 \
     --hash=sha256:5b765e7266611ea8f76e9042ea88872481477cb068d8c328a21fed38e7349d35 \
@@ -503,9 +503,9 @@ opentelemetry-instrumentation-wsgi==0.34b0 \
     --hash=sha256:4e2aa209737997177e87fcc5fce7a17fa38611f6785fc7a2928c3e784fdc766d \
     --hash=sha256:e61bc3182265f2031a74d9e1685be74882d8d4120ba834e1fe5eb116fd8febff
     # via opentelemetry-instrumentation-django
-opentelemetry-proto==1.13.0 \
-    --hash=sha256:6df48b64e108018e42c48eb33fe37d9a8489598226043a6917dd936796becdaa \
-    --hash=sha256:8f5e9cd4e930270822f3fe30d6d3420b2f843fc1d3fe789db622b88869bc8be1
+opentelemetry-proto==1.15.0 \
+    --hash=sha256:044b6d044b4d10530f250856f933442b8753a17f94ae37c207607f733fb9a844 \
+    --hash=sha256:9c4008e40ac8cab359daac283fbe7002c5c29c77ea2674ad5626a249e64e0101
     # via opentelemetry-exporter-otlp-proto-http
 opentelemetry-sdk==1.13.0 \
     --hash=sha256:0eddcacd5a484fe2918116b9a4e31867e3d10322ff8392b1c7b0dae1ac724d48 \
@@ -833,6 +833,14 @@ setproctitle==1.2.2 \
     --hash=sha256:e8ef655eab26e83ec105ce79036bb87e5f2bf8ba2d6f48afdd9595ef7647fcf4 \
     --hash=sha256:fbf914179dc4540ee6bfd8228b4cc1f1f6fb12dad66b72b5c9b955b222403220
     # via pgcli
+setuptools==67.0.0 \
+    --hash=sha256:883131c5b6efa70b9101c7ef30b2b7b780a4283d5fc1616383cdf22c83cbefe6 \
+    --hash=sha256:9d790961ba6219e9ff7d9557622d2fe136816a264dd01d5997cfc057d804853d
+    # via
+    #   gunicorn
+    #   opentelemetry-api
+    #   opentelemetry-instrumentation
+    #   opentelemetry-sdk
 six==1.16.0 \
     --hash=sha256:1e61c37477a1626458e36f7b1d82aa5c9b094fa4802892072e49de9c60c4c926 \
     --hash=sha256:8abb2f1d86890a2dfb989f9a77cfcfd3e47c2a354b01111771326f8aa26e0254
@@ -970,13 +978,3 @@ wrapt==1.14.1 \
     #   deprecated
     #   opentelemetry-instrumentation
     #   opentelemetry-instrumentation-dbapi
-
-# The following packages are considered to be unsafe in a requirements file:
-setuptools==67.0.0 \
-    --hash=sha256:883131c5b6efa70b9101c7ef30b2b7b780a4283d5fc1616383cdf22c83cbefe6 \
-    --hash=sha256:9d790961ba6219e9ff7d9557622d2fe136816a264dd01d5997cfc057d804853d
-    # via
-    #   gunicorn
-    #   opentelemetry-api
-    #   opentelemetry-instrumentation
-    #   opentelemetry-sdk
