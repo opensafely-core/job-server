@@ -20,7 +20,6 @@ incuna-mail
 itsdangerous
 lxml
 markdown
-pgcli
 psycopg2-binary
 pydantic
 pygments
