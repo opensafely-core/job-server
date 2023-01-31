@@ -207,6 +207,10 @@ pep517==0.10.0 \
     --hash=sha256:ac59f3f6b9726a49e15a649474539442cf76e0697e39df4869d25e68e880931b \
     --hash=sha256:eba39d201ef937584ad3343df3581069085bacc95454c80188291d5b3ac7a249
     # via build
+pip==23.0 \
+    --hash=sha256:aee438284e82c8def684b0bcc50b1f6ed5e941af97fa940e83e2e8ef1a59da9b \
+    --hash=sha256:b5f88adff801f5ef052bcdef3daa31b55eb67b0fccd6d0106c206fa248e0463c
+    # via pip-tools
 pip-tools==6.12.2 \
     --hash=sha256:6a51f4fd67140d5e83703ebfa9610fb61398727151f56a1be02a972d062e4679 \
     --hash=sha256:8b903696df4598b10d469026ef9995c5f9a874b416e88e7a214884ebe4a70245
@@ -260,9 +264,9 @@ pytest-freezegun==0.4.2 \
     --hash=sha256:19c82d5633751bf3ec92caa481fb5cffaac1787bd485f0df6436fd6242176949 \
     --hash=sha256:5318a6bfb8ba4b709c8471c94d0033113877b3ee02da5bfcd917c1889cde99a7
     # via -r requirements.dev.in
-pytest-mock==3.8.2 \
-    --hash=sha256:77f03f4554392558700295e05aed0b1096a20d4a60a4f3ddcde58b0c31c8fca2 \
-    --hash=sha256:8a9e226d6c0ef09fcf20c94eb3405c388af438a90f3e39687f84166da82d5948
+pytest-mock==3.10.0 \
+    --hash=sha256:f4c973eeae0282963eb293eb173ce91b091a79c1334455acfac9ddee8a1c784b \
+    --hash=sha256:fbbdb085ef7c252a326fd8cdcac0aa3b1333d8811f131bdcc701002e1be7ed4f
     # via -r requirements.dev.in
 pytest-network==0.0.1 \
     --hash=sha256:7b109e2ad27f4ab0f13c1796a9b419bab1d503ea3b5ae3ca37363486ccceaa3f
@@ -329,6 +333,12 @@ responses==0.21.0 \
     --hash=sha256:2dcc863ba63963c0c3d9ee3fa9507cbe36b7d7b0fccb4f0bdfd9e96c539b1487 \
     --hash=sha256:b82502eb5f09a0289d8e209e7bad71ef3978334f56d09b444253d5ad67bf5253
     # via -r requirements.dev.in
+setuptools==67.0.0 \
+    --hash=sha256:883131c5b6efa70b9101c7ef30b2b7b780a4283d5fc1616383cdf22c83cbefe6 \
+    --hash=sha256:9d790961ba6219e9ff7d9557622d2fe136816a264dd01d5997cfc057d804853d
+    # via
+    #   -c requirements.prod.txt
+    #   pip-tools
 six==1.16.0 \
     --hash=sha256:1e61c37477a1626458e36f7b1d82aa5c9b094fa4802892072e49de9c60c4c926 \
     --hash=sha256:8abb2f1d86890a2dfb989f9a77cfcfd3e47c2a354b01111771326f8aa26e0254
@@ -367,15 +377,3 @@ wheel==0.38.4 \
     --hash=sha256:965f5259b566725405b05e7cf774052044b1ed30119b5d586b2703aafe8719ac \
     --hash=sha256:b60533f3f5d530e971d6737ca6d58681ee434818fab630c83a734bb10c083ce8
     # via pip-tools
-
-# The following packages are considered to be unsafe in a requirements file:
-pip==23.0 \
-    --hash=sha256:aee438284e82c8def684b0bcc50b1f6ed5e941af97fa940e83e2e8ef1a59da9b \
-    --hash=sha256:b5f88adff801f5ef052bcdef3daa31b55eb67b0fccd6d0106c206fa248e0463c
-    # via pip-tools
-setuptools==67.0.0 \
-    --hash=sha256:883131c5b6efa70b9101c7ef30b2b7b780a4283d5fc1616383cdf22c83cbefe6 \
-    --hash=sha256:9d790961ba6219e9ff7d9557622d2fe136816a264dd01d5997cfc057d804853d
-    # via
-    #   -c requirements.prod.txt
-    #   pip-tools
