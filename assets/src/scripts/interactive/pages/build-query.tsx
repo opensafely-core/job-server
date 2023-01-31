@@ -1,21 +1,17 @@
 import { Form, Formik } from "formik";
-import { redirect, useNavigate } from "react-router-dom";
+import { useNavigate } from "react-router-dom";
 import { Button } from "../components/Button";
 import CodelistBuilder from "../components/CodelistBuilder";
 import FormDebug from "../components/FormDebug";
 import { step1Schema } from "../data/schema";
 import { useFormStore } from "../stores";
 import { FormDataTypes } from "../types";
+import { requiredLoader } from "../utils";
 
-export function QueryBuilderLoader() {
-  const formData = useFormStore.getState()?.formData;
-
-  if (!formData?.codelist0 || !formData?.codelist1 || !formData?.frequency) {
-    return redirect("/");
-  }
-
-  return null;
-}
+export const QueryBuilderLoader = () =>
+  requiredLoader({
+    fields: ["codelist0", "codelist1", "frequency"],
+  });
 
 function QueryBuilder() {
   const navigate = useNavigate();

@@ -1,3 +1,5 @@
+import { redirect } from "react-router-dom";
+import { useFormStore } from "../stores";
 import { OpenCodelist } from "../types";
 
 export function classNames(...classes: (string | null | undefined)[]) {
@@ -23,4 +25,21 @@ export function getCodelistPageData(scriptID: string) {
   }));
 
   return configureJson;
+}
+
+export function requiredLoader({ fields }: { fields: string[] }) {
+  const { formData } = useFormStore.getState();
+  const missing = [];
+
+  fields.forEach((field) => {
+    if (!Object.prototype.hasOwnProperty.call(formData, field)) {
+      missing.push(field);
+    }
+  });
+
+  if (missing.length) {
+    return redirect("/");
+  }
+
+  return null;
 }

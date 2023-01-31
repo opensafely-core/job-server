@@ -1,19 +1,14 @@
-import { redirect, useNavigate } from "react-router-dom";
+import { useNavigate } from "react-router-dom";
 import { Button } from "../components/Button";
 import { endDate } from "../data/form-fields";
 import { useFormStore } from "../stores";
 import { FormDataTypes } from "../types";
-import { classNames } from "../utils";
+import { classNames, requiredLoader } from "../utils";
 
-export function ReviewQueryLoader() {
-  const formData = useFormStore.getState()?.formData;
-
-  if (!formData?.codelist0 || !formData?.frequency) {
-    return redirect("/");
-  }
-
-  return null;
-}
+export const ReviewQueryLoader = () =>
+  requiredLoader({
+    fields: ["codelist0", "frequency"],
+  });
 
 export const lines = [
   "Your report will show the number of people who have had",

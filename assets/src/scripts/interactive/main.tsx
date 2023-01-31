@@ -3,11 +3,11 @@ import { createRoot } from "react-dom/client";
 import { createBrowserRouter, RouterProvider } from "react-router-dom";
 import App from "./App";
 import QueryBuilder, { QueryBuilderLoader } from "./pages/build-query";
-import FilterRequest from "./pages/filter-request";
+import FilterRequest, { FilterRequestLoader } from "./pages/filter-request";
 import FindCodelists from "./pages/find-codelists";
-import PreviewRequest from "./pages/preview-request";
+import PreviewRequest, { PreviewRequestLoader } from "./pages/preview-request";
 import ReviewQuery, { ReviewQueryLoader } from "./pages/review-query";
-import ReviewRequest from "./pages/review-request";
+import ReviewRequest, { ReviewRequestLoader } from "./pages/review-request";
 import Success from "./pages/success";
 
 const element: HTMLElement | null = document.getElementById("osi");
@@ -43,14 +43,17 @@ const router = createBrowserRouter(
         {
           path: "preview-request",
           element: <PreviewRequest />,
+          loader: PreviewRequestLoader,
         },
         {
           path: "filter-request",
           element: <FilterRequest />,
+          loader: FilterRequestLoader,
         },
         {
           path: "review-request",
           element: <ReviewRequest />,
+          loader: ReviewRequestLoader,
         },
         {
           path: "success",

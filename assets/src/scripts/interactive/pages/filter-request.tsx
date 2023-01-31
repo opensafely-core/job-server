@@ -10,6 +10,12 @@ import { demographics, filterPopulation } from "../data/form-fields";
 import { step3Schema } from "../data/schema";
 import { useFormStore } from "../stores";
 import { FormDataTypes } from "../types";
+import { requiredLoader } from "../utils";
+
+export const FilterRequestLoader = () =>
+  requiredLoader({
+    fields: ["codelist0", "frequency"],
+  });
 
 function FilterRequest() {
   const navigate = useNavigate();

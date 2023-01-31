@@ -6,8 +6,13 @@ import ReviewLineItem from "../components/ReviewLineItem";
 import { demographics, endDate, filterPopulation } from "../data/form-fields";
 import { useFormStore } from "../stores";
 import { FormDataTypes } from "../types";
-import { delay } from "../utils";
+import { delay, requiredLoader } from "../utils";
 import { lines as singleLines } from "./review-query";
+
+export const ReviewRequestLoader = () =>
+  requiredLoader({
+    fields: ["codelist0", "frequency", "filterPopulation", "demographics"],
+  });
 
 function ReviewRequest() {
   const navigate = useNavigate();

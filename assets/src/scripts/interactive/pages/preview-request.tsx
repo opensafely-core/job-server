@@ -4,6 +4,12 @@ import EventsBefore from "../components/Diagrams/EventsBefore";
 import FormDebug from "../components/FormDebug";
 import { useFormStore } from "../stores";
 import { FormDataTypes } from "../types";
+import { requiredLoader } from "../utils";
+
+export const PreviewRequestLoader = () =>
+  requiredLoader({
+    fields: ["codelistA", "codelistB"],
+  });
 
 function PreviewRequest() {
   const navigate = useNavigate();
