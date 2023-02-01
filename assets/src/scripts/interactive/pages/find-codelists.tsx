@@ -78,7 +78,7 @@ function FindCodelists() {
             setSecondCodelist={setSecondCodelist}
           />
 
-          <Fieldset legend={frequency.label} name="frequency">
+          <Fieldset legend={frequency.label}>
             {frequency.items.map((item) => (
               <RadioButton
                 key={item.value}

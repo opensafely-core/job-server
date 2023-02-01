@@ -52,7 +52,7 @@ function FilterRequest() {
         <Form>
           <h1 className="text-4xl font-bold mb-4">Set report filters</h1>
 
-          <Fieldset legend={filterPopulation.label} name="filterPopulation">
+          <Fieldset legend={filterPopulation.label}>
             {filterPopulation.items.map((item) => (
               <RadioButton
                 key={item.value}
@@ -67,7 +67,7 @@ function FilterRequest() {
             ) : null}
           </Fieldset>
 
-          <Fieldset legend={demographics.label} name="demographics">
+          <Fieldset legend={demographics.label}>
             {demographics.items.map((item) => (
               <Checkbox
                 key={item.value}
