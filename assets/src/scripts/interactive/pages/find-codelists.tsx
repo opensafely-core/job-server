@@ -6,7 +6,6 @@ import { Button } from "../components/Button";
 import CodelistButton from "../components/Button/CodelistButton";
 import CodelistSearch from "../components/CodelistSearch";
 import Fieldset from "../components/Fieldset";
-import FormDebug from "../components/FormDebug";
 import InputError from "../components/InputError";
 import RadioButton from "../components/RadioButton";
 import { frequency } from "../data/form-fields";
@@ -45,13 +44,15 @@ function FindCodelists() {
       .required("Select a frequency"),
   });
 
+  const initialValues = {
+    codelist0: formData.codelist0 || "",
+    codelist1: formData.codelist1 || undefined,
+    frequency: formData.frequency || "",
+  };
+
   return (
     <Formik
-      initialValues={{
-        codelist0: formData.codelist0 || "",
-        codelist1: formData.codelist1 || undefined,
-        frequency: formData.frequency || "",
-      }}
+      initialValues={initialValues}
       onSubmit={(values, actions) => {
         actions.validateForm().then(() => {
           useFormStore.setState({ formData: { ...formData, ...values } });
@@ -95,8 +96,6 @@ function FindCodelists() {
           <Button className="mt-6" disabled={!isValid} type="submit">
             Next
           </Button>
-
-          <FormDebug />
         </Form>
       )}
     </Formik>

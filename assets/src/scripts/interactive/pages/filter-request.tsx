@@ -4,7 +4,6 @@ import * as Yup from "yup";
 import { Button } from "../components/Button";
 import Checkbox from "../components/Checkbox";
 import Fieldset from "../components/Fieldset";
-import FormDebug from "../components/FormDebug";
 import InputError from "../components/InputError";
 import RadioButton from "../components/RadioButton";
 import { demographics, filterPopulation } from "../data/form-fields";
@@ -32,12 +31,14 @@ function FilterRequest() {
       .required(),
   });
 
+  const initialValues = {
+    filterPopulation: formData.filterPopulation || "",
+    demographics: formData.demographics || [],
+  };
+
   return (
     <Formik
-      initialValues={{
-        filterPopulation: formData.filterPopulation || "",
-        demographics: formData.demographics || [],
-      }}
+      initialValues={initialValues}
       onSubmit={(values, actions) => {
         actions.validateForm().then(() => {
           useFormStore.setState({ formData: { ...formData, ...values } });
@@ -86,8 +87,6 @@ function FilterRequest() {
               Next
             </Button>
           </div>
-
-          <FormDebug />
         </Form>
       )}
     </Formik>

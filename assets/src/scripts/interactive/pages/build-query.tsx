@@ -3,7 +3,6 @@ import { useNavigate } from "react-router-dom";
 import * as Yup from "yup";
 import { Button } from "../components/Button";
 import CodelistBuilder from "../components/CodelistBuilder";
-import FormDebug from "../components/FormDebug";
 import { builderTimeEvents, builderTimeScales } from "../data/form-fields";
 import { codelistSchema } from "../data/schema";
 import { useFormStore, usePageData } from "../stores";
@@ -32,15 +31,17 @@ function QueryBuilder() {
       .required(),
   });
 
+  const initialValues = {
+    codelistA: formData.codelistA || formData.codelist0,
+    codelistB: formData.codelistB || formData.codelist1,
+    timeValue: formData.timeValue || 3,
+    timeScale: formData.timeScale || "weeks",
+    timeEvent: formData.timeEvent || "before",
+  };
+
   return (
     <Formik
-      initialValues={{
-        codelistA: formData.codelistA || formData.codelist0,
-        codelistB: formData.codelistB || formData.codelist1,
-        timeValue: formData.timeValue || 3,
-        timeScale: formData.timeScale || "weeks",
-        timeEvent: formData.timeEvent || "before",
-      }}
+      initialValues={initialValues}
       onSubmit={(values, actions) => {
         actions.validateForm().then(() => {
           useFormStore.setState({ formData: { ...formData, ...values } });
@@ -57,8 +58,6 @@ function QueryBuilder() {
           <Button className="mt-6" disabled={!isValid} type="submit">
             Next
           </Button>
-
-          <FormDebug />
         </Form>
       )}
     </Formik>

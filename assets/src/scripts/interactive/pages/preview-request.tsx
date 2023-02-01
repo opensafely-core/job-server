@@ -1,7 +1,6 @@
 import { useNavigate } from "react-router-dom";
 import { Button } from "../components/Button";
 import EventsBefore from "../components/Diagrams/EventsBefore";
-import FormDebug from "../components/FormDebug";
 import { useFormStore } from "../stores";
 import { FormDataTypes } from "../types";
 import { requiredLoader } from "../utils";
@@ -54,7 +53,6 @@ function PreviewRequest() {
       <div className="flex flex-row w-full gap-2 mt-10">
         <Button onClick={() => navigate("/filter-request")}>Next</Button>
       </div>
-      <FormDebug />
     </>
   );
 }
