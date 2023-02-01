@@ -1,5 +1,11 @@
 import { useEffect } from "react";
 import { useFormStore } from "../stores";
+import { requiredLoader } from "../utils";
+
+export const SuccessLoader = () =>
+  requiredLoader({
+    fields: ["codelist0", "frequency", "filterPopulation", "demographics"],
+  });
 
 function Success() {
   const uuid = crypto.randomUUID().split("-").slice(0, 1)[0];

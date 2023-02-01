@@ -8,7 +8,7 @@ import FindCodelists from "./pages/find-codelists";
 import PreviewRequest, { PreviewRequestLoader } from "./pages/preview-request";
 import ReviewQuery, { ReviewQueryLoader } from "./pages/review-query";
 import ReviewRequest, { ReviewRequestLoader } from "./pages/review-request";
-import Success from "./pages/success";
+import Success, { SuccessLoader } from "./pages/success";
 
 const element: HTMLElement | null = document.getElementById("osi");
 if (!element) throw new Error("Failed to find the root element");
@@ -58,6 +58,7 @@ const router = createBrowserRouter(
         {
           path: "success",
           element: <Success />,
+          loader: SuccessLoader,
         },
       ],
     },
