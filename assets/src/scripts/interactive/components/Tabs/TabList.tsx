@@ -12,7 +12,7 @@ function TabList() {
           key={codelistGroup.id}
           className={({ selected }) =>
             classNames(
-              "w-full rounded-lg py-2.5 font-semibold text-oxford-700 leading-5",
+              "w-full rounded-lg p-1 font-semibold text-oxford-700 leading-5 md:py-2.5",
               "ring-white ring-opacity-60 ring-offset-2 ring-offset-oxford-400 focus:outline-none focus:ring-2",
               selected
                 ? "bg-white shadow"
