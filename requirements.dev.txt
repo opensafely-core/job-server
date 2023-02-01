@@ -49,7 +49,6 @@ click==8.0.4 \
     --hash=sha256:6a7a62563bbfabfda3a38f3023a1db4a35978c0abd76f6c9605ecd6554d6d9b1 \
     --hash=sha256:8458d7b1287c5fb128c90e23381cf99dcde74beaf6c7ff6384ce84d6fe090adb
     # via
-    #   -c requirements.prod.txt
     #   black
     #   pip-tools
 coverage==6.5.0 \
@@ -196,10 +195,6 @@ pep517==0.10.0 \
     --hash=sha256:ac59f3f6b9726a49e15a649474539442cf76e0697e39df4869d25e68e880931b \
     --hash=sha256:eba39d201ef937584ad3343df3581069085bacc95454c80188291d5b3ac7a249
     # via build
-pip==23.0 \
-    --hash=sha256:aee438284e82c8def684b0bcc50b1f6ed5e941af97fa940e83e2e8ef1a59da9b \
-    --hash=sha256:b5f88adff801f5ef052bcdef3daa31b55eb67b0fccd6d0106c206fa248e0463c
-    # via pip-tools
 pip-tools==6.12.2 \
     --hash=sha256:6a51f4fd67140d5e83703ebfa9610fb61398727151f56a1be02a972d062e4679 \
     --hash=sha256:8b903696df4598b10d469026ef9995c5f9a874b416e88e7a214884ebe4a70245
@@ -214,9 +209,9 @@ pluggy==0.13.1 \
     --hash=sha256:15b2acde666561e1298d71b523007ed7364de07029219b604cf808bfa1c765b0 \
     --hash=sha256:966c145cd83c96502c3c3868f50408687b38434af77734af1e9ca461a4081d2d
     # via pytest
-pre-commit==2.20.0 \
-    --hash=sha256:51a5ba7c480ae8072ecdb6933df22d2f812dc897d5fe848778116129a681aac7 \
-    --hash=sha256:a978dac7bc9ec0bcee55c18a277d553b0f419d259dadb4b9418ff2d00eb43959
+pre-commit==3.0.2 \
+    --hash=sha256:aa97fa71e7ab48225538e1e91a6b26e483029e6de64824f04760c32557bc91d7 \
+    --hash=sha256:f448d5224c70e196a6c6f87961d2333dfdc49988ebbf660477f9efe991c03597
     # via -r requirements.dev.in
 pycodestyle==2.8.0 \
     --hash=sha256:720f8b39dde8b293825e7ff02c475f3077124006db4f440dcbc9a20b76548a20 \
@@ -269,7 +264,6 @@ python-dateutil==2.8.2 \
     --hash=sha256:0123cacc1627ae19ddf3c27a5de5bd67ee4586fbdd6440d9748f8abb483d3e86 \
     --hash=sha256:961d03dc3453ebbc59dbdea9e4e11c5651520a876d0f4db161e8674aae935da9
     # via
-    #   -c requirements.prod.txt
     #   faker
     #   freezegun
 pyupgrade==3.3.1 \
@@ -323,12 +317,6 @@ responses==0.22.0 \
     --hash=sha256:396acb2a13d25297789a5866b4881cf4e46ffd49cc26c43ab1117f40b973102e \
     --hash=sha256:dcf294d204d14c436fddcc74caefdbc5764795a40ff4e6a7740ed8ddbf3294be
     # via -r requirements.dev.in
-setuptools==67.0.0 \
-    --hash=sha256:883131c5b6efa70b9101c7ef30b2b7b780a4283d5fc1616383cdf22c83cbefe6 \
-    --hash=sha256:9d790961ba6219e9ff7d9557622d2fe136816a264dd01d5997cfc057d804853d
-    # via
-    #   -c requirements.prod.txt
-    #   pip-tools
 six==1.16.0 \
     --hash=sha256:1e61c37477a1626458e36f7b1d82aa5c9b094fa4802892072e49de9c60c4c926 \
     --hash=sha256:8abb2f1d86890a2dfb989f9a77cfcfd3e47c2a354b01111771326f8aa26e0254
@@ -351,7 +339,6 @@ toml==0.10.2 \
     --hash=sha256:b3bda1d108d5dd99f4a20d24d9c348e91c4db7ab1b749200bded2f839ccbe68f
     # via
     #   pep517
-    #   pre-commit
     #   responses
 types-toml==0.10.8.1 \
     --hash=sha256:171bdb3163d79a520560f24ba916a9fc9bff81659c5448a9fea89240923722be \
