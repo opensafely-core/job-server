@@ -17,7 +17,7 @@ function CodelistSearch({ id, label }: { id: number; label: string }) {
     ) => void;
   } = useFormikContext();
   const formData: FormDataTypes = useFormStore((state) => state.formData);
-  const pageData = usePageData((state) => state.pageData);
+  const { pageData } = usePageData.getState();
   const [query, setQuery] = useState("");
   const codelistID = `codelist${id}`;
 

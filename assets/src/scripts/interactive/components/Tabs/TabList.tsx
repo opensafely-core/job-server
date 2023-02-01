@@ -3,7 +3,7 @@ import { usePageData } from "../../stores";
 import { classNames } from "../../utils";
 
 function TabList() {
-  const pageData = usePageData((state) => state.pageData);
+  const { pageData } = usePageData.getState();
 
   return (
     <Tab.List className="flex space-x-1 rounded bg-gray-100 p-1 max-w-prose">
