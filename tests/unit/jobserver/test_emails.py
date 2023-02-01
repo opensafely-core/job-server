@@ -6,11 +6,13 @@ from django.utils import timezone
 from jobserver.emails import (
     send_finished_notification,
     send_repo_signed_off_notification_to_researchers,
+    send_repo_signed_off_notification_to_staff,
 )
 
 from ...factories import (
     JobFactory,
     JobRequestFactory,
+    ProjectFactory,
     RepoFactory,
     UserFactory,
     WorkspaceFactory,
@@ -68,3 +70,21 @@ def test_send_repo_signed_off_notification_to_researchers(mailoutbox):
 
     assert list(m.to) == ["notifications@jobs.opensafely.org"]
     assert list(m.bcc) == [user1.email, user2.email, user3.email]
+
+
+def test_send_repo_signed_off_notification_to_staff(mailoutbox):
+    project1 = ProjectFactory(number=7)
+    project2 = ProjectFactory(number=42)
+    repo = RepoFactory(
+        researcher_signed_off_at=timezone.now(),
+        researcher_signed_off_by=UserFactory(),
+    )
+    WorkspaceFactory(project=project1, repo=repo)
+    WorkspaceFactory(project=project2, repo=repo)
+
+    send_repo_signed_off_notification_to_staff(repo)
+
+    m = mailoutbox[0]
+
+    assert list(m.to) == ["publications@opensafely.org"]
+    assert "7,42" in m.subject
