@@ -25,10 +25,10 @@ class AnalysisRequest(models.Model):
         on_delete=models.PROTECT,
         related_name="analysis_requests",
     )
-    report = models.ForeignKey(
+    report = models.OneToOneField(
         "jobserver.Report",
         on_delete=models.SET_NULL,
-        related_name="analysis_requests",
+        related_name="analysis_request",
         null=True,
     )
 
