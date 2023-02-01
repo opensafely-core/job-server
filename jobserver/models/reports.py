@@ -1,8 +1,10 @@
-from django.db import models
+from django.db import models, transaction
 from django.db.models import Q
 from django.urls import reverse
 from django.utils import timezone
 from django_extensions.db.fields import AutoSlugField
+
+from .outputs import ReleaseFilePublishRequest
 
 
 class Report(models.Model):
@@ -177,5 +179,53 @@ class ReportPublishRequest(models.Model):
             ),
         ]
 
+    @classmethod
+    def create_from_report(cls, *, report, user):
+        if report is None:
+            return None
+
+        if not hasattr(report, "analysis_request"):
+            raise Exception("bad type of report??")
+
+        with transaction.atomic():
+            # create a request to publish the released file underpinning the report
+            rfile_publish_request = ReleaseFilePublishRequest.objects.create(
+                created_by=user, workspace=report.release_file.workspace
+            )
+            rfile_publish_request.files.add(report.release_file)
+
+            # create a request to publish the report
+            return ReportPublishRequest.objects.create(
+                report=report,
+                release_file_publish_request=rfile_publish_request,
+                created_by=user,
+                updated_by=user,
+            )
+
     def __str__(self):
         return f"Publish request for report: {self.report.title}"
+
+    @transaction.atomic()
+    def approve(self, *, user):
+        now = timezone.now()
+
+        self.approved_at = now
+        self.approved_by = user
+        self.save(update_fields=["approved_at", "approved_by"])
+
+        self.report.published_at = now
+        self.report.published_by = user
+        self.report.save(update_fields=["published_at", "published_by"])
+
+        self.release_file_publish_request.approve(user=user, now=now)
+
+    def get_absolute_url(self):
+        return reverse(
+            "interactive:report-publish-request-update",
+            kwargs={
+                "org_slug": self.report.analysis_request.project.org.slug,
+                "project_slug": self.report.analysis_request.project.slug,
+                "slug": self.report.analysis_request.slug,
+                "pk": self.pk,
+            },
+        )
