@@ -64,7 +64,7 @@ function TabPanel({
               <div className="relative w-full max-w-prose">
                 <Combobox.Input
                   className={classNames(
-                    "block w-full pl-3 pr-10 py-2 border-2 border-gray-400 rounded-md shadow-sm placeholder-gray-400",
+                    "block w-full px-3 py-2 border-2 border-gray-400 rounded-md shadow-sm placeholder-gray-400",
                     "focus:cursor-text focus:outline-none focus:ring-oxford-500 focus:border-oxford-500"
                   )}
                   displayValue={(codelist: SingleCodelist) => codelist.label}
@@ -72,7 +72,11 @@ function TabPanel({
                   placeholder="Type 3 or more characters to find a codelist"
                 />
                 <Combobox.Options className="absolute z-10 mt-1 max-h-60 w-full overflow-auto rounded-md bg-white py-1 text-base divide-y divide-gray-200 shadow-lg ring-1 ring-black ring-opacity-5 focus:outline-none">
-                  <ComboboxItem codelistGroup={codelistGroup} query={query} />
+                  <ComboboxItem
+                    codelistGroup={codelistGroup}
+                    codelistID={codelistID}
+                    query={query}
+                  />
                 </Combobox.Options>
               </div>
             </Combobox>

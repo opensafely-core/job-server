@@ -1,15 +1,19 @@
 import { Combobox } from "@headlessui/react";
 import { CheckIcon } from "@heroicons/react/20/solid";
+import { useFormikContext } from "formik";
 import { CodelistGroup, SingleCodelist } from "../types";
 import { classNames } from "../utils";
 
 function ComboboxItem({
-  query,
   codelistGroup,
+  codelistID,
+  query,
 }: {
-  query: string;
   codelistGroup: CodelistGroup;
+  codelistID: string;
+  query: string;
 }) {
+  const { values }: { values: { [index: string]: any } } = useFormikContext();
   const filteredCodelists = (codelists: SingleCodelist[]) =>
     query.length < 2
       ? codelists
@@ -65,7 +69,7 @@ function ComboboxItem({
                   From: {codelist.organisation}
                 </span>
               </span>
-              {selected ? (
+              {selected || values[codelistID].value === codelist.value ? (
                 <span
                   className={classNames(
                     "absolute inset-y-0 left-0 flex items-center pl-3 z-10",

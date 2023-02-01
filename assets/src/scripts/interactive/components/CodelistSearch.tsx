@@ -36,7 +36,9 @@ function CodelistSearch({ id, label }: { id: number; label: string }) {
         setFieldValue(codelistID, {});
       }}
     >
-      <h2 className="text-2xl font-bold tracking-tight mb-1">{label} type</h2>
+      <h2 className="text-2xl font-bold tracking-tight mb-2 md:mb-1">
+        {label} type
+      </h2>
       <TabList />
       <Tab.Panels>
         {pageData.map((codelistGroup) => (
