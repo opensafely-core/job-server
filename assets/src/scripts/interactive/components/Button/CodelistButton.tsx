@@ -9,12 +9,13 @@ function CodelistButton({
   secondCodelist: boolean;
   setSecondCodelist: Function;
 }) {
-  const { setFieldValue, setTouched, validateForm } = useFormikContext();
+  const { setFieldValue, setTouched, touched, validateForm } =
+    useFormikContext();
 
   const handleCodelistBtn = (show: boolean) => {
     if (!show) {
       setFieldValue("codelist1", undefined);
-      setTouched("codelist1", false);
+      setTouched({ ...touched, codelist1: false });
       useFormStore.setState({ formData: {} });
     }
     setSecondCodelist(show);

@@ -1,5 +1,18 @@
-function Step5() {
+import { useEffect } from "react";
+import { useFormStore } from "../stores";
+import { requiredLoader } from "../utils";
+
+export const SuccessLoader = () =>
+  requiredLoader({
+    fields: ["codelist0", "frequency", "filterPopulation", "demographics"],
+  });
+
+function Success() {
   const uuid = crypto.randomUUID().split("-").slice(0, 1)[0];
+
+  useEffect(() => {
+    useFormStore.setState({});
+  }, []);
 
   return (
     <div className="prose prose-lg mb-10">
@@ -17,4 +30,4 @@ function Step5() {
   );
 }
 
-export default Step5;
+export default Success;

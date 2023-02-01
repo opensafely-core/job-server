@@ -1,13 +1,17 @@
-import { useWizard } from "react-use-wizard";
-import { useFormStore } from "../../stores";
-import { FormDataTypes } from "../../types";
-import { scrollToTop } from "../../utils";
-import { Button } from "../Button";
-import EventsBefore from "../Diagrams/EventsBefore";
-import FormDebug from "../FormDebug";
+import { useNavigate } from "react-router-dom";
+import { Button } from "../components/Button";
+import EventsBefore from "../components/Diagrams/EventsBefore";
+import { useFormStore } from "../stores";
+import { FormDataTypes } from "../types";
+import { requiredLoader } from "../utils";
 
-function Step3() {
-  const { handleStep, nextStep } = useWizard();
+export const PreviewRequestLoader = () =>
+  requiredLoader({
+    fields: ["codelistA", "codelistB"],
+  });
+
+function PreviewRequest() {
+  const navigate = useNavigate();
   const formData: FormDataTypes = useFormStore((state) => state.formData);
 
   const isEventsBefore = () => {
@@ -22,8 +26,6 @@ function Step3() {
     }
     return false;
   };
-
-  handleStep(() => scrollToTop());
 
   return (
     <>
@@ -49,11 +51,10 @@ function Step3() {
       ) : null}
 
       <div className="flex flex-row w-full gap-2 mt-10">
-        <Button onClick={() => nextStep()}>Next</Button>
+        <Button onClick={() => navigate("/filter-request")}>Next</Button>
       </div>
-      <FormDebug />
     </>
   );
 }
 
-export default Step3;
+export default PreviewRequest;

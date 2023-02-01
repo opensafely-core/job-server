@@ -1,37 +1,52 @@
 import { Form, Formik } from "formik";
-import { useWizard } from "react-use-wizard";
-import { demographics, filterPopulation } from "../../data/form-fields";
-import { step3Schema } from "../../data/schema";
-import { useFormStore } from "../../stores";
-import { FormDataTypes } from "../../types";
-import { scrollToTop } from "../../utils";
-import { Button } from "../Button";
-import Checkbox from "../Checkbox";
-import Fieldset from "../Fieldset";
-import FormDebug from "../FormDebug";
-import InputError from "../InputError";
-import RadioButton from "../RadioButton";
+import { useNavigate } from "react-router-dom";
+import * as Yup from "yup";
+import { Button } from "../components/Button";
+import Checkbox from "../components/Checkbox";
+import Fieldset from "../components/Fieldset";
+import InputError from "../components/InputError";
+import RadioButton from "../components/RadioButton";
+import { demographics, filterPopulation } from "../data/form-fields";
+import { useFormStore } from "../stores";
+import { FormDataTypes } from "../types";
+import { requiredLoader } from "../utils";
 
-function Step4() {
+export const FilterRequestLoader = () =>
+  requiredLoader({
+    fields: ["codelist0", "frequency"],
+  });
+
+function FilterRequest() {
+  const navigate = useNavigate();
   const formData: FormDataTypes = useFormStore((state) => state.formData);
-  const { handleStep, nextStep } = useWizard();
 
-  handleStep(() => scrollToTop());
+  const validationSchema = Yup.object().shape({
+    filterPopulation: Yup.string()
+      .oneOf(filterPopulation.items.map((item) => item.value))
+      .required("Select a filter for the population"),
+    demographics: Yup.array()
+      .of(Yup.string().oneOf(demographics.items.map((item) => item.value)))
+      .min(1)
+      .max(demographics.items.length)
+      .required(),
+  });
+
+  const initialValues = {
+    filterPopulation: formData.filterPopulation || "",
+    demographics: formData.demographics || [],
+  };
 
   return (
     <Formik
-      initialValues={{
-        filterPopulation: formData.filterPopulation || "",
-        demographics: formData.demographics || [],
-      }}
+      initialValues={initialValues}
       onSubmit={(values, actions) => {
         actions.validateForm().then(() => {
           useFormStore.setState({ formData: { ...formData, ...values } });
-          nextStep();
+          navigate("/review-request");
         });
       }}
       validateOnMount
-      validationSchema={step3Schema}
+      validationSchema={validationSchema}
     >
       {({ errors, isValid, touched }) => (
         <Form>
@@ -72,12 +87,10 @@ function Step4() {
               Next
             </Button>
           </div>
-
-          <FormDebug />
         </Form>
       )}
     </Formik>
   );
 }
 
-export default Step4;
+export default FilterRequest;

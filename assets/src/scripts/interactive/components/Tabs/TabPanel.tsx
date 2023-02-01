@@ -1,13 +1,8 @@
 import { Combobox, Tab } from "@headlessui/react";
-import {
-  Field,
-  FieldProps,
-  FormikErrors,
-  FormikTouched,
-  useFormikContext,
-} from "formik";
+import { Field, FieldProps, FormikTouched, useFormikContext } from "formik";
+import { useEffect, useState } from "react";
 import { CodelistGroup, FormDataTypes, SingleCodelist } from "../../types";
-import { classNames } from "../../utils";
+import { classNames, isObject } from "../../utils";
 import ComboboxItem from "../ComboboxItem";
 import InputError from "../InputError";
 
@@ -28,7 +23,7 @@ function TabPanel({
     setTouched,
     touched,
   }: {
-    errors: FormikErrors<FormDataTypes>;
+    errors: { [index: string]: any };
     setFieldValue: (
       field: string,
       value: any,
@@ -38,8 +33,20 @@ function TabPanel({
       touched: FormikTouched<FormDataTypes>,
       shouldValidate?: boolean
     ) => void;
-    touched: FormikTouched<FormDataTypes>;
+    touched: { [index: string]: any };
   } = useFormikContext();
+  const [errorMsg, setErrorMsg] = useState("");
+
+  useEffect(() => {
+    if (errors[codelistID] && touched[codelistID]) {
+      if (isObject(errors[codelistID])) {
+        return setErrorMsg(errors[codelistID].label);
+      }
+      return setErrorMsg(errors[codelistID]);
+    }
+
+    return setErrorMsg("");
+  }, [errors, touched, codelistID]);
 
   return (
     <Tab.Panel key={codelistGroup.id}>
@@ -69,10 +76,7 @@ function TabPanel({
                 </Combobox.Options>
               </div>
             </Combobox>
-            {errors?.[codelistID as keyof FormDataTypes] &&
-            touched?.[codelistID as keyof FormDataTypes] ? (
-              <InputError>Select a codelist</InputError>
-            ) : null}
+            {errorMsg ? <InputError>{errorMsg}</InputError> : null}
           </div>
         )}
       </Field>

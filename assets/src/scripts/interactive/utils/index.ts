@@ -1,18 +1,9 @@
+import { redirect } from "react-router-dom";
+import { useFormStore } from "../stores";
 import { OpenCodelist } from "../types";
 
 export function classNames(...classes: (string | null | undefined)[]) {
   return classes.filter(Boolean).join(" ");
-}
-
-export function scrollToTop() {
-  if ("scrollRestoration" in window.history) {
-    window.history.scrollRestoration = "manual";
-  }
-  window.scroll({
-    top: 0,
-    left: 0,
-    behavior: "auto",
-  });
 }
 
 export function delay(ms: number) {
@@ -34,4 +25,25 @@ export function getCodelistPageData(scriptID: string) {
   }));
 
   return configureJson;
+}
+
+export function requiredLoader({ fields }: { fields: string[] }) {
+  const { formData } = useFormStore.getState();
+  const missing = [];
+
+  fields.forEach((field) => {
+    if (!Object.prototype.hasOwnProperty.call(formData, field)) {
+      missing.push(field);
+    }
+  });
+
+  if (missing.length) {
+    return redirect("/");
+  }
+
+  return null;
+}
+
+export function isObject(a: any) {
+  return !!a && a.constructor === Object;
 }
