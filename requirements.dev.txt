@@ -130,9 +130,9 @@ flake8==4.0.1 \
     #   -r requirements.dev.in
     #   flake8-builtins
     #   flake8-no-pep420
-flake8-builtins==1.5.3 \
-    --hash=sha256:09998853b2405e98e61d2ff3027c47033adbdc17f9fe44ca58443d876eb00f3b \
-    --hash=sha256:7706babee43879320376861897e5d1468e396a40b8918ed7bccf70e5f90b8687
+flake8-builtins==2.1.0 \
+    --hash=sha256:12ff1ee96dd4e1f3141141ee6c45a5c7d3b3c440d0949e9b8d345c42b39c51d4 \
+    --hash=sha256:469e8f03d6d0edf4b1e62b6d5a97dce4598592c8a13ec8f0952e7a185eba50a1
     # via -r requirements.dev.in
 flake8-implicit-str-concat==0.3.0 \
     --hash=sha256:a89ebc50567790fb7b83e032ed4014ae0db70e35d89e269c3323967135023600 \
