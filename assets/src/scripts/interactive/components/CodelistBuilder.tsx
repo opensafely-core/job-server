@@ -35,18 +35,18 @@ function CodelistBuilder() {
   };
 
   return (
-    <>
-      <p className="max-w-prose text-lg mb-2">The number of people who had</p>
+    <div className="flex flex-col gap-y-3">
+      <p className="max-w-prose text-lg">The number of people who had</p>
       <SelectBox
         defaultValue={values?.codelistA || formData.codelist0}
         handleChange={handleChange}
         name="codelistA"
       />
-      <p className="max-w-prose text-lg py-2">
+      <p className="max-w-prose text-lg">
         {lines[0]}
-        <span className="block font-semibold">{lines[1]}</span>
+        <span className="block font-semibold py-1">{lines[1]}</span>
         {lines[2]}
-        <span className="block font-semibold">{endDate}</span>
+        <span className="block font-semibold py-1">{endDate}</span>
         {lines[3]}
       </p>
       <SelectBox
@@ -54,7 +54,7 @@ function CodelistBuilder() {
         handleChange={handleChange}
         name="codelistB"
       />
-      <p className="max-w-prose text-lg py-2">{lines[4]}</p>
+      <p className="max-w-prose text-lg">{lines[4]}</p>
       <div className="flex flex-row gap-x-1">
         <Field
           className={classNames(
@@ -96,10 +96,10 @@ function CodelistBuilder() {
       {errors.timeValue && touched.timeValue ? (
         <InputError>Select a valid time scale</InputError>
       ) : null}
-      <p className="max-w-prose text-lg py-2">
+      <p className="max-w-prose text-lg">
         {values.codelistA.label || formData.codelist0?.label}
       </p>
-    </>
+    </div>
   );
 }
 
