@@ -6,7 +6,7 @@ function Fieldset({
   legend: string;
 }) {
   return (
-    <fieldset className="mt-12">
+    <fieldset>
       <legend className="text-2xl font-bold mb-4">
         <h2>{legend}</h2>
       </legend>

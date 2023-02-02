@@ -81,6 +81,20 @@ function TabPanel({
               </div>
             </Combobox>
             {errorMsg ? <InputError>{errorMsg}</InputError> : null}
+            {field?.value?.value ? (
+              <ul className="text-sm mt-2 list-disc pl-4">
+                <li>
+                  <a
+                    className="text-oxford-600 font-semibold underline underline-offset-1 transition-colors hover:text-oxford-700 hover:no-underline focus:text-oxford-900 focus:no-underline"
+                    href={`https://www.opencodelists.org/codelist/${field.value.value}`}
+                    rel="noopener noreferrer"
+                    target="_blank"
+                  >
+                    View “{field.value.label}” codelist &#8599;
+                  </a>
+                </li>
+              </ul>
+            ) : null}
           </div>
         )}
       </Field>

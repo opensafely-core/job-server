@@ -24,7 +24,6 @@ function CodelistSearch({ id, label }: { id: number; label: string }) {
   return (
     <Tab.Group
       as="div"
-      className="mb-8"
       defaultIndex={pageData.findIndex(
         (group: CodelistGroup) =>
           group.id ===

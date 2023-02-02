@@ -69,7 +69,7 @@ function ComboboxItem({
                   From: {codelist.organisation}
                 </span>
               </span>
-              {selected || values[codelistID].value === codelist.value ? (
+              {selected || values[codelistID]?.value === codelist.value ? (
                 <span
                   className={classNames(
                     "absolute inset-y-0 left-0 flex items-center pl-3 z-10",

@@ -66,7 +66,7 @@ function FindCodelists() {
       validationSchema={validationSchema}
     >
       {({ errors, isValid, touched }) => (
-        <Form>
+        <Form className="flex flex-col gap-y-8">
           <CodelistSearch id={0} label="Select a codelist" />
 
           {secondCodelist ? (
@@ -93,7 +93,7 @@ function FindCodelists() {
             ) : null}
           </Fieldset>
 
-          <Button className="mt-6" disabled={!isValid} type="submit">
+          <Button disabled={!isValid} type="submit">
             Next
           </Button>
         </Form>
