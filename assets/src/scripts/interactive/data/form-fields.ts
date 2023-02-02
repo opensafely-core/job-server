@@ -1,7 +1,7 @@
 export const endDate = "7th December 2022";
 
 export const frequency = {
-  label: "Select a frequency to group events by",
+  label: "How would you like to group events?",
   items: [
     { label: "Monthly", value: "monthly" },
     { label: "Quarterly", value: "quarterly" },

@@ -6,6 +6,7 @@ import { Button } from "../components/Button";
 import CodelistButton from "../components/Button/CodelistButton";
 import CodelistSearch from "../components/CodelistSearch";
 import Fieldset from "../components/Fieldset";
+import HintText from "../components/HintText";
 import InputError from "../components/InputError";
 import RadioButton from "../components/RadioButton";
 import { frequency } from "../data/form-fields";
@@ -79,6 +80,14 @@ function FindCodelists() {
           />
 
           <Fieldset legend={frequency.label}>
+            <HintText>
+              <p>
+                This is how the data will be aggregated and shown on the report.
+              </p>
+              <p>
+                If you are unsure, select <strong>Monthly</strong>.
+              </p>
+            </HintText>
             {frequency.items.map((item) => (
               <RadioButton
                 key={item.value}

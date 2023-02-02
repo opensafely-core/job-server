@@ -36,7 +36,7 @@ function CodelistSearch({ id, label }: { id: number; label: string }) {
       }}
     >
       <h2 className="text-2xl font-bold tracking-tight mb-2 md:mb-1">
-        {label} type
+        {label}
       </h2>
       <TabList />
       <Tab.Panels>
