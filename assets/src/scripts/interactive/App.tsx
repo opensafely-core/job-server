@@ -1,12 +1,17 @@
 import { Outlet, useLocation, useNavigate } from "react-router-dom";
-import { usePageData } from "./stores";
+import { useFormStore, usePageData } from "./stores";
+import { FormDataTypes } from "./types";
 import { classNames, getCodelistPageData } from "./utils";
 
 function App({ events, medications }: { events: string; medications: string }) {
+  const formData: FormDataTypes = useFormStore((state) => state.formData);
   const navigate = useNavigate();
   const location = useLocation();
   const isFirstPage = location.pathname === "/";
   const isLastPage = location.pathname === "/success";
+
+  // eslint-disable-next-line no-console
+  console.log({ formData });
 
   usePageData.setState({
     pageData: [
