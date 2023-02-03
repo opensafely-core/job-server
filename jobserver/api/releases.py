@@ -69,6 +69,7 @@ def maybe_create_report(rfile, filename, user):
     analysis_request = AnalysisRequest.objects.filter(pk=name).first()
     if ext == ".html" and analysis_request:
         report = Report.objects.create(
+            project=rfile.workspace.project,
             release_file=rfile,
             title=analysis_request.title,
             description="TODO fill from AR",

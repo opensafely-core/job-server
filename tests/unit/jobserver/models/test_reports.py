@@ -121,7 +121,6 @@ def test_reportpublishrequest_create_from_report_success():
 
 def test_reportpublishrequest_get_absolute_url():
     report = ReportFactory(title="Testing Report")
-    analysis_request = AnalysisRequestFactory(report=report)
     publish_request = ReportPublishRequestFactory(report=report)
 
     url = publish_request.get_absolute_url()
@@ -129,9 +128,9 @@ def test_reportpublishrequest_get_absolute_url():
     assert url == reverse(
         "interactive:report-publish-request-update",
         kwargs={
-            "org_slug": analysis_request.project.org.slug,
-            "project_slug": analysis_request.project.slug,
-            "slug": analysis_request.slug,
+            "org_slug": report.project.org.slug,
+            "project_slug": report.project.slug,
+            "slug": report.slug,
             "pk": publish_request.pk,
         },
     )

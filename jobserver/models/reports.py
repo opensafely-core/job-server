@@ -8,6 +8,11 @@ from .outputs import ReleaseFilePublishRequest
 
 
 class Report(models.Model):
+    project = models.ForeignKey(
+        "Project",
+        on_delete=models.PROTECT,
+        related_name="reports",
+    )
     release_file = models.ForeignKey(
         "ReleaseFile",
         on_delete=models.PROTECT,
@@ -223,9 +228,9 @@ class ReportPublishRequest(models.Model):
         return reverse(
             "interactive:report-publish-request-update",
             kwargs={
-                "org_slug": self.report.analysis_request.project.org.slug,
-                "project_slug": self.report.analysis_request.project.slug,
-                "slug": self.report.analysis_request.slug,
+                "org_slug": self.report.project.org.slug,
+                "project_slug": self.report.project.slug,
+                "slug": self.report.slug,
                 "pk": self.pk,
             },
         )
