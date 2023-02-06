@@ -1,5 +1,4 @@
 import { Outlet, useLocation, useNavigate } from "react-router-dom";
-import EventsAfter from "./components/Diagrams/EventsAfter";
 import { usePageData } from "./stores";
 import { classNames, getCodelistPageData } from "./utils";
 
