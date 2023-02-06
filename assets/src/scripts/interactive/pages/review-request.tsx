@@ -1,5 +1,6 @@
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
+import { AlertPage } from "../components/Alert";
 import { Button } from "../components/Button";
 import { lines as multiLines } from "../components/CodelistBuilder";
 import ReviewLineItem from "../components/ReviewLineItem";
@@ -27,6 +28,7 @@ function ReviewRequest() {
 
   return (
     <>
+      <AlertPage />
       <h1 className="text-4xl font-bold mb-6">Review your request</h1>
       <div className="mt-5 border-t border-gray-200">
         <dl className="divide-y divide-gray-200">

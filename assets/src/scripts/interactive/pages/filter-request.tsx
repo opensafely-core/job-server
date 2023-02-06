@@ -1,6 +1,7 @@
 import { Form, Formik } from "formik";
 import { useNavigate } from "react-router-dom";
 import * as Yup from "yup";
+import { AlertForm } from "../components/Alert";
 import { Button } from "../components/Button";
 import Checkbox from "../components/Checkbox";
 import Fieldset from "../components/Fieldset";
@@ -50,6 +51,7 @@ function FilterRequest() {
     >
       {({ errors, isValid, touched }) => (
         <Form className="flex flex-col gap-y-8">
+          <AlertForm />
           <h1 className="text-4xl font-bold">Set report filters</h1>
 
           <Fieldset legend={filterPopulation.label}>

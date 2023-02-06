@@ -1,4 +1,5 @@
 import { useNavigate } from "react-router-dom";
+import { AlertPage } from "../components/Alert";
 import { Button } from "../components/Button";
 import EventsAfter from "../components/Diagrams/EventsAfter";
 import EventsBefore from "../components/Diagrams/EventsBefore";
@@ -37,6 +38,7 @@ function PreviewRequest() {
 
   return (
     <>
+      <AlertPage />
       <h1 className="text-4xl font-bold mb-8">Preview your request</h1>
 
       {isEventsBefore() ? (

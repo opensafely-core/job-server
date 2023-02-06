@@ -1,6 +1,7 @@
 import { Form, Formik } from "formik";
 import { useNavigate } from "react-router-dom";
 import * as Yup from "yup";
+import { AlertForm } from "../components/Alert";
 import { Button } from "../components/Button";
 import CodelistBuilder from "../components/CodelistBuilder";
 import { builderTimeEvents, builderTimeScales } from "../data/form-fields";
@@ -71,6 +72,7 @@ function QueryBuilder() {
     >
       {({ isValid }) => (
         <Form>
+          <AlertForm />
           <h2 className="text-3xl font-bold mb-3">Report request</h2>
           <CodelistBuilder />
           <Button className="mt-6" disabled={!isValid} type="submit">

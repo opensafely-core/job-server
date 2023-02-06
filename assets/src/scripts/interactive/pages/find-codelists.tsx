@@ -2,6 +2,7 @@ import { Form, Formik } from "formik";
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import * as Yup from "yup";
+import { AlertForm } from "../components/Alert";
 import { Button } from "../components/Button";
 import CodelistButton from "../components/Button/CodelistButton";
 import CodelistSearch from "../components/CodelistSearch";
@@ -68,6 +69,7 @@ function FindCodelists() {
     >
       {({ errors, isValid, touched }) => (
         <Form className="flex flex-col gap-y-8">
+          <AlertForm />
           <CodelistSearch id={0} label="Select a codelist" />
 
           {secondCodelist ? (
