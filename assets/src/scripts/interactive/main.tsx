@@ -3,6 +3,7 @@ import { createRoot } from "react-dom/client";
 import { createBrowserRouter, RouterProvider } from "react-router-dom";
 import App from "./App";
 import QueryBuilder, { QueryBuilderLoader } from "./pages/build-query";
+import ErrorPage from "./pages/error-page";
 import FilterRequest, { FilterRequestLoader } from "./pages/filter-request";
 import FindCodelists from "./pages/find-codelists";
 import PreviewRequest, { PreviewRequestLoader } from "./pages/preview-request";
@@ -29,6 +30,7 @@ const router = createBrowserRouter(
           <App events={dataset.events} medications={dataset.medications} />
         </>
       ),
+      errorElement: <ErrorPage />,
       children: [
         {
           index: true,
