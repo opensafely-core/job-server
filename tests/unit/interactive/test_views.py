@@ -1,3 +1,5 @@
+import json
+
 import pytest
 from django.core.exceptions import PermissionDenied
 
@@ -33,7 +35,7 @@ def test_analysisrequestcreate_get_success(rf):
     assert response.context_data["project"] == project
 
 
-def test_analysisrequestcreate_post_success(rf):
+def test_analysisrequestcreate_post_success_with_one_codelists(rf):
     BackendFactory(slug="tpp")
     project = ProjectFactory()
     user = UserFactory()
@@ -42,16 +44,61 @@ def test_analysisrequestcreate_post_success(rf):
     ProjectMembershipFactory(project=project, user=user, roles=[InteractiveReporter])
 
     data = {
-        "codelist_a": "bennett/medication-codelist/medication123",
-        "codelist_b": "bennett/event-codelist/event123",
-        "frequency": "test",
-        "time_value": "test",
-        "time_scale": "test",
-        "time_event": "test",
-        "filter_population": "test",
-        "demographics": "age",
+        "frequency": "monthly",
+        "codelistA": {
+            "label": "Event Codelist",
+            "organisation": "NHSD Primary Care Domain Refsets",
+            "value": "bennett/event-codelist/event123",
+            "type": "event",
+        },
+        "timeValue": "12",
+        "timeScale": "months",
+        "timeEvent": "before",
+        "filterPopulation": "adults",
+        "demographics": ["age"],
     }
-    request = rf.post("/", data)
+    request = rf.post("/", data=json.dumps(data), content_type="appliation/json")
+    request.user = user
+
+    response = AnalysisRequestCreate.as_view(
+        get_opencodelists_api=FakeOpenCodelistsAPI
+    )(request, org_slug=project.org.slug, project_slug=project.slug)
+
+    assert response.status_code == 302, response.context_data["form"].errors
+
+    analysis_request = AnalysisRequest.objects.first()
+    assert response.url == analysis_request.get_absolute_url()
+
+
+def test_analysisrequestcreate_post_success_with_two_codelists(rf):
+    BackendFactory(slug="tpp")
+    project = ProjectFactory()
+    user = UserFactory()
+    WorkspaceFactory(project=project, name=f"{project.slug}-interactive")
+
+    ProjectMembershipFactory(project=project, user=user, roles=[InteractiveReporter])
+
+    data = {
+        "frequency": "monthly",
+        "codelistA": {
+            "label": "Event Codelist",
+            "organisation": "NHSD Primary Care Domain Refsets",
+            "value": "bennett/event-codelist/event123",
+            "type": "event",
+        },
+        "codelistB": {
+            "label": "Medication Codelist",
+            "organisation": "NHSD Primary Care Domain Refsets",
+            "value": "bennett/medication-codelist/medication123",
+            "type": "medication",
+        },
+        "timeValue": "12",
+        "timeScale": "months",
+        "timeEvent": "before",
+        "filterPopulation": "adults",
+        "demographics": ["age"],
+    }
+    request = rf.post("/", data=json.dumps(data), content_type="appliation/json")
     request.user = user
 
     response = AnalysisRequestCreate.as_view(

@@ -1,3 +1,5 @@
+import json
+
 from django.core.exceptions import PermissionDenied
 from django.shortcuts import get_object_or_404, redirect
 from django.views.generic import DetailView, FormView
@@ -82,10 +84,38 @@ class AnalysisRequestCreate(FormView):
         }
 
     def get_form_kwargs(self):
-        return super().get_form_kwargs() | {
-            "events": self.events,
-            "medications": self.medications,
+        codelists = self.events + self.medications
+
+        if not self.request.method == "POST":
+            return {"codelists": codelists}
+
+        # we're posting the form data as JSON so we need to pull that from the
+        # request body
+        raw = json.loads(self.request.body)
+
+        # translate the incoming data into something the form can validate
+        codelist_2 = {}
+        if "codelistB" in raw:
+            codelist_2 = {
+                "codelist_2_label": raw["codelistB"]["label"],
+                "codelist_2_slug": raw["codelistB"]["value"],
+                "codelist_2_type": raw["codelistB"]["type"],
+            }
+
+        data = {
+            "codelist_1_label": raw["codelistA"]["label"],
+            "codelist_1_slug": raw["codelistA"]["value"],
+            "codelist_1_type": raw["codelistA"]["type"],
+            **codelist_2,
+            "demographics": raw["demographics"],
+            "filter_population": raw["filterPopulation"],
+            "frequency": raw["frequency"],
+            "time_event": raw["timeEvent"],
+            "time_scale": raw["timeScale"],
+            "time_value": raw["timeValue"],
         }
+
+        return {"codelists": codelists, "data": data}
 
 
 class AnalysisRequestDetail(DetailView):
