@@ -49,8 +49,8 @@ function FilterRequest() {
       validationSchema={validationSchema}
     >
       {({ errors, isValid, touched }) => (
-        <Form>
-          <h1 className="text-4xl font-bold mb-4">Set report filters</h1>
+        <Form className="flex flex-col gap-y-8">
+          <h1 className="text-4xl font-bold">Set report filters</h1>
 
           <Fieldset legend={filterPopulation.label}>
             {filterPopulation.items.map((item) => (
