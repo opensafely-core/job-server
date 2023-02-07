@@ -2,13 +2,25 @@ import { Outlet, useLocation, useNavigate } from "react-router-dom";
 import { usePageData } from "./stores";
 import { classNames, getCodelistPageData } from "./utils";
 
-function App({ events, medications }: { events: string; medications: string }) {
+function App({
+  basePath,
+  csrfToken,
+  events,
+  medications,
+}: {
+  basePath: string;
+  csrfToken: string;
+  events: string;
+  medications: string;
+}) {
   const navigate = useNavigate();
   const location = useLocation();
   const isFirstPage = location.pathname === "/";
   const isLastPage = location.pathname === "/success";
 
   usePageData.setState({
+    basePath,
+    csrfToken,
     pageData: [
       {
         name: "Event",

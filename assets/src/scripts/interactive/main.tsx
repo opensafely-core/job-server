@@ -20,6 +20,9 @@ const { dataset } = element;
 if (!dataset.events || !dataset.medications)
   throw new Error("Codelist data not provided");
 
+if (!dataset.basePath) throw new Error("Basename not provided");
+if (!dataset.csrfToken) throw new Error("CSRF Token not provided");
+
 const router = createBrowserRouter(
   [
     {
@@ -27,7 +30,12 @@ const router = createBrowserRouter(
       element: (
         <>
           <ScrollToTop />
-          <App events={dataset.events} medications={dataset.medications} />
+          <App
+            basePath={dataset.basePath}
+            csrfToken={dataset.csrfToken}
+            events={dataset.events}
+            medications={dataset.medications}
+          />
         </>
       ),
       errorElement: <ErrorPage />,
@@ -69,7 +77,7 @@ const router = createBrowserRouter(
       ],
     },
   ],
-  { basename: element.dataset.basePath }
+  { basename: dataset.basePath }
 );
 
 root.render(
