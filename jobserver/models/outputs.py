@@ -1,6 +1,6 @@
 from django.conf import settings
 from django.core.serializers.json import DjangoJSONEncoder
-from django.db import models
+from django.db import models, transaction
 from django.db.models import Q
 from django.urls import reverse
 from django.utils import timezone
@@ -261,6 +261,93 @@ class ReleaseFile(models.Model):
     def is_deleted(self):
         """Has the file on disk been deleted?"""
         return self.deleted_at is not None
+
+
+class ReleaseFilePublishRequest(models.Model):
+    files = models.ManyToManyField(
+        "ReleaseFile",
+        related_name="publish_requests",
+    )
+    snapshot = models.OneToOneField(
+        "Snapshot",
+        on_delete=models.SET_NULL,
+        related_name="publish_requests",
+        null=True,
+    )
+    workspace = models.ForeignKey(
+        "Workspace",
+        on_delete=models.PROTECT,
+        related_name="publish_requests",
+    )
+
+    approved_at = models.DateTimeField(null=True)
+    approved_by = models.ForeignKey(
+        "jobserver.User",
+        on_delete=models.PROTECT,
+        related_name="release_file_publish_requests_approved",
+        null=True,
+    )
+
+    created_at = models.DateTimeField(default=timezone.now)
+    created_by = models.ForeignKey(
+        "User",
+        on_delete=models.CASCADE,
+        related_name="release_file_publish_requests",
+    )
+
+    class Meta:
+        constraints = [
+            models.CheckConstraint(
+                check=(
+                    Q(
+                        approved_at__isnull=True,
+                        approved_by__isnull=True,
+                    )
+                    | (
+                        Q(
+                            approved_at__isnull=False,
+                            approved_by__isnull=False,
+                        )
+                    )
+                ),
+                name="%(app_label)s_%(class)s_both_approved_at_and_approved_by_set",
+            ),
+            models.CheckConstraint(
+                check=(
+                    Q(
+                        created_at__isnull=True,
+                        created_by__isnull=True,
+                    )
+                    | (
+                        Q(
+                            created_at__isnull=False,
+                            created_by__isnull=False,
+                        )
+                    )
+                ),
+                name="%(app_label)s_%(class)s_both_created_at_and_created_by_set",
+            ),
+        ]
+
+    @transaction.atomic()
+    def approve(self, *, user, now=None):
+        if now is None:
+            now = timezone.now()
+
+        snapshot = Snapshot.objects.create(
+            workspace=self.workspace,
+            created_by=user,
+            published_at=now,
+            published_by=user,
+        )
+        snapshot.files.add(*self.files.all())
+
+        self.approved_at = now
+        self.approved_by = user
+        self.snapshot = snapshot
+        self.save(update_fields=["approved_at", "approved_by", "snapshot"])
+
+        return snapshot
 
 
 class ReleaseFileReview(models.Model):

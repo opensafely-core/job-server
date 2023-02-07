@@ -10,8 +10,14 @@ from .core import (
     User,
     Workspace,
 )
-from .outputs import Release, ReleaseFile, ReleaseFileReview, Snapshot
-from .reports import Report
+from .outputs import (
+    Release,
+    ReleaseFile,
+    ReleaseFilePublishRequest,
+    ReleaseFileReview,
+    Snapshot,
+)
+from .reports import Report, ReportPublishRequest
 from .stats import Stats
 
 
@@ -26,9 +32,11 @@ __all__ = [
     "ProjectMembership",
     "Release",
     "ReleaseFile",
+    "ReleaseFilePublishRequest",
     "ReleaseFileReview",
     "Repo",
     "Report",
+    "ReportPublishRequest",
     "Snapshot",
     "Stats",
     "User",

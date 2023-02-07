@@ -6,6 +6,7 @@ from ...factories import (
     AnalysisRequestFactory,
     ReleaseFileFactory,
     ReportFactory,
+    ReportPublishRequestFactory,
     UserFactory,
 )
 
@@ -42,6 +43,21 @@ def test_analysisrequest_get_codelist_url():
     )
 
 
+def test_analysisrequest_get_publish_url():
+    analysis_request = AnalysisRequestFactory()
+
+    url = analysis_request.get_publish_url()
+
+    assert url == reverse(
+        "interactive:report-publish-request-create",
+        kwargs={
+            "org_slug": analysis_request.project.org.slug,
+            "project_slug": analysis_request.project.slug,
+            "slug": analysis_request.slug,
+        },
+    )
+
+
 def test_analysisrequest_get_stuff_url():
     analysis_request = AnalysisRequestFactory()
 
@@ -50,6 +66,27 @@ def test_analysisrequest_get_stuff_url():
     assert url == reverse(
         "staff:analysis-request-detail", kwargs={"slug": analysis_request.slug}
     )
+
+
+def test_analysisrequest_publish_success():
+    report = ReportFactory()
+    publish_request = ReportPublishRequestFactory(report=report)
+    analysis_request = AnalysisRequestFactory(report=report)
+
+    assert analysis_request.publish_request == publish_request
+
+
+def test_analysisrequest_publish_without_report():
+    analysis_request = AnalysisRequestFactory()
+
+    assert analysis_request.publish_request is None
+
+
+def test_analysisrequest_publish_without_report_publish_request():
+    report = ReportFactory()
+    analysis_request = AnalysisRequestFactory(report=report)
+
+    assert analysis_request.publish_request is None
 
 
 def test_analysisrequest_str():

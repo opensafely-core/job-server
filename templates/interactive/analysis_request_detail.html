@@ -25,6 +25,15 @@
   <h1 class="text-3xl tracking-tight break-words sm:text-4xl font-bold text-slate-900">
     Analysis for {{ analysis_request.project.name }}
   </h1>
+
+  {% if not object.publish_request %}
+  {% #button type="link" href=analysis_request.get_publish_url variant="success" %}
+    Request report is published
+  {% /button %}
+  {% else %}
+  <p>has publish request, {% link href=object.publish_request.get_absolute_url text="View" %}</p>
+  {% endif %}
+
 </div>
 
 <div>

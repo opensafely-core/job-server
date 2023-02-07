@@ -9,6 +9,7 @@ from .....factories import (
     JobFactory,
     JobRequestFactory,
     ProjectFactory,
+    ReleaseFactory,
     ReleaseFileFactory,
     UserFactory,
     WorkspaceFactory,
@@ -18,7 +19,8 @@ from .....factories import (
 def test_projects_success(rf, core_developer):
     project = ProjectFactory()
     workspace = WorkspaceFactory(project=project)
-    ReleaseFileFactory.create_batch(15, workspace=workspace)
+    release = ReleaseFactory(workspace=workspace)
+    ReleaseFileFactory.create_batch(15, release=release, workspace=workspace)
 
     job_request1 = JobRequestFactory(workspace=workspace)
     JobFactory(
@@ -36,7 +38,7 @@ def test_projects_success(rf, core_developer):
 
     assert response.status_code == 200
 
-    assert len(response.context_data["projects"])
+    assert len(response.context_data["projects"]) == 1
 
     project = response.context_data["projects"][0]
     assert project["date_first_run"] == datetime(

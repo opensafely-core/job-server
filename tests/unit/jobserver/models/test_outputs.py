@@ -4,13 +4,17 @@ from django.db import IntegrityError
 from django.urls import reverse
 from django.utils import timezone
 
+from jobserver.utils import set_from_qs
 from tests.factories import (
     ReleaseFactory,
     ReleaseFileFactory,
+    ReleaseFilePublishRequestFactory,
     ReleaseFileReviewFactory,
     SnapshotFactory,
     UserFactory,
+    WorkspaceFactory,
 )
+from tests.utils import minutes_ago
 
 
 @pytest.mark.parametrize("field", ["created_at", "created_by"])
@@ -189,6 +193,41 @@ def test_releasefile_format():
     assert f"{rfile:Kb}" == "3,276.8Kb"
     assert f"{rfile:Mb}" == "3.2Mb"
     assert f"{rfile}".startswith("ReleaseFile object")
+
+
+def test_releasefilepublishrequest_approve_configured_now():
+    user = UserFactory()
+    workspace = WorkspaceFactory()
+
+    request = ReleaseFilePublishRequestFactory(workspace=workspace)
+    request.files.add(*ReleaseFileFactory.create_batch(3, workspace=workspace))
+
+    dt = minutes_ago(timezone.now(), 3)
+
+    snapshot = request.approve(user=user, now=dt)
+
+    request.refresh_from_db()
+    assert request.approved_at == dt
+    assert snapshot.published_at == dt
+
+
+def test_releasefilepublishrequest_approve_default_now(freezer):
+    user = UserFactory()
+    workspace = WorkspaceFactory()
+
+    request = ReleaseFilePublishRequestFactory(workspace=workspace)
+    request.files.add(*ReleaseFileFactory.create_batch(3, workspace=workspace))
+
+    snapshot = request.approve(user=user)
+
+    assert set_from_qs(snapshot.files.all()) == set_from_qs(request.files.all())
+    assert snapshot.created_by == user
+    assert snapshot.published_at == timezone.now()
+    assert snapshot.published_by == user
+
+    request.refresh_from_db()
+    assert request.approved_at == timezone.now()
+    assert request.approved_by == user
 
 
 @pytest.mark.parametrize("field", ["created_at", "created_by"])

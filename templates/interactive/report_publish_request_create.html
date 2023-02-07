@@ -1,0 +1,41 @@
+{% extends "base-tw.html" %}
+
+{% block metatitle %}Request the publication of report for the analysis: {{ analysis_request.title }} | OpenSAFELY Jobs{% endblock metatitle %}
+
+{% block breadcrumbs %}
+  {% url "home" as home_url %}
+
+  {% #breadcrumbs %}
+    {% breadcrumb title="Home" url=home_url %}
+    {% breadcrumb title=analysis_request.project.org.name url=analysis_request.project.org.get_absolute_url location="Organisation" %}
+    {% breadcrumb title=analysis_request.project.name url=analysis_request.project.get_absolute_url location="Project" %}
+    {% breadcrumb title=analysis_request.title url=analysis_request.get_absolute_url location="Analysis" %}
+    {% breadcrumb title="Publish analysis report" active=True %}
+  {% /breadcrumbs %}
+{% endblock breadcrumbs %}
+
+{% block content %}
+<div class="mb-5">
+  <h1 class="text-3xl tracking-tight break-words sm:text-4xl font-bold text-slate-900">
+    Request report is published
+  </h1>
+</div>
+
+<div>
+  {% if analysis_request.publish_request %}
+  <p>
+    request already for this AR & Report,
+    <a href="{{ analysis_request.publish_request.get_absolute_url }}">View</a>
+  </p>
+  {% else %}
+  <form method="POST">
+    {% csrf_token %}
+
+    <p>form details go here</p>
+
+    {% #button type="submit" variant="success" %}Submit{% /button %}
+  </form>
+  {% endif %}
+
+</div>
+{% endblock %}

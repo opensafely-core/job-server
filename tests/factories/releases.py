@@ -2,7 +2,13 @@ from datetime import timezone
 
 import factory
 
-from jobserver.models import Release, ReleaseFile, ReleaseFileReview, Snapshot
+from jobserver.models import (
+    Release,
+    ReleaseFile,
+    ReleaseFilePublishRequest,
+    ReleaseFileReview,
+    Snapshot,
+)
 
 
 class ReleaseFactory(factory.django.DjangoModelFactory):
@@ -26,6 +32,14 @@ class ReleaseFileFactory(factory.django.DjangoModelFactory):
 
     mtime = factory.Faker("date_time", tzinfo=timezone.utc)
     size = 7
+
+
+class ReleaseFilePublishRequestFactory(factory.django.DjangoModelFactory):
+    class Meta:
+        model = ReleaseFilePublishRequest
+
+    created_by = factory.SubFactory("tests.factories.UserFactory")
+    workspace = factory.SubFactory("tests.factories.WorkspaceFactory")
 
 
 class ReleaseFileReviewFactory(factory.django.DjangoModelFactory):

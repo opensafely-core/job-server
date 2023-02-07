@@ -25,10 +25,10 @@ class AnalysisRequest(models.Model):
         on_delete=models.PROTECT,
         related_name="analysis_requests",
     )
-    report = models.ForeignKey(
+    report = models.OneToOneField(
         "jobserver.Report",
         on_delete=models.SET_NULL,
-        related_name="analysis_requests",
+        related_name="analysis_request",
         null=True,
     )
 
@@ -85,8 +85,36 @@ class AnalysisRequest(models.Model):
         oc = furl("https://www.opencodelists.org/codelist/")
         return (oc / self.codelist_slug).url
 
+    def get_publish_url(self):
+        return reverse(
+            "interactive:report-publish-request-create",
+            kwargs={
+                "org_slug": self.project.org.slug,
+                "project_slug": self.project.slug,
+                "slug": self.slug,
+            },
+        )
+
     def get_staff_url(self):
         return reverse("staff:analysis-request-detail", kwargs={"slug": self.slug})
+
+    @property
+    def publish_request(self):
+        """
+        Return the publish request tied to this AnalysisRequest's report
+
+
+        We don't want to relate an AnalysisRequest to a ReportPublishRequest
+        since that will couple it to Interactive, when a ReportPublishRequest
+        is intended to be a generic object for reports.  However, an AnalysisRequest
+        has a nullable relation to Report so we can use that.
+        """
+        if not self.report:
+            return None
+
+        # use getattr here because we're using a OneToOneField and the reverse
+        # relation instance variable isn't guaranteed.
+        return getattr(self.report, "publish_request", None)
 
     @property
     def report_content(self):

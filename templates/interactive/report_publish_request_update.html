@@ -1,0 +1,51 @@
+{% extends "base-tw.html" %}
+
+{% block metatitle %}View report publishing request | OpenSAFELY Jobs{% endblock metatitle %}
+
+{% block breadcrumbs %}
+  {% url "home" as home_url %}
+
+  {% #breadcrumbs %}
+    {% breadcrumb title="Home" url=home_url %}
+    {% breadcrumb title=object.analysis_request.project.org.name url=object.analysis_request.project.org.get_absolute_url location="Organisation" %}
+    {% breadcrumb title=object.analysis_request.project.name url=object.analysis_request.project.get_absolute_url location="Project" %}
+    {% breadcrumb title=object.analysis_request.title url=object.analysis_request.get_absolute_url location="Analysis" %}
+    {% breadcrumb title="Publish report request" active=True %}
+  {% /breadcrumbs %}
+{% endblock breadcrumbs %}
+
+{% block content %}
+<div class="mb-5">
+  <h1 class="text-3xl tracking-tight break-words sm:text-4xl font-bold text-slate-900">
+    Publish report request {{ object.pk }}
+  </h1>
+</div>
+
+<div>
+  <form method="POST">
+    {% csrf_token %}
+
+    {% #description_item title="Created by" %}
+    {{ object.created_by.name }}
+    {% /description_item %}
+
+    {% #description_item title="Analysis request (with report)" %}
+    {% link href=object.analysis_request.get_absolute_url text=object.analysis_request.title %}</p>
+    {% /description_item %}
+
+    {% #description_item title="Report release file" %}
+    {% link href=object.analysis_request.report.release_file.get_absolute_url text="View in outputs-viewer" %}</p>
+    {% /description_item %}
+
+    {% #description_item title="Approved at" %}
+    {{ object.approved_at|default:"-" }}
+    {% /description_item %}
+
+    {% #description_item title="Approved by" %}
+    {{ object.approved_by.name|default:"-" }}
+    {% /description_item %}
+
+    {% #button type="submit" variant="success" disabled=object.approved_at %}Approve{% /button %}
+  </form>
+</div>
+{% endblock %}
