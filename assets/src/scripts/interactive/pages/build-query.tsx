@@ -1,6 +1,7 @@
 import { Form, Formik } from "formik";
 import { useNavigate } from "react-router-dom";
 import * as Yup from "yup";
+import { AlertForm } from "../components/Alert";
 import { Button } from "../components/Button";
 import CodelistBuilder from "../components/CodelistBuilder";
 import { builderTimeEvents, builderTimeScales } from "../data/form-fields";
@@ -22,7 +23,25 @@ function QueryBuilder() {
   const validationSchema = Yup.object().shape({
     codelistA: codelistSchema(pageData),
     codelistB: codelistSchema(pageData),
-    timeValue: Yup.number().required(),
+    timeValue: Yup.number()
+      .positive()
+      .min(1)
+      .max(260)
+      .required()
+      .test(
+        "fiveYears",
+        "Time scale cannot be longer than 5 years",
+        (value, testContext) => {
+          if (value === undefined || Number.isNaN(value)) return false;
+
+          const { timeScale } = testContext.parent;
+          if (timeScale === "weeks" && value > 260) return false;
+          if (timeScale === "months" && value > 60) return false;
+          if (timeScale === "years" && value > 5) return false;
+
+          return true;
+        }
+      ),
     timeScale: Yup.string()
       .oneOf(builderTimeScales.map((event) => event.value))
       .required(),
@@ -53,6 +72,7 @@ function QueryBuilder() {
     >
       {({ isValid }) => (
         <Form>
+          <AlertForm />
           <h2 className="text-3xl font-bold mb-3">Report request</h2>
           <CodelistBuilder />
           <Button className="mt-6" disabled={!isValid} type="submit">

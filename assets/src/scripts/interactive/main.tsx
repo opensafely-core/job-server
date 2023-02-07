@@ -3,12 +3,14 @@ import { createRoot } from "react-dom/client";
 import { createBrowserRouter, RouterProvider } from "react-router-dom";
 import App from "./App";
 import QueryBuilder, { QueryBuilderLoader } from "./pages/build-query";
+import ErrorPage from "./pages/error-page";
 import FilterRequest, { FilterRequestLoader } from "./pages/filter-request";
 import FindCodelists from "./pages/find-codelists";
 import PreviewRequest, { PreviewRequestLoader } from "./pages/preview-request";
 import ReviewQuery, { ReviewQueryLoader } from "./pages/review-query";
 import ReviewRequest, { ReviewRequestLoader } from "./pages/review-request";
 import Success, { SuccessLoader } from "./pages/success";
+import ScrollToTop from "./utils/scrollToTop";
 
 const element: HTMLElement | null = document.getElementById("osi");
 if (!element) throw new Error("Failed to find the root element");
@@ -23,8 +25,12 @@ const router = createBrowserRouter(
     {
       path: "/",
       element: (
-        <App events={dataset.events} medications={dataset.medications} />
+        <>
+          <ScrollToTop />
+          <App events={dataset.events} medications={dataset.medications} />
+        </>
       ),
+      errorElement: <ErrorPage />,
       children: [
         {
           index: true,

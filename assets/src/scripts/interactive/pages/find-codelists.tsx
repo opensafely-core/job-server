@@ -2,10 +2,12 @@ import { Form, Formik } from "formik";
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import * as Yup from "yup";
+import { AlertForm } from "../components/Alert";
 import { Button } from "../components/Button";
 import CodelistButton from "../components/Button/CodelistButton";
 import CodelistSearch from "../components/CodelistSearch";
 import Fieldset from "../components/Fieldset";
+import HintText from "../components/HintText";
 import InputError from "../components/InputError";
 import RadioButton from "../components/RadioButton";
 import { frequency } from "../data/form-fields";
@@ -66,7 +68,8 @@ function FindCodelists() {
       validationSchema={validationSchema}
     >
       {({ errors, isValid, touched }) => (
-        <Form>
+        <Form className="flex flex-col gap-y-8">
+          <AlertForm />
           <CodelistSearch id={0} label="Select a codelist" />
 
           {secondCodelist ? (
@@ -78,7 +81,15 @@ function FindCodelists() {
             setSecondCodelist={setSecondCodelist}
           />
 
-          <Fieldset legend={frequency.label} name="frequency">
+          <Fieldset legend={frequency.label}>
+            <HintText>
+              <p>
+                This is how the data will be aggregated and shown on the report.
+              </p>
+              <p>
+                If you are unsure, select <strong>Monthly</strong>.
+              </p>
+            </HintText>
             {frequency.items.map((item) => (
               <RadioButton
                 key={item.value}
@@ -93,7 +104,7 @@ function FindCodelists() {
             ) : null}
           </Fieldset>
 
-          <Button className="mt-6" disabled={!isValid} type="submit">
+          <Button disabled={!isValid} type="submit">
             Next
           </Button>
         </Form>

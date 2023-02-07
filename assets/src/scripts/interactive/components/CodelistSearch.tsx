@@ -17,14 +17,13 @@ function CodelistSearch({ id, label }: { id: number; label: string }) {
     ) => void;
   } = useFormikContext();
   const formData: FormDataTypes = useFormStore((state) => state.formData);
-  const pageData = usePageData((state) => state.pageData);
+  const { pageData } = usePageData.getState();
   const [query, setQuery] = useState("");
   const codelistID = `codelist${id}`;
 
   return (
     <Tab.Group
       as="div"
-      className="mb-8"
       defaultIndex={pageData.findIndex(
         (group: CodelistGroup) =>
           group.id ===
@@ -36,7 +35,9 @@ function CodelistSearch({ id, label }: { id: number; label: string }) {
         setFieldValue(codelistID, {});
       }}
     >
-      <h2 className="text-2xl font-bold tracking-tight mb-1">{label} type</h2>
+      <h2 className="text-2xl font-bold tracking-tight mb-2 md:mb-1">
+        {label}
+      </h2>
       <TabList />
       <Tab.Panels>
         {pageData.map((codelistGroup) => (

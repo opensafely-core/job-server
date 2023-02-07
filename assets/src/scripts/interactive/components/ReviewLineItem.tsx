@@ -14,8 +14,8 @@ function ReviewLineItem({
 
   return (
     <div className="py-4 sm:grid sm:grid-cols-3 sm:gap-4 sm:py-5">
-      <dt className="text-sm font-medium text-gray-600">{title}</dt>
-      <dd className="mt-1 flex text-sm text-gray-900 sm:col-span-2 sm:mt-0">
+      <dt className="text-lg font-bold text-gray-700 md:text-base">{title}</dt>
+      <dd className="mt-1 flex text-gray-900 sm:col-span-2 sm:mt-0">
         <span className="flex-grow">{children}</span>
         <span className="ml-4 flex-shrink-0">
           <button

@@ -1,4 +1,5 @@
 import { useNavigate } from "react-router-dom";
+import { AlertPage } from "../components/Alert";
 import { Button } from "../components/Button";
 import { endDate } from "../data/form-fields";
 import { useFormStore } from "../stores";
@@ -23,6 +24,7 @@ function ReviewQuery() {
 
   return (
     <>
+      <AlertPage />
       <p className="max-w-prose text-xl leading-relaxed mb-4">
         {`${lines[0]} `}
         <a

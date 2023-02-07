@@ -1,6 +1,7 @@
 import { Form, Formik } from "formik";
 import { useNavigate } from "react-router-dom";
 import * as Yup from "yup";
+import { AlertForm } from "../components/Alert";
 import { Button } from "../components/Button";
 import Checkbox from "../components/Checkbox";
 import Fieldset from "../components/Fieldset";
@@ -49,10 +50,11 @@ function FilterRequest() {
       validationSchema={validationSchema}
     >
       {({ errors, isValid, touched }) => (
-        <Form>
-          <h1 className="text-4xl font-bold mb-4">Set report filters</h1>
+        <Form className="flex flex-col gap-y-8">
+          <AlertForm />
+          <h1 className="text-4xl font-bold">Set report filters</h1>
 
-          <Fieldset legend={filterPopulation.label} name="filterPopulation">
+          <Fieldset legend={filterPopulation.label}>
             {filterPopulation.items.map((item) => (
               <RadioButton
                 key={item.value}
@@ -67,7 +69,7 @@ function FilterRequest() {
             ) : null}
           </Fieldset>
 
-          <Fieldset legend={demographics.label} name="demographics">
+          <Fieldset legend={demographics.label}>
             {demographics.items.map((item) => (
               <Checkbox
                 key={item.value}
