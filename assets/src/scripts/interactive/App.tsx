@@ -12,12 +12,12 @@ function App({ events, medications }: { events: string; medications: string }) {
     pageData: [
       {
         name: "Event",
-        id: events,
+        id: "event",
         codelists: getCodelistPageData(events),
       },
       {
         name: "Medication",
-        id: medications,
+        id: "medication",
         codelists: getCodelistPageData(medications),
       },
     ],
