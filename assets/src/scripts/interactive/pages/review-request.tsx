@@ -5,9 +5,9 @@ import { Button } from "../components/Button";
 import { lines as multiLines } from "../components/CodelistBuilder";
 import ReviewLineItem from "../components/ReviewLineItem";
 import { demographics, endDate, filterPopulation } from "../data/form-fields";
-import { useFormStore } from "../stores";
+import { useFormStore, usePageData } from "../stores";
 import { FormDataTypes } from "../types";
-import { delay, requiredLoader } from "../utils";
+import { requiredLoader } from "../utils";
 import { lines as singleLines } from "./review-query";
 
 export const ReviewRequestLoader = () =>
@@ -16,14 +16,63 @@ export const ReviewRequestLoader = () =>
   });
 
 function ReviewRequest() {
-  const navigate = useNavigate();
+  const { basePath, csrfToken } = usePageData.getState();
   const formData: FormDataTypes = useFormStore((state) => state.formData);
   const [isSubmitting, setIsSubmitting] = useState(false);
 
+  const isSingleCodelist = !formData.codelistA && formData.codelist0?.label;
+  const isMultipleCodelists =
+    formData.codelist1?.label && formData.codelist0?.label;
+
+  const dataForSubmission = () => {
+    const { codelist0, codelist1, codelistA, codelistB, ...data } = formData;
+
+    if (isSingleCodelist) {
+      return {
+        codelistA: {
+          label: codelist0?.label,
+          type: codelist0?.type,
+          value: codelist0?.value,
+        },
+        ...data,
+      };
+    }
+
+    return {
+      ...data,
+      codelistA: {
+        label: codelistA?.label,
+        type: codelistA?.type,
+        value: codelistA?.value,
+      },
+      codelistB: {
+        label: codelistB?.label,
+        type: codelistB?.type,
+        value: codelistB?.value,
+      },
+    };
+  };
+
   const handleClick = async () => {
     setIsSubmitting(true);
-    await delay(1000);
-    navigate("/success");
+
+    const response = await fetch(`${basePath}publish`, {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+        "X-CSRFToken": csrfToken,
+      },
+      body: JSON.stringify(dataForSubmission()),
+    });
+
+    if (!response.ok) {
+      setIsSubmitting(false);
+      const message = `An error has occured: ${response.status}`;
+      throw new Error(message);
+    }
+
+    // What do we do with the response?
+    console.log({ response });
   };
 
   return (
@@ -32,16 +81,16 @@ function ReviewRequest() {
       <h1 className="text-4xl font-bold mb-6">Review your request</h1>
       <div className="mt-5 border-t border-gray-200">
         <dl className="divide-y divide-gray-200">
-          {!formData.codelist1 && formData.codelist0?.label ? (
-            <ReviewLineItem page="/build-query" title="Codelist">
-              {formData.codelist0.label}
+          {isSingleCodelist ? (
+            <ReviewLineItem page="/" title="Codelist">
+              {formData.codelist0?.label}
             </ReviewLineItem>
           ) : null}
 
-          {formData.codelist1?.label && formData.codelist0?.label ? (
+          {isMultipleCodelists ? (
             <ReviewLineItem page="/build-query" title="Codelists">
-              {formData.codelist0.label},<br />
-              {formData.codelist1.label}
+              {formData.codelist0?.label},<br />
+              {formData.codelist1?.label}
             </ReviewLineItem>
           ) : null}
 
