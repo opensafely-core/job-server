@@ -16,7 +16,7 @@ function addAlert() {
   });
 }
 
-function removeAlert() {
+export function removeAlert() {
   return window.removeEventListener("beforeunload", beforeUnloadListener, {
     capture: true,
   });

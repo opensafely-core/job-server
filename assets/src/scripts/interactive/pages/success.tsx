@@ -1,4 +1,5 @@
 import { useEffect } from "react";
+import { removeAlert } from "../components/Alert";
 import { useFormStore } from "../stores";
 import { requiredLoader } from "../utils";
 
@@ -11,6 +12,7 @@ function Success() {
   const uuid = crypto.randomUUID().split("-").slice(0, 1)[0];
 
   useEffect(() => {
+    removeAlert();
     useFormStore.setState({});
   }, []);
 
