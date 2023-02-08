@@ -7,7 +7,6 @@ import requests
 from django.conf import settings
 from django.core.management.base import BaseCommand
 
-from interactive.dates import END_DATE, START_DATE
 from interactive.models import AnalysisRequest
 from jobserver.models import Backend, User, Workspace
 
@@ -75,10 +74,6 @@ def submit_request(*, backend, user, workspace):
         project=workspace.project,
         created_by=user,
         title="get from form",
-        start_date=START_DATE,
-        end_date=END_DATE,
-        codelist_slug="get from form",
-        codelist_name="get from form",
     )
 
 
