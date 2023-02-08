@@ -3,8 +3,8 @@ import { wait } from "./wait";
 // Ignore double-clicks on submit buttons
 document
   .querySelectorAll(
-    `input[type="submit"]:not(.btn--ignore-double-click),
-    button[type="submit"]:not(.btn--ignore-double-click)`
+    `input[type="submit"]:not(.btn--allow-double-click),
+    button[type="submit"]:not(.btn--allow-double-click)`
   )
   .forEach((btn) => {
     btn.addEventListener("click", async (e) => {
