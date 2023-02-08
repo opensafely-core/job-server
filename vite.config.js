@@ -29,7 +29,9 @@ const config = {
   },
   clearScreen: false,
   plugins: [
-    react(),
+    react({
+      include: "**/*.tsx",
+    }),
     legacy({
       targets: ["chrome >= 81, not dead"],
     }),
