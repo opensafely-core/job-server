@@ -3,6 +3,7 @@ import { useNavigate } from "react-router-dom";
 import { AlertPage } from "../components/Alert";
 import { Button } from "../components/Button";
 import { lines as multiLines } from "../components/CodelistBuilder";
+import InputError from "../components/InputError";
 import ReviewLineItem from "../components/ReviewLineItem";
 import { demographics, endDate, filterPopulation } from "../data/form-fields";
 import { useFormStore, usePageData } from "../stores";
@@ -19,6 +20,7 @@ function ReviewRequest() {
   const { basePath, csrfToken } = usePageData.getState();
   const formData: FormDataTypes = useFormStore((state) => state.formData);
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [error, setError] = useState("");
 
   const isSingleCodelist = !formData.codelistA && formData.codelist0?.label;
   const isMultipleCodelists =
@@ -55,6 +57,7 @@ function ReviewRequest() {
 
   const handleClick = async () => {
     setIsSubmitting(true);
+    setError("");
 
     const response = await fetch(`${basePath}publish`, {
       method: "POST",
@@ -67,7 +70,8 @@ function ReviewRequest() {
 
     if (!response.ok) {
       setIsSubmitting(false);
-      const message = `An error has occured: ${response.status}`;
+      const message = `An error has occured: ${response.status} - ${response.statusText}`;
+      setError(message);
       throw new Error(message);
     }
 
@@ -158,6 +162,8 @@ function ReviewRequest() {
           </ReviewLineItem>
         </dl>
       </div>
+
+      {error ? <InputError>{error}</InputError> : null}
 
       <div className="flex flex-row w-full gap-2 mt-10">
         <Button disabled={isSubmitting} onClick={handleClick} type="submit">
