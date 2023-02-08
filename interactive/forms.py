@@ -1,36 +1,77 @@
+import functools
+
 from django import forms
 
 
-DEMOGRAPHICS = [
-    "age",
-    "ethnicity",
-    "imd",
-    "region",
-    "sex",
-]
+def list_to_choices(lst):
+    return [(item, item) for item in lst]
 
 
-def codelists_to_choices(codelists):
-    return [(c["slug"], c["name"]) for c in codelists]
+def field_to_choices(codelists, field):
+    return [(c[field], "") for c in codelists]
 
 
 class AnalysisRequestForm(forms.Form):
-    frequency = forms.CharField()
-    time_value = forms.CharField()
-    time_scale = forms.CharField()
-    time_event = forms.CharField()
-    filter_population = forms.CharField()
-    demographics = forms.MultipleChoiceField(choices=[(d, "") for d in DEMOGRAPHICS])
+    demographics = forms.MultipleChoiceField(
+        choices=list_to_choices(
+            [
+                "age",
+                "ethnicity",
+                "imd",
+                "region",
+                "sex",
+            ]
+        )
+    )
+    filter_population = forms.ChoiceField(
+        choices=list_to_choices(["all", "adults", "children"])
+    )
+    frequency = forms.ChoiceField(
+        choices=list_to_choices(["monthly", "quarterly", "yearly"])
+    )
+    time_event = forms.ChoiceField(choices=list_to_choices(["before", "after"]))
+    time_scale = forms.ChoiceField(
+        choices=list_to_choices(["weeks", "months", "years"])
+    )
+    time_value = forms.IntegerField(min_value=1)
 
     def __init__(self, *args, **kwargs):
-        events = kwargs.pop("events")
-        medications = kwargs.pop("medications")
+        codelists = kwargs.pop("codelists")
+        choices = functools.partial(field_to_choices, codelists)
 
         super().__init__(*args, **kwargs)
 
-        # combine both lists of codelists into a single set of choices.  Both
-        # codelist fields need to be able to accept a codelist from either list.
-        codelists = codelists_to_choices(events + medications)
+        self.fields["codelist_1_label"] = forms.ChoiceField(choices=choices("name"))
+        self.fields["codelist_1_slug"] = forms.ChoiceField(choices=choices("slug"))
 
-        self.fields["codelist_a"] = forms.ChoiceField(choices=codelists)
-        self.fields["codelist_b"] = forms.ChoiceField(choices=codelists)
+        self.has_codelist_2 = any(
+            [
+                "codelist_2_label" in kwargs.get("data", {}),
+                "codelist_2_slug" in kwargs.get("data", {}),
+            ]
+        )
+
+        if self.has_codelist_2:
+            self.fields["codelist_2_label"] = forms.ChoiceField(choices=choices("name"))
+            self.fields["codelist_2_slug"] = forms.ChoiceField(choices=choices("slug"))
+
+    def clean(self):
+        cleaned_data = super().clean()
+
+        if not self.has_codelist_2:
+            return
+
+        time_scale = cleaned_data["time_scale"]
+        time_value = cleaned_data["time_value"]
+
+        # time_value must be less than 5 years but it's paired with time_scale
+        # so we have to check it for each of the choices of that field.
+
+        if time_scale == "weeks" and time_value > 260:
+            raise forms.ValidationError("")
+
+        if time_scale == "months" and time_value > 60:
+            raise forms.ValidationError("")
+
+        if time_scale == "years" and time_value > 5:
+            raise forms.ValidationError("")
