@@ -20,16 +20,16 @@ function CodelistSearch({ id, label }: { id: number; label: string }) {
   const { pageData } = usePageData.getState();
   const [query, setQuery] = useState("");
   const codelistID = `codelist${id}`;
+  const defaultIndex = pageData.findIndex(
+    (group: CodelistGroup) =>
+      group.id ===
+      (formData?.[codelistID as keyof FormDataTypes] as SingleCodelist)?.type
+  );
 
   return (
     <Tab.Group
       as="div"
-      defaultIndex={pageData.findIndex(
-        (group: CodelistGroup) =>
-          group.id ===
-          (formData?.[codelistID as keyof FormDataTypes] as SingleCodelist)
-            ?.type
-      )}
+      defaultIndex={defaultIndex !== -1 ? defaultIndex : 0}
       onChange={() => {
         setQuery("");
         setFieldValue(codelistID, {});
