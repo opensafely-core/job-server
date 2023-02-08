@@ -1,5 +1,6 @@
 /* global $ */
 import "../styles/main.scss";
+import "./utils/double-click";
 
 if (document.location.hostname === "jobs.opensafely.org") {
   const script = document.createElement("script");
