@@ -1,24 +1,81 @@
 import json
 
+from attrs import asdict
+from django.conf import settings
 from django.core.exceptions import PermissionDenied
 from django.shortcuts import get_object_or_404, redirect
-from django.views.generic import DetailView, FormView
+from django.template.response import TemplateResponse
+from django.views.generic import DetailView, View
 
 from jobserver.authorization import has_permission
 from jobserver.models import Backend, Project
 from jobserver.reports import process_html
 from jobserver.utils import build_spa_base_url
 
-from .dates import END_DATE, START_DATE
+from . import Analysis, Codelist
 from .forms import AnalysisRequestForm
 from .models import AnalysisRequest
 from .opencodelists import _get_opencodelists_api
+from .submit import submit_analysis
 
 
-class AnalysisRequestCreate(FormView):
+def get(d, path, default=""):
+    """Return the value at a given path or the default"""
+    key, _, remainder = path.partition(".")
+
+    value = d.get(key, default)
+
+    if not isinstance(value, dict):
+        return value
+    else:
+        return get(value, remainder, default)
+
+
+class AnalysisRequestCreate(View):
     form_class = AnalysisRequestForm
     get_opencodelists_api = staticmethod(_get_opencodelists_api)
-    template_name = "interactive/analysis_request_create.html"
+
+    def build_analysis(self, *, form_data, project):
+        raw = json.loads(form_data)
+
+        # translate the incoming data into something the form can validate
+        codelist_2 = None
+        if "codelistB" in raw:
+            codelist_2 = Codelist(
+                **{
+                    "label": get(raw, "codelistB.label"),
+                    "slug": get(raw, "codelistB.value"),
+                    "type": get(raw, "codelistB.type"),
+                }
+            )
+
+        # add auth token if it's a real github repo
+        # TODO: needs a new token for this
+        repo = project.interactive_workspace.repo.url
+        if repo.startswith("https://github.com"):
+            repo = repo.replace(
+                "https://", f"https://interactive:{settings.GITHUB_WRITEABLE_TOKEN}@"
+            )  # pragma: no cover
+
+        return Analysis(
+            codelist_1=Codelist(
+                **{
+                    "label": get(raw, "codelistA.label"),
+                    "slug": get(raw, "codelistA.value"),
+                    "type": get(raw, "codelistA.type"),
+                }
+            ),
+            codelist_2=codelist_2,
+            created_by=self.request.user.email,
+            demographics=get(raw, "demographics"),
+            filter_population=get(raw, "filterPopulation"),
+            frequency=get(raw, "frequency"),
+            repo=repo,
+            time_event=get(raw, "timeEvent"),
+            time_scale=get(raw, "timeScale"),
+            time_value=get(raw, "timeValue"),
+            title=get(raw, "title"),
+        )
 
     def dispatch(self, request, *args, **kwargs):
         # even though an AnalysisRequest is a superset of a JobRequest, an
@@ -37,85 +94,87 @@ class AnalysisRequestCreate(FormView):
         ):
             raise PermissionDenied
 
-        api = self.get_opencodelists_api()
-        self.events = api.get_codelists("snomedct")
-        self.medications = api.get_codelists("dmd")
+        self.codelists_api = self.get_opencodelists_api()
+        self.events = self.codelists_api.get_codelists("snomedct")
+        self.medications = self.codelists_api.get_codelists("dmd")
 
         return super().dispatch(request, *args, **kwargs)
 
-    def form_valid(self, form):
-        # OSI v1 does the following:
-        # * copy the report template over, interpolating details into project.yaml
-        # * commit to repo
-        # * create a job request
-        # * create an issue
-        # * send confirmation email
+    def get(self, request, *args, **kwargs):
+        return self.render_to_response(request)
 
-        # create some required objects so we can create skeleton views as we
-        # build up the functionality of interactive
-        job_request = self.project.interactive_workspace.job_requests.create(
-            backend=Backend.objects.get(slug="tpp"),
-            created_by=self.request.user,
-            sha="",
-            project_definition="",
-            force_run_dependencies=True,
-            requested_actions=["run_all"],
+    def post(self, request, *args, **kwargs):
+        # we're posting the form data as JSON so we need to pull that from the
+        # request body
+        analysis = self.build_analysis(
+            form_data=self.request.body, project=self.project
         )
-        analysis_request = AnalysisRequest.objects.create(
-            job_request=job_request,
+
+        form = AnalysisRequestForm(
+            codelists=self.events + self.medications,
+            data=self.translate_for_form(asdict(analysis)),
+        )
+
+        if not form.is_valid():
+            return self.render_to_response(request, form=form)
+
+        analysis_request = submit_analysis(
+            analysis=analysis,
+            backend=Backend.objects.get(slug="tpp"),
+            creator=request.user,
             project=self.project,
-            created_by=self.request.user,
-            title="get from form",
-            start_date=START_DATE,
-            end_date=END_DATE,
-            codelist_slug="get from form",
-            codelist_name="get from form",
+            get_opencodelists_api=self.get_opencodelists_api,
         )
 
         return redirect(analysis_request)
 
-    def get_context_data(self, **kwargs):
+    def render_to_response(self, request, **context):
+        """
+        Render a response with the given request and context
+
+        This is a cut-down version of Django's render_to_response and
+        get_context_data methods.  We aren't using our form instace to
+        generate errors for the UI so we don't need to handle construction
+        of it in both GET/POST so all our context construction can also
+        happen here.
+        """
         base_path = build_spa_base_url(self.request.path, self.kwargs.get("path", ""))
-        return super().get_context_data(**kwargs) | {
+
+        context = context | {
             "base_path": base_path,
             "events": self.events,
             "medications": self.medications,
             "project": self.project,
         }
 
-    def get_form_kwargs(self):
-        codelists = self.events + self.medications
+        return TemplateResponse(
+            request,
+            template="interactive/analysis_request_create.html",
+            context=context,
+        )
 
-        if not self.request.method == "POST":
-            return {"codelists": codelists}
+    def translate_for_form(self, data):
+        """
+        Reshape the given data for validation by a Django Form
 
-        # we're posting the form data as JSON so we need to pull that from the
-        # request body
-        raw = json.loads(self.request.body)
+        Django forms are designed to work with form data but we're validating
+        a JSON structure, with sub-keys, etc in it which we need to flatten out
+        for the form.
+        """
 
-        # translate the incoming data into something the form can validate
-        codelist_2 = {}
-        if "codelistB" in raw:
-            codelist_2 = {
-                "codelist_2_label": raw["codelistB"]["label"],
-                "codelist_2_slug": raw["codelistB"]["value"],
-                "codelist_2_type": raw["codelistB"]["type"],
-            }
+        def flatten(key, data):
+            old = data.pop(key)
+            if old is None:
+                return data
 
-        data = {
-            "codelist_1_label": raw["codelistA"]["label"],
-            "codelist_1_slug": raw["codelistA"]["value"],
-            "codelist_1_type": raw["codelistA"]["type"],
-            **codelist_2,
-            "demographics": raw["demographics"],
-            "filter_population": raw["filterPopulation"],
-            "frequency": raw["frequency"],
-            "time_event": raw["timeEvent"],
-            "time_scale": raw["timeScale"],
-            "time_value": raw["timeValue"],
-        }
+            new = {f"{key}_{k}": v for k, v in old.items()}
 
-        return {"codelists": codelists, "data": data}
+            return data | new
+
+        data = flatten("codelist_1", data)
+        data = flatten("codelist_2", data)
+
+        return data
 
 
 class AnalysisRequestDetail(DetailView):

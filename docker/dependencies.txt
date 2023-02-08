@@ -1,4 +1,5 @@
 # list ubuntu packages needed in production, one per line
+git
 postgresql-client
 python3.11
 python3.11-distutils

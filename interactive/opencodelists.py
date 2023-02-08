@@ -57,6 +57,13 @@ class OpenCodelistsAPI:
                 "organisation": codelist["organisation"],
             }
 
+    def get_codelist(self, slug):
+        url = furl("https://www.opencodelists.org") / "codelist" / slug / "download.csv"
+        r = requests.get(url)
+        r.raise_for_status()
+
+        return r.text
+
     def get_codelists(self, coding_system):
         path_segments = [
             "codelist",

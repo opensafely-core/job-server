@@ -1,10 +1,11 @@
 import json
 
 import pytest
+from django.conf import settings
 from django.core.exceptions import PermissionDenied
 
 from interactive.models import AnalysisRequest
-from interactive.views import AnalysisRequestCreate, AnalysisRequestDetail
+from interactive.views import AnalysisRequestCreate, AnalysisRequestDetail, get
 from jobserver.authorization import InteractiveReporter
 
 from ...factories import (
@@ -35,15 +36,47 @@ def test_analysisrequestcreate_get_success(rf):
     assert response.context_data["project"] == project
 
 
-def test_analysisrequestcreate_post_success_with_one_codelists(rf):
+def test_analysisrequestcreate_post_failure(rf, interactive_repo):
     BackendFactory(slug="tpp")
     project = ProjectFactory()
     user = UserFactory()
-    WorkspaceFactory(project=project, name=f"{project.slug}-interactive")
+    WorkspaceFactory(
+        project=project, repo=interactive_repo, name=f"{project.slug}-interactive"
+    )
 
     ProjectMembershipFactory(project=project, user=user, roles=[InteractiveReporter])
 
     data = {
+        "timeScale": "months",
+    }
+    request = rf.post("/", data=json.dumps(data), content_type="appliation/json")
+    request.user = user
+
+    response = AnalysisRequestCreate.as_view(
+        get_opencodelists_api=FakeOpenCodelistsAPI
+    )(request, org_slug=project.org.slug, project_slug=project.slug)
+
+    assert response.status_code == 200, response.context_data["form"].errors
+
+    # TODO: check our error response here
+
+
+def test_analysisrequestcreate_post_success_with_one_codelist(
+    rf, monkeypatch, interactive_repo, template_repo
+):
+    monkeypatch.setattr(settings, "INTERACTIVE_TEMPLATE_REPO", str(template_repo))
+
+    BackendFactory(slug="tpp")
+    project = ProjectFactory()
+    user = UserFactory()
+    WorkspaceFactory(
+        project=project, repo=interactive_repo, name=f"{project.slug}-interactive"
+    )
+
+    ProjectMembershipFactory(project=project, user=user, roles=[InteractiveReporter])
+
+    data = {
+        "title": "Event Codelist",
         "frequency": "monthly",
         "codelistA": {
             "label": "Event Codelist",
@@ -70,15 +103,22 @@ def test_analysisrequestcreate_post_success_with_one_codelists(rf):
     assert response.url == analysis_request.get_absolute_url()
 
 
-def test_analysisrequestcreate_post_success_with_two_codelists(rf):
+def test_analysisrequestcreate_post_success_with_two_codelists(
+    rf, monkeypatch, interactive_repo, template_repo
+):
+    monkeypatch.setattr(settings, "INTERACTIVE_TEMPLATE_REPO", str(template_repo))
+
     BackendFactory(slug="tpp")
     project = ProjectFactory()
     user = UserFactory()
-    WorkspaceFactory(project=project, name=f"{project.slug}-interactive")
+    WorkspaceFactory(
+        project=project, repo=interactive_repo, name=f"{project.slug}-interactive"
+    )
 
     ProjectMembershipFactory(project=project, user=user, roles=[InteractiveReporter])
 
     data = {
+        "title": "Event Codelist & Medication Codelist",
         "frequency": "monthly",
         "codelistA": {
             "label": "Event Codelist",
@@ -190,3 +230,17 @@ def test_analysisrequestdetail_with_no_interactivereporter_role(rf):
             project_slug=analysis_request.project.slug,
             slug=analysis_request.slug,
         )
+
+
+def test_get():
+    data = {
+        "nested": {
+            "1": "1",
+        },
+        "non-string": ["abc"],
+    }
+
+    assert get(data, "nested.1") == "1"
+    assert get(data, "nested.a") == ""
+    assert get(data, "nested.a", default=None) is None
+    assert get(data, "non-string") == ["abc"]

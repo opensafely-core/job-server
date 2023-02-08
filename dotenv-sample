@@ -14,6 +14,12 @@ SECRET_KEY=12345
 # A GitHub API token, we use a PAT for this
 GITHUB_TOKEN=dummy
 
+# A GitHub API token, we use a PAT from our writeable user for this
+GITHUB_WRITEABLE_TOKEN=dummy
+
+# The interactive analytical code repo template repo
+INTERACTIVE_TEMPLATE_REPO=dummy
+
 # Get these from a GitHub Org admin, you want the Dev application credentials
 SOCIAL_AUTH_GITHUB_KEY=dummy
 SOCIAL_AUTH_GITHUB_SECRET=dummy

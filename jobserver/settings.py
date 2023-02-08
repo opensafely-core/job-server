@@ -359,6 +359,13 @@ initialise_sentry()
 # PROJECT SETTINGS
 DISABLE_CREATING_JOBS = env.bool("DISABLE_CREATING_JOBS", default=False)
 
+# GitHub token with write permissions
+# TODO: remove default when we're happy with setting up CI with this token
+GITHUB_WRITEABLE_TOKEN = env.str("GITHUB_WRITEABLE_TOKEN", default="")
+
+# Interactive Analyses Templates Repo
+INTERACTIVE_TEMPLATE_REPO = env.str("INTERACTIVE_TEMPLATE_REPO", default="")
+
 # Releases storage location.
 # Note: we deliberately don't use MEDIA_ROOT/MEDIA_URL here, to avoid any
 # surprises with django's default uploads implementation.
