@@ -1,5 +1,6 @@
 import { Combobox } from "@headlessui/react";
 import CheckIcon from "@heroicons/react/20/solid/CheckIcon";
+import { useFormikContext } from "formik";
 import { CodelistGroup, SingleCodelist } from "../types";
 import { classNames } from "../utils";
 
