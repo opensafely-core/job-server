@@ -1,5 +1,6 @@
 from django import forms
 from django.db.models.functions import Lower
+from django.utils.text import slugify
 
 from applications.forms import YesNoField
 from applications.models import Application, ResearcherRegistration
@@ -50,6 +51,12 @@ class ApplicationApproveForm(forms.Form):
 
         if Project.objects.filter(name=project_name).exists():
             raise forms.ValidationError(f'Project "{project_name}" already exists.')
+
+        slug = slugify(project_name)
+        if Project.objects.filter(slug=slug).exists():
+            raise forms.ValidationError(
+                f'A project with the slug, "{slug}", already exists'
+            )
 
         return project_name
 
