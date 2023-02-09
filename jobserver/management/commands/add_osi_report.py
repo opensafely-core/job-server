@@ -55,7 +55,10 @@ def create_release(*, backend, path, user):
 
 def submit_request(*, backend, user, workspace):
     # clean up any existing objects so we can recreate them with a valid, unique slug
-    AnalysisRequest.objects.get(slug="get-from-form", created_by=user).delete()
+    try:
+        AnalysisRequest.objects.get(slug="get-from-form", created_by=user).delete()
+    except AnalysisRequest.DoesNotExist:
+        pass
 
     # create a JobRequest and AnalysisRequest to mirror a user making a request
     job_request = workspace.job_requests.create(
