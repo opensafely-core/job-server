@@ -35,12 +35,14 @@ function ReviewRequest() {
           type: codelist0?.type,
           value: codelist0?.value,
         },
+        title: `${codelist0?.label}`,
         ...data,
       };
     }
 
     return {
       ...data,
+      title: `${codelistA?.label} & ${codelistB?.label}`,
       codelistA: {
         label: codelistA?.label,
         type: codelistA?.type,
