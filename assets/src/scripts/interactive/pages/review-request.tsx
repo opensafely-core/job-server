@@ -1,5 +1,4 @@
 import { useState } from "react";
-import { useNavigate } from "react-router-dom";
 import { AlertPage } from "../components/Alert";
 import { Button } from "../components/Button";
 import { lines as multiLines } from "../components/CodelistBuilder";
@@ -76,6 +75,7 @@ function ReviewRequest() {
     }
 
     // What do we do with the response?
+    // eslint-disable-next-line no-console
     console.log({ response });
   };
 
