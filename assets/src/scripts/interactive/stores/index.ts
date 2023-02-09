@@ -7,5 +7,7 @@ export const useFormStore = create(() => ({
 
 const pageData: CodelistGroup[] = [];
 export const usePageData = create(() => ({
+  basePath: "",
+  csrfToken: "",
   pageData,
 }));

@@ -20,7 +20,7 @@ export function getCodelistPageData(scriptID: string) {
   const configureJson = getJson.map((codelist) => ({
     label: codelist.name,
     organisation: codelist.organisation,
-    type: scriptID,
+    type: scriptID.slice(9, scriptID.length - 1),
     value: codelist.slug,
   }));
 

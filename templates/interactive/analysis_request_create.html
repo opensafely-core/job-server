@@ -25,6 +25,7 @@
 <div
   id="osi"
   data-base-path="{{ base_path }}"
+  data-csrf-token="{{ csrf_token }}"
   data-events="codelist_events"
   data-medications="codelist_medications">
 </div>
@@ -33,7 +34,7 @@
 {% block extra_js %}
   {% if debug %}
   <script type="module" nonce="{{ request.csp_nonce }}">
-    import RefreshRuntime from 'http://localhost:5173/@react-refresh'
+    import RefreshRuntime from 'http://localhost:5173/static/@react-refresh'
     RefreshRuntime.injectIntoGlobalHook(window)
     window.$RefreshReg$ = () => {}
     window.$RefreshSig$ = () => (type) => type
