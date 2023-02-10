@@ -1,15 +1,10 @@
-import { useNavigate } from "react-router-dom";
+import { useLocation, Redirect } from "wouter";
 import { AlertPage } from "../components/Alert";
 import { Button } from "../components/Button";
 import { endDate } from "../data/form-fields";
 import { useFormStore } from "../stores";
 import { FormDataTypes } from "../types";
 import { classNames, requiredLoader } from "../utils";
-
-export const ReviewQueryLoader = () =>
-  requiredLoader({
-    fields: ["codelist0", "frequency"],
-  });
 
 export const lines = [
   "Your report will show the number of people who have had",
@@ -19,8 +14,12 @@ export const lines = [
 ];
 
 function ReviewQuery() {
-  const navigate = useNavigate();
+  const [, navigate] = useLocation();
   const formData: FormDataTypes = useFormStore((state) => state.formData);
+
+  if (requiredLoader({ fields: ["codelist0", "frequency"] })) {
+    return <Redirect to="" />;
+  }
 
   return (
     <>
@@ -44,7 +43,7 @@ function ReviewQuery() {
       </p>
       <Button
         className="mt-6"
-        onClick={() => navigate("/filter-request")}
+        onClick={() => navigate("filter-request")}
         type="submit"
       >
         Next

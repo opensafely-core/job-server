@@ -1,4 +1,3 @@
-import { redirect } from "react-router-dom";
 import { useFormStore } from "../stores";
 import { OpenCodelist } from "../types";
 
@@ -37,11 +36,7 @@ export function requiredLoader({ fields }: { fields: string[] }) {
     }
   });
 
-  if (missing.length) {
-    return redirect("/");
-  }
-
-  return null;
+  return !!missing.length;
 }
 
 export function isObject(a: any) {
