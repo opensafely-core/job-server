@@ -60,6 +60,7 @@ from .views.users import (
     Settings,
 )
 from .views.workspaces import (
+    WorkspaceAnalysisRequestList,
     WorkspaceArchiveToggle,
     WorkspaceBackendFiles,
     WorkspaceCreate,
@@ -210,6 +211,11 @@ workspace_urls = [
         "",
         WorkspaceDetail.as_view(),
         name="workspace-detail",
+    ),
+    path(
+        "analyses/",
+        WorkspaceAnalysisRequestList.as_view(),
+        name="workspace-analysis-request-list",
     ),
     path("edit/", WorkspaceEdit.as_view(), name="workspace-edit"),
     path(

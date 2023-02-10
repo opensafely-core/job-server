@@ -15,6 +15,8 @@ from django.views.generic import CreateView, FormView, ListView, View
 from first import first
 from furl import furl
 
+from interactive.models import AnalysisRequest
+
 from ..authorization import CoreDeveloper, has_permission, has_role
 from ..forms import (
     WorkspaceArchiveToggleForm,
@@ -26,6 +28,35 @@ from ..github import _get_github_api
 from ..models import Backend, Job, JobRequest, Project, Repo, Report, Workspace
 from ..releases import build_hatch_token_and_url, build_outputs_zip, workspace_files
 from ..utils import build_spa_base_url
+
+
+class WorkspaceAnalysisRequestList(ListView):
+    context_object_name = "analysis_requests"
+    model = AnalysisRequest
+    template_name = "workspace_analysis_request_list.html"
+
+    def dispatch(self, request, *args, **kwargs):
+        self.workspace = get_object_or_404(
+            Workspace,
+            project__org__slug=self.kwargs["org_slug"],
+            project__slug=self.kwargs["project_slug"],
+            name=self.kwargs["workspace_slug"],
+        )
+
+        if not has_permission(
+            request.user, "analysis_request_create", project=self.workspace.project
+        ):
+            raise PermissionDenied
+
+        return super().dispatch(request, *args, **kwargs)
+
+    def get_context_data(self, **kwargs):
+        return super().get_context_data(**kwargs) | {
+            "workspace": self.workspace,
+        }
+
+    def get_queryset(self):
+        return super().get_queryset().filter(job_request__workspace=self.workspace)
 
 
 class WorkspaceArchiveToggle(View):
@@ -273,9 +304,17 @@ class WorkspaceDetail(View):
 
         outputs = self.get_output_permissions(request.user, workspace)
 
+        if is_interactive_user:
+            analyses = AnalysisRequest.objects.filter(
+                job_request__workspace=workspace
+            ).order_by("-created_at")[:5]
+        else:
+            analyses = []
+
         reports = Report.objects.filter(release_file__workspace=workspace)
 
         context = {
+            "analyses": analyses,
             "first_job": first_job,
             "honeycomb_can_view_links": honeycomb_can_view_links,
             "honeycomb_link": f"https://ui.honeycomb.io/bennett-institute-for-applied-data-science/environments/production/datasets/job-server?query=%7B%22time_range%22%3A2419200%2C%22granularity%22%3A0%2C%22breakdowns%22%3A%5B%22status%22%5D%2C%22calculations%22%3A%5B%7B%22op%22%3A%22HEATMAP%22%2C%22column%22%3A%22current_runtime%22%7D%5D%2C%22filters%22%3A%5B%7B%22column%22%3A%22name%22%2C%22op%22%3A%22%3D%22%2C%22value%22%3A%22update_job%22%7D%2C%7B%22column%22%3A%22workspace_name%22%2C%22op%22%3A%22%3D%22%2C%22value%22%3A%22{workspace.name}%22%7D%2C%7B%22column%22%3A%22completed%22%2C%22op%22%3A%22%3D%22%2C%22value%22%3Atrue%7D%2C%7B%22column%22%3A%22status_change%22%2C%22op%22%3A%22%3D%22%2C%22value%22%3Atrue%7D%5D%2C%22filter_combination%22%3A%22AND%22%2C%22orders%22%3A%5B%5D%2C%22havings%22%3A%5B%5D%2C%22limit%22%3A100%7D",

@@ -106,7 +106,6 @@
           View logs
           {% icon_queue_list_outline class="h-4 w-4 ml-2 -mr-2" %}
         {% /button %}
-
       </div>
     </div>
 
@@ -276,6 +275,20 @@
           {% endfor %}
         {% /list_group %}
       {% /card %}
+
+      {% if analyses %}
+      {% #card title="Interactive analyses" button=True button_text="View more" button_href=workspace.get_analyses_url %}
+        {% #list_group small=True %}
+          {% for analysis in analyses %}
+          {% #list_group_item href=analysis.get_absolute_url %}
+            {{ analysis.title }}
+          {% /list_group_item %}
+          {% empty %}
+          {% list_group_empty description="No analyses requested for this workspace" %}
+          {% endfor %}
+        {% /list_group %}
+      {% /card %}
+      {% endif %}
 
       {% #card title="Monitoring" subtitle="Honeycomb login required" %}
         {% #list_group small=True %}

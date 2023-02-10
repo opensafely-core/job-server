@@ -1,0 +1,31 @@
+{% extends "base-tw.html" %}
+
+{% block metatitle %}{{ workspace.name }} Analyses | OpenSAFELY Jobs{% endblock metatitle %}
+
+{% block breadcrumbs %}
+  {% url "home" as home_url %}
+
+  {% #breadcrumbs %}
+    {% breadcrumb title="Home" url=home_url %}
+    {% breadcrumb title=workspace.project.org.name url=workspace.project.org.get_absolute_url location="Organisation" %}
+    {% breadcrumb title=workspace.project.name url=workspace.project.get_absolute_url location="Project" %}
+    {% breadcrumb title=workspace.name url=workspace.get_absolute_url location="Workspace" %}
+    {% breadcrumb title="Analyses" active=True %}
+  {% /breadcrumbs %}
+{% endblock breadcrumbs %}
+
+{% block content %}
+<h1>{{ workspace.name }} analyses</h1>
+
+<p>This page shows all the Interactive analyses for {{ workspace.name }}</p>
+
+{% #card %}
+  {% #list_group %}
+    {% for analysis_request in analysis_requests %}
+    {% #list_group_item href=analysis_request.get_absolute_url %}
+      {{ analysis_request.title }}
+    {% /list_group_item %}
+    {% endfor %}
+  {% /list_group %}
+{% /card %}
+{% endblock %}
