@@ -12,8 +12,6 @@ The database for job-server is currently stored on a managed cluster which is ab
 
 Our current opinion is that although seven days is sufficiently long enough to spot recover in the event of catastrophic dataloss, we should keep backups for longer to help recover from more subtle dataloss/degradation.
 
-The data stored in the database is not considered sensitive, and because of our desire & policy for openness a significant proportion of the contents are (or will become) public information.
-
 ## Decision
 
 In addition to the seven-day backups provided by our database cluster, we will use an external service to retain backups of the jobserver database for a longer period. The backup will be generated daily, and we will keep the last 90 days of backups.
