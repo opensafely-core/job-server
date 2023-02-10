@@ -122,6 +122,7 @@
           {% /button %}
           {% endif %}
 
+          {% if user_can_toggle_notifications %}
           <form method="POST" action="{{ workspace.get_notifications_toggle_url }}">
             {% csrf_token %}
             <input type="hidden" name="should_notify" value="{{ workspace.should_notify|yesno:",True" }}" />
@@ -136,6 +137,7 @@
               {% /button %}
             {% endif %}
           </form>
+          {% endif %}
         {% /card %}
       {% endif %}
 
