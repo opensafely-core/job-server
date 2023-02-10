@@ -62,6 +62,24 @@ def test_applicationapproveform_with_duplicate_project_number():
     }
 
 
+def test_applicationapproveform_with_duplicate_project_slug():
+    org = OrgFactory()
+    ProjectFactory(slug="test-1")
+
+    form = ApplicationApproveForm(
+        {
+            "project_name": "Test 1",
+            "project_number": "42",
+            "org": str(org.pk),
+        }
+    )
+
+    assert not form.is_valid()
+    assert form.errors == {
+        "project_name": ['A project with the slug, "test-1", already exists']
+    }
+
+
 def test_projecteditform_number_is_not_required():
     """
     Ensure Project.number isn't required by ProjectEditForm
