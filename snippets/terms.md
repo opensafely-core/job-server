@@ -46,3 +46,6 @@ We have written [detailed documentation](https://docs.opensafely.org/) about the
 We have a [Q&A forum](https://github.com/opensafely/documentation/discussions).
 
 We also offer researchers a [co-pilot](https://www.bennett.ox.ac.uk/blog/2021/08/opensafely-co-pilot-programme-assisting-users-on-their-opensafely-journey/): a member of the OpenSAFELY team who joins you on your OpenSAFELY journey, to help you achieve a completed analysis within an agreed timeframe (usually 4 weeks).
+
+## Before you start the application  
+A copy of the application can be downloaded here 
