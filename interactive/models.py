@@ -3,7 +3,6 @@ from django.db.models import Q
 from django.urls import reverse
 from django.utils import timezone
 from django.utils.text import slugify
-from furl import furl
 from ulid import ULID
 
 from jobserver.authorization import CoreDeveloper, has_role
@@ -34,10 +33,11 @@ class AnalysisRequest(models.Model):
 
     title = models.TextField()
     slug = models.SlugField(max_length=255, unique=True)
-    codelist_slug = models.TextField()
-    codelist_name = models.TextField()
-    start_date = models.DateField()
-    end_date = models.DateField()
+
+    # store the analysis-specific templating context here.  The schema of this
+    # data could entirely change between version or analysis.
+    template_data = models.JSONField(default=dict)
+
     commit_sha = models.TextField()
 
     complete_email_sent_at = models.DateTimeField(null=True)
@@ -69,7 +69,7 @@ class AnalysisRequest(models.Model):
         ]
 
     def __str__(self):
-        return f"{self.title} ({self.codelist_slug})"
+        return f"{self.title}"
 
     def get_absolute_url(self):
         return reverse(
@@ -80,10 +80,6 @@ class AnalysisRequest(models.Model):
                 "slug": self.slug,
             },
         )
-
-    def get_codelist_url(self):
-        oc = furl("https://www.opencodelists.org/codelist/")
-        return (oc / self.codelist_slug).url
 
     def get_publish_url(self):
         return reverse(

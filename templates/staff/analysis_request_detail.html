@@ -57,14 +57,6 @@
 
         <div class="list-group list-group-flush">
           <div class="list-group-item">
-            <strong>Codelist:</strong>
-            <a href="{{ analysis_request.get_codelist_url }}">
-              {{ analysis_request.codelist_name }}
-            </a>
-            <p class="text-muted mb-0 mt-1">The codelist this request was run with.</p>
-          </div>
-
-          <div class="list-group-item">
             <strong>SHA:</strong>
             <a href="{{ analysis_request.get_sha_url }}">View {{ analysis_request.sha }} on GitHub</a>
             <p class="text-muted mb-0 mt-1">

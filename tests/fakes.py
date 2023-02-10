@@ -112,6 +112,9 @@ class FakeGitHubAPI:
 
 
 class FakeOpenCodelistsAPI:
+    def get_codelist(self, slug):
+        return "a,b,c\n1,2,3"
+
     def get_codelists(self, coding_system):
         return [
             {

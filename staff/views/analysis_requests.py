@@ -57,7 +57,6 @@ class AnalysisRequestList(ListView):
                 "created_by__fullname",
                 "created_by__username",
                 "title",
-                "codelist_name",
             ]
 
             # build up Q objects OR'd together.  We need to build them with

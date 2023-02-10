@@ -43,6 +43,8 @@ services:
     depends_on: [db]
     environment:
       - GITHUB_TOKEN=
+      - GITHUB_WRITEABLE_TOKEN=
+      - INTERACTIVE_TEMPLATE_REPO=
       - SECRET_KEY=12345
       - SOCIAL_AUTH_GITHUB_KEY=test
       - SOCIAL_AUTH_GITHUB_SECRET=test
@@ -85,7 +87,7 @@ services:
     environment:
       # override db hostname, so we can reach it within the container
       - GITHUB_TOKEN_TESTING
-    command: bash -c "coverage run --branch --source=applications,jobserver,services,staff,tests --module pytest && coverage report || coverage html"
+    command: bash -c "coverage run --branch --source=applications,interactive,jobserver,services,staff,tests --module pytest && coverage report || coverage html"
 
 volumes:
   postgres_data:

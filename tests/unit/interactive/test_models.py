@@ -32,17 +32,6 @@ def test_analysisrequest_get_absolute_url():
     )
 
 
-def test_analysisrequest_get_codelist_url():
-    analysis_request = AnalysisRequestFactory()
-
-    url = analysis_request.get_codelist_url()
-
-    assert (
-        url
-        == f"https://www.opencodelists.org/codelist/{analysis_request.codelist_slug}"
-    )
-
-
 def test_analysisrequest_get_publish_url():
     analysis_request = AnalysisRequestFactory()
 
@@ -92,10 +81,7 @@ def test_analysisrequest_publish_without_report_publish_request():
 def test_analysisrequest_str():
     analysis_request = AnalysisRequestFactory()
 
-    assert (
-        str(analysis_request)
-        == f"{analysis_request.title} ({analysis_request.codelist_slug})"
-    )
+    assert str(analysis_request) == analysis_request.title
 
 
 def test_analysisrequest_visible_to_creator():
