@@ -28,9 +28,14 @@ def template_repo(build_repo):
     """Create a repo to match our analysis code template repo"""
     path = build_repo("template_repo")
 
-    (path / "project.yaml").write_text("test content")
+    template_dir = path / "templates/v2"
+    template_dir.mkdir(parents=True)
 
-    git("add", "project.yaml", cwd=path)
+    (template_dir / "project.yaml.tmpl").write_text("test: {{ 'test' }}")
+    (template_dir / "analysis").mkdir()
+    (template_dir / "analysis/test.py").write_text("print('test')")
+
+    git("add", ".", cwd=path)
     git(
         "-c",
         "user.email=testing@opensafely.org",
