@@ -16,6 +16,10 @@ Our current opinion is that although seven days is sufficiently long enough to s
 
 In addition to the seven-day backups provided by our database cluster, we will use an external service to retain backups of the jobserver database for a longer period. The backup will be generated daily, and we will keep the last 90 days of backups.
 
+The choice of service to implement this backup is covered in [the sysadmin repo](https://github.com/ebmdatalab/sysadmin/pull/272).
+
 ## Consequences
 
 We will have a much bigger window to spot & recover from any data degradation issues. The daily backup file is currently ~39MB, which implies a total backup history of around 3.33GB. This will easily fit within current cloud storage allowance, and would only cost around $0.06/mo at current prices if we exceed our allowance.
+
+Also see the consequences of the impementation of this backup in [the sysadmin repo](https://github.com/ebmdatalab/sysadmin/pull/272). It will be stored in Frankfurt and will not be encrypted at rest.
