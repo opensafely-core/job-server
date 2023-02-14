@@ -83,6 +83,6 @@
     "whatwg-fetch": "^3.6.2",
     "wouter": "^2.10.0",
     "yup": "^1.0.0",
-    "zustand": "^4.3.2"
+    "zustand": "^4.3.3"
   }
 }
