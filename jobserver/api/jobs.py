@@ -4,20 +4,17 @@ import operator
 
 import sentry_sdk
 import structlog
-from django.core.exceptions import PermissionDenied
 from django.http import Http404
 from django.utils import timezone
-from pipeline import load_pipeline
 from rest_framework import serializers
 from rest_framework.authentication import SessionAuthentication
-from rest_framework.exceptions import NotAuthenticated
 from rest_framework.generics import ListAPIView
 from rest_framework.response import Response
 from rest_framework.views import APIView
 
 from jobserver.api.authentication import get_backend_from_token
 from jobserver.emails import send_finished_notification
-from jobserver.models import Backend, JobRequest, Stats, User, Workspace
+from jobserver.models import JobRequest, Stats, User, Workspace
 
 
 COMPLETED_STATES = {"failed", "succeeded"}
@@ -213,73 +210,6 @@ class WorkspaceSerializer(serializers.ModelSerializer):
             "created_at",
         ]
         model = Workspace
-
-
-class JobRequestAPIListCreate(APIView):
-    """
-    Dispatcher view for the /job-requests/ endpoint.
-
-    The handlers for the GET and POST verbs are very different in this
-    endpoint.  Those differences are encapsulated in the Views we hand off to
-    in this one.
-    """
-
-    def dispatch(self, request, *args, **kwargs):
-        if request.method.lower() == "post":
-            return JobRequestAPICreate().dispatch(request, *args, **kwargs)
-
-        return JobRequestAPIList().dispatch(request, *args, **kwargs)
-
-
-class JobRequestAPICreate(APIView):
-    authentication_classes = []
-
-    class serializer_class(serializers.ModelSerializer):
-        backend = serializers.SlugRelatedField(
-            slug_field="slug", queryset=Backend.objects.all()
-        )
-        workspace = serializers.SlugRelatedField(
-            slug_field="name", queryset=Workspace.objects.all()
-        )
-
-        class Meta:
-            fields = [
-                "backend",
-                "workspace",
-                "sha",
-                "project_definition",
-                "requested_actions",
-                "force_run_dependencies",
-            ]
-            model = JobRequest
-
-        def validate_project_definition(self, value):
-            load_pipeline(value)
-
-            return value
-
-    def post(self, request, *args, **kwargs):
-        auth_header = request.headers.get("Authorization")
-        if auth_header is None:
-            raise NotAuthenticated("Authorization header missing")
-
-        username, _, token = auth_header.partition(":")
-        user = User.objects.filter(username=username).first()
-
-        if user is None:
-            raise NotAuthenticated("Invalid user")
-
-        if not user.has_valid_pat(token):
-            raise PermissionDenied()
-
-        serializer = self.serializer_class(data=request.data)
-        serializer.is_valid(raise_exception=True)
-        job_request = serializer.save(created_by=user)
-
-        # link to the JobRequest's detail page
-        url = request.build_absolute_uri(job_request.get_absolute_url())
-
-        return Response({"url": url}, status=201)
 
 
 class JobRequestAPIList(ListAPIView):
