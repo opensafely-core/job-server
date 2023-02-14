@@ -118,15 +118,6 @@
             {% endfor %}
           </div>
 
-          <div class="alert alert-warning" role="alert">
-            <p>
-              Please check whether a GitHub repository, called
-              <code>project.slug-interactive</code> exists. If it doesn't you
-              will need to create it.
-            </p>
-            <p>An Interactive workspace will be created automatically if one doesn't exist.</p>
-          </div>
-
           {% include "components/form_text.html" with field=form.name label="Name" name="name" %}
           {% include "components/form_text.html" with field=form.email label="Email address" name="email" %}
         </fieldset>

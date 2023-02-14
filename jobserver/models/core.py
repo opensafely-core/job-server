@@ -547,22 +547,6 @@ class Project(models.Model):
     def __str__(self):
         return f"{self.org.name} | {self.title}"
 
-    def create_interactive_workspace(self, creator):
-        name = f"{self.slug}-interactive"
-
-        # TODO: decide on which org interactive repos will live in
-        repo, _ = Repo.objects.get_or_create(
-            url=f"https://github.com/opensafely/{name}"
-        )
-
-        return self.workspaces.create(
-            repo=repo,
-            name=name,
-            branch="main",
-            created_by=creator,
-            purpose="??",
-        )
-
     def get_absolute_url(self):
         return reverse(
             "project-detail",
@@ -605,8 +589,12 @@ class Project(models.Model):
         return reverse("staff:project-feature-flags", kwargs={"slug": self.slug})
 
     @property
+    def interactive_slug(self):
+        return f"{self.slug}-interactive"
+
+    @property
     def interactive_workspace(self):
-        return self.workspaces.get(name=f"{self.slug}-interactive")
+        return self.workspaces.get(name=self.interactive_slug)
 
     def save(self, *args, **kwargs):
         if not self.slug:

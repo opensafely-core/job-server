@@ -9,20 +9,13 @@ from django.shortcuts import get_object_or_404, redirect
 from django.utils.decorators import method_decorator
 from django.views.generic import FormView, ListView, UpdateView
 
-from jobserver.authorization import InteractiveReporter, roles
+from interactive.commands import create_repo, create_user, create_workspace
+from jobserver.authorization import roles
 from jobserver.authorization.decorators import require_permission
 from jobserver.authorization.utils import roles_for
 from jobserver.emails import send_welcome_email
-from jobserver.models import (
-    Backend,
-    Job,
-    Org,
-    OrgMembership,
-    Project,
-    ProjectMembership,
-    User,
-    Workspace,
-)
+from jobserver.github import GitHubError, _get_github_api
+from jobserver.models import Backend, Job, Org, Project, User
 from jobserver.utils import raise_if_not_int
 
 from ..forms import UserCreateForm, UserForm, UserOrgsForm
@@ -35,6 +28,7 @@ logger = structlog.get_logger(__name__)
 @method_decorator(require_permission("user_manage"), name="dispatch")
 class UserCreate(FormView):
     form_class = UserCreateForm
+    get_github_api = staticmethod(_get_github_api)
     template_name = "staff/user_create.html"
 
     def get_context_data(self, **kwargs):
@@ -63,38 +57,45 @@ class UserCreate(FormView):
 
         return initial
 
-    @transaction.atomic()
     def form_valid(self, form):
-        user = User.objects.create(
-            fullname=form.cleaned_data["name"],
-            email=form.cleaned_data["email"],
-            username=form.cleaned_data["email"],
-            created_by=self.request.user,
-            is_active=True,
-        )
-
-        OrgMembership.objects.create(
-            created_by=self.request.user,
-            org=form.cleaned_data["org"],
-            user=user,
-        )
-
         project = form.cleaned_data["project"]
-        if application_url := form.cleaned_data.get("application_url"):
-            project.application_url = application_url
-            project.save()
-
-        ProjectMembership.objects.create(
-            created_by=self.request.user,
-            project=project,
-            user=user,
-            roles=[InteractiveReporter],
-        )
 
         try:
-            project.interactive_workspace
-        except Workspace.DoesNotExist:
-            project.create_interactive_workspace(self.request.user)
+            with transaction.atomic():
+                # update the Project's application_url if it was set, the form
+                # has alrady validated that we are allowed to set this.
+                if application_url := form.cleaned_data["application_url"]:
+                    project.application_url = application_url
+                    project.save()
+
+                # set up the user with all the relevant permissions on the
+                # chosen Org and Project
+                user = create_user(
+                    creator=self.request.user,
+                    email=form.cleaned_data["email"],
+                    name=form.cleaned_data["name"],
+                    org=form.cleaned_data["org"],
+                    project=project,
+                )
+
+                # make sure the relevant interactive repo exists on GitHub
+                repo_url = create_repo(
+                    name=project.interactive_slug,
+                    get_github_api=self.get_github_api,
+                )
+
+                # make sure the expected workspace exists
+                create_workspace(
+                    creator=self.request.user,
+                    project=project,
+                    repo_url=repo_url,
+                )
+        except GitHubError:
+            form.add_error(
+                None,
+                "An error occurred when trying to create the required Repo on GitHub",
+            )
+            return self.form_invalid(form)
 
         send_welcome_email(user)
 
