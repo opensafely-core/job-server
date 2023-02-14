@@ -12,7 +12,6 @@ from django.utils import timezone
 from jobserver.authorization import (
     CoreDeveloper,
     InteractiveReporter,
-    OpensafelyInteractive,
     ProjectCollaborator,
     ProjectDeveloper,
 )
@@ -543,29 +542,6 @@ def test_workspacedetail_authorized_run_jobs(rf):
 
     assert response.status_code == 200
     assert response.context_data["user_can_run_jobs"]
-    assert response.context_data["run_jobs_url"] == workspace.get_jobs_url()
-
-
-def test_workspacedetail_authorized_run_jobs_with_opensafely_interactive_role(rf):
-    workspace = WorkspaceFactory()
-    user = UserFactory(roles=[OpensafelyInteractive])
-
-    ProjectMembershipFactory(
-        project=workspace.project, user=user, roles=[ProjectDeveloper]
-    )
-
-    request = rf.get("/")
-    request.user = user
-
-    response = WorkspaceDetail.as_view(get_github_api=FakeGitHubAPI)(
-        request,
-        org_slug=workspace.project.org.slug,
-        project_slug=workspace.project.slug,
-        workspace_slug=workspace.name,
-    )
-
-    assert response.status_code == 200
-    assert response.context_data["run_jobs_url"] == workspace.get_pick_ref_url()
 
 
 def test_workspacedetail_authorized_view_snaphots(rf):

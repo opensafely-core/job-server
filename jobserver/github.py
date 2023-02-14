@@ -309,25 +309,6 @@ class GitHubAPI:
 
         return branch["commit"]["sha"]
 
-    def get_commits(self, org, repo, limit=10):
-        path_segments = [
-            "repos",
-            org,
-            repo,
-            "commits",
-        ]
-        query_args = {"per_page": limit}
-        url = self._url(path_segments, query_args)
-
-        headers = {
-            "Accept": "application/vnd.github.v3+json",
-        }
-        r = self._get(url, headers=headers)
-
-        r.raise_for_status()
-
-        return r.json()
-
     def get_file(self, org, repo, branch):
         path_segments = [
             "repos",

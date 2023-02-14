@@ -205,21 +205,6 @@ def test_workspace_get_outputs_url():
     )
 
 
-def test_workspace_get_pick_ref_url():
-    workspace = WorkspaceFactory()
-
-    url = workspace.get_pick_ref_url()
-
-    assert url == reverse(
-        "job-request-pick-ref",
-        kwargs={
-            "org_slug": workspace.project.org.slug,
-            "project_slug": workspace.project.slug,
-            "workspace_slug": workspace.name,
-        },
-    )
-
-
 def test_workspace_get_releases_url():
     workspace = WorkspaceFactory()
 
