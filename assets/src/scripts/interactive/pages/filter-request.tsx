@@ -1,5 +1,5 @@
 import { Form, Formik } from "formik";
-import { useNavigate } from "react-router-dom";
+import { useLocation, Redirect } from "wouter";
 import * as Yup from "yup";
 import { AlertForm } from "../components/Alert";
 import { Button } from "../components/Button";
@@ -12,14 +12,17 @@ import { useFormStore } from "../stores";
 import { FormDataTypes } from "../types";
 import { requiredLoader } from "../utils";
 
-export const FilterRequestLoader = () =>
-  requiredLoader({
-    fields: ["codelist0", "frequency"],
-  });
-
 function FilterRequest() {
-  const navigate = useNavigate();
+  const [, navigate] = useLocation();
   const formData: FormDataTypes = useFormStore((state) => state.formData);
+
+  if (
+    requiredLoader({
+      fields: ["codelist0", "frequency"],
+    })
+  ) {
+    return <Redirect to="" />;
+  }
 
   const validationSchema = Yup.object().shape({
     filterPopulation: Yup.string()
@@ -43,7 +46,7 @@ function FilterRequest() {
       onSubmit={(values, actions) => {
         actions.validateForm().then(() => {
           useFormStore.setState({ formData: { ...formData, ...values } });
-          navigate("/review-request");
+          navigate("review-request");
         });
       }}
       validateOnMount

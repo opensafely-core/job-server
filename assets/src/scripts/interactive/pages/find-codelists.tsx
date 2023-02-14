@@ -1,6 +1,6 @@
 import { Form, Formik } from "formik";
 import { useState } from "react";
-import { useNavigate } from "react-router-dom";
+import { useLocation } from "wouter";
 import * as Yup from "yup";
 import { AlertForm } from "../components/Alert";
 import { Button } from "../components/Button";
@@ -21,7 +21,8 @@ function FindCodelists() {
   const [secondCodelist, setSecondCodelist]: [boolean, Function] = useState(
     !!formData.codelist1
   );
-  const navigate = useNavigate();
+
+  const [, navigate] = useLocation();
 
   const validationSchema = Yup.object({
     codelist0: codelistSchema(pageData),
@@ -59,9 +60,9 @@ function FindCodelists() {
         actions.validateForm().then(() => {
           useFormStore.setState({ formData: { ...formData, ...values } });
           if (secondCodelist) {
-            return navigate("/build-query");
+            return navigate("build-query");
           }
-          return navigate("/review-query");
+          return navigate("review-query");
         });
       }}
       validateOnMount

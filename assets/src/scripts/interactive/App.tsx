@@ -1,22 +1,23 @@
-import { Outlet, useLocation, useNavigate } from "react-router-dom";
+import { useLocation } from "wouter";
 import { usePageData } from "./stores";
 import { classNames, getCodelistPageData } from "./utils";
 
 function App({
   basePath,
+  children,
   csrfToken,
   events,
   medications,
 }: {
   basePath: string;
+  children: React.ReactElement;
   csrfToken: string;
   events: string;
   medications: string;
 }) {
-  const navigate = useNavigate();
-  const location = useLocation();
-  const isFirstPage = location.pathname === "/";
-  const isLastPage = location.pathname === "/success";
+  const [location] = useLocation();
+  const isFirstPage = location === "/";
+  const isLastPage = location === "/success";
 
   usePageData.setState({
     basePath,
@@ -55,13 +56,13 @@ function App({
                 "hover:text-oxford-600 hover:decoration-oxford-200",
                 "focus-within:text-oxford-600 focus-within:no-underline focus-within:outline-offset-4 focus-within:outline-oxford-400"
               )}
-              onClick={() => navigate(-1)}
+              onClick={() => window.history.back()}
               type="button"
             >
               &larr; Back
             </button>
           ) : null}
-          <Outlet />
+          {children}
         </div>
       </section>
     </main>

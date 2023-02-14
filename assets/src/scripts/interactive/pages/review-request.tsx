@@ -1,4 +1,5 @@
 import { useState } from "react";
+import { Redirect } from "wouter";
 import { AlertPage } from "../components/Alert";
 import { Button } from "../components/Button";
 import { lines as multiLines } from "../components/CodelistBuilder";
@@ -10,16 +11,19 @@ import { FormDataTypes } from "../types";
 import { requiredLoader } from "../utils";
 import { lines as singleLines } from "./review-query";
 
-export const ReviewRequestLoader = () =>
-  requiredLoader({
-    fields: ["codelist0", "frequency", "filterPopulation", "demographics"],
-  });
-
 function ReviewRequest() {
   const { basePath, csrfToken } = usePageData.getState();
   const formData: FormDataTypes = useFormStore((state) => state.formData);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [error, setError] = useState("");
+
+  if (
+    requiredLoader({
+      fields: ["codelist0", "frequency", "filterPopulation", "demographics"],
+    })
+  ) {
+    return <Redirect to="" />;
+  }
 
   const isSingleCodelist = !formData.codelistA && formData.codelist0?.label;
   const isMultipleCodelists =
@@ -88,26 +92,26 @@ function ReviewRequest() {
       <div className="mt-5 border-t border-gray-200">
         <dl className="divide-y divide-gray-200">
           {isSingleCodelist ? (
-            <ReviewLineItem page="/" title="Codelist">
+            <ReviewLineItem page="" title="Codelist">
               {formData.codelist0?.label}
             </ReviewLineItem>
           ) : null}
 
           {isMultipleCodelists ? (
-            <ReviewLineItem page="/build-query" title="Codelists">
+            <ReviewLineItem page="" title="Codelists">
               {formData.codelist0?.label},<br />
               {formData.codelist1?.label}
             </ReviewLineItem>
           ) : null}
 
-          <ReviewLineItem page="/build-query" title="Frequency">
+          <ReviewLineItem page="" title="Frequency">
             {`${formData.frequency
               ?.slice(0, 1)
               .toUpperCase()}${formData.frequency?.slice(1)}`}
           </ReviewLineItem>
 
           {formData.codelistA?.label && formData.codelistB?.label ? (
-            <ReviewLineItem page="/build-query" title="Report request">
+            <ReviewLineItem page="build-query" title="Report request">
               <span className="block font-semibold">
                 {formData.codelistA.label}
               </span>
@@ -130,7 +134,7 @@ function ReviewRequest() {
           ) : null}
 
           {!formData.codelist1 && formData.codelist0?.label ? (
-            <ReviewLineItem page="/review-query" title="Report request">
+            <ReviewLineItem page="review-query" title="Report request">
               {`${singleLines[0]} `}
               <span className="block font-semibold">
                 {formData.codelist0?.label}
@@ -142,7 +146,7 @@ function ReviewRequest() {
             </ReviewLineItem>
           ) : null}
 
-          <ReviewLineItem page="/filter-request" title="Filter population">
+          <ReviewLineItem page="filter-request" title="Filter population">
             {
               filterPopulation.items.filter(
                 (item) => item.value === formData.filterPopulation
@@ -151,7 +155,7 @@ function ReviewRequest() {
           </ReviewLineItem>
 
           <ReviewLineItem
-            page="/filter-request"
+            page="filter-request"
             title="Break down the report by demographics"
           >
             <ul>

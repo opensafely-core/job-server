@@ -1,5 +1,4 @@
-import React from "react";
-import { useNavigate } from "react-router-dom";
+import { useLocation } from "wouter";
 
 function ReviewLineItem({
   title,
@@ -10,7 +9,7 @@ function ReviewLineItem({
   children: React.ReactNode;
   page: string;
 }) {
-  const navigate = useNavigate();
+  const [, navigate] = useLocation();
 
   return (
     <div className="py-4 sm:grid sm:grid-cols-3 sm:gap-4 sm:py-5">

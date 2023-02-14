@@ -1,5 +1,5 @@
 import { Form, Formik } from "formik";
-import { useNavigate } from "react-router-dom";
+import { useLocation, Redirect } from "wouter";
 import * as Yup from "yup";
 import { AlertForm } from "../components/Alert";
 import { Button } from "../components/Button";
@@ -10,15 +10,18 @@ import { useFormStore, usePageData } from "../stores";
 import { FormDataTypes } from "../types";
 import { requiredLoader } from "../utils";
 
-export const QueryBuilderLoader = () =>
-  requiredLoader({
-    fields: ["codelist0", "codelist1", "frequency"],
-  });
-
 function QueryBuilder() {
-  const navigate = useNavigate();
+  const [, navigate] = useLocation();
   const { pageData } = usePageData.getState();
   const formData: FormDataTypes = useFormStore((state) => state.formData);
+
+  if (
+    requiredLoader({
+      fields: ["codelist0", "codelist1", "frequency"],
+    })
+  ) {
+    return <Redirect to="" />;
+  }
 
   const validationSchema = Yup.object().shape({
     codelistA: codelistSchema(pageData),
@@ -64,7 +67,7 @@ function QueryBuilder() {
       onSubmit={(values, actions) => {
         actions.validateForm().then(() => {
           useFormStore.setState({ formData: { ...formData, ...values } });
-          return navigate("/preview-request");
+          return navigate("preview-request");
         });
       }}
       validateOnMount
