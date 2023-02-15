@@ -30,7 +30,7 @@ function FindCodelists() {
       ? codelistSchema(pageData).test(
           "compare_codelists",
           "Codelists cannot be the same, please change one codelist",
-          (value: string, testContext: Yup.TestContext) => {
+          (value, testContext: Yup.TestContext) => {
             if (
               Object.entries(testContext.parent.codelist0).toString() ===
               Object.entries(value).toString()
@@ -41,7 +41,7 @@ function FindCodelists() {
             return true;
           }
         )
-      : null,
+      : Yup.mixed().nullable(),
     frequency: Yup.string()
       .oneOf(frequency.items.map((item) => item.value))
       .required("Select a frequency"),
