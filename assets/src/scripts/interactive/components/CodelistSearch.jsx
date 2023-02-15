@@ -1,29 +1,18 @@
 import { Tab } from "@headlessui/react";
 import { useFormikContext } from "formik";
+import { number, string } from "prop-types";
 import { useState } from "react";
 import { useFormStore, usePageData } from "../stores";
-import { CodelistGroup, FormDataTypes, SingleCodelist } from "../types";
-import TabList from "./Tabs/TabList";
-import TabPanel from "./Tabs/TabPanel";
+import { TabList, TabPanel } from "./Tabs";
 
-function CodelistSearch({ id, label }: { id: number; label: string }) {
-  const {
-    setFieldValue,
-  }: {
-    setFieldValue: (
-      field: string,
-      value: any,
-      shouldValidate?: boolean
-    ) => void;
-  } = useFormikContext();
-  const formData: FormDataTypes = useFormStore((state) => state.formData);
+function CodelistSearch({ id, label }) {
+  const { setFieldValue } = useFormikContext();
+  const formData = useFormStore((state) => state.formData);
   const { pageData } = usePageData.getState();
   const [query, setQuery] = useState("");
   const codelistID = `codelist${id}`;
   const defaultIndex = pageData.findIndex(
-    (group: CodelistGroup) =>
-      group.id ===
-      (formData?.[codelistID as keyof FormDataTypes] as SingleCodelist)?.type
+    (group) => group.id === formData?.[codelistID]?.type
   );
 
   return (
@@ -55,3 +44,8 @@ function CodelistSearch({ id, label }: { id: number; label: string }) {
 }
 
 export default CodelistSearch;
+
+CodelistSearch.propTypes = {
+  id: number.isRequired,
+  label: string.isRequired,
+};

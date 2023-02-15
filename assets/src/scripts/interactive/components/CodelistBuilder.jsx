@@ -1,14 +1,13 @@
-import { Field, FormikValues, useFormikContext } from "formik";
+import { Field, useFormikContext } from "formik";
 import {
   builderTimeEvents,
   builderTimeScales,
   endDate,
 } from "../data/form-fields";
 import { useFormStore } from "../stores";
-import { FormDataTypes, SingleCodelist } from "../types";
 import { classNames } from "../utils";
 import InputError from "./InputError";
-import SelectBox from "./SelectBox";
+import { SelectContainer } from "./Select";
 
 export const lines = [
   "added to their health record in the period between",
@@ -19,11 +18,10 @@ export const lines = [
 ];
 
 function CodelistBuilder() {
-  const formData: FormDataTypes = useFormStore((state) => state.formData);
-  const { values, setFieldValue, errors, touched } =
-    useFormikContext<FormikValues>();
+  const formData = useFormStore((state) => state.formData);
+  const { values, setFieldValue, errors, touched } = useFormikContext();
 
-  const handleChange = (selectedItem: SingleCodelist) => {
+  const handleChange = (selectedItem) => {
     if (selectedItem === values.codelistA) {
       setFieldValue("codelistA", values.codelistB);
       setFieldValue("codelistB", selectedItem);
@@ -37,7 +35,7 @@ function CodelistBuilder() {
   return (
     <div className="flex flex-col gap-y-3">
       <p className="max-w-prose text-lg">The number of people who had</p>
-      <SelectBox
+      <SelectContainer
         defaultValue={values?.codelistA || formData.codelist0}
         handleChange={handleChange}
         name="codelistA"
@@ -49,7 +47,7 @@ function CodelistBuilder() {
         <span className="block font-semibold py-1">{endDate}</span>
         {lines[3]}
       </p>
-      <SelectBox
+      <SelectContainer
         defaultValue={values?.codelistB || formData.codelist1}
         handleChange={handleChange}
         name="codelistB"

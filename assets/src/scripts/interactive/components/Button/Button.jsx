@@ -1,16 +1,7 @@
 /* eslint-disable react/button-has-type */
+import { bool, func, node, oneOf, string } from "prop-types";
 import React from "react";
 import { classNames } from "../../utils";
-
-interface ButtonProps {
-  children: React.ReactNode;
-  className?: string;
-  disabled?: boolean;
-  onClick?: React.MouseEventHandler<HTMLButtonElement>;
-  size?: "sm" | "md" | "lg";
-  type?: React.ButtonHTMLAttributes<HTMLButtonElement>["type"];
-  variant?: "primary" | "danger";
-}
 
 function Button({
   children,
@@ -20,7 +11,7 @@ function Button({
   size,
   type,
   variant,
-}: ButtonProps) {
+}) {
   return (
     <button
       className={classNames(
@@ -50,6 +41,16 @@ function Button({
 
 export default Button;
 
+Button.propTypes = {
+  children: node.isRequired,
+  className: string,
+  disabled: bool,
+  onClick: func,
+  size: oneOf(["sm", "md", "lg"]),
+  type: oneOf(["button", "submit", "reset"]),
+  variant: oneOf(["primary", "danger"]),
+};
+
 Button.defaultProps = {
   className: "",
   disabled: false,
@@ -57,4 +58,4 @@ Button.defaultProps = {
   size: "md",
   type: "button",
   variant: "primary",
-} as Partial<ButtonProps>;
+};

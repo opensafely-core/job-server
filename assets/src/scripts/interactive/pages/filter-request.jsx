@@ -1,5 +1,5 @@
 import { Form, Formik } from "formik";
-import { useLocation, Redirect } from "wouter";
+import { Redirect, useLocation } from "wouter";
 import * as Yup from "yup";
 import { AlertForm } from "../components/Alert";
 import { Button } from "../components/Button";
@@ -9,12 +9,11 @@ import InputError from "../components/InputError";
 import RadioButton from "../components/RadioButton";
 import { demographics, filterPopulation } from "../data/form-fields";
 import { useFormStore } from "../stores";
-import { FormDataTypes } from "../types";
 import { requiredLoader } from "../utils";
 
 function FilterRequest() {
   const [, navigate] = useLocation();
-  const formData: FormDataTypes = useFormStore((state) => state.formData);
+  const formData = useFormStore((state) => state.formData);
 
   if (
     requiredLoader({

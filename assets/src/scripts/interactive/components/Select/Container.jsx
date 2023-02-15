@@ -1,63 +1,14 @@
 import { Listbox, Transition } from "@headlessui/react";
-import { CheckIcon, ChevronUpDownIcon } from "@heroicons/react/20/solid";
+import { ChevronUpDownIcon } from "@heroicons/react/20/solid";
+import { func, string } from "prop-types";
 import { Fragment } from "react";
-import { useFormStore } from "../stores";
-import { FormDataTypes, SingleCodelist } from "../types";
-import { classNames } from "../utils";
+import { singleCodelistProps } from "../../props";
+import { useFormStore } from "../../stores";
+import { classNames } from "../../utils";
+import SelectOption from "./Option";
 
-function SelectBoxOption({
-  label,
-  value,
-}: {
-  label: string;
-  value: SingleCodelist;
-}) {
-  return (
-    <Listbox.Option
-      className={({ active }) =>
-        classNames(
-          "relative cursor-pointer select-none py-2 pl-10 pr-4",
-          active ? "bg-oxford-600 text-white" : "text-gray-900"
-        )
-      }
-      value={value}
-    >
-      {({ selected, active }) => (
-        <>
-          <span
-            className={classNames(
-              "block truncate",
-              selected ? "font-medium" : "font-normal"
-            )}
-          >
-            <span>{label}</span>
-          </span>
-          {selected ? (
-            <span
-              className={classNames(
-                "absolute inset-y-0 left-0 flex items-center px-3 z-10",
-                active ? "text-white" : "text-oxford-600"
-              )}
-            >
-              <CheckIcon aria-hidden="true" className="h-5 w-5" />
-            </span>
-          ) : null}
-        </>
-      )}
-    </Listbox.Option>
-  );
-}
-
-function SelectBox({
-  defaultValue,
-  handleChange,
-  name,
-}: {
-  defaultValue: SingleCodelist;
-  handleChange: Function;
-  name: string;
-}) {
-  const formData: FormDataTypes = useFormStore((state) => state.formData);
+function SelectContainer({ defaultValue, handleChange, name }) {
+  const formData = useFormStore((state) => state.formData);
 
   return (
     <Listbox
@@ -93,13 +44,13 @@ function SelectBox({
         >
           <Listbox.Options className="absolute z-10 mt-1 max-h-60 w-fit max-w-prose overflow-auto rounded-md bg-white py-1 text-base divide-y divide-gray-200 shadow-lg ring-1 ring-black ring-opacity-5 focus:outline-none">
             {formData.codelist0 ? (
-              <SelectBoxOption
+              <SelectOption
                 label={formData.codelist0.label}
                 value={formData.codelist0}
               />
             ) : null}
             {formData.codelist1 ? (
-              <SelectBoxOption
+              <SelectOption
                 label={formData.codelist1.label}
                 value={formData.codelist1}
               />
@@ -111,4 +62,10 @@ function SelectBox({
   );
 }
 
-export default SelectBox;
+export default SelectContainer;
+
+SelectContainer.propTypes = {
+  defaultValue: singleCodelistProps.isRequired,
+  handleChange: func.isRequired,
+  name: string.isRequired,
+};

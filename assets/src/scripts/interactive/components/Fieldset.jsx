@@ -1,10 +1,6 @@
-function Fieldset({
-  children,
-  legend,
-}: {
-  children: React.ReactNode;
-  legend: string;
-}) {
+import { element, string } from "prop-types";
+
+function Fieldset({ children, legend }) {
   return (
     <fieldset>
       <legend className="text-2xl font-bold mb-4">
@@ -16,3 +12,8 @@ function Fieldset({
 }
 
 export default Fieldset;
+
+Fieldset.propTypes = {
+  children: element.isRequired,
+  legend: string.isRequired,
+};

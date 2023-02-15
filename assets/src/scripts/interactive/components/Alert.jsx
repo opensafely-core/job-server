@@ -2,7 +2,7 @@ import { useFormikContext } from "formik";
 import { useEffect } from "react";
 import { useFormStore } from "../stores";
 
-const beforeUnloadListener = (event: Event) => {
+const beforeUnloadListener = (event) => {
   event.preventDefault();
   // https://developer.mozilla.org/en-US/docs/Web/API/Window/beforeunload_event#examples
   // @ts-ignore

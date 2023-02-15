@@ -1,8 +1,7 @@
 /* eslint-disable import/prefer-default-export */
 import * as Yup from "yup";
-import { CodelistGroup } from "../types";
 
-export const codelistSchema = (pageData: CodelistGroup[]) =>
+export const codelistSchema = (pageData) =>
   Yup.object()
     .shape({
       label: Yup.string().required("Select a codelist"),

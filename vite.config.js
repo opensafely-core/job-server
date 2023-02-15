@@ -16,7 +16,7 @@ const config = {
         "outputs-viewer": "./assets/src/scripts/outputs-viewer/index.jsx",
         components: "./assets/src/scripts/components.js",
         index: "./assets/src/scripts/index.js",
-        interactive: "assets/src/scripts/interactive/main.tsx",
+        interactive: "assets/src/scripts/interactive/main.jsx",
         job_request_create: "./assets/src/scripts/job_request_create.js",
         main: "./assets/src/scripts/main.js",
         staff: "./assets/src/scripts/staff.js",

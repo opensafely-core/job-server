@@ -1,10 +1,6 @@
-function EventsAfter({
-  timeScale,
-  timeValue,
-}: {
-  timeScale: string | undefined;
-  timeValue: number | undefined;
-}) {
+import { number, string } from "prop-types";
+
+function EventsAfter({ timeScale, timeValue }) {
   return (
     <svg viewBox="0 0 370 240" xmlns="http://www.w3.org/2000/svg">
       <path
@@ -75,3 +71,8 @@ function EventsAfter({
 }
 
 export default EventsAfter;
+
+EventsAfter.propTypes = {
+  timeScale: string.isRequired,
+  timeValue: number.isRequired,
+};

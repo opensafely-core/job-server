@@ -1,40 +1,14 @@
 import { Combobox, Tab } from "@headlessui/react";
-import { Field, FieldProps, FormikTouched, useFormikContext } from "formik";
+import { Field, useFormikContext } from "formik";
+import { func, string } from "prop-types";
 import { useEffect, useState } from "react";
-import { CodelistGroup, FormDataTypes, SingleCodelist } from "../../types";
+import { codelistGroupProps } from "../../props";
 import { classNames, isObject } from "../../utils";
 import ComboboxItem from "../ComboboxItem";
 import InputError from "../InputError";
 
-function TabPanel({
-  codelistGroup,
-  codelistID,
-  query,
-  setQuery,
-}: {
-  codelistGroup: CodelistGroup;
-  codelistID: string;
-  query: string;
-  setQuery: Function;
-}) {
-  const {
-    errors,
-    setFieldValue,
-    setTouched,
-    touched,
-  }: {
-    errors: { [index: string]: any };
-    setFieldValue: (
-      field: string,
-      value: any,
-      shouldValidate?: boolean
-    ) => void;
-    setTouched: (
-      touched: FormikTouched<FormDataTypes>,
-      shouldValidate?: boolean
-    ) => void;
-    touched: { [index: string]: any };
-  } = useFormikContext();
+function TabPanel({ codelistGroup, codelistID, query, setQuery }) {
+  const { errors, setFieldValue, setTouched, touched } = useFormikContext();
   const [errorMsg, setErrorMsg] = useState("");
 
   useEffect(() => {
@@ -51,7 +25,7 @@ function TabPanel({
   return (
     <Tab.Panel key={codelistGroup.id}>
       <Field name={codelistID}>
-        {({ field }: FieldProps) => (
+        {({ field }) => (
           <div className="mt-2">
             <Combobox
               defaultValue={field.value}
@@ -67,7 +41,7 @@ function TabPanel({
                     "block w-full px-3 py-2 border-2 border-gray-400 rounded-md shadow-sm placeholder-gray-400",
                     "focus:cursor-text focus:outline-none focus:ring-oxford-500 focus:border-oxford-500"
                   )}
-                  displayValue={(codelist: SingleCodelist) => codelist.label}
+                  displayValue={(codelist) => codelist.label}
                   onChange={(event) => setQuery(event.target.value)}
                   placeholder="Type 3 or more characters to find a codelist"
                 />
@@ -103,3 +77,10 @@ function TabPanel({
 }
 
 export default TabPanel;
+
+TabPanel.propTypes = {
+  codelistGroup: codelistGroupProps.isRequired,
+  codelistID: string.isRequired,
+  query: string.isRequired,
+  setQuery: func.isRequired,
+};

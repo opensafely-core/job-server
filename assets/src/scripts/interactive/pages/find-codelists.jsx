@@ -13,14 +13,11 @@ import RadioButton from "../components/RadioButton";
 import { frequency } from "../data/form-fields";
 import { codelistSchema } from "../data/schema";
 import { useFormStore, usePageData } from "../stores";
-import { FormDataTypes } from "../types";
 
 function FindCodelists() {
-  const formData: FormDataTypes = useFormStore((state) => state.formData);
+  const formData = useFormStore((state) => state.formData);
   const { pageData } = usePageData.getState();
-  const [secondCodelist, setSecondCodelist]: [boolean, Function] = useState(
-    !!formData.codelist1
-  );
+  const [secondCodelist, setSecondCodelist] = useState(!!formData.codelist1);
 
   const [, navigate] = useLocation();
 
@@ -30,7 +27,7 @@ function FindCodelists() {
       ? codelistSchema(pageData).test(
           "compare_codelists",
           "Codelists cannot be the same, please change one codelist",
-          (value, testContext: Yup.TestContext) => {
+          (value, testContext) => {
             if (
               Object.entries(testContext.parent.codelist0).toString() ===
               Object.entries(value).toString()

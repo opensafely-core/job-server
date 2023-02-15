@@ -1,14 +1,7 @@
+import { node, string } from "prop-types";
 import { useLocation } from "wouter";
 
-function ReviewLineItem({
-  title,
-  children,
-  page,
-}: {
-  title: string;
-  children: React.ReactNode;
-  page: string;
-}) {
+function ReviewLineItem({ title, children, page }) {
   const [, navigate] = useLocation();
 
   return (
@@ -31,3 +24,9 @@ function ReviewLineItem({
 }
 
 export default ReviewLineItem;
+
+ReviewLineItem.propTypes = {
+  title: string.isRequired,
+  children: node.isRequired,
+  page: string.isRequired,
+};

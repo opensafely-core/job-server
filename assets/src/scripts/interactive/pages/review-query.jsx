@@ -3,7 +3,6 @@ import { AlertPage } from "../components/Alert";
 import { Button } from "../components/Button";
 import { endDate } from "../data/form-fields";
 import { useFormStore } from "../stores";
-import { FormDataTypes } from "../types";
 import { classNames, requiredLoader } from "../utils";
 
 export const lines = [
@@ -15,7 +14,7 @@ export const lines = [
 
 function ReviewQuery() {
   const [, navigate] = useLocation();
-  const formData: FormDataTypes = useFormStore((state) => state.formData);
+  const formData = useFormStore((state) => state.formData);
 
   if (requiredLoader({ fields: ["codelist0", "frequency"] })) {
     return <Redirect to="" />;

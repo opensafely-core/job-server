@@ -1,20 +1,13 @@
 import { Combobox } from "@headlessui/react";
 import { CheckIcon } from "@heroicons/react/20/solid";
 import { useFormikContext } from "formik";
-import { CodelistGroup, SingleCodelist } from "../types";
+import { string } from "prop-types";
+import { codelistGroupProps } from "../props";
 import { classNames } from "../utils";
 
-function ComboboxItem({
-  codelistGroup,
-  codelistID,
-  query,
-}: {
-  codelistGroup: CodelistGroup;
-  codelistID: string;
-  query: string;
-}) {
-  const { values }: { values: { [index: string]: any } } = useFormikContext();
-  const filteredCodelists = (codelists: SingleCodelist[]) =>
+function ComboboxItem({ codelistGroup, codelistID, query }) {
+  const { values } = useFormikContext();
+  const filteredCodelists = (codelists) =>
     query.length < 2
       ? codelists
       : codelists.filter((codelist) =>
@@ -88,3 +81,9 @@ function ComboboxItem({
 }
 
 export default ComboboxItem;
+
+ComboboxItem.propTypes = {
+  codelistGroup: codelistGroupProps.isRequired,
+  codelistID: string.isRequired,
+  query: string.isRequired,
+};

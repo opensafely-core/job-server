@@ -1,15 +1,14 @@
-import { useLocation, Redirect } from "wouter";
+import { Redirect, useLocation } from "wouter";
 import { AlertPage } from "../components/Alert";
 import { Button } from "../components/Button";
 import EventsAfter from "../components/Diagrams/EventsAfter";
 import EventsBefore from "../components/Diagrams/EventsBefore";
 import { useFormStore } from "../stores";
-import { FormDataTypes } from "../types";
 import { requiredLoader } from "../utils";
 
 function PreviewRequest() {
   const [, navigate] = useLocation();
-  const formData: FormDataTypes = useFormStore((state) => state.formData);
+  const formData = useFormStore((state) => state.formData);
 
   if (
     requiredLoader({
@@ -49,7 +48,7 @@ function PreviewRequest() {
           <p className="absolute max-w-[28ch] text-center right-0 top-0 border-2 border-oxford-300 bg-slate-50 p-2">
             Individual has qualifying event from:
             <br />
-            <strong>{formData.codelistA!.label}</strong>
+            <strong>{formData.codelistA.label}</strong>
           </p>
           <EventsBefore
             timeScale={formData.timeScale}
@@ -58,7 +57,7 @@ function PreviewRequest() {
           <p className="absolute max-w-[28ch] text-center left-0 bottom-0 border-2 border-oxford-300 bg-slate-50 p-2">
             Individual ALSO has an event from:
             <br />
-            <strong>{formData.codelistB!.label}</strong>
+            <strong>{formData.codelistB.label}</strong>
           </p>
         </div>
       ) : null}
@@ -68,7 +67,7 @@ function PreviewRequest() {
           <p className="absolute max-w-[28ch] text-center left-0 top-0 border-2 border-oxford-300 bg-slate-50 p-2">
             Individual has qualifying event from:
             <br />
-            <strong>{formData.codelistA!.label}</strong>
+            <strong>{formData.codelistA.label}</strong>
           </p>
           <EventsAfter
             timeScale={formData.timeScale}
@@ -77,7 +76,7 @@ function PreviewRequest() {
           <p className="absolute max-w-[28ch] text-center right-0 bottom-0 border-2 border-oxford-300 bg-slate-50 p-2">
             Individual ALSO has an event from:
             <br />
-            <strong>{formData.codelistB!.label}</strong>
+            <strong>{formData.codelistB.label}</strong>
           </p>
         </div>
       ) : null}

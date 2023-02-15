@@ -1,18 +1,13 @@
 import { useFormikContext } from "formik";
+import { bool, func } from "prop-types";
 import { useFormStore } from "../../stores";
 import Button from "./Button";
 
-function CodelistButton({
-  secondCodelist,
-  setSecondCodelist,
-}: {
-  secondCodelist: boolean;
-  setSecondCodelist: Function;
-}) {
+function CodelistButton({ secondCodelist, setSecondCodelist }) {
   const { setFieldValue, setTouched, touched, validateForm } =
     useFormikContext();
 
-  const handleCodelistBtn = (show: boolean) => {
+  const handleCodelistBtn = (show) => {
     if (!show) {
       setFieldValue("codelist1", undefined);
       setTouched({ ...touched, codelist1: false });
@@ -34,3 +29,8 @@ function CodelistButton({
 }
 
 export default CodelistButton;
+
+CodelistButton.propTypes = {
+  secondCodelist: bool.isRequired,
+  setSecondCodelist: func.isRequired,
+};

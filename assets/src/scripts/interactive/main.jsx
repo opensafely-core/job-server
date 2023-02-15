@@ -11,21 +11,16 @@ import ReviewRequest from "./pages/review-request";
 import Success from "./pages/success";
 import ScrollToTop from "./utils/scrollToTop";
 
-const element: HTMLElement | null = document.getElementById("osi");
+const element = document.getElementById("osi");
 if (!element) throw new Error("Failed to find the root element");
 
 const root = createRoot(element);
 const { dataset } = element;
 
-if (!dataset.events || !dataset.medications) {
+if (!dataset.events || !dataset.medications)
   throw new Error("Codelist data not provided");
-}
-if (!dataset.basePath) {
-  throw new Error("Basename not provided");
-}
-if (!dataset.csrfToken) {
-  throw new Error("CSRF Token not provided");
-}
+if (!dataset.basePath) throw new Error("Basename not provided");
+if (!dataset.csrfToken) throw new Error("CSRF Token not provided");
 
 root.render(
   <React.StrictMode>

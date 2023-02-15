@@ -7,13 +7,12 @@ import InputError from "../components/InputError";
 import ReviewLineItem from "../components/ReviewLineItem";
 import { demographics, endDate, filterPopulation } from "../data/form-fields";
 import { useFormStore, usePageData } from "../stores";
-import { FormDataTypes } from "../types";
 import { requiredLoader } from "../utils";
 import { lines as singleLines } from "./review-query";
 
 function ReviewRequest() {
   const { basePath, csrfToken } = usePageData.getState();
-  const formData: FormDataTypes = useFormStore((state) => state.formData);
+  const formData = useFormStore((state) => state.formData);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [error, setError] = useState("");
 

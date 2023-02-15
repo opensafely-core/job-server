@@ -1,20 +1,9 @@
+import PropTypes from "prop-types";
 import { useLocation } from "wouter";
 import { usePageData } from "./stores";
 import { classNames, getCodelistPageData } from "./utils";
 
-function App({
-  basePath,
-  children,
-  csrfToken,
-  events,
-  medications,
-}: {
-  basePath: string;
-  children: React.ReactElement;
-  csrfToken: string;
-  events: string;
-  medications: string;
-}) {
+function App({ basePath, children, csrfToken, events, medications }) {
   const [location] = useLocation();
   const isFirstPage = location === "/";
   const isLastPage = location === "/success";
@@ -70,3 +59,11 @@ function App({
 }
 
 export default App;
+
+App.propTypes = {
+  basePath: PropTypes.string.isRequired,
+  children: PropTypes.element.isRequired,
+  csrfToken: PropTypes.string.isRequired,
+  events: PropTypes.string.isRequired,
+  medications: PropTypes.string.isRequired,
+};

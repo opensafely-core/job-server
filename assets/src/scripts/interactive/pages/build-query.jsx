@@ -1,5 +1,5 @@
 import { Form, Formik } from "formik";
-import { useLocation, Redirect } from "wouter";
+import { Redirect, useLocation } from "wouter";
 import * as Yup from "yup";
 import { AlertForm } from "../components/Alert";
 import { Button } from "../components/Button";
@@ -7,13 +7,12 @@ import CodelistBuilder from "../components/CodelistBuilder";
 import { builderTimeEvents, builderTimeScales } from "../data/form-fields";
 import { codelistSchema } from "../data/schema";
 import { useFormStore, usePageData } from "../stores";
-import { FormDataTypes } from "../types";
 import { requiredLoader } from "../utils";
 
 function QueryBuilder() {
   const [, navigate] = useLocation();
   const { pageData } = usePageData.getState();
-  const formData: FormDataTypes = useFormStore((state) => state.formData);
+  const formData = useFormStore((state) => state.formData);
 
   if (
     requiredLoader({

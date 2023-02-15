@@ -1,15 +1,8 @@
 import { Field } from "formik";
+import { func, string } from "prop-types";
 import React from "react";
 
-interface RadioButtonProps {
-  id: string;
-  label: string;
-  name: string;
-  onClick?: React.MouseEventHandler<HTMLInputElement>;
-  value: string;
-}
-
-function RadioButton({ id, label, name, value, onClick }: RadioButtonProps) {
+function Checkbox({ id, label, name, value, onClick }) {
   return (
     <div className="flex flex-row place-items-baseline gap-x-3 text-lg leading-tight">
       <Field
@@ -17,7 +10,7 @@ function RadioButton({ id, label, name, value, onClick }: RadioButtonProps) {
         id={id}
         name={name}
         onClick={onClick}
-        type="radio"
+        type="checkbox"
         value={value}
       />
       <label
@@ -30,8 +23,16 @@ function RadioButton({ id, label, name, value, onClick }: RadioButtonProps) {
   );
 }
 
-export default RadioButton;
+export default Checkbox;
 
-RadioButton.defaultProps = {
+Checkbox.propTypes = {
+  id: string.isRequired,
+  label: string.isRequired,
+  name: string.isRequired,
+  onClick: func,
+  value: string.isRequired,
+};
+
+Checkbox.defaultProps = {
   onClick: () => null,
 };
