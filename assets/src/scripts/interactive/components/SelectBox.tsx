@@ -1,6 +1,5 @@
 import { Listbox, Transition } from "@headlessui/react";
-import CheckIcon from "@heroicons/react/20/solid/CheckIcon";
-import ChevronUpDownIcon from "@heroicons/react/20/solid/ChevronUpDownIcon";
+import { CheckIcon, ChevronUpDownIcon } from "@heroicons/react/20/solid";
 import { Fragment } from "react";
 import { useFormStore } from "../stores";
 import { FormDataTypes, SingleCodelist } from "../types";
