@@ -5,13 +5,12 @@
     "dev": "vite",
     "build": "vite build",
     "serve": "vite preview",
-    "lint": "eslint \"./assets/src/**/*.{js,jsx,ts,tsx}\"",
-    "lint:fix": "eslint \"./assets/src/**/*.{js,jsx,ts,tsx}\" --fix",
+    "lint": "eslint \"./assets/src/**/*.{js,jsx}\"",
+    "lint:fix": "eslint \"./assets/src/**/*.{js,jsx}\" --fix",
     "test": "npx vitest run",
     "test:watch": "npx vitest",
     "test:coverage": "npx vitest run --coverage",
-    "test:single": "npx vitest -t",
-    "check": "npm run lint && npx tsc"
+    "test:single": "npx vitest -t"
   },
   "devDependencies": {
     "@testing-library/jest-dom": "^5.16.5",
