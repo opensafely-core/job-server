@@ -1,4 +1,4 @@
-import { element, string } from "prop-types";
+import { node, string } from "prop-types";
 
 function Fieldset({ children, legend }) {
   return (
@@ -14,6 +14,6 @@ function Fieldset({ children, legend }) {
 export default Fieldset;
 
 Fieldset.propTypes = {
-  children: element.isRequired,
+  children: node.isRequired,
   legend: string.isRequired,
 };

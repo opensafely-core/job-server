@@ -1,7 +1,7 @@
 import { Combobox } from "@headlessui/react";
 import { CheckIcon } from "@heroicons/react/20/solid";
 import { useFormikContext } from "formik";
-import { string } from "prop-types";
+import { shape, string } from "prop-types";
 import { codelistGroupProps } from "../props";
 import { classNames } from "../utils";
 
@@ -83,7 +83,7 @@ function ComboboxItem({ codelistGroup, codelistID, query }) {
 export default ComboboxItem;
 
 ComboboxItem.propTypes = {
-  codelistGroup: codelistGroupProps.isRequired,
+  codelistGroup: shape(codelistGroupProps).isRequired,
   codelistID: string.isRequired,
   query: string.isRequired,
 };

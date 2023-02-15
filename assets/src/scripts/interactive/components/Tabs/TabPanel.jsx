@@ -1,6 +1,6 @@
 import { Combobox, Tab } from "@headlessui/react";
 import { Field, useFormikContext } from "formik";
-import { func, string } from "prop-types";
+import { func, shape, string } from "prop-types";
 import { useEffect, useState } from "react";
 import { codelistGroupProps } from "../../props";
 import { classNames, isObject } from "../../utils";
@@ -79,7 +79,7 @@ function TabPanel({ codelistGroup, codelistID, query, setQuery }) {
 export default TabPanel;
 
 TabPanel.propTypes = {
-  codelistGroup: codelistGroupProps.isRequired,
+  codelistGroup: shape(codelistGroupProps).isRequired,
   codelistID: string.isRequired,
   query: string.isRequired,
   setQuery: func.isRequired,

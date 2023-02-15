@@ -1,4 +1,4 @@
-import { element } from "prop-types";
+import { node } from "prop-types";
 
 function HintText({ children }) {
   return (
@@ -11,5 +11,5 @@ function HintText({ children }) {
 export default HintText;
 
 HintText.propTypes = {
-  children: element.isRequired,
+  children: node.isRequired,
 };

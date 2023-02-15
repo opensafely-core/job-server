@@ -1,10 +1,4 @@
-import { string } from "prop-types";
-
-// export const OpenCodelist = {
-//   name: string;
-//   organisation: string;
-//   slug: string;
-// }
+import { arrayOf, shape, string } from "prop-types";
 
 export const singleCodelistProps = {
   label: string,
@@ -16,18 +10,5 @@ export const singleCodelistProps = {
 export const codelistGroupProps = {
   name: string.isRequired,
   id: string.isRequired,
-  codelists: singleCodelistProps,
+  codelists: arrayOf(shape(singleCodelistProps)).isRequired,
 };
-
-// export const FormDataTypes = {
-//   codelist0?: SingleCodelist;
-//   codelist1?: SingleCodelist;
-//   frequency?: string;
-//   codelistA?: SingleCodelist;
-//   codelistB?: SingleCodelist;
-//   timeValue?: number;
-//   timeScale?: string;
-//   timeEvent?: string;
-//   filterPopulation?: string;
-//   demographics?: string[];
-// }

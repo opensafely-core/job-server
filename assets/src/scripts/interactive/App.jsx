@@ -62,7 +62,7 @@ export default App;
 
 App.propTypes = {
   basePath: PropTypes.string.isRequired,
-  children: PropTypes.element.isRequired,
+  children: PropTypes.node.isRequired,
   csrfToken: PropTypes.string.isRequired,
   events: PropTypes.string.isRequired,
   medications: PropTypes.string.isRequired,

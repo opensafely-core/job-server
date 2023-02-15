@@ -1,4 +1,4 @@
-import { element } from "prop-types";
+import { node } from "prop-types";
 
 function InputError({ children }) {
   return (
@@ -11,5 +11,5 @@ function InputError({ children }) {
 export default InputError;
 
 InputError.propTypes = {
-  children: element.isRequired,
+  children: node.isRequired,
 };
