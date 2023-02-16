@@ -10,21 +10,21 @@ import Fieldset from "../components/Fieldset";
 import HintText from "../components/HintText";
 import InputError from "../components/InputError";
 import RadioButton from "../components/RadioButton";
+import { useAppData, useFormData } from "../context";
 import { frequency } from "../data/form-fields";
 import { codelistSchema } from "../data/schema";
-import { useFormStore, usePageData } from "../stores";
 
 function FindCodelists() {
-  const formData = useFormStore((state) => state.formData);
-  const { pageData } = usePageData.getState();
+  const { formData, setFormData } = useFormData();
+  const { codelistGroups } = useAppData();
   const [secondCodelist, setSecondCodelist] = useState(!!formData.codelist1);
 
   const [, navigate] = useLocation();
 
   const validationSchema = Yup.object({
-    codelist0: codelistSchema(pageData),
+    codelist0: codelistSchema(codelistGroups),
     codelist1: secondCodelist
-      ? codelistSchema(pageData).test(
+      ? codelistSchema(codelistGroups).test(
           "compare_codelists",
           "Codelists cannot be the same, please change one codelist",
           (value, testContext) => {
@@ -55,7 +55,7 @@ function FindCodelists() {
       initialValues={initialValues}
       onSubmit={(values, actions) => {
         actions.validateForm().then(() => {
-          useFormStore.setState({ formData: { ...formData, ...values } });
+          setFormData({ ...formData, ...values });
           if (secondCodelist) {
             return navigate("build-query");
           }

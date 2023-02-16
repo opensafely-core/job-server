@@ -7,19 +7,15 @@ import Checkbox from "../components/Checkbox";
 import Fieldset from "../components/Fieldset";
 import InputError from "../components/InputError";
 import RadioButton from "../components/RadioButton";
+import { useFormData } from "../context";
 import { demographics, filterPopulation } from "../data/form-fields";
-import { useFormStore } from "../stores";
-import { requiredLoader } from "../utils";
+import { useRequiredFields } from "../utils";
 
 function FilterRequest() {
   const [, navigate] = useLocation();
-  const formData = useFormStore((state) => state.formData);
+  const { formData, setFormData } = useFormData();
 
-  if (
-    requiredLoader({
-      fields: ["codelist0", "frequency"],
-    })
-  ) {
+  if (useRequiredFields(["codelist0", "frequency"])) {
     return <Redirect to="" />;
   }
 
@@ -44,7 +40,7 @@ function FilterRequest() {
       initialValues={initialValues}
       onSubmit={(values, actions) => {
         actions.validateForm().then(() => {
-          useFormStore.setState({ formData: { ...formData, ...values } });
+          setFormData({ ...formData, ...values });
           navigate("review-request");
         });
       }}

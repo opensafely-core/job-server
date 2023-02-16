@@ -1,9 +1,9 @@
-import { useLocation, Redirect } from "wouter";
+import { Redirect, useLocation } from "wouter";
 import { AlertPage } from "../components/Alert";
 import { Button } from "../components/Button";
+import { useFormData } from "../context";
 import { endDate } from "../data/form-fields";
-import { useFormStore } from "../stores";
-import { classNames, requiredLoader } from "../utils";
+import { classNames, useRequiredFields } from "../utils";
 
 export const lines = [
   "Your report will show the number of people who have had",
@@ -14,9 +14,9 @@ export const lines = [
 
 function ReviewQuery() {
   const [, navigate] = useLocation();
-  const formData = useFormStore((state) => state.formData);
+  const { formData } = useFormData();
 
-  if (requiredLoader({ fields: ["codelist0", "frequency"] })) {
+  if (useRequiredFields(["codelist0", "frequency"])) {
     return <Redirect to="" />;
   }
 

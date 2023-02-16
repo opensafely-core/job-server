@@ -4,27 +4,23 @@ import * as Yup from "yup";
 import { AlertForm } from "../components/Alert";
 import { Button } from "../components/Button";
 import CodelistBuilder from "../components/CodelistBuilder";
+import { useAppData, useFormData } from "../context";
 import { builderTimeEvents, builderTimeScales } from "../data/form-fields";
 import { codelistSchema } from "../data/schema";
-import { useFormStore, usePageData } from "../stores";
-import { requiredLoader } from "../utils";
+import { useRequiredFields } from "../utils";
 
 function QueryBuilder() {
   const [, navigate] = useLocation();
-  const { pageData } = usePageData.getState();
-  const formData = useFormStore((state) => state.formData);
+  const { codelistGroups } = useAppData();
+  const { formData, setFormData } = useFormData();
 
-  if (
-    requiredLoader({
-      fields: ["codelist0", "codelist1", "frequency"],
-    })
-  ) {
+  if (useRequiredFields(["codelist0", "codelist1", "frequency"])) {
     return <Redirect to="" />;
   }
 
   const validationSchema = Yup.object().shape({
-    codelistA: codelistSchema(pageData),
-    codelistB: codelistSchema(pageData),
+    codelistA: codelistSchema(codelistGroups),
+    codelistB: codelistSchema(codelistGroups),
     timeValue: Yup.number()
       .positive()
       .min(1)
@@ -65,7 +61,7 @@ function QueryBuilder() {
       initialValues={initialValues}
       onSubmit={(values, actions) => {
         actions.validateForm().then(() => {
-          useFormStore.setState({ formData: { ...formData, ...values } });
+          setFormData({ ...formData, ...values });
           return navigate("preview-request");
         });
       }}

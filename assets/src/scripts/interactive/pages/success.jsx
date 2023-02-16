@@ -1,16 +1,20 @@
 import { useEffect } from "react";
 import { Redirect } from "wouter";
 import { removeAlert } from "../components/Alert";
-import { useFormStore } from "../stores";
-import { requiredLoader } from "../utils";
+import { useFormData } from "../context";
+import { useRequiredFields } from "../utils";
 
 function Success() {
   const uuid = crypto.randomUUID().split("-").slice(0, 1)[0];
+  const { setFormData } = useFormData();
 
   if (
-    requiredLoader({
-      fields: ["codelist0", "frequency", "filterPopulation", "demographics"],
-    })
+    useRequiredFields([
+      "codelist0",
+      "frequency",
+      "filterPopulation",
+      "demographics",
+    ])
   ) {
     return <Redirect to="" />;
   }
@@ -18,8 +22,8 @@ function Success() {
   // eslint-disable-next-line react-hooks/rules-of-hooks
   useEffect(() => {
     removeAlert();
-    return useFormStore.setState({});
-  }, []);
+    return setFormData({});
+  }, [setFormData]);
 
   return (
     <div className="prose prose-lg mb-10">

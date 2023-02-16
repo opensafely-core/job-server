@@ -5,21 +5,24 @@ import { Button } from "../components/Button";
 import { lines as multiLines } from "../components/CodelistBuilder";
 import InputError from "../components/InputError";
 import ReviewLineItem from "../components/ReviewLineItem";
+import { useAppData, useFormData } from "../context";
 import { demographics, endDate, filterPopulation } from "../data/form-fields";
-import { useFormStore, usePageData } from "../stores";
-import { requiredLoader } from "../utils";
+import { useRequiredFields } from "../utils";
 import { lines as singleLines } from "./review-query";
 
 function ReviewRequest() {
-  const { basePath, csrfToken } = usePageData.getState();
-  const formData = useFormStore((state) => state.formData);
+  const { basePath, csrfToken } = useAppData();
+  const { formData } = useFormData();
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [error, setError] = useState("");
 
   if (
-    requiredLoader({
-      fields: ["codelist0", "frequency", "filterPopulation", "demographics"],
-    })
+    useRequiredFields([
+      "codelist0",
+      "frequency",
+      "filterPopulation",
+      "demographics",
+    ])
   ) {
     return <Redirect to="" />;
   }

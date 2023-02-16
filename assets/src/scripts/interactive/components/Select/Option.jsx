@@ -1,6 +1,6 @@
 import { Listbox } from "@headlessui/react";
 import { CheckIcon } from "@heroicons/react/20/solid";
-import { string } from "prop-types";
+import { shape, string } from "prop-types";
 import { singleCodelistProps } from "../../props";
 import { classNames } from "../../utils";
 
@@ -45,5 +45,5 @@ export default SelectOption;
 
 SelectOption.propTypes = {
   label: string.isRequired,
-  value: singleCodelistProps.isRequired,
+  value: shape(singleCodelistProps).isRequired,
 };

@@ -2,16 +2,16 @@ import { Tab } from "@headlessui/react";
 import { useFormikContext } from "formik";
 import { number, string } from "prop-types";
 import { useState } from "react";
-import { useFormStore, usePageData } from "../stores";
+import { useAppData, useFormData } from "../context";
 import { TabList, TabPanel } from "./Tabs";
 
 function CodelistSearch({ id, label }) {
   const { setFieldValue } = useFormikContext();
-  const formData = useFormStore((state) => state.formData);
-  const { pageData } = usePageData.getState();
+  const { formData } = useFormData();
+  const { codelistGroups } = useAppData();
   const [query, setQuery] = useState("");
   const codelistID = `codelist${id}`;
-  const defaultIndex = pageData.findIndex(
+  const defaultIndex = codelistGroups.findIndex(
     (group) => group.id === formData?.[codelistID]?.type
   );
 
@@ -29,7 +29,7 @@ function CodelistSearch({ id, label }) {
       </h2>
       <TabList />
       <Tab.Panels>
-        {pageData.map((codelistGroup) => (
+        {codelistGroups.map((codelistGroup) => (
           <TabPanel
             key={codelistGroup.id}
             codelistGroup={codelistGroup}

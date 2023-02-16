@@ -1,13 +1,13 @@
 import { Tab } from "@headlessui/react";
-import { usePageData } from "../../stores";
+import { useAppData } from "../../context";
 import { classNames } from "../../utils";
 
 function TabList() {
-  const { pageData } = usePageData.getState();
+  const { codelistGroups } = useAppData();
 
   return (
     <Tab.List className="flex space-x-1 rounded bg-gray-100 p-1 max-w-prose">
-      {pageData.map((codelistGroup) => (
+      {codelistGroups.map((codelistGroup) => (
         <Tab
           key={codelistGroup.id}
           className={({ selected }) =>

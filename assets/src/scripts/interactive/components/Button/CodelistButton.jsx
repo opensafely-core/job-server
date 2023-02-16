@@ -1,17 +1,18 @@
 import { useFormikContext } from "formik";
 import { bool, func } from "prop-types";
-import { useFormStore } from "../../stores";
+import { useFormData } from "../../context";
 import Button from "./Button";
 
 function CodelistButton({ secondCodelist, setSecondCodelist }) {
   const { setFieldValue, setTouched, touched, validateForm } =
     useFormikContext();
+  const { setFormData } = useFormData();
 
   const handleCodelistBtn = (show) => {
     if (!show) {
       setFieldValue("codelist1", undefined);
       setTouched({ ...touched, codelist1: false });
-      useFormStore.setState({ formData: {} });
+      setFormData({});
     }
     setSecondCodelist(show);
     setTimeout(() => validateForm(), 0);

@@ -1,10 +1,10 @@
 import { Field, useFormikContext } from "formik";
+import { useFormData } from "../context";
 import {
   builderTimeEvents,
   builderTimeScales,
   endDate,
 } from "../data/form-fields";
-import { useFormStore } from "../stores";
 import { classNames } from "../utils";
 import InputError from "./InputError";
 import { SelectContainer } from "./Select";
@@ -18,7 +18,7 @@ export const lines = [
 ];
 
 function CodelistBuilder() {
-  const formData = useFormStore((state) => state.formData);
+  const { formData } = useFormData();
   const { values, setFieldValue, errors, touched } = useFormikContext();
 
   const handleChange = (selectedItem) => {

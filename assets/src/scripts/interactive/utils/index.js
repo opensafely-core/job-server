@@ -1,4 +1,4 @@
-import { useFormStore } from "../stores";
+import { useFormData } from "../context";
 
 export function classNames(...classes) {
   return classes.filter(Boolean).join(" ");
@@ -25,8 +25,8 @@ export function getCodelistPageData(scriptID) {
   return configureJson;
 }
 
-export function requiredLoader({ fields }) {
-  const { formData } = useFormStore.getState();
+export function useRequiredFields(fields) {
+  const { formData } = useFormData();
   const missing = [];
 
   fields.forEach((field) => {
@@ -40,4 +40,25 @@ export function requiredLoader({ fields }) {
 
 export function isObject(a) {
   return !!a && a.constructor === Object;
+}
+
+export function getAppData({
+  dataset: { basePath, csrfToken, events, medications },
+}) {
+  return {
+    basePath,
+    csrfToken,
+    codelistGroups: [
+      {
+        name: "Event",
+        id: "event",
+        codelists: getCodelistPageData(events),
+      },
+      {
+        name: "Medication",
+        id: "medication",
+        codelists: getCodelistPageData(medications),
+      },
+    ],
+  };
 }

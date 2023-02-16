@@ -1,29 +1,11 @@
 import PropTypes from "prop-types";
 import { useLocation } from "wouter";
-import { usePageData } from "./stores";
-import { classNames, getCodelistPageData } from "./utils";
+import { classNames } from "./utils";
 
-function App({ basePath, children, csrfToken, events, medications }) {
+function App({ children }) {
   const [location] = useLocation();
   const isFirstPage = location === "/";
   const isLastPage = location === "/success";
-
-  usePageData.setState({
-    basePath,
-    csrfToken,
-    pageData: [
-      {
-        name: "Event",
-        id: "event",
-        codelists: getCodelistPageData(events),
-      },
-      {
-        name: "Medication",
-        id: "medication",
-        codelists: getCodelistPageData(medications),
-      },
-    ],
-  });
 
   return (
     <main className="min-h-[66vh] flex-grow pb-12 bg-gray-100">
@@ -61,9 +43,5 @@ function App({ basePath, children, csrfToken, events, medications }) {
 export default App;
 
 App.propTypes = {
-  basePath: PropTypes.string.isRequired,
   children: PropTypes.node.isRequired,
-  csrfToken: PropTypes.string.isRequired,
-  events: PropTypes.string.isRequired,
-  medications: PropTypes.string.isRequired,
 };

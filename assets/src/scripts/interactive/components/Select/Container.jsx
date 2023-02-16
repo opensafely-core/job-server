@@ -1,14 +1,14 @@
 import { Listbox, Transition } from "@headlessui/react";
 import { ChevronUpDownIcon } from "@heroicons/react/20/solid";
-import { func, string } from "prop-types";
+import { func, shape, string } from "prop-types";
 import { Fragment } from "react";
+import { useFormData } from "../../context";
 import { singleCodelistProps } from "../../props";
-import { useFormStore } from "../../stores";
 import { classNames } from "../../utils";
 import SelectOption from "./Option";
 
 function SelectContainer({ defaultValue, handleChange, name }) {
-  const formData = useFormStore((state) => state.formData);
+  const { formData } = useFormData();
 
   return (
     <Listbox
@@ -65,7 +65,7 @@ function SelectContainer({ defaultValue, handleChange, name }) {
 export default SelectContainer;
 
 SelectContainer.propTypes = {
-  defaultValue: singleCodelistProps.isRequired,
+  defaultValue: shape(singleCodelistProps).isRequired,
   handleChange: func.isRequired,
   name: string.isRequired,
 };

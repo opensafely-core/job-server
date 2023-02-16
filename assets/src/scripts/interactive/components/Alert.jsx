@@ -1,6 +1,6 @@
 import { useFormikContext } from "formik";
 import { useEffect } from "react";
-import { useFormStore } from "../stores";
+import { useFormData } from "../context";
 
 const beforeUnloadListener = (event) => {
   event.preventDefault();
@@ -23,7 +23,7 @@ export function removeAlert() {
 }
 
 export function AlertForm() {
-  const { formData } = useFormStore.getState();
+  const { formData } = useFormData();
   const { dirty } = useFormikContext();
 
   useEffect(() => {
@@ -41,7 +41,7 @@ AlertForm.defaultProps = {
 };
 
 export function AlertPage() {
-  const { formData } = useFormStore.getState();
+  const { formData } = useFormData();
 
   useEffect(() => {
     if (formData) {
