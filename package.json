@@ -5,22 +5,17 @@
     "dev": "vite",
     "build": "vite build",
     "serve": "vite preview",
-    "lint": "eslint \"./assets/src/**/*.{js,jsx,ts,tsx}\"",
-    "lint:fix": "eslint \"./assets/src/**/*.{js,jsx,ts,tsx}\" --fix",
+    "lint": "eslint \"./assets/src/**/*.{js,jsx}\"",
+    "lint:fix": "eslint \"./assets/src/**/*.{js,jsx}\" --fix",
     "test": "npx vitest run",
     "test:watch": "npx vitest",
     "test:coverage": "npx vitest run --coverage",
-    "test:single": "npx vitest -t",
-    "check": "npm run lint && npx tsc"
+    "test:single": "npx vitest -t"
   },
   "devDependencies": {
     "@testing-library/jest-dom": "^5.16.5",
     "@testing-library/react": "^13.4.0",
     "@testing-library/user-event": "^14.4.3",
-    "@types/react": "^18.0.28",
-    "@types/react-dom": "^18.0.11",
-    "@typescript-eslint/eslint-plugin": "^5.52.0",
-    "@typescript-eslint/parser": "^5.52.0",
     "@vitejs/plugin-legacy": "^4.0.1",
     "@vitejs/plugin-react-swc": "^3.1.0",
     "@vitest/coverage-c8": "^0.28.5",
@@ -28,7 +23,6 @@
     "cssnano": "^5.1.14",
     "eslint": "^8.34.0",
     "eslint-config-airbnb": "^19.0.4",
-    "eslint-config-airbnb-typescript": "^17.0.0",
     "eslint-config-prettier": "^8.6.0",
     "eslint-plugin-import": "^2.27.5",
     "eslint-plugin-jsx-a11y": "^6.7.1",
@@ -82,7 +76,6 @@
     "tailwindcss": "^3.2.6",
     "whatwg-fetch": "^3.6.2",
     "wouter": "^2.10.0",
-    "yup": "^1.0.0",
-    "zustand": "^4.3.3"
+    "yup": "^1.0.0"
   }
 }

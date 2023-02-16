@@ -1,9 +1,0 @@
-function HintText({ children }: { children: React.ReactNode }) {
-  return (
-    <div className="-mt-2 mb-0.5 text-sm text-gray-700 flex flex-col gap-y-1">
-      {children}
-    </div>
-  );
-}
-
-export default HintText;
