@@ -10,6 +10,7 @@ attrs==21.4.0 \
     # via
     #   -c requirements.prod.txt
     #   pytest
+    #   pytest-subtests
 black==22.12.0 \
     --hash=sha256:101c69b23df9b44247bd88e1d7e90154336ac4992502d4197bdac35dd7ee3320 \
     --hash=sha256:159a46a4947f73387b4d83e87ea006dbb2337eab6c879620a3ba52699b1f4351 \
@@ -251,9 +252,9 @@ pytest-mock==3.10.0 \
 pytest-network==0.0.1 \
     --hash=sha256:7b109e2ad27f4ab0f13c1796a9b419bab1d503ea3b5ae3ca37363486ccceaa3f
     # via -r requirements.dev.in
-pytest-subtests==0.9.0 \
-    --hash=sha256:c0317cd5f6a5eb3e957e89dbe4fc3322a9afddba2db8414355ed2a2cb91a844e \
-    --hash=sha256:f5f616b92c13405909d210569d6d3914db6fe156333ff5426534f97d5b447861
+pytest-subtests==0.10.0 \
+    --hash=sha256:03a50a14f7981cd03090e8ca94205d783e290266d828728210c3d79f4d00c46f \
+    --hash=sha256:d9961a67c1791e8c1e32dce7a70ed1e54f3b1e641087f2094f2d37087ab7fb17
     # via -r requirements.dev.in
 python-dateutil==2.8.2 \
     --hash=sha256:0123cacc1627ae19ddf3c27a5de5bd67ee4586fbdd6440d9748f8abb483d3e86 \
