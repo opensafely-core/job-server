@@ -44,7 +44,6 @@ services:
     environment:
       - GITHUB_TOKEN=
       - GITHUB_WRITEABLE_TOKEN=
-      - INTERACTIVE_TEMPLATE_REPO=
       - SECRET_KEY=12345
       - SOCIAL_AUTH_GITHUB_KEY=test
       - SOCIAL_AUTH_GITHUB_SECRET=test
