@@ -32,4 +32,4 @@ class Analysis:
     time_scale: str
     time_value: str
     title: str
-    identifier: str | None = None
+    id: str | None = None  # noqa: A003

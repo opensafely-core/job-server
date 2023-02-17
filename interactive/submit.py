@@ -125,7 +125,7 @@ def submit_analysis(
     # update the Analysis structure so we can pass around a single object
     # if/when we pull the create_commit function out into another service
     # this structure would be the JSON we send over
-    analysis.identifier = analysis_request.pk
+    analysis.id = analysis_request.pk
 
     sha, project_yaml = create_commit(
         analysis,
@@ -182,9 +182,7 @@ def commit_and_push(working_dir, analysis, force=False):
     second_codelist = ""
     if analysis.codelist_2:
         second_codelist = f" and codelist {analysis.codelist_2.slug}"
-    msg = (
-        f"Codelist {analysis.codelist_1.slug}{second_codelist} ({analysis.identifier})"
-    )
+    msg = f"Codelist {analysis.codelist_1.slug}{second_codelist} ({analysis.id})"
 
     git(
         # -c arguments are instead of having to having to maintain stateful git config
@@ -203,7 +201,7 @@ def commit_and_push(working_dir, analysis, force=False):
     commit_sha = ps.stdout.strip()
 
     # this is an super important step, makes it much easier to track commits
-    git("tag", analysis.identifier, *force_args, cwd=working_dir)
+    git("tag", analysis.id, *force_args, cwd=working_dir)
 
     # push to main. Note: we technically wouldn't need this from a pure git
     # pov, as a tag would be enough, but job-runner explicitly checks that
@@ -211,7 +209,7 @@ def commit_and_push(working_dir, analysis, force=False):
     git("push", "origin", "main", "--force-with-lease", cwd=working_dir)
 
     # push the tag once we know the main push has succeeded
-    git("push", "origin", analysis.identifier, *force_args, cwd=working_dir)
+    git("push", "origin", analysis.id, *force_args, cwd=working_dir)
     return commit_sha
 
 
@@ -223,12 +221,12 @@ def create_commit(
 ):
     if not force:
         # check this commit does not already exist
-        raise_if_commit_exists(analysis.repo, analysis.identifier)
+        raise_if_commit_exists(analysis.repo, analysis.id)
 
     analysis_name = "v2"
 
     # 1. create tempdir with AR.pk suffix
-    suffix = f"template-{analysis.identifier}"
+    suffix = f"template-{analysis.id}"
     with tempfile.TemporaryDirectory(suffix=suffix) as working_dir:
         working_dir = Path(working_dir)
 
@@ -251,7 +249,7 @@ def create_commit(
             template_dir, codelists, get_opencodelists_api
         )
 
-        suffix = f"repo-{analysis.identifier}"
+        suffix = f"repo-{analysis.id}"
         with tempfile.TemporaryDirectory(suffix=suffix) as repo_dir:
             repo_dir = Path(repo_dir)
 
