@@ -10,7 +10,7 @@ from pathlib import Path
 from attrs import asdict, define
 from django.conf import settings
 from django.db import transaction
-from jinja2 import Environment, FileSystemLoader
+from jinja2 import Environment, FileSystemLoader, StrictUndefined
 
 from .models import AnalysisRequest
 from .opencodelists import _get_opencodelists_api
@@ -38,7 +38,9 @@ class AnalysisTemplate:
 
     @property
     def environment(self):
-        return Environment(loader=FileSystemLoader(str(self.directory)))
+        return Environment(
+            loader=FileSystemLoader(str(self.directory)), undefined=StrictUndefined
+        )
 
     def write_codelist(self, output_dir, key, slug):
         path = output_dir / "codelists" / f"{key}.csv"
