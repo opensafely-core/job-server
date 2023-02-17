@@ -7,7 +7,6 @@ from interactive.submit import (
     clean_working_tree,
     commit_and_push,
     create_commit,
-    download_codelist,
     git,
     raise_if_commit_exists,
     submit_analysis,
@@ -68,7 +67,7 @@ def test_clean_working_tree(tmp_path):
     [
         (None, "Codelist slug-a"),
         (
-            Codelist(label="", slug="slug-b", type=""),
+            Codelist(label="", slug="slug-b", system="", type=""),
             "Codelist slug-a and codelist slug-b",
         ),
     ],
@@ -84,18 +83,14 @@ def test_commit_and_push(build_repo, remote_repo, codelist_2, commit_message):
     pk = new_ulid_str()
 
     analysis = Analysis(
-        codelist_1=Codelist(
-            label="",
-            slug="slug-a",
-            type="",
-        ),
+        codelist_1=Codelist(label="", slug="slug-a", system="", type=""),
         codelist_2=codelist_2,
         created_by=UserFactory().email,
         demographics="",
         filter_population="",
         frequency="",
         repo=repo,
-        identifier=pk,
+        id=pk,
         time_event="",
         time_scale="",
         time_value="",
@@ -122,12 +117,6 @@ def test_commit_and_push(build_repo, remote_repo, codelist_2, commit_message):
 
     # assert tag has been updated to point to second commit
     assert tag_points_at_sha(repo=repo, tag=pk, sha=sha)
-
-
-def test_download_codelist(tmp_path):
-    path = tmp_path / "codlist.csv"
-    download_codelist("test", path, get_opencodelists_api=FakeOpenCodelistsAPI)
-    assert path.exists()
 
 
 def test_raise_if_commit_exists(tmp_path):
@@ -163,14 +152,14 @@ def test_create_commit(build_repo, remote_repo, template_repo, force):
     pk = new_ulid_str()
 
     analysis = Analysis(
-        codelist_1=Codelist(label="", slug="", type=""),
+        codelist_1=Codelist(label="", slug="", system="", type=""),
         codelist_2=None,
         created_by=UserFactory().email,
         demographics="",
         filter_population="",
         frequency="",
         repo=remote_repo,
-        identifier=pk,
+        id=pk,
         time_event="",
         time_scale="",
         time_value="",
@@ -218,14 +207,14 @@ def test_create_commit_bad_template_repo(build_repo, remote_repo, tmp_path):
     )
     pk = new_ulid_str()
     analysis = Analysis(
-        codelist_1=Codelist(label="", slug="", type=""),
+        codelist_1=Codelist(label="", slug="", system="", type=""),
         codelist_2=None,
         created_by=UserFactory().email,
         demographics="",
         filter_population="",
         frequency="",
         repo="",
-        identifier=pk,
+        id=pk,
         time_event="",
         time_scale="",
         time_value="",
@@ -252,14 +241,14 @@ def test_create_commit_with_two_codelists(
     pk = new_ulid_str()
 
     analysis = Analysis(
-        codelist_1=Codelist(label="", slug="", type=""),
-        codelist_2=Codelist(label="", slug="slug-b", type=""),
+        codelist_1=Codelist(label="", slug="", system="", type=""),
+        codelist_2=Codelist(label="", slug="slug-b", system="", type=""),
         created_by=UserFactory().email,
         demographics="",
         filter_population="",
         frequency="",
         repo=remote_repo,
-        identifier=pk,
+        id=pk,
         time_event="",
         time_scale="",
         time_value="",
@@ -303,7 +292,7 @@ def test_submit_analysis(monkeypatch, remote_repo, template_repo):
     user = UserFactory()
 
     analysis = Analysis(
-        codelist_1=Codelist(label="", slug="slug-a", type=""),
+        codelist_1=Codelist(label="", slug="slug-a", system="", type=""),
         codelist_2=None,
         created_by=user.email,
         demographics="",

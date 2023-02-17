@@ -5,6 +5,7 @@ from attrs import define
 class Codelist:
     label: str
     slug: str
+    system: str
     type: str  # noqa: A003
 
     # TODO: what are these again?
@@ -32,4 +33,4 @@ class Analysis:
     time_scale: str
     time_value: str
     title: str
-    identifier: str | None = None
+    id: str | None = None  # noqa: A003

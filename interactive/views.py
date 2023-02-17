@@ -19,16 +19,19 @@ from .opencodelists import _get_opencodelists_api
 from .submit import submit_analysis
 
 
-def get(d, path, default=""):
-    """Return the value at a given path or the default"""
-    key, _, remainder = path.partition(".")
+def build_codelist(data):
+    if data is None:
+        return
 
-    value = d.get(key, default)
+    codelist_type = data.get("type", "")
+    system = "dmd" if codelist_type == "medication" else "snomedct"
 
-    if not isinstance(value, dict):
-        return value
-    else:
-        return get(value, remainder, default)
+    return Codelist(
+        label=data.get("label", ""),
+        slug=data.get("value", ""),
+        system=system,
+        type=codelist_type,
+    )
 
 
 class AnalysisRequestCreate(View):
@@ -37,17 +40,6 @@ class AnalysisRequestCreate(View):
 
     def build_analysis(self, *, form_data, project):
         raw = json.loads(form_data)
-
-        # translate the incoming data into something the form can validate
-        codelist_2 = None
-        if "codelistB" in raw:
-            codelist_2 = Codelist(
-                **{
-                    "label": get(raw, "codelistB.label"),
-                    "slug": get(raw, "codelistB.value"),
-                    "type": get(raw, "codelistB.type"),
-                }
-            )
 
         # add auth token if it's a real github repo
         # TODO: needs a new token for this
@@ -58,23 +50,17 @@ class AnalysisRequestCreate(View):
             )  # pragma: no cover
 
         return Analysis(
-            codelist_1=Codelist(
-                **{
-                    "label": get(raw, "codelistA.label"),
-                    "slug": get(raw, "codelistA.value"),
-                    "type": get(raw, "codelistA.type"),
-                }
-            ),
-            codelist_2=codelist_2,
+            codelist_1=build_codelist(raw.get("codelistA", None)),
+            codelist_2=build_codelist(raw.get("codelistB", None)),
             created_by=self.request.user.email,
-            demographics=get(raw, "demographics"),
-            filter_population=get(raw, "filterPopulation"),
-            frequency=get(raw, "frequency"),
+            demographics=raw.get("demographics", ""),
+            filter_population=raw.get("filterPopulation", ""),
+            frequency=raw.get("frequency", ""),
             repo=repo,
-            time_event=get(raw, "timeEvent"),
-            time_scale=get(raw, "timeScale"),
-            time_value=get(raw, "timeValue"),
-            title=get(raw, "title"),
+            time_event=raw.get("timeEvent", ""),
+            time_scale=raw.get("timeScale", ""),
+            time_value=raw.get("timeValue", ""),
+            title=raw.get("title", ""),
         )
 
     def dispatch(self, request, *args, **kwargs):
