@@ -271,13 +271,6 @@ def create_commit(
     return sha, project_yaml
 
 
-def download_codelist(slug, path, get_opencodelists_api=_get_opencodelists_api):
-    """Download the contents of a codelist."""
-    content = get_opencodelists_api().get_codelist(slug)
-
-    path.write_text(content)
-
-
 def git(*args, check=True, text=True, **kwargs):
     """
     Wrapper around subprocess.run for git commands.

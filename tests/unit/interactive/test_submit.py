@@ -7,7 +7,6 @@ from interactive.submit import (
     clean_working_tree,
     commit_and_push,
     create_commit,
-    download_codelist,
     git,
     raise_if_commit_exists,
     submit_analysis,
@@ -122,12 +121,6 @@ def test_commit_and_push(build_repo, remote_repo, codelist_2, commit_message):
 
     # assert tag has been updated to point to second commit
     assert tag_points_at_sha(repo=repo, tag=pk, sha=sha)
-
-
-def test_download_codelist(tmp_path):
-    path = tmp_path / "codlist.csv"
-    download_codelist("test", path, get_opencodelists_api=FakeOpenCodelistsAPI)
-    assert path.exists()
 
 
 def test_raise_if_commit_exists(tmp_path):
