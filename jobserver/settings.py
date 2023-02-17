@@ -364,7 +364,10 @@ DISABLE_CREATING_JOBS = env.bool("DISABLE_CREATING_JOBS", default=False)
 GITHUB_WRITEABLE_TOKEN = env.str("GITHUB_WRITEABLE_TOKEN", default="")
 
 # Interactive Analyses Templates Repo
-INTERACTIVE_TEMPLATE_REPO = env.str("INTERACTIVE_TEMPLATE_REPO", default="")
+INTERACTIVE_TEMPLATE_REPO = env.str(
+    "INTERACTIVE_TEMPLATE_REPO",
+    default="https://github.com/opensafely-core/interactive-templates",
+)
 
 # Releases storage location.
 # Note: we deliberately don't use MEDIA_ROOT/MEDIA_URL here, to avoid any
