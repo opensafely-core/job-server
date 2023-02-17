@@ -84,9 +84,6 @@ def test_analysisrequestcreate_post_success_with_one_codelist(
             "value": "bennett/event-codelist/event123",
             "type": "event",
         },
-        "timeValue": "12",
-        "timeScale": "months",
-        "timeEvent": "before",
         "filterPopulation": "adults",
         "demographics": ["age"],
     }
