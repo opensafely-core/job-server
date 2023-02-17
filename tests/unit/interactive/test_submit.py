@@ -67,7 +67,7 @@ def test_clean_working_tree(tmp_path):
     [
         (None, "Codelist slug-a"),
         (
-            Codelist(label="", slug="slug-b", type=""),
+            Codelist(label="", slug="slug-b", system="", type=""),
             "Codelist slug-a and codelist slug-b",
         ),
     ],
@@ -83,11 +83,7 @@ def test_commit_and_push(build_repo, remote_repo, codelist_2, commit_message):
     pk = new_ulid_str()
 
     analysis = Analysis(
-        codelist_1=Codelist(
-            label="",
-            slug="slug-a",
-            type="",
-        ),
+        codelist_1=Codelist(label="", slug="slug-a", system="", type=""),
         codelist_2=codelist_2,
         created_by=UserFactory().email,
         demographics="",
@@ -156,7 +152,7 @@ def test_create_commit(build_repo, remote_repo, template_repo, force):
     pk = new_ulid_str()
 
     analysis = Analysis(
-        codelist_1=Codelist(label="", slug="", type=""),
+        codelist_1=Codelist(label="", slug="", system="", type=""),
         codelist_2=None,
         created_by=UserFactory().email,
         demographics="",
@@ -211,7 +207,7 @@ def test_create_commit_bad_template_repo(build_repo, remote_repo, tmp_path):
     )
     pk = new_ulid_str()
     analysis = Analysis(
-        codelist_1=Codelist(label="", slug="", type=""),
+        codelist_1=Codelist(label="", slug="", system="", type=""),
         codelist_2=None,
         created_by=UserFactory().email,
         demographics="",
@@ -245,8 +241,8 @@ def test_create_commit_with_two_codelists(
     pk = new_ulid_str()
 
     analysis = Analysis(
-        codelist_1=Codelist(label="", slug="", type=""),
-        codelist_2=Codelist(label="", slug="slug-b", type=""),
+        codelist_1=Codelist(label="", slug="", system="", type=""),
+        codelist_2=Codelist(label="", slug="slug-b", system="", type=""),
         created_by=UserFactory().email,
         demographics="",
         filter_population="",
@@ -296,7 +292,7 @@ def test_submit_analysis(monkeypatch, remote_repo, template_repo):
     user = UserFactory()
 
     analysis = Analysis(
-        codelist_1=Codelist(label="", slug="slug-a", type=""),
+        codelist_1=Codelist(label="", slug="slug-a", system="", type=""),
         codelist_2=None,
         created_by=user.email,
         demographics="",

@@ -5,7 +5,7 @@ from django.conf import settings
 from django.core.exceptions import PermissionDenied
 
 from interactive.models import AnalysisRequest
-from interactive.views import AnalysisRequestCreate, AnalysisRequestDetail, get
+from interactive.views import AnalysisRequestCreate, AnalysisRequestDetail
 from jobserver.authorization import InteractiveReporter
 
 from ...factories import (
@@ -230,17 +230,3 @@ def test_analysisrequestdetail_with_no_interactivereporter_role(rf):
             project_slug=analysis_request.project.slug,
             slug=analysis_request.slug,
         )
-
-
-def test_get():
-    data = {
-        "nested": {
-            "1": "1",
-        },
-        "non-string": ["abc"],
-    }
-
-    assert get(data, "nested.1") == "1"
-    assert get(data, "nested.a") == ""
-    assert get(data, "nested.a", default=None) is None
-    assert get(data, "non-string") == ["abc"]
