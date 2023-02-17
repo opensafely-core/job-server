@@ -1,7 +1,7 @@
 import pytest
 from environs import Env
 
-from jobserver.github import GitHubAPI
+from jobserver.github import GitHubAPI, RepoAlreadyExists
 
 from ..fakes import FakeGitHubAPI
 from .utils import compare
@@ -13,9 +13,54 @@ pytestmark = [
 
 
 @pytest.fixture
+def clear_topics(github_api):
+    args = [
+        "opensafely-testing",
+        "github-api-testing-topics",
+        [],
+    ]
+
+    github_api.set_repo_topics(*args)
+
+    try:
+        yield
+    finally:
+        github_api.set_repo_topics(*args)
+
+
+@pytest.fixture
 def github_api():
     """create a new API instance so that we can use a separate token for these tests"""
     return GitHubAPI(token=Env().str("GITHUB_TOKEN_TESTING"))
+
+
+@pytest.fixture
+def testing_repo(github_api):
+    args = [
+        "opensafely-testing",
+        "testing-create_repo",
+    ]
+
+    # make sure it doesn't already exist
+    github_api.delete_repo(*args)
+
+    try:
+        yield
+    finally:
+        # tidy up the repo we just created, this will complain loudly if
+        # something goes wrong
+        github_api.delete_repo(*args)
+
+
+def test_add_repo_to_team(enable_network, github_api):
+    args = [
+        "testing",
+        "opensafely-testing",
+        "github-api-testing-topics",
+    ]
+
+    assert github_api.add_repo_to_team(*args) is None
+    assert FakeGitHubAPI().add_repo_to_team(*args) is None
 
 
 def test_create_issue(enable_network, github_api):
@@ -35,6 +80,25 @@ def test_create_issue(enable_network, github_api):
     compare(fake, real)
 
     assert real is not None
+
+
+def test_create_repo(enable_network, github_api, testing_repo):
+    args = [
+        "opensafely-testing",
+        "testing-create_repo",
+    ]
+
+    real = github_api.create_repo(*args)
+    fake = FakeGitHubAPI().create_repo(*args)
+
+    # does the fake work as expected?
+    compare(fake, real)
+
+    assert real is not None
+
+    # do we get the appropriate error when the repo already exists?
+    with pytest.raises(RepoAlreadyExists):
+        github_api.create_repo(*args)
 
 
 def test_get_branch(enable_network, github_api):
@@ -195,6 +259,25 @@ def test_graphql_error_handling(enable_network, github_api):
 
     with pytest.raises(RuntimeError):
         list(github_api._iter_query_results(query))
+
+
+def test_set_repo_topics(enable_network, github_api, clear_topics):
+    args = [
+        "opensafely-testing",
+        "github-api-testing-topics",
+        ["testing"],
+    ]
+
+    real = github_api.set_repo_topics(*args)
+    fake = FakeGitHubAPI().set_repo_topics(*args)
+
+    # does the fake work as expected?
+    compare(fake, real)
+
+    assert real is not None
+
+    repo = github_api.get_repo("opensafely-testing", "github-api-testing-topics")
+    assert repo["topics"] == ["testing"]
 
 
 def test_unauthenticated_request(enable_network):

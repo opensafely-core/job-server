@@ -5,9 +5,18 @@ from django.utils.timezone import now
 
 
 class FakeGitHubAPI:
+    def add_repo_to_team(self, team, org, repo):
+        return
+
     def create_issue(self, org, repo, title, body, labels):
         return {
             "html_url": "http://example.com",
+        }
+
+    def create_repo(self, org, repo):
+        return {
+            "html_url": "http://example.com",
+            "topics": [],
         }
 
     def get_branch(self, org, repo, branch):
@@ -48,6 +57,7 @@ class FakeGitHubAPI:
     def get_repo(self, org, repo):
         return {
             "created_at": "2020-07-31T13:37:00Z",
+            "html_url": "http://example.com",
             "topics": ["github-releases"],
             "private": True,
         }
@@ -109,6 +119,11 @@ class FakeGitHubAPI:
                 "topics": [],
             },
         ]
+
+    def set_repo_topics(self, org, repo, topics):
+        return {
+            "names": [],
+        }
 
 
 class FakeOpenCodelistsAPI:

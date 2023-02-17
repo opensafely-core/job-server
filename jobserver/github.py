@@ -18,6 +18,16 @@ session.headers = {
 }
 
 
+class GitHubError(Exception):
+    """Base exception to target all other exceptions we define here"""
+
+    pass
+
+
+class RepoAlreadyExists(GitHubError):
+    pass
+
+
 class GitHubAPI:
     """
     A thin wrapper around requests, furl, and the GitHub API.
@@ -43,11 +53,17 @@ class GitHubAPI:
         self.session = _session
         self.token = token
 
+    def _delete(self, *args, **kwargs):
+        return self._request("delete", *args, **kwargs)
+
     def _get(self, *args, **kwargs):
         return self._request("get", *args, **kwargs)
 
     def _post(self, *args, **kwargs):
         return self._request("post", *args, **kwargs)
+
+    def _put(self, *args, **kwargs):
+        return self._request("put", *args, **kwargs)
 
     def _request(self, method, *args, **kwargs):
         """
@@ -144,6 +160,31 @@ class GitHubAPI:
 
         return f.url
 
+    def add_repo_to_team(self, team, org, repo):
+        path_segments = [
+            "orgs",
+            org,
+            "teams",
+            team,
+            "repos",
+            org,
+            repo,
+        ]
+        url = self._url(path_segments)
+
+        payload = {
+            "permission": "maintain",
+        }
+
+        headers = {
+            "Accept": "application/vnd.github.v3+json",
+        }
+        r = self._put(url, headers=headers, json=payload)
+
+        r.raise_for_status()
+
+        return
+
     def create_issue(self, org, repo, title, body, labels):
         path_segments = [
             "repos",
@@ -167,6 +208,55 @@ class GitHubAPI:
         r.raise_for_status()
 
         return r.json()
+
+    def create_repo(self, org, repo):
+        path_segments = [
+            "orgs",
+            org,
+            "repos",
+        ]
+        url = self._url(path_segments)
+
+        payload = {
+            "name": repo,
+        }
+
+        headers = {
+            "Accept": "application/vnd.github.v3+json",
+        }
+        r = self._post(url, headers=headers, json=payload)
+
+        try:
+            r.raise_for_status()
+        except requests.HTTPError as e:
+            raise RepoAlreadyExists from e
+
+        return r.json()
+
+    def delete_repo(self, org, repo):
+        """
+        Delete the given repo
+
+        This exists to help with testing create_repo()
+        """
+        path_segments = [
+            "repos",
+            org,
+            repo,
+        ]
+        url = self._url(path_segments)
+
+        headers = {
+            "Accept": "application/vnd.github.v3+json",
+        }
+        r = self._delete(url, headers=headers)
+
+        if r.status_code == 404:
+            # this method is for testing create_repo() so we don't mind if the
+            # repo is already missing
+            return
+
+        r.raise_for_status()
 
     def get_branch(self, org, repo, branch):
         path_segments = [
@@ -388,6 +478,28 @@ class GitHubAPI:
                 "created_at": created_at,
                 "topics": topics,
             }
+
+    def set_repo_topics(self, org, repo, topics):
+        path_segments = [
+            "repos",
+            org,
+            repo,
+            "topics",
+        ]
+        url = self._url(path_segments)
+
+        payload = {
+            "names": topics,
+        }
+
+        headers = {
+            "Accept": "application/vnd.github.v3+json",
+        }
+        r = self._put(url, headers=headers, json=payload)
+
+        r.raise_for_status()
+
+        return r.json()
 
 
 def _get_github_api():

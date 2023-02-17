@@ -8,6 +8,7 @@ from jobserver.authorization import (
     ProjectDeveloper,
     TechnicalReviewer,
 )
+from jobserver.github import RepoAlreadyExists
 from jobserver.models import User
 from jobserver.utils import set_from_qs
 from staff.views.users import UserCreate, UserDetail, UserList, UserSetOrgs
@@ -22,6 +23,7 @@ from ....factories import (
     ProjectMembershipFactory,
     UserFactory,
 )
+from ....fakes import FakeGitHubAPI
 
 
 def test_usercreate_get_success(rf, core_developer):
@@ -82,9 +84,12 @@ def test_usercreate_post_success_with_application_url(rf, core_developer):
     request = rf.post("/", data)
     request.user = core_developer
 
-    response = UserCreate.as_view()(request)
+    response = UserCreate.as_view(get_github_api=FakeGitHubAPI)(request)
 
     assert response.status_code == 302, response.context_data["form"].errors
+
+    assert project.interactive_workspace
+    assert project.interactive_workspace.repo
 
     user = User.objects.get(email="test@example.com")
     assert response.url == user.get_staff_url()
@@ -111,7 +116,7 @@ def test_usercreate_post_success_without_application_url(
     request = rf.post("/", data)
     request.user = core_developer
 
-    response = UserCreate.as_view()(request)
+    response = UserCreate.as_view(get_github_api=FakeGitHubAPI)(request)
 
     assert response.status_code == 302, response.context_data["form"].errors
 
@@ -125,6 +130,62 @@ def test_usercreate_post_success_without_application_url(
 
     assert len(mailoutbox) == 1
     assert "reset-password" in mailoutbox[0].body
+
+
+def test_usercreate_post_success_with_missing_repo(rf, core_developer):
+    org = OrgFactory()
+    project = ProjectFactory()
+
+    data = {
+        "application_url": "example.com",
+        "org": org.pk,
+        "project": project.pk,
+        "name": "New Name-Name",
+        "email": "test@example.com",
+    }
+    request = rf.post("/", data)
+    request.user = core_developer
+
+    response = UserCreate.as_view(get_github_api=FakeGitHubAPI)(request)
+
+    assert response.status_code == 302, response.context_data["form"].errors
+
+    user = User.objects.get(email="test@example.com")
+    assert response.url == user.get_staff_url()
+    assert user.created_by == core_developer
+    assert user.name == "New Name-Name"
+    assert user.orgs.first() == org
+    assert user.projects.first() == project
+    assert user.projects.first().application_url == "http://example.com"
+
+
+def test_usercreate_post_with_github_failure(rf, core_developer):
+    org = OrgFactory()
+    project = ProjectFactory()
+
+    data = {
+        "application_url": "example.com",
+        "org": org.pk,
+        "project": project.pk,
+        "name": "New Name-Name",
+        "email": "test@example.com",
+    }
+    request = rf.post("/", data)
+    request.user = core_developer
+
+    class FailingGitHubAPI(FakeGitHubAPI):
+        def get_repo(self, *args, **kwargs):
+            raise RepoAlreadyExists
+
+    response = UserCreate.as_view(get_github_api=FailingGitHubAPI)(request)
+
+    assert response.status_code == 200, response.url
+
+    assert response.context_data["form"].errors == {
+        "__all__": [
+            "An error occurred when trying to create the required Repo on GitHub"
+        ],
+    }
 
 
 def test_usercreate_unauthorized(rf):
