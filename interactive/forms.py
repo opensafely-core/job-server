@@ -29,11 +29,13 @@ class AnalysisRequestForm(forms.Form):
     frequency = forms.ChoiceField(
         choices=list_to_choices(["monthly", "quarterly", "yearly"])
     )
-    time_event = forms.ChoiceField(choices=list_to_choices(["before", "after"]))
-    time_scale = forms.ChoiceField(
-        choices=list_to_choices(["weeks", "months", "years"])
+    time_event = forms.ChoiceField(
+        choices=list_to_choices(["before", "after"]), required=False
     )
-    time_value = forms.IntegerField(min_value=1)
+    time_scale = forms.ChoiceField(
+        choices=list_to_choices(["weeks", "months", "years"]), required=False
+    )
+    time_value = forms.IntegerField(min_value=1, required=False)
 
     def __init__(self, *args, **kwargs):
         codelists = kwargs.pop("codelists")
@@ -54,6 +56,9 @@ class AnalysisRequestForm(forms.Form):
         if self.has_codelist_2:
             self.fields["codelist_2_label"] = forms.ChoiceField(choices=choices("name"))
             self.fields["codelist_2_slug"] = forms.ChoiceField(choices=choices("slug"))
+            self.fields["time_event"].required = True
+            self.fields["time_scale"].required = True
+            self.fields["time_value"].required = True
 
     def clean(self):
         cleaned_data = super().clean()
