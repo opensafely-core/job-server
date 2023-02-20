@@ -117,7 +117,10 @@
               <p class="px-3 py-2 md:pt-3 md:px-4">
                 Logged in as:
                 <span class="block">
-                  <strong>{{ request.user.username }}</strong> via GitHub
+                  <strong>{{ request.user.username }}</strong>
+                  {% if request.user.social_auth.exists %}
+                  via GitHub
+                  {% endif %}
                 </span>
               </p>
               <ul class="border-t px-2 pt-1 md:px-0">
