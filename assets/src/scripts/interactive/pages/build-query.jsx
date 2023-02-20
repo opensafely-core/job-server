@@ -14,7 +14,7 @@ function QueryBuilder() {
   const { codelistGroups } = useAppData();
   const { formData, setFormData } = useFormData();
 
-  if (useRequiredFields(["codelist0", "codelist1", "frequency"])) {
+  if (useRequiredFields(["codelist0", "codelist1"])) {
     return <Redirect to="" />;
   }
 

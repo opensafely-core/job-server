@@ -106,12 +106,6 @@ function ReviewRequest() {
             </ReviewLineItem>
           ) : null}
 
-          <ReviewLineItem page="" title="Frequency">
-            {`${formData.frequency
-              ?.slice(0, 1)
-              .toUpperCase()}${formData.frequency?.slice(1)}`}
-          </ReviewLineItem>
-
           {formData.codelistA?.label && formData.codelistB?.label ? (
             <ReviewLineItem page="build-query" title="Report request">
               <span className="block font-semibold">
@@ -167,6 +161,12 @@ function ReviewRequest() {
                 </li>
               ))}
             </ul>
+          </ReviewLineItem>
+
+          <ReviewLineItem page="filter-request" title="Frequency">
+            {`${formData.frequency
+              ?.slice(0, 1)
+              .toUpperCase()}${formData.frequency?.slice(1)}`}
           </ReviewLineItem>
         </dl>
       </div>

@@ -16,7 +16,7 @@ function ReviewQuery() {
   const [, navigate] = useLocation();
   const { formData } = useFormData();
 
-  if (useRequiredFields(["codelist0", "frequency"])) {
+  if (useRequiredFields(["codelist0"])) {
     return <Redirect to="" />;
   }
 
