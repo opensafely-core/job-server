@@ -1,3 +1,6 @@
+import pytest
+from django.conf import settings
+
 from interactive.commands import create_repo, create_user, create_workspace
 from jobserver.authorization import InteractiveReporter
 from jobserver.utils import set_from_qs
@@ -12,10 +15,20 @@ from ...factories import (
 from ...fakes import FakeGitHubAPI
 
 
-def test_create_repo_with_existing_repo():
+@pytest.mark.parametrize(
+    "debug,expected",
+    [
+        (True, settings.BASE_DIR / "repos" / "testing"),
+        (False, "http://example.com"),
+    ],
+    ids=["debug-on", "debug-off"],
+)
+def test_create_repo_with_existing_repo(monkeypatch, debug, expected):
+    monkeypatch.setattr(settings, "DEBUG", debug)
+
     repo_url = create_repo(name="testing", get_github_api=FakeGitHubAPI)
 
-    assert repo_url == "http://example.com"
+    assert repo_url == expected
 
 
 def test_createrepo_with_existing_repo_and_exsting_interactive_topic():
