@@ -25,19 +25,8 @@ nav {
     background-color: $oxford !important;
   }
 
-  .btn-outline-light {
-    &:hover,
-    &:focus {
-      text-decoration: none;
-    }
-
-    &:focus {
-      color: $white;
-    }
-
-    &:hover {
-      color: $gray-900;
-    }
+  .navbar-nav .nav-link {
+    font-weight: 600;
   }
 }
 
