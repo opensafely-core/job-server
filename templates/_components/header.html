@@ -56,7 +56,7 @@
               relative inline-flex md:flex h-full items-center text-oxford transition-colors duration-200 rounded px-2 py-2 md:py-0 -ml-2 md:ml-0
               hover:text-bn-strawberry-700
               focus:text-bn-strawberry-700 focus:outline-none focus:ring-2 focus:ring-oxford-500
-              before:hidden before:md:inline before:md:absolute before:-top-4 before:mt-0.5 before:h-1 before:left-1/2 before:-translate-x-1 before:bg-bn-strawberry-300 before:w-1 before:transition-all before:opacity-0
+              before:hidden before:md:inline before:md:absolute before:-top-5 before:h-1 before:left-1/2 before:-translate-x-1 before:bg-bn-strawberry-300 before:w-1 before:transition-all before:opacity-0
               before:hover:w-full before:hover:opacity-100 before:hover:left-0 before:hover:translate-x-0
               {% if location.is_active %}border-t-oxford-600/50 text-oxford-600{% endif %}
             "
@@ -87,7 +87,7 @@
         {% else %}
         <li>
           <details
-            class="flex group relative"
+            class="flex group/account relative"
             open
             x-bind:open="isUserNavOpen"
             x-on:click.outside="closeUserNav"
@@ -95,56 +95,71 @@
           >
             <summary
               class="
-                hidden md:inline-flex list-none cursor-pointer relative bg-white rounded-full text-sm focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-oxford-500
-                before:absolute before:-top-4 before:mt-0.5 before:h-1 before:left-1/2 before:-translate-x-1 before:bg-bn-strawberry-300 before:w-1 before:transition-all before:opacity-0
+                hidden relative h-full items-center text-oxford transition-colors duration-200 rounded px-2 py-2 -ml-2 cursor-pointer
+                md:flex md:py-0 md:ml-0
+                hover:text-bn-strawberry-700
+                focus:text-bn-strawberry-700 focus:outline-none focus:ring-2 focus:ring-oxford-500
+                before:hidden before:md:inline before:md:absolute before:-top-5 before:h-1 before:left-1/2 before:-translate-x-1 before:bg-bn-strawberry-300 before:w-1 before:transition-all before:opacity-0
                 before:hover:w-full before:hover:opacity-100 before:hover:left-0 before:hover:translate-x-0
               "
               x-on:click.prevent="clickUserNav"
             >
-              <span class="sr-only">Toggle user menu</span>
-              <img class="h-8 w-8 rounded-full" src="https://github.com/{{ request.user.username }}.png?size=64" alt="{{ request.user.username }} avatar">
+              Account
+              <span class="opacity-75 ml-1">
+                {% icon_mini_chevron_down class="h-5 w-5 hidden md:inline-block group-open/account:hidden" %}
+                {% icon_mini_chevron_up class="h-5 w-5 hidden md:group-open/account:inline-block" %}
+              </span>
             </summary>
-            <ul
-              class="
-                relative shadow-none ring-0 text-sm -mx-4 px-2 pt-2 mt-2 border-t border-t-slate-200 !transition-none
-                md:absolute md:mx-0 md:px-0 md:pt-0 md:border-0 md:origin-top-right md:top-full md:mt-2 md:right-0 md:z-10 md:w-48 md:rounded-md md:shadow-lg md:overflow-hidden md:bg-white md:ring-1 md:ring-black md:ring-opacity-5 md:focus:outline-none md:text-sm
-              "
-            >
-              {% if user_can_view_staff_area %}
-              <li>
-                <a
-                  class="inline-block md:block px-2 md:px-4 py-2 rounded md:rounded-none text-oxford hover:text-bn-strawberry-700 md:hover:bg-oxford-50 focus:text-bn-strawberry-700 focus:outline-none focus:ring-2 focus:ring-oxford-500 md:focus:ring-inset"
-                  href="{% url 'staff:index' %}"
-                >
-                  🚨 Staff Area 🚨
-                </a>
-              </li>
-              {% endif %}
-              <li>
-                <a
-                  class="inline-block md:block px-2 md:px-4 py-2 rounded md:rounded-none text-oxford hover:text-bn-strawberry-700 md:hover:bg-oxford-50 focus:text-bn-strawberry-700 focus:outline-none focus:ring-2 focus:ring-oxford-500 md:focus:ring-inset"
-                  href="{% url 'settings' %}"
-                >
-                  Settings
-                </a>
-              </li>
-              <li>
-                <a
-                  class="inline-block md:block px-2 md:px-4 py-2 rounded md:rounded-none text-oxford hover:text-bn-strawberry-700 md:hover:bg-oxford-50 focus:text-bn-strawberry-700 focus:outline-none focus:ring-2 focus:ring-oxford-500 md:focus:ring-inset"
-                  href="{% url 'applications:list' %}"
-                >
-                  Applications
-                </a>
-              </li>
-              <li>
-                <a
-                  class="inline-block md:block px-2 md:px-4 py-2 rounded md:rounded-none text-oxford hover:text-bn-strawberry-700 md:hover:bg-oxford-50 focus:text-bn-strawberry-700 focus:outline-none focus:ring-2 focus:ring-oxford-500 md:focus:ring-inset"
-                  href="{% url 'logout' %}"
-                >
-                  Logout
-                </a>
-              </li>
-            </ul>
+            <div class="
+              relative shadow-none ring-0 text-sm mt-2 -mx-4 border-t border-t-slate-200 !transition-none
+              md:absolute md:mx-0 md:px-0 md:pt-0 md:border-0 md:origin-top-right md:top-full md:mt-2 md:right-0 md:z-10 md:w-48 md:rounded-md md:shadow-lg md:overflow-hidden md:bg-white md:ring-1 md:ring-black md:ring-opacity-5 md:focus:outline-none md:text-sm
+            ">
+              <p class="px-3 py-2 md:pt-3 md:px-4">
+                Logged in as:
+                <span class="block">
+                  <strong class="break-words">{{ request.user.username }}</strong>
+                  {% if request.user.social_auth.exists %}
+                  via GitHub
+                  {% endif %}
+                </span>
+              </p>
+              <ul class="border-t px-2 pt-1 md:px-0">
+                {% if user_can_view_staff_area %}
+                <li>
+                  <a
+                    class="inline-block md:block px-2 md:px-4 py-2 rounded md:rounded-none text-oxford hover:text-bn-strawberry-700 md:hover:bg-oxford-50 focus:text-bn-strawberry-700 focus:outline-none focus:ring-2 focus:ring-oxford-500 md:focus:ring-inset"
+                    href="{% url 'staff:index' %}"
+                  >
+                    🚨 Staff Area 🚨
+                  </a>
+                </li>
+                {% endif %}
+                <li>
+                  <a
+                    class="inline-block md:block px-2 md:px-4 py-2 rounded md:rounded-none text-oxford hover:text-bn-strawberry-700 md:hover:bg-oxford-50 focus:text-bn-strawberry-700 focus:outline-none focus:ring-2 focus:ring-oxford-500 md:focus:ring-inset"
+                    href="{% url 'settings' %}"
+                  >
+                    Settings
+                  </a>
+                </li>
+                <li>
+                  <a
+                    class="inline-block md:block px-2 md:px-4 py-2 rounded md:rounded-none text-oxford hover:text-bn-strawberry-700 md:hover:bg-oxford-50 focus:text-bn-strawberry-700 focus:outline-none focus:ring-2 focus:ring-oxford-500 md:focus:ring-inset"
+                    href="{% url 'applications:list' %}"
+                  >
+                    Applications
+                  </a>
+                </li>
+                <li>
+                  <a
+                    class="inline-block md:block px-2 md:px-4 py-2 rounded md:rounded-none text-oxford hover:text-bn-strawberry-700 md:hover:bg-oxford-50 focus:text-bn-strawberry-700 focus:outline-none focus:ring-2 focus:ring-oxford-500 md:focus:ring-inset"
+                    href="{% url 'logout' %}"
+                  >
+                    Logout
+                  </a>
+                </li>
+              </ul>
+            </div>
           </details>
         </li>
         {% endif %}

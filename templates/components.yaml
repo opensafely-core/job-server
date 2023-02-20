@@ -36,6 +36,8 @@ components:
   icon_lifebuoy_outline: "_icons/lifebuoy-outline.svg"
   icon_menu_outline: "_icons/menu-outline.svg"
   icon_mini_exclamation_circle: "_icons/mini/exclamation-circle.svg"
+  icon_mini_chevron_down: "_icons/mini/chevron-down.svg"
+  icon_mini_chevron_up: "_icons/mini/chevron-up.svg"
   icon_pencil_outline: "_icons/pencil-outline.svg"
   icon_play_outline: "_icons/play-outline.svg"
   icon_queue_list_outline: "_icons/queue-list-outline.svg"
