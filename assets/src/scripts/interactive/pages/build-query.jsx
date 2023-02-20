@@ -24,7 +24,7 @@ function QueryBuilder() {
     timeValue: Yup.number()
       .positive()
       .min(1)
-      .max(260)
+      .max(260, "Time scale cannot be longer than 5 years")
       .required()
       .test(
         "fiveYears",
