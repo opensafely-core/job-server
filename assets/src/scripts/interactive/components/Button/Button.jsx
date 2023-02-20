@@ -15,7 +15,7 @@ function Button({
   return (
     <button
       className={classNames(
-        "inline-flex w-fit items-center justify-center rounded border-b-2 border-b-current shadow transition-buttons duration-200 px-4 py-2 font-semibold",
+        "inline-flex w-fit items-center justify-center rounded border-b-2 shadow transition-buttons duration-200 px-4 py-2 font-semibold",
         "hover:shadow-lg",
         "focus:ring-offset-white focus:outline-none focus:ring-2 focus:ring-offset-2",
         variant === "primary"
