@@ -37,7 +37,10 @@
           <span class="dropdown-header">
             Logged in as:
             <span class="d-block">
-              <strong>{{ request.user.username }}</strong> via GitHub
+              <strong class="text-break">{{ request.user.username }}</strong>
+              {% if request.user.social_auth.exists %}
+              via GitHub
+              {% endif %}
             </span>
           </span>
 

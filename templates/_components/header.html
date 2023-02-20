@@ -95,7 +95,7 @@
           >
             <summary
               class="
-                hidden relative h-full items-center text-oxford transition-colors duration-200 rounded px-2 py-2 -ml-2
+                hidden relative h-full items-center text-oxford transition-colors duration-200 rounded px-2 py-2 -ml-2 cursor-pointer
                 md:flex md:py-0 md:ml-0
                 hover:text-bn-strawberry-700
                 focus:text-bn-strawberry-700 focus:outline-none focus:ring-2 focus:ring-oxford-500
@@ -117,7 +117,7 @@
               <p class="px-3 py-2 md:pt-3 md:px-4">
                 Logged in as:
                 <span class="block">
-                  <strong>{{ request.user.username }}</strong>
+                  <strong class="break-words">{{ request.user.username }}</strong>
                   {% if request.user.social_auth.exists %}
                   via GitHub
                   {% endif %}
