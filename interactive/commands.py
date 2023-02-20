@@ -1,6 +1,10 @@
+from django.conf import settings
+
 from jobserver.authorization import InteractiveReporter
 from jobserver.github import _get_github_api
 from jobserver.models import OrgMembership, ProjectMembership, Repo, User
+
+from .submit import git
 
 
 def create_repo(*, name, get_github_api=_get_github_api):
@@ -10,6 +14,13 @@ def create_repo(*, name, get_github_api=_get_github_api):
     The repo might already exist so we try to get it first, and then we ensure
     it has the correct topics set.
     """
+    if settings.DEBUG:
+        path = settings.LOCAL_GIT_REPOS / name
+        path.mkdir(exist_ok=True, parents=True)
+
+        git("init", "--bare", ".", "--initial-branch", "main", cwd=path)
+        return path
+
     api = get_github_api()
 
     repo = api.get_repo("opensafely", name)

@@ -369,6 +369,10 @@ INTERACTIVE_TEMPLATE_REPO = env.str(
     default="https://github.com/opensafely-core/interactive-templates",
 )
 
+# path to where local git repos live, used when developing locally, for the
+# interactive functionality
+LOCAL_GIT_REPOS = BASE_DIR / "repos"
+
 # Releases storage location.
 # Note: we deliberately don't use MEDIA_ROOT/MEDIA_URL here, to avoid any
 # surprises with django's default uploads implementation.
