@@ -1,5 +1,6 @@
 import pytest
 from environs import Env
+from requests.exceptions import HTTPError
 
 from jobserver.github import GitHubAPI, RepoAlreadyExists
 
@@ -281,4 +282,14 @@ def test_set_repo_topics(enable_network, github_api, clear_topics):
 
 
 def test_unauthenticated_request(enable_network):
-    assert GitHubAPI().get_repo("opensafely-testing", "github-api-testing")
+    try:
+        assert GitHubAPI().get_repo("opensafely-testing", "github-api-testing")
+    except HTTPError as e:  # pragma: no cover
+        forbidden = e.response.status_code == 403
+        rate_limited = "rate limit exceeded for url" in str(e)
+
+        if forbidden and rate_limited:
+            # being rate limited is still a valid access of the API
+            assert True
+        else:
+            raise
