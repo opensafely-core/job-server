@@ -1,43 +1,36 @@
-{% extends "base.html" %}
+{% extends "base-tw.html" %}
 
 {% block metatitle %}Login | OpenSAFELY Jobs{% endblock metatitle %}
 
 {% block breadcrumbs %}
-<nav class="breadcrumb-container" aria-label="breadcrumb">
-  <div class="container">
-    <ol class="breadcrumb rounded-0 mb-0 px-0">
-      <li class="breadcrumb-item">
-        <a href="/">Home</a>
-      </li>
-      <li class="breadcrumb-item active" aria-current="page">
-        Login
-      </li>
-    </ol>
-  </div>
-</nav>
+  {% url "home" as home_url %}
+
+  {% #breadcrumbs %}
+    {% breadcrumb title="Home" url=home_url %}
+    {% breadcrumb title="Login" active=True %}
+  {% /breadcrumbs %}
 {% endblock breadcrumbs %}
 
-{% block jumbotron %}
-<div class="jumbotron jumbotron-fluid pt-md-2">
-  <div class="container">
-    <h1 class="pt-4 pt-md-0">Login</h1>
-    <p class="lead">OpenSAFELY Jobs uses your GitHub account to confirm your identity.</p>
-    <p>If you do not have a GitHub account, then you will need to create one before signing in.</p>
-  </div>
-</div>
-{% endblock jumbotron %}
-
 {% block content %}
-<div class="container">
-  <div class="row">
-    <div class="col col-sm-8 offset-sm-2 col-md-6 offset-md-3 col-lg-4 offset-lg-4">
-      <form method="POST" action="{% url "auth-login" "github" %}">
-        <input type="hidden" name="next" value="{{ next_url }}" />
-        <button type="submit" class="btn btn-primary btn-block">Sign in with GitHub</button>
-        <p class="text-center my-2">or</p>
-        <button type="submit" class="btn btn-outline-secondary btn-block">Create a GitHub account</button>
-      </form>
-    </div>
+<section class="grid md:grid-cols-3">
+  <h1 class="text-3xl break-words font-bold text-slate-900 mt-2 mb-4 md:mt-0 md:col-span-3 md:text-4xl">
+    Login
+  </h1>
+
+  <div class="text-slate-700 flex flex-col gap-y-2 max-w-prose md:col-span-3">
+    <p>OpenSAFELY Jobs uses your GitHub account to confirm your identity.</p>
+    <p>If you do not already have a GitHub account, then you will need to create one before signing in.</p>
   </div>
-</div>
+
+  <form class="flex items-center gap-2 flex-wrap mt-4 md:col-span-3 md:flex-nowrap" method="POST" action="{% url "auth-login" "github" %}">
+    <input type="hidden" name="next" value="{{ next_url }}" />
+    {% #button type="submit" variant="primary" %}
+      Sign in with GitHub
+    {% /button %}
+    <p class="text-slate-700 text-lg">or</p>
+    {% #button type="link" href="https://github.com/signup" variant="secondary" %}
+      Create a GitHub account
+    {% /button %}
+  </form>
+</section>
 {% endblock content %}
