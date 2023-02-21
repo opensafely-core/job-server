@@ -19,7 +19,12 @@ function App({ children }) {
       </div>
 
       <section className="max-w-3xl relative">
-        <div className="bg-white p-6 shadow rounded pt-12">
+        <div
+          className={classNames(
+            "bg-white p-6 shadow rounded",
+            !isFirstPage && !isLastPage ? "pt-12" : null
+          )}
+        >
           {!isFirstPage && !isLastPage ? (
             <button
               className={classNames(
