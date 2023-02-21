@@ -49,7 +49,7 @@
       <h1>Published outputs from {{ snapshot.workspace.name }}</h1>
       <p class="lead prose-width">
         Published by {{ snapshot.published_by.name }} on
-        {{ snapshot.published_at|date:"D M Y" }} at {{ snapshot.published_at|date:"H:i" }}
+        {{ snapshot.published_at|date:"D jS M Y" }} at {{ snapshot.published_at|date:"H:i" }}
       </p>
       <a class="btn btn btn-success" href="{{ snapshot.get_download_url }}">
         Download
@@ -73,10 +73,10 @@
       <p class="prose-width">
         {% if snapshot.is_draft %}
           Prepared for publishing by {{ snapshot.created_by.name }} on
-          {{ snapshot.created_at|date:"D M Y" }} at {{ snapshot.created_at|date:"H:i" }}
+          {{ snapshot.created_at|date:"D jS M Y" }} at {{ snapshot.created_at|date:"H:i" }}
         {% else %}
           Published by {{ snapshot.published_by.name }} on
-          {{ snapshot.published_at|date:"D M Y" }} at {{ snapshot.published_at|date:"H:i" }}
+          {{ snapshot.published_at|date:"D jS M Y" }} at {{ snapshot.published_at|date:"H:i" }}
         {% endif %}
       </p>
       <a class="btn btn btn-{% if snapshot.is_draft %}success{% else %}light{% endif %}" href="{{ snapshot.get_download_url }}">
