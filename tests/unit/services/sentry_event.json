@@ -1,0 +1,429 @@
+{
+  "level": "error",
+  "exception": {
+    "values": [
+      {
+        "module": "subprocess",
+        "type": "CalledProcessError",
+        "value": "Command '['git', 'push', 'origin', 'main', '--force-with-lease']' returned non-zero exit status 128.",
+        "mechanism": {
+          "type": "django",
+          "handled": false
+        },
+        "stacktrace": {
+          "frames": [
+            {
+              "filename": "interactive/views.py",
+              "abs_path": "/Users/george/Projects/datalab/job-server/interactive/views.py",
+              "function": "post",
+              "module": "interactive.views",
+              "lineno": 107,
+              "pre_context": [
+                "        )",
+                "",
+                "        if not form.is_valid():",
+                "            return self.render_to_response(request, form=form)",
+                ""
+              ],
+              "context_line": "        analysis_request = submit_analysis(",
+              "post_context": [
+                "            analysis=analysis,",
+                "            backend=Backend.objects.get(slug=\"tpp\"),",
+                "            creator=request.user,",
+                "            project=self.project,",
+                "            get_opencodelists_api=self.get_opencodelists_api,"
+              ],
+              "vars": {
+                "self": "<interactive.views.AnalysisRequestCreate object at 0x115ba19d0>",
+                "request": "<WSGIRequest: POST '/datalab/opensafely-internal/interactive/publish'>",
+                "args": [],
+                "kwargs": {
+                  "org_slug": "'datalab'",
+                  "project_slug": "'opensafely-internal'",
+                  "path": "'publish'"
+                },
+                "analysis": "Analysis(codelist_1=Codelist(label='Asthma Inhaler Salbutamol Medication', slug='opensafely/asthma-inhaler-salbutamol-medication/2020-04-15', system='dmd', type='medication', path=None, description=None), codelist_2=Codelist(label='Asthma', slug='pincer/ast/v1.8', system='snomedct', type='event', path=None, description=None), created_by='george@ghickman.co.uk', demographics=['age'], filter_population='all', frequency='monthly', repo='https://interactive:ghp_testing@github.com/opensafely/opensafely-internal-interactive', time_event='before', time_scale='weeks', time_value=3, title='Asthma Inhaler Salbutamol Medication & Asthma', id='01GSSXXCWG845QY8B6JDM9WFRQ')",
+                "form": "<AnalysisRequestForm bound=True, valid=True, fields=(demographics;filter_population;frequency;time_event;time_scale;time_value;codelist_1_label;codelist_1_slug;codelist_2_label;codelist_2_slug)>"
+              },
+              "in_app": true
+            },
+            {
+              "filename": "contextlib.py",
+              "abs_path": "/Users/george/.pyenv/versions/3.11.2/lib/python3.11/contextlib.py",
+              "function": "inner",
+              "module": "contextlib",
+              "lineno": 81,
+              "pre_context": [
+                "",
+                "    def __call__(self, func):",
+                "        @wraps(func)",
+                "        def inner(*args, **kwds):",
+                "            with self._recreate_cm():"
+              ],
+              "context_line": "                return func(*args, **kwds)",
+              "post_context": [
+                "        return inner",
+                "",
+                "",
+                "class AsyncContextDecorator(object):",
+                "    \"A base class or mixin that enables async context managers to work as decorators.\""
+              ],
+              "vars": {
+                "args": [],
+                "kwds": {
+                  "analysis": "Analysis(codelist_1=Codelist(label='Asthma Inhaler Salbutamol Medication', slug='opensafely/asthma-inhaler-salbutamol-medication/2020-04-15', system='dmd', type='medication', path=None, description=None), codelist_2=Codelist(label='Asthma', slug='pincer/ast/v1.8', system='snomedct', type='event', path=None, description=None), created_by='george@ghickman.co.uk', demographics=['age'], filter_population='all', frequency='monthly', repo='https://interactive:ghp_testing@github.com/opensafely/opensafely-internal-interactive', time_event='before', time_scale='weeks', time_value=3, title='Asthma Inhaler Salbutamol Medication & Asthma', id='01GSSXXCWG845QY8B6JDM9WFRQ')",
+                  "backend": "<Backend: tpp>",
+                  "creator": "<SimpleLazyObject: <User: George Hickman>>",
+                  "project": "<Project: DataLab | OpenSAFELY Internal>",
+                  "get_opencodelists_api": "<function _get_opencodelists_api at 0x111c23b00>"
+                },
+                "func": "<function submit_analysis at 0x111c23ec0>",
+                "self": "<django.db.transaction.Atomic object at 0x111c90b10>"
+              },
+              "in_app": true
+            },
+            {
+              "filename": "interactive/submit.py",
+              "abs_path": "/Users/george/Projects/datalab/job-server/interactive/submit.py",
+              "function": "create_commit",
+              "module": "interactive.submit",
+              "lineno": 266,
+              "pre_context": [
+                "",
+                "            # 6. render the files into the interactive repo",
+                "            analysis_template.render(repo_dir, asdict(analysis))",
+                "",
+                "            # 7. write a commit to the given interactive repo"
+              ],
+              "context_line": "            sha = commit_and_push(repo_dir, analysis)",
+              "post_context": [
+                "",
+                "            # 8. return contents of project.yaml (from disk) and sha",
+                "            project_yaml = (repo_dir / \"project.yaml\").read_text()",
+                "",
+                "    return sha, project_yaml"
+              ],
+              "vars": {
+                "analysis": "Analysis(codelist_1=Codelist(label='Asthma Inhaler Salbutamol Medication', slug='opensafely/asthma-inhaler-salbutamol-medication/2020-04-15', system='dmd', type='medication', path=None, description=None), codelist_2=Codelist(label='Asthma', slug='pincer/ast/v1.8', system='snomedct', type='event', path=None, description=None), created_by='george@ghickman.co.uk', demographics=['age'], filter_population='all', frequency='monthly', repo='https://interactive:ghp_testing@github.com/opensafely/opensafely-internal-interactive', time_event='before', time_scale='weeks', time_value=3, title='Asthma Inhaler Salbutamol Medication & Asthma', id='01GSSXXCWG845QY8B6JDM9WFRQ')",
+                "template_repo": "'https://github.com/opensafely-core/interactive-templates'",
+                "force": "False",
+                "get_opencodelists_api": "<function _get_opencodelists_api at 0x111c23b00>",
+                "analysis_name": "'v2'",
+                "suffix": "'repo-01GSSXXCWG845QY8B6JDM9WFRQ'",
+                "working_dir": "PosixPath('/var/folders/37/gjs60wzn0gb30cn8s2_4nshr0000gn/T/tmpj5xyjirutemplate-01GSSXXCWG845QY8B6JDM9WFRQ')",
+                "template_dir": "PosixPath('/var/folders/37/gjs60wzn0gb30cn8s2_4nshr0000gn/T/tmpj5xyjirutemplate-01GSSXXCWG845QY8B6JDM9WFRQ/templates/v2')",
+                "codelists": [
+                  "'codelist_1'",
+                  "'codelist_2'"
+                ],
+                "analysis_template": "AnalysisTemplate(directory=PosixPath('/var/folders/37/gjs60wzn0gb30cn8s2_4nshr0000gn/T/tmpj5xyjirutemplate-01GSSXXCWG845QY8B6JDM9WFRQ/templates/v2'), codelist_keys=['codelist_1', 'codelist_2'], codelist_api=<function _get_opencodelists_api at 0x111c23b00>)"
+              },
+              "in_app": true
+            },
+            {
+              "filename": "interactive/submit.py",
+              "abs_path": "/Users/george/Projects/datalab/job-server/interactive/submit.py",
+              "function": "commit_and_push",
+              "module": "interactive.submit",
+              "lineno": 209,
+              "pre_context": [
+                "    git(\"tag\", analysis.id, *force_args, cwd=working_dir)",
+                "",
+                "    # push to main. Note: we technically wouldn't need this from a pure git",
+                "    # pov, as a tag would be enough, but job-runner explicitly checks that",
+                "    # a commit is on the branch history, for security reasons"
+              ],
+              "context_line": "    git(\"push\", \"origin\", \"main\", \"--force-with-lease\", cwd=working_dir)",
+              "post_context": [
+                "",
+                "    # push the tag once we know the main push has succeeded",
+                "    git(\"push\", \"origin\", analysis.id, *force_args, cwd=working_dir)",
+                "    return commit_sha",
+                ""
+              ],
+              "vars": {
+                "working_dir": "PosixPath('/var/folders/37/gjs60wzn0gb30cn8s2_4nshr0000gn/T/tmpq4shwn8mrepo-01GSSXXCWG845QY8B6JDM9WFRQ')",
+                "analysis": "Analysis(codelist_1=Codelist(label='Asthma Inhaler Salbutamol Medication', slug='opensafely/asthma-inhaler-salbutamol-medication/2020-04-15', system='dmd', type='medication', path=None, description=None), codelist_2=Codelist(label='Asthma', slug='pincer/ast/v1.8', system='snomedct', type='event', path=None, description=None), created_by='george@ghickman.co.uk', demographics=['age'], filter_population='all', frequency='monthly', repo='https://interactive:ghp_testing@github.com/opensafely/opensafely-internal-interactive', time_event='before', time_scale='weeks', time_value=3, title='Asthma Inhaler Salbutamol Medication & Asthma', id='01GSSXXCWG845QY8B6JDM9WFRQ')",
+                "force": "False",
+                "force_args": [],
+                "second_codelist": "' and codelist pincer/ast/v1.8'",
+                "msg": "'Codelist opensafely/asthma-inhaler-salbutamol-medication/2020-04-15 and codelist pincer/ast/v1.8 (01GSSXXCWG845QY8B6JDM9WFRQ)'",
+                "ps": "CompletedProcess(args=['git', 'rev-parse', 'HEAD'], returncode=0, stdout='e7e552151dc5b5061fd1c055574123094add56c0\\n', stderr='')",
+                "commit_sha": "'e7e552151dc5b5061fd1c055574123094add56c0'"
+              },
+              "in_app": true
+            },
+            {
+              "filename": "interactive/submit.py",
+              "abs_path": "/Users/george/Projects/datalab/job-server/interactive/submit.py",
+              "function": "git",
+              "module": "interactive.submit",
+              "lineno": 292,
+              "pre_context": [
+                "",
+                "    # disable reading the user's gitconfig, to give us a more expected environment",
+                "    # when developing and testing locally.",
+                "    env = {\"GIT_CONFIG_GLOBAL\": \"1\"}",
+                ""
+              ],
+              "context_line": "    return subprocess.run(cmd, check=check, text=text, env=env, **kwargs)",
+              "post_context": [
+                "",
+                "",
+                "def raise_if_commit_exists(repo, tag):",
+                "    ps = git(",
+                "        \"ls-remote\","
+              ],
+              "vars": {
+                "check": "True",
+                "text": "True",
+                "args": [
+                  "'push'",
+                  "'origin'",
+                  "'main'",
+                  "'--force-with-lease'"
+                ],
+                "kwargs": {
+                  "cwd": "PosixPath('/var/folders/37/gjs60wzn0gb30cn8s2_4nshr0000gn/T/tmpq4shwn8mrepo-01GSSXXCWG845QY8B6JDM9WFRQ')"
+                },
+                "cmd": [
+                  "'git'",
+                  "'push'",
+                  "'origin'",
+                  "'main'",
+                  "'--force-with-lease'"
+                ],
+                "cwd": "PosixPath('/var/folders/37/gjs60wzn0gb30cn8s2_4nshr0000gn/T/tmpq4shwn8mrepo-01GSSXXCWG845QY8B6JDM9WFRQ')",
+                "cleaned": [
+                  "'git'",
+                  "'push'",
+                  "'origin'",
+                  "'main'",
+                  "'--force-with-lease'"
+                ],
+                "env": {
+                  "GIT_CONFIG_GLOBAL": "'1'"
+                },
+                "token": "'ghp_testing'"
+              },
+              "in_app": true
+            },
+            {
+              "filename": "subprocess.py",
+              "abs_path": "/Users/george/.pyenv/versions/3.11.2/lib/python3.11/subprocess.py",
+              "function": "run",
+              "module": "subprocess",
+              "lineno": 571,
+              "pre_context": [
+                "            process.kill()",
+                "            # We don't call process.wait() as .__exit__ does that for us.",
+                "            raise",
+                "        retcode = process.poll()",
+                "        if check and retcode:"
+              ],
+              "context_line": "            raise CalledProcessError(retcode, process.args,",
+              "post_context": [
+                "                                     output=stdout, stderr=stderr)",
+                "    return CompletedProcess(process.args, retcode, stdout, stderr)",
+                "",
+                "",
+                "def list2cmdline(seq):"
+              ],
+              "vars": {
+                "input": "None",
+                "capture_output": "False",
+                "timeout": "None",
+                "check": "True",
+                "popenargs": [
+                  [
+                    "'git'",
+                    "'push'",
+                    "'origin'",
+                    "'main'",
+                    "'--force-with-lease'"
+                  ]
+                ],
+                "kwargs": {
+                  "text": "True",
+                  "env": {
+                    "GIT_CONFIG_GLOBAL": "'1'"
+                  },
+                  "cwd": "PosixPath('/var/folders/37/gjs60wzn0gb30cn8s2_4nshr0000gn/T/tmpq4shwn8mrepo-01GSSXXCWG845QY8B6JDM9WFRQ')"
+                },
+                "process": "<Popen: returncode: 128 args: ['git', 'push', 'origin', 'main', '--force-wit...>",
+                "stdout": "None",
+                "stderr": "None",
+                "retcode": "128"
+              },
+              "in_app": true
+            }
+          ]
+        }
+      }
+    ]
+  },
+  "event_id": "29362448ea474496995e9b78f6b88b2d",
+  "timestamp": "2023-02-21T12:07:03.994626Z",
+  "breadcrumbs": {
+    "values": [
+      {
+        "type": "subprocess",
+        "category": "subprocess",
+        "message": "git ls-remote --tags https://interactive:ghp_testing@github.com/opensafely/opensafely-internal-interactive refs/tags/01GSSXXCWG845QY8B6JDM9WFRQ",
+        "data": {},
+        "timestamp": "2023-02-21T12:07:00.252978Z"
+      },
+      {
+        "type": "subprocess",
+        "category": "subprocess",
+        "message": "git clone --depth 1 https://github.com/opensafely-core/interactive-templates /var/folders/37/gjs60wzn0gb30cn8s2_4nshr0000gn/T/tmpj5xyjirutemplate-01GSSXXCWG845QY8B6JDM9WFRQ",
+        "data": {},
+        "timestamp": "2023-02-21T12:07:01.067633Z"
+      },
+      {
+        "type": "subprocess",
+        "category": "subprocess",
+        "message": "git clone --depth 1 https://interactive:ghp_testing@github.com/opensafely/opensafely-internal-interactive /var/folders/37/gjs60wzn0gb30cn8s2_4nshr0000gn/T/tmpq4shwn8mrepo-01GSSXXCWG845QY8B6JDM9WFRQ",
+        "data": {},
+        "timestamp": "2023-02-21T12:07:02.001871Z"
+      }
+    ]
+  },
+  "transaction": "/{org_slug}/{project_slug}/interactive/{path}",
+  "transaction_info": {
+    "source": "route"
+  },
+  "contexts": {
+    "trace": {
+      "trace_id": "646fba8d08e147ab9f338937be84a45e",
+      "span_id": "90f464cd6d07ddeb",
+      "parent_span_id": "aa02cf703055374c",
+      "op": "event.django",
+      "description": "sentry_sdk.integrations.django._got_request_exception",
+      "tracestate": "sentry=eyJ0cmFjZV9pZCI6ICI2NDZmYmE4ZDA4ZTE0N2FiOWYzMzg5MzdiZTg0YTQ1ZSIsICJlbnZpcm9ubWVudCI6ICJkZXZlbG9wbWVudCIsICJyZWxlYXNlIjogIjBmOGYwZTBjOGIwMTJmODU3ODZmNDkwN2RhZTIyZDVjOGU0OTc4OTAiLCAicHVibGljX2tleSI6ICJmMTFjMDE2MzllMDg0ZWQzYWVhZDBiYWU3OTgxZWJkMiIsICJ0cmFuc2FjdGlvbiI6ICIve29yZ19zbHVnfS97cHJvamVjdF9zbHVnfS9pbnRlcmFjdGl2ZS97cGF0aH0ifQ",
+      "dynamic_sampling_context": {
+        "trace_id": "646fba8d08e147ab9f338937be84a45e",
+        "public_key": "f11c01639e084ed3aead0bae7981ebd2",
+        "release": "0f8f0e0c8b012f85786f4907dae22d5c8e497890",
+        "environment": "development",
+        "transaction": "/{org_slug}/{project_slug}/interactive/{path}"
+      }
+    },
+    "runtime": {
+      "name": "CPython",
+      "version": "3.11.2",
+      "build": "3.11.2 (main, Feb 20 2023, 09:59:29) [Clang 14.0.0 (clang-1400.0.29.202)]"
+    }
+  },
+  "modules": {},
+  "extra": {
+    "sys.argv": [
+      "manage.py",
+      "runserver"
+    ]
+  },
+  "request": {
+    "url": "http://localhost:8000/datalab/opensafely-internal/interactive/publish",
+    "query_string": "",
+    "method": "POST",
+    "env": {
+      "SERVER_NAME": "1.0.0.127.in-addr.arpa",
+      "SERVER_PORT": "8000",
+      "REMOTE_ADDR": "127.0.0.1"
+    },
+    "headers": {
+      "Content-Length": "404",
+      "Content-Type": "application/json",
+      "Host": "localhost:8000",
+      "User-Agent": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10.15; rv:109.0) Gecko/20100101 Firefox/109.0",
+      "Accept": "*/*",
+      "Accept-Language": "en-GB,en;q=0.5",
+      "Accept-Encoding": "gzip, deflate, br",
+      "Referer": "http://localhost:8000/datalab/opensafely-internal/interactive/review-request",
+      "X-Csrftoken": "hycdvwVNctTbjImCxPbhVl8g5mS6Xzwvaul7nj114BxnTC37gh8qUsYo9X2NIF3P",
+      "Origin": "http://localhost:8000",
+      "Dnt": "1",
+      "Connection": "keep-alive",
+      "Cookie": "csrftoken=36j42Xgo2iOmK4RFTC7j9h0ieLkRVgHu; sessionid=av1ifmb8ftu1c8cz37nl5g5cjjcc26ss",
+      "Sec-Fetch-Dest": "empty",
+      "Sec-Fetch-Mode": "cors",
+      "Sec-Fetch-Site": "same-origin"
+    },
+    "cookies": {
+      "csrftoken": "[Filtered]",
+      "sessionid": "[Filtered]"
+    },
+    "data": {
+      "frequency": "monthly",
+      "timeValue": 3,
+      "timeScale": "weeks",
+      "timeEvent": "before",
+      "filterPopulation": "all",
+      "demographics": [
+        "age"
+      ],
+      "title": "Asthma Inhaler Salbutamol Medication & Asthma",
+      "codelistA": {
+        "label": "Asthma Inhaler Salbutamol Medication",
+        "type": "medication",
+        "value": "opensafely/asthma-inhaler-salbutamol-medication/2020-04-15"
+      },
+      "codelistB": {
+        "label": "Asthma",
+        "type": "event",
+        "value": "pincer/ast/v1.8"
+      }
+    }
+  },
+  "user": {
+    "ip_address": "127.0.0.1",
+    "id": "4",
+    "email": "george@ghickman.co.uk",
+    "username": "george@ghickman.co.uk"
+  },
+  "release": "0f8f0e0c8b012f85786f4907dae22d5c8e497890",
+  "environment": "development",
+  "server_name": "vorcan.local",
+  "sdk": {
+    "name": "sentry.python.django",
+    "version": "1.15.0",
+    "packages": [
+      {
+        "name": "pypi:sentry-sdk",
+        "version": "1.15.0"
+      }
+    ],
+    "integrations": [
+      "argv",
+      "atexit",
+      "dedupe",
+      "django",
+      "excepthook",
+      "logging",
+      "modules",
+      "redis",
+      "stdlib",
+      "threading"
+    ]
+  },
+  "platform": "python",
+  "_meta": {
+    "exception": {
+      "values": {
+        "0": {
+          "stacktrace": {
+            "frames": {
+              "8": {
+                "vars": {
+                  "": {
+                    "len": 11
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    }
+  }
+}

@@ -9,7 +9,7 @@ env = Env()
 logger = structlog.get_logger(__name__)
 
 
-def initialise_sentry():
+def initialise_sentry():  # pragma: no cover
     """
     Initialise Sentry client
 
@@ -30,4 +30,44 @@ def initialise_sentry():
         environment=environment,
         integrations=[DjangoIntegration()],
         send_default_pii=True,
+        before_send=strip_sensitive_data,
     )
+
+
+def parse(data):
+    if isinstance(data, (bool, int)):
+        return data
+
+    if isinstance(data, dict):
+        for k, v in data.items():
+            data[k] = parse(v)
+
+    if isinstance(data, list):
+        for i, item in enumerate(data):
+            parse(item)
+
+    # tokens with values we want to strip
+    tokens = [
+        "GITHUB_TOKEN",
+        "GITHUB_TOKEN_TESTING",
+        "GITHUB_WRITEABLE_TOKEN",
+        "SECRET_KEY",
+        "SENTRY_DSN",
+        "SOCIAL_AUTH_GITHUB_KEY",
+        "SOCIAL_AUTH_GITHUB_SECRET",
+    ]
+
+    for token in tokens:
+        value = env.str(token, default=None)
+
+        if value is None:
+            continue
+
+        if value in data:
+            data = data.replace(value, "*****")
+
+    return data
+
+
+def strip_sensitive_data(event, hint):  # pragma: no cover
+    return parse(event)
