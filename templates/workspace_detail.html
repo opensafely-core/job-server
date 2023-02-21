@@ -37,6 +37,16 @@
     {% /alert %}
   {% endif %}
 
+  {% if workspace.project.slug == "opensafely-internal" %}
+    {% #alert variant="warning" title="This workspace belongs to an internal OpenSAFELY project" class="mb-6" %}
+      The project exists for internal purposes only.
+      More information can be found in the
+      {% spaceless %}
+        {% link text="OpenSAFELY access policy" href="https://docs.opensafely.org/developer-access-policy/" %}
+      {% endspaceless %}.
+    {% /alert %}
+  {% endif %}
+
   <div class="grid grid-cols-1 gap-6 lg:grid-cols-3">
     <div class="flex flex-col text-center items-center gap-y-2 lg:text-left lg:items-start lg:col-span-full">
       <div class="flex flex-col items-center gap-y-2 w-full lg:flex-row lg:justify-between lg:items-start">
