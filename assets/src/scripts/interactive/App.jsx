@@ -18,14 +18,19 @@ function App({ children }) {
         </p>
       </div>
 
-      <section className="max-w-3xl">
-        <div className="bg-white p-6 shadow rounded">
+      <section className="max-w-3xl relative">
+        <div
+          className={classNames(
+            "bg-white p-6 shadow rounded",
+            !isFirstPage && !isLastPage ? "pt-12" : null
+          )}
+        >
           {!isFirstPage && !isLastPage ? (
             <button
               className={classNames(
-                "text-sm font-semibold underline underline-offset-4 text-gray-600 decoration-gray-300 mb-4 flex -mt-1",
-                "hover:text-oxford-600 hover:decoration-oxford-200",
-                "focus-within:text-oxford-600 focus-within:no-underline focus-within:outline-offset-4 focus-within:outline-oxford-400"
+                "absolute top-0 left-0 text-sm font-semibold py-1 pl-2 pr-3 flex text-white bg-oxford-800 rounded-br transition-colors",
+                "hover:text-oxford-50 hover:bg-oxford-700",
+                "focus-within:text-oxford-50 focus-within:bg-oxford-700"
               )}
               onClick={() => window.history.back()}
               type="button"

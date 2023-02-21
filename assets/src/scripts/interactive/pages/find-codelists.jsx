@@ -6,12 +6,7 @@ import { AlertForm } from "../components/Alert";
 import { Button } from "../components/Button";
 import CodelistButton from "../components/Button/CodelistButton";
 import CodelistSearch from "../components/CodelistSearch";
-import Fieldset from "../components/Fieldset";
-import HintText from "../components/HintText";
-import InputError from "../components/InputError";
-import RadioButton from "../components/RadioButton";
 import { useAppData, useFormData } from "../context";
-import { frequency } from "../data/form-fields";
 import { codelistSchema } from "../data/schema";
 
 function FindCodelists() {
@@ -39,15 +34,11 @@ function FindCodelists() {
           }
         )
       : Yup.mixed().nullable(),
-    frequency: Yup.string()
-      .oneOf(frequency.items.map((item) => item.value))
-      .required("Select a frequency"),
   });
 
   const initialValues = {
     codelist0: formData.codelist0 || "",
     codelist1: formData.codelist1 || undefined,
-    frequency: formData.frequency || "",
   };
 
   return (
@@ -65,7 +56,7 @@ function FindCodelists() {
       validateOnMount
       validationSchema={validationSchema}
     >
-      {({ errors, isValid, touched }) => (
+      {({ isValid }) => (
         <Form className="flex flex-col gap-y-8">
           <AlertForm />
           <CodelistSearch id={0} label="Select a codelist" />
@@ -78,29 +69,6 @@ function FindCodelists() {
             secondCodelist={secondCodelist}
             setSecondCodelist={setSecondCodelist}
           />
-
-          <Fieldset legend={frequency.label}>
-            <HintText>
-              <p>
-                This is how the data will be aggregated and shown on the report.
-              </p>
-              <p>
-                If you are unsure, select <strong>Monthly</strong>.
-              </p>
-            </HintText>
-            {frequency.items.map((item) => (
-              <RadioButton
-                key={item.value}
-                id={item.value}
-                label={item.label}
-                name="frequency"
-                value={item.value}
-              />
-            ))}
-            {errors.frequency && touched.frequency ? (
-              <InputError>{errors.frequency}</InputError>
-            ) : null}
-          </Fieldset>
 
           <Button disabled={!isValid} type="submit">
             Next

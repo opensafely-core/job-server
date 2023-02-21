@@ -14,7 +14,7 @@ function QueryBuilder() {
   const { codelistGroups } = useAppData();
   const { formData, setFormData } = useFormData();
 
-  if (useRequiredFields(["codelist0", "codelist1", "frequency"])) {
+  if (useRequiredFields(["codelist0", "codelist1"])) {
     return <Redirect to="" />;
   }
 
@@ -24,7 +24,7 @@ function QueryBuilder() {
     timeValue: Yup.number()
       .positive()
       .min(1)
-      .max(260)
+      .max(260, "Time scale cannot be longer than 5 years")
       .required()
       .test(
         "fiveYears",

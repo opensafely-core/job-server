@@ -20,9 +20,10 @@ function CodelistButton({ secondCodelist, setSecondCodelist }) {
 
   return (
     <Button
+      className="-mt-4"
       onClick={() => handleCodelistBtn(!secondCodelist)}
-      size="sm"
-      variant={secondCodelist ? "danger" : "primary"}
+      size={secondCodelist ? "sm" : "md"}
+      variant={secondCodelist ? "danger-outline" : "primary"}
     >
       {secondCodelist ? "Remove second codelist" : "Add second codelist"}
     </Button>

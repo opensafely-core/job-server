@@ -92,7 +92,7 @@ function CodelistBuilder() {
         </Field>
       </div>
       {errors.timeValue && touched.timeValue ? (
-        <InputError>Select a valid time scale</InputError>
+        <InputError>{errors.timeValue}</InputError>
       ) : null}
       <p className="max-w-prose text-lg">
         {values.codelistA.label || formData.codelist0?.label}

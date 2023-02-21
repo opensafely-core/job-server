@@ -4,7 +4,7 @@ import { Button } from "../components/Button";
 import EventsAfter from "../components/Diagrams/EventsAfter";
 import EventsBefore from "../components/Diagrams/EventsBefore";
 import { useFormData } from "../context";
-import { useRequiredFields } from "../utils";
+import { classNames, useRequiredFields } from "../utils";
 
 function PreviewRequest() {
   const [, navigate] = useLocation();
@@ -40,7 +40,12 @@ function PreviewRequest() {
       <h1 className="text-4xl font-bold mb-8">Preview your request</h1>
 
       <div className="max-w-lg relative py-12">
-        <p className="absolute max-w-[28ch] text-center left-0 top-0 border-2 border-oxford-300 bg-slate-50 p-2">
+        <p
+          className={classNames(
+            "absolute max-w-[28ch] text-center top-0 border-2 border-oxford-300 bg-slate-50 p-2",
+            isEventsBefore() ? "right-0" : "left-0"
+          )}
+        >
           Individual has qualifying event from:
           <br />
           <strong>{formData.codelistA.label}</strong>
@@ -57,7 +62,12 @@ function PreviewRequest() {
             timeValue={formData.timeValue}
           />
         ) : null}
-        <p className="absolute max-w-[28ch] text-center right-0 bottom-0 border-2 border-oxford-300 bg-slate-50 p-2">
+        <p
+          className={classNames(
+            "absolute max-w-[28ch] text-center right-0 bottom-0 border-2 border-oxford-300 bg-slate-50 p-2",
+            isEventsBefore() ? "left-0" : "right-0"
+          )}
+        >
           Individual ALSO has an event from:
           <br />
           <strong>{formData.codelistB.label}</strong>
