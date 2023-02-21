@@ -26,7 +26,6 @@ omit = [
   "jobserver/management/commands/release.py",
   "jobserver/settings.py",
   "jobserver/wsgi.py",
-  "services/sentry.py",
 ]
 source = [
   "applications",
