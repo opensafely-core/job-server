@@ -6,12 +6,7 @@ import { AlertForm } from "../components/Alert";
 import { Button } from "../components/Button";
 import CodelistButton from "../components/Button/CodelistButton";
 import CodelistSearch from "../components/CodelistSearch";
-import Fieldset from "../components/Fieldset";
-import HintText from "../components/HintText";
-import InputError from "../components/InputError";
-import RadioButton from "../components/RadioButton";
 import { useAppData, useFormData } from "../context";
-import { frequency } from "../data/form-fields";
 import { codelistSchema } from "../data/schema";
 
 function FindCodelists() {
