@@ -236,7 +236,7 @@
       {% if workspace.purpose %}
         {% #card title="Workspace purpose" container=True %}
           <p class="prose">
-            {{ workspace.purpose }}
+            {{ workspace.purpose|linebreaksbr|urlize }}
           </p>
         {% /card %}
       {% endif %}

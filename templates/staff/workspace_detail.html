@@ -64,7 +64,7 @@
 
           <div class="list-group-item">
             <strong>Purpose</strong>
-            <p class="text-muted mb-0 mt-1">{{ workspace.purpose|default:"-" }}</p>
+            <p class="text-muted mb-0 mt-1">{{ workspace.purpose|default:"-"|linebreaksbr|urlize }}</p>
           </div>
 
           <div class="list-group-item">

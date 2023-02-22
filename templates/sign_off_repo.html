@@ -138,7 +138,7 @@
                   <li class="list-group-item">
                     <div class="d-flex align-items-center">
                       <strong>Purpose:</strong>
-                      <span class="d-block flex-grow-1 text-truncate ml-1">{{ workspace.purpose|default:"-" }}</span>
+                      <span class="d-block flex-grow-1 text-truncate ml-1">{{ workspace.purpose|default:"-"|linebreaksbr|urlize }}</span>
                       <a class="btn btn-sm btn-primary ml-2" href="{{ workspace.get_edit_url }}">
                         Edit
                       </a>
