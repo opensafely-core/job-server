@@ -1,6 +1,7 @@
 import hashlib
 import shutil
 import sys
+import tempfile
 from datetime import datetime, timezone
 
 import requests
@@ -8,7 +9,7 @@ from django.conf import settings
 from django.core.management.base import BaseCommand
 
 from interactive.models import AnalysisRequest
-from jobserver.models import Backend, User, Workspace
+from jobserver.models import Backend, User
 
 
 BASE_URL = f"{settings.BASE_URL}/api/v2/releases/"
@@ -19,7 +20,7 @@ def create_file(*, new_path):
     shutil.copy(report_path, new_path)
 
 
-def create_release(*, backend, path, user):
+def create_release(*, backend, path, workspace_name, user):
     headers = {
         "Authorization": backend.auth_token,
         "Content-Type": "application/json",
@@ -45,36 +46,11 @@ def create_release(*, backend, path, user):
         "metadata": {},
         "review": {},
     }
-    url = f"{BASE_URL}workspace/opensafely-internal-interactive"
+    url = f"{BASE_URL}workspace/{workspace_name}"
     r = requests.post(url, json=payload, headers=headers)
     r.raise_for_status()
 
     return r.json()["release_id"]
-
-
-def submit_request(*, backend, user, workspace):
-    # clean up any existing objects so we can recreate them with a valid, unique slug
-    try:
-        AnalysisRequest.objects.get(slug="get-from-form", created_by=user).delete()
-    except AnalysisRequest.DoesNotExist:
-        pass
-
-    # create a JobRequest and AnalysisRequest to mirror a user making a request
-    job_request = workspace.job_requests.create(
-        backend=backend,
-        created_by=user,
-        sha="",
-        project_definition="",
-        force_run_dependencies=True,
-        requested_actions=["run_all"],
-    )
-
-    return AnalysisRequest.objects.create(
-        job_request=job_request,
-        project=workspace.project,
-        created_by=user,
-        title="get from form",
-    )
 
 
 def upload_file(*, backend, release_id, path, user):
@@ -91,32 +67,44 @@ def upload_file(*, backend, release_id, path, user):
 
 class Command(BaseCommand):
     def add_arguments(self, parser):
-        parser.add_argument("username")
+        parser.add_argument(
+            "analysis_request_slug",
+            help="Analysis request slug to link the released file to",
+        )
+        parser.add_argument("username", help="User to release the file under")
 
     def handle(self, *args, **options):
         username = options["username"]
-        try:
-            me = User.objects.get(username=username)
-        except User.DoesNotExist:
+        user = User.objects.filter(username=username).first()
+        if user is None:
             self.stderr.write(
                 self.style.ERROR(f"No user found with username: '{username}'")
             )
             sys.exit(1)
 
+        slug = options["analysis_request_slug"]
+        analysis_request = AnalysisRequest.objects.filter(slug=slug).first()
+        if analysis_request is None:
+            self.stderr.write(self.style.ERROR(f"Unknown Analysis: {slug}"))
+            sys.exit(1)
+
         tpp = Backend.objects.get(slug="tpp")
-        internal = Workspace.objects.get(name="opensafely-internal-interactive")
 
-        # create a file with the pk of the AR
-        analysis_request = submit_request(backend=tpp, user=me, workspace=internal)
+        with tempfile.TemporaryDirectory(suffix=f"output-{analysis_request.pk}") as tmp:
+            # set up the path we're going to use to upload the file from
+            tmp_path = tmp / f"{analysis_request.pk}.html"
 
-        # set up the path we're going to use to upload the file from
-        tmp_path = settings.BASE_DIR / f"{analysis_request.pk}.html"
-
-        try:
-            create_file(new_path=tmp_path)
-            release_id = create_release(backend=tpp, path=tmp_path, user=me)
-            upload_file(backend=tpp, release_id=release_id, path=tmp_path, user=me)
-        finally:
-            tmp_path.unlink()
-
+            try:
+                create_file(new_path=tmp_path)
+                release_id = create_release(
+                    backend=tpp,
+                    path=tmp_path,
+                    workspace_name=analysis_request.project.interactive_workspace.name,
+                    user=user,
+                )
+                upload_file(
+                    backend=tpp, release_id=release_id, path=tmp_path, user=user
+                )
+            finally:
+                tmp_path.unlink()
         print(f"{settings.BASE_URL}{analysis_request.get_absolute_url()}")
