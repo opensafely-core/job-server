@@ -38,7 +38,7 @@ In addition, OpenSAFELY will create a public dashboard listing for all [approved
 
 This public dashboard is supplementary to the [live public audit log of all analyses](https://jobs.opensafely.org/).
 
-**NOTE:** All study GitHub repositories (to include the study definition code, codelists and released results) be made public 12 months after any code has been executed against the underlying patient data. This recommendation is applied to the application as a whole, not to individual studies, analyses or workspaces conducted as part of an application.   
+**NOTE:** All study GitHub repositories (to include the study definition code, codelists and released results) be made public 12 months after any code has been executed against the underlying patient data. This recommendation is applied to the application as a whole, not to individual studies, analyses or workspaces conducted as part of an application.
 
 ## How the OpenSAFELY team supports you
 We have written [detailed documentation](https://docs.opensafely.org/) about the platform including a [getting started guide](https://docs.opensafely.org/getting-started/).
@@ -46,3 +46,6 @@ We have written [detailed documentation](https://docs.opensafely.org/) about the
 We have a [Q&A forum](https://github.com/opensafely/documentation/discussions).
 
 We also offer researchers a [co-pilot](https://www.bennett.ox.ac.uk/blog/2021/08/opensafely-co-pilot-programme-assisting-users-on-their-opensafely-journey/): a member of the OpenSAFELY team who joins you on your OpenSAFELY journey, to help you achieve a completed analysis within an agreed timeframe (usually 4 weeks).
+
+## Before you start your application
+Please download [our PDF application](https://drive.google.com/file/d/1f6PzT-wqR2FExrQ2FSwZSV8XNPE_p_HN/view), as we've added a checklist at the end to help you before you finally submit your application online.
