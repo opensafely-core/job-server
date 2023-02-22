@@ -25,6 +25,9 @@ logger = structlog.get_logger(__name__)
 
 
 def ran_at(job):
+    if job is None:
+        return
+
     return job.started_at or job.created_at
 
 

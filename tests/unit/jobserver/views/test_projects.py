@@ -122,7 +122,10 @@ def test_projectdetail_with_multiple_releases(rf, freezer):
 
 def test_projectdetail_with_no_github(rf):
     project = ProjectFactory()
-    WorkspaceFactory(project=project)
+    WorkspaceFactory(
+        project=project, repo=RepoFactory(url="https://github.com/owner/repo")
+    )
+    WorkspaceFactory(project=project, repo=RepoFactory(url="/path/on/disk/to/repo"))
 
     request = rf.get("/")
     request.user = UserFactory()

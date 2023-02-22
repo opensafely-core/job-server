@@ -26,6 +26,7 @@ def test_ran_at():
 
     assert ran_at(JobFactory(created_at=created, started_at=None)) == created
     assert ran_at(JobFactory(created_at=created, started_at=started)) == started
+    assert ran_at(None) is None
 
 
 def test_repodetail_success(rf, core_developer):

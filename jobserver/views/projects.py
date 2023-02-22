@@ -8,11 +8,10 @@ from django.db.models.functions import Least, Lower
 from django.shortcuts import get_object_or_404
 from django.template.response import TemplateResponse
 from django.views.generic import UpdateView, View
-from furl import furl
 
 from ..authorization import has_permission
 from ..github import _get_github_api
-from ..models import Job, Project, Snapshot
+from ..models import Job, Project, Repo, Snapshot
 
 
 # Create a global threadpool for getting repos.  This lets us have a single
@@ -59,8 +58,8 @@ class ProjectDetail(View):
         else:
             first_job_ran_at = None
 
-        repo_urls = set(workspaces.values_list("repo__url", flat=True))
-        all_repos = list(self.iter_repos(repo_urls))
+        repos = Repo.objects.filter(workspaces__in=workspaces)
+        all_repos = list(self.iter_repos(repos))
         private_repos = sorted(
             (r for r in all_repos if r["is_private"] or r["is_private"] is None),
             key=operator.itemgetter("name"),
@@ -137,23 +136,23 @@ class ProjectDetail(View):
             "variant": variants_lut[project.status],
         }
 
-    def iter_repos(self, repo_urls):
-        def get_repo(url):
-            f = furl(url)
-
+    def iter_repos(self, repos):
+        def get_repo(repo):
             try:
-                is_private = self.get_github_api().get_repo_is_private(*f.path.segments)
+                is_private = self.get_github_api().get_repo_is_private(
+                    repo.owner, repo.name
+                )
             except requests.HTTPError:
                 is_private = None
 
             return {
-                "name": f.path.segments[1],
-                "url": url,
+                "name": repo.name,
+                "url": repo.url,
                 "is_private": is_private,
             }
 
         # use the threadpool to parallelise the repo requests
-        yield from repo_thread_pool.map(get_repo, repo_urls, timeout=30)
+        yield from repo_thread_pool.map(get_repo, repos, timeout=30)
 
 
 class ProjectEdit(UpdateView):
