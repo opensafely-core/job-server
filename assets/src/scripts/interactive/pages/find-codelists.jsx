@@ -46,7 +46,12 @@ function FindCodelists() {
       initialValues={initialValues}
       onSubmit={(values, actions) => {
         actions.validateForm().then(() => {
-          setFormData({ ...formData, ...values });
+          setFormData({
+            ...formData,
+            ...values,
+            codelistA: null,
+            codelistB: null,
+          });
           if (secondCodelist) {
             return navigate("build-query");
           }
