@@ -23,6 +23,7 @@
 - [Backends](#backends)
 - [Rotating the GitHub token](#rotating-the-github-token)
 - [Interactive testing](#interactive-testing)
+- [Dumping co-pilot reporting data](#dumping-copilot-reporting-data)
 
 ## Local development
 
@@ -305,3 +306,27 @@ This has allowed us some benefits:
 To help us build out interactive functionality in this project the `add_osi_report` management command has been added.
 
 This takes a username of an existing user and sets up various objects to generate an Analysis with a related Report.
+
+
+## Dumping co-pilot reporting data
+Co-pilots [have a report](https://github.com/ebmdatalab/copiloting/tree/copiloting-report) they run every few months, building on data from this service.
+
+To produce a dump in the format they need you will need to install [db-to-sqlite](https://pypi.org/project/db-to-sqlite/) via pip, pipx, brew, or your installer of choice.
+
+Then run the following, replacing `<database URL>` with the URL to your database, this is likely in the `DATABASE_URL` environment variable.
+
+```
+db-to-sqlite \
+    --progress \
+    --table applications_application \
+    --table jobserver_project \
+    --table jobserver_workspace \
+    --table jobserver_user \
+    --table jobserver_org \
+    --table jobserver_job \
+    --table jobserver_jobrequest \
+    --table jobserver_release \
+    --table jobserver_releasefile \
+    <database URL> \
+    jobserver.sqlite
+```
