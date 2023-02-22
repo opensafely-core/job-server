@@ -1,5 +1,7 @@
 from attrs import define
 
+from interactive import dates
+
 
 @define
 class Codelist:
@@ -34,3 +36,5 @@ class Analysis:
     time_value: str
     title: str
     id: str | None = None  # noqa: A003
+    start_date: str = dates.START_DATE
+    end_date: str = dates.END_DATE
