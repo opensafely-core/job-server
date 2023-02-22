@@ -24,7 +24,7 @@ def build_codelist(data):
         return
 
     codelist_type = data.get("type", "")
-    system = "dmd" if codelist_type == "medication" else "snomedct"
+    system = "dmd" if codelist_type == "medication" else "snomed"
 
     return Codelist(
         label=data.get("label", ""),
