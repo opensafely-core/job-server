@@ -1,20 +1,21 @@
 import { Redirect, useLocation } from "wouter";
 import { AlertPage } from "../components/Alert";
 import { Button } from "../components/Button";
-import { useFormData } from "../context";
-import { endDate } from "../data/form-fields";
+import { useAppData, useFormData } from "../context";
 import { classNames, useRequiredFields } from "../utils";
 
 export const lines = [
   "Your report will show the number of people who have had",
   "added to their health record in the period between",
-  "1st September 2019",
   "and",
 ];
 
 function ReviewQuery() {
   const [, navigate] = useLocation();
   const { formData } = useFormData();
+  const {
+    dates: { startStr, endStr },
+  } = useAppData();
 
   if (useRequiredFields(["codelist0"])) {
     return <Redirect to="" />;
@@ -36,9 +37,9 @@ function ReviewQuery() {
           {formData.codelist0?.label}
         </a>
         {` ${lines[1]} `}
-        <span className="block font-semibold">{lines[2]}</span>
-        {lines[3]}
-        <span className="block font-semibold">{endDate}.</span>
+        <span className="block font-semibold">{startStr}</span>
+        {lines[2]}
+        <span className="block font-semibold">{endStr}.</span>
       </p>
       <Button
         className="mt-6"

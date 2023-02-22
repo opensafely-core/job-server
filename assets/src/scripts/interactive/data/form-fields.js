@@ -1,4 +1,20 @@
-export const endDate = "7th December 2022";
+export const dataDates = () => {
+  const start = new Date(Date.UTC(2019, 8, 1));
+  const end = new Date(Date.UTC(2022, 11, 7));
+
+  const options = {
+    year: "numeric",
+    month: "long",
+    day: "numeric",
+  };
+
+  return {
+    endISO: end.toISOString(),
+    endStr: end.toLocaleDateString("en-GB", options),
+    startISO: start.toISOString(),
+    startStr: start.toLocaleDateString("en-GB", options),
+  };
+};
 
 export const frequency = {
   label: "How would you like to group events?",

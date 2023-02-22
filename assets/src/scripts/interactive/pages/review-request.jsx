@@ -6,12 +6,16 @@ import { lines as multiLines } from "../components/CodelistBuilder";
 import InputError from "../components/InputError";
 import ReviewLineItem from "../components/ReviewLineItem";
 import { useAppData, useFormData } from "../context";
-import { demographics, endDate, filterPopulation } from "../data/form-fields";
+import { demographics, filterPopulation } from "../data/form-fields";
 import { useRequiredFields } from "../utils";
 import { lines as singleLines } from "./review-query";
 
 function ReviewRequest() {
-  const { basePath, csrfToken } = useAppData();
+  const {
+    basePath,
+    csrfToken,
+    dates: { startISO, endISO, startStr, endStr },
+  } = useAppData();
   const { formData } = useFormData();
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [error, setError] = useState("");
@@ -42,6 +46,8 @@ function ReviewRequest() {
           value: codelist0?.value,
         },
         title: `${codelist0?.label}`,
+        startDate: startISO,
+        endDate: endISO,
         ...data,
       };
     }
@@ -59,6 +65,8 @@ function ReviewRequest() {
         type: codelistB?.type,
         value: codelistB?.value,
       },
+      startDate: startISO,
+      endDate: endISO,
     };
   };
 
@@ -113,13 +121,13 @@ function ReviewRequest() {
               </span>
               {` ${multiLines[0]} `}
               <span className="block">
-                {multiLines[1]} {multiLines[2]} {endDate}
+                {startStr} {multiLines[1]} {endStr}
               </span>
-              {` ${multiLines[3]} `}
+              {` ${multiLines[2]} `}
               <span className="block font-semibold">
                 {formData.codelistB.label}
               </span>
-              {` ${multiLines[4]} `}
+              {` ${multiLines[3]} `}
               <span className="block">
                 {formData.timeValue} {formData.timeScale} {formData.timeEvent}
               </span>
@@ -137,7 +145,7 @@ function ReviewRequest() {
               </span>
               {singleLines[1]}
               <span className="block">
-                {singleLines[2]} {singleLines[3]} {endDate}.
+                {startStr} {singleLines[2]} {endStr}.
               </span>
             </ReviewLineItem>
           ) : null}
