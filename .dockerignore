@@ -20,3 +20,4 @@ workspaces
 staticfiles
 # dockerfile image build its own dir
 assets/dist
+.git/
