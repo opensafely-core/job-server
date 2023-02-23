@@ -1,4 +1,5 @@
 import { useFormData } from "../context";
+import { dataDates } from "../data/form-fields";
 
 export function classNames(...classes) {
   return classes.filter(Boolean).join(" ");
@@ -60,5 +61,6 @@ export function getAppData({
         codelists: getCodelistPageData(medications),
       },
     ],
+    dates: { ...dataDates() },
   };
 }

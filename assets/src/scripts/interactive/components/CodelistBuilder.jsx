@@ -1,17 +1,12 @@
 import { Field, useFormikContext } from "formik";
-import { useFormData } from "../context";
-import {
-  builderTimeEvents,
-  builderTimeScales,
-  endDate,
-} from "../data/form-fields";
+import { useAppData, useFormData } from "../context";
+import { builderTimeEvents, builderTimeScales } from "../data/form-fields";
 import { classNames } from "../utils";
 import InputError from "./InputError";
 import { SelectContainer } from "./Select";
 
 export const lines = [
   "added to their health record in the period between",
-  "1st September 2019",
   "and",
   "who have also had",
   "added to their health record from",
@@ -19,6 +14,9 @@ export const lines = [
 
 function CodelistBuilder() {
   const { formData } = useFormData();
+  const {
+    dates: { startStr, endStr },
+  } = useAppData();
   const { values, setFieldValue, errors, touched } = useFormikContext();
 
   const handleChange = (selectedItem) => {
@@ -42,10 +40,10 @@ function CodelistBuilder() {
       />
       <p className="max-w-prose text-lg">
         {lines[0]}
-        <span className="block font-semibold py-1">{lines[1]}</span>
+        <span className="block font-semibold py-1">{startStr}</span>
+        {lines[1]}
+        <span className="block font-semibold py-1">{endStr}</span>
         {lines[2]}
-        <span className="block font-semibold py-1">{endDate}</span>
-        {lines[3]}
       </p>
       <SelectContainer
         defaultValue={values?.codelistB || formData.codelist1}
