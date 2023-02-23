@@ -125,7 +125,7 @@ class AnalysisRequest(models.Model):
 
     def save(self, *args, **kwargs):
         if not self.slug:
-            self.slug = slugify(self.title)
+            self.slug = f"{slugify(self.title)}-{self.pk}"
 
         return super().save(*args, **kwargs)
 
