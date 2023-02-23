@@ -58,9 +58,10 @@ class OpenCodelistsAPI:
             }
 
     def get_codelist(self, slug):
-        url = furl("https://www.opencodelists.org") / "codelist" / slug / "download.csv"
-        url.args["fixed-headers"] = 1
-        r = requests.get(url)
+        f = furl("https://www.opencodelists.org") / "codelist" / slug / "download.csv"
+        f.args["fixed-headers"] = 1
+
+        r = requests.get(f.url)
         r.raise_for_status()
 
         return r.text
