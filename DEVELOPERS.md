@@ -154,7 +154,7 @@ just devenv
 python manage.py migrate
 ```
 
-Optionally set up 1 or more administrators by setting `ADMIN_USERS` to a list of strings.
+Optionally give 1 or more administrators access to the Staff Area by setting `ADMIN_USERS` to a list of strings.
 For example: `ADMIN_USERS=ghickman,ingelsp`.
 
 _Note:_ this can only contain usernames which exist in the database.
