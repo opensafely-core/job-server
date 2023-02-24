@@ -1,14 +1,13 @@
 import { useState } from "react";
 import { Redirect } from "wouter";
 import { AlertPage, removeAlert } from "../components/Alert";
-import { Button } from "../components/Button";
+import Button from "../components/Button";
 import { lines as multiLines } from "../components/CodelistBuilder";
 import InputError from "../components/InputError";
 import ReviewLineItem from "../components/ReviewLineItem";
 import { useAppData, useFormData } from "../context";
 import { demographics, filterPopulation } from "../data/form-fields";
 import { useRequiredFields } from "../utils";
-import { lines as singleLines } from "./review-query";
 
 function ReviewRequest() {
   const {
@@ -22,7 +21,8 @@ function ReviewRequest() {
 
   if (
     useRequiredFields([
-      "codelist0",
+      "codelistA",
+      "codelistB",
       "frequency",
       "filterPopulation",
       "demographics",
@@ -31,26 +31,8 @@ function ReviewRequest() {
     return <Redirect to="" />;
   }
 
-  const isSingleCodelist = !formData.codelistA && formData.codelist0?.label;
-  const isMultipleCodelists =
-    formData.codelist1?.label && formData.codelist0?.label;
-
   const dataForSubmission = () => {
     const { codelist0, codelist1, codelistA, codelistB, ...data } = formData;
-
-    if (isSingleCodelist) {
-      return {
-        codelistA: {
-          label: codelist0?.label,
-          type: codelist0?.type,
-          value: codelist0?.value,
-        },
-        title: `${codelist0?.label}`,
-        startDate: startISO.slice(0, 10),
-        endDate: endISO.slice(0, 10),
-        ...data,
-      };
-    }
 
     return {
       ...data,
@@ -100,18 +82,10 @@ function ReviewRequest() {
       <h1 className="text-4xl font-bold mb-6">Review your request</h1>
       <div className="mt-5 border-t border-gray-200">
         <dl className="divide-y divide-gray-200">
-          {isSingleCodelist ? (
-            <ReviewLineItem page="" title="Codelist">
-              {formData.codelist0?.label}
-            </ReviewLineItem>
-          ) : null}
-
-          {isMultipleCodelists ? (
-            <ReviewLineItem page="" title="Codelists">
-              {formData.codelist0?.label},<br />
-              {formData.codelist1?.label}
-            </ReviewLineItem>
-          ) : null}
+          <ReviewLineItem page="" title="Codelists">
+            {formData.codelist0?.label},<br />
+            {formData.codelist1?.label}
+          </ReviewLineItem>
 
           {formData.codelistA?.label && formData.codelistB?.label ? (
             <ReviewLineItem page="build-query" title="Report request">
@@ -132,19 +106,6 @@ function ReviewRequest() {
               </span>
               <span className="block font-semibold">
                 {` ${formData.codelistA.label}`}
-              </span>
-            </ReviewLineItem>
-          ) : null}
-
-          {!formData.codelist1 && formData.codelist0?.label ? (
-            <ReviewLineItem page="review-query" title="Report request">
-              {`${singleLines[0]} `}
-              <span className="block font-semibold">
-                {formData.codelist0?.label}
-              </span>
-              {singleLines[1]}
-              <span className="block">
-                {startStr} {singleLines[2]} {endStr}.
               </span>
             </ReviewLineItem>
           ) : null}

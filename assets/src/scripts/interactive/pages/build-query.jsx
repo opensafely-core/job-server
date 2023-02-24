@@ -2,7 +2,7 @@ import { Form, Formik } from "formik";
 import { Redirect, useLocation } from "wouter";
 import * as Yup from "yup";
 import { AlertForm } from "../components/Alert";
-import { Button } from "../components/Button";
+import Button from "../components/Button";
 import CodelistBuilder from "../components/CodelistBuilder";
 import { useAppData, useFormData } from "../context";
 import { builderTimeEvents, builderTimeScales } from "../data/form-fields";

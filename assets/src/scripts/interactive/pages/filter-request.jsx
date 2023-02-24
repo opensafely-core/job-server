@@ -2,7 +2,7 @@ import { Form, Formik } from "formik";
 import { Redirect, useLocation } from "wouter";
 import * as Yup from "yup";
 import { AlertForm } from "../components/Alert";
-import { Button } from "../components/Button";
+import Button from "../components/Button";
 import Checkbox from "../components/Checkbox";
 import Fieldset from "../components/Fieldset";
 import HintText from "../components/HintText";
@@ -16,7 +16,7 @@ function FilterRequest() {
   const [, navigate] = useLocation();
   const { formData, setFormData } = useFormData();
 
-  if (useRequiredFields(["codelist0"])) {
+  if (useRequiredFields(["codelistA", "codelistB"])) {
     return <Redirect to="" />;
   }
 

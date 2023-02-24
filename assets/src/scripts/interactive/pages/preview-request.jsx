@@ -1,6 +1,6 @@
 import { Redirect, useLocation } from "wouter";
 import { AlertPage } from "../components/Alert";
-import { Button } from "../components/Button";
+import Button from "../components/Button";
 import EventsAfter from "../components/Diagrams/EventsAfter";
 import EventsBefore from "../components/Diagrams/EventsBefore";
 import { useFormData } from "../context";
