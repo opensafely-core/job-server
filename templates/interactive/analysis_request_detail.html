@@ -49,11 +49,11 @@
       {% /description_item %}
 
       {% #description_item title="Created by" %}
-        {{ analysis_request.created_by.fullname }}
+        {% link href=analysis_request.job_request.created_by.get_staff_url text=analysis_request.job_request.created_by.fullname %}
       {% /description_item %}
 
       {% #description_item title="SHA" %}
-        {{ analysis_request.job_request.sha|default:"EMPTY" }}
+        {% link href=analysis_request.job_request.get_repo_url text=analysis_request.job_request.sha|slice:7|default:"-" %}
       {% /description_item %}
 
       {% #description_item title="Force run deps?" %}
@@ -69,12 +69,17 @@
   {% #card title="Analysis Request" %}
     <dl class="border-t border-slate-200 sm:divide-y sm:divide-slate-200">
       {% #description_item title="Created by" %}
-        {{ analysis_request.created_by.fullname }}
+        {% link href=analysis_request.created_by.get_staff_url text=analysis_request.created_by.fullname %}
       {% /description_item %}
 
       {% #description_item title="Title" %}
         {{ analysis_request.title }}
       {% /description_item %}
+
+      {% #description_item title="Template data" %}
+        <pre>{{ analysis_request.template_data|pprint }}</pre>
+      {% /description_item %}
+
     </dl>
   {% /card %}
 

@@ -3,6 +3,7 @@ import shutil
 import sys
 import tempfile
 from datetime import datetime, timezone
+from pathlib import Path
 
 import requests
 from django.conf import settings
@@ -92,7 +93,7 @@ class Command(BaseCommand):
 
         with tempfile.TemporaryDirectory(suffix=f"output-{analysis_request.pk}") as tmp:
             # set up the path we're going to use to upload the file from
-            tmp_path = tmp / f"{analysis_request.pk}.html"
+            tmp_path = Path(tmp) / f"{analysis_request.pk}.html"
 
             try:
                 create_file(new_path=tmp_path)
