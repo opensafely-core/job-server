@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { Redirect } from "wouter";
-import { AlertPage } from "../components/Alert";
+import { AlertPage, removeAlert } from "../components/Alert";
 import { Button } from "../components/Button";
 import { lines as multiLines } from "../components/CodelistBuilder";
 import InputError from "../components/InputError";
@@ -46,8 +46,8 @@ function ReviewRequest() {
           value: codelist0?.value,
         },
         title: `${codelist0?.label}`,
-        startDate: startISO,
-        endDate: endISO,
+        startDate: startISO.slice(0, 10),
+        endDate: endISO.slice(0, 10),
         ...data,
       };
     }
@@ -65,8 +65,8 @@ function ReviewRequest() {
         type: codelistB?.type,
         value: codelistB?.value,
       },
-      startDate: startISO,
-      endDate: endISO,
+      startDate: startISO.slice(0, 10),
+      endDate: endISO.slice(0, 10),
     };
   };
 
@@ -90,9 +90,8 @@ function ReviewRequest() {
       throw new Error(message);
     }
 
-    // What do we do with the response?
-    // eslint-disable-next-line no-console
-    console.log({ response });
+    removeAlert();
+    window.location.href = response.url;
   };
 
   return (
