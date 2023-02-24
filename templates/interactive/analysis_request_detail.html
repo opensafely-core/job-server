@@ -26,6 +26,10 @@
     Analysis for {{ analysis_request.project.name }}
   </h1>
 
+  {% #button type="link" href=analysis_request.job_request.get_absolute_url variant="" %}
+    View job request
+  {% /button %}
+
   {% if not object.publish_request %}
   {% #button type="link" href=analysis_request.get_publish_url variant="success" %}
     Request report is published
@@ -37,34 +41,6 @@
 </div>
 
 <div>
-
-  {% #card title="Job Request" class="mb-5" %}
-    <dl class="border-t border-slate-200 sm:divide-y sm:divide-slate-200">
-      {% #description_item title="Workspace" %}
-        {% link href=analysis_request.job_request.workspace.get_absolute_url text=analysis_request.job_request.workspace.name %}
-      {% /description_item %}
-
-      {% #description_item title="Backend" %}
-        {{ analysis_request.job_request.backend.name }}
-      {% /description_item %}
-
-      {% #description_item title="Created by" %}
-        {% link href=analysis_request.job_request.created_by.get_staff_url text=analysis_request.job_request.created_by.fullname %}
-      {% /description_item %}
-
-      {% #description_item title="SHA" %}
-        {% link href=analysis_request.job_request.get_repo_url text=analysis_request.job_request.sha|slice:7|default:"-" %}
-      {% /description_item %}
-
-      {% #description_item title="Force run deps?" %}
-        {{ analysis_request.job_request.force_run_dependencies|yesno }}
-      {% /description_item %}
-
-      {% #description_item title="Actions" %}
-        {{ analysis_request.job_request.requested_actions }}
-      {% /description_item %}
-    </dl>
-  {% /card %}
 
   {% #card title="Analysis Request" %}
     <dl class="border-t border-slate-200 sm:divide-y sm:divide-slate-200">
