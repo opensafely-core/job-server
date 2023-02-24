@@ -7,7 +7,7 @@ from ...fakes import FakeOpenCodelistsAPI
 
 def test_analysisrequestform_success_with_one_codelists():
     api = FakeOpenCodelistsAPI()
-    codelists = api.get_codelists("snomed") + api.get_codelists("dmd")
+    codelists = api.get_codelists("snomedct") + api.get_codelists("dmd")
 
     data = {
         "codelist_1_label": "Event Codelist",
@@ -24,7 +24,7 @@ def test_analysisrequestform_success_with_one_codelists():
 
 def test_analysisrequestform_success_with_two_codelists():
     api = FakeOpenCodelistsAPI()
-    codelists = api.get_codelists("snomed") + api.get_codelists("dmd")
+    codelists = api.get_codelists("snomedct") + api.get_codelists("dmd")
 
     data = {
         "codelist_1_label": "Event Codelist",
@@ -50,7 +50,7 @@ def test_analysisrequestform_success_with_two_codelists():
 )
 def test_analysisrequestform_time_value_validation_failure(time_scale, time_value):
     api = FakeOpenCodelistsAPI()
-    codelists = api.get_codelists("snomed") + api.get_codelists("dmd")
+    codelists = api.get_codelists("snomedct") + api.get_codelists("dmd")
 
     data = {
         "codelist_1_label": "Event Codelist",
@@ -76,7 +76,7 @@ def test_analysisrequestform_time_value_validation_failure(time_scale, time_valu
 )
 def test_analysisrequestform_time_value_validation_success(time_scale, time_value):
     api = FakeOpenCodelistsAPI()
-    codelists = api.get_codelists("snomed") + api.get_codelists("dmd")
+    codelists = api.get_codelists("snomedct") + api.get_codelists("dmd")
 
     data = {
         "codelist_1_label": "Event Codelist",
