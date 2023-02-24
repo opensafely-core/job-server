@@ -44,7 +44,11 @@ class OpenCodelistsAPI:
 
     def _iter_codelists(self, codelists):
         for codelist in codelists:
-            versions = [v for v in codelist["versions"] if v["status"] == "published"]
+            versions = [
+                v
+                for v in codelist["versions"]
+                if v["status"] == "published" and v["downloadable"]
+            ]
 
             if not versions:
                 continue
