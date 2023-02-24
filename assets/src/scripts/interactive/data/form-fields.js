@@ -16,15 +16,6 @@ export const dataDates = () => {
   };
 };
 
-export const frequency = {
-  label: "How would you like to group events?",
-  items: [
-    { label: "Monthly", value: "monthly" },
-    { label: "Quarterly", value: "quarterly" },
-    { label: "Yearly", value: "yearly" },
-  ],
-};
-
 export const builderTimeScales = [
   { label: "Weeks", value: "weeks" },
   { label: "Months", value: "months" },

@@ -23,7 +23,6 @@ function ReviewRequest() {
     useRequiredFields([
       "codelistA",
       "codelistB",
-      "frequency",
       "filterPopulation",
       "demographics",
     ])
@@ -129,12 +128,6 @@ function ReviewRequest() {
                 </li>
               ))}
             </ul>
-          </ReviewLineItem>
-
-          <ReviewLineItem page="filter-request" title="Frequency">
-            {`${formData.frequency
-              ?.slice(0, 1)
-              .toUpperCase()}${formData.frequency?.slice(1)}`}
           </ReviewLineItem>
         </dl>
       </div>

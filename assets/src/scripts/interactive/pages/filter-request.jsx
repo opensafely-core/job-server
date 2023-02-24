@@ -9,7 +9,7 @@ import HintText from "../components/HintText";
 import InputError from "../components/InputError";
 import RadioButton from "../components/RadioButton";
 import { useFormData } from "../context";
-import { demographics, filterPopulation, frequency } from "../data/form-fields";
+import { demographics, filterPopulation } from "../data/form-fields";
 import { useRequiredFields } from "../utils";
 
 function FilterRequest() {
@@ -29,15 +29,11 @@ function FilterRequest() {
       .min(1)
       .max(demographics.items.length)
       .required(),
-    frequency: Yup.string()
-      .oneOf(frequency.items.map((item) => item.value))
-      .required("Select a frequency"),
   });
 
   const initialValues = {
     filterPopulation: formData.filterPopulation || "",
     demographics: formData.demographics || [],
-    frequency: formData.frequency || "",
   };
 
   return (
@@ -84,29 +80,6 @@ function FilterRequest() {
             ))}
             {errors.demographics && touched.demographics ? (
               <InputError>Select one or more demographics</InputError>
-            ) : null}
-          </Fieldset>
-
-          <Fieldset legend={frequency.label}>
-            <HintText>
-              <p>
-                This is how the data will be aggregated and shown on the report.
-              </p>
-              <p>
-                If you are unsure, select <strong>Monthly</strong>.
-              </p>
-            </HintText>
-            {frequency.items.map((item) => (
-              <RadioButton
-                key={item.value}
-                id={item.value}
-                label={item.label}
-                name="frequency"
-                value={item.value}
-              />
-            ))}
-            {errors.frequency && touched.frequency ? (
-              <InputError>{errors.frequency}</InputError>
             ) : null}
           </Fieldset>
 
