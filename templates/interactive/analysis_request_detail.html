@@ -75,6 +75,11 @@
       {% #description_item title="Title" %}
         {{ analysis_request.title }}
       {% /description_item %}
+
+      {% #description_item title="Template data" %}
+        <pre>{{ analysis_request.template_data|pprint }}</pre>
+      {% /description_item %}
+
     </dl>
   {% /card %}
 
