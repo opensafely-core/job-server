@@ -53,7 +53,7 @@
       {% /description_item %}
 
       {% #description_item title="SHA" %}
-        {{ analysis_request.job_request.sha|default:"EMPTY" }}
+        {% link href=analysis_request.job_request.get_repo_url text=analysis_request.job_request.sha|slice:7|default:"-" %}
       {% /description_item %}
 
       {% #description_item title="Force run deps?" %}
