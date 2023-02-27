@@ -77,7 +77,6 @@ def test_analysisrequestcreate_post_success_with_one_codelist(
 
     data = {
         "title": "Event Codelist",
-        "frequency": "monthly",
         "codelistA": {
             "label": "Event Codelist",
             "organisation": "NHSD Primary Care Domain Refsets",
@@ -116,7 +115,6 @@ def test_analysisrequestcreate_post_success_with_two_codelists(
 
     data = {
         "title": "Event Codelist & Medication Codelist",
-        "frequency": "monthly",
         "codelistA": {
             "label": "Event Codelist",
             "organisation": "NHSD Primary Care Domain Refsets",
