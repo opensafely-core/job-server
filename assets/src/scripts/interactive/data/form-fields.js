@@ -16,30 +16,10 @@ export const dataDates = () => {
   };
 };
 
-export const frequency = {
-  label: "How would you like to group events?",
-  items: [
-    { label: "Monthly", value: "monthly" },
-    { label: "Quarterly", value: "quarterly" },
-    { label: "Yearly", value: "yearly" },
-  ],
-};
-
 export const builderTimeScales = [
   { label: "Weeks", value: "weeks" },
   { label: "Months", value: "months" },
   { label: "Years", value: "years" },
-];
-
-export const builderTimeEvents = [
-  {
-    label: "Before",
-    value: "before",
-  },
-  {
-    label: "After",
-    value: "after",
-  },
 ];
 
 export const filterPopulation = {

@@ -1,7 +1,7 @@
 /* eslint-disable react/button-has-type */
 import { bool, func, node, oneOf, string } from "prop-types";
 import React from "react";
-import { classNames } from "../../utils";
+import { classNames } from "../utils";
 
 function Button({
   children,

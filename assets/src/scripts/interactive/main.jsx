@@ -7,7 +7,6 @@ import QueryBuilder from "./pages/build-query";
 import FilterRequest from "./pages/filter-request";
 import FindCodelists from "./pages/find-codelists";
 import PreviewRequest from "./pages/preview-request";
-import ReviewQuery from "./pages/review-query";
 import ReviewRequest from "./pages/review-request";
 import Success from "./pages/success";
 import { getAppData } from "./utils";
@@ -42,9 +41,6 @@ root.render(
               </Route>
               <Route path="build-query">
                 <QueryBuilder />
-              </Route>
-              <Route path="review-query">
-                <ReviewQuery />
               </Route>
               <Route path="preview-request">
                 <PreviewRequest />

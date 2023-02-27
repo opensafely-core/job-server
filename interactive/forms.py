@@ -26,12 +26,6 @@ class AnalysisRequestForm(forms.Form):
     filter_population = forms.ChoiceField(
         choices=list_to_choices(["all", "adults", "children"])
     )
-    frequency = forms.ChoiceField(
-        choices=list_to_choices(["monthly", "quarterly", "yearly"])
-    )
-    time_event = forms.ChoiceField(
-        choices=list_to_choices(["before", "after"]), required=False
-    )
     time_scale = forms.ChoiceField(
         choices=list_to_choices(["weeks", "months", "years"]), required=False
     )
@@ -56,7 +50,6 @@ class AnalysisRequestForm(forms.Form):
         if self.has_codelist_2:
             self.fields["codelist_2_label"] = forms.ChoiceField(choices=choices("name"))
             self.fields["codelist_2_slug"] = forms.ChoiceField(choices=choices("slug"))
-            self.fields["time_event"].required = True
             self.fields["time_scale"].required = True
             self.fields["time_value"].required = True
 

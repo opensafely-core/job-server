@@ -29,9 +29,7 @@ class Analysis:
     created_by: str
     demographics: str
     filter_population: str
-    frequency: str
     repo: str
-    time_event: str
     time_scale: str
     time_value: str
     title: str
