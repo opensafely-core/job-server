@@ -99,10 +99,18 @@
           {% endif %}
         {% endif %}
 
+        {% if show_interactive_button %}
+        {% #button href=workspace.project.get_interactive_url type="link" variant="success" %}
+          Run interactive analysis
+          {% icon_play_outline class="h-4 w-4 ml-2 -mr-2" %}
+        {% /button %}
+        {% endif %}
+
         {% #button href=workspace.get_logs_url type="link" variant="primary" %}
           View logs
           {% icon_queue_list_outline class="h-4 w-4 ml-2 -mr-2" %}
         {% /button %}
+
       </div>
     </div>
 

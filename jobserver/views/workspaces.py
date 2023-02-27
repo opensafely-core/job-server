@@ -294,12 +294,20 @@ class WorkspaceDetail(View):
 
         honeycomb_can_view_links = has_role(self.request.user, CoreDeveloper)
 
+        is_interactive_user = has_permission(
+            request.user, "analysis_request_create", project=workspace.project
+        )
+        show_interactive_button = is_interactive_user and workspace.is_interactive
+
         context = {
             "first_job": first_job,
+            "honeycomb_can_view_links": honeycomb_can_view_links,
+            "honeycomb_link": f"https://ui.honeycomb.io/bennett-institute-for-applied-data-science/environments/production/datasets/job-server?query=%7B%22time_range%22%3A2419200%2C%22granularity%22%3A0%2C%22breakdowns%22%3A%5B%22status%22%5D%2C%22calculations%22%3A%5B%7B%22op%22%3A%22HEATMAP%22%2C%22column%22%3A%22current_runtime%22%7D%5D%2C%22filters%22%3A%5B%7B%22column%22%3A%22name%22%2C%22op%22%3A%22%3D%22%2C%22value%22%3A%22update_job%22%7D%2C%7B%22column%22%3A%22workspace_name%22%2C%22op%22%3A%22%3D%22%2C%22value%22%3A%22{workspace.name}%22%7D%2C%7B%22column%22%3A%22completed%22%2C%22op%22%3A%22%3D%22%2C%22value%22%3Atrue%7D%2C%7B%22column%22%3A%22status_change%22%2C%22op%22%3A%22%3D%22%2C%22value%22%3Atrue%7D%5D%2C%22filter_combination%22%3A%22AND%22%2C%22orders%22%3A%5B%5D%2C%22havings%22%3A%5B%5D%2C%22limit%22%3A100%7D",
             "is_member": is_member,
             "repo_is_private": repo_is_private,
-            "show_publish_repo_warning": show_publish_repo_warning,
             "run_jobs_url": run_jobs_url,
+            "show_interactive_button": show_interactive_button,
+            "show_publish_repo_warning": show_publish_repo_warning,
             "user_can_archive_workspace": can_archive_workspace,
             "user_can_run_jobs": can_run_jobs,
             "user_can_toggle_notifications": can_toggle_notifications,
@@ -308,8 +316,6 @@ class WorkspaceDetail(View):
             "user_can_view_outputs": can_view_outputs,
             "user_can_view_releases": can_view_releases,
             "workspace": workspace,
-            "honeycomb_can_view_links": honeycomb_can_view_links,
-            "honeycomb_link": f"https://ui.honeycomb.io/bennett-institute-for-applied-data-science/environments/production/datasets/job-server?query=%7B%22time_range%22%3A2419200%2C%22granularity%22%3A0%2C%22breakdowns%22%3A%5B%22status%22%5D%2C%22calculations%22%3A%5B%7B%22op%22%3A%22HEATMAP%22%2C%22column%22%3A%22current_runtime%22%7D%5D%2C%22filters%22%3A%5B%7B%22column%22%3A%22name%22%2C%22op%22%3A%22%3D%22%2C%22value%22%3A%22update_job%22%7D%2C%7B%22column%22%3A%22workspace_name%22%2C%22op%22%3A%22%3D%22%2C%22value%22%3A%22{workspace.name}%22%7D%2C%7B%22column%22%3A%22completed%22%2C%22op%22%3A%22%3D%22%2C%22value%22%3Atrue%7D%2C%7B%22column%22%3A%22status_change%22%2C%22op%22%3A%22%3D%22%2C%22value%22%3Atrue%7D%5D%2C%22filter_combination%22%3A%22AND%22%2C%22orders%22%3A%5B%5D%2C%22havings%22%3A%5B%5D%2C%22limit%22%3A100%7D",
         }
         return TemplateResponse(
             request,
