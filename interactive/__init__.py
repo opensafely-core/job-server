@@ -7,7 +7,6 @@ from interactive import dates
 class Codelist:
     label: str
     slug: str
-    system: str
     type: str  # noqa: A003
 
     # TODO: what are these again?
