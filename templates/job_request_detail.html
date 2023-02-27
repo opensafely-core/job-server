@@ -195,9 +195,11 @@
             {% /timeline_item %}
           {% endif %}
 
+          {% if job_request.completed_at %}
           {% #timeline_item background="green" title="Finished:" time=job_request.completed_at %}
             {% icon_check_outline class="h-5 w-5" %}
           {% /timeline_item %}
+          {% endif %}
 
           {% #timeline_item background="stone" title="Runtime:" time=job_request.runtime no_padding_bottom=True last=True %}
             {% icon_clock_outline class="h-5 w-5" %}
