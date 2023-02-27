@@ -408,6 +408,11 @@ def test_workspace_get_action_status_lut_without_backend():
     assert output == expected
 
 
+def test_workspace_is_interactive():
+    assert WorkspaceFactory(name="test-interactive").is_interactive
+    assert not WorkspaceFactory().is_interactive
+
+
 def test_workspace_str():
     repo = RepoFactory(url="Corellia")
     workspace = WorkspaceFactory(name="Corellian Engineering Corporation", repo=repo)

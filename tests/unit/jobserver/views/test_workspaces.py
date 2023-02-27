@@ -11,6 +11,7 @@ from django.utils import timezone
 
 from jobserver.authorization import (
     CoreDeveloper,
+    InteractiveReporter,
     OpensafelyInteractive,
     ProjectCollaborator,
     ProjectDeveloper,
@@ -609,6 +610,24 @@ def test_workspacedetail_authorized_honeycomb(rf):
         f"workspace_name%22%2C%22op%22%3A%22%3D%22%2C%22value%22%3A%22{workspace.name}"
         in response.rendered_content
     )
+
+
+def test_workspacedetail_for_interactive_button(rf, user):
+    workspace = WorkspaceFactory(name="testing-interactive")
+    user = UserFactory(roles=[InteractiveReporter])
+
+    request = rf.get("/")
+    request.user = user
+
+    response = WorkspaceDetail.as_view(get_github_api=FakeGitHubAPI)(
+        request,
+        org_slug=workspace.project.org.slug,
+        project_slug=workspace.project.slug,
+        workspace_slug=workspace.name,
+    )
+
+    assert response.status_code == 200
+    assert "Run interactive analysis" in response.rendered_content
 
 
 def test_workspacedetail_logged_out(rf):

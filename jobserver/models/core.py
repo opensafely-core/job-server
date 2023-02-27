@@ -1241,3 +1241,7 @@ class Workspace(models.Model):
             job = jobs.filter(action=action).order_by("-created_at").first()
             action_status_lut[action] = job.status
         return action_status_lut
+
+    @property
+    def is_interactive(self):
+        return self.name.endswith("-interactive")

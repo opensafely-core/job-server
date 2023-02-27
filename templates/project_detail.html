@@ -89,7 +89,13 @@
     </div>
 
     {% if is_member %}
-      <div class="flex flex-row mb-6 justify-center lg:mb-0 lg:justify-end lg:items-start">
+      <div class="flex flex-row mb-6 justify-center lg:mb-0 lg:justify-end lg:items-start gap-2">
+        {% if is_interactive_user %}
+        {% #button href=project.get_interactive_url type="link" variant="primary" %}
+          Run interactive analysis
+          {% icon_play_outline class="h-4 w-4 ml-2 -mr-2" %}
+        {% /button %}
+        {% endif %}
         {% #button href=project.get_edit_url type="link" variant="secondary" %}
           Edit project
           {% icon_pencil_outline class="h-4 w-4 ml-2 -mr-2" %}

@@ -69,9 +69,14 @@ class ProjectDetail(View):
             key=operator.itemgetter("name"),
         )
 
+        is_interactive_user = has_permission(
+            request.user, "analysis_request_create", project=project
+        )
+
         context = {
             "can_create_workspaces": can_create_workspaces,
             "first_job_ran_at": first_job_ran_at,
+            "is_interactive_user": is_interactive_user,
             "is_member": is_member,
             "memberships": memberships,
             "outputs": self.get_outputs(workspaces),

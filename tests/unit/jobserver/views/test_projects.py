@@ -5,7 +5,7 @@ from django.core.exceptions import PermissionDenied
 from django.http import Http404
 from django.utils import timezone
 
-from jobserver.authorization import CoreDeveloper
+from jobserver.authorization import CoreDeveloper, InteractiveReporter
 from jobserver.models import Project, Snapshot
 from jobserver.utils import set_from_qs
 from jobserver.views.projects import ProjectDetail, ProjectEdit
@@ -58,6 +58,35 @@ def test_projectdetail_success(rf, user):
 
     # check the staff-only edit link doesn't show for normal users
     assert "Edit" not in response.context_data
+
+
+def test_projectdetail_for_interactive_button(rf, user):
+    project = ProjectFactory()
+    user = UserFactory(roles=[InteractiveReporter])
+    ProjectMembershipFactory(project=project, user=user)
+
+    request = rf.get("/")
+    request.user = user
+
+    response = ProjectDetail.as_view(get_github_api=FakeGitHubAPI)(
+        request, org_slug=project.org.slug, project_slug=project.slug
+    )
+
+    assert response.status_code == 200
+    assert "Run interactive analysis" in response.rendered_content
+
+    user = UserFactory()
+    ProjectMembershipFactory(project=project, user=user, roles=[InteractiveReporter])
+
+    request = rf.get("/")
+    request.user = user
+
+    response = ProjectDetail.as_view(get_github_api=FakeGitHubAPI)(
+        request, org_slug=project.org.slug, project_slug=project.slug
+    )
+
+    assert response.status_code == 200
+    assert "Run interactive analysis" in response.rendered_content
 
 
 def test_projectdetail_with_multiple_releases(rf, freezer):
