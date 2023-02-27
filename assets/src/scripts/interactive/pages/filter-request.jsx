@@ -5,7 +5,6 @@ import { AlertForm } from "../components/Alert";
 import Button from "../components/Button";
 import Checkbox from "../components/Checkbox";
 import Fieldset from "../components/Fieldset";
-import HintText from "../components/HintText";
 import InputError from "../components/InputError";
 import RadioButton from "../components/RadioButton";
 import { useFormData } from "../context";
