@@ -22,17 +22,6 @@ export const builderTimeScales = [
   { label: "Years", value: "years" },
 ];
 
-export const builderTimeEvents = [
-  {
-    label: "Before",
-    value: "before",
-  },
-  {
-    label: "After",
-    value: "after",
-  },
-];
-
 export const filterPopulation = {
   label: "Filter the population",
   items: [

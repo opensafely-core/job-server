@@ -5,7 +5,7 @@ import { AlertForm } from "../components/Alert";
 import Button from "../components/Button";
 import CodelistBuilder from "../components/CodelistBuilder";
 import { useAppData, useFormData } from "../context";
-import { builderTimeEvents, builderTimeScales } from "../data/form-fields";
+import { builderTimeScales } from "../data/form-fields";
 import { codelistSchema } from "../data/schema";
 import { useRequiredFields } from "../utils";
 
@@ -43,9 +43,6 @@ function QueryBuilder() {
     timeScale: Yup.string()
       .oneOf(builderTimeScales.map((event) => event.value))
       .required(),
-    timeEvent: Yup.string()
-      .oneOf(builderTimeEvents.map((event) => event.value))
-      .required(),
   });
 
   const initialValues = {
@@ -53,7 +50,6 @@ function QueryBuilder() {
     codelistB: formData.codelistB || formData.codelist1,
     timeValue: formData.timeValue || 3,
     timeScale: formData.timeScale || "weeks",
-    timeEvent: formData.timeEvent || "before",
   };
 
   return (

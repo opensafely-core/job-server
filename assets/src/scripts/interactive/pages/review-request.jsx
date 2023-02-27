@@ -97,7 +97,8 @@ function ReviewRequest() {
               {` ${multiLines[2]} `}
               <strong>{formData.codelistB.label}</strong>
               {` ${multiLines[3]} `}
-              {formData.timeValue} {formData.timeScale} {formData.timeEvent}
+              {formData.timeValue} {formData.timeScale}
+              {" before "}
               <strong>{` ${formData.codelistA.label}`}</strong>.
             </ReviewLineItem>
           ) : null}

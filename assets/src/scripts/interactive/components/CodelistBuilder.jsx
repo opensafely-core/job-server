@@ -80,7 +80,7 @@ function CodelistBuilder() {
         <InputError>{errors.timeValue}</InputError>
       ) : null}
       <p className="max-w-prose text-lg">
-        after {values.codelistA.label || formData.codelist0?.label}.
+        before {values.codelistA.label || formData.codelist0?.label}.
       </p>
     </div>
   );
