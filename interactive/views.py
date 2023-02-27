@@ -30,6 +30,7 @@ def build_codelist(data):
         label=data.get("label", ""),
         slug=data.get("value", ""),
         system=system,
+        type=codelist_type,
     )
 
 
