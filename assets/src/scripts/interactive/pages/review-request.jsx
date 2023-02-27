@@ -23,6 +23,8 @@ function ReviewRequest() {
     useRequiredFields([
       "codelistA",
       "codelistB",
+      "timeScale",
+      "timeValue",
       "filterPopulation",
       "demographics",
     ])
@@ -88,24 +90,15 @@ function ReviewRequest() {
 
           {formData.codelistA?.label && formData.codelistB?.label ? (
             <ReviewLineItem page="build-query" title="Report request">
-              <span className="block font-semibold">
-                {formData.codelistA.label}
-              </span>
+              <strong>{formData.codelistA.label}</strong>
               {` ${multiLines[0]} `}
-              <span className="block">
-                {startStr} {multiLines[1]} {endStr}
-              </span>
+              <strong>{startStr}</strong> {multiLines[1]}{" "}
+              <strong>{endStr}</strong>
               {` ${multiLines[2]} `}
-              <span className="block font-semibold">
-                {formData.codelistB.label}
-              </span>
+              <strong>{formData.codelistB.label}</strong>
               {` ${multiLines[3]} `}
-              <span className="block">
-                {formData.timeValue} {formData.timeScale} {formData.timeEvent}
-              </span>
-              <span className="block font-semibold">
-                {` ${formData.codelistA.label}`}
-              </span>
+              {formData.timeValue} {formData.timeScale} {formData.timeEvent}
+              <strong>{` ${formData.codelistA.label}`}</strong>.
             </ReviewLineItem>
           ) : null}
 

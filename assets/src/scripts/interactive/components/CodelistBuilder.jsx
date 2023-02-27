@@ -1,6 +1,6 @@
 import { Field, useFormikContext } from "formik";
 import { useAppData, useFormData } from "../context";
-import { builderTimeEvents, builderTimeScales } from "../data/form-fields";
+import { builderTimeScales } from "../data/form-fields";
 import { classNames } from "../utils";
 import InputError from "./InputError";
 import { SelectContainer } from "./Select";
@@ -40,9 +40,9 @@ function CodelistBuilder() {
       />
       <p className="max-w-prose text-lg">
         {lines[0]}
-        <span className="block font-semibold py-1">{startStr}</span>
-        {lines[1]}
-        <span className="block font-semibold py-1">{endStr}</span>
+        <span className="block">
+          <strong>{startStr}</strong> {lines[1]} <strong>{endStr}</strong>
+        </span>
         {lines[2]}
       </p>
       <SelectContainer
@@ -50,7 +50,7 @@ function CodelistBuilder() {
         handleChange={handleChange}
         name="codelistB"
       />
-      <p className="max-w-prose text-lg">{lines[4]}</p>
+      <p className="max-w-prose text-lg">{lines[3]}</p>
       <div className="flex flex-row gap-x-1">
         <Field
           className={classNames(
@@ -75,25 +75,12 @@ function CodelistBuilder() {
             </option>
           ))}
         </Field>
-        <Field
-          as="select"
-          className={classNames(
-            "inline-flex w-[10ch] relative rounded-md border-gray-400 border-2 bg-white p-1 shadow-sm"
-          )}
-          name="timeEvent"
-        >
-          {builderTimeEvents.map(({ label, value }) => (
-            <option key={value} value={value}>
-              {label}
-            </option>
-          ))}
-        </Field>
       </div>
       {errors.timeValue && touched.timeValue ? (
         <InputError>{errors.timeValue}</InputError>
       ) : null}
       <p className="max-w-prose text-lg">
-        {values.codelistA.label || formData.codelist0?.label}
+        after {values.codelistA.label || formData.codelist0?.label}.
       </p>
     </div>
   );
