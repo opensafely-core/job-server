@@ -251,7 +251,7 @@ class GitHubAPI:
         }
         r = self._delete(url, headers=headers)
 
-        if r.status_code == 404:
+        if r.status_code == 404:  # pragma: no cover
             # this method is for testing create_repo() so we don't mind if the
             # repo is already missing
             return
