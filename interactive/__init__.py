@@ -33,5 +33,7 @@ class Analysis:
     time_value: str
     title: str
     id: str | None = None  # noqa: A003
+    frequency: str = "monthly"
+    time_event: str = "before"
     start_date: str = dates.START_DATE
     end_date: str = dates.END_DATE
