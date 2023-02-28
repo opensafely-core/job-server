@@ -136,10 +136,12 @@ class FakeOpenCodelistsAPI:
                 "slug": "bennett/event-codelist/event123",
                 "name": "Event Codelist",
                 "organisation": "Bennett Institute",
+                "updated_date": "2021-07-01",
             },
             {
                 "slug": "bennett/medication-codelist/medication123",
                 "name": "Medication Codelist",
                 "organisation": "Bennett Institute",
+                "updated_date": "2022-11-09",
             },
         ]
