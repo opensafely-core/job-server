@@ -56,7 +56,10 @@ describe("<App />", () => {
     render(<App {...props} />);
 
     await user.click(screen.queryAllByRole("link")[0]);
-    expect(screen.getByText("Last modified at:")).toBeVisible();
-    expect(screen.getByText("Loading...")).toBeVisible();
+    await waitFor(() => {
+      expect(screen.getByText("Last modified at:")).toBeVisible();
+      expect(screen.getByText("hello")).toBeVisible();
+      expect(screen.getByText("world")).toBeVisible();
+    });
   });
 });

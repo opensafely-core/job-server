@@ -58,7 +58,7 @@ describe("<Viewer />", () => {
       />
     );
     await waitFor(() =>
-      expect(screen.getByText("Error: Network request failed")).toBeVisible()
+      expect(screen.getByText("Error: Failed to connect")).toBeVisible()
     );
   });
 

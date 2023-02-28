@@ -8,7 +8,9 @@ export const handlers = [
     res(ctx.status(200), ctx.json({ files: fileList }))
   ),
 
-  rest.get(fileList[0].url, (req, res, ctx) => res(ctx.status(200))),
+  rest.get(fileList[0].url, (req, res, ctx) =>
+    res(ctx.status(200), ctx.text("hello,world"))
+  ),
 
   rest.post(publishUrl, (req, res, ctx) => res(ctx.status(200), ctx.json({}))),
 ];

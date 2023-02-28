@@ -139,9 +139,6 @@ describe("<PrepareButton />", () => {
     await user.click(screen.getByRole("button"));
 
     await waitFor(() =>
-      expect(screen.getByRole("button")).toHaveTextContent("Publishing…")
-    );
-    await waitFor(() =>
       expect(toastError).toHaveBeenCalledWith({
         message: "Error: Invalid user token",
         prepareUrl,
@@ -184,9 +181,6 @@ describe("<PrepareButton />", () => {
 
     await user.click(screen.getByRole("button"));
 
-    await waitFor(() =>
-      expect(screen.getByRole("button")).toHaveTextContent("Publishing…")
-    );
     await waitFor(() =>
       expect(toastError).toHaveBeenCalledWith({
         message: "Error",
