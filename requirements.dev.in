@@ -13,6 +13,7 @@ flake8-builtins
 flake8-implicit-str-concat
 flake8-no-pep420
 isort
+opensafely
 pip-tools
 pre-commit
 pytest-django

@@ -108,12 +108,12 @@ test-base *args: assets
 
 test-dev *args:
     {{ just_executable() }} test-base \
-        '-m "not verification"' \
+        '-m "not verification and not slow_test"' \
         {{ args }}
 
     # run with || so they both run regardless of failures
-    $BIN/coverage report --omit=interactive/opencodelists.py,jobserver/github.py,"tests/verification/*" \
-    || $BIN/coverage html --omit=interactive/opencodelists.py,jobserver/github.py,"tests/verification/*"
+    $BIN/coverage report --omit=interactive/opencodelists.py,jobserver/github.py,tests/integration/test_interactive.py,"tests/verification/*" \
+    || $BIN/coverage html --omit=interactive/opencodelists.py,jobserver/github.py,tests/integration/test_interactive.py,"tests/verification/*"
 
 
 test *args:
