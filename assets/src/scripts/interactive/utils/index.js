@@ -21,6 +21,7 @@ export function getCodelistPageData(scriptID) {
     organisation: codelist.organisation,
     type: scriptID.slice(9, scriptID.length - 1),
     value: codelist.slug,
+    updatedDate: codelist.updated_date,
   }));
 
   return configureJson;

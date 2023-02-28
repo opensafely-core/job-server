@@ -5,6 +5,19 @@ import { shape, string } from "prop-types";
 import { codelistGroupProps } from "../props";
 import { classNames } from "../utils";
 
+function dateFmt(date) {
+  const options = {
+    year: "numeric",
+    month: "short",
+    day: "2-digit",
+  };
+  const dateValue = new Date(date);
+  const dateFormatted = new Intl.DateTimeFormat("en-GB", options).format(
+    dateValue
+  );
+  return dateFormatted;
+}
+
 function ComboboxItem({ codelistGroup, codelistID, query }) {
   const { values } = useFormikContext();
   const filteredCodelists = (codelists) =>
@@ -47,21 +60,27 @@ function ComboboxItem({ codelistGroup, codelistID, query }) {
         >
           {({ selected, active }) => (
             <>
-              <span
+              <div
                 className={classNames(
                   "block truncate",
                   selected ? "font-medium" : "font-normal"
                 )}
               >
                 <span>{codelist.label}</span>
-                <span
-                  className={`block text-sm ${
+                <dl
+                  className={`flex flex-row flex-wrap text-sm mt-0.5 ${
                     active ? "text-white" : "text-gray-600"
                   }`}
                 >
-                  From: {codelist.organisation}
-                </span>
-              </span>
+                  <div className="flex flex-row gap-1">
+                    <dt>From:</dt> <dd>{codelist.organisation}</dd>
+                  </div>
+                  <div className="flex flex-row gap-1 ml-2 border-l border-l-gray-300 pl-2">
+                    <dt>Last updated:</dt>{" "}
+                    <dd>{dateFmt(codelist.updatedDate)}</dd>
+                  </div>
+                </dl>
+              </div>
               {selected || values[codelistID]?.value === codelist.value ? (
                 <span
                   className={classNames(
