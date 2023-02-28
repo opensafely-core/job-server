@@ -59,6 +59,7 @@ class OpenCodelistsAPI:
                 "slug": latest["full_slug"],
                 "name": codelist["name"],
                 "organisation": codelist["organisation"],
+                "updated_date": latest["updated_date"],
             }
 
     def get_codelist(self, slug):
