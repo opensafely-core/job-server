@@ -13,6 +13,7 @@ from jobserver.reports import process_html
 from jobserver.utils import build_spa_base_url
 
 from . import Analysis, Codelist
+from .dates import END_DATE, START_DATE
 from .forms import AnalysisRequestForm
 from .models import AnalysisRequest
 from .opencodelists import _get_opencodelists_api
@@ -125,6 +126,8 @@ class AnalysisRequestCreate(View):
             "events": self.events,
             "medications": self.medications,
             "project": self.project,
+            "start_date": START_DATE,
+            "end_date": END_DATE,
         }
 
         return TemplateResponse(
