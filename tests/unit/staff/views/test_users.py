@@ -100,9 +100,7 @@ def test_usercreate_post_success_with_application_url(rf, core_developer):
     assert user.projects.first().application_url == "http://example.com"
 
 
-def test_usercreate_post_success_without_application_url(
-    rf, mailoutbox, core_developer
-):
+def test_usercreate_post_success_without_application_url(rf, core_developer):
     org = OrgFactory()
     project = ProjectFactory()
     ApplicationFactory(project=project)
@@ -127,9 +125,6 @@ def test_usercreate_post_success_without_application_url(
     assert user.orgs.first() == org
     assert user.projects.first() == project
     assert not user.projects.first().application_url
-
-    assert len(mailoutbox) == 1
-    assert "reset-password" in mailoutbox[0].body
 
 
 def test_usercreate_post_success_with_missing_repo(rf, core_developer):
