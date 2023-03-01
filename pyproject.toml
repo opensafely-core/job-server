@@ -95,7 +95,9 @@ filterwarnings = [
     "ignore::pytest.PytestUnraisableExceptionWarning:",
     "ignore:distutils Version classes are deprecated:DeprecationWarning:pytest_freezegun",
     "ignore:Call to deprecated method __init__:DeprecationWarning:",
+    "ignore:path is deprecated.:DeprecationWarning:opensafely",
 ]
 markers = [
+  "slow_test: mark test as being slow running",
   "verification: tests that verify fakes",
 ]
