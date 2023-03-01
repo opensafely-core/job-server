@@ -1,6 +1,6 @@
-export const dataDates = () => {
-  const start = new Date(Date.UTC(2019, 8, 1));
-  const end = new Date(Date.UTC(2022, 11, 7));
+export const dataDates = ({ dateStart, dateEnd }) => {
+  const start = new Date(dateStart);
+  const end = new Date(dateEnd);
 
   const options = {
     year: "numeric",

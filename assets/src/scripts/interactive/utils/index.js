@@ -45,7 +45,7 @@ export function isObject(a) {
 }
 
 export function getAppData({
-  dataset: { basePath, csrfToken, events, medications },
+  dataset: { basePath, csrfToken, events, medications, dateStart, dateEnd },
 }) {
   return {
     basePath,
@@ -62,6 +62,6 @@ export function getAppData({
         codelists: getCodelistPageData(medications),
       },
     ],
-    dates: { ...dataDates() },
+    dates: { ...dataDates({ dateStart, dateEnd }) },
   };
 }
