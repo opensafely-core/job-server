@@ -21,14 +21,14 @@ const { dataset } = element;
 const required = {
   basePath: "Basename",
   csrfToken: "CSRF Token",
+  dateEnd: "End date",
+  dateStart: "Start date",
   events: "Events codelist data",
   medications: "Medications codelist data",
-  dateStart: "Start date",
-  dateEnd: "End date",
 };
 
-Object.entries(required).map((entry) => {
-  if (!dataset[entry[0]]) throw new Error(`${entry[1]} not proivided`);
+Object.entries(required).map(([key, value]) => {
+  if (!dataset[key]) throw new Error(`${value} not proivided`);
   return null;
 });
 
