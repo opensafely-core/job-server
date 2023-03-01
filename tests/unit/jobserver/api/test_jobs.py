@@ -7,9 +7,7 @@ from rest_framework.exceptions import NotAuthenticated
 
 from jobserver.api.jobs import (
     JobAPIUpdate,
-    JobRequestAPICreate,
     JobRequestAPIList,
-    JobRequestAPIListCreate,
     UserAPIDetail,
     WorkspaceStatusesAPI,
     get_backend_from_token,
@@ -586,83 +584,6 @@ def test_jobapiupdate_unknown_job_request(api_rf):
     # Jobs associated with unknown requests should be ignored
     assert response.status_code == 200, response.data
     assert not Job.objects.exists()
-
-
-def test_jobrequestapicreate_invalid_token(api_rf):
-    user = UserFactory()
-
-    request = api_rf.post("/", HTTP_AUTHORIZATION=f"{user.username}:")
-
-    response = JobRequestAPICreate.as_view()(request)
-
-    assert response.status_code == 403
-    assert (
-        response.data["detail"] == "You do not have permission to perform this action."
-    )
-
-
-def test_jobrequestapicreate_missing_header(api_rf):
-    request = api_rf.post("/")
-
-    response = JobRequestAPICreate.as_view()(request)
-
-    assert response.status_code == 403
-    assert response.data["detail"] == "Authorization header missing"
-
-
-def test_jobrequestapicreate_success(api_rf, pipeline_config):
-    backend = BackendFactory()
-    workspace = WorkspaceFactory()
-    user = UserFactory()
-    token = user.rotate_token()
-
-    assert not JobRequest.objects.exists()
-
-    data = {
-        "workspace": workspace.name,
-        "backend": backend.slug,
-        "sha": "123",
-        "project_definition": pipeline_config,
-        "requested_actions": ["test"],
-    }
-    request = api_rf.post("/", HTTP_AUTHORIZATION=f"{user.username}:{token}", data=data)
-
-    response = JobRequestAPICreate.as_view()(request)
-
-    assert response.status_code == 201, response.data
-    assert JobRequest.objects.count() == 1
-
-    job_request = JobRequest.objects.first()
-    assert job_request.workspace == workspace
-
-
-def test_jobrequestapicreate_unknown_user(api_rf):
-    request = api_rf.post("/", HTTP_AUTHORIZATION="0:token")
-
-    response = JobRequestAPICreate.as_view()(request)
-
-    assert response.status_code == 403
-    assert response.data["detail"] == "Invalid user"
-
-
-def test_jobrequestapilistcreate_get(api_rf, mocker):
-    mocked_create = mocker.patch("jobserver.api.jobs.JobRequestAPICreate")
-    mocked_list = mocker.patch("jobserver.api.jobs.JobRequestAPIList")
-
-    JobRequestAPIListCreate.as_view()(api_rf.get("/"))
-
-    mocked_create.assert_not_called()
-    mocked_list.assert_called_once()
-
-
-def test_jobrequestapilistcreate_post(api_rf, mocker):
-    mocked_create = mocker.patch("jobserver.api.jobs.JobRequestAPICreate")
-    mocked_list = mocker.patch("jobserver.api.jobs.JobRequestAPIList")
-
-    JobRequestAPIListCreate.as_view()(api_rf.post("/"))
-
-    mocked_create.assert_called_once()
-    mocked_list.assert_not_called()
 
 
 def test_jobrequestapilist_filter_by_backend(api_rf):

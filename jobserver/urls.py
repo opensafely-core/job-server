@@ -10,7 +10,7 @@ from django.views.generic import RedirectView
 
 from jobserver.api.jobs import (
     JobAPIUpdate,
-    JobRequestAPIListCreate,
+    JobRequestAPIList,
     UserAPIDetail,
     WorkspaceStatusesAPI,
 )
@@ -35,7 +35,6 @@ from .views.job_requests import (
     JobRequestDetail,
     JobRequestDetailRedirect,
     JobRequestList,
-    JobRequestPickRef,
 )
 from .views.jobs import JobCancel, JobDetail, JobDetailRedirect
 from .views.orgs import OrgDetail, OrgList
@@ -69,7 +68,7 @@ from .views.workspaces import (
 
 
 api_urls = [
-    path("job-requests/", JobRequestAPIListCreate.as_view()),
+    path("job-requests/", JobRequestAPIList.as_view()),
     path("jobs/", JobAPIUpdate.as_view()),
     path("release-notifications/", ReleaseNotificationAPICreate.as_view()),
     path("users/<str:username>/", UserAPIDetail.as_view(), name="user-detail"),
@@ -234,7 +233,6 @@ workspace_urls = [
         name="workspace-notifications-toggle",
     ),
     path("outputs/", include(outputs_urls)),
-    path("pick-commit/", JobRequestPickRef.as_view(), name="job-request-pick-ref"),
     path("published/", include(published_files_urls)),
     path("releases/", include(releases_urls)),
     path("<int:pk>/", JobRequestDetail.as_view(), name="job-request-detail"),

@@ -9,7 +9,7 @@ from social_django.views import auth as social_django_auth_view
 from applications import views as applications
 from jobserver.api.jobs import (
     JobAPIUpdate,
-    JobRequestAPIListCreate,
+    JobRequestAPIList,
     UserAPIDetail,
     WorkspaceStatusesAPI,
 )
@@ -66,7 +66,7 @@ def test_url_redirects(client, url, redirect):
     "url,view",
     [
         ("/", index.Index),
-        ("/api/v2/job-requests/", JobRequestAPIListCreate),
+        ("/api/v2/job-requests/", JobRequestAPIList),
         ("/api/v2/jobs/", JobAPIUpdate),
         ("/api/v2/release-notifications/", ReleaseNotificationAPICreate),
         ("/api/v2/users/ben/", UserAPIDetail),

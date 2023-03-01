@@ -1,5 +1,3 @@
-import functools
-
 from django.conf import settings
 from django.contrib import messages
 from django.core.exceptions import MultipleObjectsReturned
@@ -11,7 +9,6 @@ from django.template.response import TemplateResponse
 from django.utils.safestring import mark_safe
 from django.views.generic import CreateView, ListView, RedirectView, View
 from django.views.generic.edit import FormMixin
-from first import first
 from pipeline import load_pipeline
 
 from .. import honeycomb
@@ -315,59 +312,3 @@ class JobRequestList(FormMixin, ListView):
             return self.form_valid(form)
         else:
             return self.form_invalid(form)
-
-
-class JobRequestPickRef(View):
-    get_github_api = staticmethod(_get_github_api)
-
-    def get(self, request, *args, **kwargs):
-        workspace = get_object_or_404(
-            Workspace,
-            project__org__slug=self.kwargs["org_slug"],
-            project__slug=self.kwargs["project_slug"],
-            name=self.kwargs["workspace_slug"],
-        )
-
-        if not has_permission(request.user, "job_request_pick_ref"):
-            return redirect(workspace.get_jobs_url())
-
-        if workspace.is_archived:
-            msg = (
-                "You cannot create Jobs for an archived Workspace."
-                "Please contact an admin if you need to have it unarchved."
-            )
-            messages.error(request, msg)
-            return redirect(workspace)
-
-        # some backends might need to be disabled.  This view only uses
-        # backends the user can see so we look them up here, removing the
-        # relevant ones from the QS before we check if there are any below.
-        backends = request.user.backends.all()
-        if settings.DISABLE_CREATING_JOBS:
-            backends = backends.exclude(Q(slug="emis") | Q(slug="tpp"))
-
-        # jobs need to be run on a backend so the user needs to have access to
-        # at least one
-        if not backends.exists():
-            raise Http404
-
-        response = functools.partial(
-            TemplateResponse, request, "job_request_pick_ref.html"
-        )
-
-        try:
-            commits = self.get_github_api().get_commits(
-                workspace.repo.owner,
-                workspace.repo.name,
-            )
-        except Exception as e:
-            return response(context={"error": str(e), "workspace": workspace})
-
-        commits = [
-            {
-                "sha": c["commit"]["tree"]["sha"],
-                "message": first(c["commit"]["message"].split("\n")),
-            }
-            for c in commits
-        ]
-        return response(context={"commits": commits, "workspace": workspace})
