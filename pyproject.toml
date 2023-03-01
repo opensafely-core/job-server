@@ -14,15 +14,8 @@ classifiers = [
 requires-python = ">=3.11"
 dynamic = ["version"]
 
-[tool.setuptools]
-packages = [
-  "applications",
-  "interactive",
-  "jobserver",
-  "services",
-  "staff",
-]
-
+[tool.setuptools.packages.find]
+exclude = ["tests*"]  # exclude packages matching these glob patterns (empty by default)
 
 [tool.black]
 extend-exclude = '''
