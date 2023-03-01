@@ -3,6 +3,7 @@ from environs import Env
 from requests.exceptions import HTTPError
 
 from jobserver.github import GitHubAPI, RepoAlreadyExists
+from jobserver.models.common import new_ulid_str
 
 from ..fakes import FakeGitHubAPI
 from .utils import compare
@@ -84,9 +85,17 @@ def test_create_issue(enable_network, github_api):
 
 
 def test_create_repo(enable_network, github_api, testing_repo):
+    # create a unique ID for this test using our existing ULID function.
+    # we can have multiple CI runs executing concurrently which means this
+    # test can be running in different CI jobs at the same time.  Given the
+    # test talks to an external API we can't use the same repo name for every
+    # execution.  Instead we use our new_ulid_str since it's already available
+    # and should have more than enough uniqueness for our needs to create
+    # a unique repo name.
+    unique_id = new_ulid_str()
     args = [
         "opensafely-testing",
-        "testing-create_repo",
+        f"testing-create_repo-{unique_id}",
     ]
 
     real = github_api.create_repo(*args)
