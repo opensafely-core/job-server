@@ -18,10 +18,19 @@ if (!element) throw new Error("Failed to find the root element");
 const root = createRoot(element);
 const { dataset } = element;
 
-if (!dataset.events || !dataset.medications)
-  throw new Error("Codelist data not provided");
-if (!dataset.basePath) throw new Error("Basename not provided");
-if (!dataset.csrfToken) throw new Error("CSRF Token not provided");
+const required = {
+  basePath: "Basename",
+  csrfToken: "CSRF Token",
+  dateEnd: "End date",
+  dateStart: "Start date",
+  events: "Events codelist data",
+  medications: "Medications codelist data",
+};
+
+Object.entries(required).map(([key, value]) => {
+  if (!dataset[key]) throw new Error(`${value} not proivided`);
+  return null;
+});
 
 root.render(
   <React.StrictMode>
