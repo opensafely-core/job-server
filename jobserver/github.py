@@ -233,11 +233,13 @@ class GitHubAPI:
 
         return r.json()
 
-    def delete_repo(self, org, repo):
+    def delete_repo(self, org, repo):  # pragma: no cover
         """
         Delete the given repo
 
-        This exists to help with testing create_repo()
+        This exists to help with testing create_repo().  Since it only runs
+        against the live GitHub API and we don't control state there we're
+        ignoring coverage for the whole method.
         """
         path_segments = [
             "repos",
@@ -251,9 +253,7 @@ class GitHubAPI:
         }
         r = self._delete(url, headers=headers)
 
-        if r.status_code == 404:  # pragma: no cover
-            # this method is for testing create_repo() so we don't mind if the
-            # repo is already missing
+        if r.status_code == 404:
             return
 
         r.raise_for_status()
