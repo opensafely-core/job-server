@@ -14,6 +14,15 @@
 </div>
 
 {% block extra_js %}
+  {% if debug %}
+  <script type="module" nonce="{{ request.csp_nonce }}">
+    import RefreshRuntime from 'http://localhost:5173/static/@react-refresh'
+    RefreshRuntime.injectIntoGlobalHook(window)
+    window.$RefreshReg$ = () => {}
+    window.$RefreshSig$ = () => (type) => type
+    window.__vite_plugin_react_preamble_installed__ = true
+  </script>
+  {% endif %}
   {% vite_asset 'assets/src/scripts/outputs-viewer/index.jsx' %}
   {% vite_legacy_polyfills %}
   {% vite_legacy_asset 'assets/src/scripts/outputs-viewer/index-legacy.jsx' %}
