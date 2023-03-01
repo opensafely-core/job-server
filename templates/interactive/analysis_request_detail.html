@@ -44,6 +44,11 @@
 
   {% #card title="Analysis Request" %}
     <dl class="border-t border-slate-200 sm:divide-y sm:divide-slate-200">
+      {% #description_item title="Created at" %}
+        {{ analysis_request.created_at }}
+        <time datetime="{{ analysis_request.created_at|date:"Y-m-d H:i:sO" }}"></time>
+      {% /description_item %}
+
       {% #description_item title="Created by" %}
         {% link href=analysis_request.created_by.get_staff_url text=analysis_request.created_by.fullname %}
       {% /description_item %}
