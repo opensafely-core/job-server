@@ -2,12 +2,17 @@
 
 {% load django_vite %}
 {% load humanize %}
+{% load static %}
 
 {% block metatitle %}{{ analysis_request.project.name }} Analysis | OpenSAFELY Jobs{% endblock metatitle %}
 
 {% block extra_meta %}
 <meta name="description" content="{{ analysis_request.project.name }} is an OpenSAFELY project from {{ analysis_request.project.org.name }}. Every time a researcher runs their analytic code against patient data, it is audited in public here.">
 {% endblock %}
+
+{% block extra_styles %}
+<link rel="stylesheet" href="{% static 'highlighting.css' %}">
+{% endblock extra_styles %}
 
 {% block breadcrumbs %}
   {% url "home" as home_url %}
@@ -46,7 +51,7 @@
     <dl class="border-t border-slate-200 sm:divide-y sm:divide-slate-200">
       {% #description_item title="Created at" %}
         {{ analysis_request.created_at }}
-        <time datetime="{{ analysis_request.created_at|date:"Y-m-d H:i:sO" }}"></time>
+        <time datetime='{{ analysis_request.created_at|date:"Y-m-d H:i:sO" }}'></time>
       {% /description_item %}
 
       {% #description_item title="Created by" %}
@@ -58,7 +63,8 @@
       {% /description_item %}
 
       {% #description_item title="Template data" %}
-        <pre>{{ analysis_request.template_data|pprint }}</pre>
+        {{ analysis_request.template_data|json_script:"analysisRequestData" }}
+        <div class="overflow-scroll max-h-96"><pre><code class="language-json !p-0" id="analysisRequest">{{ analysis_request.template_data|pprint }}</code></pre></div>
       {% /description_item %}
 
     </dl>
@@ -98,5 +104,6 @@
     });
   </script>
 
+  {% vite_asset "assets/src/scripts/analysis-request-detail.js" %}
   {% vite_legacy_polyfills %}
 {% endblock %}
