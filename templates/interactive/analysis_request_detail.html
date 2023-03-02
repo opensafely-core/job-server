@@ -58,11 +58,19 @@
 
     <div class="flex flex-col mt-2 sm:flex-row gap-2 lg:items-start">
       {% if not object.publish_request %}
-        {% #button type="link" href=analysis_request.get_publish_url variant="success" %}
-          Request report is published
-        {% /button %}
+        {% if not report %}
+          {% #button type="button" variant="success" disabled=True tooltip="Report has not been processed" %}
+            Publish report
+          {% /button %}
+        {% else %}
+          {% #button type="link" href=analysis_request.get_publish_url variant="success" %}
+            Publish report
+          {% /button %}
+        {% endif %}
       {% else %}
-        <p>has publish request, {% link href=object.publish_request.get_absolute_url text="View" %}</p>
+        {% #button type="link" href=object.publish_request.get_absolute_url variant="primary" %}
+          View published report
+        {% /button %}
       {% endif %}
 
       {% #button type="link" href=analysis_request.job_request.get_absolute_url variant="secondary" %}
@@ -71,15 +79,42 @@
     </div>
   </div>
 
-  {# {% if report %} #}
-    <div class="grid gap-6 place-content-stretch lg:col-span-2">
+  <div class="grid gap-6 place-content-stretch lg:col-span-2">
+    {% if report %}
       {% #card title="Report" container=True class="font-lg text-slate-700" %}
         {{ report }}
       {% /card %}
-    </div>
-  {# {% endif %} #}
+    {% else %}
+      {% #card class="lg:col-span-2" %}
+        <div class="text-center p-8">
+          {% icon_custom_spinner class="h-12 w-12 mb-4 mx-auto flex-1 animate-spin stroke-current stroke-2 text-slate-600" %}
+          <h2 class="mt-2 mb-4 text-xl font-semibold text-slate-900">
+            Your request is being processed
+          </h2>
+          <div class="grid gap-y-2 max-w-prose mx-auto">
+            <p>
+              The results will be checked carefully by our team for privacy and
+              security reasons.
+            </p>
+            <p>
+              We aim to process requests within two working days, although it may
+              take up to five working days. We are working to improve this for
+              the future.
+            </p>
+            <p class="text-slate-600 pt-4 mt-2 border-t border-slate-200">
+              If you'd like any more information about requesting an analysis
+              <span class="md:block">
+                or have any questions,
+                {% link href="mailto:team@opensafely.org" text="contact us" append_after="." %}
+              </span>
+            </p>
+          </div>
+        </div>
+      {% /card %}
+    {% endif %}
+  </div>
 
-  <div class="space-y-6 md:space-y-6 lg:col-span-1 lg:row-start-2">
+  <div class="space-y-6 md:space-y-6 lg:col-span-1">
     {% #card title="Analysis Request" %}
       <dl class="border-t border-slate-200 sm:divide-y sm:divide-slate-200">
         {% #description_item stacked=True title="Created at" %}
