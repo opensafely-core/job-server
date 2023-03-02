@@ -1,7 +1,6 @@
 import json
 
 from attrs import asdict
-from django.conf import settings
 from django.core.exceptions import PermissionDenied
 from django.shortcuts import get_object_or_404, redirect
 from django.template.response import TemplateResponse
@@ -38,21 +37,13 @@ class AnalysisRequestCreate(View):
     def build_analysis(self, *, form_data, project):
         raw = json.loads(form_data)
 
-        # add auth token if it's a real github repo
-        # TODO: needs a new token for this
-        repo = project.interactive_workspace.repo.url
-        if repo.startswith("https://github.com"):
-            repo = repo.replace(
-                "https://", f"https://interactive:{settings.GITHUB_WRITEABLE_TOKEN}@"
-            )  # pragma: no cover
-
         return Analysis(
             codelist_1=build_codelist(raw.get("codelistA", None)),
             codelist_2=build_codelist(raw.get("codelistB", None)),
             created_by=self.request.user.email,
             demographics=raw.get("demographics", ""),
             filter_population=raw.get("filterPopulation", ""),
-            repo=repo,
+            repo=project.interactive_workspace.repo.url,
             time_scale=raw.get("timeScale", ""),
             time_value=raw.get("timeValue", ""),
             title=raw.get("title", ""),

@@ -36,7 +36,6 @@ def submit_analysis(
     This will stay in job-server while create_commit() is intended to move to
     an external service in the future.
     """
-    # TODO: wrap form kwargs up in a dataclass?
 
     # create an AnalysisRequest instance so we have a PK to use in various
     # places, but we don't save it until we've written the commit and pushed
@@ -139,15 +138,25 @@ def commit_and_push(working_dir, analysis, force=False):
     return commit_sha
 
 
+def get_repo_with_token(repo):
+    if repo.startswith("https://github.com"):
+        return repo.replace(
+            "https://", f"https://interactive:{settings.GITHUB_WRITEABLE_TOKEN}@"
+        )
+    return repo
+
+
 def create_commit(
     analysis,
     template_repo,
     force=False,
     get_opencodelists_api=_get_opencodelists_api,
 ):
+    repo_url = get_repo_with_token(analysis.repo)
+
     if not force:
         # check this commit does not already exist
-        raise_if_commit_exists(analysis.repo, analysis.id)
+        raise_if_commit_exists(repo_url, analysis.id)
 
     analysis_name = "v2"
 
@@ -180,7 +189,7 @@ def create_commit(
             repo_dir = Path(repo_dir)
 
             # 4. clone the given interactive repo
-            git("clone", "--depth", "1", analysis.repo, repo_dir)
+            git("clone", "--depth", "1", repo_url, repo_dir)
 
             # 5. clear working directory because each analysis is fresh set of files
             clean_working_tree(repo_dir)

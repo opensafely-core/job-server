@@ -7,6 +7,7 @@ from interactive.submit import (
     clean_working_tree,
     commit_and_push,
     create_commit,
+    get_repo_with_token,
     git,
     raise_if_commit_exists,
     submit_analysis,
@@ -155,7 +156,7 @@ def test_create_commit(build_repo, remote_repo, template_repo, force):
         created_by=UserFactory().email,
         demographics="",
         filter_population="",
-        repo=remote_repo,
+        repo=str(remote_repo),
         id=pk,
         time_scale="",
         time_value="",
@@ -240,7 +241,7 @@ def test_create_commit_with_two_codelists(
         created_by=UserFactory().email,
         demographics="",
         filter_population="",
-        repo=remote_repo,
+        repo=str(remote_repo),
         id=pk,
         time_scale="",
         time_value="",
@@ -329,3 +330,20 @@ def test_interactive_analysis_template_skips_files(template_repo, tmp_path):
 
     assert (tmp_path / "project.yaml").exists() is True
     assert (tmp_path / "__pycache__").exists() is False
+
+
+def test_get_repo_with_token_returns_correct_url_with_token(monkeypatch):
+    monkeypatch.setattr(settings, "GITHUB_WRITEABLE_TOKEN", "a_secure_token")
+
+    repo = "https://github.com/opensafely-test/my-test-repo"
+    expected_repo = (
+        "https://interactive:a_secure_token@github.com/opensafely-test/my-test-repo"
+    )
+
+    assert get_repo_with_token(repo) == expected_repo
+
+
+def test_get_repo_with_token_returns_same_url_with_no_token():
+    repo = "/tmp/opensafely-test/my-test-repo"
+
+    assert get_repo_with_token(repo) == repo
