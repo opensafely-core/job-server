@@ -78,3 +78,22 @@ def send_repo_signed_off_notification_to_staff(repo):
         template_name="emails/notify_staff_repo_signed_off.txt",
         context={"repo": repo, "staff_url": staff_url},
     )
+
+
+def send_welcome_email(user):
+    login_url = furl(settings.BASE_URL) / user.get_login_url()
+
+    context = {
+        "domain": settings.BASE_URL,
+        "name": user.name,
+        "url": login_url,
+    }
+
+    send(
+        to=user.email,
+        subject="Welcome to OpenSAFELY",
+        sender="notifications@jobs.opensafely.org",
+        reply_to=["OpenSAFELY Team <team@opensafely.org>"],
+        template_name="emails/welcome.txt",
+        context=context,
+    )

@@ -13,6 +13,7 @@ from interactive.commands import create_repo, create_user, create_workspace
 from jobserver.authorization import roles
 from jobserver.authorization.decorators import require_permission
 from jobserver.authorization.utils import roles_for
+from jobserver.emails import send_welcome_email
 from jobserver.github import GitHubError, _get_github_api
 from jobserver.models import Backend, Job, Org, Project, User
 from jobserver.utils import raise_if_not_int
@@ -95,6 +96,8 @@ class UserCreate(FormView):
                 "An error occurred when trying to create the required Repo on GitHub",
             )
             return self.form_invalid(form)
+
+        send_welcome_email(user)
 
         return redirect(user.get_staff_url())
 
