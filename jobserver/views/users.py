@@ -12,7 +12,7 @@ from opentelemetry import trace
 
 from jobserver.authorization import InteractiveReporter, has_role
 
-from ..emails import send_login_email
+from ..emails import send_github_login_email, send_login_email
 from ..forms import EmailLoginForm
 from ..models import User
 from ..utils import is_safe_path
@@ -39,8 +39,16 @@ class Login(FormView):
     def form_valid(self, form):
         user = User.objects.filter(email=form.cleaned_data["email"]).first()
         if user:
-            self.request.session[INTERNAL_LOGIN_SESSION_TOKEN] = user.email
-            send_login_email(user)
+            if user.social_auth.exists():
+                # we don't want to expose users email address to a bad actor
+                # via the login page form so we're emailing them with a link
+                # to the login page to click the right button.
+                # We can't email them with a link to the social auth entrypoint
+                # because it only accepts POSTs.
+                send_github_login_email(user)
+            else:
+                self.request.session[INTERNAL_LOGIN_SESSION_TOKEN] = user.email
+                send_login_email(user)
 
         msg = "If you have a user account we'll send you an email with the login details shortly. If you don't receive an email please check your spam folder."
         messages.success(self.request, msg)
@@ -85,7 +93,10 @@ class LoginWithURL(View):
             return redirect("login")
 
         if not has_role(user, InteractiveReporter):
-            messages.error(request, "derp")
+            messages.error(
+                request,
+                "Only users who have signed up to OpenSAFELY Interactive can log in via email",
+            )
             return redirect("login")
 
         login(request, user, "django.contrib.auth.backends.ModelBackend")

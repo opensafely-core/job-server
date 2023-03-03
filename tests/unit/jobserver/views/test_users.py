@@ -4,13 +4,14 @@ from django.contrib.auth.models import AnonymousUser
 from django.contrib.messages.storage.fallback import FallbackStorage
 from django.contrib.sessions.backends.db import SessionStore
 from django.core.signing import TimestampSigner
+from django.urls import reverse
 from django.utils import timezone
 from freezegun import freeze_time
 
 from jobserver.authorization import InteractiveReporter
 from jobserver.views.users import Login, LoginWithURL, Settings
 
-from ....factories import UserFactory
+from ....factories import UserFactory, UserSocialAuthFactory
 
 
 def test_login_already_logged_in_with_next_url(rf):
@@ -69,7 +70,7 @@ def test_login_get_unsafe_path(rf):
     assert response.context_data["next_url"] == ""
 
 
-def test_login_post_success(rf):
+def test_login_post_success_with_email_user(rf, mailoutbox):
     user = UserFactory()
 
     request = rf.post("/", {"email": user.email})
@@ -89,6 +90,39 @@ def test_login_post_success(rf):
     assert len(messages) == 1
     msg = "If you have a user account we'll send you an email with the login details shortly. If you don't receive an email please check your spam folder."
     assert str(messages[0]) == msg
+
+    # differentiate from the GitHub user use case
+    m = mailoutbox[0]
+    assert m.subject == "Log into OpenSAFELY"
+    assert "using your GitHub account" not in m.body
+
+
+def test_login_post_success_with_github_user(rf, mailoutbox):
+    social = UserSocialAuthFactory()
+
+    request = rf.post("/", {"email": social.user.email})
+    request.user = AnonymousUser()
+
+    # set up messages framework
+    request.session = SessionStore()
+    messages = FallbackStorage(request)
+    request._messages = messages
+
+    response = Login.as_view()(request)
+
+    assert response.status_code == 200
+
+    # check we have a message for the user
+    messages = list(messages)
+    assert len(messages) == 1
+    msg = "If you have a user account we'll send you an email with the login details shortly. If you don't receive an email please check your spam folder."
+    assert str(messages[0]) == msg
+
+    # differentiate from the email user use case
+    m = mailoutbox[0]
+    assert m.subject == "Log into OpenSAFELY"
+    assert reverse("login") in m.body
+    assert "using your GitHub account" in m.body
 
 
 def test_login_post_unknown_user(rf):

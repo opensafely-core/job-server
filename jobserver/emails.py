@@ -1,4 +1,5 @@
 from django.conf import settings
+from django.urls import reverse
 from furl import furl
 from incuna_mail import send
 
@@ -25,6 +26,21 @@ def send_finished_notification(email, job):
         sender="notifications@jobs.opensafely.org",
         subject=f"{job.status}: [os {workspace_name}] {job.action}",
         template_name="emails/notify_finished.txt",
+        context=context,
+    )
+
+
+def send_github_login_email(user):
+    context = {
+        "url": furl(settings.BASE_URL) / reverse("login"),
+    }
+
+    send(
+        to=user.email,
+        subject="Log into OpenSAFELY",
+        sender="notifications@jobs.opensafely.org",
+        reply_to=["OpenSAFELY Team <team@opensafely.org>"],
+        template_name="emails/login_via_github.txt",
         context=context,
     )
 
