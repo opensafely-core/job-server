@@ -58,12 +58,12 @@
 
     <div class="flex flex-col mt-2 sm:flex-row gap-2 lg:items-start">
       {% if not object.publish_request %}
-        {% if not report %}
-          {% #button type="button" variant="success" disabled=True tooltip="Report has not been processed" %}
+        {% if report %}
+          {% #button type="link" href=analysis_request.get_publish_url variant="success" %}
             Publish report
           {% /button %}
         {% else %}
-          {% #button type="link" href=analysis_request.get_publish_url variant="success" %}
+          {% #button type="button" variant="success" disabled=True tooltip="Report has not been processed" %}
             Publish report
           {% /button %}
         {% endif %}
@@ -73,9 +73,15 @@
         {% /button %}
       {% endif %}
 
-      {% #button type="button" id="downloadBtn" variant="primary" data_title=analysis_request.title %}
-        Download report
-      {% /button %}
+      {% if report %}
+        {% #button type="button" id="downloadBtn" variant="primary" data_title=analysis_request.title %}
+          Download report
+        {% /button %}
+      {% else %}
+        {% #button type="button" variant="primary" disabled=True tooltip="Report has not been processed" %}
+          Download report
+        {% /button %}
+      {% endif %}
     </div>
   </div>
 
