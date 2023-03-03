@@ -1,5 +1,3 @@
-import * as html2pdf from "html2pdf.js";
-
 const report = document.querySelector("#reportContainer");
 const downloadBtn = document.querySelector("#downloadBtn");
 const watermark = document.querySelector("#watermark");
@@ -15,12 +13,14 @@ const options = {
   },
 };
 
-downloadBtn.addEventListener("click", () => {
+downloadBtn.addEventListener("click", async () => {
+  const html2pdf = await import("html2pdf.js");
+
   watermark.classList.remove("hidden");
   const singleInner = watermark.innerHTML;
   watermark.innerHTML = watermark.innerHTML.repeat(300);
 
-  html2pdf().set(options).from(report).toContainer().toPdf().save();
+  html2pdf.default().set(options).from(report).toContainer().toPdf().save();
 
   setTimeout(() => {
     watermark.classList.add("hidden");
