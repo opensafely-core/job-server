@@ -10,10 +10,14 @@ $(() => {
 
 hljs.registerLanguage("json", json);
 
-document.getElementById("analysisRequest").textContent = JSON.stringify(
-  JSON.parse(document.getElementById("analysisRequestData").textContent),
-  null,
-  2
-);
+const analysisRequest = document.getElementById("analysisRequest");
+
+if (analysisRequest) {
+  analysisRequest.textContent = JSON.stringify(
+    JSON.parse(document.getElementById("analysisRequestData").textContent),
+    null,
+    2
+  );
+}
 
 hljs.highlightAll();
