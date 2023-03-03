@@ -14,14 +14,18 @@ const options = {
 };
 
 downloadBtn.addEventListener("click", async () => {
+  // Load the JS on button click
   const html2pdf = await import("html2pdf.js");
 
-  watermark.classList.remove("hidden");
+  // Repeat the watermark 300 times on the container
   const singleInner = watermark.innerHTML;
+  watermark.classList.remove("hidden");
   watermark.innerHTML = watermark.innerHTML.repeat(300);
 
+  // Generate and download the PDF
   html2pdf.default().set(options).from(report).toContainer().toPdf().save();
 
+  // 0 timeout to remove watermark after the event loop has finished
   setTimeout(() => {
     watermark.classList.add("hidden");
     watermark.innerHTML = singleInner;
