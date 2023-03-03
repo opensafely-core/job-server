@@ -45,6 +45,10 @@ class JobRequestSearchForm(forms.Form):
     identifier = forms.CharField()
 
 
+class EmailLoginForm(forms.Form):
+    email = forms.EmailField()
+
+
 class ProjectMembershipForm(RolesForm):
     pass
 

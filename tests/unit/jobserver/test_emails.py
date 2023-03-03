@@ -5,6 +5,7 @@ from django.utils import timezone
 
 from jobserver.emails import (
     send_finished_notification,
+    send_login_email,
     send_repo_signed_off_notification_to_researchers,
     send_repo_signed_off_notification_to_staff,
 )
@@ -49,6 +50,16 @@ def test_send_finished_notification(mailoutbox):
     assert settings.BASE_URL in m.body
 
     assert list(m.to) == ["test@example.com"]
+
+
+def test_login_email(mailoutbox):
+    user = UserFactory()
+
+    send_login_email(user)
+
+    m = mailoutbox[0]
+
+    assert list(m.to) == [user.email]
 
 
 def test_send_repo_signed_off_notification_to_researchers(mailoutbox):

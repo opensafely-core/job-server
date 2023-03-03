@@ -1,0 +1,5 @@
+We have received a request to log into OpenSAFELY for your account. If you think this was made in error please ignore this email.
+
+Otherwise, please click the link below to log in:
+
+{{ url }}

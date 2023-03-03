@@ -29,6 +29,23 @@ def send_finished_notification(email, job):
     )
 
 
+def send_login_email(user):
+    login_url = furl(settings.BASE_URL) / user.get_login_url()
+
+    context = {
+        "url": login_url,
+    }
+
+    send(
+        to=user.email,
+        subject="Log into OpenSAFELY",
+        sender="notifications@jobs.opensafely.org",
+        reply_to=["OpenSAFELY Team <team@opensafely.org>"],
+        template_name="emails/login.txt",
+        context=context,
+    )
+
+
 def send_repo_signed_off_notification_to_researchers(repo):
     creators = User.objects.filter(workspaces__repo=repo)
     emails = [

@@ -1,6 +1,7 @@
 from datetime import timedelta
 
 import pytest
+from django.core.signing import TimestampSigner
 from django.db import IntegrityError
 from django.urls import reverse
 from django.utils import timezone
@@ -40,11 +41,6 @@ def test_user_constraints_missing_pat_token_or_pat_expires_at():
 
     with pytest.raises(IntegrityError):
         UserFactory(pat_token="test", pat_expires_at=None)
-
-
-def test_user_name():
-    assert UserFactory(fullname="first last", username="test").name == "first last"
-    assert UserFactory(username="username").name == "username"
 
 
 def test_user_get_all_permissions():
@@ -130,6 +126,26 @@ def test_user_get_all_roles_empty():
     assert output == expected
 
 
+def test_user_get_login_url(mocker):
+    user = UserFactory()
+
+    class MockSecrets:
+        def token_urlsafe(*args, **kwargs):
+            return "test"
+
+    mock_secrets = MockSecrets()
+
+    mocker.patch("jobserver.models.core.secrets", new=mock_secrets)
+
+    url = user.get_login_url()
+    signed_token = TimestampSigner(salt="login").sign(mock_secrets.token_urlsafe())
+
+    assert url == reverse(
+        "login-with-url",
+        kwargs={"token": signed_token},
+    )
+
+
 def test_user_get_staff_url():
     user = UserFactory()
 
@@ -141,6 +157,11 @@ def test_user_get_staff_url():
             "username": user.username,
         },
     )
+
+
+def test_user_name():
+    assert UserFactory(fullname="first last", username="test").name == "first last"
+    assert UserFactory(username="username").name == "username"
 
 
 def test_user_is_unapproved_by_default():
