@@ -25,6 +25,6 @@ We use data submitted by this form as described in [our privacy policy](https://
 
 ## Before you start your application
 
-Here is a copy of [our online application form](https://drive.google.com/drive/folders/1-0AvOOKHm9yaQAl_HljgwC8qugHNQQIW), including a checklist at the end.
+Here is a copy of [our online application form](https://drive.google.com/file/d/1nyQm4uD4RB-TEo7qLMTRi27sGw3Qp4W1/view), including a checklist at the end.
 This is only to be used as a guide to help you understand the information needed to assess our application.
 Do not use the PDF file to submit an application.
