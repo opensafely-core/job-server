@@ -22,3 +22,9 @@ NOTE: For NHSE/I/X applicants review by a local / institutional Research Ethics 
 ## How we use your data
 
 We use data submitted by this form as described in [our privacy policy](https://www.opensafely.org/privacy/).
+
+## Before you start your application
+
+Here is a copy of [our online application form](https://drive.google.com/drive/folders/1-0AvOOKHm9yaQAl_HljgwC8qugHNQQIW), including a checklist at the end.
+This is only to be used as a guide to help you understand the information needed to assess our application.
+Do not use the PDF file to submit an application.
