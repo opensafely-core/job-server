@@ -4,28 +4,38 @@
   {% var icon_color="text-bn-flamenco-400" %}
   {% var title_color="text-bn-flamenco-900" %}
   {% var text_color="text-bn-flamenco-800" %}
+  {% var hover_color="hover:text-bn-flamenco-600" %}
 {% elif variant == "info" %}
   {% var bg="bg-white" %}
   {% var icon="_icons/exclamation-solid.svg" %}
   {% var icon_color="text-slate-400" %}
   {% var title_color="text-slate-900" %}
   {% var text_color="text-slate-700" %}
+  {% var hover_color="hover:text-slate-600" %}
 {% endif %}
 
-<div class="rounded-lg shadow p-4 {{ bg }} {{ class }}">
-  {% if not no_icon %}
+<div class="rounded-lg shadow p-4 relative {{ bg }} {{ class }}" role="alert">
+  {% if no_icon %}
+    <h2 class="font-bold text-lg tracking-tight {{ title_color }}">
+      {{ title }}
+    </h2>
+    <p class="mt-1 {{ text_color }}">{{ children }}</p>
+  {% else %}
     <div class="flex">
       <div class="flex-shrink-0">
         {% include icon with class="h-7 w-7 "|add:icon_color only %}
       </div>
       <div class="ml-3">
-  {% endif %}
-      <h2 class="font-bold text-lg tracking-tight {{ title_color }}">
-        {{ title }}
-      </h3>
-      <p class="mt-1 {{ text_color }}">{{ children }}</p>
-  {% if not no_icon %}
+        <h2 class="font-bold text-lg tracking-tight {{ title_color }}">
+          {{ title }}
+        </h2>
+        <p class="mt-1 {{ text_color }}">{{ children }}</p>
+      </div>
     </div>
-  </div>
+  {% endif %}
+  {% if dismissible %}
+    <button type="button" class="absolute right-2 top-2 {{ title_color }} {{ hover_color }}" data-dismiss="alert" aria-label="Close">
+      {% icon_x_outline class="h-6 w-6" %}
+    </button>
   {% endif %}
 </div>

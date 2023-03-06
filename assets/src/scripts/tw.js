@@ -3,6 +3,7 @@ import Screen from "@alpine-collective/toolkit-screen/dist/module.esm";
 import Alpine from "alpinejs/packages/csp/dist/module.esm";
 import "../styles/tw.css";
 import "./utils/double-click";
+import "./_alert";
 import "./_plausible";
 
 Alpine.plugin(Screen);
