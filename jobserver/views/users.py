@@ -1,6 +1,7 @@
 from datetime import timedelta
 
 import structlog
+from django.conf import settings
 from django.contrib import messages
 from django.contrib.auth import login
 from django.contrib.auth.decorators import login_required
@@ -48,7 +49,9 @@ class Login(FormView):
                 send_github_login_email(user)
             else:
                 self.request.session[INTERNAL_LOGIN_SESSION_TOKEN] = user.email
-                send_login_email(user)
+                send_login_email(
+                    user, timeout_minutes=settings.LOGIN_URL_TIMEOUT_MINUTES
+                )
 
         msg = "If you have a user account we'll send you an email with the login details shortly. If you don't receive an email please check your spam folder."
         messages.success(self.request, msg)

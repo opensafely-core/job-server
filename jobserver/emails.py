@@ -45,10 +45,11 @@ def send_github_login_email(user):
     )
 
 
-def send_login_email(user):
+def send_login_email(user, timeout_minutes):
     login_url = furl(settings.BASE_URL) / user.get_login_url()
 
     context = {
+        "timeout_minutes": timeout_minutes,
         "url": login_url,
     }
 

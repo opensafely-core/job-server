@@ -70,11 +70,12 @@ def test_github_login_email(mailoutbox):
 def test_login_email(mailoutbox):
     user = UserFactory()
 
-    send_login_email(user)
+    send_login_email(user, timeout_minutes=5)
 
     m = mailoutbox[0]
 
     assert list(m.to) == [user.email]
+    assert "5 minutes" in m.body
 
 
 def test_send_repo_signed_off_notification_to_researchers(mailoutbox):
