@@ -52,7 +52,7 @@
     <div class="col col-lg-9 col-xl-8">
      <section class="card mb-3">
         <div class="card-header">
-          <h2 class="card-title">Details</h2>
+          <h2 class="card-title mb-0">Details</h2>
         </div>
 
         <div class="list-group list-group-flush">
@@ -76,6 +76,18 @@
               An email is sent to the request creator only when the report has been approved for release.
             </p>
           </div>
+        </div>
+      </section>
+
+      <section class="card">
+        <div class="card-header">
+          <h2 class="card-title mb-0">
+            Request data
+          </h2>
+        </div>
+        <div class="card-body">
+          {{ analysis_request.template_data|json_script:"analysisRequestData" }}
+          <div class="overflow-scroll"><pre class="mb-0"><code class="language-json p-0" id="analysisRequest">{{ analysis_request.template_data|pprint }}</code></pre></div>
         </div>
       </section>
     </div>

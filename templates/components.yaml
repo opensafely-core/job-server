@@ -46,3 +46,4 @@ components:
   icon_user_outline: "_icons/user-outline.svg"
   icon_user_group_outline: "_icons/user-group-outline.svg"
   icon_x_outline: "_icons/x-outline.svg"
+  icon_custom_spinner: "_icons/custom/spinner.svg"

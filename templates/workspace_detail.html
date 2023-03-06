@@ -30,9 +30,7 @@
       </p>
       <p class="text-sm">
         If you think this has been done in error,
-        {% spaceless %}
-          {% link text="contact an admin" href="mailto:team@opensafely.org" %}
-        {% endspaceless %}.
+        {% link text="contact an admin" href="mailto:team@opensafely.org" append_after="." %}
       </p>
     {% /alert %}
   {% endif %}
@@ -41,9 +39,7 @@
     {% #alert variant="warning" title="This workspace belongs to an internal OpenSAFELY project" class="mb-6" %}
       The project exists for internal purposes only.
       More information can be found in the
-      {% spaceless %}
-        {% link text="OpenSAFELY access policy" href="https://docs.opensafely.org/developer-access-policy/" %}
-      {% endspaceless %}.
+      {% link text="OpenSAFELY access policy" href="https://docs.opensafely.org/developer-access-policy/" append_after="." %}
     {% /alert %}
   {% endif %}
 

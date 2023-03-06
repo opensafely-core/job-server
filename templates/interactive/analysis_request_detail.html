@@ -2,12 +2,17 @@
 
 {% load django_vite %}
 {% load humanize %}
+{% load static %}
 
 {% block metatitle %}{{ analysis_request.project.name }} Analysis | OpenSAFELY Jobs{% endblock metatitle %}
 
 {% block extra_meta %}
 <meta name="description" content="{{ analysis_request.project.name }} is an OpenSAFELY project from {{ analysis_request.project.org.name }}. Every time a researcher runs their analytic code against patient data, it is audited in public here.">
 {% endblock %}
+
+{% block extra_styles %}
+<link rel="stylesheet" href="{% static 'highlighting.css' %}">
+{% endblock extra_styles %}
 
 {% block breadcrumbs %}
   {% url "home" as home_url %}
@@ -21,57 +26,119 @@
 {% endblock breadcrumbs %}
 
 {% block content %}
-<div class="mb-5">
-  <h1 class="text-3xl tracking-tight break-words sm:text-4xl font-bold text-slate-900">
-    Analysis for {{ analysis_request.project.name }}
-  </h1>
+<div class="grid grid-cols-1 gap-6 lg:grid-cols-3">
+  <div class="flex flex-col text-center items-center gap-y-2 lg:text-left lg:items-start lg:col-span-full">
+    <div class="flex flex-col items-center gap-y-2 w-full lg:flex-row lg:justify-between lg:items-start">
+      <div class="order-2 w-full lg:mr-auto lg:order-1">
+        <h1 class="mb-2 text-3xl tracking-tight break-words font-bold text-slate-900 sm:text-4xl">
+          {{ analysis_request.title }}
+        </h1>
+        <dl class="flex flex-col gap-2 text-sm text-slate-600 items-center sm:flex-row sm:gap-x-6 sm:justify-center lg:justify-start">
+          <dt class="sr-only">Organisation:</dt>
+          <dd class="flex flex-row items-start overflow-hidden">
+            {% icon_building_library_outline class="mr-1.5 h-5 w-5 flex-shrink-0 text-slate-400" %}
+            <span class="truncate">{{ analysis_request.project.org.name }}</span>
+          </dd>
+          <dt class="sr-only">Project:</dt>
+          <dd class="flex flex-row items-start overflow-hidden">
+            {% icon_rectangle_stack_outline class="mr-1.5 h-5 w-5 flex-shrink-0 text-slate-400" %}
+            <span class="truncate">{{ analysis_request.project.name }}</span>
+          </dd>
+        </dl>
+      </div>
+      {% if user_can_view_staff_area %}
+        <div class="order-1 lg:order-2 flex-shrink-0">
+          {% #button href=analysis_request.get_staff_url type="link" variant="danger" class="flex-shrink-0" %}
+            View in Staff Area
+            {% icon_lifebuoy_outline class="h-4 w-4 ml-2 -mr-2" %}
+          {% /button %}
+        </div>
+      {% endif %}
+    </div>
 
-  {% #button type="link" href=analysis_request.job_request.get_absolute_url variant="" %}
-    View job request
-  {% /button %}
+    <div class="flex flex-col mt-2 sm:flex-row gap-2 lg:items-start">
+      {% if not object.publish_request %}
+        {% if report %}
+          {% #button type="link" href=analysis_request.get_publish_url variant="success" %}
+            Publish report
+          {% /button %}
+        {% else %}
+          {% #button type="button" variant="success" disabled=True tooltip="Report has not been processed" %}
+            Publish report
+          {% /button %}
+        {% endif %}
+      {% else %}
+        {% #button type="link" href=object.publish_request.get_absolute_url variant="primary" %}
+          View published report
+        {% /button %}
+      {% endif %}
 
-  {% if not object.publish_request %}
-  {% #button type="link" href=analysis_request.get_publish_url variant="success" %}
-    Request report is published
-  {% /button %}
-  {% else %}
-  <p>has publish request, {% link href=object.publish_request.get_absolute_url text="View" %}</p>
-  {% endif %}
-
-</div>
-
-<div>
-
-  {% #card title="Analysis Request" %}
-    <dl class="border-t border-slate-200 sm:divide-y sm:divide-slate-200">
-      {% #description_item title="Created at" %}
-        {{ analysis_request.created_at }}
-        <time datetime="{{ analysis_request.created_at|date:"Y-m-d H:i:sO" }}"></time>
-      {% /description_item %}
-
-      {% #description_item title="Created by" %}
-        {% link href=analysis_request.created_by.get_staff_url text=analysis_request.created_by.fullname %}
-      {% /description_item %}
-
-      {% #description_item title="Title" %}
-        {{ analysis_request.title }}
-      {% /description_item %}
-
-      {% #description_item title="Template data" %}
-        <pre>{{ analysis_request.template_data|pprint }}</pre>
-      {% /description_item %}
-
-    </dl>
-  {% /card %}
-
-  {% if report %}
-  <div>
-    {{ report }}
+      {% if report %}
+        {% #button type="button" id="downloadBtn" variant="primary" data_title=analysis_request.title %}
+          Download report
+        {% /button %}
+      {% else %}
+        {% #button type="button" variant="primary" disabled=True tooltip="Report has not been processed" %}
+          Download report
+        {% /button %}
+      {% endif %}
+    </div>
   </div>
-  {% endif %}
 
+  <div class="relative grid gap-6 place-content-stretch lg:col-span-2" id="reportContainer">
+    {% if report %}
+      {% #card title="Report" container=True class="font-lg text-slate-700" %}
+        <div class="z-10 relative">{{ report }}</div>
+      {% /card %}
+    {% else %}
+      {% #card class="lg:col-span-2 overflow-hidden relative" %}
+        <div class="text-center p-8 z-10 relative">
+          {% icon_custom_spinner class="h-12 w-12 mb-4 mx-auto flex-1 animate-spin stroke-current stroke-2 text-slate-600" %}
+          <h2 class="mt-2 mb-4 text-xl font-semibold text-slate-900">
+            Your request is being processed
+          </h2>
+          <div class="grid gap-y-2 max-w-prose mx-auto">
+            <p>
+              The results will be checked carefully by our team for privacy and
+              security reasons.
+            </p>
+            <p>
+              We aim to process requests within five working days. We are
+              working to improve this for future requests.
+            </p>
+            <p class="text-slate-600 pt-4 mt-2 border-t border-slate-200">
+              If you'd like any more information about requesting an analysis
+              <span class="md:block">
+                or have any questions,
+                {% link href="mailto:team@opensafely.org" text="contact us" append_after="." %}
+              </span>
+            </p>
+          </div>
+        </div>
+        <div id="watermark" class="hidden absolute inset-0 text-center w-full h-full text-5xl font-bold text-gray-900/10">
+          <span class="py-16 block">Confidential</span>
+          <span class="py-16 block">Not for publication</span>
+        </div>
+      {% /card %}
+    {% endif %}
+  </div>
+
+  <div class="space-y-6 md:space-y-6 lg:col-span-1">
+    {% #card title="Analysis Request" %}
+      <dl class="border-t border-slate-200 sm:divide-y sm:divide-slate-200">
+        {% #description_item stacked=True title="Created at" %}
+          {{ analysis_request.created_at }}
+          <time datetime="{{ analysis_request.created_at|date:"Y-m-d H:i:sO" }}"></time>
+        {% /description_item %}
+
+        {% #description_item stacked=True title="Created by" %}
+          {% link href=analysis_request.created_by.get_staff_url text=analysis_request.created_by.fullname %}
+        {% /description_item %}
+      </dl>
+    {% /card %}
+  </div>
 </div>
-{% endblock %}
+{% endblock content %}
 
 {% block extra_js %}
   <script type="text/x-mathjax-config">
@@ -98,5 +165,5 @@
     });
   </script>
 
-  {% vite_legacy_polyfills %}
+  {% vite_asset "assets/src/scripts/analysis-request-detail.js" %}
 {% endblock %}

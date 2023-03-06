@@ -22,9 +22,7 @@
     {% #alert variant="warning" title="This is an internal OpenSAFELY project" class="mb-6" %}
       This project exists for internal purposes only.
       More information can be found in the
-      {% spaceless %}
-        {% link text="OpenSAFELY access policy" href="https://docs.opensafely.org/developer-access-policy/" %}
-      {% endspaceless %}.
+      {% link text="OpenSAFELY access policy" href="https://docs.opensafely.org/developer-access-policy/" append_after="." %}
     {% /alert %}
   {% endif %}
 
@@ -71,9 +69,8 @@
         <div class="max-w-prose font-lg text-slate-600">
           <p>
             {{ project.name }} is an OpenSAFELY project from
-            {% spaceless %}
-              {% link href=project.org.get_absolute_url text=project.org.name %}
-            {% endspaceless %}. Every time a researcher runs their analytic
+            {% link href=project.org.get_absolute_url text=project.org.name append_after="." %}
+            Every time a researcher runs their analytic
             code against patient data, it is audited in public here.
           </p>
           <p class="mt-4">

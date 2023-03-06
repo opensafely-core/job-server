@@ -7,7 +7,7 @@
     {% endif %}
 {% else %}
   <button
-    {% attrs disabled type=type|default:"button" id name %}
+    {% attrs data_title disabled type=type|default:"button" id name %}
     {% if x_bind %}x-bind="{{ x_bind }}"{% endif %}
 {% endif %}
 
