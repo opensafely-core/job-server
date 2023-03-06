@@ -128,7 +128,7 @@
       <dl class="border-t border-slate-200 sm:divide-y sm:divide-slate-200">
         {% #description_item stacked=True title="Created at" %}
           {{ analysis_request.created_at }}
-          <time datetime='{{ analysis_request.created_at|date:"Y-m-d H:i:sO" }}'></time>
+          <time datetime="{{ analysis_request.created_at|date:"Y-m-d H:i:sO" }}"></time>
         {% /description_item %}
 
         {% #description_item stacked=True title="Created by" %}
