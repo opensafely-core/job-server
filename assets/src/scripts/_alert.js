@@ -5,6 +5,14 @@ if (alerts.length) {
     const closeBtn = alert.querySelector('button[aria-label="Close"]');
 
     if (closeBtn) {
+      // Don't animate removal for users who prefer less motion
+      const mediaQuery = window.matchMedia("(prefers-reduced-motion: reduce)");
+      if (mediaQuery.matches) {
+        return closeBtn.addEventListener("click", () => {
+          alert.remove();
+        });
+      }
+
       return closeBtn.addEventListener("click", () => {
         alert.classList.add(
           "transition-all",
