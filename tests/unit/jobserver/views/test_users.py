@@ -170,6 +170,30 @@ def test_login_post_unknown_user(rf):
     assert str(messages[0]) == msg
 
 
+def test_loginwithurl_bad_token(rf):
+    user = UserFactory()
+
+    signed_token = TimestampSigner(salt="login").sign("test")
+
+    request = rf.get("/")
+    request.session = SessionStore()
+    request.session["_login_token"] = (user.email, "bad token")
+
+    # set up messages framework
+    messages = FallbackStorage(request)
+    request._messages = messages
+
+    response = LoginWithURL.as_view()(request, token=signed_token)
+
+    assert response.status_code == 302
+    assert response.url == "/login/"
+
+    # check we have a message for the user
+    messages = list(messages)
+    assert len(messages) == 1
+    assert str(messages[0]).startswith("Invalid token, please try again")
+
+
 def test_loginwithurl_success(rf):
     user = UserFactory(roles=[InteractiveReporter])
 
@@ -177,7 +201,7 @@ def test_loginwithurl_success(rf):
 
     request = rf.get("/")
     request.session = SessionStore()
-    request.session["_login_token"] = user.email
+    request.session["_login_token"] = (user.email, "test")
 
     response = LoginWithURL.as_view()(request, token=signed_token)
 
@@ -192,7 +216,7 @@ def test_loginwithurl_unauthorized(rf):
 
     request = rf.get("/")
     request.session = SessionStore()
-    request.session["_login_token"] = user.email
+    request.session["_login_token"] = (user.email, "test")
 
     # set up messages framework
     messages = FallbackStorage(request)
@@ -215,7 +239,7 @@ def test_loginwithurl_unknown_user(rf):
 
     # set up messages framework
     request.session = SessionStore()
-    request.session["_login_token"] = "unknown user"
+    request.session["_login_token"] = ("unknown user", "token")
     messages = FallbackStorage(request)
     request._messages = messages
 

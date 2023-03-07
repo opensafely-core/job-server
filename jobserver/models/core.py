@@ -11,7 +11,6 @@ from django.contrib.auth.models import UserManager
 from django.contrib.auth.models import UserManager as BaseUserManager
 from django.contrib.auth.validators import UnicodeUsernameValidator
 from django.contrib.postgres.fields import ArrayField
-from django.core.signing import TimestampSigner
 from django.core.validators import validate_slug
 from django.db import models
 from django.db.models import Min, Q
@@ -936,12 +935,6 @@ class User(AbstractBaseUser):
     def get_full_name(self):
         """Support Django's User contract"""
         return self.fullname
-
-    def get_login_url(self):
-        token = secrets.token_urlsafe(64)
-        signed_token = TimestampSigner(salt="login").sign(token)
-
-        return reverse("login-with-url", kwargs={"token": signed_token})
 
     def get_staff_url(self):
         return reverse("staff:user-detail", kwargs={"username": self.username})

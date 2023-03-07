@@ -1,3 +1,4 @@
+import secrets
 from datetime import timedelta
 
 import structlog
@@ -7,6 +8,7 @@ from django.contrib.auth import login
 from django.contrib.auth.decorators import login_required
 from django.core.signing import BadSignature, SignatureExpired, TimestampSigner
 from django.shortcuts import redirect
+from django.urls import reverse
 from django.utils.decorators import method_decorator
 from django.views.generic import FormView, UpdateView, View
 from opentelemetry import trace
@@ -23,6 +25,10 @@ INTERNAL_LOGIN_SESSION_TOKEN = "_login_token"
 
 logger = structlog.get_logger(__name__)
 tracer = trace.get_tracer(__name__)
+
+
+class BadToken(Exception):
+    pass
 
 
 class Login(FormView):
@@ -56,9 +62,18 @@ class Login(FormView):
                 # because it only accepts POSTs.
                 send_github_login_email(user)
             else:
-                self.request.session[INTERNAL_LOGIN_SESSION_TOKEN] = user.email
+                # generate a secret token we can sign for the URL
+                token = secrets.token_urlsafe(64)
+                signed_token = TimestampSigner(salt="login").sign(token)
+                login_url = reverse("login-with-url", kwargs={"token": signed_token})
+
+                # store the unsigned token and current user in the session so
+                # we can check the token from the URL (after unsigning) is valid
+                # when they try to use the URL, and also know which user to retrieve
+                self.request.session[INTERNAL_LOGIN_SESSION_TOKEN] = (user.email, token)
+
                 send_login_email(
-                    user, timeout_minutes=settings.LOGIN_URL_TIMEOUT_MINUTES
+                    user, login_url, timeout_minutes=settings.LOGIN_URL_TIMEOUT_MINUTES
                 )
 
         msg = "If you have a user account we'll send you an email with the login details shortly. If you don't receive an email please check your spam folder."
@@ -83,13 +98,29 @@ class Login(FormView):
 class LoginWithURL(View):
     def get(self, request, *args, **kwargs):
         try:
-            email = request.session.pop(INTERNAL_LOGIN_SESSION_TOKEN)
-            TimestampSigner(salt="login").unsign(
+            # get the requested user email and the expected token from the session
+            # Note: we don't delete this until they successfully login since this
+            # method is dependent on a user using the same browser so we want them to
+            # be able to try again.
+            email, token = request.session[INTERNAL_LOGIN_SESSION_TOKEN]
+            url_token = TimestampSigner(salt="login").unsign(
                 self.kwargs["token"],
                 max_age=timedelta(minutes=settings.LOGIN_URL_TIMEOUT_MINUTES),
             )
+            if url_token != token:
+                raise BadToken
+
             user = User.objects.get(email=email)
-        except (BadSignature, KeyError, SignatureExpired, User.DoesNotExist) as e:
+
+            # now that we've successfully logged in we can remove the token
+            del request.session[INTERNAL_LOGIN_SESSION_TOKEN]
+        except (
+            BadSignature,
+            BadToken,
+            KeyError,
+            SignatureExpired,
+            User.DoesNotExist,
+        ) as e:
             logger.exception("Login failed")
 
             # also log to our metrics host

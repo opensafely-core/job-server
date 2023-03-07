@@ -1,7 +1,6 @@
 from datetime import timedelta
 
 import pytest
-from django.core.signing import TimestampSigner
 from django.db import IntegrityError
 from django.urls import reverse
 from django.utils import timezone
@@ -124,26 +123,6 @@ def test_user_get_all_roles_empty():
         "orgs": [],
     }
     assert output == expected
-
-
-def test_user_get_login_url(mocker):
-    user = UserFactory()
-
-    class MockSecrets:
-        def token_urlsafe(*args, **kwargs):
-            return "test"
-
-    mock_secrets = MockSecrets()
-
-    mocker.patch("jobserver.models.core.secrets", new=mock_secrets)
-
-    url = user.get_login_url()
-    signed_token = TimestampSigner(salt="login").sign(mock_secrets.token_urlsafe())
-
-    assert url == reverse(
-        "login-with-url",
-        kwargs={"token": signed_token},
-    )
 
 
 def test_user_get_staff_url():

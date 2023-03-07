@@ -45,12 +45,12 @@ def send_github_login_email(user):
     )
 
 
-def send_login_email(user, timeout_minutes):
-    login_url = furl(settings.BASE_URL) / user.get_login_url()
+def send_login_email(user, login_url, timeout_minutes):
+    url = furl(settings.BASE_URL) / login_url
 
     context = {
         "timeout_minutes": timeout_minutes,
-        "url": login_url,
+        "url": url,
     }
 
     send(
@@ -98,7 +98,7 @@ def send_repo_signed_off_notification_to_staff(repo):
 
 
 def send_welcome_email(user):
-    login_url = furl(settings.BASE_URL) / user.get_login_url()
+    login_url = furl(settings.BASE_URL) / reverse("login")
 
     context = {
         "domain": settings.BASE_URL,
