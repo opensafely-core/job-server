@@ -8,7 +8,6 @@ env:
   SSH_AUTH_SOCK: /tmp/agent.sock
 
 on:
-  merge_group:
   push:
 
 jobs:
