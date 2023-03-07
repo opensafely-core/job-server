@@ -71,7 +71,7 @@ def test_login_get_unsafe_path(rf):
 
 
 def test_login_post_success_with_email_user(rf, mailoutbox):
-    user = UserFactory()
+    user = UserFactory(roles=[InteractiveReporter])
 
     request = rf.post("/", {"email": user.email})
     request.user = AnonymousUser()
@@ -98,7 +98,8 @@ def test_login_post_success_with_email_user(rf, mailoutbox):
 
 
 def test_login_post_success_with_github_user(rf, mailoutbox):
-    social = UserSocialAuthFactory()
+    user = UserFactory(roles=[InteractiveReporter])
+    social = UserSocialAuthFactory(user=user)
 
     request = rf.post("/", {"email": social.user.email})
     request.user = AnonymousUser()
@@ -123,6 +124,29 @@ def test_login_post_success_with_github_user(rf, mailoutbox):
     assert m.subject == "Log into OpenSAFELY"
     assert reverse("login") in m.body
     assert "using your GitHub account" in m.body
+
+
+def test_login_post_unauthorised(rf, mailoutbox):
+    user = UserFactory()
+
+    request = rf.post("/", {"email": user.email})
+    request.user = AnonymousUser()
+
+    # set up messages framework
+    request.session = SessionStore()
+    messages = FallbackStorage(request)
+    request._messages = messages
+
+    response = Login.as_view()(request)
+
+    assert response.status_code == 302
+    assert response.url == reverse("login")
+
+    # check we have a message for the user
+    messages = list(messages)
+    assert len(messages) == 1
+    msg = "Only users who have signed up to OpenSAFELY Interactive can log in via email"
+    assert str(messages[0]) == msg
 
 
 def test_login_post_unknown_user(rf):
