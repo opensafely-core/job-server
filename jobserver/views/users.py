@@ -79,8 +79,7 @@ class Login(FormView):
         msg = "If you have a user account we'll send you an email with the login details shortly. If you don't receive an email please check your spam folder."
         messages.success(self.request, msg)
 
-        context = self.get_context_data(next_url=self.next_url)
-        return self.render_to_response(context)
+        return self.render_to_response(self.get_context_data())
 
     def get_context_data(self, **kwargs):
         return super().get_context_data(**kwargs) | {
