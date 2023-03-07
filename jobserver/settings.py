@@ -105,6 +105,7 @@ TEMPLATES = [
                 "jobserver.context_processors.staff_nav",
                 "jobserver.context_processors.nav",
                 "jobserver.context_processors.disable_creating_jobs",
+                "jobserver.context_processors.login_url",
             ],
             "builtins": ["slippers.templatetags.slippers"],
         },

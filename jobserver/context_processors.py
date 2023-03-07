@@ -3,6 +3,8 @@ import functools
 import structlog
 from django.conf import settings
 from django.db.models import Max
+from django.urls import reverse
+from furl import furl
 
 from .authorization import CoreDeveloper, has_role
 from .backends import show_warning
@@ -78,3 +80,16 @@ def nav(request):
     ]
 
     return {"nav": list(iter_nav(items, request, is_active))}
+
+
+def login_url(request):
+    """Build the full login URL from any existing path parts"""
+    f = furl(reverse("login"))
+
+    # get the existing get args
+    f.args.update(request.GET)
+
+    # add the current path as the next parameter
+    f.args.update({"next": request.path})
+
+    return {"login_url": f.url}

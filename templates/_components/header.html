@@ -78,7 +78,7 @@
                 md:hover:bg-bn-strawberry-100 md:hover:border-bn-strawberry-400 md:hover:shadow-lg
                 md:focus:bg-bn-strawberry-100 md:focus:text-bn-strawberry-700 md:focus:border-bn-strawberry-400 md:focus:shadow-lg md:focus:outline-none md:focus:ring-2 md:focus:ring-offset-2 md:focus:ring-oxford-500
               "
-              href="{% url "login" %}?next={{ request.path }}"
+              href="{{ login_url }}"
               rel="nofollow"
             >
               Login
