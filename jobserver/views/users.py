@@ -11,6 +11,7 @@ from django.shortcuts import redirect
 from django.urls import reverse
 from django.utils.decorators import method_decorator
 from django.views.generic import FormView, UpdateView, View
+from furl import furl
 from opentelemetry import trace
 
 from jobserver.authorization import InteractiveReporter, has_role
@@ -91,7 +92,13 @@ class Login(FormView):
         if not is_safe_path(next_url):
             next_url = ""
 
-        return next_url
+        f = furl(next_url)
+        f.args.update(request.GET)
+
+        # drop the next arg if we have one
+        f.args.pop("next", None)
+
+        return f.url
 
 
 class LoginWithURL(View):
