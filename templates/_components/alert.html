@@ -7,28 +7,28 @@
   {% var hover_color="hover:text-bn-flamenco-600" %}
 {% elif variant == "success" %}
   {% var bg="bg-green-100" %}
-  {% var icon="_icons/exclamation-solid.svg" %}
-  {% var icon_color="text-green-400" %}
+  {% var icon="_icons/check-circle-solid.svg" %}
+  {% var icon_color="text-green-600" %}
   {% var title_color="text-green-900" %}
   {% var text_color="text-green-700" %}
   {% var hover_color="hover:text-green-600" %}
 {% elif variant == "danger" %}
   {% var bg="bg-bn-ribbon-100" %}
-  {% var icon="_icons/exclamation-solid.svg" %}
+  {% var icon="_icons/x-circle-solid.svg" %}
   {% var icon_color="text-bn-ribbon-400" %}
   {% var title_color="text-bn-ribbon-900" %}
   {% var text_color="text-bn-ribbon-800" %}
   {% var hover_color="hover:text-bn-ribbon-600" %}
 {% elif variant == "info" %}
   {% var bg="bg-white" %}
-  {% var icon="_icons/exclamation-solid.svg" %}
+  {% var icon="_icons/information-circle-solid.svg" %}
   {% var icon_color="text-slate-400" %}
   {% var title_color="text-slate-900" %}
   {% var text_color="text-slate-700" %}
   {% var hover_color="hover:text-slate-600" %}
 {% endif %}
 
-<div class="rounded-lg drop-shadow p-4 relative {{ bg }} {{ class }}" role="alert">
+<div class="rounded-lg drop-shadow p-4 px-6 relative {{ bg }} {{ class }} {% if dismissible %}pr-8{% endif %}" role="alert">
   {% if no_icon %}
     {% if title %}
       <h2 class="font-bold text-lg tracking-tight mb-1 {{ title_color }}">
@@ -39,7 +39,7 @@
   {% else %}
     <div class="flex">
       <div class="flex-shrink-0">
-        {% include icon with class="h-7 w-7 "|add:icon_color only %}
+        {% include icon with class="h-6 w-6 -ml-2 "|add:icon_color only %}
       </div>
       <div class="ml-3">
         {% if title %}
@@ -47,7 +47,7 @@
             {{ title }}
           </h2>
         {% endif %}
-        <p class="mt-1 {{ text_color }}">{{ children }}</p>
+        <p class="{{ text_color }}">{{ children }}</p>
       </div>
     </div>
   {% endif %}
