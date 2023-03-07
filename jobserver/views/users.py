@@ -1,82 +1,150 @@
-from django.contrib import messages
-from django.contrib.auth.decorators import login_required
-from django.contrib.auth.views import PasswordResetConfirmView
-from django.shortcuts import redirect
-from django.template.response import TemplateResponse
-from django.utils.decorators import method_decorator
-from django.views.generic import FormView, UpdateView
+import secrets
+from datetime import timedelta
 
-from ..authorization import InteractiveReporter
-from ..emails import send_github_login_email, send_reset_password_email
-from ..forms import ResetPasswordForm
+import structlog
+from django.conf import settings
+from django.contrib import messages
+from django.contrib.auth import login
+from django.contrib.auth.decorators import login_required
+from django.core.signing import BadSignature, SignatureExpired, TimestampSigner
+from django.shortcuts import redirect
+from django.urls import reverse
+from django.utils.decorators import method_decorator
+from django.views.generic import FormView, UpdateView, View
+from opentelemetry import trace
+
+from jobserver.authorization import InteractiveReporter, has_role
+
+from ..emails import send_github_login_email, send_login_email
+from ..forms import EmailLoginForm
 from ..models import User
 from ..utils import is_safe_path
 
 
-def login_view(request):
-    next_url = request.GET.get("next") or "/"
-    if not is_safe_path(next_url):
-        next_url = ""
+INTERNAL_LOGIN_SESSION_TOKEN = "_login_token"
 
-    if request.user.is_authenticated:
-        return redirect(next_url)
-
-    return TemplateResponse(request, "login.html", {"next_url": next_url})
+logger = structlog.get_logger(__name__)
+tracer = trace.get_tracer(__name__)
 
 
-class ResetPassword(FormView):
-    form_class = ResetPasswordForm
-    template_name = "reset_password.html"
+class BadToken(Exception):
+    pass
+
+
+class Login(FormView):
+    form_class = EmailLoginForm
+    template_name = "login.html"
+
+    def dispatch(self, request, *args, **kwargs):
+        self.next_url = self.get_next_url(request)
+
+        if request.user.is_authenticated:
+            return redirect(self.next_url)
+
+        return super().dispatch(request, *args, **kwargs)
 
     def form_valid(self, form):
         user = User.objects.filter(email=form.cleaned_data["email"]).first()
 
-        # we have three possible states for the given email:
-        # * unknown user
-        # * GitHub user
-        # * email-only user
-        # we want to show the same outcome regardless of state so a bad actor
-        # can't work out work out who uses the service by email
         if user:
+            if not has_role(user, InteractiveReporter):
+                messages.error(
+                    self.request,
+                    "Only users who have signed up to OpenSAFELY Interactive can log in via email",
+                )
+                return redirect("login")
+
             if user.social_auth.exists():
-                # send GitHub users a link to the PSA entrypoint and explain
-                # that they don't have a password to reset
+                # we don't want to expose users email address to a bad actor
+                # via the login page form so we're emailing them with a link
+                # to the login page to click the right button.
+                # We can't email them with a link to the social auth entrypoint
+                # because it only accepts POSTs.
                 send_github_login_email(user)
             else:
-                send_reset_password_email(user)
+                # generate a secret token we can sign for the URL
+                token = secrets.token_urlsafe(64)
+                signed_token = TimestampSigner(salt="login").sign(token)
+                login_url = reverse("login-with-url", kwargs={"token": signed_token})
 
-        messages.success(
-            self.request, "Your password reset request was successfully sent."
-        )
-        return redirect("/")
+                # store the unsigned token and current user in the session so
+                # we can check the token from the URL (after unsigning) is valid
+                # when they try to use the URL, and also know which user to retrieve
+                self.request.session[INTERNAL_LOGIN_SESSION_TOKEN] = (user.email, token)
+
+                send_login_email(
+                    user, login_url, timeout_minutes=settings.LOGIN_URL_TIMEOUT_MINUTES
+                )
+
+        msg = "If you have a user account we'll send you an email with the login details shortly. If you don't receive an email please check your spam folder."
+        messages.success(self.request, msg)
+
+        context = self.get_context_data(next_url=self.next_url)
+        return self.render_to_response(context)
+
+    def get_context_data(self, **kwargs):
+        return super().get_context_data(**kwargs) | {
+            "next_url": self.next_url,
+        }
+
+    def get_next_url(self, request):
+        next_url = request.GET.get("next") or "/"
+        if not is_safe_path(next_url):
+            next_url = ""
+
+        return next_url
 
 
-class SetPassword(PasswordResetConfirmView):
-    post_reset_login = True
-    post_reset_login_backend = "django.contrib.auth.backends.ModelBackend"
-    success_url = "/"
-    template_name = "set_password.html"
+class LoginWithURL(View):
+    def get(self, request, *args, **kwargs):
+        try:
+            # get the requested user email and the expected token from the session
+            # Note: we don't delete this until they successfully login since this
+            # method is dependent on a user using the same browser so we want them to
+            # be able to try again.
+            email, token = request.session[INTERNAL_LOGIN_SESSION_TOKEN]
+            url_token = TimestampSigner(salt="login").unsign(
+                self.kwargs["token"],
+                max_age=timedelta(minutes=settings.LOGIN_URL_TIMEOUT_MINUTES),
+            )
+            if url_token != token:
+                raise BadToken
 
-    def get_success_url(self):
-        # the authorization framework doesn't support getting all roles for a
-        # user across all objects, so we hae to manually do it here.
-        roles = set(self.request.user.roles)
-        for membership in self.request.user.project_memberships.all():
-            roles |= set(membership.roles)
+            user = User.objects.get(email=email)
 
-        # treat users with only the InteractiveReporter role as interactive users.
-        # we'll have users with this role along with others, eg for staff, but
-        # they likely don't want to be redirected on login.
-        if roles != {InteractiveReporter}:
-            return "/"
+            # now that we've successfully logged in we can remove the token
+            del request.session[INTERNAL_LOGIN_SESSION_TOKEN]
+        except (
+            BadSignature,
+            BadToken,
+            KeyError,
+            SignatureExpired,
+            User.DoesNotExist,
+        ) as e:
+            logger.exception("Login failed")
 
-        # if the user is logging in via this view, so with an email address and
-        # password, _and_ has the InteractiveReporter role then they should
-        # definitely be an interactive user.
+            # also log to our metrics host
+            span = trace.get_current_span()
+            span.record_exception(e)
 
-        # TODO: add a page for users who have 2+ projects
-        project = self.request.user.projects.first()
-        return project.get_interactive_url()
+            msg = (
+                "Invalid token, please try again. "
+                "The link will only work in the same browser you requested the login email from."
+            )
+            messages.error(request, msg)
+            return redirect("login")
+
+        if not has_role(user, InteractiveReporter):
+            messages.error(
+                request,
+                "Only users who have signed up to OpenSAFELY Interactive can log in via email",
+            )
+            return redirect("login")
+
+        login(request, user, "django.contrib.auth.backends.ModelBackend")
+
+        next_url = request.GET.get("next") or "/"
+        return redirect(next_url)
 
 
 @method_decorator(login_required, name="dispatch")

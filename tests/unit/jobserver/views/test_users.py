@@ -1,192 +1,304 @@
+from datetime import timedelta
+
 from django.contrib.auth.models import AnonymousUser
 from django.contrib.messages.storage.fallback import FallbackStorage
-from django.utils.encoding import force_bytes
-from django.utils.http import urlsafe_base64_encode
+from django.contrib.sessions.backends.db import SessionStore
+from django.core.signing import TimestampSigner
+from django.urls import reverse
+from django.utils import timezone
+from freezegun import freeze_time
 
 from jobserver.authorization import InteractiveReporter
-from jobserver.views.users import ResetPassword, Settings, login_view
+from jobserver.views.users import Login, LoginWithURL, Settings
 
-from ....factories import (
-    ProjectFactory,
-    ProjectMembershipFactory,
-    UserFactory,
-    UserSocialAuthFactory,
-)
+from ....factories import UserFactory, UserSocialAuthFactory
 
 
-def test_login_empty_next(rf):
-    request = rf.get("/?next=")
-    request.user = UserFactory()
-
-    response = login_view(request)
-
-    assert response.status_code == 302
-    assert response.url == "/"
-
-
-def test_login_no_path(rf):
-    request = rf.get("/")
-    request.user = AnonymousUser()
-    response = login_view(request)
-
-    assert response.status_code == 200
-
-
-def test_login_safe_path(rf):
-    request = rf.get("/?next=/")
-    request.user = AnonymousUser()
-    response = login_view(request)
-
-    assert response.status_code == 200
-
-
-def test_login_unsafe_path(rf):
-    request = rf.get("/?next=https://steal-your-bank-details.com/")
-    request.user = AnonymousUser()
-
-    response = login_view(request)
-
-    assert response.status_code == 200
-    assert response.context_data["next_url"] == ""
-
-
-def test_login_already_logged_with_next_url(rf):
+def test_login_already_logged_in_with_next_url(rf):
     request = rf.get("/?next=/next-url/")
     request.user = UserFactory()
 
-    response = login_view(request)
+    response = Login.as_view()(request)
 
     assert response.status_code == 302
     assert response.url == "/next-url/"
 
 
-def test_login_already_logged_with_no_next_url(rf):
+def test_login_already_logged_in_with_no_next_url(rf):
     request = rf.get("/")
     request.user = UserFactory()
 
-    response = login_view(request)
+    response = Login.as_view()(request)
 
     assert response.status_code == 302
     assert response.url == "/"
 
 
-def test_resetpassword_get_success(rf):
-    request = rf.get("/")
+def test_login_get_empty_next(rf):
+    request = rf.get("/?next=")
+    request.user = UserFactory()
 
-    response = ResetPassword.as_view()(request)
+    response = Login.as_view()(request)
+
+    assert response.status_code == 302
+    assert response.url == "/"
+
+
+def test_login_get_no_path(rf):
+    request = rf.get("/")
+    request.user = AnonymousUser()
+    response = Login.as_view()(request)
 
     assert response.status_code == 200
 
 
-def test_resetpassword_post_email_only_user(rf, mailoutbox):
+def test_login_get_safe_path(rf):
+    request = rf.get("/?next=/")
+    request.user = AnonymousUser()
+    response = Login.as_view()(request)
+
+    assert response.status_code == 200
+
+
+def test_login_get_unsafe_path(rf):
+    request = rf.get("/?next=https://steal-your-bank-details.com/")
+    request.user = AnonymousUser()
+
+    response = Login.as_view()(request)
+
+    assert response.status_code == 200
+    assert response.context_data["next_url"] == ""
+
+
+def test_login_post_success_with_email_user(rf, mailoutbox):
+    user = UserFactory(roles=[InteractiveReporter])
+
+    request = rf.post("/", {"email": user.email})
+    request.user = AnonymousUser()
+
+    # set up messages framework
+    request.session = SessionStore()
+    messages = FallbackStorage(request)
+    request._messages = messages
+
+    response = Login.as_view()(request)
+
+    assert response.status_code == 200
+
+    # check we have a message for the user
+    messages = list(messages)
+    assert len(messages) == 1
+    msg = "If you have a user account we'll send you an email with the login details shortly. If you don't receive an email please check your spam folder."
+    assert str(messages[0]) == msg
+
+    # differentiate from the GitHub user use case
+    m = mailoutbox[0]
+    assert m.subject == "Log into OpenSAFELY"
+    assert "using your GitHub account" not in m.body
+
+
+def test_login_post_success_with_github_user(rf, mailoutbox):
+    user = UserFactory(roles=[InteractiveReporter])
+    social = UserSocialAuthFactory(user=user)
+
+    request = rf.post("/", {"email": social.user.email})
+    request.user = AnonymousUser()
+
+    # set up messages framework
+    request.session = SessionStore()
+    messages = FallbackStorage(request)
+    request._messages = messages
+
+    response = Login.as_view()(request)
+
+    assert response.status_code == 200
+
+    # check we have a message for the user
+    messages = list(messages)
+    assert len(messages) == 1
+    msg = "If you have a user account we'll send you an email with the login details shortly. If you don't receive an email please check your spam folder."
+    assert str(messages[0]) == msg
+
+    # differentiate from the email user use case
+    m = mailoutbox[0]
+    assert m.subject == "Log into OpenSAFELY"
+    assert reverse("login") in m.body
+    assert "using your GitHub account" in m.body
+
+
+def test_login_post_unauthorised(rf, mailoutbox):
     user = UserFactory()
 
     request = rf.post("/", {"email": user.email})
+    request.user = AnonymousUser()
 
     # set up messages framework
-    request.session = "session"
+    request.session = SessionStore()
     messages = FallbackStorage(request)
     request._messages = messages
 
-    response = ResetPassword.as_view()(request)
+    response = Login.as_view()(request)
 
-    assert response.status_code == 302, response.context_data["form"].errors
-    assert response.url == "/"
-
-    assert len(mailoutbox) == 1
-    assert "reset-password" in mailoutbox[0].body
-
-    messages = list(messages)
-    assert len(messages) == 1
-    assert str(messages[0]) == "Your password reset request was successfully sent."
-
-
-def test_resetpassword_post_github_user(rf, mailoutbox):
-    user = UserSocialAuthFactory().user
-
-    request = rf.post("/", {"email": user.email})
-
-    # set up messages framework
-    request.session = "session"
-    messages = FallbackStorage(request)
-    request._messages = messages
-
-    response = ResetPassword.as_view()(request)
-
-    assert response.status_code == 302, response.context_data["form"].errors
-    assert response.url == "/"
-
-    assert len(mailoutbox) == 1
-    assert "github" in mailoutbox[0].body
-
-    messages = list(messages)
-    assert len(messages) == 1
-    assert str(messages[0]) == "Your password reset request was successfully sent."
-
-
-def test_resetpassword_post_unknown_user(rf, mailoutbox):
-    request = rf.post("/", {"email": "test@example.com"})
-
-    # set up messages framework
-    request.session = "session"
-    messages = FallbackStorage(request)
-    request._messages = messages
-
-    response = ResetPassword.as_view()(request)
-
-    assert response.status_code == 302, response.context_data["form"].errors
-    assert response.url == "/"
-
-    assert len(mailoutbox) == 0
-
-    messages = list(messages)
-    assert len(messages) == 1
-    assert str(messages[0]) == "Your password reset request was successfully sent."
-
-
-def test_setpassword_with_interactive_role(client):
-    project = ProjectFactory()
-    user = UserFactory(fullname="test", password="test", roles=[InteractiveReporter])
-    ProjectMembershipFactory(project=project, user=user)
-
-    uid = urlsafe_base64_encode(force_bytes(user.pk))
-
-    response = client.get(user.get_password_reset_url(), follow=True)
-    assert response.status_code == 200
-    reset_url = f"/reset-password/{uid}/set-password/"
-    assert response.redirect_chain == [(reset_url, 302)]
-
-    # don't follow the redirect here because it goes to AnalysisRequestCreate
-    # which wants to hit the network to look up codelists on OpenCodelists.
-    # Switching to a RequestFactory for this assertion also isn't ideal because
-    # Django's PasswordResetConfirmView (which SetPassword subclasses) performs
-    # a redirect to avoid exposing the reset token in the URL (saving it to the
-    # session), and testing that would involve testing a lot of Django's code,
-    # which they have already tested, when we only care that the final redirect
-    # is performed correctly.
-    data = {"new_password1": "testtest1234", "new_password2": "testtest1234"}
-    response = client.post(reset_url, data, follow=False)
     assert response.status_code == 302
-    assert response.url == project.get_interactive_url()
+    assert response.url == reverse("login")
+
+    # check we have a message for the user
+    messages = list(messages)
+    assert len(messages) == 1
+    msg = "Only users who have signed up to OpenSAFELY Interactive can log in via email"
+    assert str(messages[0]) == msg
 
 
-def test_setpassword_without_interactive_role(rf, client):
-    project = ProjectFactory()
-    user = UserFactory(fullname="test", password="test")
-    ProjectMembershipFactory(project=project, user=user)
+def test_login_post_unknown_user(rf):
+    request = rf.post("/", {"email": "test@example.com"})
+    request.user = AnonymousUser()
 
-    uid = urlsafe_base64_encode(force_bytes(user.pk))
+    # set up messages framework
+    request.session = "session"
+    messages = FallbackStorage(request)
+    request._messages = messages
 
-    response = client.get(user.get_password_reset_url(), follow=True)
+    response = Login.as_view()(request)
+
     assert response.status_code == 200
-    reset_url = f"/reset-password/{uid}/set-password/"
-    assert response.redirect_chain == [(reset_url, 302)]
+    assert not response.context_data["form"].errors
 
-    data = {"new_password1": "testtest1234", "new_password2": "testtest1234"}
-    response = client.post(reset_url, data, follow=True)
-    assert response.status_code == 200
-    reset_url = f"/reset-password/{uid}/set-password/"
-    assert response.redirect_chain == [("/", 302)]
+    # check we have a message for the user
+    messages = list(messages)
+    assert len(messages) == 1
+    msg = "If you have a user account we'll send you an email with the login details shortly. If you don't receive an email please check your spam folder."
+    assert str(messages[0]) == msg
+
+
+def test_loginwithurl_bad_token(rf):
+    user = UserFactory()
+
+    signed_token = TimestampSigner(salt="login").sign("test")
+
+    request = rf.get("/")
+    request.session = SessionStore()
+    request.session["_login_token"] = (user.email, "bad token")
+
+    # set up messages framework
+    messages = FallbackStorage(request)
+    request._messages = messages
+
+    response = LoginWithURL.as_view()(request, token=signed_token)
+
+    assert response.status_code == 302
+    assert response.url == "/login/"
+
+    # check we have a message for the user
+    messages = list(messages)
+    assert len(messages) == 1
+    assert str(messages[0]).startswith("Invalid token, please try again")
+
+
+def test_loginwithurl_success(rf):
+    user = UserFactory(roles=[InteractiveReporter])
+
+    signed_token = TimestampSigner(salt="login").sign("test")
+
+    request = rf.get("/")
+    request.session = SessionStore()
+    request.session["_login_token"] = (user.email, "test")
+
+    response = LoginWithURL.as_view()(request, token=signed_token)
+
+    assert response.status_code == 302
+    assert response.url == "/"
+
+
+def test_loginwithurl_unauthorized(rf):
+    user = UserFactory()
+
+    signed_token = TimestampSigner(salt="login").sign("test")
+
+    request = rf.get("/")
+    request.session = SessionStore()
+    request.session["_login_token"] = (user.email, "test")
+
+    # set up messages framework
+    messages = FallbackStorage(request)
+    request._messages = messages
+
+    response = LoginWithURL.as_view()(request, token=signed_token)
+
+    assert response.status_code == 302
+    assert response.url == "/login/"
+
+    # check we have a message for the user
+    messages = list(messages)
+    assert len(messages) == 1
+    msg = "Only users who have signed up to OpenSAFELY Interactive can log in via email"
+    assert str(messages[0]) == msg
+
+
+def test_loginwithurl_unknown_user(rf):
+    request = rf.get("/")
+
+    # set up messages framework
+    request.session = SessionStore()
+    request.session["_login_token"] = ("unknown user", "token")
+    messages = FallbackStorage(request)
+    request._messages = messages
+
+    response = LoginWithURL.as_view()(request, token="")
+
+    assert response.status_code == 302
+    assert response.url == "/login/"
+
+    # check we have a message for the user
+    messages = list(messages)
+    assert len(messages) == 1
+    assert str(messages[0]).startswith("Invalid token, please try again")
+
+
+def test_loginwithurl_with_expired_token(rf):
+    user = UserFactory()
+
+    new_time = timezone.now() - timedelta(hours=1, seconds=1)
+    with freeze_time(new_time):
+        signed_pk = TimestampSigner(salt="login").sign(user.pk)
+    pk, _, token = signed_pk.partition(":")
+
+    request = rf.get("/")
+
+    # set up messages framework
+    request.session = SessionStore()
+    messages = FallbackStorage(request)
+    request._messages = messages
+
+    response = LoginWithURL.as_view()(request, pk=pk, token=token)
+
+    assert response.status_code == 302
+    assert response.url == "/login/"
+
+    # check we have a message for the user
+    messages = list(messages)
+    assert len(messages) == 1
+    assert str(messages[0]).startswith("Invalid token, please try again")
+
+
+def test_loginwithurl_with_invalid_token(rf):
+    user = UserFactory()
+
+    request = rf.get("/")
+
+    # set up messages framework
+    request.session = SessionStore()
+    messages = FallbackStorage(request)
+    request._messages = messages
+
+    response = LoginWithURL.as_view()(request, pk=user.pk, token="")
+
+    assert response.status_code == 302
+    assert response.url == "/login/"
+
+    # check we have a message for the user
+    messages = list(messages)
+    assert len(messages) == 1
+    assert str(messages[0]).startswith("Invalid token, please try again")
 
 
 def test_settings_get(rf):

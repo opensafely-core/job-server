@@ -1,12 +1,16 @@
 from datetime import timedelta
 
 from django.conf import settings
+from django.urls import reverse
 from django.utils import timezone
 
 from jobserver.emails import (
     send_finished_notification,
+    send_github_login_email,
+    send_login_email,
     send_repo_signed_off_notification_to_researchers,
     send_repo_signed_off_notification_to_staff,
+    send_welcome_email,
 )
 
 from ...factories import (
@@ -51,6 +55,30 @@ def test_send_finished_notification(mailoutbox):
     assert list(m.to) == ["test@example.com"]
 
 
+def test_github_login_email(mailoutbox):
+    user = UserFactory()
+
+    send_github_login_email(user)
+
+    m = mailoutbox[0]
+
+    assert reverse("login") in m.body
+
+    assert list(m.to) == [user.email]
+
+
+def test_login_email(mailoutbox):
+    user = UserFactory()
+
+    send_login_email(user, "login-url", timeout_minutes=5)
+
+    m = mailoutbox[0]
+
+    assert list(m.to) == [user.email]
+    assert "login-url" in m.body
+    assert "5 minutes" in m.body
+
+
 def test_send_repo_signed_off_notification_to_researchers(mailoutbox):
     user1 = UserFactory()
     user2 = UserFactory()
@@ -88,3 +116,15 @@ def test_send_repo_signed_off_notification_to_staff(mailoutbox):
 
     assert list(m.to) == ["publications@opensafely.org"]
     assert "7,42" in m.subject
+
+
+def test_welcome_email(mailoutbox):
+    user = UserFactory()
+
+    send_welcome_email(user)
+
+    m = mailoutbox[0]
+
+    assert user.name in m.body
+
+    assert list(m.to) == [user.email]

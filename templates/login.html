@@ -18,7 +18,7 @@
   </h1>
 
   <div class="text-slate-700 flex flex-col gap-y-2 max-w-prose md:col-span-3">
-    <p>OpenSAFELY Jobs uses your GitHub account to confirm your identity.</p>
+    <p>For most users OpenSAFELY Jobs uses your GitHub account to confirm your identity.</p>
     <p>If you do not already have a GitHub account, then you will need to create one before signing in.</p>
   </div>
 
@@ -32,5 +32,33 @@
       Create a GitHub account
     {% /button %}
   </form>
+</section>
+
+<hr class="my-5" />
+
+<section class="grid md:grid-cols-3">
+  <div class="text-slate-700 flex flex-col gap-y-2 max-w-prose md:col-span-3">
+    <h2 class="mt-2 text-lg font-semibold text-slate-900">
+      OpenSAFELY Interactive
+    </h2>
+
+    <p>
+      Users of OpenSAFELY Interactive ONLY can enter their email address below
+      to receive an email with a link to log in:
+    </p>
+  </div>
+
+  <form class="gap-2 flex-wrap mt-4 md:flex-nowrap" method="POST">
+    {% csrf_token %}
+    <input type="hidden" name="next" value="{{ next_url }}" />
+
+    {% form_input type="email" field=form.email label="Email address" required=True class="mb-3" %}
+
+    {% #button type="submit" variant="primary" %}
+      Sign in with Email
+    {% /button %}
+
+  </form>
+
 </section>
 {% endblock content %}
