@@ -3,6 +3,8 @@ import Screen from "@alpine-collective/toolkit-screen/dist/module.esm";
 import Alpine from "alpinejs/packages/csp/dist/module.esm";
 import "../styles/tw.css";
 import "./utils/double-click";
+import "./_alert";
+import "./_plausible";
 
 Alpine.plugin(Screen);
 
@@ -73,13 +75,3 @@ document.addEventListener("alpine:init", () => {
 
 window.Alpine = Alpine;
 window.Alpine.start();
-
-if (document.location.hostname === "jobs.opensafely.org") {
-  const script = document.createElement("script");
-  script.defer = true;
-  script.setAttribute("data-domain", "jobs.opensafely.org");
-  script.id = "plausible";
-  script.src = "https://plausible.io/js/plausible.compat.js";
-
-  document.head.appendChild(script);
-}

@@ -1,29 +1,40 @@
-{% if backend_warnings or disable_creating_jobs %}
-<div class="container xl:max-w-screen-xl pt-3 pb-6">
-  {% for backend in backend_warnings %}
-    {% #alert variant="warning" title="Backend issue" %}
-      Something is wrong with the {{ backend }} backend. Jobs are not being processed.
-    {% /alert %}
-  {% endfor %}
-  {% if disable_creating_jobs %}
-    {% #alert variant="warning" title="Job creation issue" %}
-      Creating jobs is temporarily unavailable, please try again later.
-    {% /alert %}
+<div class="max-w-screen-md mx-auto pt-3 pb-6">
+  {% if backend_warnings or disable_creating_jobs %}
+    {% for backend in backend_warnings %}
+      {% #alert variant="warning" title="Backend issue" %}
+        Something is wrong with the {{ backend }} backend. Jobs are not being processed.
+      {% /alert %}
+    {% endfor %}
+    {% if disable_creating_jobs %}
+      {% #alert variant="warning" title="Job creation issue" %}
+        Creating jobs is temporarily unavailable, please try again later.
+      {% /alert %}
+    {% endif %}
   {% endif %}
-  {# TODO: Hidden until toast notifications are implemented #}
-  {# {% for message in messages %} #}
-    {# <div class="alert {{ message.tags }} alert-dismissible mb-0" role="alert"> #}
-      {# <button type="button" class="close" data-dismiss="alert" aria-label="Close"> #}
-        {# <span aria-hidden="true">&times;</span> #}
-      {# </button> #}
-      {# <div class="container"> #}
-        {# <div class="row"> #}
-          {# <div class="col text-center"> #}
-            {# <p class="mb-0">{{ message|safe }}</p> #}
-          {# </div> #}
-        {# </div> #}
-      {# </div> #}
-    {# </div> #}
-  {# {% endfor %} #}
+
+  <div class="grid gap-y-3">
+    {% for message in messages %}
+      {% if message.tags == "alert-info" %}
+        {% #alert variant="info" dismissible=True %}
+          {{ message|safe }}
+        {% /alert %}
+      {% elif message.tags == "alert-success" %}
+        {% #alert variant="success" dismissible=True %}
+          {{ message|safe }}
+        {% /alert %}
+      {% elif message.tags == "alert-warning" %}
+        {% #alert variant="warning" dismissible=True %}
+          {{ message|safe }}
+        {% /alert %}
+      {% elif message.tags == "alert-danger" %}
+        {% #alert variant="danger" dismissible=True %}
+          {{ message|safe }}
+        {% /alert %}
+      {% else %}
+        {% #alert variant="info" dismissible=True %}
+          {{ message|safe }}
+        {% /alert %}
+      {% endif %}
+    {% endfor %}
+  </div>
 </div>
-{% endif %}
