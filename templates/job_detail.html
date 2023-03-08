@@ -25,11 +25,11 @@
 
 {% block content %}
 <div class="md:flex md:items-center md:justify-between md:space-x-5">
-  <h1 class="text-3xl break-words md:text-4xl font-bold text-slate-900">
+  <h1 class="min-w-0 text-3xl break-words md:text-4xl font-bold text-slate-900">
     {{ job.action }}
   </h1>
-  <div class="mt-6 flex flex-col-reverse justify-stretch space-y-4 space-y-reverse sm:flex-row-reverse sm:justify-end sm:space-x-reverse sm:space-y-0 sm:space-x-3 md:mt-0 md:flex-row md:space-x-3">
-    {% if user_can_cancel_jobs %}
+  {% if user_can_cancel_jobs %}
+    <div class="mt-6 flex flex-col-reverse flex-shrink-0 justify-stretch space-y-4 space-y-reverse sm:flex-row-reverse sm:justify-end sm:space-x-reverse sm:space-y-0 sm:space-x-3 md:mt-0 md:flex-row md:space-x-3">
       <form class="d-inline-block" method="POST" action="{{ job.get_cancel_url }}">
         {% csrf_token %}
         {% if job.is_completed or job.action in job.job_request.cancelled_actions %}
@@ -42,8 +42,8 @@
           {% /button %}
         {% endif %}
       </form>
-    {% endif %}
-  </div>
+    </div>
+  {% endif %}
 </div>
 
 {% if job.is_missing_updates %}
