@@ -188,27 +188,14 @@ class ResearcherRegistrationEditForm(forms.ModelForm):
 
 
 class UserCreateForm(forms.Form):
-    application_url = forms.URLField(required=False)
-    org = forms.ModelChoiceField(queryset=Org.objects.order_by(Lower("name")))
     project = forms.ModelChoiceField(
-        queryset=Project.objects.order_by(Lower("org__name"), Lower("name"))
+        queryset=Project.objects.filter(workspaces__name__endswith="interactive")
+        .select_related("org")
+        .distinct()
+        .order_by(Lower("org__name"), Lower("name"))
     )
     name = forms.CharField()
     email = forms.EmailField()
-
-    def clean(self):
-        cleaned_data = super().clean()
-        application_url = cleaned_data.get("application_url")
-        project = cleaned_data.get("project")
-
-        if project:
-            if project.applications.exists() and application_url:
-                msg = "Cannot set an application URL for a project which already has an application linked to it"
-                self.add_error("application_url", msg)
-
-            if project.application_url and application_url:
-                msg = "Cannot set an application URL for a project which already has an application URL"
-                self.add_error("application_url", msg)
 
 
 class UserForm(RolesForm):

@@ -148,78 +148,8 @@ def test_projectlinkapplicationform_with_unknown_application():
     assert form.errors == {"application": ["Unknown Application"]}
 
 
-def test_usercreateform_application_url_for_project_with_application():
-    project = ProjectFactory()
-    ApplicationFactory(project=project)
-
-    data = {
-        "application_url": "example.com",
-        "org": OrgFactory().pk,
-        "project": project.pk,
-        "name": "test",
-        "email": "test@example.com",
-    }
-    form = UserCreateForm(data=data)
-
-    assert not form.is_valid()
-    assert form.errors == {
-        "application_url": [
-            "Cannot set an application URL for a project which already has an application linked to it"
-        ]
-    }
-
-
-def test_usercreateform_application_url_for_project_with_application_url():
-    project = ProjectFactory(application_url="another-domain.tld")
-
-    data = {
-        "application_url": "example.com",
-        "org": OrgFactory().pk,
-        "project": project.pk,
-        "name": "test",
-        "email": "test@example.com",
-    }
-    form = UserCreateForm(data=data)
-
-    assert not form.is_valid()
-    assert form.errors == {
-        "application_url": [
-            "Cannot set an application URL for a project which already has an application URL"
-        ]
-    }
-
-
-def test_usercreateform_with_application_url_success():
-    data = {
-        "application_url": "example.com",
-        "org": OrgFactory().pk,
-        "project": ProjectFactory().pk,
-        "name": "test",
-        "email": "test@example.com",
-    }
-    form = UserCreateForm(data=data)
-
-    assert form.is_valid(), form.errors
-
-
-def test_usercreateform_without_application_url_success():
-    project = ProjectFactory()
-    ApplicationFactory(project=project)
-
-    data = {
-        "org": OrgFactory().pk,
-        "project": project.pk,
-        "name": "test",
-        "email": "test@example.com",
-    }
-    form = UserCreateForm(data=data)
-
-    assert form.is_valid(), form.errors
-
-
 def test_usercreateform_without_project():
     data = {
-        "org": OrgFactory().pk,
         "name": "test",
         "email": "test@example.com",
     }
