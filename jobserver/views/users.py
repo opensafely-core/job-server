@@ -11,6 +11,7 @@ from django.shortcuts import redirect
 from django.urls import reverse
 from django.utils.decorators import method_decorator
 from django.views.generic import FormView, UpdateView, View
+from furl import furl
 from opentelemetry import trace
 
 from jobserver.authorization import InteractiveReporter, has_role
@@ -79,8 +80,7 @@ class Login(FormView):
         msg = "If you have a user account we'll send you an email with the login details shortly. If you don't receive an email please check your spam folder."
         messages.success(self.request, msg)
 
-        context = self.get_context_data(next_url=self.next_url)
-        return self.render_to_response(context)
+        return self.render_to_response(self.get_context_data())
 
     def get_context_data(self, **kwargs):
         return super().get_context_data(**kwargs) | {
@@ -92,7 +92,13 @@ class Login(FormView):
         if not is_safe_path(next_url):
             next_url = ""
 
-        return next_url
+        f = furl(next_url)
+        f.args.update(request.GET)
+
+        # drop the next arg if we have one
+        f.args.pop("next", None)
+
+        return f.url
 
 
 class LoginWithURL(View):

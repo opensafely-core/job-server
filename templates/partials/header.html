@@ -17,7 +17,7 @@
 
       {% if not user.is_authenticated %}
       <li class="nav-item my-2 my-lg-0 ml-lg-2">
-        <a class="btn btn-outline-light" href="{% url "login" %}?next={{ request.path }}" rel="nofollow">
+        <a class="btn btn-outline-light" href="{{ login_url }}" rel="nofollow">
           Login
         </a>
       </li>
