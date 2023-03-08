@@ -5,6 +5,7 @@ from django.http import Http404
 
 from applications.models import Application
 from jobserver.authorization import ProjectCollaborator, ProjectDeveloper
+from jobserver.github import RepoAlreadyExists
 from jobserver.models import Project
 from jobserver.utils import dotted_path, set_from_qs
 from redirects.models import Redirect
@@ -28,6 +29,7 @@ from ....factories import (
     UserFactory,
     WorkspaceFactory,
 )
+from ....fakes import FakeGitHubAPI
 
 
 def test_projectaddmember_get_success(rf, core_developer):
@@ -87,13 +89,14 @@ def test_projectcreate_get_success(rf, core_developer):
     request.htmx = False
     request.user = core_developer
 
-    response = ProjectCreate.as_view()(request)
+    response = ProjectCreate.as_view(get_github_api=FakeGitHubAPI)(request)
 
     assert response.status_code == 200
 
 
 def test_projectcreate_post_htmx_success_with_next(rf, core_developer):
     data = {
+        "application_url": "http://example.com",
         "name": "new-name",
         "org": OrgFactory().pk,
     }
@@ -101,7 +104,7 @@ def test_projectcreate_post_htmx_success_with_next(rf, core_developer):
     request.htmx = True
     request.user = core_developer
 
-    response = ProjectCreate.as_view()(request)
+    response = ProjectCreate.as_view(get_github_api=FakeGitHubAPI)(request)
 
     assert response.status_code == 200
     assert response.headers["HX-Redirect"] == "/next/page/?project-slug=new-name"
@@ -109,6 +112,7 @@ def test_projectcreate_post_htmx_success_with_next(rf, core_developer):
 
 def test_projectcreate_post_htmx_success_without_next(rf, core_developer):
     data = {
+        "application_url": "http://example.com",
         "name": "new-name",
         "org": OrgFactory().pk,
     }
@@ -116,7 +120,7 @@ def test_projectcreate_post_htmx_success_without_next(rf, core_developer):
     request.htmx = True
     request.user = core_developer
 
-    response = ProjectCreate.as_view()(request)
+    response = ProjectCreate.as_view(get_github_api=FakeGitHubAPI)(request)
 
     assert response.status_code == 200
 
@@ -131,6 +135,7 @@ def test_projectcreate_post_success(rf, core_developer):
     assert not Project.objects.exists()
 
     data = {
+        "application_url": "http://example.com",
         "name": "new-name",
         "org": org.pk,
     }
@@ -138,7 +143,7 @@ def test_projectcreate_post_success(rf, core_developer):
     request.htmx = False
     request.user = core_developer
 
-    response = ProjectCreate.as_view()(request)
+    response = ProjectCreate.as_view(get_github_api=FakeGitHubAPI)(request)
 
     assert response.status_code == 302, response.context_data["form"].errors
 
@@ -155,6 +160,37 @@ def test_projectcreate_unauthorized(rf):
 
     with pytest.raises(PermissionDenied):
         ProjectCreate.as_view()(request)
+
+
+def test_projectcreate_post_with_github_failure(rf, core_developer):
+    org = OrgFactory()
+    project = ProjectFactory()
+
+    data = {
+        "application_url": "example.com",
+        "org": org.pk,
+        "project": project.pk,
+        "name": "New Name-Name",
+        "email": "test@example.com",
+    }
+    request = rf.post("/", data)
+    request.htmx = False
+    request.user = core_developer
+
+    class FailingGitHubAPI(FakeGitHubAPI):
+        def get_repo(self, *args, **kwargs):
+            raise RepoAlreadyExists
+
+    response = ProjectCreate.as_view(get_github_api=FailingGitHubAPI)(request)
+
+    assert response.status_code == 200, response.url
+    print(response.context_data["form"].errors)
+
+    assert response.context_data["form"].errors == {
+        "__all__": [
+            "An error occurred when trying to create the required Repo on GitHub"
+        ],
+    }
 
 
 def test_projectdetail_success(rf, core_developer):

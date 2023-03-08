@@ -16,9 +16,11 @@ from django.views.generic import (
 from django_htmx.http import HttpResponseClientRedirect
 
 from applications.models import Application
+from interactive.commands import create_repo, create_workspace
 from jobserver.authorization import CoreDeveloper
 from jobserver.authorization.decorators import require_role
 from jobserver.authorization.utils import roles_for
+from jobserver.github import GitHubError, _get_github_api
 from jobserver.models import Org, Project, ProjectMembership, User
 
 from ..forms import (
@@ -79,12 +81,35 @@ class ProjectAddMember(FormView):
 @method_decorator(require_role(CoreDeveloper), name="dispatch")
 class ProjectCreate(CreateView):
     form_class = ProjectCreateForm
+    get_github_api = staticmethod(_get_github_api)
 
     def form_valid(self, form):
-        project = form.save(commit=False)
-        project.created_by = self.request.user
-        project.updated_by = self.request.user
-        project.save()
+        # wrap the transaction in a try so it can rollback when that fires
+        try:
+            with transaction.atomic():
+                project = form.save(commit=False)
+                project.created_by = self.request.user
+                project.updated_by = self.request.user
+                project.save()
+
+                # make sure the relevant interactive repo exists on GitHub
+                repo_url = create_repo(
+                    name=project.interactive_slug,
+                    get_github_api=self.get_github_api,
+                )
+
+                # make sure the expected workspace exists
+                create_workspace(
+                    creator=self.request.user,
+                    project=project,
+                    repo_url=repo_url,
+                )
+        except GitHubError:
+            form.add_error(
+                None,
+                "An error occurred when trying to create the required Repo on GitHub",
+            )
+            return self.form_invalid(form)
 
         project_detail = project.get_staff_url()
 
@@ -99,7 +124,7 @@ class ProjectCreate(CreateView):
         return HttpResponseClientRedirect(url)
 
     def get_context_data(self, **kwargs):
-        return super().get_context_data() | {
+        return super().get_context_data(**kwargs) | {
             "query_args": get_query_args(self.request.GET),
         }
 
@@ -307,6 +332,5 @@ class ProjectMembershipRemove(View):
             project.memberships.get(user__username=username).delete()
         except ProjectMembership.DoesNotExist:
             pass
-
         messages.success(request, f"Removed {username} from {project.title}")
         return redirect(project.get_staff_url())
