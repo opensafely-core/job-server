@@ -41,6 +41,14 @@ def test_job_get_cancel_url():
     )
 
 
+def test_job_get_redirect_url():
+    job = JobFactory()
+
+    url = job.get_redirect_url()
+
+    assert url == reverse("job-redirect", kwargs={"identifier": job.identifier})
+
+
 def test_job_is_missing_updates_above_threshold():
     last_update = minutes_ago(timezone.now(), 50)
     job = JobFactory(completed_at=None, updated_at=last_update)

@@ -110,6 +110,9 @@ class Job(models.Model):
             },
         )
 
+    def get_redirect_url(self):
+        return reverse("job-redirect", kwargs={"identifier": self.identifier})
+
     @property
     def is_completed(self):
         return self.status in ["failed", "succeeded"]

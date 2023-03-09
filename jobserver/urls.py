@@ -269,7 +269,7 @@ urlpatterns = [
         JobRequestDetailRedirect.as_view(),
         name="job-request-detail",
     ),
-    path("jobs/<identifier>/", JobDetailRedirect.as_view(), name="job-detail"),
+    path("jobs/<identifier>/", JobDetailRedirect.as_view(), name="job-redirect"),
     path("login/", Login.as_view(), name="login"),
     path(
         "login-with-token/<str:token>/", LoginWithURL.as_view(), name="login-with-url"
