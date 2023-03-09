@@ -7,7 +7,7 @@
 <link rel="stylesheet" href="{% static 'vendor/select2-bootstrap4.min.css' %}">
 {% endblock %}
 
-{% block metatitle %}{{ org.name }}: Staff Area | OpenSAFELY Jobs{% endblock metatitle %}
+{% block metatitle %}Create an interactive project: Staff Area | OpenSAFELY Jobs{% endblock metatitle %}
 
 {% block breadcrumbs %}
 <nav class="breadcrumb-container breadcrumb--danger" aria-label="breadcrumb">
@@ -20,7 +20,7 @@
         <a href="{% url 'staff:project-list' %}">Projects</a>
       </li>
       <li class="breadcrumb-item active" aria-current="page">
-        Create a project
+        Create an interactive project
       </li>
     </ol>
   </div>
@@ -30,7 +30,7 @@
 {% block jumbotron %}
 <div class="jumbotron jumbotron-fluid jumbotron--danger pt-md-2">
   <div class="container">
-    <h1 class="display-4">Create a project</h1>
+    <h1 class="display-4">Create an interactive project</h1>
   </div>
 </div>
 {% endblock jumbotron %}
@@ -39,7 +39,7 @@
 <div class="container">
   <div class="row">
     <div class="col-lg-9 col-xl-8">
-      <h2 class="sr-only">Create a Project</h2>
+      <h2 class="sr-only">Create an Interactive Project</h2>
 
       {% include "staff/project_create.form.html" %}
 

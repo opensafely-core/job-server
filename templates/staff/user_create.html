@@ -62,35 +62,6 @@
         <fieldset class="mb-3">
           <legend class="h3 mb-3">Set the user's details</legend>
 
-          {% include "components/form_text.html" with field=form.application_url label="Application URL" name="application_url" %}
-
-          <div class="form-group">
-            <label class="font-weight-bold" for="id_org">Select an org</label>
-            <select id="id_org" name="org" aria-describedby="orgHelpBlock" required>
-              {% for value, label in form.fields.org.choices %}
-                <option
-                  value="{{ value }}"
-                  {% if form.org.value == value %}selected{% endif %}
-                  >{{ label }}</option>
-              {% endfor %}
-            </select>
-            <p id="orgHelpBlock" class="form-text text-muted">
-              If the org doesn't exist, you can
-              <button
-                hx-get="{% url 'staff:org-create' %}{{ query_args }}"
-                hx-target="#dialog"
-                hx-trigger="click"
-                class="btn btn-link m-0 p-0 border-0 font-weight-bold align-baseline"
-                >
-                add a new org
-              </button>
-            </p>
-
-            {% for error in form.orgs.errors %}
-              <p class="text-danger">{{ error }}</p>
-            {% endfor %}
-          </div>
-
           <div class="form-group">
             <label class="font-weight-bold" for="id_project">Select an project</label>
             <select id="id_project" name="project" aria-describedby="projectHelpBlock" required>
@@ -104,7 +75,7 @@
             <p id="projectHelpBlock" class="form-text text-muted">
               If the project doesn't exist, you can
               <button
-                hx-get="{% url 'staff:project-create' %}{{ query_args }}"
+                hx-get="{% url 'staff:project-create' %}"
                 hx-target="#dialog"
                 hx-trigger="click"
                 class="btn btn-link m-0 p-0 border-0 font-weight-bold align-baseline"

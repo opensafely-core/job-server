@@ -9,17 +9,15 @@ from django.shortcuts import get_object_or_404, redirect
 from django.utils.decorators import method_decorator
 from django.views.generic import FormView, ListView, UpdateView
 
-from interactive.commands import create_repo, create_user, create_workspace
+from interactive.commands import create_user
 from jobserver.authorization import roles
 from jobserver.authorization.decorators import require_permission
 from jobserver.authorization.utils import roles_for
 from jobserver.emails import send_welcome_email
-from jobserver.github import GitHubError, _get_github_api
 from jobserver.models import Backend, Job, Org, Project, User
 from jobserver.utils import raise_if_not_int
 
 from ..forms import UserCreateForm, UserForm, UserOrgsForm
-from ..querystring_tools import merge_query_args
 
 
 logger = structlog.get_logger(__name__)
@@ -28,25 +26,10 @@ logger = structlog.get_logger(__name__)
 @method_decorator(require_permission("user_manage"), name="dispatch")
 class UserCreate(FormView):
     form_class = UserCreateForm
-    get_github_api = staticmethod(_get_github_api)
     template_name = "staff/user_create.html"
-
-    def get_context_data(self, **kwargs):
-        query_args = merge_query_args(self.request.GET, {"next": self.request.path}).url
-
-        return super().get_context_data(**kwargs) | {
-            "query_args": query_args,
-        }
 
     def get_initial(self):
         initial = {}
-
-        # set the Org if a slug is included in the query args
-        if org_slug := self.request.GET.get("org-slug"):
-            try:
-                initial["org"] = Org.objects.get(slug=org_slug)
-            except Org.DoesNotExist:
-                pass
 
         # set the Project if a slug is included in the query args
         if project_slug := self.request.GET.get("project-slug"):
@@ -60,42 +43,15 @@ class UserCreate(FormView):
     def form_valid(self, form):
         project = form.cleaned_data["project"]
 
-        try:
-            with transaction.atomic():
-                # update the Project's application_url if it was set, the form
-                # has alrady validated that we are allowed to set this.
-                if application_url := form.cleaned_data["application_url"]:
-                    project.application_url = application_url
-                    project.save()
-
-                # set up the user with all the relevant permissions on the
-                # chosen Org and Project
-                user = create_user(
-                    creator=self.request.user,
-                    email=form.cleaned_data["email"],
-                    name=form.cleaned_data["name"],
-                    org=form.cleaned_data["org"],
-                    project=project,
-                )
-
-                # make sure the relevant interactive repo exists on GitHub
-                repo_url = create_repo(
-                    name=project.interactive_slug,
-                    get_github_api=self.get_github_api,
-                )
-
-                # make sure the expected workspace exists
-                create_workspace(
-                    creator=self.request.user,
-                    project=project,
-                    repo_url=repo_url,
-                )
-        except GitHubError:
-            form.add_error(
-                None,
-                "An error occurred when trying to create the required Repo on GitHub",
+        with transaction.atomic():
+            # set up the user with all the relevant permissions on the
+            # chosen Org and Project
+            user = create_user(
+                creator=self.request.user,
+                email=form.cleaned_data["email"],
+                name=form.cleaned_data["name"],
+                project=project,
             )
-            return self.form_invalid(form)
 
         send_welcome_email(user)
 

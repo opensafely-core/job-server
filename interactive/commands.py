@@ -39,7 +39,7 @@ def create_repo(*, name, get_github_api=_get_github_api):
     return repo["html_url"]
 
 
-def create_user(*, creator, email, name, org, project):
+def create_user(*, creator, email, name, project):
     """Create an interactive user"""
     user = User.objects.create(
         fullname=name,
@@ -51,7 +51,7 @@ def create_user(*, creator, email, name, org, project):
 
     OrgMembership.objects.create(
         created_by=creator,
-        org=org,
+        org=project.org,
         user=user,
     )
 
