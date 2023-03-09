@@ -14,7 +14,7 @@ from django.views.generic import FormView, UpdateView, View
 from furl import furl
 from opentelemetry import trace
 
-from jobserver.authorization import InteractiveReporter, has_role
+from jobserver.authorization import InteractiveReporter
 
 from ..emails import send_github_login_email, send_login_email
 from ..forms import EmailLoginForm
@@ -48,7 +48,7 @@ class Login(FormView):
         user = User.objects.filter(email=form.cleaned_data["email"]).first()
 
         if user:
-            if not has_role(user, InteractiveReporter):
+            if InteractiveReporter not in user.all_roles:
                 messages.error(
                     self.request,
                     "Only users who have signed up to OpenSAFELY Interactive can log in via email",
@@ -140,7 +140,7 @@ class LoginWithURL(View):
             messages.error(request, msg)
             return redirect("login")
 
-        if not has_role(user, InteractiveReporter):
+        if InteractiveReporter not in user.all_roles:
             messages.error(
                 request,
                 "Only users who have signed up to OpenSAFELY Interactive can log in via email",
