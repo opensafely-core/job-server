@@ -1051,6 +1051,13 @@ class Workspace(models.Model):
         related_name="workspaces",
     )
 
+    updated_at = models.DateTimeField(auto_now=True)
+    updated_by = models.ForeignKey(
+        "User",
+        on_delete=models.PROTECT,
+        related_name="workspaces_updated",
+    )
+
     class Meta:
         constraints = [
             models.CheckConstraint(
@@ -1082,6 +1089,10 @@ class Workspace(models.Model):
                     )
                 ),
                 name="%(app_label)s_%(class)s_both_signed_off_at_and_signed_off_by_set",
+            ),
+            models.CheckConstraint(
+                check=Q(updated_at__isnull=False, updated_by__isnull=False),
+                name="%(app_label)s_%(class)s_both_updated_at_and_updated_by_set",
             ),
         ]
 

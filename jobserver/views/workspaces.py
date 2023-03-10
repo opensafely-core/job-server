@@ -184,6 +184,7 @@ class WorkspaceCreate(CreateView):
             purpose=form.cleaned_data["purpose"],
             branch=form.cleaned_data["branch"],
             created_by=self.request.user,
+            updated_by=self.request.user,
             project=self.project,
             repo=repo,
         )

@@ -3,6 +3,8 @@ from django.db import IntegrityError
 from django.urls import reverse
 from django.utils import timezone
 
+from jobserver.models import Workspace
+
 from ....factories import (
     BackendFactory,
     JobFactory,
@@ -37,6 +39,22 @@ def test_workspace_constraints_missing_signed_off_at_or_signed_off_by():
 
     with pytest.raises(IntegrityError):
         WorkspaceFactory(signed_off_at=timezone.now(), signed_off_by=None)
+
+
+def test_workspace_constraints_updated_at_and_updated_by_both_set():
+    WorkspaceFactory(updated_by=UserFactory())
+
+
+@pytest.mark.django_db(transaction=True)
+def test_workspace_constraints_missing_updated_at_or_updated_by():
+    with pytest.raises(IntegrityError):
+        WorkspaceFactory(updated_by=None)
+
+    with pytest.raises(IntegrityError):
+        workspace = WorkspaceFactory(updated_by=UserFactory())
+
+        # use update to work around auto_now always firing on save()
+        Workspace.objects.filter(pk=workspace.pk).update(updated_at=None)
 
 
 def test_workspace_get_absolute_url():
