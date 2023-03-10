@@ -112,6 +112,8 @@
           <p class="card-body mb-0">
             {% if analysis_request.report %}
             <a href="{{ analysis_request.report.get_staff_url }}">{{ analysis_request.report.title }}</a>
+            {% else %}
+            Not released yet.
             {% endif %}
           </p>
         </li>
