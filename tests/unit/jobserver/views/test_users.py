@@ -88,7 +88,7 @@ def test_login_post_success_with_email_user(rf, mailoutbox):
     # check we have a message for the user
     messages = list(messages)
     assert len(messages) == 1
-    msg = "If you have a user account we'll send you an email with the login details shortly. If you don't receive an email please check your spam folder."
+    msg = "If you have signed up to OpenSAFELY Interactive we'll send you an email with the login details shortly. If you don't receive an email please check your spam folder."
     assert str(messages[0]) == msg
 
     # differentiate from the GitHub user use case
@@ -116,7 +116,7 @@ def test_login_post_success_with_github_user(rf, mailoutbox):
     # check we have a message for the user
     messages = list(messages)
     assert len(messages) == 1
-    msg = "If you have a user account we'll send you an email with the login details shortly. If you don't receive an email please check your spam folder."
+    msg = "If you have signed up to OpenSAFELY Interactive we'll send you an email with the login details shortly. If you don't receive an email please check your spam folder."
     assert str(messages[0]) == msg
 
     # differentiate from the email user use case
@@ -144,7 +144,7 @@ def test_login_post_unauthorised(rf, mailoutbox):
     # check we have a message for the user
     messages = list(messages)
     assert len(messages) == 1
-    msg = "If you have a user account we'll send you an email with the login details shortly. If you don't receive an email please check your spam folder."
+    msg = "If you have signed up to OpenSAFELY Interactive we'll send you an email with the login details shortly. If you don't receive an email please check your spam folder."
     assert str(messages[0]) == msg
 
 
@@ -165,7 +165,7 @@ def test_login_post_unknown_user(rf):
     # check we have a message for the user
     messages = list(messages)
     assert len(messages) == 1
-    msg = "If you have a user account we'll send you an email with the login details shortly. If you don't receive an email please check your spam folder."
+    msg = "If you have signed up to OpenSAFELY Interactive we'll send you an email with the login details shortly. If you don't receive an email please check your spam folder."
     assert str(messages[0]) == msg
 
 

@@ -70,7 +70,10 @@ class Login(FormView):
                     user, login_url, timeout_minutes=settings.LOGIN_URL_TIMEOUT_MINUTES
                 )
 
-        msg = "If you have a user account we'll send you an email with the login details shortly. If you don't receive an email please check your spam folder."
+        msg = (
+            "If you have signed up to OpenSAFELY Interactive we'll send you an email with the login details shortly. "
+            "If you don't receive an email please check your spam folder."
+        )
         messages.success(self.request, msg)
 
         return self.render_to_response(self.get_context_data())
