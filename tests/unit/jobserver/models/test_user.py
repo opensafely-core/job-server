@@ -25,6 +25,22 @@ from ....factories import (
 )
 
 
+def test_user_all_roles():
+    project = ProjectFactory()
+    user = UserFactory(roles=[DataInvestigator])
+
+    OrgMembershipFactory(org=project.org, user=user, roles=[DataInvestigator])
+    ProjectMembershipFactory(project=project, user=user, roles=[ProjectCollaborator])
+
+    expected = {DataInvestigator, ProjectCollaborator}
+
+    assert user.all_roles == expected
+
+
+def test_user_all_roles_empty():
+    assert UserFactory().all_roles == set()
+
+
 def test_user_constraints_pat_token_and_pat_expires_at_both_set():
     UserFactory(pat_token="test", pat_expires_at=timezone.now())
 

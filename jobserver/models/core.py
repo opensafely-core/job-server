@@ -873,6 +873,27 @@ class User(AbstractBaseUser):
     def __str__(self):
         return self.name
 
+    @property
+    def all_roles(self):
+        """
+        All roles, including those given via memberships, for the User
+
+        Typically we look up whether the user has permission or a role in the
+        context of another object (eg a project).  However there are times when
+        we want to check all the roles available to a user.  This property
+        allows us to use typical python membership checks when doing that, eg:
+
+            if InteractiveReporter not in user.all_roles:
+        """
+        membership_roles = list(
+            itertools.chain.from_iterable(
+                [m.roles for m in self.project_memberships.all()]
+                + [m.roles for m in self.org_memberships.all()]
+            )
+        )
+
+        return set(self.roles + membership_roles)
+
     def clean(self):
         super().clean()
         self.email = self.__class__.objects.normalize_email(self.email)

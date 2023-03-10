@@ -14,7 +14,7 @@ from django.views.generic import FormView, UpdateView, View
 from furl import furl
 from opentelemetry import trace
 
-from jobserver.authorization import InteractiveReporter, has_role
+from jobserver.authorization import InteractiveReporter
 
 from ..emails import send_github_login_email, send_login_email
 from ..forms import EmailLoginForm
@@ -48,13 +48,6 @@ class Login(FormView):
         user = User.objects.filter(email=form.cleaned_data["email"]).first()
 
         if user:
-            if not has_role(user, InteractiveReporter):
-                messages.error(
-                    self.request,
-                    "Only users who have signed up to OpenSAFELY Interactive can log in via email",
-                )
-                return redirect("login")
-
             if user.social_auth.exists():
                 # we don't want to expose users email address to a bad actor
                 # via the login page form so we're emailing them with a link
@@ -62,7 +55,7 @@ class Login(FormView):
                 # We can't email them with a link to the social auth entrypoint
                 # because it only accepts POSTs.
                 send_github_login_email(user)
-            else:
+            elif InteractiveReporter in user.all_roles:
                 # generate a secret token we can sign for the URL
                 token = secrets.token_urlsafe(64)
                 signed_token = TimestampSigner(salt="login").sign(token)
@@ -77,7 +70,10 @@ class Login(FormView):
                     user, login_url, timeout_minutes=settings.LOGIN_URL_TIMEOUT_MINUTES
                 )
 
-        msg = "If you have a user account we'll send you an email with the login details shortly. If you don't receive an email please check your spam folder."
+        msg = (
+            "If you have signed up to OpenSAFELY Interactive we'll send you an email with the login details shortly. "
+            "If you don't receive an email please check your spam folder."
+        )
         messages.success(self.request, msg)
 
         return self.render_to_response(self.get_context_data())
@@ -140,7 +136,7 @@ class LoginWithURL(View):
             messages.error(request, msg)
             return redirect("login")
 
-        if not has_role(user, InteractiveReporter):
+        if InteractiveReporter not in user.all_roles:
             messages.error(
                 request,
                 "Only users who have signed up to OpenSAFELY Interactive can log in via email",
