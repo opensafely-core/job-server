@@ -1,0 +1,7 @@
+Hi {{ name }},
+
+Your analysis titled "{{ title }}" using OpenSAFELY Interactive has now finished running. You can view the results at:
+
+{{ url }}
+
+This report is not publicly accessible and is only viewable when logged into your OpenSAFELY Interactive account. Please only share these results with your immediate team. If you would like to share the report more widely, please send an email to us at team@opensafely.org

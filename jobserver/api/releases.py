@@ -20,6 +20,7 @@ from rest_framework.parsers import FileUploadParser, JSONParser
 from rest_framework.response import Response
 from rest_framework.views import APIView
 
+from interactive.emails import send_report_uploaded_notification
 from interactive.models import AnalysisRequest
 from jobserver import releases, slacks
 from jobserver.api.authentication import get_backend_from_token
@@ -70,19 +71,21 @@ def maybe_create_report(rfile, filename, user):
     name, ext = os.path.splitext(filename)
     _, _, identifier = name.partition("-")
     analysis_request = AnalysisRequest.objects.filter(pk=identifier).first()
-    if ext == ".html" and analysis_request:
-        report = Report.objects.create(
-            project=rfile.workspace.project,
-            release_file=rfile,
-            title=analysis_request.title,
-            description="TODO fill from AR",
-            created_by=user,
-            updated_by=user,
-        )
-        analysis_request.report = report
-        analysis_request.save(update_fields=["report"])
-        # TODO: notify the AR creator a report has been created
-        # notify some staff…?
+    if not (ext == ".html" and analysis_request):
+        return
+
+    report = Report.objects.create(
+        project=rfile.workspace.project,
+        release_file=rfile,
+        title=analysis_request.title,
+        description="TODO fill from AR",
+        created_by=user,
+        updated_by=user,
+    )
+    analysis_request.report = report
+    analysis_request.save(update_fields=["report"])
+
+    send_report_uploaded_notification(analysis_request)
 
 
 class UnknownFiles(Exception):
