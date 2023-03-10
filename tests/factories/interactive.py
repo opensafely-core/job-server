@@ -13,3 +13,4 @@ class AnalysisRequestFactory(factory.django.DjangoModelFactory):
     created_by = factory.SubFactory("tests.factories.UserFactory")
     job_request = factory.SubFactory("tests.factories.JobRequestFactory")
     project = factory.SubFactory("tests.factories.ProjectFactory")
+    updated_by = factory.SubFactory("tests.factories.UserFactory")
