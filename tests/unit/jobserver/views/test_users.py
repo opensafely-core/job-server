@@ -139,13 +139,12 @@ def test_login_post_unauthorised(rf, mailoutbox):
 
     response = Login.as_view()(request)
 
-    assert response.status_code == 302
-    assert response.url == reverse("login")
+    assert response.status_code == 200
 
     # check we have a message for the user
     messages = list(messages)
     assert len(messages) == 1
-    msg = "Only users who have signed up to OpenSAFELY Interactive can log in via email"
+    msg = "If you have a user account we'll send you an email with the login details shortly. If you don't receive an email please check your spam folder."
     assert str(messages[0]) == msg
 
 

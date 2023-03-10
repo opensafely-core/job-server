@@ -48,13 +48,6 @@ class Login(FormView):
         user = User.objects.filter(email=form.cleaned_data["email"]).first()
 
         if user:
-            if InteractiveReporter not in user.all_roles:
-                messages.error(
-                    self.request,
-                    "Only users who have signed up to OpenSAFELY Interactive can log in via email",
-                )
-                return redirect("login")
-
             if user.social_auth.exists():
                 # we don't want to expose users email address to a bad actor
                 # via the login page form so we're emailing them with a link
@@ -62,7 +55,7 @@ class Login(FormView):
                 # We can't email them with a link to the social auth entrypoint
                 # because it only accepts POSTs.
                 send_github_login_email(user)
-            else:
+            elif InteractiveReporter in user.all_roles:
                 # generate a secret token we can sign for the URL
                 token = secrets.token_urlsafe(64)
                 signed_token = TimestampSigner(salt="login").sign(token)
