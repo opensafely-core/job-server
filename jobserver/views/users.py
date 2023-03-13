@@ -145,8 +145,11 @@ class LoginWithURL(View):
 
         login(request, user, "django.contrib.auth.backends.ModelBackend")
 
-        next_url = request.GET.get("next") or "/"
-        return redirect(next_url)
+        # TODO: decide what to do when a user has more than one project.
+        # we don't expect this to happen for a while but we need to make
+        # a call.
+        project = user.projects.first()
+        return redirect(project.interactive_workspace)
 
 
 @method_decorator(login_required, name="dispatch")

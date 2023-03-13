@@ -11,7 +11,13 @@ from freezegun import freeze_time
 from jobserver.authorization import InteractiveReporter
 from jobserver.views.users import Login, LoginWithURL, Settings
 
-from ....factories import UserFactory, UserSocialAuthFactory
+from ....factories import (
+    ProjectFactory,
+    ProjectMembershipFactory,
+    UserFactory,
+    UserSocialAuthFactory,
+    WorkspaceFactory,
+)
 
 
 def test_login_already_logged_in_with_next_url(rf):
@@ -194,7 +200,10 @@ def test_loginwithurl_bad_token(rf):
 
 
 def test_loginwithurl_success(rf):
-    user = UserFactory(roles=[InteractiveReporter])
+    project = ProjectFactory()
+    user = UserFactory()
+    ProjectMembershipFactory(project=project, user=user, roles=[InteractiveReporter])
+    WorkspaceFactory(project=project, name=project.interactive_slug)
 
     signed_token = TimestampSigner(salt="login").sign("test")
 
@@ -205,7 +214,7 @@ def test_loginwithurl_success(rf):
     response = LoginWithURL.as_view()(request, token=signed_token)
 
     assert response.status_code == 302
-    assert response.url == "/"
+    assert response.url == project.interactive_workspace.get_absolute_url()
 
 
 def test_loginwithurl_unauthorized(rf):
@@ -339,7 +348,6 @@ def test_settings_post(rf):
     assert response.url == "/"
 
     user2.refresh_from_db()
-
     assert user2.notifications_email == "changed@example.com"
     assert user2.fullname == "Mr Testerson"
 
