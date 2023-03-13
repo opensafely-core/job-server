@@ -5,13 +5,13 @@ from django.core.exceptions import PermissionDenied
 from django.shortcuts import get_object_or_404, redirect
 from django.template.response import TemplateResponse
 from django.views.generic import DetailView, View
+from interactive_templates.schema import Codelist, v2
 
 from jobserver.authorization import has_permission
 from jobserver.models import Backend, Project
 from jobserver.reports import process_html
 from jobserver.utils import build_spa_base_url
 
-from . import Analysis, Codelist
 from .dates import END_DATE, START_DATE
 from .forms import AnalysisRequestForm
 from .models import AnalysisRequest
@@ -37,7 +37,7 @@ class AnalysisRequestCreate(View):
     def build_analysis(self, *, form_data, project):
         raw = json.loads(form_data)
 
-        return Analysis(
+        return v2.Analysis(
             codelist_1=build_codelist(raw.get("codelistA", None)),
             codelist_2=build_codelist(raw.get("codelistB", None)),
             created_by=self.request.user.email,
@@ -47,6 +47,8 @@ class AnalysisRequestCreate(View):
             time_scale=raw.get("timeScale", ""),
             time_value=raw.get("timeValue", ""),
             title=raw.get("title", ""),
+            start_date=START_DATE,
+            end_date=END_DATE,
         )
 
     def dispatch(self, request, *args, **kwargs):
@@ -95,7 +97,6 @@ class AnalysisRequestCreate(View):
             backend=Backend.objects.get(slug="tpp"),
             creator=request.user,
             project=self.project,
-            get_opencodelists_api=self.get_opencodelists_api,
         )
 
         return redirect(analysis_request)

@@ -17,17 +17,6 @@ def opencodelists_api():
     return OpenCodelistsAPI()
 
 
-def test_get_codelist(enable_network, opencodelists_api):
-    args = ["pincer/ast/v1.8"]
-
-    real = opencodelists_api.get_codelist(*args)
-    fake = FakeOpenCodelistsAPI().get_codelist(*args)
-
-    compare(fake, real)
-
-    assert real is not None
-
-
 def test_get_codelists(enable_network, opencodelists_api):
     args = ["snomedct"]
 

@@ -1,6 +1,5 @@
 import json
 import tempfile
-from pathlib import Path
 
 import pytest
 from opensafely._vendor.jobrunner.cli import local_run
@@ -29,15 +28,6 @@ def local_repo():
 
 
 class AsthmaOpenCodelistsAPI(FakeOpenCodelistsAPI):
-    def get_codelist(self, slug):
-        codelist_lut = {
-            "opensafely/asthma-inhaler-salbutamol-medication/2020-04-15": "medication.csv",
-            "pincer/ast/v1.8": "event.csv",
-        }
-
-        path = Path(__file__).parent / codelist_lut[slug]
-        return path.read_text()
-
     def get_codelists(self, coding_system):
         return [
             {
@@ -54,7 +44,7 @@ class AsthmaOpenCodelistsAPI(FakeOpenCodelistsAPI):
 
 
 @pytest.mark.slow_test
-def test_interactive_submission_success(rf, local_repo):
+def test_interactive_submission_success(rf, local_repo, enable_network):
     BackendFactory(slug="tpp")
     project = ProjectFactory()
     repo = RepoFactory(url=local_repo)

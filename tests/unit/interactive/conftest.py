@@ -1,4 +1,6 @@
 import pytest
+import responses
+from interactive_templates.render import CODELIST_URL
 
 from interactive.submit import git
 
@@ -24,33 +26,6 @@ def interactive_repo(remote_repo):
 
 
 @pytest.fixture
-def template_repo(build_repo):
-    """Create a repo to match our analysis code template repo"""
-    path = build_repo("template_repo")
-
-    template_dir = path / "templates/v2"
-    template_dir.mkdir(parents=True)
-
-    (template_dir / "project.yaml.tmpl").write_text("test: {{ 'test' }}")
-    (template_dir / "analysis").mkdir()
-    (template_dir / "analysis/test.py").write_text("print('test')")
-
-    git("add", ".", cwd=path)
-    git(
-        "-c",
-        "user.email=testing@opensafely.org",
-        "-c",
-        "user.name=testing",
-        "commit",
-        "-m",
-        "Initial commit",
-        cwd=path,
-    )
-
-    return path
-
-
-@pytest.fixture
 def remote_repo(tmp_path):
     path = tmp_path / "remote_repo"
     path.mkdir()
@@ -58,3 +33,13 @@ def remote_repo(tmp_path):
     git("init", "--bare", ".", "--initial-branch", "main", cwd=path)
 
     return path
+
+
+@pytest.fixture
+def add_codelist():
+    with responses.RequestsMock() as rmock:
+
+        def add(slug, contents="code,name\na,aaa\nb,bbb"):
+            rmock.get(CODELIST_URL.format(slug, body=contents))
+
+        yield add
