@@ -1,3 +1,5 @@
+import textwrap
+
 from django.conf import settings
 
 from jobserver.authorization import InteractiveReporter
@@ -69,13 +71,18 @@ def create_workspace(*, creator, project, repo_url):
     """Create an interactive workspace"""
     repo, _ = Repo.objects.get_or_create(url=repo_url)
 
+    purpose = """
+    This workspace has been created for analyses requested via the OpenSAFELY Interactive point-and-click tool (opensafely.org/interactive/).
+    All analyses are required to align with the approved project purpose.
+    """
+
     workspace, _ = project.workspaces.get_or_create(
         name=project.interactive_slug,
         defaults={
             "repo": repo,
             "branch": "main",
             "created_by": creator,
-            "purpose": "??",
+            "purpose": textwrap.dedent(purpose).replace("\n", " ").strip(),
         },
     )
 
