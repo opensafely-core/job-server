@@ -8,11 +8,9 @@ from pathlib import Path
 from attrs import asdict
 from django.conf import settings
 from django.db import transaction
-
-from interactive import AnalysisTemplate
+from interactive_templates.render import render_analysis
 
 from .models import AnalysisRequest
-from .opencodelists import _get_opencodelists_api
 
 
 # from jobserver.github import create_issue
@@ -27,7 +25,6 @@ def submit_analysis(
     backend,
     creator,
     project,
-    get_opencodelists_api=_get_opencodelists_api,
     force=False,
 ):
     """
@@ -55,8 +52,6 @@ def submit_analysis(
     sha, project_yaml = create_commit(
         analysis,
         force=force,
-        get_opencodelists_api=get_opencodelists_api,
-        template_repo=settings.INTERACTIVE_TEMPLATE_REPO,
     )
 
     job_request = project.interactive_workspace.job_requests.create(
@@ -148,9 +143,7 @@ def get_repo_with_token(repo):
 
 def create_commit(
     analysis,
-    template_repo,
     force=False,
-    get_opencodelists_api=_get_opencodelists_api,
 ):
     repo_url = get_repo_with_token(analysis.repo)
 
@@ -158,50 +151,25 @@ def create_commit(
         # check this commit does not already exist
         raise_if_commit_exists(repo_url, analysis.id)
 
-    analysis_name = "v2"
-
     # 1. create tempdir with AR.pk suffix
-    suffix = f"template-{analysis.id}"
-    with tempfile.TemporaryDirectory(suffix=suffix) as working_dir:
-        working_dir = Path(working_dir)
+    suffix = f"repo-{analysis.id}"
+    with tempfile.TemporaryDirectory(suffix=suffix) as repo_dir:
+        repo_dir = Path(repo_dir)
 
-        # 2. clone the given analysis code template repo to tempdir
-        git("clone", "--depth", "1", template_repo, working_dir)
+        # 4. clone the given interactive repo
+        git("clone", "--depth", "1", repo_url, repo_dir)
 
-        # 3. set up analysis templating for this analysis
-        template_dir = working_dir / "templates" / analysis_name
+        # 5. clear working directory because each analysis is fresh set of files
+        clean_working_tree(repo_dir)
 
-        if not template_dir.exists():
-            raise RuntimeError(
-                f"interactive template repo { template_repo } does not have a templates/{analysis_name} directory"
-            )
+        # 6. render the files into the interactive repo
+        render_analysis(analysis, repo_dir)
 
-        codelists = ["codelist_1"]
-        if analysis.codelist_2:
-            codelists.append("codelist_2")
+        # 7. write a commit to the given interactive repo
+        sha = commit_and_push(repo_dir, analysis)
 
-        analysis_template = AnalysisTemplate(
-            template_dir, codelists, get_opencodelists_api
-        )
-
-        suffix = f"repo-{analysis.id}"
-        with tempfile.TemporaryDirectory(suffix=suffix) as repo_dir:
-            repo_dir = Path(repo_dir)
-
-            # 4. clone the given interactive repo
-            git("clone", "--depth", "1", repo_url, repo_dir)
-
-            # 5. clear working directory because each analysis is fresh set of files
-            clean_working_tree(repo_dir)
-
-            # 6. render the files into the interactive repo
-            analysis_template.render(repo_dir, asdict(analysis))
-
-            # 7. write a commit to the given interactive repo
-            sha = commit_and_push(repo_dir, analysis)
-
-            # 8. return contents of project.yaml (from disk) and sha
-            project_yaml = (repo_dir / "project.yaml").read_text()
+        # 8. return contents of project.yaml (from disk) and sha
+        project_yaml = (repo_dir / "project.yaml").read_text()
 
     return sha, project_yaml
 

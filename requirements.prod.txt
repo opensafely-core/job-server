@@ -40,7 +40,9 @@ asgiref==3.5.2 \
 attrs==22.2.0 \
     --hash=sha256:29e95c7f6778868dbd49170f98f8818f78f3dc5e0e37c0b1f474e3561b240836 \
     --hash=sha256:c9227bfc2f01993c03f68db37d1d15c9690188323c067c641f1a35ca58185f99
-    # via -r requirements.prod.in
+    # via
+    #   -r requirements.prod.in
+    #   interactive-templates
 backoff==2.2.1 \
     --hash=sha256:03f829f5bb1923180821643f8753b0502c3b682293992485b0eef2807afa5cba \
     --hash=sha256:63579f9a0628e06278f7e47b7d7d5b6ce20dc65c5e96a6f3ca99a6adca0396e8
@@ -346,6 +348,9 @@ incuna-mail==4.1.1 \
     --hash=sha256:4071949a7cc70f88c1acea5f06ac8ba439029f655ff5d8c98277bbc8cc8d4bd5 \
     --hash=sha256:d8ef4979264fba729fa1478819d71f66af17a795e82d9607d8e7ccd7edaafe10
     # via -r requirements.prod.in
+interactive_templates @ https://github.com/opensafely-core/interactive-templates/archive/73b46fc58c772f97c47d8af142bd7bdf24cca9c8.zip \
+    --hash=sha256:c6e6f524a4bc4ba696e479753479e0939a4fc11b054fc4a6e31fca9d60b07713
+    # via -r requirements.prod.in
 itsdangerous==2.1.2 \
     --hash=sha256:2c2349112351b88699d8d4b6b075022c0808887cb7ad10069318a8b0bc88db44 \
     --hash=sha256:5dbbc68b317e5e42f327f9021763545dc3fc3bfe22e6deb96aaf1fc38874156a
@@ -353,7 +358,7 @@ itsdangerous==2.1.2 \
 jinja2==3.1.2 \
     --hash=sha256:31351a702a408a9e7595a8fc6150fc3f43bb6bf7e319770cbc0db9df9437e852 \
     --hash=sha256:6088930bfe239f0e6710546ab9c19c9ef35e29792895fed6e6e31a023a182a61
-    # via -r requirements.prod.in
+    # via interactive-templates
 lxml==4.9.2 \
     --hash=sha256:01d36c05f4afb8f7c20fd9ed5badca32a2029b93b1750f571ccc0b142531caf7 \
     --hash=sha256:04876580c050a8c5341d706dd464ff04fd597095cc8c023252566a8826505726 \
@@ -779,6 +784,7 @@ requests==2.28.2 \
     # via
     #   -r requirements.prod.in
     #   django-anymail
+    #   interactive-templates
     #   opentelemetry-exporter-otlp-proto-http
     #   requests-oauthlib
     #   social-auth-core

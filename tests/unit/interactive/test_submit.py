@@ -1,9 +1,8 @@
 import pytest
 from django.conf import settings
+from interactive_templates.schema import Codelist, v2
 
-from interactive import Analysis, Codelist
 from interactive.submit import (
-    AnalysisTemplate,
     clean_working_tree,
     commit_and_push,
     create_commit,
@@ -21,7 +20,6 @@ from ...factories import (
     UserFactory,
     WorkspaceFactory,
 )
-from ...fakes import FakeOpenCodelistsAPI
 
 
 def commit_in_remote(*, remote, commit):
@@ -83,7 +81,7 @@ def test_commit_and_push(build_repo, remote_repo, codelist_2, commit_message):
 
     pk = new_ulid_str()
 
-    analysis = Analysis(
+    analysis = v2.Analysis(
         codelist_1=Codelist(label="", slug="slug-a", type=""),
         codelist_2=codelist_2,
         created_by=UserFactory().email,
@@ -144,15 +142,18 @@ def test_raise_if_commit_exists(tmp_path):
 @pytest.mark.parametrize(
     "force", [(True), (False)], ids=["force_commit", "without_force_commit"]
 )
-def test_create_commit(build_repo, remote_repo, template_repo, force):
+def test_create_commit(remote_repo, add_codelist, force):
     # set our remote_repo fixture as the remote "origin"
     git("remote", "add", "origin", remote_repo, cwd=remote_repo)
 
+    add_codelist("org/slug-a", "codelist a")
+    add_codelist("org/slug-b", "codelist b")
+
     pk = new_ulid_str()
 
-    analysis = Analysis(
-        codelist_1=Codelist(label="", slug="", type=""),
-        codelist_2=None,
+    analysis = v2.Analysis(
+        codelist_1=Codelist(label="", slug="org/slug-a", type=""),
+        codelist_2=Codelist(label="", slug="org/slug-b", type=""),
         created_by=UserFactory().email,
         demographics="",
         filter_population="",
@@ -165,9 +166,7 @@ def test_create_commit(build_repo, remote_repo, template_repo, force):
 
     sha, project_yaml = create_commit(
         analysis,
-        template_repo,
         force=force,
-        get_opencodelists_api=FakeOpenCodelistsAPI,
     )
 
     # does the remote repo only have the files we expect from our template?
@@ -180,113 +179,28 @@ def test_create_commit(build_repo, remote_repo, template_repo, force):
         cwd=remote_repo,
         capture_output=True,
     )
-    assert ps.stdout.strip().split("\n") == [
-        "analysis/test.py",
-        "codelists/codelist_1.csv",
-        "project.yaml",
-    ]
+
+    files = ps.stdout.strip().split("\n")
+    assert "codelists/codelist_1.csv" in files
+    assert "codelists/codelist_2.csv" in files
+    assert "project.yaml" in files
 
     assert commit_in_remote(remote=remote_repo, commit=sha)
 
 
-def test_create_commit_bad_template_repo(build_repo, remote_repo, tmp_path):
-    repo = build_repo("template_repo")
-    git(
-        "-c",
-        "user.email=testing@opensafely.org",
-        "-c",
-        "user.name=testing",
-        "commit",
-        "--allow-empty",
-        "-m",
-        "test",
-        cwd=repo,
-    )
-    pk = new_ulid_str()
-    analysis = Analysis(
-        codelist_1=Codelist(label="", slug="", type=""),
-        codelist_2=None,
-        created_by=UserFactory().email,
-        demographics="",
-        filter_population="",
-        repo="",
-        id=pk,
-        time_scale="",
-        time_value="",
-        title="",
-    )
+def test_submit_analysis(remote_repo, add_codelist):
 
-    with pytest.raises(RuntimeError) as e:
-        create_commit(
-            analysis, repo, force=True, get_opencodelists_api=FakeOpenCodelistsAPI
-        )
-
-    assert "does not have a templates/v2 directory" in str(e.value)
-
-
-@pytest.mark.parametrize(
-    "force", [(True), (False)], ids=["force_commit", "without_force_commit"]
-)
-def test_create_commit_with_two_codelists(
-    build_repo, remote_repo, template_repo, force
-):
-    # set our remote_repo fixture as the remote "origin"
-    git("remote", "add", "origin", remote_repo, cwd=remote_repo)
-
-    pk = new_ulid_str()
-
-    analysis = Analysis(
-        codelist_1=Codelist(label="", slug="", type=""),
-        codelist_2=Codelist(label="", slug="slug-b", type=""),
-        created_by=UserFactory().email,
-        demographics="",
-        filter_population="",
-        repo=str(remote_repo),
-        id=pk,
-        time_scale="",
-        time_value="",
-        title="",
-    )
-
-    sha, project_yaml = create_commit(
-        analysis,
-        template_repo,
-        force=force,
-        get_opencodelists_api=FakeOpenCodelistsAPI,
-    )
-
-    # does the remote repo only have the files we expect from our template?
-    ps = git(
-        "ls-tree",
-        "--full-tree",
-        "--name-only",
-        "-r",  # recurse
-        "HEAD",
-        cwd=remote_repo,
-        capture_output=True,
-    )
-    assert ps.stdout.strip().split("\n") == [
-        "analysis/test.py",
-        "codelists/codelist_1.csv",
-        "codelists/codelist_2.csv",
-        "project.yaml",
-    ]
-
-    assert commit_in_remote(remote=remote_repo, commit=sha)
-
-
-def test_submit_analysis(monkeypatch, remote_repo, template_repo):
-    monkeypatch.setattr(settings, "INTERACTIVE_TEMPLATE_REPO", str(template_repo))
-
+    add_codelist("org/slug-a", "codelist a")
+    add_codelist("org/slug-b", "codelist b")
     backend = BackendFactory()
     project = ProjectFactory()
     repo = RepoFactory(url=str(remote_repo))
     WorkspaceFactory(project=project, repo=repo, name=f"{project.slug}-interactive")
     user = UserFactory()
 
-    analysis = Analysis(
-        codelist_1=Codelist(label="", slug="slug-a", type=""),
-        codelist_2=None,
+    analysis = v2.Analysis(
+        codelist_1=Codelist(label="", slug="org/slug-a", type=""),
+        codelist_2=Codelist(label="", slug="org/slug-b", type=""),
         created_by=user.email,
         demographics="",
         filter_population="",
@@ -301,35 +215,14 @@ def test_submit_analysis(monkeypatch, remote_repo, template_repo):
         backend=backend,
         creator=user,
         project=project,
-        get_opencodelists_api=FakeOpenCodelistsAPI,
     )
 
     assert analysis_request.created_by == user
     assert analysis_request.job_request
     assert analysis_request.project == project
-    assert analysis_request.template_data["codelist_1"]["slug"] == "slug-a"
+    assert analysis_request.template_data["codelist_1"]["slug"] == "org/slug-a"
+    assert analysis_request.template_data["codelist_2"]["slug"] == "org/slug-b"
     assert analysis_request.title == "test"
-
-
-def test_interactive_analysis_template_success(template_repo, tmp_path):
-
-    template_dir = template_repo / "templates/v2"
-    template = AnalysisTemplate(template_dir, [], FakeOpenCodelistsAPI)
-    template.render(tmp_path, {})
-
-    assert (tmp_path / "project.yaml").read_text() == "test: test"
-    assert (tmp_path / "analysis/test.py").read_text() == "print('test')"
-
-
-def test_interactive_analysis_template_skips_files(template_repo, tmp_path):
-
-    template_dir = template_repo / "templates/v2"
-    (template_dir / "__pycache__").mkdir()
-    template = AnalysisTemplate(template_dir, [], FakeOpenCodelistsAPI)
-    template.render(tmp_path, {})
-
-    assert (tmp_path / "project.yaml").exists() is True
-    assert (tmp_path / "__pycache__").exists() is False
 
 
 def test_get_repo_with_token_returns_correct_url_with_token(monkeypatch):

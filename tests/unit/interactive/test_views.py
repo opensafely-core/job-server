@@ -1,9 +1,9 @@
 import json
 
 import pytest
-from django.conf import settings
 from django.core.exceptions import PermissionDenied
 
+from interactive.dates import END_DATE, START_DATE
 from interactive.models import AnalysisRequest
 from interactive.views import AnalysisRequestCreate, AnalysisRequestDetail
 from jobserver.authorization import InteractiveReporter
@@ -61,10 +61,7 @@ def test_analysisrequestcreate_post_failure(rf, interactive_repo):
     # TODO: check our error response here
 
 
-def test_analysisrequestcreate_post_success_with_one_codelist(
-    rf, monkeypatch, interactive_repo, template_repo
-):
-    monkeypatch.setattr(settings, "INTERACTIVE_TEMPLATE_REPO", str(template_repo))
+def test_analysisrequestcreate_post_success(rf, interactive_repo, add_codelist):
 
     BackendFactory(slug="tpp")
     project = ProjectFactory()
@@ -74,44 +71,8 @@ def test_analysisrequestcreate_post_success_with_one_codelist(
     )
 
     ProjectMembershipFactory(project=project, user=user, roles=[InteractiveReporter])
-
-    data = {
-        "title": "Event Codelist",
-        "codelistA": {
-            "label": "Event Codelist",
-            "organisation": "NHSD Primary Care Domain Refsets",
-            "value": "bennett/event-codelist/event123",
-            "type": "event",
-        },
-        "filterPopulation": "adults",
-        "demographics": ["age"],
-    }
-    request = rf.post("/", data=json.dumps(data), content_type="appliation/json")
-    request.user = user
-
-    response = AnalysisRequestCreate.as_view(
-        get_opencodelists_api=FakeOpenCodelistsAPI
-    )(request, org_slug=project.org.slug, project_slug=project.slug)
-
-    assert response.status_code == 302, response.context_data["form"].errors
-
-    analysis_request = AnalysisRequest.objects.first()
-    assert response.url == analysis_request.get_absolute_url()
-
-
-def test_analysisrequestcreate_post_success_with_two_codelists(
-    rf, monkeypatch, interactive_repo, template_repo
-):
-    monkeypatch.setattr(settings, "INTERACTIVE_TEMPLATE_REPO", str(template_repo))
-
-    BackendFactory(slug="tpp")
-    project = ProjectFactory()
-    user = UserFactory()
-    WorkspaceFactory(
-        project=project, repo=interactive_repo, name=f"{project.slug}-interactive"
-    )
-
-    ProjectMembershipFactory(project=project, user=user, roles=[InteractiveReporter])
+    add_codelist("bennett/event-codelist/event123")
+    add_codelist("bennett/medication-codelist/medication123")
 
     data = {
         "title": "Event Codelist & Medication Codelist",
@@ -144,6 +105,10 @@ def test_analysisrequestcreate_post_success_with_two_codelists(
 
     analysis_request = AnalysisRequest.objects.first()
     assert response.url == analysis_request.get_absolute_url()
+
+    # check dates were set properly
+    analysis_request.template_data["start_date"] == START_DATE
+    analysis_request.template_data["end_date"] == END_DATE
 
 
 def test_analysisrequestcreate_unauthorized(rf):

@@ -105,7 +105,6 @@
               ],
               "vars": {
                 "analysis": "Analysis(codelist_1=Codelist(label='Asthma Inhaler Salbutamol Medication', slug='opensafely/asthma-inhaler-salbutamol-medication/2020-04-15', system='dmd', type='medication', path=None, description=None), codelist_2=Codelist(label='Asthma', slug='pincer/ast/v1.8', system='snomedct', type='event', path=None, description=None), created_by='george@ghickman.co.uk', demographics=['age'], filter_population='all', frequency='monthly', repo='https://interactive:ghp_testing@github.com/opensafely/opensafely-internal-interactive', time_event='before', time_scale='weeks', time_value=3, title='Asthma Inhaler Salbutamol Medication & Asthma', id='01GSSXXCWG845QY8B6JDM9WFRQ')",
-                "template_repo": "'https://github.com/opensafely-core/interactive-templates'",
                 "force": "False",
                 "get_opencodelists_api": "<function _get_opencodelists_api at 0x111c23b00>",
                 "analysis_name": "'v2'",

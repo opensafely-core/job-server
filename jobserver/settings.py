@@ -365,12 +365,6 @@ DISABLE_CREATING_JOBS = env.bool("DISABLE_CREATING_JOBS", default=False)
 # TODO: remove default when we're happy with setting up CI with this token
 GITHUB_WRITEABLE_TOKEN = env.str("GITHUB_WRITEABLE_TOKEN", default="")
 
-# Interactive Analyses Templates Repo
-INTERACTIVE_TEMPLATE_REPO = env.str(
-    "INTERACTIVE_TEMPLATE_REPO",
-    default="https://github.com/opensafely-core/interactive-templates",
-)
-
 # path to where local git repos live, used when developing locally, for the
 # interactive functionality
 LOCAL_GIT_REPOS = BASE_DIR / "repos"
