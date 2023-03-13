@@ -36,11 +36,14 @@
       <li>
         <strong>Created at:</strong> {{ analysis_request.created_at }}
       </li>
+      <li>
+        <strong>Job request:</strong>
+        <a href="{{ analysis_request.job_request.get_staff_url }}">{{ analysis_request.job_request.pk }}</a>
+      </li>
     </ul>
 
     <div class="d-flex">
       <a class="btn btn-primary mr-1" href="{{ analysis_request.get_absolute_url }}">View on Site</a>
-      <a class="btn btn-primary" href="{{ analysis_request.job_request.get_absolute_url }}">View job request</a>
     </div>
   </div>
 </div>
@@ -56,13 +59,6 @@
         </div>
 
         <div class="list-group list-group-flush">
-          <div class="list-group-item">
-            <strong>SHA:</strong>
-            <a href="{{ analysis_request.get_sha_url }}">View {{ analysis_request.sha }} on GitHub</a>
-            <p class="text-muted mb-0 mt-1">
-              The git sha this request was run against.
-            </p>
-          </div>
           <div class="list-group-item">
             <strong>Complete email sent at:</strong>
             {% if analysis_request.complete_email_sent_at %}
@@ -116,6 +112,8 @@
           <p class="card-body mb-0">
             {% if analysis_request.report %}
             <a href="{{ analysis_request.report.get_staff_url }}">{{ analysis_request.report.title }}</a>
+            {% else %}
+            Not released yet.
             {% endif %}
           </p>
         </li>
