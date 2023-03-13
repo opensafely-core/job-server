@@ -156,19 +156,19 @@ def create_commit(
     with tempfile.TemporaryDirectory(suffix=suffix) as repo_dir:
         repo_dir = Path(repo_dir)
 
-        # 4. clone the given interactive repo
+        # 2. clone the given interactive repo
         git("clone", "--depth", "1", repo_url, repo_dir)
 
-        # 5. clear working directory because each analysis is fresh set of files
+        # 3. clear working directory because each analysis is fresh set of files
         clean_working_tree(repo_dir)
 
-        # 6. render the files into the interactive repo
+        # 4. render the files into the interactive repo
         render_analysis(analysis, repo_dir)
 
-        # 7. write a commit to the given interactive repo
+        # 5. write a commit to the given interactive repo
         sha = commit_and_push(repo_dir, analysis)
 
-        # 8. return contents of project.yaml (from disk) and sha
+        # 6. return contents of project.yaml (from disk) and sha
         project_yaml = (repo_dir / "project.yaml").read_text()
 
     return sha, project_yaml
