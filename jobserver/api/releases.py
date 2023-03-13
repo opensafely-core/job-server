@@ -60,13 +60,16 @@ def maybe_create_report(rfile, filename, user):
     Reports are created for the released HTML outputs of each AnalysisRequest
 
     We match released outputs to their AnalysisRequest by setting the output
-    filenames in their project.yaml to the AnalysisRequest's PK value.
+    filenames in their project.yaml to
+
+        report-{{ analysis_request.pk }}.html
 
     This function looks for HTML files with a name matching an AnalysisRequest
     PK, banking on ULIDs being unique enough for there to not be a clash here.
     """
     name, ext = os.path.splitext(filename)
-    analysis_request = AnalysisRequest.objects.filter(pk=name).first()
+    _, _, identifier = name.partition("-")
+    analysis_request = AnalysisRequest.objects.filter(pk=identifier).first()
     if ext == ".html" and analysis_request:
         report = Report.objects.create(
             project=rfile.workspace.project,

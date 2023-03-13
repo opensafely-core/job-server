@@ -287,7 +287,7 @@ def test_releaseapi_post_success_for_analysis_request(
 
     assert not analysis_request.report
 
-    filename = f"{analysis_request.pk}.html"
+    filename = f"report-{analysis_request.pk}.html"
 
     release = build_release([filename], backend=backend, created_by=creating_user)
 
