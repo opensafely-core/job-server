@@ -7,7 +7,7 @@
 <link rel="stylesheet" href="{% static 'vendor/select2-bootstrap4.min.css' %}">
 {% endblock %}
 
-{% block metatitle %}Invite users: {{ project.title }} | OpenSAFELY Jobs{% endblock metatitle %}
+{% block metatitle %}Invite members: {{ project.title }} | OpenSAFELY Jobs{% endblock metatitle %}
 
 {% block breadcrumbs %}
 <nav class="breadcrumb-container breadcrumb--danger" aria-label="breadcrumb">
@@ -23,7 +23,7 @@
         <a href="{{ project.get_staff_url }}">{{ project.title }}</a>
       </li>
       <li class="breadcrumb-item active" aria-current="page">
-        Add users
+        Add members
       </li>
     </ol>
   </div>
@@ -33,9 +33,9 @@
 {% block jumbotron %}
 <div class="jumbotron jumbotron-fluid jumbotron--danger pt-md-2">
   <div class="container">
-    <h1 class="display-4">Add users</h1>
+    <h1 class="display-4">Add members</h1>
     <p class="lead">
-      Add users to collaborate on {{ project.title }}
+      Add members to the {{ project.title }} project.
     </p>
   </div>
 </div>
@@ -60,7 +60,7 @@
 
         <fieldset class="mb-3">
           <legend class="h3 mb-3">Select users</legend>
-
+          <p class="text-muted">If a user doesn't exist, they'll need to create an account first or an account will need to be created for them if they're an <a href="{% url 'staff:user-create' %}?project-slug={{ project.slug }}">Interactive-only user</a>.</p>
           <div class="form-group">
             <select id="id_users" name="users" multiple required>
               {% for value, label in form.fields.users.choices %}
@@ -76,7 +76,7 @@
 
         {% include "components/form_roles.html" with field=form.roles label="Roles" name="roles" %}
 
-        <button class="btn btn-success" type="submit">Add users</button>
+        <button class="btn btn-success" type="submit">Add users as project members</button>
       </form>
     </div>
   </div>
