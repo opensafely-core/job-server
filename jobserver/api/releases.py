@@ -1,5 +1,5 @@
-import os
 from email.message import Message
+from pathlib import Path
 
 import sentry_sdk
 import structlog
@@ -56,22 +56,28 @@ def get_filename(headers):
     return m.get_filename()
 
 
-def maybe_create_report(rfile, filename, user):
+def maybe_create_report(rfile, user):
     """
     Reports are created for the released HTML outputs of each AnalysisRequest
 
     We match released outputs to their AnalysisRequest by setting the output
     filenames in their project.yaml to
 
-        report-{{ analysis_request.pk }}.html
+        output/{{ analysis_request.pk }}/report.html
 
     This function looks for HTML files with a name matching an AnalysisRequest
     PK, banking on ULIDs being unique enough for there to not be a clash here.
     """
-    name, ext = os.path.splitext(filename)
-    _, _, identifier = name.partition("-")
+
+    path = Path(rfile.name)
+    if len(path.parts) != 3:
+        return
+    if not (path.parts[0] == "output" or path.parts[2] == "report.html"):
+        return
+
+    identifier = path.parts[1]
     analysis_request = AnalysisRequest.objects.filter(pk=identifier).first()
-    if not (ext == ".html" and analysis_request):
+    if not analysis_request:
         return
 
     report = Report.objects.create(
@@ -86,6 +92,8 @@ def maybe_create_report(rfile, filename, user):
     analysis_request.save(update_fields=["report"])
 
     send_report_uploaded_notification(analysis_request)
+
+    return report
 
 
 class UnknownFiles(Exception):
@@ -356,7 +364,7 @@ class ReleaseAPI(APIView):
 
         slacks.notify_release_file_uploaded(rfile)
 
-        maybe_create_report(rfile, filename, user)
+        maybe_create_report(rfile, user)
 
         response = Response(status=201)
         response.headers["File-Id"] = rfile.id

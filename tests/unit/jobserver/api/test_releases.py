@@ -17,6 +17,7 @@ from jobserver.api.releases import (
     SnapshotCreateAPI,
     SnapshotPublishAPI,
     WorkspaceStatusAPI,
+    maybe_create_report,
     validate_release_access,
     validate_upload_access,
 )
@@ -287,7 +288,7 @@ def test_releaseapi_post_success_for_analysis_request(
 
     assert not analysis_request.report
 
-    filename = f"report-{analysis_request.pk}.html"
+    filename = f"output/{analysis_request.pk}/report.html"
 
     release = build_release([filename], backend=backend, created_by=creating_user)
 
@@ -1311,3 +1312,31 @@ def test_workspacestatusapi_success(api_rf):
     response = WorkspaceStatusAPI.as_view()(request, workspace_id=workspace2.name)
     assert response.status_code == 200
     assert not response.data["uses_new_release_flow"]
+
+
+def test_maybe_create_report_no_match(slack_messages):
+
+    # not 3 parts
+    assert maybe_create_report(ReleaseFileFactory(name="no_match"), None) is None
+    assert len(slack_messages) == 0
+
+    # starts with output but not endswith report.html
+    assert (
+        maybe_create_report(ReleaseFileFactory(name="output/foo/file.txt"), None)
+        is None
+    )
+    assert len(slack_messages) == 0
+
+    # ends with report.html but does not start with output
+    assert (
+        maybe_create_report(ReleaseFileFactory(name="other/foo/report.txt"), None)
+        is None
+    )
+    assert len(slack_messages) == 0
+
+    # no analysis request with id foo exists
+    assert (
+        maybe_create_report(ReleaseFileFactory(name="output/foo/report.html"), None)
+        is None
+    )
+    assert len(slack_messages) == 0
