@@ -87,8 +87,14 @@
 
   <div class="relative grid gap-6 place-content-stretch lg:col-span-2" id="reportContainer">
     {% if report %}
-      {% #card title="Report" container=True class="font-lg text-slate-700" %}
-        <div class="z-10 relative">{{ report }}</div>
+      {% #card title="Report" container=True class="relative font-lg text-slate-700" %}
+        <div class="z-10 relative prose prose-blue">
+          {{ report }}
+        </div>
+        <div id="watermark" class="hidden absolute inset-0 text-center w-full h-full text-5xl font-bold text-gray-900/10">
+          <span class="py-16 block">Confidential</span>
+          <span class="py-16 block">Not for publication</span>
+        </div>
       {% /card %}
     {% else %}
       {% #card class="lg:col-span-2 overflow-hidden relative" %}
