@@ -149,7 +149,7 @@ class LoginWithURL(View):
         # we don't expect this to happen for a while but we need to make
         # a call.
         project = user.projects.first()
-        return redirect(project.interactive_workspace)
+        return redirect(project.get_interactive_url())
 
 
 @method_decorator(login_required, name="dispatch")

@@ -214,7 +214,7 @@ def test_loginwithurl_success(rf):
     response = LoginWithURL.as_view()(request, token=signed_token)
 
     assert response.status_code == 302
-    assert response.url == project.interactive_workspace.get_absolute_url()
+    assert response.url == project.get_interactive_url()
 
 
 def test_loginwithurl_unauthorized(rf):
