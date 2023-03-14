@@ -116,25 +116,21 @@ class LoginWithURL(View):
 
             # now that we've successfully logged in we can remove the token
             del request.session[INTERNAL_LOGIN_SESSION_TOKEN]
-        except (
-            BadSignature,
-            BadToken,
-            KeyError,
-            SignatureExpired,
-            User.DoesNotExist,
-        ) as e:
+        except KeyError as e:
+            # catch and hide missing session data.  This prevents us getting
+            # Sentry errors for expected errors (eg a mail client prefetching
+            # the login URL) but still notifies honeycomb so we can look for
+            # rate changes.
+            trace.get_current_span().record_exception(e)
+            return self.login_invalid()
+        except (BadSignature, BadToken, SignatureExpired, User.DoesNotExist) as e:
+            # log and trace these exceptions to help us debug unexpected failures,
+            # and in particular spikes in failure rate.  Sentry will also be
+            # notified of these errors.
             logger.exception("Login failed")
+            trace.get_current_span().record_exception(e)  # also log to our metrics host
 
-            # also log to our metrics host
-            span = trace.get_current_span()
-            span.record_exception(e)
-
-            msg = (
-                "Invalid token, please try again. "
-                "The link will only work in the same browser you requested the login email from."
-            )
-            messages.error(request, msg)
-            return redirect("login")
+            return self.login_invalid()
 
         if InteractiveReporter not in user.all_roles:
             messages.error(
@@ -150,6 +146,14 @@ class LoginWithURL(View):
         # a call.
         project = user.projects.first()
         return redirect(project.interactive_workspace)
+
+    def login_invalid(self):
+        msg = (
+            "Invalid token, please try again. "
+            "The link will only work in the same browser you requested the login email from."
+        )
+        messages.error(self.request, msg)
+        return redirect("login")
 
 
 @method_decorator(login_required, name="dispatch")
