@@ -125,6 +125,7 @@ class ProjectCreate(CreateView):
 
     def get_context_data(self, **kwargs):
         return super().get_context_data(**kwargs) | {
+            "application_url_attributes": {"type": "url"},
             "query_args": get_query_args(self.request.GET),
         }
 

@@ -25,7 +25,7 @@
       {% endfor %}
     </div>
 
-    {% include "components/form_text.html" with field=form.application_url label="Application URL" name="application_url" %}
+    {% include "components/form_text.html" with field=form.application_url label="Application URL" name="application_url" extra_attributes=application_url_attributes %}
 
     {% include "components/form_text.html" with field=form.name label="Set the project name" name="name" %}
   </fieldset>
