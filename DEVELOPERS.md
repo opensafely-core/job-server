@@ -24,6 +24,8 @@
 - [Rotating the GitHub token](#rotating-the-github-token)
 - [Interactive testing](#interactive-testing)
 - [Dumping co-pilot reporting data](#dumping-copilot-reporting-data)
+- [Ensuring paired field state with CheckConstraints](#ensuring-paired-field-state-with-checkconstraint)
+  - [Common patterns](#common-patterns)
 
 ## Local development
 
@@ -330,3 +332,108 @@ db-to-sqlite \
     <database URL> \
     jobserver.sqlite
 ```
+
+
+## Ensuring paired field state with CheckConstraints
+We have various paired fields in our database models.
+These are often, but not limited to fields which track _who_ performed an action and _when_ they performed it.
+It's useful to be able to ensure these related fields are in the correct state.
+
+Enter [Django's CheckConstraint constraint](https://docs.djangoproject.com/en/4.1/ref/models/constraints/#s-checkconstraint) which allows us to encode that relationship at the database level.
+We can set these in a model's Meta and use a `Q` object for the check kwarg.
+See the common patterns section below for some examples.
+
+### Common patterns
+#### Both set or null
+This example shows how you can ensure both fields are set **or** null.
+This is our most common usage at the time of writing.
+
+With some fields that look like this:
+
+    frobbed_at = models.DateTimeField(null=True)
+    frobbed_by = models.ForeignKey(
+        "jobserver.User",
+        on_delete=models.CASCADE,
+        related_name="my_model_fobbed",
+        null=True
+    )
+
+
+Your CheckConstraint which covers both states looks like this:
+
+    class Meta:
+        constraints = [
+            models.CheckConstraint(
+                check=(
+                    Q(
+                        frobbed_at__isnull=True,
+                        frobbed_by__isnull=True,
+                    )
+                    | (
+                        Q(
+                            frobbed_at__isnull=False,
+                            frobbed_by__isnull=False,
+                        )
+                    )
+                ),
+                name="%(app_label)s_%(class)s_both_frobbed_at_and_frobbed_by_set",
+            ),
+        ]
+
+
+You can then test these constraints like so:
+
+    def test_mymodel_constraints_frobbed_at_and_frobbed_by_both_set():
+        MyModelFactory(frobbed_at=timezone.now(), frobbed_by=UserFactory())
+
+
+    def test_mymodel_constraints_frobbed_at_and_frobbed_by_neither_set():
+        MyModelFactory(frobbed_at=None, frobbed_by=None)
+
+
+    @pytest.mark.django_db(transaction=True)
+    def test_mymodel_constraints_missing_frobbed_at_or_frobbed_by():
+        with pytest.raises(IntegrityError):
+            MyModelFactory(frobbed_at=None, frobbed_by=UserFactory())
+
+        with pytest.raises(IntegrityError):
+            MyModelFactory(frobbed_at=timezone.now(), frobbed_by=None)
+
+
+#### updated_at and updated_by
+This is very similar to the pattern above, except we use `auto_now=True` and don't allow nulls in the fields, which means we don't have to account for nulls in the constraint:
+
+    updated_at = models.DateTimeField(auto_now=True)
+    updated_by = models.ForeignKey(
+        "jobserver.User",
+        on_delete=models.PROTECT,
+        related_name="my_model_updated",
+    )
+
+    class Meta:
+        constraints = [
+            models.CheckConstraint(
+                check=Q(updated_at__isnull=False, updated_by__isnull=False),
+                name="%(app_label)s_%(class)s_both_updated_at_and_updated_by_set",
+            ),
+        ]
+
+
+The use of `auto_now` also changes how we test this constraint.
+It cannot be overridden when using any part of the ORM which touches `save()` because it's set there.
+So we lean on `update()` instead:
+
+    def test_mymodel_constraints_updated_at_and_updated_by_both_set():
+        MyModelFactory(updated_by=UserFactory())
+
+
+    @pytest.mark.django_db(transaction=True)
+    def test_mymodel_constraints_missing_updated_at_or_updated_by():
+        with pytest.raises(IntegrityError):
+            MyModelFactory(updated_by=None)
+
+        with pytest.raises(IntegrityError):
+            mymodel = MyModelFactory(updated_by=UserFactory())
+
+            # use update to work around auto_now always firing on save()
+            MyModel.objects.filter(pk=mymodel.pk).update(updated_at=None)
