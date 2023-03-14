@@ -15,8 +15,15 @@
 
   <div class="relative">
     <input
-      {% attrs autocapitalize autocomplete autocorrect inputmode name=field.html_name required value=field.value %}
-      class="mt-1 block w-full rounded-md border-slate-300 text-slate-900 shadow-sm focus:border-oxford-500 focus:ring-oxford-500 sm:text-sm invalid:border-bn-ribbon-600 invalid:ring-bn-ribbon-600 invalid:ring-1"
+      {% attrs autocapitalize autocomplete autocorrect inputmode name=field.html_name placeholder required value=field.value %}
+      class="
+        mt-1 block w-full rounded-md border-slate-300 text-slate-900 shadow-sm
+        placeholder:text-white
+        focus:border-oxford-500 focus:ring-oxford-500
+        sm:text-sm
+        [&:not(:placeholder-shown):not(:focus)]:invalid:border-bn-ribbon-600 [&:not(:placeholder-shown):not(:focus)]:invalid:ring-bn-ribbon-600 [&:not(:placeholder-shown):not(:focus)]:invalid:ring-1
+        {{ input_class }}
+      "
       id="{{ field.auto_id }}"
       type="{% if type %}{{ type }}{% else %}text{% endif %}"
     >
