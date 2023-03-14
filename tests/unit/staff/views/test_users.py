@@ -20,6 +20,7 @@ from ....factories import (
     ProjectFactory,
     ProjectMembershipFactory,
     UserFactory,
+    UserSocialAuthFactory,
     WorkspaceFactory,
 )
 
@@ -313,6 +314,8 @@ def test_userlist_filter_by_invalid_missing(rf, core_developer):
 
 def test_userlist_filter_by_missing(rf, core_developer):
     backend = BackendFactory()
+    UserSocialAuthFactory(user=core_developer)
+    social = UserSocialAuthFactory()
 
     BackendMembershipFactory(
         user=UserFactory(),
@@ -320,14 +323,12 @@ def test_userlist_filter_by_missing(rf, core_developer):
         backend=backend,
     )
 
-    user = UserFactory()
-
     request = rf.get("/?missing=backend")
     request.user = core_developer
 
     response = UserList.as_view()(request)
 
-    assert list(response.context_data["object_list"]) == [core_developer, user]
+    assert list(response.context_data["object_list"]) == [core_developer, social.user]
 
 
 def test_userlist_filter_by_org(rf, core_developer):

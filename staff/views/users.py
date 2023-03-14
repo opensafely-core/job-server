@@ -180,7 +180,7 @@ class UserList(ListView):
 
         if missing := self.request.GET.get("missing"):
             try:
-                qs = qs.filter(**{f"{missing}_exists": False})
+                qs = qs.filter(is_github_user=True, **{f"{missing}_exists": False})
             except FieldError:
                 logger.debug(f"Unknown related object: {missing}")
 
