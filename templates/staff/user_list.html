@@ -160,6 +160,7 @@
           </a>
 
           <div>
+            {% if user.is_github_user %}
 
             {% if not user.backend_exists %}
             <span class="badge badge-danger" title="This user is missing a link to 1 or more Backends">
@@ -177,6 +178,8 @@
             <span class="badge badge-warning"title="This user is missing a link to 1 or more Projects">
               Project
             </span>
+            {% endif %}
+
             {% endif %}
 
           </div>

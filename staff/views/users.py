@@ -8,6 +8,7 @@ from django.db.models.functions import Lower
 from django.shortcuts import get_object_or_404, redirect
 from django.utils.decorators import method_decorator
 from django.views.generic import FormView, ListView, UpdateView
+from social_django.models import UserSocialAuth
 
 from interactive.commands import create_user
 from jobserver.authorization import roles
@@ -157,11 +158,13 @@ class UserList(ListView):
         backends = Backend.objects.filter(members=OuterRef("pk"))
         orgs = Org.objects.filter(members=OuterRef("pk"))
         projects = Project.objects.filter(members=OuterRef("pk"))
+        social_auths = UserSocialAuth.objects.filter(user__pk=OuterRef("pk"))
 
         # annotate the existance of various related objects so we can add
         # badges if they're missing
         qs = qs.annotate(
             backend_exists=Exists(backends),
+            is_github_user=Exists(social_auths),
             org_exists=Exists(orgs),
             project_exists=Exists(projects),
         ).order_by(Lower("username"))
@@ -177,7 +180,7 @@ class UserList(ListView):
 
         if missing := self.request.GET.get("missing"):
             try:
-                qs = qs.filter(**{f"{missing}_exists": False})
+                qs = qs.filter(is_github_user=True, **{f"{missing}_exists": False})
             except FieldError:
                 logger.debug(f"Unknown related object: {missing}")
 
