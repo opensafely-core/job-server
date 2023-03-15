@@ -82,6 +82,7 @@ def create_workspace(*, creator, project, repo_url):
             "repo": repo,
             "branch": "main",
             "created_by": creator,
+            "updated_by": creator,
             "purpose": textwrap.dedent(purpose).replace("\n", " ").strip(),
         },
     )

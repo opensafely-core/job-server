@@ -40,6 +40,7 @@ def submit_analysis(
     analysis_request = AnalysisRequest(
         project=project,
         created_by=creator,
+        updated_by=creator,
         title=analysis.title,
         template_data=asdict(analysis),
     )

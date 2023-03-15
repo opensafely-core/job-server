@@ -47,6 +47,13 @@ class AnalysisRequest(models.Model):
         related_name="analysis_requests",
     )
 
+    updated_at = models.DateTimeField(auto_now=True)
+    updated_by = models.ForeignKey(
+        "jobserver.User",
+        on_delete=models.PROTECT,
+        related_name="analysis_requests_updated",
+    )
+
     class Meta:
         constraints = [
             models.CheckConstraint(
@@ -63,6 +70,10 @@ class AnalysisRequest(models.Model):
                     )
                 ),
                 name="%(app_label)s_%(class)s_both_created_at_and_created_by_set",
+            ),
+            models.CheckConstraint(
+                check=Q(updated_at__isnull=False, updated_by__isnull=False),
+                name="%(app_label)s_%(class)s_both_updated_at_and_updated_by_set",
             ),
         ]
 

@@ -153,5 +153,6 @@ class WorkspaceFactory(factory.django.DjangoModelFactory):
     project = factory.SubFactory("tests.factories.ProjectFactory")
     repo = factory.SubFactory("tests.factories.RepoFactory")
     created_by = factory.SubFactory("tests.factories.UserFactory")
+    updated_by = factory.SubFactory("tests.factories.UserFactory")
 
     name = factory.Sequence(lambda n: f"workspace-{n}")

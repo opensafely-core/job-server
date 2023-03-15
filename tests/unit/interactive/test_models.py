@@ -2,6 +2,8 @@ import pytest
 from django.db import IntegrityError
 from django.urls import reverse
 
+from interactive.models import AnalysisRequest
+
 from ...factories import (
     AnalysisRequestFactory,
     ReleaseFileFactory,
@@ -9,6 +11,22 @@ from ...factories import (
     ReportPublishRequestFactory,
     UserFactory,
 )
+
+
+def test_analysisrequest_constraints_updated_at_and_updated_by_both_set():
+    AnalysisRequestFactory(updated_by=UserFactory())
+
+
+@pytest.mark.django_db(transaction=True)
+def test_analysisrequest_constraints_missing_updated_at_or_updated_by():
+    with pytest.raises(IntegrityError):
+        AnalysisRequestFactory(updated_by=None)
+
+    with pytest.raises(IntegrityError):
+        ar = AnalysisRequestFactory(updated_by=UserFactory())
+
+        # use update to work around auto_now always firing on save()
+        AnalysisRequest.objects.filter(pk=ar.pk).update(updated_at=None)
 
 
 @pytest.mark.parametrize("field", ["created_at", "created_by"])
