@@ -19,6 +19,7 @@ from jobserver.models import Backend, Job, Org, Project, User
 from jobserver.utils import raise_if_not_int
 
 from ..forms import UserCreateForm, UserForm, UserOrgsForm
+from ..querystring_tools import get_next_url
 
 
 logger = structlog.get_logger(__name__)
@@ -56,7 +57,7 @@ class UserCreate(FormView):
 
         send_welcome_email(user)
 
-        return redirect(user.get_staff_url())
+        return redirect(get_next_url(self.request.GET, user.get_staff_url()))
 
 
 @method_decorator(require_permission("user_manage"), name="dispatch")

@@ -61,9 +61,17 @@ class ProjectAddMember(FormView):
         return redirect(self.project.get_staff_url())
 
     def get_context_data(self, **kwargs):
+        f = furl(reverse("staff:user-create"))
+        f.args.update(
+            {
+                "project-slug": self.project.slug,
+                "next": self.project.get_staff_url(),
+            }
+        )
+
         return super().get_context_data(**kwargs) | {
-            "members": self.project.members.order_by(Lower("username")),
             "project": self.project,
+            "user_create_url": f.url,
         }
 
     def get_form_kwargs(self):

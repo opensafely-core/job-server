@@ -60,7 +60,11 @@
 
         <fieldset class="mb-3">
           <legend class="h3 mb-3">Select users</legend>
-          <p class="text-muted">If a user doesn't exist, they'll need to create an account first or an account will need to be created for them if they're an <a href="{% url 'staff:user-create' %}?project-slug={{ project.slug }}">Interactive-only user</a>.</p>
+          <p class="text-muted">
+            If a user doesn't exist, they'll need to create an account first or
+            an account will need to be created for them if they're an
+            <a href="{{ user_create_url }}">Interactive-only user</a>.
+          </p>
           <div class="form-group">
             <select id="id_users" name="users" multiple required>
               {% for value, label in form.fields.users.choices %}
