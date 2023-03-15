@@ -98,6 +98,7 @@ def test_projectcreate_post_htmx_success_with_next(rf, core_developer):
     data = {
         "application_url": "http://example.com",
         "name": "new-name",
+        "number": "7",
         "org": OrgFactory().pk,
     }
     request = rf.post("/?next=/next/page/", data)
@@ -114,6 +115,7 @@ def test_projectcreate_post_htmx_success_without_next(rf, core_developer):
     data = {
         "application_url": "http://example.com",
         "name": "new-name",
+        "number": "7",
         "org": OrgFactory().pk,
     }
     request = rf.post("/", data)
@@ -137,6 +139,7 @@ def test_projectcreate_post_success(rf, core_developer):
     data = {
         "application_url": "http://example.com",
         "name": "new-name",
+        "number": "7",
         "org": org.pk,
     }
     request = rf.post("/", data)
@@ -154,24 +157,14 @@ def test_projectcreate_post_success(rf, core_developer):
     assert project.org == org
 
 
-def test_projectcreate_unauthorized(rf):
-    request = rf.get("/")
-    request.user = UserFactory()
-
-    with pytest.raises(PermissionDenied):
-        ProjectCreate.as_view()(request)
-
-
 def test_projectcreate_post_with_github_failure(rf, core_developer):
     org = OrgFactory()
-    project = ProjectFactory()
 
     data = {
         "application_url": "example.com",
-        "org": org.pk,
-        "project": project.pk,
         "name": "New Name-Name",
-        "email": "test@example.com",
+        "number": "7",
+        "org": org.pk,
     }
     request = rf.post("/", data)
     request.htmx = False
@@ -191,6 +184,14 @@ def test_projectcreate_post_with_github_failure(rf, core_developer):
             "An error occurred when trying to create the required Repo on GitHub"
         ],
     }
+
+
+def test_projectcreate_unauthorized(rf):
+    request = rf.get("/")
+    request.user = UserFactory()
+
+    with pytest.raises(PermissionDenied):
+        ProjectCreate.as_view()(request)
 
 
 def test_projectdetail_success(rf, core_developer):
