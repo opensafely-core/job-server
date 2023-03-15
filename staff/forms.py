@@ -84,6 +84,8 @@ class ProjectAddMemberForm(PickUsersMixin, RolesForm):
 
 
 class ProjectCreateForm(forms.ModelForm):
+    application_url = forms.URLField()
+
     class Meta:
         fields = [
             "application_url",
