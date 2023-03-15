@@ -7,7 +7,8 @@ from django.db.models import Exists, OuterRef, Q
 from django.db.models.functions import Lower
 from django.shortcuts import get_object_or_404, redirect
 from django.utils.decorators import method_decorator
-from django.views.generic import FormView, ListView, UpdateView
+from django.views.generic import FormView, ListView, UpdateView, View
+from django.views.generic.detail import SingleObjectMixin
 from social_django.models import UserSocialAuth
 
 from interactive.commands import create_user
@@ -60,12 +61,64 @@ class UserCreate(FormView):
 
 
 @method_decorator(require_permission("user_manage"), name="dispatch")
-class UserDetail(UpdateView):
+class UserDetail(SingleObjectMixin, View):
+    model = User
+    slug_field = "username"
+    slug_url_kwarg = "username"
+
+    def dispatch(self, request, *args, **kwargs):
+        user = self.get_object()
+
+        view = UserDetailWithOAuth if user.social_auth.exists() else UserDetailWithEmail
+        return view.as_view()(request, *args, **kwargs)
+
+
+@method_decorator(require_permission("user_manage"), name="dispatch")
+class UserDetailWithEmail(UpdateView):
+    fields = [
+        "fullname",
+        "email",
+    ]
+    model = User
+    slug_field = "username"
+    slug_url_kwarg = "username"
+    template_name = "staff/user_detail_with_email.html"
+
+    def get_context_data(self, **kwargs):
+        orgs = [
+            {
+                "name": m.org.name,
+                "roles": sorted(r.display_name for r in m.roles),
+                "staff_url": m.org.get_staff_url(),
+            }
+            for m in self.object.org_memberships.order_by("org__name")
+        ]
+        projects = [
+            {
+                "name": m.project.title,
+                "roles": sorted(r.display_name for r in m.roles),
+                "staff_url": m.project.get_staff_url(),
+            }
+            for m in self.object.project_memberships.order_by(
+                "project__number", Lower("project__name")
+            )
+        ]
+        return super().get_context_data(**kwargs) | {
+            "orgs": orgs,
+            "projects": projects,
+        }
+
+    def get_success_url(self):
+        return self.object.get_staff_url()
+
+
+@method_decorator(require_permission("user_manage"), name="dispatch")
+class UserDetailWithOAuth(UpdateView):
     form_class = UserForm
     model = User
     slug_field = "username"
     slug_url_kwarg = "username"
-    template_name = "staff/user_detail.html"
+    template_name = "staff/user_detail_with_oauth.html"
 
     @transaction.atomic()
     def form_valid(self, form):

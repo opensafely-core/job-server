@@ -3,6 +3,7 @@ from django.core.exceptions import BadRequest, PermissionDenied
 from django.http import Http404
 
 from jobserver.authorization import (
+    InteractiveReporter,
     OutputPublisher,
     ProjectCollaborator,
     ProjectDeveloper,
@@ -10,7 +11,14 @@ from jobserver.authorization import (
 )
 from jobserver.models import User
 from jobserver.utils import set_from_qs
-from staff.views.users import UserCreate, UserDetail, UserList, UserSetOrgs
+from staff.views.users import (
+    UserCreate,
+    UserDetail,
+    UserDetailWithEmail,
+    UserDetailWithOAuth,
+    UserList,
+    UserSetOrgs,
+)
 
 from ....factories import (
     BackendFactory,
@@ -92,11 +100,132 @@ def test_usercreate_unauthorized(rf):
         UserCreate.as_view()(request)
 
 
-def test_userdetail_get_success(rf, core_developer):
+def test_userdetail_with_email_user_invokes_userdetailwithemail(rf, core_developer):
+    org = OrgFactory()
+    project = ProjectFactory(org=org)
+    user = UserFactory()
+
+    # link the user to some a org, and project
+    OrgMembershipFactory(org=org, user=user)
+    ProjectMembershipFactory(project=project, user=user, roles=[ProjectDeveloper])
+
+    request = rf.get("/")
+    request.user = core_developer
+
+    response = UserDetail.as_view()(request, username=user.username)
+
+    assert response.status_code == 200
+
+
+def test_userdetail_with_oauth_user_invokes_userdetailwithoauth(rf, core_developer):
+    org = OrgFactory()
+    project = ProjectFactory(org=org)
+    user = UserFactory()
+    UserSocialAuthFactory(user=user)
+
+    # link the user to some a backend, org, and project
+    BackendMembershipFactory(user=user)
+    OrgMembershipFactory(org=org, user=user)
+    ProjectMembershipFactory(project=project, user=user, roles=[ProjectDeveloper])
+
+    request = rf.get("/")
+    request.user = core_developer
+
+    response = UserDetail.as_view()(request, username=user.username)
+
+    assert response.status_code == 200
+
+
+def test_userdetail_with_unknown_user(rf, core_developer):
+    request = rf.get("/")
+    request.user = core_developer
+
+    with pytest.raises(Http404):
+        UserDetail.as_view()(request, username="test")
+
+
+def test_userdetail_without_core_dev_role(rf):
+    request = rf.get("/")
+    request.user = UserFactory()
+
+    with pytest.raises(PermissionDenied):
+        UserDetail.as_view()(request, username="test")
+
+
+def test_userdetailwithemail_get_success(rf, core_developer):
+    user = UserFactory()
+
+    request = rf.get("/")
+    request.user = core_developer
+
+    response = UserDetailWithEmail.as_view()(request, username=user.username)
+
+    assert response.status_code == 200
+
+
+def test_userdetailwithemail_post_success(rf, core_developer):
+    user = UserFactory(fullname="testing", email="test@example.com")
+
+    data = {
+        "fullname": "Mr Testerson",
+        "email": "testing@example.com",
+    }
+    request = rf.post("/", data=data)
+    request.user = core_developer
+
+    response = UserDetailWithEmail.as_view()(request, username=user.username)
+
+    assert response.status_code == 302
+    assert response.url == user.get_staff_url()
+
+    user.refresh_from_db()
+    assert user.fullname == "Mr Testerson"
+    assert user.email == "testing@example.com"
+
+
+def test_userdetailwithemail_with_oauth_user_invokes_userdetailwithoauth(
+    rf, core_developer
+):
+    org = OrgFactory()
+    project = ProjectFactory(org=org)
+    user = UserFactory()
+    UserSocialAuthFactory(user=user)
+
+    # link the user to some a backend, org, and project
+    BackendMembershipFactory(user=user)
+    OrgMembershipFactory(org=org, user=user)
+    ProjectMembershipFactory(project=project, user=user, roles=[ProjectDeveloper])
+
+    request = rf.get("/")
+    request.user = core_developer
+
+    response = UserDetailWithEmail.as_view()(request, username=user.username)
+
+    assert response.status_code == 200
+
+
+def test_userdetailwithemail_with_unknown_user(rf, core_developer):
+    request = rf.get("/")
+    request.user = core_developer
+
+    with pytest.raises(Http404):
+        UserDetailWithEmail.as_view()(request, username="test")
+
+
+def test_userdetailwithemail_without_core_dev_role(rf, core_developer):
+    request = rf.get("/")
+    request.user = UserFactory()
+
+    with pytest.raises(PermissionDenied):
+        UserDetailWithEmail.as_view()(request, username="test")
+
+
+def test_userdetailwithoauth_get_success(rf, core_developer):
     org = OrgFactory()
     project1 = ProjectFactory(org=org)
     project2 = ProjectFactory(org=org)
     user = UserFactory(roles=[OutputPublisher, TechnicalReviewer])
+    UserSocialAuthFactory(user=user)
 
     # link the user to some Backends
     BackendMembershipFactory(user=user)
@@ -112,7 +241,7 @@ def test_userdetail_get_success(rf, core_developer):
     request = rf.get("/")
     request.user = core_developer
 
-    response = UserDetail.as_view()(request, username=user.username)
+    response = UserDetailWithOAuth.as_view()(request, username=user.username)
 
     assert response.status_code == 200
 
@@ -140,13 +269,14 @@ def test_userdetail_get_success(rf, core_developer):
     assert response.context_data["user"] == user
 
 
-def test_userdetail_post_success(rf, core_developer):
+def test_userdetailwithoauth_post_success(rf, core_developer):
     backend = BackendFactory()
 
     org = OrgFactory()
     project1 = ProjectFactory(org=org)
     project2 = ProjectFactory(org=org)
     user = UserFactory(roles=[OutputPublisher, TechnicalReviewer])
+    UserSocialAuthFactory(user=user)
 
     # link the user to some Backends
     BackendMembershipFactory(user=user)
@@ -166,7 +296,7 @@ def test_userdetail_post_success(rf, core_developer):
     request = rf.post("/", data)
     request.user = core_developer
 
-    response = UserDetail.as_view()(request, username=user.username)
+    response = UserDetailWithOAuth.as_view()(request, username=user.username)
 
     assert response.status_code == 302, response.context_data["form"].errors
     assert response.url == user.get_staff_url()
@@ -176,11 +306,12 @@ def test_userdetail_post_success(rf, core_developer):
     assert user.roles == [OutputPublisher]
 
 
-def test_userdetail_post_with_unknown_backend(rf, core_developer):
+def test_userdetailwithoauth_post_with_unknown_backend(rf, core_developer):
     org = OrgFactory()
     project1 = ProjectFactory(org=org)
     project2 = ProjectFactory(org=org)
     user = UserFactory(roles=[OutputPublisher, TechnicalReviewer])
+    UserSocialAuthFactory(user=user)
 
     # link the user to some Backends
     BackendMembershipFactory(user=user)
@@ -200,7 +331,7 @@ def test_userdetail_post_with_unknown_backend(rf, core_developer):
     request = rf.post("/", data)
     request.user = core_developer
 
-    response = UserDetail.as_view()(request, username=user.username)
+    response = UserDetailWithOAuth.as_view()(request, username=user.username)
 
     assert response.status_code == 200, response.url
 
@@ -220,12 +351,12 @@ def test_userdetail_post_with_unknown_backend(rf, core_developer):
     )
 
 
-def test_userdetail_post_with_unknown_role(rf, core_developer):
-
+def test_userdetailwithoauth_post_with_unknown_role(rf, core_developer):
     org = OrgFactory()
     project1 = ProjectFactory(org=org)
     project2 = ProjectFactory(org=org)
     user = UserFactory(roles=[OutputPublisher, TechnicalReviewer])
+    UserSocialAuthFactory(user=user)
 
     # link the user to some Backends
     BackendMembershipFactory(user=user)
@@ -245,7 +376,7 @@ def test_userdetail_post_with_unknown_role(rf, core_developer):
     request = rf.post("/", data)
     request.user = core_developer
 
-    response = UserDetail.as_view()(request, username=user.username)
+    response = UserDetailWithOAuth.as_view()(request, username=user.username)
 
     assert response.status_code == 200, response.url
 
@@ -265,20 +396,39 @@ def test_userdetail_post_with_unknown_role(rf, core_developer):
     )
 
 
-def test_userdetail_with_unknown_user(rf, core_developer):
+def test_userdetailwithoauth_with_email_only_user_invokes_userdetailwithemail(
+    rf, core_developer
+):
+    org = OrgFactory()
+    project = ProjectFactory(org=org)
+    user = UserFactory()
+
+    # link the user to the Org&Project
+    OrgMembershipFactory(org=org, user=user)
+    ProjectMembershipFactory(project=project, user=user, roles=[InteractiveReporter])
+
+    request = rf.get("/")
+    request.user = core_developer
+
+    response = UserDetailWithOAuth.as_view()(request, username=user.username)
+
+    assert response.status_code == 200
+
+
+def test_userdetailwithoauth_with_unknown_user(rf, core_developer):
     request = rf.get("/")
     request.user = core_developer
 
     with pytest.raises(Http404):
-        UserDetail.as_view()(request, username="test")
+        UserDetailWithOAuth.as_view()(request, username="test")
 
 
-def test_userdetail_without_core_dev_role(rf):
+def test_userdetailwithoauth_without_core_dev_role(rf):
     request = rf.get("/")
     request.user = UserFactory()
 
     with pytest.raises(PermissionDenied):
-        UserDetail.as_view()(request, username="test")
+        UserDetailWithOAuth.as_view()(request, username="test")
 
 
 def test_userlist_filter_by_backend(rf, core_developer):
