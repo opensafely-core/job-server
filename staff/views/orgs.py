@@ -3,9 +3,11 @@ from django.db import transaction
 from django.db.models.functions import Lower
 from django.shortcuts import get_object_or_404, redirect
 from django.template.response import TemplateResponse
+from django.urls import reverse
 from django.utils.decorators import method_decorator
 from django.views.generic import CreateView, FormView, ListView, UpdateView, View
 from django_htmx.http import HttpResponseClientRedirect
+from furl import furl
 
 from jobserver.authorization import CoreDeveloper
 from jobserver.authorization.decorators import require_permission, require_role
@@ -13,7 +15,6 @@ from jobserver.models import Org, OrgMembership, Project, User
 
 from ..forms import OrgAddGitHubOrgForm, OrgAddMemberForm
 from ..htmx_tools import get_redirect_url
-from ..querystring_tools import get_query_args
 
 
 @require_role(CoreDeveloper)
@@ -64,8 +65,14 @@ class OrgCreate(CreateView):
         return HttpResponseClientRedirect(url)
 
     def get_context_data(self, **kwargs):
+        f = furl(reverse("staff:org-create"))
+
+        # set the query args of the furl object, f, with the query args on
+        # the current request.
+        f.args.update(self.request.GET)
+
         return super().get_context_data() | {
-            "query_args": get_query_args(self.request.GET),
+            "post_url": f.url,
         }
 
     def get_template_names(self):

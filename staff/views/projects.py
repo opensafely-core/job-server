@@ -3,6 +3,7 @@ from django.db import transaction
 from django.db.models import Q
 from django.db.models.functions import Lower
 from django.shortcuts import get_object_or_404, redirect
+from django.urls import reverse
 from django.utils.decorators import method_decorator
 from django.views.generic import (
     CreateView,
@@ -14,6 +15,7 @@ from django.views.generic import (
     View,
 )
 from django_htmx.http import HttpResponseClientRedirect
+from furl import furl
 
 from applications.models import Application
 from interactive.commands import create_repo, create_workspace
@@ -32,7 +34,6 @@ from ..forms import (
     ProjectMembershipForm,
 )
 from ..htmx_tools import get_redirect_url
-from ..querystring_tools import get_query_args
 
 
 @method_decorator(require_role(CoreDeveloper), name="dispatch")
@@ -60,9 +61,17 @@ class ProjectAddMember(FormView):
         return redirect(self.project.get_staff_url())
 
     def get_context_data(self, **kwargs):
+        f = furl(reverse("staff:user-create"))
+        f.args.update(
+            {
+                "project-slug": self.project.slug,
+                "next": self.project.get_staff_url(),
+            }
+        )
+
         return super().get_context_data(**kwargs) | {
-            "members": self.project.members.order_by(Lower("username")),
             "project": self.project,
+            "user_create_url": f.url,
         }
 
     def get_form_kwargs(self):
@@ -124,13 +133,19 @@ class ProjectCreate(CreateView):
         return HttpResponseClientRedirect(url)
 
     def get_context_data(self, **kwargs):
+        f = furl(reverse("staff:project-create"))
+
+        # set the query args of the furl object, f, with the query args on
+        # the current request.
+        f.args.update(self.request.GET)
+
         return super().get_context_data(**kwargs) | {
             "application_url_attributes": {"type": "url"},
             "number_attributes": {
                 "inputmode": "numeric",
                 "pattern": "[0-9]*",
             },
-            "query_args": get_query_args(self.request.GET),
+            "post_url": f.url,
         }
 
     def get_template_names(self):

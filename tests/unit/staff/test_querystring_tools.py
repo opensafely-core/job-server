@@ -1,16 +1,18 @@
-from staff.querystring_tools import get_query_args, merge_query_args
+from staff.querystring_tools import get_next_url
 
 
-def test_get_query_args(rf):
-    request = rf.get("/?one-arg=value&two-arg=value")
-
-    query_args = get_query_args(request.GET)
-
-    assert query_args == "?one-arg=value&two-arg=value"
+def test_get_next_url_with_empty_next_url_and_a_default():
+    assert get_next_url({"next": []}, default="/default/") == "/default/"
 
 
-def test_merge_query_args(rf):
-    request = rf.get("/?one-arg=value&two-arg=value")
+def test_get_next_url_with_next_url_and_default():
+    url = get_next_url({"next": ["/next/page/"]}, default="/default/")
+    assert url == "/next/page/"
 
-    f = merge_query_args(request.GET, {"three-arg": "value"})
-    assert f.args == {"one-arg": "value", "two-arg": "value", "three-arg": "value"}
+
+def test_get_next_url_with_no_next_url_and_a_default():
+    assert get_next_url({}, default="/default/") == "/default/"
+
+
+def test_get_next_url_with_no_next_url_and_no_default():
+    assert get_next_url({}) == ""
