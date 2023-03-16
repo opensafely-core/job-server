@@ -25,16 +25,15 @@
 {% block jumbotron %}
 <div class="jumbotron jumbotron-fluid jumbotron--danger pt-md-2">
   <div class="container">
-    <h1 class="display-4">{{ user.username }}</h1>
+    <h1 class="display-4">{{ user.name }}</h1>
 
     <ul class="list-unstyled lead">
-      {% if user.get_full_name %}
       <li>
-        {{ user.get_full_name }}
+        <strong>Username:</strong> {{ user.username }}
       </li>
-      {% endif %}
 
       <li>
+        <strong>Email:</strong>
         {% if user.notifications_email %}
         {{ user.notifications_email }}
         {% else %}
