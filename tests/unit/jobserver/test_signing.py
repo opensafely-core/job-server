@@ -18,7 +18,7 @@ def secret_key():
 def create_raw_token(value, key, salt=None):
     """To be used to create bad tokens that AuthToken won't let you create."""
     signer = signing.create_signer(key, salt)
-    if isinstance(value, (dict, list)):
+    if isinstance(value, dict | list):
         value = json.dumps(value, default=pydantic_encoder)
     return signer.sign(value).decode("utf8")
 
