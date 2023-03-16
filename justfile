@@ -125,20 +125,15 @@ test *args:
 black *args=".": devenv
     $BIN/black --check {{ args }}
 
-isort *args=".": devenv
-    $BIN/isort --check-only --diff {{ args }}
-
-flake8 *args="": devenv
-    $BIN/flake8 {{ args }}
-
-pyupgrade *args="$(find applications interactive jobserver redirects services staff tests -name '*.py' -type f)": devenv
-    $BIN/pyupgrade --py311-plus {{ args }}
-
-django-upgrade *args="$(find applications interactive jobserver redirects services staff tests -name '*.py' -type f)": devenv
+django-upgrade *args="$(find applications jobserver services tests -name '*.py' -type f)": devenv
     $BIN/django-upgrade --target-version=4.1 {{ args }}
 
+ruff *args=".": devenv
+    $BIN/ruff check {{ args }}
+
+
 # run the various dev checks but does not change any files
-check: black isort flake8 pyupgrade django-upgrade
+check: black django-upgrade ruff
 
 
 check-migrations: devenv
@@ -148,7 +143,7 @@ check-migrations: devenv
 # fix formatting and import sort ordering
 fix: devenv
     $BIN/black .
-    $BIN/isort .
+    $BIN/ruff --fix .
 
 
 load-dev-data: devenv

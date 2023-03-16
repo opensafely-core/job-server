@@ -66,15 +66,6 @@ skip_covered = true
 [tool.coverage.html]
 show_contexts = true
 
-[tool.isort]
-force_grid_wrap = 0
-include_trailing_comma = true
-line_length = 88
-lines_after_imports = 2
-multi_line_output = 3
-skip_glob = [".direnv", "venv", ".venv"]
-use_parentheses = true
-
 [tool.pytest.ini_options]
 addopts = "--disable-network --tb=native --no-migrations --ignore=./release-hatch"
 DJANGO_SETTINGS_MODULE = "jobserver.settings"
@@ -95,3 +86,47 @@ markers = [
   "slow_test: mark test as being slow running",
   "verification: tests that verify fakes",
 ]
+
+[tool.ruff]
+line-length = 88
+exclude = [
+  ".direnv",
+  ".git",
+  ".github",
+  ".ipynb_checkpoints",
+  ".pytest_cache",
+  ".venv",
+  "__pycache__",
+  "assets",
+  "coverage",
+  "docker",
+  "docs",
+  "htmlcov",
+  "node_modules",
+  "release-hatch",
+  "releases",
+  "snippets",
+  "static",
+  "staticfiles",
+  "uploads",
+  "venv",
+]
+extend-select = [
+  "A",  # flake8-builtins
+  "I",  # isort
+  "INP",  # flake8-no-pep420
+  "ISC",  # flake8-implicit-str-concat
+  "UP",  # pyupgrade
+  "W",  # pycodestyle warning
+]
+extend-ignore = [
+  "E501",
+  "E731",
+]
+
+[tool.ruff.isort]
+lines-after-imports = 2
+
+[tool.ruff.per-file-ignores]
+"gunicorn.conf.py" = ["INP001"]
+"manage.py" = ["INP001"]
