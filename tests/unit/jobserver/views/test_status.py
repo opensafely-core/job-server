@@ -3,7 +3,7 @@ import time
 from datetime import UTC, datetime, timedelta
 
 import pytest
-from django.utils.timezone import now
+from django.utils import timezone
 from first import first
 
 from jobserver.views.status import DBAvailability, PerBackendStatus, Status
@@ -82,7 +82,7 @@ def test_status_healthy(rf):
     # acked, because JobFactory will implicitly create JobRequests
     JobFactory.create_batch(3, job_request__backend=backend)
 
-    last_seen = minutes_ago(now(), 1)
+    last_seen = minutes_ago(timezone.now(), 1)
     StatsFactory(backend=backend, api_last_seen=last_seen)
 
     request = rf.get("/")
@@ -110,7 +110,7 @@ def test_status_no_last_seen(rf):
 def test_status_unacked_jobs_but_recent_api_contact(rf):
     backend = BackendFactory()
 
-    last_seen = minutes_ago(now(), 1)
+    last_seen = minutes_ago(timezone.now(), 1)
     StatsFactory(backend=backend, api_last_seen=last_seen)
 
     request = rf.get("/")
@@ -131,7 +131,7 @@ def test_status_unhealthy(rf):
     # unacked, because it has no Jobs
     JobRequestFactory(backend=backend)
 
-    last_seen = minutes_ago(now(), 10)
+    last_seen = minutes_ago(timezone.now(), 10)
     StatsFactory(backend=backend, api_last_seen=last_seen, url="foo")
 
     request = rf.get("/")
