@@ -259,6 +259,11 @@ class WorkspaceDetail(View):
             request.user, "workspace_toggle_notifications", project=workspace.project
         )
 
+        # should we show the admin section in the UI?
+        show_admin = (
+            can_archive_workspace or repo_is_private or can_toggle_notifications
+        )
+
         honeycomb_can_view_links = has_role(self.request.user, CoreDeveloper)
 
         is_interactive_user = has_permission(
@@ -275,6 +280,7 @@ class WorkspaceDetail(View):
             "is_member": is_member,
             "outputs": outputs,
             "repo_is_private": repo_is_private,
+            "show_admin": show_admin,
             "show_interactive_button": show_interactive_button,
             "show_publish_repo_warning": show_publish_repo_warning,
             "user_can_archive_workspace": can_archive_workspace,

@@ -111,7 +111,7 @@
     </div>
 
     <div class="space-y-6 md:space-y-6 lg:col-span-1 lg:row-start-2">
-      {% if is_member %}
+      {% if show_admin %}
         {% #card title="Workspace admin" class="text-center" container=True %}
           {% if user_can_archive_workspace %}
           <form method="POST" action="{{ workspace.get_archive_toggle_url }}" class="mb-2">
