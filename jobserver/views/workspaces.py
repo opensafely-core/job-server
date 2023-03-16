@@ -249,15 +249,61 @@ class WorkspaceDetail(View):
             and repo_is_private
         )
 
+        can_archive_workspace = has_permission(
+            request.user, "workspace_archive", project=workspace.project
+        )
+        can_run_jobs = has_permission(
+            request.user, "job_run", project=workspace.project
+        )
+        can_toggle_notifications = has_permission(
+            request.user, "workspace_toggle_notifications", project=workspace.project
+        )
+
+        honeycomb_can_view_links = has_role(self.request.user, CoreDeveloper)
+
+        is_interactive_user = has_permission(
+            request.user, "analysis_request_create", project=workspace.project
+        )
+        show_interactive_button = is_interactive_user and workspace.is_interactive
+
+        outputs = self.get_output_permissions(request.user, workspace)
+
+        reports = Report.objects.filter(release_file__workspace=workspace)
+
+        # remove unpublished reports from the list for non-project members
+        if not workspace.project.members.filter(pk=request.user.pk).exists():
+            reports = reports.exclude(publish_request__approved_at=None)
+
+        context = {
+            "first_job": first_job,
+            "honeycomb_can_view_links": honeycomb_can_view_links,
+            "honeycomb_link": f"https://ui.honeycomb.io/bennett-institute-for-applied-data-science/environments/production/datasets/job-server?query=%7B%22time_range%22%3A2419200%2C%22granularity%22%3A0%2C%22breakdowns%22%3A%5B%22status%22%5D%2C%22calculations%22%3A%5B%7B%22op%22%3A%22HEATMAP%22%2C%22column%22%3A%22current_runtime%22%7D%5D%2C%22filters%22%3A%5B%7B%22column%22%3A%22name%22%2C%22op%22%3A%22%3D%22%2C%22value%22%3A%22update_job%22%7D%2C%7B%22column%22%3A%22workspace_name%22%2C%22op%22%3A%22%3D%22%2C%22value%22%3A%22{workspace.name}%22%7D%2C%7B%22column%22%3A%22completed%22%2C%22op%22%3A%22%3D%22%2C%22value%22%3Atrue%7D%2C%7B%22column%22%3A%22status_change%22%2C%22op%22%3A%22%3D%22%2C%22value%22%3Atrue%7D%5D%2C%22filter_combination%22%3A%22AND%22%2C%22orders%22%3A%5B%5D%2C%22havings%22%3A%5B%5D%2C%22limit%22%3A100%7D",
+            "is_member": is_member,
+            "outputs": outputs,
+            "repo_is_private": repo_is_private,
+            "reports": reports,
+            "show_interactive_button": show_interactive_button,
+            "show_publish_repo_warning": show_publish_repo_warning,
+            "user_can_archive_workspace": can_archive_workspace,
+            "user_can_run_jobs": can_run_jobs,
+            "user_can_toggle_notifications": can_toggle_notifications,
+            "workspace": workspace,
+        }
+        return TemplateResponse(
+            request,
+            "workspace_detail.html",
+            context=context,
+        )
+
+    def get_output_permissions(self, user, workspace):
         is_privileged_user = has_permission(
-            request.user, "release_file_view", project=workspace.project
+            user, "release_file_view", project=workspace.project
         )
 
         # a user can see backend files if they have access to at least one
         # backend and the permissions required to see outputs
         has_backends = (
-            request.user.is_authenticated
-            and request.user.backends.exclude(level_4_url="").exists()
+            user.is_authenticated and user.backends.exclude(level_4_url="").exists()
         )
         can_view_files = is_privileged_user and has_backends
 
@@ -275,55 +321,17 @@ class WorkspaceDetail(View):
             is_privileged_user and (can_view_releases or has_any_snapshots)
         )
 
-        can_archive_workspace = has_permission(
-            request.user, "workspace_archive", project=workspace.project
-        )
-        can_run_jobs = has_permission(
-            request.user, "job_run", project=workspace.project
-        )
-        can_toggle_notifications = has_permission(
-            request.user, "workspace_toggle_notifications", project=workspace.project
-        )
-
-        # should we display the releases section for this workspace?
-        can_use_releases = can_view_files or can_view_releases or can_view_outputs
-
-        honeycomb_can_view_links = has_role(self.request.user, CoreDeveloper)
-
-        is_interactive_user = has_permission(
-            request.user, "analysis_request_create", project=workspace.project
-        )
-        show_interactive_button = is_interactive_user and workspace.is_interactive
-
-        reports = Report.objects.filter(release_file__workspace=workspace)
-
-        # remove unpublished reports from the list for non-project members
-        if not workspace.project.members.filter(pk=request.user.pk).exists():
-            reports = reports.exclude(publish_request__approved_at=None)
-
-        context = {
-            "first_job": first_job,
-            "honeycomb_can_view_links": honeycomb_can_view_links,
-            "honeycomb_link": f"https://ui.honeycomb.io/bennett-institute-for-applied-data-science/environments/production/datasets/job-server?query=%7B%22time_range%22%3A2419200%2C%22granularity%22%3A0%2C%22breakdowns%22%3A%5B%22status%22%5D%2C%22calculations%22%3A%5B%7B%22op%22%3A%22HEATMAP%22%2C%22column%22%3A%22current_runtime%22%7D%5D%2C%22filters%22%3A%5B%7B%22column%22%3A%22name%22%2C%22op%22%3A%22%3D%22%2C%22value%22%3A%22update_job%22%7D%2C%7B%22column%22%3A%22workspace_name%22%2C%22op%22%3A%22%3D%22%2C%22value%22%3A%22{workspace.name}%22%7D%2C%7B%22column%22%3A%22completed%22%2C%22op%22%3A%22%3D%22%2C%22value%22%3Atrue%7D%2C%7B%22column%22%3A%22status_change%22%2C%22op%22%3A%22%3D%22%2C%22value%22%3Atrue%7D%5D%2C%22filter_combination%22%3A%22AND%22%2C%22orders%22%3A%5B%5D%2C%22havings%22%3A%5B%5D%2C%22limit%22%3A100%7D",
-            "is_member": is_member,
-            "repo_is_private": repo_is_private,
-            "reports": reports,
-            "show_interactive_button": show_interactive_button,
-            "show_publish_repo_warning": show_publish_repo_warning,
-            "user_can_archive_workspace": can_archive_workspace,
-            "user_can_run_jobs": can_run_jobs,
-            "user_can_toggle_notifications": can_toggle_notifications,
-            "user_can_use_releases": can_use_releases,
-            "user_can_view_files": can_view_files,
-            "user_can_view_outputs": can_view_outputs,
-            "user_can_view_releases": can_view_releases,
-            "workspace": workspace,
+        return {
+            "level_4": {
+                "disabled": not can_view_files,
+            },
+            "released": {
+                "disabled": not can_view_releases,
+            },
+            "published": {
+                "disabled": not can_view_outputs,
+            },
         }
-        return TemplateResponse(
-            request,
-            "workspace_detail.html",
-            context=context,
-        )
 
 
 class WorkspaceEdit(FormView):
