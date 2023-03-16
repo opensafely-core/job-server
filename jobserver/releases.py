@@ -2,7 +2,7 @@ import hashlib
 import io
 import textwrap
 import zipfile
-from datetime import datetime, timedelta, timezone
+from datetime import UTC, datetime, timedelta
 from pathlib import Path
 
 from django.conf import settings
@@ -236,7 +236,7 @@ def handle_file_upload(release, backend, user, upload, filename, **kwargs):
     if not rfile:  # old flow
         absolute_path.write_bytes(data)
 
-        mtime = datetime.fromtimestamp(absolute_path.stat().st_mtime, tz=timezone.utc)
+        mtime = datetime.fromtimestamp(absolute_path.stat().st_mtime, tz=UTC)
         size = absolute_path.stat().st_size
 
         try:

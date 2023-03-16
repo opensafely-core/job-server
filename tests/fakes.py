@@ -1,5 +1,5 @@
 import textwrap
-from datetime import datetime, timezone
+from datetime import UTC, datetime
 
 from django.utils.timezone import now
 
@@ -70,7 +70,7 @@ class FakeGitHubAPI:
                 "name": "predates-job-server",
                 "url": "https://github.com/opensafely/predates-job-server",
                 "is_private": True,
-                "created_at": datetime(2020, 7, 31, tzinfo=timezone.utc),
+                "created_at": datetime(2020, 7, 31, tzinfo=UTC),
                 "topics": ["github-releases"],
             },
             {

@@ -1,6 +1,6 @@
 import functools
 import time
-from datetime import datetime, timedelta, timezone
+from datetime import UTC, datetime, timedelta
 
 import pytest
 from django.utils.timezone import now
@@ -12,7 +12,7 @@ from ....factories import BackendFactory, JobFactory, JobRequestFactory, StatsFa
 from ....utils import minutes_ago
 
 
-dt = functools.partial(datetime, tzinfo=timezone.utc)
+dt = functools.partial(datetime, tzinfo=UTC)
 
 
 def test_dbavailability_in_db_maintenance(rf):

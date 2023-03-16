@@ -1,4 +1,4 @@
-from datetime import datetime, timezone
+from datetime import UTC, datetime
 
 import factory
 import factory.fuzzy
@@ -62,7 +62,7 @@ class JobFactory(factory.django.DjangoModelFactory):
 
     identifier = factory.Sequence(lambda n: f"identifier-{n}")
 
-    updated_at = factory.fuzzy.FuzzyDateTime(datetime(2020, 1, 1, tzinfo=timezone.utc))
+    updated_at = factory.fuzzy.FuzzyDateTime(datetime(2020, 1, 1, tzinfo=UTC))
 
     trace_context = factory.LazyFunction(generate_traceparent)
 
@@ -125,7 +125,7 @@ class StatsFactory(factory.django.DjangoModelFactory):
 
     backend = factory.SubFactory("tests.factories.BackendFactory")
 
-    api_last_seen = factory.Faker("date_time", tzinfo=timezone.utc)
+    api_last_seen = factory.Faker("date_time", tzinfo=UTC)
 
 
 class UserFactory(factory.django.DjangoModelFactory):

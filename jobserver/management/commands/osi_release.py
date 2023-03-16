@@ -2,7 +2,7 @@ import hashlib
 import shutil
 import sys
 import tempfile
-from datetime import datetime, timezone
+from datetime import UTC, datetime
 from pathlib import Path
 
 import requests
@@ -35,7 +35,7 @@ def create_release(*, backend, path, workspace_name, user):
                 "size": path.stat().st_size,
                 "sha256": hashlib.sha256(path.read_bytes()).hexdigest(),
                 "date": datetime.fromtimestamp(
-                    path.stat().st_mtime, tz=timezone.utc
+                    path.stat().st_mtime, tz=UTC
                 ).isoformat(),
                 "metadata": {},
                 "review": {
