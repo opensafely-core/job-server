@@ -135,7 +135,7 @@ pyupgrade *args="$(find applications interactive jobserver redirects services st
     $BIN/pyupgrade --py311-plus {{ args }}
 
 django-upgrade *args="$(find applications interactive jobserver redirects services staff tests -name '*.py' -type f)": devenv
-    $BIN/django-upgrade --target-version=3.2 {{ args }}
+    $BIN/django-upgrade --target-version=4.1 {{ args }}
 
 # run the various dev checks but does not change any files
 check: black isort flake8 pyupgrade django-upgrade
