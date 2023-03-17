@@ -132,7 +132,7 @@ flake8 *args="": devenv
     $BIN/flake8 {{ args }}
 
 pyupgrade *args="$(find applications interactive jobserver redirects services staff tests -name '*.py' -type f)": devenv
-    $BIN/pyupgrade --py310-plus {{ args }}
+    $BIN/pyupgrade --py311-plus {{ args }}
 
 django-upgrade *args="$(find applications interactive jobserver redirects services staff tests -name '*.py' -type f)": devenv
     $BIN/django-upgrade --target-version=3.2 {{ args }}
