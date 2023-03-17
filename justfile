@@ -122,13 +122,23 @@ test *args:
     $BIN/coverage report || $BIN/coverage html
 
 
+black *args=".": devenv
+    $BIN/black --check {{ args }}
+
+isort *args=".": devenv
+    $BIN/isort --check-only --diff {{ args }}
+
+flake8 *args="": devenv
+    $BIN/flake8 {{ args }}
+
+pyupgrade *args="$(find applications jobserver services tests -name '*.py' -type f)": devenv
+    $BIN/pyupgrade --py310-plus {{ args }}
+
+django-upgrade *args="$(find applications jobserver services tests -name '*.py' -type f)": devenv
+    $BIN/django-upgrade --target-version=3.2 {{ args }}
+
 # run the various dev checks but does not change any files
-check: devenv
-    $BIN/black --check .
-    $BIN/isort --check-only --diff .
-    $BIN/flake8
-    $BIN/pyupgrade --py310-plus $(find applications jobserver services tests -name "*.py" -type f)
-    $BIN/django-upgrade --target-version=3.2 $(find applications jobserver services tests -name "*.py" -type f)
+check: black isort flake8 pyupgrade django-upgrade
 
 
 check-migrations: devenv
