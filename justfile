@@ -131,10 +131,10 @@ isort *args=".": devenv
 flake8 *args="": devenv
     $BIN/flake8 {{ args }}
 
-pyupgrade *args="$(find applications jobserver services tests -name '*.py' -type f)": devenv
+pyupgrade *args="$(find applications interactive jobserver redirects services staff tests -name '*.py' -type f)": devenv
     $BIN/pyupgrade --py310-plus {{ args }}
 
-django-upgrade *args="$(find applications jobserver services tests -name '*.py' -type f)": devenv
+django-upgrade *args="$(find applications interactive jobserver redirects services staff tests -name '*.py' -type f)": devenv
     $BIN/django-upgrade --target-version=3.2 {{ args }}
 
 # run the various dev checks but does not change any files
