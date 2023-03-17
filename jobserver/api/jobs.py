@@ -12,8 +12,10 @@ from rest_framework.generics import ListAPIView
 from rest_framework.response import Response
 from rest_framework.views import APIView
 
+from interactive.notifications import notify_output_checkers
 from jobserver.api.authentication import get_backend_from_token
 from jobserver.emails import send_finished_notification
+from jobserver.github import _get_github_api
 from jobserver.models import JobRequest, Stats, User, Workspace
 
 
@@ -33,6 +35,7 @@ def update_stats(backend, url):
 
 class JobAPIUpdate(APIView):
     authentication_classes = [SessionAuthentication]
+    get_github_api = staticmethod(_get_github_api)
 
     class serializer_class(serializers.Serializer):
         job_request_id = serializers.CharField()
@@ -144,7 +147,9 @@ class JobAPIUpdate(APIView):
 
                 # We only send notifications or alerts for newly completed jobs
                 if newly_completed:
-                    handle_alerts_and_notifications(request, job_request, job)
+                    handle_alerts_and_notifications(
+                        request, job_request, job, self.get_github_api()
+                    )
 
         logger.info(
             "Created or updated Jobs",
@@ -164,7 +169,7 @@ class JobAPIUpdate(APIView):
         return Response({"status": "success"}, status=200)
 
 
-def handle_alerts_and_notifications(request, job_request, job):
+def handle_alerts_and_notifications(request, job_request, job, github_api):
     error_messages = {
         "internal error": "Job encountered an internal error",
         "something went wrong with the database": "Job encountered an unexpected database error",
@@ -194,6 +199,9 @@ def handle_alerts_and_notifications(request, job_request, job):
             "Notified requesting user of completed job",
             user_id=job_request.created_by_id,
         )
+
+    if hasattr(job_request, "analysis_request"):
+        notify_output_checkers(job_request, github_api)
 
 
 class WorkspaceSerializer(serializers.ModelSerializer):
@@ -317,6 +325,5 @@ class WorkspaceStatusesAPI(APIView):
             return Response(status=404)
 
         backend = request.GET.get("backend", None)
-
         actions_with_status = workspace.get_action_status_lut(backend)
         return Response(actions_with_status, status=200)
