@@ -52,6 +52,7 @@ source = [
   "applications",
   "interactive",
   "jobserver",
+  "redirects",
   "services",
   "staff",
   "tests",
