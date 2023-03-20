@@ -1,13 +1,15 @@
 import inspect
 
 import pytest
+from django.core.exceptions import ValidationError
 from django.db import IntegrityError, models
+from django.urls import reverse
 from first import first
 
-from redirects.models import Redirect
+from redirects.models import Redirect, validate_not_empty
 
 from ... import factories
-from ...factories import RedirectFactory
+from ...factories import ProjectFactory, RedirectFactory
 
 
 def get_factory(model):
@@ -57,3 +59,29 @@ def test_redirect_each_target_object():
 def test_redirect_no_target_objects():
     with pytest.raises(IntegrityError):
         RedirectFactory()
+
+
+def test_redirect_get_staff_url():
+    redirect = RedirectFactory(project=ProjectFactory())
+
+    url = redirect.get_staff_url()
+
+    assert url == reverse("staff:redirect-detail", kwargs={"pk": redirect.pk})
+
+
+def test_redirect_get_staff_delete_url():
+    redirect = RedirectFactory(project=ProjectFactory())
+
+    url = redirect.get_staff_delete_url()
+
+    assert url == reverse("staff:redirect-delete", kwargs={"pk": redirect.pk})
+
+
+def test_validate_not_empty():
+    assert validate_not_empty("test") is None
+
+    with pytest.raises(ValidationError):
+        validate_not_empty("")
+
+    with pytest.raises(ValidationError):
+        validate_not_empty(None)
