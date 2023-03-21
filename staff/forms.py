@@ -6,12 +6,12 @@ from applications.forms import YesNoField
 from applications.models import Application, ResearcherRegistration
 from jobserver.authorization.forms import RolesForm
 from jobserver.backends import backends_to_choices
-from jobserver.models import Backend, Org, Project, Workspace
+from jobserver.models import Backend, Org, Project, User, Workspace
 
 
 def user_label_from_instance(obj):
     full_name = obj.get_full_name()
-    return f"{obj.username} ({full_name})" if full_name else obj.username
+    return f"{full_name} ({obj.username})" if full_name else obj.username
 
 
 class UserModelChoiceField(forms.ModelChoiceField):
@@ -90,6 +90,7 @@ class ProjectCreateForm(forms.ModelForm):
     class Meta:
         fields = [
             "application_url",
+            "copilot",
             "name",
             "number",
             "org",
@@ -99,8 +100,10 @@ class ProjectCreateForm(forms.ModelForm):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
 
-        orgs = Org.objects.order_by("name")
+        users = User.objects.order_by(Lower("fullname"), "username")
+        self.fields["copilot"] = UserModelChoiceField(queryset=users)
 
+        orgs = Org.objects.order_by("name")
         self.fields["org"] = forms.ModelChoiceField(queryset=orgs)
 
 

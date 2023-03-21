@@ -20,7 +20,20 @@
         {% endfor %}
       </select>
 
-      {% for error in form.orgs.errors %}
+      {% for error in form.org.errors %}
+        <p class="text-danger">{{ error }}</p>
+      {% endfor %}
+    </div>
+
+    <div class="form-group">
+      <label class="font-weight-bold" for="id_copilot">Select a user to co-pilot this project</label>
+      <select id="id_copilot" name="copilot" required class="w-100">
+        {% for value, label in form.fields.copilot.choices %}
+          <option value="{{ value }}">{{ label }}</option>
+        {% endfor %}
+      </select>
+
+      {% for error in form.copilot.errors %}
         <p class="text-danger">{{ error }}</p>
       {% endfor %}
     </div>
