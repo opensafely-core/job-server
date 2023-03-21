@@ -33,6 +33,7 @@ class AnalysisRequest(models.Model):
 
     title = models.TextField()
     slug = models.SlugField(max_length=255, unique=True)
+    purpose = models.TextField()
 
     # store the analysis-specific templating context here.  The schema of this
     # data could entirely change between version or analysis.
