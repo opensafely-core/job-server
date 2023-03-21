@@ -13,7 +13,7 @@ def send_report_uploaded_notification(analysis_request):
     }
 
     send(
-        to=analysis_request.created_by.email,
+        to=analysis_request.created_by.notifications_email,
         sender="notifications@jobs.opensafely.org",
         subject="Your OpenSAFELY Interactive report is ready to view",
         template_name="emails/notify_report_uploaded.txt",
