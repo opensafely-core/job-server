@@ -4,6 +4,7 @@ import operator
 
 import sentry_sdk
 import structlog
+from django.db.models import prefetch_related_objects
 from django.http import Http404
 from django.utils import timezone
 from rest_framework import serializers
@@ -94,6 +95,11 @@ class JobAPIUpdate(APIView):
                 )
                 continue
 
+            # grab the status before any updates so we can track updates to it
+            # after saving the incoming changes
+            prefetch_jobs(job_request)
+            initial_status = job_request.status
+
             # bind the job request ID to further logs so looking them up in the UI is easier
             structlog.contextvars.bind_contextvars(job_request=job_request.id)
 
@@ -147,9 +153,14 @@ class JobAPIUpdate(APIView):
 
                 # We only send notifications or alerts for newly completed jobs
                 if newly_completed:
-                    handle_alerts_and_notifications(
-                        request, job_request, job, self.get_github_api()
-                    )
+                    handle_job_notifications(request, job_request, job)
+
+            # refresh the JobRequest instance so we can get an updated status
+            job_request.refresh_from_db()
+            prefetch_jobs(job_request)
+            current_status = job_request.status
+            if current_status != initial_status and current_status == "succeeded":
+                handle_job_request_notifications(job_request, self.get_github_api())
 
         logger.info(
             "Created or updated Jobs",
@@ -169,7 +180,7 @@ class JobAPIUpdate(APIView):
         return Response({"status": "success"}, status=200)
 
 
-def handle_alerts_and_notifications(request, job_request, job, github_api):
+def handle_job_notifications(request, job_request, job):
     error_messages = {
         "internal error": "Job encountered an internal error",
         "something went wrong with the database": "Job encountered an unexpected database error",
@@ -200,8 +211,20 @@ def handle_alerts_and_notifications(request, job_request, job, github_api):
             user_id=job_request.created_by_id,
         )
 
+
+def handle_job_request_notifications(job_request, github_api):
     if hasattr(job_request, "analysis_request"):
         notify_output_checkers(job_request, github_api)
+
+
+def prefetch_jobs(job_request):
+    """
+    Prefetch Jobs for the given JobRequest
+
+    We have to do this so because JobRequest's status property needs to
+    look at all the related Job objects so we require they are prefetched.
+    """
+    prefetch_related_objects([job_request], "jobs")
 
 
 class WorkspaceSerializer(serializers.ModelSerializer):

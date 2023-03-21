@@ -382,8 +382,11 @@ def test_jobapiupdate_notifications_on_without_move_to_completed(api_rf, mocker)
 
     now = timezone.now()
 
-    mocked_send = mocker.patch(
+    mocked_send_finished = mocker.patch(
         "jobserver.api.jobs.send_finished_notification", autospec=True
+    )
+    mocked_notify_output_checkers = mocker.patch(
+        "jobserver.api.jobs.notify_output_checkers", autospec=True
     )
 
     data = [
@@ -409,7 +412,8 @@ def test_jobapiupdate_notifications_on_without_move_to_completed(api_rf, mocker)
 
     response = JobAPIUpdate.as_view(get_github_api=FakeGitHubAPI)(request)
 
-    mocked_send.assert_not_called()
+    mocked_send_finished.assert_not_called()
+    mocked_notify_output_checkers.assert_not_called()
     assert response.status_code == 200
 
 
