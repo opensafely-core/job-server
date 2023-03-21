@@ -39,8 +39,6 @@ class AnalysisRequest(models.Model):
     # data could entirely change between version or analysis.
     template_data = models.JSONField(default=dict)
 
-    complete_email_sent_at = models.DateTimeField(null=True)
-
     created_at = models.DateTimeField(default=timezone.now)
     created_by = models.ForeignKey(
         "jobserver.User",
