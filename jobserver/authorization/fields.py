@@ -1,3 +1,5 @@
+import collections
+
 from django.db import models
 
 from .parsing import _ensure_role_paths, parse_roles
@@ -31,6 +33,15 @@ class RolesField(models.JSONField):
         """Convert Role classes to dotted paths for storage in the db"""
         if not roles:
             return super().get_prep_value(roles)
+
+        # we want to deal with iterables here but it's valid to construct a
+        # query like:
+        #
+        #   filter(roles__contains=MyRoleClass)
+        #
+        # In this case we want to wrap the value of roles in a list.
+        if not isinstance(roles, collections.abc.Iterable):
+            roles = [roles]
 
         # convert each Role to a dotted path string
         paths = {dotted_path(r) for r in roles}

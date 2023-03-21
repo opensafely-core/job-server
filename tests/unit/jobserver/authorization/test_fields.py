@@ -2,6 +2,7 @@ from django.db import connection
 
 from jobserver.authorization import CoreDeveloper
 from jobserver.authorization.fields import RolesField
+from jobserver.models import User
 
 from ....factories import UserFactory
 
@@ -92,3 +93,12 @@ def test_roles_field_to_python_with_empty_list():
 def test_roles_field_to_python_with_falsey_value():
     assert RolesField().to_python(None) is None
     assert RolesField().to_python([]) == []
+
+
+def test_query_by_roles():
+    user = UserFactory(roles=[CoreDeveloper])
+
+    qs = User.objects.filter(roles__contains=CoreDeveloper)
+
+    assert qs.count() == 1
+    assert qs.first() == user
