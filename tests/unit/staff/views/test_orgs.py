@@ -155,7 +155,7 @@ def test_orgdetail_get_success(rf, core_developer):
     response = OrgDetail.as_view()(request, slug=org.slug)
 
     assert response.status_code == 200
-    assert "beng (Ben Goldacre)" in response.rendered_content
+    assert "Ben Goldacre (beng)" in response.rendered_content
 
     expected = set_from_qs(org.members.all())
     output = set_from_qs(response.context_data["members"])

@@ -11,7 +11,7 @@ from jobserver.models import Backend, Org, Project, Workspace
 
 def user_label_from_instance(obj):
     full_name = obj.get_full_name()
-    return f"{obj.username} ({full_name})" if full_name else obj.username
+    return f"{full_name} ({obj.username})" if full_name else obj.username
 
 
 class UserModelChoiceField(forms.ModelChoiceField):
