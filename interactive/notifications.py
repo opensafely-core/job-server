@@ -21,6 +21,9 @@ def notify_output_checkers(job_request, github_api):
     ### Team
     - [ ] I have added a label
 
+    ### Analysis request purpose
+    {job_request.analysis_request.purpose}
+
     ### Details
     The outputs are located in `output/{job_request.analysis_request.pk}`
     - [ ] `output/{job_request.analysis_request.pk}/report.html`
