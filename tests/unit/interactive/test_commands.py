@@ -62,6 +62,7 @@ def test_create_user():
     assert user.created_by == creator
     assert user.name == "Testing McTesterson"
     assert user.email == "test@example.com"
+    assert user.notifications_email == "test@example.com"
     assert set_from_qs(user.orgs.all()) == {project.org.pk}
     assert set_from_qs(user.projects.all()) == {project.pk}
 
