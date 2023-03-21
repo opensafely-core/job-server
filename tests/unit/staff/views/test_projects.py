@@ -95,8 +95,11 @@ def test_projectcreate_get_success(rf, core_developer):
 
 
 def test_projectcreate_post_htmx_success_with_next(rf, core_developer):
+    user = UserFactory()
+
     data = {
         "application_url": "http://example.com",
+        "copilot": user.pk,
         "name": "new-name",
         "number": "7",
         "org": OrgFactory().pk,
@@ -112,8 +115,11 @@ def test_projectcreate_post_htmx_success_with_next(rf, core_developer):
 
 
 def test_projectcreate_post_htmx_success_without_next(rf, core_developer):
+    user = UserFactory()
+
     data = {
         "application_url": "http://example.com",
+        "copilot": user.pk,
         "name": "new-name",
         "number": "7",
         "org": OrgFactory().pk,
@@ -133,11 +139,13 @@ def test_projectcreate_post_htmx_success_without_next(rf, core_developer):
 
 def test_projectcreate_post_success(rf, core_developer):
     org = OrgFactory()
+    user = UserFactory()
 
     assert not Project.objects.exists()
 
     data = {
         "application_url": "http://example.com",
+        "copilot": user.pk,
         "name": "new-name",
         "number": "7",
         "org": org.pk,
@@ -159,9 +167,11 @@ def test_projectcreate_post_success(rf, core_developer):
 
 def test_projectcreate_post_with_github_failure(rf, core_developer):
     org = OrgFactory()
+    user = UserFactory()
 
     data = {
         "application_url": "example.com",
+        "copilot": user.pk,
         "name": "New Name-Name",
         "number": "7",
         "org": org.pk,
