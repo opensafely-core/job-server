@@ -72,6 +72,16 @@
               An email is sent to the request creator only when the report has been approved for release.
             </p>
           </div>
+          <div class="list-group-item">
+            <strong>Purpose</strong>
+            <p class="text-muted mb-0 mt-1">
+              {% if analysis_request.purpose %}
+              {{ analysis_request.purpose }}
+              {% else %}
+              -
+              {% endif %}
+            </p>
+          </div>
         </div>
       </section>
 
