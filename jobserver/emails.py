@@ -65,9 +65,7 @@ def send_login_email(user, login_url, timeout_minutes):
 
 def send_repo_signed_off_notification_to_researchers(repo):
     creators = User.objects.filter(workspaces__repo=repo)
-    emails = [
-        u.notifications_email if u.notifications_email else u.email for u in creators
-    ]
+    emails = [u.notifications_email for u in creators]
 
     send(
         to="notifications@jobs.opensafely.org",
