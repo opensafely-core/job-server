@@ -212,6 +212,16 @@ assets: assets-install assets-build collectstatic
 # rebuild all npm/static assets
 assets-rebuild: assets-clean assets
 
+assets-run: assets-install
+    #!/usr/bin/env bash
+
+    if [ "$DJANGO_VITE_DEV_MODE" == "False" ]; then
+        echo "Set DJANGO_VITE_DEV_MODE to a truthy value to run this command"
+        exit 1
+    fi
+
+    npm run dev
+
 
 # run a local release hatch instance, including adding and configuring a backend to use with it.
 release-hatch:
