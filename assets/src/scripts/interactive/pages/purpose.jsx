@@ -53,8 +53,10 @@ function Purpose() {
           </h1>
 
           <Textarea
+            characterCount
             id="purpose"
             label="Describe the purpose of this analysis"
+            maxlength={1000}
             name="purpose"
             required
             resize={false}
