@@ -285,7 +285,7 @@ urlpatterns = [
     path("staff/", include("staff.urls", namespace="staff")),
     path("status/", include(status_urls)),
     path("ui-components/", components),
-    path("workspaces/", RedirectView.as_view(url="/")),
+    path("workspaces/", yours.WorkspaceList.as_view(), name="your-workspaces"),
     path("__debug__/", include(debug_toolbar.urls)),
     path("__reload__/", include("django_browser_reload.urls")),
     path(

@@ -53,7 +53,6 @@ from staff.views import workspaces as staff_workspaces
         ("/favicon.ico", "/static/favicon.ico"),
         ("/event-list/", "/event-log/"),
         ("/jobs/", "/event-log/"),
-        ("/workspaces/", "/"),
     ],
 )
 def test_url_redirects(client, url, redirect):
@@ -123,6 +122,7 @@ def test_url_redirects(client, url, redirect):
         ("/projects/", yours.ProjectList),
         ("/settings/", users.Settings),
         ("/status/", status.Status),
+        ("/workspaces/", yours.WorkspaceList),
         ("/o/", orgs.OrgDetail),
         ("/o/p/", projects.ProjectDetail),
         ("/o/p/new-workspace/", workspaces.WorkspaceCreate),

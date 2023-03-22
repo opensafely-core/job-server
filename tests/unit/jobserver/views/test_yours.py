@@ -2,13 +2,14 @@ from django.conf import settings
 from django.contrib.auth.models import AnonymousUser
 
 from jobserver.utils import set_from_qs
-from jobserver.views.yours import AnalysisRequestList, ProjectList
+from jobserver.views.yours import AnalysisRequestList, ProjectList, WorkspaceList
 
 from ....factories import (
     AnalysisRequestFactory,
     ProjectFactory,
     ProjectMembershipFactory,
     UserFactory,
+    WorkspaceFactory,
 )
 
 
@@ -65,6 +66,40 @@ def test_projectlist_unauthorized(rf):
     request.user = AnonymousUser()
 
     response = ProjectList.as_view()(request)
+
+    assert response.status_code == 302
+    assert response.url == f"{settings.LOGIN_URL}?next={settings.LOGIN_REDIRECT_URL}"
+
+
+def test_workspacelist_success(rf):
+    user = UserFactory()
+
+    project1 = ProjectFactory(created_by=user)
+    WorkspaceFactory(project=project1, created_by=user)
+
+    project2 = ProjectFactory()
+    ProjectMembershipFactory(project=project2, user=user)
+    w2 = WorkspaceFactory(project=project2)
+
+    project3 = ProjectFactory()
+    ProjectMembershipFactory(project=project3, user=user)
+    w3 = WorkspaceFactory(project=project3)
+
+    request = rf.get("/")
+    request.user = user
+
+    response = WorkspaceList.as_view()(request)
+
+    assert response.status_code == 200
+
+    assert set_from_qs(response.context_data["object_list"]) == {w2.pk, w3.pk}
+
+
+def test_workspacelist_unauthorized(rf):
+    request = rf.get("/")
+    request.user = AnonymousUser()
+
+    response = WorkspaceList.as_view()(request)
 
     assert response.status_code == 302
     assert response.url == f"{settings.LOGIN_URL}?next={settings.LOGIN_REDIRECT_URL}"
