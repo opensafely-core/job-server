@@ -1,13 +1,33 @@
 {% extends "base-tw.html" %}
 
+{% block breadcrumbs %}
+  {% #breadcrumbs %}
+    {% url 'home' as home_url %}
+    {% breadcrumb title="Home" url=home_url %}
+    {% breadcrumb title="Analysis requests" active=True %}
+  {% /breadcrumbs %}
+{% endblock breadcrumbs %}
+
 {% block content %}
-
-<ul>
-  {% for analysis_request in object_list %}
-  <li>
-    <a href="{{ analysis_request.get_absolute_url }}">{{ analysis_request }}</a>
-  </li>
-  {% endfor %}
-</ul>
-
+  {% #card title="Analysis requests" %}
+    {% if object_list %}
+      {% #list_group %}
+        {% for analysis_request in object_list %}
+          {% #list_group_item href=analysis_request.get_absolute_url %}
+            {{ analysis_request }}
+          {% /list_group_item %}
+        {% endfor %}
+      {% /list_group %}
+    {% else %}
+      <div class="border-t border-t-slate200 text-center p-8">
+        {% icon_folder_outline class="mx-auto h-8 w-8 text-slate-400" %}
+        <h2 class="mt-2 text-lg font-semibold text-slate-900">
+          No analysis requests
+        </h2>
+        <p class="mt-2 text-sm text-slate-600">
+          You do not currently have access to any analysis requests
+        </p>
+      </div>
+    {% endif %}
+  {% /card %}
 {% endblock content %}
