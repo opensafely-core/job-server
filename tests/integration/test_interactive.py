@@ -75,6 +75,7 @@ def test_interactive_submission_success(rf, local_repo, enable_network):
         },
         "demographics": ["sex", "age"],
         "filterPopulation": "all",
+        "purpose": "For… science!",
         "timeScale": "years",
         "timeValue": "5",
     }

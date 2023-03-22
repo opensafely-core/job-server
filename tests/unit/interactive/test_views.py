@@ -62,7 +62,6 @@ def test_analysisrequestcreate_post_failure(rf, interactive_repo):
 
 
 def test_analysisrequestcreate_post_success(rf, interactive_repo, add_codelist):
-
     BackendFactory(slug="tpp")
     project = ProjectFactory()
     user = UserFactory()
@@ -88,11 +87,12 @@ def test_analysisrequestcreate_post_success(rf, interactive_repo, add_codelist):
             "value": "bennett/medication-codelist/medication123",
             "type": "medication",
         },
-        "timeValue": "12",
-        "timeScale": "months",
-        "timeEvent": "before",
-        "filterPopulation": "adults",
         "demographics": ["age"],
+        "filterPopulation": "adults",
+        "purpose": "For… science!",
+        "timeEvent": "before",
+        "timeScale": "months",
+        "timeValue": "12",
     }
     request = rf.post("/", data=json.dumps(data), content_type="appliation/json")
     request.user = user
