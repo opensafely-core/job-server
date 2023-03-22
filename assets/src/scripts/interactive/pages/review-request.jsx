@@ -123,6 +123,10 @@ function ReviewRequest() {
               ))}
             </ul>
           </ReviewLineItem>
+
+          <ReviewLineItem page="purpose" title="Purpose of this analysis">
+            <p>{formData.purpose}</p>
+          </ReviewLineItem>
         </dl>
       </div>
 
