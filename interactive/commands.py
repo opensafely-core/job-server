@@ -46,6 +46,7 @@ def create_user(*, creator, email, name, project):
     user = User.objects.create(
         fullname=name,
         email=email,
+        notifications_email=email,
         username=email,
         created_by=creator,
         is_active=True,

@@ -34,11 +34,7 @@
 
       <li>
         <strong>Email:</strong>
-        {% if user.notifications_email %}
         {{ user.notifications_email }}
-        {% else %}
-        {{ user.email }}
-        {% endif %}
       </li>
 
       <li>
