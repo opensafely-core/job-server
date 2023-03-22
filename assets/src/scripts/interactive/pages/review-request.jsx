@@ -27,6 +27,7 @@ function ReviewRequest() {
       "timeValue",
       "filterPopulation",
       "demographics",
+      "purpose",
     ])
   ) {
     return <Redirect to="" />;

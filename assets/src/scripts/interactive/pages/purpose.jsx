@@ -8,11 +8,20 @@ import Textarea from "../components/Textarea";
 import { useFormData } from "../context";
 import { useRequiredFields } from "../utils";
 
-function FilterRequest() {
+function Purpose() {
   const [, navigate] = useLocation();
   const { formData, setFormData } = useFormData();
 
-  if (useRequiredFields(["codelistA", "codelistB"])) {
+  if (
+    useRequiredFields([
+      "codelistA",
+      "codelistB",
+      "timeScale",
+      "timeValue",
+      "filterPopulation",
+      "demographics",
+    ])
+  ) {
     return <Redirect to="" />;
   }
 
@@ -64,4 +73,4 @@ function FilterRequest() {
   );
 }
 
-export default FilterRequest;
+export default Purpose;

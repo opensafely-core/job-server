@@ -7,9 +7,9 @@ import QueryBuilder from "./pages/build-query";
 import FilterRequest from "./pages/filter-request";
 import FindCodelists from "./pages/find-codelists";
 import PreviewRequest from "./pages/preview-request";
+import Purpose from "./pages/purpose";
 import ReviewRequest from "./pages/review-request";
 import Success from "./pages/success";
-import WritePurpose from "./pages/write-purpose";
 import { getAppData } from "./utils";
 import ScrollToTop from "./utils/scrollToTop";
 
@@ -59,7 +59,7 @@ root.render(
                 <FilterRequest />
               </Route>
               <Route path="purpose">
-                <WritePurpose />
+                <Purpose />
               </Route>
               <Route path="review-request">
                 <ReviewRequest />
