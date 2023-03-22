@@ -34,6 +34,7 @@ from jobserver.views import (
     status,
     users,
     workspaces,
+    yours,
 )
 from staff.views import applications as staff_applications
 from staff.views import backends as staff_backends
@@ -66,6 +67,7 @@ def test_url_redirects(client, url, redirect):
     "url,view",
     [
         ("/", index.Index),
+        ("/analyses/", yours.AnalysisRequestList),
         ("/api/v2/job-requests/", JobRequestAPIList),
         ("/api/v2/jobs/", JobAPIUpdate),
         ("/api/v2/release-notifications/", ReleaseNotificationAPICreate),

@@ -26,6 +26,7 @@ from jobserver.api.releases import (
     WorkspaceStatusAPI,
 )
 
+from .views import yours
 from .views.components import components
 from .views.errors import bad_request, page_not_found, permission_denied, server_error
 from .views.index import Index
@@ -260,6 +261,7 @@ urlpatterns = [
     path("500", server_error, name="server_error"),
     path("favicon.ico", RedirectView.as_view(url=settings.STATIC_URL + "favicon.ico")),
     path("robots.txt", RedirectView.as_view(url=settings.STATIC_URL + "robots.txt")),
+    path("analyses/", yours.AnalysisRequestList.as_view(), name="your-analyses"),
     path("api/v2/", include((api_urls, "api"))),
     path("event-log/", JobRequestList.as_view(), name="job-list"),
     path("event-list/", RedirectView.as_view(url="/event-log/")),
