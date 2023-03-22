@@ -3,6 +3,7 @@ from django.utils.decorators import method_decorator
 from django.views.generic import ListView
 
 from interactive.models import AnalysisRequest
+from jobserver.models import Project
 
 
 @method_decorator(login_required, name="dispatch")
@@ -16,4 +17,18 @@ class AnalysisRequestList(ListView):
             .get_queryset()
             .filter(created_by=self.request.user)
             .select_related("project", "project__org")
+        )
+
+
+@method_decorator(login_required, name="dispatch")
+class ProjectList(ListView):
+    model = Project
+    template_name = "yours/project_list.html"
+
+    def get_queryset(self):
+        return (
+            super()
+            .get_queryset()
+            .filter(pk__in=self.request.user.projects.values_list("pk"))
+            .select_related("org")
         )

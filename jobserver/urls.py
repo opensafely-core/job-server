@@ -278,6 +278,7 @@ urlpatterns = [
     ),
     path("logout/", LogoutView.as_view(), name="logout"),
     path("orgs/", OrgList.as_view(), name="org-list"),
+    path("projects/", yours.ProjectList.as_view(), name="your-projects"),
     path("publish-repo/<repo_url>/", SignOffRepo.as_view(), name="repo-sign-off"),
     path("repo/<repo_url>/", RepoHandler.as_view(), name="repo-handler"),
     path("settings/", Settings.as_view(), name="settings"),

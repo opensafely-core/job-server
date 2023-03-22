@@ -120,6 +120,7 @@ def test_url_redirects(client, url, redirect):
         ("/login/github/", social_django_auth_view),
         ("/logout/", LogoutView),
         ("/orgs/", orgs.OrgList),
+        ("/projects/", yours.ProjectList),
         ("/settings/", users.Settings),
         ("/status/", status.Status),
         ("/o/", orgs.OrgDetail),

@@ -1,0 +1,13 @@
+{% extends "base-tw.html" %}
+
+{% block content %}
+
+<ul>
+  {% for project in object_list %}
+  <li>
+    <a href="{{ project.get_absolute_url }}">{{ project }}</a>
+  </li>
+  {% endfor %}
+</ul>
+
+{% endblock content %}
