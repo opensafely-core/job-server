@@ -37,17 +37,23 @@ function FilterRequest() {
       validationSchema={validationSchema}
     >
       {({ errors, isValid, touched }) => (
-        <Form className="flex flex-col gap-y-8">
+        <Form className="flex flex-col gap-y-4">
           <AlertForm />
           <h1 className="text-4xl font-bold">
             What is the purpose of this analysis?
           </h1>
 
-          <Textarea name="purpose" />
+          <Textarea
+            id="purpose"
+            label="Describe the purpose of this analysis"
+            name="purpose"
+            required
+            resize={false}
+          />
           {errors.purpose && touched.purpose ? (
             <InputError>{errors.purpose}</InputError>
           ) : null}
-          <div className="flex flex-row w-full gap-2 mt-10">
+          <div className="flex flex-row w-full gap-2 mt-4">
             <Button disabled={!isValid} type="submit">
               Next
             </Button>

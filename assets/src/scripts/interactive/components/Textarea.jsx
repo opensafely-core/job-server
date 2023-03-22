@@ -1,20 +1,24 @@
 import { Field } from "formik";
-import { string } from "prop-types";
+import { bool, number, string } from "prop-types";
 import React from "react";
 
-function Textarea({ name }) {
+function Textarea({ id, label, name, resize, rows, required }) {
   return (
-    <div className="flex flex-row place-items-baseline gap-x-3 text-lg leading-tight">
+    <div className="flex flex-col gap-y-3 text-lg leading-tight">
+      <label className="font-semibold tracking-tight" htmlFor={id}>
+        {label}
+      </label>
       <Field
         as="textarea"
-        classname="
-          mt-1 block w-full rounded-md border-slate-300 text-slate-900 shadow-sm
-          {% if not resize %}resize-none{% endif %}
+        className={`
+          mt-1 block w-full max-w-prose rounded-md border-gray-400 text-gray-900 shadow-sm
+          ${resize ? "" : "resize-none"}
           sm:text-sm
-          focus:border-oxford-500 focus:ring-oxford-500
-          invalid:border-bn-ribbon-600 invalid:ring-bn-ribbon-600 invalid:ring-1
-        "
+          focus:outline-none focus:ring-oxford-500 focus:border-oxford-500
+        `}
         name={name}
+        required={required}
+        rows={rows}
       />
     </div>
   );
@@ -22,6 +26,16 @@ function Textarea({ name }) {
 
 export default Textarea;
 
+Textarea.defaultProps = {
+  required: false,
+  rows: 8,
+};
+
 Textarea.propTypes = {
+  id: string.isRequired,
+  label: string.isRequired,
   name: string.isRequired,
+  required: bool,
+  resize: bool.isRequired,
+  rows: number,
 };
