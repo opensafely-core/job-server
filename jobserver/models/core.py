@@ -1097,7 +1097,7 @@ class Workspace(models.Model):
         ]
 
     def __str__(self):
-        return f"{self.name} ({self.repo.url})"
+        return self.name
 
     def get_absolute_url(self):
         return reverse(
