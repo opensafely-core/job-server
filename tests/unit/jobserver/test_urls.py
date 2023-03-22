@@ -118,7 +118,7 @@ def test_url_redirects(client, url, redirect):
         ("/jobs/<identifier>/", jobs.JobDetailRedirect),
         ("/login/github/", social_django_auth_view),
         ("/logout/", LogoutView),
-        ("/orgs/", orgs.OrgList),
+        ("/orgs/", yours.OrgList),
         ("/projects/", yours.ProjectList),
         ("/settings/", users.Settings),
         ("/status/", status.Status),

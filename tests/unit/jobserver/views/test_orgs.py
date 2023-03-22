@@ -1,7 +1,7 @@
 import pytest
 from django.http import Http404
 
-from jobserver.views.orgs import OrgDetail, OrgList
+from jobserver.views.orgs import OrgDetail
 
 from ....factories import OrgFactory, ProjectFactory, UserFactory, WorkspaceFactory
 
@@ -36,15 +36,3 @@ def test_orgdetail_unknown_org_but_known_workspace(rf):
 
     assert response.status_code == 302
     assert response.url == workspace.get_absolute_url()
-
-
-def test_orglist_success(rf):
-    org = OrgFactory()
-
-    request = rf.get("/")
-    request.user = UserFactory()
-
-    response = OrgList.as_view()(request)
-
-    assert response.status_code == 200
-    assert org in response.context_data["object_list"]

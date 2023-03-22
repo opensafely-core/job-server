@@ -11,22 +11,22 @@ def test_iter_nav_all_items(rf):
     request.user = UserFactory()
 
     items = [
-        NavItem(name="Orgs", url_name="org-list"),
         NavItem(name="Event Log", url_name="job-list"),
+        NavItem(name="Status", url_name="status"),
     ]
 
-    output = list(iter_nav(items, request, lambda url: url == "/orgs/"))
+    output = list(iter_nav(items, request, lambda url: url == "/status/"))
 
     assert output == [
-        {
-            "name": "Orgs",
-            "is_active": True,
-            "url": "/orgs/",
-        },
         {
             "name": "Event Log",
             "is_active": False,
             "url": "/event-log/",
+        },
+        {
+            "name": "Status",
+            "is_active": True,
+            "url": "/status/",
         },
     ]
 
@@ -40,7 +40,7 @@ def test_iter_nav_all_items(rf):
                 {
                     "name": "Always Shown",
                     "is_active": True,
-                    "url": "/orgs/",
+                    "url": "/status/",
                 },
                 {
                     "name": "Only Shown for CoreDevs",
@@ -55,7 +55,7 @@ def test_iter_nav_all_items(rf):
                 {
                     "name": "Always Shown",
                     "is_active": True,
-                    "url": "/orgs/",
+                    "url": "/status/",
                 }
             ],
         ),
@@ -67,7 +67,7 @@ def test_iter_nav_optional_items(rf, roles, expected):
     request.user = UserFactory(roles=roles)
 
     items = [
-        NavItem(name="Always Shown", url_name="org-list"),
+        NavItem(name="Always Shown", url_name="status"),
         NavItem(
             name="Only Shown for CoreDevs",
             url_name="staff:user-list",
@@ -75,6 +75,6 @@ def test_iter_nav_optional_items(rf, roles, expected):
         ),
     ]
 
-    output = list(iter_nav(items, request, lambda url: url == "/orgs/"))
+    output = list(iter_nav(items, request, lambda url: url == "/status/"))
 
     assert output == expected

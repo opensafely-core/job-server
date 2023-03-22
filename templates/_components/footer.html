@@ -16,10 +16,6 @@
             {% url 'home' as home_url %}
             {% link text="Home" href=home_url %}
           </li>
-          <li class="flex">
-            {% url 'org-list' as orgs_url %}
-            {% link text="Organisations" href=orgs_url %}
-          </li>
           {% for location in nav %}
             <li class="flex">{% link text=location.name href=location.url %}</li>
           {% endfor %}

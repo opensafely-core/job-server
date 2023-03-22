@@ -64,7 +64,7 @@
           <div class="d-flex justify-content-center">
             <a
               {% if request.user.orgs.count > 1 %}
-              href="{% url 'org-list' %}"
+              href="{% url 'your-orgs' %}"
               {% else %}
               href="{% url 'org-detail' org_slug=request.user.orgs.first.slug %}"
               {% endif %}

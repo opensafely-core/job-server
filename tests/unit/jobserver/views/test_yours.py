@@ -2,10 +2,17 @@ from django.conf import settings
 from django.contrib.auth.models import AnonymousUser
 
 from jobserver.utils import set_from_qs
-from jobserver.views.yours import AnalysisRequestList, ProjectList, WorkspaceList
+from jobserver.views.yours import (
+    AnalysisRequestList,
+    OrgList,
+    ProjectList,
+    WorkspaceList,
+)
 
 from ....factories import (
     AnalysisRequestFactory,
+    OrgFactory,
+    OrgMembershipFactory,
     ProjectFactory,
     ProjectMembershipFactory,
     UserFactory,
@@ -34,6 +41,38 @@ def test_analysisrequestlist_unauthorized(rf):
     request.user = AnonymousUser()
 
     response = AnalysisRequestList.as_view()(request)
+
+    assert response.status_code == 302
+    assert response.url == f"{settings.LOGIN_URL}?next={settings.LOGIN_REDIRECT_URL}"
+
+
+def test_orglist_success(rf):
+    user = UserFactory()
+
+    OrgFactory.create_batch(3, created_by=user)
+    OrgFactory.create_batch(3)
+
+    m1 = OrgMembershipFactory(user=user)
+    m2 = OrgMembershipFactory(user=user)
+
+    request = rf.get("/")
+    request.user = user
+
+    response = OrgList.as_view()(request)
+
+    assert response.status_code == 200
+
+    assert set_from_qs(response.context_data["object_list"]) == {
+        m1.org.pk,
+        m2.org.pk,
+    }
+
+
+def test_orglist_unauthorized(rf):
+    request = rf.get("/")
+    request.user = AnonymousUser()
+
+    response = OrgList.as_view()(request)
 
     assert response.status_code == 302
     assert response.url == f"{settings.LOGIN_URL}?next={settings.LOGIN_REDIRECT_URL}"
