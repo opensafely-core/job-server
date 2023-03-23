@@ -1,0 +1,33 @@
+{% extends "base-tw.html" %}
+
+{% block breadcrumbs %}
+  {% #breadcrumbs %}
+    {% url 'home' as home_url %}
+    {% breadcrumb title="Home" url=home_url %}
+    {% breadcrumb title="Organisations" active=True %}
+  {% /breadcrumbs %}
+{% endblock breadcrumbs %}
+
+{% block content %}
+  {% #card title="Organisations" %}
+    {% if object_list %}
+      {% #list_group %}
+        {% for org in object_list %}
+          {% #list_group_item href=org.get_absolute_url %}
+            {{ org }}
+          {% /list_group_item %}
+        {% endfor %}
+      {% /list_group %}
+    {% else %}
+      <div class="border-t border-t-slate200 text-center p-8">
+        {% icon_folder_outline class="mx-auto h-8 w-8 text-slate-400" %}
+        <h2 class="mt-2 text-lg font-semibold text-slate-900">
+          No organisations
+        </h2>
+        <p class="mt-2 text-sm text-slate-600">
+          You do not currently have access to any organisations
+        </p>
+      </div>
+    {% endif %}
+  {% /card %}
+{% endblock content %}

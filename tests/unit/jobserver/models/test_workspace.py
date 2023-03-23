@@ -11,7 +11,6 @@ from ....factories import (
     JobRequestFactory,
     OrgFactory,
     ProjectFactory,
-    RepoFactory,
     UserFactory,
     WorkspaceFactory,
 )
@@ -417,6 +416,5 @@ def test_workspace_is_interactive():
 
 
 def test_workspace_str():
-    repo = RepoFactory(url="Corellia")
-    workspace = WorkspaceFactory(name="Corellian Engineering Corporation", repo=repo)
-    assert str(workspace) == "Corellian Engineering Corporation (Corellia)"
+    workspace = WorkspaceFactory(name="Corellian Engineering Corporation")
+    assert str(workspace) == "Corellian Engineering Corporation"

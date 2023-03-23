@@ -26,6 +26,7 @@ from jobserver.api.releases import (
     WorkspaceStatusAPI,
 )
 
+from .views import yours
 from .views.components import components
 from .views.errors import bad_request, page_not_found, permission_denied, server_error
 from .views.index import Index
@@ -37,7 +38,7 @@ from .views.job_requests import (
     JobRequestList,
 )
 from .views.jobs import JobCancel, JobDetail, JobDetailRedirect
-from .views.orgs import OrgDetail, OrgList
+from .views.orgs import OrgDetail
 from .views.projects import ProjectDetail, ProjectEdit
 from .views.releases import (
     ProjectReleaseList,
@@ -260,6 +261,7 @@ urlpatterns = [
     path("500", server_error, name="server_error"),
     path("favicon.ico", RedirectView.as_view(url=settings.STATIC_URL + "favicon.ico")),
     path("robots.txt", RedirectView.as_view(url=settings.STATIC_URL + "robots.txt")),
+    path("analyses/", yours.AnalysisRequestList.as_view(), name="your-analyses"),
     path("api/v2/", include((api_urls, "api"))),
     path("event-log/", JobRequestList.as_view(), name="job-list"),
     path("event-list/", RedirectView.as_view(url="/event-log/")),
@@ -275,14 +277,15 @@ urlpatterns = [
         "login-with-token/<str:token>/", LoginWithURL.as_view(), name="login-with-url"
     ),
     path("logout/", LogoutView.as_view(), name="logout"),
-    path("orgs/", OrgList.as_view(), name="org-list"),
+    path("orgs/", yours.OrgList.as_view(), name="your-orgs"),
+    path("projects/", yours.ProjectList.as_view(), name="your-projects"),
     path("publish-repo/<repo_url>/", SignOffRepo.as_view(), name="repo-sign-off"),
     path("repo/<repo_url>/", RepoHandler.as_view(), name="repo-handler"),
     path("settings/", Settings.as_view(), name="settings"),
     path("staff/", include("staff.urls", namespace="staff")),
     path("status/", include(status_urls)),
     path("ui-components/", components),
-    path("workspaces/", RedirectView.as_view(url="/")),
+    path("workspaces/", yours.WorkspaceList.as_view(), name="your-workspaces"),
     path("__debug__/", include(debug_toolbar.urls)),
     path("__reload__/", include("django_browser_reload.urls")),
     path(

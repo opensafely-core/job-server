@@ -34,6 +34,7 @@ from jobserver.views import (
     status,
     users,
     workspaces,
+    yours,
 )
 from staff.views import applications as staff_applications
 from staff.views import backends as staff_backends
@@ -52,7 +53,6 @@ from staff.views import workspaces as staff_workspaces
         ("/favicon.ico", "/static/favicon.ico"),
         ("/event-list/", "/event-log/"),
         ("/jobs/", "/event-log/"),
-        ("/workspaces/", "/"),
     ],
 )
 def test_url_redirects(client, url, redirect):
@@ -66,6 +66,7 @@ def test_url_redirects(client, url, redirect):
     "url,view",
     [
         ("/", index.Index),
+        ("/analyses/", yours.AnalysisRequestList),
         ("/api/v2/job-requests/", JobRequestAPIList),
         ("/api/v2/jobs/", JobAPIUpdate),
         ("/api/v2/release-notifications/", ReleaseNotificationAPICreate),
@@ -117,9 +118,11 @@ def test_url_redirects(client, url, redirect):
         ("/jobs/<identifier>/", jobs.JobDetailRedirect),
         ("/login/github/", social_django_auth_view),
         ("/logout/", LogoutView),
-        ("/orgs/", orgs.OrgList),
+        ("/orgs/", yours.OrgList),
+        ("/projects/", yours.ProjectList),
         ("/settings/", users.Settings),
         ("/status/", status.Status),
+        ("/workspaces/", yours.WorkspaceList),
         ("/o/", orgs.OrgDetail),
         ("/o/p/", projects.ProjectDetail),
         ("/o/p/new-workspace/", workspaces.WorkspaceCreate),

@@ -4,11 +4,9 @@
 
 {% block breadcrumbs %}
   {% url "home" as home_url %}
-  {% url "org-list" as orgs_url %}
 
   {% #breadcrumbs %}
     {% breadcrumb title="Home" url=home_url %}
-    {% breadcrumb title="Organisations" url=orgs_url %}
     {% breadcrumb title=org.name active=True %}
   {% /breadcrumbs %}
 {% endblock breadcrumbs %}

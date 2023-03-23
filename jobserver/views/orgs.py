@@ -3,7 +3,7 @@ from django.db.models.functions import Lower
 from django.http import Http404
 from django.shortcuts import redirect
 from django.template.response import TemplateResponse
-from django.views.generic import DetailView, ListView
+from django.views.generic import DetailView
 
 from ..models import Org, Workspace
 
@@ -44,8 +44,3 @@ class OrgDetail(DetailView):
                 "projects": projects,
             },
         )
-
-
-class OrgList(ListView):
-    queryset = Org.objects.annotate(project_count=Count("projects")).order_by("name")
-    template_name = "org_list.html"
