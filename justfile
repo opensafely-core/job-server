@@ -125,7 +125,7 @@ test *args:
 black *args=".": devenv
     $BIN/black --check {{ args }}
 
-django-upgrade *args="$(find applications jobserver services tests -name '*.py' -type f)": devenv
+django-upgrade *args="$(find applications interactive jobserver redirects services staff tests -name '*.py' -type f)": devenv
     $BIN/django-upgrade --target-version=4.1 {{ args }}
 
 ruff *args=".": devenv
