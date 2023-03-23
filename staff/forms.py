@@ -83,28 +83,14 @@ class ProjectAddMemberForm(PickUsersMixin, RolesForm):
     pass
 
 
-class ProjectCreateForm(forms.ModelForm):
+class ProjectCreateForm(forms.Form):
     application_url = forms.URLField()
+    copilot = UserModelChoiceField(
+        queryset=User.objects.order_by(Lower("fullname"), "username")
+    )
+    name = forms.CharField()
     number = forms.IntegerField()
-
-    class Meta:
-        fields = [
-            "application_url",
-            "copilot",
-            "name",
-            "number",
-            "org",
-        ]
-        model = Project
-
-    def __init__(self, *args, **kwargs):
-        super().__init__(*args, **kwargs)
-
-        users = User.objects.order_by(Lower("fullname"), "username")
-        self.fields["copilot"] = UserModelChoiceField(queryset=users)
-
-        orgs = Org.objects.order_by("name")
-        self.fields["org"] = forms.ModelChoiceField(queryset=orgs)
+    org = forms.ModelChoiceField(queryset=Org.objects.order_by("name"))
 
 
 class ProjectEditForm(forms.ModelForm):
