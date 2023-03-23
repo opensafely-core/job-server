@@ -15,6 +15,7 @@ from django.db import models
 from django.db.models import Min, Q
 from django.urls import reverse
 from django.utils import timezone
+from django.utils.functional import cached_property
 from django.utils.text import slugify
 from environs import Env
 from furl import furl
@@ -872,7 +873,7 @@ class User(AbstractBaseUser):
     def __str__(self):
         return self.name
 
-    @property
+    @cached_property
     def all_roles(self):
         """
         All roles, including those given via memberships, for the User
