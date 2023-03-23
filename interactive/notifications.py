@@ -23,13 +23,14 @@ def notify_output_checkers(job_request, github_api):
 
     ### Details
     The outputs are located in `output/{job_request.analysis_request.pk}`
-    - [ ] event_counts.csv
-    - [ ] deciles_chart_counts_per_week_per_practice.png
-    - [ ] top_5_code_table.csv
-    - [ ] practice_count.csv
-    The number of practices plotted in the deciles chart is shown in `practice_count.csv`. Check that a sufficient number of practices are included.
-    The total number of events, total number of patients and the number of events within the last time period are in `event_counts.csv`. Check that these do not contain any values <=5.
-    The unredacted counts underlying `top_5_code_table.csv` can be found in `counts_per_code.csv` . Check that no code with a count <=5 in `counts_per_code.csv` is included in `top_5_code_table.csv`.
+    - [ ] `output/{job_request.analysis_request.pk}/report.html`
+
+    The report shows:
+    - Summary table with the total number of events and the number of unique patients experiencing these events as well as the number of events in the latest period and latest week. These are rounded to the nearest 100.
+    - Practice level deciles chart. The number of practices included is shown in the report.
+    - Tables of the top 5 most common codes for both codelists. This is calculated as the proportion of each code across all codes recorded in the study period. A version of these tables with the counts for each code can be found in `output/{job_request.analysis_request.pk}/joined/top_5_code_table_with_counts_1.csv`  and `output/{job_request.analysis_request.pk}/joined/top_5_code_table_with_counts_2.csv`. Codes with counts <=7 are removed. Counts rounded to the nearest 7 before the proportion is calculated.
+    - Population level rate per 1000 for the measure. Counts are rounded to the nearest 10 before calculating the rate. The underlying data can be found in `output/{job_request.analysis_request.pk}/joined/measure_total_rate.csv`.
+    - Population level rate per 1000 for the measure, broken down demographics. Counts are rounded to the nearest 10 before calculating the rate. The underlying data can be found in `output/{job_request.analysis_request.pk}/joined/measure_*_rate.csv`.
     """
 
     return github_api.create_issue(
