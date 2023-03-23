@@ -35,7 +35,7 @@ def initialise_sentry():  # pragma: no cover
 
 
 def parse(data):
-    if isinstance(data, (bool, int)):
+    if isinstance(data, bool | int):
         return data
 
     if isinstance(data, dict):

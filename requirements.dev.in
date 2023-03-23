@@ -8,11 +8,6 @@ black
 coverage[toml]
 django-upgrade
 factory_boy
-flake8
-flake8-builtins
-flake8-implicit-str-concat
-flake8-no-pep420
-isort
 opensafely
 pip-tools
 pre-commit
@@ -22,5 +17,5 @@ pytest-freezegun
 pytest-mock
 pytest-network
 pytest-subtests
-pyupgrade
 responses
+ruff

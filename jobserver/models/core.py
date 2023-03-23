@@ -7,7 +7,6 @@ from urllib.parse import quote
 import pydantic
 import structlog
 from django.contrib.auth.models import AbstractBaseUser
-from django.contrib.auth.models import UserManager
 from django.contrib.auth.models import UserManager as BaseUserManager
 from django.contrib.auth.validators import UnicodeUsernameValidator
 from django.contrib.postgres.fields import ArrayField
@@ -770,7 +769,7 @@ class UserQuerySet(models.QuerySet):
         return self.filter(roles__contains=[role])
 
 
-class UserManager(BaseUserManager.from_queryset(UserQuerySet), UserManager):
+class UserManager(BaseUserManager.from_queryset(UserQuerySet), BaseUserManager):
     """
     Custom Manager built from the custom QuerySet above
 

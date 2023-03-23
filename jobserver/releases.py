@@ -2,14 +2,14 @@ import hashlib
 import io
 import textwrap
 import zipfile
-from datetime import datetime, timedelta, timezone
+from datetime import UTC, datetime, timedelta
 from pathlib import Path
 
 from django.conf import settings
 from django.db import transaction
 from django.http import FileResponse
+from django.utils import timezone
 from django.utils.http import http_date
-from django.utils.timezone import now
 from furl import furl
 from rest_framework.exceptions import NotFound
 from rest_framework.response import Response
@@ -70,7 +70,7 @@ def build_hatch_token_and_url(*, backend, workspace, user, expiry=None):
     f.path.segments += ["workspace", workspace.name]
 
     if expiry is None:
-        expiry = now() + timedelta(minutes=30)
+        expiry = timezone.now() + timedelta(minutes=30)
 
     builder = AuthToken(
         url=f.url,
@@ -236,7 +236,7 @@ def handle_file_upload(release, backend, user, upload, filename, **kwargs):
     if not rfile:  # old flow
         absolute_path.write_bytes(data)
 
-        mtime = datetime.fromtimestamp(absolute_path.stat().st_mtime, tz=timezone.utc)
+        mtime = datetime.fromtimestamp(absolute_path.stat().st_mtime, tz=UTC)
         size = absolute_path.stat().st_size
 
         try:
@@ -244,7 +244,7 @@ def handle_file_upload(release, backend, user, upload, filename, **kwargs):
                 release=release,
                 workspace=release.workspace,
                 created_by=user,
-                uploaded_at=now(),
+                uploaded_at=timezone.now(),
                 name=filename,
                 path=str(relative_path),
                 filehash=calculated_hash,
@@ -276,7 +276,7 @@ def handle_file_upload(release, backend, user, upload, filename, **kwargs):
 
     absolute_path.write_bytes(data)
     rfile.path = str(relative_path)
-    rfile.uploaded_at = now()
+    rfile.uploaded_at = timezone.now()
     rfile.save(update_fields=["path", "uploaded_at"])
 
     return rfile

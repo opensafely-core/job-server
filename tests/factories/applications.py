@@ -1,4 +1,4 @@
-from datetime import timezone
+from datetime import UTC
 
 import factory
 import factory.fuzzy
@@ -43,10 +43,10 @@ class AbstractPageFactory(factory.django.DjangoModelFactory):
     notes = factory.Sequence(lambda n: f"note {n}")
     is_approved = factory.fuzzy.FuzzyChoice([True, False])
 
-    last_reviewed_at = factory.Faker("date_time", tzinfo=timezone.utc)
+    last_reviewed_at = factory.Faker("date_time", tzinfo=UTC)
 
-    created_at = factory.Faker("date_time", tzinfo=timezone.utc)
-    updated_at = factory.Faker("date_time", tzinfo=timezone.utc)
+    created_at = factory.Faker("date_time", tzinfo=UTC)
+    updated_at = factory.Faker("date_time", tzinfo=UTC)
 
 
 class ContactDetailsPageFactory(AbstractPageFactory):
@@ -193,4 +193,4 @@ class ResearcherRegistrationFactory(factory.django.DjangoModelFactory):
 
     application = factory.SubFactory("tests.factories.ApplicationFactory")
     has_taken_safe_researcher_training = True
-    training_passed_at = factory.Faker("date_time", tzinfo=timezone.utc)
+    training_passed_at = factory.Faker("date_time", tzinfo=UTC)

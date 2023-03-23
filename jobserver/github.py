@@ -1,5 +1,5 @@
 import json
-from datetime import datetime, timezone
+from datetime import UTC, datetime
 
 import requests
 from environs import Env
@@ -446,7 +446,7 @@ class GitHubAPI:
         for repo in results:
             created_at = datetime.strptime(
                 repo["createdAt"], "%Y-%m-%dT%H:%M:%SZ"
-            ).replace(tzinfo=timezone.utc)
+            ).replace(tzinfo=UTC)
 
             topics = []
             if repo["repositoryTopics"]["nodes"]:

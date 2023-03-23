@@ -1,4 +1,4 @@
-from datetime import timezone
+from datetime import UTC
 
 import factory
 
@@ -30,7 +30,7 @@ class ReleaseFileFactory(factory.django.DjangoModelFactory):
     release = factory.SubFactory("tests.factories.ReleaseFactory")
     workspace = factory.SubFactory("tests.factories.WorkspaceFactory")
 
-    mtime = factory.Faker("date_time", tzinfo=timezone.utc)
+    mtime = factory.Faker("date_time", tzinfo=UTC)
     size = 7
 
 

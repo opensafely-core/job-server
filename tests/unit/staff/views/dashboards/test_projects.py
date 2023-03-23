@@ -1,4 +1,4 @@
-from datetime import datetime, timezone
+from datetime import UTC, datetime
 
 import pytest
 from django.core.exceptions import PermissionDenied
@@ -23,13 +23,9 @@ def test_projects_success(rf, core_developer):
     ReleaseFileFactory.create_batch(15, release=release, workspace=workspace)
 
     job_request1 = JobRequestFactory(workspace=workspace)
-    JobFactory(
-        job_request=job_request1, started_at=datetime(2020, 7, 31, tzinfo=timezone.utc)
-    )
+    JobFactory(job_request=job_request1, started_at=datetime(2020, 7, 31, tzinfo=UTC))
     job_request2 = JobRequestFactory(workspace=workspace)
-    JobFactory(
-        job_request=job_request2, started_at=datetime(2021, 9, 3, tzinfo=timezone.utc)
-    )
+    JobFactory(job_request=job_request2, started_at=datetime(2021, 9, 3, tzinfo=UTC))
 
     request = rf.get("/")
     request.user = core_developer
@@ -41,9 +37,7 @@ def test_projects_success(rf, core_developer):
     assert len(response.context_data["projects"]) == 1
 
     project = response.context_data["projects"][0]
-    assert project["date_first_run"] == datetime(
-        2020, 7, 31, 0, 0, 0, tzinfo=timezone.utc
-    )
+    assert project["date_first_run"] == datetime(2020, 7, 31, 0, 0, 0, tzinfo=UTC)
     assert project["files_released_count"] == 15
     assert project["job_request_count"] == 2
     assert project["workspace_count"] == 1

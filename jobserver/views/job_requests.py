@@ -209,7 +209,6 @@ class JobRequestDetail(View):
             "project_definition": project_definition,
             "project_yaml_url": job_request.get_file_url("project.yaml"),
             "user_can_cancel_jobs": can_cancel_jobs,
-            "user_can_cancel_jobs": can_cancel_jobs,
             "view": self,
         }
 
