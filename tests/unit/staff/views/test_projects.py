@@ -187,12 +187,38 @@ def test_projectcreate_post_with_github_failure(rf, core_developer):
     response = ProjectCreate.as_view(get_github_api=FailingGitHubAPI)(request)
 
     assert response.status_code == 200, response.url
-    print(response.context_data["form"].errors)
 
     assert response.context_data["form"].errors == {
         "__all__": [
             "An error occurred when trying to create the required Repo on GitHub"
         ],
+    }
+
+
+def test_projectcreate_post_with_unique_number_failure(rf, core_developer):
+    org = OrgFactory()
+    user = UserFactory()
+
+    # create a project with the same number we want to use
+    ProjectFactory(number=7)
+
+    data = {
+        "application_url": "example.com",
+        "copilot": user.pk,
+        "name": "New Name-Name",
+        "number": "7",
+        "org": org.pk,
+    }
+    request = rf.post("/", data)
+    request.htmx = False
+    request.user = core_developer
+
+    response = ProjectCreate.as_view(get_github_api=FakeGitHubAPI)(request)
+
+    assert response.status_code == 200, response.url
+
+    assert response.context_data["form"].errors == {
+        "number": ["Project number must be unique"],
     }
 
 
