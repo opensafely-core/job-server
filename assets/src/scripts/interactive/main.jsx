@@ -69,8 +69,12 @@ root.render(
               </Route>
               <Route>
                 <div className="prose">
-                  <p className="lead">An error occurred</p>
-                  <p>404 - Page not found</p>
+                  <h2>An error occurred</h2>
+                  <p className="lead">You request was not submitted.</p>
+                  <p>
+                    Please try again, or{" "}
+                    <a href="mailto:team@opensafely.org">contact support</a>.
+                  </p>
                 </div>
               </Route>
             </Switch>
