@@ -8,8 +8,32 @@ class Index(TemplateView):
 
     def get_context_data(self, **kwargs):
         job_requests = JobRequest.objects.select_related(
-            "workspace", "workspace__project", "workspace__project__org"
-        ).order_by("-created_at")[:5]
+            "created_by", "workspace", "workspace__project", "workspace__project__org"
+        ).order_by("-created_at")
+
+        if not self.request.user.is_authenticated:
+            return super().get_context_data(**kwargs) | {
+                "all_job_requests": job_requests[:10],
+            }
+
+        analysis_requests = self.request.user.analysis_requests.select_related(
+            "project", "project__org"
+        ).order_by("-created_at")
+
+        applications = self.request.user.applications.order_by("-created_at")
+
+        projects = [
+            {
+                "name": m.project.title,
+                "url": m.project.get_absolute_url(),
+            }
+            for m in self.request.user.project_memberships.select_related(
+                "project", "project__org"
+            ).order_by("-created_at")[:5]
+        ]
+
+        user_job_requests = job_requests.filter(created_by=self.request.user)
+
         workspaces = (
             Workspace.objects.filter(
                 is_archived=False, project__in=self.request.user.projects.all()
@@ -26,7 +50,11 @@ class Index(TemplateView):
         }
 
         return super().get_context_data(**kwargs) | {
+            "all_job_requests": job_requests[:10],
+            "analysis_requests": analysis_requests[:5],
+            "applications": applications[:5],
             "counts": counts,
-            "job_requests": job_requests,
-            "workspaces": workspaces,
+            "job_requests": user_job_requests[:5],
+            "projects": projects,
+            "workspaces": workspaces[:5],
         }
