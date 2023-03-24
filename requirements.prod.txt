@@ -31,9 +31,9 @@ argon2-cffi-bindings==21.2.0 \
     --hash=sha256:f1152ac548bd5b8bcecfb0b0371f082037e47128653df2e8ba6e914d384f3c3e \
     --hash=sha256:f9f8b450ed0547e3d473fdc8612083fd08dd2120d6ac8f73828df9b7d45bb351
     # via argon2-cffi
-asgiref==3.5.2 \
-    --hash=sha256:1d2880b792ae8757289136f1db2b7b99100ce959b2aa57fd69dab783d05afac4 \
-    --hash=sha256:4a29362a6acebe09bf1d6640db38c1dc3d9217c68e6f9f6204d72667fc19a424
+asgiref==3.6.0 \
+    --hash=sha256:71e68008da809b957b7ee4b43dbccff33d1b23519fb8344e33f049897077afac \
+    --hash=sha256:9567dfe7bd8d3c8c892227827c41cce860b368104c3431da67a0c5a65a949506
     # via
     #   django
     #   django-structlog
@@ -308,9 +308,9 @@ django-permissions-policy==4.12.0 \
     --hash=sha256:1f10fc354110fef9270fbabbbf8d5358a6d6f5380c79f0dfba56dd41e45b1936 \
     --hash=sha256:88ee9cb345898414a6ad3f2eb0d8284c67decdfc43c6fc5331531b7c39809d8c
     # via -r requirements.prod.in
-django-structlog==4.1.1 \
-    --hash=sha256:6701948cd6d00bb0f826c8370dbb7dc9a6aefb720ac5a1c038493a10eff12495 \
-    --hash=sha256:8def459d8cd38726780265b36126ee1b5c87e3d468f12fe1985367591a294866
+django-structlog==5.0.1 \
+    --hash=sha256:2ae2ca4239292a662d1bd6c7656c704fcfd9545b2e39a9501fd1e23800b1a1c4 \
+    --hash=sha256:f7d1209e4e48d807d3c6e7212a4c96d572a03d3e0ade7a3c9053b49bc70b33b8
     # via -r requirements.prod.in
 django-vite==2.0.2 \
     --hash=sha256:5a2e11a9f08a2a0a69c9a7c637a3254ad0c8dd01e07cb40de09a3a180ed99791 \
