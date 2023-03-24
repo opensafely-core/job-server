@@ -6,8 +6,8 @@ Accepted
 
 ## Context
 
-We need to support dynamically generating code from user input as part of OSI.
-Functionally, this has two main parts: 1) the form the user fills in, and 2 analysis
+We need to support dynamically generated code from user input as part of OSI.
+Functionally, this has two main parts: 1) the form the user fills in, and 2) analysis
 code templates to be rendered with the form data.
 
 These two parts are tightly coupled - changes to the form data schema needs to
