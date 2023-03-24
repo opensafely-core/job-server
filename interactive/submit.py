@@ -42,6 +42,7 @@ def submit_analysis(
         created_by=creator,
         updated_by=creator,
         title=analysis.title,
+        purpose=analysis.purpose,
         template_data=asdict(analysis),
     )
 

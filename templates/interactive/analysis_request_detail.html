@@ -140,6 +140,10 @@
         {% #description_item stacked=True title="Created by" %}
           {% link href=analysis_request.created_by.get_staff_url text=analysis_request.created_by.fullname %}
         {% /description_item %}
+
+        {% #description_item stacked=True title="Purpose" %}
+          {{ analysis_request.purpose }}
+        {% /description_item %}
       </dl>
     {% /card %}
   </div>

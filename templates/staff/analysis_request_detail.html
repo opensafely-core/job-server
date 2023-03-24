@@ -60,16 +60,13 @@
 
         <div class="list-group list-group-flush">
           <div class="list-group-item">
-            <strong>Complete email sent at:</strong>
-            {% if analysis_request.complete_email_sent_at %}
-            <time datetime="{{ analysis_request.complete_email_sent_at }}">
-              {{ analysis_request.complete_email_sent_at }}
-              </a>
-            {% else %}
-            -
-            {% endif %}
+            <strong>Purpose</strong>
             <p class="text-muted mb-0 mt-1">
-              An email is sent to the request creator only when the report has been approved for release.
+              {% if analysis_request.purpose %}
+              {{ analysis_request.purpose }}
+              {% else %}
+              -
+              {% endif %}
             </p>
           </div>
         </div>

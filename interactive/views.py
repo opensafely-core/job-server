@@ -43,13 +43,13 @@ class AnalysisRequestCreate(View):
             created_by=self.request.user.email,
             demographics=raw.get("demographics", []),
             filter_population=raw.get("filterPopulation", ""),
+            purpose=raw.get("purpose", ""),
             repo=project.interactive_workspace.repo.url,
             time_scale=raw.get("timeScale", ""),
             time_value=int(raw.get("timeValue", 0)),
             title=raw.get("title", ""),
             start_date=START_DATE,
             end_date=END_DATE,
-            purpose="",
         )
 
     def dispatch(self, request, *args, **kwargs):

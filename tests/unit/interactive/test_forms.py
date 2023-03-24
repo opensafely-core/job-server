@@ -15,6 +15,7 @@ def test_analysisrequestform_success_with_one_codelists():
         "codelist_1_type": "event",
         "demographics": ["age"],
         "filter_population": "adults",
+        "purpose": "For… science!",
     }
     form = AnalysisRequestForm(data=data, codelists=codelists)
 
@@ -34,6 +35,7 @@ def test_analysisrequestform_success_with_two_codelists():
         "codelist_2_type": "medication",
         "demographics": ["age"],
         "filter_population": "adults",
+        "purpose": "For… science!",
         "time_scale": "months",
         "time_value": "12",
     }
@@ -58,6 +60,7 @@ def test_analysisrequestform_time_value_validation_failure(time_scale, time_valu
         "codelist_2_type": "medication",
         "demographics": ["age"],
         "filter_population": "adults",
+        "purpose": "For… science!",
         "time_scale": time_scale,
         "time_value": time_value,
     }
@@ -82,6 +85,7 @@ def test_analysisrequestform_time_value_validation_success(time_scale, time_valu
         "codelist_2_type": "medication",
         "demographics": ["age"],
         "filter_population": "adults",
+        "purpose": "For… science!",
         "time_scale": time_scale,
         "time_value": time_value,
     }

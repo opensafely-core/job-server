@@ -12,6 +12,7 @@ def field_to_choices(codelists, field):
 
 
 class AnalysisRequestForm(forms.Form):
+    purpose = forms.CharField()
     demographics = forms.MultipleChoiceField(
         choices=list_to_choices(
             [

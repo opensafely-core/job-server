@@ -89,10 +89,10 @@ def test_commit_and_push(build_repo, remote_repo, codelist_2, commit_message):
         filter_population="",
         repo=repo,
         id=pk,
+        purpose="",
         time_scale="",
         time_value=1,
         title="",
-        purpose="",
     )
 
     (repo / "first.txt").write_text("testing")
@@ -160,10 +160,10 @@ def test_create_commit(remote_repo, add_codelist, force):
         filter_population="",
         repo=str(remote_repo),
         id=pk,
+        purpose="",
         time_scale="",
         time_value=1,
         title="",
-        purpose="",
     )
 
     sha, project_yaml = create_commit(
@@ -191,7 +191,6 @@ def test_create_commit(remote_repo, add_codelist, force):
 
 
 def test_submit_analysis(remote_repo, add_codelist):
-
     add_codelist("org/slug-a", "codelist a")
     add_codelist("org/slug-b", "codelist b")
     backend = BackendFactory()
@@ -206,11 +205,11 @@ def test_submit_analysis(remote_repo, add_codelist):
         created_by=user.email,
         demographics=[],
         filter_population="",
+        purpose="test",
         repo=str(remote_repo),
         time_scale="",
         time_value=1,
         title="test",
-        purpose="test",
     )
 
     analysis_request = submit_analysis(

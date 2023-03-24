@@ -7,6 +7,7 @@ import QueryBuilder from "./pages/build-query";
 import FilterRequest from "./pages/filter-request";
 import FindCodelists from "./pages/find-codelists";
 import PreviewRequest from "./pages/preview-request";
+import Purpose from "./pages/purpose";
 import ReviewRequest from "./pages/review-request";
 import Success from "./pages/success";
 import { getAppData } from "./utils";
@@ -57,6 +58,9 @@ root.render(
               <Route path="filter-request">
                 <FilterRequest />
               </Route>
+              <Route path="purpose">
+                <Purpose />
+              </Route>
               <Route path="review-request">
                 <ReviewRequest />
               </Route>
@@ -65,8 +69,12 @@ root.render(
               </Route>
               <Route>
                 <div className="prose">
-                  <p className="lead">An error occurred</p>
-                  <p>404 - Page not found</p>
+                  <h2>An error occurred</h2>
+                  <p className="lead">You request was not submitted.</p>
+                  <p>
+                    Please try again, or{" "}
+                    <a href="mailto:team@opensafely.org">contact support</a>.
+                  </p>
                 </div>
               </Route>
             </Switch>
