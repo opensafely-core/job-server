@@ -34,17 +34,6 @@ def test_report_str():
     assert str(report) == "test"
 
 
-def test_report_published_check_constraint_missing_at():
-    with pytest.raises(IntegrityError):
-        ReportFactory(published_at=None, published_by=UserFactory())
-
-
-def test_report_published_check_constraint_missing_by():
-    with pytest.raises(IntegrityError):
-        # published_at uses auto_now so any value we passed in here is ignored
-        ReportFactory(published_at=timezone.now(), published_by=None)
-
-
 def test_report_updated_check_constraint_missing_at():
     ReportFactory(updated_by=UserFactory())
 
@@ -68,9 +57,6 @@ def test_reportpublishrequest_approve(freezer):
     request.refresh_from_db()
     assert request.approved_at == timezone.now()
     assert request.approved_by == user
-
-    assert request.report.published_at == timezone.now()
-    assert request.report.published_by == user
 
     rfile_publish_request = request.release_file_publish_request
 
