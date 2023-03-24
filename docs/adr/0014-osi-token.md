@@ -9,11 +9,11 @@ Accepted
 For OSI, job-server needs to be able to write generated code to Github.
 Previously, job-server only had read access to repos, as a security control.
 Granting arbitrary repo write permissions to job-server weakens the security
-layering, as it increases the possibly attcak vectors of what compromising
+layering, as it increases the possible attack vectors of what compromising
 job-server alone can do.
 
 The current read-only access is provided by the opensafely-readonly bot
-account, as classic PATs can not be restricted to read only access in any other
+account, as classic PATs cannot be restricted to read only access in any other
 way.
 
 We explored the new fine-grained PATs, but you can only restrict access to an
@@ -35,8 +35,8 @@ opensfely-interactive-bot user can only write to those repos.
 
 ## Consequences
 
-Job-server does now have a token than can write to repos. It is at least
-restricted to writing to interactive repos, and cannot access user's repos
+Job-server now has a token than can write to repos. It is at least
+restricted to writing to interactive repos, and cannot access user's repos.
 
 This unblocks OSIv2, but it does however remove the layer of protection we had
 originaly designed.  A compromised job-server can now run arbitrary code in any
