@@ -17,7 +17,15 @@ function CodelistBuilder() {
   const {
     dates: { startStr, endStr },
   } = useAppData();
-  const { values, setFieldValue, errors, touched } = useFormikContext();
+  const {
+    values,
+    setFieldValue,
+    errors,
+    touched,
+    validateField,
+    setFieldTouched,
+    setValues,
+  } = useFormikContext();
 
   const handleChange = (selectedItem) => {
     if (selectedItem === values.codelistA) {
@@ -60,6 +68,11 @@ function CodelistBuilder() {
           max="52"
           min="0"
           name="timeValue"
+          onChange={(e) => {
+            validateField("timeValue");
+            setFieldTouched("timeValue");
+            setFieldValue("timeValue", e.target.value);
+          }}
           type="text"
         />
         <Field
