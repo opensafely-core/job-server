@@ -899,6 +899,13 @@ class User(AbstractBaseUser):
         super().clean()
         self.email = self.__class__.objects.normalize_email(self.email)
 
+    @property
+    def initials(self):
+        if self.name == self.username:
+            return self.name[0].upper()
+
+        return "".join(w[0].upper() for w in self.name.split(" "))
+
     def get_all_permissions(self):
         """
         Get all Permissions for the current User
