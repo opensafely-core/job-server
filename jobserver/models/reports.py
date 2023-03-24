@@ -77,6 +77,10 @@ class Report(models.Model):
     def get_staff_url(self):
         return reverse("staff:report-detail", kwargs={"pk": self.pk})
 
+    @property
+    def is_published(self):
+        return hasattr(self, "publish_request") and self.publish_request.approved_at
+
 
 class ReportPublishRequest(models.Model):
     release_file_publish_request = models.OneToOneField(
