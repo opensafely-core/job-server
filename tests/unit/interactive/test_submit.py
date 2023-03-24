@@ -85,13 +85,14 @@ def test_commit_and_push(build_repo, remote_repo, codelist_2, commit_message):
         codelist_1=Codelist(label="", slug="slug-a", type=""),
         codelist_2=codelist_2,
         created_by=UserFactory().email,
-        demographics="",
+        demographics=[],
         filter_population="",
         repo=repo,
         id=pk,
         time_scale="",
-        time_value="",
+        time_value=1,
         title="",
+        purpose="",
     )
 
     (repo / "first.txt").write_text("testing")
@@ -155,13 +156,14 @@ def test_create_commit(remote_repo, add_codelist, force):
         codelist_1=Codelist(label="", slug="org/slug-a", type=""),
         codelist_2=Codelist(label="", slug="org/slug-b", type=""),
         created_by=UserFactory().email,
-        demographics="",
+        demographics=[],
         filter_population="",
         repo=str(remote_repo),
         id=pk,
         time_scale="",
-        time_value="",
+        time_value=1,
         title="",
+        purpose="",
     )
 
     sha, project_yaml = create_commit(
@@ -181,8 +183,8 @@ def test_create_commit(remote_repo, add_codelist, force):
     )
 
     files = ps.stdout.strip().split("\n")
-    assert "codelists/codelist_1.csv" in files
-    assert "codelists/codelist_2.csv" in files
+    assert "interactive_codelists/codelist_1.csv" in files
+    assert "interactive_codelists/codelist_2.csv" in files
     assert "project.yaml" in files
 
     assert commit_in_remote(remote=remote_repo, commit=sha)
@@ -202,12 +204,13 @@ def test_submit_analysis(remote_repo, add_codelist):
         codelist_1=Codelist(label="", slug="org/slug-a", type=""),
         codelist_2=Codelist(label="", slug="org/slug-b", type=""),
         created_by=user.email,
-        demographics="",
+        demographics=[],
         filter_population="",
         repo=str(remote_repo),
         time_scale="",
-        time_value="",
+        time_value=1,
         title="test",
+        purpose="test",
     )
 
     analysis_request = submit_analysis(
