@@ -24,6 +24,7 @@ from opentelemetry.trace.propagation import tracecontext
 from pipeline import YAMLError, load_pipeline
 from sentry_sdk import capture_message
 
+from ..authorization import InteractiveReporter
 from ..authorization.fields import RolesField
 from ..authorization.utils import strings_to_roles
 from ..hash_utils import hash_user_pat
@@ -976,6 +977,17 @@ class User(AbstractBaseUser):
             return False
 
         return True
+
+    @property
+    def is_interactive_only(self):
+        """
+        Does this user only have access the Interactive part of the platform
+
+        Because a user can have the InteractiveReporter role globally or via
+        any project, along with other roles, we needed an easy way to identify
+        when a user has only this role.
+        """
+        return self.all_roles == {InteractiveReporter}
 
     @property
     def name(self):

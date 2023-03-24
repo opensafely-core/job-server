@@ -8,6 +8,7 @@ from django.utils import timezone
 from jobserver.authorization.roles import (
     CoreDeveloper,
     DataInvestigator,
+    InteractiveReporter,
     OrgCoordinator,
     OutputChecker,
     OutputPublisher,
@@ -157,6 +158,29 @@ def test_user_get_staff_url():
 def test_user_name():
     assert UserFactory(fullname="first last", username="test").name == "first last"
     assert UserFactory(username="username").name == "username"
+
+
+def test_user_is_interactive_only():
+    # user ONLY has the InteractiveReporter role
+    assert UserFactory(roles=[InteractiveReporter]).is_interactive_only
+
+    user = UserFactory()
+    ProjectMembershipFactory(user=user, roles=[InteractiveReporter])
+    assert user.is_interactive_only
+
+    # user has the InteractiveReporter along with others
+    assert not UserFactory(
+        roles=[InteractiveReporter, ProjectDeveloper]
+    ).is_interactive_only
+
+    user = UserFactory()
+    ProjectMembershipFactory(
+        user=user, roles=[InteractiveReporter, ProjectCollaborator]
+    )
+    assert not user.is_interactive_only
+
+    # user has no roles
+    assert not UserFactory().is_interactive_only
 
 
 def test_user_is_unapproved_by_default():
