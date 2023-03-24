@@ -17,7 +17,7 @@ furl
 https://github.com/opensafely-core/pipeline/archive/refs/tags/v0.0.3.zip#egg=opensafely-pipeline
 gunicorn
 incuna-mail
-interactive_templates@https://github.com/opensafely-core/interactive-templates/archive/794c077e5fcb740c684609486c26a983fa2be819.zip
+interactive_templates@https://github.com/opensafely-core/interactive-templates/archive/f8e36a5399daace5bc6264352fd3c389a3ff55a4.zip
 itsdangerous
 lxml
 markdown

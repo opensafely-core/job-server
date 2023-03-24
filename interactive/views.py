@@ -41,14 +41,15 @@ class AnalysisRequestCreate(View):
             codelist_1=build_codelist(raw.get("codelistA", None)),
             codelist_2=build_codelist(raw.get("codelistB", None)),
             created_by=self.request.user.email,
-            demographics=raw.get("demographics", ""),
+            demographics=raw.get("demographics", []),
             filter_population=raw.get("filterPopulation", ""),
             repo=project.interactive_workspace.repo.url,
             time_scale=raw.get("timeScale", ""),
-            time_value=raw.get("timeValue", ""),
+            time_value=int(raw.get("timeValue", 0)),
             title=raw.get("title", ""),
             start_date=START_DATE,
             end_date=END_DATE,
+            purpose="",
         )
 
     def dispatch(self, request, *args, **kwargs):
