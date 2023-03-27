@@ -5,6 +5,9 @@
 {% load static %}
 
 {% block metatitle %}OpenSAFELY Jobs | Home{% endblock metatitle %}
+{% block extra_meta %}
+<meta name="description" content="OpenSAFELY Jobs provides an audit trail for every project using the OpenSAFELY platform. It logs all activity that uses real patient data.">
+{% endblock %}
 
 {% block content %}
   {% if user.is_authenticated %}
