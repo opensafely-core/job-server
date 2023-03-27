@@ -11,7 +11,7 @@
 
 {% block content %}
   {% if user.is_authenticated %}
-    {% #card container=True class="mb-12" %}
+    {% #card container=True class="my-6 sm:mb-12 md:mt-0" %}
       <h2 class="sr-only" id="profile-overview-title">Profile Overview</h2>
       <div class="flex items-center justify-center sm:justify-between">
         <div class="sm:flex sm:space-x-5 sm:items-center">
@@ -59,7 +59,7 @@
       </p>
     </div>
 
-    <div class="grid gap-2 lg:gap-4 lg:grid-cols-2 mb-6">
+    <div class="grid gap-4 lg:grid-cols-2 mb-6">
       {% if analysis_requests %}
         {% #card title="Analysis requests" subtitle="OpenSAFELY Interactive analysis requests you have created" %}
           {% if analysis_requests %}
