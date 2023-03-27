@@ -7,16 +7,23 @@
   {% endif %}
 >
   <div class="bg-white shadow">
-    {% if title or subtitle %}
-    <div class="px-4 py-2 sm:px-6 sm:py-3">
-      {% if title %}
-      <h2 id="{{ title | slugify }}-title" class="text-xl font-semibold tracking-tight text-slate-900">
-        {{ title }}
-      </h2>
-      {% endif %}
+    {% if title or subtitle or button %}
+    <div class="flex flex-wrap gap-y-2 items-center justify-between px-4 py-2 sm:px-6 sm:py-4 sm:flex-nowrap">
+      <div>
+        {% if title %}
+        <h2 id="{{ title | slugify }}-title" class="text-xl font-semibold tracking-tight text-slate-900">
+          {{ title }}
+        </h2>
+        {% endif %}
 
-      {% if subtitle %}
-      <p class="text-slate-600 text-sm leading-tight">{{ subtitle }}</p>
+        {% if subtitle %}
+        <p class="text-slate-600 text-sm leading-tight">{{ subtitle }}</p>
+        {% endif %}
+      </div>
+      {% if button %}
+        {% #button href=button_href type="link" variant="primary" %}
+          {{ button_text }}
+        {% /button %}
       {% endif %}
     </div>
     {% endif %}

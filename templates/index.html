@@ -174,20 +174,9 @@
     {% include "partials/home-page-content.html" %}
   {% endif %}
 
+  {% url "job-list" as job_list_url %}
   <div id="events" class="max-w-[1500px] w-full mx-auto">
-    {% #card class="col-span-2 mx-4" no_container=True %}
-      <div class="gap-y-2 px-4 py-2 sm:px-6 sm:py-4 flex flex-wrap items-center justify-between sm:flex-nowrap">
-        <div>
-          <h2 class="text-xl font-semibold tracking-tight text-slate-900">
-            Latest job requests
-          </h2>
-          <p class="text-slate-600 text-sm leading-tight">Most recent job requests on the OpenSAFELY platform</p>
-        </div>
-        {% url "job-list" as job_list_url %}
-        {% #button href=job_list_url type="link" variant="primary" %}
-          View all job requests
-        {% /button %}
-      </div>
+    {% #card class="mx-4" no_container=True title="Latest job requests" subtitle="Most recent job requests on the OpenSAFELY platform" button=True button_text="View all job requests" button_href=job_list_url %}
       <div class="overflow-hidden px-4 py-2 border-t border-slate-200 md:px-6">
         {% include 'partials/latest-jobs-tw.html' with job_requests=all_job_requests %}
       </div>
