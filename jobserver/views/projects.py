@@ -58,7 +58,7 @@ class ProjectDetail(View):
         else:
             first_job_ran_at = None
 
-        repos = Repo.objects.filter(workspaces__in=workspaces)
+        repos = Repo.objects.filter(workspaces__in=workspaces).distinct()
         all_repos = list(self.iter_repos(repos))
         private_repos = sorted(
             (r for r in all_repos if r["is_private"] or r["is_private"] is None),
