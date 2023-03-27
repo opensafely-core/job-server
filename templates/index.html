@@ -62,25 +62,15 @@
     <div class="grid gap-4 lg:grid-cols-2 mb-6">
       {% if analysis_requests %}
         {% #card title="Analysis requests" subtitle="OpenSAFELY Interactive analysis requests you have created" %}
-          {% if analysis_requests %}
             {% #list_group %}
               {% for analysis_request in analysis_requests %}
                 {% #list_group_item href=analysis_request.get_absolute_url %}
                   {{ analysis_request.title }}
                 {% /list_group_item %}
+            {% empty %}
+              {% list_group_empty icon=True title="No requests" description="You have not created any analysis requests" %}
               {% endfor %}
             {% /list_group %}
-          {% else %}
-            <div class="border-t border-t-slate200 text-center p-8">
-              {% icon_folder_outline class="mx-auto h-8 w-8 text-slate-400" %}
-              <h2 class="mt-2 text-lg font-semibold text-slate-900">
-                No requests
-              </h2>
-              <p class="mt-2 text-sm text-slate-600">
-                You have not created any analysis requests
-              </p>
-            </div>
-          {% endif %}
 
           {# {% #card_footer no_container=True %} #}
             {# {% url "interactive:list" as request_list_url %} #}
@@ -91,12 +81,13 @@
 
       {% if not user.is_interactive_only %}
         {% #card title="Job requests" subtitle="Your most recent job requests" %}
-          {% if job_requests %}
             {% #list_group %}
               {% for job_request in job_requests %}
                 {% #list_group_item href=job_request.get_absolute_url %}
                   {{ job_request.workspace.name }} ({{ job_request.id }}): {{ job_request.status|title }}
                 {% /list_group_item %}
+            {% empty %}
+              {% list_group_empty icon=True title="No job requests" description="You have not created any jobs requests" %}
               {% endfor %}
 
               {% if counts.job_requests > job_requests|length %}
@@ -106,28 +97,18 @@
                 {% /card_footer %}
               {% endif %}
             {% /list_group %}
-          {% else %}
-            <div class="border-t border-t-slate200 text-center p-8">
-              {% icon_folder_outline class="mx-auto h-8 w-8 text-slate-400" %}
-              <h2 class="mt-2 text-lg font-semibold text-slate-900">
-                No job requests
-              </h2>
-              <p class="mt-2 text-sm text-slate-600">
-                You have not creates any jobs requests
-              </p>
-            </div>
-          {% endif %}
         {% /card %}
       {% endif %}
 
       {% if not user.is_interactive_only %}
         {% #card title="Workspaces" subtitle="Workspaces you can access" %}
-          {% if workspaces %}
             {% #list_group %}
               {% for workspace in workspaces %}
                 {% #list_group_item href=workspace.get_absolute_url %}
                   {{ workspace.name }}
                 {% /list_group_item %}
+            {% empty %}
+              {% list_group_empty icon=True title="No workspaces" description="You do not currently have access to any workspaces" %}
               {% endfor %}
 
               {% if counts.workspaces > workspaces|length %}
@@ -136,30 +117,19 @@
                   {% link href=your_workspaces_url text="View all your workspaces →" %}
                 {% /card_footer %}
               {% endif %}
-
             {% /list_group %}
-          {% else %}
-            <div class="border-t border-t-slate200 text-center p-8">
-              {% icon_folder_outline class="mx-auto h-8 w-8 text-slate-400" %}
-              <h2 class="mt-2 text-lg font-semibold text-slate-900">
-                No workspaces
-              </h2>
-              <p class="mt-2 text-sm text-slate-600">
-                You do not currently have access to any workspaces
-              </p>
-            </div>
-          {% endif %}
         {% /card %}
       {% endif %}
 
       {% if not user.is_interactive_only %}
         {% #card title="Projects" subtitle="Your most recently updated projects" %}
-          {% if projects %}
             {% #list_group %}
               {% for project in projects %}
                 {% #list_group_item href=project.url %}
                   {{ project.name }}
                 {% /list_group_item %}
+            {% empty %}
+              {% list_group_empty icon=True title="No projects" description="You do not currently have access to any projects" %}
               {% endfor %}
             {% /list_group %}
 
@@ -169,29 +139,18 @@
                 {% link href=your_projects_url text="View all your projects →" %}
               {% /card_footer %}
             {% endif %}
-
-          {% else %}
-            <div class="border-t border-t-slate-200 text-center p-8">
-              {% icon_folder_outline class="mx-auto h-8 w-8 text-slate-400" %}
-              <h2 class="mt-2 text-lg font-semibold text-slate-900">
-                No projects
-              </h2>
-              <p class="mt-2 text-sm text-slate-600">
-                You do not currently have access to any projects
-              </p>
-            </div>
-          {% endif %}
         {% /card %}
       {% endif %}
 
-      {% if applications %}
+      {% if not user.is_interactive_only %}
         {% #card title="Applications" subtitle="Previously completed or in progress applications" %}
-          {% if applications %}
             {% #list_group %}
               {% for application in applications %}
                 {% #list_group_item href=application.get_absolute_url %}
                   Application {{ application.pk_hash }} started on {{ application.created_at|date:"d M Y" }}
                 {% /list_group_item %}
+            {% empty %}
+              {% list_group_empty icon=True title="No applications" description="You have not started an application" %}
               {% endfor %}
             {% /list_group %}
 
@@ -200,26 +159,10 @@
                 {% url "applications:list" as applications_url %}
                 {% link href=applications_url text="View all your applications →" %}
               {% else %}
-                {% url "applications:list" as applications_url %}
-                {% link href=applications_url text="Start an application →" %}
+              {% url "applications:start" as applications_start_url %}
+              {% link href=applications_start_url text="Start an application →" %}
               {% endif %}
             {% /card_footer %}
-
-          {% else %}
-            <div class="border-t border-t-slate-200 text-center p-8">
-              {% icon_folder_outline class="mx-auto h-8 w-8 text-slate-400" %}
-              <h2 class="mt-2 text-lg font-semibold text-slate-900">
-                No projects
-              </h2>
-              <p class="mt-2 text-sm text-slate-600">
-                You do not currently have access to any projects
-              </p>
-            </div>
-            {% #card_footer no_container=True %}
-              {% url "applications:start" as applications_url %}
-              {% link href=applications_url text="Start an application →" %}
-            {% /card_footer %}
-          {% endif %}
         {% /card %}
       {% endif %}
     </div>
