@@ -102,94 +102,63 @@
   </div>
 
   <div class="grid grid-cols-1 gap-6 lg:grid-cols-3">
-    {% if workspaces %}
-      {% #card class="lg:col-span-2" aria_labelled_by="workspaces-title" %}
-        <div class="px-4 py-2 sm:px-6 sm:py-3">
-          <div class="flex flex-wrap items-center justify-between sm:flex-nowrap">
-            <h2 id="workspaces-title" class="text-xl font-semibold tracking-tight text-slate-900">
-              Workspaces
-            </h2>
-            {% if can_create_workspaces %}
-              {% url 'workspace-create' org_slug=project.org.slug project_slug=project.slug as new_workspace_url %}
-              {% #button href=new_workspace_url type="link" variant="primary" %}
-                Create a new workspace
-              {% /button %}
-            {% endif %}
-          </div>
-        </div>
-
-        <ul aria-label="Workspaces within &quot;{{ project.name }}&quot;" class="divide-y divide-slate-200 border-t border-t-slate-200">
-          {% for workspace in workspaces %}
-            <li class="relative transition-colors hover:bg-oxford-50 group">
-              <dl class="flex flex-col gap-2 px-4 py-4 sm:px-6">
-                <div class="flex gap-x-2">
-                  <dt class="sr-only">Workspace:</dt>
-                  <dd class="
-                    text-base font-semibold text-oxford-600 transition-colors truncate
-                    group-hover:text-oxford-900
-                    group-focus:text-oxford-900
-                  ">
-                    <a
-                      class="
-                        focus:bg-oxford-50 focus:outline-none focus:ring-2 focus:ring-inset
-                        before:absolute before:top-0 before:bottom-0 before:right-0 before:left-0 before:h-full before:w-full"
-                      href="{{ workspace.get_absolute_url }}"
-                    >
-                      {{ workspace.name }}
-                    </a>
-                  </dd>
-                  <dt class="sr-only">Status:</dt>
-                  <dd class="ml-auto flex-shrink-0">
-                    {% if workspace.is_archived %}
-                      {% pill variant="warning" text="Archived" %}
-                    {% else %}
-                      {% pill variant="primary" text="Active" %}
-                    {% endif %}
-                  </dd>
-                </div>
-                <div class="flex flex-col gap-2 text-sm text-slate-600 sm:flex-row sm:gap-x-4">
-                  <dt class="sr-only">GitHub repository:</dt>
-                  <dd class="flex flex-row items-start overflow-hidden sm:max-w-[50%]">
-                    {% icon_github_outline class="mr-1.5 h-5 w-5 flex-shrink-0 text-slate-400" %}
-                    <span class="truncate">{{ workspace.repo.name }}</span>
-                  </dd>
-                  <dt class="sr-only">Git branch:</dt>
-                  <dd class="flex flex-row items-start overflow-hidden sm:max-w-[50%]">
-                    {% icon_branches_outline class="mr-1.5 h-5 w-5 flex-shrink-0 text-slate-400" %}
-                    <span class="truncate">{{ workspace.branch }}</span>
-                  </dd>
-                  <dt class="sr-only">Created at:</dt>
-                  <dd class="flex flex-row flex-shrink-0 items-start sm:ml-auto">
-                    {% icon_calendar_outline class="mr-1.5 h-5 w-5 flex-shrink-0 text-slate-400" %}
-                    <time datetime="{{ workspace.created_at|date:"Y-m-d H:i:sO" }}">
-                      {{ workspace.created_at|date:"d M Y" }}
-                    </time>
-                  </dd>
-                </div>
-              </dl>
-            </li>
-          {% endfor %}
-        </ul>
-      {% /card %}
-    {% else %}
-      {% #card class="lg:col-span-2" %}
-        <div class="text-center p-8">
-          {% icon_folder_outline class="mx-auto h-12 w-12 text-slate-400" %}
-          <h2 class="mt-2 text-lg font-semibold text-slate-900">
-            No workspaces
-          </h2>
-          <p class="mt-2 text-base text-slate-600">
-            This projects does not have any workspaces yet
-          </p>
-          {% if can_create_workspaces %}
-            {% url 'workspace-create' org_slug=project.org.slug project_slug=project.slug as new_workspace_url %}
-            {% #button class="mt-4" href=new_workspace_url type="link" variant="primary" %}
-              Create a new workspace
-            {% /button %}
-          {% endif %}
-        </div>
-      {% /card %}
-    {% endif %}
+    {% url 'workspace-create' org_slug=project.org.slug project_slug=project.slug as new_workspace_url %}
+    {% #card class="lg:col-span-2" title="Workspaces" button=can_create_workspaces button_link=new_workspace_url button_text="Create a new workspace"  %}
+      {% #list_group %}
+        {% for workspace in workspaces %}
+          <li class="relative transition-colors hover:bg-oxford-50 group">
+            <dl class="flex flex-col gap-2 px-4 py-4 sm:px-6">
+              <div class="flex gap-x-2">
+                <dt class="sr-only">Workspace:</dt>
+                <dd class="
+                  text-base font-semibold text-oxford-600 transition-colors truncate
+                  group-hover:text-oxford-900
+                  group-focus:text-oxford-900
+                ">
+                  <a
+                    class="
+                      focus:bg-oxford-50 focus:outline-none focus:ring-2 focus:ring-inset
+                      before:absolute before:top-0 before:bottom-0 before:right-0 before:left-0 before:h-full before:w-full"
+                    href="{{ workspace.get_absolute_url }}"
+                  >
+                    {{ workspace.name }}
+                  </a>
+                </dd>
+                <dt class="sr-only">Status:</dt>
+                <dd class="ml-auto flex-shrink-0">
+                  {% if workspace.is_archived %}
+                    {% pill variant="warning" text="Archived" %}
+                  {% else %}
+                    {% pill variant="primary" text="Active" %}
+                  {% endif %}
+                </dd>
+              </div>
+              <div class="flex flex-col gap-2 text-sm text-slate-600 sm:flex-row sm:gap-x-4">
+                <dt class="sr-only">GitHub repository:</dt>
+                <dd class="flex flex-row items-start overflow-hidden sm:max-w-[50%]">
+                  {% icon_github_outline class="mr-1.5 h-5 w-5 flex-shrink-0 text-slate-400" %}
+                  <span class="truncate">{{ workspace.repo.name }}</span>
+                </dd>
+                <dt class="sr-only">Git branch:</dt>
+                <dd class="flex flex-row items-start overflow-hidden sm:max-w-[50%]">
+                  {% icon_branches_outline class="mr-1.5 h-5 w-5 flex-shrink-0 text-slate-400" %}
+                  <span class="truncate">{{ workspace.branch }}</span>
+                </dd>
+                <dt class="sr-only">Created at:</dt>
+                <dd class="flex flex-row flex-shrink-0 items-start sm:ml-auto">
+                  {% icon_calendar_outline class="mr-1.5 h-5 w-5 flex-shrink-0 text-slate-400" %}
+                  <time datetime="{{ workspace.created_at|date:"Y-m-d H:i:sO" }}">
+                    {{ workspace.created_at|date:"d M Y" }}
+                  </time>
+                </dd>
+              </div>
+            </dl>
+          </li>
+        {% empty %}
+          {% list_group_empty icon=True title="No workspaces" description="This projects does not have any workspaces yet" %}
+        {% endfor %}
+      {% /list_group %}
+    {% /card %}
 
     <div class="lg:col-start-3 lg:col-span-1 gap-y-6 flex flex-col">
       {% #card title="Project timeline" container=True %}

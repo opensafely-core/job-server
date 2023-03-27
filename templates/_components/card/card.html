@@ -1,22 +1,22 @@
-<section
-  {% attrs class %}
-  {% if aria_labelled_by %}
-    aria-labelledby="{{ aria_labelled_by }}"
-  {% else %}
-    aria-labelledby="{{ title | slugify }}-title"
-  {% endif %}
->
+<section {% attrs class %} aria-labelledby="{{ title | slugify }}-title">
   <div class="bg-white shadow">
-    {% if title or subtitle %}
-    <div class="px-4 py-2 sm:px-6 sm:py-3">
-      {% if title %}
-      <h2 id="{{ title | slugify }}-title" class="text-xl font-semibold tracking-tight text-slate-900">
-        {{ title }}
-      </h2>
-      {% endif %}
+    {% if title or subtitle or button %}
+    <div class="flex flex-wrap gap-2 items-start justify-between px-4 py-2 sm:px-6 sm:py-4 sm:flex-nowrap">
+      <div>
+        {% if title %}
+        <h2 id="{{ title | slugify }}-title" class="text-xl font-semibold tracking-tight text-slate-900">
+          {{ title }}
+        </h2>
+        {% endif %}
 
-      {% if subtitle %}
-      <p class="text-slate-600 text-sm leading-tight">{{ subtitle }}</p>
+        {% if subtitle %}
+        <p class="text-slate-600 text-sm leading-tight">{{ subtitle }}</p>
+        {% endif %}
+      </div>
+      {% if button %}
+        {% #button class="flex-shrink-0" href=button_href type="link" variant="primary" %}
+          {{ button_text }}
+        {% /button %}
       {% endif %}
     </div>
     {% endif %}
