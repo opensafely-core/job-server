@@ -270,6 +270,21 @@
         {% /card %}
       {% endif %}
 
+      {% #card title="Reports" %}
+        {% #list_group small=True %}
+          {% for report in reports %}
+          {% #list_group_item href=report.get_absolute_url %}
+            {{ report.title }}
+            {% if not report.is_published %}
+              {% pill class="ml-2" text="Not published" variant="primary" %}
+            {% endif %}
+          {% /list_group_item %}
+          {% empty %}
+          {% list_group_empty description="No reports added to this workspace" %}
+          {% endfor %}
+        {% /list_group %}
+      {% /card %}
+
       {% #card title="Monitoring" subtitle="Honeycomb login required" %}
         {% #list_group small=True %}
           {% #list_group_item href=honeycomb_link %}
