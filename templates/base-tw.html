@@ -35,12 +35,12 @@
 
     {% block breadcrumbs %}{% endblock %}
 
-
     <main class="min-h-[66vh] flex-grow pb-12 bg-slate-100">
       <div class="container xl:max-w-screen-xl pt-2 md:pt-6 pb-4" id="content">
         {% include "partials/alerts-tw.html" %}
         {% block content %}{% endblock %}
       </div>
+      {% block full_width_content %}{% endblock full_width_content %}
     </main>
 
     {% footer nav=nav %}

@@ -20,6 +20,8 @@ components:
   timeline_item: "_components/timeline-item.html"
   tooltip: "_components/tooltip.html"
 
+  icon_academic_cap_outline: "_icons/academic-cap-outline.svg"
+  icon_beaker_outline: "_icons/beaker-outline.svg"
   icon_branches_outline: "_icons/branches-outline.svg"
   icon_building_library_outline: "_icons/building-library-outline.svg"
   icon_calendar_outline: "_icons/calendar-outline.svg"
@@ -27,7 +29,9 @@ components:
   icon_check_outline: "_icons/check-outline.svg"
   icon_chevron_right_outline: "_icons/chevron-right-outline.svg"
   icon_clock_outline: "_icons/clock-outline.svg"
+  icon_clock_solid: "_icons/clock-solid.svg"
   icon_code_bracket_outline: "_icons/code-bracket-outline.svg"
+  icon_clipboard_document_check_outline: "_icons/clipboard-document-check-outline.svg"
   icon_custom_spinner: "_icons/custom/spinner.svg"
   icon_ellipsis_horizontal_outline: "_icons/ellipsis-horizontal-outline.svg"
   icon_exclamation_solid: "_icons/exclamation-solid.svg"

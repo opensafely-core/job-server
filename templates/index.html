@@ -1,130 +1,387 @@
-{% extends "base.html" %}
+{% extends "base-tw.html" %}
 
 {% load django_vite %}
+{% load humanize %}
 {% load static %}
 
 {% block metatitle %}OpenSAFELY Jobs | Home{% endblock metatitle %}
 
-{% block jumbotron %}
-<div class="jumbotron jumbotron-fluid">
-  <div class="container">
-    <h1 class="display-4">OpenSAFELY Jobs</h1>
-    <p class="lead">
-      This site logs all jobs executed on production data as they happen, with a link to
-      the Github repository and commit reference that uniquely identifies the exact code
-      that was run.
-    </p>
-    <p>
-      Pick a Workspace below to get started running your research on the OpenSAFELY
-      platform or look at some of the existing research tasks that have been created to
-      run on it.
-    </p>
-  </div>
-</div>
-{% endblock jumbotron %}
-
 {% block content %}
-<div class="container">
-  <div class="row">
-    {% if workspaces %}
-    <div class="col-12 mb-5 workspace-select">
-      <div id="workspace-list">
-
-        <input
-          class="form-control mb-3 fuzzy-search"
-          type="search"
-          placeholder="Filter workspaces by name"
-          aria-label="Search" />
-
-        <div class="list-group mb-3 overflow-auto list">
-          {% for workspace in workspaces %}
-          <a
-            class="list-group-item list-group-item-action d-flex justify-content-between align-items-center"
-            href="{{ workspace.get_absolute_url }}">
-            <span class="mr-2 name">{{ workspace.name }}</span>
-            <code class="d-none d-md-block text-right font-weight-normal">
-              {% spaceless %}
-              <span class="repo">{{ workspace.repo.name }}</span>
-              <span>|</span>
-              <span class="branch">{{ workspace.branch }}</span>
-              {% endspaceless %}
-            </code>
-          </a>
-          {% endfor %}
-        </div>
-
-        {% if request.user.is_authenticated and request.user.orgs.exists %}
-        <div class="text-center">
-          <p><strong>OR</strong></p>
-
-          <p>
-            Pick {% if request.user.orgs.count > 1 %}an organisation then {% endif %}a project to create a workspace in
-          </p>
-
-          <div class="d-flex justify-content-center">
-            <a
-              {% if request.user.orgs.count > 1 %}
-              href="{% url 'your-orgs' %}"
-              {% else %}
-              href="{% url 'org-detail' org_slug=request.user.orgs.first.slug %}"
-              {% endif %}
-              class="btn btn-lg btn-primary">
-              Create a new workspace
-            </a>
+  {% if user.is_authenticated %}
+    {% #card container=True class="mb-12" %}
+      <h2 class="sr-only" id="profile-overview-title">Profile Overview</h2>
+      <div class="flex items-center justify-center sm:justify-between">
+        <div class="sm:flex sm:space-x-5 sm:items-center">
+          <div class="flex-shrink-0">
+            <div
+              class="flex items-center justify-center w-16 h-16 bg-oxford-100 aspect-square rounded-2xl border border-oxford-500/25 overflow-hidden flex-shrink-0 mx-auto sm:mx-0"
+            >
+              <span class="py-2 text-oxford-600 text-2xl font-bold" role="presentation">
+                {{ user.initials }}
+              </span>
+            </div>
           </div>
-
+          <div class="mt-4 text-center sm:mt-0 sm:text-left">
+            <p class="text-sm font-medium text-slate-600">Welcome back,</p>
+            <p class="text-xl font-bold text-slate-900 sm:text-2xl">{{ user.name }}</p>
+          </div>
         </div>
-        {% endif %}
-
       </div>
+      {% if not user.is_interactive_only %}
+        {% #card_footer class="!py-0 !px-0 !-mb-3 md:!-mb-5" %}
+          <ul class="grid grid-cols-1 divide-y divide-slate-200 border-t border-slate-200 bg-slate-50 sm:grid-cols-3 sm:divide-y-0 sm:divide-x">
+            <li class="px-6 py-5 text-center text-sm font-medium text-slate-600">
+              <span class="text-slate-900">{{ counts.job_requests }}</span>
+              <span class="text-slate-600">job request{{ counts.job_requests|pluralize }}</span>
+            </li>
+
+            <li class="px-6 py-5 text-center text-sm font-medium">
+              <span class="text-slate-900">{{ counts.workspaces }}</span>
+              <span class="text-slate-600">workspace{{ counts.workspaces|pluralize }}</span>
+            </li>
+
+            <li class="px-6 py-5 text-center text-sm font-medium">
+              <span class="text-slate-900">{{ counts.projects }}</span>
+              <span class="text-slate-600">project{{ counts.projects|pluralize }}</span>
+            </li>
+          </ul>
+        {% /card_footer %}
+      {% endif %}
+    {% /card %}
+
+    <div class="border-b border-slate-200 pb-5 mb-5 text-center">
+      <h3 class="text-xl font-semibold leading-6 text-slate-900">Your OpenSAFELY Dashboard</h3>
+      <p class="mt-2 max-w-4xl text-base text-center mx-auto text-slate-700">
+        Continue your research, view job requests, see latest workspace activity
+      </p>
     </div>
-    {% endif %}
 
-    <section class="col-12">
-      <h2 class="h3">Latest Jobs</h2>
-      <p>Below are the 5 latest requests for Jobs to be run on the OpenSAFELY platform.</p>
+    <div class="grid gap-2 lg:gap-4 lg:grid-cols-2 mb-6">
+      {% if analysis_requests %}
+        {% #card title="Analysis requests" subtitle="OpenSAFELY Interactive analysis requests you have created" %}
+          {% if analysis_requests %}
+            {% #list_group %}
+              {% for analysis_request in analysis_requests %}
+                {% #list_group_item href=analysis_request.get_absolute_url %}
+                  {{ analysis_request.title }}
+                {% /list_group_item %}
+              {% endfor %}
+            {% /list_group %}
+          {% else %}
+            <div class="border-t border-t-slate200 text-center p-8">
+              {% icon_folder_outline class="mx-auto h-8 w-8 text-slate-400" %}
+              <h2 class="mt-2 text-lg font-semibold text-slate-900">
+                No requests
+              </h2>
+              <p class="mt-2 text-sm text-slate-600">
+                You have not created any analysis requests
+              </p>
+            </div>
+          {% endif %}
 
-      <div class="table-responsive">
-        <table class="table table-striped job-table">
-          <thead class="thead-light">
-            <tr>
-              <th><span class="sr-only">Status</span></th>
-              <th>Workspace</th>
-              <th>Started at</th>
-              <th><span class="sr-only">Action</span></th>
-            </tr>
-          </thead>
-          <tbody>
-            {% for job_request in job_requests %}
-            <tr>
-              <td>
-                <div class="status status-icon {{ job_request.status }} mx-auto"></div>
-              </td>
-              <td>{{ job_request.workspace.name }}</td>
-              <td>{{ job_request.started_at|date:"Y-m-d H:i:sO"|default:"-" }}</td>
-              <td>
-                <a class="btn btn-sm btn-primary" href="{{ job_request.get_absolute_url }}">
-                  View
-                </a>
-              </td>
-            </tr>
-            {% endfor %}
-          </tbody>
-        </table>
-      </div>
-      <div class="d-flex justify-content-center mt-3">
-        <a class="btn btn-primary text-center" href="{% url 'job-list' %}">
-          View all logs
-        </a>
-      </div>
-    </section>
-  </div>
-</div>
+          {# {% #card_footer no_container=True %} #}
+            {# {% url "interactive:list" as request_list_url %} #}
+            {# {% link href=request_list_url text="View all requests →" %} #}
+          {# {% /card_footer %} #}
+        {% /card %}
+      {% endif %}
+
+      {% if not user.is_interactive_only %}
+        {% #card title="Job requests" subtitle="Your most recent job requests" %}
+          {% if job_requests %}
+            {% #list_group %}
+              {% for job_request in job_requests %}
+                {% #list_group_item href=job_request.get_absolute_url %}
+                  {{ job_request.workspace.name }} ({{ job_request.id }}): {{ job_request.status|title }}
+                {% /list_group_item %}
+              {% endfor %}
+
+              {% if counts.job_requests > job_requests|length %}
+                {% #card_footer no_container=True %}
+                  {% url "job-list" as job_list_url %}
+                  {% link href=job_list_url|add:"?username="|add:user.username text="View all your job requests →" %}
+                {% /card_footer %}
+              {% endif %}
+            {% /list_group %}
+          {% else %}
+            <div class="border-t border-t-slate200 text-center p-8">
+              {% icon_folder_outline class="mx-auto h-8 w-8 text-slate-400" %}
+              <h2 class="mt-2 text-lg font-semibold text-slate-900">
+                No job requests
+              </h2>
+              <p class="mt-2 text-sm text-slate-600">
+                You have not creates any jobs requests
+              </p>
+            </div>
+          {% endif %}
+        {% /card %}
+      {% endif %}
+
+      {% if not user.is_interactive_only %}
+        {% #card title="Workspaces" subtitle="Workspaces you can access" %}
+          {% if workspaces %}
+            {% #list_group %}
+              {% for workspace in workspaces %}
+                {% #list_group_item href=workspace.get_absolute_url %}
+                  {{ workspace.name }}
+                {% /list_group_item %}
+              {% endfor %}
+
+              {% if counts.workspaces > workspaces|length %}
+                {% #card_footer no_container=True %}
+                  {% url "your-workspaces" as your_workspaces_url %}
+                  {% link href=your_workspaces_url text="View all your workspaces →" %}
+                {% /card_footer %}
+              {% endif %}
+
+            {% /list_group %}
+          {% else %}
+            <div class="border-t border-t-slate200 text-center p-8">
+              {% icon_folder_outline class="mx-auto h-8 w-8 text-slate-400" %}
+              <h2 class="mt-2 text-lg font-semibold text-slate-900">
+                No workspaces
+              </h2>
+              <p class="mt-2 text-sm text-slate-600">
+                You do not currently have access to any workspaces
+              </p>
+            </div>
+          {% endif %}
+        {% /card %}
+      {% endif %}
+
+      {% if not user.is_interactive_only %}
+        {% #card title="Projects" subtitle="Your most recently updated projects" %}
+          {% if projects %}
+            {% #list_group %}
+              {% for project in projects %}
+                {% #list_group_item href=project.url %}
+                  {{ project.name }}
+                {% /list_group_item %}
+              {% endfor %}
+            {% /list_group %}
+
+            {% if counts.projects > projects|length %}
+              {% #card_footer no_container=True %}
+                {% url "your-projects" as your_projects_url %}
+                {% link href=your_projects_url text="View all your projects →" %}
+              {% /card_footer %}
+            {% endif %}
+
+          {% else %}
+            <div class="border-t border-t-slate-200 text-center p-8">
+              {% icon_folder_outline class="mx-auto h-8 w-8 text-slate-400" %}
+              <h2 class="mt-2 text-lg font-semibold text-slate-900">
+                No projects
+              </h2>
+              <p class="mt-2 text-sm text-slate-600">
+                You do not currently have access to any projects
+              </p>
+            </div>
+          {% endif %}
+        {% /card %}
+      {% endif %}
+
+      {% if applications %}
+        {% #card title="Applications" subtitle="Previously completed or in progress applications" %}
+          {% if applications %}
+            {% #list_group %}
+              {% for application in applications %}
+                {% #list_group_item href=application.get_absolute_url %}
+                  Application {{ application.pk_hash }} started on {{ application.created_at|date:"d M Y" }}
+                {% /list_group_item %}
+              {% endfor %}
+            {% /list_group %}
+
+            {% #card_footer no_container=True %}
+              {% if counts.applications > applications|length %}
+                {% url "applications:list" as applications_url %}
+                {% link href=applications_url text="View all your applications →" %}
+              {% else %}
+                {% url "applications:list" as applications_url %}
+                {% link href=applications_url text="Start an application →" %}
+              {% endif %}
+            {% /card_footer %}
+
+          {% else %}
+            <div class="border-t border-t-slate-200 text-center p-8">
+              {% icon_folder_outline class="mx-auto h-8 w-8 text-slate-400" %}
+              <h2 class="mt-2 text-lg font-semibold text-slate-900">
+                No projects
+              </h2>
+              <p class="mt-2 text-sm text-slate-600">
+                You do not currently have access to any projects
+              </p>
+            </div>
+            {% #card_footer no_container=True %}
+              {% url "applications:start" as applications_url %}
+              {% link href=applications_url text="Start an application →" %}
+            {% /card_footer %}
+          {% endif %}
+        {% /card %}
+      {% endif %}
+    </div>
+  {% endif %}
 {% endblock content %}
 
-{% block extra_js %}
-  <script src="{% static 'vendor/list.min.js' %}"></script>
-  {% vite_asset 'assets/src/scripts/index.js' %}
-  {% vite_legacy_polyfills %}
-  {% vite_legacy_asset 'assets/src/scripts/index-legacy.js' %}
-{% endblock %}
+{% block full_width_content %}
+  {% if not user.is_authenticated %}
+    <div class="isolate sm:bg-bn-blush-50 relative overflow-hidden -mt-5 md:-mt-9">
+      <div class="hidden sm:block absolute inset-x-0 -z-10 transform-gpu overflow-hidden blur-3xl opacity-25">
+        <svg class="relative -z-10 max-w-none -top-1/2" viewBox="0 0 1155 678">
+          <path fill="url(#45de2b6b-92d5-4d68-a6a0-9b9b2abad533)" d="M317.219 518.975L203.852 678 0 438.341l317.219 80.634 204.172-286.402c1.307 132.337 45.083 346.658 209.733 145.248C936.936 126.058 882.053-94.234 1031.02 41.331c119.18 108.451 130.68 295.337 121.53 375.223L855 299l21.173 362.054-558.954-142.079z" />
+          <defs>
+            <linearGradient id="45de2b6b-92d5-4d68-a6a0-9b9b2abad533" x1="1155.49" x2="-78.208" y1=".177" y2="474.645" gradientUnits="userSpaceOnUse">
+              <stop class="text-bn-blush-600" stop-color="currentColor" />
+              <stop class="text-bn-strawberry-600" offset="1" stop-color="currentColor" />
+            </linearGradient>
+          </defs>
+        </svg>
+      </div>
+      <div class="bg-bn-blush-50 sm:bg-transparent relative px-6 lg:px-8">
+        <div class="mx-auto max-w-2xl py-16 sm:py-24 lg:py-32">
+          <div class=" grid gap-y-6 text-center text-lg leading-relaxed text-oxford-800">
+            <h1 class="text-4xl font-bold tracking-tight text-oxford-900 sm:text-6xl">
+              OpenSAFELY Jobs
+            </h1>
+            <p>
+              OpenSAFELY Jobs provides an audit trail for every project using the OpenSAFELY platform.
+              It logs all activity that uses real patient data. It includes links to all the analytic code ever run, and all published outputs.
+            </p>
+            <p>
+              Authorised users can use this site to manage their projects and trigger their code to run in one of the secure environments.
+            </p>
+            <div class="flex items-center justify-center gap-x-3">
+              {% #button type="link" variant="primary" href="#events" %}View live activity{% /button %}
+              {% #button type="link" variant="secondary-outline" href="https://www.opensafely.org/" %}Learn more <span class="ml-1" aria-hidden="true">→</span>{% /button %}
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="py-24 sm:py-32">
+      <div class="mx-auto max-w-7xl px-6 lg:px-8">
+        <div class="mx-auto max-w-2xl lg:text-center">
+          <h2 class="text-base font-semibold leading-6 text-oxford-600">
+            Why OpenSAFELY?
+          </h2>
+          <p class="mt-2 text-3xl font-bold tracking-tight text-slate-900 sm:text-4xl">
+            Better research, improved patient confidentiality
+          </p>
+          <p class="mt-6 text-lg leading-8 text-slate-600">
+            OpenSAFELY is a highly secure, transparent, open-source software platform for analysis of electronic health records data.
+          </p>
+        </div>
+        <div class="mx-auto mt-16 max-w-2xl sm:mt-20 lg:mt-24 lg:max-w-4xl">
+          <dl class="grid max-w-xl grid-cols-1 gap-y-10 gap-x-8 lg:max-w-none lg:grid-cols-2 lg:gap-y-16">
+            <div class="relative pl-16">
+              <dt class="text-base font-semibold leading-6 text-slate-900">
+                <div class="absolute top-0 left-0 flex h-10 w-10 items-center justify-center rounded-lg bg-oxford-600">
+                  {% icon_building_library_outline class="h-6 w-6 text-white" %}
+                </div>
+                Protecting privacy
+              </dt>
+              <dd class="mt-2 text-base leading-6 text-slate-600">
+                We never let researchers download patient data, and OpenSAFELY tools let users to write code to analyse patient data without even needing to view the raw records.
+              </dd>
+            </div>
+
+            <div class="relative pl-16">
+              <dt class="text-base font-semibold leading-6 text-slate-900">
+                <div class="absolute top-0 left-0 flex h-10 w-10 items-center justify-center rounded-lg bg-oxford-600">
+                  {% icon_clipboard_document_check_outline class="h-6 w-6 text-white" %}
+                </div>
+                Auditable by the public
+              </dt>
+              <dd class="mt-2 text-base leading-6 text-slate-600">
+                It is a privilege to use patient data for the public good. OpenSAFELY respects patients by carefully considering this in every part of its design.
+              </dd>
+            </div>
+
+            <div class="relative pl-16">
+              <dt class="text-base font-semibold leading-6 text-slate-900">
+                <div class="absolute top-0 left-0 flex h-10 w-10 items-center justify-center rounded-lg bg-oxford-600">
+                  {% icon_beaker_outline class="h-6 w-6 text-white" %}
+                </div>
+                Better, open science
+              </dt>
+              <dd class="mt-2 text-base leading-6 text-slate-600">
+                OpenSAFELY requires publication of all analytic code, and our tools drive all users to produce prespecified, reusable, testable, shareable and modular software for research.
+              </dd>
+            </div>
+
+            <div class="relative pl-16">
+              <dt class="text-base font-semibold leading-6 text-slate-900">
+                <div class="absolute top-0 left-0 flex h-10 w-10 items-center justify-center rounded-lg bg-oxford-600">
+                  {% icon_academic_cap_outline class="h-6 w-6 text-white" %}
+                </div>
+                Enabling high volumes of research
+              </dt>
+              <dd class="mt-2 text-base leading-6 text-slate-600">
+                Over 25 organisations have used OpenSAFELY to create published research.
+              </dd>
+            </div>
+          </dl>
+        </div>
+      </div>
+    </div>
+
+    <div class="bg-white shadow-inner py-12 sm:py-20 mb-12">
+      <div class="mx-auto max-w-7xl px-6 lg:px-8">
+        <h2 class="-mt-6 text-center text-lg font-semibold leading-8 text-slate-900 uppercase">Working In Partnership With</h2>
+        <div class="mx-auto mt-10 grid max-w-lg grid-cols-2 items-center gap-x-6 gap-y-10 sm:max-w-xl sm:grid-cols-6 sm:gap-x-8 lg:mx-0 lg:max-w-none lg:grid-cols-5">
+          <img
+            alt="University of Oxford logo"
+            class="col-span-2 max-h-20 w-full object-contain lg:col-span-1"
+            loading="lazy"
+            src="{% static 'logos/oxford-logo.svg' %}"
+          >
+          <img
+            alt="Nuffield Department of Primary Care Health Sciences logo"
+            class="col-span-2 max-h-20 w-full object-contain lg:col-span-1"
+            loading="lazy"
+            src="{% static 'logos/nuffield-logo.svg' %}"
+          >
+          <img
+            alt="LSHTM logo"
+            class="col-span-2 max-h-20 w-full object-contain lg:col-span-1"
+            loading="lazy"
+            src="{% static 'logos/lshtm-logo.svg' %}"
+          >
+          <img
+            alt="TPP Logo"
+            class="col-span-2 max-h-20 w-full object-contain sm:col-start-2 lg:col-span-1"
+            loading="lazy"
+            src="{% static 'logos/tpp.png' %}"
+          >
+          <img
+            alt="EMIS logo"
+            class="col-span-2 col-start-2 max-h-20 w-full object-contain sm:col-start-auto lg:col-span-1"
+            loading="lazy"
+            src="{% static 'logos/emis-logo.svg' %}"
+          >
+        </div>
+      </div>
+    </div>
+  {% endif %}
+
+  <div id="events" class="max-w-[1500px] w-full mx-auto">
+    {% #card class="col-span-2 mx-4" no_container=True %}
+      <div class="gap-y-2 px-4 py-2 sm:px-6 sm:py-4 flex flex-wrap items-center justify-between sm:flex-nowrap">
+        <div>
+          <h2 class="text-xl font-semibold tracking-tight text-slate-900">
+            Latest job requests
+          </h2>
+          <p class="text-slate-600 text-sm leading-tight">Most recent job requests on the OpenSAFELY platform</p>
+        </div>
+        {% url "job-list" as job_list_url %}
+        {% #button href=job_list_url type="link" variant="primary" %}
+          View all job requests
+        {% /button %}
+      </div>
+      <div class="px-4 py-2 border-t border-slate-200 md:px-6">
+        {% include 'partials/latest-jobs-tw.html' with job_requests=all_job_requests %}
+      </div>
+    {% /card %}
+  </div>
+{% endblock full_width_content %}
