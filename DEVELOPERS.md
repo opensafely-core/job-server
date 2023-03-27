@@ -293,7 +293,7 @@ This has allowed us some benefits:
 - Per-Backend API stats collection is trivial because requests are tied to a Backend via auth.
 
 
-## Rotating the GitHub token
+## Rotating the read only GitHub token
 1. Log into the `opensafely-readonly` GitHub account (credentials are in Bitwarden).
 1. Got to the [Personal access tokens (classic) page](https://github.com/settings/tokens).
 1. Click on `job-server-api-token`.
@@ -302,6 +302,15 @@ This has allowed us some benefits:
 1. Copy the new token.
 1. ssh into `dokku4.ebmdatalab.net`
 1. Run: `dokku config:set job-server GITHUB_TOKEN=<the new token>`
+
+### Rotating the OSI GitHub token
+1. Log into the `opensafely-interactive-bot` GitHub account (credentials are in Bitwarden).
+1. Got to the [opensafely-interactive-token](https://github.com/settings/tokens/1005632984).
+1. Click "Regenerate token".
+1. Set the expiry to 90 days.
+1. Copy the new token.
+1. ssh into `dokku4.ebmdatalab.net`
+1. Run: `dokku config:set job-server GITHUB_WRITEABLE_TOKEN=<the new token>`
 
 
 ## Interactive Testing
