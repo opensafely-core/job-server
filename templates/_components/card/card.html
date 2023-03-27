@@ -8,7 +8,7 @@
 >
   <div class="bg-white shadow">
     {% if title or subtitle or button %}
-    <div class="flex flex-wrap gap-y-2 items-center justify-between px-4 py-2 sm:px-6 sm:py-4 sm:flex-nowrap">
+    <div class="flex flex-wrap gap-2 items-start justify-between px-4 py-2 sm:px-6 sm:py-4 sm:flex-nowrap">
       <div>
         {% if title %}
         <h2 id="{{ title | slugify }}-title" class="text-xl font-semibold tracking-tight text-slate-900">
@@ -21,7 +21,7 @@
         {% endif %}
       </div>
       {% if button %}
-        {% #button href=button_href type="link" variant="primary" %}
+        {% #button class="flex-shrink-0" href=button_href type="link" variant="primary" %}
           {{ button_text }}
         {% /button %}
       {% endif %}
