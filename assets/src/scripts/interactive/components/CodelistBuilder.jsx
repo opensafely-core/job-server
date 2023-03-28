@@ -24,7 +24,6 @@ function CodelistBuilder() {
     touched,
     validateField,
     setFieldTouched,
-    setValues,
   } = useFormikContext();
 
   const handleChange = (selectedItem) => {
