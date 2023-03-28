@@ -84,7 +84,14 @@
         {% endif %}
       </div>
     </div>
-
+    {% if user_can_view_staff_area %}
+    <div class="flex lg:justify-end lg:items-start">
+      {% #button href=project.get_staff_url type="link" variant="danger" class="flex-shrink-0" %}
+        View in Staff Area
+        {% icon_lifebuoy_outline class="h-4 w-4 ml-2 -mr-2" %}
+      {% /button %}
+    </div>
+   {% endif %}
     {% if is_member %}
       <div class="flex flex-row mb-6 justify-center lg:mb-0 lg:justify-end lg:items-start gap-2">
         {% if is_interactive_user %}
