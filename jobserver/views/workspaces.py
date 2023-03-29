@@ -23,7 +23,7 @@ from ..forms import (
     WorkspaceNotificationsToggleForm,
 )
 from ..github import _get_github_api
-from ..models import Backend, Job, JobRequest, Project, Repo, Workspace
+from ..models import Backend, Job, JobRequest, Project, Repo, Report, Workspace
 from ..releases import build_hatch_token_and_url, build_outputs_zip, workspace_files
 from ..utils import build_spa_base_url
 
@@ -295,12 +295,19 @@ class WorkspaceDetail(View):
         )
         show_interactive_button = is_interactive_user and workspace.is_interactive
 
+        reports = Report.objects.filter(release_file__workspace=workspace)
+
+        # remove unpublished reports from the list for non-project members
+        if not workspace.project.members.filter(pk=request.user.pk).exists():
+            reports = reports.exclude(publish_request__approved_at=None)
+
         context = {
             "first_job": first_job,
             "honeycomb_can_view_links": honeycomb_can_view_links,
             "honeycomb_link": f"https://ui.honeycomb.io/bennett-institute-for-applied-data-science/environments/production/datasets/job-server?query=%7B%22time_range%22%3A2419200%2C%22granularity%22%3A0%2C%22breakdowns%22%3A%5B%22status%22%5D%2C%22calculations%22%3A%5B%7B%22op%22%3A%22HEATMAP%22%2C%22column%22%3A%22current_runtime%22%7D%5D%2C%22filters%22%3A%5B%7B%22column%22%3A%22name%22%2C%22op%22%3A%22%3D%22%2C%22value%22%3A%22update_job%22%7D%2C%7B%22column%22%3A%22workspace_name%22%2C%22op%22%3A%22%3D%22%2C%22value%22%3A%22{workspace.name}%22%7D%2C%7B%22column%22%3A%22completed%22%2C%22op%22%3A%22%3D%22%2C%22value%22%3Atrue%7D%2C%7B%22column%22%3A%22status_change%22%2C%22op%22%3A%22%3D%22%2C%22value%22%3Atrue%7D%5D%2C%22filter_combination%22%3A%22AND%22%2C%22orders%22%3A%5B%5D%2C%22havings%22%3A%5B%5D%2C%22limit%22%3A100%7D",
             "is_member": is_member,
             "repo_is_private": repo_is_private,
+            "reports": reports,
             "show_interactive_button": show_interactive_button,
             "show_publish_repo_warning": show_publish_repo_warning,
             "user_can_archive_workspace": can_archive_workspace,
