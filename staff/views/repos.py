@@ -47,6 +47,16 @@ def ran_at(job):
 class RepoDetail(View):
     get_github_api = staticmethod(_get_github_api)
 
+    def build_contacts(self, workspaces):
+        def build_contact(user):
+            return (
+                f"{user.fullname} <{user.notifications_email}>"
+                if user.fullname
+                else user.notifications_email
+            )
+
+        return "; ".join({build_contact(w.created_by) for w in workspaces})
+
     def build_disabled(self, repo, user):
         can_sign_off = has_permission(user, "repo_sign_off_with_outputs")
         return Disabled(
@@ -112,17 +122,8 @@ class RepoDetail(View):
 
         workspaces = [build_workspace(w, users) for w in workspaces]
 
-        def build_contact(user):
-            return (
-                f"{user.fullname} <{user.notifications_email}>"
-                if user.fullname
-                else user.notifications_email
-            )
-
-        contacts = "; ".join({build_contact(w["created_by"]) for w in workspaces})
-
         context = {
-            "contacts": contacts,
+            "contacts": self.build_contacts(workspaces),
             "first_job_ran_at": first_job_ran_at,
             "disabled": self.build_disabled(repo, request.user),
             "last_job_ran_at": last_job_ran_at,
