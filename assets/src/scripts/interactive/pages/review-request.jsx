@@ -84,7 +84,7 @@ function ReviewRequest() {
       <h1 className="text-4xl font-bold mb-6">Review your request</h1>
       <div className="mt-5 border-t border-gray-200">
         <dl className="divide-y divide-gray-200">
-          <ReviewLineItem page="" title="Codelists">
+          <ReviewLineItem page="find-codelists" title="Codelists">
             {formData.codelist0?.label},<br />
             {formData.codelist1?.label}
           </ReviewLineItem>
