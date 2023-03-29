@@ -52,12 +52,12 @@ export function getAppData({
     csrfToken,
     codelistGroups: [
       {
-        name: "Event",
+        name: "SNOMED CT",
         id: "event",
         codelists: getCodelistPageData(events),
       },
       {
-        name: "Medication",
+        name: "dm+d",
         id: "medication",
         codelists: getCodelistPageData(medications),
       },
