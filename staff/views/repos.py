@@ -65,6 +65,19 @@ class RepoDetail(View):
             not_ready=repo.researcher_signed_off_at is None,
         )
 
+    def build_repo(self, api_repo, db_repo):
+        return {
+            "created_at": api_repo["created_at"],
+            "has_github_outputs": db_repo.has_github_outputs,
+            "internal_signed_off_at": db_repo.internal_signed_off_at,
+            "is_private": api_repo["private"],
+            "get_staff_sign_off_url": db_repo.get_staff_sign_off_url(),
+            "name": db_repo.name,
+            "owner": db_repo.owner,
+            "researcher_signed_off_at": db_repo.researcher_signed_off_at,
+            "url": db_repo.url,
+        }
+
     def get(self, request, *args, **kwargs):
         repo = get_object_or_404(Repo, url=unquote(self.kwargs["repo_url"]))
 
@@ -129,17 +142,7 @@ class RepoDetail(View):
             "last_job_ran_at": last_job_ran_at,
             "num_signed_off": num_signed_off,
             "projects": projects,
-            "repo": {
-                "created_at": api_repo["created_at"],
-                "has_github_outputs": repo.has_github_outputs,
-                "internal_signed_off_at": repo.internal_signed_off_at,
-                "is_private": api_repo["private"],
-                "get_staff_sign_off_url": repo.get_staff_sign_off_url(),
-                "name": repo.name,
-                "owner": repo.owner,
-                "researcher_signed_off_at": repo.researcher_signed_off_at,
-                "url": repo.url,
-            },
+            "repo": self.build_repo(api_repo, repo),
             "twelve_month_limit": twelve_month_limit,
             "workspaces": workspaces,
         }
