@@ -24,6 +24,18 @@ from jobserver.models import Job, Org, Project, Repo, User
 logger = structlog.get_logger(__name__)
 
 
+@define
+class Disabled:
+    already_signed_off: bool
+    no_permission: bool
+    not_ready: bool
+
+    def __bool__(self):
+        # gather the outcome of all the instance vars to define the
+        # boolean state of the whole object
+        return any([self.already_signed_off, self.no_permission, self.not_ready])
+
+
 def ran_at(job):
     if job is None:
         return
@@ -34,6 +46,14 @@ def ran_at(job):
 @method_decorator(require_role(CoreDeveloper), name="dispatch")
 class RepoDetail(View):
     get_github_api = staticmethod(_get_github_api)
+
+    def build_disabled(self, repo, user):
+        can_sign_off = has_permission(user, "repo_sign_off_with_outputs")
+        return Disabled(
+            already_signed_off=repo.internal_signed_off_at is not None,
+            no_permission=repo.has_github_outputs and not can_sign_off,
+            not_ready=repo.researcher_signed_off_at is None,
+        )
 
     def get(self, request, *args, **kwargs):
         repo = get_object_or_404(Repo, url=unquote(self.kwargs["repo_url"]))
@@ -101,30 +121,10 @@ class RepoDetail(View):
 
         contacts = "; ".join({build_contact(w["created_by"]) for w in workspaces})
 
-        @define
-        class Disabled:
-            already_signed_off: bool
-            no_permission: bool
-            not_ready: bool
-
-            def __bool__(self):
-                # gather the outcome of all the instance vars to define the
-                # boolean state of the whole object
-                return any(
-                    [self.already_signed_off, self.no_permission, self.not_ready]
-                )
-
-        can_sign_off = has_permission(request.user, "repo_sign_off_with_outputs")
-        disabled = Disabled(
-            already_signed_off=repo.internal_signed_off_at is not None,
-            no_permission=repo.has_github_outputs and not can_sign_off,
-            not_ready=repo.researcher_signed_off_at is None,
-        )
-
         context = {
             "contacts": contacts,
             "first_job_ran_at": first_job_ran_at,
-            "disabled": disabled,
+            "disabled": self.build_disabled(repo, request.user),
             "last_job_ran_at": last_job_ran_at,
             "num_signed_off": num_signed_off,
             "projects": projects,
