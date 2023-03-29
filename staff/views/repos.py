@@ -93,7 +93,7 @@ class RepoDetail(View):
             "url": db_repo.url,
         }
 
-    def build_workspaces(self, workspaces, all_users):
+    def build_workspaces(self, workspaces):
         for workspace in workspaces:
             """
             Build a dictionary representation of the Workspace data for the template
@@ -108,7 +108,7 @@ class RepoDetail(View):
             # get the users who created jobs in this workspace or created it,
             # just in case the creator has not run any jobs.
             users = list(
-                all_users.filter(job_requests__workspace=workspace)
+                User.objects.filter(job_requests__workspace=workspace)
                 .distinct()
                 .order_by(Lower("username"), Lower("fullname"))
             )
@@ -138,7 +138,6 @@ class RepoDetail(View):
             .distinct()
             .order_by("name")
         )
-        users = User.objects.filter(job_requests__workspace__in=workspaces).distinct()
 
         num_signed_off = sum(1 for w in workspaces if w.signed_off_at)
 
@@ -149,7 +148,7 @@ class RepoDetail(View):
             "num_signed_off": num_signed_off,
             "projects": projects,
             "repo": self.build_repo(api_repo, repo),
-            "workspaces": list(self.build_workspaces(workspaces, users)),
+            "workspaces": list(self.build_workspaces(workspaces)),
         }
 
         return TemplateResponse(
