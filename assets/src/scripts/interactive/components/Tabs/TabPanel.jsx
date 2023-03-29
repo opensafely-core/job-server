@@ -1,4 +1,5 @@
 import { Combobox, Tab } from "@headlessui/react";
+import { ArrowUpRightIcon } from "@heroicons/react/20/solid";
 import { Field, useFormikContext } from "formik";
 import { func, shape, string } from "prop-types";
 import { useEffect, useState } from "react";
@@ -56,7 +57,7 @@ function TabPanel({ codelistGroup, codelistID, query, setQuery }) {
             </Combobox>
             {errorMsg ? <InputError>{errorMsg}</InputError> : null}
             {field?.value?.value ? (
-              <ul className="text-sm mt-2 list-disc pl-4">
+              <ul className="text-sm mt-2">
                 <li>
                   <a
                     className="text-oxford-600 font-semibold underline underline-offset-1 transition-colors hover:text-oxford-700 hover:no-underline focus:text-oxford-900 focus:no-underline"
@@ -64,7 +65,12 @@ function TabPanel({ codelistGroup, codelistID, query, setQuery }) {
                     rel="noopener noreferrer"
                     target="_blank"
                   >
-                    View “{field.value.label}” codelist &#8599;
+                    View “{field.value.label}” codelist
+                    <ArrowUpRightIcon
+                      className="inline h-4 -mt-0.5"
+                      height={20}
+                      width={20}
+                    />
                   </a>
                 </li>
               </ul>

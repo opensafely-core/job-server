@@ -5,6 +5,7 @@ import { AlertForm } from "../components/Alert";
 import Button from "../components/Button";
 import Checkbox from "../components/Checkbox";
 import Fieldset from "../components/Fieldset";
+import HintText from "../components/HintText";
 import InputError from "../components/InputError";
 import RadioButton from "../components/RadioButton";
 import { useFormData } from "../context";
@@ -68,6 +69,13 @@ function FilterRequest() {
           </Fieldset>
 
           <Fieldset legend={demographics.label}>
+            <HintText>
+              <p>
+                These should only be selected if they align with your approved
+                project purpose. Selecting more options will increase report
+                processing time.
+              </p>
+            </HintText>
             {demographics.items.map((item) => (
               <Checkbox
                 key={item.value}

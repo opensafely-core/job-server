@@ -22,20 +22,21 @@ function QueryBuilder() {
     codelistA: codelistSchema(codelistGroups),
     codelistB: codelistSchema(codelistGroups),
     timeValue: Yup.number()
-      .positive()
-      .min(1)
-      .max(260, "Time scale cannot be longer than 5 years")
-      .required()
+      .typeError("Amount must be a number")
+      .positive("Time value must be a positive number")
+      .min(1, "Time scale cannot be less than 1")
+      .max(260, "Time scale cannot be longer than 10 years")
+      .required("Amount of time is required")
       .test(
         "fiveYears",
-        "Time scale cannot be longer than 5 years",
+        "Time scale cannot be longer than 10 years",
         (value, testContext) => {
           if (value === undefined || Number.isNaN(value)) return false;
 
           const { timeScale } = testContext.parent;
-          if (timeScale === "weeks" && value > 260) return false;
-          if (timeScale === "months" && value > 60) return false;
-          if (timeScale === "years" && value > 5) return false;
+          if (timeScale === "weeks" && value > 522) return false;
+          if (timeScale === "months" && value > 120) return false;
+          if (timeScale === "years" && value > 10) return false;
 
           return true;
         }
@@ -61,6 +62,8 @@ function QueryBuilder() {
           return navigate("preview-request");
         });
       }}
+      validateOnBlur
+      validateOnChange
       validateOnMount
       validationSchema={validationSchema}
     >

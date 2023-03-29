@@ -9,7 +9,6 @@ import FindCodelists from "./pages/find-codelists";
 import PreviewRequest from "./pages/preview-request";
 import Purpose from "./pages/purpose";
 import ReviewRequest from "./pages/review-request";
-import Success from "./pages/success";
 import { getAppData } from "./utils";
 import ScrollToTop from "./utils/scrollToTop";
 
@@ -63,9 +62,6 @@ root.render(
               </Route>
               <Route path="review-request">
                 <ReviewRequest />
-              </Route>
-              <Route path="success">
-                <Success />
               </Route>
               <Route>
                 <div className="prose">
