@@ -15,6 +15,5 @@ def date_of_last_extract():
     return today - timedelta(days=offset, weeks=weeks)
 
 
-# Temporarily change this to look at the last six months while testing
-START_DATE = (date_of_last_extract() - timedelta(days=30 * 6)).strftime("%Y-%m-%d")
+START_DATE = "2019-09-01"
 END_DATE = date_of_last_extract().strftime("%Y-%m-%d")
