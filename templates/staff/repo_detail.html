@@ -145,20 +145,20 @@
         <div class="card-body mb-0">
           <p>
             <strong>Repo created:</strong>
-            <span title="{{ repo.created_at.isoformat }}">{{ repo.created_at }}</span>
+            <span title="{{ dates.repo_created_at.isoformat }}">{{ dates.repo_created_at }}</span>
           </p>
           <p>
             <strong>Project first job run:</strong>
-            <span title="{{ first_job_ran_at.isoformat }}">{{ first_job_ran_at }}</span>
+            <span title="{{ dates.first_job_ran_at.isoformat }}">{{ dates.first_job_ran_at }}</span>
           </p>
           <p>
             <strong>Project last job run:</strong>
-            <span title="{{ last_job_ran_at.isoformat }}">{{ last_job_ran_at }}</span>
+            <span title="{{ dates.last_job_ran_at.isoformat }}">{{ dates.last_job_ran_at }}</span>
           </p>
           <p>
             <strong>12 month limit:</strong>
-            <span title="{{ twelve_month_limit.isoformat }}">
-              {{ twelve_month_limit|naturalday }}
+            <span title="{{ dates.twelve_month_limit.isoformat }}">
+              {{ dates.twelve_month_limit|naturalday }}
             </span>
           </p>
         </div>

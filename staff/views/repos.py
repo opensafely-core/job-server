@@ -57,6 +57,22 @@ class RepoDetail(View):
 
         return "; ".join({build_contact(w.created_by) for w in workspaces})
 
+    def build_dates(self, api_repo, projects):
+        jobs = Job.objects.filter(
+            job_request__workspace__project__in=projects
+        ).annotate(first_run=Min(Least("started_at", "created_at")))
+
+        first_job_ran_at = ran_at(jobs.order_by("first_run").first())
+        last_job_ran_at = ran_at(jobs.order_by("-first_run").first())
+        twelve_month_limit = first_job_ran_at + timedelta(days=365)
+
+        return {
+            "first_job_ran_at": first_job_ran_at,
+            "last_job_ran_at": last_job_ran_at,
+            "repo_created_at": api_repo["created_at"],
+            "twelve_month_limit": twelve_month_limit,
+        }
+
     def build_disabled(self, repo, user):
         can_sign_off = has_permission(user, "repo_sign_off_with_outputs")
         return Disabled(
@@ -67,7 +83,6 @@ class RepoDetail(View):
 
     def build_repo(self, api_repo, db_repo):
         return {
-            "created_at": api_repo["created_at"],
             "has_github_outputs": db_repo.has_github_outputs,
             "internal_signed_off_at": db_repo.internal_signed_off_at,
             "is_private": api_repo["private"],
@@ -125,24 +140,15 @@ class RepoDetail(View):
         )
         users = User.objects.filter(job_requests__workspace__in=workspaces).distinct()
 
-        jobs = Job.objects.filter(
-            job_request__workspace__project__in=projects
-        ).annotate(first_run=Min(Least("started_at", "created_at")))
-        first_job_ran_at = ran_at(jobs.order_by("first_run").first())
-        last_job_ran_at = ran_at(jobs.order_by("-first_run").first())
         num_signed_off = sum(1 for w in workspaces if w.signed_off_at)
-
-        twelve_month_limit = first_job_ran_at + timedelta(days=365)
 
         context = {
             "contacts": self.build_contacts(workspaces),
-            "first_job_ran_at": first_job_ran_at,
+            "dates": self.build_dates(api_repo, projects),
             "disabled": self.build_disabled(repo, request.user),
-            "last_job_ran_at": last_job_ran_at,
             "num_signed_off": num_signed_off,
             "projects": projects,
             "repo": self.build_repo(api_repo, repo),
-            "twelve_month_limit": twelve_month_limit,
             "workspaces": list(self.build_workspaces(workspaces, users)),
         }
 
