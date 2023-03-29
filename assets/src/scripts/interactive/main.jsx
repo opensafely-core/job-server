@@ -6,6 +6,7 @@ import { AppData, FormDataProvider } from "./context";
 import QueryBuilder from "./pages/build-query";
 import FilterRequest from "./pages/filter-request";
 import FindCodelists from "./pages/find-codelists";
+import Glossary from "./pages/glossary";
 import PreviewRequest from "./pages/preview-request";
 import Purpose from "./pages/purpose";
 import ReviewRequest from "./pages/review-request";
@@ -46,6 +47,9 @@ root.render(
           >
             <Switch>
               <Route path="/">
+                <Glossary />
+              </Route>
+              <Route path="find-codelists">
                 <FindCodelists />
               </Route>
               <Route path="build-query">
