@@ -28,21 +28,21 @@ def test_report_get_staff_url():
     assert url == reverse("staff:report-detail", kwargs={"pk": report.pk})
 
 
+def test_report_is_published():
+    report = ReportFactory()
+    assert not report.is_published
+
+    publish_request = ReportPublishRequestFactory(report=report)
+    assert not report.is_published
+
+    publish_request.approve(user=UserFactory())
+    assert report.is_published
+
+
 def test_report_str():
     report = ReportFactory(title="test")
 
     assert str(report) == "test"
-
-
-def test_report_published_check_constraint_missing_at():
-    with pytest.raises(IntegrityError):
-        ReportFactory(published_at=None, published_by=UserFactory())
-
-
-def test_report_published_check_constraint_missing_by():
-    with pytest.raises(IntegrityError):
-        # published_at uses auto_now so any value we passed in here is ignored
-        ReportFactory(published_at=timezone.now(), published_by=None)
 
 
 def test_report_updated_check_constraint_missing_at():
@@ -68,9 +68,6 @@ def test_reportpublishrequest_approve(freezer):
     request.refresh_from_db()
     assert request.approved_at == timezone.now()
     assert request.approved_by == user
-
-    assert request.report.published_at == timezone.now()
-    assert request.report.published_by == user
 
     rfile_publish_request = request.release_file_publish_request
 

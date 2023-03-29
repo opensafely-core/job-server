@@ -37,14 +37,6 @@ class Report(models.Model):
         related_name="reports_updated",
     )
 
-    published_at = models.DateTimeField(null=True)
-    published_by = models.ForeignKey(
-        "User",
-        on_delete=models.PROTECT,
-        related_name="reports_published",
-        null=True,
-    )
-
     class Meta:
         constraints = [
             models.CheckConstraint(
@@ -61,21 +53,6 @@ class Report(models.Model):
                     )
                 ),
                 name="%(app_label)s_%(class)s_both_created_at_and_created_by_set",
-            ),
-            models.CheckConstraint(
-                check=(
-                    Q(
-                        published_at__isnull=True,
-                        published_by__isnull=True,
-                    )
-                    | (
-                        Q(
-                            published_at__isnull=False,
-                            published_by__isnull=False,
-                        )
-                    )
-                ),
-                name="%(app_label)s_%(class)s_both_published_at_and_published_by_set",
             ),
             models.CheckConstraint(
                 check=(
@@ -99,6 +76,10 @@ class Report(models.Model):
 
     def get_staff_url(self):
         return reverse("staff:report-detail", kwargs={"pk": self.pk})
+
+    @property
+    def is_published(self):
+        return hasattr(self, "publish_request") and self.publish_request.approved_at
 
 
 class ReportPublishRequest(models.Model):
@@ -217,10 +198,6 @@ class ReportPublishRequest(models.Model):
         self.approved_at = now
         self.approved_by = user
         self.save(update_fields=["approved_at", "approved_by"])
-
-        self.report.published_at = now
-        self.report.published_by = user
-        self.report.save(update_fields=["published_at", "published_by"])
 
         self.release_file_publish_request.approve(user=user, now=now)
 
