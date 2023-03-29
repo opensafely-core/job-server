@@ -78,6 +78,38 @@ class RepoDetail(View):
             "url": db_repo.url,
         }
 
+    def build_workspaces(self, workspaces, all_users):
+        for workspace in workspaces:
+            """
+            Build a dictionary representation of the Workspace data for the template
+
+            We want to show a list of users-who-created-jobs-in-this-workspace
+            in the template.  Getting this as part of the Workspace QuerySet
+            doesn't appear to be possible (we tried Subquery and Prefetch to no
+            avail).  Instead we've looked up the users who created jobs for
+            each workspace used in this view and are pairing them up here.
+            """
+
+            # get the users who created jobs in this workspace or created it,
+            # just in case the creator has not run any jobs.
+            users = list(
+                all_users.filter(job_requests__workspace=workspace)
+                .distinct()
+                .order_by(Lower("username"), Lower("fullname"))
+            )
+            if workspace.created_by not in users:
+                users = [workspace.created_by, *users]
+
+            yield {
+                "signed_off_at": workspace.signed_off_at,
+                "signed_off_by": workspace.signed_off_by,
+                "created_by": workspace.created_by,
+                "get_staff_url": workspace.get_staff_url,
+                "is_archived": workspace.is_archived,
+                "job_requesting_users": users,
+                "name": workspace.name,
+            }
+
     def get(self, request, *args, **kwargs):
         repo = get_object_or_404(Repo, url=unquote(self.kwargs["repo_url"]))
 
@@ -102,39 +134,6 @@ class RepoDetail(View):
 
         twelve_month_limit = first_job_ran_at + timedelta(days=365)
 
-        def build_workspace(workspace, all_users):
-            """
-            Build a dictionary representation of the Workspace data for the template
-
-            We want to show a list of users-who-created-jobs-in-this-workspace
-            in the template.  Getting this as part of the Workspace QuerySet
-            doesn't appear to be possible (we tried Subquery and Prefetch to no
-            avail).  Instead we've looked up the users who created jobs for
-            each workspace used in this view and are pairing them up here.
-            """
-
-            # get the users who created jobs in this workspace or created it,
-            # just in case the creator has not run any jobs.
-            users = list(
-                all_users.filter(job_requests__workspace=workspace)
-                .distinct()
-                .order_by(Lower("username"), Lower("fullname"))
-            )
-            if workspace.created_by not in users:
-                users = [workspace.created_by, *users]
-
-            return {
-                "signed_off_at": workspace.signed_off_at,
-                "signed_off_by": workspace.signed_off_by,
-                "created_by": workspace.created_by,
-                "get_staff_url": workspace.get_staff_url,
-                "is_archived": workspace.is_archived,
-                "job_requesting_users": users,
-                "name": workspace.name,
-            }
-
-        workspaces = [build_workspace(w, users) for w in workspaces]
-
         context = {
             "contacts": self.build_contacts(workspaces),
             "first_job_ran_at": first_job_ran_at,
@@ -144,7 +143,7 @@ class RepoDetail(View):
             "projects": projects,
             "repo": self.build_repo(api_repo, repo),
             "twelve_month_limit": twelve_month_limit,
-            "workspaces": workspaces,
+            "workspaces": list(self.build_workspaces(workspaces, users)),
         }
 
         return TemplateResponse(
