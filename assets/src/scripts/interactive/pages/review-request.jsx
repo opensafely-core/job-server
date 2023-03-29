@@ -91,16 +91,18 @@ function ReviewRequest() {
 
           {formData.codelistA?.label && formData.codelistB?.label ? (
             <ReviewLineItem page="build-query" title="Report request">
-              <strong>{formData.codelistA.label}</strong>
               {` ${multiLines[0]} `}
-              <strong>{startStr}</strong> {multiLines[1]}{" "}
+              <strong>{formData.codelistA.label}</strong>
+              {` ${multiLines[1]} `}
+              <strong>{startStr}</strong> {multiLines[2]}{" "}
               <strong>{endStr}</strong>
-              {` ${multiLines[2]} `}
-              <strong>{formData.codelistB.label}</strong>
               {` ${multiLines[3]} `}
+              <strong>{formData.codelistB.label}</strong>
+              {` ${multiLines[4]} `}
+              <strong>{` ${formData.codelistA.label}`}</strong>
+              {` ${multiLines[5]} `}
               {formData.timeValue} {formData.timeScale}
-              {" before "}
-              <strong>{` ${formData.codelistA.label}`}</strong>.
+              {` ${multiLines[6]} `}
             </ReviewLineItem>
           ) : null}
 

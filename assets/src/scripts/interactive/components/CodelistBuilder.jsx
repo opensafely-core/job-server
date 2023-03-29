@@ -6,10 +6,13 @@ import InputError from "./InputError";
 import { SelectContainer } from "./Select";
 
 export const lines = [
-  "added to their health record in the period between",
-  "and",
+  "The number of people who had",
+  "added to their health record each month from",
+  "to",
   "who have also had",
-  "added to their health record from",
+  "added to their health record in the same month as",
+  "or up to",
+  "before the start of that month.",
 ];
 
 function CodelistBuilder() {
@@ -39,25 +42,29 @@ function CodelistBuilder() {
 
   return (
     <div className="flex flex-col gap-y-3">
-      <p className="max-w-prose text-lg">The number of people who had</p>
+      <p className="max-w-prose text-lg">{lines[0]}</p>
       <SelectContainer
         defaultValue={values?.codelistA || formData.codelist0}
         handleChange={handleChange}
         name="codelistA"
       />
-      <p className="max-w-prose text-lg">
-        {lines[0]}
-        <span className="block">
-          <strong>{startStr}</strong> {lines[1]} <strong>{endStr}</strong>
+      <p className="max-w-prose text-lg grid gap-y-2">
+        {lines[1]}
+        <span>
+          <strong>{startStr}</strong> {lines[2]} <strong>{endStr}</strong>
         </span>
-        {lines[2]}
+        {lines[3]}
       </p>
       <SelectContainer
         defaultValue={values?.codelistB || formData.codelist1}
         handleChange={handleChange}
         name="codelistB"
       />
-      <p className="max-w-prose text-lg">{lines[3]}</p>
+      <p className="max-w-prose text-lg grid gap-y-2">
+        {lines[4]}{" "}
+        <strong>{values.codelistA.label || formData.codelist0?.label}</strong>{" "}
+        {lines[5]}
+      </p>
       <div className="flex flex-row gap-x-1">
         <Field
           className={classNames(
@@ -91,9 +98,7 @@ function CodelistBuilder() {
       {errors.timeValue && touched.timeValue ? (
         <InputError>{errors.timeValue}</InputError>
       ) : null}
-      <p className="max-w-prose text-lg">
-        before {values.codelistA.label || formData.codelist0?.label}.
-      </p>
+      <p className="max-w-prose text-lg">{lines[6]}</p>
     </div>
   );
 }
