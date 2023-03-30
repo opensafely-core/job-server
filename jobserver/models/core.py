@@ -869,6 +869,12 @@ class User(AbstractBaseUser):
                 ),
                 name="%(app_label)s_%(class)s_both_pat_expires_at_and_pat_token_set",
             ),
+            # only consider uniqueness of notifications_email when it's not empty
+            models.UniqueConstraint(
+                fields=["notifications_email"],
+                name="unique_notifications_email_ignore_empty",
+                condition=~Q(notifications_email=""),
+            ),
         ]
 
     def __str__(self):
