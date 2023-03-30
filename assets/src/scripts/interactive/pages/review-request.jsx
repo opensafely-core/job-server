@@ -81,7 +81,7 @@ function ReviewRequest() {
   return (
     <>
       <AlertPage />
-      <h1 className="text-4xl font-bold mb-6">Review your request</h1>
+      <h2 className="text-4xl font-bold mb-6">Review your request</h2>
       <div className="mt-5 border-t border-gray-200">
         <dl className="divide-y divide-gray-200">
           <ReviewLineItem page="find-codelists" title="Codelists">
@@ -134,6 +134,40 @@ function ReviewRequest() {
       </div>
 
       {error ? <InputError>{error}</InputError> : null}
+
+      <section className="prose prose-blue mt-8 pt-6 border-t max-w-full">
+        <h2 className="sr-only">Read and agree</h2>
+        <ul>
+          <li>
+            Your analyses will be run on patient records for approximately 44%
+            of the English population
+          </li>
+          <li>
+            The analysis you are requesting may take up to 5 days to return
+            results
+          </li>
+          <li>
+            The time for the analysis to generate may vary significantly
+            dependent on current loads on our servers and current demand for our
+            disclosure checking service
+          </li>
+          {/* <li>
+            If you want to check what the report will look like prior to running
+            this analysis, you can see an example here [link]
+          </li> */}
+          <p>By making this request you are agreeing:</p>
+          <ul>
+            <li>
+              That your request falls within your approved project purpose
+            </li>
+            <li>To abide by the Terms and Conditions you signed previously</li>
+            <li>
+              That the contents of this request, along with your name and email
+              address, will be publicly available
+            </li>
+          </ul>
+        </ul>
+      </section>
 
       <div className="flex flex-row w-full gap-2 mt-10">
         <Button disabled={isSubmitting} onClick={handleClick} type="submit">
