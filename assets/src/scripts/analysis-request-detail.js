@@ -1,6 +1,13 @@
-const report = document.querySelector("#reportContainer");
-const downloadBtn = document.querySelector("#downloadBtn");
-const watermark = document.querySelector("#watermark");
+const downloadBtn = document.getElementById("downloadBtn");
+
+const report = document.getElementById("reportContainer");
+const watermark = report.getElementById("watermark");
+const reportStyles = report.getElementById("report");
+
+const dialog = document.getElementById("downloadModal");
+const confirmBtn = dialog.querySelector(`[value="confirm"]`);
+const cancelBtn = dialog.querySelector(`[value="cancel"]`);
+const generatingBtn = dialog.querySelector(`[value="generating"]`);
 
 const options = {
   margin: 20,
@@ -13,9 +20,16 @@ const options = {
   },
 };
 
+let pdf;
+
 downloadBtn.addEventListener("click", async () => {
+  dialog.showModal();
+
   // Load the JS on button click
   const html2pdf = await import("html2pdf.js");
+
+  // Restore the h1 for the printed report
+  reportStyles.classList.remove(`[&_h1]:hidden`);
 
   // Repeat the watermark 300 times on the container
   const singleInner = watermark.innerHTML;
@@ -23,11 +37,29 @@ downloadBtn.addEventListener("click", async () => {
   watermark.innerHTML = watermark.innerHTML.repeat(300);
 
   // Generate and download the PDF
-  html2pdf.default().set(options).from(report).toContainer().toPdf().save();
+  pdf = html2pdf.default().set(options).from(report).toContainer().toPdf();
+  await pdf;
 
   // 0 timeout to remove watermark after the event loop has finished
   setTimeout(() => {
     watermark.classList.add("hidden");
     watermark.innerHTML = singleInner;
+    reportStyles.classList.add(`[&_h1]:hidden`);
   }, 0);
+
+  // Show download button
+  confirmBtn.classList.remove("hidden");
+  generatingBtn.remove();
+});
+
+confirmBtn.addEventListener("click", () => {
+  // When confirm is clicked, save the PDF
+  pdf.save();
+
+  // Wait 1s then close the dialog
+  setTimeout(() => dialog.close(), 1000);
+});
+
+cancelBtn.addEventListener("click", () => {
+  dialog.close();
 });
