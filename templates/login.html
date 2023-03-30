@@ -41,6 +41,7 @@
     {% /card %}
   </div>
 
+  <div class="mb-6 pb-12 border-b border-b-slate-300">
   {% #card title="OpenSAFELY Interactive" container=True class="md:col-span-2" %}
     <div class="prose prose-sm mb-6">
       <p>
@@ -56,6 +57,28 @@
 
       {% #button type="submit" variant="primary" %}
         Sign in with Email
+      {% /button %}
+
+    </form>
+  {% /card %}
+  </div>
+
+  {% #card title="Login with Single Use Token" container=True class="md:col-span-2" %}
+    <div class="prose prose-sm mb-6">
+      <p>
+        Log in from Level 4 environments with a Single Use Token.
+      </p>
+    </div>
+
+    <form class="gap-2 flex-wrap md:flex-nowrap" method="POST" action={{ token_form_submit_url }} >
+      {% csrf_token %}
+      <input type="hidden" name="next" value="{{ next_url }}" />
+
+      {% form_input type="text" field=token_form.user label="Username or Email address" required=True class="mb-3" placeholder="you@example.com" input_class="max-w-md" %}
+      {% form_input type="text" field=token_form.token label="Single Use Token" required=True class="mb-3" input_class="max-w-md" %}
+
+      {% #button type="submit" variant="primary" %}
+        Log in with token
       {% /button %}
 
     </form>

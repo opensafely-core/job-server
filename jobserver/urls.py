@@ -52,7 +52,7 @@ from .views.releases import (
 )
 from .views.repos import RepoHandler, SignOffRepo
 from .views.status import DBAvailability, PerBackendStatus, Status
-from .views.users import Login, LoginWithURL, Settings
+from .views.users import Login, LoginWithToken, LoginWithURL, Settings
 from .views.workspaces import (
     WorkspaceArchiveToggle,
     WorkspaceBackendFiles,
@@ -273,9 +273,8 @@ urlpatterns = [
     ),
     path("jobs/<identifier>/", JobDetailRedirect.as_view(), name="job-redirect"),
     path("login/", Login.as_view(), name="login"),
-    path(
-        "login-with-token/<str:token>/", LoginWithURL.as_view(), name="login-with-url"
-    ),
+    path("login-with-url/<str:token>/", LoginWithURL.as_view(), name="login-with-url"),
+    path("login-with-token/", LoginWithToken.as_view(), name="login-with-token"),
     path("logout/", LogoutView.as_view(), name="logout"),
     path("orgs/", yours.OrgList.as_view(), name="your-orgs"),
     path("projects/", yours.ProjectList.as_view(), name="your-projects"),

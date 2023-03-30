@@ -8,7 +8,7 @@ from django.utils import timezone
 from freezegun import freeze_time
 
 from jobserver.authorization import InteractiveReporter
-from jobserver.views.users import Login, LoginWithURL, Settings
+from jobserver.views.users import Login, LoginWithToken, LoginWithURL, Settings
 
 from ....factories import (
     ProjectFactory,
@@ -373,7 +373,7 @@ def test_loginwittoken_invalid_form(rf_messages):
     response = LoginWithToken.as_view()(request)
 
     assert response.status_code == 200
-    assert response.template_name == ["login.html"]
+    assert response.template_name == "login.html"
     messages = list(request._messages)
     assert len(messages) == 1
     assert (
@@ -390,7 +390,7 @@ def test_loginwittoken_no_user(rf_messages):
     response = LoginWithToken.as_view()(request)
 
     assert response.status_code == 200
-    assert response.template_name == ["login.html"]
+    assert response.template_name == "login.html"
     messages = list(request._messages)
     assert len(messages) == 1
     assert (
@@ -409,7 +409,7 @@ def test_loginwittoken_no_social(rf_messages):
     response = LoginWithToken.as_view()(request)
 
     assert response.status_code == 200
-    assert response.template_name == ["login.html"]
+    assert response.template_name == "login.html"
     messages = list(request._messages)
     assert len(messages) == 1
     assert (
@@ -428,7 +428,7 @@ def test_loginwittoken_bad_token(rf_messages):
     response = LoginWithToken.as_view()(request)
 
     assert response.status_code == 200
-    assert response.template_name == ["login.html"]
+    assert response.template_name == "login.html"
     messages = list(request._messages)
     assert len(messages) == 1
     assert (
@@ -450,7 +450,7 @@ def test_loginwittoken_expired_token(rf_messages):
     response = LoginWithToken.as_view()(request)
 
     assert response.status_code == 200
-    assert response.template_name == ["login.html"]
+    assert response.template_name == "login.html"
     messages = list(request._messages)
     assert len(messages) == 1
     assert (
