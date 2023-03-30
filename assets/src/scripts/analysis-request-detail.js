@@ -3,9 +3,9 @@ const downloadBtn = document.querySelector("#downloadBtn");
 const watermark = document.querySelector("#watermark");
 
 const options = {
-  margin: 2,
+  margin: 20,
   filename: `${downloadBtn.dataset.title} - Report.pdf`,
-  image: { type: "png" },
+  image: { type: "jpeg", quality: 0.75 },
   jsPDF: { unit: "mm", format: "a4", orientation: "portrait" },
   html2canvas: {
     ignore: () => report.querySelector("svg"),
