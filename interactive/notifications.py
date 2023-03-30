@@ -5,7 +5,6 @@ from furl import furl
 
 
 def notify_output_checkers(job_request, github_api):
-    # create a ticket for output checkers
     workspace_url = furl(settings.BASE_URL) / job_request.workspace.get_absolute_url()
 
     body = f"""
@@ -14,12 +13,6 @@ def notify_output_checkers(job_request, github_api):
 
     ### Workspace
     {workspace_url}
-
-    ### Type
-    - [X] I have added a label
-
-    ### Team
-    - [ ] I have added a label
 
     ### Analysis request purpose
     {job_request.analysis_request.purpose}
@@ -34,6 +27,14 @@ def notify_output_checkers(job_request, github_api):
     - Tables of the top 5 most common codes for both codelists. This is calculated as the proportion of each code across all codes recorded in the study period. A version of these tables with the counts for each code can be found in `output/{job_request.analysis_request.pk}/joined/top_5_code_table_with_counts_1.csv`  and `output/{job_request.analysis_request.pk}/joined/top_5_code_table_with_counts_2.csv`. Codes with counts <=7 are removed. Counts rounded to the nearest 7 before the proportion is calculated.
     - Population level rate per 1000 for the measure. Counts are rounded to the nearest 10 before calculating the rate. The underlying data can be found in `output/{job_request.analysis_request.pk}/joined/measure_total_rate.csv`.
     - Population level rate per 1000 for the measure, broken down demographics. Counts are rounded to the nearest 10 before calculating the rate. The underlying data can be found in `output/{job_request.analysis_request.pk}/joined/measure_*_rate.csv`.
+
+    ### Releasing
+    To release the outputs, go into the **root** of the workspace and run:
+
+    ```
+    osrelease output/{job_request.analysis_request.pk}/report.html
+    ```
+    The HTML report contains all relevant data, so the individual CSVs and images do NOT need to be released.
     """
 
     return github_api.create_issue(
