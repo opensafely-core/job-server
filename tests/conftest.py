@@ -7,6 +7,10 @@ from pathlib import Path
 import pytest
 import structlog
 from django.conf import settings
+from django.contrib.messages.storage.fallback import FallbackStorage
+from django.contrib.sessions.backends.db import SessionStore
+from django.core.handlers.wsgi import WSGIRequest
+from django.test import RequestFactory
 from django.utils import timezone
 from opentelemetry import trace
 from opentelemetry.sdk.trace import TracerProvider
@@ -224,3 +228,17 @@ def slack_messages(monkeypatch, enable_network):
 
     monkeypatch.setattr("services.slack.post", post)
     return messages
+
+
+class MessagesRequestFactory(RequestFactory):
+    def request(self, **request):
+        request = WSGIRequest(self._base_environ(**request))
+        request.session = SessionStore()
+        messages = FallbackStorage(request)
+        request._messages = messages
+        return request
+
+
+@pytest.fixture
+def rf_messages():
+    return MessagesRequestFactory()
