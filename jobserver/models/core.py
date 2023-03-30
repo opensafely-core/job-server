@@ -783,6 +783,11 @@ class UserManager(BaseUserManager.from_queryset(UserQuerySet), BaseUserManager):
     pass
 
 
+def human_memorable_token(size=8):
+    """Generate a short token for human use"""
+    return "".join(str(secrets.randbelow(10)) for i in range(size))
+
+
 class User(AbstractBaseUser):
     """
     A custom User model used throughout the codebase
@@ -1046,7 +1051,7 @@ class User(AbstractBaseUser):
 
     def generate_login_token(self):
         """Generate, set and return single use login token and expiry"""
-        token = "".join(str(secrets.randbelow(10)) for i in range(8))
+        token = human_memorable_token()
         self.login_token = make_password(token, salt="login-with-token")
         self.login_token_expires_at = timezone.now() + timedelta(hours=1)
         self.save(update_fields=["login_token_expires_at", "login_token"])

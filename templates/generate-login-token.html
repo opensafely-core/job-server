@@ -1,0 +1,52 @@
+{% extends "base-tw.html" %}
+
+{% block metatitle %}Generate Login Token | OpenSAFELY Jobs{% endblock metatitle %}
+
+{% block breadcrumbs %}
+  {% url "home" as home_url %}
+
+  {% #breadcrumbs %}
+    {% breadcrumb title="Home" url=home_url %}
+    {% breadcrumb title="Login" active=True %}
+  {% /breadcrumbs %}
+{% endblock breadcrumbs %}
+
+{% block content %}
+<section class="flex flex-col max-w-2xl gap-y-4">
+  <h1 class="text-3xl break-words font-bold text-slate-900 mt-2 md:mt-0 md:col-span-3 md:text-4xl">
+    Generate Login Token
+  </h1>
+  {% if not request.user.social_auth.exists %}
+  <div class="prose prose-lg mb-6">
+    <p class="lead">
+      Only OpenSAFELY users with a linked Github account and access to Level 4 environments can generate login tokens.
+    </p>
+  </div>
+  {% else %}
+  <div class="prose prose-lg mb-6">
+    <p class="lead">
+      For logging in to OpenSAFELY from secure Level 4 environments, you need to generate a single use login token.
+    </p>
+  </div>
+
+  {% #card title="Generate Login Token" container=True %}
+    {% if token %}
+    <div class="prose prose-sm mb-6">
+    <p>Here is your single use token:</p>
+    <pre style="flex-basis: auto">{{ token }}</pre>
+    <p>
+      You can use this to login to OpenSAFELY from within secure Level 4 environments.
+      It is valid for 1 hour, or until you use it or re-generate it.
+    </p>
+    </div>
+    {% endif %}
+    <form class="flex items-center gap-2 flex-wrap md:col-span-3 md:flex-nowrap" method="POST">
+      {% csrf_token %}
+      {% #button type="submit" variant="success" %}
+        Generate Login Token
+      {% /button %}
+    </form>
+  {% /card %}
+  {% endif %}
+</section>
+{% endblock content %}

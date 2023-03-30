@@ -223,6 +223,24 @@ class LoginWithToken(View):
 
 
 @method_decorator(login_required, name="dispatch")
+class GenerateLoginToken(View):
+    template = "generate-login-token.html"
+
+    def get(self, request):
+        return TemplateResponse(self.request, self.template)
+
+    def post(self, request):
+        if not request.user.social_auth.exists():
+            return TemplateResponse(self.request, self.template)
+
+        token = self.request.user.generate_login_token()
+        formatted = f"{token[:4]} {token[4:]}"
+        return TemplateResponse(
+            self.request, self.template, context={"token": formatted}
+        )
+
+
+@method_decorator(login_required, name="dispatch")
 class Settings(UpdateView):
     fields = [
         "fullname",

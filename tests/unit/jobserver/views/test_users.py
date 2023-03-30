@@ -7,8 +7,15 @@ from django.urls import reverse
 from django.utils import timezone
 from freezegun import freeze_time
 
+import jobserver.models.core
 from jobserver.authorization import InteractiveReporter
-from jobserver.views.users import Login, LoginWithToken, LoginWithURL, Settings
+from jobserver.views.users import (
+    GenerateLoginToken,
+    Login,
+    LoginWithToken,
+    LoginWithURL,
+    Settings,
+)
 
 from ....factories import (
     ProjectFactory,
@@ -457,3 +464,83 @@ def test_loginwittoken_expired_token(rf_messages):
         str(messages[0])
         == "Login failed. The user or token may be incorrect, or the token may have expired."
     )
+
+
+def test_generate_login_token_login_required(rf):
+    request = rf.get("/generate-login-token")
+    request.user = AnonymousUser()
+    response = GenerateLoginToken.as_view()(request)
+
+    assert response.status_code == 302
+    assert response.url == "/login/?next=/generate-login-token"
+
+    request = rf.post("/generate-login-token")
+    request.user = AnonymousUser()
+    response = GenerateLoginToken.as_view()(request)
+
+    assert response.status_code == 302
+    assert response.url == "/login/?next=/generate-login-token"
+
+
+def test_generate_login_token_get_success(rf):
+    user = UserFactory()
+    UserSocialAuthFactory(user=user)
+    request = rf.get("/generate-login-token")
+    request.user = user
+    response = GenerateLoginToken.as_view()(request)
+
+    assert response.status_code == 200
+    assert response.template_name == "generate-login-token.html"
+    assert (
+        "For logging in to OpenSAFELY from secure Level 4 environments"
+        in response.rendered_content
+    )
+
+
+def test_generate_login_token_get_not_social(rf):
+    user = UserFactory()
+    request = rf.get("/generate-login-token")
+    request.user = user
+    response = GenerateLoginToken.as_view()(request)
+
+    assert response.status_code == 200
+    assert response.template_name == "generate-login-token.html"
+    assert (
+        "Only OpenSAFELY users with a linked Github account"
+        in response.rendered_content
+    )
+
+
+def test_generate_login_token_post_success(rf, monkeypatch):
+    monkeypatch.setattr(
+        jobserver.models.core, "human_memorable_token", lambda: "12345678"
+    )
+
+    user = UserFactory()
+    UserSocialAuthFactory(user=user)
+    request = rf.post("/generate-login-token")
+    request.user = user
+    response = GenerateLoginToken.as_view()(request)
+
+    assert response.status_code == 200
+    assert response.template_name == "generate-login-token.html"
+    assert "1234 5678" in response.rendered_content
+
+    user.validate_login_token("1234 5678")
+
+
+def test_generate_login_token_post_no_social(rf, monkeypatch):
+    monkeypatch.setattr(
+        jobserver.models.core,
+        "human_memorable_token",
+        lambda: "12345678",  # pragma: no cover
+    )
+
+    user = UserFactory()
+    request = rf.post("/generate-login-token")
+    request.user = user
+    response = GenerateLoginToken.as_view()(request)
+
+    assert response.status_code == 200
+    assert response.template_name == "generate-login-token.html"
+    assert "1234 5678" not in response.rendered_content
