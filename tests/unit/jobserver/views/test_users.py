@@ -304,3 +304,156 @@ def test_settings_post(rf_messages):
     messages = list(request._messages)
     assert len(messages) == 1
     assert str(messages[0]) == "Settings saved successfully"
+
+
+def test_loginwittoken_success_username(rf_messages):
+    user = UserFactory()
+    UserSocialAuthFactory(user=user)
+    token = user.generate_login_token()
+
+    data = {"user": user.username, "token": token}
+    request = rf_messages.post("/login-with-token", data)
+    response = LoginWithToken.as_view()(request)
+
+    assert response.status_code == 302
+    assert response.url == "/"
+    messages = list(request._messages)
+    assert len(messages) == 1
+    assert (
+        str(messages[0])
+        == "You have been logged in using a single use token. That token is now invalid."
+    )
+
+
+def test_loginwittoken_success_email(rf_messages):
+    user = UserFactory()
+    UserSocialAuthFactory(user=user)
+    token = user.generate_login_token()
+
+    data = {"user": user.email, "token": token}
+    request = rf_messages.post("/login-with-token", data)
+
+    response = LoginWithToken.as_view()(request)
+
+    assert response.status_code == 302
+    assert response.url == "/"
+    messages = list(request._messages)
+    assert len(messages) == 1
+    assert (
+        str(messages[0])
+        == "You have been logged in using a single use token. That token is now invalid."
+    )
+
+
+def test_loginwittoken_success_notification_email(rf_messages):
+    user = UserFactory()
+    user.notifications_email = "foo@bar.com"
+    user.save()
+    UserSocialAuthFactory(user=user)
+    token = user.generate_login_token()
+
+    data = {"user": user.notifications_email, "token": token}
+    request = rf_messages.post("/login-with-token", data)
+
+    response = LoginWithToken.as_view()(request)
+
+    assert response.status_code == 302
+    assert response.url == "/"
+    messages = list(request._messages)
+    assert len(messages) == 1
+    assert (
+        str(messages[0])
+        == "You have been logged in using a single use token. That token is now invalid."
+    )
+
+
+def test_loginwittoken_invalid_form(rf_messages):
+    request = rf_messages.post("/login-with-token", {})
+
+    response = LoginWithToken.as_view()(request)
+
+    assert response.status_code == 200
+    assert response.template_name == ["login.html"]
+    messages = list(request._messages)
+    assert len(messages) == 1
+    assert (
+        str(messages[0])
+        == "Login failed. The user or token may be incorrect, or the token may have expired."
+    )
+
+
+def test_loginwittoken_no_user(rf_messages):
+
+    data = {"user": "doesnotexist", "token": "token"}
+    request = rf_messages.post("/login-with-token", data)
+
+    response = LoginWithToken.as_view()(request)
+
+    assert response.status_code == 200
+    assert response.template_name == ["login.html"]
+    messages = list(request._messages)
+    assert len(messages) == 1
+    assert (
+        str(messages[0])
+        == "Login failed. The user or token may be incorrect, or the token may have expired."
+    )
+
+
+def test_loginwittoken_no_social(rf_messages):
+    user = UserFactory()
+    token = user.generate_login_token()
+
+    data = {"user": user.email, "token": token}
+    request = rf_messages.post("/login-with-token", data)
+
+    response = LoginWithToken.as_view()(request)
+
+    assert response.status_code == 200
+    assert response.template_name == ["login.html"]
+    messages = list(request._messages)
+    assert len(messages) == 1
+    assert (
+        str(messages[0])
+        == "Login failed. The user or token may be incorrect, or the token may have expired."
+    )
+
+
+def test_loginwittoken_bad_token(rf_messages):
+    user = UserFactory()
+    UserSocialAuthFactory(user=user)
+
+    data = {"user": user.email, "token": "no token"}
+    request = rf_messages.post("/login-with-token", data)
+
+    response = LoginWithToken.as_view()(request)
+
+    assert response.status_code == 200
+    assert response.template_name == ["login.html"]
+    messages = list(request._messages)
+    assert len(messages) == 1
+    assert (
+        str(messages[0])
+        == "Login failed. The user or token may be incorrect, or the token may have expired."
+    )
+
+
+def test_loginwittoken_expired_token(rf_messages):
+    user = UserFactory()
+    UserSocialAuthFactory(user=user)
+    token = user.generate_login_token()
+    user.login_token_expires_at = timezone.now() - timedelta(minutes=1)
+    user.save()
+
+    data = {"user": user.email, "token": token}
+    request = rf_messages.post("/login-with-token", data)
+
+    response = LoginWithToken.as_view()(request)
+
+    assert response.status_code == 200
+    assert response.template_name == ["login.html"]
+    messages = list(request._messages)
+    assert len(messages) == 1
+    assert (
+        str(messages[0])
+        == "Login failed. The user or token may be incorrect, or the token may have expired."
+    )

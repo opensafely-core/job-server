@@ -6,6 +6,7 @@ from urllib.parse import quote
 
 import pydantic
 import structlog
+from django.contrib.auth.hashers import check_password, make_password
 from django.contrib.auth.models import AbstractBaseUser
 from django.contrib.auth.models import UserManager as BaseUserManager
 from django.contrib.auth.validators import UnicodeUsernameValidator
@@ -838,6 +839,10 @@ class User(AbstractBaseUser):
     pat_token = models.TextField(null=True, unique=True)
     pat_expires_at = models.DateTimeField(null=True)
 
+    # single use token login
+    login_token = models.TextField(null=True)
+    login_token_expires_at = models.DateTimeField(null=True)
+
     # normally this would be nullable but we are only creating users for
     # Interactive users currently
     created_by = models.ForeignKey(
@@ -1032,6 +1037,37 @@ class User(AbstractBaseUser):
 
         # return the unhashed token so it can be passed to a consuming service
         return token
+
+    class BadLoginToken(Exception):
+        pass
+
+    class ExpiredLoginToken(Exception):
+        pass
+
+    def generate_login_token(self):
+        """Generate, set and return single use login token and expiry"""
+        token = "".join(str(secrets.randbelow(10)) for i in range(8))
+        self.login_token = make_password(token, salt="login-with-token")
+        self.login_token_expires_at = timezone.now() + timedelta(hours=1)
+        self.save(update_fields=["login_token_expires_at", "login_token"])
+        return token
+
+    def validate_login_token(self, token):
+
+        if not (self.login_token and self.login_token_expires_at):
+            raise self.BadLoginToken(f"No login token set for {self.username}")
+
+        if timezone.now() > self.login_token_expires_at:
+            raise self.ExpiredLoginToken(f"Token for {self.username} has expired")
+
+        cleaned = token.strip().replace(" ", "")
+
+        if not check_password(cleaned, self.login_token):
+            raise self.BadLoginToken(f"Token for {self.username} was invalid")
+
+        # all good - consume this token
+        self.login_token = self.login_token_expires_at = None
+        self.save(update_fields=["login_token_expires_at", "login_token"])
 
 
 class Workspace(models.Model):

@@ -282,3 +282,61 @@ def test_userqueryset_success():
 def test_userqueryset_unknown_role():
     with pytest.raises(Exception, match="Unknown Roles:.*"):
         User.objects.filter_by_role("unknown")
+
+
+def test_user_login_token_flow_success():
+    user = UserFactory()
+    token = user.generate_login_token()
+    assert user.login_token is not None
+    assert user.login_token_expires_at is not None
+    user.validate_login_token(token)
+    assert user.login_token is None
+    assert user.login_token_expires_at is None
+
+
+def test_user_validate_login_token_no_token():
+    user = UserFactory()
+
+    # neither
+    with pytest.raises(user.BadLoginToken):
+        user.validate_login_token("token")
+
+    # token but no expiry
+    user.generate_login_token()
+    user.login_token_expires_at = None
+
+    with pytest.raises(user.BadLoginToken):
+        user.validate_login_token("token")
+
+    # expiry but no token
+    user.generate_login_token()
+    user.login_token = None
+
+    with pytest.raises(user.BadLoginToken):
+        user.validate_login_token("token")
+
+
+def test_user_validate_login_token_expired():
+
+    user = UserFactory()
+    token = user.generate_login_token()
+    user.login_token_expires_at = timezone.now() - timedelta(minutes=1)
+    user.save()
+
+    with pytest.raises(user.ExpiredLoginToken):
+        user.validate_login_token(token)
+
+
+def test_validate_login_token_ignore_whitespace():
+    user = UserFactory()
+    token = user.generate_login_token()
+    whitespace_token = " ".join(token) + " "
+    user.validate_login_token(whitespace_token)
+
+
+def test_user_validate_login_token_wrong():
+    user = UserFactory()
+    user.generate_login_token()
+
+    with pytest.raises(user.BadLoginToken):
+        user.validate_login_token("bad token")
