@@ -12,14 +12,14 @@ from django.shortcuts import redirect
 from django.template.response import TemplateResponse
 from django.urls import reverse
 from django.utils.decorators import method_decorator
-from django.views.generic import FormView, UpdateView, View
+from django.views.generic import FormView, View
 from furl import furl
 from opentelemetry import trace
 
 from jobserver.authorization import InteractiveReporter
 
 from ..emails import send_github_login_email, send_login_email
-from ..forms import EmailLoginForm, TokenLoginForm
+from ..forms import EmailLoginForm, SettingsForm, TokenLoginForm
 from ..models import User
 from ..utils import is_safe_path
 
@@ -223,40 +223,50 @@ class LoginWithToken(View):
 
 
 @method_decorator(login_required, name="dispatch")
-class GenerateLoginToken(View):
-    template = "generate-login-token.html"
+class Settings(View):
+    def get(self, request, *args, **kwargs):
+        return self.response()
 
-    def get(self, request):
-        return TemplateResponse(self.request, self.template)
+    def post(self, request, *args, **kwargs):
+        # settings form
+        if "settings" in request.POST:
+            form = SettingsForm(request.POST)
+            if not form.is_valid():
+                messages.error(request, "Invalid settings")
+                return self.response(form)
 
-    def post(self, request):
-        if not request.user.social_auth.exists():
-            return TemplateResponse(self.request, self.template)
+            request.user.fullname = form.cleaned_data["fullname"]
+            request.user.notifications_email = form.cleaned_data["notifications_email"]
+            request.user.save()
+            messages.success(request, "User settings updated")
+            return self.response()
 
-        token = self.request.user.generate_login_token()
-        formatted = f"{token[:4]} {token[4:]}"
-        return TemplateResponse(
-            self.request, self.template, context={"token": formatted}
-        )
+        # generate token form
+        elif "token" in request.POST:
+            if not request.user.social_auth.exists():
+                # user shouldn't usually get this, as we hide the form, but just in case
+                messages.error(request, "You must have Github account to create token")
+                return self.response()
 
+            token = request.user.generate_login_token()
+            # more user friendly grouping
+            formatted = f"{token[:4]} {token[4:]}"
+            return self.response(token=formatted)
 
-@method_decorator(login_required, name="dispatch")
-class Settings(UpdateView):
-    fields = [
-        "fullname",
-        "notifications_email",
-    ]
-    template_name = "settings.html"
+        else:
+            messages.error(request, "Unrecognised action")
+            return self.response()
 
-    def form_valid(self, form):
-        response = super().form_valid(form)
-
-        messages.success(self.request, "Settings saved successfully")
-
-        return response
-
-    def get_object(self):
-        return self.request.user
-
-    def get_success_url(self):
-        return self.request.GET.get("next", "/")
+    def response(self, form=None, token=None):
+        if form is None:
+            form = SettingsForm(
+                dict(
+                    fullname=self.request.user.fullname,
+                    notifications_email=self.request.user.notifications_email,
+                )
+            )
+        context = {
+            "form": form,
+            "token": token,
+        }
+        return TemplateResponse(self.request, "settings.html", context)

@@ -29,11 +29,32 @@
 
       {% #card title="Your account" class="w-full" container_class="flex flex-col gap-y-4 items-start" container=True %}
         {% form_input autocapitalize="words" autocomplete="name" autocorrect="on" class="min-w-full" field=form.fullname label="Full name" required=True type="text" %}
-        {% form_input autocapitalize="off" autocomplete="email" autocorrect="off" class="min-w-full" field=form.notifications_email inputmode="email" required=True type="email" %}
-        {% #button type="submit" variant="primary" %}
+        {% form_input autocapitalize="off" autocomplete="email" autocorrect="off" class="min-w-full" field=form.notifications_email label="Contact Email" inputmode="email" required=True type="email" %}
+        {% #button type="submit" name="settings" variant="primary" %}
           Save your settings
         {% /button %}
       {% /card %}
     </form>
+
+    {% if request.user.social_auth.exists %}
+      {% #card title="Generate Single Use Token" subtitle="For logging in to OpenSAFELY from secure Level 4 environments, you need to generate a single use login token." container=True %}
+        {% if token %}
+          <div class="prose prose-sm mb-6">
+          <p>Here is your single use token:</p>
+          <pre style="flex-basis: auto">{{ token }}</pre>
+          <p>
+            You can use this to login to OpenSAFELY from within secure Level 4 environments.
+            It is valid for 1 hour, or until you use it or re-generate it.
+          </p>
+          </div>
+        {% endif %}
+        <form class="flex items-center gap-2 flex-wrap md:col-span-3 md:flex-nowrap" method="POST">
+          {% csrf_token %}
+          {% #button type="submit" name="token" variant="success" %}
+            Generate Single Use Token
+          {% /button %}
+        </form>
+      {% /card %}
+    {% endif %}
   </section>
 {% endblock %}
