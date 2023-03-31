@@ -272,6 +272,7 @@ django==4.1.7 \
     #   django-vite
     #   djangorestframework
     #   slippers
+    #   social-auth-app-django
 django-anymail==9.0 \
     --hash=sha256:4239f7c61fb77b6eb8c8591a317a84a2a78f6bce1f8f42847921de74194b5d8a \
     --hash=sha256:c21d94ffdbada613a85c22a7bf32e37447d2811e1688cd001d3cad3c7f1ff289
@@ -815,13 +816,13 @@ slippers==0.5.0 \
     --hash=sha256:413281c8a82f9940bbbcb60dcc42d075162b5ff25a6e254c9076b6bb0deaf746 \
     --hash=sha256:5a17ef4cf6eb586739d8a6d85756995a8ac3178a49a560f7e0768258e736aa6b
     # via -r requirements.prod.in
-social-auth-app-django==5.0.0 \
-    --hash=sha256:52241a25445a010ab1c108bafff21fc5522d5c8cd0d48a92c39c7371824b065d \
-    --hash=sha256:b6e3132ce087cdd6e1707aeb1b588be41d318408fcf6395435da0bc6fe9a9795
+social-auth-app-django==5.2.0 \
+    --hash=sha256:0347ca4cd23ea9d15a665da9d22950552fb66b95600e6c2ebae38ca883b3a4ed \
+    --hash=sha256:4a5dae406f3874b4003708ff120c02cb1a4c8eeead56cd163646347309fcd0f8
     # via -r requirements.prod.in
-social-auth-core==4.2.0 \
-    --hash=sha256:08fe6645b98950cff9d6970b6704345f821d78729df0164bca0002c624b001e1 \
-    --hash=sha256:af6fc7d9ee39f0aa697cd953121add638fc32a49816341a9838a67904c39e034
+social-auth-core==4.4.1 \
+    --hash=sha256:29f5ea3174162797ccb9b849f7a38a9490bfb920304ecd9b7f63c6c3a5ceb7a3 \
+    --hash=sha256:cff78e0707ed0f6bdd3beec6ce713591875492b98272ea6298cc173912e3234b
     # via social-auth-app-django
 soupsieve==2.3.2.post1 \
     --hash=sha256:3b2503d3c7084a42b1ebd08116e5f81aadfaea95863628c80a3b774a11b7c759 \
