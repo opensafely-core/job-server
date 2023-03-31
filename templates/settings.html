@@ -13,7 +13,7 @@
 {% endblock breadcrumbs %}
 
 {% block content %}
-  <section class="grid md:grid-cols-3">
+  <section class="grid gap-8 md:grid-cols-3">
     <h1 class="md:col-span-3 text-3xl break-words md:text-4xl font-bold text-slate-900">
       Settings
     </h1>
@@ -24,7 +24,7 @@
       {% /alert %}
     {% endif %}
 
-    <form method="POST" class="md:col-span-2 mt-6">
+    <form method="POST" class="md:col-span-2">
       {% csrf_token %}
 
       {% #card title="Your account" class="w-full" container_class="flex flex-col gap-y-4 items-start" container=True %}
@@ -37,22 +37,37 @@
     </form>
 
     {% if request.user.social_auth.exists %}
-      {% #card title="Generate Single Use Token" subtitle="For logging in to OpenSAFELY from secure Level 4 environments, you need to generate a single use login token." container=True %}
-        {% if token %}
-          <div class="prose prose-sm mb-6">
-          <p>Here is your single use token:</p>
-          <pre style="flex-basis: auto">{{ token }}</pre>
+      {% #card title="Generate a Single Use Token" subtitle="For logging in to OpenSAFELY from secure Level 4 environments, you need to generate a Single Use Token" container=True class="md:col-span-2" %}
+        <div class="prose mb-6">
+          {% if token %}
+            <p>Your generated Single Use Token is:</p>
+            <div class="not-prose">
+              {% #code class="inline-flex !text-3xl font-bold !py-4 !px-8 rounded-md" %}
+                {{ token }}
+              {% /code %}
+            </div>
+          {% endif %}
           <p>
             You can use this to login to OpenSAFELY from within secure Level 4 environments.
-            It is valid for 1 hour, or until you use it or re-generate it.
           </p>
-          </div>
-        {% endif %}
-        <form class="flex items-center gap-2 flex-wrap md:col-span-3 md:flex-nowrap" method="POST">
+          <p>A Single Use Token is valid for logging in for:</p>
+          <ul>
+            <li>one login attempt, or</li>
+            <li>1 hour from the time you generate it, or</li>
+            <li>until you generate a new Single Use Token</li>
+          </ul>
+        </div>
+        <form class="mt-2" method="POST">
           {% csrf_token %}
-          {% #button type="submit" name="token" variant="success" %}
-            Generate Single Use Token
-          {% /button %}
+          {% if token %}
+            {% #button type="submit" name="token" variant="success-outline" %}
+              Generate a new Single Use Token
+            {% /button %}
+          {% else %}
+            {% #button type="submit" name="token" variant="success" %}
+              Generate a Single Use Token
+            {% /button %}
+          {% endif %}
         </form>
       {% /card %}
     {% endif %}
