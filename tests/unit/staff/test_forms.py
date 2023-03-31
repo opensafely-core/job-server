@@ -2,6 +2,7 @@ from jobserver.models import Backend, Project
 from jobserver.utils import set_from_qs
 from staff.forms import (
     ApplicationApproveForm,
+    ProjectCreateForm,
     ProjectEditForm,
     ProjectFeatureFlagsForm,
     ProjectLinkApplicationForm,
@@ -9,7 +10,13 @@ from staff.forms import (
     UserForm,
 )
 
-from ...factories import ApplicationFactory, BackendFactory, OrgFactory, ProjectFactory
+from ...factories import (
+    ApplicationFactory,
+    BackendFactory,
+    OrgFactory,
+    ProjectFactory,
+    UserFactory,
+)
 
 
 def test_applicationapproveform_success():
@@ -101,6 +108,43 @@ def test_projecteditform_number_is_not_required():
 
     form = ProjectEditForm(data=data | {"number": 123})
     assert form.is_valid(), form.errors
+
+
+def test_projectcreateform_with_duplicate_number():
+    copilot = UserFactory()
+    org = OrgFactory()
+    project = ProjectFactory(number=42)
+
+    data = {
+        "org": str(org.pk),
+        "copilot": str(copilot.pk),
+        "application_url": "http://example.com",
+        "name": "Test",
+        "number": project.number,
+    }
+    form = ProjectCreateForm(data=data)
+
+    assert not form.is_valid()
+
+    assert form.errors == {"number": ["Project number must be unique"]}
+
+
+def test_projecteditform_with_duplicate_number():
+    project = ProjectFactory()
+    other_project = ProjectFactory(number=42)
+
+    data = {
+        "name": project.name,
+        "slug": project.slug,
+        "number": other_project.number,
+        "org": str(project.org.pk),
+        "status": project.status,
+    }
+    form = ProjectEditForm(data=data, instance=project)
+
+    assert not form.is_valid()
+
+    assert form.errors == {"number": ["Project number must be unique"]}
 
 
 def test_projectfeatureflagsform_with_unknown_value():
