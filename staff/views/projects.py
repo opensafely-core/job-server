@@ -226,7 +226,8 @@ class ProjectEdit(UpdateView):
         # components yet so doing this here is a bit of a hack because we can't
         # construct dicts in a template
         return super().get_context_data(**kwargs) | {
-            "extra_field_attributes": {"type": "number"},
+            "application_url_attributes": {"type": "url"},
+            "number_attributes": {"type": "number"},
         }
 
 

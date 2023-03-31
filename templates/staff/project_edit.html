@@ -56,7 +56,7 @@
         <fieldset>
           {% include "components/form_text.html" with field=form.name label="Project name" name="name" %}
           {% include "components/form_text.html" with field=form.slug label="URL slug" name="slug" %}
-          {% include "components/form_text.html" with field=form.number label="Project number" name="number" extra_attributes=extra_field_attributes %}
+          {% include "components/form_text.html" with field=form.number label="Project number" name="number" extra_attributes=number_attributes %}
 
           <div class="form-group">
             <label class="font-weight-bold" for="id_org">Org</label>
@@ -76,6 +76,23 @@
             <p class="text-danger">{{ error }}</p>
             {% endfor %}
           </div>
+        </fieldset>
+
+        <hr />
+
+        <fieldset>
+          <legend>Application</legend>
+
+          {% if project.applications.exists %}
+          <p>This project is linked to an application, which cannot be edited here.</p>
+          {% else %}
+          <div class="alert alert-warning" role="alert">
+            If you are looking to link to an application created on this site
+            use the "Find and Link" button on the
+            <a href="{{ project.get_staff_url }}">detail page</a>.
+          </div>
+          {% include "components/form_text.html" with field=form.application_url label="Application URL" name="application_url" extra_attributes=application_url_attributes %}
+          {% endif %}
         </fieldset>
 
         <hr />

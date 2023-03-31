@@ -96,21 +96,23 @@ class ProjectCreateForm(forms.Form):
 class ProjectEditForm(forms.ModelForm):
     class Meta:
         fields = [
-            "name",
-            "slug",
-            "number",
+            "application_url",
             "copilot",
-            "copilot_support_ends_at",
             "copilot_notes",
+            "copilot_support_ends_at",
+            "name",
+            "number",
+            "org",
+            "slug",
             "status",
             "status_description",
-            "org",
         ]
         model = Project
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
 
+        self.fields["application_url"].required = False
         self.fields["number"].required = False
 
         self.fields["copilot"] = UserModelChoiceField(
