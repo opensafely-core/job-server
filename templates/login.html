@@ -42,13 +42,7 @@
   </div>
 
   <div class="mb-6 pb-12 border-b border-b-slate-300">
-  {% #card title="OpenSAFELY Interactive" container=True class="md:col-span-2" %}
-    <div class="prose prose-sm mb-6">
-      <p>
-        Users of OpenSAFELY Interactive can enter their email address below to receive an email with a link to log in.
-      </p>
-    </div>
-
+  {% #card title="OpenSAFELY Interactive" subtitle="Users of OpenSAFELY Interactive can enter their email address below to receive an email with a link to log in" container=True class="md:col-span-2" %}
     <form class="gap-2 flex-wrap md:flex-nowrap" method="POST">
       {% csrf_token %}
       <input type="hidden" name="next" value="{{ next_url }}" />
@@ -63,21 +57,15 @@
   {% /card %}
   </div>
 
-  {% #card title="Login with Single Use Token" container=True class="md:col-span-2" %}
-    <div class="prose prose-sm mb-6">
-      <p>
-        Log in from Level 4 environments with a Single Use Token.
-      </p>
-    </div>
-
+  {% #card title="Login with Single Use Token" subtitle="Log in from Level 4 environments with a Single Use Token" container=True class="md:col-span-2" %}
     <form class="gap-2 flex-wrap md:flex-nowrap" method="POST" action={{ token_form_submit_url }} >
       {% csrf_token %}
       <input type="hidden" name="next" value="{{ next_url }}" />
 
-      {% form_input type="text" field=token_form.user label="Username or Email address" required=True class="mb-3" placeholder="you@example.com" input_class="max-w-md" %}
-      {% form_input type="text" field=token_form.token label="Single Use Token" required=True class="mb-3" input_class="max-w-md" %}
+      {% form_input type="text" field=token_form.user label="GitHub username" required=True class="mb-3" placeholder="opensafely" input_class="max-w-md" %}
+      {% form_input type="text" field=token_form.token label="Single Use Token" required=True placeholder="0000 0000" show_placeholder=True class="mb-3" input_class="max-w-md" %}
 
-      {% #button type="submit" variant="primary" %}
+      {% #button type="submit" variant="primary-outline" %}
         Log in with token
       {% /button %}
 
