@@ -1,8 +1,8 @@
 const downloadBtn = document.getElementById("downloadBtn");
 
 const report = document.getElementById("reportContainer");
-const watermark = report.getElementById("watermark");
-const reportStyles = report.getElementById("report");
+const watermark = report.querySelector("#watermark");
+const reportStyles = report.querySelector("#report");
 
 const dialog = document.getElementById("downloadModal");
 const confirmBtn = dialog.querySelector(`[value="confirm"]`);
