@@ -45,6 +45,14 @@
       <form class="mb-3" method="POST">
         {% csrf_token %}
 
+        {% if form.non_field_errors %}
+        <ul>
+          {% for error in form.non_field_errors %}
+          <li class="text-danger">{{ error }}</li>
+          {% endfor %}
+        </ul>
+        {% endif %}
+
         <fieldset>
           {% include "components/form_text.html" with field=form.name label="Project name" name="name" %}
           {% include "components/form_text.html" with field=form.slug label="URL slug" name="slug" %}
