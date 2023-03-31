@@ -139,8 +139,8 @@ function ReviewRequest() {
         <h2 className="sr-only">Read and agree</h2>
         <ul>
           <li>
-            Your analyses will be run on patient records for approximately 44%
-            of the English population
+            Your analyses will be run on primary care patient records for
+            approximately 44% of the English population
           </li>
           <li>
             The analysis you are requesting may take up to 5 days to return
