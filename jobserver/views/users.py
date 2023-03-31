@@ -102,7 +102,6 @@ class Login(FormView):
         return super().get_context_data(**kwargs) | {
             "next_url": self.next_url,
             "token_form": TokenLoginForm(),
-            "token_form_submit_url": reverse("login-with-token"),
         }
 
 
@@ -166,7 +165,7 @@ class LoginWithURL(View):
 
 
 class LoginWithToken(View):
-    def post(self, request):
+    def post(self, request, *args, **kwargs):
 
         form = TokenLoginForm(request.POST)
         if not form.is_valid():
@@ -253,7 +252,7 @@ class Settings(View):
             formatted = f"{token[:4]} {token[4:]}"
             return self.response(token=formatted)
 
-        else:
+        else:  # pragma: no cover
             messages.error(request, "Unrecognised action")
             return self.response()
 

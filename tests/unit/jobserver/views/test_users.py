@@ -340,6 +340,33 @@ def test_settings_user_post(rf_messages):
     assert str(messages[0]) == "Settings saved successfully"
 
 
+def test_settings_user_post_invalid(rf_messages):
+    user = UserFactory(
+        fullname="Ben Goldacre",
+        notifications_email="original@example.com",
+    )
+
+    data = {
+        "fullname": "",
+        "notifications_email": "notvalidemail",
+        "settings": "",  # button name
+    }
+    request = rf_messages.post("/", data)
+    request.user = user
+
+    response = Settings.as_view()(request)
+
+    assert response.status_code == 200
+
+    user.refresh_from_db()
+    assert user.fullname == "Ben Goldacre"
+    assert user.notifications_email == "original@example.com"
+
+    messages = list(request._messages)
+    assert len(messages) == 1
+    assert str(messages[0]) == "Invalid settings"
+
+
 def test_settings_token_post_success(rf, monkeypatch):
     monkeypatch.setattr(
         jobserver.models.core, "human_memorable_token", lambda: "12345678"
