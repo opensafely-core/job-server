@@ -238,7 +238,7 @@ class Settings(View):
             request.user.fullname = form.cleaned_data["fullname"]
             request.user.notifications_email = form.cleaned_data["notifications_email"]
             request.user.save()
-            messages.success(request, "User settings updated")
+            messages.success(request, "Settings saved successfully")
             return self.response()
 
         # generate token form

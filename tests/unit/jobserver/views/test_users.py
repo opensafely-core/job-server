@@ -1,6 +1,5 @@
 from datetime import timedelta
 
-import pytest
 from django.contrib.auth.models import AnonymousUser
 from django.contrib.sessions.backends.db import SessionStore
 from django.core.signing import TimestampSigner
@@ -271,7 +270,22 @@ def test_loginwithurl_with_invalid_token(rf_messages):
     assert str(messages[0]).startswith("Invalid token, please try again")
 
 
-@pytest.mark.xfail
+def test_settings_login_required(rf):
+    request = rf.get("/settings")
+    request.user = AnonymousUser()
+    response = Settings.as_view()(request)
+
+    assert response.status_code == 302
+    assert response.url == "/login/?next=/settings"
+
+    request = rf.post("/settings")
+    request.user = AnonymousUser()
+    response = Settings.as_view()(request)
+
+    assert response.status_code == 302
+    assert response.url == "/login/?next=/settings"
+
+
 def test_settings_get(rf):
     UserFactory()
     user2 = UserFactory()
@@ -283,11 +297,22 @@ def test_settings_get(rf):
     assert response.status_code == 200
 
     # check the view was constructed with the request user
-    assert response.context_data["object"] == user2
+    assert user2.fullname in response.rendered_content
+    assert user2.notifications_email in response.rendered_content
 
 
-@pytest.mark.xfail
-def test_settings_post(rf_messages):
+def test_settings_get_not_social(rf):
+    user = UserFactory()
+    request = rf.get("/settings")
+    request.user = user
+    response = Settings.as_view()(request)
+
+    assert response.status_code == 200
+    assert response.template_name == "settings.html"
+    assert "Generate Single Use Token" not in response.rendered_content
+
+
+def test_settings_user_post(rf_messages):
     UserFactory()
     user2 = UserFactory(
         fullname="Ben Goldacre",
@@ -297,14 +322,14 @@ def test_settings_post(rf_messages):
     data = {
         "fullname": "Mr Testerson",
         "notifications_email": "changed@example.com",
+        "settings": "",  # button name
     }
     request = rf_messages.post("/", data)
     request.user = user2
 
     response = Settings.as_view()(request)
 
-    assert response.status_code == 302
-    assert response.url == "/"
+    assert response.status_code == 200
 
     user2.refresh_from_db()
     assert user2.notifications_email == "changed@example.com"
@@ -313,6 +338,46 @@ def test_settings_post(rf_messages):
     messages = list(request._messages)
     assert len(messages) == 1
     assert str(messages[0]) == "Settings saved successfully"
+
+
+def test_settings_token_post_success(rf, monkeypatch):
+    monkeypatch.setattr(
+        jobserver.models.core, "human_memorable_token", lambda: "12345678"
+    )
+
+    user = UserFactory()
+    UserSocialAuthFactory(user=user)
+    request = rf.post("/settings", {"token": ""})  # button name
+    request.user = user
+    response = Settings.as_view()(request)
+
+    assert response.status_code == 200
+    assert response.template_name == "settings.html"
+    assert "1234 5678" in response.rendered_content
+
+    user.validate_login_token("1234 5678")
+
+
+def test_settings_token_post_no_social(rf_messages, monkeypatch):
+    # this shouldn't be used, but set it anyway so we can detect if it is used
+    monkeypatch.setattr(
+        jobserver.models.core,
+        "human_memorable_token",
+        lambda: "12345678",  # pragma: no cover
+    )
+
+    user = UserFactory()
+    request = rf_messages.post("/settings", {"token": ""})  # button name
+    request.user = user
+    response = Settings.as_view()(request)
+
+    assert response.status_code == 200
+    assert response.template_name == "settings.html"
+    assert "1234 5678" not in response.rendered_content
+
+    messages = list(request._messages)
+    assert len(messages) == 1
+    assert str(messages[0]) == "You must have Github account to create token"
 
 
 def test_loginwittoken_success_username(rf_messages):
@@ -466,88 +531,3 @@ def test_loginwittoken_expired_token(rf_messages):
         str(messages[0])
         == "Login failed. The user or token may be incorrect, or the token may have expired."
     )
-
-
-@pytest.mark.xfail
-def test_generate_login_token_login_required(rf):
-    request = rf.get("/generate-login-token")
-    request.user = AnonymousUser()
-    response = GenerateLoginToken.as_view()(request)
-
-    assert response.status_code == 302
-    assert response.url == "/login/?next=/generate-login-token"
-
-    request = rf.post("/generate-login-token")
-    request.user = AnonymousUser()
-    response = GenerateLoginToken.as_view()(request)
-
-    assert response.status_code == 302
-    assert response.url == "/login/?next=/generate-login-token"
-
-
-@pytest.mark.xfail
-def test_generate_login_token_get_success(rf):
-    user = UserFactory()
-    UserSocialAuthFactory(user=user)
-    request = rf.get("/generate-login-token")
-    request.user = user
-    response = GenerateLoginToken.as_view()(request)
-
-    assert response.status_code == 200
-    assert response.template_name == "generate-login-token.html"
-    assert (
-        "For logging in to OpenSAFELY from secure Level 4 environments"
-        in response.rendered_content
-    )
-
-
-@pytest.mark.xfail
-def test_generate_login_token_get_not_social(rf):
-    user = UserFactory()
-    request = rf.get("/generate-login-token")
-    request.user = user
-    response = GenerateLoginToken.as_view()(request)
-
-    assert response.status_code == 200
-    assert response.template_name == "generate-login-token.html"
-    assert (
-        "Only OpenSAFELY users with a linked Github account"
-        in response.rendered_content
-    )
-
-
-@pytest.mark.xfail
-def test_generate_login_token_post_success(rf, monkeypatch):
-    monkeypatch.setattr(
-        jobserver.models.core, "human_memorable_token", lambda: "12345678"
-    )
-
-    user = UserFactory()
-    UserSocialAuthFactory(user=user)
-    request = rf.post("/generate-login-token")
-    request.user = user
-    response = GenerateLoginToken.as_view()(request)
-
-    assert response.status_code == 200
-    assert response.template_name == "generate-login-token.html"
-    assert "1234 5678" in response.rendered_content
-
-    user.validate_login_token("1234 5678")
-
-
-@pytest.mark.xfail
-def test_generate_login_token_post_no_social(rf, monkeypatch):
-    monkeypatch.setattr(
-        jobserver.models.core,
-        "human_memorable_token",
-        lambda: "12345678",  # pragma: no cover
-    )
-
-    user = UserFactory()
-    request = rf.post("/generate-login-token")
-    request.user = user
-    response = GenerateLoginToken.as_view()(request)
-
-    assert response.status_code == 200
-    assert response.template_name == "generate-login-token.html"
-    assert "1234 5678" not in response.rendered_content
