@@ -88,7 +88,7 @@
   <div class="relative grid gap-6 place-content-stretch lg:col-span-2" id="reportContainer">
     {% if report %}
       {% #card title="Report" container=True class="relative font-lg text-slate-700" %}
-        <div class="z-10 relative prose prose-blue [&_h1]:hidden">
+        <div class="z-10 relative prose prose-blue [&_h1]:hidden" id="report">
           {{ report }}
         </div>
         <div id="watermark" class="hidden absolute inset-0 text-center w-full h-full text-5xl font-bold text-gray-900/10">
@@ -121,10 +121,6 @@
             </p>
           </div>
         </div>
-        <div id="watermark" class="hidden absolute inset-0 text-center w-full h-full text-5xl font-bold text-gray-900/10">
-          <span class="py-16 block">Confidential</span>
-          <span class="py-16 block">Not for publication</span>
-        </div>
       {% /card %}
     {% endif %}
   </div>
@@ -148,32 +144,70 @@
     {% /card %}
   </div>
 </div>
+
+<dialog id="downloadModal" class="max-w-prose p-8 shadow-xl rounded-md backdrop:bg-black/25 backdrop:backdrop-blur-sm">
+  <section class="prose prose-blue">
+    <h2 class="sr-only">Read and agree before downloading</h2>
+    <p>
+      You must abide by the
+      <a
+        href="https://www.opensafely.org/policies-for-researchers/#details-all-datasets"
+        >OpenSAFELY policy</a
+      > when sharing these results:
+    </p>
+    <p>
+      This report can be shared IN CONFIDENCE and ONLY with key members of your team
+      / collaborators (for the purpose of seeking feedback and contribution to
+      inform the final paper or report), by a webinar or by email, but the following
+      guidelines must be adhered to:
+    </p>
+    <ol>
+      <li>
+        Acceptable sharing examples include: the senior sponsor; analysts and senior
+        manager in the NHS E department accountable for the specific policy
+        activities being investigated (but NOT other departments); key members of
+        the relevant
+        <a
+          href="https://www.gov.uk/government/publications/scientific-advisory-group-for-emergencies-sage-coronavirus-covid-19-response-membership/list-of-participants-of-sage-and-related-sub-groups"
+          >scientific advisory groups</a
+        >; established relevant expert collaborators.
+      </li>
+      <li>
+        If sharing this report with individuals external to your immediate project
+        team (e.g. key members of the relevant scientific advisory groups; relevant
+        external expert collaborators) you must ensure the content being shared has
+        been reviewed and approved by the senior sponsor and your line manager and
+        <mark>provide your co-pilot with a copy of the content.</mark>
+      </li>
+      <li>
+        All recipients must be reminded that the content is shared in confidence and
+        they must not distribute it further (see
+        <a
+          href="https://www.opensafely.org/policies-for-researchers/#details-all-datasets"
+          >publication guidelines</a
+        >).
+      </li>
+    </ol>
+    <p>
+      If you are unsure that your planned sharing is appropriate, please contact
+      your co-pilot in the first instance,or email
+      <a href="mailto:publications@opensafely.org">publications@opensafely.org</a>.
+    </p>
+  </section>
+  <div class="flex flex-row gap-2 mt-6">
+    {% #button variant="primary" type="button" value="generating" disabled=True %}
+      Generating PDF
+    {% /button %}
+    {% #button variant="primary" type="button" value="confirm" class="hidden" %}
+      Agree and download
+    {% /button %}
+    {% #button variant="secondary-outline" type="button" value="cancel" %}
+      Cancel
+    {% /button %}
+  </div>
+</dialog>
 {% endblock content %}
 
 {% block extra_js %}
-  <script type="text/x-mathjax-config">
-    MathJax.Hub.Config({
-      tex2jax: {
-        inlineMath: [
-          ["$", "$"],
-          ["\\(", "\\)"],
-        ],
-        displayMath: [
-          ["$$", "$$"],
-          ["\\[", "\\]"],
-        ],
-        processEscapes: true,
-        processEnvironments: true,
-      },
-      // Center justify equations in code and markdown cells. Elsewhere
-      // we use CSS to left justify single line equations in code cells.
-      displayAlign: "center",
-      "HTML-CSS": {
-        styles: { ".MathJax_Display": { margin: 0 } },
-        linebreaks: { automatic: true },
-      },
-    });
-  </script>
-
   {% vite_asset "assets/src/scripts/analysis-request-detail.js" %}
 {% endblock %}
