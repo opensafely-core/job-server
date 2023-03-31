@@ -73,7 +73,10 @@ function ComboboxItem({ codelistGroup, codelistID, query }) {
                   }`}
                 >
                   <div className="flex flex-row gap-1">
-                    <dt>From:</dt> <dd>{codelist.organisation}</dd>
+                    <dt>From:</dt>{" "}
+                    <dd>
+                      {codelist.organisation ? codelist.organisation : "N/A"}
+                    </dd>
                   </div>
                   <div className="flex flex-row gap-1 ml-2 border-l border-l-gray-300 pl-2">
                     <dt>Last updated:</dt>{" "}

@@ -68,6 +68,7 @@ class OpenCodelistsAPI:
         ]
         query_args = {
             "coding_system_id": coding_system,
+            "include-users": True,
         }
         url = self._url(path_segments, query_args)
 
