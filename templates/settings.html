@@ -37,7 +37,7 @@
     </form>
 
     {% if request.user.social_auth.exists %}
-      {% #card title="Generate a Single Use Token" subtitle="For logging in to OpenSAFELY from secure Level 4 environments, you need to generate a Single Use Token" container=True class="md:col-span-2" %}
+      {% #card title="Generate a Single Use Token" container=True class="md:col-span-2" %}
         <div class="prose mb-6">
           {% if token %}
             <p>Your generated Single Use Token is:</p>
