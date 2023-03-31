@@ -1,4 +1,4 @@
-from jobserver.models import Backend, Project, User
+from jobserver.models import Backend, Project
 from jobserver.utils import set_from_qs
 from staff.forms import (
     ApplicationApproveForm,
@@ -88,7 +88,6 @@ def test_projecteditform_number_is_not_required():
     project.
     """
     org = OrgFactory()
-    users = User.objects.all()
 
     data = {
         "name": "Test",
@@ -97,10 +96,10 @@ def test_projecteditform_number_is_not_required():
         "status": Project.Statuses.RETIRED,
     }
 
-    form = ProjectEditForm(data=data, users=users)
+    form = ProjectEditForm(data=data)
     assert form.is_valid(), form.errors
 
-    form = ProjectEditForm(data=data | {"number": 123}, users=users)
+    form = ProjectEditForm(data=data | {"number": 123})
     assert form.is_valid(), form.errors
 
 

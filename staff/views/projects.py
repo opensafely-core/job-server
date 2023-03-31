@@ -229,11 +229,6 @@ class ProjectEdit(UpdateView):
             "extra_field_attributes": {"type": "number"},
         }
 
-    def get_form_kwargs(self):
-        return super().get_form_kwargs() | {
-            "users": User.objects.all(),
-        }
-
 
 @method_decorator(require_role(CoreDeveloper), name="dispatch")
 class ProjectFeatureFlags(TemplateView):
