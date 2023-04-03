@@ -1,6 +1,7 @@
 argon2-cffi
 attrs
 bs4
+django
 django-anymail[mailgun]
 django-browser-reload
 django-csp
