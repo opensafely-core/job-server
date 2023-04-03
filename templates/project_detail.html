@@ -110,7 +110,7 @@
 
   <div class="grid grid-cols-1 gap-6 lg:grid-cols-3">
     {% url 'workspace-create' org_slug=project.org.slug project_slug=project.slug as new_workspace_url %}
-    {% #card class="lg:col-span-2" title="Workspaces" button=can_create_workspaces button_link=new_workspace_url button_text="Create a new workspace"  %}
+    {% #card class="lg:col-span-2" title="Workspaces" button=can_create_workspaces button_href=new_workspace_url button_text="Create a new workspace"  %}
       {% #list_group %}
         {% for workspace in workspaces %}
           <li class="relative transition-colors hover:bg-oxford-50 group">
