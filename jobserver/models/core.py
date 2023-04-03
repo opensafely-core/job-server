@@ -24,6 +24,7 @@ from opentelemetry.trace import propagation
 from opentelemetry.trace.propagation import tracecontext
 from pipeline import YAMLError, load_pipeline
 from sentry_sdk import capture_message
+from xkcdpass import xkcd_password
 
 from ..authorization import InteractiveReporter
 from ..authorization.fields import RolesField
@@ -783,9 +784,12 @@ class UserManager(BaseUserManager.from_queryset(UserQuerySet), BaseUserManager):
     pass
 
 
+WORDLIST = xkcd_password.generate_wordlist("eff-long")
+
+
 def human_memorable_token(size=8):
-    """Generate a short token for human use"""
-    return "".join(str(secrets.randbelow(10)) for i in range(size))
+    """Generate a 3 short english words from the eff-long list of words."""
+    return xkcd_password.generate_xkcdpassword(WORDLIST, numwords=3)
 
 
 class User(AbstractBaseUser):
@@ -1049,10 +1053,15 @@ class User(AbstractBaseUser):
     class ExpiredLoginToken(Exception):
         pass
 
+    def _strip_token(self, token):
+        return token.strip().replace(" ", "")
+
     def generate_login_token(self):
         """Generate, set and return single use login token and expiry"""
         token = human_memorable_token()
-        self.login_token = make_password(token, salt="login-with-token")
+        self.login_token = make_password(
+            self._strip_token(token), salt="login-with-token"
+        )
         self.login_token_expires_at = timezone.now() + timedelta(hours=1)
         self.save(update_fields=["login_token_expires_at", "login_token"])
         return token
@@ -1065,9 +1074,7 @@ class User(AbstractBaseUser):
         if timezone.now() > self.login_token_expires_at:
             raise self.ExpiredLoginToken(f"Token for {self.username} has expired")
 
-        cleaned = token.strip().replace(" ", "")
-
-        if not check_password(cleaned, self.login_token):
+        if not check_password(self._strip_token(token), self.login_token):
             raise self.BadLoginToken(f"Token for {self.username} was invalid")
 
         # all good - consume this token

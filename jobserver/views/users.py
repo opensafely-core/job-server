@@ -248,9 +248,7 @@ class Settings(View):
                 return self.response()
 
             token = request.user.generate_login_token()
-            # more user friendly grouping
-            formatted = f"{token[:4]} {token[4:]}"
-            return self.response(token=formatted)
+            return self.response(token=token)
 
         else:  # pragma: no cover
             messages.error(request, "Unrecognised action")

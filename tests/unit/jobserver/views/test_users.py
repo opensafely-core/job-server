@@ -369,7 +369,7 @@ def test_settings_user_post_invalid(rf_messages):
 
 def test_settings_token_post_success(rf, monkeypatch):
     monkeypatch.setattr(
-        jobserver.models.core, "human_memorable_token", lambda: "12345678"
+        jobserver.models.core, "human_memorable_token", lambda: "foo bar baz"
     )
 
     user = UserFactory()
@@ -380,9 +380,9 @@ def test_settings_token_post_success(rf, monkeypatch):
 
     assert response.status_code == 200
     assert response.template_name == "settings.html"
-    assert "1234 5678" in response.rendered_content
+    assert "foo bar baz" in response.rendered_content
 
-    user.validate_login_token("1234 5678")
+    user.validate_login_token("foo bar baz")
 
 
 def test_settings_token_post_no_social(rf_messages, monkeypatch):
@@ -390,7 +390,7 @@ def test_settings_token_post_no_social(rf_messages, monkeypatch):
     monkeypatch.setattr(
         jobserver.models.core,
         "human_memorable_token",
-        lambda: "12345678",  # pragma: no cover
+        lambda: "foo bar baz",  # pragma: no cover
     )
 
     user = UserFactory()
@@ -400,7 +400,7 @@ def test_settings_token_post_no_social(rf_messages, monkeypatch):
 
     assert response.status_code == 200
     assert response.template_name == "settings.html"
-    assert "1234 5678" not in response.rendered_content
+    assert "foo bar baz" not in response.rendered_content
 
     messages = list(request._messages)
     assert len(messages) == 1
