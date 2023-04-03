@@ -198,6 +198,7 @@ class LoginWithToken(View):
             return self.login_invalid(form)
 
         login(self.request, user, "django.contrib.auth.backends.ModelBackend")
+        logger.info(f"User {user} logged in with login token")
         messages.success(
             self.request,
             "You have been logged in using a single use token. That token is now invalid.",
@@ -248,6 +249,7 @@ class Settings(View):
                 return self.response()
 
             token = request.user.generate_login_token()
+            logger.info(f"User {request.user} generated a login token")
             return self.response(token=token)
 
         else:  # pragma: no cover
