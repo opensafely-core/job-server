@@ -22,7 +22,7 @@ interactive_templates@https://github.com/opensafely-core/interactive-templates/a
 itsdangerous
 lxml
 markdown
-psycopg2-binary
+psycopg[binary]
 pydantic
 pygments
 python-ulid
