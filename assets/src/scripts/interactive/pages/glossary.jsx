@@ -7,11 +7,10 @@ function Glossary() {
 
   return (
     <>
-      <h2 className="text-4xl font-bold mb-6">Request an analysis</h2>
       <div className="prose prose-blue">
         <p className="text-lg">
-          Requesting an Analysis requires you to select two SNOMED CT or dm+d
-          Codelists to compare over time.
+          Requesting an analysis requires you to select two SNOMED CT or dm+d
+          codelists to see how they are used in combination over time.
         </p>
         <p className="text-lg">
           To make sure this is the right tool for you, check that you understand
@@ -100,7 +99,8 @@ function Glossary() {
         <p>
           dm+d codelists can query data related to prescriptions that have been
           issued for medicines or devices, for example: a prescription for
-          Paracetamol 500mg tablets or for Levobunolol 0.5% eye drops.
+          Paracetamol 500mg tablets or for a Salbutamol 100micrograms/dose
+          inhaler.
         </p>
       </div>
 
