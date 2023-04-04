@@ -49,6 +49,16 @@ class EmailLoginForm(forms.Form):
     email = forms.EmailField()
 
 
+class TokenLoginForm(forms.Form):
+    user = forms.CharField()
+    token = forms.CharField()
+
+
+class SettingsForm(forms.Form):
+    fullname = forms.CharField()
+    notifications_email = forms.EmailField()
+
+
 class ProjectMembershipForm(RolesForm):
     pass
 

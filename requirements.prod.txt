@@ -927,6 +927,9 @@ wrapt==1.14.1 \
     #   deprecated
     #   opentelemetry-instrumentation
     #   opentelemetry-instrumentation-dbapi
+xkcdpass==1.19.3 \
+    --hash=sha256:c5a2e948746da6fe504e8404284f457d8e98da6df5047c6bb3f71b18882e9d2a
+    # via -r requirements.prod.in
 
 # The following packages are considered to be unsafe in a requirements file:
 setuptools==67.0.0 \

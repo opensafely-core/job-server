@@ -7,17 +7,19 @@ from django.contrib import messages
 from django.contrib.auth import login
 from django.contrib.auth.decorators import login_required
 from django.core.signing import BadSignature, SignatureExpired, TimestampSigner
+from django.db.models import Q
 from django.shortcuts import redirect
+from django.template.response import TemplateResponse
 from django.urls import reverse
 from django.utils.decorators import method_decorator
-from django.views.generic import FormView, UpdateView, View
+from django.views.generic import FormView, View
 from furl import furl
 from opentelemetry import trace
 
 from jobserver.authorization import InteractiveReporter
 
 from ..emails import send_github_login_email, send_login_email
-from ..forms import EmailLoginForm
+from ..forms import EmailLoginForm, SettingsForm, TokenLoginForm
 from ..models import User
 from ..utils import is_safe_path
 
@@ -32,12 +34,30 @@ class BadToken(Exception):
     pass
 
 
+class InvalidTokenUser(Exception):
+    pass
+
+
+def get_next_url(request):
+    next_url = request.GET.get("next") or "/"
+    if not is_safe_path(next_url):
+        next_url = ""
+
+    f = furl(next_url)
+    f.args.update(request.GET)
+
+    # drop the next arg if we have one
+    f.args.pop("next", None)
+
+    return f.url
+
+
 class Login(FormView):
     form_class = EmailLoginForm
     template_name = "login.html"
 
     def dispatch(self, request, *args, **kwargs):
-        self.next_url = self.get_next_url(request)
+        self.next_url = get_next_url(self.request)
 
         if request.user.is_authenticated:
             return redirect(self.next_url)
@@ -81,20 +101,8 @@ class Login(FormView):
     def get_context_data(self, **kwargs):
         return super().get_context_data(**kwargs) | {
             "next_url": self.next_url,
+            "token_form": TokenLoginForm(),
         }
-
-    def get_next_url(self, request):
-        next_url = request.GET.get("next") or "/"
-        if not is_safe_path(next_url):
-            next_url = ""
-
-        f = furl(next_url)
-        f.args.update(request.GET)
-
-        # drop the next arg if we have one
-        f.args.pop("next", None)
-
-        return f.url
 
 
 class LoginWithURL(View):
@@ -127,7 +135,7 @@ class LoginWithURL(View):
             # log and trace these exceptions to help us debug unexpected failures,
             # and in particular spikes in failure rate.  Sentry will also be
             # notified of these errors.
-            logger.exception("Login failed")
+            logger.exception("Login via emailed url failed")
             trace.get_current_span().record_exception(e)  # also log to our metrics host
 
             return self.login_invalid()
@@ -156,23 +164,108 @@ class LoginWithURL(View):
         return redirect("login")
 
 
+class LoginWithToken(View):
+    def post(self, request, *args, **kwargs):
+
+        form = TokenLoginForm(request.POST)
+        if not form.is_valid():
+            return self.login_invalid(form)
+
+        user_value = form.cleaned_data["user"]
+
+        try:
+            # username or email
+            user = User.objects.get(
+                Q(email=user_value)
+                | Q(username=user_value)
+                | Q(notifications_email=user_value)
+            )
+
+            # only github users can log in with token
+            if not user.social_auth.exists():
+                raise InvalidTokenUser(f"{user_value} is not a github user")
+
+            user.validate_login_token(form.cleaned_data["token"])
+
+        except (
+            User.DoesNotExist,
+            InvalidTokenUser,
+            User.BadLoginToken,
+            User.ExpiredLoginToken,
+        ) as e:
+            logger.exception(f"Login with token failed for user {user_value}")
+            trace.get_current_span().record_exception(e)
+            return self.login_invalid(form)
+
+        login(self.request, user, "django.contrib.auth.backends.ModelBackend")
+        logger.info(f"User {user} logged in with login token")
+        messages.success(
+            self.request,
+            "You have been logged in using a single use token. That token is now invalid.",
+        )
+
+        next_url = get_next_url(self.request)
+        return redirect(next_url)
+
+    def login_invalid(self, form):
+        messages.error(
+            self.request,
+            "Login failed. The user or token may be incorrect, or the token may have expired.",
+        )
+        return TemplateResponse(
+            self.request,
+            template="login.html",
+            context={
+                "token_form": form,
+                "next_url": get_next_url(self.request),
+            },
+        )
+
+
 @method_decorator(login_required, name="dispatch")
-class Settings(UpdateView):
-    fields = [
-        "fullname",
-        "notifications_email",
-    ]
-    template_name = "settings.html"
+class Settings(View):
+    def get(self, request, *args, **kwargs):
+        return self.response()
 
-    def form_valid(self, form):
-        response = super().form_valid(form)
+    def post(self, request, *args, **kwargs):
+        # settings form
+        if "settings" in request.POST:
+            form = SettingsForm(request.POST)
+            if not form.is_valid():
+                messages.error(request, "Invalid settings")
+                return self.response(form)
 
-        messages.success(self.request, "Settings saved successfully")
+            request.user.fullname = form.cleaned_data["fullname"]
+            request.user.notifications_email = form.cleaned_data["notifications_email"]
+            request.user.save()
+            messages.success(request, "Settings saved successfully")
+            return self.response()
 
-        return response
+        # generate token form
+        elif "token" in request.POST:
+            if not request.user.social_auth.exists():
+                # user shouldn't usually get this, as we hide the form, but just in case
+                messages.error(request, "You must have Github account to create token")
+                return self.response()
 
-    def get_object(self):
-        return self.request.user
+            token = request.user.generate_login_token()
+            logger.info(f"User {request.user} generated a login token")
+            return self.response(token=token)
 
-    def get_success_url(self):
-        return self.request.GET.get("next", "/")
+        else:  # pragma: no cover
+            messages.error(request, "Unrecognised action")
+            return self.response()
+
+    def response(self, form=None, token=None):
+        if form is None:
+            form = SettingsForm(
+                dict(
+                    fullname=self.request.user.fullname,
+                    notifications_email=self.request.user.notifications_email,
+                )
+            )
+        context = {
+            "form": form,
+            "token": token,
+        }
+        return TemplateResponse(self.request, "settings.html", context)
