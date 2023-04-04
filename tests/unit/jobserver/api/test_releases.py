@@ -154,9 +154,11 @@ def test_releaseapi_post_already_uploaded(api_rf, build_release_with_files):
         "/",
         content_type="application/octet-stream",
         data="test",
-        HTTP_CONTENT_DISPOSITION="attachment; filename=file.txt",
-        HTTP_AUTHORIZATION=release.backend.auth_token,
-        HTTP_OS_USER=user.username,
+        headers={
+            "content-disposition": "attachment; filename=file.txt",
+            "authorization": release.backend.auth_token,
+            "os-user": user.username,
+        },
     )
 
     response = ReleaseAPI.as_view()(request, release_id=release.id)
@@ -180,9 +182,11 @@ def test_releaseapi_post_bad_backend(api_rf, build_release, file_content):
         "/",
         content_type="application/octet-stream",
         data=file_content,
-        HTTP_CONTENT_DISPOSITION="attachment; filename=output/file.txt",
-        HTTP_AUTHORIZATION=bad_backend.auth_token,
-        HTTP_OS_USER=user.username,
+        headers={
+            "content-disposition": "attachment; filename=output/file.txt",
+            "authorization": bad_backend.auth_token,
+            "os-user": user.username,
+        },
     )
 
     response = ReleaseAPI.as_view()(request, release_id=release.id)
@@ -194,7 +198,7 @@ def test_releaseapi_post_bad_backend(api_rf, build_release, file_content):
 def test_releaseapi_post_bad_backend_token(api_rf):
     release = ReleaseFactory()
 
-    request = api_rf.post("/", HTTP_AUTHORIZATION="invalid")
+    request = api_rf.post("/", headers={"authorization": "invalid"})
 
     response = ReleaseAPI.as_view()(request, release_id=release.id)
 
@@ -213,9 +217,11 @@ def test_releaseapi_post_bad_filename(api_rf, build_release, file_content):
         "/",
         content_type="application/octet-stream",
         data=file_content,
-        HTTP_CONTENT_DISPOSITION="attachment; filename=wrongname.txt",
-        HTTP_AUTHORIZATION=release.backend.auth_token,
-        HTTP_OS_USER=user.username,
+        headers={
+            "content-disposition": "attachment; filename=wrongname.txt",
+            "authorization": release.backend.auth_token,
+            "os-user": user.username,
+        },
     )
 
     response = ReleaseAPI.as_view()(request, release_id=release.id)
@@ -229,8 +235,10 @@ def test_releaseapi_post_bad_user(api_rf):
 
     request = api_rf.post(
         "/",
-        HTTP_AUTHORIZATION=release.backend.auth_token,
-        HTTP_OS_USER="baduser",
+        headers={
+            "authorization": release.backend.auth_token,
+            "os-user": "baduser",
+        },
     )
 
     response = ReleaseAPI.as_view()(request, release_id=release.id)
@@ -246,9 +254,11 @@ def test_releaseapi_post_no_files(api_rf):
 
     request = api_rf.post(
         "/",
-        HTTP_CONTENT_DISPOSITION="attachment; filename=file1.txt",
-        HTTP_AUTHORIZATION=release.backend.auth_token,
-        HTTP_OS_USER=user.username,
+        headers={
+            "content-disposition": "attachment; filename=file1.txt",
+            "authorization": release.backend.auth_token,
+            "os-user": user.username,
+        },
     )
 
     response = ReleaseAPI.as_view()(request, release_id=release.id)
@@ -262,7 +272,9 @@ def test_releaseapi_post_no_user(api_rf):
 
     request = api_rf.post(
         "/",
-        HTTP_AUTHORIZATION=release.backend.auth_token,
+        headers={
+            "authorization": release.backend.auth_token,
+        },
     )
 
     response = ReleaseAPI.as_view()(request, release_id=release.id)
@@ -284,9 +296,11 @@ def test_releaseapi_post_success(api_rf, slack_messages, build_release, file_con
         "/",
         content_type="application/octet-stream",
         data=file_content,
-        HTTP_CONTENT_DISPOSITION="attachment; filename=file.txt",
-        HTTP_AUTHORIZATION=release.backend.auth_token,
-        HTTP_OS_USER=uploading_user.username,
+        headers={
+            "content-disposition": "attachment; filename=file.txt",
+            "authorization": release.backend.auth_token,
+            "os-user": uploading_user.username,
+        },
     )
 
     response = ReleaseAPI.as_view()(request, release_id=release.id)
@@ -332,9 +346,11 @@ def test_releaseapi_post_success_for_analysis_request(
         "/",
         content_type="application/octet-stream",
         data=file_content,
-        HTTP_CONTENT_DISPOSITION=f"attachment; filename={filename}",
-        HTTP_AUTHORIZATION=release.backend.auth_token,
-        HTTP_OS_USER=uploading_user.username,
+        headers={
+            "content-disposition": f"attachment; filename={filename}",
+            "authorization": release.backend.auth_token,
+            "os-user": uploading_user.username,
+        },
     )
 
     response = ReleaseAPI.as_view()(request, release_id=release.id)
@@ -391,9 +407,11 @@ def test_releaseapi_post_success_for_html_not_linked_to_an_analysis_request(
         "/",
         content_type="application/octet-stream",
         data=file_content,
-        HTTP_CONTENT_DISPOSITION="attachment; filename=file.html",
-        HTTP_AUTHORIZATION=release.backend.auth_token,
-        HTTP_OS_USER=uploading_user.username,
+        headers={
+            "content-disposition": "attachment; filename=file.html",
+            "authorization": release.backend.auth_token,
+            "os-user": uploading_user.username,
+        },
     )
 
     response = ReleaseAPI.as_view()(request, release_id=release.id)
@@ -437,7 +455,7 @@ def test_releasenotificationapicreate_success(api_rf, slack_messages):
         "created_by": "test user",
         "path": "/path/to/outputs",
     }
-    request = api_rf.post("/", data, HTTP_AUTHORIZATION=backend.auth_token)
+    request = api_rf.post("/", data, headers={"authorization": backend.auth_token})
     request.user = UserFactory()
 
     response = ReleaseNotificationAPICreate.as_view()(request)
@@ -459,7 +477,7 @@ def test_releasenotificationapicreate_success_with_files(api_rf, slack_messages)
         "path": "/path/to/outputs",
         "files": ["output/file1.txt", "output/file2.txt"],
     }
-    request = api_rf.post("/", data, HTTP_AUTHORIZATION=backend.auth_token)
+    request = api_rf.post("/", data, headers={"authorization": backend.auth_token})
     request.user = UserFactory()
 
     response = ReleaseNotificationAPICreate.as_view()(request)
@@ -600,8 +618,10 @@ def test_releaseworkspaceapi_post_create_release(api_rf, slack_messages):
         "/",
         data=data,
         format="json",
-        HTTP_AUTHORIZATION="test",
-        HTTP_OS_USER=user.username,
+        headers={
+            "authorization": "test",
+            "os-user": user.username,
+        },
     )
 
     response = ReleaseWorkspaceAPI.as_view(get_github_api=FakeGitHubAPI)(
@@ -660,8 +680,10 @@ def test_releaseworkspaceapi_post_release_already_exists(api_rf):
         "/",
         data=data,
         format="json",
-        HTTP_AUTHORIZATION=release.backend.auth_token,
-        HTTP_OS_USER=user.username,
+        headers={
+            "authorization": release.backend.auth_token,
+            "os-user": user.username,
+        },
     )
 
     response = ReleaseWorkspaceAPI.as_view(get_github_api=FakeGitHubAPI)(
@@ -687,7 +709,7 @@ def test_releaseworkspaceapi_post_with_bad_backend_token(api_rf):
     workspace = WorkspaceFactory()
     BackendFactory(auth_token="test")
 
-    request = api_rf.post("/", HTTP_AUTHORIZATION="invalid")
+    request = api_rf.post("/", headers={"authorization": "invalid"})
 
     response = ReleaseWorkspaceAPI.as_view(get_github_api=FakeGitHubAPI)(
         request, workspace_name=workspace.name
@@ -708,9 +730,11 @@ def test_releaseworkspaceapi_post_with_bad_json(api_rf):
         "/",
         content_type="application/json",
         data=json.dumps({}),
-        HTTP_CONTENT_DISPOSITION="attachment; filename=release.zip",
-        HTTP_AUTHORIZATION="test",
-        HTTP_OS_USER=user.username,
+        headers={
+            "content-disposition": "attachment; filename=release.zip",
+            "authorization": "test",
+            "os-user": user.username,
+        },
     )
 
     response = ReleaseWorkspaceAPI.as_view(get_github_api=FakeGitHubAPI)(
@@ -726,8 +750,10 @@ def test_releaseworkspaceapi_post_with_bad_user(api_rf):
 
     request = api_rf.post(
         "/",
-        HTTP_AUTHORIZATION="test",
-        HTTP_OS_USER="baduser",
+        headers={
+            "authorization": "test",
+            "os-user": "baduser",
+        },
     )
 
     response = ReleaseWorkspaceAPI.as_view(get_github_api=FakeGitHubAPI)(
@@ -753,10 +779,7 @@ def test_releaseworkspaceapi_post_without_user(api_rf):
     workspace = WorkspaceFactory()
     BackendFactory(auth_token="test")
 
-    request = api_rf.post(
-        "/",
-        HTTP_AUTHORIZATION="test",
-    )
+    request = api_rf.post("/", headers={"authorization": "test"})
 
     response = ReleaseWorkspaceAPI.as_view(get_github_api=FakeGitHubAPI)(
         request, workspace_name=workspace.name
@@ -842,7 +865,7 @@ def test_releasefileapi_with_nginx_redirect(api_rf, build_release_with_files):
         roles=[ProjectCollaborator],
     )
 
-    request = api_rf.get("/", HTTP_RELEASES_REDIRECT="/storage")
+    request = api_rf.get("/", headers={"releases-redirect": "/storage"})
     request.user = user
 
     response = ReleaseFileAPI.as_view()(request, file_id=rfile.id)
@@ -1303,7 +1326,7 @@ def test_validate_release_access_with_auth_header_success(rf):
 
     token = user.rotate_token()
 
-    request = rf.get("/", HTTP_AUTHORIZATION=f"{user.username}:{token}")
+    request = rf.get("/", headers={"authorization": f"{user.username}:{token}"})
     request.user = AnonymousUser()
 
     assert validate_release_access(request, workspace) is None
@@ -1316,7 +1339,7 @@ def test_validate_release_access_with_auth_header_and_invalid_token(rf):
     # set a token so the user is considered a bot
     user.rotate_token()
 
-    request = rf.get("/", HTTP_AUTHORIZATION=f"{user.username}:invalid")
+    request = rf.get("/", headers={"authorization": f"{user.username}:invalid"})
     request.user = AnonymousUser()
 
     with pytest.raises(PermissionDenied):
@@ -1329,7 +1352,7 @@ def test_validate_release_access_with_auth_header_and_unknown_user(rf):
 
     token = user.rotate_token()
 
-    request = rf.get("/", HTTP_AUTHORIZATION=f"0:{token}")
+    request = rf.get("/", headers={"authorization": f"0:{token}"})
     request.user = AnonymousUser()
 
     with pytest.raises(NotAuthenticated):
@@ -1345,8 +1368,10 @@ def test_validate_upload_access_no_permission(rf):
 
     request = rf.get(
         "/",
-        HTTP_AUTHORIZATION=backend.auth_token,
-        HTTP_OS_USER=user.username,
+        headers={
+            "authorization": backend.auth_token,
+            "os-user": user.username,
+        },
     )
 
     with pytest.raises(NotAuthenticated):
@@ -1360,8 +1385,10 @@ def test_validate_upload_access_not_a_backend_member(rf):
 
     request = rf.get(
         "/",
-        HTTP_AUTHORIZATION=backend.auth_token,
-        HTTP_OS_USER=user.username,
+        headers={
+            "authorization": backend.auth_token,
+            "os-user": user.username,
+        },
     )
 
     with pytest.raises(NotAuthenticated):
@@ -1374,7 +1401,10 @@ def test_validate_upload_access_unknown_user(rf):
 
     BackendMembershipFactory(backend=backend)
 
-    request = rf.get("/", HTTP_AUTHORIZATION=backend.auth_token, HTTP_OS_USER="test")
+    request = rf.get(
+        "/",
+        headers={"authorization": backend.auth_token, "os-user": "test"},
+    )
 
     with pytest.raises(NotAuthenticated):
         validate_upload_access(request, workspace)

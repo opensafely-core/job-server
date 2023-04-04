@@ -26,12 +26,12 @@ def test_client_ip_middleware_proxied(rf):
     proxy = "172.17.0.2"
 
     # not tpp client
-    request = rf.get("/", HTTP_X_FORWARDED_FOR="4.3.2.1", REMOTE_ADDR=proxy)
+    request = rf.get("/", headers={"x-forwarded-for": "4.3.2.1"}, REMOTE_ADDR=proxy)
     middleware(request)
     assert request.backend is None
 
     # tpp client
-    request = rf.get("/", HTTP_X_FORWARDED_FOR="1.2.3.4", REMOTE_ADDR=proxy)
+    request = rf.get("/", headers={"x-forwarded-for": "1.2.3.4"}, REMOTE_ADDR=proxy)
     middleware(request)
     assert request.backend == backend
 
@@ -39,7 +39,9 @@ def test_client_ip_middleware_proxied(rf):
     # attacker submits request with X-Forwarded-For already set to TPP address.
     # Our proxy adds the actualy addres to the header. But we should only trust
     # the actual address, not the spoofed one
-    request = rf.get("/", HTTP_X_FORWARDED_FOR="1.2.3.4,4.3.2.1", REMOTE_ADDR=proxy)
+    request = rf.get(
+        "/", headers={"x-forwarded-for": "1.2.3.4,4.3.2.1"}, REMOTE_ADDR=proxy
+    )
     middleware(request)
     assert request.backend is None
 
@@ -47,7 +49,7 @@ def test_client_ip_middleware_proxied(rf):
     # attacker attempts to spoof both the TPP address & the proxy address
     request = rf.get(
         "/",
-        HTTP_X_FORWARDED_FOR="1.2.3.4,172.17.0.2,4.3.2.1",
+        headers={"x-forwarded-for": "1.2.3.4,172.17.0.2,4.3.2.1"},
         REMOTE_ADDR=proxy,
     )
     middleware(request)
@@ -64,7 +66,7 @@ def test_client_ip_middleware_proxied_twice(rf):
 
     # tpp client via proxy
     request = rf.get(
-        "/", HTTP_X_FORWARDED_FOR="1.2.3.4,103.21.244.16", REMOTE_ADDR=proxy
+        "/", headers={"x-forwarded-for": "1.2.3.4,103.21.244.16"}, REMOTE_ADDR=proxy
     )
     middleware(request)
     assert request.backend == backend

@@ -140,7 +140,7 @@ def test_jobapiupdate_all_existing(api_rf, freezer):
     ]
 
     request = api_rf.post(
-        "/", HTTP_AUTHORIZATION=backend.auth_token, data=data, format="json"
+        "/", headers={"authorization": backend.auth_token}, data=data, format="json"
     )
     response = JobAPIUpdate.as_view(get_github_api=FakeGitHubAPI)(request)
 
@@ -220,7 +220,7 @@ def test_jobapiupdate_all_new(api_rf):
     ]
 
     request = api_rf.post(
-        "/", HTTP_AUTHORIZATION=backend.auth_token, data=data, format="json"
+        "/", headers={"authorization": backend.auth_token}, data=data, format="json"
     )
     response = JobAPIUpdate.as_view(get_github_api=FakeGitHubAPI)(request)
 
@@ -236,7 +236,7 @@ def test_jobapiupdate_invalid_payload(api_rf):
     data = [{"action": "test-action"}]
 
     request = api_rf.post(
-        "/", HTTP_AUTHORIZATION=backend.auth_token, data=data, format="json"
+        "/", headers={"authorization": backend.auth_token}, data=data, format="json"
     )
     response = JobAPIUpdate.as_view(get_github_api=FakeGitHubAPI)(request)
 
@@ -308,7 +308,7 @@ def test_jobapiupdate_mixture(api_rf, freezer):
     ]
 
     request = api_rf.post(
-        "/", HTTP_AUTHORIZATION=backend.auth_token, data=data, format="json"
+        "/", headers={"authorization": backend.auth_token}, data=data, format="json"
     )
     response = JobAPIUpdate.as_view(get_github_api=FakeGitHubAPI)(request)
 
@@ -364,7 +364,7 @@ def test_jobapiupdate_notifications_on_with_move_to_succeeded(api_rf, mocker):
     ]
     request = api_rf.post(
         "/",
-        HTTP_AUTHORIZATION=job_request.backend.auth_token,
+        headers={"authorization": job_request.backend.auth_token},
         data=data,
         format="json",
     )
@@ -405,7 +405,7 @@ def test_jobapiupdate_notifications_on_without_move_to_completed(api_rf, mocker)
     ]
     request = api_rf.post(
         "/",
-        HTTP_AUTHORIZATION=job_request.backend.auth_token,
+        headers={"authorization": job_request.backend.auth_token},
         data=data,
         format="json",
     )
@@ -441,7 +441,7 @@ def test_jobapiupdate_post_job_request_error(api_rf):
     ]
 
     request = api_rf.post(
-        "/", HTTP_AUTHORIZATION=backend.auth_token, data=data, format="json"
+        "/", headers={"authorization": backend.auth_token}, data=data, format="json"
     )
     response = JobAPIUpdate.as_view(get_github_api=FakeGitHubAPI)(request)
 
@@ -453,25 +453,25 @@ def test_jobapiupdate_post_only(api_rf):
     backend = BackendFactory()
 
     # GET
-    request = api_rf.get("/", HTTP_AUTHORIZATION=backend.auth_token)
+    request = api_rf.get("/", headers={"authorization": backend.auth_token})
     assert (
         JobAPIUpdate.as_view(get_github_api=FakeGitHubAPI)(request).status_code == 405
     )
 
     # HEAD
-    request = api_rf.head("/", HTTP_AUTHORIZATION=backend.auth_token)
+    request = api_rf.head("/", headers={"authorization": backend.auth_token})
     assert (
         JobAPIUpdate.as_view(get_github_api=FakeGitHubAPI)(request).status_code == 405
     )
 
     # PATCH
-    request = api_rf.patch("/", HTTP_AUTHORIZATION=backend.auth_token)
+    request = api_rf.patch("/", headers={"authorization": backend.auth_token})
     assert (
         JobAPIUpdate.as_view(get_github_api=FakeGitHubAPI)(request).status_code == 405
     )
 
     # PUT
-    request = api_rf.put("/", HTTP_AUTHORIZATION=backend.auth_token)
+    request = api_rf.put("/", headers={"authorization": backend.auth_token})
     assert (
         JobAPIUpdate.as_view(get_github_api=FakeGitHubAPI)(request).status_code == 405
     )
@@ -507,14 +507,14 @@ def test_jobapiupdate_post_with_errors(api_rf, mocker, error_message):
         },
     ]
     request_1 = api_rf.post(
-        "/", HTTP_AUTHORIZATION=backend.auth_token, data=data, format="json"
+        "/", headers={"authorization": backend.auth_token}, data=data, format="json"
     )
     JobAPIUpdate.as_view(get_github_api=FakeGitHubAPI)(request_1)
 
     data[0]["status"] = "failed"
     data[0]["status_message"] = error_message
     request_2 = api_rf.post(
-        "/", HTTP_AUTHORIZATION=backend.auth_token, data=data, format="json"
+        "/", headers={"authorization": backend.auth_token}, data=data, format="json"
     )
     response = JobAPIUpdate.as_view(get_github_api=FakeGitHubAPI)(request_2)
 
@@ -557,8 +557,10 @@ def test_jobapiupdate_post_with_flags(api_rf):
         "/",
         data=data,
         format="json",
-        HTTP_AUTHORIZATION=backend.auth_token,
-        HTTP_FLAGS=flags,
+        headers={
+            "authorization": backend.auth_token,
+            "flags": flags,
+        },
     )
     response = JobAPIUpdate.as_view(get_github_api=FakeGitHubAPI)(request)
 
@@ -639,7 +641,7 @@ def test_jobapiupdate_post_with_successful_job_request_from_interactive(api_rf, 
     ]
     request = api_rf.post(
         "/",
-        HTTP_AUTHORIZATION=job_request.backend.auth_token,
+        headers={"authorization": job_request.backend.auth_token},
         data=data,
         format="json",
     )
@@ -672,7 +674,7 @@ def test_jobapiupdate_unknown_job_request(api_rf):
     ]
 
     request = api_rf.post(
-        "/", HTTP_AUTHORIZATION=backend.auth_token, data=data, format="json"
+        "/", headers={"authorization": backend.auth_token}, data=data, format="json"
     )
     response = JobAPIUpdate.as_view(get_github_api=FakeGitHubAPI)(request)
 
@@ -686,7 +688,7 @@ def test_jobrequestapilist_filter_by_backend(api_rf):
     JobRequestFactory(backend=backend)
     JobRequestFactory()
 
-    request = api_rf.get("/", HTTP_AUTHORIZATION=backend.auth_token)
+    request = api_rf.get("/", headers={"authorization": backend.auth_token})
     response = JobRequestAPIList.as_view()(request)
 
     assert response.status_code == 200, response.data
@@ -705,7 +707,7 @@ def test_jobrequestapilist_produce_stats_when_authed(api_rf):
 
     assert Stats.objects.filter(backend=backend).count() == 0
 
-    request = api_rf.get("/", HTTP_AUTHORIZATION=backend.auth_token)
+    request = api_rf.get("/", headers={"authorization": backend.auth_token})
     response = JobRequestAPIList.as_view()(request)
 
     assert response.status_code == 200
@@ -854,7 +856,7 @@ def test_userapidetail_success(api_rf):
     OrgMembershipFactory(org=org, user=user, roles=[OrgCoordinator])
     ProjectMembershipFactory(project=project, user=user, roles=[ProjectDeveloper])
 
-    request = api_rf.get("/", HTTP_AUTHORIZATION=backend.auth_token)
+    request = api_rf.get("/", headers={"authorization": backend.auth_token})
     response = UserAPIDetail.as_view()(request, username=user.username)
 
     assert response.status_code == 200
@@ -899,7 +901,7 @@ def test_userapidetail_success(api_rf):
 def test_userapidetail_unknown_user(api_rf):
     backend = BackendFactory()
 
-    request = api_rf.get("/", HTTP_AUTHORIZATION=backend.auth_token)
+    request = api_rf.get("/", headers={"authorization": backend.auth_token})
     response = UserAPIDetail.as_view()(request, username="dummy-user")
 
     assert response.status_code == 404
