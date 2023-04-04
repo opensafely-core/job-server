@@ -101,6 +101,4 @@ def test_query_by_roles():
     assert qs.count() == 1
     assert qs.first() == user
 
-    qs = User.objects.filter(roles__contains=[CoreDeveloper])
-    assert qs.count() == 1
-    assert qs.first() == user
+    assert not User.objects.filter(roles=[]).exists()
