@@ -1053,11 +1053,26 @@ class User(AbstractBaseUser):
     class ExpiredLoginToken(Exception):
         pass
 
+    class InvalidTokenUser(Exception):
+        pass
+
     def _strip_token(self, token):
         return token.strip().replace(" ", "")
 
+    def validate_token_login_allowed(self):
+        # only github users can log in with token
+        if not self.social_auth.exists():
+            raise self.InvalidTokenUser(f"User {self.username} is not a github user")
+
+        # need at least 1 backend
+        if len(self.backends.all()) == 0:
+            raise self.InvalidTokenUser(
+                f"User {self.username} is does not have access to any backends"
+            )
+
     def generate_login_token(self):
         """Generate, set and return single use login token and expiry"""
+        self.validate_token_login_allowed()
         token = human_memorable_token()
         self.login_token = make_password(self._strip_token(token))
         self.login_token_expires_at = timezone.now() + timedelta(hours=1)
@@ -1065,6 +1080,7 @@ class User(AbstractBaseUser):
         return token
 
     def validate_login_token(self, token):
+        self.validate_token_login_allowed()
 
         if not (self.login_token and self.login_token_expires_at):
             raise self.BadLoginToken(f"No login token set for {self.username}")

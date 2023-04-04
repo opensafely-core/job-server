@@ -34,10 +34,6 @@ class BadToken(Exception):
     pass
 
 
-class InvalidTokenUser(Exception):
-    pass
-
-
 def get_next_url(request):
     next_url = request.GET.get("next") or "/"
     if not is_safe_path(next_url):
@@ -102,6 +98,7 @@ class Login(FormView):
         return super().get_context_data(**kwargs) | {
             "next_url": self.next_url,
             "token_form": TokenLoginForm(),
+            "show_token_login": getattr(self.request, "backend", None) is not None,
         }
 
 
@@ -166,8 +163,11 @@ class LoginWithURL(View):
 
 class LoginWithToken(View):
     def post(self, request, *args, **kwargs):
-
         form = TokenLoginForm(request.POST)
+
+        if getattr(request, "backend", None) is None:
+            return self.login_invalid(form, "Token login only allowed from Level 4")
+
         if not form.is_valid():
             return self.login_invalid(form)
 
@@ -181,15 +181,11 @@ class LoginWithToken(View):
                 | Q(notifications_email=user_value)
             )
 
-            # only github users can log in with token
-            if not user.social_auth.exists():
-                raise InvalidTokenUser(f"{user_value} is not a github user")
-
             user.validate_login_token(form.cleaned_data["token"])
 
         except (
             User.DoesNotExist,
-            InvalidTokenUser,
+            User.InvalidTokenUser,
             User.BadLoginToken,
             User.ExpiredLoginToken,
         ) as e:
@@ -207,11 +203,11 @@ class LoginWithToken(View):
         next_url = get_next_url(self.request)
         return redirect(next_url)
 
-    def login_invalid(self, form):
-        messages.error(
-            self.request,
-            "Login failed. The user or token may be incorrect, or the token may have expired.",
-        )
+    def login_invalid(self, form, msg=None):
+        if msg is None:
+            msg = "Login failed. The user or token may be incorrect, or the token may have expired."
+        messages.error(self.request, msg)
+
         return TemplateResponse(
             self.request,
             template="login.html",
@@ -243,9 +239,16 @@ class Settings(View):
 
         # generate token form
         elif "token" in request.POST:
-            if not request.user.social_auth.exists():
-                # user shouldn't usually get this, as we hide the form, but just in case
-                messages.error(request, "You must have Github account to create token")
+            try:
+                request.user.validate_token_login_allowed()
+            except User.InvalidTokenUser as e:
+                logger.exception(
+                    f"Refusing to generate login token for invalid user {request.user}"
+                )
+                trace.get_current_span().record_exception(e)
+                messages.error(
+                    request, "Your account is not allowed to generate a login token"
+                )
                 return self.response()
 
             token = request.user.generate_login_token()
@@ -253,7 +256,7 @@ class Settings(View):
             return self.response(token=token)
 
         else:  # pragma: no cover
-            messages.error(request, "Unrecognised action")
+            messages.error(request, "Unrecognised form submission")
             return self.response()
 
     def response(self, form=None, token=None):
@@ -264,8 +267,16 @@ class Settings(View):
                     notifications_email=self.request.user.notifications_email,
                 )
             )
+
+        try:
+            self.request.user.validate_token_login_allowed()
+            show_token_form = True
+        except User.InvalidTokenUser:
+            show_token_form = False
+
         context = {
             "form": form,
             "token": token,
+            "show_token_form": show_token_form,
         }
         return TemplateResponse(self.request, "settings.html", context)

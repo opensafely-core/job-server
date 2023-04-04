@@ -17,61 +17,60 @@
     Login
   </h1>
 
-  <div class="prose prose-lg mb-6">
-    <p class="lead">
-      For most users OpenSAFELY Jobs uses your GitHub account to confirm your identity.
-    </p>
-  </div>
+  {% if not show_token_login %}
+    <div class="prose prose-lg mb-6">
+        <p class="lead">
+        For most users OpenSAFELY Jobs uses your GitHub account to confirm your identity.
+        </p>
+    </div>
 
-  <div class="mb-6 pb-12 border-b border-b-slate-300">
-    {% #card title="GitHub Login" container=True %}
-      <div class="prose prose-sm mb-6">
-        <p>If you do not already have a GitHub account, then you will need to create one before signing in.</p>
-      </div>
-      <form class="flex items-center gap-2 flex-wrap md:col-span-3 md:flex-nowrap" method="POST" action="{% url "auth-login" "github" %}">
+    <div class="mb-6 pb-12 border-b border-b-slate-300">
+        {% #card title="GitHub Login" container=True %}
+        <div class="prose prose-sm mb-6">
+            <p>If you do not already have a GitHub account, then you will need to create one before signing in.</p>
+        </div>
+        <form class="flex items-center gap-2 flex-wrap md:col-span-3 md:flex-nowrap" method="POST" action="{% url "auth-login" "github" %}">
+            <input type="hidden" name="next" value="{{ next_url }}" />
+            {% #button type="submit" variant="success" %}
+            Sign in with GitHub
+            {% /button %}
+            <p class="text-slate-700 text-lg">or</p>
+            {% #button type="link" href="https://github.com/signup" variant="secondary" %}
+            Create a GitHub account
+            {% /button %}
+        </form>
+        {% /card %}
+    </div>
+
+    <div class="mb-6 pb-12 border-b border-b-slate-300">
+    {% #card title="OpenSAFELY Interactive" subtitle="Users of OpenSAFELY Interactive can enter their email address below to receive an email with a link to log in" container=True class="md:col-span-2" %}
+        <form class="gap-2 flex-wrap md:flex-nowrap" method="POST">
+        {% csrf_token %}
         <input type="hidden" name="next" value="{{ next_url }}" />
-        {% #button type="submit" variant="success" %}
-          Sign in with GitHub
+
+        {% form_input type="email" field=form.email label="Email address" required=True class="mb-3" placeholder="you@example.com" input_class="max-w-md" %}
+
+        {% #button type="submit" variant="primary" %}
+            Sign in with Email
         {% /button %}
-        <p class="text-slate-700 text-lg">or</p>
-        {% #button type="link" href="https://github.com/signup" variant="secondary" %}
-          Create a GitHub account
-        {% /button %}
-      </form>
+
+        </form>
     {% /card %}
-  </div>
+    </div>
+  {% else %}
+    {% #card title="Login with Single Use Token" subtitle="Log in from Level 4 environments with a Single Use Token" container=True class="md:col-span-2" %}
+    <form class="gap-2 flex-wrap md:flex-nowrap" method="POST" action="{% url 'login-with-token' %}" >
+        {% csrf_token %}
+        <input type="hidden" name="next" value="{{ next_url }}" />
 
-  <div class="mb-6 pb-12 border-b border-b-slate-300">
-  {% #card title="OpenSAFELY Interactive" subtitle="Users of OpenSAFELY Interactive can enter their email address below to receive an email with a link to log in" container=True class="md:col-span-2" %}
-    <form class="gap-2 flex-wrap md:flex-nowrap" method="POST">
-      {% csrf_token %}
-      <input type="hidden" name="next" value="{{ next_url }}" />
+        {% form_input type="text" field=token_form.user label="GitHub username or Email address" required=True class="mb-3" placeholder="opensafely" input_class="max-w-md" %}
+        {% form_input type="text" field=token_form.token label="Single Use Token" required=True placeholder="three random words" show_placeholder=True class="mb-3" input_class="max-w-md" %}
 
-      {% form_input type="email" field=form.email label="Email address" required=True class="mb-3" placeholder="you@example.com" input_class="max-w-md" %}
+        {% #button type="submit" variant="primary-outline" %}
+            Log in with token
+        {% /button %}
 
-      {% #button type="submit" variant="primary" %}
-        Sign in with Email
-      {% /button %}
-
-    </form>
-  {% /card %}
-  </div>
-
-  {# temporarily disable form #}
-  {% if False %}
-  {% #card title="Login with Single Use Token" subtitle="Log in from Level 4 environments with a Single Use Token" container=True class="md:col-span-2" %}
-  <form class="gap-2 flex-wrap md:flex-nowrap" method="POST" action="{% url 'login-with-token' %}" >
-      {% csrf_token %}
-      <input type="hidden" name="next" value="{{ next_url }}" />
-
-      {% form_input type="text" field=token_form.user label="GitHub username or Email address" required=True class="mb-3" placeholder="opensafely" input_class="max-w-md" %}
-      {% form_input type="text" field=token_form.token label="Single Use Token" required=True placeholder="0000 0000" show_placeholder=True class="mb-3" input_class="max-w-md" %}
-
-      {% #button type="submit" variant="primary-outline" %}
-        Log in with token
-      {% /button %}
-
-    </form>
-  {% /card %}
+        </form>
+    {% /card %}
   {% endif %}
 {% endblock content %}

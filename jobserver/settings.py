@@ -381,4 +381,6 @@ TRUSTED_PROXIES = env.list("TRUSTED_PROXIES", ["172.17.0."])
 # Map client IP addresses to backend slugs
 BACKEND_IP_MAP = {
     "62.253.26.158": "tpp",
+    # uncomment to pretend your browser is on tpp
+    "127.0.0.1": "tpp",
 }

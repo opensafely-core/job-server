@@ -36,9 +36,8 @@
       {% /card %}
     </form>
 
-    {# temporarily disable form #}
-    {% if False and request.user.social_auth.exists %}
-      {% #card title="Generate a Single Use Token" container=True class="md:col-span-2" %}
+    {% #card title="Generate a Single Use Token" container=True class="md:col-span-2" %}
+        {% if show_token_form %}
         <div class="prose mb-6">
           {% if token %}
             <p>Your generated Single Use Token is:</p>
@@ -70,7 +69,9 @@
             {% /button %}
           {% endif %}
         </form>
-      {% /card %}
-    {% endif %}
+        {% else %}
+        <p>You do not have access to log in to any OpenSAFELY backends</p>
+        {% endif %}
+    {% /card %}
   </section>
 {% endblock %}

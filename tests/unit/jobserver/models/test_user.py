@@ -18,11 +18,14 @@ from jobserver.authorization.roles import (
 from jobserver.models import User
 
 from ....factories import (
+    BackendMembershipFactory,
     OrgFactory,
     OrgMembershipFactory,
     ProjectFactory,
     ProjectMembershipFactory,
     UserFactory,
+    UserSocialAuthFactory,
+    ValidLoginTokenUserFactory,
 )
 
 
@@ -284,8 +287,24 @@ def test_userqueryset_unknown_role():
         User.objects.filter_by_role("unknown")
 
 
-def test_user_login_token_flow_success():
+def test_user_validate_token_login_allowed():
     user = UserFactory()
+
+    with pytest.raises(User.InvalidTokenUser):
+        user.validate_token_login_allowed()
+
+    UserSocialAuthFactory(user=user)
+
+    with pytest.raises(User.InvalidTokenUser):
+        user.validate_token_login_allowed()
+
+    BackendMembershipFactory(user=user)
+
+    user.validate_token_login_allowed()
+
+
+def test_user_login_token_flow_success():
+    user, _ = ValidLoginTokenUserFactory()
     token = user.generate_login_token()
     assert user.login_token is not None
     assert user.login_token_expires_at is not None
@@ -295,7 +314,7 @@ def test_user_login_token_flow_success():
 
 
 def test_user_validate_login_token_no_token():
-    user = UserFactory()
+    user, _ = ValidLoginTokenUserFactory()
 
     # neither
     with pytest.raises(user.BadLoginToken):
@@ -317,8 +336,7 @@ def test_user_validate_login_token_no_token():
 
 
 def test_user_validate_login_token_expired():
-
-    user = UserFactory()
+    user, _ = ValidLoginTokenUserFactory()
     token = user.generate_login_token()
     user.login_token_expires_at = timezone.now() - timedelta(minutes=1)
     user.save()
@@ -328,14 +346,14 @@ def test_user_validate_login_token_expired():
 
 
 def test_validate_login_token_ignore_whitespace():
-    user = UserFactory()
+    user, _ = ValidLoginTokenUserFactory()
     token = user.generate_login_token()
     whitespace_token = " ".join(token) + " "
     user.validate_login_token(whitespace_token)
 
 
 def test_user_validate_login_token_wrong():
-    user = UserFactory()
+    user, _ = ValidLoginTokenUserFactory()
     user.generate_login_token()
 
     with pytest.raises(user.BadLoginToken):

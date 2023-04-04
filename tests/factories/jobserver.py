@@ -156,3 +156,11 @@ class WorkspaceFactory(factory.django.DjangoModelFactory):
     updated_by = factory.SubFactory("tests.factories.UserFactory")
 
     name = factory.Sequence(lambda n: f"workspace-{n}")
+
+
+def ValidLoginTokenUserFactory():
+    user = UserFactory()
+    backend = BackendFactory()
+    UserSocialAuthFactory(user=user)
+    BackendMembershipFactory(user=user, backend=backend)
+    return user, backend
