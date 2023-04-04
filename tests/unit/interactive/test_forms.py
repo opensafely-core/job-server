@@ -45,7 +45,7 @@ def test_analysisrequestform_success_with_two_codelists():
 
 
 @pytest.mark.parametrize(
-    "time_scale,time_value", [("weeks", "300"), ("months", "100"), ("years", "7")]
+    "time_scale,time_value", [("weeks", "600"), ("months", "200"), ("years", "17")]
 )
 def test_analysisrequestform_time_value_validation_failure(time_scale, time_value):
     api = FakeOpenCodelistsAPI()

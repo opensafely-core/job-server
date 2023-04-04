@@ -25,10 +25,9 @@ function QueryBuilder() {
       .typeError("Amount must be a number")
       .positive("Time value must be a positive number")
       .min(1, "Time scale cannot be less than 1")
-      .max(260, "Time scale cannot be longer than 10 years")
       .required("Amount of time is required")
       .test(
-        "fiveYears",
+        "tenYears",
         "Time scale cannot be longer than 10 years",
         (value, testContext) => {
           if (value === undefined || Number.isNaN(value)) return false;

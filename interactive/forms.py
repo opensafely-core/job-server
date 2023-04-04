@@ -63,14 +63,12 @@ class AnalysisRequestForm(forms.Form):
         time_scale = cleaned_data["time_scale"]
         time_value = cleaned_data["time_value"]
 
-        # time_value must be less than 5 years but it's paired with time_scale
+        # time_value must be less than 10 years but it's paired with time_scale
         # so we have to check it for each of the choices of that field.
 
-        if time_scale == "weeks" and time_value > 260:
-            raise forms.ValidationError("")
+        weeks_over = time_scale == "weeks" and time_value > 520
+        months_over = time_scale == "months" and time_value > 120
+        years_over = time_scale == "years" and time_value > 10
 
-        if time_scale == "months" and time_value > 60:
-            raise forms.ValidationError("")
-
-        if time_scale == "years" and time_value > 5:
-            raise forms.ValidationError("")
+        if any([weeks_over, months_over, years_over]):
+            raise forms.ValidationError("Time scale cannot be longer than 10 years")
