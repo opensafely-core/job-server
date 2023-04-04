@@ -302,12 +302,11 @@ class WorkspaceDetail(View):
         )
 
     def get_output_permissions(self, user, workspace):
+        # a user can see backend files if they have access to at least one
+        # backend and the permissions required to see outputs
         is_privileged_user = has_permission(
             user, "release_file_view", project=workspace.project
         )
-
-        # a user can see backend files if they have access to at least one
-        # backend and the permissions required to see outputs
         has_backends = (
             user.is_authenticated and user.backends.exclude(level_4_url="").exists()
         )
@@ -316,26 +315,12 @@ class WorkspaceDetail(View):
         # are there any releases to show for the workspace?
         can_view_releases = workspace.releases.exists()
 
-        # unprivileged users can only see published snapshots, but privileged
-        # users can see snapshots if there are any releases since they can also
-        # prepare and publish them from the same views.
-        has_published_snapshots = workspace.snapshots.exclude(
-            published_at=None
-        ).exists()
-        has_any_snapshots = workspace.snapshots.exists()
-        can_view_outputs = has_published_snapshots or (
-            is_privileged_user and (can_view_releases or has_any_snapshots)
-        )
-
         return {
             "level_4": {
                 "disabled": not can_view_files,
             },
             "released": {
                 "disabled": not can_view_releases,
-            },
-            "published": {
-                "disabled": not can_view_outputs,
             },
         }
 

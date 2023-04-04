@@ -508,7 +508,6 @@ def test_workspacedetail_authorized_view_outputs(rf):
 
     assert not response.context_data["outputs"]["level_4"]["disabled"]
     assert not response.context_data["outputs"]["released"]["disabled"]
-    assert not response.context_data["outputs"]["published"]["disabled"]
 
 
 def test_workspacedetail_authorized_run_jobs(rf):
@@ -597,12 +596,6 @@ def test_workspacedetail_logged_out(rf):
     assert not response.context_data["user_can_run_jobs"]
     assert response.context_data["outputs"]["released"]["disabled"]
 
-    # this is false because:
-    # the user is either logged out
-    #   OR doesn't have the right permission to see outputs
-    #   AND there are no published Snapshots to show the user.
-    assert response.context_data["outputs"]["published"]["disabled"]
-
 
 def test_workspacedetail_unauthorized(rf):
     workspace = WorkspaceFactory()
@@ -625,12 +618,6 @@ def test_workspacedetail_unauthorized(rf):
 
     assert not response.context_data["user_can_run_jobs"]
     assert response.context_data["outputs"]["released"]["disabled"]
-
-    # this is false because:
-    # the user is either logged out
-    #   OR doesn't have the right permission to see outputs
-    #   AND there are no published Snapshots to show the user.
-    assert response.context_data["outputs"]["published"]["disabled"]
 
     # this is false because only a user with ProjectDeveloper should be able
     # to do this
