@@ -57,6 +57,8 @@
   {% /card %}
   </div>
 
+  {# temporarily disable form #}
+  {% if False %}
   {% #card title="Login with Single Use Token" subtitle="Log in from Level 4 environments with a Single Use Token" container=True class="md:col-span-2" %}
   <form class="gap-2 flex-wrap md:flex-nowrap" method="POST" action="{% url 'login-with-token' %}" >
       {% csrf_token %}
@@ -71,4 +73,5 @@
 
     </form>
   {% /card %}
+  {% endif %}
 {% endblock content %}

@@ -36,7 +36,8 @@
       {% /card %}
     </form>
 
-    {% if request.user.social_auth.exists %}
+    {# temporarily disable form #}
+    {% if False and request.user.social_auth.exists %}
       {% #card title="Generate a Single Use Token" container=True class="md:col-span-2" %}
         <div class="prose mb-6">
           {% if token %}
