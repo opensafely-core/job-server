@@ -1,5 +1,8 @@
+from django.conf import settings
 from django.shortcuts import redirect
 from django.urls import reverse
+
+from jobserver.models.backends import Backend
 
 
 class RequireNameMiddleware:
@@ -64,3 +67,34 @@ class XSSFilteringMiddleware:
         response.headers.setdefault("X-XSS-Protection", "1; mode=block")
 
         return response
+
+
+class ClientAddressIdentification:
+    def __init__(self, get_response):
+        self.get_response = get_response
+
+    def __call__(self, request):
+        ip = request.META["REMOTE_ADDR"]
+        forwarded = request.headers.get("x-forwarded-for")
+        if forwarded:
+            ip = self.get_forwarded_ip(forwarded, ip, settings.TRUSTED_PROXIES)
+
+        slug = settings.BACKEND_IP_MAP.get(ip)
+        if slug:
+            request.backend = Backend.objects.get(slug=slug)
+        else:
+            request.backend = None
+        return self.get_response(request)
+
+    def get_forwarded_ip(self, forwarded, remote_addr, trusted_ips):
+        """Walk ips from right to left, returning the first non-trusted ip left of a trusted ip.
+
+        This means spoofed IPs should be ignored, as they not be after a trusted proxy.
+        """
+        ips = [ip.strip() for ip in forwarded.split(",")] + [remote_addr]
+        for ip in reversed(ips):
+            trusted = ip in trusted_ips
+            if not trusted:
+                return ip
+
+        return ip

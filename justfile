@@ -151,9 +151,9 @@ load-dev-data: devenv
 
 
 # Run the dev project
-run: devenv
+run bind="localhost:8000": devenv
     $BIN/python manage.py migrate
-    $BIN/python manage.py runserver localhost:8000
+    $BIN/python manage.py runserver {{ bind }}
 
 
 run-prod: prodenv
