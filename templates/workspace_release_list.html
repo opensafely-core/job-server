@@ -100,7 +100,13 @@
             x-title="release-{{ release.id }}"
         >
           <div class="flex flex-col md:flex-row md:flex-wrap gap-2 items-center justify-between">
-            <span class="mr-auto">{% link href=release.view_url text=release.title %}</span>
+            <span class="mr-auto">
+              {% if release.can_view_files %}
+              {% link href=release.view_url text=release.title disabled=True %}
+              {% else %}
+              {{ release.title }}
+              {% endif %}
+            </span>
             {% if release.can_view_files %}
             <div class="flex-shrink-0 ml-auto">
               {% #button class="min-w-[16ch]" variant="primary" type="link" href=release.download_url %}
