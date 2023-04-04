@@ -1059,9 +1059,7 @@ class User(AbstractBaseUser):
     def generate_login_token(self):
         """Generate, set and return single use login token and expiry"""
         token = human_memorable_token()
-        self.login_token = make_password(
-            self._strip_token(token), salt="login-with-token"
-        )
+        self.login_token = make_password(self._strip_token(token))
         self.login_token_expires_at = timezone.now() + timedelta(hours=1)
         self.save(update_fields=["login_token_expires_at", "login_token"])
         return token
