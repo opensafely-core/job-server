@@ -179,7 +179,7 @@ def test_loginwithurl_bad_token(rf_messages):
     assert str(messages[0]).startswith("Invalid token, please try again")
 
 
-def test_loginwithurl_success(rf):
+def test_loginwithurl_success_with_one_project(rf):
     project = ProjectFactory()
     user = UserFactory()
     ProjectMembershipFactory(project=project, user=user, roles=[InteractiveReporter])
@@ -195,6 +195,29 @@ def test_loginwithurl_success(rf):
 
     assert response.status_code == 302
     assert response.url == project.get_interactive_url()
+
+
+def test_loginwithurl_success_with_two_projects(rf):
+    user = UserFactory()
+
+    project1 = ProjectFactory()
+    ProjectMembershipFactory(project=project1, user=user, roles=[InteractiveReporter])
+    WorkspaceFactory(project=project1, name=project1.interactive_slug)
+
+    project2 = ProjectFactory()
+    ProjectMembershipFactory(project=project2, user=user, roles=[InteractiveReporter])
+    WorkspaceFactory(project=project2, name=project2.interactive_slug)
+
+    signed_token = TimestampSigner(salt="login").sign("test")
+
+    request = rf.get("/")
+    request.session = SessionStore()
+    request.session["_login_token"] = (user.email, "test")
+
+    response = LoginWithURL.as_view()(request, token=signed_token)
+
+    assert response.status_code == 302
+    assert response.url == "/"
 
 
 def test_loginwithurl_unauthorized(rf_messages):
@@ -485,7 +508,6 @@ def test_loginwittoken_invalid_form(rf_messages):
 
 
 def test_loginwittoken_no_user(rf_messages):
-
     data = {"user": "doesnotexist", "token": "token"}
     request = rf_messages.post("/login-with-token", data)
 
