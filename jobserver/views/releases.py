@@ -320,7 +320,7 @@ class WorkspaceReleaseList(View):
                 "title": build_title(r),
                 "view_url": r.get_absolute_url(),
             }
-            for r in workspace.releases.select_related("created_by")
+            for r in workspace.releases.select_related("backend", "created_by")
             .prefetch_related(
                 Prefetch("files", queryset=ReleaseFile.objects.order_by("name"))
             )
