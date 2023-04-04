@@ -85,7 +85,7 @@
       </div>
     </div>
     {% if user_can_view_staff_area %}
-    <div class="flex lg:justify-end lg:items-start">
+    <div class="flex mb-2  justify-center sm:justify-start lg:justify-end lg:items-start">
       {% #button href=project.get_staff_url type="link" variant="danger" class="flex-shrink-0" %}
         View in Staff Area
         {% icon_lifebuoy_outline class="h-4 w-4 ml-2 -mr-2" %}
@@ -93,14 +93,14 @@
     </div>
    {% endif %}
     {% if is_member %}
-      <div class="flex flex-row mb-6 justify-center lg:mb-0 lg:justify-end lg:items-start gap-2">
+      <div class="flex flex-row gap-2 mb-6 w-full flex-wrap justify-center sm:justify-start lg:col-span-3">
         {% if is_interactive_user %}
-        {% #button href=project.get_interactive_url type="link" variant="primary" %}
+        {% #button class="flex-shrink-0" href=project.get_interactive_url type="link" variant="primary" %}
           Run interactive analysis
           {% icon_play_outline class="h-4 w-4 ml-2 -mr-2" %}
         {% /button %}
         {% endif %}
-        {% #button href=project.get_edit_url type="link" variant="secondary" %}
+        {% #button class="flex-shrink-0" href=project.get_edit_url type="link" variant="secondary" %}
           Edit project
           {% icon_pencil_outline class="h-4 w-4 ml-2 -mr-2" %}
         {% /button %}
