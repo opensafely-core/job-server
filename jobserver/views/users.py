@@ -188,7 +188,7 @@ class LoginWithToken(View):
             User.BadLoginToken,
             User.ExpiredLoginToken,
         ) as e:
-            logger.exception(f"Login with token failed for user {user_value}")
+            logger.info(f"Login with token failed for user {user_value}: {e}")
             trace.get_current_span().record_exception(e)
             return self.login_invalid(form)
 
