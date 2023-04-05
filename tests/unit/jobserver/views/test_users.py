@@ -1,5 +1,6 @@
 from datetime import timedelta
 
+import pytest
 from django.contrib.auth.models import AnonymousUser
 from django.contrib.sessions.backends.db import SessionStore
 from django.core.signing import TimestampSigner
@@ -17,6 +18,8 @@ from jobserver.views.users import (
 )
 
 from ....factories import (
+    BackendFactory,
+    BackendMembershipFactory,
     ProjectFactory,
     ProjectMembershipFactory,
     UserFactory,
@@ -79,6 +82,18 @@ def test_login_get_unsafe_path(rf):
 
     assert response.status_code == 200
     assert response.context_data["next_url"] == ""
+
+
+def test_login_from_backend(rf):
+    request = rf.get("/login")
+    request.user = AnonymousUser()
+    request.backend = BackendFactory()
+    response = Login.as_view()(request)
+
+    assert response.status_code == 200
+    assert response.context_data["show_token_login"] is True
+    assert "Login with Single Use Token" in response.rendered_content
+    assert "Sign in with Github" not in response.rendered_content
 
 
 def test_login_post_success_with_email_user(rf_messages, mailoutbox):
@@ -324,15 +339,31 @@ def test_settings_get(rf):
     assert user2.notifications_email in response.rendered_content
 
 
-def test_settings_get_not_social(rf):
+def test_settings_get_token_form(rf):
     user = UserFactory()
     request = rf.get("/settings")
     request.user = user
-    response = Settings.as_view()(request)
 
+    response = Settings.as_view()(request)
     assert response.status_code == 200
     assert response.template_name == "settings.html"
-    assert "Generate Single Use Token" not in response.rendered_content
+    assert "You can use this to login to OpenSAFELY" not in response.rendered_content
+
+    # add social, but still no backends
+    UserSocialAuthFactory(user=user)
+
+    response = Settings.as_view()(request)
+    assert response.status_code == 200
+    assert response.template_name == "settings.html"
+    assert "You can use this to login to OpenSAFELY" not in response.rendered_content
+
+    # add backend to user
+    BackendMembershipFactory(user=user)
+
+    response = Settings.as_view()(request)
+    assert response.status_code == 200
+    assert response.template_name == "settings.html"
+    assert "You can use this to login to OpenSAFELY" in response.rendered_content
 
 
 def test_settings_user_post(rf_messages):
@@ -390,26 +421,24 @@ def test_settings_user_post_invalid(rf_messages):
     assert str(messages[0]) == "Invalid settings"
 
 
-def test_settings_token_post_success(rf, monkeypatch):
+def test_settings_token_post_success(rf, monkeypatch, token_login_user):
     monkeypatch.setattr(
         jobserver.models.core, "human_memorable_token", lambda: "foo bar baz"
     )
 
-    user = UserFactory()
-    UserSocialAuthFactory(user=user)
     request = rf.post("/settings", {"token": ""})  # button name
-    request.user = user
+    request.user = token_login_user
     response = Settings.as_view()(request)
 
     assert response.status_code == 200
     assert response.template_name == "settings.html"
     # temporarily disable for initial deploy
-    # assert "foo bar baz" in response.rendered_content
+    assert "foo bar baz" in response.rendered_content
 
-    user.validate_login_token("foo bar baz")
+    token_login_user.validate_login_token("foo bar baz")
 
 
-def test_settings_token_post_no_social(rf_messages, monkeypatch):
+def test_settings_token_post_invalid_user(rf_messages, monkeypatch):
     # this shouldn't be used, but set it anyway so we can detect if it is used
     monkeypatch.setattr(
         jobserver.models.core,
@@ -425,19 +454,27 @@ def test_settings_token_post_no_social(rf_messages, monkeypatch):
     assert response.status_code == 200
     assert response.template_name == "settings.html"
     assert "foo bar baz" not in response.rendered_content
-
     messages = list(request._messages)
-    assert len(messages) == 1
-    assert str(messages[0]) == "You must have Github account to create token"
+    assert str(messages[-1]) == "Your account is not allowed to generate a login token"
 
-
-def test_loginwittoken_success_username(rf_messages):
-    user = UserFactory()
+    # add social, but still no backends
     UserSocialAuthFactory(user=user)
-    token = user.generate_login_token()
 
-    data = {"user": user.username, "token": token}
+    response = Settings.as_view()(request)
+    assert response.status_code == 200
+    assert response.template_name == "settings.html"
+    assert "foo bar baz" not in response.rendered_content
+    messages = list(request._messages)
+    assert str(messages[-1]) == "Your account is not allowed to generate a login token"
+
+
+@pytest.mark.parametrize("attr", ["username", "email", "notifications_email"])
+def test_loginwittoken_success(attr, rf_messages, token_login_user):
+    token = token_login_user.generate_login_token()
+
+    data = {"user": getattr(token_login_user, attr), "token": token}
     request = rf_messages.post("/login-with-token", data)
+    request.backend = token_login_user.backends.first()
     response = LoginWithToken.as_view()(request)
 
     assert response.status_code == 302
@@ -450,66 +487,20 @@ def test_loginwittoken_success_username(rf_messages):
     )
 
 
-def test_loginwittoken_success_email(rf_messages):
-    user = UserFactory()
-    UserSocialAuthFactory(user=user)
-    token = user.generate_login_token()
-
-    data = {"user": user.email, "token": token}
-    request = rf_messages.post("/login-with-token", data)
-
-    response = LoginWithToken.as_view()(request)
-
-    assert response.status_code == 302
-    assert response.url == "/"
-    messages = list(request._messages)
-    assert len(messages) == 1
-    assert (
-        str(messages[0])
-        == "You have been logged in using a single use token. That token is now invalid."
-    )
-
-
-def test_loginwittoken_success_notification_email(rf_messages):
-    user = UserFactory()
-    user.notifications_email = "foo@bar.com"
-    user.save()
-    UserSocialAuthFactory(user=user)
-    token = user.generate_login_token()
-
-    data = {"user": user.notifications_email, "token": token}
-    request = rf_messages.post("/login-with-token", data)
-
-    response = LoginWithToken.as_view()(request)
-
-    assert response.status_code == 302
-    assert response.url == "/"
-    messages = list(request._messages)
-    assert len(messages) == 1
-    assert (
-        str(messages[0])
-        == "You have been logged in using a single use token. That token is now invalid."
-    )
-
-
-def test_loginwittoken_invalid_form(rf_messages):
+def test_loginwittoken_not_from_backend(rf_messages):
     request = rf_messages.post("/login-with-token", {})
-
     response = LoginWithToken.as_view()(request)
 
     assert response.status_code == 200
     assert response.template_name == "login.html"
     messages = list(request._messages)
-    assert len(messages) == 1
-    assert (
-        str(messages[0])
-        == "Login failed. The user or token may be incorrect, or the token may have expired."
-    )
+    assert str(messages[-1]) == "Token login only allowed from Level 4"
 
 
 def test_loginwittoken_no_user(rf_messages):
     data = {"user": "doesnotexist", "token": "token"}
     request = rf_messages.post("/login-with-token", data)
+    request.backend = BackendFactory()
 
     response = LoginWithToken.as_view()(request)
 
@@ -523,31 +514,38 @@ def test_loginwittoken_no_user(rf_messages):
     )
 
 
-def test_loginwittoken_no_social(rf_messages):
+def test_loginwittoken_invalid_user(rf_messages):
     user = UserFactory()
-    token = user.generate_login_token()
+    backend = BackendFactory()
 
-    data = {"user": user.email, "token": token}
+    data = {"user": user.email, "token": "token"}
     request = rf_messages.post("/login-with-token", data)
+    request.backend = backend
 
     response = LoginWithToken.as_view()(request)
-
     assert response.status_code == 200
     assert response.template_name == "login.html"
     messages = list(request._messages)
-    assert len(messages) == 1
     assert (
-        str(messages[0])
+        str(messages[-1])
         == "Login failed. The user or token may be incorrect, or the token may have expired."
     )
 
-
-def test_loginwittoken_bad_token(rf_messages):
-    user = UserFactory()
     UserSocialAuthFactory(user=user)
 
-    data = {"user": user.email, "token": "no token"}
-    request = rf_messages.post("/login-with-token", data)
+    response = LoginWithToken.as_view()(request)
+    assert response.status_code == 200
+    assert response.template_name == "login.html"
+    messages = list(request._messages)
+    assert (
+        str(messages[-1])
+        == "Login failed. The user or token may be incorrect, or the token may have expired."
+    )
+
+
+def test_loginwittoken_invalid_form(rf_messages, token_login_user):
+    request = rf_messages.post("/login-with-token", {})
+    request.backend = token_login_user.backends.first()
 
     response = LoginWithToken.as_view()(request)
 
@@ -561,15 +559,31 @@ def test_loginwittoken_bad_token(rf_messages):
     )
 
 
-def test_loginwittoken_expired_token(rf_messages):
-    user = UserFactory()
-    UserSocialAuthFactory(user=user)
-    token = user.generate_login_token()
-    user.login_token_expires_at = timezone.now() - timedelta(minutes=1)
-    user.save()
-
-    data = {"user": user.email, "token": token}
+def test_loginwittoken_bad_token(rf_messages, token_login_user):
+    data = {"user": token_login_user.email, "token": "no token"}
     request = rf_messages.post("/login-with-token", data)
+    request.backend = token_login_user.backends.first()
+
+    response = LoginWithToken.as_view()(request)
+
+    assert response.status_code == 200
+    assert response.template_name == "login.html"
+    messages = list(request._messages)
+    assert len(messages) == 1
+    assert (
+        str(messages[0])
+        == "Login failed. The user or token may be incorrect, or the token may have expired."
+    )
+
+
+def test_loginwittoken_expired_token(rf_messages, token_login_user):
+    token = token_login_user.generate_login_token()
+    token_login_user.login_token_expires_at = timezone.now() - timedelta(minutes=1)
+    token_login_user.save()
+
+    data = {"user": token_login_user.email, "token": token}
+    request = rf_messages.post("/login-with-token", data)
+    request.backend = token_login_user.backends.first()
 
     response = LoginWithToken.as_view()(request)
 

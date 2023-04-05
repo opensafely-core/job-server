@@ -23,11 +23,14 @@ from applications.form_specs import form_specs
 from jobserver.authorization.roles import CoreDeveloper
 
 from .factories import (
+    BackendFactory,
+    BackendMembershipFactory,
     OrgFactory,
     OrgMembershipFactory,
     ReleaseFactory,
     ReleaseFileFactory,
     UserFactory,
+    UserSocialAuthFactory,
 )
 from .factories import applications as application_factories
 
@@ -242,3 +245,12 @@ class MessagesRequestFactory(RequestFactory):
 @pytest.fixture
 def rf_messages():
     return MessagesRequestFactory()
+
+
+@pytest.fixture
+def token_login_user():
+    user = UserFactory()
+    backend = BackendFactory()
+    UserSocialAuthFactory(user=user)
+    BackendMembershipFactory(user=user, backend=backend)
+    return user

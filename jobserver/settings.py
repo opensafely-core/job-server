@@ -84,6 +84,7 @@ MIDDLEWARE = [
     "jobserver.middleware.RequireNameMiddleware",
     "csp.middleware.CSPMiddleware",
     "jobserver.middleware.XSSFilteringMiddleware",
+    "jobserver.middleware.ClientAddressIdentification",
 ]
 
 ROOT_URLCONF = "jobserver.urls"
@@ -373,3 +374,13 @@ LOCAL_GIT_REPOS = BASE_DIR / "repos"
 # Note: we deliberately don't use MEDIA_ROOT/MEDIA_URL here, to avoid any
 # surprises with django's default uploads implementation.
 RELEASE_STORAGE = Path(env.str("RELEASE_STORAGE", default="releases"))
+
+# IP prefix of docker subnet on dokku 4
+TRUSTED_PROXIES = env.list("TRUSTED_PROXIES", ["172.17.0."])
+
+# Map client IP addresses to backend slugs
+BACKEND_IP_MAP = {
+    "62.253.26.158": "tpp",
+    # uncomment to pretend your browser is on tpp
+    # "127.0.0.1": "tpp",
+}

@@ -18,11 +18,13 @@ from jobserver.authorization.roles import (
 from jobserver.models import User
 
 from ....factories import (
+    BackendMembershipFactory,
     OrgFactory,
     OrgMembershipFactory,
     ProjectFactory,
     ProjectMembershipFactory,
     UserFactory,
+    UserSocialAuthFactory,
 )
 
 
@@ -284,59 +286,68 @@ def test_userqueryset_unknown_role():
         User.objects.filter_by_role("unknown")
 
 
-def test_user_login_token_flow_success():
-    user = UserFactory()
-    token = user.generate_login_token()
-    assert user.login_token is not None
-    assert user.login_token_expires_at is not None
-    user.validate_login_token(token)
-    assert user.login_token is None
-    assert user.login_token_expires_at is None
-
-
-def test_user_validate_login_token_no_token():
+def test_user_validate_token_login_allowed():
     user = UserFactory()
 
+    with pytest.raises(User.InvalidTokenUser):
+        user.validate_token_login_allowed()
+
+    UserSocialAuthFactory(user=user)
+
+    with pytest.raises(User.InvalidTokenUser):
+        user.validate_token_login_allowed()
+
+    BackendMembershipFactory(user=user)
+
+    user.validate_token_login_allowed()
+
+
+def test_user_login_token_flow_success(token_login_user):
+    token = token_login_user.generate_login_token()
+    assert token_login_user.login_token is not None
+    assert token_login_user.login_token_expires_at is not None
+    token_login_user.validate_login_token(token)
+    assert token_login_user.login_token is None
+    assert token_login_user.login_token_expires_at is None
+
+
+def test_user_validate_login_token_no_token(token_login_user):
     # neither
-    with pytest.raises(user.BadLoginToken):
-        user.validate_login_token("token")
+    with pytest.raises(token_login_user.BadLoginToken):
+        token_login_user.validate_login_token("token")
 
     # token but no expiry
-    user.generate_login_token()
-    user.login_token_expires_at = None
+    token_login_user.generate_login_token()
+    token_login_user.login_token_expires_at = None
 
-    with pytest.raises(user.BadLoginToken):
-        user.validate_login_token("token")
+    with pytest.raises(token_login_user.BadLoginToken):
+        token_login_user.validate_login_token("token")
 
     # expiry but no token
-    user.generate_login_token()
-    user.login_token = None
+    token_login_user.generate_login_token()
+    token_login_user.login_token = None
 
-    with pytest.raises(user.BadLoginToken):
-        user.validate_login_token("token")
-
-
-def test_user_validate_login_token_expired():
-
-    user = UserFactory()
-    token = user.generate_login_token()
-    user.login_token_expires_at = timezone.now() - timedelta(minutes=1)
-    user.save()
-
-    with pytest.raises(user.ExpiredLoginToken):
-        user.validate_login_token(token)
+    with pytest.raises(token_login_user.BadLoginToken):
+        token_login_user.validate_login_token("token")
 
 
-def test_validate_login_token_ignore_whitespace():
-    user = UserFactory()
-    token = user.generate_login_token()
+def test_user_validate_login_token_expired(token_login_user):
+    token = token_login_user.generate_login_token()
+    token_login_user.login_token_expires_at = timezone.now() - timedelta(minutes=1)
+    token_login_user.save()
+
+    with pytest.raises(token_login_user.ExpiredLoginToken):
+        token_login_user.validate_login_token(token)
+
+
+def test_validate_login_token_ignore_whitespace(token_login_user):
+    token = token_login_user.generate_login_token()
     whitespace_token = " ".join(token) + " "
-    user.validate_login_token(whitespace_token)
+    token_login_user.validate_login_token(whitespace_token)
 
 
-def test_user_validate_login_token_wrong():
-    user = UserFactory()
-    user.generate_login_token()
+def test_user_validate_login_token_wrong(token_login_user):
+    token_login_user.generate_login_token()
 
-    with pytest.raises(user.BadLoginToken):
-        user.validate_login_token("bad token")
+    with pytest.raises(token_login_user.BadLoginToken):
+        token_login_user.validate_login_token("bad token")
