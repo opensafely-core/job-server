@@ -121,26 +121,24 @@
         {% /card %}
       {% endif %}
 
-      {% if not user.is_interactive_only %}
-        {% #card title="Projects" subtitle="Your most recently updated projects" %}
-          {% #list_group %}
-            {% for project in projects %}
-              {% #list_group_item href=project.url %}
-                {{ project.name }}
-              {% /list_group_item %}
-            {% empty %}
-              {% list_group_empty icon=True title="No projects" description="You do not currently have access to any projects" %}
-            {% endfor %}
-          {% /list_group %}
+      {% #card title="Projects" subtitle="Your most recently updated projects" %}
+        {% #list_group %}
+          {% for project in projects %}
+            {% #list_group_item href=project.url %}
+              {{ project.name }}
+            {% /list_group_item %}
+          {% empty %}
+            {% list_group_empty icon=True title="No projects" description="You do not currently have access to any projects" %}
+          {% endfor %}
+        {% /list_group %}
 
-          {% if counts.projects > projects|length %}
-            {% #card_footer no_container=True %}
-              {% url "your-projects" as your_projects_url %}
-              {% link href=your_projects_url text="View all your projects →" %}
-            {% /card_footer %}
-          {% endif %}
-        {% /card %}
-      {% endif %}
+        {% if counts.projects > projects|length %}
+          {% #card_footer no_container=True %}
+            {% url "your-projects" as your_projects_url %}
+            {% link href=your_projects_url text="View all your projects →" %}
+          {% /card_footer %}
+        {% endif %}
+      {% /card %}
 
       {% if not user.is_interactive_only %}
         {% #card title="Applications" subtitle="Previously completed or in progress applications" %}

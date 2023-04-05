@@ -149,11 +149,10 @@ class LoginWithURL(View):
 
         login(request, user, "django.contrib.auth.backends.ModelBackend")
 
-        # TODO: decide what to do when a user has more than one project.
-        # we don't expect this to happen for a while but we need to make
-        # a call.
-        project = user.projects.first()
-        return redirect(project.get_interactive_url())
+        if user.projects.count() > 1:
+            return redirect("/")
+        else:
+            return redirect(user.projects.first().get_interactive_url())
 
     def login_invalid(self):
         msg = (
