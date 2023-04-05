@@ -48,8 +48,8 @@ function QueryBuilder() {
   const initialValues = {
     codelistA: formData.codelistA || formData.codelist0,
     codelistB: formData.codelistB || formData.codelist1,
-    timeValue: formData.timeValue || 3,
-    timeScale: formData.timeScale || "weeks",
+    timeValue: formData.timeValue || 5,
+    timeScale: formData.timeScale || "years",
   };
 
   return (
