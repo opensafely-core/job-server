@@ -69,8 +69,13 @@
         {% #button type="submit" variant="primary-outline" %}
             Log in with token
         {% /button %}
-
         </form>
+        <div class="prose prose-sm mb-6">
+            <p>You cannot access Github to login from Level 4. Instead, you must generate a single user token to log in with.</p>
+            <p>To do so, you will need to login with Github on your usual browser, outside Level 4. Then click on the Account drop down on the top right, and click Settings.
+            Then click the button "Generate Single User Token".  You can then user that token to login on Level 4.
+            </p>
+        </div>
     {% /card %}
   {% endif %}
 {% endblock content %}
