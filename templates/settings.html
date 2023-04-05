@@ -40,15 +40,17 @@
         {% if show_token_form %}
         <div class="prose mb-6">
           {% if token %}
+            <div class="not-prose">
+              {% #alert variant="warning" title="Do not share" %}
+              <p>A Single Use Token provides access to your account &mdash; <strong>do not share this with anyone.</strong></p>
+              {% /alert %}
+            </div>
             <p>Your generated Single Use Token is:</p>
             <div class="not-prose">
               {% #code class="inline-flex !text-3xl font-bold !py-4 !px-8 rounded-md" %}
                 {{ token }}
               {% /code %}
             </div>
-            {% #alert variant="warning" title="Senstive Password" %}
-            <p>This is a one-time password - do not share this with anyone.</p>
-            {% /alert %}
           {% endif %}
           <p>
             You can use this to login to OpenSAFELY from within secure Level 4 environments.
