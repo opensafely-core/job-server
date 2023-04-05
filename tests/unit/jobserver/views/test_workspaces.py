@@ -483,10 +483,14 @@ def test_workspacedetail_authorized_toggle_notifications(rf):
     assert response.context_data["user_can_toggle_notifications"]
 
 
-def test_workspacedetail_authorized_view_files(rf):
+def test_workspacedetail_authorized_view_outputs(rf):
     backend = BackendFactory(level_4_url="http://test/")
     user = UserFactory(roles=[ProjectCollaborator])
     workspace = WorkspaceFactory()
+    ReleaseFactory(workspace=workspace)
+    SnapshotFactory(
+        workspace=workspace, published_by=UserFactory(), published_at=timezone.now()
+    )
 
     BackendMembershipFactory(backend=backend, user=user)
 
@@ -501,25 +505,9 @@ def test_workspacedetail_authorized_view_files(rf):
     )
 
     assert response.status_code == 200
-    assert response.context_data["user_can_view_files"]
 
-
-def test_workspacedetail_authorized_view_releases(rf):
-    workspace = WorkspaceFactory()
-    ReleaseFactory(workspace=workspace)
-
-    request = rf.get("/")
-    request.user = UserFactory()
-
-    response = WorkspaceDetail.as_view(get_github_api=FakeGitHubAPI)(
-        request,
-        org_slug=workspace.project.org.slug,
-        project_slug=workspace.project.slug,
-        workspace_slug=workspace.name,
-    )
-
-    assert response.status_code == 200
-    assert response.context_data["user_can_view_releases"]
+    assert not response.context_data["outputs"]["level_4"]["disabled"]
+    assert not response.context_data["outputs"]["released"]["disabled"]
 
 
 def test_workspacedetail_authorized_run_jobs(rf):
@@ -542,26 +530,6 @@ def test_workspacedetail_authorized_run_jobs(rf):
 
     assert response.status_code == 200
     assert response.context_data["user_can_run_jobs"]
-
-
-def test_workspacedetail_authorized_view_snaphots(rf):
-    workspace = WorkspaceFactory()
-    SnapshotFactory(
-        workspace=workspace, published_by=UserFactory(), published_at=timezone.now()
-    )
-
-    request = rf.get("/")
-    request.user = UserFactory()
-
-    response = WorkspaceDetail.as_view(get_github_api=FakeGitHubAPI)(
-        request,
-        org_slug=workspace.project.org.slug,
-        project_slug=workspace.project.slug,
-        workspace_slug=workspace.name,
-    )
-
-    assert response.status_code == 200
-    assert response.context_data["user_can_view_outputs"]
 
 
 def test_workspacedetail_authorized_honeycomb(rf):
@@ -623,16 +591,10 @@ def test_workspacedetail_logged_out(rf):
 
     # this is false because while the user can view outputs, but they have no
     # Backends with a level 4 URL set up.
-    assert not response.context_data["user_can_view_files"]
+    assert response.context_data["outputs"]["level_4"]["disabled"]
 
     assert not response.context_data["user_can_run_jobs"]
-    assert not response.context_data["user_can_view_releases"]
-
-    # this is false because:
-    # the user is either logged out
-    #   OR doesn't have the right permission to see outputs
-    #   AND there are no published Snapshots to show the user.
-    assert not response.context_data["user_can_view_outputs"]
+    assert response.context_data["outputs"]["released"]["disabled"]
 
 
 def test_workspacedetail_unauthorized(rf):
@@ -652,16 +614,10 @@ def test_workspacedetail_unauthorized(rf):
 
     # this is false because while the user can view outputs, but they have no
     # Backends with a level 4 URL set up.
-    assert not response.context_data["user_can_view_files"]
+    assert response.context_data["outputs"]["level_4"]["disabled"]
 
     assert not response.context_data["user_can_run_jobs"]
-    assert not response.context_data["user_can_view_releases"]
-
-    # this is false because:
-    # the user is either logged out
-    #   OR doesn't have the right permission to see outputs
-    #   AND there are no published Snapshots to show the user.
-    assert not response.context_data["user_can_view_outputs"]
+    assert response.context_data["outputs"]["released"]["disabled"]
 
     # this is false because only a user with ProjectDeveloper should be able
     # to do this

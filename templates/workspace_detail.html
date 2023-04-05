@@ -111,7 +111,7 @@
     </div>
 
     <div class="space-y-6 md:space-y-6 lg:col-span-1 lg:row-start-2">
-      {% if is_member %}
+      {% if show_admin %}
         {% #card title="Workspace admin" class="text-center" container=True %}
           {% if user_can_archive_workspace %}
           <form method="POST" action="{{ workspace.get_archive_toggle_url }}" class="mb-2">
@@ -155,7 +155,7 @@
         {% /card %}
       {% endif %}
 
-      {% #card title="Job information" %}
+      {% #card title="Workspace information" %}
         <dl class="border-t border-slate-200 sm:divide-y sm:divide-slate-200">
           {% #description_item title="Repo" %}
             {% link text=workspace.repo.name href=workspace.repo.url %}
@@ -245,30 +245,22 @@
         {% /card %}
       {% endif %}
 
-      {% if user_can_use_releases %}
-        {% #card title="Releases" %}
-          {% #list_group small=True %}
-            {% if user_can_view_files %}
-              {% #list_group_item href=workspace.get_files_url %}
-                <span class="mr-2">Level 4 Outputs</span>
-                {% pill text="VPN Required" variant="primary" %}
-              {% /list_group_item%}
-            {% endif %}
+      {% #card title="Releases" %}
+        {% #list_group small=True %}
+          {% #list_group_item href=workspace.get_files_url disabled=outputs.level_4.disabled %}
+            <span class="mr-2">Level 4 Outputs</span>
+            {% pill text="VPN Required" variant="primary" %}
+          {% /list_group_item%}
 
-            {% if user_can_view_releases %}
-              {% #list_group_item href=workspace.get_releases_url %}
-                Released Outputs
-              {% /list_group_item%}
-            {% endif %}
+          {% #list_group_item href=workspace.get_releases_url disabled=outputs.released.disabled %}
+            Released Outputs
+          {% /list_group_item%}
 
-            {% if user_can_view_outputs %}
-              {% #list_group_item href=workspace.get_outputs_url %}
-                Published Outputs
-              {% /list_group_item%}
-            {% endif %}
-          {% /list_group %}
-        {% /card %}
-      {% endif %}
+          {% #list_group_item href=workspace.get_outputs_url %}
+            Published Outputs
+          {% /list_group_item%}
+        {% /list_group %}
+      {% /card %}
 
       {% #card title="Reports" %}
         {% #list_group small=True %}
