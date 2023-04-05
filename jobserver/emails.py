@@ -112,3 +112,23 @@ def send_welcome_email(user):
         template_name="emails/welcome.txt",
         context=context,
     )
+
+
+def send_token_login_generated_email(user):
+    send(
+        to=user.notifications_email,
+        subject="New OpenSAFELY login token generated",
+        sender="notifications@jobs.opensafely.org",
+        reply_to=["OpenSAFELY Team <team@opensafely.org>"],
+        template_name="emails/login_token_generated.txt",
+    )
+
+
+def send_token_login_used_email(user):
+    send(
+        to=user.notifications_email,
+        subject="OpenSAFELY account login with token",
+        sender="notifications@jobs.opensafely.org",
+        reply_to=["OpenSAFELY Team <team@opensafely.org>"],
+        template_name="emails/login_token_used.txt",
+    )

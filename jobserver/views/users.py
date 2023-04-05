@@ -17,6 +17,10 @@ from furl import furl
 from opentelemetry import trace
 
 from jobserver.authorization import InteractiveReporter
+from jobserver.emails import (
+    send_token_login_generated_email,
+    send_token_login_used_email,
+)
 
 from ..emails import send_github_login_email, send_login_email
 from ..forms import EmailLoginForm, SettingsForm, TokenLoginForm
@@ -194,6 +198,7 @@ class LoginWithToken(View):
 
         login(self.request, user, "django.contrib.auth.backends.ModelBackend")
         logger.info(f"User {user} logged in with login token")
+        send_token_login_used_email(user)
         messages.success(
             self.request,
             "You have been logged in using a single use token. That token is now invalid.",
@@ -252,6 +257,7 @@ class Settings(View):
 
             token = request.user.generate_login_token()
             logger.info(f"User {request.user} generated a login token")
+            send_token_login_generated_email(request.user)
             return self.render_to_response(token=token)
 
         else:  # pragma: no cover
