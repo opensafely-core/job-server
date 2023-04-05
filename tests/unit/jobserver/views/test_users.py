@@ -421,7 +421,7 @@ def test_settings_user_post_invalid(rf_messages):
     assert str(messages[0]) == "Invalid settings"
 
 
-def test_settings_token_post_success(rf, monkeypatch, token_login_user):
+def test_settings_token_post_success(rf, monkeypatch, token_login_user, mailoutbox):
     monkeypatch.setattr(
         jobserver.models.core, "human_memorable_token", lambda: "foo bar baz"
     )
@@ -436,6 +436,8 @@ def test_settings_token_post_success(rf, monkeypatch, token_login_user):
     assert "foo bar baz" in response.rendered_content
 
     token_login_user.validate_login_token("foo bar baz")
+
+    assert "new login token" in mailoutbox[0].body
 
 
 def test_settings_token_post_invalid_user(rf_messages, monkeypatch):
@@ -469,7 +471,7 @@ def test_settings_token_post_invalid_user(rf_messages, monkeypatch):
 
 
 @pytest.mark.parametrize("attr", ["username", "email", "notifications_email"])
-def test_loginwittoken_success(attr, rf_messages, token_login_user):
+def test_loginwittoken_success(attr, rf_messages, token_login_user, mailoutbox):
     token = token_login_user.generate_login_token()
 
     data = {"user": getattr(token_login_user, attr), "token": token}
@@ -485,6 +487,8 @@ def test_loginwittoken_success(attr, rf_messages, token_login_user):
         str(messages[0])
         == "You have been logged in using a single use token. That token is now invalid."
     )
+
+    assert "login token was used" in mailoutbox[0].body
 
 
 def test_loginwittoken_not_from_backend(rf_messages):

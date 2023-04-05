@@ -1,0 +1,6 @@
+
+A login token was used to login into your OpenSAFELY account.
+
+If this was not you, please contact tech-support immediately.
+
+https://docs.opensafely.org/how-to-get-help/#slack
