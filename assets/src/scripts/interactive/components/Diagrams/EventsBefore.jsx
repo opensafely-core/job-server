@@ -2,63 +2,55 @@ import { number, string } from "prop-types";
 
 function EventsBefore({ timeScale, timeValue }) {
   return (
-    <svg viewBox="-0.5 -0.5 372 301" xmlns="http://www.w3.org/2000/svg">
+    <svg
+      clipRule="evenodd"
+      fillRule="evenodd"
+      strokeLinejoin="round"
+      strokeMiterlimit="2"
+      viewBox="0 0 415 233"
+      xmlns="http://www.w3.org/2000/svg"
+      xmlSpace="preserve"
+    >
       <path
-        className="stroke-gray-300 fill-none stroke-[3]"
-        d="M160 70v120M320 70v120"
+        className="fill-gray-300"
+        d="M194 52.03h6V157h-6zM394 52h6v105h-6z"
       />
-      <text
-        className="font-sans text-xs text-gray-800"
-        textAnchor="middle"
-        x="160"
-        y="205"
-      >
-        Start of month
+      <path
+        className="fill-gray-500"
+        d="M3.9 99.9c-.6.5-.6 1.5 0 2l9.35 9.6c.26.2.57.3.89.3a1.5 1.5 0 0 0 1.18-2.4l-8.37-8.5 8.37-8.5a1.5 1.5 0 0 0-1.18-2.4c-.32 0-.63.1-.89.3l-9.46 9.5.1.1Zm189.1 2c.6-.5.6-1.5 0-2l-9.35-9.6c-.26-.2-.57-.3-.89-.3a1.5 1.5 0 0 0-1.18 2.4l8.37 8.5-8.37 8.5a1.5 1.5 0 0 0 1.18 2.4c.32 0 .63-.1.89-.3l9.46-9.5-.1-.1Zm-188.12.5h187.14v-3H4.88v3Z"
+        fillRule="nonzero"
+      />
+      <path
+        className="fill-green-600 stroke-green-600"
+        d="M1 128c-.6.5-.6 1.5 0 2l9.5 9.6a1.5 1.5 0 0 0 2.1-2.1L4.1 129l8.5-8.5a1.5 1.5 0 0 0-2.1-2.1l-9.6 9.5.1.1Zm392 2c.6-.5.6-1.5 0-2l-9.5-9.6a1.5 1.5 0 0 0-2.1 2.1l8.5 8.5-8.5 8.5a1.5 1.5 0 0 0 2.1 2.1l9.6-9.5-.1-.1Zm-391 .5h390v-3H2v3Z"
+        fillRule="nonzero"
+        strokeWidth="2"
+        transform="matrix(.99262 0 0 1 2.9 1.9)"
+      />
+      <path
+        className="fill-bn-ribbon-300 stroke-bn-ribbon-700"
+        d="M297 97.4 284.4 85l-3.5 3.5 12.5 12.5-12.4 12.3 3.5 3.5 12.4-12.4 12.4 12.4 3.5-3.5-12.4-12.4 12.4-12.4-3.5-3.5-12.4 12.4h.1Z"
+      />
+      <path
+        className="fill-oxford-300"
+        d="M296 74.55c.5.6 1.5.6 2 0l9.6-9.5a1.5 1.5 0 0 0-2.1-2.1l-8.5 8.5-8.5-8.5a1.5 1.5 0 0 0-2.1 2.1l9.5 9.6.1-.1Zm-.5-71v70h3v-70h-3ZM50 150.6c-.2-.8-1-1.3-1.8-1l-13 3.4a1.54 1.54 0 0 0 .7 3l11.6-3.2 3.1 11.6a1.5 1.5 0 0 0 2.9-.7l-3.5-13v-.1ZM3.3 232.4l46.6-80.6-2.6-1.6L.7 231l2.6 1.5v-.1Z"
+        fillRule="nonzero"
+      />
+      <text fontSize="12" x="177" y="170">
+        Start of
       </text>
-      <text
-        className="font-sans text-xs text-gray-800"
-        textAnchor="middle"
-        x="320"
-        y="205"
-      >
-        End of month
+      <text fontSize="12" x="180" y="183">
+        month
       </text>
-      <path
-        className="stroke-green-600 fill-none stroke-[3]"
-        d="M50.1 150h199.8"
-      />
-      <path
-        className="fill-green-600 stroke-green-600 stroke-[3]"
-        d="m43.4 150 9-4.5L50 150l2.3 4.5Zm213.3 0-9 4.5 2.2-4.5-2.3-4.5Z"
-      />
-      <path
-        className="stroke-oxford-300 fill-none stroke-[3]"
-        d="m80 270 18.2-100"
-      />
-      <path
-        className="fill-oxford-300 stroke-oxford-300 stroke-[3]"
-        d="m99.4 163.3 2.8 9.7-4-3-4.8 1.3Z"
-      />
-      <text
-        className="fill-green-600 font-sans text-xs"
-        textAnchor="middle"
-        x="100"
-        y="140"
-      >
+      <text fontSize="12" x="379" y="170">
+        End of
+      </text>
+      <text fontSize="12" x="380" y="183">
+        month
+      </text>
+      <text fontSize="12" x="67" y="88.63">
         {timeValue} {timeScale}
       </text>
-      <path
-        className="fill-none stroke-oxford-300 stroke-[3]"
-        d="m280 30-9 90"
-      />
-      <path
-        className="fill-oxford-300 stroke-oxford-300 stroke-[3]"
-        d="m270.3 126.7-3.6-9.4 4.3 2.6 4.7-1.7Z"
-      />
-      <path
-        className="stroke-bn-ribbon-600 fill-bn-ribbon-200"
-        d="M258 140h5.8l4.2 6 4.2-6h5.8l-7 10 7 10h-5.8l-4.2-6-4.2 6H258l6.7-10Z"
-      />
     </svg>
   );
 }

@@ -25,10 +25,12 @@ function PreviewRequest() {
           <strong>{formData.codelistA.label}</strong>
         </p>
 
-        <EventsBefore
-          timeScale={formData.timeScale}
-          timeValue={formData.timeValue}
-        />
+        <div className="pt-12 pb-6">
+          <EventsBefore
+            timeScale={formData.timeScale}
+            timeValue={formData.timeValue}
+          />
+        </div>
         <p className="absolute max-w-[28ch] text-center bottom-0 left-0 border-2 border-oxford-300 bg-slate-50 p-2">
           Individual ALSO has an event from:
           <br />
