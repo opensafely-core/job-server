@@ -1065,7 +1065,7 @@ class User(AbstractBaseUser):
             raise self.InvalidTokenUser(f"User {self.username} is not a github user")
 
         # need at least 1 backend
-        if len(self.backends.all()) == 0:
+        if not self.backends.exists():
             raise self.InvalidTokenUser(
                 f"User {self.username} is does not have access to any backends"
             )

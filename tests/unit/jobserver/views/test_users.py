@@ -24,7 +24,6 @@ from ....factories import (
     ProjectMembershipFactory,
     UserFactory,
     UserSocialAuthFactory,
-    ValidLoginTokenUserFactory,
     WorkspaceFactory,
 )
 
@@ -399,16 +398,13 @@ def test_settings_user_post_invalid(rf_messages):
     assert str(messages[0]) == "Invalid settings"
 
 
-def test_settings_token_post_success(rf, monkeypatch):
+def test_settings_token_post_success(rf, monkeypatch, token_login_user):
     monkeypatch.setattr(
         jobserver.models.core, "human_memorable_token", lambda: "foo bar baz"
     )
 
-    user = UserFactory()
-    UserSocialAuthFactory(user=user)
-    BackendMembershipFactory(user=user)
     request = rf.post("/settings", {"token": ""})  # button name
-    request.user = user
+    request.user = token_login_user
     response = Settings.as_view()(request)
 
     assert response.status_code == 200
@@ -416,10 +412,10 @@ def test_settings_token_post_success(rf, monkeypatch):
     # temporarily disable for initial deploy
     assert "foo bar baz" in response.rendered_content
 
-    user.validate_login_token("foo bar baz")
+    token_login_user.validate_login_token("foo bar baz")
 
 
-def test_settings_token_post_invalid(rf_messages, monkeypatch):
+def test_settings_token_post_invalid_user(rf_messages, monkeypatch):
     # this shouldn't be used, but set it anyway so we can detect if it is used
     monkeypatch.setattr(
         jobserver.models.core,
@@ -450,13 +446,12 @@ def test_settings_token_post_invalid(rf_messages, monkeypatch):
 
 
 @pytest.mark.parametrize("attr", ["username", "email", "notifications_email"])
-def test_loginwittoken_success(attr, rf_messages):
-    user, backend = ValidLoginTokenUserFactory()
-    token = user.generate_login_token()
+def test_loginwittoken_success(attr, rf_messages, token_login_user):
+    token = token_login_user.generate_login_token()
 
-    data = {"user": getattr(user, attr), "token": token}
+    data = {"user": getattr(token_login_user, attr), "token": token}
     request = rf_messages.post("/login-with-token", data)
-    request.backend = backend
+    request.backend = token_login_user.backends.first()
     response = LoginWithToken.as_view()(request)
 
     assert response.status_code == 302
@@ -526,12 +521,9 @@ def test_loginwittoken_invalid_user(rf_messages):
     )
 
 
-def test_loginwittoken_bad_token(rf_messages):
-    user, backend = ValidLoginTokenUserFactory()
-
-    data = {"user": user.email, "token": "no token"}
-    request = rf_messages.post("/login-with-token", data)
-    request.backend = backend
+def test_loginwittoken_invalid_form(rf_messages, token_login_user):
+    request = rf_messages.post("/login-with-token", {})
+    request.backend = token_login_user.backends.first()
 
     response = LoginWithToken.as_view()(request)
 
@@ -545,16 +537,31 @@ def test_loginwittoken_bad_token(rf_messages):
     )
 
 
-def test_loginwittoken_expired_token(rf_messages):
-    user, backend = ValidLoginTokenUserFactory()
-
-    token = user.generate_login_token()
-    user.login_token_expires_at = timezone.now() - timedelta(minutes=1)
-    user.save()
-
-    data = {"user": user.email, "token": token}
+def test_loginwittoken_bad_token(rf_messages, token_login_user):
+    data = {"user": token_login_user.email, "token": "no token"}
     request = rf_messages.post("/login-with-token", data)
-    request.backend = backend
+    request.backend = token_login_user.backends.first()
+
+    response = LoginWithToken.as_view()(request)
+
+    assert response.status_code == 200
+    assert response.template_name == "login.html"
+    messages = list(request._messages)
+    assert len(messages) == 1
+    assert (
+        str(messages[0])
+        == "Login failed. The user or token may be incorrect, or the token may have expired."
+    )
+
+
+def test_loginwittoken_expired_token(rf_messages, token_login_user):
+    token = token_login_user.generate_login_token()
+    token_login_user.login_token_expires_at = timezone.now() - timedelta(minutes=1)
+    token_login_user.save()
+
+    data = {"user": token_login_user.email, "token": token}
+    request = rf_messages.post("/login-with-token", data)
+    request.backend = token_login_user.backends.first()
 
     response = LoginWithToken.as_view()(request)
 

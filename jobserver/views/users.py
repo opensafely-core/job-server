@@ -221,7 +221,7 @@ class LoginWithToken(View):
 @method_decorator(login_required, name="dispatch")
 class Settings(View):
     def get(self, request, *args, **kwargs):
-        return self.response()
+        return self.render_to_response()
 
     def post(self, request, *args, **kwargs):
         # settings form
@@ -229,13 +229,13 @@ class Settings(View):
             form = SettingsForm(request.POST)
             if not form.is_valid():
                 messages.error(request, "Invalid settings")
-                return self.response(form)
+                return self.render_to_response(form)
 
             request.user.fullname = form.cleaned_data["fullname"]
             request.user.notifications_email = form.cleaned_data["notifications_email"]
             request.user.save()
             messages.success(request, "Settings saved successfully")
-            return self.response()
+            return self.render_to_response()
 
         # generate token form
         elif "token" in request.POST:
@@ -249,17 +249,17 @@ class Settings(View):
                 messages.error(
                     request, "Your account is not allowed to generate a login token"
                 )
-                return self.response()
+                return self.render_to_response()
 
             token = request.user.generate_login_token()
             logger.info(f"User {request.user} generated a login token")
-            return self.response(token=token)
+            return self.render_to_response(token=token)
 
         else:  # pragma: no cover
             messages.error(request, "Unrecognised form submission")
-            return self.response()
+            return self.render_to_response()
 
-    def response(self, form=None, token=None):
+    def render_to_response(self, form=None, token=None):
         if form is None:
             form = SettingsForm(
                 dict(
