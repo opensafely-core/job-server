@@ -1067,7 +1067,7 @@ class User(AbstractBaseUser):
         # need at least 1 backend
         if not self.backends.exists():
             raise self.InvalidTokenUser(
-                f"User {self.username} is does not have access to any backends"
+                f"User {self.username} does not have access to any backends"
             )
 
     def generate_login_token(self):
