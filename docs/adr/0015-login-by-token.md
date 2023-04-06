@@ -1,4 +1,4 @@
-# 15. Provide option to login by token for Level 4 log n
+# 15. Provide option to login by token for access from Level 4
 Date: 2023-04-05
 
 ## Status
