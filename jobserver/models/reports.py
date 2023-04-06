@@ -78,6 +78,10 @@ class Report(models.Model):
         return reverse("staff:report-detail", kwargs={"pk": self.pk})
 
     @property
+    def is_draft(self):
+        return not self.is_published
+
+    @property
     def is_published(self):
         return hasattr(self, "publish_request") and self.publish_request.approved_at
 

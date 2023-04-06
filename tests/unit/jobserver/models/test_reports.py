@@ -28,6 +28,17 @@ def test_report_get_staff_url():
     assert url == reverse("staff:report-detail", kwargs={"pk": report.pk})
 
 
+def test_report_is_draft():
+    report = ReportFactory()
+    assert report.is_draft
+
+    publish_request = ReportPublishRequestFactory(report=report)
+    assert report.is_draft
+
+    publish_request.approve(user=UserFactory())
+    assert not report.is_draft
+
+
 def test_report_is_published():
     report = ReportFactory()
     assert not report.is_published
