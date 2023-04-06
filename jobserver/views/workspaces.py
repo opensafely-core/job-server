@@ -60,7 +60,7 @@ class WorkspaceAnalysisRequestList(ListView):
             super()
             .get_queryset()
             .filter(job_request__workspace=self.workspace)
-            .select_related("project", "project__org")
+            .select_related("created_by", "project", "project__org")
             .prefetch_related("job_request__jobs")
         )
 
