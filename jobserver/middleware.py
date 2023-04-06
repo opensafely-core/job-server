@@ -112,7 +112,7 @@ class ClientAddressIdentification:
     def get_forwarded_ip(self, forwarded, remote_addr, trusted_ips):
         """Walk ips from right to left, returning the first non-trusted ip left of a trusted ip.
 
-        This means spoofed X-Forwarded-For IPs will be ignored, as they not be
+        This means spoofed X-Forwarded-For IPs will be ignored, as they will not be
         directly after a trusted proxy.
         """
         ips = [ip.strip() for ip in forwarded.split(",") if ip.strip()] + [remote_addr]
