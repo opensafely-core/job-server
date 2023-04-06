@@ -96,6 +96,22 @@ def test_client_ip_middleware_proxied(rf):
     assert request.backend is None
 
 
+@override_settings(
+    BACKEND_IP_MAP={"1.2.3.4": "tpp"}, TRUSTED_PROXIES=["172.17.0.", "103.21.244."]
+)
+def test_client_ip_middleware_proxied_twice(rf):
+    backend = BackendFactory(slug="tpp")
+    middleware = ClientAddressIdentification(lambda r: None)
+    proxy = "172.17.0.2"
+
+    # tpp client via proxy
+    request = rf.get(
+        "/", HTTP_X_FORWARDED_FOR="1.2.3.4,103.21.244.16", REMOTE_ADDR=proxy
+    )
+    middleware(request)
+    assert request.backend == backend
+
+
 @override_settings(TRUSTED_PROXIES=["172.17.0."])
 def test_client_ip_middleware_get_forwarded_ip_no_ips():
     middleware = ClientAddressIdentification(None)
