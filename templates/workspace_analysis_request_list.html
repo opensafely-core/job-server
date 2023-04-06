@@ -38,6 +38,8 @@
         </dd>
       </div>
     {% /list_group_rich_item %}
+    {% empty %}
+      {% list_group_empty icon=True title="No analyses" description="This workspace does not have any associated analysis requests" %}
     {% endfor %}
   {% /list_group %}
 {% /card %}
