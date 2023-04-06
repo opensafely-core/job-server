@@ -15,16 +15,29 @@
 {% endblock breadcrumbs %}
 
 {% block content %}
-<h1>{{ workspace.name }} analyses</h1>
+<h1 class="mb-6 text-3xl break-words md:text-4xl font-bold text-slate-900">
+  {{ workspace.name }} analyses
+</h1>
 
-<p>This page shows all the Interactive analyses for {{ workspace.name }}</p>
-
-{% #card %}
+{% #card title=workspace.name subtitle="This page shows all the Interactive analyses for "|add:workspace.name %}
   {% #list_group %}
-    {% for analysis_request in analysis_requests %}
-    {% #list_group_item href=analysis_request.get_absolute_url %}
-      {{ analysis_request.title }}
-    {% /list_group_item %}
+    {% for analysis_request in analysis_requests|dictsortreversed:"created_at" %}
+    {% #list_group_rich_item type="Analysis request" url=analysis_request.get_absolute_url title=analysis_request.title status_variant="warning" status_text="Status" %}
+      <div class="flex flex-col gap-2 text-sm text-slate-600 sm:flex-row sm:gap-x-4">
+        <dt class="sr-only">Created at:</dt>
+        <dd class="flex flex-row flex-shrink-0 items-start">
+          {% icon_calendar_outline class="mr-1.5 h-5 w-5 flex-shrink-0 text-slate-400" %}
+          <time datetime="{{ analysis_request.created_at|date:"Y-m-d H:i:sO" }}">
+            {{ analysis_request.created_at|date:"d M Y" }}
+          </time>
+        </dd>
+        <dt class="sr-only">Created by:</dt>
+        <dd class="flex flex-row items-start overflow-hidden sm:max-w-[50%]">
+          {% icon_user_outline class="mr-1.5 h-5 w-5 flex-shrink-0 text-slate-400" %}
+          <span class="truncate">{{ analysis_request.created_by }}</span>
+        </dd>
+      </div>
+    {% /list_group_rich_item %}
     {% endfor %}
   {% /list_group %}
 {% /card %}
