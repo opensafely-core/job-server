@@ -1,0 +1,28 @@
+<li class="relative transition-colors hover:bg-oxford-50 group">
+  <dl class="flex flex-col gap-2 px-4 py-4 sm:px-6">
+    <div class="flex gap-x-2">
+      <dt class="sr-only">{{ type }}:</dt>
+      <dd class="
+        text-base font-semibold text-oxford-600 transition-colors truncate
+        group-hover:text-oxford-900
+        group-focus:text-oxford-900
+      ">
+        <a
+          class="
+            focus:bg-oxford-50 focus:outline-none focus:ring-2 focus:ring-inset
+            before:absolute before:top-0 before:bottom-0 before:right-0 before:left-0 before:h-full before:w-full"
+          href="{{ url }}"
+        >
+          {{ title }}
+        </a>
+      </dd>
+      {% if status_variant and status_text %}
+      <dt class="sr-only">Status:</dt>
+      <dd class="ml-auto flex-shrink-0">
+        {% pill variant=status_variant text=status_text %}
+      </dd>
+      {% endif %}
+    </div>
+    {{ children }}
+  </dl>
+</li>
