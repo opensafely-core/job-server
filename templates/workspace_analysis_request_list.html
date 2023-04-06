@@ -22,7 +22,7 @@
 {% #card title=workspace.name subtitle="This page shows all the Interactive analyses for "|add:workspace.name %}
   {% #list_group %}
     {% for analysis_request in analysis_requests|dictsortreversed:"created_at" %}
-    {% #list_group_rich_item type="Analysis request" url=analysis_request.get_absolute_url title=analysis_request.title status_variant="warning" status_text="Status" %}
+    {% #list_group_rich_item type="Analysis request" url=analysis_request.get_absolute_url title=analysis_request.title status_text=analysis_request.job_request.status %}
       <div class="flex flex-col gap-2 text-sm text-slate-600 sm:flex-row sm:gap-x-4">
         <dt class="sr-only">Created at:</dt>
         <dd class="flex flex-row flex-shrink-0 items-start">
