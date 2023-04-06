@@ -56,7 +56,12 @@ class WorkspaceAnalysisRequestList(ListView):
         }
 
     def get_queryset(self):
-        return super().get_queryset().filter(job_request__workspace=self.workspace)
+        return (
+            super()
+            .get_queryset()
+            .filter(job_request__workspace=self.workspace)
+            .select_related("project", "project__org")
+        )
 
 
 class WorkspaceArchiveToggle(View):
