@@ -27,6 +27,7 @@ class AnalysisRequestForm(forms.Form):
     filter_population = forms.ChoiceField(
         choices=list_to_choices(["all", "adults", "children"])
     )
+    time_ever = forms.BooleanField(required=False)
     time_scale = forms.ChoiceField(
         choices=list_to_choices(["weeks", "months", "years"]), required=False
     )
@@ -60,8 +61,14 @@ class AnalysisRequestForm(forms.Form):
         if not self.has_codelist_2:
             return
 
+        time_ever = cleaned_data["time_ever"]
         time_scale = cleaned_data["time_scale"]
         time_value = cleaned_data["time_value"]
+
+        if time_ever and (time_scale or time_value):
+            raise forms.ValidationError(
+                "Time ever cannot be set with either time scale or value"
+            )
 
         # time_value must be less than 10 years but it's paired with time_scale
         # so we have to check it for each of the choices of that field.
