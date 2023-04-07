@@ -1,0 +1,11 @@
+{% extends "emails/base.html" %}
+
+{% block content %}
+<p>Hi {{ name }},</p>
+
+<p>Your analysis titled "{{ title }}" using OpenSAFELY Interactive has now finished running.</p>
+
+<p><a href="{{ url }}">View the results</a></p>
+
+<p>This report is not publicly accessible and is only viewable when logged into your OpenSAFELY Interactive account. Please only share these results with your immediate team. If you would like to share the report more widely, please send an email to us at <a href="mailto:team@opensafely.org">team@opensafely.org</a></p>
+{% endblock content %}

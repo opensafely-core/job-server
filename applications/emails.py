@@ -16,5 +16,6 @@ def send_submitted_application_email(email, application):
         sender="notifications@jobs.opensafely.org",
         subject="Thank you for applying to use OpenSAFELY",
         template_name="applications/emails/submission_confirmation.txt",
+        html_template_name="applications/emails/submission_confirmation.html",
         context=context,
     )

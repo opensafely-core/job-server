@@ -26,6 +26,7 @@ def send_finished_notification(email, job):
         sender="notifications@jobs.opensafely.org",
         subject=f"{job.status}: [os {workspace_name}] {job.action}",
         template_name="emails/notify_finished.txt",
+        html_template_name="emails/notify_finished.html",
         context=context,
     )
 
@@ -41,6 +42,7 @@ def send_github_login_email(user):
         sender="notifications@jobs.opensafely.org",
         reply_to=["OpenSAFELY Team <team@opensafely.org>"],
         template_name="emails/login_via_github.txt",
+        html_template_name="emails/login_via_github.html",
         context=context,
     )
 
@@ -59,6 +61,7 @@ def send_login_email(user, login_url, timeout_minutes):
         sender="notifications@jobs.opensafely.org",
         reply_to=["OpenSAFELY Team <team@opensafely.org>"],
         template_name="emails/login.txt",
+        html_template_name="emails/login.html",
         context=context,
     )
 
@@ -73,6 +76,7 @@ def send_repo_signed_off_notification_to_researchers(repo):
         sender="notifications@jobs.opensafely.org",
         subject=f"Repo {repo.name} was signed off by {repo.researcher_signed_off_by.name}",
         template_name="emails/notify_researcher_repo_signed_off.txt",
+        html_template_name="emails/notify_researcher_repo_signed_off.html",
         context={"repo": repo},
     )
 
@@ -91,6 +95,7 @@ def send_repo_signed_off_notification_to_staff(repo):
         sender="notifications@jobs.opensafely.org",
         subject=subject,
         template_name="emails/notify_staff_repo_signed_off.txt",
+        html_template_name="emails/notify_staff_repo_signed_off.html",
         context={"repo": repo, "staff_url": staff_url},
     )
 
@@ -110,6 +115,7 @@ def send_welcome_email(user):
         sender="notifications@jobs.opensafely.org",
         reply_to=["OpenSAFELY Team <team@opensafely.org>"],
         template_name="emails/welcome.txt",
+        html_template_name="emails/welcome.html",
         context=context,
     )
 
@@ -121,6 +127,7 @@ def send_token_login_generated_email(user):
         sender="notifications@jobs.opensafely.org",
         reply_to=["OpenSAFELY Team <team@opensafely.org>"],
         template_name="emails/login_token_generated.txt",
+        html_template_name="emails/login_token_generated.html",
     )
 
 
@@ -131,4 +138,5 @@ def send_token_login_used_email(user):
         sender="notifications@jobs.opensafely.org",
         reply_to=["OpenSAFELY Team <team@opensafely.org>"],
         template_name="emails/login_token_used.txt",
+        html_template_name="emails/login_token_used.html",
     )
