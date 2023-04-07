@@ -1,3 +1,6 @@
+{% extends "emails/base.txt" %}
+
+{% block content %}
 Thank you for applying to use the OpenSAFELY platform.
 
 You can view your submitted application here:
@@ -5,3 +8,4 @@ You can view your submitted application here:
 {{ url }}
 
 We are a very committed, but still small and busy team, so feel free to email us at team@opensafely.org if you haven't had any response after three weeks from the date of application submission.
+{% endblock content %}

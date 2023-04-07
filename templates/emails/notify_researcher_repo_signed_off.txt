@@ -1,3 +1,6 @@
+{% extends "emails/base.txt" %}
+
+{% block content %}
 Hello workspace creator,
 
 The repository, {{ repo.name }}, has been signed off by {{ repo.researcher_signed_off_by.name }}.
@@ -6,3 +9,4 @@ It will now be reviewed by the OpenSAFELY team and if everything is in order we 
 If you think this has been done in error, please email publications@opensafely.org
 
 The OpenSAFELY team
+{% endblock content %}
