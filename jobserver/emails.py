@@ -37,7 +37,7 @@ def send_github_login_email(user):
     }
 
     send(
-        to=user.email,
+        to=user.notifications_email,
         subject="Log into OpenSAFELY",
         sender="notifications@jobs.opensafely.org",
         reply_to=["OpenSAFELY Team <team@opensafely.org>"],
@@ -56,7 +56,7 @@ def send_login_email(user, login_url, timeout_minutes):
     }
 
     send(
-        to=user.email,
+        to=user.notifications_email,
         subject="Log into OpenSAFELY",
         sender="notifications@jobs.opensafely.org",
         reply_to=["OpenSAFELY Team <team@opensafely.org>"],
@@ -110,7 +110,7 @@ def send_welcome_email(user):
     }
 
     send(
-        to=user.email,
+        to=user.notifications_email,
         subject="Welcome to OpenSAFELY",
         sender="notifications@jobs.opensafely.org",
         reply_to=["OpenSAFELY Team <team@opensafely.org>"],
