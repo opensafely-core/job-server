@@ -29,6 +29,7 @@ def test_login_pipeline(client, slack_messages):
 
         user_url = "https://api.github.com/user"
         user_data = {
+            "id": "1234",
             "login": "dummy-user",
             "name": "Test User",
             "email": None,
@@ -104,6 +105,7 @@ def test_login_pipeline_without_gitub_token(client, slack_messages):
 
         user_url = "https://api.github.com/user"
         user_data = {
+            "id": "1234",
             "login": "dummy-user",
             "name": "Test User",
             "email": None,
