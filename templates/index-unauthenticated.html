@@ -1,5 +1,15 @@
+{% extends "base-tw.html" %}
+
+{% load django_vite %}
+{% load humanize %}
 {% load static %}
 
+{% block metatitle %}OpenSAFELY Jobs | Home{% endblock metatitle %}
+{% block extra_meta %}
+<meta name="description" content="OpenSAFELY Jobs provides an audit trail for every project using the OpenSAFELY platform. It logs all activity that uses real patient data.">
+{% endblock %}
+
+{% block full_width_content %}
 <div class="isolate sm:bg-bn-blush-50 relative overflow-hidden -mt-5 md:-mt-9">
   <div class="hidden sm:block absolute inset-x-0 -z-10 transform-gpu overflow-hidden blur-3xl opacity-25">
     <svg class="relative -z-10 max-w-none -top-1/2" viewBox="0 0 1155 678">
@@ -142,3 +152,6 @@
     </div>
   </div>
 </div>
+
+{% include 'partials/latest-jobs-tw.html' with job_requests=all_job_requests %}
+{% endblock full_width_content %}
