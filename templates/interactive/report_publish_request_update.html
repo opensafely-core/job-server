@@ -9,43 +9,56 @@
     {% breadcrumb title="Home" url=home_url %}
     {% breadcrumb title=object.report.project.org.name url=object.report.project.org.get_absolute_url location="Organisation" %}
     {% breadcrumb title=object.report.project.name url=object.report.project.get_absolute_url location="Project" %}
-    {% breadcrumb title=object.report.analysis_request.title url=object.report.analysis_request.get_absolute_url location="Analysis Request" %}
+    {% breadcrumb title=object.report.title url=object.report.analysis_request.get_absolute_url location="Analysis Request" %}
     {% breadcrumb title="Publish report request" active=True %}
   {% /breadcrumbs %}
 {% endblock breadcrumbs %}
 
 {% block content %}
-<div class="mb-5">
-  <h1 class="text-3xl tracking-tight break-words sm:text-4xl font-bold text-slate-900">
-    Publish report request {{ object.pk }}
-  </h1>
+<div class="grid grid-cols-1 gap-6 lg:grid-cols-3">
+  <div class="flex flex-col text-center items-center gap-y-2 lg:text-left lg:items-start lg:col-span-full">
+    <div class="flex flex-col items-center gap-y-2 w-full lg:flex-row lg:justify-between lg:items-start">
+      <div class="order-2 w-full lg:mr-auto lg:order-1">
+        <h1 class="mb-2 text-3xl tracking-tight break-words font-bold text-slate-900 sm:text-4xl">
+          Publish request for {{ object.report.title }}
+        </h1>
+      </div>
+    </div>
+
+    <div class="flex flex-col mt-2 sm:flex-row gap-2 lg:items-start">
+      {% #button type="link" href=object.report.analysis_request.get_absolute_url variant="primary" %}
+        View report
+      {% /button %}
+    </div>
+  </div>
+
+  <div class="relative grid gap-6 place-content-stretch lg:col-span-2" id="reportContainer">
+    <form method="POST">
+      {% csrf_token %}
+
+      {% #description_item title="Created by" %}
+      {{ object.created_by.name }}
+      {% /description_item %}
+
+      {% #description_item title="Analysis request (with report)" %}
+      {% link href=object.report.analysis_request.get_absolute_url text=object.report.title %}</p>
+      {% /description_item %}
+
+      {% #description_item title="Report release file" %}
+      {% link href=object.report.release_file.get_absolute_url text="View in outputs-viewer" %}</p>
+      {% /description_item %}
+
+      {% #description_item title="Approved at" %}
+      {{ object.approved_at|default:"-" }}
+      {% /description_item %}
+
+      {% #description_item title="Approved by" %}
+      {{ object.approved_by.name|default:"-" }}
+      {% /description_item %}
+
+      {% #button type="submit" variant="success" disabled=object.approved_at %}Approve{% /button %}
+    </form>
+  </div>
 </div>
 
-<div>
-  <form method="POST">
-    {% csrf_token %}
-
-    {% #description_item title="Created by" %}
-    {{ object.created_by.name }}
-    {% /description_item %}
-
-    {% #description_item title="Analysis request (with report)" %}
-    {% link href=object.report.analysis_request.get_absolute_url text=object.report.title %}</p>
-    {% /description_item %}
-
-    {% #description_item title="Report release file" %}
-    {% link href=object.report.release_file.get_absolute_url text="View in outputs-viewer" %}</p>
-    {% /description_item %}
-
-    {% #description_item title="Approved at" %}
-    {{ object.approved_at|default:"-" }}
-    {% /description_item %}
-
-    {% #description_item title="Approved by" %}
-    {{ object.approved_by.name|default:"-" }}
-    {% /description_item %}
-
-    {% #button type="submit" variant="success" disabled=object.approved_at %}Approve{% /button %}
-  </form>
-</div>
 {% endblock %}
