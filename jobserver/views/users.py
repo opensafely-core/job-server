@@ -179,11 +179,7 @@ class LoginWithToken(View):
 
         try:
             # username or email
-            user = User.objects.get(
-                Q(email=user_value)
-                | Q(username=user_value)
-                | Q(notifications_email=user_value)
-            )
+            user = User.objects.get(Q(email=user_value) | Q(username=user_value))
 
             user.validate_login_token(form.cleaned_data["token"])
 
@@ -261,7 +257,7 @@ class Settings(View):
                 return self.render_to_response(form)
 
             request.user.fullname = form.cleaned_data["fullname"]
-            request.user.notifications_email = form.cleaned_data["notifications_email"]
+            request.user.email = form.cleaned_data["email"]
             request.user.save()
             messages.success(request, "Settings saved successfully")
             return self.render_to_response()
@@ -292,10 +288,10 @@ class Settings(View):
     def render_to_response(self, form=None, token=None):
         if form is None:
             form = SettingsForm(
-                dict(
-                    fullname=self.request.user.fullname,
-                    notifications_email=self.request.user.notifications_email,
-                )
+                data={
+                    "fullname": self.request.user.fullname,
+                    "email": self.request.user.email,
+                }
             )
 
         try:

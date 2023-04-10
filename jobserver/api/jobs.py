@@ -206,7 +206,7 @@ def handle_job_notifications(request, job_request, job):
 
     if job_request.will_notify:
         send_finished_notification(
-            job_request.created_by.notifications_email,
+            job_request.created_by.email,
             job,
         )
         logger.info(

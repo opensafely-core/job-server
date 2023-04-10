@@ -75,7 +75,6 @@ def test_login_pipeline(client, slack_messages):
     user = User.objects.first()
     assert user.fullname == "Test User"
     assert user.email == "test@example.com"
-    assert user.notifications_email == "test@example.com"
     assert user.is_active
     assert not user.is_staff
     assert user.roles == []

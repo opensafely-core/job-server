@@ -49,11 +49,7 @@ class RepoDetail(View):
 
     def build_contacts(self, workspaces):
         def build_contact(user):
-            return (
-                f"{user.fullname} <{user.notifications_email}>"
-                if user.fullname
-                else user.notifications_email
-            )
+            return f"{user.fullname} <{user.email}>" if user.fullname else user.email
 
         return "; ".join({build_contact(w.created_by) for w in workspaces})
 

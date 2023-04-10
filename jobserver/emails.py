@@ -37,7 +37,7 @@ def send_github_login_email(user):
     }
 
     send(
-        to=user.notifications_email,
+        to=user.email,
         subject="Log into OpenSAFELY",
         sender="notifications@jobs.opensafely.org",
         reply_to=["OpenSAFELY Team <team@opensafely.org>"],
@@ -56,7 +56,7 @@ def send_login_email(user, login_url, timeout_minutes):
     }
 
     send(
-        to=user.notifications_email,
+        to=user.email,
         subject="Log into OpenSAFELY",
         sender="notifications@jobs.opensafely.org",
         reply_to=["OpenSAFELY Team <team@opensafely.org>"],
@@ -68,7 +68,7 @@ def send_login_email(user, login_url, timeout_minutes):
 
 def send_repo_signed_off_notification_to_researchers(repo):
     creators = User.objects.filter(workspaces__repo=repo)
-    emails = [u.notifications_email for u in creators]
+    emails = [u.email for u in creators]
 
     send(
         to="notifications@jobs.opensafely.org",
@@ -110,7 +110,7 @@ def send_report_published_email(publish_request):
     }
 
     send(
-        to=publish_request.created_by.notifications_email,
+        to=publish_request.created_by.email,
         subject="Your report has been published",
         sender="notifications@jobs.opensafely.org",
         reply_to=["OpenSAFELY Team <team@opensafely.org>"],
@@ -122,7 +122,7 @@ def send_report_published_email(publish_request):
 
 def send_token_login_generated_email(user):
     send(
-        to=user.notifications_email,
+        to=user.email,
         subject="New OpenSAFELY login token generated",
         sender="notifications@jobs.opensafely.org",
         reply_to=["OpenSAFELY Team <team@opensafely.org>"],
@@ -133,7 +133,7 @@ def send_token_login_generated_email(user):
 
 def send_token_login_used_email(user):
     send(
-        to=user.notifications_email,
+        to=user.email,
         subject="OpenSAFELY account login with token",
         sender="notifications@jobs.opensafely.org",
         reply_to=["OpenSAFELY Team <team@opensafely.org>"],
@@ -152,7 +152,7 @@ def send_welcome_email(user):
     }
 
     send(
-        to=user.notifications_email,
+        to=user.email,
         subject="Welcome to OpenSAFELY",
         sender="notifications@jobs.opensafely.org",
         reply_to=["OpenSAFELY Team <team@opensafely.org>"],

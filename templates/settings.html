@@ -29,7 +29,7 @@
 
       {% #card title="Your account" class="w-full" container_class="flex flex-col gap-y-4 items-start" container=True %}
         {% form_input autocapitalize="words" autocomplete="name" autocorrect="on" class="min-w-full" field=form.fullname label="Full name" required=True type="text" %}
-        {% form_input autocapitalize="off" autocomplete="email" autocorrect="off" class="min-w-full" field=form.notifications_email label="Contact Email" inputmode="email" required=True type="email" %}
+        {% form_input autocapitalize="off" autocomplete="email" autocorrect="off" class="min-w-full" field=form.email label="Contact Email" inputmode="email" required=True type="email" %}
         {% #button type="submit" name="settings" variant="primary" %}
           Save your settings
         {% /button %}
