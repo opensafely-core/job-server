@@ -7,8 +7,7 @@ from urllib.parse import quote
 import pydantic
 import structlog
 from django.contrib.auth.hashers import check_password, make_password
-from django.contrib.auth.models import AbstractBaseUser
-from django.contrib.auth.models import UserManager as BaseUserManager
+from django.contrib.auth.models import AbstractBaseUser, UserManager
 from django.contrib.auth.validators import UnicodeUsernameValidator
 from django.contrib.postgres.fields import ArrayField
 from django.core.validators import validate_slug
@@ -28,7 +27,6 @@ from xkcdpass import xkcd_password
 
 from ..authorization import InteractiveReporter
 from ..authorization.fields import RolesField
-from ..authorization.utils import strings_to_roles
 from ..hash_utils import hash_user_pat
 from ..runtime import Runtime
 
@@ -757,31 +755,6 @@ class Repo(models.Model):
             raise Exception("Repo URL not in expected format, appears to have no path")
 
         return f
-
-
-class UserQuerySet(models.QuerySet):
-    def filter_by_role(self, role):
-        """
-        Filter the Users by a given Role (class or string)
-
-        Roles are converted to a dotted path and quoted to make sure we filter
-        for a dotted path with surrounding quotes.
-        """
-        if isinstance(role, str):
-            role = strings_to_roles([role])[0]
-
-        return self.filter(roles__contains=[role])
-
-
-class UserManager(BaseUserManager.from_queryset(UserQuerySet), BaseUserManager):
-    """
-    Custom Manager built from the custom QuerySet above
-
-    This exists so we have a concrete Manager which can be serialised in
-    Migrations.
-    """
-
-    pass
 
 
 WORDLIST = xkcd_password.generate_wordlist("eff-long")
