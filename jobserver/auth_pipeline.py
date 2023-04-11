@@ -1,6 +1,9 @@
 import time
 
 from django.db import transaction
+from django.shortcuts import redirect
+from django.urls import reverse
+from social_core.pipeline.partial import partial
 from social_core.storage import UserMixin
 from social_django.models import UserSocialAuth
 
@@ -8,7 +11,8 @@ from jobserver.models import User
 from jobserver.slacks import notify_new_user
 
 
-def pipeline(response, *args, **kwargs):
+@partial
+def pipeline(response, strategy, *args, **kwargs):
     """
     Combined auth pipeline for GitHub OAuth
 
@@ -34,6 +38,13 @@ def pipeline(response, *args, **kwargs):
     # the UserSocialAuth.user FK doesn't allow us to have a social without a
     # user so we can ignore that path
 
+    name = response["name"] or strategy.request.POST.get("name")
+    if not name:
+        # if name is missing from response and POST data
+        current_partial = kwargs.get("current_partial")
+        url = reverse("require-name") + f"?partial_token={current_partial.token}"
+        return redirect(url)
+
     # clean the username to match how PSA does it in
     # social_core.pipeline.user.get_username
     username = UserMixin.clean_username(response["login"])
@@ -43,7 +54,7 @@ def pipeline(response, *args, **kwargs):
             username=username,
             email=response["email"],
             notifications_email=response["email"],
-            fullname=response["name"],
+            fullname=name,
         )
 
         # store some raw data from the response

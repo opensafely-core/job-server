@@ -56,6 +56,7 @@ from .views.users import (
     Login,
     LoginWithToken,
     LoginWithURL,
+    RequireName,
     Settings,
 )
 from .views.workspaces import (
@@ -268,6 +269,7 @@ urlpatterns = [
     path("robots.txt", RedirectView.as_view(url=settings.STATIC_URL + "robots.txt")),
     path("analyses/", yours.AnalysisRequestList.as_view(), name="your-analyses"),
     path("api/v2/", include((api_urls, "api"))),
+    path("enter-your-name/", RequireName.as_view(), name="require-name"),
     path("event-log/", JobRequestList.as_view(), name="job-list"),
     path("event-list/", RedirectView.as_view(url="/event-log/")),
     path("jobs/", RedirectView.as_view(query_string=True, pattern_name="job-list")),

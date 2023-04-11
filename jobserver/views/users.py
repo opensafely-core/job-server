@@ -15,6 +15,7 @@ from django.utils.decorators import method_decorator
 from django.views.generic import FormView, View
 from furl import furl
 from opentelemetry import trace
+from social_django.utils import load_strategy
 
 from jobserver.authorization import InteractiveReporter
 from jobserver.emails import (
@@ -23,7 +24,7 @@ from jobserver.emails import (
 )
 
 from ..emails import send_github_login_email, send_login_email
-from ..forms import EmailLoginForm, SettingsForm, TokenLoginForm
+from ..forms import EmailLoginForm, RequireNameForm, SettingsForm, TokenLoginForm
 from ..models import User
 from ..utils import is_safe_path
 
@@ -220,6 +221,30 @@ class LoginWithToken(View):
                 "next_url": get_next_url(self.request),
             },
         )
+
+
+class RequireName(View):
+    def get(self, request, *args, **kwargs):
+        if request.user.is_authenticated:
+            # logged in users are by design not using the pipeline
+            return redirect("/")
+
+        token = request.GET.get("partial_token")
+        partial = load_strategy().partial_load(token)
+
+        if partial is None:
+            # we haven't arrived from the pipeline
+            return redirect("/")
+
+        context = {
+            "form": RequireNameForm(),
+            "partial": {
+                "backend_name": partial.backend,
+                "token": token,
+            },
+        }
+
+        return TemplateResponse(request, "pipeline/require_name.html", context=context)
 
 
 @method_decorator(login_required, name="dispatch")

@@ -14,12 +14,14 @@ from jobserver.views.users import (
     Login,
     LoginWithToken,
     LoginWithURL,
+    RequireName,
     Settings,
 )
 
 from ....factories import (
     BackendFactory,
     BackendMembershipFactory,
+    PartialFactory,
     ProjectFactory,
     ProjectMembershipFactory,
     UserFactory,
@@ -306,6 +308,36 @@ def test_loginwithurl_with_invalid_token(rf_messages):
     messages = list(request._messages)
     assert len(messages) == 1
     assert str(messages[0]).startswith("Invalid token, please try again")
+
+
+def test_requirename_already_logged_in(rf):
+    request = rf.get("/")
+    request.user = UserFactory()
+
+    response = RequireName.as_view()(request)
+
+    assert response.url == "/"
+    assert response.status_code == 302
+
+
+def test_requirename_success(rf):
+    partial = PartialFactory()
+    request = rf.get(f"/?partial_token={partial.token}")
+    request.user = AnonymousUser()
+
+    response = RequireName.as_view()(request)
+
+    assert response.status_code == 200
+
+
+def test_requirename_with_no_partial_token(rf):
+    request = rf.get("/")
+    request.user = AnonymousUser()
+
+    response = RequireName.as_view()(request)
+
+    assert response.url == "/"
+    assert response.status_code == 302
 
 
 def test_settings_login_required(rf):
