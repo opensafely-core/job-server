@@ -1,38 +1,69 @@
+import time
+
+from django.db import transaction
+from social_core.storage import UserMixin
+from social_django.models import UserSocialAuth
+
+from jobserver.models import User
 from jobserver.slacks import notify_new_user
 
 
-def notify_on_new_user(user, is_new, *args, **kwargs):
-    if not is_new:
-        return
+def pipeline(response, *args, **kwargs):
+    """
+    Combined auth pipeline for GitHub OAuth
+
+    This is a reduction of our previous step-by-step pipeline which leant
+    heavily on Python Social Auth (and Social Django) functions.
+
+    We still lean on PSA to run the pipeline, handling the OAuth dance with
+    GitHub and calling the necessary functions to log a user in for Django.  As
+    such we return the `social` and `user` keys to facilitate that.
+    """
+    uid = response["id"]
+
+    social = UserSocialAuth.objects.filter(uid=uid).first()
+    if social and social.user:
+        # existing user, we're done here
+        return {
+            # included so login can be called with the correct auth backend
+            "social": social,
+            "user": social.user,
+        }
+
+    # brand new user, create everything.
+    # the UserSocialAuth.user FK doesn't allow us to have a social without a
+    # user so we can ignore that path
+
+    # clean the username to match how PSA does it in
+    # social_core.pipeline.user.get_username
+    username = UserMixin.clean_username(response["login"])
+
+    with transaction.atomic():
+        user = User.objects.create_user(
+            username=username,
+            email=response["email"],
+            notifications_email=response["email"],
+            fullname=response["name"],
+        )
+
+        # store some raw data from the response
+        extra_data = {
+            "auth_time": int(time.time()),
+            "id": uid,
+            "expires": response.get("expires", None),
+            "login": response["login"],
+            "access_token": response["access_token"],
+            "token_type": response["token_type"],
+        }
+
+        social = UserSocialAuth.objects.create(
+            user=user, uid=uid, provider="github", extra_data=extra_data
+        )
+
     notify_new_user(user)
 
-
-def set_fullname(user, details, *args, **kwargs):
-    """
-    Set a User's fullname from GitHub if it's not already set
-
-    By default social_core.pipeline.user.user_details takes the values from
-    the social backend, GitHub for us, and overwrites the data in a given User
-    instance.  We want to let users update (or set) their name on our service
-    without involving GitHub and not have it overwritten each time they log in.
-
-    We've added the fullname field to the SOCIAL_AUTH_PROTECTED_USER_FIELDS
-    setting which stops social_core's user_details function from overwriting
-    our version, and this function fills it if it's not already set.
-    """
-    if not user.fullname:
-        user.fullname = details.get("fullname", "")
-        user.save()
-
-
-def set_notifications_email(user, *args, **kwargs):
-    """
-    Set a User's notifications_email if it's not already set
-
-    When a User first signs up to the service they don't have their
-    notifications_email set, so we copy the value passed to us from GitHub to
-    that value.
-    """
-    if not user.notifications_email:
-        user.notifications_email = user.email
-        user.save()
+    return {
+        # included so login can be called with the correct auth backend
+        "social": social,
+        "user": social.user,
+    }

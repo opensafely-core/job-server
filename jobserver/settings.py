@@ -341,19 +341,8 @@ PERMISSIONS_POLICY = {
 
 # Python/Django Social Auth
 SOCIAL_AUTH_PIPELINE = [
-    "social_core.pipeline.social_auth.social_details",
-    "social_core.pipeline.social_auth.social_uid",
-    "social_core.pipeline.social_auth.social_user",
-    "social_core.pipeline.user.get_username",
-    "social_core.pipeline.user.create_user",
-    "social_core.pipeline.social_auth.associate_user",
-    "social_core.pipeline.social_auth.load_extra_data",
-    "social_core.pipeline.user.user_details",
-    "jobserver.auth_pipeline.set_fullname",
-    "jobserver.auth_pipeline.set_notifications_email",
-    "jobserver.auth_pipeline.notify_on_new_user",
+    "jobserver.auth_pipeline.pipeline",
 ]
-SOCIAL_AUTH_PROTECTED_USER_FIELDS = ["fullname"]
 
 # Sentry
 initialise_sentry()
