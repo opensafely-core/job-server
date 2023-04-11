@@ -1,50 +1,8 @@
-from django.contrib.auth.models import AnonymousUser
 from django.test.utils import override_settings
 
-from jobserver.middleware import ClientAddressIdentification, RequireNameMiddleware
+from jobserver.middleware import ClientAddressIdentification
 
-from ...factories import BackendFactory, UserFactory
-
-
-def get_response(request):
-    return "no match"
-
-
-def test_requirenamemiddleware_with_fullname_set(rf):
-    request = rf.get("/")
-    request.user = UserFactory(fullname="Ben Goldacre")
-
-    response = RequireNameMiddleware(get_response)(request)
-
-    assert response == "no match"
-
-
-def test_requirenamemiddleware_without_fullname_set(rf):
-    request = rf.get("/")
-    request.user = UserFactory(fullname="")
-
-    response = RequireNameMiddleware(get_response)(request)
-
-    assert response.status_code == 302
-    assert response.url == "/settings/?next=/"
-
-
-def test_requirenamemiddleware_with_exempt_url(rf):
-    request = rf.get("/staff")
-    request.user = UserFactory(fullname="")
-
-    response = RequireNameMiddleware(get_response)(request)
-
-    assert response == "no match"
-
-
-def test_requirenamemiddleware_with_unauthenticated_user(rf):
-    request = rf.get("/")
-    request.user = AnonymousUser()
-
-    response = RequireNameMiddleware(get_response)(request)
-
-    assert response == "no match"
+from ...factories import BackendFactory
 
 
 @override_settings(BACKEND_IP_MAP={"1.2.3.4": "tpp"})
