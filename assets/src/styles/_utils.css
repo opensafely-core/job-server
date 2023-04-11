@@ -1,0 +1,13 @@
+summary::-webkit-details-marker {
+  display: none;
+}
+
+.break-words {
+  overflow-wrap: break-word;
+  word-break: break-word;
+  word-wrap: break-word;
+}
+
+[x-cloak] {
+  display: none !important;
+}

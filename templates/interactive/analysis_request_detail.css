@@ -1,0 +1,10 @@
+#report {
+  color: black;
+  font-size: 1.1rem;
+  max-width: 80ch;
+  margin: 0 auto 2rem;
+
+  & h1 {
+    display: none;
+  }
+}
