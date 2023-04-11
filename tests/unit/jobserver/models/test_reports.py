@@ -8,6 +8,7 @@ from jobserver.utils import set_from_qs
 
 from ....factories import (
     AnalysisRequestFactory,
+    ProjectFactory,
     ReportFactory,
     ReportPublishRequestFactory,
     UserFactory,
@@ -20,12 +21,48 @@ def test_report_created_check_constraint_missing_one(field):
         ReportFactory(**{field: None})
 
 
+def test_report_get_absolute_url_with_analysis_request():
+    project = ProjectFactory()
+    report = ReportFactory(project=project)
+    AnalysisRequestFactory(project=project, report=report)
+
+    url = report.get_absolute_url()
+
+    assert url == reverse(
+        "interactive:analysis-detail",
+        kwargs={
+            "org_slug": report.project.org.slug,
+            "project_slug": report.project.slug,
+            "slug": report.analysis_request.slug,
+        },
+    )
+
+
+def test_report_get_absolute_url_without_analysis_request():
+    report = ReportFactory()
+
+    url = report.get_absolute_url()
+
+    assert url == "/"
+
+
 def test_report_get_staff_url():
     report = ReportFactory()
 
     url = report.get_staff_url()
 
     assert url == reverse("staff:report-detail", kwargs={"pk": report.pk})
+
+
+def test_report_is_draft():
+    report = ReportFactory()
+    assert report.is_draft
+
+    publish_request = ReportPublishRequestFactory(report=report)
+    assert report.is_draft
+
+    publish_request.approve(user=UserFactory())
+    assert not report.is_draft
 
 
 def test_report_is_published():

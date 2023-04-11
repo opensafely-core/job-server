@@ -275,10 +275,6 @@ class WorkspaceDetail(View):
 
         reports = Report.objects.filter(release_file__workspace=workspace)
 
-        # remove unpublished reports from the list for non-project members
-        if not workspace.project.members.filter(pk=request.user.pk).exists():
-            reports = reports.exclude(publish_request__approved_at=None)
-
         context = {
             "first_job": first_job,
             "honeycomb_can_view_links": honeycomb_can_view_links,

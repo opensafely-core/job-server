@@ -265,9 +265,9 @@
       {% #card title="Reports" %}
         {% #list_group small=True %}
           {% for report in reports %}
-          {% #list_group_item href=report.get_absolute_url %}
+          {% #list_group_item href=report.get_absolute_url disabled=report.is_draft %}
             {{ report.title }}
-            {% if not report.is_published %}
+            {% if report.is_draft %}
               {% pill class="ml-2" text="Not published" variant="primary" %}
             {% endif %}
           {% /list_group_item %}

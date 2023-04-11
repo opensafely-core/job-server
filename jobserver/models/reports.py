@@ -74,8 +74,21 @@ class Report(models.Model):
     def __str__(self):
         return self.title
 
+    def get_absolute_url(self):
+        if hasattr(self, "analysis_request"):
+            return self.analysis_request.get_absolute_url()
+        else:
+            # we only have reports tied to analyses currently but we expect
+            # that to change in the future so rather than error out send the
+            # user _somewhere_.
+            return "/"
+
     def get_staff_url(self):
         return reverse("staff:report-detail", kwargs={"pk": self.pk})
+
+    @property
+    def is_draft(self):
+        return not self.is_published
 
     @property
     def is_published(self):
