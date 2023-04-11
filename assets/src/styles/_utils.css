@@ -1,3 +1,8 @@
+.preload * {
+  transition: none !important;
+  animation-duration: 0.001s !important;
+}
+
 summary::-webkit-details-marker {
   display: none;
 }
