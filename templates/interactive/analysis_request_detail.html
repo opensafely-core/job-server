@@ -85,9 +85,40 @@
     </div>
   </div>
 
-  <div class="grid gap-6 lg:col-span-3 xl:grid-cols-3" id="reportContainer">
+  <div class="grid gap-6 lg:col-span-3 xl:grid-cols-6" id="reportContainer">
     {% if report %}
-      {% #card title="Request information" class="xl:col-span-2" header_class="sr-only" %}
+      {% #card title="Request information" class="xl:col-span-4 xl:col-start-2" header_class="sr-only" %}
+        <dl class="border-t border-slate-200 sm:divide-y sm:divide-slate-200">
+          {% #description_item title="Created at" %}
+            {{ analysis_request.created_at }}
+            <time datetime="{{ analysis_request.created_at|date:"Y-m-d H:i:sO" }}"></time>
+          {% /description_item %}
+
+          {% #description_item title="Created by" %}
+            {% if user_can_view_staff_area %}
+            {% link href=analysis_request.created_by.get_staff_url text=analysis_request.created_by.fullname %}
+            {% else %}
+            {{ analysis_request.created_by.fullname }}
+            {% endif %}
+          {% /description_item %}
+
+          {% #description_item title="Purpose" %}
+            {{ analysis_request.purpose }}
+          {% /description_item %}
+        </dl>
+      {% /card %}
+
+      {% #card title="Report" container=True class="relative font-lg text-slate-700 xl:col-span-6" header_class="sr-only" %}
+        <div class="z-10 relative py-2" id="report">
+          {{ report }}
+        </div>
+        <div id="watermark" class="hidden absolute inset-0 text-center w-full h-full text-5xl font-bold text-gray-900/10">
+          <span class="py-16 block">Confidential</span>
+          <span class="py-16 block">Not for publication</span>
+        </div>
+      {% /card %}
+    {% else %}
+      {% #card class="xl:col-start-5 xl:col-span-2 xl:row-start-1" %}
         <dl class="border-t border-slate-200 sm:divide-y sm:divide-slate-200">
           {% #description_item stacked=False title="Created at" %}
             {{ analysis_request.created_at }}
@@ -107,18 +138,7 @@
           {% /description_item %}
         </dl>
       {% /card %}
-
-      {% #card title="Report" container=True class="relative font-lg text-slate-700 xl:col-span-3" %}
-        <div class="z-10 relative" id="report">
-          {{ report }}
-        </div>
-        <div id="watermark" class="hidden absolute inset-0 text-center w-full h-full text-5xl font-bold text-gray-900/10">
-          <span class="py-16 block">Confidential</span>
-          <span class="py-16 block">Not for publication</span>
-        </div>
-      {% /card %}
-    {% else %}
-      {% #card class="lg:col-span-2 overflow-hidden relative" %}
+      {% #card class="overflow-hidden relative xl:col-span-4 xl:col-start-1 xl:row-start-1" %}
         <div class="text-center p-8 z-10 relative">
           {% icon_custom_spinner class="h-12 w-12 mb-4 mx-auto flex-1 animate-spin stroke-current stroke-2 text-slate-600" %}
           <h2 class="mt-2 mb-3 text-2xl font-bold text-slate-900">
@@ -145,26 +165,6 @@
             </p>
           </div>
         </div>
-      {% /card %}
-      {% #card %}
-        <dl class="border-t border-slate-200 sm:divide-y sm:divide-slate-200">
-          {% #description_item stacked=False title="Created at" %}
-            {{ analysis_request.created_at }}
-            <time datetime="{{ analysis_request.created_at|date:"Y-m-d H:i:sO" }}"></time>
-          {% /description_item %}
-
-          {% #description_item title="Created by" %}
-            {% if user_can_view_staff_area %}
-            {% link href=analysis_request.created_by.get_staff_url text=analysis_request.created_by.fullname %}
-            {% else %}
-            {{ analysis_request.created_by.fullname }}
-            {% endif %}
-          {% /description_item %}
-
-          {% #description_item title="Purpose" %}
-            {{ analysis_request.purpose }}
-          {% /description_item %}
-        </dl>
       {% /card %}
     {% endif %}
   </div>

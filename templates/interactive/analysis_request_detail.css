@@ -95,6 +95,7 @@
 
     & td,
     & th {
+      font-variant-numeric: tabular-nums;
       padding: 0.25rem;
     }
   }
