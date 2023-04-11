@@ -15,27 +15,19 @@
 {% endblock breadcrumbs %}
 
 {% block content %}
-<div class="grid grid-cols-1 gap-6 lg:grid-cols-3">
-  <div class="flex flex-col text-center items-center gap-y-2 lg:text-left lg:items-start lg:col-span-full">
-    <div class="flex flex-col items-center gap-y-2 w-full lg:flex-row lg:justify-between lg:items-start">
-      <div class="order-2 w-full lg:mr-auto lg:order-1">
-        <h1 class="mb-2 text-3xl tracking-tight break-words font-bold text-slate-900 sm:text-4xl">
-          Publish request for {{ object.report.title }}
-        </h1>
-      </div>
-    </div>
+<div class="grid gap-4 max-w-3xl mb-6">
+  <h1 class="text-3xl tracking-tight break-words font-bold text-slate-900 sm:text-4xl">
+    Publish request for {{ object.report.title }}
+  </h1>
 
-    <div class="flex flex-col mt-2 sm:flex-row gap-2 lg:items-start">
-      {% #button type="link" href=object.report.analysis_request.get_absolute_url variant="primary" %}
-        View report
-      {% /button %}
-    </div>
-  </div>
+  {% #button type="link" href=object.report.analysis_request.get_absolute_url variant="primary" class="flex flex-shrink-0 w-fit" %}
+    View report
+  {% /button %}
 
-  <div class="relative grid gap-6 place-content-stretch lg:col-span-2" id="reportContainer">
-    <form method="POST">
-      {% csrf_token %}
+  <form method="POST">
+    {% csrf_token %}
 
+    {% #card class="mb-4" %}
       {% #description_item title="Created by" %}
       {{ object.created_by.name }}
       {% /description_item %}
@@ -55,10 +47,10 @@
       {% #description_item title="Approved by" %}
       {{ object.approved_by.name|default:"-" }}
       {% /description_item %}
+    {% /card %}
 
-      {% #button type="submit" variant="success" disabled=object.approved_at %}Approve{% /button %}
-    </form>
-  </div>
+    {% #button type="submit" variant="success" disabled=object.approved_at %}Approve{% /button %}
+  </form>
 </div>
 
 {% endblock %}
