@@ -85,9 +85,9 @@
     </div>
   </div>
 
-  <div class="grid gap-6 lg:col-span-3 lg:grid-cols-3" id="reportContainer">
+  <div class="grid gap-6 lg:col-span-3 xl:grid-cols-3" id="reportContainer">
     {% if report %}
-      {% #card class="lg:col-span-2" %}
+      {% #card title="Request information" class="xl:col-span-2" header_class="sr-only" %}
         <dl class="border-t border-slate-200 sm:divide-y sm:divide-slate-200">
           {% #description_item stacked=False title="Created at" %}
             {{ analysis_request.created_at }}
@@ -108,7 +108,7 @@
         </dl>
       {% /card %}
 
-      {% #card title="Report" container=True class="relative font-lg text-slate-700 lg:col-span-2" %}
+      {% #card title="Report" container=True class="relative font-lg text-slate-700 xl:col-span-3" %}
         <div class="z-10 relative" id="report">
           {{ report }}
         </div>
