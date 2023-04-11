@@ -1,6 +1,7 @@
 #report {
-  color: black;
+  color: var(--color-gray-800);
   font-size: 1.1rem;
+  line-height: 1.6;
   max-width: 80ch;
   margin: 0 auto 2rem;
 
@@ -22,6 +23,11 @@
     margin-block-end: 2rem;
   }
 
+  /* TODO: This should have a specific class added to the report */
+  & h1 + div > p:first-child {
+    font-size: 1.25rem;
+  }
+
   & ul {
     list-style-type: disc;
     padding-inline-start: 1.5rem;
@@ -36,9 +42,61 @@
     }
   }
 
-  /* TODO: This should have a specific class added to the report */
-  & p:first-child {
-    font-size: 1.25rem;
+  & .overflow-wrapper {
+    background-color: var(--color-gray-50);
+    border: 1px solid var(--color-gray-200);
+    padding: 0 1rem;
+    margin-block-end: 1rem;
+  }
+
+  & table {
+    background-color: var(--color-gray-50);
+    font-size: 1rem;
+    position: relative;
+    width: 100%;
+    border-collapse: collapse;
+
+    & th {
+      text-align: left;
+    }
+
+    & tr {
+      background-color: transparent;
+      position: relative;
+
+      &:before {
+        content: "";
+        left: -1rem;
+        right: -1rem;
+        width: calc(100% + 2rem);
+        top: 0;
+        bottom: 0;
+        position: absolute;
+        z-index: 1;
+      }
+
+      &:nth-child(odd):before {
+        background-color: var(--color-white);
+      }
+
+      &:nth-child(even):before {
+        background-color: var(--color-gray-100);
+      }
+
+      & * {
+        position: relative;
+        z-index: 2;
+      }
+    }
+
+    & thead tr:before {
+      background-color: var(--color-gray-100) !important;
+    }
+
+    & td,
+    & th {
+      padding: 0.25rem;
+    }
   }
 
   & a {
