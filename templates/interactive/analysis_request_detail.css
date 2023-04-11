@@ -4,7 +4,65 @@
   max-width: 80ch;
   margin: 0 auto 2rem;
 
-  & h1 {
+  /* TODO: This should be removed from the report */
+  & h1:first-child {
     display: none;
+  }
+
+  & h2 {
+    border-top: 1px solid var(--color-gray-200);
+    font-size: 1.75rem;
+    font-weight: 700;
+    line-height: 1.1;
+    margin: 2rem 0 1rem;
+    padding-block-start: 1rem;
+  }
+
+  & p {
+    margin-block-end: 2rem;
+  }
+
+  & ul {
+    list-style-type: disc;
+    padding-inline-start: 1.5rem;
+    margin: 0;
+
+    & li {
+      margin: 0 0 0.25rem;
+    }
+
+    & ul {
+      list-style-type: circle;
+    }
+  }
+
+  /* TODO: This should have a specific class added to the report */
+  & p:first-child {
+    font-size: 1.25rem;
+  }
+
+  & a {
+    background-color: transparent;
+    color: var(--color-oxford-600);
+    font-weight: 600;
+    text-decoration: underline;
+    text-decoration-color: var(--color-oxford-300);
+    text-underline-offset: 0.125rem;
+    transition-duration: 0.2s;
+    transition-property: background-color, color, text-decoration;
+    transition-timing-function: ease-in-out;
+
+    &:hover,
+    &:focus {
+      color: var(--oxford);
+      text-decoration-color: transparent;
+    }
+
+    &:focus {
+      background-color: var(--color-sun-300);
+      outline-color: var(--color-oxford-400);
+      margin: -0.125rem;
+      padding: 0.125rem;
+    }
   }
 }
