@@ -19,7 +19,6 @@ function Purpose() {
       "timeScale",
       "timeValue",
       "filterPopulation",
-      "demographics",
     ])
   ) {
     return <Redirect to="" />;

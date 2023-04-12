@@ -26,9 +26,8 @@ function FilterRequest() {
       .required("Select a filter for the population"),
     demographics: Yup.array()
       .of(Yup.string().oneOf(demographics.items.map((item) => item.value)))
-      .min(1)
-      .max(demographics.items.length)
-      .required(),
+      .min(0)
+      .max(demographics.items.length),
   });
 
   const initialValues = {
