@@ -1,96 +1,103 @@
 {% load humanize %}
 
-<div class="flow-root">
-  <div class="-my-2 -mx-4 overflow-x-auto sm:-mx-6 lg:-mx-8">
-    <div class="inline-block min-w-full py-2 align-middle sm:px-6 lg:px-8">
-      <table class="min-w-full divide-y divide-slate-300">
-        <thead>
-          <tr>
-            <th
-              scope="col"
-              class="whitespace-nowrap py-3.5 pl-4 pr-3 text-left text-sm font-semibold text-slate-900 sm:pl-0"
-            >
-              Status
-            </th>
-            <th
-              scope="col"
-              class="whitespace-nowrap px-2 py-3.5 text-left text-sm font-semibold text-slate-900"
-            >
-              Organisation
-            </th>
-            <th
-              scope="col"
-              class="whitespace-nowrap px-2 py-3.5 text-left text-sm font-semibold text-slate-900"
-            >
-              Project
-            </th>
-            <th
-              scope="col"
-              class="whitespace-nowrap px-2 py-3.5 text-left text-sm font-semibold text-slate-900"
-            >
-              User
-            </th>
-            <th
-              scope="col"
-              class="whitespace-nowrap px-2 py-3.5 text-left text-sm font-semibold text-slate-900"
-            >
-              Started
-            </th>
-            <th
-              scope="col"
-              class="relative whitespace-nowrap py-3.5 pl-3 pr-4 sm:pr-0"
-            >
-              <span class="sr-only">View</span>
-            </th>
-          </tr>
-        </thead>
-        <tbody class="divide-y divide-slate-200 bg-white">
-          {% for job_request in job_requests %}
-          <tr>
-            <td
-              class="whitespace-nowrap py-2 pl-4 pr-3 text-sm text-slate-700 sm:pl-0"
-              title="{{ job_request.status|title }}"
-            >
-              {% if job_request.status == "succeeded" %}
-                {% icon_check_circle_solid class="h-6 w-6 text-green-700" %}
-              {% elif job_request.status == "pending" %}
-                {% icon_clock_outline class="h-6 w-6 text-slate-500 stroke-2" %}
-              {% elif job_request.status == "running" %}
-                {% icon_custom_spinner class="h-6 w-6 animate-spin stroke-oxford-600 stroke-2 text-oxford-300" %}
-              {% elif job_request.status == "failed" %}
-                {% icon_x_circle_solid class="h-6 w-6 text-bn-ribbon-700" %}
-              {% endif %}
-              <span class="sr-only">{{ job_request.status|title }}</span>
-            </td>
-            <td class="whitespace-nowrap px-2 py-2 text-sm text-slate-700">
-              {{ job_request.workspace.project.org }}
-            </td>
-            <td class="whitespace-normal px-2 py-2 text-sm text-slate-700">
-              {{ job_request.workspace.project.name }}
-            </td>
-            <td class="whitespace-nowrap px-2 py-2 text-sm text-slate-700">
-              {{ job_request.created_by.name }}
-            </td>
-            <td class="whitespace-nowrap px-2 py-2 text-sm text-slate-700">
-              {% if job_request.started_at %}
-                {{ job_request.started_at|naturaltime }}
-              {% else %}
-                Pending
-              {% endif %}
-            </td>
-            <td
-              class="relative whitespace-nowrap py-2 pl-3 pr-4 text-right text-sm font-medium sm:pr-0"
-            >
-              <a
-                href="{{ job_request.get_absolute_url }}"
-                class="text-oxford-600 hover:text-oxford-900"
-                >View<span class="sr-only">, Job request {{ job_request.id }}</span></a
-              >
-            </td>
-          </tr>
-          {% endfor %}
-        </tbody>
-      </table>
+{% url "job-list" as job_list_url %}
+<div id="events" class="max-w-[1500px] w-full mx-auto">
+  {% #card class="mx-4" no_container=True title="Latest job requests" subtitle="Most recent job requests on the OpenSAFELY platform" button=True button_text="View all job requests" button_href=job_list_url %}
+    <div class="overflow-hidden px-4 py-2 border-t border-slate-200 md:px-6">
+      <div class="flow-root">
+        <div class="-my-2 -mx-4 overflow-x-auto sm:-mx-6 lg:-mx-8">
+          <div class="inline-block min-w-full py-2 align-middle sm:px-6 lg:px-8">
+            <table class="min-w-full divide-y divide-slate-300">
+              <thead>
+                <tr>
+                  <th
+                    scope="col"
+                    class="whitespace-nowrap py-3.5 pl-4 pr-3 text-left text-sm font-semibold text-slate-900 sm:pl-0"
+                  >
+                    Status
+                  </th>
+                  <th
+                    scope="col"
+                    class="whitespace-nowrap px-2 py-3.5 text-left text-sm font-semibold text-slate-900"
+                  >
+                    Organisation
+                  </th>
+                  <th
+                    scope="col"
+                    class="whitespace-nowrap px-2 py-3.5 text-left text-sm font-semibold text-slate-900"
+                  >
+                    Project
+                  </th>
+                  <th
+                    scope="col"
+                    class="whitespace-nowrap px-2 py-3.5 text-left text-sm font-semibold text-slate-900"
+                  >
+                    User
+                  </th>
+                  <th
+                    scope="col"
+                    class="whitespace-nowrap px-2 py-3.5 text-left text-sm font-semibold text-slate-900"
+                  >
+                    Started
+                  </th>
+                  <th
+                    scope="col"
+                    class="relative whitespace-nowrap py-3.5 pl-3 pr-4 sm:pr-0"
+                  >
+                    <span class="sr-only">View</span>
+                  </th>
+                </tr>
+              </thead>
+              <tbody class="divide-y divide-slate-200 bg-white">
+                {% for job_request in job_requests %}
+                <tr>
+                  <td
+                    class="whitespace-nowrap py-2 pl-4 pr-3 text-sm text-slate-700 sm:pl-0"
+                    title="{{ job_request.status|title }}"
+                  >
+                    {% if job_request.status == "succeeded" %}
+                      {% icon_check_circle_solid class="h-6 w-6 text-green-700" %}
+                    {% elif job_request.status == "pending" %}
+                      {% icon_clock_outline class="h-6 w-6 text-slate-500 stroke-2" %}
+                    {% elif job_request.status == "running" %}
+                      {% icon_custom_spinner class="h-6 w-6 animate-spin stroke-oxford-600 stroke-2 text-oxford-300" %}
+                    {% elif job_request.status == "failed" %}
+                      {% icon_x_circle_solid class="h-6 w-6 text-bn-ribbon-700" %}
+                    {% endif %}
+                    <span class="sr-only">{{ job_request.status|title }}</span>
+                  </td>
+                  <td class="whitespace-nowrap px-2 py-2 text-sm text-slate-700">
+                    {{ job_request.workspace.project.org }}
+                  </td>
+                  <td class="whitespace-normal px-2 py-2 text-sm text-slate-700">
+                    {{ job_request.workspace.project.name }}
+                  </td>
+                  <td class="whitespace-nowrap px-2 py-2 text-sm text-slate-700">
+                    {{ job_request.created_by.name }}
+                  </td>
+                  <td class="whitespace-nowrap px-2 py-2 text-sm text-slate-700">
+                    {% if job_request.started_at %}
+                      {{ job_request.started_at|naturaltime }}
+                    {% else %}
+                      Pending
+                    {% endif %}
+                  </td>
+                  <td
+                    class="relative whitespace-nowrap py-2 pl-3 pr-4 text-right text-sm font-medium sm:pr-0"
+                  >
+                    <a
+                      href="{{ job_request.get_absolute_url }}"
+                      class="text-oxford-600 hover:text-oxford-900"
+                      >View<span class="sr-only">, Job request {{ job_request.id }}</span></a
+                    >
+                  </td>
+                </tr>
+                {% endfor %}
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </div>
     </div>
-  </div>
+  {% /card %}
 </div>
