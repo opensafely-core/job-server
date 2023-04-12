@@ -1,3 +1,6 @@
+{% extends "emails/base.txt" %}
+
+{% block content %}
 {{ action }} in workspace {{ workspace }} {{ status }} {% if elapsed_time %} after {{ elapsed_time }} seconds {% endif %}with the following message:
 
 {{ status_message }}
@@ -5,3 +8,4 @@
 You can view the Job here:
 
 {{ url }}
+{% endblock content %}

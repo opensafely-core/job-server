@@ -1,12 +1,12 @@
-{% extends "emails/base.txt" %}
+{% extends "emails/base.html" %}
 
 {% block content %}
-Hello workspace creator,
+<p>Hello workspace creator,</p>
 
+<p>
 The repository, {{ repo.name }}, has been signed off by {{ repo.researcher_signed_off_by.name }}.
 It will now be reviewed by the OpenSAFELY team and if everything is in order we will mark the repo as public.
+</p>
 
-If you think this has been done in error, please email publications@opensafely.org
-
-The OpenSAFELY team
+<p>If you think this has been done in error, please email <a href="mailto:publications@opensafely.org">publications@opensafely.org</a></p>
 {% endblock content %}

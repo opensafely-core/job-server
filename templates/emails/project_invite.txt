@@ -1,5 +1,0 @@
-You have been invited to join the {{ project_name }} project on OpenSAFELY by {{ inviter_name }}.
-
-To accept the invite click the link below:
-
-{{ url }}

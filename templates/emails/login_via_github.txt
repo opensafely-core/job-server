@@ -1,3 +1,6 @@
+{% extends "emails/base.txt" %}
+
+{% block content %}
 We have received a request to log into OpenSAFELY for your account. If you think this was made in error please ignore this email.
 
 You registered with OpenSAFELY by using your GitHub account and can click the GitHub button on our login page next time you need to.
@@ -5,3 +8,4 @@ You registered with OpenSAFELY by using your GitHub account and can click the Gi
 Please use the link below to take you to the login page directly.
 
 {{ url }}
+{% endblock content %}
