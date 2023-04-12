@@ -45,6 +45,7 @@ class AnalysisRequestCreate(View):
             filter_population=raw.get("filterPopulation", ""),
             purpose=raw.get("purpose", ""),
             repo=project.interactive_workspace.repo.url,
+            time_ever=raw.get("timeEver", False),
             time_scale=raw.get("timeScale", ""),
             time_value=int(raw.get("timeValue", 0)),
             title=raw.get("title", ""),

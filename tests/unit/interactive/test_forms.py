@@ -92,3 +92,26 @@ def test_analysisrequestform_time_value_validation_success(time_scale, time_valu
     form = AnalysisRequestForm(data=data, codelists=codelists)
 
     assert form.is_valid(), form.errors
+
+
+def test_analysisrequestform_with_time_ever_and_duration():
+    api = FakeOpenCodelistsAPI()
+    codelists = api.get_codelists("snomedct") + api.get_codelists("dmd")
+
+    data = {
+        "codelist_1_label": "Event Codelist",
+        "codelist_1_slug": "bennett/event-codelist/event123",
+        "codelist_1_type": "event",
+        "codelist_2_label": "Medication Codelist",
+        "codelist_2_slug": "bennett/event-codelist/event123",
+        "codelist_2_type": "medication",
+        "demographics": ["age"],
+        "filter_population": "adults",
+        "purpose": "For… science!",
+        "time_ever": "yes",
+        "time_scale": "weeks",
+        "time_value": "52",
+    }
+    form = AnalysisRequestForm(data=data, codelists=codelists)
+
+    assert not form.is_valid(), form.errors
