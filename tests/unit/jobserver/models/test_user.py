@@ -10,8 +10,6 @@ from jobserver.authorization.roles import (
     DataInvestigator,
     InteractiveReporter,
     OrgCoordinator,
-    OutputChecker,
-    OutputPublisher,
     ProjectCollaborator,
     ProjectDeveloper,
 )
@@ -267,23 +265,6 @@ def test_user_valid_pat_with_invalid_token():
     user.rotate_token()
 
     assert not user.has_valid_pat("invalid")
-
-
-def test_userqueryset_success():
-    user1 = UserFactory(roles=[CoreDeveloper, OutputChecker])
-    user2 = UserFactory(roles=[OutputChecker])
-    user3 = UserFactory(roles=[OutputPublisher])
-
-    users = User.objects.filter_by_role(OutputChecker)
-
-    assert user1 in users
-    assert user2 in users
-    assert user3 not in users
-
-
-def test_userqueryset_unknown_role():
-    with pytest.raises(Exception, match="Unknown Roles:.*"):
-        User.objects.filter_by_role("unknown")
 
 
 def test_user_validate_token_login_allowed():

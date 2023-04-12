@@ -14,7 +14,7 @@ from social_django.models import UserSocialAuth
 from interactive.commands import create_user
 from jobserver.authorization import roles
 from jobserver.authorization.decorators import require_permission
-from jobserver.authorization.utils import roles_for
+from jobserver.authorization.utils import roles_for, strings_to_roles
 from jobserver.emails import send_welcome_email
 from jobserver.models import Backend, Job, Org, Project, User
 from jobserver.utils import raise_if_not_int
@@ -242,7 +242,8 @@ class UserList(ListView):
             qs = qs.filter(orgs__slug=org)
 
         if role := self.request.GET.get("role"):
-            qs = qs.filter_by_role(role)
+            roles = strings_to_roles([role])
+            qs = qs.filter(roles__contains=roles)
 
         return qs
 
