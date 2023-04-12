@@ -26,10 +26,12 @@ function Purpose() {
 
   const validationSchema = Yup.object().shape({
     purpose: Yup.string().required("Write a purpose for this analysis"),
+    title: Yup.string().required("Write a title for this analysis"),
   });
 
   const initialValues = {
     purpose: formData.purpose || "",
+    title: formData.title || "",
   };
 
   return (
@@ -47,9 +49,24 @@ function Purpose() {
       {({ errors, isValid, touched }) => (
         <Form className="flex flex-col gap-y-4">
           <AlertForm />
-          <h1 className="text-4xl font-bold">
-            What is the purpose of this analysis?
-          </h1>
+          <h1 className="text-4xl font-bold">Analysis information</h1>
+
+          <Textarea
+            characterCount
+            className="mb-6"
+            hintText="We should provide some text here to explain"
+            id="title"
+            label="Provide a title for the analysis"
+            maxlength={60}
+            name="title"
+            required
+            resize={false}
+            rows={2}
+          />
+
+          {errors.title && touched.title ? (
+            <InputError>{errors.title}</InputError>
+          ) : null}
 
           <Textarea
             characterCount
@@ -63,6 +80,7 @@ function Purpose() {
           {errors.purpose && touched.purpose ? (
             <InputError>{errors.purpose}</InputError>
           ) : null}
+
           <div className="flex flex-row w-full gap-2 mt-4">
             <Button disabled={!isValid} type="submit">
               Next

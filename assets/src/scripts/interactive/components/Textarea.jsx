@@ -2,9 +2,12 @@ import { Field, useFormikContext } from "formik";
 import { bool, number, string } from "prop-types";
 import React, { useEffect, useState } from "react";
 import CharCount from "./CharCount";
+import HintText from "./HintText";
 
 function Textarea({
   characterCount,
+  className,
+  hintText,
   id,
   label,
   maxlength,
@@ -22,10 +25,11 @@ function Textarea({
   }, [textVal, id, setFieldValue]);
 
   return (
-    <div className="flex flex-col gap-y-3 text-lg leading-tight">
+    <div className={`flex flex-col gap-y-3 text-lg leading-tight ${className}`}>
       <label className="font-semibold tracking-tight" htmlFor={id}>
         {label}
       </label>
+      {hintText ? <HintText>{hintText}</HintText> : null}
       <Field
         as="textarea"
         className={`
@@ -52,7 +56,9 @@ function Textarea({
 export default Textarea;
 
 Textarea.defaultProps = {
+  className: null,
   characterCount: false,
+  hintText: null,
   maxlength: null,
   minlength: null,
   required: false,
@@ -61,6 +67,8 @@ Textarea.defaultProps = {
 
 Textarea.propTypes = {
   characterCount: bool,
+  className: string,
+  hintText: string,
   id: string.isRequired,
   label: string.isRequired,
   maxlength: number,
