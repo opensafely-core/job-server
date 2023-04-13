@@ -3,13 +3,13 @@
 {% block content %}
 Hi {{ name }},
 
-Thank you for your interest in OpenSAFELY.
+Thank you for your interest in OpenSAFELY Interactive.
 
-Please click on the link to finish setting up your account:
+Please click on the link to get started:
 
 {{ url }}
 
-Once you've setup your account, you'll be logged into to the website, {{ domain }}, and taken to the "Request an analysis" page where you can design and request your analysis.
+Clicking on the link will take you to the login page of {{ domain }}. You'll log in by requesting a one-time link, sent to your email address. Once you're logged in, you'll be taken to the "Request an analysis" page where you can design and request your Interactive analysis.
 
 Once your analysis has been run, we will send you an email with instructions on how to view the results.
 {% endblock content %}
