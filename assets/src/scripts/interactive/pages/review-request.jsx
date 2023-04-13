@@ -39,14 +39,14 @@ function ReviewRequest() {
     return {
       ...data,
       codelistA: {
-        label: codelistA?.label,
-        type: codelistA?.type,
-        value: codelistA?.value,
+        label: codelistA.label,
+        type: codelistA.type,
+        value: codelistA.value,
       },
       codelistB: {
-        label: codelistB?.label,
-        type: codelistB?.type,
-        value: codelistB?.value,
+        label: codelistB.label,
+        type: codelistB.type,
+        value: codelistB.value,
       },
       startDate: startISO.slice(0, 10),
       endDate: endISO.slice(0, 10),
