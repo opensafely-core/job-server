@@ -22,7 +22,8 @@ class AnalysisRequestForm(forms.Form):
                 "region",
                 "sex",
             ]
-        )
+        ),
+        required=False,
     )
     filter_population = forms.ChoiceField(
         choices=list_to_choices(["all", "adults", "children"])

@@ -26,7 +26,6 @@ function ReviewRequest() {
       "timeScale",
       "timeValue",
       "filterPopulation",
-      "demographics",
       "purpose",
     ])
   ) {
@@ -119,11 +118,18 @@ function ReviewRequest() {
             title="Break down the report by demographics"
           >
             <ul>
-              {formData.demographics?.map((selected) => (
-                <li key={selected}>
-                  {demographics.items.find((a) => a?.value === selected)?.label}
-                </li>
-              ))}
+              {formData.demographics.length ? (
+                formData.demographics?.map((selected) => (
+                  <li key={selected}>
+                    {
+                      demographics.items.find((a) => a?.value === selected)
+                        ?.label
+                    }
+                  </li>
+                ))
+              ) : (
+                <li>No demographics selected</li>
+              )}
             </ul>
           </ReviewLineItem>
 
