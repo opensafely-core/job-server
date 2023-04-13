@@ -38,7 +38,6 @@ function ReviewRequest() {
 
     return {
       ...data,
-      title: `${codelistA?.label} & ${codelistB?.label}`,
       codelistA: {
         label: codelistA?.label,
         type: codelistA?.type,
