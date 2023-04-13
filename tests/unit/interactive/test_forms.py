@@ -44,6 +44,27 @@ def test_analysisrequestform_success_with_two_codelists():
     assert form.is_valid(), form.errors
 
 
+def test_analysisrequestform_success_without_demogrpahics():
+    api = FakeOpenCodelistsAPI()
+    codelists = api.get_codelists("snomedct") + api.get_codelists("dmd")
+
+    data = {
+        "codelist_1_label": "Event Codelist",
+        "codelist_1_slug": "bennett/event-codelist/event123",
+        "codelist_1_type": "event",
+        "codelist_2_label": "Medication Codelist",
+        "codelist_2_slug": "bennett/event-codelist/event123",
+        "codelist_2_type": "medication",
+        "filter_population": "adults",
+        "purpose": "For… science!",
+        "time_scale": "months",
+        "time_value": "12",
+    }
+    form = AnalysisRequestForm(data=data, codelists=codelists)
+
+    assert form.is_valid(), form.errors
+
+
 @pytest.mark.parametrize(
     "time_scale,time_value", [("weeks", "600"), ("months", "200"), ("years", "17")]
 )
