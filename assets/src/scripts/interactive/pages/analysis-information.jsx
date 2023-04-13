@@ -8,7 +8,7 @@ import Textarea from "../components/Textarea";
 import { useFormData } from "../context";
 import { useRequiredFields } from "../utils";
 
-function Purpose() {
+function AnalysisInformation() {
   const [, navigate] = useLocation();
   const { formData, setFormData } = useFormData();
 
@@ -94,4 +94,4 @@ function Purpose() {
   );
 }
 
-export default Purpose;
+export default AnalysisInformation;

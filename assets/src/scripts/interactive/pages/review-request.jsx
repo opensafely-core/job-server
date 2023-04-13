@@ -134,7 +134,10 @@ function ReviewRequest() {
             )}
           </ReviewLineItem>
 
-          <ReviewLineItem page="purpose" title="Analysis information">
+          <ReviewLineItem
+            page="analysis-information"
+            title="Analysis information"
+          >
             <p className="mb-4">
               <strong>Title: </strong>
               <br />

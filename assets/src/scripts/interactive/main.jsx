@@ -3,12 +3,12 @@ import { createRoot } from "react-dom/client";
 import { Route, Router, Switch } from "wouter";
 import App from "./App";
 import { AppData, FormDataProvider } from "./context";
+import AnalysisInformation from "./pages/analysis-information";
 import QueryBuilder from "./pages/build-query";
 import FilterRequest from "./pages/filter-request";
 import FindCodelists from "./pages/find-codelists";
 import Glossary from "./pages/glossary";
 import PreviewRequest from "./pages/preview-request";
-import Purpose from "./pages/purpose";
 import ReviewRequest from "./pages/review-request";
 import { getAppData } from "./utils";
 import ScrollToTop from "./utils/scrollToTop";
@@ -29,7 +29,7 @@ const required = {
 };
 
 Object.entries(required).map(([key, value]) => {
-  if (!dataset[key]) throw new Error(`${value} not proivided`);
+  if (!dataset[key]) throw new Error(`${value} not provided`);
   return null;
 });
 
@@ -61,8 +61,8 @@ root.render(
               <Route path="filter-request">
                 <FilterRequest />
               </Route>
-              <Route path="purpose">
-                <Purpose />
+              <Route path="analysis-information">
+                <AnalysisInformation />
               </Route>
               <Route path="review-request">
                 <ReviewRequest />
