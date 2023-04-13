@@ -54,24 +54,26 @@ function Purpose() {
           <Textarea
             characterCount
             className="mb-6"
-            hintText="We should provide some text here to explain"
+            hintText="This title will be added to the top of your generated report. You will be able to change it later."
             id="title"
             label="Provide a title for the analysis"
-            maxlength={60}
+            maxlength={100}
             name="title"
+            placeholder={`For example: ${formData.codelistA.label} & ${formData.codelistB.label}`}
             required
             resize={false}
             rows={2}
-          />
-
-          {errors.title && touched.title ? (
-            <InputError>{errors.title}</InputError>
-          ) : null}
+          >
+            {errors.title && touched.title ? (
+              <InputError>{errors.title}</InputError>
+            ) : null}
+          </Textarea>
 
           <Textarea
             characterCount
+            hintText="It must be clear that this analysis request is aligned with your approvals. Please refer to the approved version of your project application form, which you were sent by email."
             id="purpose"
-            label="Describe the purpose of this analysis"
+            label="Explain why this analysis fits with the approved project purpose"
             maxlength={1000}
             name="purpose"
             required
