@@ -48,7 +48,6 @@ class AnalysisRequestCreate(View):
             time_ever=raw.get("timeEver", False),
             time_scale=raw.get("timeScale", ""),
             time_value=int(raw.get("timeValue", 0)),
-            title=raw.get("title", ""),
             start_date=START_DATE,
             end_date=END_DATE,
         )
@@ -94,11 +93,15 @@ class AnalysisRequestCreate(View):
         if not form.is_valid():
             return self.render_to_response(request, form=form)
 
+        title = f"{form.cleaned_data['codelist_1_label']} & {form.cleaned_data['codelist_2_label']}"
+
         analysis_request = submit_analysis(
             analysis=analysis,
             backend=Backend.objects.get(slug="tpp"),
             creator=request.user,
             project=self.project,
+            report_title=form.cleaned_data["report_title"],
+            title=title,
         )
 
         return redirect(analysis_request)

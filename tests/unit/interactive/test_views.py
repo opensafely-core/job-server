@@ -74,7 +74,6 @@ def test_analysisrequestcreate_post_success(rf, interactive_repo, add_codelist):
     add_codelist("bennett/medication-codelist/medication123")
 
     data = {
-        "title": "Event Codelist & Medication Codelist",
         "codelistA": {
             "label": "Event Codelist",
             "organisation": "NHSD Primary Care Domain Refsets",

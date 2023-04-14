@@ -93,7 +93,6 @@ def test_commit_and_push(build_repo, remote_repo, codelist_2, commit_message):
         time_ever=False,
         time_scale="",
         time_value=1,
-        title="",
     )
 
     (repo / "first.txt").write_text("testing")
@@ -165,7 +164,6 @@ def test_create_commit(remote_repo, add_codelist, force):
         time_ever=False,
         time_scale="",
         time_value=1,
-        title="",
     )
 
     sha, project_yaml = create_commit(
@@ -212,7 +210,6 @@ def test_submit_analysis(remote_repo, add_codelist):
         time_ever=False,
         time_scale="",
         time_value=1,
-        title="test",
     )
 
     analysis_request = submit_analysis(
@@ -220,6 +217,7 @@ def test_submit_analysis(remote_repo, add_codelist):
         backend=backend,
         creator=user,
         project=project,
+        title="analysis title",
     )
 
     assert analysis_request.created_by == user
@@ -227,7 +225,7 @@ def test_submit_analysis(remote_repo, add_codelist):
     assert analysis_request.project == project
     assert analysis_request.template_data["codelist_1"]["slug"] == "org/slug-a"
     assert analysis_request.template_data["codelist_2"]["slug"] == "org/slug-b"
-    assert analysis_request.title == "test"
+    assert analysis_request.title == "analysis title"
 
 
 def test_get_repo_with_token_returns_correct_url_with_token(monkeypatch):
