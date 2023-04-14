@@ -3,6 +3,8 @@ const path = require("path");
 
 module.exports = ({ env }) => ({
   plugins: {
+    "postcss-import": {},
+    "tailwindcss/nesting": "postcss-nesting",
     tailwindcss: {},
     autoprefixer: {},
     cssnano:

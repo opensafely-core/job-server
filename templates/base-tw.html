@@ -16,6 +16,10 @@
     <script type="module" nonce="{{ request.csp_nonce }}">
       document.documentElement.classList.remove('no-js');
       document.documentElement.classList.add('js');
+
+      window.addEventListener("load", () => {
+        document.body.classList.remove("preload");
+      });
     </script>
 
     {% vite_hmr_client %}
@@ -29,7 +33,7 @@
     <link rel="manifest" href="{% static 'manifest.webmanifest' %}">
   </head>
 
-  <body class="flex flex-col min-h-screen text-slate bg-white">
+  <body class="preload flex flex-col min-h-screen text-slate bg-white">
     {% skip_link %}
     {% header login_url=login_url nav=nav user=user request=request user_can_view_staff_area=user_can_view_staff_area %}
 
