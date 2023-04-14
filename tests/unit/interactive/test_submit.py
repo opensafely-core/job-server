@@ -89,7 +89,6 @@ def test_commit_and_push(build_repo, remote_repo, codelist_2, commit_message):
         filter_population="",
         repo=repo,
         id=pk,
-        purpose="",
         time_ever=False,
         time_scale="",
         time_value=1,
@@ -160,7 +159,6 @@ def test_create_commit(remote_repo, add_codelist, force):
         filter_population="",
         repo=str(remote_repo),
         id=pk,
-        purpose="",
         time_ever=False,
         time_scale="",
         time_value=1,
@@ -205,7 +203,6 @@ def test_submit_analysis(remote_repo, add_codelist):
         created_by=user.email,
         demographics=[],
         filter_population="",
-        purpose="test",
         repo=str(remote_repo),
         time_ever=False,
         time_scale="",
@@ -217,6 +214,7 @@ def test_submit_analysis(remote_repo, add_codelist):
         backend=backend,
         creator=user,
         project=project,
+        purpose="test",
         report_title="report title",
         title="analysis title",
     )
@@ -226,6 +224,7 @@ def test_submit_analysis(remote_repo, add_codelist):
     assert analysis_request.project == project
     assert analysis_request.template_data["codelist_1"]["slug"] == "org/slug-a"
     assert analysis_request.template_data["codelist_2"]["slug"] == "org/slug-b"
+    assert analysis_request.purpose == "test"
     assert analysis_request.report_title == "report title"
     assert analysis_request.title == "analysis title"
 

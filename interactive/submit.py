@@ -25,6 +25,7 @@ def submit_analysis(
     backend,
     creator,
     project,
+    purpose,
     report_title,
     title,
     force=False,
@@ -44,7 +45,7 @@ def submit_analysis(
         created_by=creator,
         updated_by=creator,
         title=title,
-        purpose=analysis.purpose,
+        purpose=purpose,
         report_title=report_title,
         template_data=asdict(analysis),
     )
