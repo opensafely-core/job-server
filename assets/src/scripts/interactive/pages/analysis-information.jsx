@@ -54,7 +54,7 @@ function AnalysisInformation() {
           <Textarea
             characterCount
             className="mb-6"
-            hintText="This title will be added to the top of your generated report. You will be able to change it later."
+            hintText="The title will be shown at the top of the generated report. It should provide a short summary to anyone reading the report about what the analysis shows. For example: 'How the COVID-19 pandemic has affected the number of rescue packs being prescribed for COPD patients'.  You will be able to change this after the report is generated."
             id="title"
             label="Provide a title for the analysis"
             maxlength={100}
