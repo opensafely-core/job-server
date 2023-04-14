@@ -282,6 +282,7 @@
           {% for analysis in analyses %}
           {% #list_group_item href=analysis.get_absolute_url %}
             {{ analysis.title }}
+            {% pill class="ml-2" text=analysis.job_request.status variant=analysis.job_request.status|match:"pending:info,running:primary,succeeded:success,failed:danger"|default:"info" %}
           {% /list_group_item %}
           {% empty %}
           {% list_group_empty description="No analyses requested for this workspace" %}

@@ -311,9 +311,11 @@ class WorkspaceDetail(View):
         outputs = self.get_output_permissions(request.user, workspace)
 
         if is_interactive_user:
-            analyses = AnalysisRequest.objects.filter(
-                job_request__workspace=workspace
-            ).order_by("-created_at")[:5]
+            analyses = (
+                AnalysisRequest.objects.filter(job_request__workspace=workspace)
+                .prefetch_related("job_request__jobs")
+                .order_by("-created_at")[:5]
+            )
         else:
             analyses = []
 
