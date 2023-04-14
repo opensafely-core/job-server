@@ -5,24 +5,7 @@ from interactive.forms import AnalysisRequestForm
 from ...fakes import FakeOpenCodelistsAPI
 
 
-def test_analysisrequestform_success_with_one_codelists():
-    api = FakeOpenCodelistsAPI()
-    codelists = api.get_codelists("snomedct") + api.get_codelists("dmd")
-
-    data = {
-        "codelist_1_label": "Event Codelist",
-        "codelist_1_slug": "bennett/event-codelist/event123",
-        "codelist_1_type": "event",
-        "demographics": ["age"],
-        "filter_population": "adults",
-        "purpose": "For… science!",
-    }
-    form = AnalysisRequestForm(data=data, codelists=codelists)
-
-    assert form.is_valid(), form.errors
-
-
-def test_analysisrequestform_success_with_two_codelists():
+def test_analysisrequestform_success():
     api = FakeOpenCodelistsAPI()
     codelists = api.get_codelists("snomedct") + api.get_codelists("dmd")
 

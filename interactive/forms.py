@@ -43,40 +43,28 @@ class AnalysisRequestForm(forms.Form):
         self.fields["codelist_1_label"] = forms.ChoiceField(choices=choices("name"))
         self.fields["codelist_1_slug"] = forms.ChoiceField(choices=choices("slug"))
 
-        self.has_codelist_2 = any(
-            [
-                "codelist_2_label" in kwargs.get("data", {}),
-                "codelist_2_slug" in kwargs.get("data", {}),
-            ]
-        )
-
-        if self.has_codelist_2:
-            self.fields["codelist_2_label"] = forms.ChoiceField(choices=choices("name"))
-            self.fields["codelist_2_slug"] = forms.ChoiceField(choices=choices("slug"))
-            self.fields["time_scale"].required = True
-            self.fields["time_value"].required = True
+        self.fields["codelist_2_label"] = forms.ChoiceField(choices=choices("name"))
+        self.fields["codelist_2_slug"] = forms.ChoiceField(choices=choices("slug"))
 
     def clean(self):
         cleaned_data = super().clean()
 
-        if not self.has_codelist_2:
-            return
-
-        time_ever = cleaned_data["time_ever"]
-        time_scale = cleaned_data["time_scale"]
-        time_value = cleaned_data["time_value"]
+        time_ever = cleaned_data.get("time_ever")
+        time_scale = cleaned_data.get("time_scale")
+        time_value = cleaned_data.get("time_value")
 
         if time_ever and (time_scale or time_value):
             raise forms.ValidationError(
                 "Time ever cannot be set with either time scale or value"
             )
 
-        # time_value must be less than 10 years but it's paired with time_scale
-        # so we have to check it for each of the choices of that field.
+        if time_scale and time_value:
+            # time_value must be less than 10 years but it's paired with time_scale
+            # so we have to check it for each of the choices of that field.
 
-        weeks_over = time_scale == "weeks" and time_value > 520
-        months_over = time_scale == "months" and time_value > 120
-        years_over = time_scale == "years" and time_value > 10
+            weeks_over = time_scale == "weeks" and time_value > 520
+            months_over = time_scale == "months" and time_value > 120
+            years_over = time_scale == "years" and time_value > 10
 
-        if any([weeks_over, months_over, years_over]):
-            raise forms.ValidationError("Time scale cannot be longer than 10 years")
+            if any([weeks_over, months_over, years_over]):
+                raise forms.ValidationError("Time scale cannot be longer than 10 years")
