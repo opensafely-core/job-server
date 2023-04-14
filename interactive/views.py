@@ -1,6 +1,5 @@
 import json
 
-from attrs import asdict
 from django.core.exceptions import PermissionDenied
 from django.shortcuts import get_object_or_404, redirect
 from django.template.response import TemplateResponse
@@ -19,35 +18,52 @@ from .opencodelists import _get_opencodelists_api
 from .submit import submit_analysis
 
 
-def build_codelist(data):
-    if data is None:
-        return
-
+def build_codelist(data, prefix):
     return Codelist(
-        label=data.get("label", ""),
-        slug=data.get("value", ""),
-        type=data.get("type", ""),
+        label=data.get(f"{prefix}_label", ""),
+        slug=data.get(f"{prefix}_slug", ""),
+        type=data.get(f"{prefix}_type", ""),
     )
 
 
+def from_codelist(data, key, sub_key):
+    """
+    Get subkey values from the given data dict
+
+    Codelist data is submitted as a dict but we need to flatten that
+    out to use with our form fields.  This function mirrors what an
+    HTML form's POST data would look like if we had submitted it that
+    way so we can pass that into the form to be validated.
+    """
+    try:
+        codelist = data[key]
+    except KeyError:
+        return ""
+
+    try:
+        return codelist[sub_key]
+    except KeyError:
+        return ""
+
+
 class AnalysisRequestCreate(View):
-    form_class = AnalysisRequestForm
     get_opencodelists_api = staticmethod(_get_opencodelists_api)
 
-    def build_analysis(self, *, form_data, project):
-        raw = json.loads(form_data)
+    def build_analysis(self, *, data, project):
+        codelist_1 = build_codelist(data, "codelist_1")
+        codelist_2 = build_codelist(data, "codelist_2")
 
         return v2.Analysis(
-            codelist_1=build_codelist(raw.get("codelistA", None)),
-            codelist_2=build_codelist(raw.get("codelistB", None)),
+            codelist_1=codelist_1,
+            codelist_2=codelist_2,
             created_by=self.request.user.email,
-            demographics=raw.get("demographics", []),
-            filter_population=raw.get("filterPopulation", ""),
-            purpose=raw.get("purpose", ""),
+            demographics=data["demographics"],
+            filter_population=data["filter_population"],
+            purpose=data["purpose"],
             repo=project.interactive_workspace.repo.url,
-            time_ever=raw.get("timeEver", False),
-            time_scale=raw.get("timeScale", ""),
-            time_value=int(raw.get("timeValue", 0)),
+            time_ever=data["time_ever"],
+            time_scale=data["time_scale"],
+            time_value=data["time_value"],
             start_date=START_DATE,
             end_date=END_DATE,
         )
@@ -78,21 +94,44 @@ class AnalysisRequestCreate(View):
     def get(self, request, *args, **kwargs):
         return self.render_to_response(request)
 
-    def post(self, request, *args, **kwargs):
-        # we're posting the form data as JSON so we need to pull that from the
-        # request body
-        analysis = self.build_analysis(
-            form_data=self.request.body, project=self.project
+    def get_form(self, data):
+        """
+        Translate the incoming JSON data and instantiate our form with it
+
+        We reshape the given data for validation by our form here.  Django
+        forms are designed to work with form data but we're validating a JSON
+        structure, with sub-keys, etc in it which we need to flatten out for
+        the form.
+        """
+
+        data = {
+            "codelist_1_label": from_codelist(data, "codelistA", "label"),
+            "codelist_1_slug": from_codelist(data, "codelistA", "value"),
+            "codelist_1_type": from_codelist(data, "codelistA", "type"),
+            "codelist_2_label": from_codelist(data, "codelistB", "label"),
+            "codelist_2_slug": from_codelist(data, "codelistB", "value"),
+            "codelist_2_type": from_codelist(data, "codelistA", "type"),
+            "demographics": data.get("demographics", ""),
+            "filter_population": data.get("filterPopulation", ""),
+            "purpose": data.get("purpose", ""),
+            "time_ever": data.get("timeEver", ""),
+            "time_scale": data.get("timeScale", ""),
+            "time_value": data.get("timeValue", ""),
+            "project": self.project,
+        }
+
+        return AnalysisRequestForm(
+            codelists=self.events + self.medications,
+            data=data,
         )
 
-        form = AnalysisRequestForm(
-            codelists=self.events + self.medications,
-            data=self.translate_for_form(asdict(analysis)),
-        )
+    def post(self, request, *args, **kwargs):
+        form = self.get_form(json.loads(self.request.body))
 
         if not form.is_valid():
             return self.render_to_response(request, form=form)
 
+        analysis = self.build_analysis(data=form.cleaned_data, project=self.project)
         title = f"{form.cleaned_data['codelist_1_label']} & {form.cleaned_data['codelist_2_label']}"
 
         analysis_request = submit_analysis(
@@ -132,29 +171,6 @@ class AnalysisRequestCreate(View):
             template="interactive/analysis_request_create.html",
             context=context,
         )
-
-    def translate_for_form(self, data):
-        """
-        Reshape the given data for validation by a Django Form
-
-        Django forms are designed to work with form data but we're validating
-        a JSON structure, with sub-keys, etc in it which we need to flatten out
-        for the form.
-        """
-
-        def flatten(key, data):
-            old = data.pop(key)
-            if old is None:
-                return data
-
-            new = {f"{key}_{k}": v for k, v in old.items()}
-
-            return data | new
-
-        data = flatten("codelist_1", data)
-        data = flatten("codelist_2", data)
-
-        return data
 
 
 class AnalysisRequestDetail(DetailView):

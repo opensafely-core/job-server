@@ -5,7 +5,11 @@ from django.core.exceptions import PermissionDenied
 
 from interactive.dates import END_DATE, START_DATE
 from interactive.models import AnalysisRequest
-from interactive.views import AnalysisRequestCreate, AnalysisRequestDetail
+from interactive.views import (
+    AnalysisRequestCreate,
+    AnalysisRequestDetail,
+    from_codelist,
+)
 from jobserver.authorization import InteractiveReporter
 
 from ...factories import (
@@ -189,3 +193,14 @@ def test_analysisrequestdetail_with_no_interactivereporter_role(rf):
             project_slug=analysis_request.project.slug,
             slug=analysis_request.slug,
         )
+
+
+def test_from_codelist():
+    data = {
+        "first": {
+            "inner": "value",
+        },
+        "second": {},
+    }
+    assert from_codelist(data, "first", "inner") == "value"
+    assert from_codelist(data, "second", "inner") == ""

@@ -11,6 +11,12 @@ def field_to_choices(codelists, field):
     return [(c[field], "") for c in codelists]
 
 
+codelist_type_choices = [
+    ("event", "Event"),
+    ("medication", "Medication"),
+]
+
+
 class AnalysisRequestForm(forms.Form):
     purpose = forms.CharField()
     demographics = forms.MultipleChoiceField(
@@ -42,9 +48,15 @@ class AnalysisRequestForm(forms.Form):
 
         self.fields["codelist_1_label"] = forms.ChoiceField(choices=choices("name"))
         self.fields["codelist_1_slug"] = forms.ChoiceField(choices=choices("slug"))
+        self.fields["codelist_1_type"] = forms.ChoiceField(
+            choices=codelist_type_choices
+        )
 
         self.fields["codelist_2_label"] = forms.ChoiceField(choices=choices("name"))
         self.fields["codelist_2_slug"] = forms.ChoiceField(choices=choices("slug"))
+        self.fields["codelist_2_type"] = forms.ChoiceField(
+            choices=codelist_type_choices
+        )
 
     def clean(self):
         cleaned_data = super().clean()
