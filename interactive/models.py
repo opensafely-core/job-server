@@ -35,6 +35,10 @@ class AnalysisRequest(models.Model):
     slug = models.SlugField(max_length=255, unique=True)
     purpose = models.TextField()
 
+    # we capture this in the form before the analysis is run so we know what to
+    # set report.title to when automatically generating that.
+    report_title = models.TextField()
+
     # store the analysis-specific templating context here.  The schema of this
     # data could entirely change between version or analysis.
     template_data = models.JSONField(default=dict)

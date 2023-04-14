@@ -19,6 +19,7 @@ def test_analysisrequestform_success():
         "demographics": ["age"],
         "filter_population": "adults",
         "purpose": "For… science!",
+        "report_title": "Report on science",
         "time_scale": "months",
         "time_value": "12",
     }
@@ -40,6 +41,7 @@ def test_analysisrequestform_success_without_demogrpahics():
         "codelist_2_type": "medication",
         "filter_population": "adults",
         "purpose": "For… science!",
+        "report_title": "Report on science",
         "time_scale": "months",
         "time_value": "12",
     }
@@ -65,6 +67,7 @@ def test_analysisrequestform_time_value_validation_failure(time_scale, time_valu
         "demographics": ["age"],
         "filter_population": "adults",
         "purpose": "For… science!",
+        "report_title": "Report on science",
         "time_scale": time_scale,
         "time_value": time_value,
     }
@@ -90,6 +93,7 @@ def test_analysisrequestform_time_value_validation_success(time_scale, time_valu
         "demographics": ["age"],
         "filter_population": "adults",
         "purpose": "For… science!",
+        "report_title": "Report on science",
         "time_scale": time_scale,
         "time_value": time_value,
     }
@@ -112,6 +116,7 @@ def test_analysisrequestform_with_time_ever_and_duration():
         "demographics": ["age"],
         "filter_population": "adults",
         "purpose": "For… science!",
+        "report_title": "Report on science",
         "time_ever": "yes",
         "time_scale": "weeks",
         "time_value": "52",

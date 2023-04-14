@@ -34,6 +34,7 @@ class AnalysisRequestForm(forms.Form):
     filter_population = forms.ChoiceField(
         choices=list_to_choices(["all", "adults", "children"])
     )
+    report_title = forms.CharField()
     time_ever = forms.BooleanField(required=False)
     time_scale = forms.ChoiceField(
         choices=list_to_choices(["weeks", "months", "years"]), required=False

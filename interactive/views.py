@@ -114,6 +114,7 @@ class AnalysisRequestCreate(View):
             "demographics": data.get("demographics", ""),
             "filter_population": data.get("filterPopulation", ""),
             "purpose": data.get("purpose", ""),
+            "report_title": data.get("title", ""),
             "time_ever": data.get("timeEver", ""),
             "time_scale": data.get("timeScale", ""),
             "time_value": data.get("timeValue", ""),

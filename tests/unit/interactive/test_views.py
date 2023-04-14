@@ -93,6 +93,7 @@ def test_analysisrequestcreate_post_success(rf, interactive_repo, add_codelist):
         "demographics": ["age"],
         "filterPopulation": "adults",
         "purpose": "For… science!",
+        "title": "Report on science",
         "timeEvent": "before",
         "timeScale": "months",
         "timeValue": "12",

@@ -217,6 +217,7 @@ def test_submit_analysis(remote_repo, add_codelist):
         backend=backend,
         creator=user,
         project=project,
+        report_title="report title",
         title="analysis title",
     )
 
@@ -225,6 +226,7 @@ def test_submit_analysis(remote_repo, add_codelist):
     assert analysis_request.project == project
     assert analysis_request.template_data["codelist_1"]["slug"] == "org/slug-a"
     assert analysis_request.template_data["codelist_2"]["slug"] == "org/slug-b"
+    assert analysis_request.report_title == "report title"
     assert analysis_request.title == "analysis title"
 
 
