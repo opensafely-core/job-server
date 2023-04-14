@@ -59,7 +59,6 @@ class AnalysisRequestCreate(View):
             created_by=self.request.user.email,
             demographics=data["demographics"],
             filter_population=data["filter_population"],
-            purpose=data["purpose"],
             repo=project.interactive_workspace.repo.url,
             time_ever=data["time_ever"],
             time_scale=data["time_scale"],
@@ -140,6 +139,7 @@ class AnalysisRequestCreate(View):
             backend=Backend.objects.get(slug="tpp"),
             creator=request.user,
             project=self.project,
+            purpose=form.cleaned_data["purpose"],
             report_title=form.cleaned_data["report_title"],
             title=title,
         )
