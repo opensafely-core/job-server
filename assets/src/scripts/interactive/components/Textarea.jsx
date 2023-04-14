@@ -1,14 +1,19 @@
 import { Field, useFormikContext } from "formik";
-import { bool, number, string } from "prop-types";
+import { bool, node, number, string } from "prop-types";
 import React, { useEffect, useState } from "react";
 import CharCount from "./CharCount";
+import HintText from "./HintText";
 
 function Textarea({
   characterCount,
+  children,
+  className,
+  hintText,
   id,
   label,
   maxlength,
   minlength,
+  placeholder,
   name,
   resize,
   rows,
@@ -22,10 +27,11 @@ function Textarea({
   }, [textVal, id, setFieldValue]);
 
   return (
-    <div className="flex flex-col gap-y-3 text-lg leading-tight">
+    <div className={`flex flex-col gap-y-3 text-lg leading-tight ${className}`}>
       <label className="font-semibold tracking-tight" htmlFor={id}>
         {label}
       </label>
+      {hintText ? <HintText>{hintText}</HintText> : null}
       <Field
         as="textarea"
         className={`
@@ -38,6 +44,7 @@ function Textarea({
         minLength={minlength}
         name={name}
         onChange={(e) => setTextVal(e.target.value)}
+        placeholder={placeholder}
         required={required}
         rows={rows}
         value={textVal}
@@ -45,6 +52,7 @@ function Textarea({
       {characterCount && (minlength || maxlength) ? (
         <CharCount current={textVal.length} max={maxlength} min={minlength} />
       ) : null}
+      {children}
     </div>
   );
 }
@@ -52,20 +60,28 @@ function Textarea({
 export default Textarea;
 
 Textarea.defaultProps = {
+  className: null,
+  children: null,
   characterCount: false,
+  hintText: null,
   maxlength: null,
   minlength: null,
+  placeholder: null,
   required: false,
   rows: 8,
 };
 
 Textarea.propTypes = {
   characterCount: bool,
+  children: node,
+  className: string,
+  hintText: string,
   id: string.isRequired,
   label: string.isRequired,
   maxlength: number,
   minlength: number,
   name: string.isRequired,
+  placeholder: string,
   required: bool,
   resize: bool.isRequired,
   rows: number,

@@ -41,7 +41,7 @@ function FilterRequest() {
       onSubmit={(values, actions) => {
         actions.validateForm().then(() => {
           setFormData({ ...formData, ...values });
-          navigate("purpose");
+          navigate("analysis-information");
         });
       }}
       validateOnMount
