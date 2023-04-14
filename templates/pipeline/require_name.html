@@ -1,0 +1,27 @@
+{% extends "base-tw.html" %}
+
+{% block metatitle %}Enter your name | OpenSAFELY Jobs{% endblock metatitle %}
+
+{% block breadcrumbs %}
+  {% url "home" as home_url %}
+
+  {% #breadcrumbs %}
+    {% breadcrumb title="Home" url=home_url %}
+    {% breadcrumb title="Enter your name" active=True %}
+  {% /breadcrumbs %}
+{% endblock breadcrumbs %}
+
+{% block content %}
+<section class="flex flex-col max-w-2xl gap-y-4">
+  {% #card title="Enter your name" subtitle="Please enter your name so we can continue the login process" container=True class="md:col-span-2" %}
+    <form action="{% url "social:complete" backend=partial.backend_name %}" class="gap-2 flex-wrap md:flex-nowrap" method="POST">
+      {% csrf_token %}
+
+      {% form_input field=form.name label="Name" required=True class="mb-3" placeholder="Your name" input_class="max-w-md" %}
+
+      {% #button type="submit" variant="primary" %}Save{% /button %}
+    </form>
+  {% /card %}
+
+</section>
+{% endblock content %}

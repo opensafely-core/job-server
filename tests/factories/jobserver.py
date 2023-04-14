@@ -4,7 +4,7 @@ import factory
 import factory.fuzzy
 from opentelemetry import trace
 from opentelemetry.trace.propagation.tracecontext import TraceContextTextMapPropagator
-from social_django.models import UserSocialAuth
+from social_django.models import Partial, UserSocialAuth
 
 from jobserver.models import (
     Backend,
@@ -156,3 +156,10 @@ class WorkspaceFactory(factory.django.DjangoModelFactory):
     updated_by = factory.SubFactory("tests.factories.UserFactory")
 
     name = factory.Sequence(lambda n: f"workspace-{n}")
+
+
+class PartialFactory(factory.django.DjangoModelFactory):
+    class Meta:
+        model = Partial
+
+    token = factory.Sequence(lambda n: f"token-{n}")
