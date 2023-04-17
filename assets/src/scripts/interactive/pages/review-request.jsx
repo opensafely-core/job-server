@@ -81,7 +81,7 @@ function ReviewRequest() {
   const timeStatement =
     formData.timeOption === anyTimeQuery
       ? anyTimeQuery
-      : `${formData.timeValue} ${formData.timeScale} ${timeQuery}`;
+      : `up to ${formData.timeValue} ${formData.timeScale} ${timeQuery}`;
 
   return (
     <>

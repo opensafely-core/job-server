@@ -3,7 +3,9 @@ import { Redirect, useLocation } from "wouter";
 // import * as Yup from "yup";
 import { AlertForm } from "../components/Alert";
 import Button from "../components/Button";
+import Fieldset from "../components/Fieldset";
 import InputError from "../components/InputError";
+import RadioButton from "../components/RadioButton";
 import { SelectContainer } from "../components/Select";
 import { useAppData, useFormData } from "../context";
 import { builderTimeScales } from "../data/form-fields";
@@ -142,81 +144,77 @@ function QueryBuilder() {
               </span>
             </p>
 
-            <fieldset>
-              <legend className="sr-only">Select a time scale</legend>
-              <label htmlFor="timeHasValue">
+            <Fieldset hideLegend legend="Select a time scale">
+              <RadioButton
+                id="timeHasValue"
+                labelClassName="flex flex-row gap-1 items-center mt-2"
+                name="timeOption"
+                type="radio"
+                value={timeStatement(values)}
+              >
+                up to
                 <Field
-                  id="timeHasValue"
-                  name="timeOption"
-                  type="radio"
-                  value={timeStatement(values)}
+                  className={classNames(
+                    "inline-flex w-[6ch] relative rounded-md border-gray-400 border-2 bg-white p-1 shadow-sm"
+                  )}
+                  inputMode="numeric"
+                  max="52"
+                  min="0"
+                  name="timeValue"
+                  onChange={(e) => {
+                    validateField("timeValue");
+                    setFieldTouched("timeValue");
+                    setFieldValue("timeValue", e.target.value);
+
+                    setFieldTouched("timeOption");
+                    setFieldValue(
+                      "timeOption",
+                      timeStatement({
+                        timeValue: e.target.value,
+                        timeScale: values.timeScale,
+                      })
+                    );
+                  }}
+                  type="text"
                 />
-                <div>
-                  <span>up to</span>
-                  <Field
-                    className={classNames(
-                      "inline-flex w-[6ch] relative rounded-md border-gray-400 border-2 bg-white p-1 shadow-sm"
-                    )}
-                    inputMode="numeric"
-                    max="52"
-                    min="0"
-                    name="timeValue"
-                    onChange={(e) => {
-                      validateField("timeValue");
-                      setFieldTouched("timeValue");
-                      setFieldValue("timeValue", e.target.value);
-
-                      setFieldTouched("timeOption");
-                      setFieldValue(
-                        "timeOption",
-                        timeStatement({
-                          timeValue: e.target.value,
-                          timeScale: values.timeScale,
-                        })
-                      );
-                    }}
-                    type="text"
-                  />
-                  <Field
-                    as="select"
-                    className={classNames(
-                      "inline-flex w-[12ch] relative rounded-md border-gray-400 border-2 bg-white p-1 shadow-sm"
-                    )}
-                    name="timeScale"
-                    onChange={(e) => {
-                      validateField("timeScale");
-                      setFieldTouched("timeScale");
-                      setFieldValue("timeScale", e.target.value);
-
-                      setFieldTouched("timeOption");
-                      setFieldValue(
-                        "timeOption",
-                        timeStatement({
-                          timeValue: values.timeValue,
-                          timeScale: e.target.value,
-                        })
-                      );
-                    }}
-                  >
-                    {builderTimeScales.map(({ label, value }) => (
-                      <option key={value} value={value}>
-                        {label}
-                      </option>
-                    ))}
-                  </Field>
-                  <span>{timeQuery}</span>
-                </div>
-              </label>
-              <label htmlFor="anyTime">
                 <Field
-                  id="anyTime"
-                  name="timeOption"
-                  type="radio"
-                  value={anyTimeQuery}
-                />
-                {anyTimeQuery}
-              </label>
-            </fieldset>
+                  as="select"
+                  className={classNames(
+                    "inline-flex w-[12ch] relative rounded-md border-gray-400 border-2 bg-white p-1 shadow-sm"
+                  )}
+                  name="timeScale"
+                  onChange={(e) => {
+                    validateField("timeScale");
+                    setFieldTouched("timeScale");
+                    setFieldValue("timeScale", e.target.value);
+
+                    setFieldTouched("timeOption");
+                    setFieldValue(
+                      "timeOption",
+                      timeStatement({
+                        timeValue: values.timeValue,
+                        timeScale: e.target.value,
+                      })
+                    );
+                  }}
+                >
+                  {builderTimeScales.map(({ label, value }) => (
+                    <option key={value} value={value}>
+                      {label}
+                    </option>
+                  ))}
+                </Field>
+                {timeQuery}
+              </RadioButton>
+
+              <RadioButton
+                id="anyTime"
+                label={anyTimeQuery}
+                name="timeOption"
+                type="radio"
+                value={anyTimeQuery}
+              />
+            </Fieldset>
 
             {errors.timeValue && touched.timeValue ? (
               <InputError>{errors.timeValue}</InputError>

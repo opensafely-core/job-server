@@ -1,7 +1,15 @@
 import { Field } from "formik";
 import { func, node, string } from "prop-types";
 
-function RadioButton({ children, id, label, name, value, onClick }) {
+function RadioButton({
+  children,
+  id,
+  label,
+  labelClassName,
+  name,
+  onClick,
+  value,
+}) {
   return (
     <div className="flex flex-row place-items-baseline gap-x-3 text-lg leading-tight">
       <Field
@@ -14,7 +22,9 @@ function RadioButton({ children, id, label, name, value, onClick }) {
       />
       <label
         aria-label={children ? label : null}
-        className="cursor-pointer touch-manipulation tracking-tight"
+        className={`cursor-pointer touch-manipulation tracking-tight ${
+          labelClassName || ""
+        }`}
         htmlFor={id}
       >
         {children || label}
@@ -29,6 +39,7 @@ RadioButton.propTypes = {
   children: node,
   id: string.isRequired,
   label: string.isRequired,
+  labelClassName: string,
   name: string.isRequired,
   onClick: func,
   value: string.isRequired,
@@ -36,5 +47,6 @@ RadioButton.propTypes = {
 
 RadioButton.defaultProps = {
   children: null,
+  labelClassName: null,
   onClick: () => null,
 };
