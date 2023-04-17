@@ -7,6 +7,9 @@ from furl import furl
 def notify_output_checkers(job_request, github_api):
     workspace_url = furl(settings.BASE_URL) / job_request.workspace.get_absolute_url()
 
+    # handle newlines in purpose so we can use dedent on it later
+    purpose = job_request.analysis_request.purpose.replace("\n", "\n    ")
+
     body = f"""
     ### GitHub repo
     {job_request.workspace.repo.url}
@@ -15,7 +18,7 @@ def notify_output_checkers(job_request, github_api):
     {workspace_url}
 
     ### Analysis request purpose
-    {job_request.analysis_request.purpose}
+    {purpose}
 
     ### Details
     The outputs are located in `output/{job_request.analysis_request.pk}`
@@ -37,10 +40,12 @@ def notify_output_checkers(job_request, github_api):
     The HTML report contains all relevant data, so the individual CSVs and images do NOT need to be released.
     """
 
+    body = textwrap.dedent(body.strip("\n"))
+
     return github_api.create_issue(
         org="ebmdatalab",
         repo="opensafely-output-review",
         title=f"Review request: {job_request.workspace.project.name} [{job_request.analysis_request.pk}]",
-        body=textwrap.dedent(body),
+        body=body,
         labels=["interactive"],
     )
