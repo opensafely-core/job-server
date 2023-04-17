@@ -12,3 +12,6 @@ export const queryText = [
 export const timeQuery = "before.";
 
 export const anyTimeQuery = "at any time prior.";
+
+export const timeStatement = (values) =>
+  `up to ${values.timeValue} ${values.timeScale} before.`;
