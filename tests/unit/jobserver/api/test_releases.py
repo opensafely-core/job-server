@@ -329,13 +329,19 @@ def test_releaseapi_post_success_for_analysis_request(
     assert response.headers["Location"].endswith(f"/releases/file/{rfile.id}")
     assert response.headers["File-Id"] == rfile.id
 
-    assert len(slack_messages) == 1
+    assert len(slack_messages) == 2
+
     text, channel = slack_messages[0]
     assert channel == "opensafely-releases"
     assert f"{uploading_user.get_staff_url()}|{uploading_user.name}>" in text
     assert f"{release.get_absolute_url()}|release>" in text
     assert f"{rfile.get_absolute_url()}|{rfile.name}>" in text
     assert release.backend.name in text
+
+    text, channel = slack_messages[1]
+    assert channel == "interactive-requests"
+    assert analysis_request.report_title in text
+    assert analysis_request.get_absolute_url() in text
 
     analysis_request.refresh_from_db()
     assert analysis_request.report

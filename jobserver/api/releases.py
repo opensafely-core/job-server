@@ -23,6 +23,7 @@ from rest_framework.views import APIView
 from interactive.commands import create_report
 from interactive.emails import send_report_uploaded_notification
 from interactive.models import AnalysisRequest
+from interactive.slacks import notify_report_uploaded
 from jobserver import releases, slacks
 from jobserver.api.authentication import get_backend_from_token
 from jobserver.authorization import has_permission
@@ -359,6 +360,7 @@ class ReleaseAPI(APIView):
             )
 
             send_report_uploaded_notification(analysis_request)
+            notify_report_uploaded(analysis_request)
 
         response = Response(status=201)
         response.headers["File-Id"] = rfile.id

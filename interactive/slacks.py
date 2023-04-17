@@ -48,3 +48,18 @@ def notify_tech_support_of_failed_analysis(job_request, channel="tech-support-ch
     message = f"An analysis request has failed, {job_request_url}."
 
     slack.post(message, channel)
+
+
+def notify_report_uploaded(analysis_request, channel="interactive-requests"):
+    analysis_url = slack.link(analysis_request.get_absolute_url(), "View on job-server")
+
+    message = f"""
+    *Report uploaded*
+    Title: {analysis_request.report_title}
+
+    {analysis_url}
+    """
+
+    message = textwrap.dedent(message.strip())
+
+    slack.post(message, channel)
