@@ -16,6 +16,7 @@ function AnalysisInformation() {
     useRequiredFields([
       "codelistA",
       "codelistB",
+      "timeOption",
       "timeScale",
       "timeValue",
       "filterPopulation",

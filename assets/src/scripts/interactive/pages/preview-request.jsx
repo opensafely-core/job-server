@@ -9,7 +9,15 @@ function PreviewRequest() {
   const [, navigate] = useLocation();
   const { formData } = useFormData();
 
-  if (useRequiredFields(["codelistA", "codelistB", "timeScale", "timeValue"])) {
+  if (
+    useRequiredFields([
+      "codelistA",
+      "codelistB",
+      "timeOption",
+      "timeScale",
+      "timeValue",
+    ])
+  ) {
     return <Redirect to="" />;
   }
 
@@ -26,6 +34,7 @@ function PreviewRequest() {
             <strong>{formData.codelistA.label}</strong>
           </p>
           <EventsBefore
+            timeOption={formData.timeOption}
             timeScale={formData.timeScale}
             timeValue={formData.timeValue}
           />

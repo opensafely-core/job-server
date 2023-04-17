@@ -1,6 +1,11 @@
 import { number, string } from "prop-types";
 
-function EventsBefore({ timeScale, timeValue }) {
+function EventsBefore({ timeOption, timeScale, timeValue }) {
+  const timeText =
+    timeOption === "at any time prior."
+      ? `any time`
+      : `${timeValue} ${timeScale}`;
+
   return (
     <svg
       clipRule="evenodd"
@@ -49,7 +54,7 @@ function EventsBefore({ timeScale, timeValue }) {
         month
       </text>
       <text fontSize="12" x="67" y="88.63">
-        {timeValue} {timeScale}
+        {timeText}
       </text>
     </svg>
   );
@@ -58,6 +63,7 @@ function EventsBefore({ timeScale, timeValue }) {
 export default EventsBefore;
 
 EventsBefore.propTypes = {
+  timeOption: string.isRequired,
   timeScale: string.isRequired,
   timeValue: number.isRequired,
 };

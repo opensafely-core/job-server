@@ -2,12 +2,12 @@ import { useState } from "react";
 import { Redirect } from "wouter";
 import { AlertPage, removeAlert } from "../components/Alert";
 import Button from "../components/Button";
-import { lines as multiLines } from "../components/CodelistBuilder";
 import InputError from "../components/InputError";
 import ReviewLineItem from "../components/ReviewLineItem";
 import { useAppData, useFormData } from "../context";
 import { demographics, filterPopulation } from "../data/form-fields";
 import { useRequiredFields } from "../utils";
+import { anyTimeQuery, queryText, timeQuery } from "../utils/query-text";
 
 function ReviewRequest() {
   const {
@@ -23,6 +23,7 @@ function ReviewRequest() {
     useRequiredFields([
       "codelistA",
       "codelistB",
+      "timeOption",
       "timeScale",
       "timeValue",
       "filterPopulation",
@@ -77,6 +78,11 @@ function ReviewRequest() {
     window.location.href = response.url;
   };
 
+  const timeStatement =
+    formData.timeOption === anyTimeQuery
+      ? anyTimeQuery
+      : `${formData.timeValue} ${formData.timeScale} ${timeQuery}`;
+
   return (
     <>
       <AlertPage />
@@ -90,18 +96,16 @@ function ReviewRequest() {
 
           {formData.codelistA?.label && formData.codelistB?.label ? (
             <ReviewLineItem page="build-query" title="Report request">
-              {` ${multiLines[0]} `}
+              {` ${queryText[0]} `}
               <strong>{formData.codelistA.label}</strong>
-              {` ${multiLines[1]} `}
-              <strong>{startStr}</strong> {multiLines[2]}{" "}
+              {` ${queryText[1]} `}
+              <strong>{startStr}</strong> {queryText[2]}{" "}
               <strong>{endStr}</strong>
-              {` ${multiLines[3]} `}
+              {` ${queryText[3]} `}
               <strong>{formData.codelistB.label}</strong>
-              {` ${multiLines[4]} `}
+              {` ${queryText[4]} `}
               <strong>{` ${formData.codelistA.label}`}</strong>
-              {` ${multiLines[5]} `}
-              {formData.timeValue} {formData.timeScale}
-              {` ${multiLines[6]} `}
+              {` ${queryText[5]} ${timeStatement}`}
             </ReviewLineItem>
           ) : null}
 
