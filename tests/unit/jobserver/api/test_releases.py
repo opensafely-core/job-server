@@ -17,7 +17,7 @@ from jobserver.api.releases import (
     SnapshotCreateAPI,
     SnapshotPublishAPI,
     WorkspaceStatusAPI,
-    maybe_create_report,
+    is_interactive_report,
     validate_release_access,
     validate_upload_access,
 )
@@ -43,6 +43,24 @@ from tests.factories import (
     WorkspaceFactory,
 )
 from tests.fakes import FakeGitHubAPI
+
+
+def test_is_interactive_report_no_match():
+    # not 3 parts
+    assert is_interactive_report(ReleaseFileFactory(name="no_match")) is None
+
+    # starts with output but not endswith report.html
+    assert is_interactive_report(ReleaseFileFactory(name="output/foo/file.txt")) is None
+
+    # ends with report.html but does not start with output
+    assert (
+        is_interactive_report(ReleaseFileFactory(name="other/foo/report.txt")) is None
+    )
+
+    # no analysis request with id foo exists
+    assert (
+        is_interactive_report(ReleaseFileFactory(name="output/foo/report.html")) is None
+    )
 
 
 def test_releaseapi_get_unknown_release(api_rf):
@@ -1312,31 +1330,3 @@ def test_workspacestatusapi_success(api_rf):
     response = WorkspaceStatusAPI.as_view()(request, workspace_id=workspace2.name)
     assert response.status_code == 200
     assert not response.data["uses_new_release_flow"]
-
-
-def test_maybe_create_report_no_match(slack_messages):
-
-    # not 3 parts
-    assert maybe_create_report(ReleaseFileFactory(name="no_match"), None) is None
-    assert len(slack_messages) == 0
-
-    # starts with output but not endswith report.html
-    assert (
-        maybe_create_report(ReleaseFileFactory(name="output/foo/file.txt"), None)
-        is None
-    )
-    assert len(slack_messages) == 0
-
-    # ends with report.html but does not start with output
-    assert (
-        maybe_create_report(ReleaseFileFactory(name="other/foo/report.txt"), None)
-        is None
-    )
-    assert len(slack_messages) == 0
-
-    # no analysis request with id foo exists
-    assert (
-        maybe_create_report(ReleaseFileFactory(name="output/foo/report.html"), None)
-        is None
-    )
-    assert len(slack_messages) == 0

@@ -20,6 +20,7 @@ from rest_framework.parsers import FileUploadParser, JSONParser
 from rest_framework.response import Response
 from rest_framework.views import APIView
 
+from interactive.commands import create_report
 from interactive.emails import send_report_uploaded_notification
 from interactive.models import AnalysisRequest
 from jobserver import releases, slacks
@@ -29,7 +30,6 @@ from jobserver.models import (
     Release,
     ReleaseFile,
     ReleaseFileReview,
-    Report,
     Snapshot,
     User,
     Workspace,
@@ -56,9 +56,9 @@ def get_filename(headers):
     return m.get_filename()
 
 
-def maybe_create_report(rfile, user):
+def is_interactive_report(rfile):
     """
-    Reports are created for the released HTML outputs of each AnalysisRequest
+    Is the given ReleaseFile for an Interactive Report?
 
     We match released outputs to their AnalysisRequest by setting the output
     filenames in their project.yaml to
@@ -67,6 +67,9 @@ def maybe_create_report(rfile, user):
 
     This function looks for HTML files with a name matching an AnalysisRequest
     PK, banking on ULIDs being unique enough for there to not be a clash here.
+
+    It returns AnalysisRequest | None so it can be used with a walrus-like
+    check.
     """
 
     path = Path(rfile.name)
@@ -76,24 +79,8 @@ def maybe_create_report(rfile, user):
         return
 
     identifier = path.parts[1]
-    analysis_request = AnalysisRequest.objects.filter(pk=identifier).first()
-    if not analysis_request:
-        return
 
-    report = Report.objects.create(
-        project=rfile.workspace.project,
-        release_file=rfile,
-        title=analysis_request.title,
-        description="TODO fill from AR",
-        created_by=user,
-        updated_by=user,
-    )
-    analysis_request.report = report
-    analysis_request.save(update_fields=["report"])
-
-    send_report_uploaded_notification(analysis_request)
-
-    return report
+    return AnalysisRequest.objects.filter(pk=identifier).first()
 
 
 class UnknownFiles(Exception):
@@ -364,7 +351,14 @@ class ReleaseAPI(APIView):
 
         slacks.notify_release_file_uploaded(rfile)
 
-        maybe_create_report(rfile, user)
+        if analysis_request := is_interactive_report(rfile):
+            create_report(
+                analysis_request=analysis_request,
+                rfile=rfile,
+                user=user,
+            )
+
+            send_report_uploaded_notification(analysis_request)
 
         response = Response(status=201)
         response.headers["File-Id"] = rfile.id
