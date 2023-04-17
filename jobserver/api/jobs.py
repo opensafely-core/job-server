@@ -14,6 +14,7 @@ from rest_framework.response import Response
 from rest_framework.views import APIView
 
 from interactive.notifications import notify_output_checkers
+from interactive.slacks import notify_tech_support_of_failed_analysis
 from jobserver.api.authentication import get_backend_from_token
 from jobserver.emails import send_finished_notification
 from jobserver.github import _get_github_api
@@ -159,8 +160,10 @@ class JobAPIUpdate(APIView):
             job_request.refresh_from_db()
             prefetch_jobs(job_request)
             current_status = job_request.status
-            if current_status != initial_status and current_status == "succeeded":
-                handle_job_request_notifications(job_request, self.get_github_api())
+            if current_status != initial_status and current_status in COMPLETED_STATES:
+                handle_job_request_notifications(
+                    job_request, current_status, self.get_github_api()
+                )
 
         logger.info(
             "Created or updated Jobs",
@@ -212,9 +215,13 @@ def handle_job_notifications(request, job_request, job):
         )
 
 
-def handle_job_request_notifications(job_request, github_api):
+def handle_job_request_notifications(job_request, status, github_api):
     if hasattr(job_request, "analysis_request"):
-        notify_output_checkers(job_request, github_api)
+        if status == "succeeded":
+            notify_output_checkers(job_request, github_api)
+
+        if status == "failed":
+            notify_tech_support_of_failed_analysis(job_request)
 
 
 def prefetch_jobs(job_request):

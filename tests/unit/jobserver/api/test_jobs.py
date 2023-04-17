@@ -337,7 +337,7 @@ def test_jobapiupdate_mixture(api_rf, freezer):
     assert job3.completed_at is None
 
 
-def test_jobapiupdate_notifications_on_with_move_to_completed(api_rf, mocker):
+def test_jobapiupdate_notifications_on_with_move_to_succeeded(api_rf, mocker):
     workspace = WorkspaceFactory()
     job_request = JobRequestFactory(workspace=workspace, will_notify=True)
     job = JobFactory(job_request=job_request, status="running")
@@ -569,7 +569,49 @@ def test_jobapiupdate_post_with_flags(api_rf):
     assert backend.jobrunner_state["mode"]["v"] == "test"
 
 
-def test_jobapiupdate_post_with_job_request_from_interactive(api_rf, mocker):
+def test_jobapiupdate_post_with_failed_job_request_from_interactive(
+    api_rf, slack_messages
+):
+    workspace = WorkspaceFactory()
+    job_request = JobRequestFactory(workspace=workspace)
+    AnalysisRequestFactory(job_request=job_request)
+    job = JobFactory(job_request=job_request, status="running")
+
+    now = timezone.now()
+
+    data = [
+        {
+            "identifier": job.identifier,
+            "job_request_id": job_request.identifier,
+            "action": "test",
+            "status": "failed",
+            "status_code": "",
+            "status_message": "",
+            "created_at": minutes_ago(now, 2),
+            "started_at": minutes_ago(now, 1),
+            "updated_at": now,
+            "completed_at": seconds_ago(now, 30),
+        },
+    ]
+    request = api_rf.post(
+        "/",
+        HTTP_AUTHORIZATION=job_request.backend.auth_token,
+        data=data,
+        format="json",
+    )
+
+    response = JobAPIUpdate.as_view(get_github_api=FakeGitHubAPI)(request)
+
+    assert response.status_code == 200
+
+    assert len(slack_messages) == 1
+    text, channel = slack_messages[0]
+
+    assert channel == "tech-support-channel"
+    assert job_request.get_absolute_url() in text
+
+
+def test_jobapiupdate_post_with_successful_job_request_from_interactive(api_rf, mocker):
     workspace = WorkspaceFactory()
     job_request = JobRequestFactory(workspace=workspace)
     job = JobFactory(job_request=job_request, status="running")
