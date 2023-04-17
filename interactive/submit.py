@@ -11,11 +11,7 @@ from django.db import transaction
 from interactive_templates.render import render_analysis
 
 from .models import AnalysisRequest
-
-
-# from jobserver.github import create_issue
-# from .emails import send_analysis_request_confirmation_email
-# from .slacks import notify_analysis_request_submitted
+from .slacks import notify_analysis_request_submitted
 
 
 @transaction.atomic()
@@ -72,15 +68,8 @@ def submit_analysis(
     analysis_request.job_request = job_request
     analysis_request.save()
 
-    # TODO: notify someone about output checking?
-    # waiting to find out what this should be
-    # issue_url = create_issue(analysis_request.pk, job_server_url=url)
-    # notify_analysis_request_submitted(analysis_request, issue_url)
+    notify_analysis_request_submitted(analysis_request)
 
-    # TODO: notify the user?
-    # send_analysis_request_confirmation_email(
-    #     analysis_request.user.email, analysis_request
-    # )
     return analysis_request
 
 
