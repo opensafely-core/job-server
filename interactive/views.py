@@ -109,7 +109,7 @@ class AnalysisRequestCreate(View):
             "codelist_1_type": from_codelist(data, "codelistA", "type"),
             "codelist_2_label": from_codelist(data, "codelistB", "label"),
             "codelist_2_slug": from_codelist(data, "codelistB", "value"),
-            "codelist_2_type": from_codelist(data, "codelistA", "type"),
+            "codelist_2_type": from_codelist(data, "codelistB", "type"),
             "demographics": data.get("demographics", ""),
             "filter_population": data.get("filterPopulation", ""),
             "purpose": data.get("purpose", ""),
