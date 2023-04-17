@@ -73,6 +73,21 @@ def test_workspace_get_absolute_url():
     )
 
 
+def test_workspace_get_analyses_url():
+    workspace = WorkspaceFactory()
+
+    url = workspace.get_analyses_url()
+
+    assert url == reverse(
+        "workspace-analysis-request-list",
+        kwargs={
+            "org_slug": workspace.project.org.slug,
+            "project_slug": workspace.project.slug,
+            "workspace_slug": workspace.name,
+        },
+    )
+
+
 def test_workspace_get_releases_api_url():
     workspace = WorkspaceFactory()
     assert (

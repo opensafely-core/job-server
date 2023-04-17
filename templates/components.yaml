@@ -16,6 +16,7 @@ components:
   list_group: "_components/list-group/list-group.html"
   list_group_empty: "_components/list-group/list-group-empty.html"
   list_group_item: "_components/list-group/list-group-item.html"
+  list_group_rich_item: "_components/list-group/list-group-rich-item.html"
   pill: "_components/pill.html"
   skip_link: "_components/skip-link.html"
   timeline_item: "_components/timeline-item.html"
