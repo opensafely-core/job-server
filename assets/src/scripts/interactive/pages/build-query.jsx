@@ -38,7 +38,7 @@ function BuildQuery() {
   const validationSchema = Yup.object().shape({
     codelistA: codelistSchema(codelistGroups),
     codelistB: codelistSchema(codelistGroups),
-    timeOption: Yup.string(),
+    timeOption: Yup.string().required(),
     timeValue: Yup.number()
       .typeError("Amount must be a number")
       .positive("Time value must be a positive number")
@@ -48,9 +48,11 @@ function BuildQuery() {
         "tenYears",
         "Time scale cannot be longer than 10 years",
         (value, testContext) => {
+          const { timeScale, timeOption } = testContext.parent;
+          if (timeOption === anyTimeQuery) return true;
+
           if (value === undefined || Number.isNaN(value)) return false;
 
-          const { timeScale } = testContext.parent;
           if (timeScale === "weeks" && value > 522) return false;
           if (timeScale === "months" && value > 120) return false;
           if (timeScale === "years" && value > 10) return false;
