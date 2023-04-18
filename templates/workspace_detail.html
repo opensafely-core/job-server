@@ -96,10 +96,17 @@
         {% endif %}
 
         {% if show_interactive_button %}
-        {% #button href=workspace.project.get_interactive_url type="link" variant="success" %}
-          Run interactive analysis
-          {% icon_play_outline class="h-4 w-4 ml-2 -mr-2" %}
-        {% /button %}
+          {% if workspace.is_archived %}
+            {% #button type="button" variant="info" disabled=True tooltip="Analyses cannot be run on an archived workspace" %}
+              Run interactive analysis
+              {% icon_play_outline class="h-4 w-4 ml-2 -mr-2" %}
+            {% /button %}
+          {% else %}
+            {% #button href=workspace.project.get_interactive_url type="link" variant="success" %}
+              Run interactive analysis
+              {% icon_play_outline class="h-4 w-4 ml-2 -mr-2" %}
+            {% /button %}
+          {% endif %}
         {% endif %}
 
         {% #button href=workspace.get_logs_url type="link" variant="primary" %}
