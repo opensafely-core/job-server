@@ -1,4 +1,4 @@
-import { string } from "prop-types";
+import { number, string } from "prop-types";
 
 function EventsBefore({ timeOption, timeScale, timeValue }) {
   const timeText =
@@ -64,6 +64,11 @@ export default EventsBefore;
 
 EventsBefore.propTypes = {
   timeOption: string.isRequired,
-  timeScale: string.isRequired,
-  timeValue: string.isRequired,
+  timeScale: string,
+  timeValue: number,
+};
+
+EventsBefore.defaultProps = {
+  timeScale: null,
+  timeValue: null,
 };

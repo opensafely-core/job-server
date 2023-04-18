@@ -65,3 +65,9 @@ export function getAppData({
     dates: { ...dataDates({ dateStart, dateEnd }) },
   };
 }
+
+export const removeUndefinedValuesFromObject = (obj) => {
+  // eslint-disable-next-line no-param-reassign
+  Object.keys(obj).forEach((key) => obj[key] === undefined && delete obj[key]);
+  return obj;
+};

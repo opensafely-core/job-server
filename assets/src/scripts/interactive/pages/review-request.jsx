@@ -6,7 +6,7 @@ import InputError from "../components/InputError";
 import ReviewLineItem from "../components/ReviewLineItem";
 import { useAppData, useFormData } from "../context";
 import { demographics, filterPopulation } from "../data/form-fields";
-import { useRequiredFields } from "../utils";
+import { removeUndefinedValuesFromObject, useRequiredFields } from "../utils";
 import { anyTimeQuery, queryText, timeQuery } from "../utils/query-text";
 
 function ReviewRequest() {
@@ -24,8 +24,6 @@ function ReviewRequest() {
       "codelistA",
       "codelistB",
       "timeOption",
-      "timeScale",
-      "timeValue",
       "filterPopulation",
       "title",
       "purpose",
@@ -35,47 +33,68 @@ function ReviewRequest() {
   }
 
   const dataForSubmission = () => {
-    const { codelist0, codelist1, codelistA, codelistB, ...data } = formData;
+    const {
+      codelistA,
+      timeOption,
+      timeScale,
+      timeValue,
+      filterPopulation: filterOpts,
+      demographics: demographicOpts,
+      title,
+      purpose,
+    } = formData;
 
-    return {
-      ...data,
+    return removeUndefinedValuesFromObject({
       codelistA: {
         label: codelistA.label,
         type: codelistA.type,
         value: codelistA.value,
       },
       codelistB: {
-        label: codelistB.label,
-        type: codelistB.type,
-        value: codelistB.value,
+        label: codelistA.label,
+        type: codelistA.type,
+        value: codelistA.value,
       },
+
       startDate: startISO.slice(0, 10),
       endDate: endISO.slice(0, 10),
-    };
+
+      timeEver: timeOption === anyTimeQuery ? "true" : null,
+      timeScale: timeOption === anyTimeQuery ? undefined : timeScale,
+      timeValue: timeOption === anyTimeQuery ? undefined : timeValue,
+
+      filterPopulation: filterOpts,
+      demographics: demographicOpts,
+
+      title,
+      purpose,
+    });
   };
 
   const handleClick = async () => {
     setIsSubmitting(true);
     setError("");
+    console.log(dataForSubmission());
+    setIsSubmitting(false);
 
-    const response = await fetch(`${basePath}publish`, {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-        "X-CSRFToken": csrfToken,
-      },
-      body: JSON.stringify(dataForSubmission()),
-    });
+    // const response = await fetch(`${basePath}publish`, {
+    //   method: "POST",
+    //   headers: {
+    //     "Content-Type": "application/json",
+    //     "X-CSRFToken": csrfToken,
+    //   },
+    //   body: JSON.stringify(dataForSubmission()),
+    // });
 
-    if (!response.ok) {
-      setIsSubmitting(false);
-      const message = `An error has occured: ${response.status} - ${response.statusText}`;
-      setError(message);
-      throw new Error(message);
-    }
+    // if (!response.ok) {
+    //   setIsSubmitting(false);
+    //   const message = `An error has occured: ${response.status} - ${response.statusText}`;
+    //   setError(message);
+    //   throw new Error(message);
+    // }
 
-    removeAlert();
-    window.location.href = response.url;
+    // removeAlert();
+    // window.location.href = response.url;
   };
 
   const timeStatement =

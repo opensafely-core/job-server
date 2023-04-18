@@ -17,8 +17,6 @@ function AnalysisInformation() {
       "codelistA",
       "codelistB",
       "timeOption",
-      "timeScale",
-      "timeValue",
       "filterPopulation",
     ])
   ) {
