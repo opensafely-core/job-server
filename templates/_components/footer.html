@@ -21,6 +21,10 @@
             {% link text="Event log" href=event_log_url %}
           </li>
           <li class="flex">
+            {% url 'org-list' as orgs_url %}
+            {% link text="Organisations" href=orgs_url %}
+          </li>
+          <li class="flex">
             {% url 'status' as status_url %}
             {% link text="Status" href=status_url %}
           </li>
