@@ -16,9 +16,14 @@
             {% url 'home' as home_url %}
             {% link text="Home" href=home_url %}
           </li>
-          {% for location in nav %}
-            <li class="flex">{% link text=location.name href=location.url %}</li>
-          {% endfor %}
+          <li class="flex">
+            {% url 'job-list' as event_log_url %}
+            {% link text="Event log" href=event_log_url %}
+          </li>
+          <li class="flex">
+            {% url 'status' as status_url %}
+            {% link text="Status" href=status_url %}
+          </li>
         </ul>
       </div>
       <div>
