@@ -65,6 +65,7 @@
         {% for analysis_request in analysis_requests %}
           {% #list_group_item href=analysis_request.get_absolute_url %}
             {{ analysis_request.title }}
+            {% pill class="ml-2" text=analysis_request.job_request.status variant=analysis_request.job_request.status|match:"pending:info,running:primary,succeeded:success,failed:danger"|default:"info" %}
           {% /list_group_item %}
         {% empty %}
           {% list_group_empty icon=True title="No requests" description="You have not created any analysis requests" %}
