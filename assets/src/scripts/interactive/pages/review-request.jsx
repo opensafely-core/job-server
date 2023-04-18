@@ -74,27 +74,26 @@ function ReviewRequest() {
   const handleClick = async () => {
     setIsSubmitting(true);
     setError("");
-    console.log(dataForSubmission());
     setIsSubmitting(false);
 
-    // const response = await fetch(`${basePath}publish`, {
-    //   method: "POST",
-    //   headers: {
-    //     "Content-Type": "application/json",
-    //     "X-CSRFToken": csrfToken,
-    //   },
-    //   body: JSON.stringify(dataForSubmission()),
-    // });
+    const response = await fetch(`${basePath}publish`, {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+        "X-CSRFToken": csrfToken,
+      },
+      body: JSON.stringify(dataForSubmission()),
+    });
 
-    // if (!response.ok) {
-    //   setIsSubmitting(false);
-    //   const message = `An error has occured: ${response.status} - ${response.statusText}`;
-    //   setError(message);
-    //   throw new Error(message);
-    // }
+    if (!response.ok) {
+      setIsSubmitting(false);
+      const message = `An error has occured: ${response.status} - ${response.statusText}`;
+      setError(message);
+      throw new Error(message);
+    }
 
-    // removeAlert();
-    // window.location.href = response.url;
+    removeAlert();
+    window.location.href = response.url;
   };
 
   const timeStatement =
