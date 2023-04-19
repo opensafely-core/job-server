@@ -127,7 +127,7 @@ function FileList({
               style={style}
             >
               {fileIndex === index ? (
-                <span>{files[index].shortName}</span>
+                <span>{files[index].name}</span>
               ) : (
                 <a
                   className="list-item__link"
@@ -136,7 +136,7 @@ function FileList({
                   onClick={(e) => selectFile({ e, item: files[index] })}
                   title={`File size: ${prettyFileSize(files[index].size)}`}
                 >
-                  {files[index].shortName}
+                  {files[index].name}
                 </a>
               )}
             </li>

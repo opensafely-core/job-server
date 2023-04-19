@@ -11,7 +11,7 @@ function Filter({ files, listRef, setFiles }) {
         () =>
           setFiles(
             files.filter((state) =>
-              state.shortName.toLowerCase().includes(filter.toLowerCase())
+              state.name.toLowerCase().includes(filter.toLowerCase())
             )
           ),
         350

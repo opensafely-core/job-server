@@ -13,7 +13,7 @@ describe("<App />", () => {
     await waitFor(() => {
       expect(screen.queryAllByRole("listitem").length).toBe(fileList.length);
       expect(screen.queryAllByRole("listitem")[0].textContent).toBe(
-        fileList[0].shortName
+        fileList[0].name
       );
     });
 
@@ -30,7 +30,7 @@ describe("<App />", () => {
     await waitFor(() => {
       expect(screen.queryAllByRole("listitem").length).toBe(fileList.length);
       expect(screen.queryAllByRole("listitem")[0].textContent).toBe(
-        fileList[0].shortName
+        fileList[0].name
       );
     });
 

@@ -75,7 +75,6 @@ function App({ authToken, csrfToken, filesUrl, prepareUrl, publishUrl }) {
                 <Viewer
                   authToken={authToken}
                   fileName={selectedFile.name}
-                  fileShortName={selectedFile.shortName}
                   fileSize={selectedFile.size}
                   fileUrl={selectedFile.url}
                   uuid={uuid}

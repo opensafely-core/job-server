@@ -15,7 +15,6 @@ export const selectedFileProps = {
   is_deleted: PropTypes.bool,
   name: PropTypes.string,
   sha256: PropTypes.string,
-  shortName: PropTypes.string,
   size: PropTypes.number,
   url: PropTypes.string,
   user: PropTypes.string,
