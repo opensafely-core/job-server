@@ -83,7 +83,26 @@ class ProjectAddMemberForm(PickUsersMixin, RolesForm):
     pass
 
 
-class ProjectCreateForm(forms.Form):
+class ProjectCleanNumberMixin:
+    def clean_number(self):
+        number = self.cleaned_data["number"]
+
+        # We have a constraint ensuring Project.number is unique (ignoring
+        # nulls).  Unfortunately that fires when we save a model, giving us an
+        # IntegrityError.  We have to handle this in the view if we're using a
+        # plain Form, while a ModelForm will put the failure message in the form
+        # instance's non_field_errors unless we manually handle the failure and
+        # attach it to the number field on the form.
+        #
+        # Neither of these are ideal so we're also validating it here so that it
+        # gets attached to the number field on forms using this mixin.
+        if Project.objects.exclude(number=None).filter(number=number).exists():
+            raise forms.ValidationError("Project number must be unique")
+
+        return number
+
+
+class ProjectCreateForm(ProjectCleanNumberMixin, forms.Form):
     application_url = forms.URLField()
     copilot = UserModelChoiceField(
         queryset=User.objects.order_by(Lower("fullname"), "username")
@@ -93,28 +112,31 @@ class ProjectCreateForm(forms.Form):
     org = forms.ModelChoiceField(queryset=Org.objects.order_by("name"))
 
 
-class ProjectEditForm(forms.ModelForm):
+class ProjectEditForm(ProjectCleanNumberMixin, forms.ModelForm):
     class Meta:
         fields = [
-            "name",
-            "slug",
-            "number",
+            "application_url",
             "copilot",
-            "copilot_support_ends_at",
             "copilot_notes",
+            "copilot_support_ends_at",
+            "name",
+            "number",
+            "org",
+            "slug",
             "status",
             "status_description",
-            "org",
         ]
         model = Project
 
-    def __init__(self, users, *args, **kwargs):
+    def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
 
+        self.fields["application_url"].required = False
         self.fields["number"].required = False
 
-        users = users.order_by(Lower("username"))
-        self.fields["copilot"] = UserModelChoiceField(queryset=users, required=False)
+        self.fields["copilot"] = UserModelChoiceField(
+            queryset=User.objects.order_by(Lower("username")), required=False
+        )
         self.fields["copilot_support_ends_at"].required = False
 
 

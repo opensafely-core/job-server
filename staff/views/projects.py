@@ -1,6 +1,5 @@
 from django.contrib import messages
-from django.core.exceptions import ValidationError
-from django.db import IntegrityError, transaction
+from django.db import transaction
 from django.db.models import Q
 from django.db.models.functions import Lower
 from django.shortcuts import get_object_or_404, redirect
@@ -121,18 +120,6 @@ class ProjectCreate(CreateView):
                 "An error occurred when trying to create the required Repo on GitHub",
             )
             return self.form_invalid(form)
-        except IntegrityError as e:
-            if "unique_number_ignore_null" not in str(e.__cause__):
-                raise  # pragma: no cover
-
-            # We have a constraint ensuring Project.number is unique (ignoring
-            # nulls).  This catches failures of that constraint and attaches it
-            # to the number field of the form so it gets displayed next to it
-            # in the UI.
-            # Previously we used a ModelForm for this page but it suffered from
-            # a similar issue, putting this error into non_field_errors.
-            form.add_error("number", ValidationError("Project number must be unique"))
-            return self.form_invalid(form)
 
         project_detail = project.get_staff_url()
 
@@ -226,12 +213,8 @@ class ProjectEdit(UpdateView):
         # components yet so doing this here is a bit of a hack because we can't
         # construct dicts in a template
         return super().get_context_data(**kwargs) | {
-            "extra_field_attributes": {"type": "number"},
-        }
-
-    def get_form_kwargs(self):
-        return super().get_form_kwargs() | {
-            "users": User.objects.all(),
+            "application_url_attributes": {"type": "url"},
+            "number_attributes": {"type": "number"},
         }
 
 

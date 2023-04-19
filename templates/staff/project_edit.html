@@ -45,91 +45,130 @@
       <form class="mb-3" method="POST">
         {% csrf_token %}
 
-        {% include "components/form_text.html" with field=form.name label="Project name" name="name" %}
-        {% include "components/form_text.html" with field=form.slug label="URL slug" name="slug" %}
-        {% include "components/form_text.html" with field=form.number label="Project number" name="number" extra_attributes=extra_field_attributes %}
+        {% if form.non_field_errors %}
+        <ul>
+          {% for error in form.non_field_errors %}
+          <li class="text-danger">{{ error }}</li>
+          {% endfor %}
+        </ul>
+        {% endif %}
 
-        <div class="form-group">
-          <label class="font-weight-bold" for="id_org">Org</label>
+        <fieldset>
+          {% include "components/form_text.html" with field=form.name label="Project name" name="name" %}
+          {% include "components/form_text.html" with field=form.slug label="URL slug" name="slug" %}
+          {% include "components/form_text.html" with field=form.number label="Project number" name="number" extra_attributes=number_attributes %}
 
-          <select id="id_org" name="org" class="form-control">
-            {% for value, label in form.fields.org.choices %}
-            <option
-              value="{{ value }}"
-              {% if form.org.value|stringformat:"s" == value|stringformat:"s" %}selected{% endif %}
-            >
-              {{ label }}
-            </option>
+          <div class="form-group">
+            <label class="font-weight-bold" for="id_org">Org</label>
+
+            <select id="id_org" name="org" class="form-control">
+              {% for value, label in form.fields.org.choices %}
+              <option
+                value="{{ value }}"
+                {% if form.org.value|stringformat:"s" == value|stringformat:"s" %}selected{% endif %}
+              >
+                {{ label }}
+              </option>
+              {% endfor %}
+            </select>
+
+            {% for error in form.org.errors %}
+            <p class="text-danger">{{ error }}</p>
             {% endfor %}
-          </select>
+          </div>
+        </fieldset>
 
-          {% for error in form.org.errors %}
-          <p class="text-danger">{{ error }}</p>
-          {% endfor %}
-        </div>
+        <hr />
 
-        <div class="form-group">
-          <label class="font-weight-bold" for="id_copilot">Co-pilot</label>
+        <fieldset>
+          <legend>Application</legend>
 
-          <select id="id_copilot" name="copilot" class="form-control">
-            {% for value, label in form.fields.copilot.choices %}
-            <option
-              value="{{ value }}"
-              {% if form.copilot.value == value %}selected{% endif %}
-            >
-              {{ label }}
-            </option>
+          {% if project.applications.exists %}
+          <p>This project is linked to an application, which cannot be edited here.</p>
+          {% else %}
+          <div class="alert alert-warning" role="alert">
+            If you are looking to link to an application created on this site
+            use the "Find and Link" button on the
+            <a href="{{ project.get_staff_url }}">detail page</a>.
+          </div>
+          {% include "components/form_text.html" with field=form.application_url label="Application URL" name="application_url" extra_attributes=application_url_attributes %}
+          {% endif %}
+        </fieldset>
+
+        <hr />
+
+        <fieldset>
+          <legend>Internal co-pilot details</legend>
+
+          <div class="form-group">
+            <label class="font-weight-bold" for="id_copilot">Co-pilot</label>
+
+            <select id="id_copilot" name="copilot" class="form-control">
+              {% for value, label in form.fields.copilot.choices %}
+              <option
+                value="{{ value }}"
+                {% if form.copilot.value == value %}selected{% endif %}
+              >
+                {{ label }}
+              </option>
+              {% endfor %}
+            </select>
+
+            {% for error in form.copilot.errors %}
+            <p class="text-danger">{{ error }}</p>
             {% endfor %}
-          </select>
+          </div>
 
-          {% for error in form.copilot.errors %}
-          <p class="text-danger">{{ error }}</p>
-          {% endfor %}
-        </div>
+          <div class="form-group">
+            <label class="font-weight-bold" for="id_copilot_support_ends_at">
+              Co-pilot support ends at
+            </label>
 
-        <div class="form-group">
-          <label class="font-weight-bold" for="id_copilot_support_ends_at">
-            Co-pilot support ends at
-          </label>
+            <input
+              type="date"
+              class="form-control"
+              id="id_copilot_support_ends_at"
+              name="copilot_support_ends_at"
+              aria-describedby="{{ name }}HelpBlock"
+              {% if form.copilot_support_ends_at.value %}
+              value="{{ form.copilot_support_ends_at.value|date:"Y-m-d" }}"
+              {% endif %}
+            />
 
-          <input
-            type="date"
-            class="form-control"
-            id="id_copilot_support_ends_at"
-            name="copilot_support_ends_at"
-            aria-describedby="{{ name }}HelpBlock"
-            {% if form.copilot_support_ends_at.value %}
-            value="{{ form.copilot_support_ends_at.value|date:"Y-m-d" }}"
-            {% endif %}
-          />
-
-          {% for error in form.copilot_support_ends_at.errors %}
-          <p class="text-danger">{{ error }}</p>
-          {% endfor %}
-        </div>
-
-        {% include "components/form_textarea.html" with field=form.copilot_notes label="Co-pilot notes" name="copilot_notes" %}
-
-        <div class="form-group">
-          <label class="font-weight-bold" for="id_status">Status</label>
-
-          <select id="id_status" name="status" class="form-control">
-            {% for value, label in form.fields.status.choices %}
-            <option
-              value="{{ value }}"
-              {% if form.status.value|stringformat:"s" == value|stringformat:"s" %}selected{% endif %}
-            >
-              {{ label }}
-            </option>
+            {% for error in form.copilot_support_ends_at.errors %}
+            <p class="text-danger">{{ error }}</p>
             {% endfor %}
-          </select>
+          </div>
 
-          {% for error in form.status.errors %}
-          <p class="text-danger">{{ error }}</p>
-          {% endfor %}
-        </div>
+          {% include "components/form_textarea.html" with field=form.copilot_notes label="Co-pilot notes" name="copilot_notes" %}
+        </fieldset>
 
-        {% include "components/form_textarea.html" with field=form.status_description label="Status description" name="status_description" %}
+        <hr />
+
+        <fieldset>
+          <legend>Internal status</legend>
+
+          <div class="form-group">
+            <label class="font-weight-bold" for="id_status">Status</label>
+
+            <select id="id_status" name="status" class="form-control">
+              {% for value, label in form.fields.status.choices %}
+              <option
+                value="{{ value }}"
+                {% if form.status.value|stringformat:"s" == value|stringformat:"s" %}selected{% endif %}
+              >
+                {{ label }}
+              </option>
+              {% endfor %}
+            </select>
+
+            {% for error in form.status.errors %}
+            <p class="text-danger">{{ error }}</p>
+            {% endfor %}
+          </div>
+
+          {% include "components/form_textarea.html" with field=form.status_description label="Status description" name="status_description" %}
+        </fieldset>
 
         <button class="btn btn-primary" type="submit">
           Save
