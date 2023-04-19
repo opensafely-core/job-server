@@ -3,7 +3,7 @@ import { number, string } from "prop-types";
 function EventsBefore({ timeOption, timeScale, timeValue }) {
   const timeText =
     timeOption === "at any time prior."
-      ? `any time`
+      ? `Any time`
       : `${timeValue} ${timeScale}`;
 
   return (
