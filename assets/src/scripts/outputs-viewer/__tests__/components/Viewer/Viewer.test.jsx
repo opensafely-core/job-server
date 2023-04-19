@@ -31,7 +31,6 @@ describe("<Viewer />", () => {
       <Viewer
         authToken={props.authToken}
         fileName={blankFile.name}
-        fileShortName={blankFile.shortName}
         fileSize={blankFile.size}
         fileUrl={blankFile.url}
         uuid={uuid}
@@ -51,7 +50,6 @@ describe("<Viewer />", () => {
       <Viewer
         authToken={props.authToken}
         fileName={htmlFile.name}
-        fileShortName={htmlFile.shortName}
         fileSize={htmlFile.size}
         fileUrl={htmlFile.url}
         uuid={uuid}
@@ -73,7 +71,6 @@ describe("<Viewer />", () => {
       <Viewer
         authToken={props.authToken}
         fileName={htmlFile.name}
-        fileShortName={htmlFile.shortName}
         fileSize={htmlFile.size}
         fileUrl={htmlFile.url}
         uuid={uuid}
@@ -97,7 +94,6 @@ describe("<Viewer />", () => {
       <Viewer
         authToken={props.authToken}
         fileName={jsFile.name}
-        fileShortName={jsFile.shortName}
         fileSize={jsFile.size}
         fileUrl={jsFile.url}
         uuid={uuid}
@@ -121,7 +117,6 @@ describe("<Viewer />", () => {
       <Viewer
         authToken={props.authToken}
         fileName={htmlFile.name}
-        fileShortName={htmlFile.shortName}
         fileSize={htmlFile.size}
         fileUrl={htmlFile.url}
         uuid={uuid}
@@ -145,7 +140,6 @@ describe("<Viewer />", () => {
       <Viewer
         authToken={props.authToken}
         fileName={csvFile.name}
-        fileShortName={csvFile.shortName}
         fileSize={5000001}
         fileUrl={csvFile.url}
         uuid={uuid}
@@ -168,7 +162,6 @@ describe("<Viewer />", () => {
       <Viewer
         authToken={props.authToken}
         fileName={pngFile.name}
-        fileShortName={pngFile.shortName}
         fileSize={pngFile.size}
         fileUrl={pngFile.url}
         uuid={uuid}
@@ -191,7 +184,6 @@ describe("<Viewer />", () => {
       <Viewer
         authToken={props.authToken}
         fileName={csvFile.name}
-        fileShortName={csvFile.shortName}
         fileSize={csvFile.size}
         fileUrl={csvFile.url}
         uuid={uuid}
@@ -210,7 +202,6 @@ describe("<Viewer />", () => {
       <Viewer
         authToken={props.authToken}
         fileName={htmlFile.name}
-        fileShortName={htmlFile.shortName}
         fileSize={htmlFile.size}
         fileUrl={htmlFile.url}
         uuid={uuid}
@@ -238,7 +229,6 @@ describe("<Viewer />", () => {
       <Viewer
         authToken={props.authToken}
         fileName={pngFile.name}
-        fileShortName={pngFile.shortName}
         fileSize={pngFile.size}
         fileUrl={pngFile.url}
         uuid={uuid}
@@ -260,7 +250,6 @@ describe("<Viewer />", () => {
       <Viewer
         authToken={props.authToken}
         fileName={txtFile.name}
-        fileShortName={txtFile.shortName}
         fileSize={txtFile.size}
         fileUrl={txtFile.url}
         uuid={uuid}
@@ -281,7 +270,6 @@ describe("<Viewer />", () => {
       <Viewer
         authToken={props.authToken}
         fileName={jsonFile.name}
-        fileShortName={jsonFile.shortName}
         fileSize={jsonFile.size}
         fileUrl={jsonFile.url}
         uuid={uuid}

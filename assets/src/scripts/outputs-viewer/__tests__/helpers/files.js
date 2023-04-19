@@ -7,7 +7,6 @@ export const csvFile = {
   sha256: "sha1",
   size: 1231,
   is_deleted: false,
-  shortName: "data-001.csv",
 };
 
 export const pngFile = {
@@ -19,7 +18,6 @@ export const pngFile = {
   sha256: "sha2",
   size: 1232,
   is_deleted: false,
-  shortName: "image-001.png",
 };
 
 export const txtFile = {
@@ -31,7 +29,6 @@ export const txtFile = {
   sha256: "sha3",
   size: 1233,
   is_deleted: false,
-  shortName: "text-001.txt",
 };
 
 export const htmlFile = {
@@ -43,7 +40,6 @@ export const htmlFile = {
   sha256: "sha4",
   size: 1234,
   is_deleted: false,
-  shortName: "webpage-001.html",
 };
 
 export const jsFile = {
@@ -55,7 +51,6 @@ export const jsFile = {
   sha256: "sha5",
   size: 1235,
   is_deleted: false,
-  shortName: "javascript-001.js",
 };
 
 export const jsonFile = {
@@ -67,7 +62,6 @@ export const jsonFile = {
   sha256: "sha6",
   size: 1236,
   is_deleted: false,
-  shortName: "json-001.json",
 };
 
 export const fileList = [csvFile, pngFile, txtFile, htmlFile];
@@ -81,7 +75,6 @@ export const blankFile = {
   sha256: "",
   size: 0,
   is_deleted: "",
-  shortName: "",
 };
 
 export const csvExample = `"gradually","worried","cold","field","burn","by"

@@ -57,7 +57,7 @@ describe("<FileList />", () => {
     await waitFor(() => {
       expect(screen.queryAllByRole("listitem").length).toBe(fileList.length);
       expect(screen.queryAllByRole("listitem")[0].textContent).toBe(
-        fileList[0].shortName
+        fileList[0].name
       );
     });
   });
@@ -69,7 +69,7 @@ describe("<FileList />", () => {
     await waitFor(() => {
       expect(screen.queryAllByRole("listitem").length).toBe(fileList.length);
       expect(screen.queryAllByRole("listitem")[0].textContent).toBe(
-        fileList[0].shortName
+        fileList[0].name
       );
     });
 
@@ -86,18 +86,18 @@ describe("<FileList />", () => {
     await waitFor(() => {
       expect(screen.queryAllByRole("listitem").length).toBe(fileList.length);
       expect(screen.queryAllByRole("listitem")[0].textContent).toBe(
-        fileList[0].shortName
+        fileList[0].name
       );
     });
 
-    await user.click(screen.getByText(csvFile.shortName));
+    await user.click(screen.getByText(csvFile.name));
     expect(history.location.pathname).toBe(`/${csvFile.name}`);
 
-    await user.click(screen.getByText(csvFile.shortName));
+    await user.click(screen.getByText(csvFile.name));
     await expect(history.location.pathname).toBe(`/${csvFile.name}`);
     expect(history.index).toBe(2);
 
-    await user.click(screen.getByText(csvFile.shortName));
+    await user.click(screen.getByText(csvFile.name));
     expect(history.location.pathname).toBe(`/${csvFile.name}`);
     expect(history.index).toBe(2);
   });
@@ -108,7 +108,7 @@ describe("<FileList />", () => {
     await waitFor(() => {
       expect(screen.queryAllByRole("listitem").length).toBe(fileList.length);
       expect(screen.queryAllByRole("listitem")[0].textContent).toBe(
-        fileList[0].shortName
+        fileList[0].name
       );
     });
 
@@ -132,7 +132,7 @@ describe("<FileList />", () => {
               csvFile,
               {
                 ...pngFile,
-                shortName: "thisIsAReallyLongNameToAddAHorizontalScrollbar",
+                name: "thisIsAReallyLongNameToAddAHorizontalScrollbar",
               },
             ],
           })
@@ -145,7 +145,7 @@ describe("<FileList />", () => {
     await waitFor(() => {
       expect(screen.queryAllByRole("listitem").length).toBe(2);
       expect(screen.queryAllByRole("listitem")[0].textContent).toBe(
-        csvFile.shortName
+        csvFile.name
       );
     });
 

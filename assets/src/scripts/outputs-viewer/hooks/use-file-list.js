@@ -1,25 +1,7 @@
 import { useQuery } from "@tanstack/react-query";
 import { toastError } from "../utils/toast";
 
-export function longestStartingSubstr(array) {
-  if (array.length < 2) {
-    // don't match the entire string for single item arrays
-    return "";
-  }
-
-  const A = array.concat().sort();
-  const a1 = A[0];
-  const a2 = A[A.length - 1];
-  const L = a1.length;
-  let i = 0;
-  while (i < L && a1.charAt(i) === a2.charAt(i)) i += 1;
-  return a1.substring(0, i);
-}
-
 export function sortedFiles(files) {
-  const fileNameArr = [...files].map((file) => file.name);
-  const prefix = longestStartingSubstr(fileNameArr);
-
   return [
     ...files
       .sort((a, b) => {
@@ -30,7 +12,7 @@ export function sortedFiles(files) {
         if (nameA > nameB) return 1;
         return 0;
       })
-      .map((file) => ({ ...file, shortName: file.name.replace(prefix, "") })),
+      .map((file) => ({ ...file })),
   ];
 }
 

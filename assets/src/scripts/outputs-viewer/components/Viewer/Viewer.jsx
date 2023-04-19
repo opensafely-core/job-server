@@ -17,14 +17,7 @@ import NoPreview from "../NoPreview/NoPreview";
 import Table from "../Table/Table";
 import Text from "../Text/Text";
 
-function Viewer({
-  authToken,
-  fileName,
-  fileShortName,
-  fileSize,
-  fileUrl,
-  uuid,
-}) {
+function Viewer({ authToken, fileName, fileSize, fileUrl, uuid }) {
   const { data, error, isLoading, isError } = useQuery(
     ["FILE", fileUrl],
     async () => {
@@ -76,7 +69,7 @@ function Viewer({
       onError: () => {
         toastError({
           fileUrl,
-          message: `${fileShortName} - Unable to load file`,
+          message: `${fileName} - Unable to load file`,
           toastId: fileUrl,
           url: document.location.href,
         });
@@ -110,7 +103,6 @@ export default Viewer;
 Viewer.propTypes = {
   authToken: datasetProps.authToken.isRequired,
   fileName: selectedFileProps.name.isRequired,
-  fileShortName: selectedFileProps.shortName.isRequired,
   fileSize: selectedFileProps.size.isRequired,
   fileUrl: selectedFileProps.url.isRequired,
   uuid: PropTypes.number.isRequired,
