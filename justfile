@@ -97,6 +97,13 @@ upgrade env package="": virtualenv
     FORCE=true {{ just_executable() }} requirements-{{ env }} $opts
 
 
+update-interactive-templates ref="": && prodenv
+    #!/usr/bin/bash
+    test "$ref" == "" && ref=$(git ls-remote https://github.com/opensafely-core/interactive-templates HEAD | awk '{print $1}')
+    prefix="interactive_templates@https://github.com/opensafely-core/interactive-templates/archive"
+    sed -i "s#${prefix}.*#${prefix}/${ref}.zip#" requirements.prod.in
+
+
 # Run the dev project with telemetry
 run-telemetry: devenv
     $BIN/opentelemetry-instrument $BIN/python manage.py runserver --noreload
