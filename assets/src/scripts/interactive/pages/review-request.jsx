@@ -75,7 +75,6 @@ function ReviewRequest() {
   const handleClick = async () => {
     setIsSubmitting(true);
     setError("");
-    setIsSubmitting(false);
 
     const response = await fetch(`${basePath}publish`, {
       method: "POST",
