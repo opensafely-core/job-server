@@ -35,6 +35,7 @@ function ReviewRequest() {
   const dataForSubmission = () => {
     const {
       codelistA,
+      codelistB,
       timeOption,
       timeScale,
       timeValue,
@@ -51,9 +52,9 @@ function ReviewRequest() {
         value: codelistA.value,
       },
       codelistB: {
-        label: codelistA.label,
-        type: codelistA.type,
-        value: codelistA.value,
+        label: codelistB.label,
+        type: codelistB.type,
+        value: codelistB.value,
       },
 
       startDate: startISO.slice(0, 10),
