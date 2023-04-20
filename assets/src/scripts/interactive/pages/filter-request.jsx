@@ -16,7 +16,7 @@ function FilterRequest() {
   const [, navigate] = useLocation();
   const { formData, setFormData } = useFormData();
 
-  if (useRequiredFields(["codelistA", "codelistB"])) {
+  if (useRequiredFields(["codelistA", "codelistB", "timeOption"])) {
     return <Redirect to="" />;
   }
 
