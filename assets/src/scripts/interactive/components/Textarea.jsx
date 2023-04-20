@@ -75,7 +75,7 @@ Textarea.propTypes = {
   characterCount: bool,
   children: node,
   className: string,
-  hintText: string,
+  hintText: node,
   id: string.isRequired,
   label: string.isRequired,
   maxlength: number,

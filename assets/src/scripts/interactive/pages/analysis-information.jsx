@@ -53,12 +53,23 @@ function AnalysisInformation() {
           <Textarea
             characterCount
             className="mb-6"
-            hintText="The title will be shown at the top of the generated report. It should provide a short summary to anyone reading the report about what the analysis shows. For example: 'How the COVID-19 pandemic has affected the number of rescue packs being prescribed for COPD patients'.  You will be able to change this after the report is generated."
+            hintText={
+              <>
+                <p>
+                  The title will be shown at the top of the generated report. It
+                  should provide a short summary to anyone reading the report
+                  about what the analysis shows.
+                </p>
+                <p>
+                  You will be able to change this after the report is generated.
+                </p>
+              </>
+            }
             id="title"
             label="Provide a title for the analysis"
             maxlength={100}
             name="title"
-            placeholder={`For example: ${formData.codelistA.label} & ${formData.codelistB.label}`}
+            placeholder={`For example: ${formData.codelistA.label} & ${formData.codelistB.label} during the COVID-19 pandemic`}
             required
             resize={false}
             rows={2}
@@ -70,7 +81,18 @@ function AnalysisInformation() {
 
           <Textarea
             characterCount
-            hintText="It must be clear that this analysis request is aligned with your approvals. Please refer to the approved version of your project application form, which you were sent by email."
+            hintText={
+              <>
+                <p>
+                  It must be clear that this analysis request is aligned with
+                  your approvals.
+                </p>
+                <p>
+                  Please refer to the approved version of your project
+                  application form, which you were sent by email.
+                </p>
+              </>
+            }
             id="purpose"
             label="Explain why this analysis fits with the approved project purpose"
             maxlength={1000}
