@@ -4,8 +4,33 @@ Functions for specific slack messages jobserver sends.
 These functions should always take a `channel` argument, so that we can test
 them on a different channel.
 """
+import textwrap
 
 from services import slack
+
+
+def notify_analysis_request_submitted(analysis_request, channel="interactive-requests"):
+    analysis_url = slack.link(analysis_request.get_absolute_url(), "View on job-server")
+    commit_url = slack.link(
+        analysis_request.job_request.get_repo_url(), analysis_request.job_request.sha
+    )
+    job_request_url = slack.link(
+        analysis_request.job_request.get_absolute_url(), analysis_request.job_request.pk
+    )
+
+    message = f"""
+    *Analysis Requested*
+    By: {analysis_request.created_by.email}
+    Title: {analysis_request.title}
+    Commit: {commit_url}
+    Job Request: {job_request_url}
+
+    {analysis_url}
+    """
+
+    message = textwrap.dedent(message.strip())
+
+    slack.post(message, channel)
 
 
 def notify_tech_support_of_failed_analysis(job_request, channel="tech-support-channel"):
@@ -21,5 +46,20 @@ def notify_tech_support_of_failed_analysis(job_request, channel="tech-support-ch
     job_request_url = slack.link(job_request.get_absolute_url(), "view it here")
 
     message = f"An analysis request has failed, {job_request_url}."
+
+    slack.post(message, channel)
+
+
+def notify_report_uploaded(analysis_request, channel="interactive-requests"):
+    analysis_url = slack.link(analysis_request.get_absolute_url(), "View on job-server")
+
+    message = f"""
+    *Report uploaded*
+    Title: {analysis_request.report_title}
+
+    {analysis_url}
+    """
+
+    message = textwrap.dedent(message.strip())
 
     slack.post(message, channel)

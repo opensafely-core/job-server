@@ -65,7 +65,9 @@ def test_analysisrequestcreate_post_failure(rf, interactive_repo):
     # TODO: check our error response here
 
 
-def test_analysisrequestcreate_post_success(rf, interactive_repo, add_codelist):
+def test_analysisrequestcreate_post_success(
+    rf, interactive_repo, add_codelist, slack_messages
+):
     BackendFactory(slug="tpp")
     project = ProjectFactory()
     user = UserFactory()
@@ -113,6 +115,8 @@ def test_analysisrequestcreate_post_success(rf, interactive_repo, add_codelist):
     # check dates were set properly
     analysis_request.template_data["start_date"] == START_DATE
     analysis_request.template_data["end_date"] == END_DATE
+
+    assert len(slack_messages) == 1
 
 
 def test_analysisrequestcreate_unauthorized(rf):
