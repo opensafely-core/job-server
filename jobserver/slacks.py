@@ -99,16 +99,26 @@ def notify_copilots_of_repo_sign_off(repo, channel="co-pilot-support"):
         repo.researcher_signed_off_by.name,
     )
 
+    project = repo.workspaces.first().project
+    project_link = slack.link(project.get_absolute_url(), project.slug)
+
     docs_link = slack.link(
         "https://bennettinstitute-team-manual.pages.dev/products/opensafely-jobs/#internal-repo-sign-off",
         "here",
     )
 
-    message = "\n".join(
-        [
-            f"The {repo_link} repo was signed off by {user_link}.",
-            f"It now needs to be signed off internally (see docs {docs_link}).",
-        ]
-    )
+    message = [
+        f"The {repo_link} repo was signed off by {user_link}.",
+        f"It now needs to be signed off internally (see docs {docs_link}).",
+        "",
+        f"Project: {project_link}",
+    ]
 
-    slack.post(text=message, channel=channel)
+    copilot = project.copilot
+    if copilot:
+        copilot_link = slack.link(copilot.get_staff_url(), copilot.name)
+    else:  # pragma: no cover
+        copilot_link = "none"
+    message.append(f"Copilot: {copilot_link}")
+
+    slack.post(text="\n".join(message), channel=channel)

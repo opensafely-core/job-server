@@ -302,7 +302,8 @@ def test_signoffrepo_post_all_workspaces_signed_off_and_no_name_without_github_o
     rf, mailoutbox, slack_messages
 ):
     user = UserFactory()
-    project = ProjectFactory()
+    copilot = UserFactory()
+    project = ProjectFactory(copilot=copilot)
     ProjectMembershipFactory(project=project, user=user)
 
     repo = RepoFactory(
@@ -334,6 +335,9 @@ def test_signoffrepo_post_all_workspaces_signed_off_and_no_name_without_github_o
 
     assert len(mailoutbox) == 1
     assert len(slack_messages) == 1
+    msg, channel = slack_messages[0]
+    assert copilot.name in msg
+    assert channel == "co-pilot-support"
 
 
 def test_signoffrepo_post_no_signed_off_workspaces_and_no_name(rf):
