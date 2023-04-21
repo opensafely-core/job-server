@@ -57,8 +57,15 @@ requirements-dev *args: requirements-prod
 prodenv: requirements-prod
     #!/usr/bin/env bash
     set -eux
+
     # exit if .txt file has not changed since we installed them (-nt == "newer than', but we negate with || to avoid error exit code)
     test requirements.prod.txt -nt $VIRTUAL_ENV/.prod || exit 0
+
+    # Locally, changes to the interactive_templates package are not picked up automatically, because we are usng a zipfile rather
+    # than providing explicit versions. This means we need to uninstall and reinstall the package to pick up any changes.
+    # Note: this is not a problem in CI because it is building from a fresh environment each time.
+    $PIP uninstall -y interactive_templates
+    touch requirements.prod.in
 
     # --no-deps is recommended when using hashes, and also worksaround a bug with constraints and hashes.
     # https://pip.pypa.io/en/stable/topics/secure-installs/#do-not-use-setuptools-directly
@@ -73,6 +80,7 @@ prodenv: requirements-prod
 devenv: prodenv requirements-dev && install-precommit
     #!/usr/bin/env bash
     set -eu
+
     # exit if .txt file has not changed since we installed them (-nt == "newer than', but we negate with || to avoid error exit code)
     test requirements.dev.txt -nt $VIRTUAL_ENV/.dev || exit 0
 
