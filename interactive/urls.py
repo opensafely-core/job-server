@@ -5,7 +5,7 @@ from jobserver.views.reports import (
     ReportPublishRequestUpdate,
 )
 
-from .views import AnalysisRequestCreate, AnalysisRequestDetail
+from .views import AnalysisReportUpdate, AnalysisRequestCreate, AnalysisRequestDetail
 
 
 app_name = "interactive"
@@ -14,6 +14,7 @@ urlpatterns = [
     path("", AnalysisRequestCreate.as_view(), name="analysis-create"),
     path("<slug:slug>/", AnalysisRequestDetail.as_view(), name="analysis-detail"),
     path("<str:slug>/", AnalysisRequestDetail.as_view(), name="analysis-detail"),
+    path("<str:slug>/update", AnalysisReportUpdate.as_view(), name="report-update"),
     path(
         "<str:slug>/publish/",
         ReportPublishRequestCreate.as_view(),

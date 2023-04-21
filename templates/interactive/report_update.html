@@ -1,0 +1,108 @@
+{% extends "base-tw.html" %}
+
+{% load django_vite %}
+{% load humanize %}
+{% load static %}
+
+{% block metatitle %}{{ analysis_request.project.name }} Analysis | OpenSAFELY Jobs{% endblock metatitle %}
+
+{% block extra_meta %}
+<meta name="description" content="{{ analysis_request.project.name }} is an OpenSAFELY project from {{ analysis_request.project.org.name }}. Every time a researcher runs their analytic code against patient data, it is audited in public here.">
+{% endblock %}
+
+{% block extra_styles %}
+<link rel="stylesheet" href="{% static 'highlighting.css' %}">
+{% endblock extra_styles %}
+
+{% block breadcrumbs %}
+  {% url "home" as home_url %}
+
+  {% #breadcrumbs %}
+    {% breadcrumb title="Home" url=home_url %}
+    {% breadcrumb title=analysis_request.project.org.name url=analysis_request.project.org.get_absolute_url location="Organisation" %}
+    {% breadcrumb title=analysis_request.project.name url=analysis_request.project.get_absolute_url location="Project" %}
+    {% breadcrumb title=analysis_request.title url=analysis_request.get_absolute_url location="Analysis Request" %}
+    {% breadcrumb title="Edit analysis title and summary" active=True %}
+  {% /breadcrumbs %}
+{% endblock breadcrumbs %}
+
+{% block content %}
+<div class="grid grid-cols-1 gap-6 lg:grid-cols-3">
+  <div class="flex flex-col text-center items-center gap-y-2 lg:text-left lg:items-start lg:col-span-full">
+    <div class="flex flex-col items-center gap-y-2 w-full lg:flex-row lg:justify-between lg:items-start">
+      <div class="order-2 w-full lg:mr-auto lg:order-1">
+        <h1 class="mb-2 text-3xl tracking-tight break-words font-bold text-slate-900 sm:text-4xl">
+          Edit analysis title and summary
+        </h1>
+        <dl class="flex flex-col gap-2 text-sm text-slate-600 items-center sm:flex-row sm:gap-x-6 sm:justify-center lg:justify-start">
+          <dt class="sr-only">Organisation:</dt>
+          <dd class="flex flex-row items-start overflow-hidden">
+            {% icon_building_library_outline class="mr-1.5 h-5 w-5 flex-shrink-0 text-slate-400" %}
+            <span class="truncate">{{ analysis_request.project.org.name }}</span>
+          </dd>
+          <dt class="sr-only">Project:</dt>
+          <dd class="flex flex-row items-start overflow-hidden">
+            {% icon_rectangle_stack_outline class="mr-1.5 h-5 w-5 flex-shrink-0 text-slate-400" %}
+            <span class="truncate">{{ analysis_request.project.name }}</span>
+          </dd>
+        </dl>
+      </div>
+    </div>
+  </div>
+
+  <div class="grid gap-6 lg:col-span-3 xl:grid-cols-6" id="reportContainer">
+    {% #card title="Request information" class="xl:col-span-4 xl:col-start-2" header_class="sr-only" %}
+    <dl class="border-t border-slate-200 sm:divide-y sm:divide-slate-200">
+        {% #description_item title="Title" %}
+        {{ analysis_request.title }}
+        {% /description_item %}
+
+        {% #description_item title="Created at" %}
+        {{ analysis_request.created_at }}
+        <time datetime="{{ analysis_request.created_at|date:"Y-m-d H:i:sO" }}"></time>
+        {% /description_item %}
+
+        {% #description_item title="Created by" %}
+        {% if user_can_view_staff_area %}
+        {% link href=analysis_request.created_by.get_staff_url text=analysis_request.created_by.fullname %}
+        {% else %}
+        {{ analysis_request.created_by.fullname }}
+        {% endif %}
+        {% /description_item %}
+
+        {% #description_item title="Purpose" %}
+        {{ analysis_request.purpose }}
+        {% /description_item %}
+    </dl>
+    {% /card %}
+  </div>
+
+  <div class="grid gap-6 lg:col-span-3 xl:grid-cols-6" id="request_form">
+    {% #card title="Update Request Details" container=True class="relative font-lg text-slate-700 xl:col-span-6" header_class="sr-only" %}
+    <form method="POST" class="flex flex-col gap-y-6 items-start">
+        {% csrf_token %}
+        <div className="-mt-2 mb-0.5 text-sm text-gray-700 flex flex-col gap-y-1">
+            <p>This title will be used when the report is made public</p>
+        </div>
+        {% form_input class="w-full max-w-prose" field=form.title %}
+        <div className="-mt-2 mb-0.5 text-sm text-gray-700 flex flex-col gap-y-1">
+          <p>
+            This is a high-level description of the report. It will be part
+            of the final public report, and should summarise the findings and
+            any conclusions drawn or further work needed.
+          </p>
+        </div>
+        {% form_textarea class="w-full max-w-prose" field=form.description resize=True rows=10 %}
+        {% #button type="submit" variant="primary" %}
+        Update Report
+        {% /button %}
+    </form>
+    {% /card %}
+  </div>
+</div>
+
+{% endblock content %}
+
+{% block extra_js %}
+  {% vite_asset "assets/src/scripts/analysis-request-detail.js" %}
+{% endblock %}

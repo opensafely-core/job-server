@@ -21,7 +21,7 @@
     {% breadcrumb title="Home" url=home_url %}
     {% breadcrumb title=analysis_request.project.org.name url=analysis_request.project.org.get_absolute_url location="Organisation" %}
     {% breadcrumb title=analysis_request.project.name url=analysis_request.project.get_absolute_url location="Project" %}
-    {% breadcrumb title="View an analysis" active=True %}
+    {% breadcrumb title=analysis_request.title location="Analysis Request" active=True %}
   {% /breadcrumbs %}
 {% endblock breadcrumbs %}
 
@@ -73,6 +73,20 @@
         {% /button %}
       {% endif %}
 
+      {% if not report %}
+        {% #button type="link" variant="primary" disabled=True tooltip="Report has not been processed" %}
+          Update title and summary
+        {% /button %}
+      {% elif object.publish_request %}
+        {% #button type="link" variant="primary" disabled=True tooltip="Cannot edit while publishing review is ongoing" %}
+          Update title and summary
+        {% /button %}
+      {% else %}
+        {% #button type="link" variant="primary" href=update_url %}
+          Update title and summary
+        {% /button %}
+      {% endif %}
+
       {% if report %}
         {% #button type="button" id="downloadBtn" variant="primary" data_title=analysis_request.title %}
           Download report
@@ -110,6 +124,14 @@
 
       {% #card title="Report" container=True class="relative font-lg text-slate-700 xl:col-span-6" header_class="sr-only" %}
         <div class="z-10 relative py-2 prose prose-lg prose-blue mx-auto [&_h1]:hidden !max-w-3xl" id="report">
+          <header id="editable_header">
+          <h2 class="mb-2 text-3xl tracking-tight break-words font-bold text-slate-900 sm:text-4xl">
+            {{ analysis_request.report.title }}
+          </h2>
+          <h3>Description</h3>
+          <p>{{ analysis_request.report.description|linebreaksbr }}</p>
+          </header>
+
           {{ report }}
         </div>
         <div id="watermark" class="hidden absolute inset-0 text-center w-full h-full text-5xl font-bold text-gray-900/10">
