@@ -42,7 +42,7 @@ function BuildQuery() {
     timeValue: Yup.number()
       .typeError("Amount must be a number")
       .positive("Time value must be a positive number")
-      .min(1, "Time scale cannot be less than 1")
+      .min(0, "Time scale cannot be less than 0")
       .required("Amount of time is required")
       .test(
         "tenYears",
