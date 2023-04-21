@@ -11,7 +11,7 @@ from jobserver.models import Backend, Project
 from jobserver.reports import process_html
 from jobserver.utils import build_spa_base_url
 
-from .dates import END_DATE, START_DATE
+from .dates import END_DATE, START_DATE, WEEK_OF_LATEST_EXTRACT
 from .forms import AnalysisRequestForm
 from .models import AnalysisRequest
 from .opencodelists import _get_opencodelists_api
@@ -65,6 +65,7 @@ class AnalysisRequestCreate(View):
             time_value=data["time_value"],
             start_date=START_DATE,
             end_date=END_DATE,
+            week_of_latest_extract=WEEK_OF_LATEST_EXTRACT,
         )
 
     def dispatch(self, request, *args, **kwargs):
