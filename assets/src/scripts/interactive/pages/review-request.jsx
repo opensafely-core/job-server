@@ -60,7 +60,11 @@ function ReviewRequest() {
       startDate: startISO.slice(0, 10),
       endDate: endISO.slice(0, 10),
 
+      // If timeEver is not selected, it is set to null and sent as part of the POST request payload.
       timeEver: timeOption === anyTimeQuery ? "true" : null,
+
+      // If timeEver is selected, timeScale and timeValue are not sent as part of the POST request payload.
+      // Undefined values are removed from the POST object.
       timeScale: timeOption === anyTimeQuery ? undefined : timeScale,
       timeValue: timeOption === anyTimeQuery ? undefined : timeValue,
 
@@ -173,8 +177,6 @@ function ReviewRequest() {
         </dl>
       </div>
 
-      {error ? <InputError>{error}</InputError> : null}
-
       <section className="prose prose-blue mt-8 pt-6 border-t max-w-full">
         <h2 className="sr-only">Read and agree</h2>
         <ul>
@@ -232,6 +234,8 @@ function ReviewRequest() {
           )}
         </Button>
       </div>
+
+      {error ? <InputError>{error}</InputError> : null}
     </>
   );
 }
