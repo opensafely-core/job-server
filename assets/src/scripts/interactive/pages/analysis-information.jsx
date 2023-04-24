@@ -24,8 +24,14 @@ function AnalysisInformation() {
   }
 
   const validationSchema = Yup.object().shape({
-    purpose: Yup.string().required("Write a purpose for this analysis"),
-    title: Yup.string().required("Write a title for this analysis"),
+    purpose: Yup.string()
+      .required("Write a purpose for this analysis")
+      .min(1, "Add a purpose")
+      .max(1000, "Purpose is too long"),
+    title: Yup.string()
+      .required("Write a title for this analysis")
+      .min(1, "Add a title")
+      .max(140, "Title is too long"),
   });
 
   const initialValues = {
@@ -67,12 +73,13 @@ function AnalysisInformation() {
             }
             id="title"
             label="Provide a title for the analysis"
-            maxlength={100}
+            maxlength={140}
             name="title"
-            placeholder={`For example: ${formData.codelistA.label} & ${formData.codelistB.label} during the COVID-19 pandemic`}
+            placeholder=""
             required
             resize={false}
             rows={2}
+            value={`${formData.codelistA.label} & ${formData.codelistB.label} during the COVID-19 pandemic`}
           >
             {errors.title && touched.title ? (
               <InputError>{errors.title}</InputError>
