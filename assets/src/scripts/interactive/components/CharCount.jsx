@@ -13,6 +13,11 @@ function CharCount({ current, min, max }) {
   if (current < max) {
     return <p className="text-sm">{max - current} characters remaining</p>;
   }
+
+  if (current > max) {
+    return <p className="text-sm">Remove {current - max} characters</p>;
+  }
+
   return <p className="text-sm"> chars remaining</p>;
 }
 

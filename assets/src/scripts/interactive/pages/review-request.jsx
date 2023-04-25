@@ -1,3 +1,4 @@
+import * as Sentry from "@sentry/react";
 import { useState } from "react";
 import { Redirect } from "wouter";
 import { AlertPage, removeAlert } from "../components/Alert";
@@ -60,7 +61,11 @@ function ReviewRequest() {
       startDate: startISO.slice(0, 10),
       endDate: endISO.slice(0, 10),
 
+      // If timeEver is not selected, it is set to null and sent as part of the POST request payload.
       timeEver: timeOption === anyTimeQuery ? "true" : null,
+
+      // If timeEver is selected, timeScale and timeValue are not sent as part of the POST request payload.
+      // Undefined values are removed from the POST object.
       timeScale: timeOption === anyTimeQuery ? undefined : timeScale,
       timeValue: timeOption === anyTimeQuery ? undefined : timeValue,
 
@@ -76,6 +81,13 @@ function ReviewRequest() {
     setIsSubmitting(true);
     setError("");
 
+    Sentry.withScope((scope) => {
+      scope.setLevel("debug");
+      Sentry.captureMessage("Submitting analysis request", {
+        ...dataForSubmission(),
+      });
+    });
+
     const response = await fetch(`${basePath}publish`, {
       method: "POST",
       headers: {
@@ -86,6 +98,8 @@ function ReviewRequest() {
     });
 
     if (!response.ok) {
+      Sentry.captureException(response, { ...dataForSubmission() });
+
       setIsSubmitting(false);
       const message = `An error has occured: ${response.status} - ${response.statusText}`;
       setError(message);
@@ -93,6 +107,15 @@ function ReviewRequest() {
     }
 
     removeAlert();
+
+    Sentry.withScope((scope) => {
+      scope.setLevel("debug");
+      Sentry.captureMessage("Analysis ok, redirecting", {
+        responseUrl: response.url,
+        response,
+      });
+    });
+
     window.location.href = response.url;
   };
 
@@ -173,8 +196,6 @@ function ReviewRequest() {
         </dl>
       </div>
 
-      {error ? <InputError>{error}</InputError> : null}
-
       <section className="prose prose-blue mt-8 pt-6 border-t max-w-full">
         <h2 className="sr-only">Read and agree</h2>
         <ul>
@@ -232,6 +253,8 @@ function ReviewRequest() {
           )}
         </Button>
       </div>
+
+      {error ? <InputError>{error}</InputError> : null}
     </>
   );
 }

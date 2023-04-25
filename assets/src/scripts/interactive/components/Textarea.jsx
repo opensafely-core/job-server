@@ -18,13 +18,14 @@ function Textarea({
   resize,
   rows,
   required,
+  value,
 }) {
   const { setFieldValue, values } = useFormikContext();
-  const [textVal, setTextVal] = useState(values[id] || "");
+  const [textVal, setTextVal] = useState(values[id] || value);
 
   useEffect(() => {
     setFieldValue(id, textVal);
-  }, [textVal, id, setFieldValue]);
+  }, [textVal, id, setFieldValue, value]);
 
   return (
     <div className={`flex flex-col gap-y-3 text-lg leading-tight ${className}`}>
@@ -47,8 +48,9 @@ function Textarea({
         placeholder={placeholder}
         required={required}
         rows={rows}
-        value={textVal}
-      />
+      >
+        {textVal}
+      </Field>
       {characterCount && (minlength || maxlength) ? (
         <CharCount current={textVal.length} max={maxlength} min={minlength} />
       ) : null}
@@ -69,6 +71,7 @@ Textarea.defaultProps = {
   placeholder: null,
   required: false,
   rows: 8,
+  value: "",
 };
 
 Textarea.propTypes = {
@@ -85,4 +88,5 @@ Textarea.propTypes = {
   required: bool,
   resize: bool.isRequired,
   rows: number,
+  value: string,
 };
