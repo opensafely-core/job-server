@@ -205,6 +205,8 @@ class RepoSignOff(View):
         This repo has been checked and approved by {request.user.name}.
 
         An owner of the `opensafely` org is required to make this change, they can do so on the [repo settings page]({repo.url}/settings).
+
+        Once the repo is public please close this issue.
         """
 
         with transaction.atomic():
