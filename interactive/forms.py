@@ -39,7 +39,7 @@ class AnalysisRequestForm(forms.Form):
     time_scale = forms.ChoiceField(
         choices=list_to_choices(["weeks", "months", "years"]), required=False
     )
-    time_value = forms.IntegerField(min_value=1, required=False)
+    time_value = forms.IntegerField(min_value=0, required=False)
 
     def __init__(self, *args, **kwargs):
         codelists = kwargs.pop("codelists")
