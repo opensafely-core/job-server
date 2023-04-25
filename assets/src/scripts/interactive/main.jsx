@@ -79,7 +79,10 @@ root.render(
                   <p className="lead">You request was not submitted.</p>
                   <p>
                     Please try again, or{" "}
-                    <a href="mailto:team@opensafely.org">contact support</a>.
+                    <a href="mailto:team@opensafely.org">
+                      email team@opensafely.org
+                    </a>
+                    .
                   </p>
                 </div>
               </Route>
