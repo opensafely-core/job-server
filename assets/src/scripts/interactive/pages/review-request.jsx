@@ -81,11 +81,12 @@ function ReviewRequest() {
     setIsSubmitting(true);
     setError("");
 
+    const body = JSON.stringify(dataForSubmission());
+
     Sentry.withScope((scope) => {
       scope.setLevel("debug");
-      Sentry.captureMessage("Submitting analysis request", {
-        ...dataForSubmission(),
-      });
+      Sentry.setContext("formData", body);
+      Sentry.captureMessage("Submitting analysis request");
     });
 
     const response = await fetch(`${basePath}publish`, {
@@ -94,12 +95,10 @@ function ReviewRequest() {
         "Content-Type": "application/json",
         "X-CSRFToken": csrfToken,
       },
-      body: JSON.stringify(dataForSubmission()),
+      body,
     });
 
     if (!response.ok) {
-      Sentry.captureException(response, { ...dataForSubmission() });
-
       setIsSubmitting(false);
       const message = `An error has occured: ${response.status} - ${response.statusText}`;
       setError(message);
@@ -110,10 +109,9 @@ function ReviewRequest() {
 
     Sentry.withScope((scope) => {
       scope.setLevel("debug");
-      Sentry.captureMessage("Analysis ok, redirecting", {
-        responseUrl: response.url,
-        response,
-      });
+      Sentry.setContext("formData", body);
+      Sentry.setContext("response", response.url);
+      Sentry.captureMessage("Analysis ok, redirecting");
     });
 
     window.location.href = response.url;
