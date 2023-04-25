@@ -1,3 +1,4 @@
+import * as Sentry from "@sentry/react";
 import React from "react";
 import { createRoot } from "react-dom/client";
 import { Route, Router, Switch } from "wouter";
@@ -31,6 +32,11 @@ const required = {
 Object.entries(required).map(([key, value]) => {
   if (!dataset[key]) throw new Error(`${value} not provided`);
   return null;
+});
+
+Sentry.init({
+  dsn: import.meta.env.VITE_SENTRY_DSN,
+  tracesSampleRate: 1.0,
 });
 
 root.render(

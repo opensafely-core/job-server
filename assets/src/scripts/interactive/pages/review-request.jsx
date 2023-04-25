@@ -1,3 +1,4 @@
+import * as Sentry from "@sentry/react";
 import { useState } from "react";
 import { Redirect } from "wouter";
 import { AlertPage, removeAlert } from "../components/Alert";
@@ -80,6 +81,13 @@ function ReviewRequest() {
     setIsSubmitting(true);
     setError("");
 
+    Sentry.withScope((scope) => {
+      scope.setLevel("debug");
+      Sentry.captureMessage("Submitting analysis request", {
+        ...dataForSubmission(),
+      });
+    });
+
     const response = await fetch(`${basePath}publish`, {
       method: "POST",
       headers: {
@@ -90,6 +98,8 @@ function ReviewRequest() {
     });
 
     if (!response.ok) {
+      Sentry.captureException(response, { ...dataForSubmission() });
+
       setIsSubmitting(false);
       const message = `An error has occured: ${response.status} - ${response.statusText}`;
       setError(message);
@@ -97,6 +107,15 @@ function ReviewRequest() {
     }
 
     removeAlert();
+
+    Sentry.withScope((scope) => {
+      scope.setLevel("debug");
+      Sentry.captureMessage("Analysis ok, redirecting", {
+        responseUrl: response.url,
+        response,
+      });
+    });
+
     window.location.href = response.url;
   };
 
