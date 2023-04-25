@@ -262,7 +262,12 @@ CSP_REPORT_ONLY = False
 CSP_EXCLUDE_URL_PREFIXES = ("/api/",)
 CSP_REPORT_URI = [env.str("CSP_REPORT_URI", default="")]
 CSP_DEFAULT_SRC = ["'none'"]
-CSP_CONNECT_SRC = ["'self'", "https://plausible.io", "https://sentry.io"]
+CSP_CONNECT_SRC = [
+    "'self'",
+    "https://plausible.io",
+    "https://sentry.io",
+    "https://*.ingest.sentry.io/",
+]
 CSP_FONT_SRC = ["'self'"]
 CSP_IMG_SRC = [
     "'self'",
@@ -288,6 +293,7 @@ if DJANGO_VITE_DEV_MODE:
         "ws://localhost:5173/static/",
         "https://plausible.io",
         "https://sentry.io",
+        "https://*.ingest.sentry.io/",
     ]
     CSP_FONT_SRC = ["'self'", "data:"]
     CSP_SCRIPT_SRC = CSP_SCRIPT_SRC_ELEM = [
