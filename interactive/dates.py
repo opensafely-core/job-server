@@ -40,5 +40,12 @@ def end_date(date) -> date:
     return date.replace(year=new_year, month=new_month, day=day_count)
 
 
+def week_of_latest_extract():
+    last_full_week = date_of_last_extract() - timedelta(weeks=1)
+    monday = last_full_week - timedelta(days=last_full_week.weekday())
+    return monday
+
+
 START_DATE = "2019-09-01"
 END_DATE = end_date(date_of_last_extract()).strftime("%Y-%m-%d")
+WEEK_OF_LATEST_EXTRACT = week_of_latest_extract().strftime("%Y-%m-%d")

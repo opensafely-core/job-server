@@ -2,7 +2,7 @@ from datetime import date
 
 import pytest
 
-from interactive.dates import date_of_last_extract, end_date
+from interactive.dates import date_of_last_extract, end_date, week_of_latest_extract
 
 
 def test_date_of_last_extract_mon_to_previous_wed(freezer):
@@ -47,3 +47,24 @@ def test_date_of_last_extract_wed_to_previous_wed(freezer):
 )
 def test_end_date(last_extract, expected):
     assert end_date(last_extract) == expected
+
+
+@pytest.mark.parametrize(
+    "today,expected",
+    [
+        (date(2023, 4, 24), date(2023, 4, 3)),
+        (date(2023, 4, 3), date(2023, 3, 13)),
+        (date(2020, 3, 3), date(2020, 2, 17)),
+        (date(2023, 1, 2), date(2022, 12, 12)),
+    ],
+    ids=[
+        "same month",
+        "april -> march",
+        "march -> leap february",
+        "previous year",
+    ],
+)
+def test_week_of_latest_extract(today, expected, freezer):
+    freezer.move_to(today)
+
+    assert week_of_latest_extract() == expected
