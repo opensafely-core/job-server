@@ -1,6 +1,6 @@
 import { Field, useFormikContext } from "formik";
 import { bool, node, number, string } from "prop-types";
-import React, { useEffect, useState } from "react";
+import React, { useEffect } from "react";
 import CharCount from "./CharCount";
 import HintText from "./HintText";
 
@@ -21,11 +21,10 @@ function Textarea({
   value,
 }) {
   const { setFieldValue, values } = useFormikContext();
-  const [textVal, setTextVal] = useState(values[id] || value);
 
   useEffect(() => {
-    setFieldValue(id, textVal);
-  }, [textVal, id, setFieldValue, value]);
+    setFieldValue(id, values[id] || value);
+  }, []); // eslint-disable-line react-hooks/exhaustive-deps
 
   return (
     <div className={`flex flex-col gap-y-3 text-lg leading-tight ${className}`}>
@@ -44,15 +43,12 @@ function Textarea({
         maxLength={maxlength}
         minLength={minlength}
         name={name}
-        onChange={(e) => setTextVal(e.target.value)}
         placeholder={placeholder}
         required={required}
         rows={rows}
-      >
-        {textVal}
-      </Field>
+      />
       {characterCount && (minlength || maxlength) ? (
-        <CharCount current={textVal.length} max={maxlength} min={minlength} />
+        <CharCount field={id} max={maxlength} min={minlength} />
       ) : null}
       {children}
     </div>
