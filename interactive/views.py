@@ -1,12 +1,10 @@
 import json
 
 from django.core.exceptions import PermissionDenied
-from django.forms import modelform_factory
 from django.http import Http404
 from django.shortcuts import get_object_or_404, redirect
 from django.template.response import TemplateResponse
-from django.urls import reverse
-from django.views.generic import DetailView, View
+from django.views.generic import DetailView, UpdateView, View
 from interactive_templates.schema import Codelist, v2
 
 from jobserver.authorization import has_permission
@@ -195,66 +193,45 @@ class AnalysisRequestDetail(DetailView):
 
     def get_context_data(self, **kwargs):
         report = process_html(self.object.report_content)
-        update_url = reverse(
-            "interactive:report-update",
-            kwargs=dict(
-                slug=self.object.slug,
-                project_slug=self.object.project.slug,
-                org_slug=self.object.project.org.slug,
-            ),
-        )
-
         return super().get_context_data(**kwargs) | {
             "report": report,
-            "update_url": update_url,
         }
 
 
-class AnalysisReportUpdate(View):
-    """Updating the title and description of the generated report.
+# TODO: this view is specific to AnalysisRequest report edits currently, as we
+# render the AnalysisRequest details above the form for context in the
+# template. But it may move to jobserver/views/reports.py in future.
+class ReportEdit(UpdateView):
+    fields = [
+        "title",
+        "description",
+    ]
+    model = Report
+    template_name = "interactive/report_edit.html"
 
-    It actually updates the attached Report model, rather than the
-    AnalysisRequest itself.
-    """
-
-    form_class = modelform_factory(Report, fields=["title", "description"])
-
-    def dispatch(self, request, slug, *args, **kwargs):
-        analysis_request = get_object_or_404(AnalysisRequest, slug=slug)
+    def get_object(self, **kwargs):
+        # keep hold of the AnalysisRequest object so we can easily use it for
+        # the success_url
+        self.analysis_request = get_object_or_404(
+            AnalysisRequest, slug=self.kwargs["slug"]
+        )
 
         if not has_permission(
-            self.request.user, "analysis_request_view", project=analysis_request.project
+            self.request.user,
+            "analysis_request_view",
+            project=self.analysis_request.project,
         ):
             raise PermissionDenied
 
-        if not analysis_request.report:
+        if not self.analysis_request.report:
             raise Http404
 
-        self.analysis_request = analysis_request
+        return self.analysis_request.report
 
-        return super().dispatch(request, slug, *args, **kwargs)
+    def get_success_url(self):
+        return self.analysis_request.get_absolute_url()
 
-    def get(self, request, *args, **kwargs):
-        form = self.form_class(instance=self.analysis_request.report)
-        return self.render_to_response(request, form)
-
-    def post(self, request, *args, **kwargs):
-        form = self.form_class(request.POST, instance=self.analysis_request.report)
-        if form.is_valid():
-            form.save()
-            project = self.analysis_request.project
-            return redirect(
-                "interactive:analysis-detail",
-                org_slug=project.org.slug,
-                project_slug=project.slug,
-                slug=self.analysis_request.slug,
-            )
-        else:
-            return self.render_to_response(request, form)
-
-    def render_to_response(self, request, form):
-        return TemplateResponse(
-            request,
-            template="interactive/report_update.html",
-            context={"form": form, "analysis_request": self.analysis_request},
-        )
+    def get_context_data(self, **kwargs):
+        return super().get_context_data(**kwargs) | {
+            "analysis_request": self.analysis_request,
+        }
