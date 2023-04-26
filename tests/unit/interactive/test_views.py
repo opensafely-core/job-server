@@ -2,10 +2,12 @@ import json
 
 import pytest
 from django.core.exceptions import PermissionDenied
+from django.http import Http404
 
 from interactive.dates import END_DATE, START_DATE
 from interactive.models import AnalysisRequest
 from interactive.views import (
+    AnalysisReportUpdate,
     AnalysisRequestCreate,
     AnalysisRequestDetail,
     from_codelist,
@@ -17,6 +19,7 @@ from ...factories import (
     BackendFactory,
     ProjectFactory,
     ProjectMembershipFactory,
+    ReportFactory,
     UserFactory,
     WorkspaceFactory,
 )
@@ -53,7 +56,7 @@ def test_analysisrequestcreate_post_failure(rf, interactive_repo):
     data = {
         "timeScale": "months",
     }
-    request = rf.post("/", data=json.dumps(data), content_type="appliation/json")
+    request = rf.post("/", data=json.dumps(data), content_type="application/json")
     request.user = user
 
     response = AnalysisRequestCreate.as_view(
@@ -209,3 +212,142 @@ def test_from_codelist():
     }
     assert from_codelist(data, "first", "inner") == "value"
     assert from_codelist(data, "second", "inner") == ""
+
+
+def test_analysisreportupdate_get_success(rf):
+    project = ProjectFactory()
+    user = UserFactory()
+    report = ReportFactory(
+        title="test report title",
+        description="test report description",
+    )
+    ProjectMembershipFactory(project=project, user=user, roles=[InteractiveReporter])
+    analysis_request = AnalysisRequestFactory(
+        project=project,
+        created_by=user,
+        report=report,
+    )
+
+    request = rf.get("/")
+    request.user = user
+
+    response = AnalysisReportUpdate.as_view()(
+        request,
+        org_slug=project.org.slug,
+        project_slug=project.slug,
+        slug=analysis_request.slug,
+    )
+
+    assert "test report title" in response.rendered_content
+    assert "test report description" in response.rendered_content
+
+
+def test_analysisreportupdate_post_success(rf):
+    project = ProjectFactory()
+    user = UserFactory()
+    report = ReportFactory(
+        title="test report title",
+        description="test report description",
+    )
+    ProjectMembershipFactory(project=project, user=user, roles=[InteractiveReporter])
+    analysis_request = AnalysisRequestFactory(
+        project=project,
+        created_by=user,
+        report=report,
+    )
+
+    request = rf.post("/", {"title": "new title", "description": "new description"})
+    request.user = user
+
+    AnalysisReportUpdate.as_view()(
+        request,
+        org_slug=project.org.slug,
+        project_slug=project.slug,
+        slug=analysis_request.slug,
+    )
+
+    report.refresh_from_db()
+    assert report.title == "new title"
+    assert report.description == "new description"
+
+
+def test_analysisreportupdate_unauthorized(rf):
+    project = ProjectFactory()
+    user = UserFactory()
+    analysis_request = AnalysisRequestFactory(
+        project=project,
+        created_by=user,
+    )
+
+    request = rf.get("/")
+    request.user = user
+
+    with pytest.raises(PermissionDenied):
+        AnalysisReportUpdate.as_view()(
+            request,
+            org_slug=project.org.slug,
+            project_slug=project.slug,
+            slug=analysis_request.slug,
+        )
+
+    request = rf.post("/")
+    request.user = user
+
+    with pytest.raises(PermissionDenied):
+        AnalysisReportUpdate.as_view()(
+            request,
+            org_slug=project.org.slug,
+            project_slug=project.slug,
+            slug=analysis_request.slug,
+        )
+
+
+def test_analysisreportupdate_no_report(rf):
+    project = ProjectFactory()
+    user = UserFactory()
+    ProjectMembershipFactory(project=project, user=user, roles=[InteractiveReporter])
+    analysis_request = AnalysisRequestFactory(
+        project=project,
+        created_by=user,
+        report=None,
+    )
+
+    request = rf.get("/")
+    request.user = user
+
+    with pytest.raises(Http404):
+        AnalysisReportUpdate.as_view()(
+            request,
+            org_slug=project.org.slug,
+            project_slug=project.slug,
+            slug=analysis_request.slug,
+        )
+
+
+def test_analysisreportupdate_post_invalid(rf):
+    project = ProjectFactory()
+    user = UserFactory()
+    report = ReportFactory(
+        title="old title",
+        description="old description",
+    )
+    ProjectMembershipFactory(project=project, user=user, roles=[InteractiveReporter])
+    analysis_request = AnalysisRequestFactory(
+        project=project,
+        created_by=user,
+        report=report,
+    )
+
+    request = rf.post("/", {"title": "", "description": ""})
+    request.user = user
+
+    AnalysisReportUpdate.as_view()(
+        request,
+        org_slug=project.org.slug,
+        project_slug=project.slug,
+        slug=analysis_request.slug,
+    )
+
+    report.refresh_from_db()
+    assert report.title == "old title"
+    assert report.description == "old description"

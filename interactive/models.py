@@ -36,7 +36,8 @@ class AnalysisRequest(models.Model):
     purpose = models.TextField()
 
     # we capture this in the form before the analysis is run so we know what to
-    # set report.title to when automatically generating that.
+    # set report.title to when automatically generating that. Once the Report
+    # object exists, this is no longer used
     report_title = models.TextField()
 
     # store the analysis-specific templating context here.  The schema of this

@@ -301,7 +301,9 @@ def test_releaseapi_post_success_for_analysis_request(
 
     job_request = JobRequestFactory(created_by=creating_user)
     analysis_request = AnalysisRequestFactory(
-        created_by=creating_user, job_request=job_request
+        created_by=creating_user,
+        job_request=job_request,
+        report_title="report title",
     )
 
     assert not analysis_request.report
@@ -345,6 +347,8 @@ def test_releaseapi_post_success_for_analysis_request(
 
     analysis_request.refresh_from_db()
     assert analysis_request.report
+    assert analysis_request.report.title == analysis_request.report_title
+    assert analysis_request.report.description == ""
 
 
 def test_releaseapi_post_success_for_html_not_linked_to_an_analysis_request(
