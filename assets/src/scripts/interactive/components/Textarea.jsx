@@ -24,8 +24,7 @@ function Textarea({
 
   useEffect(() => {
     setFieldValue(id, values[id] || value);
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, []);
+  }, []); // eslint-disable-line react-hooks/exhaustive-deps
 
   return (
     <div className={`flex flex-col gap-y-3 text-lg leading-tight ${className}`}>
@@ -49,11 +48,7 @@ function Textarea({
         rows={rows}
       />
       {characterCount && (minlength || maxlength) ? (
-        <CharCount
-          current={values?.[id].length}
-          max={maxlength}
-          min={minlength}
-        />
+        <CharCount field={id} max={maxlength} min={minlength} />
       ) : null}
       {children}
     </div>
