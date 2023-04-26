@@ -152,8 +152,7 @@
                 <a href="{{ analysis_request.get_absolute_url }}" target="_blank" rel="noopener noreferrer">{{ analysis_request.title }}</a>
               </li>
             </ul>
-            {# URL to be added here #}
-            {# <p><a href="" target="_blank" rel="noopener noreferrer">All code is shared openly for review and re-use under MIT open license</a></p> #}
+            <p><a href="{{ analysis_request.job_request.get_repo_url }}" target="_blank" rel="noopener noreferrer">All code is shared openly for review and re-use under MIT open license</a></p>
           </div>
         </div>
         <div id="watermark" class="hidden absolute inset-0 text-center w-full h-full text-5xl font-bold text-gray-900/10">
