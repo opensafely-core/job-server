@@ -65,13 +65,28 @@ def test_analysisrequest_get_publish_url():
     )
 
 
-def test_analysisrequest_get_stuff_url():
+def test_analysisrequest_get_staff_url():
     analysis_request = AnalysisRequestFactory()
 
     url = analysis_request.get_staff_url()
 
     assert url == reverse(
         "staff:analysis-request-detail", kwargs={"slug": analysis_request.slug}
+    )
+
+
+def test_analysisrequest_get_edit_url():
+    analysis_request = AnalysisRequestFactory()
+
+    url = analysis_request.get_edit_url()
+
+    assert url == reverse(
+        "interactive:report-edit",
+        kwargs={
+            "org_slug": analysis_request.project.org.slug,
+            "project_slug": analysis_request.project.slug,
+            "slug": analysis_request.slug,
+        },
     )
 
 

@@ -107,6 +107,17 @@ class AnalysisRequest(models.Model):
     def get_staff_url(self):
         return reverse("staff:analysis-request-detail", kwargs={"slug": self.slug})
 
+    def get_edit_url(self):
+        # TODO: decide if this should be the canonical way to edit reports once reports arrive in this project
+        return reverse(
+            "interactive:report-edit",
+            kwargs={
+                "org_slug": self.project.org.slug,
+                "project_slug": self.project.slug,
+                "slug": self.slug,
+            },
+        )
+
     @property
     def publish_request(self):
         """

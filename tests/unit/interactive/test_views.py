@@ -7,9 +7,9 @@ from django.http import Http404
 from interactive.dates import END_DATE, START_DATE
 from interactive.models import AnalysisRequest
 from interactive.views import (
-    AnalysisReportUpdate,
     AnalysisRequestCreate,
     AnalysisRequestDetail,
+    ReportEdit,
     from_codelist,
 )
 from jobserver.authorization import InteractiveReporter
@@ -231,7 +231,7 @@ def test_analysisreportupdate_get_success(rf):
     request = rf.get("/")
     request.user = user
 
-    response = AnalysisReportUpdate.as_view()(
+    response = ReportEdit.as_view()(
         request,
         org_slug=project.org.slug,
         project_slug=project.slug,
@@ -259,7 +259,7 @@ def test_analysisreportupdate_post_success(rf):
     request = rf.post("/", {"title": "new title", "description": "new description"})
     request.user = user
 
-    AnalysisReportUpdate.as_view()(
+    ReportEdit.as_view()(
         request,
         org_slug=project.org.slug,
         project_slug=project.slug,
@@ -283,7 +283,7 @@ def test_analysisreportupdate_unauthorized(rf):
     request.user = user
 
     with pytest.raises(PermissionDenied):
-        AnalysisReportUpdate.as_view()(
+        ReportEdit.as_view()(
             request,
             org_slug=project.org.slug,
             project_slug=project.slug,
@@ -294,7 +294,7 @@ def test_analysisreportupdate_unauthorized(rf):
     request.user = user
 
     with pytest.raises(PermissionDenied):
-        AnalysisReportUpdate.as_view()(
+        ReportEdit.as_view()(
             request,
             org_slug=project.org.slug,
             project_slug=project.slug,
@@ -316,7 +316,7 @@ def test_analysisreportupdate_no_report(rf):
     request.user = user
 
     with pytest.raises(Http404):
-        AnalysisReportUpdate.as_view()(
+        ReportEdit.as_view()(
             request,
             org_slug=project.org.slug,
             project_slug=project.slug,
@@ -341,7 +341,7 @@ def test_analysisreportupdate_post_invalid(rf):
     request = rf.post("/", {"title": "", "description": ""})
     request.user = user
 
-    AnalysisReportUpdate.as_view()(
+    ReportEdit.as_view()(
         request,
         org_slug=project.org.slug,
         project_slug=project.slug,
