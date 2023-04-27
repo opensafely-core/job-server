@@ -19,7 +19,7 @@
       {% if status_text %}
       <dt class="sr-only">Status:</dt>
       <dd class="ml-auto flex-shrink-0">
-        {% pill variant=status_text|match:"pending:info,running:primary,succeeded:success,failed:danger"|default:"info" text=status_text|capfirst %}
+        {% pill variant=status_text|match:"pending:info,running:primary,awaiting report:info,succeeded:success,failed:danger"|default:"info" text=status_text|capfirst %}
       </dd>
       {% endif %}
     </div>
