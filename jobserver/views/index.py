@@ -19,13 +19,9 @@ class Index(View):
                 },
             )
 
-        analysis_requests = (
-            self.request.user.analysis_requests.select_related(
-                "project", "project__org"
-            )
-            .prefetch_related("job_request__jobs")
-            .order_by("-created_at")
-        )
+        analysis_requests = self.request.user.analysis_requests.select_related(
+            "project", "project__org"
+        ).order_by("-created_at")
 
         applications = self.request.user.applications.order_by("-created_at")
 

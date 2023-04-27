@@ -12,7 +12,7 @@ from django.contrib.auth.validators import UnicodeUsernameValidator
 from django.contrib.postgres.fields import ArrayField
 from django.core.validators import validate_slug
 from django.db import models
-from django.db.models import Min, Q
+from django.db.models import Min, Q, prefetch_related_objects
 from django.urls import reverse
 from django.utils import timezone
 from django.utils.functional import cached_property
@@ -363,7 +363,7 @@ class JobRequest(models.Model):
         if not prefetched_jobs:
             # require Jobs are prefetched to get statuses since we have to
             # query every Job for the logic below to work
-            raise Exception("JobRequest queries must prefetch jobs.")
+            prefetch_related_objects([self], "jobs")
 
         # always make use of prefetched Jobs, so we don't execute O(N) queries
         # each time.

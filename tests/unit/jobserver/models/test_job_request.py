@@ -353,5 +353,8 @@ def test_jobrequest_status_without_prefetching_jobs(django_assert_num_queries):
     job_request = JobRequestFactory()
     JobFactory.create_batch(5, job_request=job_request)
 
-    with pytest.raises(Exception, match="JobRequest queries must prefetch jobs."):
-        job_request.status
+    assert not hasattr(job_request, "_prefetched_objects_cache")
+
+    job_request.status
+
+    assert "jobs" in job_request._prefetched_objects_cache
