@@ -65,7 +65,6 @@ prodenv: requirements-prod
     # than providing explicit versions. This means we need to uninstall and reinstall the package to pick up any changes.
     # Note: this is not a problem in CI because it is building from a fresh environment each time.
     $PIP uninstall -y interactive_templates
-    touch requirements.prod.in
 
     # --no-deps is recommended when using hashes, and also worksaround a bug with constraints and hashes.
     # https://pip.pypa.io/en/stable/topics/secure-installs/#do-not-use-setuptools-directly
