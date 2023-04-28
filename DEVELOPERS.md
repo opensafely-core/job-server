@@ -331,6 +331,7 @@ db-to-sqlite \
     --progress \
     --table applications_application \
     --table jobserver_project \
+    --table jobserver_projectmembership \
     --table jobserver_workspace \
     --table jobserver_user \
     --table jobserver_org \
