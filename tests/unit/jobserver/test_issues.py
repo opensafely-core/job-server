@@ -1,4 +1,4 @@
-from django.conf import settings
+from first import first
 
 from jobserver.issues import _size_formatter, create_output_checking_request
 
@@ -20,60 +20,70 @@ def test_size_formatter_megabytes():
     assert _size_formatter(1600000) == "1.53Mb"
 
 
-def test_create_github_issue_external_success(build_release_with_files):
+def test_create_github_issue_external_success(build_release_with_files, github_api):
     release = build_release_with_files(["file1.txt", "graph.png"])
 
-    class CapturingAPI:
-        def create_issue(self, org, repo, title, body, labels):
-            # capture all the values so they can interrogated later
-            self.org = org
-            self.repo = repo
-            self.title = title
-            self.body = body
-            self.labels = labels
+    create_output_checking_request(release, github_api=github_api)
 
-    issue = CapturingAPI()
-
-    create_output_checking_request(release, github_api=issue)
+    issue = first(github_api.issues)
 
     assert issue.title == release.workspace.name
 
-    # check we have URLs to everything
-    assert settings.BASE_URL in issue.body
-    assert release.created_by.get_staff_url() in issue.body
-    assert release.get_absolute_url() in issue.body
-    assert release.workspace.get_absolute_url() in issue.body
+    lines = issue.body.split("\n")
+
+    assert release.created_by.name in lines[0]
+    assert release.created_by.get_staff_url() in lines[0]
+
+    assert release.id in lines[1]
+    assert release.get_absolute_url() in lines[1]
+
+    assert release.workspace.repo.name in lines[2]
+    assert release.workspace.repo.url in lines[2]
+
+    assert release.workspace.name in lines[3]
+    assert release.workspace.get_absolute_url() in lines[3]
+
+    assert lines[5].startswith(str(release.files.count()))
+
+    assert lines[7].startswith("[Review request form]()")
+
+    assert lines[9].startswith("**When you start")
 
     # check dedent worked as expected
     assert not issue.body.startswith(" "), issue.body
 
 
-def test_create_github_issue_internal_success(build_release_with_files):
+def test_create_github_issue_internal_success(build_release_with_files, github_api):
     org = OrgFactory(slug="datalab")
     user = UserFactory()
     OrgMembershipFactory(org=org, user=user)
     release = build_release_with_files(["file1.txt", "graph.png"], created_by=user)
 
-    class CapturingAPI:
-        def create_issue(self, org, repo, title, body, labels):
-            # capture all the values so they can interrogated later
-            self.org = org
-            self.repo = repo
-            self.title = title
-            self.body = body
-            self.labels = labels
+    create_output_checking_request(release, github_api=github_api)
 
-    issue = CapturingAPI()
-
-    create_output_checking_request(release, github_api=issue)
+    issue = first(github_api.issues)
 
     assert issue.title == release.workspace.name
 
-    # check we have URLs to everything
-    assert settings.BASE_URL in issue.body
-    assert release.created_by.get_staff_url() in issue.body
-    assert release.get_absolute_url() in issue.body
-    assert release.workspace.get_absolute_url() in issue.body
+    lines = issue.body.split("\n")
+
+    assert release.created_by.name in lines[0]
+    assert release.created_by.get_staff_url() in lines[0]
+
+    assert release.id in lines[1]
+    assert release.get_absolute_url() in lines[1]
+
+    assert release.workspace.repo.name in lines[2]
+    assert release.workspace.repo.url in lines[2]
+
+    assert release.workspace.name in lines[3]
+    assert release.workspace.get_absolute_url() in lines[3]
+
+    assert lines[5].startswith(str(release.files.count()))
+
+    assert lines[7] == ""
+
+    assert lines[9].startswith("**When you start")
 
     # check dedent worked as expected
     assert not issue.body.startswith(" ")

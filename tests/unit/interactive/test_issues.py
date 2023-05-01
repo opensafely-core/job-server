@@ -1,26 +1,17 @@
+from first import first
+
 from interactive.issues import create_output_checking_request
 
 from ...factories import AnalysisRequestFactory, JobRequestFactory
 
 
-def test_create_output_checking_request():
+def test_create_output_checking_request(github_api):
     job_request = JobRequestFactory()
     AnalysisRequestFactory(job_request=job_request, purpose="important\n\nresearch")
 
-    class CapturingAPI:
-        def create_issue(self, org, repo, title, body, labels):
-            # capture all the values so they can interrogated later
-            self.org = org
-            self.repo = repo
-            self.title = title
-            self.body = body
-            self.labels = labels
+    create_output_checking_request(job_request, github_api)
 
-    issue = CapturingAPI()
-
-    create_output_checking_request(job_request, issue)
-
-    lines = issue.body.split("\n")
+    lines = first(github_api.issues).body.split("\n")
 
     assert lines[0] == "### GitHub repo"
     assert lines[1] == job_request.workspace.repo.url

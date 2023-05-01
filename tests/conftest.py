@@ -6,6 +6,7 @@ from pathlib import Path
 
 import pytest
 import structlog
+from attrs import define
 from django.conf import settings
 from django.contrib.messages.storage.fallback import FallbackStorage
 from django.contrib.sessions.backends.db import SessionStore
@@ -254,3 +255,27 @@ def token_login_user():
     UserSocialAuthFactory(user=user)
     BackendMembershipFactory(user=user, backend=backend)
     return user
+
+
+@pytest.fixture
+def github_api():
+    class CapturingGitHubAPI:
+        issues = []
+
+        def create_issue(self, **kwargs):
+            @define
+            class Issue:
+                org: str
+                repo: str
+                title: str
+                body: str
+                labels: list[str]
+
+            # capture all the values so they can interrogated later
+            self.issues.append(Issue(**kwargs))
+
+            return {
+                "html_url": "http://example.com",
+            }
+
+    return CapturingGitHubAPI()
