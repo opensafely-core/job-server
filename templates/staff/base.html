@@ -5,30 +5,6 @@
 {% vite_asset "assets/src/scripts/staff.js" %}
 {% endblock extra_meta %}
 
-{% block staff_nav %}
-<nav class="navbar navbar-expand-lg navbar-dark bg-danger py-lg-2">
-  <div class="container px-0 px-sm-3">
-    <a class="navbar-brand" href="{% url 'staff:index' %}">Staff Area</a>
-    <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#staff-navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
-      <span class="navbar-toggler-icon"></span>
-    </button>
-
-    <div class="collapse navbar-collapse" id="staff-navbar">
-      <ul class="navbar-nav ml-auto mr-2 mt-2 mt-lg-0">
-        {% for location in staff_nav %}
-          <li class="nav-item {% if location.is_active %}active{% endif %}">
-            <a class="nav-link {% if location.is_active %}text-white{% else %}text-light{% endif %}" href="{{ location.url }}">
-              {{ location.name }}{% if location.is_active %} <span class="sr-only">(current)</span>{% endif %}
-            </a>
-          </li>
-        {% endfor %}
-      </ul>
-    </div>
-
-  </div>
-</nav>
-{% endblock %}
-
 {% block content %}
 {% block staff_content %}{% endblock %}
 {% endblock content %}
