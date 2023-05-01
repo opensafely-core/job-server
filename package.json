@@ -69,7 +69,7 @@
     "react": "^18.2.0",
     "react-bootstrap": "^1.6.6",
     "react-dom": "^18.2.0",
-    "react-hot-toast": "^2.4.0",
+    "react-hot-toast": "^2.4.1",
     "react-papaparse": "^4.1.0",
     "react-router-dom": "^6.10.0",
     "react-window": "^1.8.9",
