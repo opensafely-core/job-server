@@ -1,4 +1,3 @@
-import textwrap
 from datetime import timedelta
 from urllib.parse import unquote
 
@@ -18,6 +17,7 @@ from django.views.generic import ListView, View
 from jobserver.authorization import CoreDeveloper, has_permission
 from jobserver.authorization.decorators import require_role
 from jobserver.github import _get_github_api
+from jobserver.issues import create_switch_repo_to_public_request
 from jobserver.models import Job, Org, Project, Repo, User
 
 
@@ -199,25 +199,12 @@ class RepoSignOff(View):
             messages.error(request, msg)
             return redirect(repo.get_staff_url())
 
-        body = f"""
-        The [{repo.name}]({repo.url}) repo is ready to be made public.
-
-        This repo has been checked and approved by {request.user.name}.
-
-        An owner of the `opensafely` org is required to make this change, they can do so on the [repo settings page]({repo.url}/settings).
-
-        Once the repo is public please close this issue.
-        """
-
         with transaction.atomic():
-            data = self.get_github_api().create_issue(
-                "ebmdatalab",
-                "tech-support",
-                f"Switch {repo.name} repo to public",
-                textwrap.dedent(body),
-                [],
+            issue_url = create_switch_repo_to_public_request(
+                repo,
+                request.user,
+                self.get_github_api(),
             )
-            issue_url = data["html_url"]
 
             repo.internal_signed_off_at = timezone.now()
             repo.internal_signed_off_by = request.user

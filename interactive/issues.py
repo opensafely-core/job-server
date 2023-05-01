@@ -4,7 +4,7 @@ from django.conf import settings
 from furl import furl
 
 
-def notify_output_checkers(job_request, github_api):
+def create_output_checking_request(job_request, github_api):
     workspace_url = furl(settings.BASE_URL) / job_request.workspace.get_absolute_url()
 
     # handle newlines in purpose so we can use dedent on it later

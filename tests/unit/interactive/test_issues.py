@@ -1,9 +1,9 @@
-from interactive.notifications import notify_output_checkers
+from interactive.issues import create_output_checking_request
 
 from ...factories import AnalysisRequestFactory, JobRequestFactory
 
 
-def test_notify_output_checkers():
+def test_create_output_checking_request():
     job_request = JobRequestFactory()
     AnalysisRequestFactory(job_request=job_request, purpose="important\n\nresearch")
 
@@ -18,7 +18,7 @@ def test_notify_output_checkers():
 
     issue = CapturingAPI()
 
-    notify_output_checkers(job_request, issue)
+    create_output_checking_request(job_request, issue)
 
     lines = issue.body.split("\n")
 

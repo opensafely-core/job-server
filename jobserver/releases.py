@@ -1,11 +1,9 @@
 import hashlib
 import io
-import textwrap
 import zipfile
 from datetime import UTC, datetime, timedelta
 from pathlib import Path
 
-from django.conf import settings
 from django.db import transaction
 from django.http import FileResponse
 from django.utils import timezone
@@ -25,24 +23,6 @@ class ReleaseFileAlreadyExists(Exception):
 
 class ReleaseFileHashMismatch(Exception):
     pass
-
-
-def size_formatter(value):
-    """
-    Format the value, in bytes, with a size suffix
-
-    Kilobytes (Kb) and Megabytes (Mb) will be automatically selected if the
-    values is large enough.
-    """
-    if value < 1024:
-        return f"{value}b"
-
-    if value < 1024**2:
-        value = round(value / 1024, 2)
-        return f"{value}Kb"
-
-    value = round(value / 1024**2, 2)
-    return f"{value}Mb"
 
 
 def _build_paths(release, filename, data):
@@ -160,58 +140,6 @@ def create_release(workspace, backend, created_by, requested_files, **kwargs):
             )
 
     return release
-
-
-def create_github_issue(
-    release, github_api, org="ebmdatalab", repo="opensafely-output-review"
-):
-    template = """
-    Requested by: {requested_by}
-    Release: {release}
-    GitHub repo: {github_repo}
-    Workspace: {workspace}
-
-    {number} files have been selected for review, with a total size of {size}.{review_form}
-
-    **When you start a review please react to this message with :eyes:. When you have completed your review add a :thumbsup:. Once two reviews have been completed and a response has been sent to the requester, please close the issue.**
-    """
-
-    is_internal = release.created_by.orgs.filter(slug="datalab").exists()
-
-    base_url = furl(settings.BASE_URL)
-
-    def link(title, url):
-        return f"[{title}]({url})"
-
-    github_repo = link(release.workspace.repo.name, release.workspace.repo.url)
-    requested_by = link(release.created_by.name, release.created_by.get_staff_url())
-    release_url = link(release.id, base_url / release.get_absolute_url())
-    workspace_url = link(
-        release.workspace.name, base_url / release.workspace.get_absolute_url()
-    )
-
-    files = release.files.all()
-    number = len(files)
-    size = size_formatter(sum(f.size for f in files))
-    review_form = "" if is_internal else "\n\n[Review request form]()"
-
-    content = textwrap.dedent(template).format(
-        github_repo=github_repo,
-        number=number,
-        release=release_url,
-        requested_by=requested_by,
-        review_form=review_form,
-        size=size,
-        workspace=workspace_url,
-    )
-
-    github_api.create_issue(
-        org,
-        repo,
-        title=release.workspace.name,
-        body=content,
-        labels=["internal" if is_internal else "external"],
-    )
 
 
 @transaction.atomic

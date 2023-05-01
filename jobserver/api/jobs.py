@@ -13,7 +13,7 @@ from rest_framework.generics import ListAPIView
 from rest_framework.response import Response
 from rest_framework.views import APIView
 
-from interactive.notifications import notify_output_checkers
+from interactive import issues
 from interactive.slacks import notify_tech_support_of_failed_analysis
 from jobserver.api.authentication import get_backend_from_token
 from jobserver.emails import send_finished_notification
@@ -218,7 +218,7 @@ def handle_job_notifications(request, job_request, job):
 def handle_job_request_notifications(job_request, status, github_api):
     if hasattr(job_request, "analysis_request"):
         if status == "succeeded":
-            notify_output_checkers(job_request, github_api)
+            issues.create_output_checking_request(job_request, github_api)
 
         if status == "failed":
             notify_tech_support_of_failed_analysis(job_request)
