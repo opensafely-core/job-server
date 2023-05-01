@@ -1,8 +1,19 @@
 from first import first
 
-from jobserver.issues import _size_formatter, create_output_checking_request
+from jobserver.issues import (
+    _size_formatter,
+    create_copilot_publish_report_request,
+    create_output_checking_request,
+)
 
-from ...factories import OrgFactory, OrgMembershipFactory, UserFactory
+from ...factories import (
+    OrgFactory,
+    OrgMembershipFactory,
+    ProjectFactory,
+    ReportFactory,
+    ReportPublishRequestFactory,
+    UserFactory,
+)
 
 
 def test_size_formatter_bytes():
@@ -18,6 +29,32 @@ def test_size_formatter_kilobytes():
 def test_size_formatter_megabytes():
     assert _size_formatter(1048576) == "1.0Mb"
     assert _size_formatter(1600000) == "1.53Mb"
+
+
+def test_create_copilot_publish_report_request(github_api):
+    project = ProjectFactory(copilot=UserFactory())
+    report = ReportFactory(project=project)
+    publish_request = ReportPublishRequestFactory(report=report)
+
+    create_copilot_publish_report_request(publish_request, github_api)
+
+    issue = first(github_api.issues)
+
+    assert issue.labels == ["publication-copiloted"]
+    assert issue.org == "ebmdatalab"
+    assert issue.repo == "publications-copiloted"
+    assert (
+        issue.title
+        == "Publication checklist for projects copiloted by the Bennett Institute"
+    )
+
+    lines = issue.body.split("\n")
+
+    assert lines[0] == "### Report details"
+
+    assert lines[1].endswith(publish_request.report.project.copilot.name)
+    assert lines[2].endswith(publish_request.report.project.get_staff_url())
+    assert lines[3].endswith(publish_request.report.get_absolute_url())
 
 
 def test_create_github_issue_external_success(build_release_with_files, github_api):

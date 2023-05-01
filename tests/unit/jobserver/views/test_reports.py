@@ -16,6 +16,7 @@ from ....factories import (
     ReportPublishRequestFactory,
     UserFactory,
 )
+from ....fakes import FakeGitHubAPI
 
 
 def test_reportpublishrequestcreate_get_success(rf):
@@ -34,7 +35,7 @@ def test_reportpublishrequestcreate_get_success(rf):
     assert response.status_code == 200
 
 
-def test_reportpublishrequestcreate_post_success(rf):
+def test_reportpublishrequestcreate_post_success(rf, slack_messages):
     report = ReportFactory()
     analysis_request = AnalysisRequestFactory(report=report)
 
@@ -46,7 +47,7 @@ def test_reportpublishrequestcreate_post_success(rf):
     messages = FallbackStorage(request)
     request._messages = messages
 
-    response = ReportPublishRequestCreate.as_view()(
+    response = ReportPublishRequestCreate.as_view(get_github_api=FakeGitHubAPI)(
         request,
         org_slug=analysis_request.project.org.slug,
         project_slug=analysis_request.project.slug,
@@ -65,6 +66,12 @@ def test_reportpublishrequestcreate_post_success(rf):
     assert (
         str(messages[0]) == "Your request to publish this report was successfully sent"
     )
+
+    assert len(slack_messages) == 1
+    text, channel = slack_messages[0]
+    assert channel == "co-pilot-support"
+    assert report.publish_request.created_by.email in text
+    assert report.get_absolute_url() in text
 
 
 def test_reportpublishrequestcreate_unauthorized(rf):
