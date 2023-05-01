@@ -1,7 +1,7 @@
-import textwrap
-
 from django.conf import settings
 from furl import furl
+
+from .utils import strip_whitespace
 
 
 def _size_formatter(value):
@@ -48,7 +48,7 @@ def create_output_checking_request(release, github_api):
     **When you start a review please react to this message with :eyes:. When you have completed your review add a :thumbsup:. Once two reviews have been completed and a response has been sent to the requester, please close the issue.**
     """
 
-    body = textwrap.dedent(body.strip("\n"))
+    body = strip_whitespace(body)
 
     data = github_api.create_issue(
         org="ebmdatalab",
@@ -72,7 +72,7 @@ def create_switch_repo_to_public_request(repo, user, github_api):
     Once the repo is public please close this issue.
     """
 
-    body = textwrap.dedent(body.strip("\n"))
+    body = strip_whitespace(body)
 
     data = github_api.create_issue(
         org="ebmdatalab",

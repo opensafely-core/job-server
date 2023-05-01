@@ -4,8 +4,7 @@ Functions for specific slack messages jobserver sends.
 These functions should always take a `channel` argument, so that we can test
 them on a different channel.
 """
-import textwrap
-
+from jobserver.utils import strip_whitespace
 from services import slack
 
 
@@ -28,7 +27,7 @@ def notify_analysis_request_submitted(analysis_request, channel="interactive-req
     {analysis_url}
     """
 
-    message = textwrap.dedent(message.strip())
+    message = strip_whitespace(message)
 
     slack.post(message, channel)
 
@@ -60,6 +59,6 @@ def notify_report_uploaded(analysis_request, channel="interactive-requests"):
     {analysis_url}
     """
 
-    message = textwrap.dedent(message.strip())
+    message = strip_whitespace(message)
 
     slack.post(message, channel)

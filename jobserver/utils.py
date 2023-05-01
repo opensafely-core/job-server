@@ -1,3 +1,4 @@
+import textwrap
 from urllib.parse import urlparse
 
 from django.core.exceptions import BadRequest
@@ -39,6 +40,23 @@ def raise_if_not_int(value):
         int(value)
     except ValueError:
         raise BadRequest
+
+
+def strip_whitespace(text):
+    """
+    Strip various whitespace from text
+
+    When we create messages, for example for GitHub Issues or Slack, we use
+    triple quoted strings so we have a template like structure.  Because of the
+    way triple-quoted strings work we end up with a leading newline, and `\n
+    ` at the end of the string.  This function strips all of that away while
+    allowing us to have readable body templates.
+    """
+    text = text.strip("\n")
+
+    text = textwrap.dedent(text)
+
+    return text.strip("\n")
 
 
 def set_from_qs(qs, field="pk"):

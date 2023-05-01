@@ -1,6 +1,12 @@
 from jobserver.authorization import OutputChecker
 from jobserver.models import Job
-from jobserver.utils import build_spa_base_url, dotted_path, is_safe_path, set_from_qs
+from jobserver.utils import (
+    build_spa_base_url,
+    dotted_path,
+    is_safe_path,
+    set_from_qs,
+    strip_whitespace,
+)
 
 from ...factories import JobFactory
 
@@ -22,6 +28,16 @@ def test_is_safe_path_with_safe_path():
 
 def test_is_safe_path_with_unsafe_path():
     assert not is_safe_path("https://steal-your-bank-details.com/")
+
+
+def test_strip_whitespace():
+    text = """
+    testing text
+    """
+
+    output = strip_whitespace(text)
+
+    assert output == "testing text"
 
 
 def test_set_from_qs():

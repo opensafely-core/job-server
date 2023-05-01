@@ -1,7 +1,7 @@
-import textwrap
-
 from django.conf import settings
 from furl import furl
+
+from jobserver.utils import strip_whitespace
 
 
 def create_output_checking_request(job_request, github_api):
@@ -40,7 +40,7 @@ def create_output_checking_request(job_request, github_api):
     The HTML report contains all relevant data, so the individual CSVs and images do NOT need to be released.
     """
 
-    body = textwrap.dedent(body.strip("\n"))
+    body = strip_whitespace(body)
 
     return github_api.create_issue(
         org="ebmdatalab",
