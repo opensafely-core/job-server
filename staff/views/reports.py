@@ -75,6 +75,13 @@ class ReportList(ListView):
 
             qs = qs.filter(qwargs)
 
+        if self.request.GET.get("is_published") == "yes":
+            qs = qs.exclude(publish_request__approved_by=None)
+        if self.request.GET.get("is_published") == "requested":
+            qs = qs.exclude(publish_request=None).filter(
+                publish_request__approved_at=None
+            )
+
         if org := self.request.GET.get("org"):
             qs = qs.filter(release_file__workspace__project__org__slug=org)
 

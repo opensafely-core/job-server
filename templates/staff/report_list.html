@@ -41,6 +41,38 @@
       </div>
       {% endif %}
 
+      <h3 class="h4">Published?</h3>
+      <div class="btn-group-vertical w-100 mb-4" role="group" aria-label="Filter by being published">
+        {% is_filter_selected key="is_published" value="yes" as is_active %}
+        <a
+          {% if is_active %}aria-pressed="true"{% endif %}
+          class="btn btn-outline-primary btn-block text-left {% if is_active %}active{% endif %}"
+          href="
+            {% if is_active %}
+              {% url_without_querystring is_published="yes" %}
+            {% else %}
+              {% url_with_querystring is_published="yes" %}
+            {% endif %}
+          "
+        >
+          Yes
+        </a>
+        {% is_filter_selected key="is_published" value="requested" as is_active %}
+        <a
+          {% if is_active %}aria-pressed="true"{% endif %}
+          class="btn btn-outline-primary btn-block text-left {% if is_active %}active{% endif %}"
+          href="
+            {% if is_active %}
+              {% url_without_querystring is_published="requested" %}
+            {% else %}
+              {% url_with_querystring is_published="requested" %}
+            {% endif %}
+          "
+        >
+          Pending
+        </a>
+      </div>
+
       {% if orgs %}
       <h3 class="h4">Orgs</h3>
       <div class="btn-group-vertical w-100 mb-4" role="group" aria-label="Filter by org">
