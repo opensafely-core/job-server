@@ -147,6 +147,21 @@ def test_projecteditform_with_duplicate_number():
     assert form.errors == {"number": ["Project number must be unique"]}
 
 
+def test_projecteditform_with_existing_number():
+    project = ProjectFactory(number=42)
+
+    data = {
+        "name": project.name,
+        "slug": project.slug,
+        "number": project.number,
+        "org": str(project.org.pk),
+        "status": project.status,
+    }
+    form = ProjectEditForm(data=data, instance=project)
+
+    assert form.is_valid(), form.errors
+
+
 def test_projectfeatureflagsform_with_unknown_value():
     form = ProjectFeatureFlagsForm({"flip_to": "test"})
 
