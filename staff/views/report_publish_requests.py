@@ -7,6 +7,7 @@ from django.views.generic import DetailView, ListView, View
 
 from jobserver.authorization import CoreDeveloper
 from jobserver.authorization.decorators import require_role
+from jobserver.emails import send_report_published_email
 from jobserver.models import ReportPublishRequest
 
 
@@ -19,6 +20,7 @@ class ReportPublishRequestApprove(View):
         publish_request = get_object_or_404(ReportPublishRequest, pk=self.kwargs["pk"])
 
         publish_request.approve(user=request.user)
+        send_report_published_email(publish_request)
 
         return redirect(publish_request.get_staff_url())
 

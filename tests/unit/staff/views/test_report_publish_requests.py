@@ -14,7 +14,7 @@ from staff.views.report_publish_requests import (
 from ....factories import ReportFactory, ReportPublishRequestFactory, UserFactory
 
 
-def test_reportpublishrequestapprove_success(rf, core_developer):
+def test_reportpublishrequestapprove_success(rf, core_developer, mailoutbox):
     publish_request = ReportPublishRequestFactory(approved_at=None)
 
     request = rf.post("/")
@@ -27,6 +27,10 @@ def test_reportpublishrequestapprove_success(rf, core_developer):
 
     publish_request.refresh_from_db()
     assert publish_request.approved_at
+
+    m = mailoutbox[0]
+    assert m.subject == "Your report has been published"
+    assert publish_request.report.get_absolute_url() in m.body
 
 
 def test_reportpublishrequestapprove_unauthorized(rf):

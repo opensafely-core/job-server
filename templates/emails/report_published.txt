@@ -1,0 +1,12 @@
+{% extends "emails/base.txt" %}
+
+{% block content %}
+Hi {{ name }},
+
+Your request to publish the report "{{ title }}" has been approved.
+
+You can view the report on OpenSAFELY:
+
+{{ url }}
+
+{% endblock content %}
