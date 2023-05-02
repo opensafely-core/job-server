@@ -4,10 +4,7 @@ from django.core.exceptions import PermissionDenied
 from django.http import Http404
 
 from jobserver.authorization import InteractiveReporter
-from jobserver.views.reports import (
-    ReportPublishRequestCreate,
-    ReportPublishRequestUpdate,
-)
+from jobserver.views.reports import ReportPublishRequestCreate
 
 from ....factories import (
     AnalysisRequestFactory,
@@ -132,32 +129,3 @@ def test_reportpublishrequestcreate_with_existing_publish_request(rf):
     messages = list(messages)
     assert len(messages) == 1
     assert str(messages[0]) == "A request to publish this report already exists"
-
-
-def test_reportpublishrequestupdate_get_success(rf):
-    report = ReportFactory()
-    AnalysisRequestFactory(report=report)
-    publish_request = ReportPublishRequestFactory(report=report)
-
-    request = rf.get("/")
-    request.user = UserFactory()
-
-    response = ReportPublishRequestUpdate.as_view()(request, pk=publish_request.pk)
-
-    assert response.status_code == 200
-
-
-def test_reportpublishrequestupdate_post_success(rf):
-    report = ReportFactory()
-    AnalysisRequestFactory(report=report)
-    publish_request = ReportPublishRequestFactory(report=report)
-
-    request = rf.post("/")
-    request.user = UserFactory()
-
-    response = ReportPublishRequestUpdate.as_view()(request, pk=publish_request.pk)
-    assert response.status_code == 302
-    assert response.url == publish_request.get_absolute_url()
-
-    publish_request.refresh_from_db()
-    assert publish_request.approved_at

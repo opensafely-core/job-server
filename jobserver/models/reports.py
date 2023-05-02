@@ -214,17 +214,6 @@ class ReportPublishRequest(models.Model):
 
         self.release_file_publish_request.approve(user=user, now=now)
 
-    def get_absolute_url(self):
-        return reverse(
-            "interactive:report-publish-request-update",
-            kwargs={
-                "org_slug": self.report.project.org.slug,
-                "project_slug": self.report.project.slug,
-                "slug": self.report.slug,
-                "pk": self.pk,
-            },
-        )
-
     def get_approve_url(self):
         return reverse(
             "staff:report-publish-request-approve",
