@@ -96,6 +96,10 @@ class Report(models.Model):
 
 
 class ReportPublishRequest(models.Model):
+    class Decisions(models.TextChoices):
+        APPROVED = "approved", "Approved"
+        REJECTED = "rejected", "Rejected"
+
     release_file_publish_request = models.OneToOneField(
         "ReleaseFilePublishRequest",
         on_delete=models.CASCADE,
@@ -121,6 +125,15 @@ class ReportPublishRequest(models.Model):
         on_delete=models.PROTECT,
         related_name="report_publish_requests_created",
     )
+
+    decision_at = models.DateTimeField(null=True)
+    decision_by = models.ForeignKey(
+        "User",
+        on_delete=models.PROTECT,
+        related_name="report_publish_requests_decisions",
+        null=True,
+    )
+    decision = models.TextField(choices=Decisions.choices, null=True)
 
     updated_at = models.DateTimeField(auto_now=True)
     updated_by = models.ForeignKey(
@@ -160,6 +173,23 @@ class ReportPublishRequest(models.Model):
                     )
                 ),
                 name="%(app_label)s_%(class)s_both_created_at_and_created_by_set",
+            ),
+            models.CheckConstraint(
+                check=(
+                    Q(
+                        decision_at__isnull=True,
+                        decision_by__isnull=True,
+                        decision__isnull=True,
+                    )
+                    | (
+                        Q(
+                            decision_at__isnull=False,
+                            decision_by__isnull=False,
+                            decision__isnull=False,
+                        )
+                    )
+                ),
+                name="%(app_label)s_%(class)s_both_decision_at_decision_by_and_decision_set",
             ),
             models.CheckConstraint(
                 check=(
