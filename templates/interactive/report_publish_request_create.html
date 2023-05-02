@@ -22,12 +22,6 @@
 </div>
 
 <div>
-  {% if analysis_request.publish_request %}
-  <p>
-    request already for this AR & Report,
-    <a href="{{ analysis_request.publish_request.get_absolute_url }}">View</a>
-  </p>
-  {% else %}
   <form method="POST">
     {% csrf_token %}
 
@@ -35,7 +29,5 @@
 
     {% #button type="submit" variant="success" %}Submit{% /button %}
   </form>
-  {% endif %}
-
 </div>
 {% endblock %}
