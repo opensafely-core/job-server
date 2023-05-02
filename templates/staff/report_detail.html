@@ -87,6 +87,25 @@
             </a>
           </p>
         </li>
+        <li class="card mb-3">
+          <h2 class="card-header h5">
+            Publish requests
+          </h2>
+          <p class="card-body mb-0">
+            {% if report.publish_request %}
+            <a href="{{ report.publish_request.get_staff_url }}">
+              Request from {{ report.publish_request.created_by.name }}
+              {% if report.publish_request.approved_at %}
+              <span class="badge badge-sm badge-success">Approved</span>
+              {% else %}
+              <span class="badge badge-sm badge-secondary">Pending</span>
+              {% endif %}
+            </a>
+            {% else %}
+            No requests yet.
+            {% endif %}
+          </p>
+        </li>
       </ul>
     </div>
   </div>

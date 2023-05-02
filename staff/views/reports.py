@@ -15,6 +15,22 @@ class ReportDetail(DetailView):
     model = Report
     template_name = "staff/report_detail.html"
 
+    def get_queryset(self):
+        return (
+            super()
+            .get_queryset()
+            .select_related(
+                "analysis_request",
+                "analysis_request__project",
+                "analysis_request__project__org",
+                "created_by",
+                "publish_request",
+                "publish_request__created_by",
+                "release_file__workspace__project",
+                "release_file__workspace__project__org",
+            )
+        )
+
 
 @method_decorator(require_role(CoreDeveloper), name="dispatch")
 class ReportList(ListView):
