@@ -2,6 +2,10 @@ import pytest
 from django.conf import settings
 from interactive_templates.schema import Codelist, v2
 
+from interactive.dates import (
+    END_DATE,
+    START_DATE,
+)
 from interactive.submit import (
     clean_working_tree,
     commit_and_push,
@@ -86,12 +90,14 @@ def test_commit_and_push(build_repo, remote_repo, codelist_2, commit_message):
         codelist_2=codelist_2,
         created_by=UserFactory().email,
         demographics=[],
-        filter_population="",
+        filter_population="all",
         repo=repo,
         id=pk,
         time_ever=False,
         time_scale="",
         time_value=1,
+        start_date=START_DATE,
+        end_date=END_DATE,
     )
 
     (repo / "first.txt").write_text("testing")
@@ -156,12 +162,14 @@ def test_create_commit(remote_repo, add_codelist, force):
         codelist_2=Codelist(label="", slug="org/slug-b", type=""),
         created_by=UserFactory().email,
         demographics=[],
-        filter_population="",
+        filter_population="all",
         repo=str(remote_repo),
         id=pk,
         time_ever=False,
         time_scale="",
         time_value=1,
+        start_date=START_DATE,
+        end_date=END_DATE,
     )
 
     sha, project_yaml = create_commit(
@@ -202,11 +210,13 @@ def test_submit_analysis(remote_repo, add_codelist, slack_messages):
         codelist_2=Codelist(label="", slug="org/slug-b", type=""),
         created_by=user.email,
         demographics=[],
-        filter_population="",
+        filter_population="all",
         repo=str(remote_repo),
         time_ever=False,
         time_scale="",
         time_value=1,
+        start_date=START_DATE,
+        end_date=END_DATE,
     )
 
     analysis_request = submit_analysis(
