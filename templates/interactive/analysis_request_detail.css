@@ -1,2 +1,197 @@
 #report {
- }
+  color: var(--color-slate-800);
+  font-size: 1.1rem;
+  line-height: 1.5;
+  margin-inline: auto;
+  max-width: calc(75ch + 2rem);
+  padding: 1rem;
+  position: relative;
+  width: 100%;
+  z-index: 10;
+
+  & #interactiveReport {
+    display: grid;
+    row-gap: 1rem;
+  }
+
+  & section {
+    display: grid;
+
+    & section {
+      margin-block-start: 1rem;
+    }
+  }
+
+  & h2 {
+    font-size: 2rem;
+    font-weight: bold;
+    line-height: 1.2;
+    margin-block: 1.5rem 1rem;
+  }
+
+  & h3 {
+    font-size: 1.75rem;
+    font-weight: bold;
+    line-height: 1.2;
+    margin-block: 1rem 0.75rem;
+  }
+
+  & p:not(:last-child),
+  & ul:not(:last-child) {
+    margin-block-end: 1.5rem;
+  }
+
+  & ul {
+    list-style-type: disc;
+    margin-inline-start: 0.5rem;
+    padding-inline-start: 1rem;
+  }
+
+  & li {
+    margin-block-end: 0.5rem;
+
+    & ul {
+      margin-block-start: 0.5rem;
+    }
+
+    & ol {
+      margin: 0.5rem 0 0.5rem 1.5rem;
+    }
+  }
+
+  & a {
+    background-color: transparent;
+    color: var(--color-oxford-600);
+    font-weight: 600;
+    text-decoration: underline;
+    text-decoration-color: var(--color-oxford-300);
+    text-underline-offset: 0.125rem;
+    transition-duration: 0.2s;
+    transition-property: background-color, color, text-decoration-color;
+
+    &:hover,
+    &:focus {
+      background-color: var(--color-bn-sun-100);
+      color: var(--color-oxford);
+      text-decoration-color: transparent;
+    }
+
+    &:focus {
+      background-color: var(--color-bn-sun-300);
+    }
+  }
+
+  & figure,
+  & .overflow-wrapper {
+    width: 100%;
+    position: relative;
+    margin-bottom: 2rem;
+
+    &::before {
+      border: 0 solid var(--color-slate-200);
+      border-inline-start-width: 0.25rem;
+      bottom: 0;
+      content: "";
+      left: -1;
+      position: absolute;
+      top: 0;
+      width: 1rem;
+      z-index: -1;
+    }
+  }
+
+  & figure {
+    display: grid;
+    padding: 2rem 0 1rem 2rem;
+  }
+
+  & figcaption {
+    margin-block-start: 1rem;
+    text-align: center;
+  }
+
+  & table {
+    margin: 0.25rem 0 0.25rem 1rem;
+    width: 100%;
+  }
+
+  & caption {
+    text-align: center;
+    margin-bottom: 1rem;
+  }
+
+  & thead {
+    background-color: var(--color-slate-100);
+    border: 1px solid var(--color-slate-400);
+  }
+
+  & tbody {
+    background-color: white;
+    border: 1px solid var(--color-slate-400);
+  }
+
+  & th,
+  & td {
+    font-size: 1rem;
+    line-height: 1.2;
+    padding: 0.25rem 0.5rem;
+    text-align: left;
+    font-variant-numeric: proportional-nums;
+  }
+
+  & th:not(:last-child) {
+    border-right: 1px solid var(--color-slate-400);
+  }
+
+  & tr:nth-child(even) {
+    background-color: var(--color-slate-50);
+  }
+
+  & tr:not(:last-child) {
+    border-bottom: 1px solid var(--color-slate-400);
+  }
+
+  & td:not(:last-child) {
+    border-right: 1px solid var(--color-slate-400);
+  }
+
+  & .toc {
+    background-color: var(--color-oxford-50);
+    border-radius: 0.5rem;
+    list-style-type: none;
+    margin: 1rem 0;
+    overflow: hidden;
+    padding: 4.5rem 1.25rem 1rem;
+    position: relative;
+
+    & h2 {
+      position: absolute;
+      top: 0;
+      left: 0;
+      font-size: 1.1rem;
+      padding: 1rem;
+      margin: 0;
+      background-color: var(--color-oxford-900);
+      color: white;
+    }
+  }
+}
+
+#menuBtn {
+  background-color: var(--color-oxford-600);
+  border-radius: 0.25rem 0.25rem 0 0;
+  bottom: 0;
+  color: var(--color-white);
+  padding: 0.5rem 1rem;
+  position: fixed;
+  right: 1rem;
+  white-space: nowrap;
+  z-index: 10000;
+  transition-property: background-color;
+  transition-duration: 0.2s;
+
+  &:hover,
+  &:focus {
+    background-color: var(--color-oxford-700);
+  }
+}
