@@ -11,14 +11,14 @@ function generatePDF() {
   const generatingBtn = dialog.querySelector(`[value="generating"]`);
 
   const options = {
-    margin: 20,
+    margin: 15,
     filename: `${downloadBtn.dataset.title} - Report.pdf`,
     image: { type: "jpeg", quality: 0.75 },
     jsPDF: { unit: "mm", format: "a4", orientation: "portrait" },
     html2canvas: {
-      ignore: () => report.querySelector("svg"),
       scale: 2,
     },
+    pagebreak: { mode: "avoid-all" },
   };
 
   let pdf;
@@ -29,8 +29,14 @@ function generatePDF() {
     // Load the JS on button click
     const html2pdf = await import("html2pdf.js");
 
-    // Restore the h1 for the printed report
-    reportStyles.classList.remove(`[&_h1]:hidden`);
+    // Reset the font size for printing
+    reportStyles.classList.add(`print-font`);
+
+    // Remove elements not required
+    report
+      .querySelectorAll("svg")
+      .forEach((element) => element.classList.add("!hidden"));
+    report.querySelector(".toc").classList.add("!hidden");
 
     // Repeat the watermark 300 times on the container
     const singleInner = watermark.innerHTML;
@@ -38,14 +44,23 @@ function generatePDF() {
     watermark.innerHTML = watermark.innerHTML.repeat(300);
 
     // Generate and download the PDF
-    pdf = html2pdf.default().set(options).from(report).toContainer().toPdf();
+    pdf = html2pdf
+      .default()
+      .set(options)
+      .from(reportStyles)
+      .toContainer()
+      .toPdf();
     await pdf;
 
     // 0 timeout to remove watermark after the event loop has finished
     setTimeout(() => {
       watermark.classList.add("hidden");
       watermark.innerHTML = singleInner;
-      reportStyles.classList.add(`[&_h1]:hidden`);
+      reportStyles.classList.remove(`print-font`);
+      report
+        .querySelectorAll("svg")
+        .forEach((element) => element.classList.remove("!hidden"));
+      report.querySelector(".toc").classList.remove("!hidden");
     }, 0);
 
     // Show download button
