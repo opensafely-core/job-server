@@ -1,0 +1,97 @@
+{% extends "staff/base.html" %}
+
+{% load humanize %}
+
+{% block metatitle %}Request to publish {{ publish_request.report.title }}: Staff Area | OpenSAFELY Jobs{% endblock metatitle %}
+
+{% block breadcrumbs %}
+<nav class="breadcrumb-container breadcrumb--danger" aria-label="breadcrumb">
+  <div class="container">
+    <ol class="breadcrumb rounded-0 mb-0 px-0">
+      <li class="breadcrumb-item">
+        <a href="{% url 'staff:index' %}">Staff area</a>
+      </li>
+      <li class="breadcrumb-item">
+        <a href="{% url 'staff:report-publish-request-list' %}">Report publish requests</a>
+      </li>
+      <li class="breadcrumb-item active" aria-current="page">
+        {{ publish_request.pk }}
+      </li>
+    </ol>
+  </div>
+</nav>
+{% endblock breadcrumbs %}
+
+{% block jumbotron %}
+<div class="jumbotron jumbotron-fluid jumbotron--danger pt-md-2">
+  <div class="container">
+    <h1 class="display-4">{{ publish_request.report.title }}</h1>
+
+    <ul class="list-unstyled lead">
+      <li>
+        <strong>Created by:</strong>
+        <a href="{{ publish_request.created_by.get_staff_url }}">
+          {{ publish_request.created_by.name }}
+        </a>
+      </li>
+
+      <li>
+        <strong>Created at:</strong> {{ publish_request.created_at }}
+      </li>
+
+      <li>
+        <strong>Report:</strong>
+        <a class="btn btn-sm btn-primary" href="{{ publish_request.report.get_staff_url }}">
+          View
+        </a>
+      </li>
+
+      {% if publish_request.approved_at %}
+      <li>
+        <strong>Approved by:</strong>
+        <a href="{{ publish_request.approved_by.get_staff_url }}">
+          {{ publish_request.approved_by.name }}
+        </a>
+      </li>
+      <li>
+        <strong>Approved at:</strong> {{ publish_request.approved_at }}
+      </li>
+      {% endif %}
+    </ul>
+
+    <div class="d-flex">
+      {# TODO: add has_decision to cover being denied #}
+      {% if not publish_request.approved_at %}
+      <form method="POST" action="{{ publish_request.get_approve_url }}">
+        {% csrf_token %}
+
+        <button class="btn btn-success mr-1" type="submit">Approve</button>
+      </form>
+      {% endif %}
+    </div>
+  </div>
+</div>
+{% endblock jumbotron %}
+
+{% block content %}
+<div class="container">
+  <div class="row">
+    <div class="col col-lg-9 col-xl-8">
+     <section class="card mb-3">
+        <div class="card-header">
+          <h2 class="card-title">Details</h2>
+        </div>
+
+        <div class="list-group list-group-flush">
+          <div class="list-group-item">
+            <strong>Description:</strong>
+            <p>
+              TODO
+            </p>
+          </div>
+        </div>
+      </section>
+    </div>
+  </div>
+</div>
+{% endblock content %}

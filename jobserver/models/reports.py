@@ -224,3 +224,15 @@ class ReportPublishRequest(models.Model):
                 "pk": self.pk,
             },
         )
+
+    def get_approve_url(self):
+        return reverse(
+            "staff:report-publish-request-approve",
+            kwargs={"pk": self.pk},
+        )
+
+    def get_staff_url(self):
+        return reverse(
+            "staff:report-publish-request-detail",
+            kwargs={"pk": self.pk},
+        )
