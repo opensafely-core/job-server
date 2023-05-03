@@ -1,9 +1,6 @@
 import hashlib
-import shutil
 import sys
-import tempfile
 from datetime import UTC, datetime
-from pathlib import Path
 
 import requests
 from django.conf import settings
@@ -16,12 +13,7 @@ from jobserver.models import Backend, User
 BASE_URL = f"{settings.BASE_URL}/api/v2/releases/"
 
 
-def create_file(*, new_path):
-    report_path = settings.BASE_DIR / "outputs/interactive_report.html"
-    shutil.copy(report_path, new_path)
-
-
-def create_release(*, backend, path, workspace_name, user):
+def create_release(*, backend, local_file, release_filename, workspace_name, user):
     headers = {
         "Authorization": backend.auth_token,
         "Content-Type": "application/json",
@@ -30,12 +22,12 @@ def create_release(*, backend, path, workspace_name, user):
     payload = {
         "files": [
             {
-                "name": path.name,
+                "name": release_filename,
                 "url": "http://localhost:8001",
-                "size": path.stat().st_size,
-                "sha256": hashlib.sha256(path.read_bytes()).hexdigest(),
+                "size": local_file.stat().st_size,
+                "sha256": hashlib.sha256(local_file.read_bytes()).hexdigest(),
                 "date": datetime.fromtimestamp(
-                    path.stat().st_mtime, tz=UTC
+                    local_file.stat().st_mtime, tz=UTC
                 ).isoformat(),
                 "metadata": {},
                 "review": {
@@ -54,15 +46,15 @@ def create_release(*, backend, path, workspace_name, user):
     return r.json()["release_id"]
 
 
-def upload_file(*, backend, release_id, path, user):
+def upload_file(*, backend, release_id, local_file, release_filename, user):
     headers = {
         "Authorization": backend.auth_token,
-        "Content-Disposition": f'attachment; filename="{path.name}"',
+        "Content-Disposition": f'attachment; filename="{release_filename}"',
         "Content-Type": "application/octet-stream",
         "OS-User": user.username,
     }
     url = f"{BASE_URL}release/{release_id}"
-    r = requests.post(url, data=path.read_bytes(), headers=headers)
+    r = requests.post(url, data=local_file.read_bytes(), headers=headers)
     r.raise_for_status()
 
 
@@ -91,21 +83,24 @@ class Command(BaseCommand):
 
         tpp = Backend.objects.get(slug="tpp")
 
-        with tempfile.TemporaryDirectory(suffix=f"output-{analysis_request.pk}") as tmp:
-            # set up the path we're going to use to upload the file from
-            tmp_path = Path(tmp) / f"{analysis_request.pk}.html"
+        release_filename = f"output/{analysis_request.pk}/report.html"
+        local_file = (
+            settings.BASE_DIR / "workspaces" / analysis_request.pk / "report.html"
+        )
 
-            try:
-                create_file(new_path=tmp_path)
-                release_id = create_release(
-                    backend=tpp,
-                    path=tmp_path,
-                    workspace_name=analysis_request.project.interactive_workspace.name,
-                    user=user,
-                )
-                upload_file(
-                    backend=tpp, release_id=release_id, path=tmp_path, user=user
-                )
-            finally:
-                tmp_path.unlink()
+        release_id = create_release(
+            backend=tpp,
+            local_file=local_file,
+            release_filename=release_filename,
+            workspace_name=analysis_request.project.interactive_workspace.name,
+            user=user,
+        )
+        upload_file(
+            backend=tpp,
+            release_id=release_id,
+            local_file=local_file,
+            release_filename=release_filename,
+            user=user,
+        )
+
         print(f"{settings.BASE_URL}{analysis_request.get_absolute_url()}")

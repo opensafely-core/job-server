@@ -1,11 +1,21 @@
+import shutil
 import subprocess
 import sys
 import tempfile
+from pathlib import Path
 
 from django.core.management.base import BaseCommand
 
 from interactive.models import AnalysisRequest
 from interactive.submit import git
+
+
+def copy_report(*, from_path, analysis_request):
+    report_path = Path(from_path) / "output" / analysis_request.pk / "report.html"
+    new_path = Path("workspaces") / analysis_request.pk / "report.html"
+    new_path.parent.mkdir(parents=True, exist_ok=True)
+
+    shutil.copy(report_path, new_path)
 
 
 class Command(BaseCommand):
@@ -44,3 +54,5 @@ class Command(BaseCommand):
             self.stdout.write(f"Executing: {' '.join(cmd)}")
 
             subprocess.run(cmd, check=True)
+
+            copy_report(from_path=path, analysis_request=analysis_request)

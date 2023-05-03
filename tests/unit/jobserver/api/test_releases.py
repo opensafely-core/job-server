@@ -68,6 +68,14 @@ def test_is_interactive_report_no_match():
     )
 
 
+def test_is_interactive_report_matches():
+    AnalysisRequestFactory.create(id="foo")
+    assert (
+        is_interactive_report(ReleaseFileFactory(name="output/foo/report.html"))
+        is not None
+    )
+
+
 def test_releaseapi_get_unknown_release(api_rf):
     request = api_rf.get("/")
 
