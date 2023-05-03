@@ -92,11 +92,14 @@ class Report(models.Model):
 
     @property
     def is_published(self):
-        return (
-            hasattr(self, "publish_request")
-            and self.publish_request.decision_at
-            and self.publish_request.decision == ReportPublishRequest.Decisions.APPROVED
-        )
+        # We support multiple publish requests over time but we only look at
+        # the latest one to get published/draft status.
+        latest = self.publish_requests.order_by("-created_at").first()
+
+        if not latest:
+            return False
+
+        return latest.decision == ReportPublishRequest.Decisions.APPROVED
 
 
 class ReportPublishRequest(models.Model):
@@ -109,10 +112,10 @@ class ReportPublishRequest(models.Model):
         on_delete=models.CASCADE,
         related_name="report_publish_request",
     )
-    report = models.OneToOneField(
+    report = models.ForeignKey(
         "Report",
         on_delete=models.CASCADE,
-        related_name="publish_request",
+        related_name="publish_requests",
     )
 
     created_at = models.DateTimeField(default=timezone.now)

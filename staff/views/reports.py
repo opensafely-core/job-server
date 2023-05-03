@@ -24,11 +24,10 @@ class ReportDetail(DetailView):
                 "analysis_request__project",
                 "analysis_request__project__org",
                 "created_by",
-                "publish_request",
-                "publish_request__created_by",
                 "release_file__workspace__project",
                 "release_file__workspace__project__org",
             )
+            .prefetch_related("publish_requests")
         )
 
 
@@ -93,11 +92,11 @@ class ReportList(ListView):
 
         if self.request.GET.get("is_published") == "yes":
             qs = qs.filter(
-                publish_request__decision=ReportPublishRequest.Decisions.APPROVED
+                publish_requests__decision=ReportPublishRequest.Decisions.APPROVED
             )
         if self.request.GET.get("is_published") == "requested":
-            qs = qs.exclude(publish_request=None).filter(
-                publish_request__decision_at=None
+            qs = qs.exclude(publish_requests=None).filter(
+                publish_requests__decision_at=None
             )
 
         if org := self.request.GET.get("org"):

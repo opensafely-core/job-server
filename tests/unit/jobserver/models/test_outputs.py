@@ -5,7 +5,6 @@ from django.urls import reverse
 from django.utils import timezone
 
 from jobserver.models import ReleaseFilePublishRequest
-from jobserver.utils import set_from_qs
 from tests.factories import (
     ReleaseFactory,
     ReleaseFileFactory,
@@ -200,31 +199,35 @@ def test_releasefilepublishrequest_approve_configured_now():
     user = UserFactory()
     workspace = WorkspaceFactory()
 
-    request = ReleaseFilePublishRequestFactory(workspace=workspace)
-    request.files.add(*ReleaseFileFactory.create_batch(3, workspace=workspace))
+    files = ReleaseFileFactory.create_batch(3, workspace=workspace)
+
+    snapshot = SnapshotFactory()
+    snapshot.files.add(*files)
+
+    request = ReleaseFilePublishRequestFactory(snapshot=snapshot, workspace=workspace)
+    request.files.add(*files)
 
     dt = minutes_ago(timezone.now(), 3)
 
-    snapshot = request.approve(user=user, now=dt)
+    request.approve(user=user, now=dt)
 
     request.refresh_from_db()
     assert request.decision_at == dt
-    assert snapshot.published_at == dt
 
 
 def test_releasefilepublishrequest_approve_default_now(freezer):
     user = UserFactory()
     workspace = WorkspaceFactory()
 
-    request = ReleaseFilePublishRequestFactory(workspace=workspace)
-    request.files.add(*ReleaseFileFactory.create_batch(3, workspace=workspace))
+    files = ReleaseFileFactory.create_batch(3, workspace=workspace)
 
-    snapshot = request.approve(user=user)
+    snapshot = SnapshotFactory()
+    snapshot.files.add(*files)
 
-    assert set_from_qs(snapshot.files.all()) == set_from_qs(request.files.all())
-    assert snapshot.created_by == user
-    assert snapshot.published_at == timezone.now()
-    assert snapshot.published_by == user
+    request = ReleaseFilePublishRequestFactory(snapshot=snapshot, workspace=workspace)
+    request.files.add(*files)
+
+    request.approve(user=user)
 
     request.refresh_from_db()
     assert request.decision_at == timezone.now()
@@ -322,11 +325,19 @@ def test_snapshot_get_publish_api_url():
 
 
 def test_snapshot_is_draft():
-    assert SnapshotFactory(published_at=None).is_draft
+    assert SnapshotFactory().is_draft
 
 
 def test_snapshot_is_published():
-    snapshot = SnapshotFactory(published_by=UserFactory(), published_at=timezone.now())
+    snapshot = SnapshotFactory()
+
+    ReleaseFilePublishRequestFactory(
+        snapshot=snapshot,
+        decision_by=UserFactory(),
+        decision_at=timezone.now(),
+        decision=ReleaseFilePublishRequest.Decisions.APPROVED,
+    )
+
     assert snapshot.is_published
 
 

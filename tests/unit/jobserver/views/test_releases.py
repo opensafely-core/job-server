@@ -4,7 +4,7 @@ from django.http import Http404
 from django.utils import timezone
 
 from jobserver.authorization import OutputChecker, OutputPublisher, ProjectCollaborator
-from jobserver.models.outputs import ReleaseFile
+from jobserver.models import ReleaseFile, ReleaseFilePublishRequest
 from jobserver.views.releases import (
     ProjectReleaseList,
     PublishedSnapshotFile,
@@ -21,6 +21,7 @@ from ....factories import (
     ProjectFactory,
     ReleaseFactory,
     ReleaseFileFactory,
+    ReleaseFilePublishRequestFactory,
     SnapshotFactory,
     UserFactory,
     WorkspaceFactory,
@@ -380,7 +381,13 @@ def test_releasefiledelete_without_permission(rf, release):
 
 
 def test_snapshotdetail_published_logged_out(rf):
-    snapshot = SnapshotFactory(published_by=UserFactory(), published_at=timezone.now())
+    snapshot = SnapshotFactory()
+    ReleaseFilePublishRequestFactory(
+        snapshot=snapshot,
+        decision_by=UserFactory(),
+        decision_at=timezone.now(),
+        decision=ReleaseFilePublishRequest.Decisions.APPROVED,
+    )
 
     request = rf.get("/")
     request.user = AnonymousUser()
@@ -414,7 +421,13 @@ def test_snapshotdetail_published_with_permission(rf):
 
 
 def test_snapshotdetail_published_without_permission(rf):
-    snapshot = SnapshotFactory(published_by=UserFactory(), published_at=timezone.now())
+    snapshot = SnapshotFactory()
+    ReleaseFilePublishRequestFactory(
+        snapshot=snapshot,
+        decision_by=UserFactory(),
+        decision_at=timezone.now(),
+        decision=ReleaseFilePublishRequest.Decisions.APPROVED,
+    )
 
     request = rf.get("/")
     request.user = UserFactory()
@@ -537,10 +550,14 @@ def test_snapshotdownload_published_with_permission(rf, release):
 
 def test_snapshotdownload_published_without_permission(rf, release):
     workspace = WorkspaceFactory()
-    snapshot = SnapshotFactory(
-        workspace=workspace, published_by=UserFactory(), published_at=timezone.now()
-    )
+    snapshot = SnapshotFactory(workspace=workspace)
     snapshot.files.set(release.files.all())
+    ReleaseFilePublishRequestFactory(
+        snapshot=snapshot,
+        decision_by=UserFactory(),
+        decision_at=timezone.now(),
+        decision=ReleaseFilePublishRequest.Decisions.APPROVED,
+    )
 
     request = rf.get("/")
     request.user = UserFactory()

@@ -30,6 +30,7 @@ from jobserver.authorization import has_permission
 from jobserver.models import (
     Release,
     ReleaseFile,
+    ReleaseFilePublishRequest,
     ReleaseFileReview,
     Snapshot,
     User,
@@ -514,14 +515,19 @@ class SnapshotPublishAPI(APIView):
         ):
             raise NotAuthenticated
 
-        if snapshot.published_at:
+        publish_request = snapshot.publish_requests.order_by("-created_at").first()
+
+        if publish_request is None:
+            # a snapshot should never exist without a publish request, how did
+            # we get here?
+            raise Exception("Snapshot is missing publish request")
+
+        if publish_request.decision == ReleaseFilePublishRequest.Decisions.APPROVED:
             # The Snapshot has already been published, don't lose the original
             # information.
             return Response()
 
-        snapshot.published_at = timezone.now()
-        snapshot.published_by = request.user
-        snapshot.save()
+        publish_request.approve(user=request.user)
 
         return Response()
 

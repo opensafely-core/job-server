@@ -272,7 +272,7 @@ class ReleaseFilePublishRequest(models.Model):
         "ReleaseFile",
         related_name="publish_requests",
     )
-    snapshot = models.OneToOneField(
+    snapshot = models.ForeignKey(
         "Snapshot",
         on_delete=models.SET_NULL,
         related_name="publish_requests",
@@ -341,21 +341,10 @@ class ReleaseFilePublishRequest(models.Model):
         if now is None:
             now = timezone.now()
 
-        snapshot = Snapshot.objects.create(
-            workspace=self.workspace,
-            created_by=user,
-            published_at=now,
-            published_by=user,
-        )
-        snapshot.files.add(*self.files.all())
-
         self.decision_at = now
         self.decision_by = user
         self.decision = self.Decisions.APPROVED
-        self.snapshot = snapshot
-        self.save(update_fields=["decision_at", "decision_by", "decision", "snapshot"])
-
-        return snapshot
+        self.save(update_fields=["decision_at", "decision_by", "decision"])
 
 
 class ReleaseFileReview(models.Model):
@@ -513,8 +502,15 @@ class Snapshot(models.Model):
 
     @property
     def is_draft(self):
-        return self.published_at is None
+        return not self.is_published
 
     @property
     def is_published(self):
-        return self.published_at
+        # We support multiple publish requests over time but we only look at
+        # the latest one to get published/draft status.
+        latest = self.publish_requests.order_by("-created_at").first()
+
+        if not latest:
+            return False
+
+        return latest.decision == ReleaseFilePublishRequest.Decisions.APPROVED

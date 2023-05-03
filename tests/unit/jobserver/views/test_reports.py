@@ -67,7 +67,7 @@ def test_reportpublishrequestcreate_post_success(rf, slack_messages):
     assert len(slack_messages) == 1
     text, channel = slack_messages[0]
     assert channel == "co-pilot-support"
-    assert report.publish_request.created_by.email in text
+    assert report.publish_requests.first().created_by.email in text
     assert report.get_absolute_url() in text
 
 
