@@ -37,6 +37,26 @@ class ReportPublishRequestList(ListView):
     model = ReportPublishRequest
     template_name = "staff/report_publish_request_list.html"
 
+    def get_context_data(self, **kwargs):
+        states = [
+            {
+                "name": "Approved",
+                "slug": "approved",
+            },
+            {
+                "name": "Pending",
+                "slug": "pending",
+            },
+            {
+                "name": "Rejected",
+                "slug": "rejected",
+            },
+        ]
+
+        return super().get_context_data(**kwargs) | {
+            "states": states,
+        }
+
     def get_queryset(self):
         qs = (
             super()
@@ -66,9 +86,10 @@ class ReportPublishRequestList(ListView):
 
             qs = qs.filter(qwargs)
 
-        if self.request.GET.get("is_approved") == "yes":
-            qs = qs.exclude(decision_at=None)
-        if self.request.GET.get("is_approved") == "no":
-            qs = qs.filter(decision_at=None)
+        if state := self.request.GET.get("state"):
+            if state == "pending":
+                qs = qs.filter(decision=None)
+            else:
+                qs = qs.filter(decision=state)
 
         return qs.distinct()

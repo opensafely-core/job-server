@@ -81,26 +81,7 @@ def test_reportpublishrequestdetail_unknown_publish_request(rf, core_developer):
         ReportPublishRequestDetail.as_view()(request, pk="0")
 
 
-def test_reportpublishrequestlist_filter_by_decision_no(rf, core_developer):
-    publish_request = ReportPublishRequestFactory()
-
-    ReportPublishRequestFactory.create_batch(
-        5,
-        decision_at=timezone.now(),
-        decision_by=UserFactory(),
-        decision=ReportPublishRequest.Decisions.APPROVED,
-    )
-
-    request = rf.get("?is_approved=no")
-    request.user = core_developer
-
-    response = ReportPublishRequestList.as_view()(request)
-
-    assert response.status_code == 200
-    assert set_from_qs(response.context_data["object_list"]) == {publish_request.pk}
-
-
-def test_reportpublishrequestlist_filter_by_decision_yes(rf, core_developer):
+def test_reportpublishrequestlist_filter_by_state_approved(rf, core_developer):
     publish_request = ReportPublishRequestFactory(
         decision_at=timezone.now(),
         decision_by=UserFactory(),
@@ -109,7 +90,50 @@ def test_reportpublishrequestlist_filter_by_decision_yes(rf, core_developer):
 
     ReportPublishRequestFactory.create_batch(5)
 
-    request = rf.get("?is_approved=yes")
+    request = rf.get("?state=approved")
+    request.user = core_developer
+
+    response = ReportPublishRequestList.as_view()(request)
+
+    assert response.status_code == 200
+    assert set_from_qs(response.context_data["object_list"]) == {publish_request.pk}
+
+
+def test_reportpublishrequestlist_filter_by_state_pending(rf, core_developer):
+    publish_request = ReportPublishRequestFactory()
+
+    ReportPublishRequestFactory.create_batch(
+        2,
+        decision_at=timezone.now(),
+        decision_by=UserFactory(),
+        decision=ReportPublishRequest.Decisions.APPROVED,
+    )
+    ReportPublishRequestFactory.create_batch(
+        2,
+        decision_at=timezone.now(),
+        decision_by=UserFactory(),
+        decision=ReportPublishRequest.Decisions.REJECTED,
+    )
+
+    request = rf.get("?state=pending")
+    request.user = core_developer
+
+    response = ReportPublishRequestList.as_view()(request)
+
+    assert response.status_code == 200
+    assert set_from_qs(response.context_data["object_list"]) == {publish_request.pk}
+
+
+def test_reportpublishrequestlist_filter_by_state_rejected(rf, core_developer):
+    publish_request = ReportPublishRequestFactory(
+        decision_at=timezone.now(),
+        decision_by=UserFactory(),
+        decision=ReportPublishRequest.Decisions.REJECTED,
+    )
+
+    ReportPublishRequestFactory.create_batch(5)
+
+    request = rf.get("?state=rejected")
     request.user = core_developer
 
     response = ReportPublishRequestList.as_view()(request)
