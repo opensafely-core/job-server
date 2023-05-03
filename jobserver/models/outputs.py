@@ -372,10 +372,11 @@ class ReleaseFilePublishRequest(models.Model):
         )
         snapshot.files.add(*self.files.all())
 
-        self.approved_at = now
-        self.approved_by = user
+        self.decision_at = now
+        self.decision_by = user
+        self.decision = self.Decisions.APPROVED
         self.snapshot = snapshot
-        self.save(update_fields=["approved_at", "approved_by", "snapshot"])
+        self.save(update_fields=["decision_at", "decision_by", "decision", "snapshot"])
 
         return snapshot
 

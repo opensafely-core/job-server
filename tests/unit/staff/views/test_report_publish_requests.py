@@ -4,6 +4,7 @@ from django.core.exceptions import PermissionDenied
 from django.http import Http404
 from django.utils import timezone
 
+from jobserver.models import ReportPublishRequest
 from jobserver.utils import set_from_qs
 from staff.views.report_publish_requests import (
     ReportPublishRequestApprove,
@@ -15,7 +16,7 @@ from ....factories import ReportFactory, ReportPublishRequestFactory, UserFactor
 
 
 def test_reportpublishrequestapprove_success(rf, core_developer, mailoutbox):
-    publish_request = ReportPublishRequestFactory(approved_at=None)
+    publish_request = ReportPublishRequestFactory(decision_at=None)
 
     request = rf.post("/")
     request.user = core_developer
@@ -26,7 +27,7 @@ def test_reportpublishrequestapprove_success(rf, core_developer, mailoutbox):
     assert response.url == publish_request.get_staff_url()
 
     publish_request.refresh_from_db()
-    assert publish_request.approved_at
+    assert publish_request.decision_at
 
     m = mailoutbox[0]
     assert m.subject == "Your report has been published"
@@ -80,11 +81,14 @@ def test_reportpublishrequestdetail_unknown_publish_request(rf, core_developer):
         ReportPublishRequestDetail.as_view()(request, pk="0")
 
 
-def test_reportpublishrequestlist_filter_by_approved_no(rf, core_developer):
+def test_reportpublishrequestlist_filter_by_decision_no(rf, core_developer):
     publish_request = ReportPublishRequestFactory()
 
     ReportPublishRequestFactory.create_batch(
-        5, approved_at=timezone.now(), approved_by=UserFactory()
+        5,
+        decision_at=timezone.now(),
+        decision_by=UserFactory(),
+        decision=ReportPublishRequest.Decisions.APPROVED,
     )
 
     request = rf.get("?is_approved=no")
@@ -96,9 +100,11 @@ def test_reportpublishrequestlist_filter_by_approved_no(rf, core_developer):
     assert set_from_qs(response.context_data["object_list"]) == {publish_request.pk}
 
 
-def test_reportpublishrequestlist_filter_by_approved_yes(rf, core_developer):
+def test_reportpublishrequestlist_filter_by_decision_yes(rf, core_developer):
     publish_request = ReportPublishRequestFactory(
-        approved_at=timezone.now(), approved_by=UserFactory()
+        decision_at=timezone.now(),
+        decision_by=UserFactory(),
+        decision=ReportPublishRequest.Decisions.APPROVED,
     )
 
     ReportPublishRequestFactory.create_batch(5)
@@ -127,12 +133,31 @@ def test_reportpublishrequestlist_search_by_report(rf, core_developer):
     assert set_from_qs(response.context_data["object_list"]) == {publish_request.pk}
 
 
-@pytest.mark.parametrize("user_field", ["approved", "created"])
-def test_reportpublishrequestlist_search_by_user(rf, core_developer, user_field):
+def test_reportpublishrequestlist_search_by_user_created(rf, core_developer):
     user = UserFactory(username="beng")
 
     publish_request = ReportPublishRequestFactory(
-        **{f"{user_field}_at": timezone.now(), f"{user_field}_by": user}
+        created_at=timezone.now(), created_by=user
+    )
+
+    ReportPublishRequestFactory.create_batch(2)
+
+    request = rf.get("/?q=ben")
+    request.user = core_developer
+
+    response = ReportPublishRequestList.as_view()(request)
+
+    assert response.status_code == 200
+    assert set_from_qs(response.context_data["object_list"]) == {publish_request.pk}
+
+
+def test_reportpublishrequestlist_search_by_user_decision(rf, core_developer):
+    user = UserFactory(username="beng")
+
+    publish_request = ReportPublishRequestFactory(
+        decision_at=timezone.now(),
+        decision_by=user,
+        decision=ReportPublishRequest.Decisions.APPROVED,
     )
 
     ReportPublishRequestFactory.create_batch(2)

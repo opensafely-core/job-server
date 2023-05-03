@@ -7,7 +7,7 @@ from django.views.generic import DetailView, ListView
 
 from jobserver.authorization import CoreDeveloper
 from jobserver.authorization.decorators import require_role
-from jobserver.models import Org, Project, Report, User
+from jobserver.models import Org, Project, Report, ReportPublishRequest, User
 
 
 @method_decorator(require_role(CoreDeveloper), name="dispatch")
@@ -92,10 +92,12 @@ class ReportList(ListView):
             qs = qs.filter(qwargs)
 
         if self.request.GET.get("is_published") == "yes":
-            qs = qs.exclude(publish_request__approved_by=None)
+            qs = qs.filter(
+                publish_request__decision=ReportPublishRequest.Decisions.APPROVED
+            )
         if self.request.GET.get("is_published") == "requested":
             qs = qs.exclude(publish_request=None).filter(
-                publish_request__approved_at=None
+                publish_request__decision_at=None
             )
 
         if org := self.request.GET.get("org"):

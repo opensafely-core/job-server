@@ -4,6 +4,7 @@ from django.db import IntegrityError
 from django.urls import reverse
 from django.utils import timezone
 
+from jobserver.models import ReleaseFilePublishRequest
 from jobserver.utils import set_from_qs
 from tests.factories import (
     ReleaseFactory,
@@ -207,7 +208,7 @@ def test_releasefilepublishrequest_approve_configured_now():
     snapshot = request.approve(user=user, now=dt)
 
     request.refresh_from_db()
-    assert request.approved_at == dt
+    assert request.decision_at == dt
     assert snapshot.published_at == dt
 
 
@@ -226,8 +227,9 @@ def test_releasefilepublishrequest_approve_default_now(freezer):
     assert snapshot.published_by == user
 
     request.refresh_from_db()
-    assert request.approved_at == timezone.now()
-    assert request.approved_by == user
+    assert request.decision_at == timezone.now()
+    assert request.decision_by == user
+    assert request.decision == ReleaseFilePublishRequest.Decisions.APPROVED
 
 
 @pytest.mark.parametrize("field", ["created_at", "created_by"])

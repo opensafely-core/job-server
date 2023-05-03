@@ -2,6 +2,7 @@ import pytest
 from django.core.exceptions import PermissionDenied
 from django.utils import timezone
 
+from jobserver.models import ReportPublishRequest
 from jobserver.utils import set_from_qs
 from staff.views.reports import ReportDetail, ReportList
 
@@ -67,7 +68,10 @@ def test_reportlist_filter_by_published_requested(rf, core_developer):
 def test_reportlist_filter_by_published_yes(rf, core_developer):
     report = ReportFactory()
     ReportPublishRequestFactory(
-        report=report, approved_at=timezone.now(), approved_by=UserFactory()
+        report=report,
+        decision_at=timezone.now(),
+        decision_by=UserFactory(),
+        decision=ReportPublishRequest.Decisions.APPROVED,
     )
 
     ReportFactory.create_batch(5)

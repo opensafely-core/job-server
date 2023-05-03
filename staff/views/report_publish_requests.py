@@ -42,7 +42,7 @@ class ReportPublishRequestList(ListView):
             super()
             .get_queryset()
             .select_related(
-                "approved_by",
+                "decision_by",
                 "created_by",
             )
             .order_by("-created_at")
@@ -50,8 +50,8 @@ class ReportPublishRequestList(ListView):
 
         if q := self.request.GET.get("q"):
             fields = [
-                "approved_by__fullname",
-                "approved_by__username",
+                "decision_by__fullname",
+                "decision_by__username",
                 "created_by__fullname",
                 "created_by__username",
                 "report__title",
@@ -67,8 +67,8 @@ class ReportPublishRequestList(ListView):
             qs = qs.filter(qwargs)
 
         if self.request.GET.get("is_approved") == "yes":
-            qs = qs.exclude(approved_at=None)
+            qs = qs.exclude(decision_at=None)
         if self.request.GET.get("is_approved") == "no":
-            qs = qs.filter(approved_at=None)
+            qs = qs.filter(decision_at=None)
 
         return qs.distinct()

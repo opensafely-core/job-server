@@ -92,7 +92,11 @@ class Report(models.Model):
 
     @property
     def is_published(self):
-        return hasattr(self, "publish_request") and self.publish_request.approved_at
+        return (
+            hasattr(self, "publish_request")
+            and self.publish_request.decision_at
+            and self.publish_request.decision == ReportPublishRequest.Decisions.APPROVED
+        )
 
 
 class ReportPublishRequest(models.Model):
@@ -238,9 +242,10 @@ class ReportPublishRequest(models.Model):
     def approve(self, *, user):
         now = timezone.now()
 
-        self.approved_at = now
-        self.approved_by = user
-        self.save(update_fields=["approved_at", "approved_by"])
+        self.decision_at = now
+        self.decision_by = user
+        self.decision = self.Decisions.APPROVED
+        self.save(update_fields=["decision_at", "decision_by", "decision"])
 
         self.release_file_publish_request.approve(user=user, now=now)
 

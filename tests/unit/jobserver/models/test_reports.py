@@ -103,8 +103,9 @@ def test_reportpublishrequest_approve(freezer):
     request.approve(user=user)
 
     request.refresh_from_db()
-    assert request.approved_at == timezone.now()
-    assert request.approved_by == user
+    assert request.decision_at == timezone.now()
+    assert request.decision_by == user
+    assert request.decision == ReportPublishRequest.Decisions.APPROVED
 
     rfile_publish_request = request.release_file_publish_request
 
@@ -114,8 +115,9 @@ def test_reportpublishrequest_approve(freezer):
     assert rfile_publish_request.snapshot.published_at == timezone.now()
     assert rfile_publish_request.snapshot.published_by == user
 
-    assert rfile_publish_request.approved_at == timezone.now()
-    assert rfile_publish_request.approved_by == user
+    assert rfile_publish_request.decision_at == timezone.now()
+    assert rfile_publish_request.decision_by == user
+    assert rfile_publish_request.decision == ReportPublishRequest.Decisions.APPROVED
 
 
 def test_reportpublishrequest_create_from_report_without_report():
