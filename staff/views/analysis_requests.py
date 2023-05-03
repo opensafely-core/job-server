@@ -8,7 +8,7 @@ from django.views.generic import DetailView, ListView
 from interactive.models import AnalysisRequest
 from jobserver.authorization import CoreDeveloper
 from jobserver.authorization.decorators import require_role
-from jobserver.models import Project, User
+from jobserver.models import Project, ReportPublishRequest, User
 
 
 @method_decorator(require_role(CoreDeveloper), name="dispatch")
@@ -16,6 +16,16 @@ class AnalysisRequestDetail(DetailView):
     context_object_name = "analysis_request"
     model = AnalysisRequest
     template_name = "staff/analysis_request_detail.html"
+
+    def get_context_data(self, **kwargs):
+        # flipping this
+        publish_requests = ReportPublishRequest.objects.filter(
+            report=self.object.report
+        )
+
+        return super().get_context_data(**kwargs) | {
+            "publish_requests": publish_requests,
+        }
 
     def get_queryset(self):
         return (

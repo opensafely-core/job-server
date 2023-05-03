@@ -15,6 +15,13 @@ class ReportDetail(DetailView):
     model = Report
     template_name = "staff/report_detail.html"
 
+    def get_context_data(self, **kwargs):
+        publish_requests = self.object.publish_requests.order_by("-created_at")
+
+        return super().get_context_data(**kwargs) | {
+            "publish_requests": publish_requests,
+        }
+
     def get_queryset(self):
         return (
             super()
