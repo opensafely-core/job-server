@@ -60,14 +60,27 @@
     </ul>
 
     <div class="d-flex">
-      {# TODO: add has_decision to cover being denied #}
-      {% if not publish_request.approved_at %}
       <form method="POST" action="{{ publish_request.get_approve_url }}">
         {% csrf_token %}
 
+        {% if publish_request.decision %}
+        <span
+          class="d-inline-block mr-1"
+          data-placement="bottom"
+          data-toggle="tooltip"
+          tabindex="0"
+          title="This request already has a decision"
+        >
+          <button
+            class="btn btn-success no-pointer-events"
+            disabled
+            type="button"
+          >Approve</button>
+        </span>
+        {% else %}
         <button class="btn btn-success mr-1" type="submit">Approve</button>
+        {% endif %}
       </form>
-      {% endif %}
     </div>
   </div>
 </div>
@@ -92,6 +105,38 @@
         </div>
       </section>
     </div>
+    <div class="col col-lg-3 col-xl-4">
+
+      <div class="card mb-3">
+        <h2 class="card-header h5">
+          Status
+        </h2>
+        <div class="card-body mb-0">
+          {% if publish_request.decision %}
+          <p>
+            {{ publish_request.get_decision_display }}
+          </p>
+
+          <p>
+            <strong>Decision maker:</strong>
+            <a href="{{ publish_request.decision_by.get_staff_url }}">
+              {{ publish_request.decision_by.name }}
+            </a>
+          </p>
+
+          <p>
+            <strong>Decision made:</strong>
+            {{ publish_request.decision_at }}
+          </p>
+          {% else %}
+          <p>Pending</p>
+          {% endif %}
+        </div>
+      </div>
+    </div>
+
+  </div>
+
   </div>
 </div>
 {% endblock content %}
