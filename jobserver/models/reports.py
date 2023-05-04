@@ -235,8 +235,20 @@ class ReportPublishRequest(models.Model):
             kwargs={"pk": self.pk},
         )
 
+    def get_reject_url(self):
+        return reverse(
+            "staff:report-publish-request-reject",
+            kwargs={"pk": self.pk},
+        )
+
     def get_staff_url(self):
         return reverse(
             "staff:report-publish-request-detail",
             kwargs={"pk": self.pk},
         )
+
+    def reject(self, *, user):
+        self.decision_at = timezone.now()
+        self.decision_by = user
+        self.decision = self.Decisions.REJECTED
+        self.save(update_fields=["decision_at", "decision_by", "decision"])

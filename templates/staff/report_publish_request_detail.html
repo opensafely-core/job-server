@@ -81,6 +81,27 @@
         <button class="btn btn-success mr-1" type="submit">Approve</button>
         {% endif %}
       </form>
+      <form method="POST" action="{{ publish_request.get_reject_url }}">
+        {% csrf_token %}
+
+        {% if publish_request.decision %}
+        <span
+          class="d-inline-block mr-1"
+          data-placement="bottom"
+          data-toggle="tooltip"
+          tabindex="0"
+          title="This request already has a decision"
+        >
+          <button
+            class="btn btn-danger no-pointer-events"
+            disabled
+            type="button"
+          >Reject</button>
+        </span>
+        {% else %}
+        <button class="btn btn-danger mr-1" type="submit">Reject</button>
+        {% endif %}
+      </form>
     </div>
   </div>
 </div>

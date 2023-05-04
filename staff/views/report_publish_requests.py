@@ -93,3 +93,17 @@ class ReportPublishRequestList(ListView):
                 qs = qs.filter(decision=state)
 
         return qs.distinct()
+
+
+@method_decorator(require_role(CoreDeveloper), name="dispatch")
+class ReportPublishRequestReject(View):
+    context_object_name = "publish_request"
+    model = ReportPublishRequest
+
+    def post(self, request, *args, **kwargs):
+        publish_request = get_object_or_404(ReportPublishRequest, pk=self.kwargs["pk"])
+
+        publish_request.reject(user=request.user)
+        send_report_published_email(publish_request)
+
+        return redirect(publish_request.get_staff_url())

@@ -170,6 +170,19 @@ def test_reportpublishrequest_get_approve_url():
     )
 
 
+def test_reportpublishrequest_get_reject_url():
+    publish_request = ReportPublishRequestFactory()
+
+    url = publish_request.get_reject_url()
+
+    assert url == reverse(
+        "staff:report-publish-request-reject",
+        kwargs={
+            "pk": publish_request.pk,
+        },
+    )
+
+
 def test_reportpublishrequest_get_staff_url():
     publish_request = ReportPublishRequestFactory()
 
@@ -181,6 +194,18 @@ def test_reportpublishrequest_get_staff_url():
             "pk": publish_request.pk,
         },
     )
+
+
+def test_reportpublishrequest_reject(freezer):
+    request = ReportPublishRequestFactory()
+    user = UserFactory()
+
+    request.reject(user=user)
+
+    request.refresh_from_db()
+    assert request.decision_at == timezone.now()
+    assert request.decision_by == user
+    assert request.decision == ReportPublishRequest.Decisions.REJECTED
 
 
 def test_reportpublishrequest_str():

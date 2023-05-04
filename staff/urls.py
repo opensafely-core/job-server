@@ -47,6 +47,7 @@ from .views.report_publish_requests import (
     ReportPublishRequestApprove,
     ReportPublishRequestDetail,
     ReportPublishRequestList,
+    ReportPublishRequestReject,
 )
 from .views.reports import ReportDetail, ReportList
 from .views.repos import RepoDetail, RepoList, RepoSignOff
@@ -173,6 +174,11 @@ report_publish_request_urls = [
         "<int:pk>/approve/",
         ReportPublishRequestApprove.as_view(),
         name="report-publish-request-approve",
+    ),
+    path(
+        "<int:pk>/reject/",
+        ReportPublishRequestReject.as_view(),
+        name="report-publish-request-reject",
     ),
 ]
 
