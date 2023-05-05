@@ -285,7 +285,7 @@ class ReleaseWorkspaceAPI(APIView):
         # Current osrelease workflow should not create a Github issues, so allow that to be supressed
         # Note: this is broken and spamming issues, so comment out for now
         # if request.headers.get("Suppress-Github-Issue") is None:  # pragma: no cover
-        #   releases.create_github_issue(release, self.get_github_api())
+        #   issues.create_output_checking_request(release, self.get_github_api())
 
         body = {
             "release_id": str(release.id),

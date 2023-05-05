@@ -1,16 +1,21 @@
 from django.contrib import messages
 from django.core.exceptions import PermissionDenied
+from django.db import transaction
 from django.shortcuts import get_object_or_404, redirect
 from django.views.generic import CreateView, UpdateView
 
 from interactive.models import AnalysisRequest
-from jobserver.authorization import has_permission
 
+from ..authorization import has_permission
+from ..github import _get_github_api
+from ..issues import create_copilot_publish_report_request
 from ..models import ReportPublishRequest
+from ..slacks import notify_copilots_of_publish_request
 
 
 class ReportPublishRequestCreate(CreateView):
     fields = []
+    get_github_api = staticmethod(_get_github_api)
     model = ReportPublishRequest
     template_name = "interactive/report_publish_request_create.html"
 
@@ -35,12 +40,16 @@ class ReportPublishRequestCreate(CreateView):
 
         return super().dispatch(request, *args, **kwargs)
 
+    @transaction.atomic()
     def form_valid(self, form):
-        ReportPublishRequest.create_from_report(
+        publish_request = ReportPublishRequest.create_from_report(
             report=self.analysis_request.report, user=self.request.user
         )
 
-        # TODO: message a slack somewhere
+        issue_url = create_copilot_publish_report_request(
+            publish_request, github_api=self.get_github_api()
+        )
+        notify_copilots_of_publish_request(publish_request, issue_url)
 
         messages.success(
             self.request, "Your request to publish this report was successfully sent"

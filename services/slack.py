@@ -18,8 +18,8 @@ client = WebClient(token=slack_token)
 def post(text, channel):
     if settings.DEBUG:  # pragma: no cover
         print("")
-        print(f"channel: {channel}")
-        print("")
+        print(f"Channel: {channel}")
+        print("Message:")
         print(text)
         print("")
         return

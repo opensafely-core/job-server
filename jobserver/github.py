@@ -2,6 +2,7 @@ import json
 from datetime import UTC, datetime
 
 import requests
+from django.conf import settings
 from environs import Env
 from furl import furl
 
@@ -186,6 +187,15 @@ class GitHubAPI:
         return
 
     def create_issue(self, org, repo, title, body, labels):
+        if settings.DEBUG:  # pragma: no cover
+            print("")
+            print(f"Repo: https://github.com/{org}/{repo}/")
+            print(f"Title: {title}")
+            print("Message:")
+            print(body)
+            print("")
+            return {"html_url": "http://example.com"}
+
         path_segments = [
             "repos",
             org,
