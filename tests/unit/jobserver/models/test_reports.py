@@ -14,7 +14,6 @@ from ....factories import (
     ReportPublishRequestFactory,
     SnapshotFactory,
     UserFactory,
-    WorkspaceFactory,
 )
 
 
@@ -100,12 +99,9 @@ def test_report_updated_check_constraint_missing_by():
 
 
 def test_reportpublishrequest_approve(freezer):
-    workspace = WorkspaceFactory()
-    files = ReleaseFileFactory.create_batch(3, workspace=workspace)
     snapshot = SnapshotFactory()
-    snapshot.files.add(*files)
+    snapshot.files.add(*ReleaseFileFactory.create_batch(3))
     rfile_request = ReleaseFilePublishRequestFactory(snapshot=snapshot)
-    rfile_request.files.add(*files)
     request = ReportPublishRequestFactory(release_file_publish_request=rfile_request)
     user = UserFactory()
 

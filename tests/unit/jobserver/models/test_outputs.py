@@ -197,16 +197,10 @@ def test_releasefile_format():
 
 
 def test_releasefilepublishrequest_approve_configured_now():
-    user = UserFactory()
-    workspace = WorkspaceFactory()
-
-    files = ReleaseFileFactory.create_batch(3, workspace=workspace)
-
     snapshot = SnapshotFactory()
-    snapshot.files.add(*files)
-
-    request = ReleaseFilePublishRequestFactory(snapshot=snapshot, workspace=workspace)
-    request.files.add(*files)
+    snapshot.files.add(*ReleaseFileFactory.create_batch(3))
+    request = ReleaseFilePublishRequestFactory(snapshot=snapshot)
+    user = UserFactory()
 
     dt = minutes_ago(timezone.now(), 3)
 
@@ -217,16 +211,10 @@ def test_releasefilepublishrequest_approve_configured_now():
 
 
 def test_releasefilepublishrequest_approve_default_now(freezer):
-    user = UserFactory()
-    workspace = WorkspaceFactory()
-
-    files = ReleaseFileFactory.create_batch(3, workspace=workspace)
-
     snapshot = SnapshotFactory()
-    snapshot.files.add(*files)
-
-    request = ReleaseFilePublishRequestFactory(snapshot=snapshot, workspace=workspace)
-    request.files.add(*files)
+    snapshot.files.add(*ReleaseFileFactory.create_batch(3))
+    request = ReleaseFilePublishRequestFactory(snapshot=snapshot)
+    user = UserFactory()
 
     request.approve(user=user)
 

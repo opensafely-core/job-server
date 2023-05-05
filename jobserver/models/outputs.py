@@ -268,10 +268,6 @@ class ReleaseFilePublishRequest(models.Model):
         APPROVED = "approved", "Approved"
         REJECTED = "rejected", "Rejected"
 
-    files = models.ManyToManyField(
-        "ReleaseFile",
-        related_name="publish_requests",
-    )
     snapshot = models.ForeignKey(
         "Snapshot",
         on_delete=models.SET_NULL,
