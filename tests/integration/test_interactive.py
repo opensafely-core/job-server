@@ -2,9 +2,9 @@ import json
 import tempfile
 
 import pytest
+from interactive_templates import git
 from opensafely._vendor.jobrunner.cli import local_run
 
-from interactive.submit import git
 from interactive.views import AnalysisRequestCreate
 from jobserver.authorization import InteractiveReporter
 
