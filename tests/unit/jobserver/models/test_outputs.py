@@ -5,6 +5,7 @@ from django.urls import reverse
 from django.utils import timezone
 
 from jobserver.models import ReleaseFilePublishRequest
+from jobserver.utils import set_from_qs
 from tests.factories import (
     ReleaseFactory,
     ReleaseFileFactory,
@@ -233,6 +234,19 @@ def test_releasefilepublishrequest_approve_default_now(freezer):
     assert request.decision_at == timezone.now()
     assert request.decision_by == user
     assert request.decision == ReleaseFilePublishRequest.Decisions.APPROVED
+
+
+def test_releasefilepublishrequest_create_from_files_success():
+    rfile = ReleaseFileFactory()
+    user = UserFactory()
+    workspace = WorkspaceFactory()
+
+    request = ReleaseFilePublishRequest.create_from_files(
+        files=[rfile], user=user, workspace=workspace
+    )
+
+    assert request.created_by == user
+    assert set_from_qs(request.snapshot.files.all()) == {rfile.pk}
 
 
 @pytest.mark.parametrize("field", ["created_at", "created_by"])

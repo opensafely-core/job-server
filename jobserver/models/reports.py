@@ -202,10 +202,11 @@ class ReportPublishRequest(models.Model):
 
         with transaction.atomic():
             # create a request to publish the released file underpinning the report
-            rfile_publish_request = ReleaseFilePublishRequest.objects.create(
-                created_by=user, workspace=report.release_file.workspace
+            rfile_publish_request = ReleaseFilePublishRequest.create_from_files(
+                files=[report.release_file],
+                user=user,
+                workspace=report.release_file.workspace,
             )
-            rfile_publish_request.files.add(report.release_file)
 
             # create a request to publish the report
             return ReportPublishRequest.objects.create(

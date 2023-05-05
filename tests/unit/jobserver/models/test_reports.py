@@ -4,7 +4,6 @@ from django.urls import reverse
 from django.utils import timezone
 
 from jobserver.models import Report, ReportPublishRequest
-from jobserver.utils import set_from_qs
 
 from ....factories import (
     AnalysisRequestFactory,
@@ -148,13 +147,7 @@ def test_reportpublishrequest_create_from_report_success():
     assert request.updated_by == user
 
     # have we constructed a ReleaseFilePublishRequest correctly?
-    assert request.release_file_publish_request.created_by == user
-    assert set_from_qs(request.release_file_publish_request.files.all()) == {
-        report.release_file.pk
-    }
-    assert (
-        request.release_file_publish_request.workspace == report.release_file.workspace
-    )
+    assert request.release_file_publish_request
 
 
 def test_reportpublishrequest_get_approve_url():

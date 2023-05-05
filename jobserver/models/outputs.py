@@ -346,6 +346,18 @@ class ReleaseFilePublishRequest(models.Model):
         self.decision = self.Decisions.APPROVED
         self.save(update_fields=["decision_at", "decision_by", "decision"])
 
+    @classmethod
+    @transaction.atomic()
+    def create_from_files(cls, *, files, workspace, user):
+        snapshot = Snapshot.objects.create(workspace=workspace, created_by=user)
+        snapshot.files.add(*files)
+
+        return cls.objects.create(
+            created_by=user,
+            snapshot=snapshot,
+            workspace=workspace,
+        )
+
 
 class ReleaseFileReview(models.Model):
     class Statuses(models.TextChoices):

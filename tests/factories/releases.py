@@ -39,6 +39,7 @@ class ReleaseFilePublishRequestFactory(factory.django.DjangoModelFactory):
         model = ReleaseFilePublishRequest
 
     created_by = factory.SubFactory("tests.factories.UserFactory")
+    snapshot = factory.SubFactory("tests.factories.SnapshotFactory")
     workspace = factory.SubFactory("tests.factories.WorkspaceFactory")
 
 
