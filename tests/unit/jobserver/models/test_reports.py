@@ -9,10 +9,10 @@ from ....factories import (
     AnalysisRequestFactory,
     ProjectFactory,
     ReleaseFileFactory,
-    ReleaseFilePublishRequestFactory,
     ReportFactory,
     ReportPublishRequestFactory,
     SnapshotFactory,
+    SnapshotPublishRequestFactory,
     UserFactory,
 )
 
@@ -101,8 +101,8 @@ def test_report_updated_check_constraint_missing_by():
 def test_reportpublishrequest_approve(freezer):
     snapshot = SnapshotFactory()
     snapshot.files.add(*ReleaseFileFactory.create_batch(3))
-    rfile_request = ReleaseFilePublishRequestFactory(snapshot=snapshot)
-    request = ReportPublishRequestFactory(release_file_publish_request=rfile_request)
+    snapshot_request = SnapshotPublishRequestFactory(snapshot=snapshot)
+    request = ReportPublishRequestFactory(snapshot_publish_request=snapshot_request)
     user = UserFactory()
 
     request.approve(user=user)
@@ -112,9 +112,9 @@ def test_reportpublishrequest_approve(freezer):
     assert request.decision_by == user
     assert request.decision == ReportPublishRequest.Decisions.APPROVED
 
-    assert rfile_request.decision_at == timezone.now()
-    assert rfile_request.decision_by == user
-    assert rfile_request.decision == ReportPublishRequest.Decisions.APPROVED
+    assert snapshot_request.decision_at == timezone.now()
+    assert snapshot_request.decision_by == user
+    assert snapshot_request.decision == ReportPublishRequest.Decisions.APPROVED
 
 
 def test_reportpublishrequest_create_from_report_without_report():
@@ -142,8 +142,8 @@ def test_reportpublishrequest_create_from_report_success():
     assert request.report == report
     assert request.updated_by == user
 
-    # have we constructed a ReleaseFilePublishRequest correctly?
-    assert request.release_file_publish_request
+    # have we constructed a SnapshotPublishRequest correctly?
+    assert request.snapshot_publish_request
 
 
 def test_reportpublishrequest_get_approve_url():

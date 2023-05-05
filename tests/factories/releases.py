@@ -5,9 +5,9 @@ import factory
 from jobserver.models import (
     Release,
     ReleaseFile,
-    ReleaseFilePublishRequest,
     ReleaseFileReview,
     Snapshot,
+    SnapshotPublishRequest,
 )
 
 
@@ -34,15 +34,6 @@ class ReleaseFileFactory(factory.django.DjangoModelFactory):
     size = 7
 
 
-class ReleaseFilePublishRequestFactory(factory.django.DjangoModelFactory):
-    class Meta:
-        model = ReleaseFilePublishRequest
-
-    created_by = factory.SubFactory("tests.factories.UserFactory")
-    snapshot = factory.SubFactory("tests.factories.SnapshotFactory")
-    workspace = factory.SubFactory("tests.factories.WorkspaceFactory")
-
-
 class ReleaseFileReviewFactory(factory.django.DjangoModelFactory):
     class Meta:
         model = ReleaseFileReview
@@ -56,4 +47,13 @@ class SnapshotFactory(factory.django.DjangoModelFactory):
         model = Snapshot
 
     created_by = factory.SubFactory("tests.factories.UserFactory")
+    workspace = factory.SubFactory("tests.factories.WorkspaceFactory")
+
+
+class SnapshotPublishRequestFactory(factory.django.DjangoModelFactory):
+    class Meta:
+        model = SnapshotPublishRequest
+
+    created_by = factory.SubFactory("tests.factories.UserFactory")
+    snapshot = factory.SubFactory("tests.factories.SnapshotFactory")
     workspace = factory.SubFactory("tests.factories.WorkspaceFactory")

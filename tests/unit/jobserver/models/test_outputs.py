@@ -4,14 +4,14 @@ from django.db import IntegrityError
 from django.urls import reverse
 from django.utils import timezone
 
-from jobserver.models import ReleaseFilePublishRequest, Snapshot
+from jobserver.models import Snapshot, SnapshotPublishRequest
 from jobserver.utils import set_from_qs
 from tests.factories import (
     ReleaseFactory,
     ReleaseFileFactory,
-    ReleaseFilePublishRequestFactory,
     ReleaseFileReviewFactory,
     SnapshotFactory,
+    SnapshotPublishRequestFactory,
     UserFactory,
     WorkspaceFactory,
 )
@@ -199,7 +199,7 @@ def test_releasefile_format():
 def test_releasefilepublishrequest_approve_configured_now():
     snapshot = SnapshotFactory()
     snapshot.files.add(*ReleaseFileFactory.create_batch(3))
-    request = ReleaseFilePublishRequestFactory(snapshot=snapshot)
+    request = SnapshotPublishRequestFactory(snapshot=snapshot)
     user = UserFactory()
 
     dt = minutes_ago(timezone.now(), 3)
@@ -213,7 +213,7 @@ def test_releasefilepublishrequest_approve_configured_now():
 def test_releasefilepublishrequest_approve_default_now(freezer):
     snapshot = SnapshotFactory()
     snapshot.files.add(*ReleaseFileFactory.create_batch(3))
-    request = ReleaseFilePublishRequestFactory(snapshot=snapshot)
+    request = SnapshotPublishRequestFactory(snapshot=snapshot)
     user = UserFactory()
 
     request.approve(user=user)
@@ -221,7 +221,7 @@ def test_releasefilepublishrequest_approve_default_now(freezer):
     request.refresh_from_db()
     assert request.decision_at == timezone.now()
     assert request.decision_by == user
-    assert request.decision == ReleaseFilePublishRequest.Decisions.APPROVED
+    assert request.decision == SnapshotPublishRequest.Decisions.APPROVED
 
 
 def test_releasefilepublishrequest_create_from_files_success():
@@ -229,7 +229,7 @@ def test_releasefilepublishrequest_create_from_files_success():
     user = UserFactory()
     workspace = WorkspaceFactory()
 
-    request = ReleaseFilePublishRequest.create_from_files(
+    request = SnapshotPublishRequest.create_from_files(
         files=[rfile], user=user, workspace=workspace
     )
 
@@ -247,7 +247,7 @@ def test_releasefilepublishrequest_create_from_files_with_duplicate_files():
     user = UserFactory()
 
     with pytest.raises(Snapshot.DuplicateSnapshotError):
-        ReleaseFilePublishRequest.create_from_files(
+        SnapshotPublishRequest.create_from_files(
             files=[rfile], user=user, workspace=workspace
         )
 
@@ -348,11 +348,11 @@ def test_snapshot_is_draft():
 def test_snapshot_is_published():
     snapshot = SnapshotFactory()
 
-    ReleaseFilePublishRequestFactory(
+    SnapshotPublishRequestFactory(
         snapshot=snapshot,
         decision_by=UserFactory(),
         decision_at=timezone.now(),
-        decision=ReleaseFilePublishRequest.Decisions.APPROVED,
+        decision=SnapshotPublishRequest.Decisions.APPROVED,
     )
 
     assert snapshot.is_published

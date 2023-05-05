@@ -264,111 +264,6 @@ class ReleaseFile(models.Model):
         return self.deleted_at is not None
 
 
-class ReleaseFilePublishRequest(models.Model):
-    class Decisions(models.TextChoices):
-        APPROVED = "approved", "Approved"
-        REJECTED = "rejected", "Rejected"
-
-    snapshot = models.ForeignKey(
-        "Snapshot",
-        on_delete=models.SET_NULL,
-        related_name="publish_requests",
-        null=True,
-    )
-    workspace = models.ForeignKey(
-        "Workspace",
-        on_delete=models.PROTECT,
-        related_name="publish_requests",
-    )
-
-    created_at = models.DateTimeField(default=timezone.now)
-    created_by = models.ForeignKey(
-        "User",
-        on_delete=models.CASCADE,
-        related_name="release_file_publish_requests",
-    )
-
-    decision_at = models.DateTimeField(null=True)
-    decision_by = models.ForeignKey(
-        "User",
-        on_delete=models.PROTECT,
-        related_name="release_file_publish_requests_decisions",
-        null=True,
-    )
-    decision = models.TextField(choices=Decisions.choices, null=True)
-
-    class Meta:
-        constraints = [
-            models.CheckConstraint(
-                check=(
-                    Q(
-                        created_at__isnull=True,
-                        created_by__isnull=True,
-                    )
-                    | (
-                        Q(
-                            created_at__isnull=False,
-                            created_by__isnull=False,
-                        )
-                    )
-                ),
-                name="%(app_label)s_%(class)s_both_created_at_and_created_by_set",
-            ),
-            models.CheckConstraint(
-                check=(
-                    Q(
-                        decision_at__isnull=True,
-                        decision_by__isnull=True,
-                        decision__isnull=True,
-                    )
-                    | (
-                        Q(
-                            decision_at__isnull=False,
-                            decision_by__isnull=False,
-                            decision__isnull=False,
-                        )
-                    )
-                ),
-                name="%(app_label)s_%(class)s_both_decision_at_decision_by_and_decision_set",
-            ),
-        ]
-
-    @transaction.atomic()
-    def approve(self, *, user, now=None):
-        if now is None:
-            now = timezone.now()
-
-        self.decision_at = now
-        self.decision_by = user
-        self.decision = self.Decisions.APPROVED
-        self.save(update_fields=["decision_at", "decision_by", "decision"])
-
-    @classmethod
-    @transaction.atomic()
-    def create_from_files(cls, *, files, workspace, user):
-        # only look at files which haven't been deleted (redacted)
-        files = [f for f in files if not f.is_deleted]
-
-        rfile_ids = {f.pk for f in files}
-        snapshot_ids = [set_from_qs(s.files.all()) for s in workspace.snapshots.all()]
-        if rfile_ids in snapshot_ids:
-            msg = (
-                "A release with the current files already exists, please use that one."
-            )
-            raise Snapshot.DuplicateSnapshotError(msg)
-
-        snapshot = Snapshot.objects.create(workspace=workspace, created_by=user)
-        snapshot.files.add(*files)
-
-        # TODO: make sure there are no other pending publish requests here
-
-        return cls.objects.create(
-            created_by=user,
-            snapshot=snapshot,
-            workspace=workspace,
-        )
-
-
 class ReleaseFileReview(models.Model):
     class Statuses(models.TextChoices):
         APPROVED = "APPROVED", "Approved"
@@ -538,4 +433,109 @@ class Snapshot(models.Model):
         if not latest:
             return False
 
-        return latest.decision == ReleaseFilePublishRequest.Decisions.APPROVED
+        return latest.decision == SnapshotPublishRequest.Decisions.APPROVED
+
+
+class SnapshotPublishRequest(models.Model):
+    class Decisions(models.TextChoices):
+        APPROVED = "approved", "Approved"
+        REJECTED = "rejected", "Rejected"
+
+    snapshot = models.ForeignKey(
+        "Snapshot",
+        on_delete=models.SET_NULL,
+        related_name="publish_requests",
+        null=True,
+    )
+    workspace = models.ForeignKey(
+        "Workspace",
+        on_delete=models.PROTECT,
+        related_name="publish_requests",
+    )
+
+    created_at = models.DateTimeField(default=timezone.now)
+    created_by = models.ForeignKey(
+        "User",
+        on_delete=models.CASCADE,
+        related_name="snapshot_publish_requests",
+    )
+
+    decision_at = models.DateTimeField(null=True)
+    decision_by = models.ForeignKey(
+        "User",
+        on_delete=models.PROTECT,
+        related_name="snapshot_publish_requests_decisions",
+        null=True,
+    )
+    decision = models.TextField(choices=Decisions.choices, null=True)
+
+    class Meta:
+        constraints = [
+            models.CheckConstraint(
+                check=(
+                    Q(
+                        created_at__isnull=True,
+                        created_by__isnull=True,
+                    )
+                    | (
+                        Q(
+                            created_at__isnull=False,
+                            created_by__isnull=False,
+                        )
+                    )
+                ),
+                name="%(app_label)s_%(class)s_both_created_at_and_created_by_set",
+            ),
+            models.CheckConstraint(
+                check=(
+                    Q(
+                        decision_at__isnull=True,
+                        decision_by__isnull=True,
+                        decision__isnull=True,
+                    )
+                    | (
+                        Q(
+                            decision_at__isnull=False,
+                            decision_by__isnull=False,
+                            decision__isnull=False,
+                        )
+                    )
+                ),
+                name="%(app_label)s_%(class)s_both_decision_at_decision_by_and_decision_set",
+            ),
+        ]
+
+    @transaction.atomic()
+    def approve(self, *, user, now=None):
+        if now is None:
+            now = timezone.now()
+
+        self.decision_at = now
+        self.decision_by = user
+        self.decision = self.Decisions.APPROVED
+        self.save(update_fields=["decision_at", "decision_by", "decision"])
+
+    @classmethod
+    @transaction.atomic()
+    def create_from_files(cls, *, files, workspace, user):
+        # only look at files which haven't been deleted (redacted)
+        files = [f for f in files if not f.is_deleted]
+
+        rfile_ids = {f.pk for f in files}
+        snapshot_ids = [set_from_qs(s.files.all()) for s in workspace.snapshots.all()]
+        if rfile_ids in snapshot_ids:
+            msg = (
+                "A release with the current files already exists, please use that one."
+            )
+            raise Snapshot.DuplicateSnapshotError(msg)
+
+        snapshot = Snapshot.objects.create(workspace=workspace, created_by=user)
+        snapshot.files.add(*files)
+
+        # TODO: make sure there are no other pending publish requests here
+
+        return cls.objects.create(
+            created_by=user,
+            snapshot=snapshot,
+            workspace=workspace,
+        )
