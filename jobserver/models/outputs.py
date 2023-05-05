@@ -7,6 +7,7 @@ from django.utils import timezone
 from ulid import ULID
 
 from jobserver.models.common import new_ulid_str
+from jobserver.utils import set_from_qs
 
 
 def absolute_file_path(path):
@@ -345,8 +346,21 @@ class ReleaseFilePublishRequest(models.Model):
     @classmethod
     @transaction.atomic()
     def create_from_files(cls, *, files, workspace, user):
+        # only look at files which haven't been deleted (redacted)
+        files = [f for f in files if not f.is_deleted]
+
+        rfile_ids = {f.pk for f in files}
+        snapshot_ids = [set_from_qs(s.files.all()) for s in workspace.snapshots.all()]
+        if rfile_ids in snapshot_ids:
+            msg = (
+                "A release with the current files already exists, please use that one."
+            )
+            raise Snapshot.DuplicateSnapshotError(msg)
+
         snapshot = Snapshot.objects.create(workspace=workspace, created_by=user)
         snapshot.files.add(*files)
+
+        # TODO: make sure there are no other pending publish requests here
 
         return cls.objects.create(
             created_by=user,
@@ -463,6 +477,9 @@ class Snapshot(models.Model):
                 name="%(app_label)s_%(class)s_both_published_at_and_published_by_set",
             ),
         ]
+
+    class DuplicateSnapshotError(Exception):
+        pass
 
     def __str__(self):
         status = "Published" if self.published_at else "Draft"

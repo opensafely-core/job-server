@@ -483,21 +483,16 @@ class SnapshotCreateAPI(APIView):
         if missing := file_ids - set_from_qs(files):
             raise ParseError(f"Unknown file IDs: {', '.join(missing)}")
 
-        # only look at files which haven't been deleted (redacted)
-        files = [f for f in files if not f.is_deleted]
-
-        rfile_ids = {f.pk for f in files}
-        snapshot_ids = [set_from_qs(s.files.all()) for s in workspace.snapshots.all()]
-        if rfile_ids in snapshot_ids:
-            msg = (
-                "A release with the current files already exists, please use that one."
+        try:
+            publish_request = ReleaseFilePublishRequest.create_from_files(
+                files=files, user=request.user, workspace=workspace
             )
-            raise ParseError(msg)
+        except Snapshot.DuplicateSnapshotError as e:
+            raise ParseError(str(e))
 
-        snapshot = Snapshot.objects.create(created_by=request.user, workspace=workspace)
-        snapshot.files.set(files)
-
-        return Response({"url": snapshot.get_absolute_url()}, status=201)
+        return Response(
+            {"url": publish_request.snapshot.get_absolute_url()}, status=201
+        )
 
 
 class SnapshotPublishAPI(APIView):

@@ -4,7 +4,7 @@ from django.db import IntegrityError
 from django.urls import reverse
 from django.utils import timezone
 
-from jobserver.models import ReleaseFilePublishRequest
+from jobserver.models import ReleaseFilePublishRequest, Snapshot
 from jobserver.utils import set_from_qs
 from tests.factories import (
     ReleaseFactory,
@@ -235,6 +235,21 @@ def test_releasefilepublishrequest_create_from_files_success():
 
     assert request.created_by == user
     assert set_from_qs(request.snapshot.files.all()) == {rfile.pk}
+
+
+def test_releasefilepublishrequest_create_from_files_with_duplicate_files():
+    rfile = ReleaseFileFactory()
+    workspace = WorkspaceFactory()
+
+    snapshot = SnapshotFactory(workspace=workspace)
+    snapshot.files.add(rfile)
+
+    user = UserFactory()
+
+    with pytest.raises(Snapshot.DuplicateSnapshotError):
+        ReleaseFilePublishRequest.create_from_files(
+            files=[rfile], user=user, workspace=workspace
+        )
 
 
 @pytest.mark.parametrize("field", ["created_at", "created_by"])
