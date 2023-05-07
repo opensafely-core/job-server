@@ -443,12 +443,11 @@ class SnapshotPublishRequest(models.Model):
     )
     decision = models.TextField(choices=Decisions.choices, null=True)
 
-    updated_at = models.DateTimeField(auto_now=True, null=True)
+    updated_at = models.DateTimeField(auto_now=True)
     updated_by = models.ForeignKey(
         "jobserver.User",
         on_delete=models.PROTECT,
         related_name="snapshot_requests_updated",
-        null=True,
     )
 
     class Meta:
@@ -484,6 +483,21 @@ class SnapshotPublishRequest(models.Model):
                     )
                 ),
                 name="%(app_label)s_%(class)s_both_decision_at_decision_by_and_decision_set",
+            ),
+            models.CheckConstraint(
+                check=(
+                    Q(
+                        updated_at__isnull=True,
+                        updated_by__isnull=True,
+                    )
+                    | (
+                        Q(
+                            updated_at__isnull=False,
+                            updated_by__isnull=False,
+                        )
+                    )
+                ),
+                name="%(app_label)s_%(class)s_both_updated_at_and_updated_by_set",
             ),
         ]
 
