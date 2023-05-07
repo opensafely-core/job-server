@@ -443,6 +443,14 @@ class SnapshotPublishRequest(models.Model):
     )
     decision = models.TextField(choices=Decisions.choices, null=True)
 
+    updated_at = models.DateTimeField(auto_now=True, null=True)
+    updated_by = models.ForeignKey(
+        "jobserver.User",
+        on_delete=models.PROTECT,
+        related_name="snapshot_requests_updated",
+        null=True,
+    )
+
     class Meta:
         constraints = [
             models.CheckConstraint(
