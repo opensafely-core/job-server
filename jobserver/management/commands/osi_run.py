@@ -5,9 +5,9 @@ import tempfile
 from pathlib import Path
 
 from django.core.management.base import BaseCommand
+from interactive_templates import git
 
 from interactive.models import AnalysisRequest
-from interactive.submit import git
 
 
 def copy_report(*, from_path, analysis_request):
