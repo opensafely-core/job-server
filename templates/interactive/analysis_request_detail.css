@@ -4,7 +4,7 @@ html:has(dialog[open]) {
 
 #report {
   color: var(--color-slate-800);
-  font-size: 14px;
+  font-size: 1.1rem;
   line-height: 1.5;
   margin-inline: auto;
   max-width: calc(75ch + 2em);
@@ -12,15 +12,6 @@ html:has(dialog[open]) {
   position: relative;
   width: 100%;
   z-index: 10;
-
-  &:not(.print-pdf) {
-    font-size: 1.1rem;
-  }
-
-  & #interactiveReport {
-    display: grid;
-    row-gap: 1em;
-  }
 
   & section {
     display: grid;
@@ -141,13 +132,10 @@ html:has(dialog[open]) {
   & th,
   & td {
     font-size: 1em;
-    line-height: 1.2;
     text-align: left;
     font-variant-numeric: proportional-nums;
-
-    &:not(.print-pdf) {
-      padding: 0.25em 0.5em;
-    }
+    line-height: 1.2;
+    padding: 0.25em 0.5em;
   }
 
   & th:not(:last-child) {
@@ -185,6 +173,40 @@ html:has(dialog[open]) {
       background-color: var(--color-oxford-900);
       color: white;
     }
+  }
+}
+
+#report.print-pdf {
+  font-family: sans-serif;
+  font-size: 10pt;
+
+  & table {
+    margin: 0;
+  }
+
+  & th,
+  & td {
+    padding: 0 20px 14px 10px;
+    overflow-wrap: break-word;
+  }
+
+  & li {
+    list-style: none;
+    position: relative;
+  }
+
+  & li::before {
+    content: "•";
+    left: -10px;
+    position: absolute;
+  }
+
+  & a {
+    text-decoration: none;
+  }
+
+  & .pdf--hide {
+    display: none;
   }
 }
 
