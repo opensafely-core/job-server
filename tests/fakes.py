@@ -36,6 +36,9 @@ class FakeGitHubAPI:
     def get_branch_sha(self, org, repo, branch):
         return self.get_branch(org, repo, branch)["commit"]["sha"]
 
+    def get_tag_sha(self, org, repo, tag):
+        return "test_sha"
+
     def get_file(self, org, repo, branch):
         return textwrap.dedent(
             """

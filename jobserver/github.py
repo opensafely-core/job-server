@@ -319,6 +319,18 @@ class GitHubAPI:
 
         return branch["commit"]["sha"]
 
+    def get_tag_sha(self, org, repo, tag):
+        path_segments = ["repos", org, repo, "git", "refs", "tags", tag]
+        url = self._url(path_segments)
+        headers = {
+            "Accept": "application/vnd.github.v3+json",
+        }
+
+        r = self._get(url, headers=headers)
+        r.raise_for_status()
+
+        return r.json()["object"]["sha"]
+
     def get_file(self, org, repo, branch):
         path_segments = [
             "repos",
