@@ -121,37 +121,39 @@ html:has(dialog[open]) {
 
   & thead {
     background-color: var(--color-slate-100);
-    border: 1px solid var(--color-slate-400);
   }
 
   & tbody {
     background-color: white;
-    border: 1px solid var(--color-slate-400);
   }
 
   & th,
   & td {
-    font-size: 1em;
+    font-size: 0.9em;
     text-align: left;
     font-variant-numeric: proportional-nums;
     line-height: 1.2;
     padding: 0.25em 0.5em;
   }
 
-  & th:not(:last-child) {
-    border-right: 1px solid var(--color-slate-400);
+  & th,
+  & td {
+    border-color: var(--color-slate-400);
+    border-style: solid;
+    border-width: 1px;
+    border-left-width: 0;
+
+    &:first-child {
+      border-left-width: 1px;
+    }
   }
 
-  & tr:nth-child(even) {
-    background-color: var(--color-slate-50);
+  & tr:last-child th {
+    border-bottom-width: 0;
   }
 
-  & tr:not(:last-child) {
-    border-bottom: 1px solid var(--color-slate-400);
-  }
-
-  & td:not(:last-child) {
-    border-right: 1px solid var(--color-slate-400);
+  & tr:not(:last-child) td {
+    border-bottom-width: 0;
   }
 
   & .toc {
