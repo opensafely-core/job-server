@@ -3,12 +3,22 @@ from datetime import UTC
 import factory
 
 from jobserver.models import (
+    PublishRequest,
     Release,
     ReleaseFile,
     ReleaseFileReview,
     Snapshot,
-    SnapshotPublishRequest,
 )
+
+
+class PublishRequestFactory(factory.django.DjangoModelFactory):
+    class Meta:
+        model = PublishRequest
+
+    created_by = factory.SubFactory("tests.factories.UserFactory")
+    snapshot = factory.SubFactory("tests.factories.SnapshotFactory")
+    updated_by = factory.SubFactory("tests.factories.UserFactory")
+    workspace = factory.SubFactory("tests.factories.WorkspaceFactory")
 
 
 class ReleaseFactory(factory.django.DjangoModelFactory):
@@ -47,13 +57,4 @@ class SnapshotFactory(factory.django.DjangoModelFactory):
         model = Snapshot
 
     created_by = factory.SubFactory("tests.factories.UserFactory")
-    workspace = factory.SubFactory("tests.factories.WorkspaceFactory")
-
-
-class SnapshotPublishRequestFactory(factory.django.DjangoModelFactory):
-    class Meta:
-        model = SnapshotPublishRequest
-
-    created_by = factory.SubFactory("tests.factories.UserFactory")
-    snapshot = factory.SubFactory("tests.factories.SnapshotFactory")
     workspace = factory.SubFactory("tests.factories.WorkspaceFactory")

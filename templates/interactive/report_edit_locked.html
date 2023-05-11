@@ -56,12 +56,12 @@
         This report is currently locked
       </h2>
       <div class="grid gap-y-2 max-w-prose mx-auto">
-        {% if is_pending %}
+        {% if publish_request.is_pending %}
         <p>
           A request to publish this report is currently awaiting a decision.
           The reports details cannot be edited at this time.
         </p>
-        {% elif is_approved %}
+        {% elif publish_request.is_approved %}
         <p>
           This report has been published and can no longer have its details
           changed.

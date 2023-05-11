@@ -130,9 +130,9 @@ def notify_copilots_of_repo_sign_off(repo, channel="co-pilot-support"):
 
 
 def notify_copilots_of_publish_request(
-    publish_request, issue_url, channel="co-pilot-support"
+    publish_request, report, issue_url, channel="co-pilot-support"
 ):
-    report_url = furl(settings.BASE_URL) / publish_request.report.get_absolute_url()
+    report_url = furl(settings.BASE_URL) / report.get_absolute_url()
 
     message = f"""
     *Request to publish a report*

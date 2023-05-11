@@ -3,16 +3,15 @@ from django.db import IntegrityError
 from django.urls import reverse
 from django.utils import timezone
 
-from jobserver.models import Report, ReportPublishRequest
+from jobserver.models import PublishRequest, Report
 
 from ....factories import (
     AnalysisRequestFactory,
     ProjectFactory,
+    PublishRequestFactory,
     ReleaseFileFactory,
     ReportFactory,
-    ReportPublishRequestFactory,
     SnapshotFactory,
-    SnapshotPublishRequestFactory,
     UserFactory,
 )
 
@@ -60,7 +59,9 @@ def test_report_is_draft():
     report = ReportFactory()
     assert report.is_draft
 
-    publish_request = ReportPublishRequestFactory(report=report)
+    snapshot = SnapshotFactory()
+    snapshot.files.set([report.release_file])
+    publish_request = PublishRequestFactory(report=report, snapshot=snapshot)
     assert report.is_draft
 
     publish_request.approve(user=UserFactory())
@@ -68,24 +69,30 @@ def test_report_is_draft():
 
 
 def test_report_is_locked():
-    report = ReportFactory()
+    rfile = ReleaseFileFactory()
+    snapshot = SnapshotFactory()
+    snapshot.files.set([rfile])
+
+    report = ReportFactory(release_file=rfile)
 
     assert not report.is_locked
 
-    ReportPublishRequestFactory(report=report)
+    PublishRequestFactory(report=report, snapshot=snapshot)
     assert report.is_locked
 
-    ReportPublishRequestFactory(
+    PublishRequestFactory(
         report=report,
-        decision=ReportPublishRequest.Decisions.APPROVED,
+        snapshot=snapshot,
+        decision=PublishRequest.Decisions.APPROVED,
         decision_at=timezone.now(),
         decision_by=UserFactory(),
     )
     assert report.is_locked
 
-    ReportPublishRequestFactory(
+    PublishRequestFactory(
         report=report,
-        decision=ReportPublishRequest.Decisions.REJECTED,
+        snapshot=snapshot,
+        decision=PublishRequest.Decisions.REJECTED,
         decision_at=timezone.now(),
         decision_by=UserFactory(),
     )
@@ -96,7 +103,9 @@ def test_report_is_published():
     report = ReportFactory()
     assert not report.is_published
 
-    publish_request = ReportPublishRequestFactory(report=report)
+    snapshot = SnapshotFactory()
+    snapshot.files.set([report.release_file])
+    publish_request = PublishRequestFactory(report=report, snapshot=snapshot)
     assert not report.is_published
 
     publish_request.approve(user=UserFactory())
@@ -121,133 +130,3 @@ def test_report_updated_check_constraint_missing_by():
     with pytest.raises(IntegrityError):
         # updated_at uses auto_now so any value we passed in here is ignored
         ReportFactory(updated_by=None)
-
-
-def test_reportpublishrequest_approve(freezer):
-    snapshot = SnapshotFactory()
-    snapshot.files.add(*ReleaseFileFactory.create_batch(3))
-    snapshot_request = SnapshotPublishRequestFactory(snapshot=snapshot)
-    request = ReportPublishRequestFactory(snapshot_publish_request=snapshot_request)
-    user = UserFactory()
-
-    request.approve(user=user)
-
-    request.refresh_from_db()
-    assert request.decision_at == timezone.now()
-    assert request.decision_by == user
-    assert request.decision == ReportPublishRequest.Decisions.APPROVED
-
-    assert snapshot_request.decision_at == timezone.now()
-    assert snapshot_request.decision_by == user
-    assert snapshot_request.decision == ReportPublishRequest.Decisions.APPROVED
-
-
-def test_reportpublishrequest_create_from_report_without_report():
-    request = ReportPublishRequest.create_from_report(report=None, user=UserFactory())
-
-    assert request is None
-
-
-def test_reportpublishrequest_create_from_report_without_analysis_request():
-    report = ReportFactory()
-    user = UserFactory()
-
-    with pytest.raises(Exception):
-        ReportPublishRequest.create_from_report(report=report, user=user)
-
-
-def test_reportpublishrequest_create_from_report_success():
-    report = ReportFactory()
-    AnalysisRequestFactory(report=report)
-    user = UserFactory()
-
-    request = ReportPublishRequest.create_from_report(report=report, user=user)
-
-    assert request.created_by == user
-    assert request.report == report
-    assert request.updated_by == user
-
-    # have we constructed a SnapshotPublishRequest correctly?
-    assert request.snapshot_publish_request
-
-
-def test_reportpublishrequest_create_from_report_with_existing_publish_request():
-    report = ReportFactory()
-    AnalysisRequestFactory(report=report)
-    user = UserFactory()
-
-    publish_request = ReportPublishRequestFactory(report=report, created_by=user)
-
-    output = ReportPublishRequest.create_from_report(report=report, user=user)
-
-    assert output == publish_request
-
-
-def test_reportpublishrequest_get_approve_url():
-    publish_request = ReportPublishRequestFactory()
-
-    url = publish_request.get_approve_url()
-
-    assert url == reverse(
-        "staff:report-publish-request-approve",
-        kwargs={
-            "pk": publish_request.report.pk,
-            "publish_request_pk": publish_request.pk,
-        },
-    )
-
-
-def test_reportpublishrequest_get_reject_url():
-    publish_request = ReportPublishRequestFactory()
-
-    url = publish_request.get_reject_url()
-
-    assert url == reverse(
-        "staff:report-publish-request-reject",
-        kwargs={
-            "pk": publish_request.report.pk,
-            "publish_request_pk": publish_request.pk,
-        },
-    )
-
-
-def test_reportpublishrequest_is_approved():
-    publish_request = ReportPublishRequestFactory(
-        decision=ReportPublishRequest.Decisions.APPROVED,
-        decision_at=timezone.now(),
-        decision_by=UserFactory(),
-    )
-
-    assert publish_request.is_approved
-
-
-def test_reportpublishrequest_is_pending():
-    assert ReportPublishRequestFactory().is_pending
-
-
-def test_reportpublishrequest_is_rejected():
-    publish_request = ReportPublishRequestFactory(
-        decision=ReportPublishRequest.Decisions.REJECTED,
-        decision_at=timezone.now(),
-        decision_by=UserFactory(),
-    )
-
-    assert publish_request.is_rejected
-
-
-def test_reportpublishrequest_reject(freezer):
-    request = ReportPublishRequestFactory()
-    user = UserFactory()
-
-    request.reject(user=user)
-
-    request.refresh_from_db()
-    assert request.decision_at == timezone.now()
-    assert request.decision_by == user
-    assert request.decision == ReportPublishRequest.Decisions.REJECTED
-
-
-def test_reportpublishrequest_str():
-    report = ReportFactory(title="Testing Report")
-    publish_request = ReportPublishRequestFactory(report=report)
-    assert str(publish_request) == "Publish request for report: Testing Report"

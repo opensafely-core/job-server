@@ -4,7 +4,7 @@ from django.core.exceptions import PermissionDenied
 from django.http import Http404
 from django.utils import timezone
 
-from jobserver.models import ReportPublishRequest
+from jobserver.models import PublishRequest
 from jobserver.utils import set_from_qs
 from staff.views.reports import (
     ReportDetail,
@@ -16,9 +16,10 @@ from staff.views.reports import (
 from ....factories import (
     OrgFactory,
     ProjectFactory,
+    PublishRequestFactory,
     ReleaseFileFactory,
     ReportFactory,
-    ReportPublishRequestFactory,
+    SnapshotFactory,
     UserFactory,
     WorkspaceFactory,
 )
@@ -59,14 +60,17 @@ def test_reportlist_success(rf, core_developer):
 
 def test_reportlist_filter_by_state_approved(rf, core_developer):
     report = ReportFactory()
-    ReportPublishRequestFactory(
+    snapshot = SnapshotFactory()
+    snapshot.files.set([report.release_file])
+    PublishRequestFactory(
         report=report,
+        snapshot=snapshot,
         decision_at=timezone.now(),
         decision_by=UserFactory(),
-        decision=ReportPublishRequest.Decisions.APPROVED,
+        decision=PublishRequest.Decisions.APPROVED,
     )
 
-    ReportPublishRequestFactory.create_batch(5)
+    PublishRequestFactory.create_batch(5)
 
     request = rf.get("?state=approved")
     request.user = core_developer
@@ -79,19 +83,21 @@ def test_reportlist_filter_by_state_approved(rf, core_developer):
 
 def test_reportlist_filter_by_state_pending(rf, core_developer):
     report = ReportFactory()
-    ReportPublishRequestFactory(report=report)
+    snapshot = SnapshotFactory()
+    snapshot.files.set([report.release_file])
+    PublishRequestFactory(report=report, snapshot=snapshot)
 
-    ReportPublishRequestFactory.create_batch(
+    PublishRequestFactory.create_batch(
         2,
         decision_at=timezone.now(),
         decision_by=UserFactory(),
-        decision=ReportPublishRequest.Decisions.APPROVED,
+        decision=PublishRequest.Decisions.APPROVED,
     )
-    ReportPublishRequestFactory.create_batch(
+    PublishRequestFactory.create_batch(
         2,
         decision_at=timezone.now(),
         decision_by=UserFactory(),
-        decision=ReportPublishRequest.Decisions.REJECTED,
+        decision=PublishRequest.Decisions.REJECTED,
     )
 
     request = rf.get("?state=pending")
@@ -105,14 +111,17 @@ def test_reportlist_filter_by_state_pending(rf, core_developer):
 
 def test_reportlist_filter_by_state_rejected(rf, core_developer):
     report = ReportFactory()
-    ReportPublishRequestFactory(
+    snapshot = SnapshotFactory()
+    snapshot.files.set([report.release_file])
+    PublishRequestFactory(
         report=report,
+        snapshot=snapshot,
         decision_at=timezone.now(),
         decision_by=UserFactory(),
-        decision=ReportPublishRequest.Decisions.REJECTED,
+        decision=PublishRequest.Decisions.REJECTED,
     )
 
-    ReportPublishRequestFactory.create_batch(5)
+    PublishRequestFactory.create_batch(5)
 
     request = rf.get("?state=rejected")
     request.user = core_developer
@@ -195,31 +204,34 @@ def test_reportlist_unauthorized(rf):
         ReportList.as_view()(request)
 
 
-def test_reportpublishrequestapprove_success(rf, core_developer, mailoutbox):
-    publish_request = ReportPublishRequestFactory(decision_at=None)
+def test_reportpublishrequestapprove_success(
+    rf, core_developer, mailoutbox, publish_request_with_report
+):
+    report = publish_request_with_report.report
 
     request = rf.post("/")
     request.user = core_developer
 
     response = ReportPublishRequestApprove.as_view()(
         request,
-        pk=publish_request.report.pk,
-        publish_request_pk=publish_request.pk,
+        pk=report.pk,
+        publish_request_pk=publish_request_with_report.pk,
     )
 
     assert response.status_code == 302
-    assert response.url == publish_request.report.get_staff_url()
+    assert response.url == report.get_staff_url()
 
-    publish_request.refresh_from_db()
-    assert publish_request.decision_at
+    publish_request_with_report.refresh_from_db()
+    assert publish_request_with_report.decision_at
 
     m = mailoutbox[0]
     assert m.subject == "Your report has been published"
-    assert publish_request.report.get_absolute_url() in m.body
+    assert report.get_absolute_url() in m.body
 
 
 def test_reportpublishrequestapprove_unauthorized(rf):
-    publish_request = ReportPublishRequestFactory()
+    publish_request = PublishRequestFactory()
+    report = ReportFactory()
 
     request = rf.post("/")
     request.user = AnonymousUser()
@@ -227,7 +239,7 @@ def test_reportpublishrequestapprove_unauthorized(rf):
     with pytest.raises(PermissionDenied):
         ReportPublishRequestApprove.as_view()(
             request,
-            pk=publish_request.report.pk,
+            pk=report.pk,
             publish_request_pk=publish_request.pk,
         )
 
@@ -240,27 +252,32 @@ def test_reportpublishrequestapprove_unknown_publish_request(rf, core_developer)
         ReportPublishRequestApprove.as_view()(request, pk="0", publish_request_pk="0")
 
 
-def test_reportpublishrequestreject_success(rf, core_developer):
-    publish_request = ReportPublishRequestFactory(decision_at=None)
+def test_reportpublishrequestreject_success(
+    rf, core_developer, publish_request_with_report
+):
+    report = publish_request_with_report.report
 
     request = rf.post("/")
     request.user = core_developer
 
     response = ReportPublishRequestReject.as_view()(
-        request, pk=publish_request.report.pk, publish_request_pk=publish_request.pk
+        request,
+        pk=report.pk,
+        publish_request_pk=publish_request_with_report.pk,
     )
 
     assert response.status_code == 302
-    assert response.url == publish_request.report.get_staff_url()
+    assert response.url == report.get_staff_url()
 
-    publish_request.refresh_from_db()
-    assert publish_request.decision_at
-    assert publish_request.decision_by == core_developer
-    assert publish_request.decision == ReportPublishRequest.Decisions.REJECTED
+    publish_request_with_report.refresh_from_db()
+    assert publish_request_with_report.decision_at
+    assert publish_request_with_report.decision_by == core_developer
+    assert publish_request_with_report.decision == PublishRequest.Decisions.REJECTED
 
 
 def test_reportpublishrequestreject_unauthorized(rf):
-    publish_request = ReportPublishRequestFactory()
+    publish_request = PublishRequestFactory()
+    report = ReportFactory()
 
     request = rf.post("/")
     request.user = AnonymousUser()
@@ -268,7 +285,7 @@ def test_reportpublishrequestreject_unauthorized(rf):
     with pytest.raises(PermissionDenied):
         ReportPublishRequestReject.as_view()(
             request,
-            pk=publish_request.report.pk,
+            pk=report.pk,
             publish_request_pk=publish_request.pk,
         )
 

@@ -28,8 +28,11 @@ from .factories import (
     BackendMembershipFactory,
     OrgFactory,
     OrgMembershipFactory,
+    PublishRequestFactory,
     ReleaseFactory,
     ReleaseFileFactory,
+    ReportFactory,
+    SnapshotFactory,
     UserFactory,
     UserSocialAuthFactory,
 )
@@ -279,3 +282,14 @@ def github_api():
             }
 
     return CapturingGitHubAPI()
+
+
+@pytest.fixture
+def publish_request_with_report():
+    rfile = ReleaseFileFactory()
+    snapshot = SnapshotFactory()
+    snapshot.files.set([rfile])
+
+    report = ReportFactory(release_file=rfile)
+
+    return PublishRequestFactory(report=report, snapshot=snapshot)

@@ -11,7 +11,7 @@ from django.views.generic import UpdateView, View
 
 from ..authorization import has_permission
 from ..github import _get_github_api
-from ..models import Job, Project, Repo, Snapshot, SnapshotPublishRequest
+from ..models import Job, Project, PublishRequest, Repo, Snapshot
 
 
 # Create a global threadpool for getting repos.  This lets us have a single
@@ -101,9 +101,7 @@ class ProjectDetail(View):
         # Snapshot for each Workspace
         latest_snapshot_qs = (
             Snapshot.objects.filter(workspace_id=OuterRef("id"))
-            .filter(
-                publish_requests__decision=SnapshotPublishRequest.Decisions.APPROVED
-            )
+            .filter(publish_requests__decision=PublishRequest.Decisions.APPROVED)
             .order_by("-publish_requests__decision_at")
             .values("pk")[:1]
         )

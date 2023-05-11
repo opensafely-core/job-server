@@ -28,9 +28,9 @@ from jobserver.authorization import (
     ProjectDeveloper,
 )
 from jobserver.models import (
+    PublishRequest,
     Release,
     ReleaseFileReview,
-    SnapshotPublishRequest,
 )
 from jobserver.utils import set_from_qs
 from tests.factories import (
@@ -40,10 +40,10 @@ from tests.factories import (
     JobRequestFactory,
     ProjectFactory,
     ProjectMembershipFactory,
+    PublishRequestFactory,
     ReleaseFactory,
     ReleaseFileFactory,
     SnapshotFactory,
-    SnapshotPublishRequestFactory,
     UserFactory,
     WorkspaceFactory,
 )
@@ -1005,9 +1005,9 @@ def test_reviewapi_success(api_rf):
 
 def test_snapshotapi_published_with_anonymous_user(api_rf, freezer):
     snapshot = SnapshotFactory()
-    SnapshotPublishRequestFactory(
+    PublishRequestFactory(
         snapshot=snapshot,
-        decision=SnapshotPublishRequest.Decisions.APPROVED,
+        decision=PublishRequest.Decisions.APPROVED,
         decision_at=timezone.now(),
         decision_by=UserFactory(),
     )
@@ -1026,9 +1026,9 @@ def test_snapshotapi_published_with_anonymous_user(api_rf, freezer):
 
 def test_snapshotapi_published_with_permission(api_rf):
     snapshot = SnapshotFactory()
-    SnapshotPublishRequestFactory(
+    PublishRequestFactory(
         snapshot=snapshot,
-        decision=SnapshotPublishRequest.Decisions.APPROVED,
+        decision=PublishRequest.Decisions.APPROVED,
         decision_at=timezone.now(),
         decision_by=UserFactory(),
     )
@@ -1049,9 +1049,9 @@ def test_snapshotapi_published_with_permission(api_rf):
 
 def test_snapshotapi_published_without_permission(api_rf):
     snapshot = SnapshotFactory()
-    SnapshotPublishRequestFactory(
+    PublishRequestFactory(
         snapshot=snapshot,
-        decision=SnapshotPublishRequest.Decisions.APPROVED,
+        decision=PublishRequest.Decisions.APPROVED,
         decision_at=timezone.now(),
         decision_by=UserFactory(),
     )
@@ -1071,7 +1071,7 @@ def test_snapshotapi_published_without_permission(api_rf):
 
 def test_snapshotapi_unpublished_with_anonymous_user(api_rf):
     snapshot = SnapshotFactory()
-    SnapshotPublishRequestFactory(snapshot=snapshot)
+    PublishRequestFactory(snapshot=snapshot)
 
     request = api_rf.get("/")
 
@@ -1086,7 +1086,7 @@ def test_snapshotapi_unpublished_with_anonymous_user(api_rf):
 
 def test_snapshotapi_unpublished_with_permission(api_rf):
     snapshot = SnapshotFactory()
-    SnapshotPublishRequestFactory(snapshot=snapshot)
+    PublishRequestFactory(snapshot=snapshot)
 
     request = api_rf.get("/")
     request.user = UserFactory(roles=[ProjectCollaborator])
@@ -1103,7 +1103,7 @@ def test_snapshotapi_unpublished_with_permission(api_rf):
 
 def test_snapshotapi_unpublished_without_permission(api_rf):
     snapshot = SnapshotFactory()
-    SnapshotPublishRequestFactory(snapshot=snapshot)
+    PublishRequestFactory(snapshot=snapshot)
 
     request = api_rf.get("/")
     request.user = UserFactory()  # logged in, but no permission
@@ -1207,11 +1207,11 @@ def test_snapshotcreate_without_permission(api_rf):
 
 def test_snapshotpublishapi_already_published(api_rf):
     snapshot = SnapshotFactory()
-    SnapshotPublishRequestFactory(
+    PublishRequestFactory(
         snapshot=snapshot,
         decision_at=timezone.now(),
         decision_by=UserFactory(),
-        decision=SnapshotPublishRequest.Decisions.APPROVED,
+        decision=PublishRequest.Decisions.APPROVED,
     )
 
     assert snapshot.is_published
@@ -1233,7 +1233,7 @@ def test_snapshotpublishapi_already_published(api_rf):
 
 def test_snapshotpublishapi_success(api_rf):
     snapshot = SnapshotFactory()
-    SnapshotPublishRequestFactory(snapshot=snapshot)
+    PublishRequestFactory(snapshot=snapshot)
 
     assert snapshot.is_draft
 

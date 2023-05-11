@@ -181,12 +181,12 @@ report_urls = [
                 path(
                     "approve/",
                     ReportPublishRequestApprove.as_view(),
-                    name="report-publish-request-approve",
+                    name="publish-request-approve",
                 ),
                 path(
                     "reject/",
                     ReportPublishRequestReject.as_view(),
-                    name="report-publish-request-reject",
+                    name="publish-request-reject",
                 ),
             ]
         ),

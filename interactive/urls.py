@@ -1,6 +1,6 @@
 from django.urls import path
 
-from jobserver.views.reports import ReportPublishRequestCreate
+from jobserver.views.reports import PublishRequestCreate
 
 from .views import AnalysisRequestCreate, AnalysisRequestDetail, ReportEdit
 
@@ -14,8 +14,8 @@ urlpatterns = [
     path("<str:slug>/edit/", ReportEdit.as_view(), name="report-edit"),
     path(
         "<str:slug>/publish/",
-        ReportPublishRequestCreate.as_view(),
-        name="report-publish-request-create",
+        PublishRequestCreate.as_view(),
+        name="publish-request-create",
     ),
     path("<path>", AnalysisRequestCreate.as_view()),
 ]

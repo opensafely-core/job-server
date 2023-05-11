@@ -16,15 +16,17 @@ from interactive.views import (
     from_codelist,
 )
 from jobserver.authorization import InteractiveReporter
-from jobserver.models import ReportPublishRequest
+from jobserver.models import PublishRequest
 
 from ...factories import (
     AnalysisRequestFactory,
     BackendFactory,
     ProjectFactory,
     ProjectMembershipFactory,
+    PublishRequestFactory,
+    ReleaseFileFactory,
     ReportFactory,
-    ReportPublishRequestFactory,
+    SnapshotFactory,
     UserFactory,
     WorkspaceFactory,
 )
@@ -283,10 +285,15 @@ def test_analysisrequestdetail_with_published_report(rf):
     user = UserFactory()
     ProjectMembershipFactory(project=project, user=user, roles=[InteractiveReporter])
 
-    report = ReportFactory(title="Testing report")
-    ReportPublishRequestFactory(
+    rfile = ReleaseFileFactory()
+    snapshot = SnapshotFactory()
+    snapshot.files.set([rfile])
+
+    report = ReportFactory(release_file=rfile, title="Testing report")
+    PublishRequestFactory(
         report=report,
-        decision=ReportPublishRequest.Decisions.APPROVED,
+        snapshot=snapshot,
+        decision=PublishRequest.Decisions.APPROVED,
         decision_at=timezone.now(),
         decision_by=UserFactory(),
     )
@@ -460,8 +467,13 @@ def test_reportedit_unauthorized(rf):
 
 def test_reportedit_locked_with_approved_decision(rf):
     project = ProjectFactory()
-    report = ReportFactory()
     user = UserFactory()
+
+    rfile = ReleaseFileFactory()
+    snapshot = SnapshotFactory()
+    snapshot.files.set([rfile])
+
+    report = ReportFactory(release_file=rfile)
 
     analysis_request = AnalysisRequestFactory(
         created_by=user, project=project, report=report
@@ -469,9 +481,10 @@ def test_reportedit_locked_with_approved_decision(rf):
 
     ProjectMembershipFactory(project=project, user=user, roles=[InteractiveReporter])
 
-    ReportPublishRequestFactory(
+    PublishRequestFactory(
         report=report,
-        decision=ReportPublishRequest.Decisions.APPROVED,
+        snapshot=snapshot,
+        decision=PublishRequest.Decisions.APPROVED,
         decision_at=timezone.now(),
         decision_by=UserFactory(),
     )
@@ -492,15 +505,20 @@ def test_reportedit_locked_with_approved_decision(rf):
 
 def test_reportedit_locked_with_pending_decision(rf):
     project = ProjectFactory()
-    report = ReportFactory()
     user = UserFactory()
+
+    rfile = ReleaseFileFactory()
+    snapshot = SnapshotFactory()
+    snapshot.files.set([rfile])
+
+    report = ReportFactory(release_file=rfile)
 
     analysis_request = AnalysisRequestFactory(
         created_by=user, project=project, report=report
     )
 
     ProjectMembershipFactory(project=project, user=user, roles=[InteractiveReporter])
-    ReportPublishRequestFactory(report=report)
+    PublishRequestFactory(report=report, snapshot=snapshot)
 
     request = rf.get("/")
     request.user = user
@@ -518,8 +536,13 @@ def test_reportedit_locked_with_pending_decision(rf):
 
 def test_reportedit_unlocked_with_rejected_decision(rf):
     project = ProjectFactory()
-    report = ReportFactory()
     user = UserFactory()
+
+    rfile = ReleaseFileFactory()
+    snapshot = SnapshotFactory()
+    snapshot.files.set([rfile])
+
+    report = ReportFactory(release_file=rfile)
 
     analysis_request = AnalysisRequestFactory(
         created_by=user, project=project, report=report
@@ -527,9 +550,10 @@ def test_reportedit_unlocked_with_rejected_decision(rf):
 
     ProjectMembershipFactory(project=project, user=user, roles=[InteractiveReporter])
 
-    ReportPublishRequestFactory(
+    PublishRequestFactory(
         report=report,
-        decision=ReportPublishRequest.Decisions.REJECTED,
+        snapshot=snapshot,
+        decision=PublishRequest.Decisions.REJECTED,
         decision_at=timezone.now(),
         decision_by=UserFactory(),
     )
