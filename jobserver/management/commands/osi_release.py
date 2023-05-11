@@ -1,6 +1,7 @@
 import hashlib
 import sys
 from datetime import UTC, datetime
+from pathlib import Path
 
 import requests
 from django.conf import settings
@@ -65,6 +66,13 @@ class Command(BaseCommand):
             help="Analysis request slug to link the released file to",
         )
         parser.add_argument("username", help="User to release the file under")
+        parser.add_argument(
+            "--report",
+            "-r",
+            type=Path,
+            default=f"{settings.BASE_DIR}/outputs/interactive_report.html",
+            help="Specify the report file to release. This is usually the output of osi_run.py. Defaults to a local fake report",
+        )
 
     def handle(self, *args, **options):
         username = options["username"]
@@ -83,10 +91,8 @@ class Command(BaseCommand):
 
         tpp = Backend.objects.get(slug="tpp")
 
+        local_file = options["report"]
         release_filename = f"output/{analysis_request.pk}/report.html"
-        local_file = (
-            settings.BASE_DIR / "workspaces" / analysis_request.pk / "report.html"
-        )
 
         release_id = create_release(
             backend=tpp,

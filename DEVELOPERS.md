@@ -320,13 +320,17 @@ To facilitate local testing, the `osi_run` Django management command has been cr
 
 `python manage.py osi_run <analysis-request-slug>`
 
-The resulting report is output into the `workspaces` directory and can be released, so that it's visible within Job Server, using the `osi_release` management command:
+The resulting HTML report is output into the `workspaces` directory and can be released, so that it's visible within Job Server, using the `osi_release` management command:
 
-`python manage.py osi_release <analysis-request-slug> <user-name>`
+`python manage.py osi_release <analysis-request-slug> <user-name> --report workspaces/<analysis-request-pk>/report.html`
 
-These two actions can be combined using the `osi_run_and_release` management command.
+These two actions can be combined using the `osi_run_and_release` management command:
 
 `python manage.py osi_run_and_release <analysis-request-slug> <user-name>`
+
+Alternatively, the `osi_release` command can be used without running an analysis first, for fast development, using a fake report:
+
+`python manage.py osi_release <analysis-request-slug> <user-name>`
 
 ## Dumping co-pilot reporting data
 Co-pilots [have a report](https://github.com/ebmdatalab/copiloting/tree/copiloting-report) they run every few months, building on data from this service.
