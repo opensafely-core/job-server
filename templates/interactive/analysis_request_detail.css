@@ -13,7 +13,7 @@ html:has(dialog[open]) {
   width: 100%;
   z-index: 10;
 
-  &:not(.print-font) {
+  &:not(.print-pdf) {
     font-size: 1.1rem;
   }
 
@@ -142,9 +142,12 @@ html:has(dialog[open]) {
   & td {
     font-size: 1em;
     line-height: 1.2;
-    padding: 0.25em 0.5em;
     text-align: left;
     font-variant-numeric: proportional-nums;
+
+    &:not(.print-pdf) {
+      padding: 0.25em 0.5em;
+    }
   }
 
   & th:not(:last-child) {
@@ -202,4 +205,8 @@ html:has(dialog[open]) {
   &:focus {
     background-color: var(--color-oxford-700);
   }
+}
+
+.job-server--hide {
+  display: none !important;
 }

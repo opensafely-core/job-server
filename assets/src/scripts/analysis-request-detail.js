@@ -29,8 +29,8 @@ function generatePDF() {
     // Load the JS on button click
     const html2pdf = await import("html2pdf.js");
 
-    // Reset the font size for printing
-    reportStyles.classList.add(`print-font`);
+    // Reset the styles for printing
+    reportStyles.classList.add(`print-pdf`);
 
     // Remove elements not required
     report
@@ -56,7 +56,7 @@ function generatePDF() {
     setTimeout(() => {
       watermark.classList.add("hidden");
       watermark.innerHTML = singleInner;
-      reportStyles.classList.remove(`print-font`);
+      reportStyles.classList.remove(`print-pdf`);
       report
         .querySelectorAll("svg")
         .forEach((element) => element.classList.remove("!hidden"));
