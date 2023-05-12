@@ -14,5 +14,5 @@ class Command(BaseCommand):
 
     def handle(self, analysis_request_slug, *args, **options):
         analysis_request = AnalysisRequest.objects.get(pk=analysis_request_slug)
-        resubmit_analysis(analysis_request, _get_github_api())
+        resubmit_analysis(analysis_request, _get_github_api)
         print(f"New job request: {analysis_request.job_request.get_absolute_url()}")

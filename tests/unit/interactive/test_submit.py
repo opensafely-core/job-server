@@ -105,7 +105,7 @@ def test_resubmit_analysis(remote_repo, add_codelist, slack_messages):
     initial_job_request = analysis_request.job_request
 
     # this test uses the local git repo, so we don't need the api
-    resubmit_analysis(analysis_request, github_api=None)
+    resubmit_analysis(analysis_request, get_github_api=FakeGitHubAPI)
 
     analysis_request.refresh_from_db()
     assert analysis_request.job_request.id != initial_job_request.id
@@ -114,8 +114,7 @@ def test_resubmit_analysis(remote_repo, add_codelist, slack_messages):
 def test_get_existing_commit_github():
     """Simple test for coverage, the real API test is done else where"""
     analysis_id = "test"
-    sha, project_yaml = get_existing_commit(
-        analysis_id, "https://github.com/foo/bar", FakeGitHubAPI()
-    )
+    repo = RepoFactory()
+    sha, project_yaml = get_existing_commit(analysis_id, repo, FakeGitHubAPI)
     assert sha == "test_sha"
     assert "actions" in project_yaml.strip()

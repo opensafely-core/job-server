@@ -44,7 +44,7 @@ class AnalysisRequestResubmit(View):
 
     def post(self, request, slug, *args, **kwargs):
         analysis_request = AnalysisRequest.objects.get(pk=slug)
-        resubmit_analysis(analysis_request, self.get_github_api())
+        resubmit_analysis(analysis_request, self.get_github_api)
         return redirect(analysis_request.get_staff_url())
 
 
