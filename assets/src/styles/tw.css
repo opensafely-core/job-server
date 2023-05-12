@@ -1,6 +1,5 @@
 @import "_fonts.css";
 @import "_utils.css";
-@import "../../../templates/interactive/analysis_request_detail.css";
 
 @tailwind base;
 @tailwind components;

@@ -1,3 +1,5 @@
+import "../../../templates/interactive/analysis_request_detail.css";
+
 function generatePDF() {
   const downloadBtn = document.getElementById("downloadBtn");
 
