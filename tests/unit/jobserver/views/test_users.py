@@ -368,7 +368,7 @@ def test_settings_get(rf):
 
     # check the view was constructed with the request user
     assert user2.fullname in response.rendered_content
-    assert user2.notifications_email in response.rendered_content
+    assert user2.email in response.rendered_content
 
 
 def test_settings_get_token_form(rf):
@@ -402,12 +402,12 @@ def test_settings_user_post(rf_messages):
     UserFactory()
     user2 = UserFactory(
         fullname="Ben Goldacre",
-        notifications_email="original@example.com",
+        email="original@example.com",
     )
 
     data = {
         "fullname": "Mr Testerson",
-        "notifications_email": "changed@example.com",
+        "email": "changed@example.com",
         "settings": "",  # button name
     }
     request = rf_messages.post("/", data)
@@ -418,7 +418,7 @@ def test_settings_user_post(rf_messages):
     assert response.status_code == 200
 
     user2.refresh_from_db()
-    assert user2.notifications_email == "changed@example.com"
+    assert user2.email == "changed@example.com"
     assert user2.fullname == "Mr Testerson"
 
     messages = list(request._messages)
@@ -429,12 +429,12 @@ def test_settings_user_post(rf_messages):
 def test_settings_user_post_invalid(rf_messages):
     user = UserFactory(
         fullname="Ben Goldacre",
-        notifications_email="original@example.com",
+        email="original@example.com",
     )
 
     data = {
         "fullname": "",
-        "notifications_email": "notvalidemail",
+        "email": "notvalidemail",
         "settings": "",  # button name
     }
     request = rf_messages.post("/", data)
@@ -446,7 +446,7 @@ def test_settings_user_post_invalid(rf_messages):
 
     user.refresh_from_db()
     assert user.fullname == "Ben Goldacre"
-    assert user.notifications_email == "original@example.com"
+    assert user.email == "original@example.com"
 
     messages = list(request._messages)
     assert len(messages) == 1
@@ -502,7 +502,7 @@ def test_settings_token_post_invalid_user(rf_messages, monkeypatch):
     assert str(messages[-1]) == "Your account is not allowed to generate a login token"
 
 
-@pytest.mark.parametrize("attr", ["username", "email", "notifications_email"])
+@pytest.mark.parametrize("attr", ["username", "email", "email"])
 def test_loginwittoken_success(attr, rf_messages, token_login_user, mailoutbox):
     token = token_login_user.generate_login_token()
 

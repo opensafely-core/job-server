@@ -60,7 +60,7 @@ class RequireNameForm(forms.Form):
 
 class SettingsForm(forms.Form):
     fullname = forms.CharField()
-    notifications_email = forms.EmailField()
+    email = forms.EmailField()
 
 
 class ProjectMembershipForm(RolesForm):

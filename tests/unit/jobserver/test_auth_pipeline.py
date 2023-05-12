@@ -58,7 +58,6 @@ def test_pipeline_with_new_user(slack_messages, strategy):
     user = output["user"]
     assert user.email == "test@example.com"
     assert user.name == "Test User"
-    assert user.notifications_email == "test@example.com"
     assert user.username == "dummy-user"
 
     social = output["social"]

@@ -53,7 +53,6 @@ def pipeline(response, strategy, *args, **kwargs):
         user = User.objects.create_user(
             username=username,
             email=response["email"],
-            notifications_email=response["email"],
             fullname=name,
         )
 

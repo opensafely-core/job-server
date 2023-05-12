@@ -6,11 +6,11 @@ from django.template.response import TemplateResponse
 def components(request):
     example_date = datetime.utcfromtimestamp(1667317153)
     example_form_email = {
-        "auto_id": "id_notifications_email",
+        "auto_id": "id_email",
         "errors": {"This email is registered to a different account"},
-        "html_name": "notifications-email",
-        "id_for_label": "id_notifications_email",
-        "label": "Notification email address",
+        "html_name": "email",
+        "id_for_label": "id_email",
+        "label": "Email address",
         "value": "you@example.com",
     }
 
