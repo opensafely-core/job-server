@@ -34,11 +34,6 @@ class Command(BaseCommand):
 
         repo = analysis_request.project.interactive_workspace.repo
 
-        if repo.url.startswith("https://github.com"):
-            msg = f"This tool only works with local repos, the given repo lives at: {repo.url}"
-            self.stderr.write(self.style.ERROR(msg))
-            sys.exit(1)
-
         with tempfile.TemporaryDirectory(suffix=f"repo-{analysis_request.pk}") as path:
             git("clone", repo.url, path)
 
