@@ -11,6 +11,7 @@ function generatePDF() {
   const confirmBtn = dialog.querySelector(`[value="confirm"]`);
   const cancelBtn = dialog.querySelector(`[value="cancel"]`);
   const generatingBtn = dialog.querySelector(`[value="generating"]`);
+  const downloadingBtn = dialog.querySelector(`[value="downloading"]`);
 
   const options = {
     margin: 15,
@@ -67,19 +68,36 @@ function generatePDF() {
 
     // Show download button
     confirmBtn.classList.remove("hidden");
-    generatingBtn.remove();
+    generatingBtn.classList.add("hidden");
   });
 
   confirmBtn.addEventListener("click", () => {
     // When confirm is clicked, save the PDF
     pdf.save();
 
+    // Switch the buttons
+    confirmBtn.classList.add("hidden");
+    generatingBtn.classList.add("hidden");
+    downloadingBtn.classList.remove("hidden");
+
     // Wait 1s then close the dialog
-    setTimeout(() => dialog.close(), 1000);
+    setTimeout(() => {
+      // Reset the buttons
+      confirmBtn.classList.add("hidden");
+      downloadingBtn.classList.add("hidden");
+      generatingBtn.classList.remove("hidden");
+
+      dialog.close("Download started");
+    }, 1000);
   });
 
   cancelBtn.addEventListener("click", () => {
-    dialog.close();
+    dialog.close("Download cancelled");
+
+    // Reset the buttons
+    confirmBtn.classList.add("hidden");
+    downloadingBtn.classList.add("hidden");
+    generatingBtn.classList.remove("hidden");
   });
 }
 
