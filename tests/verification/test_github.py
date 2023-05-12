@@ -172,6 +172,17 @@ def test_get_branch_sha(enable_network, github_api):
     assert isinstance(fake, str)
 
 
+def test_get_tag_sha(enable_network, github_api):
+    args = ["opensafely-testing", "github-api-testing", "test-tag"]
+
+    real = github_api.get_tag_sha(*args)
+    fake = FakeGitHubAPI().get_tag_sha(*args)
+
+    assert real == "7c48e4e81db5fe932628cd92f51c7858759d6b98"
+
+    assert isinstance(fake, str)
+
+
 def test_get_branch_sha_with_missing_branch(enable_network, github_api):
     sha = github_api.get_branch_sha(
         "opensafely-testing",

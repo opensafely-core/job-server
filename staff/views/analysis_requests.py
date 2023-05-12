@@ -2,12 +2,15 @@ import functools
 
 from django.db.models import Q
 from django.db.models.functions import Lower
+from django.shortcuts import redirect
 from django.utils.decorators import method_decorator
-from django.views.generic import DetailView, ListView
+from django.views.generic import DetailView, ListView, View
 
 from interactive.models import AnalysisRequest
+from interactive.submit import resubmit_analysis
 from jobserver.authorization import CoreDeveloper
 from jobserver.authorization.decorators import require_role
+from jobserver.github import _get_github_api
 from jobserver.models import Project, ReportPublishRequest, User
 
 
@@ -33,6 +36,16 @@ class AnalysisRequestDetail(DetailView):
             .get_queryset()
             .select_related("created_by", "project", "project__org")
         )
+
+
+@method_decorator(require_role(CoreDeveloper), name="dispatch")
+class AnalysisRequestResubmit(View):
+    get_github_api = staticmethod(_get_github_api)
+
+    def post(self, request, slug, *args, **kwargs):
+        analysis_request = AnalysisRequest.objects.get(pk=slug)
+        resubmit_analysis(analysis_request, self.get_github_api)
+        return redirect(analysis_request.get_staff_url())
 
 
 @method_decorator(require_role(CoreDeveloper), name="dispatch")

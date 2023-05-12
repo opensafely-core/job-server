@@ -1,6 +1,10 @@
 from django.urls import include, path
 
-from .views.analysis_requests import AnalysisRequestDetail, AnalysisRequestList
+from .views.analysis_requests import (
+    AnalysisRequestDetail,
+    AnalysisRequestList,
+    AnalysisRequestResubmit,
+)
 from .views.applications import (
     ApplicationApprove,
     ApplicationDetail,
@@ -63,6 +67,11 @@ analysis_request_urls = [
     path("", AnalysisRequestList.as_view(), name="analysis-request-list"),
     path(
         "<str:slug>/", AnalysisRequestDetail.as_view(), name="analysis-request-detail"
+    ),
+    path(
+        "<str:slug>/resubmit",
+        AnalysisRequestResubmit.as_view(),
+        name="analysis-request-resubmit",
     ),
 ]
 

@@ -44,6 +44,10 @@
 
     <div class="d-flex">
       <a class="btn btn-primary mr-1" href="{{ analysis_request.get_absolute_url }}">View on Site</a>
+      <form method="POST">
+        {% csrf_token %}
+        <button class="btn btn-danger" type="submit">Re-run analysis</button>
+      </form>
     </div>
   </div>
 </div>
