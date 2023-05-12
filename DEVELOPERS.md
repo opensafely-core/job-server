@@ -314,10 +314,23 @@ This has allowed us some benefits:
 
 
 ## Interactive Testing
-To help us build out interactive functionality in this project the `add_osi_report` management command has been added.
+Job Server uses the interactive-templates repo code, imported as a Python package, to run OS Interactive analyses and to generate reports.
 
-This takes a username of an existing user and sets up various objects to generate an Analysis with a related Report.
+To facilitate local testing, the `osi_run` Django management command has been created to produce a report from an Analysis Request. It's used like this:
 
+`python manage.py osi_run <analysis-request-slug>`
+
+The resulting HTML report is output into the `workspaces` directory and can be released, so that it's visible within Job Server, using the `osi_release` management command:
+
+`python manage.py osi_release <analysis-request-slug> <user-name> --report workspaces/<analysis-request-pk>/report.html`
+
+These two actions can be combined using the `osi_run_and_release` management command:
+
+`python manage.py osi_run_and_release <analysis-request-slug> <user-name>`
+
+Alternatively, the `osi_release` command can be used without running an analysis first, for fast development, using a fake report:
+
+`python manage.py osi_release <analysis-request-slug> <user-name>`
 
 ## Dumping co-pilot reporting data
 Co-pilots [have a report](https://github.com/ebmdatalab/copiloting/tree/copiloting-report) they run every few months, building on data from this service.

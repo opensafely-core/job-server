@@ -11,7 +11,12 @@ class Command(BaseCommand):
         parser.add_argument("username", help="User to release the file under")
 
     def handle(self, *args, **options):
+        analysis_request_pk = options["analysis_request_slug"].split("-")[-1]
+        report = f"workspaces/{analysis_request_pk}/report.html"
         call_command("osi_run", options["analysis_request_slug"])
         call_command(
-            "osi_release", options["analysis_request_slug"], options["username"]
+            "osi_release",
+            options["analysis_request_slug"],
+            options["username"],
+            report=report,
         )

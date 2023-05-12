@@ -12,6 +12,7 @@ __pycache__/
 htmlcov
 jobserver.dump
 node_modules/
+workspaces
 releases
 staticfiles
 uploads

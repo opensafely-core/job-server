@@ -75,12 +75,14 @@ def is_interactive_report(rfile):
     """
 
     path = Path(rfile.name)
-    if len(path.parts) != 3:
+    if (
+        len(path.parts) == 3
+        and path.parts[0] == "output"
+        and path.parts[2] == "report.html"
+    ):
+        identifier = path.parts[1]
+    else:
         return
-    if not (path.parts[0] == "output" or path.parts[2] == "report.html"):
-        return
-
-    identifier = path.parts[1]
 
     return AnalysisRequest.objects.filter(pk=identifier).first()
 
