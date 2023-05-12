@@ -3,13 +3,19 @@ from django.core.exceptions import PermissionDenied
 from django.http import Http404
 
 from jobserver.utils import set_from_qs
-from staff.views.analysis_requests import AnalysisRequestDetail, AnalysisRequestList
+from staff.views.analysis_requests import (
+    AnalysisRequestDetail,
+    AnalysisRequestList,
+    AnalysisRequestResubmit,
+)
+from tests.fakes import FakeGitHubAPI
 
 from ....factories import (
     AnalysisRequestFactory,
     ProjectFactory,
     ReportFactory,
     UserFactory,
+    WorkspaceFactory,
 )
 
 
@@ -40,6 +46,19 @@ def test_analysisrequestdetail_unknown_analysis_request(rf, core_developer):
 
     with pytest.raises(Http404):
         AnalysisRequestDetail.as_view()(request, slug="")
+
+
+def test_analysisrequestresubmit_success(rf, core_developer):
+    project = ProjectFactory()
+    analysis_request = AnalysisRequestFactory(project=project)
+    WorkspaceFactory(name=project.interactive_slug, project=project)
+
+    request = rf.post("/")
+    request.user = core_developer
+
+    AnalysisRequestResubmit.as_view(get_github_api=FakeGitHubAPI)(
+        request, slug=analysis_request.id
+    )
 
 
 def test_analysisrequestlist_filter_by_project(rf, core_developer):
