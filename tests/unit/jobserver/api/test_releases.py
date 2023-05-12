@@ -27,7 +27,11 @@ from jobserver.authorization import (
     ProjectCollaborator,
     ProjectDeveloper,
 )
-from jobserver.models import Release, ReleaseFileReview
+from jobserver.models import (
+    Release,
+    ReleaseFilePublishRequest,
+    ReleaseFileReview,
+)
 from jobserver.utils import set_from_qs
 from tests.factories import (
     AnalysisRequestFactory,
@@ -38,6 +42,7 @@ from tests.factories import (
     ProjectMembershipFactory,
     ReleaseFactory,
     ReleaseFileFactory,
+    ReleaseFilePublishRequestFactory,
     SnapshotFactory,
     UserFactory,
     WorkspaceFactory,
@@ -1173,7 +1178,13 @@ def test_snapshotcreate_without_permission(api_rf):
 
 
 def test_snapshotpublishapi_already_published(api_rf):
-    snapshot = SnapshotFactory(published_by=UserFactory(), published_at=timezone.now())
+    snapshot = SnapshotFactory()
+    ReleaseFilePublishRequestFactory(
+        snapshot=snapshot,
+        decision_at=timezone.now(),
+        decision_by=UserFactory(),
+        decision=ReleaseFilePublishRequest.Decisions.APPROVED,
+    )
 
     assert snapshot.is_published
 
@@ -1194,6 +1205,7 @@ def test_snapshotpublishapi_already_published(api_rf):
 
 def test_snapshotpublishapi_success(api_rf):
     snapshot = SnapshotFactory()
+    ReleaseFilePublishRequestFactory(snapshot=snapshot)
 
     assert snapshot.is_draft
 
@@ -1225,6 +1237,20 @@ def test_snapshotpublishapi_unknown_snapshot(api_rf):
     )
 
     assert response.status_code == 404
+
+
+def test_snapshotpublishapi_with_missing_publish_request(api_rf):
+    snapshot = SnapshotFactory()
+
+    request = api_rf.post("/")
+    request.user = UserFactory(roles=[OutputPublisher])
+
+    with pytest.raises(Exception, match="Snapshot is missing publish request"):
+        SnapshotPublishAPI.as_view()(
+            request,
+            workspace_id=snapshot.workspace.name,
+            snapshot_id=snapshot.pk,
+        )
 
 
 def test_snapshotpublishapi_without_permission(api_rf):

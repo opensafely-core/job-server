@@ -132,9 +132,7 @@ class AnalysisRequest(models.Model):
         if not self.report:
             return None
 
-        # use getattr here because we're using a OneToOneField and the reverse
-        # relation instance variable isn't guaranteed.
-        return getattr(self.report, "publish_request", None)
+        return self.report.publish_requests.order_by("-created_at").first()
 
     @property
     def report_content(self):

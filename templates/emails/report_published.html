@@ -1,0 +1,9 @@
+{% extends "emails/base.html" %}
+
+{% block content %}
+Hi {{ name }},
+
+<p>Your request to publish the report "{{ title }}" has been approved.</p>
+
+<p>You can <a href="{{ url }}">view the report on OpenSAFELY</a>.
+{% endblock content %}

@@ -9,9 +9,13 @@ from jobserver.utils import set_from_qs
 from ....factories import (
     AnalysisRequestFactory,
     ProjectFactory,
+    ReleaseFileFactory,
+    ReleaseFilePublishRequestFactory,
     ReportFactory,
     ReportPublishRequestFactory,
+    SnapshotFactory,
     UserFactory,
+    WorkspaceFactory,
 )
 
 
@@ -97,25 +101,25 @@ def test_report_updated_check_constraint_missing_by():
 
 
 def test_reportpublishrequest_approve(freezer):
-    request = ReportPublishRequestFactory()
+    workspace = WorkspaceFactory()
+    files = ReleaseFileFactory.create_batch(3, workspace=workspace)
+    snapshot = SnapshotFactory()
+    snapshot.files.add(*files)
+    rfile_request = ReleaseFilePublishRequestFactory(snapshot=snapshot)
+    rfile_request.files.add(*files)
+    request = ReportPublishRequestFactory(release_file_publish_request=rfile_request)
     user = UserFactory()
 
     request.approve(user=user)
 
     request.refresh_from_db()
-    assert request.approved_at == timezone.now()
-    assert request.approved_by == user
+    assert request.decision_at == timezone.now()
+    assert request.decision_by == user
+    assert request.decision == ReportPublishRequest.Decisions.APPROVED
 
-    rfile_publish_request = request.release_file_publish_request
-
-    snapshot_files = rfile_publish_request.snapshot.files.all()
-    assert set_from_qs(snapshot_files) == set_from_qs(rfile_publish_request.files.all())
-    assert rfile_publish_request.snapshot.created_by == user
-    assert rfile_publish_request.snapshot.published_at == timezone.now()
-    assert rfile_publish_request.snapshot.published_by == user
-
-    assert rfile_publish_request.approved_at == timezone.now()
-    assert rfile_publish_request.approved_by == user
+    assert rfile_request.decision_at == timezone.now()
+    assert rfile_request.decision_by == user
+    assert rfile_request.decision == ReportPublishRequest.Decisions.APPROVED
 
 
 def test_reportpublishrequest_create_from_report_without_report():
@@ -153,21 +157,55 @@ def test_reportpublishrequest_create_from_report_success():
     )
 
 
-def test_reportpublishrequest_get_absolute_url():
-    report = ReportFactory(title="Testing Report")
-    publish_request = ReportPublishRequestFactory(report=report)
+def test_reportpublishrequest_get_approve_url():
+    publish_request = ReportPublishRequestFactory()
 
-    url = publish_request.get_absolute_url()
+    url = publish_request.get_approve_url()
 
     assert url == reverse(
-        "interactive:report-publish-request-update",
+        "staff:report-publish-request-approve",
         kwargs={
-            "org_slug": report.project.org.slug,
-            "project_slug": report.project.slug,
-            "slug": report.slug,
             "pk": publish_request.pk,
         },
     )
+
+
+def test_reportpublishrequest_get_reject_url():
+    publish_request = ReportPublishRequestFactory()
+
+    url = publish_request.get_reject_url()
+
+    assert url == reverse(
+        "staff:report-publish-request-reject",
+        kwargs={
+            "pk": publish_request.pk,
+        },
+    )
+
+
+def test_reportpublishrequest_get_staff_url():
+    publish_request = ReportPublishRequestFactory()
+
+    url = publish_request.get_staff_url()
+
+    assert url == reverse(
+        "staff:report-publish-request-detail",
+        kwargs={
+            "pk": publish_request.pk,
+        },
+    )
+
+
+def test_reportpublishrequest_reject(freezer):
+    request = ReportPublishRequestFactory()
+    user = UserFactory()
+
+    request.reject(user=user)
+
+    request.refresh_from_db()
+    assert request.decision_at == timezone.now()
+    assert request.decision_by == user
+    assert request.decision == ReportPublishRequest.Decisions.REJECTED
 
 
 def test_reportpublishrequest_str():

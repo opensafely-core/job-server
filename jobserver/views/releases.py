@@ -11,7 +11,14 @@ from django.utils.safestring import mark_safe
 from django.views.generic import View
 
 from ..authorization import has_permission
-from ..models import Project, Release, ReleaseFile, Snapshot, Workspace
+from ..models import (
+    Project,
+    Release,
+    ReleaseFile,
+    ReleaseFilePublishRequest,
+    Snapshot,
+    Workspace,
+)
 from ..releases import build_outputs_zip, serve_file, workspace_files
 from ..utils import build_spa_base_url
 
@@ -207,9 +214,17 @@ class SnapshotDetail(View):
             raise Http404
 
         base_path = build_spa_base_url(request.path, self.kwargs.get("path", ""))
+        publish_request = (
+            snapshot.publish_requests.exclude(decision=None)
+            .filter(decision=ReleaseFilePublishRequest.Decisions.APPROVED)
+            .order_by("-created_at")
+            .first()
+        )
+
         context = {
             "base_path": base_path,
             "files_url": snapshot.get_api_url(),
+            "publish_request": publish_request,
             "snapshot": snapshot,
         }
 

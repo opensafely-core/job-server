@@ -264,11 +264,15 @@ class ReleaseFile(models.Model):
 
 
 class ReleaseFilePublishRequest(models.Model):
+    class Decisions(models.TextChoices):
+        APPROVED = "approved", "Approved"
+        REJECTED = "rejected", "Rejected"
+
     files = models.ManyToManyField(
         "ReleaseFile",
         related_name="publish_requests",
     )
-    snapshot = models.OneToOneField(
+    snapshot = models.ForeignKey(
         "Snapshot",
         on_delete=models.SET_NULL,
         related_name="publish_requests",
@@ -280,14 +284,6 @@ class ReleaseFilePublishRequest(models.Model):
         related_name="publish_requests",
     )
 
-    approved_at = models.DateTimeField(null=True)
-    approved_by = models.ForeignKey(
-        "jobserver.User",
-        on_delete=models.PROTECT,
-        related_name="release_file_publish_requests_approved",
-        null=True,
-    )
-
     created_at = models.DateTimeField(default=timezone.now)
     created_by = models.ForeignKey(
         "User",
@@ -295,23 +291,17 @@ class ReleaseFilePublishRequest(models.Model):
         related_name="release_file_publish_requests",
     )
 
+    decision_at = models.DateTimeField(null=True)
+    decision_by = models.ForeignKey(
+        "User",
+        on_delete=models.PROTECT,
+        related_name="release_file_publish_requests_decisions",
+        null=True,
+    )
+    decision = models.TextField(choices=Decisions.choices, null=True)
+
     class Meta:
         constraints = [
-            models.CheckConstraint(
-                check=(
-                    Q(
-                        approved_at__isnull=True,
-                        approved_by__isnull=True,
-                    )
-                    | (
-                        Q(
-                            approved_at__isnull=False,
-                            approved_by__isnull=False,
-                        )
-                    )
-                ),
-                name="%(app_label)s_%(class)s_both_approved_at_and_approved_by_set",
-            ),
             models.CheckConstraint(
                 check=(
                     Q(
@@ -327,6 +317,23 @@ class ReleaseFilePublishRequest(models.Model):
                 ),
                 name="%(app_label)s_%(class)s_both_created_at_and_created_by_set",
             ),
+            models.CheckConstraint(
+                check=(
+                    Q(
+                        decision_at__isnull=True,
+                        decision_by__isnull=True,
+                        decision__isnull=True,
+                    )
+                    | (
+                        Q(
+                            decision_at__isnull=False,
+                            decision_by__isnull=False,
+                            decision__isnull=False,
+                        )
+                    )
+                ),
+                name="%(app_label)s_%(class)s_both_decision_at_decision_by_and_decision_set",
+            ),
         ]
 
     @transaction.atomic()
@@ -334,20 +341,10 @@ class ReleaseFilePublishRequest(models.Model):
         if now is None:
             now = timezone.now()
 
-        snapshot = Snapshot.objects.create(
-            workspace=self.workspace,
-            created_by=user,
-            published_at=now,
-            published_by=user,
-        )
-        snapshot.files.add(*self.files.all())
-
-        self.approved_at = now
-        self.approved_by = user
-        self.snapshot = snapshot
-        self.save(update_fields=["approved_at", "approved_by", "snapshot"])
-
-        return snapshot
+        self.decision_at = now
+        self.decision_by = user
+        self.decision = self.Decisions.APPROVED
+        self.save(update_fields=["decision_at", "decision_by", "decision"])
 
 
 class ReleaseFileReview(models.Model):
@@ -505,8 +502,15 @@ class Snapshot(models.Model):
 
     @property
     def is_draft(self):
-        return self.published_at is None
+        return not self.is_published
 
     @property
     def is_published(self):
-        return self.published_at
+        # We support multiple publish requests over time but we only look at
+        # the latest one to get published/draft status.
+        latest = self.publish_requests.order_by("-created_at").first()
+
+        if not latest:
+            return False
+
+        return latest.decision == ReleaseFilePublishRequest.Decisions.APPROVED

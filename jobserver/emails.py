@@ -100,22 +100,22 @@ def send_repo_signed_off_notification_to_staff(repo):
     )
 
 
-def send_welcome_email(user):
-    login_url = furl(settings.BASE_URL) / reverse("login")
+def send_report_published_email(publish_request):
+    url = furl(settings.BASE_URL) / publish_request.report.get_absolute_url()
 
     context = {
-        "domain": settings.BASE_URL,
-        "name": user.name,
-        "url": login_url,
+        "name": publish_request.created_by.name,
+        "title": publish_request.report.title,
+        "url": url,
     }
 
     send(
-        to=user.notifications_email,
-        subject="Welcome to OpenSAFELY",
+        to=publish_request.created_by.notifications_email,
+        subject="Your report has been published",
         sender="notifications@jobs.opensafely.org",
         reply_to=["OpenSAFELY Team <team@opensafely.org>"],
-        template_name="emails/welcome.txt",
-        html_template_name="emails/welcome.html",
+        template_name="emails/report_published.txt",
+        html_template_name="emails/report_published.html",
         context=context,
     )
 
@@ -139,4 +139,24 @@ def send_token_login_used_email(user):
         reply_to=["OpenSAFELY Team <team@opensafely.org>"],
         template_name="emails/login_token_used.txt",
         html_template_name="emails/login_token_used.html",
+    )
+
+
+def send_welcome_email(user):
+    login_url = furl(settings.BASE_URL) / reverse("login")
+
+    context = {
+        "domain": settings.BASE_URL,
+        "name": user.name,
+        "url": login_url,
+    }
+
+    send(
+        to=user.notifications_email,
+        subject="Welcome to OpenSAFELY",
+        sender="notifications@jobs.opensafely.org",
+        reply_to=["OpenSAFELY Team <team@opensafely.org>"],
+        template_name="emails/welcome.txt",
+        html_template_name="emails/welcome.html",
+        context=context,
     )

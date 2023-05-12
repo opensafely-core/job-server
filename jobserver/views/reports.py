@@ -2,7 +2,7 @@ from django.contrib import messages
 from django.core.exceptions import PermissionDenied
 from django.db import transaction
 from django.shortcuts import get_object_or_404, redirect
-from django.views.generic import CreateView, UpdateView
+from django.views.generic import CreateView
 
 from interactive.models import AnalysisRequest
 
@@ -60,28 +60,4 @@ class ReportPublishRequestCreate(CreateView):
     def get_context_data(self, **kwargs):
         return super().get_context_data(**kwargs) | {
             "analysis_request": self.analysis_request,
-        }
-
-
-class ReportPublishRequestUpdate(UpdateView):
-    """
-    This exists for testing locally/the walking skeleton
-
-    We're not quite sure what form modifying and working with a
-    ReportPublishRequest will take yet.
-    """
-
-    fields = []
-    model = ReportPublishRequest
-    template_name = "interactive/report_publish_request_update.html"
-
-    def form_valid(self, form):
-        self.object.approve(user=self.request.user)
-        # TODO: redirect to the analysis request when we're not testing
-        # return redirect(self.object.analysis_request)
-        return redirect(self.object)
-
-    def get_context_data(self, **kwargs):
-        return super().get_context_data(**kwargs) | {
-            "project": self.object.report.analysis_request.project,
         }

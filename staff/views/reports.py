@@ -7,13 +7,35 @@ from django.views.generic import DetailView, ListView
 
 from jobserver.authorization import CoreDeveloper
 from jobserver.authorization.decorators import require_role
-from jobserver.models import Org, Project, Report, User
+from jobserver.models import Org, Project, Report, ReportPublishRequest, User
 
 
 @method_decorator(require_role(CoreDeveloper), name="dispatch")
 class ReportDetail(DetailView):
     model = Report
     template_name = "staff/report_detail.html"
+
+    def get_context_data(self, **kwargs):
+        publish_requests = self.object.publish_requests.order_by("-created_at")
+
+        return super().get_context_data(**kwargs) | {
+            "publish_requests": publish_requests,
+        }
+
+    def get_queryset(self):
+        return (
+            super()
+            .get_queryset()
+            .select_related(
+                "analysis_request",
+                "analysis_request__project",
+                "analysis_request__project__org",
+                "created_by",
+                "release_file__workspace__project",
+                "release_file__workspace__project__org",
+            )
+            .prefetch_related("publish_requests")
+        )
 
 
 @method_decorator(require_role(CoreDeveloper), name="dispatch")
@@ -74,6 +96,15 @@ class ReportList(ListView):
             )
 
             qs = qs.filter(qwargs)
+
+        if self.request.GET.get("is_published") == "yes":
+            qs = qs.filter(
+                publish_requests__decision=ReportPublishRequest.Decisions.APPROVED
+            )
+        if self.request.GET.get("is_published") == "requested":
+            qs = qs.exclude(publish_requests=None).filter(
+                publish_requests__decision_at=None
+            )
 
         if org := self.request.GET.get("org"):
             qs = qs.filter(release_file__workspace__project__org__slug=org)

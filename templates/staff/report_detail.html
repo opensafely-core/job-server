@@ -87,6 +87,27 @@
             </a>
           </p>
         </li>
+        <li class="card mb-3">
+          <h2 class="card-header h5">
+            Publish requests
+          </h2>
+          <p class="card-body mb-0">
+            {% for publish_request in publish_requests %}
+            <a href="{{ publish_request.get_staff_url }}">
+              Request from {{ publish_request.created_by.name }}
+              {% if publish_request.decision == 'approved' %}
+              <span class="badge badge-sm badge-success">Approved</span>
+              {% elif publish_request.decision == 'rejected' %}
+              <span class="badge badge-sm badge-secondary">Rejected</span>
+              {% else %}
+              <span class="badge badge-sm badge-secondary">Pending</span>
+              {% endif %}
+            </a>
+            {% empty %}
+            No requests yet.
+            {% endfor %}
+          </p>
+        </li>
       </ul>
     </div>
   </div>

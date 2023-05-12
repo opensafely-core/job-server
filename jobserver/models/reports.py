@@ -92,27 +92,30 @@ class Report(models.Model):
 
     @property
     def is_published(self):
-        return hasattr(self, "publish_request") and self.publish_request.approved_at
+        # We support multiple publish requests over time but we only look at
+        # the latest one to get published/draft status.
+        latest = self.publish_requests.order_by("-created_at").first()
+
+        if not latest:
+            return False
+
+        return latest.decision == ReportPublishRequest.Decisions.APPROVED
 
 
 class ReportPublishRequest(models.Model):
+    class Decisions(models.TextChoices):
+        APPROVED = "approved", "Approved"
+        REJECTED = "rejected", "Rejected"
+
     release_file_publish_request = models.OneToOneField(
         "ReleaseFilePublishRequest",
         on_delete=models.CASCADE,
         related_name="report_publish_request",
     )
-    report = models.OneToOneField(
+    report = models.ForeignKey(
         "Report",
         on_delete=models.CASCADE,
-        related_name="publish_request",
-    )
-
-    approved_at = models.DateTimeField(null=True)
-    approved_by = models.ForeignKey(
-        "User",
-        on_delete=models.PROTECT,
-        related_name="report_publish_requests_approved",
-        null=True,
+        related_name="publish_requests",
     )
 
     created_at = models.DateTimeField(default=timezone.now)
@@ -121,6 +124,15 @@ class ReportPublishRequest(models.Model):
         on_delete=models.PROTECT,
         related_name="report_publish_requests_created",
     )
+
+    decision_at = models.DateTimeField(null=True)
+    decision_by = models.ForeignKey(
+        "User",
+        on_delete=models.PROTECT,
+        related_name="report_publish_requests_decisions",
+        null=True,
+    )
+    decision = models.TextField(choices=Decisions.choices, null=True)
 
     updated_at = models.DateTimeField(auto_now=True)
     updated_by = models.ForeignKey(
@@ -131,21 +143,6 @@ class ReportPublishRequest(models.Model):
 
     class Meta:
         constraints = [
-            models.CheckConstraint(
-                check=(
-                    Q(
-                        approved_at__isnull=True,
-                        approved_by__isnull=True,
-                    )
-                    | (
-                        Q(
-                            approved_at__isnull=False,
-                            approved_by__isnull=False,
-                        )
-                    )
-                ),
-                name="%(app_label)s_%(class)s_both_approved_at_and_approved_by_set",
-            ),
             models.CheckConstraint(
                 check=(
                     Q(
@@ -160,6 +157,23 @@ class ReportPublishRequest(models.Model):
                     )
                 ),
                 name="%(app_label)s_%(class)s_both_created_at_and_created_by_set",
+            ),
+            models.CheckConstraint(
+                check=(
+                    Q(
+                        decision_at__isnull=True,
+                        decision_by__isnull=True,
+                        decision__isnull=True,
+                    )
+                    | (
+                        Q(
+                            decision_at__isnull=False,
+                            decision_by__isnull=False,
+                            decision__isnull=False,
+                        )
+                    )
+                ),
+                name="%(app_label)s_%(class)s_both_decision_at_decision_by_and_decision_set",
             ),
             models.CheckConstraint(
                 check=(
@@ -208,19 +222,33 @@ class ReportPublishRequest(models.Model):
     def approve(self, *, user):
         now = timezone.now()
 
-        self.approved_at = now
-        self.approved_by = user
-        self.save(update_fields=["approved_at", "approved_by"])
+        self.decision_at = now
+        self.decision_by = user
+        self.decision = self.Decisions.APPROVED
+        self.save(update_fields=["decision_at", "decision_by", "decision"])
 
         self.release_file_publish_request.approve(user=user, now=now)
 
-    def get_absolute_url(self):
+    def get_approve_url(self):
         return reverse(
-            "interactive:report-publish-request-update",
-            kwargs={
-                "org_slug": self.report.project.org.slug,
-                "project_slug": self.report.project.slug,
-                "slug": self.report.slug,
-                "pk": self.pk,
-            },
+            "staff:report-publish-request-approve",
+            kwargs={"pk": self.pk},
         )
+
+    def get_reject_url(self):
+        return reverse(
+            "staff:report-publish-request-reject",
+            kwargs={"pk": self.pk},
+        )
+
+    def get_staff_url(self):
+        return reverse(
+            "staff:report-publish-request-detail",
+            kwargs={"pk": self.pk},
+        )
+
+    def reject(self, *, user):
+        self.decision_at = timezone.now()
+        self.decision_by = user
+        self.decision = self.Decisions.REJECTED
+        self.save(update_fields=["decision_at", "decision_by", "decision"])

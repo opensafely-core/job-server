@@ -4,7 +4,7 @@
 {% load querystring_tools %}
 {% load selected_filter %}
 
-{% block metatitle %}Reports: Staff Area | OpenSAFELY Jobs{% endblock metatitle %}
+{% block metatitle %}Report Publish Requests: Staff Area | OpenSAFELY Jobs{% endblock metatitle %}
 
 {% block breadcrumbs %}
 <nav class="breadcrumb-container breadcrumb--danger" aria-label="breadcrumb">
@@ -14,7 +14,7 @@
         <a href="{% url 'staff:index' %}">Staff area</a>
       </li>
       <li class="breadcrumb-item active" aria-current="page">
-        Reports
+        Report publish requests
       </li>
     </ol>
   </div>
@@ -24,7 +24,7 @@
 {% block jumbotron %}
 <div class="jumbotron jumbotron-fluid jumbotron--danger pt-md-2">
   <div class="container">
-    <h1 class="display-4">Reports</h1>
+    <h1 class="display-4">Report publish requests</h1>
   </div>
 </div>
 {% endblock jumbotron %}
@@ -37,41 +37,31 @@
 
       {% if request.GET %}
       <div class="mb-3">
-        <a href="{% url 'staff:application-list' %}">Clear All</a>
+        <a href="{% url 'staff:report-publish-request-list' %}">Clear All</a>
       </div>
       {% endif %}
 
-      <h3 class="h4">Published?</h3>
-      <div class="btn-group-vertical w-100 mb-4" role="group" aria-label="Filter by being published">
-        {% is_filter_selected key="is_published" value="yes" as is_active %}
+      {% if states %}
+      <h3 class="h4">State</h3>
+      <div class="btn-group-vertical w-100 mb-4" role="group" aria-label="Filter by state">
+        {% for state in states %}
+        {% is_filter_selected key="state" value=state.slug as is_active %}
         <a
           {% if is_active %}aria-pressed="true"{% endif %}
           class="btn btn-outline-primary btn-block text-left {% if is_active %}active{% endif %}"
           href="
             {% if is_active %}
-              {% url_without_querystring is_published="yes" %}
+              {% url_without_querystring state=state.slug %}
             {% else %}
-              {% url_with_querystring is_published="yes" %}
+              {% url_with_querystring state=state.slug %}
             {% endif %}
           "
         >
-          Yes
+            {{ state.name }}
         </a>
-        {% is_filter_selected key="is_published" value="requested" as is_active %}
-        <a
-          {% if is_active %}aria-pressed="true"{% endif %}
-          class="btn btn-outline-primary btn-block text-left {% if is_active %}active{% endif %}"
-          href="
-            {% if is_active %}
-              {% url_without_querystring is_published="requested" %}
-            {% else %}
-              {% url_with_querystring is_published="requested" %}
-            {% endif %}
-          "
-        >
-          Pending
-        </a>
+        {% endfor %}
       </div>
+      {% endif %}
 
       {% if orgs %}
       <h3 class="h4">Orgs</h3>
@@ -143,12 +133,12 @@
     <div class="col col-lg-9 col-xl-8">
       <form method="GET" class="mb-4">
         <div class="form-inline w-100 d-flex flex-nowrap">
-          <label for="reportSearch" class="sr-only">Search by name of report or author</label>
+          <label for="reportSearch" class="sr-only">Search by name of report, author of the request, or approver</label>
           <input
             class="form-control mr-sm-2 w-100"
             id="reportSearch"
             name="q"
-            placeholder="Search by name of report or author"
+            placeholder="Search by name of report, author of the request, or approver"
             type="search"
             {% if q %}
               value="{{ q }}"
@@ -159,10 +149,10 @@
       </form>
 
       <div class="list-group list-unstyled">
-        {% for report in object_list %}
-        <a class="list-group-item list-group-item-action" href="{{ report.get_staff_url }}">
-          {{ report.title }} by {{ report.created_by.name }}
-          <small class="text-muted">(created {{ report.created_at|date }})</small>
+        {% for publish_request in object_list %}
+        <a class="list-group-item list-group-item-action" href="{{ publish_request.get_staff_url }}">
+          {{ publish_request.report.title }} requested by {{ publish_request.created_by.name }}
+          <small class="text-muted">(created {{ publish_request.created_at|date }})</small>
         </a>
         {% endfor %}
       </div>
