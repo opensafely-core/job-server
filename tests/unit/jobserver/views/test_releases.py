@@ -4,7 +4,7 @@ from django.http import Http404
 from django.utils import timezone
 
 from jobserver.authorization import OutputChecker, OutputPublisher, ProjectCollaborator
-from jobserver.models import ReleaseFile, ReleaseFilePublishRequest
+from jobserver.models import ReleaseFile, SnapshotPublishRequest
 from jobserver.views.releases import (
     ProjectReleaseList,
     PublishedSnapshotFile,
@@ -21,8 +21,8 @@ from ....factories import (
     ProjectFactory,
     ReleaseFactory,
     ReleaseFileFactory,
-    ReleaseFilePublishRequestFactory,
     SnapshotFactory,
+    SnapshotPublishRequestFactory,
     UserFactory,
     WorkspaceFactory,
 )
@@ -382,11 +382,11 @@ def test_releasefiledelete_without_permission(rf, release):
 
 def test_snapshotdetail_published_logged_out(rf):
     snapshot = SnapshotFactory()
-    ReleaseFilePublishRequestFactory(
+    SnapshotPublishRequestFactory(
         snapshot=snapshot,
         decision_by=UserFactory(),
         decision_at=timezone.now(),
-        decision=ReleaseFilePublishRequest.Decisions.APPROVED,
+        decision=SnapshotPublishRequest.Decisions.APPROVED,
     )
 
     request = rf.get("/")
@@ -422,11 +422,11 @@ def test_snapshotdetail_published_with_permission(rf):
 
 def test_snapshotdetail_published_without_permission(rf):
     snapshot = SnapshotFactory()
-    ReleaseFilePublishRequestFactory(
+    SnapshotPublishRequestFactory(
         snapshot=snapshot,
         decision_by=UserFactory(),
         decision_at=timezone.now(),
-        decision=ReleaseFilePublishRequest.Decisions.APPROVED,
+        decision=SnapshotPublishRequest.Decisions.APPROVED,
     )
 
     request = rf.get("/")
@@ -552,11 +552,11 @@ def test_snapshotdownload_published_without_permission(rf, release):
     workspace = WorkspaceFactory()
     snapshot = SnapshotFactory(workspace=workspace)
     snapshot.files.set(release.files.all())
-    ReleaseFilePublishRequestFactory(
+    SnapshotPublishRequestFactory(
         snapshot=snapshot,
         decision_by=UserFactory(),
         decision_at=timezone.now(),
-        decision=ReleaseFilePublishRequest.Decisions.APPROVED,
+        decision=SnapshotPublishRequest.Decisions.APPROVED,
     )
 
     request = rf.get("/")

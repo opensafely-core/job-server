@@ -4,18 +4,16 @@ from django.urls import reverse
 from django.utils import timezone
 
 from jobserver.models import Report, ReportPublishRequest
-from jobserver.utils import set_from_qs
 
 from ....factories import (
     AnalysisRequestFactory,
     ProjectFactory,
     ReleaseFileFactory,
-    ReleaseFilePublishRequestFactory,
     ReportFactory,
     ReportPublishRequestFactory,
     SnapshotFactory,
+    SnapshotPublishRequestFactory,
     UserFactory,
-    WorkspaceFactory,
 )
 
 
@@ -101,13 +99,10 @@ def test_report_updated_check_constraint_missing_by():
 
 
 def test_reportpublishrequest_approve(freezer):
-    workspace = WorkspaceFactory()
-    files = ReleaseFileFactory.create_batch(3, workspace=workspace)
     snapshot = SnapshotFactory()
-    snapshot.files.add(*files)
-    rfile_request = ReleaseFilePublishRequestFactory(snapshot=snapshot)
-    rfile_request.files.add(*files)
-    request = ReportPublishRequestFactory(release_file_publish_request=rfile_request)
+    snapshot.files.add(*ReleaseFileFactory.create_batch(3))
+    snapshot_request = SnapshotPublishRequestFactory(snapshot=snapshot)
+    request = ReportPublishRequestFactory(snapshot_publish_request=snapshot_request)
     user = UserFactory()
 
     request.approve(user=user)
@@ -117,9 +112,9 @@ def test_reportpublishrequest_approve(freezer):
     assert request.decision_by == user
     assert request.decision == ReportPublishRequest.Decisions.APPROVED
 
-    assert rfile_request.decision_at == timezone.now()
-    assert rfile_request.decision_by == user
-    assert rfile_request.decision == ReportPublishRequest.Decisions.APPROVED
+    assert snapshot_request.decision_at == timezone.now()
+    assert snapshot_request.decision_by == user
+    assert snapshot_request.decision == ReportPublishRequest.Decisions.APPROVED
 
 
 def test_reportpublishrequest_create_from_report_without_report():
@@ -147,14 +142,8 @@ def test_reportpublishrequest_create_from_report_success():
     assert request.report == report
     assert request.updated_by == user
 
-    # have we constructed a ReleaseFilePublishRequest correctly?
-    assert request.release_file_publish_request.created_by == user
-    assert set_from_qs(request.release_file_publish_request.files.all()) == {
-        report.release_file.pk
-    }
-    assert (
-        request.release_file_publish_request.workspace == report.release_file.workspace
-    )
+    # have we constructed a SnapshotPublishRequest correctly?
+    assert request.snapshot_publish_request
 
 
 def test_reportpublishrequest_get_approve_url():

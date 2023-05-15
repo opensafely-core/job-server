@@ -4,13 +4,14 @@ from django.db import IntegrityError
 from django.urls import reverse
 from django.utils import timezone
 
-from jobserver.models import ReleaseFilePublishRequest
+from jobserver.models import Snapshot, SnapshotPublishRequest
+from jobserver.utils import set_from_qs
 from tests.factories import (
     ReleaseFactory,
     ReleaseFileFactory,
-    ReleaseFilePublishRequestFactory,
     ReleaseFileReviewFactory,
     SnapshotFactory,
+    SnapshotPublishRequestFactory,
     UserFactory,
     WorkspaceFactory,
 )
@@ -196,16 +197,10 @@ def test_releasefile_format():
 
 
 def test_releasefilepublishrequest_approve_configured_now():
-    user = UserFactory()
-    workspace = WorkspaceFactory()
-
-    files = ReleaseFileFactory.create_batch(3, workspace=workspace)
-
     snapshot = SnapshotFactory()
-    snapshot.files.add(*files)
-
-    request = ReleaseFilePublishRequestFactory(snapshot=snapshot, workspace=workspace)
-    request.files.add(*files)
+    snapshot.files.add(*ReleaseFileFactory.create_batch(3))
+    request = SnapshotPublishRequestFactory(snapshot=snapshot)
+    user = UserFactory()
 
     dt = minutes_ago(timezone.now(), 3)
 
@@ -216,23 +211,45 @@ def test_releasefilepublishrequest_approve_configured_now():
 
 
 def test_releasefilepublishrequest_approve_default_now(freezer):
-    user = UserFactory()
-    workspace = WorkspaceFactory()
-
-    files = ReleaseFileFactory.create_batch(3, workspace=workspace)
-
     snapshot = SnapshotFactory()
-    snapshot.files.add(*files)
-
-    request = ReleaseFilePublishRequestFactory(snapshot=snapshot, workspace=workspace)
-    request.files.add(*files)
+    snapshot.files.add(*ReleaseFileFactory.create_batch(3))
+    request = SnapshotPublishRequestFactory(snapshot=snapshot)
+    user = UserFactory()
 
     request.approve(user=user)
 
     request.refresh_from_db()
     assert request.decision_at == timezone.now()
     assert request.decision_by == user
-    assert request.decision == ReleaseFilePublishRequest.Decisions.APPROVED
+    assert request.decision == SnapshotPublishRequest.Decisions.APPROVED
+
+
+def test_releasefilepublishrequest_create_from_files_success():
+    rfile = ReleaseFileFactory()
+    user = UserFactory()
+    workspace = WorkspaceFactory()
+
+    request = SnapshotPublishRequest.create_from_files(
+        files=[rfile], user=user, workspace=workspace
+    )
+
+    assert request.created_by == user
+    assert set_from_qs(request.snapshot.files.all()) == {rfile.pk}
+
+
+def test_releasefilepublishrequest_create_from_files_with_duplicate_files():
+    rfile = ReleaseFileFactory()
+    workspace = WorkspaceFactory()
+
+    snapshot = SnapshotFactory(workspace=workspace)
+    snapshot.files.add(rfile)
+
+    user = UserFactory()
+
+    with pytest.raises(Snapshot.DuplicateSnapshotError):
+        SnapshotPublishRequest.create_from_files(
+            files=[rfile], user=user, workspace=workspace
+        )
 
 
 @pytest.mark.parametrize("field", ["created_at", "created_by"])
@@ -331,11 +348,11 @@ def test_snapshot_is_draft():
 def test_snapshot_is_published():
     snapshot = SnapshotFactory()
 
-    ReleaseFilePublishRequestFactory(
+    SnapshotPublishRequestFactory(
         snapshot=snapshot,
         decision_by=UserFactory(),
         decision_at=timezone.now(),
-        decision=ReleaseFilePublishRequest.Decisions.APPROVED,
+        decision=SnapshotPublishRequest.Decisions.APPROVED,
     )
 
     assert snapshot.is_published

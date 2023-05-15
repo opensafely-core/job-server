@@ -29,8 +29,8 @@ from jobserver.authorization import (
 )
 from jobserver.models import (
     Release,
-    ReleaseFilePublishRequest,
     ReleaseFileReview,
+    SnapshotPublishRequest,
 )
 from jobserver.utils import set_from_qs
 from tests.factories import (
@@ -42,8 +42,8 @@ from tests.factories import (
     ProjectMembershipFactory,
     ReleaseFactory,
     ReleaseFileFactory,
-    ReleaseFilePublishRequestFactory,
     SnapshotFactory,
+    SnapshotPublishRequestFactory,
     UserFactory,
     WorkspaceFactory,
 )
@@ -1187,11 +1187,11 @@ def test_snapshotcreate_without_permission(api_rf):
 
 def test_snapshotpublishapi_already_published(api_rf):
     snapshot = SnapshotFactory()
-    ReleaseFilePublishRequestFactory(
+    SnapshotPublishRequestFactory(
         snapshot=snapshot,
         decision_at=timezone.now(),
         decision_by=UserFactory(),
-        decision=ReleaseFilePublishRequest.Decisions.APPROVED,
+        decision=SnapshotPublishRequest.Decisions.APPROVED,
     )
 
     assert snapshot.is_published
@@ -1213,7 +1213,7 @@ def test_snapshotpublishapi_already_published(api_rf):
 
 def test_snapshotpublishapi_success(api_rf):
     snapshot = SnapshotFactory()
-    ReleaseFilePublishRequestFactory(snapshot=snapshot)
+    SnapshotPublishRequestFactory(snapshot=snapshot)
 
     assert snapshot.is_draft
 

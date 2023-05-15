@@ -15,8 +15,8 @@ from ..models import (
     Project,
     Release,
     ReleaseFile,
-    ReleaseFilePublishRequest,
     Snapshot,
+    SnapshotPublishRequest,
     Workspace,
 )
 from ..releases import build_outputs_zip, serve_file, workspace_files
@@ -216,7 +216,7 @@ class SnapshotDetail(View):
         base_path = build_spa_base_url(request.path, self.kwargs.get("path", ""))
         publish_request = (
             snapshot.publish_requests.exclude(decision=None)
-            .filter(decision=ReleaseFilePublishRequest.Decisions.APPROVED)
+            .filter(decision=SnapshotPublishRequest.Decisions.APPROVED)
             .order_by("-created_at")
             .first()
         )

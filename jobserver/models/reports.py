@@ -4,7 +4,7 @@ from django.urls import reverse
 from django.utils import timezone
 from django_extensions.db.fields import AutoSlugField
 
-from .outputs import ReleaseFilePublishRequest
+from .outputs import SnapshotPublishRequest
 
 
 class Report(models.Model):
@@ -107,15 +107,15 @@ class ReportPublishRequest(models.Model):
         APPROVED = "approved", "Approved"
         REJECTED = "rejected", "Rejected"
 
-    release_file_publish_request = models.OneToOneField(
-        "ReleaseFilePublishRequest",
-        on_delete=models.CASCADE,
-        related_name="report_publish_request",
-    )
     report = models.ForeignKey(
         "Report",
         on_delete=models.CASCADE,
         related_name="publish_requests",
+    )
+    snapshot_publish_request = models.OneToOneField(
+        "SnapshotPublishRequest",
+        on_delete=models.CASCADE,
+        related_name="report_publish_request",
     )
 
     created_at = models.DateTimeField(default=timezone.now)
@@ -202,15 +202,16 @@ class ReportPublishRequest(models.Model):
 
         with transaction.atomic():
             # create a request to publish the released file underpinning the report
-            rfile_publish_request = ReleaseFilePublishRequest.objects.create(
-                created_by=user, workspace=report.release_file.workspace
+            snapshot_publish_request = SnapshotPublishRequest.create_from_files(
+                files=[report.release_file],
+                user=user,
+                workspace=report.release_file.workspace,
             )
-            rfile_publish_request.files.add(report.release_file)
 
             # create a request to publish the report
             return ReportPublishRequest.objects.create(
                 report=report,
-                release_file_publish_request=rfile_publish_request,
+                snapshot_publish_request=snapshot_publish_request,
                 created_by=user,
                 updated_by=user,
             )
@@ -227,7 +228,7 @@ class ReportPublishRequest(models.Model):
         self.decision = self.Decisions.APPROVED
         self.save(update_fields=["decision_at", "decision_by", "decision"])
 
-        self.release_file_publish_request.approve(user=user, now=now)
+        self.snapshot_publish_request.approve(user=user, now=now)
 
     def get_approve_url(self):
         return reverse(

@@ -18,8 +18,8 @@ class ReportPublishRequestFactory(factory.django.DjangoModelFactory):
         model = ReportPublishRequest
 
     created_by = factory.SubFactory("tests.factories.UserFactory")
-    release_file_publish_request = factory.SubFactory(
-        "tests.factories.ReleaseFilePublishRequestFactory"
-    )
     report = factory.SubFactory("tests.factories.ReportFactory")
+    snapshot_publish_request = factory.SubFactory(
+        "tests.factories.SnapshotPublishRequestFactory"
+    )
     updated_by = factory.SubFactory("tests.factories.UserFactory")
