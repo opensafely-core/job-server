@@ -4,7 +4,6 @@ import operator
 
 import sentry_sdk
 import structlog
-from django.db.models import prefetch_related_objects
 from django.http import Http404
 from django.utils import timezone
 from rest_framework import serializers
@@ -98,7 +97,6 @@ class JobAPIUpdate(APIView):
 
             # grab the status before any updates so we can track updates to it
             # after saving the incoming changes
-            prefetch_jobs(job_request)
             initial_status = job_request.status
 
             # bind the job request ID to further logs so looking them up in the UI is easier
@@ -158,7 +156,6 @@ class JobAPIUpdate(APIView):
 
             # refresh the JobRequest instance so we can get an updated status
             job_request.refresh_from_db()
-            prefetch_jobs(job_request)
             current_status = job_request.status
             if current_status != initial_status and current_status in COMPLETED_STATES:
                 handle_job_request_notifications(
@@ -222,16 +219,6 @@ def handle_job_request_notifications(job_request, status, github_api):
 
         if status == "failed":
             notify_tech_support_of_failed_analysis(job_request)
-
-
-def prefetch_jobs(job_request):
-    """
-    Prefetch Jobs for the given JobRequest
-
-    We have to do this so because JobRequest's status property needs to
-    look at all the related Job objects so we require they are prefetched.
-    """
-    prefetch_related_objects([job_request], "jobs")
 
 
 class WorkspaceSerializer(serializers.ModelSerializer):

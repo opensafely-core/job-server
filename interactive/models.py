@@ -152,6 +152,27 @@ class AnalysisRequest(models.Model):
         return super().save(*args, **kwargs)
 
     @property
+    def status(self):
+        """
+        Expose the status of an Analysis
+
+        This builds on top of JobRequest.status, which is deriving a single
+        state from its related Jobs.  However we also need to account for the
+        job having finished but the output not having been released.
+        """
+        jr_status = self.job_request.status
+        if jr_status != "succeeded":
+            return jr_status
+
+        # when the JobRequest has succeeded we still need to check if there has
+        # been a file released by looking for a related Report.
+        # TODO: handle manual overrides here too
+        if not self.report:
+            return "awaiting report"
+
+        return jr_status
+
+    @property
     def ulid(self):
         return ULID.from_str(self.id)
 
