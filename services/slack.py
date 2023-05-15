@@ -28,7 +28,9 @@ def post(text, channel):
         client.chat_postMessage(channel=channel, text=text)
     except SlackApiError:
         # failing to slack is never fatal, so log and do not error
-        logger.exception("Failed to notify slack")
+        logger.exception(
+            f"Failed to notify slack in channel: {channel}", channel=channel
+        )
 
 
 def link(url, text=None):
