@@ -1,6 +1,6 @@
 <div {% attrs class %}>
   <label
-    class="inline-block font-semibold text-slate-900 cursor-pointer"
+    class="inline-block font-semibold text-lg text-slate-900 cursor-pointer"
     for="{{ field.id_for_label }}"
   >
     {% if label %}{{ label }}{% else %}{{ field.label }}{% endif %}
@@ -12,6 +12,10 @@
       >*</span>
     {% endif %}
   </label>
+
+  {% if hint_text %}
+    <p class="mb-2 text-sm text-gray-700">{{ hint_text }}</p>
+  {% endif %}
 
   <div class="relative">
     <textarea
