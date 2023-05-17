@@ -1,2 +1,236 @@
+html:has(dialog[open]) {
+  overflow: hidden;
+}
+
 #report {
- }
+  color: var(--color-slate-800);
+  font-size: 1.1rem;
+  line-height: 1.5;
+  margin-inline: auto;
+  max-width: calc(75ch + 2em);
+  padding: 1em;
+  position: relative;
+  width: 100%;
+  z-index: 10;
+
+  & section {
+    display: grid;
+
+    & section {
+      margin-block-start: 1em;
+    }
+  }
+
+  & h2 {
+    font-size: 2em;
+    font-weight: bold;
+    line-height: 1.2;
+    margin-block: 1.5em 1em;
+  }
+
+  & h3 {
+    font-size: 1.75em;
+    font-weight: bold;
+    line-height: 1.2;
+    margin-block: 1em 0.75em;
+  }
+
+  & p:not(:last-child),
+  & ul:not(:last-child) {
+    margin-block-end: 1.5em;
+  }
+
+  & ul {
+    list-style-type: disc;
+    margin-inline-start: 0.5em;
+    padding-inline-start: 1em;
+  }
+
+  & li {
+    margin-block-end: 0.5em;
+
+    & ul {
+      margin-block-start: 0.5em;
+    }
+
+    & ol {
+      margin: 0.5em 0 0.5em 1.5em;
+    }
+  }
+
+  & a {
+    background-color: transparent;
+    color: var(--color-oxford-600);
+    font-weight: 600;
+    text-decoration: underline;
+    text-decoration-color: var(--color-oxford-300);
+    text-underline-offset: 0.125em;
+    transition-duration: 0.2s;
+    transition-property: background-color, color, text-decoration-color;
+
+    &:hover,
+    &:focus {
+      background-color: var(--color-bn-sun-100);
+      color: var(--color-oxford);
+      text-decoration-color: transparent;
+    }
+
+    &:focus {
+      background-color: var(--color-bn-sun-300);
+    }
+  }
+
+  & figure,
+  & .overflow-wrapper {
+    width: 100%;
+    position: relative;
+    margin-bottom: 2em;
+
+    &::before {
+      border: 0 solid var(--color-slate-200);
+      border-inline-start-width: 0.25em;
+      bottom: 0;
+      content: "";
+      left: -1;
+      position: absolute;
+      top: 0;
+      width: 1em;
+      z-index: -1;
+    }
+  }
+
+  & figure {
+    display: grid;
+    padding: 2em 0 1em 2em;
+  }
+
+  & figcaption {
+    margin-block-start: 1em;
+    text-align: center;
+  }
+
+  & table {
+    margin: 0.25em 0 0.25em 1em;
+    width: 100%;
+  }
+
+  & caption {
+    text-align: center;
+    margin-bottom: 1em;
+  }
+
+  & thead {
+    background-color: var(--color-slate-100);
+  }
+
+  & tbody {
+    background-color: white;
+  }
+
+  & th,
+  & td {
+    font-size: 0.9em;
+    text-align: left;
+    font-variant-numeric: proportional-nums;
+    line-height: 1.2;
+    padding: 0.25em 0.5em;
+  }
+
+  & th,
+  & td {
+    border-color: var(--color-slate-400);
+    border-style: solid;
+    border-width: 1px;
+    border-left-width: 0;
+
+    &:first-child {
+      border-left-width: 1px;
+    }
+  }
+
+  & tr:last-child th {
+    border-bottom-width: 0;
+  }
+
+  & tr:not(:last-child) td {
+    border-bottom-width: 0;
+  }
+
+  & .toc {
+    background-color: var(--color-oxford-50);
+    border-radius: 0.5em;
+    list-style-type: none;
+    margin: 1em 0;
+    overflow: hidden;
+    padding: 4.5em 1.25em 1em;
+    position: relative;
+
+    & h2 {
+      position: absolute;
+      top: 0;
+      left: 0;
+      font-size: 1.1em;
+      padding: 1em;
+      margin: 0;
+      background-color: var(--color-oxford-900);
+      color: white;
+    }
+  }
+}
+
+#report.print-pdf {
+  font-family: sans-serif;
+  font-size: 10pt;
+
+  & table {
+    margin: 0;
+  }
+
+  & th,
+  & td {
+    padding: 0 20px 14px 10px;
+    overflow-wrap: break-word;
+  }
+
+  & li {
+    list-style: none;
+    position: relative;
+  }
+
+  & li::before {
+    content: "•";
+    left: -10px;
+    position: absolute;
+  }
+
+  & a {
+    text-decoration: none;
+  }
+
+  & .pdf--hide {
+    display: none;
+  }
+}
+
+#menuBtn {
+  background-color: var(--color-oxford-600);
+  border-radius: 0.25em 0.25em 0 0;
+  bottom: 0;
+  color: var(--color-white);
+  padding: 0.5em 1em;
+  position: fixed;
+  right: 1em;
+  white-space: nowrap;
+  z-index: 10000;
+  transition-property: background-color;
+  transition-duration: 0.2s;
+
+  &:hover,
+  &:focus {
+    background-color: var(--color-oxford-700);
+  }
+}
+
+.job-server--hide {
+  display: none !important;
+}
