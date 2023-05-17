@@ -55,9 +55,13 @@
                       {% pill sr_only="Status:" variant="warning" text=project.get_status_display %}
                     {% elif project.status == "ongoing" %}
                       {% pill sr_only="Status:" variant="primary" text=project.get_status_display %}
+                    {% elif project.status == "ongoing-and-linked" %}
+                      {% pill sr_only="Status:" variant="primary" text=project.get_status_display %}
                     {% elif project.status == "postponed" %}
                       {% pill sr_only="Status:" variant="danger" text=project.get_status_display %}
-                    {% elif project.status == "completed" %}
+                    {% elif project.status == "completed-and-linked" %}
+                      {% pill sr_only="Status:" variant="success" text=project.get_status_display %}
+                    {% elif project.status == "completed-and-awaiting" %}
                       {% pill sr_only="Status:" variant="success" text=project.get_status_display %}
                     {% endif %}
                   </div>
