@@ -1,16 +1,26 @@
 from django.urls import reverse
 from django.utils import timezone
 
-from ..factories import SnapshotFactory, UserFactory, WorkspaceFactory
+from ..factories import (
+    SnapshotFactory,
+    SnapshotPublishRequest,
+    SnapshotPublishRequestFactory,
+    UserFactory,
+    WorkspaceFactory,
+)
 
 
 def test_published_output_access(client, release):
     user = UserFactory()
     workspace = WorkspaceFactory()
-    snapshot = SnapshotFactory(
-        workspace=workspace, published_by=user, published_at=timezone.now()
-    )
+    snapshot = SnapshotFactory(workspace=workspace)
     snapshot.files.set(release.files.all())
+    SnapshotPublishRequestFactory(
+        snapshot=snapshot,
+        decision=SnapshotPublishRequest.Decisions.APPROVED,
+        decision_at=timezone.now(),
+        decision_by=UserFactory(),
+    )
 
     response = client.get(snapshot.get_api_url())
     assert response.status_code == 200

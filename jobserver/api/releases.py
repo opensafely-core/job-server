@@ -217,7 +217,7 @@ def validate_snapshot_access(request, snapshot):
 
     This validation uses Django's regular User auth.
     """
-    if snapshot.published_at:
+    if snapshot.is_published:
         return
 
     if request.user.is_anonymous:
@@ -438,10 +438,6 @@ class SnapshotAPI(APIView):
             pk=self.kwargs["snapshot_id"],
         )
 
-        # grab whether the Snapshot has been published so we can annotate a
-        # static value to each ReleaseFile in the query below.
-        is_published = snapshot.published_at is not None
-
         validate_snapshot_access(request, snapshot)
         files = {
             f.name: f
@@ -452,7 +448,7 @@ class SnapshotAPI(APIView):
                 "workspace",
                 "workspace__project",
                 "workspace__project__org",
-            ).annotate(is_published=Value(is_published))
+            ).annotate(is_published=Value(snapshot.is_published))
         }
 
         return Response(generate_index(files))
