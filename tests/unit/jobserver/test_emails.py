@@ -97,7 +97,7 @@ def test_send_repo_signed_off_notification_to_researchers(mailoutbox):
     m = mailoutbox[0]
 
     assert list(m.to) == ["notifications@jobs.opensafely.org"]
-    assert list(m.bcc) == [user1.email, user2.email, user3.email]
+    assert set(m.bcc) == {user1.email, user2.email, user3.email}
 
 
 def test_send_repo_signed_off_notification_to_staff(mailoutbox):

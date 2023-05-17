@@ -6,6 +6,8 @@ from interactive.models import AnalysisRequest
 
 from ...factories import (
     AnalysisRequestFactory,
+    JobFactory,
+    JobRequestFactory,
     ReleaseFileFactory,
     ReportFactory,
     ReportPublishRequestFactory,
@@ -109,6 +111,48 @@ def test_analysisrequest_publish_without_report_publish_request():
     analysis_request = AnalysisRequestFactory(report=report)
 
     assert analysis_request.publish_request is None
+
+
+def test_analysisrequest_status_awaiting_report():
+    job_request = JobRequestFactory()
+    JobFactory(job_request=job_request, status="succeeded")
+    analysis_request = AnalysisRequestFactory(job_request=job_request)
+
+    assert analysis_request.status == "awaiting report"
+
+
+def test_analysisrequest_status_failed():
+    job_request = JobRequestFactory()
+    JobFactory(job_request=job_request, status="failed")
+    analysis_request = AnalysisRequestFactory(job_request=job_request)
+
+    assert analysis_request.status == "failed"
+
+
+def test_analysisrequest_status_pending():
+    job_request = JobRequestFactory()
+    JobFactory(job_request=job_request, status="pending")
+    analysis_request = AnalysisRequestFactory(job_request=job_request)
+
+    assert analysis_request.status == "pending"
+
+
+def test_analysisrequest_status_running():
+    job_request = JobRequestFactory()
+    JobFactory(job_request=job_request, status="running")
+    analysis_request = AnalysisRequestFactory(job_request=job_request)
+
+    assert analysis_request.status == "running"
+
+
+def test_analysisrequest_status_succeeded():
+    job_request = JobRequestFactory()
+    JobFactory(job_request=job_request, status="succeeded")
+    analysis_request = AnalysisRequestFactory(
+        job_request=job_request, report=ReportFactory()
+    )
+
+    assert analysis_request.status == "succeeded"
 
 
 def test_analysisrequest_str():
