@@ -87,7 +87,9 @@ class PublishedSnapshotFile(View):
         """Return the content of a specific ReleaseFile which has been published"""
         rfile = get_object_or_404(ReleaseFile, id=self.kwargs["file_id"])
 
-        is_published = rfile.snapshots.exclude(published_at=None).exists()
+        is_published = rfile.snapshots.filter(
+            publish_requests__decision=SnapshotPublishRequest.Decisions.APPROVED
+        ).exists()
         if not is_published:
             raise Http404
 

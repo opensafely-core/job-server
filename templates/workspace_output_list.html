@@ -84,7 +84,7 @@
                   {% if user_can_view_all_files %}
                     <dt class="sr-only">Status:</dt>
                     <dd class="ml-auto flex-shrink-0">
-                      {% if snapshot.published_at %}
+                      {% if snapshot.is_published %}
                         {% pill variant="success" text="Published" %}
                       {% else %}
                         {% pill variant="warning" text="Draft" %}

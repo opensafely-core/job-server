@@ -109,8 +109,14 @@ def test_projectreleaselist_with_delete_permission(rf, build_release_with_files)
 
 def test_publishedsnapshotfile_success(rf, release):
     rfile = release.files.first()
-    snapshot = SnapshotFactory(published_by=UserFactory(), published_at=timezone.now())
+    snapshot = SnapshotFactory()
     snapshot.files.add(rfile)
+    SnapshotPublishRequestFactory(
+        snapshot=snapshot,
+        decision=SnapshotPublishRequest.Decisions.APPROVED,
+        decision_at=timezone.now(),
+        decision_by=UserFactory(),
+    )
 
     rfile = release.files.first()
 
