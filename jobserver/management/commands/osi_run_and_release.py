@@ -1,3 +1,5 @@
+from pathlib import Path
+
 from django.core.management import call_command
 from django.core.management.base import BaseCommand
 
@@ -12,7 +14,7 @@ class Command(BaseCommand):
 
     def handle(self, *args, **options):
         analysis_request_pk = options["analysis_request_slug"].split("-")[-1]
-        report = f"workspaces/{analysis_request_pk}/report.html"
+        report = Path(f"workspaces/{analysis_request_pk}/report.html")
         call_command("osi_run", options["analysis_request_slug"])
         call_command(
             "osi_release",
