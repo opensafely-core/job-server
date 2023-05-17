@@ -15,7 +15,7 @@ from jobserver.authorization import (
     ProjectCollaborator,
     ProjectDeveloper,
 )
-from jobserver.models import Workspace
+from jobserver.models import SnapshotPublishRequest, Workspace
 from jobserver.utils import set_from_qs
 from jobserver.views.workspaces import (
     WorkspaceAnalysisRequestList,
@@ -46,6 +46,7 @@ from ....factories import (
     ReleaseFileFactory,
     RepoFactory,
     SnapshotFactory,
+    SnapshotPublishRequestFactory,
     UserFactory,
     WorkspaceFactory,
 )
@@ -491,8 +492,12 @@ def test_workspacedetail_authorized_view_outputs(rf):
     user = UserFactory(roles=[ProjectCollaborator])
     workspace = WorkspaceFactory()
     ReleaseFactory(workspace=workspace)
-    SnapshotFactory(
-        workspace=workspace, published_by=UserFactory(), published_at=timezone.now()
+    snapshot = SnapshotFactory(workspace=workspace)
+    SnapshotPublishRequestFactory(
+        snapshot=snapshot,
+        decision=SnapshotPublishRequest.Decisions.APPROVED,
+        decision_at=timezone.now(),
+        decision_by=UserFactory(),
     )
 
     BackendMembershipFactory(backend=backend, user=user)
@@ -537,8 +542,12 @@ def test_workspacedetail_authorized_run_jobs(rf):
 
 def test_workspacedetail_authorized_honeycomb(rf):
     workspace = WorkspaceFactory()
-    SnapshotFactory(
-        workspace=workspace, published_by=UserFactory(), published_at=timezone.now()
+    snapshot = SnapshotFactory(workspace=workspace)
+    SnapshotPublishRequestFactory(
+        snapshot=snapshot,
+        decision=SnapshotPublishRequest.Decisions.APPROVED,
+        decision_at=timezone.now(),
+        decision_by=UserFactory(),
     )
 
     request = rf.get("/")
@@ -1206,12 +1215,14 @@ def test_workspaceoutputlist_success(rf, freezer, build_release_with_files):
     now = timezone.now()
 
     build_release_with_files(["file1.txt", "file2.txt"], workspace=workspace)
-    snapshot1 = SnapshotFactory(
-        workspace=workspace,
-        published_by=UserFactory(),
-        published_at=minutes_ago(now, 3),
-    )
+    snapshot1 = SnapshotFactory(workspace=workspace)
     snapshot1.files.set(workspace.files.all())
+    SnapshotPublishRequestFactory(
+        snapshot=snapshot1,
+        decision=SnapshotPublishRequest.Decisions.APPROVED,
+        decision_at=minutes_ago(now, 3),
+        decision_by=UserFactory(),
+    )
 
     build_release_with_files(["file2.txt", "file3.txt"], workspace=workspace)
     snapshot2 = SnapshotFactory(workspace=workspace)
@@ -1239,16 +1250,19 @@ def test_workspaceoutputlist_without_permission(rf, freezer, build_release_with_
     now = timezone.now()
 
     build_release_with_files(["file1.txt", "file2.txt"], workspace=workspace)
-    snapshot1 = SnapshotFactory(
-        workspace=workspace,
-        published_by=UserFactory(),
-        published_at=minutes_ago(now, 3),
-    )
+    snapshot1 = SnapshotFactory(workspace=workspace)
     snapshot1.files.set(workspace.files.all())
+    SnapshotPublishRequestFactory(
+        snapshot=snapshot1,
+        decision=SnapshotPublishRequest.Decisions.APPROVED,
+        decision_at=minutes_ago(now, 3),
+        decision_by=UserFactory(),
+    )
 
     build_release_with_files(["file2.txt", "file3.txt"], workspace=workspace)
-    snapshot2 = SnapshotFactory(workspace=workspace, published_at=None)
+    snapshot2 = SnapshotFactory(workspace=workspace)
     snapshot2.files.set(workspace.files.all())
+    SnapshotPublishRequestFactory(snapshot=snapshot2)
 
     build_release_with_files(["file2.txt", "file3.txt"], workspace=workspace)
 
@@ -1264,6 +1278,7 @@ def test_workspaceoutputlist_without_permission(rf, freezer, build_release_with_
 
     assert response.status_code == 200
     assert len(response.context_data["snapshots"]) == 1
+    assert response.context_data["snapshots"][0].is_published
 
     # Check we're not showing the latest files section for an unprivileged user
     assert "Current" not in response.rendered_content

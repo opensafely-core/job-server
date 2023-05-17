@@ -154,7 +154,7 @@ def test_publishedsnapshotfile_with_unknown_release_file(rf):
 
 
 def test_publishedsnapshotfile_with_unpublished_release_file(rf, release):
-    snapshot = SnapshotFactory(published_at=None)
+    snapshot = SnapshotFactory()
     snapshot.files.set(release.files.all())
 
     rfile = release.files.first()
@@ -410,7 +410,13 @@ def test_snapshotdetail_published_logged_out(rf):
 
 
 def test_snapshotdetail_published_with_permission(rf):
-    snapshot = SnapshotFactory(published_by=UserFactory(), published_at=timezone.now())
+    snapshot = SnapshotFactory()
+    SnapshotPublishRequestFactory(
+        snapshot=snapshot,
+        decision=SnapshotPublishRequest.Decisions.APPROVED,
+        decision_at=timezone.now(),
+        decision_by=UserFactory(),
+    )
 
     request = rf.get("/")
     request.user = UserFactory(roles=[ProjectCollaborator])
@@ -450,7 +456,8 @@ def test_snapshotdetail_published_without_permission(rf):
 
 
 def test_snapshotdetail_unpublished_with_permission_to_publish(rf):
-    snapshot = SnapshotFactory(published_at=None)
+    snapshot = SnapshotFactory()
+    SnapshotPublishRequestFactory(snapshot=snapshot)
 
     request = rf.get("/")
     request.user = UserFactory(roles=[OutputPublisher, ProjectCollaborator])
@@ -468,7 +475,8 @@ def test_snapshotdetail_unpublished_with_permission_to_publish(rf):
 
 
 def test_snapshotdetail_unpublished_without_permission_to_publish(rf):
-    snapshot = SnapshotFactory(published_at=None)
+    snapshot = SnapshotFactory()
+    SnapshotPublishRequestFactory(snapshot=snapshot)
 
     request = rf.get("/")
     request.user = UserFactory(roles=[ProjectCollaborator])
@@ -486,7 +494,8 @@ def test_snapshotdetail_unpublished_without_permission_to_publish(rf):
 
 
 def test_snapshotdetail_unpublished_with_permission_to_view(rf):
-    snapshot = SnapshotFactory(published_at=None)
+    snapshot = SnapshotFactory()
+    SnapshotPublishRequestFactory(snapshot=snapshot)
 
     request = rf.get("/")
     request.user = UserFactory(roles=[ProjectCollaborator])
@@ -503,7 +512,8 @@ def test_snapshotdetail_unpublished_with_permission_to_view(rf):
 
 
 def test_snapshotdetail_unpublished_without_permission_to_view(rf):
-    snapshot = SnapshotFactory(published_at=None)
+    snapshot = SnapshotFactory()
+    SnapshotPublishRequestFactory(snapshot=snapshot)
 
     request = rf.get("/")
     request.user = UserFactory()
@@ -535,10 +545,14 @@ def test_snapshotdetail_unknown_snapshot(rf):
 
 def test_snapshotdownload_published_with_permission(rf, release):
     workspace = WorkspaceFactory()
-    snapshot = SnapshotFactory(
-        workspace=workspace, published_by=UserFactory(), published_at=timezone.now()
-    )
+    snapshot = SnapshotFactory(workspace=workspace)
     snapshot.files.set(release.files.all())
+    SnapshotPublishRequestFactory(
+        snapshot=snapshot,
+        decision=SnapshotPublishRequest.Decisions.APPROVED,
+        decision_at=timezone.now(),
+        decision_by=UserFactory(),
+    )
 
     request = rf.get("/")
     request.user = UserFactory(roles=[ProjectCollaborator])
@@ -597,8 +611,9 @@ def test_snapshotdownload_unknown_snapshot(rf):
 
 def test_snapshotdownload_unpublished_with_permission(rf, release):
     workspace = WorkspaceFactory()
-    snapshot = SnapshotFactory(workspace=workspace, published_at=None)
+    snapshot = SnapshotFactory(workspace=workspace)
     snapshot.files.set(release.files.all())
+    SnapshotPublishRequestFactory(snapshot=snapshot)
 
     request = rf.get("/")
     request.user = UserFactory(roles=[ProjectCollaborator])
@@ -616,8 +631,9 @@ def test_snapshotdownload_unpublished_with_permission(rf, release):
 
 def test_snapshotdownload_unpublished_without_permission(rf, release):
     workspace = WorkspaceFactory()
-    snapshot = SnapshotFactory(workspace=workspace, published_at=None)
+    snapshot = SnapshotFactory(workspace=workspace)
     snapshot.files.set(release.files.all())
+    SnapshotPublishRequestFactory(snapshot=snapshot)
 
     request = rf.get("/")
     request.user = UserFactory()
