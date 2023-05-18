@@ -99,15 +99,15 @@
       <h3 class="h4">Projects</h3>
       <div class="btn-group-vertical w-100 mb-4" role="group" aria-label="Filter by project">
         {% for project in projects %}
-        {% is_filter_selected key="project" value=project.value as is_active %}
+        {% is_filter_selected key="project" value=project.slug as is_active %}
         <a
           {% if is_active %}aria-pressed="true"{% endif %}
           class="btn btn-outline-primary btn-block text-left {% if is_active %}active{% endif %}"
           href="
             {% if is_active %}
-              {% url_without_querystring project=project.value %}
+              {% url_without_querystring project=project.slug %}
             {% else %}
-              {% url_with_querystring project=project.value %}
+              {% url_with_querystring project=project.slug %}
             {% endif %}
           "
         >
