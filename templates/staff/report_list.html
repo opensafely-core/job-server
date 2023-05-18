@@ -121,7 +121,7 @@
       <h3 class="h4">Creators</h3>
       <div class="btn-group-vertical w-100 mb-4" role="group" aria-label="Filter by author">
         {% for user in users %}
-        {% is_filter_selected key="user" value=user.value as is_active %}
+        {% is_filter_selected key="user" value=user.username as is_active %}
         <a
           {% if is_active %}aria-pressed="true"{% endif %}
           class="btn btn-outline-primary btn-block text-left {% if is_active %}active{% endif %}"
