@@ -359,7 +359,7 @@ class ReleaseAPI(APIView):
             create_report(
                 analysis_request=analysis_request,
                 rfile=rfile,
-                user=user,
+                user=analysis_request.created_by,
             )
 
             send_report_uploaded_notification(analysis_request)
