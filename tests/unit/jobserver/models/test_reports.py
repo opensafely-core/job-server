@@ -67,6 +67,31 @@ def test_report_is_draft():
     assert not report.is_draft
 
 
+def test_report_is_locked():
+    report = ReportFactory()
+
+    assert not report.is_locked
+
+    ReportPublishRequestFactory(report=report)
+    assert report.is_locked
+
+    ReportPublishRequestFactory(
+        report=report,
+        decision=ReportPublishRequest.Decisions.APPROVED,
+        decision_at=timezone.now(),
+        decision_by=UserFactory(),
+    )
+    assert report.is_locked
+
+    ReportPublishRequestFactory(
+        report=report,
+        decision=ReportPublishRequest.Decisions.REJECTED,
+        decision_at=timezone.now(),
+        decision_by=UserFactory(),
+    )
+    assert not report.is_locked
+
+
 def test_report_is_published():
     report = ReportFactory()
     assert not report.is_published
