@@ -10,7 +10,7 @@ from django.views.generic import DetailView, FormView, View
 from interactive_templates.schema import Codelist, v2
 
 from jobserver.authorization import has_permission
-from jobserver.models import Backend, Project
+from jobserver.models import Backend, Project, ReportPublishRequest
 from jobserver.reports import process_html
 from jobserver.utils import build_spa_base_url
 
@@ -224,6 +224,27 @@ class ReportEdit(FormView):
 
         if not self.analysis_request.report:
             raise Http404
+
+        if self.analysis_request.report.is_locked:
+            # FIXME: removing ReportPublishRequest in favour of just
+            # SnapshotPublishRequest would make this a lot easier to use and
+            # reason about.
+            publish_request = self.analysis_request.report.publish_requests.order_by(
+                "-created_at"
+            ).first()
+            is_approved = (
+                publish_request.decision == ReportPublishRequest.Decisions.APPROVED
+            )
+            is_pending = publish_request.decision is None
+            return TemplateResponse(
+                request,
+                "interactive/report_edit_locked.html",
+                context={
+                    "analysis_request": self.analysis_request,
+                    "is_approved": is_approved,
+                    "is_pending": is_pending,
+                },
+            )
 
         self.report = self.analysis_request.report
 
