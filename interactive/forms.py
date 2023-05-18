@@ -2,6 +2,8 @@ import functools
 
 from django import forms
 
+from jobserver.models import Report
+
 
 def list_to_choices(lst):
     return [(item, item) for item in lst]
@@ -81,3 +83,12 @@ class AnalysisRequestForm(forms.Form):
 
             if any([weeks_over, months_over, years_over]):
                 raise forms.ValidationError("Time scale cannot be longer than 10 years")
+
+
+class AnalysisRequestEditForm(forms.ModelForm):
+    class Meta:
+        fields = [
+            "title",
+            "description",
+        ]
+        model = Report
