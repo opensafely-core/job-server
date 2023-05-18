@@ -1,5 +1,22 @@
 html:has(dialog[open]) {
   overflow: hidden;
+
+  & .blur-on-modal {
+    position: relative;
+
+    &::before {
+      background-color: white;
+      bottom: 0;
+      content: " ";
+      height: 100%;
+      left: 0;
+      position: absolute;
+      right: 0;
+      top: 0;
+      width: 100%;
+      z-index: 100;
+    }
+  }
 }
 
 #report {
