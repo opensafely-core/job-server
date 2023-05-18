@@ -1,6 +1,6 @@
 import functools
 
-from django.db.models import Q
+from django.db.models import OuterRef, Q, Subquery
 from django.db.models.functions import Lower
 from django.utils.decorators import method_decorator
 from django.views.generic import DetailView, ListView
@@ -55,6 +55,21 @@ class ReportList(ListView):
             .order_by("number", Lower("name"))
         )
 
+        states = [
+            {
+                "name": "Approved",
+                "slug": "approved",
+            },
+            {
+                "name": "Pending",
+                "slug": "pending",
+            },
+            {
+                "name": "Rejected",
+                "slug": "rejected",
+            },
+        ]
+
         # sort in Python because `User.name` is a property to pick either
         # get_full_name() or username depending on which one has been populated
         users = sorted(
@@ -64,6 +79,7 @@ class ReportList(ListView):
         return super().get_context_data(**kwargs) | {
             "orgs": orgs,
             "projects": projects,
+            "states": states,
             "users": users,
         }
 
@@ -97,14 +113,23 @@ class ReportList(ListView):
 
             qs = qs.filter(qwargs)
 
-        if self.request.GET.get("is_published") == "yes":
-            qs = qs.filter(
-                publish_requests__decision=ReportPublishRequest.Decisions.APPROVED
+        if state := self.request.GET.get("state"):
+            # annotate the latest ReportPublishRequest.decision value onto each
+            # Report so we can filter by that
+            qs = qs.exclude(publish_requests=None).annotate(
+                latest_decision=Subquery(
+                    ReportPublishRequest.objects.filter(report_id=OuterRef("pk"))
+                    .order_by("-created_at")
+                    .values("decision")[:1]
+                )
             )
-        if self.request.GET.get("is_published") == "requested":
-            qs = qs.exclude(publish_requests=None).filter(
-                publish_requests__decision_at=None
-            )
+            if state == "pending":
+                # this isn't a real value for ReportPublishRequest.decision,
+                # but represents decision=None, not to be confused with no
+                # ReportPublishRequests existing for a Report
+                qs = qs.filter(latest_decision=None)
+            else:
+                qs = qs.filter(latest_decision=state)
 
         if org := self.request.GET.get("org"):
             qs = qs.filter(release_file__workspace__project__org__slug=org)
