@@ -2,11 +2,13 @@ import functools
 
 from django.db.models import Q
 from django.db.models.functions import Lower
+from django.shortcuts import get_object_or_404, redirect
 from django.utils.decorators import method_decorator
-from django.views.generic import DetailView, ListView
+from django.views.generic import DetailView, ListView, View
 
 from jobserver.authorization import CoreDeveloper
 from jobserver.authorization.decorators import require_role
+from jobserver.emails import send_report_published_email
 from jobserver.models import Org, Project, Report, ReportPublishRequest, User
 
 
@@ -116,3 +118,33 @@ class ReportList(ListView):
             qs = qs.filter(created_by__username=user)
 
         return qs.distinct()
+
+
+@method_decorator(require_role(CoreDeveloper), name="dispatch")
+class ReportPublishRequestApprove(View):
+    def post(self, request, *args, **kwargs):
+        publish_request = get_object_or_404(
+            ReportPublishRequest,
+            report__pk=self.kwargs["pk"],
+            pk=self.kwargs["publish_request_pk"],
+        )
+
+        publish_request.approve(user=request.user)
+        send_report_published_email(publish_request)
+
+        return redirect(publish_request.report.get_staff_url())
+
+
+@method_decorator(require_role(CoreDeveloper), name="dispatch")
+class ReportPublishRequestReject(View):
+    def post(self, request, *args, **kwargs):
+        publish_request = get_object_or_404(
+            ReportPublishRequest,
+            report__pk=self.kwargs["pk"],
+            pk=self.kwargs["publish_request_pk"],
+        )
+
+        publish_request.reject(user=request.user)
+        send_report_published_email(publish_request)
+
+        return redirect(publish_request.report.get_staff_url())

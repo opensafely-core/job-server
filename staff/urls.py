@@ -47,13 +47,12 @@ from .views.projects import (
     ProjectMembershipRemove,
 )
 from .views.redirects import RedirectDelete, RedirectDetail, RedirectList
-from .views.report_publish_requests import (
+from .views.reports import (
+    ReportDetail,
+    ReportList,
     ReportPublishRequestApprove,
-    ReportPublishRequestDetail,
-    ReportPublishRequestList,
     ReportPublishRequestReject,
 )
-from .views.reports import ReportDetail, ReportList
 from .views.repos import RepoDetail, RepoList, RepoSignOff
 from .views.researchers import ResearcherEdit
 from .views.users import UserCreate, UserDetail, UserList, UserSetOrgs
@@ -172,28 +171,26 @@ repo_urls = [
     path("<repo_url>/sign-off/", RepoSignOff.as_view(), name="repo-sign-off"),
 ]
 
-report_publish_request_urls = [
-    path("", ReportPublishRequestList.as_view(), name="report-publish-request-list"),
-    path(
-        "<int:pk>/",
-        ReportPublishRequestDetail.as_view(),
-        name="report-publish-request-detail",
-    ),
-    path(
-        "<int:pk>/approve/",
-        ReportPublishRequestApprove.as_view(),
-        name="report-publish-request-approve",
-    ),
-    path(
-        "<int:pk>/reject/",
-        ReportPublishRequestReject.as_view(),
-        name="report-publish-request-reject",
-    ),
-]
-
 report_urls = [
     path("", ReportList.as_view(), name="report-list"),
     path("<int:pk>/", ReportDetail.as_view(), name="report-detail"),
+    path(
+        "<int:pk>/publish-requests/<int:publish_request_pk>/",
+        include(
+            [
+                path(
+                    "approve/",
+                    ReportPublishRequestApprove.as_view(),
+                    name="report-publish-request-approve",
+                ),
+                path(
+                    "reject/",
+                    ReportPublishRequestReject.as_view(),
+                    name="report-publish-request-reject",
+                ),
+            ]
+        ),
+    ),
 ]
 
 researcher_urls = [
@@ -223,7 +220,6 @@ urlpatterns = [
     path("projects/", include(project_urls)),
     path("redirects/", include(redirect_urls)),
     path("repos/", include(repo_urls)),
-    path("report-publish-requests/", include(report_publish_request_urls)),
     path("reports/", include(report_urls)),
     path("researchers/", include(researcher_urls)),
     path("users/", include(user_urls)),

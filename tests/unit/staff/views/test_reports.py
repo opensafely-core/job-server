@@ -1,10 +1,17 @@
 import pytest
+from django.contrib.auth.models import AnonymousUser
 from django.core.exceptions import PermissionDenied
+from django.http import Http404
 from django.utils import timezone
 
 from jobserver.models import ReportPublishRequest
 from jobserver.utils import set_from_qs
-from staff.views.reports import ReportDetail, ReportList
+from staff.views.reports import (
+    ReportDetail,
+    ReportList,
+    ReportPublishRequestApprove,
+    ReportPublishRequestReject,
+)
 
 from ....factories import (
     OrgFactory,
@@ -155,3 +162,89 @@ def test_reportlist_unauthorized(rf):
 
     with pytest.raises(PermissionDenied):
         ReportList.as_view()(request)
+
+
+def test_reportpublishrequestapprove_success(rf, core_developer, mailoutbox):
+    publish_request = ReportPublishRequestFactory(decision_at=None)
+
+    request = rf.post("/")
+    request.user = core_developer
+
+    response = ReportPublishRequestApprove.as_view()(
+        request,
+        pk=publish_request.report.pk,
+        publish_request_pk=publish_request.pk,
+    )
+
+    assert response.status_code == 302
+    assert response.url == publish_request.report.get_staff_url()
+
+    publish_request.refresh_from_db()
+    assert publish_request.decision_at
+
+    m = mailoutbox[0]
+    assert m.subject == "Your report has been published"
+    assert publish_request.report.get_absolute_url() in m.body
+
+
+def test_reportpublishrequestapprove_unauthorized(rf):
+    publish_request = ReportPublishRequestFactory()
+
+    request = rf.post("/")
+    request.user = AnonymousUser()
+
+    with pytest.raises(PermissionDenied):
+        ReportPublishRequestApprove.as_view()(
+            request,
+            pk=publish_request.report.pk,
+            publish_request_pk=publish_request.pk,
+        )
+
+
+def test_reportpublishrequestapprove_unknown_publish_request(rf, core_developer):
+    request = rf.post("/")
+    request.user = core_developer
+
+    with pytest.raises(Http404):
+        ReportPublishRequestApprove.as_view()(request, pk="0", publish_request_pk="0")
+
+
+def test_reportpublishrequestreject_success(rf, core_developer):
+    publish_request = ReportPublishRequestFactory(decision_at=None)
+
+    request = rf.post("/")
+    request.user = core_developer
+
+    response = ReportPublishRequestReject.as_view()(
+        request, pk=publish_request.report.pk, publish_request_pk=publish_request.pk
+    )
+
+    assert response.status_code == 302
+    assert response.url == publish_request.report.get_staff_url()
+
+    publish_request.refresh_from_db()
+    assert publish_request.decision_at
+    assert publish_request.decision_by == core_developer
+    assert publish_request.decision == ReportPublishRequest.Decisions.REJECTED
+
+
+def test_reportpublishrequestreject_unauthorized(rf):
+    publish_request = ReportPublishRequestFactory()
+
+    request = rf.post("/")
+    request.user = AnonymousUser()
+
+    with pytest.raises(PermissionDenied):
+        ReportPublishRequestReject.as_view()(
+            request,
+            pk=publish_request.report.pk,
+            publish_request_pk=publish_request.pk,
+        )
+
+
+def test_reportpublishrequestreject_unknown_publish_request(rf, core_developer):
+    request = rf.post("/")
+    request.user = core_developer
+
+    with pytest.raises(Http404):
+        ReportPublishRequestReject.as_view()(request, pk="0", publish_request_pk="0")
