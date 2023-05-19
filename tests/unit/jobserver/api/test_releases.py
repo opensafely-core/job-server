@@ -362,6 +362,7 @@ def test_releaseapi_post_success_for_analysis_request(
     assert analysis_request.report
     assert analysis_request.report.title == analysis_request.report_title
     assert analysis_request.report.description == ""
+    assert analysis_request.report.created_by == analysis_request.created_by
 
 
 def test_releaseapi_post_success_for_html_not_linked_to_an_analysis_request(
