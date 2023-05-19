@@ -112,7 +112,7 @@ function addMenuButton() {
   if (document.querySelector("#tableOfContents")) {
     const menuBtn = document.createElement("a");
     menuBtn.id = "menuBtn";
-    menuBtn.textContent = "Back to table of content";
+    menuBtn.textContent = "Back to table of contents";
     menuBtn.href = "#tableOfContents";
     document.querySelector("main").appendChild(menuBtn);
   }
