@@ -331,14 +331,6 @@ class Snapshot(models.Model):
         related_name="snapshots",
     )
 
-    published_at = models.DateTimeField(null=True)
-    published_by = models.ForeignKey(
-        "User",
-        null=True,
-        on_delete=models.PROTECT,
-        related_name="published_snapshots",
-    )
-
     class Meta:
         constraints = [
             models.CheckConstraint(
@@ -356,28 +348,13 @@ class Snapshot(models.Model):
                 ),
                 name="%(app_label)s_%(class)s_both_created_at_and_created_by_set",
             ),
-            models.CheckConstraint(
-                check=(
-                    Q(
-                        published_at__isnull=True,
-                        published_by__isnull=True,
-                    )
-                    | (
-                        Q(
-                            published_at__isnull=False,
-                            published_by__isnull=False,
-                        )
-                    )
-                ),
-                name="%(app_label)s_%(class)s_both_published_at_and_published_by_set",
-            ),
         ]
 
     class DuplicateSnapshotError(Exception):
         pass
 
     def __str__(self):
-        status = "Published" if self.published_at else "Draft"
+        status = "Published" if self.is_published else "Draft"
         return f"{status} Snapshot made by {self.created_by.username}"
 
     def get_absolute_url(self):

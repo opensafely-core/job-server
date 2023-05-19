@@ -6,7 +6,7 @@ from django.http import Http404
 from django.utils import timezone
 
 from jobserver.authorization import CoreDeveloper, InteractiveReporter
-from jobserver.models import Project, Snapshot
+from jobserver.models import Project, Snapshot, SnapshotPublishRequest
 from jobserver.utils import set_from_qs
 from jobserver.views.projects import ProjectDetail, ProjectEdit
 
@@ -18,6 +18,7 @@ from ....factories import (
     ProjectMembershipFactory,
     RepoFactory,
     SnapshotFactory,
+    SnapshotPublishRequestFactory,
     UserFactory,
     WorkspaceFactory,
 )
@@ -95,33 +96,44 @@ def test_projectdetail_with_multiple_releases(rf, freezer):
     now = timezone.now()
 
     workspace1 = WorkspaceFactory(project=project)
-    snapshot1 = SnapshotFactory(
-        workspace=workspace1,
-        published_by=UserFactory(),
-        published_at=minutes_ago(now, 2),
+    snapshot1 = SnapshotFactory(workspace=workspace1)
+    SnapshotPublishRequestFactory(
+        snapshot=snapshot1,
+        decision=SnapshotPublishRequest.Decisions.APPROVED,
+        decision_at=minutes_ago(now, 2),
+        decision_by=UserFactory(),
     )
-    snapshot2 = SnapshotFactory(
-        workspace=workspace1,
-        published_by=UserFactory(),
-        published_at=minutes_ago(now, 3),
+    snapshot2 = SnapshotFactory(workspace=workspace1)
+    SnapshotPublishRequestFactory(
+        snapshot=snapshot2,
+        decision=SnapshotPublishRequest.Decisions.APPROVED,
+        decision_at=minutes_ago(now, 3),
+        decision_by=UserFactory(),
     )
 
     workspace2 = WorkspaceFactory(project=project)
-    snapshot3 = SnapshotFactory(
-        workspace=workspace2,
-        published_by=UserFactory(),
-        published_at=minutes_ago(now, 1),
+    snapshot3 = SnapshotFactory(workspace=workspace2)
+    SnapshotPublishRequestFactory(
+        snapshot=snapshot3,
+        decision=SnapshotPublishRequest.Decisions.APPROVED,
+        decision_at=minutes_ago(now, 1),
+        decision_by=UserFactory(),
     )
 
     # unpublished
     workspace3 = WorkspaceFactory(project=project)
-    snapshot4 = SnapshotFactory(workspace=workspace3, published_at=None)
+    snapshot4 = SnapshotFactory(workspace=workspace3)
+    SnapshotPublishRequestFactory(snapshot=snapshot4)
 
     workspace4 = WorkspaceFactory(project=project)
     snapshot5 = SnapshotFactory(
         workspace=workspace4,
-        published_by=UserFactory(),
-        published_at=minutes_ago(now, 4),
+    )
+    SnapshotPublishRequestFactory(
+        snapshot=snapshot5,
+        decision=SnapshotPublishRequest.Decisions.APPROVED,
+        decision_at=minutes_ago(now, 4),
+        decision_by=UserFactory(),
     )
 
     request = rf.get("/")

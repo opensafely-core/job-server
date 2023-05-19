@@ -25,7 +25,16 @@ from ..forms import (
     WorkspaceNotificationsToggleForm,
 )
 from ..github import _get_github_api
-from ..models import Backend, Job, JobRequest, Project, Repo, Report, Workspace
+from ..models import (
+    Backend,
+    Job,
+    JobRequest,
+    Project,
+    Repo,
+    Report,
+    SnapshotPublishRequest,
+    Workspace,
+)
 from ..releases import build_hatch_token_and_url, build_outputs_zip, workspace_files
 from ..utils import build_spa_base_url
 
@@ -616,7 +625,9 @@ class WorkspaceOutputList(ListView):
             request.user, "release_file_view", project=workspace.project
         )
         if not can_view_all_files:
-            snapshots = snapshots.exclude(published_at=None)
+            snapshots = snapshots.filter(
+                publish_requests__decision=SnapshotPublishRequest.Decisions.APPROVED
+            )
 
         context = {
             "user_can_view_all_files": can_view_all_files,
