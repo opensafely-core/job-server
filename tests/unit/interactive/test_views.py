@@ -1,6 +1,8 @@
 import json
 
 import pytest
+from django.conf import settings
+from django.contrib.auth.models import AnonymousUser
 from django.core.exceptions import PermissionDenied
 from django.http import Http404
 
@@ -152,6 +154,23 @@ def test_analysisrequestdetail_success(rf):
     )
 
     assert response.status_code == 200
+
+
+def test_analysisrequestdetail_unauthorized(rf):
+    analysis_request = AnalysisRequestFactory()
+
+    request = rf.get("/")
+    request.user = AnonymousUser()
+
+    response = AnalysisRequestDetail.as_view()(
+        request,
+        org_slug=analysis_request.project.org.slug,
+        project_slug=analysis_request.project.slug,
+        slug=analysis_request.slug,
+    )
+
+    assert response.status_code == 302
+    assert response.url == f"{settings.LOGIN_URL}?next=/"
 
 
 def test_analysisrequestdetail_with_global_interactivereporter(rf):

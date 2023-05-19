@@ -1,9 +1,11 @@
 import json
 
+from django.contrib.auth.decorators import login_required
 from django.core.exceptions import PermissionDenied
 from django.http import Http404
 from django.shortcuts import get_object_or_404, redirect
 from django.template.response import TemplateResponse
+from django.utils.decorators import method_decorator
 from django.views.generic import DetailView, UpdateView, View
 from interactive_templates.schema import Codelist, v2
 
@@ -176,6 +178,7 @@ class AnalysisRequestCreate(View):
         )
 
 
+@method_decorator(login_required, name="dispatch")
 class AnalysisRequestDetail(DetailView):
     context_object_name = "analysis_request"
     model = AnalysisRequest
