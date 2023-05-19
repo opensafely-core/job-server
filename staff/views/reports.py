@@ -145,6 +145,5 @@ class ReportPublishRequestReject(View):
         )
 
         publish_request.reject(user=request.user)
-        send_report_published_email(publish_request)
 
         return redirect(publish_request.report.get_staff_url())
