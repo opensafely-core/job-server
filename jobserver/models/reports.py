@@ -233,19 +233,13 @@ class ReportPublishRequest(models.Model):
     def get_approve_url(self):
         return reverse(
             "staff:report-publish-request-approve",
-            kwargs={"pk": self.pk},
+            kwargs={"pk": self.report.pk, "publish_request_pk": self.pk},
         )
 
     def get_reject_url(self):
         return reverse(
             "staff:report-publish-request-reject",
-            kwargs={"pk": self.pk},
-        )
-
-    def get_staff_url(self):
-        return reverse(
-            "staff:report-publish-request-detail",
-            kwargs={"pk": self.pk},
+            kwargs={"pk": self.report.pk, "publish_request_pk": self.pk},
         )
 
     def reject(self, *, user):

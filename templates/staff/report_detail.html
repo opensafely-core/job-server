@@ -52,7 +52,7 @@
     <div class="col col-lg-9 col-xl-8">
      <section class="card mb-3">
         <div class="card-header">
-          <h2 class="card-title">Details</h2>
+          <h2 class="card-title mb-0">Details</h2>
         </div>
 
         <div class="list-group list-group-flush">
@@ -62,6 +62,88 @@
               {{ report.description }}
             </p>
           </div>
+        </div>
+      </section>
+     <section class="card mb-3">
+        <div class="card-header">
+          <h2 class="card-title mb-0">Publish requests</h2>
+        </div>
+
+        <div class="list-group list-group-flush">
+          {% for publish_request in publish_requests %}
+          <div class="list-group-item d-flex">
+            <div class="d-flex flex-column flex-grow-1">
+              <p>
+                Created by
+                <a href="{{ publish_request.created_by.get_staff_url }}">
+                  {{ publish_request.created_by.name }}
+                </a>
+                on
+                <time datetime="{{ publish_request.created_at }}">{{ publish_request.created_at }}</time>
+              </p>
+              <div>
+                {% if publish_request.decision %}
+                <a href="{{ publish_request.decision_by.get_staff_url }}">
+                  {{ publish_request.decision_by.name }}
+                </a>
+                <strong>{{ publish_request.decision }}</strong>
+                this request on
+                <time datetime="{{ publish_request.decision_at }}">{{ publish_request.decision_at }}</time>
+                {% else %}
+                No decision has been applied yet.
+                {% endif %}
+              </div>
+            </div>
+            <div class="d-flex flex-column justify-content-between">
+              <form method="POST" action="{{ publish_request.get_approve_url }}" class="mb-1">
+                {% csrf_token %}
+
+                {% if publish_request.decision %}
+                <span
+                  class="d-inline-block mr-1"
+                  data-placement="bottom"
+                  data-toggle="tooltip"
+                  tabindex="0"
+                  title="This request already has a decision"
+                >
+                  <button
+                    class="btn btn-sm btn-success no-pointer-events"
+                    disabled
+                    type="button"
+                  >Approve</button>
+                </span>
+                {% else %}
+                <button class="btn btn-sm btn-success mr-1" type="submit">Approve</button>
+                {% endif %}
+              </form>
+              <form method="POST" action="{{ publish_request.get_reject_url }}">
+                {% csrf_token %}
+
+                {% if publish_request.decision %}
+                <span
+                  class="d-inline-block mr-1"
+                  data-placement="bottom"
+                  data-toggle="tooltip"
+                  tabindex="0"
+                  title="This request already has a decision"
+                >
+                  <button
+                    class="btn btn-sm btn-danger no-pointer-events"
+                    disabled
+                    type="button"
+                  >Reject</button>
+                </span>
+                {% else %}
+                <button class="btn btn-sm btn-danger mr-1" type="submit">Reject</button>
+                {% endif %}
+              </form>
+            </div>
+          </div>
+          {% empty %}
+          <div class="list-group-item">
+            <p>This report has no requests to publish it currently.</p>
+          </div>
+          {% endfor %}
         </div>
       </section>
     </div>
@@ -85,27 +167,6 @@
             <a href="{{ report.release_file.workspace.project.get_staff_url }}">
               {{ report.release_file.workspace.project.title }}
             </a>
-          </p>
-        </li>
-        <li class="card mb-3">
-          <h2 class="card-header h5">
-            Publish requests
-          </h2>
-          <p class="card-body mb-0">
-            {% for publish_request in publish_requests %}
-            <a href="{{ publish_request.get_staff_url }}">
-              Request from {{ publish_request.created_by.name }}
-              {% if publish_request.decision == 'approved' %}
-              <span class="badge badge-sm badge-success">Approved</span>
-              {% elif publish_request.decision == 'rejected' %}
-              <span class="badge badge-sm badge-secondary">Rejected</span>
-              {% else %}
-              <span class="badge badge-sm badge-secondary">Pending</span>
-              {% endif %}
-            </a>
-            {% empty %}
-            No requests yet.
-            {% endfor %}
           </p>
         </li>
       </ul>

@@ -154,7 +154,8 @@ def test_reportpublishrequest_get_approve_url():
     assert url == reverse(
         "staff:report-publish-request-approve",
         kwargs={
-            "pk": publish_request.pk,
+            "pk": publish_request.report.pk,
+            "publish_request_pk": publish_request.pk,
         },
     )
 
@@ -167,20 +168,8 @@ def test_reportpublishrequest_get_reject_url():
     assert url == reverse(
         "staff:report-publish-request-reject",
         kwargs={
-            "pk": publish_request.pk,
-        },
-    )
-
-
-def test_reportpublishrequest_get_staff_url():
-    publish_request = ReportPublishRequestFactory()
-
-    url = publish_request.get_staff_url()
-
-    assert url == reverse(
-        "staff:report-publish-request-detail",
-        kwargs={
-            "pk": publish_request.pk,
+            "pk": publish_request.report.pk,
+            "publish_request_pk": publish_request.pk,
         },
     )
 
