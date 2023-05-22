@@ -220,8 +220,16 @@ class ReportPublishRequest(models.Model):
                 workspace=report.release_file.workspace,
             )
 
+            # There should only ever be one pending publish request for a
+            # Report, enforce that here.
+            latest_publish_request = report.publish_requests.order_by(
+                "-created_at"
+            ).first()
+            if latest_publish_request and latest_publish_request.decision is None:
+                return latest_publish_request
+
             # create a request to publish the report
-            return ReportPublishRequest.objects.create(
+            return cls.objects.create(
                 report=report,
                 snapshot_publish_request=snapshot_publish_request,
                 created_by=user,

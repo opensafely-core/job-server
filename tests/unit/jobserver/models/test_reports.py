@@ -171,6 +171,18 @@ def test_reportpublishrequest_create_from_report_success():
     assert request.snapshot_publish_request
 
 
+def test_reportpublishrequest_create_from_report_with_existing_publish_request():
+    report = ReportFactory()
+    AnalysisRequestFactory(report=report)
+    user = UserFactory()
+
+    publish_request = ReportPublishRequestFactory(report=report, created_by=user)
+
+    output = ReportPublishRequest.create_from_report(report=report, user=user)
+
+    assert output == publish_request
+
+
 def test_reportpublishrequest_get_approve_url():
     publish_request = ReportPublishRequestFactory()
 

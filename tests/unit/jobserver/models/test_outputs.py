@@ -253,6 +253,22 @@ def test_releasefilepublishrequest_create_from_files_with_existing_snapshot():
         )
 
 
+def test_releasefilepublishrequest_create_from_files_with_existing_publish_request():
+    workspace = WorkspaceFactory()
+    files = ReleaseFileFactory.create_batch(3, workspace=workspace)
+    snapshot = SnapshotFactory(workspace=workspace)
+    snapshot.files.set(files)
+    user = UserFactory()
+
+    publish_request = SnapshotPublishRequestFactory(snapshot=snapshot, created_by=user)
+
+    output = SnapshotPublishRequest.create_from_files(
+        files=files, user=user, workspace=workspace
+    )
+
+    assert output == publish_request
+
+
 def test_releasefilepublishrequest_create_from_files_with_duplicate_files():
     rfile = ReleaseFileFactory()
     workspace = WorkspaceFactory()

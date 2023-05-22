@@ -498,8 +498,8 @@ class SnapshotPublishRequest(models.Model):
         This will create a new snapshot if one doesn't already exist for the
         given files and workspace.
 
-        If the snapshot already exists then it will be returned instead of
-        raising an error.
+        If either the snapshot or a pending publish request already exist those
+        objects will be returned instead of raising an error.
         """
         # only look at files which haven't been deleted (redacted)
         files = [f for f in files if not f.is_deleted]
@@ -532,7 +532,13 @@ class SnapshotPublishRequest(models.Model):
             snapshot = Snapshot.objects.create(workspace=workspace, created_by=user)
             snapshot.files.add(*files)
 
-        # TODO: make sure there are no other pending publish requests here
+        # There should only ever be one pending publish request for a Snapshot,
+        # enforce that here.
+        latest_publish_request = snapshot.publish_requests.order_by(
+            "-created_at"
+        ).first()
+        if latest_publish_request and latest_publish_request.decision is None:
+            return latest_publish_request
 
         return cls.objects.create(
             created_by=user,
