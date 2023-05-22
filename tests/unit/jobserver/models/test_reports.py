@@ -211,6 +211,30 @@ def test_reportpublishrequest_get_reject_url():
     )
 
 
+def test_reportpublishrequest_is_approved():
+    publish_request = ReportPublishRequestFactory(
+        decision=ReportPublishRequest.Decisions.APPROVED,
+        decision_at=timezone.now(),
+        decision_by=UserFactory(),
+    )
+
+    assert publish_request.is_approved
+
+
+def test_reportpublishrequest_is_pending():
+    assert ReportPublishRequestFactory().is_pending
+
+
+def test_reportpublishrequest_is_rejected():
+    publish_request = ReportPublishRequestFactory(
+        decision=ReportPublishRequest.Decisions.REJECTED,
+        decision_at=timezone.now(),
+        decision_by=UserFactory(),
+    )
+
+    assert publish_request.is_rejected
+
+
 def test_reportpublishrequest_reject(freezer):
     request = ReportPublishRequestFactory()
     user = UserFactory()

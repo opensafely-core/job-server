@@ -262,6 +262,18 @@ class ReportPublishRequest(models.Model):
             kwargs={"pk": self.report.pk, "publish_request_pk": self.pk},
         )
 
+    @property
+    def is_approved(self):
+        return self.decision == self.Decisions.APPROVED
+
+    @property
+    def is_pending(self):
+        return self.decision is None
+
+    @property
+    def is_rejected(self):
+        return self.decision == self.Decisions.REJECTED
+
     def reject(self, *, user):
         self.decision_at = timezone.now()
         self.decision_by = user
