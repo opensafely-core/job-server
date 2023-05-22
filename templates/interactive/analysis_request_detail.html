@@ -73,7 +73,7 @@
         {% #button type="link" variant="primary" disabled=True tooltip="Report has not been processed" %}
           Update title and summary
         {% /button %}
-      {% elif object.publish_request %}
+      {% elif object.report.is_locked %}
         {% #button type="link" variant="primary" disabled=True tooltip="Cannot edit while publishing review is ongoing" %}
           Update title and summary
         {% /button %}

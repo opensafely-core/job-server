@@ -91,6 +91,18 @@ class Report(models.Model):
         return not self.is_published
 
     @property
+    def is_locked(self):
+        latest = self.publish_requests.order_by("-created_at").first()
+
+        if not latest:
+            return False
+
+        if latest.decision == ReportPublishRequest.Decisions.REJECTED:
+            return False
+
+        return True
+
+    @property
     def is_published(self):
         # We support multiple publish requests over time but we only look at
         # the latest one to get published/draft status.

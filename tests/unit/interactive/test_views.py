@@ -5,6 +5,7 @@ from django.conf import settings
 from django.contrib.auth.models import AnonymousUser
 from django.core.exceptions import PermissionDenied
 from django.http import Http404
+from django.utils import timezone
 
 from interactive.dates import END_DATE, START_DATE
 from interactive.models import AnalysisRequest
@@ -15,6 +16,7 @@ from interactive.views import (
     from_codelist,
 )
 from jobserver.authorization import InteractiveReporter
+from jobserver.models import ReportPublishRequest
 
 from ...factories import (
     AnalysisRequestFactory,
@@ -22,6 +24,7 @@ from ...factories import (
     ProjectFactory,
     ProjectMembershipFactory,
     ReportFactory,
+    ReportPublishRequestFactory,
     UserFactory,
     WorkspaceFactory,
 )
@@ -233,7 +236,7 @@ def test_from_codelist():
     assert from_codelist(data, "second", "inner") == ""
 
 
-def test_analysisreportupdate_get_success(rf):
+def test_reportedit_get_success(rf):
     project = ProjectFactory()
     user = UserFactory()
     report = ReportFactory(
@@ -261,7 +264,58 @@ def test_analysisreportupdate_get_success(rf):
     assert "test report description" in response.rendered_content
 
 
-def test_analysisreportupdate_post_success(rf):
+def test_reportedit_no_report(rf):
+    project = ProjectFactory()
+    user = UserFactory()
+    ProjectMembershipFactory(project=project, user=user, roles=[InteractiveReporter])
+    analysis_request = AnalysisRequestFactory(
+        project=project,
+        created_by=user,
+        report=None,
+    )
+
+    request = rf.get("/")
+    request.user = user
+
+    with pytest.raises(Http404):
+        ReportEdit.as_view()(
+            request,
+            org_slug=project.org.slug,
+            project_slug=project.slug,
+            slug=analysis_request.slug,
+        )
+
+
+def test_reportedit_post_invalid(rf):
+    project = ProjectFactory()
+    user = UserFactory()
+    report = ReportFactory(
+        title="old title",
+        description="old description",
+    )
+    ProjectMembershipFactory(project=project, user=user, roles=[InteractiveReporter])
+    analysis_request = AnalysisRequestFactory(
+        project=project,
+        created_by=user,
+        report=report,
+    )
+
+    request = rf.post("/", {"title": "", "description": ""})
+    request.user = user
+
+    ReportEdit.as_view()(
+        request,
+        org_slug=project.org.slug,
+        project_slug=project.slug,
+        slug=analysis_request.slug,
+    )
+
+    report.refresh_from_db()
+    assert report.title == "old title"
+    assert report.description == "old description"
+
+
+def test_reportedit_post_success(rf):
     project = ProjectFactory()
     user = UserFactory()
     report = ReportFactory(
@@ -290,7 +344,7 @@ def test_analysisreportupdate_post_success(rf):
     assert report.description == "new description"
 
 
-def test_analysisreportupdate_unauthorized(rf):
+def test_reportedit_unauthorized(rf):
     project = ProjectFactory()
     user = UserFactory()
     analysis_request = AnalysisRequestFactory(
@@ -321,52 +375,93 @@ def test_analysisreportupdate_unauthorized(rf):
         )
 
 
-def test_analysisreportupdate_no_report(rf):
+def test_reportedit_locked_with_approved_decision(rf):
     project = ProjectFactory()
+    report = ReportFactory()
     user = UserFactory()
-    ProjectMembershipFactory(project=project, user=user, roles=[InteractiveReporter])
+
     analysis_request = AnalysisRequestFactory(
-        project=project,
-        created_by=user,
-        report=None,
+        created_by=user, project=project, report=report
+    )
+
+    ProjectMembershipFactory(project=project, user=user, roles=[InteractiveReporter])
+
+    ReportPublishRequestFactory(
+        report=report,
+        decision=ReportPublishRequest.Decisions.APPROVED,
+        decision_at=timezone.now(),
+        decision_by=UserFactory(),
     )
 
     request = rf.get("/")
     request.user = user
 
-    with pytest.raises(Http404):
-        ReportEdit.as_view()(
-            request,
-            org_slug=project.org.slug,
-            project_slug=project.slug,
-            slug=analysis_request.slug,
-        )
-
-
-def test_analysisreportupdate_post_invalid(rf):
-    project = ProjectFactory()
-    user = UserFactory()
-    report = ReportFactory(
-        title="old title",
-        description="old description",
-    )
-    ProjectMembershipFactory(project=project, user=user, roles=[InteractiveReporter])
-    analysis_request = AnalysisRequestFactory(
-        project=project,
-        created_by=user,
-        report=report,
-    )
-
-    request = rf.post("/", {"title": "", "description": ""})
-    request.user = user
-
-    ReportEdit.as_view()(
+    response = ReportEdit.as_view()(
         request,
-        org_slug=project.org.slug,
+        org_slug=project.org,
         project_slug=project.slug,
         slug=analysis_request.slug,
     )
 
-    report.refresh_from_db()
-    assert report.title == "old title"
-    assert report.description == "old description"
+    assert response.status_code == 200
+    assert response.template_name == "interactive/report_edit_locked.html"
+
+
+def test_reportedit_locked_with_pending_decision(rf):
+    project = ProjectFactory()
+    report = ReportFactory()
+    user = UserFactory()
+
+    analysis_request = AnalysisRequestFactory(
+        created_by=user, project=project, report=report
+    )
+
+    ProjectMembershipFactory(project=project, user=user, roles=[InteractiveReporter])
+    ReportPublishRequestFactory(report=report)
+
+    request = rf.get("/")
+    request.user = user
+
+    response = ReportEdit.as_view()(
+        request,
+        org_slug=project.org,
+        project_slug=project.slug,
+        slug=analysis_request.slug,
+    )
+
+    assert response.status_code == 200
+    assert response.template_name == "interactive/report_edit_locked.html"
+
+
+def test_reportedit_unlocked_with_rejected_decision(rf):
+    project = ProjectFactory()
+    report = ReportFactory()
+    user = UserFactory()
+
+    analysis_request = AnalysisRequestFactory(
+        created_by=user, project=project, report=report
+    )
+
+    ProjectMembershipFactory(project=project, user=user, roles=[InteractiveReporter])
+
+    ReportPublishRequestFactory(
+        report=report,
+        decision=ReportPublishRequest.Decisions.REJECTED,
+        decision_at=timezone.now(),
+        decision_by=UserFactory(),
+    )
+
+    request = rf.get("/")
+    request.user = user
+
+    response = ReportEdit.as_view()(
+        request,
+        org_slug=project.org,
+        project_slug=project.slug,
+        slug=analysis_request.slug,
+    )
+
+    assert response.status_code == 200
+
+    # FormView returns a list for template name
+    assert response.template_name == ["interactive/report_edit.html"]

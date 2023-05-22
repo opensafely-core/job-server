@@ -6,16 +6,16 @@ from django.http import Http404
 from django.shortcuts import get_object_or_404, redirect
 from django.template.response import TemplateResponse
 from django.utils.decorators import method_decorator
-from django.views.generic import DetailView, UpdateView, View
+from django.views.generic import DetailView, FormView, View
 from interactive_templates.schema import Codelist, v2
 
 from jobserver.authorization import has_permission
-from jobserver.models import Backend, Project, Report
+from jobserver.models import Backend, Project, ReportPublishRequest
 from jobserver.reports import process_html
 from jobserver.utils import build_spa_base_url
 
 from .dates import END_DATE, START_DATE, WEEK_OF_LATEST_EXTRACT
-from .forms import AnalysisRequestForm
+from .forms import AnalysisRequestEditForm, AnalysisRequestForm
 from .models import AnalysisRequest
 from .opencodelists import _get_opencodelists_api
 from .submit import submit_analysis
@@ -204,15 +204,11 @@ class AnalysisRequestDetail(DetailView):
 # TODO: this view is specific to AnalysisRequest report edits currently, as we
 # render the AnalysisRequest details above the form for context in the
 # template. But it may move to jobserver/views/reports.py in future.
-class ReportEdit(UpdateView):
-    fields = [
-        "title",
-        "description",
-    ]
-    model = Report
+class ReportEdit(FormView):
+    form_class = AnalysisRequestEditForm
     template_name = "interactive/report_edit.html"
 
-    def get_object(self, **kwargs):
+    def dispatch(self, request, *args, **kwargs):
         # keep hold of the AnalysisRequest object so we can easily use it for
         # the success_url
         self.analysis_request = get_object_or_404(
@@ -220,7 +216,7 @@ class ReportEdit(UpdateView):
         )
 
         if not has_permission(
-            self.request.user,
+            request.user,
             "analysis_request_view",
             project=self.analysis_request.project,
         ):
@@ -229,12 +225,44 @@ class ReportEdit(UpdateView):
         if not self.analysis_request.report:
             raise Http404
 
-        return self.analysis_request.report
+        if self.analysis_request.report.is_locked:
+            # FIXME: removing ReportPublishRequest in favour of just
+            # SnapshotPublishRequest would make this a lot easier to use and
+            # reason about.
+            publish_request = self.analysis_request.report.publish_requests.order_by(
+                "-created_at"
+            ).first()
+            is_approved = (
+                publish_request.decision == ReportPublishRequest.Decisions.APPROVED
+            )
+            is_pending = publish_request.decision is None
+            return TemplateResponse(
+                request,
+                "interactive/report_edit_locked.html",
+                context={
+                    "analysis_request": self.analysis_request,
+                    "is_approved": is_approved,
+                    "is_pending": is_pending,
+                },
+            )
 
-    def get_success_url(self):
-        return self.analysis_request.get_absolute_url()
+        self.report = self.analysis_request.report
+
+        return super().dispatch(request, *args, **kwargs)
+
+    def form_valid(self, form):
+        form.save()
+        return super().form_valid(form)
 
     def get_context_data(self, **kwargs):
         return super().get_context_data(**kwargs) | {
             "analysis_request": self.analysis_request,
         }
+
+    def get_form_kwargs(self):
+        return super().get_form_kwargs() | {
+            "instance": self.report,
+        }
+
+    def get_success_url(self):
+        return self.analysis_request.get_absolute_url()
