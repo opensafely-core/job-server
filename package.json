@@ -79,7 +79,7 @@
     "tablesorter": "^2.31.3",
     "tailwindcss": "^3.3.2",
     "whatwg-fetch": "^3.6.2",
-    "wouter": "^2.10.1",
+    "wouter": "^2.11.0",
     "yup": "^1.1.1"
   }
 }
