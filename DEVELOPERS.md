@@ -117,7 +117,7 @@ If you do not have access to pull production backups, follow the [data setup sec
 Backups can be copied with:
 
 ```sh
-scp dokku2:/var/lib/dokku/data/storage/job-server/jobserver.dump jobserver.dump
+scp dokku4:/var/lib/dokku/data/storage/job-server/jobserver.dump jobserver.dump
 ```
 
 Restore the dump with:
@@ -251,7 +251,7 @@ If you need one or more Jobs linked to the JobRequest you will need to create th
 
 It is currently configured to be deployed Heroku-style, and requires the environment variables defined in `dotenv-sample`.
 
-The Bennett Institute job server is deployed to our `dokku2` instance, instructions are are in [INSTALL.md](INSTALL.md).
+The Bennett Institute job server is deployed to our `dokku4` instance, instructions are are in [INSTALL.md](INSTALL.md).
 
 ## Testing
 
