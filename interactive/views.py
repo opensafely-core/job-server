@@ -1,11 +1,12 @@
 import json
+from urllib.parse import urlparse
 
-from django.contrib.auth.decorators import login_required
+from django.conf import settings
+from django.contrib.auth.views import redirect_to_login
 from django.core.exceptions import PermissionDenied
 from django.http import Http404
-from django.shortcuts import get_object_or_404, redirect
+from django.shortcuts import get_object_or_404, redirect, resolve_url
 from django.template.response import TemplateResponse
-from django.utils.decorators import method_decorator
 from django.views.generic import DetailView, FormView, View
 from interactive_templates.schema import Codelist, v2
 
@@ -178,21 +179,43 @@ class AnalysisRequestCreate(View):
         )
 
 
-@method_decorator(login_required, name="dispatch")
 class AnalysisRequestDetail(DetailView):
     context_object_name = "analysis_request"
     model = AnalysisRequest
     template_name = "interactive/analysis_request_detail.html"
 
-    def get_object(self, queryset=None):
-        obj = super().get_object(queryset=queryset)
+    def get(self, request, *args, **kwargs):
+        self.object = self.get_object()
+
+        if self.object.report and self.object.report.is_published:
+            return self.render_to_response(
+                context=self.get_context_data(object=self.object)
+            )
+
+        # mirror Django's login_required functionality since we can't decorate
+        # the function, but we still want to redirect the user to log in such
+        # that they can get back to this view
+        if not request.user.is_authenticated:
+            path = request.build_absolute_uri()
+            resolved_login_url = resolve_url(settings.LOGIN_URL)
+            # If the login url is the same scheme and net location then just
+            # use the path as the "next" url.
+            login_scheme, login_netloc = urlparse(resolved_login_url)[:2]
+            current_scheme, current_netloc = urlparse(path)[:2]
+            if (not login_scheme or login_scheme == current_scheme) and (
+                not login_netloc or login_netloc == current_netloc
+            ):
+                path = request.get_full_path()
+            return redirect_to_login(path, resolved_login_url)
 
         if not has_permission(
-            self.request.user, "analysis_request_view", project=obj.project
+            request.user, "analysis_request_view", project=self.object.project
         ):
             raise PermissionDenied
 
-        return obj
+        return self.render_to_response(
+            context=self.get_context_data(object=self.object)
+        )
 
     def get_context_data(self, **kwargs):
         report = process_html(self.object.report_content)

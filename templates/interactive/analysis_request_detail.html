@@ -57,36 +57,38 @@
     </div>
 
     <div class="flex flex-col mt-2 sm:flex-row gap-2 lg:items-start">
-      {% if not object.report %}
-        {% #button type="button" variant="success" disabled=True tooltip="Report has not been processed" %}
-          Publish report
-        {% /button %}
-      {% elif object.publish_request.is_approved %}
-        {% #button type="button" variant="success" disabled=True tooltip="Report has been approved" %}
-          Publish report
-        {% /button %}
-      {% elif object.publish_request.is_pending %}
-        {% #button type="button" variant="success" disabled=True tooltip="A publishing review is ongoing" %}
-          Publish report
-        {% /button %}
-      {% elif object.publish_request is None or object.publish_request.is_rejected %}
-        {% #button type="link" href=analysis_request.get_publish_url variant="success" %}
-          Publish report
-        {% /button %}
-      {% endif %}
+      {% if request.user.is_authenticated %}
+        {% if not object.report %}
+          {% #button type="button" variant="success" disabled=True tooltip="Report has not been processed" %}
+            Publish report
+          {% /button %}
+        {% elif object.publish_request.is_approved %}
+          {% #button type="button" variant="success" disabled=True tooltip="Report has been approved" %}
+            Publish report
+          {% /button %}
+        {% elif object.publish_request.is_pending %}
+          {% #button type="button" variant="success" disabled=True tooltip="A publishing review is ongoing" %}
+            Publish report
+          {% /button %}
+        {% elif object.publish_request is None or object.publish_request.is_rejected %}
+          {% #button type="link" href=analysis_request.get_publish_url variant="success" %}
+            Publish report
+          {% /button %}
+        {% endif %}
 
-      {% if not report %}
-        {% #button type="link" variant="primary" disabled=True tooltip="Report has not been processed" %}
-          Update title and summary
-        {% /button %}
-      {% elif object.report.is_locked %}
-        {% #button type="link" variant="primary" disabled=True tooltip="Cannot edit while publishing review is ongoing" %}
-          Update title and summary
-        {% /button %}
-      {% else %}
-        {% #button type="link" variant="primary" href=analysis_request.get_edit_url %}
-          Update title and summary
-        {% /button %}
+        {% if not report %}
+          {% #button type="link" variant="primary" disabled=True tooltip="Report has not been processed" %}
+            Update title and summary
+          {% /button %}
+        {% elif object.report.is_locked %}
+          {% #button type="link" variant="primary" disabled=True tooltip="Cannot edit while publishing review is ongoing" %}
+            Update title and summary
+          {% /button %}
+        {% else %}
+          {% #button type="link" variant="primary" href=analysis_request.get_edit_url %}
+            Update title and summary
+          {% /button %}
+        {% endif %}
       {% endif %}
 
       {% if report %}
