@@ -26,7 +26,7 @@ function Glossary() {
         <ul>
           <li>use either the SNOMED CT or dm+d coding system</li>
           <li>
-            be published within an organisation on{" "}
+            be published on{" "}
             <a
               href="https://www.opencodelists.org/"
               rel="noopener noreferrer"
