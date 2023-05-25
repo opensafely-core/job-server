@@ -7,6 +7,7 @@ from django.shortcuts import get_object_or_404, redirect
 from django.template.response import TemplateResponse
 from django.utils.decorators import method_decorator
 from django.views.generic import DetailView, FormView, View
+from interactive_templates.dates import END_DATE, START_DATE, WEEK_OF_LATEST_EXTRACT
 from interactive_templates.schema import Codelist, v2
 
 from jobserver.authorization import has_permission
@@ -14,7 +15,6 @@ from jobserver.models import Backend, Project, ReportPublishRequest
 from jobserver.reports import process_html
 from jobserver.utils import build_spa_base_url
 
-from .dates import END_DATE, START_DATE, WEEK_OF_LATEST_EXTRACT
 from .forms import AnalysisRequestEditForm, AnalysisRequestForm
 from .models import AnalysisRequest
 from .opencodelists import _get_opencodelists_api

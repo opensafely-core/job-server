@@ -6,8 +6,8 @@ from django.contrib.auth.models import AnonymousUser
 from django.core.exceptions import PermissionDenied
 from django.http import Http404
 from django.utils import timezone
+from interactive_templates.dates import END_DATE, START_DATE
 
-from interactive.dates import END_DATE, START_DATE
 from interactive.models import AnalysisRequest
 from interactive.views import (
     AnalysisRequestCreate,
