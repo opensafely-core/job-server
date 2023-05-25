@@ -1,9 +1,9 @@
-from interactive_templates.schema import Codelist, v2
-
-from interactive.dates import (
+from interactive_templates.dates import (
     END_DATE,
     START_DATE,
 )
+from interactive_templates.schema import Codelist, v2
+
 from interactive.submit import (
     get_existing_commit,
     resubmit_analysis,
