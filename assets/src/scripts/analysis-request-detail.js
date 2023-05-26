@@ -3,15 +3,15 @@ import "../../../templates/interactive/analysis_request_detail.css";
 function generatePDF() {
   const downloadBtn = document.getElementById("downloadBtn");
 
-  const report = document.getElementById("reportContainer");
-  const watermark = report.querySelector("#watermark");
-  const reportStyles = report.querySelector("#report");
+  const reportContainer = document.getElementById("reportContainer");
+  const watermark = reportContainer.querySelector("#watermark");
+  const report = reportContainer.querySelector("#report");
 
-  const dialog = document.getElementById("downloadModal");
-  const confirmBtn = dialog.querySelector(`[value="confirm"]`);
-  const cancelBtn = dialog.querySelector(`[value="cancel"]`);
-  const generatingBtn = dialog.querySelector(`[value="generating"]`);
-  const downloadingBtn = dialog.querySelector(`[value="downloading"]`);
+  const downloadModal = document.getElementById("downloadModal");
+  const confirmBtn = downloadModal.querySelector(`[value="confirm"]`);
+  const cancelBtn = downloadModal.querySelector(`[value="cancel"]`);
+  const generatingBtn = downloadModal.querySelector(`[value="generating"]`);
+  const downloadingBtn = downloadModal.querySelector(`[value="downloading"]`);
 
   const options = {
     margin: 15,
@@ -27,19 +27,19 @@ function generatePDF() {
   let pdf;
 
   downloadBtn.addEventListener("click", async () => {
-    dialog.showModal();
+    downloadModal.showModal();
 
     // Load the JS on button click
     const html2pdf = await import("html2pdf.js");
 
     // Reset the styles for printing
-    reportStyles.classList.add(`print-pdf`);
+    report.classList.add(`print-pdf`);
 
     // Remove elements not required
-    report
+    reportContainer
       .querySelectorAll("svg")
       .forEach((element) => element.classList.add("!hidden"));
-    report.querySelector(".toc").classList.add("!hidden");
+    reportContainer.querySelector(".toc").classList.add("!hidden");
 
     // Repeat the watermark 300 times on the container
     const singleInner = watermark.innerHTML;
@@ -47,23 +47,18 @@ function generatePDF() {
     watermark.innerHTML = watermark.innerHTML.repeat(300);
 
     // Generate and download the PDF
-    pdf = html2pdf
-      .default()
-      .set(options)
-      .from(reportStyles)
-      .toContainer()
-      .toPdf();
+    pdf = html2pdf.default().set(options).from(report).toContainer().toPdf();
     await pdf;
 
     // 0 timeout to remove watermark after the event loop has finished
     setTimeout(() => {
       watermark.classList.add("hidden");
       watermark.innerHTML = singleInner;
-      reportStyles.classList.remove(`print-pdf`);
-      report
+      report.classList.remove(`print-pdf`);
+      reportContainer
         .querySelectorAll("svg")
         .forEach((element) => element.classList.remove("!hidden"));
-      report.querySelector(".toc").classList.remove("!hidden");
+      reportContainer.querySelector(".toc").classList.remove("!hidden");
     }, 0);
 
     // Show download button
@@ -87,12 +82,12 @@ function generatePDF() {
       downloadingBtn.classList.add("hidden");
       generatingBtn.classList.remove("hidden");
 
-      dialog.close("Download started");
+      downloadModal.close("Download started");
     }, 1000);
   });
 
   cancelBtn.addEventListener("click", () => {
-    dialog.close("Download cancelled");
+    downloadModal.close("Download cancelled");
 
     // Reset the buttons
     confirmBtn.classList.add("hidden");
@@ -117,7 +112,7 @@ function addMenuButton() {
   if (document.querySelector("#tableOfContents")) {
     const menuBtn = document.createElement("a");
     menuBtn.id = "menuBtn";
-    menuBtn.textContent = "Back to table of content";
+    menuBtn.textContent = "Back to table of contents";
     menuBtn.href = "#tableOfContents";
     document.querySelector("main").appendChild(menuBtn);
   }

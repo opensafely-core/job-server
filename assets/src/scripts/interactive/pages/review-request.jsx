@@ -100,7 +100,7 @@ function ReviewRequest() {
 
     if (!response.ok) {
       setIsSubmitting(false);
-      const message = `An error has occured: ${response.status} - ${response.statusText}`;
+      const message = `An error has occurred: ${response.status} - ${response.statusText}`;
       setError(message);
       throw new Error(message);
     }

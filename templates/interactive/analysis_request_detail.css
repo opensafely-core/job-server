@@ -1,5 +1,22 @@
 html:has(dialog[open]) {
   overflow: hidden;
+
+  & .blur-on-modal {
+    position: relative;
+
+    &::before {
+      background-color: white;
+      bottom: 0;
+      content: " ";
+      height: 100%;
+      left: 0;
+      position: absolute;
+      right: 0;
+      top: 0;
+      width: 100%;
+      z-index: 100;
+    }
+  }
 }
 
 #report {
@@ -8,7 +25,6 @@ html:has(dialog[open]) {
   line-height: 1.5;
   margin-inline: auto;
   max-width: calc(75ch + 2em);
-  padding: 1em;
   position: relative;
   width: 100%;
   z-index: 10;
@@ -87,6 +103,14 @@ html:has(dialog[open]) {
     }
   }
 
+  & .overflow-wrapper {
+    overflow: scroll;
+
+    @media (min-width: 767px) {
+      overflow: visible;
+    }
+  }
+
   & figure,
   & .overflow-wrapper {
     width: 100%;
@@ -118,6 +142,7 @@ html:has(dialog[open]) {
 
   & table {
     margin: 0.25em 0 0.25em 1em;
+    min-width: 420px;
     width: 100%;
   }
 
