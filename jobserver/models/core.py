@@ -811,8 +811,6 @@ class User(AbstractBaseUser):
     is_superuser = models.BooleanField(default=False)
     date_joined = models.DateTimeField("date joined", default=timezone.now)
 
-    notifications_email = models.TextField(default="")
-
     # has the User been approved by an admin?
     is_approved = models.BooleanField(default=False)
 
@@ -855,12 +853,6 @@ class User(AbstractBaseUser):
                     )
                 ),
                 name="%(app_label)s_%(class)s_both_pat_expires_at_and_pat_token_set",
-            ),
-            # only consider uniqueness of notifications_email when it's not empty
-            models.UniqueConstraint(
-                fields=["notifications_email"],
-                name="unique_notifications_email_ignore_empty",
-                condition=~Q(notifications_email=""),
             ),
         ]
 
