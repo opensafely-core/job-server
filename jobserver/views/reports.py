@@ -27,10 +27,6 @@ class ReportPublishRequestCreate(CreateView):
             slug=self.kwargs["slug"],
         )
 
-        if self.analysis_request.publish_request:
-            messages.error(request, "A request to publish this report already exists")
-            return redirect(self.analysis_request)
-
         if not has_permission(
             self.request.user,
             "analysis_request_view",

@@ -350,9 +350,6 @@ class Snapshot(models.Model):
             ),
         ]
 
-    class DuplicateSnapshotError(Exception):
-        pass
-
     def __str__(self):
         status = "Published" if self.is_published else "Draft"
         return f"{status} Snapshot made by {self.created_by.username}"
@@ -495,21 +492,53 @@ class SnapshotPublishRequest(models.Model):
     @classmethod
     @transaction.atomic()
     def create_from_files(cls, *, files, workspace, user):
+        """
+        Create a SnapshotPublishRequest from the given files.
+
+        This will create a new snapshot if one doesn't already exist for the
+        given files and workspace.
+
+        If either the snapshot or a pending publish request already exist those
+        objects will be returned instead of raising an error.
+        """
         # only look at files which haven't been deleted (redacted)
         files = [f for f in files if not f.is_deleted]
 
-        rfile_ids = {f.pk for f in files}
-        snapshot_ids = [set_from_qs(s.files.all()) for s in workspace.snapshots.all()]
-        if rfile_ids in snapshot_ids:
-            msg = (
-                "A release with the current files already exists, please use that one."
+        # look for an existing snapshots with the same files and workspace.  We
+        # can't do an exact filter match across an M2M so first we filter in
+        # the DB for any snapshots which match the workspace and any of the
+        # files we have.  Then compare the PKs of the given files with those in
+        # each snapshot.
+        snapshots = Snapshot.objects.filter(
+            workspace=workspace, files__in=files
+        ).distinct()
+        exact_matches = [
+            s for s in snapshots if set_from_qs(s.files.all()) == {f.pk for f in files}
+        ]
+
+        if len(exact_matches) > 1:
+            # this shouldn't happen but we're catching it so we can rely on a
+            # snapshot's files being unique inside its workspace
+            matches = len(exact_matches)
+            raise Snapshot.MultipleObjectsReturned(
+                f"Found {matches} snapshots when one was expected"
             )
-            raise Snapshot.DuplicateSnapshotError(msg)
 
-        snapshot = Snapshot.objects.create(workspace=workspace, created_by=user)
-        snapshot.files.add(*files)
+        if exact_matches:
+            snapshot = exact_matches[0]
+        else:
+            # no existing snapshot in this workspace with these exact files so
+            # create one and carry one
+            snapshot = Snapshot.objects.create(workspace=workspace, created_by=user)
+            snapshot.files.add(*files)
 
-        # TODO: make sure there are no other pending publish requests here
+        # There should only ever be one pending publish request for a Snapshot,
+        # enforce that here.
+        latest_publish_request = snapshot.publish_requests.order_by(
+            "-created_at"
+        ).first()
+        if latest_publish_request and latest_publish_request.decision is None:
+            return latest_publish_request
 
         return cls.objects.create(
             created_by=user,

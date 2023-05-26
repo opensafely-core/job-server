@@ -481,12 +481,9 @@ class SnapshotCreateAPI(APIView):
         if missing := file_ids - set_from_qs(files):
             raise ParseError(f"Unknown file IDs: {', '.join(missing)}")
 
-        try:
-            publish_request = SnapshotPublishRequest.create_from_files(
-                files=files, user=request.user, workspace=workspace
-            )
-        except Snapshot.DuplicateSnapshotError as e:
-            raise ParseError(str(e))
+        publish_request = SnapshotPublishRequest.create_from_files(
+            files=files, user=request.user, workspace=workspace
+        )
 
         return Response(
             {"url": publish_request.snapshot.get_absolute_url()}, status=201

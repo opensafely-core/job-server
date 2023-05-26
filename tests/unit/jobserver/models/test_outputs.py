@@ -237,6 +237,38 @@ def test_releasefilepublishrequest_create_from_files_success():
     assert set_from_qs(request.snapshot.files.all()) == {rfile.pk}
 
 
+def test_releasefilepublishrequest_create_from_files_with_existing_snapshot():
+    workspace = WorkspaceFactory()
+    files = ReleaseFileFactory.create_batch(3, workspace=workspace)
+
+    snapshot1 = SnapshotFactory(workspace=workspace)
+    snapshot1.files.set(files)
+
+    snapshot2 = SnapshotFactory(workspace=workspace)
+    snapshot2.files.set(files)
+
+    with pytest.raises(Snapshot.MultipleObjectsReturned):
+        SnapshotPublishRequest.create_from_files(
+            files=files, user=UserFactory(), workspace=workspace
+        )
+
+
+def test_releasefilepublishrequest_create_from_files_with_existing_publish_request():
+    workspace = WorkspaceFactory()
+    files = ReleaseFileFactory.create_batch(3, workspace=workspace)
+    snapshot = SnapshotFactory(workspace=workspace)
+    snapshot.files.set(files)
+    user = UserFactory()
+
+    publish_request = SnapshotPublishRequestFactory(snapshot=snapshot, created_by=user)
+
+    output = SnapshotPublishRequest.create_from_files(
+        files=files, user=user, workspace=workspace
+    )
+
+    assert output == publish_request
+
+
 def test_releasefilepublishrequest_create_from_files_with_duplicate_files():
     rfile = ReleaseFileFactory()
     workspace = WorkspaceFactory()
@@ -246,10 +278,11 @@ def test_releasefilepublishrequest_create_from_files_with_duplicate_files():
 
     user = UserFactory()
 
-    with pytest.raises(Snapshot.DuplicateSnapshotError):
-        SnapshotPublishRequest.create_from_files(
-            files=[rfile], user=user, workspace=workspace
-        )
+    publish_request = SnapshotPublishRequest.create_from_files(
+        files=[rfile], user=user, workspace=workspace
+    )
+
+    assert publish_request.snapshot == snapshot
 
 
 @pytest.mark.parametrize("field", ["created_at", "created_by"])

@@ -1149,10 +1149,8 @@ def test_snapshotcreate_with_existing_snapshot(api_rf, build_release_with_files)
 
     response = SnapshotCreateAPI.as_view()(request, workspace_id=workspace.name)
 
-    assert response.status_code == 400, response.data
-
-    msg = "A release with the current files already exists"
-    assert msg in response.data["detail"], response.data
+    assert response.status_code == 201, response.data
+    assert response.data["url"] == snapshot.get_absolute_url()
 
 
 def test_snapshotcreate_with_permission(api_rf, build_release_with_files):

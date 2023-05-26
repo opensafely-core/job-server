@@ -10,7 +10,6 @@ from ....factories import (
     AnalysisRequestFactory,
     ProjectFactory,
     ReportFactory,
-    ReportPublishRequestFactory,
     UserFactory,
 )
 from ....fakes import FakeGitHubAPI
@@ -99,33 +98,3 @@ def test_reportpublishrequestcreate_unknown_analysis_request(rf):
             project_slug=project.slug,
             slug="",
         )
-
-
-def test_reportpublishrequestcreate_with_existing_publish_request(rf):
-    report = ReportFactory()
-    analysis_request = AnalysisRequestFactory(report=report)
-    ReportPublishRequestFactory(report=report)
-    assert analysis_request.publish_request
-
-    request = rf.get("/")
-    request.user = UserFactory(roles=[InteractiveReporter])
-
-    # set up messages framework
-    request.session = "session"
-    messages = FallbackStorage(request)
-    request._messages = messages
-
-    response = ReportPublishRequestCreate.as_view()(
-        request,
-        org_slug=analysis_request.project.org.slug,
-        project_slug=analysis_request.project.slug,
-        slug=analysis_request.slug,
-    )
-
-    assert response.status_code == 302
-    assert response.url == analysis_request.get_absolute_url()
-
-    # check we have a message for the user
-    messages = list(messages)
-    assert len(messages) == 1
-    assert str(messages[0]) == "A request to publish this report already exists"

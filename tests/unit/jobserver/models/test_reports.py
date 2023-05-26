@@ -171,6 +171,18 @@ def test_reportpublishrequest_create_from_report_success():
     assert request.snapshot_publish_request
 
 
+def test_reportpublishrequest_create_from_report_with_existing_publish_request():
+    report = ReportFactory()
+    AnalysisRequestFactory(report=report)
+    user = UserFactory()
+
+    publish_request = ReportPublishRequestFactory(report=report, created_by=user)
+
+    output = ReportPublishRequest.create_from_report(report=report, user=user)
+
+    assert output == publish_request
+
+
 def test_reportpublishrequest_get_approve_url():
     publish_request = ReportPublishRequestFactory()
 
@@ -197,6 +209,30 @@ def test_reportpublishrequest_get_reject_url():
             "publish_request_pk": publish_request.pk,
         },
     )
+
+
+def test_reportpublishrequest_is_approved():
+    publish_request = ReportPublishRequestFactory(
+        decision=ReportPublishRequest.Decisions.APPROVED,
+        decision_at=timezone.now(),
+        decision_by=UserFactory(),
+    )
+
+    assert publish_request.is_approved
+
+
+def test_reportpublishrequest_is_pending():
+    assert ReportPublishRequestFactory().is_pending
+
+
+def test_reportpublishrequest_is_rejected():
+    publish_request = ReportPublishRequestFactory(
+        decision=ReportPublishRequest.Decisions.REJECTED,
+        decision_at=timezone.now(),
+        decision_by=UserFactory(),
+    )
+
+    assert publish_request.is_rejected
 
 
 def test_reportpublishrequest_reject(freezer):
