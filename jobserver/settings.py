@@ -198,7 +198,7 @@ USE_TZ = True
 # )
 
 # Staticfiles
-STATICFILES_STORAGE = "whitenoise.storage.CompressedManifestStaticFilesStorage"
+STATICFILES_STORAGE = "whitenoise.storage.CompressedStaticFilesStorage"
 STATICFILES_DIRS = [
     BASE_DIR / "assets" / "dist",
     BASE_DIR / "static",
