@@ -13,10 +13,10 @@ from django.views.generic import View
 from ..authorization import has_permission
 from ..models import (
     Project,
+    PublishRequest,
     Release,
     ReleaseFile,
     Snapshot,
-    SnapshotPublishRequest,
     Workspace,
 )
 from ..releases import build_outputs_zip, serve_file, workspace_files
@@ -88,7 +88,7 @@ class PublishedSnapshotFile(View):
         rfile = get_object_or_404(ReleaseFile, id=self.kwargs["file_id"])
 
         is_published = rfile.snapshots.filter(
-            publish_requests__decision=SnapshotPublishRequest.Decisions.APPROVED
+            publish_requests__decision=PublishRequest.Decisions.APPROVED
         ).exists()
         if not is_published:
             raise Http404
@@ -218,7 +218,7 @@ class SnapshotDetail(View):
         base_path = build_spa_base_url(request.path, self.kwargs.get("path", ""))
         publish_request = (
             snapshot.publish_requests.exclude(decision=None)
-            .filter(decision=SnapshotPublishRequest.Decisions.APPROVED)
+            .filter(decision=PublishRequest.Decisions.APPROVED)
             .order_by("-created_at")
             .first()
         )

@@ -15,7 +15,7 @@ from jobserver.authorization import (
     ProjectCollaborator,
     ProjectDeveloper,
 )
-from jobserver.models import SnapshotPublishRequest, Workspace
+from jobserver.models import PublishRequest, Workspace
 from jobserver.utils import set_from_qs
 from jobserver.views.workspaces import (
     WorkspaceAnalysisRequestList,
@@ -42,11 +42,11 @@ from ....factories import (
     OrgMembershipFactory,
     ProjectFactory,
     ProjectMembershipFactory,
+    PublishRequestFactory,
     ReleaseFactory,
     ReleaseFileFactory,
     RepoFactory,
     SnapshotFactory,
-    SnapshotPublishRequestFactory,
     UserFactory,
     WorkspaceFactory,
 )
@@ -493,9 +493,9 @@ def test_workspacedetail_authorized_view_outputs(rf):
     workspace = WorkspaceFactory()
     ReleaseFactory(workspace=workspace)
     snapshot = SnapshotFactory(workspace=workspace)
-    SnapshotPublishRequestFactory(
+    PublishRequestFactory(
         snapshot=snapshot,
-        decision=SnapshotPublishRequest.Decisions.APPROVED,
+        decision=PublishRequest.Decisions.APPROVED,
         decision_at=timezone.now(),
         decision_by=UserFactory(),
     )
@@ -543,9 +543,9 @@ def test_workspacedetail_authorized_run_jobs(rf):
 def test_workspacedetail_authorized_honeycomb(rf):
     workspace = WorkspaceFactory()
     snapshot = SnapshotFactory(workspace=workspace)
-    SnapshotPublishRequestFactory(
+    PublishRequestFactory(
         snapshot=snapshot,
-        decision=SnapshotPublishRequest.Decisions.APPROVED,
+        decision=PublishRequest.Decisions.APPROVED,
         decision_at=timezone.now(),
         decision_by=UserFactory(),
     )
@@ -1217,9 +1217,9 @@ def test_workspaceoutputlist_success(rf, freezer, build_release_with_files):
     build_release_with_files(["file1.txt", "file2.txt"], workspace=workspace)
     snapshot1 = SnapshotFactory(workspace=workspace)
     snapshot1.files.set(workspace.files.all())
-    SnapshotPublishRequestFactory(
+    PublishRequestFactory(
         snapshot=snapshot1,
-        decision=SnapshotPublishRequest.Decisions.APPROVED,
+        decision=PublishRequest.Decisions.APPROVED,
         decision_at=minutes_ago(now, 3),
         decision_by=UserFactory(),
     )
@@ -1252,9 +1252,9 @@ def test_workspaceoutputlist_without_permission(rf, freezer, build_release_with_
     build_release_with_files(["file1.txt", "file2.txt"], workspace=workspace)
     snapshot1 = SnapshotFactory(workspace=workspace)
     snapshot1.files.set(workspace.files.all())
-    SnapshotPublishRequestFactory(
+    PublishRequestFactory(
         snapshot=snapshot1,
-        decision=SnapshotPublishRequest.Decisions.APPROVED,
+        decision=PublishRequest.Decisions.APPROVED,
         decision_at=minutes_ago(now, 3),
         decision_by=UserFactory(),
     )
@@ -1262,7 +1262,7 @@ def test_workspaceoutputlist_without_permission(rf, freezer, build_release_with_
     build_release_with_files(["file2.txt", "file3.txt"], workspace=workspace)
     snapshot2 = SnapshotFactory(workspace=workspace)
     snapshot2.files.set(workspace.files.all())
-    SnapshotPublishRequestFactory(snapshot=snapshot2)
+    PublishRequestFactory(snapshot=snapshot2)
 
     build_release_with_files(["file2.txt", "file3.txt"], workspace=workspace)
 

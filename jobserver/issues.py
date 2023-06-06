@@ -22,14 +22,14 @@ def _size_formatter(value):
     return f"{value}Mb"
 
 
-def create_copilot_publish_report_request(publish_request, github_api):
-    copilot_name = publish_request.report.project.copilot
+def create_copilot_publish_report_request(report, github_api):
+    copilot_name = report.project.copilot
     if not copilot_name:
         copilot_name = ""
 
     base_url = furl(settings.BASE_URL)
-    project_url = base_url / publish_request.report.project.get_staff_url()
-    report_url = base_url / publish_request.report.get_absolute_url()
+    project_url = base_url / report.project.get_staff_url()
+    report_url = base_url / report.get_absolute_url()
 
     body = f"""
     ### Report details

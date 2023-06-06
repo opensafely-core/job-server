@@ -28,11 +28,11 @@ from jobserver import releases, slacks
 from jobserver.api.authentication import get_backend_from_token
 from jobserver.authorization import has_permission
 from jobserver.models import (
+    PublishRequest,
     Release,
     ReleaseFile,
     ReleaseFileReview,
     Snapshot,
-    SnapshotPublishRequest,
     User,
     Workspace,
 )
@@ -481,7 +481,7 @@ class SnapshotCreateAPI(APIView):
         if missing := file_ids - set_from_qs(files):
             raise ParseError(f"Unknown file IDs: {', '.join(missing)}")
 
-        publish_request = SnapshotPublishRequest.create_from_files(
+        publish_request = PublishRequest.create_from_files(
             files=files, user=request.user, workspace=workspace
         )
 
@@ -512,7 +512,7 @@ class SnapshotPublishAPI(APIView):
             # we get here?
             raise Exception("Snapshot is missing publish request")
 
-        if publish_request.decision == SnapshotPublishRequest.Decisions.APPROVED:
+        if publish_request.decision == PublishRequest.Decisions.APPROVED:
             # The Snapshot has already been published, don't lose the original
             # information.
             return Response()

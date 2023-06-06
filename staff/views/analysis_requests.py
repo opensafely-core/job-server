@@ -11,7 +11,7 @@ from interactive.submit import resubmit_analysis
 from jobserver.authorization import CoreDeveloper
 from jobserver.authorization.decorators import require_role
 from jobserver.github import _get_github_api
-from jobserver.models import Project, ReportPublishRequest, User
+from jobserver.models import Project, User
 
 
 @method_decorator(require_role(CoreDeveloper), name="dispatch")
@@ -21,9 +21,8 @@ class AnalysisRequestDetail(DetailView):
     template_name = "staff/analysis_request_detail.html"
 
     def get_context_data(self, **kwargs):
-        # flipping this
-        publish_requests = ReportPublishRequest.objects.filter(
-            report=self.object.report
+        publish_requests = (
+            self.object.report.publish_requests if self.object.report else []
         )
 
         return super().get_context_data(**kwargs) | {

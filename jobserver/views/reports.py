@@ -9,15 +9,15 @@ from interactive.models import AnalysisRequest
 from ..authorization import has_permission
 from ..github import _get_github_api
 from ..issues import create_copilot_publish_report_request
-from ..models import ReportPublishRequest
+from ..models import PublishRequest
 from ..slacks import notify_copilots_of_publish_request
 
 
-class ReportPublishRequestCreate(CreateView):
+class PublishRequestCreate(CreateView):
     fields = []
     get_github_api = staticmethod(_get_github_api)
-    model = ReportPublishRequest
-    template_name = "interactive/report_publish_request_create.html"
+    model = PublishRequest
+    template_name = "interactive/publish_request_create.html"
 
     def dispatch(self, request, *args, **kwargs):
         self.analysis_request = get_object_or_404(
@@ -38,14 +38,19 @@ class ReportPublishRequestCreate(CreateView):
 
     @transaction.atomic()
     def form_valid(self, form):
-        publish_request = ReportPublishRequest.create_from_report(
+        publish_request = PublishRequest.create_from_report(
             report=self.analysis_request.report, user=self.request.user
         )
 
         issue_url = create_copilot_publish_report_request(
-            publish_request, github_api=self.get_github_api()
+            self.analysis_request.report,
+            github_api=self.get_github_api(),
         )
-        notify_copilots_of_publish_request(publish_request, issue_url)
+        notify_copilots_of_publish_request(
+            publish_request,
+            self.analysis_request.report,
+            issue_url,
+        )
 
         messages.success(
             self.request, "Your request to publish this report was successfully sent"

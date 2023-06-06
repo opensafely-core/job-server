@@ -10,8 +10,8 @@ from ...factories import (
     OrgFactory,
     OrgMembershipFactory,
     ProjectFactory,
+    PublishRequestFactory,
     ReportFactory,
-    ReportPublishRequestFactory,
     UserFactory,
 )
 
@@ -34,9 +34,10 @@ def test_size_formatter_megabytes():
 def test_create_copilot_publish_report_request(github_api):
     project = ProjectFactory(copilot=UserFactory())
     report = ReportFactory(project=project)
-    publish_request = ReportPublishRequestFactory(report=report)
+    publish_request = PublishRequestFactory()
+    publish_request.snapshot.files.add(report.release_file)
 
-    create_copilot_publish_report_request(publish_request, github_api)
+    create_copilot_publish_report_request(report, github_api)
 
     issue = first(github_api.issues)
 
@@ -52,9 +53,9 @@ def test_create_copilot_publish_report_request(github_api):
 
     assert lines[0] == "### Report details"
 
-    assert lines[1].endswith(publish_request.report.project.copilot.name)
-    assert lines[2].endswith(publish_request.report.project.get_staff_url())
-    assert lines[3].endswith(publish_request.report.get_absolute_url())
+    assert lines[1].endswith(report.project.copilot.name)
+    assert lines[2].endswith(report.project.get_staff_url())
+    assert lines[3].endswith(report.get_absolute_url())
 
 
 def test_create_github_issue_external_success(build_release_with_files, github_api):

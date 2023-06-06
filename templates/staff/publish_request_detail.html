@@ -12,7 +12,7 @@
         <a href="{% url 'staff:index' %}">Staff area</a>
       </li>
       <li class="breadcrumb-item">
-        <a href="{% url 'staff:report-publish-request-list' %}">Report publish requests</a>
+        <a href="{% url 'staff:publish-request-list' %}">Publish requests</a>
       </li>
       <li class="breadcrumb-item active" aria-current="page">
         {{ publish_request.pk }}
@@ -39,12 +39,14 @@
         <strong>Created at:</strong> {{ publish_request.created_at }}
       </li>
 
+      {% if report %}
       <li>
         <strong>Report:</strong>
-        <a class="btn btn-sm btn-primary" href="{{ publish_request.report.get_staff_url }}">
+        <a class="btn btn-sm btn-primary" href="{{ report.get_staff_url }}">
           View
         </a>
       </li>
+      {% endif %}
 
       {% if publish_request.approved_at %}
       <li>

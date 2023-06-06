@@ -9,7 +9,13 @@ from django.views.generic import DetailView, ListView, View
 from jobserver.authorization import CoreDeveloper
 from jobserver.authorization.decorators import require_role
 from jobserver.emails import send_report_published_email
-from jobserver.models import Org, Project, Report, ReportPublishRequest, User
+from jobserver.models import (
+    Org,
+    Project,
+    PublishRequest,
+    Report,
+    User,
+)
 
 
 @method_decorator(require_role(CoreDeveloper), name="dispatch")
@@ -36,7 +42,7 @@ class ReportDetail(DetailView):
                 "release_file__workspace__project",
                 "release_file__workspace__project__org",
             )
-            .prefetch_related("publish_requests")
+            .prefetch_related("release_file__snapshots__publish_requests")
         )
 
 
@@ -116,19 +122,19 @@ class ReportList(ListView):
             qs = qs.filter(qwargs)
 
         if state := self.request.GET.get("state"):
-            # annotate the latest ReportPublishRequest.decision value onto each
+            # annotate the latest PublishRequest.decision value onto each
             # Report so we can filter by that
             qs = qs.exclude(publish_requests=None).annotate(
                 latest_decision=Subquery(
-                    ReportPublishRequest.objects.filter(report_id=OuterRef("pk"))
+                    PublishRequest.objects.filter(report_id=OuterRef("pk"))
                     .order_by("-created_at")
                     .values("decision")[:1]
                 )
             )
             if state == "pending":
-                # this isn't a real value for ReportPublishRequest.decision,
-                # but represents decision=None, not to be confused with no
-                # ReportPublishRequests existing for a Report
+                # this isn't a real value for PublishRequest.decision, but
+                # represents decision=None, not to be confused with no
+                # PublishRequests existing for a Report
                 qs = qs.filter(latest_decision=None)
             else:
                 qs = qs.filter(latest_decision=state)
@@ -149,7 +155,7 @@ class ReportList(ListView):
 class ReportPublishRequestApprove(View):
     def post(self, request, *args, **kwargs):
         publish_request = get_object_or_404(
-            ReportPublishRequest,
+            PublishRequest,
             report__pk=self.kwargs["pk"],
             pk=self.kwargs["publish_request_pk"],
         )
@@ -164,7 +170,7 @@ class ReportPublishRequestApprove(View):
 class ReportPublishRequestReject(View):
     def post(self, request, *args, **kwargs):
         publish_request = get_object_or_404(
-            ReportPublishRequest,
+            PublishRequest,
             report__pk=self.kwargs["pk"],
             pk=self.kwargs["publish_request_pk"],
         )

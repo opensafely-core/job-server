@@ -96,7 +96,7 @@ class AnalysisRequest(models.Model):
 
     def get_publish_url(self):
         return reverse(
-            "interactive:report-publish-request-create",
+            "interactive:publish-request-create",
             kwargs={
                 "org_slug": self.project.org.slug,
                 "project_slug": self.project.slug,
@@ -123,11 +123,10 @@ class AnalysisRequest(models.Model):
         """
         Return the publish request tied to this AnalysisRequest's report
 
-
-        We don't want to relate an AnalysisRequest to a ReportPublishRequest
-        since that will couple it to Interactive, when a ReportPublishRequest
-        is intended to be a generic object for reports.  However, an AnalysisRequest
-        has a nullable relation to Report so we can use that.
+        We don't want to relate an AnalysisRequest to a PublishRequest since
+        that will couple it to Interactive, when a PublishRequest is intended
+        to be a generic object for reports.  However, an AnalysisRequest has a
+        nullable relation to Report so we can use that.
         """
         if not self.report:
             return None

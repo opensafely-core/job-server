@@ -30,9 +30,9 @@ from ..models import (
     Job,
     JobRequest,
     Project,
+    PublishRequest,
     Repo,
     Report,
-    SnapshotPublishRequest,
     Workspace,
 )
 from ..releases import build_hatch_token_and_url, build_outputs_zip, workspace_files
@@ -284,7 +284,7 @@ class WorkspaceDetail(View):
             repo_is_private = self.get_github_api().get_repo_is_private(
                 workspace.repo.owner, workspace.repo.name
             )
-        except requests.HTTPError:
+        except (requests.ConnectionError, requests.HTTPError):
             repo_is_private = None
 
         show_publish_repo_warning = (
@@ -626,7 +626,7 @@ class WorkspaceOutputList(ListView):
         )
         if not can_view_all_files:
             snapshots = snapshots.filter(
-                publish_requests__decision=SnapshotPublishRequest.Decisions.APPROVED
+                publish_requests__decision=PublishRequest.Decisions.APPROVED
             )
 
         context = {

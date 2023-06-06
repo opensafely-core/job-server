@@ -11,13 +11,13 @@ from .core import (
     Workspace,
 )
 from .outputs import (
+    PublishRequest,
     Release,
     ReleaseFile,
     ReleaseFileReview,
     Snapshot,
-    SnapshotPublishRequest,
 )
-from .reports import Report, ReportPublishRequest
+from .reports import Report
 from .stats import Stats
 
 
@@ -30,14 +30,13 @@ __all__ = [
     "OrgMembership",
     "Project",
     "ProjectMembership",
+    "PublishRequest",
     "Release",
     "ReleaseFile",
     "ReleaseFileReview",
     "Repo",
     "Report",
-    "ReportPublishRequest",
     "Snapshot",
-    "SnapshotPublishRequest",
     "Stats",
     "User",
     "Workspace",

@@ -8,9 +8,10 @@ from ...factories import (
     AnalysisRequestFactory,
     JobFactory,
     JobRequestFactory,
+    PublishRequestFactory,
     ReleaseFileFactory,
     ReportFactory,
-    ReportPublishRequestFactory,
+    SnapshotFactory,
     UserFactory,
 )
 
@@ -58,7 +59,7 @@ def test_analysisrequest_get_publish_url():
     url = analysis_request.get_publish_url()
 
     assert url == reverse(
-        "interactive:report-publish-request-create",
+        "interactive:publish-request-create",
         kwargs={
             "org_slug": analysis_request.project.org.slug,
             "project_slug": analysis_request.project.slug,
@@ -92,21 +93,23 @@ def test_analysisrequest_get_edit_url():
     )
 
 
-def test_analysisrequest_publish_success():
+def test_analysisrequest_publish_request_success():
     report = ReportFactory()
-    publish_request = ReportPublishRequestFactory(report=report)
+    snapshot = SnapshotFactory()
+    snapshot.files.set([report.release_file])
+    publish_request = PublishRequestFactory(report=report, snapshot=snapshot)
     analysis_request = AnalysisRequestFactory(report=report)
 
     assert analysis_request.publish_request == publish_request
 
 
-def test_analysisrequest_publish_without_report():
+def test_analysisrequest_publish_request_without_report():
     analysis_request = AnalysisRequestFactory()
 
     assert analysis_request.publish_request is None
 
 
-def test_analysisrequest_publish_without_report_publish_request():
+def test_analysisrequest_publish_request_without_publish_request():
     report = ReportFactory()
     analysis_request = AnalysisRequestFactory(report=report)
 

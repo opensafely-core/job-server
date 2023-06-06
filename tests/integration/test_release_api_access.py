@@ -2,9 +2,9 @@ from django.urls import reverse
 from django.utils import timezone
 
 from ..factories import (
+    PublishRequest,
+    PublishRequestFactory,
     SnapshotFactory,
-    SnapshotPublishRequest,
-    SnapshotPublishRequestFactory,
     UserFactory,
     WorkspaceFactory,
 )
@@ -15,9 +15,9 @@ def test_published_output_access(client, release):
     workspace = WorkspaceFactory()
     snapshot = SnapshotFactory(workspace=workspace)
     snapshot.files.set(release.files.all())
-    SnapshotPublishRequestFactory(
+    PublishRequestFactory(
         snapshot=snapshot,
-        decision=SnapshotPublishRequest.Decisions.APPROVED,
+        decision=PublishRequest.Decisions.APPROVED,
         decision_at=timezone.now(),
         decision_by=UserFactory(),
     )
