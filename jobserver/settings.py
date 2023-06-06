@@ -168,6 +168,7 @@ DJANGO_VITE_MANIFEST_PATH = os.path.join(STATIC_ROOT, "manifest.json")
 
 # Insert Whitenoise Middleware.
 STATICFILES_STORAGE = "whitenoise.storage.CompressedManifestStaticFilesStorage"
+WHITENOISE_KEEP_ONLY_HASHED_FILES = True
 WHITENOISE_SKIP_COMPRESS_EXTENSIONS = (
     "br",
     "bz2",
