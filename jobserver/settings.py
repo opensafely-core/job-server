@@ -160,12 +160,9 @@ STATICFILES_DIRS = [
 STATIC_ROOT = BASE_DIR / "staticfiles"
 STATIC_URL = "/static/"
 
-# Vite
-DJANGO_VITE_ASSETS_PATH = BASE_DIR / "assets" / "dist"
-
-# Vite dev server
-DJANGO_VITE_DEV_MODE = env.bool("DJANGO_VITE_DEV_MODE", default=False)
 DJANGO_VITE_DEV_SERVER_PORT = 5173
+DJANGO_VITE_ASSETS_PATH = BASE_DIR / "assets" / "dist"
+DJANGO_VITE_DEV_MODE = env.bool("DJANGO_VITE_DEV_MODE", default=False)
 
 # Insert Whitenoise Middleware.
 STATICFILES_STORAGE = "whitenoise.storage.CompressedStaticFilesStorage"
