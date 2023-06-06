@@ -9,7 +9,6 @@ https://docs.djangoproject.com/en/3.0/topics/settings/
 For the full list of settings and their values, see
 https://docs.djangoproject.com/en/3.0/ref/settings/
 """
-import os
 from pathlib import Path
 
 from django.contrib.messages import constants as messages
@@ -23,7 +22,7 @@ from services.sentry import initialise_sentry
 env = Env()
 env.read_env()
 
-# Build paths inside the project like this: os.path.join(BASE_DIR, ...)
+# Build paths inside the project like this: BASE_DIR / ...
 BASE_DIR = Path(__file__).resolve().parent.parent
 
 
@@ -155,16 +154,16 @@ USE_TZ = True
 # Static files (CSS, JavaScript, Images)
 # https://docs.djangoproject.com/en/3.0/howto/static-files/
 STATICFILES_DIRS = [
-    os.path.join(BASE_DIR, "static"),
-    env.str("BUILT_ASSETS", default=os.path.join(BASE_DIR, "assets", "dist")),
+    BASE_DIR / "static",
+    env.path("BUILT_ASSETS", default=BASE_DIR / "assets" / "dist"),
 ]
-STATIC_ROOT = env.str("STATIC_ROOT", default=os.path.join(BASE_DIR, "staticfiles"))
+STATIC_ROOT = env.path("STATIC_ROOT", default=BASE_DIR / "staticfiles")
 STATIC_URL = "/static/"
 
 DJANGO_VITE_DEV_SERVER_PORT = 5173
 DJANGO_VITE_ASSETS_PATH = "/static/"
 DJANGO_VITE_DEV_MODE = env.bool("DJANGO_VITE_DEV_MODE", default=False)
-DJANGO_VITE_MANIFEST_PATH = os.path.join(STATIC_ROOT, "manifest.json")
+DJANGO_VITE_MANIFEST_PATH = STATIC_ROOT / "manifest.json"
 
 # Insert Whitenoise Middleware.
 STATICFILES_STORAGE = "whitenoise.storage.CompressedStaticFilesStorage"
