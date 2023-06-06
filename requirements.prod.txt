@@ -349,8 +349,8 @@ incuna-mail==4.1.1 \
     --hash=sha256:4071949a7cc70f88c1acea5f06ac8ba439029f655ff5d8c98277bbc8cc8d4bd5 \
     --hash=sha256:d8ef4979264fba729fa1478819d71f66af17a795e82d9607d8e7ccd7edaafe10
     # via -r requirements.prod.in
-interactive_templates @ https://github.com/opensafely-core/interactive-templates/archive/54f14ee4f40e4aecbec37bf2d4262a52bf13480a.zip \
-    --hash=sha256:e02ab49b3ca53b6c487c712c9a4847ab061624e307e1df365409b1bd772624f2
+interactive_templates @ https://github.com/opensafely-core/interactive-templates/archive/7eda2541137be0e04563c37e7cc813ddd93fa02f.zip \
+    --hash=sha256:2cf0fdcda05607b1499aff1a2fa7dbee7785e1b0fe80f6cf2b4db951efa54d9d
     # via -r requirements.prod.in
 itsdangerous==2.1.2 \
     --hash=sha256:2c2349112351b88699d8d4b6b075022c0808887cb7ad10069318a8b0bc88db44 \
