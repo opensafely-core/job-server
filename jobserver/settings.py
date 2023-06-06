@@ -153,52 +153,6 @@ USE_TZ = True
 
 # Static files (CSS, JavaScript, Images)
 # https://docs.djangoproject.com/en/3.0/howto/static-files/
-# STATICFILES_DIRS = [
-#     os.path.join(BASE_DIR, "static"),
-#     env.str("BUILT_ASSETS", default=os.path.join(BASE_DIR, "assets", "dist")),
-# ]
-# STATIC_ROOT = env.str("STATIC_ROOT", default=os.path.join(BASE_DIR, "staticfiles"))
-# STATIC_URL = "/static/"
-
-# DJANGO_VITE_DEV_SERVER_PORT = 5173
-# DJANGO_VITE_ASSETS_PATH = "/static/"
-# DJANGO_VITE_DEV_MODE = env.bool("DJANGO_VITE_DEV_MODE", default=False)
-# DJANGO_VITE_MANIFEST_PATH = os.path.join(STATIC_ROOT, "manifest.json")
-
-# # Insert Whitenoise Middleware.
-# STATICFILES_STORAGE = "whitenoise.storage.CompressedManifestStaticFilesStorage"
-# WHITENOISE_KEEP_ONLY_HASHED_FILES = env.bool(
-#     "WHITENOISE_KEEP_ONLY_HASHED_FILES", default=False
-# )
-# WHITENOISE_MANIFEST_STRICT = env.bool("WHITENOISE_MANIFEST_STRICT", default=True)
-# WHITENOISE_SKIP_COMPRESS_EXTENSIONS = (
-#     "br",
-#     "bz2",
-#     "css.map",
-#     "flv",
-#     "gif",
-#     "gz",
-#     "ico",
-#     "jpeg",
-#     "jpg",
-#     "js.map",
-#     "json",
-#     "map",
-#     "png",
-#     "svg",
-#     "swf",
-#     "tbz",
-#     "tgz",
-#     "webmanifest",
-#     "webp",
-#     "woff",
-#     "woff2",
-#     "xz",
-#     "zip",
-# )
-
-# Staticfiles
-STATICFILES_STORAGE = "whitenoise.storage.CompressedStaticFilesStorage"
 STATICFILES_DIRS = [
     BASE_DIR / "assets" / "dist",
     BASE_DIR / "static",
@@ -213,6 +167,8 @@ DJANGO_VITE_ASSETS_PATH = BASE_DIR / "assets" / "dist"
 DJANGO_VITE_DEV_MODE = env.bool("DJANGO_VITE_DEV_MODE", default=False)
 DJANGO_VITE_DEV_SERVER_PORT = 5173
 
+# Insert Whitenoise Middleware.
+STATICFILES_STORAGE = "whitenoise.storage.CompressedStaticFilesStorage"
 
 # User uploaded files
 # https://docs.djangoproject.com/en/4.0/topics/files/
