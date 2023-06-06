@@ -25,11 +25,6 @@ const config = {
         tw: "./assets/src/scripts/tw.js",
         workspace_create: "./assets/src/scripts/workspace_create.js",
       },
-      output: {
-        entryFileNames: `assets/[name].js`,
-        chunkFileNames: `assets/[name].js`,
-        assetFileNames: `assets/[name].[ext]`,
-      },
     },
     outDir: "assets/dist",
     emptyOutDir: true,
