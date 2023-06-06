@@ -160,9 +160,9 @@ STATICFILES_DIRS = [
 STATIC_ROOT = env.path("STATIC_ROOT", default=BASE_DIR / "staticfiles")
 STATIC_URL = "/static/"
 
-DJANGO_VITE_DEV_SERVER_PORT = 5173
-DJANGO_VITE_ASSETS_PATH = "/static/"
+DJANGO_VITE_ASSETS_PATH = BASE_DIR / "assets" / "dist"
 DJANGO_VITE_DEV_MODE = env.bool("DJANGO_VITE_DEV_MODE", default=False)
+DJANGO_VITE_DEV_SERVER_PORT = 5173
 DJANGO_VITE_MANIFEST_PATH = STATIC_ROOT / "manifest.json"
 
 # Insert Whitenoise Middleware.
