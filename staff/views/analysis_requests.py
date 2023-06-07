@@ -22,7 +22,7 @@ class AnalysisRequestDetail(DetailView):
 
     def get_context_data(self, **kwargs):
         publish_requests = (
-            self.object.report.publish_requests if self.object.report else []
+            self.object.report.publish_requests.all() if self.object.report else []
         )
 
         return super().get_context_data(**kwargs) | {
