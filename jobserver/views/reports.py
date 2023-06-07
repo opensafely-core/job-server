@@ -2,7 +2,8 @@ from django.contrib import messages
 from django.core.exceptions import PermissionDenied
 from django.db import transaction
 from django.shortcuts import get_object_or_404, redirect
-from django.views.generic import CreateView
+from django.template.response import TemplateResponse
+from django.views.generic import View
 
 from interactive.models import AnalysisRequest
 
@@ -13,11 +14,8 @@ from ..models import PublishRequest
 from ..slacks import notify_copilots_of_publish_request
 
 
-class PublishRequestCreate(CreateView):
-    fields = []
+class PublishRequestCreate(View):
     get_github_api = staticmethod(_get_github_api)
-    model = PublishRequest
-    template_name = "interactive/publish_request_create.html"
 
     def dispatch(self, request, *args, **kwargs):
         self.analysis_request = get_object_or_404(
@@ -36,10 +34,17 @@ class PublishRequestCreate(CreateView):
 
         return super().dispatch(request, *args, **kwargs)
 
+    def get(self, request, *args, **kwargs):
+        return TemplateResponse(
+            request,
+            "interactive/publish_request_create.html",
+            context={"analysis_request": self.analysis_request},
+        )
+
     @transaction.atomic()
-    def form_valid(self, form):
+    def post(self, request, *args, **kwargs):
         publish_request = PublishRequest.create_from_report(
-            report=self.analysis_request.report, user=self.request.user
+            report=self.analysis_request.report, user=request.user
         )
 
         issue_url = create_copilot_publish_report_request(
@@ -57,8 +62,3 @@ class PublishRequestCreate(CreateView):
         )
 
         return redirect(self.analysis_request)
-
-    def get_context_data(self, **kwargs):
-        return super().get_context_data(**kwargs) | {
-            "analysis_request": self.analysis_request,
-        }
