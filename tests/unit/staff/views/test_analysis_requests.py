@@ -13,13 +13,35 @@ from tests.fakes import FakeGitHubAPI
 from ....factories import (
     AnalysisRequestFactory,
     ProjectFactory,
+    PublishRequestFactory,
+    ReleaseFileFactory,
     ReportFactory,
+    SnapshotFactory,
     UserFactory,
     WorkspaceFactory,
 )
 
 
-def test_analysisrequestdetail_success(rf, core_developer):
+def test_analysisrequestdetail_success_with_publish_requests(rf, core_developer):
+    rfile = ReleaseFileFactory()
+    snapshot = SnapshotFactory()
+    snapshot.files.add(rfile)
+
+    report = ReportFactory(release_file=rfile)
+
+    PublishRequestFactory.create_batch(2, report=report, snapshot=snapshot)
+    analysis_request = AnalysisRequestFactory(report=report)
+
+    request = rf.get("/")
+    request.user = core_developer
+
+    response = AnalysisRequestDetail.as_view()(request, slug=analysis_request.slug)
+
+    assert response.status_code == 200
+    assert len(response.context_data["publish_requests"]) == 2
+
+
+def test_analysisrequestdetail_success_without_publish_requests(rf, core_developer):
     analysis_request = AnalysisRequestFactory()
 
     request = rf.get("/")
@@ -28,6 +50,7 @@ def test_analysisrequestdetail_success(rf, core_developer):
     response = AnalysisRequestDetail.as_view()(request, slug=analysis_request.slug)
 
     assert response.status_code == 200
+    assert response.context_data["publish_requests"] == []
 
 
 def test_analysisrequestdetail_unauthorized(rf):
