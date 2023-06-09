@@ -83,6 +83,7 @@ class InteractiveReporter:
     permissions = [
         analysis_request_create,
         analysis_request_view,
+        release_file_view,
     ]
 
 

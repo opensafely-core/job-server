@@ -209,7 +209,7 @@ class AnalysisRequestDetail(DetailView):
             return redirect_to_login(path, resolved_login_url)
 
         if not has_permission(
-            request.user, "analysis_request_view", project=self.object.project
+            request.user, "release_file_view", project=self.object.project
         ):
             raise PermissionDenied
 

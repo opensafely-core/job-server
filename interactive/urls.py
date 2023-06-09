@@ -9,7 +9,6 @@ app_name = "interactive"
 
 urlpatterns = [
     path("", AnalysisRequestCreate.as_view(), name="analysis-create"),
-    path("<slug:slug>/", AnalysisRequestDetail.as_view(), name="analysis-detail"),
     path("<str:slug>/", AnalysisRequestDetail.as_view(), name="analysis-detail"),
     path("<str:slug>/edit/", ReportEdit.as_view(), name="report-edit"),
     path(
