@@ -47,7 +47,8 @@
               <th>Project</th>
               <th>Organisation</th>
               <th>Copilot</th>
-              <th>Status</th>
+              <th>Project status</th>
+              <th>Repo status</th>
               <th class="text-right">Number of workspaces</th>
               <th class="text-right">Number of job requests run</th>
               <th class="text-right">Date of first run job</th>
@@ -72,6 +73,43 @@
                 {% endif %}
               </td>
               <td>{{ project.status }}</td>
+              <td>
+                {% if project.repos|length > 1 %}
+                  <details>
+                    <summary>
+                      <span class="summary--show">Show</span>
+                      <span class="summary--hide">Hide</span>
+                      {{ project.repos|length }} repos
+                    </summary>
+                    <ul class="mt-1 mb-0 pl-2 ml-2">
+                      {% for repo in project.repos %}
+                      <li>
+                        <div class="d-flex">
+                          <a href="{{ repo.get_staff_url }}">
+                            {{ repo.name }}
+                          </a>
+                          <div class="ml-2">
+                            {% if repo.is_private %}
+                            <span class="badge badge-warning">Private</span>
+                            {% else %}
+                            <span class="badge badge-success">Public</span>
+                            {% endif %}
+                          </div>
+                        </div>
+                      </li>
+                      {% endfor %}
+                    </ul>
+                  </details>
+                {% else %}
+                  {% for repo in project.repos %}
+                    {% if repo.is_private %}
+                    <span class="badge badge-warning">Private</span>
+                    {% else %}
+                    <span class="badge badge-success">Public</span>
+                    {% endif %}
+                  {% endfor %}
+                {% endif %}
+              </td>
               <td class="text-right">{{ project.workspace_count }}</td>
               <td class="text-right">{{ project.job_request_count }}</td>
               <td class="text-right text-nowrap text-monospace">{{ project.date_first_run|date:"d M Y" }}</td>

@@ -254,6 +254,15 @@ def test_get_repos_with_dates(enable_network, github_api):
     compare(fake, real)
 
 
+def test_get_repos_with_status_and_url(enable_network, github_api):
+    args = ["opensafely-testing"]
+
+    real = list(github_api.get_repos_with_status_and_url(args))
+    fake = FakeGitHubAPI().get_repos_with_status_and_url(args)
+
+    compare(fake, real)
+
+
 def test_graphql_error_handling(enable_network, github_api):
     """
     Are we raising errors around unexpected GraphQL responses?
