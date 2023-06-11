@@ -9,6 +9,7 @@ django-extensions
 django-htmx
 django-permissions-policy
 django-structlog
+django-template-partials
 django-vite
 djangorestframework
 environs[django]

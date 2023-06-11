@@ -53,9 +53,10 @@ INSTALLED_APPS = [
     "django_extensions",
     "django_htmx",
     "django_vite",
-    "slippers",
     "rest_framework",
+    "slippers",
     "social_django",
+    "template_partials",
     "django.contrib.auth",
     "django.contrib.contenttypes",
     "django.contrib.sessions",
@@ -87,11 +88,17 @@ MIDDLEWARE = [
 
 ROOT_URLCONF = "jobserver.urls"
 
+default_loaders = [
+    "django.template.loaders.filesystem.Loader",
+    "django.template.loaders.app_directories.Loader",
+]
+cached_loaders = [("django.template.loaders.cached.Loader", default_loaders)]
+partial_loaders = [("template_partials.loader.Loader", cached_loaders)]
 TEMPLATES = [
     {
         "BACKEND": "django.template.backends.django.DjangoTemplates",
         "DIRS": ["templates"],
-        "APP_DIRS": True,
+        # "APP_DIRS": True,
         "OPTIONS": {
             "context_processors": [
                 "django.template.context_processors.debug",
@@ -107,6 +114,7 @@ TEMPLATES = [
                 "jobserver.context_processors.login_url",
             ],
             "builtins": ["slippers.templatetags.slippers"],
+            "loaders": partial_loaders,
         },
     },
 ]

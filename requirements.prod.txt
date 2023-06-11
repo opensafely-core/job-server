@@ -267,6 +267,7 @@ django==4.1.9 \
     #   django-htmx
     #   django-permissions-policy
     #   django-structlog
+    #   django-template-partials
     #   django-vite
     #   djangorestframework
     #   slippers
@@ -310,6 +311,10 @@ django-permissions-policy==4.12.0 \
 django-structlog==5.1.0 \
     --hash=sha256:a2dbe27e4add95cd386bcdfd7e05fe4547b02061881b0ee743b84a3d55a5df89 \
     --hash=sha256:e7a86b01e11b32296095d35565b44f9f179acb9563aa3e85cae698539db07756
+    # via -r requirements.prod.in
+django-template-partials==23.1 \
+    --hash=sha256:6a5cf58487ee700ebbd42f231665da2f3de77db5ed83dae9a139b6e5fb973046 \
+    --hash=sha256:cb1f7744bdb16859447b9ff7f90ca6aad3a93d471ec130ecf0c3c4080965e3eb
     # via -r requirements.prod.in
 django-vite==2.1.2 \
     --hash=sha256:412838f0ac933397b35150af4a5759ebfa84cb68cd4d15ee439705e5a2ca6039 \
