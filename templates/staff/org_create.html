@@ -1,5 +1,27 @@
 {% extends "staff/base.html" %}
 
+{% load partials %}
+
+{% startpartial form %}
+<form method="POST" hx-post="{{ post_url }}">
+  {% csrf_token %}
+
+  {% if form.non_field_errors %}
+    <ul>
+      {% for error in form.non_field_errors %}
+        <li class="text-danger">{{ error }}</li>
+      {% endfor %}
+    </ul>
+  {% endif %}
+
+  {% include "components/form_text.html" with field=form.name label="Organisation name" name="name" %}
+
+  <button class="btn btn-success" type="submit">
+    Create
+  </button>
+</form>
+{% endpartial %}
+
 {% block metatitle %}Create an organisation: Staff Area | OpenSAFELY Jobs{% endblock metatitle %}
 
 {% block breadcrumbs %}
@@ -34,7 +56,7 @@
     <div class="col-lg-9 col-xl-8">
       <h2 class="sr-only">Create an Org</h2>
 
-      {% include "staff/org_create.form.html" %}
+      {% partial form %}
 
     </div>
   </div>
