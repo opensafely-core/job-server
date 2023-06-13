@@ -37,6 +37,7 @@ components:
   icon_custom_spinner: "_icons/custom/spinner.svg"
   icon_ellipsis_horizontal_outline: "_icons/ellipsis-horizontal-outline.svg"
   icon_exclamation_solid: "_icons/exclamation-solid.svg"
+  icon_exclamation_triangle: "_icons/exclamation-triangle.svg"
   icon_folder_open_outline: "_icons/folder-open-outline.svg"
   icon_folder_outline: "_icons/folder-outline.svg"
   icon_github_outline: "_icons/github-outline.svg"

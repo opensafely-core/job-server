@@ -213,6 +213,28 @@
           {% /description_item %}
         </dl>
       {% /card %}
+      {% if analysis_request.status == "failed" %}
+      {% #card class="overflow-hidden relative xl:col-span-4 xl:col-start-1 xl:row-start-1" %}
+        <div class="text-center p-8 z-10 relative">
+          {% icon_exclamation_triangle class="h-12 w-12 mb-4 mx-auto text-slate-600" %}
+          <h2 class="mt-2 mb-3 text-2xl font-bold text-slate-900">
+            An error has occurred while processing your request
+          </h2>
+          <div class="grid gap-y-2 max-w-prose mx-auto">
+            <p class="text-lg">
+              The OpenSAFELY team has been notified and is investigating
+            </p>
+            <p class="text-slate-600 pt-4 mt-2 border-t border-slate-200">
+              If you'd like any more information about requesting an analysis
+              <span class="md:block">
+                or have any questions,
+                {% link href="mailto:team@opensafely.org" text="contact us" append_after="." %}
+              </span>
+            </p>
+          </div>
+        </div>
+      {% /card %}
+      {% else %}
       {% #card class="overflow-hidden relative xl:col-span-4 xl:col-start-1 xl:row-start-1" %}
         <div class="text-center p-8 z-10 relative">
           {% icon_custom_spinner class="h-12 w-12 mb-4 mx-auto flex-1 animate-spin stroke-current stroke-2 text-slate-600" %}
@@ -241,6 +263,7 @@
           </div>
         </div>
       {% /card %}
+      {% endif %}
     {% endif %}
   </div>
 </div>
