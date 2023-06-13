@@ -282,6 +282,20 @@ Job Server uses the Slippers library to build reusable components.
 To view the existing components, and see what attributes they receive, [visit the UI gallery](https://jobs.opensafely.org/ui-components/).
 
 
+## Icons
+
+Job Server uses [Hero Icons](https://heroicons.com/).
+
+To add a new icon:
+1. Find the icon you need
+1. Copy the SVG to a new file in `templates/_icons/`.  The website will give you the SVG code rather than a file.
+1. Edit the properties of that file so that:
+  * `height` and `width` attributes should match the values in the `viewBox`
+  * the class is configurable: `class="{{ class }}"`
+  * `fill` should be `currentColor` unless it's an outline icon then it should be `none` and `stroke` should be `currentColor`
+1. Map the icon file path to a name in `templates/components.yaml`
+
+
 ## Backends
 
 Backends in this project represent a [job runner](https://github.com/opensafely-core/job-runner) instance somewhere.
