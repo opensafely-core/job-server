@@ -113,6 +113,30 @@ class FakeGitHubAPI:
             },
         ]
 
+    def get_repos_with_status_and_url(self, orgs):
+        return [
+            {
+                "is_private": True,
+                "url": "https://github.com/opensafely/research-repo-1",
+            },
+            {
+                "is_private": True,
+                "url": "https://github.com/opensafely/research-repo-2",
+            },
+            {
+                "is_private": False,
+                "url": "https://github.com/opensafely/research-repo-3",
+            },
+            {
+                "is_private": True,
+                "url": "https://github.com/opensafely/research-repo-4",
+            },
+            {
+                "is_private": True,
+                "url": "https://github.com/opensafely/research-repo-5",
+            },
+        ]
+
     def set_repo_topics(self, org, repo, topics):
         return {
             "names": [],

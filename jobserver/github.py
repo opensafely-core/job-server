@@ -482,6 +482,31 @@ class GitHubAPI:
                 "topics": topics,
             }
 
+    def get_repos_with_status_and_url(self, orgs):
+        query = """
+        query reposWithStatusAndURL($cursor: String, $org_name: String!) {
+          organization(login: $org_name) {
+            repositories(first: 100, after: $cursor) {
+              nodes {
+                url
+                isPrivate
+              }
+              pageInfo {
+                  endCursor
+                  hasNextPage
+              }
+            }
+          }
+        }
+        """
+        for org in orgs:
+            results = list(self._iter_query_results(query, org_name=org))
+            for repo in results:
+                yield {
+                    "is_private": repo["isPrivate"],
+                    "url": repo["url"],
+                }
+
     def set_repo_topics(self, org, repo, topics):
         path_segments = [
             "repos",
