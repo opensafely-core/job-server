@@ -295,9 +295,9 @@ django-extensions==3.2.3 \
     --hash=sha256:44d27919d04e23b3f40231c4ab7af4e61ce832ef46d610cc650d53e68328410a \
     --hash=sha256:9600b7562f79a92cbf1fde6403c04fee314608fefbb595502e34383ae8203401
     # via -r requirements.prod.in
-django-htmx==1.14.0 \
-    --hash=sha256:393e2a4a963aff691b3973c898dbca1363139d7c7bf2e8cc4c605e2ad808a779 \
-    --hash=sha256:b689a8d6f7052a96a373411ec55ba81c1ddffb4d66b1f5ab4d6e3d28420842fd
+django-htmx==1.15.0 \
+    --hash=sha256:b76068485905ad9f911419746f07f877633bb036c0870a0f9fc13dec42c6e425 \
+    --hash=sha256:bac7ff59bf507db6d40424f635f83889ce028a54f47663f227083413de22cabf
     # via -r requirements.prod.in
 django-ipware==4.0.2 \
     --hash=sha256:602a58325a4808bd19197fef2676a0b2da2df40d0ecf21be414b2ff48c72ad05 \
