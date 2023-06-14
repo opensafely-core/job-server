@@ -78,7 +78,7 @@ def create_copilot_publish_report_request(report, github_api):
     data = github_api.create_issue(
         org="ebmdatalab",
         repo="publications-copiloted",
-        title="Publication checklist for projects copiloted by the Bennett Institute",
+        title=f"OSI Report: {report.title}",
         body=body,
         labels=["publication-copiloted"],
     )
