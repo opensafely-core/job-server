@@ -63,7 +63,7 @@ def create_copilot_publish_report_request(report, github_api):
         - [ ] Report submitted to Amir for NHSE review
     4. Amir informs co-pilot of decision (accept/reject)
     5. Co-pilot approves or rejects the request [on the report page]({report_staff_url})
-    6. Upon publication, co-pilot should consider if project status10 should be updated, and if any external outputs should be linked to in the status description
+    6. Upon publication, co-pilot should consider if project status should be updated, and if any external outputs should be linked to in the status description
         - [ ] Project status updated
 
 
