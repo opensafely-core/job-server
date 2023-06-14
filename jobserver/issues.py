@@ -30,6 +30,7 @@ def create_copilot_publish_report_request(report, github_api):
     base_url = furl(settings.BASE_URL)
     project_url = base_url / report.project.get_staff_url()
     report_url = base_url / report.get_absolute_url()
+    report_staff_url = base_url / report.get_staff_url()
 
     body = f"""
     ### Report details
@@ -61,9 +62,7 @@ def create_copilot_publish_report_request(report, github_api):
     3. Co-pilot downloads a copy of the report and submits to Amir, who will prompt IG review with NHSE
         - [ ] Report submitted to Amir for NHSE review
     4. Amir informs co-pilot of decision (accept/reject)
-    5. Co-pilot publishes the report or rejects the request by following this process [link to new process(es) once written]
-        - [ ] Published
-        - [ ] Rejected
+    5. Co-pilot approves or rejects the request [on the report page]({report_staff_url})
     6. Upon publication, co-pilot should consider if project status10 should be updated, and if any external outputs should be linked to in the status description
         - [ ] Project status updated
 

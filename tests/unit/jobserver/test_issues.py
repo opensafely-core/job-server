@@ -53,6 +53,7 @@ def test_create_copilot_publish_report_request(github_api):
     assert lines[1].endswith(report.project.copilot.name)
     assert lines[2].endswith(report.project.get_staff_url())
     assert lines[3].endswith(report.get_absolute_url())
+    assert report.get_staff_url() in issue.body
 
 
 def test_create_github_issue_external_success(build_release_with_files, github_api):
