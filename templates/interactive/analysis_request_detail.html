@@ -80,7 +80,11 @@
           {% #button type="link" variant="primary" disabled=True tooltip="Report has not been processed" %}
             Update title and summary
           {% /button %}
-        {% elif object.report.is_locked %}
+        {% elif object.publish_request.is_approved %}
+          {% #button type="link" variant="primary" disabled=True tooltip="Cannot edit after report has been approved" %}
+            Update title and summary
+          {% /button %}
+        {% elif object.publish_request.is_pending %}
           {% #button type="link" variant="primary" disabled=True tooltip="Cannot edit while publishing review is ongoing" %}
             Update title and summary
           {% /button %}
