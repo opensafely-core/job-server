@@ -184,9 +184,11 @@
           </div>
 
           <div id="watermark" class="hidden absolute inset-0 text-center w-full h-full text-5xl font-bold text-gray-900/10 break-words">
+            {% if not object.publish_request.is_approved %}
             <span class="py-16 block">Confidential</span>
             <span class="py-16 block">Not for publication</span>
             <span class="py-16 block">Downloaded by {{ user.email }}</span>
+            {% endif %}
           </div>
         </div>
       {% /card %}
