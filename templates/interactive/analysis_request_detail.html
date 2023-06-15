@@ -66,10 +66,10 @@
             Update title and summary
           {% /button %}
         {% elif object.publish_request.is_approved %}
-          {% #button type="button" variant="success" disabled=True tooltip="Report has been approved" %}
+          {% #button type="button" variant="success" disabled=True tooltip="Report has been published" %}
             Publish report
           {% /button %}
-          {% #button type="link" variant="primary" disabled=True tooltip="Cannot edit after report has been approved" %}
+          {% #button type="link" variant="primary" disabled=True tooltip="Cannot edit after report has been published" %}
             Update title and summary
           {% /button %}
         {% elif object.publish_request.is_pending %}
