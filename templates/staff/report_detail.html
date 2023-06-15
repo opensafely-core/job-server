@@ -66,7 +66,16 @@
       </section>
      <section class="card mb-3">
         <div class="card-header">
-          <h2 class="card-title mb-0">Publish requests</h2>
+          <h2 class="card-title">Publish requests</h2>
+          <p class="mb-2">
+            Rejecting a request will unlock the report, allowing the user to
+            make changes and make a new request.
+          </p>
+          <p class="mb-0">
+            Approving a request will publish the report, making it available to
+            the public. The requester will be automatically notified of your
+            decision.
+          </p>
         </div>
 
         <div class="list-group list-group-flush">
@@ -169,6 +178,18 @@
             </a>
           </p>
         </li>
+        {% if report.analysis_request %}
+        <li class="card mb-3">
+          <h2 class="card-header h5">
+            Analysis Request
+          </h2>
+          <p class="card-body mb-0">
+            <a href="{{ report.analysis_request.get_staff_url }}">
+              {{ report.analysis_request.title }}
+            </a>
+          </p>
+        </li>
+        {% endif %}
       </ul>
     </div>
   </div>

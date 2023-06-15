@@ -33,7 +33,7 @@ def test_size_formatter_megabytes():
 
 def test_create_copilot_publish_report_request(github_api):
     project = ProjectFactory(copilot=UserFactory())
-    report = ReportFactory(project=project)
+    report = ReportFactory(project=project, title="Test report")
     publish_request = PublishRequestFactory()
     publish_request.snapshot.files.add(report.release_file)
 
@@ -44,10 +44,7 @@ def test_create_copilot_publish_report_request(github_api):
     assert issue.labels == ["publication-copiloted"]
     assert issue.org == "ebmdatalab"
     assert issue.repo == "publications-copiloted"
-    assert (
-        issue.title
-        == "Publication checklist for projects copiloted by the Bennett Institute"
-    )
+    assert issue.title == f"OSI Report: {report.title}"
 
     lines = issue.body.split("\n")
 
@@ -56,6 +53,7 @@ def test_create_copilot_publish_report_request(github_api):
     assert lines[1].endswith(report.project.copilot.name)
     assert lines[2].endswith(report.project.get_staff_url())
     assert lines[3].endswith(report.get_absolute_url())
+    assert report.get_staff_url() in issue.body
 
 
 def test_create_github_issue_external_success(build_release_with_files, github_api):
