@@ -135,7 +135,10 @@
             <h1 class="mb-2 text-3xl tracking-tight break-words font-bold text-slate-900 sm:text-4xl">
               {{ analysis_request.report.title }}
             </h1>
+
+            {% if analysis_request.report.description %}
             <p class="lead">{{ analysis_request.report.description|linebreaksbr }}</p>
+            {% endif %}
           </section>
 
           <div class="[&_h1]:hidden" id="interactiveReport">
