@@ -3,9 +3,12 @@
 {% block content %}
 Hi {{ name }},
 
-Your analysis titled "{{ title }}" using OpenSAFELY Interactive has now finished running. You can view the results at:
+Your report titled "{{ title }}" using OpenSAFELY Interactive is now available to view. You can view the report at:
 
 {{ url }}
 
-This report is not publicly accessible and is only viewable when logged into your OpenSAFELY Interactive account. Please only share these results with your immediate team. If you would like to share the report more widely, please send an email to us at team@opensafely.org
+This report has not yet been approved for publication and is only viewable when logged into your OpenSAFELY Interactive account. You can request publication of this report, which must be approved by NHS England, from the link above. Prior to publication, the report may be shared in confidence with key members of your team, but this must be done in line with the OpenSAFELY policy on sharing of results:
+
+https://www.opensafely.org/policies-for-researchers/#details-all-datasets
+
 {% endblock content %}
