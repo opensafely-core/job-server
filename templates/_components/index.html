@@ -3,6 +3,8 @@
 {% load django_vite %}
 {% load humanize %}
 
+{% block metatitle %}UI components gallery - OpenSAFELY Jobs{% endblock metatitle %}
+
 {% block content %}
   <details
     class="
@@ -559,6 +561,97 @@
   Hover here to see a tooltip
   {% verbatim %}{% tooltip content="I am the tooltip!" %}{% endverbatim %}
 </div>{% endfilter %}</code></pre>
+      </div>
+    </section>
+
+    <section>
+      <h2>Icons</h2>
+      <ul>
+        <li><code>class</code>: [string] - add HTML classes to the icon</li>
+      </ul>
+      <div class="not-prose flex flex-col gap-y-8 relative w-screen max-w-5xl left-1/2 -translate-x-1/2 p-8 bg-slate-200 border boder-slate-500 rounded">
+        <div class="flex flex-row flex-wrap gap-8 items-center">
+          {% icon_academic_cap_outline class="h-6 w-6 text-black" %}
+          {% icon_beaker_outline class="h-6 w-6 text-black" %}
+          {% icon_branches_outline class="h-6 w-6 text-black" %}
+          {% icon_building_library_outline class="h-6 w-6 text-black" %}
+          {% icon_calendar_outline class="h-6 w-6 text-black" %}
+          {% icon_check_outline class="h-6 w-6 text-black" %}
+          {% icon_chevron_right_outline class="h-6 w-6 text-black" %}
+          {% icon_clipboard_document_check_outline class="h-6 w-6 text-black" %}
+          {% icon_clock_outline class="h-6 w-6 text-black" %}
+          {% icon_code_bracket_outline class="h-6 w-6 text-black" %}
+          {% icon_ellipsis_horizontal_outline class="h-6 w-6 text-black" %}
+          {% icon_folder_open_outline class="h-6 w-6 text-black" %}
+          {% icon_folder_outline class="h-6 w-6 text-black" %}
+          {% icon_github_outline class="h-6 w-6 text-black" %}
+          {% icon_home_outline class="h-6 w-6 text-black" %}
+          {% icon_lifebuoy_outline class="h-6 w-6 text-black" %}
+          {% icon_menu_outline class="h-6 w-6 text-black" %}
+          {% icon_pencil_outline class="h-6 w-6 text-black" %}
+          {% icon_play_outline class="h-6 w-6 text-black" %}
+          {% icon_queue_list_outline class="h-6 w-6 text-black" %}
+          {% icon_rectangle_stack_outline class="h-6 w-6 text-black" %}
+          {% icon_status_online_outline class="h-6 w-6 text-black" %}
+          {% icon_user_group_outline class="h-6 w-6 text-black" %}
+          {% icon_user_outline class="h-6 w-6 text-black" %}
+          {% icon_x_outline class="h-6 w-6 text-black" %}
+
+          {% icon_check_circle_solid class="h-6 w-6 text-black" %}
+          {% icon_clock_solid class="h-6 w-6 text-black" %}
+          {% icon_exclamation_solid class="h-6 w-6 text-black" %}
+          {% icon_information_circle_solid class="h-6 w-6 text-black" %}
+          {% icon_lock_closed_solid class="h-6 w-6 text-black" %}
+          {% icon_x_circle_solid class="h-6 w-6 text-black" %}
+
+          {% icon_mini_chevron_down class="h-6 w-6 text-black" %}
+          {% icon_mini_chevron_up class="h-6 w-6 text-black" %}
+          {% icon_mini_exclamation_circle class="h-6 w-6 text-black" %}
+
+          {% icon_exclamation_triangle class="h-6 w-6 stroke-black" %}
+
+          {% icon_custom_spinner class="h-6 w-6 text-black animate-spin stroke-current stroke-2" %}
+        </div>
+        <pre><code class="language-django">{% verbatim %}{% icon_academic_cap_outline class="h-6 w-6 text-black" %}
+{% icon_beaker_outline class="h-6 w-6 text-black" %}
+{% icon_branches_outline class="h-6 w-6 text-black" %}
+{% icon_building_library_outline class="h-6 w-6 text-black" %}
+{% icon_calendar_outline class="h-6 w-6 text-black" %}
+{% icon_check_outline class="h-6 w-6 text-black" %}
+{% icon_chevron_right_outline class="h-6 w-6 text-black" %}
+{% icon_clipboard_document_check_outline class="h-6 w-6 text-black" %}
+{% icon_clock_outline class="h-6 w-6 text-black" %}
+{% icon_code_bracket_outline class="h-6 w-6 text-black" %}
+{% icon_ellipsis_horizontal_outline class="h-6 w-6 text-black" %}
+{% icon_folder_open_outline class="h-6 w-6 text-black" %}
+{% icon_folder_outline class="h-6 w-6 text-black" %}
+{% icon_github_outline class="h-6 w-6 text-black" %}
+{% icon_home_outline class="h-6 w-6 text-black" %}
+{% icon_lifebuoy_outline class="h-6 w-6 text-black" %}
+{% icon_menu_outline class="h-6 w-6 text-black" %}
+{% icon_pencil_outline class="h-6 w-6 text-black" %}
+{% icon_play_outline class="h-6 w-6 text-black" %}
+{% icon_queue_list_outline class="h-6 w-6 text-black" %}
+{% icon_rectangle_stack_outline class="h-6 w-6 text-black" %}
+{% icon_status_online_outline class="h-6 w-6 text-black" %}
+{% icon_user_group_outline class="h-6 w-6 text-black" %}
+{% icon_user_outline class="h-6 w-6 text-black" %}
+{% icon_x_outline class="h-6 w-6 text-black" %}
+
+{% icon_check_circle_solid class="h-6 w-6 text-black" %}
+{% icon_clock_solid class="h-6 w-6 text-black" %}
+{% icon_exclamation_solid class="h-6 w-6 text-black" %}
+{% icon_information_circle_solid class="h-6 w-6 text-black" %}
+{% icon_lock_closed_solid class="h-6 w-6 text-black" %}
+{% icon_x_circle_solid class="h-6 w-6 text-black" %}
+
+{% icon_mini_chevron_down class="h-6 w-6 text-black" %}
+{% icon_mini_chevron_up class="h-6 w-6 text-black" %}
+{% icon_mini_exclamation_circle class="h-6 w-6 text-black" %}
+
+{% icon_exclamation_triangle class="h-6 w-6 stroke-black" %}
+
+{% icon_custom_spinner class="h-6 w-6 text-black animate-spin stroke-current stroke-2" %}{% endverbatim %}</code></pre>
       </div>
     </section>
 
