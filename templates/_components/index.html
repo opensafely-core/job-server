@@ -3,10 +3,12 @@
 {% load django_vite %}
 {% load humanize %}
 
+{% block metatitle %}UI components gallery - OpenSAFELY Jobs{% endblock metatitle %}
+
 {% block content %}
   <details
     class="
-      fixed top-4 left-4 inline-flex z-50 group bg-oxford-50 border border-l-4 border-oxford-700/95 overflow-hidden rounded
+      fixed top-4 right-4 inline-flex z-50 group bg-oxford-50 border border-l-4 border-oxford-700/95 overflow-hidden rounded
       open:bg-white
     "
     open
@@ -131,15 +133,19 @@
       <h2>Button</h2>
       <ul>
         <li><code>children</code>: [html] - display the children components</li>
-        <li><code>class</code>: [string] - add HTML classes to the component</li>
+        <li><code>class</code>: [string] - add HTML classes</li>
+        <li><code>data_title</code>: [string] - adds a `data-title` attribute</li>
         <li><code>disabled</code>: [boolean] - if true, stops users from interacting with the component</li>
         <li><code>external</code>: [boolean] - used with `type="link"` to open link in a new tab</li>
         <li><code>href</code>: [string] - used with `type="link"` to add href to anchor tag</li>
         <li><code>id</code>: [string] - HTML element ID</li>
         <li><code>name</code>: [string] - HTML element name</li>
+        <li><code>small</code>: [boolean] - if true, will reduce the font size, weight, and padding</li>
         <li><code>tooltip</code>: [string] - if added, will show the string on hover</li>
-        <li><code>type</code>: [string] - switch between a button or anchor element</li>
+        <li><code>type</code>: [string] - if "link", button will display as an anchor tag</li>
+        <li><code>value</code>: [string] - add a value</li>
         <li><code>variant</code>: [string] - select styling colour for component</li>
+        <li><code>x_bind</code>: [string] - add an Alpine.js binding</li>
       </ul>
       <div class="not-prose flex flex-col gap-y-8 relative w-screen max-w-5xl left-1/2 -translate-x-1/2 p-8 bg-slate-200 border boder-slate-500 rounded">
         <div class="flex flex-col md:flex-row gap-8 items-center">
@@ -159,7 +165,9 @@
       <h2>Card</h2>
       <h3>Card</h3>
       <ul>
-        <li><code>aria_labelled_by</code>: [string] - if using a custom heading, add aria signposting to the associated heading</li>
+        <li><code>button</code>: [boolean] - display a button in the heading section</li>
+        <li><code>button_href</code>: [string] - set the href for the button</li>
+        <li><code>button_text</code>: [string] - set the text for the button</li>
         <li><code>children</code>: [html] - display the children components</li>
         <li><code>class</code>: [string] - add HTML classes to the outer section component</li>
         <li><code>container</code>: [boolean] - add padding and margin to the children container</li>
@@ -168,9 +176,14 @@
         <li><code>title</code>: [string] - display a subtitle for the card</li>
       </ul>
       <div class="not-prose flex flex-col gap-y-8 relative w-screen max-w-5xl left-1/2 -translate-x-1/2 p-8 bg-slate-200 border boder-slate-500 rounded">
-        <pre><code class="language-django">{% verbatim %}{% #card class="bg-red-50" title="Hola mundo" subtitle="Hallo welt" %}{% endverbatim %}
-  {% filter force_escape %}<span class="text-bn-ribbon-600">Hello world</span>{% endfilter %}
-{% verbatim %}{% /card %}{% endverbatim %}</code></pre>
+        <div class="flex flex-row gap-x-8 items-center">
+          {% #card class="bg-red-50" title="Hola mundo" subtitle="Hallo welt" container=True class="w-full max-w-lg mx-auto" button=True button_href="#" button_text="Button text" %}
+            <p class="text-oxford-700 text-lg font-semibold">Hello world</p>
+          {% /card %}
+        </div>
+        <pre><code class="language-django">{% verbatim %}{% #card class="bg-red-50" title="Hola mundo" subtitle="Hallo welt" container=True class="w-full max-w-lg mx-auto" button=True button_href="#" button_text="Button text" %}
+            <p class="text-oxford-700 text-lg font-semibold">Hello world</p>
+          {% /card %}{% endverbatim %}</code></pre>
       </div>
       <h3>Card footer</h3>
       <ul>
@@ -227,18 +240,40 @@
       <ul>
         <li><code>children</code>: [html] - display the children components</li>
         <li><code>details_class</code>: [string] - add HTML classes to the dt component</li>
+        <li><code>stacked</code>: [boolean] - if true, the title will appear above the content</li>
         <li><code>title</code>: [string] - add title text</li>
         <li><code>title_class</code>: [string] - add HTML classes to the dd component</li>
       </ul>
       <div class="not-prose flex flex-col gap-y-8 relative w-screen max-w-5xl left-1/2 -translate-x-1/2 p-8 bg-slate-200 border boder-slate-500 rounded">
-        <div class="flex flex-row gap-x-8 items-center">
-          {% #description_item title="This is a title" %}
-            <p>This is the child content</p>
+        <div class="flex flex-col items-center">
+          {% #description_item title="This is a title on the left" %}
+            <p>This is content on the right</p>
+          {% /description_item %}
+          {% #description_item title="This is a title on the left" %}
+            <p>This is content on the right</p>
           {% /description_item %}
         </div>
-        <pre><code class="language-django">{% verbatim %}{% #description_item title="This is a title" %}{% endverbatim %}
-  {% filter force_escape %}<p>This is the child content</p>{% endfilter %}
-{% verbatim %}{% /description_item %}{% endverbatim %}</code></pre>
+        <div class="flex flex-col items-center">
+          {% #description_item stacked=True title="This is a title on top" %}
+            <p>This is content on the bottom</p>
+          {% /description_item %}
+          {% #description_item stacked=True title="This is a title on top" %}
+            <p>This is content on the bottom</p>
+          {% /description_item %}
+        </div>
+        <pre><code class="language-django">{% verbatim %}{% #description_item title="This is a title on the left" %}
+  <p>This is content on the right</p>
+{% /description_item %}
+{% #description_item title="This is a title on the left" %}
+  <p>This is content on the right</p>
+{% /description_item %}
+
+{% #description_item stacked=True title="This is a title on top" %}
+  <p>This is content on the bottom</p>
+{% /description_item %}
+{% #description_item stacked=True title="This is a title on top" %}
+  <p>This is content on the bottom</p>
+{% /description_item %}{% endverbatim %}</code></pre>
       </div>
     </section>
 
@@ -270,14 +305,16 @@
             <li><a href="https://devdocs.io/django~4.1/ref/forms/api#django.forms.BoundField.value"><code>value</code></a></li>
           </ul>
         </li>
+        <li><code>hint_text</code>: [string] - add a subtitle as hint text for the form input</li>
         <li><a href="https://developer.mozilla.org/en-US/docs/Web/HTML/Global_attributes/inputmode"><code>inputmode</code></a></li>
         <li><code>label</code>: [string] - overwrite the label passed from Django</li>
+        <li><a href="https://developer.mozilla.org/en-US/docs/Web/HTML/Element/input#placeholder"><code>placeholder</code></a></li>
         <li><a href="https://developer.mozilla.org/en-US/docs/Web/HTML/Attributes/required"><code>required</code></a></li>
         <li><a href="https://developer.mozilla.org/en-US/docs/Web/HTML/Element/input#input_types"><code>type</code></a></li>
       </ul>
       <div class="not-prose flex flex-col gap-y-8 relative w-screen max-w-5xl left-1/2 -translate-x-1/2 p-8 bg-slate-200 border boder-slate-500 rounded">
         <div class="flex flex-col gap-y-4 items-start max-w-xl w-full mx-auto">
-          {% form_input type="email" label="Email address" required=True field=example_form_email %}
+          {% form_input type="email" label="Email address" required=True field=example_form_email hint_text="Must be an opensafely.org account" %}
           {% form_input type="text" label="Phone number" inputmode="number" autocapitalize=False autocomplete=False autocorrect=False %}
           {% form_input type="search" label="Search the site"%}
         </div>
@@ -298,6 +335,7 @@
             <li><a href="https://devdocs.io/django~4.1/ref/forms/api#django.forms.BoundField.label"><code>label</code></a></li>
           </ul>
         </li>
+        <li><code>hint_text</code>: [string] - add a subtitle as hint text for the form input</li>
         <li><code>label</code>: [string] - overwrite the label passed from Django</li>
         <li><a href="https://developer.mozilla.org/en-US/docs/Web/HTML/Attributes/required"><code>required</code></a></li>
         <li><code>selected</code>: [string] - matches value of choice for preselected option</li>
@@ -322,6 +360,7 @@
             <li><a href="https://devdocs.io/django~4.1/ref/forms/api#django.forms.BoundField.value"><code>value</code></a></li>
           </ul>
         </li>
+        <li><code>hint_text</code>: [string] - add a subtitle as hint text for the form input</li>
         <li><a href="https://developer.mozilla.org/en-US/docs/Web/HTML/Global_attributes/inputmode"><code>inputmode</code></a></li>
         <li><code>label</code>: [string] - overwrite the label passed from Django</li>
         <li><a href="https://developer.mozilla.org/en-US/docs/Web/HTML/Attributes/required"><code>required</code></a></li>
@@ -346,15 +385,19 @@
     <section id="linkSection">
       <h2>Link</h2>
       <ul>
+        <li><code>append_after</code>: [string] - add text directly after a link with no space</li>
+        <li><code>class</code>: [string] - add HTML classes to the component</li>
         <li><code>href</code>: [string] - href for the anchor tag</li>
         <li><code>new_tab</code>: [boolean] - if true, opens link in a new tab</li>
         <li><code>text</code>: [string] - link text to display</li>
       </ul>
       <div class="not-prose flex flex-col gap-y-8 relative w-screen max-w-5xl left-1/2 -translate-x-1/2 p-8 bg-slate-200 border boder-slate-500 rounded">
-        <div class="flex flex-row gap-x-8 items-center">
-          {% link href="#" new_tab=True text="It's me, a link!" %}
+        <div class="flex flex-col gap-x-8">
+          <p>{% link href="#" new_tab=True text="It's me, a link!" %}</p>
+          <p>And this is showing the {% link href="#" new_tab=True text="end of a sentence" append_after="." %}</p>
         </div>
-        <pre><code class="language-django">{% verbatim %}{% link href="#" new_tab=True text="It's me, a link!" %}{% endverbatim %}</code></pre>
+        <pre><code class="language-django">{% verbatim %}<p>{% link href="#" new_tab=True text="It's me, a link!" %}</p>
+<p>And this is showing the {% link href="#" new_tab=True text="end of a sentence" append_after="." %}</p>{% endverbatim %}</code></pre>
       </div>
     </section>
 
@@ -367,6 +410,24 @@
       </ul>
       <div class="not-prose flex flex-col gap-y-8 relative w-screen max-w-5xl left-1/2 -translate-x-1/2 p-8 bg-slate-200 border boder-slate-500 rounded">
         <pre><code class="language-django">{% verbatim %}{% #list_group %}content in here{% /list_group %}{% endverbatim %}</code></pre>
+      </div>
+      <h3>List group empty</h3>
+      <ul>
+        <li><code>description</code>: [string] - description text to display</li>
+        <li><code>icon</code>: [boolean] - if true, shows the empty folder icon</li>
+        <li><code>title</code>: [string] - title text to display</li>
+      </ul>
+      <div class="not-prose flex flex-col gap-y-8 relative w-screen max-w-5xl left-1/2 -translate-x-1/2 p-8 bg-slate-200 border boder-slate-500 rounded">
+        {% #card %}
+          {% #list_group %}
+            {% list_group_empty icon=True title="This group is empty" description="And here is some text explaining why" %}
+          {% /list_group %}
+        {% /card %}
+        <pre><code class="language-django">{% verbatim %}{% #card %}
+  {% #list_group %}
+    {% list_group_empty icon=True title="This group is empty" description="And here is some text explaining why" %}
+  {% /list_group %}
+{% /card %}{% endverbatim %}</code></pre>
       </div>
       <h3>List group item</h3>
       <ul>
@@ -382,6 +443,30 @@
         <pre><code class="language-django">{% verbatim %}{% #card %}
   {% #list_group %}
     {% #list_group_item href="https://www.example.com/" %}Example dot com{% /list_group_item %}
+  {% /list_group %}
+{% /card %}{% endverbatim %}</code></pre>
+      </div>
+      <h3>List group rich item</h3>
+      <ul>
+        <li><code>children</code>: [html] - display the children components</li>
+        <li><code>status_text</code>: [string] - matches the pill title and colour to statuses</li>
+        <li><code>title</code>: [string] - item title</li>
+        <li><code>type</code>: [string] - hidden field for screen readers listing the group type</li>
+        <li><code>url</code>: [string] - href for the item</li>
+      </ul>
+      <div class="not-prose flex flex-col gap-y-8 relative w-screen max-w-5xl left-1/2 -translate-x-1/2 p-8 bg-slate-200 border boder-slate-500 rounded">
+        {% #card %}
+          {% #list_group %}
+            {% #list_group_rich_item status_text="running" title="An example rich item" type="Example card" url="#" %}
+              Which has a description
+            {% /list_group_rich_item %}
+          {% /list_group %}
+        {% /card %}
+        <pre><code class="language-django">{% verbatim %}{% #card %}
+  {% #list_group %}
+    {% #list_group_rich_item status_text="running" title="An example rich item" type="Example card" url="#" %}
+      Which has a description
+    {% /list_group_rich_item %}
   {% /list_group %}
 {% /card %}{% endverbatim %}</code></pre>
       </div>
@@ -476,6 +561,95 @@
   Hover here to see a tooltip
   {% verbatim %}{% tooltip content="I am the tooltip!" %}{% endverbatim %}
 </div>{% endfilter %}</code></pre>
+      </div>
+    </section>
+
+    <section>
+      <h2>Icons</h2>
+      <ul>
+        <li><code>class</code>: [string] - add HTML classes to the icon</li>
+      </ul>
+      <div class="not-prose flex flex-col gap-y-8 relative w-screen max-w-5xl left-1/2 -translate-x-1/2 p-8 bg-slate-200 border boder-slate-500 rounded">
+        <div class="flex flex-row flex-wrap gap-8 items-center">
+          {% icon_academic_cap_outline class="h-6 w-6 text-black" %}
+          {% icon_beaker_outline class="h-6 w-6 text-black" %}
+          {% icon_branches_outline class="h-6 w-6 text-black" %}
+          {% icon_building_library_outline class="h-6 w-6 text-black" %}
+          {% icon_calendar_outline class="h-6 w-6 text-black" %}
+          {% icon_check_outline class="h-6 w-6 text-black" %}
+          {% icon_chevron_right_outline class="h-6 w-6 text-black" %}
+          {% icon_clipboard_document_check_outline class="h-6 w-6 text-black" %}
+          {% icon_clock_outline class="h-6 w-6 text-black" %}
+          {% icon_code_bracket_outline class="h-6 w-6 text-black" %}
+          {% icon_ellipsis_horizontal_outline class="h-6 w-6 text-black" %}
+          {% icon_exclamation_triangle_outline class="h-6 w-6 stroke-black" %}
+          {% icon_folder_open_outline class="h-6 w-6 text-black" %}
+          {% icon_folder_outline class="h-6 w-6 text-black" %}
+          {% icon_github_outline class="h-6 w-6 text-black" %}
+          {% icon_home_outline class="h-6 w-6 text-black" %}
+          {% icon_lifebuoy_outline class="h-6 w-6 text-black" %}
+          {% icon_menu_outline class="h-6 w-6 text-black" %}
+          {% icon_pencil_outline class="h-6 w-6 text-black" %}
+          {% icon_play_outline class="h-6 w-6 text-black" %}
+          {% icon_queue_list_outline class="h-6 w-6 text-black" %}
+          {% icon_rectangle_stack_outline class="h-6 w-6 text-black" %}
+          {% icon_status_online_outline class="h-6 w-6 text-black" %}
+          {% icon_user_group_outline class="h-6 w-6 text-black" %}
+          {% icon_user_outline class="h-6 w-6 text-black" %}
+          {% icon_x_outline class="h-6 w-6 text-black" %}
+
+          {% icon_check_circle_solid class="h-6 w-6 text-blue-800" %}
+          {% icon_clock_solid class="h-6 w-6 text-blue-800" %}
+          {% icon_exclamation_triangle_solid class="h-6 w-6 text-blue-800" %}
+          {% icon_information_circle_solid class="h-6 w-6 text-blue-800" %}
+          {% icon_lock_closed_solid class="h-6 w-6 text-blue-800" %}
+          {% icon_x_circle_solid class="h-6 w-6 text-blue-800" %}
+
+          {% icon_chevron_down_mini class="h-6 w-6 text-red-800" %}
+          {% icon_chevron_up_mini class="h-6 w-6 text-red-800" %}
+          {% icon_exclamation_circle_mini class="h-6 w-6 text-red-800" %}
+
+          {% icon_custom_spinner class="h-6 w-6 text-green-700 animate-spin stroke-current stroke-2" %}
+        </div>
+        <pre><code class="language-django">{% verbatim %}{% icon_academic_cap_outline class="h-6 w-6 text-black" %}
+{% icon_beaker_outline class="h-6 w-6 text-black" %}
+{% icon_branches_outline class="h-6 w-6 text-black" %}
+{% icon_building_library_outline class="h-6 w-6 text-black" %}
+{% icon_calendar_outline class="h-6 w-6 text-black" %}
+{% icon_check_outline class="h-6 w-6 text-black" %}
+{% icon_chevron_right_outline class="h-6 w-6 text-black" %}
+{% icon_clipboard_document_check_outline class="h-6 w-6 text-black" %}
+{% icon_clock_outline class="h-6 w-6 text-black" %}
+{% icon_code_bracket_outline class="h-6 w-6 text-black" %}
+{% icon_ellipsis_horizontal_outline class="h-6 w-6 text-black" %}
+{% icon_exclamation_triangle_outline class="h-6 w-6 stroke-black" %}
+{% icon_folder_open_outline class="h-6 w-6 text-black" %}
+{% icon_folder_outline class="h-6 w-6 text-black" %}
+{% icon_github_outline class="h-6 w-6 text-black" %}
+{% icon_home_outline class="h-6 w-6 text-black" %}
+{% icon_lifebuoy_outline class="h-6 w-6 text-black" %}
+{% icon_menu_outline class="h-6 w-6 text-black" %}
+{% icon_pencil_outline class="h-6 w-6 text-black" %}
+{% icon_play_outline class="h-6 w-6 text-black" %}
+{% icon_queue_list_outline class="h-6 w-6 text-black" %}
+{% icon_rectangle_stack_outline class="h-6 w-6 text-black" %}
+{% icon_status_online_outline class="h-6 w-6 text-black" %}
+{% icon_user_group_outline class="h-6 w-6 text-black" %}
+{% icon_user_outline class="h-6 w-6 text-black" %}
+{% icon_x_outline class="h-6 w-6 text-black" %}
+
+{% icon_check_circle_solid class="h-6 w-6 text-blue-800" %}
+{% icon_clock_solid class="h-6 w-6 text-blue-800" %}
+{% icon_exclamation_triangle_solid class="h-6 w-6 text-blue-800" %}
+{% icon_information_circle_solid class="h-6 w-6 text-blue-800" %}
+{% icon_lock_closed_solid class="h-6 w-6 text-blue-800" %}
+{% icon_x_circle_solid class="h-6 w-6 text-blue-800" %}
+
+{% icon_chevron_down_mini class="h-6 w-6 text-red-800" %}
+{% icon_chevron_up_mini class="h-6 w-6 text-red-800" %}
+{% icon_exclamation_circle_mini class="h-6 w-6 text-red-800" %}
+
+{% icon_custom_spinner class="h-6 w-6 text-green-700 animate-spin stroke-current stroke-2" %}{% endverbatim %}</code></pre>
       </div>
     </section>
 
