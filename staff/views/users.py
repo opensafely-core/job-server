@@ -12,10 +12,10 @@ from django.views.generic.detail import SingleObjectMixin
 from social_django.models import UserSocialAuth
 
 from interactive.commands import create_user
+from interactive.emails import send_welcome_email
 from jobserver.authorization import roles
 from jobserver.authorization.decorators import require_permission
 from jobserver.authorization.utils import roles_for, strings_to_roles
-from jobserver.emails import send_welcome_email
 from jobserver.models import Backend, Job, Org, Project, User
 from jobserver.utils import raise_if_not_int
 

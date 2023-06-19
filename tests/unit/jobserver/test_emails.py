@@ -10,7 +10,6 @@ from jobserver.emails import (
     send_login_email,
     send_repo_signed_off_notification_to_researchers,
     send_repo_signed_off_notification_to_staff,
-    send_welcome_email,
 )
 
 from ...factories import (
@@ -116,15 +115,3 @@ def test_send_repo_signed_off_notification_to_staff(mailoutbox):
 
     assert list(m.to) == ["publications@opensafely.org"]
     assert "7,42" in m.subject
-
-
-def test_welcome_email(mailoutbox):
-    user = UserFactory()
-
-    send_welcome_email(user)
-
-    m = mailoutbox[0]
-
-    assert user.name in m.body
-
-    assert list(m.to) == [user.email]
