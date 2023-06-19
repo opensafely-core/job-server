@@ -139,6 +139,8 @@
             {% if analysis_request.report.description %}
             <p class="lead">{{ analysis_request.report.description|linebreaksbr }}</p>
             {% endif %}
+
+            <a href="{{ analysis_request.project.get_approved_url }}">View project purpose</a>
           </section>
 
           <div class="[&_h1]:hidden" id="interactiveReport">
