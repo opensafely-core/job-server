@@ -3,7 +3,7 @@
 {% block content %}
 Hi {{ name }},
 
-Thank you for your interest in OpenSAFELY Interactive.
+Welcome to OpenSAFELY Interactive.
 
 Please click on the link to get started:
 
