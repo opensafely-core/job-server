@@ -9,7 +9,7 @@ def send_report_uploaded_notification(analysis_request):
 
     context = {
         "name": analysis_request.created_by.name,
-        "title": analysis_request.title,
+        "title": analysis_request.report.title,
         "url": analysis_request_url,
     }
 
