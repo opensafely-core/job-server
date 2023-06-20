@@ -135,7 +135,19 @@
             <h1 class="mb-2 text-3xl tracking-tight break-words font-bold text-slate-900 sm:text-4xl">
               {{ analysis_request.report.title }}
             </h1>
-            <p class="lead">{{ analysis_request.report.description|linebreaksbr }}</p>
+
+            {% if analysis_request.report.description %}
+            <p class="lead !mb-2">{{ analysis_request.report.description|linebreaksbr }}</p>
+            {% endif %}
+
+            <p class="mb-4">
+              <a id="viewProjectPurposeLink" href="{{ analysis_request.project.get_approved_url }}">
+                View project purpose
+              </a>
+              <a id="viewOnOpensafelyLink" class="hidden" href="{{ analysis_request.get_absolute_url }}">
+                View on OpenSAFELY
+              </a>
+            </p>
           </section>
 
           <div class="[&_h1]:hidden" id="interactiveReport">
