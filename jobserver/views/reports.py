@@ -32,6 +32,19 @@ class PublishRequestCreate(View):
         ):
             raise PermissionDenied
 
+        if self.analysis_request.report.is_locked:
+            publish_request = self.analysis_request.report.publish_requests.order_by(
+                "-created_at"
+            ).first()
+            return TemplateResponse(
+                request,
+                "interactive/publish_request_create_locked.html",
+                context={
+                    "analysis_request": self.analysis_request,
+                    "publish_request": publish_request,
+                },
+            )
+
         return super().dispatch(request, *args, **kwargs)
 
     def get(self, request, *args, **kwargs):
