@@ -59,13 +59,13 @@ jobs:
           cache-dependency-path: package-lock.json
 
       - name: Install node_modules
-        run: npm ci --ignore-scripts
+        run: just assets-install --ignore-scripts
 
       - name: Lint assets
         run: npm run lint
 
       - name: Run JS tests
-        run: npm run test:coverage
+        run: just assets-test
 
       - name: Build assets
         run: just assets-build

@@ -181,7 +181,7 @@ assets-clean:
 
 
 # Install the Node.js dependencies
-assets-install:
+assets-install *args="":
     #!/usr/bin/env bash
     set -eu
 
@@ -189,7 +189,7 @@ assets-install:
     # but we negate with || to avoid error exit code
     test package-lock.json -nt node_modules/.written || exit 0
 
-    npm ci
+    npm ci {{ args }}
     touch node_modules/.written
 
 
