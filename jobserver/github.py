@@ -44,13 +44,14 @@ class GitHubAPI:
 
     base_url = "https://api.github.com"
 
-    def __init__(self, _session=session, token=None):
+    def __init__(self, _session=session, token=None, respect_retries=False):
         """
         Initialise the wrapper with a session and maybe token
 
         We pass in the session here so that tests can pass in a fake object to
         test internals.
         """
+        self.respect_retries = respect_retries
         self.session = _session
         self.token = token
 
@@ -71,7 +72,7 @@ class GitHubAPI:
         Thin wrapper of requests.Session._request()
 
         This wrapper exists solely to inject the Authorization header if a
-        token has been set on the current instance and that headers hasn't
+        token has been set on the current instance and that header hasn't
         already been set in a given requests headers.
 
         This solves a tension between using an application-level session object
@@ -88,7 +89,12 @@ class GitHubAPI:
         if self.token and "Authorization" not in headers:
             headers = headers | {"Authorization": f"bearer {self.token}"}
 
-        return self.session.request(method, *args, headers=headers, **kwargs)
+        r = self.session.request(method, *args, headers=headers, **kwargs)
+
+        if self.respect_retries:  # pragma: no cover
+            pass
+
+        return r
 
     def _get_query_page(self, *, query, session, cursor, **kwargs):
         """
