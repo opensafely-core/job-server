@@ -141,7 +141,12 @@
             {% endif %}
 
             <p class="mb-4">
-              <a href="{{ analysis_request.project.get_approved_url }}">View project purpose</a>
+              <a id="viewProjectPurposeLink" href="{{ analysis_request.project.get_approved_url }}">
+                View project purpose
+              </a>
+              <a id="viewOnOpensafelyLink" class="hidden" href="{{ analysis_request.get_absolute_url }}">
+                View on OpenSAFELY
+              </a>
             </p>
           </section>
 

@@ -7,6 +7,9 @@ function generatePDF() {
   const watermark = reportContainer.querySelector("#watermark");
   const report = reportContainer.querySelector("#report");
 
+  const viewPurposeLink = document.getElementById("viewProjectPurposeLink");
+  const viewOnOSLink = document.getElementById("viewOnOpensafelyLink");
+
   const downloadModal = document.getElementById("downloadModal");
   const confirmBtn = downloadModal.querySelector(`[value="confirm"]`);
   const cancelBtn = downloadModal.querySelector(`[value="cancel"]`);
@@ -35,6 +38,10 @@ function generatePDF() {
     // Reset the styles for printing
     report.classList.add(`print-pdf`);
 
+    // flip the links
+    viewPurposeLink.classList.add("hidden");
+    viewOnOSLink.classList.remove("hidden");
+
     // Remove elements not required
     reportContainer
       .querySelectorAll("svg")
@@ -60,6 +67,10 @@ function generatePDF() {
         .forEach((element) => element.classList.remove("!hidden"));
       reportContainer.querySelector(".toc").classList.remove("!hidden");
     }, 0);
+
+    // flip the links back
+    viewOnOSLink.classList.add("hidden");
+    viewPurposeLink.classList.remove("hidden");
 
     // Show download button
     confirmBtn.classList.remove("hidden");
