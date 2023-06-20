@@ -4,6 +4,7 @@ export const singleCodelistProps = {
   label: string,
   organisation: string,
   type: string,
+  user: string,
   value: string,
 };
 

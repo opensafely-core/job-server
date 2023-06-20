@@ -60,6 +60,7 @@ class OpenCodelistsAPI:
                 "name": codelist["name"],
                 "organisation": codelist["organisation"],
                 "updated_date": latest["updated_date"],
+                "user": codelist["user"],
             }
 
     def get_codelists(self, coding_system):

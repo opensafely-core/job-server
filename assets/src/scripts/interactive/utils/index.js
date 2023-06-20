@@ -20,6 +20,7 @@ export function getCodelistPageData(scriptID) {
     label: codelist.name,
     organisation: codelist.organisation,
     type: scriptID.slice(9, scriptID.length - 1),
+    user: codelist.user,
     value: codelist.slug,
     updatedDate: codelist.updated_date,
   }));
