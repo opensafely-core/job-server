@@ -38,14 +38,6 @@ def test_project_get_edit_url():
     )
 
 
-def test_project_get_staff_edit_url():
-    project = ProjectFactory()
-
-    url = project.get_staff_edit_url()
-
-    assert url == reverse("staff:project-edit", kwargs={"slug": project.slug})
-
-
 def test_project_get_releases_url():
     project = ProjectFactory()
 
@@ -60,12 +52,34 @@ def test_project_get_releases_url():
     )
 
 
+def test_project_get_reports_url():
+    project = ProjectFactory()
+
+    url = project.get_reports_url()
+
+    assert url == reverse(
+        "project-report-list",
+        kwargs={
+            "org_slug": project.org.slug,
+            "project_slug": project.slug,
+        },
+    )
+
+
 def test_project_get_staff_url():
     project = ProjectFactory()
 
     url = project.get_staff_url()
 
     assert url == reverse("staff:project-detail", kwargs={"slug": project.slug})
+
+
+def test_project_get_staff_edit_url():
+    project = ProjectFactory()
+
+    url = project.get_staff_edit_url()
+
+    assert url == reverse("staff:project-edit", kwargs={"slug": project.slug})
 
 
 def test_project_get_staff_feature_flags_url():

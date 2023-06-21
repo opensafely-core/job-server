@@ -236,6 +236,24 @@
         {% /card %}
       {% endif %}
 
+      {% #card title="Reports" subtitle="Recently published reports" %}
+        {% #list_group %}
+          {% for report in reports %}
+            {% #list_group_item href=report.get_absolute_url %}
+              {{ report.title }}
+            {% /list_group_item %}
+          {% empty %}
+            {% list_group_empty icon=True title="No reports" description="This project does not currently have any published reports" %}
+          {% endfor %}
+        {% /list_group %}
+
+        {% if counts.reports > reports|length %}
+          {% #card_footer no_container=True %}
+            {% link href=project.get_reports_url text="View all reports →" %}
+          {% /card_footer %}
+        {% endif %}
+      {% /card %}
+
       {% if memberships %}
         {% #card title="Researchers" %}
           <div class="border-t border-t-slate-200">

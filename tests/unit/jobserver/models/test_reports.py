@@ -112,6 +112,19 @@ def test_report_is_published():
     assert report.is_published
 
 
+def test_report_published_at():
+    report = ReportFactory()
+    assert not report.published_at
+
+    snapshot = SnapshotFactory()
+    snapshot.files.set([report.release_file])
+    publish_request = PublishRequestFactory(report=report, snapshot=snapshot)
+    assert not report.published_at
+
+    publish_request.approve(user=UserFactory())
+    assert report.published_at
+
+
 def test_report_str():
     report = ReportFactory(title="test")
 

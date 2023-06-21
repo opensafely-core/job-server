@@ -7,7 +7,7 @@ from django.db.models import Min, OuterRef, Subquery
 from django.db.models.functions import Least, Lower
 from django.shortcuts import get_object_or_404
 from django.template.response import TemplateResponse
-from django.views.generic import UpdateView, View
+from django.views.generic import ListView, UpdateView, View
 
 from ..authorization import has_permission
 from ..github import _get_github_api
@@ -73,8 +73,18 @@ class ProjectDetail(View):
             request.user, "analysis_request_create", project=project
         )
 
+        all_reports = project.reports.filter(
+            publish_requests__decision=PublishRequest.Decisions.APPROVED
+        ).order_by("-created_at")
+        reports = all_reports[:5]
+
+        counts = {
+            "reports": all_reports.count(),
+        }
+
         context = {
             "can_create_workspaces": can_create_workspaces,
+            "counts": counts,
             "first_job_ran_at": first_job_ran_at,
             "is_interactive_user": is_interactive_user,
             "is_member": is_member,
@@ -84,6 +94,7 @@ class ProjectDetail(View):
             "private_repos": private_repos,
             "public_repos": public_repos,
             "project_org_in_user_orgs": project_org_in_user_orgs,
+            "reports": reports,
             "status": self.get_status(project),
             "workspaces": workspaces,
         }
@@ -182,3 +193,36 @@ class ProjectEdit(UpdateView):
 
     def get_success_url(self):
         return self.request.GET.get("next") or self.object.get_absolute_url()
+
+
+class ProjectReportList(ListView):
+    template_name = "project_report_list.html"
+
+    def dispatch(self, request, *args, **kwargs):
+        self.project = get_object_or_404(
+            Project,
+            slug=self.kwargs["project_slug"],
+            org__slug=self.kwargs["org_slug"],
+        )
+
+        self.can_view_unpublished_reports = has_permission(
+            self.request.user, "release_file_view", project=self.project
+        )
+
+        return super().dispatch(request, *args, **kwargs)
+
+    def get_context_data(self, **kwargs):
+        return super().get_context_data(**kwargs) | {
+            "project": self.project,
+            "user_can_view_unpublished_reports": self.can_view_unpublished_reports,
+        }
+
+    def get_queryset(self):
+        reports = self.project.reports.order_by("-created_at")
+
+        if not self.can_view_unpublished_reports:
+            reports = reports.filter(
+                publish_requests__decision=PublishRequest.Decisions.APPROVED
+            )
+
+        return reports
