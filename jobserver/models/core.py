@@ -574,17 +574,23 @@ class Project(models.Model):
             kwargs={"org_slug": self.org.slug, "project_slug": self.slug},
         )
 
-    def get_staff_edit_url(self):
-        return reverse("staff:project-edit", kwargs={"slug": self.slug})
-
     def get_releases_url(self):
         return reverse(
             "project-release-list",
             kwargs={"org_slug": self.org.slug, "project_slug": self.slug},
         )
 
+    def get_reports_url(self):
+        return reverse(
+            "project-report-list",
+            kwargs={"org_slug": self.org.slug, "project_slug": self.slug},
+        )
+
     def get_staff_url(self):
         return reverse("staff:project-detail", kwargs={"slug": self.slug})
+
+    def get_staff_edit_url(self):
+        return reverse("staff:project-edit", kwargs={"slug": self.slug})
 
     def get_staff_feature_flags_url(self):
         return reverse("staff:project-feature-flags", kwargs={"slug": self.slug})

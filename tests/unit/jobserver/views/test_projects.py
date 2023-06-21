@@ -8,7 +8,7 @@ from django.utils import timezone
 from jobserver.authorization import CoreDeveloper, InteractiveReporter
 from jobserver.models import Project, PublishRequest, Snapshot
 from jobserver.utils import set_from_qs
-from jobserver.views.projects import ProjectDetail, ProjectEdit
+from jobserver.views.projects import ProjectDetail, ProjectEdit, ProjectReportList
 
 from ....factories import (
     JobFactory,
@@ -18,6 +18,7 @@ from ....factories import (
     ProjectMembershipFactory,
     PublishRequestFactory,
     RepoFactory,
+    ReportFactory,
     SnapshotFactory,
     UserFactory,
     WorkspaceFactory,
@@ -339,3 +340,70 @@ def test_projectedit_without_permissions(rf, user):
         ProjectEdit.as_view()(
             request, org_slug=project.org.slug, project_slug=project.slug
         )
+
+
+def test_projectreportlist_success(rf, release):
+    project = ProjectFactory()
+    user = UserFactory()
+
+    report1 = ReportFactory(project=project)
+
+    report2 = ReportFactory(project=project, release_file=release.files.first())
+    snapshot = SnapshotFactory()
+    snapshot.files.set(release.files.all())
+    PublishRequestFactory(
+        report=report2,
+        snapshot=snapshot,
+        decision=PublishRequest.Decisions.APPROVED,
+        decision_at=timezone.now(),
+        decision_by=UserFactory(),
+    )
+
+    request = rf.get("/")
+    request.user = user
+
+    response = ProjectReportList.as_view()(
+        request, org_slug=project.org.slug, project_slug=project.slug
+    )
+
+    assert response.status_code == 200
+    assert set_from_qs(response.context_data["object_list"]) == {report2.pk}
+
+    # test the page again now the user has permissions to view drafts
+    ProjectMembershipFactory(project=project, user=user, roles=[InteractiveReporter])
+
+    request = rf.get("/")
+    request.user = user
+
+    response = ProjectReportList.as_view()(
+        request, org_slug=project.org.slug, project_slug=project.slug
+    )
+
+    assert response.status_code == 200
+    assert set_from_qs(response.context_data["object_list"]) == {report1.pk, report2.pk}
+
+
+def test_projectreportlist_unknown_project(rf):
+    org = OrgFactory()
+
+    request = rf.get("/")
+    request.user = UserFactory()
+
+    with pytest.raises(Http404):
+        ProjectReportList.as_view()(request, org_slug=org.slug, project_slug="")
+
+
+def test_projectreportlist_with_no_reports(rf):
+    project = ProjectFactory()
+
+    request = rf.get("/")
+    request.user = UserFactory()
+
+    response = ProjectReportList.as_view()(
+        request, org_slug=project.org.slug, project_slug=project.slug
+    )
+
+    assert response.status_code == 200
+    assert (
+        "currently no published reports for this project" in response.rendered_content
+    )

@@ -1,0 +1,44 @@
+{% extends "base-tw.html" %}
+
+{% block metatitle %}Reports for {{ project.name }} | OpenSAFELY Jobs{% endblock metatitle %}
+
+{% block breadcrumbs %}
+  {% #breadcrumbs %}
+    {% url 'home' as home_url %}
+    {% breadcrumb title="Home" url=home_url %}
+    {% breadcrumb location="Organisation" title=project.org.name url=project.org.get_absolute_url %}
+    {% breadcrumb location="Project" title=project.name url=project.get_absolute_url %}
+    {% breadcrumb title="Reports" active=True %}
+  {% /breadcrumbs %}
+{% endblock breadcrumbs %}
+
+{% block content %}
+  {% #card title="Reports" %}
+    {% if object_list %}
+      {% #list_group %}
+        {% for report in object_list %}
+          {% #list_group_item href=report.get_absolute_url %}
+            {{ report.title }}
+            {% if user_can_view_unpublished_reports %}
+              {% if report.is_published %}
+              {% pill class="ml-2" text="Published" variant="success" %}
+              {% else %}
+              {% pill class="ml-2" text="Draft" variant="info" %}
+              {% endif %}
+            {% endif %}
+          {% /list_group_item %}
+        {% endfor %}
+      {% /list_group %}
+    {% else %}
+      <div class="border-t border-t-slate200 text-center p-8">
+        {% icon_folder_outline class="mx-auto h-8 w-8 text-slate-400" %}
+        <h2 class="mt-2 text-lg font-semibold text-slate-900">
+          No reports
+        </h2>
+        <p class="mt-2 text-sm text-slate-600">
+          There are currently no {% if not user_can_view_unpublished_reports %}published {% endif %}reports for this project
+        </p>
+      </div>
+    {% endif %}
+  {% /card %}
+{% endblock content %}

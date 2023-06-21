@@ -112,3 +112,17 @@ class Report(models.Model):
             return False
 
         return latest.decision == PublishRequest.Decisions.APPROVED
+
+    @property
+    def published_at(self):
+        # We support multiple publish requests over time but we only look at
+        # the latest one to get published date.
+        latest = self.publish_requests.order_by("-created_at").first()
+
+        if not latest:
+            return False
+
+        if latest.decision != PublishRequest.Decisions.APPROVED:
+            return False
+
+        return latest.created_at
