@@ -28,7 +28,9 @@ def create_copilot_publish_report_request(report, github_api):
         copilot_name = ""
 
     base_url = furl(settings.BASE_URL)
+    application_url = report.project.application_url
     project_url = base_url / report.project.get_staff_url()
+    project_edit_url = base_url / report.project.get_staff_edit_url()
     report_url = base_url / report.get_absolute_url()
     report_staff_url = base_url / report.get_staff_url()
 
@@ -41,7 +43,7 @@ def create_copilot_publish_report_request(report, github_api):
     ### Checklist
 
     1. Co-pilot carries out assurance checks[^1]
-        - [ ] Do the results of the project match the original aims of the [application](LINK)?
+        - [ ] Do the results of the project match the original aims of the [application]({application_url})?
         - [ ] Are the results COPI compliant[^2]?
         - [ ] Is the summary focused on a COVID-19 related theme?
         - [ ] Have non COVID-19 related inferences been made, and how extensive are they?
@@ -52,14 +54,14 @@ def create_copilot_publish_report_request(report, github_api):
         - [ ] Is there any contentious or politically sensitive content?
         - [ ] Are NHSE or any other organisations likely to want the right to reply?
     2. If the assurance check raises any issues, co-pilot shares the report with Ops Team[^3].
-        - [ ] Ops Team review (Ops Team member)
+        - [ ] Ops Team review (by an [Ops Team member](https://bennettinstitute-team-manual.pages.dev/the-teams/ops-team/#current-team-members))
         - [ ] Co-pilot corresponds with pilot regarding changes. To make a change, the co-pilot must reject the current request and ask the user to make edits and then re-submit the request.
     3. Co-pilot downloads a copy of the report and submits to Amir, who will prompt IG review with NHSE
         - [ ] Report submitted to Amir for NHSE review
     4. Amir informs co-pilot of decision (accept/reject)
     5. Co-pilot approves or rejects the request [on the report page]({report_staff_url})
     6. Upon publication, co-pilot should consider if project status should be updated, and if any external outputs should be linked to in the status description. This can be done from the staff area for the project.
-        - [ ] Project status updated
+        - [ ] [Project status updated]({project_edit_url})
 
 
     [^1]: Further details regarding what is included in an assurance check is available [here](https://bennettinstitute-team-manual.pages.dev/products/publication-process-copiloted/#assurance-check).
