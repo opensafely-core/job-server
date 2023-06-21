@@ -71,7 +71,8 @@ class PublishRequestCreate(View):
         )
 
         messages.success(
-            self.request, "Your request to publish this report was successfully sent"
+            self.request,
+            "Your request to publish this report was successfully sent to the OpenSAFELY team",
         )
 
         return redirect(self.analysis_request)
