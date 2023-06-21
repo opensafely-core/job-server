@@ -41,34 +41,37 @@ def create_copilot_publish_report_request(report, github_api):
     ### Checklist
 
     1. Co-pilot carries out assurance checks[^1]
-        - [ ] Assurance check (co-pilot)
-          - [ ] Do the results of the project match the original aims of the application?
-          - [ ] Are the results COPI compliant?
-          - [ ] Are the analysis and discussion focused on a COVID-19 related theme?
-          - [ ] Have non COVID-19 related inferences been made, and how extensive are they?
-          - [ ] Are all assumptions about the study population/data appropriate and reasonable?
-          - [ ] Have the authors interpreted the results appropriately? (There is a risk that these users will not be sufficiently experienced to judge if the quality of the GP data will be good enough to answer their questions. We have agreed to mitigate this risk by checking their reports carefully before publication.)
-          - [ ] Are all necessary limitations included?
-          - [ ] Are all recommendations appropriate and reasonable?
-          - [ ] Is there any contentious or politically sensitive content?
-          - [ ] Are NHSE or any other organisations likely to want the right to reply?
-    2. If required[^2], co-pilot shares the manuscript with Ops Team[^3] and Amir.
+        - [ ] Do the results of the project match the original aims of the [application](LINK)?
+        - [ ] Are the results COPI compliant[^2]?
+        - [ ] Is the summary focused on a COVID-19 related theme?
+        - [ ] Have non COVID-19 related inferences been made, and how extensive are they?
+        - [ ] Are all assumptions about the study population/data appropriate and reasonable?
+        - [ ] Have the authors interpreted the results appropriately? (There is a risk that these users will not be sufficiently experienced to judge if the quality of the GP data will be good enough to answer their questions. We have agreed to mitigate this risk by checking their reports carefully before publication.)
+        - [ ] Are all necessary limitations included?
+        - [ ] Are all recommendations appropriate and reasonable?
+        - [ ] Is there any contentious or politically sensitive content?
+        - [ ] Are NHSE or any other organisations likely to want the right to reply?
+    2. If the assurance check raises any issues, co-pilot shares the report with Ops Team[^3].
         - [ ] Ops Team review (Ops Team member)
-        - [ ] IG review (@amirmehrkar)
         - [ ] Co-pilot corresponds with pilot regarding changes. To make a change, the co-pilot must reject the current request and ask the user to make edits and then re-submit the request.
-
-    ** Steps 2-4 are repeated as required to meet assurance checks **
-
     3. Co-pilot downloads a copy of the report and submits to Amir, who will prompt IG review with NHSE
         - [ ] Report submitted to Amir for NHSE review
     4. Amir informs co-pilot of decision (accept/reject)
     5. Co-pilot approves or rejects the request [on the report page]({report_staff_url})
-    6. Upon publication, co-pilot should consider if project status should be updated, and if any external outputs should be linked to in the status description
+    6. Upon publication, co-pilot should consider if project status should be updated, and if any external outputs should be linked to in the status description. This can be done from the staff area for the project.
         - [ ] Project status updated
 
 
     [^1]: Further details regarding what is included in an assurance check is available [here](https://bennettinstitute-team-manual.pages.dev/products/publication-process-copiloted/#assurance-check).
-    [^2]: If the assurance check raises any issues.
+    [^2]: A COVID-19 purpose includes but is not limited to the following:
+        * understanding COVID-19 and risks to public health, trends in COVID-19 and such risks, and controlling and preventing the spread of COVID-19 and such risks
+        * processing to support the NHS Test and Trace programme
+        * identifying and understanding information about patients or potential patients with or at risk of COVID-19, information about incidents of patient exposure to COVID-19 and the management of patients with or at risk of COVID-19 including: locating, contacting, screening, flagging and monitoring such patients and collecting information about and providing services in relation to testing, diagnosis, self-isolation, fitness to work, treatment, medical and social interventions and recovery from COVID-19
+        * understanding information about patient access to health services and adult social care services and the need for wider care of patients and vulnerable groups as a direct or indirect result of COVID-19 and the availability and capacity of those services or that care
+        * monitoring and managing the response to COVID-19 by health and social care bodies and the government including:
+            * providing information to the public about COVID-19 and its effectiveness and information about capacity, medicines, equipment, supplies, services and the workforce within the health services and adult social care services
+            * delivering services to patients, clinicians, the health services and adult social care services workforce and the public about and in connection with COVID-19, including the provision of information, fit notes and the provision of healthcare and adult social care services
+        * research and planning in relation to COVID-19
     [^3]: Further information about the Ops Team is available [here](https://bennettinstitute-team-manual.pages.dev/the-teams/ops-team/).
     """
 
