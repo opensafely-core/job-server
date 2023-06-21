@@ -162,9 +162,8 @@ def test_publishrequestcreate_post_success(rf, slack_messages):
     # check we have a message for the user
     messages = list(messages)
     assert len(messages) == 1
-    assert (
-        str(messages[0]) == "Your request to publish this report was successfully sent"
-    )
+    msg = "Your request to publish this report was successfully sent to the OpenSAFELY team"
+    assert str(messages[0]) == msg
 
     assert len(slack_messages) == 1
     text, channel = slack_messages[0]
