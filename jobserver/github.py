@@ -106,6 +106,11 @@ class GitHubAPI:
         payload = {"query": query, "variables": variables}
 
         r = self._post("https://api.github.com/graphql", json=payload)
+
+        if not r.ok:  # pragma: no cover
+            print(r.headers)
+            print(r.content)
+
         r.raise_for_status()
         results = r.json()
 
