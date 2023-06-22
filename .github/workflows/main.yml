@@ -85,6 +85,17 @@ jobs:
           just check-migrations
           just test --migrations
 
+      - name: Upload HTML coverage report if tests failed
+        uses: actions/upload-artifact@v3
+        with:
+          name: python-coverage-report
+          path: htmlcov
+          # don't fail the job because no files were found, we expect this when
+          #  * the tests passed with 100% coverage
+          #  * a test failed and coverage didn't run
+          if-no-files-found: ignore
+        if: ${{ failure() }}  # only upload when the previous step, run tests, fails
+
   lint-dockerfile:
     runs-on: ubuntu-22.04
 
