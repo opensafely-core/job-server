@@ -1,6 +1,6 @@
 from django.core.management import call_command
 
-from jobserver.management.commands import resubmit_analysis as resubmit_analysis_cmd
+from interactive.management.commands import resubmit_analysis as resubmit_analysis_cmd
 from tests.factories import AnalysisRequestFactory, ProjectFactory, WorkspaceFactory
 from tests.fakes import FakeGitHubAPI
 
