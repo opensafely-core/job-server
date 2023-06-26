@@ -284,6 +284,16 @@
 
 <dialog id="downloadModal" class="max-w-prose p-8 shadow-xl rounded-md backdrop:bg-black/25 backdrop:backdrop-blur-sm">
   <section class="prose prose-blue">
+    {% if object.publish_request.is_approved %}
+    <p>
+      This report has been generated using the
+      <a href="https://www.opensafely.org/interactive/">OpenSAFELY Interactive tool</a>.
+      The contents should not be shared out of context, and the audience must
+      always be provided with a link to this report page. This ensures
+      transparency around how results were generated, in line with the
+      <a href="https://www.opensafely.org/about/#transparency-and-public-logs">principles of OpenSAFELY</a>.
+    </p>
+    {% else %}
     <h2 class="sr-only">Read and agree before downloading</h2>
     <p>
       You must abide by the
@@ -330,6 +340,7 @@
       your co-pilot in the first instance,or email
       <a href="mailto:publications@opensafely.org">publications@opensafely.org</a>.
     </p>
+    {% endif %}
   </section>
   <div class="flex flex-row gap-2 mt-6">
     {% #button variant="primary" type="button" value="generating" disabled=True %}
