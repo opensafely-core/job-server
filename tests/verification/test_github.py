@@ -36,24 +36,6 @@ def github_api():
     return GitHubAPI(token=Env().str("GITHUB_TOKEN_TESTING"))
 
 
-@pytest.fixture
-def testing_repo(github_api):
-    args = [
-        "opensafely-testing",
-        "testing-create_repo",
-    ]
-
-    # make sure it doesn't already exist
-    github_api.delete_repo(*args)
-
-    try:
-        yield
-    finally:
-        # tidy up the repo we just created, this will complain loudly if
-        # something goes wrong
-        github_api.delete_repo(*args)
-
-
 def test_add_repo_to_team(enable_network, github_api):
     args = [
         "testing",
@@ -84,7 +66,7 @@ def test_create_issue(enable_network, github_api):
     assert real is not None
 
 
-def test_create_repo(enable_network, github_api, testing_repo):
+def test_create_repo(enable_network, github_api):
     try:
         # create a unique ID for this test using our existing ULID function.
         # we can have multiple CI runs executing concurrently which means this
