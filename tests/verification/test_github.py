@@ -85,30 +85,34 @@ def test_create_issue(enable_network, github_api):
 
 
 def test_create_repo(enable_network, github_api, testing_repo):
-    # create a unique ID for this test using our existing ULID function.
-    # we can have multiple CI runs executing concurrently which means this
-    # test can be running in different CI jobs at the same time.  Given the
-    # test talks to an external API we can't use the same repo name for every
-    # execution.  Instead we use our new_ulid_str since it's already available
-    # and should have more than enough uniqueness for our needs to create
-    # a unique repo name.
-    unique_id = new_ulid_str()
-    args = [
-        "opensafely-testing",
-        f"testing-create_repo-{unique_id}",
-    ]
+    try:
+        # create a unique ID for this test using our existing ULID function.
+        # we can have multiple CI runs executing concurrently which means this
+        # test can be running in different CI jobs at the same time.  Given the
+        # test talks to an external API we can't use the same repo name for every
+        # execution.  Instead we use our new_ulid_str since it's already available
+        # and should have more than enough uniqueness for our needs to create
+        # a unique repo name.
+        unique_id = new_ulid_str()
+        args = [
+            "opensafely-testing",
+            f"testing-create_repo-{unique_id}",
+        ]
 
-    real = github_api.create_repo(*args)
-    fake = FakeGitHubAPI().create_repo(*args)
+        real = github_api.create_repo(*args)
+        fake = FakeGitHubAPI().create_repo(*args)
 
-    # does the fake work as expected?
-    compare(fake, real)
+        # does the fake work as expected?
+        compare(fake, real)
 
-    assert real is not None
+        assert real is not None
 
-    # do we get the appropriate error when the repo already exists?
-    with pytest.raises(RepoAlreadyExists):
-        github_api.create_repo(*args)
+        # do we get the appropriate error when the repo already exists?
+        with pytest.raises(RepoAlreadyExists):
+            github_api.create_repo(*args)
+    finally:
+        # clean up after the test
+        github_api.delete_repo(*args)
 
 
 def test_get_branch(enable_network, github_api):
