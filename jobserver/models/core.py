@@ -26,7 +26,7 @@ from sentry_sdk import capture_message
 from xkcdpass import xkcd_password
 
 from ..authorization import InteractiveReporter
-from ..authorization.fields import RolesField
+from ..authorization.fields import RolesArrayField
 from ..hash_utils import hash_user_pat
 from ..runtime import Runtime
 
@@ -455,7 +455,7 @@ class OrgMembership(models.Model):
         related_name="org_memberships",
     )
 
-    roles = RolesField()
+    roles = RolesArrayField()
 
     created_at = models.DateTimeField(default=timezone.now)
 
@@ -642,7 +642,7 @@ class ProjectMembership(models.Model):
         related_name="project_memberships",
     )
 
-    roles = RolesField()
+    roles = RolesArrayField()
 
     created_at = models.DateTimeField(default=timezone.now)
 
@@ -838,7 +838,7 @@ class User(AbstractBaseUser):
         related_name="created_users",
     )
 
-    roles = RolesField()
+    roles = RolesArrayField()
 
     objects = UserManager()
 
