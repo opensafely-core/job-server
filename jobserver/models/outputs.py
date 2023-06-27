@@ -31,7 +31,6 @@ class PublishRequest(models.Model):
         "Snapshot",
         on_delete=models.CASCADE,
         related_name="publish_requests",
-        null=True,
     )
     workspace = models.ForeignKey(
         "Workspace",
