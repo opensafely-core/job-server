@@ -29,7 +29,7 @@ class PublishRequest(models.Model):
     )
     snapshot = models.ForeignKey(
         "Snapshot",
-        on_delete=models.SET_NULL,
+        on_delete=models.CASCADE,
         related_name="publish_requests",
         null=True,
     )
