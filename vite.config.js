@@ -93,8 +93,14 @@ const config = {
     environment: "jsdom",
     root: "./assets/src/scripts/outputs-viewer/",
     setupFiles: ["__tests__/test-setup.js", "window-resizeto/polyfill"],
+    exclude: [
+      "__tests__/test-setup.js",
+      "__tests__/test-utils.jsx",
+      "__tests__/__mocks__/*",
+      "__tests__/helpers/*",
+    ],
     coverage: {
-      provider: "c8",
+      provider: "v8",
       lines: 90,
       functions: 90,
       branches: 90,
