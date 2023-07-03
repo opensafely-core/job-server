@@ -167,9 +167,9 @@ pep517==0.10.0 \
     --hash=sha256:ac59f3f6b9726a49e15a649474539442cf76e0697e39df4869d25e68e880931b \
     --hash=sha256:eba39d201ef937584ad3343df3581069085bacc95454c80188291d5b3ac7a249
     # via build
-pip-tools==6.13.0 \
-    --hash=sha256:50943f151d87e752abddec8158622c34ad7f292e193836e90e30d87da60b19d9 \
-    --hash=sha256:61d46bd2eb8016ed4a924e196e6e5b0a268cd3babd79e593048720db23522bb1
+pip-tools==6.14.0 \
+    --hash=sha256:06366be0e08d86b416407333e998b4d305d5bd925151b08942ed149380ba3e47 \
+    --hash=sha256:c5ad042cd27c0b343b10db1db7f77a7d087beafbec59ae6df1bba4d3368dfe8c
     # via -r requirements.dev.in
 platformdirs==2.0.2 \
     --hash=sha256:0b9547541f599d3d242078ae60b927b3e453f0ad52f58b4d4bc3be86aed3ec41 \
