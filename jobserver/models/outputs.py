@@ -158,9 +158,11 @@ class PublishRequest(models.Model):
         # the DB for any snapshots which match the workspace and any of the
         # files we have.  Then compare the PKs of the given files with those in
         # each snapshot.
-        snapshots = Snapshot.objects.filter(
-            workspace=workspace, files__in=files
-        ).distinct()
+        snapshots = (
+            Snapshot.objects.filter(workspace=workspace, files__in=files)
+            .order_by("id")
+            .distinct()
+        )
         exact_matches = [
             s for s in snapshots if set_from_qs(s.files.all()) == {f.pk for f in files}
         ]
