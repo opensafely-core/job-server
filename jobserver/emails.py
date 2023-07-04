@@ -82,7 +82,11 @@ def send_repo_signed_off_notification_to_researchers(repo):
 
 
 def send_repo_signed_off_notification_to_staff(repo):
-    numbers = [str(w.project.number) for w in repo.workspaces.all() if w.project.number]
+    # sort as numbers
+    numbers = sorted(
+        w.project.number for w in repo.workspaces.all() if w.project.number
+    )
+    numbers = (str(n) for n in numbers)  # convert to string to keep join happy
     numbers = ",".join(numbers) if numbers else "X"
     subject = (
         f"[{numbers}] - Historic repo with outputs - sign off required {repo.name}"
