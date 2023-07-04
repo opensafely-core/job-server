@@ -10,6 +10,7 @@ coverage-enable-subprocess
 django-upgrade
 factory_boy
 opensafely
+patchy
 pip-tools
 pre-commit
 pytest-django

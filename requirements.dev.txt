@@ -169,6 +169,10 @@ packaging==21.3 \
     #   -c requirements.prod.txt
     #   build
     #   pytest
+patchy==2.7.0 \
+    --hash=sha256:2fe0aae56420ab72eaac446c5159c18218b7270c2e11fbe498a5bcc48357739b \
+    --hash=sha256:f0e56290905dddb6d9bc88d6deca9450afc0e34eca03b18aec3caf6cf7c7f899
+    # via -r requirements.dev.in
 pathspec==0.9.0 \
     --hash=sha256:7d15c4ddb0b5c802d161efc417ec1a2558ea2653c2e8ad9c19098201dc1c993a \
     --hash=sha256:e564499435a2673d586f6b2130bb5b95f04a3ba06f81b8f895b651a3c76aabb1
