@@ -362,6 +362,7 @@ db-to-sqlite \
     --table jobserver_workspace \
     --table jobserver_user \
     --table jobserver_org \
+    --table jobserver_orgmembership \
     --table jobserver_job \
     --table jobserver_jobrequest \
     --table jobserver_release \
