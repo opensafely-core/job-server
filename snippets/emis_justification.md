@@ -1,4 +1,4 @@
-OpenSAFELY is under rapid iteration and development and as a consequence the features and data available in the underlying data environments differ. Currently all approvals are granted to OpenSAFELY-TPP by default and requests for OpenSAFELY-EMIS are considered by exception. 
+OpenSAFELY is under rapid iteration and development and as a consequence the features and data available in the underlying data environments differ. Currently all approvals are granted to process the GP data held in the GP systems supplied by TPP (OpenSAFELY-TPP) by default and requests for EMIS (OpenSAFELY-EMIS) are considered by exception. 
 
 OpenSAFELY-EMIS approvals will be considered for:
 
