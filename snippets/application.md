@@ -1,5 +1,4 @@
-**You should ONLY fill in this form if you require access to information on the OpenSAFELY-EMIS/-TPP COVID-19 research platform,
-which has been established by NHS England and NHSX; NHS England is the data controller.**
+**You should ONLY fill in this form if you require access to the NHS England OpenSAFELY COVID-19 Service; NHS England is the data controller of this service. One lead applicant-the application owner- should complete this form on behalf of their research team.**
 
 Please complete ALL sections;
 email the completed form to applications@opensafely.org.
@@ -11,7 +10,7 @@ a notebook listing the available dataset tables is [here](https://github.com/ope
 the latest dataset import dates is described [here](https://github.com/opensafely/database-notebooks/blob/master/notebooks/database-builds.ipynb).
 Further information regarding the platform can be found [here](https://docs.opensafely.org/).
 
-**All outputs from the OpenSAFELY-EMIS/-TPP NHS England COVID-19 research platform must be aggregated data with small number suppression applied.
+**All outputs from the NHS England OpenSAFELY COVID-19 servce must be aggregated data with small number suppression applied.
 OpenSAFELY operates as a trusted research platform;
 no record level data is permitted to be extracted from the platform.
 At this time, studies must not release any information (e.g. name, listsize) that identifies,
