@@ -60,7 +60,7 @@ def parse(data):
     for token in tokens:
         value = env.str(token, default=None)
 
-        if value is None:
+        if not value:
             continue
 
         if value in data:
