@@ -339,9 +339,9 @@ googleapis-common-protos==1.58.0 \
     --hash=sha256:c727251ec025947d545184ba17e3578840fc3a24a0516a020479edab660457df \
     --hash=sha256:ca3befcd4580dab6ad49356b46bf165bb68ff4b32389f028f1abd7c10ab9519a
     # via opentelemetry-exporter-otlp-proto-http
-gunicorn==20.1.0 \
-    --hash=sha256:9dcc4547dbb1cb284accfb15ab5667a0e5d1881cc443e0677b4882a4067a807e \
-    --hash=sha256:e0a968b5ba15f8a328fdfd7ab1fcb5af4470c28aaf7e55df02a99bc13138e6e8
+gunicorn==21.1.0 \
+    --hash=sha256:11fc98ea214a5845f614891e8c90b0211fbe595e677d204d7cd7d80f6f348891 \
+    --hash=sha256:37ced4b6622f263a6483eb7cbe9606df81afd57dc0fa464883600624790271c5
     # via -r requirements.prod.in
 idna==3.3 \
     --hash=sha256:84d9dd047ffa80596e0f246e2eab0b391788b0503584e8945f2368256d2735ff \
@@ -592,7 +592,9 @@ orderedmultidict==1.0.1 \
 packaging==21.3 \
     --hash=sha256:dd47c42927d89ab911e606518907cc2d3a1f38bbd026385970643f9c5b8ecfeb \
     --hash=sha256:ef103e05f519cdc783ae24ea4e2e0f508a9c99b2d4969652eed6a2e1ea5bd522
-    # via marshmallow
+    # via
+    #   gunicorn
+    #   marshmallow
 protobuf==4.21.12 \
     --hash=sha256:1f22ac0ca65bb70a876060d96d914dae09ac98d114294f77584b0d2644fa9c30 \
     --hash=sha256:237216c3326d46808a9f7c26fd1bd4b20015fb6867dc5d263a493ef9a539293b \
@@ -942,7 +944,6 @@ setuptools==67.0.0 \
     --hash=sha256:883131c5b6efa70b9101c7ef30b2b7b780a4283d5fc1616383cdf22c83cbefe6 \
     --hash=sha256:9d790961ba6219e9ff7d9557622d2fe136816a264dd01d5997cfc057d804853d
     # via
-    #   gunicorn
     #   opentelemetry-api
     #   opentelemetry-instrumentation
     #   opentelemetry-sdk
