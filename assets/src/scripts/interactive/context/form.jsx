@@ -14,7 +14,7 @@ function useFormData() {
   const context = useContext(FormData);
   if (context === undefined) {
     throw new Error(
-      "useFormData must be used within a FormData.Provider component"
+      "useFormData must be used within a FormData.Provider component",
     );
   }
   return context;

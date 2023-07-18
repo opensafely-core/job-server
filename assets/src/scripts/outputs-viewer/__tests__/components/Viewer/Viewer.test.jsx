@@ -24,8 +24,8 @@ describe("<Viewer />", () => {
   it("returns a loading state", async () => {
     server.use(
       rest.get(`http://localhost:3000${htmlFile.url}`, (req, res, ctx) =>
-        res.once(ctx.status(200), ctx.json(htmlExample))
-      )
+        res.once(ctx.status(200), ctx.json(htmlExample)),
+      ),
     );
     render(
       <Viewer
@@ -34,7 +34,7 @@ describe("<Viewer />", () => {
         fileSize={blankFile.size}
         fileUrl={blankFile.url}
         uuid={uuid}
-      />
+      />,
     );
     await waitFor(() => expect(screen.getByText("Loading...")).toBeVisible());
   });
@@ -43,8 +43,8 @@ describe("<Viewer />", () => {
     console.error = vi.fn();
     server.use(
       rest.get(`http://localhost:3000${htmlFile.url}`, (req, res) =>
-        res.networkError("Failed to connect")
-      )
+        res.networkError("Failed to connect"),
+      ),
     );
     render(
       <Viewer
@@ -53,10 +53,10 @@ describe("<Viewer />", () => {
         fileSize={htmlFile.size}
         fileUrl={htmlFile.url}
         uuid={uuid}
-      />
+      />,
     );
     await waitFor(() =>
-      expect(screen.getByText("Error: Failed to fetch")).toBeVisible()
+      expect(screen.getByText("Error: Failed to fetch")).toBeVisible(),
     );
   });
 
@@ -64,8 +64,8 @@ describe("<Viewer />", () => {
     console.error = vi.fn();
     server.use(
       rest.get(`http://localhost:3000${htmlFile.url}`, (req, res, ctx) =>
-        res.once(ctx.status(200), ctx.json())
-      )
+        res.once(ctx.status(200), ctx.json()),
+      ),
     );
     render(
       <Viewer
@@ -74,12 +74,12 @@ describe("<Viewer />", () => {
         fileSize={htmlFile.size}
         fileUrl={htmlFile.url}
         uuid={uuid}
-      />
+      />,
     );
     await waitFor(() =>
       expect(
-        screen.getByText("We cannot show a preview of this file.")
-      ).toBeVisible()
+        screen.getByText("We cannot show a preview of this file."),
+      ).toBeVisible(),
     );
   });
 
@@ -87,8 +87,8 @@ describe("<Viewer />", () => {
     console.error = vi.fn();
     server.use(
       rest.get(`http://localhost:3000${jsFile.url}`, (req, res, ctx) =>
-        res.once(ctx.status(200), ctx.json({}))
-      )
+        res.once(ctx.status(200), ctx.json({})),
+      ),
     );
     render(
       <Viewer
@@ -97,12 +97,12 @@ describe("<Viewer />", () => {
         fileSize={jsFile.size}
         fileUrl={jsFile.url}
         uuid={uuid}
-      />
+      />,
     );
     await waitFor(() =>
       expect(
-        screen.getByText("We cannot show a preview of this file.")
-      ).toBeVisible()
+        screen.getByText("We cannot show a preview of this file."),
+      ).toBeVisible(),
     );
   });
 
@@ -110,8 +110,8 @@ describe("<Viewer />", () => {
     console.error = vi.fn();
     server.use(
       rest.get(`http://localhost:3000${htmlFile.url}`, (req, res, ctx) =>
-        res.once(ctx.status(200), ctx.body())
-      )
+        res.once(ctx.status(200), ctx.body()),
+      ),
     );
     render(
       <Viewer
@@ -120,12 +120,12 @@ describe("<Viewer />", () => {
         fileSize={htmlFile.size}
         fileUrl={htmlFile.url}
         uuid={uuid}
-      />
+      />,
     );
     await waitFor(() =>
       expect(
-        screen.getByText("We cannot show a preview of this file.")
-      ).toBeVisible()
+        screen.getByText("We cannot show a preview of this file."),
+      ).toBeVisible(),
     );
   });
 
@@ -133,8 +133,8 @@ describe("<Viewer />", () => {
     console.error = vi.fn();
     server.use(
       rest.get(`http://localhost:3000${csvFile.url}`, (req, res, ctx) =>
-        res.once(ctx.status(200), ctx.body(csvExample))
-      )
+        res.once(ctx.status(200), ctx.body(csvExample)),
+      ),
     );
     render(
       <Viewer
@@ -143,20 +143,20 @@ describe("<Viewer />", () => {
         fileSize={5000001}
         fileUrl={csvFile.url}
         uuid={uuid}
-      />
+      />,
     );
     await waitFor(() =>
       expect(
-        screen.getByText("We cannot show a preview of this file.")
-      ).toBeVisible()
+        screen.getByText("We cannot show a preview of this file."),
+      ).toBeVisible(),
     );
   });
 
   it("returns <NoPreview /> for failed PNG", async () => {
     server.use(
       rest.get(`http://localhost:3000${pngFile.url}`, (req, res) =>
-        res.networkError("Failed to connect")
-      )
+        res.networkError("Failed to connect"),
+      ),
     );
     render(
       <Viewer
@@ -165,20 +165,20 @@ describe("<Viewer />", () => {
         fileSize={pngFile.size}
         fileUrl={pngFile.url}
         uuid={uuid}
-      />
+      />,
     );
     await waitFor(() =>
       expect(
-        screen.getByText("We cannot show a preview of this file.")
-      ).toBeVisible()
+        screen.getByText("We cannot show a preview of this file."),
+      ).toBeVisible(),
     );
   });
 
   it("returns <Table /> for CSV", async () => {
     server.use(
       rest.get(`http://localhost:3000${csvFile.url}`, (req, res, ctx) =>
-        res.once(ctx.status(200), ctx.json(csvExample))
-      )
+        res.once(ctx.status(200), ctx.json(csvExample)),
+      ),
     );
     render(
       <Viewer
@@ -187,7 +187,7 @@ describe("<Viewer />", () => {
         fileSize={csvFile.size}
         fileUrl={csvFile.url}
         uuid={uuid}
-      />
+      />,
     );
     await waitFor(() => expect(screen.getByRole("table")).toBeVisible());
   });
@@ -195,8 +195,8 @@ describe("<Viewer />", () => {
   it("returns <Iframe /> for HTML", async () => {
     server.use(
       rest.get(`http://localhost:3000${htmlFile.url}`, (req, res, ctx) =>
-        res.once(ctx.status(200), ctx.json(htmlExample))
-      )
+        res.once(ctx.status(200), ctx.json(htmlExample)),
+      ),
     );
     const { container } = render(
       <Viewer
@@ -205,12 +205,12 @@ describe("<Viewer />", () => {
         fileSize={htmlFile.size}
         fileUrl={htmlFile.url}
         uuid={uuid}
-      />
+      />,
     );
     await waitFor(() => {
       const iframe = container.querySelector("iframe");
       return expect(iframe.getAttribute("srcDoc")).toContain(
-        JSON.stringify(htmlExample)
+        JSON.stringify(htmlExample),
       );
     });
   });
@@ -221,9 +221,9 @@ describe("<Viewer />", () => {
         res.once(
           ctx.set("Content-Type", "image/png"),
           ctx.status(200),
-          ctx.body({ Blob: pngExample })
-        )
-      )
+          ctx.body({ Blob: pngExample }),
+        ),
+      ),
     );
     render(
       <Viewer
@@ -232,19 +232,19 @@ describe("<Viewer />", () => {
         fileSize={pngFile.size}
         fileUrl={pngFile.url}
         uuid={uuid}
-      />
+      />,
     );
 
     await waitFor(() =>
-      expect(screen.getByRole("img").src).toBe(`http://localhost:3000/imgSrc`)
+      expect(screen.getByRole("img").src).toBe(`http://localhost:3000/imgSrc`),
     );
   });
 
   it("returns <Text /> for TXT", async () => {
     server.use(
       rest.get(`http://localhost:3000${txtFile.url}`, (req, res, ctx) =>
-        res.once(ctx.status(200), ctx.json(txtExample))
-      )
+        res.once(ctx.status(200), ctx.json(txtExample)),
+      ),
     );
     render(
       <Viewer
@@ -253,18 +253,18 @@ describe("<Viewer />", () => {
         fileSize={txtFile.size}
         fileUrl={txtFile.url}
         uuid={uuid}
-      />
+      />,
     );
     await waitFor(() =>
-      expect(screen.getByText(`"${txtExample}"`)).toBeVisible()
+      expect(screen.getByText(`"${txtExample}"`)).toBeVisible(),
     );
   });
 
   it("returns <Text /> for JSON", async () => {
     server.use(
       rest.get(`http://localhost:3000${jsonFile.url}`, (req, res, ctx) =>
-        res.once(ctx.status(200), ctx.json({ ...jsonExample }))
-      )
+        res.once(ctx.status(200), ctx.json({ ...jsonExample })),
+      ),
     );
     render(
       <Viewer
@@ -273,7 +273,7 @@ describe("<Viewer />", () => {
         fileSize={jsonFile.size}
         fileUrl={jsonFile.url}
         uuid={uuid}
-      />
+      />,
     );
     await waitFor(() => {
       expect(screen.getByText(JSON.stringify(jsonExample))).toBeVisible();

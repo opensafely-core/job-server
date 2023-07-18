@@ -18,7 +18,7 @@ if (alerts.length) {
           "transition-all",
           "scale-100",
           "opacity-100",
-          "duration-300"
+          "duration-300",
         );
 
         alert.classList.remove("opacity-100", "scale-100");

@@ -26,8 +26,8 @@ describe("<FileList />", () => {
   it("returns a loading state", async () => {
     server.use(
       rest.get(props.filesUrl, (req, res, ctx) =>
-        res.once(ctx.status(200), ctx.json({ files: ["hello", "world"] }))
-      )
+        res.once(ctx.status(200), ctx.json({ files: ["hello", "world"] })),
+      ),
     );
 
     render(<FileListWrapper />);
@@ -40,14 +40,14 @@ describe("<FileList />", () => {
 
     server.use(
       rest.get(props.filesUrl, (req, res) =>
-        res.networkError("Failed to connect")
-      )
+        res.networkError("Failed to connect"),
+      ),
     );
 
     render(<FileListWrapper />);
 
     await waitFor(() =>
-      expect(screen.getByText("Error: Unable to load files")).toBeVisible()
+      expect(screen.getByText("Error: Unable to load files")).toBeVisible(),
     );
   });
 
@@ -57,7 +57,7 @@ describe("<FileList />", () => {
     await waitFor(() => {
       expect(screen.queryAllByRole("listitem").length).toBe(fileList.length);
       expect(screen.queryAllByRole("listitem")[0].textContent).toBe(
-        fileList[0].name
+        fileList[0].name,
       );
     });
   });
@@ -69,7 +69,7 @@ describe("<FileList />", () => {
     await waitFor(() => {
       expect(screen.queryAllByRole("listitem").length).toBe(fileList.length);
       expect(screen.queryAllByRole("listitem")[0].textContent).toBe(
-        fileList[0].name
+        fileList[0].name,
       );
     });
 
@@ -86,7 +86,7 @@ describe("<FileList />", () => {
     await waitFor(() => {
       expect(screen.queryAllByRole("listitem").length).toBe(fileList.length);
       expect(screen.queryAllByRole("listitem")[0].textContent).toBe(
-        fileList[0].name
+        fileList[0].name,
       );
     });
 
@@ -108,7 +108,7 @@ describe("<FileList />", () => {
     await waitFor(() => {
       expect(screen.queryAllByRole("listitem").length).toBe(fileList.length);
       expect(screen.queryAllByRole("listitem")[0].textContent).toBe(
-        fileList[0].name
+        fileList[0].name,
       );
     });
 
@@ -118,7 +118,7 @@ describe("<FileList />", () => {
     window.resizeTo(500, 500);
 
     await waitFor(() =>
-      expect(window.getComputedStyle(fixedSizeList, null).height).toBe("570px")
+      expect(window.getComputedStyle(fixedSizeList, null).height).toBe("570px"),
     );
   });
 
@@ -135,9 +135,9 @@ describe("<FileList />", () => {
                 name: "thisIsAReallyLongNameToAddAHorizontalScrollbar",
               },
             ],
-          })
-        )
-      )
+          }),
+        ),
+      ),
     );
 
     const { container } = render(<FileListWrapper />);
@@ -145,7 +145,7 @@ describe("<FileList />", () => {
     await waitFor(() => {
       expect(screen.queryAllByRole("listitem").length).toBe(2);
       expect(screen.queryAllByRole("listitem")[0].textContent).toBe(
-        csvFile.name
+        csvFile.name,
       );
     });
 
@@ -153,11 +153,11 @@ describe("<FileList />", () => {
     const fixedSizeList = container.querySelector(".card > div");
     vi.spyOn(fixedSizeList, "clientWidth", "get").mockImplementation(() => 100);
     vi.spyOn(fixedSizeList, "scrollWidth", "get").mockImplementation(
-      () => 1000
+      () => 1000,
     );
 
     await waitFor(() =>
-      expect(window.getComputedStyle(fixedSizeList, null).height).toBe("553px")
+      expect(window.getComputedStyle(fixedSizeList, null).height).toBe("553px"),
     );
   });
 });

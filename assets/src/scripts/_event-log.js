@@ -4,7 +4,7 @@ if (document.getElementById("eventLog")) {
   document.querySelectorAll('[data-toggle="show-hide-btn"]').forEach((btn) => {
     btn.addEventListener("click", () => {
       const childRow = document.getElementById(
-        btn.getAttribute("aria-controls")
+        btn.getAttribute("aria-controls"),
       );
 
       if (childRow.hidden) {

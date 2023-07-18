@@ -43,7 +43,7 @@ describe("<PublishButton />", () => {
     await user.click(screen.getByRole("button"));
 
     await waitFor(() =>
-      expect(screen.getByRole("button")).toHaveTextContent("Confirming…")
+      expect(screen.getByRole("button")).toHaveTextContent("Confirming…"),
     );
     await waitFor(() => expect(mockResponse).toHaveBeenCalledTimes(1));
   });
@@ -57,8 +57,8 @@ describe("<PublishButton />", () => {
 
     server.use(
       rest.post(publishUrl, (req, res, ctx) =>
-        res(ctx.status(403), ctx.json({ detail: "Invalid user token" }))
-      )
+        res(ctx.status(403), ctx.json({ detail: "Invalid user token" })),
+      ),
     );
 
     render(<PublishButton csrfToken={csrfToken} publishUrl={publishUrl} />);
@@ -73,7 +73,7 @@ describe("<PublishButton />", () => {
         publishUrl,
         toastId: "PublishButton",
         url: "http://localhost:3000/",
-      })
+      }),
     );
   });
 
@@ -86,8 +86,8 @@ describe("<PublishButton />", () => {
 
     server.use(
       rest.post(publishUrl, (req, res, ctx) =>
-        res(ctx.status(500), ctx.json({}))
-      )
+        res(ctx.status(500), ctx.json({})),
+      ),
     );
 
     render(<PublishButton csrfToken={csrfToken} publishUrl={publishUrl} />);
@@ -102,7 +102,7 @@ describe("<PublishButton />", () => {
         publishUrl,
         toastId: "PublishButton",
         url: "http://localhost:3000/",
-      })
+      }),
     );
   });
 });

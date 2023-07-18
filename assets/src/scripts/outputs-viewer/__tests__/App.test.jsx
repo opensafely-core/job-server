@@ -13,12 +13,12 @@ describe("<App />", () => {
     await waitFor(() => {
       expect(screen.queryAllByRole("listitem").length).toBe(fileList.length);
       expect(screen.queryAllByRole("listitem")[0].textContent).toBe(
-        fileList[0].name
+        fileList[0].name,
       );
     });
 
     expect(
-      screen.getByRole("searchbox", { name: "Find a file…" })
+      screen.getByRole("searchbox", { name: "Find a file…" }),
     ).toBeVisible();
   });
 
@@ -30,7 +30,7 @@ describe("<App />", () => {
     await waitFor(() => {
       expect(screen.queryAllByRole("listitem").length).toBe(fileList.length);
       expect(screen.queryAllByRole("listitem")[0].textContent).toBe(
-        fileList[0].name
+        fileList[0].name,
       );
     });
 
@@ -47,7 +47,7 @@ describe("<App />", () => {
   it("shows publish button", async () => {
     render(<App {...props} publishUrl={publishUrl} />);
     expect(
-      screen.getByRole("button", { name: "Confirm Publish?" })
+      screen.getByRole("button", { name: "Confirm Publish?" }),
     ).toBeVisible();
   });
 

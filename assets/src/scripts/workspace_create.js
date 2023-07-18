@@ -19,7 +19,7 @@ const setBranches = (reposWithBranches, repoURL) => {
 };
 
 const reposWithBranches = JSON.parse(
-  document.getElementById("reposWithBranches").textContent
+  document.getElementById("reposWithBranches").textContent,
 );
 
 document.getElementById("id_repo")?.addEventListener("change", (event) => {

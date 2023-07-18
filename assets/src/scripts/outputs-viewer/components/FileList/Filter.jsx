@@ -11,10 +11,10 @@ function Filter({ files, listRef, setFiles }) {
         () =>
           setFiles(
             files.filter((state) =>
-              state.name.toLowerCase().includes(filter.toLowerCase())
-            )
+              state.name.toLowerCase().includes(filter.toLowerCase()),
+            ),
           ),
-        350
+        350,
       );
 
       return () => clearTimeout(timer);

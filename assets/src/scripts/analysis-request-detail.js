@@ -114,8 +114,8 @@ function formatNumbers() {
     (number) =>
       // eslint-disable-next-line no-param-reassign
       (number.textContent = parseFloat(number.textContent).toLocaleString(
-        "en-GB"
-      ))
+        "en-GB",
+      )),
   );
 }
 

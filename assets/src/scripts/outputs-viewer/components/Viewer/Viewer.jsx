@@ -74,7 +74,7 @@ function Viewer({ authToken, fileName, fileSize, fileUrl, uuid }) {
           url: document.location.href,
         });
       },
-    }
+    },
   );
 
   if (isLoading) {

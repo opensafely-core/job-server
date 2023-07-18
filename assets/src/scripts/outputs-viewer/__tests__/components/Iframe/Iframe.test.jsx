@@ -11,7 +11,7 @@ describe("<Iframe />", () => {
         data={htmlExample}
         fileName={htmlFile.name}
         fileUrl={htmlFile.url}
-      />
+      />,
     );
     const iframe = container.querySelector("iframe");
 
@@ -28,7 +28,7 @@ describe("<Iframe />", () => {
         data={htmlExample}
         fileName={htmlFile.name}
         fileUrl={htmlFile.url}
-      />
+      />,
     );
     const iframe = container.querySelector("iframe");
 
@@ -43,7 +43,7 @@ describe("<Iframe />", () => {
         data={htmlExample}
         fileName={htmlFile.name}
         fileUrl={htmlFile.url}
-      />
+      />,
     );
     const iframe = container.querySelector("iframe");
 

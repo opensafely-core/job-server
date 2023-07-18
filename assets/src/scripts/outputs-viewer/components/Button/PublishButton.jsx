@@ -42,7 +42,7 @@ function PublishButton({ csrfToken, publishUrl }) {
           url: document.location.href,
         });
       },
-    }
+    },
   );
 
   return (

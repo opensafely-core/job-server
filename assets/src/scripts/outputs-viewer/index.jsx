@@ -18,5 +18,5 @@ root.render(
     <BrowserRouter basename={element.dataset.basePath}>
       <App {...element.dataset} element={element} />
     </BrowserRouter>
-  </React.StrictMode>
+  </React.StrictMode>,
 );

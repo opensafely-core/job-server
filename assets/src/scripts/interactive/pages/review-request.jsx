@@ -151,7 +151,7 @@ function ReviewRequest() {
           <ReviewLineItem page="filter-request" title="Filter population">
             {
               filterPopulation.items.filter(
-                (item) => item.value === formData.filterPopulation
+                (item) => item.value === formData.filterPopulation,
               )[0].label
             }
           </ReviewLineItem>

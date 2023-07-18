@@ -44,7 +44,7 @@ describe("<PrepareButton />", () => {
         csrfToken={csrfToken}
         filesUrl={filesUrl}
         prepareUrl={prepareUrl}
-      />
+      />,
     );
 
     expect(container).toBeEmptyDOMElement();
@@ -61,7 +61,7 @@ describe("<PrepareButton />", () => {
         csrfToken={csrfToken}
         filesUrl={filesUrl}
         prepareUrl={prepareUrl}
-      />
+      />,
     );
 
     expect(screen.getByRole("button")).toHaveTextContent("Publish");
@@ -81,9 +81,9 @@ describe("<PrepareButton />", () => {
         return res(
           ctx.json({
             url: urls.redirect,
-          })
+          }),
         );
-      })
+      }),
     );
 
     render(
@@ -92,7 +92,7 @@ describe("<PrepareButton />", () => {
         csrfToken={csrfToken}
         filesUrl={filesUrl}
         prepareUrl={prepareUrl}
-      />
+      />,
     );
 
     expect(screen.getByRole("button")).toHaveTextContent("Publish");
@@ -100,7 +100,7 @@ describe("<PrepareButton />", () => {
     await user.click(screen.getByRole("button"));
 
     await waitFor(() =>
-      expect(screen.getByRole("button")).toHaveTextContent("Publishing…")
+      expect(screen.getByRole("button")).toHaveTextContent("Publishing…"),
     );
     await waitFor(() => expect(window.location.href).toEqual(urls.redirect));
   });
@@ -122,7 +122,7 @@ describe("<PrepareButton />", () => {
         await expect(jsonBody.file_ids).toEqual(fileIds);
 
         return res(ctx.status(403), ctx.json({ detail: "Invalid user token" }));
-      })
+      }),
     );
 
     render(
@@ -131,7 +131,7 @@ describe("<PrepareButton />", () => {
         csrfToken={csrfToken}
         filesUrl={filesUrl}
         prepareUrl={prepareUrl}
-      />
+      />,
     );
 
     expect(screen.getByRole("button")).toHaveTextContent("Publish");
@@ -144,7 +144,7 @@ describe("<PrepareButton />", () => {
         prepareUrl,
         toastId: "PrepareButton",
         url: "http://localhost:3000/",
-      })
+      }),
     );
   });
 
@@ -165,7 +165,7 @@ describe("<PrepareButton />", () => {
         await expect(jsonBody.file_ids).toEqual(fileIds);
 
         return res(ctx.status(500), ctx.json({}));
-      })
+      }),
     );
 
     render(
@@ -174,7 +174,7 @@ describe("<PrepareButton />", () => {
         csrfToken={csrfToken}
         filesUrl={filesUrl}
         prepareUrl={prepareUrl}
-      />
+      />,
     );
 
     expect(screen.getByRole("button")).toHaveTextContent("Publish");
@@ -187,7 +187,7 @@ describe("<PrepareButton />", () => {
         prepareUrl,
         toastId: "PrepareButton",
         url: "http://localhost:3000/",
-      })
+      }),
     );
   });
 });

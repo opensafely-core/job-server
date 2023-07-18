@@ -42,7 +42,7 @@ function TabPanel({ codelistGroup, codelistID, query, setQuery }) {
                   autoCorrect="false"
                   className={classNames(
                     "block w-full px-3 py-2 border-2 border-gray-400 rounded-md shadow-sm placeholder-gray-400",
-                    "focus:cursor-text focus:outline-none focus:ring-oxford-500 focus:border-oxford-500"
+                    "focus:cursor-text focus:outline-none focus:ring-oxford-500 focus:border-oxford-500",
                   )}
                   displayValue={(codelist) => codelist.label}
                   onChange={(event) => setQuery(event.target.value)}

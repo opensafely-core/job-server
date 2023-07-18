@@ -8,7 +8,7 @@ hljs.highlightAll();
 
 document.addEventListener("DOMContentLoaded", () => {
   const anchors = document.querySelectorAll(
-    '.prose :where(h2, h3):not(:where([class~="not-prose"] *))'
+    '.prose :where(h2, h3):not(:where([class~="not-prose"] *))',
   );
 
   const ul = document.getElementById("table-of-contents");
@@ -27,7 +27,7 @@ document.addEventListener("DOMContentLoaded", () => {
           <a href="#${heading.id}">
             ${heading.textContent}
           </a>
-        </li>`
+        </li>`,
       );
     }
 
@@ -38,7 +38,7 @@ document.addEventListener("DOMContentLoaded", () => {
           ${heading.textContent}
         </a>
         ${heading.parentElement.querySelector("h3") ? `<ul></ul>` : ""}
-      </li>`
+      </li>`,
     );
   });
 });

@@ -16,8 +16,8 @@ function Iframe({ data, fileName, fileUrl }) {
             window.innerHeight -
               document.getElementById(id).getBoundingClientRect().top -
               17 - // Magic number for scroll bar height
-              40 // 2rem
-          )
+              40, // 2rem
+          ),
         );
       } else {
         setFrameHeight(1000);

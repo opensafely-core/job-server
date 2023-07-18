@@ -20,7 +20,7 @@ describe("<Table />", () => {
     render(<Table data={twoThousandRows} />, {}, { file: csvFile });
 
     expect(screen.getByRole("alert").textContent).toBe(
-      "This is a preview of the first 1000 rows"
+      "This is a preview of the first 1000 rows",
     );
     expect(screen.getAllByRole("row").length).toBe(1000);
   });

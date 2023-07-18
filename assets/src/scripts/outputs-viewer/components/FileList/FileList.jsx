@@ -59,7 +59,7 @@ function FileList({
 
   useEffect(() => {
     const selectedItem = files.findIndex(
-      (file) => `/${file.name}` === location.pathname
+      (file) => `/${file.name}` === location.pathname,
     );
 
     if (files[selectedItem]) {
