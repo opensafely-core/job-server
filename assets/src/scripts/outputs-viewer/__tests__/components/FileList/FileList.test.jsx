@@ -3,7 +3,6 @@ import userEvent from "@testing-library/user-event";
 import React, { useState } from "react";
 import { describe, expect, it, vi } from "vitest";
 import FileList from "../../../components/FileList/FileList";
-import { rest, server } from "../../__mocks__/server";
 import { csvFile, fileList, pngFile } from "../../helpers/files";
 import props from "../../helpers/props";
 import { render, screen, waitFor, history } from "../../test-utils";
@@ -24,11 +23,7 @@ function FileListWrapper() {
 
 describe("<FileList />", () => {
   it("returns a loading state", async () => {
-    server.use(
-      rest.get(props.filesUrl, (req, res, ctx) =>
-        res.once(ctx.status(200), ctx.json({ files: ["hello", "world"] })),
-      ),
-    );
+    fetch.mockResponseOnce(JSON.stringify({ files: ["hello", "world"] }));
 
     render(<FileListWrapper />);
 
@@ -38,11 +33,7 @@ describe("<FileList />", () => {
   it("returns error state for network error", async () => {
     console.error = vi.fn();
 
-    server.use(
-      rest.get(props.filesUrl, (req, res) =>
-        res.networkError("Failed to connect"),
-      ),
-    );
+    fetch.mockRejectOnce(new Error("Failed to connect"));
 
     render(<FileListWrapper />);
 
@@ -52,6 +43,7 @@ describe("<FileList />", () => {
   });
 
   it("returns a file list", async () => {
+    fetch.mockResponseOnce(JSON.stringify({ files: fileList }));
     render(<FileListWrapper />);
 
     await waitFor(() => {
@@ -64,6 +56,7 @@ describe("<FileList />", () => {
 
   it("updates the history with the clicked file", async () => {
     const user = userEvent.setup();
+    fetch.mockResponseOnce(JSON.stringify({ files: fileList }));
     render(<FileListWrapper />);
 
     await waitFor(() => {
@@ -80,6 +73,7 @@ describe("<FileList />", () => {
 
   it("doesn't update if the click file is already showing", async () => {
     const user = userEvent.setup();
+    fetch.mockResponseOnce(JSON.stringify({ files: fileList }));
     history.replace("/");
     render(<FileListWrapper />);
 
@@ -103,6 +97,7 @@ describe("<FileList />", () => {
   });
 
   it("sets the FileList height", async () => {
+    fetch.mockResponseOnce(JSON.stringify({ files: fileList }));
     const { container } = render(<FileListWrapper />);
 
     await waitFor(() => {
@@ -123,21 +118,16 @@ describe("<FileList />", () => {
   });
 
   it("adds 17px to list height for horizontal scrollbar", async () => {
-    server.use(
-      rest.get(props.filesUrl, (req, res, ctx) =>
-        res(
-          ctx.status(200),
-          ctx.json({
-            files: [
-              csvFile,
-              {
-                ...pngFile,
-                name: "thisIsAReallyLongNameToAddAHorizontalScrollbar",
-              },
-            ],
-          }),
-        ),
-      ),
+    fetch.mockResponseOnce(
+      JSON.stringify({
+        files: [
+          csvFile,
+          {
+            ...pngFile,
+            name: "thisIsAReallyLongNameToAddAHorizontalScrollbar",
+          },
+        ],
+      }),
     );
 
     const { container } = render(<FileListWrapper />);
