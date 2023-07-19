@@ -9,3 +9,6 @@ Disallow: /logout/
 Disallow: /settings/
 Disallow: /staff/
 Disallow: /ui-components/
+
+User-agent: Amazonbot               # Amazon's user agent
+Disallow: /
