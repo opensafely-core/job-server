@@ -482,7 +482,7 @@ class SnapshotCreateAPI(APIView):
             raise ParseError(f"Unknown file IDs: {', '.join(missing)}")
 
         publish_request = PublishRequest.create_from_files(
-            files=files, user=request.user, workspace=workspace
+            files=files, user=request.user
         )
 
         return Response(

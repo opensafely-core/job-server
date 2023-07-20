@@ -48,30 +48,26 @@ def test_publishrequest_approve_default_now(freezer):
 
 
 def test_publishrequest_create_from_files_success():
-    rfile = ReleaseFileFactory()
-    user = UserFactory()
     workspace = WorkspaceFactory()
+    rfile = ReleaseFileFactory(workspace=workspace)
+    user = UserFactory()
 
-    request = PublishRequest.create_from_files(
-        files=[rfile], user=user, workspace=workspace
-    )
+    request = PublishRequest.create_from_files(files=[rfile], user=user)
 
     assert request.created_by == user
     assert set_from_qs(request.snapshot.files.all()) == {rfile.pk}
 
 
 def test_publishrequest_create_from_files_with_duplicate_files():
-    rfile = ReleaseFileFactory()
     workspace = WorkspaceFactory()
+    rfile = ReleaseFileFactory(workspace=workspace)
 
     snapshot = SnapshotFactory(workspace=workspace)
     snapshot.files.add(rfile)
 
     user = UserFactory()
 
-    publish_request = PublishRequest.create_from_files(
-        files=[rfile], user=user, workspace=workspace
-    )
+    publish_request = PublishRequest.create_from_files(files=[rfile], user=user)
 
     assert publish_request.snapshot == snapshot
 
@@ -85,9 +81,7 @@ def test_publishrequest_create_from_files_with_existing_publish_request():
 
     publish_request = PublishRequestFactory(snapshot=snapshot, created_by=user)
 
-    output = PublishRequest.create_from_files(
-        files=files, user=user, workspace=workspace
-    )
+    output = PublishRequest.create_from_files(files=files, user=user)
 
     assert output == publish_request
 
@@ -103,9 +97,19 @@ def test_publishrequest_create_from_files_with_existing_snapshot():
     snapshot2.files.set(files)
 
     with pytest.raises(Snapshot.MultipleObjectsReturned):
-        PublishRequest.create_from_files(
-            files=files, user=UserFactory(), workspace=workspace
-        )
+        PublishRequest.create_from_files(files=files, user=UserFactory())
+
+
+def test_publishrequest_create_from_files_with_multiple_workspaces():
+    user = UserFactory()
+
+    rfiles = [
+        ReleaseFileFactory(workspace=WorkspaceFactory()),
+        ReleaseFileFactory(workspace=WorkspaceFactory()),
+    ]
+
+    with pytest.raises(PublishRequest.MultipleWorkspacesFound):
+        PublishRequest.create_from_files(files=rfiles, user=user)
 
 
 def test_publishrequest_create_from_report_success():

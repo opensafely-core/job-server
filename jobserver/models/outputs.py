@@ -9,6 +9,8 @@ from ulid import ULID
 from jobserver.models.common import new_ulid_str
 from jobserver.utils import set_from_qs
 
+from . import Workspace
+
 
 def absolute_file_path(path):
     abs_path = settings.RELEASE_STORAGE / path
@@ -115,6 +117,9 @@ class PublishRequest(models.Model):
     class IncorrectReportError(Exception):
         pass
 
+    class MultipleWorkspacesFound(Exception):
+        pass
+
     def __str__(self):
         return f"Publish request for Snapshot={self.snapshot.pk}"
 
@@ -130,7 +135,7 @@ class PublishRequest(models.Model):
 
     @classmethod
     @transaction.atomic()
-    def create_from_files(cls, *, files, report=None, user, workspace):
+    def create_from_files(cls, *, files, report=None, user):
         """
         Create a PublishRequest from the given files.
 
@@ -142,6 +147,11 @@ class PublishRequest(models.Model):
         """
         # only look at files which haven't been deleted (redacted)
         files = [f for f in files if not f.is_deleted]
+
+        try:
+            workspace = Workspace.objects.get(pk__in={f.workspace_id for f in files})
+        except Workspace.MultipleObjectsReturned:
+            raise cls.MultipleWorkspacesFound
 
         # look for an existing snapshots with the same files and workspace.  We
         # can't do an exact filter match across an M2M so first we filter in
@@ -194,7 +204,6 @@ class PublishRequest(models.Model):
             files=[report.release_file],
             report=report,
             user=user,
-            workspace=report.release_file.workspace,
         )
 
     def get_approve_url(self):
