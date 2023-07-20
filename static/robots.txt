@@ -2,6 +2,7 @@ User-agent: Amazonbot               # Amazon's user agent
 Disallow: /
 
 User-agent: *
+Crawl-delay: 1
 Disallow: /api/
 Disallow: /applications/
 Disallow: /complete/
