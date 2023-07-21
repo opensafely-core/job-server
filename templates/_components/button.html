@@ -7,8 +7,7 @@
     {% endif %}
 {% else %}
   <button
-    {% attrs data_title disabled type=type|default:"button" id name value %}
-    {% if x_bind %}x-bind="{{ x_bind }}"{% endif %}
+    {% attrs data-expander-button data_title disabled type=type|default:"button" id name value %}
 {% endif %}
 
     class="
