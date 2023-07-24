@@ -44,7 +44,7 @@ def test_analysisrequestcreate_get_success(rf):
 
     response = AnalysisRequestCreate.as_view(
         get_opencodelists_api=FakeOpenCodelistsAPI
-    )(request, org_slug=project.org.slug, project_slug=project.slug)
+    )(request, project_slug=project.slug)
 
     assert response.status_code == 200
     assert response.context_data["project"] == project
@@ -68,7 +68,7 @@ def test_analysisrequestcreate_post_failure(rf, interactive_repo):
 
     response = AnalysisRequestCreate.as_view(
         get_opencodelists_api=FakeOpenCodelistsAPI
-    )(request, org_slug=project.org.slug, project_slug=project.slug)
+    )(request, project_slug=project.slug)
 
     assert response.status_code == 200, response.context_data["form"].errors
 
@@ -115,7 +115,7 @@ def test_analysisrequestcreate_post_success(
 
     response = AnalysisRequestCreate.as_view(
         get_opencodelists_api=FakeOpenCodelistsAPI
-    )(request, org_slug=project.org.slug, project_slug=project.slug)
+    )(request, project_slug=project.slug)
 
     assert response.status_code == 302, response.context_data["form"].errors
 
@@ -136,9 +136,7 @@ def test_analysisrequestcreate_unauthorized(rf):
     request.user = UserFactory()
 
     with pytest.raises(PermissionDenied):
-        AnalysisRequestCreate.as_view()(
-            request, org_slug=project.org.slug, project_slug=project.slug
-        )
+        AnalysisRequestCreate.as_view()(request, project_slug=project.slug)
 
 
 def test_analysisrequestdetail_success(rf):
@@ -153,7 +151,6 @@ def test_analysisrequestdetail_success(rf):
 
     response = AnalysisRequestDetail.as_view()(
         request,
-        org_slug=analysis_request.project.org.slug,
         project_slug=analysis_request.project.slug,
         slug=analysis_request.slug,
     )
@@ -169,7 +166,6 @@ def test_analysisrequestdetail_unauthorized(rf):
 
     response = AnalysisRequestDetail.as_view()(
         request,
-        org_slug=analysis_request.project.org.slug,
         project_slug=analysis_request.project.slug,
         slug=analysis_request.slug,
     )
@@ -186,7 +182,6 @@ def test_analysisrequestdetail_with_global_interactivereporter(rf):
 
     response = AnalysisRequestDetail.as_view()(
         request,
-        org_slug=analysis_request.project.org.slug,
         project_slug=analysis_request.project.slug,
         slug=analysis_request.slug,
     )
@@ -206,7 +201,6 @@ def test_analysisrequestdetail_with_interactivereporter_on_another_project(rf):
     with pytest.raises(PermissionDenied):
         AnalysisRequestDetail.as_view()(
             request,
-            org_slug=analysis_request.project.org.slug,
             project_slug=analysis_request.project.slug,
             slug=analysis_request.slug,
         )
@@ -221,7 +215,6 @@ def test_analysisrequestdetail_with_no_interactivereporter_role(rf):
     with pytest.raises(PermissionDenied):
         AnalysisRequestDetail.as_view()(
             request,
-            org_slug=analysis_request.project.org.slug,
             project_slug=analysis_request.project.slug,
             slug=analysis_request.slug,
         )
@@ -250,7 +243,6 @@ def test_analysisrequestdetail_login_redirect_with_different_domain(rf, settings
 
     response = AnalysisRequestDetail.as_view()(
         request,
-        org_slug=analysis_request.project.org.slug,
         project_slug=analysis_request.project.slug,
         slug=analysis_request.slug,
     )
@@ -271,7 +263,6 @@ def test_analysisrequestdetail_login_redirect_with_normal_settings(rf):
 
     response = AnalysisRequestDetail.as_view()(
         request,
-        org_slug=analysis_request.project.org.slug,
         project_slug=analysis_request.project.slug,
         slug=analysis_request.slug,
     )
@@ -307,7 +298,6 @@ def test_analysisrequestdetail_with_published_report(rf):
 
     response = AnalysisRequestDetail.as_view()(
         request,
-        org_slug=analysis_request.project.org.slug,
         project_slug=analysis_request.project.slug,
         slug=analysis_request.slug,
     )
@@ -345,7 +335,6 @@ def test_reportedit_get_success(rf):
 
     response = ReportEdit.as_view()(
         request,
-        org_slug=project.org.slug,
         project_slug=project.slug,
         slug=analysis_request.slug,
     )
@@ -370,7 +359,6 @@ def test_reportedit_no_report(rf):
     with pytest.raises(Http404):
         ReportEdit.as_view()(
             request,
-            org_slug=project.org.slug,
             project_slug=project.slug,
             slug=analysis_request.slug,
         )
@@ -395,7 +383,6 @@ def test_reportedit_post_invalid(rf):
 
     ReportEdit.as_view()(
         request,
-        org_slug=project.org.slug,
         project_slug=project.slug,
         slug=analysis_request.slug,
     )
@@ -424,7 +411,6 @@ def test_reportedit_post_success(rf):
 
     ReportEdit.as_view()(
         request,
-        org_slug=project.org.slug,
         project_slug=project.slug,
         slug=analysis_request.slug,
     )
@@ -448,7 +434,6 @@ def test_reportedit_unauthorized(rf):
     with pytest.raises(PermissionDenied):
         ReportEdit.as_view()(
             request,
-            org_slug=project.org.slug,
             project_slug=project.slug,
             slug=analysis_request.slug,
         )
@@ -459,7 +444,6 @@ def test_reportedit_unauthorized(rf):
     with pytest.raises(PermissionDenied):
         ReportEdit.as_view()(
             request,
-            org_slug=project.org.slug,
             project_slug=project.slug,
             slug=analysis_request.slug,
         )
@@ -494,7 +478,6 @@ def test_reportedit_locked_with_approved_decision(rf):
 
     response = ReportEdit.as_view()(
         request,
-        org_slug=project.org,
         project_slug=project.slug,
         slug=analysis_request.slug,
     )
@@ -525,7 +508,6 @@ def test_reportedit_locked_with_pending_decision(rf):
 
     response = ReportEdit.as_view()(
         request,
-        org_slug=project.org,
         project_slug=project.slug,
         slug=analysis_request.slug,
     )
@@ -563,7 +545,6 @@ def test_reportedit_unlocked_with_rejected_decision(rf):
 
     response = ReportEdit.as_view()(
         request,
-        org_slug=project.org,
         project_slug=project.slug,
         slug=analysis_request.slug,
     )

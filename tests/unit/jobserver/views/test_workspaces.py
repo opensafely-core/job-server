@@ -67,7 +67,6 @@ def test_workspacearchivetoggle_success(rf):
 
     response = WorkspaceArchiveToggle.as_view()(
         request,
-        org_slug=workspace.project.org.slug,
         project_slug=workspace.project.slug,
         workspace_slug=workspace.name,
     )
@@ -88,7 +87,6 @@ def test_workspacearchivetoggle_unknown_workspace(rf):
     with pytest.raises(Http404):
         WorkspaceArchiveToggle.as_view()(
             request,
-            org_slug=project.org.slug,
             project_slug=project.slug,
             workspace_slug="",
         )
@@ -103,7 +101,6 @@ def test_workspacearchivetoggle_without_permission(rf):
     with pytest.raises(Http404):
         WorkspaceArchiveToggle.as_view()(
             request,
-            org_slug=workspace.project.org.slug,
             project_slug=workspace.project.slug,
             workspace_slug=workspace.name,
         )
@@ -124,7 +121,6 @@ def test_workspacebackendfiles_success(rf):
 
     response = WorkspaceBackendFiles.as_view()(
         request,
-        org_slug=workspace.project.org.slug,
         project_slug=workspace.project.slug,
         workspace_slug=workspace.name,
         backend_slug=backend.slug,
@@ -142,7 +138,6 @@ def test_workspacebackendfiles_unknown_backend(rf):
     with pytest.raises(Http404):
         WorkspaceBackendFiles.as_view()(
             request,
-            org_slug=workspace.project.org.slug,
             project_slug=workspace.project.slug,
             workspace_slug=workspace.name,
             backend_slug="unknown",
@@ -159,7 +154,6 @@ def test_workspacebackendfiles_unknown_workspace(rf):
     with pytest.raises(Http404):
         WorkspaceBackendFiles.as_view()(
             request,
-            org_slug=project.org.slug,
             project_slug=project.slug,
             workspace_slug="unknown",
             backend_slug=backend.slug,
@@ -181,7 +175,6 @@ def test_workspacebackendfiles_with_permission(rf):
 
     response = WorkspaceBackendFiles.as_view()(
         request,
-        org_slug=workspace.project.org.slug,
         project_slug=workspace.project.slug,
         workspace_slug=workspace.name,
         backend_slug=backend.slug,
@@ -205,7 +198,6 @@ def test_workspacebackendfiles_without_backend_access(rf):
     with pytest.raises(Http404):
         WorkspaceBackendFiles.as_view()(
             request,
-            org_slug=workspace.project.org.slug,
             project_slug=workspace.project.slug,
             workspace_slug=workspace.name,
             backend_slug=backend.slug,
@@ -225,7 +217,6 @@ def test_workspacebackendfiles_without_permission(rf):
     with pytest.raises(Http404):
         WorkspaceBackendFiles.as_view()(
             request,
-            org_slug=workspace.project.org.slug,
             project_slug=workspace.project.slug,
             workspace_slug=workspace.name,
             backend_slug=backend.slug,
@@ -240,7 +231,7 @@ def test_workspacecreate_get_success(rf, user):
     request.user = user
 
     response = WorkspaceCreate.as_view(get_github_api=FakeGitHubAPI)(
-        request, org_slug=project.org.slug, project_slug=project.slug
+        request, project_slug=project.slug
     )
 
     assert response.status_code == 200
@@ -255,7 +246,6 @@ def test_workspacecreate_get_without_permission(rf):
     with pytest.raises(Http404):
         WorkspaceCreate.as_view()(
             request,
-            org_slug=project.org.slug,
             project_slug=project.slug,
         )
 
@@ -274,7 +264,7 @@ def test_workspacecreate_post_success(rf, user):
     request.user = user
 
     response = WorkspaceCreate.as_view(get_github_api=FakeGitHubAPI)(
-        request, org_slug=project.org.slug, project_slug=project.slug
+        request, project_slug=project.slug
     )
 
     assert response.status_code == 302, response.context_data["form"].errors
@@ -301,7 +291,7 @@ def test_workspacecreate_without_github(rf, user):
             raise requests.HTTPError
 
     response = WorkspaceCreate.as_view(get_github_api=BrokenGitHubAPI)(
-        request, org_slug=project.org.slug, project_slug=project.slug
+        request, project_slug=project.slug
     )
 
     assert response.status_code == 200
@@ -332,9 +322,7 @@ def test_workspacecreate_without_github_orgs(rf):
     request = rf.get("/")
     request.user = user
 
-    response = WorkspaceCreate.as_view()(
-        request, org_slug=project.org.slug, project_slug=project.slug
-    )
+    response = WorkspaceCreate.as_view()(request, project_slug=project.slug)
 
     assert response.status_code == 200
     assert response.template_name == "workspace_create_error.html"
@@ -349,9 +337,7 @@ def test_workspacecreate_without_org(rf):
     request = rf.get("/")
     request.user = user
 
-    response = WorkspaceCreate.as_view()(
-        request, org_slug=project.org.slug, project_slug=project.slug
-    )
+    response = WorkspaceCreate.as_view()(request, project_slug=project.slug)
 
     assert response.status_code == 200
     assert response.template_name == "workspace_create_error.html"
@@ -364,9 +350,7 @@ def test_workspacecreate_without_permission(rf, user):
     request.user = user
 
     with pytest.raises(Http404):
-        WorkspaceCreate.as_view()(
-            request, org_slug=project.org.slug, project_slug=project.slug
-        )
+        WorkspaceCreate.as_view()(request, project_slug=project.slug)
 
 
 def test_workspacedetail_authorized_archive_workspaces(rf):
@@ -382,7 +366,6 @@ def test_workspacedetail_authorized_archive_workspaces(rf):
 
     response = WorkspaceDetail.as_view(get_github_api=FakeGitHubAPI)(
         request,
-        org_slug=workspace.project.org.slug,
         project_slug=workspace.project.slug,
         workspace_slug=workspace.name,
     )
@@ -420,7 +403,6 @@ def test_workspacedetail_authorized_public_repo_hide_change_visibility_banner(rf
 
     response = WorkspaceDetail.as_view(get_github_api=AnotherFakeGitHubAPI)(
         request,
-        org_slug=project.org.slug,
         project_slug=project.slug,
         workspace_slug=workspace.name,
     )
@@ -458,7 +440,6 @@ def test_workspacedetail_authorized_private_repo_show_change_visibility_banner(r
 
     response = WorkspaceDetail.as_view(get_github_api=AnotherFakeGitHubAPI)(
         request,
-        org_slug=project.org.slug,
         project_slug=project.slug,
         workspace_slug=workspace.name,
     )
@@ -478,7 +459,6 @@ def test_workspacedetail_authorized_toggle_notifications(rf):
 
     response = WorkspaceDetail.as_view(get_github_api=FakeGitHubAPI)(
         request,
-        org_slug=workspace.project.org.slug,
         project_slug=workspace.project.slug,
         workspace_slug=workspace.name,
     )
@@ -507,7 +487,6 @@ def test_workspacedetail_authorized_view_outputs(rf):
 
     response = WorkspaceDetail.as_view(get_github_api=FakeGitHubAPI)(
         request,
-        org_slug=workspace.project.org.slug,
         project_slug=workspace.project.slug,
         workspace_slug=workspace.name,
     )
@@ -531,7 +510,6 @@ def test_workspacedetail_authorized_run_jobs(rf):
 
     response = WorkspaceDetail.as_view(get_github_api=FakeGitHubAPI)(
         request,
-        org_slug=workspace.project.org.slug,
         project_slug=workspace.project.slug,
         workspace_slug=workspace.name,
     )
@@ -555,7 +533,6 @@ def test_workspacedetail_authorized_honeycomb(rf):
 
     response = WorkspaceDetail.as_view(get_github_api=FakeGitHubAPI)(
         request,
-        org_slug=workspace.project.org.slug,
         project_slug=workspace.project.slug,
         workspace_slug=workspace.name,
     )
@@ -577,7 +554,6 @@ def test_workspacedetail_for_interactive_button(rf, user):
 
     response = WorkspaceDetail.as_view(get_github_api=FakeGitHubAPI)(
         request,
-        org_slug=workspace.project.org.slug,
         project_slug=workspace.project.slug,
         workspace_slug=workspace.name,
     )
@@ -594,7 +570,6 @@ def test_workspacedetail_logged_out(rf):
 
     response = WorkspaceDetail.as_view(get_github_api=FakeGitHubAPI)(
         request,
-        org_slug=workspace.project.org.slug,
         project_slug=workspace.project.slug,
         workspace_slug=workspace.name,
     )
@@ -617,7 +592,6 @@ def test_workspacedetail_unauthorized(rf):
 
     response = WorkspaceDetail.as_view(get_github_api=FakeGitHubAPI)(
         request,
-        org_slug=workspace.project.org.slug,
         project_slug=workspace.project.slug,
         workspace_slug=workspace.name,
     )
@@ -644,7 +618,6 @@ def test_workspacedetail_unknown_workspace(rf):
     with pytest.raises(Http404):
         WorkspaceDetail.as_view()(
             request,
-            org_slug=project.org.slug,
             project_slug=project.slug,
             workspace_slug="",
         )
@@ -662,7 +635,6 @@ def test_workspacedetail_with_no_github(rf):
 
     response = WorkspaceDetail.as_view(get_github_api=BrokenGitHubAPI)(
         request,
-        org_slug=workspace.project.org.slug,
         project_slug=workspace.project.slug,
         workspace_slug=workspace.name,
     )
@@ -684,7 +656,6 @@ def test_workspaceedit_get_success(rf):
 
     response = WorkspaceEdit.as_view()(
         request,
-        org_slug=workspace.project.org.slug,
         project_slug=workspace.project.slug,
         workspace_slug=workspace.name,
     )
@@ -701,7 +672,6 @@ def test_workspaceedit_get_without_permission(rf):
     with pytest.raises(PermissionDenied):
         WorkspaceEdit.as_view()(
             request,
-            org_slug=workspace.project.org.slug,
             project_slug=workspace.project.slug,
             workspace_slug=workspace.name,
         )
@@ -719,7 +689,6 @@ def test_workspaceedit_post_success(rf):
 
     response = WorkspaceEdit.as_view()(
         request,
-        org_slug=workspace.project.org.slug,
         project_slug=workspace.project.slug,
         workspace_slug=workspace.name,
     )
@@ -747,7 +716,6 @@ def test_workspacefilelist_success(rf):
 
     response = WorkspaceFileList.as_view()(
         request,
-        org_slug=workspace.project.org.slug,
         project_slug=workspace.project.slug,
         workspace_slug=workspace.name,
     )
@@ -765,7 +733,6 @@ def test_workspacefilelist_unknown_workspace(rf):
     with pytest.raises(Http404):
         WorkspaceFileList.as_view()(
             request,
-            org_slug=project.org.slug,
             project_slug=project.slug,
             workspace_slug="",
         )
@@ -785,7 +752,6 @@ def test_workspacefilelist_without_backends(rf):
     with pytest.raises(Http404):
         WorkspaceFileList.as_view()(
             request,
-            org_slug=workspace.project.org.slug,
             project_slug=workspace.project.slug,
             workspace_slug=workspace.name,
         )
@@ -803,7 +769,6 @@ def test_workspacefilelist_without_permission(rf):
     with pytest.raises(Http404):
         WorkspaceFileList.as_view()(
             request,
-            org_slug=workspace.project.org.slug,
             project_slug=workspace.project.slug,
             workspace_slug=workspace.name,
         )
@@ -822,7 +787,6 @@ def test_workspacelatestoutputsdetail_success(rf):
 
     response = WorkspaceLatestOutputsDetail.as_view()(
         request,
-        org_slug=workspace.project.org.slug,
         project_slug=workspace.project.slug,
         workspace_slug=workspace.name,
     )
@@ -840,7 +804,6 @@ def test_workspacelatestoutputsdetail_without_file_permission(rf):
     with pytest.raises(Http404):
         WorkspaceLatestOutputsDetail.as_view()(
             request,
-            org_slug=workspace.project.org.slug,
             project_slug=workspace.project.slug,
             workspace_slug=workspace.name,
         )
@@ -854,7 +817,6 @@ def test_workspacelatestoutputsdetail_without_publish_permission(rf):
 
     response = WorkspaceLatestOutputsDetail.as_view()(
         request,
-        org_slug=workspace.project.org.slug,
         project_slug=workspace.project.slug,
         workspace_slug=workspace.name,
     )
@@ -871,7 +833,6 @@ def test_workspacelatestoutputsdetail_unknown_workspace(rf):
     with pytest.raises(Http404):
         WorkspaceLatestOutputsDetail.as_view()(
             request,
-            org_slug=project.org.slug,
             project_slug=project.slug,
             workspace_slug="",
         )
@@ -886,7 +847,6 @@ def test_workspacelatestoutputsdownload_no_files(rf):
     with pytest.raises(Http404):
         WorkspaceLatestOutputsDownload.as_view()(
             request,
-            org_slug=workspace.project.org.slug,
             project_slug=workspace.project.slug,
             workspace_slug=workspace.name,
         )
@@ -902,7 +862,6 @@ def test_workspacelatestoutputsdownload_success(rf, build_release_with_files):
 
     response = WorkspaceLatestOutputsDownload.as_view()(
         request,
-        org_slug=workspace.project.org.slug,
         project_slug=workspace.project.slug,
         workspace_slug=workspace.name,
     )
@@ -925,7 +884,6 @@ def test_workspacelatestoutputsdownload_unknown_workspace(rf):
     with pytest.raises(Http404):
         WorkspaceLatestOutputsDownload.as_view()(
             request,
-            org_slug=project.org.slug,
             project_slug=project.slug,
             workspace_slug="",
         )
@@ -941,7 +899,6 @@ def test_workspacelatestoutputsdownload_without_permission(rf):
     with pytest.raises(Http404):
         WorkspaceLatestOutputsDownload.as_view()(
             request,
-            org_slug=workspace.project.org.slug,
             project_slug=workspace.project.slug,
             workspace_slug=workspace.name,
         )
@@ -965,7 +922,6 @@ def test_workspacelog_filter_by_one_backend(rf):
 
     response = WorkspaceLog.as_view()(
         request,
-        org_slug=workspace.project.org.slug,
         project_slug=workspace.project.slug,
         workspace_slug=workspace.name,
     )
@@ -1000,7 +956,6 @@ def test_workspacelog_filter_by_several_backends(rf):
 
     response = WorkspaceLog.as_view()(
         request,
-        org_slug=workspace.project.org.slug,
         project_slug=workspace.project.slug,
         workspace_slug=workspace.name,
     )
@@ -1032,7 +987,6 @@ def test_workspacelog_search_by_action(rf):
 
     response = WorkspaceLog.as_view()(
         request,
-        org_slug=workspace.project.org.slug,
         project_slug=workspace.project.slug,
         workspace_slug=workspace.name,
     )
@@ -1059,7 +1013,6 @@ def test_workspacelog_search_by_id(rf):
 
     response = WorkspaceLog.as_view()(
         request,
-        org_slug=workspace.project.org.slug,
         project_slug=workspace.project.slug,
         workspace_slug=workspace.name,
     )
@@ -1084,7 +1037,6 @@ def test_workspacelog_success(rf):
 
     response = WorkspaceLog.as_view()(
         request,
-        org_slug=workspace.project.org.slug,
         project_slug=workspace.project.slug,
         workspace_slug=workspace.name,
     )
@@ -1104,7 +1056,6 @@ def test_workspacelog_unknown_workspace(rf):
 
     response = WorkspaceLog.as_view()(
         request,
-        org_slug=project.org.slug,
         project_slug=project.slug,
         workspace_slug="test",
     )
@@ -1123,7 +1074,6 @@ def test_workspacelog_with_authenticated_user(rf):
 
     response = WorkspaceLog.as_view()(
         request,
-        org_slug=workspace.project.org.slug,
         project_slug=workspace.project.slug,
         workspace_slug=workspace.name,
     )
@@ -1141,7 +1091,6 @@ def test_workspacelog_with_unauthenticated_user(rf):
 
     response = WorkspaceLog.as_view()(
         request,
-        org_slug=workspace.project.org.slug,
         project_slug=workspace.project.slug,
         workspace_slug=workspace.name,
     )
@@ -1162,7 +1111,6 @@ def test_workspacenotificationstoggle_success(rf):
 
     response = WorkspaceNotificationsToggle.as_view()(
         request,
-        org_slug=workspace.project.org.slug,
         project_slug=workspace.project.slug,
         workspace_slug=workspace.name,
     )
@@ -1185,7 +1133,6 @@ def test_workspacenotificationstoggle_without_permission(rf, user):
     with pytest.raises(Http404):
         WorkspaceNotificationsToggle.as_view()(
             request,
-            org_slug=workspace.project.org.slug,
             project_slug=workspace.project.slug,
             workspace_slug=workspace.name,
         )
@@ -1203,7 +1150,6 @@ def test_workspacenotificationstoggle_unknown_workspace(rf):
     with pytest.raises(Http404):
         WorkspaceNotificationsToggle.as_view()(
             request,
-            org_slug=project.org.slug,
             project_slug=project.slug,
             workspace_slug="test",
         )
@@ -1235,7 +1181,6 @@ def test_workspaceoutputlist_success(rf, freezer, build_release_with_files):
 
     response = WorkspaceOutputList.as_view()(
         request,
-        org_slug=workspace.project.org.slug,
         project_slug=workspace.project.slug,
         workspace_slug=workspace.name,
     )
@@ -1271,7 +1216,6 @@ def test_workspaceoutputlist_without_permission(rf, freezer, build_release_with_
 
     response = WorkspaceOutputList.as_view()(
         request,
-        org_slug=workspace.project.org.slug,
         project_slug=workspace.project.slug,
         workspace_slug=workspace.name,
     )
@@ -1292,7 +1236,6 @@ def test_workspaceoutputlist_without_snapshots(rf, freezer):
 
     response = WorkspaceOutputList.as_view()(
         request,
-        org_slug=workspace.project.org.slug,
         project_slug=workspace.project.slug,
         workspace_slug=workspace.name,
     )
@@ -1310,7 +1253,6 @@ def test_workspaceoutputlist_unknown_workspace(rf):
     with pytest.raises(Http404):
         WorkspaceOutputList.as_view()(
             request,
-            org_slug=project.org.slug,
             project_slug=project.slug,
             workspace_slug="",
         )
@@ -1333,7 +1275,6 @@ def test_workspaceanalaysisrequestlist_success(rf):
 
     response = WorkspaceAnalysisRequestList.as_view()(
         request,
-        org_slug=workspace.project.org.slug,
         project_slug=workspace.project.slug,
         workspace_slug=workspace.name,
     )
@@ -1361,7 +1302,6 @@ def test_workspaceanalaysisrequestlist_unauthorized(rf):
     with pytest.raises(PermissionDenied):
         WorkspaceAnalysisRequestList.as_view()(
             request,
-            org_slug=workspace.project.org.slug,
             project_slug=workspace.project.slug,
             workspace_slug=workspace.name,
         )
@@ -1376,7 +1316,6 @@ def test_workspaceanalaysisrequestlist_unknown_workspace(rf):
     with pytest.raises(Http404):
         WorkspaceAnalysisRequestList.as_view()(
             request,
-            org_slug=project.org.slug,
             project_slug=project.slug,
             workspace_slug="",
         )

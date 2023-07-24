@@ -53,7 +53,7 @@
 {% #card title="Commits" class="max-w-3xl" %}
   {% #list_group %}
     {% for commit in commits %}
-      {% url 'job-request-create' org_slug=workspace.project.org.slug project_slug=workspace.project.slug workspace_slug=workspace.name ref=commit.sha as commit_url %}
+      {% url 'job-request-create' project_slug=workspace.project.slug workspace_slug=workspace.name ref=commit.sha as commit_url %}
       {% #list_group_item href=commit_url %}
         {{ commit.message }}
         <span class="block text-sm text-slate-600">

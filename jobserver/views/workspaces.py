@@ -47,7 +47,6 @@ class WorkspaceAnalysisRequestList(ListView):
     def dispatch(self, request, *args, **kwargs):
         self.workspace = get_object_or_404(
             Workspace,
-            project__org__slug=self.kwargs["org_slug"],
             project__slug=self.kwargs["project_slug"],
             name=self.kwargs["workspace_slug"],
         )
@@ -77,7 +76,6 @@ class WorkspaceArchiveToggle(View):
     def post(self, request, *args, **kwargs):
         workspace = get_object_or_404(
             Workspace,
-            project__org__slug=self.kwargs["org_slug"],
             project__slug=self.kwargs["project_slug"],
             name=self.kwargs["workspace_slug"],
         )
@@ -109,7 +107,6 @@ class WorkspaceBackendFiles(View):
     def get(self, request, *args, **kwargs):
         workspace = get_object_or_404(
             Workspace,
-            project__org__slug=self.kwargs["org_slug"],
             project__slug=self.kwargs["project_slug"],
             name=self.kwargs["workspace_slug"],
         )
@@ -162,9 +159,7 @@ class WorkspaceCreate(CreateView):
     template_name = "workspace_create.html"
 
     def dispatch(self, request, *args, **kwargs):
-        self.project = get_object_or_404(
-            Project, org__slug=self.kwargs["org_slug"], slug=self.kwargs["project_slug"]
-        )
+        self.project = get_object_or_404(Project, slug=self.kwargs["project_slug"])
 
         can_create_workspaces = has_permission(
             self.request.user,
@@ -261,7 +256,6 @@ class WorkspaceDetail(View):
     def get(self, request, *args, **kwargs):
         workspace = get_object_or_404(
             Workspace,
-            project__org__slug=self.kwargs["org_slug"],
             project__slug=self.kwargs["project_slug"],
             name=self.kwargs["workspace_slug"],
         )
@@ -381,7 +375,6 @@ class WorkspaceEdit(FormView):
     def dispatch(self, request, *args, **kwargs):
         self.workspace = get_object_or_404(
             Workspace,
-            project__org__slug=self.kwargs["org_slug"],
             project__slug=self.kwargs["project_slug"],
             name=self.kwargs["workspace_slug"],
         )
@@ -414,7 +407,6 @@ class WorkspaceFileList(View):
     def get(self, request, *args, **kwargs):
         workspace = get_object_or_404(
             Workspace,
-            project__org__slug=self.kwargs["org_slug"],
             project__slug=self.kwargs["project_slug"],
             name=self.kwargs["workspace_slug"],
         )
@@ -455,7 +447,6 @@ class WorkspaceLatestOutputsDetail(View):
     def get(self, request, *args, **kwargs):
         workspace = get_object_or_404(
             Workspace,
-            project__org__slug=self.kwargs["org_slug"],
             project__slug=self.kwargs["project_slug"],
             name=self.kwargs["workspace_slug"],
         )
@@ -499,7 +490,6 @@ class WorkspaceLatestOutputsDownload(View):
     def get(self, request, *args, **kwargs):
         workspace = get_object_or_404(
             Workspace,
-            project__org__slug=self.kwargs["org_slug"],
             project__slug=self.kwargs["project_slug"],
             name=self.kwargs["workspace_slug"],
         )
@@ -531,7 +521,6 @@ class WorkspaceLog(ListView):
     def dispatch(self, request, *args, **kwargs):
         try:
             self.workspace = Workspace.objects.get(
-                project__org__slug=self.kwargs["org_slug"],
                 project__slug=self.kwargs["project_slug"],
                 name=self.kwargs["workspace_slug"],
             )
@@ -584,7 +573,6 @@ class WorkspaceNotificationsToggle(View):
     def post(self, request, *args, **kwargs):
         workspace = get_object_or_404(
             Workspace,
-            project__org__slug=self.kwargs["org_slug"],
             project__slug=self.kwargs["project_slug"],
             name=self.kwargs["workspace_slug"],
         )
@@ -614,7 +602,6 @@ class WorkspaceOutputList(ListView):
     def get(self, request, *args, **kwargs):
         workspace = get_object_or_404(
             Workspace,
-            project__org__slug=self.kwargs["org_slug"],
             project__slug=self.kwargs["project_slug"],
             name=self.kwargs["workspace_slug"],
         )

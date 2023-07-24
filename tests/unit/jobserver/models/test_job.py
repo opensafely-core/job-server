@@ -15,7 +15,6 @@ def test_job_get_absolute_url():
     assert url == reverse(
         "job-detail",
         kwargs={
-            "org_slug": job.job_request.workspace.project.org.slug,
             "project_slug": job.job_request.workspace.project.slug,
             "workspace_slug": job.job_request.workspace.name,
             "pk": job.job_request.pk,
@@ -32,7 +31,6 @@ def test_job_get_cancel_url():
     assert url == reverse(
         "job-cancel",
         kwargs={
-            "org_slug": job.job_request.workspace.project.org.slug,
             "project_slug": job.job_request.workspace.project.slug,
             "workspace_slug": job.job_request.workspace.name,
             "pk": job.job_request.pk,

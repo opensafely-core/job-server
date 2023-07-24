@@ -66,7 +66,6 @@ def test_workspace_get_absolute_url():
     assert url == reverse(
         "workspace-detail",
         kwargs={
-            "org_slug": org.slug,
             "project_slug": project.slug,
             "workspace_slug": workspace.name,
         },
@@ -81,7 +80,6 @@ def test_workspace_get_analyses_url():
     assert url == reverse(
         "workspace-analysis-request-list",
         kwargs={
-            "org_slug": workspace.project.org.slug,
             "project_slug": workspace.project.slug,
             "workspace_slug": workspace.name,
         },
@@ -106,7 +104,6 @@ def test_workspace_get_archive_toggle_url():
     assert url == reverse(
         "workspace-archive-toggle",
         kwargs={
-            "org_slug": org.slug,
             "project_slug": project.slug,
             "workspace_slug": workspace.name,
         },
@@ -121,7 +118,6 @@ def test_workspace_get_edit_url():
     assert url == reverse(
         "workspace-edit",
         kwargs={
-            "org_slug": workspace.project.org.slug,
             "project_slug": workspace.project.slug,
             "workspace_slug": workspace.name,
         },
@@ -136,7 +132,6 @@ def test_workspace_get_files_url():
     assert url == reverse(
         "workspace-files-list",
         kwargs={
-            "org_slug": workspace.project.org.slug,
             "project_slug": workspace.project.slug,
             "workspace_slug": workspace.name,
         },
@@ -151,7 +146,6 @@ def test_workspace_get_jobs_url():
     assert url == reverse(
         "job-request-create",
         kwargs={
-            "org_slug": workspace.project.org.slug,
             "project_slug": workspace.project.slug,
             "workspace_slug": workspace.name,
         },
@@ -166,7 +160,6 @@ def test_workspace_get_latest_outputs_download_url():
     assert url == reverse(
         "workspace-latest-outputs-download",
         kwargs={
-            "org_slug": workspace.project.org.slug,
             "project_slug": workspace.project.slug,
             "workspace_slug": workspace.name,
         },
@@ -181,7 +174,6 @@ def test_workspace_get_latest_outputs_url():
     assert url == reverse(
         "workspace-latest-outputs-detail",
         kwargs={
-            "org_slug": workspace.project.org.slug,
             "project_slug": workspace.project.slug,
             "workspace_slug": workspace.name,
         },
@@ -198,7 +190,6 @@ def test_workspace_get_logs_url():
     assert url == reverse(
         "workspace-logs",
         kwargs={
-            "org_slug": org.slug,
             "project_slug": project.slug,
             "workspace_slug": workspace.name,
         },
@@ -215,7 +206,6 @@ def test_workspace_get_notifications_toggle_url():
     assert url == reverse(
         "workspace-notifications-toggle",
         kwargs={
-            "org_slug": org.slug,
             "project_slug": project.slug,
             "workspace_slug": workspace.name,
         },
@@ -230,7 +220,6 @@ def test_workspace_get_outputs_url():
     assert url == reverse(
         "workspace-output-list",
         kwargs={
-            "org_slug": workspace.project.org.slug,
             "project_slug": workspace.project.slug,
             "workspace_slug": workspace.name,
         },
@@ -245,7 +234,6 @@ def test_workspace_get_releases_url():
     assert url == reverse(
         "workspace-release-list",
         kwargs={
-            "org_slug": workspace.project.org.slug,
             "project_slug": workspace.project.slug,
             "workspace_slug": workspace.name,
         },

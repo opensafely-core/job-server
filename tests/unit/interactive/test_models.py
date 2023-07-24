@@ -46,7 +46,6 @@ def test_analysisrequest_get_absolute_url():
     assert url == reverse(
         "interactive:analysis-detail",
         kwargs={
-            "org_slug": analysis_request.project.org.slug,
             "project_slug": analysis_request.project.slug,
             "slug": analysis_request.slug,
         },
@@ -61,7 +60,6 @@ def test_analysisrequest_get_publish_url():
     assert url == reverse(
         "interactive:publish-request-create",
         kwargs={
-            "org_slug": analysis_request.project.org.slug,
             "project_slug": analysis_request.project.slug,
             "slug": analysis_request.slug,
         },
@@ -86,7 +84,6 @@ def test_analysisrequest_get_edit_url():
     assert url == reverse(
         "interactive:report-edit",
         kwargs={
-            "org_slug": analysis_request.project.org.slug,
             "project_slug": analysis_request.project.slug,
             "slug": analysis_request.slug,
         },

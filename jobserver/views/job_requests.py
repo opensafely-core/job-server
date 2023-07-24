@@ -78,7 +78,6 @@ class JobRequestCreate(CreateView):
     def dispatch(self, request, *args, **kwargs):
         try:
             self.workspace = Workspace.objects.get(
-                project__org__slug=self.kwargs["org_slug"],
                 project__slug=self.kwargs["project_slug"],
                 name=self.kwargs["workspace_slug"],
             )
@@ -149,7 +148,6 @@ class JobRequestCreate(CreateView):
         )
         return redirect(
             "workspace-logs",
-            org_slug=self.workspace.project.org.slug,
             project_slug=self.workspace.project.slug,
             workspace_slug=self.workspace.name,
         )
@@ -182,7 +180,6 @@ class JobRequestDetail(View):
             job_request = JobRequest.objects.select_related(
                 "created_by", "workspace"
             ).get(
-                workspace__project__org__slug=self.kwargs["org_slug"],
                 workspace__project__slug=self.kwargs["project_slug"],
                 workspace__name=self.kwargs["workspace_slug"],
                 pk=self.kwargs["pk"],

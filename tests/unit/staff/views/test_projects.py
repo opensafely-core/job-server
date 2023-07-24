@@ -600,11 +600,7 @@ def test_projectlist_unauthorized(rf):
     request.user = UserFactory()
 
     with pytest.raises(PermissionDenied):
-        ProjectList.as_view()(
-            request,
-            org_slug=project.org.slug,
-            project_slug=project.slug,
-        )
+        ProjectList.as_view()(request, project_slug=project.slug)
 
 
 def test_projectmembershipedit_success(rf, core_developer):

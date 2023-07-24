@@ -36,7 +36,6 @@ class JobDetail(View):
             job = Job.objects.select_related(
                 "job_request", "job_request__backend", "job_request__workspace"
             ).get(
-                job_request__workspace__project__org__slug=self.kwargs["org_slug"],
                 job_request__workspace__project__slug=self.kwargs["project_slug"],
                 job_request__workspace__name=self.kwargs["workspace_slug"],
                 job_request__pk=self.kwargs["pk"],

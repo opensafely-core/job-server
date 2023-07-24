@@ -64,7 +64,7 @@
       {% #card title="Backends" class="w-full lg:col-span-2" %}
         {% #list_group small=True %}
           {% for backend in backends %}
-            {% url 'workspace-backend-files' org_slug=workspace.project.org.slug project_slug=workspace.project.slug workspace_slug=workspace.name backend_slug=backend.slug as files_url %}
+            {% url 'workspace-backend-files' project_slug=workspace.project.slug workspace_slug=workspace.name backend_slug=backend.slug as files_url %}
             {% #list_group_item href=files_url %}
               {{ backend.name }}
             {% /list_group_item%}

@@ -20,7 +20,6 @@ class PublishRequestCreate(View):
     def dispatch(self, request, *args, **kwargs):
         self.analysis_request = get_object_or_404(
             AnalysisRequest,
-            project__org__slug=self.kwargs["org_slug"],
             project__slug=self.kwargs["project_slug"],
             slug=self.kwargs["slug"],
         )

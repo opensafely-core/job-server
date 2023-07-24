@@ -17,7 +17,6 @@ from jobserver.views.releases import (
 )
 
 from ....factories import (
-    OrgFactory,
     ProjectFactory,
     PublishRequestFactory,
     ReleaseFactory,
@@ -36,11 +35,7 @@ def test_projectreleaselist_no_releases(rf):
     request.user = UserFactory(roles=[ProjectCollaborator])
 
     with pytest.raises(Http404):
-        ProjectReleaseList.as_view()(
-            request,
-            org_slug=project.org.slug,
-            project_slug=project.slug,
-        )
+        ProjectReleaseList.as_view()(request, project_slug=project.slug)
 
 
 def test_projectreleaselist_success(rf, build_release):
@@ -54,11 +49,7 @@ def test_projectreleaselist_success(rf, build_release):
     request = rf.get("/")
     request.user = UserFactory()
 
-    response = ProjectReleaseList.as_view()(
-        request,
-        org_slug=project.org.slug,
-        project_slug=project.slug,
-    )
+    response = ProjectReleaseList.as_view()(request, project_slug=project.slug)
 
     assert response.status_code == 200
 
@@ -69,16 +60,10 @@ def test_projectreleaselist_success(rf, build_release):
 
 
 def test_projectreleaselist_unknown_workspace(rf):
-    org = OrgFactory()
-
     request = rf.get("/")
 
     with pytest.raises(Http404):
-        ProjectReleaseList.as_view()(
-            request,
-            org_slug=org.slug,
-            project_slug="",
-        )
+        ProjectReleaseList.as_view()(request, project_slug="")
 
 
 def test_projectreleaselist_with_delete_permission(rf, build_release_with_files):
@@ -92,11 +77,7 @@ def test_projectreleaselist_with_delete_permission(rf, build_release_with_files)
     request = rf.get("/")
     request.user = UserFactory(roles=[OutputChecker, ProjectCollaborator])
 
-    response = ProjectReleaseList.as_view()(
-        request,
-        org_slug=project.org.slug,
-        project_slug=project.slug,
-    )
+    response = ProjectReleaseList.as_view()(request, project_slug=project.slug)
 
     assert response.status_code == 200
 
@@ -125,7 +106,6 @@ def test_publishedsnapshotfile_success(rf, release):
 
     response = PublishedSnapshotFile.as_view()(
         request,
-        org_slug=release.workspace.project.org.slug,
         project_slug=release.workspace.project.slug,
         workspace_slug=release.workspace.name,
         file_id=rfile.id,
@@ -146,7 +126,6 @@ def test_publishedsnapshotfile_with_unknown_release_file(rf):
     with pytest.raises(Http404):
         PublishedSnapshotFile.as_view()(
             request,
-            org_slug=workspace.project.org.slug,
             project_slug=workspace.project.slug,
             workspace_slug=workspace.name,
             file_id="",
@@ -165,7 +144,6 @@ def test_publishedsnapshotfile_with_unpublished_release_file(rf, release):
     with pytest.raises(Http404):
         PublishedSnapshotFile.as_view()(
             request,
-            org_slug=release.workspace.project.org.slug,
             project_slug=release.workspace.project.slug,
             workspace_slug=release.workspace.name,
             file_id=rfile.id,
@@ -179,7 +157,6 @@ def test_releasedetail_unknown_release(rf):
     with pytest.raises(Http404):
         ReleaseDetail.as_view()(
             request,
-            org_slug=workspace.project.org.slug,
             project_slug=workspace.project.slug,
             workspace_slug=workspace.name,
             pk="",
@@ -192,7 +169,6 @@ def test_releasedetail_with_path_success(rf, release):
 
     response = ReleaseDetail.as_view()(
         request,
-        org_slug=release.workspace.project.org.slug,
         project_slug=release.workspace.project.slug,
         workspace_slug=release.workspace.name,
         pk=release.id,
@@ -209,7 +185,6 @@ def test_releasedetail_without_permission(rf, release):
     with pytest.raises(Http404):
         ReleaseDetail.as_view()(
             request,
-            org_slug=release.workspace.project.org.slug,
             project_slug=release.workspace.project.slug,
             workspace_slug=release.workspace.name,
             pk=release.id,
@@ -225,7 +200,6 @@ def test_releasedetail_without_files(rf):
     with pytest.raises(Http404):
         ReleaseDetail.as_view()(
             request,
-            org_slug=release.workspace.project.org.slug,
             project_slug=release.workspace.project.slug,
             workspace_slug=release.workspace.name,
             pk=release.id,
@@ -241,7 +215,6 @@ def test_releasedownload_release_with_no_files(rf):
     with pytest.raises(Http404):
         ReleaseDownload.as_view()(
             request,
-            org_slug=release.workspace.project.org.slug,
             project_slug=release.workspace.project.slug,
             workspace_slug=release.workspace.name,
             pk=release.pk,
@@ -254,7 +227,6 @@ def test_releasedownload_success(rf, release):
 
     response = ReleaseDownload.as_view()(
         request,
-        org_slug=release.workspace.project.org.slug,
         project_slug=release.workspace.project.slug,
         workspace_slug=release.workspace.name,
         pk=release.pk,
@@ -272,7 +244,6 @@ def test_releasedownload_unknown_release(rf):
     with pytest.raises(Http404):
         ReleaseDownload.as_view()(
             request,
-            org_slug=workspace.project.org.slug,
             project_slug=workspace.project.slug,
             workspace_slug=workspace.name,
             pk="",
@@ -286,7 +257,6 @@ def test_releasedownload_without_permission(rf, release):
     with pytest.raises(Http404):
         ReleaseDownload.as_view()(
             request,
-            org_slug=release.workspace.project.org.slug,
             project_slug=release.workspace.project.slug,
             workspace_slug=release.workspace.name,
             pk=release.pk,
@@ -302,7 +272,6 @@ def test_releasefiledelete_deleted_file(rf):
     with pytest.raises(Http404):
         ReleaseFileDelete.as_view()(
             request,
-            org_slug=rfile.release.workspace.project.org.slug,
             project_slug=rfile.release.workspace.project.slug,
             workspace_slug=rfile.release.workspace.name,
             pk=rfile.release.pk,
@@ -319,7 +288,6 @@ def test_releasefiledelete_no_file_on_disk(rf):
     with pytest.raises(Http404):
         ReleaseFileDelete.as_view()(
             request,
-            org_slug=rfile.release.workspace.project.org.slug,
             project_slug=rfile.release.workspace.project.slug,
             workspace_slug=rfile.release.workspace.name,
             pk=rfile.release.pk,
@@ -336,7 +304,6 @@ def test_releasefiledelete_success(rf, freezer, release):
 
     response = ReleaseFileDelete.as_view()(
         request,
-        org_slug=release.workspace.project.org.slug,
         project_slug=release.workspace.project.slug,
         workspace_slug=release.workspace.name,
         pk=release.pk,
@@ -361,7 +328,6 @@ def test_releasefiledelete_unknown_release_file(rf):
     with pytest.raises(Http404):
         ReleaseFileDelete.as_view()(
             request,
-            org_slug=release.workspace.project.org.slug,
             project_slug=release.workspace.project.slug,
             workspace_slug=release.workspace.name,
             pk=release.pk,
@@ -378,7 +344,6 @@ def test_releasefiledelete_without_permission(rf, release):
     with pytest.raises(Http404):
         ReleaseFileDelete.as_view()(
             request,
-            org_slug=release.workspace.project.org.slug,
             project_slug=release.workspace.project.slug,
             workspace_slug=release.workspace.name,
             pk=release.pk,
@@ -400,7 +365,6 @@ def test_snapshotdetail_published_logged_out(rf):
 
     response = SnapshotDetail.as_view()(
         request,
-        org_slug=snapshot.workspace.project.org.slug,
         project_slug=snapshot.workspace.project.slug,
         workspace_slug=snapshot.workspace.name,
         pk=snapshot.pk,
@@ -423,7 +387,6 @@ def test_snapshotdetail_published_with_permission(rf):
 
     response = SnapshotDetail.as_view()(
         request,
-        org_slug=snapshot.workspace.project.org.slug,
         project_slug=snapshot.workspace.project.slug,
         workspace_slug=snapshot.workspace.name,
         pk=snapshot.pk,
@@ -446,7 +409,6 @@ def test_snapshotdetail_published_without_permission(rf):
 
     response = SnapshotDetail.as_view()(
         request,
-        org_slug=snapshot.workspace.project.org.slug,
         project_slug=snapshot.workspace.project.slug,
         workspace_slug=snapshot.workspace.name,
         pk=snapshot.pk,
@@ -464,7 +426,6 @@ def test_snapshotdetail_unpublished_with_permission_to_publish(rf):
 
     response = SnapshotDetail.as_view()(
         request,
-        org_slug=snapshot.workspace.project.org.slug,
         project_slug=snapshot.workspace.project.slug,
         workspace_slug=snapshot.workspace.name,
         pk=snapshot.pk,
@@ -483,7 +444,6 @@ def test_snapshotdetail_unpublished_without_permission_to_publish(rf):
 
     response = SnapshotDetail.as_view()(
         request,
-        org_slug=snapshot.workspace.project.org.slug,
         project_slug=snapshot.workspace.project.slug,
         workspace_slug=snapshot.workspace.name,
         pk=snapshot.pk,
@@ -502,7 +462,6 @@ def test_snapshotdetail_unpublished_with_permission_to_view(rf):
 
     response = SnapshotDetail.as_view()(
         request,
-        org_slug=snapshot.workspace.project.org.slug,
         project_slug=snapshot.workspace.project.slug,
         workspace_slug=snapshot.workspace.name,
         pk=snapshot.pk,
@@ -521,7 +480,6 @@ def test_snapshotdetail_unpublished_without_permission_to_view(rf):
     with pytest.raises(Http404):
         SnapshotDetail.as_view()(
             request,
-            org_slug=snapshot.workspace.project.org.slug,
             project_slug=snapshot.workspace.project.slug,
             workspace_slug=snapshot.workspace.name,
             pk=snapshot.pk,
@@ -536,7 +494,6 @@ def test_snapshotdetail_unknown_snapshot(rf):
     with pytest.raises(Http404):
         SnapshotDetail.as_view()(
             request,
-            org_slug=workspace.project.org.slug,
             project_slug=workspace.project.slug,
             workspace_slug=workspace.name,
             pk=0,
@@ -559,7 +516,6 @@ def test_snapshotdownload_published_with_permission(rf, release):
 
     response = SnapshotDownload.as_view()(
         request,
-        org_slug=snapshot.workspace.project.org.slug,
         project_slug=snapshot.workspace.project.slug,
         workspace_slug=snapshot.workspace.name,
         pk=snapshot.pk,
@@ -584,7 +540,6 @@ def test_snapshotdownload_published_without_permission(rf, release):
 
     response = SnapshotDownload.as_view()(
         request,
-        org_slug=workspace.project.org.slug,
         project_slug=workspace.project.slug,
         workspace_slug=workspace.name,
         pk=snapshot.pk,
@@ -602,7 +557,6 @@ def test_snapshotdownload_unknown_snapshot(rf):
     with pytest.raises(Http404):
         SnapshotDownload.as_view()(
             request,
-            org_slug=workspace.project.org.slug,
             project_slug=workspace.project.slug,
             workspace_slug=workspace.name,
             pk=0,
@@ -620,7 +574,6 @@ def test_snapshotdownload_unpublished_with_permission(rf, release):
 
     response = SnapshotDownload.as_view()(
         request,
-        org_slug=workspace.project.org.slug,
         project_slug=workspace.project.slug,
         workspace_slug=workspace.name,
         pk=snapshot.pk,
@@ -641,7 +594,6 @@ def test_snapshotdownload_unpublished_without_permission(rf, release):
     with pytest.raises(Http404):
         SnapshotDownload.as_view()(
             request,
-            org_slug=workspace.project.org.slug,
             project_slug=workspace.project.slug,
             workspace_slug=workspace.name,
             pk=snapshot.pk,
@@ -657,7 +609,6 @@ def test_snapshotdownload_with_no_files(rf):
     with pytest.raises(Http404):
         SnapshotDownload.as_view()(
             request,
-            org_slug=snapshot.workspace.project.org.slug,
             project_slug=snapshot.workspace.project.slug,
             workspace_slug=snapshot.workspace.name,
             pk=snapshot.pk,
@@ -675,7 +626,6 @@ def test_workspacereleaselist_authenticated_to_view_not_delete(
 
     response = WorkspaceReleaseList.as_view()(
         request,
-        org_slug=workspace.project.org.slug,
         project_slug=workspace.project.slug,
         workspace_slug=workspace.name,
     )
@@ -706,7 +656,6 @@ def test_workspacereleaselist_authenticated_to_view_and_delete(
 
     response = WorkspaceReleaseList.as_view()(
         request,
-        org_slug=workspace.project.org.slug,
         project_slug=workspace.project.slug,
         workspace_slug=workspace.name,
     )
@@ -730,7 +679,6 @@ def test_workspacereleaselist_no_releases(rf):
     with pytest.raises(Http404):
         WorkspaceReleaseList.as_view()(
             request,
-            org_slug=workspace.project.org.slug,
             project_slug=workspace.project.slug,
             workspace_slug=workspace.name,
         )
@@ -745,7 +693,6 @@ def test_workspacereleaselist_unauthenticated(rf, build_release):
 
     response = WorkspaceReleaseList.as_view()(
         request,
-        org_slug=workspace.project.org.slug,
         project_slug=workspace.project.slug,
         workspace_slug=workspace.name,
     )
@@ -765,7 +712,6 @@ def test_workspacereleaselist_unknown_workspace(rf):
     with pytest.raises(Http404):
         WorkspaceReleaseList.as_view()(
             request,
-            org_slug=project.org.slug,
             project_slug=project.slug,
             workspace_slug="",
         )
@@ -780,7 +726,6 @@ def test_workspacereleaselist_build_files_for_latest(rf, build_release):
 
     response = WorkspaceReleaseList.as_view()(
         request,
-        org_slug=workspace.project.org.slug,
         project_slug=workspace.project.slug,
         workspace_slug=workspace.name,
     )
@@ -800,7 +745,6 @@ def test_workspacereleaselist_build_files_for_releases(rf, build_release):
 
     response = WorkspaceReleaseList.as_view()(
         request,
-        org_slug=workspace.project.org.slug,
         project_slug=workspace.project.slug,
         workspace_slug=workspace.name,
     )

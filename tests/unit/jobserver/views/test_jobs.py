@@ -121,7 +121,6 @@ def test_jobdetail_with_anonymous_user(rf):
 
     response = JobDetail.as_view()(
         request,
-        org_slug=job.job_request.workspace.project.org.slug,
         project_slug=job.job_request.workspace.project.slug,
         workspace_slug=job.job_request.workspace.name,
         pk=job.job_request.pk,
@@ -146,7 +145,6 @@ def test_jobdetail_with_permission(rf):
 
     response = JobDetail.as_view()(
         request,
-        org_slug=job.job_request.workspace.project.org.slug,
         project_slug=job.job_request.workspace.project.slug,
         workspace_slug=job.job_request.workspace.name,
         pk=job.job_request.pk,
@@ -171,7 +169,6 @@ def test_jobdetail_with_core_developer(rf):
 
     response = JobDetail.as_view()(
         request,
-        org_slug=job.job_request.workspace.project.org.slug,
         project_slug=job.job_request.workspace.project.slug,
         workspace_slug=job.job_request.workspace.name,
         pk=job.job_request.pk,
@@ -211,7 +208,6 @@ def test_jobdetail_with_core_developer_with_completed_at(rf):
 
     response = JobDetail.as_view()(
         request,
-        org_slug=job.job_request.workspace.project.org.slug,
         project_slug=job.job_request.workspace.project.slug,
         workspace_slug=job.job_request.workspace.name,
         pk=job.job_request.pk,
@@ -242,7 +238,6 @@ def test_jobdetail_with_job_creator(rf):
 
     response = JobDetail.as_view()(
         request,
-        org_slug=job.job_request.workspace.project.org.slug,
         project_slug=job.job_request.workspace.project.slug,
         workspace_slug=job.job_request.workspace.name,
         pk=job.job_request.pk,
@@ -265,7 +260,6 @@ def test_jobdetail_with_nonzero_exit_code(rf):
 
     response = JobDetail.as_view()(
         request,
-        org_slug=job.job_request.workspace.project.org.slug,
         project_slug=job.job_request.workspace.project.slug,
         workspace_slug=job.job_request.workspace.name,
         pk=job.job_request.pk,
@@ -294,7 +288,6 @@ def test_jobdetail_with_partial_identifier_failure(rf):
     with pytest.raises(Http404):
         JobDetail.as_view()(
             request,
-            org_slug=job_request.workspace.project.org.slug,
             project_slug=job_request.workspace.project.slug,
             workspace_slug=job_request.workspace.name,
             pk=job_request.pk,
@@ -310,7 +303,6 @@ def test_jobdetail_with_partial_identifier_success(rf):
 
     response = JobDetail.as_view()(
         request,
-        org_slug=job.job_request.workspace.project.org.slug,
         project_slug=job.job_request.workspace.project.slug,
         workspace_slug=job.job_request.workspace.name,
         pk=job.job_request.pk,
@@ -329,7 +321,6 @@ def test_jobdetail_with_unknown_job(rf):
     with pytest.raises(Http404):
         JobDetail.as_view()(
             request,
-            org_slug=job_request.workspace.project.org.slug,
             project_slug=job_request.workspace.project.slug,
             workspace_slug=job_request.workspace.name,
             pk=job_request.pk,
@@ -345,7 +336,6 @@ def test_jobdetail_without_permission(rf):
 
     response = JobDetail.as_view()(
         request,
-        org_slug=job.job_request.workspace.project.org.slug,
         project_slug=job.job_request.workspace.project.slug,
         workspace_slug=job.job_request.workspace.name,
         pk=job.job_request.pk,

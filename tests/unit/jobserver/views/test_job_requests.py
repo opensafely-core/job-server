@@ -169,7 +169,6 @@ def test_jobrequestcreate_get_success(ref, rf, mocker, user):
 
     response = JobRequestCreate.as_view()(
         request,
-        org_slug=workspace.project.org.slug,
         project_slug=workspace.project.slug,
         workspace_slug=workspace.name,
         ref=ref,
@@ -203,7 +202,6 @@ def test_jobrequestcreate_get_with_all_backends_removed(rf, settings, user):
     with pytest.raises(Http404):
         JobRequestCreate.as_view()(
             request,
-            org_slug=workspace.project.org.slug,
             project_slug=workspace.project.slug,
             workspace_slug=workspace.name,
         )
@@ -239,7 +237,6 @@ def test_jobrequestcreate_get_with_permission(rf, mocker, user):
 
     response = JobRequestCreate.as_view()(
         request,
-        org_slug=workspace.project.org.slug,
         project_slug=workspace.project.slug,
         workspace_slug=workspace.name,
     )
@@ -272,7 +269,6 @@ def test_jobrequestcreate_get_with_project_yaml_errors(rf, mocker, user):
 
     response = JobRequestCreate.as_view()(
         request,
-        org_slug=workspace.project.org.slug,
         project_slug=workspace.project.slug,
         workspace_slug=workspace.name,
     )
@@ -314,7 +310,6 @@ def test_jobrequestcreate_get_with_some_backends_removed(rf, mocker, settings, u
 
     response = JobRequestCreate.as_view(get_github_api=FakeGitHubAPI)(
         request,
-        org_slug=workspace.project.org.slug,
         project_slug=workspace.project.slug,
         workspace_slug=workspace.name,
     )
@@ -364,7 +359,6 @@ def test_jobrequestcreate_post_success(ref, rf, mocker, monkeypatch, user):
 
     response = JobRequestCreate.as_view(get_github_api=FakeGitHubAPI)(
         request,
-        org_slug=workspace.project.org.slug,
         project_slug=workspace.project.slug,
         workspace_slug=workspace.name,
         ref=ref,
@@ -412,7 +406,6 @@ def test_jobrequestcreate_post_with_invalid_backend(rf, mocker, monkeypatch, use
 
     response = JobRequestCreate.as_view(get_github_api=FakeGitHubAPI)(
         request,
-        org_slug=workspace.project.org.slug,
         project_slug=workspace.project.slug,
         workspace_slug=workspace.name,
     )
@@ -462,7 +455,6 @@ def test_jobrequestcreate_post_with_notifications_default(
 
     response = JobRequestCreate.as_view(get_github_api=FakeGitHubAPI)(
         request,
-        org_slug=workspace.project.org.slug,
         project_slug=workspace.project.slug,
         workspace_slug=workspace.name,
     )
@@ -518,7 +510,6 @@ def test_jobrequestcreate_post_with_notifications_override(
 
     response = JobRequestCreate.as_view(get_github_api=FakeGitHubAPI)(
         request,
-        org_slug=workspace.project.org.slug,
         project_slug=workspace.project.slug,
         workspace_slug=workspace.name,
     )
@@ -544,7 +535,6 @@ def test_jobrequestcreate_unknown_workspace(rf, user):
     request.user = user
     response = JobRequestCreate.as_view()(
         request,
-        org_slug=org.slug,
         project_slug=project.slug,
         workspace_slug="test",
     )
@@ -568,7 +558,6 @@ def test_jobrequestcreate_with_archived_workspace(rf):
 
     response = JobRequestCreate.as_view()(
         request,
-        org_slug=workspace.project.org.slug,
         project_slug=workspace.project.slug,
         workspace_slug=workspace.name,
     )
@@ -591,7 +580,6 @@ def test_jobrequestcreate_with_no_backends(rf):
     with pytest.raises(Http404):
         JobRequestCreate.as_view()(
             request,
-            org_slug=workspace.project.org.slug,
             project_slug=workspace.project.slug,
             workspace_slug=workspace.name,
         )
@@ -606,7 +594,6 @@ def test_jobrequestcreate_without_permission(rf):
     with pytest.raises(Http404):
         JobRequestCreate.as_view()(
             request,
-            org_slug=workspace.project.org.slug,
             project_slug=workspace.project.slug,
             workspace_slug=workspace.name,
         )
@@ -621,7 +608,6 @@ def test_jobrequestdetail_with_job_request_creator(rf):
 
     response = JobRequestDetail.as_view()(
         request,
-        org_slug=job_request.workspace.project.org.slug,
         project_slug=job_request.workspace.project.slug,
         workspace_slug=job_request.workspace.name,
         pk=job_request.pk,
@@ -645,7 +631,6 @@ def test_jobrequestdetail_with_permission(rf):
 
     response = JobRequestDetail.as_view()(
         request,
-        org_slug=job_request.workspace.project.org.slug,
         project_slug=job_request.workspace.project.slug,
         workspace_slug=job_request.workspace.name,
         pk=job_request.pk,
@@ -669,7 +654,6 @@ def test_jobrequestdetail_with_permission_core_developer(rf):
 
     response = JobRequestDetail.as_view()(
         request,
-        org_slug=job_request.workspace.project.org.slug,
         project_slug=job_request.workspace.project.slug,
         workspace_slug=job_request.workspace.name,
         pk=job_request.pk,
@@ -706,7 +690,6 @@ def test_jobrequestdetail_with_permission_with_completed_at(rf):
 
     response = JobRequestDetail.as_view()(
         request,
-        org_slug=job_request.workspace.project.org.slug,
         project_slug=job_request.workspace.project.slug,
         workspace_slug=job_request.workspace.name,
         pk=job_request.pk,
@@ -724,7 +707,6 @@ def test_jobrequestdetail_with_unauthenticated_user(rf):
 
     response = JobRequestDetail.as_view()(
         request,
-        org_slug=job_request.workspace.project.org.slug,
         project_slug=job_request.workspace.project.slug,
         workspace_slug=job_request.workspace.name,
         pk=job_request.pk,
@@ -743,7 +725,6 @@ def test_jobrequestdetail_with_unknown_job_request(rf):
     with pytest.raises(Http404):
         JobRequestDetail.as_view()(
             request,
-            org_slug=workspace.project.org.slug,
             project_slug=workspace.project.slug,
             workspace_slug=workspace.name,
             pk=0,
@@ -758,7 +739,6 @@ def test_jobrequestdetail_without_permission(rf):
 
     response = JobRequestDetail.as_view()(
         request,
-        org_slug=job_request.workspace.project.org.slug,
         project_slug=job_request.workspace.project.slug,
         workspace_slug=job_request.workspace.name,
         pk=job_request.pk,
