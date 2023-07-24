@@ -77,6 +77,12 @@ def test_redirect_get_staff_delete_url():
     assert url == reverse("staff:redirect-delete", kwargs={"pk": redirect.pk})
 
 
+def test_str():
+    redirect = RedirectFactory(project=ProjectFactory(), old_url="/testing/foo/")
+
+    assert str(redirect) == "/testing/foo/"
+
+
 def test_validate_not_empty():
     assert validate_not_empty("test") is None
 
