@@ -46,7 +46,6 @@
     "window-resizeto": "^0.0.2"
   },
   "dependencies": {
-    "@alpine-collective/toolkit-screen": "^1.0.2",
     "@headlessui/react": "^1.7.15",
     "@heroicons/react": "^2.0.18",
     "@sentry/react": "^7.59.2",
@@ -56,7 +55,6 @@
     "@tanstack/react-query-devtools": "^4.29.25",
     "@ttskch/select2-bootstrap4-theme": "^1.5.2",
     "@zachleat/details-utils": "^2.0.2",
-    "alpinejs": "git://github.com/ebmdatalab/alpine.git#v3.11.1-csp",
     "bootstrap": "^4.6.2",
     "bs-custom-file-input": "^1.3.4",
     "formik": "^2.4.2",
