@@ -35,10 +35,7 @@
   {% #card title="Releases" %}
     {% #list_group %}
       {% for release in releases %}
-        <li class="flex flex-col justify-center px-4 py-3 break-words md:px-6"
-            x-data="dropdown"
-            x-title="release-{{ release.id }}"
-        >
+        <li class="flex flex-col justify-center px-4 py-3 break-words md:px-6" data-expander-list="release-{{ release.id }}">
           <div class="flex flex-col md:flex-row gap-2 items-start justify-between">
             <span class="mr-auto">
               Files released by {{ release.created_by.name }}
@@ -62,7 +59,7 @@
               {% #button class="min-w-[12ch] sm:rounded-none sm:border-x-0" variant="primary-outline" type="link" href=release.download_url %}
                 Download all
               {% /button %}
-              {% #button class="min-w-[16ch] sm:rounded-l-none" variant="secondary-outline" x_bind="trigger" %}
+              {% #button class="min-w-[16ch] sm:rounded-l-none" variant="secondary-outline" data-expander-button="release-"|add:release.id  %}
                 List
                 {% if release.can_view_files %}
                 ({{ release.files | length }} file{{ release.files | length | pluralize }})
@@ -75,8 +72,7 @@
           <div
             aria-expanded="false"
             class="my-2 border-l-4 border-l-oxford-200 border-r border-r-slate-200 border-b border-b-slate-200"
-            x-cloak
-            x-ref="dialogue"
+            data-expander-list="release-{{ release.id }}"
           >
             {% #list_group small %}
               {% for file in release.files %}

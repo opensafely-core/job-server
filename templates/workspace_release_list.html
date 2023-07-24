@@ -35,10 +35,7 @@
   {% #card title="Releases" %}
     {% #list_group %}
       {% if latest_release.can_view_files %}
-      <li class="flex flex-col justify-center px-4 py-3 break-words md:px-6"
-          x-data="dropdown"
-          x-title="release-{{ latest_release.id }}"
-      >
+      <li class="flex flex-col justify-center px-4 py-3 break-words md:px-6">
         <div class="flex flex-col md:flex-row md:flex-wrap gap-2 items-center justify-between">
           <span class="mr-auto">{% link href=latest_release.view_url text=latest_release.title %}</span>
           {% if latest_release.can_view_files %}
@@ -46,7 +43,7 @@
             {% #button class="min-w-[16ch]" variant="primary" type="link" href=latest_release.download_url %}
               Download all
             {% /button %}
-            {% #button class="min-w-[16ch] ml-0.5" variant="secondary" x_bind="trigger" %}
+            {% #button class="min-w-[16ch] ml-0.5" variant="secondary" data-expander-button="release-"|add:latest_release.id %}
               List
               {% if latest_release.can_view_files %}
               ({{ latest_release.files | length }} file{{ latest_release.files | length | pluralize }})
@@ -58,9 +55,8 @@
         {% if latest_release.can_view_files %}
         <div
           aria-expanded="false"
-          class="my-2 border-l-4 border-l-oxford-200 border-r border-r-slate-200 border-b border-b-slate-200"
-          x-cloak
-          x-ref="dialogue"
+          class="hidden my-2 border-l-4 border-l-oxford-200 border-r border-r-slate-200 border-b border-b-slate-200"
+          data-expander-list="release-{{ latest_release.id }}"
         >
           {% #list_group small %}
             {% for file in latest_release.files %}
@@ -96,8 +92,6 @@
 
       {% for release in releases %}
         <li class="flex flex-col justify-center px-4 py-3 break-words md:px-6"
-            x-data="dropdown"
-            x-title="release-{{ release.id }}"
         >
           <div class="flex flex-col md:flex-row md:flex-wrap gap-2 items-center justify-between">
             <span class="mr-auto">
@@ -112,11 +106,9 @@
               {% #button class="min-w-[16ch]" variant="primary" type="link" href=release.download_url %}
                 Download all
               {% /button %}
-              {% #button class="min-w-[16ch] ml-0.5" variant="secondary" x_bind="trigger" %}
+              {% #button class="min-w-[16ch] ml-0.5" variant="secondary" data-expander-button="release-"|add:release.id  %}
                 List
-                {% if release.can_view_files %}
                 ({{ release.files | length }} file{{ release.files | length | pluralize }})
-                {% endif %}
               {% /button %}
             </div>
             {% endif %}
@@ -124,9 +116,8 @@
           {% if release.can_view_files %}
           <div
             aria-expanded="false"
-            class="my-2 border-l-4 border-l-oxford-200 border-r border-r-slate-200 border-b border-b-slate-200"
-            x-cloak
-            x-ref="dialogue"
+            class="hidden my-2 border-l-4 border-l-oxford-200 border-r border-r-slate-200 border-b border-b-slate-200"
+            data-expander-list="release-{{ release.id }}"
           >
             {% #list_group small %}
               {% for file in release.files %}
