@@ -18,7 +18,7 @@ errorlog = "-"
 logconfig_dict = logging_config_dict
 
 # workers
-workers = 5
+workers = 9
 
 # listen
 port = 8000
