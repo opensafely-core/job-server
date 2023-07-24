@@ -44,7 +44,10 @@ class Project(models.Model):
     org = models.ForeignKey(
         "Org",
         on_delete=models.CASCADE,
-        related_name="projects",
+    )
+    orgs = models.ManyToManyField(
+        "Org",
+        through="ProjectCollaboration",
     )
 
     name = models.TextField(unique=True)

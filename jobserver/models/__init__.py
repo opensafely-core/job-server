@@ -5,6 +5,7 @@ from .job_request import JobRequest
 from .org import Org
 from .org_membership import OrgMembership
 from .project import Project
+from .project_collaboration import ProjectCollaboration
 from .project_membership import ProjectMembership
 from .publish_request import PublishRequest
 from .release import Release
@@ -26,6 +27,7 @@ __all__ = [
     "Org",
     "OrgMembership",
     "Project",
+    "ProjectCollaboration",
     "ProjectMembership",
     "PublishRequest",
     "Release",
