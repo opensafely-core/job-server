@@ -8,5 +8,5 @@ expandBtns.map((btn) =>
 
     list.setAttribute("aria-expanded", `${!isAriaExpanded}`);
     list.classList.toggle("hidden");
-  })
+  }),
 );
