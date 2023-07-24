@@ -24,11 +24,7 @@ class ProjectDetail(View):
     get_github_api = staticmethod(_get_github_api)
 
     def get(self, request, *args, **kwargs):
-        project = get_object_or_404(
-            Project,
-            slug=self.kwargs["project_slug"],
-            org__slug=self.kwargs["org_slug"],
-        )
+        project = get_object_or_404(Project, slug=self.kwargs["project_slug"])
 
         can_create_workspaces = has_permission(
             request.user, "workspace_create", project=project
@@ -180,11 +176,7 @@ class ProjectEdit(UpdateView):
     template_name = "project_edit.html"
 
     def get_object(self):
-        project = get_object_or_404(
-            Project,
-            org__slug=self.kwargs["org_slug"],
-            slug=self.kwargs["project_slug"],
-        )
+        project = get_object_or_404(Project, slug=self.kwargs["project_slug"])
 
         if not project.members.filter(username=self.request.user.username).exists():
             raise PermissionDenied
@@ -199,11 +191,7 @@ class ProjectReportList(ListView):
     template_name = "project_report_list.html"
 
     def dispatch(self, request, *args, **kwargs):
-        self.project = get_object_or_404(
-            Project,
-            slug=self.kwargs["project_slug"],
-            org__slug=self.kwargs["org_slug"],
-        )
+        self.project = get_object_or_404(Project, slug=self.kwargs["project_slug"])
 
         self.can_view_unpublished_reports = has_permission(
             self.request.user, "release_file_view", project=self.project

@@ -307,7 +307,6 @@ class Release(models.Model):
         return reverse(
             "release-detail",
             kwargs={
-                "org_slug": self.workspace.project.org.slug,
                 "project_slug": self.workspace.project.slug,
                 "workspace_slug": self.workspace.name,
                 "pk": self.id,
@@ -321,7 +320,6 @@ class Release(models.Model):
         return reverse(
             "release-download",
             kwargs={
-                "org_slug": self.workspace.project.org.slug,
                 "project_slug": self.workspace.project.slug,
                 "workspace_slug": self.workspace.name,
                 "pk": self.id,
@@ -436,7 +434,6 @@ class ReleaseFile(models.Model):
         return reverse(
             "release-detail",
             kwargs={
-                "org_slug": self.release.workspace.project.org.slug,
                 "project_slug": self.release.workspace.project.slug,
                 "workspace_slug": self.release.workspace.name,
                 "pk": self.release.id,
@@ -454,7 +451,6 @@ class ReleaseFile(models.Model):
             return reverse(
                 "published-file",
                 kwargs={
-                    "org_slug": self.workspace.project.org.slug,
                     "project_slug": self.workspace.project.slug,
                     "workspace_slug": self.workspace.name,
                     "file_id": self.id,
@@ -467,7 +463,6 @@ class ReleaseFile(models.Model):
         return reverse(
             "release-file-delete",
             kwargs={
-                "org_slug": self.release.workspace.project.org.slug,
                 "project_slug": self.release.workspace.project.slug,
                 "workspace_slug": self.release.workspace.name,
                 "pk": self.release.id,
@@ -479,7 +474,6 @@ class ReleaseFile(models.Model):
         return reverse(
             "workspace-latest-outputs-detail",
             kwargs={
-                "org_slug": self.release.workspace.project.org.slug,
                 "project_slug": self.release.workspace.project.slug,
                 "workspace_slug": self.release.workspace.name,
                 "path": f"{self.release.backend.slug}/{self.name}",
@@ -586,7 +580,6 @@ class Snapshot(models.Model):
         return reverse(
             "workspace-snapshot-detail",
             kwargs={
-                "org_slug": self.workspace.project.org.slug,
                 "project_slug": self.workspace.project.slug,
                 "workspace_slug": self.workspace.name,
                 "pk": self.pk,
@@ -606,7 +599,6 @@ class Snapshot(models.Model):
         return reverse(
             "workspace-snapshot-download",
             kwargs={
-                "org_slug": self.workspace.project.org.slug,
                 "project_slug": self.workspace.project.slug,
                 "workspace_slug": self.workspace.name,
                 "pk": self.pk,

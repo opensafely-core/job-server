@@ -91,7 +91,6 @@ class Job(models.Model):
         return reverse(
             "job-detail",
             kwargs={
-                "org_slug": self.job_request.workspace.project.org.slug,
                 "project_slug": self.job_request.workspace.project.slug,
                 "workspace_slug": self.job_request.workspace.name,
                 "pk": self.job_request.pk,
@@ -103,7 +102,6 @@ class Job(models.Model):
         return reverse(
             "job-cancel",
             kwargs={
-                "org_slug": self.job_request.workspace.project.org.slug,
                 "project_slug": self.job_request.workspace.project.slug,
                 "workspace_slug": self.job_request.workspace.name,
                 "pk": self.job_request.pk,
@@ -255,7 +253,6 @@ class JobRequest(models.Model):
         return reverse(
             "job-request-detail",
             kwargs={
-                "org_slug": self.workspace.project.org.slug,
                 "project_slug": self.workspace.project.slug,
                 "workspace_slug": self.workspace.name,
                 "pk": self.pk,
@@ -278,7 +275,6 @@ class JobRequest(models.Model):
         return reverse(
             "job-request-cancel",
             kwargs={
-                "org_slug": self.workspace.project.org.slug,
                 "project_slug": self.workspace.project.slug,
                 "workspace_slug": self.workspace.name,
                 "pk": self.pk,
@@ -555,7 +551,9 @@ class Project(models.Model):
     def get_absolute_url(self):
         return reverse(
             "project-detail",
-            kwargs={"org_slug": self.org.slug, "project_slug": self.slug},
+            kwargs={
+                "project_slug": self.slug,
+            },
         )
 
     def get_approved_url(self):
@@ -569,25 +567,33 @@ class Project(models.Model):
     def get_edit_url(self):
         return reverse(
             "project-edit",
-            kwargs={"org_slug": self.org.slug, "project_slug": self.slug},
+            kwargs={
+                "project_slug": self.slug,
+            },
         )
 
     def get_interactive_url(self):
         return reverse(
             "interactive:analysis-create",
-            kwargs={"org_slug": self.org.slug, "project_slug": self.slug},
+            kwargs={
+                "project_slug": self.slug,
+            },
         )
 
     def get_releases_url(self):
         return reverse(
             "project-release-list",
-            kwargs={"org_slug": self.org.slug, "project_slug": self.slug},
+            kwargs={
+                "project_slug": self.slug,
+            },
         )
 
     def get_reports_url(self):
         return reverse(
             "project-report-list",
-            kwargs={"org_slug": self.org.slug, "project_slug": self.slug},
+            kwargs={
+                "project_slug": self.slug,
+            },
         )
 
     def get_staff_url(self):
@@ -1165,7 +1171,6 @@ class Workspace(models.Model):
         return reverse(
             "workspace-detail",
             kwargs={
-                "org_slug": self.project.org.slug,
                 "project_slug": self.project.slug,
                 "workspace_slug": self.name,
             },
@@ -1175,7 +1180,6 @@ class Workspace(models.Model):
         return reverse(
             "workspace-analysis-request-list",
             kwargs={
-                "org_slug": self.project.org.slug,
                 "project_slug": self.project.slug,
                 "workspace_slug": self.name,
             },
@@ -1185,7 +1189,6 @@ class Workspace(models.Model):
         return reverse(
             "workspace-archive-toggle",
             kwargs={
-                "org_slug": self.project.org.slug,
                 "project_slug": self.project.slug,
                 "workspace_slug": self.name,
             },
@@ -1198,7 +1201,6 @@ class Workspace(models.Model):
         return reverse(
             "workspace-edit",
             kwargs={
-                "org_slug": self.project.org.slug,
                 "project_slug": self.project.slug,
                 "workspace_slug": self.name,
             },
@@ -1208,7 +1210,6 @@ class Workspace(models.Model):
         return reverse(
             "workspace-files-list",
             kwargs={
-                "org_slug": self.project.org.slug,
                 "project_slug": self.project.slug,
                 "workspace_slug": self.name,
             },
@@ -1218,7 +1219,6 @@ class Workspace(models.Model):
         return reverse(
             "job-request-create",
             kwargs={
-                "org_slug": self.project.org.slug,
                 "project_slug": self.project.slug,
                 "workspace_slug": self.name,
             },
@@ -1228,7 +1228,6 @@ class Workspace(models.Model):
         return reverse(
             "workspace-latest-outputs-download",
             kwargs={
-                "org_slug": self.project.org.slug,
                 "project_slug": self.project.slug,
                 "workspace_slug": self.name,
             },
@@ -1238,7 +1237,6 @@ class Workspace(models.Model):
         return reverse(
             "workspace-latest-outputs-detail",
             kwargs={
-                "org_slug": self.project.org.slug,
                 "project_slug": self.project.slug,
                 "workspace_slug": self.name,
             },
@@ -1248,7 +1246,6 @@ class Workspace(models.Model):
         return reverse(
             "workspace-logs",
             kwargs={
-                "org_slug": self.project.org.slug,
                 "project_slug": self.project.slug,
                 "workspace_slug": self.name,
             },
@@ -1258,7 +1255,6 @@ class Workspace(models.Model):
         return reverse(
             "workspace-notifications-toggle",
             kwargs={
-                "org_slug": self.project.org.slug,
                 "project_slug": self.project.slug,
                 "workspace_slug": self.name,
             },
@@ -1268,7 +1264,6 @@ class Workspace(models.Model):
         return reverse(
             "workspace-output-list",
             kwargs={
-                "org_slug": self.project.org.slug,
                 "project_slug": self.project.slug,
                 "workspace_slug": self.name,
             },
@@ -1287,7 +1282,6 @@ class Workspace(models.Model):
         return reverse(
             "workspace-release-list",
             kwargs={
-                "org_slug": self.project.org.slug,
                 "project_slug": self.project.slug,
                 "workspace_slug": self.name,
             },

@@ -30,7 +30,6 @@ def test_publishrequestcreate_get_success(rf):
 
     response = PublishRequestCreate.as_view()(
         request,
-        org_slug=analysis_request.project.org.slug,
         project_slug=analysis_request.project.slug,
         slug=analysis_request.slug,
     )
@@ -65,7 +64,6 @@ def test_publishrequestcreate_locked_with_approved_decision(rf):
 
     response = PublishRequestCreate.as_view()(
         request,
-        org_slug=analysis_request.project.org.slug,
         project_slug=analysis_request.project.slug,
         slug=analysis_request.slug,
     )
@@ -92,7 +90,6 @@ def test_publishrequestcreate_locked_with_pending_decision(rf):
 
     response = PublishRequestCreate.as_view()(
         request,
-        org_slug=analysis_request.project.org.slug,
         project_slug=analysis_request.project.slug,
         slug=analysis_request.slug,
     )
@@ -125,7 +122,6 @@ def test_reportedit_unlocked_with_rejected_decision(rf):
 
     response = PublishRequestCreate.as_view()(
         request,
-        org_slug=analysis_request.project.org.slug,
         project_slug=analysis_request.project.slug,
         slug=analysis_request.slug,
     )
@@ -148,7 +144,6 @@ def test_publishrequestcreate_post_success(rf, slack_messages):
 
     response = PublishRequestCreate.as_view(get_github_api=FakeGitHubAPI)(
         request,
-        org_slug=analysis_request.project.org.slug,
         project_slug=analysis_request.project.slug,
         slug=analysis_request.slug,
     )
@@ -181,7 +176,6 @@ def test_publishrequestcreate_unauthorized(rf):
     with pytest.raises(PermissionDenied):
         PublishRequestCreate.as_view()(
             request,
-            org_slug=analysis_request.project.org.slug,
             project_slug=analysis_request.project.slug,
             slug=analysis_request.slug,
         )
@@ -196,7 +190,6 @@ def test_publishrequestcreate_unknown_analysis_request(rf):
     with pytest.raises(Http404):
         PublishRequestCreate.as_view()(
             request,
-            org_slug=project.org.slug,
             project_slug=project.slug,
             slug="",
         )

@@ -292,6 +292,7 @@ urlpatterns = [
     path("logout/", LogoutView.as_view(), name="logout"),
     path("organisations/", OrgList.as_view(), name="org-list"),
     path("orgs/", yours.OrgList.as_view(), name="your-orgs"),
+    path("orgs/<str:org_slug>/", OrgDetail.as_view(), name="org-detail"),
     path("projects/", yours.ProjectList.as_view(), name="your-projects"),
     path("publish-repo/<repo_url>/", SignOffRepo.as_view(), name="repo-sign-off"),
     path("repo/<repo_url>/", RepoHandler.as_view(), name="repo-handler"),
@@ -302,18 +303,7 @@ urlpatterns = [
     path("workspaces/", yours.WorkspaceList.as_view(), name="your-workspaces"),
     path("__debug__/", include(debug_toolbar.urls)),
     path("__reload__/", include("django_browser_reload.urls")),
-    path(
-        "<str:org_slug>/",
-        include(
-            [
-                path("", OrgDetail.as_view(), name="org-detail"),
-                path(
-                    "<str:project_slug>/",
-                    include(project_urls),
-                ),
-            ]
-        ),
-    ),
+    path("<str:project_slug>/", include(project_urls)),
 ] + static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
 
 handler400 = bad_request

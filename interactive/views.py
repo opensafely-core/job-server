@@ -78,11 +78,7 @@ class AnalysisRequestCreate(View):
         # interactive view, treating them as an implementation detail for this
         # method of using the service.  As such users see the interactive
         # pages in the context of a project, including the URL.
-        self.project = get_object_or_404(
-            Project,
-            org__slug=self.kwargs["org_slug"],
-            slug=self.kwargs["project_slug"],
-        )
+        self.project = get_object_or_404(Project, slug=self.kwargs["project_slug"])
 
         if not has_permission(
             request.user, "analysis_request_create", project=self.project

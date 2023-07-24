@@ -216,7 +216,6 @@ def test_release_get_absolute_url():
     assert url == reverse(
         "release-detail",
         kwargs={
-            "org_slug": release.workspace.project.org.slug,
             "project_slug": release.workspace.project.slug,
             "workspace_slug": release.workspace.name,
             "pk": release.id,
@@ -238,7 +237,6 @@ def test_release_get_download_url():
     assert url == reverse(
         "release-download",
         kwargs={
-            "org_slug": release.workspace.project.org.slug,
             "project_slug": release.workspace.project.slug,
             "workspace_slug": release.workspace.name,
             "pk": release.id,
@@ -296,7 +294,6 @@ def test_releasefile_get_absolute_url():
     assert url == reverse(
         "release-detail",
         kwargs={
-            "org_slug": rfile.release.workspace.project.org.slug,
             "project_slug": rfile.release.workspace.project.slug,
             "workspace_slug": rfile.release.workspace.name,
             "pk": rfile.release.id,
@@ -313,7 +310,6 @@ def test_releasefile_get_delete_url():
     assert url == reverse(
         "release-file-delete",
         kwargs={
-            "org_slug": rfile.release.workspace.project.org.slug,
             "project_slug": rfile.release.workspace.project.slug,
             "workspace_slug": rfile.release.workspace.name,
             "pk": rfile.release.id,
@@ -330,7 +326,6 @@ def test_releasefile_get_latest_url():
     assert url == reverse(
         "workspace-latest-outputs-detail",
         kwargs={
-            "org_slug": rfile.release.workspace.project.org.slug,
             "project_slug": rfile.release.workspace.project.slug,
             "workspace_slug": rfile.release.workspace.name,
             "path": f"{rfile.release.backend.slug}/{rfile.name}",
@@ -357,7 +352,6 @@ def test_releasefile_get_api_url_with_is_published():
     assert url == reverse(
         "published-file",
         kwargs={
-            "org_slug": rfile.workspace.project.org.slug,
             "project_slug": rfile.workspace.project.slug,
             "workspace_slug": rfile.workspace.name,
             "file_id": rfile.id,
@@ -400,7 +394,6 @@ def test_snapshot_get_absolute_url():
     assert url == reverse(
         "workspace-snapshot-detail",
         kwargs={
-            "org_slug": snapshot.workspace.project.org.slug,
             "project_slug": snapshot.workspace.project.slug,
             "workspace_slug": snapshot.workspace.name,
             "pk": snapshot.pk,
@@ -430,7 +423,6 @@ def test_snapshot_get_download_url():
     assert url == reverse(
         "workspace-snapshot-download",
         kwargs={
-            "org_slug": snapshot.workspace.project.org.slug,
             "project_slug": snapshot.workspace.project.slug,
             "workspace_slug": snapshot.workspace.name,
             "pk": snapshot.pk,

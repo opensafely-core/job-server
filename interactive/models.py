@@ -88,7 +88,6 @@ class AnalysisRequest(models.Model):
         return reverse(
             "interactive:analysis-detail",
             kwargs={
-                "org_slug": self.project.org.slug,
                 "project_slug": self.project.slug,
                 "slug": self.slug,
             },
@@ -98,7 +97,6 @@ class AnalysisRequest(models.Model):
         return reverse(
             "interactive:publish-request-create",
             kwargs={
-                "org_slug": self.project.org.slug,
                 "project_slug": self.project.slug,
                 "slug": self.slug,
             },
@@ -112,7 +110,6 @@ class AnalysisRequest(models.Model):
         return reverse(
             "interactive:report-edit",
             kwargs={
-                "org_slug": self.project.org.slug,
                 "project_slug": self.project.slug,
                 "slug": self.slug,
             },

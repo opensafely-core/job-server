@@ -4,11 +4,15 @@ from ....factories import OrgFactory, ProjectFactory
 
 
 def test_project_get_absolute_url():
-    org = OrgFactory(name="test-org")
-    project = ProjectFactory(org=org)
+    project = ProjectFactory()
+
     url = project.get_absolute_url()
+
     assert url == reverse(
-        "project-detail", kwargs={"org_slug": org.slug, "project_slug": project.slug}
+        "project-detail",
+        kwargs={
+            "project_slug": project.slug,
+        },
     )
 
 
@@ -34,7 +38,9 @@ def test_project_get_edit_url():
 
     assert url == reverse(
         "project-edit",
-        kwargs={"org_slug": project.org.slug, "project_slug": project.slug},
+        kwargs={
+            "project_slug": project.slug,
+        },
     )
 
 
@@ -46,7 +52,6 @@ def test_project_get_releases_url():
     assert url == reverse(
         "project-release-list",
         kwargs={
-            "org_slug": project.org.slug,
             "project_slug": project.slug,
         },
     )
@@ -60,7 +65,6 @@ def test_project_get_reports_url():
     assert url == reverse(
         "project-report-list",
         kwargs={
-            "org_slug": project.org.slug,
             "project_slug": project.slug,
         },
     )

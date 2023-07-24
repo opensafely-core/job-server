@@ -13,7 +13,6 @@ from jobserver.views.projects import ProjectDetail, ProjectEdit, ProjectReportLi
 from ....factories import (
     JobFactory,
     JobRequestFactory,
-    OrgFactory,
     ProjectFactory,
     ProjectMembershipFactory,
     PublishRequestFactory,
@@ -29,8 +28,7 @@ from ....utils import minutes_ago
 
 @pytest.mark.parametrize("user", [UserFactory, AnonymousUser])
 def test_projectdetail_success(rf, user):
-    org = OrgFactory()
-    project = ProjectFactory(org=org)
+    project = ProjectFactory()
     repo = RepoFactory(url="https://github.com/opensafely/some-research")
     workspace = WorkspaceFactory(project=project, repo=repo)
     job_request = JobRequestFactory(workspace=workspace)
@@ -44,7 +42,7 @@ def test_projectdetail_success(rf, user):
     request.user = user()
 
     response = ProjectDetail.as_view(get_github_api=FakeGitHubAPI)(
-        request, org_slug=org.slug, project_slug=project.slug
+        request, project_slug=project.slug
     )
 
     assert response.status_code == 200
@@ -71,7 +69,7 @@ def test_projectdetail_for_interactive_button(rf, user):
     request.user = user
 
     response = ProjectDetail.as_view(get_github_api=FakeGitHubAPI)(
-        request, org_slug=project.org.slug, project_slug=project.slug
+        request, project_slug=project.slug
     )
 
     assert response.status_code == 200
@@ -84,7 +82,7 @@ def test_projectdetail_for_interactive_button(rf, user):
     request.user = user
 
     response = ProjectDetail.as_view(get_github_api=FakeGitHubAPI)(
-        request, org_slug=project.org.slug, project_slug=project.slug
+        request, project_slug=project.slug
     )
 
     assert response.status_code == 200
@@ -142,7 +140,7 @@ def test_projectdetail_with_multiple_releases(rf, freezer):
     request.user = UserFactory(roles=[CoreDeveloper])
 
     response = ProjectDetail.as_view(get_github_api=FakeGitHubAPI)(
-        request, org_slug=project.org.slug, project_slug=project.slug
+        request, project_slug=project.slug
     )
 
     assert response.status_code == 200
@@ -177,7 +175,7 @@ def test_projectdetail_with_no_github(rf):
             raise requests.HTTPError
 
     response = ProjectDetail.as_view(get_github_api=BrokenGitHubAPI)(
-        request, org_slug=project.org.slug, project_slug=project.slug
+        request, project_slug=project.slug
     )
 
     assert response.status_code == 200
@@ -196,7 +194,7 @@ def test_projectdetail_with_no_jobs(rf):
     request.user = UserFactory()
 
     response = ProjectDetail.as_view(get_github_api=FakeGitHubAPI)(
-        request, org_slug=project.org.slug, project_slug=project.slug
+        request, project_slug=project.slug
     )
 
     assert response.status_code == 200
@@ -211,7 +209,7 @@ def test_projectdetail_with_no_releases(rf):
     request.user = UserFactory()
 
     response = ProjectDetail.as_view(get_github_api=FakeGitHubAPI)(
-        request, org_slug=project.org.slug, project_slug=project.slug
+        request, project_slug=project.slug
     )
 
     assert response.status_code == 200
@@ -220,24 +218,12 @@ def test_projectdetail_with_no_releases(rf):
     assert "Outputs" not in response.rendered_content
 
 
-def test_projectdetail_unknown_org(rf):
-    project = ProjectFactory()
-
-    request = rf.get("/")
-    request.user = UserFactory()
-
-    with pytest.raises(Http404):
-        ProjectDetail.as_view()(request, org_slug="test", project_slug=project.slug)
-
-
 def test_projectdetail_unknown_project(rf):
-    org = OrgFactory()
-
     request = rf.get("/")
     request.user = UserFactory()
 
     with pytest.raises(Http404):
-        ProjectDetail.as_view()(request, org_slug=org.slug, project_slug="test")
+        ProjectDetail.as_view()(request, project_slug="test")
 
 
 def test_projectedit_get_success(rf):
@@ -249,9 +235,7 @@ def test_projectedit_get_success(rf):
     request = rf.get("/")
     request.user = user
 
-    response = ProjectEdit.as_view()(
-        request, org_slug=project.org.slug, project_slug=project.slug
-    )
+    response = ProjectEdit.as_view()(request, project_slug=project.slug)
 
     assert response.status_code == 200
 
@@ -269,9 +253,7 @@ def test_projectedit_post_success(rf):
     request = rf.post("/", data=data)
     request.user = user
 
-    response = ProjectEdit.as_view()(
-        request, org_slug=project.org.slug, project_slug=project.slug
-    )
+    response = ProjectEdit.as_view()(request, project_slug=project.slug)
 
     assert response.status_code == 302
     assert response.url == project.get_absolute_url()
@@ -294,9 +276,7 @@ def test_projectedit_post_success_with_next(rf):
     request = rf.post("/?next=foo", data=data)
     request.user = user
 
-    response = ProjectEdit.as_view()(
-        request, org_slug=project.org.slug, project_slug=project.slug
-    )
+    response = ProjectEdit.as_view()(request, project_slug=project.slug)
 
     assert response.status_code == 302
     assert response.url == "foo"
@@ -306,24 +286,12 @@ def test_projectedit_post_success_with_next(rf):
     assert project.status_description == "test"
 
 
-def test_projectedit_unknown_org(rf):
-    project = ProjectFactory()
-
-    request = rf.get("/")
-    request.user = UserFactory()
-
-    with pytest.raises(Http404):
-        ProjectEdit.as_view()(request, org_slug="test", project_slug=project.slug)
-
-
 def test_projectedit_unknown_project(rf):
-    org = OrgFactory()
-
     request = rf.get("/")
     request.user = UserFactory()
 
     with pytest.raises(Http404):
-        ProjectEdit.as_view()(request, org_slug=org.slug, project_slug="test")
+        ProjectEdit.as_view()(request, project_slug="test")
 
 
 @pytest.mark.parametrize("user", [UserFactory, AnonymousUser])
@@ -337,9 +305,7 @@ def test_projectedit_without_permissions(rf, user):
     request.user = user()
 
     with pytest.raises(PermissionDenied):
-        ProjectEdit.as_view()(
-            request, org_slug=project.org.slug, project_slug=project.slug
-        )
+        ProjectEdit.as_view()(request, project_slug=project.slug)
 
 
 def test_projectreportlist_success(rf, release):
@@ -362,9 +328,7 @@ def test_projectreportlist_success(rf, release):
     request = rf.get("/")
     request.user = user
 
-    response = ProjectReportList.as_view()(
-        request, org_slug=project.org.slug, project_slug=project.slug
-    )
+    response = ProjectReportList.as_view()(request, project_slug=project.slug)
 
     assert response.status_code == 200
     assert set_from_qs(response.context_data["object_list"]) == {report2.pk}
@@ -375,22 +339,18 @@ def test_projectreportlist_success(rf, release):
     request = rf.get("/")
     request.user = user
 
-    response = ProjectReportList.as_view()(
-        request, org_slug=project.org.slug, project_slug=project.slug
-    )
+    response = ProjectReportList.as_view()(request, project_slug=project.slug)
 
     assert response.status_code == 200
     assert set_from_qs(response.context_data["object_list"]) == {report1.pk, report2.pk}
 
 
 def test_projectreportlist_unknown_project(rf):
-    org = OrgFactory()
-
     request = rf.get("/")
     request.user = UserFactory()
 
     with pytest.raises(Http404):
-        ProjectReportList.as_view()(request, org_slug=org.slug, project_slug="")
+        ProjectReportList.as_view()(request, project_slug="")
 
 
 def test_projectreportlist_with_no_reports(rf):
@@ -399,9 +359,7 @@ def test_projectreportlist_with_no_reports(rf):
     request = rf.get("/")
     request.user = UserFactory()
 
-    response = ProjectReportList.as_view()(
-        request, org_slug=project.org.slug, project_slug=project.slug
-    )
+    response = ProjectReportList.as_view()(request, project_slug=project.slug)
 
     assert response.status_code == 200
     assert (

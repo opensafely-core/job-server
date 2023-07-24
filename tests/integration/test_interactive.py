@@ -107,7 +107,7 @@ def test_interactive_submission_success(rf, local_repo, enable_network):
 
     response = AnalysisRequestCreate.as_view(
         get_opencodelists_api=AsthmaOpenCodelistsAPI
-    )(request, org_slug=project.org.slug, project_slug=project.slug)
+    )(request, project_slug=project.slug)
 
     # check the view redirects, a 200 means we have validation errors
     assert response.status_code == 302, response.context_data["form"].errors

@@ -32,7 +32,6 @@ def test_report_get_absolute_url_with_analysis_request():
     assert url == reverse(
         "interactive:analysis-detail",
         kwargs={
-            "org_slug": report.project.org.slug,
             "project_slug": report.project.slug,
             "slug": report.analysis_request.slug,
         },

@@ -87,7 +87,7 @@
 
                   {% if user_can_delete_files and not file.is_deleted %}
                   <form
-                    action="{% url "release-file-delete" org_slug=project.org.slug project_slug=project.slug workspace_slug=release.workspace.name pk=release.id release_file_id=file.pk %}"
+                    action="{% url "release-file-delete" project_slug=project.slug workspace_slug=release.workspace.name pk=release.id release_file_id=file.pk %}"
                     class="ml-auto"
                     method="POST"
                   >

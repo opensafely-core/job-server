@@ -25,11 +25,7 @@ from ..utils import build_spa_base_url
 
 class ProjectReleaseList(View):
     def get(self, request, *args, **kwargs):
-        project = get_object_or_404(
-            Project,
-            org__slug=self.kwargs["org_slug"],
-            slug=self.kwargs["project_slug"],
-        )
+        project = get_object_or_404(Project, slug=self.kwargs["project_slug"])
 
         releases = (
             Release.objects.filter(workspace__project=project)
@@ -108,7 +104,6 @@ class ReleaseDetail(View):
         """
         release = get_object_or_404(
             Release,
-            workspace__project__org__slug=self.kwargs["org_slug"],
             workspace__project__slug=self.kwargs["project_slug"],
             workspace__name=self.kwargs["workspace_slug"],
             pk=self.kwargs["pk"],
@@ -142,7 +137,6 @@ class ReleaseDownload(View):
     def get(self, request, *args, **kwargs):
         release = get_object_or_404(
             Release,
-            workspace__project__org__slug=self.kwargs["org_slug"],
             workspace__project__slug=self.kwargs["project_slug"],
             workspace__name=self.kwargs["workspace_slug"],
             pk=self.kwargs["pk"],
@@ -170,7 +164,6 @@ class ReleaseFileDelete(View):
     def post(self, request, *args, **kwargs):
         rfile = get_object_or_404(
             ReleaseFile,
-            release__workspace__project__org__slug=self.kwargs["org_slug"],
             release__workspace__project__slug=self.kwargs["project_slug"],
             release__workspace__name=self.kwargs["workspace_slug"],
             release__pk=self.kwargs["pk"],
@@ -203,7 +196,6 @@ class SnapshotDetail(View):
     def get(self, request, *args, **kwargs):
         snapshot = get_object_or_404(
             Snapshot,
-            workspace__project__org__slug=self.kwargs["org_slug"],
             workspace__project__slug=self.kwargs["project_slug"],
             workspace__name=self.kwargs["workspace_slug"],
             pk=self.kwargs["pk"],
@@ -247,7 +239,6 @@ class SnapshotDownload(View):
     def get(self, request, *args, **kwargs):
         snapshot = get_object_or_404(
             Snapshot,
-            workspace__project__org__slug=self.kwargs["org_slug"],
             workspace__project__slug=self.kwargs["project_slug"],
             workspace__name=self.kwargs["workspace_slug"],
             pk=self.kwargs["pk"],
@@ -276,7 +267,6 @@ class WorkspaceReleaseList(View):
     def get(self, request, *args, **kwargs):
         workspace = get_object_or_404(
             Workspace,
-            project__org__slug=self.kwargs["org_slug"],
             project__slug=self.kwargs["project_slug"],
             name=self.kwargs["workspace_slug"],
         )
