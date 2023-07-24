@@ -53,6 +53,11 @@ class ApplicationApproveForm(forms.Form):
             raise forms.ValidationError(f'Project "{project_name}" already exists.')
 
         slug = slugify(project_name)
+        if not slug:
+            raise forms.ValidationError(
+                "Please use at least one letter or number in the title"
+            )
+
         if Project.objects.filter(slug=slug).exists():
             raise forms.ValidationError(
                 f'A project with the slug, "{slug}", already exists'

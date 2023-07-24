@@ -543,6 +543,10 @@ class Project(models.Model):
                 name="unique_number_ignore_null",
                 condition=Q(number__isnull=False),
             ),
+            models.CheckConstraint(
+                check=~Q(slug=""),
+                name="slug_is_not_empty",
+            ),
         ]
 
     def __str__(self):

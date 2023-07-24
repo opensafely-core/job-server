@@ -87,6 +87,23 @@ def test_applicationapproveform_with_duplicate_project_slug():
     }
 
 
+def test_applicationapproveform_with_empty_project_slug():
+    org = OrgFactory()
+
+    form = ApplicationApproveForm(
+        {
+            "project_name": "-/-.",
+            "project_number": "42",
+            "org": str(org.pk),
+        }
+    )
+
+    assert not form.is_valid()
+    assert form.errors == {
+        "project_name": ["Please use at least one letter or number in the title"]
+    }
+
+
 def test_projecteditform_number_is_not_required():
     """
     Ensure Project.number isn't required by ProjectEditForm
