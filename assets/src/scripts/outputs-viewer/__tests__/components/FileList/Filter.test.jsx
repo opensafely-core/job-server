@@ -13,7 +13,7 @@ describe("<Filter />", () => {
     render(<Filter files={fileList} listRef={listRef} setFiles={setFiles} />);
 
     expect(
-      screen.getByRole("searchbox", { name: "Find a file…" })
+      screen.getByRole("searchbox", { name: "Find a file…" }),
     ).toBeVisible();
   });
 

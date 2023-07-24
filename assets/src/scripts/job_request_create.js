@@ -7,7 +7,7 @@ const updateStatuses = (urlBase) => {
 
   // if a backend radio button has been checked use it filter the API query
   const checkedBackends = Array.from(
-    document.getElementsByName("backend")
+    document.getElementsByName("backend"),
   ).filter((e) => e.checked);
   let backendQuery = "";
   if (checkedBackends.length > 0) {

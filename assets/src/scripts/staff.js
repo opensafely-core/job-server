@@ -16,7 +16,7 @@ if (analysisRequest) {
   analysisRequest.textContent = JSON.stringify(
     JSON.parse(document.getElementById("analysisRequestData").textContent),
     null,
-    2
+    2,
   );
 }
 

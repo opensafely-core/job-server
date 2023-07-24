@@ -12,7 +12,7 @@ describe("<Metadata />", () => {
         fileName={pngFile.name}
         fileSize={pngFile.size}
         fileUrl={pngFile.url}
-      />
+      />,
     );
 
     expect(screen.queryByText("01/01/2021, 10:11")).not.toBeInTheDocument();
@@ -25,17 +25,17 @@ describe("<Metadata />", () => {
         fileName={pngFile.name}
         fileSize={pngFile.size}
         fileUrl={pngFile.url}
-      />
+      />,
     );
 
     // File link
     expect(screen.getByRole("link").href).toBe(
-      `http://localhost:3000${pngFile.url}`
+      `http://localhost:3000${pngFile.url}`,
     );
 
     // Absolute date
     expect(screen.getByText("01/01/2021, 10:11").getAttribute("datetime")).toBe(
-      "2021-01-01T10:11:12.131Z"
+      "2021-01-01T10:11:12.131Z",
     );
 
     // Date
@@ -55,17 +55,17 @@ describe("<Metadata />", () => {
         fileName={pngFile.name}
         fileSize={0}
         fileUrl={pngFile.url}
-      />
+      />,
     );
 
     // File link
     expect(screen.getByRole("link").href).toBe(
-      `http://localhost:3000${pngFile.url}`
+      `http://localhost:3000${pngFile.url}`,
     );
 
     // Absolute date
     expect(screen.getByText("01/01/2021, 10:11").getAttribute("datetime")).toBe(
-      "2021-01-01T10:11:12.131Z"
+      "2021-01-01T10:11:12.131Z",
     );
 
     // Date

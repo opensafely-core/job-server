@@ -27,7 +27,7 @@ function FindCodelists() {
         }
 
         return true;
-      }
+      },
     ),
   });
 

@@ -16,7 +16,7 @@ function TabList() {
               "ring-white ring-opacity-60 ring-offset-2 ring-offset-oxford-400 focus:outline-none focus:ring-2",
               selected
                 ? "bg-white shadow"
-                : "hover:bg-white/[0.12] hover:text-oxford-900"
+                : "hover:bg-white/[0.12] hover:text-oxford-900",
             )
           }
         >

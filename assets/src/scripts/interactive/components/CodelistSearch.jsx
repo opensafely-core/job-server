@@ -12,7 +12,7 @@ function CodelistSearch({ id, label }) {
   const [query, setQuery] = useState("");
   const codelistID = `codelist${id}`;
   const defaultIndex = codelistGroups.findIndex(
-    (group) => group.id === formData?.[codelistID]?.type
+    (group) => group.id === formData?.[codelistID]?.type,
   );
 
   return (

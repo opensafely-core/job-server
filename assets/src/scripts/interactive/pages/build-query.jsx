@@ -58,7 +58,7 @@ function BuildQuery() {
           if (timeScale === "years" && value > 10) return false;
 
           return true;
-        }
+        },
       ),
     timeScale: Yup.string()
       .oneOf(builderTimeScales.map((event) => event.value))

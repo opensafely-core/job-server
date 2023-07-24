@@ -21,12 +21,12 @@ characterCounts.forEach((formGroup) => {
 
   // Select the character counter element.
   const characterCounterElement = formGroup.querySelector(
-    "[data-character-counter]"
+    "[data-character-counter]",
   );
 
   // Select the element that shows the number of characters typed in the textarea.
   const typedCharactersElement = formGroup.querySelector(
-    "[data-typed-characters]"
+    "[data-typed-characters]",
   );
 
   textAreaElement.addEventListener("keyup", () => {
@@ -59,7 +59,7 @@ characterCounts.forEach((formGroup) => {
     }
 
     return characterCounterElement.classList.remove(
-      ...characterCounterElement.classList
+      ...characterCounterElement.classList,
     );
   });
 });

@@ -22,7 +22,7 @@ function App({ children }) {
         <div
           className={classNames(
             "bg-white p-6 shadow rounded",
-            !isFirstPage && !isLastPage ? "pt-12" : null
+            !isFirstPage && !isLastPage ? "pt-12" : null,
           )}
         >
           {!isFirstPage && !isLastPage ? (
@@ -30,7 +30,7 @@ function App({ children }) {
               className={classNames(
                 "absolute top-0 left-0 text-sm font-semibold py-1 pl-2 pr-3 flex text-white bg-oxford-800 rounded-br transition-colors",
                 "hover:text-oxford-50 hover:bg-oxford-700",
-                "focus-within:text-oxford-50 focus-within:bg-oxford-700"
+                "focus-within:text-oxford-50 focus-within:bg-oxford-700",
               )}
               onClick={() => window.history.back()}
               type="button"

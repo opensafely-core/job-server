@@ -44,7 +44,7 @@ function PrepareButton({ authToken, csrfToken, filesUrl, prepareUrl }) {
           url: document.location.href,
         });
       },
-    }
+    },
   );
 
   if (!fileList?.length) return null;

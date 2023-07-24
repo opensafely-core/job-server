@@ -1,11 +1,10 @@
 /* eslint-disable no-console */
 import userEvent from "@testing-library/user-event";
 import React from "react";
-import { afterAll, beforeEach, describe, expect, it, vi } from "vitest";
+import { afterAll, beforeAll, describe, expect, it, vi } from "vitest";
 import PrepareButton from "../../../components/Button/PrepareButton";
 import * as useFileList from "../../../hooks/use-file-list";
 import * as toast from "../../../utils/toast";
-import { server, rest } from "../../__mocks__/server";
 import { fileList } from "../../helpers/files";
 import props, { prepareUrl } from "../../helpers/props";
 import { render, screen, waitFor } from "../../test-utils";
@@ -19,12 +18,12 @@ describe("<PrepareButton />", () => {
 
   const fileIds = ["abc1", "abc2", "abc3", "abc4"];
 
-  beforeEach(() => {
-    /**
-     * Mock window
-     */
+  beforeAll(() => {
+    global.window = Object.create(window);
     Object.defineProperty(window, "location", {
-      value: {},
+      value: {
+        ...window.location,
+      },
       writable: true,
     });
   });
@@ -44,7 +43,7 @@ describe("<PrepareButton />", () => {
         csrfToken={csrfToken}
         filesUrl={filesUrl}
         prepareUrl={prepareUrl}
-      />
+      />,
     );
 
     expect(container).toBeEmptyDOMElement();
@@ -61,7 +60,7 @@ describe("<PrepareButton />", () => {
         csrfToken={csrfToken}
         filesUrl={filesUrl}
         prepareUrl={prepareUrl}
-      />
+      />,
     );
 
     expect(screen.getByRole("button")).toHaveTextContent("Publish");
@@ -73,26 +72,25 @@ describe("<PrepareButton />", () => {
       data: fileList,
     }));
 
-    server.use(
-      rest.post(prepareUrl, async (req, res, ctx) => {
-        const jsonBody = await req.json();
-        await expect(jsonBody.file_ids).toEqual(fileIds);
+    fetch.mockResponseOnce(async (req) => {
+      const jsonBody = await req.json();
+      expect(jsonBody.file_ids).toEqual(fileIds);
 
-        return res(
-          ctx.json({
-            url: urls.redirect,
-          })
-        );
-      })
-    );
-
+      return new Promise((resolve) =>
+        // eslint-disable-next-line no-promise-executor-return
+        setTimeout(() => {
+          const res = { url: urls.redirect };
+          return resolve(JSON.stringify(res));
+        }, 10),
+      );
+    });
     render(
       <PrepareButton
         authToken={authToken}
         csrfToken={csrfToken}
         filesUrl={filesUrl}
         prepareUrl={prepareUrl}
-      />
+      />,
     );
 
     expect(screen.getByRole("button")).toHaveTextContent("Publish");
@@ -100,9 +98,12 @@ describe("<PrepareButton />", () => {
     await user.click(screen.getByRole("button"));
 
     await waitFor(() =>
-      expect(screen.getByRole("button")).toHaveTextContent("Publishing…")
+      expect(screen.getByRole("button")).toHaveTextContent("Publishing…"),
     );
-    await waitFor(() => expect(window.location.href).toEqual(urls.redirect));
+
+    await waitFor(() => {
+      expect(window.location.href).toEqual(urls.redirect);
+    });
   });
 
   it("show the JSON error message", async () => {
@@ -116,14 +117,7 @@ describe("<PrepareButton />", () => {
 
     vi.spyOn(toast, "toastError").mockImplementation(toastError);
 
-    server.use(
-      rest.post(prepareUrl, async (req, res, ctx) => {
-        const jsonBody = await req.json();
-        await expect(jsonBody.file_ids).toEqual(fileIds);
-
-        return res(ctx.status(403), ctx.json({ detail: "Invalid user token" }));
-      })
-    );
+    fetch.mockRejectOnce(new Error("Invalid user token"));
 
     render(
       <PrepareButton
@@ -131,7 +125,7 @@ describe("<PrepareButton />", () => {
         csrfToken={csrfToken}
         filesUrl={filesUrl}
         prepareUrl={prepareUrl}
-      />
+      />,
     );
 
     expect(screen.getByRole("button")).toHaveTextContent("Publish");
@@ -144,7 +138,7 @@ describe("<PrepareButton />", () => {
         prepareUrl,
         toastId: "PrepareButton",
         url: "http://localhost:3000/",
-      })
+      }),
     );
   });
 
@@ -159,14 +153,7 @@ describe("<PrepareButton />", () => {
 
     vi.spyOn(toast, "toastError").mockImplementation(toastError);
 
-    server.use(
-      rest.post(prepareUrl, async (req, res, ctx) => {
-        const jsonBody = await req.json();
-        await expect(jsonBody.file_ids).toEqual(fileIds);
-
-        return res(ctx.status(500), ctx.json({}));
-      })
-    );
+    fetch.mockRejectOnce(new Error());
 
     render(
       <PrepareButton
@@ -174,7 +161,7 @@ describe("<PrepareButton />", () => {
         csrfToken={csrfToken}
         filesUrl={filesUrl}
         prepareUrl={prepareUrl}
-      />
+      />,
     );
 
     expect(screen.getByRole("button")).toHaveTextContent("Publish");
@@ -187,7 +174,7 @@ describe("<PrepareButton />", () => {
         prepareUrl,
         toastId: "PrepareButton",
         url: "http://localhost:3000/",
-      })
+      }),
     );
   });
 });

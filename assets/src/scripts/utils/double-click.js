@@ -4,7 +4,7 @@ import { wait } from "./wait";
 document
   .querySelectorAll(
     `input[type="submit"]:not(.btn--allow-double-click),
-    button[type="submit"]:not(.btn--allow-double-click)`
+    button[type="submit"]:not(.btn--allow-double-click)`,
   )
   .forEach((btn) => {
     btn.addEventListener("click", async (e) => {

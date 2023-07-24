@@ -40,7 +40,7 @@ function useFileList({ authToken, filesUrl }) {
           url: document.location.href,
         });
       },
-    }
+    },
   );
 }
 

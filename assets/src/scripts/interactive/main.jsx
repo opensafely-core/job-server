@@ -91,5 +91,5 @@ root.render(
         </Router>
       </FormDataProvider>
     </AppData.Provider>
-  </React.StrictMode>
+  </React.StrictMode>,
 );

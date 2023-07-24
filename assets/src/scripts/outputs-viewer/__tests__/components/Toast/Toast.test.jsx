@@ -17,10 +17,10 @@ describe("<Toast />", () => {
     render(<Toast />);
 
     expect(screen.getByRole("status").textContent).toBe(
-      "This is a notification"
+      "This is a notification",
     );
     expect(
-      screen.getByRole("button").classList.contains("btn-outline-secondary")
+      screen.getByRole("button").classList.contains("btn-outline-secondary"),
     ).toBe(true);
   });
 
@@ -30,7 +30,7 @@ describe("<Toast />", () => {
 
     expect(screen.getByRole("status").textContent).toBe("This is an error");
     expect(
-      screen.getByRole("button").classList.contains("btn-outline-danger")
+      screen.getByRole("button").classList.contains("btn-outline-danger"),
     ).toBe(true);
   });
 
@@ -40,7 +40,7 @@ describe("<Toast />", () => {
 
     expect(screen.getByRole("status").textContent).toBe("This is a success");
     expect(
-      screen.getByRole("button").classList.contains("btn-outline-success")
+      screen.getByRole("button").classList.contains("btn-outline-success"),
     ).toBe(true);
   });
 
@@ -53,10 +53,10 @@ describe("<Toast />", () => {
     vi.spyOn(toast, "dismiss").mockImplementation();
 
     expect(screen.getByRole("status").textContent).toBe(
-      "This is a notification"
+      "This is a notification",
     );
     expect(
-      screen.getByRole("button").classList.contains("btn-outline-secondary")
+      screen.getByRole("button").classList.contains("btn-outline-secondary"),
     ).toBe(true);
 
     await user.click(screen.getByRole("button"));

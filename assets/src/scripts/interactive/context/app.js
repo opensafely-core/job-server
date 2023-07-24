@@ -12,7 +12,7 @@ function useAppData() {
   const context = useContext(AppData);
   if (context === undefined) {
     throw new Error(
-      "useAppData must be used within a AppData.Provider component"
+      "useAppData must be used within a AppData.Provider component",
     );
   }
   return context;

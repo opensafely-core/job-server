@@ -58,7 +58,7 @@ function QueryBuilder() {
       timeStatement({
         [el]: event.target.value,
         [otherEl]: values?.[otherEl],
-      })
+      }),
     );
   }
 

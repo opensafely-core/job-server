@@ -21,7 +21,7 @@ function SelectContainer({ defaultValue, handleChange, name }) {
           className={classNames(
             "relative w-fit max-w-prose rounded-md border-gray-400 border-2 bg-white py-2 pl-3 pr-10 text-left shadow-sm",
             "focus:outline-none",
-            "focus-visible:border-oxford-500 focus-visible:ring-2 focus-visible:ring-white focus-visible:ring-opacity-75 focus-visible:ring-offset-2 focus-visible:ring-offset-orange-300"
+            "focus-visible:border-oxford-500 focus-visible:ring-2 focus-visible:ring-white focus-visible:ring-opacity-75 focus-visible:ring-offset-2 focus-visible:ring-offset-orange-300",
           )}
         >
           {({ value }) => (

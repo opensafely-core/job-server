@@ -26,7 +26,7 @@ const createTestQueryClient = () =>
 export function renderWithClient(ui) {
   const testQueryClient = createTestQueryClient();
   const { rerender, ...result } = render(
-    <QueryClientProvider client={testQueryClient}>{ui}</QueryClientProvider>
+    <QueryClientProvider client={testQueryClient}>{ui}</QueryClientProvider>,
   );
   return {
     ...result,
@@ -34,7 +34,7 @@ export function renderWithClient(ui) {
       rerender(
         <QueryClientProvider client={testQueryClient}>
           {rerenderUi}
-        </QueryClientProvider>
+        </QueryClientProvider>,
       ),
   };
 }

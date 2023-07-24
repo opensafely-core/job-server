@@ -31,7 +31,7 @@ function Button({
         disabled
           ? "opacity-75 cursor-not-allowed !bg-gray-700 !border-b-gray-800"
           : null,
-        className
+        className,
       )}
       disabled={disabled}
       onClick={onClick}

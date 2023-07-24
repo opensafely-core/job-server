@@ -1,32 +1,14 @@
 /* eslint-disable no-console */
 import userEvent from "@testing-library/user-event";
 import React from "react";
-import { afterAll, beforeEach, describe, expect, it, vi } from "vitest";
+import { describe, expect, it, vi } from "vitest";
 import PublishButton from "../../../components/Button/PublishButton";
 import * as toast from "../../../utils/toast";
-import { server, rest } from "../../__mocks__/server";
 import props, { publishUrl } from "../../helpers/props";
 import { render, screen, waitFor } from "../../test-utils";
 
 describe("<PublishButton />", () => {
-  const mockResponse = vi.fn();
   const { csrfToken } = props;
-
-  beforeEach(() => {
-    /**
-     * Mock window
-     */
-    Object.defineProperty(window, "location", {
-      value: {
-        reload: mockResponse,
-      },
-      writable: true,
-    });
-  });
-
-  afterAll(() => {
-    vi.resetAllMocks();
-  });
 
   it("shows the button", () => {
     render(<PublishButton csrfToken={csrfToken} publishUrl={publishUrl} />);
@@ -36,16 +18,23 @@ describe("<PublishButton />", () => {
 
   it("triggers a mutation on click", async () => {
     const user = userEvent.setup();
+    fetch.mockResponseOnce(
+      () =>
+        new Promise((resolve) =>
+          // eslint-disable-next-line no-promise-executor-return
+          setTimeout(() => resolve({ body: "ok" }), 100),
+        ),
+    );
+
     render(<PublishButton csrfToken={csrfToken} publishUrl={publishUrl} />);
 
     expect(screen.getByRole("button")).toHaveTextContent("Confirm Publish?");
 
     await user.click(screen.getByRole("button"));
 
-    await waitFor(() =>
-      expect(screen.getByRole("button")).toHaveTextContent("Confirming…")
-    );
-    await waitFor(() => expect(mockResponse).toHaveBeenCalledTimes(1));
+    expect(screen.getByRole("button")).toHaveTextContent("Confirming…");
+
+    await waitFor(() => expect(fetch.requests().length).toEqual(1));
   });
 
   it("show the JSON error message", async () => {
@@ -55,11 +44,7 @@ describe("<PublishButton />", () => {
 
     vi.spyOn(toast, "toastError").mockImplementation(toastError);
 
-    server.use(
-      rest.post(publishUrl, (req, res, ctx) =>
-        res(ctx.status(403), ctx.json({ detail: "Invalid user token" }))
-      )
-    );
+    fetch.mockRejectOnce(new Error("Invalid user token"));
 
     render(<PublishButton csrfToken={csrfToken} publishUrl={publishUrl} />);
 
@@ -73,7 +58,7 @@ describe("<PublishButton />", () => {
         publishUrl,
         toastId: "PublishButton",
         url: "http://localhost:3000/",
-      })
+      }),
     );
   });
 
@@ -84,11 +69,7 @@ describe("<PublishButton />", () => {
 
     vi.spyOn(toast, "toastError").mockImplementation(toastError);
 
-    server.use(
-      rest.post(publishUrl, (req, res, ctx) =>
-        res(ctx.status(500), ctx.json({}))
-      )
-    );
+    fetch.mockRejectOnce(new Error());
 
     render(<PublishButton csrfToken={csrfToken} publishUrl={publishUrl} />);
 
@@ -102,7 +83,7 @@ describe("<PublishButton />", () => {
         publishUrl,
         toastId: "PublishButton",
         url: "http://localhost:3000/",
-      })
+      }),
     );
   });
 });
