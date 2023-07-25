@@ -1135,7 +1135,8 @@ def test_snapshotcreate_unknown_files(api_rf):
 
 def test_snapshotcreate_with_existing_snapshot(api_rf, build_release_with_files):
     workspace = WorkspaceFactory()
-    release = build_release_with_files(["file1.txt"])
+    release = build_release_with_files(["file1.txt"], workspace=workspace)
+    release.files.update(workspace=workspace)
     snapshot = SnapshotFactory(workspace=workspace)
     snapshot.files.set(release.files.all())
 
