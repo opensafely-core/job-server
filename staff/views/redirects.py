@@ -31,6 +31,7 @@ class RedirectDetail(DetailView):
 class RedirectList(ListView):
     model = Redirect
     ordering = "-old_url"
+    paginate_by = 25
     template_name = "staff/redirect_list.html"
 
     def get_context_data(self, **kwargs):
