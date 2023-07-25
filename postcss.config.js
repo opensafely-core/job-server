@@ -8,18 +8,6 @@ module.exports = ({ env }) => ({
     tailwindcss: {},
     autoprefixer: {},
     "postcss-preset-env": {},
-    cssnano:
-      env === "production"
-        ? {
-            preset: [
-              "default",
-              {
-                colormin: false,
-                discardComments: { removeAll: true },
-              },
-            ],
-          }
-        : false,
     "postcss-url":
       env !== "production"
         ? {
