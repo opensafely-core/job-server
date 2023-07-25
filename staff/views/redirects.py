@@ -34,8 +34,12 @@ class RedirectList(ListView):
     template_name = "staff/redirect_list.html"
 
     def get_context_data(self, **kwargs):
+        types = [
+            {"name": f.name.replace("_", " "), "value": f.name.lower()}
+            for f in Redirect.targets()
+        ]
         return super().get_context_data(**kwargs) | {
-            "types": ["project", "workspace"],
+            "types": types,
             "q": self.request.GET.get("q", ""),
         }
 

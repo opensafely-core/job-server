@@ -65,19 +65,19 @@
       <h3 class="h4">Object Type</h3>
       <div class="btn-group-vertical w-100 mb-4" role="group" aria-label="Filter by object type">
         {% for type in types %}
-        {% is_filter_selected key="type" value=type as is_active %}
+        {% is_filter_selected key="type" value=type.value as is_active %}
         <a
           {% if is_active %}aria-pressed="true"{% endif %}
           class="btn btn-outline-primary btn-block text-left {% if is_active %}active{% endif %}"
           href="
             {% if is_active %}
-              {% url_without_querystring type=type %}
+              {% url_without_querystring type=type.value %}
             {% else %}
-              {% url_with_querystring type=type %}
+              {% url_with_querystring type=type.value %}
             {% endif %}
           "
         >
-            {{ type|title }}
+            {{ type.name|title }}
         </a>
         {% endfor %}
       </div>
