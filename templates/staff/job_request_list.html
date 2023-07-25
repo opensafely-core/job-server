@@ -63,10 +63,10 @@
 
       <div class="list-group list-unstyled">
         {% for job_request in object_list %}
-        <span class="list-group-item list-group-item-action">
+        <a class="list-group-item list-group-item-action" href="{{ job_request.get_staff_url }}">
           {{ job_request.pk }} by {{ job_request.created_by }}
           <small class="text-muted">(created {{ job_request.created_at|date }})</small>
-        </span>
+        </a>
         {% endfor %}
       </div>
 

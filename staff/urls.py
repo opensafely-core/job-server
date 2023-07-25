@@ -25,7 +25,7 @@ from .views.dashboards.index import DashboardIndex
 from .views.dashboards.projects import ProjectsDashboard
 from .views.dashboards.repos import PrivateReposDashboard, ReposWithMultipleProjects
 from .views.index import Index
-from .views.job_requests import JobRequestList
+from .views.job_requests import JobRequestDetail, JobRequestList
 from .views.orgs import (
     OrgCreate,
     OrgDetail,
@@ -120,6 +120,7 @@ dashboard_urls = [
 
 job_request_urls = [
     path("", JobRequestList.as_view(), name="job-request-list"),
+    path("<int:pk>/", JobRequestDetail.as_view(), name="job-request-detail"),
 ]
 
 org_urls = [

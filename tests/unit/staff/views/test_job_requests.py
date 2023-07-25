@@ -1,8 +1,9 @@
 import pytest
 from django.core.exceptions import PermissionDenied
+from django.http import Http404
 
 from jobserver.utils import set_from_qs
-from staff.views.job_requests import JobRequestList
+from staff.views.job_requests import JobRequestDetail, JobRequestList
 
 from ....factories import (
     JobRequestFactory,
@@ -11,6 +12,35 @@ from ....factories import (
     UserFactory,
     WorkspaceFactory,
 )
+
+
+def test_jobrequestdetail_success(rf, core_developer):
+    job_request = JobRequestFactory()
+
+    request = rf.get("/")
+    request.user = core_developer
+
+    response = JobRequestDetail.as_view()(request, pk=job_request.pk)
+
+    assert response.status_code == 200
+
+
+def test_jobrequestdetail_unauthorized(rf):
+    job_request = JobRequestFactory()
+
+    request = rf.get("/")
+    request.user = UserFactory()
+
+    with pytest.raises(PermissionDenied):
+        JobRequestDetail.as_view()(request, pk=job_request.pk)
+
+
+def test_jobrequestdetail_unknown_job_request(rf, core_developer):
+    request = rf.get("/")
+    request.user = core_developer
+
+    with pytest.raises(Http404):
+        JobRequestDetail.as_view()(request, pk=0)
 
 
 def test_jobrequestlist_search_by_fullname(rf, core_developer):

@@ -121,6 +121,19 @@ def test_jobrequest_get_repo_url_success():
     assert url == "http://example.com/opensafely/some_repo/tree/abc123"
 
 
+def test_jobrequest_get_staff_url():
+    job_request = JobRequestFactory()
+
+    url = job_request.get_staff_url()
+
+    assert url == reverse(
+        "staff:job-request-detail",
+        kwargs={
+            "pk": job_request.pk,
+        },
+    )
+
+
 def test_jobrequest_is_completed():
     job_request = JobRequestFactory()
     JobFactory(job_request=job_request, status="failed")

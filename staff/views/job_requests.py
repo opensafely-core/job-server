@@ -2,11 +2,18 @@ import functools
 
 from django.db.models import Q
 from django.utils.decorators import method_decorator
-from django.views.generic import ListView
+from django.views.generic import DetailView, ListView
 
 from jobserver.authorization import CoreDeveloper
 from jobserver.authorization.decorators import require_role
 from jobserver.models import JobRequest
+
+
+@method_decorator(require_role(CoreDeveloper), name="dispatch")
+class JobRequestDetail(DetailView):
+    context_object_name = "job_request"
+    model = JobRequest
+    template_name = "staff/job_request_detail.html"
 
 
 @method_decorator(require_role(CoreDeveloper), name="dispatch")
