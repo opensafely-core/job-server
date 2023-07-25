@@ -51,4 +51,7 @@ class JobRequestList(ListView):
 
             qs = qs.filter(qwargs)
 
+        if workspace := self.request.GET.get("workspace"):
+            qs = qs.filter(workspace__name=workspace)
+
         return qs.distinct()

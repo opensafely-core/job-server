@@ -43,6 +43,22 @@ def test_jobrequestdetail_unknown_job_request(rf, core_developer):
         JobRequestDetail.as_view()(request, pk=0)
 
 
+def test_jobrequestlist_filter_by_workspace(rf, core_developer):
+    JobRequestFactory.create_batch(5)
+
+    workspace = WorkspaceFactory(name="workspace-testing-research")
+    job_request = JobRequestFactory(workspace=workspace)
+
+    request = rf.get(f"/?workspace={workspace.name}")
+    request.user = core_developer
+
+    response = JobRequestList.as_view()(request)
+
+    assert response.status_code == 200
+    assert len(response.context_data["object_list"]) == 1
+    assert set_from_qs(response.context_data["object_list"]) == {job_request.pk}
+
+
 def test_jobrequestlist_search_by_fullname(rf, core_developer):
     JobRequestFactory.create_batch(5)
 

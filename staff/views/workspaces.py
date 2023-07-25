@@ -18,8 +18,14 @@ class WorkspaceDetail(DetailView):
     template_name = "staff/workspace_detail.html"
 
     def get_context_data(self, **kwargs):
+        job_requests = self.object.job_requests.select_related("created_by").order_by(
+            "-created_at"
+        )[:10]
+        redirects = self.object.redirects.order_by("old_url")
+
         return super().get_context_data(**kwargs) | {
-            "redirects": self.object.redirects.order_by("old_url"),
+            "job_requests": job_requests,
+            "redirects": redirects,
         }
 
 

@@ -81,7 +81,9 @@
             ">First</a>
 
           <a
-            {% if enabled %}href="?page={{ page_obj.previous_page_number }}"{% endif %}
+            {% if enabled %}
+            href="{% url_with_querystring page=page_obj.previous_page_number %}"
+            {% endif %}
             class="
               btn btn-sm btn-primary
               {% if not enabled %}disabled{% endif %}
@@ -97,14 +99,18 @@
         <div>
           {% with enabled=page_obj.has_next %}
           <a
-            {% if enabled %}href="?page={{ page_obj.next_page_number }}"{% endif %}
+            {% if enabled %}
+            href="{% url_with_querystring page=page_obj.next_page_number %}"
+            {% endif %}
             class="
               btn btn-sm btn-primary
               {% if not enabled %}disabled{% endif %}
             "
             >Next</a>
           <a
-            {% if enabled %}href="?page={{ page_obj.paginator.num_pages }}"{% endif %}
+            {% if enabled %}
+            href="{% url_with_querystring page=page_obj.paginator.num_pages %}"
+            {% endif %}
             class="
               btn btn-sm btn-primary
               {% if not enabled %}disabled{% endif %}
