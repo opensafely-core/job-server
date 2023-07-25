@@ -1,0 +1,121 @@
+{% extends "staff/base.html" %}
+
+{% load humanize %}
+{% load querystring_tools %}
+{% load selected_filter %}
+
+{% block metatitle %}Job Requests: Staff Area | OpenSAFELY Jobs{% endblock metatitle %}
+
+{% block breadcrumbs %}
+<nav class="breadcrumb-container breadcrumb--danger" aria-label="breadcrumb">
+  <div class="container">
+    <ol class="breadcrumb rounded-0 mb-0 px-0">
+      <li class="breadcrumb-item">
+        <a href="{% url 'staff:index' %}">Staff area</a>
+      </li>
+      <li class="breadcrumb-item active" aria-current="page">
+        Job Requests
+      </li>
+    </ol>
+  </div>
+</nav>
+{% endblock breadcrumbs %}
+
+{% block jumbotron %}
+<div class="jumbotron jumbotron-fluid jumbotron--danger pt-md-2">
+  <div class="container">
+    <h1 class="display-4">Job Requests</h1>
+  </div>
+</div>
+{% endblock jumbotron %}
+
+{% block content %}
+<div class="container">
+  <div class="row">
+    <div class="col col-lg-3 col-xl-4">
+      <h2 class="h3">Filters</h2>
+
+      {% if request.GET %}
+      <div class="mb-3">
+        <a href="{% url 'staff:job-request-list' %}">Clear All</a>
+      </div>
+      {% endif %}
+
+    </div>
+
+    <div class="col col-lg-9 col-xl-8">
+      <form method="GET" class="mb-4">
+        <div class="form-inline w-100 d-flex flex-nowrap">
+          <label for="requestSearch" class="sr-only">Search by number, (partial) identifier, name of author, workspace, project, or org</label>
+          <input
+            class="form-control mr-sm-2 w-100"
+            id="requestSearch"
+            name="q"
+            placeholder="Search by number, (partial) identifier, name of author, workspace, project, or org"
+            type="search"
+            {% if q %}
+              value="{{ q }}"
+            {% endif %}
+          >
+          <button class="btn btn-outline-success my-2 my-sm-0" type="submit">Search</button>
+        </div>
+      </form>
+
+      <div class="list-group list-unstyled">
+        {% for job_request in object_list %}
+        <span class="list-group-item list-group-item-action">
+          {{ job_request.pk }} by {{ job_request.created_by }}
+          <small class="text-muted">(created {{ job_request.created_at|date }})</small>
+        </span>
+        {% endfor %}
+      </div>
+
+      <div class="d-flex justify-content-between align-items-center py-2">
+        <div>
+          {% with enabled=page_obj.has_previous %}
+          <a
+            {% if enabled %}href="?page=1"{% endif %}
+            class="
+              btn btn-sm btn-primary
+              {% if not enabled %}disabled{% endif %}
+            ">First</a>
+
+          <a
+            {% if enabled %}href="?page={{ page_obj.previous_page_number }}"{% endif %}
+            class="
+              btn btn-sm btn-primary
+              {% if not enabled %}disabled{% endif %}
+            ">Previous</a>
+
+          {% endwith %}
+        </div>
+
+        <div class="current">
+          Page {{ page_obj.number }} of {{ page_obj.paginator.num_pages }}
+        </div>
+
+        <div>
+          {% with enabled=page_obj.has_next %}
+          <a
+            {% if enabled %}href="?page={{ page_obj.next_page_number }}"{% endif %}
+            class="
+              btn btn-sm btn-primary
+              {% if not enabled %}disabled{% endif %}
+            "
+            >Next</a>
+          <a
+            {% if enabled %}href="?page={{ page_obj.paginator.num_pages }}"{% endif %}
+            class="
+              btn btn-sm btn-primary
+              {% if not enabled %}disabled{% endif %}
+            "
+            >Last</a>
+          {% endwith %}
+        </div>
+      </div>
+
+    </div>
+
+  </div>
+</div>
+{% endblock content %}
