@@ -249,6 +249,9 @@ class JobRequest(models.Model):
             ),
         ]
 
+    def __str__(self):
+        return str(self.pk)
+
     def get_absolute_url(self):
         return reverse(
             "job-request-detail",

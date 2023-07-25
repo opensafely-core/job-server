@@ -356,3 +356,9 @@ def test_jobrequest_status_without_prefetching_jobs(django_assert_num_queries):
     job_request.status
 
     assert "jobs" in job_request._prefetched_objects_cache
+
+
+def test_jobrequest_str():
+    job_request = JobRequestFactory()
+
+    assert str(job_request) == str(job_request.pk)
