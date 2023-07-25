@@ -111,6 +111,9 @@ class Redirect(models.Model):
             ),
         ]
 
+    def __str__(self):
+        return self.old_url
+
     def get_staff_url(self):
         return reverse("staff:redirect-detail", kwargs={"pk": self.pk})
 

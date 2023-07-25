@@ -13,13 +13,16 @@ def _build_url(project):
     in the form /<org_slug>/<project_slug>/ for the given project, regardless
     of that being a valid route for the project so we can use it to refer to
     redirects for the given project.
+
+    We're not create a furl object in the typical way here with either / or
+    updating path.segments because furl won't add leading and trailing forwards
+    slashes.  Those are meaningful to our redirects middleware so it can
+    correctly capture a URL which needs to redirect.  However, we're still
+    making use of it so that it normalises the path for us as an extra bit of
+    safety.
+
     """
-    f = furl()
-    f.path.segments = [
-        project.org.slug,
-        project.slug,
-    ]
-    return str(f)
+    return str(furl(f"/{project.org.slug}/{project.slug}/"))
 
 
 def add_redirects_to_remove_org_from_orgs(apps, schema_editor):
