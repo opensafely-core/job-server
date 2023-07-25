@@ -188,7 +188,7 @@ class Job(models.Model):
 
 
 class JobRequestManager(models.Manager):
-    def get_queryset(self):
+    def with_started_at(self):
         return (
             super()
             .get_queryset()
