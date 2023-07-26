@@ -28,6 +28,7 @@ from ....factories import (
     WorkspaceFactory,
 )
 from ....fakes import FakeGitHubAPI
+from ....utils import minutes_ago
 
 
 def test_jobrequestcancel_already_completed(rf):
@@ -140,7 +141,14 @@ def test_jobrequestcancel_unknown_job_request(rf):
 
 @pytest.mark.parametrize("ref", [None, "abc"])
 def test_jobrequestcreate_get_success(ref, rf, mocker, user):
+    now = timezone.now()
     workspace = WorkspaceFactory()
+    job_request = JobRequestFactory(workspace=workspace)
+    JobFactory(
+        job_request=job_request,
+        started_at=minutes_ago(now, 3),
+        completed_at=minutes_ago(now, 1),
+    )
 
     BackendMembershipFactory(user=user)
     ProjectMembershipFactory(
@@ -180,6 +188,7 @@ def test_jobrequestcreate_get_success(ref, rf, mocker, user):
         {"name": "twiddle", "needs": []},
         {"name": "run_all", "needs": ["twiddle"]},
     ]
+    assert response.context_data["latest_job_request"] == job_request
     assert response.context_data["workspace"] == workspace
 
 
