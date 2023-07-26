@@ -419,5 +419,5 @@ def test_workspace_is_interactive():
 
 
 def test_workspace_str():
-    workspace = WorkspaceFactory(name="Corellian Engineering Corporation")
-    assert str(workspace) == "Corellian Engineering Corporation"
+    workspace = WorkspaceFactory(name="corellian-engineering-corporation")
+    assert str(workspace) == "corellian-engineering-corporation"

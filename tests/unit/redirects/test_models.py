@@ -44,6 +44,17 @@ def test_redirect_all_target_objects():
         RedirectFactory(**kwargs)
 
 
+def test_redirect_constraints_old_url_empty():
+    with pytest.raises(IntegrityError):
+        RedirectFactory(project=ProjectFactory(), old_url="")
+
+
+@pytest.mark.parametrize("url", ["test", "/test", "test/"])
+def test_redirect_constraints_old_url_has_leading_and_trailing_slashes(url):
+    with pytest.raises(IntegrityError):
+        RedirectFactory(project=ProjectFactory(), old_url=url)
+
+
 def test_redirect_each_target_object():
     """
     Test each redirect target one at a time

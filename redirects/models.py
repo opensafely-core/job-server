@@ -12,7 +12,8 @@ def default_expires_at():
     return timezone.now() + timedelta(days=365)
 
 
-def validate_not_empty(value):
+# FIXME: remove next time we squash migrations
+def validate_not_empty(value):  # pragma: no cover
     if not bool(value):
         raise ValidationError("empty is not a valid value", params={"value": value})
 
@@ -43,7 +44,7 @@ class Redirect(models.Model):
         null=True,
     )
 
-    old_url = models.TextField(validators=[validate_not_empty], db_index=True)
+    old_url = models.TextField(db_index=True)
     expires_at = models.DateTimeField(default=default_expires_at)
 
     created_at = models.DateTimeField(default=timezone.now)
@@ -65,6 +66,14 @@ class Redirect(models.Model):
 
     class Meta:
         constraints = [
+            models.CheckConstraint(
+                check=~Q(old_url=""),
+                name="old_url_is_not_empty",
+            ),
+            models.CheckConstraint(
+                check=Q(old_url__endswith="/") & Q(old_url__startswith="/"),
+                name="old_url_endswith_and_startswith_slash",
+            ),
             models.CheckConstraint(
                 check=(
                     Q(
