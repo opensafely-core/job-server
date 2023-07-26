@@ -25,6 +25,7 @@ from .views.dashboards.index import DashboardIndex
 from .views.dashboards.projects import ProjectsDashboard
 from .views.dashboards.repos import PrivateReposDashboard, ReposWithMultipleProjects
 from .views.index import Index
+from .views.job_requests import JobRequestDetail, JobRequestList
 from .views.orgs import (
     OrgCreate,
     OrgDetail,
@@ -115,6 +116,11 @@ dashboard_urls = [
         ReposWithMultipleProjects.as_view(),
         name="repos-with-multiple-projects",
     ),
+]
+
+job_request_urls = [
+    path("", JobRequestList.as_view(), name="job-request-list"),
+    path("<int:pk>/", JobRequestDetail.as_view(), name="job-request-detail"),
 ]
 
 org_urls = [
@@ -216,6 +222,7 @@ urlpatterns = [
     path("applications/", include(application_urls)),
     path("backends/", include(backend_urls)),
     path("dashboards/", include((dashboard_urls, "dashboards"), namespace="dashboard")),
+    path("job-requests/", include(job_request_urls)),
     path("orgs/", include(org_urls)),
     path("projects/", include(project_urls)),
     path("redirects/", include(redirect_urls)),

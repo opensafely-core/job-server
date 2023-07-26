@@ -177,12 +177,14 @@ class JobRequestCreate(CreateView):
 class JobRequestDetail(View):
     def get(self, request, *args, **kwargs):
         try:
-            job_request = JobRequest.objects.select_related(
-                "created_by", "workspace"
-            ).get(
-                workspace__project__slug=self.kwargs["project_slug"],
-                workspace__name=self.kwargs["workspace_slug"],
-                pk=self.kwargs["pk"],
+            job_request = (
+                JobRequest.objects.with_started_at()
+                .select_related("created_by", "workspace")
+                .get(
+                    workspace__project__slug=self.kwargs["project_slug"],
+                    workspace__name=self.kwargs["workspace_slug"],
+                    pk=self.kwargs["pk"],
+                )
             )
         except (JobRequest.DoesNotExist, MultipleObjectsReturned):
             raise Http404
@@ -249,7 +251,11 @@ class JobRequestList(FormMixin, ListView):
         return context
 
     def get_queryset(self):
-        qs = JobRequest.objects.select_related("backend", "workspace").order_by("-pk")
+        qs = (
+            JobRequest.objects.with_started_at()
+            .select_related("backend", "workspace")
+            .order_by("-pk")
+        )
 
         q = self.request.GET.get("q")
         if q:

@@ -188,7 +188,7 @@ class Job(models.Model):
 
 
 class JobRequestManager(models.Manager):
-    def get_queryset(self):
+    def with_started_at(self):
         return (
             super()
             .get_queryset()
@@ -249,6 +249,9 @@ class JobRequest(models.Model):
             ),
         ]
 
+    def __str__(self):
+        return str(self.pk)
+
     def get_absolute_url(self):
         return reverse(
             "job-request-detail",
@@ -301,6 +304,14 @@ class JobRequest(models.Model):
 
         f.path.segments += ["tree", self.sha]
         return f.url
+
+    def get_staff_url(self):
+        return reverse(
+            "staff:job-request-detail",
+            kwargs={
+                "pk": self.pk,
+            },
+        )
 
     @property
     def is_completed(self):

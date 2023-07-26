@@ -87,6 +87,23 @@
         </div>
       </section>
 
+      <div class="d-flex justify-content-between align-items-center">
+        <h2>Job Requests</h2>
+        <a class="btn btn-sm btn-primary"
+          href="{% url 'staff:job-request-list' %}?workspace={{ workspace.name }}"
+          >View all</a>
+      </div>
+      <div class="list-group mb-3">
+        {% for job_request in job_requests %}
+        <a href="{{ job_request.get_staff_url }}" class="list-group-item list-group-item-action">
+          {{ job_request.pk }} by {{ job_request.created_by.name }}
+          <small class="text-muted">(created {{ job_request.created_at|date }})</small>
+        </a>
+        {% empty %}
+          <p class="list-group-item">No job requests</p>
+        {% endfor %}
+      </div>
+
       <h2>Redirects</h2>
       <div class="list-group mb-3">
         {% for redirect in redirects %}

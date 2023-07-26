@@ -121,6 +121,19 @@ def test_jobrequest_get_repo_url_success():
     assert url == "http://example.com/opensafely/some_repo/tree/abc123"
 
 
+def test_jobrequest_get_staff_url():
+    job_request = JobRequestFactory()
+
+    url = job_request.get_staff_url()
+
+    assert url == reverse(
+        "staff:job-request-detail",
+        kwargs={
+            "pk": job_request.pk,
+        },
+    )
+
+
 def test_jobrequest_is_completed():
     job_request = JobRequestFactory()
     JobFactory(job_request=job_request, status="failed")
@@ -167,7 +180,7 @@ def test_jobrequest_runtime_one_job_missing_completed_at(freezer):
         completed_at=None,
     )
 
-    jr = JobRequest.objects.get(pk=job_request.pk)
+    jr = JobRequest.objects.with_started_at().get(pk=job_request.pk)
     assert jr.started_at
     assert not jr.completed_at
 
@@ -197,7 +210,7 @@ def test_jobrequest_runtime_one_job_missing_started_at(freezer):
         completed_at=timezone.now(),
     )
 
-    jr = JobRequest.objects.get(pk=job_request.pk)
+    jr = JobRequest.objects.with_started_at().get(pk=job_request.pk)
     assert jr.started_at
     assert jr.completed_at
 
@@ -211,7 +224,7 @@ def test_jobrequest_runtime_one_job_missing_started_at(freezer):
 
 def test_jobrequest_runtime_no_jobs():
     JobRequestFactory()
-    assert not JobRequest.objects.first().runtime
+    assert not JobRequest.objects.with_started_at().first().runtime
 
 
 def test_jobrequest_runtime_not_completed(freezer):
@@ -231,7 +244,7 @@ def test_jobrequest_runtime_not_completed(freezer):
         started_at=seconds_ago(now, 30),
     )
 
-    job_request = JobRequest.objects.first()
+    job_request = JobRequest.objects.with_started_at().first()
     assert job_request.started_at
     assert not job_request.completed_at
 
@@ -248,7 +261,7 @@ def test_jobrequest_runtime_not_started():
     JobFactory(job_request=jr, status="running")
     JobFactory(job_request=jr, status="pending")
 
-    assert not JobRequest.objects.first().runtime
+    assert not JobRequest.objects.with_started_at().first().runtime
 
 
 def test_jobrequest_runtime_success():
@@ -269,7 +282,7 @@ def test_jobrequest_runtime_success():
         completed_at=start + timedelta(minutes=3),
     )
 
-    job_request = JobRequest.objects.first()
+    job_request = JobRequest.objects.with_started_at().first()
     assert job_request.runtime
     assert job_request.runtime.hours == 0
     assert job_request.runtime.minutes == 2
@@ -344,7 +357,7 @@ def test_jobrequest_status_uses_prefetch_cache(django_assert_num_queries):
     with django_assert_num_queries(2):
         # 1. select JobRequests
         # 2. select Jobs for those JobRequests
-        [jr.status for jr in JobRequest.objects.all()]
+        [jr.status for jr in JobRequest.objects.with_started_at().all()]
 
 
 def test_jobrequest_status_without_prefetching_jobs(django_assert_num_queries):
@@ -356,3 +369,9 @@ def test_jobrequest_status_without_prefetching_jobs(django_assert_num_queries):
     job_request.status
 
     assert "jobs" in job_request._prefetched_objects_cache
+
+
+def test_jobrequest_str():
+    job_request = JobRequestFactory()
+
+    assert str(job_request) == str(job_request.pk)
