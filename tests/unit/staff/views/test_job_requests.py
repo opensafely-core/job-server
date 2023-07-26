@@ -45,6 +45,60 @@ def test_jobrequestdetail_unknown_job_request(rf, core_developer):
         JobRequestDetail.as_view()(request, pk=0)
 
 
+def test_jobrequestlist_filter_by_orgs(rf, core_developer):
+    JobRequestFactory.create_batch(5)
+
+    org1 = OrgFactory(slug="test-a")
+    project1 = ProjectFactory(org=org1)
+    workspace1 = WorkspaceFactory(project=project1)
+    job_request1 = JobRequestFactory(workspace=workspace1)
+
+    org2 = OrgFactory(slug="test-2")
+    project2 = ProjectFactory(org=org2)
+    workspace2 = WorkspaceFactory(project=project2)
+    job_request2 = JobRequestFactory(workspace=workspace2)
+
+    request = rf.get(f"/?orgs={org1.slug}")
+    request.user = core_developer
+
+    response = JobRequestList.as_view()(request)
+
+    assert response.status_code == 200
+    assert len(response.context_data["object_list"]) == 1
+    assert set_from_qs(response.context_data["object_list"]) == {job_request1.pk}
+
+    # now check with 2 orgs
+
+    request = rf.get(f"/?orgs={org1.slug}&orgs={org2.slug}")
+    request.user = core_developer
+
+    response = JobRequestList.as_view()(request)
+
+    assert response.status_code == 200
+    assert len(response.context_data["object_list"]) == 2
+    assert set_from_qs(response.context_data["object_list"]) == {
+        job_request1.pk,
+        job_request2.pk,
+    }
+
+
+def test_jobrequestlist_filter_by_project(rf, core_developer):
+    JobRequestFactory.create_batch(5)
+
+    project = ProjectFactory()
+    workspace = WorkspaceFactory(project=project)
+    job_request = JobRequestFactory(workspace=workspace)
+
+    request = rf.get(f"/?project={project.slug}")
+    request.user = core_developer
+
+    response = JobRequestList.as_view()(request)
+
+    assert response.status_code == 200
+    assert len(response.context_data["object_list"]) == 1
+    assert set_from_qs(response.context_data["object_list"]) == {job_request.pk}
+
+
 def test_jobrequestlist_filter_by_workspace(rf, core_developer):
     JobRequestFactory.create_batch(5)
 
