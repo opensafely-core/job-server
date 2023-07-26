@@ -123,7 +123,21 @@ class Redirect(models.Model):
     @property
     def obj(self):
         """Work out which object we're pointing to"""
-        return first([self.project, self.workspace])
+        return first([getattr(self, f.name, None) for f in self.targets()])
+
+    @classmethod
+    def targets(cls):
+        """
+        Get target ForeignKey fields
+
+        This is a classmethod so users without a Redirect instance can still
+        make use of it.
+        """
+        return [
+            f
+            for f in cls._meta.fields
+            if getattr(f, "related_query_name", lambda: "")() == "redirects"
+        ]
 
     @property
     def type(self):  # noqa: A003

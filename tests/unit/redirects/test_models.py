@@ -77,7 +77,25 @@ def test_redirect_get_staff_delete_url():
     assert url == reverse("staff:redirect-delete", kwargs={"pk": redirect.pk})
 
 
-def test_str():
+def test_redirect_obj():
+    """
+    Ensure Redirect.obj can point to any of the target FKs
+
+    The Redirect model has several ForeignKeys to objects which need redirects,
+    and some for auditing.  The .obj property provides a way for users to get
+    the target of a given Redirect.  This test ensures we've not missed any
+    fields in that property.
+    """
+
+    for field in Redirect.targets():
+        factory_name = f"{field.related_model.__name__}Factory"
+        factory = getattr(factories, factory_name)()
+
+        redirect = RedirectFactory(old_url="/test/", **{field.name: factory})
+        assert redirect.obj
+
+
+def test_redirect_str():
     redirect = RedirectFactory(project=ProjectFactory(), old_url="/testing/foo/")
 
     assert str(redirect) == "/testing/foo/"

@@ -65,19 +65,19 @@
       <h3 class="h4">Object Type</h3>
       <div class="btn-group-vertical w-100 mb-4" role="group" aria-label="Filter by object type">
         {% for type in types %}
-        {% is_filter_selected key="type" value=type as is_active %}
+        {% is_filter_selected key="type" value=type.value as is_active %}
         <a
           {% if is_active %}aria-pressed="true"{% endif %}
           class="btn btn-outline-primary btn-block text-left {% if is_active %}active{% endif %}"
           href="
             {% if is_active %}
-              {% url_without_querystring type=type %}
+              {% url_without_querystring type=type.value %}
             {% else %}
-              {% url_with_querystring type=type %}
+              {% url_with_querystring type=type.value %}
             {% endif %}
           "
         >
-            {{ type|title }}
+            {{ type.name|title }}
         </a>
         {% endfor %}
       </div>
@@ -178,6 +178,57 @@
           {% endfor %}
         </table>
       </div>
+
+      <div class="d-flex justify-content-between align-items-center py-2">
+        <div>
+          {% with enabled=page_obj.has_previous %}
+          <a
+            {% if enabled %}href="?page=1"{% endif %}
+            class="
+              btn btn-sm btn-primary
+              {% if not enabled %}disabled{% endif %}
+            ">First</a>
+
+          <a
+            {% if enabled %}
+            href="{% url_with_querystring page=page_obj.previous_page_number %}"
+            {% endif %}
+            class="
+              btn btn-sm btn-primary
+              {% if not enabled %}disabled{% endif %}
+            ">Previous</a>
+
+          {% endwith %}
+        </div>
+
+        <div class="current">
+          Page {{ page_obj.number }} of {{ page_obj.paginator.num_pages }}
+        </div>
+
+        <div>
+          {% with enabled=page_obj.has_next %}
+          <a
+            {% if enabled %}
+            href="{% url_with_querystring page=page_obj.next_page_number %}"
+            {% endif %}
+            class="
+              btn btn-sm btn-primary
+              {% if not enabled %}disabled{% endif %}
+            "
+            >Next</a>
+          <a
+            {% if enabled %}
+            href="{% url_with_querystring page=page_obj.paginator.num_pages %}"
+            {% endif %}
+            class="
+              btn btn-sm btn-primary
+              {% if not enabled %}disabled{% endif %}
+            "
+            >Last</a>
+          {% endwith %}
+        </div>
+      </div>
+
     </div>
   </div>
 </div>
