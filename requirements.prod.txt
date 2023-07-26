@@ -824,9 +824,9 @@ slack-sdk==3.21.3 \
     --hash=sha256:20829bdc1a423ec93dac903470975ebf3bc76fd3fd91a4dadc0eeffc940ecb0c \
     --hash=sha256:de3c07b92479940b61cd68c566f49fbc9974c8f38f661d26244078f3903bb9cc
     # via -r requirements.prod.in
-slippers==0.5.0 \
-    --hash=sha256:413281c8a82f9940bbbcb60dcc42d075162b5ff25a6e254c9076b6bb0deaf746 \
-    --hash=sha256:5a17ef4cf6eb586739d8a6d85756995a8ac3178a49a560f7e0768258e736aa6b
+slippers==0.6.0 \
+    --hash=sha256:11fa320f8287dec238b747d2ee38e693e6b54a21a988b4733ab1095c45f657e1 \
+    --hash=sha256:53b4ba40fd7495c1a24ff160de8a384aa90eaeb7615842e68f84455c387c4419
     # via -r requirements.prod.in
 social-auth-app-django==5.2.0 \
     --hash=sha256:0347ca4cd23ea9d15a665da9d22950552fb66b95600e6c2ebae38ca883b3a4ed \
@@ -850,12 +850,17 @@ structlog==21.5.0 \
     --hash=sha256:68c4c29c003714fe86834f347cb107452847ba52414390a7ee583472bde00fc9 \
     --hash=sha256:fd7922e195262b337da85c2a91c84be94ccab1f8fd1957bd6986f6904e3761c8
     # via django-structlog
+typeguard==2.13.3 \
+    --hash=sha256:00edaa8da3a133674796cf5ea87d9f4b4c367d77476e185e80251cc13dfbb8c4 \
+    --hash=sha256:5e3e3be01e887e7eafae5af63d1f36c849aaa94e3a0112097312aabfa16284f1
+    # via slippers
 typing-extensions==4.4.0 \
     --hash=sha256:1511434bb92bf8dd198c12b1cc812e800d4181cfcb867674e0f8279cc93087aa \
     --hash=sha256:16fa4864408f655d35ec496218b85f79b3437c829e93320c7c9215ccfd92489e
     # via
     #   opentelemetry-sdk
     #   pydantic
+    #   slippers
 urllib3==1.26.14 \
     --hash=sha256:076907bf8fd355cde77728471316625a4d2f7e713c125f51953bb5b3eecf4f72 \
     --hash=sha256:75edcdc2f7d85b137124a6c3c9fc3933cdeaa12ecb9a6a959f22797a0feca7e1
