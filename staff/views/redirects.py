@@ -1,3 +1,5 @@
+import functools
+
 from django.contrib import messages
 from django.db.models import Q
 from django.shortcuts import get_object_or_404, redirect
@@ -48,15 +50,24 @@ class RedirectList(ListView):
         qs = super().get_queryset()
 
         if q := self.request.GET.get("q"):
-            qs = qs.filter(
-                Q(old_url__icontains=q)
-                | Q(project__name__icontains=q)
-                | Q(workspace__name__icontains=q)
-                | Q(created_by__username__icontains=q)
-                | Q(created_by__fullname__icontains=q)
-            ).distinct()
+            fields = [
+                "created_by__fullname",
+                "created_by__username",
+                "old_url",
+                "project__name",
+                "workspace__name",
+            ]
+
+            # build up Q objects OR'd together.  We need to build them with
+            # functools.reduce so we can optionally add the PK filter to the
+            # list
+            qwargs = functools.reduce(
+                Q.__or__, (Q(**{f"{f}__icontains": q}) for f in fields)
+            )
+
+            qs = qs.filter(qwargs)
 
         if object_type := self.request.GET.get("type"):
             qs = qs.filter(**{f"{object_type}__isnull": False})
 
-        return qs
+        return qs.distinct()
