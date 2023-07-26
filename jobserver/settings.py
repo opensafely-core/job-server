@@ -197,9 +197,12 @@ SOCIAL_AUTH_GITHUB_SCOPE = ["user:email"]
 
 # Passwords
 # https://docs.djangoproject.com/en/4.0/ref/settings/#password-hashers
-PASSWORD_HASHERS = [
-    "django.contrib.auth.hashers.Argon2PasswordHasher",
-]
+PASSWORD_HASHERS = env.list(
+    "PASSWORD_HASHERS",
+    default=[
+        "django.contrib.auth.hashers.Argon2PasswordHasher",
+    ],
+)
 
 
 # Messages

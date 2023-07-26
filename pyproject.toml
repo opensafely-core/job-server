@@ -76,6 +76,7 @@ addopts = "--disable-network --tb=native --no-migrations --ignore=./release-hatc
 DJANGO_SETTINGS_MODULE = "jobserver.settings"
 env = [
   "GITHUB_TOKEN=empty",
+  "PASSWORD_HASHERS=django.contrib.auth.hashers.MD5PasswordHasher",
   "SECRET_KEY=12345",
   "SOCIAL_AUTH_GITHUB_KEY=test",
   "SOCIAL_AUTH_GITHUB_SECRET=test",
