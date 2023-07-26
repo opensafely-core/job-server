@@ -3,6 +3,12 @@
 {% load humanize %}
 {% load querystring_tools %}
 {% load selected_filter %}
+{% load static %}
+
+{% block extra_styles %}
+<link rel="stylesheet" href="{% static 'vendor/select2.min.css' %}">
+<link rel="stylesheet" href="{% static 'vendor/select2-bootstrap4.min.css' %}">
+{% endblock %}
 
 {% block metatitle %}Job Requests: Staff Area | OpenSAFELY Jobs{% endblock metatitle %}
 
@@ -30,36 +36,113 @@
 {% endblock jumbotron %}
 
 {% block content %}
-<div class="container">
+<form method="GET" class="container">
   <div class="row">
     <div class="col col-lg-3 col-xl-4">
       <h2 class="h3">Filters</h2>
 
-      {% if request.GET %}
-      <div class="mb-3">
-        <a href="{% url 'staff:job-request-list' %}">Clear All</a>
+      <div class="mb-4">
+        <button class="btn btn-sm btn-success mb-3" type="submit">Apply filters</button>
+
+        {% if request.GET %}
+        <div class="mb-3">
+          <a href="{% url 'staff:job-request-list' %}">Clear All</a>
+        </div>
+        {% endif %}
       </div>
-      {% endif %}
+
+      <div class="mb-4">
+        <div class="d-flex justify-content-between align-items-center mb-1">
+          <h3 class="h4 mb-0">Filter by organisation</h3>
+          <small>
+            <a
+              {% if orgs.is_active %}
+              href="{% url_without_querystring orgs="" %}"
+              {% else %}
+              class="text-muted"
+              disabled
+              {% endif %}
+              >Clear</a>
+          </small>
+        </div>
+        <select id="id_orgs" name="orgs" multiple>
+          <option></option>
+          {% for org in orgs.items %}
+          <option
+            value="{{ org.slug }}"
+            {% if org.slug in orgs.selected %}selected{% endif %}
+            >{{ org.name }}</option>
+          {% endfor %}
+        </select>
+      </div>
+
+      <div class="mb-4">
+        <div class="d-flex justify-content-between align-items-center mb-1">
+          <h3 class="h4 mb-0">Filter by project</h3>
+          <small>
+            <a
+              {% if projects.is_active %}
+              href="{% url_without_querystring project="" %}"
+              {% else %}
+              class="text-muted"
+              disabled
+              {% endif %}
+              >Clear</a>
+          </small>
+        </div>
+        <select id="id_project" name="project">
+          <option></option>
+          {% for project in projects.items %}
+          <option
+            value="{{ project.slug }}"
+            {% if project.slug == projects.selected %}selected{% endif %}
+            >{{ project.title }}</option>
+          {% endfor %}
+        </select>
+      </div>
+
+      <div class="mb-4">
+        <div class="d-flex justify-content-between align-items-center mb-1">
+          <h3 class="h4 mb-0">Filter by workspace</h3>
+          <small>
+            <a
+              {% if workspaces.is_active %}
+              href="{% url_without_querystring workspace="" %}"
+              {% else %}
+              class="text-muted"
+              disabled
+              {% endif %}
+              >Clear</a>
+          </small>
+        </div>
+        <select id="id_workspace" name="workspace">
+          <option></option>
+          {% for workspace in workspaces.items %}
+          <option
+            value="{{ workspace.name }}"
+            {% if workspace.name == workspaces.selected %}selected{% endif %}
+            >{{ workspace.name }}</option>
+          {% endfor %}
+        </select>
+      </div>
 
     </div>
 
     <div class="col col-lg-9 col-xl-8">
-      <form method="GET" class="mb-4">
-        <div class="form-inline w-100 d-flex flex-nowrap">
-          <label for="requestSearch" class="sr-only">Search by number, (partial) identifier, job (partial) identifier, name of author, workspace, project, or org</label>
-          <input
-            class="form-control mr-sm-2 w-100"
-            id="requestSearch"
-            name="q"
-            placeholder="Search by number, (partial) identifier, job (partial) identifier, name of author, workspace, project, or org"
-            type="search"
-            {% if q %}
-              value="{{ q }}"
-            {% endif %}
-          >
-          <button class="btn btn-outline-success my-2 my-sm-0" type="submit">Search</button>
-        </div>
-      </form>
+      <div class="form-inline w-100 d-flex flex-nowrap mb-3">
+        <label for="requestSearch" class="sr-only">Search by number, (partial) identifier, job (partial) identifier, name of author, workspace, project, or org</label>
+        <input
+          class="form-control mr-sm-2 w-100"
+          id="requestSearch"
+          name="q"
+          placeholder="Search by number, (partial) identifier, job (partial) identifier, name of author, workspace, project, or org"
+          type="search"
+          {% if q %}
+            value="{{ q }}"
+          {% endif %}
+        >
+        <button class="btn btn-outline-success my-2 my-sm-0" type="submit">Search</button>
+      </div>
 
       <div class="list-group list-unstyled">
         {% for job_request in object_list %}
@@ -127,5 +210,32 @@
     </div>
 
   </div>
-</div>
+</form>
 {% endblock content %}
+
+{% block extra_js %}
+<script type="text/javascript" src="{% static 'vendor/select2.min.js' %}"></script>
+<script type="text/javascript" nonce="{{ request.csp_nonce }}">
+  $(document).ready(function() {
+    $('#id_orgs').select2({
+      multiple: true,
+      placeholder: "Select orgs to filter by",
+      selectionCssClass: ":all:",
+      theme: "bootstrap4",
+      width: "100%"
+    });
+    $('#id_project').select2({
+      placeholder: "Select a project to filter by",
+      selectionCssClass: ":all:",
+      theme: "bootstrap4",
+      width: "100%"
+    });
+    $('#id_workspace').select2({
+      placeholder: "Select a workspace to filter by",
+      selectionCssClass: ":all:",
+      theme: "bootstrap4",
+      width: "100%"
+    });
+  });
+</script>
+{% endblock %}
