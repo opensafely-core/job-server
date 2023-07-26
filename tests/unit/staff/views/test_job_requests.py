@@ -2,10 +2,12 @@ import pytest
 from django.core.exceptions import PermissionDenied
 from django.http import Http404
 
+from jobserver.models import JobRequest
 from jobserver.utils import set_from_qs
 from staff.views.job_requests import JobRequestDetail, JobRequestList
 
 from ....factories import (
+    JobFactory,
     JobRequestFactory,
     OrgFactory,
     ProjectFactory,
@@ -88,6 +90,24 @@ def test_jobrequestlist_search_by_identifier(rf, core_developer):
     assert response.status_code == 200
     assert len(response.context_data["object_list"]) == 1
     assert set_from_qs(response.context_data["object_list"]) == {job_request.pk}
+
+    request = rf.get("/?q=34ab")
+    request.user = core_developer
+
+    response = JobRequestList.as_view()(request)
+
+    assert response.status_code == 200
+    assert len(response.context_data["object_list"]) == 1
+    assert set_from_qs(response.context_data["object_list"]) == {job_request.pk}
+
+
+def test_jobrequestlist_search_by_job_identifier(rf, core_developer):
+    JobRequestFactory.create_batch(5)
+
+    job_request = JobRequestFactory()
+    JobFactory(job_request=job_request, identifier="1234abcd")
+
+    assert JobRequest.objects.count() == 6
 
     request = rf.get("/?q=34ab")
     request.user = core_developer

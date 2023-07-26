@@ -36,6 +36,7 @@ class JobRequestList(ListView):
                 "created_by__fullname",
                 "created_by__username",
                 "identifier",
+                "jobs__identifier",
                 "pk",
                 "workspace__name",
                 "workspace__project__name",
