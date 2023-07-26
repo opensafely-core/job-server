@@ -39,6 +39,13 @@
         <a href="{% url 'staff:workspace-list' %}">Clear All</a>
       </div>
       {% endif %}
+
+      {% if request.GET.q %}
+      <div class="mb-3">
+        <h3 class="h4 mb-0">Search query</h3>
+        <code>{{ request.GET.q }}</code>
+      </div>
+      {% endif %}
     </div>
 
     <div class="col-lg-9 col-xl-8">
