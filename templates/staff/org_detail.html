@@ -142,7 +142,7 @@
 
       {% if projects %}
       <h2 class="h3">Projects</h2>
-      <div class="list-group">
+      <div class="list-group mb-4">
         {% for project in projects %}
         <a class="list-group-item list-group-item-action" href="{{ project.get_staff_url }}">
           {{ project.title }}
@@ -150,6 +150,18 @@
         {% endfor %}
       </div>
       {% endif %}
+
+      <h2>Redirects</h2>
+      <div class="list-group mb-3">
+        {% for redirect in redirects %}
+        <a href="{{ redirect.get_staff_url }}" class="list-group-item list-group-item-action">
+          {{ redirect.old_url }}
+        </a>
+        {% empty %}
+          <p class="list-group-item">No redirects</p>
+        {% endfor %}
+      </div>
+
     </div>
   </div>
 </div>

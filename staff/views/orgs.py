@@ -110,6 +110,7 @@ class OrgDetail(FormView):
             "members": self.object.members.order_by(Lower("username")),
             "org": self.object,
             "projects": self.object.projects.order_by("number", Lower("name")),
+            "redirects": self.object.redirects.order_by("-created_at"),
         }
 
     def get_form_kwargs(self):
