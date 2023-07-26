@@ -63,9 +63,13 @@
 
       <div class="list-group list-unstyled">
         {% for job_request in object_list %}
-        <a class="list-group-item list-group-item-action" href="{{ job_request.get_staff_url }}">
-          {{ job_request.pk }} by {{ job_request.created_by }}
-          <small class="text-muted">(created {{ job_request.created_at|date }})</small>
+        <a class="list-group-item list-group-item-action d-flex flex-column align-items-start"
+          href="{{ job_request.get_staff_url }}">
+          <div>
+            {{ job_request.pk }} by {{ job_request.created_by }}
+            <small class="text-muted">(created {{ job_request.created_at|date }})</small>
+          </div>
+          <small class="text-muted">{{ job_request.workspace.name }}</small>
         </a>
         {% endfor %}
       </div>
