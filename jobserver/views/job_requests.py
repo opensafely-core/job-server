@@ -171,7 +171,11 @@ class JobRequestCreate(CreateView):
         return {"will_notify": self.workspace.should_notify}
 
     def get_latest_job_request(self):
-        return self.workspace.job_requests.order_by("-created_at").first()
+        return (
+            self.workspace.job_requests.with_started_at()
+            .order_by("-created_at")
+            .first()
+        )
 
 
 class JobRequestDetail(View):
