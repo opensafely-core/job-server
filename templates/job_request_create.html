@@ -18,262 +18,257 @@
 {% endblock breadcrumbs %}
 
 {% block content %}
-<article class="flex flex-col gap-y-4">
-  {% if workspace.is_archived %}
-    {% #alert variant="warning" title="Archived workspace" %}
-      This Workspace has been archived.
-      Logs are still available but new Jobs can no longer be requested.
-      If you think this has been done in error, contact:
-      {% link href="mailto:team@opensafely.org" text="team@opensafely.org" append_after="." %}
-    {% /alert %}
-  {% endif %}
+  <article class="flex flex-col gap-y-4">
+    {% if workspace.is_archived %}
+      {% #alert variant="warning" title="Archived workspace" %}
+        This Workspace has been archived.
+        Logs are still available but new Jobs can no longer be requested.
+        If you think this has been done in error, contact:
+        {% link href="mailto:team@opensafely.org" text="team@opensafely.org" append_after="." %}
+      {% /alert %}
+    {% endif %}
 
-  {% fragment as intro_text %}
-    <p>Intro text to go here</p>
-  {% endfragment %}
-  {% #article_header title="Run Jobs: "|add:workspace.name text=intro_text %}
-    {% #button class="inline-flex flex-row gap-x-2" href=workspace.get_logs_url type="link" variant="primary" %}
-      {% icon_queue_list_outline class="h-4 w-4 -ml-2" %}
-      View logs
-    {% /button %}
-  {% /article_header %}
+    {% fragment as intro_text %}
+      <p>Intro text to go here</p>
+    {% endfragment %}
+    {% #article_header title="Run Jobs: "|add:workspace.name text=intro_text %}
+      {% #button class="inline-flex flex-row gap-x-2" href=workspace.get_logs_url type="link" variant="primary" %}
+        {% icon_queue_list_outline class="h-4 w-4 -ml-2" %}
+        View logs
+      {% /button %}
+    {% /article_header %}
 
-  {% if actions_error %}
-    {% #alert variant="warning" title="An error occurred while trying to parse your project.yaml" %}
-      <pre>{{ actions_error }}</pre>
-      <p>
-        To run actions for this Workspace please fix the error above and reload this page to continue.
-      </p>
-      <p>
-        If the branch no longer exists you will need to set up a new workspace.
-        Previous jobs in this workspace are still available via the Logs button.
-      </p>
-      {% if not workspace.is_archived %}
+    {% if actions_error %}
+      {% #alert variant="warning" title="An error occurred while trying to parse your project.yaml" %}
+        <pre>{{ actions_error }}</pre>
         <p>
-          If you are done with this Workspace's branch you can also Archive it to stop it appearing on the homepage list.
+          To run actions for this Workspace please fix the error above and reload this page to continue.
         </p>
-      {% endif %}
-    {% /alert %}
-  {% endif %}
+        <p>
+          If the branch no longer exists you will need to set up a new workspace.
+          Previous jobs in this workspace are still available via the Logs button.
+        </p>
+        {% if not workspace.is_archived %}
+          <p>
+            If you are done with this Workspace's branch you can also Archive it to stop it appearing on the homepage list.
+          </p>
+        {% endif %}
+      {% /alert %}
+    {% endif %}
 
-  {% #card title="Run Jobs" container=True %}
-    <form method="POST" class="flex flex-col items-start gap-y-6">
-      {% csrf_token %}
+    {% #card title="Run Jobs" container=True %}
+      <form method="POST" class="flex flex-col items-start gap-y-6">
+        {% csrf_token %}
 
-      <!-- TODO: Style this -->
-      {% if form.non_field_errors %}
-        <ul>
-          {% for error in form.non_field_errors %}
-          <li class="text-danger">{{ error }}</li>
-          {% endfor %}
-        </ul>
-      {% endif %}
-
-      {% #form_fieldset %}
-        {% form_legend text="Select a backend" %}
-
-        <div class="max-w-lg flex flex-col gap-y-2" id="backends">
-          {% for value, label in form.backend.field.choices %}
-            {% with id=forloop.counter|stringformat:"s" %}
-              {% if form.backend.value == value %}
-                {% form_radio id="id_backend"|add:id name="backend" value=value label=label checked=True %}
-              {% else %}
-                {% form_radio id="id_backend"|add:id name="backend" value=value label=label checked=False %}
-              {% endif %}
-            {% endwith %}
-          {% endfor %}
-        </div>
-
-        <!-- TODO: Style this -->
-        {% if form.backend.errors %}
-          <ul class="pl-3 mb-1">
-            {% for error in form.backend.errors %}
-            <li class="text-danger">{{ error }}</li>
+        {% if form.non_field_errors %}
+          <ul class="bg-bn-ribbon-50 w-full border border-bn-ribbon-600 text-bn-ribbon-800 p-2 list-disc">
+            {% for error in form.non_field_errors %}
+              <li class="ml-6 max-w-prose">{{ error }}</li>
             {% endfor %}
           </ul>
         {% endif %}
-      {% /form_fieldset %}
 
-      {% #form_fieldset class="w-full min-w-0" %}
-        {% form_legend text="Select one or more actions to run" %}
+        {% #form_fieldset %}
+          {% form_legend text="Select a backend" %}
 
-        <div class="flex flex-col gap-y-2">
-          {% for action in actions %}
-            <div class="flex flex-row gap-x-4 justify-between w-full" id="jobActions">
-              {% form_checkbox id="checkbox-"|add:action.name label=action.name name="requested_actions" checked=False label_class="truncate" span_class="font-mono text-base truncate" %}
-
-              {% if action.needs %}
-                {% #button class="min-w-fit ml-auto" variant="secondary" small=True data-expander-button=action.name  %}
-                  Needs
-                {% /button %}
-              {% endif %}
-              <span class="grid place-content-center">
-                <span class="relative grid place-content-center group" data-action-status="loading">
-                  {% icon_custom_spinner class="h-5 w-5 mx-auto flex-1 animate-spin stroke-current stroke-2 text-oxford-600" %}
-                  {% tooltip position="-bottom-3" content="Loading" %}
-                </span>
-                <span class="relative grid place-content-center group hidden" data-action-status="succeeded">
-                  {% icon_check_circle_solid class="h-5 w-5 fill-green-700" %}
-                  {% tooltip position="-bottom-3" content="Successful" %}
-                </span>
-                <span class="relative grid place-content-center group hidden" data-action-status="failed">
-                  {% icon_x_circle_solid class="h-5 w-5 fill-red-700" %}
-                  {% tooltip position="-bottom-3" content="Failed" %}
-                </span>
-              </span>
-            </div>
-            {% if action.needs %}
-              <ul
-                aria-expanded="false"
-                class="mt-0 mb-2 ml-2 pl-2 border-l-4 border-l-oxford-200 hidden list-none truncate"
-                data-expander-list="{{ action.name }}"
-              >
-                {% for need in action.needs %}
-                  <li class="text-sm font-mono truncate">{{ need }}</li>
-                {% endfor %}
-              </ul>
-            {% endif %}
-          {% endfor %}
-        </div>
-
-        <div class="mt-2 text-slate-700 grid grid-flow-row gap-y-2 max-w-3xl">
-          <p>Selecting an Action will run it, regardless of its previous state or outputs.</p>
-          <p>
-            Selecting "run_all" will run any Action which has yet to complete.
-            Previously successful actions are skipped.
-            A previously failed action will cause "run_all" to refuse to run.
-            You can override this functionality by selecting "force run dependencies" below.
-          </p>
-        </div>
-
-        <!-- TODO: Style this -->
-        {% if form.requested_actions.errors %}
-        <ul>
-          {% for error in form.requested_actions.errors %}
-          <li class="text-danger">{{ error }}</li>
-          {% endfor %}
-        </ul>
-        {% endif %}
-      {% /form_fieldset %}
-
-      {% #form_fieldset %}
-        {% form_legend text="Force selected action dependencies to run" %}
-        <div class="-mt-1 text-slate-700 grid grid-flow-row gap-y-2 max-w-3xl">
-          Selecting this will run each Action in your selected Action's dependency trees, regardless of their previous state or outputs.
-        </div>
-        {% form_checkbox id="id_force_run_dependencies" label="Force run dependencies" name="force_run_dependencies" checked=False %}
-
-        <!-- TODO: Style this -->
-        {% if form.force_run_dependencies.errors %}
-        <ul>
-          {% for error in form.force_run_dependencies.errors %}
-          <li class="text-danger">{{ error }}</li>
-          {% endfor %}
-        </ul>
-        {% endif %}
-      {% /form_fieldset %}
-
-      {% #form_fieldset %}
-        {% form_legend text="Send an email notification for the selected actions" %}
-
-        <div class="max-w-lg grid grid-flow-row gap-y-2">
-          {% if form.will_notify.value == value %}
-            {% form_radio id="id_will_notify_0" name="will_notify" value="True" label="Yes, send an email notification" checked=True %}
-          {% else %}
-            {% form_radio id="id_will_notify_0" name="will_notify" value="True" label="Yes, send an email notification" checked=False %}
-          {% endif %}
-
-          {% if not form.will_notify.value %}
-            {% form_radio id="id_will_notify_1" name="will_notify" value="False" label="No, do not send an email" checked=True %}
-          {% else %}
-            {% form_radio id="id_will_notify_1" name="will_notify" value="False" label="No, do not send an email" checked=False %}
-          {% endif %}
-        </div>
-
-        <!-- TODO: Style this -->
-        {% if form.backend.errors %}
-        <ul class="pl-3 mb-1">
-          {% for error in form.backend.errors %}
-          <li class="text-danger">{{ error }}</li>
-          {% endfor %}
-        </ul>
-        {% endif %}
-      {% /form_fieldset %}
-
-      {% #button type="submit" variant="success" class="w-fit" %}
-        Submit Jobs
-      {% /button %}
-    </form>
-  {% /card %}
-
-  {% if latest_job_request and latest_job_request.jobs.exists %}
-    {% #card title="Latest Job Request" %}
-      <dl class="border-t border-slate-200 sm:divide-y sm:divide-slate-200">
-        {% #description_item title="Created at" %}
-          <time datetime="{{ latest_job_request.created_at|date:"Y-m-d H:i:sO" }}">
-            {{ latest_job_request.created_at|date:"d M Y H:i:s e" }}
-          </time>
-        {% /description_item %}
-
-        {% #description_item title="Total runtime" %}
-          {{ latest_job_request.runtime }}
-        {% /description_item %}
-
-        {% #description_item title="Requested actions" %}
-          {{ latest_job_request.requested_actions|join:", " }}
-        {% /description_item %}
-      </dl>
-
-      <div class="px-4 py-3 md:px-6 border-t border-slate-200 overflow-x-auto">
-        <table class="min-w-full divide-y divide-slate-300">
-          <thead>
-            <tr>
-              <th class="whitespace-nowrap py-3.5 pl-4 pr-3 text-left text-sm font-semibold text-slate-900 sm:pl-0">
-                Status
-              </th>
-              <th class="whitespace-nowrap py-3.5 pl-4 pr-3 text-left text-sm font-semibold text-slate-900 sm:pl-0">
-                Action
-              </th>
-              <th class="whitespace-nowrap py-3.5 pl-4 pr-3 text-left text-sm font-semibold text-slate-900 sm:pl-0">
-                Runtime
-              </th>
-              <th class="whitespace-nowrap py-3.5 pl-4 pr-3 text-left text-sm font-semibold text-slate-900 sm:pl-0">
-                Status message
-              </th>
-            </tr>
-          </thead>
-          <tbody class="divide-y divide-slate-200 bg-white text-sm">
-            {% for job in latest_job_request.jobs.all %}
-              <tr>
-                <td class="py-2 pl-4 pr-3 text-sm text-slate-700 sm:pl-0">
-                  <span class="sr-only">{{ job_request.status|title }}</span>
-                  {% if job.status == "succeeded" %}
-                    {% icon_check_circle_solid class="h-6 w-6 text-green-700" %}
-                  {% elif job.status == "pending" %}
-                    {% icon_clock_outline class="h-6 w-6 text-slate-500 stroke-2" %}
-                  {% elif job.status == "running" %}
-                    {% icon_custom_spinner class="h-6 w-6 animate-spin stroke-oxford-600 stroke-2 text-oxford-300" %}
-                  {% elif job.status == "failed" %}
-                    {% icon_x_circle_solid class="h-6 w-6 text-bn-ribbon-700" %}
-                  {% endif %}
-                </td>
-                <td class="py-2 pl-4 pr-3 text-sm text-slate-700 sm:pl-0">
-                  {{ job.action }}
-                </td>
-                <td class="py-2 pl-4 pr-3 text-sm text-slate-700 sm:pl-0">
-                  {{ job.runtime }}
-                </td>
-                <td class="py-2 pl-4 pr-3 text-sm text-slate-700 sm:pl-0">
-                  {{ job.status_message|default:"-" }}
-                </td>
-              </tr>
+          <div class="max-w-lg flex flex-col gap-y-2" id="backends">
+            {% for value, label in form.backend.field.choices %}
+              {% with id=forloop.counter|stringformat:"s" %}
+                {% if form.backend.value == value %}
+                  {% form_radio id="id_backend"|add:id name="backend" value=value label=label checked=True %}
+                {% else %}
+                  {% form_radio id="id_backend"|add:id name="backend" value=value label=label checked=False %}
+                {% endif %}
+              {% endwith %}
             {% endfor %}
-          </tbody>
-        </table>
-      </div>
+          </div>
+
+          {% if form.backend.errors %}
+            <ul class="bg-bn-ribbon-50 min-w-full border border-bn-ribbon-600 text-bn-ribbon-800 p-2 list-disc">
+              {% for error in form.backend.errors %}
+              <li class="ml-6 max-w-prose">{{ error }}</li>
+              {% endfor %}
+            </ul>
+          {% endif %}
+        {% /form_fieldset %}
+
+        {% #form_fieldset class="w-full min-w-0" %}
+          {% form_legend text="Select one or more actions to run" %}
+
+          {% if form.requested_actions.errors %}
+            <ul class="bg-bn-ribbon-50 min-w-full border border-bn-ribbon-600 text-bn-ribbon-800 p-2 list-disc">
+              {% for error in form.requested_actions.errors %}
+                <li class="ml-6 max-w-prose">{{ error }}</li>
+              {% endfor %}
+            </ul>
+          {% endif %}
+
+          <div class="flex flex-col gap-y-2">
+            {% for action in actions %}
+              <div class="flex flex-row gap-x-4 justify-between w-full" id="jobActions">
+                {% form_checkbox id="checkbox-"|add:action.name label=action.name name="requested_actions" checked=False label_class="truncate py-0.5" span_class="font-mono text-base truncate" %}
+
+                {% if action.needs %}
+                  {% #button class="min-w-fit ml-auto" variant="secondary" small=True data-expander-button=action.name  %}
+                    Needs
+                  {% /button %}
+                {% endif %}
+                <span class="grid place-content-center">
+                  <span class="relative grid place-content-center group" data-action-status="loading">
+                    {% icon_custom_spinner class="h-5 w-5 mx-auto flex-1 animate-spin stroke-current stroke-2 text-oxford-600" %}
+                    {% tooltip position="-bottom-3" content="Loading" %}
+                  </span>
+                  <span class="relative grid place-content-center group hidden" data-action-status="succeeded">
+                    {% icon_check_circle_solid class="h-5 w-5 fill-green-700" %}
+                    {% tooltip position="-bottom-3" content="Successful" %}
+                  </span>
+                  <span class="relative grid place-content-center group hidden" data-action-status="failed">
+                    {% icon_x_circle_solid class="h-5 w-5 fill-red-700" %}
+                    {% tooltip position="-bottom-3" content="Failed" %}
+                  </span>
+                </span>
+              </div>
+              {% if action.needs %}
+                <ul
+                  aria-expanded="false"
+                  class="mt-0 mb-2 ml-2 pl-2 border-l-4 border-l-oxford-200 hidden list-none truncate"
+                  data-expander-list="{{ action.name }}"
+                >
+                  {% for need in action.needs %}
+                    <li class="text-sm font-mono truncate">{{ need }}</li>
+                  {% endfor %}
+                </ul>
+              {% endif %}
+            {% endfor %}
+          </div>
+
+          <div class="mt-2 text-slate-700 grid grid-flow-row gap-y-2 max-w-3xl">
+            <p>Selecting an Action will run it, regardless of its previous state or outputs.</p>
+            <p>
+              Selecting "run_all" will run any Action which has yet to complete.
+              Previously successful actions are skipped.
+              A previously failed action will cause "run_all" to refuse to run.
+              You can override this functionality by selecting "force run dependencies" below.
+            </p>
+          </div>
+        {% /form_fieldset %}
+
+        {% #form_fieldset %}
+          {% form_legend text="Force selected action dependencies to run" %}
+          <div class="-mt-1 text-slate-700 grid grid-flow-row gap-y-2 max-w-3xl">
+            Selecting this will run each Action in your selected Action's dependency trees, regardless of their previous state or outputs.
+          </div>
+          {% form_checkbox id="id_force_run_dependencies" label="Force run dependencies" name="force_run_dependencies" checked=False %}
+
+          {% if form.force_run_dependencies.errors %}
+            <ul class="bg-bn-ribbon-50 min-w-full border border-bn-ribbon-600 text-bn-ribbon-800 p-2 list-disc">
+              {% for error in form.force_run_dependencies.errors %}
+                <li class="ml-6 max-w-prose">{{ error }}</li>
+              {% endfor %}
+            </ul>
+          {% endif %}
+        {% /form_fieldset %}
+
+        {% #form_fieldset %}
+          {% form_legend text="Send an email notification for the selected actions" %}
+
+          {% if form.backend.errors %}
+            <ul class="bg-bn-ribbon-50 min-w-full border border-bn-ribbon-600 text-bn-ribbon-800 p-2 list-disc">
+              {% for error in form.backend.errors %}
+                <li class="ml-6 max-w-prose">{{ error }}</li>
+              {% endfor %}
+            </ul>
+          {% endif %}
+
+          <div class="max-w-lg grid grid-flow-row gap-y-2">
+            {% if form.will_notify.value == value %}
+              {% form_radio id="id_will_notify_0" name="will_notify" value="True" label="Yes, send an email notification" checked=True %}
+            {% else %}
+              {% form_radio id="id_will_notify_0" name="will_notify" value="True" label="Yes, send an email notification" checked=False %}
+            {% endif %}
+
+            {% if not form.will_notify.value %}
+              {% form_radio id="id_will_notify_1" name="will_notify" value="False" label="No, do not send an email" checked=True %}
+            {% else %}
+              {% form_radio id="id_will_notify_1" name="will_notify" value="False" label="No, do not send an email" checked=False %}
+            {% endif %}
+          </div>
+        {% /form_fieldset %}
+
+        {% #button type="submit" variant="success" class="w-fit" %}
+          Submit Jobs
+        {% /button %}
+      </form>
     {% /card %}
-  {% endif %}
-</article>
+
+    {% if latest_job_request and latest_job_request.jobs.exists %}
+      {% #card title="Latest Job Request" %}
+        <dl class="border-t border-slate-200 sm:divide-y sm:divide-slate-200">
+          {% #description_item title="Created at" %}
+            <time datetime="{{ latest_job_request.created_at|date:"Y-m-d H:i:sO" }}">
+              {{ latest_job_request.created_at|date:"d M Y H:i:s e" }}
+            </time>
+          {% /description_item %}
+
+          {% #description_item title="Total runtime" %}
+            {{ latest_job_request.runtime }}
+          {% /description_item %}
+
+          {% #description_item title="Requested actions" %}
+            {{ latest_job_request.requested_actions|join:", " }}
+          {% /description_item %}
+        </dl>
+
+        <div class="px-4 py-3 md:px-6 border-t border-slate-200 overflow-x-auto">
+          <table class="min-w-full divide-y divide-slate-300">
+            <thead>
+              <tr>
+                <th class="whitespace-nowrap py-3.5 pl-4 pr-3 text-left text-sm font-semibold text-slate-900 sm:pl-0">
+                  Status
+                </th>
+                <th class="whitespace-nowrap py-3.5 pl-4 pr-3 text-left text-sm font-semibold text-slate-900 sm:pl-0">
+                  Action
+                </th>
+                <th class="whitespace-nowrap py-3.5 pl-4 pr-3 text-left text-sm font-semibold text-slate-900 sm:pl-0">
+                  Runtime
+                </th>
+                <th class="whitespace-nowrap py-3.5 pl-4 pr-3 text-left text-sm font-semibold text-slate-900 sm:pl-0">
+                  Status message
+                </th>
+              </tr>
+            </thead>
+            <tbody class="divide-y divide-slate-200 bg-white text-sm">
+              {% for job in latest_job_request.jobs.all %}
+                <tr>
+                  <td class="py-2 pl-4 pr-3 text-sm text-slate-700 sm:pl-0">
+                    <span class="sr-only">{{ job_request.status|title }}</span>
+                    {% if job.status == "succeeded" %}
+                      {% icon_check_circle_solid class="h-6 w-6 text-green-700" %}
+                    {% elif job.status == "pending" %}
+                      {% icon_clock_outline class="h-6 w-6 text-slate-500 stroke-2" %}
+                    {% elif job.status == "running" %}
+                      {% icon_custom_spinner class="h-6 w-6 animate-spin stroke-oxford-600 stroke-2 text-oxford-300" %}
+                    {% elif job.status == "failed" %}
+                      {% icon_x_circle_solid class="h-6 w-6 text-bn-ribbon-700" %}
+                    {% endif %}
+                  </td>
+                  <td class="py-2 pl-4 pr-3 text-sm text-slate-700 sm:pl-0">
+                    {{ job.action }}
+                  </td>
+                  <td class="py-2 pl-4 pr-3 text-sm text-slate-700 sm:pl-0">
+                    {{ job.runtime }}
+                  </td>
+                  <td class="py-2 pl-4 pr-3 text-sm text-slate-700 sm:pl-0">
+                    {{ job.status_message|default:"-" }}
+                  </td>
+                </tr>
+              {% endfor %}
+            </tbody>
+          </table>
+        </div>
+      {% /card %}
+    {% endif %}
+  </article>
 {% endblock content %}
 
 {% block extra_js %}
