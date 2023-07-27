@@ -1,4 +1,5 @@
 components:
+  article_header: "_components/article/header.html"
   alert: "_components/alert.html"
   breadcrumb: "_components/breadcrumbs/breadcrumb.html"
   breadcrumbs: "_components/breadcrumbs/breadcrumbs-container.html"
