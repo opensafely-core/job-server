@@ -1,47 +1,53 @@
-/* eslint-disable no-restricted-syntax */
+function getBackendValue() {
+  const backend = document.querySelector(`#backends input:checked`);
+  return backend?.value ? `?backend=${backend.value}` : ``;
+}
 
-const updateStatuses = (urlBase) => {
-  /**
-   * Update statuses for the current Workspace
-   */
+async function getStatuses() {
+  const urlBase = document.querySelector(`meta[name="apiUrl"]`).content;
+  const response = await fetch(`${urlBase}${getBackendValue()}`);
 
-  // if a backend radio button has been checked use it filter the API query
-  const checkedBackends = Array.from(
-    document.getElementsByName("backend"),
-  ).filter((e) => e.checked);
-  let backendQuery = "";
-  if (checkedBackends.length > 0) {
-    backendQuery = `?backend=${checkedBackends[0].value}`;
+  if (!response.ok) {
+    const message = `An error has occurred: ${response.status}`;
+    throw new Error(message);
   }
 
-  const url = `${urlBase}${backendQuery}`;
-  fetch(url)
-    .then((response) => response.json())
-    .then((data) => {
-      const actions = document.querySelectorAll("#actions .card>.card-header");
+  const statuses = await response.json();
+  return statuses;
+}
 
-      // loop the actions we've loaded from GitHub clearing their icon then
-      // setting an icon if we get a status for them
-      for (const action of actions) {
-        // reset status icon
-        const icon = action.querySelector(".status-icon");
-        icon.className = "status-icon";
+async function setActionsStatuses() {
+  const actions = [...document.querySelectorAll(`#jobActions label`)];
+  const statuses = await getStatuses();
 
-        const actionName = action.querySelector("code").title;
-        const status = data[actionName];
-        if (status) {
-          // the API has a status for this action, update the icon
-          icon.setAttribute("title", status);
-          icon.className = `status-icon ${status}`;
-        }
-      }
-    });
-};
+  actions.map((action) => {
+    const actionName = action.textContent.trim();
+    const status = statuses[actionName];
+    const parentEl = action.closest(`#jobActions`);
+    const loadingIcon = parentEl.querySelector(
+      `[data-action-status="loading"]`,
+    );
+    const successIcon = parentEl.querySelector(
+      `[data-action-status="succeeded"]`,
+    );
+    const failedIcon = parentEl.querySelector(`[data-action-status="failed"]`);
 
-const urlBase = document.getElementById("apiUrl").textContent;
+    if (status === "succeeded") {
+      loadingIcon.classList.add("hidden");
+      failedIcon.classList.add("hidden");
+      return successIcon.classList.remove("hidden");
+    }
 
-// run this on page load
-updateStatuses(urlBase);
+    if (status === "failed") {
+      loadingIcon.classList.add("hidden");
+      successIcon.classList.add("hidden");
+      return failedIcon.classList.remove("hidden");
+    }
 
-// poll the backend every 10s
-window.setInterval(updateStatuses, 10000, urlBase);
+    failedIcon.classList.add("hidden");
+    successIcon.classList.add("hidden");
+    return loadingIcon.classList.remove("hidden");
+  });
+}
+
+setActionsStatuses();
