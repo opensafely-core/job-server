@@ -35,7 +35,9 @@
         {{ title }}
       </h2>
     {% endif %}
-    <p class="{{ text_color }}">{{ children }}</p>
+    <div class="{{ text_color }} flex flex-col gap-y-2">
+      {{ children }}
+    </div>
   {% else %}
     <div class="flex">
       <div class="flex-shrink-0">
@@ -47,7 +49,9 @@
             {{ title }}
           </h2>
         {% endif %}
-        <p class="{{ text_color }}">{{ children }}</p>
+        <div class="{{ text_color }} flex flex-col gap-y-2">
+          {{ children }}
+        </div>
       </div>
     </div>
   {% endif %}
