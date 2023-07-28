@@ -29,7 +29,8 @@
     {% endif %}
 
     {% fragment as intro_text %}
-      <p>Intro text to go here</p>
+      <p>Request that your code is run on one of our secure backends. Your actions will be turned into jobs and automatically added to a queue. These jobs will then be run on the backend(s) when there is sufficient capacity.</p>
+      <p>Be aware that at busy periods it may take a while for jobs to start running and that it may be several days before your results are available.</p>
     {% endfragment %}
     {% #article_header title="Run Jobs: "|add:workspace.name text=intro_text %}
       {% #button class="inline-flex flex-row gap-x-2" href=workspace.get_logs_url type="link" variant="primary" %}
