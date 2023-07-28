@@ -173,7 +173,7 @@
         {% /form_fieldset %}
 
         {% #form_fieldset %}
-          {% form_legend text="Send an email notification for the selected actions" %}
+          {% form_legend text="Send an email notification when each of the selected actions has completed" %}
 
           {% if form.backend.errors %}
             <ul class="bg-bn-ribbon-50 min-w-full border border-bn-ribbon-600 text-bn-ribbon-800 p-2 list-disc">
@@ -183,17 +183,17 @@
             </ul>
           {% endif %}
 
-          <div class="max-w-lg grid grid-flow-row gap-y-2">
+          <div class="w-full grid grid-flow-row gap-y-2">
             {% if form.will_notify.value == value %}
-              {% form_radio id="id_will_notify_0" name="will_notify" value="True" label="Yes, send an email notification" checked=True %}
+              {% form_radio id="id_will_notify_0" name="will_notify" value="True" label="Notify me when each of the selected actions has completed" checked=True %}
             {% else %}
-              {% form_radio id="id_will_notify_0" name="will_notify" value="True" label="Yes, send an email notification" checked=False %}
+              {% form_radio id="id_will_notify_0" name="will_notify" value="True" label="Notify me when each of the selected actions has completed" checked=False %}
             {% endif %}
 
             {% if not form.will_notify.value %}
-              {% form_radio id="id_will_notify_1" name="will_notify" value="False" label="No, do not send an email" checked=True %}
+              {% form_radio id="id_will_notify_1" name="will_notify" value="False" label="Do not notify me" checked=True %}
             {% else %}
-              {% form_radio id="id_will_notify_1" name="will_notify" value="False" label="No, do not send an email" checked=False %}
+              {% form_radio id="id_will_notify_1" name="will_notify" value="False" label="Do not notify me" checked=False %}
             {% endif %}
           </div>
         {% /form_fieldset %}
