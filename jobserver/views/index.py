@@ -6,9 +6,16 @@ from ..models import JobRequest, Workspace
 
 class Index(View):
     def get(self, request, *args, **kwargs):
-        job_requests = JobRequest.objects.select_related(
-            "created_by", "workspace", "workspace__project", "workspace__project__org"
-        ).order_by("-created_at")
+        job_requests = (
+            JobRequest.objects.with_started_at()
+            .select_related(
+                "created_by",
+                "workspace",
+                "workspace__project",
+                "workspace__project__org",
+            )
+            .order_by("-created_at")
+        )
 
         if not self.request.user.is_authenticated:
             return TemplateResponse(
