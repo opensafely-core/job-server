@@ -1,6 +1,3 @@
-import functools
-
-from django.db.models import Q
 from django.db.models.functions import Lower
 from django.utils.decorators import method_decorator
 from django.views.generic import DetailView, ListView
@@ -8,6 +5,8 @@ from django.views.generic import DetailView, ListView
 from jobserver.authorization import CoreDeveloper
 from jobserver.authorization.decorators import require_role
 from jobserver.models import JobRequest, Org, Project, Workspace
+
+from .qwargs_tools import qwargs
 
 
 @method_decorator(require_role(CoreDeveloper), name="dispatch")
@@ -68,15 +67,7 @@ class JobRequestList(ListView):
                 "workspace__project__name",
                 "workspace__project__org__name",
             ]
-
-            # build up Q objects OR'd together.  We need to build them with
-            # functools.reduce so we can optionally add the PK filter to the
-            # list
-            qwargs = functools.reduce(
-                Q.__or__, (Q(**{f"{f}__icontains": q}) for f in fields)
-            )
-
-            qs = qs.filter(qwargs)
+            qs = qs.filter(qwargs(fields, q))
 
         if orgs := self.request.GET.getlist("orgs"):
             qs = qs.filter(workspace__project__org__slug__in=orgs)

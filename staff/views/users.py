@@ -3,7 +3,7 @@ import inspect
 import structlog
 from django.core.exceptions import FieldError
 from django.db import transaction
-from django.db.models import Exists, OuterRef, Q
+from django.db.models import Exists, OuterRef
 from django.db.models.functions import Lower
 from django.shortcuts import get_object_or_404, redirect
 from django.utils.decorators import method_decorator
@@ -21,6 +21,7 @@ from jobserver.utils import raise_if_not_int
 
 from ..forms import UserCreateForm, UserForm, UserOrgsForm
 from ..querystring_tools import get_next_url
+from .qwargs_tools import qwargs
 
 
 logger = structlog.get_logger(__name__)
@@ -224,9 +225,12 @@ class UserList(ListView):
         ).order_by(Lower("username"))
 
         # filter on the search query
-        q = self.request.GET.get("q")
-        if q:
-            qs = qs.filter(Q(username__icontains=q) | Q(fullname__icontains=q))
+        if q := self.request.GET.get("q"):
+            fields = [
+                "fullname",
+                "username",
+            ]
+            qs = qs.filter(qwargs(fields, q))
 
         if backend := self.request.GET.get("backend"):
             raise_if_not_int(backend)

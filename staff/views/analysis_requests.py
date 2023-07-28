@@ -1,6 +1,3 @@
-import functools
-
-from django.db.models import Q
 from django.db.models.functions import Lower
 from django.shortcuts import redirect
 from django.utils.decorators import method_decorator
@@ -12,6 +9,8 @@ from jobserver.authorization import CoreDeveloper
 from jobserver.authorization.decorators import require_role
 from jobserver.github import _get_github_api
 from jobserver.models import Project, User
+
+from .qwargs_tools import qwargs
 
 
 @method_decorator(require_role(CoreDeveloper), name="dispatch")
@@ -80,15 +79,7 @@ class AnalysisRequestList(ListView):
                 "created_by__username",
                 "title",
             ]
-
-            # build up Q objects OR'd together.  We need to build them with
-            # functools.reduce so we can optionally add the PK filter to the
-            # list
-            qwargs = functools.reduce(
-                Q.__or__, (Q(**{f"{f}__icontains": q}) for f in fields)
-            )
-
-            qs = qs.filter(qwargs)
+            qs = qs.filter(qwargs(fields, q))
 
         if self.request.GET.get("has_report") == "yes":
             qs = qs.exclude(report=None)

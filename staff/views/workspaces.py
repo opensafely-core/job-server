@@ -1,5 +1,4 @@
 from django.db import transaction
-from django.db.models import Q
 from django.shortcuts import redirect
 from django.utils.decorators import method_decorator
 from django.views.generic import DetailView, ListView, UpdateView
@@ -9,6 +8,7 @@ from jobserver.authorization.decorators import require_role
 from jobserver.models import Workspace
 
 from ..forms import WorkspaceEditForm
+from .qwargs_tools import qwargs
 
 
 @method_decorator(require_role(CoreDeveloper), name="dispatch")
@@ -71,8 +71,11 @@ class WorkspaceList(ListView):
     def get_queryset(self):
         qs = super().get_queryset()
 
-        q = self.request.GET.get("q")
-        if q:
-            qs = qs.filter(Q(name__icontains=q) | Q(repo__url__icontains=q))
+        if q := self.request.GET.get("q"):
+            fields = [
+                "name",
+                "repo__url",
+            ]
+            qs = qs.filter(qwargs(fields, q))
 
         return qs

@@ -1,7 +1,4 @@
-import functools
-
 from django.contrib import messages
-from django.db.models import Q
 from django.shortcuts import get_object_or_404, redirect
 from django.utils.decorators import method_decorator
 from django.views.generic import DetailView, ListView, View
@@ -9,6 +6,8 @@ from django.views.generic import DetailView, ListView, View
 from jobserver.authorization import CoreDeveloper
 from jobserver.authorization.decorators import require_role
 from redirects.models import Redirect
+
+from .qwargs_tools import qwargs
 
 
 @method_decorator(require_role(CoreDeveloper), name="dispatch")
@@ -59,15 +58,7 @@ class RedirectList(ListView):
                 "project__name",
                 "workspace__name",
             ]
-
-            # build up Q objects OR'd together.  We need to build them with
-            # functools.reduce so we can optionally add the PK filter to the
-            # list
-            qwargs = functools.reduce(
-                Q.__or__, (Q(**{f"{f}__icontains": q}) for f in fields)
-            )
-
-            qs = qs.filter(qwargs)
+            qs = qs.filter(qwargs(fields, q))
 
         if object_type := self.request.GET.get("type"):
             qs = qs.filter(**{f"{object_type}__isnull": False})

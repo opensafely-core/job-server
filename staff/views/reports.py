@@ -1,6 +1,4 @@
-import functools
-
-from django.db.models import OuterRef, Q, Subquery
+from django.db.models import OuterRef, Subquery
 from django.db.models.functions import Lower
 from django.shortcuts import get_object_or_404, redirect
 from django.utils.decorators import method_decorator
@@ -16,6 +14,8 @@ from jobserver.models import (
     Report,
     User,
 )
+
+from .qwargs_tools import qwargs
 
 
 @method_decorator(require_role(CoreDeveloper), name="dispatch")
@@ -111,15 +111,7 @@ class ReportList(ListView):
                 "created_by__username",
                 "title",
             ]
-
-            # build up Q objects OR'd together.  We need to build them with
-            # functools.reduce so we can optionally add the PK filter to the
-            # list
-            qwargs = functools.reduce(
-                Q.__or__, (Q(**{f"{f}__icontains": q}) for f in fields)
-            )
-
-            qs = qs.filter(qwargs)
+            qs = qs.filter(qwargs(fields, q))
 
         if state := self.request.GET.get("state"):
             # annotate the latest PublishRequest.decision value onto each

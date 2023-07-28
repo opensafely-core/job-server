@@ -20,6 +20,8 @@ from jobserver.github import _get_github_api
 from jobserver.issues import create_switch_repo_to_public_request
 from jobserver.models import Job, Org, Project, Repo, User
 
+from .qwargs_tools import qwargs
+
 
 logger = structlog.get_logger(__name__)
 
@@ -170,7 +172,10 @@ class RepoList(ListView):
 
         # filter on the search query
         if q := self.request.GET.get("q"):
-            qs = qs.filter(url__icontains=q)
+            fields = [
+                "url",
+            ]
+            qs = qs.filter(qwargs(fields, q))
 
         if has_outputs := self.request.GET.get("has_outputs") == "yes":
             qs = qs.filter(has_github_outputs=has_outputs)
