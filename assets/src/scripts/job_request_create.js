@@ -3,9 +3,8 @@
  * @returns {string} - query string for backend, or empty string
  */
 function getBackendValue() {
-  const backend = /** @type {HTMLInputElement|null} */ document.querySelector(
-    `#backends input:checked`,
-  );
+  /** @type {HTMLInputElement|null} */
+  const backend = document.querySelector(`#backends input:checked`);
   return backend?.value ? `?backend=${backend.value}` : ``;
 }
 
@@ -14,10 +13,9 @@ function getBackendValue() {
  * @returns {Promise<object>} - JSON object containing statuses
  */
 async function getStatuses() {
-  const urlBase =
-    /** @type {HTMLMetaElement} */ document.querySelector(
-      `meta[name="apiUrl"]`,
-    )?.content;
+  /** @type {HTMLMetaElement|null} */
+  const apiUrl = document.querySelector(`meta[name="apiUrl"]`);
+  const urlBase = apiUrl?.content;
   const response = await fetch(`${urlBase}${getBackendValue()}`);
 
   if (!response.ok) {
@@ -31,7 +29,7 @@ async function getStatuses() {
 
 /**
  * Set the visible icon based on the status returned from the API
- * @param {HTMLLabelElement} action - label element for an action
+ * @param {Element} action - label element for an action
  * @param {("succeeded"|"failed"|"loading")} status - status returned from the API
  * @returns {void}
  */
@@ -67,8 +65,8 @@ async function setActionsStatuses() {
   const statuses = await getStatuses();
 
   actions.map((action) => {
-    const actionName = action.textContent.trim();
-    const status = statuses[actionName];
+    const actionName = action?.textContent?.trim();
+    const status = actionName ? statuses[actionName] : null;
     return setIcon(action, status);
   });
 }
