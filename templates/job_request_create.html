@@ -105,7 +105,7 @@
             </ul>
           {% endif %}
 
-          <div class="flex flex-col gap-y-2 min-w-full">
+          <div class="flex flex-col gap-y-2 w-full">
             {% for action in actions %}
               <div class="flex flex-row gap-x-4 justify-between w-full" id="jobActions">
                 {% form_checkbox id="checkbox-"|add:action.name label=action.name name="requested_actions" value=action.name checked=False label_class="truncate py-0.5" span_class="font-mono text-base truncate" %}
