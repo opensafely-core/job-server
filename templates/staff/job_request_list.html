@@ -51,6 +51,18 @@
         {% endif %}
       </div>
 
+      {% if request.GET.q %}
+      <div class="mb-4">
+        <div class="d-flex justify-content-between align-items-center mb-1">
+          <h3 class="h4 mb-0">Search query</h3>
+          <small>
+            <a href="{% url_without_querystring q="" %}">Clear</a>
+          </small>
+        </div>
+        <code>{{ request.GET.q }}</code>
+      </div>
+      {% endif %}
+
       <div class="mb-4">
         <div class="d-flex justify-content-between align-items-center mb-1">
           <h3 class="h4 mb-0">Filter by organisation</h3>

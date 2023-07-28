@@ -8,7 +8,14 @@ from django.urls import reverse
 from redirects.models import Redirect
 from staff.views.redirects import RedirectDelete, RedirectDetail, RedirectList
 
-from ....factories import ProjectFactory, RedirectFactory, WorkspaceFactory
+from ....factories import (
+    AnalysisRequestFactory,
+    OrgFactory,
+    ProjectFactory,
+    RedirectFactory,
+    UserFactory,
+    WorkspaceFactory,
+)
 
 
 def test_redirectdelete_success(rf, core_developer):
@@ -105,11 +112,111 @@ def test_redirectlist_filter_by_object_type(rf, core_developer):
     assert set(response.context_data["object_list"]) == set(workspace_redirects)
 
 
-def test_redirectlist_search(rf, core_developer):
+def test_redirectlist_search_by_analysis_request(rf, core_developer):
+    analysis_request = AnalysisRequestFactory()
+    redirect = RedirectFactory(analysis_request=analysis_request)
+
+    RedirectFactory(org=OrgFactory())
+    RedirectFactory(project=ProjectFactory())
+    RedirectFactory(workspace=WorkspaceFactory())
+
+    request = rf.get(f"/?q={analysis_request.title}")
+    request.user = core_developer
+
+    response = RedirectList.as_view()(request)
+
+    assert response.status_code == 200
+    assert set(response.context_data["object_list"]) == {redirect}
+
+
+def test_jobrequestlist_search_by_fullname(rf, core_developer):
+    org = OrgFactory()
+    user = UserFactory(fullname="Ben Goldacre")
+    redirect = RedirectFactory(org=org, created_by=user)
+
+    RedirectFactory.create_batch(5, org=org)
+
+    request = rf.get("/?q=ben")
+    request.user = core_developer
+
+    response = RedirectList.as_view()(request)
+
+    assert response.status_code == 200
+    assert set(response.context_data["object_list"]) == {redirect}
+
+
+def test_redirectlist_search_by_old_url(rf, core_developer):
+    org = OrgFactory()
+    redirect = RedirectFactory(org=org, old_url="/test/foo/bar/")
+
+    RedirectFactory.create_batch(5, org=org)
+
+    request = rf.get("/?q=foo")
+    request.user = core_developer
+
+    response = RedirectList.as_view()(request)
+
+    assert response.status_code == 200
+    assert set(response.context_data["object_list"]) == {redirect}
+
+
+def test_redirectlist_search_by_org(rf, core_developer):
+    org = OrgFactory()
+    redirect = RedirectFactory(org=org)
+
+    RedirectFactory(analysis_request=AnalysisRequestFactory())
+    RedirectFactory(project=ProjectFactory())
+    RedirectFactory(workspace=WorkspaceFactory())
+
+    request = rf.get(f"/?q={org.name}")
+    request.user = core_developer
+
+    response = RedirectList.as_view()(request)
+
+    assert response.status_code == 200
+    assert set(response.context_data["object_list"]) == {redirect}
+
+
+def test_redirectlist_search_by_project(rf, core_developer):
     project = ProjectFactory()
     redirect = RedirectFactory(project=project)
 
+    RedirectFactory(analysis_request=AnalysisRequestFactory())
+    RedirectFactory(org=OrgFactory())
     RedirectFactory(project=ProjectFactory())
+    RedirectFactory(workspace=WorkspaceFactory())
+
+    request = rf.get(f"/?q={project.name}")
+    request.user = core_developer
+
+    response = RedirectList.as_view()(request)
+
+    assert response.status_code == 200
+    assert set(response.context_data["object_list"]) == {redirect}
+
+
+def test_redirectlist_search_by_username(rf, core_developer):
+    org = OrgFactory()
+    user = UserFactory(username="beng")
+    redirect = RedirectFactory(org=org, created_by=user)
+
+    RedirectFactory.create_batch(5, org=org)
+
+    request = rf.get("/?q=ben")
+    request.user = core_developer
+
+    response = RedirectList.as_view()(request)
+
+    assert response.status_code == 200
+    assert set(response.context_data["object_list"]) == {redirect}
+
+
+def test_redirectlist_search_by_workspace(rf, core_developer):
+    project = ProjectFactory()
+    redirect = RedirectFactory(project=project)
+
+    RedirectFactory(analysis_request=AnalysisRequestFactory())
+    RedirectFactory(org=OrgFactory())
     RedirectFactory(workspace=WorkspaceFactory())
 
     request = rf.get(f"/?q={project.name}")

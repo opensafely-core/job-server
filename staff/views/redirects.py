@@ -1,5 +1,4 @@
 from django.contrib import messages
-from django.db.models import Q
 from django.shortcuts import get_object_or_404, redirect
 from django.utils.decorators import method_decorator
 from django.views.generic import DetailView, ListView, View
@@ -7,6 +6,8 @@ from django.views.generic import DetailView, ListView, View
 from jobserver.authorization import CoreDeveloper
 from jobserver.authorization.decorators import require_role
 from redirects.models import Redirect
+
+from .qwargs_tools import qwargs
 
 
 @method_decorator(require_role(CoreDeveloper), name="dispatch")
@@ -48,15 +49,18 @@ class RedirectList(ListView):
         qs = super().get_queryset()
 
         if q := self.request.GET.get("q"):
-            qs = qs.filter(
-                Q(old_url__icontains=q)
-                | Q(project__name__icontains=q)
-                | Q(workspace__name__icontains=q)
-                | Q(created_by__username__icontains=q)
-                | Q(created_by__fullname__icontains=q)
-            ).distinct()
+            fields = [
+                "analysis_request__title",
+                "created_by__fullname",
+                "created_by__username",
+                "old_url",
+                "org__name",
+                "project__name",
+                "workspace__name",
+            ]
+            qs = qs.filter(qwargs(fields, q))
 
         if object_type := self.request.GET.get("type"):
             qs = qs.filter(**{f"{object_type}__isnull": False})
 
-        return qs
+        return qs.distinct()

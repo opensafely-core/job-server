@@ -15,6 +15,7 @@ from jobserver.models import Org, OrgMembership, Project, User
 
 from ..forms import OrgAddGitHubOrgForm, OrgAddMemberForm
 from ..htmx_tools import get_redirect_url
+from .qwargs_tools import qwargs
 
 
 @require_role(CoreDeveloper)
@@ -170,9 +171,11 @@ class OrgList(ListView):
     def get_queryset(self):
         qs = super().get_queryset()
 
-        q = self.request.GET.get("q")
-        if q:
-            qs = qs.filter(name__icontains=q)
+        if q := self.request.GET.get("q"):
+            fields = [
+                "name",
+            ]
+            qs = qs.filter(qwargs(fields, q))
 
         return qs
 

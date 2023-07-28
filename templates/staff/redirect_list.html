@@ -40,6 +40,13 @@
       </div>
       {% endif %}
 
+      {% if request.GET.q %}
+      <div class="mb-3">
+        <h3 class="h4 mb-0">Search query</h3>
+        <code>{{ request.GET.q }}</code>
+      </div>
+      {% endif %}
+
       {% if backends %}
       <h3 class="h4">Backends</h3>
       <div class="btn-group-vertical w-100 mb-4" role="group" aria-label="Filter by backends">
@@ -133,7 +140,7 @@
       <input
         class="form-control mr-2"
         type="search"
-        placeholder="Search by name or username"
+        placeholder="Search by old url, analysis, creator, org, project, or workspace"
         aria-label="Search"
         {% if q %}
         value="{{ q }}"
