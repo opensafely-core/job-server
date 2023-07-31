@@ -9,7 +9,6 @@
 
   {% #breadcrumbs %}
     {% breadcrumb title="Home" url=home_url %}
-    {% breadcrumb title=project.org.name url=project.org.get_absolute_url location="Organisation" %}
     {% breadcrumb title=project.name url=project.get_absolute_url location="Project" %}
     {% breadcrumb title="Releases" active=True %}
   {% /breadcrumbs %}

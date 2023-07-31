@@ -15,7 +15,6 @@
   {% #breadcrumbs %}
     {% url 'home' as home_url %}
     {% breadcrumb title="Home" url=home_url %}
-    {% breadcrumb location="Organisation" title=job.job_request.workspace.project.org.name url=job.job_request.workspace.project.org.get_absolute_url %}
     {% breadcrumb location="Project" title=job.job_request.workspace.project.name url=job.job_request.workspace.project.get_absolute_url %}
     {% breadcrumb location="Workspace" title=job.job_request.workspace.name url=job.job_request.workspace.get_absolute_url %}
     {% breadcrumb location="Job request" title=job.job_request.id url=job.job_request.get_absolute_url %}

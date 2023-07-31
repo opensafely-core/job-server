@@ -20,7 +20,6 @@
   {% #breadcrumbs %}
     {% url 'home' as home_url %}
     {% breadcrumb title="Home" url=home_url %}
-    {% breadcrumb location="Organisation" title=job_request.workspace.project.org.name url=job_request.workspace.project.org.get_absolute_url %}
     {% breadcrumb location="Project" title=job_request.workspace.project.name url=job_request.workspace.project.get_absolute_url %}
     {% breadcrumb location="Workspace" title=job_request.workspace.name url=job_request.workspace.get_absolute_url %}
     {% breadcrumb location="Job request" title=job_request.id active=True %}
@@ -32,10 +31,15 @@
     <div class="flex flex-col text-center items-center gap-y-2 lg:text-left lg:items-start lg:col-span-full">
       <div class="flex flex-col items-center gap-y-2 w-full lg:flex-row lg:justify-between lg:items-start">
         <div class="order-2 w-full lg:mr-auto lg:order-1">
-          <h1 class="text-3xl tracking-tight break-words font-bold text-slate-900 sm:text-4xl">
+          <h1 class="text-3xl tracking-tight break-words font-bold text-slate-900 sm:text-4xl !leading-snug">
             Job request: {{ job_request.pk }}
           </h1>
-          <dl class="flex flex-col gap-2 text-sm text-slate-600 items-center sm:flex-row sm:gap-x-6 sm:justify-center lg:justify-start">
+          <dl class="flex flex-col gap-2 text-sm text-slate-600 items-center sm:flex-row sm:gap-x-6 sm:justify-center lg:justify-start mt-1">
+            <dt class="sr-only">Organisation:</dt>
+            <dd class="flex flex-row items-start overflow-hidden">
+              {% icon_building_library_outline class="mr-1.5 h-5 w-5 flex-shrink-0 text-slate-400" %}
+              <span class="truncate">{{ job_request.workspace.project.org.name }}</span>
+            </dd>
             <dt class="sr-only">Workspace:</dt>
             <dd class="flex flex-row items-start overflow-hidden">
               {% icon_folder_open_outline class="mr-1.5 h-5 w-5 flex-shrink-0 text-slate-400" %}

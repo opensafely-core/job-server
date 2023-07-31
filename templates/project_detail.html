@@ -12,7 +12,6 @@
 
   {% #breadcrumbs %}
     {% breadcrumb title="Home" url=home_url %}
-    {% breadcrumb title=project.org.name url=project.org.get_absolute_url location="Organisation" %}
     {% breadcrumb title=project.name active=True location="Project" %}
   {% /breadcrumbs %}
 {% endblock breadcrumbs %}

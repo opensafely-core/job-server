@@ -8,7 +8,6 @@
   {% #breadcrumbs %}
     {% url 'home' as home_url %}
     {% breadcrumb title="Home" url=home_url %}
-    {% breadcrumb location="Organisation" title=workspace.project.org.name url=workspace.project.org.get_absolute_url %}
     {% breadcrumb location="Project" title=workspace.project.name url=workspace.project.get_absolute_url %}
     {% breadcrumb location="Workspace" title=workspace.name url=workspace.get_absolute_url %}
     {% breadcrumb title="Releases" active=True %}

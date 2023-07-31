@@ -6,7 +6,6 @@
   {% #breadcrumbs %}
     {% url 'home' as home_url %}
     {% breadcrumb title="Home" url=home_url %}
-    {% breadcrumb location="Organisation" title=project.org.name url=project.org.get_absolute_url %}
     {% breadcrumb location="Project" title=project.name url=project.get_absolute_url %}
     {% breadcrumb title="Reports" active=True %}
   {% /breadcrumbs %}
