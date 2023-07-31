@@ -117,6 +117,15 @@ class RolesArrayField(ArrayField):
         super().__init__(*args, **kwargs)
 
     def get_db_prep_value(self, roles, *args, **kwargs):
+        # unique the roles being set in the database so a user can append roles
+        # with wild abandon and we'll still have sensible data.
+        roles = list(set(roles))
+
+        # let ArrayField.get_db_prep_value() handled passing the values down to
+        # the base field
+        return super().get_db_prep_value(roles, *args, **kwargs)
+
+    def get_prep_value(self, roles):
         # we want to deal with iterables here but it's valid to construct a
         # query like:
         #
@@ -126,10 +135,5 @@ class RolesArrayField(ArrayField):
         if not isinstance(roles, collections.abc.Iterable):
             roles = [roles]
 
-        # unique the roles being set in the database so a user can append roles
-        # with wild abandon and we'll still have sensible data.
-        roles = list(set(roles))
-
-        # let ArrayField.get_db_prep_value() handled passing the values down to
-        # the base field
-        return super().get_db_prep_value(roles, *args, **kwargs)
+        # let RoleField handle the actual conversion
+        return [self.base_field.get_prep_value(role) for role in roles]

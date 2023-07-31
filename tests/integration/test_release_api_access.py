@@ -30,7 +30,9 @@ def test_published_output_access(client, release):
 
     response = client.get(
         snapshot.get_api_url(),
-        HTTP_AUTHORIZATION=f"{user.username}:{token}",
+        headers={
+            "authorization": f"{user.username}:{token}",
+        },
     )
     assert response.status_code == 200
 
@@ -48,5 +50,5 @@ def test_unpublished_output_access(client, release):
     response = client.get(url)
     assert response.status_code == 403, response.content
 
-    response = client.get(url, HTTP_AUTHORIZATION=f"{user.username}:{token}")
+    response = client.get(url, headers={"authorization": f"{user.username}:{token}"})
     assert response.status_code == 200, response.content

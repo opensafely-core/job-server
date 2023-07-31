@@ -152,7 +152,17 @@ USE_TZ = True
 
 
 # Static files (CSS, JavaScript, Images)
-# https://docs.djangoproject.com/en/3.0/howto/static-files/
+# https://docs.djangoproject.com/en/4.2/ref/contrib/staticfiles/#module-django.contrib.staticfiles
+STORAGES = {
+    "default": {
+        "BACKEND": "django.core.files.storage.FileSystemStorage",
+    },
+    "staticfiles": {
+        "BACKEND": "whitenoise.storage.CompressedStaticFilesStorage",
+    },
+}
+
+# https://docs.djangoproject.com/en/4.2/howto/static-files/
 STATICFILES_DIRS = [
     BASE_DIR / "static",
     env.path("BUILT_ASSETS", default=BASE_DIR / "assets" / "dist"),
@@ -164,9 +174,6 @@ DJANGO_VITE_ASSETS_PATH = BASE_DIR / "assets" / "dist"
 DJANGO_VITE_DEV_MODE = env.bool("DJANGO_VITE_DEV_MODE", default=False)
 DJANGO_VITE_DEV_SERVER_PORT = 5173
 DJANGO_VITE_MANIFEST_PATH = STATIC_ROOT / "manifest.json"
-
-# Insert Whitenoise Middleware.
-STATICFILES_STORAGE = "whitenoise.storage.CompressedStaticFilesStorage"
 
 
 # User uploaded files

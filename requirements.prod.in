@@ -1,6 +1,7 @@
 argon2-cffi
 attrs
 bs4
+django
 django-anymail[mailgun]
 django-browser-reload
 django-csp
@@ -21,7 +22,7 @@ interactive_templates@https://github.com/opensafely-core/interactive-templates/a
 itsdangerous
 lxml
 markdown
-psycopg2-binary
+psycopg[binary]
 pydantic
 pygments
 python-ulid
