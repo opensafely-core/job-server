@@ -37,10 +37,8 @@ class ReportDetail(DetailView):
             .select_related(
                 "analysis_request",
                 "analysis_request__project",
-                "analysis_request__project__org",
                 "created_by",
                 "release_file__workspace__project",
-                "release_file__workspace__project__org",
             )
             .prefetch_related("release_file__snapshots__publish_requests")
         )
@@ -100,7 +98,6 @@ class ReportList(ListView):
                 "release_file",
                 "release_file__workspace",
                 "release_file__workspace__project",
-                "release_file__workspace__project__org",
             )
             .order_by("-created_at")
         )

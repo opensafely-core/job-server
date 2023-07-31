@@ -129,7 +129,7 @@ class RepoDetail(View):
         api_repo = self.get_github_api().get_repo(repo.owner, repo.name)
 
         workspaces = repo.workspaces.select_related(
-            "signed_off_by", "created_by", "project", "project__org"
+            "signed_off_by", "created_by", "project"
         ).order_by("name")
         projects = (
             Project.objects.filter(workspaces__in=workspaces)

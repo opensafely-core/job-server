@@ -12,7 +12,6 @@ class Index(View):
                 "created_by",
                 "workspace",
                 "workspace__project",
-                "workspace__project__org",
             )
             .order_by("-created_at")
         )
@@ -27,7 +26,7 @@ class Index(View):
             )
 
         analysis_requests = self.request.user.analysis_requests.select_related(
-            "project", "project__org"
+            "project"
         ).order_by("-created_at")
 
         applications = self.request.user.applications.order_by("-created_at")
@@ -38,7 +37,7 @@ class Index(View):
                 "url": m.project.get_absolute_url(),
             }
             for m in self.request.user.project_memberships.select_related(
-                "project", "project__org"
+                "project"
             ).order_by("-created_at")[:5]
         ]
 
@@ -48,7 +47,7 @@ class Index(View):
             Workspace.objects.filter(
                 is_archived=False, project__in=self.request.user.projects.all()
             )
-            .select_related("project", "project__org")
+            .select_related("project")
             .order_by("-created_at")
         )
 

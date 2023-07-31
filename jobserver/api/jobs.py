@@ -294,7 +294,6 @@ class JobRequestAPIList(ListAPIView):
                 "workspace",
                 "workspace__created_by",
                 "workspace__project",
-                "workspace__project__org",
             )
             .order_by("-created_at")
             .distinct()

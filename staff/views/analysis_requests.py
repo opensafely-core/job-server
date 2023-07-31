@@ -29,11 +29,7 @@ class AnalysisRequestDetail(DetailView):
         }
 
     def get_queryset(self):
-        return (
-            super()
-            .get_queryset()
-            .select_related("created_by", "project", "project__org")
-        )
+        return super().get_queryset().select_related("created_by", "project")
 
 
 @method_decorator(require_role(CoreDeveloper), name="dispatch")
