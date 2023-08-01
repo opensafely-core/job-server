@@ -447,7 +447,6 @@ class SnapshotAPI(APIView):
                 "release__backend",
                 "workspace",
                 "workspace__project",
-                "workspace__project__org",
             ).annotate(is_published=Value(snapshot.is_published))
         }
 

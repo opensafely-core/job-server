@@ -16,7 +16,7 @@ class AnalysisRequestList(ListView):
             super()
             .get_queryset()
             .filter(created_by=self.request.user)
-            .select_related("project", "project__org")
+            .select_related("project")
         )
 
 
@@ -43,7 +43,6 @@ class ProjectList(ListView):
             super()
             .get_queryset()
             .filter(pk__in=self.request.user.projects.values_list("pk"))
-            .select_related("org")
         )
 
 
@@ -57,5 +56,5 @@ class WorkspaceList(ListView):
             super()
             .get_queryset()
             .filter(project__in=self.request.user.projects.all())
-            .select_related("project", "project__org")
+            .select_related("project")
         )

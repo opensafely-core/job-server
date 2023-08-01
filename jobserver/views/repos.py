@@ -98,7 +98,7 @@ class SignOffRepo(TemplateView):
         self.repo = get_object_or_404(Repo, url=unquote(self.kwargs["repo_url"]))
 
         self.workspaces = self.repo.workspaces.select_related(
-            "created_by", "project", "project__org"
+            "created_by", "project"
         ).order_by("name")
 
         # is the user a member of any of the workspace's Projects?

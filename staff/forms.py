@@ -236,7 +236,6 @@ class ResearcherRegistrationEditForm(forms.ModelForm):
 class UserCreateForm(forms.Form):
     project = forms.ModelChoiceField(
         queryset=Project.objects.filter(workspaces__name__endswith="interactive")
-        .select_related("org")
         .distinct()
         .order_by(Lower("org__name"), Lower("name"))
     )

@@ -34,7 +34,6 @@ class ProjectReleaseList(View):
                 "created_by",
                 "workspace",
                 "workspace__project",
-                "workspace__project__org",
             )
             .prefetch_related(
                 Prefetch("files", queryset=ReleaseFile.objects.order_by("name"))

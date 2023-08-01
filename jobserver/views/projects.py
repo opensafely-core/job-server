@@ -123,9 +123,7 @@ class ProjectDetail(View):
 
         return (
             Snapshot.objects.filter(pk__in=snapshot_pks)
-            .select_related(
-                "workspace", "workspace__project", "workspace__project__org"
-            )
+            .select_related("workspace", "workspace__project")
             .order_by("-publish_requests__decision_at")
         )
 
