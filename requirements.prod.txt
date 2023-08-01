@@ -822,9 +822,9 @@ slack-sdk==3.21.3 \
     --hash=sha256:20829bdc1a423ec93dac903470975ebf3bc76fd3fd91a4dadc0eeffc940ecb0c \
     --hash=sha256:de3c07b92479940b61cd68c566f49fbc9974c8f38f661d26244078f3903bb9cc
     # via -r requirements.prod.in
-slippers==0.6.1 \
-    --hash=sha256:8a7104d7dc076a89ccf7f58e1b8c769adaf7da72ef9dfcbccb1fb1fb71f9b452 \
-    --hash=sha256:da7a51e7bead0e5d0d4ce80db64db094583674f2a511ece37e3f6a37e7203adf
+slippers==0.6.2 \
+    --hash=sha256:4cb555b8822ba0d404e5405723f5d723994022c29046008ee917081031bc0cf1 \
+    --hash=sha256:739e05f85354becbf0a65daab831eea62557d89e7512042209ab629af4378bca
     # via -r requirements.prod.in
 social-auth-app-django==5.2.0 \
     --hash=sha256:0347ca4cd23ea9d15a665da9d22950552fb66b95600e6c2ebae38ca883b3a4ed \
