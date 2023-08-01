@@ -8,23 +8,26 @@ from services.sentry import parse
 
 @pytest.fixture
 def event():
-    path = pathlib.Path(__file__).parent.resolve() / "sentry_event.json"
+    def loader(name="sentry_event.json"):
+        path = pathlib.Path(__file__).parent.resolve() / name
 
-    return json.load(path.open("r"))
+        return json.load(path.open("r"))
+
+    return loader
 
 
-def test_parse(monkeypatch, event):
+def test_parse_with_envvar(monkeypatch, event):
     monkeypatch.setenv("GITHUB_WRITEABLE_TOKEN", "ghp_testing")
+
+    data = event()
 
     # confirm our test data is correct
     assert (
         "ghp_testing"
-        in event["exception"]["values"][0]["stacktrace"]["frames"][0]["vars"][
-            "analysis"
-        ]
+        in data["exception"]["values"][0]["stacktrace"]["frames"][0]["vars"]["analysis"]
     )
 
-    output = parse(event)
+    output = parse(data)
 
     assert (
         "ghp_testing"
@@ -32,3 +35,13 @@ def test_parse(monkeypatch, event):
             "analysis"
         ]
     )
+
+
+def test_parse_without_envvar(event):
+    # confirm the function is a no-op when there's nothing to change
+
+    data1 = event("sentry_event.json")
+    data2 = event("sentry_event2.json")
+
+    assert parse(data1) == data1
+    assert parse(data2) == data2
