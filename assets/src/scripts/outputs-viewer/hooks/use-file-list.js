@@ -31,7 +31,12 @@ export function sortedFiles(files) {
     enCollator.compare(a.name.toUpperCase(), b.name.toUpperCase()),
   );
 
-  if (filesSorted.length < 2) return filesSorted;
+  if (filesSorted.length < 2) {
+    return filesSorted.map((file) => ({
+      ...file,
+      shortName: file.name,
+    }));
+  }
 
   const prefix = longestSubStr(filesSorted);
 
