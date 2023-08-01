@@ -2,7 +2,7 @@ import PropTypes from "prop-types";
 import React from "react";
 
 function Text({ data }) {
-  return <pre className="txt">{data}</pre>;
+  return <pre className="whitespace-break-spaces break-words">{data}</pre>;
 }
 
 export default Text;

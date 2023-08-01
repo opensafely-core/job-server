@@ -1,8 +1,8 @@
 import { useMutation } from "@tanstack/react-query";
 import React from "react";
-import { Button } from "react-bootstrap";
 import { datasetProps } from "../../utils/props";
 import { toastDismiss, toastError } from "../../utils/toast";
+import Button from "./Button";
 
 function PublishButton({ csrfToken, publishUrl }) {
   const toastId = "PublishButton";

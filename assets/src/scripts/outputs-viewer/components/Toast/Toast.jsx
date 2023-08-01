@@ -2,18 +2,6 @@ import React from "react";
 import toast, { Toaster, ToastBar } from "react-hot-toast";
 
 function Toast() {
-  function getStyles(type) {
-    if (type === "error") {
-      return "danger";
-    }
-
-    if (type === "success") {
-      return "success";
-    }
-
-    return "secondary";
-  }
-
   return (
     <Toaster
       position="top-right"
@@ -37,20 +25,21 @@ function Toast() {
       }}
     >
       {(t) => (
-        <ToastBar toast={t}>
+        <ToastBar id="ToastBar" toast={t}>
           {({ icon, message }) => (
             <>
               {icon}
               {message}
               {t.type !== "loading" && (
                 <button
-                  className={`btn btn-sm ml-2 btn-outline-${getStyles(t.type)}`}
+                  className="border border-current rounded p-1 hover:bg-current hover:fill-white"
                   onClick={() => toast.dismiss(t.id)}
                   type="button"
                 >
                   <span className="sr-only">Dismiss</span>
                   <svg
-                    fill="currentColor"
+                    className="h-4 w-4"
+                    fill="currentFill"
                     viewBox="0 0 20 20"
                     width="12"
                     xmlns="http://www.w3.org/2000/svg"
