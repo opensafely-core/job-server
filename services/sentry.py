@@ -35,6 +35,9 @@ def initialise_sentry():  # pragma: no cover
 
 
 def parse(data):
+    if data is None:
+        return
+
     if isinstance(data, bool | int):
         return data
 
@@ -44,7 +47,7 @@ def parse(data):
 
     if isinstance(data, list):
         for i, item in enumerate(data):
-            parse(item)
+            data[i] = parse(item)
 
     # tokens with values we want to strip
     tokens = [
@@ -70,4 +73,7 @@ def parse(data):
 
 
 def strip_sensitive_data(event, hint):  # pragma: no cover
-    return parse(event)
+    try:
+        return parse(event)
+    except Exception:
+        logger.exception()
