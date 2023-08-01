@@ -23,23 +23,7 @@ const createTestQueryClient = () =>
     },
   });
 
-export function renderWithClient(ui) {
-  const testQueryClient = createTestQueryClient();
-  const { rerender, ...result } = render(
-    <QueryClientProvider client={testQueryClient}>{ui}</QueryClientProvider>,
-  );
-  return {
-    ...result,
-    rerender: (rerenderUi) =>
-      rerender(
-        <QueryClientProvider client={testQueryClient}>
-          {rerenderUi}
-        </QueryClientProvider>,
-      ),
-  };
-}
-
-export function createWrapper() {
+function createWrapper() {
   const testQueryClient = createTestQueryClient();
   return ({ children }) => (
     <HistoryRouter history={history}>

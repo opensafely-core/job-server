@@ -1,5 +1,6 @@
 export const csvFile = {
   name: "emis/data-001.csv",
+  shortName: "data-001.csv",
   id: "abc1",
   url: "/api/v2/releases/file/abc1",
   user: "exampleuser",
@@ -11,6 +12,7 @@ export const csvFile = {
 
 export const pngFile = {
   name: "emis/image-001.png",
+  shortName: "image-001.png",
   id: "abc2",
   url: "/api/v2/releases/file/abc2",
   user: "exampleuser",
@@ -22,6 +24,7 @@ export const pngFile = {
 
 export const txtFile = {
   name: "emis/text-001.txt",
+  shortName: "text-001.txt",
   id: "abc3",
   url: "/api/v2/releases/file/abc3",
   user: "exampleuser",
@@ -33,6 +36,7 @@ export const txtFile = {
 
 export const htmlFile = {
   name: "emis/webpage-001.html",
+  shortName: "webpage-001.html",
   id: "abc4",
   url: "/api/v2/releases/file/abc4",
   user: "exampleuser",
@@ -44,6 +48,7 @@ export const htmlFile = {
 
 export const jsFile = {
   name: "emis/javascript-001.js",
+  shortName: "javascript-001.js",
   id: "abc5",
   url: "/api/v2/releases/file/abc5",
   user: "exampleuser",
@@ -55,6 +60,7 @@ export const jsFile = {
 
 export const jsonFile = {
   name: "emis/json-001.json",
+  shortName: "json-001.json",
   id: "abc6",
   url: "/api/v2/releases/file/abc6",
   user: "exampleuser",
@@ -68,6 +74,7 @@ export const fileList = [csvFile, pngFile, txtFile, htmlFile];
 
 export const blankFile = {
   name: "",
+  shortName: "",
   id: "",
   url: "",
   user: "",

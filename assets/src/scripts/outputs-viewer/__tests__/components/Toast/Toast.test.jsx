@@ -1,9 +1,8 @@
-import userEvent from "@testing-library/user-event";
 import React from "react";
 import toast from "react-hot-toast";
-import { afterEach, describe, expect, it, vi } from "vitest";
+import { afterEach, describe, expect, it } from "vitest";
 import Toast from "../../../components/Toast/Toast";
-import { render, screen, act } from "../../test-utils";
+import { act, fireEvent, render, screen, waitFor } from "../../test-utils";
 
 describe("<Toast />", () => {
   afterEach(() => {
@@ -12,54 +11,39 @@ describe("<Toast />", () => {
     });
   });
 
-  it("displays the default toast", async () => {
-    toast("This is a notification");
+  it("displays and dismisses the default toast", async () => {
+    const str = "This is a notification";
+    toast(str);
     render(<Toast />);
 
-    expect(screen.getByRole("status").textContent).toBe(
-      "This is a notification",
-    );
-    expect(
-      screen.getByRole("button").classList.contains("btn-outline-secondary"),
-    ).toBe(true);
+    expect(screen.getByRole("status").textContent).toBe(str);
+    fireEvent.click(screen.getByRole("button"));
+    await waitFor(() => {
+      expect(screen.queryByText(str)).not.toBeInTheDocument();
+    });
   });
 
-  it("displays the danger toast", async () => {
-    toast.error("This is an error");
+  it("displays and dismisses the danger toast", async () => {
+    const str = "This is an error";
+    toast.error(str);
     render(<Toast type="error" />);
 
-    expect(screen.getByRole("status").textContent).toBe("This is an error");
-    expect(
-      screen.getByRole("button").classList.contains("btn-outline-danger"),
-    ).toBe(true);
+    expect(screen.getByRole("status").textContent).toBe(str);
+    fireEvent.click(screen.getByRole("button"));
+    await waitFor(() => {
+      expect(screen.queryByText(str)).not.toBeInTheDocument();
+    });
   });
 
-  it("displays the success toast", async () => {
-    toast.success("This is a success");
+  it("displays and dismisses the success toast", async () => {
+    const str = "This is a success";
+    toast.success(str);
     render(<Toast type="success" />);
 
-    expect(screen.getByRole("status").textContent).toBe("This is a success");
-    expect(
-      screen.getByRole("button").classList.contains("btn-outline-success"),
-    ).toBe(true);
-  });
-
-  it("dismisses the toast", async () => {
-    const user = userEvent.setup();
-
-    toast("This is a notification");
-    render(<Toast />);
-
-    vi.spyOn(toast, "dismiss").mockImplementation();
-
-    expect(screen.getByRole("status").textContent).toBe(
-      "This is a notification",
-    );
-    expect(
-      screen.getByRole("button").classList.contains("btn-outline-secondary"),
-    ).toBe(true);
-
-    await user.click(screen.getByRole("button"));
-    expect(toast.dismiss).toHaveBeenCalledTimes(1);
+    expect(screen.getByRole("status").textContent).toBe(str);
+    fireEvent.click(screen.getByRole("button"));
+    await waitFor(() => {
+      expect(screen.queryByText(str)).not.toBeInTheDocument();
+    });
   });
 });

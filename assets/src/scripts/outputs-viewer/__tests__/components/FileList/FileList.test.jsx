@@ -8,14 +8,13 @@ import props from "../../helpers/props";
 import { render, screen, waitFor, history } from "../../test-utils";
 
 function FileListWrapper() {
-  const [listVisible, setListVisible] = useState(false);
+  const [listVisible, setListVisible] = useState(true);
   const [_, setSelectedFile] = useState(false);
   return (
     <FileList
       authToken={props.authToken}
       filesUrl={props.filesUrl}
       listVisible={listVisible}
-      setListVisible={setListVisible}
       setSelectedFile={setSelectedFile}
     />
   );
@@ -33,12 +32,12 @@ describe("<FileList />", () => {
   it("returns error state for network error", async () => {
     console.error = vi.fn();
 
-    fetch.mockRejectOnce(new Error("Failed to connect"));
+    fetch.mockReject(new Error("Failed to connect"));
 
     render(<FileListWrapper />);
 
     await waitFor(() =>
-      expect(screen.getByText("Error: Unable to load files")).toBeVisible(),
+      expect(screen.getByText("Unable to load files")).toBeVisible(),
     );
   });
 
@@ -49,7 +48,7 @@ describe("<FileList />", () => {
     await waitFor(() => {
       expect(screen.queryAllByRole("listitem").length).toBe(fileList.length);
       expect(screen.queryAllByRole("listitem")[0].textContent).toBe(
-        fileList[0].name,
+        fileList[0].shortName,
       );
     });
   });
@@ -62,7 +61,7 @@ describe("<FileList />", () => {
     await waitFor(() => {
       expect(screen.queryAllByRole("listitem").length).toBe(fileList.length);
       expect(screen.queryAllByRole("listitem")[0].textContent).toBe(
-        fileList[0].name,
+        fileList[0].shortName,
       );
     });
 
@@ -80,74 +79,19 @@ describe("<FileList />", () => {
     await waitFor(() => {
       expect(screen.queryAllByRole("listitem").length).toBe(fileList.length);
       expect(screen.queryAllByRole("listitem")[0].textContent).toBe(
-        fileList[0].name,
+        fileList[0].shortName,
       );
     });
 
-    await user.click(screen.getByText(csvFile.name));
+    await user.click(screen.getByText(csvFile.shortName));
     expect(history.location.pathname).toBe(`/${csvFile.name}`);
 
-    await user.click(screen.getByText(csvFile.name));
+    await user.click(screen.getByText(csvFile.shortName));
     await expect(history.location.pathname).toBe(`/${csvFile.name}`);
     expect(history.index).toBe(2);
 
-    await user.click(screen.getByText(csvFile.name));
+    await user.click(screen.getByText(csvFile.shortName));
     expect(history.location.pathname).toBe(`/${csvFile.name}`);
     expect(history.index).toBe(2);
-  });
-
-  it("sets the FileList height", async () => {
-    fetch.mockResponseOnce(JSON.stringify({ files: fileList }));
-    const { container } = render(<FileListWrapper />);
-
-    await waitFor(() => {
-      expect(screen.queryAllByRole("listitem").length).toBe(fileList.length);
-      expect(screen.queryAllByRole("listitem")[0].textContent).toBe(
-        fileList[0].name,
-      );
-    });
-
-    const fixedSizeList = container.querySelector(".card > div");
-    expect(window.getComputedStyle(fixedSizeList, null).height).toBe("738px");
-
-    window.resizeTo(500, 500);
-
-    await waitFor(() =>
-      expect(window.getComputedStyle(fixedSizeList, null).height).toBe("570px"),
-    );
-  });
-
-  it("adds 17px to list height for horizontal scrollbar", async () => {
-    fetch.mockResponseOnce(
-      JSON.stringify({
-        files: [
-          csvFile,
-          {
-            ...pngFile,
-            name: "thisIsAReallyLongNameToAddAHorizontalScrollbar",
-          },
-        ],
-      }),
-    );
-
-    const { container } = render(<FileListWrapper />);
-
-    await waitFor(() => {
-      expect(screen.queryAllByRole("listitem").length).toBe(2);
-      expect(screen.queryAllByRole("listitem")[0].textContent).toBe(
-        csvFile.name,
-      );
-    });
-
-    window.resizeTo(500, 500);
-    const fixedSizeList = container.querySelector(".card > div");
-    vi.spyOn(fixedSizeList, "clientWidth", "get").mockImplementation(() => 100);
-    vi.spyOn(fixedSizeList, "scrollWidth", "get").mockImplementation(
-      () => 1000,
-    );
-
-    await waitFor(() =>
-      expect(window.getComputedStyle(fixedSizeList, null).height).toBe("553px"),
-    );
   });
 });
