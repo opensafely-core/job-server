@@ -6,9 +6,13 @@ import Link from "../Link";
 function NoPreview({ error, fileUrl }) {
   return (
     <>
-      {error ? <p>Error: {error.message}</p> : null}
-      <p className="mb-3">We cannot show a preview of this file.</p>
-      <p>
+      {error ? (
+        <p>Error: Unable to load file</p>
+      ) : (
+        <p>We cannot show a preview of this file.</p>
+      )}
+
+      <p className="mt-3">
         <Link href={fileUrl} newTab>
           Open file in a new tab &#8599;
         </Link>
