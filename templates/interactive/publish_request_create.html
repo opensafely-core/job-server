@@ -7,7 +7,6 @@
 
   {% #breadcrumbs %}
     {% breadcrumb title="Home" url=home_url %}
-    {% breadcrumb title=analysis_request.project.org.name url=analysis_request.project.org.get_absolute_url location="Organisation" %}
     {% breadcrumb title=analysis_request.project.name url=analysis_request.project.get_absolute_url location="Project" %}
     {% breadcrumb title=analysis_request.title url=analysis_request.get_absolute_url location="Analysis" %}
     {% breadcrumb title="Publish analysis report" active=True %}
