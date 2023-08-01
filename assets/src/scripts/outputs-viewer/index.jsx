@@ -12,6 +12,10 @@ Sentry.init({
 const element = document.getElementById("outputsSPA");
 const root = createRoot(element);
 
+if (document.getElementById("content")) {
+  document.getElementById("content").remove();
+}
+
 root.render(
   <React.StrictMode>
     <BrowserRouter basename={element.dataset.basePath}>

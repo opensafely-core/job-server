@@ -1,92 +1,70 @@
-{% extends "base.html" %}
+{% extends "base-tw.html" %}
 
 {% block metatitle %}Snapshot: {{ snapshot.id }} | OpenSAFELY Jobs{% endblock metatitle %}
 
 {% block breadcrumbs %}
-<nav class="breadcrumb-container" aria-label="breadcrumb">
-  <div class="container">
-    <ol class="breadcrumb rounded-0 mb-0 px-0">
-      <li class="breadcrumb-item">
-        <a href="/">Home</a>
-      </li>
+  {% #breadcrumbs %}
+    {% url 'home' as home_url %}
+    {% breadcrumb title="Home" url=home_url %}
+    {% breadcrumb location="Project" title=snapshot.workspace.project.name url=snapshot.workspace.project.get_absolute_url %}
+    {% breadcrumb location="Workspace" title=snapshot.workspace.name url=snapshot.workspace.get_absolute_url %}
+    {% breadcrumb title="Outputs" url=snapshot.workspace.get_releases_url %}
+    {% breadcrumb title=snapshot.id active=True %}
+  {% /breadcrumbs %}
 
-      <li class="breadcrumb-item">
-        <a href="{{ snapshot.workspace.project.org.get_absolute_url }}">
-          {{ snapshot.workspace.project.org.name }}
-        </a>
-      </li>
-
-      <li class="breadcrumb-item">
-        <a href="{{ snapshot.workspace.project.get_absolute_url }}">
-          {{ snapshot.workspace.project.title }}
-        </a>
-      </li>
-
-      <li class="breadcrumb-item">
-        <a href="{{ snapshot.workspace.get_absolute_url }}">
-          {{ snapshot.workspace.name }}
-        </a>
-      </li>
-
-      <li class="breadcrumb-item">
-        <a href="{{ snapshot.workspace.get_outputs_url }}">
-          Outputs
-        </a>
-      </li>
-
-      <li class="breadcrumb-item active" aria-current="page">
-        {{ snapshot.id }}
-      </li>
-    </ol>
-  </div>
-</nav>
 {% endblock breadcrumbs %}
 
-{% block jumbotron %}
-{% if request.user.is_anonymous %}
-  <div class="jumbotron jumbotron-fluid mb-0">
-    <div class="container">
-      <h1>Published outputs from {{ snapshot.workspace.name }}</h1>
-      <p class="lead prose-width">
-        Published by {{ publish_request.decision_by.name }} on
-        {{ publish_request.decision_at|date:"D jS M Y" }} at {{ publish_request.decision_at|date:"H:i" }}
-      </p>
-      <a class="btn btn btn-success" href="{{ snapshot.get_download_url }}">
-        Download
-      </a>
+{% block full_width_content %}
+  {% if request.user.is_anonymous %}
+    <div class="bg-bn-sun-300 py-8">
+      <div class="container">
+        <h1 class="text-3xl break-words pt-2 md:pt-0 md:text-4xl font-bold text-slate-900">
+          Published outputs from {{ snapshot.workspace.name }}
+        </h1>
+        <div class="text-slate-800 flex flex-col items-start gap-y-3 max-w-prose">
+          <p class="mt-1">
+            Published by
+            <strong>{{ publish_request.decision_by.name }}</strong>
+            on
+            <strong>{{ publish_request.decision_at|date:"D jS M Y" }} at {{ publish_request.decision_at|date:"H:i" }}</strong>
+          </p>
+          {% #button variant="primary" type="link" href=snapshot.get_download_url %}
+            Download
+          {% /button %}
+        </div>
+      </div>
     </div>
-  </div>
-{% endif %}
+  {% endif %}
 
-{% if request.user.is_authenticated %}
-  <div class="jumbotron jumbotron-fluid mb-0 bg-{% if snapshot.is_draft %}warning{% else %}success text-white{% endif %}">
-    <div class="container">
-      <h1>
-        {% if snapshot.is_draft %}Draft{% else %}Published{% endif %}
-        outputs from {{ snapshot.workspace.name }}
-
-        {% if snapshot.is_draft %}
-          <span class="badge badge-secondary">Draft</span>
-        {% endif %}
-      </h1>
-      <p class="lead">You can see these outputs because you have been assigned the ProjectCollaborator role.</p>
-      <p class="prose-width">
-        {% if snapshot.is_draft %}
-          Prepared for publishing by {{ snapshot.created_by.name }} on
-          {{ snapshot.created_at|date:"D jS M Y" }} at {{ snapshot.created_at|date:"H:i" }}
-        {% else %}
-          Published by {{ publish_request.decision_by.name }} on
-          {{ publish_request.decision_at|date:"D jS M Y" }} at {{ publish_request.decision_at|date:"H:i" }}
-        {% endif %}
-      </p>
-      <a class="btn btn btn-{% if snapshot.is_draft %}success{% else %}light{% endif %}" href="{{ snapshot.get_download_url }}">
-        Download
-      </a>
+  {% if request.user.is_authenticated %}
+    <div class="py-8 {% if snapshot.is_draft %}bg-bn-sun-300{% else %}bg-green-200{% endif %}">
+      <div class="container">
+        <h1 class="text-3xl break-words pt-2 md:pt-0 md:text-4xl font-bold text-slate-900">
+          {% if snapshot.is_draft %}Draft{% else %}Published{% endif %}
+          outputs from {{ snapshot.workspace.name }}
+        </h1>
+        <div class="text-slate-800 flex flex-col items-start gap-y-3 max-w-prose">
+          <p class="mt-1">
+            {% if snapshot.is_draft %}
+              Prepared for publishing by
+              <strong>{{ release.created_by.name }}</strong>
+              on
+              <strong>{{ snapshot.created_at|date:"j M Y" }} at {{ snapshot.created_at|date:"H:i" }}</strong>
+            {% else %}
+              Published by
+              <strong>{{ publish_request.decision_by.name }}</strong>
+              on
+              <strong>{{ publish_request.decision_at|date:"j M Y" }} at {{ publish_request.decision_at|date:"H:i" }}</strong>
+            {% endif %}
+          </p>
+          <p>You can see these outputs because you have been assigned the <strong>ProjectCollaborator</strong> role.</p>
+          {% #button variant="primary" type="link" href=snapshot.get_download_url %}
+            Download
+          {% /button %}
+        </div>
+      </div>
     </div>
-  </div>
-{% endif %}
-{% endblock jumbotron %}
+  {% endif %}
 
-{% block content %}
-{% include "outputs-spa.html" %}
-{% endblock %}
+  {% include "outputs-spa.html" %}
+{% endblock full_width_content %}

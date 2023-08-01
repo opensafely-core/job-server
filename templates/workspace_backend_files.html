@@ -1,66 +1,43 @@
-{% extends "base.html" %}
+{% extends "base-tw.html" %}
 
 {% block metatitle %}Level 4 outputs: {{ workspace.name }} | OpenSAFELY Jobs{% endblock metatitle %}
 
 {% block breadcrumbs %}
-<nav class="breadcrumb-container" aria-label="breadcrumb">
-  <div class="container">
-    <ol class="breadcrumb rounded-0 mb-0 px-0">
-      <li class="breadcrumb-item">
-        <a href="/">Home</a>
-      </li>
-
-      <li class="breadcrumb-item">
-        <a href="{{ workspace.project.org.get_absolute_url }}">
-          {{ workspace.project.org.name }}
-        </a>
-      </li>
-
-      <li class="breadcrumb-item">
-        <a href="{{ workspace.project.get_absolute_url }}">
-          {{ workspace.project.title }}
-        </a>
-      </li>
-
-      <li class="breadcrumb-item">
-        <a href="{{ workspace.get_absolute_url }}">
-          {{ workspace.name }}
-        </a>
-      </li>
-
-      <li class="breadcrumb-item">
-        <a href="{{ workspace.get_files_url }}">
-          Files
-        </a>
-      </li>
-
-      <li class="breadcrumb-item active" aria-current="page">
-        {{ backend.name }} Files
-      </li>
-    </ol>
-  </div>
-</nav>
+  {% #breadcrumbs %}
+    {% url 'home' as home_url %}
+    {% breadcrumb title="Home" url=home_url %}
+    {% breadcrumb location="Project" title=workspace.project.title url=workspace.project.get_absolute_url %}
+    {% breadcrumb location="Workspace" title=workspace.name url=workspace.get_absolute_url %}
+    {% breadcrumb title="Files" url=workspace.get_files_url %}
+    {% breadcrumb title=backend.name|add:" files" active=True %}
+  {% /breadcrumbs %}
 {% endblock breadcrumbs %}
 
-{% block jumbotron %}
-<div class="jumbotron jumbotron-fluid bg-danger text-white mb-0">
-  <div class="container">
-    <h1>Level 4 outputs from {{ workspace.name }}</h1>
-    <p class="lead prose-width">
-      Medium privacy (Level 4) files currently on <strong>{{ backend.name }}</strong>
-      in the <strong>{{ workspace.name }}</strong> workspace.
-    </p>
-    <p>
-      You can see these outputs because you have access to the Level 4 environment on the
-      {{ backend.name }} backend and have been assigned the ProjectDeveloper role.
-    </p>
-    <a class="btn disabled" aria-disabled="true" title="You cannot download files from the level 4, you must go through the release process first">
-      Download
-    </a>
-  </div>
-</div>
-{% endblock jumbotron %}
+{% block full_width_content %}
+  <div class="bg-bn-ribbon-200 py-8">
+    <div class="container">
+      <h1 class="text-3xl break-words pt-2 md:pt-0 md:text-4xl font-bold text-slate-900">
+        Level 4 outputs from {{ workspace.name }}
+      </h1>
+      <div class="text-slate-800 flex flex-col items-start gap-y-3 max-w-prose">
+        <p class="mt-2">
+          Medium privacy (Level 4) files currently on
+          <strong>{{ backend.name }}</strong>
+          in the
+          <strong>{{ workspace.name }}</strong>
+          workspace.
+        </p>
+        <p>
+          You can see these outputs because you have access to the Level 4 environment on the
+          {{ backend.name }} backend and have been assigned the ProjectDeveloper role.
+        </p>
+        <p class="text-sm font-bold">
+          You cannot download files from the level 4, you must go through the release process first.
+        </p>
+      </div>
 
-{% block content %}
-{% include "outputs-spa.html" %}
+    </div>
+  </div>
+
+  {% include "outputs-spa.html" %}
 {% endblock %}
