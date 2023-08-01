@@ -21,8 +21,8 @@ function Metadata({ fileDate, fileName, fileSize, fileUrl }) {
   };
 
   return (
-    <ul className="flex flex-row gap-x-2 items-center w-full">
-      <li className="mr-auto">
+    <ul className="flex flex-row gap-2 items-center w-full flex-wrap">
+      <li className="mr-auto pr-4">
         <Link
           className={`
             font-semibold text-oxford-600 underline underline-offset-2 decoration-oxford-300 transition-colors duration-200
@@ -37,7 +37,7 @@ function Metadata({ fileDate, fileName, fileSize, fileUrl }) {
         </Link>
       </li>
       {fileDateValue() && (
-        <li className="font-mono text-sm">
+        <li className="font-mono text-sm flex-1 whitespace-nowrap">
           <div className="sr-only">Last modified at: </div>
           <time
             className=""
@@ -48,7 +48,9 @@ function Metadata({ fileDate, fileName, fileSize, fileUrl }) {
           </time>
         </li>
       )}
-      <li className="font-mono text-sm">{prettyFileSize(fileSize)}</li>
+      <li className="font-mono text-sm flex-1 whitespace-nowrap">
+        {prettyFileSize(fileSize)}
+      </li>
     </ul>
   );
 }
