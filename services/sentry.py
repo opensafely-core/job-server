@@ -73,4 +73,7 @@ def parse(data):
 
 
 def strip_sensitive_data(event, hint):  # pragma: no cover
-    return parse(event)
+    try:
+        return parse(event)
+    except Exception:
+        logger.exception()
