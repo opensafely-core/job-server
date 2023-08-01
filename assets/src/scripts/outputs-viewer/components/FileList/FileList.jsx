@@ -65,14 +65,14 @@ function FileList({ authToken, filesUrl, listVisible, setSelectedFile }) {
     <div className={listVisible ? "block sticky top-2" : "hidden"}>
       <Filter files={data} listRef={listRef} setFiles={setFiles} />
       <Card
-        className="py-2 px-4 max-h-screen h-full overflow-auto"
+        className="py-2 max-h-screen h-full overflow-auto"
         container={false}
       >
-        <ul className="text-sm text-oxford-600">
+        <ul className="text-sm text-oxford-600 flex flex-col gap-y-1 items-start">
           {files.map((file, index) => (
             <li
               key={file.name}
-              className={`h-6 leading-tight grid items-center ${
+              className={`leading-tight px-4 ${
                 fileIndex === index ? "font-bold text-oxford-800" : ""
               }`}
             >
