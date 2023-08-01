@@ -47,7 +47,7 @@ def parse(data):
 
     if isinstance(data, list):
         for i, item in enumerate(data):
-            parse(item)
+            data[i] = parse(item)
 
     # tokens with values we want to strip
     tokens = [
