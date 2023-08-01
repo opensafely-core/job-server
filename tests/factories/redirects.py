@@ -8,3 +8,5 @@ class RedirectFactory(factory.django.DjangoModelFactory):
         model = Redirect
 
     created_by = factory.SubFactory("tests.factories.UserFactory")
+
+    old_url = "/"

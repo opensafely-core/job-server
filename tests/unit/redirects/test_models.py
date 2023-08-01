@@ -4,12 +4,13 @@ import pytest
 from django.core.exceptions import ValidationError
 from django.db import IntegrityError, models
 from django.urls import reverse
+from django.utils import timezone
 from first import first
 
 from redirects.models import Redirect, validate_not_empty
 
 from ... import factories
-from ...factories import ProjectFactory, RedirectFactory
+from ...factories import ProjectFactory, RedirectFactory, UserFactory
 
 
 def get_factory(model):
@@ -42,6 +43,51 @@ def test_redirect_all_target_objects():
 
     with pytest.raises(IntegrityError):
         RedirectFactory(**kwargs)
+
+
+def test_redirect_constraints_deleted_at_and_deleted_by_both_set():
+    RedirectFactory(
+        project=ProjectFactory(),
+        old_url="/test/",
+        deleted_at=timezone.now(),
+        deleted_by=UserFactory(),
+    )
+
+
+def test_redirect_constraints_deleted_at_and_deleted_by_neither_set():
+    RedirectFactory(
+        project=ProjectFactory(), old_url="/test/", deleted_at=None, deleted_by=None
+    )
+
+
+@pytest.mark.django_db(transaction=True)
+def test_redirect_constraints_deleted_at_and_deleted_by_only_one_set():
+    with pytest.raises(IntegrityError):
+        RedirectFactory(
+            project=ProjectFactory(),
+            old_url="/test/",
+            deleted_at=timezone.now(),
+            deleted_by=None,
+        )
+
+    with pytest.raises(IntegrityError):
+        RedirectFactory(
+            project=ProjectFactory(),
+            old_url="/test/",
+            deleted_at=None,
+            deleted_by=UserFactory(),
+        )
+
+
+def test_redirect_constraints_old_url_empty():
+    with pytest.raises(IntegrityError):
+        RedirectFactory(project=ProjectFactory(), old_url="")
+
+
+@pytest.mark.parametrize("url", ["test", "/test", "test/"])
+def test_redirect_constraints_old_url_has_leading_and_trailing_slashes(url):
+    with pytest.raises(IntegrityError):
+        RedirectFactory(project=ProjectFactory(), old_url=url)
 
 
 def test_redirect_each_target_object():

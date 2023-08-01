@@ -10,7 +10,6 @@ from django.contrib.auth.hashers import check_password, make_password
 from django.contrib.auth.models import AbstractBaseUser, UserManager
 from django.contrib.auth.validators import UnicodeUsernameValidator
 from django.contrib.postgres.fields import ArrayField
-from django.core.validators import validate_slug
 from django.db import models
 from django.db.models import Min, Q, prefetch_related_objects
 from django.urls import reverse
@@ -1103,7 +1102,7 @@ class Workspace(models.Model):
         null=True,
     )
 
-    name = models.TextField(unique=True, validators=[validate_slug])
+    name = models.TextField(unique=True)
     branch = models.TextField()
     is_archived = models.BooleanField(default=False)
     should_notify = models.BooleanField(default=False)
@@ -1139,6 +1138,11 @@ class Workspace(models.Model):
 
     class Meta:
         constraints = [
+            # mirror Django's validate_slug validator into the database
+            models.CheckConstraint(
+                check=Q(name__regex=r"^[-a-zA-Z0-9_]+\Z"),
+                name="name_is_valid",
+            ),
             models.CheckConstraint(
                 check=(
                     Q(
