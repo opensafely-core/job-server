@@ -1,19 +1,44 @@
 import { useQuery } from "@tanstack/react-query";
 import { toastError } from "../utils/toast";
 
-export function sortedFiles(files) {
-  return [
-    ...files
-      .sort((a, b) => {
-        const nameA = a.name.toUpperCase();
-        const nameB = b.name.toUpperCase();
+function longestSubStr(files) {
+  let initialStr = [];
+  let newStr = [];
 
-        if (nameA < nameB) return -1;
-        if (nameA > nameB) return 1;
-        return 0;
-      })
-      .map((file) => ({ ...file })),
-  ];
+  files.map((file, i) => {
+    const splitFileName = file.name.split("/");
+    if (i === 0) {
+      initialStr = [];
+      // eslint-disable-next-line no-return-assign
+      return (initialStr = splitFileName);
+    }
+
+    newStr = [];
+    return splitFileName.map((value, index) => {
+      if (value === initialStr[index]) {
+        return newStr.push(value);
+      }
+      return null;
+    });
+  });
+
+  return newStr.join("/");
+}
+
+export function sortedFiles(files) {
+  const enCollator = new Intl.Collator("en");
+  const filesSorted = [...files].sort((a, b) =>
+    enCollator.compare(a.name.toUpperCase(), b.name.toUpperCase()),
+  );
+
+  if (filesSorted.length < 2) return filesSorted;
+
+  const prefix = longestSubStr(filesSorted);
+
+  return filesSorted.map((file) => ({
+    ...file,
+    shortName: file.name.replace(`${prefix}/`, ""),
+  }));
 }
 
 function useFileList({ authToken, filesUrl }) {
