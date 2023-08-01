@@ -1,47 +1,85 @@
-/* eslint-disable no-restricted-syntax */
+/**
+ * Return a querystring for the selected backend
+ * @returns {string} - query string for backend, or empty string
+ */
+function getBackendValue() {
+  /** @type {HTMLInputElement|null} */
+  const backend = document.querySelector(`#backends input:checked`);
+  return backend?.value ? `?backend=${backend.value}` : ``;
+}
 
-const updateStatuses = (urlBase) => {
-  /**
-   * Update statuses for the current Workspace
-   */
+/**
+ * Fetch the status for the jobs based on the meta tag and backend query string
+ * @returns {Promise<object>} - JSON object containing statuses
+ */
+async function getStatuses() {
+  /** @type {HTMLMetaElement|null} */
+  const apiUrl = document.querySelector(`meta[name="apiUrl"]`);
+  const urlBase = apiUrl?.content;
+  const response = await fetch(`${urlBase}${getBackendValue()}`);
 
-  // if a backend radio button has been checked use it filter the API query
-  const checkedBackends = Array.from(
-    document.getElementsByName("backend"),
-  ).filter((e) => e.checked);
-  let backendQuery = "";
-  if (checkedBackends.length > 0) {
-    backendQuery = `?backend=${checkedBackends[0].value}`;
+  if (!response.ok) {
+    const message = `An error has occurred: ${response.status}`;
+    throw new Error(message);
   }
 
-  const url = `${urlBase}${backendQuery}`;
-  fetch(url)
-    .then((response) => response.json())
-    .then((data) => {
-      const actions = document.querySelectorAll("#actions .card>.card-header");
+  const statuses = await response.json();
+  return statuses;
+}
 
-      // loop the actions we've loaded from GitHub clearing their icon then
-      // setting an icon if we get a status for them
-      for (const action of actions) {
-        // reset status icon
-        const icon = action.querySelector(".status-icon");
-        icon.className = "status-icon";
+/**
+ * Set the visible icon based on the status returned from the API
+ * @param {Element} action - label element for an action
+ * @param {("succeeded"|"failed"|"loading")} status - status returned from the API
+ * @returns {void}
+ */
+function setIcon(action, status) {
+  const parentEl = action.closest(`#jobActions`);
+  const loadingIcon = parentEl?.querySelector(`[data-action-status="loading"]`);
+  const successIcon = parentEl?.querySelector(
+    `[data-action-status="succeeded"]`,
+  );
+  const failedIcon = parentEl?.querySelector(`[data-action-status="failed"]`);
 
-        const actionName = action.querySelector("code").title;
-        const status = data[actionName];
-        if (status) {
-          // the API has a status for this action, update the icon
-          icon.setAttribute("title", status);
-          icon.className = `status-icon ${status}`;
-        }
-      }
-    });
-};
+  if (status === "succeeded") {
+    loadingIcon?.classList.add("hidden");
+    failedIcon?.classList.add("hidden");
+    return successIcon?.classList.remove("hidden");
+  }
 
-const urlBase = document.getElementById("apiUrl").textContent;
+  if (status === "failed") {
+    loadingIcon?.classList.add("hidden");
+    successIcon?.classList.add("hidden");
+    return failedIcon?.classList.remove("hidden");
+  }
 
-// run this on page load
-updateStatuses(urlBase);
+  failedIcon?.classList.add("hidden");
+  successIcon?.classList.add("hidden");
+  return loadingIcon?.classList.remove("hidden");
+}
 
-// poll the backend every 10s
-window.setInterval(updateStatuses, 10000, urlBase);
+async function setActionsStatuses() {
+  const actions = [...document.querySelectorAll(`#jobActions label`)];
+  actions.map((action) => setIcon(action, "loading"));
+
+  const statuses = await getStatuses();
+
+  actions.map((action) => {
+    const actionName = action?.textContent?.trim();
+    const status = actionName ? statuses[actionName] : null;
+    return setIcon(action, status);
+  });
+}
+
+/**
+ * Re-run the function to check the status when the user focusses the tab
+ */
+function handleVisibilityChange() {
+  if (document.visibilityState === "visible") {
+    setActionsStatuses();
+  }
+}
+document.addEventListener("visibilitychange", handleVisibilityChange);
+
+// Find the status on page load
+setActionsStatuses();

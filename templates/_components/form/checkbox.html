@@ -1,0 +1,23 @@
+<label
+  for="{{ id }}"
+  class="w-fit max-w-full flex flex-row gap-x-3 items-start cursor-pointer text-lg group {{ label_class }}"
+>
+  <input
+    {% attrs checked %}
+    class="
+      scale-125 mt-1 ml-1 transition-colors
+      group-hover:bg-oxford-50 group-hover:border-oxford-700
+      group-hover:checked:bg-oxford-600 group-hover:checked:border-oxford-600
+      checked:bg-oxford-600 checked:border-oxford-600
+      focus:ring-0 focus:outline-2 focus:outline-offset-0 focus:outline-yellow-300
+      {{ input_class }}
+    "
+    id="{{ id }}"
+    name="{{ name }}"
+    type="checkbox"
+    value="{{ value }}"
+  >
+  <span class="transition-colors leading-snug group-hover:text-oxford-600 {{ span_class }}">
+    {{ label }}
+  </span>
+</label>
