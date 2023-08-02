@@ -1,81 +1,51 @@
-{% extends "base.html" %}
+{% extends "base-tw.html" %}
 
 {% block metatitle %}Released outputs: {{ release.workspace.name }} | OpenSAFELY Jobs{% endblock metatitle %}
 
 {% block breadcrumbs %}
-<nav class="breadcrumb-container" aria-label="breadcrumb">
-  <div class="container">
-    <ol class="breadcrumb rounded-0 mb-0 px-0">
-      <li class="breadcrumb-item">
-        <a href="/">Home</a>
-      </li>
-
-      <li class="breadcrumb-item">
-        <a href="{{ release.workspace.project.org.get_absolute_url }}">
-          {{ release.workspace.project.org.name }}
-        </a>
-      </li>
-
-      <li class="breadcrumb-item">
-        <a href="{{ release.workspace.project.get_absolute_url }}">
-          {{ release.workspace.project.title }}
-        </a>
-      </li>
-
-      <li class="breadcrumb-item">
-        <a href="{{ release.workspace.get_absolute_url }}">
-          {{ release.workspace.name }}
-        </a>
-      </li>
-
-      <li class="breadcrumb-item">
-        <a href="{{ release.workspace.get_releases_url }}">
-          Releases
-        </a>
-      </li>
-
-      <li class="breadcrumb-item active" aria-current="page">
-        {{ release.id }}
-      </li>
-    </ol>
-  </div>
-</nav>
+  {% #breadcrumbs %}
+    {% url 'home' as home_url %}
+    {% breadcrumb title="Home" url=home_url %}
+    {% breadcrumb location="Project" title=release.workspace.project.name url=release.workspace.project.get_absolute_url %}
+    {% breadcrumb location="Workspace" title=release.workspace.name url=release.workspace.get_absolute_url %}
+    {% breadcrumb title="Releases" url=release.workspace.get_releases_url %}
+    {% breadcrumb title=release.id active=True %}
+  {% /breadcrumbs %}
 {% endblock breadcrumbs %}
 
-{% block jumbotron %}
-<div class="jumbotron jumbotron-fluid bg-warning mb-0">
-  <div class="container">
-    <h1>Released outputs from {{ release.workspace.name }}</h1>
-    <p class="lead prose-width">
-      Released by {{ release.created_by.name }} on
-      {{ release.created_at|date:"D jS M Y" }} at {{ release.created_at|date:"H:i" }}
-    </p>
-    <p>You can see these outputs because you have been assigned the ProjectCollaborator role.</p>
-    <a class="btn btn btn-success" href="{{ release.get_download_url }}">
-      Download all
-    </a>
-  </div>
-</div>
-{% endblock jumbotron %}
-
-{% block content %}
-{% if release.metadata %}
-<div class="container-fluid mb-3">
-  <div class="row">
-    <div class="col">
-      Review details
-      <div>
-        {% for k, v in release.metadata.items %}
-        <span class="mr-3">
-          <strong>{{ k }}:</strong>
-          <span>{{ v }}</span>
-        </span>
-        {% endfor %}
+{% block full_width_content %}
+  <div class="bg-bn-sun-300 py-8">
+    <div class="container">
+      <h1 class="text-3xl break-words pt-2 md:pt-0 md:text-4xl font-bold text-slate-900">
+        Released outputs from {{ release.workspace.name }}
+      </h1>
+      <div class="text-slate-800 flex flex-col items-start gap-y-3 max-w-prose">
+        <p class="mt-1">
+          Released by
+          <strong>{{ release.created_by.name }}</strong>
+          on
+          <strong>{{ release.created_at|date:"j M Y" }} at {{ release.created_at|date:"H:i" }}</strong>
+        </p>
+        <p>You can see these outputs because you have been assigned the ProjectCollaborator role.</p>
+        {% #button variant="primary" type="link" href=release.get_download_url %}
+          Download all
+        {% /button %}
       </div>
+
+      {% if release.metadata %}
+        {% #card title="Review details" class="mt-4 max-w-lg" %}
+          <dl class="border-t border-slate-200 sm:divide-y sm:divide-slate-200">
+            {% for k, v in release.metadata.items %}
+              {% #description_item title=k %}
+                {{ v }}
+              {% /description_item %}
+            {% endfor %}
+          </dl>
+        {% /card %}
+      {% endif %}
+
     </div>
   </div>
-</div>
-{% endif %}
 
-{% include "outputs-spa.html" %}
-{% endblock %}
+  {% include "outputs-spa.html" %}
+{% endblock full_width_content %}

@@ -14,7 +14,7 @@ describe("<App />", () => {
     await waitFor(() => {
       expect(screen.queryAllByRole("listitem").length).toBe(fileList.length);
       expect(screen.queryAllByRole("listitem")[0].textContent).toBe(
-        fileList[0].name,
+        fileList[0].shortName,
       );
     });
 
@@ -32,7 +32,7 @@ describe("<App />", () => {
     await waitFor(() => {
       expect(screen.queryAllByRole("listitem").length).toBe(fileList.length);
       expect(screen.queryAllByRole("listitem")[0].textContent).toBe(
-        fileList[0].name,
+        fileList[0].shortName,
       );
     });
 
@@ -62,7 +62,7 @@ describe("<App />", () => {
     const user = userEvent.setup();
     render(<App {...props} />);
 
-    await screen.findByText(csvFile.name);
+    await screen.findByText(csvFile.shortName);
     await user.click(screen.queryAllByRole("link")[0]);
 
     expect(screen.getByText("Last modified at:")).toBeVisible();

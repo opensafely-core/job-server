@@ -3,7 +3,6 @@ import React from "react";
 import { createRoot } from "react-dom/client";
 import { BrowserRouter } from "react-router-dom";
 import App from "./App";
-import "../../styles/outputs-viewer.scss";
 
 Sentry.init({
   dsn: import.meta.env.VITE_SENTRY_DSN,
@@ -12,6 +11,10 @@ Sentry.init({
 
 const element = document.getElementById("outputsSPA");
 const root = createRoot(element);
+
+if (document.getElementById("content")) {
+  document.getElementById("content").remove();
+}
 
 root.render(
   <React.StrictMode>

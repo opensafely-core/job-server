@@ -1,16 +1,14 @@
 {% load django_vite %}
 
-<div class="container-fluid">
-  <div
-    data-auth-token="{{ auth_token }}"
-    data-base-path="{{ base_path }}"
-    data-csrf-token="{{ csrf_token }}"
-    data-files-url="{{ files_url }}"
-    data-prepare-url="{{ prepare_url }}"
-    data-publish-url="{{ publish_url }}"
-    data-review-url="{{ review_url }}"
-    id="outputsSPA">
-  </div>
+<div
+  data-auth-token="{{ auth_token }}"
+  data-base-path="{{ base_path }}"
+  data-csrf-token="{{ csrf_token }}"
+  data-files-url="{{ files_url }}"
+  data-prepare-url="{{ prepare_url }}"
+  data-publish-url="{{ publish_url }}"
+  data-review-url="{{ review_url }}"
+  id="outputsSPA">
 </div>
 
 {% block extra_js %}

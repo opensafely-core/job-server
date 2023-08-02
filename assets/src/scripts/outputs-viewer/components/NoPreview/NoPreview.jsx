@@ -1,16 +1,21 @@
 import PropTypes from "prop-types";
 import React from "react";
 import { selectedFileProps } from "../../utils/props";
+import Link from "../Link";
 
 function NoPreview({ error, fileUrl }) {
   return (
     <>
-      {error ? <p>Error: {error.message}</p> : null}
-      <p>We cannot show a preview of this file.</p>
-      <p className="mb-0">
-        <a href={fileUrl} rel="noreferrer noopener" target="_blank">
+      {error ? (
+        <p>Error: Unable to load file</p>
+      ) : (
+        <p>We cannot show a preview of this file.</p>
+      )}
+
+      <p className="mt-3">
+        <Link href={fileUrl} newTab>
           Open file in a new tab &#8599;
-        </a>
+        </Link>
       </p>
     </>
   );

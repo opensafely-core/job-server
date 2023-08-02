@@ -1,63 +1,33 @@
-{% extends "base.html" %}
+{% extends "base-tw.html" %}
 
 {% block metatitle %}Latest released outputs: {{ workspace.name }} | OpenSAFELY Jobs{% endblock metatitle %}
 
 {% block breadcrumbs %}
-<nav class="breadcrumb-container" aria-label="breadcrumb">
-  <div class="container">
-    <ol class="breadcrumb rounded-0 mb-0 px-0">
-      <li class="breadcrumb-item">
-        <a href="/">Home</a>
-      </li>
-
-      <li class="breadcrumb-item">
-        <a href="{{ workspace.project.org.get_absolute_url }}">
-          {{ workspace.project.org.name }}
-        </a>
-      </li>
-
-      <li class="breadcrumb-item">
-        <a href="{{ workspace.project.get_absolute_url }}">
-          {{ workspace.project.title }}
-        </a>
-      </li>
-
-      <li class="breadcrumb-item">
-        <a href="{{ workspace.get_absolute_url }}">
-          {{ workspace.name }}
-        </a>
-      </li>
-
-      <li class="breadcrumb-item">
-        <a href="{{ workspace.get_releases_url }}">
-          Releases
-        </a>
-      </li>
-
-      <li class="breadcrumb-item active" aria-current="page">
-        Latest
-      </li>
-    </ol>
-  </div>
-</nav>
+  {% #breadcrumbs %}
+    {% url 'home' as home_url %}
+    {% breadcrumb title="Home" url=home_url %}
+    {% breadcrumb location="Project" title=workspace.project.title url=workspace.project.get_absolute_url %}
+    {% breadcrumb location="Workspace" title=workspace.name url=workspace.get_absolute_url %}
+    {% breadcrumb title="Releases" url=workspace.get_releases_url %}
+    {% breadcrumb title="Latest" active=True %}
+  {% /breadcrumbs %}
 {% endblock breadcrumbs %}
 
-{% block jumbotron %}
-<div class="jumbotron jumbotron-fluid bg-warning mb-0">
-  <div class="container">
-    <h1>Latest outputs from {{ workspace.name }}</h1>
-    <p>
-      The latest version of each output in the {{ workspace.name }} workspace,
-      across all releases.
-    </p>
-    <p>You can see these outputs because you have been assigned the ProjectCollaborator role.</p>
-    <a class="btn btn btn-success" href="{{ workspace.get_latest_outputs_download_url }}">
-      Download all
-    </a>
+{% block full_width_content %}
+  <div class="bg-bn-sun-300 py-8">
+    <div class="container">
+      <h1 class="text-3xl break-words pt-2 md:pt-0 md:text-4xl font-bold text-slate-900">
+        Latest outputs from {{ workspace.name }}
+      </h1>
+      <div class="text-slate-800 flex flex-col items-start gap-y-3 max-w-prose">
+        <p class="mt-2">The latest version of each output in the {{ workspace.name }} workspace, across all releases.</p>
+        <p>You can see these outputs because you have been assigned the <strong>ProjectCollaborator</strong> role.</p>
+        {% #button variant="primary" type="link" href=workspace.get_latest_outputs_download_url %}
+          Download all
+        {% /button %}
+      </div>
+    </div>
   </div>
-</div>
-{% endblock jumbotron %}
 
-{% block content %}
-{% include "outputs-spa.html" %}
-{% endblock %}
+  {% include "outputs-spa.html" %}
+{% endblock full_width_content %}

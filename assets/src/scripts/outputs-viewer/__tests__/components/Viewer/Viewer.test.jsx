@@ -48,7 +48,7 @@ describe("<Viewer />", () => {
       />,
     );
     await waitFor(() =>
-      expect(screen.getByText("Error: Failed to fetch")).toBeVisible(),
+      expect(screen.getByText("Error: Unable to load file")).toBeVisible(),
     );
   });
 

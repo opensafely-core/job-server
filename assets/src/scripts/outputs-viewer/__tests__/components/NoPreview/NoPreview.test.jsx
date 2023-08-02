@@ -18,18 +18,17 @@ describe("<NoPreview />", () => {
   });
 
   it("shows an error message", async () => {
-    const err = { message: "There was an error" };
-    fetch.mockResponseOnce(JSON.stringify());
+    fetch.mockRejectOnce();
 
-    render(<NoPreview error={err} fileUrl={pngFile.url} />);
-
-    await waitFor(
-      () =>
-        expect(screen.getByText("We cannot show a preview of this file."))
-          .toBeVisible,
+    render(
+      <NoPreview
+        error={{ message: "There was an error" }}
+        fileUrl={pngFile.url}
+      />,
     );
+
     await waitFor(
-      () => expect(screen.getByText(`Error: There was an error`)).toBeVisible,
+      () => expect(screen.getByText(`Error: Unable to load file`)).toBeVisible,
     );
   });
 });

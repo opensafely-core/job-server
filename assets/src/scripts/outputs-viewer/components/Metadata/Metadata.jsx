@@ -1,6 +1,7 @@
 import React from "react";
 import prettyFileSize from "../../utils/pretty-file-size";
 import { selectedFileProps } from "../../utils/props";
+import Link from "../Link";
 
 function Metadata({ fileDate, fileName, fileSize, fileUrl }) {
   const fileDateValue = () => {
@@ -20,22 +21,26 @@ function Metadata({ fileDate, fileName, fileSize, fileUrl }) {
   };
 
   return (
-    <ul className="list-inline small text-monospace d-flex flex-column flex-md-row mb-0">
-      <li className="list-inline-item mr-auto">
-        <a
-          className="file-link d-flex"
+    <ul className="flex flex-row gap-2 items-center w-full flex-wrap">
+      <li className="mr-auto pr-4">
+        <Link
+          className={`
+            font-semibold text-oxford-600 underline underline-offset-2 decoration-oxford-300 transition-colors duration-200
+            hover:decoration-transparent hover:text-oxford
+            focus:decoration-transparent focus:text-oxford focus:bg-bn-sun-300
+            after:content-['↗'] after:text-sm after:ml-1 after:absolute after:mt-0.5
+          `}
           href={fileUrl}
-          rel="noreferrer noopener"
-          target="filePreview"
+          newTab
         >
           {fileName}
-        </a>
+        </Link>
       </li>
       {fileDateValue() && (
-        <li className="list-inline-item">
+        <li className="font-mono text-sm text-right flex-1 whitespace-nowrap">
           <div className="sr-only">Last modified at: </div>
           <time
-            className="file-date"
+            className=""
             dateTime={fileDateValue().absolute}
             title={fileDateValue().absolute}
           >
@@ -43,7 +48,9 @@ function Metadata({ fileDate, fileName, fileSize, fileUrl }) {
           </time>
         </li>
       )}
-      <li className="list-inline-item spacer">{prettyFileSize(fileSize)}</li>
+      <li className="font-mono text-sm text-right flex-1 whitespace-nowrap">
+        {prettyFileSize(fileSize)}
+      </li>
     </ul>
   );
 }

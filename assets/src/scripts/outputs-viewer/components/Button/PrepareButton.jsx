@@ -1,9 +1,9 @@
 import { useMutation } from "@tanstack/react-query";
 import React from "react";
-import { Button } from "react-bootstrap";
 import useFileList from "../../hooks/use-file-list";
 import { datasetProps } from "../../utils/props";
 import { toastDismiss, toastError } from "../../utils/toast";
+import Button from "./Button";
 
 function PrepareButton({ authToken, csrfToken, filesUrl, prepareUrl }) {
   const { data: fileList } = useFileList({ authToken, filesUrl });

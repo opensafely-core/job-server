@@ -1,61 +1,21 @@
 import PropTypes from "prop-types";
-import React, { createRef, useEffect, useRef, useState } from "react";
-import { Card } from "react-bootstrap";
-import { useNavigate, useLocation } from "react-router-dom";
-import { FixedSizeList } from "react-window";
+import React, { createRef, useEffect, useState } from "react";
+import { useLocation, useNavigate } from "react-router-dom";
 import useFileList from "../../hooks/use-file-list";
-import useWindowSize from "../../hooks/use-window-size";
 import prettyFileSize from "../../utils/pretty-file-size";
 import { datasetProps } from "../../utils/props";
+import Card from "../Card";
 import Filter from "./Filter";
 
-function FileList({
-  authToken,
-  filesUrl,
-  listVisible,
-  setListVisible,
-  setSelectedFile,
-}) {
+function FileList({ authToken, filesUrl, listVisible, setSelectedFile }) {
   const [files, setFiles] = useState([]);
-  const [listHeight, setListHeight] = useState(0);
   const [fileIndex, setFileIndex] = useState(null);
 
   const { data, isError, isLoading } = useFileList({ authToken, filesUrl });
   const navigate = useNavigate();
   const location = useLocation();
 
-  const windowSize = useWindowSize();
-
-  const listEl = useRef(null);
   const listRef = createRef();
-
-  useEffect(() => {
-    const largeViewport = window.innerWidth > 991;
-    const hasScrollbarX =
-      listEl.current?.clientWidth < listEl.current?.scrollWidth;
-
-    const fileListHeight =
-      // If the viewport height is taller than 600px
-      // Use the viewport height
-      // Otherwise use 600px
-      (window.innerHeight > 600 ? window.innerHeight : 600) -
-      // if the list exists
-      // minus the height from the top of the list
-      // else minus zero
-      (listEl.current?.getBoundingClientRect().top || 0) -
-      // minus 30px for spacing at the bottom
-      30 -
-      // if there are horizontal scrollbars
-      // minus 17px for the scrollbar (magic number)
-      (hasScrollbarX ? 17 : 0);
-
-    if (largeViewport) {
-      setListVisible(true);
-      return setListHeight(fileListHeight);
-    }
-
-    return setListHeight(fileListHeight);
-  }, [files, listVisible, setListVisible, windowSize]);
 
   useEffect(() => {
     const selectedItem = files.findIndex(
@@ -70,21 +30,17 @@ function FileList({
 
   if (isLoading) {
     return (
-      <div className="list card p-2">
-        <ul>
-          <li>Loading…</li>
-        </ul>
-      </div>
+      <Card container>
+        <p>Loading…</p>
+      </Card>
     );
   }
 
   if (isError) {
     return (
-      <div className="list card p-2">
-        <ul>
-          <li>Error: Unable to load files</li>
-        </ul>
-      </div>
+      <Card container header={<h2 className="font-semibold text-lg">Error</h2>}>
+        <p>Unable to load files</p>
+      </Card>
     );
   }
 
@@ -106,42 +62,35 @@ function FileList({
   };
 
   return (
-    <div className={`sidebar ${listVisible ? "d-block" : "d-none"}`}>
-      <Filter files={data} listRef={listRef} setFiles={setFiles} />{" "}
-      <Card className="pt-2">
-        <FixedSizeList
-          ref={listRef}
-          className="list"
-          height={listHeight}
-          innerElementType="ul"
-          itemCount={files.length}
-          itemSize={25}
-          outerRef={listEl}
-          width="100%"
-        >
-          {({ index, style }) => (
+    <div className={listVisible ? "block sticky top-2" : "hidden"}>
+      <Filter files={data} listRef={listRef} setFiles={setFiles} />
+      <Card
+        className="py-2 max-h-screen h-full overflow-auto"
+        container={false}
+      >
+        <ul className="text-sm text-oxford-600 flex flex-col gap-y-1 items-start">
+          {files.map((file, index) => (
             <li
-              className={`list-item ${
-                fileIndex === index && "list-item--selected"
+              key={file.name}
+              className={`leading-tight px-4 ${
+                fileIndex === index ? "font-bold text-oxford-800" : ""
               }`}
-              style={style}
             >
               {fileIndex === index ? (
-                <span>{files[index].name}</span>
+                <span>{file.shortName}</span>
               ) : (
                 <a
-                  className="list-item__link"
-                  disabled={`/${files[index].name}` === location.pathname}
-                  href={files[index].url}
-                  onClick={(e) => selectFile({ e, item: files[index] })}
-                  title={`File size: ${prettyFileSize(files[index].size)}`}
+                  disabled={`/${file.name}` === location.pathname}
+                  href={file.url}
+                  onClick={(e) => selectFile({ e, item: file })}
+                  title={`File size: ${prettyFileSize(file.size)}`}
                 >
-                  {files[index].name}
+                  {file.shortName}
                 </a>
               )}
             </li>
-          )}
-        </FixedSizeList>
+          ))}
+        </ul>
       </Card>
     </div>
   );
@@ -153,6 +102,5 @@ FileList.propTypes = {
   authToken: datasetProps.authToken.isRequired,
   filesUrl: datasetProps.filesUrl.isRequired,
   listVisible: PropTypes.bool.isRequired,
-  setListVisible: PropTypes.func.isRequired,
   setSelectedFile: PropTypes.func.isRequired,
 };
