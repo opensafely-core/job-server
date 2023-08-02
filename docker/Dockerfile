@@ -42,7 +42,7 @@ RUN --mount=type=cache,target=/usr/src/app/.npm \
     npm ci
 
 # just copy in the files `npm run build` needs
-COPY vite.config.js tailwind.config.js postcss.config.js ./
+COPY vite.config.mjs tailwind.config.mjs postcss.config.mjs ./
 COPY assets/src ./assets/src
 COPY templates ./templates
 
