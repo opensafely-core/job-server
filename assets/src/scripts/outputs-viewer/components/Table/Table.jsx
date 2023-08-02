@@ -28,12 +28,12 @@ function Table({ data }) {
   if (jsonData.length >= 1000) {
     return (
       <>
-        <p role="alert">
-          <strong>This is a preview of the first 1000 rows</strong>
+        <p className="font-bold mb-2" role="alert">
+          This is a preview of the first 1000 rows
         </p>
         <div className="flow-root">
-          <div className="-mx-4 -my-2 overflow-x-auto sm:-mx-6 lg:-mx-8">
-            <div className="inline-block min-w-full py-2 align-middle sm:px-6 lg:px-8">
+          <div className="overflow-x-auto">
+            <div className="inline-block min-w-full align-middle">
               <table className="min-w-full divide-y divide-gray-300">
                 <tbody className="divide-y divide-gray-200 bg-white">
                   {jsonData.slice(0, 1000).map((row, i) => (
@@ -50,8 +50,8 @@ function Table({ data }) {
 
   return (
     <div className="flow-root">
-      <div className="-mx-4 -my-2 overflow-x-auto sm:-mx-6 lg:-mx-8">
-        <div className="inline-block min-w-full py-2 align-middle sm:px-6 lg:px-8">
+      <div className="overflow-x-auto">
+        <div className="inline-block min-w-full align-middle">
           <table className="min-w-full divide-y divide-gray-300">
             <tbody className="divide-y divide-gray-200 bg-white">
               {jsonData.map((row, i) => (

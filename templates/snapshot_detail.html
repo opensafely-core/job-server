@@ -17,7 +17,7 @@
 {% block full_width_content %}
   {% if request.user.is_anonymous %}
     <div class="pt-8">
-      <div class="container">
+      <div class="container xl:max-w-screen-xl">
         <h1 class="text-3xl break-words pt-2 md:pt-0 md:text-4xl font-bold text-slate-900">
           Published outputs from {{ snapshot.workspace.name }}
         </h1>
@@ -38,7 +38,7 @@
 
   {% if request.user.is_authenticated %}
     <div class="py-8 {% if snapshot.is_draft %}bg-bn-sun-300{% else %}bg-green-200{% endif %}">
-      <div class="container">
+      <div class="container xl:max-w-screen-xl">
         <h1 class="text-3xl break-words pt-2 md:pt-0 md:text-4xl font-bold text-slate-900">
           {% if snapshot.is_draft %}Draft{% else %}Published{% endif %}
           outputs from {{ snapshot.workspace.name }}
