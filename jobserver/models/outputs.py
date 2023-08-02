@@ -423,6 +423,9 @@ class ReleaseFile(models.Model):
             ),
         ]
 
+    def __str__(self):
+        return f"{self.name} ({self.id})"
+
     def __format__(self, format_spec):
         match format_spec:
             case "b":

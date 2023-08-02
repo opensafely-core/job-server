@@ -290,6 +290,16 @@ def test_releasefile_constraints_missing_deleted_at_or_deleted_by():
         ReleaseFileFactory(deleted_at=timezone.now(), deleted_by=None)
 
 
+def test_releasefile_format():
+    size = 3.2 * 1024 * 1024  # 3.2Mb
+    rfile = ReleaseFileFactory(name="important/research.html", size=size)
+
+    assert f"{rfile:b}" == "3,355,443.2b"
+    assert f"{rfile:Kb}" == "3,276.8Kb"
+    assert f"{rfile:Mb}" == "3.2Mb"
+    assert f"{rfile}".startswith("important/research.html")
+
+
 def test_releasefile_get_absolute_url():
     rfile = ReleaseFileFactory(name="file1.txt")
 
@@ -363,19 +373,14 @@ def test_releasefile_get_api_url_with_is_published():
     )
 
 
+def test_releasefile_str():
+    rfile = ReleaseFileFactory(id="12345", name="important/research.html")
+
+    assert str(rfile) == "important/research.html (12345)"
+
+
 def test_releasefile_ulid():
     assert ReleaseFileFactory().ulid.timestamp
-
-
-def test_releasefile_format():
-    rfile = ReleaseFileFactory()
-    rfile.size = 3.2 * 1024 * 1024  # 3.2Mb
-    rfile.save()
-
-    assert f"{rfile:b}" == "3,355,443.2b"
-    assert f"{rfile:Kb}" == "3,276.8Kb"
-    assert f"{rfile:Mb}" == "3.2Mb"
-    assert f"{rfile}".startswith("ReleaseFile object")
 
 
 @pytest.mark.parametrize("field", ["created_at", "created_by"])
