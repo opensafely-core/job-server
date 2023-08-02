@@ -67,7 +67,7 @@ function App({ authToken, csrfToken, filesUrl, prepareUrl, publishUrl }) {
           <div className="col-span-2 lg:col-span-3">
             {selectedFile && (
               <Card
-                container={!isHtml(selectedFile.name)}
+                container
                 header={
                   <Metadata
                     fileDate={selectedFile.date}
