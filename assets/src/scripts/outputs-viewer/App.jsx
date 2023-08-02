@@ -29,7 +29,7 @@ function App({ authToken, csrfToken, filesUrl, prepareUrl, publishUrl }) {
     <QueryClientProvider client={queryClient}>
       <div className="container py-6">
         <div className="grid gap-6 grid-cols-1 md:grid-cols-3 lg:grid-cols-4">
-          <div className="flex flex-col gap-y-1 col-span-1">
+          <div className="flex flex-col gap-y-1 md:col-span-1">
             {(prepareUrl || publishUrl) && (
               <>
                 {prepareUrl && (
@@ -64,7 +64,7 @@ function App({ authToken, csrfToken, filesUrl, prepareUrl, publishUrl }) {
               setSelectedFile={setSelectedFile}
             />
           </div>
-          <div className="col-span-2 lg:col-span-3">
+          <div className="md:col-span-2 lg:col-span-3">
             {selectedFile && (
               <Card
                 container

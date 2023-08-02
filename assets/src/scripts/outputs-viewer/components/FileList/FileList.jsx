@@ -62,10 +62,10 @@ function FileList({ authToken, filesUrl, listVisible, setSelectedFile }) {
   };
 
   return (
-    <div className={listVisible ? "block sticky top-2" : "hidden"}>
+    <div className={listVisible ? "block md:sticky md:top-2" : "hidden"}>
       <Filter files={data} listRef={listRef} setFiles={setFiles} />
       <Card
-        className="py-2 max-h-screen h-full overflow-auto"
+        className="py-2 md:max-h-screen md:h-full overflow-x-auto md:overflow-y-auto"
         container={false}
       >
         <ul className="text-sm text-oxford-600 flex flex-col gap-y-1 items-start">
