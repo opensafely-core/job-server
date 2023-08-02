@@ -279,7 +279,7 @@ if DJANGO_VITE_DEV_MODE:
         "https://sentry.io",
         "https://*.ingest.sentry.io/",
     ]
-    CSP_FONT_SRC = ["'self'", "data:"]
+    CSP_FONT_SRC = ["http://localhost:5173"]
     CSP_SCRIPT_SRC = CSP_SCRIPT_SRC_ELEM = [
         "'self'",
         "https://plausible.io",
