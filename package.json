@@ -44,6 +44,7 @@
     "window-resizeto": "^0.0.2"
   },
   "dependencies": {
+    "@fontsource/public-sans": "^5.0.5",
     "@headlessui/react": "^1.7.15",
     "@heroicons/react": "^2.0.18",
     "@sentry/react": "^7.60.0",

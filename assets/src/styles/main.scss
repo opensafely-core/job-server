@@ -1,6 +1,9 @@
 @import "variables";
 @import "../../../node_modules/bootstrap/scss/bootstrap";
-@import "fonts";
+@import "../../../node_modules/@fontsource/public-sans/400.css";
+@import "../../../node_modules/@fontsource/public-sans/500.css";
+@import "../../../node_modules/@fontsource/public-sans/600.css";
+@import "../../../node_modules/@fontsource/public-sans/700.css";
 
 body {
   font-family: "Public Sans", -apple-system, BlinkMacSystemFont, "Segoe UI",
