@@ -1,12 +1,14 @@
-const defaultTheme = require("tailwindcss/defaultTheme");
+import tailwindForms from "@tailwindcss/forms";
+import tailwindTypography from "@tailwindcss/typography";
+import { fontFamily } from "tailwindcss/defaultTheme";
 
 /** @type {import('tailwindcss').Config} */
-module.exports = {
+export default {
   content: ["./templates/**/*.html", "./assets/src/scripts/**/*.{js,jsx}"],
   theme: {
     extend: {
       fontFamily: {
-        sans: ["Public Sans", ...defaultTheme.fontFamily.sans],
+        sans: ["Public Sans", ...fontFamily.sans],
       },
       colors: {
         oxford: {
@@ -184,9 +186,9 @@ module.exports = {
     },
   },
   plugins: [
-    require("@tailwindcss/typography"),
-    require("@tailwindcss/forms"),
-    function ({ addBase, theme }) {
+    tailwindTypography,
+    tailwindForms,
+    ({ addBase, theme }) => {
       function extractColorVars(colorObj, colorGroup = "") {
         return Object.keys(colorObj).reduce((vars, colorKey) => {
           const value = colorObj[colorKey];

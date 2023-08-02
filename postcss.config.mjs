@@ -1,7 +1,6 @@
-/* eslint-disable import/no-extraneous-dependencies */
-const path = require("path");
+import path from "node:path";
 
-module.exports = ({ env }) => ({
+export default ({ env }) => ({
   plugins: {
     "postcss-import": {},
     "tailwindcss/nesting": "postcss-nesting",
