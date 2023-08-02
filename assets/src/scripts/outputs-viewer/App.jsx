@@ -9,6 +9,7 @@ import FileList from "./components/FileList/FileList";
 import Metadata from "./components/Metadata/Metadata";
 import Toast from "./components/Toast/Toast";
 import Viewer from "./components/Viewer/Viewer";
+import { isHtml } from "./utils/file-type-match";
 import { datasetProps } from "./utils/props";
 
 const queryClient = new QueryClient({
@@ -66,7 +67,7 @@ function App({ authToken, csrfToken, filesUrl, prepareUrl, publishUrl }) {
           <div className="col-span-2 lg:col-span-3">
             {selectedFile && (
               <Card
-                container
+                container={!isHtml(selectedFile.name)}
                 header={
                   <Metadata
                     fileDate={selectedFile.date}
