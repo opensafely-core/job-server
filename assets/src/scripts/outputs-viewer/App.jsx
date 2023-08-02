@@ -26,27 +26,24 @@ function App({ authToken, csrfToken, filesUrl, prepareUrl, publishUrl }) {
 
   return (
     <QueryClientProvider client={queryClient}>
-      <div className="container py-6">
-        <div className="grid gap-6 grid-cols-1 md:grid-cols-3 lg:grid-cols-4">
-          <div className="flex flex-col gap-y-1 md:col-span-1">
-            {(prepareUrl || publishUrl) && (
-              <>
-                {prepareUrl && (
-                  <PrepareButton
-                    authToken={authToken}
-                    csrfToken={csrfToken}
-                    filesUrl={filesUrl}
-                    prepareUrl={prepareUrl}
-                  />
-                )}
-                {publishUrl && (
-                  <PublishButton
-                    csrfToken={csrfToken}
-                    publishUrl={publishUrl}
-                  />
-                )}
-              </>
+      <div className="py-6">
+        {(prepareUrl || publishUrl) && (
+          <div className="mb-3 -mt-3 px-1 md:px-6">
+            {prepareUrl && (
+              <PrepareButton
+                authToken={authToken}
+                csrfToken={csrfToken}
+                filesUrl={filesUrl}
+                prepareUrl={prepareUrl}
+              />
             )}
+            {publishUrl && (
+              <PublishButton csrfToken={csrfToken} publishUrl={publishUrl} />
+            )}
+          </div>
+        )}
+        <div className="grid gap-6 grid-cols-1 px-1 md:grid-cols-3 md:px-6 lg:grid-cols-4">
+          <div className="flex flex-col gap-y-1 md:col-span-1">
             <Button
               className="block md:hidden mb-3"
               onClick={() => setListVisible(!listVisible)}
