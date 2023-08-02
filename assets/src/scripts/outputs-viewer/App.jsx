@@ -9,7 +9,6 @@ import FileList from "./components/FileList/FileList";
 import Metadata from "./components/Metadata/Metadata";
 import Toast from "./components/Toast/Toast";
 import Viewer from "./components/Viewer/Viewer";
-import { isHtml } from "./utils/file-type-match";
 import { datasetProps } from "./utils/props";
 
 const queryClient = new QueryClient({
