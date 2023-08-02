@@ -27,6 +27,7 @@ function Iframe({ data, fileName, fileUrl }) {
 
   return (
     <iframe
+      className="-mx-4 -my-3 w-[calc(100%+2rem)] md:-mx-6 md:-my-5 md:w-[calc(100%+3rem)]"
       frameBorder="0"
       height={frameHeight}
       id={id}

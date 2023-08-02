@@ -31,14 +31,18 @@ function Table({ data }) {
         <p role="alert">
           <strong>This is a preview of the first 1000 rows</strong>
         </p>
-        <div className="table-responsive">
-          <table className="table table-striped">
-            <tbody>
-              {jsonData.slice(0, 1000).map((row, i) => (
-                <TableRow key={i} row={row} />
-              ))}
-            </tbody>
-          </table>
+        <div className="flow-root">
+          <div className="-mx-4 -my-2 overflow-x-auto sm:-mx-6 lg:-mx-8">
+            <div className="inline-block min-w-full py-2 align-middle sm:px-6 lg:px-8">
+              <table className="min-w-full divide-y divide-gray-300">
+                <tbody className="divide-y divide-gray-200 bg-white">
+                  {jsonData.slice(0, 1000).map((row, i) => (
+                    <TableRow key={i} row={row} />
+                  ))}
+                </tbody>
+              </table>
+            </div>
+          </div>
         </div>
       </>
     );

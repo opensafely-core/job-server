@@ -37,7 +37,7 @@ function Metadata({ fileDate, fileName, fileSize, fileUrl }) {
         </Link>
       </li>
       {fileDateValue() && (
-        <li className="font-mono text-sm text-right flex-1 whitespace-nowrap">
+        <li className="font-mono text-sm text-right whitespace-nowrap">
           <div className="sr-only">Last modified at: </div>
           <time
             className=""
@@ -48,7 +48,7 @@ function Metadata({ fileDate, fileName, fileSize, fileUrl }) {
           </time>
         </li>
       )}
-      <li className="font-mono text-sm text-right flex-1 whitespace-nowrap">
+      <li className="font-mono text-sm text-right whitespace-nowrap ml-4">
         {prettyFileSize(fileSize)}
       </li>
     </ul>
