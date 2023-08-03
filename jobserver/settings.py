@@ -252,7 +252,7 @@ CSP_CONNECT_SRC = [
     "https://sentry.io",
     "https://*.ingest.sentry.io/",
 ]
-CSP_FONT_SRC = ["'self'"]
+CSP_FONT_SRC = ["'self'", "data:"]
 CSP_IMG_SRC = [
     "'self'",
     "blob:",
