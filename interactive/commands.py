@@ -3,9 +3,10 @@ import textwrap
 from django.conf import settings
 from django.db import transaction
 
+from jobserver import commands
 from jobserver.authorization import InteractiveReporter
 from jobserver.github import _get_github_api
-from jobserver.models import OrgMembership, ProjectMembership, Repo, Report, User
+from jobserver.models import OrgMembership, ProjectMembership, Repo, User
 
 
 def create_repo(*, name, get_github_api=_get_github_api):
@@ -46,13 +47,9 @@ def create_repo(*, name, get_github_api=_get_github_api):
 
 @transaction.atomic()
 def create_report(*, analysis_request, rfile, user):
-    report = Report.objects.create(
-        project=rfile.workspace.project,
-        release_file=rfile,
-        title=analysis_request.report_title,
-        description="",
-        created_by=user,
-        updated_by=user,
+    report = commands.create_report(
+        rfile=rfile,
+        user=user,
     )
     analysis_request.report = report
     analysis_request.save(update_fields=["report"])
