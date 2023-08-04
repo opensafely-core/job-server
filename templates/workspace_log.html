@@ -1,5 +1,7 @@
 {% extends "base-tw.html" %}
 
+{% load humanize %}
+{% load querystring_tools %}
 {% load selected_filter %}
 
 {% block metatitle %}Logs: {{ workspace.name }} | OpenSAFELY Jobs{% endblock metatitle %}
@@ -16,64 +18,211 @@
 
 {% block content %}
 {% if workspace.is_archived %}
-  <div class="alert alert-warning text-center mb-0" role="warning">
-    <div class="container">
-      <div class="row">
-        <div class="col">
-          <p>
-            This Workspace has been archived.  Logs are still available but new Jobs can no longer be requested.
-          </p>
-          <p class="mb-0">
-            If you think this has been done in error, please contact an <a href="mailto:team@opensafely.org">admin</a>.
-          </p>
-        </div>
-      </div>
-    </div>
-  </div>
+{% #alert variant="warning" title="Archived Workspace" class="mb-6" %}
+  <p class="text-sm mb-2">
+    This Workspace has been archived.
+    Logs are still available but new Jobs can no longer be requested.
+  </p>
+  <p class="text-sm">
+    If you think this has been done in error,
+    {% link text="contact an admin" href="mailto:team@opensafely.org" append_after="." %}
+  </p>
+{% /alert %}
 {% endif %}
 
-  {% fragment as intro_text %}
-    <p>
-      Below are the logs for each job run in the
-      {% link href=workspace.get_absolute_url text=workspace.name %}
-      workspace of the project
-      {% link href=workspace.project.get_absolute_url text=workspace.project.title append_after="." %}
-      They are grouped based on the actions which were requested.
-    </p>
-  {% endfragment %}
-  {% article_header title=workspace.name text=intro_text %}
+{% fragment as intro_text %}
+  <p>
+    Below are the logs for each job run in the
+    {% link href=workspace.get_absolute_url text=workspace.name %}
+    workspace of the project
+    {% link href=workspace.project.get_absolute_url text=workspace.project.title append_after="." %}
+    They are grouped based on the actions which were requested.
+  </p>
+{% endfragment %}
+{% article_header title=workspace.name text=intro_text %}
 
-  {% #card container=True class="max-w-prose mt-6" %}
-    <form method="GET">
-      {% form_input type="search" custom_field=True label="Search by Job action or ID" id="searchJobLogs" name="q" %}
-      {% #button class="mt-2" type="submit" variant="primary-outline" %}Search{% /button %}
-    </form>
+{% #card container=True class="max-w-prose mt-6 mb-3" %}
+  <form method="GET">
+    {% form_input type="search" custom_field=True label="Search by Job action or ID" id="searchJobLogs" name="q" %}
+    {% #button class="mt-2" type="submit" variant="primary-outline" %}Search{% /button %}
+  </form>
 
-    {% if backends|length > 1 %}
-    <form class="mt-6 pt-6 border-t border-t-slate-300" method="get">
-      {% #form_fieldset class="mb-3" %}
-        {% form_legend text="Filter by backend" %}
-        {% for backend in backends|dictsort:"name" %}
-          {% is_filter_selected key="backend" value=backend.slug as is_active %}
-          {% form_checkbox label=backend.name value=backend.slug name="backend" id=backend.slug checked=is_active %}
-        {% endfor %}
-      {% /form_fieldset %}
-      {% #button type="submit" variant="primary-outline" %}Filter{% /button %}
-    </form>
-    {% endif %}
-  {% /card %}
-
-  {% if not page_obj %}
-    {% #card class="mt-6" container=True title="No results found" %}
-      {% url "job-list" as job_list_url %}
-      <p>
-        No results found, try checking the
-        {% link href=job_list_url text="Event Log" append_after="." %}
-      <p>
-    {% /card %}
-  {% else %}
-    {% include "_job_requests.html" %}
+  {% if backends|length > 1 %}
+  <form class="mt-6 pt-6 border-t border-t-slate-300" method="get">
+    {% #form_fieldset class="mb-3" %}
+      {% form_legend text="Filter by backend" %}
+      {% for backend in backends|dictsort:"name" %}
+        {% is_filter_selected key="backend" value=backend.slug as is_active %}
+        {% form_checkbox label=backend.name value=backend.slug name="backend" id=backend.slug checked=is_active %}
+      {% endfor %}
+    {% /form_fieldset %}
+    {% #button type="submit" variant="primary-outline" %}Filter{% /button %}
+  </form>
   {% endif %}
+{% /card %}
 
-</div>
+{% if not page_obj %}
+  {% #card class="mt-6" container=True title="No results found" %}
+    {% url "job-list" as job_list_url %}
+    <p>
+      No results found, try checking the
+      {% link href=job_list_url text="Event Log" append_after="." %}
+    <p>
+
+    {% url_without_querystring q="" as clear_filter_url %}
+    {% #button class="mt-3" href=clear_filter_url type="link" variant="secondary-outline" %}Clear search filter{% /button %}
+  {% /card %}
+{% endif %}
+
 {% endblock content %}
+
+{% block full_width_content %}
+{% if page_obj %}
+  <div class="mx-4 lg:mx-6 xl:mx-8">
+    {% #card no_container=True %}
+      <div class="inline-block min-w-full align-middle overflow-x-auto max-w-full">
+        <table class="min-w-full divide-y divide-slate-300">
+          <thead class="bg-slate-200">
+            <tr>
+              <th
+                scope="col"
+                class="whitespace-nowrap py-3.5 pl-4 pr-3 text-left text-sm font-semibold text-slate-900"
+              >
+                <div class="sr-only">Status</div>
+              </th>
+              <th
+                scope="col"
+                class="whitespace-nowrap px-2 py-3.5 text-left text-sm font-semibold text-slate-900"
+              >
+                Organisation
+              </th>
+              <th
+                scope="col"
+                class="whitespace-nowrap px-2 py-3.5 text-left text-sm font-semibold text-slate-900"
+              >
+                Workspace
+              </th>
+              <th
+                scope="col"
+                class="whitespace-nowrap px-2 py-3.5 text-left text-sm font-semibold text-slate-900"
+              >
+                Request ID
+              </th>
+              <th
+                scope="col"
+                class="whitespace-nowrap px-2 py-3.5 text-left text-sm font-semibold text-slate-900"
+              >
+                Backend
+              </th>
+              <th
+                scope="col"
+                class="whitespace-nowrap leading-tight px-2 py-3.5 text-left text-sm font-semibold text-slate-900"
+              >
+                Jobs
+              </th>
+              <th
+                scope="col"
+                class="whitespace-nowrap px-2 py-3.5 text-left text-sm font-semibold text-slate-900"
+              >
+                User
+              </th>
+              <th
+                scope="col"
+                class="whitespace-nowrap px-2 py-3.5 text-left text-sm font-semibold text-slate-900"
+              >
+                Started
+              </th>
+              <th
+                scope="col"
+                class="relative whitespace-nowrap py-3.5 pl-3 pr-4"
+              >
+                <span class="sr-only">View</span>
+              </th>
+            </tr>
+          </thead>
+          <tbody class="divide-y divide-slate-200 bg-white">
+            {% for group in page_obj %}
+            <tr class="even:bg-slate-50">
+              <td
+                class="whitespace-nowrap py-2 pl-4 pr-3 text-sm text-slate-700"
+                title="{{ group.status|title }}"
+              >
+                {% if group.status == "succeeded" %}
+                  {% icon_check_circle_solid class="h-6 w-6 text-green-700" %}
+                {% elif group.status == "pending" %}
+                  {% icon_clock_outline class="h-6 w-6 text-slate-500 stroke-2" %}
+                {% elif group.status == "running" %}
+                  {% icon_custom_spinner class="h-6 w-6 animate-spin stroke-oxford-600 stroke-2 text-oxford-300" %}
+                {% elif group.status == "failed" %}
+                  {% icon_x_circle_solid class="h-6 w-6 text-bn-ribbon-700" %}
+                {% endif %}
+                <span class="sr-only">{{ group.status|title }}</span>
+              </td>
+              <td class="max-w-[25ch] px-2 py-2 text-sm text-slate-700">
+                {{ group.workspace.project.org }}
+              </td>
+              <td class="whitespace-normal break-words min-w-[18ch] px-2 py-2 text-sm text-slate-700">
+                {{ group.workspace.name }}
+              </td>
+              <td class="whitespace-normal font-mono px-2 py-2 text-sm text-slate-700">
+                {{ group.id|upper }}
+              </td>
+              <td class="whitespace-normal px-2 py-2 text-sm text-slate-700">
+                {{ group.backend|upper }}
+              </td>
+              <td class="whitespace-normal px-2 py-2 text-sm text-slate-700">
+                {{ group.num_completed }}/{{ group.jobs.all|length }}
+              </td>
+              <td class="whitespace-normal min-w-[18ch] break-words px-2 py-2 text-sm text-slate-700">
+                {{ group.created_by.name }}
+              </td>
+              <td class="whitespace-nowrap px-2 py-2 text-sm text-slate-700">
+                {% if group.started_at %}
+                  {{ group.started_at|naturaltime }}
+                {% else %}
+                  Pending
+                {% endif %}
+              </td>
+              <td
+                class="relative whitespace-nowrap py-2 pl-3 pr-4 text-right text-sm font-medium"
+              >
+                <a
+                  href="{{ group.get_absolute_url }}"
+                  class="text-oxford-600 hover:text-oxford-900"
+                  >View<span class="sr-only">, Workspace: {{ workspace.name }}, Job request {{ group.id }}</span></a
+                >
+              </td>
+            </tr>
+            {% endfor %}
+          </tbody>
+        </table>
+      </div>
+      <nav class="flex items-center justify-between border-t border-gray-200 bg-white px-4 py-3" aria-label="Pagination">
+        <div class="hidden sm:block">
+          <p class="text-sm text-gray-700">
+            Page <strong>{{ page_obj.number }}</strong> of <strong>{{ page_obj.paginator.num_pages }}</strong>
+          </p>
+        </div>
+        <div class="flex flex-1 justify-between gap-4 sm:justify-end">
+          {% if page_obj.has_previous %}
+            <a
+              href="{% url_with_querystring page=page_obj.previous_page_number %}"
+              class="relative inline-flex items-center rounded-md bg-white px-3 py-2 text-sm font-semibold text-gray-900 ring-1 ring-inset ring-gray-300 hover:bg-gray-50 focus-visible:outline-offset-0"
+            >
+              Previous
+            </a>
+          {% endif %}
+          {% if page_obj.has_next %}
+            <a
+              href="{% url_with_querystring page=page_obj.next_page_number %}"
+              class="relative inline-flex items-center rounded-md bg-white px-3 py-2 text-sm font-semibold text-gray-900 ring-1 ring-inset ring-gray-300 hover:bg-gray-50 focus-visible:outline-offset-0"
+            >
+              Next
+            </a>
+          {% endif %}
+        </div>
+      </nav>
+    {% /card %}
+  </div>
+{% endif %}
+{% endblock full_width_content %}
