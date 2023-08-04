@@ -76,19 +76,19 @@
     <div class="mt-6 pt-6 border-t border-t-slate-300">
       <h2 class="text-3xl leading-tight tracking-tight font-semibold mb-4">Linked workspaces</h2>
       <p class="text-lg mb-4">The following workspaces are linked to this repository:</p>
-      <div class="grid gap-y-6">
+      <div class="grid lg:grid-cols-2 gap-6">
         {% for workspace in workspaces %}
-          {% #card class="max-w-prose" title=workspace.name %}
+          {% #card class="w-full" title=workspace.name %}
             <dl class="border-t border-slate-200 sm:divide-y sm:divide-slate-200">
               {% #description_item title="Workspace" %}
                 {% link href=workspace.get_absolute_url text=workspace.name %}
               {% /description_item %}
 
-              {% #description_item title="Workspace status" %}
+              {% #description_item title="Status" %}
                 {% if workspace.is_archived %}
-                  <span class="badge badge-sm badge-secondary">Archived</span>
+                  {% pill text="Archived" variant="warning" %}
                 {% else %}
-                  <span class="badge badge-sm badge-primary">Active</span>
+                  {% pill text="Active" variant="primary" %}
                 {% endif %}
               {% /description_item %}
 
