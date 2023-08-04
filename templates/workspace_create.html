@@ -1,130 +1,52 @@
-{% extends "base.html" %}
+{% extends "base-tw.html" %}
 
 {% load django_vite %}
 
 {% block metatitle %}Create a workspace: {{ project.title }} | OpenSAFELY Jobs{% endblock metatitle %}
 
 {% block breadcrumbs %}
-<nav class="breadcrumb-container" aria-label="breadcrumb">
-  <div class="container">
-    <ol class="breadcrumb rounded-0 mb-0 px-0">
-      <li class="breadcrumb-item">
-        <a href="/">Home</a>
-      </li>
-      <li class="breadcrumb-item">
-        <a href="{{ project.org.get_absolute_url }}">
-          {{ project.org.name }}
-        </a>
-      </li>
-      <li class="breadcrumb-item">
-        <a href="{{ project.get_absolute_url }}">
-          {{ project.title }}
-        </a>
-      </li>
-      <li class="breadcrumb-item active" aria-current="page">
-        Create a workspace
-      </li>
-    </ol>
-  </div>
-</nav>
+  {% #breadcrumbs %}
+    {% url "home" as home_url %}
+    {% breadcrumb title="Home" url=home_url %}
+    {% breadcrumb location="Project" title=project.name url=project.get_absolute_url %}
+    {% breadcrumb title="Create a workspace" active=True %}
+  {% /breadcrumbs %}
 {% endblock breadcrumbs %}
 
-{% block jumbotron %}
-<div class="jumbotron jumbotron-fluid">
-  <div class="container">
-    <h1>Create a workspace</h1>
-    <p class="lead">{{ project.title }}</p>
-  </div>
-</div>
-{% endblock jumbotron %}
-
 {% block content %}
-<div class="container">
-  <div class="row">
-    <div class="col-lg-9 col-xl-8">
+  {% fragment as intro_text %}
+    <p>Create a workspace in <strong>{{ project.title }}</strong>.</p>
+  {% endfragment %}
+  {% article_header title="Create a workspace" text=intro_text %}
 
-      <form method="POST">
-        {% csrf_token %}
-        <fieldset class="mb-2">
-          <legend class="h3 mb-3">Workspace details</legend>
+  <form method="POST">
+    {% csrf_token %}
 
-          {% if form.non_field_errors %}
-            <ul>
-              {% for error in form.non_field_errors %}
-                <li class="text-danger">{{ error }}</li>
-              {% endfor %}
-            </ul>
-          {% endif %}
+    {% #card container=True class="my-6" title="Workspace details" %}
+      {% if form.non_field_errors %}
+        <ul class="mt-2 text-sm text-bn-ribbon-600">
+          {% for error in form.non_field_errors %}
+            <li>{{ error }}</li>
+          {% endfor %}
+        </ul>
+      {% endif %}
 
-          {% include "components/form_text.html" with field=form.name label="Workspace name" name="name" %}
-          {% include "components/form_textarea.html" with field=form.purpose label="Workspace purpose" name="purpose" %}
+      <div class="max-w-prose grid gap-y-6">
+        {% form_input field=form.name label="Workspace name" required=True placeholder="Workspace name" %}
 
-          <div class="form-group">
-            <label for="id_repo" class="col-form-label font-weight-bold">GitHub repo</label>
-            <select
-              aria-describedby="repoHelpBlock"
-              id="id_repo"
-              class="form-control"
-              name="repo"
-              required
-              {% if not form %}
-                disabled
-              {% endif %}
-            >
-              {% for value, label in form.repo.field.choices %}
-                <option value="{{ value }}"{% if value == form.repo.value %} selected{% endif %}>{{ label }}</option>
-              {% endfor %}
-            </select>
-            <small id="repoHelpBlock" class="form-text text-muted">
-              If your repo doesn't show up here, reach out to the OpenSAFELY team on Slack.
-            </small>
+        {% form_textarea field=form.purpose label="Workspace purpose" required=True placeholder="Workspace purpose" %}
 
-            {% if form.repo.errors %}
-            <ul class="pl-3 mb-1">
-              {% for error in form.repo.errors %}
-              <li class="text-danger">{{ error }}</li>
-              {% endfor %}
-            </ul>
-            {% endif %}
-          </div>
+        {% form_select field=form.repo label="GitHub repo" choices=form.repo.field.choices hint_text="If your repo doesn’t show up here, reach out to the OpenSAFELY team on Slack." required=True %}
 
-          <div class="form-group">
-            <label for="id_branch" class="col-form-label font-weight-bold">Branch</label>
-            <select
-              class="form-control"
-              id="id_branch"
-              name="branch"
-              required
-              {% if not form %}
-                disabled
-              {% endif %}
-            >
-              {% for value, label in form.branch.field.choices %}
-                <option value="{{ value }}"{% if value == form.branch.value %} selected{% endif %}>{{ label }}</option>
-              {% endfor %}
-            </select>
+        {% form_select field=form.branch label="Branch" choices=form.branch.field.choices required=True %}
+      </div>
+    {% /card %}
 
-            {% if form.branch.errors %}
-              <ul class="pl-3 mb-1">
-                {% for error in form.branch.errors %}
-                  <li class="text-danger">{{ error }}</li>
-                {% endfor %}
-              </ul>
-            {% endif %}
-          </div>
-        </fieldset>
-        <button type="submit" class="btn btn-success" {% if not form %}disabled{% endif %}>
-          Create
-        </button>
-      </form>
-    </div>
-  </div>
-</div>
+    {% #button type="submit" variant="success" %}Create workspace{% /button %}
+  </form>
 {% endblock content %}
 
 {% block extra_js %}
-{{ repos_with_branches|json_script:"reposWithBranches" }}
-{% vite_asset 'assets/src/scripts/workspace_create.js' %}
-{% vite_legacy_polyfills %}
-{% vite_legacy_asset 'assets/src/scripts/workspace_create-legacy.js' %}
+  {{ repos_with_branches|json_script:"reposWithBranches" }}
+  {% vite_asset "assets/src/scripts/workspace_create.js" %}
 {% endblock %}
