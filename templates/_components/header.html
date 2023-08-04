@@ -71,7 +71,7 @@
                 Logged in as:
                 <span class="block">
                   <strong class="break-words">{{ request.user.username }}</strong>
-                  {% if request.user.social_auth.exists %}
+                  {% if request.user.uses_social_auth %}
                   via GitHub
                   {% endif %}
                 </span>
@@ -149,7 +149,7 @@
                 Logged in as:
                 <span class="block">
                   <strong class="break-words">{{ request.user.username }}</strong>
-                  {% if request.user.social_auth.exists %}
+                  {% if request.user.uses_social_auth %}
                   via GitHub
                   {% endif %}
                 </span>

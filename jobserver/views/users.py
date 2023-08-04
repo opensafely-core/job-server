@@ -69,7 +69,7 @@ class Login(FormView):
         user = User.objects.filter(email=form.cleaned_data["email"]).first()
 
         if user:
-            if user.social_auth.exists():
+            if user.uses_social_auth:
                 # we don't want to expose users email address to a bad actor
                 # via the login page form so we're emailing them with a link
                 # to the login page to click the right button.

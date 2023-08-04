@@ -71,7 +71,7 @@ class UserDetail(SingleObjectMixin, View):
     def dispatch(self, request, *args, **kwargs):
         user = self.get_object()
 
-        view = UserDetailWithOAuth if user.social_auth.exists() else UserDetailWithEmail
+        view = UserDetailWithOAuth if user.uses_social_auth else UserDetailWithEmail
         return view.as_view()(request, *args, **kwargs)
 
 
