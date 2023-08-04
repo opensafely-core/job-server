@@ -1038,6 +1038,17 @@ class User(AbstractBaseUser):
         # return the unhashed token so it can be passed to a consuming service
         return token
 
+    @cached_property
+    def uses_social_auth(self):
+        """
+        Cache whether this user logs in via GitHub (using social auth)
+
+        We use this in a couple of places in our base header template, so to
+        avoid extra queries on every page load we're caching it to the user
+        instance here.
+        """
+        return self.social_auth.exists()
+
     class BadLoginToken(Exception):
         pass
 
