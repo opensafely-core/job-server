@@ -1,10 +1,20 @@
-{% extends "base.html" %}
+{% extends "base-tw.html" %}
 
 {% load selected_filter %}
 
 {% block metatitle %}Logs: {{ workspace.name }} | OpenSAFELY Jobs{% endblock metatitle %}
 
 {% block breadcrumbs %}
+  {% #breadcrumbs %}
+    {% url "home" as home_url %}
+    {% breadcrumb title="Home" url=home_url %}
+    {% breadcrumb location="Project" title=workspace.project.name url=workspace.project.get_absolute_url %}
+    {% breadcrumb location="Workspace" title=workspace.name url=workspace.get_absolute_url %}
+    {% breadcrumb title="Logs" active=True %}
+  {% /breadcrumbs %}
+{% endblock breadcrumbs %}
+
+{% block content %}
 {% if workspace.is_archived %}
   <div class="alert alert-warning text-center mb-0" role="warning">
     <div class="container">
@@ -22,121 +32,47 @@
   </div>
 {% endif %}
 
-<nav class="breadcrumb-container" aria-label="breadcrumb">
-  <div class="container">
-    <ol class="breadcrumb rounded-0 mb-0 px-0">
-      <li class="breadcrumb-item">
-        <a href="/">Home</a>
-      </li>
+  {% fragment as intro_text %}
+    <p>
+      Below are the logs for each job run in the
+      {% link href=workspace.get_absolute_url text=workspace.name %}
+      workspace of the project
+      {% link href=workspace.project.get_absolute_url text=workspace.project.title append_after="." %}
+      They are grouped based on the actions which were requested.
+    </p>
+  {% endfragment %}
+  {% article_header title=workspace.name text=intro_text %}
 
-      <li class="breadcrumb-item">
-        <a href="{{ workspace.project.org.get_absolute_url }}">
-          {{ workspace.project.org.name }}
-        </a>
-      </li>
+  {% #card container=True class="max-w-prose mt-6" %}
+    <form method="GET">
+      {% form_input type="search" custom_field=True label="Search by Job action or ID" id="searchJobLogs" name="q" %}
+      {% #button class="mt-2" type="submit" variant="primary-outline" %}Search{% /button %}
+    </form>
 
-      <li class="breadcrumb-item">
-        <a href="{{ workspace.project.get_absolute_url }}">
-          {{ workspace.project.title }}
-        </a>
-      </li>
-
-      <li class="breadcrumb-item">
-        <a href="{{ workspace.get_absolute_url }}">
-          {{ workspace.name }}
-        </a>
-      </li>
-
-      <li class="breadcrumb-item active" aria-current="page">
-        Logs
-      </li>
-    </ol>
-  </div>
-</nav>
-{% endblock breadcrumbs %}
-
-{% block jumbotron %}
-<div class="jumbotron jumbotron-fluid pt-md-2">
-  <div class="container">
-    <div class="row">
-      <div class="col-lg-8 col-xl-9 d-flex flex-column align-items-start justify-content-center">
-        <h1>{{ workspace.name }}</h1>
-        <p class="lead">
-          Below are the logs for each job run in the
-          <a href="{{ workspace.get_absolute_url }}">{{ workspace.name }}</a>
-          workspace of the project
-          <a href="{{ workspace.project.get_absolute_url }}">{{ workspace.project.title }}</a>.
-          They are grouped based on the actions which were requested.
-        </p>
-      </div>
-    </div>
-  </div>
-</div>
-{% endblock jumbotron %}
-
-{% block content %}
-<div class="job-list">
-  <div class="container">
-    <div class="row">
-      <form class="col-lg-10 col-xl-8 form mb-3" method="GET">
-        <div class="form-group">
-          <label class="font-weight-bold" for="searchJobLogs">Search by Job action or ID</label>
-          <div class="input-group mb-3">
-            <input
-              class="form-control"
-              id="searchJobLogs"
-              name="q"
-              type="search"
-            >
-            <div class="input-group-append">
-              <button class="btn btn-outline-primary" type="submit" id="button-addon2">Search</button>
-            </div>
-          </div>
-        </div>
-      </form>
-
-      <form class="col-12 form" method="GET">
-        <fieldset class="form-group">
-          <legend class="form-label h6 font-weight-bold">Filter by backend</legend>
-          {% for backend in backends|dictsort:"name.lower" %}
-            {% is_filter_selected key="backend" value=backend.slug as is_active %}
-            <div class="form-check form-check-inline mb-2 {% if not forloop.last %}mr-4{% endif %}">
-              <input
-                {% if is_active %}checked {% endif %}
-                class="form-check-input"
-                type="checkbox"
-                name="backend"
-                id="{{ backend.slug }}"
-                value="{{ backend.slug }}"
-              >
-              <label
-                class="form-check-label"
-                for="{{ backend.slug }}"
-              >
-                {{ backend.name }}
-              </label>
-            </div>
-          {% endfor %}
-        </fieldset>
-
-        <div class="form-group mt-n2">
-          <button class="btn btn-outline-primary" type="submit">Filter</button>
-        </div>
-      </form>
-    </div>
-  </div>
-
+    {% if backends|length > 1 %}
+    <form class="mt-6 pt-6 border-t border-t-slate-300" method="get">
+      {% #form_fieldset class="mb-3" %}
+        {% form_legend text="Filter by backend" %}
+        {% for backend in backends|dictsort:"name" %}
+          {% is_filter_selected key="backend" value=backend.slug as is_active %}
+          {% form_checkbox label=backend.name value=backend.slug name="backend" id=backend.slug checked=is_active %}
+        {% endfor %}
+      {% /form_fieldset %}
+      {% #button type="submit" variant="primary-outline" %}Filter{% /button %}
+    </form>
+    {% endif %}
+  {% /card %}
 
   {% if not page_obj %}
-  <div class="text-center">
-    <p>
-      No results found, try checking the <a href={% url 'job-list' %}>Event Log</a>.
-    <p>
-  </div>
+    {% #card class="mt-6" container=True title="No results found" %}
+      {% url "job-list" as job_list_url %}
+      <p>
+        No results found, try checking the
+        {% link href=job_list_url text="Event Log" append_after="." %}
+      <p>
+    {% /card %}
   {% else %}
-
     {% include "_job_requests.html" %}
-
   {% endif %}
 
 </div>
