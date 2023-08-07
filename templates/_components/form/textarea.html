@@ -1,9 +1,25 @@
+{% if custom_field == True %}
+  {% var label_for=id %}
+  {% var textarea_id=id %}
+  {% var textarea_name=name %}
+  {% var textarea_value=value %}
+  {% var field_errors=errors %}
+  {% var hint_text=hint_text %}
+{% else %}
+  {% var label_for=field.id_for_label %}
+  {% var textarea_id=field.auto_id %}
+  {% var textarea_name=field.html_name %}
+  {% var textarea_value=field.value %}
+  {% var field_errors=field.errors %}
+  {% var hint_text=field.help_text %}
+{% endif %}
+
 <div {% attrs class %}>
   <label
     class="inline-block font-semibold text-lg text-slate-900 cursor-pointer"
-    for="{{ field.id_for_label }}"
+    for="{{ label_for }}"
   >
-    {% if label %}{{ label }}{% else %}{{ field.label }}{% endif %}
+  {% if label %}{{ label }}{% else %}{{ field.label }}{% endif %}
 
     {% if required %}
       <span
@@ -19,29 +35,29 @@
 
   <div class="relative">
     <textarea
-      {% attrs autocapitalize autocomplete autocorrect inputmode name=field.html_name required rows %}
+      {% attrs autocapitalize autocomplete autocorrect inputmode name=textarea_name placeholder required rows %}
       class="
         mt-1 block w-full rounded-md border-slate-300 text-slate-900 shadow-sm
         {% if not resize %}resize-none{% endif %}
+        {% if show_placeholder %}placeholder:text-slate-400{% else %}placeholder:text-white{% endif %}
         sm:text-sm
         focus:border-oxford-500 focus:ring-oxford-500
-        invalid:border-bn-ribbon-600 invalid:ring-bn-ribbon-600 invalid:ring-1
-
+        [&:not(:placeholder-shown):not(:focus)]:invalid:border-bn-ribbon-600 [&:not(:placeholder-shown):not(:focus)]:invalid:ring-bn-ribbon-600 [&:not(:placeholder-shown):not(:focus)]:invalid:ring-1
       "
-      id="{{ field.auto_id }}"
+      id="{{ textarea_id }}"
       type="{% if type %}{{ type }}{% else %}text{% endif %}"
-    >{% if field.value %}{{ field.value }}{% endif %}</textarea>
+    >{% if textarea_value %}{{ textarea_value }}{% endif %}</textarea>
 
-    {% if field.errors %}
+    {% if field_errors %}
       <div class="pointer-events-none absolute inset-y-0 right-0 flex items-center pr-3">
         {% icon_exclamation_circle_mini class="h-4 w-4 text-red-500" %}
       </div>
     {% endif %}
   </div>
 
-  {% if field.errors %}
+  {% if field_errors %}
     <ul class="mt-2 text-sm text-bn-ribbon-600">
-      {% for error in field.errors %}
+      {% for error in field_errors %}
         <li>{{ error }}</li>
       {% endfor %}
     </ul>

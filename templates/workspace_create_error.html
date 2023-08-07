@@ -1,49 +1,23 @@
-{% extends "base.html" %}
+{% extends "base-tw.html" %}
 
 {% block metatitle %}Create a workspace: {{ project.title }} | OpenSAFELY Jobs{% endblock metatitle %}
 
 {% block breadcrumbs %}
-<nav class="breadcrumb-container" aria-label="breadcrumb">
-  <div class="container">
-    <ol class="breadcrumb rounded-0 mb-0 px-0">
-      <li class="breadcrumb-item">
-        <a href="/">Home</a>
-      </li>
-      <li class="breadcrumb-item">
-        <a href="{{ project.org.get_absolute_url }}">
-          {{ project.org.name }}
-        </a>
-      </li>
-      <li class="breadcrumb-item">
-        <a href="{{ project.get_absolute_url }}">
-          {{ project.title }}
-        </a>
-      </li>
-      <li class="breadcrumb-item active" aria-current="page">
-        Create a workspace
-      </li>
-    </ol>
-  </div>
-</nav>
+  {% #breadcrumbs %}
+    {% url "home" as home_url %}
+    {% breadcrumb title="Home" url=home_url %}
+    {% breadcrumb location="Project" title=project.name url=project.get_absolute_url %}
+    {% breadcrumb title="Create a workspace" active=True %}
+  {% /breadcrumbs %}
 {% endblock breadcrumbs %}
 
-{% block jumbotron %}
-<div class="jumbotron jumbotron-fluid">
-  <div class="container">
-    <h1>Create a workspace</h1>
-    <p class="lead">{{ project.title }}</p>
-  </div>
-</div>
-{% endblock jumbotron %}
-
 {% block content %}
-<div class="container">
-  <div class="row">
-    <div class="col-lg-9 col-xl-8">
+  {% fragment as intro_text %}
+  <p>Create a workspace in <strong>{{ project.title }}</strong>.</p>
+  {% endfragment %}
+  {% article_header title="Create a workspace" text=intro_text class="mb-6" %}
 
-      <p>{{ message }}</p>
-
-    </div>
-  </div>
-</div>
+  {% #alert variant="danger" title="An error has occurred" %}
+    <p>{{ message }}</p>
+  {% /alert %}
 {% endblock content %}
