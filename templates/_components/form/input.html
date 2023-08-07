@@ -4,12 +4,14 @@
   {% var input_name=name %}
   {% var input_value=value %}
   {% var field_errors=errors %}
+  {% var hint_text=hint_text %}
 {% else %}
   {% var label_for=field.id_for_label %}
   {% var input_id=field.auto_id %}
   {% var input_name=field.html_name %}
   {% var input_value=field.value %}
   {% var field_errors=field.errors %}
+  {% var hint_text=field.help_text %}
 {% endif %}
 
 <div {% attrs class %}>
