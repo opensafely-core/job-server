@@ -1,5 +1,6 @@
 from django.urls import include, path
 
+from .views import sentry
 from .views.analysis_requests import (
     AnalysisRequestDetail,
     AnalysisRequestList,
@@ -203,6 +204,14 @@ researcher_urls = [
     path("<int:pk>/edit/", ResearcherEdit.as_view(), name="researcher-edit"),
 ]
 
+
+sentry_urls = [
+    path("", sentry.index, name="index"),
+    path("error", sentry.error, name="error"),
+    path("message", sentry.message, name="message"),
+]
+
+
 user_urls = [
     path("", UserList.as_view(), name="user-list"),
     path("add/", UserCreate.as_view(), name="user-create"),
@@ -229,6 +238,7 @@ urlpatterns = [
     path("repos/", include(repo_urls)),
     path("reports/", include(report_urls)),
     path("researchers/", include(researcher_urls)),
+    path("sentry/", include((sentry_urls, "sentry"), namespace="sentry")),
     path("users/", include(user_urls)),
     path("workspaces/", include(workspace_urls)),
 ]
