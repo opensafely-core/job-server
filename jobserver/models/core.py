@@ -19,7 +19,6 @@ from environs import Env
 from furl import furl
 from opentelemetry.trace import propagation
 from opentelemetry.trace.propagation import tracecontext
-from pipeline import ProjectValidationError, load_pipeline
 from sentry_sdk import capture_message
 from xkcdpass import xkcd_password
 
@@ -65,6 +64,7 @@ class Job(models.Model):
     identifier = models.TextField(unique=True)
 
     action = models.TextField()
+    run_command = models.TextField(default="")
 
     # The current state of the Job, as defined by job-runner.
     status = models.TextField()
@@ -135,26 +135,6 @@ class Job(models.Model):
         delta = now - self.updated_at
 
         return delta > threshold
-
-    @property
-    def run_command(self):
-        if not self.job_request.project_definition:
-            return
-
-        # load job_request's project_definition into pipeline and get the
-        # command for this job
-        try:
-            pipeline = load_pipeline(self.job_request.project_definition)
-        except ProjectValidationError:
-            return  # we don't have a valid config
-
-        if action := pipeline.actions.get(self.action):
-            command = action.run.raw
-        else:
-            return  # unknown action, likely __error__
-
-        # remove newlines and extra spaces
-        return command.replace("\n", "").replace("  ", " ")
 
     @property
     def runtime(self):
