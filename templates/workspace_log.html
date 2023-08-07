@@ -94,18 +94,6 @@
                 scope="col"
                 class="whitespace-nowrap px-2 py-3.5 text-left text-sm font-semibold text-slate-900"
               >
-                Organisation
-              </th>
-              <th
-                scope="col"
-                class="whitespace-nowrap px-2 py-3.5 text-left text-sm font-semibold text-slate-900"
-              >
-                Workspace
-              </th>
-              <th
-                scope="col"
-                class="whitespace-nowrap px-2 py-3.5 text-left text-sm font-semibold text-slate-900"
-              >
                 Request ID
               </th>
               <th
@@ -157,12 +145,6 @@
                   {% icon_x_circle_solid class="h-6 w-6 text-bn-ribbon-700" %}
                 {% endif %}
                 <span class="sr-only">{{ group.status|title }}</span>
-              </td>
-              <td class="max-w-[25ch] px-2 py-2 text-sm text-slate-700">
-                {{ group.workspace.project.org }}
-              </td>
-              <td class="whitespace-normal break-words min-w-[18ch] px-2 py-2 text-sm text-slate-700">
-                {{ group.workspace.name }}
               </td>
               <td class="whitespace-normal font-mono px-2 py-2 text-sm text-slate-700">
                 {{ group.id|upper }}
