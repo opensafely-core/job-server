@@ -226,8 +226,8 @@
         <div class="d-flex justify-content-between">
           <h2 class="h4">Jobs</h2>
           <div>
-            <a class="btn btn-sm btn-primary" href="{% url 'job-list' %}?username={{ user.username }}">
-              View all ({{ jobs|length }})
+            <a class="btn btn-sm btn-primary" href="{% url 'staff:job-request-list' %}?user={{ user.username }}">
+              View all ({{ job_count }})
             </a>
           </div>
         </div>

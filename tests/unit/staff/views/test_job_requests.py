@@ -99,6 +99,22 @@ def test_jobrequestlist_filter_by_project(rf, core_developer):
     assert set_from_qs(response.context_data["object_list"]) == {job_request.pk}
 
 
+def test_jobrequestlist_filter_by_user(rf, core_developer):
+    JobRequestFactory.create_batch(5)
+
+    user = UserFactory()
+    job_request = JobRequestFactory(created_by=user)
+
+    request = rf.get(f"/?user={user.username}")
+    request.user = core_developer
+
+    response = JobRequestList.as_view()(request)
+
+    assert response.status_code == 200
+    assert len(response.context_data["object_list"]) == 1
+    assert set_from_qs(response.context_data["object_list"]) == {job_request.pk}
+
+
 def test_jobrequestlist_filter_by_workspace(rf, core_developer):
     JobRequestFactory.create_batch(5)
 

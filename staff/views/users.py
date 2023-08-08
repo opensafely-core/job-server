@@ -141,7 +141,7 @@ class UserDetailWithOAuth(UpdateView):
         copiloted_projects = self.object.copiloted_projects.order_by(Lower("name"))
         jobs = Job.objects.filter(job_request__created_by=self.object).order_by(
             "-created_at"
-        )[:10]
+        )
         orgs = [
             {
                 "name": m.org.name,
@@ -163,7 +163,8 @@ class UserDetailWithOAuth(UpdateView):
         return super().get_context_data(**kwargs) | {
             "applications": applications,
             "copiloted_projects": copiloted_projects,
-            "jobs": jobs,
+            "jobs": jobs[:10],
+            "job_count": jobs.count(),
             "orgs": orgs,
             "projects": projects,
         }
