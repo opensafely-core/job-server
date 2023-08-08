@@ -4,7 +4,7 @@ from django.views.generic import DetailView, ListView
 
 from jobserver.authorization import CoreDeveloper
 from jobserver.authorization.decorators import require_role
-from jobserver.models import JobRequest, Org, Project, Workspace
+from jobserver.models import JobRequest, Org, Project, User, Workspace
 
 from .qwargs_tools import qwargs
 
@@ -36,6 +36,12 @@ class JobRequestList(ListView):
             "selected": self.request.GET.get("project"),
         }
 
+        users = {
+            "is_active": "user" in self.request.GET,
+            "items": list(User.objects.order_by(Lower("fullname"), "username")),
+            "selected": self.request.GET.get("user"),
+        }
+
         workspaces = {
             "is_active": "workspace" in self.request.GET,
             "items": list(Workspace.objects.order_by(Lower("name"))),
@@ -45,6 +51,7 @@ class JobRequestList(ListView):
         return super().get_context_data(**kwargs) | {
             "orgs": orgs,
             "projects": projects,
+            "users": users,
             "workspaces": workspaces,
         }
 
@@ -74,6 +81,9 @@ class JobRequestList(ListView):
 
         if project := self.request.GET.get("project"):
             qs = qs.filter(workspace__project__slug=project)
+
+        if user := self.request.GET.get("user"):
+            qs = qs.filter(created_by__username=user)
 
         if workspace := self.request.GET.get("workspace"):
             qs = qs.filter(workspace__name=workspace)

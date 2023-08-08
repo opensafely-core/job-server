@@ -115,6 +115,31 @@
 
       <div class="mb-4">
         <div class="d-flex justify-content-between align-items-center mb-1">
+          <h3 class="h4 mb-0">Filter by user</h3>
+          <small>
+            <a
+              {% if users.is_active %}
+              href="{% url_without_querystring user="" %}"
+              {% else %}
+              class="text-muted"
+              disabled
+              {% endif %}
+              >Clear</a>
+          </small>
+        </div>
+        <select id="id_user" name="user">
+          <option></option>
+          {% for user in users.items %}
+          <option
+            value="{{ user.username }}"
+            {% if user.username == users.selected %}selected{% endif %}
+            >{{ user.name }}</option>
+          {% endfor %}
+        </select>
+      </div>
+
+      <div class="mb-4">
+        <div class="d-flex justify-content-between align-items-center mb-1">
           <h3 class="h4 mb-0">Filter by workspace</h3>
           <small>
             <a
@@ -238,6 +263,12 @@
     });
     $('#id_project').select2({
       placeholder: "Select a project to filter by",
+      selectionCssClass: ":all:",
+      theme: "bootstrap4",
+      width: "100%"
+    });
+    $('#id_user').select2({
+      placeholder: "Select a user to filter by",
       selectionCssClass: ":all:",
       theme: "bootstrap4",
       width: "100%"
