@@ -1,13 +1,13 @@
 import pytest
 from django.contrib.auth.models import AnonymousUser
 from django.contrib.messages.storage.fallback import FallbackStorage
-from django.core.exceptions import BadRequest
 from django.http import Http404
 from django.utils import timezone
 
 from jobserver import honeycomb
 from jobserver.authorization import CoreDeveloper, ProjectDeveloper
 from jobserver.models import JobRequest
+from jobserver.utils import set_from_qs
 from jobserver.views.job_requests import (
     JobRequestCancel,
     JobRequestCreate,
@@ -24,7 +24,6 @@ from ....factories import (
     ProjectFactory,
     ProjectMembershipFactory,
     UserFactory,
-    UserSocialAuthFactory,
     WorkspaceFactory,
 )
 from ....fakes import FakeGitHubAPI
@@ -798,253 +797,14 @@ def test_jobrequestdetailredirect_with_unknown_job(rf):
         JobRequestDetailRedirect.as_view()(request, pk=0)
 
 
-def test_jobrequestlist_filters_exist(rf):
-    # Build a RequestFactory instance
-    request = rf.get("/")
-    request.user = UserFactory()
-    response = JobRequestList.as_view()(request)
-
-    assert "statuses" in response.context_data
-    assert "workspaces" in response.context_data
-
-
-def test_jobrequestlist_filter_by_backend(rf):
-    backend1 = BackendFactory()
-    job_request = JobRequestFactory(backend=backend1)
-    JobFactory.create_batch(2, job_request=job_request)
-
-    backend2 = BackendFactory()
-    job_request = JobRequestFactory(backend=backend2)
-    JobFactory.create_batch(2, job_request=job_request)
-
-    # Build a RequestFactory instance
-    request = rf.get(f"/?backend={backend1.pk}")
-    request.user = UserFactory()
-    response = JobRequestList.as_view()(request)
-
-    assert len(response.context_data["page_obj"]) == 1
-
-
-def test_jobrequestlist_filter_by_backend_with_broken_pk(rf):
-    request = rf.get("/?backend=test")
-    request.user = UserFactory()
-
-    with pytest.raises(BadRequest):
-        JobRequestList.as_view()(request)
-
-
-def test_jobrequestlist_filter_by_status(rf):
-    JobFactory(job_request=JobRequestFactory(), status="failed")
-
-    JobFactory(job_request=JobRequestFactory(), status="succeeded")
-
-    # Build a RequestFactory instance
-    request = rf.get("/?status=succeeded")
-    request.user = UserFactory()
-    response = JobRequestList.as_view()(request)
-
-    assert len(response.context_data["page_obj"]) == 1
-
-
-def test_jobrequestlist_filter_by_status_and_workspace(rf):
-    workspace1 = WorkspaceFactory()
-    workspace2 = WorkspaceFactory()
-
-    # running
-    job_request1 = JobRequestFactory(workspace=workspace1)
-    JobFactory(job_request=job_request1, status="running")
-    JobFactory(job_request=job_request1, status="pending")
-
-    # failed
-    job_request2 = JobRequestFactory(workspace=workspace1)
-    JobFactory(job_request=job_request2, status="succeeded")
-    JobFactory(job_request=job_request2, status="failed")
-
-    # running
-    job_request3 = JobRequestFactory(workspace=workspace2)
-    JobFactory.create_batch(2, job_request=job_request3, status="succeeded")
-    JobFactory.create_batch(2, job_request=job_request3, status="pending")
-
-    # succeeded
-    job_request4 = JobRequestFactory(workspace=workspace2)
-    JobFactory.create_batch(3, job_request=job_request4, status="succeeded")
-
-    # Build a RequestFactory instance
-    request = rf.get(f"/?status=running&workspace={workspace2.pk}")
-    request.user = UserFactory()
-    response = JobRequestList.as_view()(request)
-
-    assert len(response.context_data["object_list"]) == 1
-
-
-def test_jobrequestlist_filter_by_unknown_status(rf):
-    workspace = WorkspaceFactory()
-    JobRequestFactory(workspace=workspace)
-    JobRequestFactory(workspace=workspace)
-
-    # Build a RequestFactory instance
-    request = rf.get("/?status=test")
-    request.user = UserFactory()
-    response = JobRequestList.as_view()(request)
-
-    assert response.status_code == 200
-
-    output = set(response.context_data["object_list"])
-    expected = set(JobRequest.objects.all())
-    assert output == expected
-
-
-def test_jobrequestlist_filter_by_username(rf):
-    user = UserFactory()
-    JobRequestFactory(created_by=user)
-    JobRequestFactory(created_by=UserFactory())
-
-    # Build a RequestFactory instance
-    request = rf.get(f"/?username={user.username}")
-    request.user = UserFactory()
-    response = JobRequestList.as_view()(request)
-
-    assert len(response.context_data["object_list"]) == 1
-
-
-def test_jobrequestlist_filter_by_workspace(rf):
-    workspace = WorkspaceFactory()
-    JobRequestFactory(workspace=workspace)
-    JobRequestFactory()
-
-    # Build a RequestFactory instance
-    request = rf.get(f"/?workspace={workspace.pk}")
-    request.user = UserFactory()
-    response = JobRequestList.as_view()(request)
-
-    assert len(response.context_data["object_list"]) == 1
-
-
-def test_jobrequestlist_filter_by_workspace_with_broken_pk(rf):
-    request = rf.get("/?workspace=test")
-    request.user = UserFactory()
-
-    with pytest.raises(BadRequest):
-        JobRequestList.as_view()(request)
-
-
-def test_jobrequestlist_find_job_request_by_identifier_form_invalid(rf):
-    request = rf.post("/", {"test-key": "test-value"})
-    request.user = UserFactory()
-    response = JobRequestList.as_view()(request)
-
-    assert response.status_code == 200
-
-    expected = {"identifier": ["This field is required."]}
-    assert response.context_data["form"].errors == expected
-
-
-def test_jobrequestlist_find_job_request_by_identifier_success(rf):
-    job_request = JobRequestFactory(identifier="test-identifier")
-
-    request = rf.post("/", {"identifier": job_request.identifier})
-    request.user = UserFactory()
-    response = JobRequestList.as_view()(request)
-
-    assert response.status_code == 302
-    assert response.url == job_request.get_absolute_url()
-
-
-def test_jobrequestlist_find_job_request_by_identifier_unknown_job_request(rf):
-    request = rf.post("/", {"identifier": "test-value"})
-    request.user = UserFactory()
-    response = JobRequestList.as_view()(request)
-
-    assert response.status_code == 200
-
-    expected = {
-        "identifier": ["Could not find a JobRequest with the identfier 'test-value'"],
-    }
-    assert response.context_data["form"].errors == expected
-
-
-def test_jobrequestlist_search_by_action(rf):
-    job_request1 = JobRequestFactory()
-    JobFactory(job_request=job_request1, action="run")
-
-    job_request2 = JobRequestFactory()
-    JobFactory(job_request=job_request2, action="leap")
-
-    # Build a RequestFactory instance
-    request = rf.get("/?q=run")
-    request.user = UserFactory()
-    response = JobRequestList.as_view()(request)
-
-    assert len(response.context_data["object_list"]) == 1
-    assert response.context_data["object_list"][0] == job_request1
-
-
-def test_jobrequestlist_search_by_id(rf):
-    JobFactory(job_request=JobRequestFactory())
-
-    job_request2 = JobRequestFactory()
-    JobFactory(job_request=job_request2, id=99)
-
-    # Build a RequestFactory instance
-    request = rf.get("/?q=99")
-    request.user = UserFactory()
-    response = JobRequestList.as_view()(request)
-
-    assert len(response.context_data["object_list"]) == 1
-    assert response.context_data["object_list"][0] == job_request2
-
-
 def test_jobrequestlist_success(rf):
-    user = UserSocialAuthFactory().user
-
-    job_request = JobRequestFactory(created_by=user)
+    job_request = JobRequestFactory()
     JobFactory(job_request=job_request)
     JobFactory(job_request=job_request)
 
-    # Build a RequestFactory instance
     request = rf.get("/")
     request.user = UserFactory()
+
     response = JobRequestList.as_view()(request)
 
-    assert len(response.context_data["object_list"]) == 1
-    assert response.context_data["object_list"][0] == job_request
-
-    assert response.context_data["users"] == {user.username: user.name}
-    assert len(response.context_data["workspaces"]) == 1
-
-
-def test_jobrequestlist_with_core_developer(rf, core_developer):
-    job_request = JobRequestFactory()
-    JobFactory(job_request=job_request)
-    JobFactory(job_request=job_request)
-
-    request = rf.get("/")
-    request.user = core_developer
-    response = JobRequestList.as_view()(request)
-
-    assert response.status_code == 200
-    assert "Look up JobRequest by Identifier" in response.rendered_content
-
-
-def test_jobrequestlist_with_permission(rf):
-    job_request = JobRequestFactory()
-    JobFactory(job_request=job_request)
-    JobFactory(job_request=job_request)
-    request = rf.get("/")
-    request.user = UserFactory(roles=[])
-    response = JobRequestList.as_view()(request)
-
-    assert response.status_code == 200
-    assert "Look up JobRequest by Identifier" not in response.rendered_content
-
-
-def test_jobrequestlist_without_permission(rf):
-    job_request = JobRequestFactory()
-    JobFactory(job_request=job_request)
-    JobFactory(job_request=job_request)
-
-    request = rf.get("/")
-    request.user = AnonymousUser()
-    response = JobRequestList.as_view()(request)
-    assert response.status_code == 200
-    assert "Look up JobRequest by Identifier" not in response.rendered_content
+    assert set_from_qs(response.context_data["object_list"]) == {job_request.pk}
