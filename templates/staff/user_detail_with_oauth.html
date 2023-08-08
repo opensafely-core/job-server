@@ -227,7 +227,7 @@
           <h2 class="h4">Jobs</h2>
           <div>
             <a class="btn btn-sm btn-primary" href="{% url 'job-list' %}?username={{ user.username }}">
-              View all ({{ jobs|length }})
+              View all ({{ job_count }})
             </a>
           </div>
         </div>
