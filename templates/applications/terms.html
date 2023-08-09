@@ -1,60 +1,48 @@
-{% extends "applications/base.html" %}
+{% extends "applications/base-tw.html" %}
 
 {% load snippet %}
 
-{% block metatitle %}Apply: Terms | OpenSAFELY Jobs{% endblock metatitle %}
+{% block metatitle %}Apply: Terms of use of OpenSAFELY | OpenSAFELY Jobs{% endblock metatitle %}
 
 {% block breadcrumbs %}
-<nav class="breadcrumb-container" aria-label="breadcrumb">
-  <div class="container">
-    <ol class="breadcrumb rounded-0 mb-0 px-0">
-      <li class="breadcrumb-item">
-        <a href="/">Home</a>
-      </li>
-      <li class="breadcrumb-item">
-        <a href="{% url 'applications:start' %}">Apply</a>
-      </li>
-      <li class="breadcrumb-item active" aria-current="page">
-        Terms
-      </li>
-    </ol>
-  </div>
-</nav>
+  {% url "home" as home_url %}
+  {% url "applications:start" as start_url %}
+
+  {% #breadcrumbs %}
+    {% breadcrumb title="Home" url=home_url %}
+    {% breadcrumb title="Apply for research access to OpenSAFELY" url=start_url %}
+    {% breadcrumb title="Terms of use of OpenSAFELY" active=True %}
+  {% /breadcrumbs %}
 {% endblock breadcrumbs %}
 
-{% block jumbotron %}
-<div class="jumbotron jumbotron-fluid pt-md-2">
-  <div class="container">
-    <div class="d-flex flex-column flex-md-row align-items-center">
-      <div>
-        <h1 class="display-4">Terms of use of OpenSAFELY</h1>
-
-        <p class="lead">
-          This section details the terms of use of OpenSAFELY. By agreeing to
-          these terms, you can continue to submit your access request. Please
-          review the terms carefully.
-        </p>
-      </div>
-    </div>
-  </div>
-</div>
-{% endblock jumbotron %}
-
 {% block content %}
-<article class="container" id="applicationForm">
-  <div class="row">
-    <div class="col-lg-8">
-      {% snippet "terms" %}
+<div class="mb-6 mt-3 flex flex-col gap-y-4 md:gap-y-4 text-center md:mt-0 md:text-left">
+  <h1 class="text-3xl tracking-tight break-words md:text-4xl font-bold text-slate-900">
+    Terms of use of OpenSAFELY
+  </h1>
+  <p class="text-lgl text-slate-700 max-w-3xl">
+    This section details the terms of use of OpenSAFELY. By agreeing to
+    these terms, you can continue to submit your access request. Please
+    review the terms carefully.
+  </p>
+</div>
 
-      <form method="POST">
-        {% csrf_token %}
-
-        <button class="btn btn-lg btn-success mt-3" type="submit">
-          Continue
-        </button>
-      </form>
-
-    </div>
+{% #card class="max-w-3xl pb-6" container=True %}
+  <div class="prose prose-oxford mb-6" id="applicationForm">
+    {% snippet "terms" %}
   </div>
-</article>
+
+  {% if request.user.is_authenticated %}
+    {% url 'applications:terms' as start_url %}
+  {% else %}
+    {% url 'applications:sign-in' as start_url %}
+  {% endif %}
+
+  <form method="POST">
+    {% csrf_token %}
+    {% #button variant="success" type="submit" %}
+      Continue
+    {% /button %}
+  </form>
+{% /card %}
 {% endblock %}

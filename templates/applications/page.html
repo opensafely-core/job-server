@@ -1,23 +1,16 @@
-{% extends "applications/base.html" %}
+{% extends "applications/base-tw.html" %}
 
 {% block metatitle %}Apply: {{ title }} | OpenSAFELY Jobs{% endblock metatitle %}
 
 {% block breadcrumbs %}
-<nav class="breadcrumb-container" aria-label="breadcrumb">
-  <div class="container">
-    <ol class="breadcrumb rounded-0 mb-0 px-0">
-      <li class="breadcrumb-item">
-        <a href="/">Home</a>
-      </li>
-      <li class="breadcrumb-item">
-        <a href="{% url 'applications:start' %}">Apply</a>
-      </li>
-      <li class="breadcrumb-item active" aria-current="page">
-        {{ title }}
-      </li>
-    </ol>
-  </div>
-</nav>
+  {% url "home" as home_url %}
+  {% url "applications:start" as start_url %}
+
+  {% #breadcrumbs %}
+    {% breadcrumb title="Home" url=home_url %}
+    {% breadcrumb title="Apply for research access to OpenSAFELY" url=start_url %}
+    {% breadcrumb title=title active=True %}
+  {% /breadcrumbs %}
 {% endblock breadcrumbs %}
 
 {% block jumbotron %}
@@ -34,107 +27,82 @@
 
 {% block content %}
 {% if progress_percent > 0 %}
-<div class="border-bottom pb-4 mb-4 mt-n3">
-  <div class="container">
-    <div class="row">
-      <div class="col-lg-8">
-        <h2 class="h5">Your progress</h2>
-        <label class="prg" for="progressbar">
-          <span class="sr-only">Form progress</span>
-          <progress
-            class="prg__bar"
-            id="progressbar"
-            max="100"
-            value="{{ progress_percent }}"
-          >
-          </progress>
-        </label>
-      </div>
-    </div>
-  </div>
+<div class="max-w-3xl border-b pb-4 mb-4 -mt-3">
+  <h2 class="text-lg leading-snug font-semibold mb-3">
+    Your progress
+  </h2>
+  <label class="relative grid" for="progressbar">
+    <span class="sr-only">Form progress</span>
+    <progress
+      class="
+        w-full bg-slate-200 rounded-lg h-6
+        [&::-webkit-progress-bar]:rounded-lg [&::-webkit-progress-value]:rounded-l-lg [&::-webkit-progress-bar]:bg-slate-200 [&::-webkit-progress-value]:bg-oxford-200 [&::-moz-progress-bar]:bg-oxford-200
+      "
+      id="progressbar"
+      max="100"
+      value="{{ progress_percent }}"
+    >
+    </progress>
+    <span class="absolute text-sm font-bold self-center justify-self-center text-oxford-900">
+      {{ progress_percent }}%
+    </span>
+  </label>
 </div>
 {% endif %}
 
-<article class="container" id="applicationForm">
-  <div class="row">
-    <div class="col-lg-8">
+{% article_header title=title text=sub_title class="mb-6" %}
 
-      {% if rubric %}
-        <div class="d-flex flex-column mb-3">
-          {{ rubric }}
+{% #card class="max-w-3xl pb-6" container=True %}
+  {% if rubric %}
+    <div class="prose prose-oxford mb-6" id="applicationForm">
+      {{ rubric }}
+    </div>
+  {% endif %}
+
+  {% if non_field_errors %}
+    {% for error in non_field_errors %}
+      <div class="alert alert-danger" role="alert">{{ error }}</div>
+    {% endfor %}
+  {% endif %}
+
+  {% if template_name %}
+    {% include template_name %}
+  {% else %}
+    <form method="POST" class="flex flex-col gap-8">
+      {% csrf_token %}
+
+      {% for fieldset in fieldsets %}
+        <fieldset class="flex flex-col gap-6 border-l-4 border-l-slate-200 pb-3 pt-1 pl-4">
+          {% if fieldset.label %}
+            <legend class="text-xl font-semibold leading-tight float-left">
+              {{ fieldset.label }}
+            </legend>
+          {% endif %}
+
+          <div class="flex flex-col gap-3 max-w-lg">
+            {% for field in fieldset.fields %}
+              {% if field.template_name == "components/form_text.html" %}
+                {% form_input custom_field=True required=field.required placeholder=field.name id="id_"|add:field.name label=field.label name=field.name value=field.value errors=field.errors hint_text=field.help_text type=field.attributes.type inputmode=field.attributes.inputmode autocomplete=field.attributes.autocomplete autocapitalize=field.attributes.autocapitalize spellcheck=field.attributes.spellcheck autocorrect=field.attributes.autocorrect maxlength=field.attributes.maxlength %}
+              {% elif field.template_name == "components/form_textarea.html" %}
+                {% form_textarea custom_field=True required=field.required placeholder=field.name id="id_"|add:field.name label=field.label name=field.name value=field.value errors=field.errors hint_text=field.help_text type=field.attributes.type inputmode=field.attributes.inputmode autocomplete=field.attributes.autocomplete autocapitalize=field.attributes.autocapitalize spellcheck=field.attributes.spellcheck autocorrect=field.attributes.autocorrect maxlength=field.attributes.maxlength rows=8 %}
+              {% else %}
+                {% include field.template_name with field=field.field label=field.label name=field.name extra_attributes=field.attributes %}
+              {% endif %}
+            {% endfor %}
+          </div>
+        </fieldset>
+      {% endfor %}
+
+      {% if footer %}
+        <div class="d-flex flex-column my-2">
+          {{ footer }}
         </div>
       {% endif %}
 
-      {% if non_field_errors %}
-        {% for error in non_field_errors %}
-          <div class="alert alert-danger" role="alert">{{ error }}</div>
-        {% endfor %}
-      {% endif %}
-
-      {% if template_name %}
-      {% include template_name %}
-      {% else %}
-      <form method="POST">
-        {% csrf_token %}
-
-        {% for fieldset in fieldsets %}
-          <fieldset class="d-flex flex-column mb-4 {% if not forloop.last %}pb-4 border-bottom{% endif %}">
-            {% if fieldset.label %}
-            <legend class="mb-0">
-              <h2 class="h3 mb-3">{{ fieldset.label }}</h2>
-            </legend>
-            {% endif %}
-            {% for field in fieldset.fields %}
-              {% include field.template_name with field=field.field label=field.label name=field.name extra_attributes=field.attributes %}
-            {% endfor %}
-          </fieldset>
-        {% endfor %}
-
-        {% if footer %}
-          <div class="d-flex flex-column my-2">
-            {{ footer }}
-          </div>
-        {% endif %}
-
-        <button class="btn btn-lg btn-success mt-3" type="submit" >
-          Continue
-        </button>
-      </form>
-
-      <hr>
-
-      {% if page.page_instance.last_reviewed_at is not None %}
-      <h2 class="h3 mb-3">OpenSAFELY review</h2>
-        <ul>
-          <li>
-            Page last reviewed at: {{ page.page_instance.last_reviewed_at }}
-          </li>
-
-          {% if page.page_instance.is_approved is None %}
-          <li>
-            Page is still awaiting an approval decision.
-          </li>
-          {% elif not page.page_instance.is_approved %}
-          <li>
-            Page not approved &cross;
-          </li>
-          {% else %}
-          <li>
-            Page approved &checkmark;
-          </li>
-          {% endif %}
-
-          {% if page.page_instance.notes %}
-          <li>Reviewer's notes:
-            <br>
-            {{ page.page_instance.notes|linebreaksbr }}
-          </li>
-          {% endif %}
-        </ul>
-
-      {% endif %}
-      {% endif %}
-    </div>
-  </div>
-</article>
+      {% #button variant="success" type="submit" class="self-start" %}
+        Continue
+      {% /button %}
+    </form>
+  {% endif %}
+{% /card %}
 {% endblock %}

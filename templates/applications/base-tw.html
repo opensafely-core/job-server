@@ -1,0 +1,9 @@
+{% extends "base-tw.html" %}
+
+{% load django_vite %}
+
+{% block extra_js %}
+  {% vite_asset "assets/src/scripts/application-form.js" %}
+  {% vite_legacy_polyfills %}
+  {% vite_legacy_asset "assets/src/scripts/application-form-legacy.js" %}
+{% endblock %}
