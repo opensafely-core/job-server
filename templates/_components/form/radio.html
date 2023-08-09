@@ -1,5 +1,19 @@
+{% if custom_field == True %}
+  {% var label_for=id %}
+  {% var input_id=id %}
+  {% var input_name=name %}
+  {% var input_value=value %}
+  {% var field_errors=errors %}
+{% else %}
+  {% var label_for=field.id_for_label %}
+  {% var input_id=field.auto_id %}
+  {% var input_name=field.html_name %}
+  {% var input_value=field.value %}
+  {% var field_errors=field.errors %}
+{% endif %}
+
 <label
-  for="{{ id }}"
+  for="{{ label_for }}"
   class="w-fit max-w-full flex flex-row gap-x-3 items-start cursor-pointer text-lg group {{ label_class }}"
 >
   <input
@@ -11,12 +25,12 @@
       checked:bg-oxford-600 checked:border-oxford-600
       {{ input_class }}
     "
-    id="{{ id }}"
-    name="{{ name }}"
+    id="{{ input_id }}"
+    name="{{ input_name }}"
     type="radio"
-    value="{{ value }}"
+    value="{{ input_value }}"
   >
   <span class="transition-colors group-hover:text-oxford-600 {{ span_class }}">
-    {{ label }}
+    {% if label %}{{ label }}{% else %}{{ field.label }}{% endif %}
   </span>
 </label>
