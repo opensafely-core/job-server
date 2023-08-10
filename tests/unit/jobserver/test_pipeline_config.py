@@ -42,11 +42,11 @@ def test_get_actions_missing_needs():
     dummy = Pipeline(
         **{
             "version": 3,
-            "expectations": {},
+            "expectations": {"population_size": 1000},
             "actions": {
                 "frobnicate": {
-                    "run": "test",
-                    "outputs": {"highly_sensitive": {"cohort": "/some/path"}},
+                    "run": "test:latest",
+                    "outputs": {"highly_sensitive": {"cohort": "some/path"}},
                 },
             },
         }
@@ -64,16 +64,16 @@ def test_get_actions_no_run_all():
     dummy = Pipeline(
         **{
             "version": 3,
-            "expectations": {},
+            "expectations": {"population_size": 1000},
             "actions": {
                 "frobnicate": {
-                    "run": "test1",
-                    "outputs": {"highly_sensitive": {"cohort": "/some/path"}},
+                    "run": "test1:latest",
+                    "outputs": {"highly_sensitive": {"cohort": "some/path1"}},
                 },
                 "run_all": {
                     "needs": ["frobnicate"],
-                    "run": "test2",
-                    "outputs": {"highly_sensitive": {"cohort": "/some/path"}},
+                    "run": "test2:latest",
+                    "outputs": {"highly_sensitive": {"cohort": "some/path2"}},
                 },
             },
         }
@@ -92,11 +92,11 @@ def test_get_actions_success():
     content = Pipeline(
         **{
             "version": 3,
-            "expectations": {},
+            "expectations": {"population_size": 1000},
             "actions": {
                 "frobnicate": {
-                    "run": "test",
-                    "outputs": {"highly_sensitive": {"cohort": "/some/path"}},
+                    "run": "test:latest",
+                    "outputs": {"highly_sensitive": {"cohort": "some/path"}},
                 },
             },
         }

@@ -82,7 +82,7 @@ def test_job_run_command_error_action():
       population_size: 1000
     actions:
       my_action:
-        run: cowsay research!
+        run: cowsay:latest research!
         outputs:
           moderately_sensitive:
             log: logs/cowsay.log
@@ -103,13 +103,13 @@ def test_job_run_command_invalid_project_definition():
       population_size: 1000
     actions:
       my_action:
-        run: cowsay research!
+        run: cowsay:latest research!
         outputs:
           moderately_sensitive:
             log: logs/cowsay.log
       another_action:
         needs: [my_action]
-        run: cowsay research!
+        run: cowsay:latest research!
         outputs:
           moderately_sensitive:
             log: logs/cowsay.log
@@ -130,9 +130,9 @@ def test_job_run_command_invalid_project_definition_yaml():
       population_size: 1000
     actions:
       my_action:
-        run: cowsay research!
+        run: cowsay:latest research!
       my_action:
-        run: cowsay research!
+        run: cowsay:latest research!
     """
 
     job_request = JobRequestFactory(project_definition=pipeline)
@@ -147,7 +147,7 @@ def test_job_run_command_success():
       population_size: 1000
     actions:
       my_action:
-        run: cowsay research!
+        run: cowsay:latest research!
         outputs:
           moderately_sensitive:
             log: logs/cowsay.log
@@ -156,7 +156,7 @@ def test_job_run_command_success():
     job_request = JobRequestFactory(project_definition=pipeline)
     job = JobFactory(job_request=job_request, action="my_action")
 
-    assert job.run_command == "cowsay research!"
+    assert job.run_command == "cowsay:latest research!"
 
 
 def test_job_runtime():

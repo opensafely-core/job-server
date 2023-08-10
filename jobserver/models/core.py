@@ -4,7 +4,6 @@ import secrets
 from datetime import date, timedelta
 from urllib.parse import quote
 
-import pydantic
 import structlog
 from django.contrib.auth.hashers import check_password, make_password
 from django.contrib.auth.models import AbstractBaseUser, UserManager
@@ -20,7 +19,7 @@ from environs import Env
 from furl import furl
 from opentelemetry.trace import propagation
 from opentelemetry.trace.propagation import tracecontext
-from pipeline import YAMLError, load_pipeline
+from pipeline import ProjectValidationError, load_pipeline
 from sentry_sdk import capture_message
 from xkcdpass import xkcd_password
 
@@ -146,11 +145,11 @@ class Job(models.Model):
         # command for this job
         try:
             pipeline = load_pipeline(self.job_request.project_definition)
-        except (pydantic.ValidationError, YAMLError):
+        except ProjectValidationError:
             return  # we don't have a valid config
 
         if action := pipeline.actions.get(self.action):
-            command = action.run.run
+            command = action.run.raw
         else:
             return  # unknown action, likely __error__
 
