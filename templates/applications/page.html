@@ -53,9 +53,7 @@
     {% endfor %}
   {% endif %}
 
-  {% if template_name %}
-    {% include template_name %}
-  {% else %}
+  {% if not template_name %}
     <form method="POST" class="flex flex-col gap-8">
       {% csrf_token %}
 
@@ -69,13 +67,13 @@
 
           {% for field in fieldset.fields %}
             {% if field.template_name == "components/form_text.html" %}
-              {% form_input custom_field=True required=field.required placeholder=field.name id="id_"|add:field.name label=field.label name=field.name value=field.value errors=field.errors hint_text=field.help_text type=field.attributes.type inputmode=field.attributes.inputmode autocomplete=field.attributes.autocomplete autocapitalize=field.attributes.autocapitalize spellcheck=field.attributes.spellcheck autocorrect=field.attributes.autocorrect maxlength=field.attributes.maxlength %}
+              {% form_input custom_field=True required=field.required placeholder=field.name id="id_"|add:field.name label=field.label name=field.name value=field.field.value errors=field.errors hint_text=field.help_text type=field.attributes.type inputmode=field.attributes.inputmode autocomplete=field.attributes.autocomplete autocapitalize=field.attributes.autocapitalize spellcheck=field.attributes.spellcheck autocorrect=field.attributes.autocorrect maxlength=field.attributes.maxlength %}
             {% elif field.template_name == "components/form_textarea.html" %}
-              {% form_textarea custom_field=True required=field.required placeholder=field.name id="id_"|add:field.name label=field.label name=field.name value=field.value errors=field.errors hint_text=field.help_text type=field.attributes.type inputmode=field.attributes.inputmode autocomplete=field.attributes.autocomplete autocapitalize=field.attributes.autocapitalize spellcheck=field.attributes.spellcheck autocorrect=field.attributes.autocorrect maxlength=field.attributes.maxlength rows=8 %}
+              {% form_textarea custom_field=True required=field.required placeholder=field.name id="id_"|add:field.name label=field.label name=field.name value=field.field.value errors=field.errors hint_text=field.help_text type=field.attributes.type inputmode=field.attributes.inputmode autocomplete=field.attributes.autocomplete autocapitalize=field.attributes.autocapitalize spellcheck=field.attributes.spellcheck autocorrect=field.attributes.autocorrect maxlength=field.attributes.maxlength rows=8 %}
             {% elif field.template_name == "components/form_radio.html" %}
-              <div class="flex flex-col -mb-3">
-                {% form_radio custom_field=True required=field.required placeholder=field.name id="id_"|add:field.name label=field.label name=field.name value=field.value errors=field.errors hint_text=field.help_text %}
-              </div>
+              {% for field in field.field %}
+                {{ field }}
+              {% endfor %}
             {% elif field.template_name == "components/form_checkbox.html" %}
               <div class="flex flex-col -mb-3">
                 {% form_checkbox custom_field=True required=field.required placeholder=field.name id="id_"|add:field.name label=field.label name=field.name value=field.value errors=field.errors hint_text=field.help_text %}
@@ -99,4 +97,9 @@
     </form>
   {% endif %}
 {% /card %}
+
+{% if template_name %}
+  {% include template_name %}
+{% endif %}
+
 {% endblock %}

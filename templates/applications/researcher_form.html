@@ -69,7 +69,11 @@
 
       {% for value, label in form.does_researcher_need_server_access.field.choices %}
         {% with id=forloop.counter0|stringformat:"s" %}
-          {% form_radio custom_field=True name="does_researcher_need_server_access" id="id_does_researcher_need_server_access"|add:label|add:"_"|add:id|slugify label=label value=value %}
+          {% if form.does_researcher_need_server_access.value == value %}
+            {% form_radio custom_field=True name="does_researcher_need_server_access" id="id_does_researcher_need_server_access"|add:label|add:"_"|add:id|slugify label=label value=value checked=True %}
+          {% else %}
+            {% form_radio custom_field=True name="does_researcher_need_server_access" id="id_does_researcher_need_server_access"|add:label|add:"_"|add:id|slugify label=label value=value  %}
+          {% endif %}
         {% endwith %}
       {% endfor %}
     {% /form_fieldset %}
@@ -85,7 +89,11 @@
 
       {% for value, label in form.phone_type.field.choices %}
         {% with id=forloop.counter0|stringformat:"s" %}
-          {% form_radio custom_field=True name="phone_type" id="id_"|add:label|add:"_"|add:id|slugify label=label value=value %}
+          {% if form.phone_type.value == value %}
+            {% form_radio custom_field=True name="phone_type" id="id_"|add:label|add:"_"|add:id|slugify label=label value=value checked=True %}
+          {% else %}
+            {% form_radio custom_field=True name="phone_type" id="id_"|add:label|add:"_"|add:id|slugify label=label value=value %}
+          {% endif %}
         {% endwith %}
       {% endfor %}
     {% /form_fieldset %}
@@ -97,7 +105,11 @@
 
       {% for value, label in form.has_taken_safe_researcher_training.field.choices %}
         {% with id=forloop.counter0|stringformat:"s" %}
-          {% form_radio custom_field=True name="has_taken_safe_researcher_training" id="id_has_taken_safe_researcher_training"|add:label|add:"_"|add:id|slugify label=label value=value %}
+          {% if form.has_taken_safe_researcher_training.value == value %}
+            {% form_radio custom_field=True name="has_taken_safe_researcher_training" id="id_has_taken_safe_researcher_training"|add:label|add:"_"|add:id|slugify label=label value=value checked=True %}
+          {% else %}
+            {% form_radio custom_field=True name="has_taken_safe_researcher_training" id="id_has_taken_safe_researcher_training"|add:label|add:"_"|add:id|slugify label=label value=value %}
+          {% endif %}
         {% endwith %}
       {% endfor %}
     {% /form_fieldset %}
