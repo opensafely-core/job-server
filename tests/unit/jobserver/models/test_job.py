@@ -3,7 +3,7 @@ from datetime import timedelta
 from django.urls import reverse
 from django.utils import timezone
 
-from ....factories import JobFactory, JobRequestFactory
+from ....factories import JobFactory
 from ....utils import minutes_ago
 
 
@@ -67,96 +67,6 @@ def test_job_is_missing_updates_missing_updated_at():
 
 def test_job_is_missing_updates_completed():
     assert not JobFactory(status="failed").is_missing_updates
-
-
-def test_job_run_command_empty_project_definition():
-    job_request = JobRequestFactory(project_definition="")
-
-    assert JobFactory(job_request=job_request).run_command is None
-
-
-def test_job_run_command_error_action():
-    pipeline = """
-    version: 3.0
-    expectations:
-      population_size: 1000
-    actions:
-      my_action:
-        run: cowsay:latest research!
-        outputs:
-          moderately_sensitive:
-            log: logs/cowsay.log
-    """
-
-    job_request = JobRequestFactory(project_definition=pipeline)
-
-    assert JobFactory(job_request=job_request, action="__error__").run_command is None
-
-
-def test_job_run_command_invalid_project_definition():
-    """
-    Test an invalid project definition
-    """
-    pipeline = """
-    version: 3.0
-    expectations:
-      population_size: 1000
-    actions:
-      my_action:
-        run: cowsay:latest research!
-        outputs:
-          moderately_sensitive:
-            log: logs/cowsay.log
-      another_action:
-        needs: [my_action]
-        run: cowsay:latest research!
-        outputs:
-          moderately_sensitive:
-            log: logs/cowsay.log
-    """
-
-    job_request = JobRequestFactory(project_definition=pipeline)
-
-    assert JobFactory(job_request=job_request).run_command is None
-
-
-def test_job_run_command_invalid_project_definition_yaml():
-    """
-    Test an invalid project definition
-    """
-    pipeline = """
-    version: 3.0
-    expectations:
-      population_size: 1000
-    actions:
-      my_action:
-        run: cowsay:latest research!
-      my_action:
-        run: cowsay:latest research!
-    """
-
-    job_request = JobRequestFactory(project_definition=pipeline)
-
-    assert JobFactory(job_request=job_request).run_command is None
-
-
-def test_job_run_command_success():
-    pipeline = """
-    version: 3.0
-    expectations:
-      population_size: 1000
-    actions:
-      my_action:
-        run: cowsay:latest research!
-        outputs:
-          moderately_sensitive:
-            log: logs/cowsay.log
-    """
-
-    job_request = JobRequestFactory(project_definition=pipeline)
-    job = JobFactory(job_request=job_request, action="my_action")
-
-    assert job.run_command == "cowsay:latest research!"
 
 
 def test_job_runtime():
