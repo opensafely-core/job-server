@@ -1,5 +1,5 @@
 from django.core.management.base import BaseCommand
-from pipeline import ProjectValidationError, load_pipeline
+from pipeline import load_pipeline
 from rich.progress import track
 
 from jobserver.models import JobRequest
@@ -27,7 +27,7 @@ class Command(BaseCommand):
             # command for this job
             try:
                 pipeline = load_pipeline(job_request.project_definition)
-            except ProjectValidationError:
+            except Exception:
                 print(f"{job_request.pk}: invalid config")
                 continue  # we don't have a valid config
 
