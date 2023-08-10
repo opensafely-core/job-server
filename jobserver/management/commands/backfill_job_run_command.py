@@ -26,7 +26,7 @@ class Command(BaseCommand):
 
             for job in job_request.jobs.all():
                 if action := pipeline.actions.get(job.action):
-                    command = action.run.run
+                    command = action.run.raw
                 else:
                     continue  # unknown action, likely __error__
 
