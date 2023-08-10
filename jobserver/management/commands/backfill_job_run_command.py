@@ -16,6 +16,13 @@ class Command(BaseCommand):
         print(f"Processing: {count}/{total}")
 
         for job_request in track(job_requests, description="Processing..."):
+            jobs = job_request.jobs.filter(run_command="")
+
+            if not jobs.exists():
+                # skip job requests where all jobs have already been processed,
+                # making it quicker to rerun this script
+                continue
+
             # load job_request's project_definition into pipeline and get the
             # command for this job
             try:
@@ -24,7 +31,7 @@ class Command(BaseCommand):
                 print(f"{job_request.pk}: invalid config")
                 continue  # we don't have a valid config
 
-            for job in job_request.jobs.all():
+            for job in jobs:
                 if action := pipeline.actions.get(job.action):
                     command = action.run.raw
                 else:
