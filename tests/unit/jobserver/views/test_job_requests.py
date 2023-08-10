@@ -161,10 +161,10 @@ def test_jobrequestcreate_get_success(ref, rf, mocker, user):
       population_size: 1000
     actions:
       twiddle:
-        run: test
+        run: test:latest
         outputs:
           moderately_sensitive:
-            cohort: /path/to/output.csv
+            cohort: path/to/output.csv
     """
     mocker.patch(
         "jobserver.views.job_requests.get_project",
@@ -230,10 +230,10 @@ def test_jobrequestcreate_get_with_permission(rf, mocker, user):
       population_size: 1000
     actions:
       twiddle:
-        run: test
+        run: test:latest
         outputs:
           moderately_sensitive:
-            cohort: /path/to/output.csv
+            cohort: path/to/output.csv
     """
     mocker.patch(
         "jobserver.views.job_requests.get_project",
@@ -347,10 +347,10 @@ def test_jobrequestcreate_post_success(ref, rf, mocker, monkeypatch, user):
       population_size: 1000
     actions:
       twiddle:
-        run: test
+        run: test:latest
         outputs:
           moderately_sensitive:
-            cohort: /path/to/output.csv
+            cohort: path/to/output.csv
     """
     mocker.patch(
         "jobserver.views.job_requests.get_project",
@@ -442,10 +442,10 @@ def test_jobrequestcreate_post_with_notifications_default(
       population_size: 1000
     actions:
       twiddle:
-        run: test
+        run: test:latest
         outputs:
           moderately_sensitive:
-            cohort: /path/to/output.csv
+            cohort: path/to/output.csv
     """
     mocker.patch(
         "jobserver.views.job_requests.get_project",
@@ -497,10 +497,10 @@ def test_jobrequestcreate_post_with_notifications_override(
       population_size: 1000
     actions:
       twiddle:
-        run: test
+        run: test:latest
         outputs:
           moderately_sensitive:
-            cohort: /path/to/output.csv
+            cohort: path/to/output.csv
     """
     mocker.patch(
         "jobserver.views.job_requests.get_project",
