@@ -13,18 +13,6 @@
   {% /breadcrumbs %}
 {% endblock breadcrumbs %}
 
-{% block jumbotron %}
-<div class="jumbotron jumbotron-fluid pt-md-2">
-  <div class="container">
-    <h1 class="display-4">{{ title }}</h1>
-
-    {% if sub_title %}
-    <p class="lead">{{ sub_title }}</p>
-    {% endif %}
-  </div>
-</div>
-{% endblock jumbotron %}
-
 {% block content %}
 {% if progress_percent > 0 %}
 <div class="max-w-3xl border-b pb-4 mb-4 -mt-3">
