@@ -169,7 +169,11 @@
         {% /description_item %}
 
         {% #description_item title="Run command" %}
+          {% if job.run_command %}
           {% #code %}{{ job.run_command }}{% /code %}
+          {% else %}
+          -
+          {% endif %}
         {% /description_item %}
       </dl>
     {% /card %}
