@@ -154,7 +154,7 @@ def test_jobrequest_num_completed_no_jobs():
     assert JobRequestFactory().num_completed == 0
 
 
-def test_job_request_num_completed_success():
+def test_jobrequest_num_completed_success():
     job_request = JobRequestFactory()
 
     job1, job2 = JobFactory.create_batch(2, job_request=job_request, status="succeeded")
@@ -375,3 +375,13 @@ def test_jobrequest_str():
     job_request = JobRequestFactory()
 
     assert str(job_request) == str(job_request.pk)
+
+
+def test_jobrequestmanager_with_started_at():
+    JobRequestFactory.create_batch(5)
+
+    workspace = WorkspaceFactory()
+    JobRequestFactory(workspace=workspace)
+    JobRequestFactory(workspace=workspace)
+
+    assert JobRequest.objects.with_started_at().filter(workspace=workspace).count() == 2
