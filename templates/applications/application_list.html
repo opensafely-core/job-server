@@ -1,10 +1,9 @@
-{% extends "applications/base-tw.html" %}
+{% extends "applications/base.html" %}
 
 {% block metatitle %}Applications | OpenSAFELY Jobs{% endblock metatitle %}
 
 {% block breadcrumbs %}
   {% url "home" as home_url %}
-  {% url "applications:list" as applications_url %}
 
   {% #breadcrumbs %}
     {% breadcrumb title="Home" url=home_url %}
