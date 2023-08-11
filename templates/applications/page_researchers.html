@@ -17,25 +17,28 @@
         {% #description_item title="Email" %}
           {{ researcher.email }}
         {% /description_item %}
+        {% #description_item title="GitHub username" %}
+          {{ researcher.github_username }}
+        {% /description_item %}
 
         {% #description_item title="Do they need access to the results server?" %}
-          {{ researcher.get_does_researcher_need_server_access_display |default_if_none:"Not supplied"}}
+          {{ researcher.does_researcher_need_server_access|default_if_none:"Not supplied"}}
         {% /description_item %}
         {% #description_item title="Phone number" %}
           {{ researcher.telephone|default:"Not supplied" }}
         {% /description_item %}
         {% #description_item title="Type of phone" %}
-          {{ researcher.get_phone_type_display|default:"Not supplied" }}
+          {{ researcher.phone_type|default:"Not supplied" }}
         {% /description_item %}
 
         {% #description_item title="Have they undertaken safe researcher training?" %}
-          {{ researcher.get_has_taken_safe_researcher_training_display|default_if_none:"Not supplied" }}
+          {{ researcher.has_taken_safe_researcher_training|yesno:"Yes,No"|default_if_none:"Not supplied" }}
         {% /description_item %}
         {% #description_item title="Organisation training completed with" %}
           {{ researcher.training_with_org|default:"Not supplied" }}
         {% /description_item %}
         {% #description_item title="Training passed on" %}
-          {{ researcher.training_passed_at|date:"Y-m-d"|default:"Not supplied" }}
+          {{ researcher.training_passed_at|date:"d F Y"|default:"Not supplied" }}
         {% /description_item %}
       </dl>
 
