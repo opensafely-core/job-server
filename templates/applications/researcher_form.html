@@ -6,10 +6,12 @@
 
 {% block breadcrumbs %}
   {% url "home" as home_url %}
+  {% url "applications:list" as applications_url %}
   {% url "applications:start" as start_url %}
 
   {% #breadcrumbs %}
     {% breadcrumb title="Home" url=home_url %}
+    {% breadcrumb title="Applications" url=applications_url %}
     {% breadcrumb title="Apply for research access to OpenSAFELY" url=start_url %}
     {% if is_edit %}
       {% breadcrumb title="Edit a researcher" active=True %}
