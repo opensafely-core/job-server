@@ -196,8 +196,7 @@
       {% link href=job_list_url text="Event Log" append_after="." %}
     <p>
 
-    {% url_without_querystring q="" as clear_filter_url %}
-    {% #button class="mt-3" href=clear_filter_url type="link" variant="secondary-outline" %}Clear search filter{% /button %}
+    {% #button class="mt-3" href=workspace.get_logs_url type="link" variant="secondary-outline" %}Clear search filter{% /button %}
   {% /card %}
 {% endif %}
 

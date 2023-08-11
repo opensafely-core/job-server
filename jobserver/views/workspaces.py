@@ -544,7 +544,8 @@ class WorkspaceLog(ListView):
 
     def get_queryset(self):
         qs = (
-            JobRequest.objects.filter(workspace=self.workspace)
+            JobRequest.objects.with_started_at()
+            .filter(workspace=self.workspace)
             .select_related("backend", "workspace", "workspace__project")
             .order_by("-pk")
         )
