@@ -1,172 +1,186 @@
-{% extends "applications/base.html" %}
+{% extends "applications/base-tw.html" %}
 
 {% load humanize %}
 
-{% block metatitle %}Apply | OpenSAFELY Jobs{% endblock metatitle %}
+{% block metatitle %}Apply: Check your answers | OpenSAFELY Jobs{% endblock metatitle %}
+
+{% block breadcrumbs %}
+  {% url "home" as home_url %}
+  {% url "applications:list" as applications_url %}
+  {% url "applications:start" as start_url %}
+
+  {% #breadcrumbs %}
+    {% breadcrumb title="Home" url=home_url %}
+    {% breadcrumb title="Applications" url=applications_url %}
+    {% breadcrumb title="Apply for research access to OpenSAFELY" url=start_url %}
+    {% breadcrumb title="Check your answers" active=True %}
+  {% /breadcrumbs %}
+{% endblock breadcrumbs %}
 
 {% block content %}
-<article class="container" id="applicationForm">
-  <div class="row">
-    <div class="col">
-      {% for page in pages %}
-      <hr />
-      <div class="d-flex justify-content-between align-items-center">
-        <h3 id="{{ page.key }}">{{ page.title }}</h3>
-        <a href="{% url 'applications:page' application.pk_hash page.key %}">Change<span class="sr-only"> {{ field.label|lower }}</span></a>
-      </div>
+  {% article_header class="mb-6" title="Check your answers" text="Check the information you've provided before submitting, or make changes." %}
 
-      {% for fieldset in page.fieldsets %}
-      <h4>{{ fieldset.label }}</h4>
+  <div class="grid gap-y-6">
+    {% for page in pages %}
+      {% url "applications:page" application.pk_hash page.key as page_url %}
+      {% #card container=False title=page.title id=page.key button=True button_href=page_url button_text="Change answers" %}
+        {% if page.fieldsets %}
+          {% for fieldset in page.fieldsets %}
+            {% if fieldset.label %}
+              <h3 class="text-lg font-semibold px-3 py-2 md:py-4 md:px-6 border-t border-t-slate-200">
+                {{ fieldset.label }}
+              </h3>
+            {% endif %}
 
-      {% for field in fieldset.fields %}
-      <dl class="row mb-1">
-        <dt class="col-6 mb-2{% if not field.is_valid %} text-danger{% endif %}">
-          {{ field.label }}
-          {% if not field.is_valid %}*{% endif %}
-        </dt>
-        <dd class="col-6 text-pre-wrap">{{ field.value|linebreaksbr }}</dd>
-      </dl>
-      {% endfor %}
-      {% endfor %}
-
-      {% if page.wizard_page.page_instance.last_reviewed_at is not None %}
-      <h2 class="h3 mb-3">OpenSAFELY review</h2>
-        <ul>
-          <li>
-            Page last reviewed at: {{ page.wizard_page.page_instance.last_reviewed_at }}
-          </li>
-
-          {% if page.wizard_page.page_instance.is_approved is None %}
-          <li>
-            Page is still awaiting an approval decision.
-          </li>
-          {% elif not page.wizard_page.page_instance.is_approved %}
-          <li class="text-danger">
-            Page not approved &cross;
-          </li>
-          {% else %}
-          <li>
-            Page approved &checkmark;
-          </li>
-          {% endif %}
-
-          {% if page.wizard_page.page_instance.notes %}
-          <li>Reviewer's notes:
-            <br>
-            {{ page.wizard_page.page_instance.notes|linebreaksbr }}
-          </li>
-          {% endif %}
-        </ul>
-
-      {% endif %}
-
-      {% endfor %}
-
-      <section class="mb-3 pb-3 border-bottom">
-
-        {% for form in researchers %}
-        <div class="card mb-3">
-          <div class="card-header">
-            <h2 class="h5">Researcher {{ forloop.counter }}</h2>
-          </div>
-
-          <div class="card-body">
-            <dl class="row">
-              <dt class="col-7{% if form.name.errors %} text-danger{% endif %}">
-                Name{% if form.name.errors %}*{% endif %}:
-              </dt>
-              <dd class="col-5">{{ form.name.value }}</dd>
-
-              <dt class="col-7{% if form.job_title.errors %} text-danger{% endif %}">
-                Job title{% if form.job_title.errors %}*{% endif %}:
-              </dt>
-              <dd class="col-5">{{ form.job_title.value }}</dd>
-
-              <dt class="col-7{% if form.email.errors %} text-danger{% endif %}">
-                Email{% if form.email.errors %}*{% endif %}:
-              </dt>
-              <dd class="col-5">{{ form.email.value }}</dd>
-
-              <dt class="col-7{% if form.github_username.errors %} text-danger{% endif %}">
-                GitHub username{% if form.github_username.errors %}*{% endif %}:
-              </dt>
-              <dd class="col-5">{{ form.github_username.value }}</dd>
+            <dl class="border-t border-slate-200 sm:divide-y sm:divide-slate-200">
+              {% for field in fieldset.fields %}
+                {% if not field.is_valid %}
+                  {% #description_item stacked=True title=field.label|add:" *" class="!bg-bn-ribbon-50" %}
+                    {{ field.value|linebreaksbr }}
+                  {% /description_item %}
+                {% else %}
+                  {% #description_item stacked=True title=field.label %}
+                    {{ field.value|linebreaksbr }}
+                  {% /description_item %}
+                {% endif %}
+              {% endfor %}
             </dl>
-
-            <dl class="row">
-              <dt class="col-7{% if form.does_researcher_need_server_access.errors %} text-danger{% endif %}">
-                Do they need access to the results server?
-                {% if form.does_researcher_need_server_access.errors %}*{% endif %}
-              </dt>
-              <dd class="col-5">{{ form.does_researcher_need_server_access.value|default_if_none:"Not supplied"}}</dd>
-
-              <dt class="col-7{% if form.telephone.errors %} text-danger{% endif %}">
-                Phone number{% if form.telephone.errors %}*{% endif %}:
-                {% for error in form.telephone.errors %}
-                <p>{{ error }}</p>
-                {% endfor %}
-              </dt>
-              <dd class="col-5">{{ form.telephone.value|default:"Not supplied" }}</dd>
-
-              <dt class="col-7{% if form.phone_type.errors %} text-danger{% endif %}">
-                Type of phone{% if form.phone_type.errors %}*{% endif %}:
-                {% for error in form.phone_type.errors %}
-                <p>{{ error }}</p>
-                {% endfor %}
-              </dt>
-              <dd class="col-5">{{ form.phone_type.value|default:"Not supplied" }}</dd>
+          {% endfor %}
+        {% else %}
+          {% for form in researchers %}
+            <h3 class="text-lg font-semibold px-3 py-2 md:py-4 md:px-6 border-t border-t-slate-200">
+              Researcher: {{ form.name.value }}
+            </h3>
+            <dl class="border-t border-slate-200 sm:divide-y sm:divide-slate-200">
+              {% if form.job_title.errors %}
+                {% #description_item stacked=True title="Job title"|add:" *" class="!bg-bn-ribbon-50" %}
+                  {{ form.job_title.value }}
+                {% /description_item %}
+              {% else %}
+                {% #description_item stacked=True title="Job title" %}
+                  {{ form.job_title.value }}
+                {% /description_item %}
+              {% endif %}
+              {% if form.email.errors %}
+                {% #description_item stacked=True title="Email"|add:" *" class="!bg-bn-ribbon-50" %}
+                  {{ form.email.value }}
+                {% /description_item %}
+              {% else %}
+                {% #description_item stacked=True title="Email" %}
+                  {{ form.email.value }}
+                {% /description_item %}
+              {% endif %}
+              {% if form.github_username.errors %}
+                {% #description_item stacked=True title="GitHub username"|add:" *" class="!bg-bn-ribbon-50" %}
+                  {{ form.github_username.value }}
+                {% /description_item %}
+              {% else %}
+                {% #description_item stacked=True title="GitHub username" %}
+                  {{ form.github_username.value }}
+                {% /description_item %}
+              {% endif %}
+              {% if form.does_researcher_need_server_access.errors %}
+                {% #description_item stacked=True title="Do they need access to the results server?"|add:" *" class="!bg-bn-ribbon-50" %}
+                  {{ form.does_researcher_need_server_access.value|yesno:"Yes,No"|default_if_none:"Not supplied"}}
+                {% /description_item %}
+              {% else %}
+                {% #description_item stacked=True title="Do they need access to the results server?" %}
+                  {{ form.does_researcher_need_server_access.value|yesno:"Yes,No"|default_if_none:"Not supplied"}}
+                {% /description_item %}
+              {% endif %}
+              {% if form.telephone.errors %}
+                {% #description_item stacked=True title="Phone number"|add:" *" class="!bg-bn-ribbon-50" %}
+                  {{ form.telephone.value|default:"Not supplied" }}
+                {% /description_item %}
+              {% else %}
+                {% #description_item stacked=True title="Phone number" %}
+                  {{ form.telephone.value|default:"Not supplied" }}
+                {% /description_item %}
+              {% endif %}
+              {% if form.phone_type.errors %}
+                {% #description_item stacked=True title="Type of phone"|add:" *" class="!bg-bn-ribbon-50" %}
+                  {{ form.phone_type.value|default:"Not supplied" }}
+                {% /description_item %}
+              {% else %}
+                {% #description_item stacked=True title="Type of phone" %}
+                  {{ form.phone_type.value|default:"Not supplied" }}
+                {% /description_item %}
+              {% endif %}
+              {% if form.has_taken_safe_researcher_training.errors %}
+                {% #description_item stacked=True title="Have they undertaken safe researcher training?"|add:" *" class="!bg-bn-ribbon-50" %}
+                  {{ form.has_taken_safe_researcher_training.value|yesno:"Yes,No"|default_if_none:"Not supplied" }}
+                {% /description_item %}
+              {% else %}
+                {% #description_item stacked=True title="Have they undertaken safe researcher training?" %}
+                  {{ form.has_taken_safe_researcher_training.value|yesno:"Yes,No"|default_if_none:"Not supplied" }}
+                {% /description_item %}
+              {% endif %}
+              {% if form.training_with_org.errors %}
+                {% #description_item stacked=True title="Organisation training completed with"|add:" *" class="!bg-bn-ribbon-50" %}
+                  {{ form.training_with_org.value|default:"Not supplied" }}
+                {% /description_item %}
+              {% else %}
+                {% #description_item stacked=True title="Organisation training completed with" %}
+                  {{ form.training_with_org.value|default:"Not supplied" }}
+                {% /description_item %}
+              {% endif %}
+              {% if form.training_passed_at.errors %}
+                {% #description_item stacked=True title="Training passed on"|add:" *" class="!bg-bn-ribbon-50" %}
+                  {{ form.training_passed_at.value|date:"d F Y"|default:"Not supplied" }}
+                {% /description_item %}
+              {% else %}
+                {% #description_item stacked=True title="Training passed on" %}
+                  {{ form.training_passed_at.value|date:"d F Y"|default:"Not supplied" }}
+                {% /description_item %}
+              {% endif %}
             </dl>
+          {% endfor %}
+        {% endif %}
 
-            <dl class="row">
-              <dt class="col-7{% if form.has_taken_safe_researcher_training.errors %} text-danger{% endif %}">
-                Have they undertaken safe researcher training?
-                {% if form.has_taken_safe_researcher_training.errors %}*{% endif %}
-              </dt>
-              <dd class="col-5">{{ form.has_taken_safe_researcher_training.value|default_if_none:"Not supplied" }}</dd>
+        {% if page.wizard_page.page_instance.last_reviewed_at is not None %}
+          {% #card_footer class="!bg-bn-sun-50" no_container=True %}
+            <h2 class="text-lg font-semibold text-oxford-700">OpenSAFELY review</h2>
+            <div class="prose prose-sm prose-oxford">
+              <ul>
+                <li>
+                  Page last reviewed at:
+                  {{ page.wizard_page.page_instance.last_reviewed_at }}
+                </li>
 
-              <dt class="col-7{% if form.training_with_org.errors %} text-danger{% endif %}">
-                Organisation training completed with{% if form.training_with_org.errors %}*{% endif %}:
-                {% for error in form.training_with_org.errors %}
-                <p>{{ error }}</p>
-                {% endfor %}
-              </dt>
-              <dd class="col-5">{{ form.training_with_org.value|default:"Not supplied" }}</dd>
+                {% if page.wizard_page.page_instance.is_approved is None %}
+                  <li>Page is still awaiting an approval decision.</li>
+                {% elif not page.wizard_page.page_instance.is_approved %}
+                  <li class="text-bn-ribbon-800">Page not approved <span aria-hidden="true">&cross;</span></li>
+                {% else %}
+                  <li>Page approved <span aria-hidden="true">&checkmark;</span></li>
+                {% endif %}
 
-              <dt class="col-7{% if form.training_passed_at.errors %} text-danger{% endif %}">
-                Training passed on{% if form.training_passed_at.errors %}*{% endif %}:
-                {% for error in form.training_passed_at.errors %}
-                <p>{{ error }}</p>
-                {% endfor %}
-              </dt>
-              <dd class="col-5">
-                {{ form.training_passed_at.value|date:"Y-m-d"|default:"Not supplied" }}
-              </dd>
-            </dl>
-          </div>
-        </div>
-        {% endfor %}
+                {% if page.wizard_page.page_instance.notes %}
+                  <li>Reviewer's notes:
+                    <br>
+                    {{ page.wizard_page.page_instance.notes|linebreaksbr }}
+                  </li>
+                {% endif %}
+              </ul>
+            </div>
+          {% /card_footer %}
+        {% endif %}
 
-      </section>
-
-      <form method="POST">
-        {% csrf_token %}
-        <button
-          class="btn btn-lg btn-success mt-3"
-          type="submit"
-          {% if not is_valid %}
-          disabled
-          aria-disabled="true"
-          {% elif not can_be_submitted %}
-          disabled
-          aria-disabled="true"
-          title="Application has been submitted"
-          {% endif %}
-        >
-          Submit for approval
-        </button>
-      </form>
-
-    </div>
+      {% /card %}
+    {% endfor %}
   </div>
-</article>
-{% endblock %}
+
+  <form method="POST" class="mt-6">
+    {% csrf_token %}
+
+    {% if not is_valid or not can_be_submitted %}
+      {% #button variant="success" type="submit" disabled=True %}
+        Submit for approval
+      {% /button %}
+    {% else %}
+      {% #button variant="success" type="submit" %}
+        Submit for approval
+      {% /button %}
+    {% endif %}
+  </form>
+{% endblock content %}
