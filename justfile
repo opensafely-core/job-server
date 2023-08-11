@@ -120,7 +120,7 @@ update-interactive-templates ref="": && prodenv
 
     test "{{ ref }}" == "" && ref=$(git ls-remote https://github.com/opensafely-core/interactive-templates HEAD | awk '{print $1}')
     prefix="interactive_templates@https://github.com/opensafely-core/interactive-templates/archive"
-    sed -i "s#${prefix}.*#${prefix}/${ref}.zip#" requirements.prod.in
+    sed -i "s#${prefix}.*#${prefix}/{{ ref }}.zip#" requirements.prod.in
 
 
 # Run the dev project with telemetry
