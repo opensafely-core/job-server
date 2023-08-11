@@ -1,56 +1,31 @@
-{% extends "applications/base.html" %}
+{% extends "base-tw.html" %}
 
 {% block metatitle %}Apply: Sign In | OpenSAFELY Jobs{% endblock metatitle %}
 
 {% block breadcrumbs %}
-<nav class="breadcrumb-container" aria-label="breadcrumb">
-  <div class="container">
-    <ol class="breadcrumb rounded-0 mb-0 px-0">
-      <li class="breadcrumb-item">
-        <a href="/">Home</a>
-      </li>
-      <li class="breadcrumb-item">
-        <a href="{% url 'applications:start' %}">Apply</a>
-      </li>
-      <li class="breadcrumb-item active" aria-current="page">
-        Sign In
-      </li>
-    </ol>
-  </div>
-</nav>
+  {% url "home" as home_url %}
+  {% url "applications:start" as applications_start_url %}
+
+  {% #breadcrumbs %}
+    {% breadcrumb title="Home" url=home_url %}
+    {% breadcrumb title="Apply" url=applications_start_url %}
+    {% breadcrumb title="Sign in to GitHub" active=True %}
+  {% /breadcrumbs %}
 {% endblock breadcrumbs %}
 
-{% block jumbotron %}
-<div class="jumbotron jumbotron-fluid pt-md-2">
-  <div class="container">
-    <div class="d-flex flex-column flex-md-row align-items-center">
-      <div>
-        <h1 class="display-4">Sign in to GitHub</h1>
-
-        <p class="lead">
-          If your application is approved, you will be able to submit study
-          code to run on OpenSAFELY via GitHub.
-        </p>
-      </div>
-    </div>
-  </div>
-</div>
-{% endblock jumbotron %}
-
 {% block content %}
-<article class="container" id="applicationForm">
-  <div class="row">
-    <div class="col">
+  {% article_header title="Sign in to GitHub" text="If your application is approved, you will be able to submit study code to run on OpenSAFELY via GitHub." %}
+
+  {% #card container=True class="max-w-3xl mt-6" %}
+    <div class="prose prose-oxford mb-3">
       <p>
         By signing in to your GitHub account here, your OpenSAFELY access
         request is associated with your GitHub user account.
       </p>
-
-      <form method="POST" action="{% url "auth-login" "github" %}">
-        <input type="hidden" name="next" value="{% url 'applications:terms' %}" />
-        <button type="submit" class="btn btn-success">Sign in to GitHub</button>
-      </form>
     </div>
-  </div>
-</article>
+    <form method="POST" action="{% url "auth-login" "github" %}">
+      <input type="hidden" name="next" value="{% url 'applications:terms' %}" />
+      {% #button type="submit" variant="success" %}Sign in to GitHub{% /button %}
+    </form>
+  {% /card %}
 {% endblock %}
