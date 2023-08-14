@@ -11,20 +11,6 @@
   {% /breadcrumbs %}
 {% endblock breadcrumbs %}
 
-{% block jumbotron %}
-<div class="jumbotron jumbotron-fluid">
-  <div class="container">
-    <h1>Projects for the {{ repo.name }} repo</h1>
-    {% if projects %}
-    <p class="lead">
-      Each project listed below has one or more workspaces using the
-      <a href="{{ repo.url }}">{{ repo.name }}</a> repository.
-    </p>
-    {% endif %}
-  </div>
-</div>
-{% endblock jumbotron %}
-
 {% block content %}
   <div class="
     mb-6 mt-3 flex flex-col gap-y-4 md:gap-y-2 text-center

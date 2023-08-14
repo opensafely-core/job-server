@@ -21,16 +21,6 @@
   {% /breadcrumbs %}
 {% endblock breadcrumbs %}
 
-{% block jumbotron %}
-<div class="jumbotron jumbotron-fluid pt-md-2">
-  <div class="container">
-    <h1 class="display-4">
-      {% if is_edit %}Edit{% else %}Add a new{% endif %} researcher
-    </h1>
-  </div>
-</div>
-{% endblock jumbotron %}
-
 {% block content %}
 {% if is_edit %}
   {% article_header title="Edit a researcher" class="mb-6" %}
