@@ -1,48 +1,38 @@
-{% extends "staff/base.html" %}
+{% extends "staff/base-tw.html" %}
 
 {% block metatitle %}Backends: Staff Area | OpenSAFELY Jobs{% endblock metatitle %}
 
 {% block breadcrumbs %}
-<nav class="breadcrumb-container breadcrumb--danger" aria-label="breadcrumb">
-  <div class="container">
-    <ol class="breadcrumb rounded-0 mb-0 px-0">
-      <li class="breadcrumb-item">
-        <a href="{% url 'staff:index' %}">Staff area</a>
-      </li>
-      <li class="breadcrumb-item active" aria-current="page">
-        Backends
-      </li>
-    </ol>
-  </div>
-</nav>
+{% #breadcrumbs %}
+  {% url "home" as home_url %}
+  {% url "staff:index" as staff_url %}
+  {% breadcrumb title="Home" url=home_url %}
+  {% breadcrumb title="Staff area" url=staff_url %}
+  {% breadcrumb title="Backends" active=True %}
+{% /breadcrumbs %}
 {% endblock breadcrumbs %}
 
-{% block jumbotron %}
-<div class="jumbotron jumbotron-fluid jumbotron--danger pt-md-2">
+{% block hero %}
+<div class="bg-bn-ribbon-100 pt-6 pb-8">
   <div class="container">
-    <h1 class="display-4">Backends</h1>
-
-    <div class="d-flex">
-      <a class="btn btn-primary" href="{% url 'staff:backend-create' %}">
-        Create a Backend
-      </a>
-    </div>
+    {% #article_header title="Backends" %}
+      {% url "staff:backend-create" as staff_backend_create_url %}
+      {% #button variant="primary" type="link" href=staff_backend_create_url %}
+        Create a backend
+      {% /button %}
+    {% /article_header %}
   </div>
 </div>
-{% endblock jumbotron %}
+{% endblock hero %}
 
 {% block content %}
-<div class="container">
-  <div class="row">
-    <div class="col-lg-8 col-xl-9">
-      <div class="list-group list-unstyled">
-        {% for backend in backend_list %}
-        <a href="{{ backend.get_staff_url }}" class="d-flex align-items-center list-group-item list-group-item-action">
-          {{ backend.name }}
-        </a>
-        {% endfor %}
-      </div>
-    </div>
-  </div>
-</div>
+{% #card %}
+  {% #list_group %}
+    {% for backend in backend_list %}
+      {% #list_group_item href=backend.get_staff_url %}
+        {{ backend.name }}
+      {% /list_group_item %}
+    {% endfor %}
+  {% /list_group %}
+{% /card %}
 {% endblock content %}

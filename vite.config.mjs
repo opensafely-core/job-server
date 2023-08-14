@@ -12,10 +12,12 @@ const config = {
     manifest: true,
     rollupOptions: {
       input: {
-        "application-form": "./assets/src/scripts/application-form.js",
         "analysis-request-detail":
           "./assets/src/scripts/analysis-request-detail.js",
+        "application-form": "./assets/src/scripts/application-form.js",
         "outputs-viewer": "./assets/src/scripts/outputs-viewer/index.jsx",
+        "sign-off-repo": "./assets/src/scripts/sign-off-repo.js",
+        "staff-tw": "./assets/src/scripts/staff-tw.js",
         components: "./assets/src/scripts/components.js",
         index: "./assets/src/scripts/index.js",
         interactive: "assets/src/scripts/interactive/main.jsx",

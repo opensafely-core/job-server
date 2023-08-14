@@ -1,77 +1,47 @@
-{% extends "staff/base.html" %}
+{% extends "staff/base-tw.html" %}
 
 {% block metatitle %}Dashboards: Staff Area | OpenSAFELY Jobs{% endblock metatitle %}
 
 {% block breadcrumbs %}
-<nav class="breadcrumb-container breadcrumb--danger" aria-label="breadcrumb">
-  <div class="container">
-    <ol class="breadcrumb rounded-0 mb-0 px-0">
-      <li class="breadcrumb-item">
-        <a href="{% url 'staff:index' %}">Staff area</a>
-      </li>
-      <li class="breadcrumb-item active" aria-current="page">
-        Dashboards
-      </li>
-    </ol>
-  </div>
-</nav>
+{% #breadcrumbs %}
+  {% url "home" as home_url %}
+  {% url "staff:index" as staff_url %}
+  {% breadcrumb title="Home" url=home_url %}
+  {% breadcrumb title="Staff area" url=staff_url %}
+  {% breadcrumb title="Dashboards" active=True %}
+{% /breadcrumbs %}
 {% endblock breadcrumbs %}
 
-{% block jumbotron %}
-<div class="jumbotron jumbotron-fluid jumbotron--danger pt-md-2">
+{% block hero %}
+<div class="bg-bn-ribbon-100 pt-6 pb-8">
   <div class="container">
-    <h1 class="display-4">Dashboards</h1>
+    {% article_header title="Dashboards" %}
   </div>
 </div>
-{% endblock jumbotron %}
+{% endblock hero %}
 
 {% block content %}
-<div class="container">
-  <div class="row">
-    <div class="col-lg-8 col-xl-9">
+{% #card %}
+  {% #list_group %}
+    {% url "staff:dashboards:copiloting" as staff_dashboards_copiloting_url %}
+    {% #list_group_rich_item type="Dashboard" title="Copiloting" url=staff_dashboards_copiloting_url %}
+      <p>Projects with various counts useful to copilots</p>
+    {% /list_group_rich_item %}
 
-      <div class="card mb-3">
-        <div class="card-body">
-          <h5 class="card-title">Copiloting</h5>
-          <p class="card-text">
-            Projects with various counts useful to copilots.
-          </p>
-          <a href="{% url 'staff:dashboards:copiloting' %}" class="btn btn-primary">View</a>
-        </div>
-      </div>
+    {% url "staff:dashboards:projects" as staff_dashboards_projects_url %}
+    {% #list_group_rich_item type="Dashboard" title="Projects" url=staff_dashboards_projects_url %}
+      <p>All projects on the platform</p>
+    {% /list_group_rich_item %}
 
-      <div class="card mb-3">
-        <div class="card-body">
-          <h5 class="card-title">Projects</h5>
-          <p class="card-text">
-            All projects on the platform.
-          </p>
-          <a href="{% url 'staff:dashboards:projects' %}" class="btn btn-primary">View</a>
-        </div>
-      </div>
+    {% url "staff:dashboards:repos" as staff_dashboards_repos_url %}
+    {% #list_group_rich_item type="Dashboard" title="Repos" url=staff_dashboards_repos_url %}
+      <p>All private repos attached to one or more workspaces, where code was first run more than 11 months ago</p>
+    {% /list_group_rich_item %}
 
-      <div class="card mb-3">
-        <div class="card-body">
-          <h5 class="card-title">Repos</h5>
-          <p class="card-text">
-            All private repos attached to one or more workspaces, where code
-            was first run more than 11 months ago.
-          </p>
-          <a href="{% url 'staff:dashboards:repos' %}" class="btn btn-primary">View</a>
-        </div>
-      </div>
-
-      <div class="card mb-3">
-        <div class="card-body">
-          <h5 class="card-title">Repos with multiple projects</h5>
-          <p class="card-text">
-            Repos with multiple projects.
-          </p>
-          <a href="{% url 'staff:dashboards:repos-with-multiple-projects' %}" class="btn btn-primary">View</a>
-        </div>
-      </div>
-
-    </div>
-  </div>
-</div>
+    {% url "staff:dashboards:repos-with-multiple-projects" as staff_dashboards_repos_projects_url %}
+    {% #list_group_rich_item type="Dashboard" title="Repos with multiple projects" url=staff_dashboards_repos_projects_url %}
+      <p>Repos with multiple projects</p>
+    {% /list_group_rich_item %}
+  {% /list_group %}
+{% /card %}
 {% endblock content %}

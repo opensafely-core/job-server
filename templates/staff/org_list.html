@@ -3,13 +3,13 @@
 {% block metatitle %}Organisations: Staff Area | OpenSAFELY Jobs{% endblock metatitle %}
 
 {% block breadcrumbs %}
-  {% #breadcrumbs %}
-    {% url "home" as home_url %}
-    {% url "staff:index" as staff_url %}
-    {% breadcrumb title="Home" url=home_url %}
-    {% breadcrumb title="Staff area" url=staff_url %}
-    {% breadcrumb title="Organisations" active=True %}
-  {% /breadcrumbs %}
+{% #breadcrumbs %}
+  {% url "home" as home_url %}
+  {% url "staff:index" as staff_url %}
+  {% breadcrumb title="Home" url=home_url %}
+  {% breadcrumb title="Staff area" url=staff_url %}
+  {% breadcrumb title="Organisations" active=True %}
+{% /breadcrumbs %}
 {% endblock breadcrumbs %}
 
 {% block hero %}
