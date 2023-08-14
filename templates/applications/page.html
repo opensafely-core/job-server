@@ -75,6 +75,7 @@
             {% elif field.template_name == "components/form_textarea.html" %}
               {% form_textarea custom_field=True required=field.required placeholder=field.name id="id_"|add:field.name label=field.label name=field.name value=field.field.value errors=field.errors hint_text=field.help_text type=field.attributes.type inputmode=field.attributes.inputmode autocomplete=field.attributes.autocomplete autocapitalize=field.attributes.autocapitalize spellcheck=field.attributes.spellcheck autocorrect=field.attributes.autocorrect maxlength=field.attributes.maxlength rows=8 %}
             {% elif field.template_name == "components/form_radio.html" %}
+              {# TODO: Radio buttons should use the form_radio component #}
               {% for field in field.field %}
                 {{ field }}
               {% endfor %}
@@ -82,8 +83,6 @@
               <div class="flex flex-col -mb-3">
                 {% form_checkbox custom_field=True required=field.required placeholder=field.name id="id_"|add:field.name label=field.label name=field.name value=field.value errors=field.errors hint_text=field.help_text %}
               </div>
-            {% else %}
-              {% include field.template_name with field=field.field label=field.label name=field.name extra_attributes=field.attributes %}
             {% endif %}
           {% endfor %}
         </fieldset>
