@@ -291,10 +291,13 @@ class JobRequestAPIList(ListAPIView):
                 jobs__completed_at__isnull=True,
             )
             .select_related(
+                "backend",
                 "created_by",
                 "workspace",
                 "workspace__created_by",
                 "workspace__project",
+                "workspace__project__org",
+                "workspace__repo",
             )
             .order_by("-created_at")
             .distinct()
