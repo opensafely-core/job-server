@@ -121,7 +121,7 @@
 
             <div class="p-4 border-t border-slate-200">
               {% if not workspace.signed_off_at %}
-                <form action="POST">
+                <form method="POST">
                   {% csrf_token %}
                   <fieldset class="mb-2">
                     <legend class="font-semibold">
