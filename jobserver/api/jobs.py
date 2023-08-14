@@ -42,7 +42,7 @@ class JobAPIUpdate(APIView):
         job_request_id = serializers.CharField()
         identifier = serializers.CharField()
         action = serializers.CharField(allow_blank=True)
-        run_command = serializers.CharField()
+        run_command = serializers.CharField(allow_blank=True)
         status = serializers.CharField()
         status_code = serializers.CharField(allow_blank=True)
         status_message = serializers.CharField(allow_blank=True)
