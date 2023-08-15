@@ -8,6 +8,7 @@ from django.db.models.functions import Least, Lower
 from django.shortcuts import get_object_or_404
 from django.template.response import TemplateResponse
 from django.views.generic import ListView, UpdateView, View
+from opentelemetry import trace
 
 from ..authorization import has_permission
 from ..github import _get_github_api
@@ -24,6 +25,8 @@ class ProjectDetail(View):
     get_github_api = staticmethod(_get_github_api)
 
     def get(self, request, *args, **kwargs):
+        tracer = trace.get_tracer_provider().get_tracer(__name__)
+
         project = get_object_or_404(Project, slug=self.kwargs["project_slug"])
 
         can_create_workspaces = has_permission(
@@ -43,37 +46,40 @@ class ProjectDetail(View):
         if request.user.is_authenticated:
             project_org_in_user_orgs = project.org in request.user.orgs.all()
 
-        job = (
-            Job.objects.filter(job_request__workspace__project=project)
-            .only("pk", "job_request_id", "created_at", "started_at")
-            .annotate(first_run=Min(Least("started_at", "created_at")))
-            .order_by("first_run")
-            .first()
-        )
-        if job:
-            first_job_ran_at = job.started_at or job.created_at
-        else:
-            first_job_ran_at = None
+        with tracer.start_as_current_span("first_job_ran_at"):
+            job = (
+                Job.objects.filter(job_request__workspace__project=project)
+                .only("pk", "job_request_id", "created_at", "started_at")
+                .annotate(first_run=Min(Least("started_at", "created_at")))
+                .order_by("first_run")
+                .first()
+            )
+            if job:
+                first_job_ran_at = job.started_at or job.created_at
+            else:
+                first_job_ran_at = None
 
-        repos = Repo.objects.filter(workspaces__in=workspaces).distinct()
-        all_repos = list(self.iter_repos(repos))
-        private_repos = sorted(
-            (r for r in all_repos if r["is_private"] or r["is_private"] is None),
-            key=operator.itemgetter("name"),
-        )
-        public_repos = sorted(
-            (r for r in all_repos if r["is_private"] is False),
-            key=operator.itemgetter("name"),
-        )
+        with tracer.start_as_current_span("repos"):
+            repos = Repo.objects.filter(workspaces__in=workspaces).distinct()
+            all_repos = list(self.iter_repos(repos))
+            private_repos = sorted(
+                (r for r in all_repos if r["is_private"] or r["is_private"] is None),
+                key=operator.itemgetter("name"),
+            )
+            public_repos = sorted(
+                (r for r in all_repos if r["is_private"] is False),
+                key=operator.itemgetter("name"),
+            )
 
         is_interactive_user = has_permission(
             request.user, "analysis_request_create", project=project
         )
 
-        all_reports = project.reports.filter(
-            publish_requests__decision=PublishRequest.Decisions.APPROVED
-        ).order_by("-created_at")
-        reports = all_reports[:5]
+        with tracer.start_as_current_span("reports"):
+            all_reports = project.reports.filter(
+                publish_requests__decision=PublishRequest.Decisions.APPROVED
+            ).order_by("-created_at")
+            reports = all_reports[:5]
 
         counts = {
             "reports": all_reports.count(),
