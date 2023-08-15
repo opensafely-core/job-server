@@ -169,7 +169,7 @@ class ProjectDetail(View):
                 span = trace.get_current_span()
                 span.set_attribute("repo_owner", repo.owner)
                 span.set_attribute("repo_name", repo.name)
-                span.set_attribute("repo_is_private", repo.is_private)
+                span.set_attribute("repo_is_private", is_private)
 
                 return {
                     "name": repo.name,
