@@ -82,7 +82,9 @@ class JobAPIUpdate(APIView):
         serializer.is_valid(raise_exception=True)
 
         # get JobRequest instances based on the identifiers in the payload
-        incoming_job_request_ids = {j["job_request_id"] for j in serializer.data}
+        incoming_job_request_ids = {
+            j["job_request_id"] for j in serializer.validated_data
+        }
         job_requests = JobRequest.objects.filter(
             identifier__in=incoming_job_request_ids
         )
@@ -91,11 +93,11 @@ class JobAPIUpdate(APIView):
         # sort the incoming data by JobRequest identifier to ensure the
         # subsequent groupby call works correctly.
         job_requests = sorted(
-            serializer.data, key=operator.itemgetter("job_request_id")
+            serializer.validated_data, key=operator.itemgetter("job_request_id")
         )
         # group Jobs by their JobRequest ID
         jobs_by_request = itertools.groupby(
-            serializer.data, key=operator.itemgetter("job_request_id")
+            serializer.validated_data, key=operator.itemgetter("job_request_id")
         )
         created_job_ids = []
         updated_job_ids = []
