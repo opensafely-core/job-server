@@ -167,11 +167,8 @@ class Job(models.Model):
 
 class JobRequestManager(models.Manager):
     def with_started_at(self):
-        return (
-            super()
-            .get_queryset()
-            .prefetch_related("jobs")
-            .annotate(started_at=Min("jobs__started_at"))
+        return self.prefetch_related("jobs").annotate(
+            started_at=Min("jobs__started_at")
         )
 
 
