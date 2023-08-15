@@ -4,10 +4,9 @@
 
 {% block breadcrumbs %}
 {% #breadcrumbs %}
-  {% url "home" as home_url %}
-  {% url "staff:index" as staff_url %}
-  {% breadcrumb title="Home" url=home_url %}
-  {% breadcrumb title="Staff area" url=staff_url %}
+  {% for title, url in breadcrumbs %}
+    {% breadcrumb title=title url=url %}
+  {% endfor %}
   {% breadcrumb title="Backends" active=True %}
 {% /breadcrumbs %}
 {% endblock breadcrumbs %}
@@ -28,7 +27,7 @@
 {% block content %}
 {% #card %}
   {% #list_group %}
-    {% for backend in backend_list %}
+    {% for backend in backends %}
       {% #list_group_item href=backend.get_staff_url %}
         {{ backend.name }}
       {% /list_group_item %}

@@ -1,72 +1,67 @@
-{% extends "staff/base.html" %}
+{% extends "staff/base-tw.html" %}
 
 {% load duration_tools %}
 
 {% block metatitle %}{{ backend.name }}: Staff Area | OpenSAFELY Jobs{% endblock metatitle %}
 
 {% block breadcrumbs %}
-<nav class="breadcrumb-container breadcrumb--danger" aria-label="breadcrumb">
-  <div class="container">
-    <ol class="breadcrumb rounded-0 mb-0 px-0">
-      <li class="breadcrumb-item">
-        <a href="{% url 'staff:index' %}">Staff area</a>
-      </li>
-      <li class="breadcrumb-item">
-        <a href="{% url 'staff:backend-list' %}">Backends</a>
-      </li>
-      <li class="breadcrumb-item active" aria-current="page">
-        {{ backend.name }}
-      </li>
-    </ol>
-  </div>
-</nav>
+{% #breadcrumbs %}
+  {% url "home" as home_url %}
+  {% url "staff:index" as staff_url %}
+  {% url "staff:backend-list" as staff_backend_list_url %}
+  {% breadcrumb title="Home" url=home_url %}
+  {% breadcrumb title="Staff area" url=staff_url %}
+  {% breadcrumb title="Backends" url=staff_backend_list_url %}
+  {% breadcrumb title=backend.name active=True %}
+{% /breadcrumbs %}
 {% endblock breadcrumbs %}
 
-{% block jumbotron %}
-<div class="jumbotron jumbotron-fluid jumbotron--danger pt-md-2">
+{% block hero %}
+<div class="bg-bn-ribbon-100 pt-6 pb-8">
   <div class="container">
-    <h1 class="display-4">{{ backend.name }}</h1>
-
-    <div class="d-flex">
-      <a class="btn btn-primary mr-1" href="{{ backend.get_edit_url }}">Edit</a>
-      <form method="POST" action="{{ backend.get_rotate_url }}">
-        {% csrf_token %}
-        <button class="btn btn-danger" type="submit">Rotate Token</button>
-      </form>
-    </div>
+    {% #article_header title="Backend: "|add:backend.name %}
+      <div class="flex flex-row flex-wrap gap-2 items-center mt-3">
+        {% #button type="link" href=backend.get_edit_url variant="primary" %}
+          Edit
+        {% /button %}
+        <form method="POST" action="{{ backend.get_rotate_url }}">
+          {% csrf_token %}
+          {% #button type="submit" variant="danger" %}
+            Rotate Token
+          {% /button %}
+        </form>
+      </div>
+    {% /article_header %}
   </div>
 </div>
-{% endblock jumbotron %}
+{% endblock hero %}
 
 {% block content %}
-<div class="container">
-  <div class="row">
-    <div class="col-lg-8 col-xl-9">
-      <div class="card">
-        <ul class="list-group list-group-flush">
-          <li class="list-group-item">
-            <strong>Name:</strong>
-            <code>{{ backend.name }}</code>
-          </li>
-          <li class="list-group-item">
-            <strong>Token:</strong>
-            <code>{{ backend.auth_token }}</code>
-          </li>
-          <li class="list-group-item">
-            <strong>Level 4 URL:</strong>
-            <code>{{ backend.level_4_url|default:"-" }}</code>
-          </li>
-          <li class="list-group-item">
-            <strong>Active:</strong>
-            {% if backend.is_active %}✓{% else %}❌{% endif %}
-          </li>
-          <li class="list-group-item">
-            <strong>Missing threshold:</strong>
-            <span>{{ backend.missing_threshold|duration }}</span>
-          </li>
-        </ul>
-      </div>
-    </div>
-  </div>
-</div>
+{% #card class="max-w-3xl" %}
+  <dl>
+    {% #description_item title="Name" %}
+      {{ backend.name }}
+    {% /description_item %}
+    {% #description_item title="Token" %}
+      {{ backend.auth_token }}
+    {% /description_item %}
+    {% #description_item title="Level 4 URL" %}
+      {{ backend.level_4_url|default:"-" }}
+    {% /description_item %}
+    {% #description_item title="Active" %}
+      {% if backend.is_active %}
+        {% #pill variant="success" %}
+          Active
+        {% /pill %}
+      {% else %}
+        {% #pill variant="danger" %}
+          Inactive
+        {% /pill %}
+      {% endif %}
+    {% /description_item %}
+    {% #description_item title="Missing threshold" %}
+      {{ backend.missing_threshold|duration }}
+    {% /description_item %}
+  </dl>
+{% /card %}
 {% endblock content %}
