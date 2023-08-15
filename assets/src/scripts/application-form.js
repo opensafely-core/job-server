@@ -1,18 +1,20 @@
 /* eslint-disable array-callback-return, no-param-reassign */
-const content = document.getElementById("applicationForm");
-const links = content.getElementsByTagName("a");
+const content = document?.getElementById("applicationForm");
+const links = content?.getElementsByTagName("a");
 
-[...links].map((link) => {
-  if (link.hostname !== window.location.hostname) {
-    link.target = "_blank";
-    link.rel = "noopener noreferrer";
-  }
-});
+if (links?.length) {
+  [...links].map((link) => {
+    if (link.hostname !== window.location.hostname) {
+      link.target = "_blank";
+      link.rel = "noopener noreferrer";
+    }
+  });
+}
 
 // Find all character count instances
-const characterCounts = document.querySelectorAll("[data-character-count]");
+const characterCounts = document?.querySelectorAll("[data-character-count]");
 
-characterCounts.forEach((formGroup) => {
+characterCounts?.forEach((formGroup) => {
   // Select the textarea element
   const textAreaElement = formGroup.querySelector("textarea");
 
