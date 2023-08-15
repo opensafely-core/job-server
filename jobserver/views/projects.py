@@ -45,6 +45,7 @@ class ProjectDetail(View):
 
         job = (
             Job.objects.filter(job_request__workspace__project=project)
+            .only("pk", "job_request_id", "created_at", "started_at")
             .annotate(first_run=Min(Least("started_at", "created_at")))
             .order_by("first_run")
             .first()
