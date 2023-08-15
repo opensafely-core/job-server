@@ -1,4 +1,5 @@
 import concurrent
+import itertools
 import operator
 
 import requests
@@ -8,6 +9,7 @@ from django.db.models.functions import Least, Lower
 from django.shortcuts import get_object_or_404
 from django.template.response import TemplateResponse
 from django.views.generic import ListView, UpdateView, View
+from opentelemetry import context as otel_context
 from opentelemetry import trace
 
 from ..authorization import has_permission
@@ -23,10 +25,9 @@ repo_thread_pool = concurrent.futures.ThreadPoolExecutor(thread_name_prefix="get
 
 class ProjectDetail(View):
     get_github_api = staticmethod(_get_github_api)
+    tracer = trace.get_tracer_provider().get_tracer(__name__)
 
     def get(self, request, *args, **kwargs):
-        tracer = trace.get_tracer_provider().get_tracer(__name__)
-
         project = get_object_or_404(Project, slug=self.kwargs["project_slug"])
 
         can_create_workspaces = has_permission(
@@ -46,7 +47,7 @@ class ProjectDetail(View):
         if request.user.is_authenticated:
             project_org_in_user_orgs = project.org in request.user.orgs.all()
 
-        with tracer.start_as_current_span("first_job_ran_at"):
+        with self.tracer.start_as_current_span("first_job_ran_at"):
             job = (
                 Job.objects.filter(job_request__workspace__project=project)
                 .only("pk", "job_request_id", "created_at", "started_at")
@@ -59,9 +60,11 @@ class ProjectDetail(View):
             else:
                 first_job_ran_at = None
 
-        with tracer.start_as_current_span("repos"):
+        with self.tracer.start_as_current_span("repos"):
             repos = Repo.objects.filter(workspaces__in=workspaces).distinct()
-            all_repos = list(self.iter_repos(repos, tracer))
+
+            all_repos = list(self.iter_repos(repos, otel_context.get_current()))
+
             private_repos = sorted(
                 (r for r in all_repos if r["is_private"] or r["is_private"] is None),
                 key=operator.itemgetter("name"),
@@ -75,7 +78,7 @@ class ProjectDetail(View):
             request.user, "analysis_request_create", project=project
         )
 
-        with tracer.start_as_current_span("reports"):
+        with self.tracer.start_as_current_span("reports"):
             all_reports = project.reports.filter(
                 publish_requests__decision=PublishRequest.Decisions.APPROVED
             ).order_by("-created_at")
@@ -153,24 +156,27 @@ class ProjectDetail(View):
             "variant": variants_lut[project.status],
         }
 
-    def iter_repos(self, repos, tracer):
-        @tracer.start_as_current_span("get_repo")
-        def get_repo(repo):
-            try:
-                is_private = self.get_github_api().get_repo_is_private(
-                    repo.owner, repo.name
-                )
-            except requests.HTTPError:
-                is_private = None
+    def iter_repos(self, repos, ctx):
+        def get_repo(repo, ctx):
+            otel_context.attach(ctx)
+            with self.tracer.start_as_current_span("get_repo"):
+                try:
+                    is_private = self.get_github_api().get_repo_is_private(
+                        repo.owner, repo.name
+                    )
+                except requests.HTTPError:
+                    is_private = None
 
-            return {
-                "name": repo.name,
-                "url": repo.url,
-                "is_private": is_private,
-            }
+                return {
+                    "name": repo.name,
+                    "url": repo.url,
+                    "is_private": is_private,
+                }
 
         # use the threadpool to parallelise the repo requests
-        yield from repo_thread_pool.map(get_repo, repos, timeout=30)
+        yield from repo_thread_pool.map(
+            get_repo, repos, itertools.repeat(ctx), timeout=30
+        )
 
 
 class ProjectEdit(UpdateView):
