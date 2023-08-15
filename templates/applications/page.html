@@ -75,14 +75,21 @@
             {% elif field.template_name == "components/form_textarea.html" %}
               {% form_textarea custom_field=True required=field.required placeholder=field.name id="id_"|add:field.name label=field.label name=field.name value=field.field.value errors=field.errors hint_text=field.help_text type=field.attributes.type inputmode=field.attributes.inputmode autocomplete=field.attributes.autocomplete autocapitalize=field.attributes.autocapitalize spellcheck=field.attributes.spellcheck autocorrect=field.attributes.autocorrect maxlength=field.attributes.maxlength rows=8 %}
             {% elif field.template_name == "components/form_radio.html" %}
-              {% comment %}
-                field -> context dict for this form_spec_helpers.Field instance #}
-                field.field -> BoundField instance
-                field.field.field -> YesNoField instance
-              {% endcomment %}
-              {% for value, label in field.field.field.choices %}
-                {% form_radio custom_field=True required=field.required placeholder=field.name id="id_"|add:field.name label=label name=field.name value=value errors=field.errors hint_text=field.help_text type=field.attributes.type inputmode=field.attributes.inputmode autocomplete=field.attributes.autocomplete autocapitalize=field.attributes.autocapitalize spellcheck=field.attributes.spellcheck autocorrect=field.attributes.autocorrect maxlength=field.attributes.maxlength rows=8 %}
-              {% endfor %}
+              {% #form_fieldset %}
+                {% form_legend text=field.label %}
+
+                {% for value, label in field.field.field.choices %}
+                  {% var countStr=forloop.counter0|stringformat:"s" %}
+                  {% var valueStr=value|stringformat:"s"|lower %}
+                  {% var id="id"|add:valueStr|add:countStr %}
+
+                  {% if value == field.field.value %}
+                    {% form_radio custom_field=True id=id label=label name=field.name value=value errors=field.errors checked=True %}
+                  {% else %}
+                    {% form_radio custom_field=True id=id label=label name=field.name value=value errors=field.errors %}
+                  {% endif %}
+                {% endfor %}
+              {% /form_fieldset %}
             {% elif field.template_name == "components/form_checkbox.html" %}
               <div class="flex flex-col -mb-3">
                 {% form_checkbox custom_field=True required=field.required placeholder=field.name id="id_"|add:field.name label=field.label name=field.name value=field.value errors=field.errors hint_text=field.help_text %}
