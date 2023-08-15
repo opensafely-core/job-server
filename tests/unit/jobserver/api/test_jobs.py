@@ -440,7 +440,7 @@ def test_jobapiupdate_post_job_request_error(api_rf):
             "identifier": "job1",
             "job_request_id": job_request.identifier,
             "action": "__error__",
-            "run_command": "",
+            "run_command": None,
             "status": "failed",
             "status_code": "",
             "status_message": "",

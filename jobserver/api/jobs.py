@@ -26,6 +26,23 @@ COMPLETED_STATES = {"failed", "succeeded"}
 logger = structlog.get_logger(__name__)
 
 
+class CoercingCharFieldSerializer(serializers.CharField):
+    def run_validation(self, data=serializers.empty):
+        (is_empty_value, data) = self.validate_empty_values(data)
+
+        # coerce the empty value to an empty string here.  Using default=""
+        # makes the field optional which we don't want, and to_internal_value
+        # is only called if the field isn't classed as empty, so in the case of
+        # getting null/None any coercion in that field doesn't fire, so we're
+        # stuck with overriding this method.
+        if is_empty_value:
+            return ""
+
+        value = self.to_internal_value(data)
+        self.run_validators(value)
+        return value
+
+
 def update_stats(backend, url):
     Stats.objects.update_or_create(
         backend=backend,
@@ -42,7 +59,7 @@ class JobAPIUpdate(APIView):
         job_request_id = serializers.CharField()
         identifier = serializers.CharField()
         action = serializers.CharField(allow_blank=True)
-        run_command = serializers.CharField(allow_blank=True)
+        run_command = CoercingCharFieldSerializer(allow_blank=True, allow_null=True)
         status = serializers.CharField()
         status_code = serializers.CharField(allow_blank=True)
         status_message = serializers.CharField(allow_blank=True)
@@ -65,7 +82,9 @@ class JobAPIUpdate(APIView):
         serializer.is_valid(raise_exception=True)
 
         # get JobRequest instances based on the identifiers in the payload
-        incoming_job_request_ids = {j["job_request_id"] for j in serializer.data}
+        incoming_job_request_ids = {
+            j["job_request_id"] for j in serializer.validated_data
+        }
         job_requests = JobRequest.objects.filter(
             identifier__in=incoming_job_request_ids
         )
@@ -74,11 +93,11 @@ class JobAPIUpdate(APIView):
         # sort the incoming data by JobRequest identifier to ensure the
         # subsequent groupby call works correctly.
         job_requests = sorted(
-            serializer.data, key=operator.itemgetter("job_request_id")
+            serializer.validated_data, key=operator.itemgetter("job_request_id")
         )
         # group Jobs by their JobRequest ID
         jobs_by_request = itertools.groupby(
-            serializer.data, key=operator.itemgetter("job_request_id")
+            serializer.validated_data, key=operator.itemgetter("job_request_id")
         )
         created_job_ids = []
         updated_job_ids = []
