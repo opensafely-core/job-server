@@ -32,12 +32,12 @@
   {% csrf_token %}
 
   {% #card title="Researcher contact information" class="max-w-3xl" container=True %}
-    {% if form.does_researcher_need_server_access.errors %}
-    <ul class="pl-3 mb-1">
-      {% for error in form.does_researcher_need_server_access.errors %}
-        <li class="text-danger">{{ error }}</li>
+    {% if does_researcher_need_server_access %}
+      {% for error in does_researcher_need_server_access %}
+        {% #alert variant="danger" class="mb-6" %}
+          {{ error }}
+        {% /alert %}
       {% endfor %}
-    </ul>
     {% endif %}
 
     {% #form_fieldset class="grid gap-y-6 !min-w-0 w-full max-w-prose" %}

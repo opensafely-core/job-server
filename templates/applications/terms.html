@@ -16,18 +16,9 @@
 {% endblock breadcrumbs %}
 
 {% block content %}
-<div class="mb-6 mt-3 flex flex-col gap-y-4 md:gap-y-4 text-center md:mt-0 md:text-left">
-  <h1 class="text-3xl tracking-tight break-words md:text-4xl font-bold text-slate-900">
-    Terms of use of OpenSAFELY
-  </h1>
-  <p class="text-lgl text-slate-700 max-w-3xl">
-    This section details the terms of use of OpenSAFELY. By agreeing to
-    these terms, you can continue to submit your access request. Please
-    review the terms carefully.
-  </p>
-</div>
+{% article_header title="Terms of use of OpenSAFELY" text="This section details the terms of use of OpenSAFELY. By agreeing to these terms, you can continue to submit your access request. Please review the terms carefully." %}
 
-{% #card class="max-w-3xl pb-6" container=True %}
+{% #card class="max-w-3xl mt-6 pb-6" container=True %}
   <div class="prose prose-oxford mb-6" id="applicationForm">
     {% snippet "terms" %}
   </div>
