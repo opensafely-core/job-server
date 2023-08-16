@@ -110,9 +110,9 @@ django-upgrade==1.14.1 \
     --hash=sha256:23813464e94713e1c660ba46b0fe53b2f490fdd6263da9f22a4ae5402a4d5d31 \
     --hash=sha256:8972e2aaa4be81da629dcabc2a784ad436a82a761f9a0ffd46e5ed6b9d155dfa
     # via -r requirements.dev.in
-factory-boy==3.2.1 \
-    --hash=sha256:a98d277b0c047c75eb6e4ab8508a7f81fb03d2cb21986f627913546ef7a2a55e \
-    --hash=sha256:eb02a7dd1b577ef606b75a253b9818e6f9eaf996d94449c9d5ebb124f90dc795
+factory-boy==3.3.0 \
+    --hash=sha256:a2cdbdb63228177aa4f1c52f4b6d83fab2b8623bf602c7dedd7eb83c0f69c04c \
+    --hash=sha256:bc76d97d1a65bbd9842a6d722882098eb549ec8ee1081f9fb2e8ff29f0c300f1
     # via -r requirements.dev.in
 faker==8.10.1 \
     --hash=sha256:9ac6b39b9618f55be6b8b45089e624564469a035cc845c69ce990332ce3663f4 \
