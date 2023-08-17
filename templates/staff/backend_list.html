@@ -3,10 +3,10 @@
 {% block metatitle %}Backends: Staff Area | OpenSAFELY Jobs{% endblock metatitle %}
 
 {% block breadcrumbs %}
-{% #breadcrumbs %}
-  {% for title, url in breadcrumbs %}
-    {% breadcrumb title=title url=url %}
-  {% endfor %}
+  {% url "home" as home_url %}
+  {% url "staff:index" as staff_url %}
+  {% breadcrumb title="Home" url=home_url %}
+  {% breadcrumb title="Staff area" url=staff_url %}
   {% breadcrumb title="Backends" active=True %}
 {% /breadcrumbs %}
 {% endblock breadcrumbs %}

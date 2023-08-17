@@ -1,7 +1,6 @@
 from django.db.models.functions import Lower
 from django.shortcuts import get_object_or_404, redirect
 from django.template.response import TemplateResponse
-from django.urls import reverse
 from django.utils.decorators import method_decorator
 from django.views.generic import CreateView, DetailView, ListView, UpdateView, View
 
@@ -47,10 +46,7 @@ class BackendEdit(UpdateView):
 @method_decorator(require_manage_backends, name="dispatch")
 class BackendList(ListView):
     def get(self, request, *args, **kwargs):
-        context = {
-            "backends": Backend.objects.order_by(Lower("name").asc()),
-            "breadcrumbs": [("Home", reverse("home")), ("Staff area", "staff:index")],
-        }
+        context = {"backends": Backend.objects.order_by(Lower("name").asc())}
 
         return TemplateResponse(request, "staff/backend_list.html", context)
 
