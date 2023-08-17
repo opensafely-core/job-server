@@ -1,4 +1,4 @@
-{% extends "staff/base.html" %}
+{% extends "staff/base-tw.html" %}
 
 {% load humanize %}
 {% load querystring_tools %}
@@ -13,29 +13,63 @@
 {% block metatitle %}Job Requests: Staff Area | OpenSAFELY Jobs{% endblock metatitle %}
 
 {% block breadcrumbs %}
-<nav class="breadcrumb-container breadcrumb--danger" aria-label="breadcrumb">
-  <div class="container">
-    <ol class="breadcrumb rounded-0 mb-0 px-0">
-      <li class="breadcrumb-item">
-        <a href="{% url 'staff:index' %}">Staff area</a>
-      </li>
-      <li class="breadcrumb-item active" aria-current="page">
-        Job Requests
-      </li>
-    </ol>
-  </div>
-</nav>
+{% #breadcrumbs %}
+  {% url "home" as home_url %}
+  {% url "staff:index" as staff_url %}
+  {% breadcrumb title="Home" url=home_url %}
+  {% breadcrumb title="Staff area" url=staff_url %}
+  {% breadcrumb title="Job requests" active=True %}
+{% /breadcrumbs %}
 {% endblock breadcrumbs %}
 
-{% block jumbotron %}
-<div class="jumbotron jumbotron-fluid jumbotron--danger pt-md-2">
+{% block hero %}
+<div class="bg-bn-ribbon-100 pt-6 pb-8">
   <div class="container">
-    <h1 class="display-4">Job Requests</h1>
+    {% article_header title="Job requests" %}
   </div>
 </div>
-{% endblock jumbotron %}
+{% endblock hero %}
 
 {% block content %}
+{% url "staff:job-request-list" as staff_job_request_list_url %}
+
+<div class="grid lg:grid-cols-3 gap-8">
+  <div class="flex flex-col gap-y-6">
+    {% if request.GET.orgs or request.GET.projects or request.GET.user or request.GET.workspace %}
+      {% #button variant="secondary-outline" type="link" href=staff_job_request_list_url %}
+        Clear filters
+      {% /button %}
+    {% endif %}
+
+    {% #card title="Filter by organisation" %}
+      <filter-input aria-owns="orgs">
+        {% form_input custom_field=True class="px-4 -mt-2 mb-4 sm:px-6" id="filterOrgs" name="orgFilter" label="Search for an organisation" label_class="sr-only" placeholder="Search for an organisation" show_placeholder=True %}
+      </filter-input>
+      {% #list_group small=True class="max-h-96 overflow-y-auto" data_filter_list=True id="orgs" %}
+        {% for org in orgs.items %}
+          {% is_filter_selected key="orgs" value=org.slug as is_org_selected %}
+          {% url_with_querystring orgs=org.slug as add_org_query_url %}
+
+          {% if is_org_selected %}
+            {% url_without_querystring orgs=org.slug as remove_org_query_url %}
+            {% #list_group_item href=remove_org_query_url role="checkbox" aria-checked="true" class="bg-green-100 text-green-800" %}
+              {{ org.name }}
+            {% /list_group_item %}
+          {% else %}
+            {% #list_group_item href=add_org_query_url role="checkbox" aria-checked="false" %}
+              {{ org.name }}
+            {% /list_group_item %}
+          {% endif %}
+        {% endfor %}
+        {% list_group_empty title="No organisation found" %}
+        <p data-filter-empty-state hidden>No organisation found</p>
+      {% /list_group %}
+    {% /card %}
+  </div>
+  <div class="flex flex-col gap-y-6 lg:col-span-2">
+
+  </div>
+</div>
 <form method="GET" class="container">
   <div class="row">
     <div class="col col-lg-3 col-xl-4">
@@ -249,36 +283,3 @@
   </div>
 </form>
 {% endblock content %}
-
-{% block extra_js %}
-<script type="text/javascript" src="{% static 'vendor/select2.min.js' %}"></script>
-<script type="text/javascript" nonce="{{ request.csp_nonce }}">
-  $(document).ready(function() {
-    $('#id_orgs').select2({
-      multiple: true,
-      placeholder: "Select orgs to filter by",
-      selectionCssClass: ":all:",
-      theme: "bootstrap4",
-      width: "100%"
-    });
-    $('#id_project').select2({
-      placeholder: "Select a project to filter by",
-      selectionCssClass: ":all:",
-      theme: "bootstrap4",
-      width: "100%"
-    });
-    $('#id_user').select2({
-      placeholder: "Select a user to filter by",
-      selectionCssClass: ":all:",
-      theme: "bootstrap4",
-      width: "100%"
-    });
-    $('#id_workspace').select2({
-      placeholder: "Select a workspace to filter by",
-      selectionCssClass: ":all:",
-      theme: "bootstrap4",
-      width: "100%"
-    });
-  });
-</script>
-{% endblock %}

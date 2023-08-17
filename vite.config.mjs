@@ -1,4 +1,5 @@
 /* eslint-disable import/no-extraneous-dependencies */
+import { svelte } from "@sveltejs/vite-plugin-svelte";
 import legacy from "@vitejs/plugin-legacy";
 import react from "@vitejs/plugin-react-swc";
 import { viteStaticCopy } from "vite-plugin-static-copy";
@@ -38,6 +39,7 @@ const config = {
   },
   clearScreen: false,
   plugins: [
+    svelte(),
     react(),
     legacy({
       targets: ["chrome >= 81, not dead"],
