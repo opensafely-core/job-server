@@ -92,7 +92,7 @@ def test_projectcreate_get_success(rf, core_developer):
     response = ProjectCreate.as_view(get_github_api=FakeGitHubAPI)(request)
 
     assert response.status_code == 200
-    assert response.template_name == ["staff/project_create.html"]
+    assert response.template_name == ["staff/project/create.html"]
 
 
 def test_projectcreate_get_htmx_success(rf, core_developer):
@@ -103,7 +103,7 @@ def test_projectcreate_get_htmx_success(rf, core_developer):
     response = ProjectCreate.as_view()(request)
 
     assert response.status_code == 200
-    assert response.template_name == ["staff/project_create.htmx.html"]
+    assert response.template_name == ["staff/project/create.htmx.html"]
 
 
 def test_projectcreate_post_htmx_success_with_next(rf, core_developer):

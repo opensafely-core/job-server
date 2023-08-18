@@ -15,7 +15,7 @@ from .qwargs_tools import qwargs
 class WorkspaceDetail(DetailView):
     model = Workspace
     slug_field = "name"
-    template_name = "staff/workspace_detail.html"
+    template_name = "staff/workspace/detail.html"
 
     def get_context_data(self, **kwargs):
         job_requests = self.object.job_requests.select_related("created_by").order_by(
@@ -34,7 +34,7 @@ class WorkspaceEdit(UpdateView):
     form_class = WorkspaceEditForm
     model = Workspace
     slug_field = "name"
-    template_name = "staff/workspace_edit.html"
+    template_name = "staff/workspace/edit.html"
 
     @transaction.atomic()
     def form_valid(self, form):
@@ -61,7 +61,7 @@ class WorkspaceEdit(UpdateView):
 class WorkspaceList(ListView):
     model = Workspace
     ordering = "name"
-    template_name = "staff/workspace_list.html"
+    template_name = "staff/workspace/list.html"
 
     def get_context_data(self, **kwargs):
         return super().get_context_data(**kwargs) | {

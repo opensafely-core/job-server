@@ -21,7 +21,7 @@ from .qwargs_tools import qwargs
 @method_decorator(require_role(CoreDeveloper), name="dispatch")
 class ReportDetail(DetailView):
     model = Report
-    template_name = "staff/report_detail.html"
+    template_name = "staff/report/detail.html"
 
     def get_context_data(self, **kwargs):
         publish_requests = self.object.publish_requests.order_by("-created_at")
@@ -47,7 +47,7 @@ class ReportDetail(DetailView):
 @method_decorator(require_role(CoreDeveloper), name="dispatch")
 class ReportList(ListView):
     model = Report
-    template_name = "staff/report_list.html"
+    template_name = "staff/report/list.html"
 
     def get_context_data(self, **kwargs):
         orgs = (

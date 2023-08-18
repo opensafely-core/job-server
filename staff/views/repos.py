@@ -151,7 +151,7 @@ class RepoDetail(View):
 
         return TemplateResponse(
             request,
-            "staff/repo_detail.html",
+            "staff/repo/detail.html",
             context=context,
         )
 
@@ -159,7 +159,7 @@ class RepoDetail(View):
 @method_decorator(require_role(CoreDeveloper), name="dispatch")
 class RepoList(ListView):
     model = Repo
-    template_name = "staff/repo_list.html"
+    template_name = "staff/repo/list.html"
 
     def get_context_data(self, **kwargs):
         return super().get_context_data(**kwargs) | {

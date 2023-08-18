@@ -133,6 +133,10 @@
                 <dt class="font-semibold">Created at:</dt>
                 <dd>{{ analysis_request.created_at|date:"d F Y" }}</dd>
               </div>
+              <div class="flex flex-row gap-1">
+                <dt class="font-semibold">ID:</dt>
+                <dd class="font-mono">{{ analysis_request.pk }}</dd>
+              </div>
             </dl>
           {% /list_group_rich_item %}
         {% endfor %}

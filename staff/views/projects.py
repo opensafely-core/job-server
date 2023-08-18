@@ -39,7 +39,7 @@ from .qwargs_tools import qwargs
 @method_decorator(require_role(CoreDeveloper), name="dispatch")
 class ProjectAddMember(FormView):
     form_class = ProjectAddMemberForm
-    template_name = "staff/project_membership_create.html"
+    template_name = "staff/project/membership_create.html"
 
     def dispatch(self, request, *args, **kwargs):
         self.project = get_object_or_404(Project, slug=self.kwargs["slug"])
@@ -159,7 +159,7 @@ class ProjectCreate(CreateView):
 
     def get_template_names(self):
         suffix = ".htmx" if self.request.htmx else ""
-        template_name = f"staff/project_create{suffix}.html"
+        template_name = f"staff/project/create{suffix}.html"
 
         return [template_name]
 
@@ -167,7 +167,7 @@ class ProjectCreate(CreateView):
 @method_decorator(require_role(CoreDeveloper), name="dispatch")
 class ProjectDetail(DetailView):
     model = Project
-    template_name = "staff/project_detail.html"
+    template_name = "staff/project/detail.html"
 
     def get_context_data(self, **kwargs):
         return super().get_context_data(**kwargs) | {
@@ -184,7 +184,7 @@ class ProjectDetail(DetailView):
 class ProjectEdit(UpdateView):
     form_class = ProjectEditForm
     model = Project
-    template_name = "staff/project_edit.html"
+    template_name = "staff/project/edit.html"
 
     @transaction.atomic()
     def form_valid(self, form):
@@ -220,7 +220,7 @@ class ProjectEdit(UpdateView):
 
 @method_decorator(require_role(CoreDeveloper), name="dispatch")
 class ProjectFeatureFlags(TemplateView):
-    template_name = "staff/project_feature_flags.html"
+    template_name = "staff/project/feature_flags.html"
 
     def dispatch(self, request, *args, **kwargs):
         self.project = get_object_or_404(Project, slug=self.kwargs["slug"])
@@ -258,7 +258,7 @@ class ProjectFeatureFlags(TemplateView):
 class ProjectLinkApplication(UpdateView):
     form_class = ProjectLinkApplicationForm
     model = Project
-    template_name = "staff/project_link_application.html"
+    template_name = "staff/project/link_application.html"
 
     def form_valid(self, form):
         application = form.cleaned_data["application"]
@@ -290,7 +290,7 @@ class ProjectLinkApplication(UpdateView):
 @method_decorator(require_role(CoreDeveloper), name="dispatch")
 class ProjectList(ListView):
     queryset = Project.objects.order_by("number", Lower("name"))
-    template_name = "staff/project_list.html"
+    template_name = "staff/project/list.html"
 
     def get_context_data(self, **kwargs):
         return super().get_context_data(**kwargs) | {
@@ -319,7 +319,7 @@ class ProjectMembershipEdit(UpdateView):
     context_object_name = "membership"
     form_class = ProjectMembershipForm
     model = ProjectMembership
-    template_name = "staff/project_membership_edit.html"
+    template_name = "staff/project/membership_edit.html"
 
     def form_valid(self, form):
         self.object.roles = form.cleaned_data["roles"]

@@ -23,7 +23,7 @@ from ..forms import ApplicationApproveForm
 class ApplicationApprove(FormView):
     form_class = ApplicationApproveForm
     model = Application
-    template_name = "staff/application_approve.html"
+    template_name = "staff/application/approve.html"
 
     def dispatch(self, request, *args, **kwargs):
         self.application = get_object_or_404(
@@ -119,7 +119,7 @@ class ApplicationDetail(View):
             "pages": pages,
         }
 
-        return TemplateResponse(request, "staff/application_detail.html", ctx)
+        return TemplateResponse(request, "staff/application/detail.html", ctx)
 
     def post(self, request, *args, **kwargs):
         wizard = Wizard(self.application, form_specs)
@@ -144,7 +144,7 @@ class ApplicationEdit(UpdateView):
         "status_comment",
     ]
     model = Application
-    template_name = "staff/application_edit.html"
+    template_name = "staff/application/edit.html"
 
     def dispatch(self, request, *args, **kwargs):
         self.application = get_object_or_404(
@@ -170,7 +170,7 @@ class ApplicationEdit(UpdateView):
 
 @method_decorator(require_role(CoreDeveloper), name="dispatch")
 class ApplicationList(ListView):
-    template_name = "staff/application_list.html"
+    template_name = "staff/application/list.html"
 
     def get_context_data(self, **kwargs):
         # sort in Python because `User.name` is a property to pick either
