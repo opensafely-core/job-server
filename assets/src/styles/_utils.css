@@ -16,3 +16,7 @@ summary::-webkit-details-marker {
 [x-cloak] {
   display: none !important;
 }
+
+[hidden] {
+  display: none !important;
+}
