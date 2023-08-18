@@ -35,7 +35,7 @@
 
   <div class="relative">
     <textarea
-      {% attrs autocapitalize autocomplete autocorrect inputmode name=textarea_name placeholder required rows=rows|default:"4" %}
+      {% attrs autocapitalize autocomplete autocorrect inputmode maxlength name=textarea_name placeholder required rows=rows|default:"4" %}
       class="
         mt-1 block w-full rounded-md border-slate-300 text-slate-900 shadow-sm
         {% if not resize %}resize-none{% endif %}
@@ -54,6 +54,16 @@
       </div>
     {% endif %}
   </div>
+
+  {% if maxlength %}
+    <p data-character-count class="text-right text-sm mt-1 text-slate-700">
+      <span data-character-counter>
+        <span data-typed-characters>0</span>
+        /
+        {{ maxlength }} characters
+      </span>
+    </p>
+  {% endif %}
 
   {% if field_errors %}
     <ul class="mt-2 text-sm text-bn-ribbon-600">

@@ -16,7 +16,7 @@ const characterCounts = document?.querySelectorAll("[data-character-count]");
 
 characterCounts?.forEach((formGroup) => {
   // Select the textarea element
-  const textAreaElement = formGroup.querySelector("textarea");
+  const textAreaElement = formGroup.parentElement.querySelector("textarea");
 
   // Select the maximum amount of characters
   const maximumCharacters = textAreaElement.getAttribute("maxlength");
@@ -51,13 +51,13 @@ characterCounts?.forEach((formGroup) => {
      * colour to "red".
      */
     if (typedCharacters >= 1400 && typedCharacters < 1450) {
-      characterCounterElement.classList.remove("text-danger");
-      return characterCounterElement.classList.add("text-warning");
+      characterCounterElement.classList.remove("text-bn-ribbon-800");
+      return characterCounterElement.classList.add("text-bn-sun-800");
     }
 
     if (typedCharacters >= 1450) {
-      characterCounterElement.classList.remove("text-warning");
-      return characterCounterElement.classList.add("text-danger");
+      characterCounterElement.classList.remove("text-bn-sun-800");
+      return characterCounterElement.classList.add("text-bn-ribbon-800");
     }
 
     return characterCounterElement.classList.remove(
