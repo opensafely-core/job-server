@@ -41,6 +41,10 @@
         bg-bn-ribbon-600 border-bn-ribbon-600 text-white
         hover:bg-bn-ribbon-700 hover:border-bn-ribbon-700
         focus:bg-bn-ribbon-700 focus:border-bn-ribbon-700 focus:ring-bn-ribbon-500 focus:ring-offset-white
+      {% elif variant == "danger-outline" %}
+        bg-white border-bn-ribbon-600 text-bn-ribbon-700  !shadow-none
+        hover:bg-bn-ribbon-100 hover:border-bn-ribbon-700
+        focus:bg-bn-ribbon-200 focus:border-bn-ribbon-800 focus:ring-bn-ribbon-500 focus:ring-offset-white
       {% elif variant == "warning" %}
         bg-bn-flamenco-600 border-bn-flamenco-600 text-white
         hover:bg-bn-flamenco-700 hover:border-bn-flamenco-700
