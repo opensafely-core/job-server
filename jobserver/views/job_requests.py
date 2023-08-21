@@ -183,7 +183,9 @@ class JobRequestDetail(View):
         try:
             job_request = (
                 JobRequest.objects.with_started_at()
-                .select_related("created_by", "workspace")
+                .select_related(
+                    "backend", "created_by", "workspace", "workspace__project__org"
+                )
                 .get(
                     workspace__project__slug=self.kwargs["project_slug"],
                     workspace__name=self.kwargs["workspace_slug"],
