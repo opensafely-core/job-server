@@ -120,7 +120,7 @@
         </div>
       {% /card %}
 
-      {% if not job_request.is_invalid %}
+      {% if not is_invalid %}
         {% #card title="Jobs" %}
           <ul class="divide-y divide-slate-200 border-t border-t-slate-200">
             {% for job in jobs %}

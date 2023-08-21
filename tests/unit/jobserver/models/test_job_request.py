@@ -143,13 +143,6 @@ def test_jobrequest_is_completed():
     assert jr.is_completed
 
 
-def test_jobrequest_is_invalid():
-    job_request = JobRequestFactory()
-    JobFactory(job_request=job_request, action="__error__")
-
-    assert job_request.is_invalid
-
-
 def test_jobrequest_num_completed_no_jobs():
     assert JobRequestFactory().num_completed == 0
 

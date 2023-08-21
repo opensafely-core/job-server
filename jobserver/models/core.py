@@ -298,20 +298,6 @@ class JobRequest(models.Model):
         return self.status in ["failed", "succeeded"]
 
     @property
-    def is_invalid(self):
-        """
-        Is this JobRequest invalid?
-
-        JobRequests are a request for a given configuration to be run on a
-        Backend.  That configuration could be unprocessable for a variety of
-        reasons when the Backend looks at it.  We currently surface that to
-        job-server by job-runner creating a Job with the action `__error__`.
-        This property finds Jobs with that action so we can easily see if this
-        particular request was valid or not.
-        """
-        return self.jobs.filter(action="__error__").exists()
-
-    @property
     def num_completed(self):
         return len([j for j in self.jobs.all() if j.status == "succeeded"])
 
