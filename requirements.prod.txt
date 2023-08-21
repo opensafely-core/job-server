@@ -357,7 +357,7 @@ incuna-mail==4.1.1 \
     --hash=sha256:4071949a7cc70f88c1acea5f06ac8ba439029f655ff5d8c98277bbc8cc8d4bd5 \
     --hash=sha256:d8ef4979264fba729fa1478819d71f66af17a795e82d9607d8e7ccd7edaafe10
     # via -r requirements.prod.in
-interactive_templates @ https://github.com/opensafely-core/interactive-templates/archive/06ae9bc49fd536599aef77973912757594f851d3.zip \
+interactive-templates @ https://github.com/opensafely-core/interactive-templates/archive/06ae9bc49fd536599aef77973912757594f851d3.zip \
     --hash=sha256:8271e48be9caa52eccc5672e9d5f0a473153e24b8ca44fa8771cbbb6fc24f913
     # via -r requirements.prod.in
 itsdangerous==2.1.2 \
@@ -958,8 +958,8 @@ wrapt==1.14.1 \
     #   deprecated
     #   opentelemetry-instrumentation
     #   opentelemetry-instrumentation-dbapi
-xkcdpass==1.19.3 \
-    --hash=sha256:c5a2e948746da6fe504e8404284f457d8e98da6df5047c6bb3f71b18882e9d2a
+xkcdpass==1.19.4 \
+    --hash=sha256:2935d54b482d19bcb54656bda01cbbec9ee41ffd42d235a52705fd95cab70fd7
     # via -r requirements.prod.in
 
 # The following packages are considered to be unsafe in a requirements file:
