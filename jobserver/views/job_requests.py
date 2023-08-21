@@ -5,11 +5,11 @@ from django.db import transaction
 from django.db.models import Q
 from django.http import Http404
 from django.shortcuts import get_object_or_404, redirect
-from django.template.response import TemplateResponse
 from django.utils.safestring import mark_safe
 from django.views.generic import CreateView, ListView, RedirectView, View
 from django.views.generic.edit import FormMixin
 from pipeline import load_pipeline
+from zen_queries import TemplateResponse
 
 from .. import honeycomb
 from ..authorization import CoreDeveloper, has_permission, has_role
