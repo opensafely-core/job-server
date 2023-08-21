@@ -230,7 +230,11 @@ class JobRequest(models.Model):
 
     @property
     def completed_at(self):
-        last_job = self.jobs.order_by("completed_at").last()
+        with queries_dangerously_enabled():
+            # enable querying here because this property needs to use
+            # self.status which we haven't found a way to push down into the
+            # database yet.
+            last_job = self.jobs.order_by("completed_at").last()
 
         if not last_job:
             return
@@ -312,6 +316,7 @@ class JobRequest(models.Model):
         return len([j for j in self.jobs.all() if j.status == "succeeded"])
 
     @property
+    @queries_dangerously_enabled()
     def runtime(self):
         """
         Combined runtime for all completed Jobs of this JobRequest
