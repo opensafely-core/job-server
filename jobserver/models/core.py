@@ -21,6 +21,7 @@ from opentelemetry.trace import propagation
 from opentelemetry.trace.propagation import tracecontext
 from sentry_sdk import capture_message
 from xkcdpass import xkcd_password
+from zen_queries import queries_dangerously_enabled
 
 from ..authorization import InteractiveReporter
 from ..authorization.fields import RolesArrayField
@@ -1015,6 +1016,7 @@ class User(AbstractBaseUser):
         return token
 
     @cached_property
+    @queries_dangerously_enabled()
     def uses_social_auth(self):
         """
         Cache whether this user logs in via GitHub (using social auth)
