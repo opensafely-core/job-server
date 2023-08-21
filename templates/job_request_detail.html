@@ -123,7 +123,7 @@
       {% if not job_request.is_invalid %}
         {% #card title="Jobs" %}
           <ul class="divide-y divide-slate-200 border-t border-t-slate-200">
-            {% for job in job_request.jobs.all %}
+            {% for job in jobs %}
               <li class="relative transition-colors hover:bg-oxford-50 group">
                 <dl class="flex flex-col gap-2 px-4 py-4 sm:px-6">
                   <div class="flex gap-x-2">
