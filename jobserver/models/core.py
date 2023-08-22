@@ -165,7 +165,7 @@ class Job(models.Model):
         return span_ctx.trace_id
 
 
-class JobRequestManager(models.Manager):
+class JobRequestQuerySet(models.QuerySet):
     def with_started_at(self):
         return self.prefetch_related("jobs").annotate(
             started_at=Min("jobs__started_at")
@@ -203,7 +203,7 @@ class JobRequest(models.Model):
         related_name="job_requests",
     )
 
-    objects = JobRequestManager()
+    objects = JobRequestQuerySet.as_manager()
 
     class Meta:
         constraints = [
@@ -227,16 +227,6 @@ class JobRequest(models.Model):
     def __str__(self):
         return str(self.pk)
 
-    def get_absolute_url(self):
-        return reverse(
-            "job-request-detail",
-            kwargs={
-                "project_slug": self.workspace.project.slug,
-                "workspace_slug": self.workspace.name,
-                "pk": self.pk,
-            },
-        )
-
     @property
     def completed_at(self):
         last_job = self.jobs.order_by("completed_at").last()
@@ -248,6 +238,16 @@ class JobRequest(models.Model):
             return
 
         return last_job.completed_at
+
+    def get_absolute_url(self):
+        return reverse(
+            "job-request-detail",
+            kwargs={
+                "project_slug": self.workspace.project.slug,
+                "workspace_slug": self.workspace.name,
+                "pk": self.pk,
+            },
+        )
 
     def get_cancel_url(self):
         return reverse(
