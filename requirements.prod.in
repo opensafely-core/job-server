@@ -32,7 +32,6 @@ opentelemetry-instrumentation-requests
 opentelemetry-instrumentation-psycopg2
 opentelemetry-sdk
 requests
-rich
 sentry-sdk
 slack-sdk
 slippers
