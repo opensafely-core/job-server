@@ -228,7 +228,7 @@ class JobRequest(models.Model):
     def __str__(self):
         return str(self.pk)
 
-    @property
+    @cached_property
     def completed_at(self):
         with queries_dangerously_enabled():
             # enable querying here because this property needs to use
