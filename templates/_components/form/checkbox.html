@@ -27,7 +27,7 @@
     id="{{ input_id }}"
     name="{{ input_name }}"
     type="checkbox"
-    {% if value %}value="{{ value }}"{% endif %}
+    {% if input_value %}value="{{ input_value }}"{% endif %}
   >
   <span class="transition-colors leading-snug group-hover:text-oxford-600 {{ span_class }}">
     {% if label %}{{ label }}{% else %}{{ field.label }}{% endif %}
