@@ -77,11 +77,7 @@
           <div class="max-w-lg flex flex-col gap-y-2" id="backends">
             {% for value, label in form.backend.field.choices %}
               {% with id=forloop.counter|stringformat:"s" %}
-                {% if form.backend.value == value %}
-                  {% form_radio id="id_backend"|add:id name="backend" value=value label=label checked=True %}
-                {% else %}
-                  {% form_radio id="id_backend"|add:id name="backend" value=value label=label checked=False %}
-                {% endif %}
+                {% form_radio custom_field=True id="id_backend"|add:id name="backend" value=value label=label %}
               {% endwith %}
             {% endfor %}
           </div>
@@ -109,7 +105,7 @@
           <div class="flex flex-col gap-y-2 max-w-full">
             {% for action in actions %}
               <div class="flex flex-row gap-x-4 w-full items-center" id="jobActions">
-                {% form_checkbox id="checkbox-"|add:action.name label=action.name name="requested_actions" value=action.name checked=False label_class="truncate py-0.5" span_class="font-mono text-base truncate" %}
+                {% form_checkbox custom_field=True id="checkbox-"|add:action.name label=action.name name="requested_actions" value=action.name checked=False label_class="truncate py-0.5" span_class="font-mono text-base truncate" %}
 
                 {% if action.needs %}
                   {% #button class="min-w-fit ml-auto" variant="secondary-outline" small=True data-expander-button=action.name  %}
@@ -161,7 +157,7 @@
           <div class="-mt-1 text-slate-700 grid grid-flow-row gap-y-2 max-w-3xl">
             Selecting this will run each Action in your selected Action's dependency trees, regardless of their previous state or outputs.
           </div>
-          {% form_checkbox id="id_force_run_dependencies" label="Force run dependencies" name="force_run_dependencies" checked=False %}
+          {% form_checkbox custom_field=True id="id_force_run_dependencies" label="Force run dependencies" name="force_run_dependencies" checked=False %}
 
           {% if form.force_run_dependencies.errors %}
             <ul class="bg-bn-ribbon-50 min-w-full border border-bn-ribbon-600 text-bn-ribbon-800 p-2 list-disc">
@@ -185,15 +181,15 @@
 
           <div class="w-full grid grid-flow-row gap-y-2">
             {% if form.will_notify.value == value %}
-              {% form_radio id="id_will_notify_0" name="will_notify" value="True" label="Notify me when each of the selected actions has completed" checked=True %}
+              {% form_radio custom_field=True id="id_will_notify_0" name="will_notify" value="True" label="Notify me when each of the selected actions has completed" checked=True %}
             {% else %}
-              {% form_radio id="id_will_notify_0" name="will_notify" value="True" label="Notify me when each of the selected actions has completed" checked=False %}
+              {% form_radio custom_field=True id="id_will_notify_0" name="will_notify" value="True" label="Notify me when each of the selected actions has completed" checked=False %}
             {% endif %}
 
             {% if not form.will_notify.value %}
-              {% form_radio id="id_will_notify_1" name="will_notify" value="False" label="Do not notify me" checked=True %}
+              {% form_radio custom_field=True id="id_will_notify_1" name="will_notify" value="False" label="Do not notify me" checked=True %}
             {% else %}
-              {% form_radio id="id_will_notify_1" name="will_notify" value="False" label="Do not notify me" checked=False %}
+              {% form_radio custom_field=True id="id_will_notify_1" name="will_notify" value="False" label="Do not notify me" checked=False %}
             {% endif %}
           </div>
         {% /form_fieldset %}
