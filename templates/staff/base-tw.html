@@ -1,0 +1,6 @@
+{% extends "base-tw.html" %}
+{% load django_vite %}
+
+{% block extra_meta %}
+{% vite_asset "assets/src/scripts/staff-tw.js" %}
+{% endblock extra_meta %}
