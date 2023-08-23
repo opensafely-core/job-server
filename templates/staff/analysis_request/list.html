@@ -123,8 +123,8 @@
     {% #card %}
       {% #list_group small=True %}
         {% for analysis_request in object_list %}
-          {% #list_group_rich_item type="Analysis Request" title=analysis_request.title url=analysis_request.get_staff_url %}
-            <dl class="text-sm -mt-2">
+          {% #list_group_rich_item type="Analysis Request" title=analysis_request.title url=analysis_request.get_staff_url no_truncate=True %}
+            <dl class="text-sm">
               <div class="flex flex-row gap-1">
                 <dt class="font-semibold">Created by:</dt>
                 <dd>{{ analysis_request.created_by.name }}</dd>
@@ -132,10 +132,6 @@
               <div class="flex flex-row gap-1">
                 <dt class="font-semibold">Created at:</dt>
                 <dd>{{ analysis_request.created_at|date:"d F Y" }}</dd>
-              </div>
-              <div class="flex flex-row gap-1">
-                <dt class="font-semibold">ID:</dt>
-                <dd class="font-mono">{{ analysis_request.pk }}</dd>
               </div>
             </dl>
           {% /list_group_rich_item %}
