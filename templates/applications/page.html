@@ -92,7 +92,7 @@
               {% /form_fieldset %}
             {% elif field.template_name == "components/form_checkbox.html" %}
               <div class="flex flex-col -mb-3">
-                {% form_checkbox custom_field=True required=field.required placeholder=field.name id="id_"|add:field.name label=field.label name=field.name value=field.value errors=field.errors hint_text=field.help_text %}
+                {% form_checkbox custom_field=True required=field.required placeholder=field.name id="id_"|add:field.name label=field.label name=field.name value=field.value errors=field.errors hint_text=field.help_text checked=field.field.value %}
               </div>
             {% endif %}
           {% endfor %}
