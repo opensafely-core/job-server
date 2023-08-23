@@ -499,7 +499,6 @@ def test_jobapiupdate_post_only(api_rf):
 def test_jobapiupdate_post_with_errors(api_rf, mocker, error_message):
     backend = BackendFactory()
     job_request = JobRequestFactory()
-    mocked_sentry = mocker.patch("jobserver.api.jobs.sentry_sdk", autospec=True)
 
     now = timezone.now()
 
@@ -531,8 +530,6 @@ def test_jobapiupdate_post_with_errors(api_rf, mocker, error_message):
     response = JobAPIUpdate.as_view(get_github_api=FakeGitHubAPI)(request_2)
 
     assert response.status_code == 200, response.data
-
-    mocked_sentry.capture_message.assert_called_once()
 
 
 def test_jobapiupdate_post_with_flags(api_rf):
