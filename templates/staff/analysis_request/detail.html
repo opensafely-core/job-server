@@ -1,0 +1,79 @@
+{% extends "staff/base-tw.html" %}
+
+{% block metatitle %}{{ analysis_request.title }}: Staff Area | OpenSAFELY Jobs{% endblock metatitle %}
+
+{% block breadcrumbs %}
+{% #breadcrumbs %}
+  {% url "staff:index" as staff_url %}
+  {% url "staff:analysis-request-list" as staff_analysis_request_list_url %}
+  {% breadcrumb title="Staff area" url=staff_url class="-ml-1 lg:-ml-2" %}
+  {% breadcrumb title="Analysis requests" url=staff_analysis_request_list_url %}
+  {% breadcrumb title=analysis_request.title active=True %}
+{% /breadcrumbs %}
+{% endblock breadcrumbs %}
+
+{% block hero %}
+{% #staff_hero title=analysis_request.title %}
+  <div class="flex flex-row flex-wrap gap-2 items-center mt-3">
+    {% #button type="link" href=analysis_request.get_absolute_url variant="primary" %}
+      View on Site
+    {% /button %}
+    <form method="POST">
+      {% csrf_token %}
+      {% #button type="submit" variant="danger" %}
+        Re-run analysis
+      {% /button %}
+    </form>
+  </div>
+{% /staff_hero %}
+{% endblock hero %}
+
+{% block content %}
+<div class="flex flex-col gap-y-6">
+  {% #card %}
+    <dl>
+      {% #description_item title="Created by" %}
+        {% link href=analysis_request.created_by.get_staff_url text=analysis_request.created_by.name %}
+      {% /description_item %}
+      {% #description_item title="Created at" %}
+        {{ analysis_request.created_at|date:"d F Y" }} at {{ analysis_request.created_at|date:"H:i" }}
+      {% /description_item %}
+      {% #description_item title="Job request" %}
+        {% link href=analysis_request.job_request.get_absolute_url text=analysis_request.job_request.pk %}
+      {% /description_item %}
+      {% #description_item title="ID" %}
+        <span class="font-mono tracking-wider">
+          {{ analysis_request.pk }}
+        </span>
+      {% /description_item %}
+      {% #description_item title="Organisation" %}
+        {% link href=analysis_request.project.org.get_staff_url text=analysis_request.project.org.name %}
+      {% /description_item %}
+      {% #description_item title="Project" %}
+        {% link href=analysis_request.project.get_staff_url text=analysis_request.project.title %}
+      {% /description_item %}
+      {% #description_item title="Report" %}
+        {% if analysis_request.report %}
+          {% link href=analysis_request.report.get_staff_url text=analysis_request.report.title %}
+        {% else %}
+          Not released yet.
+        {% endif %}
+      {% /description_item %}
+      {% #description_item title="Purpose" %}
+        {% if analysis_request.purpose %}
+        {{ analysis_request.purpose }}
+        {% else %}
+        -
+        {% endif %}
+      {% /description_item %}
+    </dl>
+  {% /card %}
+
+  {% #card title="Request data" %}
+    {{ analysis_request.template_data|json_script:"analysisRequestData" }}
+    <div class="overflow-auto border-t border-slate-200">
+      <pre class="text-sm px-4 py-3 md:px-6 md:py-5"><code class="language-json p-0" id="analysisRequest">{{ analysis_request.template_data|pprint }}</code></pre>
+    </div>
+  {% /card %}
+</div>
+{% endblock content %}
