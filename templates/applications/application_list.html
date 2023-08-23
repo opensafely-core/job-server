@@ -3,85 +3,77 @@
 {% block metatitle %}Applications | OpenSAFELY Jobs{% endblock metatitle %}
 
 {% block breadcrumbs %}
-<nav class="breadcrumb-container" aria-label="breadcrumb">
-  <div class="container">
-    <ol class="breadcrumb rounded-0 mb-0 px-0">
-      <li class="breadcrumb-item">
-        <a href="/">Home</a>
-      </li>
-      <li class="breadcrumb-item active" aria-current="page">
-        Applications
-      </li>
-    </ol>
-  </div>
-</nav>
+  {% url "home" as home_url %}
+
+  {% #breadcrumbs %}
+    {% breadcrumb title="Home" url=home_url %}
+    {% breadcrumb title="Applications" active=True %}
+  {% /breadcrumbs %}
 {% endblock breadcrumbs %}
 
-{% block jumbotron %}
-<div class="jumbotron jumbotron-fluid pt-md-2">
-  <div class="container">
-    <div class="d-flex flex-column flex-md-row align-items-center">
-      <div>
-        <h1 class="pt-4 pt-md-0">Applications</h1>
-        <a class="btn btn-success" href="{% url 'applications:start' %}">Start a new project</a>
-      </div>
-    </div>
-  </div>
-</div>
-{% endblock jumbotron %}
-
 {% block content %}
-<article class="container" id="applicationForm">
+{% #article_header title="Applications" text="Request access to the OpenSAFELY-EMIS/-TPP COVID-19 research platform" %}
+  {% url "applications:start" as applications_start_url %}
+  {% #button type="link" variant="primary" href=applications_start_url %}
+    Start a new application
+  {% /button %}
+{% /article_header %}
+
+<div class="grid gap-y-8 mt-6">
   {% if applications or deleted_applications %}
-  <div class="row">
-
-    <div class="col-12">
-      <p>These are individual OpenSAFELY applications that have been started by you.</p>
-    </div>
-
-    <div class="col col-lg-9 col-xl-8">
-
-      <div class="list-group list-unstyled mb-4">
-        {% for application in applications %}
-        <div class="list-group-item d-flex justify-content-between align-items-center">
-          <a href="{{ application.get_absolute_url }}">
-            Application {{ application.pk_hash }} started on {{ application.created_at|date }}
-          </a>
-          <div class="d-flex justify-content-between align-items-center">
-            <span>{{ application.get_status_display }}</span>
-            <form class="ml-2" method="POST" action="{{ application.get_delete_url }}">
-              {% csrf_token %}
-              <button class="btn btn-sm btn-danger" type="submit">Delete</button>
-            </form>
-          </div>
-        </div>
-        {% endfor %}
-      </div>
-
-      <p>These are your deleted OpenSAFELY applications.</p>
-
-      <div class="list-group list-unstyled">
-        {% for application in deleted_applications %}
-        <div class="list-group-item d-flex justify-content-between align-items-center">
-          <p>
-            Application {{ application.pk_hash }} started on {{ application.created_at|date }}
-          </p>
-          <div class="d-flex justify-content-between align-items-center">
-            <form class="ml-2" method="POST" action="{{ application.get_restore_url }}">
-              {% csrf_token %}
-              <button class="btn btn-sm btn-danger" type="submit">Restore</button>
-            </form>
-          </div>
-        </div>
-        {% endfor %}
-      </div>
-
-    </div>
-  </div>
+    {% if applications %}
+      {% #card container=False title="Started applications" subtitle="OpenSAFELY applications that have been started by you" %}
+        {% #list_group %}
+          {% for application in applications %}
+            <li class="flex flex-col gap-y-1 px-4 py-3 sm:px-6">
+              <div class="flex flex-row flex-wrap gap-2">
+                {% link href=application.get_absolute_url text="Application: "|add:application.pk_hash %}
+                <span class="ml-auto">
+                  {% if application.status == "approved_fully" or application.status == "approved_subject_to" or application.status == "completed" %}
+                    {% pill sr_only="Status:" variant="success" text=application.get_status_display %}
+                  {% elif application.status == "submitted" %}
+                    {% pill sr_only="Status:" variant="primary" text=application.get_status_display %}
+                  {% elif application.status == "ongoing" %}
+                    {% pill sr_only="Status:" variant="info" text=application.get_status_display %}
+                  {% elif application.status == "rejected" %}
+                    {% pill sr_only="Status:" variant="danger" text=application.get_status_display %}
+                  {% elif application.status == "deferred" %}
+                    {% pill sr_only="Status:" variant="warning" text=application.get_status_display %}
+                  {% endif %}
+                </span>
+                <form method="POST" action="{{ application.get_delete_url }}">
+                  {% csrf_token %}
+                  {% #button variant="danger" small=True type="submit" %}Delete{% /button %}
+                </form>
+              </div>
+              <span class="text-sm text-slate-800 font-normal">
+                Started on: {{ application.created_at|date:"d F Y" }}
+              </span>
+            </li>
+          {% endfor %}
+        {% /list_group %}
+      {% /card %}
+    {% endif %}
+    {% if deleted_applications %}
+      {% #card container=False title="Deleted applications" subtitle="OpenSAFELY applications that have been deleted by you" %}
+        {% #list_group %}
+          {% for application in deleted_applications %}
+            <li class="flex flex-col items-start gap-y-1 px-4 py-3 sm:px-6">
+              {% link href=application.get_absolute_url text="Application: "|add:application.pk_hash %}
+              <span class="text-sm text-slate-800 font-normal">
+                Started on: {{ application.created_at|date:"d F Y" }}
+              </span>
+            </li>
+          {% endfor %}
+        {% /list_group %}
+      {% /card %}
+    {% endif %}
   {% else %}
-  <p class="lead">
-    You have no applications, <a href="{% url 'applications:start' %}">apply</a> to start one.
-  </p>
+  {% #card container=False %}
+    {% #list_group %}
+      {% list_group_empty icon=True title="No applications" description="You have not created any applications" %}
+    {% /list_group %}
+  {% /card %}
   {% endif %}
-</article>
+</div>
 {% endblock %}

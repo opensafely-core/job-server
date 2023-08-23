@@ -1,5 +1,15 @@
+{% if custom_field == True %}
+  {% var label_for=id %}
+  {% var input_id=id %}
+  {% var input_name=name %}
+{% else %}
+  {% var label_for=field.id_for_label %}
+  {% var input_id=field.auto_id %}
+  {% var input_name=field.html_name %}
+{% endif %}
+
 <label
-  for="{{ id }}"
+  for="{{ label_for }}"
   class="w-fit max-w-full flex flex-row gap-x-3 items-start cursor-pointer text-lg group {{ label_class }}"
 >
   <input
@@ -12,12 +22,11 @@
       focus:ring-0 focus:outline-2 focus:outline-offset-0 focus:outline-yellow-300
       {{ input_class }}
     "
-    id="{{ id }}"
-    name="{{ name }}"
+    id="{{ input_id }}"
+    name="{{ input_name }}"
     type="checkbox"
-    value="{{ value }}"
   >
   <span class="transition-colors leading-snug group-hover:text-oxford-600 {{ span_class }}">
-    {{ label }}
+    {% if label %}{{ label }}{% else %}{{ field.label }}{% endif %}
   </span>
 </label>

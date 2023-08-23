@@ -107,6 +107,7 @@ class Field:
             "label": self.label,
             "name": self.name,
             "template_name": template_name,
+            "required": not self.optional,
         }
 
         if self.attributes:

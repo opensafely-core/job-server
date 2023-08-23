@@ -5,152 +5,117 @@
 {% block metatitle %}Apply: {% if is_edit %}Edit{% else %}Add a new{% endif %} researcher | OpenSAFELY Jobs{% endblock metatitle %}
 
 {% block breadcrumbs %}
-<nav class="breadcrumb-container" aria-label="breadcrumb">
-  <div class="container">
-    <ol class="breadcrumb rounded-0 mb-0 px-0">
-      <li class="breadcrumb-item">
-        <a href="/">Home</a>
-      </li>
-      <li class="breadcrumb-item">
-        <a href="{% url 'applications:start' %}">Apply</a>
-      </li>
-      <li class="breadcrumb-item active" aria-current="page">
-        {% if is_edit %}Edit{% else %}Add a new{% endif %} researcher
-      </li>
-    </ol>
-  </div>
-</nav>
+  {% url "home" as home_url %}
+  {% url "applications:list" as applications_url %}
+  {% url "applications:start" as start_url %}
+
+  {% #breadcrumbs %}
+    {% breadcrumb title="Home" url=home_url %}
+    {% breadcrumb title="Applications" url=applications_url %}
+    {% breadcrumb title="Apply for research access to OpenSAFELY" url=start_url %}
+    {% if is_edit %}
+      {% breadcrumb title="Edit a researcher" active=True %}
+    {% else %}
+      {% breadcrumb title="Add a researcher" active=True %}
+    {% endif %}
+  {% /breadcrumbs %}
 {% endblock breadcrumbs %}
 
-{% block jumbotron %}
-<div class="jumbotron jumbotron-fluid pt-md-2">
-  <div class="container">
-    <h1 class="display-4">
-      {% if is_edit %}Edit{% else %}Add a new{% endif %} researcher
-    </h1>
-  </div>
-</div>
-{% endblock jumbotron %}
-
 {% block content %}
-<article class="container" id="applicationForm">
-  <div class="row">
-    <div class="col-lg-8">
+{% if is_edit %}
+  {% article_header title="Edit a researcher" class="mb-6" %}
+{% else %}
+  {% article_header title="Add a researcher" class="mb-6" %}
+{% endif %}
 
-      {% for error in form.non_field_errors %}
-        <div class="alert alert-danger" role="alert">{{ error }}</div>
+<form method="POST" class="flex flex-col gap-8">
+  {% csrf_token %}
+
+  {% #card title="Researcher contact information" class="max-w-3xl" container=True %}
+    {% if does_researcher_need_server_access %}
+      {% for error in does_researcher_need_server_access %}
+        {% #alert variant="danger" class="mb-6" %}
+          {{ error }}
+        {% /alert %}
       {% endfor %}
+    {% endif %}
 
-      <form method="POST">
-        {% csrf_token %}
+    {% #form_fieldset class="grid gap-y-6 !min-w-0 w-full max-w-prose" %}
+      {% form_legend text="Researcher contact information" class="sr-only" %}
 
-        {% if form.does_researcher_need_server_access.errors %}
-        <ul class="pl-3 mb-1">
-          {% for error in form.does_researcher_need_server_access.errors %}
-            <li class="text-danger">{{ error }}</li>
-          {% endfor %}
-        </ul>
-        {% endif %}
+      {% form_input field=form.name label="Researcher name" name="name" %}
+      {% form_input field=form.job_title label="Researcher job title" name="job_title" %}
+      {% form_input field=form.email label="Researcher work email address" name="email" type="email" %}
+      {% form_input field=form.github_username label="GitHub username" name="github_username" %}
+      {% form_input field=form.telephone label="Mobile phone number" name="telephone" %}
+    {% /form_fieldset %}
+  {% /card %}
 
-        <fieldset class="d-flex flex-column mb-4 pb-4 border-bottom">
-          <legend class="sr-only">
-            <h2 class="h3 mb-3">Researcher contact information</h2>
-          </legend>
-          {% include "components/form_text.html" with field=form.name label="Researcher name" name="name" %}
-          {% include "components/form_text.html" with field=form.job_title label="Researcher job title" name="job_title" %}
-          {% include "components/form_email.html" with field=form.email label="Researcher work email address" name="email" %}
-          {% include "components/form_text.html" with field=form.github_username label="GitHub username" name="github_username" %}
-          {% include "components/form_text.html" with field=form.telephone label="Mobile phone number" name="telephone" %}
-
-          <fieldset class="d-flex flex-column mb-3">
-            <legend class="h6 font-weight-bold">Does this researcher require access to the OpenSAFELY secure results server?</legend>
-            {% include "components/form_radio.html" with field=form.does_researcher_need_server_access label="" name="does_researcher_need_server_access" %}
-
-            <div class="form-text text-muted form__help-text">
-              {% snippet "researcher-server-access-rubric" %}
-            </div>
-          </fieldset>
-
-          {% snippet "researcher-details" %}
-        </fieldset>
-
-        <fieldset class="d-flex flex-column mb-4 pb-4 border-bottom">
-          <legend>
-            <h2 class="h3 mb-3">Mobile phone</h2>
-          </legend>
-
-          <p>This is required to set up Virtual Private Network (VPN) access to access the results server.</p>
-
-          <fieldset class="d-flex flex-column mb-3">
-            <legend class="h6 font-weight-bold">What type of smartphone does this researcher have?</legend>
-            {% include "components/form_radio.html" with field=form.phone_type label="" name="phone_type" %}
-          </fieldset>
-        </fieldset>
-
-        <fieldset class="d-flex flex-column mb-4">
-          <legend>
-            <h2 class="h3 mb-3">Safe researcher training</h2>
-          </legend>
-
-            <fieldset class="d-flex flex-column mb-3">
-              <legend class="h6 font-weight-bold">Has this researcher undertaken safe researcher training?</legend>
-              {% include "components/form_radio.html" with field=form.has_taken_safe_researcher_training label="" name="has_taken_safe_researcher_training" %}
-            </fieldset>
-
-            {% include "components/form_text.html" with field=form.training_with_org label="If yes, with which organisation?" name="training_with_org" %}
-
-            <div class="form-group">
-
-              <label class="font-weight-bold" for="id_training_passed_at">
-                If yes, on what date did they pass?
-              </label>
-
-              <input
-                type="date"
-                class="form-control"
-                id="id_training_passed_at"
-                name="training_passed_at"
-
-                {% if form.training_passed_at.help_text %}
-                aria-describedby="training_passed_atHelpBlock"
-                {% endif %}
-
-                {% if form.training_passed_at.field.required %}
-                required
-                {% endif %}
-
-                {% if form.training_passed_at.value %}
-                value="{{ form.training_passed_at.value|date:"Y-m-d" }}"
-                {% endif %}
-
-              />
-
-              {% if form.training_passed_at.help_text %}
-                <small id="training_passed_atHelpBlock" class="form-text text-muted">
-                  {{ form.training_passed_at.help_text }}
-                </small>
-              {% endif %}
-
-              {% if form.training_passed_at.errors %}
-                <ul class="pl-3 mb-1">
-                  {% for error in form.training_passed_at.errors %}
-                    <li class="text-danger">{{ error }}</li>
-                  {% endfor %}
-                </ul>
-              {% endif %}
-
-            </div>
-          </fieldset>
-
-          {% snippet "researcher-server-access-footer" %}
-
-        </fieldset>
-
-        <button class="btn btn btn-success mt-3" type="submit" >
-          {% if is_edit %}Save{% else %}Add a new{% endif %} researcher
-        </button>
-      </form>
+  {% #card title="Secure results server" class="max-w-3xl" container=True %}
+    <div class="prose mb-4">
+      {% snippet "researcher-server-access-rubric" %}
     </div>
-  </div>
-</article>
+
+    {% #form_fieldset class="grid gap-y-2 !min-w-0 w-full max-w-prose" %}
+      {% form_legend text="Does this researcher require access to the OpenSAFELY secure results server?" %}
+
+      {% for value, label in form.does_researcher_need_server_access.field.choices %}
+        {% with id=forloop.counter0|stringformat:"s" %}
+          {% if form.does_researcher_need_server_access.value == value %}
+            {% form_radio custom_field=True name="does_researcher_need_server_access" id="id_does_researcher_need_server_access"|add:label|add:"_"|add:id|slugify label=label value=value checked=True %}
+          {% else %}
+            {% form_radio custom_field=True name="does_researcher_need_server_access" id="id_does_researcher_need_server_access"|add:label|add:"_"|add:id|slugify label=label value=value  %}
+          {% endif %}
+        {% endwith %}
+      {% endfor %}
+    {% /form_fieldset %}
+  {% /card %}
+
+  {% #card title="Mobile phone" class="max-w-3xl" container=True %}
+    <p class="prose mb-4">
+      This is required to set up Virtual Private Network (VPN) access to access the results server.
+    </p>
+
+    {% #form_fieldset class="grid gap-y-2 !min-w-0 w-full max-w-prose" %}
+      {% form_legend text="What type of smartphone does this researcher have?" %}
+
+      {% for value, label in form.phone_type.field.choices %}
+        {% with id=forloop.counter0|stringformat:"s" %}
+          {% if form.phone_type.value == value %}
+            {% form_radio custom_field=True name="phone_type" id="id_"|add:label|add:"_"|add:id|slugify label=label value=value checked=True %}
+          {% else %}
+            {% form_radio custom_field=True name="phone_type" id="id_"|add:label|add:"_"|add:id|slugify label=label value=value %}
+          {% endif %}
+        {% endwith %}
+      {% endfor %}
+    {% /form_fieldset %}
+  {% /card %}
+
+  {% #card title="Safe researcher training" class="max-w-3xl" container=True container_class="grid gap-y-6 max-w-prose" %}
+    {% #form_fieldset class="grid gap-y-2 !min-w-0 w-full max-w-prose" %}
+      {% form_legend text="Has this researcher undertaken safe researcher training?" %}
+
+      {% for value, label in form.has_taken_safe_researcher_training.field.choices %}
+        {% with id=forloop.counter0|stringformat:"s" %}
+          {% if form.has_taken_safe_researcher_training.value == value %}
+            {% form_radio custom_field=True name="has_taken_safe_researcher_training" id="id_has_taken_safe_researcher_training"|add:label|add:"_"|add:id|slugify label=label value=value checked=True %}
+          {% else %}
+            {% form_radio custom_field=True name="has_taken_safe_researcher_training" id="id_has_taken_safe_researcher_training"|add:label|add:"_"|add:id|slugify label=label value=value %}
+          {% endif %}
+        {% endwith %}
+      {% endfor %}
+    {% /form_fieldset %}
+
+    {% form_input field=form.training_with_org label="If yes, with which organisation?" %}
+    {% form_input custom_field=True label="If yes, on what date did they pass?" id="id_training_passed_at" name="training_passed_at" type="date" required=form.training_passed_at.field.required value=form.training_passed_at.value|date:"Y-m-d" %}
+
+    <div class="prose prose-oxford">
+      {% snippet "researcher-server-access-footer" %}
+    </div>
+  {% /card %}
+
+  {% #button variant="success" type="submit" class="self-start" %}
+    {% if is_edit %}Save{% else %}Add a new{% endif %} researcher
+  {% /button %}
+</form>
 {% endblock %}

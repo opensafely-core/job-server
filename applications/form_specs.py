@@ -1,5 +1,3 @@
-from django.utils.safestring import mark_safe
-
 from jobserver.snippets import render_snippet as snippet
 
 from . import models
@@ -234,30 +232,18 @@ form_specs = [
                 fields=[
                     Field(
                         name="needs_icnarc",
-                        label=mark_safe('<a href="https://www.icnarc.org/">ICNARC</a>'),
+                        label="ICNARC",
                     ),
                     Field(
                         name="needs_isaric",
-                        label=mark_safe('<a href="https://isaric4c.net/">ISARIC</a>'),
+                        label="ISARIC",
                     ),
                     Field(
                         name="needs_ons_cis",
-                        label=mark_safe(
-                            '<a href="https://www.ons.gov.uk/peoplepopulationandcommunity/healthandsocialcare/conditionsanddiseases/methodologies/covid19infectionsurveypilotmethodsandfurtherinformation#covid-19-infection-survey">ONS-CIS (community infection survey)</a>'
-                        ),
+                        label="ONS-CIS (community infection survey)",
                     ),
-                    Field(
-                        name="needs_phosp",
-                        label=mark_safe(
-                            '<a href="https://www.leicesterbrc.nihr.ac.uk/themes/respiratory/research/phosp-covid/">PHOSP</a>'
-                        ),
-                    ),
-                    Field(
-                        name="needs_ukrr",
-                        label=mark_safe(
-                            '<a href="https://ukkidney.org/">UK Renal Registry (UKRR)</a>'
-                        ),
-                    ),
+                    Field(name="needs_phosp", label="PHOSP"),
+                    Field(name="needs_ukrr", label="UK Renal Registry (UKRR)"),
                 ],
             ),
         ],

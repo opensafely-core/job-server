@@ -1,20 +1,22 @@
 /* eslint-disable array-callback-return, no-param-reassign */
-const content = document.getElementById("applicationForm");
-const links = content.getElementsByTagName("a");
+const content = document?.getElementById("applicationForm");
+const links = content?.getElementsByTagName("a");
 
-[...links].map((link) => {
-  if (link.hostname !== window.location.hostname) {
-    link.target = "_blank";
-    link.rel = "noopener noreferrer";
-  }
-});
+if (links?.length) {
+  [...links].map((link) => {
+    if (link.hostname !== window.location.hostname) {
+      link.target = "_blank";
+      link.rel = "noopener noreferrer";
+    }
+  });
+}
 
 // Find all character count instances
-const characterCounts = document.querySelectorAll("[data-character-count]");
+const characterCounts = document?.querySelectorAll("[data-character-count]");
 
-characterCounts.forEach((formGroup) => {
+characterCounts?.forEach((formGroup) => {
   // Select the textarea element
-  const textAreaElement = formGroup.querySelector("textarea");
+  const textAreaElement = formGroup.parentElement.querySelector("textarea");
 
   // Select the maximum amount of characters
   const maximumCharacters = textAreaElement.getAttribute("maxlength");
@@ -49,13 +51,13 @@ characterCounts.forEach((formGroup) => {
      * colour to "red".
      */
     if (typedCharacters >= 1400 && typedCharacters < 1450) {
-      characterCounterElement.classList.remove("text-danger");
-      return characterCounterElement.classList.add("text-warning");
+      characterCounterElement.classList.remove("text-bn-ribbon-800");
+      return characterCounterElement.classList.add("text-bn-sun-800");
     }
 
     if (typedCharacters >= 1450) {
-      characterCounterElement.classList.remove("text-warning");
-      return characterCounterElement.classList.add("text-danger");
+      characterCounterElement.classList.remove("text-bn-sun-800");
+      return characterCounterElement.classList.add("text-bn-ribbon-800");
     }
 
     return characterCounterElement.classList.remove(

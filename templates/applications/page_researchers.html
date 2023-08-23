@@ -1,76 +1,67 @@
-<fieldset class="d-flex flex-column mb-4 {% if not forloop.last %}pb-4 border-bottom{% endif %}">
-  <legend>
-    <h2 class="h3 mb-3">Researcher details</h2>
-  </legend>
+<div class="mt-6 pt-6 border-t border-t-slate-300">
+  <h2 class="text-3xl leading-tight tracking-tight font-semibold mb-4">
+    Researcher details
+  </h2>
+
+  {% url "applications:researcher-add" application.pk_hash as researcher_add_url %}
+  {% #button class="mb-6" type="link" variant="primary" href=researcher_add_url|add:"?next="|add:request.path %}
+    Add new researcher
+  {% /button %}
 
   {% for researcher in application.researcher_registrations.all %}
-  <div class="card mb-3">
-    <h2 class="h5 card-header">
-      Researcher {{ forloop.counter }}
-    </h2>
+    {% #card title=researcher.name class="max-w-3xl" %}
+      <dl class="border-t border-slate-200 sm:divide-y sm:divide-slate-200">
+        {% #description_item title="Job title" %}
+          {{ researcher.job_title }}
+        {% /description_item %}
+        {% #description_item title="Email" %}
+          {{ researcher.email }}
+        {% /description_item %}
+        {% #description_item title="GitHub username" %}
+          {{ researcher.github_username }}
+        {% /description_item %}
 
-    <div class="card-body">
-      <dl class="row">
-        <dt class="col-7">Name:</dt>
-        <dd class="col-5">{{ researcher.name }}</dd>
+        {% #description_item title="Do they need access to the results server?" %}
+          {{ researcher.does_researcher_need_server_access|default_if_none:"Not supplied"}}
+        {% /description_item %}
+        {% #description_item title="Phone number" %}
+          {{ researcher.telephone|default:"Not supplied" }}
+        {% /description_item %}
+        {% #description_item title="Type of phone" %}
+          {{ researcher.phone_type|default:"Not supplied" }}
+        {% /description_item %}
 
-        <dt class="col-7">Job title:</dt>
-        <dd class="col-5">{{ researcher.job_title }}</dd>
-
-        <dt class="col-7">Email:</dt>
-        <dd class="col-5">{{ researcher.email }}</dd>
+        {% #description_item title="Have they undertaken safe researcher training?" %}
+          {{ researcher.has_taken_safe_researcher_training|yesno:"Yes,No"|default_if_none:"Not supplied" }}
+        {% /description_item %}
+        {% #description_item title="Organisation training completed with" %}
+          {{ researcher.training_with_org|default:"Not supplied" }}
+        {% /description_item %}
+        {% #description_item title="Training passed on" %}
+          {{ researcher.training_passed_at|date:"d F Y"|default:"Not supplied" }}
+        {% /description_item %}
       </dl>
 
-      <dl class="row">
-        <dt class="col-7">Do they need access to the results server?</dt>
-        <dd class="col-5">{{ researcher.get_does_researcher_need_server_access_display |default_if_none:"Not supplied"}}</dd>
-
-        <dt class="col-7">Phone number:</dt>
-        <dd class="col-5">{{ researcher.telephone|default:"Not supplied" }}</dd>
-
-        <dt class="col-7">Type of phone:</dt>
-        <dd class="col-5">{{ researcher.get_phone_type_display|default:"Not supplied" }}</dd>
-      </dl>
-
-      <dl class="row">
-        <dt class="col-7">Have they undertaken safe researcher training?</dt>
-        <dd class="col-5">{{ researcher.get_has_taken_safe_researcher_training_display|default_if_none:"Not supplied" }}</dd>
-
-        <dt class="col-7">Organisation training completed with:</dt>
-        <dd class="col-5">{{ researcher.training_with_org|default:"Not supplied" }}</dd>
-
-        <dt class="col-7">Training passed on:</dt>
-        <dd class="col-5">
-          {{ researcher.training_passed_at|date:"Y-m-d"|default:"Not supplied" }}
-        </dd>
-      </dl>
-
-      <div class="d-flex justify-content-end">
-        <a class="btn btn-sm btn-secondary mr-2" href="{{ researcher.get_edit_url }}?next={{ request.path }}">
-          Edit researcher details
-        </a>
-
-        <form method="POST" action="{{ researcher.get_delete_url }}?next={{ request.path }}">
-          {% csrf_token %}
-          <button type="submit" class="btn btn-sm btn-danger">
-            Delete researcher details
-          </button>
-        </form>
-      </div>
-    </div>
-  </div>
+      {% #card_footer no_container=True %}
+        <div class="flex flex-row gap-4 flex-wrap">
+          {% #button href=researcher.get_edit_url|add:"?next="|add:request.path type="link" variant="secondary" %}
+            Edit researcher details
+          {% /button %}
+          <form method="POST" action="{{ researcher.get_delete_url }}?next={{ request.path }}">
+            {% csrf_token %}
+            {% #button variant="danger" type="submit" %}
+              Remove researcher
+            {% /button %}
+          </form>
+        </div>
+      {% /card_footer %}
+    {% /card %}
   {% endfor %}
 
-  <div class="d-flex justify-content-end">
-    <a
-      class="btn btn-sm btn-outline-primary"
-      href="{% url 'applications:researcher-add' application.pk_hash %}?next={{ request.path }}">
-      Add new researcher
-    </a>
-  </div>
-</fieldset>
-
-<form method="POST">
-  {% csrf_token %}
-  <button class="btn btn-lg btn-success mt-3" type="submit">Continue</button>
-</form>
+  <form class="mt-6" method="POST">
+    {% csrf_token %}
+    {% #button variant="success" type="submit" class="self-start" %}
+      Continue
+    {% /button %}
+  </form>
+</div>
