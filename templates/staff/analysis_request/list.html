@@ -113,7 +113,7 @@
         {% form_input custom_field=True type="search" id="requestSearch" name="q" value=value label="Search for a request" label_class="sr-only" class="w-full" input_class="!m-0" %}
         {% #button type="submit" variant="primary" class="flex-shrink-0" %}Search{% /button %}
       </form>
-      {% if request.GET %}
+      {% if request.GET.q %}
         <p class="mt-3">
           {% link href=staff_analysis_request_list_url text="Clear search" %}
         </p>

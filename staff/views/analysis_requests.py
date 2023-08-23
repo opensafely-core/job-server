@@ -46,6 +46,8 @@ class AnalysisRequestResubmit(View):
 class AnalysisRequestList(ListView):
     context_object_name = "analysis_request"
     model = AnalysisRequest
+    ordering = "-created_at"
+    paginate_by = 25
     template_name = "staff/analysis_request/list.html"
 
     def get_context_data(self, **kwargs):
