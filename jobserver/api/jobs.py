@@ -2,7 +2,6 @@ import itertools
 import json
 import operator
 
-import sentry_sdk
 import structlog
 from django.http import Http404
 from django.utils import timezone
@@ -201,26 +200,6 @@ class JobAPIUpdate(APIView):
 
 
 def handle_job_notifications(request, job_request, job):
-    error_messages = {
-        "internal error": "Job encountered an internal error",
-        "something went wrong with the database": "Job encountered an unexpected database error",
-        "ran out of memory": "Job encountered an out of memory error",
-    }
-
-    for message_fragment, sentry_message in error_messages.items():
-        if message_fragment in job.status_message.lower():
-            # bubble errors encountered with a job up to
-            # sentry so we can get notifications they've happened
-            with sentry_sdk.push_scope() as scope:
-                scope.set_tag("backend", job_request.backend.slug)
-                scope.set_tag("job", request.build_absolute_uri(job.get_redirect_url()))
-                scope.set_tag(
-                    "docs",
-                    "https://github.com/opensafely-core/backend-server/blob/main/jobrunner/playbook.md",
-                )
-                sentry_sdk.capture_message(sentry_message)
-            break
-
     if job_request.will_notify:
         send_finished_notification(
             job_request.created_by.email,
