@@ -1,61 +1,31 @@
-{% extends "staff/base.html" %}
+{% extends "staff/base-tw.html" %}
 
 {% block metatitle %}Sentry: Staff Area | OpenSAFELY Jobs{% endblock metatitle %}
 
 {% block breadcrumbs %}
-<nav class="breadcrumb-container breadcrumb--danger" aria-label="breadcrumb">
-  <div class="container">
-    <ol class="breadcrumb rounded-0 mb-0 px-0">
-      <li class="breadcrumb-item">
-        <a href="{% url 'staff:index' %}">Staff area</a>
-      </li>
-      <li class="breadcrumb-item active" aria-current="page">
-        Sentry
-      </li>
-    </ol>
-  </div>
-</nav>
+{% #breadcrumbs %}
+  {% url "staff:index" as staff_url %}
+  {% breadcrumb title="Staff area" url=staff_url class="-ml-1 lg:-ml-2" %}
+  {% breadcrumb title="Sentry" active=True %}
+{% /breadcrumbs %}
 {% endblock breadcrumbs %}
 
-{% block jumbotron %}
-<div class="jumbotron jumbotron-fluid jumbotron--danger pt-md-2">
-  <div class="container">
-    <h1 class="display-4">Sentry</h1>
-    <div class="lead">
-      <p>
-        A collection of views for manually testing events are sent to Sentry.
-      </p>
-    </div>
-  </div>
-</div>
-{% endblock jumbotron %}
+{% block hero %}
+{% staff_hero title="Sentry" text="A collection of views for manually testing events are sent to Sentry." %}
+{% endblock hero %}
 
 {% block content %}
-<div class="container">
-  <div class="row">
-    <div class="col-lg-8 col-xl-9">
+{% #card %}
+  {% #list_group no_border=True %}
+    {% url "staff:sentry:error" as staff_sentry_error_url %}
+    {% #list_group_rich_item type="Sentry trigger" title="Error" url=staff_sentry_error_url %}
+      <p>Trigger an exception</p>
+    {% /list_group_rich_item %}
 
-      <div class="card mb-3">
-        <div class="card-body">
-          <h5 class="card-title">Error</h5>
-          <p class="card-text">
-            Trigger an exception
-          </p>
-          <a href="{% url 'staff:sentry:error' %}" class="btn btn-primary">View</a>
-        </div>
-      </div>
-
-      <div class="card mb-3">
-        <div class="card-body">
-          <h5 class="card-title">Message</h5>
-          <p class="card-text">
-            Send a message to Sentry
-          </p>
-          <a href="{% url 'staff:sentry:message' %}" class="btn btn-primary">View</a>
-        </div>
-      </div>
-
-    </div>
-  </div>
-</div>
+    {% url "staff:sentry:message" as staff_sentry_message_url %}
+    {% #list_group_rich_item type="Sentry trigger" title="Message" url=staff_sentry_message_url %}
+      <p>Send a message to Sentry</p>
+    {% /list_group_rich_item %}
+  {% /list_group %}
+{% /card %}
 {% endblock content %}

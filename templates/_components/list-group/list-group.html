@@ -1,6 +1,7 @@
 <ul
   class="
-    divide-y divide-slate-200 border-t border-t-slate-200
+    divide-y divide-slate-200
+    {% if not no_border %}border-t border-t-slate-200{% endif %}
     {% if small %}text-sm{% endif %}
   "
   role="list"
