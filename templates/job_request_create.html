@@ -76,7 +76,11 @@
           <div class="max-w-lg flex flex-col gap-y-2" id="backends">
             {% for value, label in form.backend.field.choices %}
               {% with id=forloop.counter|stringformat:"s" %}
-                {% form_radio custom_field=True id="id_backend"|add:id name="backend" value=value label=label %}
+              {% if form.backend.value == value %}
+                {% form_radio custom_field=True id="id_backend"|add:id name="backend" value=value label=label checked=True %}
+              {% else %}
+                {% form_radio custom_field=True id="id_backend"|add:id name="backend" value=value label=label checked=False %}
+              {% endif %}
               {% endwith %}
             {% endfor %}
           </div>
@@ -104,7 +108,11 @@
           <div class="flex flex-col gap-y-2 max-w-full">
             {% for action in actions %}
               <div class="flex flex-row gap-x-4 w-full items-center" id="jobActions">
-                {% form_checkbox custom_field=True id="checkbox-"|add:action.name label=action.name name="requested_actions" value=action.name checked=False label_class="truncate py-0.5" span_class="font-mono text-base truncate" %}
+                {% if action.name in form.requested_actions.value %}
+                {% form_checkbox custom_field=True id="checkbox-"|add:action.name label=action.name name="requested_actions" value=action.name checked=False label_class="truncate py-0.5" span_class="font-mono text-base truncate" checked=True %}
+                {% else %}
+                {% form_checkbox custom_field=True id="checkbox-"|add:action.name label=action.name name="requested_actions" value=action.name checked=False label_class="truncate py-0.5" span_class="font-mono text-base truncate" checked=False%}
+                {% endif %}
 
                 {% if action.needs %}
                   {% #button class="min-w-fit ml-auto" variant="secondary-outline" small=True data-expander-button=action.name  %}
@@ -179,16 +187,16 @@
           {% endif %}
 
           <div class="w-full grid grid-flow-row gap-y-2">
-            {% if form.will_notify.value == value %}
-              {% form_radio custom_field=True id="id_will_notify_0" name="will_notify" value="True" label="Notify me when each of the selected actions has completed" checked=True %}
+            {% if form.will_notify.value|stringformat:"s" == "True" %}
+              {% form_radio field=form.will_notify label="Notify me when each of the selected actions has completed" checked=True %}
             {% else %}
-              {% form_radio custom_field=True id="id_will_notify_0" name="will_notify" value="True" label="Notify me when each of the selected actions has completed" checked=False %}
+              {% form_radio field=form.will_notify label="Notify me when each of the selected actions has completed" checked=False %}
             {% endif %}
 
-            {% if not form.will_notify.value %}
-              {% form_radio custom_field=True id="id_will_notify_1" name="will_notify" value="False" label="Do not notify me" checked=True %}
+            {% if form.will_notify.value|stringformat:"s" == "False" %}
+              {% form_radio field=form.will_notify label="Do not notify me" checked=True %}
             {% else %}
-              {% form_radio custom_field=True id="id_will_notify_1" name="will_notify" value="False" label="Do not notify me" checked=False %}
+              {% form_radio field=form.will_notify label="Do not notify me" checked=False %}
             {% endif %}
           </div>
         {% /form_fieldset %}
