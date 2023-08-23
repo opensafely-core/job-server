@@ -4,21 +4,16 @@
 
 {% block breadcrumbs %}
 {% #breadcrumbs %}
-  {% breadcrumb title="Staff area" active=True %}
+  {% breadcrumb title="Staff area" active=True class="-ml-1 lg:-ml-2" %}
 {% /breadcrumbs %}
 {% endblock breadcrumbs %}
 
 {% block hero %}
-<div class="bg-bn-ribbon-100 pt-6 pb-8">
-  <div class="container">
-    {% #article_header title="Staff area" %}
-      <div class="grid gap-y-3 text-slate-900 mt-1">
-        <p>The staff area is a tailored, staff-only interface.</p>
-        <p>It requires authentication but assumes all users are both equal and have full rights.</p>
-      </div>
-    {% /article_header %}
-  </div>
-</div>
+{% fragment as hero_text %}
+<p>The staff area is a tailored, staff-only interface.</p>
+<p>It requires authentication but assumes all users are both equal and have full rights.</p>
+{% endfragment %}
+{% staff_hero title="Staff area" text=hero_text %}
 {% endblock hero %}
 
 {% block content %}
