@@ -2,10 +2,12 @@
   {% var label_for=id %}
   {% var input_id=id %}
   {% var input_name=name %}
+  {% var input_value=value %}
 {% else %}
   {% var label_for=field.id_for_label %}
   {% var input_id=field.auto_id %}
   {% var input_name=field.html_name %}
+  {% var input_value=field.value %}
 {% endif %}
 
 <label
@@ -25,6 +27,7 @@
     id="{{ input_id }}"
     name="{{ input_name }}"
     type="checkbox"
+    {% if input_value %}value="{{ input_value }}"{% endif %}
   >
   <span class="transition-colors leading-snug group-hover:text-oxford-600 {{ span_class }}">
     {% if label %}{{ label }}{% else %}{{ field.label }}{% endif %}

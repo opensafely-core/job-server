@@ -53,7 +53,7 @@
       {% form_legend text="Filter by backend" %}
       {% for backend in backends|dictsort:"name" %}
         {% is_filter_selected key="backend" value=backend.slug as is_active %}
-        {% form_checkbox label=backend.name value=backend.slug name="backend" id=backend.slug checked=is_active %}
+        {% form_checkbox custom_field=True label=backend.name value=backend.slug name="backend" id=backend.slug checked=is_active %}
       {% endfor %}
     {% /form_fieldset %}
     {% #button type="submit" variant="primary-outline" %}Filter{% /button %}
