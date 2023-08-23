@@ -25,6 +25,7 @@ const config = {
         tw: "./assets/src/scripts/tw.js",
         workspace_create: "./assets/src/scripts/workspace_create.js",
         "sign-off-repo": "./assets/src/scripts/sign-off-repo.js",
+        "staff-tw": "./assets/src/scripts/staff-tw.js",
       },
     },
     outDir: "assets/dist",

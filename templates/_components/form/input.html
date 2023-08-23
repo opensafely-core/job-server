@@ -16,7 +16,7 @@
 
 <div {% attrs class %}>
   <label
-    class="inline-block font-semibold text-lg text-slate-900 cursor-pointer"
+    class="inline-block font-semibold text-lg text-slate-900 cursor-pointer {{ label_class }}"
     for="{{ label_for }}"
   >
     {% if label %}{{ label }}{% else %}{{ field.label }}{% endif %}

@@ -1,104 +1,86 @@
-{% extends "staff/base.html" %}
+{% extends "staff/base-tw.html" %}
 
 {% block metatitle %}Staff Area | OpenSAFELY Jobs{% endblock metatitle %}
 
 {% block breadcrumbs %}
-<nav class="breadcrumb-container breadcrumb--danger" aria-label="breadcrumb">
-  <div class="container">
-    <ol class="breadcrumb rounded-0 mb-0 px-0">
-      <li class="breadcrumb-item active" aria-current="page">
-        Staff area
-      </li>
-    </ol>
-  </div>
-</nav>
+{% #breadcrumbs %}
+  {% breadcrumb title="Staff area" active=True %}
+{% /breadcrumbs %}
 {% endblock breadcrumbs %}
 
-{% block jumbotron %}
-<div class="jumbotron jumbotron-fluid jumbotron--danger pt-md-2">
+{% block hero %}
+<div class="bg-bn-ribbon-100 pt-6 pb-8">
   <div class="container">
-    <h1 class="display-4">Staff area</h1>
-    <div class="lead">
-      <p>
-        The staff area is a tailored, staff-only interface.<br />
-        It requires authentication but assumes all users are both equal and have full rights.
-      </p>
-    </div>
-
-    <p>
-      It is ideal for, and tailored towards:
-    </p>
-    <ul class="mb-0">
-      <li>Administration of a live instance</li>
-      <li>Speeding up local dev work</li>
-    </ul>
+    {% #article_header title="Staff area" %}
+      <div class="grid gap-y-3 text-slate-900 mt-1">
+        <p>The staff area is a tailored, staff-only interface.</p>
+        <p>It requires authentication but assumes all users are both equal and have full rights.</p>
+      </div>
+    {% /article_header %}
   </div>
 </div>
-{% endblock jumbotron %}
-
+{% endblock hero %}
 
 {% block content %}
-<div class="container">
-  <div class="row">
-    <div class="col-lg-4">
-      <div class="list-group">
-        <a href="{% url 'staff:analysis-request-list' %}" class="list-group-item list-group-item-action">Analysis Requests</a>
-        <a href="{% url 'staff:application-list' %}" class="list-group-item list-group-item-action">Applications</a>
-        <a href="{% url 'staff:backend-list' %}" class="list-group-item list-group-item-action">Backends</a>
-        <a href="{% url 'staff:dashboard:index' %}" class="list-group-item list-group-item-action">Dashboards</a>
-        <a href="{% url 'staff:job-request-list' %}" class="list-group-item list-group-item-action">Job Requests</a>
-        <a href="{% url 'staff:org-list' %}" class="list-group-item list-group-item-action">Organisations</a>
-        <a href="{% url 'staff:project-list' %}" class="list-group-item list-group-item-action">Projects</a>
-        <a href="{% url 'staff:redirect-list' %}" class="list-group-item list-group-item-action">Redirects</a>
-        <a href="{% url 'staff:repo-list' %}" class="list-group-item list-group-item-action">Repos</a>
-        <a href="{% url 'staff:report-list' %}" class="list-group-item list-group-item-action">Reports</a>
-        <a href="{% url 'staff:sentry:index' %}" class="list-group-item list-group-item-action">Sentry</a>
-        <a href="{% url 'staff:user-list' %}" class="list-group-item list-group-item-action">Users</a>
-        <a href="{% url 'staff:workspace-list' %}" class="list-group-item list-group-item-action">Workspaces</a>
-      </div>
-    </div>
+<div class="grid lg:grid-cols-3 gap-8">
+  {% #card title="Go to…" %}
+    {% #list_group %}
+      {% url "staff:analysis-request-list" as staff_analysis_request_list %}
+      {% #list_group_item href=staff_analysis_request_list %}Analysis Requests{% /list_group_item %}
+      {% url "staff:application-list" as staff_application_list %}
+      {% #list_group_item href=staff_application_list %}Applications{% /list_group_item %}
+      {% url "staff:backend-list" as staff_backend_list %}
+      {% #list_group_item href=staff_backend_list %}Backends{% /list_group_item %}
+      {% url "staff:dashboard:index" as staff_dashboard_index %}
+      {% #list_group_item href=staff_dashboard_index %}Dashboards{% /list_group_item %}
+      {% url "staff:job-request-list" as staff_job_request_list %}
+      {% #list_group_item href=staff_job_request_list %}Job Requests{% /list_group_item %}
+      {% url "staff:org-list" as staff_org_list %}
+      {% #list_group_item href=staff_org_list %}Organisations{% /list_group_item %}
+      {% url "staff:project-list" as staff_project_list %}
+      {% #list_group_item href=staff_project_list %}Projects{% /list_group_item %}
+      {% url "staff:redirect-list" as staff_redirect_list %}
+      {% #list_group_item href=staff_redirect_list %}Redirects{% /list_group_item %}
+      {% url "staff:repo-list" as staff_repo_list %}
+      {% #list_group_item href=staff_repo_list %}Repos{% /list_group_item %}
+      {% url "staff:report-list" as staff_report_list %}
+      {% #list_group_item href=staff_report_list %}Reports{% /list_group_item %}
+      {% url "staff:sentry:index" as staff_sentry_index %}
+      {% #list_group_item href=staff_sentry_index %}Sentry{% /list_group_item %}
+      {% url "staff:user-list" as staff_user_list %}
+      {% #list_group_item href=staff_user_list %}Users{% /list_group_item %}
+      {% url "staff:workspace-list" as staff_workspace_list %}
+      {% #list_group_item href=staff_workspace_list %}Workspaces{% /list_group_item %}
+    {% /list_group %}
+  {% /card %}
 
-    <div class="col-lg-8">
-
-      <form method="GET" class="mb-4">
-        <fieldset>
-          <legend class="h5">Search the site</legend>
-        </fieldset>
-        <div class="form-inline w-100 d-flex flex-nowrap">
-          <label for="staffSearch" class="sr-only">Search the site</label>
-          <input
-            aria-label="Search"
-            autofocus
-            class="form-control form-control-lg mr-sm-2 w-100"
-            id="staffSearch"
-            name="q"
-            placeholder="Search"
-            type="search"
-            {% if q %}
-              value="{{ q|stringformat:'s' }}"
-            {% endif %}
-          >
-          <button class="btn btn-lg btn-outline-success my-2 my-sm-0" type="submit">Search</button>
-        </div>
+  <div class="grid gap-y-6 lg:col-span-2">
+    {% #card container=True title="Search the site" %}
+      <form method="GET" class="flex flex-row gap-x-2 items-center">
+        {% if q %}
+          {% var value=q|stringformat:"s" %}
+        {% endif %}
+        {% form_input custom_field=True type="search" id="staffSearch" name="q" value=value label="Search the site" label_class="sr-only" class="w-full" input_class="!m-0" %}
+        {% #button type="submit" variant="primary" class="flex-shrink-0" %}Search{% /button %}
       </form>
+    {% /card %}
 
-      {% if results %}
-      <h2 class="mb-4 pb-4 border-bottom">Results</h2>
-
+    {% if results %}
+      <h2 class="text-3xl font-semibold leading-tight tracking-tight">
+        Results
+      </h2>
       {% for key, group in results %}
-      <section class="mb-4 pb-4 border-bottom">
-        <h3 class="h4 mb-3">{{ key }}{{ 2|pluralize }}</h3>
-
-        <div class="list-group">
-          {% for item in group %}
-          <a href="{{ item.get_staff_url }}" class="list-group-item list-group-item-action">{{ item }}</a>
-          {% endfor %}
-        </div>
-      </section>
+        {% #card title=key|add:"s" %}
+          {% #list_group %}
+            {% for item in group %}
+              {% #list_group_item href=item.get_staff_url %}
+                {{ item }}
+              {% /list_group_item %}
+            {% endfor %}
+          {% /list_group %}
+        {% /card %}
       {% endfor %}
-      {% endif %}
-
-    </div>
+    {% endif %}
   </div>
 </div>
 {% endblock content %}

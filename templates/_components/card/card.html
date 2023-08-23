@@ -1,4 +1,4 @@
-<section {% attrs class id %} aria-labelledby="{{ title | slugify }}-title">
+<section {% attrs class id %} {% if title %}aria-labelledby="{{ title | slugify }}-title"{% endif %}>
   <div class="bg-white shadow">
     {% if title or subtitle or button %}
     <div class="flex flex-wrap gap-2 items-center justify-between px-4 py-2 sm:px-6 sm:py-4 sm:flex-nowrap {{ header_class }}">
@@ -24,9 +24,8 @@
     {% if container %}
       <div
         class="
-          px-4 py-3 md:px-6
+          px-4 py-3 md:px-6 md:py-5
           {% if title or subtitle %}border-t border-slate-200{% endif %}
-          md:py-5
           {{ container_class }}
         "
       >
