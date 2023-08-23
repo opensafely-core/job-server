@@ -76,11 +76,7 @@
                     {{ job_request.created_by.name }}
                   </td>
                   <td class="whitespace-nowrap px-2 py-2 text-sm text-slate-700">
-                    {% if job_request.started_at %}
-                      {{ job_request.started_at|naturaltime }}
-                    {% else %}
-                      Pending
-                    {% endif %}
+                    {{ job_request.started_at|naturaltime|default:"-" }}
                   </td>
                   <td
                     class="relative whitespace-nowrap py-2 pl-3 pr-4 text-right text-sm font-medium sm:pr-0"
