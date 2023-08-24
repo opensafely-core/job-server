@@ -16,7 +16,7 @@ class BackendCreate(CreateView):
         "is_active",
     ]
     model = Backend
-    template_name = "staff/backend_create.html"
+    template_name = "staff/backend/create.html"
 
     def get_success_url(self):
         return self.object.get_staff_url()
@@ -25,7 +25,7 @@ class BackendCreate(CreateView):
 @method_decorator(require_manage_backends, name="dispatch")
 class BackendDetail(DetailView):
     model = Backend
-    template_name = "staff/backend_detail.html"
+    template_name = "staff/backend/detail.html"
 
 
 @method_decorator(require_manage_backends, name="dispatch")
@@ -35,7 +35,7 @@ class BackendEdit(UpdateView):
         "is_active",
     ]
     model = Backend
-    template_name = "staff/backend_edit.html"
+    template_name = "staff/backend/edit.html"
 
     def get_success_url(self):
         return self.object.get_staff_url()
