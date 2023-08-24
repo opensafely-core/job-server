@@ -18,6 +18,11 @@ if ! test -f "$sentinel"; then
     run=true
 else
     staticdirs="$($python manage.py print_settings STATICFILES_DIRS --format value | sed -e "s/[]',[]//g")"
+
+    if [[ "$staticdirs" == *"PosixPath"* ]]; then
+        echo "ERROR: invalid STATICFILES_DIRS values - they should be strings not paths"
+        exit 1
+    fi
     # shellcheck disable=SC2086
     find $staticdirs -type f -newer "$sentinel" | grep -q . && run=true
 fi
