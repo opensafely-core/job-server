@@ -12,6 +12,7 @@ fi
 
 staticfiles="$($python manage.py print_settings STATIC_ROOT --format value)"
 sentinel="$staticfiles/.written"
+gitkeep="$staticfiles/.keep"
 run=false
 
 if ! test -f "$sentinel"; then
@@ -30,6 +31,7 @@ fi
 if test "$run" = "true"; then
     echo "Run collectstatic, src file changes detected"
     $python manage.py collectstatic --no-input --clear | grep -v '^Deleting '
+    touch "$gitkeep"
     touch "$sentinel"
 else
     echo "Skipping collectstatic, no changes detected"
