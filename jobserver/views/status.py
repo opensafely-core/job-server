@@ -103,6 +103,6 @@ class Status(View):
                 "show_warning": show_warning(last_seen, backend.alert_timeout),
             }
 
-        backends = Backend.objects.order_by(Lower("name"))
+        backends = Backend.objects.filter(is_active=True).order_by(Lower("name"))
         context = {"backends": [get_stats(b) for b in backends]}
         return TemplateResponse(request, "status.html", context)
