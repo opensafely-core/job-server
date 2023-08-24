@@ -1,4 +1,5 @@
 components:
+  # Components
   article_header: "_components/article/header.html"
   alert: "_components/alert.html"
   breadcrumb: "_components/breadcrumbs/breadcrumb.html"
@@ -24,10 +25,14 @@ components:
   list_group_rich_item: "_components/list-group/list-group-rich-item.html"
   pill: "_components/pill.html"
   skip_link: "_components/skip-link.html"
-  staff_hero: "_partials/staff-hero.html"
   timeline_item: "_components/timeline-item.html"
   tooltip: "_components/tooltip.html"
 
+  # Partials
+  card_pagination: "_partials/card-pagination.html"
+  staff_hero: "_partials/staff-hero.html"
+
+  # Icons
   icon_academic_cap_outline: "_icons/academic-cap-outline.svg"
   icon_beaker_outline: "_icons/beaker-outline.svg"
   icon_branches_outline: "_icons/branches-outline.svg"

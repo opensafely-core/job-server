@@ -1,0 +1,23 @@
+{% load querystring_tools %}
+
+{% #card_footer no_container=no_container %}
+  <nav class="flex items-center justify-between" aria-label="Pagination">
+    <div class="hidden sm:block">
+      <p class="text-sm text-gray-700">
+        Page
+        <span class="font-medium">{{ page_number }}</span>
+        of
+        <span class="font-medium">{{ total_pages }}</span>
+      </p>
+    </div>
+
+    <div class="flex flex-1 justify-between gap-2 sm:justify-end">
+      {% if previous_page_url %}
+        {% #button type="link" href=previous_page_url variant="secondary-outline" %}Previous{% /button %}
+      {% endif %}
+      {% if next_page_url %}
+        {% #button type="link" href=next_page_url variant="secondary-outline" %}Next{% /button %}
+      {% endif %}
+    </div>
+  </nav>
+{% /card_footer %}

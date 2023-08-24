@@ -3,7 +3,8 @@
     <div class="flex gap-x-2">
       <dt class="sr-only">{{ type }}:</dt>
       <dd class="
-        text-base font-semibold text-oxford-600 transition-colors truncate
+        text-base font-semibold text-oxford-600 transition-colors
+        {% if no_truncate %}leading-tight{% else %}truncate{% endif %}
         group-hover:text-oxford-900
         group-focus:text-oxford-900
       ">
