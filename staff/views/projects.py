@@ -363,5 +363,7 @@ class ProjectMembershipRemove(View):
             project.memberships.get(user__username=username).delete()
         except ProjectMembership.DoesNotExist:
             pass
+
         messages.success(request, f"Removed {username} from {project.title}")
-        return redirect(project.get_staff_url())
+
+        return redirect(get_next_url(self.request.GET, project.get_staff_url()))

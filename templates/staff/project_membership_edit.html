@@ -65,7 +65,8 @@
         <button class="btn btn-primary" type="submit">Save</button>
       </form>
 
-      <form class="pt-5 mt-5 border-top" method="POST" action="{{ membership.get_staff_remove_url }}">
+      <form class="pt-5 mt-5 border-top" method="POST"
+            action="{{ membership.get_staff_remove_url }}{% if "next" in request.GET %}?next={{ request.GET.next }}{% endif %}">
         {% csrf_token %}
         <fieldset id="remove">
           <legend class="h3 mb-3">
