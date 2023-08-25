@@ -44,7 +44,9 @@ class BackendEdit(UpdateView):
 @method_decorator(require_manage_backends, name="dispatch")
 class BackendList(ListView):
     model = Backend
-    template_name = "staff/backend_list.html"
+    ordering = "name"
+    paginate_by = 25
+    template_name = "staff/backend/list.html"
 
 
 @method_decorator(require_manage_backends, name="dispatch")
