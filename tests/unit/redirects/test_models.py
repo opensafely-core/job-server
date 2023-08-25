@@ -102,11 +102,6 @@ def test_redirect_each_target_object():
         RedirectFactory(**kwargs)
 
 
-def test_redirect_no_target_objects():
-    with pytest.raises(IntegrityError):
-        RedirectFactory()
-
-
 def test_redirect_get_staff_url():
     redirect = RedirectFactory(project=ProjectFactory())
 
@@ -121,6 +116,11 @@ def test_redirect_get_staff_delete_url():
     url = redirect.get_staff_delete_url()
 
     assert url == reverse("staff:redirect-delete", kwargs={"pk": redirect.pk})
+
+
+def test_redirect_no_target_objects():
+    with pytest.raises(IntegrityError):
+        RedirectFactory()
 
 
 def test_redirect_obj():
@@ -150,6 +150,12 @@ def test_redirect_str():
 def test_validate_not_empty():
     assert validate_not_empty("test") is None
 
+
+def test_validate_not_empty_with_content():
+    validate_not_empty("test")
+
+
+def test_validate_not_empty_without_content():
     with pytest.raises(ValidationError):
         validate_not_empty("")
 
