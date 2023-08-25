@@ -654,10 +654,10 @@ def test_projectmembershipremove_success(rf, core_developer, next_url):
     project = ProjectFactory()
     user = UserFactory()
 
-    ProjectMembershipFactory(project=project, user=user)
+    membership = ProjectMembershipFactory(project=project, user=user)
 
     suffix = f"?next={next_url}" if next_url else ""
-    request = rf.post(f"/{suffix}", {"username": user.username})
+    request = rf.post(f"/{suffix}")
     request.user = core_developer
 
     # set up messages framework
@@ -665,7 +665,9 @@ def test_projectmembershipremove_success(rf, core_developer, next_url):
     messages = FallbackStorage(request)
     request._messages = messages
 
-    response = ProjectMembershipRemove.as_view()(request, slug=project.slug)
+    response = ProjectMembershipRemove.as_view()(
+        request, slug=project.slug, pk=membership.pk
+    )
 
     assert response.status_code == 302
 
@@ -682,34 +684,29 @@ def test_projectmembershipremove_success(rf, core_developer, next_url):
 
 
 def test_projectmembershipremove_unauthorized(rf):
+    membership = ProjectMembershipFactory()
+
     request = rf.post("/")
     request.user = UserFactory()
 
     with pytest.raises(PermissionDenied):
-        ProjectMembershipRemove.as_view()(request)
+        ProjectMembershipRemove.as_view()(
+            request, slug=membership.project.slug, pk=membership.pk
+        )
 
 
-def test_projectmembershipremove_unknown_project(rf, core_developer):
-    request = rf.post("/")
-    request.user = core_developer
-
-    with pytest.raises(Http404):
-        ProjectMembershipRemove.as_view()(request, slug="test")
-
-
-def test_projectmembershipremove_unknown_member(rf, core_developer):
+def test_projectmembershipremove_unknown_membership(rf, core_developer):
     project = ProjectFactory()
 
     assert project.memberships.count() == 0
 
-    request = rf.post("/", {"username": "test"})
+    request = rf.post("/")
     request.user = core_developer
+
     # set up messages framework
     request.session = "session"
     messages = FallbackStorage(request)
     request._messages = messages
-    response = ProjectMembershipRemove.as_view()(request, slug=project.slug)
-    assert response.status_code == 302
-    assert response.url == project.get_staff_url()
-    project.refresh_from_db()
-    assert project.memberships.count() == 0
+
+    with pytest.raises(Http404):
+        ProjectMembershipRemove.as_view()(request, slug=project.slug, pk=0)

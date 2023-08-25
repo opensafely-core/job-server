@@ -356,14 +356,16 @@ class ProjectMembershipEdit(UpdateView):
 @method_decorator(require_role(CoreDeveloper), name="dispatch")
 class ProjectMembershipRemove(View):
     def post(self, request, *args, **kwargs):
-        project = get_object_or_404(Project, slug=self.kwargs["slug"])
-        username = request.POST.get("username", None)
+        membership = get_object_or_404(
+            ProjectMembership, project__slug=self.kwargs["slug"], pk=self.kwargs["pk"]
+        )
 
-        try:
-            project.memberships.get(user__username=username).delete()
-        except ProjectMembership.DoesNotExist:
-            pass
+        membership.delete()
+        messages.success(
+            request,
+            f"Removed {membership.user.username} from {membership.project.title}",
+        )
 
-        messages.success(request, f"Removed {username} from {project.title}")
-
-        return redirect(get_next_url(self.request.GET, project.get_staff_url()))
+        return redirect(
+            get_next_url(self.request.GET, membership.project.get_staff_url())
+        )
