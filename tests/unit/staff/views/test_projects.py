@@ -603,7 +603,8 @@ def test_projectlist_unauthorized(rf):
         ProjectList.as_view()(request, project_slug=project.slug)
 
 
-def test_projectmembershipedit_success(rf, core_developer):
+@pytest.mark.parametrize("next_url", ["", "/some/other/url/"])
+def test_projectmembershipedit_success(rf, core_developer, next_url):
     project = ProjectFactory()
     user = UserFactory()
 
@@ -611,7 +612,8 @@ def test_projectmembershipedit_success(rf, core_developer):
 
     membership = ProjectMembershipFactory(project=project, user=UserFactory())
 
-    request = rf.post("/", {"roles": [dotted_path(ProjectDeveloper)]})
+    suffix = f"?next={next_url}" if next_url else ""
+    request = rf.post(f"/{suffix}", {"roles": [dotted_path(ProjectDeveloper)]})
     request.user = core_developer
 
     response = ProjectMembershipEdit.as_view()(
@@ -619,7 +621,9 @@ def test_projectmembershipedit_success(rf, core_developer):
     )
 
     assert response.status_code == 302
-    assert response.url == project.get_staff_url()
+
+    expected = next_url if next_url else project.get_staff_url()
+    assert response.url == expected
 
     membership.refresh_from_db()
     assert membership.roles == [ProjectDeveloper]

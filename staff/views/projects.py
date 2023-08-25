@@ -33,6 +33,7 @@ from ..forms import (
     ProjectMembershipForm,
 )
 from ..htmx_tools import get_redirect_url
+from ..querystring_tools import get_next_url
 from .qwargs_tools import qwargs
 
 
@@ -325,7 +326,9 @@ class ProjectMembershipEdit(UpdateView):
         self.object.roles = form.cleaned_data["roles"]
         self.object.save()
 
-        return redirect(self.object.project.get_staff_url())
+        return redirect(
+            get_next_url(self.request.GET, self.object.project.get_staff_url())
+        )
 
     def get_form_kwargs(self, **kwargs):
         kwargs = super().get_form_kwargs(**kwargs)
