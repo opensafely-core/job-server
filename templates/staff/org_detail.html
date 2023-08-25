@@ -130,7 +130,7 @@
           <small class="ml-2 text-muted">({{ user.get_full_name }})</small>
           {% endif %}
           <a class="btn btn-sm btn-primary ml-auto mr-2" href="{{ user.get_staff_url }}">Edit</a>
-          <form method="POST" action="{% url 'staff:org-remove-member' slug=org.slug %}">
+          <form method="POST" action="{% url 'staff:org-membership-remove' slug=org.slug %}">
             {% csrf_token %}
             <input type="hidden" name="username" value="{{ user.username }}" />
             <button class="btn btn-sm btn-danger" type="submit">Remove <span class="sr-only">from {{ org.name }}</span></button>

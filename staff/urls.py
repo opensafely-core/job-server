@@ -131,7 +131,9 @@ org_urls = [
     path("<slug>/add-github-org/", org_add_github_org, name="org-add-github-org"),
     path("<slug>/add-project/", OrgProjectCreate.as_view(), name="org-project-create"),
     path("<slug>/edit/", OrgEdit.as_view(), name="org-edit"),
-    path("<slug>/remove-member/", OrgRemoveMember.as_view(), name="org-remove-member"),
+    path(
+        "<slug>/remove-member/", OrgRemoveMember.as_view(), name="org-membership-remove"
+    ),
     path(
         "<slug>/remove-github-org/",
         OrgRemoveGitHubOrg.as_view(),
