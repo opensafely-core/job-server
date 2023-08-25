@@ -17,6 +17,7 @@ from staff.views.users import (
     UserDetailWithEmail,
     UserDetailWithOAuth,
     UserList,
+    UserRoleList,
     UserSetOrgs,
 )
 
@@ -289,11 +290,7 @@ def test_userdetailwithoauth_post_success(rf, core_developer):
     ProjectMembershipFactory(project=project1, user=user)
     ProjectMembershipFactory(project=project2, user=user)
 
-    data = {
-        "backends": [backend.slug],
-        "roles": ["jobserver.authorization.roles.OutputPublisher"],
-    }
-    request = rf.post("/", data)
+    request = rf.post("/", {"backends": [backend.slug]})
     request.user = core_developer
 
     response = UserDetailWithOAuth.as_view()(request, username=user.username)
@@ -303,7 +300,6 @@ def test_userdetailwithoauth_post_success(rf, core_developer):
 
     user.refresh_from_db()
     assert set_from_qs(user.backends.all()) == {backend.pk}
-    assert user.roles == [OutputPublisher]
 
 
 def test_userdetailwithoauth_post_with_unknown_backend(rf, core_developer):
@@ -324,11 +320,7 @@ def test_userdetailwithoauth_post_with_unknown_backend(rf, core_developer):
     ProjectMembershipFactory(project=project1, user=user)
     ProjectMembershipFactory(project=project2, user=user)
 
-    data = {
-        "backends": ["not-a-real-backend"],
-        "roles": ["jobserver.authorization.roles.OutputPublisher"],
-    }
-    request = rf.post("/", data)
+    request = rf.post("/", {"backends": ["not-a-real-backend"]})
     request.user = core_developer
 
     response = UserDetailWithOAuth.as_view()(request, username=user.username)
@@ -347,51 +339,6 @@ def test_userdetailwithoauth_post_with_unknown_backend(rf, core_developer):
     # check we're rendering the appropriate error in the template
     assert (
         "not-a-real-backend is not one of the available choices."
-        in response.rendered_content
-    )
-
-
-def test_userdetailwithoauth_post_with_unknown_role(rf, core_developer):
-    org = OrgFactory()
-    project1 = ProjectFactory(org=org)
-    project2 = ProjectFactory(org=org)
-    user = UserFactory(roles=[OutputPublisher, TechnicalReviewer])
-    UserSocialAuthFactory(user=user)
-
-    # link the user to some Backends
-    BackendMembershipFactory(user=user)
-    BackendMembershipFactory(user=user)
-
-    # link the user to the Org
-    OrgMembershipFactory(org=org, user=user)
-
-    # link the user to the Projects
-    ProjectMembershipFactory(project=project1, user=user)
-    ProjectMembershipFactory(project=project2, user=user)
-
-    data = {
-        "backends": list(user.backends.values_list("slug", flat=True)),
-        "roles": ["not-a-real-role"],
-    }
-    request = rf.post("/", data)
-    request.user = core_developer
-
-    response = UserDetailWithOAuth.as_view()(request, username=user.username)
-
-    assert response.status_code == 200, response.url
-
-    # check we get an error from the form, and thus are passing in the
-    # submitted data correctly
-    expected = {
-        "roles": [
-            "Select a valid choice. not-a-real-role is not one of the available choices."
-        ]
-    }
-    assert response.context_data["form"].errors == expected
-
-    # check we're rendering the appropriate error in the template
-    assert (
-        "not-a-real-role is not one of the available choices."
         in response.rendered_content
     )
 
@@ -553,6 +500,81 @@ def test_userlist_success(rf, core_developer):
     # the core_developer fixture creates a User object as well as the 5 we
     # created in the batch call above
     assert len(response.context_data["object_list"]) == 6
+
+
+def test_userrolelist_get_success(rf, core_developer):
+    user = UserFactory()
+
+    request = rf.get("/")
+    request.user = core_developer
+
+    response = UserRoleList.as_view()(request, username=user.username)
+
+    assert response.status_code == 200
+
+
+def test_userrolelist_post_success(rf, core_developer):
+    user = UserFactory(roles=[TechnicalReviewer])
+
+    data = {
+        "roles": [
+            "jobserver.authorization.roles.OutputPublisher",
+            "jobserver.authorization.roles.TechnicalReviewer",
+        ]
+    }
+    request = rf.post("/", data=data)
+    request.user = core_developer
+
+    response = UserRoleList.as_view()(request, username=user.username)
+
+    assert response.status_code == 302, response.context_data["form"].errors
+
+    user.refresh_from_db()
+    assert set(user.roles) == {OutputPublisher, TechnicalReviewer}
+
+
+def test_userrolelist_post_with_unknown_role(rf, core_developer):
+    user = UserFactory()
+
+    request = rf.post("/", {"roles": ["not-a-real-role"]})
+    request.user = core_developer
+
+    response = UserRoleList.as_view()(request, username=user.username)
+
+    assert response.status_code == 200
+
+    # check we get an error from the form, and thus are passing in the
+    # submitted data correctly
+    expected = {
+        "roles": [
+            "Select a valid choice. not-a-real-role is not one of the available choices."
+        ]
+    }
+    assert response.context_data["form"].errors == expected
+
+    # check we're rendering the appropriate error in the template
+    assert (
+        "not-a-real-role is not one of the available choices."
+        in response.rendered_content
+    )
+
+
+def test_userrolelist_with_unknown_user(rf, core_developer):
+    request = rf.get("/")
+    request.user = core_developer
+
+    with pytest.raises(Http404):
+        UserRoleList.as_view()(request, username="")
+
+
+def test_userrolelist_without_core_dev_role(rf):
+    user = UserFactory()
+
+    request = rf.get("/")
+    request.user = user
+
+    with pytest.raises(PermissionDenied):
+        UserRoleList.as_view()(request, username=user.username)
 
 
 def test_usersetorgs_get_success(rf, core_developer):

@@ -242,11 +242,9 @@ def test_userform_success():
 
     data = {
         "backends": [backend1.slug, backend2.slug],
-        "roles": [],
     }
     form = UserForm(
         available_backends=Backend.objects.all(),
-        available_roles=[],
         data=data,
         fullname="",
     )
@@ -259,15 +257,9 @@ def test_userform_success():
 def test_userform_with_no_backends():
     available_backends = Backend.objects.filter(slug__in=["tpp"])
 
-    data = {
-        "backends": [],
-        "roles": [],
-    }
-
     form = UserForm(
         available_backends=available_backends,
-        available_roles=[],
-        data=data,
+        data={"backends": []},
         fullname="",
     )
 
@@ -280,15 +272,9 @@ def test_userform_with_unknown_backend():
 
     available_backends = Backend.objects.exclude(slug="unknown")
 
-    data = {
-        "backends": ["unknown"],
-        "roles": [],
-    }
-
     form = UserForm(
         available_backends=available_backends,
-        available_roles=[],
-        data=data,
+        data={"backends": ["unknown"]},
         fullname="",
     )
 

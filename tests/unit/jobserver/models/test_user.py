@@ -150,6 +150,19 @@ def test_user_get_all_roles_empty():
     assert output == expected
 
 
+def test_user_get_staff_roles_url():
+    user = UserFactory()
+
+    url = user.get_staff_roles_url()
+
+    assert url == reverse(
+        "staff:user-role-list",
+        kwargs={
+            "username": user.username,
+        },
+    )
+
+
 def test_user_get_staff_url():
     user = UserFactory()
 

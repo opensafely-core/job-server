@@ -243,7 +243,7 @@ class UserCreateForm(forms.Form):
     email = forms.EmailField()
 
 
-class UserForm(RolesForm):
+class UserForm(forms.Form):
     fullname = forms.CharField(required=False)
 
     def __init__(self, *, available_backends, **kwargs):

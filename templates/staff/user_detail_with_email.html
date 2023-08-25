@@ -37,6 +37,11 @@
         <strong>Created at:</strong> {{ user.date_joined }}
       </li>
     </ul>
+
+    <div class="d-flex">
+      <a class="btn btn-primary mr-1" href="{{ user.get_staff_roles_url }}">Roles</a>
+    </div>
+
   </div>
 </div>
 {% endblock jumbotron %}
