@@ -21,6 +21,7 @@ from opentelemetry.trace import propagation
 from opentelemetry.trace.propagation import tracecontext
 from sentry_sdk import capture_message
 from xkcdpass import xkcd_password
+from zen_queries import queries_dangerously_enabled
 
 from ..authorization import InteractiveReporter
 from ..authorization.fields import RolesArrayField
@@ -227,9 +228,13 @@ class JobRequest(models.Model):
     def __str__(self):
         return str(self.pk)
 
-    @property
+    @cached_property
     def completed_at(self):
-        last_job = self.jobs.order_by("completed_at").last()
+        with queries_dangerously_enabled():
+            # enable querying here because this property needs to use
+            # self.status which we haven't found a way to push down into the
+            # database yet.
+            last_job = self.jobs.order_by("completed_at").last()
 
         if not last_job:
             return
@@ -293,24 +298,11 @@ class JobRequest(models.Model):
         return self.status in ["failed", "succeeded"]
 
     @property
-    def is_invalid(self):
-        """
-        Is this JobRequest invalid?
-
-        JobRequests are a request for a given configuration to be run on a
-        Backend.  That configuration could be unprocessable for a variety of
-        reasons when the Backend looks at it.  We currently surface that to
-        job-server by job-runner creating a Job with the action `__error__`.
-        This property finds Jobs with that action so we can easily see if this
-        particular request was valid or not.
-        """
-        return self.jobs.filter(action="__error__").exists()
-
-    @property
     def num_completed(self):
         return len([j for j in self.jobs.all() if j.status == "succeeded"])
 
     @property
+    @queries_dangerously_enabled()
     def runtime(self):
         """
         Combined runtime for all completed Jobs of this JobRequest
@@ -1015,6 +1007,7 @@ class User(AbstractBaseUser):
         return token
 
     @cached_property
+    @queries_dangerously_enabled()
     def uses_social_auth(self):
         """
         Cache whether this user logs in via GitHub (using social auth)

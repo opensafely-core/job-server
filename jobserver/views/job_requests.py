@@ -5,11 +5,11 @@ from django.db import transaction
 from django.db.models import Q
 from django.http import Http404
 from django.shortcuts import get_object_or_404, redirect
-from django.template.response import TemplateResponse
 from django.utils.safestring import mark_safe
 from django.views.generic import CreateView, ListView, RedirectView, View
 from django.views.generic.edit import FormMixin
 from pipeline import load_pipeline
+from zen_queries import TemplateResponse, fetch
 
 from .. import honeycomb
 from ..authorization import CoreDeveloper, has_permission, has_role
@@ -195,6 +195,14 @@ class JobRequestDetail(View):
         except (JobRequest.DoesNotExist, MultipleObjectsReturned):
             raise Http404
 
+        jobs = fetch(job_request.jobs.order_by("started_at"))
+
+        # we encode errors raised by job-runner when processing a JobRequest by
+        # misusing a Job, since that's our only method of returning messages
+        # from job-runner to job-server.  These misused jobs use the __error__
+        # action to differentiate themselves.
+        is_invalid = jobs.filter(action="__error__").exists()
+
         can_cancel_jobs = job_request.created_by == request.user or has_permission(
             request.user, "job_cancel", project=job_request.workspace.project
         )
@@ -210,7 +218,9 @@ class JobRequestDetail(View):
         context = {
             "honeycomb_can_view_links": honeycomb_can_view_links,
             "honeycomb_links": {},
+            "is_invalid": is_invalid,
             "job_request": job_request,
+            "jobs": jobs,
             "project_definition": project_definition,
             "project_yaml_url": job_request.get_file_url("project.yaml"),
             "user_can_cancel_jobs": can_cancel_jobs,
