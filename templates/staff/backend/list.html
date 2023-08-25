@@ -1,0 +1,44 @@
+{% extends "staff/base-tw.html" %}
+
+{% load querystring_tools %}
+
+{% block metatitle %}Backends: Staff Area | OpenSAFELY Jobs{% endblock metatitle %}
+
+{% block breadcrumbs %}
+{% #breadcrumbs %}
+  {% url "staff:index" as staff_url %}
+  {% breadcrumb title="Staff area" url=staff_url %}
+  {% breadcrumb title="Backends" active=True %}
+{% /breadcrumbs %}
+{% endblock breadcrumbs %}
+
+{% block hero %}
+{% #staff_hero title="Backends" %}
+  {% url "staff:backend-create" as staff_backend_create_url %}
+  {% #button variant="primary" type="link" href=staff_backend_create_url %}
+    Create a backend
+  {% /button %}
+{% /staff_hero %}
+{% endblock hero %}
+
+{% block content %}
+{% #card %}
+  {% #list_group %}
+    {% for backend in object_list %}
+      {% #list_group_item href=backend.get_staff_url %}
+        {{ backend.name }}
+      {% /list_group_item %}
+    {% endfor %}
+  {% /list_group %}
+
+  {% if page_obj.has_previous or page_obj.has_next %}
+    {% if page_obj.has_next %}
+      {% url_with_querystring page=page_obj.next_page_number as next_page_url %}
+    {% endif %}
+    {% if page_obj.has_previous %}
+      {% url_with_querystring page=page_obj.previous_page_number as previous_page_url %}
+    {% endif %}
+    {% card_pagination page_number=page_obj.number total_pages=page_obj.paginator.num_pages next_page_url=next_page_url previous_page_url=previous_page_url no_container=True %}
+  {% endif %}
+{% /card %}
+{% endblock content %}
