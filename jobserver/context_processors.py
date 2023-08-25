@@ -5,6 +5,7 @@ from django.conf import settings
 from django.db.models import Max
 from django.urls import reverse
 from furl import furl
+from zen_queries import queries_dangerously_enabled
 
 from .authorization import CoreDeveloper, has_role
 from .backends import show_warning
@@ -19,6 +20,7 @@ def _is_active(request, prefix):
     return request.path.startswith(prefix)
 
 
+@queries_dangerously_enabled()
 def backend_warnings(request):
     def iter_warnings(backends):
         if settings.DEBUG:
@@ -38,6 +40,7 @@ def backend_warnings(request):
     return {"backend_warnings": list(iter_warnings(backends))}
 
 
+@queries_dangerously_enabled()
 def can_view_staff_area(request):
     can_view_staff_area = has_role(request.user, CoreDeveloper)
 
@@ -48,6 +51,7 @@ def disable_creating_jobs(request):
     return {"disable_creating_jobs": settings.DISABLE_CREATING_JOBS}
 
 
+@queries_dangerously_enabled()
 def staff_nav(request):
     if not has_role(request.user, CoreDeveloper):
         return {"staff_nav": []}
