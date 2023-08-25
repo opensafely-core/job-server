@@ -1,6 +1,9 @@
 # Load .env files by default
 set dotenv-load := true
 
+export DEV_USERID := `id -u`
+export DEV_GROUPID := `id -g`
+
 
 build env="dev":
     #!/usr/bin/env bash
@@ -60,7 +63,8 @@ clean:
 clean-volumes: clean
     #!/bin/bash
     set -eux
-    docker volume rm -f job-server_postgres_data job-server_staticfiles
+    rm -rf staticfiles/*
+    docker volume rm -f job-server_postgres_data
 
 
 # restore the db from a dump file. Will wipe and reset your current docker dev db.

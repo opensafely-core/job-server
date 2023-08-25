@@ -59,14 +59,18 @@ services:
     build:
       # the dev stage in the Dockerfile
       target: job-server-dev
+      args:
+        # user developer uid:gid in dev
+        - USERID=${DEV_USERID:-1000}
+        - GROUPID=${DEV_GROUPID:-1000}
     # paths relative to docker-compose.yaml file
     env_file:
       - ../.env
     volumes:
+      # Note: paths are relative to the *docker-compose* file
       - ..:/app
-      # this gives the dev containers a persistant cache for staticfiles, which
-      # allows us to avoid rerunning collectstatic if nothing has changed
-      - staticfiles:/opt/staticfiles
+      # provides a persistant inspectable cache for staticfiles
+      - ./staticfiles:/opt/staticfiles
 
   dev:
     extends:
@@ -84,7 +88,6 @@ services:
     env_file:
       - ../.test.env
     environment:
-      # override db hostname, so we can reach it within the container
       - GITHUB_TOKEN_TESTING
     command: bash -c "coverage run --branch --source=applications,interactive,jobserver,services,staff,tests --module pytest && coverage report || coverage html"
 

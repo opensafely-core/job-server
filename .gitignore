@@ -14,7 +14,8 @@ jobserver.dump
 node_modules/
 workspaces
 releases
-staticfiles
+/staticfiles
+/docker/staticfiles/*
 uploads
 /release-hatch
 /assets/src/scripts/outputs-viewer/coverage
