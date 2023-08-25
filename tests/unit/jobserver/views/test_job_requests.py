@@ -626,6 +626,24 @@ def test_jobrequestdetail_with_job_request_creator(rf):
     assert "Cancel" in response.rendered_content
 
 
+def test_jobrequestdetail_with_invalid_job_request(rf, django_assert_num_queries):
+    job_request = JobRequestFactory()
+    JobFactory(job_request=job_request, action="__error__")
+
+    request = rf.get("/")
+    request.user = UserFactory()
+
+    response = JobRequestDetail.as_view()(
+        request,
+        project_slug=job_request.workspace.project.slug,
+        workspace_slug=job_request.workspace.name,
+        pk=job_request.pk,
+    )
+
+    assert response.status_code == 200
+    assert response.context_data["is_invalid"]
+
+
 def test_jobrequestdetail_with_permission(rf, django_assert_num_queries):
     job_request = JobRequestFactory()
 
@@ -647,6 +665,7 @@ def test_jobrequestdetail_with_permission(rf, django_assert_num_queries):
         )
 
     assert response.status_code == 200
+    assert not response.context_data["is_invalid"]
     assert "Cancel" in response.rendered_content
 
 
