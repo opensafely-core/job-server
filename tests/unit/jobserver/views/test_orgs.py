@@ -13,7 +13,7 @@ def test_orgdetail_success(rf):
 
     request = rf.get("/")
     request.user = UserFactory()
-    response = OrgDetail.as_view()(request, org_slug=org.slug)
+    response = OrgDetail.as_view()(request, slug=org.slug)
 
     assert response.status_code == 200
 
@@ -23,7 +23,7 @@ def test_orgdetail_unknown_org(rf):
     request.user = UserFactory()
 
     with pytest.raises(Http404):
-        OrgDetail.as_view()(request, org_slug="")
+        OrgDetail.as_view()(request, slug="")
 
 
 @pytest.mark.parametrize(

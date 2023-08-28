@@ -6,7 +6,6 @@ from ..models import Org
 
 
 class OrgDetail(DetailView):
-    slug_url_kwarg = "org_slug"
     model = Org
     template_name = "org_detail.html"
 

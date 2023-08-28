@@ -22,7 +22,7 @@ def test_org_default_for_github_orgs():
 def test_org_get_absolute_url():
     org = OrgFactory()
     url = org.get_absolute_url()
-    assert url == reverse("org-detail", kwargs={"org_slug": org.slug})
+    assert url == reverse("org-detail", kwargs={"slug": org.slug})
 
 
 def test_org_get_edit_url():

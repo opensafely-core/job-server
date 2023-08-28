@@ -144,7 +144,7 @@ files_urls = [
 
 org_urls = [
     path("", yours.OrgList.as_view(), name="your-orgs"),
-    path("<str:org_slug>/", OrgDetail.as_view(), name="org-detail"),
+    path("<slug:slug>/", OrgDetail.as_view(), name="org-detail"),
 ]
 
 outputs_urls = [
