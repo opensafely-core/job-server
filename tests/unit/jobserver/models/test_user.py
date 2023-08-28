@@ -59,6 +59,14 @@ def test_user_constraints_missing_pat_token_or_pat_expires_at():
         UserFactory(pat_token="test", pat_expires_at=None)
 
 
+def test_user_get_absolute_url():
+    user = UserFactory()
+
+    url = user.get_absolute_url()
+
+    assert url == reverse("user-detail", kwargs={"username": user.username})
+
+
 def test_user_get_all_permissions():
     org = OrgFactory()
     project = ProjectFactory(org=org)

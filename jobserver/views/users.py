@@ -13,7 +13,7 @@ from django.shortcuts import redirect
 from django.template.response import TemplateResponse
 from django.urls import reverse
 from django.utils.decorators import method_decorator
-from django.views.generic import FormView, ListView, View
+from django.views.generic import DetailView, FormView, ListView, View
 from furl import furl
 from opentelemetry import trace
 from social_django.utils import load_strategy
@@ -309,6 +309,21 @@ class Settings(View):
             "show_token_form": show_token_form,
         }
         return TemplateResponse(self.request, "settings.html", context)
+
+
+class UserDetail(DetailView):
+    model = User
+    slug_field = "username"
+    slug_url_kwarg = "username"
+    response_class = zTemplateResponse
+    template_name = "user_detail.html"
+
+    def get_context_data(self, **kwargs):
+        projects = fetch(self.object.projects.order_by(Lower("name")))
+
+        return super().get_context_data(**kwargs) | {
+            "projects": projects,
+        }
 
 
 class UserList(ListView):

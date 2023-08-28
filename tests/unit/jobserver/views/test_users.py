@@ -4,6 +4,7 @@ import pytest
 from django.contrib.auth.models import AnonymousUser
 from django.contrib.sessions.backends.db import SessionStore
 from django.core.signing import TimestampSigner
+from django.http import Http404
 from django.urls import reverse
 from django.utils import timezone
 from freezegun import freeze_time
@@ -17,6 +18,7 @@ from jobserver.views.users import (
     LoginWithURL,
     RequireName,
     Settings,
+    UserDetail,
     UserList,
 )
 
@@ -633,6 +635,26 @@ def test_loginwittoken_expired_token(rf_messages, token_login_user):
         str(messages[0])
         == "Login failed. The user or token may be incorrect, or the token may have expired."
     )
+
+
+def test_userdetail_success(rf, django_assert_num_queries):
+    user = UserFactory()
+
+    request = rf.get("/")
+    request.user = UserFactory()
+
+    with django_assert_num_queries(2):
+        response = UserDetail.as_view()(request, username=user.username)
+
+    assert response.status_code == 200
+
+
+def test_userdetail_unknown_user(rf):
+    request = rf.get("/")
+    request.user = UserFactory()
+
+    with pytest.raises(Http404):
+        UserDetail.as_view()(request, username="")
 
 
 def test_userlist_success(rf, django_assert_num_queries):

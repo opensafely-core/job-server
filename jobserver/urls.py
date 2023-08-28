@@ -58,6 +58,7 @@ from .views.users import (
     LoginWithURL,
     RequireName,
     Settings,
+    UserDetail,
     UserList,
 )
 from .views.workspaces import (
@@ -267,6 +268,7 @@ project_urls = [
 
 user_urls = [
     path("", UserList.as_view(), name="user-list"),
+    path("<str:username>/", UserDetail.as_view(), name="user-detail"),
 ]
 
 urlpatterns = [

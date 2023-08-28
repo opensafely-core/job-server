@@ -885,6 +885,9 @@ class User(AbstractBaseUser):
 
         return "".join(w[0].upper() for w in self.name.split(" "))
 
+    def get_absolute_url(self):
+        return reverse("user-detail", kwargs={"username": self.username})
+
     def get_all_permissions(self):
         """
         Get all Permissions for the current User
