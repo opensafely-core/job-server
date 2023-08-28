@@ -60,7 +60,7 @@
     "highlight.js": "^11.8.0",
     "html2pdf.js": "^0.10.1",
     "htmx.org": "^1.9.4",
-    "jquery": "^3.7.0",
+    "jquery": "^3.7.1",
     "just-debounce-it": "^3.2.0",
     "list.js": "^2.3.1",
     "pretty-bytes": "^6.1.1",
