@@ -66,10 +66,10 @@ from .views.workspaces import (
     WorkspaceCreate,
     WorkspaceDetail,
     WorkspaceEdit,
+    WorkspaceEventLog,
     WorkspaceFileList,
     WorkspaceLatestOutputsDetail,
     WorkspaceLatestOutputsDownload,
-    WorkspaceLog,
     WorkspaceNotificationsToggle,
     WorkspaceOutputList,
 )
@@ -234,7 +234,7 @@ workspace_urls = [
         name="workspace-archive-toggle",
     ),
     path("files/", include(files_urls)),
-    path("logs/", WorkspaceLog.as_view(), name="workspace-logs"),
+    path("logs/", WorkspaceEventLog.as_view(), name="workspace-logs"),
     path(
         "notifications-toggle/",
         WorkspaceNotificationsToggle.as_view(),

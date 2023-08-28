@@ -135,7 +135,7 @@ def test_url_redirects(client, url, redirect):
         ("/p/w/files/", workspaces.WorkspaceFileList),
         ("/p/w/files/tpp/", workspaces.WorkspaceBackendFiles),
         ("/p/w/files/tpp/file.txt", workspaces.WorkspaceBackendFiles),
-        ("/p/w/logs/", workspaces.WorkspaceLog),
+        ("/p/w/logs/", workspaces.WorkspaceEventLog),
         ("/p/w/notifications-toggle/", workspaces.WorkspaceNotificationsToggle),
         ("/p/w/outputs/", workspaces.WorkspaceOutputList),
         ("/p/w/outputs/latest/", workspaces.WorkspaceLatestOutputsDetail),

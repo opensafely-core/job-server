@@ -24,10 +24,10 @@ from jobserver.views.workspaces import (
     WorkspaceCreate,
     WorkspaceDetail,
     WorkspaceEdit,
+    WorkspaceEventLog,
     WorkspaceFileList,
     WorkspaceLatestOutputsDetail,
     WorkspaceLatestOutputsDownload,
-    WorkspaceLog,
     WorkspaceNotificationsToggle,
     WorkspaceOutputList,
 )
@@ -700,6 +700,200 @@ def test_workspaceedit_post_success(rf):
     assert workspace.purpose == "test"
 
 
+def test_workspaceeventlog_filter_by_one_backend(rf):
+    workspace = WorkspaceFactory()
+    user = UserFactory()
+
+    ProjectMembershipFactory(
+        project=workspace.project, user=user, roles=[ProjectDeveloper]
+    )
+
+    backend = BackendFactory()
+    job_request1 = JobRequestFactory(workspace=workspace, backend=backend)
+
+    JobRequestFactory(workspace=workspace, backend=BackendFactory())
+
+    request = rf.get(f"/?backend={backend.slug}")
+    request.user = user
+
+    response = WorkspaceEventLog.as_view()(
+        request,
+        project_slug=workspace.project.slug,
+        workspace_slug=workspace.name,
+    )
+
+    assert len(response.context_data["object_list"]) == 1
+    assert response.context_data["object_list"][0] == job_request1
+
+
+def test_workspaceeventlog_filter_by_several_backends(rf):
+    workspace = WorkspaceFactory()
+    user = UserFactory()
+
+    ProjectMembershipFactory(
+        project=workspace.project, user=user, roles=[ProjectDeveloper]
+    )
+
+    JobRequestFactory(workspace=workspace, backend=BackendFactory())
+
+    backend1 = BackendFactory()
+    job_request1 = JobRequestFactory(workspace=workspace, backend=backend1)
+
+    backend2 = BackendFactory()
+    job_request2 = JobRequestFactory(workspace=workspace, backend=backend2)
+
+    backend3 = BackendFactory()
+    job_request3 = JobRequestFactory(workspace=workspace, backend=backend3)
+
+    request = rf.get(
+        f"/?backend={backend1.slug}&backend={backend2.slug}&backend={backend3.slug}"
+    )
+    request.user = user
+
+    response = WorkspaceEventLog.as_view()(
+        request,
+        project_slug=workspace.project.slug,
+        workspace_slug=workspace.name,
+    )
+
+    assert len(response.context_data["object_list"]) == 3
+    assert set(response.context_data["object_list"]) == {
+        job_request1,
+        job_request2,
+        job_request3,
+    }
+
+
+def test_workspaceeventlog_search_by_action(rf):
+    workspace = WorkspaceFactory()
+    user = UserFactory()
+
+    ProjectMembershipFactory(
+        project=workspace.project, user=user, roles=[ProjectDeveloper]
+    )
+
+    job_request1 = JobRequestFactory(created_by=user, workspace=workspace)
+    JobFactory(job_request=job_request1, action="run")
+
+    job_request2 = JobRequestFactory(workspace=workspace)
+    JobFactory(job_request=job_request2, action="leap")
+
+    request = rf.get("/?q=run")
+    request.user = user
+
+    response = WorkspaceEventLog.as_view()(
+        request,
+        project_slug=workspace.project.slug,
+        workspace_slug=workspace.name,
+    )
+
+    assert len(response.context_data["object_list"]) == 1
+    assert response.context_data["object_list"][0] == job_request1
+
+
+def test_workspaceeventlog_search_by_id(rf):
+    workspace = WorkspaceFactory()
+    user = UserFactory()
+
+    ProjectMembershipFactory(
+        project=workspace.project, user=user, roles=[ProjectDeveloper]
+    )
+
+    JobFactory(job_request=JobRequestFactory())
+
+    job_request2 = JobRequestFactory(created_by=user, workspace=workspace)
+    JobFactory(job_request=job_request2, id=99)
+
+    request = rf.get("/?q=99")
+    request.user = user
+
+    response = WorkspaceEventLog.as_view()(
+        request,
+        project_slug=workspace.project.slug,
+        workspace_slug=workspace.name,
+    )
+
+    assert len(response.context_data["object_list"]) == 1
+    assert response.context_data["object_list"][0] == job_request2
+
+
+def test_workspaceeventlog_success(rf):
+    workspace = WorkspaceFactory()
+    user = UserFactory()
+
+    ProjectMembershipFactory(
+        project=workspace.project, user=user, roles=[ProjectDeveloper]
+    )
+
+    job_request = JobRequestFactory(created_by=user, workspace=workspace)
+    JobFactory(job_request=job_request)
+
+    request = rf.get("/")
+    request.user = user
+
+    response = WorkspaceEventLog.as_view()(
+        request,
+        project_slug=workspace.project.slug,
+        workspace_slug=workspace.name,
+    )
+
+    assert response.status_code == 200
+    assert len(response.context_data["object_list"]) == 1
+
+
+def test_workspaceeventlog_unknown_workspace(rf):
+    project = ProjectFactory()
+    user = UserFactory()
+
+    ProjectMembershipFactory(project=project, user=user, roles=[ProjectDeveloper])
+
+    request = rf.get("/")
+    request.user = user
+
+    response = WorkspaceEventLog.as_view()(
+        request,
+        project_slug=project.slug,
+        workspace_slug="test",
+    )
+
+    assert response.status_code == 302
+    assert response.url == "/"
+
+
+def test_workspaceeventlog_with_authenticated_user(rf):
+    workspace = WorkspaceFactory()
+    job_request = JobRequestFactory(workspace=workspace)
+    JobFactory(job_request=job_request)
+
+    request = rf.get("/")
+    request.user = UserFactory()
+
+    response = WorkspaceEventLog.as_view()(
+        request,
+        project_slug=workspace.project.slug,
+        workspace_slug=workspace.name,
+    )
+
+    assert response.status_code == 200
+
+
+def test_workspaceeventlog_with_unauthenticated_user(rf):
+    workspace = WorkspaceFactory()
+    job_request = JobRequestFactory(workspace=workspace)
+    JobFactory(job_request=job_request)
+
+    request = rf.get("/")
+    request.user = AnonymousUser()
+
+    response = WorkspaceEventLog.as_view()(
+        request,
+        project_slug=workspace.project.slug,
+        workspace_slug=workspace.name,
+    )
+
+    assert response.status_code == 200
+
+
 def test_workspacefilelist_success(rf):
     backend1 = BackendFactory()
     BackendFactory()
@@ -902,200 +1096,6 @@ def test_workspacelatestoutputsdownload_without_permission(rf):
             project_slug=workspace.project.slug,
             workspace_slug=workspace.name,
         )
-
-
-def test_workspacelog_filter_by_one_backend(rf):
-    workspace = WorkspaceFactory()
-    user = UserFactory()
-
-    ProjectMembershipFactory(
-        project=workspace.project, user=user, roles=[ProjectDeveloper]
-    )
-
-    backend = BackendFactory()
-    job_request1 = JobRequestFactory(workspace=workspace, backend=backend)
-
-    JobRequestFactory(workspace=workspace, backend=BackendFactory())
-
-    request = rf.get(f"/?backend={backend.slug}")
-    request.user = user
-
-    response = WorkspaceLog.as_view()(
-        request,
-        project_slug=workspace.project.slug,
-        workspace_slug=workspace.name,
-    )
-
-    assert len(response.context_data["object_list"]) == 1
-    assert response.context_data["object_list"][0] == job_request1
-
-
-def test_workspacelog_filter_by_several_backends(rf):
-    workspace = WorkspaceFactory()
-    user = UserFactory()
-
-    ProjectMembershipFactory(
-        project=workspace.project, user=user, roles=[ProjectDeveloper]
-    )
-
-    JobRequestFactory(workspace=workspace, backend=BackendFactory())
-
-    backend1 = BackendFactory()
-    job_request1 = JobRequestFactory(workspace=workspace, backend=backend1)
-
-    backend2 = BackendFactory()
-    job_request2 = JobRequestFactory(workspace=workspace, backend=backend2)
-
-    backend3 = BackendFactory()
-    job_request3 = JobRequestFactory(workspace=workspace, backend=backend3)
-
-    request = rf.get(
-        f"/?backend={backend1.slug}&backend={backend2.slug}&backend={backend3.slug}"
-    )
-    request.user = user
-
-    response = WorkspaceLog.as_view()(
-        request,
-        project_slug=workspace.project.slug,
-        workspace_slug=workspace.name,
-    )
-
-    assert len(response.context_data["object_list"]) == 3
-    assert set(response.context_data["object_list"]) == {
-        job_request1,
-        job_request2,
-        job_request3,
-    }
-
-
-def test_workspacelog_search_by_action(rf):
-    workspace = WorkspaceFactory()
-    user = UserFactory()
-
-    ProjectMembershipFactory(
-        project=workspace.project, user=user, roles=[ProjectDeveloper]
-    )
-
-    job_request1 = JobRequestFactory(created_by=user, workspace=workspace)
-    JobFactory(job_request=job_request1, action="run")
-
-    job_request2 = JobRequestFactory(workspace=workspace)
-    JobFactory(job_request=job_request2, action="leap")
-
-    request = rf.get("/?q=run")
-    request.user = user
-
-    response = WorkspaceLog.as_view()(
-        request,
-        project_slug=workspace.project.slug,
-        workspace_slug=workspace.name,
-    )
-
-    assert len(response.context_data["object_list"]) == 1
-    assert response.context_data["object_list"][0] == job_request1
-
-
-def test_workspacelog_search_by_id(rf):
-    workspace = WorkspaceFactory()
-    user = UserFactory()
-
-    ProjectMembershipFactory(
-        project=workspace.project, user=user, roles=[ProjectDeveloper]
-    )
-
-    JobFactory(job_request=JobRequestFactory())
-
-    job_request2 = JobRequestFactory(created_by=user, workspace=workspace)
-    JobFactory(job_request=job_request2, id=99)
-
-    request = rf.get("/?q=99")
-    request.user = user
-
-    response = WorkspaceLog.as_view()(
-        request,
-        project_slug=workspace.project.slug,
-        workspace_slug=workspace.name,
-    )
-
-    assert len(response.context_data["object_list"]) == 1
-    assert response.context_data["object_list"][0] == job_request2
-
-
-def test_workspacelog_success(rf):
-    workspace = WorkspaceFactory()
-    user = UserFactory()
-
-    ProjectMembershipFactory(
-        project=workspace.project, user=user, roles=[ProjectDeveloper]
-    )
-
-    job_request = JobRequestFactory(created_by=user, workspace=workspace)
-    JobFactory(job_request=job_request)
-
-    request = rf.get("/")
-    request.user = user
-
-    response = WorkspaceLog.as_view()(
-        request,
-        project_slug=workspace.project.slug,
-        workspace_slug=workspace.name,
-    )
-
-    assert response.status_code == 200
-    assert len(response.context_data["object_list"]) == 1
-
-
-def test_workspacelog_unknown_workspace(rf):
-    project = ProjectFactory()
-    user = UserFactory()
-
-    ProjectMembershipFactory(project=project, user=user, roles=[ProjectDeveloper])
-
-    request = rf.get("/")
-    request.user = user
-
-    response = WorkspaceLog.as_view()(
-        request,
-        project_slug=project.slug,
-        workspace_slug="test",
-    )
-
-    assert response.status_code == 302
-    assert response.url == "/"
-
-
-def test_workspacelog_with_authenticated_user(rf):
-    workspace = WorkspaceFactory()
-    job_request = JobRequestFactory(workspace=workspace)
-    JobFactory(job_request=job_request)
-
-    request = rf.get("/")
-    request.user = UserFactory()
-
-    response = WorkspaceLog.as_view()(
-        request,
-        project_slug=workspace.project.slug,
-        workspace_slug=workspace.name,
-    )
-
-    assert response.status_code == 200
-
-
-def test_workspacelog_with_unauthenticated_user(rf):
-    workspace = WorkspaceFactory()
-    job_request = JobRequestFactory(workspace=workspace)
-    JobFactory(job_request=job_request)
-
-    request = rf.get("/")
-    request.user = AnonymousUser()
-
-    response = WorkspaceLog.as_view()(
-        request,
-        project_slug=workspace.project.slug,
-        workspace_slug=workspace.name,
-    )
-
-    assert response.status_code == 200
 
 
 def test_workspacenotificationstoggle_success(rf):
