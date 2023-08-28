@@ -9,7 +9,7 @@ from django.contrib.auth.decorators import login_required
 from django.core.signing import BadSignature, SignatureExpired, TimestampSigner
 from django.db.models import Count, Q, TextField, Value
 from django.db.models.functions import Lower, NullIf
-from django.shortcuts import redirect
+from django.shortcuts import get_object_or_404, redirect
 from django.template.response import TemplateResponse
 from django.urls import reverse
 from django.utils.decorators import method_decorator
@@ -28,7 +28,7 @@ from jobserver.emails import (
 
 from ..emails import send_github_login_email, send_login_email
 from ..forms import EmailLoginForm, RequireNameForm, SettingsForm, TokenLoginForm
-from ..models import User
+from ..models import JobRequest, User
 from ..utils import is_safe_path
 
 
@@ -324,6 +324,25 @@ class UserDetail(DetailView):
         return super().get_context_data(**kwargs) | {
             "projects": projects,
         }
+
+
+class UserEventLog(ListView):
+    paginate_by = 25
+    response_class = zTemplateResponse
+    template_name = "user_event_log.html"
+
+    def dispatch(self, request, *args, **kwargs):
+        self.user = get_object_or_404(User, username=self.kwargs["username"])
+
+        return super().dispatch(request, *args, **kwargs)
+
+    def get_queryset(self):
+        return (
+            JobRequest.objects.with_started_at()
+            .filter(created_by=self.user)
+            .select_related("backend", "workspace", "workspace__project")
+            .order_by("-pk")
+        )
 
 
 class UserList(ListView):

@@ -19,12 +19,14 @@ from jobserver.views.users import (
     RequireName,
     Settings,
     UserDetail,
+    UserEventLog,
     UserList,
 )
 
 from ....factories import (
     BackendFactory,
     BackendMembershipFactory,
+    JobRequestFactory,
     PartialFactory,
     ProjectFactory,
     ProjectMembershipFactory,
@@ -655,6 +657,31 @@ def test_userdetail_unknown_user(rf):
 
     with pytest.raises(Http404):
         UserDetail.as_view()(request, username="")
+
+
+def test_usereventlog_success(rf, django_assert_num_queries):
+    user = UserFactory()
+
+    job_requests = JobRequestFactory.create_batch(5, created_by=user)
+
+    request = rf.get("/")
+    request.user = user
+
+    with django_assert_num_queries(2):
+        response = UserEventLog.as_view()(request, username=user.username)
+
+    assert response.status_code == 200
+
+    expected = set_from_list(job_requests)
+    assert set_from_list(response.context_data["object_list"]) == expected
+
+
+def test_usereventlog_unknown_user(rf):
+    request = rf.get("/")
+    request.user = UserFactory()
+
+    with pytest.raises(Http404):
+        UserEventLog.as_view()(request, username="")
 
 
 def test_userlist_success(rf, django_assert_num_queries):
