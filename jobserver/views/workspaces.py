@@ -437,8 +437,7 @@ class WorkspaceEventLog(ListView):
             .order_by("-pk")
         )
 
-        q = self.request.GET.get("q")
-        if q:
+        if q := self.request.GET.get("q"):
             qwargs = Q(jobs__action__icontains=q) | Q(jobs__identifier__icontains=q)
             try:
                 q = int(q)
