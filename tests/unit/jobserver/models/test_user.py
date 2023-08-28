@@ -7,9 +7,9 @@ from django.utils import timezone
 
 from jobserver.authorization.roles import (
     CoreDeveloper,
+    DataInvestigator,
     InteractiveReporter,
     OrgCoordinator,
-    OutputChecker,
     ProjectCollaborator,
     ProjectDeveloper,
 )
@@ -28,12 +28,12 @@ from ....factories import (
 
 def test_user_all_roles():
     project = ProjectFactory()
-    user = UserFactory(roles=[OutputChecker])
+    user = UserFactory(roles=[DataInvestigator])
 
-    OrgMembershipFactory(org=project.org, user=user, roles=[OutputChecker])
+    OrgMembershipFactory(org=project.org, user=user, roles=[DataInvestigator])
     ProjectMembershipFactory(project=project, user=user, roles=[ProjectCollaborator])
 
-    expected = {OutputChecker, ProjectCollaborator}
+    expected = {DataInvestigator, ProjectCollaborator}
 
     assert user.all_roles == expected
 
@@ -57,21 +57,6 @@ def test_user_constraints_missing_pat_token_or_pat_expires_at():
 
     with pytest.raises(IntegrityError):
         UserFactory(pat_token="test", pat_expires_at=None)
-
-
-def test_user_clear_all_roles():
-    user = UserFactory(roles=[CoreDeveloper])
-
-    OrgMembershipFactory(user=user, roles=[InteractiveReporter])
-    ProjectMembershipFactory(user=user, roles=[ProjectCollaborator, ProjectDeveloper])
-
-    user.clear_all_roles()
-
-    user.refresh_from_db()
-
-    assert user.roles == []
-    assert not set(*user.org_memberships.values_list("roles", flat=True))
-    assert not set(*user.project_memberships.values_list("roles", flat=True))
 
 
 def test_user_get_absolute_url():
@@ -133,13 +118,13 @@ def test_user_get_all_permissions_empty():
 
 def test_user_get_all_roles():
     project = ProjectFactory()
-    user = UserFactory(roles=[OutputChecker])
+    user = UserFactory(roles=[DataInvestigator])
 
     ProjectMembershipFactory(project=project, user=user, roles=[ProjectCollaborator])
 
     output = user.get_all_roles()
     expected = {
-        "global": ["OutputChecker"],
+        "global": ["DataInvestigator"],
         "orgs": [],
         "projects": [
             {
@@ -165,30 +150,12 @@ def test_user_get_all_roles_empty():
     assert output == expected
 
 
-def test_user_get_staff_clear_roles_url():
+def test_user_get_logs_url():
     user = UserFactory()
 
-    url = user.get_staff_clear_roles_url()
+    url = user.get_logs_url()
 
-    assert url == reverse(
-        "staff:user-clear-roles",
-        kwargs={
-            "username": user.username,
-        },
-    )
-
-
-def test_user_get_staff_roles_url():
-    user = UserFactory()
-
-    url = user.get_staff_roles_url()
-
-    assert url == reverse(
-        "staff:user-role-list",
-        kwargs={
-            "username": user.username,
-        },
-    )
+    assert url == reverse("user-event-log", kwargs={"username": user.username})
 
 
 def test_user_get_staff_url():

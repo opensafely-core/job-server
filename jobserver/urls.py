@@ -59,6 +59,7 @@ from .views.users import (
     RequireName,
     Settings,
     UserDetail,
+    UserEventLog,
     UserList,
 )
 from .views.workspaces import (
@@ -270,6 +271,7 @@ project_urls = [
 user_urls = [
     path("", UserList.as_view(), name="user-list"),
     path("<str:username>/", UserDetail.as_view(), name="user-detail"),
+    path("<str:username>/logs/", UserEventLog.as_view(), name="user-event-log"),
 ]
 
 urlpatterns = [
