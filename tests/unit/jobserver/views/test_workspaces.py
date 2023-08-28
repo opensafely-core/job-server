@@ -850,14 +850,12 @@ def test_workspaceeventlog_unknown_workspace(rf):
     request = rf.get("/")
     request.user = user
 
-    response = WorkspaceEventLog.as_view()(
-        request,
-        project_slug=project.slug,
-        workspace_slug="test",
-    )
-
-    assert response.status_code == 302
-    assert response.url == "/"
+    with pytest.raises(Http404):
+        WorkspaceEventLog.as_view()(
+            request,
+            project_slug=project.slug,
+            workspace_slug="test",
+        )
 
 
 def test_workspaceeventlog_with_authenticated_user(rf):

@@ -408,13 +408,11 @@ class WorkspaceEventLog(ListView):
     template_name = "workspace_log.html"
 
     def dispatch(self, request, *args, **kwargs):
-        try:
-            self.workspace = Workspace.objects.get(
-                project__slug=self.kwargs["project_slug"],
-                name=self.kwargs["workspace_slug"],
-            )
-        except Workspace.DoesNotExist:
-            return redirect("/")
+        self.workspace = get_object_or_404(
+            Workspace,
+            project__slug=self.kwargs["project_slug"],
+            name=self.kwargs["workspace_slug"],
+        )
 
         return super().dispatch(request, *args, **kwargs)
 
