@@ -66,10 +66,10 @@ from .views.workspaces import (
     WorkspaceCreate,
     WorkspaceDetail,
     WorkspaceEdit,
+    WorkspaceEventLog,
     WorkspaceFileList,
     WorkspaceLatestOutputsDetail,
     WorkspaceLatestOutputsDownload,
-    WorkspaceLog,
     WorkspaceNotificationsToggle,
     WorkspaceOutputList,
 )
@@ -140,6 +140,11 @@ files_urls = [
         WorkspaceBackendFiles.as_view(),
         name="workspace-backend-files",
     ),
+]
+
+org_urls = [
+    path("", yours.OrgList.as_view(), name="your-orgs"),
+    path("<slug:slug>/", OrgDetail.as_view(), name="org-detail"),
 ]
 
 outputs_urls = [
@@ -234,7 +239,7 @@ workspace_urls = [
         name="workspace-archive-toggle",
     ),
     path("files/", include(files_urls)),
-    path("logs/", WorkspaceLog.as_view(), name="workspace-logs"),
+    path("logs/", WorkspaceEventLog.as_view(), name="workspace-logs"),
     path(
         "notifications-toggle/",
         WorkspaceNotificationsToggle.as_view(),
@@ -291,8 +296,7 @@ urlpatterns = [
     path("login-with-token/", LoginWithToken.as_view(), name="login-with-token"),
     path("logout/", LogoutView.as_view(), name="logout"),
     path("organisations/", OrgList.as_view(), name="org-list"),
-    path("orgs/", yours.OrgList.as_view(), name="your-orgs"),
-    path("orgs/<str:org_slug>/", OrgDetail.as_view(), name="org-detail"),
+    path("orgs/", include(org_urls)),
     path("projects/", yours.ProjectList.as_view(), name="your-projects"),
     path("publish-repo/<repo_url>/", SignOffRepo.as_view(), name="repo-sign-off"),
     path("repo/<repo_url>/", RepoHandler.as_view(), name="repo-handler"),

@@ -403,6 +403,57 @@ class WorkspaceEdit(FormView):
         return {"purpose": self.workspace.purpose}
 
 
+class WorkspaceEventLog(ListView):
+    paginate_by = 25
+    template_name = "workspace_log.html"
+
+    def dispatch(self, request, *args, **kwargs):
+        self.workspace = get_object_or_404(
+            Workspace,
+            project__slug=self.kwargs["project_slug"],
+            name=self.kwargs["workspace_slug"],
+        )
+
+        return super().dispatch(request, *args, **kwargs)
+
+    def get_context_data(self, **kwargs):
+        # limit backends to those the workspace uses
+        backends = Backend.objects.filter(
+            pk__in=JobRequest.objects.filter(workspace=self.workspace).values_list(
+                "backend_id", flat=True
+            )
+        )
+
+        return super().get_context_data(**kwargs) | {
+            "backends": backends,
+            "workspace": self.workspace,
+        }
+
+    def get_queryset(self):
+        qs = (
+            JobRequest.objects.with_started_at()
+            .filter(workspace=self.workspace)
+            .select_related("backend", "workspace", "workspace__project")
+            .order_by("-pk")
+        )
+
+        if q := self.request.GET.get("q"):
+            qwargs = Q(jobs__action__icontains=q) | Q(jobs__identifier__icontains=q)
+            try:
+                q = int(q)
+            except ValueError:
+                qs = qs.filter(qwargs)
+            else:
+                # if the query looks enough like a number for int() to handle
+                # it then we can look for a job number
+                qs = qs.filter(qwargs | Q(jobs__pk=q))
+
+        if backends := self.request.GET.getlist("backend"):
+            qs = qs.filter(backend__slug__in=backends)
+
+        return qs
+
+
 class WorkspaceFileList(View):
     def get(self, request, *args, **kwargs):
         workspace = get_object_or_404(
@@ -512,60 +563,6 @@ class WorkspaceLatestOutputsDownload(View):
             as_attachment=True,
             filename=f"workspace-{workspace.name}.zip",
         )
-
-
-class WorkspaceLog(ListView):
-    paginate_by = 25
-    template_name = "workspace_log.html"
-
-    def dispatch(self, request, *args, **kwargs):
-        try:
-            self.workspace = Workspace.objects.get(
-                project__slug=self.kwargs["project_slug"],
-                name=self.kwargs["workspace_slug"],
-            )
-        except Workspace.DoesNotExist:
-            return redirect("/")
-
-        return super().dispatch(request, *args, **kwargs)
-
-    def get_context_data(self, **kwargs):
-        # limit backends to those the workspace uses
-        backends = Backend.objects.filter(
-            pk__in=JobRequest.objects.filter(workspace=self.workspace).values_list(
-                "backend_id", flat=True
-            )
-        )
-
-        return super().get_context_data(**kwargs) | {
-            "backends": backends,
-            "workspace": self.workspace,
-        }
-
-    def get_queryset(self):
-        qs = (
-            JobRequest.objects.with_started_at()
-            .filter(workspace=self.workspace)
-            .select_related("backend", "workspace", "workspace__project")
-            .order_by("-pk")
-        )
-
-        q = self.request.GET.get("q")
-        if q:
-            qwargs = Q(jobs__action__icontains=q) | Q(jobs__identifier__icontains=q)
-            try:
-                q = int(q)
-            except ValueError:
-                qs = qs.filter(qwargs)
-            else:
-                # if the query looks enough like a number for int() to handle
-                # it then we can look for a job number
-                qs = qs.filter(qwargs | Q(jobs__pk=q))
-
-        if backends := self.request.GET.getlist("backend"):
-            qs = qs.filter(backend__slug__in=backends)
-
-        return qs
 
 
 class WorkspaceNotificationsToggle(View):

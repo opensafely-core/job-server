@@ -394,7 +394,7 @@ class Org(models.Model):
         return self.name
 
     def get_absolute_url(self):
-        return reverse("org-detail", kwargs={"org_slug": self.slug})
+        return reverse("org-detail", kwargs={"slug": self.slug})
 
     def get_edit_url(self):
         return reverse("staff:org-edit", kwargs={"slug": self.slug})
