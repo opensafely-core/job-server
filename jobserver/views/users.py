@@ -7,15 +7,18 @@ from django.contrib import messages
 from django.contrib.auth import login
 from django.contrib.auth.decorators import login_required
 from django.core.signing import BadSignature, SignatureExpired, TimestampSigner
-from django.db.models import Q
+from django.db.models import Count, Q, TextField, Value
+from django.db.models.functions import Lower, NullIf
 from django.shortcuts import redirect
 from django.template.response import TemplateResponse
 from django.urls import reverse
 from django.utils.decorators import method_decorator
-from django.views.generic import FormView, View
+from django.views.generic import FormView, ListView, View
 from furl import furl
 from opentelemetry import trace
 from social_django.utils import load_strategy
+from zen_queries import TemplateResponse as zTemplateResponse
+from zen_queries import fetch
 
 from jobserver.authorization import InteractiveReporter
 from jobserver.emails import (
@@ -306,3 +309,29 @@ class Settings(View):
             "show_token_form": show_token_form,
         }
         return TemplateResponse(self.request, "settings.html", context)
+
+
+class UserList(ListView):
+    model = User
+    paginate_by = 25
+    response_class = zTemplateResponse
+    template_name = "user_list.html"
+
+    def get_queryset(self):
+        qs = super().get_queryset().annotate(project_count=Count("projects"))
+
+        # we don't have all full names for all users yet and having some users
+        # at the top of the list with just usernames looks fairly odd.  We've
+        # modelled our text fields in job-server such that they're not nullable
+        # because we treat empty string as they only empty case.  The NullIf()
+        # call lets us tell the database to treat empty strings as NULL for the
+        # purposes of this ORDER BY, using nulls_last=True
+        # TODO: switch this to just order on Lower("fullname") once all users
+        # have fullname filled in
+        qs = qs.order_by(
+            NullIf(Lower("fullname"), Value(""), output_field=TextField()).asc(
+                nulls_last=True
+            )
+        )
+
+        return fetch(qs)

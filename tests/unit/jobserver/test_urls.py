@@ -125,6 +125,7 @@ def test_url_redirects(client, url, redirect):
         ("/projects/", yours.ProjectList),
         ("/settings/", users.Settings),
         ("/status/", status.Status),
+        ("/users/", users.UserList),
         ("/workspaces/", yours.WorkspaceList),
         ("/p/", projects.ProjectDetail),
         ("/p/new-workspace/", workspaces.WorkspaceCreate),

@@ -1,0 +1,50 @@
+{% extends "base-tw.html" %}
+
+{% load querystring_tools %}
+
+{% block metatitle %}Users | OpenSAFELY Jobs{% endblock metatitle %}
+
+{% block breadcrumbs %}
+  {% #breadcrumbs %}
+    {% url "home" as home_url %}
+    {% breadcrumb title="Home" url=home_url %}
+    {% breadcrumb title="Users" active=True %}
+  {% /breadcrumbs %}
+{% endblock breadcrumbs %}
+
+{% block content %}
+  {% article_header title="Users" text="Users using OpenSAFELY to deliver research projects" class="mb-6" %}
+
+  {% #card %}
+    {% #list_group %}
+      {% for user in object_list %}
+        {% #list_group_item href=user.get_absolute_url %}
+          <div class="flex flex-col md:flex-row min-w-0 md:justify-between md:flex-grow">
+            <p class="truncate text-base font-semibold text-oxford-600">
+              {{ user.name }}
+            </p>
+            <div class="mt-1 flex items-center text-sm text-slate-600 font-normal whitespace-nowrap md:mt-0 md:ml-2">
+              {% icon_rectangle_stack_outline class="mr-1.5 h-5 w-5 flex-shrink-0 text-slate-400" %}
+              {% if user.project_count %}
+                {{ user.project_count }} project{{ user.project_count|pluralize }}
+              {% else %}
+                No projects
+              {% endif %}
+            </div>
+          </div>
+        {% /list_group_item %}
+      {% endfor %}
+    {% /list_group %}
+
+    {% if page_obj.has_previous or page_obj.has_next %}
+      {% if page_obj.has_next %}
+        {% url_with_querystring page=page_obj.next_page_number as next_page_url %}
+      {% endif %}
+      {% if page_obj.has_previous %}
+        {% url_with_querystring page=page_obj.previous_page_number as previous_page_url %}
+      {% endif %}
+      {% card_pagination page_number=page_obj.number total_pages=page_obj.paginator.num_pages next_page_url=next_page_url previous_page_url=previous_page_url no_container=True %}
+    {% endif %}
+  {% /card %}
+
+{% endblock %}

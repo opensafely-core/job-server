@@ -59,5 +59,11 @@ def strip_whitespace(text):
     return text.strip("\n")
 
 
+def set_from_list(lst, field="pk"):
+    """Build a set of fields from the given list"""
+    return {getattr(x, field) for x in lst}
+
+
 def set_from_qs(qs, field="pk"):
+    """Build a set of fields from the given QuerySet"""
     return set(qs.values_list(field, flat=True))
