@@ -11,10 +11,12 @@ from django.template.response import TemplateResponse
 from django.views.generic import ListView, UpdateView, View
 from opentelemetry import context as otel_context
 from opentelemetry import trace
+from zen_queries import TemplateResponse as zTemplateResponse
+from zen_queries import fetch
 
 from ..authorization import has_permission
 from ..github import _get_github_api
-from ..models import Job, Project, PublishRequest, Repo, Snapshot
+from ..models import Job, JobRequest, Project, PublishRequest, Repo, Snapshot
 
 
 # Create a global threadpool for getting repos.  This lets us have a single
@@ -201,6 +203,32 @@ class ProjectEdit(UpdateView):
 
     def get_success_url(self):
         return self.request.GET.get("next") or self.object.get_absolute_url()
+
+
+class ProjectEventLog(ListView):
+    paginate_by = 25
+    response_class = zTemplateResponse
+    template_name = "project_event_log.html"
+
+    def dispatch(self, request, *args, **kwargs):
+        self.project = get_object_or_404(Project, slug=self.kwargs["project_slug"])
+
+        return super().dispatch(request, *args, **kwargs)
+
+    def get_context_data(self, **kwargs):
+        return super().get_context_data(**kwargs) | {
+            "project": self.project,
+        }
+
+    def get_queryset(self):
+        return fetch(
+            JobRequest.objects.with_started_at()
+            .filter(workspace__project=self.project)
+            .select_related(
+                "backend", "created_by", "workspace", "workspace__project__org"
+            )
+            .order_by("-pk")
+        )
 
 
 class ProjectReportList(ListView):
