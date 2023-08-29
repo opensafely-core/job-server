@@ -29,21 +29,6 @@ jobs:
   test:
     runs-on: ubuntu-22.04
 
-    services:
-      postgres:
-        image: postgres:13
-        env:
-          POSTGRES_USER: user
-          POSTGRES_PASSWORD: password
-          POSTGRES_DB: jobserver
-        ports:
-          - 5432:5432
-        options: >-
-          --health-cmd pg_isready
-          --health-interval 10s
-          --health-timeout 5s
-          --health-retries 5
-
     steps:
       - uses: actions/checkout@v3
       - uses: "opensafely-core/setup-action@v1"
@@ -73,9 +58,12 @@ jobs:
       - name: Install venv
         run: just devenv
 
+      - name: Run postgres
+        run: just docker/db
+
       - name: Run tests
         env:
-          DATABASE_URL: postgres://user:password@localhost/jobserver
+          DATABASE_URL: postgres://user:pass@localhost:6543/jobserver
           GITHUB_TOKEN: empty
           GITHUB_TOKEN_TESTING: ${{ secrets.OPENSAFELY_GITHUB_TESTING_ORG_PAT }}
           SECRET_KEY: 12345

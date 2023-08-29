@@ -9,8 +9,10 @@ services:
       POSTGRES_DB: jobserver
     ports:
       - "6543:5432"
+    tmpfs:
+      - /var/lib/postgresql/data/
     volumes:
-      - postgres_data:/var/lib/postgresql/data/
+      - ./postgres.conf:/etc/postgresql/postgresql.conf
 
   # base service, exists to hold common config, but is not actually used directly
   base:
@@ -90,7 +92,3 @@ services:
     environment:
       - GITHUB_TOKEN_TESTING
     command: bash -c "coverage run --branch --source=applications,interactive,jobserver,services,staff,tests --module pytest && coverage report || coverage html"
-
-volumes:
-  postgres_data:
-  staticfiles:
