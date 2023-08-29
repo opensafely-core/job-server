@@ -2,14 +2,11 @@ import functools
 
 import structlog
 from django.conf import settings
-from django.db.models import Max
 from django.urls import reverse
 from furl import furl
 from zen_queries import queries_dangerously_enabled
 
 from .authorization import CoreDeveloper, has_role
-from .backends import show_warning
-from .models import Backend
 from .nav import NavItem, iter_nav
 
 
@@ -18,26 +15,6 @@ logger = structlog.get_logger(__name__)
 
 def _is_active(request, prefix):
     return request.path.startswith(prefix)
-
-
-@queries_dangerously_enabled()
-def backend_warnings(request):
-    def iter_warnings(backends):
-        if settings.DEBUG:
-            return
-
-        for backend in backends:
-            if backend.api_last_seen is None:
-                logger.info(f"No stats found for backend '{backend.slug}'")
-                continue
-
-            if show_warning(backend.api_last_seen, backend.alert_timeout):
-                yield backend.name
-
-    backends = Backend.objects.filter(is_active=True).annotate(
-        api_last_seen=Max("stats__api_last_seen")
-    )
-    return {"backend_warnings": list(iter_warnings(backends))}
 
 
 @queries_dangerously_enabled()

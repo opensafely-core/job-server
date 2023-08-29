@@ -1,12 +1,5 @@
-{% if messages or backend_warnings or disable_creating_jobs %}
+{% if messages or disable_creating_jobs %}
   <div class="max-w-screen-md mx-auto pt-3 pb-6">
-    {% if backend_warnings %}
-      {% for backend in backend_warnings %}
-        {% #alert variant="warning" title="Backend issue" %}
-          Something is wrong with the {{ backend }} backend. Jobs are not being processed.
-        {% /alert %}
-      {% endfor %}
-    {% endif %}
     {% if disable_creating_jobs %}
       {% #alert variant="warning" title="Job creation issue" %}
         Creating jobs is temporarily unavailable, please try again later.
