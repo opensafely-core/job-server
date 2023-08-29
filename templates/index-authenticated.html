@@ -92,7 +92,7 @@
 
         {% if counts.job_requests > 0 %}
           {% #card_footer no_container=True %}
-            {% url "user-event-log" username=user.username as user_event_log_url %}
+            {% url "user-event-log" username=request.user.username as user_event_log_url %}
             {% link href=user_event_log_url text="View all your job requests →" %}
           {% /card_footer %}
         {% endif %}

@@ -12,59 +12,40 @@
 {% endblock breadcrumbs %}
 
 {% block content %}
-  {% article_header title=user.name class="mb-6" %}
+  {% #article_header title=user.name class="mb-6" %}
+    {% url "user-event-log" username=user.username as user_event_log_url %}
+    {% #button href=user_event_log_url type="link" variant="primary" %}
+      View logs
+      {% icon_queue_list_outline class="h-4 w-4 ml-2 -mr-2" %}
+    {% /button %}
+  {% /article_header %}
 
   {% if projects %}
     {% #card title="Projects" %}
       {% #list_group %}
         {% for project in projects %}
-          <li>
-            <a href="{{ project.get_absolute_url }}" class="block transition-colors duration-200 hover:bg-oxford-50">
-              <div class="px-4 py-4 sm:px-6">
-                <div class="flex items-center justify-between">
-                  <p class="truncate text-base font-semibold text-oxford-600">
-                    {{ project.name }}
-                  </p>
-                  <div class="ml-2 flex flex-shrink-0">
-                    {% if project.status == "retired" %}
-                      {% pill sr_only="Status:" variant="warning" text=project.get_status_display %}
-                    {% elif project.status == "ongoing" %}
-                      {% pill sr_only="Status:" variant="primary" text=project.get_status_display %}
-                    {% elif project.status == "ongoing-and-linked" %}
-                      {% pill sr_only="Status:" variant="primary" text=project.get_status_display %}
-                    {% elif project.status == "postponed" %}
-                      {% pill sr_only="Status:" variant="danger" text=project.get_status_display %}
-                    {% elif project.status == "completed-and-linked" %}
-                      {% pill sr_only="Status:" variant="success" text=project.get_status_display %}
-                    {% elif project.status == "completed-and-awaiting" %}
-                      {% pill sr_only="Status:" variant="success" text=project.get_status_display %}
-                    {% endif %}
-                  </div>
-                </div>
-                <div class="mt-2 sm:flex sm:justify-between">
-                  <div class="sm:flex">
-                    <p class="flex items-center text-sm text-slate-600">
-                      {% icon_user_group_outline class="mr-1.5 h-5 w-5 flex-shrink-0 text-slate-400" %}
-                      {{ project.member_count }}
-                      user{{ project.member_count|pluralize }}
-                    </p>
-                    <p class="flex items-center text-sm text-slate-600 mt-2 sm:mt-0 sm:ml-6">
-                      {% icon_rectangle_stack_outline class="mr-1.5 h-5 w-5 flex-shrink-0 text-slate-400" %}
-                      {{ project.workspace_count }}
-                      workspace{{ project.workspace_count|pluralize }}
-                    </p>
-                  </div>
-                  <div class="mt-2 flex items-center text-sm text-slate-600 sm:mt-0">
-                    {% icon_calendar_outline class="mr-1.5 h-5 w-5 flex-shrink-0 text-slate-400" %}
-                    <time datetime="{{ project.created_at|date:"Y-m-d H:i:sO" }}">
-                      <span class="sr-only">Project created:</span>
-                      {{ project.created_at|date:"d M Y" }}
-                    </time>
-                  </div>
-                </div>
+          {% #list_group_item href=project.get_absolute_url %}
+            <div class="flex items-center justify-between">
+              <p class="truncate text-base font-semibold text-oxford-600">
+                {{ project.name }}
+              </p>
+              <div class="ml-2 flex flex-shrink-0">
+                {% if project.status == "retired" %}
+                  {% pill sr_only="Status:" variant="warning" text=project.get_status_display %}
+                {% elif project.status == "ongoing" %}
+                  {% pill sr_only="Status:" variant="primary" text=project.get_status_display %}
+                {% elif project.status == "ongoing-and-linked" %}
+                  {% pill sr_only="Status:" variant="primary" text=project.get_status_display %}
+                {% elif project.status == "postponed" %}
+                  {% pill sr_only="Status:" variant="danger" text=project.get_status_display %}
+                {% elif project.status == "completed-and-linked" %}
+                  {% pill sr_only="Status:" variant="success" text=project.get_status_display %}
+                {% elif project.status == "completed-and-awaiting" %}
+                  {% pill sr_only="Status:" variant="success" text=project.get_status_display %}
+                {% endif %}
               </div>
-            </a>
-          </li>
+            </div>
+          {% /list_group_item %}
         {% endfor %}
       {% /list_group %}
     {% /card %}

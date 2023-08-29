@@ -3,21 +3,20 @@
 {% load humanize %}
 {% load querystring_tools %}
 
-{# Fix #}
 {% block metatitle %}Logs: {{ user.name }} | OpenSAFELY Jobs{% endblock metatitle %}
 
 {% block breadcrumbs %}
   {% url "home" as home_url %}
-  {% url "user-detail" user=user.username as user_profile_url %} {# Fix #}
+  {% url "user-detail" username=user.username as user_profile_url %}
+
   {% #breadcrumbs %}
     {% breadcrumb title="Home" url=home_url %}
-    {% breadcrumb title=user.name url=user_profile_url %} {# Fix #}
+    {% breadcrumb title=user.name url=user_profile_url %}
     {% breadcrumb title="Logs" active=True %}
   {% /breadcrumbs %}
 {% endblock breadcrumbs %}
 
 {% block content %}
-  {# Fix #}
   {% article_header class="mb-4" title="Logs: "|add:user.name text="The following is a list of all job requests run via OpenSAFELY by "|add:user.name|add:"." %}
 {% endblock content %}
 
