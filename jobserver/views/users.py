@@ -336,6 +336,11 @@ class UserEventLog(ListView):
 
         return super().dispatch(request, *args, **kwargs)
 
+    def get_context_data(self, **kwargs):
+        return super().get_context_data(**kwargs) | {
+            "user": self.user,
+        }
+
     def get_queryset(self):
         return fetch(
             JobRequest.objects.with_started_at()
