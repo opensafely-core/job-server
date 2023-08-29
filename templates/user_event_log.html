@@ -82,12 +82,13 @@
                 {% #table_cell %}
                   {{ group.num_completed }}/{{ group.jobs.all|length }}
                 {% /table_cell %}
-                {% #table_cell nowrap=True title=group.started_at %}
-                  {% if group.started_at %}
-                    {{ group.started_at|naturaltime }}
-                  {% else %}
-                    Pending
-                  {% endif %}
+                {% #table_cell nowrap=True %}
+                  <span class="relative group cursor-pointer">
+                    {{ group.started_at|naturaltime|default:"-" }}
+                    {% if group.started_at %}
+                      {% tooltip position="-bottom-4" content=group.started_at|date:"d F Y H:i:s T" %}
+                    {% endif %}
+                  </span>
                 {% /table_cell %}
                 {% #table_cell nowrap=True %}
                   {% #button type="link" href=group.get_absolute_url variant="secondary-outline" small=True %}
