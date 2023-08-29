@@ -58,6 +58,8 @@ from .views.users import (
     LoginWithURL,
     RequireName,
     Settings,
+    UserDetail,
+    UserList,
 )
 from .views.workspaces import (
     WorkspaceAnalysisRequestList,
@@ -264,6 +266,11 @@ project_urls = [
     path("<str:workspace_slug>/", include(workspace_urls)),
 ]
 
+user_urls = [
+    path("", UserList.as_view(), name="user-list"),
+    path("<str:username>/", UserDetail.as_view(), name="user-detail"),
+]
+
 urlpatterns = [
     path("", Index.as_view(), name="home"),
     path(
@@ -304,6 +311,7 @@ urlpatterns = [
     path("staff/", include("staff.urls", namespace="staff")),
     path("status/", include(status_urls)),
     path("ui-components/", components),
+    path("users/", include(user_urls)),
     path("workspaces/", yours.WorkspaceList.as_view(), name="your-workspaces"),
     path("__debug__/", include(debug_toolbar.urls)),
     path("__reload__/", include("django_browser_reload.urls")),

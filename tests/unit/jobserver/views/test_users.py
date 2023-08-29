@@ -4,18 +4,22 @@ import pytest
 from django.contrib.auth.models import AnonymousUser
 from django.contrib.sessions.backends.db import SessionStore
 from django.core.signing import TimestampSigner
+from django.http import Http404
 from django.urls import reverse
 from django.utils import timezone
 from freezegun import freeze_time
 
 import jobserver.models.core
 from jobserver.authorization import InteractiveReporter
+from jobserver.utils import set_from_list
 from jobserver.views.users import (
     Login,
     LoginWithToken,
     LoginWithURL,
     RequireName,
     Settings,
+    UserDetail,
+    UserList,
 )
 
 from ....factories import (
@@ -631,3 +635,40 @@ def test_loginwittoken_expired_token(rf_messages, token_login_user):
         str(messages[0])
         == "Login failed. The user or token may be incorrect, or the token may have expired."
     )
+
+
+def test_userdetail_success(rf, django_assert_num_queries):
+    user = UserFactory()
+
+    request = rf.get("/")
+    request.user = UserFactory()
+
+    with django_assert_num_queries(2):
+        response = UserDetail.as_view()(request, username=user.username)
+
+    assert response.status_code == 200
+
+
+def test_userdetail_unknown_user(rf):
+    request = rf.get("/")
+    request.user = UserFactory()
+
+    with pytest.raises(Http404):
+        UserDetail.as_view()(request, username="")
+
+
+def test_userlist_success(rf, django_assert_num_queries):
+    users = UserFactory.create_batch(5)
+    user = UserFactory()
+
+    request = rf.get("/")
+    request.user = user
+
+    with django_assert_num_queries(1):
+        response = UserList.as_view()(request)
+
+    assert response.status_code == 200
+
+    # account for the user attached to the request
+    expected = set_from_list(users + [user])
+    assert set_from_list(response.context_data["object_list"]) == expected
