@@ -78,10 +78,7 @@
           <div class="list-group mb-3">
             {% for org in orgs %}
             <a class="list-group-item list-group-item-action d-flex" href="{{ org.staff_url }}">
-              <span class="mr-auto">{{ org.name }}</span>
-              {% for role in org.roles %}
-              <span class="badge badge-secondary ml-1">{{ role }}</span>
-              {% endfor %}
+              {{ org.name }}
             </a>
             {% endfor %}
           </div>
@@ -93,10 +90,7 @@
           <div class="list-group mb-3">
             {% for project in projects %}
             <a class="list-group-item list-group-item-action d-flex align-items-center" href="{{ project.staff_url }}">
-              <span class="mr-auto">{{ project.name }}</span>
-              {% for role in project.roles %}
-              <span class="badge badge-secondary ml-1">{{ role }}</span>
-              {% endfor %}
+              {{ project.name }}
             </a>
             {% endfor %}
           </div>
