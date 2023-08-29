@@ -6,6 +6,7 @@ import pytest
 from django.utils import timezone
 from first import first
 
+from jobserver.utils import set_from_list
 from jobserver.views.status import DBAvailability, PerBackendStatus, Status
 
 from ....factories import BackendFactory, JobFactory, JobRequestFactory, StatsFactory
@@ -172,3 +173,16 @@ def test_status_counts_all_pending_jobs(rf):
 
     output = first(response.context_data["backends"])
     assert output["queue"]["pending"] == 3
+
+
+def test_status_shows_only_active_backends(rf):
+    backends = BackendFactory.create_batch(2, is_active=True)
+    BackendFactory(is_active=False)
+
+    request = rf.get("/")
+    response = Status.as_view()(request)
+
+    output = response.context_data["backends"]
+    assert len(output) == 2
+    assert output[0]["name"] in set_from_list(backends, field="name")
+    assert output[1]["name"] in set_from_list(backends, field="name")

@@ -40,6 +40,7 @@ class BackendFactory(factory.django.DjangoModelFactory):
 
     slug = factory.Sequence(lambda n: f"backend-{n}")
     name = factory.Sequence(lambda n: f"Backend {n}")
+    is_active = True
     level_4_url = factory.Sequence(lambda n: f"http://example.com/{n}")
     jobrunner_state = {}
 
