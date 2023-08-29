@@ -90,10 +90,10 @@
           {% list_group_empty icon=True title="No job requests" description="You have not created any jobs requests" %}
         {% endfor %}
 
-        {% if counts.job_requests > job_requests|length %}
+        {% if counts.job_requests > 0 %}
           {% #card_footer no_container=True %}
-            {% url "job-list" as job_list_url %}
-            {% link href=job_list_url|add:"?username="|add:user.username text="View all your job requests →" %}
+            {% url "user-event-log" username=user.username as user_event_log_url %}
+            {% link href=user_event_log_url text="View all your job requests →" %}
           {% /card_footer %}
         {% endif %}
       {% /list_group %}
