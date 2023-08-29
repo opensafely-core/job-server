@@ -646,6 +646,7 @@ def test_jobrequestdetail_with_invalid_job_request(rf, django_assert_num_queries
 
 def test_jobrequestdetail_with_permission(rf, django_assert_num_queries):
     job_request = JobRequestFactory()
+    JobFactory(job_request=job_request, updated_at=minutes_ago(timezone.now(), 31))
 
     user = UserFactory()
 
@@ -666,6 +667,7 @@ def test_jobrequestdetail_with_permission(rf, django_assert_num_queries):
 
     assert response.status_code == 200
     assert not response.context_data["is_invalid"]
+    assert response.context_data["is_missing_updates"]
     assert "Cancel" in response.rendered_content
 
 
@@ -725,6 +727,7 @@ def test_jobrequestdetail_with_permission_with_completed_at(rf):
     )
 
     assert response.status_code == 200
+    assert not response.context_data["is_missing_updates"]
     assert "Cancel" in response.rendered_content
 
 

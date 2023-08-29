@@ -1,61 +1,10 @@
 import pytest
 from django.urls import reverse
-from django.utils import timezone
 from first import first
 
-from jobserver.context_processors import (
-    backend_warnings,
-    can_view_staff_area,
-    nav,
-    staff_nav,
-)
+from jobserver.context_processors import can_view_staff_area, nav, staff_nav
 
-from ...factories import BackendFactory, JobRequestFactory, StatsFactory, UserFactory
-from ...utils import minutes_ago
-
-
-def test_backend_warnings_with_debug_on(rf, settings):
-    settings.DEBUG = True
-
-    # set up some stats which should show up a warning in normal circumstances
-    backend = BackendFactory(is_active=True)
-
-    JobRequestFactory(backend=backend)
-
-    last_seen = minutes_ago(timezone.now(), 10)
-    StatsFactory(backend=backend, api_last_seen=last_seen)
-
-    request = rf.get("/")
-    output = backend_warnings(request)
-
-    assert output["backend_warnings"] == []
-
-
-def test_backend_warnings_with_no_warnings(rf):
-    backend = BackendFactory(is_active=True)
-
-    last_seen = minutes_ago(timezone.now(), 1)
-    StatsFactory(backend=backend, api_last_seen=last_seen)
-
-    request = rf.get("/")
-    output = backend_warnings(request)
-
-    assert output["backend_warnings"] == []
-
-
-def test_backend_warnings_with_warnings(rf):
-    backend = BackendFactory(is_active=True)
-    BackendFactory(is_active=True)
-
-    JobRequestFactory(backend=backend)
-
-    last_seen = minutes_ago(timezone.now(), 10)
-    StatsFactory(backend=backend, api_last_seen=last_seen)
-
-    request = rf.get("/")
-    output = backend_warnings(request)
-
-    assert output["backend_warnings"] == [backend.name]
+from ...factories import UserFactory
 
 
 def test_can_view_staff_area_with_core_developer(rf, core_developer):

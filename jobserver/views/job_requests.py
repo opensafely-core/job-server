@@ -1,10 +1,13 @@
+from datetime import timedelta
+
 from django.conf import settings
 from django.contrib import messages
 from django.core.exceptions import MultipleObjectsReturned
 from django.db import transaction
-from django.db.models import Q
+from django.db.models import Max, Q
 from django.http import Http404
 from django.shortcuts import get_object_or_404, redirect
+from django.utils import timezone
 from django.utils.safestring import mark_safe
 from django.views.generic import CreateView, ListView, RedirectView, View
 from django.views.generic.edit import FormMixin
@@ -186,6 +189,9 @@ class JobRequestDetail(View):
                 .select_related(
                     "backend", "created_by", "workspace", "workspace__project__org"
                 )
+                .annotate(
+                    last_updated_at=Max("jobs__updated_at", default=timezone.now())
+                )
                 .get(
                     workspace__project__slug=self.kwargs["project_slug"],
                     workspace__name=self.kwargs["workspace_slug"],
@@ -215,9 +221,24 @@ class JobRequestDetail(View):
             )
         )
 
+        # build up is_missing_updates to define if we've not seen the backend
+        # running this JobRequest for a while.
+        # it's completed, we don't expect updates now
+        incomplete = not job_request.is_completed
+
+        # was the last update more than our threshold ago?  The last_updated_at
+        # annotation uses a default of `now` so we don't have to deal with None
+        # here.
+        delta = timezone.now() - job_request.last_updated_at
+        threshold = timedelta(minutes=30)
+        over_30_minutes_ago = delta > threshold
+
+        is_missing_updates = incomplete and over_30_minutes_ago
+
         context = {
             "honeycomb_can_view_links": honeycomb_can_view_links,
             "honeycomb_links": {},
+            "is_missing_updates": is_missing_updates,
             "is_invalid": is_invalid,
             "job_request": job_request,
             "jobs": jobs,
