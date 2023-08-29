@@ -3,35 +3,22 @@
 {% load humanize %}
 {% load querystring_tools %}
 
-{% block metatitle %}{{ user.name }} Event Log | OpenSAFELY Jobs{% endblock metatitle %}
+{# Fix #}
+{% block metatitle %}Logs: {{ user.name }} | OpenSAFELY Jobs{% endblock metatitle %}
 
 {% block breadcrumbs %}
   {% url "home" as home_url %}
+  {% url "user-detail" user=user.username as user_profile_url %} {# Fix #}
   {% #breadcrumbs %}
     {% breadcrumb title="Home" url=home_url %}
-    {% breadcrumb title="Event Log" active=True %}
+    {% breadcrumb title=user.name url=user_profile_url %} {# Fix #}
+    {% breadcrumb title="Logs" active=True %}
   {% /breadcrumbs %}
 {% endblock breadcrumbs %}
 
 {% block content %}
-  {% article_header class="mb-4" title="Event log" text="The following is a list of all job requests run via OpenSAFELY." %}
-
-  {% if user_can_view_staff_area %}
-    {% #alert variant="info" title="Staff: Search for an event" class="max-w-prose mb-4" %}
-      <div class="prose prose-sm">
-        <p>If you are looking for a particular job, you can:</p>
-        <ul>
-          <li>
-            {% link href="/staff/job-requests/" text="View Job Requests in the Staff Area" %}
-          </li>
-          <li>
-            {% link href="https://ui.honeycomb.io/bennett-institute-for-applied-data-science/environments/production/datasets/job-server/home" text="Search in Honeycomb" %}
-            (Honeycomb login required)
-          </li>
-        </ul>
-      </div>
-    {% /alert %}
-  {% endif %}
+  {# Fix #}
+  {% article_header class="mb-4" title="Logs: "|add:user.name text="The following is a list of all job requests run via OpenSAFELY by "|add:user.name|add:"." %}
 {% endblock content %}
 
 {% block full_width_content %}
@@ -43,6 +30,7 @@
             {% #table_row %}
               {% #table_header %}<span class="sr-only">Status</span>{% /table_header %}
               {% #table_header nowrap=True %}Organisation{% /table_header %}
+              {% #table_header nowrap=True %}Project{% /table_header %}
               {% #table_header nowrap=True %}Workspace{% /table_header %}
               {% #table_header nowrap=True %}Request ID{% /table_header %}
               {% #table_header nowrap=True %}Backend{% /table_header %}
@@ -70,7 +58,10 @@
                 {% #table_cell class="max-w-[25ch]" %}
                   {{ group.workspace.project.org }}
                 {% /table_cell %}
-                {% #table_cell class="break-words min-w-[18ch]" %}
+                {% #table_cell %}
+                  {{ group.workspace.project.name }}
+                {% /table_cell %}
+                {% #table_cell class="break-words min-w-[12ch]" %}
                   {{ group.workspace.name }}
                 {% /table_cell %}
                 {% #table_cell class="font-mono" %}
