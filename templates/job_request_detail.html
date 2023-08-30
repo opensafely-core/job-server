@@ -248,7 +248,7 @@
                 ">
                 {{ job_request.status|capfirst }}
               </span>
-              {% if job_request.status == "failed" %}
+              {% if is_invalid %}
                 <pre class="break-words whitespace-pre-wrap">{{ job_request.jobs.first.status_message }}</pre>
               {% endif %}
             </div>
