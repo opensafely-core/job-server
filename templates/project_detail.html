@@ -61,27 +61,31 @@
         {% endif %}
       </div>
 
-      <div class="flex-grow flex flex-col gap-y-4 sm:gap-y-2">
-        <h1 class="text-3xl tracking-tight break-words sm:text-4xl font-bold text-slate-900">
-          {{ project.name }}
-        </h1>
-        <div class="max-w-prose font-lg text-slate-600">
-          <p>
-            {{ project.name }} is an OpenSAFELY project from
-            {% link href=project.org.get_absolute_url text=project.org.name append_after="." %}
-            Every time a researcher runs their analytic
-            code against patient data, it is audited in public here.
-          </p>
-          <p class="mt-4">
-          {% link href=project.get_approved_url text="View project purpose" %}
-          </p>
+      {% fragment as intro_text %}
+        <p>
+          {{ project.name }} is an OpenSAFELY project from
+          {% link href=project.org.get_absolute_url text=project.org.name append_after="." %}
+          Every time a researcher runs their analytic
+          code against patient data, it is audited in public here.
+        </p>
+      {% endfragment %}
+      {% #article_header title=project.name text=intro_text %}
+        <div class="flex flex-row gap-2">
+          {% #button variant="secondary" type="link" href=project.get_approved_url %}
+            View project purpose
+          {% /button %}
+          {# FIX: project.get_logs_url #}
+          {% #button href=project.get_logs_url type="link" variant="primary" %}
+            View logs
+            {% icon_queue_list_outline class="h-4 w-4 ml-2 -mr-2" %}
+          {% /button %}
         </div>
         {% if project.status_description %}
           {% #alert variant="info" title="Project "|add:project.get_status_display class="mt-3 !shadow-none border" no_icon %}
             {{ project.status_description }}
           {% /alert %}
         {% endif %}
-      </div>
+      {% /article_header %}
     </div>
     {% if user_can_view_staff_area %}
     <div class="flex mb-2  justify-center sm:justify-start lg:justify-end lg:items-start">
