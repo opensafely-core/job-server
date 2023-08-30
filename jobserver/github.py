@@ -271,6 +271,10 @@ class GitHubAPI:
         if r.status_code == 404:
             return
 
+        if not r.ok:
+            print(r.headers)
+            print(r.content)
+
         r.raise_for_status()
 
     def get_branch(self, org, repo, branch):
