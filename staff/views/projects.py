@@ -33,6 +33,7 @@ from ..forms import (
     ProjectMembershipForm,
 )
 from ..htmx_tools import get_redirect_url
+from ..querystring_tools import get_next_url
 from .qwargs_tools import qwargs
 
 
@@ -325,7 +326,9 @@ class ProjectMembershipEdit(UpdateView):
         self.object.roles = form.cleaned_data["roles"]
         self.object.save()
 
-        return redirect(self.object.project.get_staff_url())
+        return redirect(
+            get_next_url(self.request.GET, self.object.project.get_staff_url())
+        )
 
     def get_form_kwargs(self, **kwargs):
         kwargs = super().get_form_kwargs(**kwargs)
@@ -353,12 +356,16 @@ class ProjectMembershipEdit(UpdateView):
 @method_decorator(require_role(CoreDeveloper), name="dispatch")
 class ProjectMembershipRemove(View):
     def post(self, request, *args, **kwargs):
-        project = get_object_or_404(Project, slug=self.kwargs["slug"])
-        username = request.POST.get("username", None)
+        membership = get_object_or_404(
+            ProjectMembership, project__slug=self.kwargs["slug"], pk=self.kwargs["pk"]
+        )
 
-        try:
-            project.memberships.get(user__username=username).delete()
-        except ProjectMembership.DoesNotExist:
-            pass
-        messages.success(request, f"Removed {username} from {project.title}")
-        return redirect(project.get_staff_url())
+        membership.delete()
+        messages.success(
+            request,
+            f"Removed {membership.user.username} from {membership.project.title}",
+        )
+
+        return redirect(
+            get_next_url(self.request.GET, membership.project.get_staff_url())
+        )

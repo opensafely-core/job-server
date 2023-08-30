@@ -15,6 +15,7 @@ from interactive.commands import create_user
 from interactive.emails import send_welcome_email
 from jobserver.authorization import roles
 from jobserver.authorization.decorators import require_permission
+from jobserver.authorization.forms import RolesForm
 from jobserver.authorization.utils import roles_for, strings_to_roles
 from jobserver.models import Backend, Job, Org, Project, User
 from jobserver.utils import raise_if_not_int
@@ -25,6 +26,16 @@ from .qwargs_tools import qwargs
 
 
 logger = structlog.get_logger(__name__)
+
+
+@method_decorator(require_permission("user_manage"), name="dispatch")
+class UserClearRoles(View):
+    def post(self, request, *args, **kwargs):
+        user = get_object_or_404(User, username=self.kwargs["username"])
+
+        user.clear_all_roles()
+
+        return redirect(get_next_url(request.GET, user.get_staff_roles_url()))
 
 
 @method_decorator(require_permission("user_manage"), name="dispatch")
@@ -131,7 +142,6 @@ class UserDetailWithOAuth(UpdateView):
             backend.memberships.create(user=self.object, created_by=self.request.user)
 
         self.object.fullname = form.cleaned_data["fullname"]
-        self.object.roles = form.cleaned_data["roles"]
         self.object.save()
 
         return redirect(self.object.get_staff_url())
@@ -175,18 +185,14 @@ class UserDetailWithOAuth(UpdateView):
         # UserForm isn't a ModelForm so don't pass instance to it
         del kwargs["instance"]
 
-        available_roles = roles_for(User)
-
         return kwargs | {
             "available_backends": Backend.objects.order_by("slug"),
-            "available_roles": available_roles,
             "fullname": self.object.fullname,
         }
 
     def get_initial(self):
         return super().get_initial() | {
             "backends": self.object.backends.values_list("slug", flat=True),
-            "roles": self.object.roles,
         }
 
 
@@ -251,6 +257,44 @@ class UserList(ListView):
             qs = qs.filter(roles__contains=roles)
 
         return qs
+
+
+@method_decorator(require_permission("user_manage"), name="dispatch")
+class UserRoleList(FormView):
+    form_class = RolesForm
+    template_name = "staff/user_role_list.html"
+
+    def dispatch(self, request, *args, **kwargs):
+        self.user = get_object_or_404(User, username=self.kwargs["username"])
+        return super().dispatch(request, *args, **kwargs)
+
+    def form_valid(self, form):
+        self.user.roles = form.cleaned_data["roles"]
+        self.user.save(update_fields=["roles"])
+
+        return redirect(self.user.get_staff_roles_url())
+
+    def get_context_data(self, **kwargs):
+        org_memberships_with_roles = self.user.org_memberships.exclude(
+            roles=[]
+        ).order_by(Lower("org__name"))
+        project_memberships_with_roles = self.user.project_memberships.exclude(
+            roles=[]
+        ).order_by("project__number", Lower("project__name"))
+
+        return super().get_context_data(**kwargs) | {
+            "orgs": org_memberships_with_roles,
+            "projects": project_memberships_with_roles,
+            "user": self.user,
+        }
+
+    def get_form_kwargs(self):
+        kwargs = super().get_form_kwargs()
+
+        return kwargs | {"available_roles": roles_for(User)}
+
+    def get_initial(self):
+        return super().get_initial() | {"roles": self.user.roles}
 
 
 @method_decorator(require_permission("user_manage"), name="dispatch")

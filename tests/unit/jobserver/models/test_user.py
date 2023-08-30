@@ -59,6 +59,21 @@ def test_user_constraints_missing_pat_token_or_pat_expires_at():
         UserFactory(pat_token="test", pat_expires_at=None)
 
 
+def test_user_clear_all_roles():
+    user = UserFactory(roles=[CoreDeveloper])
+
+    OrgMembershipFactory(user=user, roles=[InteractiveReporter])
+    ProjectMembershipFactory(user=user, roles=[ProjectCollaborator, ProjectDeveloper])
+
+    user.clear_all_roles()
+
+    user.refresh_from_db()
+
+    assert user.roles == []
+    assert not set(*user.org_memberships.values_list("roles", flat=True))
+    assert not set(*user.project_memberships.values_list("roles", flat=True))
+
+
 def test_user_get_absolute_url():
     user = UserFactory()
 
@@ -148,6 +163,32 @@ def test_user_get_all_roles_empty():
         "orgs": [],
     }
     assert output == expected
+
+
+def test_user_get_staff_clear_roles_url():
+    user = UserFactory()
+
+    url = user.get_staff_clear_roles_url()
+
+    assert url == reverse(
+        "staff:user-clear-roles",
+        kwargs={
+            "username": user.username,
+        },
+    )
+
+
+def test_user_get_staff_roles_url():
+    user = UserFactory()
+
+    url = user.get_staff_roles_url()
+
+    assert url == reverse(
+        "staff:user-role-list",
+        kwargs={
+            "username": user.username,
+        },
+    )
 
 
 def test_user_get_staff_url():
