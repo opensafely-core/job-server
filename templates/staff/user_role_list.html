@@ -34,6 +34,13 @@
       Below are the roles assigned to {{ user.username }}, grouped by the
       context in which they have been assigned.
     </p>
+
+    <div class="d-flex">
+      <form action="{{ user.get_staff_clear_roles_url }}" method="POST">
+        {% csrf_token %}
+        <button class="btn btn-danger mr-1" type="submit">Clear all roles</button>
+      </form>
+    </div>
   </div>
 </div>
 {% endblock jumbotron %}

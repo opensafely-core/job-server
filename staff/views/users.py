@@ -29,6 +29,16 @@ logger = structlog.get_logger(__name__)
 
 
 @method_decorator(require_permission("user_manage"), name="dispatch")
+class UserClearRoles(View):
+    def post(self, request, *args, **kwargs):
+        user = get_object_or_404(User, username=self.kwargs["username"])
+
+        user.clear_all_roles()
+
+        return redirect(get_next_url(request.GET, user.get_staff_roles_url()))
+
+
+@method_decorator(require_permission("user_manage"), name="dispatch")
 class UserCreate(FormView):
     form_class = UserCreateForm
     template_name = "staff/user_create.html"

@@ -9,7 +9,7 @@ from django.contrib.auth.hashers import check_password, make_password
 from django.contrib.auth.models import AbstractBaseUser, UserManager
 from django.contrib.auth.validators import UnicodeUsernameValidator
 from django.contrib.postgres.fields import ArrayField
-from django.db import models
+from django.db import models, transaction
 from django.db.models import Min, Q, prefetch_related_objects
 from django.urls import reverse
 from django.utils import timezone
@@ -878,6 +878,14 @@ class User(AbstractBaseUser):
         super().clean()
         self.email = self.__class__.objects.normalize_email(self.email)
 
+    @transaction.atomic()
+    def clear_all_roles(self):
+        self.org_memberships.update(roles=[])
+        self.project_memberships.update(roles=[])
+
+        self.roles = []
+        self.save(update_fields=["roles"])
+
     @property
     def initials(self):
         if self.name == self.username:
@@ -949,6 +957,9 @@ class User(AbstractBaseUser):
     def get_full_name(self):
         """Support Django's User contract"""
         return self.fullname
+
+    def get_staff_clear_roles_url(self):
+        return reverse("staff:user-clear-roles", kwargs={"username": self.username})
 
     def get_staff_roles_url(self):
         return reverse("staff:user-role-list", kwargs={"username": self.username})

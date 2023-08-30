@@ -12,6 +12,7 @@ from jobserver.authorization import (
 from jobserver.models import User
 from jobserver.utils import set_from_qs
 from staff.views.users import (
+    UserClearRoles,
     UserCreate,
     UserDetail,
     UserDetailWithEmail,
@@ -32,6 +33,40 @@ from ....factories import (
     UserSocialAuthFactory,
     WorkspaceFactory,
 )
+
+
+@pytest.mark.parametrize("next_url", ["", "/some/other/url/"])
+def test_userclearroles_success(rf, core_developer, next_url):
+    user = UserFactory()
+
+    suffix = f"?next={next_url}" if next_url else ""
+    request = rf.post(f"/{suffix}")
+    request.user = core_developer
+
+    response = UserClearRoles.as_view()(request, username=user.username)
+
+    assert response.status_code == 302
+
+    expected = next_url if next_url else user.get_staff_roles_url()
+    assert response.url == expected
+
+
+def test_userclearroles_with_unknown_user(rf, core_developer):
+    request = rf.post("/")
+    request.user = core_developer
+
+    with pytest.raises(Http404):
+        UserClearRoles.as_view()(request, username="")
+
+
+def test_userclearroles_unauthorized(rf):
+    user = UserFactory()
+
+    request = rf.post("/")
+    request.user = UserFactory()
+
+    with pytest.raises(PermissionDenied):
+        UserClearRoles.as_view()(request, username=user.username)
 
 
 def test_usercreate_get_success(rf, core_developer):
