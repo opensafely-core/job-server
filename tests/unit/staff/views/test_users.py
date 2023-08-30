@@ -7,7 +7,6 @@ from jobserver.authorization import (
     OutputPublisher,
     ProjectCollaborator,
     ProjectDeveloper,
-    TechnicalReviewer,
 )
 from jobserver.models import User
 from jobserver.utils import set_from_qs
@@ -260,7 +259,7 @@ def test_userdetailwithoauth_get_success(rf, core_developer):
     org = OrgFactory()
     project1 = ProjectFactory(org=org)
     project2 = ProjectFactory(org=org)
-    user = UserFactory(roles=[OutputPublisher, TechnicalReviewer])
+    user = UserFactory(roles=[OutputPublisher, ProjectDeveloper])
     UserSocialAuthFactory(user=user)
 
     # link the user to some Backends
@@ -311,7 +310,7 @@ def test_userdetailwithoauth_post_success(rf, core_developer):
     org = OrgFactory()
     project1 = ProjectFactory(org=org)
     project2 = ProjectFactory(org=org)
-    user = UserFactory(roles=[OutputPublisher, TechnicalReviewer])
+    user = UserFactory(roles=[OutputPublisher, ProjectDeveloper])
     UserSocialAuthFactory(user=user)
 
     # link the user to some Backends
@@ -341,7 +340,7 @@ def test_userdetailwithoauth_post_with_unknown_backend(rf, core_developer):
     org = OrgFactory()
     project1 = ProjectFactory(org=org)
     project2 = ProjectFactory(org=org)
-    user = UserFactory(roles=[OutputPublisher, TechnicalReviewer])
+    user = UserFactory(roles=[OutputPublisher, ProjectDeveloper])
     UserSocialAuthFactory(user=user)
 
     # link the user to some Backends
@@ -489,7 +488,7 @@ def test_userlist_filter_by_invalid_org(rf, core_developer):
 
 def test_userlist_filter_by_role(rf, core_developer):
     UserFactory(roles=[OutputPublisher])
-    UserFactory(roles=[TechnicalReviewer])
+    UserFactory(roles=[ProjectDeveloper])
 
     request = rf.get("/?role=OutputPublisher")
     request.user = core_developer
@@ -549,12 +548,12 @@ def test_userrolelist_get_success(rf, core_developer):
 
 
 def test_userrolelist_post_success(rf, core_developer):
-    user = UserFactory(roles=[TechnicalReviewer])
+    user = UserFactory(roles=[ProjectDeveloper])
 
     data = {
         "roles": [
             "jobserver.authorization.roles.OutputPublisher",
-            "jobserver.authorization.roles.TechnicalReviewer",
+            "jobserver.authorization.roles.ProjectDeveloper",
         ]
     }
     request = rf.post("/", data=data)
@@ -565,7 +564,7 @@ def test_userrolelist_post_success(rf, core_developer):
     assert response.status_code == 302, response.context_data["form"].errors
 
     user.refresh_from_db()
-    assert set(user.roles) == {OutputPublisher, TechnicalReviewer}
+    assert set(user.roles) == {OutputPublisher, ProjectDeveloper}
 
 
 def test_userrolelist_post_with_unknown_role(rf, core_developer):

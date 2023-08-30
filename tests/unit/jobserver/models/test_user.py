@@ -7,9 +7,9 @@ from django.utils import timezone
 
 from jobserver.authorization.roles import (
     CoreDeveloper,
-    DataInvestigator,
     InteractiveReporter,
     OrgCoordinator,
+    OutputChecker,
     ProjectCollaborator,
     ProjectDeveloper,
 )
@@ -28,12 +28,12 @@ from ....factories import (
 
 def test_user_all_roles():
     project = ProjectFactory()
-    user = UserFactory(roles=[DataInvestigator])
+    user = UserFactory(roles=[OutputChecker])
 
-    OrgMembershipFactory(org=project.org, user=user, roles=[DataInvestigator])
+    OrgMembershipFactory(org=project.org, user=user, roles=[OutputChecker])
     ProjectMembershipFactory(project=project, user=user, roles=[ProjectCollaborator])
 
-    expected = {DataInvestigator, ProjectCollaborator}
+    expected = {OutputChecker, ProjectCollaborator}
 
     assert user.all_roles == expected
 
@@ -133,13 +133,13 @@ def test_user_get_all_permissions_empty():
 
 def test_user_get_all_roles():
     project = ProjectFactory()
-    user = UserFactory(roles=[DataInvestigator])
+    user = UserFactory(roles=[OutputChecker])
 
     ProjectMembershipFactory(project=project, user=user, roles=[ProjectCollaborator])
 
     output = user.get_all_roles()
     expected = {
-        "global": ["DataInvestigator"],
+        "global": ["OutputChecker"],
         "orgs": [],
         "projects": [
             {
