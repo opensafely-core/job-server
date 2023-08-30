@@ -6,7 +6,6 @@ from .permissions import (
     job_cancel,
     job_run,
     org_create,
-    project_review,
     release_file_delete,
     release_file_upload,
     release_file_view,
@@ -41,36 +40,6 @@ class CoreDeveloper:
     ]
 
 
-class DataInvestigator:
-    """
-    Has access to Level 2 pseudonymised data, typically over a SQL browser, to
-    understand and debug raw underlying data. Sometimes a core developer, and
-    in rare and exceptional cases, a study developer.  Typically Bennett
-    Institute staff only.
-    """
-
-    display_name = "Data Investigator"
-    description = ""
-    models = [
-        "jobserver.models.core.User",
-    ]
-    permissions = []
-
-
-class GovernanceReviewer:
-    """
-    IG, COPI coverage, and ethics for each project by each team, currently this
-    is performed by NHSE.
-    """
-
-    display_name = "Governance Reviewer"
-    description = ""
-    models = [
-        "jobserver.models.core.User",
-    ]
-    permissions = []
-
-
 class InteractiveReporter:
     """Use the interactive UI"""
 
@@ -85,22 +54,6 @@ class InteractiveReporter:
         analysis_request_view,
         release_file_view,
     ]
-
-
-class OnboardingAgent:
-    """
-    A developer and/or developer-researcher from the OpenSAFELY team with deep
-    knowledge of OpenSAFELY who is providing ongoing collaborative technical,
-    data science, analysis and academic support to external users who are
-    delivering a project, to a degree that has been pre-planned and resourced.
-    """
-
-    display_name = "Onboarding Agent"
-    description = ""
-    models = [
-        "jobserver.models.core.User",
-    ]
-    permissions = []
 
 
 class OrgCoordinator:
@@ -203,20 +156,4 @@ class SignOffRepoWithOutputs:
     ]
     permissions = [
         repo_sign_off_with_outputs,
-    ]
-
-
-class TechnicalReviewer:
-    """
-    Evaluation of the feasibility of the project and the skills of the
-    applicants, by OpenSAFELY.
-    """
-
-    display_name = "Technical Reviewer"
-    description = ""
-    models = [
-        "jobserver.models.core.User",
-    ]
-    permissions = [
-        project_review,
     ]
