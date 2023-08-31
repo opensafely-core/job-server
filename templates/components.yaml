@@ -38,6 +38,7 @@ components:
   # Partials
   alerts: "_partials/alerts.html"
   card_pagination: "_partials/card-pagination.html"
+  latest_jobs_table: "_partials/latest-jobs-table.html"
   staff_hero: "_partials/staff-hero.html"
 
   # Icons
