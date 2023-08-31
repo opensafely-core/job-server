@@ -39,7 +39,12 @@ from .views.job_requests import (
 )
 from .views.jobs import JobCancel, JobDetail, JobDetailRedirect
 from .views.orgs import OrgDetail, OrgEventLog, OrgList
-from .views.projects import ProjectDetail, ProjectEdit, ProjectReportList
+from .views.projects import (
+    ProjectDetail,
+    ProjectEdit,
+    ProjectEventLog,
+    ProjectReportList,
+)
 from .views.releases import (
     ProjectReleaseList,
     PublishedSnapshotFile,
@@ -261,6 +266,7 @@ project_urls = [
     path("", ProjectDetail.as_view(), name="project-detail"),
     path("edit/", ProjectEdit.as_view(), name="project-edit"),
     path("interactive/", include("interactive.urls")),
+    path("logs/", ProjectEventLog.as_view(), name="project-event-log"),
     path("new-workspace/", WorkspaceCreate.as_view(), name="workspace-create"),
     path("releases/", ProjectReleaseList.as_view(), name="project-release-list"),
     path("reports/", ProjectReportList.as_view(), name="project-report-list"),

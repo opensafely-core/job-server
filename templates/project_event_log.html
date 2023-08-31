@@ -1,0 +1,101 @@
+{% extends "base-tw.html" %}
+
+{% load humanize %}
+{% load querystring_tools %}
+
+{% block metatitle %}Logs: {{ project.name }} | OpenSAFELY Jobs{% endblock metatitle %}
+
+{% block breadcrumbs %}
+  {% url "home" as home_url %}
+  {% #breadcrumbs %}
+    {% breadcrumb title="Home" url=home_url %}
+    {% breadcrumb title=project.name url=project.get_absolute_url location="Project" %}
+    {% breadcrumb title="Logs" active=True %}
+  {% /breadcrumbs %}
+{% endblock breadcrumbs %}
+
+{% block content %}
+  {% article_header class="mb-4" title="Logs: "|add:project.name text="The following is a list of all job requests run via OpenSAFELY in the "|add:project.name|add:" project." %}
+{% endblock content %}
+
+{% block full_width_content %}
+  <div class="mx-4 lg:mx-6 xl:mx-8">
+    {% #card no_container=True %}
+      <div class="inline-block min-w-full align-middle overflow-x-auto max-w-full">
+        {% #table %}
+          {% #table_head class="bg-slate-200" %}
+            {% #table_row %}
+              {% #table_header %}<span class="sr-only">Status</span>{% /table_header %}
+              {% #table_header nowrap=True %}Organisation{% /table_header %}
+              {% #table_header nowrap=True %}Workspace{% /table_header %}
+              {% #table_header nowrap=True %}Request ID{% /table_header %}
+              {% #table_header nowrap=True %}Backend{% /table_header %}
+              {% #table_header nowrap=True %}Jobs{% /table_header %}
+              {% #table_header nowrap=True %}User{% /table_header %}
+              {% #table_header nowrap=True %}Started{% /table_header %}
+              {% #table_header %}<span class="sr-only">View request</span>{% /table_header %}
+            {% /table_row %}
+          {% /table_head %}
+
+          {% #table_body %}
+            {% for group in page_obj %}
+              {% #table_row class="even:bg-slate-50" %}
+                {% #table_cell class="py-2 pl-4 pr-3" title=group.status|title nowrap=True %}
+                  {% if group.status == "succeeded" %}
+                    {% icon_check_circle_solid class="h-6 w-6 text-green-700" %}
+                  {% elif group.status == "pending" %}
+                    {% icon_clock_outline class="h-6 w-6 text-slate-500 stroke-2" %}
+                  {% elif group.status == "running" %}
+                    {% icon_custom_spinner class="h-6 w-6 animate-spin stroke-oxford-600 stroke-2 text-oxford-300" %}
+                  {% elif group.status == "failed" %}
+                    {% icon_x_circle_solid class="h-6 w-6 text-bn-ribbon-700" %}
+                  {% endif %}
+                  <span class="sr-only">{{ group.status|title }}</span>
+                {% /table_cell %}
+                {% #table_cell class="max-w-[25ch]" %}
+                  {{ group.workspace.project.org }}
+                {% /table_cell %}
+                {% #table_cell class="break-words min-w-[18ch]" %}
+                  {{ group.workspace.name }}
+                {% /table_cell %}
+                {% #table_cell class="font-mono" %}
+                  {{ group.id|upper }}
+                {% /table_cell %}
+                {% #table_cell %}
+                  {{ group.backend|upper }}
+                {% /table_cell %}
+                {% #table_cell %}
+                  {{ group.num_completed }}/{{ group.jobs.all|length }}
+                {% /table_cell %}
+                {% #table_cell class="min-w-[18ch] break-words" %}
+                  {{ group.created_by.name }}
+                {% /table_cell %}
+                {% #table_cell nowrap=True %}
+                  <span class="relative group cursor-pointer">
+                    {{ group.started_at|naturaltime|default:"-" }}
+                    {% if group.started_at %}
+                      {% tooltip position="-bottom-4" content=group.started_at|date:"d F Y H:i:s T" %}
+                    {% endif %}
+                  </span>
+                {% /table_cell %}
+                {% #table_cell nowrap=True %}
+                  {% #button type="link" href=group.get_absolute_url variant="secondary-outline" small=True %}
+                    View<span class="sr-only">, Job request {{ group.id }}</span>
+                  {% /button %}
+                {% /table_cell %}
+              {% /table_row %}
+            {% endfor %}
+          {% /table_body %}
+        {% /table %}
+      </div>
+
+      {% if page_obj.has_previous %}
+        {% url_with_querystring page=page_obj.previous_page_number as prev_url %}
+      {% endif %}
+      {% if page_obj.has_next %}
+        {% url_with_querystring page=page_obj.next_page_number as next_url %}
+      {% endif %}
+      {% table_pagination paginator=page_obj next_url=next_url prev_url=prev_url %}
+    {% /card %}
+  </div>
+{% endblock full_width_content %}
