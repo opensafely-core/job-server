@@ -36,6 +36,12 @@
           {{ org.name }} is an organisation which uses OpenSAFELY to deliver research projects.
         {% endif %}
       </p>
+      <div>
+        {% #button href=org.get_logs_url type="link" variant="primary" %}
+          View logs
+          {% icon_queue_list_outline class="h-4 w-4 ml-2 -mr-2" %}
+        {% /button %}
+      </div>
     </div>
   </div>
 

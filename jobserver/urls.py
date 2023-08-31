@@ -38,7 +38,7 @@ from .views.job_requests import (
     JobRequestList,
 )
 from .views.jobs import JobCancel, JobDetail, JobDetailRedirect
-from .views.orgs import OrgDetail, OrgList
+from .views.orgs import OrgDetail, OrgEventLog, OrgList
 from .views.projects import ProjectDetail, ProjectEdit, ProjectReportList
 from .views.releases import (
     ProjectReleaseList,
@@ -147,6 +147,7 @@ files_urls = [
 org_urls = [
     path("", yours.OrgList.as_view(), name="your-orgs"),
     path("<slug:slug>/", OrgDetail.as_view(), name="org-detail"),
+    path("<slug:slug>/logs/", OrgEventLog.as_view(), name="org-event-log"),
 ]
 
 outputs_urls = [
