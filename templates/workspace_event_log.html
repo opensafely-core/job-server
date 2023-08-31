@@ -64,125 +64,71 @@
 {% if page_obj %}
   {% #card no_container=True %}
     <div class="inline-block min-w-full align-middle overflow-x-auto max-w-full">
-      <table class="min-w-full divide-y divide-slate-300">
-        <thead class="bg-slate-200">
-          <tr>
-            <th
-              scope="col"
-              class="whitespace-nowrap py-3.5 pl-4 pr-3 text-left text-sm font-semibold text-slate-900"
-            >
-              <div class="sr-only">Status</div>
-            </th>
-            <th
-              scope="col"
-              class="whitespace-nowrap px-2 py-3.5 text-left text-sm font-semibold text-slate-900"
-            >
-              Request ID
-            </th>
-            <th
-              scope="col"
-              class="whitespace-nowrap px-2 py-3.5 text-left text-sm font-semibold text-slate-900"
-            >
-              Backend
-            </th>
-            <th
-              scope="col"
-              class="whitespace-nowrap leading-tight px-2 py-3.5 text-left text-sm font-semibold text-slate-900"
-            >
-              Jobs
-            </th>
-            <th
-              scope="col"
-              class="whitespace-nowrap px-2 py-3.5 text-left text-sm font-semibold text-slate-900"
-            >
-              User
-            </th>
-            <th
-              scope="col"
-              class="whitespace-nowrap px-2 py-3.5 text-left text-sm font-semibold text-slate-900"
-            >
-              Started
-            </th>
-            <th
-              scope="col"
-              class="relative whitespace-nowrap py-3.5 pl-3 pr-4"
-            >
-              <span class="sr-only">View</span>
-            </th>
-          </tr>
-        </thead>
-        <tbody class="divide-y divide-slate-200 bg-white">
+      {% #table %}
+        {% #table_head class="bg-slate-200" %}
+          {% #table_row %}
+            {% #table_header %}<span class="sr-only">Status</span>{% /table_header %}
+            {% #table_header nowrap=True %}Request ID{% /table_header %}
+            {% #table_header nowrap=True %}Backend{% /table_header %}
+            {% #table_header nowrap=True %}Jobs{% /table_header %}
+            {% #table_header nowrap=True %}User{% /table_header %}
+            {% #table_header nowrap=True %}Started{% /table_header %}
+            {% #table_header %}<span class="sr-only">View request</span>{% /table_header %}
+          {% /table_row %}
+        {% /table_head %}
+
+        {% #table_body %}
           {% for group in page_obj %}
-          <tr class="even:bg-slate-50">
-            <td
-              class="whitespace-nowrap py-2 pl-4 pr-3 text-sm text-slate-700"
-              title="{{ group.status|title }}"
-            >
-              {% if group.status == "succeeded" %}
-                {% icon_check_circle_solid class="h-6 w-6 text-green-700" %}
-              {% elif group.status == "pending" %}
-                {% icon_clock_outline class="h-6 w-6 text-slate-500 stroke-2" %}
-              {% elif group.status == "running" %}
-                {% icon_custom_spinner class="h-6 w-6 animate-spin stroke-oxford-600 stroke-2 text-oxford-300" %}
-              {% elif group.status == "failed" %}
-                {% icon_x_circle_solid class="h-6 w-6 text-bn-ribbon-700" %}
-              {% endif %}
-              <span class="sr-only">{{ group.status|title }}</span>
-            </td>
-            <td class="whitespace-normal font-mono px-2 py-2 text-sm text-slate-700">
-              {{ group.id|upper }}
-            </td>
-            <td class="whitespace-normal px-2 py-2 text-sm text-slate-700">
-              {{ group.backend|upper }}
-            </td>
-            <td class="whitespace-normal px-2 py-2 text-sm text-slate-700">
-              {{ group.num_completed }}/{{ group.jobs.all|length }}
-            </td>
-            <td class="whitespace-normal min-w-[18ch] break-words px-2 py-2 text-sm text-slate-700">
-              {{ group.created_by.name }}
-            </td>
-            <td class="whitespace-nowrap px-2 py-2 text-sm text-slate-700">
-              {{ group.started_at|naturaltime|default:"-" }}
-            </td>
-            <td
-              class="relative whitespace-nowrap py-2 pl-3 pr-4 text-right text-sm font-medium"
-            >
-              <a
-                href="{{ group.get_absolute_url }}"
-                class="text-oxford-600 hover:text-oxford-900"
-                >View<span class="sr-only">, Workspace: {{ workspace.name }}, Job request {{ group.id }}</span></a
-              >
-            </td>
-          </tr>
+            {% #table_row class="even:bg-slate-50" %}
+              {% #table_cell class="py-2 pl-4 pr-3" title=group.status|title nowrap=True %}
+                {% if group.status == "succeeded" %}
+                  {% icon_check_circle_solid class="h-6 w-6 text-green-700" %}
+                {% elif group.status == "pending" %}
+                  {% icon_clock_outline class="h-6 w-6 text-slate-500 stroke-2" %}
+                {% elif group.status == "running" %}
+                  {% icon_custom_spinner class="h-6 w-6 animate-spin stroke-oxford-600 stroke-2 text-oxford-300" %}
+                {% elif group.status == "failed" %}
+                  {% icon_x_circle_solid class="h-6 w-6 text-bn-ribbon-700" %}
+                {% endif %}
+                <span class="sr-only">{{ group.status|title }}</span>
+              {% /table_cell %}
+              {% #table_cell class="font-mono" %}
+                {{ group.id|upper }}
+              {% /table_cell %}
+              {% #table_cell %}
+                {{ group.backend|upper }}
+              {% /table_cell %}
+              {% #table_cell %}
+                {{ group.num_completed }}/{{ group.jobs.all|length }}
+              {% /table_cell %}
+              {% #table_cell class="min-w-[18ch] break-words" %}
+                {{ group.created_by.name }}
+              {% /table_cell %}
+              {% #table_cell nowrap=True %}
+                <span class="relative group cursor-pointer">
+                  {{ group.started_at|naturaltime|default:"-" }}
+                  {% if group.started_at %}
+                    {% tooltip position="-bottom-4" content=group.started_at|date:"d F Y H:i:s T" %}
+                  {% endif %}
+                </span>
+              {% /table_cell %}
+              {% #table_cell nowrap=True %}
+                {% #button type="link" href=group.get_absolute_url variant="secondary-outline" small=True %}
+                  View<span class="sr-only">, Job request {{ group.id }}</span>
+                {% /button %}
+              {% /table_cell %}
+            {% /table_row %}
           {% endfor %}
-        </tbody>
-      </table>
+        {% /table_body %}
+      {% /table %}
     </div>
-    <nav class="flex items-center justify-between border-t border-gray-200 bg-white px-4 py-3" aria-label="Pagination">
-      <div class="hidden sm:block">
-        <p class="text-sm text-gray-700">
-          Page <strong>{{ page_obj.number }}</strong> of <strong>{{ page_obj.paginator.num_pages }}</strong>
-        </p>
-      </div>
-      <div class="flex flex-1 justify-between gap-4 sm:justify-end">
-        {% if page_obj.has_previous %}
-          <a
-            href="{% url_with_querystring page=page_obj.previous_page_number %}"
-            class="relative inline-flex items-center rounded-md bg-white px-3 py-2 text-sm font-semibold text-gray-900 ring-1 ring-inset ring-gray-300 hover:bg-gray-50 focus-visible:outline-offset-0"
-          >
-            Previous
-          </a>
-        {% endif %}
-        {% if page_obj.has_next %}
-          <a
-            href="{% url_with_querystring page=page_obj.next_page_number %}"
-            class="relative inline-flex items-center rounded-md bg-white px-3 py-2 text-sm font-semibold text-gray-900 ring-1 ring-inset ring-gray-300 hover:bg-gray-50 focus-visible:outline-offset-0"
-          >
-            Next
-          </a>
-        {% endif %}
-      </div>
-    </nav>
+    {% if page_obj.has_previous %}
+      {% url_with_querystring page=page_obj.previous_page_number as prev_url %}
+    {% endif %}
+    {% if page_obj.has_next %}
+      {% url_with_querystring page=page_obj.next_page_number as next_url %}
+    {% endif %}
+    {% table_pagination paginator=page_obj next_url=next_url prev_url=prev_url %}
   {% /card %}
 {% else %}
   {% #card container=True title="No results found" %}
@@ -195,11 +141,4 @@
     {% #button class="mt-3" href=workspace.get_logs_url type="link" variant="secondary-outline" %}Clear search filter{% /button %}
   {% /card %}
 {% endif %}
-
 {% endblock content %}
-
-{% block full_width_content %}
-{% if page_obj %}
-
-{% endif %}
-{% endblock full_width_content %}
