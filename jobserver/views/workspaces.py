@@ -405,7 +405,7 @@ class WorkspaceEdit(FormView):
 
 class WorkspaceEventLog(ListView):
     paginate_by = 25
-    template_name = "workspace_log.html"
+    template_name = "workspace_event_log.html"
 
     def dispatch(self, request, *args, **kwargs):
         self.workspace = get_object_or_404(
