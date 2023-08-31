@@ -25,6 +25,13 @@ components:
   list_group_rich_item: "_components/list-group/list-group-rich-item.html"
   pill: "_components/pill.html"
   skip_link: "_components/skip-link.html"
+  table_body: "_components/table/table-body.html"
+  table_cell: "_components/table/table-cell.html"
+  table_head: "_components/table/table-head.html"
+  table_header: "_components/table/table-header.html"
+  table_pagination: "_components/table/table-pagination.html"
+  table_row: "_components/table/table-row.html"
+  table: "_components/table/table.html"
   timeline_item: "_components/timeline-item.html"
   tooltip: "_components/tooltip.html"
 

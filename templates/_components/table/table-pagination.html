@@ -1,0 +1,24 @@
+{% var page_number=paginator.number %}
+{% var total_pages=paginator.paginator.num_pages %}
+{% var has_previous=paginator.has_previous %}
+{% var has_next=paginator.has_next %}
+
+<nav class="flex items-center justify-between border-t border-gray-200 bg-white px-4 py-3" aria-label="Pagination">
+  <div class="hidden sm:block">
+    <p class="text-sm text-gray-700">
+      Page <strong>{{ page_number }}</strong> of <strong>{{ total_pages }}</strong>
+    </p>
+  </div>
+  <div class="flex flex-1 justify-between gap-4 sm:justify-end">
+    {% if has_previous %}
+      {% #button variant="secondary-outline" type="link" href=prev_url %}
+        Previous
+      {% /button %}
+    {% endif %}
+    {% if has_next %}
+      {% #button variant="secondary-outline" type="link" href=next_url %}
+        Next
+      {% /button %}
+    {% endif %}
+  </div>
+</nav>
