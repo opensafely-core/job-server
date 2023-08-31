@@ -9,7 +9,6 @@ from django.views.generic import (
     DetailView,
     FormView,
     ListView,
-    TemplateView,
     UpdateView,
     View,
 )
@@ -28,7 +27,6 @@ from ..forms import (
     ProjectAddMemberForm,
     ProjectCreateForm,
     ProjectEditForm,
-    ProjectFeatureFlagsForm,
     ProjectLinkApplicationForm,
     ProjectMembershipForm,
 )
@@ -217,42 +215,6 @@ class ProjectEdit(UpdateView):
             "application_url_attributes": {"type": "url"},
             "number_attributes": {"type": "number"},
         }
-
-
-@method_decorator(require_role(CoreDeveloper), name="dispatch")
-class ProjectFeatureFlags(TemplateView):
-    template_name = "staff/project_feature_flags.html"
-
-    def dispatch(self, request, *args, **kwargs):
-        self.project = get_object_or_404(Project, slug=self.kwargs["slug"])
-
-        return super().dispatch(request, *args, **kwargs)
-
-    def get_context_data(self, **kwargs):
-        enabled_count = self.project.workspaces.filter(
-            uses_new_release_flow=True
-        ).count()
-        disabled_count = self.project.workspaces.filter(
-            uses_new_release_flow=False
-        ).count()
-
-        return super().get_context_data(**kwargs) | {
-            "project": self.project,
-            "enabled_count": enabled_count,
-            "disabled_count": disabled_count,
-        }
-
-    def post(self, request, *args, **kwargs):
-        form = ProjectFeatureFlagsForm(request.POST)
-
-        if not form.is_valid():
-            return self.render_to_response(self.get_context_data(form=form))
-
-        # the form validation ensures this is enable|disable
-        enable = form.cleaned_data["flip_to"] == "enable"
-        self.project.workspaces.update(uses_new_release_flow=enable)
-
-        return redirect(self.project.get_staff_feature_flags_url())
 
 
 @method_decorator(require_role(CoreDeveloper), name="dispatch")

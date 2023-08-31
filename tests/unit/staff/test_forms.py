@@ -4,7 +4,6 @@ from staff.forms import (
     ApplicationApproveForm,
     ProjectCreateForm,
     ProjectEditForm,
-    ProjectFeatureFlagsForm,
     ProjectLinkApplicationForm,
     UserCreateForm,
     UserForm,
@@ -177,17 +176,6 @@ def test_projecteditform_with_existing_number():
     form = ProjectEditForm(data=data, instance=project)
 
     assert form.is_valid(), form.errors
-
-
-def test_projectfeatureflagsform_with_unknown_value():
-    form = ProjectFeatureFlagsForm({"flip_to": "test"})
-
-    assert not form.is_valid()
-
-    expected = {
-        "flip_to": ["Select a valid choice. test is not one of the available choices."]
-    }
-    assert form.errors == expected
 
 
 def test_projectlinkapplicationform_success():
