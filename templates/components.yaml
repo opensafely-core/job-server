@@ -36,6 +36,7 @@ components:
   tooltip: "_components/tooltip.html"
 
   # Partials
+  alerts: "_partials/alerts.html"
   card_pagination: "_partials/card-pagination.html"
   staff_hero: "_partials/staff-hero.html"
 
