@@ -167,5 +167,5 @@
 {% endblock content %}
 
 {% block full_width_content %}
-{% include 'partials/latest-jobs-tw.html' with job_requests=all_job_requests %}
+{% latest_job_requests_table job_requests=all_job_requests %}
 {% endblock %}

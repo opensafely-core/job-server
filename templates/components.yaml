@@ -36,7 +36,9 @@ components:
   tooltip: "_components/tooltip.html"
 
   # Partials
+  alerts: "_partials/alerts.html"
   card_pagination: "_partials/card-pagination.html"
+  latest_job_requests_table: "_partials/latest-job-requests-table.html"
   staff_hero: "_partials/staff-hero.html"
 
   # Icons
