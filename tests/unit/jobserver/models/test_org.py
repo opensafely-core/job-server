@@ -33,6 +33,14 @@ def test_org_get_edit_url():
     assert url == reverse("staff:org-edit", kwargs={"slug": org.slug})
 
 
+def test_org_get_logs_url():
+    org = OrgFactory()
+
+    url = org.get_logs_url()
+
+    assert url == reverse("org-event-log", kwargs={"slug": org.slug})
+
+
 def test_org_get_staff_url():
     org = OrgFactory()
 

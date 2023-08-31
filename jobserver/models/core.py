@@ -399,6 +399,9 @@ class Org(models.Model):
     def get_edit_url(self):
         return reverse("staff:org-edit", kwargs={"slug": self.slug})
 
+    def get_logs_url(self):
+        return reverse("org-event-log", kwargs={"slug": self.slug})
+
     def get_staff_url(self):
         return reverse("staff:org-detail", kwargs={"slug": self.slug})
 
