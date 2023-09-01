@@ -35,15 +35,18 @@ def test_applicationapprove_already_approved(rf, core_developer, complete_applic
     assert response.url == complete_application.get_staff_url()
 
 
-def test_applicationapprove_get_success(rf, core_developer, complete_application):
+def test_applicationapprove_get_success(
+    rf, django_assert_num_queries, core_developer, complete_application
+):
     ProjectFactory(number=7)  # check default is set via Form.initial
 
     request = rf.get("/")
     request.user = core_developer
 
-    response = ApplicationApprove.as_view()(
-        request, pk_hash=complete_application.pk_hash
-    )
+    with django_assert_num_queries(4):
+        response = ApplicationApprove.as_view()(
+            request, pk_hash=complete_application.pk_hash
+        )
 
     assert response.status_code == 200
     assert response.context_data["application"] == complete_application
@@ -81,7 +84,9 @@ def test_applicationapprove_get_with_org_slug_and_unknown_org(
     assert response.context_data["form"]["org"].initial is None
 
 
-def test_applicationapprove_post_success(rf, core_developer, complete_application):
+def test_applicationapprove_post_success(
+    rf, django_assert_num_queries, core_developer, complete_application
+):
     assert complete_application.approved_at is None
     assert complete_application.approved_by is None
 
@@ -95,9 +100,10 @@ def test_applicationapprove_post_success(rf, core_developer, complete_applicatio
     request = rf.post("/", data)
     request.user = core_developer
 
-    response = ApplicationApprove.as_view()(
-        request, pk_hash=complete_application.pk_hash
-    )
+    with django_assert_num_queries(10):
+        response = ApplicationApprove.as_view()(
+            request, pk_hash=complete_application.pk_hash
+        )
 
     assert response.status_code == 302, response.context_data["form"].errors
 
@@ -171,7 +177,7 @@ def test_applicationapprove_without_study_information_page(rf, core_developer):
 
 
 def test_applicationdetail_success_with_complete_application(
-    rf, core_developer, complete_application
+    rf, django_assert_max_num_queries, core_developer, complete_application
 ):
     application = complete_application
     page = application.contactdetailspage
@@ -181,7 +187,8 @@ def test_applicationdetail_success_with_complete_application(
     request = rf.get("/")
     request.user = core_developer
 
-    response = ApplicationDetail.as_view()(request, pk_hash=application.pk_hash)
+    with django_assert_max_num_queries(19):
+        response = ApplicationDetail.as_view()(request, pk_hash=application.pk_hash)
 
     assert response.status_code == 200
     assert response.context_data["pages"][0]["title"] == "Contact details"
@@ -258,6 +265,7 @@ def test_applicationdetail_without_core_dev_role(rf):
 
 def test_applicationdetail_post_with_complete_application(
     rf,
+    django_assert_max_num_queries,
     core_developer,
     complete_application,
     freezer,
@@ -279,7 +287,8 @@ def test_applicationdetail_post_with_complete_application(
     request = rf.post("/", data)
     request.user = core_developer
 
-    response = ApplicationDetail.as_view()(request, pk_hash=application.pk_hash)
+    with django_assert_max_num_queries(34):
+        response = ApplicationDetail.as_view()(request, pk_hash=application.pk_hash)
 
     assert response.status_code == 302
 
@@ -341,57 +350,19 @@ def test_applicationdetail_post_with_incomplete_application(
         application.researcherdetailspage
 
 
-def test_applicationlist_filter_by_status(rf, core_developer):
-    ApplicationFactory(status=Application.Statuses.APPROVED_FULLY)
-
-    request = rf.get("/?status=approved_fully")
-    request.user = core_developer
-
-    response = ApplicationList.as_view()(request)
-
-    assert len(response.context_data["object_list"]) == 1
-
-
-def test_applicationlist_filter_by_user(rf, core_developer):
-    ApplicationFactory.create_batch(5)
-    application = ApplicationFactory()
-
-    request = rf.get(f"/?user={application.created_by.username}")
-    request.user = core_developer
-
-    response = ApplicationList.as_view()(request)
-
-    assert list(response.context_data["object_list"]) == [application]
-
-
-def test_applicationlist_search(rf, core_developer):
-    app1 = ApplicationFactory(created_by=UserFactory(fullname="ben g"))
-    app2 = ApplicationFactory(created_by=UserFactory(username="ben"))
-    ApplicationFactory(created_by=UserFactory(username="seb"))
-
-    request = rf.get("/?q=ben")
-    request.user = core_developer
-
-    response = ApplicationList.as_view()(request)
-
-    assert response.status_code == 200
-
-    assert len(response.context_data["object_list"]) == 2
-    assert set_from_qs(response.context_data["object_list"]) == {app1.pk, app2.pk}
-
-
-def test_applicationedit_get_success(rf, core_developer):
+def test_applicationedit_get_success(rf, django_assert_num_queries, core_developer):
     application = ApplicationFactory()
 
     request = rf.get("/")
     request.user = core_developer
 
-    response = ApplicationEdit.as_view()(request, pk_hash=application.pk_hash)
+    with django_assert_num_queries(1):
+        response = ApplicationEdit.as_view()(request, pk_hash=application.pk_hash)
 
     assert response.status_code == 200
 
 
-def test_applicationedit_post_success(rf, core_developer):
+def test_applicationedit_post_success(rf, django_assert_num_queries, core_developer):
     application = ApplicationFactory(status=Application.Statuses.ONGOING)
 
     data = {
@@ -401,7 +372,8 @@ def test_applicationedit_post_success(rf, core_developer):
     request = rf.post("/", data)
     request.user = core_developer
 
-    response = ApplicationEdit.as_view()(request, pk_hash=application.pk_hash)
+    with django_assert_num_queries(2):
+        response = ApplicationEdit.as_view()(request, pk_hash=application.pk_hash)
 
     assert response.status_code == 302, response.context_data["form"].errors
     assert response.url == application.get_staff_url()
@@ -457,13 +429,53 @@ def test_applicationedit_without_core_dev_role(rf):
         ApplicationEdit.as_view()(request, pk_hash=application.pk_hash)
 
 
-def test_applicationlist_success(rf, core_developer):
+def test_applicationlist_filter_by_status(rf, core_developer):
+    ApplicationFactory(status=Application.Statuses.APPROVED_FULLY)
+
+    request = rf.get("/?status=approved_fully")
+    request.user = core_developer
+
+    response = ApplicationList.as_view()(request)
+
+    assert len(response.context_data["object_list"]) == 1
+
+
+def test_applicationlist_filter_by_user(rf, core_developer):
+    ApplicationFactory.create_batch(5)
+    application = ApplicationFactory()
+
+    request = rf.get(f"/?user={application.created_by.username}")
+    request.user = core_developer
+
+    response = ApplicationList.as_view()(request)
+
+    assert list(response.context_data["object_list"]) == [application]
+
+
+def test_applicationlist_search(rf, core_developer):
+    app1 = ApplicationFactory(created_by=UserFactory(fullname="ben g"))
+    app2 = ApplicationFactory(created_by=UserFactory(username="ben"))
+    ApplicationFactory(created_by=UserFactory(username="seb"))
+
+    request = rf.get("/?q=ben")
+    request.user = core_developer
+
+    response = ApplicationList.as_view()(request)
+
+    assert response.status_code == 200
+
+    assert len(response.context_data["object_list"]) == 2
+    assert set_from_qs(response.context_data["object_list"]) == {app1.pk, app2.pk}
+
+
+def test_applicationlist_success(rf, django_assert_num_queries, core_developer):
     ApplicationFactory.create_batch(5)
 
     request = rf.get("/")
     request.user = core_developer
 
-    response = ApplicationList.as_view()(request)
+    with django_assert_num_queries(2):
+        response = ApplicationList.as_view()(request)
 
     assert response.status_code == 200
 
@@ -518,13 +530,14 @@ def test_applicationremove_already_deleted(rf, core_developer):
     assert str(messages[0]) == "Application has already been deleted"
 
 
-def test_applicationremove_success(rf, core_developer):
+def test_applicationremove_success(rf, django_assert_num_queries, core_developer):
     application = ApplicationFactory()
 
     request = rf.post("/")
     request.user = core_developer
 
-    response = ApplicationRemove.as_view()(request, pk_hash=application.pk_hash)
+    with django_assert_num_queries(2):
+        response = ApplicationRemove.as_view()(request, pk_hash=application.pk_hash)
 
     assert response.status_code == 302
     assert response.url == reverse("staff:application-list")
@@ -562,13 +575,14 @@ def test_applicationrestore_already_deleted(rf, core_developer):
     assert response.url == reverse("staff:application-list")
 
 
-def test_applicationrestore_success(rf, core_developer):
+def test_applicationrestore_success(rf, django_assert_num_queries, core_developer):
     application = ApplicationFactory()
 
     request = rf.post("/")
     request.user = core_developer
 
-    response = ApplicationRestore.as_view()(request, pk_hash=application.pk_hash)
+    with django_assert_num_queries(1):
+        response = ApplicationRestore.as_view()(request, pk_hash=application.pk_hash)
 
     assert response.status_code == 302
     assert response.url == reverse("staff:application-list")

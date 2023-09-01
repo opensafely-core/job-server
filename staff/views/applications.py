@@ -3,10 +3,10 @@ import functools
 from django.contrib import messages
 from django.db.models import Max, Q, Value
 from django.shortcuts import get_object_or_404, redirect
-from django.template.response import TemplateResponse
 from django.utils import timezone
 from django.utils.decorators import method_decorator
 from django.views.generic import FormView, ListView, UpdateView, View
+from zen_queries import TemplateResponse, fetch
 
 from applications.form_specs import form_specs
 from applications.models import Application
@@ -23,6 +23,7 @@ from ..forms import ApplicationApproveForm
 class ApplicationApprove(FormView):
     form_class = ApplicationApproveForm
     model = Application
+    response_class = TemplateResponse
     template_name = "staff/application_approve.html"
 
     def dispatch(self, request, *args, **kwargs):
@@ -71,6 +72,11 @@ class ApplicationApprove(FormView):
             "application": self.application,
         }
 
+    def get_form_kwargs(self):
+        return super().get_form_kwargs() | {
+            "orgs": fetch(Org.objects.order_by("name")),
+        }
+
     def get_initial(self):
         project_number = Project.objects.filter(number__isnull=False).aggregate(
             largest_number=Max("number") + Value(1)
@@ -97,7 +103,8 @@ class ApplicationApprove(FormView):
 class ApplicationDetail(View):
     def dispatch(self, request, *args, **kwargs):
         self.application = get_object_or_404(
-            Application, pk=unhash_or_404(self.kwargs["pk_hash"])
+            Application.objects.select_related("created_by"),
+            pk=unhash_or_404(self.kwargs["pk_hash"]),
         )
 
         if self.application.is_deleted:
@@ -113,8 +120,8 @@ class ApplicationDetail(View):
 
         ctx = {
             "application": self.application,
-            "researchers": self.application.researcher_registrations.order_by(
-                "created_at"
+            "researchers": fetch(
+                self.application.researcher_registrations.order_by("created_at")
             ),
             "pages": pages,
         }
@@ -144,6 +151,7 @@ class ApplicationEdit(UpdateView):
         "status_comment",
     ]
     model = Application
+    response_class = TemplateResponse
     template_name = "staff/application_edit.html"
 
     def dispatch(self, request, *args, **kwargs):
@@ -170,6 +178,7 @@ class ApplicationEdit(UpdateView):
 
 @method_decorator(require_role(CoreDeveloper), name="dispatch")
 class ApplicationList(ListView):
+    response_class = TemplateResponse
     template_name = "staff/application_list.html"
 
     def get_context_data(self, **kwargs):
@@ -218,7 +227,7 @@ class ApplicationList(ListView):
         if user := self.request.GET.get("user"):
             qs = qs.filter(created_by__username=user)
 
-        return qs.distinct()
+        return fetch(qs.distinct())
 
 
 @method_decorator(require_role(CoreDeveloper), name="dispatch")
