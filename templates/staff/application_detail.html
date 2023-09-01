@@ -28,12 +28,10 @@
     </h1>
 
     <ul class="list-unstyled lead">
-      {% if application.created_by %}
       <li>
         <strong>Created by:</strong>
         <a href="{{ application.created_by.get_staff_url }}">{{ application.created_by.name }}</a>
       </li>
-      {% endif %}
 
       <li>
         <strong>Created at:</strong> {{ application.created_at }}
