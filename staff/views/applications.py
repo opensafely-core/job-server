@@ -3,10 +3,10 @@ import functools
 from django.contrib import messages
 from django.db.models import Max, Q, Value
 from django.shortcuts import get_object_or_404, redirect
-from django.template.response import TemplateResponse
 from django.utils import timezone
 from django.utils.decorators import method_decorator
 from django.views.generic import FormView, ListView, UpdateView, View
+from zen_queries import TemplateResponse, fetch
 
 from applications.form_specs import form_specs
 from applications.models import Application
@@ -97,7 +97,8 @@ class ApplicationApprove(FormView):
 class ApplicationDetail(View):
     def dispatch(self, request, *args, **kwargs):
         self.application = get_object_or_404(
-            Application, pk=unhash_or_404(self.kwargs["pk_hash"])
+            Application.objects.select_related("created_by"),
+            pk=unhash_or_404(self.kwargs["pk_hash"]),
         )
 
         if self.application.is_deleted:
@@ -113,8 +114,8 @@ class ApplicationDetail(View):
 
         ctx = {
             "application": self.application,
-            "researchers": self.application.researcher_registrations.order_by(
-                "created_at"
+            "researchers": fetch(
+                self.application.researcher_registrations.order_by("created_at")
             ),
             "pages": pages,
         }
