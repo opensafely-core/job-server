@@ -1,5 +1,7 @@
 {% extends "staff/base.html" %}
 
+{% load zen_queries %}
+
 {% block metatitle %}Application {{ application.pk_hash }}: Staff Area | OpenSAFELY Jobs{% endblock metatitle %}
 
 {% block breadcrumbs %}
@@ -139,7 +141,9 @@
             {% include "components/form_radio.html" with name=page.wizard_page.is_approved_field_name label="Approved?" field=page.wizard_page.get_unbound_approval_form.is_approved %}
             <ul>
               <li>Last reviewed at: {{ page.wizard_page.page_instance.last_reviewed_at|default_if_none:"Never"}}</li>
+              {% queries_dangerously_enabled %}
               <li>Last reviewed by: {{ page.wizard_page.page_instance.reviewed_by|default_if_none:"Not yet reviewed"}}</li>
+              {% end_queries_dangerously_enabled %}
             </ul>
           {% else %}
           <p>User has not started this page</p>
