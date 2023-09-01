@@ -5,6 +5,10 @@ updates:
     directory: "/"
     schedule:
       interval: "daily"
+    groups:
+      otel-dependencies:
+        patterns:
+          - "opentelemetry*"
 
   - package-ecosystem: "npm"
     directory: "/"
