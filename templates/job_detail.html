@@ -25,7 +25,11 @@
 {% block content %}
 <div class="md:flex md:items-center md:justify-between md:space-x-5">
   <h1 class="min-w-0 text-3xl break-words md:text-4xl font-bold text-slate-900">
+    {% if job.action == "__error__" %}
+    Error creating jobs
+    {% else %}
     {{ job.action }}
+    {% endif %}
   </h1>
   {% if user_can_cancel_jobs %}
     <div class="mt-6 flex flex-col-reverse flex-shrink-0 justify-stretch space-y-4 space-y-reverse sm:flex-row-reverse sm:justify-end sm:space-x-reverse sm:space-y-0 sm:space-x-3 md:mt-0 md:flex-row md:space-x-3">
