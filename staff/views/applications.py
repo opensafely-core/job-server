@@ -23,6 +23,7 @@ from ..forms import ApplicationApproveForm
 class ApplicationApprove(FormView):
     form_class = ApplicationApproveForm
     model = Application
+    response_class = TemplateResponse
     template_name = "staff/application_approve.html"
 
     def dispatch(self, request, *args, **kwargs):
@@ -69,6 +70,11 @@ class ApplicationApprove(FormView):
     def get_context_data(self, **kwargs):
         return super().get_context_data(**kwargs) | {
             "application": self.application,
+        }
+
+    def get_form_kwargs(self):
+        return super().get_form_kwargs() | {
+            "orgs": fetch(Org.objects.order_by("name")),
         }
 
     def get_initial(self):

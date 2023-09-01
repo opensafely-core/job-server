@@ -23,11 +23,12 @@ def test_applicationapproveform_success():
     org = OrgFactory(slug="test-org")
 
     form = ApplicationApproveForm(
-        {
+        data={
             "project_name": "test project",
             "project_number": "42",
             "org": str(org.pk),
-        }
+        },
+        orgs=[org],
     )
 
     assert form.is_valid(), form.errors
@@ -38,11 +39,12 @@ def test_applicationapproveform_with_duplicate_project_name():
     project = ProjectFactory()
 
     form = ApplicationApproveForm(
-        {
+        data={
             "project_name": project.name,
             "project_number": "42",
             "org": str(org.pk),
-        }
+        },
+        orgs=[org],
     )
 
     assert not form.is_valid()
@@ -56,11 +58,12 @@ def test_applicationapproveform_with_duplicate_project_number():
     project = ProjectFactory(number=42)
 
     form = ApplicationApproveForm(
-        {
+        data={
             "project_name": "test",
             "project_number": "42",
             "org": str(org.pk),
-        }
+        },
+        orgs=[org],
     )
 
     assert not form.is_valid()
@@ -74,11 +77,12 @@ def test_applicationapproveform_with_duplicate_project_slug():
     ProjectFactory(slug="test-1")
 
     form = ApplicationApproveForm(
-        {
+        data={
             "project_name": "Test 1",
             "project_number": "42",
             "org": str(org.pk),
-        }
+        },
+        orgs=[org],
     )
 
     assert not form.is_valid()
@@ -91,11 +95,12 @@ def test_applicationapproveform_with_empty_project_slug():
     org = OrgFactory()
 
     form = ApplicationApproveForm(
-        {
+        data={
             "project_name": "-/-.",
             "project_number": "42",
             "org": str(org.pk),
-        }
+        },
+        orgs=[org],
     )
 
     assert not form.is_valid()
