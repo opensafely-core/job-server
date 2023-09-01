@@ -177,6 +177,7 @@ class ApplicationEdit(UpdateView):
 
 @method_decorator(require_role(CoreDeveloper), name="dispatch")
 class ApplicationList(ListView):
+    response_class = TemplateResponse
     template_name = "staff/application_list.html"
 
     def get_context_data(self, **kwargs):
@@ -225,7 +226,7 @@ class ApplicationList(ListView):
         if user := self.request.GET.get("user"):
             qs = qs.filter(created_by__username=user)
 
-        return qs.distinct()
+        return fetch(qs.distinct())
 
 
 @method_decorator(require_role(CoreDeveloper), name="dispatch")
