@@ -1,0 +1,149 @@
+{% extends "staff/base-tw.html" %}
+
+{% load humanize %}
+{% load querystring_tools %}
+{% load selected_filter %}
+
+{% block metatitle %}Applications: Staff Area | OpenSAFELY Jobs{% endblock metatitle %}
+
+{% block breadcrumbs %}
+{% #breadcrumbs %}
+  {% url "staff:index" as staff_url %}
+  {% breadcrumb title="Staff area" url=staff_url %}
+  {% breadcrumb title="Applications" active=True %}
+{% /breadcrumbs %}
+{% endblock breadcrumbs %}
+
+{% block hero %}
+{% staff_hero title="Applications" %}
+{% endblock hero %}
+
+{% block content %}
+{% url "staff:application-list" as staff_application_list_url %}
+
+<div class="grid lg:grid-cols-3 gap-8">
+  <div class="flex flex-col gap-y-6">
+    {% if request.GET.status or request.GET.user %}
+      {% #button variant="secondary-outline" type="link" href=staff_application_list_url %}
+        Clear filters
+      {% /button %}
+    {% endif %}
+
+    {% if statuses %}
+      {% #card title="Filter by status" %}
+        {% #list_group small=True class="max-h-96 overflow-y-auto" %}
+          {% for status in statuses %}
+            {% is_filter_selected key="status" value=status.value as is_status_active %}
+            {% url_with_querystring status=status.value as add_status_query_url %}
+
+            {% if is_status_active %}
+              {% url_without_querystring status=status.value as remove_status_query_url %}
+              {% #list_group_item href=remove_status_query_url role="checkbox" aria-checked="true" class="bg-green-100 !text-green-900 flex flex-row items-center gap-1" %}
+              {% icon_check_outline class="-ml-2 h-5 w-5 stroke-green-700" %}
+                {{ status.label }}
+              {% /list_group_item %}
+            {% else %}
+              {% #list_group_item href=add_status_query_url role="checkbox" aria-checked="false" %}
+                {{ status.label }}
+              {% /list_group_item %}
+            {% endif %}
+          {% endfor %}
+        {% /list_group %}
+      {% /card %}
+    {% endif %}
+
+    {% if users %}
+      {% #card title="Filter by application author" %}
+        <filter-input aria-owns="usersFilter">
+          {% form_input custom_field=True class="px-4 -mt-2 mb-4 sm:px-6" id="filterUsers" name="filter-users" label="Search for an author" label_class="sr-only" placeholder="Search for an author" show_placeholder=True %}
+        </filter-input>
+        {% #list_group small=True class="max-h-96 overflow-y-auto" data_filter_list=True id="usersFilter" %}
+          {% for user in users %}
+            {% is_filter_selected key="user" value=user.username as is_user_active %}
+            {% url_with_querystring user=user.username as add_user_query_url %}
+
+            {% if is_user_active %}
+              {% url_without_querystring user=user.username as remove_user_query_url %}
+              {% #list_group_item href=remove_user_query_url role="checkbox" aria-checked="true" class="bg-green-100 !text-green-900 flex flex-row items-center gap-1" %}
+                {% icon_check_outline class="h-5 w-5 stroke-green-700" %}
+                {{ user.name }}
+              {% /list_group_item %}
+            {% else %}
+              {% #list_group_item href=add_user_query_url role="checkbox" aria-checked="false" %}
+                {{ user.name }}
+              {% /list_group_item %}
+            {% endif %}
+          {% endfor %}
+          {% list_group_empty title="No author found" data-filter-empty-state hidden %}
+        {% /list_group %}
+      {% /card %}
+    {% endif %}
+  </div>
+
+  <div class="flex flex-col gap-y-6 lg:col-span-2">
+    {% #card container=True title="Search for an application" %}
+      <form method="GET" class="flex flex-row gap-x-2 items-center">
+        {% if request.GET.q %}
+          {% var value=request.GET.q|stringformat:"s" %}
+        {% endif %}
+        {% form_input custom_field=True type="search" id="applicationSearch" name="q" value=value label="Search for an application" label_class="sr-only" class="w-full" input_class="!m-0" %}
+        {% #button type="submit" variant="primary" class="flex-shrink-0" %}Search{% /button %}
+      </form>
+      {% if request.GET.q %}
+        <p class="mt-3">
+          {% link href=staff_application_list_url text="Clear search" %}
+        </p>
+      {% endif %}
+    {% /card %}
+
+    {% #card %}
+      {% #list_group small=True %}
+        {% if application_list %}
+          {% for application in application_list %}
+            {% var title=application.pk_hash|add:" by "|add:application.created_by.name %}
+            {% if not application.is_deleted %}
+              {% #list_group_rich_item type="Application" title=title url=application.get_staff_url status_text=application.status %}
+                <dl class="text-sm -mt-2">
+                  <div class="flex flex-row gap-1">
+                    <dt class="font-semibold">Submitted:</dt>
+                    <dd>{{ application.created_at|date:"d F Y" }}</dd>
+                  </div>
+                </dl>
+              {% /list_group_rich_item %}
+            {% else %}
+              {% #list_group_rich_item type="Deleted application" title=title class="cursor-not-allowed bg-bn-ribbon-100/25 opacity-80" status_text="deleted" %}
+                <dl class="text-sm -mt-2">
+                  <div class="flex flex-row gap-1">
+                    <dt class="font-semibold">Submitted:</dt>
+                    <dd>{{ application.created_at|date:"d F Y" }}</dd>
+                  </div>
+                  <div class="flex flex-row gap-1 mt-2">
+                    <form method="POST" action="{{ application.get_staff_restore_url }}">
+                      {% csrf_token %}
+                      {% #button type="submit" variant="secondary-outline" small=True %}
+                        Restore<span class="sr-only"> application {{ application.pk_hash }}</span>
+                      {% /button %}
+                    </form>
+                  </div>
+                </dl>
+              {% /list_group_rich_item %}
+            {% endif %}
+          {% endfor %}
+        {% else %}
+          {% list_group_empty icon=True title="No applications found" description="Try a new search or clearing the filters" %}
+        {% endif %}
+      {% /list_group %}
+
+      {% if page_obj.has_previous or page_obj.has_next %}
+        {% if page_obj.has_next %}
+          {% url_with_querystring page=page_obj.next_page_number as next_page_url %}
+        {% endif %}
+        {% if page_obj.has_previous %}
+          {% url_with_querystring page=page_obj.previous_page_number as previous_page_url %}
+        {% endif %}
+        {% card_pagination page_number=page_obj.number total_pages=page_obj.paginator.num_pages next_page_url=next_page_url previous_page_url=previous_page_url no_container=True %}
+      {% endif %}
+    {% /card %}
+  </div>
+</div>
+{% endblock content %}

@@ -1,0 +1,22 @@
+{% #card container=True title="Create an organisation" %}
+  <form method="POST" hx-post="{{ post_url }}">
+    {% csrf_token %}
+
+    {% if form.non_field_errors %}
+      {% for error in form.non_field_errors %}
+        {% #alert variant="danger" class="mb-6" %}
+          {{ error }}
+        {% /alert %}
+      {% endfor %}
+    {% endif %}
+
+    <div class="flex flex-col items-stretch gap-y-6 w-full max-w-3xl mb-6">
+      {% form_input field=form.name label="Organisation name" %}
+    </div>
+
+    <div class="flex flex-row flex-wrap gap-2">
+      {% #button variant="success" type="submit" %}Add org{% /button %}
+      {% #button variant="danger" id="closeModal" %}Cancel{% /button %}
+    </div>
+  </form>
+{% /card %}

@@ -1,0 +1,27 @@
+<span
+  class="
+    inline-flex rounded-full px-2 text-xs font-semibold leading-5 border
+    {% if variant == "warning" %}
+      bg-bn-flamenco-200 text-bn-flamenco-900 border-bn-flamenco-200
+    {% elif variant == "primary" %}
+      bg-blue-200 text-blue-900 border-blue-200
+    {% elif variant == "danger" %}
+      bg-red-200 text-red-900 border-red-200
+    {% elif variant == "danger-outline" %}
+      bg-white text-bn-ribbon-900 border-bn-ribbon-300
+    {% elif variant == "success" %}
+      bg-green-200 text-green-900 border-green-200
+    {% elif variant == "success-outline" %}
+      bg-white text-green-900 border-green-400
+    {% elif variant == "info" %}
+      bg-white text-slate-600 border-slate-200
+    {% endif %}
+    {{ class }}
+  "
+>
+  {% if sr_only %}
+    <span class="sr-only">{{ sr_only }}</span>
+  {% endif %}
+  {{ text }}
+  {{ children }}
+</span>

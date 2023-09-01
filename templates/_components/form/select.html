@@ -1,7 +1,17 @@
+{% if id %}
+  {% var label_for=id %}
+  {% var select_id=id %}
+  {% var select_name=name %}
+{% else %}
+  {% var label_for=field.id_for_label %}
+  {% var select_id=field.auto_id %}
+  {% var select_name=field.html_name %}
+{% endif %}
+
 <div {% attrs class %}>
   <label
     class="inline-block font-semibold text-lg text-slate-900 cursor-pointer"
-    for="{{ field.id_for_label }}"
+    for="{{ label_for }}"
   >
     {% if label %}{{ label }}{% else %}{{ field.label }}{% endif %}
 
@@ -19,9 +29,10 @@
 
   <div class="relative">
     <select
-      {% attrs name=field.html_name required %}
+      {% attrs name= required %}
       class="mt-1 block w-full rounded-md border-slate-300 text-slate-900 shadow-sm focus:border-oxford-500 focus:ring-oxford-500 sm:text-sm invalid:border-bn-ribbon-600 invalid:ring-bn-ribbon-600 invalid:ring-1"
-      id="{{ field.auto_id }}"
+      id="{{ select_id }}"
+      name="{{ select_name }}"
     >
       {% for value, label in choices %}
         <option
