@@ -54,7 +54,7 @@
         {% pill class="mt-2" variant="info" text=status.sub_title %}
         {% endif %}
 
-        {% if request.user.is_authenticated and project.number %}
+        {% if project.number %}
           {% #pill sr_only="Project number:" class="mt-2" variant="info" %}
             #{{ project.number }}
           {% /pill %}
