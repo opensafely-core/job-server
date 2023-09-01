@@ -1,4 +1,5 @@
 import json
+import time
 from datetime import UTC, datetime
 
 import requests
@@ -274,6 +275,17 @@ class GitHubAPI:
         if not r.ok:
             print(r.headers)
             print(r.content)
+
+        if r.status_code == 403:
+            # it's possible for us to create and then attempt to delete a repo
+            # faster than GitHub can create it on disk, so lets wait and retry
+            # if that's happened
+            # Note: 403 isn't just used for this state
+            msg = "Repository cannot be deleted until it is done being created on disk."
+            if msg in r.json().get("message", ""):
+                time.sleep(1)
+                self.delete_repo(org, repo)
+                pass
 
         r.raise_for_status()
 
