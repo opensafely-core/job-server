@@ -561,6 +561,14 @@ class Project(models.Model):
             },
         )
 
+    def get_logs_url(self):
+        return reverse(
+            "project-event-log",
+            kwargs={
+                "project_slug": self.slug,
+            },
+        )
+
     def get_releases_url(self):
         return reverse(
             "project-release-list",

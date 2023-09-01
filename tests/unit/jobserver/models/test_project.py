@@ -44,6 +44,19 @@ def test_project_get_edit_url():
     )
 
 
+def test_project_get_logs_url():
+    project = ProjectFactory()
+
+    url = project.get_logs_url()
+
+    assert url == reverse(
+        "project-event-log",
+        kwargs={
+            "project_slug": project.slug,
+        },
+    )
+
+
 def test_project_get_releases_url():
     project = ProjectFactory()
 

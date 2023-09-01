@@ -7,8 +7,13 @@ from django.utils import timezone
 
 from jobserver.authorization import CoreDeveloper, InteractiveReporter
 from jobserver.models import Project, PublishRequest, Snapshot
-from jobserver.utils import set_from_qs
-from jobserver.views.projects import ProjectDetail, ProjectEdit, ProjectReportList
+from jobserver.utils import set_from_list, set_from_qs
+from jobserver.views.projects import (
+    ProjectDetail,
+    ProjectEdit,
+    ProjectEventLog,
+    ProjectReportList,
+)
 
 from ....factories import (
     JobFactory,
@@ -306,6 +311,32 @@ def test_projectedit_without_permissions(rf, user):
 
     with pytest.raises(PermissionDenied):
         ProjectEdit.as_view()(request, project_slug=project.slug)
+
+
+def test_projecteventlog_success(rf, django_assert_num_queries):
+    project = ProjectFactory()
+    workspace = WorkspaceFactory(project=project)
+
+    job_requests = JobRequestFactory.create_batch(5, workspace=workspace)
+
+    request = rf.get("/")
+    request.user = UserFactory()
+
+    with django_assert_num_queries(3):
+        response = ProjectEventLog.as_view()(request, project_slug=project.slug)
+
+    assert response.status_code == 200
+
+    expected = set_from_list(job_requests)
+    assert set_from_list(response.context_data["object_list"]) == expected
+
+
+def test_projecteventlog_unknown_project(rf):
+    request = rf.get("/")
+    request.user = UserFactory()
+
+    with pytest.raises(Http404):
+        ProjectEventLog.as_view()(request, project_slug="")
 
 
 def test_projectreportlist_success(rf, release):
