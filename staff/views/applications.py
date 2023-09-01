@@ -181,6 +181,8 @@ class ApplicationEdit(UpdateView):
 @method_decorator(require_role(CoreDeveloper), name="dispatch")
 class ApplicationList(ListView):
     response_class = TemplateResponse
+    ordering = "-created_at"
+    paginate_by = 25
     template_name = "staff/application/list.html"
 
     def get_context_data(self, **kwargs):
