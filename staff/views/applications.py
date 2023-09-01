@@ -103,7 +103,7 @@ class ApplicationApprove(FormView):
 class ApplicationDetail(View):
     def dispatch(self, request, *args, **kwargs):
         self.application = get_object_or_404(
-            Application.objects.select_related("created_by"),
+            Application.objects.select_related("approved_by", "created_by", "project"),
             pk=unhash_or_404(self.kwargs["pk_hash"]),
         )
 
