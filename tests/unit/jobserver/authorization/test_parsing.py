@@ -1,7 +1,7 @@
 import pytest
 
 from jobserver.authorization import OutputChecker, ProjectCollaborator
-from jobserver.authorization.fields import _ensure_role_paths, parse_roles
+from jobserver.authorization.parsing import _ensure_role_paths, parse_roles
 
 
 def test_ensure_role_paths_success():
