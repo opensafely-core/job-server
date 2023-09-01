@@ -151,6 +151,7 @@ class ApplicationEdit(UpdateView):
         "status_comment",
     ]
     model = Application
+    response_class = TemplateResponse
     template_name = "staff/application_edit.html"
 
     def dispatch(self, request, *args, **kwargs):
