@@ -11,7 +11,7 @@
 
   {% #breadcrumbs %}
     {% breadcrumb title="Home" url=home_url %}
-    {% breadcrumb title=user.name url=user_profile_url %}
+    {% breadcrumb title=user.name url=user_profile_url location="User" %}
     {% breadcrumb title="Logs" active=True %}
   {% /breadcrumbs %}
 {% endblock breadcrumbs %}
