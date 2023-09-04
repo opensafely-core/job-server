@@ -54,10 +54,6 @@ const config = {
           dest: "vendor",
         },
         {
-          src: "./node_modules/list.js/dist/list.min.*",
-          dest: "vendor",
-        },
-        {
           src: "./node_modules/select2/dist/css/select2.min.css",
           dest: "vendor",
         },
