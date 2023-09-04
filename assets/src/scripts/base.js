@@ -8,7 +8,7 @@ import "@fontsource/public-sans/700.css";
 import "@zachleat/details-utils";
 
 // Styles
-import "../styles/tw.css";
+import "../styles/base.css";
 
 // Custom JS
 import "./_alert";

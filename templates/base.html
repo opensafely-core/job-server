@@ -14,8 +14,8 @@
     {% block extra_meta %}{% endblock %}
 
     <script type="module" nonce="{{ request.csp_nonce }}">
-      document.documentElement.classList.remove('no-js');
-      document.documentElement.classList.add('js');
+      document.documentElement.classList.remove("no-js");
+      document.documentElement.classList.add("js");
 
       window.addEventListener("load", () => {
         document.body.classList.remove("preload");
@@ -23,14 +23,14 @@
     </script>
 
     {% vite_hmr_client %}
-    {% vite_asset 'assets/src/scripts/tw.js' %}
+    {% vite_asset "assets/src/scripts/base.js" %}
 
     {% block extra_styles %}{% endblock %}
 
-    <link rel="icon" href="{% static 'favicon.ico' %}">
-    <link rel="icon" href="{% static 'icon.svg' %}" type="image/svg+xml">
-    <link rel="apple-touch-icon" href="{% static 'apple-touch-icon.png' %}">
-    <link rel="manifest" href="{% static 'manifest.webmanifest' %}">
+    <link rel="icon" href="{% static "favicon.ico" %}">
+    <link rel="icon" href="{% static "icon.svg" %}" type="image/svg+xml">
+    <link rel="apple-touch-icon" href="{% static "apple-touch-icon.png" %}">
+    <link rel="manifest" href="{% static "manifest.webmanifest" %}">
   </head>
 
   <body class="preload flex flex-col min-h-screen text-slate bg-white">
@@ -52,7 +52,7 @@
     {% footer nav=nav %}
 
     {% vite_legacy_polyfills %}
-    {% vite_legacy_asset 'assets/src/scripts/tw.js' %}
+    {% vite_legacy_asset "assets/src/scripts/base.js" %}
     {% block extra_js %}{% endblock %}
   </body>
 </html>
