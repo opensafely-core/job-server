@@ -19,3 +19,5 @@ export const canDisplay = (fileName) =>
   isImg(fileName) ||
   isTxt(fileName) ||
   isJson(fileName);
+
+export const isNotUploadedStr = `"File not yet uploaded"`;

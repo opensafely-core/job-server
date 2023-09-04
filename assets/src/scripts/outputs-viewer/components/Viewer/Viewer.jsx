@@ -7,6 +7,7 @@ import {
   isHtml,
   isImg,
   isJson,
+  isNotUploadedStr,
   isTxt,
 } from "../../utils/file-type-match";
 import { datasetProps, selectedFileProps } from "../../utils/props";
@@ -42,7 +43,7 @@ function Viewer({ authToken, fileName, fileSize, fileUrl, uuid }) {
 
       if (!response.ok) throw new Error();
 
-      // check if reidrected to release-hatch for an un-uploaded file
+      // check if redirected to release-hatch for an un-uploaded file
       if (
         response.headers.has("Location") &&
         response.headers.has("Authorization")
@@ -55,6 +56,11 @@ function Viewer({ authToken, fileName, fileSize, fileUrl, uuid }) {
         if (!response.ok) throw new Error();
       }
 
+      // If the text matches the not uploaded string,
+      // return early with that text
+      const bodyText = await response.clone().text();
+      if (bodyText === isNotUploadedStr) return isNotUploadedStr;
+
       // If the file is an image
       // grab the blob and create a URL for the blob
       if (isImg(fileName)) {
@@ -63,7 +69,7 @@ function Viewer({ authToken, fileName, fileSize, fileUrl, uuid }) {
       }
 
       // Otherwise return the text of the data
-      return response.text();
+      return bodyText;
     },
     {
       onError: () => {
@@ -79,6 +85,20 @@ function Viewer({ authToken, fileName, fileSize, fileUrl, uuid }) {
 
   if (isLoading) {
     return <span>Loading...</span>;
+  }
+
+  if (data === isNotUploadedStr) {
+    return (
+      <>
+        <p>
+          This file has not been uploaded yet. This is likely due to do an error
+          that occurred during release.
+        </p>
+        <p className="mt-3">
+          Contact tech support in Slack for more information.
+        </p>
+      </>
+    );
   }
 
   if (isError || !data || !canDisplay(fileName)) {
