@@ -966,6 +966,9 @@ class User(AbstractBaseUser):
         """Support Django's User contract"""
         return self.fullname
 
+    def get_logs_url(self):
+        return reverse("user-event-log", kwargs={"username": self.username})
+
     def get_staff_clear_roles_url(self):
         return reverse("staff:user-clear-roles", kwargs={"username": self.username})
 
