@@ -14,6 +14,7 @@ import { datasetProps, selectedFileProps } from "../../utils/props";
 import { toastError } from "../../utils/toast";
 import Iframe from "../Iframe/Iframe";
 import Image from "../Image/Image";
+import Link from "../Link";
 import NoPreview from "../NoPreview/NoPreview";
 import Table from "../Table/Table";
 import Text from "../Text/Text";
@@ -95,7 +96,12 @@ function Viewer({ authToken, fileName, fileSize, fileUrl, uuid }) {
           that occurred during release.
         </p>
         <p className="mt-3">
-          Contact tech support in Slack for more information.
+          <Link
+            href="https://docs.opensafely.org/how-to-get-help/#slack"
+            newTab
+          >
+            Contact tech support in Slack for more information.
+          </Link>
         </p>
       </>
     );
