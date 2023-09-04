@@ -47,7 +47,7 @@
     {% #button class="mt-2" type="submit" variant="primary-outline" %}Search{% /button %}
   </form>
 
-  {% if backends|length > 1 %}
+  {% if backends %}
   <form class="mt-6 pt-6 border-t border-t-slate-300" method="get">
     {% #form_fieldset class="mb-3" %}
       {% form_legend text="Filter by backend" %}
