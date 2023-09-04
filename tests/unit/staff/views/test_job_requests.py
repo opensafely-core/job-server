@@ -131,7 +131,7 @@ def test_jobrequestlist_filter_by_workspace(rf, core_developer):
     assert set_from_qs(response.context_data["object_list"]) == {job_request.pk}
 
 
-def test_jobrequestlist_search_by_fullname(rf, core_developer):
+def test_jobrequestlist_search_using_fullname(rf, core_developer):
     JobRequestFactory.create_batch(5)
 
     user = UserFactory(fullname="Ben Goldacre")
@@ -147,7 +147,7 @@ def test_jobrequestlist_search_by_fullname(rf, core_developer):
     assert set_from_qs(response.context_data["object_list"]) == {job_request.pk}
 
 
-def test_jobrequestlist_search_by_identifier(rf, core_developer):
+def test_jobrequestlist_search_using_identifier(rf, core_developer):
     JobRequestFactory.create_batch(5)
 
     job_request = JobRequestFactory(identifier="1234abcd")
@@ -171,7 +171,7 @@ def test_jobrequestlist_search_by_identifier(rf, core_developer):
     assert set_from_qs(response.context_data["object_list"]) == {job_request.pk}
 
 
-def test_jobrequestlist_search_by_job_identifier(rf, core_developer):
+def test_jobrequestlist_search_using_job_identifier(rf, core_developer):
     JobRequestFactory.create_batch(5)
 
     job_request = JobRequestFactory()
@@ -189,7 +189,7 @@ def test_jobrequestlist_search_by_job_identifier(rf, core_developer):
     assert set_from_qs(response.context_data["object_list"]) == {job_request.pk}
 
 
-def test_jobrequestlist_search_by_org(rf, core_developer):
+def test_jobrequestlist_search_using_org(rf, core_developer):
     JobRequestFactory.create_batch(5)
 
     org = OrgFactory(name="University of Testing")
@@ -207,7 +207,7 @@ def test_jobrequestlist_search_by_org(rf, core_developer):
     assert set_from_qs(response.context_data["object_list"]) == {job_request.pk}
 
 
-def test_jobrequestlist_search_by_pk(rf, core_developer):
+def test_jobrequestlist_search_using_pk(rf, core_developer):
     JobRequestFactory.create_batch(5)
 
     job_request = JobRequestFactory()
@@ -218,11 +218,11 @@ def test_jobrequestlist_search_by_pk(rf, core_developer):
     response = JobRequestList.as_view()(request)
 
     assert response.status_code == 200
-    assert len(response.context_data["object_list"]) == 1
-    assert set_from_qs(response.context_data["object_list"]) == {job_request.pk}
+    # The primary key is usually quite short, so can sometimes match fields in other objects too
+    assert job_request.pk in set_from_qs(response.context_data["object_list"])
 
 
-def test_jobrequestlist_search_by_project(rf, core_developer):
+def test_jobrequestlist_search_using_project(rf, core_developer):
     JobRequestFactory.create_batch(5)
 
     project = ProjectFactory(name="A Very Important Project")
@@ -239,7 +239,7 @@ def test_jobrequestlist_search_by_project(rf, core_developer):
     assert set_from_qs(response.context_data["object_list"]) == {job_request.pk}
 
 
-def test_jobrequestlist_search_by_username(rf, core_developer):
+def test_jobrequestlist_search_using_username(rf, core_developer):
     JobRequestFactory.create_batch(5)
 
     user = UserFactory(username="beng")
@@ -255,7 +255,7 @@ def test_jobrequestlist_search_by_username(rf, core_developer):
     assert set_from_qs(response.context_data["object_list"]) == {job_request.pk}
 
 
-def test_jobrequestlist_search_by_workspace(rf, core_developer):
+def test_jobrequestlist_search_using_workspace(rf, core_developer):
     JobRequestFactory.create_batch(5)
 
     workspace = WorkspaceFactory(name="workspace-testing-research")
