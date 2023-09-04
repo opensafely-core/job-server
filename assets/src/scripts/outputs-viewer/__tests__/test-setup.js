@@ -1,5 +1,5 @@
 /* eslint-disable import/no-extraneous-dependencies */
-import "@testing-library/jest-dom/extend-expect";
+import "@testing-library/jest-dom/vitest";
 import { beforeEach, vi } from "vitest";
 import createFetchMock from "vitest-fetch-mock";
 
