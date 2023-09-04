@@ -1,4 +1,39 @@
-@import "variables";
+$oxford-50: #f1f7ff;
+$oxford-100: #cfe5ff;
+$oxford-200: #9ccaff;
+$oxford-300: #69afff;
+$oxford-400: #3693ff;
+$oxford-500: #0378ff;
+$oxford-600: #0058be;
+$oxford-700: #00397a;
+$oxford-800: #002147;
+$oxford-900: #001936;
+$oxford: $oxford-800;
+
+$theme-colors: (
+  "primary": $oxford-600,
+  "danger": #d13242,
+  "success": #218739,
+);
+
+$jumbotron-bg: $oxford-50;
+$jumbotron-padding: 1rem;
+
+$breadcrumb-bg: $oxford-50;
+$breadcrumb-divider-color: rgba($oxford-900, 0.5);
+$breadcrumb-active-color: $oxford-800;
+
+$list-group-action-color: $oxford-600;
+$list-group-action-hover-color: $oxford;
+
+$code-color: map-get($theme-colors, "danger");
+$font-weight-bolder: 700;
+$headings-font-weight: 600;
+$display1-weight: 600;
+$display2-weight: 600;
+$display3-weight: 600;
+$display4-weight: 600;
+
 @import "../../../node_modules/bootstrap/scss/bootstrap";
 @import "../../../node_modules/@fontsource/public-sans/400.css";
 @import "../../../node_modules/@fontsource/public-sans/500.css";
@@ -309,8 +344,77 @@ legend {
   }
 }
 
-@import "staff";
-@import "utilities";
+.jumbotron--danger,
+.breadcrumb--danger,
+.breadcrumb--danger .breadcrumb {
+  background-color: #f5c6cb;
+}
+
+.logo-placeholder {
+  aspect-ratio: 1 / 1;
+  max-height: 200px;
+  max-width: 200px;
+}
+
+.logo-container {
+  img {
+    @extend .logo-placeholder;
+    padding: 1rem;
+    object-fit: contain;
+  }
+}
+
+.table--repo {
+  font-size: 90%;
+}
+
+.cursor-pointer {
+  cursor: pointer;
+}
+
+.prose-width {
+  max-width: 65ch;
+}
+
+.w-0 {
+  width: 0;
+}
+
+.text-line-through {
+  text-decoration: line-through;
+}
+
+.text-pre-wrap {
+  white-space: pre-wrap;
+}
+
+.prg,
+.prg__bar {
+  height: 1rem;
+  width: 100%;
+}
+
+.prg__bar {
+  -webkit-appearance: none;
+  appearance: none;
+  border-radius: 0.25rem;
+  overflow: hidden;
+  position: relative;
+}
+
+.prg__bar::-webkit-progress-bar {
+  background-color: #e9ecef;
+  border-radius: 0;
+}
+
+.prg__bar::-webkit-progress-value {
+  background-color: $oxford-600;
+  border-radius: 0;
+}
+
+.no-pointer-events {
+  pointer-events: none;
+}
 
 #linkedWorkspaces {
   .card {
