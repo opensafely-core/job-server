@@ -191,6 +191,14 @@ def test_user_get_staff_roles_url():
     )
 
 
+def test_user_get_logs_url():
+    user = UserFactory()
+
+    url = user.get_logs_url()
+
+    assert url == reverse("user-event-log", kwargs={"username": user.username})
+
+
 def test_user_get_staff_url():
     user = UserFactory()
 
