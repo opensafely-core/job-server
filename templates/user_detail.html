@@ -18,6 +18,12 @@
       View logs
       {% icon_queue_list_outline class="h-4 w-4 ml-2 -mr-2" %}
     {% /button %}
+    {% if user_can_view_staff_area %}
+      {% #button href=user.get_staff_url type="link" variant="danger" class="flex-shrink-0" %}
+        View in Staff Area
+        {% icon_lifebuoy_outline class="h-4 w-4 ml-2 -mr-2" %}
+      {% /button %}
+    {% endif %}
   {% /article_header %}
 
   {% if projects %}
