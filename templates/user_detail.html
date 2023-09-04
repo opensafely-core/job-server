@@ -13,11 +13,19 @@
 
 {% block content %}
   {% #article_header title=user.name class="mb-6" %}
-    {% url "user-event-log" username=user.username as user_event_log_url %}
-    {% #button href=user_event_log_url type="link" variant="primary" %}
-      View logs
-      {% icon_queue_list_outline class="h-4 w-4 ml-2 -mr-2" %}
-    {% /button %}
+    <div class="flex flex-row flex-wrap gap-2">
+      {% url "user-event-log" username=user.username as user_event_log_url %}
+      {% #button href=user_event_log_url type="link" variant="primary" %}
+        View logs
+        {% icon_queue_list_outline class="h-4 w-4 ml-2 -mr-2" %}
+      {% /button %}
+      {% if user_can_view_staff_area %}
+        {% #button href=user.get_staff_url type="link" variant="danger" class="flex-shrink-0" %}
+          View in Staff Area
+          {% icon_lifebuoy_outline class="h-4 w-4 ml-2 -mr-2" %}
+        {% /button %}
+      {% endif %}
+    </div>
   {% /article_header %}
 
   {% if projects %}

@@ -111,11 +111,7 @@
           {% /description_item %}
 
           {% #description_item title="Created by" %}
-            {% if user_can_view_staff_area %}
-            {% link href=analysis_request.created_by.get_staff_url text=analysis_request.created_by.fullname %}
-            {% else %}
-            {{ analysis_request.created_by.fullname }}
-            {% endif %}
+            {% link href=analysis_request.created_by.get_absolute_url text=analysis_request.created_by.fullname %}
           {% /description_item %}
         </dl>
       {% /card %}
@@ -214,11 +210,7 @@
           {% /description_item %}
 
           {% #description_item title="Created by" %}
-            {% if user_can_view_staff_area %}
-            {% link href=analysis_request.created_by.get_staff_url text=analysis_request.created_by.fullname %}
-            {% else %}
-            {{ analysis_request.created_by.fullname }}
-            {% endif %}
+            {% link href=analysis_request.created_by.get_absolute_url text=analysis_request.created_by.fullname %}
           {% /description_item %}
 
           {% #description_item title="Purpose" %}
