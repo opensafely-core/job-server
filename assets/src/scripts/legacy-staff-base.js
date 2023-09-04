@@ -1,7 +1,17 @@
+/* global $ */
 import hljs from "highlight.js/lib/core";
 import json from "highlight.js/lib/languages/json";
 import "highlight.js/styles/github.css";
-import "../styles/staff-tw.css";
+
+import "../styles/legacy-staff-base.scss";
+
+import "./_event-log";
+import "./_plausible";
+import "./utils/double-click";
+
+$(() => {
+  $('[data-toggle="tooltip"]').tooltip();
+});
 
 hljs.registerLanguage("json", json);
 

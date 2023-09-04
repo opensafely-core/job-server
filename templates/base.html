@@ -2,7 +2,7 @@
 {% load django_vite %}
 
 <!DOCTYPE html>
-<html lang="en">
+<html lang="en" class="no-js min-h-screen">
   <head>
     <meta charset="UTF-8">
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
@@ -13,39 +13,46 @@
 
     {% block extra_meta %}{% endblock %}
 
+    <script type="module" nonce="{{ request.csp_nonce }}">
+      document.documentElement.classList.remove("no-js");
+      document.documentElement.classList.add("js");
+
+      window.addEventListener("load", () => {
+        document.body.classList.remove("preload");
+      });
+    </script>
+
     {% vite_hmr_client %}
-    {% vite_asset 'assets/src/scripts/main.js' %}
+    {% vite_asset "assets/src/scripts/base.js" %}
 
     {% block extra_styles %}{% endblock %}
 
-    <link rel="icon" href="{% static 'favicon.ico' %}"><!-- 32×32 -->
-    <link rel="icon" href="{% static 'icon.svg' %}" type="image/svg+xml">
-    <link rel="apple-touch-icon" href="{% static 'apple-touch-icon.png' %}"><!-- 180×180 -->
-    <link rel="manifest" href="{% static 'manifest.webmanifest' %}">
+    <link rel="icon" href="{% static "favicon.ico" %}">
+    <link rel="icon" href="{% static "icon.svg" %}" type="image/svg+xml">
+    <link rel="apple-touch-icon" href="{% static "apple-touch-icon.png" %}">
+    <link rel="manifest" href="{% static "manifest.webmanifest" %}">
   </head>
 
-  <body class="d-flex flex-column min-vh-100">
-    {% include 'partials/header.html' %}
+  <body class="preload flex flex-col min-h-screen text-slate bg-white">
+    {% skip_link %}
+    {% header login_url=login_url nav=nav user=user request=request user_can_view_staff_area=user_can_view_staff_area %}
 
-    <main class="main flex-grow-1">
-      {% include 'partials/alerts.html' %}
-      {% block breadcrumbs %}{% endblock %}
-      {% block jumbotron %}{% endblock %}
+    {% block breadcrumbs %}{% endblock %}
 
-      <div class="pt-3">
+    {% block hero %}{% endblock hero %}
+
+    <main class="min-h-[66vh] flex-grow pb-12 bg-slate-100">
+      <div class="container xl:max-w-screen-xl pt-2 md:pt-6 pb-4" id="content">
+        {% alerts disable_creating_jobs=disable_creating_jobs messages=messages %}
         {% block content %}{% endblock %}
       </div>
+      {% block full_width_content %}{% endblock full_width_content %}
     </main>
 
-    {% include 'partials/footer.html' %}
-
-    <!-- JavaScript -->
-    <script src="{% static 'vendor/jquery.slim.min.js' %}"></script>
-    <script src="{% static 'vendor/bootstrap.bundle.min.js' %}"></script>
-    <script src="{% static 'js/main.js' %}"></script>
+    {% footer nav=nav %}
 
     {% vite_legacy_polyfills %}
-    {% vite_legacy_asset 'assets/src/scripts/main-legacy.js' %}
+    {% vite_legacy_asset "assets/src/scripts/base.js" %}
     {% block extra_js %}{% endblock %}
   </body>
 </html>

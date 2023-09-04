@@ -12,20 +12,18 @@ const config = {
     manifest: true,
     rollupOptions: {
       input: {
-        "application-form": "./assets/src/scripts/application-form.js",
+        interactive: "assets/src/scripts/interactive/main.jsx",
+        "outputs-viewer": "./assets/src/scripts/outputs-viewer/index.jsx",
         "analysis-request-detail":
           "./assets/src/scripts/analysis-request-detail.js",
-        "outputs-viewer": "./assets/src/scripts/outputs-viewer/index.jsx",
+        "application-form": "./assets/src/scripts/application-form.js",
+        base: "./assets/src/scripts/base.js",
         components: "./assets/src/scripts/components.js",
-        index: "./assets/src/scripts/index.js",
-        interactive: "assets/src/scripts/interactive/main.jsx",
         job_request_create: "./assets/src/scripts/job_request_create.js",
-        main: "./assets/src/scripts/main.js",
-        staff: "./assets/src/scripts/staff.js",
-        tw: "./assets/src/scripts/tw.js",
-        workspace_create: "./assets/src/scripts/workspace_create.js",
+        "legacy-staff-base": "./assets/src/scripts/legacy-staff-base.js",
         "sign-off-repo": "./assets/src/scripts/sign-off-repo.js",
-        "staff-tw": "./assets/src/scripts/staff-tw.js",
+        "staff-base": "./assets/src/scripts/staff-base.js",
+        workspace_create: "./assets/src/scripts/workspace_create.js",
       },
     },
     outDir: "assets/dist",
@@ -52,10 +50,6 @@ const config = {
         },
         {
           src: "./node_modules/jquery/dist/jquery.slim.min.*",
-          dest: "vendor",
-        },
-        {
-          src: "./node_modules/list.js/dist/list.min.*",
           dest: "vendor",
         },
         {
