@@ -422,7 +422,7 @@ class WorkspaceEventLog(ListView):
             pk__in=JobRequest.objects.filter(workspace=self.workspace).values_list(
                 "backend_id", flat=True
             )
-        )
+        ).order_by("name")
 
         return super().get_context_data(**kwargs) | {
             "backends": backends,

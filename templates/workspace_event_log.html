@@ -51,7 +51,7 @@
   <form class="mt-6 pt-6 border-t border-t-slate-300" method="get">
     {% #form_fieldset class="mb-3" %}
       {% form_legend text="Filter by backend" %}
-      {% for backend in backends|dictsort:"name" %}
+      {% for backend in backends %}
         {% is_filter_selected key="backend" value=backend.slug as is_active %}
         {% form_checkbox custom_field=True label=backend.name value=backend.slug name="backend" id=backend.slug checked=is_active %}
       {% endfor %}
