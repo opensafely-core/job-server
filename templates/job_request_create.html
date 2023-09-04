@@ -74,15 +74,7 @@
           {% form_legend text="Select a backend" %}
 
           <div class="max-w-lg flex flex-col gap-y-2" id="backends">
-            {% for value, label in form.backend.field.choices %}
-              {% with id=forloop.counter|stringformat:"s" %}
-              {% if form.backend.value == value %}
-                {% form_radio custom_field=True id="id_backend"|add:id name="backend" value=value label=label checked=True %}
-              {% else %}
-                {% form_radio custom_field=True id="id_backend"|add:id name="backend" value=value label=label checked=False %}
-              {% endif %}
-              {% endwith %}
-            {% endfor %}
+            {% form_radios field=form.backend %}
           </div>
 
           {% if form.backend.errors %}

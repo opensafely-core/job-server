@@ -15,6 +15,7 @@ components:
   form_input: "_components/form/input.html"
   form_legend: "_components/form/legend.html"
   form_radio: "_components/form/radio.html"
+  form_radios: "_components/form/radio_list.html"
   form_select: "_components/form/select.html"
   form_textarea: "_components/form/textarea.html"
   header: "_components/header.html"
