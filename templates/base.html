@@ -25,10 +25,92 @@
   </head>
 
   <body class="d-flex flex-column min-vh-100">
-    {% include 'partials/header.html' %}
+    <nav class="navbar navbar-expand-lg navbar-dark bg-primary py-lg-2">
+      <div class="container px-0 px-sm-3">
+        <a class="navbar-brand" href="/">OpenSAFELY Jobs</a>
+        <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
+          <span class="navbar-toggler-icon"></span>
+        </button>
+
+        <div class="collapse navbar-collapse" id="navbar">
+          <ul class="navbar-nav ml-auto mr-2 mt-2 mt-lg-0">
+            {% for location in nav %}
+            <li class="nav-item {% if location.is_active %}active{% endif %}">
+              <a class="nav-link {% if location.is_active %}text-white{% else %}text-light{% endif %}" href="{{ location.url }}">
+                {{ location.name }}{% if location.is_active %} <span class="sr-only">(current)</span>{% endif %}
+              </a>
+            </li>
+            {% endfor %}
+
+          {% if not user.is_authenticated %}
+          <li class="nav-item my-2 my-lg-0 ml-lg-2">
+            <a class="btn btn-outline-light" href="{{ login_url }}" rel="nofollow">
+              Login
+            </a>
+          </li>
+          {% else %}
+          <li class="nav-item dropdown">
+            <a
+              aria-expanded="false"
+              class="text-light nav-link dropdown-toggle"
+              data-toggle="dropdown"
+              href="#"
+              id="navbarUserDropdown"
+              role="button"
+            >
+              Account
+            </a>
+            <div class="dropdown-menu dropdown-menu-lg-right" aria-labelledby="navbarUserDropdown">
+              <span class="dropdown-header">
+                Logged in as:
+                <span class="d-block">
+                  <strong class="text-break">{{ request.user.username }}</strong>
+                  {% if request.user.uses_social_auth %}
+                  via GitHub
+                  {% endif %}
+                </span>
+              </span>
+
+              <div class="dropdown-divider"></div>
+
+              {% if user_can_view_staff_area %}
+              <a class="dropdown-item" href="{% url 'staff:index' %}">
+                🚨 Staff Area 🚨
+              </a>
+              {% endif %}
+
+              <a class="dropdown-item" href="{% url 'settings' %}">Settings</a>
+              <a class="dropdown-item" href="{% url 'applications:list' %}">Applications</a>
+              <a class="dropdown-item" href="{% url 'logout' %}">Logout</a>
+            </div>
+          </ul>
+          {% endif %}
+        </div>
+      </div>
+    </nav>
 
     <main class="main flex-grow-1">
-      {% include 'partials/alerts.html' %}
+      {% if disable_creating_jobs %}
+      <div class="alert alert-warning text-center mb-0" role="alert">
+        Creating jobs is temporarily unavailable, please try again later.
+      </div>
+      {% endif %}
+
+      {% for message in messages %}
+        <div class="alert {{ message.tags }} alert-dismissible mb-0" role="alert">
+          <button type="button" class="close" data-dismiss="alert" aria-label="Close">
+            <span aria-hidden="true">&times;</span>
+          </button>
+          <div class="container">
+            <div class="row">
+              <div class="col text-center">
+                <p class="mb-0">{{ message|safe }}</p>
+              </div>
+            </div>
+          </div>
+        </div>
+      {% endfor %}
+
       {% block breadcrumbs %}{% endblock %}
       {% block jumbotron %}{% endblock %}
 
@@ -37,7 +119,48 @@
       </div>
     </main>
 
-    {% include 'partials/footer.html' %}
+    <footer id="footer" class="flex-shrink-0 border-top bg-light mt-5 py-5">
+      <div class="container">
+        <ul class="list-inline text-center d-flex flex-column flex-md-row justify-content-center mb-0 mb-md-3">
+          <li class="list-inline-item mb-3 mb-md-0 mr-0 mr-md-5">
+            <a href="https://docs.opensafely.org/">
+              Documentation
+            </a>
+          </li>
+
+          <li class="list-inline-item mb-3 mb-md-0 mr-0 mr-md-5">
+            <a href="https://www.opensafely.org/">
+              OpenSAFELY
+            </a>
+          </li>
+
+          <li class="list-inline-item mb-3 mb-md-0">
+            <a href="https://www.opencodelists.org/">
+              OpenCodelists
+            </a>
+          </li>
+        </ul>
+
+        <ul class="list-inline text-center d-flex flex-column flex-md-row justify-content-center">
+          <li class="list-inline-item mb-3 mb-md-0 mr-0 mr-md-5">
+            <a href="https://www.bennett.ox.ac.uk/">
+              Bennett Institute for Applied Data Science
+            </a>
+          </li>
+
+          <li class="list-inline-item mb-3 mb-md-0">
+            <a href="https://www.ox.ac.uk/">
+              University of Oxford
+            </a>
+          </li>
+        </ul>
+
+        <div class="row">
+          <p class="col-12 offset-md-1 col-md-10 offset-lg-2 col-lg-8 text-center">&copy; University of Oxford for the Bennett Institute for Applied Data Science {% now 'Y' %}. This work may be copied freely for non-commercial research and study. If you wish to do any of the other acts restricted by the copyright you should apply in writing to <a href="mailto:bennett@phc.ox.ac.uk">bennett@phc.ox.ac.uk</a>.</p>
+          <p class="col-12 offset-md-1 col-md-10 offset-lg-2 col-lg-8 text-center mb-0"><a href="https://www.opensafely.org/privacy/" target="_blank" rel="noopener noreferrer">Privacy Policy</a></p>
+        </div>
+      </div>
+    </footer>
 
     <!-- JavaScript -->
     <script src="{% static 'vendor/jquery.slim.min.js' %}"></script>
