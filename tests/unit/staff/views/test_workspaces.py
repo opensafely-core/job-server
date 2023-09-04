@@ -60,13 +60,12 @@ def test_workspaceedit_get_success(rf, core_developer):
 def test_workspaceedit_post_success(rf, core_developer):
     org = OrgFactory()
     old_project = ProjectFactory(org=org)
-    workspace = WorkspaceFactory(project=old_project, uses_new_release_flow=False)
+    workspace = WorkspaceFactory(project=old_project)
 
     new_project = ProjectFactory(org=org)
 
     data = {
         "project": str(new_project.pk),
-        "uses_new_release_flow": True,
     }
     request = rf.post("/", data)
     request.user = core_developer
@@ -89,11 +88,10 @@ def test_workspaceedit_post_success(rf, core_developer):
 
 def test_workspaceedit_post_success_when_not_changing_project(rf, core_developer):
     project = ProjectFactory()
-    workspace = WorkspaceFactory(project=project, uses_new_release_flow=False)
+    workspace = WorkspaceFactory(project=project)
 
     data = {
         "project": str(project.pk),
-        "uses_new_release_flow": True,
     }
     request = rf.post("/", data)
     request.user = core_developer
@@ -104,6 +102,7 @@ def test_workspaceedit_post_success_when_not_changing_project(rf, core_developer
     assert response.url == workspace.get_staff_url()
 
     workspace.refresh_from_db()
+    assert workspace.uses_new_release_flow
     assert not workspace.redirects.exists()
 
 

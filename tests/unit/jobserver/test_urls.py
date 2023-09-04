@@ -108,7 +108,6 @@ def test_url_redirects(client, url, redirect):
         ("/staff/projects/", staff_projects.ProjectList),
         ("/staff/projects/p/", staff_projects.ProjectDetail),
         ("/staff/projects/p/edit/", staff_projects.ProjectEdit),
-        ("/staff/projects/p/feature-flags/", staff_projects.ProjectFeatureFlags),
         ("/staff/redirects/", staff_redirects.RedirectList),
         ("/staff/redirects/42/", staff_redirects.RedirectDetail),
         ("/staff/users/", staff_users.UserList),

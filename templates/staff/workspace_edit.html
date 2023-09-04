@@ -74,26 +74,6 @@
           </div>
         </div>
 
-        <div class="form-group">
-          <fieldset>
-            <legend class="pt-3">Feature flags</legend>
-            <div class="custom-control custom-checkbox">
-              <input
-                  type="checkbox"
-                  class="custom-control-input"
-                  id="id_uses_new_release_flow"
-                  name="uses_new_release_flow"
-                  {% if form.uses_new_release_flow.value %}
-                  checked
-                  {% endif %}
-                  />
-              <label class="custom-control-label" for="id_uses_new_release_flow">
-                Use the new Jobs site release process for this workspace
-              </label>
-            </div>
-          </fieldset>
-        </div>
-
         <button class="btn btn-primary" type="submit">
           Save
         </button>

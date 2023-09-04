@@ -99,14 +99,6 @@ def test_project_get_staff_edit_url():
     assert url == reverse("staff:project-edit", kwargs={"slug": project.slug})
 
 
-def test_project_get_staff_feature_flags_url():
-    project = ProjectFactory()
-
-    url = project.get_staff_feature_flags_url()
-
-    assert url == reverse("staff:project-feature-flags", kwargs={"slug": project.slug})
-
-
 def test_project_populates_slug():
     assert ProjectFactory(name="Test Project", slug="").slug == "test-project"
 

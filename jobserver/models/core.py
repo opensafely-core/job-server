@@ -591,9 +591,6 @@ class Project(models.Model):
     def get_staff_edit_url(self):
         return reverse("staff:project-edit", kwargs={"slug": self.slug})
 
-    def get_staff_feature_flags_url(self):
-        return reverse("staff:project-feature-flags", kwargs={"slug": self.slug})
-
     @property
     def interactive_slug(self):
         return f"{self.slug}-interactive"

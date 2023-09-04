@@ -178,15 +178,6 @@ class ProjectEditForm(forms.ModelForm):
         return number
 
 
-class ProjectFeatureFlagsForm(forms.Form):
-    flip_to = forms.ChoiceField(
-        choices=[
-            ("enable", "enable"),
-            ("disable", "disable"),
-        ],
-    )
-
-
 class ProjectLinkApplicationForm(forms.Form):
     application = forms.CharField()
 
@@ -298,7 +289,6 @@ class WorkspaceEditForm(forms.ModelForm):
         fields = [
             "project",
             "is_archived",
-            "uses_new_release_flow",
         ]
         model = Workspace
 
