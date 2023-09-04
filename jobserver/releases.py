@@ -221,22 +221,7 @@ def serve_file(request, rfile):
         raise NotFound
 
     if rfile.uploaded_at is None:
-        # file has not been uploaded yet
-        # use release-hatch to view it, will only work if on level 4
-        release = rfile.release
-        auth_token, url = build_hatch_token_and_url(
-            backend=release.backend,
-            workspace=release.workspace,
-            user=request.user,
-        )
-        # Note: because we need to add auth_token, we can't use a straight
-        # redirect here. So we create an empty response and the js code
-        # manually redirects. We may be able to do proper redirects in future
-        # with a bit of work.
-        response = Response(status=200)
-        response.headers["Location"] = url + f"/release/{release.id}/{rfile.name}"
-        response.headers["Authorization"] = auth_token
-        return response
+        return Response("File not yet uploaded")
 
     path = rfile.absolute_path()
 
