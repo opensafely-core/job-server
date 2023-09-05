@@ -13,6 +13,7 @@ summary::-webkit-details-marker {
   word-wrap: break-word;
 }
 
+[hidden],
 [x-cloak] {
   display: none !important;
 }
