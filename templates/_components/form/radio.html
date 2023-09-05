@@ -1,16 +1,8 @@
-{% if custom_field == True %}
-  {% var label_for=id %}
-  {% var input_id=id %}
-  {% var input_name=name %}
-  {% var input_value=value %}
-  {% var field_errors=errors %}
-{% else %}
-  {% var label_for=field.id_for_label %}
-  {% var input_id=field.auto_id %}
-  {% var input_name=field.html_name %}
-  {% var input_value=field.value %}
-  {% var field_errors=field.errors %}
-{% endif %}
+{% var label_for=id %}
+{% var input_id=id %}
+{% var input_name=name %}
+{% var input_value=value %}
+{% var field_errors=errors %}
 
 <label
   for="{{ label_for }}"

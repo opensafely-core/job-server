@@ -66,7 +66,7 @@
           {% else %}
           {% var checked=False %}
           {% endif %}
-          {% form_radio custom_field=True name="does_researcher_need_server_access" id="id_does_researcher_need_server_access"|add:label|add:"_"|add:id|slugify label=label value=value checked=checked %}
+          {% form_radio name="does_researcher_need_server_access" id="id_does_researcher_need_server_access"|add:label|add:"_"|add:id|slugify label=label value=value checked=checked %}
         {% endwith %}
       {% endfor %}
     {% /form_fieldset %}
@@ -87,7 +87,7 @@
           {% else %}
           {% var checked=False %}
           {% endif %}
-          {% form_radio custom_field=True name="phone_type" id="id_"|add:label|add:"_"|add:id|slugify label=label value=value checked=checked %}
+          {% form_radio name="phone_type" id="id_"|add:label|add:"_"|add:id|slugify label=label value=value checked=checked %}
         {% endwith %}
       {% endfor %}
     {% /form_fieldset %}
@@ -104,7 +104,7 @@
           {% else %}
           {% var checked=False %}
           {% endif %}
-            {% form_radio custom_field=True name="has_taken_safe_researcher_training" id="id_has_taken_safe_researcher_training"|add:label|add:"_"|add:id|slugify label=label value=value checked=checked %}
+            {% form_radio name="has_taken_safe_researcher_training" id="id_has_taken_safe_researcher_training"|add:label|add:"_"|add:id|slugify label=label value=value checked=checked %}
         {% endwith %}
       {% endfor %}
     {% /form_fieldset %}
