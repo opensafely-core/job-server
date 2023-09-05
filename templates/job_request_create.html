@@ -184,14 +184,14 @@
             {% else %}
               {% var checked=False %}
             {% endif %}
-            {% form_radio id="id_will_notify" name="will_notify" value="True" label="Notify me when each of the selected actions has completed" checked=checked %}
+            {% form_radio id="id_will_notify0" name="will_notify" value="True" label="Notify me when each of the selected actions has completed" checked=checked %}
 
             {% if form.will_notify.value|stringformat:"s" == "False" %}
               {% var checked=True %}
             {% else %}
               {% var checked=False %}
             {% endif %}
-            {% form_radio id="id_will_notify" name="will_notify" value="False" label="Do not notify me" checked=checked %}
+            {% form_radio id="id_will_notify1" name="will_notify" value="False" label="Do not notify me" checked=checked %}
           </div>
         {% /form_fieldset %}
 
