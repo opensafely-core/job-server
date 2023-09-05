@@ -75,7 +75,8 @@
 
     <div class="mt-6 pt-6 border-t border-t-slate-300">
       <h2 class="text-3xl leading-tight tracking-tight font-semibold mb-4">Linked workspaces</h2>
-      <p class="text-lg mb-4">The following workspaces are linked to this repository:</p>
+      <p class="text-lg mb-4">The following workspaces are linked to this repository and need signing
+         off before the repo can be made public:</p>
       <div class="grid lg:grid-cols-2 gap-6">
         {% for workspace in workspaces %}
           {% #card class="w-full" title=workspace.name %}
@@ -125,7 +126,7 @@
                   {% csrf_token %}
                   <fieldset class="mb-2">
                     <legend class="font-semibold">
-                      I confirm I agree to the above conditions for this workspace, and sign off on this repository being made public.
+                      I confirm I agree to the above conditions for this workspace.
                     </legend>
                     <input type="hidden" name="name" value="{{ workspace.name }}" />
                   </fieldset>
@@ -136,7 +137,7 @@
               {% else %}
                 <p class="flex flex-row">
                   {% icon_check_outline class="text-green-500 mr-2" %}
-                  Signed off for publishing by
+                  Signed off by
                   {{ workspace.signed_off_by.name }}
                   at
                   <time datetime="{{ workspace.signed_off_at.isoformat }}">
