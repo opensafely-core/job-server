@@ -1,5 +1,7 @@
 {% extends "staff/base-tw.html" %}
 
+{% load zen_queries %}
+
 {% block metatitle %}Application {{ application.pk_hash }}: Staff Area | OpenSAFELY Jobs{% endblock metatitle %}
 
 {% block breadcrumbs %}
@@ -115,41 +117,87 @@
       {% url "applications:page" application.pk_hash page.key as application_page_url %}
       {% #card id=page.key title=page.title button=True button_href=application_page_url button_text="View on Site" %}
         {% if page.started %}
-          {% for fieldset in page.fieldsets %}
-            {% if fieldset.label %}
-              <h3 class="text-lg font-semibold px-3 py-2 md:py-4 md:px-6 border-t border-t-slate-200">
-                {{ fieldset.label }}
-              </h3>
-            {% endif %}
+          {% if page.key != "researcher-details" %}
+            {% for fieldset in page.fieldsets %}
+              {% if fieldset.label %}
+                <h3 class="text-lg font-semibold px-3 py-2 md:py-4 md:px-6 border-t border-t-slate-200">
+                  {{ fieldset.label }}
+                </h3>
+              {% endif %}
 
-            <dl class="border-t border-slate-200 sm:divide-y sm:divide-slate-200">
-              {% for field in fieldset.fields %}
-                {% #description_item stacked=True title=field.label %}
-                  {{ field.value|linebreaksbr }}
+              <dl class="border-t border-slate-200 sm:divide-y sm:divide-slate-200">
+                {% for field in fieldset.fields %}
+                  {% #description_item stacked=True title=field.label %}
+                    {{ field.value|linebreaksbr }}
+                  {% /description_item %}
+                {% endfor %}
+              </dl>
+            {% endfor %}
+          {% else %}
+            {% for researcher in researchers %}
+              <div class="px-3 py-2 md:py-4 md:px-6 border-t border-t-slate-200 flex flex-row flex-wrap gap-2">
+                <h3 class="text-lg font-semibold">
+                  {{ researcher.name }}
+                </h3>
+                <div class="ml-auto flex flex-row gap-x-2">
+                  {% #button type="link" small=True href=researcher.get_staff_edit_url variant="primary-outline" %}
+                    Edit
+                  {% /button %}
+                  {% #button type="link" small=True href=researcher.get_absolute_url|add:"?next="|add:request.path variant="secondary-outline" %}
+                    View
+                  {% /button %}
+                </div>
+              </div>
+
+              <dl class="border-t border-slate-200 sm:divide-y sm:divide-slate-200">
+                {% #description_item title="Email" %}
+                  {{ researcher.email }}
                 {% /description_item %}
-              {% endfor %}
-            </dl>
-          {% endfor %}
+                {% #description_item title="DAA" %}
+                  {% if researcher.daa %}
+                    {% link href=researcher.daa text="Link to DAA" %}
+                  {% else %}
+                    No DAA
+                  {% endif %}
+                {% /description_item %}
+                {% #description_item title="GitHub Username" %}
+                  {{ researcher.github_username|default:"-" }}
+                {% /description_item %}
+              </dl>
+            {% endfor %}
+          {% endif %}
 
           {% #card_footer no_container=True class="flex flex-col gap-y-4" %}
             {% form_textarea field=page.wizard_page.get_unbound_approval_form.notes name=page.wizard_page.notes_field_name label="Notes" %}
             {% #form_fieldset %}
               {% form_legend text="Is this page approved?" %}
-              {% form_radio %}
-              {% form_radio %}
+              {% for value, label in page.wizard_page.get_unbound_approval_form.is_approved.field.choices %}
+                {% with id=forloop.counter|stringformat:"s" %}
+                  {% if page.wizard_page.get_unbound_approval_form.is_approved.value == value %}
+                    {% form_radio custom_field=True id="id_"|add:page.key|add:"-is_approved"|add:id name=page.key|add:"-is_approved" value=value label=label checked=True %}
+                  {% else %}
+                    {% form_radio custom_field=True id="id_"|add:page.key|add:"-is_approved"|add:id name=page.key|add:"-is_approved" value=value label=label checked=False %}
+                  {% endif %}
+                {% endwith %}
+              {% endfor %}
             {% /form_fieldset %}
-            <!-- TODO -->
-            {% include "components/form_radio.html" with name=page.wizard_page.is_approved_field_name label="Approved?" field=page.wizard_page.get_unbound_approval_form.is_approved %}
 
+            {{ application.reviewed_by }}
             <ul>
               <li>
                 <strong>Last reviewed at:</strong>
-                {{ page.wizard_page.page_instance.last_reviewed_at|default_if_none:"Never"}}
+                {% if page.wizard_page.page_instance.last_reviewed_at %}
+                  {{ page.wizard_page.page_instance.last_reviewed_at|date:"d F Y" }} at {{ page.wizard_page.page_instance.last_reviewed_at|date:"H:i" }}
+                {% else %}
+                  Never
+                {% endif %}
               </li>
+              {% queries_dangerously_enabled %}
               <li>
                   <strong>Last reviewed by:</strong>
-                  {{ page.wizard_page.page_instance.reviewed_by|default_if_none:"Not yet reviewed"}}
+                  {{ page.wizard_page.page_instance.reviewed_by|default_if_none:"Not yet reviewed"}}</li>
               </li>
+              {% end_queries_dangerously_enabled %}
             </ul>
           {% /card_footer %}
 
@@ -160,45 +208,10 @@
         {% endif %}
       {% /card %}
     {% endfor %}
+
+    {% #button type="submit" variant="success" class="self-start" %}
+      Submit review
+    {% /button %}
   </form>
 </div>
-
-      <form method="post">
-        {% csrf_token %}
-
-        <h2 class="h3 mt-5">Researchers</h2>
-
-        <div class="list-group list-unstyled">
-          {% for researcher in researchers %}
-          <div class="d-flex justify-content-between align-items-center list-group-item">
-            <span class="mr-3">
-              {{ researcher.name }}
-              <small class="text-muted">({{ researcher.email }})</small>
-            </span>
-
-            <span>
-              {% if researcher.daa %}
-              <a href="{{ researcher.daa }}">DAA</a>
-              {% else %}
-              No DAA
-              {% endif %}
-              |
-              GitHub username: {{ researcher.github_username|default:"-" }}
-            </span>
-
-            <div>
-              <a class="btn btn-sm btn-danger" href="{{ researcher.get_staff_edit_url }}">Edit</a>
-              <a class="btn btn-sm btn-primary" href="{{ researcher.get_absolute_url }}?next={{ request.path }}">
-                View on Site
-              </a>
-            </div>
-          </div>
-          {% endfor %}
-        </div>
-
-        <hr />
-        <button class="btn btn-lg btn-success mt-3" type="submit">
-          Submit review
-        </button>
-      </form>
 {% endblock content %}
