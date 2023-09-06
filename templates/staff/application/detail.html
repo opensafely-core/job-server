@@ -174,9 +174,9 @@
               {% for value, label in page.wizard_page.get_unbound_approval_form.is_approved.field.choices %}
                 {% with id=forloop.counter|stringformat:"s" %}
                   {% if page.wizard_page.get_unbound_approval_form.is_approved.value == value %}
-                    {% form_radio custom_field=True id="id_"|add:page.key|add:"-is_approved"|add:id name=page.key|add:"-is_approved" value=value label=label checked=True %}
+                    {% form_radio custom_field=True id="id_"|add:page.wizard_page.is_approved_field_name|add:id name=page.wizard_page.is_approved_field_name value=value label=label checked=True %}
                   {% else %}
-                    {% form_radio custom_field=True id="id_"|add:page.key|add:"-is_approved"|add:id name=page.key|add:"-is_approved" value=value label=label checked=False %}
+                    {% form_radio custom_field=True id="id_"|add:page.wizard_page.is_approved_field_name|add:id name=page.wizard_page.is_approved_field_name value=value label=label checked=False %}
                   {% endif %}
                 {% endwith %}
               {% endfor %}
