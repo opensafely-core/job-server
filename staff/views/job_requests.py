@@ -100,7 +100,7 @@ class JobRequestList(ListView):
                 "pk",
                 "workspace__name",
                 "workspace__project__name",
-                "workspace__project__org__name",
+                "workspace__project__orgs__name",
             ]
             qs = qs.filter(qwargs(fields, q))
 
@@ -108,7 +108,7 @@ class JobRequestList(ListView):
             qs = qs.filter(backend__slug__in=backends)
 
         if orgs := self.request.GET.getlist("orgs"):
-            qs = qs.filter(workspace__project__org__slug__in=orgs)
+            qs = qs.filter(workspace__project__orgs__slug__in=orgs)
 
         if project := self.request.GET.get("project"):
             qs = qs.filter(workspace__project__slug=project)
