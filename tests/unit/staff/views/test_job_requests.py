@@ -7,6 +7,7 @@ from jobserver.utils import set_from_qs
 from staff.views.job_requests import JobRequestDetail, JobRequestList
 
 from ....factories import (
+    BackendFactory,
     JobFactory,
     JobRequestFactory,
     OrgFactory,
@@ -43,6 +44,37 @@ def test_jobrequestdetail_unknown_job_request(rf, core_developer):
 
     with pytest.raises(Http404):
         JobRequestDetail.as_view()(request, pk=0)
+
+
+def test_jobrequestlist_filter_by_backends(rf, core_developer):
+    JobRequestFactory.create_batch(5)
+
+    backend1 = BackendFactory()
+    job_request1 = JobRequestFactory(backend=backend1)
+
+    backend2 = BackendFactory()
+    job_request2 = JobRequestFactory(backend=backend2)
+
+    request = rf.get(f"/?backends={backend1.slug}")
+    request.user = core_developer
+
+    response = JobRequestList.as_view()(request)
+
+    assert response.status_code == 200
+    assert set_from_qs(response.context_data["object_list"]) == {job_request1.pk}
+
+    # now check with 2 backends
+
+    request = rf.get(f"/?backends={backend1.slug}&backends={backend2.slug}")
+    request.user = core_developer
+
+    response = JobRequestList.as_view()(request)
+
+    assert response.status_code == 200
+    assert set_from_qs(response.context_data["object_list"]) == {
+        job_request1.pk,
+        job_request2.pk,
+    }
 
 
 def test_jobrequestlist_filter_by_orgs(rf, core_developer):
