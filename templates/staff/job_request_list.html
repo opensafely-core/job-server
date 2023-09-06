@@ -65,6 +65,31 @@
 
       <div class="mb-4">
         <div class="d-flex justify-content-between align-items-center mb-1">
+          <h3 class="h4 mb-0">Filter by backend</h3>
+          <small>
+            <a
+              {% if backends.is_active %}
+              href="{% url_without_querystring backends="" %}"
+              {% else %}
+              class="text-muted"
+              disabled
+              {% endif %}
+              >Clear</a>
+          </small>
+        </div>
+        <select id="id_backends" name="backends" multiple>
+          <option></option>
+          {% for backend in backends.items %}
+          <option
+            value="{{ backend.slug }}"
+            {% if backend.slug in backends.selected %}selected{% endif %}
+            >{{ backend.name }}</option>
+          {% endfor %}
+        </select>
+      </div>
+
+      <div class="mb-4">
+        <div class="d-flex justify-content-between align-items-center mb-1">
           <h3 class="h4 mb-0">Filter by organisation</h3>
           <small>
             <a
@@ -254,6 +279,13 @@
 <script type="text/javascript" src="{% static 'vendor/select2.min.js' %}"></script>
 <script type="text/javascript" nonce="{{ request.csp_nonce }}">
   $(document).ready(function() {
+    $('#id_backends').select2({
+      multiple: true,
+      placeholder: "Select backends to filter by",
+      selectionCssClass: ":all:",
+      theme: "bootstrap4",
+      width: "100%"
+    });
     $('#id_orgs').select2({
       multiple: true,
       placeholder: "Select orgs to filter by",
