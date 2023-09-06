@@ -1,6 +1,6 @@
 {% extends "staff/base.html" %}
 
-{% load static %}
+{% load django_vite %}
 
 {% block metatitle %}Edit {{ project.title }}: Staff Area | OpenSAFELY Jobs{% endblock metatitle %}
 
@@ -40,10 +40,10 @@
     {% /form_fieldset %}
   {% /card %}
 
-  {% #card title="Organisation" container=True %}
+  {% #card title="Organisations" container=True %}
     {% #form_fieldset class="w-full items-stretch gap-y-6" %}
-      {% form_legend text="Organisation" class="sr-only" %}
-      {% form_select field=form.fields.org choices=form.fields.org.choices selected=form.org.value id="id_org" name="org" label="Select an org" %}
+      {% form_legend text="Organisations" class="sr-only" %}
+      {% multiselect field=form.orgs placeholder="Select one or more orgs" %}
     {% /form_fieldset %}
   {% /card %}
 
@@ -87,3 +87,7 @@
   {% /button %}
 </form>
 {% endblock content %}
+
+{% block extra_js %}
+  {% vite_asset "templates/_components/multiselect/multiselect.js" %}
+{% endblock extra_js %}

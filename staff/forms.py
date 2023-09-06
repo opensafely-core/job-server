@@ -123,6 +123,8 @@ class ProjectCreateForm(forms.Form):
 
 
 class ProjectEditForm(forms.ModelForm):
+    orgs = forms.ModelMultipleChoiceField(queryset=Org.objects.order_by(Lower("name")))
+
     class Meta:
         fields = [
             "application_url",
@@ -131,7 +133,7 @@ class ProjectEditForm(forms.ModelForm):
             "copilot_support_ends_at",
             "name",
             "number",
-            "org",
+            "orgs",
             "slug",
             "status",
             "status_description",

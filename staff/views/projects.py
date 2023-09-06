@@ -196,6 +196,7 @@ class ProjectEdit(UpdateView):
         new = form.save(commit=False)
         new.updated_by = self.request.user
         new.save()
+        new.orgs.set(form.cleaned_data["orgs"])
 
         # check changed_data here instead of comparing self.object.project to
         # new.project because self.object is mutated when ModelForm._post_clean
