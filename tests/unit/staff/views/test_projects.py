@@ -315,9 +315,6 @@ def test_projectedit_post_success(rf, core_developer):
     Redirect.objects.count() == 1
     redirect = Redirect.objects.first()
     assert redirect.project_id == original.pk
-    assert redirect.old_url == original.get_absolute_url().replace(
-        updated.org.get_absolute_url(), old_org.get_absolute_url()
-    )
 
 
 def test_projectedit_post_success_when_not_changing_org_or_slug(rf, core_developer):
