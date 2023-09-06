@@ -89,7 +89,7 @@ def test_orgcreate_get_success(rf, core_developer):
     response = OrgCreate.as_view()(request)
 
     assert response.status_code == 200
-    assert response.template_name == ["staff/org_create.html"]
+    assert response.template_name == ["staff/org/create.html"]
 
 
 def test_orgcreate_get_htmx_success(rf, core_developer):
