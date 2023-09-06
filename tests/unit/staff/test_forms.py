@@ -137,11 +137,11 @@ def test_projectcreateform_with_duplicate_number():
     project = ProjectFactory(number=42)
 
     data = {
-        "org": str(org.pk),
-        "copilot": str(copilot.pk),
         "application_url": "http://example.com",
+        "copilot": str(copilot.pk),
         "name": "Test",
         "number": project.number,
+        "orgs": [str(org.pk)],
     }
     form = ProjectCreateForm(data=data)
 

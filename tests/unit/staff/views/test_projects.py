@@ -112,7 +112,7 @@ def test_projectcreate_post_htmx_success_with_next(rf, core_developer):
         "copilot": user.pk,
         "name": "new-name",
         "number": "7",
-        "org": OrgFactory().pk,
+        "orgs": [OrgFactory().pk],
     }
     request = rf.post("/?next=/next/page/", data)
     request.htmx = True
@@ -132,7 +132,7 @@ def test_projectcreate_post_htmx_success_without_next(rf, core_developer):
         "copilot": user.pk,
         "name": "new-name",
         "number": "7",
-        "org": OrgFactory().pk,
+        "orgs": [OrgFactory().pk],
     }
     request = rf.post("/", data)
     request.htmx = True
@@ -158,7 +158,7 @@ def test_projectcreate_post_success(rf, core_developer):
         "copilot": user.pk,
         "name": "new-name",
         "number": "7",
-        "org": org.pk,
+        "orgs": [org.pk],
     }
     request = rf.post("/", data)
     request.htmx = False
@@ -172,7 +172,7 @@ def test_projectcreate_post_success(rf, core_developer):
     assert response.url == project.get_staff_url()
     assert project.created_by == core_developer
     assert project.name == "new-name"
-    assert project.org == org
+    assert set_from_qs(project.orgs.all()) == {org.pk}
 
 
 def test_projectcreate_post_with_github_failure(rf, core_developer):
@@ -184,7 +184,7 @@ def test_projectcreate_post_with_github_failure(rf, core_developer):
         "copilot": user.pk,
         "name": "New Name-Name",
         "number": "7",
-        "org": org.pk,
+        "orgs": [org.pk],
     }
     request = rf.post("/", data)
     request.htmx = False
@@ -217,7 +217,7 @@ def test_projectcreate_post_with_unique_number_failure(rf, core_developer):
         "copilot": user.pk,
         "name": "New Name-Name",
         "number": "7",
-        "org": org.pk,
+        "orgs": [org.pk],
     }
     request = rf.post("/", data)
     request.htmx = False

@@ -99,7 +99,7 @@ class ProjectCreateForm(forms.Form):
     copilot = UserModelChoiceField(queryset=User.objects.order_by_name())
     name = forms.CharField()
     number = forms.IntegerField()
-    org = forms.ModelChoiceField(queryset=Org.objects.order_by("name"))
+    orgs = forms.ModelMultipleChoiceField(queryset=Org.objects.order_by("name"))
 
     def clean_number(self):
         number = self.cleaned_data["number"]

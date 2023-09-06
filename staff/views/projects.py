@@ -95,11 +95,13 @@ class ProjectCreate(CreateView):
         # wrap the transaction in a try so it can rollback when that fires
         try:
             with transaction.atomic():
+                orgs = form.cleaned_data.pop("orgs")
                 project = Project.objects.create(
                     **form.cleaned_data,
                     created_by=self.request.user,
                     updated_by=self.request.user,
                 )
+                project.orgs.set(orgs)
 
                 # make sure the relevant interactive repo exists on GitHub
                 repo_url = create_repo(
