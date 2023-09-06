@@ -1,6 +1,6 @@
 from django.urls import reverse
 
-from ....factories import OrgFactory, ProjectFactory
+from ....factories import ProjectFactory
 
 
 def test_project_get_absolute_url():
@@ -104,13 +104,11 @@ def test_project_populates_slug():
 
 
 def test_project_str():
-    org = OrgFactory(name="test-org")
+    project = ProjectFactory(name="Very Good Project")
+    assert str(project) == "Very Good Project"
 
-    project = ProjectFactory(org=org, name="Very Good Project")
-    assert str(project) == "test-org | Very Good Project"
-
-    project = ProjectFactory(org=org, name="Another Very Good Project", number=42)
-    assert str(project) == "test-org | 42 - Another Very Good Project"
+    project = ProjectFactory(name="Another Very Good Project", number=42)
+    assert str(project) == "42 - Another Very Good Project"
 
 
 def test_project_title():
