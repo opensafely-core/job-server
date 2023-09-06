@@ -261,7 +261,7 @@ class ProjectList(ListView):
 
     def get_context_data(self, **kwargs):
         return super().get_context_data(**kwargs) | {
-            "orgs": Org.objects.order_by("name"),
+            "orgs": Org.objects.order_by(Lower("name")),
             "q": self.request.GET.get("q", ""),
         }
 
@@ -276,7 +276,7 @@ class ProjectList(ListView):
             qs = qs.filter(qwargs(fields, q))
 
         if orgs := self.request.GET.getlist("orgs"):
-            qs = qs.filter(org__slug__in=orgs)
+            qs = qs.filter(orgs__slug__in=orgs)
 
         return qs.distinct()
 

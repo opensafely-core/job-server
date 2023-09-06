@@ -467,7 +467,7 @@ def test_projectlinkapplication_unknown_project(rf, core_developer):
 
 def test_projectlist_filter_by_org(rf, core_developer):
     org = OrgFactory()
-    project = ProjectFactory(org=org)
+    project = ProjectFactory(orgs=[org])
     ProjectFactory.create_batch(2)
 
     request = rf.get(f"/?orgs={org.slug}")
