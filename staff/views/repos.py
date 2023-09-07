@@ -62,7 +62,9 @@ class RepoDetail(View):
 
         first_job_ran_at = ran_at(jobs.order_by("first_run").first())
         last_job_ran_at = ran_at(jobs.order_by("-first_run").first())
-        twelve_month_limit = first_job_ran_at + timedelta(days=365)
+        twelve_month_limit = (
+            first_job_ran_at + timedelta(days=365) if first_job_ran_at else None
+        )
 
         return {
             "first_job_ran_at": first_job_ran_at,

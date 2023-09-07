@@ -157,9 +157,13 @@
           </p>
           <p>
             <strong>12 month limit:</strong>
+            {% if dates.twelve_month_limit %}
             <span title="{{ dates.twelve_month_limit.isoformat }}">
               {{ dates.twelve_month_limit|naturalday }}
             </span>
+            {% else %}
+            <span>-</span>
+            {% endif %}
           </p>
         </div>
       </div>
