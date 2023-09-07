@@ -9,7 +9,6 @@ from ....factories import (
     BackendFactory,
     JobFactory,
     JobRequestFactory,
-    OrgFactory,
     ProjectFactory,
     UserFactory,
     WorkspaceFactory,
@@ -57,8 +56,7 @@ def test_workspace_constraints_missing_updated_at_or_updated_by():
 
 
 def test_workspace_get_absolute_url():
-    org = OrgFactory()
-    project = ProjectFactory(org=org)
+    project = ProjectFactory()
     workspace = WorkspaceFactory(project=project)
 
     url = workspace.get_absolute_url()
@@ -95,8 +93,7 @@ def test_workspace_get_releases_api_url():
 
 
 def test_workspace_get_archive_toggle_url():
-    org = OrgFactory()
-    project = ProjectFactory(org=org)
+    project = ProjectFactory()
     workspace = WorkspaceFactory(project=project)
 
     url = workspace.get_archive_toggle_url()
@@ -181,8 +178,7 @@ def test_workspace_get_latest_outputs_url():
 
 
 def test_workspace_get_logs_url():
-    org = OrgFactory()
-    project = ProjectFactory(org=org)
+    project = ProjectFactory()
     workspace = WorkspaceFactory(project=project)
 
     url = workspace.get_logs_url()
@@ -197,8 +193,7 @@ def test_workspace_get_logs_url():
 
 
 def test_workspace_get_notifications_toggle_url():
-    org = OrgFactory()
-    project = ProjectFactory(org=org)
+    project = ProjectFactory()
     workspace = WorkspaceFactory(project=project)
 
     url = workspace.get_notifications_toggle_url()
