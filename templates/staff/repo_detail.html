@@ -149,11 +149,19 @@
           </p>
           <p>
             <strong>Project first job run:</strong>
+            {% if dates.first_job_ran_at %}
             <span title="{{ dates.first_job_ran_at.isoformat }}">{{ dates.first_job_ran_at }}</span>
+            {% else %}
+            <span>-</span>
+            {% endif %}
           </p>
           <p>
             <strong>Project last job run:</strong>
+            {% if dates.last_job_ran_at %}
             <span title="{{ dates.last_job_ran_at.isoformat }}">{{ dates.last_job_ran_at }}</span>
+            {% else %}
+            <span>-</span>
+            {% endif %}
           </p>
           <p>
             <strong>12 month limit:</strong>
