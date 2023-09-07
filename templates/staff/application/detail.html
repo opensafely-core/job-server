@@ -1,0 +1,217 @@
+{% extends "staff/base-tw.html" %}
+
+{% load zen_queries %}
+
+{% block metatitle %}Application {{ application.pk_hash }}: Staff Area | OpenSAFELY Jobs{% endblock metatitle %}
+
+{% block breadcrumbs %}
+{% #breadcrumbs %}
+  {% url "staff:index" as staff_url %}
+  {% url "staff:application-list" as staff_application_list_url %}
+  {% breadcrumb title="Staff area" url=staff_url %}
+  {% breadcrumb title="Applications" url=staff_application_list_url %}
+  {% breadcrumb title="Application "|add:application.pk_hash active=True %}
+{% /breadcrumbs %}
+{% endblock breadcrumbs %}
+
+{% block hero %}
+{% #staff_hero title="Application "|add:application.pk_hash %}
+  <dl class="flex flex-col gap-2 mt-1">
+    {% if application.created_by %}
+    <div>
+      <div class="flex flex-row flex-wrap gap-1">
+        <dt class="font-semibold">Created by:</dt>
+        <dd>{% link href=application.created_by.get_staff_url text=application.created_by.name %}</dd>
+      </div>
+      {% endif %}
+      <div class="flex flex-row flex-wrap gap-1">
+        <dt class="font-semibold">Created at:</dt>
+        <dd>{{ application.created_at|date:"d F Y" }} at {{ application.created_at|date:"H:i" }}</dd>
+      </div>
+    </div>
+    <div>
+      {% if application.deleted_by %}
+      <div class="flex flex-row flex-wrap gap-1">
+        <dt class="font-semibold">Deleted by:</dt>
+        <dd>{% link href=application.deleted_by.get_staff_url text=application.deleted_by.name %}</dd>
+      </div>
+      {% endif %}
+      {% if application.deleted_at %}
+      <div class="flex flex-row flex-wrap gap-1">
+        <dt class="font-semibold">Deleted at:</dt>
+        <dd>{{ application.deleted_at|date:"d F Y" }} at {{ application.deleted_at|date:"H:i" }}</dd>
+      </div>
+      {% endif %}
+    </div>
+    <div>
+      {% if application.approved_by %}
+      <div class="flex flex-row flex-wrap gap-1">
+        <dt class="font-semibold">Approved by:</dt>
+        <dd>{% link href=application.approved_by.get_staff_url text=application.approved_by.name %}</dd>
+      </div>
+      {% endif %}
+      {% if application.approved_at %}
+      <div class="flex flex-row flex-wrap gap-1">
+        <dt class="font-semibold">Approved at:</dt>
+        <dd>{{ application.approved_at|date:"d F Y" }} at {{ application.approved_at|date:"H:i" }}</dd>
+      </div>
+      {% endif %}
+    </div>
+    {% if application.project %}
+    <div class="flex flex-row flex-wrap gap-1">
+      <dt class="font-semibold">Project:</dt>
+      <dd>{% link href=application.project.get_staff_url text=application.project.title %}</dd>
+    </div>
+    {% endif %}
+  </dl>
+
+  <div class="flex flex-row flex-wrap gap-2 mt-3">
+    {% #button variant="secondary" type="link" href=application.get_edit_url %}
+      Edit
+    {% /button %}
+
+    <form method="POST" action="{{ application.get_staff_delete_url }}">
+      {% csrf_token %}
+      {% #button type="submit" variant="danger" %}Delete{% /button %}
+    </form>
+
+    {% #button variant="primary" type="link" href=application.get_absolute_url %}
+      View on site
+    {% /button %}
+
+    {% #button variant="success" type="link" href=application.get_approve_url disabled=application.approved_at %}
+      Approve
+    {% /button %}
+  </div>
+{% /staff_hero %}
+{% endblock hero %}
+
+{% block content %}
+<div class="flex flex-col gap-y-4">
+  {% #card container=True title="Application details" %}
+    <dl class="flex flex-row flex-wrap gap-1 mb-3">
+      <dt class="font-semibold">Application status:</dt>
+      <dd>{% pill_application_status status=application.status %}</dd>
+    </dl>
+
+    <ul class="list-disc ml-3 flex flex-col gap-1">
+      {% for page in pages %}
+        <li>
+          <span class="flex flex-row items-center gap-1">
+            {% if page.status == "approved" %}
+              {% pill variant="success-outline" text="Approved" %}
+            {% else %}
+              {% pill variant="danger-outline" text="Not approved" %}
+            {% endif %}
+            {% link href="#"|add:page.key text=page.title %}
+          </span>
+        </li>
+      {% endfor %}
+    </ul>
+  {% /card %}
+
+  <form method="POST" class="flex flex-col gap-y-4">
+    {% csrf_token %}
+
+    {% for page in pages %}
+      {% url "applications:page" application.pk_hash page.key as application_page_url %}
+      {% #card id=page.key title=page.title button=True button_href=application_page_url button_text="View on Site" %}
+        {% if page.started %}
+          {% if page.key != "researcher-details" %}
+            {% for fieldset in page.fieldsets %}
+              {% if fieldset.label %}
+                <h3 class="text-lg font-semibold px-3 py-2 md:py-4 md:px-6 border-t border-t-slate-200">
+                  {{ fieldset.label }}
+                </h3>
+              {% endif %}
+
+              <dl class="border-t border-slate-200 sm:divide-y sm:divide-slate-200">
+                {% for field in fieldset.fields %}
+                  {% #description_item stacked=True title=field.label %}
+                    {{ field.value|linebreaksbr }}
+                  {% /description_item %}
+                {% endfor %}
+              </dl>
+            {% endfor %}
+          {% else %}
+            {% for researcher in researchers %}
+              <div class="px-3 py-2 md:py-4 md:px-6 border-t border-t-slate-200 flex flex-row flex-wrap gap-2">
+                <h3 class="text-lg font-semibold">
+                  {{ researcher.name }}
+                </h3>
+                <div class="ml-auto flex flex-row gap-x-2">
+                  {% #button type="link" small=True href=researcher.get_staff_edit_url variant="primary-outline" %}
+                    Edit
+                  {% /button %}
+                  {% #button type="link" small=True href=researcher.get_absolute_url|add:"?next="|add:request.path variant="secondary-outline" %}
+                    View
+                  {% /button %}
+                </div>
+              </div>
+
+              <dl class="border-t border-slate-200 sm:divide-y sm:divide-slate-200">
+                {% #description_item title="Email" %}
+                  {{ researcher.email }}
+                {% /description_item %}
+                {% #description_item title="DAA" %}
+                  {% if researcher.daa %}
+                    {% link href=researcher.daa text="Link to DAA" %}
+                  {% else %}
+                    No DAA
+                  {% endif %}
+                {% /description_item %}
+                {% #description_item title="GitHub Username" %}
+                  {{ researcher.github_username|default:"-" }}
+                {% /description_item %}
+              </dl>
+            {% endfor %}
+          {% endif %}
+
+          {% #card_footer no_container=True class="flex flex-col gap-y-4" %}
+            {% form_textarea field=page.wizard_page.get_unbound_approval_form.notes name=page.wizard_page.notes_field_name label="Notes" %}
+            {% #form_fieldset %}
+              {% form_legend text="Is this page approved?" %}
+              {% for value, label in page.wizard_page.get_unbound_approval_form.is_approved.field.choices %}
+                {% with id=forloop.counter|stringformat:"s" %}
+                  {% if page.wizard_page.get_unbound_approval_form.is_approved.value == value %}
+                    {% form_radio custom_field=True id="id_"|add:page.wizard_page.is_approved_field_name|add:id name=page.wizard_page.is_approved_field_name value=value label=label checked=True %}
+                  {% else %}
+                    {% form_radio custom_field=True id="id_"|add:page.wizard_page.is_approved_field_name|add:id name=page.wizard_page.is_approved_field_name value=value label=label checked=False %}
+                  {% endif %}
+                {% endwith %}
+              {% endfor %}
+            {% /form_fieldset %}
+
+            {{ application.reviewed_by }}
+            <ul>
+              <li>
+                <strong>Last reviewed at:</strong>
+                {% if page.wizard_page.page_instance.last_reviewed_at %}
+                  {{ page.wizard_page.page_instance.last_reviewed_at|date:"d F Y" }} at {{ page.wizard_page.page_instance.last_reviewed_at|date:"H:i" }}
+                {% else %}
+                  Never
+                {% endif %}
+              </li>
+              {% queries_dangerously_enabled %}
+              <li>
+                  <strong>Last reviewed by:</strong>
+                  {{ page.wizard_page.page_instance.reviewed_by|default_if_none:"Not yet reviewed"}}</li>
+              </li>
+              {% end_queries_dangerously_enabled %}
+            </ul>
+          {% /card_footer %}
+
+        {% else %}
+          <ul>
+            {% list_group_empty icon=True title="User has not started this page" %}
+          </ul>
+        {% endif %}
+      {% /card %}
+    {% endfor %}
+
+    {% #button type="submit" variant="success" class="self-start" %}
+      Submit review
+    {% /button %}
+  </form>
+</div>
+{% endblock content %}

@@ -3,8 +3,11 @@
     divide-y divide-slate-200
     {% if not no_border %}border-t border-t-slate-200{% endif %}
     {% if small %}text-sm{% endif %}
+    {{ class }}
   "
   role="list"
+  {% if data_filter_list %}data-filter-list{% endif %}
+  {% attrs id %}
 >
   {{ children }}
 </ul>

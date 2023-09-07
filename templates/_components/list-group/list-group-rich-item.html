@@ -1,4 +1,4 @@
-<li class="relative transition-colors hover:bg-oxford-50 group">
+<li class="relative transition-colors hover:bg-oxford-50 group {{ class }}">
   <dl class="flex flex-col gap-2 px-4 py-4 sm:px-6">
     <div class="flex gap-x-2">
       <dt class="sr-only">{{ type }}:</dt>
@@ -8,19 +8,51 @@
         group-hover:text-oxford-900
         group-focus:text-oxford-900
       ">
+        {% if url %}
         <a
           class="
             focus:bg-oxford-50 focus:outline-none focus:ring-2 focus:ring-inset
-            before:absolute before:top-0 before:bottom-0 before:right-0 before:left-0 before:h-full before:w-full"
+            before:absolute before:top-0 before:bottom-0 before:right-0 before:left-0 before:h-full before:w-full
+            {{ title_class }}
+          "
           href="{{ url }}"
         >
           {{ title }}
         </a>
+        {% else %}
+        <span class="{{ title_class }}">{{ title }}</span>
+        {% endif %}
       </dd>
       {% if status_text %}
       <dt class="sr-only">Status:</dt>
       <dd class="ml-auto flex-shrink-0">
-        {% pill variant=status_text|match:"pending:info,running:primary,awaiting report:info,succeeded:success,failed:danger"|default:"info" text=status_text|capfirst %}
+        {% var text=status_text|capfirst %}
+
+        {% if status_text == "approved_fully" or status_text == "approved_subject_to" or status_text == "completed" or status_text == "succeeded" %}
+
+          {% if status_text == "approved_fully" %}
+            {% var text="Approved fully" %}
+          {% elif status_text == "approved_subject_to" %}
+            {% var text="Approved subject to" %}
+          {% endif %}
+
+          {% pill variant="success" text=text %}
+
+        {% elif status_text == "submitted" or status_text == "running" %}
+          {% pill variant="primary" text=text %}
+
+        {% elif status_text == "rejected" or status_text == "deleted" or status_text == "failed" %}
+          {% pill variant="danger" text=text %}
+
+        {% elif status_text == "deferred" %}
+          {% pill variant="warning" text=text %}
+
+        {% elif status_text == "ongoing" or status_text == "pending" or status_text == "awaiting report" %}
+          {% pill variant="info" text=text %}
+
+        {% else %}
+          {% pill variant="info" text=text %}
+        {% endif %}
       </dd>
       {% endif %}
     </div>

@@ -6,7 +6,7 @@ from django.urls import reverse
 from django.utils import timezone
 
 from applications.models import Application
-from jobserver.utils import set_from_qs
+from jobserver.utils import set_from_list
 from staff.views.applications import (
     ApplicationApprove,
     ApplicationDetail,
@@ -463,9 +463,7 @@ def test_applicationlist_search(rf, core_developer):
     response = ApplicationList.as_view()(request)
 
     assert response.status_code == 200
-
-    assert len(response.context_data["object_list"]) == 2
-    assert set_from_qs(response.context_data["object_list"]) == {app1.pk, app2.pk}
+    assert set_from_list(response.context_data["object_list"]) == {app1.pk, app2.pk}
 
 
 def test_applicationlist_success(rf, django_assert_num_queries, core_developer):

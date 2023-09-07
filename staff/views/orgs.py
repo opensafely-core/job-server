@@ -78,7 +78,7 @@ class OrgCreate(CreateView):
 
     def get_template_names(self):
         suffix = ".htmx" if self.request.htmx else ""
-        template_name = f"staff/org_create{suffix}.html"
+        template_name = f"staff/org/create{suffix}.html"
 
         return [template_name]
 
