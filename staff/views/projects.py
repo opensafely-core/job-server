@@ -253,7 +253,8 @@ class ProjectLinkApplication(UpdateView):
 @method_decorator(require_role(CoreDeveloper), name="dispatch")
 class ProjectList(ListView):
     queryset = Project.objects.order_by("number", Lower("name"))
-    template_name = "staff/project_list.html"
+    paginate_by = 25
+    template_name = "staff/project/list.html"
 
     def get_context_data(self, **kwargs):
         return super().get_context_data(**kwargs) | {
