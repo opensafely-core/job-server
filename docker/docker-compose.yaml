@@ -12,6 +12,22 @@ services:
     volumes:
       - postgres_data:/var/lib/postgresql/data/
 
+  grafana:
+    image: "grafana/grafana:latest"
+    environment:
+      GF_DATABASE_TYPE: postgres
+      GF_DATABASE_HOST: db:5432
+      GF_DATABASE_NAME: jobserver
+      GF_DATABASE_USER: user
+      GF_DATABASE_PASSWORD: pass
+      GF_DATABASE_SSL_MODE: disable
+    depends_on:
+      - db
+    ports:
+      - 3000:3000
+    volumes:
+      - grafana:/var/lib/grafana
+
   # base service, exists to hold common config, but is not actually used directly
   base:
     build:
@@ -94,3 +110,4 @@ services:
 volumes:
   postgres_data:
   staticfiles:
+  grafana:
