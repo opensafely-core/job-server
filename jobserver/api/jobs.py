@@ -229,7 +229,6 @@ class WorkspaceSerializer(serializers.ModelSerializer):
             "name",
             "repo",
             "branch",
-            "db",
             "created_by",
             "created_at",
         ]
@@ -257,6 +256,7 @@ class JobRequestAPIList(ListAPIView):
                 "created_by",
                 "created_at",
                 "workspace",
+                "database_name",
                 "project",
                 "orgs",
             ]

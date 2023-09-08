@@ -365,6 +365,13 @@ class JobRequest(models.Model):
 
         return "unknown"
 
+    @property
+    def database_name(self):
+        # TODO: This is temporary code. We're going to remove the `workspace.db` column
+        # entirely and use different logic for decided which database a job runs
+        # against.
+        return self.workspace.db
+
 
 class Org(models.Model):
     """An Organisation using the platform"""
