@@ -11,7 +11,7 @@
 {% endif %}
 
     class="
-      inline-flex items-center justify-center rounded-md shadow-sm transition-buttons duration-200
+      inline-flex items-center justify-center border rounded-md shadow-sm transition-buttons duration-200
 
       {% if small %}
         px-2 py-1 text-xs font-normal
@@ -22,33 +22,37 @@
       {% if disabled %}
         cursor-not-allowed bg-slate-300 text-slate-800
       {% elif variant == "primary" %}
-        bg-oxford-600 text-white
-        hover:bg-oxford-700
-        focus:bg-oxford-700 focus:ring-oxford-500 focus:ring-offset-white
+        bg-oxford-600 border-oxford-600 text-white
+        hover:bg-oxford-700 hover:border-oxford-700
+        focus:bg-oxford-700 focus:border-oxford-700 focus:ring-oxford-500 focus:ring-offset-white
       {% elif variant == "primary-outline" %}
         bg-transparent border border-oxford-700 text-oxford-700
         hover:bg-oxford-100
         focus:bg-oxford-100 focus:ring-oxford-500 focus:ring-offset-white
       {% elif variant == "secondary" %}
-        bg-slate-500 text-white
-        hover:bg-slate-600
-        focus:bg-slate-600 focus:ring-slate-500 focus:ring-offset-white
+        bg-slate-500 border-slate-500 text-white
+        hover:bg-slate-600 hover:border-slate-600
+        focus:bg-slate-600 focus:border-slate-600 focus:ring-slate-500 focus:ring-offset-white
       {% elif variant == "secondary-outline" %}
         border border-slate-400/75 text-slate-700 !shadow-none
         hover:bg-slate-200
         focus:bg-slate-200 focus:ring-slate-500 focus:ring-offset-white
       {% elif variant == "danger" %}
-        bg-bn-ribbon-600 text-white
-        hover:bg-bn-ribbon-700
-        focus:ring-bn-ribbon-500 focus:ring-offset-white
+        bg-bn-ribbon-600 border-bn-ribbon-600 text-white
+        hover:bg-bn-ribbon-700 hover:border-bn-ribbon-700
+        focus:bg-bn-ribbon-700 focus:border-bn-ribbon-700 focus:ring-bn-ribbon-500 focus:ring-offset-white
+      {% elif variant == "danger-outline" %}
+        border border-bn-ribbon-400 text-bn-ribbon-700 !shadow-none
+        hover:bg-bn-ribbon-100
+        focus:bg-bn-ribbon-100 focus:ring-bn-ribbon-500 focus:ring-offset-white
       {% elif variant == "warning" %}
-        bg-bn-flamenco-600 text-white
-        hover:bg-bn-flamenco-700
-        focus:ring-bn-flamenco-500 focus:ring-offset-white
+        bg-bn-flamenco-600 border-bn-flamenco-600 text-white
+        hover:bg-bn-flamenco-700 hover:border-bn-flamenco-700
+        focus:bg-bn-flamenco-700 focus:border-bn-flamenco-700 focus:ring-bn-flamenco-500 focus:ring-offset-white
       {% elif variant == "success" %}
-        bg-green-600 text-white
-        hover:bg-green-700
-        focus:ring-green-500 focus:ring-offset-white
+        bg-green-600 border-green-600 text-white
+        hover:bg-green-700 hover:border-green-700
+        focus:bg-green-700 focus:border-green-700 focus:ring-green-500 focus:ring-offset-white
       {% elif variant == "success-outline" %}
         bg-transparent border border-green-700 text-green-700
         hover:bg-green-100
