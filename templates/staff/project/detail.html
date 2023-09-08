@@ -1,0 +1,173 @@
+{% extends "staff/base-tw.html" %}
+
+{% load humanize %}
+{% load static %}
+
+{% block metatitle %}{{ project.title }}: Staff Area | OpenSAFELY Jobs{% endblock metatitle %}
+
+{% block breadcrumbs %}
+{% #breadcrumbs %}
+  {% url "staff:index" as staff_url %}
+  {% url "staff:project-list" as staff_project_list_url %}
+  {% breadcrumb title="Staff area" url=staff_url %}
+  {% breadcrumb title="Projects" url=staff_project_list_url %}
+  {% breadcrumb title=project.title active=True %}
+{% /breadcrumbs %}
+{% endblock breadcrumbs %}
+
+{% block hero %}
+{% url "staff:project-create" as staff_project_create_url %}
+{% #staff_hero title=project.title %}
+  <div class="flex flex-row gap-2">
+    {% #button type="link" href=project.get_staff_edit_url variant="danger" %}
+      Edit
+    {% /button %}
+    {% url "staff:project-add-member" slug=project.slug as staff_project_add_member_url %}
+    {% #button type="link" href=staff_project_add_member_url variant="secondary" %}
+      Add Members
+    {% /button %}
+    {% #button type="link" href=project.get_absolute_url variant="primary" %}
+      View on Site
+    {% /button %}
+  </div>
+{% /staff_hero %}
+{% endblock hero %}
+
+{% block content %}
+<div class="grid grid-cols-1 gap-6 lg:grid-cols-3">
+  <div class="flex flex-col gap-4 lg:col-span-2">
+
+    {% #card title="Project information" %}
+      {% #description_list %}
+        {% if project.created_by %}
+        {% #description_item title="Created by" %}
+          {% link href=project.created_by.get_staff_url text=project.created_by.name %}
+        {% /description_item %}
+        {% endif %}
+
+        {% #description_item title="Created at" %}
+          {% #time datetime=project.created_at|date:"Y-m-d H:i:sO" %}
+            {{ project.created_at|date:"d F Y" }} at {{ project.created_at|date:"H:i" }}
+          {% /time %}
+        {% /description_item %}
+
+        {% #description_item title="Application" %}
+          {% if application %}
+            {% link href=project.application_url text=application.pk_hash|add:" by "|add:application.created_by.name %}
+          {% elif project.application_url %}
+            {% link href=project.application_url text="View application" %}
+          {% else %}
+            {% url "staff:project-link-application" slug=project.slug as staff_link_application_url %}
+            {% link href=staff_link_application_url text="Find and Link" %}
+          {% endif %}
+        {% /description_item %}
+
+        {% #description_item title="Status" %}
+          {% pill_project_status status=project.status text=project.get_status_display %}
+          {% if project.status_description %}
+            <p class="mt-2">
+              {{ project.status_description }}
+            </p>
+          {% endif %}
+        {% /description_item %}
+      {% /description_list %}
+    {% /card %}
+
+    {% #card title="Members" %}
+      {% #description_list %}
+        {% for membership in memberships %}
+          {% #description_item title=membership.user.get_full_name|default_if_none:membership.user.username %}
+            <div class="flex flex-col gap-1">
+              <div class="flex flex-row gap-2">
+                {% #button type="link" variant="secondary-outline" href=membership.user.get_staff_url small=True %}
+                  Edit
+                {% /button %}
+                <form method="POST" action="{{ membership.get_staff_remove_url }}">
+                  {% csrf_token %}
+                  {% #button type="submit" variant="danger-outline" small=True %}
+                    Remove <span class="sr-only">from {{ project.title }}</span>
+                  {% /button %}
+                </form>
+              </div>
+              {% if membership.roles %}
+                <dl class="flex flex-row gap-1 mt-2">
+                  <dt class="font-semibold">Roles:</dt>
+                  <dd>
+                    {% for role in membership.roles %}
+                      {{ role.display_name }}{% if not forloop.last %},{% endif %}
+                    {% endfor %}
+                  </dd>
+                </dl>
+              {% endif %}
+            </div>
+          {% /description_item %}
+        {% endfor %}
+      {% /description_list %}
+    {% /card %}
+
+    {% #card title="Co-piloting" %}
+      {% #description_list %}
+        {% #description_item title="Co-pilot" %}
+          {% if project.copilot %}
+            {% link href=project.copilot.get_staff_url text=project.copilot.name %}
+          {% else %}
+            -
+          {% endif %}
+        {% /description_item %}
+        {% #description_item title="Support window ends" %}
+          {% if project.copilot_support_ends_at %}
+            {% #time datetime=project.copilot_support_ends_at|date:"Y-m-d H:i:sO" %}
+              {{ project.copilot_support_ends_at|date:"d F Y" }}
+            {% /time %}
+          {% else %}
+            -
+          {% endif %}
+        {% /description_item %}
+        {% #description_item title="Notes" %}
+          {% if project.copilot_notes %}
+            <div class="prose prose-sm prose-oxford">
+              {{ project.copilot_notes|linebreaksbr }}
+            </div>
+          {% else %}
+            -
+          {% endif %}
+        {% /description_item %}
+      {% /description_list %}
+    {% /card %}
+  </div>
+
+  <div class="flex flex-col gap-4">
+    {% #card title="Associations" %}
+      {% #description_list %}
+        {% #description_item stacked=True title="Organisation" %}
+          {% link href=project.org.get_staff_url text=project.org.name %}
+        {% /description_item %}
+
+        {% #description_item stacked=True title="Workspaces" %}
+          {% if workspaces %}
+            <ul class="flex flex-col gap-1 items-start list-disc ml-4">
+              {% for workspace in workspaces %}
+                <li>{% link href=workspace.get_staff_url text=workspace.name %}</li>
+              {% endfor %}
+            </ul>
+          {% else %}
+            {% list_group_empty class="w-full -ml-4" description="No workspaces" %}
+          {% endif %}
+        {% /description_item %}
+      {% /description_list %}
+    {% /card %}
+
+    {% #card title="Redirects" %}
+      {% #list_group %}
+        {% for redirect in redirects %}
+          {% #list_group_item href=redirect.get_staff_url %}
+            {{ redirect.old_url }}
+          {% /list_group_item %}
+        {% empty %}
+          {% list_group_empty description="No redirects" %}
+        {% endfor %}
+      {% /list_group %}
+    {% /card %}
+  </div>
+</div>
+{% endblock content %}

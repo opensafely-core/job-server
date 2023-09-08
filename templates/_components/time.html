@@ -1,0 +1,15 @@
+<time
+  {% if class or tooltip %}
+    class="
+      {{ class }}
+      {% if tooltip %}relative group{% endif %}
+    "
+  {% endif %}
+  datetime="{{ datetime }}"
+>
+  {{ children }}
+
+  {% if tooltip %}
+    {% tooltip content=tooltip %}
+  {% endif %}
+</time>

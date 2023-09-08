@@ -8,6 +8,7 @@ components:
   card: "_components/card/card.html"
   card_footer: "_components/card/card-footer.html"
   code: "_components/code.html"
+  description_list: "_components/description-list.html"
   description_item: "_components/description-item.html"
   footer: "_components/footer.html"
   form_checkbox: "_components/form/checkbox.html"
@@ -25,6 +26,7 @@ components:
   list_group_rich_item: "_components/list-group/list-group-rich-item.html"
   pill: "_components/pill/pill.html"
   pill_application_status: "_components/pill/application-status.html"
+  pill_project_status: "_components/pill/project-status.html"
   skip_link: "_components/skip-link.html"
   table_body: "_components/table/table-body.html"
   table_cell: "_components/table/table-cell.html"
@@ -33,6 +35,7 @@ components:
   table_pagination: "_components/table/table-pagination.html"
   table_row: "_components/table/table-row.html"
   table: "_components/table/table.html"
+  time: "_components/time.html"
   timeline_item: "_components/timeline-item.html"
   tooltip: "_components/tooltip.html"
 
