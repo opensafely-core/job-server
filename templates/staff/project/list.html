@@ -26,33 +26,36 @@
 {% url "staff:project-list" as staff_project_list_url %}
 
 <div class="grid lg:grid-cols-3 gap-8">
-  <div class="flex flex-col gap-y-6">
-    {% if request.GET.org %}
-      {% #button variant="secondary-outline" type="link" href=staff_project_list_url %}
-        Clear filters
+  <form class="flex flex-col gap-y-6">
+    <div class="flex flex-row gap-2">
+      {% #button variant="success" type="submit" %}
+        Apply filters
       {% /button %}
-    {% endif %}
+      {% if request.GET.org %}
+        {% #button variant="secondary-outline" type="link" href=staff_project_list_url %}
+          Clear filters
+        {% /button %}
+      {% endif %}
+    </div>
 
-    {% #card title="Filter by organisation" %}
-      {% #list_group small=True class="max-h-96 overflow-y-auto" %}
-        {% for org in orgs %}
-          {% is_filter_selected key="org" value=org.slug as is_org_active %}
-          {% url_with_querystring org=org.slug as add_org_query_url %}
-
-          {% if is_org_active %}
-            {% url_without_querystring org=org.slug as remove_org_query_url %}
-            {% #list_group_item href=remove_org_query_url role="checkbox" aria-checked="true" class="bg-green-100 text-green-800" %}
+    {% #card title="Filter by organisation" container=True %}
+      <div class="tom-select-checkbox">
+        <select data-tom-select multiple name="org">
+          {% for org in orgs %}
+            {% is_filter_selected key="org" value=org.slug as is_org_active %}
+            <option
+              value="{{ org.slug }}"
+              {% if is_org_active %}
+                selected
+              {% endif %}
+            >
               {{ org.name }}
-            {% /list_group_item %}
-          {% else %}
-            {% #list_group_item href=add_org_query_url role="checkbox" aria-checked="false" %}
-              {{ org.name }}
-            {% /list_group_item %}
-          {% endif %}
-        {% endfor %}
-      {% /list_group %}
+            </option>
+          {% endfor %}
+        </select>
+      </div>
     {% /card %}
-  </div>
+  </form>
 
   <div class="flex flex-col gap-y-6 lg:col-span-2">
     {% #card container=True title="Search for a project" %}
@@ -90,5 +93,5 @@
       {% endif %}
     {% /card %}
   </div>
-</div>
+</f>
 {% endblock content %}

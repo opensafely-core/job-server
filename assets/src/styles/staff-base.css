@@ -1,3 +1,5 @@
+@import "./_tom-select.css";
+
 body {
   border-block-start: 1rem solid var(--color-bn-ribbon-600);
 }
