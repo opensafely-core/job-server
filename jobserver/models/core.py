@@ -777,7 +777,7 @@ class UserQuerySet(models.QuerySet):
         we don't have fullname populated for all users yet and having some
         users at the top of the list with just usernames looks fairly odd.
         We've modelled our text fields in job-server such that they're not
-        nullable because we treat empty string as they only empty case.  The
+        nullable because we treat empty string as the only empty case.  The
         NullIf() call lets us tell the database to treat empty strings as NULL
         for the purposes of this ORDER BY, using nulls_last=True
 
