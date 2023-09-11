@@ -32,7 +32,7 @@
       {% #button variant="success" type="submit" %}
         Apply filters
       {% /button %}
-      {% if request.GET.org %}
+      {% if request.GET %}
         {% #button variant="secondary-outline" type="link" href=staff_project_list_url %}
           Clear filters
         {% /button %}
@@ -40,9 +40,9 @@
     </div>
 
     {% #card title="Filter by organisation" container=True %}
-      {% #multiselect name="org" %}
+      {% #multiselect name="orgs" %}
         {% for org in orgs %}
-          {% is_filter_selected key="org" value=org.slug as is_org_active %}
+          {% is_filter_selected key="orgs" value=org.slug as is_org_active %}
           {% multiselect_option value=org.slug name=org.name is_active=is_org_active%}
         {% endfor %}
       {% /multiselect %}
@@ -55,7 +55,7 @@
         {% if request.GET.q %}
           {% var value=request.GET.q|stringformat:"s" %}
         {% endif %}
-        {% form_input custom_field=True type="search" id="projectSearch" name="q" value=value label="Search for a project" label_class="sr-only" class="w-full" input_class="!m-0" %}
+        {% form_input custom_field=True type="search" id="projectSearch" name="q" value=value label="Search for a project" label_class="sr-only" class="w-full" input_class="!m-0" placeholder="Search by project name" show_placeholder=True %}
         {% #button type="submit" variant="primary" class="flex-shrink-0" %}Search{% /button %}
       </form>
       {% if request.GET.q %}

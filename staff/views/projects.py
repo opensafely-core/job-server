@@ -272,10 +272,10 @@ class ProjectList(ListView):
             ]
             qs = qs.filter(qwargs(fields, q))
 
-        org = self.request.GET.get("org")
-        if org:
-            qs = qs.filter(org__slug=org)
-        return qs
+        if orgs := self.request.GET.getlist("orgs"):
+            qs = qs.filter(org__slug__in=orgs)
+
+        return qs.distinct()
 
 
 @method_decorator(require_role(CoreDeveloper), name="dispatch")
