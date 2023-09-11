@@ -24,6 +24,8 @@ components:
   list_group_empty: "_components/list-group/list-group-empty.html"
   list_group_item: "_components/list-group/list-group-item.html"
   list_group_rich_item: "_components/list-group/list-group-rich-item.html"
+  multiselect: "_components/multiselect/multiselect.html"
+  multiselect_option: "_components/multiselect/multiselect-option.html"
   pill: "_components/pill/pill.html"
   pill_application_status: "_components/pill/application-status.html"
   pill_project_status: "_components/pill/project-status.html"

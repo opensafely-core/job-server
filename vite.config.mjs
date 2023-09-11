@@ -24,6 +24,7 @@ const config = {
         "sign-off-repo": "./assets/src/scripts/sign-off-repo.js",
         "staff-base": "./assets/src/scripts/staff-base.js",
         workspace_create: "./assets/src/scripts/workspace_create.js",
+        multiselect: "./templates/_components/multiselect/multiselect.js",
       },
     },
     outDir: "assets/dist",

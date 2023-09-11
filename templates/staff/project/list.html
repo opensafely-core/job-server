@@ -1,5 +1,6 @@
 {% extends "staff/base-tw.html" %}
 
+{% load django_vite %}
 {% load querystring_tools %}
 {% load selected_filter %}
 
@@ -39,21 +40,12 @@
     </div>
 
     {% #card title="Filter by organisation" container=True %}
-      <div class="tom-select-checkbox">
-        <select data-tom-select multiple name="org">
-          {% for org in orgs %}
-            {% is_filter_selected key="org" value=org.slug as is_org_active %}
-            <option
-              value="{{ org.slug }}"
-              {% if is_org_active %}
-                selected
-              {% endif %}
-            >
-              {{ org.name }}
-            </option>
-          {% endfor %}
-        </select>
-      </div>
+      {% #multiselect name="org" %}
+        {% for org in orgs %}
+          {% is_filter_selected key="org" value=org.slug as is_org_active %}
+          {% multiselect_option value=org.slug name=org.name is_active=is_org_active%}
+        {% endfor %}
+      {% /multiselect %}
     {% /card %}
   </form>
 
@@ -93,5 +85,9 @@
       {% endif %}
     {% /card %}
   </div>
-</f>
+</div>
 {% endblock content %}
+
+{% block extra_js %}
+  {% vite_asset "templates/_components/multiselect/multiselect.js" %}
+{% endblock extra_js %}
