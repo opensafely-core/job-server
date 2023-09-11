@@ -199,7 +199,7 @@ class ProjectEdit(UpdateView):
         # new.project because self.object is mutated when ModelForm._post_clean
         # updates the instance it was passed.  This is because form.instance is
         # set from the passed in self.object.
-        if {"org", "slug"} & set(form.changed_data):
+        if "slug" in form.changed_data:
             new.redirects.create(
                 created_by=self.request.user,
                 old_url=old.get_absolute_url(),
