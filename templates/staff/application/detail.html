@@ -88,27 +88,35 @@
 
 {% block content %}
 <div class="flex flex-col gap-y-4">
-  {% #card container=True title="Application details" %}
-    <dl class="flex flex-row flex-wrap gap-1 mb-3">
-      <dt class="font-semibold">Application status:</dt>
-      <dd>{% pill_application_status status=application.status %}</dd>
-    </dl>
+  <div class="grid gap-4 lg:grid-cols-2">
+    {% #card container=True title="Application details" %}
+      <ul class="list-disc ml-3 flex flex-col gap-1">
+        {% for page in pages %}
+          <li>
+            <span class="flex flex-row items-start gap-2">
+              {% link href="#"|add:page.key text=page.title class="mr-auto" %}
+              {% if page.status == "approved" %}
+                {% pill variant="success-outline" text="Approved" class="flex-shrink-0" %}
+              {% else %}
+                {% pill variant="danger-outline" text="Not approved" class="flex-shrink-0" %}
+              {% endif %}
+            </span>
+          </li>
+        {% endfor %}
+      </ul>
+    {% /card %}
 
-    <ul class="list-disc ml-3 flex flex-col gap-1">
-      {% for page in pages %}
-        <li>
-          <span class="flex flex-row items-center gap-1">
-            {% if page.status == "approved" %}
-              {% pill variant="success-outline" text="Approved" %}
-            {% else %}
-              {% pill variant="danger-outline" text="Not approved" %}
-            {% endif %}
-            {% link href="#"|add:page.key text=page.title %}
-          </span>
-        </li>
-      {% endfor %}
-    </ul>
-  {% /card %}
+    {% #card container=True title="Status" %}
+      <dl class="flex flex-row flex-wrap gap-1 mb-3">
+        <dt class="sr-only">Application status:</dt>
+        <dd>{% pill_application_status status=application.status class="!text-base py-1 px-3" %}</dd>
+      </dl>
+      <div class="prose prose-oxford break-words">
+        <h3>Comments</h3>
+        {{ application.status_comment|linebreaksbr }}
+      </div>
+    {% /card %}
+  </div>
 
   <form method="POST" class="flex flex-col gap-y-4">
     {% csrf_token %}
