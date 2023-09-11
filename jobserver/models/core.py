@@ -369,10 +369,10 @@ class JobRequest(models.Model):
 
     @property
     def database_name(self):
-        # TODO: This is temporary code. We're going to remove the `workspace.db` column
-        # entirely and use different logic for decided which database a job runs
-        # against.
-        return self.workspace.db
+        # TODO: We plan to make use of this property to control which set of patients'
+        # data a given job runs against. But until the relevant machinery is in place we
+        # hardcode this to the default value.
+        return "full"
 
 
 class Org(models.Model):
@@ -1150,8 +1150,6 @@ class Workspace(models.Model):
     is_archived = models.BooleanField(default=False)
     should_notify = models.BooleanField(default=False)
     purpose = models.TextField(default="")
-
-    db = models.TextField(choices=[("full", "Full database")], default="full")
 
     # TODO: Remove this once all Projects are ready to move to the new release
     # process
