@@ -166,7 +166,7 @@ class ProjectCreate(CreateView):
 @method_decorator(require_role(CoreDeveloper), name="dispatch")
 class ProjectDetail(DetailView):
     model = Project
-    template_name = "staff/project_detail.html"
+    template_name = "staff/project/detail.html"
 
     def get_context_data(self, **kwargs):
         return super().get_context_data(**kwargs) | {
@@ -183,7 +183,7 @@ class ProjectDetail(DetailView):
 class ProjectEdit(UpdateView):
     form_class = ProjectEditForm
     model = Project
-    template_name = "staff/project_edit.html"
+    template_name = "staff/project/edit.html"
 
     @transaction.atomic()
     def form_valid(self, form):
@@ -252,8 +252,9 @@ class ProjectLinkApplication(UpdateView):
 
 @method_decorator(require_role(CoreDeveloper), name="dispatch")
 class ProjectList(ListView):
-    queryset = Project.objects.order_by("number", Lower("name"))
-    template_name = "staff/project_list.html"
+    queryset = Project.objects.order_by("-number", Lower("name"))
+    paginate_by = 25
+    template_name = "staff/project/list.html"
 
     def get_context_data(self, **kwargs):
         return super().get_context_data(**kwargs) | {
