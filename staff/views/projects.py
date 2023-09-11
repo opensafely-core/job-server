@@ -183,7 +183,7 @@ class ProjectDetail(DetailView):
 class ProjectEdit(UpdateView):
     form_class = ProjectEditForm
     model = Project
-    template_name = "staff/project_edit.html"
+    template_name = "staff/project/edit.html"
 
     @transaction.atomic()
     def form_valid(self, form):
