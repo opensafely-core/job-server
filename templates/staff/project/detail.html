@@ -53,7 +53,7 @@
 
         {% #description_item title="Application" %}
           {% if application %}
-            {% link href=project.application_url text=application.pk_hash|add:" by "|add:application.created_by.name %}
+            {% link href=application.get_staff_url text=application.pk_hash|add:" by "|add:application.created_by.name %}
           {% elif project.application_url %}
             {% link href=project.application_url text="View application" %}
           {% else %}
@@ -91,7 +91,7 @@
               </div>
               {% if membership.roles %}
                 <dl class="flex flex-row gap-1 mt-2">
-                  <dt class="font-semibold">Roles:</dt>
+                  <dt class="sr-only">Roles:</dt>
                   <dd>
                     {% for role in membership.roles %}
                       {{ role.display_name }}{% if not forloop.last %},{% endif %}
