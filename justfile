@@ -70,11 +70,6 @@ prodenv: requirements-prod
     # exit if .txt file has not changed since we installed them (-nt == "newer than', but we negate with || to avoid error exit code)
     test requirements.prod.txt -nt $VIRTUAL_ENV/.prod || exit 0
 
-    # Locally, changes to the interactive_templates package are not picked up automatically, because we are usng a zipfile rather
-    # than providing explicit versions. This means we need to uninstall and reinstall the package to pick up any changes.
-    # Note: this is not a problem in CI because it is building from a fresh environment each time.
-    $PIP uninstall -y interactive_templates
-
     # --no-deps is recommended when using hashes, and also worksaround a bug with constraints and hashes.
     # https://pip.pypa.io/en/stable/topics/secure-installs/#do-not-use-setuptools-directly
     $PIP install --no-deps -r requirements.prod.txt
@@ -115,15 +110,6 @@ upgrade env package="": virtualenv
     opts="--upgrade"
     test -z "{{ package }}" || opts="--upgrade-package {{ package }}"
     FORCE=true {{ just_executable() }} requirements-{{ env }} $opts
-
-
-update-interactive-templates ref="": && prodenv
-    #!/usr/bin/bash
-    set -euo pipefail
-
-    test "{{ ref }}" == "" && ref=$(git ls-remote https://github.com/opensafely-core/interactive-templates HEAD | awk '{print $1}')
-    prefix="interactive_templates@https://github.com/opensafely-core/interactive-templates/archive"
-    sed -i "s#${prefix}.*#${prefix}/{{ ref }}.zip#" requirements.prod.in
 
 
 # Run the dev project with telemetry
