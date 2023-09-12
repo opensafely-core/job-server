@@ -66,6 +66,10 @@ def test_jobrequestcancel_success(rf):
     request = rf.post("/")
     request.user = user
 
+    request.session = "session"
+    messages = FallbackStorage(request)
+    request._messages = messages
+
     response = JobRequestCancel.as_view()(request, pk=job_request.pk)
 
     assert response.status_code == 302
@@ -75,6 +79,10 @@ def test_jobrequestcancel_success(rf):
     assert "test1" in job_request.cancelled_actions
     assert "test2" in job_request.cancelled_actions
     assert "test3" in job_request.cancelled_actions
+
+    messages = list(messages)
+    assert len(messages) == 1
+    assert str(messages[0]) == "The requested actions have been cancelled"
 
 
 def test_jobrequestcancel_partially_completed(rf):
@@ -93,6 +101,10 @@ def test_jobrequestcancel_partially_completed(rf):
     request = rf.post("/")
     request.user = user
 
+    request.session = "session"
+    messages = FallbackStorage(request)
+    request._messages = messages
+
     response = JobRequestCancel.as_view()(request, pk=job_request.pk)
 
     assert response.status_code == 302
@@ -100,6 +112,10 @@ def test_jobrequestcancel_partially_completed(rf):
 
     job_request.refresh_from_db()
     assert sorted(job_request.cancelled_actions) == ["test3", "test4"]
+
+    messages = list(messages)
+    assert len(messages) == 1
+    assert str(messages[0]) == "The requested actions have been cancelled"
 
 
 def test_jobrequestcancel_with_job_request_creator(rf):
@@ -110,6 +126,10 @@ def test_jobrequestcancel_with_job_request_creator(rf):
     request = rf.post("/")
     request.user = user
 
+    request.session = "session"
+    messages = FallbackStorage(request)
+    request._messages = messages
+
     response = JobRequestCancel.as_view()(request, pk=job_request.pk)
 
     assert response.status_code == 302
@@ -117,6 +137,10 @@ def test_jobrequestcancel_with_job_request_creator(rf):
 
     job_request.refresh_from_db()
     assert "test1" in job_request.cancelled_actions
+
+    messages = list(messages)
+    assert len(messages) == 1
+    assert str(messages[0]) == "The requested actions have been cancelled"
 
 
 def test_jobrequestcancel_unauthorized(rf):
