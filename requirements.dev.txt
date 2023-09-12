@@ -342,6 +342,14 @@ six==1.16.0 \
     #   -c requirements.prod.txt
     #   python-dateutil
     #   virtualenv
+stamina==23.1.0 \
+    --hash=sha256:850de8c2c2469aabf42a4c02e7372eaa12c2eced78f2bfa34162b8676c2846e5 \
+    --hash=sha256:b16ce3d52d658aa75db813fc6a6661b770abfea915f72cda48e325f2a7854786
+    # via -r requirements.dev.in
+tenacity==8.2.3 \
+    --hash=sha256:5398ef0d78e63f40007c1fb4c0bff96e1911394d2fa8d194f77619c05ff6cc8a \
+    --hash=sha256:ce510e327a630c9e1beaf17d42e6ffacc88185044ad85cf74c0a8887c6a0f88c
+    # via stamina
 text-unidecode==1.3 \
     --hash=sha256:1311f10e8b895935241623731c2ba64f4c455287888b18189350b67134a822e8 \
     --hash=sha256:bad6603bb14d279193107714b288be206cac565dfa49aa5b105294dd5c4aab93

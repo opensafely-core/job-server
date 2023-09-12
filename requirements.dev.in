@@ -21,3 +21,4 @@ pytest-subtests
 pytest-xdist[psutil]
 responses
 ruff
+stamina
