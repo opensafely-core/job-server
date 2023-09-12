@@ -1,5 +1,5 @@
 {
-  "name": "job-server",
+  "name": "@opensafely/job-server",
   "version": "1.0.0",
   "scripts": {
     "dev": "vite",
