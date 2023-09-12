@@ -112,6 +112,23 @@ upgrade env package="": virtualenv
     FORCE=true {{ just_executable() }} requirements-{{ env }} $opts
 
 
+update-interactive-templates tag="": && prodenv
+    #!/usr/bin/env bash
+    set -euo pipefail
+
+    # pick the tag to work with, defaulting to what's passed in
+    tag="{{ tag }}"
+    test "$tag" == "" && tag=$(git ls-remote --tags https://github.com/opensafely-core/interactive-templates | awk '{print $2}' | sed s#refs/tags/##)
+
+    # update the spec in requirements.prod.in
+    prefix="interactive_templates@https://github.com/opensafely-core/interactive-templates/archive/refs/tags"
+    sed -i.bak "s#${prefix}.*#${prefix}/${tag}.zip#" requirements.prod.in
+
+    # BSD sed requires a suffix for -i (GNU sed does not but works with one)
+    # but then we get a file left around, so tidy up after ourselves.
+    rm requirements.prod.in.bak
+
+
 # Run the dev project with telemetry
 run-telemetry: devenv
     $BIN/opentelemetry-instrument $BIN/python manage.py runserver --noreload
