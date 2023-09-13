@@ -846,11 +846,7 @@ def test_releasefileapi_with_no_file_on_disk(api_rf, build_release):
     response = ReleaseFileAPI.as_view()(request, file_id=rfile.id)
 
     assert response.status_code == 200, response.data
-    assert response.headers["Authorization"]
-    assert (
-        response.headers["Location"]
-        == f"{release.backend.level_4_url}/workspace/{release.workspace.name}/release/{release.id}/{rfile.name}"
-    )
+    assert response.data == "File not yet uploaded"
 
 
 def test_releasefileapi_with_nginx_redirect(api_rf, build_release_with_files):
