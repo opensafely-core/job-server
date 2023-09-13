@@ -808,7 +808,7 @@ def test_jobrequestapilist_success(api_rf):
             "project": project.slug,
             "requested_actions": ["frob", "wizzle"],
             "sha": "",
-            "database_name": "full",
+            "database_name": "default",
             "workspace": {
                 "name": workspace.name,
                 "repo": workspace.repo.url,
@@ -828,7 +828,7 @@ def test_jobrequestapilist_success(api_rf):
             "project": project.slug,
             "requested_actions": ["frobnicate", "wibble"],
             "sha": "",
-            "database_name": "full",
+            "database_name": "default",
             "workspace": {
                 "name": workspace.name,
                 "repo": workspace.repo.url,
@@ -848,7 +848,7 @@ def test_jobrequestapilist_success(api_rf):
             "project": project.slug,
             "requested_actions": ["analyse"],
             "sha": "",
-            "database_name": "full",
+            "database_name": "default",
             "workspace": {
                 "name": workspace.name,
                 "repo": workspace.repo.url,

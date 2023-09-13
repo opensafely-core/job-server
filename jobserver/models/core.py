@@ -372,7 +372,7 @@ class JobRequest(models.Model):
         # TODO: We plan to make use of this property to control which set of patients'
         # data a given job runs against. But until the relevant machinery is in place we
         # hardcode this to the default value.
-        return "full"
+        return "default"
 
 
 class Org(models.Model):
