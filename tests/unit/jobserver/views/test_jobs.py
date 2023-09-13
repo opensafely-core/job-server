@@ -1,5 +1,6 @@
 import pytest
 from django.contrib.auth.models import AnonymousUser
+from django.contrib.messages.storage.fallback import FallbackStorage
 from django.http import Http404
 from django.utils import timezone
 
@@ -69,6 +70,10 @@ def test_jobcancel_success(rf):
     request = rf.post("/")
     request.user = user
 
+    request.session = "session"
+    messages = FallbackStorage(request)
+    request._messages = messages
+
     response = JobCancel.as_view()(request, identifier=job.identifier)
 
     assert response.status_code == 302
@@ -76,6 +81,10 @@ def test_jobcancel_success(rf):
 
     job_request.refresh_from_db()
     assert job_request.cancelled_actions == ["test"]
+
+    messages = list(messages)
+    assert len(messages) == 1
+    assert str(messages[0]) == 'Your request to cancel "test" was successful'
 
 
 def test_jobcancel_with_job_creator(rf):
@@ -86,6 +95,10 @@ def test_jobcancel_with_job_creator(rf):
     request = rf.post("/")
     request.user = user
 
+    request.session = "session"
+    messages = FallbackStorage(request)
+    request._messages = messages
+
     response = JobCancel.as_view()(request, identifier=job.identifier)
 
     assert response.status_code == 302
@@ -93,6 +106,10 @@ def test_jobcancel_with_job_creator(rf):
 
     job_request.refresh_from_db()
     assert job_request.cancelled_actions == ["test"]
+
+    messages = list(messages)
+    assert len(messages) == 1
+    assert str(messages[0]) == 'Your request to cancel "test" was successful'
 
 
 def test_jobcancel_without_permission(rf, user):

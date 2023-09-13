@@ -1,5 +1,6 @@
 import os
 
+from django.contrib import messages
 from django.core.exceptions import MultipleObjectsReturned
 from django.http import Http404
 from django.shortcuts import get_object_or_404, redirect
@@ -27,6 +28,11 @@ class JobCancel(View):
 
         job.job_request.cancelled_actions.append(job.action)
         job.job_request.save()
+
+        messages.success(
+            request, f'Your request to cancel "{job.action}" was successful'
+        )
+
         return redirect(job)
 
 

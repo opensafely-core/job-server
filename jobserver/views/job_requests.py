@@ -50,6 +50,8 @@ class JobRequestCancel(View):
         job_request.cancelled_actions = actions
         job_request.save()
 
+        messages.success(request, "The requested actions have been cancelled")
+
         return redirect(job_request)
 
 
