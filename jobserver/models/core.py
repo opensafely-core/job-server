@@ -28,6 +28,7 @@ from zen_queries import queries_dangerously_enabled
 from ..authorization import InteractiveReporter
 from ..authorization.fields import RolesArrayField
 from ..hash_utils import hash_user_pat
+from ..permissions.t1oo import project_is_permitted_to_use_t1oo_data
 from ..runtime import Runtime
 
 
@@ -369,10 +370,10 @@ class JobRequest(models.Model):
 
     @property
     def database_name(self):
-        # TODO: We plan to make use of this property to control which set of patients'
-        # data a given job runs against. But until the relevant machinery is in place we
-        # hardcode this to the default value.
-        return "default"
+        if project_is_permitted_to_use_t1oo_data(self.workspace.project):
+            return "include_t1oo"
+        else:
+            return "default"
 
 
 class Org(models.Model):

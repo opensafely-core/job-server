@@ -7,7 +7,13 @@ from django.utils import timezone
 
 from jobserver.models import JobRequest
 
-from ....factories import JobFactory, JobRequestFactory, RepoFactory, WorkspaceFactory
+from ....factories import (
+    JobFactory,
+    JobRequestFactory,
+    ProjectFactory,
+    RepoFactory,
+    WorkspaceFactory,
+)
 from ....utils import minutes_ago, seconds_ago
 
 
@@ -378,3 +384,29 @@ def test_jobrequestmanager_with_started_at():
     JobRequestFactory(workspace=workspace)
 
     assert JobRequest.objects.with_started_at().filter(workspace=workspace).count() == 2
+
+
+def test_jobrequest_database_name_with_no_project_number(build_job_request):
+    job_request = build_job_request(project_number=None)
+    assert job_request.database_name == "default"
+
+
+def test_jobrequest_database_name_without_t1oo_permission(build_job_request):
+    job_request = build_job_request(project_number=1)
+    assert job_request.database_name == "default"
+
+
+def test_jobrequest_database_name_with_t1oo_permission(build_job_request):
+    # This is one of the project numbers hardcoded into `permissions/t1oo.py`
+    job_request = build_job_request(project_number=2)
+    assert job_request.database_name == "include_t1oo"
+
+
+@pytest.fixture
+def build_job_request():
+    def _build_job_request(project_number):
+        project = ProjectFactory(number=project_number)
+        workspace = WorkspaceFactory(project=project)
+        return JobRequestFactory(workspace=workspace)
+
+    return _build_job_request
