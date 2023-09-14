@@ -40,7 +40,7 @@
     </div>
 
     {% #card title="Filter by organisation" container=True %}
-      {% #multiselect name="orgs" placeholder="Select an org" %}
+      {% #multiselect custom_field=True name="orgs" placeholder="Select an org" %}
         {% for org in orgs %}
           {% is_filter_selected key="orgs" value=org.slug as is_org_active %}
           {% multiselect_option value=org.slug name=org.name is_active=is_org_active%}
