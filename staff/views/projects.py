@@ -176,6 +176,7 @@ class ProjectDetail(DetailView):
             "memberships": self.object.memberships.select_related("user").order_by(
                 Lower("user__username")
             ),
+            "orgs": self.object.orgs.order_by(Lower("name")),
             "redirects": self.object.redirects.order_by("old_url"),
             "workspaces": self.object.workspaces.order_by("name"),
         }
