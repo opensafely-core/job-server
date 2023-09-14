@@ -17,7 +17,7 @@ jobs:
         with:
           github-token: "${{ secrets.GITHUB_TOKEN }}"
 
-      - uses: actions/checkout@v3
+      - uses: actions/checkout@v4
         with:
           # use ref here so we're on the HEAD of the PR branch
           ref: ${{ github.event.pull_request.head.ref }}
