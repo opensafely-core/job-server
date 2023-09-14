@@ -108,11 +108,13 @@
           <div class="flex flex-col gap-y-2 max-w-full">
             {% for action in actions %}
               <div class="flex flex-row gap-x-4 w-full items-center" id="jobActions">
-                {% if action.name in form.requested_actions.value %}
-                {% form_checkbox custom_field=True id="checkbox-"|add:action.name label=action.name name="requested_actions" value=action.name checked=False label_class="truncate py-0.5" span_class="font-mono text-base truncate" checked=True %}
-                {% else %}
-                {% form_checkbox custom_field=True id="checkbox-"|add:action.name label=action.name name="requested_actions" value=action.name checked=False label_class="truncate py-0.5" span_class="font-mono text-base truncate" checked=False%}
-                {% endif %}
+                <div class="mr-16">
+                  {% if action.name in form.requested_actions.value %}
+                  {% form_checkbox custom_field=True id="checkbox-"|add:action.name label=action.name name="requested_actions" value=action.name checked=False label_class="truncate py-0.5" span_class="font-mono text-base truncate" checked=True %}
+                  {% else %}
+                  {% form_checkbox custom_field=True id="checkbox-"|add:action.name label=action.name name="requested_actions" value=action.name checked=False label_class="truncate py-0.5" span_class="font-mono text-base truncate" checked=False%}
+                  {% endif %}
+                </div>
 
                 {% if action.needs %}
                   {% #button class="min-w-fit ml-auto" variant="secondary-outline" small=True data-expander-button=action.name  %}
@@ -132,6 +134,7 @@
                     {% icon_x_circle_solid class="h-5 w-5 fill-red-700" %}
                     {% tooltip position="-bottom-3" content="Failed" %}
                   </span>
+                  <span class="relative block h-5 w-5 hidden" data-action-status="none"></span>
                 </span>
               </div>
               {% if action.needs %}

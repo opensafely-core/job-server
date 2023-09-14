@@ -40,6 +40,7 @@ function setIcon(action, status) {
     `[data-action-status="succeeded"]`,
   );
   const failedIcon = parentEl?.querySelector(`[data-action-status="failed"]`);
+  const noneIcon = parentEl?.querySelector(`[data-action-status="none"]`);
 
   if (status === "succeeded") {
     loadingIcon?.classList.add("hidden");
@@ -51,6 +52,13 @@ function setIcon(action, status) {
     loadingIcon?.classList.add("hidden");
     successIcon?.classList.add("hidden");
     return failedIcon?.classList.remove("hidden");
+  }
+
+  if (status === "none") {
+    loadingIcon?.classList.add("hidden");
+    successIcon?.classList.add("hidden");
+    failedIcon?.classList.add("hidden");
+    return noneIcon?.classList.remove("hidden");
   }
 
   failedIcon?.classList.add("hidden");
@@ -66,7 +74,7 @@ async function setActionsStatuses() {
 
   actions.map((action) => {
     const actionName = action?.textContent?.trim();
-    const status = actionName ? statuses[actionName] : null;
+    const status = statuses?.[actionName] || "none";
     return setIcon(action, status);
   });
 }
