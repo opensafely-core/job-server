@@ -88,7 +88,6 @@
               {% #table_header nowrap=True %}Jobs{% /table_header %}
               {% #table_header nowrap=True %}User{% /table_header %}
               {% #table_header nowrap=True %}Started{% /table_header %}
-              {% #table_header %}<span class="sr-only">View request</span>{% /table_header %}
             {% /table_row %}
           {% /table_head %}
 
@@ -108,7 +107,7 @@
                   <span class="sr-only">{{ group.status|title }}</span>
                 {% /table_cell %}
                 {% #table_cell class="font-mono" %}
-                  {{ group.id|upper }}
+                  {% link href=group.get_absolute_url text=group.id|upper class="font-mono" %}
                 {% /table_cell %}
                 {% #table_cell %}
                   {{ group.backend|upper }}
@@ -126,11 +125,6 @@
                       {% tooltip position="-bottom-4" content=group.started_at|date:"d F Y H:i:s T" %}
                     {% endif %}
                   </span>
-                {% /table_cell %}
-                {% #table_cell nowrap=True %}
-                  {% #button type="link" href=group.get_absolute_url variant="secondary-outline" small=True %}
-                    View<span class="sr-only">, Job request {{ group.id }}</span>
-                  {% /button %}
                 {% /table_cell %}
               {% /table_row %}
             {% endfor %}
