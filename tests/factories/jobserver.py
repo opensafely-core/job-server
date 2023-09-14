@@ -14,6 +14,7 @@ from jobserver.models import (
     Org,
     OrgMembership,
     Project,
+    ProjectCollaboration,
     ProjectMembership,
     Repo,
     Stats,
@@ -98,11 +99,30 @@ class OrgMembershipFactory(factory.django.DjangoModelFactory):
 class ProjectFactory(factory.django.DjangoModelFactory):
     class Meta:
         model = Project
+        skip_postgeneration_save = True
 
     org = factory.SubFactory("tests.factories.OrgFactory")
 
     name = factory.Sequence(lambda n: f"Project {n}")
     slug = factory.Sequence(lambda n: f"project-{n}")
+
+    @factory.post_generation
+    def orgs(self, create, extracted, **kwargs):
+        if not create or not extracted:
+            # Simple build, or nothing to add, do nothing.
+            return
+
+        # Add the iterable of groups using bulk addition
+        for org in extracted:
+            ProjectCollaborationFactory(org=org, project=self, is_lead=True)
+
+
+class ProjectCollaborationFactory(factory.django.DjangoModelFactory):
+    class Meta:
+        model = ProjectCollaboration
+
+    org = factory.SubFactory("tests.factories.OrgFactory")
+    project = factory.SubFactory("tests.factories.ProjectFactory")
 
 
 class ProjectMembershipFactory(factory.django.DjangoModelFactory):
