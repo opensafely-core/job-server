@@ -40,7 +40,7 @@
     </div>
 
     {% #card title="Filter by organisation" container=True %}
-      {% #multiselect name="orgs" %}
+      {% #multiselect name="orgs" placeholder="Select an org" %}
         {% for org in orgs %}
           {% is_filter_selected key="orgs" value=org.slug as is_org_active %}
           {% multiselect_option value=org.slug name=org.name is_active=is_org_active%}
@@ -66,22 +66,26 @@
     {% /card %}
 
     {% #card %}
-      {% #list_group small=True %}
-        {% for project in object_list %}
-          {% #list_group_item type="Projects" href=project.get_staff_url %}
-            {{ project.title }}
-          {% /list_group_item %}
-        {% endfor %}
-      {% /list_group %}
+      {% if object_list %}
+        {% #list_group small=True %}
+          {% for project in object_list %}
+            {% #list_group_item type="Projects" href=project.get_staff_url %}
+              {{ project.title }}
+            {% /list_group_item %}
+          {% endfor %}
+        {% /list_group %}
 
-      {% if page_obj.has_previous or page_obj.has_next %}
-        {% if page_obj.has_next %}
-          {% url_with_querystring page=page_obj.next_page_number as next_page_url %}
+        {% if page_obj.has_previous or page_obj.has_next %}
+          {% if page_obj.has_next %}
+            {% url_with_querystring page=page_obj.next_page_number as next_page_url %}
+          {% endif %}
+          {% if page_obj.has_previous %}
+            {% url_with_querystring page=page_obj.previous_page_number as previous_page_url %}
+          {% endif %}
+          {% card_pagination page_number=page_obj.number total_pages=page_obj.paginator.num_pages next_page_url=next_page_url previous_page_url=previous_page_url no_container=True %}
         {% endif %}
-        {% if page_obj.has_previous %}
-          {% url_with_querystring page=page_obj.previous_page_number as previous_page_url %}
-        {% endif %}
-        {% card_pagination page_number=page_obj.number total_pages=page_obj.paginator.num_pages next_page_url=next_page_url previous_page_url=previous_page_url no_container=True %}
+      {% else %}
+        {% list_group_empty icon=True title="No projects found" description="Try a new search or clearing the filters" %}
       {% endif %}
     {% /card %}
   </div>
