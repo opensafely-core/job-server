@@ -445,8 +445,8 @@ class WorkspaceEventLog(ListView):
                 qs = qs.filter(qwargs)
             else:
                 # if the query looks enough like a number for int() to handle
-                # it then we can look for a job number
-                qs = qs.filter(qwargs | Q(jobs__pk=q))
+                # it then we can look for a job number or job request ID
+                qs = qs.filter(qwargs | Q(jobs__pk=q) | Q(id=q))
 
         if backends := self.request.GET.getlist("backend"):
             qs = qs.filter(backend__slug__in=backends)
