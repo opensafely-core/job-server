@@ -93,16 +93,16 @@
 
           {% #table_body %}
             {% for group in page_obj %}
-              {% #table_row class="even:bg-slate-50" %}
+            {% #table_row class="even:bg-slate-50 align-top" %}
                 {% #table_cell class="py-2 pl-4 pr-3" title=group.status|title nowrap=True %}
                   {% if group.status == "succeeded" %}
-                    {% icon_check_circle_solid class="h-6 w-6 text-green-700" %}
+                    {% icon_check_circle_solid class="h-5 w-5 text-green-700" %}
                   {% elif group.status == "pending" %}
-                    {% icon_clock_outline class="h-6 w-6 text-slate-500 stroke-2" %}
+                    {% icon_clock_outline class="h-5 w-5 text-slate-500 stroke-2" %}
                   {% elif group.status == "running" %}
-                    {% icon_custom_spinner class="h-6 w-6 animate-spin stroke-oxford-600 stroke-2 text-oxford-300" %}
+                    {% icon_custom_spinner class="h-5 w-5 animate-spin stroke-oxford-600 stroke-2 text-oxford-300" %}
                   {% elif group.status == "failed" %}
-                    {% icon_x_circle_solid class="h-6 w-6 text-bn-ribbon-700" %}
+                    {% icon_x_circle_solid class="h-5 w-5 text-bn-ribbon-700" %}
                   {% endif %}
                   <span class="sr-only">{{ group.status|title }}</span>
                 {% /table_cell %}
@@ -113,7 +113,18 @@
                   {{ group.backend|upper }}
                 {% /table_cell %}
                 {% #table_cell %}
-                  {{ group.num_completed }}/{{ group.jobs.all|length }}
+                  <details>
+                    <summary class="text-oxford-600 cursor-pointer">
+                      {{ group.num_completed }}/{{ group.jobs.all|length }}
+                    </summary>
+                    <div class="prose prose-sm">
+                      <ul>
+                        {% for job in group.jobs.all %}
+                          <li>{{ job.action }}</li>
+                        {% endfor %}
+                      </ul>
+                    </div>
+                  </details>
                 {% /table_cell %}
                 {% #table_cell class="min-w-[18ch] break-words" %}
                   {{ group.created_by.name }}
