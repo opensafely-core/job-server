@@ -43,8 +43,14 @@
 
 {% #card container=True class="max-w-prose my-6" %}
   <form method="GET">
-    {% form_input type="search" custom_field=True label="Search by Job action or ID" id="searchJobLogs" name="q" %}
+    {% form_input type="search" custom_field=True label="Search by Job action or ID" id="searchJobLogs" name="q" value=request.GET.q %}
     {% #button class="mt-2" type="submit" variant="primary-outline" %}Search{% /button %}
+
+    {% if request.GET.q %}
+      <p class="mt-3">
+        {% link href=workspace.get_logs_url text="Clear search" %}
+      </p>
+    {% endif %}
   </form>
 
   {% if backends|length > 1 %}
@@ -133,12 +139,7 @@
 {% else %}
   {% #card container=True title="No results found" %}
     {% url "job-list" as job_list_url %}
-    <p>
-      No results found, try checking the
-      {% link href=job_list_url text="Event Log" append_after="." %}
-    <p>
-
-    {% #button class="mt-3" href=workspace.get_logs_url type="link" variant="secondary-outline" %}Clear search filter{% /button %}
+    <p>Try searching for a different job action or ID.<p>
   {% /card %}
 {% endif %}
 {% endblock content %}
