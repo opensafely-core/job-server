@@ -113,18 +113,22 @@
                   {{ group.backend|upper }}
                 {% /table_cell %}
                 {% #table_cell %}
-                  <details>
-                    <summary class="text-oxford-600 cursor-pointer">
-                      {{ group.num_completed }}/{{ group.jobs.all|length }}
-                    </summary>
-                    <div class="prose prose-sm">
-                      <ul>
-                        {% for job in group.jobs.all %}
-                          <li>{{ job.action }}</li>
-                        {% endfor %}
-                      </ul>
-                    </div>
-                  </details>
+                  {% if group.jobs.all|length %}
+                    <details>
+                      <summary class="text-oxford-600 cursor-pointer">
+                        {{ group.num_completed }}/{{ group.jobs.all|length }}
+                      </summary>
+                      <div class="prose prose-sm">
+                        <ul>
+                          {% for job in group.jobs.all %}
+                            <li>{{ job.action }}</li>
+                          {% endfor %}
+                        </ul>
+                      </div>
+                    </details>
+                  {% else %}
+                    -
+                  {% endif %}
                 {% /table_cell %}
                 {% #table_cell class="min-w-[18ch] break-words" %}
                   {{ group.created_by.name }}
