@@ -135,12 +135,10 @@ def test_usercreate_unauthorized(rf):
 
 
 def test_userdetail_with_email_user_invokes_userdetailwithemail(rf, core_developer):
-    org = OrgFactory()
-    project = ProjectFactory(org=org)
+    project = ProjectFactory()
     user = UserFactory()
 
-    # link the user to some a org, and project
-    OrgMembershipFactory(org=org, user=user)
+    # link the user to a project
     ProjectMembershipFactory(project=project, user=user, roles=[ProjectDeveloper])
 
     request = rf.get("/")
@@ -152,14 +150,12 @@ def test_userdetail_with_email_user_invokes_userdetailwithemail(rf, core_develop
 
 
 def test_userdetail_with_oauth_user_invokes_userdetailwithoauth(rf, core_developer):
-    org = OrgFactory()
-    project = ProjectFactory(org=org)
+    project = ProjectFactory()
     user = UserFactory()
     UserSocialAuthFactory(user=user)
 
-    # link the user to some a backend, org, and project
+    # link the user to a backend, and project
     BackendMembershipFactory(user=user)
-    OrgMembershipFactory(org=org, user=user)
     ProjectMembershipFactory(project=project, user=user, roles=[ProjectDeveloper])
 
     request = rf.get("/")
