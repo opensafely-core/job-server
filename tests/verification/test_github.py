@@ -1,8 +1,9 @@
 import pytest
+import stamina
 from environs import Env
 from requests.exceptions import HTTPError
 
-from jobserver.github import GitHubAPI, RepoAlreadyExists
+from jobserver.github import GitHubAPI, RepoAlreadyExists, RepoNotYetCreated
 from jobserver.models.common import new_ulid_str
 
 from ..fakes import FakeGitHubAPI
@@ -93,8 +94,11 @@ def test_create_repo(enable_network, github_api):
         with pytest.raises(RepoAlreadyExists):
             github_api.create_repo(*args)
     finally:
-        # clean up after the test
-        github_api.delete_repo(*args)
+        # clean up after the test but accept that sometimes the repo hasn't
+        # been created and make a few attempts at removing it
+        for attempt in stamina.retry_context(on=RepoNotYetCreated):
+            with attempt:
+                github_api.delete_repo(*args)
 
 
 def test_get_branch(enable_network, github_api):

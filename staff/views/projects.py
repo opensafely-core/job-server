@@ -166,7 +166,7 @@ class ProjectCreate(CreateView):
 @method_decorator(require_role(CoreDeveloper), name="dispatch")
 class ProjectDetail(DetailView):
     model = Project
-    template_name = "staff/project_detail.html"
+    template_name = "staff/project/detail.html"
 
     def get_context_data(self, **kwargs):
         return super().get_context_data(**kwargs) | {
@@ -183,7 +183,7 @@ class ProjectDetail(DetailView):
 class ProjectEdit(UpdateView):
     form_class = ProjectEditForm
     model = Project
-    template_name = "staff/project_edit.html"
+    template_name = "staff/project/edit.html"
 
     @transaction.atomic()
     def form_valid(self, form):
@@ -199,7 +199,7 @@ class ProjectEdit(UpdateView):
         # new.project because self.object is mutated when ModelForm._post_clean
         # updates the instance it was passed.  This is because form.instance is
         # set from the passed in self.object.
-        if {"org", "slug"} & set(form.changed_data):
+        if "slug" in form.changed_data:
             new.redirects.create(
                 created_by=self.request.user,
                 old_url=old.get_absolute_url(),
@@ -252,8 +252,9 @@ class ProjectLinkApplication(UpdateView):
 
 @method_decorator(require_role(CoreDeveloper), name="dispatch")
 class ProjectList(ListView):
-    queryset = Project.objects.order_by("number", Lower("name"))
-    template_name = "staff/project_list.html"
+    queryset = Project.objects.order_by("-number", Lower("name"))
+    paginate_by = 25
+    template_name = "staff/project/list.html"
 
     def get_context_data(self, **kwargs):
         return super().get_context_data(**kwargs) | {
@@ -271,10 +272,10 @@ class ProjectList(ListView):
             ]
             qs = qs.filter(qwargs(fields, q))
 
-        org = self.request.GET.get("org")
-        if org:
-            qs = qs.filter(org__slug=org)
-        return qs
+        if orgs := self.request.GET.getlist("orgs"):
+            qs = qs.filter(org__slug__in=orgs)
+
+        return qs.distinct()
 
 
 @method_decorator(require_role(CoreDeveloper), name="dispatch")

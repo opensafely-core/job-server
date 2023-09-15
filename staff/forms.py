@@ -97,9 +97,7 @@ class ProjectAddMemberForm(PickUsersMixin, RolesForm):
 
 class ProjectCreateForm(forms.Form):
     application_url = forms.URLField()
-    copilot = UserModelChoiceField(
-        queryset=User.objects.order_by(Lower("fullname"), "username")
-    )
+    copilot = UserModelChoiceField(queryset=User.objects.order_by_name())
     name = forms.CharField()
     number = forms.IntegerField()
     org = forms.ModelChoiceField(queryset=Org.objects.order_by("name"))

@@ -15,10 +15,10 @@ on:
 
 jobs:
   check:
-    runs-on: ubuntu-22.04
+    runs-on: ubuntu-latest-4core
 
     steps:
-      - uses: actions/checkout@v3
+      - uses: actions/checkout@v4
       - uses: "opensafely-core/setup-action@v1"
         with:
           python-version: "3.11"
@@ -27,7 +27,7 @@ jobs:
         run: just check
 
   test:
-    runs-on: ubuntu-22.04
+    runs-on: ubuntu-latest-4core
 
     services:
       postgres:
@@ -45,7 +45,7 @@ jobs:
           --health-retries 5
 
     steps:
-      - uses: actions/checkout@v3
+      - uses: actions/checkout@v4
       - uses: "opensafely-core/setup-action@v1"
         with:
           python-version: "3.11"
@@ -97,19 +97,19 @@ jobs:
         if: ${{ failure() }}  # only upload when the previous step, run tests, fails
 
   lint-dockerfile:
-    runs-on: ubuntu-22.04
+    runs-on: ubuntu-latest-4core
 
     steps:
-      - uses: actions/checkout@v3
+      - uses: actions/checkout@v4
       - uses: hadolint/hadolint-action@54c9adbab1582c2ef04b2016b760714a4bfde3cf  # v3.1.0
         with:
           dockerfile: docker/Dockerfile
 
   docker-test:
-    runs-on: ubuntu-22.04
+    runs-on: ubuntu-latest-4core
 
     steps:
-      - uses: actions/checkout@v3
+      - uses: actions/checkout@v4
       - uses: "opensafely-core/setup-action@v1"
         with:
           install-just: true
@@ -146,7 +146,7 @@ jobs:
   deploy:
     needs: [check, test, docker-test, lint-dockerfile]
 
-    runs-on: ubuntu-22.04
+    runs-on: ubuntu-latest-4core
 
     permissions:
       contents: read
@@ -157,7 +157,7 @@ jobs:
     concurrency: deploy-production
 
     steps:
-      - uses: actions/checkout@v3
+      - uses: actions/checkout@v4
       - uses: "opensafely-core/setup-action@v1"
         with:
           install-just: true

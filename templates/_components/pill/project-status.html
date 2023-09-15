@@ -1,0 +1,16 @@
+{% if status == "completed-and-awaiting" or status == "completed-and-linked" %}
+  {% pill variant="success" text="Approved fully" %}
+
+{% elif status == "approved_subject_to" %}
+  {% pill variant="success" text="Approved subject to" %}
+
+{% elif status == "ongoing" or status == "ongoing-and-linked" %}
+  {% pill variant="primary" text=text %}
+
+{% elif status == "retired" %}
+  {% pill variant="danger" text=text %}
+
+{% elif status == "postponed" %}
+  {% pill variant="warning" text=text %}
+
+{% endif %}

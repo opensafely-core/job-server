@@ -4,7 +4,7 @@ from django.views.generic import DetailView, ListView
 
 from jobserver.authorization import CoreDeveloper
 from jobserver.authorization.decorators import require_role
-from jobserver.models import JobRequest, Org, Project, User, Workspace
+from jobserver.models import Backend, JobRequest, Org, Project, User, Workspace
 
 from .qwargs_tools import qwargs
 
@@ -24,6 +24,12 @@ class JobRequestList(ListView):
     template_name = "staff/job_request_list.html"
 
     def get_context_data(self, **kwargs):
+        backends = {
+            "is_active": "backends" in self.request.GET,
+            "items": list(Backend.objects.order_by(Lower("name"))),
+            "selected": self.request.GET.getlist("backends", default=[]),
+        }
+
         orgs = {
             "is_active": "orgs" in self.request.GET,
             "items": list(Org.objects.order_by(Lower("name"))),
@@ -49,6 +55,7 @@ class JobRequestList(ListView):
         }
 
         return super().get_context_data(**kwargs) | {
+            "backends": backends,
             "orgs": orgs,
             "projects": projects,
             "users": users,
@@ -75,6 +82,9 @@ class JobRequestList(ListView):
                 "workspace__project__org__name",
             ]
             qs = qs.filter(qwargs(fields, q))
+
+        if backends := self.request.GET.getlist("backends"):
+            qs = qs.filter(backend__slug__in=backends)
 
         if orgs := self.request.GET.getlist("orgs"):
             qs = qs.filter(workspace__project__org__slug__in=orgs)

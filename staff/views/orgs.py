@@ -11,7 +11,7 @@ from furl import furl
 
 from jobserver.authorization import CoreDeveloper
 from jobserver.authorization.decorators import require_permission, require_role
-from jobserver.models import Org, OrgMembership, Project, User
+from jobserver.models import Org, OrgMembership, User
 
 from ..forms import OrgAddGitHubOrgForm, OrgAddMemberForm
 from ..htmx_tools import get_redirect_url
@@ -78,7 +78,7 @@ class OrgCreate(CreateView):
 
     def get_template_names(self):
         suffix = ".htmx" if self.request.htmx else ""
-        template_name = f"staff/org_create{suffix}.html"
+        template_name = f"staff/org/create{suffix}.html"
 
         return [template_name]
 
@@ -178,32 +178,6 @@ class OrgList(ListView):
             qs = qs.filter(qwargs(fields, q))
 
         return qs
-
-
-@method_decorator(require_role(CoreDeveloper), name="dispatch")
-class OrgProjectCreate(CreateView):
-    fields = ["name"]
-    model = Project
-    template_name = "staff/org_project_create.html"
-
-    def dispatch(self, request, *args, **kwargs):
-        self.org = get_object_or_404(Org, slug=self.kwargs["slug"])
-
-        return super().dispatch(request, *args, **kwargs)
-
-    def form_valid(self, form):
-        project = form.save(commit=False)
-        project.created_by = self.request.user
-        project.updated_by = self.request.user
-        project.org = self.org
-        project.save()
-
-        return redirect(project.get_staff_url())
-
-    def get_context_data(self, **kwargs):
-        return super().get_context_data() | {
-            "org": self.org,
-        }
 
 
 @method_decorator(require_role(CoreDeveloper), name="dispatch")

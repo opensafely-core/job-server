@@ -1,5 +1,4 @@
 import json
-import time
 from datetime import UTC, datetime
 
 import requests
@@ -27,6 +26,10 @@ class GitHubError(Exception):
 
 
 class RepoAlreadyExists(GitHubError):
+    pass
+
+
+class RepoNotYetCreated(GitHubError):
     pass
 
 
@@ -283,9 +286,7 @@ class GitHubAPI:
             # Note: 403 isn't just used for this state
             msg = "Repository cannot be deleted until it is done being created on disk."
             if msg in r.json().get("message", ""):
-                time.sleep(1)
-                self.delete_repo(org, repo)
-                pass
+                raise RepoNotYetCreated()
 
         r.raise_for_status()
 

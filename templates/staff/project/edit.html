@@ -1,0 +1,89 @@
+{% extends "staff/base-tw.html" %}
+
+{% load static %}
+
+{% block metatitle %}Edit {{ project.title }}: Staff Area | OpenSAFELY Jobs{% endblock metatitle %}
+
+{% block breadcrumbs %}
+{% #breadcrumbs %}
+  {% url "staff:index" as staff_url %}
+  {% url "staff:project-list" as staff_project_list_url %}
+  {% breadcrumb title="Staff area" url=staff_url %}
+  {% breadcrumb title="Projects" url=staff_project_list_url %}
+  {% breadcrumb title=project.title url=project.get_staff_url %}
+  {% breadcrumb title="Edit" active=True %}
+{% /breadcrumbs %}
+{% endblock breadcrumbs %}
+
+{% block hero %}
+{% staff_hero title="Edit: "|add:project.title %}
+{% endblock hero %}
+
+{% block content %}
+<form method="POST" class="max-w-3xl flex flex-col gap-y-6">
+  {% csrf_token %}
+
+  {% if form.non_field_errors %}
+    {% for error in form.non_field_errors %}
+      {% #alert variant="danger" class="mb-6" %}
+        {{ error }}
+      {% /alert %}
+    {% endfor %}
+  {% endif %}
+
+  {% #card title="Project info" container=True %}
+    {% #form_fieldset class="w-full items-stretch gap-y-6" %}
+      {% form_legend text="Project info" class="sr-only" %}
+      {% form_input field=form.name label="Project name" %}
+      {% form_input field=form.slug label="URL slug" %}
+      {% form_input field=form.number label="Project number" inputmode="numeric" %}
+    {% /form_fieldset %}
+  {% /card %}
+
+  {% #card title="Organisation" container=True %}
+    {% #form_fieldset class="w-full items-stretch gap-y-6" %}
+      {% form_legend text="Organisation" class="sr-only" %}
+      {% form_select field=form.fields.org choices=form.fields.org.choices selected=form.org.value id="id_org" name="org" label="Select an org" %}
+    {% /form_fieldset %}
+  {% /card %}
+
+  {% #card title="Application" container=True %}
+    {% #form_fieldset class="w-full items-stretch gap-y-6" %}
+      {% form_legend text="Application" class="sr-only" %}
+
+      {% if project.applications.exists %}
+        <p>This project is linked to an application, which cannot be edited here.</p>
+      {% else %}
+        {% #alert variant="warning" class="mb-" %}
+          If you are looking to link to an application created on this site use "Find and Link"
+          {% link href=project.get_staff_url text="on the Project page" append_after="." %}
+        {% /alert %}
+        {% form_input field=form.application_url label="Application URL" type="url" %}
+      {% endif %}
+    {% /form_fieldset %}
+  {% /card %}
+
+  {% #card title="Internal co-pilot details" container=True %}
+    {% #form_fieldset class="w-full items-stretch gap-y-6" %}
+      {% form_legend text="Internal co-pilot details" class="sr-only" %}
+
+      {% form_select field=form.fields.copilot choices=form.fields.copilot.choices selected=form.copilot.value id="id_copilot" name="copilot" label="Select a co-pilot" %}
+      {% form_input custom_field=True id="id_copilot_support_ends_at" name="copilot_support_ends_at" value=form.copilot_support_ends_at.value|date:"Y-m-d" errors=form.copilot_support_ends_at.errors type="date" label="Co-pilot support ends at" %}
+      {% form_textarea field=form.copilot_notes label="Co-pilot notes" %}
+    {% /form_fieldset %}
+  {% /card %}
+
+  {% #card title="Status" container=True %}
+    {% #form_fieldset class="w-full items-stretch gap-y-6" %}
+      {% form_legend text="Status" class="sr-only" %}
+
+      {% form_select field=form.fields.status choices=form.fields.status.choices selected=form.copilot.value id="id_status" name="status" label="Project status" %}
+      {% form_textarea field=form.status_description label="Status description" %}
+    {% /form_fieldset %}
+  {% /card %}
+
+  {% #button variant="success" type="submit" class="self-start" %}
+    Save
+  {% /button %}
+</form>
+{% endblock content %}

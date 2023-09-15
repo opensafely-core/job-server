@@ -1,0 +1,24 @@
+{% var text=status|capfirst %}
+
+{% if status == "approved_fully" %}
+  {% pill variant="success" text="Approved fully" class=class %}
+
+{% elif status == "approved_subject_to" %}
+  {% pill variant="success" text="Approved subject to" class=class %}
+
+{% elif status == "completed" %}
+  {% pill variant="success" text=text class=class %}
+
+{% elif status == "submitted" %}
+  {% pill variant="primary" text=text class=class %}
+
+{% elif status == "rejected" or status == "deleted" %}
+  {% pill variant="danger" text=text class=class %}
+
+{% elif status == "deferred" %}
+  {% pill variant="warning" text=text class=class %}
+
+{% elif status == "ongoing" %}
+  {% pill variant="info" text=text class=class %}
+
+{% endif %}

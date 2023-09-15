@@ -6,11 +6,13 @@ from urllib.parse import quote
 
 import structlog
 from django.contrib.auth.hashers import check_password, make_password
-from django.contrib.auth.models import AbstractBaseUser, UserManager
+from django.contrib.auth.models import AbstractBaseUser
+from django.contrib.auth.models import UserManager as DjangoUserManager
 from django.contrib.auth.validators import UnicodeUsernameValidator
 from django.contrib.postgres.fields import ArrayField
 from django.db import models, transaction
 from django.db.models import Min, Q, prefetch_related_objects
+from django.db.models.functions import Lower, NullIf
 from django.urls import reverse
 from django.utils import timezone
 from django.utils.functional import cached_property
@@ -365,6 +367,13 @@ class JobRequest(models.Model):
 
         return "unknown"
 
+    @property
+    def database_name(self):
+        # TODO: We plan to make use of this property to control which set of patients'
+        # data a given job runs against. But until the relevant machinery is in place we
+        # hardcode this to the default value.
+        return "full"
+
 
 class Org(models.Model):
     """An Organisation using the platform"""
@@ -527,7 +536,7 @@ class Project(models.Model):
         ]
 
     def __str__(self):
-        return f"{self.org.name} | {self.title}"
+        return self.title
 
     def get_absolute_url(self):
         return reverse(
@@ -765,6 +774,32 @@ WORDLIST = xkcd_password.generate_wordlist("eff-long")
 def human_memorable_token(size=8):
     """Generate a 3 short english words from the eff-long list of words."""
     return xkcd_password.generate_xkcdpassword(WORDLIST, numwords=3)
+
+
+class UserQuerySet(models.QuerySet):
+    def order_by_name(self):
+        """
+        Order Users by their "name"
+
+        we don't have fullname populated for all users yet and having some
+        users at the top of the list with just usernames looks fairly odd.
+        We've modelled our text fields in job-server such that they're not
+        nullable because we treat empty string as the only empty case.  The
+        NullIf() call lets us tell the database to treat empty strings as NULL
+        for the purposes of this ORDER BY, using nulls_last=True
+
+        TODO: remove this method in favour of order_by(Lower("fullname")) once
+        all users have fullname populated
+        """
+        return self.order_by(
+            NullIf(
+                Lower("fullname"), models.Value(""), output_field=models.TextField()
+            ).asc(nulls_last=True)
+        )
+
+
+class UserManager(DjangoUserManager.from_queryset(UserQuerySet)):
+    use_in_migrations = True
 
 
 class User(AbstractBaseUser):
@@ -1115,8 +1150,6 @@ class Workspace(models.Model):
     is_archived = models.BooleanField(default=False)
     should_notify = models.BooleanField(default=False)
     purpose = models.TextField(default="")
-
-    db = models.TextField(choices=[("full", "Full database")], default="full")
 
     # TODO: Remove this once all Projects are ready to move to the new release
     # process

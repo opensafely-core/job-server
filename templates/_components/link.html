@@ -5,7 +5,7 @@
     focus:decoration-transparent focus:text-oxford focus:bg-bn-sun-300
     {{ class }}
   "
-  {% attrs href %}
+  {% attrs href hx-get hx-target hx-trigger %}
   {% if new_tab %}
     target="_blank" rel="noopener noreferrer"
   {% endif %}

@@ -188,10 +188,6 @@
             {% link text=workspace.branch href=workspace.repo.url|add:"/tree/"|add:workspace.branch %}
           {% /description_item %}
 
-          {% #description_item title="Database" %}
-            {{ workspace.db }}
-          {% /description_item %}
-
           {% #description_item title="Created" %}
             <time
               datetime="{{ workspace.created_at|date:"Y-m-d H:i:sO" }}"

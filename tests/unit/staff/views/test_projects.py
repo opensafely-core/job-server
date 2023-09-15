@@ -315,9 +315,6 @@ def test_projectedit_post_success(rf, core_developer):
     Redirect.objects.count() == 1
     redirect = Redirect.objects.first()
     assert redirect.project_id == original.pk
-    assert redirect.old_url == original.get_absolute_url().replace(
-        updated.org.get_absolute_url(), old_org.get_absolute_url()
-    )
 
 
 def test_projectedit_post_success_when_not_changing_org_or_slug(rf, core_developer):
@@ -473,15 +470,16 @@ def test_projectlinkapplication_unknown_project(rf, core_developer):
 
 
 def test_projectlist_filter_by_org(rf, core_developer):
-    project = ProjectFactory()
+    org = OrgFactory()
+    project = ProjectFactory(org=org)
     ProjectFactory.create_batch(2)
 
-    request = rf.get(f"/?org={project.org.slug}")
+    request = rf.get(f"/?orgs={org.slug}")
     request.user = core_developer
 
     response = ProjectList.as_view()(request)
 
-    assert len(response.context_data["project_list"]) == 1
+    assert set_from_qs(response.context_data["project_list"]) == {project.pk}
 
 
 def test_projectlist_find_by_username(rf, core_developer):
