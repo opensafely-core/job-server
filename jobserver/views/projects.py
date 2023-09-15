@@ -228,9 +228,8 @@ class ProjectEventLog(ListView):
         return fetch(
             JobRequest.objects.with_started_at()
             .filter(workspace__project=self.project)
-            .select_related(
-                "backend", "created_by", "workspace", "workspace__project__org"
-            )
+            .select_related("backend", "created_by", "workspace")
+            .prefetch_related("workspace__project__orgs")
             .order_by("-pk")
         )
 
