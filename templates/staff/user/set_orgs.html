@@ -37,10 +37,11 @@
         {% for value, label in form.orgs.field.choices %}
           {% with id=forloop.counter0|stringformat:"s" %}
             {% if value in form.orgs.value %}
-              {% form_checkbox custom_field=True name="orgs" id="id_orgs_"|add:label|add:"_"|add:id|slugify label=label value=value checked=True %}
+              {% var checked=True %}
             {% else %}
-              {% form_checkbox custom_field=True name="orgs" id="id_orgs_"|add:label|add:"_"|add:id|slugify label=label value=value  %}
+              {% var checked=False %}
             {% endif %}
+            {% form_checkbox custom_field=True name="orgs" id="id_orgs_"|add:label|add:"_"|add:id|slugify label=label value=value checked=checked %}
           {% endwith %}
         {% endfor %}
       {% /form_fieldset %}

@@ -93,10 +93,11 @@
           {% for value, label in form.backends.field.choices %}
             {% with id=forloop.counter0|stringformat:"s" %}
               {% if value in form.backends.value %}
-                {% form_checkbox custom_field=True name="backends" id="id_backends_"|add:label|add:"_"|add:id|slugify label=label value=value checked=True %}
+                {% var checked=True %}
               {% else %}
-                {% form_checkbox custom_field=True name="backends" id="id_backends_"|add:label|add:"_"|add:id|slugify label=label value=value  %}
+                {% var checked=False %}
               {% endif %}
+              {% form_checkbox custom_field=True name="backends" id="id_backends_"|add:label|add:"_"|add:id|slugify label=label value=value checked=checked %}
             {% endwith %}
           {% endfor %}
 

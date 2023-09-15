@@ -52,10 +52,11 @@
                 <span class="text-sm mt-0.5">{{ value|role_description|linebreaksbr }}</span>
               {% endfragment %}
               {% if value in form.roles.value %}
-                {% form_checkbox custom_field=True name="roles" id="id_roles_"|add:label|add:"_"|add:id|slugify label=rich_label value=value checked=True %}
+                {% var checked=True %}
               {% else %}
-                {% form_checkbox custom_field=True name="roles" id="id_roles_"|add:label|add:"_"|add:id|slugify label=rich_label value=value  %}
+                {% var checked=False %}
               {% endif %}
+              {% form_checkbox custom_field=True name="roles" id="id_roles_"|add:label|add:"_"|add:id|slugify label=rich_label value=value checked=checked %}
             {% endwith %}
           {% endfor %}
         {% /form_fieldset %}
