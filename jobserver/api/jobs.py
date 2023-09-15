@@ -265,7 +265,7 @@ class JobRequestAPIList(ListAPIView):
             model = JobRequest
 
         def get_orgs(self, obj):
-            return [obj.workspace.project.org.slug]
+            return list(obj.workspace.project.orgs.values_list("slug", flat=True))
 
     def initial(self, request, *args, **kwargs):
         token = request.headers.get("Authorization")
@@ -296,9 +296,9 @@ class JobRequestAPIList(ListAPIView):
                 "workspace",
                 "workspace__created_by",
                 "workspace__project",
-                "workspace__project__org",
                 "workspace__repo",
             )
+            .prefetch_related("workspace__project__orgs")
             .order_by("-created_at")
             .distinct()
         )
