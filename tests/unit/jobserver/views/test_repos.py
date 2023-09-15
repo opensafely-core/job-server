@@ -44,10 +44,12 @@ def test_repohandler_with_disallowed_url(rf, url):
 def test_repohandler_repo_with_multiple_projects(rf):
     repo = RepoFactory(url="https://github.com/opensafely/foo")
 
-    project1 = ProjectFactory()
+    org = OrgFactory()
+    project1 = ProjectFactory(orgs=[org])
     WorkspaceFactory(project=project1, repo=repo)
 
-    project2 = ProjectFactory()
+    org = OrgFactory()
+    project2 = ProjectFactory(orgs=[org])
     WorkspaceFactory(project=project2, repo=repo)
 
     request = rf.get("/")
@@ -59,7 +61,8 @@ def test_repohandler_repo_with_multiple_projects(rf):
 
 
 def test_repohandler_repo_with_one_project(rf):
-    project = ProjectFactory()
+    org = OrgFactory()
+    project = ProjectFactory(orgs=[org])
     repo = RepoFactory(url="https://github.com/opensafely/foo")
     WorkspaceFactory(project=project, repo=repo)
 
