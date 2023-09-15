@@ -35,7 +35,7 @@ def test_orgdetail_unknown_org(rf):
 
 def test_orgeventlog_success(rf, django_assert_num_queries):
     org = OrgFactory()
-    project = ProjectFactory(org=org)
+    project = ProjectFactory(orgs=[org])
     workspace = WorkspaceFactory(project=project)
 
     job_requests = JobRequestFactory.create_batch(5, workspace=workspace)
