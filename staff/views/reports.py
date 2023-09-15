@@ -131,7 +131,7 @@ class ReportList(ListView):
                 qs = qs.filter(latest_decision=state)
 
         if org := self.request.GET.get("org"):
-            qs = qs.filter(release_file__workspace__project__org__slug=org)
+            qs = qs.filter(release_file__workspace__project__orgs__slug=org)
 
         if project := self.request.GET.get("project"):
             qs = qs.filter(release_file__workspace__project__slug=project)
