@@ -122,7 +122,7 @@ def test_usercreate_post_success(rf, core_developer):
     assert response.url == user.get_staff_url()
     assert user.created_by == core_developer
     assert user.name == "New Name-Name"
-    assert user.orgs.first() == project.org
+    assert set_from_qs(user.orgs.all()) == set_from_qs(project.orgs.all())
     assert user.projects.first() == project
 
 
