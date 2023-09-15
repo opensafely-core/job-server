@@ -345,9 +345,8 @@ class UserEventLog(ListView):
         return fetch(
             JobRequest.objects.with_started_at()
             .filter(created_by=self.user)
-            .select_related(
-                "backend", "workspace", "workspace__project", "workspace__project__org"
-            )
+            .select_related("backend", "workspace", "workspace__project")
+            .prefetch_related("workspace__project__orgs")
             .order_by("-pk")
         )
 

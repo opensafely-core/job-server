@@ -667,7 +667,7 @@ def test_usereventlog_success(rf, django_assert_num_queries):
     request = rf.get("/")
     request.user = user
 
-    with django_assert_num_queries(3):
+    with django_assert_num_queries(4):
         response = UserEventLog.as_view()(request, username=user.username)
 
     assert response.status_code == 200
