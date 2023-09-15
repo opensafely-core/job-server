@@ -813,8 +813,7 @@ def test_jobrequestcreate_post_with_codelists_error(
 
 
 def test_jobrequestcreate_unknown_workspace(rf, user):
-    org = user.orgs.first()
-    project = ProjectFactory(org=org)
+    project = ProjectFactory()
 
     request = rf.get("/")
     request.user = user
