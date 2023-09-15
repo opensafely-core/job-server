@@ -255,8 +255,8 @@ def test_userdetailwithemail_without_core_dev_role(rf, core_developer):
 
 def test_userdetailwithoauth_get_success(rf, core_developer):
     org = OrgFactory()
-    project1 = ProjectFactory(org=org)
-    project2 = ProjectFactory(org=org)
+    project1 = ProjectFactory()
+    project2 = ProjectFactory()
     user = UserFactory(roles=[OutputPublisher, ProjectDeveloper])
     UserSocialAuthFactory(user=user)
 
@@ -283,18 +283,14 @@ def test_userdetailwithoauth_get_success(rf, core_developer):
 def test_userdetailwithoauth_post_success(rf, core_developer):
     backend = BackendFactory()
 
-    org = OrgFactory()
-    project1 = ProjectFactory(org=org)
-    project2 = ProjectFactory(org=org)
+    project1 = ProjectFactory()
+    project2 = ProjectFactory()
     user = UserFactory(roles=[OutputPublisher, ProjectDeveloper])
     UserSocialAuthFactory(user=user)
 
     # link the user to some Backends
     BackendMembershipFactory(user=user)
     BackendMembershipFactory(user=user)
-
-    # link the user to the Org
-    OrgMembershipFactory(org=org, user=user)
 
     # link the user to the Projects
     ProjectMembershipFactory(project=project1, user=user)
@@ -313,18 +309,14 @@ def test_userdetailwithoauth_post_success(rf, core_developer):
 
 
 def test_userdetailwithoauth_post_with_unknown_backend(rf, core_developer):
-    org = OrgFactory()
-    project1 = ProjectFactory(org=org)
-    project2 = ProjectFactory(org=org)
+    project1 = ProjectFactory()
+    project2 = ProjectFactory()
     user = UserFactory(roles=[OutputPublisher, ProjectDeveloper])
     UserSocialAuthFactory(user=user)
 
     # link the user to some Backends
     BackendMembershipFactory(user=user)
     BackendMembershipFactory(user=user)
-
-    # link the user to the Org
-    OrgMembershipFactory(org=org, user=user)
 
     # link the user to the Projects
     ProjectMembershipFactory(project=project1, user=user)
@@ -356,12 +348,10 @@ def test_userdetailwithoauth_post_with_unknown_backend(rf, core_developer):
 def test_userdetailwithoauth_with_email_only_user_invokes_userdetailwithemail(
     rf, core_developer
 ):
-    org = OrgFactory()
-    project = ProjectFactory(org=org)
+    project = ProjectFactory()
     user = UserFactory()
 
     # link the user to the Org&Project
-    OrgMembershipFactory(org=org, user=user)
     ProjectMembershipFactory(project=project, user=user, roles=[InteractiveReporter])
 
     request = rf.get("/")
