@@ -23,6 +23,9 @@
   <div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
     <form class="flex flex-col gap-y-6">
       <div class="flex flex-row gap-2">
+        {% #button variant="success" type="submit" %}
+          Apply filters
+        {% /button %}
         {% if request.GET %}
           {% #button variant="secondary-outline" type="link" href=staff_repo_list_url %}
             Clear filters
@@ -58,29 +61,13 @@
         {% /list_group %}
       {% /card %}
 
-      {% #card title="Filter by organisation" %}
-        <filter-input aria-owns="orgsFilter">
-          {% form_input custom_field=True class="px-4 -mt-2 mb-4 sm:px-6" id="filterUsers" name="filter-orgs" label="Search for an organisation" label_class="sr-only" placeholder="Search for an organisation" show_placeholder=True %}
-        </filter-input>
-        {% #list_group small=True class="max-h-96 overflow-y-auto" data_filter_list=True id="orgsFilter" %}
+      {% #card title="Filter by organisation" container=True %}
+        {% #multiselect custom_field=True name="orgs" placeholder="Select an org" %}
           {% for org in orgs %}
             {% is_filter_selected key="orgs" value=org.slug as is_org_active %}
-
-            {% if is_org_active %}
-              {% url_without_querystring orgs=org.slug as remove_org_is_active %}
-              {% #list_group_item href=remove_org_is_active role="checkbox" aria-checked="true" class="bg-green-100 !text-green-900 flex flex-row items-center gap-1" %}
-                {% icon_check_outline class="h-5 w-5 stroke-green-700" %}
-                {{ org.name }}
-              {% /list_group_item %}
-            {% else %}
-              {% url_with_querystring orgs=org.slug as add_org_is_active %}
-              {% #list_group_item href=add_org_is_active role="checkbox" aria-checked="false" %}
-                {{ org.name }}
-              {% /list_group_item %}
-            {% endif %}
+            {% multiselect_option value=org.slug name=org.name is_active=is_org_active%}
           {% endfor %}
-          {% list_group_empty title="No org found" data-filter-empty-state hidden %}
-        {% /list_group %}
+        {% /multiselect %}
       {% /card %}
     </form>
 

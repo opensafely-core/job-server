@@ -12,6 +12,8 @@ from staff.views.repos import RepoDetail, RepoList, RepoSignOff, ran_at
 from ....factories import (
     JobFactory,
     JobRequestFactory,
+    OrgFactory,
+    ProjectFactory,
     RepoFactory,
     UserFactory,
     WorkspaceFactory,
@@ -152,9 +154,12 @@ def test_repodetail_unauthorized(rf):
 def test_repolist_filter_by_org(rf, core_developer):
     repo = RepoFactory()
     RepoFactory.create_batch(2)
-    WorkspaceFactory(repo=repo)
 
-    request = rf.get(f"/?org={repo.workspaces.first().project.org.slug}")
+    org = OrgFactory()
+    project = ProjectFactory(orgs=[org])
+    WorkspaceFactory(project=project, repo=repo)
+
+    request = rf.get(f"/?orgs={org.slug}")
     request.user = core_developer
 
     response = RepoList.as_view()(request)
