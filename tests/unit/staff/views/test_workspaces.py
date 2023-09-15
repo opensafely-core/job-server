@@ -59,11 +59,10 @@ def test_workspaceedit_get_success(rf, core_developer):
 
 
 def test_workspaceedit_post_success(rf, core_developer):
-    org = OrgFactory()
-    old_project = ProjectFactory(org=org)
+    old_project = ProjectFactory()
     workspace = WorkspaceFactory(project=old_project, purpose="old value")
 
-    new_project = ProjectFactory(org=org)
+    new_project = ProjectFactory()
 
     data = {
         "purpose": "new value",
