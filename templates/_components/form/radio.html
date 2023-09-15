@@ -1,11 +1,5 @@
-{% var label_for=id %}
-{% var input_id=id %}
-{% var input_name=name %}
-{% var input_value=value %}
-{% var field_errors=errors %}
-
 <label
-  for="{{ label_for }}"
+  for="{{ id }}"
   class="w-fit max-w-full flex flex-row gap-x-3 items-start cursor-pointer text-lg group {{ label_class }}"
 >
   <input
@@ -17,10 +11,10 @@
       checked:bg-oxford-600 checked:border-oxford-600
       {{ input_class }}
     "
-    id="{{ input_id }}"
-    name="{{ input_name }}"
+    id="{{ id }}"
+    name="{{ name }}"
     type="radio"
-    value="{{ input_value }}"
+    value="{{ value }}"
   >
   <span class="transition-colors group-hover:text-oxford-600 {{ span_class }}">
     {% if label %}{{ label }}{% else %}{{ field.label }}{% endif %}
