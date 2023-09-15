@@ -180,11 +180,12 @@ class WorkspaceCreate(CreateView):
                 context={"message": message, "project": self.project},
             )
 
-        gh_org = first(self.request.user.orgs.first().github_orgs)
+        org = self.request.user.orgs.first()
+        gh_org = first(org.github_orgs)
         if gh_org is None:
             message = (
-                f"Your organisation, {self.project.org.name}, has no GitHub "
-                "organisations associated with it, please contact support."
+                f"Your organisation, {org.name}, has no GitHub organisations"
+                "associated with it, please contact support."
             )
             return TemplateResponse(
                 request,
