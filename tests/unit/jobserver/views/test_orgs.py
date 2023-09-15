@@ -71,7 +71,7 @@ def test_orglist_success(rf, user_class):
     OrgFactory.create_batch(5)
 
     org = OrgFactory()
-    ProjectFactory.create_batch(3, org=org)
+    ProjectFactory.create_batch(3, orgs=[org])
 
     request = rf.get("/")
     request.user = user_class()
