@@ -301,7 +301,7 @@ class UserRoleList(FormView):
 @method_decorator(require_permission("user_manage"), name="dispatch")
 class UserSetOrgs(FormView):
     form_class = UserOrgsForm
-    template_name = "staff/user_set_orgs.html"
+    template_name = "staff/user/set_orgs.html"
 
     def dispatch(self, request, *args, **kwargs):
         self.user = get_object_or_404(User, username=self.kwargs["username"])
