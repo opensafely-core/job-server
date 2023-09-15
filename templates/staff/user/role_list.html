@@ -84,7 +84,7 @@
     {% /list_group %}
   {% /card %}
 
-  {% #card container=True title="Orgs" %}
+  {% #card title="Orgs" %}
     {% #list_group %}
       {% for membership in org %}
         {% #list_group_item href=project.get_staff_url|add:"?next="|add:request.path %}
