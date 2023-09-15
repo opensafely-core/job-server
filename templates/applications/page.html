@@ -84,10 +84,11 @@
                   {% var id="id"|add:valueStr|add:countStr %}
 
                   {% if value == field.field.value %}
-                    {% form_radio custom_field=True id=id label=label name=field.name value=value errors=field.errors checked=True %}
+                  {% var checked=True %}
                   {% else %}
-                    {% form_radio custom_field=True id=id label=label name=field.name value=value errors=field.errors %}
+                  {% var checked=False %}
                   {% endif %}
+                  {% form_radio id=id label=label name=field.name value=value errors=field.errors checked=checked %}
                 {% endfor %}
               {% /form_fieldset %}
             {% elif field.template_name == "components/form_checkbox.html" %}

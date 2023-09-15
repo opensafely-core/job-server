@@ -74,15 +74,7 @@
           {% form_legend text="Select a backend" %}
 
           <div class="max-w-lg flex flex-col gap-y-2" id="backends">
-            {% for value, label in form.backend.field.choices %}
-              {% with id=forloop.counter|stringformat:"s" %}
-              {% if form.backend.value == value %}
-                {% form_radio custom_field=True id="id_backend"|add:id name="backend" value=value label=label checked=True %}
-              {% else %}
-                {% form_radio custom_field=True id="id_backend"|add:id name="backend" value=value label=label checked=False %}
-              {% endif %}
-              {% endwith %}
-            {% endfor %}
+            {% form_radios field=form.backend %}
           </div>
 
           {% if form.backend.errors %}
@@ -191,16 +183,18 @@
 
           <div class="w-full grid grid-flow-row gap-y-2">
             {% if form.will_notify.value|stringformat:"s" == "True" %}
-              {% form_radio custom_field=True id="id_will_notify" name="will_notify" value="True" label="Notify me when each of the selected actions has completed" checked=True %}
+              {% var checked=True %}
             {% else %}
-              {% form_radio custom_field=True id="id_will_notify" name="will_notify" value="True" label="Notify me when each of the selected actions has completed" checked=False %}
+              {% var checked=False %}
             {% endif %}
+            {% form_radio id="id_will_notify0" name="will_notify" value="True" label="Notify me when each of the selected actions has completed" checked=checked %}
 
             {% if form.will_notify.value|stringformat:"s" == "False" %}
-              {% form_radio custom_field=True id="id_will_notify" name="will_notify" value="False" label="Do not notify me" checked=True %}
+              {% var checked=True %}
             {% else %}
-              {% form_radio custom_field=True id="id_will_notify" name="will_notify" value="False" label="Do not notify me" checked=False %}
+              {% var checked=False %}
             {% endif %}
+            {% form_radio id="id_will_notify1" name="will_notify" value="False" label="Do not notify me" checked=checked %}
           </div>
         {% /form_fieldset %}
 

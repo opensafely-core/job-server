@@ -1,0 +1,13 @@
+{% for value, label in field.field.choices %}
+
+  {% if field.value == value %}
+  {% var checked=True %}
+  {% else %}
+  {% var checked=False %}
+  {% endif %}
+
+  {% with id=forloop.counter|stringformat:"s" %}
+  {% form_radio id="id_backend"|add:id name="backend" value=value label=label checked=checked %}
+  {% endwith %}
+
+{% endfor %}
