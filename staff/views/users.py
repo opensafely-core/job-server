@@ -199,7 +199,8 @@ class UserDetailWithOAuth(UpdateView):
 @method_decorator(require_permission("user_manage"), name="dispatch")
 class UserList(ListView):
     model = User
-    template_name = "staff/user_list.html"
+    paginate_by = 25
+    template_name = "staff/user/list.html"
 
     def get_context_data(self, **kwargs):
         all_roles = [name for name, value in inspect.getmembers(roles, inspect.isclass)]
@@ -229,7 +230,7 @@ class UserList(ListView):
             is_github_user=Exists(social_auths),
             org_exists=Exists(orgs),
             project_exists=Exists(projects),
-        ).order_by(Lower("username"))
+        ).order_by_name()
 
         # filter on the search query
         if q := self.request.GET.get("q"):
