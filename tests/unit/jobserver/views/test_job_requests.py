@@ -1083,4 +1083,6 @@ def test_jobrequestlist_success(rf):
 
     response = JobRequestList.as_view()(request)
 
+    assert response.status_code == 200
+
     assert set_from_qs(response.context_data["object_list"]) == {job_request.pk}
