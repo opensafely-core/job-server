@@ -1,6 +1,7 @@
 import functools
 
 from django.contrib import messages
+from django.db import transaction
 from django.db.models import Max, Q, Value
 from django.shortcuts import get_object_or_404, redirect
 from django.utils import timezone
@@ -14,7 +15,7 @@ from applications.wizard import Wizard
 from jobserver.authorization import CoreDeveloper
 from jobserver.authorization.decorators import require_role
 from jobserver.hash_utils import unhash, unhash_or_404
-from jobserver.models import Org, Project, User
+from jobserver.models import Org, Project, ProjectCollaboration, User
 
 from ..forms import ApplicationApproveForm
 
@@ -46,17 +47,23 @@ class ApplicationApprove(FormView):
 
         return super().dispatch(request, *args, **kwargs)
 
+    @transaction.atomic()
     def form_valid(self, form):
         org = form.cleaned_data["org"]
         project_name = form.cleaned_data["project_name"]
         project_number = form.cleaned_data["project_number"]
 
         # create Project with the chosen org
-        project = org.projects.create(
+        project = Project.objects.create(
             name=project_name,
             number=project_number,
             created_by=self.request.user,
             updated_by=self.request.user,
+        )
+        ProjectCollaboration.objects.create(
+            org=org,
+            project=project,
+            is_lead=True,
         )
 
         self.application.approved_at = timezone.now()

@@ -100,7 +100,7 @@ def test_applicationapprove_post_success(
     request = rf.post("/", data)
     request.user = core_developer
 
-    with django_assert_num_queries(10):
+    with django_assert_num_queries(13):
         response = ApplicationApprove.as_view()(
             request, pk_hash=complete_application.pk_hash
         )
