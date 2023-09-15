@@ -60,6 +60,7 @@ def create_report(*, analysis_request, rfile, user):
     return report
 
 
+@transaction.atomic()
 def create_user(*, creator, email, name, project):
     """Create an interactive user"""
     user = User.objects.create(
@@ -70,10 +71,9 @@ def create_user(*, creator, email, name, project):
         is_active=True,
     )
 
-    OrgMembership.objects.create(
-        created_by=creator,
-        org=project.org,
-        user=user,
+    OrgMembership.objects.bulk_create(
+        OrgMembership(created_by=creator, org=org, user=user)
+        for org in project.orgs.all()
     )
 
     ProjectMembership.objects.create(
