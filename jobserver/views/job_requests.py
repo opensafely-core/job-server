@@ -194,9 +194,8 @@ class JobRequestDetail(View):
         try:
             job_request = (
                 JobRequest.objects.with_started_at()
-                .select_related(
-                    "backend", "created_by", "workspace", "workspace__project__org"
-                )
+                .select_related("backend", "created_by", "workspace")
+                .prefetch_related("workspace__project__orgs")
                 .annotate(
                     last_updated_at=Max("jobs__updated_at", default=timezone.now())
                 )
