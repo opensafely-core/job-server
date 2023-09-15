@@ -95,7 +95,7 @@ class UserDetailWithEmail(UpdateView):
     model = User
     slug_field = "username"
     slug_url_kwarg = "username"
-    template_name = "staff/user_detail_with_email.html"
+    template_name = "staff/user/detail_with_email.html"
 
     def get_context_data(self, **kwargs):
         orgs = [

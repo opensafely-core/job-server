@@ -1,0 +1,72 @@
+{% extends "staff/base-tw.html" %}
+
+{% load humanize %}
+
+{% block metatitle %}Staff Area: {{ user.name }} | OpenSAFELY Jobs{% endblock metatitle %}
+
+{% block breadcrumbs %}
+  {% #breadcrumbs %}
+    {% url "staff:index" as staff_url %}
+    {% url "staff:user-list" as staff_user_list_url %}
+    {% breadcrumb title="Staff area" url=staff_url %}
+    {% breadcrumb title="Users" url=staff_user_list_url %}
+    {% breadcrumb title=user.username active=True %}
+  {% /breadcrumbs %}
+{% endblock breadcrumbs %}
+
+{% block hero %}
+  {% #staff_hero title="User: "|add:user.name %}
+    <div class="flex flex-row gap-2 mt-2">
+      {% #button type="link" href=user.get_staff_roles_url variant="danger" %}
+        Edit roles
+      {% /button %}
+    </div>
+  {% /staff_hero %}
+{% endblock hero %}
+
+{% block content %}
+<div class="flex flex-col gap-4">
+  <form method="POST" class="flex flex-col gap-4">
+    {% csrf_token %}
+
+    {% if form.non_field_errors %}
+      {% for error in form.non_field_errors %}
+        {% #alert variant="danger" class="mb-6" %}
+          {{ error }}
+        {% /alert %}
+      {% endfor %}
+    {% endif %}
+
+    {% #card title="User details" container=True container_class="flex flex-col items-start gap-4" %}
+      {% form_input field=form.fullname label="Full name" class="max-w-prose w-full" %}
+      {% form_input field=form.email label="Email" class="max-w-prose w-full" %}
+      {% #button type="submit" variant="success" %}Update details{% /button %}
+    {% /card %}
+  </form>
+
+  {% url "staff:user-set-orgs" username=user.username as staff_user_set_orgs_url %}
+  {% #card title="Organisations" button=True button_text="Add to organisation" button_href=staff_user_set_orgs_url %}
+    {% #list_group %}
+      {% for org in orgs %}
+        {% #list_group_item href=org.staff_url %}
+          {{ org.name }}
+        {% /list_group_item %}
+      {% empty %}
+        {% list_group_empty icon=True title="No organisations" description="This user is not a member of any organisations" %}
+      {% endfor %}
+    {% /list_group %}
+  {% /card %}
+
+  {% #card title="Projects" %}
+    {% #list_group %}
+      {% for project in projects %}
+        {% #list_group_item href=project.get_staff_url %}
+          {{ project.name }}
+        {% /list_group_item %}
+      {% empty %}
+        {% list_group_empty icon=True title="No projects" description="This user is not a member of any projects" %}
+      {% endfor %}
+    {% /list_group %}
+  {% /card %}
+</div>
+{% endblock content %}
