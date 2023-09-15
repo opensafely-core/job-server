@@ -1,0 +1,188 @@
+{% extends "staff/base-tw.html" %}
+
+{% load humanize %}
+{% load static %}
+
+{% block metatitle %}Staff Area: {{ user.name }} | OpenSAFELY Jobs{% endblock metatitle %}
+
+{% block breadcrumbs %}
+  {% #breadcrumbs %}
+    {% url "staff:index" as staff_url %}
+    {% url "staff:user-list" as staff_user_list_url %}
+    {% breadcrumb title="Staff area" url=staff_url %}
+    {% breadcrumb title="Users" url=staff_user_list_url %}
+    {% breadcrumb title=user.username active=True %}
+  {% /breadcrumbs %}
+{% endblock breadcrumbs %}
+
+{% block hero %}
+  {% #staff_hero title="User: "|add:user.name %}
+    <div class="flex flex-row gap-2 mt-2">
+      {% #button type="link" href=user.get_staff_roles_url variant="danger" %}
+        Edit roles
+      {% /button %}
+      {% #button type="link" href=user.get_absolute_url variant="primary" %}
+        View on Site
+      {% /button %}
+    </div>
+  {% /staff_hero %}
+{% endblock hero %}
+
+{% block content %}
+  <div class="flex flex-col gap-4">
+    {% if not orgs or not user.backends.exists %}
+      {% #alert variant="warning" title="No projects" %}
+        <p>
+          A user <strong>requires</strong> access to certain resources to be able to use the Jobs site. The following are missing for this user:
+        </p>
+        <ul class="list-disc ml-4 mt-2">
+          {% if not user.backends.exists %}
+            <li>Backends</li>
+          {% endif %}
+          {% if not orgs %}
+            <li>Orgs</li>
+          {% endif %}
+        </ul>
+      {% /alert %}
+    {% endif %}
+
+    {% if not projects %}
+      {% #alert variant="warning" title="No projects" %}
+        A user would ideally have access to one or more Projects.
+      {% /alert %}
+    {% endif %}
+
+    {% #card title="User information" %}
+      {% #description_list %}
+        {% #description_item title="Username" %}
+          {{ user.username }}
+        {% /description_item %}
+
+        {% #description_item title="Email address" %}
+          {{ user.email }}
+        {% /description_item %}
+
+        {% #description_item title="Joined" %}
+          {% #time datetime=user.date_joined|date:"Y-m-d H:i:sO" %}
+            {{ user.date_joined|date:"d F Y" }} at {{ user.date_joined|date:"H:i" }}
+          {% /time %}
+        {% /description_item %}
+      {% /description_list %}
+    {% /card %}
+
+    <form method="POST" class="flex flex-col gap-4">
+      {% csrf_token %}
+
+      {% if form.non_field_errors %}
+        {% for error in form.non_field_errors %}
+          {% #alert variant="danger" class="mb-6" %}
+            {{ error }}
+          {% /alert %}
+        {% endfor %}
+      {% endif %}
+
+      {% #card title="Name" subtitle="Update the name shown for this user across OpenSAFELY Jobs" container=True container_class="flex flex-col items-start gap-4" %}
+        {% form_input field=form.fullname label="Full name" class="max-w-prose w-full" %}
+        {% #button type="submit" variant="success" %}Update name{% /button %}
+      {% /card %}
+
+      {% #card title="Backends" container=True %}
+        {% #form_fieldset %}
+          {% form_legend text="Select the backends this user has access to" %}
+
+          {% for value, label in form.backends.field.choices %}
+            {% with id=forloop.counter0|stringformat:"s" %}
+              {% if value in form.backends.value %}
+                {% form_checkbox custom_field=True name="backends" id="id_backends_"|add:label|add:"_"|add:id|slugify label=label value=value checked=True %}
+              {% else %}
+                {% form_checkbox custom_field=True name="backends" id="id_backends_"|add:label|add:"_"|add:id|slugify label=label value=value  %}
+              {% endif %}
+            {% endwith %}
+          {% endfor %}
+
+          {% #button type="submit" variant="success" class="mt-4" %}
+            Update backends
+          {% /button %}
+        {% /form_fieldset %}
+      {% /card %}
+    </form>
+
+    {% url "staff:user-set-orgs" username=user.username as staff_user_set_orgs_url %}
+    {% #card title="Organisations" button=True button_text="Add to organisation" button_href=staff_user_set_orgs_url %}
+      {% #list_group %}
+        {% for org in orgs %}
+          {% #list_group_item href=org.staff_url %}
+            {{ org.name }}
+          {% /list_group_item %}
+        {% empty %}
+          {% list_group_empty icon=True title="No organisations" description="This user is not a member of any organisations" %}
+        {% endfor %}
+      {% /list_group %}
+    {% /card %}
+
+    {% #card title="Projects" %}
+      {% #list_group %}
+        {% for project in projects %}
+          {% #list_group_item href=project.get_staff_url %}
+            {{ project.name }}
+          {% /list_group_item %}
+        {% empty %}
+          {% list_group_empty icon=True title="No projects" description="This user is not a member of any projects" %}
+        {% endfor %}
+      {% /list_group %}
+    {% /card %}
+
+    {% #card title="Applications" %}
+      {% #list_group %}
+        {% for application in applications %}
+          {% fragment as item_title %}
+            Application {{ application.pk_hash }}
+            {% if application.studyinformationpage.study_name %}
+              ({{ application.studyinformationpage.study_name }})
+            {% endif %}
+          {% endfragment %}
+          {% #list_group_rich_item status_text=application.status title=item_title type="Application" url=application.get_staff_url %}
+            <ul class="text-sm">
+              <li>Started on {{ application.created_at|date:"d F Y" }}</li>
+            </ul>
+          {% /list_group_rich_item %}
+        {% empty %}
+          {% list_group_empty icon=True title="No applications" description="This user has not created any applications" %}
+        {% endfor %}
+      {% /list_group %}
+    {% /card %}
+
+    {% #card title="Co-piloted Projects" %}
+      {% #list_group %}
+        {% for project in copiloted_projects %}
+          {% #list_group_item href=project.get_staff_url %}
+            {{ project.name }}
+          {% /list_group_item %}
+        {% empty %}
+          {% list_group_empty icon=True title="No co-piloted projects" description="This user has not co-piloted any projects" %}
+        {% endfor %}
+      {% /list_group %}
+    {% /card %}
+
+    {% if job_count %}
+      {% fragment as staff_user_job_requests_button_url %}
+        {% url 'staff:job-request-list' %}?user={{ user.username }}
+      {% endfragment %}
+      {% #card title="Jobs" subtitle="Most recent jobs run by this user" button=True button_text="View all" button_href=staff_user_job_requests_button_url %}
+        {% #list_group %}
+          {% for job in jobs %}
+            {% #list_group_rich_item status_text=job.status title=job.action type="Job" url=job.get_absolute_url %}
+              Created: {{ job.created_at|date:"d F Y" }}
+            {% /list_group_rich_item %}
+          {% endfor %}
+        {% /list_group %}
+      {% /card %}
+    {% else %}
+      {% #card title="Jobs" %}
+        {% #list_group %}
+          {% list_group_empty icon=True title="No jobs" description="This user has not submitted any jobs" %}
+        {% /list_group %}
+      {% /card %}
+    {% endif %}
+  </div>
+{% endblock content %}

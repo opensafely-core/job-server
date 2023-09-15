@@ -131,7 +131,7 @@ class UserDetailWithOAuth(UpdateView):
     model = User
     slug_field = "username"
     slug_url_kwarg = "username"
-    template_name = "staff/user_detail_with_oauth.html"
+    template_name = "staff/user/detail_with_oauth.html"
 
     @transaction.atomic()
     def form_valid(self, form):
