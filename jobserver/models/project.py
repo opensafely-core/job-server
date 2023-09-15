@@ -41,12 +41,9 @@ class Project(models.Model):
         related_name="copiloted_projects",
     )
 
-    org = models.ForeignKey(
-        "Org",
-        on_delete=models.CASCADE,
-    )
     orgs = models.ManyToManyField(
         "Org",
+        related_name="projects",
         through="ProjectCollaboration",
     )
 

@@ -13,7 +13,7 @@ class ProjectCollaboration(models.Model):
         related_name="project_orgs",
     )
 
-    is_lead = models.BooleanField(null=True)
+    is_lead = models.BooleanField(default=False)
 
     def __str__(self):
         suffix = " (lead)" if self.is_lead else ""
