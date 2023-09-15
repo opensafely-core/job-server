@@ -185,6 +185,11 @@ def test_userdetail_without_core_dev_role(rf):
 def test_userdetailwithemail_get_success(rf, core_developer):
     user = UserFactory()
 
+    # add a couple of memberships so the orgs and projects comprehensions in
+    # get_context_data fire
+    OrgMembershipFactory(user=user)
+    ProjectMembershipFactory(user=user)
+
     request = rf.get("/")
     request.user = core_developer
 
@@ -216,14 +221,12 @@ def test_userdetailwithemail_post_success(rf, core_developer):
 def test_userdetailwithemail_with_oauth_user_invokes_userdetailwithoauth(
     rf, core_developer
 ):
-    org = OrgFactory()
-    project = ProjectFactory(org=org)
+    project = ProjectFactory()
     user = UserFactory()
     UserSocialAuthFactory(user=user)
 
-    # link the user to some a backend, org, and project
+    # link the user to some a backend, and project
     BackendMembershipFactory(user=user)
-    OrgMembershipFactory(org=org, user=user)
     ProjectMembershipFactory(project=project, user=user, roles=[ProjectDeveloper])
 
     request = rf.get("/")
