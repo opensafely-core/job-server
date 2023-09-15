@@ -41,7 +41,7 @@ class UserClearRoles(View):
 @method_decorator(require_permission("user_manage"), name="dispatch")
 class UserCreate(FormView):
     form_class = UserCreateForm
-    template_name = "staff/user_create.html"
+    template_name = "staff/user/create.html"
 
     def get_initial(self):
         initial = {}

@@ -1,16 +1,26 @@
-<div id="modal" class="modal fade" tabindex="-1">
-  <div class="modal-dialog modal-dialog-centered" role="document">
-    <div class="modal-content">
-      <div class="modal-header">
-        <h5 class="modal-title">Create a project</h5>
-        <button type="button" class="close" data-dismiss="modal">
-          <span aria-hidden="true">&times;</span>
-        </button>
-      </div>
+{% #card container=True title="Create an organisation" %}
+  <form method="POST" hx-post="{{ post_url }}">
+    {% csrf_token %}
 
-      <div class="modal-body">
-        {% include "staff/project_create.form.html" %}
-      </div>
+    {% if form.non_field_errors %}
+      {% for error in form.non_field_errors %}
+        {% #alert variant="danger" class="mb-6" %}
+          {{ error }}
+        {% /alert %}
+      {% endfor %}
+    {% endif %}
+
+    <div class="flex flex-col items-stretch gap-y-6 w-full max-w-3xl mb-6">
+      {% form_select field=form.fields.org choices=form.fields.org.choices selected=form.org.value id="id_org" name="org" label="Select an org" %}
+      {% form_select field=form.fields.copilot choices=form.fields.copilot.choices selected=form.copilot.value id="id_copilot" name="copilot" label="Select a user to co-pilot this project" %}
+      {% form_input field=form.name label="Project name"%}
+      {% form_input field=form.application_url label="Application URL" %}
+      {% form_input field=form.number label="Project number" %}
     </div>
-  </div>
-</div>
+
+    <div class="flex flex-row flex-wrap gap-2">
+      {% #button variant="success" type="submit" %}Add project{% /button %}
+      {% #button variant="danger" id="closeModal" %}Cancel{% /button %}
+    </div>
+  </form>
+{% /card %}
