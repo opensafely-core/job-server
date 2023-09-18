@@ -152,24 +152,9 @@ class UserDetailWithOAuth(UpdateView):
         jobs = Job.objects.filter(job_request__created_by=self.object).order_by(
             "-created_at"
         )
-        orgs = [
-            {
-                "name": m.org.name,
-                "roles": sorted(r.display_name for r in m.roles),
-                "staff_url": m.org.get_staff_url(),
-            }
-            for m in self.object.org_memberships.order_by("org__name")
-        ]
-        projects = [
-            {
-                "name": m.project.title,
-                "roles": sorted(r.display_name for r in m.roles),
-                "staff_url": m.project.get_staff_url(),
-            }
-            for m in self.object.project_memberships.order_by(
-                "project__number", Lower("project__name")
-            )
-        ]
+        orgs = self.object.orgs.order_by(Lower("name"))
+        projects = self.object.projects.order_by("number", Lower("name"))
+
         return super().get_context_data(**kwargs) | {
             "applications": applications,
             "copiloted_projects": copiloted_projects,
