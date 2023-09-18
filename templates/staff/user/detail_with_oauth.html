@@ -88,6 +88,14 @@
 
       {% #card title="Backends" container=True %}
         {% #form_fieldset %}
+          {% if form.backends.errors %}
+            {% for error in form.backends.errors %}
+              {% #alert variant="danger" class="mb-6" %}
+                {{ error }}
+              {% /alert %}
+            {% endfor %}
+          {% endif %}
+
           {% form_legend text="Select the backends this user has access to" %}
 
           {% for value, label in form.backends.field.choices %}
