@@ -92,44 +92,42 @@
     {% /card %}
 
     {% #card %}
-      {% if object_list|length > 0 %}
-        {% #list_group small=True %}
-          {% for user in object_list %}
-            {% #list_group_item class="flex flex-col gap-2" type="User" href=user.get_staff_url %}
-              <span>
-                {{ user.name }}
-              </span>
+      {% #list_group small=True %}
+        {% for user in object_list %}
+          {% #list_group_item class="flex flex-col gap-2" type="User" href=user.get_staff_url %}
+            <span>
+              {{ user.name }}
+            </span>
 
-              {% if user.is_github_user %}
-                {% if not user.backend_exists or not user.org_exists or not user.project_exists %}
-                  <div class="flex flex-row flex-wrap gap-2">
-                    {% if not user.backend_exists %}
-                      {% pill variant="danger" text="Missing backends" %}
-                    {% endif %}
-                    {% if not user.org_exists %}
-                      {% pill variant="danger" text="Missing org" %}
-                    {% endif %}
-                    {% if not user.project_exists %}
-                      {% pill variant="warning" text="Missing projects" %}
-                    {% endif %}
-                  </div>
-                {% endif %}
+            {% if user.is_github_user %}
+              {% if not user.backend_exists or not user.org_exists or not user.project_exists %}
+                <div class="flex flex-row flex-wrap gap-2">
+                  {% if not user.backend_exists %}
+                    {% pill variant="danger" text="Missing backends" %}
+                  {% endif %}
+                  {% if not user.org_exists %}
+                    {% pill variant="danger" text="Missing org" %}
+                  {% endif %}
+                  {% if not user.project_exists %}
+                    {% pill variant="warning" text="Missing projects" %}
+                  {% endif %}
+                </div>
               {% endif %}
-            {% /list_group_item %}
-          {% endfor %}
-        {% /list_group %}
+            {% endif %}
+          {% /list_group_item %}
+        {% empty %}
+          {% list_group_empty icon=True title="No users found" description="Try a new search or clearing the filters" %}
+        {% endfor %}
+      {% /list_group %}
 
-        {% if page_obj.has_previous or page_obj.has_next %}
-          {% if page_obj.has_next %}
-            {% url_with_querystring page=page_obj.next_page_number as next_page_url %}
-          {% endif %}
-          {% if page_obj.has_previous %}
-            {% url_with_querystring page=page_obj.previous_page_number as previous_page_url %}
-          {% endif %}
-          {% card_pagination page_number=page_obj.number total_pages=page_obj.paginator.num_pages next_page_url=next_page_url previous_page_url=previous_page_url no_container=True %}
+      {% if page_obj.has_previous or page_obj.has_next %}
+        {% if page_obj.has_next %}
+          {% url_with_querystring page=page_obj.next_page_number as next_page_url %}
         {% endif %}
-      {% else %}
-        {% list_group_empty icon=True title="No users found" description="Try a new search or clearing the filters" %}
+        {% if page_obj.has_previous %}
+          {% url_with_querystring page=page_obj.previous_page_number as previous_page_url %}
+        {% endif %}
+        {% card_pagination page_number=page_obj.number total_pages=page_obj.paginator.num_pages next_page_url=next_page_url previous_page_url=previous_page_url no_container=True %}
       {% endif %}
     {% /card %}
   </div>
