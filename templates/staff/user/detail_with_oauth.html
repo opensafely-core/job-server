@@ -132,7 +132,7 @@
     {% #card title="Projects" %}
       {% #list_group %}
         {% for project in projects %}
-          {% #list_group_item href=project.get_staff_url %}
+          {% #list_group_item href=project.staff_url %}
             {{ project.name }}
           {% /list_group_item %}
         {% empty %}
