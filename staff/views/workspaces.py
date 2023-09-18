@@ -6,7 +6,7 @@ from django.views.generic import DetailView, ListView, UpdateView
 
 from jobserver.authorization import CoreDeveloper
 from jobserver.authorization.decorators import require_role
-from jobserver.models import Project, Workspace
+from jobserver.models import Org, Project, Workspace
 
 from ..forms import WorkspaceEditForm
 from .qwargs_tools import qwargs
@@ -67,6 +67,7 @@ class WorkspaceList(ListView):
 
     def get_context_data(self, **kwargs):
         return super().get_context_data(**kwargs) | {
+            "orgs": Org.objects.order_by(Lower("name")),
             "projects": Project.objects.order_by("number", Lower("name")),
             "q": self.request.GET.get("q", ""),
         }
@@ -80,6 +81,9 @@ class WorkspaceList(ListView):
                 "repo__url",
             ]
             qs = qs.filter(qwargs(fields, q))
+
+        if orgs := self.request.GET.getlist("orgs"):
+            qs = qs.filter(project__org__slug__in=orgs)
 
         if projects := self.request.GET.getlist("projects"):
             qs = qs.filter(project__slug__in=projects)

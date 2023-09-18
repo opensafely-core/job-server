@@ -27,7 +27,7 @@
           Apply filters
         {% /button %}
         {% if request.GET %}
-          {% #button variant="secondary-outline" type="link" href=staff_user_list_url %}
+          {% #button variant="secondary-outline" type="link" href=staff_workspace_list_url %}
             Clear filters
           {% /button %}
         {% endif %}
@@ -38,6 +38,15 @@
           {% for project in projects %}
             {% is_filter_selected key="projects" value=project.slug as is_project_active %}
             {% multiselect_option value=project.slug name=project.name is_active=is_project_active%}
+          {% endfor %}
+        {% /multiselect %}
+      {% /card %}
+
+      {% #card title="Filter by organisation" container=True %}
+        {% #multiselect custom_field=True name="orgs" placeholder="Select an org" %}
+          {% for org in orgs %}
+            {% is_filter_selected key="orgs" value=org.slug as is_org_active %}
+            {% multiselect_option value=org.slug name=org.name is_active=is_org_active%}
           {% endfor %}
         {% /multiselect %}
       {% /card %}
