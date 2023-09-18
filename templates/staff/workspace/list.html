@@ -33,8 +33,12 @@
         {% endif %}
       </div>
 
-      {% #card title="Filter by x" container=True %}
-        {% #multiselect custom_field=True name="x" placeholder="Select an x" %}
+      {% #card title="Filter by project" container=True %}
+        {% #multiselect custom_field=True name="projects" placeholder="Select a project" %}
+          {% for project in projects %}
+            {% is_filter_selected key="projects" value=project.slug as is_project_active %}
+            {% multiselect_option value=project.slug name=project.name is_active=is_project_active%}
+          {% endfor %}
         {% /multiselect %}
       {% /card %}
     </form>

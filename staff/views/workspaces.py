@@ -1,11 +1,12 @@
 from django.db import transaction
+from django.db.models.functions import Lower
 from django.shortcuts import redirect
 from django.utils.decorators import method_decorator
 from django.views.generic import DetailView, ListView, UpdateView
 
 from jobserver.authorization import CoreDeveloper
 from jobserver.authorization.decorators import require_role
-from jobserver.models import Workspace
+from jobserver.models import Project, Workspace
 
 from ..forms import WorkspaceEditForm
 from .qwargs_tools import qwargs
@@ -66,6 +67,7 @@ class WorkspaceList(ListView):
 
     def get_context_data(self, **kwargs):
         return super().get_context_data(**kwargs) | {
+            "projects": Project.objects.order_by("number", Lower("name")),
             "q": self.request.GET.get("q", ""),
         }
 
@@ -78,5 +80,8 @@ class WorkspaceList(ListView):
                 "repo__url",
             ]
             qs = qs.filter(qwargs(fields, q))
+
+        if projects := self.request.GET.getlist("projects"):
+            qs = qs.filter(project__slug__in=projects)
 
         return qs
