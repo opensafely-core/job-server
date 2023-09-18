@@ -261,6 +261,12 @@ Run the tests with:
 just test-dev
 ```
 
+To run the tests in parallel with using multiple cores, run them with:
+
+```sh
+just test-dev -n auto
+```
+
 More details on testing can be found in [TESTING.md](TESTING.md).
 
 ### Slack Testing
