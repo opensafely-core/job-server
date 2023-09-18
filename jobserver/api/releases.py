@@ -105,6 +105,16 @@ class FileSerializer(serializers.Serializer):
     metadata = serializers.DictField()
     review = ReviewSerializer(allow_null=True)
 
+    def validate(self, data):
+        size = data["size"]
+        if size <= 16777216:  # 16Mb
+            return data
+
+        size = round(size / (1024 * 1024), 2)  # convert size for easier display
+        raise serializers.ValidationError(
+            {"size": f"File size should be <16Mb. {data['name']} is {size}Mb"}
+        )
+
 
 class ReleaseSerializer(serializers.Serializer):
     files = FileSerializer(many=True)

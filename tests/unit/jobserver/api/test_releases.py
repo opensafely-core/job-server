@@ -647,6 +647,47 @@ def test_releaseworkspaceapi_post_create_release(api_rf, slack_messages):
     assert backend.name in text
 
 
+def test_releaseworkspaceapi_post_create_release_with_oversized_file(api_rf):
+    user = UserFactory(roles=[OutputChecker])
+    workspace = WorkspaceFactory()
+    ProjectMembershipFactory(user=user, project=workspace.project)
+
+    backend = BackendFactory(auth_token="test", name="test-backend")
+    BackendMembershipFactory(backend=backend, user=user)
+
+    data = {
+        "files": [
+            {
+                "name": "file1.txt",
+                "url": "url",
+                "size": 16777217,
+                "sha256": "hash",
+                "date": timezone.now(),
+                "metadata": {},
+                "review": None,
+            }
+        ],
+        "metadata": {},
+        "review": None,
+    }
+    request = api_rf.post(
+        "/",
+        data=data,
+        format="json",
+        headers={
+            "authorization": "test",
+            "os-user": user.username,
+        },
+    )
+
+    response = ReleaseWorkspaceAPI.as_view(get_github_api=FakeGitHubAPI)(
+        request, workspace_name=workspace.name
+    )
+
+    assert response.status_code == 400, response.data
+    assert response.data["files"][0]["size"][0].startswith("File size should be <16Mb.")
+
+
 def test_releaseworkspaceapi_post_release_already_exists(api_rf):
     user = UserFactory(roles=[OutputChecker])
 
