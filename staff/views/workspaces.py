@@ -15,7 +15,7 @@ from .qwargs_tools import qwargs
 class WorkspaceDetail(DetailView):
     model = Workspace
     slug_field = "name"
-    template_name = "staff/workspace_detail.html"
+    template_name = "staff/workspace/detail.html"
 
     def get_context_data(self, **kwargs):
         job_requests = self.object.job_requests.select_related("created_by").order_by(
