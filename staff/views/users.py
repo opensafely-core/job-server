@@ -41,7 +41,7 @@ class UserClearRoles(View):
 @method_decorator(require_permission("user_manage"), name="dispatch")
 class UserCreate(FormView):
     form_class = UserCreateForm
-    template_name = "staff/user_create.html"
+    template_name = "staff/user/create.html"
 
     def get_initial(self):
         initial = {}
@@ -95,7 +95,7 @@ class UserDetailWithEmail(UpdateView):
     model = User
     slug_field = "username"
     slug_url_kwarg = "username"
-    template_name = "staff/user_detail_with_email.html"
+    template_name = "staff/user/detail_with_email.html"
 
     def get_context_data(self, **kwargs):
         orgs = [
@@ -131,7 +131,7 @@ class UserDetailWithOAuth(UpdateView):
     model = User
     slug_field = "username"
     slug_url_kwarg = "username"
-    template_name = "staff/user_detail_with_oauth.html"
+    template_name = "staff/user/detail_with_oauth.html"
 
     @transaction.atomic()
     def form_valid(self, form):
@@ -152,24 +152,9 @@ class UserDetailWithOAuth(UpdateView):
         jobs = Job.objects.filter(job_request__created_by=self.object).order_by(
             "-created_at"
         )
-        orgs = [
-            {
-                "name": m.org.name,
-                "roles": sorted(r.display_name for r in m.roles),
-                "staff_url": m.org.get_staff_url(),
-            }
-            for m in self.object.org_memberships.order_by("org__name")
-        ]
-        projects = [
-            {
-                "name": m.project.title,
-                "roles": sorted(r.display_name for r in m.roles),
-                "staff_url": m.project.get_staff_url(),
-            }
-            for m in self.object.project_memberships.order_by(
-                "project__number", Lower("project__name")
-            )
-        ]
+        orgs = self.object.orgs.order_by(Lower("name"))
+        projects = self.object.projects.order_by("number", Lower("name"))
+
         return super().get_context_data(**kwargs) | {
             "applications": applications,
             "copiloted_projects": copiloted_projects,
@@ -199,7 +184,8 @@ class UserDetailWithOAuth(UpdateView):
 @method_decorator(require_permission("user_manage"), name="dispatch")
 class UserList(ListView):
     model = User
-    template_name = "staff/user_list.html"
+    paginate_by = 25
+    template_name = "staff/user/list.html"
 
     def get_context_data(self, **kwargs):
         all_roles = [name for name, value in inspect.getmembers(roles, inspect.isclass)]
@@ -229,7 +215,7 @@ class UserList(ListView):
             is_github_user=Exists(social_auths),
             org_exists=Exists(orgs),
             project_exists=Exists(projects),
-        ).order_by(Lower("username"))
+        ).order_by_name()
 
         # filter on the search query
         if q := self.request.GET.get("q"):
@@ -262,7 +248,7 @@ class UserList(ListView):
 @method_decorator(require_permission("user_manage"), name="dispatch")
 class UserRoleList(FormView):
     form_class = RolesForm
-    template_name = "staff/user_role_list.html"
+    template_name = "staff/user/role_list.html"
 
     def dispatch(self, request, *args, **kwargs):
         self.user = get_object_or_404(User, username=self.kwargs["username"])
@@ -300,7 +286,7 @@ class UserRoleList(FormView):
 @method_decorator(require_permission("user_manage"), name="dispatch")
 class UserSetOrgs(FormView):
     form_class = UserOrgsForm
-    template_name = "staff/user_set_orgs.html"
+    template_name = "staff/user/set_orgs.html"
 
     def dispatch(self, request, *args, **kwargs):
         self.user = get_object_or_404(User, username=self.kwargs["username"])

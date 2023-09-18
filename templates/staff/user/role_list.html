@@ -1,0 +1,113 @@
+{% extends "staff/base-tw.html" %}
+
+{% load querystring_tools %}
+{% load roles %}
+{% load selected_filter %}
+
+{% block metatitle %}Users: Staff Area | OpenSAFELY Jobs{% endblock metatitle %}
+
+{% block breadcrumbs %}
+  {% #breadcrumbs %}
+    {% url "staff:index" as staff_url %}
+    {% url "staff:user-list" as staff_user_list_url %}
+    {% breadcrumb title="Staff area" url=staff_url %}
+    {% breadcrumb title="Users" url=staff_user_list_url %}
+    {% breadcrumb title=user.username url=user.get_staff_url %}
+    {% breadcrumb title="Edit roles" active=True %}
+  {% /breadcrumbs %}
+{% endblock breadcrumbs %}
+
+{% block hero %}
+{% #staff_hero title="Roles for "|add:user.username %}
+  <p>Below are the roles assigned to {{ user.username }}, grouped by the context in which they have been assigned.</p>
+  <form action="{{ user.get_staff_clear_roles_url }}" method="POST">
+    {% csrf_token %}
+    {% #button type="submit" variant="danger" %}Clear all roles{% /button %}
+  </form>
+{% /staff_hero %}
+{% endblock hero %}
+
+{% block content %}
+<div class="flex flex-col gap-y-6 max-w-3xl">
+  <form method="POST">
+    {% csrf_token %}
+
+    {% #card title="Roles" container=True %}
+      {% if form.non_field_errors %}
+        {% for error in form.non_field_errors %}
+          {% #alert variant="danger" class="mb-6" %}
+            {{ error }}
+          {% /alert %}
+        {% endfor %}
+      {% endif %}
+
+      <div class="flex flex-col items-stretch gap-y-6 w-full max-w-3xl mb-6">
+        {% #form_fieldset %}
+          {% if form.roles.errors %}
+            {% for error in form.roles.errors %}
+              {% #alert variant="danger" class="mb-6" %}
+                {{ error }}
+              {% /alert %}
+            {% endfor %}
+          {% endif %}
+
+          {% form_legend text="Set the users roles" %}
+
+          {% for value, label in form.roles.field.choices %}
+            {% with id=forloop.counter0|stringformat:"s" %}
+              {% fragment as rich_label %}
+                <span class="block">{{ label }}</span>
+                <span class="text-sm mt-0.5">{{ value|role_description|linebreaksbr }}</span>
+              {% endfragment %}
+              {% if value in form.roles.value %}
+                {% var checked=True %}
+              {% else %}
+                {% var checked=False %}
+              {% endif %}
+              {% form_checkbox custom_field=True name="roles" id="id_roles_"|add:label|add:"_"|add:id|slugify label=rich_label value=value checked=checked %}
+            {% endwith %}
+          {% endfor %}
+        {% /form_fieldset %}
+      </div>
+
+      {% #button variant="success" type="submit" %}
+        Update
+      {% /button %}
+    {% /card %}
+  </form>
+
+  {% #card title="Projects" %}
+    {% #list_group %}
+      {% for membership in projects %}
+        {% #list_group_item href=project.get_staff_url|add:"?next="|add:request.path %}
+          {{ membership.project.name }}
+          {% for role in membership.roles %}
+            <span class="block text-sm text-slate-700">
+              {{ role.display_name }}
+            </span>
+          {% endfor %}
+        {% /list_group_item %}
+      {% empty %}
+        {% list_group_empty icon=True title="No projects" description="No project memberships with roles" %}
+      {% endfor %}
+    {% /list_group %}
+  {% /card %}
+
+  {% #card title="Orgs" %}
+    {% #list_group %}
+      {% for membership in org %}
+        {% #list_group_item href=project.get_staff_url|add:"?next="|add:request.path %}
+          {{ membership.org.name }}
+          {% for role in membership.roles %}
+            <span class="block text-sm text-slate-700">
+              {{ role.display_name }}
+            </span>
+          {% endfor %}
+        {% /list_group_item %}
+      {% empty %}
+        {% list_group_empty icon=True title="No orgs" description="No organisation memberships with roles" %}
+      {% endfor %}
+    {% /list_group %}
+  {% /card %}
+</div>
+{% endblock content %}

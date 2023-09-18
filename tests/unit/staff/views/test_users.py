@@ -5,7 +5,6 @@ from django.http import Http404
 from jobserver.authorization import (
     InteractiveReporter,
     OutputPublisher,
-    ProjectCollaborator,
     ProjectDeveloper,
 )
 from jobserver.models import User
@@ -270,8 +269,8 @@ def test_userdetailwithoauth_get_success(rf, core_developer):
     OrgMembershipFactory(org=org, user=user)
 
     # link the user to the Projects
-    ProjectMembershipFactory(project=project1, user=user, roles=[ProjectDeveloper])
-    ProjectMembershipFactory(project=project2, user=user, roles=[ProjectCollaborator])
+    ProjectMembershipFactory(project=project1, user=user)
+    ProjectMembershipFactory(project=project2, user=user)
 
     request = rf.get("/")
     request.user = core_developer
@@ -279,28 +278,6 @@ def test_userdetailwithoauth_get_success(rf, core_developer):
     response = UserDetailWithOAuth.as_view()(request, username=user.username)
 
     assert response.status_code == 200
-
-    assert response.context_data["orgs"] == [
-        {
-            "name": org.name,
-            "roles": [],
-            "staff_url": org.get_staff_url(),
-        },
-    ]
-
-    assert response.context_data["projects"] == [
-        {
-            "name": project1.name,
-            "roles": ["Project Developer"],
-            "staff_url": project1.get_staff_url(),
-        },
-        {
-            "name": project2.name,
-            "roles": ["Project Collaborator"],
-            "staff_url": project2.get_staff_url(),
-        },
-    ]
-
     assert response.context_data["user"] == user
 
 

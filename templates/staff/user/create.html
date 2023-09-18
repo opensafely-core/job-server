@@ -1,0 +1,81 @@
+{% extends "staff/base-tw.html" %}
+
+{% load static %}
+
+{% block extra_styles %}
+<link rel="stylesheet" href="{% static 'vendor/select2.min.css' %}">
+<link rel="stylesheet" href="{% static 'vendor/select2-bootstrap4.min.css' %}">
+{% endblock %}
+
+{% block metatitle %}Staff Area: Create an interactive user | OpenSAFELY Jobs{% endblock metatitle %}
+
+{% block breadcrumbs %}
+{% #breadcrumbs %}
+  {% url "staff:index" as staff_url %}
+  {% url "staff:user-list" as staff_user_list_url %}
+  {% breadcrumb title="Staff area" url=staff_url %}
+  {% breadcrumb title="Users" url=staff_user_list_url %}
+  {% breadcrumb title="Create an interactive user" active=True %}
+{% /breadcrumbs %}
+{% endblock breadcrumbs %}
+
+{% block hero %}
+{% #staff_hero title="Create an interactive user" %}
+<p>
+  Creating a user here will set up an account for a user who can only use
+  the Interactive portion of the site.  They will be emailed with a link
+  to set their password.  Please ensure users are part of an
+  <strong>approved application</strong>.
+</p>
+{% /staff_hero %}
+{% endblock hero %}
+
+{% block content %}
+<form method="POST">
+  {% csrf_token %}
+
+  {% #card title="User details" class="max-w-3xl" container=True %}
+    {% if form.non_field_errors %}
+      {% for error in form.non_field_errors %}
+        {% #alert variant="danger" class="mb-6" %}
+          {{ error }}
+        {% /alert %}
+      {% endfor %}
+    {% endif %}
+
+    <div class="flex flex-col items-stretch gap-y-6 w-full max-w-3xl mb-6">
+      {% fragment as select_hint_text %}
+        If the project doesn't exist, you can
+        {% url "staff:project-create" as staff_project_create_url %}
+        {% var new_project_url=staff_project_create_url|add:"?next="|add:request.path %}
+        {% link href=new_project_url text="add a new project" append_after="." hx-get=new_project_url hx-target="dialog#addNewProject" hx-trigger="click" %}
+      {% endfragment %}
+      {% form_select field=form.fields.project choices=form.fields.project.choices selected=form.project.value id="id_project" name="project" label="Select a project" hint_text=select_hint_text %}
+      {% form_input field=form.name label="Name" %}
+      {% form_input field=form.email label="Email address" inputmode="email" %}
+    </div>
+
+    {% #button variant="success" type="submit" %}
+      Create
+    {% /button %}
+  {% /card %}
+</form>
+<dialog class="max-w-lg w-full" id="addNewProject"></dialog>
+{% endblock content %}
+
+{% block extra_js %}
+<script type="text/javascript" src="{% static 'vendor/htmx.min.js' %}"></script>
+<script nonce="{{ request.csp_nonce }}">
+  htmx.on("htmx:afterSwap", (e) => {
+    const modal = e.target;
+    modal.showModal();
+
+    const closeModalBtn = document.getElementById("closeModal");
+    if (closeModalBtn) {
+      closeModalBtn.addEventListener("click", () => {
+        closeModalBtn.closest("dialog").close();
+      });
+    }
+  });
+</script>
+{% endblock %}
