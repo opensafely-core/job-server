@@ -34,7 +34,7 @@ class WorkspaceEdit(UpdateView):
     form_class = WorkspaceEditForm
     model = Workspace
     slug_field = "name"
-    template_name = "staff/workspace_edit.html"
+    template_name = "staff/workspace/edit.html"
 
     @transaction.atomic()
     def form_valid(self, form):
