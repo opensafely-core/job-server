@@ -61,7 +61,8 @@ class WorkspaceEdit(UpdateView):
 class WorkspaceList(ListView):
     model = Workspace
     ordering = "name"
-    template_name = "staff/workspace_list.html"
+    paginate_by = 25
+    template_name = "staff/workspace/list.html"
 
     def get_context_data(self, **kwargs):
         return super().get_context_data(**kwargs) | {
