@@ -91,6 +91,12 @@
   z-index: 100;
 }
 
+.multiselect__option {
+  border: 1px solid var(--color-slate-200);
+  border-inline-width: 0;
+  margin-top: -1px;
+}
+
 .multiselect__option,
 .multiselect__dropdown .no-results {
   cursor: pointer;
