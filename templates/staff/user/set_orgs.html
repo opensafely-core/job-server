@@ -32,7 +32,7 @@
 
     <div class="flex flex-col items-stretch gap-y-6 w-full max-w-3xl mb-6">
       {% #form_fieldset %}
-        {% form_legend text="Select the backends this user has access to" %}
+        {% form_legend text="Select the orgs this user has access to" %}
 
         {% for value, label in form.orgs.field.choices %}
           {% with id=forloop.counter0|stringformat:"s" %}
