@@ -1,0 +1,129 @@
+{% extends "staff/base-tw.html" %}
+
+{% block metatitle %}{{ workspace.name }}: Staff Area | OpenSAFELY Jobs{% endblock metatitle %}
+
+{% block breadcrumbs %}
+  {% #breadcrumbs %}
+    {% url "staff:index" as staff_url %}
+    {% url "staff:workspace-list" as staff_workspace_list_url %}
+    {% breadcrumb title="Staff area" url=staff_url %}
+    {% breadcrumb title="Workspaces" url=staff_workspace_list_url %}
+    {% breadcrumb title=workspace.name active=True %}
+  {% /breadcrumbs %}
+{% endblock breadcrumbs %}
+
+{% block hero %}
+  {% #staff_hero title=workspace.name %}
+    <div class="flex flex-row gap-2 mt-2">
+      {% #button type="link" href=workspace.get_staff_edit_url variant="danger" %}
+        Edit
+      {% /button %}
+      {% #button type="link" href=workspace.get_absolute_url variant="primary" %}
+        View on Site
+      {% /button %}
+    </div>
+  {% /staff_hero %}
+{% endblock hero %}
+
+{% block content %}
+  <div class="flex flex-col gap-4">
+    {% #card title="Workspace information" %}
+      {% #description_list %}
+        {% #description_item title="Created by" %}
+          {% link href=workspace.created_by.get_staff_url text=workspace.created_by.name %}
+        {% /description_item %}
+
+        {% #description_item title="Created" %}
+          {% #time datetime=workspace.created_at|date:"Y-m-d H:i:sO" %}
+            {{ workspace.created_at|date:"d F Y" }} at {{ workspace.created_at|date:"H:i" }}
+          {% /time %}
+        {% /description_item %}
+
+        {% #description_item title="Organisation" %}
+          {% link href=workspace.project.org.get_staff_url text=workspace.project.org.name %}
+        {% /description_item %}
+
+        {% #description_item title="Project" %}
+          {% link href=workspace.project.get_staff_url text=workspace.project.title %}
+        {% /description_item %}
+
+        {% #description_item title="Repo" %}
+          <span class="block mb-1">
+            {% link href=workspace.repo.get_staff_url text=workspace.repo.name %}
+          </span>
+          {% link href=workspace.repo.url|add:"/tree/"|add:workspace.branch text="View branch on GitHub ↗" %}
+        {% /description_item %}
+
+        {% #description_item title="Status" %}
+          <div class="prose prose-sm prose-oxford">
+            {% if workspace.is_archived %}
+              {% pill text="Archived" variant="danger" %}
+              <p>Archived workspaces can no longer have jobs run in them, this can be toggled on the main workspace page.</p>
+            {% else %}
+              {% pill text="Active" variant="success" %}
+            {% endif %}
+          </div>
+        {% /description_item %}
+
+        {% #description_item title="Purpose" %}
+          <div class="prose prose-sm prose-oxford">
+            {{ workspace.purpose|default:"-"|linebreaksbr|urlize }}
+          </div>
+        {% /description_item %}
+
+        {% #description_item title="Notification when jobs finish" %}
+          <div class="prose prose-sm">
+            {% if workspace.should_notify %}
+              {% pill text="Enabled" variant="primary" %}
+            {% else %}
+              {% pill text="Disabled" variant="warning" %}
+            {% endif %}
+            <p>If enabled, creators will be notified when their Job Requests finish. This can be overridden when creating a JobRequest.</p>
+          </div>
+        {% /description_item %}
+      {% /description_list %}
+    {% /card %}
+
+    {% if job_requests %}
+      {% fragment as staff_job_request_list_url %}
+        {% url "staff:job-request-list" %}?workspace={{ workspace.name }}
+      {% endfragment %}
+      {% #card title="Jobs" subtitle="Most recent jobs run in this workspace" button=True button_text="View all" button_href=staff_job_request_list_url %}
+        {% #list_group %}
+          {% for job_request in job_requests %}
+            {% fragment as title %}
+              {{ job_request.pk }} by {{ job_request.created_by.name }}
+            {% endfragment %}
+            {% #list_group_rich_item status_text=job_request.status title=title type="Job" url=job.get_absolute_url %}
+              Created: {{ job_request.created_at|date:"d F Y" }}
+            {% /list_group_rich_item %}
+          {% endfor %}
+        {% /list_group %}
+      {% /card %}
+    {% else %}
+      {% #card title="Jobs" %}
+        {% #list_group %}
+          {% list_group_empty icon=True title="No jobs" description="This workspace does not have any jobs" %}
+        {% /list_group %}
+      {% /card %}
+    {% endif %}
+
+    {% #card title="Redirects" %}
+      {% #list_group %}
+        {% for redirect in redirects %}
+          {% #list_group_item href=redirect.get_staff_url %}
+            <div class="flex flex-col gap-y-0.5">
+              {{ redirect.old_url }}
+              <span class="text-sm text-slate-700 font-normal">
+                to
+              </span>
+              {{ redirect.obj.get_absolute_url }}
+            </div>
+          {% /list_group_item %}
+        {% empty %}
+          {% list_group_empty icon=True title="No redirects" description="This workspace does not have any redirects" %}
+        {% endfor %}
+      {% /list_group %}
+    {% /card %}
+  </div>
+{% endblock content %}
