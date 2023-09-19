@@ -430,6 +430,71 @@ def test_releaseapi_post_success_for_html_not_linked_to_an_analysis_request(
     assert release.backend.name in text
 
 
+def test_releaseapi_post_with_content_length_too_large(api_rf, build_release, settings):
+    settings.RELEASE_FILE_SIZE_LIMIT = 5
+
+    creating_user = UserFactory()
+    uploading_user = UserFactory(roles=[OutputChecker])
+    backend = BackendFactory(name="test-backend")
+
+    release = build_release(["file.txt"], backend=backend, created_by=creating_user)
+
+    BackendMembershipFactory(backend=release.backend, user=creating_user)
+    BackendMembershipFactory(backend=release.backend, user=uploading_user)
+
+    request = api_rf.post(
+        "/",
+        content_type="application/octet-stream",
+        data="test",
+        headers={
+            "content-disposition": "attachment; filename=file.txt",
+            "content-length": "42",
+            "authorization": release.backend.auth_token,
+            "os-user": uploading_user.username,
+        },
+    )
+
+    response = ReleaseAPI.as_view()(request, release_id=release.id)
+
+    assert response.status_code == 400, response.data
+
+    # this is not actually 0, but 5 bytes translated to Mb appears as 0.0.
+    assert response.data[0] == "File is too large, it must be below 0.0Mb"
+
+
+def test_releaseapi_post_with_file_size_too_large(
+    api_rf, build_release, file_content, settings
+):
+    settings.RELEASE_FILE_SIZE_LIMIT = 5
+
+    creating_user = UserFactory()
+    uploading_user = UserFactory(roles=[OutputChecker])
+    backend = BackendFactory(name="test-backend")
+
+    release = build_release(["file.txt"], backend=backend, created_by=creating_user)
+
+    BackendMembershipFactory(backend=release.backend, user=creating_user)
+    BackendMembershipFactory(backend=release.backend, user=uploading_user)
+
+    request = api_rf.post(
+        "/",
+        content_type="application/octet-stream",
+        data=file_content,
+        headers={
+            "content-disposition": "attachment; filename=file.txt",
+            "authorization": release.backend.auth_token,
+            "os-user": uploading_user.username,
+        },
+    )
+
+    response = ReleaseAPI.as_view()(request, release_id=release.id)
+
+    assert response.status_code == 400, response.data
+
+    # this is not actually 0, but 5 bytes translated to Mb appears as 0.0.
+    assert response.data[0] == "File is too large, it must be below 0.0Mb"
+
+
 def test_releaseapi_post_unknown_release(api_rf):
     request = api_rf.post("/")
 
@@ -645,6 +710,47 @@ def test_releaseworkspaceapi_post_create_release(api_rf, slack_messages):
     assert f"{release.get_absolute_url()}|release>" in text
     assert f"{workspace.get_absolute_url()}|{workspace.name}>" in text
     assert backend.name in text
+
+
+def test_releaseworkspaceapi_post_create_release_with_oversized_file(api_rf):
+    user = UserFactory(roles=[OutputChecker])
+    workspace = WorkspaceFactory()
+    ProjectMembershipFactory(user=user, project=workspace.project)
+
+    backend = BackendFactory(auth_token="test", name="test-backend")
+    BackendMembershipFactory(backend=backend, user=user)
+
+    data = {
+        "files": [
+            {
+                "name": "file1.txt",
+                "url": "url",
+                "size": 16777217,
+                "sha256": "hash",
+                "date": timezone.now(),
+                "metadata": {},
+                "review": None,
+            }
+        ],
+        "metadata": {},
+        "review": None,
+    }
+    request = api_rf.post(
+        "/",
+        data=data,
+        format="json",
+        headers={
+            "authorization": "test",
+            "os-user": user.username,
+        },
+    )
+
+    response = ReleaseWorkspaceAPI.as_view(get_github_api=FakeGitHubAPI)(
+        request, workspace_name=workspace.name
+    )
+
+    assert response.status_code == 400, response.data
+    assert response.data["files"][0]["size"][0].startswith("File size should be <16Mb.")
 
 
 def test_releaseworkspaceapi_post_release_already_exists(api_rf):

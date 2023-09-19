@@ -349,7 +349,12 @@ GITHUB_WRITEABLE_TOKEN = env.str("GITHUB_WRITEABLE_TOKEN", default="")
 # interactive functionality
 LOCAL_GIT_REPOS = BASE_DIR / "repos"
 
-# Releases storage location.
+# Released files per-file size limit
+RELEASE_FILE_SIZE_LIMIT = env.int(
+    "RELEASE_FILE_SIZE_LIMIT", default=16 * 1024 * 1024  # 16Mb
+)
+
+# Released files storage location
 # Note: we deliberately don't use MEDIA_ROOT/MEDIA_URL here, to avoid any
 # surprises with django's default uploads implementation.
 RELEASE_STORAGE = Path(env.str("RELEASE_STORAGE", default="releases"))
