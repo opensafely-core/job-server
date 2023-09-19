@@ -430,6 +430,71 @@ def test_releaseapi_post_success_for_html_not_linked_to_an_analysis_request(
     assert release.backend.name in text
 
 
+def test_releaseapi_post_with_content_length_too_large(api_rf, build_release, settings):
+    settings.RELEASE_FILE_SIZE_LIMIT = 5
+
+    creating_user = UserFactory()
+    uploading_user = UserFactory(roles=[OutputChecker])
+    backend = BackendFactory(name="test-backend")
+
+    release = build_release(["file.txt"], backend=backend, created_by=creating_user)
+
+    BackendMembershipFactory(backend=release.backend, user=creating_user)
+    BackendMembershipFactory(backend=release.backend, user=uploading_user)
+
+    request = api_rf.post(
+        "/",
+        content_type="application/octet-stream",
+        data="test",
+        headers={
+            "content-disposition": "attachment; filename=file.txt",
+            "content-length": "42",
+            "authorization": release.backend.auth_token,
+            "os-user": uploading_user.username,
+        },
+    )
+
+    response = ReleaseAPI.as_view()(request, release_id=release.id)
+
+    assert response.status_code == 400, response.data
+
+    # this is not actually 0, but 5 bytes translated to Mb appears as 0.0.
+    assert response.data[0] == "File is too large, it must be below 0.0Mb"
+
+
+def test_releaseapi_post_with_file_size_too_large(
+    api_rf, build_release, file_content, settings
+):
+    settings.RELEASE_FILE_SIZE_LIMIT = 5
+
+    creating_user = UserFactory()
+    uploading_user = UserFactory(roles=[OutputChecker])
+    backend = BackendFactory(name="test-backend")
+
+    release = build_release(["file.txt"], backend=backend, created_by=creating_user)
+
+    BackendMembershipFactory(backend=release.backend, user=creating_user)
+    BackendMembershipFactory(backend=release.backend, user=uploading_user)
+
+    request = api_rf.post(
+        "/",
+        content_type="application/octet-stream",
+        data=file_content,
+        headers={
+            "content-disposition": "attachment; filename=file.txt",
+            "authorization": release.backend.auth_token,
+            "os-user": uploading_user.username,
+        },
+    )
+
+    response = ReleaseAPI.as_view()(request, release_id=release.id)
+
+    assert response.status_code == 400, response.data
+
+    # this is not actually 0, but 5 bytes translated to Mb appears as 0.0.
+    assert response.data[0] == "File is too large, it must be below 0.0Mb"
+
+
 def test_releaseapi_post_unknown_release(api_rf):
     request = api_rf.post("/")
 

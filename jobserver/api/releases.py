@@ -3,6 +3,7 @@ from pathlib import Path
 
 import sentry_sdk
 import structlog
+from django.conf import settings
 from django.db import transaction
 from django.db.models import Value
 from django.shortcuts import get_object_or_404
@@ -87,6 +88,13 @@ def is_interactive_report(rfile):
     return AnalysisRequest.objects.filter(pk=identifier).first()
 
 
+def to_mb(value_in_bytes):
+    """Convert given value to Mb"""
+    size = round(value_in_bytes / (1024 * 1024), 2)
+
+    return f"{size}Mb"
+
+
 class UnknownFiles(Exception):
     pass
 
@@ -107,10 +115,10 @@ class FileSerializer(serializers.Serializer):
 
     def validate(self, data):
         size = data["size"]
-        if size <= 16777216:  # 16Mb
+        if size <= settings.RELEASE_FILE_SIZE_LIMIT:
             return data
 
-        size = round(size / (1024 * 1024), 2)  # convert size for easier display
+        size = to_mb(size)  # convert size for easier display
         raise serializers.ValidationError(
             {"size": f"File size should be <16Mb. {data['name']} is {size}Mb"}
         )
@@ -331,6 +339,14 @@ class ReleaseAPI(APIView):
         """
         release = get_object_or_404(Release, id=release_id)
         backend, user = validate_upload_access(request, release.workspace)
+
+        # Django's InMemoryUploadedFile only reads the number of bytes
+        # specified in the Content-Length header so we can rely on just
+        # checking that instead of checking the file size as well.
+        content_length = request.headers.get("Content-Length")
+        if content_length and int(content_length) > settings.RELEASE_FILE_SIZE_LIMIT:
+            size_limit = to_mb(settings.RELEASE_FILE_SIZE_LIMIT)
+            raise ValidationError(f"File is too large, it must be below {size_limit}")
 
         try:
             upload = request.data["file"]
