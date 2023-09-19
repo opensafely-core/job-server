@@ -114,6 +114,9 @@
                 </div>
               {% endif %}
             {% endif %}
+            {% if not user.all_roles %}
+              {% pill variant="info" text="User has no roles assigned" class="self-start" %}
+            {% endif %}
           {% /list_group_item %}
         {% empty %}
           {% list_group_empty icon=True title="No users found" description="Try a new search or clearing the filters" %}
