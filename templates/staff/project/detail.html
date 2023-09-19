@@ -79,7 +79,7 @@
           {% #description_item title=membership.user.get_full_name|default_if_none:membership.user.username %}
             <div class="flex flex-col gap-1">
               <div class="flex flex-row gap-2">
-                {% #button type="link" variant="secondary-outline" href=membership.user.get_staff_url small=True %}
+                {% #button type="link" variant="secondary-outline" href=membership.get_staff_edit_url|add:"?next="|add:request.path small=True %}
                   Edit
                 {% /button %}
                 <form method="POST" action="{{ membership.get_staff_remove_url }}">
