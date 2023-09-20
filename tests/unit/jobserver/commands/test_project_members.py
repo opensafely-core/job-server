@@ -71,6 +71,34 @@ def test_add_with_roles():
         assert updated_roles.created_at
 
 
+def test_update_roles():
+    updator = UserFactory()
+    project = ProjectFactory()
+    user = UserFactory()
+
+    membership = ProjectMembershipFactory(project=project, user=user, roles=[])
+
+    assert membership.roles == []
+
+    members.update_roles(member=membership, by=updator, roles=[ProjectDeveloper])
+
+    membership.refresh_from_db()
+    assert membership.roles == [ProjectDeveloper]
+
+    assert AuditableEvent.objects.count() == 2
+
+    # first one is the membership we added while staging this test
+    event = AuditableEvent.objects.last()
+
+    assert event.type == AuditableEvent.Type.PROJECT_MEMBER_UPDATED_ROLES
+    assert event.target_model == "jobserver.ProjectMembership"
+    assert event.target_id == str(membership.pk)
+    assert event.target_user == user.username
+    assert event.parent_model == "jobserver.Project"
+    assert event.parent_id == str(project.pk)
+    assert event.created_by == updator.username
+
+
 def test_remove():
     deletor = UserFactory()
     project = ProjectFactory()

@@ -267,8 +267,11 @@ class ProjectMembershipEdit(UpdateView):
     template_name = "staff/project/membership_edit.html"
 
     def form_valid(self, form):
-        self.object.roles = form.cleaned_data["roles"]
-        self.object.save()
+        members.update_roles(
+            member=self.object,
+            by=self.request.user,
+            roles=form.cleaned_data["roles"],
+        )
 
         return redirect(
             get_next_url(self.request.GET, self.object.project.get_staff_url())

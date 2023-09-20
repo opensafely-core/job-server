@@ -51,6 +51,25 @@ def add(*, project, user, roles, by):
 
 
 @transaction.atomic()
+def update_roles(*, member, by, roles):
+    AuditableEvent.objects.create(
+        type=AuditableEvent.Type.PROJECT_MEMBER_UPDATED_ROLES,
+        old=",".join([dotted_path(r) for r in member.roles]),
+        target_model=member._meta.label,
+        target_field="roles",
+        target_id=member.pk,
+        target_user=member.user.username,
+        parent_model=member.project._meta.label,
+        parent_id=member.project.pk,
+        created_by=by.username,
+        new=",".join([dotted_path(r) for r in roles]),
+    )
+
+    member.roles = roles
+    member.save(update_fields=["roles"])
+
+
+@transaction.atomic()
 def remove(*, membership, by):
     # We're removing the membership here so we need to save some details for
     # displaying that this happened as we won't be able to look them up at
