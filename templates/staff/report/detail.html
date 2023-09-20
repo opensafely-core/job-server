@@ -1,0 +1,116 @@
+{% extends "staff/base-tw.html" %}
+
+{% load humanize %}
+
+{% block metatitle %}{{ report.title }}: Staff Area | OpenSAFELY Jobs{% endblock metatitle %}
+
+{% block breadcrumbs %}
+  {% #breadcrumbs %}
+    {% url "staff:index" as staff_url %}
+    {% url "staff:report-list" as staff_report_list_url %}
+    {% breadcrumb title="Staff area" url=staff_url %}
+    {% breadcrumb title="Reports" url=staff_report_list_url %}
+    {% breadcrumb title=report.title active=True %}
+  {% /breadcrumbs %}
+{% endblock breadcrumbs %}
+
+{% block hero %}
+  {% #staff_hero title=report.title %}
+    <div class="flex flex-row gap-2 mt-2">
+      {% #button type="link" href=report.get_absolute_url variant="primary" %}
+        View on site
+      {% /button %}
+      {% #button type="link" href=report.release_file.get_absolute_url variant="secondary" %}
+        View released output
+      {% /button %}
+    </div>
+  {% /staff_hero %}
+{% endblock hero %}
+
+{% block content %}
+  <div class="grid grid-cols-1 gap-6">
+    {% #card title="Report information" %}
+      {% #description_list %}
+        {% #description_item title="Created at" %}
+          {% #time datetime=report.created_at|date:"Y-m-d H:i:sO" %}
+            {{ report.created_at|date:"d F Y" }} at {{ report.created_at|date:"H:i" }}
+          {% /time %}
+        {% /description_item %}
+
+        {% #description_item title="Created by" %}
+          {% link href=report.created_by.get_staff_url text=report.created_by.name %}
+        {% /description_item %}
+
+        {% #description_item title="Organisation" %}
+          {% link href=report.release_file.workspace.project.org.get_staff_url text=report.release_file.workspace.project.org.name %}
+        {% /description_item %}
+
+        {% #description_item title="Project" %}
+          {% link href=report.release_file.workspace.project.get_staff_url text=report.release_file.workspace.project.name %}
+        {% /description_item %}
+
+        {% if report.analysis_request %}
+          {% #description_item title="Analysis request" %}
+            {% link href=report.analysis_request.get_staff_url text=report.analysis_request.title %}
+          {% /description_item %}
+        {% endif %}
+
+        {% #description_item title="Description" %}
+          <div class="prose prose-sm prose-oxford">
+            {{ report.description }}
+          </div>
+        {% /description_item %}
+      {% /description_list %}
+    {% /card %}
+
+    {% #card title="Publish requests" header_class="border-b border-slate-200" %}
+      <div class="prose prose-oxford px-4 py-3 md:px-6 md:py-5">
+        <p>Rejecting a request will unlock the report, allowing the user to make changes and make a new request.</p>
+        <p>Approving a request will publish the report, making it available to the public. The requester will be automatically notified of your decision.</p>
+      </div>
+
+      {% #list_group %}
+        {% for publish_request in publish_requests %}
+          <li class="px-4 py-3 flex flex-col gap-y-1">
+            <span>
+              Created by
+              {% link href=publish_request.created_by.get_staff_url text=publish_request.created_by.name %}
+              on
+              {% #time datetime=publish_request.created_at|date:"Y-m-d H:i:sO" %}
+                {{ publish_request.created_at|date:"d F Y" }} at {{ publish_request.created_at|date:"H:i" }}
+              {% /time %}
+            </span>
+            <span>
+              {% if publish_request.decision %}
+                {% link href=publish_request.decision_by.get_staff_url text=publish_request.decision_by.name %}
+                <strong>{{ publish_request.decision }}</strong>
+                this request on
+                {% #time datetime=publish_request.decision_at|date:"Y-m-d H:i:sO" %}
+                  {{ publish_request.decision_at|date:"d F Y" }} at {{ publish_request.decision_at|date:"H:i" }}
+                {% /time %}
+              {% endif %}
+            </span>
+            {% if not publish_request.decision %}
+              <div class="flex flex-row gap-2">
+                <form method="POST" action="{{ publish_request.get_approve_url }}">
+                  {% csrf_token %}
+                  {% #button type="submit" variant="success" small=True %}
+                    Approve
+                  {% /button %}
+                </form>
+                <form method="POST" action="{{ publish_request.get_reject_url }}">
+                  {% csrf_token %}
+                  {% #button type="submit" variant="danger" small=True %}
+                    Reject
+                  {% /button %}
+                </form>
+              </div>
+            {% endif %}
+          </li>
+        {% empty %}
+          {% list_group_empty icon=True title="No requests" description="This report has no requests to be published" %}
+        {% endfor %}
+      {% /list_group %}
+    {% /card %}
+  </div>
+{% endblock content %}
