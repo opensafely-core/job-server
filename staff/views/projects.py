@@ -20,6 +20,7 @@ from interactive.commands import create_repo, create_workspace
 from jobserver.authorization import CoreDeveloper
 from jobserver.authorization.decorators import require_role
 from jobserver.authorization.utils import roles_for
+from jobserver.commands import project_members as members
 from jobserver.commands import projects
 from jobserver.github import GitHubError, _get_github_api
 from jobserver.models import Org, Project, ProjectMembership, User
@@ -46,17 +47,15 @@ class ProjectAddMember(FormView):
 
         return super().dispatch(request, *args, **kwargs)
 
+    @transaction.atomic()
     def form_valid(self, form):
-        roles = form.cleaned_data["roles"]
-        users = form.cleaned_data["users"]
-
-        with transaction.atomic():
-            for user in users:
-                self.project.memberships.create(
-                    user=user,
-                    created_by=self.request.user,
-                    roles=roles,
-                )
+        for user in form.cleaned_data["users"]:
+            members.add(
+                project=self.project,
+                user=user,
+                roles=form.cleaned_data["roles"],
+                by=self.request.user,
+            )
 
         return redirect(self.project.get_staff_url())
 
