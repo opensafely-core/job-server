@@ -3,32 +3,24 @@
 {% block metatitle %}{{ membership.user.name }}: {{ membership.project.title }} | OpenSAFELY Jobs{% endblock metatitle %}
 
 {% block breadcrumbs %}
-<nav class="breadcrumb-container" aria-label="breadcrumb">
+<nav class="breadcrumb-container breadcrumb--danger" aria-label="breadcrumb">
   <div class="container">
     <ol class="breadcrumb rounded-0 mb-0 px-0">
       <li class="breadcrumb-item">
-        <a href="/">Home</a>
+        <a href="{% url 'staff:index' %}">Staff area</a>
       </li>
       <li class="breadcrumb-item">
-        <a href="{{ membership.project.org.get_absolute_url }}">
-          {{ membership.project.org.name }}
+        <a href="{% url 'staff:project-list' %}">
+          Projects
         </a>
       </li>
       <li class="breadcrumb-item">
-        <a href="{{ membership.project.get_absolute_url }}">
+        <a href="{{ membership.project.get_staff_url }}">
           {{ membership.project.title }}
         </a>
       </li>
-      <li class="breadcrumb-item">
-        <a href="{{ membership.project.get_settings_url }}">
-          Settings
-        </a>
-      </li>
-      <li class="breadcrumb-item">
-        Members
-      </li>
       <li class="breadcrumb-item active" aria-current="page">
-        {{ membership.user.name }}
+        Edit member {{ membership.user.name }}
       </li>
     </ol>
   </div>
@@ -36,9 +28,9 @@
 {% endblock breadcrumbs %}
 
 {% block jumbotron %}
-<div class="jumbotron jumbotron-fluid">
+<div class="jumbotron jumbotron-fluid jumbotron--danger pt-md-2">
   <div class="container">
-    <h1>{{ membership.user.name }}</h1>
+    <h1 class="display-4">{{ membership.user.name }}</h1>
     <p class="lead"><span class="sr-only">Username: </span>{{ membership.user.username }}</p>
   </div>
 </div>
