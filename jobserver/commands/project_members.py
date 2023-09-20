@@ -48,3 +48,26 @@ def add(*, project, user, roles, by):
         )
 
     return membership
+
+
+@transaction.atomic()
+def remove(*, membership, by):
+    # We're removing the membership here so we need to save some details for
+    # displaying that this happened as we won't be able to look them up at
+    # render time.
+    #
+    # target_id uses the project PK so we can display this on the project's
+    # logs page
+    #
+    # old uses the member's username so we can track who was removed
+    AuditableEvent.objects.create(
+        type=AuditableEvent.Type.PROJECT_MEMBER_REMOVED,
+        target_model=membership._meta.label,
+        target_id=membership.pk,
+        target_user=membership.user.username,
+        parent_model=membership.project._meta.label,
+        parent_id=membership.project.pk,
+        created_by=by.username,
+    )
+
+    membership.delete()

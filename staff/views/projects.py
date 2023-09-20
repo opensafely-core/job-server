@@ -304,7 +304,8 @@ class ProjectMembershipRemove(View):
             ProjectMembership, project__slug=self.kwargs["slug"], pk=self.kwargs["pk"]
         )
 
-        membership.delete()
+        members.remove(membership=membership, by=self.request.user)
+
         messages.success(
             request,
             f"Removed {membership.user.username} from {membership.project.title}",
