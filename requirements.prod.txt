@@ -743,9 +743,9 @@ python-dotenv==0.19.2 \
     --hash=sha256:32b2bdc1873fd3a3c346da1c6db83d0053c3c62f28f1f38516070c4c8971b1d3 \
     --hash=sha256:a5de49a31e953b45ff2d2fd434bbc2670e8db5273606c1e737cc6b93eff3655f
     # via environs
-python-ulid==1.1.0 \
-    --hash=sha256:5fb5e4a91db8ca93e8938a613360b3def299b60d41f847279a8c39c9b2e9c65e \
-    --hash=sha256:88c952f6be133dbede19c907d72d26717d2691ec8421512b573144794d891e24
+python-ulid==2.0.1 \
+    --hash=sha256:76f1d92a9773171d6a6e101415c72ccc2f0553e1c1ce2e0ca1fd9af52cbc2567 \
+    --hash=sha256:e278e23ba77bc9fe3c1409ec93545cf4b3b3323b8ccb88980604677c832aa694
     # via -r requirements.prod.in
 python3-openid==3.2.0 \
     --hash=sha256:33fbf6928f401e0b790151ed2b5290b02545e8775f982485205a066f874aaeaf \
