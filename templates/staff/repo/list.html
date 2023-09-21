@@ -1,0 +1,129 @@
+{% extends "staff/base-tw.html" %}
+
+{% load django_vite %}
+{% load querystring_tools %}
+{% load selected_filter %}
+
+{% block metatitle %}Repos: Staff Area | OpenSAFELY Jobs{% endblock metatitle %}
+
+{% block breadcrumbs %}
+  {% #breadcrumbs %}
+    {% breadcrumb title="Staff area" url=staff_url %}
+    {% breadcrumb title="Repos" active=True %}
+  {% /breadcrumbs %}
+{% endblock breadcrumbs %}
+
+{% block hero %}
+  {% staff_hero title="Repos" %}
+{% endblock hero %}
+
+{% block content %}
+  {% url "staff:repo-list" as staff_repo_list_url %}
+  <div class="grid lg:grid-cols-3 gap-8">
+    <form class="flex flex-col gap-y-6">
+      <div class="flex flex-row gap-2">
+        {% if request.GET %}
+          {% #button variant="secondary-outline" type="link" href=staff_repo_list_url %}
+            Clear filters
+          {% /button %}
+        {% endif %}
+      </div>
+
+      {% #card title="Filter by outputs on GitHub" %}
+        {% #list_group small=True class="max-h-96 overflow-y-auto" %}
+          {% is_filter_selected key="has_outputs" value="yes" as is_has_outputs_yes_active %}
+          {% if is_has_outputs_yes_active %}
+            {% url_without_querystring has_outputs="yes" as query_string_has_outputs_yes %}
+            {% var yes_active_class="bg-green-100 !text-green-900 flex flex-row items-center gap-1" %}
+          {% else %}
+            {% url_with_querystring has_outputs="yes" as query_string_has_outputs_yes %}
+          {% endif %}
+          {% #list_group_item href=query_string_has_outputs_yes role="checkbox" aria-checked=is_has_outputs_yes_active class=yes_active_class %}
+          {% if is_has_outputs_yes_active %}{% icon_check_outline class="-ml-2 h-5 w-5 stroke-green-700" %}{% endif %}
+            Yes
+          {% /list_group_item %}
+
+          {% is_filter_selected key="has_outputs" value="no" as is_has_outputs_no_active %}
+          {% if is_has_outputs_no_active %}
+            {% url_without_querystring has_outputs="no" as query_string_has_outputs_no %}
+            {% var no_active_class="bg-green-100 !text-green-900 flex flex-row items-center gap-1" %}
+          {% else %}
+            {% url_with_querystring has_outputs="no" as query_string_has_outputs_no %}
+          {% endif %}
+          {% #list_group_item href=query_string_has_outputs_no role="checkbox" aria-checked=is_has_outputs_no_active class=no_active_class %}
+          {% if is_has_outputs_no_active %}{% icon_check_outline class="-ml-2 h-5 w-5 stroke-green-700" %}{% endif %}
+            No
+          {% /list_group_item %}
+        {% /list_group %}
+      {% /card %}
+
+      {% #card title="Filter by organisation" %}
+        <filter-input aria-owns="orgsFilter">
+          {% form_input custom_field=True class="px-4 -mt-2 mb-4 sm:px-6" id="filterUsers" name="filter-orgs" label="Search for an organisation" label_class="sr-only" placeholder="Search for an organisation" show_placeholder=True %}
+        </filter-input>
+        {% #list_group small=True class="max-h-96 overflow-y-auto" data_filter_list=True id="orgsFilter" %}
+          {% for org in orgs %}
+            {% is_filter_selected key="orgs" value=org.slug as is_org_active %}
+
+            {% if is_org_active %}
+              {% url_without_querystring orgs=org.slug as remove_org_is_active %}
+              {% #list_group_item href=remove_org_is_active role="checkbox" aria-checked="true" class="bg-green-100 !text-green-900 flex flex-row items-center gap-1" %}
+                {% icon_check_outline class="h-5 w-5 stroke-green-700" %}
+                {{ org.name }}
+              {% /list_group_item %}
+            {% else %}
+              {% url_with_querystring orgs=org.slug as add_org_is_active %}
+              {% #list_group_item href=add_org_is_active role="checkbox" aria-checked="false" %}
+                {{ org.name }}
+              {% /list_group_item %}
+            {% endif %}
+          {% endfor %}
+          {% list_group_empty title="No org found" data-filter-empty-state hidden %}
+        {% /list_group %}
+      {% /card %}
+    </form>
+
+    <div class="flex flex-col gap-y-6 lg:col-span-2">
+      {% #card container=True title="Search for a repo" %}
+        <form method="GET" class="flex flex-row gap-x-2 items-center">
+          {% if request.GET.q %}
+            {% var value=request.GET.q|stringformat:"s" %}
+          {% endif %}
+          {% form_input custom_field=True type="search" id="repoSearch" name="q" value=value label="Search for a repo" label_class="sr-only" class="w-full" input_class="!m-0" placeholder="Search by repo name" show_placeholder=True %}
+          {% #button type="submit" variant="primary" class="flex-shrink-0" %}Search{% /button %}
+        </form>
+        {% if request.GET.q %}
+          <p class="mt-3">
+            {% link href=staff_repo_list_url text="Clear search" %}
+          </p>
+        {% endif %}
+      {% /card %}
+
+      {% #card %}
+        {% #list_group small=True %}
+          {% for repo in object_list %}
+            {% #list_group_item href=repo.get_staff_url %}
+              {{ repo.name }}
+            {% /list_group_item %}
+            {% empty %}
+              {% list_group_empty icon=True title="No repos found" description="Try a new search or clearing the filters" %}
+          {% endfor %}
+        {% /list_group %}
+
+        {% if page_obj.has_previous or page_obj.has_next %}
+          {% if page_obj.has_next %}
+            {% url_with_querystring page=page_obj.next_page_number as next_page_url %}
+          {% endif %}
+          {% if page_obj.has_previous %}
+            {% url_with_querystring page=page_obj.previous_page_number as previous_page_url %}
+          {% endif %}
+          {% card_pagination page_number=page_obj.number total_pages=page_obj.paginator.num_pages next_page_url=next_page_url previous_page_url=previous_page_url no_container=True %}
+        {% endif %}
+      {% /card %}
+    </div>
+  </div>
+{% endblock content %}
+
+{% block extra_js %}
+  {% vite_asset "templates/_components/multiselect/multiselect.js" %}
+{% endblock extra_js %}
