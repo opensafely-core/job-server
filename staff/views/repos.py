@@ -10,6 +10,7 @@ from django.db.models.functions import Least, Lower
 from django.shortcuts import get_object_or_404, redirect
 from django.template.response import TemplateResponse
 from django.utils import timezone
+from django.utils.dateparse import parse_datetime
 from django.utils.decorators import method_decorator
 from django.utils.safestring import mark_safe
 from django.views.generic import ListView, View
@@ -69,7 +70,7 @@ class RepoDetail(View):
         return {
             "first_job_ran_at": first_job_ran_at,
             "last_job_ran_at": last_job_ran_at,
-            "repo_created_at": api_repo["created_at"],
+            "repo_created_at": parse_datetime(api_repo["created_at"]),
             "twelve_month_limit": twelve_month_limit,
         }
 
@@ -153,7 +154,7 @@ class RepoDetail(View):
 
         return TemplateResponse(
             request,
-            "staff/repo_detail.html",
+            "staff/repo/detail.html",
             context=context,
         )
 
