@@ -25,14 +25,20 @@
       <form method="POST" action="{{ repo.get_staff_sign_off_url }}">
         {% csrf_token %}
 
-        {% if disabled.not_ready %}
-          {% var tooltip="A researcher has not yet signed this repo off" %}
-        {% elif disabled.no_permission %}
-          {% var tooltip="The SignOffRepoWithOutputs role is required to sign off repos with outputs on GitHub" %}
-        {% elif disabled.already_signed_off %}
-          {% var tooltip="This repo has already been internally signed off" %}
+        {% if disabled %}
+          {% var is_disabled=True %}
+
+          {% if disabled.not_ready %}
+            {% var tooltip="A researcher has not yet signed this repo off" %}
+          {% elif disabled.no_permission %}
+            {% var tooltip="The SignOffRepoWithOutputs role is required to sign off repos with outputs on GitHub" %}
+          {% elif disabled.already_signed_off %}
+            {% var tooltip="This repo has already been internally signed off" %}
+          {% endif %}
+        {% else %}
+          {% var is_disabled=False %}
         {% endif %}
-        {% #button type="submit" variant="danger" disabled=disabled tooltip=tooltip %}
+        {% #button type="submit" variant="danger" disabled=is_disabled tooltip=tooltip %}
           Sign off to make public
         {% /button %}
       </form>
