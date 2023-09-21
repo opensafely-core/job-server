@@ -1,0 +1,111 @@
+{% extends "staff/base-tw.html" %}
+
+{% load django_vite %}
+{% load querystring_tools %}
+{% load selected_filter %}
+
+{% block metatitle %}Reports: Staff Area | OpenSAFELY Jobs{% endblock metatitle %}
+
+{% block breadcrumbs %}
+  {% #breadcrumbs %}
+    {% url "staff:index" as staff_url %}
+    {% breadcrumb title="Staff area" url=staff_url %}
+    {% breadcrumb title="Reports" active=True %}
+  {% /breadcrumbs %}
+{% endblock breadcrumbs %}
+
+{% block hero %}
+  {% staff_hero title="Reports" %}
+{% endblock hero %}
+
+{% block content %}
+  {% url "staff:report-list" as staff_report_list_url %}
+
+  <div class="grid lg:grid-cols-3 gap-8">
+    <form class="flex flex-col gap-y-6">
+      <div class="flex flex-row gap-2">
+        {% #button variant="success" type="submit" %}
+          Apply filters
+        {% /button %}
+        {% if request.GET %}
+          {% #button variant="secondary-outline" type="link" href=staff_report_list_url %}
+            Clear filters
+          {% /button %}
+        {% endif %}
+      </div>
+
+      {% #card title="Filter by state" container=True %}
+        {% #multiselect custom_field=True name="state" placeholder="Select an org" %}
+          {% for state in states %}
+            {% is_filter_selected key="state" value=state.slug as is_state_active %}
+            {% multiselect_option value=state.slug name=state.name is_active=is_state_active %}
+          {% endfor %}
+        {% /multiselect %}
+      {% /card %}
+
+      {% #card title="Filter by organisation" container=True %}
+        {% #multiselect custom_field=True name="org" placeholder="Select an org" %}
+          {% for org in orgs %}
+            {% is_filter_selected key="org" value=org.slug as is_org_active %}
+            {% multiselect_option value=org.slug name=org.name is_active=is_org_active %}
+          {% endfor %}
+        {% /multiselect %}
+      {% /card %}
+
+      {% #card title="Filter by creator" container=True %}
+        {% #multiselect custom_field=True name="user" placeholder="Select a user" %}
+          {% for user in users %}
+            {% is_filter_selected key="user" value=user.username as is_user_active %}
+            {% multiselect_option value=user.username name=user.name is_active=is_user_active %}
+          {% endfor %}
+        {% /multiselect %}
+      {% /card %}
+    </form>
+
+    <div class="flex flex-col gap-y-6 lg:col-span-2">
+      {% #card container=True title="Search for a report" %}
+        <form method="GET" class="flex flex-row gap-x-2 items-center">
+          {% if request.GET.q %}
+            {% var value=request.GET.q|stringformat:"s" %}
+          {% endif %}
+          {% form_input custom_field=True type="search" id="reportSearch" name="q" value=value label="Search for a report" label_class="sr-only" class="w-full" input_class="!m-0" placeholder="Search by report name or author name" show_placeholder=True %}
+          {% #button type="submit" variant="primary" class="flex-shrink-0" %}Search{% /button %}
+        </form>
+        {% if request.GET.q %}
+          <p class="mt-3">
+            {% link href=staff_report_list_url text="Clear search" %}
+          </p>
+        {% endif %}
+      {% /card %}
+
+      {% #card %}
+        {% if object_list %}
+          {% #list_group small=True %}
+            {% for report in object_list %}
+              {% #list_group_item type="Reports" href=report.get_staff_url %}
+                <span class="block">{{ report.title }} by {{ report.created_by.name }}</span>
+                <span class="text-xs text-slate-800">created {{ report.created_at|date:"d F Y" }}</span>
+              {% /list_group_item %}
+            {% endfor %}
+          {% /list_group %}
+
+          {% if page_obj.has_previous or page_obj.has_next %}
+            {% if page_obj.has_next %}
+              {% url_with_querystring page=page_obj.next_page_number as next_page_url %}
+            {% endif %}
+            {% if page_obj.has_previous %}
+              {% url_with_querystring page=page_obj.previous_page_number as previous_page_url %}
+            {% endif %}
+            {% card_pagination page_number=page_obj.number total_pages=page_obj.paginator.num_pages next_page_url=next_page_url previous_page_url=previous_page_url no_container=True %}
+          {% endif %}
+        {% else %}
+          {% list_group_empty icon=True title="No reports found" description="Try a new search or clearing the filters" %}
+        {% endif %}
+      {% /card %}
+    </div>
+  </div>
+{% endblock content %}
+
+{% block extra_js %}
+  {% vite_asset "templates/_components/multiselect/multiselect.js" %}
+{% endblock extra_js %}

@@ -1,12 +1,13 @@
 import json
+import re
 import tempfile
 from unittest.mock import patch
 
 import pytest
-from django.utils.formats import date_format
+from bs4 import BeautifulSoup
+from first import first
 from interactive_templates import git
 from opensafely._vendor.jobrunner.cli import local_run
-from pytest_django.asserts import assertInHTML
 
 from interactive.views import AnalysisRequestCreate
 from jobserver.authorization import CoreDeveloper, InteractiveReporter
@@ -174,28 +175,22 @@ def test_interactive_publishing_report_success(client, release, slack_messages):
     assert response.status_code == 200
     assert "Publish requests" in response.rendered_content
 
-    # we want to check the staff page has the text "Created by <name>".  The
-    # <name> part is a link to the user and assertInHTML requires we pass in
-    # whole elements to compare against so we have to construct the entire <p>,
-    # including correctly formatted times.
+    # parse out the Created by span (with the URL we care about) from the
+    # rendered content.
     #
-    # To mirror the default formatting in templates we're using formatter
-    # function that Django's builtin `date` filter calls with the explicit
-    # DATETIME_FORMAT so it doesn't fallback to DATE_FORMAT.
+    # We have to find strings because calling find_all with an element name as
+    # well as the regex doesn't give us any results.  We then have to filter
+    # those down to get rid of the report creator.
     #
     # This is really painful.
-    created_at = date_format(publish_request.created_at, "DATETIME_FORMAT")
-    html = f"""
-    <p>
-        Created by <a href="{user.get_staff_url()}">{user.name}</a>
-        on
-        <time datetime="{created_at}">
-            {created_at}
-        </time>
-    </p>
+    strings = BeautifulSoup(response.rendered_content, "html.parser").find_all(
+        string=re.compile(".*Created by.*")
+    )
+    spans = [s.parent for s in strings]
+    span = first(spans, key=lambda span: "on" in span.text)
 
-    """
-    assertInHTML(html, response.rendered_content)
+    created_by_url = span.a["href"]
+    assert created_by_url == user.get_staff_url()
 
     # staff approves request
     response = client.post(publish_request.get_approve_url(), follow=True)
