@@ -1,0 +1,183 @@
+{% extends "staff/base-tw.html" %}
+
+{% load humanize %}
+{% load static %}
+
+{% block metatitle %}{{ repo.name }}: Staff Area | OpenSAFELY Jobs{% endblock metatitle %}
+
+{% block breadcrumbs %}
+  {% #breadcrumbs %}
+    {% url "staff:index" as staff_url %}
+    {% url "staff:repo-list" as staff_repo_list_url %}
+    {% breadcrumb title="Staff area" url=staff_url %}
+    {% breadcrumb title="Repos" url=staff_repo_list_url %}
+    {% breadcrumb title=repo.name active=True %}
+  {% /breadcrumbs %}
+{% endblock breadcrumbs %}
+
+{% block hero %}
+  {% #staff_hero title="Repo: "|add:repo.name %}
+    <div class="flex flex-row gap-2 mt-2">
+      {% #button type="link" href=repo.url variant="primary" %}
+        Open on GitHub
+      {% /button %}
+
+      <form method="POST" action="{{ repo.get_staff_sign_off_url }}">
+        {% csrf_token %}
+
+        {% if disabled %}
+          {% var is_disabled=True %}
+
+          {% if disabled.not_ready %}
+            {% var tooltip="A researcher has not yet signed this repo off" %}
+          {% elif disabled.no_permission %}
+            {% var tooltip="The SignOffRepoWithOutputs role is required to sign off repos with outputs on GitHub" %}
+          {% elif disabled.already_signed_off %}
+            {% var tooltip="This repo has already been internally signed off" %}
+          {% endif %}
+        {% else %}
+          {% var is_disabled=False %}
+        {% endif %}
+        {% #button type="submit" variant="danger" disabled=is_disabled tooltip=tooltip %}
+          Sign off to make public
+        {% /button %}
+      </form>
+    </div>
+  {% /staff_hero %}
+{% endblock hero %}
+
+{% block content %}
+  <div class="flex flex-col gap-8">
+    {% #card title="Details" %}
+      {% #description_list %}
+        {% #description_item title="Status" %}
+          {% if repo.is_private %}Private{% else %}Public{% endif %}
+        {% /description_item %}
+        {% #description_item title="GitHub Org" %}
+          {{ repo.owner }}
+        {% /description_item %}
+        {% #description_item title="Contacts" %}
+          {{ contacts }}
+        {% /description_item %}
+        {% #description_item title="Has outputs on GitHub" %}
+          {% if repo.has_github_outputs %}
+            {% pill variant="danger" text="Yes" %}
+          {% else %}
+            {% pill variant="info" text="No" %}
+          {% endif %}
+        {% /description_item %}
+      {% /description_list %}
+    {% /card %}
+
+    {% #card title="Sign-off" %}
+      {% #description_item title="Workspaces signed-off" %}
+        {{ num_signed_off }}/{{ workspaces|length }}
+      {% /description_item %}
+
+      {% #description_item title="Researcher sign-off" %}
+        {% if repo.researcher_signed_off_at %}
+          {% #time datetime=repo.researcher_signed_off_at|date:"Y-m-d H:i:sO" %}
+            {{ repo.researcher_signed_off_at|date:"d F Y" }} at {{ repo.researcher_signed_off_at|date:"H:i" }}
+          {% /time %}
+        {% else %}
+          -
+        {% endif %}
+      {% /description_item %}
+      {% #description_item title="Internal sign-off" %}
+        {% if repo.internal_signed_off_at %}
+          {% #time datetime=repo.internal_signed_off_at|date:"Y-m-d H:i:sO" %}
+            {{ repo.internal_signed_off_at|date:"d F Y" }} at {{ repo.internal_signed_off_at|date:"H:i" }}
+          {% /time %}
+        {% else %}
+          -
+        {% endif %}
+      {% /description_item %}
+    {% /card %}
+
+    {% #card title="Dates" %}
+      {% #description_item title="Repo created" %}
+        {% #time datetime=dates.repo_created_at|date:"Y-m-d H:i:sO" %}
+          {{ dates.repo_created_at|date:"d F Y" }}
+        {% /time %}
+      {% /description_item %}
+      {% #description_item title="Project first job run" %}
+        {% if dates.first_job_ran_at %}
+          {% #time datetime=dates.first_job_ran_at|date:"Y-m-d H:i:sO" %}
+            {{ dates.first_job_ran_at|date:"d F Y" }} at {{ dates.first_job_ran_at|date:"H:i" }}
+          {% /time %}
+        {% else %}
+          -
+        {% endif %}
+      {% /description_item %}
+      {% #description_item title="Project last job run" %}
+        {% if dates.last_job_ran_at %}
+          {% #time datetime=dates.last_job_ran_at|date:"Y-m-d H:i:sO" %}
+            {{ dates.last_job_ran_at|date:"d F Y" }} at {{ dates.last_job_ran_at|date:"H:i" }}
+          {% /time %}
+        {% else %}
+          -
+        {% endif %}
+      {% /description_item %}
+      {% #description_item title="12 month limit" %}
+        {% if repo.internal_signed_off_at %}
+          {% #time datetime=dates.twelve_month_limit|date:"Y-m-d H:i:sO" %}
+            {{ dates.twelve_month_limit|date:"d F Y" }}
+          {% /time %}
+        {% else %}
+          -
+        {% endif %}
+      {% /description_item %}
+    {% /card %}
+
+    {% #card title="Projects" %}
+      {% #list_group %}
+        {% for project in projects %}
+          {% #list_group_item href=project.get_staff_url %}
+            {{ project.title }}
+          {% /list_group_item %}
+        {% empty %}
+          {% list_group_empty icon=True title="No projects" %}
+        {% endfor %}
+      {% /list_group %}
+    {% /card %}
+
+    {% #card title="Workspaces" %}
+      {% #list_group %}
+        {% for workspace in workspaces %}
+          {% if workspace.is_archived %}
+            {% var status="Archived" %}
+          {% endif %}
+          {% #list_group_rich_item title=workspace.name url=workspace.get_staff_url status_text=status %}
+            <dl class="flex flex-col gap-y-1 text-sm">
+              <div class="flex flex-row gap-2">
+                <dt class="font-semibold min-w-[10ch]">Users:</dt>
+                <dd class="flex flex-row row-wrap gap-1">
+                  {% for user in workspace.job_requesting_users %}
+                    <span class="flex flex-row items-center gap-x-2">
+                      {{ user.name }}
+                      {% if workspace.created_by.pk == user.pk %}
+                        {% pill variant="info" text="Creator" %}
+                      {% endif %}
+                    </span>
+                  {% endfor %}
+                </dd>
+              </div>
+              <div class="flex flex-row gap-2">
+                <dt class="font-semibold min-w-[10ch]">Sign-off:</dt>
+                <dd>
+                  {% if workspace.signed_off_at %}
+                    {{ workspace.signed_off_by.name }} at {{ workspace.signed_off_at|date:"d F Y" }}
+                  {% else %}
+                    -
+                  {% endif %}
+                </dd>
+              </div>
+            </dl>
+          {% /list_group_rich_item %}
+        {% empty %}
+          {% list_group_empty icon=True title="No workspaces" %}
+        {% endfor %}
+      {% /list_group %}
+    {% /card %}
+  </div>
+{% endblock content %}
