@@ -487,7 +487,7 @@ def test_userlist_filter_by_has_roles(rf, core_developer):
     UserFactory(roles=[OutputPublisher])
     UserFactory(roles=[])
 
-    request = rf.get("/?roles=on")
+    request = rf.get("/?any_roles=yes")
     request.user = core_developer
 
     response = UserList.as_view()(request)
@@ -502,7 +502,7 @@ def test_userlist_filter_by_has_project_roles(rf, core_developer):
     user_with_project = UserFactory(roles=[])
     ProjectMembershipFactory(user=user_with_project, roles=[ProjectDeveloper])
 
-    request = rf.get("/?roles=on")
+    request = rf.get("/?any_roles=yes")
     request.user = core_developer
 
     response = UserList.as_view()(request)
@@ -521,7 +521,7 @@ def test_userlist_filter_by_has_org_roles(rf, core_developer):
     user_with_org = UserFactory(roles=[])
     OrgMembershipFactory(user=user_with_org, roles=[ProjectDeveloper])
 
-    request = rf.get("/?roles=on")
+    request = rf.get("/?any_roles=yes")
     request.user = core_developer
 
     response = UserList.as_view()(request)
@@ -536,7 +536,7 @@ def test_userlist_filter_by_has_no_roles(rf, core_developer):
     UserFactory(roles=[ProjectDeveloper])
     UserFactory(roles=[])
 
-    request = rf.get("/?roles=off")
+    request = rf.get("/?any_roles=no")
     request.user = core_developer
 
     response = UserList.as_view()(request)
@@ -555,7 +555,7 @@ def test_userlist_filter_by_has_no_project_roles(rf, core_developer):
     user_with_project_and_no_roles = UserFactory(roles=[])
     ProjectMembershipFactory(user=user_with_project_and_no_roles, roles=[])
 
-    request = rf.get("/?roles=off")
+    request = rf.get("/?any_roles=no")
     request.user = core_developer
 
     response = UserList.as_view()(request)
@@ -574,7 +574,7 @@ def test_userlist_filter_by_has_no_org_roles(rf, core_developer):
     user_with_org_and_no_roles = UserFactory(roles=[])
     OrgMembershipFactory(user=user_with_org_and_no_roles, roles=[])
 
-    request = rf.get("/?roles=off")
+    request = rf.get("/?any_roles=no")
     request.user = core_developer
 
     response = UserList.as_view()(request)
