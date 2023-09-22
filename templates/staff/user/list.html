@@ -47,6 +47,34 @@
       {% /multiselect %}
     {% /card %}
 
+    {% #card title="Filter by roles" %}
+      {% #list_group small=True %}
+        {% is_filter_selected key="any_roles" value="yes" as is_any_roles_yes_active %}
+        {% if is_any_roles_yes_active %}
+          {% url_without_querystring any_roles="yes" as query_string_any_roles_yes %}
+          {% var yes_active_class="bg-green-100 !text-green-900 flex flex-row items-center gap-1" %}
+        {% else %}
+          {% url_with_querystring any_roles="yes" as query_string_any_roles_yes %}
+        {% endif %}
+        {% #list_group_item href=query_string_any_roles_yes role="checkbox" aria-checked=is_any_roles_yes_active class=yes_active_class %}
+        {% if is_any_roles_yes_active %}{% icon_check_outline class="-ml-2 h-5 w-5 stroke-green-700" %}{% endif %}
+          User has roles assigned
+        {% /list_group_item %}
+
+        {% is_filter_selected key="any_roles" value="no" as is_any_roles_no_active %}
+        {% if is_any_roles_no_active %}
+          {% url_without_querystring any_roles="no" as query_string_any_roles_no %}
+          {% var no_active_class="bg-green-100 !text-green-900 flex flex-row items-center gap-1" %}
+        {% else %}
+          {% url_with_querystring any_roles="no" as query_string_any_roles_no %}
+        {% endif %}
+        {% #list_group_item href=query_string_any_roles_no role="checkbox" aria-checked=is_any_roles_no_active class=no_active_class %}
+        {% if is_any_roles_no_active %}{% icon_check_outline class="-ml-2 h-5 w-5 stroke-green-700" %}{% endif %}
+          User has no roles assigned
+        {% /list_group_item %}
+      {% /list_group %}
+    {% /card %}
+
     {% #card title="Filter by missing link" container=True %}
       {% #multiselect custom_field=True name="missing" placeholder="Select a missing link" %}
         {% for missing_name in missing_names %}
@@ -113,6 +141,9 @@
                   {% endif %}
                 </div>
               {% endif %}
+            {% endif %}
+            {% if not user.all_roles %}
+              {% pill variant="info" text="User has no roles assigned" class="self-start" %}
             {% endif %}
           {% /list_group_item %}
         {% empty %}

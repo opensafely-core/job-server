@@ -242,6 +242,24 @@ class UserList(ListView):
             roles = strings_to_roles([role])
             qs = qs.filter(roles__contains=roles)
 
+        if any_roles := self.request.GET.get("any_roles"):
+            if any_roles == "yes":
+                org_roles_qs = qs.exclude(org_memberships=None).exclude(
+                    org_memberships__roles__exact=[]
+                )
+                project_roles_qs = qs.exclude(project_memberships=None).exclude(
+                    project_memberships__roles__exact=[]
+                )
+                qs = qs.exclude(roles__exact=[]) | project_roles_qs | org_roles_qs
+            elif any_roles == "no":
+                qs = qs.filter(roles__exact=[])
+                qs = qs.filter(org_memberships=None) | qs.filter(
+                    org_memberships__roles__exact=[]
+                )
+                qs = qs.filter(project_memberships=None) | qs.filter(
+                    project_memberships__roles__exact=[]
+                )
+
         return qs
 
 
