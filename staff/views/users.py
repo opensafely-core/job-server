@@ -183,9 +183,9 @@ class UserDetailWithOAuth(UpdateView):
 
 @method_decorator(require_permission("user_manage"), name="dispatch")
 class UserList(ListView):
-    model = User
     paginate_by = 25
     template_name = "staff/user/list.html"
+    queryset = User.objects.prefetch_related("project_memberships", "org_memberships")
 
     def get_context_data(self, **kwargs):
         all_roles = [name for name, value in inspect.getmembers(roles, inspect.isclass)]
