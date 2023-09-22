@@ -30,10 +30,10 @@ class RedirectDetail(DetailView):
 
 @method_decorator(require_role(CoreDeveloper), name="dispatch")
 class RedirectList(ListView):
-    model = Redirect
     ordering = "-old_url"
     paginate_by = 25
     template_name = "staff/redirect/list.html"
+    queryset = Redirect.objects.prefetch_related("project", "workspace", "org")
 
     def get_context_data(self, **kwargs):
         types = [
