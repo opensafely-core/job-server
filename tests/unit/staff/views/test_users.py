@@ -582,6 +582,18 @@ def test_userlist_filter_by_any_roles_no_excludes_org_roles(rf, core_developer):
     assert len(response.context_data["object_list"]) == 2
 
 
+def test_userlist_filter_by_any_roles_invalid_does_nothing(rf, core_developer):
+    UserFactory(roles=[OutputPublisher])
+    UserFactory(roles=[])
+
+    request = rf.get("/?any_roles=asdf")
+    request.user = core_developer
+
+    response = UserList.as_view()(request)
+
+    assert len(response.context_data["object_list"]) == 3
+
+
 def test_userlist_find_by_username(rf, core_developer):
     UserFactory(username="ben")
     UserFactory(fullname="ben g")
