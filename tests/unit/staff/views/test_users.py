@@ -483,7 +483,7 @@ def test_userlist_filter_by_invalid_role(rf, core_developer):
         UserList.as_view()(request)
 
 
-def test_userlist_filter_by_has_roles(rf, core_developer):
+def test_userlist_filter_by_any_roles_yes_includes_global_roles(rf, core_developer):
     UserFactory(roles=[OutputPublisher])
     UserFactory(roles=[])
 
@@ -497,7 +497,7 @@ def test_userlist_filter_by_has_roles(rf, core_developer):
     )  # this includes the core_developer
 
 
-def test_userlist_filter_by_has_project_roles(rf, core_developer):
+def test_userlist_filter_by_any_roles_yes_includes_project(rf, core_developer):
     UserFactory(roles=[])
     user_with_project = UserFactory(roles=[])
     ProjectMembershipFactory(user=user_with_project, roles=[ProjectDeveloper])
@@ -512,7 +512,7 @@ def test_userlist_filter_by_has_project_roles(rf, core_developer):
     )  # this includes the core_developer
 
 
-def test_userlist_filter_by_has_org_roles(rf, core_developer):
+def test_userlist_filter_by_any_roles_yes_includes_org(rf, core_developer):
     UserFactory(roles=[])
 
     user_with_project = UserFactory(roles=[])
@@ -531,7 +531,7 @@ def test_userlist_filter_by_has_org_roles(rf, core_developer):
     )  # this includes the core_developer
 
 
-def test_userlist_filter_by_has_no_roles(rf, core_developer):
+def test_userlist_filter_by_any_roles_no_excludes_global_roles(rf, core_developer):
     UserFactory(roles=[OutputPublisher])
     UserFactory(roles=[ProjectDeveloper])
     UserFactory(roles=[])
@@ -544,7 +544,7 @@ def test_userlist_filter_by_has_no_roles(rf, core_developer):
     assert len(response.context_data["object_list"]) == 1
 
 
-def test_userlist_filter_by_has_no_project_roles(rf, core_developer):
+def test_userlist_filter_by_any_roles_no_excludes_project_roles(rf, core_developer):
     UserFactory(roles=[OutputPublisher])
     UserFactory(roles=[ProjectDeveloper])
     UserFactory(roles=[])
@@ -563,7 +563,7 @@ def test_userlist_filter_by_has_no_project_roles(rf, core_developer):
     assert len(response.context_data["object_list"]) == 2
 
 
-def test_userlist_filter_by_has_no_org_roles(rf, core_developer):
+def test_userlist_filter_by_any_roles_no_excludes_org_roles(rf, core_developer):
     UserFactory(roles=[OutputPublisher])
     UserFactory(roles=[ProjectDeveloper])
     UserFactory(roles=[])
