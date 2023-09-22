@@ -1,4 +1,4 @@
-{% extends "staff/base.html" %}
+{% extends "staff/base-tw.html" %}
 
 {% load querystring_tools %}
 {% load selected_filter %}
@@ -6,237 +6,88 @@
 {% block metatitle %}Redirects: Staff Area | OpenSAFELY Jobs{% endblock metatitle %}
 
 {% block breadcrumbs %}
-<nav class="breadcrumb-container breadcrumb--danger" aria-label="breadcrumb">
-  <div class="container">
-    <ol class="breadcrumb rounded-0 mb-0 px-0">
-      <li class="breadcrumb-item">
-        <a href="{% url 'staff:index' %}">Staff area</a>
-      </li>
-      <li class="breadcrumb-item active" aria-current="page">
-        Redirects
-      </li>
-    </ol>
-  </div>
-</nav>
+  {% #breadcrumbs %}
+    {% url "staff:index" as staff_url %}
+    {% breadcrumb title="Staff area" url=staff_url %}
+    {% breadcrumb title="Redirects" active=True %}
+  {% /breadcrumbs %}
 {% endblock breadcrumbs %}
 
-{% block jumbotron %}
-<div class="jumbotron jumbotron-fluid jumbotron--danger pt-md-2">
-  <div class="container">
-    <h1 class="display-4">Redirects</h1>
-  </div>
-</div>
-{% endblock jumbotron %}
+{% block hero %}
+  {% staff_hero title="Redirects" %}
+{% endblock hero %}
 
 {% block content %}
-<div class="container">
-  <div class="row">
-    <div class="col-12 col-lg-3 col-xl-4">
-      <h2 class="h3">Filters</h2>
+  {% url "staff:redirect-list" as staff_redirect_list_url %}
 
-      {% if request.GET %}
-      <div class="mb-3">
-        <a href="{% url 'staff:redirect-list' %}">Clear All</a>
-      </div>
+  <div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
+    <div class="flex flex-col gap-y-6">
+      {% if request.GET.type %}
+        {% #button variant="secondary-outline" type="link" href=staff_redirect_list_url %}
+          Clear filters
+        {% /button %}
       {% endif %}
 
-      {% if request.GET.q %}
-      <div class="mb-3">
-        <h3 class="h4 mb-0">Search query</h3>
-        <code>{{ request.GET.q }}</code>
-      </div>
-      {% endif %}
+      {% #card title="Filter by type" %}
+        {% #list_group small=True %}
+          {% for type in types %}
+            {% is_filter_selected key="type" value=type.value as is_type_active %}
+            {% url_with_querystring type=type.value as add_type_query_url %}
 
-      {% if backends %}
-      <h3 class="h4">Backends</h3>
-      <div class="btn-group-vertical w-100 mb-4" role="group" aria-label="Filter by backends">
-        {% for backend in backends %}
-        {% is_filter_selected key="backend" value=backend.pk as is_active %}
-        <a
-          {% if is_active %}aria-pressed="true"{% endif %}
-          class="btn btn-outline-primary btn-block text-left {% if is_active %}active{% endif %}"
-          href="
-            {% if is_active %}
-              {% url_without_querystring backend=backend.pk %}
+            {% if is_type_active %}
+              {% url_without_querystring type=type.value as remove_type_query_url %}
+              {% #list_group_item href=remove_type_query_url role="checkbox" aria-checked="true" class="bg-green-100 !text-green-900 flex flex-row items-center gap-1" %}
+              {% icon_check_outline class="-ml-2 h-5 w-5 stroke-green-700" %}
+                {{ type.name|title }}
+              {% /list_group_item %}
             {% else %}
-              {% url_with_querystring backend=backend.pk %}
+              {% #list_group_item href=add_type_query_url role="checkbox" aria-checked="false" %}
+                {{ type.name|title }}
+              {% /list_group_item %}
             {% endif %}
-          "
-        >
-            {{ backend.name }}
-        </a>
-        {% endfor %}
-      </div>
-      {% endif %}
-
-      <h3 class="h4">Object Type</h3>
-      <div class="btn-group-vertical w-100 mb-4" role="group" aria-label="Filter by object type">
-        {% for type in types %}
-        {% is_filter_selected key="type" value=type.value as is_active %}
-        <a
-          {% if is_active %}aria-pressed="true"{% endif %}
-          class="btn btn-outline-primary btn-block text-left {% if is_active %}active{% endif %}"
-          href="
-            {% if is_active %}
-              {% url_without_querystring type=type.value %}
-            {% else %}
-              {% url_with_querystring type=type.value %}
-            {% endif %}
-          "
-        >
-            {{ type.name|title }}
-        </a>
-        {% endfor %}
-      </div>
-
-      {% if roles %}
-      <h3 class="h4">Role</h3>
-      <div class="btn-group-vertical w-100 mb-4" role="group" aria-label="Filter by role">
-        {% for role in roles %}
-        {% is_filter_selected key="role" value=role as is_active %}
-        <a
-          {% if is_active %}aria-pressed="true"{% endif %}
-          class="btn btn-outline-primary btn-block text-left {% if is_active %}active{% endif %}"
-          href="
-            {% if is_active %}
-              {% url_without_querystring role=role %}
-            {% else %}
-              {% url_with_querystring role=role %}
-            {% endif %}
-          "
-        >
-            {{ role }}
-        </a>
-        {% endfor %}
-      </div>
-      {% endif %}
-
-      {% if orgs %}
-      <h3 class="h4">Orgs</h3>
-      <div class="btn-group-vertical w-100 mb-4" role="group" aria-label="Filter by orgs">
-        {% for org in orgs %}
-        {% is_filter_selected key="org" value=org.slug as is_active %}
-        <a
-          {% if is_active %}aria-pressed="true"{% endif %}
-          class="btn btn-outline-primary btn-block text-left {% if is_active %}active{% endif %}"
-          href="
-            {% if is_active %}
-              {% url_without_querystring org=org.slug %}
-            {% else %}
-              {% url_with_querystring org=org.slug %}
-            {% endif %}
-          "
-        >
-            {{ org.name }}
-        </a>
-        {% endfor %}
-      </div>
-      {% endif %}
-
+          {% endfor %}
+        {% /list_group %}
+      {% /card %}
     </div>
 
-    <div class="col-12 col-lg-9 col-xl-8">
-      <form class="form d-flex align-items-center mb-4" method="GET">
-      <input
-        class="form-control mr-2"
-        type="search"
-        placeholder="Search by old url, analysis, creator, org, project, or workspace"
-        aria-label="Search"
-        {% if q %}
-        value="{{ q }}"
+    <div class="flex flex-col gap-y-6 lg:col-span-2">
+      {% #card container=True title="Search for a redirect" %}
+        <form method="GET" class="flex flex-row gap-x-2 items-center">
+          {% if request.GET.q %}
+            {% var value=request.GET.q|stringformat:"s" %}
+          {% endif %}
+          {% form_input custom_field=True type="search" id="redirectSearch" name="q" value=value label="Search for a redirect" label_class="sr-only" class="w-full" input_class="!m-0" placeholder="Search by old url, analysis, creator, org, project, or workspace" show_placeholder=True %}
+          {% #button type="submit" variant="primary" class="flex-shrink-0" %}Search{% /button %}
+        </form>
+        {% if request.GET.q %}
+          <p class="mt-3">
+            {% link href=staff_redirect_list_url text="Clear search" %}
+          </p>
         {% endif %}
-        name="q" />
-        <button class="btn btn-outline-primary my-2 my-sm-0" type="submit">Search</button>
-      </form>
+      {% /card %}
 
-      <div class="table-responsive-md table-bordered mb-3">
-        <table class="table table-sm mb-0">
-          <caption class="sr-only">List of redirects</caption>
+      {% #card %}
+        {% #list_group small=True %}
           {% for redirect in object_list %}
-          <tbody aria-label="{{ redirect.old_url }} redirect">
-            <tr>
-              <th class="table-active pr-3 w-0" scope="row">Type</th>
-              <td>{{ redirect.type }}</td>
-              <td rowspan="3" class="align-middle text-center w-0">
-                <a href="{{ redirect.get_staff_url }}" class="btn btn-sm btn-primary mx-1">
-                  View
-                </a>
-              </td>
-            </tr>
-            <tr>
-              <th class="table-active" scope="row">From</th>
-              <td>
-                <a href="{{ redirect.old_url }}">
-                  <code>{{ redirect.old_url }}</code>
-                </a>
-              </td>
-            </tr>
-            <tr>
-              <th class="table-active" scope="row">To</th>
-              <td>
-                {% with destination_url=redirect.obj.get_absolute_url %}
-                <a href="{{ destination_url }}">
-                  <code>{{ destination_url }}</code>
-                </a>
-                {% endwith %}
-              </td>
-            </tr>
-          </tbody>
+            {% #list_group_rich_item type="Redirect" url=redirect.get_staff_url title=redirect.obj.get_absolute_url %}
+              <div class="flex flex-row gap-x-2">
+                <dt class="font-semibold">From:</dt>
+                <dl>{{ redirect.old_url }}</dl>
+              </div>
+            {% /list_group_rich_item %}
           {% endfor %}
-        </table>
-      </div>
+        {% /list_group %}
 
-      <div class="d-flex justify-content-between align-items-center py-2">
-        <div>
-          {% with enabled=page_obj.has_previous %}
-          <a
-            {% if enabled %}href="?page=1"{% endif %}
-            class="
-              btn btn-sm btn-primary
-              {% if not enabled %}disabled{% endif %}
-            ">First</a>
-
-          <a
-            {% if enabled %}
-            href="{% url_with_querystring page=page_obj.previous_page_number %}"
-            {% endif %}
-            class="
-              btn btn-sm btn-primary
-              {% if not enabled %}disabled{% endif %}
-            ">Previous</a>
-
-          {% endwith %}
-        </div>
-
-        <div class="current">
-          Page {{ page_obj.number }} of {{ page_obj.paginator.num_pages }}
-        </div>
-
-        <div>
-          {% with enabled=page_obj.has_next %}
-          <a
-            {% if enabled %}
-            href="{% url_with_querystring page=page_obj.next_page_number %}"
-            {% endif %}
-            class="
-              btn btn-sm btn-primary
-              {% if not enabled %}disabled{% endif %}
-            "
-            >Next</a>
-          <a
-            {% if enabled %}
-            href="{% url_with_querystring page=page_obj.paginator.num_pages %}"
-            {% endif %}
-            class="
-              btn btn-sm btn-primary
-              {% if not enabled %}disabled{% endif %}
-            "
-            >Last</a>
-          {% endwith %}
-        </div>
-      </div>
-
+        {% if page_obj.has_previous or page_obj.has_next %}
+          {% if page_obj.has_next %}
+            {% url_with_querystring page=page_obj.next_page_number as next_page_url %}
+          {% endif %}
+          {% if page_obj.has_previous %}
+            {% url_with_querystring page=page_obj.previous_page_number as previous_page_url %}
+          {% endif %}
+          {% card_pagination page_number=page_obj.number total_pages=page_obj.paginator.num_pages next_page_url=next_page_url previous_page_url=previous_page_url no_container=True %}
+        {% endif %}
+      {% /card %}
     </div>
   </div>
-</div>
 {% endblock content %}
