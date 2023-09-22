@@ -58,7 +58,7 @@
         {% endif %}
         {% #list_group_item href=query_string_any_roles_yes role="checkbox" aria-checked=is_any_roles_yes_active class=yes_active_class %}
         {% if is_any_roles_yes_active %}{% icon_check_outline class="-ml-2 h-5 w-5 stroke-green-700" %}{% endif %}
-          User has any roles set
+          User has roles assigned
         {% /list_group_item %}
 
         {% is_filter_selected key="any_roles" value="no" as is_any_roles_no_active %}
@@ -70,7 +70,7 @@
         {% endif %}
         {% #list_group_item href=query_string_any_roles_no role="checkbox" aria-checked=is_any_roles_no_active class=no_active_class %}
         {% if is_any_roles_no_active %}{% icon_check_outline class="-ml-2 h-5 w-5 stroke-green-700" %}{% endif %}
-          User has no roles set
+          User has no roles assigned
         {% /list_group_item %}
       {% /list_group %}
     {% /card %}
