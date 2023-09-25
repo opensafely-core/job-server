@@ -112,9 +112,9 @@ distlib==0.3.2 \
     --hash=sha256:106fef6dc37dd8c0e2c0a60d3fca3e77460a48907f335fa28420463a6f799736 \
     --hash=sha256:23e223426b28491b1ced97dc3bbe183027419dfc7982b4fa2f05d5f3ff10711c
     # via virtualenv
-django-upgrade==1.14.1 \
-    --hash=sha256:23813464e94713e1c660ba46b0fe53b2f490fdd6263da9f22a4ae5402a4d5d31 \
-    --hash=sha256:8972e2aaa4be81da629dcabc2a784ad436a82a761f9a0ffd46e5ed6b9d155dfa
+django-upgrade==1.15.0 \
+    --hash=sha256:b62cc4f5c86ba687196e894c2795264c0f399bbbff69f30d381374b3d0407dbc \
+    --hash=sha256:ced9f859729a116cf6edb2951767c7d5140c7c11f61fed00cf30ebe9d382477a
     # via -r requirements.dev.in
 execnet==1.9.0 \
     --hash=sha256:8f694f3ba9cc92cab508b152dcfe322153975c29bda272e2fd7f3f00f36e47c5 \
