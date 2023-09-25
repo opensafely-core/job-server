@@ -5,15 +5,6 @@ updates:
     directory: "/"
     schedule:
       interval: "daily"
-    groups:
-      otel-dependencies:
-        patterns:
-          - "backoff"
-          - "deprecated"
-          - "googleapis-common-protos"
-          - "opentelemetry*"
-          - "protobuf"
-          - "wrapt"
 
   - package-ecosystem: "npm"
     directory: "/"
