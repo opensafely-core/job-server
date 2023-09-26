@@ -3,7 +3,7 @@ import inspect
 import structlog
 from django.core.exceptions import FieldError
 from django.db import transaction
-from django.db.models import Exists, OuterRef
+from django.db.models import Exists, OuterRef, Q
 from django.db.models.functions import Lower
 from django.shortcuts import get_object_or_404, redirect
 from django.utils.decorators import method_decorator
@@ -243,22 +243,19 @@ class UserList(ListView):
             qs = qs.filter(roles__contains=roles)
 
         if any_roles := self.request.GET.get("any_roles"):
+            # build up a query that checks for any roles or no roles.  We have
+            # to check for the presence of the *_memberships relations as well
+            # as traversing to their roles fields
+            org_roles = Q(org_memberships=None) | Q(org_memberships__roles=[])
+            project_roles = Q(project_memberships=None) | Q(
+                project_memberships__roles=[]
+            )
+            query = Q(roles=[]) & org_roles & project_roles
+
             if any_roles == "yes":
-                org_roles_qs = qs.exclude(org_memberships=None).exclude(
-                    org_memberships__roles__exact=[]
-                )
-                project_roles_qs = qs.exclude(project_memberships=None).exclude(
-                    project_memberships__roles__exact=[]
-                )
-                qs = qs.exclude(roles__exact=[]) | project_roles_qs | org_roles_qs
+                qs = qs.exclude(query)
             elif any_roles == "no":
-                qs = qs.filter(roles__exact=[])
-                qs = qs.filter(org_memberships=None) | qs.filter(
-                    org_memberships__roles__exact=[]
-                )
-                qs = qs.filter(project_memberships=None) | qs.filter(
-                    project_memberships__roles__exact=[]
-                )
+                qs = qs.filter(query)
 
         return qs
 
