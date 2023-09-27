@@ -25,7 +25,7 @@ class RedirectDelete(View):
 @method_decorator(require_role(CoreDeveloper), name="dispatch")
 class RedirectDetail(DetailView):
     model = Redirect
-    template_name = "staff/redirect_detail.html"
+    template_name = "staff/redirect/detail.html"
 
 
 @method_decorator(require_role(CoreDeveloper), name="dispatch")
@@ -33,7 +33,7 @@ class RedirectList(ListView):
     model = Redirect
     ordering = "-old_url"
     paginate_by = 25
-    template_name = "staff/redirect_list.html"
+    template_name = "staff/redirect/list.html"
 
     def get_context_data(self, **kwargs):
         types = [

@@ -1,0 +1,77 @@
+{% extends "staff/base-tw.html" %}
+
+{% load humanize %}
+
+{% block metatitle %}Redirect: Staff Area | OpenSAFELY Jobs{% endblock metatitle %}
+
+{% block breadcrumbs %}
+  {% #breadcrumbs %}
+    {% url "staff:index" as staff_url %}
+    {% url "staff:redirect-list" as staff_redirect_list_url %}
+    {% breadcrumb title="Staff area" url=staff_url %}
+    {% breadcrumb title="Redirects" url=staff_redirect_list_url %}
+    {% breadcrumb title=redirect.obj.name active=True %}
+  {% /breadcrumbs %}
+{% endblock breadcrumbs %}
+
+{% block hero %}
+  {% #staff_hero title="Redirect for: "|add:redirect.obj.name %}
+    <form method="POST" action="{{ redirect.get_staff_delete_url }}">
+      {% csrf_token %}
+      {% #button variant="danger" type="submit" %}Delete redirect{% /button %}
+    </form>
+  {% /staff_hero %}
+{% endblock hero %}
+
+
+{% block content %}
+  <div class="flex flex-col gap-y-6">
+    {% #card title="Details" %}
+      {% #description_list %}
+        {% #description_item title="Created by" %}
+          {% link href=redirect.created_by.get_staff_url text=redirect.created_by.name %}
+        {% /description_item %}
+
+        {% #description_item title="Created at" %}
+          {% #time datetime=redirect.created_at|date:"Y-m-d H:i:sO" %}
+            {{ redirect.created_at|date:"d F Y" }} at {{ redirect.created_at|date:"H:i" }}
+          {% /time %}
+        {% /description_item %}
+
+        {% if redirect.updated_by %}
+          {% #description_item title="Updated by" %}
+            {% link href=redirect.updated_by.get_staff_url text=redirect.updated_by.name %}
+          {% /description_item %}
+
+          {% #description_item title="Updated at" %}
+            {% #time datetime=redirect.updated_at|date:"Y-m-d H:i:sO" %}
+              {{ redirect.updated_at|date:"d F Y" }} at {{ redirect.updated_at|date:"H:i" }}
+            {% /time %}
+          {% /description_item %}
+        {% endif %}
+
+        {% #description_item title="Redirect expires" %}
+          {% #time datetime=redirect.expires_at|date:"Y-m-d H:i:sO" %}
+            {{ redirect.expires_at|date:"d F Y" }} at {{ redirect.expires_at|date:"H:i" }}
+          {% /time %}
+        {% /description_item %}
+      {% /description_list %}
+    {% /card %}
+
+    {% #card title="Redirect" %}
+      {% #description_list %}
+        {% #description_item title="From" %}
+          {% link href=redirect.old_url text=redirect.old_url %}
+        {% /description_item %}
+
+        {% #description_item title="To" %}
+          {% link href=redirect.obj.get_absolute_url text=redirect.obj.get_absolute_url %}
+        {% /description_item %}
+
+        {% #description_item title="Redirect type" %}
+          {{ redirect.type }}: {% link href=redirect.obj.get_staff_url text=redirect.obj.name %}
+        {% /description_item %}
+      {% /description_list %}
+    {% /card %}
+  </div>
+{% endblock content %}
