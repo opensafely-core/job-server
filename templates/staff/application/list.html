@@ -21,7 +21,7 @@
 {% block content %}
 {% url "staff:application-list" as staff_application_list_url %}
 
-<div class="grid lg:grid-cols-3 gap-8">
+<div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
   <div class="flex flex-col gap-y-6">
     {% if request.GET.status or request.GET.user %}
       {% #button variant="secondary-outline" type="link" href=staff_application_list_url %}

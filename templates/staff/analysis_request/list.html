@@ -20,7 +20,7 @@
 {% block content %}
 {% url "staff:analysis-request-list" as staff_analysis_request_list_url %}
 
-<div class="grid lg:grid-cols-3 gap-8">
+<div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
   <div class="flex flex-col gap-y-6">
     {% if request.GET.has_report or request.GET.project or request.GET.user %}
       {% #button variant="secondary-outline" type="link" href=staff_analysis_request_list_url %}
