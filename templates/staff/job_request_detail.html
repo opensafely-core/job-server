@@ -1,113 +1,92 @@
-{% extends "staff/base.html" %}
+{% extends "staff/base-tw.html" %}
 
 {% block metatitle %}Job Request {{ job_request.pk }}: Staff Area | OpenSAFELY Jobs{% endblock metatitle %}
 
 {% block breadcrumbs %}
-<nav class="breadcrumb-container breadcrumb--danger" aria-label="breadcrumb">
-  <div class="container">
-    <ol class="breadcrumb rounded-0 mb-0 px-0">
-      <li class="breadcrumb-item">
-        <a href="{% url 'staff:index' %}">Staff area</a>
-      </li>
-      <li class="breadcrumb-item">
-        <a href="{% url 'staff:job-request-list' %}">Job Requests</a>
-      </li>
-      <li class="breadcrumb-item active" aria-current="page">
-        {{ job_request.pk }}
-      </li>
-    </ol>
-  </div>
-</nav>
+  {% #breadcrumbs %}
+    {% url "staff:index" as staff_url %}
+    {% url "staff:job-request-list" as staff_job_request_list_url %}
+    {% breadcrumb title="Staff area" url=staff_url %}
+    {% breadcrumb title="Job Requests" url=staff_job_request_list_url %}
+    {% breadcrumb title=job_request.pk active=True %}
+  {% /breadcrumbs %}
 {% endblock breadcrumbs %}
 
-{% block jumbotron %}
-<div class="jumbotron jumbotron-fluid jumbotron--danger pt-md-2">
-  <div class="container">
-    <h1 class="display-4">{{ job_request.pk }}</h1>
-
-    <ul class="list-unstyled lead">
-      <li>
-        <strong>Identifier:</strong> <code>{{ job_request.identifier }}</code>
-      </li>
-      <li>
-        <strong>Created by:</strong>
-        <a href="{{ job_request.created_by.get_staff_url }}">{{ job_request.created_by.name }}</a>
-      </li>
-
-      <li>
-        <strong>Created at:</strong> {{ job_request.created_at }}
-      </li>
-    </ul>
-
-    <div class="d-flex">
-      <a class="btn btn-primary" href="{{ job_request.get_absolute_url }}">View on Site</a>
-    </div>
-  </div>
-</div>
-{% endblock jumbotron %}
+{% block hero %}
+  {% with id=job_request.pk|stringformat:"s" %}
+    {% #staff_hero title="Job request: "|add:id %}
+      {% #button variant="primary" type="link" href=job_request.get_absolute_url %}
+        View on site
+      {% /button %}
+    {% /staff_hero %}
+  {% endwith %}
+{% endblock hero %}
 
 {% block content %}
-<div class="container">
-  <div class="row">
-    <div class="col col-lg-9 col-xl-8">
+  <div class="grid grid-cols-1 gap-6 lg:grid-cols-3">
+    <div class="flex flex-col gap-4 lg:col-span-2">
 
-      <h2>Cancelled actions</h2>
-      <div class="list-group mb-3">
-        {% for action in job_request.cancelled_actions %}
-        <div class="list-group-item">
-          <code>{{ action }}</code>
-        </div>
-        {% empty %}
-          <p class="list-group-item">No actions have been requested for cancellation</p>
-        {% endfor %}
-      </div>
+      {% #card title="Job request information" %}
+        {% #description_list %}
+          {% #description_item title="Identifier" %}
+            {{ job_request.identifier }}
+          {% /description_item %}
 
-      <h2>Requested actions</h2>
-      <div class="list-group mb-3">
-        {% for action in job_request.requested_actions %}
-        <div class="list-group-item">
-          <code>{{ action }}</code>
-        </div>
-        {% endfor %}
-      </div>
+          {% #description_item title="Created by" %}
+            {% link href=job_request.created_by.get_staff_url text=job_request.created_by.name %}
+          {% /description_item %}
 
+          {% #description_item title="Created at" %}
+            {% #time datetime=job_request.created_at|date:"Y-m-d H:i:sO" tooltip=job_request.created_at|date:"Y-m-d H:i:sO" %}
+              {{ job_request.created_at|date:"d F Y" }} at {{ job_request.created_at|date:"H:i" }}
+            {% /time %}
+          {% /description_item %}
+        {% /description_list %}
+      {% /card %}
+
+      {% #card title="Requested actions" %}
+        {% #list_group %}
+          {% for action in job_request.requested_actions %}
+            <li class="block px-4 py-3 text-slate-700 break-words font-mono font-semibold text-sm sm:px-6">
+              {{ action }}
+            </li>
+          {% endfor %}
+        {% /list_group %}
+      {% /card %}
+
+      {% #card title="Cancelled actions" %}
+        {% #list_group %}
+          {% for action in job_request.cancelled_actions %}
+            <li class="block px-4 py-3 text-slate-700 break-words font-mono font-semibold text-sm sm:px-6">
+              {{ action }}
+            </li>
+          {% empty %}
+            {% list_group_empty description="No actions have been requested for cancellation" %}
+          {% endfor %}
+        {% /list_group %}
+      {% /card %}
     </div>
-    <div class="col col-lg-3 col-xl-4">
-      <ul class="list-unstyled">
-        <li class="card mb-3">
-          <h2 class="card-header h5">
-            Organisation
-          </h2>
-          <p class="card-body mb-0">
-            <a href="{{ job_request.workspace.project.org.get_staff_url }}">{{ job_request.workspace.project.org.name }}</a>
-          </p>
-        </li>
-        <li class="card mb-3">
-          <h2 class="card-header h5">
-            Project
-          </h2>
-          <p class="card-body mb-0">
-            <a href="{{ job_request.workspace.project.get_staff_url }}">{{ job_request.workspace.project.title }}</a>
-          </p>
-        </li>
-        <li class="card mb-3">
-          <h2 class="card-header h5">
-            Workspace
-          </h2>
-          <p class="card-body mb-0">
-            <a href="{{ job_request.workspace.get_staff_url }}">{{ job_request.workspace.name }}</a>
-          </p>
-        </li>
-        <li class="card mb-3">
-          <h2 class="card-header h5">
-            Backend
-          </h2>
-          <p class="card-body mb-0">
-            <a href="{{ job_request.backend.get_staff_url }}">{{ job_request.backend.name }}</a>
-          </p>
-        </li>
-      </ul>
+
+    <div class="flex flex-col gap-4">
+      {% #card title="Associations" %}
+        {% #description_list %}
+          {% #description_item stacked=True title="Organisation" %}
+            {% link href=job_request.workspace.project.org.get_staff_url text=job_request.workspace.project.org.name %}
+          {% /description_item %}
+
+          {% #description_item stacked=True title="Project" %}
+            {% link href=job_request.workspace.project.get_staff_url text=job_request.workspace.project.name %}
+          {% /description_item %}
+
+          {% #description_item stacked=True title="Workspace" %}
+            {% link href=job_request.workspace.get_staff_url text=job_request.workspace.name %}
+          {% /description_item %}
+
+          {% #description_item stacked=True title="Backend" %}
+            {% link href=job_request.backend.get_staff_url text=job_request.backend.name %}
+          {% /description_item %}
+        {% /description_list %}
+      {% /card %}
     </div>
   </div>
-</div>
 {% endblock content %}
