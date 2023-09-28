@@ -105,13 +105,21 @@
             {% endfragment %}
             {% #list_group_rich_item type="Job Request" url=job_request.get_staff_url title=title_text %}
               <dl class="flex flex-col gap-y-0.5">
-                <div class="flex flex-row gap-x-1 flex-wrap">
+                <div class="flex flex-row gap-x-1">
+                  <dt class="font-bold">ID: </dt>
+                  <dd>{{ job_request.identifier }}</dd>
+                </div>
+                <div class="flex flex-row gap-x-1">
                   <dt class="font-bold">Created: </dt>
                   <dd>{{ job_request.created_at|date:"j F Y" }}</dd>
                 </div>
-                <div class="flex flex-row gap-x-1 flex-wrap">
+                <div class="flex flex-row gap-x-1">
                   <dt class="font-bold">Workspace: </dt>
                   <dd>{{ job_request.workspace.name }}</dd>
+                </div>
+                <div class="flex flex-row gap-x-1">
+                  <dt class="font-bold">Project: </dt>
+                  <dd>{{ job_request.workspace.project.name }}</dd>
                 </div>
               </dl>
             {% /list_group_rich_item %}
