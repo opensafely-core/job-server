@@ -171,6 +171,9 @@ class Project(models.Model):
     def get_staff_url(self):
         return reverse("staff:project-detail", kwargs={"slug": self.slug})
 
+    def get_staff_audit_url(self):
+        return reverse("staff:project-audit-log", kwargs={"slug": self.slug})
+
     def get_staff_edit_url(self):
         return reverse("staff:project-edit", kwargs={"slug": self.slug})
 

@@ -1,0 +1,2 @@
+class UnknownPresenter(Exception):
+    pass

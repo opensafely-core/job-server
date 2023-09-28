@@ -27,6 +27,8 @@
 - [Dumping co-pilot reporting data](#dumping-copilot-reporting-data)
 - [Ensuring paired field state with CheckConstraints](#ensuring-paired-field-state-with-checkconstraint)
   - [Common patterns](#common-patterns)
+- [Auditing events](#auditing-events)
+  - [Presenters](#presenters)
 
 ## Local development
 
@@ -480,3 +482,32 @@ So we lean on `update()` instead:
 
             # use update to work around auto_now always firing on save()
             MyModel.objects.filter(pk=mymodel.pk).update(updated_at=None)
+
+
+## Auditing events
+We track events that we want in our audit trail with the AuditableEvent model.
+It avoids foreign keys so any related model isn't blocked from being deleted
+
+As such constructing these models can be a little onerous, so we have started wrapping the triggering event, eg adding a user to a project, with a function that does both that and sets up the AuditableEvent instance.
+These are currently called commands because naming things is hard, and they will, we hope, be better organised in the near future into a domain layer.
+In the meantime, it's just useful to know that creating AuditableEvent instances _can_ be easier.
+
+### Presenters
+Since AuditableEvents have no relationships to the models they record changes in we have to manually look up those models, where we can for display in the UI.
+The presenters package exists to handle all of this.
+There are a few key parts to it.
+
+AuditableEvents have a `type` field which tracks the event type they were created for.
+
+get_presenter() takes an AuditableEvent instance and returns the relevant presenter function, or raises an UnknownPresenter exception.
+
+Presenter functions take an AuditableEvent instance and trust that the caller is passing in one relevant to that function.
+
+At the time of writing we only display events in the staff area so there is no
+way to change how presenters build their context, or what template they choose.
+We're aware that we might want to display them as a general feed on the site.
+If this turns out to be the case the author's expectation is that we will use
+inversion of control so the calling view can decide the context in which
+presenters are used.
+This will most likely affect the template used for each event, and where each
+object links to, if anywhere.
