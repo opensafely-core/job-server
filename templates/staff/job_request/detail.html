@@ -1,0 +1,92 @@
+{% extends "staff/base-tw.html" %}
+
+{% block metatitle %}Job Request {{ job_request.pk }}: Staff Area | OpenSAFELY Jobs{% endblock metatitle %}
+
+{% block breadcrumbs %}
+  {% #breadcrumbs %}
+    {% url "staff:index" as staff_url %}
+    {% url "staff:job-request-list" as staff_job_request_list_url %}
+    {% breadcrumb title="Staff area" url=staff_url %}
+    {% breadcrumb title="Job Requests" url=staff_job_request_list_url %}
+    {% breadcrumb title=job_request.pk active=True %}
+  {% /breadcrumbs %}
+{% endblock breadcrumbs %}
+
+{% block hero %}
+  {% with id=job_request.pk|stringformat:"s" %}
+    {% #staff_hero title="Job request: "|add:id %}
+      {% #button variant="primary" type="link" href=job_request.get_absolute_url %}
+        View on site
+      {% /button %}
+    {% /staff_hero %}
+  {% endwith %}
+{% endblock hero %}
+
+{% block content %}
+  <div class="grid grid-cols-1 gap-6 lg:grid-cols-3">
+    <div class="flex flex-col gap-4 lg:col-span-2">
+
+      {% #card title="Job request information" %}
+        {% #description_list %}
+          {% #description_item title="Identifier" %}
+            {{ job_request.identifier }}
+          {% /description_item %}
+
+          {% #description_item title="Created by" %}
+            {% link href=job_request.created_by.get_staff_url text=job_request.created_by.name %}
+          {% /description_item %}
+
+          {% #description_item title="Created at" %}
+            {% #time datetime=job_request.created_at|date:"Y-m-d H:i:sO" tooltip=job_request.created_at|date:"Y-m-d H:i:sO" %}
+              {{ job_request.created_at|date:"d F Y" }} at {{ job_request.created_at|date:"H:i" }}
+            {% /time %}
+          {% /description_item %}
+        {% /description_list %}
+      {% /card %}
+
+      {% #card title="Requested actions" %}
+        {% #list_group %}
+          {% for action in job_request.requested_actions %}
+            <li class="block px-4 py-3 text-slate-700 break-words font-mono font-semibold text-sm sm:px-6">
+              {{ action }}
+            </li>
+          {% endfor %}
+        {% /list_group %}
+      {% /card %}
+
+      {% #card title="Cancelled actions" %}
+        {% #list_group %}
+          {% for action in job_request.cancelled_actions %}
+            <li class="block px-4 py-3 text-slate-700 break-words font-mono font-semibold text-sm sm:px-6">
+              {{ action }}
+            </li>
+          {% empty %}
+            {% list_group_empty description="No actions have been requested for cancellation" %}
+          {% endfor %}
+        {% /list_group %}
+      {% /card %}
+    </div>
+
+    <div class="flex flex-col gap-4">
+      {% #card title="Associations" %}
+        {% #description_list %}
+          {% #description_item stacked=True title="Organisation" %}
+            {% link href=job_request.workspace.project.org.get_staff_url text=job_request.workspace.project.org.name %}
+          {% /description_item %}
+
+          {% #description_item stacked=True title="Project" %}
+            {% link href=job_request.workspace.project.get_staff_url text=job_request.workspace.project.name %}
+          {% /description_item %}
+
+          {% #description_item stacked=True title="Workspace" %}
+            {% link href=job_request.workspace.get_staff_url text=job_request.workspace.name %}
+          {% /description_item %}
+
+          {% #description_item stacked=True title="Backend" %}
+            {% link href=job_request.backend.get_staff_url text=job_request.backend.name %}
+          {% /description_item %}
+        {% /description_list %}
+      {% /card %}
+    </div>
+  </div>
+{% endblock content %}

@@ -1,0 +1,147 @@
+{% extends "staff/base-tw.html" %}
+
+{% load django_vite %}
+{% load humanize %}
+{% load querystring_tools %}
+{% load selected_filter %}
+
+{% block metatitle %}Job Requests: Staff Area | OpenSAFELY Jobs{% endblock metatitle %}
+
+{% block breadcrumbs %}
+  {% #breadcrumbs %}
+    {% url "staff:index" as staff_url %}
+    {% breadcrumb title="Staff area" url=staff_url %}
+    {% breadcrumb title="Job Requests" active=True %}
+  {% /breadcrumbs %}
+{% endblock breadcrumbs %}
+
+{% block hero %}
+  {% staff_hero title="Job requests" %}
+{% endblock hero %}
+
+{% block content %}
+  {% url "staff:job-request-list" as staff_job_request_list_url %}
+
+  <div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
+    <form class="flex flex-col gap-y-6">
+      <div class="flex flex-row gap-2">
+        {% #button variant="success" type="submit" %}
+          Apply filters
+        {% /button %}
+        {% if request.GET %}
+          {% #button variant="secondary-outline" type="link" href=staff_job_request_list_url %}
+            Clear filters and search
+          {% /button %}
+        {% endif %}
+      </div>
+
+      {% #card title="Filter by backend" container=True %}
+        {% #multiselect custom_field=True name="backends" placeholder="Select a backend" %}
+          {% for backend in backends.items %}
+            {% is_filter_selected key="backends" value=backend.slug as is_backend_active %}
+            {% multiselect_option value=backend.slug name=backend.name is_active=is_backend_active%}
+          {% endfor %}
+        {% /multiselect %}
+      {% /card %}
+
+      {% #card title="Filter by organisation" container=True %}
+        {% #multiselect custom_field=True name="orgs" placeholder="Select an org" %}
+          {% for org in orgs.items %}
+            {% is_filter_selected key="orgs" value=org.slug as is_org_active %}
+            {% multiselect_option value=org.slug name=org.name is_active=is_org_active%}
+          {% endfor %}
+        {% /multiselect %}
+      {% /card %}
+
+      {% #card title="Filter by project" container=True %}
+        {% #multiselect custom_field=True name="project" placeholder="Select a project" %}
+          {% for project in projects.items %}
+            {% is_filter_selected key="project" value=project.slug as is_project_active %}
+            {% multiselect_option value=project.slug name=project.title is_active=is_project_active%}
+          {% endfor %}
+        {% /multiselect %}
+      {% /card %}
+
+      {% #card title="Filter by user" container=True %}
+        {% #multiselect custom_field=True name="user" placeholder="Select a user" %}
+          {% for user in users.items %}
+            {% is_filter_selected key="user" value=user.username as is_user_active %}
+            {% multiselect_option value=user.username name=user.name is_active=is_user_active%}
+          {% endfor %}
+        {% /multiselect %}
+      {% /card %}
+
+      {% #card title="Filter by workspace" container=True %}
+        {% #multiselect custom_field=True name="workspace" placeholder="Select a workspace" %}
+          {% for workspace in workspaces.items %}
+            {% is_filter_selected key="workspace" value=workspace.name as is_workspace_active %}
+            {% multiselect_option value=workspace.name name=workspace.name is_active=is_workspace_active%}
+          {% endfor %}
+        {% /multiselect %}
+      {% /card %}
+    </form>
+
+    <div class="flex flex-col gap-y-6 lg:col-span-2">
+      {% #card container=True title="Search for a Job Request" %}
+        <form method="GET" class="flex flex-row gap-x-2 items-center">
+          {% if request.GET.q %}
+            {% var value=request.GET.q|stringformat:"s" %}
+          {% endif %}
+          {% form_input custom_field=True type="search" id="jobRequestSearch" name="q" value=value label="Search by number, (partial) identifier, job (partial) identifier, name of author, workspace, project, or org" label_class="text-sm" %}
+          {% #button type="submit" variant="primary" class="flex-shrink-0 mt-auto" %}Search{% /button %}
+        </form>
+        {% if request.GET.q %}
+          <p class="mt-3">
+            {% link href=staff_job_request_list_url text="Clear search" %}
+          </p>
+        {% endif %}
+      {% /card %}
+
+      {% #card %}
+        {% #list_group small=True %}
+          {% for job_request in object_list %}
+            {% fragment as title_text %}
+              {{ job_request.pk }} by {{ job_request.created_by }}
+            {% endfragment %}
+            {% #list_group_rich_item type="Job Request" url=job_request.get_staff_url title=title_text %}
+              <dl class="flex flex-col gap-y-0.5">
+                <div class="flex flex-row gap-x-1">
+                  <dt class="font-bold">ID: </dt>
+                  <dd>{{ job_request.identifier }}</dd>
+                </div>
+                <div class="flex flex-row gap-x-1">
+                  <dt class="font-bold">Created: </dt>
+                  <dd>{{ job_request.created_at|date:"j F Y" }}</dd>
+                </div>
+                <div class="flex flex-row gap-x-1">
+                  <dt class="font-bold">Workspace: </dt>
+                  <dd>{{ job_request.workspace.name }}</dd>
+                </div>
+                <div class="flex flex-row gap-x-1">
+                  <dt class="font-bold">Project: </dt>
+                  <dd>{{ job_request.workspace.project.name }}</dd>
+                </div>
+              </dl>
+            {% /list_group_rich_item %}
+          {% empty %}
+            {% list_group_empty icon=True title="No job requests found" description="Try a new search or clearing the filters" %}
+          {% endfor %}
+        {% /list_group %}
+
+        {% if page_obj.has_previous or page_obj.has_next %}
+          {% if page_obj.has_next %}
+            {% url_with_querystring page=page_obj.next_page_number as next_page_url %}
+          {% endif %}
+          {% if page_obj.has_previous %}
+            {% url_with_querystring page=page_obj.previous_page_number as previous_page_url %}
+          {% endif %}
+          {% card_pagination page_number=page_obj.number total_pages=page_obj.paginator.num_pages next_page_url=next_page_url previous_page_url=previous_page_url no_container=True %}
+        {% endif %}
+      {% /card %}
+    </div>
+  </div>
+{% endblock content %}
+
+{% block extra_js %}
+  {% vite_asset "templates/_components/multiselect/multiselect.js" %}
+{% endblock extra_js %}
