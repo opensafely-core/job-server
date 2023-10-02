@@ -32,13 +32,37 @@
 {% block content %}
   <div class="grid grid-cols-1 gap-6 lg:grid-cols-3">
     <div class="flex flex-col gap-4 lg:col-span-2">
-      <!-- TODO -->
+      {% #modal id="addGitHubOrg" %}
+        {% #card container=True title="Add a GitHub Organisation" %}
+          <form method="POST" action="{% url 'staff:org-add-github-org' slug=org.slug %}">
+            {% csrf_token %}
+
+            {% if form.non_field_errors %}
+              {% for error in form.non_field_errors %}
+                {% #alert variant="danger" class="mb-6" %}
+                  {{ error }}
+                {% /alert %}
+              {% endfor %}
+            {% endif %}
+
+            <div class="flex flex-col items-stretch gap-y-6 w-full max-w-3xl mb-6">
+              {% form_input custom_field=True id="id_name" label="Organisation name" name="name" placeholder="GitHub Organisation name" show_placeholder=True %}
+            </div>
+
+            <div class="flex flex-row flex-wrap gap-2">
+              {% #button variant="success" type="submit" %}Add org{% /button %}
+              {% #button variant="danger" type="cancel" %}Cancel{% /button %}
+            </div>
+          </form>
+        {% /card %}
+      {% /modal %}
+
       {% fragment as custom_button %}
-        {% url "staff:org-add-github-org" slug=org.slug as staff_org_add_github_org_url %}
-        {% #button variant="primary-outline" type="button" hx-get=staff_org_add_github_org_url hx-target="dialog#addGitHubOrg" hx-trigger="click" %}
+        {% #button variant="primary-outline" type="button" data-modal="addGitHubOrg" %}
           Add a GitHub Organisation
         {% /button %}
       {% endfragment %}
+
       {% #card title="GitHub Organisations" custom_button=custom_button %}
         {% #list_group %}
           {% for github_org in github_orgs %}
@@ -73,7 +97,7 @@
             {% endfor %}
           {% endif %}
 
-          {% #multiselect custom_field=True id="id_users" name="user" placeholder="Select users to add" required=True %}
+          {% #multiselect custom_field=True id="id_users" name="users" placeholder="Select users to add" required=True %}
             {% for value, label in form.fields.users.choices %}
               {% multiselect_option value=value name=label %}
             {% endfor %}
@@ -148,24 +172,9 @@
       {% /card %}
     </div>
   </div>
-
-  <dialog class="max-w-lg w-full" id="addGitHubOrg"></dialog>
 {% endblock content %}
 
 {% block extra_js %}
+  {% vite_asset "templates/_components/modal/modal.js" %}
   {% vite_asset "templates/_components/multiselect/multiselect.js" %}
-  <script type="text/javascript" src="{% static 'vendor/htmx.min.js' %}"></script>
-  <script nonce="{{ request.csp_nonce }}">
-    htmx.on("htmx:afterSwap", (e) => {
-      const modal = e.target;
-      modal.showModal();
-
-      const closeModalBtn = document.getElementById("closeModal");
-      if (closeModalBtn) {
-        closeModalBtn.addEventListener("click", () => {
-          closeModalBtn.closest("dialog").close();
-        });
-      }
-    });
-  </script>
 {% endblock extra_js %}
