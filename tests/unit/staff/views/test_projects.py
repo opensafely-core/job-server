@@ -83,6 +83,35 @@ def test_projectaddmember_unknown_project(rf, core_developer):
         ProjectAddMember.as_view()(request, slug="test")
 
 
+def test_projectauditlog_filter_by_type(rf, core_developer, project_membership):
+    actor = UserFactory()
+    project = ProjectFactory()
+    user = UserFactory()
+
+    project_membership(
+        project=project,
+        user=user,
+        roles=[ProjectCollaborator],
+        by=actor,
+    )
+    project_members.update_roles(
+        member=project.memberships.first(),
+        by=actor,
+        roles=[ProjectCollaborator, ProjectDeveloper],
+    )
+
+    request = rf.get("/?types=project_member_added")
+    request.user = core_developer
+
+    response = ProjectAuditLog.as_view()(request, slug=project.slug)
+
+    assert response.status_code == 200
+    assert len(response.context_data["events"]) == 1
+    assert response.context_data["events"][0].context["actor"].display_value == str(
+        actor
+    )
+
+
 def test_projectauditlog_success(rf, core_developer, project_membership):
     actor = UserFactory()
     project = ProjectFactory()

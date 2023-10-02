@@ -44,3 +44,10 @@ class AuditableEvent(models.Model):
 
     def __str__(self):
         return f"pk={self.pk} type={self.type}"
+
+    @classmethod
+    def get_types(cls, *, prefix):
+        """Return a subset of the Type enumeration filtered by the given prefix"""
+        names = [n for n in AuditableEvent.Type.names if n.lower().startswith(prefix)]
+
+        return [getattr(AuditableEvent.Type, name) for name in names]

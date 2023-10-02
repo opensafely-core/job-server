@@ -104,6 +104,8 @@ class ProjectAuditLog(ListView):
         events = self.get_queryset()
         presentable_events = [get_presenter(e)(event=e) for e in events]
 
+        types = AuditableEvent.get_types(prefix="project_member")
+
         # Note: we're passing in presentable_events here to override the use of
         # self.object_list which is an iterable of AuditableEvents, but we're
         # going to be using presentable_events in the template so we want to
@@ -111,12 +113,16 @@ class ProjectAuditLog(ListView):
         return super().get_context_data(object_list=presentable_events, **kwargs) | {
             "events": presentable_events,
             "project": self.project,
+            "types": types,
         }
 
     def get_queryset(self):
         qs = AuditableEvent.objects.filter(
             parent_model=Project._meta.label, parent_id=str(self.project.pk)
         ).order_by("-created_at", "-pk")
+
+        if types := self.request.GET.getlist("types"):
+            qs = qs.filter(type__in=types)
 
         return fetch(qs.distinct())
 
