@@ -161,6 +161,7 @@ class OrgEdit(UpdateView):
 @method_decorator(require_role(CoreDeveloper), name="dispatch")
 class OrgList(ListView):
     queryset = Org.objects.order_by("name")
+    paginate_by = 25
     template_name = "staff/org_list.html"
 
     def get_context_data(self, **kwargs):
