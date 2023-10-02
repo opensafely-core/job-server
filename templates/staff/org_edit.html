@@ -1,81 +1,72 @@
-{% extends "staff/base.html" %}
+{% extends "staff/base-tw.html" %}
 
 {% load static %}
 
 {% block metatitle %}Edit {{ org.name }}: Staff Area | OpenSAFELY Jobs{% endblock metatitle %}
 
 {% block breadcrumbs %}
-<nav class="breadcrumb-container breadcrumb--danger" aria-label="breadcrumb">
-  <div class="container">
-    <ol class="breadcrumb rounded-0 mb-0 px-0">
-      <li class="breadcrumb-item">
-        <a href="{% url 'staff:index' %}">Staff area</a>
-      </li>
-      <li class="breadcrumb-item">
-        <a href="{% url 'staff:org-list' %}">Organisations</a>
-      </li>
-      <li class="breadcrumb-item">
-        <a href="{{ org.get_staff_url }}">{{ org.name }}</a>
-      </li>
-      <li class="breadcrumb-item active" aria-current="page">
-        Edit
-      </li>
-    </ol>
-  </div>
-</nav>
+  {% #breadcrumbs %}
+    {% url "staff:index" as staff_url %}
+    {% url "staff:org-list" as staff_org_list_url %}
+    {% breadcrumb title="Staff area" url=staff_url %}
+    {% breadcrumb title="Organisations" url=staff_org_list_url %}
+    {% breadcrumb title=org.name url=org.get_staff_url %}
+    {% breadcrumb title="Edit organisation" active=True %}
+  {% /breadcrumbs %}
 {% endblock breadcrumbs %}
 
-{% block jumbotron %}
-<div class="jumbotron jumbotron-fluid jumbotron--danger pt-md-2">
-  <div class="container">
-    <h1 class="display-4">Edit: {{ org.name }}</h1>
-  </div>
-</div>
-{% endblock jumbotron %}
+{% block hero %}
+  {% staff_hero title="Edit organisation: "|add:org.name %}
+{% endblock hero %}
 
 {% block content %}
-<div class="container">
-  <form class="mb-3" method="POST" enctype="multipart/form-data">
-    <div class="row">
-      <div class="col-lg-8 col-xl-9 order-1 order-lg-0">
-        {% csrf_token %}
+  <form method="POST" class="flex flex-col gap-y-6 max-w-prose" enctype="multipart/form-data">
+    {% csrf_token %}
 
-        {% include "components/form_text.html" with field=form.name label="Org name" name="name" %}
-        {% include "components/form_text.html" with field=form.slug label="URL slug" name="slug" %}
+    {% #card container=True container_class="flex flex-col gap-y-6" %}
+      {% if form.non_field_errors %}
+        {% for error in form.non_field_errors %}
+          {% #alert variant="danger" class="mb-6" %}
+            {{ error }}
+          {% /alert %}
+        {% endfor %}
+      {% endif %}
 
-        <div class="form-group">
-          <button class="btn btn-primary" type="submit">Save</button>
+      {% #form_fieldset class="flex flex-col gap-y-6 items-stretch" %}
+        {% form_legend text="Organisation details" class="sr-only" %}
+        {% form_input field=form.name label="Organisation name" %}
+        {% form_input field=form.slug label="URL slug" %}
+      {% /form_fieldset %}
+
+      {% #button variant="success" type="submit" class="self-start" %}
+        Save
+      {% /button %}
+    {% /card %}
+
+    {% #card container=True title="Logo" container_class="flex flex-col gap-y-4" %}
+      {% if org.logo_file %}
+        {% var upload_logo_legend="Upload a new logo" %}
+        <div>
+          <h3 class="font-semibold text-lg text-slate-900 mb-1">Current logo</h3>
+          <img src="{{ org.logo_file.url }}" alt="{{ org.name }} logo" class="max-w-full w-36 h-auto p-1 bg-white border rounded-lg">
         </div>
-      </div>
+      {% else %}
+        {% var upload_logo_legend="Upload a logo" %}
+      {% endif %}
 
-      <div class="col-lg-4 col-xl-3 order-0 order-lg-1">
-        <div class="form-group">
-          <h2 class="h5 text-center" for="id_logo_file">Logo</h2>
-          {% if org.logo_file %}
-          <div class="mx-auto w-100 h-100 mb-2 d-flex justify-content-center align-items-center logo-container">
-            <img class="bg-light rounded" src="{{ org.logo_file.url }}" />
-          </div>
-          {% else %}
-          <div class="mx-auto w-100 h-100 bg-light mb-2 rounded d-flex justify-content-center align-items-center text-wrap small text-secondary text-center logo-placeholder">
-            No logo provided
-          </div>
-            {% endif %}
-          <div class="custom-file">
-            <input type="file" id="id_log_file" name="logo_file" class="sr-only" />
-            <label class="custom-file-label" for="id_log_file">Choose file</label>
-          </div>
+      {% #form_fieldset class="flex flex-col" %}
+        {% form_legend text=upload_logo_legend %}
+        <div class="flex flex-col">
+          <label class="sr-only" for="id_log_file">
+            Upload a file
+          </label>
+          <input class="govuk-file-upload" type="file" id="id_log_file" name="logo_file" type="file">
         </div>
-      </div>
-    </form>
-  </div>
-</div>
+      {% /form_fieldset %}
+
+      {% #button variant="success" type="submit" class="self-start" %}
+        Upload logo
+      {% /button %}
+    {% /card %}
+  </form>
 {% endblock content %}
-
-{% block extra_js %}
-<script type="text/javascript" src="{% static 'vendor/bs-custom-file-input/bs-custom-file-input.min.js' %}"></script>
-<script nonce="{{ request.csp_nonce }}">
-  $(document).ready(function () {
-    bsCustomFileInput.init()
-  })
-</script>
-{% endblock %}
