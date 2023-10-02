@@ -57,6 +57,7 @@ from .views.reports import (
 from .views.repos import RepoDetail, RepoList, RepoSignOff
 from .views.researchers import ResearcherEdit
 from .views.users import (
+    UserAuditLog,
     UserClearRoles,
     UserCreate,
     UserDetail,
@@ -221,6 +222,7 @@ user_urls = [
     path("", UserList.as_view(), name="user-list"),
     path("add/", UserCreate.as_view(), name="user-create"),
     path("<username>/", UserDetail.as_view(), name="user-detail"),
+    path("<username>/audit-log/", UserAuditLog.as_view(), name="user-audit-log"),
     path("<username>/roles/", UserRoleList.as_view(), name="user-role-list"),
     path("<username>/roles/clear/", UserClearRoles.as_view(), name="user-clear-roles"),
     path("<username>/set-orgs/", UserSetOrgs.as_view(), name="user-set-orgs"),

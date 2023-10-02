@@ -257,6 +257,9 @@ class User(AbstractBaseUser):
     def get_logs_url(self):
         return reverse("user-event-log", kwargs={"username": self.username})
 
+    def get_staff_audit_url(self):
+        return reverse("staff:user-audit-log", kwargs={"username": self.username})
+
     def get_staff_clear_roles_url(self):
         return reverse("staff:user-clear-roles", kwargs={"username": self.username})
 

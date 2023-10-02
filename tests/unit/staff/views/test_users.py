@@ -5,11 +5,14 @@ from django.http import Http404
 from jobserver.authorization import (
     InteractiveReporter,
     OutputPublisher,
+    ProjectCollaborator,
     ProjectDeveloper,
 )
+from jobserver.commands import project_members
 from jobserver.models import User
 from jobserver.utils import set_from_qs
 from staff.views.users import (
+    UserAuditLog,
     UserClearRoles,
     UserCreate,
     UserDetail,
@@ -31,6 +34,89 @@ from ....factories import (
     UserSocialAuthFactory,
     WorkspaceFactory,
 )
+
+
+def test_userauditlog_filter_by_type(rf, core_developer, project_membership):
+    actor = UserFactory()
+    project = ProjectFactory()
+    user = UserFactory()
+
+    project_membership(
+        project=project,
+        user=user,
+        roles=[ProjectCollaborator],
+        by=actor,
+    )
+    project_members.update_roles(
+        member=project.memberships.first(),
+        by=actor,
+        roles=[ProjectCollaborator, ProjectDeveloper],
+    )
+
+    request = rf.get("/?types=project_member_added")
+    request.user = core_developer
+
+    response = UserAuditLog.as_view()(request, username=user.username)
+
+    assert response.status_code == 200
+    assert len(response.context_data["events"]) == 1
+    assert response.context_data["events"][0].context["actor"].display_value == str(
+        actor
+    )
+
+
+def test_userauditlog_success(rf, core_developer, project_membership):
+    actor = UserFactory()
+    project = ProjectFactory()
+    user = UserFactory()
+
+    project_membership(
+        project=project,
+        user=user,
+        roles=[ProjectCollaborator],
+        by=actor,
+    )
+    project_members.update_roles(
+        member=project.memberships.first(),
+        by=actor,
+        roles=[ProjectCollaborator, ProjectDeveloper],
+    )
+
+    # add another member using the user we're testing with as the actor to show
+    # we get audit logs for actors in this view as well
+    project_membership(
+        project=project,
+        user=UserFactory(),
+        roles=[],
+        by=user,
+    )
+
+    request = rf.get("/")
+    request.user = core_developer
+
+    response = UserAuditLog.as_view()(request, username=user.username)
+
+    assert response.status_code == 200
+    assert len(response.context_data["events"]) == 4
+    assert response.context_data["user"] == user
+
+
+def test_userauditlog_unauthorized(rf):
+    user = UserFactory()
+
+    request = rf.get("/")
+    request.user = UserFactory()
+
+    with pytest.raises(PermissionDenied):
+        UserAuditLog.as_view()(request, username=user.username)
+
+
+def test_userauditlog_unknown_project(rf, core_developer):
+    request = rf.get("/")
+    request.user = core_developer
+
+    with pytest.raises(Http404):
+        UserAuditLog.as_view()(request, username="")
 
 
 @pytest.mark.parametrize("next_url", ["", "/some/other/url/"])
