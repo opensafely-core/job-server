@@ -1,180 +1,171 @@
-{% extends "staff/base.html" %}
+{% extends "staff/base-tw.html" %}
 
+{% load django_vite %}
+{% load selected_filter %}
 {% load static %}
-
-{% block extra_styles %}
-<link rel="stylesheet" href="{% static 'vendor/select2.min.css' %}">
-<link rel="stylesheet" href="{% static 'vendor/select2-bootstrap4.min.css' %}">
-{% endblock %}
 
 {% block metatitle %}{{ org.name }}: Staff Area | OpenSAFELY Jobs{% endblock metatitle %}
 
 {% block breadcrumbs %}
-<nav class="breadcrumb-container breadcrumb--danger" aria-label="breadcrumb">
-  <div class="container">
-    <ol class="breadcrumb rounded-0 mb-0 px-0">
-      <li class="breadcrumb-item">
-        <a href="{% url 'staff:index' %}">Staff area</a>
-      </li>
-      <li class="breadcrumb-item">
-        <a href="{% url 'staff:org-list' %}">Organisations</a>
-      </li>
-      <li class="breadcrumb-item active" aria-current="page">
-        {{ org.name }}
-      </li>
-    </ol>
-  </div>
-</nav>
+  {% #breadcrumbs %}
+    {% url "staff:index" as staff_url %}
+    {% url "staff:org-list" as staff_org_list_url %}
+    {% breadcrumb title="Staff area" url=staff_url %}
+    {% breadcrumb title="Organisations" url=staff_org_list_url %}
+    {% breadcrumb title=org.name active=True %}
+  {% /breadcrumbs %}
 {% endblock breadcrumbs %}
 
-{% block jumbotron %}
-<div class="jumbotron jumbotron-fluid jumbotron--danger pt-md-2">
-  <div class="container">
-    <h1 class="display-4">{{ org.name }}</h1>
-
-    <ul class="list-unstyled lead">
-      {% if org.created_by %}
-      <li>
-        <strong>Created by:</strong>
-        <a href="{{ org.created_by.get_staff_url }}">{{ org.created_by.name }}</a>
-      </li>
-      {% endif %}
-
-      <li>
-        <strong>Created at:</strong> {{ org.created_at }}
-      </li>
-    </ul>
-
-    <div class="d-flex">
-      <a class="btn btn-danger mr-1" href="{{ org.get_edit_url }}">Edit</a>
-      <a class="btn btn-primary mr-1" href="{{ org.get_absolute_url }}">View on Site</a>
+{% block hero %}
+  {% #staff_hero title="Organisation: "|add:org.name %}
+    <div class="flex flex-row gap-2 mt-2">
+      {% #button type="link" href=org.get_edit_url variant="secondary" %}
+        Edit
+      {% /button %}
+      {% #button type="link" href=org.get_absolute_url variant="primary" %}
+        View on site
+      {% /button %}
     </div>
-  </div>
-</div>
-{% endblock jumbotron %}
+  {% /staff_hero %}
+{% endblock hero %}
 
 {% block content %}
-<div class="container">
-  <div class="row">
-    <div class="col col-lg-9 col-xl-8">
+  <div class="grid grid-cols-1 gap-6 lg:grid-cols-3">
+    <div class="flex flex-col gap-4 lg:col-span-2">
+      <!-- TODO -->
+      {% fragment as custom_button %}
+        {% url "staff:org-add-github-org" slug=org.slug as staff_org_add_github_org_url %}
+        {% #button variant="primary-outline" type="button" hx-get=staff_org_add_github_org_url hx-target="dialog#addGitHubOrg" hx-trigger="click" %}
+          Add a GitHub Organisation
+        {% /button %}
+      {% endfragment %}
+      {% #card title="GitHub Organisations" custom_button=custom_button %}
+        {% #list_group %}
+          {% for github_org in github_orgs %}
+            {% #list_group_rich_item type="Org:" title=github_org %}
+              <div class="flex flex-row gap-2">
+                {% #button small=True variant="primary-outline" type="link" href="https://github.com/"|add:github_org %}
+                  View on GitHub
+                {% /button %}
 
-      <h2 class="h3">GitHub Orgs</h2>
-
-      <div class="list-group mb-4">
-        {% for github_org in github_orgs %}
-        <div class="list-group-item d-flex justify-content-between align-items-center">
-          <span>{{ github_org }}</span>
-          <div class="d-flex justify-content-between">
-            <a class="btn btn-sm btn-primary mr-2" href="https://github.com/{{ github_org }}">View on GitHub</a>
-            <form method="POST" action="{% url 'staff:org-remove-github-org' slug=org.slug %}">
-              {% csrf_token %}
-              <input type="hidden" name="name" value="{{ github_org }}" />
-              <button class="btn btn-sm btn-danger" type="submit">
-                Remove <span class="sr-only">from {{ org.name }}</span>
-              </button>
-            </form>
-          </div>
-        </div>
-        {% endfor %}
-        <div class="list-group-item list-group-item-success">
-          <button
-            class="btn ml-n2"
-            hx-get="{% url 'staff:org-add-github-org' slug=org.slug %}"
-            hx-swap="outerHTML"
-            type="button">
-            Add a GitHub organisation
-          </button>
-        </div>
-      </div>
-
-      <h2 class="h3">Members</h2>
-
-      <form method="POST" class="mb-3">
-        {% csrf_token %}
-
-        {% if form.non_field_errors %}
-        <ul>
-          {% for error in form.non_field_errors %}
-          <li class="text-danger">{{ error }}</li>
+                <form method="POST" action="{% url 'staff:org-remove-github-org' slug=org.slug %}">
+                  {% csrf_token %}
+                  <input type="hidden" name="name" value="{{ github_org }}">
+                  {% #button small=True variant="danger-outline" type="submit" %}
+                    Remove
+                  {% /button %}
+                </form>
+              </div>
+            {% /list_group_rich_item %}
           {% endfor %}
-        </ul>
-        {% endif %}
+        {% /list_group %}
+      {% /card %}
 
-        <div class="d-flex justify-content-between align-items-center">
-          <div class="w-100 mr-1">
-            <select id="id_users" name="users" multiple required>
-              {% for value, label in form.fields.users.choices %}
-              <option value="{{ value }}">{{ label }}</option>
-              {% endfor %}
-            </select>
+      {% #card title="Add members" container=True %}
+        <form method="POST" class="flex flex-col gap-4">
+          {% csrf_token %}
 
-            {% for error in form.users.errors %}
-            <p class="text-danger">{{ error }}</p>
+          {% if form.non_field_errors %}
+            {% for error in form.non_field_errors %}
+              {% #alert variant="danger" class="mb-6" %}
+                {{ error }}
+              {% /alert %}
             {% endfor %}
-          </div>
-
-          <button class="btn btn-outline-primary my-2 my-sm-0" type="submit">Add</button>
-        </div>
-
-      </form>
-
-      <div class="list-group list-unstyled mb-4">
-        <ul class="list-group">
-        {% for user in members %}
-        <li class="list-group-item d-flex align-items-center">
-          <span>{{ user.username }}</span>
-          {% if user.get_full_name %}
-          <small class="ml-2 text-muted">({{ user.get_full_name }})</small>
           {% endif %}
-          <a class="btn btn-sm btn-primary ml-auto mr-2" href="{{ user.get_staff_url }}">Edit</a>
-          <form method="POST" action="{% url 'staff:org-membership-remove' slug=org.slug %}">
-            {% csrf_token %}
-            <input type="hidden" name="username" value="{{ user.username }}" />
-            <button class="btn btn-sm btn-danger" type="submit">Remove <span class="sr-only">from {{ org.name }}</span></button>
-          </form>
-        </li>
-        {% endfor %}
-        </ul>
-      </div>
+
+          {% #multiselect custom_field=True id="id_users" name="user" placeholder="Select users to add" required=True %}
+            {% for value, label in form.fields.users.choices %}
+              {% multiselect_option value=value name=label %}
+            {% endfor %}
+          {% /multiselect %}
+          {% #button variant="success-outline" type="submit" class="self-start" %}
+            Add
+          {% /button %}
+        </form>
+      {% /card %}
+
+      {% #card title="Members" %}
+        {% #list_group %}
+          {% for user in members %}
+            {% #list_group_rich_item type="User:" title=user.name %}
+              <div class="flex flex-row gap-2">
+                {% #button small=True variant="primary-outline" type="link" href=user.get_staff_url %}
+                  Edit
+                {% /button %}
+                <form method="POST" action="{% url 'staff:org-membership-remove' slug=org.slug %}">
+                  {% csrf_token %}
+                  <input type="hidden" name="username" value="{{ user.username }}" />
+                  {% #button small=True variant="danger-outline" type="submit" %}
+                    Remove
+                  {% /button %}
+                </form>
+              </div>
+            {% /list_group_rich_item %}
+          {% endfor %}
+        {% /list_group %}
+      {% /card %}
 
       {% if projects %}
-      <h2 class="h3">Projects</h2>
-      <div class="list-group mb-4">
-        {% for project in projects %}
-        <a class="list-group-item list-group-item-action" href="{{ project.get_staff_url }}">
-          {{ project.title }}
-        </a>
-        {% endfor %}
-      </div>
+        {% #card title="Projects" %}
+          {% #list_group %}
+            {% for project in projects %}
+              {% #list_group_item href=project.get_staff_url %}
+                {{ project.title }}
+              {% /list_group_item %}
+            {% endfor %}
+          {% /list_group %}
+        {% /card %}
       {% endif %}
+    </div>
 
-      <h2>Redirects</h2>
-      <div class="list-group mb-3">
-        {% for redirect in redirects %}
-        <a href="{{ redirect.get_staff_url }}" class="list-group-item list-group-item-action">
-          {{ redirect.old_url }}
-        </a>
-        {% empty %}
-          <p class="list-group-item">No redirects</p>
-        {% endfor %}
-      </div>
+    <div class="flex flex-col gap-4">
+      {% #card title="Created" %}
+        {% #description_list %}
+          {% if org.created_by %}
+            {% #description_item stacked=True title="Created by" %}
+              {% link href=org.created_by.get_staff_url text=org.created_by.name %}
+            {% /description_item %}
+          {% endif %}
 
+          {% #description_item stacked=True title="Created at" %}
+            {% #time datetime=org.created_at|date:"Y-m-d H:i:sO" %}
+              {{ org.created_at|date:"d F Y" }}
+            {% /time %}
+          {% /description_item %}
+        {% /description_list %}
+      {% /card %}
+
+      {% #card title="Redirects" %}
+        {% #list_group %}
+          {% for redirect in redirects %}
+            {% #list_group_item href=redirect.get_staff_url %}
+              {{ redirect.old_url }}
+            {% /list_group_item %}
+          {% empty %}
+            {% list_group_empty description="No redirects" %}
+          {% endfor %}
+        {% /list_group %}
+      {% /card %}
     </div>
   </div>
-</div>
+
+  <dialog class="max-w-lg w-full" id="addGitHubOrg"></dialog>
 {% endblock content %}
 
 {% block extra_js %}
-<script type="text/javascript" src="{% static 'vendor/htmx.min.js' %}"></script>
-<script type="text/javascript" src="{% static 'vendor/select2.min.js' %}"></script>
-<script type="text/javascript" nonce="{{ request.csp_nonce }}">
-  $(document).ready(function() {
-    $('#id_users').select2({
-      placeholder: "Select 1 or more users to add",
-      selectionCssClass: ":all:",
-      theme: "bootstrap4",
-      width: "100%"
+  {% vite_asset "templates/_components/multiselect/multiselect.js" %}
+  <script type="text/javascript" src="{% static 'vendor/htmx.min.js' %}"></script>
+  <script nonce="{{ request.csp_nonce }}">
+    htmx.on("htmx:afterSwap", (e) => {
+      const modal = e.target;
+      modal.showModal();
+
+      const closeModalBtn = document.getElementById("closeModal");
+      if (closeModalBtn) {
+        closeModalBtn.addEventListener("click", () => {
+          closeModalBtn.closest("dialog").close();
+        });
+      }
     });
-  });
-</script>
-{% endblock %}
+  </script>
+{% endblock extra_js %}
