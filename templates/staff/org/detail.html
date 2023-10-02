@@ -1,0 +1,180 @@
+{% extends "staff/base-tw.html" %}
+
+{% load django_vite %}
+{% load selected_filter %}
+{% load static %}
+
+{% block metatitle %}{{ org.name }}: Staff Area | OpenSAFELY Jobs{% endblock metatitle %}
+
+{% block breadcrumbs %}
+  {% #breadcrumbs %}
+    {% url "staff:index" as staff_url %}
+    {% url "staff:org-list" as staff_org_list_url %}
+    {% breadcrumb title="Staff area" url=staff_url %}
+    {% breadcrumb title="Organisations" url=staff_org_list_url %}
+    {% breadcrumb title=org.name active=True %}
+  {% /breadcrumbs %}
+{% endblock breadcrumbs %}
+
+{% block hero %}
+  {% #staff_hero title="Organisation: "|add:org.name %}
+    <div class="flex flex-row gap-2 mt-2">
+      {% #button type="link" href=org.get_edit_url variant="secondary" %}
+        Edit
+      {% /button %}
+      {% #button type="link" href=org.get_absolute_url variant="primary" %}
+        View on site
+      {% /button %}
+    </div>
+  {% /staff_hero %}
+{% endblock hero %}
+
+{% block content %}
+  <div class="grid grid-cols-1 gap-6 lg:grid-cols-3">
+    <div class="flex flex-col gap-4 lg:col-span-2">
+      {% #modal id="addGitHubOrg" %}
+        {% #card container=True title="Add a GitHub Organisation" %}
+          <form method="POST" action="{% url 'staff:org-add-github-org' slug=org.slug %}">
+            {% csrf_token %}
+
+            {% if form.non_field_errors %}
+              {% for error in form.non_field_errors %}
+                {% #alert variant="danger" class="mb-6" %}
+                  {{ error }}
+                {% /alert %}
+              {% endfor %}
+            {% endif %}
+
+            <div class="flex flex-col items-stretch gap-y-6 w-full max-w-3xl mb-6">
+              {% form_input custom_field=True id="id_name" label="Organisation name" name="name" placeholder="GitHub Organisation name" show_placeholder=True %}
+            </div>
+
+            <div class="flex flex-row flex-wrap gap-2">
+              {% #button variant="success" type="submit" %}Add org{% /button %}
+              {% #button variant="danger" type="cancel" %}Cancel{% /button %}
+            </div>
+          </form>
+        {% /card %}
+      {% /modal %}
+
+      {% fragment as custom_button %}
+        {% #button variant="primary-outline" type="button" data-modal="addGitHubOrg" %}
+          Add a GitHub Organisation
+        {% /button %}
+      {% endfragment %}
+
+      {% #card title="GitHub Organisations" custom_button=custom_button %}
+        {% #list_group %}
+          {% for github_org in github_orgs %}
+            {% #list_group_rich_item type="Org:" title=github_org %}
+              <div class="flex flex-row gap-2">
+                {% #button small=True variant="primary-outline" type="link" href="https://github.com/"|add:github_org %}
+                  View on GitHub
+                {% /button %}
+
+                <form method="POST" action="{% url 'staff:org-remove-github-org' slug=org.slug %}">
+                  {% csrf_token %}
+                  <input type="hidden" name="name" value="{{ github_org }}">
+                  {% #button small=True variant="danger-outline" type="submit" %}
+                    Remove
+                  {% /button %}
+                </form>
+              </div>
+            {% /list_group_rich_item %}
+          {% endfor %}
+        {% /list_group %}
+      {% /card %}
+
+      {% #card title="Add members" container=True %}
+        <form method="POST" class="flex flex-col gap-4">
+          {% csrf_token %}
+
+          {% if form.non_field_errors %}
+            {% for error in form.non_field_errors %}
+              {% #alert variant="danger" class="mb-6" %}
+                {{ error }}
+              {% /alert %}
+            {% endfor %}
+          {% endif %}
+
+          {% #multiselect custom_field=True id="id_users" name="users" placeholder="Select users to add" required=True %}
+            {% for value, label in form.fields.users.choices %}
+              {% multiselect_option value=value name=label %}
+            {% endfor %}
+          {% /multiselect %}
+          {% #button variant="success-outline" type="submit" class="self-start" %}
+            Add
+          {% /button %}
+        </form>
+      {% /card %}
+
+      {% #card title="Members" %}
+        {% #list_group %}
+          {% for user in members %}
+            {% #list_group_rich_item type="User:" title=user.name %}
+              <div class="flex flex-row gap-2">
+                {% #button small=True variant="primary-outline" type="link" href=user.get_staff_url %}
+                  Edit
+                {% /button %}
+                <form method="POST" action="{% url 'staff:org-membership-remove' slug=org.slug %}">
+                  {% csrf_token %}
+                  <input type="hidden" name="username" value="{{ user.username }}" />
+                  {% #button small=True variant="danger-outline" type="submit" %}
+                    Remove
+                  {% /button %}
+                </form>
+              </div>
+            {% /list_group_rich_item %}
+          {% endfor %}
+        {% /list_group %}
+      {% /card %}
+
+      {% if projects %}
+        {% #card title="Projects" %}
+          {% #list_group %}
+            {% for project in projects %}
+              {% #list_group_item href=project.get_staff_url %}
+                {{ project.title }}
+              {% /list_group_item %}
+            {% endfor %}
+          {% /list_group %}
+        {% /card %}
+      {% endif %}
+    </div>
+
+    <div class="flex flex-col gap-4">
+      {% #card title="Created" %}
+        {% #description_list %}
+          {% if org.created_by %}
+            {% #description_item stacked=True title="Created by" %}
+              {% link href=org.created_by.get_staff_url text=org.created_by.name %}
+            {% /description_item %}
+          {% endif %}
+
+          {% #description_item stacked=True title="Created at" %}
+            {% #time datetime=org.created_at|date:"Y-m-d H:i:sO" %}
+              {{ org.created_at|date:"d F Y" }}
+            {% /time %}
+          {% /description_item %}
+        {% /description_list %}
+      {% /card %}
+
+      {% #card title="Redirects" %}
+        {% #list_group %}
+          {% for redirect in redirects %}
+            {% #list_group_item href=redirect.get_staff_url %}
+              {{ redirect.old_url }}
+            {% /list_group_item %}
+          {% empty %}
+            {% list_group_empty description="No redirects" %}
+          {% endfor %}
+        {% /list_group %}
+      {% /card %}
+    </div>
+  </div>
+{% endblock content %}
+
+{% block extra_js %}
+  {% vite_asset "templates/_components/modal/modal.js" %}
+  {% vite_asset "templates/_components/multiselect/multiselect.js" %}
+{% endblock extra_js %}

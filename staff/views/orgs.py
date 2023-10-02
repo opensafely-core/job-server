@@ -31,7 +31,7 @@ def org_add_github_org(request, slug):
         return TemplateResponse(
             context={"form": form, "org": org},
             request=request,
-            template="staff/org_add_github_orgs.htmx.html",
+            template="staff/org/add_github_orgs.htmx.html",
         )
 
     name = form.cleaned_data["name"]
@@ -86,7 +86,7 @@ class OrgCreate(CreateView):
 @method_decorator(require_role(CoreDeveloper), name="dispatch")
 class OrgDetail(FormView):
     form_class = OrgAddMemberForm
-    template_name = "staff/org_detail.html"
+    template_name = "staff/org/detail.html"
 
     def dispatch(self, request, *args, **kwargs):
         self.object = get_object_or_404(Org, slug=self.kwargs["slug"])
@@ -134,7 +134,7 @@ class OrgEdit(UpdateView):
         "logo_file",
     ]
     model = Org
-    template_name = "staff/org_edit.html"
+    template_name = "staff/org/edit.html"
 
     def form_valid(self, form):
         # look up the original object from the database because the form will
@@ -161,7 +161,8 @@ class OrgEdit(UpdateView):
 @method_decorator(require_role(CoreDeveloper), name="dispatch")
 class OrgList(ListView):
     queryset = Org.objects.order_by("name")
-    template_name = "staff/org_list.html"
+    paginate_by = 25
+    template_name = "staff/org/list.html"
 
     def get_context_data(self, **kwargs):
         return super().get_context_data(**kwargs) | {

@@ -1,59 +1,41 @@
-{% extends "staff/base.html" %}
+{% extends "staff/base-tw.html" %}
 
 {% block metatitle %}Create an organisation: Staff Area | OpenSAFELY Jobs{% endblock metatitle %}
 
 {% block breadcrumbs %}
-<nav class="breadcrumb-container breadcrumb--danger" aria-label="breadcrumb">
-  <div class="container">
-    <ol class="breadcrumb rounded-0 mb-0 px-0">
-      <li class="breadcrumb-item">
-        <a href="{% url 'staff:index' %}">Staff area</a>
-      </li>
-      <li class="breadcrumb-item">
-        <a href="{% url 'staff:org-list' %}">Organisations</a>
-      </li>
-      <li class="breadcrumb-item active" aria-current="page">
-        Create an organisation
-      </li>
-    </ol>
-  </div>
-</nav>
+  {% #breadcrumbs %}
+    {% url "staff:index" as staff_url %}
+    {% url "staff:org-list" as staff_org_list_url %}
+    {% breadcrumb title="Staff area" url=staff_url %}
+    {% breadcrumb title="Organisations" url=staff_org_list_url %}
+    {% breadcrumb title="Create an organisation" active=True %}
+  {% /breadcrumbs %}
 {% endblock breadcrumbs %}
 
-{% block jumbotron %}
-<div class="jumbotron jumbotron-fluid jumbotron--danger pt-md-2">
-  <div class="container">
-    <h1 class="display-4">Create an organisation</h1>
-  </div>
-</div>
-{% endblock jumbotron %}
+{% block hero %}
+  {% staff_hero title="Create an organisation" %}
+{% endblock hero %}
 
 {% block content %}
-<div class="container">
-  <div class="row">
-    <div class="col-lg-9 col-xl-8">
-      <h2 class="sr-only">Create an Org</h2>
+  {% #card container=True %}
+    <form method="POST">
+      {% csrf_token %}
 
-      <form method="POST" hx-post="{{ post_url }}">
-        {% csrf_token %}
+      {% if form.non_field_errors %}
+        {% for error in form.non_field_errors %}
+          {% #alert variant="danger" class="mb-6" %}
+            {{ error }}
+          {% /alert %}
+        {% endfor %}
+      {% endif %}
 
-        {% if form.non_field_errors %}
-          <ul>
-            {% for error in form.non_field_errors %}
-              <li class="text-danger">{{ error }}</li>
-            {% endfor %}
-          </ul>
-        {% endif %}
+      <div class="flex flex-col items-stretch gap-y-6 w-full max-w-3xl mb-6">
+        {% form_input field=form.name label="Organisation name" %}
+      </div>
 
-        {% include "components/form_text.html" with field=form.name label="Organisation name" name="name" %}
-
-        <button class="btn btn-success" type="submit">
-          Create
-        </button>
-      </form>
-
-
-    </div>
-  </div>
-</div>
+      <div class="flex flex-row flex-wrap gap-2">
+        {% #button variant="success" type="submit" %}Add org{% /button %}
+      </div>
+    </form>
+  {% /card %}
 {% endblock content %}

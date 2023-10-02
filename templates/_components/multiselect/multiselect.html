@@ -7,7 +7,7 @@
 {% endif %}
 
 <div class="multiselect">
-  <select data-multiselect data-placeholder="{{ placeholder }}" multiple name="{{ input_name }}">
+  <select data-multiselect data-placeholder="{{ placeholder }}" multiple name="{{ input_name }}" id="{{ input_id }}" {% attrs required %}>
     {% if custom_field == True %}
     {{ children }}
     {% else %}
@@ -17,7 +17,7 @@
       {% else %}
       {% var is_active=False %}
       {% endif %}
-      {% multiselect_option value=value name=label is_active=is_active%}
+      {% multiselect_option value=value name=label is_active=is_active %}
     {% endfor %}
     {% endif %}
   </select>

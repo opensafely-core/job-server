@@ -25,6 +25,7 @@ const config = {
         "staff-base": "./assets/src/scripts/staff-base.js",
         workspace_create: "./assets/src/scripts/workspace_create.js",
         multiselect: "./templates/_components/multiselect/multiselect.js",
+        modal: "./templates/_components/modal/modal.js",
       },
     },
     outDir: "assets/dist",

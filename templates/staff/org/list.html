@@ -1,0 +1,65 @@
+{% extends "staff/base-tw.html" %}
+
+{% load querystring_tools %}
+
+{% block metatitle %}Organisations: Staff Area | OpenSAFELY Jobs{% endblock metatitle %}
+
+{% block breadcrumbs %}
+  {% #breadcrumbs %}
+    {% url "staff:index" as staff_url %}
+    {% breadcrumb title="Staff area" url=staff_url %}
+    {% breadcrumb title="Organisations" active=True %}
+  {% /breadcrumbs %}
+{% endblock breadcrumbs %}
+
+{% block hero %}
+  {% #staff_hero title="Organisations" %}
+    {% url "staff:org-create" as staff_org_create_url %}
+    {% #button type="link" href=staff_org_create_url variant="primary" %}
+      Create an Organisation
+    {% /button %}
+  {% /staff_hero %}
+{% endblock hero %}
+
+{% block content %}
+  {% url "staff:org-list" as staff_org_list_url %}
+
+  <div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
+    <div class="flex flex-col gap-y-6 lg:col-span-2">
+      {% #card container=True title="Search for an organisation" %}
+        <form method="GET" class="flex flex-row gap-x-2 items-center">
+          {% if request.GET.q %}
+            {% var value=request.GET.q|stringformat:"s" %}
+          {% endif %}
+          {% form_input custom_field=True type="search" id="orgSearch" name="q" value=value label="Search for an org" label_class="sr-only" class="w-full max-w-prose" %}
+          {% #button type="submit" variant="primary" class="flex-shrink-0 mt-auto" %}Search{% /button %}
+        </form>
+        {% if request.GET.q %}
+          <p class="mt-3">
+            {% link href=staff_org_list_url text="Clear search" %}
+          </p>
+        {% endif %}
+      {% /card %}
+
+      {% #card %}
+        {% #list_group %}
+          {% for org in object_list %}
+            {% #list_group_item href=org.get_staff_url %}
+              {{ org.name }}
+            {% /list_group_item %}
+          {% endfor %}
+        {% /list_group %}
+
+        {% if page_obj.has_previous or page_obj.has_next %}
+          {% if page_obj.has_next %}
+            {% url_with_querystring page=page_obj.next_page_number as next_page_url %}
+          {% endif %}
+          {% if page_obj.has_previous %}
+            {% url_with_querystring page=page_obj.previous_page_number as previous_page_url %}
+          {% endif %}
+          {% card_pagination page_number=page_obj.number total_pages=page_obj.paginator.num_pages next_page_url=next_page_url previous_page_url=previous_page_url no_container=True %}
+        {% endif %}
+      {% /card %}
+    </div>
+  </div>
+{% endblock content %}
