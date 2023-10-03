@@ -130,7 +130,7 @@ def test_workspaceedit_unknown_workspace(rf, core_developer):
 
 def test_workspacelist_filter_by_org(rf, core_developer):
     org = OrgFactory()
-    project = ProjectFactory(org=org)
+    project = ProjectFactory(orgs=[org])
     workspace = WorkspaceFactory(project=project)
     WorkspaceFactory.create_batch(2)
 

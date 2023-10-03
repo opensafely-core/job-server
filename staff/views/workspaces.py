@@ -83,7 +83,7 @@ class WorkspaceList(ListView):
             qs = qs.filter(qwargs(fields, q))
 
         if orgs := self.request.GET.getlist("orgs"):
-            qs = qs.filter(project__org__slug__in=orgs)
+            qs = qs.filter(project__orgs__slug__in=orgs)
 
         if projects := self.request.GET.getlist("projects"):
             qs = qs.filter(project__slug__in=projects)
