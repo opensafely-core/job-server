@@ -1,125 +1,107 @@
-{% extends "staff/base.html" %}
+{% extends "staff/base-tw.html" %}
 
 {% block metatitle %}Edit {{ researcher.name }}: Staff Area | OpenSAFELY Jobs{% endblock metatitle %}
 
 {% block breadcrumbs %}
-<nav class="breadcrumb-container breadcrumb--danger" aria-label="breadcrumb">
-  <div class="container">
-    <ol class="breadcrumb rounded-0 mb-0 px-0">
-      <li class="breadcrumb-item">
-        <a href="{% url 'staff:index' %}">Staff area</a>
-      </li>
-      <li class="breadcrumb-item">
-        Researchers
-      </li>
-      <li class="breadcrumb-item">
-        {{ researcher.name }}
-      </li>
-      <li class="breadcrumb-item active" aria-current="page">
-        Edit
-      </li>
-    </ol>
-  </div>
-</nav>
+{% #breadcrumbs %}
+  {% url "staff:index" as staff_url %}
+  {% url "staff:application-list" as staff_application_list_url %}
+  {% breadcrumb title="Staff area" url=staff_url %}
+  {% breadcrumb title="Applications" url=staff_application_list_url %}
+  {% breadcrumb title="Application: "|add:researcher.application.pk_hash url=researcher.application.get_staff_url|add:"#researcher-details" %}
+  {% breadcrumb title="Edit researcher: "|add:researcher.name active=True %}
+{% /breadcrumbs %}
 {% endblock breadcrumbs %}
 
-{% block jumbotron %}
-<div class="jumbotron jumbotron-fluid jumbotron--danger pt-md-2">
-  <div class="container">
-    <h1 class="display-4">Edit: {{ researcher.name }}</h1>
-  </div>
-</div>
-{% endblock jumbotron %}
+{% block hero %}
+{% staff_hero title="Edit Researcher: "|add:researcher.name %}
+{% endblock hero %}
 
 {% block content %}
-<div class="container">
-  <div class="row">
-    <div class="col-lg-8 col-xl-9">
-      <form method="POST">
-        {% csrf_token %}
+<form method="POST" class="flex flex-col gap-8">
+  {% csrf_token %}
 
-        {% if form.non_field_errors %}
-        <ul>
-          {% for error in form.non_field_errors %}
-          <li class="text-danger">{{ error }}</li>
-          {% endfor %}
-        </ul>
-        {% endif %}
+  {% if form.non_field_errors %}
+    {% for error in form.non_field_errors %}
+      {% #alert variant="danger" class="mb-6" %}
+        {{ error }}
+      {% /alert %}
+    {% endfor %}
+  {% endif %}
 
-        {% include "components/form_text.html" with field=form.name label="Name" name="name" %}
-        {% include "components/form_text.html" with field=form.job_title label="Job title" name="job_title" %}
-        {% include "components/form_email.html" with field=form.email label="Email" name="email" %}
+  {% #card title="Researcher contact information" class="max-w-3xl" container=True %}
+    {% #form_fieldset class="grid gap-y-6 !min-w-0 w-full max-w-prose" %}
+      {% form_legend text="Researcher contact information" class="sr-only" %}
 
-        <div class="mb-3">
-          <strong>Does this researcher require access to the OpenSAFELY secure results server?</strong>
-          {% include "components/form_radio.html" with field=form.does_researcher_need_server_access label="" name="does_researcher_need_server_access" %}
-        </div>
+      {% form_input field=form.name label="Researcher name" name="name" %}
+      {% form_input field=form.job_title label="Researcher job title" name="job_title" %}
+      {% form_input field=form.email label="Researcher work email address" name="email" type="email" %}
+      {% form_input field=form.telephone label="Mobile phone number" name="telephone" %}
+      {% form_input field=form.github_username label="GitHub username" name="github_username" %}
+      {% form_input field=form.daa label="DAA" name="daa" %}
+    {% /form_fieldset %}
+  {% /card %}
 
-        {% include "components/form_text.html" with field=form.telephone label="Mobile phone number" name="telephone" %}
+  {% #card title="Secure results server" class="max-w-3xl" container=True %}
+    {% #form_fieldset class="grid gap-y-2 !min-w-0 w-full max-w-prose" %}
+      {% form_legend text="Does this researcher require access to the OpenSAFELY secure results server?" %}
 
-        <div class="mb-3">
-          <strong>What type of smartphone does this researcher have?</legend>
-          {% include "components/form_radio.html" with field=form.phone_type label="" name="phone_type" %}
-        </div>
-
-        <div class="mb-3">
-          <legend class="h6 font-weight-bold">Has this researcher undertaken safe researcher training?</legend>
-          {% include "components/form_radio.html" with field=form.has_taken_safe_researcher_training label="" name="has_taken_safe_researcher_training" %}
-        </div>
-
-        {% include "components/form_text.html" with field=form.training_with_org label="Safe researcher training Org" name="training_with_org" %}
-
-        <div class="form-group">
-
-          <label class="font-weight-bold" for="id_training_passed_at">
-            Date safe researcher training passed
-          </label>
-
-          <input
-            type="date"
-            class="form-control"
-            id="id_training_passed_at"
-            name="training_passed_at"
-
-            {% if form.training_passed_at.help_text %}
-            aria-describedby="training_passed_atHelpBlock"
-            {% endif %}
-
-            {% if form.training_passed_at.field.required %}
-            required
-            {% endif %}
-
-            {% if form.training_passed_at.value %}
-            value="{{ form.training_passed_at.value|date:"Y-m-d" }}"
-            {% endif %}
-
-          />
-
-          {% if form.training_passed_at.help_text %}
-            <small id="training_passed_atHelpBlock" class="form-text text-muted">
-              {{ form.training_passed_at.help_text }}
-            </small>
+      {% for value, label in form.does_researcher_need_server_access.field.choices %}
+        {% with id=forloop.counter0|stringformat:"s" %}
+          {% if form.does_researcher_need_server_access.value == value %}
+          {% var checked=True %}
+          {% else %}
+          {% var checked=False %}
           {% endif %}
+          {% form_radio name="does_researcher_need_server_access" id="id_does_researcher_need_server_access"|add:label|add:"_"|add:id|slugify label=label value=value checked=checked %}
+        {% endwith %}
+      {% endfor %}
+    {% /form_fieldset %}
+  {% /card %}
 
-          {% if form.training_passed_at.errors %}
-            <ul class="pl-3 mb-1">
-              {% for error in form.training_passed_at.errors %}
-                <li class="text-danger">{{ error }}</li>
-              {% endfor %}
-            </ul>
+  {% #card title="Mobile phone" class="max-w-3xl" container=True %}
+    <p class="prose mb-4">
+      This is required to set up Virtual Private Network (VPN) access to access the results server.
+    </p>
+
+    {% #form_fieldset class="grid gap-y-2 !min-w-0 w-full max-w-prose" %}
+      {% form_legend text="What type of smartphone does this researcher have?" %}
+
+      {% for value, label in form.phone_type.field.choices %}
+        {% with id=forloop.counter0|stringformat:"s" %}
+          {% if form.phone_type.value == value %}
+          {% var checked=True %}
+          {% else %}
+          {% var checked=False %}
           {% endif %}
+          {% form_radio name="phone_type" id="id_"|add:label|add:"_"|add:id|slugify label=label value=value checked=checked %}
+        {% endwith %}
+      {% endfor %}
+    {% /form_fieldset %}
+  {% /card %}
 
-        </div>
+  {% #card title="Safe researcher training" class="max-w-3xl" container=True container_class="grid gap-y-6 max-w-prose" %}
+    {% #form_fieldset class="grid gap-y-2 !min-w-0 w-full max-w-prose" %}
+      {% form_legend text="Has this researcher undertaken safe researcher training?" %}
 
-        {% include "components/form_text.html" with field=form.daa label="DAA" name="daa" %}
-        {% include "components/form_text.html" with field=form.github_username label="GitHub Username" name="github_username" %}
+      {% for value, label in form.has_taken_safe_researcher_training.field.choices %}
+        {% with id=forloop.counter0|stringformat:"s" %}
+          {% if form.has_taken_safe_researcher_training.value == value %}
+          {% var checked=True %}
+          {% else %}
+          {% var checked=False %}
+          {% endif %}
+            {% form_radio name="has_taken_safe_researcher_training" id="id_has_taken_safe_researcher_training"|add:label|add:"_"|add:id|slugify label=label value=value checked=checked %}
+        {% endwith %}
+      {% endfor %}
+    {% /form_fieldset %}
 
-        <div class="form-group">
-          <button class="btn btn-primary" type="submit">Save</button>
-        </div>
+    {% form_input field=form.training_with_org label="If yes, with which organisation?" %}
+    {% form_input custom_field=True label="If yes, on what date did they pass?" id="id_training_passed_at" name="training_passed_at" type="date" required=form.training_passed_at.field.required value=form.training_passed_at.value|date:"Y-m-d" %}
+  {% /card %}
 
-      </form>
-    </div>
-  </div>
-</div>
+  {% #button variant="success" type="submit" class="self-start" %}
+    Save changes
+  {% /button %}
+</form>
 {% endblock content %}
