@@ -13,7 +13,7 @@ class ResearcherEdit(UpdateView):
     context_object_name = "researcher"
     form_class = ResearcherRegistrationEditForm
     model = ResearcherRegistration
-    template_name = "staff/researcher_edit.html"
+    template_name = "staff/application/researcher_edit.html"
 
     def get_success_url(self):
         return self.object.application.get_staff_url()
