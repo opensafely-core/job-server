@@ -46,11 +46,13 @@
   </form>
 
   <div class="flex flex-col gap-y-6 lg:col-span-2">
-    {% #card %}
+    {% #card title="Events" %}
       {% if events %}
         {% #list_group small=True %}
           {% for event in events %}
-          {% include event.template_name with event=event.context %}
+            {% #log_item created_at=event.context.created_at %}
+              {% include event.template_name with event=event.context %}
+            {% /log_item %}
           {% endfor %}
         {% /list_group %}
 

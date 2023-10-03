@@ -1,33 +1,23 @@
 {% load humanize %}
 
-<li>
-  <div>
-    {% if event.actor.link %}
-    {% link href=event.actor.link text=event.actor %}
-    {% else %}
-    {{ event.actor }}
-    {% endif %}
+{% if event.actor.link %}
+{% link href=event.actor.link text=event.actor %}
+{% else %}
+{{ event.actor }}
+{% endif %}
 
-    removed
+removed
 
-    {% if event.user.link %}
-    {% link href=event.user.link text=event.user %}
-    {% else %}
-    {{ event.user }}
-    {% endif %}
+{% if event.user.link %}
+{% link href=event.user.link text=event.user %}
+{% else %}
+{{ event.user }}
+{% endif %}
 
-    from
+from
 
-    {% if event.project.link %}
-    {% link href=event.project.link text=event.project %}
-    {% else %}
-    {{ event.project }}
-    {% endif %}
-  </div>
-
-  <div>
-    <time datetime="{{ event.created_at.isoformat }}" title="{{ event.created_at }}">
-      {{ event.created_at|naturalday }}
-    </time>
-  </div>
-</li>
+{% if event.project.link %}
+{% link href=event.project.link text=event.project %}
+{% else %}
+{{ event.project }}
+{% endif %}
