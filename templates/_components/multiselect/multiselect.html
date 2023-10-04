@@ -6,7 +6,7 @@
   {% var input_name=field.html_name %}
 {% endif %}
 
-<div class="multiselect">
+<div class="multiselect {{ class }}">
   <select data-multiselect data-placeholder="{{ placeholder }}" multiple name="{{ input_name }}" id="{{ input_id }}" {% attrs required %}>
     {% if custom_field == True %}
     {{ children }}
