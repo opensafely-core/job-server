@@ -29,14 +29,6 @@
     {% endif %}
 
     {% #card title="Create an Interactive Project" class="max-w-3xl" container=True %}
-      {% if form.non_field_errors %}
-        {% for error in form.non_field_errors %}
-          {% #alert variant="danger" class="mb-6" %}
-            {{ error }}
-          {% /alert %}
-        {% endfor %}
-      {% endif %}
-
       <div class="flex flex-col items-stretch gap-y-6 w-full max-w-3xl">
         {% form_select field=form.fields.org choices=form.fields.org.choices selected=form.org.value id="id_org" name="org" label="Select an org" %}
         {% form_select field=form.fields.copilot choices=form.fields.copilot.choices selected=form.copilot.value id="id_copilot" name="copilot" label="Select a user to co-pilot this project" %}
