@@ -1,77 +1,53 @@
-{% extends "staff/base.html" %}
-
-{% load static %}
-
-{% block extra_styles %}
-<link rel="stylesheet" href="{% static 'vendor/select2.min.css' %}">
-<link rel="stylesheet" href="{% static 'vendor/select2-bootstrap4.min.css' %}">
-{% endblock %}
+{% extends "staff/base-tw.html" %}
 
 {% block metatitle %}Create an interactive project: Staff Area | OpenSAFELY Jobs{% endblock metatitle %}
 
 {% block breadcrumbs %}
-<nav class="breadcrumb-container breadcrumb--danger" aria-label="breadcrumb">
-  <div class="container">
-    <ol class="breadcrumb rounded-0 mb-0 px-0">
-      <li class="breadcrumb-item">
-        <a href="{% url 'staff:index' %}">Staff area</a>
-      </li>
-      <li class="breadcrumb-item">
-        <a href="{% url 'staff:project-list' %}">Projects</a>
-      </li>
-      <li class="breadcrumb-item active" aria-current="page">
-        Create an interactive project
-      </li>
-    </ol>
-  </div>
-</nav>
+  {% #breadcrumbs %}
+    {% url "staff:index" as staff_url %}
+    {% url "staff:project-list" as staff_project_list_url %}
+    {% breadcrumb title="Staff area" url=staff_url %}
+    {% breadcrumb title="Projects" url=staff_project_list_url %}
+    {% breadcrumb title="Create an Interactive Project" active=True %}
+  {% /breadcrumbs %}
 {% endblock breadcrumbs %}
 
-{% block jumbotron %}
-<div class="jumbotron jumbotron-fluid jumbotron--danger pt-md-2">
-  <div class="container">
-    <h1 class="display-4">Create an interactive project</h1>
-  </div>
-</div>
-{% endblock jumbotron %}
+{% block hero %}
+  {% staff_hero title="Create an Interactive Project" %}
+{% endblock hero %}
 
 {% block content %}
-<div class="container">
-  <div class="row">
-    <div class="col-lg-9 col-xl-8">
-      <h2 class="sr-only">Create an Interactive Project</h2>
+  <form method="POST" class="flex flex-col gap-8">
+    {% csrf_token %}
 
-      {% include "staff/project_create.form.html" %}
+    {% if form.non_field_errors %}
+      {% for error in form.non_field_errors %}
+        {% #alert variant="danger" class="mb-6" %}
+          {{ error }}
+        {% /alert %}
+      {% endfor %}
+    {% endif %}
 
-    </div>
-  </div>
-</div>
+    {% #card title="Create an Interactive Project" class="max-w-3xl" container=True %}
+      {% if form.non_field_errors %}
+        {% for error in form.non_field_errors %}
+          {% #alert variant="danger" class="mb-6" %}
+            {{ error }}
+          {% /alert %}
+        {% endfor %}
+      {% endif %}
+
+      <div class="flex flex-col items-stretch gap-y-6 w-full max-w-3xl">
+        {% form_select field=form.fields.org choices=form.fields.org.choices selected=form.org.value id="id_org" name="org" label="Select an org" %}
+        {% form_select field=form.fields.copilot choices=form.fields.copilot.choices selected=form.copilot.value id="id_copilot" name="copilot" label="Select a user to co-pilot this project" %}
+        {% form_input field=form.application_url label="Application URL" %}
+        {% form_input field=form.name label="Project name"%}
+        {% form_input field=form.number label="Project number" %}
+      </div>
+    {% /card %}
+
+    {% #button variant="success" type="submit" class="self-start" %}
+      Add project
+    {% /button %}
+  </form>
 {% endblock content %}
-
-{% block extra_js %}
-<script type="text/javascript" src="{% static 'vendor/select2.min.js' %}"></script>
-<script type="text/javascript" nonce="{{ request.csp_nonce }}">
-  $(document).ready(function() {
-    $(document).on("select2:open", (e) => {
-      const dropdownInput = `.select2-search__field[aria-controls='select2-${e.target.id}-results']`;
-      $(dropdownInput).each((key, value) => {
-        value.focus();
-      });
-    });
-
-    $('#id_copilot').select2({
-      placeholder: "Select an co-pilot for the project",
-      selectionCssClass: ":all:",
-      theme: "bootstrap4",
-      width: "100%"
-    });
-
-    $('#id_org').select2({
-      placeholder: "Select an org for the project",
-      selectionCssClass: ":all:",
-      theme: "bootstrap4",
-      width: "100%"
-    });
-  });
-</script>
-{% endblock %}
