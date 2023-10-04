@@ -94,6 +94,11 @@ application_urls = [
         "<str:pk_hash>/delete/", ApplicationRemove.as_view(), name="application-delete"
     ),
     path(
+        "<str:pk_hash>/researchers/<int:pk>/edit/",
+        ResearcherEdit.as_view(),
+        name="researcher-edit",
+    ),
+    path(
         "<str:pk_hash>/restore/",
         ApplicationRestore.as_view(),
         name="application-restore",
@@ -201,10 +206,6 @@ report_urls = [
     ),
 ]
 
-researcher_urls = [
-    path("<int:pk>/edit/", ResearcherEdit.as_view(), name="researcher-edit"),
-]
-
 
 sentry_urls = [
     path("", sentry.index, name="index"),
@@ -240,7 +241,6 @@ urlpatterns = [
     path("redirects/", include(redirect_urls)),
     path("repos/", include(repo_urls)),
     path("reports/", include(report_urls)),
-    path("researchers/", include(researcher_urls)),
     path("sentry/", include((sentry_urls, "sentry"), namespace="sentry")),
     path("users/", include(user_urls)),
     path("workspaces/", include(workspace_urls)),
