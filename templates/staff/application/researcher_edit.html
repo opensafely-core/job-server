@@ -48,7 +48,7 @@
 
       {% for value, label in form.does_researcher_need_server_access.field.choices %}
         {% with id=forloop.counter0|stringformat:"s" %}
-          {% if form.does_researcher_need_server_access.value == value %}
+          {% if form.does_researcher_need_server_access.value|stringformat:"s" == value|stringformat:"s" %}
           {% var checked=True %}
           {% else %}
           {% var checked=False %}
@@ -86,7 +86,7 @@
 
       {% for value, label in form.has_taken_safe_researcher_training.field.choices %}
         {% with id=forloop.counter0|stringformat:"s" %}
-          {% if form.has_taken_safe_researcher_training.value == value %}
+          {% if form.has_taken_safe_researcher_training.value|stringformat:"s" == value|stringformat:"s" %}
           {% var checked=True %}
           {% else %}
           {% var checked=False %}
