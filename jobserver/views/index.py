@@ -12,6 +12,7 @@ class Index(View):
                 "created_by",
                 "workspace",
                 "workspace__project",
+                "workspace__project__org",
             )
             .order_by("-created_at")
         )
