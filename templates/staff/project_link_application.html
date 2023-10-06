@@ -1,92 +1,54 @@
-{% extends "staff/base.html" %}
-
-{% load static %}
+{% extends "staff/base-tw.html" %}
 
 {% block metatitle %}{{ project.title }}: Staff Area | OpenSAFELY Jobs{% endblock metatitle %}
 
 {% block breadcrumbs %}
-<nav class="breadcrumb-container breadcrumb--danger" aria-label="breadcrumb">
-  <div class="container">
-    <ol class="breadcrumb rounded-0 mb-0 px-0">
-      <li class="breadcrumb-item">
-        <a href="{% url 'staff:index' %}">Staff area</a>
-      </li>
-      <li class="breadcrumb-item">
-        <a href="{% url 'staff:project-list' %}">Projects</a>
-      </li>
-      <li class="breadcrumb-item">
-        <a href="{{ project.get_staff_url }}">{{ project.title }}</a>
-      </li>
-      <li class="breadcrumb-item active" aria-current="page">
-        Link Application
-      </li>
-    </ol>
-  </div>
-</nav>
+  {% #breadcrumbs %}
+    {% url "staff:index" as staff_url %}
+    {% url "staff:project-list" as staff_project_list_url %}
+    {% breadcrumb title="Staff area" url=staff_url %}
+    {% breadcrumb title="Projects" url=staff_project_list_url %}
+    {% breadcrumb title=project.title url=project.get_staff_url %}
+    {% breadcrumb title="Link to an Application" active=True %}
+  {% /breadcrumbs %}
 {% endblock breadcrumbs %}
 
-{% block jumbotron %}
-<div class="jumbotron jumbotron-fluid jumbotron--danger pt-md-2">
-  <div class="container">
-    <h1 class="display-4">Link to an Application</h1>
-    <ul class="list-unstyled lead">
-      <li>
-        <strong>Project:</strong>
-        <a href="{{ project.get_staff_url }}">{{ project.title }}</a>
-      </li>
-  </div>
-</div>
-{% endblock jumbotron %}
+{% block hero %}
+  {% #staff_hero title="Link to an Application" %}
+    <p class="max-w-prose">
+      Projects for external researchers should all have an approved
+      application linked to them. Use this form to find the application and
+      link it to the
+      {% link href=project.get_staff_url text=project.title %}
+      project.
+    </p>
+  {% /staff_hero %}
+{% endblock hero %}
 
 {% block content %}
-<div class="container">
-  <div class="row">
-    <div class="col col-lg-9 col-xl-8">
-
-      <p>
-        Projects for external researchers should all have an approved
-        application linked to them.  Use this form to find the application and
-        link it to the {{ project.title }} project.
-      </p>
-
-      <p><em>Note: Older Projects may not have an application in the system yet.</em></p>
-
-      {% if form.non_field_errors %}
-      <ul>
-        {% for error in form.non_field_errors %}
-        <li class="text-danger">{{ error }}</li>
-        {% endfor %}
-      </ul>
-      {% endif %}
-
-      <ul class="list-group">
-
+  <div class="flex flex-col items-stretch gap-y-6 w-full max-w-3xl">
+    {% #card title="Applications without a linked project" %}
+      {% #list_group %}
         {% for application in applications %}
-        <li class="list-group-item">
-
-          <form method="POST">
-            {% csrf_token %}
-
-            <input type="hidden" name="application" value="{{ application.pk }}" />
-
-            <div class="d-flex justify-content-between align-items-center">
-              <span>
-                <a href="{{ application.get_staff_url }}">
-                  {{ application.pk_hash }} by {{ application.created_by.name }}
-                </a>
-                <small>({{ application.status }})</small>
-              </span>
-
-              <button class="btn btn-sm btn-primary" type="submit">Link</button>
+          <li class="flex flex-row gap-2 px-4 py-4 sm:px-6">
+            <span class="text-base text-slate-800 font-semibold">
+              {{ application.pk_hash }} by {{ application.created_by.name }}
+            </span>
+            <div class="flex flex-row gap-2 ml-auto">
+              {% #button type="link" variant="secondary" href=application.get_staff_url small=True %}
+                View
+              {% /button %}
+              <form method="POST" action="{{ membership.get_staff_remove_url }}">
+                {% csrf_token %}
+                <input type="hidden" name="application" value="{{ application.pk }}">
+                {% #button type="submit" variant="primary" small=True %}
+                  Link <span class="sr-only">from {{ project.title }}</span>
+                {% /button %}
+              </form>
             </div>
-          </form>
-
-        </li>
+          </li>
         {% endfor %}
-
-      </ul>
-
-    </div>
+      {% /list_group %}
+    {% /card %}
   </div>
-</div>
 {% endblock content %}
