@@ -14,7 +14,7 @@ class Index(View):
                 "workspace__project",
                 "workspace__project__org",
             )
-            .order_by("-created_at")
+            .order_by("-pk")
         )
 
         if not self.request.user.is_authenticated:
