@@ -1,30 +1,18 @@
-{% extends "staff/base.html" %}
+{% extends "staff/base-tw.html" %}
 
-{% block metatitle %}{{ membership.user.name }}: {{ membership.project.title }} | OpenSAFELY Jobs{% endblock metatitle %}
+{% load roles %}
+
+{% block metatitle %}Edit member: {{ membership.user.name }} &mdash; {{ membership.project.title }} | OpenSAFELY Jobs{% endblock metatitle %}
 
 {% block breadcrumbs %}
-<nav class="breadcrumb-container breadcrumb--danger" aria-label="breadcrumb">
-  <div class="container">
-    <ol class="breadcrumb rounded-0 mb-0 px-0">
-      <li class="breadcrumb-item">
-        <a href="{% url 'staff:index' %}">Staff area</a>
-      </li>
-      <li class="breadcrumb-item">
-        <a href="{% url 'staff:project-list' %}">
-          Projects
-        </a>
-      </li>
-      <li class="breadcrumb-item">
-        <a href="{{ membership.project.get_staff_url }}">
-          {{ membership.project.title }}
-        </a>
-      </li>
-      <li class="breadcrumb-item active" aria-current="page">
-        Edit member {{ membership.user.name }}
-      </li>
-    </ol>
-  </div>
-</nav>
+  {% #breadcrumbs %}
+    {% url "staff:index" as staff_url %}
+    {% url "staff:project-list" as staff_project_list_url %}
+    {% breadcrumb title="Staff area" url=staff_url %}
+    {% breadcrumb title="Projects" url=staff_project_list_url %}
+    {% breadcrumb title=membership.project.title url=membership.project.get_staff_url %}
+    {% breadcrumb title="Edit member: "|add:membership.user.name active=True %}
+  {% /breadcrumbs %}
 {% endblock breadcrumbs %}
 
 {% block jumbotron %}
@@ -36,43 +24,73 @@
 </div>
 {% endblock jumbotron %}
 
-{% block content %}
-<div class="container">
-  <div class="row">
-    <div class="col-lg-9 col-xl-8">
+{% block hero %}
+  {% #staff_hero title="Edit member: "|add:membership.user.name %}
+    <p><strong>GitHub Username:</strong> {{ membership.user.username }}</p>
+  {% /staff_hero %}
+{% endblock hero %}
 
-      <form method="POST">
+{% block content %}
+  <div class="flex flex-col gap-8">
+
+    {% #card class="max-w-3xl" container=True %}
+      <form method="POST" class="flex flex-col items-stretch gap-y-6">
         {% csrf_token %}
 
         {% if form.non_field_errors %}
-        <ul>
           {% for error in form.non_field_errors %}
-            <li class="text-danger">{{ error }}</li>
+            {% #alert variant="danger" class="mb-6" %}
+              {{ error }}
+            {% /alert %}
           {% endfor %}
-        </ul>
         {% endif %}
 
-        {% include "components/form_roles.html" with field=form.roles label="Project Roles" name="roles" %}
+        {% #form_fieldset %}
+          {% form_legend text="Select roles to assign to "|add:membership.user.name %}
+          {% for value, label in form.roles.field.choices %}
+            {% with id=forloop.counter0|stringformat:"s" %}
+              {% if value in form.roles.value %}
+                {% var checked=True %}
+              {% else %}
+                {% var checked=False %}
+              {% endif %}
 
-        <button class="btn btn-primary" type="submit">Save</button>
+              {% fragment as form_label %}
+                <span class="font-bold block text-base">{{ label }}</span>
+                <span class="text-sm">{{ value|role_description|linebreaksbr }}</span>
+              {% endfragment %}
+
+              {% form_checkbox custom_field=True name="roles" id="id_roles_"|add:id|slugify label=form_label value=value checked=checked %}
+            {% endwith %}
+          {% endfor %}
+        {% /form_fieldset %}
+
+        {% #button variant="success" type="submit" class="self-start" %}
+          Update member
+        {% /button %}
       </form>
+    {% /card %}
 
-      <form class="pt-5 mt-5 border-top" method="POST"
-            action="{{ membership.get_staff_remove_url }}{% if "next" in request.GET %}?next={{ request.GET.next }}{% endif %}">
+    {% #card class="max-w-3xl" container=True %}
+      <form
+        action="{{ membership.get_staff_remove_url }}{% if "next" in request.GET %}?next={{ request.GET.next }}{% endif %}"
+        class="flex flex-col items-stretch gap-y-6"
+        method="POST"
+      >
         {% csrf_token %}
-        <fieldset id="remove">
-          <legend class="h3 mb-3">
+
+        {% #form_fieldset %}
+          {% fragment as legend_text %}
+            Do you want to remove {{ membership.user.name }} from {{ membership.project.title }}?
+          {% endfragment %}
+          {% form_legend text=legend_text %}
+
+          {% #button variant="danger" type="submit" class="self-start" %}
             Remove member
-          </legend>
+          {% /button %}
 
-          <p class="form-label">Do you want to remove {{ membership.user.name }} from {{ membership.project.title }}?</p>
-        </fieldset>
-
-        <button class="btn btn-danger" type="submit">Remove</button>
+        {% /form_fieldset %}
       </form>
-
-    </div>
-  </div>
-</div>
+    {% /card %}
 
 {% endblock %}
