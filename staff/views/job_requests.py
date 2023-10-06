@@ -18,10 +18,10 @@ class JobRequestDetail(DetailView):
 
 @method_decorator(require_role(CoreDeveloper), name="dispatch")
 class JobRequestList(ListView):
-    model = JobRequest
     ordering = "-created_at"
     paginate_by = 25
     template_name = "staff/job_request/list.html"
+    queryset = JobRequest.objects.prefetch_related("workspace", "workspace__project")
 
     def get_context_data(self, **kwargs):
         backends = {
