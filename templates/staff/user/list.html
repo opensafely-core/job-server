@@ -75,6 +75,15 @@
       {% /list_group %}
     {% /card %}
 
+    {% #card title="Filter by global role" container=True %}
+      {% #multiselect custom_field=True name="role" placeholder="Select a role" %}
+        {% for role in roles %}
+          {% is_filter_selected key="role" value=role as is_role_active %}
+          {% multiselect_option value=role name=role is_active=is_role_active %}
+        {% endfor %}
+      {% /multiselect %}
+    {% /card %}
+
     {% #card title="Filter by missing link" container=True %}
       {% #multiselect custom_field=True name="missing" placeholder="Select a missing link" %}
         {% for missing_name in missing_names %}
@@ -89,15 +98,6 @@
         {% for org in orgs %}
           {% is_filter_selected key="org" value=org.slug as is_org_active %}
           {% multiselect_option value=org.slug name=org.name is_active=is_org_active %}
-        {% endfor %}
-      {% /multiselect %}
-    {% /card %}
-
-    {% #card title="Filter by role" container=True %}
-      {% #multiselect custom_field=True name="role" placeholder="Select a role" %}
-        {% for role in roles %}
-          {% is_filter_selected key="role" value=role as is_role_active %}
-          {% multiselect_option value=role name=role is_active=is_role_active %}
         {% endfor %}
       {% /multiselect %}
     {% /card %}
