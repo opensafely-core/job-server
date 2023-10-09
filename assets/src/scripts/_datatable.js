@@ -3,24 +3,13 @@ import "../styles/_datatable.css";
 
 const tableEl = document.getElementById("customTable");
 
-const template = (options) => `<div class='${
-  options.classes.top
-} fixed-table-toolbar'>
-  ${
-    options.paging && options.perPageSelect
-      ? `<div class='${options.classes.dropdown} bs-bars float-left'>
-          <label>
-              <select class='${options.classes.selector}'></select>
-          </label>
-      </div>`
-      : ""
-  }
-</div>
+const template = (options) => `
 <div class='${options.classes.container}'${
   options.scrollY.length
     ? ` style='height: ${options.scrollY}; overflow-Y: auto;'`
     : ""
-}></div>`;
+}></div>
+`;
 
 const opts = {
   paging: true,
@@ -29,10 +18,7 @@ const opts = {
   sortable: true,
   perPageSelect: false,
   template,
-  tableRender: (_data, table, type) => {
-    if (type === "print") {
-      return table;
-    }
+  tableRender: (_data, table) => {
     const tHead = table.childNodes[0];
     const filterHeaders = {
       nodeName: "TR",
@@ -64,43 +50,53 @@ const pageNumberEl = document.querySelector(
 const totalPagesEl = document.querySelector(
   `[data-table-pagination="total-pages"]`,
 );
-const nextPageBtn = document.querySelector(
-  `[data-table-pagination="next-page"]`,
-);
 
-const firstPageClick = () => {
-  if (dataTable.pages.length > 1) {
-    dataTable.page(2);
+function pageButtonState(el, state) {
+  if (state) {
+    el.classList.remove("hidden");
+    el.addEventListener("click", () => dataTable.page(state));
+  } else {
+    el.classList.add("hidden");
   }
-};
+}
 
-dataTable.on("datatable.init", () => {
-  const pageNum = 1;
-  pageNumberEl.innerHTML = pageNum;
-  totalPagesEl.innerHTML = dataTable.pages.length;
+function getPageButtons() {
+  let nextPageBtn = document.querySelector(
+    `[data-table-pagination="next-page"]`,
+  );
+  nextPageBtn.replaceWith(nextPageBtn.cloneNode(true));
+  nextPageBtn = document.querySelector(`[data-table-pagination="next-page"]`);
 
-  nextPageBtn.addEventListener("click", firstPageClick);
-});
+  let previousPageBtn = document.querySelector(
+    `[data-table-pagination="previous-page"]`,
+  );
+  previousPageBtn.replaceWith(previousPageBtn.cloneNode(true));
+  previousPageBtn = document.querySelector(
+    `[data-table-pagination="previous-page"]`,
+  );
 
-dataTable.on("datatable.page", (page) => {
-  const pageNum = page;
-  pageNumberEl.innerHTML = pageNum;
-  totalPagesEl.innerHTML = dataTable.pages.length;
+  return { nextPageBtn, previousPageBtn };
+}
 
-  for (const eventType in getEventListeners(nextPageBtn)) {
-    getEventListeners(nextPageBtn)[eventType].forEach((o) => {
-      o.remove();
-    });
-  }
-  nextPageBtn.addEventListener("click", (e) => {
-    e.preventDefault();
-    if (dataTable.pages.length > pageNum) {
-      dataTable.page(pageNum + 1);
-    }
-  });
-});
+function setPaginationButtons(currentPage) {
+  const { nextPageBtn, previousPageBtn } = getPageButtons();
+  const totalPages = dataTable.pages.length;
+  const pagination = {
+    currentPage,
+    totalPages,
+    nextPage: currentPage < totalPages ? currentPage + 1 : null,
+    previousPage: currentPage > 1 ? currentPage - 1 : null,
+  };
 
-dataTable.on("datatable.search", (query, matched) => {
+  pageNumberEl.innerHTML = pagination.currentPage;
+  totalPagesEl.innerHTML = pagination.totalPages;
+  pageButtonState(nextPageBtn, pagination.nextPage);
+  pageButtonState(previousPageBtn, pagination.previousPage);
+}
+
+dataTable.on("datatable.init", () => setPaginationButtons(1));
+dataTable.on("datatable.page", (page) => setPaginationButtons(page));
+dataTable.on("datatable.search", () => {
   document.querySelector(`[data-table-pagination="page-number"]`).innerHTML = 1;
-  totalPagesEl.innerHTML = dataTable.pages.length;
+  setPaginationButtons(1);
 });
