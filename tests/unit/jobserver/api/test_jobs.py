@@ -75,7 +75,7 @@ def test_update_stats_new_url():
     assert backend.stats.last().url == "new-url"
 
 
-def test_jobapiupdate_all_existing(api_rf, freezer):
+def test_jobapiupdate_all_existing(api_rf, time_machine):
     backend = BackendFactory()
     job_request = JobRequestFactory()
 
@@ -261,7 +261,7 @@ def test_jobapiupdate_is_behind_auth(api_rf):
     assert response.status_code == 403, response.data
 
 
-def test_jobapiupdate_mixture(api_rf, freezer):
+def test_jobapiupdate_mixture(api_rf, time_machine):
     backend = BackendFactory()
     job_request = JobRequestFactory()
 

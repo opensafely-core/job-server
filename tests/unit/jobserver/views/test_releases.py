@@ -295,7 +295,7 @@ def test_releasefiledelete_no_file_on_disk(rf):
         )
 
 
-def test_releasefiledelete_success(rf, freezer, release):
+def test_releasefiledelete_success(rf, time_machine, release):
     rfile = release.files.first()
     user = UserFactory(roles=[OutputChecker])
 

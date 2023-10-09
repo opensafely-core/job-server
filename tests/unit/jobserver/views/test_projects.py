@@ -94,7 +94,7 @@ def test_projectdetail_for_interactive_button(rf, user):
     assert "Run interactive analysis" in response.rendered_content
 
 
-def test_projectdetail_with_multiple_releases(rf, freezer):
+def test_projectdetail_with_multiple_releases(rf, time_machine):
     project = ProjectFactory()
 
     now = timezone.now()

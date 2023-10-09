@@ -268,7 +268,7 @@ def test_applicationdetail_post_with_complete_application(
     django_assert_max_num_queries,
     core_developer,
     complete_application,
-    freezer,
+    time_machine,
 ):
     application = complete_application
 
@@ -310,7 +310,7 @@ def test_applicationdetail_post_with_incomplete_application(
     rf,
     core_developer,
     incomplete_application,
-    freezer,
+    time_machine,
 ):
     application = incomplete_application
 

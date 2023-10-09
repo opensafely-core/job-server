@@ -58,7 +58,7 @@ def test_dbavailability_out_of_db_maintenance(rf):
     ],
     ids=["missing", "not_missing"],
 )
-def test_perbackendstatus(rf, freezer, alert_timeout, last_seen, expected_status):
+def test_perbackendstatus(rf, time_machine, alert_timeout, last_seen, expected_status):
     backend = BackendFactory(alert_timeout=alert_timeout)
     StatsFactory(backend=backend, api_last_seen=last_seen)
 
