@@ -175,7 +175,13 @@ def test_researcherregistration_get_staff_edit_url():
 
     url = researcher.get_staff_edit_url()
 
-    assert url == reverse("staff:researcher-edit", kwargs={"pk": researcher.pk})
+    assert url == reverse(
+        "staff:researcher-edit",
+        kwargs={
+            "pk_hash": researcher.application.pk_hash,
+            "pk": researcher.pk,
+        },
+    )
 
 
 def test_researcherregistration_str():

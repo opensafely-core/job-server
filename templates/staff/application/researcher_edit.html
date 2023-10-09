@@ -1,0 +1,107 @@
+{% extends "staff/base-tw.html" %}
+
+{% block metatitle %}Edit {{ researcher.name }}: Staff Area | OpenSAFELY Jobs{% endblock metatitle %}
+
+{% block breadcrumbs %}
+{% #breadcrumbs %}
+  {% url "staff:index" as staff_url %}
+  {% url "staff:application-list" as staff_application_list_url %}
+  {% breadcrumb title="Staff area" url=staff_url %}
+  {% breadcrumb title="Applications" url=staff_application_list_url %}
+  {% breadcrumb title="Application: "|add:researcher.application.pk_hash url=researcher.application.get_staff_url|add:"#researcher-details" %}
+  {% breadcrumb title="Edit researcher: "|add:researcher.name active=True %}
+{% /breadcrumbs %}
+{% endblock breadcrumbs %}
+
+{% block hero %}
+{% staff_hero title="Edit Researcher: "|add:researcher.name %}
+{% endblock hero %}
+
+{% block content %}
+<form method="POST" class="flex flex-col gap-8">
+  {% csrf_token %}
+
+  {% if form.non_field_errors %}
+    {% for error in form.non_field_errors %}
+      {% #alert variant="danger" class="mb-6" %}
+        {{ error }}
+      {% /alert %}
+    {% endfor %}
+  {% endif %}
+
+  {% #card title="Researcher contact information" class="max-w-3xl" container=True %}
+    {% #form_fieldset class="grid gap-y-6 !min-w-0 w-full max-w-prose" %}
+      {% form_legend text="Researcher contact information" class="sr-only" %}
+
+      {% form_input field=form.name label="Researcher name" name="name" %}
+      {% form_input field=form.job_title label="Researcher job title" name="job_title" %}
+      {% form_input field=form.email label="Researcher work email address" name="email" type="email" %}
+      {% form_input field=form.telephone label="Mobile phone number" name="telephone" %}
+      {% form_input field=form.github_username label="GitHub username" name="github_username" %}
+      {% form_input field=form.daa label="DAA" name="daa" %}
+    {% /form_fieldset %}
+  {% /card %}
+
+  {% #card title="Secure results server" class="max-w-3xl" container=True %}
+    {% #form_fieldset class="grid gap-y-2 !min-w-0 w-full max-w-prose" %}
+      {% form_legend text="Does this researcher require access to the OpenSAFELY secure results server?" %}
+
+      {% for value, label in form.does_researcher_need_server_access.field.choices %}
+        {% with id=forloop.counter0|stringformat:"s" %}
+          {% if form.does_researcher_need_server_access.value|stringformat:"s" == value|stringformat:"s" %}
+          {% var checked=True %}
+          {% else %}
+          {% var checked=False %}
+          {% endif %}
+          {% form_radio name="does_researcher_need_server_access" id="id_does_researcher_need_server_access"|add:label|add:"_"|add:id|slugify label=label value=value checked=checked %}
+        {% endwith %}
+      {% endfor %}
+    {% /form_fieldset %}
+  {% /card %}
+
+  {% #card title="Mobile phone" class="max-w-3xl" container=True %}
+    <p class="prose mb-4">
+      This is required to set up Virtual Private Network (VPN) access to access the results server.
+    </p>
+
+    {% #form_fieldset class="grid gap-y-2 !min-w-0 w-full max-w-prose" %}
+      {% form_legend text="What type of smartphone does this researcher have?" %}
+
+      {% for value, label in form.phone_type.field.choices %}
+        {% with id=forloop.counter0|stringformat:"s" %}
+          {% if form.phone_type.value == value %}
+          {% var checked=True %}
+          {% else %}
+          {% var checked=False %}
+          {% endif %}
+          {% form_radio name="phone_type" id="id_"|add:label|add:"_"|add:id|slugify label=label value=value checked=checked %}
+        {% endwith %}
+      {% endfor %}
+    {% /form_fieldset %}
+  {% /card %}
+
+  {% #card title="Safe researcher training" class="max-w-3xl" container=True container_class="grid gap-y-6 max-w-prose" %}
+    {% #form_fieldset class="grid gap-y-2 !min-w-0 w-full max-w-prose" %}
+      {% form_legend text="Has this researcher undertaken safe researcher training?" %}
+
+      {% for value, label in form.has_taken_safe_researcher_training.field.choices %}
+        {% with id=forloop.counter0|stringformat:"s" %}
+          {% if form.has_taken_safe_researcher_training.value|stringformat:"s" == value|stringformat:"s" %}
+          {% var checked=True %}
+          {% else %}
+          {% var checked=False %}
+          {% endif %}
+            {% form_radio name="has_taken_safe_researcher_training" id="id_has_taken_safe_researcher_training"|add:label|add:"_"|add:id|slugify label=label value=value checked=checked %}
+        {% endwith %}
+      {% endfor %}
+    {% /form_fieldset %}
+
+    {% form_input field=form.training_with_org label="If yes, with which organisation?" %}
+    {% form_input custom_field=True label="If yes, on what date did they pass?" id="id_training_passed_at" name="training_passed_at" type="date" required=form.training_passed_at.field.required value=form.training_passed_at.value|date:"Y-m-d" %}
+  {% /card %}
+
+  {% #button variant="success" type="submit" class="self-start" %}
+    Save changes
+  {% /button %}
+</form>
+{% endblock content %}
