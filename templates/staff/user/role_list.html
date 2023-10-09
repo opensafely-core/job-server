@@ -32,7 +32,7 @@
   <form method="POST">
     {% csrf_token %}
 
-    {% #card title="Roles" container=True %}
+    {% #card title="Global Roles" container=True %}
       {% if form.non_field_errors %}
         {% for error in form.non_field_errors %}
           {% #alert variant="danger" class="mb-6" %}
@@ -51,7 +51,7 @@
             {% endfor %}
           {% endif %}
 
-          {% form_legend text="Set the users roles" %}
+          {% form_legend text="Assign roles site-wide (Note: this should usually only be used for internal staff users)" %}
 
           {% for value, label in form.roles.field.choices %}
             {% with id=forloop.counter0|stringformat:"s" %}
