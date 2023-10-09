@@ -17,3 +17,8 @@ if (analysisRequest) {
 }
 
 hljs.highlightAll();
+
+(async () => {
+  const tableEl = document.getElementById("customTable");
+  if (tableEl) await import("./_datatable");
+})();

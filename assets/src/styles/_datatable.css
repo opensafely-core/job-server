@@ -1,0 +1,45 @@
+#customTable {
+  @apply min-w-full divide-y divide-slate-300;
+
+  & th {
+    @apply py-3.5 px-2 text-left text-sm font-semibold text-slate-900;
+
+    & button {
+      @apply text-left relative w-full;
+
+      &:after {
+        content: "^";
+        position: absolute;
+        right: 0;
+        top: 0;
+      }
+    }
+  }
+
+  & thead {
+    @apply bg-slate-200;
+  }
+
+  & tbody {
+    @apply divide-y divide-slate-200 bg-white;
+  }
+
+  & td {
+    @apply px-2 py-2 text-sm text-slate-700;
+  }
+
+  & tr {
+    @apply even:bg-slate-50;
+  }
+
+  & input {
+    @apply mt-1 block w-full rounded-md border-slate-300 text-slate-900 shadow-sm font-normal focus:border-oxford-500 focus:ring-oxford-500 sm:text-sm;
+  }
+
+  & a {
+    @apply
+      font-semibold text-oxford-600 underline underline-offset-2 decoration-oxford-300 transition-colors duration-200
+      hover:decoration-transparent hover:text-oxford
+      focus:decoration-transparent focus:text-oxford focus:bg-bn-sun-300;
+  }
+}
