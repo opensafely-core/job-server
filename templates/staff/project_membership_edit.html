@@ -46,7 +46,7 @@
         {% endif %}
 
         {% #form_fieldset %}
-          {% form_legend text="Select roles to assign to "|add:membership.user.name %}
+          {% form_legend text="Select project roles to assign to "|add:membership.user.name %}
           {% for value, label in form.roles.field.choices %}
             {% with id=forloop.counter0|stringformat:"s" %}
               {% if value in form.roles.value %}
