@@ -257,7 +257,7 @@ class UserList(ListView):
             elif any_roles == "no":
                 qs = qs.filter(query)
 
-        return qs
+        return qs.distinct()
 
 
 @method_decorator(require_permission("user_manage"), name="dispatch")

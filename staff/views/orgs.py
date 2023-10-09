@@ -178,7 +178,7 @@ class OrgList(ListView):
             ]
             qs = qs.filter(qwargs(fields, q))
 
-        return qs
+        return qs.distinct()
 
 
 @method_decorator(require_role(CoreDeveloper), name="dispatch")

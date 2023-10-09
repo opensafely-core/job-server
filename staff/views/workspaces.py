@@ -88,4 +88,4 @@ class WorkspaceList(ListView):
         if projects := self.request.GET.getlist("projects"):
             qs = qs.filter(project__slug__in=projects)
 
-        return qs
+        return qs.distinct()
