@@ -1,5 +1,7 @@
 {% extends "staff/base-tw.html" %}
 
+{% load django_vite %}
+
 {% block metatitle %}Create an interactive project: Staff Area | OpenSAFELY Jobs{% endblock metatitle %}
 
 {% block breadcrumbs %}
@@ -30,8 +32,16 @@
 
     {% #card title="Create an Interactive Project" class="max-w-3xl" container=True %}
       <div class="flex flex-col items-stretch gap-y-6 w-full max-w-3xl">
-        {% form_select field=form.fields.org choices=form.fields.org.choices selected=form.org.value id="id_org" name="org" label="Select an org" %}
-        {% form_select field=form.fields.copilot choices=form.fields.copilot.choices selected=form.copilot.value id="id_copilot" name="copilot" label="Select a user to co-pilot this project" %}
+        {% #form_fieldset %}
+          {% form_legend text="Select an org" %}
+          {% multiselect class="w-full" data-max-items=1 field=form.fields.org multiple=False %}
+        {% /form_fieldset %}
+
+        {% #form_fieldset %}
+          {% form_legend text="Select a user to co-pilot this project" %}
+          {% multiselect class="w-full" data-max-items=1 field=form.fields.copilot multiple=False %}
+        {% /form_fieldset %}
+
         {% form_input field=form.application_url label="Application URL" %}
         {% form_input field=form.name label="Project name"%}
         {% form_input field=form.number label="Project number" %}
@@ -43,3 +53,7 @@
     {% /button %}
   </form>
 {% endblock content %}
+
+{% block extra_js %}
+  {% vite_asset "templates/_components/multiselect/multiselect.js" %}
+{% endblock extra_js %}
