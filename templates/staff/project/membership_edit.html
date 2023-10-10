@@ -1,0 +1,96 @@
+{% extends "staff/base-tw.html" %}
+
+{% load roles %}
+
+{% block metatitle %}Edit member: {{ membership.user.name }} &mdash; {{ membership.project.title }} | OpenSAFELY Jobs{% endblock metatitle %}
+
+{% block breadcrumbs %}
+  {% #breadcrumbs %}
+    {% url "staff:index" as staff_url %}
+    {% url "staff:project-list" as staff_project_list_url %}
+    {% breadcrumb title="Staff area" url=staff_url %}
+    {% breadcrumb title="Projects" url=staff_project_list_url %}
+    {% breadcrumb title=membership.project.title url=membership.project.get_staff_url %}
+    {% breadcrumb title="Edit member: "|add:membership.user.name active=True %}
+  {% /breadcrumbs %}
+{% endblock breadcrumbs %}
+
+{% block jumbotron %}
+<div class="jumbotron jumbotron-fluid jumbotron--danger pt-md-2">
+  <div class="container">
+    <h1 class="display-4">{{ membership.user.name }}</h1>
+    <p class="lead"><span class="sr-only">Username: </span>{{ membership.user.username }}</p>
+  </div>
+</div>
+{% endblock jumbotron %}
+
+{% block hero %}
+  {% #staff_hero title="Edit member: "|add:membership.user.name %}
+    <p><strong>GitHub Username:</strong> {{ membership.user.username }}</p>
+  {% /staff_hero %}
+{% endblock hero %}
+
+{% block content %}
+  <div class="flex flex-col gap-8">
+
+    {% #card class="max-w-3xl" container=True %}
+      <form method="POST" class="flex flex-col items-stretch gap-y-6">
+        {% csrf_token %}
+
+        {% if form.non_field_errors %}
+          {% for error in form.non_field_errors %}
+            {% #alert variant="danger" class="mb-6" %}
+              {{ error }}
+            {% /alert %}
+          {% endfor %}
+        {% endif %}
+
+        {% #form_fieldset %}
+          {% form_legend text="Select project roles to assign to "|add:membership.user.name %}
+          {% for value, label in form.roles.field.choices %}
+            {% with id=forloop.counter0|stringformat:"s" %}
+              {% if value in form.roles.value %}
+                {% var checked=True %}
+              {% else %}
+                {% var checked=False %}
+              {% endif %}
+
+              {% fragment as form_label %}
+                <span class="font-bold block text-base">{{ label }}</span>
+                <span class="text-sm">{{ value|role_description|linebreaksbr }}</span>
+              {% endfragment %}
+
+              {% form_checkbox custom_field=True name="roles" id="id_roles_"|add:id|slugify label=form_label value=value checked=checked %}
+            {% endwith %}
+          {% endfor %}
+        {% /form_fieldset %}
+
+        {% #button variant="success" type="submit" class="self-start" %}
+          Update member
+        {% /button %}
+      </form>
+    {% /card %}
+
+    {% #card class="max-w-3xl" container=True %}
+      <form
+        action="{{ membership.get_staff_remove_url }}{% if "next" in request.GET %}?next={{ request.GET.next }}{% endif %}"
+        class="flex flex-col items-stretch gap-y-6"
+        method="POST"
+      >
+        {% csrf_token %}
+
+        {% #form_fieldset %}
+          {% fragment as legend_text %}
+            Do you want to remove {{ membership.user.name }} from {{ membership.project.title }}?
+          {% endfragment %}
+          {% form_legend text=legend_text %}
+
+          {% #button variant="danger" type="submit" class="self-start" %}
+            Remove member
+          {% /button %}
+
+        {% /form_fieldset %}
+      </form>
+    {% /card %}
+
+{% endblock %}

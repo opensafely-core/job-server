@@ -1,0 +1,78 @@
+{% extends "staff/base-tw.html" %}
+
+{% load django_vite %}
+{% load roles %}
+
+{% block metatitle %}Invite members: {{ project.title }} | OpenSAFELY Jobs{% endblock metatitle %}
+
+{% block breadcrumbs %}
+  {% #breadcrumbs %}
+    {% url "staff:index" as staff_url %}
+    {% url "staff:project-list" as staff_project_list_url %}
+    {% breadcrumb title="Staff area" url=staff_url %}
+    {% breadcrumb title="Projects" url=staff_project_list_url %}
+    {% breadcrumb title=project.title url=project.get_staff_url %}
+    {% breadcrumb title="Add members" active=True %}
+  {% /breadcrumbs %}
+{% endblock breadcrumbs %}
+
+{% block hero %}
+  {% #staff_hero title="Add members" %}
+    Add members to the {{ project.title }} project.
+  {% /staff_hero %}
+{% endblock hero %}
+
+{% block content %}
+  <form method="POST" class="flex flex-col gap-8">
+    {% csrf_token %}
+
+    {% if form.non_field_errors %}
+      {% for error in form.non_field_errors %}
+        {% #alert variant="danger" class="mb-6" %}
+          {{ error }}
+        {% /alert %}
+      {% endfor %}
+    {% endif %}
+
+    {% #card class="max-w-3xl" container=True %}
+      <div class="flex flex-col items-stretch gap-y-6 w-full max-w-3xl">
+        {% #form_fieldset %}
+          {% form_legend text="Select users to add" %}
+          {% #multiselect class="w-full max-w-prose" field=form.fields.users custom_field=True id="id_users" name="users" placeholder="Select a user" %}
+            {% for value, label in form.fields.users.choices %}
+              {% if value in field.value %}
+                {% var is_active=True %}
+              {% else %}
+                {% var is_active=False %}
+              {% endif %}
+
+              {% multiselect_option value=value name=label is_active=is_active %}
+            {% endfor %}
+          {% /multiselect %}
+        {% /form_fieldset %}
+
+
+        {% #form_fieldset %}
+          {% form_legend text="Select roles to assign to users" %}
+          {% for value, label in form.roles.field.choices %}
+            {% with id=forloop.counter0|stringformat:"s" %}
+              {% fragment as form_label %}
+                <span class="font-bold block text-base">{{ label }}</span>
+                <span class="text-sm">{{ value|role_description|linebreaksbr }}</span>
+              {% endfragment %}
+              {% form_checkbox custom_field=True name="roles" id="id_roles_"|add:id|slugify label=form_label value=value checked=checked %}
+            {% endwith %}
+          {% endfor %}
+        {% /form_fieldset %}
+      </div>
+    {% /card %}
+
+    {% #button variant="success" type="submit" class="self-start" %}
+      Add users
+    {% /button %}
+  </form>
+{% endblock %}
+
+{% block extra_js %}
+  {% vite_asset "templates/_components/multiselect/multiselect.js" %}
+{% endblock extra_js %}

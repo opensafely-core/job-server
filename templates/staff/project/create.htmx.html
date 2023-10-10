@@ -1,4 +1,4 @@
-{% #card container=True title="Create an organisation" %}
+{% #card container=True title="Create a project" %}
   <form method="POST" hx-post="{{ post_url }}">
     {% csrf_token %}
 
@@ -13,8 +13,8 @@
     <div class="flex flex-col items-stretch gap-y-6 w-full max-w-3xl mb-6">
       {% form_select field=form.fields.org choices=form.fields.org.choices selected=form.org.value id="id_org" name="org" label="Select an org" %}
       {% form_select field=form.fields.copilot choices=form.fields.copilot.choices selected=form.copilot.value id="id_copilot" name="copilot" label="Select a user to co-pilot this project" %}
-      {% form_input field=form.name label="Project name"%}
       {% form_input field=form.application_url label="Application URL" %}
+      {% form_input field=form.name label="Project name"%}
       {% form_input field=form.number label="Project number" %}
     </div>
 

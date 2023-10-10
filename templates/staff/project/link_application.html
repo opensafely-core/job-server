@@ -1,0 +1,54 @@
+{% extends "staff/base-tw.html" %}
+
+{% block metatitle %}{{ project.title }}: Staff Area | OpenSAFELY Jobs{% endblock metatitle %}
+
+{% block breadcrumbs %}
+  {% #breadcrumbs %}
+    {% url "staff:index" as staff_url %}
+    {% url "staff:project-list" as staff_project_list_url %}
+    {% breadcrumb title="Staff area" url=staff_url %}
+    {% breadcrumb title="Projects" url=staff_project_list_url %}
+    {% breadcrumb title=project.title url=project.get_staff_url %}
+    {% breadcrumb title="Link to an Application" active=True %}
+  {% /breadcrumbs %}
+{% endblock breadcrumbs %}
+
+{% block hero %}
+  {% #staff_hero title="Link to an Application" %}
+    <p class="max-w-prose">
+      Projects for external researchers should all have an approved
+      application linked to them. Use this form to find the application and
+      link it to the
+      {% link href=project.get_staff_url text=project.title %}
+      project.
+    </p>
+  {% /staff_hero %}
+{% endblock hero %}
+
+{% block content %}
+  <div class="flex flex-col items-stretch gap-y-6 w-full max-w-3xl">
+    {% #card title="Applications without a linked project" %}
+      {% #list_group %}
+        {% for application in applications %}
+          <li class="flex flex-row gap-2 px-4 py-4 sm:px-6">
+            <span class="text-base text-slate-800 font-semibold">
+              {{ application.pk_hash }} by {{ application.created_by.name }}
+            </span>
+            <div class="flex flex-row gap-2 ml-auto">
+              {% #button type="link" variant="secondary" href=application.get_staff_url small=True %}
+                View
+              {% /button %}
+              <form method="POST" action="{{ membership.get_staff_remove_url }}">
+                {% csrf_token %}
+                <input type="hidden" name="application" value="{{ application.pk }}">
+                {% #button type="submit" variant="primary" small=True %}
+                  Link <span class="sr-only">from {{ project.title }}</span>
+                {% /button %}
+              </form>
+            </div>
+          </li>
+        {% endfor %}
+      {% /list_group %}
+    {% /card %}
+  </div>
+{% endblock content %}

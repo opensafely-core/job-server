@@ -1,0 +1,45 @@
+{% extends "staff/base-tw.html" %}
+
+{% block metatitle %}Create an interactive project: Staff Area | OpenSAFELY Jobs{% endblock metatitle %}
+
+{% block breadcrumbs %}
+  {% #breadcrumbs %}
+    {% url "staff:index" as staff_url %}
+    {% url "staff:project-list" as staff_project_list_url %}
+    {% breadcrumb title="Staff area" url=staff_url %}
+    {% breadcrumb title="Projects" url=staff_project_list_url %}
+    {% breadcrumb title="Create an Interactive Project" active=True %}
+  {% /breadcrumbs %}
+{% endblock breadcrumbs %}
+
+{% block hero %}
+  {% staff_hero title="Create an Interactive Project" %}
+{% endblock hero %}
+
+{% block content %}
+  <form method="POST" class="flex flex-col gap-8">
+    {% csrf_token %}
+
+    {% if form.non_field_errors %}
+      {% for error in form.non_field_errors %}
+        {% #alert variant="danger" class="mb-6" %}
+          {{ error }}
+        {% /alert %}
+      {% endfor %}
+    {% endif %}
+
+    {% #card title="Create an Interactive Project" class="max-w-3xl" container=True %}
+      <div class="flex flex-col items-stretch gap-y-6 w-full max-w-3xl">
+        {% form_select field=form.fields.org choices=form.fields.org.choices selected=form.org.value id="id_org" name="org" label="Select an org" %}
+        {% form_select field=form.fields.copilot choices=form.fields.copilot.choices selected=form.copilot.value id="id_copilot" name="copilot" label="Select a user to co-pilot this project" %}
+        {% form_input field=form.application_url label="Application URL" %}
+        {% form_input field=form.name label="Project name"%}
+        {% form_input field=form.number label="Project number" %}
+      </div>
+    {% /card %}
+
+    {% #button variant="success" type="submit" class="self-start" %}
+      Add project
+    {% /button %}
+  </form>
+{% endblock content %}

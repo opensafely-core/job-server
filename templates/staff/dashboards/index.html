@@ -1,77 +1,46 @@
-{% extends "staff/base.html" %}
+{% extends "staff/base-tw.html" %}
 
 {% block metatitle %}Dashboards: Staff Area | OpenSAFELY Jobs{% endblock metatitle %}
 
 {% block breadcrumbs %}
-<nav class="breadcrumb-container breadcrumb--danger" aria-label="breadcrumb">
-  <div class="container">
-    <ol class="breadcrumb rounded-0 mb-0 px-0">
-      <li class="breadcrumb-item">
-        <a href="{% url 'staff:index' %}">Staff area</a>
-      </li>
-      <li class="breadcrumb-item active" aria-current="page">
-        Dashboards
-      </li>
-    </ol>
-  </div>
-</nav>
+  {% #breadcrumbs %}
+    {% url "staff:index" as staff_url %}
+    {% breadcrumb title="Staff area" url=staff_url %}
+    {% breadcrumb title="Dashboards" active=True %}
+  {% /breadcrumbs %}
 {% endblock breadcrumbs %}
 
-{% block jumbotron %}
-<div class="jumbotron jumbotron-fluid jumbotron--danger pt-md-2">
-  <div class="container">
-    <h1 class="display-4">Dashboards</h1>
-  </div>
-</div>
-{% endblock jumbotron %}
+{% block hero %}
+  {% staff_hero title="Dashboards" %}
+{% endblock hero %}
 
 {% block content %}
-<div class="container">
-  <div class="row">
-    <div class="col-lg-8 col-xl-9">
+<div class="grid grid-cols-1 gap-6 lg:grid-cols-3">
+  <div class="flex flex-col gap-4 lg:col-span-2">
+    {% #card %}
+      {% #list_group %}
+        {% url "staff:dashboards:copiloting" as staff_dashboards_copiloting_url %}
+        {% #list_group_rich_item title="Copiloting" type="Dashboard" url=staff_dashboards_copiloting_url %}
+          <p>Information useful to copilots related to each project</p>
+        {% /list_group_rich_item %}
 
-      <div class="card mb-3">
-        <div class="card-body">
-          <h5 class="card-title">Copiloting</h5>
-          <p class="card-text">
-            Projects with various counts useful to copilots.
-          </p>
-          <a href="{% url 'staff:dashboards:copiloting' %}" class="btn btn-primary">View</a>
-        </div>
-      </div>
+        {% url "staff:dashboards:repos" as staff_dashboards_repos_url %}
+        {% #list_group_rich_item title="Private Repos" type="Dashboard" url=staff_dashboards_repos_url %}
+          <p>Private repos attached to one or more workspaces, where code was first run more than 11 months ago</p>
+        {% /list_group_rich_item %}
 
-      <div class="card mb-3">
-        <div class="card-body">
-          <h5 class="card-title">Projects</h5>
-          <p class="card-text">
-            All projects on the platform.
-          </p>
-          <a href="{% url 'staff:dashboards:projects' %}" class="btn btn-primary">View</a>
-        </div>
-      </div>
+        {% url "staff:dashboards:projects" as staff_dashboards_projects_url %}
+        {% #list_group_rich_item title="Projects" type="Dashboard" url=staff_dashboards_projects_url %}
+          <p>List of all projects on the Job Server website</p>
+        {% /list_group_rich_item %}
 
-      <div class="card mb-3">
-        <div class="card-body">
-          <h5 class="card-title">Repos</h5>
-          <p class="card-text">
-            All private repos attached to one or more workspaces, where code
-            was first run more than 11 months ago.
-          </p>
-          <a href="{% url 'staff:dashboards:repos' %}" class="btn btn-primary">View</a>
-        </div>
-      </div>
-
-      <div class="card mb-3">
-        <div class="card-body">
-          <h5 class="card-title">Repos with multiple projects</h5>
-          <p class="card-text">
-            Repos with multiple projects.
-          </p>
-          <a href="{% url 'staff:dashboards:repos-with-multiple-projects' %}" class="btn btn-primary">View</a>
-        </div>
-      </div>
-
-    </div>
+        {% url "staff:dashboards:repos-with-multiple-projects" as staff_dashboards_repos_multiple_projects_url %}
+        {% #list_group_rich_item title="Repos with multiple projects" type="Dashboard" url=staff_dashboards_repos_multiple_projects_url %}
+          <p>GitHub Repos with multiple associated OpenSAFELY projects</p>
+        {% /list_group_rich_item %}
+      {% /list_group %}
+    {% /card %}
   </div>
 </div>
+
 {% endblock content %}
