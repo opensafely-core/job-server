@@ -2,16 +2,18 @@
   {% var input_id=id %}
   {% var input_name=name %}
 {% else %}
-  {% var input_id=field.auto_id %}
-  {% var input_name=field.html_name %}
+  {% var input_id=input.auto_id %}
+  {% var input_name=input.html_name %}
 {% endif %}
 
+{% var multiple=multiple|default:True %}
+
 <div class="multiselect {{ class }}">
-  <select data-multiselect data-placeholder="{{ placeholder }}" multiple name="{{ input_name }}" id="{{ input_id }}" {% attrs required %}>
+  <select data-multiselect data-placeholder="{{ placeholder }}" name="{{ input_name }}" id="{{ input_id }}" {% attrs multiple required data-max-items %}>
     {% if custom_field == True %}
     {{ children }}
     {% else %}
-    {% for value, label in field.field.choices %}
+    {% for value, label in field.choices %}
       {% if value in field.value %}
       {% var is_active=True %}
       {% else %}
