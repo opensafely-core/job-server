@@ -485,7 +485,7 @@ def test_userlist_filter_by_invalid_role(rf, core_developer):
 
 def test_userlist_filter_by_any_roles_yes_includes_global_roles(rf, core_developer):
     UserFactory(roles=[OutputPublisher])
-    UserFactory(roles=[])
+    UserFactory()
 
     request = rf.get("/?any_roles=yes")
     request.user = core_developer
@@ -498,8 +498,9 @@ def test_userlist_filter_by_any_roles_yes_includes_global_roles(rf, core_develop
 
 
 def test_userlist_filter_by_any_roles_yes_includes_project(rf, core_developer):
-    UserFactory(roles=[])
-    user_with_project = UserFactory(roles=[])
+    UserFactory()
+
+    user_with_project = UserFactory()
     ProjectMembershipFactory(user=user_with_project, roles=[ProjectDeveloper])
 
     request = rf.get("/?any_roles=yes")
@@ -513,12 +514,12 @@ def test_userlist_filter_by_any_roles_yes_includes_project(rf, core_developer):
 
 
 def test_userlist_filter_by_any_roles_yes_includes_org(rf, core_developer):
-    UserFactory(roles=[])
+    UserFactory()
 
-    user_with_project = UserFactory(roles=[])
+    user_with_project = UserFactory()
     ProjectMembershipFactory(user=user_with_project, roles=[ProjectDeveloper])
 
-    user_with_org = UserFactory(roles=[])
+    user_with_org = UserFactory()
     OrgMembershipFactory(user=user_with_org, roles=[ProjectDeveloper])
 
     request = rf.get("/?any_roles=yes")
@@ -534,7 +535,7 @@ def test_userlist_filter_by_any_roles_yes_includes_org(rf, core_developer):
 def test_userlist_filter_by_any_roles_no_excludes_global_roles(rf, core_developer):
     UserFactory(roles=[OutputPublisher])
     UserFactory(roles=[ProjectDeveloper])
-    UserFactory(roles=[])
+    UserFactory()
 
     request = rf.get("/?any_roles=no")
     request.user = core_developer
@@ -547,13 +548,13 @@ def test_userlist_filter_by_any_roles_no_excludes_global_roles(rf, core_develope
 def test_userlist_filter_by_any_roles_no_excludes_project_roles(rf, core_developer):
     UserFactory(roles=[OutputPublisher])
     UserFactory(roles=[ProjectDeveloper])
-    UserFactory(roles=[])
+    UserFactory()
 
-    user_with_project = UserFactory(roles=[])
+    user_with_project = UserFactory()
     ProjectMembershipFactory(user=user_with_project, roles=[ProjectDeveloper])
 
-    user_with_project_and_no_roles = UserFactory(roles=[])
-    ProjectMembershipFactory(user=user_with_project_and_no_roles, roles=[])
+    user_with_project_and_no_roles = UserFactory()
+    ProjectMembershipFactory(user=user_with_project_and_no_roles)
 
     request = rf.get("/?any_roles=no")
     request.user = core_developer
@@ -566,13 +567,13 @@ def test_userlist_filter_by_any_roles_no_excludes_project_roles(rf, core_develop
 def test_userlist_filter_by_any_roles_no_excludes_org_roles(rf, core_developer):
     UserFactory(roles=[OutputPublisher])
     UserFactory(roles=[ProjectDeveloper])
-    UserFactory(roles=[])
+    UserFactory()
 
-    user_with_project = UserFactory(roles=[])
+    user_with_project = UserFactory()
     OrgMembershipFactory(user=user_with_project, roles=[ProjectDeveloper])
 
-    user_with_org_and_no_roles = UserFactory(roles=[])
-    OrgMembershipFactory(user=user_with_org_and_no_roles, roles=[])
+    user_with_org_and_no_roles = UserFactory()
+    OrgMembershipFactory(user=user_with_org_and_no_roles)
 
     request = rf.get("/?any_roles=no")
     request.user = core_developer
