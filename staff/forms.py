@@ -37,7 +37,6 @@ class PickUsersMixin:
     def __init__(self, users, *args, **kwargs):
         super().__init__(*args, **kwargs)
 
-        users = users.order_by(Lower("username"))
         self.fields["users"] = UserModelMultipleChoiceField(queryset=users)
 
 
@@ -146,7 +145,7 @@ class ProjectEditForm(forms.ModelForm):
         self.fields["number"].required = False
 
         self.fields["copilot"] = UserModelChoiceField(
-            queryset=User.objects.order_by(Lower("username")), required=False
+            queryset=User.objects.order_by_name(), required=False
         )
         self.fields["copilot_support_ends_at"].required = False
 
