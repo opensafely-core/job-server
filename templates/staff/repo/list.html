@@ -8,6 +8,7 @@
 
 {% block breadcrumbs %}
   {% #breadcrumbs %}
+    {% url "staff:index" as staff_url %}
     {% breadcrumb title="Staff area" url=staff_url %}
     {% breadcrumb title="Repos" active=True %}
   {% /breadcrumbs %}
