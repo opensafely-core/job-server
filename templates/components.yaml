@@ -51,6 +51,9 @@ components:
 
   # Icons
   icon_academic_cap_outline: "_icons/academic-cap-outline.svg"
+  icon_arrow_down_mini: "_icons/arrow-down-mini.svg"
+  icon_arrow_up_mini: "_icons/arrow-up-mini.svg"
+  icon_arrows_up_down_mini: "_icons/arrows-up-down-mini.svg"
   icon_beaker_outline: "_icons/beaker-outline.svg"
   icon_branches_outline: "_icons/branches-outline.svg"
   icon_building_library_outline: "_icons/building-library-outline.svg"

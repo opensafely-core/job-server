@@ -25,13 +25,76 @@
         {% #table id="customTable" %}
           {% #table_head class="bg-slate-200" %}
             {% #table_row %}
-              {% #table_header %}Project{% /table_header %}
-              {% #table_header %}Organisation{% /table_header %}
-              {% #table_header %}Co-pilot{% /table_header %}
-              {% #table_header %}Workspaces{% /table_header %}
-              {% #table_header %}Job requests run{% /table_header %}
-              {% #table_header %}Job first run{% /table_header %}
-              {% #table_header %}Total files released{% /table_header %}
+              {% #table_header %}
+                <div class="flex flex-row gap-2">
+                  Project
+                  <span class="ml-auto">
+                    {% icon_arrows_up_down_mini class="h4 w-4 datatable-icon--no-sort" %}
+                    {% icon_arrow_up_mini class="h4 w-4 datatable-icon--ascending" %}
+                    {% icon_arrow_down_mini class="h4 w-4 datatable-icon--descending" %}
+                  </span>
+                </div>
+              {% /table_header %}
+              {% #table_header %}
+                <div class="flex flex-row gap-2">
+                  Organisation
+                  <span class="ml-auto">
+                    {% icon_arrows_up_down_mini class="h4 w-4 datatable-icon--no-sort" %}
+                    {% icon_arrow_up_mini class="h4 w-4 datatable-icon--ascending" %}
+                    {% icon_arrow_down_mini class="h4 w-4 datatable-icon--descending" %}
+                  </span>
+                </div>
+              {% /table_header %}
+              {% #table_header %}
+                <div class="flex flex-row gap-2">
+                  Co-pilot
+                  <span class="ml-auto">
+                    {% icon_arrows_up_down_mini class="h4 w-4 datatable-icon--no-sort" %}
+                    {% icon_arrow_up_mini class="h4 w-4 datatable-icon--ascending" %}
+                    {% icon_arrow_down_mini class="h4 w-4 datatable-icon--descending" %}
+                  </span>
+                </div>
+              {% /table_header %}
+              {% #table_header %}
+                <div class="flex flex-row gap-2">
+                  Workspaces
+                  <span class="ml-auto">
+                    {% icon_arrows_up_down_mini class="h4 w-4 datatable-icon--no-sort" %}
+                    {% icon_arrow_up_mini class="h4 w-4 datatable-icon--ascending" %}
+                    {% icon_arrow_down_mini class="h4 w-4 datatable-icon--descending" %}
+                  </span>
+                </div>
+              {% /table_header %}
+              {% #table_header %}
+                <div class="flex flex-row gap-2">
+                  Job requests run
+                  <span class="ml-auto">
+                    {% icon_arrows_up_down_mini class="h4 w-4 datatable-icon--no-sort" %}
+                    {% icon_arrow_up_mini class="h4 w-4 datatable-icon--ascending" %}
+                    {% icon_arrow_down_mini class="h4 w-4 datatable-icon--descending" %}
+                  </span>
+                </div>
+              {% /table_header %}
+              {% #table_header data-type="date" data-format="DD MMM YYYY" %}
+                <div class="flex flex-row gap-2">
+                  Job first run
+                  <span class="ml-auto">
+                    {% icon_arrows_up_down_mini class="h4 w-4 datatable-icon--no-sort" %}
+                    {% icon_arrow_up_mini class="h4 w-4 datatable-icon--ascending" %}
+                    {% icon_arrow_down_mini class="h4 w-4 datatable-icon--descending" %}
+                  </span>
+                </div>
+              {% /table_header %}
+              {% #table_header %}
+                <div class="flex flex-row gap-2">
+                  Total files released
+                  <span class="ml-auto">
+                    {% icon_arrows_up_down_mini class="h4 w-4 datatable-icon--no-sort" %}
+                    {% icon_arrow_up_mini class="h4 w-4 datatable-icon--ascending" %}
+                    {% icon_arrow_down_mini class="h4 w-4 datatable-icon--descending" %}
+                  </span>
+                </div>
+              {% /table_header %}
             {% /table_row %}
           {% /table_head %}
 

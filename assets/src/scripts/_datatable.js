@@ -3,13 +3,8 @@ import "../styles/_datatable.css";
 
 const tableEl = document.getElementById("customTable");
 
-const template = (options) => `
-<div class='${options.classes.container}'${
-  options.scrollY.length
-    ? ` style='height: ${options.scrollY}; overflow-Y: auto;'`
-    : ""
-}></div>
-`;
+const template = (options) =>
+  `<div class='${options.classes.container}'></div>`;
 
 const opts = {
   paging: true,

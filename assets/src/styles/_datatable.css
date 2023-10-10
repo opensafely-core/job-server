@@ -1,23 +1,47 @@
-#customTable {
+.datatable-table#customTable {
   @apply min-w-full divide-y divide-slate-300;
+
+  & thead {
+    @apply bg-slate-200;
+  }
 
   & th {
     @apply py-3.5 px-2 text-left text-sm font-semibold text-slate-900;
 
     & button {
       @apply text-left relative w-full;
+    }
 
-      &:after {
-        content: "^";
-        position: absolute;
-        right: 0;
-        top: 0;
+    & .datatable-icon--descending,
+    & .datatable-icon--ascending {
+      display: none;
+    }
+
+    & .datatable-icon--no-sort {
+      display: block;
+    }
+
+    &.datatable-ascending {
+      & .datatable-icon--no-sort,
+      & .datatable-icon--descending {
+        display: none;
+      }
+
+      & .datatable-icon--ascending {
+        display: block;
       }
     }
-  }
 
-  & thead {
-    @apply bg-slate-200;
+    &.datatable-descending {
+      & .datatable-icon--no-sort,
+      & .datatable-icon--ascending {
+        display: none;
+      }
+
+      & .datatable-icon--descending {
+        display: block;
+      }
+    }
   }
 
   & tbody {
