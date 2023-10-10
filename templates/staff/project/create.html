@@ -34,12 +34,12 @@
       <div class="flex flex-col items-stretch gap-y-6 w-full max-w-3xl">
         {% #form_fieldset %}
           {% form_legend text="Select an org" %}
-          {% multiselect class="w-full" data-max-items=1 field=form.fields.org multiple=False %}
+          {% multiselect class="w-full" data-max-items=1 field=form.fields.org multiple=False input=form.org %}
         {% /form_fieldset %}
 
         {% #form_fieldset %}
           {% form_legend text="Select a user to co-pilot this project" %}
-          {% multiselect class="w-full" data-max-items=1 field=form.fields.copilot multiple=False %}
+          {% multiselect class="w-full" data-max-items=1 field=form.fields.copilot multiple=False input=form.copilot %}
         {% /form_fieldset %}
 
         {% form_input field=form.application_url label="Application URL" %}

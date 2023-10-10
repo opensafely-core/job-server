@@ -2,8 +2,8 @@
   {% var input_id=id %}
   {% var input_name=name %}
 {% else %}
-  {% var input_id=field.auto_id %}
-  {% var input_name=field.html_name %}
+  {% var input_id=input.auto_id %}
+  {% var input_name=input.html_name %}
 {% endif %}
 
 {% var multiple=multiple|default:True %}
