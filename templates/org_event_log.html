@@ -76,7 +76,14 @@
                   <span class="relative group cursor-pointer">
                     {{ group.started_at|naturaltime|default:"-" }}
                     {% if group.started_at %}
-                      {% tooltip position="-bottom-4" content=group.started_at|date:"d F Y H:i:s T" %}
+                      {% if forloop.last %}
+                        {% var position="-top-14 !pb-0" %}
+                        {% var tooltip_top=True %}
+                      {% else %}
+                        {% var position="-bottom-4 !pb-0" %}
+                        {% var tooltip_top=False %}
+                      {% endif %}
+                      {% tooltip position=position tooltip_top=tooltip_top content=group.started_at|date:"d F Y H:i:s T" %}
                     {% endif %}
                   </span>
                 {% /table_cell %}
