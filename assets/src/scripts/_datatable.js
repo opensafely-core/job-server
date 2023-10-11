@@ -1,55 +1,7 @@
-import { DataTable } from "simple-datatables";
-import "../styles/_datatable.css";
-
-const tableEl = document.getElementById("customTable");
-
-const template = (options) =>
-  `<div class='${options.classes.container}'></div>`;
-
-const opts = {
-  paging: true,
-  perPage: 25,
-  searchable: true,
-  sortable: true,
-  perPageSelect: false,
-  template,
-  tableRender: (_data, table) => {
-    const tHead = table.childNodes[0];
-    const filterHeaders = {
-      nodeName: "TR",
-      childNodes: tHead.childNodes[0].childNodes.map((_th, index) => ({
-        nodeName: "TH",
-        childNodes: [
-          {
-            nodeName: "INPUT",
-            attributes: {
-              class: "datatable-input",
-              "data-columns": `[${index}]`,
-              placeholder: "Filter column",
-              type: "search",
-            },
-          },
-        ],
-      })),
-    };
-    tHead.childNodes.push(filterHeaders);
-    return table;
-  },
-};
-
-const dataTable = new DataTable(tableEl, opts);
-
-const pageNumberEl = document.querySelector(
-  `[data-table-pagination="page-number"]`,
-);
-const totalPagesEl = document.querySelector(
-  `[data-table-pagination="total-pages"]`,
-);
-
-function pageButtonState(el, state) {
+function pageButtonState(el, state, table) {
   if (state) {
     el.classList.remove("hidden");
-    el.addEventListener("click", () => dataTable.page(state));
+    el.addEventListener("click", () => table.page(state));
   } else {
     el.classList.add("hidden");
   }
@@ -73,9 +25,16 @@ function getPageButtons() {
   return { nextPageBtn, previousPageBtn };
 }
 
-function setPaginationButtons(currentPage) {
+function setPaginationButtons(currentPage, table) {
+  const pageNumberEl = document.querySelector(
+    `[data-table-pagination="page-number"]`,
+  );
+  const totalPagesEl = document.querySelector(
+    `[data-table-pagination="total-pages"]`,
+  );
+
   const { nextPageBtn, previousPageBtn } = getPageButtons();
-  const totalPages = dataTable.pages.length;
+  const totalPages = table.pages.length;
   const pagination = {
     currentPage,
     totalPages,
@@ -89,10 +48,55 @@ function setPaginationButtons(currentPage) {
   pageButtonState(previousPageBtn, pagination.previousPage);
 }
 
-dataTable.on("datatable.init", () => setPaginationButtons(1));
-dataTable.on("datatable.page", (page) => setPaginationButtons(page));
-dataTable.on("datatable.sort", () => setPaginationButtons(1));
-dataTable.on("datatable.search", () => {
-  document.querySelector(`[data-table-pagination="page-number"]`).innerHTML = 1;
-  setPaginationButtons(1);
-});
+(async () => {
+  const tableEl = document.getElementById("customTable");
+  if (tableEl) {
+    const { DataTable } = await import("simple-datatables");
+    await import("../styles/_datatable.css");
+
+    const dataTable = new DataTable(tableEl, {
+      paging: true,
+      perPage: 25,
+      perPageSelect: false,
+      searchable: true,
+      sortable: true,
+      tableRender: (_data, table) => {
+        const tHead = table.childNodes[0];
+        const filterHeaders = {
+          nodeName: "TR",
+          childNodes: tHead.childNodes[0].childNodes.map((_th, index) => ({
+            nodeName: "TH",
+            childNodes: [
+              {
+                nodeName: "INPUT",
+                attributes: {
+                  class: "datatable-input",
+                  "data-columns": `[${index}]`,
+                  placeholder: `Filter ${_data.headings[index].text
+                    .trim()
+                    .toLowerCase()}`,
+                  type: "search",
+                },
+              },
+            ],
+          })),
+        };
+        tHead.childNodes.push(filterHeaders);
+        return table;
+      },
+      template: (options) => `<div class='${options.classes.container}'></div>`,
+    });
+
+    dataTable.on("datatable.init", () => setPaginationButtons(1, dataTable));
+    dataTable.on("datatable.page", (page) =>
+      setPaginationButtons(page, dataTable),
+    );
+    dataTable.on("datatable.sort", () => setPaginationButtons(1, dataTable));
+    dataTable.on("datatable.search", () => {
+      document.querySelector(
+        `[data-table-pagination="page-number"]`,
+      ).innerHTML = 1;
+      setPaginationButtons(1, dataTable);
+    });
+  }
+})();
