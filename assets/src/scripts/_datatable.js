@@ -91,6 +91,7 @@ function setPaginationButtons(currentPage) {
 
 dataTable.on("datatable.init", () => setPaginationButtons(1));
 dataTable.on("datatable.page", (page) => setPaginationButtons(page));
+dataTable.on("datatable.sort", () => setPaginationButtons(1));
 dataTable.on("datatable.search", () => {
   document.querySelector(`[data-table-pagination="page-number"]`).innerHTML = 1;
   setPaginationButtons(1);
