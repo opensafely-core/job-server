@@ -3,7 +3,7 @@ import inspect
 import structlog
 from django.core.exceptions import FieldError
 from django.db import transaction
-from django.db.models import Exists, OuterRef, Q
+from django.db.models import Exists, OuterRef, Q, Sum
 from django.db.models.functions import Lower
 from django.shortcuts import get_object_or_404, redirect
 from django.utils.decorators import method_decorator
@@ -246,10 +246,12 @@ class UserList(ListView):
             # build up a query that checks for any roles or no roles.  We have
             # to check for the presence of the *_memberships relations as well
             # as traversing to their roles fields
-            org_roles = Q(org_memberships=None) | Q(org_memberships__roles=[])
-            project_roles = Q(project_memberships=None) | Q(
-                project_memberships__roles=[]
+            qs = qs.annotate(
+                org_roles_count=Sum("org_memberships__roles__len"),
+                project_roles_count=Sum("project_memberships__roles__len"),
             )
+            org_roles = Q(org_memberships=None) | Q(org_roles_count=0)
+            project_roles = Q(project_memberships=None) | Q(project_roles_count=0)
             query = Q(roles=[]) & org_roles & project_roles
 
             if any_roles == "yes":
@@ -257,7 +259,7 @@ class UserList(ListView):
             elif any_roles == "no":
                 qs = qs.filter(query)
 
-        return qs
+        return qs.distinct()
 
 
 @method_decorator(require_permission("user_manage"), name="dispatch")

@@ -484,22 +484,24 @@ def test_userlist_filter_by_invalid_role(rf, core_developer):
 
 
 def test_userlist_filter_by_any_roles_yes_includes_global_roles(rf, core_developer):
-    UserFactory(roles=[OutputPublisher])
-    UserFactory(roles=[])
+    user = UserFactory(roles=[OutputPublisher])
+    UserFactory()
 
     request = rf.get("/?any_roles=yes")
     request.user = core_developer
 
     response = UserList.as_view()(request)
 
-    assert (
-        len(response.context_data["object_list"]) == 2
-    )  # this includes the core_developer
+    assert set_from_qs(response.context_data["object_list"]) == {
+        core_developer.pk,
+        user.pk,
+    }
 
 
 def test_userlist_filter_by_any_roles_yes_includes_project(rf, core_developer):
-    UserFactory(roles=[])
-    user_with_project = UserFactory(roles=[])
+    UserFactory()
+
+    user_with_project = UserFactory()
     ProjectMembershipFactory(user=user_with_project, roles=[ProjectDeveloper])
 
     request = rf.get("/?any_roles=yes")
@@ -507,18 +509,19 @@ def test_userlist_filter_by_any_roles_yes_includes_project(rf, core_developer):
 
     response = UserList.as_view()(request)
 
-    assert (
-        len(response.context_data["object_list"]) == 2
-    )  # this includes the core_developer
+    assert set_from_qs(response.context_data["object_list"]) == {
+        core_developer.pk,
+        user_with_project.pk,
+    }
 
 
 def test_userlist_filter_by_any_roles_yes_includes_org(rf, core_developer):
-    UserFactory(roles=[])
+    UserFactory()
 
-    user_with_project = UserFactory(roles=[])
+    user_with_project = UserFactory()
     ProjectMembershipFactory(user=user_with_project, roles=[ProjectDeveloper])
 
-    user_with_org = UserFactory(roles=[])
+    user_with_org = UserFactory()
     OrgMembershipFactory(user=user_with_org, roles=[ProjectDeveloper])
 
     request = rf.get("/?any_roles=yes")
@@ -526,60 +529,78 @@ def test_userlist_filter_by_any_roles_yes_includes_org(rf, core_developer):
 
     response = UserList.as_view()(request)
 
-    assert (
-        len(response.context_data["object_list"]) == 3
-    )  # this includes the core_developer
+    assert set_from_qs(response.context_data["object_list"]) == {
+        core_developer.pk,
+        user_with_org.pk,
+        user_with_project.pk,
+    }
 
 
 def test_userlist_filter_by_any_roles_no_excludes_global_roles(rf, core_developer):
     UserFactory(roles=[OutputPublisher])
     UserFactory(roles=[ProjectDeveloper])
-    UserFactory(roles=[])
+    user = UserFactory()
 
     request = rf.get("/?any_roles=no")
     request.user = core_developer
 
     response = UserList.as_view()(request)
 
-    assert len(response.context_data["object_list"]) == 1
+    assert set_from_qs(response.context_data["object_list"]) == {user.pk}
 
 
 def test_userlist_filter_by_any_roles_no_excludes_project_roles(rf, core_developer):
     UserFactory(roles=[OutputPublisher])
     UserFactory(roles=[ProjectDeveloper])
-    UserFactory(roles=[])
+    user = UserFactory()
 
-    user_with_project = UserFactory(roles=[])
+    user_with_project = UserFactory()
     ProjectMembershipFactory(user=user_with_project, roles=[ProjectDeveloper])
 
-    user_with_project_and_no_roles = UserFactory(roles=[])
-    ProjectMembershipFactory(user=user_with_project_and_no_roles, roles=[])
+    user_with_project_and_no_roles = UserFactory()
+    ProjectMembershipFactory(user=user_with_project_and_no_roles)
+
+    user_with_mixture_of_project_roles = UserFactory()
+    ProjectMembershipFactory(user=user_with_mixture_of_project_roles)
+    ProjectMembershipFactory(
+        user=user_with_mixture_of_project_roles, roles=[ProjectDeveloper]
+    )
 
     request = rf.get("/?any_roles=no")
     request.user = core_developer
 
     response = UserList.as_view()(request)
 
-    assert len(response.context_data["object_list"]) == 2
+    assert set_from_qs(response.context_data["object_list"]) == {
+        user.pk,
+        user_with_project_and_no_roles.pk,
+    }
 
 
 def test_userlist_filter_by_any_roles_no_excludes_org_roles(rf, core_developer):
     UserFactory(roles=[OutputPublisher])
     UserFactory(roles=[ProjectDeveloper])
-    UserFactory(roles=[])
+    user = UserFactory()
 
-    user_with_project = UserFactory(roles=[])
+    user_with_project = UserFactory()
     OrgMembershipFactory(user=user_with_project, roles=[ProjectDeveloper])
 
-    user_with_org_and_no_roles = UserFactory(roles=[])
-    OrgMembershipFactory(user=user_with_org_and_no_roles, roles=[])
+    user_with_org_and_no_roles = UserFactory()
+    OrgMembershipFactory(user=user_with_org_and_no_roles)
+
+    user_with_mixture_of_org_roles = UserFactory()
+    OrgMembershipFactory(user=user_with_mixture_of_org_roles)
+    OrgMembershipFactory(user=user_with_mixture_of_org_roles, roles=[ProjectDeveloper])
 
     request = rf.get("/?any_roles=no")
     request.user = core_developer
 
     response = UserList.as_view()(request)
 
-    assert len(response.context_data["object_list"]) == 2
+    assert set_from_qs(response.context_data["object_list"]) == {
+        user.pk,
+        user_with_org_and_no_roles.pk,
+    }
 
 
 def test_userlist_filter_by_any_roles_invalid_does_nothing(rf, core_developer):
