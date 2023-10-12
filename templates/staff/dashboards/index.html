@@ -15,32 +15,31 @@
 {% endblock hero %}
 
 {% block content %}
-<div class="grid grid-cols-1 gap-6 lg:grid-cols-3">
-  <div class="flex flex-col gap-4 lg:col-span-2">
-    {% #card %}
-      {% #list_group %}
-        {% url "staff:dashboards:copiloting" as staff_dashboards_copiloting_url %}
-        {% #list_group_rich_item title="Copiloting" type="Dashboard" url=staff_dashboards_copiloting_url %}
-          <p>Information useful to copilots related to each project</p>
-        {% /list_group_rich_item %}
+  <div class="grid grid-cols-1 gap-6 lg:grid-cols-3">
+    <div class="flex flex-col gap-4 lg:col-span-2">
+      {% #card %}
+        {% #list_group %}
+          {% url "staff:dashboards:copiloting" as staff_dashboards_copiloting_url %}
+          {% #list_group_rich_item title="Copiloting" type="Dashboard" url=staff_dashboards_copiloting_url %}
+            <p>Information useful to copilots related to each project</p>
+          {% /list_group_rich_item %}
 
-        {% url "staff:dashboards:repos" as staff_dashboards_repos_url %}
-        {% #list_group_rich_item title="Private Repos" type="Dashboard" url=staff_dashboards_repos_url %}
-          <p>Private repos attached to one or more workspaces, where code was first run more than 11 months ago</p>
-        {% /list_group_rich_item %}
+          {% url "staff:dashboards:repos" as staff_dashboards_repos_url %}
+          {% #list_group_rich_item title="Private Repos" type="Dashboard" url=staff_dashboards_repos_url %}
+            <p>Private repos attached to one or more workspaces, where code was first run more than 11 months ago</p>
+          {% /list_group_rich_item %}
 
-        {% url "staff:dashboards:projects" as staff_dashboards_projects_url %}
-        {% #list_group_rich_item title="Projects" type="Dashboard" url=staff_dashboards_projects_url %}
-          <p>List of all projects on the Job Server website</p>
-        {% /list_group_rich_item %}
+          {% url "staff:dashboards:projects" as staff_dashboards_projects_url %}
+          {% #list_group_rich_item title="Projects" type="Dashboard" url=staff_dashboards_projects_url %}
+            <p>List of all projects on the Job Server website</p>
+          {% /list_group_rich_item %}
 
-        {% url "staff:dashboards:repos-with-multiple-projects" as staff_dashboards_repos_multiple_projects_url %}
-        {% #list_group_rich_item title="Repos with multiple projects" type="Dashboard" url=staff_dashboards_repos_multiple_projects_url %}
-          <p>GitHub Repos with multiple associated OpenSAFELY projects</p>
-        {% /list_group_rich_item %}
-      {% /list_group %}
-    {% /card %}
+          {% url "staff:dashboards:repos-with-multiple-projects" as staff_dashboards_repos_multiple_projects_url %}
+          {% #list_group_rich_item title="Repos with multiple projects" type="Dashboard" url=staff_dashboards_repos_multiple_projects_url %}
+            <p>GitHub Repos with multiple associated OpenSAFELY projects</p>
+          {% /list_group_rich_item %}
+        {% /list_group %}
+      {% /card %}
+    </div>
   </div>
-</div>
-
 {% endblock content %}
