@@ -296,6 +296,9 @@ def test_releasefiledelete_no_file_on_disk(rf):
 
 
 def test_releasefiledelete_success(rf, time_machine, release):
+    now = timezone.now()
+    time_machine.move_to(now, tick=False)
+
     rfile = release.files.first()
     user = UserFactory(roles=[OutputChecker])
 
@@ -316,7 +319,7 @@ def test_releasefiledelete_success(rf, time_machine, release):
     rfile.refresh_from_db()
     assert not rfile.absolute_path().exists()
     assert rfile.deleted_by == user
-    assert rfile.deleted_at == timezone.now()
+    assert rfile.deleted_at == now
 
 
 def test_releasefiledelete_unknown_release_file(rf):

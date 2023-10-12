@@ -39,10 +39,13 @@ def test_publishrequest_approve_default_now(time_machine):
     request = PublishRequestFactory(snapshot=snapshot)
     user = UserFactory()
 
+    now = timezone.now()
+    time_machine.move_to(now, tick=False)
+
     request.approve(user=user)
 
     request.refresh_from_db()
-    assert request.decision_at == timezone.now()
+    assert request.decision_at == now
     assert request.decision_by == user
     assert request.decision == PublishRequest.Decisions.APPROVED
 
@@ -175,10 +178,13 @@ def test_publishrequest_reject(time_machine):
     request = PublishRequestFactory()
     user = UserFactory()
 
+    now = timezone.now()
+    time_machine.move_to(now, tick=False)
+
     request.reject(user=user)
 
     request.refresh_from_db()
-    assert request.decision_at == timezone.now()
+    assert request.decision_at == now
     assert request.decision_by == user
     assert request.decision == PublishRequest.Decisions.REJECTED
 
