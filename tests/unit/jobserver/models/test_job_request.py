@@ -155,7 +155,7 @@ def test_jobrequest_num_completed_success():
     assert job_request.num_completed == 2
 
 
-def test_jobrequest_runtime_one_job_missing_completed_at(freezer):
+def test_jobrequest_runtime_one_job_missing_completed_at(time_machine):
     job_request = JobRequestFactory()
 
     now = timezone.now()
@@ -185,7 +185,7 @@ def test_jobrequest_runtime_one_job_missing_completed_at(freezer):
     assert jr.runtime.seconds == 0
 
 
-def test_jobrequest_runtime_one_job_missing_started_at(freezer):
+def test_jobrequest_runtime_one_job_missing_started_at(time_machine):
     job_request = JobRequestFactory()
 
     now = timezone.now()
@@ -220,7 +220,7 @@ def test_jobrequest_runtime_no_jobs():
     assert not JobRequest.objects.with_started_at().first().runtime
 
 
-def test_jobrequest_runtime_not_completed(freezer):
+def test_jobrequest_runtime_not_completed(time_machine):
     jr = JobRequestFactory()
 
     now = timezone.now()

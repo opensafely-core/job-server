@@ -173,8 +173,9 @@ def test_jobdetail_with_permission(rf):
     assert "Honeycomb" not in response.rendered_content
 
 
-@pytest.mark.freeze_time("2022-06-16 12:00")
-def test_jobdetail_with_core_developer(rf):
+def test_jobdetail_with_core_developer(rf, time_machine):
+    time_machine.move_to("2022-06-16 12:00", tick=False)
+
     job_request = JobRequestFactory()
     job = JobFactory(
         job_request=job_request, status="succeeded", action="my_sample_action"
@@ -211,8 +212,9 @@ def test_jobdetail_with_core_developer(rf):
     assert job_request.identifier in response.rendered_content
 
 
-@pytest.mark.freeze_time("2022-06-15 13:00")
-def test_jobdetail_with_core_developer_with_completed_at(rf):
+def test_jobdetail_with_core_developer_with_completed_at(rf, time_machine):
+    time_machine.move_to("2022-06-15 13:00", tick=False)
+
     job_request = JobRequestFactory()
     job = JobFactory(
         job_request=job_request, completed_at=timezone.now(), status="succeeded"

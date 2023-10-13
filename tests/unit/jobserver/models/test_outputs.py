@@ -33,16 +33,19 @@ def test_publishrequest_approve_configured_now():
     assert request.decision_at == dt
 
 
-def test_publishrequest_approve_default_now(freezer):
+def test_publishrequest_approve_default_now(time_machine):
     snapshot = SnapshotFactory()
     snapshot.files.add(*ReleaseFileFactory.create_batch(3))
     request = PublishRequestFactory(snapshot=snapshot)
     user = UserFactory()
 
+    now = timezone.now()
+    time_machine.move_to(now, tick=False)
+
     request.approve(user=user)
 
     request.refresh_from_db()
-    assert request.decision_at == timezone.now()
+    assert request.decision_at == now
     assert request.decision_by == user
     assert request.decision == PublishRequest.Decisions.APPROVED
 
@@ -171,14 +174,17 @@ def test_publishrequest_is_rejected():
     assert publish_request.is_rejected
 
 
-def test_publishrequest_reject(freezer):
+def test_publishrequest_reject(time_machine):
     request = PublishRequestFactory()
     user = UserFactory()
+
+    now = timezone.now()
+    time_machine.move_to(now, tick=False)
 
     request.reject(user=user)
 
     request.refresh_from_db()
-    assert request.decision_at == timezone.now()
+    assert request.decision_at == now
     assert request.decision_by == user
     assert request.decision == PublishRequest.Decisions.REJECTED
 

@@ -268,8 +268,11 @@ def test_applicationdetail_post_with_complete_application(
     django_assert_max_num_queries,
     core_developer,
     complete_application,
-    freezer,
+    time_machine,
 ):
+    now = timezone.now()
+    time_machine.move_to(now, tick=False)
+
     application = complete_application
 
     application.contactdetailspage.last_reviewed_at = None
@@ -299,7 +302,6 @@ def test_applicationdetail_post_with_complete_application(
     assert application.studyinformationpage.notes == "couldn't do better"
     assert application.studyinformationpage.is_approved is True
 
-    now = timezone.now()
     assert application.contactdetailspage.last_reviewed_at == now
     assert application.contactdetailspage.reviewed_by == request.user
     assert application.studyinformationpage.last_reviewed_at == now
@@ -310,8 +312,11 @@ def test_applicationdetail_post_with_incomplete_application(
     rf,
     core_developer,
     incomplete_application,
-    freezer,
+    time_machine,
 ):
+    now = timezone.now()
+    time_machine.move_to(now, tick=False)
+
     application = incomplete_application
 
     application.contactdetailspage.last_reviewed_at = None
@@ -339,7 +344,6 @@ def test_applicationdetail_post_with_incomplete_application(
     assert application.studyinformationpage.notes == "couldn't do better"
     assert application.studyinformationpage.is_approved is True
 
-    now = timezone.now()
     assert application.contactdetailspage.last_reviewed_at == now
     assert application.contactdetailspage.reviewed_by == request.user
     assert application.studyinformationpage.last_reviewed_at == now

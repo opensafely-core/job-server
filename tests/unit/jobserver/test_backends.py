@@ -22,16 +22,16 @@ def test_show_warning_last_seen_is_none():
     assert show_warning(None, timedelta()) is False
 
 
-def test_show_warning_last_seen_equal_threhold(freezer):
+def test_show_warning_last_seen_equal_threhold(time_machine):
     last_seen = minutes_ago(timezone.now(), 3)
     assert show_warning(last_seen, timedelta(minutes=3)) is True
 
 
-def test_show_warning_last_seen_greater_than_threshold(freezer):
+def test_show_warning_last_seen_greater_than_threshold(time_machine):
     last_seen = minutes_ago(timezone.now(), 6)
     assert show_warning(last_seen, timedelta(minutes=5)) is True
 
 
-def test_show_warning_last_seen_less_than_threhold(freezer):
+def test_show_warning_last_seen_less_than_threhold(time_machine):
     last_seen = minutes_ago(timezone.now(), 2)
     assert show_warning(last_seen, timedelta(minutes=3)) is False
