@@ -1,4 +1,3 @@
-import pytest
 from django.utils import timezone
 
 from jobserver import honeycomb
@@ -19,16 +18,18 @@ def test_format_trace_id_hexadecimal_leading_zeros():
     assert honeycomb.format_trace_id(decimal_trace_id) == hex_trace_id
 
 
-@pytest.mark.freeze_time("2022-06-15 13:00")
-def test_format_honeycomb_timestamps_job():
+def test_format_honeycomb_timestamps_job(time_machine):
+    time_machine.move_to("2022-06-15 13:00", tick=False)
+
     job = JobFactory(completed_at=timezone.now(), status="succeeded")
     start, end = honeycomb.format_honeycomb_timestamps(job)
     assert start == 1655297940
     assert end == 1655298060
 
 
-@pytest.mark.freeze_time("2022-06-15 13:00")
-def test_format_honeycomb_timestamps_jobrequest():
+def test_format_honeycomb_timestamps_jobrequest(time_machine):
+    time_machine.move_to("2022-06-15 13:00", tick=False)
+
     job_request = JobRequestFactory()
     job = JobFactory(  # noqa: F841
         job_request=job_request, completed_at=timezone.now(), status="succeeded"
@@ -43,8 +44,9 @@ def test_format_honeycomb_timestamps_jobrequest():
     assert end == 1655298060
 
 
-@pytest.mark.freeze_time("2022-06-15 13:00")
-def test_honeycomb_timestamps_jobrequest_unfinished():
+def test_honeycomb_timestamps_jobrequest_unfinished(time_machine):
+    time_machine.move_to("2022-06-15 13:00", tick=False)
+
     job_request = JobRequestFactory()
     job = JobFactory(job_request=job_request, status="executing")  # noqa: F841
     prefetched_job_request = JobRequest.objects.filter(
@@ -57,16 +59,17 @@ def test_honeycomb_timestamps_jobrequest_unfinished():
     assert end == 1655301600
 
 
-@pytest.mark.freeze_time("2022-06-15 13:00")
-def test_trace_link():
+def test_trace_link(time_machine):
+    time_machine.move_to("2022-06-15 13:00", tick=False)
     job = JobFactory(completed_at=timezone.now())
     url = honeycomb.trace_link(job)
     assert "trace_start_ts=1655297940&trace_end_ts=1655298060" in url
     assert "bennett-institute-for-applied-data-science" in url
 
 
-@pytest.mark.freeze_time("2022-10-12 17:00")
-def test_status_link():
+def test_status_link(time_machine):
+    time_machine.move_to("2022-10-12 17:00", tick=False)
+
     job = JobFactory(completed_at=timezone.now(), identifier="test_identifier")
     url = honeycomb.status_link(job)
     parsed = honeycomb.TemplatedUrl.parse(url)
@@ -93,8 +96,9 @@ def test_status_link():
     }
 
 
-@pytest.mark.freeze_time("2022-10-12 17:00")
-def test_jobrequest_link():
+def test_jobrequest_link(time_machine):
+    time_machine.move_to("2022-10-12 17:00", tick=False)
+
     job_request = JobRequestFactory(identifier="jpbaeldzjqqiaolg")
     job = JobFactory(  # noqa: F841
         job_request=job_request, completed_at=timezone.now(), status="succeeded"
@@ -130,8 +134,9 @@ def test_jobrequest_link():
     }
 
 
-@pytest.mark.freeze_time("2022-10-12 17:00")
-def test_previous_actions_link():
+def test_previous_actions_link(time_machine):
+    time_machine.move_to("2022-10-12 17:00", tick=False)
+
     workspace = WorkspaceFactory(name="my_test_workspace")
     job_request = JobRequestFactory(identifier="jpbaeldzjqqiaolg", workspace=workspace)
     job = JobFactory(  # noqa: F841
@@ -162,8 +167,9 @@ def test_previous_actions_link():
     }
 
 
-@pytest.mark.freeze_time("2022-10-12 17:00")
-def test_jobrequest_concurrency_link_unfinished():
+def test_jobrequest_concurrency_link_unfinished(time_machine):
+    time_machine.move_to("2022-10-12 17:00", tick=False)
+
     job_request = JobRequestFactory(identifier="jpbaeldzjqqiaolg")
     job = JobFactory(job_request=job_request, status="executing")  # noqa: F841
     prefetched_job_request = JobRequest.objects.filter(

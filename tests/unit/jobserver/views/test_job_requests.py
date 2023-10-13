@@ -694,8 +694,8 @@ def test_jobrequestdetail_with_permission(rf, django_assert_num_queries):
     assert "Cancel" in response.rendered_content
 
 
-@pytest.mark.freeze_time("2022-06-16 12:00")
-def test_jobrequestdetail_with_permission_core_developer(rf):
+def test_jobrequestdetail_with_permission_core_developer(rf, time_machine):
+    time_machine.move_to("2022-06-16 12:00", tick=False)
     job_request = JobRequestFactory()
     job = JobFactory(  # noqa: F841
         job_request=job_request, completed_at=timezone.now(), status="succeeded"
