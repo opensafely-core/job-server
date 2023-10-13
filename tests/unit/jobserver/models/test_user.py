@@ -261,10 +261,6 @@ def test_user_is_interactive_only():
     assert not UserFactory().is_interactive_only
 
 
-def test_user_is_unapproved_by_default():
-    assert not UserFactory().is_approved
-
-
 def test_user_rotate_token(freezer):
     user = UserFactory()
 
