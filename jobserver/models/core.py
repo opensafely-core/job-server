@@ -848,9 +848,6 @@ class User(AbstractBaseUser):
     is_superuser = models.BooleanField(default=False)
     date_joined = models.DateTimeField("date joined", default=timezone.now)
 
-    # has the User been approved by an admin?
-    is_approved = models.BooleanField(default=False)
-
     # PATs are generated for bot users.  They can only be generated via a shell
     # so they can't be accidentally exposed via the UI.
     pat_token = models.TextField(null=True, unique=True)
