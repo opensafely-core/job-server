@@ -128,9 +128,9 @@ faker==8.10.1 \
     --hash=sha256:9ac6b39b9618f55be6b8b45089e624564469a035cc845c69ce990332ce3663f4 \
     --hash=sha256:a665e6e2e9087ec9ad4ebcd2f09acd031b44193ee93401817001b6557c6502b4
     # via factory-boy
-filelock==3.7.0 \
-    --hash=sha256:b795f1b42a61bbf8ec7113c341dad679d772567b936fbd1bf43c9a238e673e20 \
-    --hash=sha256:c7b5fdb219b398a5b28c8e4c1893ef5f98ece6a38c6ab2c22e26ec161556fed6
+filelock==3.12.4 \
+    --hash=sha256:08c21d87ded6e2b9da6728c3dff51baf1dcecf973b768ef35bcbc3447edb9ad4 \
+    --hash=sha256:2e6f249f1f3654291606e046b09f1fd5eac39b360664c27f5aad072012f8bcbd
     # via virtualenv
 identify==2.2.11 \
     --hash=sha256:7abaecbb414e385752e8ce02d8c494f4fbc780c975074b46172598a28f1ab839 \
