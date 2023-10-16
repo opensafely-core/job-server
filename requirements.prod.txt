@@ -845,9 +845,9 @@ social-auth-core==4.4.1 \
     --hash=sha256:29f5ea3174162797ccb9b849f7a38a9490bfb920304ecd9b7f63c6c3a5ceb7a3 \
     --hash=sha256:cff78e0707ed0f6bdd3beec6ce713591875492b98272ea6298cc173912e3234b
     # via social-auth-app-django
-soupsieve==2.3.2.post1 \
-    --hash=sha256:3b2503d3c7084a42b1ebd08116e5f81aadfaea95863628c80a3b774a11b7c759 \
-    --hash=sha256:fc53893b3da2c33de295667a0e19f078c14bf86544af307354de5fcf12a3f30d
+soupsieve==2.5 \
+    --hash=sha256:5663d5a7b3bfaeee0bc4372e7fc48f9cff4940b3eec54a6451cc5299f1097690 \
+    --hash=sha256:eaa337ff55a1579b6549dc679565eac1e3d000563bcb1c8ab0d0fefbc0c2cdc7
     # via beautifulsoup4
 sqlparse==0.4.4 \
     --hash=sha256:5430a4fe2ac7d0f93e66f1efc6e1338a41884b7ddf2a350cedd20ccc4d9d28f3 \
