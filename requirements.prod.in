@@ -36,6 +36,8 @@ requests
 sentry-sdk
 slack-sdk
 slippers
+social-auth-core
 social-auth-app-django
+structlog
 whitenoise[brotli]
 xkcdpass
