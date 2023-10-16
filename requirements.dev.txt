@@ -150,9 +150,9 @@ mypy-extensions==1.0.0 \
     --hash=sha256:4392f6c0eb8a5668a69e23d168ffa70f0be9ccfd32b5cc2d26a34ae5b844552d \
     --hash=sha256:75dbf8955dc00442a438fc4d0666508a9a97b6bd41aa2f0ffe9d2f2725af0782
     # via black
-nodeenv==1.6.0 \
-    --hash=sha256:3ef13ff90291ba2a4a7a4ff9a979b63ffdd00a464dbe04acf0ea6471517a4c2b \
-    --hash=sha256:621e6b7076565ddcacd2db0294c0381e01fd28945ab36bcf00f41c5daf63bef7
+nodeenv==1.8.0 \
+    --hash=sha256:d51e0c37e64fbf47d017feac3145cdbb58836d7eee8c6f6d3b6880c5456227d2 \
+    --hash=sha256:df865724bb3c3adc86b3876fa209771517b0cfe596beff01a92700e0e8be4cec
     # via pre-commit
 opensafely==1.37.0 \
     --hash=sha256:434f25e32f2029097672e7d36c60ea943ce60e17b8755a8f3be76a1916eaff0f \
@@ -439,4 +439,5 @@ setuptools==67.0.0 \
     --hash=sha256:9d790961ba6219e9ff7d9557622d2fe136816a264dd01d5997cfc057d804853d
     # via
     #   -c requirements.prod.txt
+    #   nodeenv
     #   pip-tools
