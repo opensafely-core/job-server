@@ -144,10 +144,14 @@
     {% #card title="Workspaces" %}
       {% #list_group %}
         {% for workspace in workspaces %}
-          {% if workspace.is_archived %}
-            {% var status="Archived" %}
-          {% endif %}
-          {% #list_group_rich_item title=workspace.name url=workspace.get_staff_url status_text=status %}
+          {% fragment as workspace_status %}
+            {% if workspace.is_archived %}
+              {% pill variant="warning" text="Archived" %}
+            {% else %}
+              {% pill variant="success" text="Active" %}
+            {% endif %}
+          {% endfragment %}
+          {% #list_group_rich_item title=workspace.name url=workspace.get_staff_url custom_status=workspace_status %}
             <dl class="flex flex-col gap-y-1 text-sm">
               <div class="flex flex-row gap-2">
                 <dt class="font-semibold min-w-[10ch]">Users:</dt>
