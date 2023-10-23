@@ -30,7 +30,7 @@ RUN --mount=type=cache,target=/var/cache/apt \
 #
 # Create node image.
 #
-FROM node:20.6.1 AS node-builder
+FROM node:20.8 AS node-builder
 
 WORKDIR /usr/src/app
 RUN mkdir -p ./assets
