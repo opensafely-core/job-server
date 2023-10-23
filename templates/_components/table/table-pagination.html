@@ -1,22 +1,27 @@
-{% var page_number=paginator.number %}
-{% var total_pages=paginator.paginator.num_pages %}
-{% var has_previous=paginator.has_previous %}
-{% var has_next=paginator.has_next %}
+{% if paginator %}
+  {% var page_number=paginator.number %}
+  {% var total_pages=paginator.paginator.num_pages %}
+  {% var has_previous=paginator.has_previous %}
+  {% var has_next=paginator.has_next %}
+{% endif %}
 
 <nav class="flex items-center justify-between border-t border-gray-200 bg-white px-4 py-3" aria-label="Pagination">
   <div class="hidden sm:block">
     <p class="text-sm text-gray-700">
-      Page <strong>{{ page_number }}</strong> of <strong>{{ total_pages }}</strong>
+      Page
+      <strong data-table-pagination="page-number">{{ page_number }}</strong>
+      of
+      <strong data-table-pagination="total-pages">{{ total_pages }}</strong>
     </p>
   </div>
   <div class="flex flex-1 justify-between gap-4 sm:justify-end">
     {% if has_previous %}
-      {% #button variant="secondary-outline" type="link" href=prev_url %}
+      {% #button data-table-pagination="previous-page" variant="secondary-outline" type="link" href=prev_url %}
         Previous
       {% /button %}
     {% endif %}
     {% if has_next %}
-      {% #button variant="secondary-outline" type="link" href=next_url %}
+      {% #button data-table-pagination="next-page" variant="secondary-outline" type="link" href=next_url %}
         Next
       {% /button %}
     {% endif %}
