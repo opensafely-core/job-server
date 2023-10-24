@@ -1,5 +1,4 @@
 /* eslint-disable import/no-extraneous-dependencies */
-import legacy from "@vitejs/plugin-legacy";
 import react from "@vitejs/plugin-react-swc";
 import { viteStaticCopy } from "vite-plugin-static-copy";
 
@@ -20,7 +19,6 @@ const config = {
         base: "./assets/src/scripts/base.js",
         components: "./assets/src/scripts/components.js",
         job_request_create: "./assets/src/scripts/job_request_create.js",
-        "legacy-staff-base": "./assets/src/scripts/legacy-staff-base.js",
         "sign-off-repo": "./assets/src/scripts/sign-off-repo.js",
         "staff-base": "./assets/src/scripts/staff-base.js",
         workspace_create: "./assets/src/scripts/workspace_create.js",
@@ -37,54 +35,11 @@ const config = {
   clearScreen: false,
   plugins: [
     react(),
-    legacy({
-      targets: ["chrome >= 81, not dead"],
-    }),
     viteStaticCopy({
       targets: [
         {
-          src: "./node_modules/bootstrap/dist/js/bootstrap.bundle.min.*",
-          dest: "vendor",
-        },
-        {
           src: "./node_modules/htmx.org/dist/htmx.min.js",
           dest: "vendor",
-        },
-        {
-          src: "./node_modules/jquery/dist/jquery.slim.min.*",
-          dest: "vendor",
-        },
-        {
-          src: "./node_modules/select2/dist/css/select2.min.css",
-          dest: "vendor",
-        },
-        {
-          src: "./node_modules/select2/dist/js/select2.min.js",
-          dest: "vendor",
-        },
-        {
-          src: "./node_modules/@ttskch/select2-bootstrap4-theme/dist/select2-bootstrap4.min.css",
-          dest: "vendor",
-        },
-        {
-          src: "./node_modules/tablesorter/dist/js/jquery.tablesorter.min.js",
-          dest: "vendor/tablesorter",
-        },
-        {
-          src: "./node_modules/tablesorter/dist/js/jquery.tablesorter.widgets.min.js",
-          dest: "vendor/tablesorter",
-        },
-        {
-          src: "./node_modules/tablesorter/dist/css/theme.bootstrap_4.min.css",
-          dest: "vendor/tablesorter",
-        },
-        {
-          src: "./node_modules/bs-custom-file-input/dist/bs-custom-file-input.min*",
-          dest: "vendor/bs-custom-file-input",
-        },
-        {
-          src: "./assets/src/js/*",
-          dest: "js",
         },
       ],
     }),

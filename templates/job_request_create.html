@@ -277,6 +277,4 @@
 {% block extra_js %}
   <div id="apiUrl" class="hidden">{{ workspace.get_statuses_url }}</div>
   {% vite_asset "assets/src/scripts/job_request_create.js" %}
-  {% vite_legacy_polyfills %}
-  {% vite_legacy_asset "assets/src/scripts/job_request_create-legacy.js" %}
 {% endblock %}
