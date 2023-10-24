@@ -82,10 +82,6 @@ const config = {
           src: "./node_modules/bs-custom-file-input/dist/bs-custom-file-input.min*",
           dest: "vendor/bs-custom-file-input",
         },
-        {
-          src: "./assets/src/js/*",
-          dest: "js",
-        },
       ],
     }),
   ],
