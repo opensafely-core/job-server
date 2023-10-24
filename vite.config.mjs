@@ -20,7 +20,6 @@ const config = {
         base: "./assets/src/scripts/base.js",
         components: "./assets/src/scripts/components.js",
         job_request_create: "./assets/src/scripts/job_request_create.js",
-        "legacy-staff-base": "./assets/src/scripts/legacy-staff-base.js",
         "sign-off-repo": "./assets/src/scripts/sign-off-repo.js",
         "staff-base": "./assets/src/scripts/staff-base.js",
         workspace_create: "./assets/src/scripts/workspace_create.js",
