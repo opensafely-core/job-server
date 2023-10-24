@@ -42,44 +42,8 @@ const config = {
     viteStaticCopy({
       targets: [
         {
-          src: "./node_modules/bootstrap/dist/js/bootstrap.bundle.min.*",
-          dest: "vendor",
-        },
-        {
           src: "./node_modules/htmx.org/dist/htmx.min.js",
           dest: "vendor",
-        },
-        {
-          src: "./node_modules/jquery/dist/jquery.slim.min.*",
-          dest: "vendor",
-        },
-        {
-          src: "./node_modules/select2/dist/css/select2.min.css",
-          dest: "vendor",
-        },
-        {
-          src: "./node_modules/select2/dist/js/select2.min.js",
-          dest: "vendor",
-        },
-        {
-          src: "./node_modules/@ttskch/select2-bootstrap4-theme/dist/select2-bootstrap4.min.css",
-          dest: "vendor",
-        },
-        {
-          src: "./node_modules/tablesorter/dist/js/jquery.tablesorter.min.js",
-          dest: "vendor/tablesorter",
-        },
-        {
-          src: "./node_modules/tablesorter/dist/js/jquery.tablesorter.widgets.min.js",
-          dest: "vendor/tablesorter",
-        },
-        {
-          src: "./node_modules/tablesorter/dist/css/theme.bootstrap_4.min.css",
-          dest: "vendor/tablesorter",
-        },
-        {
-          src: "./node_modules/bs-custom-file-input/dist/bs-custom-file-input.min*",
-          dest: "vendor/bs-custom-file-input",
         },
       ],
     }),
