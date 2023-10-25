@@ -1,7 +1,7 @@
 components:
   # Components
   article_header: "_components/article/header.html"
-  alert: "_components/alert.html"
+  alert: "_components/alert/alert.html"
   breadcrumb: "_components/breadcrumbs/breadcrumb.html"
   breadcrumbs: "_components/breadcrumbs/breadcrumbs-container.html"
   button: "_components/button.html"

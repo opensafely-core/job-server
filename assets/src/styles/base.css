@@ -1,4 +1,5 @@
 @import "_utils.css";
+@import "../../../templates/_components/alert/alert.css";
 
 @tailwind base;
 @tailwind components;

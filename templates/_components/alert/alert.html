@@ -1,0 +1,27 @@
+<div class="alert alert--{{ variant }}{% if dismissible %} alert--dismissible{% endif %}{% if class %} {{ class }}{% endif %}" role="alert">
+  {% if no_icon %}
+    {% if title %}<h2 class="alert__title">{{ title }}</h2>{% endif %}
+    <div class="alert__text">{{ children }}</div>
+  {% else %}
+    <div class="alert__container">
+      {% if variant == "warning" %}
+        {% icon_exclamation_triangle_solid class="alert__icon" %}
+      {% elif variant == "success" %}
+        {% icon_check_circle_solid class="alert__icon" %}
+      {% elif variant == "danger" %}
+        {% icon_x_circle_solid class="alert__icon" %}
+      {% elif variant == "info" %}
+        {% icon_information_circle_solid class="alert__icon" %}
+      {% endif %}
+      <div>
+        {% if title %}<h2 class="alert__title">{{ title }}</h2>{% endif %}
+        <div class="alert__text">{{ children }}</div>
+      </div>
+    </div>
+  {% endif %}
+  {% if dismissible %}
+    <button type="button" class="alert__dismiss" data-dismiss="alert" aria-label="Close">
+      {% icon_x_outline class="alert__dismiss-icon" %}
+    </button>
+  {% endif %}
+</div>
