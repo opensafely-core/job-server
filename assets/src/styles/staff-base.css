@@ -1,3 +1,14 @@
 body {
-  border-block-start: 1rem solid var(--color-bn-ribbon-600);
+  position: relative;
+  top: 1rem;
+}
+
+body::before {
+  background-color: var(--color-bn-ribbon-600);
+  content: "";
+  height: 1rem;
+  position: fixed;
+  top: 0;
+  width: 100%;
+  z-index: 256000;
 }
