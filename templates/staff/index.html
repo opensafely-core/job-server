@@ -17,65 +17,67 @@
 {% endblock hero %}
 
 {% block content %}
-<div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
-  {% #card title="Go to…" %}
-    {% #list_group %}
-      {% url "staff:analysis-request-list" as staff_analysis_request_list %}
-      {% #list_group_item href=staff_analysis_request_list %}Analysis Requests{% /list_group_item %}
-      {% url "staff:application-list" as staff_application_list %}
-      {% #list_group_item href=staff_application_list %}Applications{% /list_group_item %}
-      {% url "staff:backend-list" as staff_backend_list %}
-      {% #list_group_item href=staff_backend_list %}Backends{% /list_group_item %}
-      {% url "staff:dashboard:index" as staff_dashboard_index %}
-      {% #list_group_item href=staff_dashboard_index %}Dashboards{% /list_group_item %}
-      {% url "staff:job-request-list" as staff_job_request_list %}
-      {% #list_group_item href=staff_job_request_list %}Job Requests{% /list_group_item %}
-      {% url "staff:org-list" as staff_org_list %}
-      {% #list_group_item href=staff_org_list %}Organisations{% /list_group_item %}
-      {% url "staff:project-list" as staff_project_list %}
-      {% #list_group_item href=staff_project_list %}Projects{% /list_group_item %}
-      {% url "staff:redirect-list" as staff_redirect_list %}
-      {% #list_group_item href=staff_redirect_list %}Redirects{% /list_group_item %}
-      {% url "staff:repo-list" as staff_repo_list %}
-      {% #list_group_item href=staff_repo_list %}Repos{% /list_group_item %}
-      {% url "staff:report-list" as staff_report_list %}
-      {% #list_group_item href=staff_report_list %}Reports{% /list_group_item %}
-      {% url "staff:sentry:index" as staff_sentry_index %}
-      {% #list_group_item href=staff_sentry_index %}Sentry{% /list_group_item %}
-      {% url "staff:user-list" as staff_user_list %}
-      {% #list_group_item href=staff_user_list %}Users{% /list_group_item %}
-      {% url "staff:workspace-list" as staff_workspace_list %}
-      {% #list_group_item href=staff_workspace_list %}Workspaces{% /list_group_item %}
-    {% /list_group %}
-  {% /card %}
+  {% #grid_three_cols %}
+    {% #grid_col_span_1 %}
+      {% #card title="Go to…" %}
+        {% #list_group %}
+          {% url "staff:analysis-request-list" as staff_analysis_request_list %}
+          {% #list_group_item href=staff_analysis_request_list %}Analysis Requests{% /list_group_item %}
+          {% url "staff:application-list" as staff_application_list %}
+          {% #list_group_item href=staff_application_list %}Applications{% /list_group_item %}
+          {% url "staff:backend-list" as staff_backend_list %}
+          {% #list_group_item href=staff_backend_list %}Backends{% /list_group_item %}
+          {% url "staff:dashboard:index" as staff_dashboard_index %}
+          {% #list_group_item href=staff_dashboard_index %}Dashboards{% /list_group_item %}
+          {% url "staff:job-request-list" as staff_job_request_list %}
+          {% #list_group_item href=staff_job_request_list %}Job Requests{% /list_group_item %}
+          {% url "staff:org-list" as staff_org_list %}
+          {% #list_group_item href=staff_org_list %}Organisations{% /list_group_item %}
+          {% url "staff:project-list" as staff_project_list %}
+          {% #list_group_item href=staff_project_list %}Projects{% /list_group_item %}
+          {% url "staff:redirect-list" as staff_redirect_list %}
+          {% #list_group_item href=staff_redirect_list %}Redirects{% /list_group_item %}
+          {% url "staff:repo-list" as staff_repo_list %}
+          {% #list_group_item href=staff_repo_list %}Repos{% /list_group_item %}
+          {% url "staff:report-list" as staff_report_list %}
+          {% #list_group_item href=staff_report_list %}Reports{% /list_group_item %}
+          {% url "staff:sentry:index" as staff_sentry_index %}
+          {% #list_group_item href=staff_sentry_index %}Sentry{% /list_group_item %}
+          {% url "staff:user-list" as staff_user_list %}
+          {% #list_group_item href=staff_user_list %}Users{% /list_group_item %}
+          {% url "staff:workspace-list" as staff_workspace_list %}
+          {% #list_group_item href=staff_workspace_list %}Workspaces{% /list_group_item %}
+        {% /list_group %}
+      {% /card %}
+    {% /grid_col_span_1 %}
 
-  <div class="flex flex-col gap-y-6 lg:col-span-2">
-    {% #card container=True title="Search the site" %}
-      <form method="GET" class="flex flex-row gap-x-2 items-center">
-        {% if q %}
-          {% var value=q|stringformat:"s" %}
-        {% endif %}
-        {% form_input custom_field=True type="search" id="staffSearch" name="q" value=value label="Search the site" label_class="sr-only" class="w-full" input_class="!m-0" %}
-        {% #button type="submit" variant="primary" class="flex-shrink-0" %}Search{% /button %}
-      </form>
-    {% /card %}
+    {% #grid_col_lg_span_2 class="flex flex-col gap-y-6" %}
+      {% #card container=True title="Search the site" %}
+        <form method="GET" class="flex flex-row gap-x-2 items-center">
+          {% if q %}
+            {% var value=q|stringformat:"s" %}
+          {% endif %}
+          {% form_input custom_field=True type="search" id="staffSearch" name="q" value=value label="Search the site" label_class="sr-only" class="w-full" input_class="!m-0" %}
+          {% #button type="submit" variant="primary" class="flex-shrink-0" %}Search{% /button %}
+        </form>
+      {% /card %}
 
-    {% if results %}
-      <h2 class="text-3xl font-semibold leading-tight tracking-tight">
-        Results
-      </h2>
-      {% for key, group in results %}
-        {% #card title=key|add:"s" %}
-          {% #list_group %}
-            {% for item in group %}
-              {% #list_group_item href=item.get_staff_url %}
-                {{ item }}
-              {% /list_group_item %}
-            {% endfor %}
-          {% /list_group %}
-        {% /card %}
-      {% endfor %}
-    {% endif %}
-  </div>
-</div>
+      {% if results %}
+        <h2 class="text-3xl font-semibold leading-tight tracking-tight">
+          Results
+        </h2>
+        {% for key, group in results %}
+          {% #card title=key|add:"s" %}
+            {% #list_group %}
+              {% for item in group %}
+                {% #list_group_item href=item.get_staff_url %}
+                  {{ item }}
+                {% /list_group_item %}
+              {% endfor %}
+            {% /list_group %}
+          {% /card %}
+        {% endfor %}
+      {% endif %}
+    {% /grid_col_lg_span_2 %}
+  {% /grid_three_cols %}
 {% endblock content %}
