@@ -27,6 +27,12 @@
 {% endblock breadcrumbs %}
 
 {% block content %}
+  {% if is_missing_updates %}
+    {% #alert variant="warning" title="Attention needed" class="mb-4" %}
+      Jobs in this request have not been updated for over 30 minutes, some of the data on this page could be stale.
+    {% /alert %}
+  {% endif %}
+
   <div class="grid grid-cols-1 gap-6 lg:grid-cols-3">
     <div class="flex flex-col text-center items-center gap-y-2 lg:text-left lg:items-start lg:col-span-full">
       <div class="flex flex-col items-center gap-y-2 w-full lg:flex-row lg:justify-between lg:items-start">
@@ -88,12 +94,6 @@
         {% endif %}
       </div>
     </div>
-
-    {% if is_missing_updates %}
-      {% #alert variant="warning" title="Attention needed" class="mt-4 lg:col-span-full" %}
-        Jobs in this request have not been updated for over 30 minutes, some of the data on this page could be stale.
-      {% /alert %}
-    {% endif %}
 
     <div class="space-y-6 md:space-y-6 lg:col-span-2">
       {% #card container=True %}
