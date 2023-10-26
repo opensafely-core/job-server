@@ -83,7 +83,7 @@ jobs:
           SOCIAL_AUTH_GITHUB_SECRET: test
         run: |
           just check-migrations
-          just test --migrations
+          just test --migrations -n auto
 
       - name: Upload HTML coverage report if tests failed
         uses: actions/upload-artifact@v3
@@ -125,7 +125,7 @@ jobs:
           GITHUB_WRITEABLE_TOKEN:
         run: |
           # build docker and run test
-          just docker-test
+          just docker-test -n auto
 
       - name: Run smoke test on prod
         run: |
