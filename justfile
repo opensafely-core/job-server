@@ -139,7 +139,7 @@ test *args: assets
 
 test-dev *args: assets
     #!/bin/bash
-    export COVERAGE_REPORT_ARGS='--omit=interactive/opencodelists.py,jobserver/github.py,tests/integration/test_interactive.py,"tests/verification/*'
+    export COVERAGE_REPORT_ARGS="--omit=interactive/opencodelists.py,jobserver/github.py,tests/integration/test_interactive.py,tests/verification/*"
     ./scripts/test-coverage.sh -m "not verification and not slow_test" {{ args }}
 
 
