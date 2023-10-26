@@ -133,29 +133,14 @@ update-interactive-templates tag="": && prodenv
 run-telemetry: devenv
     $BIN/opentelemetry-instrument $BIN/python manage.py runserver --noreload
 
-
-test-base *args: assets
-    $BIN/coverage erase
-    $BIN/coverage run --module pytest {{ args }}
+test *args: assets
+    ./scripts/test-coverage.sh {{ args }}
 
 
-test-dev *args:
-    {{ just_executable() }} test-base \
-        '-m "not verification and not slow_test"' \
-        {{ args }}
-
-    $BIN/coverage combine
-
-    # run with || so they both run regardless of failures
-    $BIN/coverage report --omit=interactive/opencodelists.py,jobserver/github.py,tests/integration/test_interactive.py,"tests/verification/*" \
-    || $BIN/coverage html --omit=interactive/opencodelists.py,jobserver/github.py,tests/integration/test_interactive.py,"tests/verification/*"
-
-
-test *args:
-    {{ just_executable() }} test-base {{ args }}
-
-    $BIN/coverage combine
-    $BIN/coverage report || $BIN/coverage html
+test-dev *args: assets
+    #!/bin/bash
+    export COVERAGE_REPORT_ARGS='--omit=interactive/opencodelists.py,jobserver/github.py,tests/integration/test_interactive.py,"tests/verification/*'
+    ./scripts/test-coverage.sh -m "not verification and not slow_test" {{ args }}
 
 
 black *args=".": devenv

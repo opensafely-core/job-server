@@ -89,7 +89,7 @@ services:
       - ../.test.env
     environment:
       - GITHUB_TOKEN_TESTING
-    command: bash -c "coverage run --branch --source=applications,interactive,jobserver,services,staff,tests --module pytest && coverage report || coverage html"
+    command: ./scripts/test-coverage.sh
 
 volumes:
   postgres_data:
