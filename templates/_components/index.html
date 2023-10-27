@@ -51,19 +51,20 @@
       <ul>
         <li><code>children</code>: [html] - display the children components</li>
         <li><code>class</code>: [string] - add HTML classes to the component</li>
+        <li><code>dismissible</code>: [boolean] - if true, allow the alert to be dismissed</li>
         <li><code>no_icon</code>: [boolean] - if true, remove the icon</li>
         <li><code>variant</code>: [string] - select styling colour and icon for component</li>
       </ul>
       <div class="not-prose flex flex-col gap-y-8 relative w-screen max-w-5xl left-1/2 -translate-x-1/2 p-8 bg-slate-200 border boder-slate-500 rounded">
         <div class="flex flex-col gap-8 items-center">
-          {% #alert variant="warning" title="Attention needed" %}
+          {% #alert variant="warning" title="Attention needed" dismissible=True %}
             This Job has not been updated for over 30 minutes, some of the data on this page could be stale.
           {% /alert %}
           {% #alert variant="info" title="For your information" class="mt-4" no_icon=True %}
             This Job has not been updated for over 30 minutes, some of the data on this page could be stale.
           {% /alert %}
         </div>
-        <pre><code class="language-django">{% verbatim %}{% #alert variant="warning" title="Attention needed" %}
+        <pre><code class="language-django">{% verbatim %}{% #alert variant="warning" title="Attention needed" dismissible=True %}
   This Job has not been updated for over 30 minutes, some of the data on this page could be stale.
 {% /alert %}
 {% #alert variant="info" title="For your information" class="mt-4" no_icon=True %}
