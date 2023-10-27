@@ -353,13 +353,13 @@ class GitHubAPI:
 
         return r.json()["object"]["sha"]
 
-    def get_file(self, org, repo, branch):
+    def get_file(self, org, repo, branch, filepath="project.yaml"):
         path_segments = [
             "repos",
             org,
             repo,
             "contents",
-            "project.yaml",
+            filepath,
         ]
         query_args = {"ref": branch}
         url = self._url(path_segments, query_args)
