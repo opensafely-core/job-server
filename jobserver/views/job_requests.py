@@ -19,7 +19,12 @@ from ..backends import backends_to_choices
 from ..forms import JobRequestCreateForm
 from ..github import _get_github_api
 from ..models import Backend, JobRequest, Workspace
-from ..pipeline_config import get_actions, get_project, render_definition
+from ..pipeline_config import (
+    get_actions,
+    get_codelists_status,
+    get_project,
+    render_definition,
+)
 
 
 class JobRequestCancel(View):
@@ -112,6 +117,23 @@ class JobRequestCreate(CreateView):
             return self.render_to_response(context=context)
 
         self.actions = list(get_actions(data))
+
+        # Find the status of the codelists in this workspace and branch
+        # Codelist status is either "ok" or "error"
+        self.codelists_status = get_codelists_status(
+            self.workspace.repo.owner,
+            self.workspace.repo.name,
+            ref,
+        )
+        if self.codelists_status != "ok":
+            # At this stage we don't know whether requested jobs depend on
+            # codelists, so just show a warning.
+            messages.warning(
+                request,
+                "Codelists for this workspace are out of date. "
+                "In future, this will cause generate-dataset actions to fail. "
+                "You can fix this issue by re-running `opensafely codelists update`.",
+            )
         return super().dispatch(request, *args, **kwargs)
 
     @transaction.atomic

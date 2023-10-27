@@ -1,5 +1,6 @@
 import pytest
 from django.contrib.auth.models import AnonymousUser
+from django.contrib.messages import get_messages
 from django.contrib.messages.storage.fallback import FallbackStorage
 from django.http import Http404
 from django.utils import timezone
@@ -28,6 +29,15 @@ from ....factories import (
 )
 from ....fakes import FakeGitHubAPI
 from ....utils import minutes_ago
+
+
+@pytest.fixture
+def mock_codelists_ok(mocker):
+    mocker.patch(
+        "jobserver.views.job_requests.get_codelists_status",
+        autospec=True,
+        return_value="ok",
+    )
 
 
 def test_jobrequestcancel_already_completed(rf):
@@ -163,7 +173,7 @@ def test_jobrequestcancel_unknown_job_request(rf):
 
 
 @pytest.mark.parametrize("ref", [None, "abc"])
-def test_jobrequestcreate_get_success(ref, rf, mocker, user):
+def test_jobrequestcreate_get_success(ref, rf, mocker, user, mock_codelists_ok):
     now = timezone.now()
     workspace = WorkspaceFactory()
     job_request = JobRequestFactory(workspace=workspace)
@@ -239,7 +249,7 @@ def test_jobrequestcreate_get_with_all_backends_removed(rf, settings, user):
         )
 
 
-def test_jobrequestcreate_get_with_permission(rf, mocker, user):
+def test_jobrequestcreate_get_with_permission(rf, mocker, user, mock_codelists_ok):
     workspace = WorkspaceFactory()
 
     BackendMembershipFactory(user=user)
@@ -354,8 +364,59 @@ def test_jobrequestcreate_get_with_some_backends_removed(rf, mocker, settings, u
     ]
 
 
+def test_jobrequestcreate_get_with_out_of_date_codelist(rf, mocker, user):
+    workspace = WorkspaceFactory()
+    job_request = JobRequestFactory(workspace=workspace)
+    JobFactory(job_request=job_request)
+
+    BackendMembershipFactory(user=user)
+    ProjectMembershipFactory(
+        project=workspace.project, user=user, roles=[ProjectDeveloper]
+    )
+
+    dummy_yaml = """
+    version: 3
+    expectations:
+      population_size: 1000
+    actions:
+      twiddle:
+        run: test:latest
+        outputs:
+          moderately_sensitive:
+            cohort: path/to/output.csv
+    """
+    mocker.patch(
+        "jobserver.views.job_requests.get_project",
+        autospec=True,
+        return_value=dummy_yaml,
+    )
+    mocker.patch(
+        "jobserver.views.job_requests.get_codelists_status",
+        autospec=True,
+        return_value="error",
+    )
+
+    request = rf.get("/")
+    request.session = "session"
+    request._messages = FallbackStorage(request)
+    request.user = user
+
+    response = JobRequestCreate.as_view()(
+        request,
+        project_slug=workspace.project.slug,
+        workspace_slug=workspace.name,
+    )
+
+    assert response.status_code == 200
+    messages = [message for message in get_messages(request)]
+    assert len(messages) == 1
+    assert "Codelists for this workspace are out of date." in str(messages[0])
+
+
 @pytest.mark.parametrize("ref", [None, "abc"])
-def test_jobrequestcreate_post_success(ref, rf, mocker, monkeypatch, user):
+def test_jobrequestcreate_post_success(
+    ref, rf, mocker, monkeypatch, user, mock_codelists_ok
+):
     backend = BackendFactory()
     workspace = WorkspaceFactory()
 
@@ -449,7 +510,7 @@ def test_jobrequestcreate_post_with_invalid_backend(rf, mocker, monkeypatch, use
 
 
 def test_jobrequestcreate_post_with_notifications_default(
-    rf, mocker, monkeypatch, user
+    rf, mocker, monkeypatch, user, mock_codelists_ok
 ):
     backend = BackendFactory()
     workspace = WorkspaceFactory(should_notify=True)
@@ -504,7 +565,7 @@ def test_jobrequestcreate_post_with_notifications_default(
 
 
 def test_jobrequestcreate_post_with_notifications_override(
-    rf, mocker, monkeypatch, user
+    rf, mocker, monkeypatch, user, mock_codelists_ok
 ):
     backend = BackendFactory()
     workspace = WorkspaceFactory(should_notify=True)
