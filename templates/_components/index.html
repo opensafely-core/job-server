@@ -160,6 +160,9 @@
       <ul>
         <li><code>children</code>: [html] - display the children components</li>
         <li><code>class</code>: [string] - add HTML classes</li>
+        <li><code>data-expander-button</code>: [string] - adds a `data-expander-button` attribute</li>
+        <li><code>data-modal</code>: [string] - adds a `data-modal` attribute</li>
+        <li><code>data-table-pagination</code>: [string] - adds a `data-table-pagination` attribute</li>
         <li><code>data-title</code>: [string] - adds a `data-title` attribute</li>
         <li><code>disabled</code>: [boolean] - if true, stops users from interacting with the component</li>
         <li><code>external</code>: [boolean] - used with `type="link"` to open link in a new tab</li>
@@ -171,7 +174,6 @@
         <li><code>type</code>: [string] - if "link", button will display as an anchor tag</li>
         <li><code>value</code>: [string] - add a value</li>
         <li><code>variant</code>: [string] - select styling colour for component</li>
-        <li><code>x_bind</code>: [string] - add an Alpine.js binding</li>
       </ul>
       <div class="not-prose flex flex-col gap-y-8 relative w-screen max-w-5xl left-1/2 -translate-x-1/2 p-8 bg-slate-200 border border-slate-500 rounded">
         <div class="flex flex-col md:flex-row gap-8 items-center">
@@ -195,6 +197,7 @@
         <li><code>button_href</code>: [string] - set the href for the button</li>
         <li><code>button_text</code>: [string] - set the text for the button</li>
         <li><code>children</code>: [html] - display the children components</li>
+        <li><code>custom_button</code>: [string] - add a fragment for a custom button</li>
         <li><code>class</code>: [string] - add HTML classes to the outer section component</li>
         <li><code>container</code>: [boolean] - add padding and margin to the children container</li>
         <li><code>container_class</code>: [string] - add HTML classes to the container div</li>
@@ -207,9 +210,9 @@
             <p class="text-oxford-700 text-lg font-semibold">Hello world</p>
           {% /card %}
         </div>
-        <pre><code class="language-django">{% verbatim %}{% #card class="bg-red-50" title="Hola mundo" subtitle="Hallo welt" container=True class="w-full max-w-lg mx-auto" button=True button_href="#" button_text="Button text" %}
-            <p class="text-oxford-700 text-lg font-semibold">Hello world</p>
-          {% /card %}{% endverbatim %}</code></pre>
+        <pre><code class="language-django">{% verbatim %}{% #card class="bg-red-50" title="Hola mundo" subtitle="Hallo welt" container=True class="w-full max-w-lg mx-auto" button=True button_href="#" button_text="Button text" %}{% endverbatim %}
+  {% filter force_escape %}<p class="text-oxford-700 text-lg font-semibold">Hello world</p>{% endfilter %}
+{% verbatim %}{% /card %}{% endverbatim %}</code></pre>
       </div>
       <h3>Card footer</h3>
       <ul>
