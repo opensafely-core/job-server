@@ -159,3 +159,6 @@ class FakeOpenCodelistsAPI:
                 "updated_date": "2022-11-09",
             },
         ]
+
+    def check_codelists(self, txt_content, json_content):
+        return {"status": "ok"}

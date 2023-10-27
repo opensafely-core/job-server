@@ -37,3 +37,12 @@ def test_get_codelists_with_unknown_coding_system(enable_network, opencodelists_
     compare(fake, real)
 
     assert real == []
+
+
+def test_check_codelists(enable_network, opencodelists_api):
+    args = ["{}", ""]
+
+    real = opencodelists_api.check_codelists(*args)
+    fake = FakeOpenCodelistsAPI().check_codelists(*args)
+
+    compare(fake, real)

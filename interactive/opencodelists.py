@@ -79,6 +79,17 @@ class OpenCodelistsAPI:
         data = self._iter_codelists(r.json()["codelists"])
         return list(sorted(data, key=lambda c: c["name"].lower()))
 
+    def check_codelists(self, txt_content, json_content):
+        path_segments = [
+            "check/",  # Note the trailing slash is required to avoid a redirect
+        ]
+        url = self._url(path_segments)
+        r = self.session.post(
+            url, data={"codelists": txt_content, "manifest": json_content}
+        )
+        r.raise_for_status()
+        return r.json()
+
 
 def _get_opencodelists_api():
     """Simple invocation wrapper of OpenCodelistsAPI"""
