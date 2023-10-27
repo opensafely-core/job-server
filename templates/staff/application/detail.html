@@ -107,14 +107,16 @@
     {% /card %}
 
     {% #card container=True title="Status" %}
-      <dl class="flex flex-row flex-wrap gap-1 mb-3">
+      <dl class="flex flex-row flex-wrap gap-1">
         <dt class="sr-only">Application status:</dt>
         <dd>{% pill_application_status status=application.status class="!text-base py-1 px-3" %}</dd>
       </dl>
-      <div class="prose prose-oxford break-words">
-        <h3>Comments</h3>
-        {{ application.status_comment|linebreaksbr }}
-      </div>
+      {% if application.status_comment %}
+        <div class="prose prose-oxford break-words mt-3">
+          <h3>Comments</h3>
+          {{ application.status_comment|linebreaksbr }}
+        </div>
+      {% endif %}
     {% /card %}
   </div>
 
@@ -176,34 +178,42 @@
           {% endif %}
 
           {% #card_footer no_container=True class="flex flex-col gap-y-4" %}
-            {% form_textarea field=page.wizard_page.get_unbound_approval_form.notes name=page.wizard_page.notes_field_name label="Notes" %}
+
+            {% var field_name=page.wizard_page.notes_field_name %}
+            {% var field_data=page.wizard_page.get_unbound_approval_form.notes %}
+
+            {% form_textarea custom_field=True label="Notes" id="id_"|add:field_name name=field_name value=field_data.value errors=field_data.errors %}
+
             {% #form_fieldset %}
               {% form_legend text="Is this page approved?" %}
-              {% for value, label in page.wizard_page.get_unbound_approval_form.is_approved.field.choices %}
+
+              {% var is_approved=page.wizard_page.get_unbound_approval_form.is_approved %}
+              {% var approved_name=page.wizard_page.is_approved_field_name %}
+
+              {% for value, label in is_approved.field.choices %}
                 {% with id=forloop.counter|stringformat:"s" %}
-                  {% if page.wizard_page.get_unbound_approval_form.is_approved.value == value %}
-                    {% form_radio custom_field=True id="id_"|add:page.wizard_page.is_approved_field_name|add:id name=page.wizard_page.is_approved_field_name value=value label=label checked=True %}
+                  {% if is_approved.value == value %}
+                    {% form_radio custom_field=True id="id_"|add:approved_name|add:id name=approved_name value=value label=label checked=True %}
                   {% else %}
-                    {% form_radio custom_field=True id="id_"|add:page.wizard_page.is_approved_field_name|add:id name=page.wizard_page.is_approved_field_name value=value label=label checked=False %}
+                    {% form_radio custom_field=True id="id_"|add:approved_name|add:id name=approved_name value=value label=label checked=False %}
                   {% endif %}
                 {% endwith %}
               {% endfor %}
             {% /form_fieldset %}
 
-            {{ application.reviewed_by }}
             <ul>
               <li>
                 <strong>Last reviewed at:</strong>
                 {% if page.wizard_page.page_instance.last_reviewed_at %}
                   {{ page.wizard_page.page_instance.last_reviewed_at|date:"d F Y" }} at {{ page.wizard_page.page_instance.last_reviewed_at|date:"H:i" }}
                 {% else %}
-                  Never
+                  &mdash;
                 {% endif %}
               </li>
               {% queries_dangerously_enabled %}
               <li>
-                  <strong>Last reviewed by:</strong>
-                  {{ page.wizard_page.page_instance.reviewed_by|default_if_none:"Not yet reviewed"}}</li>
+                <strong>Last reviewed by:</strong>
+                {{ page.wizard_page.page_instance.reviewed_by|default_if_none:"Not yet reviewed"}}</li>
               </li>
               {% end_queries_dangerously_enabled %}
             </ul>
