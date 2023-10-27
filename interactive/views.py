@@ -13,12 +13,12 @@ from interactive_templates.schema import Codelist, v2
 
 from jobserver.authorization import has_permission
 from jobserver.models import Backend, Project
+from jobserver.opencodelists import _get_opencodelists_api
 from jobserver.reports import process_html
 from jobserver.utils import build_spa_base_url
 
 from .forms import AnalysisRequestEditForm, AnalysisRequestForm
 from .models import AnalysisRequest
-from .opencodelists import _get_opencodelists_api
 from .submit import submit_analysis
 
 

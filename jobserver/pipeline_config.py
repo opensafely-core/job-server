@@ -2,9 +2,8 @@ from pygments import highlight
 from pygments.formatters import HtmlFormatter
 from pygments.lexers import YamlLexer
 
-from interactive.opencodelists import _get_opencodelists_api
-
 from .github import _get_github_api
+from .opencodelists import _get_opencodelists_api
 
 
 def get_actions(config):

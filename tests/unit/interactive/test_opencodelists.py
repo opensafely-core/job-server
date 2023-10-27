@@ -1,6 +1,6 @@
 import pytest
 
-from interactive.opencodelists import OpenCodelistsAPI
+from jobserver.opencodelists import OpenCodelistsAPI
 
 
 @pytest.mark.parametrize(
