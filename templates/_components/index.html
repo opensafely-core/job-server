@@ -73,6 +73,31 @@
       </div>
     </section>
 
+    <section id="article-header">
+      <h2>Article Header</h2>
+      <ul>
+        <li><code>children</code>: [html] - display the children components</li>
+        <li><code>title</code>: [string] - add a title for the page</li>
+        <li><code>text</code>: [string] - text to be displayed below the title</li>
+      </ul>
+      <div class="not-prose flex flex-col gap-y-8 relative w-screen max-w-5xl left-1/2 -translate-x-1/2 p-8 bg-slate-200 border border-slate-500 rounded">
+        <div class="flex flex-col gap-8 items-stretch">
+          {% #article_header title="A page title can go here" text="And description text can go here" %}
+            <ul class="flex flex-col gap-1 text-sm ml-3 list-disc">
+              <li>Child bullet</li>
+              <li>A second child bullet</li>
+            </ul>
+          {% /article_header %}
+        </div>
+        <pre><code class="language-django">{% verbatim %}{% #article_header title="A page title can go here" text="And description text can go here" %}{% endverbatim %}
+  {% filter force_escape %}<ul class="flex flex-col gap-1 text-sm ml-3 list-disc">
+    <li>Child bullet</li>
+    <li>A second child bullet</li>
+  </ul>{% endfilter %}
+{% verbatim %}{% /article_header %}{% endverbatim %}</code></pre>
+      </div>
+    </section>
+
     <section id="breadcrumbsSection">
       <h2>Breadcrumbs</h2>
 
