@@ -82,9 +82,9 @@ class Field:
 
     def form_context(self, form):
         template_lut = {
-            "BooleanField": "components/form_checkbox.html",
-            "CharField": "components/form_text.html",
-            "YesNoField": "components/form_radio.html",
+            "BooleanField": "form_checkbox",
+            "CharField": "form_input",
+            "YesNoField": "form_radio",
         }
 
         # get the bound field instance
