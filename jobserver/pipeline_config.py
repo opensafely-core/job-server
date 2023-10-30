@@ -3,6 +3,7 @@ from pygments.formatters import HtmlFormatter
 from pygments.lexers import YamlLexer
 
 from .github import _get_github_api
+from .opencodelists import _get_opencodelists_api
 
 
 def get_actions(config):
@@ -30,6 +31,37 @@ def get_project(org, repo, branch, get_github_api=_get_github_api):
         raise Exception(f"Missing branch: '{branch}'")
 
     raise Exception("Could not find project.yaml")
+
+
+def get_codelists_status(
+    org,
+    repo,
+    branch,
+    get_github_api=_get_github_api,
+    get_opencodelists_api=_get_opencodelists_api,
+):
+    github_api = get_github_api()
+    opencodelists_api = get_opencodelists_api()
+
+    codelists_content = (
+        github_api.get_file(org, repo, branch, filepath="codelists/codelists.txt"),
+        github_api.get_file(org, repo, branch, filepath="codelists/codelists.json"),
+    )
+
+    if all(codelists_content):
+        codelists_check = opencodelists_api.check_codelists(*codelists_content)
+        return codelists_check["status"]
+
+    if github_api.get_branch(org, repo, branch) is None:
+        raise Exception(f"Missing branch: '{branch}'")
+
+    if github_api.get_file(org, repo, branch, filepath="codelists") is not None:
+        raise Exception("Could not find codelists.txt or codelists.json")
+
+    # Missing codelists.txt/codelists.json files are only an issue if the
+    # codelists directory exists. If we get here, the repo contains no codelists,
+    # so there's nothing to check.
+    return "ok"
 
 
 def link_run_scripts(line, link_func):

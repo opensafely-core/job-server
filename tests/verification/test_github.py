@@ -183,11 +183,20 @@ def test_get_branch_sha_with_missing_branch(enable_network, github_api):
     assert sha is None
 
 
-def test_get_file(enable_network, github_api):
+def test_get_default_file(enable_network, github_api):
     args = ["opensafely-testing", "github-api-testing", "main"]
 
     real = github_api.get_file(*args)
     fake = FakeGitHubAPI().get_file(*args)
+
+    compare(fake, real)
+
+
+def test_get_file(enable_network, github_api):
+    args = ["opensafely-testing", "github-api-testing", "main"]
+
+    real = github_api.get_file(*args)
+    fake = FakeGitHubAPI().get_file(*args, filepath="README.md")
 
     compare(fake, real)
 

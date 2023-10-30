@@ -6,13 +6,14 @@ from pipeline.models import Pipeline
 
 from jobserver.pipeline_config import (
     get_actions,
+    get_codelists_status,
     get_project,
     link_run_scripts,
     map_run_scripts_to_links,
     render_definition,
 )
 
-from ...fakes import FakeGitHubAPI
+from ...fakes import FakeGitHubAPI, FakeOpenCodelistsAPI
 
 
 dummy_project = {
@@ -147,6 +148,101 @@ def test_get_project_success():
     )
 
     assert pipeline_config == expected
+
+
+class BrokenOpenCodelistsAPI:
+    def check_codelists(self, *args):
+        return {"status": "error"}
+
+
+def test_get_codelists_status():
+    codelists_status = get_codelists_status(
+        "opensafely",
+        "test",
+        "main",
+        get_github_api=FakeGitHubAPI,
+        get_opencodelists_api=FakeOpenCodelistsAPI,
+    )
+    assert codelists_status == "ok"
+
+
+def test_get_codelists_status_stale_codelists():
+    codelists_status = get_codelists_status(
+        "opensafely",
+        "test",
+        "main",
+        get_github_api=FakeGitHubAPI,
+        get_opencodelists_api=BrokenOpenCodelistsAPI,
+    )
+    assert codelists_status == "error"
+
+
+def test_get_codelists_no_branch():
+    class BrokenGitHubAPI:
+        def get_branch(self, *args):
+            return None
+
+        def get_file(self, *args, **kwargs):
+            ...
+
+    with pytest.raises(Exception, match="Missing branch.*"):
+        get_codelists_status(
+            "opensafely",
+            "test",
+            "main",
+            get_github_api=BrokenGitHubAPI,
+            get_opencodelists_api=BrokenOpenCodelistsAPI,
+        )
+
+
+def test_get_codelists_status_missing_codelists_file():
+    class BrokenGitHubAPI:
+        def __init__(self):
+            self.call_count = 0
+
+        def get_branch(self, *args):
+            return True
+
+        def get_file(self, *args, **kwargs):
+            # Called 3x, to fetch:
+            # 1) codelists.txt
+            # 2) codelists.json
+            # 3) check that the codelists directory exists
+            if self.call_count < 1:
+                self.call_count += 1
+                return None
+            return True
+
+    with pytest.raises(
+        Exception, match="Could not find codelists.txt or codelists.json"
+    ):
+        get_codelists_status(
+            "opensafely",
+            "test",
+            "main",
+            get_github_api=BrokenGitHubAPI,
+            get_opencodelists_api=BrokenOpenCodelistsAPI,
+        )
+
+
+def test_get_codelists_status_no_codelist_dir():
+    class BrokenGitHubAPI:
+        def get_branch(self, *args):
+            return True
+
+        def get_file(self, *args, **kwargs):
+            return None
+
+    codelists_status = get_codelists_status(
+        "opensafely",
+        "test",
+        "main",
+        get_github_api=BrokenGitHubAPI,
+        get_opencodelists_api=FakeOpenCodelistsAPI,
+    )
+    # Codelists.txt and codelists.json don't exist, but as the codelists
+    # dir also doesn't exist, the check is ok
+    assert codelists_status == "ok"
 
 
 def test_link_run_scripts():

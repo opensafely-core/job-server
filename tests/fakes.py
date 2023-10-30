@@ -39,7 +39,7 @@ class FakeGitHubAPI:
     def get_tag_sha(self, org, repo, tag):
         return "test_sha"
 
-    def get_file(self, org, repo, branch):
+    def get_file(self, org, repo, branch, filepath=None):
         return textwrap.dedent(
             """
             actions:
@@ -159,3 +159,6 @@ class FakeOpenCodelistsAPI:
                 "updated_date": "2022-11-09",
             },
         ]
+
+    def check_codelists(self, txt_content, json_content):
+        return {"status": "ok"}
