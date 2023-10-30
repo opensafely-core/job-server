@@ -109,6 +109,13 @@ class JobRequestCreate(CreateView):
                 ref,
             )
             data = load_pipeline(self.project)
+            # Find the status of the codelists in this workspace and branch
+            # Codelist status is either "ok" or "error"
+            self.codelists_status = get_codelists_status(
+                self.workspace.repo.owner,
+                self.workspace.repo.name,
+                ref,
+            )
         except Exception as e:
             self.actions = []
             # this is a bit nasty, need to mirror what get/post would set up for us
@@ -118,13 +125,6 @@ class JobRequestCreate(CreateView):
 
         self.actions = list(get_actions(data))
 
-        # Find the status of the codelists in this workspace and branch
-        # Codelist status is either "ok" or "error"
-        self.codelists_status = get_codelists_status(
-            self.workspace.repo.owner,
-            self.workspace.repo.name,
-            ref,
-        )
         if self.codelists_status != "ok":
             # At this stage we don't know whether requested jobs depend on
             # codelists, so just show a warning.
