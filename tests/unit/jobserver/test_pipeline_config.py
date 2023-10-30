@@ -225,6 +225,36 @@ def test_get_codelists_status_missing_codelists_file():
         )
 
 
+def test_get_codelists_status_empty_codelists_file():
+    class BrokenGitHubAPI:
+        def __init__(self):
+            self.call_count = 0
+
+        def get_file(self, *args, **kwargs):
+            # Called 3x, to fetch:
+            content = {
+                # codelists.txt, empty file
+                0: "",
+                # codelists.json, the result of running `opensafely codelists update`
+                # on an empty codelists.txt file
+                1: '{"files": {}}',
+                # check that the codelists directory exists
+                2: True,
+            }
+            response = content[self.call_count]
+            self.call_count += 1
+            return response
+
+    codelists_status = get_codelists_status(
+        "opensafely",
+        "test",
+        "main",
+        get_github_api=BrokenGitHubAPI,
+        get_opencodelists_api=FakeOpenCodelistsAPI,
+    )
+    assert codelists_status == "ok"
+
+
 def test_get_codelists_status_no_codelist_dir():
     class BrokenGitHubAPI:
         def get_branch(self, *args):

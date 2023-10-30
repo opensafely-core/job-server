@@ -48,20 +48,19 @@ def get_codelists_status(
         github_api.get_file(org, repo, branch, filepath="codelists/codelists.json"),
     )
 
-    if all(codelists_content):
-        codelists_check = opencodelists_api.check_codelists(*codelists_content)
-        return codelists_check["status"]
+    if any(content is None for content in codelists_content):
+        if github_api.get_branch(org, repo, branch) is None:
+            raise Exception(f"Missing branch: '{branch}'")
 
-    if github_api.get_branch(org, repo, branch) is None:
-        raise Exception(f"Missing branch: '{branch}'")
+        if github_api.get_file(org, repo, branch, filepath="codelists") is not None:
+            raise Exception("Could not find codelists.txt or codelists.json")
+        # Missing codelists.txt/codelists.json files are only an issue if the
+        # codelists directory exists. If the repo contains no codelists,
+        # there's nothing to check.
+        return "ok"
 
-    if github_api.get_file(org, repo, branch, filepath="codelists") is not None:
-        raise Exception("Could not find codelists.txt or codelists.json")
-
-    # Missing codelists.txt/codelists.json files are only an issue if the
-    # codelists directory exists. If we get here, the repo contains no codelists,
-    # so there's nothing to check.
-    return "ok"
+    codelists_check = opencodelists_api.check_codelists(*codelists_content)
+    return codelists_check["status"]
 
 
 def link_run_scripts(line, link_func):
