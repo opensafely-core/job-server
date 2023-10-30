@@ -265,7 +265,8 @@
     </section>
 
     <section id="descriptionSection">
-      <h2>Description Item</h2>
+      <h2>Description lists</h2>
+      <h3>Description item</h3>
       <ul>
         <li><code>children</code>: [html] - display the children components</li>
         <li><code>details_class</code>: [string] - add HTML classes to the dt component</li>
@@ -303,6 +304,26 @@
 {% #description_item stacked=True title="This is a title on top" %}
   <p>This is content on the bottom</p>
 {% /description_item %}{% endverbatim %}</code></pre>
+      </div>
+
+      <h3>Description list</h3>
+      <ul>
+        <li><code>children</code>: [html] - display the children components</li>
+        <li><code>class</code>: [string] - add HTML classes to the component</li>
+      </ul>
+      <div class="not-prose flex flex-col gap-y-8 relative w-screen max-w-5xl left-1/2 -translate-x-1/2 p-8 bg-slate-200 border border-slate-500 rounded">
+        <div class="flex flex-row gap-x-8 items-center">
+          {% #description_list %}
+            {% #description_item title="This is a title on the left" %}
+              This is content on the right
+            {% /description_item %}
+          {% /description_list %}
+        </div>
+        <pre><code class="language-django">{% verbatim %}{% #description_list %}
+  {% #description_item title="This is a title on the left" %}
+    This is content on the right
+  {% /description_item %}
+{% /description_list %}{% endverbatim %}</code></pre>
       </div>
     </section>
 
