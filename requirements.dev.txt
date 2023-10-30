@@ -334,9 +334,9 @@ six==1.16.0 \
     # via
     #   -c requirements.prod.txt
     #   python-dateutil
-stamina==23.1.0 \
-    --hash=sha256:850de8c2c2469aabf42a4c02e7372eaa12c2eced78f2bfa34162b8676c2846e5 \
-    --hash=sha256:b16ce3d52d658aa75db813fc6a6661b770abfea915f72cda48e325f2a7854786
+stamina==23.2.0 \
+    --hash=sha256:31af7998497156af39e08d061a66c94643d037d90f4510ab8d03ece7526afb66 \
+    --hash=sha256:69e61a2d303d3fc2a54ac4c4c4b86da916bc301a2a03f4d2e2a5b3bb48e4f5cc
     # via -r requirements.dev.in
 tenacity==8.2.3 \
     --hash=sha256:5398ef0d78e63f40007c1fb4c0bff96e1911394d2fa8d194f77619c05ff6cc8a \
