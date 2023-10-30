@@ -459,6 +459,8 @@
       <h3>List group container</h3>
       <ul>
         <li><code>children</code>: [html] - display the children components</li>
+        <li><code>data_filter_list</code>: [boolean] - add data-filter-list attribute</li>
+        <li><code>no_border</code>: [boolean] - remove the top border from the group</li>
         <li><code>small</code>: [boolean] - if true, reduces padding and font size</li>
       </ul>
       <div class="not-prose flex flex-col gap-y-8 relative w-screen max-w-5xl left-1/2 -translate-x-1/2 p-8 bg-slate-200 border border-slate-500 rounded">
@@ -466,7 +468,9 @@
       </div>
       <h3>List group empty</h3>
       <ul>
+        <li><code>data-filter-empty-state</code>: [string] - set data-filter-empty-state HTML attribute</li>
         <li><code>description</code>: [string] - description text to display</li>
+        <li><code>hidden</code>: [string] - set hidden HTML attribute</li>
         <li><code>icon</code>: [boolean] - if true, shows the empty folder icon</li>
         <li><code>title</code>: [string] - title text to display</li>
       </ul>
@@ -484,8 +488,13 @@
       </div>
       <h3>List group item</h3>
       <ul>
+        <li><code>aria-checked</code>: [string] - set aria-checked HTML attribute</li>
+        <li><code>aria-labelled-by</code>: [string] - set aria-labelled-by HTML attribute</li>
         <li><code>children</code>: [html] - display the children components</li>
+        <li><code>class</code>: [string] - if true, element adds classes to appear disabled</li>
+        <li><code>disabled</code>: [boolean] - if true, element adds classes to appear disabled</li>
         <li><code>href</code>: [string] - href for the anchor tag</li>
+        <li><code>role</code>: [string] - set role HTML attribute</li>
       </ul>
       <div class="not-prose flex flex-col gap-y-8 relative w-screen max-w-5xl left-1/2 -translate-x-1/2 p-8 bg-slate-200 border border-slate-500 rounded">
         {% #card %}
@@ -502,7 +511,10 @@
       <h3>List group rich item</h3>
       <ul>
         <li><code>children</code>: [html] - display the children components</li>
+        <li><code>custom_status</code>: [html] - display a custom status pill</li>
+        <li><code>no_truncate</code>: [boolean] - if true, name truncation is disabled</li>
         <li><code>status_text</code>: [string] - matches the pill title and colour to statuses</li>
+        <li><code>title_class</code>: [string] - add HTML class to only the title</li>
         <li><code>title</code>: [string] - item title</li>
         <li><code>type</code>: [string] - hidden field for screen readers listing the group type</li>
         <li><code>url</code>: [string] - href for the item</li>
