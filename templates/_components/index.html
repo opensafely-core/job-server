@@ -491,7 +491,7 @@
         <li><code>aria-checked</code>: [string] - set aria-checked HTML attribute</li>
         <li><code>aria-labelled-by</code>: [string] - set aria-labelled-by HTML attribute</li>
         <li><code>children</code>: [html] - display the children components</li>
-        <li><code>class</code>: [string] - if true, element adds classes to appear disabled</li>
+        <li><code>class</code>: [string] - add HTML classes to element</li>
         <li><code>disabled</code>: [boolean] - if true, element adds classes to appear disabled</li>
         <li><code>href</code>: [string] - href for the anchor tag</li>
         <li><code>role</code>: [string] - set role HTML attribute</li>
@@ -571,6 +571,24 @@
           {% skip_link %}
         </div>
         <pre><code class="language-django">{% verbatim %}{% skip_link %}{% endverbatim %}</code></pre>
+      </div>
+    </section>
+
+    <section>
+      <h2>Time</h2>
+      <ul>
+        <li><code>children</code>: [html] - display the children components</li>
+        <li><code>class</code>: [string] - add HTML classes to element</li>
+        <li><code>datetime</code>: [datetime] - display a valid datetime for HTML time element</li>
+        <li><code>tooltip</code>: [string] - if added, tooltip will show content</li>
+      </ul>
+      <div class="not-prose flex flex-col gap-y-8 relative w-screen max-w-5xl left-1/2 -translate-x-1/2 p-8 bg-slate-200 border border-slate-500 rounded">
+        <div class="flex flex-row gap-x-8 items-center">
+          {% #time class="hover:cursor-pointer" datetime="2023-10-31T13:00:00+0000" tooltip="31 October 2023 at 13:00" %}
+            1 hour ago
+          {% /time %}
+        </div>
+        <pre><code class="language-django">{% verbatim %}code here{% endverbatim %}</code></pre>
       </div>
     </section>
 
