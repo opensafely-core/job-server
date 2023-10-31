@@ -828,9 +828,9 @@ ruyaml==0.91.0 \
     --hash=sha256:50e0ee3389c77ad340e209472e0effd41ae0275246df00cdad0a067532171755 \
     --hash=sha256:6ce9de9f4d082d696d3bde264664d1bcdca8f5a9dff9d1a1f1a127969ab871ab
     # via opensafely-pipeline
-sentry-sdk==1.32.0 \
-    --hash=sha256:935e8fbd7787a3702457393b74b13d89a5afb67185bc0af85c00cb27cbd42e7c \
-    --hash=sha256:eeb0b3550536f3bbc05bb1c7e0feb3a78d74acb43b607159a606ed2ec0a33a4d
+sentry-sdk==1.33.0 \
+    --hash=sha256:b715218c0a08759ccc6f6c53bb68880a500fab37a2bab6e045801d9dadda049d \
+    --hash=sha256:e7b26a6c8010476e1f925a6dd85b4be2e3596892620451374595cf3b02de81c9
     # via -r requirements.prod.in
 six==1.16.0 \
     --hash=sha256:1e61c37477a1626458e36f7b1d82aa5c9b094fa4802892072e49de9c60c4c926 \
