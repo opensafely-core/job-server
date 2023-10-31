@@ -537,6 +537,41 @@
       </div>
     </section>
 
+    <section>
+      <h2>Modal</h2>
+      <ul>
+        <li><code>children</code>: [html] - display the children components</li>
+        <li><code>class</code>: [string] - add HTML classes to element</li>
+        <li><code>id</code>: [string] - HTML element ID</li>
+      </ul>
+      <div class="not-prose flex flex-col gap-y-8 relative w-screen max-w-5xl left-1/2 -translate-x-1/2 p-8 bg-slate-200 border border-slate-500 rounded">
+        <div class="flex flex-row gap-x-8 items-center">
+          {% #button variant="primary-outline" type="button" data-modal="addGitHubOrg" %}
+            Add a GitHub Organisation
+          {% /button %}
+          {% #modal id="addGitHubOrg" %}
+            {% #card container=True title="Add a GitHub Organisation" %}
+              <div class="flex flex-row flex-wrap gap-2">
+                {% #button variant="success" type="submit" %}Add org{% /button %}
+                {% #button variant="danger" type="cancel" %}Cancel{% /button %}
+              </div>
+            {% /card %}
+          {% /modal %}
+        </div>
+        <pre><code class="language-django">{% verbatim %}{% #button variant="primary-outline" type="button" data-modal="addGitHubOrg" %}
+  Add a GitHub Organisation
+{% /button %}
+{% #modal id="addGitHubOrg" %}
+  {% #card container=True title="Add a GitHub Organisation" %}{% endverbatim %}
+    {% filter force_escape %}<div class="flex flex-row flex-wrap gap-2">{% endfilter %}
+      {% verbatim %}{% #button variant="success" type="submit" %}Add org{% /button %}
+      {% #button variant="danger" type="cancel" %}Cancel{% /button %}{% endverbatim %}
+    {% filter force_escape %}</div>{% endfilter %}
+  {% verbatim %}{% /card %}
+{% /modal %}{% endverbatim %}</code></pre>
+      </div>
+    </section>
+
     <section id="pillSection">
       <h2>Pills</h2>
       <h3>Pill</h3>
@@ -792,5 +827,6 @@
 {% endblock %}
 
 {% block extra_js %}
-  {% vite_asset 'assets/src/scripts/components.js' %}
+  {% vite_asset "assets/src/scripts/components.js" %}
+  {% vite_asset "templates/_components/modal/modal.js" %}
 {% endblock %}
