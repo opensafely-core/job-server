@@ -1,5 +1,4 @@
 import { useQuery } from "@tanstack/react-query";
-import { toastError } from "../utils/toast";
 
 function longestSubStr(files) {
   let initialStr = [];
@@ -47,9 +46,9 @@ export function sortedFiles(files) {
 }
 
 function useFileList({ authToken, filesUrl }) {
-  return useQuery(
-    ["FILE_LIST"],
-    async () => {
+  return useQuery({
+    queryKey: ["FILE_LIST"],
+    queryFn: async () => {
       const response = await fetch(filesUrl, {
         headers: {
           Authorization: authToken,
@@ -60,18 +59,12 @@ function useFileList({ authToken, filesUrl }) {
 
       return response.json();
     },
-    {
-      select: (data) => sortedFiles(data.files),
-      onError: () => {
-        toastError({
-          message: "Unable to load files",
-          toastId: filesUrl,
-          filesUrl,
-          url: document.location.href,
-        });
-      },
+    select: (data) => sortedFiles(data.files),
+    meta: {
+      errorMessage: "Unable to load files",
+      id: filesUrl,
     },
-  );
+  });
 }
 
 export default useFileList;
