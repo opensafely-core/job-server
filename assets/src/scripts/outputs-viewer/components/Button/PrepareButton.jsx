@@ -9,8 +9,8 @@ function PrepareButton({ authToken, csrfToken, filesUrl, prepareUrl }) {
   const { data: fileList } = useFileList({ authToken, filesUrl });
   const toastId = "PrepareButton";
 
-  const mutation = useMutation(
-    async ({ fileIds }) => {
+  const mutation = useMutation({
+    mutationFn: async (fileIds) => {
       const response = await fetch(prepareUrl, {
         method: "POST",
         headers: {
@@ -27,25 +27,23 @@ function PrepareButton({ authToken, csrfToken, filesUrl, prepareUrl }) {
 
       return response.json();
     },
-    {
-      mutationKey: "PREPARE_RELEASE",
-      onMutate: () => {
-        toastDismiss({ toastId });
-      },
-      onSuccess: (data) => {
-        // redirect to URL returned from the API
-        window.location.href = data.url;
-      },
-      onError: (error) => {
-        toastError({
-          message: `${error}`,
-          toastId,
-          prepareUrl,
-          url: document.location.href,
-        });
-      },
+    // mutationKey: "PREPARE_RELEASE",
+    onMutate: () => {
+      toastDismiss({ toastId });
     },
-  );
+    onSuccess: (data) => {
+      // redirect to URL returned from the API
+      window.location.href = data.url;
+    },
+    onError: (error) => {
+      toastError({
+        message: `${error}`,
+        toastId,
+        prepareUrl,
+        url: document.location.href,
+      });
+    },
+  });
 
   if (!fileList?.length) return null;
 
@@ -53,15 +51,15 @@ function PrepareButton({ authToken, csrfToken, filesUrl, prepareUrl }) {
 
   return (
     <Button
-      disabled={mutation.isLoading}
+      disabled={mutation.isPending}
       onClick={(e) => {
         e.preventDefault();
-        return mutation.mutate({ fileIds });
+        return mutation.mutate(fileIds);
       }}
       type="button"
-      variant={mutation.isLoading ? "secondary" : "primary"}
+      variant={mutation.isPending ? "secondary" : "primary"}
     >
-      {mutation.isLoading ? "Publishing…" : "Publish"}
+      {mutation.isPending ? "Publishing…" : "Publish"}
     </Button>
   );
 }
