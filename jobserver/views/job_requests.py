@@ -24,6 +24,7 @@ from ..pipeline_config import (
     check_sqlrunner_permission,
     get_actions,
     get_codelists_status,
+    get_database_actions,
     get_project,
     render_definition,
 )
@@ -129,6 +130,8 @@ class JobRequestCreate(CreateView):
 
         self.actions = list(get_actions(data))
 
+        # Find ehrql/cohort-extractor actions that will use codelists
+        self.database_actions = list(get_database_actions(data))
         if self.codelists_status != "ok":
             # At this stage we don't know whether requested jobs depend on
             # codelists, so just show a warning.
