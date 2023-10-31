@@ -538,9 +538,11 @@
     </section>
 
     <section id="pillSection">
-      <h2>Pill</h2>
+      <h2>Pills</h2>
+      <h3>Pill</h3>
       <ul>
         <li><code>children</code>: [html] - display the children components</li>
+        <li><code>class</code>: [string] - add HTML classes to element</li>
         <li><code>sr_only</code>: [string] - add explainer text for screen readers</li>
         <li><code>text</code>: [string] - text to display in the component</li>
         <li><code>variant</code>: [string] - select styling colours for the component</li>
@@ -560,6 +562,36 @@
 {% pill variant="primary" text="Primary" %}
 {% pill variant="success" text="Success" %}
 {% pill variant="warning" text="Warning" %}{% endverbatim %}</code></pre>
+      </div>
+
+      <h3>Application status pill</h3>
+      <ul>
+        <li><code>class</code>: [string] - add HTML classes to element</li>
+        <li><code>status</code>: [string] - selects the correct variant for Job Server application status</li>
+      </ul>
+      <div class="not-prose flex flex-col gap-y-8 relative w-screen max-w-5xl left-1/2 -translate-x-1/2 p-8 bg-slate-200 border border-slate-500 rounded">
+        <div class="flex flex-col gap-8 md:flex-row items-center">
+          {% pill_application_status status="approved_fully" %}
+          {% pill_application_status status="ongoing" %}
+        </div>
+
+        <pre><code class="language-django">{% verbatim %}{% pill_application_status status="approved_fully" %}
+{% pill_application_status status="ongoing" %}{% endverbatim %}</code></pre>
+      </div>
+
+      <h3>Project status pill</h3>
+      <ul>
+        <li><code>status</code>: [string] - selects the correct variant for Job Server project status</li>
+        <li><code>text</code>: [string] - display text in the pill</li>
+      </ul>
+      <div class="not-prose flex flex-col gap-y-8 relative w-screen max-w-5xl left-1/2 -translate-x-1/2 p-8 bg-slate-200 border border-slate-500 rounded">
+        <div class="flex flex-col gap-8 md:flex-row items-center">
+          {% pill_project_status status="completed-and-awaiting" text="Completed and awaiting publication" %}
+          {% pill_project_status status="ongoing-and-linked" text="Ongoing" %}
+        </div>
+
+        <pre><code class="language-django">{% verbatim %}{% pill_project_status status="approved_fully" %}
+{% pill_project_status status="ongoing" %}{% endverbatim %}</code></pre>
       </div>
     </section>
 
