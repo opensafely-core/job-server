@@ -18,8 +18,10 @@ build env="dev":
 
 
 # run tests in dev container
-test *args="": build
-    docker-compose run --rm test bash -c "coverage erase && coverage run --branch --source=applications,interactive,jobserver,redirects,services,staff,tests --module pytest {{ args }} && coverage combine && coverage report || coverage html"
+test *pytest_args="": build
+    #!/bin/bash
+    # Note, we do *not* run coverage in docker, as we want to use xdist, and coverage does not seem to work reliably.
+    docker-compose run --rm test pytest {{ pytest_args }}
 
 
 # run server in dev|prod container
