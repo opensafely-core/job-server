@@ -422,6 +422,35 @@
       </div>
     </section>
 
+    <section>
+      <h2>Grids</h2>
+      <ul>
+        <li><code>class</code>: [string] - add HTML classes to element</li>
+        <li><code>children</code>: [html] - display the children components</li>
+        <li><code>gap</code>: [number] - set the Tailwind gap distance for the columns</li>
+      </ul>
+      <div class="not-prose flex flex-col gap-y-8 relative w-screen max-w-5xl left-1/2 -translate-x-1/2 p-8 bg-slate-200 border border-slate-500 rounded">
+        <div class="flex flex-row gap-x-8 items-center">
+          {% #grid_three_cols gap=4 %}
+            {% #grid_col_span_1 %}
+              This will span one column on all screen sizes
+            {% /grid_col_span_1 %}
+            {% #grid_col_lg_span_2 %}
+              This will span 2 columns on a large size screen
+            {% /grid_col_lg_span_2 %}
+          {% /grid_three_cols %}
+        </div>
+        <pre><code class="language-django">{% verbatim %}{% #grid_three_cols gap=4 %}
+  {% #grid_col_span_1 %}
+    This will span one column on all screen sizes
+  {% /grid_col_span_1 %}
+  {% #grid_col_lg_span_2 %}
+    This will span 2 columns on a large size screen
+  {% /grid_col_lg_span_2 %}
+{% /grid_three_cols %}{% endverbatim %}</code></pre>
+      </div>
+    </section>
+
     <section id="headerSection">
       <h2>Header</h2>
       <div class="not-prose flex flex-col gap-y-8 relative w-screen max-w-5xl left-1/2 -translate-x-1/2 p-8 bg-slate-200 border border-slate-500 rounded">
