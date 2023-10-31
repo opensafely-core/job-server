@@ -46,6 +46,22 @@ def get_actions(config):
         yield {"name": "run_all", "needs": all_actions}
 
 
+def get_database_actions(config):
+    """
+    Return the names of actions that use the backend database.
+    For ehrql, this is both generate-dataset and generate-measures. For
+    cohort-extractor, generate_measures depends on a previous generate_cohort
+    action, so doesn't use the database directly itself.
+    Happily, we can differentiate between ehrql and cohort-extractor by their
+    use of - and _ in the command.
+    """
+    db_actions = ["generate-dataset", "generate-measures", "generate_cohort"]
+    for name, action in config.actions.items():
+        for db_action in db_actions:
+            if action.run.raw.find(db_action) >= 0:
+                yield name
+
+
 def get_project(org, repo, branch, get_github_api=_get_github_api):
     github_api = get_github_api()
 

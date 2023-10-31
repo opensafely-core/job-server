@@ -10,6 +10,7 @@ from jobserver.pipeline_config import (
     check_sqlrunner_permission,
     get_actions,
     get_codelists_status,
+    get_database_actions,
     get_project,
     link_run_scripts,
     map_run_scripts_to_links,
@@ -473,3 +474,83 @@ def test_render_definition():
     output = render_definition(dummy_yaml, link_func)
 
     assert output == expected
+
+
+@pytest.mark.parametrize(
+    "actions,expected_db_actions",
+    [
+        # ehrql action
+        (
+            {
+                "generate_dataset": {
+                    "run": "ehrql:v0 generate-dataset --dataset-definition some/path --output some/other/path",
+                    "outputs": {"highly_sensitive": {"dataset": "some/other/path"}},
+                }
+            },
+            ["generate_dataset"],
+        ),
+        # cohort-extractor action
+        (
+            {
+                "generate_cohort": {
+                    "run": "cohortextractor:latest generate_cohort --study-definition some/path --output some/other/path",
+                    "outputs": {"highly_sensitive": {"cohort": "some/other/path"}},
+                }
+            },
+            ["generate_cohort"],
+        ),
+        # multiple actions, some non-database ones
+        (
+            {
+                "generate_cohort": {
+                    "run": "cohortextractor:latest generate_cohort --study-definition some/path --output some/cohort/path",
+                    "outputs": {"highly_sensitive": {"cohort": "some/cohort/path"}},
+                },
+                "generate_cohort_measures": {
+                    "run": "cohortextractor:latest generate_measures --study-definition some/path --output some/measures/path",
+                    "outputs": {"highly_sensitive": {"cohort": "some/measures/path"}},
+                },
+                "generate_dataset": {
+                    "run": "ehrql:v0 generate-dataset --dataset-definition some/path --output some/dataset/path",
+                    "outputs": {"highly_sensitive": {"dataset": "some/dataset/path"}},
+                },
+                "generate_ehrql_measures": {
+                    "run": "ehrql:v0 generate-measures --measures-definition some/path --output some/ehrql/measures/path",
+                    "outputs": {
+                        "highly_sensitive": {"dataset": "some/ehrql/measures/path"}
+                    },
+                },
+                "make_chart": {
+                    "run": "python:latest make-chart.py",
+                    "outputs": {"moderately_sensitive": {"chart": "some/chart/path"}},
+                },
+            },
+            ["generate_cohort", "generate_dataset", "generate_ehrql_measures"],
+        ),
+        # ehrql/cohort-extractor actions, but not
+        (
+            {
+                "generate_cohort": {
+                    "run": "cohortextractor:latest cohort_report",
+                    "outputs": {"moderately_sensitive": {"cohort": "some/path"}},
+                },
+                "generate_dataset": {
+                    "run": "ehrql:v0 dump-dataset-sql --dataset-definition some/path --output some/dataset/path",
+                    "outputs": {
+                        "moderately_sensitive": {"dataset": "some/dataset/path"}
+                    },
+                },
+            },
+            [],
+        ),
+    ],
+)
+def test_get_database_actions(actions, expected_db_actions):
+    content = Pipeline(
+        **{
+            "version": 3,
+            "expectations": {"population_size": 1000},
+            "actions": actions,
+        }
+    )
+    assert list(get_database_actions(content)) == expected_db_actions
