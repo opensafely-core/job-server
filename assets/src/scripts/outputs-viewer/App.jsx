@@ -1,4 +1,8 @@
-import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
+import {
+  QueryClient,
+  QueryClientProvider,
+  QueryCache,
+} from "@tanstack/react-query";
 import { ReactQueryDevtools } from "@tanstack/react-query-devtools";
 import React, { useState } from "react";
 import Button from "./components/Button/Button";
@@ -10,6 +14,7 @@ import Metadata from "./components/Metadata/Metadata";
 import Toast from "./components/Toast/Toast";
 import Viewer from "./components/Viewer/Viewer";
 import { datasetProps } from "./utils/props";
+import { toastError } from "./utils/toast";
 
 const queryClient = new QueryClient({
   defaultOptions: {
@@ -17,6 +22,18 @@ const queryClient = new QueryClient({
       refetchOnWindowFocus: false,
     },
   },
+  queryCache: new QueryCache({
+    onError: (error, query) => {
+      if (query.meta.errorMessage) {
+        toastError({
+          message: query.meta.errorMessage,
+          toastId: query.meta.id,
+          filesUrl: query.meta.id,
+          url: document.location.href,
+        });
+      }
+    },
+  }),
 });
 
 function App({ authToken, csrfToken, filesUrl, prepareUrl, publishUrl }) {

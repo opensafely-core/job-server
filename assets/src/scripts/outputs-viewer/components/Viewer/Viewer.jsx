@@ -11,7 +11,6 @@ import {
   isTxt,
 } from "../../utils/file-type-match";
 import { datasetProps, selectedFileProps } from "../../utils/props";
-import { toastError } from "../../utils/toast";
 import Iframe from "../Iframe/Iframe";
 import Image from "../Image/Image";
 import Link from "../Link";
@@ -20,9 +19,9 @@ import Table from "../Table/Table";
 import Text from "../Text/Text";
 
 function Viewer({ authToken, fileName, fileSize, fileUrl, uuid }) {
-  const { data, error, isLoading, isError } = useQuery(
-    ["FILE", fileUrl],
-    async () => {
+  const { data, error, isLoading, isError } = useQuery({
+    queryKey: ["FILE", fileUrl],
+    queryFn: async () => {
       // If we can't display the file type
       // or the file size is too large (>20mb)
       // don't try to return the data
@@ -72,17 +71,11 @@ function Viewer({ authToken, fileName, fileSize, fileUrl, uuid }) {
       // Otherwise return the text of the data
       return bodyText;
     },
-    {
-      onError: () => {
-        toastError({
-          fileUrl,
-          message: `${fileName} - Unable to load file`,
-          toastId: fileUrl,
-          url: document.location.href,
-        });
-      },
+    meta: {
+      errorMessage: `${fileName} - Unable to load file`,
+      id: fileUrl,
     },
-  );
+  });
 
   if (isLoading) {
     return <span>Loading...</span>;

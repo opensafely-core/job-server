@@ -7,15 +7,15 @@ import Button from "./Button";
 function PublishButton({ csrfToken, publishUrl }) {
   const toastId = "PublishButton";
 
-  const mutation = useMutation(
-    async () => {
+  const mutation = useMutation({
+    mutationFn: async () => {
       const response = await fetch(publishUrl, {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
           "X-CSRFToken": csrfToken,
         },
-        body: JSON.stringify(),
+        body: "",
       });
 
       if (!response.ok) {
@@ -25,37 +25,34 @@ function PublishButton({ csrfToken, publishUrl }) {
 
       return response.text();
     },
-    {
-      mutationKey: "PUBLISH_RELEASE",
-      onMutate: () => {
-        toastDismiss({ toastId });
-      },
-      onSuccess: () => {
-        // redirect to URL returned from the API
-        window.location.reload();
-      },
-      onError: (error) => {
-        toastError({
-          message: `${error}`,
-          toastId,
-          publishUrl,
-          url: document.location.href,
-        });
-      },
+    onMutate: () => {
+      toastDismiss({ toastId });
     },
-  );
+    onSuccess: () => {
+      // redirect to URL returned from the API
+      window.location.reload();
+    },
+    onError: (error) => {
+      toastError({
+        message: `${error}`,
+        toastId,
+        publishUrl,
+        url: document.location.href,
+      });
+    },
+  });
 
   return (
     <Button
-      disabled={mutation.isLoading}
+      disabled={mutation.isPending}
       onClick={(e) => {
         e.preventDefault();
         return mutation.mutate();
       }}
       type="button"
-      variant={mutation.isLoading ? "secondary" : "primary"}
+      variant={mutation.isPending ? "secondary" : "primary"}
     >
-      {mutation.isLoading ? "Confirming…" : "Confirm Publish?"}
+      {mutation.isPending ? "Confirming…" : "Confirm Publish?"}
     </Button>
   );
 }
