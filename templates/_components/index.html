@@ -699,6 +699,45 @@
       </div>
     </section>
 
+    <section>
+      <h2>Multiselect</h2>
+      <div class="not-prose flex flex-col gap-y-8 relative w-screen max-w-5xl left-1/2 -translate-x-1/2 p-8 bg-slate-200 border border-slate-500 rounded">
+        <div class="flex flex-row gap-x-8 items-center">
+          {% #card title="Filter by company" container=True class="w-full max-w-prose" %}
+            {% #multiselect custom_field=True name="company" placeholder="Select a company" %}
+              {% multiselect_option name="Kramerica Industries" value="kramerica" is_active=True %}
+              {% multiselect_option name="Vandelay Industries" value="vandelay" %}
+            {% /multiselect %}
+          {% /card %}
+        </div>
+        <pre><code class="language-django">{% verbatim %}{% #card title="Filter by company" container=True class="w-full max-w-prose" %}
+  {% #multiselect custom_field=True name="company" placeholder="Select a company" %}
+    {% multiselect_option name="Kramerica Industries" value="kramerica" is_active=True %}
+    {% multiselect_option name="Vandelay Industries" value="vandelay" %}
+  {% /multiselect %}
+{% /card %}{% endverbatim %}</code></pre>
+      </div>
+
+      <h3>Multiselect container</h3>
+      <ul>
+        <li><code>children</code>: [html] - display the children components</li>
+        <li><code>custom_field</code>: [boolean] - set to true if field does not directly map to a Django Form field</li>
+        <li><code>data-max-items</code>: [number] - set the total number of items that can be selected</li>
+        <li><code>id</code>: [string] - HTML element ID</li>
+        <li><code>name</code>: [string] - HTML element name</li>
+        <li><code>multiple</code>: [boolean] - if true, multiple options can be selected (default to true)</li>
+        <li><a href="https://developer.mozilla.org/en-US/docs/Web/HTML/Element/input#placeholder"><code>placeholder</code></a></li>
+        <li><a href="https://developer.mozilla.org/en-US/docs/Web/HTML/Attributes/required"><code>required</code></a></li>
+      </ul>
+
+      <h3>Multiselect option</h3>
+      <ul>
+        <li><code>is_active</code>: [boolean] - if true, option is shown above the search bar</li>
+        <li><code>name</code>: [string] - name show in the HTML option tag</li>
+        <li><code>value</code>: [string] - value used for the HTML option tag</li>
+      </ul>
+    </section>
+
     <section id="pillSection">
       <h2>Pills</h2>
       <h3>Pill</h3>
@@ -956,4 +995,5 @@
 {% block extra_js %}
   {% vite_asset "assets/src/scripts/components.js" %}
   {% vite_asset "templates/_components/modal/modal.js" %}
+  {% vite_asset "templates/_components/multiselect/multiselect.js" %}
 {% endblock %}
