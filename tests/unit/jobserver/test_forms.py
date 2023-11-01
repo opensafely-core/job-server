@@ -11,29 +11,51 @@ from ...factories import BackendFactory, ProjectFactory, RepoFactory, WorkspaceF
 def test_jobrequestcreateform_with_single_backend():
     backend = BackendFactory()
     choices = backends_to_choices([backend])
+    form_data = {
+        "requested_actions": ["do_something"],
+        "backend": backend.slug,
+    }
     form = JobRequestCreateForm(
-        {"backend": backend.slug},
+        ["do_something"],
         backends=choices,
         database_actions=[],
         codelists_status="ok",
+        data=form_data,
     )
 
     assert "backend" in form.fields
     assert form.fields["backend"].choices == choices
+    assert "requested_actions" in form.fields
+    assert form.fields["requested_actions"].choices == [
+        ("do_something", "do_something")
+    ]
 
-    assert form.is_valid, form.errors
+    assert form.is_valid(), (form.errors, form.non_field_errors())
 
 
 def test_jobrequestcreateform_with_multiple_backends():
+    BackendFactory.create_batch(3)
+
     choices = backends_to_choices(Backend.objects.all())
+    assert len(choices) == 3
     form = JobRequestCreateForm(
-        {"backend": "tpp"}, backends=choices, database_actions=[], codelists_status="ok"
+        ["do_something"], backends=choices, database_actions=[], codelists_status="ok"
     )
 
     assert "backend" in form.fields
     assert form.fields["backend"].choices == choices
-
-    assert form.is_valid, form.errors
+    form_data = {
+        "requested_actions": ["do_something"],
+        "backend": Backend.objects.first().slug,
+    }
+    form = JobRequestCreateForm(
+        ["do_something"],
+        backends=choices,
+        database_actions=[],
+        codelists_status="ok",
+        data=form_data,
+    )
+    assert form.is_valid(), (form.errors, form.non_field_errors())
 
 
 @pytest.mark.parametrize(
