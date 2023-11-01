@@ -58,7 +58,7 @@ If you want to maintain your own virtualenv make sure you have activated it befo
 
 #### Postgres
 
-Recommend: using docker to provider postgresql
+Recommend: using docker to provide postgresql
 
 ```sh
 just docker/db
