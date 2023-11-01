@@ -19,6 +19,8 @@ class JobRequestCreateForm(forms.ModelForm):
         }
 
     def __init__(self, actions, backends, *args, **kwargs):
+        self.database_actions = kwargs.pop("database_actions")
+        self.codelists_status = kwargs.pop("codelists_status")
         super().__init__(*args, **kwargs)
 
         #  add action field based on the actions passed in
@@ -39,6 +41,22 @@ class JobRequestCreateForm(forms.ModelForm):
         self.fields["backend"] = forms.ChoiceField(
             choices=backends, initial=initial, widget=forms.RadioSelect
         )
+
+    def clean(self):
+        super().clean()
+        if self.codelists_status != "ok" and "requested_actions" in self.cleaned_data:
+            requested_db_actions = [
+                action
+                for action in self.cleaned_data["requested_actions"]
+                if action in self.database_actions
+            ]
+            if requested_db_actions:
+                self.add_error(
+                    "__all__",
+                    "Some requested actions cannot be run with out-of-date codelists "
+                    f"({', '.join(requested_db_actions)}). "
+                    "To fix this re-run `opensafely codelists update` and commit the changes.",
+                )
 
 
 class EmailLoginForm(forms.Form):
