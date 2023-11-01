@@ -45,7 +45,6 @@
         [&:not(:placeholder-shown):not(:focus)]:invalid:border-bn-ribbon-600 [&:not(:placeholder-shown):not(:focus)]:invalid:ring-bn-ribbon-600 [&:not(:placeholder-shown):not(:focus)]:invalid:ring-1
       "
       id="{{ textarea_id }}"
-      type="{% if type %}{{ type }}{% else %}text{% endif %}"
     >{% if textarea_value %}{{ textarea_value }}{% endif %}</textarea>
 
     {% if field_errors %}
