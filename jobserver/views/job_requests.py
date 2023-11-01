@@ -20,6 +20,8 @@ from ..forms import JobRequestCreateForm
 from ..github import _get_github_api
 from ..models import Backend, JobRequest, Workspace
 from ..pipeline_config import (
+    check_cohortextractor_permission,
+    check_sqlrunner_permission,
     get_actions,
     get_codelists_status,
     get_project,
@@ -109,6 +111,8 @@ class JobRequestCreate(CreateView):
                 ref,
             )
             data = load_pipeline(self.project)
+            check_cohortextractor_permission(self.workspace.project, data)
+            check_sqlrunner_permission(self.workspace.project, data)
             # Find the status of the codelists in this workspace and branch
             # Codelist status is either "ok" or "error"
             self.codelists_status = get_codelists_status(
