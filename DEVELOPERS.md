@@ -58,13 +58,21 @@ If you want to maintain your own virtualenv make sure you have activated it befo
 
 #### Postgres
 
-If you're comfortable with running a database in docker-compose you can run
+Recommend: using docker to provide postgresql
 
 ```sh
-docker-compose up db
+just docker/db
+
 ```
 
-Or install it natively for your OS following the instructions below.
+Double check your .env has the right config to talk to this docker instance:
+
+```
+DATABASE_URL=postgres://user:pass@localhost:6543/jobserver
+```
+
+
+Alternatively, you can install and configure postgresql natively for your OS following the instructions below.
 
 ##### Installing on macOS
 
@@ -109,10 +117,11 @@ GRANT ALL PRIVILEGES on database jobserver to jobsuser;
 ```
 
 
-##### Restoring Backups
+#### Restoring Backups
 
 Copies of production can be restored to a local database using a dump pulled from production.
 If you do not have access to pull production backups, follow the [data setup section](#data-setup) instead of restoring a backup.
+
 
 Backups can be copied with:
 
@@ -120,7 +129,16 @@ Backups can be copied with:
 scp dokku4:/var/lib/dokku/data/storage/job-server/jobserver.dump jobserver.dump
 ```
 
-Restore the dump with:
+
+If using the provided docker db you just need to do (note this will wipe your current
+dev db):
+
+```sh
+just docker/restore-db jobserver.dump
+```
+
+If using a manual install, you can restore with:
+
 
 ```sh
 pg_restore --clean --if-exists --no-acl --no-owner -d jobserver jobserver.dump
@@ -132,13 +150,6 @@ Note: `pg_restore` will throw errors in various scenarios, which can often be ig
 The important line to check for (typically at the very end) is `errors ignored on restore: N`.
 Where `N` should match the number of errors you got.
 
-
-If using the docker stack you just need to do (note this will wipe your current
-dev db).
-
-```sh
-just docker/restore-db jobserver.dump
-```
 
 
 #### Steps

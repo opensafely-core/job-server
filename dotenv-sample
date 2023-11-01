@@ -2,8 +2,9 @@
 # Note: the Users must exist first
 ADMIN_USERS=
 
-# Uncomment and update with relevant username/password if necessary
-# DATABASE_URL=postgres://user:pass@localhost:5432/jobserver
+# Note: this assumes docker dev db. You will need to change it if you want to
+# point another postgres
+DATABASE_URL=postgres://user:pass@localhost:6534/jobserver
 
 # Turn on debug
 DEBUG=1
