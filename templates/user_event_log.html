@@ -18,10 +18,19 @@
 
 {% block content %}
   {% article_header class="mb-4" title="Logs: "|add:user.name text="The following is a list of all job requests run via OpenSAFELY by "|add:user.name|add:"." %}
+
+  {% if not page_obj %}
+    {% #card container=False %}
+      {% #list_group %}
+        {% list_group_empty icon=True title="No job requests" description="This user has not created any job requests" %}
+      {% /list_group %}
+    {% /card %}
+  {% endif %}
 {% endblock content %}
 
 {% block full_width_content %}
   <div class="mx-4 lg:mx-6 xl:mx-8">
+    {% if page_obj %}
     {% #card no_container=True %}
       <div class="inline-block min-w-full align-middle overflow-x-auto max-w-full">
         {% #table %}
@@ -106,5 +115,6 @@
       {% endif %}
       {% table_pagination paginator=page_obj next_url=next_url prev_url=prev_url %}
     {% /card %}
+    {% endif %}
   </div>
 {% endblock full_width_content %}

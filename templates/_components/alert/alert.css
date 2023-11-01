@@ -1,0 +1,69 @@
+.alert {
+  --alert-background: white;
+  --alert-icon-color: var(--color-slate-400);
+  --alert-title-color: var(--color-slate-900);
+  --alert-text-color: var(--color-slate-700);
+  --alert-hover-color: var(--color-slate-600);
+
+  @apply rounded-lg drop-shadow p-4 pr-6 relative;
+  background-color: var(--alert-background);
+}
+
+.alert--dismissible {
+  @apply pr-8;
+}
+
+.alert__container {
+  @apply flex gap-3;
+}
+
+.alert__icon {
+  @apply h-6 w-6 mt-0.5 flex-shrink-0;
+  color: var(--alert-icon-color);
+}
+
+.alert__title {
+  @apply font-bold text-lg tracking-tight mb-1;
+  color: var(--alert-title-color);
+}
+
+.alert__text {
+  color: var(--alert-text-color);
+}
+
+.alert__dismiss {
+  @apply absolute right-2 top-2;
+  color: var(--alert-text-color);
+}
+
+.alert__dismiss-icon {
+  @apply h-6 w-6;
+
+  &:hover {
+    color: var(--alert-hover-color);
+  }
+}
+
+.alert--warning {
+  --alert-background: var(--color-bn-flamenco-100);
+  --alert-icon-color: var(--color-bn-flamenco-400);
+  --alert-title-color: var(--color-bn-flamenco-900);
+  --alert-text-color: var(--color-bn-flamenco-800);
+  --alert-hover-color: var(--color-bn-flamenco-600);
+}
+
+.alert--success {
+  --alert-background: var(--color-green-100);
+  --alert-icon-color: var(--color-green-600);
+  --alert-title-color: var(--color-green-900);
+  --alert-text-color: var(--color-green-700);
+  --alert-hover-color: var(--color-green-600);
+}
+
+.alert--danger {
+  --alert-background: var(--color-bn-ribbon-100);
+  --alert-icon-color: var(--color-bn-ribbon-400);
+  --alert-title-color: var(--color-bn-ribbon-900);
+  --alert-text-color: var(--color-bn-ribbon-800);
+  --alert-hover-color: var(--color-bn-ribbon-600);
+}

@@ -23,6 +23,12 @@
 {% endblock breadcrumbs %}
 
 {% block content %}
+{% if job.is_missing_updates %}
+  {% #alert variant="warning" title="Attention needed" class="mb-4" %}
+    This Job has not been updated for over 30 minutes, some of the data on this page could be stale.
+  {% /alert %}
+{% endif %}
+
 <div class="md:flex md:items-center md:justify-between md:space-x-5">
   <h1 class="min-w-0 text-3xl break-words md:text-4xl font-bold text-slate-900">
     {% if job.action == "__error__" %}
@@ -48,12 +54,6 @@
     </div>
   {% endif %}
 </div>
-
-{% if job.is_missing_updates %}
-  {% #alert variant="warning" title="Attention needed" class="mt-4" %}
-    This Job has not been updated for over 30 minutes, some of the data on this page could be stale.
-  {% /alert %}
-{% endif %}
 
 <div class="grid grid-cols-1 gap-6 lg:grid-flow-col-dense mt-2 md:mt-8 lg:grid-cols-3">
   {% #card title="Timeline" class="lg:col-start-1 lg:col-span-1" container=True %}
