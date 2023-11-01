@@ -808,6 +808,176 @@
     </section>
 
     <section>
+      <h2>Tables</h2>
+      <div class="not-prose flex flex-col gap-y-8 relative w-screen max-w-5xl left-1/2 -translate-x-1/2 p-8 bg-slate-200 border border-slate-500 rounded">
+        <div class="flex flex-row gap-x-8 items-center">
+          {% #card class="w-full" no_container=True %}
+            <div class="inline-block min-w-full align-middle overflow-x-auto max-w-full">
+              {% #table id="customTable" %}
+                {% #table_head class="bg-slate-200" %}
+                  {% #table_row %}
+                    {% #table_header %}
+                      <div class="flex flex-row gap-2">
+                        Project
+                        <span class="ml-auto">
+                          {% icon_arrows_up_down_mini class="h4 w-4 datatable-icon--no-sort" %}
+                          {% icon_arrow_up_mini class="h4 w-4 datatable-icon--ascending" %}
+                          {% icon_arrow_down_mini class="h4 w-4 datatable-icon--descending" %}
+                        </span>
+                      </div>
+                    {% /table_header %}
+                    {% #table_header %}
+                      <div class="flex flex-row gap-2">
+                        Job requests run
+                        <span class="ml-auto">
+                          {% icon_arrows_up_down_mini class="h4 w-4 datatable-icon--no-sort" %}
+                          {% icon_arrow_up_mini class="h4 w-4 datatable-icon--ascending" %}
+                          {% icon_arrow_down_mini class="h4 w-4 datatable-icon--descending" %}
+                        </span>
+                      </div>
+                    {% /table_header %}
+                    {% #table_header data-type="date" data-format="DD MMM YYYY" %}
+                      <div class="flex flex-row gap-2">
+                        Job first run
+                        <span class="ml-auto">
+                          {% icon_arrows_up_down_mini class="h4 w-4 datatable-icon--no-sort" %}
+                          {% icon_arrow_up_mini class="h4 w-4 datatable-icon--ascending" %}
+                          {% icon_arrow_down_mini class="h4 w-4 datatable-icon--descending" %}
+                        </span>
+                      </div>
+                    {% /table_header %}
+                  {% /table_row %}
+                {% /table_head %}
+
+                {% #table_body %}
+                  {% #table_row class="even:bg-slate-50" %}
+                    {% #table_cell %}
+                      101 - Test project for a table
+                    {% /table_cell %}
+                    {% #table_cell %}
+                      786
+                    {% /table_cell %}
+                    {% #table_cell %}
+                      31 October 2022
+                    {% /table_cell %}
+                  {% /table_row %}
+                {% /table_body %}
+              {% /table %}
+              {% table_pagination has_previous=True has_next=True next_url="#" prev_url="#" %}
+            </div>
+          {% /card %}
+        </div>
+        <pre><code class="language-django">{% verbatim %}{% #card class="w-full" no_container=True %}{% endverbatim %}
+  {% filter force_escape %}<div class="inline-block min-w-full align-middle overflow-x-auto max-w-full">{% endfilter %}
+    {% verbatim %}{% #table id="customTable" %}
+      {% #table_head class="bg-slate-200" %}
+        {% #table_row %}
+          {% #table_header %}{% endverbatim %}
+          {% filter force_escape %}<div class="flex flex-row gap-2">{% endfilter %}
+              Project
+              {% filter force_escape %}<span class="ml-auto">{% endfilter %}
+                {% verbatim %}{% icon_arrows_up_down_mini class="h4 w-4 datatable-icon--no-sort" %}
+                {% icon_arrow_up_mini class="h4 w-4 datatable-icon--ascending" %}
+                {% icon_arrow_down_mini class="h4 w-4 datatable-icon--descending" %}{% endverbatim %}
+              {% filter force_escape %}</span>{% endfilter %}
+            {% filter force_escape %}</div>{% endfilter %}
+          {% verbatim %}{% /table_header %}{% endverbatim %}
+          {% verbatim %}{% #table_header %}{% endverbatim %}
+            {% filter force_escape %}<div class="flex flex-row gap-2">
+              Job requests run
+              <span class="ml-auto">{% endfilter %}
+                {% verbatim %}{% icon_arrows_up_down_mini class="h4 w-4 datatable-icon--no-sort" %}
+                {% icon_arrow_up_mini class="h4 w-4 datatable-icon--ascending" %}
+                {% icon_arrow_down_mini class="h4 w-4 datatable-icon--descending" %}{% endverbatim %}
+              {% filter force_escape %}</span>
+            </div>{% endfilter %}
+          {% verbatim %}{% /table_header %}{% endverbatim %}
+          {% verbatim %}{% #table_header data-type="date" data-format="DD MMM YYYY" %}{% endverbatim %}
+            {% filter force_escape %}<div class="flex flex-row gap-2">
+              Job first run
+              <span class="ml-auto">{% endfilter %}
+                {% verbatim %}{% icon_arrows_up_down_mini class="h4 w-4 datatable-icon--no-sort" %}
+                {% icon_arrow_up_mini class="h4 w-4 datatable-icon--ascending" %}
+                {% icon_arrow_down_mini class="h4 w-4 datatable-icon--descending" %}{% endverbatim %}
+              {% filter force_escape %}</span>
+            </div>{% endfilter %}
+          {% verbatim %}{% /table_header %}
+        {% /table_row %}
+      {% /table_head %}
+
+      {% #table_body %}
+        {% #table_row class="even:bg-slate-50" %}
+          {% #table_cell %}
+            101 - Test project for a table
+          {% /table_cell %}
+          {% #table_cell %}
+            786
+          {% /table_cell %}
+          {% #table_cell %}
+            31 October 2022
+          {% /table_cell %}
+        {% /table_row %}
+      {% /table_body %}
+    {% /table %}
+    {% table_pagination has_previous=True has_next=True next_url="#" prev_url="#" %}{% endverbatim %}
+  {% filter force_escape %}</div>{% endfilter %}
+{% verbatim %}{% /card %}{% endverbatim %}</code></pre>
+      </div>
+
+      <h3>Table</h3>
+      <ul>
+        <li><code>children</code>: [html] - display the children components</li>
+        <li><code>id</code>: [string] - add HTML ID to element</li>
+      </ul>
+
+      <h3>Table Body</h3>
+      <ul>
+        <li><code>children</code>: [html] - display the children components</li>
+      </ul>
+
+      <h3>Table Cell</h3>
+      <ul>
+        <li><code>children</code>: [html] - display the children components</li>
+        <li><code>class</code>: [string] - add HTML classes to element</li>
+        <li><code>nowrap</code>: [boolean] - if true, cell will not wrap</li>
+        <li><code>title</code>: [string] - add HTML title to element</li>
+      </ul>
+
+      <h3>Table Head</h3>
+      <ul>
+        <li><code>children</code>: [html] - display the children components</li>
+        <li><code>class</code>: [string] - add HTML classes to element</li>
+      </ul>
+
+      <h3>Table Header</h3>
+      <ul>
+        <li><code>children</code>: [html] - display the children components</li>
+        <li><code>class</code>: [string] - add HTML classes to element</li>
+        <li><code>nowrap</code>: [boolean] - if true, cell will not wrap</li>
+        <li>
+          <a href="https://fiduswriter.github.io/simple-datatables/documentation/datetime#method-1"><code>data-type</code></a>:
+          [string] - used with simple-datatables to format and sort date strings
+        </li>
+        <li>
+          <a href="https://fiduswriter.github.io/simple-datatables/documentation/datetime#method-1"><code>data-format</code></a>:
+          [string] - used with simple-datatables to format and sort date strings
+        </li>
+        <li><a href="https://developer.mozilla.org/en-US/docs/Web/HTML/Element/th#scope"><code>scope</code></a></li>
+      </ul>
+
+      <h3>Table Pagination</h3>
+      <ul>
+        <li><code>paginator</code>: [django] - passes the pagination details from Django to the function</li>
+      </ul>
+
+      <h3>Table Row</h3>
+      <ul>
+        <li><code>children</code>: [html] - display the children components</li>
+        <li><code>class</code>: [string] - add HTML classes to element</li>
+      </ul>
+    </section>
+
+    <section>
       <h2>Time</h2>
       <ul>
         <li><code>children</code>: [html] - display the children components</li>
@@ -994,6 +1164,7 @@
 
 {% block extra_js %}
   {% vite_asset "assets/src/scripts/components.js" %}
+  {% vite_asset "assets/src/scripts/_datatable.js" %}
   {% vite_asset "templates/_components/modal/modal.js" %}
   {% vite_asset "templates/_components/multiselect/multiselect.js" %}
 {% endblock %}
