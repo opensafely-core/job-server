@@ -2,7 +2,7 @@
 # Note: the Users must exist first
 ADMIN_USERS=
 
-# Note: this assumes docker dev db. You will need to change it you want to
+# Note: this assumes docker dev db. You will need to change it if you want to
 # point another postgres
 DATABASE_URL=postgres://user:pass@localhost:6534/jobserver
 
