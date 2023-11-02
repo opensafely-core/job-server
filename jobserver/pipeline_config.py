@@ -4,6 +4,33 @@ from pygments.lexers import YamlLexer
 
 from .github import _get_github_api
 from .opencodelists import _get_opencodelists_api
+from .permissions.cohortextractor import project_is_permitted_to_use_cohortextractor
+from .permissions.sqlrunner import project_is_permitted_to_use_sqlrunner
+
+
+class ActionPermissionError(Exception):
+    """Raised when a job tries to run an action for which the project does not have
+    permission."""
+
+
+def check_cohortextractor_permission(project, config):
+    run_commands = [v.run.raw for v in config.actions.values()]
+    if not any("cohortextractor" in command for command in run_commands):
+        # No need to check permission if project does not use cohort-extractor.
+        return
+    if not project_is_permitted_to_use_cohortextractor(project):
+        msg = "This project does not have permission to run cohort-extractor jobs"
+        raise ActionPermissionError(msg)
+
+
+def check_sqlrunner_permission(project, config):
+    run_commands = [v.run.raw for v in config.actions.values()]
+    if not any("sqlrunner" in command for command in run_commands):
+        # No need to check permission if project does not use SQL Runner.
+        return
+    if not project_is_permitted_to_use_sqlrunner(project):
+        msg = "This project does not have permission to run SQL Runner jobs"
+        raise ActionPermissionError(msg)
 
 
 def get_actions(config):

@@ -5,6 +5,9 @@ from furl import furl
 from pipeline.models import Pipeline
 
 from jobserver.pipeline_config import (
+    ActionPermissionError,
+    check_cohortextractor_permission,
+    check_sqlrunner_permission,
     get_actions,
     get_codelists_status,
     get_project,
@@ -13,6 +16,7 @@ from jobserver.pipeline_config import (
     render_definition,
 )
 
+from ...factories import ProjectFactory
 from ...fakes import FakeGitHubAPI, FakeOpenCodelistsAPI
 
 
@@ -37,6 +41,91 @@ def link_func(path):
     f = furl("example.com")
     f.path /= path
     return f.url
+
+
+def test_check_cohortextractor_permission():
+    config = Pipeline(
+        **{
+            "version": 3,
+            "expectations": {"population_size": 1000},
+            "actions": {
+                "generate_study_population": {
+                    "run": "cohortextractor:latest generate_cohort",
+                    "outputs": {"highly_sensitive": {"cohort": "some/path"}},
+                },
+            },
+        }
+    )
+
+    # The internal project has permission
+    check_cohortextractor_permission(ProjectFactory(id=28), config)
+
+    # Project 2 has permission
+    check_cohortextractor_permission(ProjectFactory(id=101, number=2), config)
+
+    with pytest.raises(ActionPermissionError):
+        # Project 1 doesn't have permission
+        check_cohortextractor_permission(ProjectFactory(id=102, number=1), config)
+
+
+def test_check_cohortextractor_permission_no_cohort_extractor_actions():
+    config = Pipeline(
+        **{
+            "version": 3,
+            "expectations": {"population_size": 1000},
+            "actions": {
+                "generate_study_population": {
+                    "run": "ehrql:v1 generate-dataset --output some/path",
+                    "outputs": {"highly_sensitive": {"dataset": "some/path"}},
+                },
+            },
+        }
+    )
+
+    # Project 1 doesn't have permission to run cohort-extractor, but there are no
+    # cohort-extractor actions in the pipeline, so no error will be raised
+    check_cohortextractor_permission(ProjectFactory(id=101, number=1), config)
+
+
+def test_check_sqlrunner_permission():
+    config = Pipeline(
+        **{
+            "version": 3,
+            "expectations": {"population_size": 1000},
+            "actions": {
+                "query": {
+                    "run": "sqlrunner:latest",
+                    "outputs": {"highly_sensitive": {"output": "some/path"}},
+                },
+            },
+        }
+    )
+
+    # The internal project has permission
+    check_sqlrunner_permission(ProjectFactory(id=28), config)
+
+    with pytest.raises(ActionPermissionError):
+        # Project 1 doesn't have permission
+        check_sqlrunner_permission(ProjectFactory(id=102, number=1), config)
+
+
+def test_check_sqlrunner_permission_no_sqlrunner_actions():
+    config = Pipeline(
+        **{
+            "version": 3,
+            "expectations": {"population_size": 1000},
+            "actions": {
+                "generate_study_population": {
+                    "run": "ehrql:v1 generate-dataset --output some/path",
+                    "outputs": {"highly_sensitive": {"dataset": "some/path"}},
+                },
+            },
+        }
+    )
+
+    # Project 1 doesn't have permission to run SQL Runner, but there are no SQL Runner,
+    # so no error will be raised
+    check_sqlrunner_permission(ProjectFactory(id=101, number=1), config)
 
 
 def test_get_actions_missing_needs():
