@@ -134,9 +134,20 @@ class JobRequestCreate(CreateView):
             # codelists, so just show a warning.
             messages.warning(
                 request,
-                "Codelists for this workspace are out of date. "
-                "In future, this will cause generate-dataset actions to fail. "
-                "You can fix this issue by re-running `opensafely codelists update`.",
+                mark_safe(
+                    """
+                    <div class='alert__title'>Codelists for this workspace are out of date.</div>
+                    <div class='alert__text'>
+                        In future, this will cause generate-dataset actions to fail.
+                        You can fix this issue by re-running `opensafely codelists update`.
+                    </div>
+                    <div class='alert__text'>
+                        For more details, please see the documentation on
+                        <a class='underline' href='https://docs.opensafely.org/codelist-updating/'>
+                        keeping codelists up to date</a>.
+                    </div>
+                    """
+                ),
             )
         return super().dispatch(request, *args, **kwargs)
 
