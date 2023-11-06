@@ -658,7 +658,6 @@ def test_jobrequestcreate_post_cohortextractor_without_permission(
         autospec=True,
         return_value=dummy_yaml,
     )
-
     data = {
         "backend": backend.slug,
         "requested_actions": ["twiddle"],
@@ -774,6 +773,12 @@ def test_jobrequestcreate_post_with_codelists_error(
         "jobserver.views.job_requests.get_project",
         autospec=True,
         return_value=dummy_yaml,
+    )
+    # We need to check that cohortextractor jobs with out of date codelists are handled
+    # properly, so make sure this project has permission to run them
+    mocker.patch(
+        "jobserver.views.job_requests.check_cohortextractor_permission",
+        return_value=True,
     )
 
     data = {
