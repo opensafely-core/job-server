@@ -132,12 +132,13 @@ class JobRequestCreate(CreateView):
         if self.codelists_status != "ok":
             # At this stage we don't know whether requested jobs depend on
             # codelists, so just show a warning.
-            messages.warning(
-                request,
-                "Codelists for this workspace are out of date. "
-                "In future, this will cause generate-dataset actions to fail. "
-                "You can fix this issue by re-running `opensafely codelists update`.",
+            #
+            # message.level 9000 is a magic number to trigger the correct alert
+            # component to be shown.
+            messages.add_message(
+                request, 9000, "codelist_out_of_date", "codelist_out_of_date"
             )
+
         return super().dispatch(request, *args, **kwargs)
 
     @transaction.atomic
