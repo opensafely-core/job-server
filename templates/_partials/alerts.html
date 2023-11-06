@@ -25,6 +25,18 @@
             {% #alert variant="danger" dismissible=True %}
               {{ message|safe }}
             {% /alert %}
+          {% elif message.tags == "codelist_out_of_date" %}
+            {% #alert variant="warning" title="Codelists for this workspace are out of date." %}
+              <p class="mb-3">
+                In future, this will cause generate-dataset actions to fail.
+                You can fix this issue by re-running
+                {% #code %}opensafely codelists update{% /code %}.
+              </p>
+              <p>
+                For more details, please see the documentation on
+                {% link href="https://docs.opensafely.org/codelist-updating/" text="keeping codelists up to date" append_after="." %}
+              </p>
+            {% /alert %}
           {% else %}
             {% #alert variant="info" dismissible=True %}
               {{ message|safe }}
