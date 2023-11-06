@@ -410,7 +410,7 @@ def test_jobrequestcreate_get_with_out_of_date_codelist(rf, mocker, user):
     assert response.status_code == 200
     messages = [message for message in get_messages(request)]
     assert len(messages) == 1
-    assert "Codelists for this workspace are out of date." in str(messages[0])
+    assert messages[0].tags == "codelist_out_of_date"
 
 
 @pytest.mark.parametrize("ref", [None, "abc"])
