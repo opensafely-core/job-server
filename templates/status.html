@@ -7,7 +7,7 @@
 
 {% block breadcrumbs %}
   {% #breadcrumbs %}
-    {% url 'home' as home_url %}
+    {% url "home" as home_url %}
     {% breadcrumb title="Home" url=home_url %}
     {% breadcrumb title="Status" active=True %}
   {% /breadcrumbs %}
@@ -31,6 +31,12 @@
         </div>
       </div>
       <div>
+        {% #description_item title="Running jobs" stacked=True %}
+          {{ backend.queue.running }}
+        {% /description_item %}
+        {% #description_item title="Pending jobs" stacked=True %}
+          {{ backend.queue.pending }}
+        {% /description_item %}
         {% #description_item title="Last contact with "|add:backend.name|add:" backend" stacked=True %}
           <time
             class="
@@ -44,17 +50,11 @@
             {% endif %}
           </time>
         {% /description_item %}
-        {% #description_item title="Job requests sent from OpenSAFELY Jobs" stacked=True %}
-          {{ backend.queue.unacked }}
+        {% #description_item title="Job requests not yet processed by "|add:backend.name|add:" backend" stacked=True %}
+          {{ backend.queue.unacked|floatformat:"-3g" }}
         {% /description_item %}
-        {% #description_item title="Job requests received by "|add:backend.name|add:" backend" stacked=True %}
-          {{ backend.queue.acked }}
-        {% /description_item %}
-        {% #description_item title="Pending jobs" stacked=True %}
-          {{ backend.queue.pending }}
-        {% /description_item %}
-        {% #description_item title="Running jobs" stacked=True %}
-          {{ backend.queue.running }}
+        {% #description_item title="Total job requests received by "|add:backend.name|add:" backend" stacked=True %}
+          {{ backend.queue.acked|floatformat:"-3g" }}
         {% /description_item %}
       </div>
       {% #card_footer no_container class="border-t border-t-slate-200" %}
