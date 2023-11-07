@@ -17,7 +17,7 @@
 <h1 class="text-3xl break-words pt-2 pb-4 md:pt-0 md:pb-6 md:text-4xl font-bold text-slate-900">
   Status
 </h1>
-<div class="grid gap-8 md:grid-cols-2 lg:grid-cols-3">
+<div class="grid gap-8 md:grid-cols-2 lg:grid-cols-3 mb-8">
   {% for backend in backends %}
     {% #card %}
       <div class="px-4 py-2 sm:px-6 sm:py-3">
@@ -66,4 +66,11 @@
     {% /card %}
   {% endfor %}
 </div>
+
+{% #alert variant="info" title="OpenSAFELY status" class="max-w-prose" %}
+  <p>
+    If you are looking for the overall service status, go to our
+    {% link href="https://status.opensafely.org/" text="OpenSAFELY Status website" append_after="." %}
+  </p>
+{% /alert %}
 {% endblock %}
