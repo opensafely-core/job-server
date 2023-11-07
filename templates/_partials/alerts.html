@@ -28,7 +28,7 @@
           {% elif message.tags == "codelist_out_of_date" %}
             {% #alert variant="warning" title="Codelists for this workspace are out of date." %}
               <p class="mb-3">
-                In future, this will cause generate-dataset actions to fail.
+                This will cause actions that use the backend database to fail.
                 You can fix this issue by re-running
                 {% #code %}opensafely codelists update{% /code %}.
               </p>

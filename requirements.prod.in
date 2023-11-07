@@ -16,7 +16,7 @@ djangorestframework
 environs[django]
 first
 furl
-https://github.com/opensafely-core/pipeline/archive/refs/tags/v2023.08.09.102223.zip#egg=opensafely-pipeline
+https://github.com/opensafely-core/pipeline/archive/refs/tags/v2023.11.06.145820.zip#egg=opensafely-pipeline
 gunicorn
 incuna-mail
 interactive_templates@https://github.com/opensafely-core/interactive-templates/archive/refs/tags/v2023.09.12.100407.zip

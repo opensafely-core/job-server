@@ -46,6 +46,15 @@ def get_actions(config):
         yield {"name": "run_all", "needs": all_actions}
 
 
+def get_database_actions(config):
+    """
+    Return the names of actions that use the backend database.
+    """
+    for name, action in config.actions.items():
+        if action.is_database_action:
+            yield name
+
+
 def get_project(org, repo, branch, get_github_api=_get_github_api):
     github_api = get_github_api()
 

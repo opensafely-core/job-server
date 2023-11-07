@@ -11,22 +11,89 @@ from ...factories import BackendFactory, ProjectFactory, RepoFactory, WorkspaceF
 def test_jobrequestcreateform_with_single_backend():
     backend = BackendFactory()
     choices = backends_to_choices([backend])
-    form = JobRequestCreateForm({"backend": backend.slug}, backends=choices)
+    form_data = {
+        "requested_actions": ["do_something"],
+        "backend": backend.slug,
+    }
+    form = JobRequestCreateForm(
+        ["do_something"],
+        backends=choices,
+        database_actions=[],
+        codelists_status="ok",
+        data=form_data,
+    )
 
     assert "backend" in form.fields
     assert form.fields["backend"].choices == choices
+    assert "requested_actions" in form.fields
+    assert form.fields["requested_actions"].choices == [
+        ("do_something", "do_something")
+    ]
 
-    assert form.is_valid, form.errors
+    assert form.is_valid(), (form.errors, form.non_field_errors())
 
 
 def test_jobrequestcreateform_with_multiple_backends():
+    BackendFactory.create_batch(3)
+
     choices = backends_to_choices(Backend.objects.all())
-    form = JobRequestCreateForm({"backend": "tpp"}, backends=choices)
+    assert len(choices) == 3
+    form = JobRequestCreateForm(
+        ["do_something"], backends=choices, database_actions=[], codelists_status="ok"
+    )
 
     assert "backend" in form.fields
     assert form.fields["backend"].choices == choices
+    form_data = {
+        "requested_actions": ["do_something"],
+        "backend": Backend.objects.first().slug,
+    }
+    form = JobRequestCreateForm(
+        ["do_something"],
+        backends=choices,
+        database_actions=[],
+        codelists_status="ok",
+        data=form_data,
+    )
+    assert form.is_valid(), (form.errors, form.non_field_errors())
 
-    assert form.is_valid, form.errors
+
+@pytest.mark.parametrize(
+    "requested_actions,is_valid,error_actions",
+    [
+        (["do_a_db_thing"], False, ["do_a_db_thing"]),
+        (["do_a_non_db_thing"], True, []),
+        (
+            ["do_a_db_thing", "do_another_db_thing", "do_a_non_db_thing"],
+            False,
+            ["do_a_db_thing", "do_another_db_thing"],
+        ),
+    ],
+)
+def test_jobrequestcreateform_with_bad_codelists(
+    requested_actions, is_valid, error_actions
+):
+    backend = BackendFactory()
+    choices = backends_to_choices(Backend.objects.all())
+    form_data = {
+        "requested_actions": requested_actions,
+        "backend": backend.slug,
+    }
+
+    form = JobRequestCreateForm(
+        ["do_a_db_thing", "do_another_db_thing", "do_a_non_db_thing"],
+        backends=choices,
+        database_actions=["do_a_db_thing", "do_another_db_thing"],
+        codelists_status="error",
+        data=form_data,
+    )
+    assert form.is_valid() == is_valid
+    if not is_valid:
+        assert len(form.non_field_errors()) == 1
+        assert (
+            "Some requested actions cannot be run with out-of-date codelists "
+            f"({', '.join(error_actions)})" in form.non_field_errors()[0]
+        )
 
 
 def test_workspacecreateform_success():

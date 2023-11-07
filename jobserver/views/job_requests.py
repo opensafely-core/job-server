@@ -24,6 +24,7 @@ from ..pipeline_config import (
     check_sqlrunner_permission,
     get_actions,
     get_codelists_status,
+    get_database_actions,
     get_project,
     render_definition,
 )
@@ -122,6 +123,8 @@ class JobRequestCreate(CreateView):
             )
         except Exception as e:
             self.actions = []
+            self.database_actions = []
+            self.codelists_status = None
             # this is a bit nasty, need to mirror what get/post would set up for us
             self.object = None
             context = self.get_context_data(actions_error=str(e))
@@ -129,6 +132,8 @@ class JobRequestCreate(CreateView):
 
         self.actions = list(get_actions(data))
 
+        # Find ehrql/cohort-extractor actions that will use codelists
+        self.database_actions = list(get_database_actions(data))
         if self.codelists_status != "ok":
             # At this stage we don't know whether requested jobs depend on
             # codelists, so just show a warning.
@@ -176,6 +181,8 @@ class JobRequestCreate(CreateView):
         return super().get_form_kwargs() | {
             "actions": [a["name"] for a in self.actions],
             "backends": backends_to_choices(self.backends),
+            "database_actions": self.database_actions,
+            "codelists_status": self.codelists_status,
         }
 
     def get_initial(self):

@@ -31,13 +31,22 @@ from ....fakes import FakeGitHubAPI
 from ....utils import minutes_ago
 
 
-@pytest.fixture
-def mock_codelists_ok(mocker):
+def _mock_codelists(mocker, status):
     mocker.patch(
         "jobserver.views.job_requests.get_codelists_status",
         autospec=True,
-        return_value="ok",
+        return_value=status,
     )
+
+
+@pytest.fixture
+def mock_codelists_ok(mocker):
+    _mock_codelists(mocker, "ok")
+
+
+@pytest.fixture
+def mock_codelists_error(mocker):
+    _mock_codelists(mocker, "error")
 
 
 def test_jobrequestcancel_already_completed(rf):
@@ -292,7 +301,9 @@ def test_jobrequestcreate_get_with_permission(rf, mocker, user, mock_codelists_o
     assert response.context_data["workspace"] == workspace
 
 
-def test_jobrequestcreate_get_with_project_yaml_errors(rf, mocker, user):
+def test_jobrequestcreate_get_with_project_yaml_errors(
+    rf, mocker, user, mock_codelists_ok
+):
     workspace = WorkspaceFactory()
 
     BackendMembershipFactory(user=user)
@@ -647,7 +658,6 @@ def test_jobrequestcreate_post_cohortextractor_without_permission(
         autospec=True,
         return_value=dummy_yaml,
     )
-
     data = {
         "backend": backend.slug,
         "requested_actions": ["twiddle"],
@@ -710,6 +720,90 @@ def test_jobrequestcreate_post_sqlrunner_without_permission(
 
     assert response.status_code == 200
     assert "SQL Runner" in response.context_data["actions_error"]
+
+
+@pytest.mark.parametrize(
+    "actions,expected_status_code",
+    [
+        (["generate_dataset"], 200),
+        (["generate_dataset", "generate_cohort"], 200),
+        (["generate_measures", "twiddle"], 200),
+        (["twiddle"], 302),
+    ],
+)
+def test_jobrequestcreate_post_with_codelists_error(
+    actions, expected_status_code, rf, mocker, monkeypatch, user, mock_codelists_error
+):
+    backend = BackendFactory()
+    workspace = WorkspaceFactory()
+
+    BackendMembershipFactory(backend=backend, user=user)
+    ProjectMembershipFactory(
+        project=workspace.project, user=user, roles=[ProjectDeveloper]
+    )
+
+    dummy_yaml = """
+    version: 3
+    expectations:
+      population_size: 1000
+    actions:
+      generate_dataset:
+        run: ehrql:v0 generate-dataset --output path/to/output.csv
+        outputs:
+          moderately_sensitive:
+            cohort: path/to/output.csv
+      generate_cohort:
+        run: cohortextractor:latest generate_cohort
+        outputs:
+          moderately_sensitive:
+            cohort: path/to/output1.csv
+      generate_measures:
+        run: ehrql:v0 generate-measures --output path/to/output2.csv
+        outputs:
+          moderately_sensitive:
+            cohort: path/to/output2.csv
+      twiddle:
+        run: test:latest
+        outputs:
+          moderately_sensitive:
+            cohort: path/to/output3.csv
+
+    """
+    mocker.patch(
+        "jobserver.views.job_requests.get_project",
+        autospec=True,
+        return_value=dummy_yaml,
+    )
+    # We need to check that cohortextractor jobs with out of date codelists are handled
+    # properly, so make sure this project has permission to run them
+    mocker.patch(
+        "jobserver.views.job_requests.check_cohortextractor_permission",
+        return_value=True,
+    )
+
+    data = {
+        "backend": backend.slug,
+        "requested_actions": actions,
+        "callback_url": "test",
+    }
+    request = rf.post("/", data)
+    request.user = user
+    request.session = "session"
+    request._messages = FallbackStorage(request)
+    response = JobRequestCreate.as_view(get_github_api=FakeGitHubAPI)(
+        request,
+        project_slug=workspace.project.slug,
+        workspace_slug=workspace.name,
+    )
+    assert response.status_code == expected_status_code
+    if expected_status_code == 200:
+        form = response.context_data["form"]
+        errors = form.non_field_errors()
+        assert len(errors) == 1
+        assert (
+            "Some requested actions cannot be run with out-of-date codelists"
+            in errors[0]
+        )
 
 
 def test_jobrequestcreate_unknown_workspace(rf, user):

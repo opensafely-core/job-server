@@ -10,6 +10,7 @@ from jobserver.pipeline_config import (
     check_sqlrunner_permission,
     get_actions,
     get_codelists_status,
+    get_database_actions,
     get_project,
     link_run_scripts,
     map_run_scripts_to_links,
@@ -51,7 +52,7 @@ def test_check_cohortextractor_permission():
             "actions": {
                 "generate_study_population": {
                     "run": "cohortextractor:latest generate_cohort",
-                    "outputs": {"highly_sensitive": {"cohort": "some/path"}},
+                    "outputs": {"highly_sensitive": {"cohort": "some/path.csv"}},
                 },
             },
         }
@@ -75,8 +76,8 @@ def test_check_cohortextractor_permission_no_cohort_extractor_actions():
             "expectations": {"population_size": 1000},
             "actions": {
                 "generate_study_population": {
-                    "run": "ehrql:v1 generate-dataset --output some/path",
-                    "outputs": {"highly_sensitive": {"dataset": "some/path"}},
+                    "run": "ehrql:v1 generate-dataset --output some/path.csv",
+                    "outputs": {"highly_sensitive": {"dataset": "some/path.csv"}},
                 },
             },
         }
@@ -95,7 +96,7 @@ def test_check_sqlrunner_permission():
             "actions": {
                 "query": {
                     "run": "sqlrunner:latest",
-                    "outputs": {"highly_sensitive": {"output": "some/path"}},
+                    "outputs": {"highly_sensitive": {"output": "some/path.csv"}},
                 },
             },
         }
@@ -116,8 +117,8 @@ def test_check_sqlrunner_permission_no_sqlrunner_actions():
             "expectations": {"population_size": 1000},
             "actions": {
                 "generate_study_population": {
-                    "run": "ehrql:v1 generate-dataset --output some/path",
-                    "outputs": {"highly_sensitive": {"dataset": "some/path"}},
+                    "run": "ehrql:v1 generate-dataset --output some/path.csv",
+                    "outputs": {"highly_sensitive": {"dataset": "some/path.csv"}},
                 },
             },
         }
@@ -136,7 +137,7 @@ def test_get_actions_missing_needs():
             "actions": {
                 "frobnicate": {
                     "run": "test:latest",
-                    "outputs": {"highly_sensitive": {"cohort": "some/path"}},
+                    "outputs": {"highly_sensitive": {"cohort": "some/path.csv"}},
                 },
             },
         }
@@ -158,12 +159,12 @@ def test_get_actions_no_run_all():
             "actions": {
                 "frobnicate": {
                     "run": "test1:latest",
-                    "outputs": {"highly_sensitive": {"cohort": "some/path1"}},
+                    "outputs": {"highly_sensitive": {"cohort": "some/path1.csv"}},
                 },
                 "run_all": {
                     "needs": ["frobnicate"],
                     "run": "test2:latest",
-                    "outputs": {"highly_sensitive": {"cohort": "some/path2"}},
+                    "outputs": {"highly_sensitive": {"cohort": "some/path2.csv"}},
                 },
             },
         }
@@ -186,7 +187,7 @@ def test_get_actions_success():
             "actions": {
                 "frobnicate": {
                     "run": "test:latest",
-                    "outputs": {"highly_sensitive": {"cohort": "some/path"}},
+                    "outputs": {"highly_sensitive": {"cohort": "some/path.csv"}},
                 },
             },
         }
@@ -473,3 +474,89 @@ def test_render_definition():
     output = render_definition(dummy_yaml, link_func)
 
     assert output == expected
+
+
+@pytest.mark.parametrize(
+    "actions,expected_db_actions",
+    [
+        # ehrql action
+        (
+            {
+                "generate_dataset": {
+                    "run": "ehrql:v0 generate-dataset --dataset-definition some/path --output some/other/path.csv",
+                    "outputs": {"highly_sensitive": {"dataset": "some/other/path.csv"}},
+                }
+            },
+            ["generate_dataset"],
+        ),
+        # cohort-extractor action
+        (
+            {
+                "generate_cohort": {
+                    "run": "cohortextractor:latest generate_cohort --study-definition some/path --output some/other/path.csv",
+                    "outputs": {"highly_sensitive": {"cohort": "some/other/path.csv"}},
+                }
+            },
+            ["generate_cohort"],
+        ),
+        # multiple actions, some non-database ones
+        (
+            {
+                "generate_cohort": {
+                    "run": "cohortextractor:latest generate_cohort --study-definition some/path --output some/cohort/path.csv",
+                    "outputs": {"highly_sensitive": {"cohort": "some/cohort/path.csv"}},
+                },
+                "generate_cohort_measures": {
+                    "run": "cohortextractor:latest generate_measures --study-definition some/path --output some/measures/path.csv",
+                    "outputs": {
+                        "highly_sensitive": {"cohort": "some/measures/path.csv"}
+                    },
+                },
+                "generate_dataset": {
+                    "run": "ehrql:v0 generate-dataset --dataset-definition some/path --output some/dataset/path.csv",
+                    "outputs": {
+                        "highly_sensitive": {"dataset": "some/dataset/path.csv"}
+                    },
+                },
+                "generate_ehrql_measures": {
+                    "run": "ehrql:v0 generate-measures --measures-definition some/path --output some/ehrql/measures/path.csv",
+                    "outputs": {
+                        "highly_sensitive": {"dataset": "some/ehrql/measures/path.csv"}
+                    },
+                },
+                "make_chart": {
+                    "run": "python:latest make-chart.py",
+                    "outputs": {
+                        "moderately_sensitive": {"chart": "some/chart/path.png"}
+                    },
+                },
+            },
+            ["generate_cohort", "generate_dataset", "generate_ehrql_measures"],
+        ),
+        # ehrql/cohort-extractor actions, but not
+        (
+            {
+                "generate_cohort": {
+                    "run": "cohortextractor:latest cohort_report",
+                    "outputs": {"moderately_sensitive": {"cohort": "some/path.csv"}},
+                },
+                "generate_dataset": {
+                    "run": "ehrql:v0 dump-dataset-sql --dataset-definition some/path --output some/dataset/path.csv",
+                    "outputs": {
+                        "moderately_sensitive": {"dataset": "some/dataset/path.csv"}
+                    },
+                },
+            },
+            [],
+        ),
+    ],
+)
+def test_get_database_actions(actions, expected_db_actions):
+    content = Pipeline(
+        **{
+            "version": 3,
+            "expectations": {"population_size": 1000},
+            "actions": actions,
+        }
+    )
+    assert list(get_database_actions(content)) == expected_db_actions
