@@ -162,6 +162,7 @@ class JobRequestCreate(CreateView):
             created_by=self.request.user,
             sha=sha,
             project_definition=self.project,
+            codelists_ok=self.codelists_status == "ok",
             **form.cleaned_data,
         )
         return redirect(

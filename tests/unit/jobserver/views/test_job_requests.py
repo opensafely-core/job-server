@@ -477,6 +477,7 @@ def test_jobrequestcreate_post_success(
     assert job_request.backend.slug == backend.slug
     assert job_request.requested_actions == ["twiddle"]
     assert job_request.sha == ref or "abc123"
+    assert job_request.codelists_ok
     assert not job_request.jobs.exists()
 
 
@@ -804,6 +805,11 @@ def test_jobrequestcreate_post_with_codelists_error(
             "Some requested actions cannot be run with out-of-date codelists"
             in errors[0]
         )
+    else:
+        # The job request was created successfully; codelist status is passed
+        # on the job request
+        job_request = JobRequest.objects.first()
+        assert not job_request.codelists_ok
 
 
 def test_jobrequestcreate_unknown_workspace(rf, user):

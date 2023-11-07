@@ -199,6 +199,7 @@ class JobRequest(models.Model):
     identifier = models.TextField(default=new_id, unique=True)
     will_notify = models.BooleanField(default=False)
     project_definition = models.TextField(default="")
+    codelists_ok = models.BooleanField(default=True)
 
     created_at = models.DateTimeField(default=timezone.now)
     created_by = models.ForeignKey(
