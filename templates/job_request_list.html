@@ -31,6 +31,15 @@
         </ul>
       </div>
     {% /alert %}
+  {% else %}
+    {% if page_obj.number == 1 %}
+      {% #alert variant="info" title="OpenSAFELY status" class="max-w-prose mb-4" %}
+        <p>
+          If you are looking for the overall service status, go to our
+          {% link href="https://status.opensafely.org/" text="OpenSAFELY Status website" append_after="." %}
+        </p>
+      {% /alert %}
+    {% endif %}
   {% endif %}
 {% endblock content %}
 
