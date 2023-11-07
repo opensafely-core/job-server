@@ -2,6 +2,7 @@ import hljs from "highlight.js/lib/core";
 import django from "highlight.js/lib/languages/django";
 import slugify from "slugify";
 import "highlight.js/styles/github-dark.css";
+import "./_datatable";
 
 hljs.registerLanguage("django", django);
 hljs.highlightAll();
