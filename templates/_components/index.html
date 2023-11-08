@@ -102,6 +102,32 @@
     <section id="breadcrumbsSection">
       <h2>Breadcrumbs</h2>
 
+      <div class="not-prose relative w-screen max-w-5xl left-1/2 -translate-x-1/2 p-8 bg-slate-200 border border-slate-500 rounded">
+        <div class="mb-8">
+          {% #breadcrumbs %}
+            {% url 'home' as home_url %}
+            {% breadcrumb title="Home" url=home_url %}
+            {% breadcrumb location="Organisation" title="Bennett Institute for Applied Data Science" url="#" %}
+            {% breadcrumb location="Project" title="UI Components" url="#" %}
+            {% breadcrumb location="Workspace" title="Slippers" url="#" %}
+            {% breadcrumb location="Job request" title="2022" url="#" %}
+            {% breadcrumb location="Action" title="create_components" active=True %}
+          {% /breadcrumbs %}
+        </div>
+
+        <pre>
+          <code class="language-django">{% verbatim myblock %}{% #breadcrumbs %}
+    {% url 'home' as home_url %}
+    {% breadcrumb title="Home" url=home_url %}
+    {% breadcrumb location="Organisation" title="Bennett Institute for Applied Data Science" url="#" %}
+    {% breadcrumb location="Project" title="UI Components" url="#" %}
+    {% breadcrumb location="Workspace" title="Slippers" url="#" %}
+    {% breadcrumb location="Job request" title="2022" url="#" %}
+    {% breadcrumb location="Action" title="create_components" active=True %}
+  {% /breadcrumbs %}{% endverbatim myblock %}</code>
+        </pre>
+      </div>
+
       <h3><code>Breadcrumb item</code></h3>
       <h4>Properties</h4>
       <ul>
@@ -110,50 +136,12 @@
         <li><code>title</code>: [string] - the text to display for the breadcrumb</li>
         <li><code>url</code>: [string] - the anchor href for the breadcrumb</li>
       </ul>
-      <div class="not-prose mb-4">
-        <pre><code class="language-django">{% verbatim breadcrumbs %}{# Title is special, if it is equal to "home" then the home icon will show #}
-{% breadcrumb title="Home" url=home_url %}
-
-{# URL will make the breadcrumb contain an anchor link #}
-{% breadcrumb location="Organisation" title="Bennett Institute for Applied Data Science" url="#" %}
-
-{# Active will make the breadcrumb not contain a link #}
-{% breadcrumb location="Action" title="create_components" active=True %}
-{% endverbatim breadcrumbs %}</code></pre>
-      </div>
-      <hr>
 
       <h3><code>Breadcrumbs container</code></h3>
       <h4>Properties</h4>
       <ul>
         <li><code>children</code>: [html] - display the children components</li>
       </ul>
-      <div class="not-prose mb-4">
-        <pre><code class="language-django">{% verbatim breadcrumbs_container %}{% #breadcrumbs %}
-  {# Children components go here #}
-{% /breadcrumbs %}{% endverbatim breadcrumbs_container %}</code></pre>
-      </div>
-
-      <div class="not-prose relative w-screen max-w-5xl left-1/2 -translate-x-1/2 p-8 bg-slate-200 border border-slate-500 rounded">{% #breadcrumbs %}
-        {% url 'home' as home_url %}
-        {% breadcrumb title="Home" url=home_url %}
-        {% breadcrumb location="Organisation" title="Bennett Institute for Applied Data Science" url="#" %}
-        {% breadcrumb location="Project" title="UI Components" url="#" %}
-        {% breadcrumb location="Workspace" title="Slippers" url="#" %}
-        {% breadcrumb location="Job request" title="2022" url="#" %}
-        {% breadcrumb location="Action" title="create_components" active=True %}
-      {% /breadcrumbs %}</div>
-      <div class="not-prose relative w-screen max-w-5xl left-1/2 -translate-x-1/2 p-8 bg-slate-200 border border-slate-500 rounded">
-      <pre><code class="language-django">{% verbatim myblock %}{% #breadcrumbs %}
-    {% url 'home' as home_url %}
-    {% breadcrumb title="Home" url=home_url %}
-    {% breadcrumb location="Organisation" title="Bennett Institute for Applied Data Science" url="#" %}
-    {% breadcrumb location="Project" title="UI Components" url="#" %}
-    {% breadcrumb location="Workspace" title="Slippers" url="#" %}
-    {% breadcrumb location="Job request" title="2022" url="#" %}
-    {% breadcrumb location="Action" title="create_components" active=True %}
-  {% /breadcrumbs %}{% endverbatim myblock %}</code></pre></div>
-
     </section>
 
     <section id="buttonSection">
