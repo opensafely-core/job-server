@@ -29,10 +29,8 @@
 
   <div class="relative">
     <select
-      {% attrs name= required %}
+      {% attrs id=select_id name=select_name required %}
       class="mt-1 block w-full rounded-md border-slate-300 text-slate-900 shadow-sm focus:border-oxford-500 focus:ring-oxford-500 sm:text-sm invalid:border-bn-ribbon-600 invalid:ring-bn-ribbon-600 invalid:ring-1"
-      id="{{ select_id }}"
-      name="{{ select_name }}"
     >
       {% for value, label in choices %}
         <option

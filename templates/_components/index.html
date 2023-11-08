@@ -51,19 +51,21 @@
       <ul>
         <li><code>children</code>: [html] - display the children components</li>
         <li><code>class</code>: [string] - add HTML classes to the component</li>
+        <li><code>dismissible</code>: [boolean] - if true, allow the alert to be dismissed</li>
         <li><code>no_icon</code>: [boolean] - if true, remove the icon</li>
+        <li><code>title</code>: [string] - add a title for the alert</li>
         <li><code>variant</code>: [string] - select styling colour and icon for component</li>
       </ul>
-      <div class="not-prose flex flex-col gap-y-8 relative w-screen max-w-5xl left-1/2 -translate-x-1/2 p-8 bg-slate-200 border boder-slate-500 rounded">
+      <div class="not-prose flex flex-col gap-y-8 relative w-screen max-w-5xl left-1/2 -translate-x-1/2 p-8 bg-slate-200 border border-slate-500 rounded">
         <div class="flex flex-col gap-8 items-center">
-          {% #alert variant="warning" title="Attention needed" %}
+          {% #alert variant="warning" title="Attention needed" dismissible=True %}
             This Job has not been updated for over 30 minutes, some of the data on this page could be stale.
           {% /alert %}
           {% #alert variant="info" title="For your information" class="mt-4" no_icon=True %}
             This Job has not been updated for over 30 minutes, some of the data on this page could be stale.
           {% /alert %}
         </div>
-        <pre><code class="language-django">{% verbatim %}{% #alert variant="warning" title="Attention needed" %}
+        <pre><code class="language-django">{% verbatim %}{% #alert variant="warning" title="Attention needed" dismissible=True %}
   This Job has not been updated for over 30 minutes, some of the data on this page could be stale.
 {% /alert %}
 {% #alert variant="info" title="For your information" class="mt-4" no_icon=True %}
@@ -72,8 +74,59 @@
       </div>
     </section>
 
+    <section id="article-header">
+      <h2>Article Header</h2>
+      <ul>
+        <li><code>children</code>: [html] - display the children components</li>
+        <li><code>title</code>: [string] - add a title for the page</li>
+        <li><code>text</code>: [string] - text to be displayed below the title</li>
+      </ul>
+      <div class="not-prose flex flex-col gap-y-8 relative w-screen max-w-5xl left-1/2 -translate-x-1/2 p-8 bg-slate-200 border border-slate-500 rounded">
+        <div class="flex flex-col gap-8 items-stretch">
+          {% #article_header title="A page title can go here" text="And description text can go here" %}
+            <ul class="flex flex-col gap-1 text-sm ml-3 list-disc">
+              <li>Child bullet</li>
+              <li>A second child bullet</li>
+            </ul>
+          {% /article_header %}
+        </div>
+        <pre><code class="language-django">{% verbatim %}{% #article_header title="A page title can go here" text="And description text can go here" %}{% endverbatim %}
+  {% filter force_escape %}<ul class="flex flex-col gap-1 text-sm ml-3 list-disc">
+    <li>Child bullet</li>
+    <li>A second child bullet</li>
+  </ul>{% endfilter %}
+{% verbatim %}{% /article_header %}{% endverbatim %}</code></pre>
+      </div>
+    </section>
+
     <section id="breadcrumbsSection">
       <h2>Breadcrumbs</h2>
+
+      <div class="not-prose relative w-screen max-w-5xl left-1/2 -translate-x-1/2 p-8 bg-slate-200 border border-slate-500 rounded">
+        <div class="mb-8">
+          {% #breadcrumbs %}
+            {% url 'home' as home_url %}
+            {% breadcrumb title="Home" url=home_url %}
+            {% breadcrumb location="Organisation" title="Bennett Institute for Applied Data Science" url="#" %}
+            {% breadcrumb location="Project" title="UI Components" url="#" %}
+            {% breadcrumb location="Workspace" title="Slippers" url="#" %}
+            {% breadcrumb location="Job request" title="2022" url="#" %}
+            {% breadcrumb location="Action" title="create_components" active=True %}
+          {% /breadcrumbs %}
+        </div>
+
+        <pre>
+          <code class="language-django">{% verbatim myblock %}{% #breadcrumbs %}
+    {% url 'home' as home_url %}
+    {% breadcrumb title="Home" url=home_url %}
+    {% breadcrumb location="Organisation" title="Bennett Institute for Applied Data Science" url="#" %}
+    {% breadcrumb location="Project" title="UI Components" url="#" %}
+    {% breadcrumb location="Workspace" title="Slippers" url="#" %}
+    {% breadcrumb location="Job request" title="2022" url="#" %}
+    {% breadcrumb location="Action" title="create_components" active=True %}
+  {% /breadcrumbs %}{% endverbatim myblock %}</code>
+        </pre>
+      </div>
 
       <h3><code>Breadcrumb item</code></h3>
       <h4>Properties</h4>
@@ -83,50 +136,12 @@
         <li><code>title</code>: [string] - the text to display for the breadcrumb</li>
         <li><code>url</code>: [string] - the anchor href for the breadcrumb</li>
       </ul>
-      <div class="not-prose mb-4">
-        <pre><code class="language-django">{% verbatim breadcrumbs %}{# Title is special, if it is equal to "home" then the home icon will show #}
-{% breadcrumb title="Home" url=home_url %}
 
-{# URL will make the breadcrumb contain an anchor link #}
-{% breadcrumb location="Organisation" title="Bennett Institute for Applied Data Science" url="#" %}
-
-{# Active will make the breadcrumb not contain a link #}
-{% breadcrumb location="Action" title="create_components" active=True %}
-{% endverbatim breadcrumbs %}</code></pre>
-      </div>
-      <hr>
-
-      <h3><code>Breadcrumbs list</code></h3>
+      <h3><code>Breadcrumbs container</code></h3>
       <h4>Properties</h4>
       <ul>
         <li><code>children</code>: [html] - display the children components</li>
       </ul>
-      <div class="not-prose mb-4">
-        <pre><code class="language-django">{% verbatim breadcrumbs_container %}{% #breadcrumbs %}
-  {# Children components go here #}
-{% /breadcrumbs %}{% endverbatim breadcrumbs_container %}</code></pre>
-      </div>
-
-      <div class="not-prose relative w-screen max-w-5xl left-1/2 -translate-x-1/2 p-8 bg-slate-200 border boder-slate-500 rounded">{% #breadcrumbs %}
-        {% url 'home' as home_url %}
-        {% breadcrumb title="Home" url=home_url %}
-        {% breadcrumb location="Organisation" title="Bennett Institute for Applied Data Science" url="#" %}
-        {% breadcrumb location="Project" title="UI Components" url="#" %}
-        {% breadcrumb location="Workspace" title="Slippers" url="#" %}
-        {% breadcrumb location="Job request" title="2022" url="#" %}
-        {% breadcrumb location="Action" title="create_components" active=True %}
-      {% /breadcrumbs %}</div>
-      <div class="not-prose relative w-screen max-w-5xl left-1/2 -translate-x-1/2 p-8 bg-slate-200 border boder-slate-500 rounded">
-      <pre><code class="language-django">{% verbatim myblock %}{% #breadcrumbs %}
-    {% url 'home' as home_url %}
-    {% breadcrumb title="Home" url=home_url %}
-    {% breadcrumb location="Organisation" title="Bennett Institute for Applied Data Science" url="#" %}
-    {% breadcrumb location="Project" title="UI Components" url="#" %}
-    {% breadcrumb location="Workspace" title="Slippers" url="#" %}
-    {% breadcrumb location="Job request" title="2022" url="#" %}
-    {% breadcrumb location="Action" title="create_components" active=True %}
-  {% /breadcrumbs %}{% endverbatim myblock %}</code></pre></div>
-
     </section>
 
     <section id="buttonSection">
@@ -134,6 +149,9 @@
       <ul>
         <li><code>children</code>: [html] - display the children components</li>
         <li><code>class</code>: [string] - add HTML classes</li>
+        <li><code>data-expander-button</code>: [string] - adds a `data-expander-button` attribute</li>
+        <li><code>data-modal</code>: [string] - adds a `data-modal` attribute</li>
+        <li><code>data-table-pagination</code>: [string] - adds a `data-table-pagination` attribute</li>
         <li><code>data-title</code>: [string] - adds a `data-title` attribute</li>
         <li><code>disabled</code>: [boolean] - if true, stops users from interacting with the component</li>
         <li><code>external</code>: [boolean] - used with `type="link"` to open link in a new tab</li>
@@ -145,9 +163,8 @@
         <li><code>type</code>: [string] - if "link", button will display as an anchor tag</li>
         <li><code>value</code>: [string] - add a value</li>
         <li><code>variant</code>: [string] - select styling colour for component</li>
-        <li><code>x_bind</code>: [string] - add an Alpine.js binding</li>
       </ul>
-      <div class="not-prose flex flex-col gap-y-8 relative w-screen max-w-5xl left-1/2 -translate-x-1/2 p-8 bg-slate-200 border boder-slate-500 rounded">
+      <div class="not-prose flex flex-col gap-y-8 relative w-screen max-w-5xl left-1/2 -translate-x-1/2 p-8 bg-slate-200 border border-slate-500 rounded">
         <div class="flex flex-col md:flex-row gap-8 items-center">
           {% #button type="link" href="#" variant="danger" %}Danger link{% /button %}
           {% #button type="submit" variant="success" %}Submit success{% /button %}
@@ -165,25 +182,26 @@
       <h2>Card</h2>
       <h3>Card</h3>
       <ul>
-        <li><code>button</code>: [boolean] - display a button in the heading section</li>
         <li><code>button_href</code>: [string] - set the href for the button</li>
         <li><code>button_text</code>: [string] - set the text for the button</li>
+        <li><code>button</code>: [boolean] - display a button in the heading section</li>
         <li><code>children</code>: [html] - display the children components</li>
         <li><code>class</code>: [string] - add HTML classes to the outer section component</li>
-        <li><code>container</code>: [boolean] - add padding and margin to the children container</li>
         <li><code>container_class</code>: [string] - add HTML classes to the container div</li>
+        <li><code>container</code>: [boolean] - add padding and margin to the children container</li>
+        <li><code>custom_button</code>: [string] - add a fragment for a custom button</li>
         <li><code>subtitle</code>: [string] - display a title for the card</li>
         <li><code>title</code>: [string] - display a subtitle for the card</li>
       </ul>
-      <div class="not-prose flex flex-col gap-y-8 relative w-screen max-w-5xl left-1/2 -translate-x-1/2 p-8 bg-slate-200 border boder-slate-500 rounded">
+      <div class="not-prose flex flex-col gap-y-8 relative w-screen max-w-5xl left-1/2 -translate-x-1/2 p-8 bg-slate-200 border border-slate-500 rounded">
         <div class="flex flex-row gap-x-8 items-center">
           {% #card class="bg-red-50" title="Hola mundo" subtitle="Hallo welt" container=True class="w-full max-w-lg mx-auto" button=True button_href="#" button_text="Button text" %}
             <p class="text-oxford-700 text-lg font-semibold">Hello world</p>
           {% /card %}
         </div>
-        <pre><code class="language-django">{% verbatim %}{% #card class="bg-red-50" title="Hola mundo" subtitle="Hallo welt" container=True class="w-full max-w-lg mx-auto" button=True button_href="#" button_text="Button text" %}
-            <p class="text-oxford-700 text-lg font-semibold">Hello world</p>
-          {% /card %}{% endverbatim %}</code></pre>
+        <pre><code class="language-django">{% verbatim %}{% #card class="bg-red-50" title="Hola mundo" subtitle="Hallo welt" container=True class="w-full max-w-lg mx-auto" button=True button_href="#" button_text="Button text" %}{% endverbatim %}
+  {% filter force_escape %}<p class="text-oxford-700 text-lg font-semibold">Hello world</p>{% endfilter %}
+{% verbatim %}{% /card %}{% endverbatim %}</code></pre>
       </div>
       <h3>Card footer</h3>
       <ul>
@@ -191,13 +209,13 @@
         <li><code>class</code>: [string] - add HTML classes to the component</li>
         <li><code>no_container</code>: [boolean] - if true, remove all padding from the footer</li>
       </ul>
-      <div class="not-prose flex flex-col gap-y-8 relative w-screen max-w-5xl left-1/2 -translate-x-1/2 p-8 bg-slate-200 border boder-slate-500 rounded">
+      <div class="not-prose flex flex-col gap-y-8 relative w-screen max-w-5xl left-1/2 -translate-x-1/2 p-8 bg-slate-200 border border-slate-500 rounded">
         <pre><code class="language-django">{% verbatim %}{% #card_footer no_container=False %}{% endverbatim %}
   {% filter force_escape %}<span class="text-bn-egg-500">Hello world</span>{% endfilter %}
 {% verbatim %}{% /card %}{% endverbatim %}</code></pre>
       </div>
 
-      <div class="not-prose flex flex-col gap-y-8 relative w-screen max-w-5xl left-1/2 -translate-x-1/2 p-8 bg-slate-200 border boder-slate-500 rounded">
+      <div class="not-prose flex flex-col gap-y-8 relative w-screen max-w-5xl left-1/2 -translate-x-1/2 p-8 bg-slate-200 border border-slate-500 rounded">
         <div class="flex flex-row gap-x-8 items-center">
           {% #card class="bg-red-50" title="Hola mundo" subtitle="Hallo welt" container=True class="w-full max-w-lg mx-auto" %}
             <p class="text-oxford-700 text-lg font-semibold">Hello world</p>
@@ -221,7 +239,7 @@
         <li><code>class</code>: [string] - add HTML classes to the component</li>
         <li><code>children</code>: [html] - display the children components</li>
       </ul>
-      <div class="not-prose flex flex-col gap-y-8 relative w-screen max-w-5xl left-1/2 -translate-x-1/2 p-8 bg-white border boder-slate-500 rounded">
+      <div class="not-prose flex flex-col gap-y-8 relative w-screen max-w-5xl left-1/2 -translate-x-1/2 p-8 bg-white border border-slate-500 rounded">
         <div class="flex flex-row gap-x-8 items-center">
           {% #code %}
             <h1>Hello world!</h1>
@@ -236,7 +254,8 @@
     </section>
 
     <section id="descriptionSection">
-      <h2>Description Item</h2>
+      <h2>Description lists</h2>
+      <h3>Description item</h3>
       <ul>
         <li><code>children</code>: [html] - display the children components</li>
         <li><code>details_class</code>: [string] - add HTML classes to the dt component</li>
@@ -244,7 +263,7 @@
         <li><code>title</code>: [string] - add title text</li>
         <li><code>title_class</code>: [string] - add HTML classes to the dd component</li>
       </ul>
-      <div class="not-prose flex flex-col gap-y-8 relative w-screen max-w-5xl left-1/2 -translate-x-1/2 p-8 bg-slate-200 border boder-slate-500 rounded">
+      <div class="not-prose flex flex-col gap-y-8 relative w-screen max-w-5xl left-1/2 -translate-x-1/2 p-8 bg-slate-200 border border-slate-500 rounded">
         <div class="flex flex-col items-center">
           {% #description_item title="This is a title on the left" %}
             <p>This is content on the right</p>
@@ -275,11 +294,31 @@
   <p>This is content on the bottom</p>
 {% /description_item %}{% endverbatim %}</code></pre>
       </div>
+
+      <h3>Description list</h3>
+      <ul>
+        <li><code>children</code>: [html] - display the children components</li>
+        <li><code>class</code>: [string] - add HTML classes to the component</li>
+      </ul>
+      <div class="not-prose flex flex-col gap-y-8 relative w-screen max-w-5xl left-1/2 -translate-x-1/2 p-8 bg-slate-200 border border-slate-500 rounded">
+        <div class="flex flex-row gap-x-8 items-center">
+          {% #description_list %}
+            {% #description_item title="This is a title on the left" %}
+              This is content on the right
+            {% /description_item %}
+          {% /description_list %}
+        </div>
+        <pre><code class="language-django">{% verbatim %}{% #description_list %}
+  {% #description_item title="This is a title on the left" %}
+    This is content on the right
+  {% /description_item %}
+{% /description_list %}{% endverbatim %}</code></pre>
+      </div>
     </section>
 
     <section id="footerSection">
       <h2>Footer</h2>
-      <div class="not-prose flex flex-col gap-y-8 relative w-screen max-w-5xl left-1/2 -translate-x-1/2 p-8 bg-slate-200 border boder-slate-500 rounded">
+      <div class="not-prose flex flex-col gap-y-8 relative w-screen max-w-5xl left-1/2 -translate-x-1/2 p-8 bg-slate-200 border border-slate-500 rounded">
         <div class="flex flex-row gap-x-8 items-center">
           {% footer %}
         </div>
@@ -289,12 +328,48 @@
 
     <section id="formSection">
       <h2>Forms</h2>
+
+      <h3>Checkbox</h3>
+      <ul>
+        <li><code>checked</code>: [boolean] - if true, checkbox is checked</li>
+        <li><code>custom_field</code>: [boolean] - set to true if field does not directly map to a Django Form field</li>
+        <li><code>id</code>: [string] - set the HTML id for the input element</li>
+        <li><code>label_class</code>: [string] - add HTML classes to the label tag</li>
+        <li><code>label</code>: [string] - set the label displayed to the user</li>
+        <li><code>name</code>: [string] - set the HTML name for the input element</li>
+        <li><code>span_class</code>: [string] - add HTML classes to the span tag wrapping the label</li>
+        <li><code>value</code>: [string] - set the HTML value for the input element</li>
+      </ul>
+      <div class="not-prose flex flex-col gap-y-8 relative w-screen max-w-5xl left-1/2 -translate-x-1/2 p-8 bg-slate-200 border border-slate-500 rounded">
+        <div class="flex flex-row gap-x-8 items-center">
+          {% form_checkbox checked=True custom_field=True id="backendActive" label="Is this backend active?" name="backend" value="activeBackend" %}
+        </div>
+        <pre><code class="language-django">{% verbatim %}{% form_checkbox checked=True custom_field=True id="backendActive" label="Is this backend active?" name="backend" value="activeBackend" %}{% endverbatim %}</code></pre>
+      </div>
+
+      <h3>Fieldset</h3>
+      <ul>
+        <li><code>class</code>: [string] - add HTML classes to the component</li>
+        <li><code>children</code>: [html] - display the children components</li>
+      </ul>
+      <div class="not-prose flex flex-col gap-y-8 relative w-screen max-w-5xl left-1/2 -translate-x-1/2 p-8 bg-slate-200 border border-slate-500 rounded">
+        <div class="flex flex-row gap-x-8 items-center">
+          {% #form_fieldset %}
+            This is a fieldset for wrapping form elements
+          {% /form_fieldset %}
+        </div>
+        <pre><code class="language-django">{% verbatim %}{% #form_fieldset %}
+  This is a fieldset for wrapping form elements
+{% /form_fieldset %}{% endverbatim %}</code></pre>
+      </div>
+
       <h3>Input</h3>
       <ul>
         <li><a href="https://developer.mozilla.org/en-US/docs/Web/HTML/Global_attributes/autocapitalize"><code>autocapitalize</code></a></li>
         <li><a href="https://developer.mozilla.org/en-US/docs/Web/HTML/Attributes/autocomplete"><code>autocomplete</code></a></li>
         <li><a href="https://developer.mozilla.org/en-US/docs/Web/HTML/Element/Input#autocorrect"><code>autocorrect</code></a></li>
         <li><code>class</code>: [string] - add HTML classes to the component</li>
+        <li><code>errors</code>: [object] - object for Django to map over for individual errors</li>
         <li><code>field</code> - passed from Django
           <ul>
             <li><a href="https://devdocs.io/django~4.1/ref/forms/api#django.forms.Form.auto_id"><code>auto_id</code></a></li>
@@ -306,13 +381,18 @@
           </ul>
         </li>
         <li><code>hint_text</code>: [string] - add a subtitle as hint text for the form input</li>
+        <li><code>id</code>: [string] - set the HTML id for the input element</li>
+        <li><code>input_class</code>: [string] - add HTML classes to the input tag</li>
         <li><a href="https://developer.mozilla.org/en-US/docs/Web/HTML/Global_attributes/inputmode"><code>inputmode</code></a></li>
         <li><code>label</code>: [string] - overwrite the label passed from Django</li>
+        <li><code>name</code>: [string] - set the HTML name for the input element</li>
         <li><a href="https://developer.mozilla.org/en-US/docs/Web/HTML/Element/input#placeholder"><code>placeholder</code></a></li>
         <li><a href="https://developer.mozilla.org/en-US/docs/Web/HTML/Attributes/required"><code>required</code></a></li>
+        <li><code>show_placeholder</code>: [boolean] - if true, display the placeholder text</li>
         <li><a href="https://developer.mozilla.org/en-US/docs/Web/HTML/Element/input#input_types"><code>type</code></a></li>
+        <li><code>value</code>: [string] - set the HTML value for the input element</li>
       </ul>
-      <div class="not-prose flex flex-col gap-y-8 relative w-screen max-w-5xl left-1/2 -translate-x-1/2 p-8 bg-slate-200 border boder-slate-500 rounded">
+      <div class="not-prose flex flex-col gap-y-8 relative w-screen max-w-5xl left-1/2 -translate-x-1/2 p-8 bg-slate-200 border border-slate-500 rounded">
         <div class="flex flex-col gap-y-4 items-start max-w-xl w-full mx-auto">
           {% form_input type="email" label="Email address" required=True field=example_form_email hint_text="Must be an opensafely.org account" %}
           {% form_input type="text" label="Phone number" inputmode="number" autocapitalize=False autocomplete=False autocorrect=False %}
@@ -322,6 +402,53 @@
 {% form_input type="text" label="Phone number" inputmode="number" autocapitalize=False autocomplete=False autocorrect=False %}
 {% form_input type="search" label="Search the site"%}{% endverbatim %}</code></pre>
       </div>
+
+      <h3>Legend</h3>
+      <ul>
+        <li><code>class</code>: [string] - add HTML classes to the component</li>
+        <li><code>text</code>: [string] - text to display for the legend</li>
+      </ul>
+      <div class="not-prose flex flex-col gap-y-8 relative w-screen max-w-5xl left-1/2 -translate-x-1/2 p-8 bg-slate-200 border border-slate-500 rounded">
+        <div class="flex flex-row gap-x-8 items-center">
+          {% #form_fieldset %}
+            {% form_legend text="This is a form legend" %}
+          {% /form_fieldset %}
+        </div>
+        <pre><code class="language-django">{% verbatim %}{% #form_fieldset %}
+  {% form_legend text="This is a form legend" %}
+{% /form_fieldset %}{% endverbatim %}</code></pre>
+      </div>
+
+      <h3>Radio</h3>
+      <ul>
+        <li><code>checked</code>: [boolean] - if true, radio is checked</li>
+        <li><code>id</code>: [string] - set the HTML id for the input element</li>
+        <li><code>input_class</code>: [string] - add HTML classes to the input tag</li>
+        <li><code>label_class</code>: [string] - add HTML classes to the label tag</li>
+        <li><code>label</code>: [string] - set the label displayed to the user</li>
+        <li><code>name</code>: [string] - set the HTML name for the input element</li>
+        <li><code>span_class</code>: [string] - add HTML classes to the span tag wrapping the label</li>
+      </ul>
+      <div class="not-prose flex flex-col gap-y-8 relative w-screen max-w-5xl left-1/2 -translate-x-1/2 p-8 bg-slate-200 border border-slate-500 rounded">
+        <div class="flex flex-row gap-x-8 items-center">
+          {% #form_fieldset %}
+            {% form_legend text="Where do you find the best pizza in New York?" %}
+            {% form_radio checked=True id="joe" label="Joe's Pizza" name="pizza" %}
+            {% form_radio id="john" label="John's of Bleecker Street" name="pizza" %}
+            {% form_radio id="paulie" label="Paulie Gee's Slice Shop" name="pizza" %}
+          {% /form_fieldset %}
+        </div>
+        <pre><code class="language-django">{% verbatim %}{% #form_fieldset %}
+  {% form_legend text="Where do you find the best pizza in New York?" %}
+  {% form_radio checked=True id="joe" label="Joe's Pizza" name="pizza" %}
+  {% form_radio id="john" label="John's of Bleecker Street" name="pizza" %}
+  {% form_radio id="paulie" label="Paulie Gee's Slice Shop" name="pizza" %}
+{% /form_fieldset %}{% endverbatim %}</code></pre>
+      </div>
+
+      <h3>Radio list</h3>
+      <p>Pass Django radio fields in to a list of radios</p>
+
       <h3>Select</h3>
       <ul>
         <li><code>choices</code>: [dict] - dict of [value, label] for the options</li>
@@ -335,21 +462,25 @@
             <li><a href="https://devdocs.io/django~4.1/ref/forms/api#django.forms.BoundField.label"><code>label</code></a></li>
           </ul>
         </li>
-        <li><code>hint_text</code>: [string] - add a subtitle as hint text for the form input</li>
+        <li><code>hint_text</code>: [string] - add a subtitle as hint text for the select</li>
+        <li><code>id</code>: [string] - set the HTML id for the select element</li>
         <li><code>label</code>: [string] - overwrite the label passed from Django</li>
+        <li><code>name</code>: [string] - set the HTML name for the select element</li>
         <li><a href="https://developer.mozilla.org/en-US/docs/Web/HTML/Attributes/required"><code>required</code></a></li>
         <li><code>selected</code>: [string] - matches value of choice for preselected option</li>
       </ul>
-      <div class="not-prose flex flex-col gap-y-8 relative w-screen max-w-5xl left-1/2 -translate-x-1/2 p-8 bg-slate-200 border boder-slate-500 rounded">
+      <div class="not-prose flex flex-col gap-y-8 relative w-screen max-w-5xl left-1/2 -translate-x-1/2 p-8 bg-slate-200 border border-slate-500 rounded">
         {% form_select class="w-full max-w-lg mx-auto" label="Select a language" required=True field=example_form_select choices=example_form_select.choices selected=example_form_select.value %}
         <pre><code class="language-django">{% verbatim %}{% form_select class="w-full max-w-lg mx-auto" label="Select a language" required=True field=example_form_select choices=example_form_select.choices selected=example_form_select.value %}{% endverbatim %}</code></pre>
       </div>
+
       <h3>Textarea</h3>
       <ul>
         <li><a href="https://developer.mozilla.org/en-US/docs/Web/HTML/Global_attributes/autocapitalize"><code>autocapitalize</code></a></li>
         <li><a href="https://developer.mozilla.org/en-US/docs/Web/HTML/Attributes/autocomplete"><code>autocomplete</code></a></li>
         <li><a href="https://developer.mozilla.org/en-US/docs/Web/HTML/Element/Input#autocorrect"><code>autocorrect</code></a></li>
         <li><code>class</code>: [string] - add HTML classes to the component</li>
+        <li><code>errors</code>: [object] - object for Django to map over for individual errors</li>
         <li><code>field</code>
           <ul>
             <li><a href="https://devdocs.io/django~4.1/ref/forms/api#django.forms.Form.auto_id"><code>auto_id</code></a></li>
@@ -360,21 +491,56 @@
             <li><a href="https://devdocs.io/django~4.1/ref/forms/api#django.forms.BoundField.value"><code>value</code></a></li>
           </ul>
         </li>
-        <li><code>hint_text</code>: [string] - add a subtitle as hint text for the form input</li>
+        <li><code>hint_text</code>: [string] - add a subtitle as hint text for the textarea</li>
+        <li><code>id</code>: [string] - set the HTML id for the textarea element</li>
         <li><a href="https://developer.mozilla.org/en-US/docs/Web/HTML/Global_attributes/inputmode"><code>inputmode</code></a></li>
         <li><code>label</code>: [string] - overwrite the label passed from Django</li>
+        <li><a href="https://developer.mozilla.org/en-US/docs/Web/HTML/Element/textarea#maxlength"><code>maxlength</code></a></li>
+        <li><code>name</code>: [string] - set the HTML name for the textarea element</li>
+        <li><a href="https://developer.mozilla.org/en-US/docs/Web/HTML/Element/input#placeholder"><code>placeholder</code></a></li>
         <li><a href="https://developer.mozilla.org/en-US/docs/Web/HTML/Attributes/required"><code>required</code></a></li>
         <li><a href="https://developer.mozilla.org/en-US/docs/Web/HTML/Element/textarea#attr-rows"><code>rows</code></a></li>
+        <li><code>show_placeholder</code>: [boolean] - if true, display the placeholder text</li>
+        <li><code>value</code>: [string] - set the HTML value for the input element</li>
       </ul>
-      <div class="not-prose flex flex-col gap-y-8 relative w-screen max-w-5xl left-1/2 -translate-x-1/2 p-8 bg-slate-200 border boder-slate-500 rounded">
+      <div class="not-prose flex flex-col gap-y-8 relative w-screen max-w-5xl left-1/2 -translate-x-1/2 p-8 bg-slate-200 border border-slate-500 rounded">
         {% form_textarea class="max-w-lg w-full mx-auto" field=example_form_textarea label="Enter a short description of the project" resize=True rows=8 %}
         <pre><code class="language-django">{% verbatim %}{% form_textarea class="max-w-lg w-full mx-auto" field=example_form_textarea label="Enter a short description of the project" resize=True rows=8 %}{% endverbatim %}</code></pre>
       </div>
     </section>
 
+    <section>
+      <h2>Grids</h2>
+      <ul>
+        <li><code>class</code>: [string] - add HTML classes to element</li>
+        <li><code>children</code>: [html] - display the children components</li>
+        <li><code>gap</code>: [number] - set the Tailwind gap distance for the columns</li>
+      </ul>
+      <div class="not-prose flex flex-col gap-y-8 relative w-screen max-w-5xl left-1/2 -translate-x-1/2 p-8 bg-slate-200 border border-slate-500 rounded">
+        <div class="flex flex-row gap-x-8 items-center">
+          {% #grid_three_cols gap=4 %}
+            {% #grid_col_span_1 %}
+              <p>Lorem Ipsum is simply dummy text of the printing and typesetting industry. Lorem Ipsum has been the industry's standard dummy text ever since the 1500s, when an unknown printer took a galley of type and scrambled it to make a type specimen book. It has survived not only five centuries, but also the leap into electronic typesetting, remaining essentially unchanged. It was popularised in the 1960s with the release of Letraset sheets containing Lorem Ipsum passages, and more recently with desktop publishing software like Aldus PageMaker including versions of Lorem Ipsum.</p>
+            {% /grid_col_span_1 %}
+            {% #grid_col_lg_span_2 %}
+              <p>Contrary to popular belief, Lorem Ipsum is not simply random text. It has roots in a piece of classical Latin literature from 45 BC, making it over 2000 years old. Richard McClintock, a Latin professor at Hampden-Sydney College in Virginia, looked up one of the more obscure Latin words, consectetur, from a Lorem Ipsum passage, and going through the cites of the word in classical literature, discovered the undoubtable source. Lorem Ipsum comes from sections 1.10.32 and 1.10.33 of "de Finibus Bonorum et Malorum" (The Extremes of Good and Evil) by Cicero, written in 45 BC. This book is a treatise on the theory of ethics, very popular during the Renaissance. The first line of Lorem Ipsum, "Lorem ipsum dolor sit amet..", comes from a line in section 1.10.32.</p>
+            {% /grid_col_lg_span_2 %}
+          {% /grid_three_cols %}
+        </div>
+        <pre><code class="language-django">{% verbatim %}{% #grid_three_cols gap=4 %}
+  {% #grid_col_span_1 %}{% endverbatim %}
+    {% filter force_escape %}<p>Lorem Ipsum is simply dummy text of the printing and typesetting industry. Lorem Ipsum has been the industry's standard dummy text ever since the 1500s, when an unknown printer took a galley of type and scrambled it to make a type specimen book. It has survived not only five centuries, but also the leap into electronic typesetting, remaining essentially unchanged. It was popularised in the 1960s with the release of Letraset sheets containing Lorem Ipsum passages, and more recently with desktop publishing software like Aldus PageMaker including versions of Lorem Ipsum.</p>{% endfilter %}
+  {% verbatim %}{% /grid_col_span_1 %}
+  {% #grid_col_lg_span_2 %}{% endverbatim %}
+    {% filter force_escape %}<p>Contrary to popular belief, Lorem Ipsum is not simply random text. It has roots in a piece of classical Latin literature from 45 BC, making it over 2000 years old. Richard McClintock, a Latin professor at Hampden-Sydney College in Virginia, looked up one of the more obscure Latin words, consectetur, from a Lorem Ipsum passage, and going through the cites of the word in classical literature, discovered the undoubtable source. Lorem Ipsum comes from sections 1.10.32 and 1.10.33 of "de Finibus Bonorum et Malorum" (The Extremes of Good and Evil) by Cicero, written in 45 BC. This book is a treatise on the theory of ethics, very popular during the Renaissance. The first line of Lorem Ipsum, "Lorem ipsum dolor sit amet..", comes from a line in section 1.10.32.</p>{% endfilter %}
+  {% verbatim %}{% /grid_col_lg_span_2 %}
+{% /grid_three_cols %}{% endverbatim %}</code></pre>
+      </div>
+    </section>
+
     <section id="headerSection">
       <h2>Header</h2>
-      <div class="not-prose flex flex-col gap-y-8 relative w-screen max-w-5xl left-1/2 -translate-x-1/2 p-8 bg-slate-200 border boder-slate-500 rounded">
+      <div class="not-prose flex flex-col gap-y-8 relative w-screen max-w-5xl left-1/2 -translate-x-1/2 p-8 bg-slate-200 border border-slate-500 rounded">
         <div class="block relative">
           {% header nav=nav %}
         </div>
@@ -388,10 +554,13 @@
         <li><code>append_after</code>: [string] - add text directly after a link with no space</li>
         <li><code>class</code>: [string] - add HTML classes to the component</li>
         <li><code>href</code>: [string] - href for the anchor tag</li>
+        <li><code>hx-get</code>: [string] - used with HTMX</li>
+        <li><code>hx-target</code>: [string] - used with HTMX</li>
+        <li><code>hx-trigger</code>: [string] - used with HTMX</li>
         <li><code>new_tab</code>: [boolean] - if true, opens link in a new tab</li>
         <li><code>text</code>: [string] - link text to display</li>
       </ul>
-      <div class="not-prose flex flex-col gap-y-8 relative w-screen max-w-5xl left-1/2 -translate-x-1/2 p-8 bg-slate-200 border boder-slate-500 rounded">
+      <div class="not-prose flex flex-col gap-y-8 relative w-screen max-w-5xl left-1/2 -translate-x-1/2 p-8 bg-slate-200 border border-slate-500 rounded">
         <div class="flex flex-col gap-x-8">
           <p>{% link href="#" new_tab=True text="It's me, a link!" %}</p>
           <p>And this is showing the {% link href="#" new_tab=True text="end of a sentence" append_after="." %}</p>
@@ -406,18 +575,22 @@
       <h3>List group container</h3>
       <ul>
         <li><code>children</code>: [html] - display the children components</li>
+        <li><code>data_filter_list</code>: [boolean] - add data-filter-list attribute</li>
+        <li><code>no_border</code>: [boolean] - remove the top border from the group</li>
         <li><code>small</code>: [boolean] - if true, reduces padding and font size</li>
       </ul>
-      <div class="not-prose flex flex-col gap-y-8 relative w-screen max-w-5xl left-1/2 -translate-x-1/2 p-8 bg-slate-200 border boder-slate-500 rounded">
+      <div class="not-prose flex flex-col gap-y-8 relative w-screen max-w-5xl left-1/2 -translate-x-1/2 p-8 bg-slate-200 border border-slate-500 rounded">
         <pre><code class="language-django">{% verbatim %}{% #list_group %}content in here{% /list_group %}{% endverbatim %}</code></pre>
       </div>
       <h3>List group empty</h3>
       <ul>
+        <li><code>data-filter-empty-state</code>: [string] - set data-filter-empty-state HTML attribute</li>
         <li><code>description</code>: [string] - description text to display</li>
+        <li><code>hidden</code>: [string] - set hidden HTML attribute</li>
         <li><code>icon</code>: [boolean] - if true, shows the empty folder icon</li>
         <li><code>title</code>: [string] - title text to display</li>
       </ul>
-      <div class="not-prose flex flex-col gap-y-8 relative w-screen max-w-5xl left-1/2 -translate-x-1/2 p-8 bg-slate-200 border boder-slate-500 rounded">
+      <div class="not-prose flex flex-col gap-y-8 relative w-screen max-w-5xl left-1/2 -translate-x-1/2 p-8 bg-slate-200 border border-slate-500 rounded">
         {% #card %}
           {% #list_group %}
             {% list_group_empty icon=True title="This group is empty" description="And here is some text explaining why" %}
@@ -431,10 +604,15 @@
       </div>
       <h3>List group item</h3>
       <ul>
+        <li><code>aria-checked</code>: [string] - set aria-checked HTML attribute</li>
+        <li><code>aria-labelled-by</code>: [string] - set aria-labelled-by HTML attribute</li>
         <li><code>children</code>: [html] - display the children components</li>
+        <li><code>class</code>: [string] - add HTML classes to element</li>
+        <li><code>disabled</code>: [boolean] - if true, element adds classes to appear disabled</li>
         <li><code>href</code>: [string] - href for the anchor tag</li>
+        <li><code>role</code>: [string] - set role HTML attribute</li>
       </ul>
-      <div class="not-prose flex flex-col gap-y-8 relative w-screen max-w-5xl left-1/2 -translate-x-1/2 p-8 bg-slate-200 border boder-slate-500 rounded">
+      <div class="not-prose flex flex-col gap-y-8 relative w-screen max-w-5xl left-1/2 -translate-x-1/2 p-8 bg-slate-200 border border-slate-500 rounded">
         {% #card %}
           {% #list_group %}
             {% #list_group_item href="https://www.example.com/" %}Example dot com{% /list_group_item %}
@@ -449,12 +627,15 @@
       <h3>List group rich item</h3>
       <ul>
         <li><code>children</code>: [html] - display the children components</li>
+        <li><code>custom_status</code>: [html] - display a custom status pill</li>
+        <li><code>no_truncate</code>: [boolean] - if true, name truncation is disabled</li>
         <li><code>status_text</code>: [string] - matches the pill title and colour to statuses</li>
+        <li><code>title_class</code>: [string] - add HTML class to only the title</li>
         <li><code>title</code>: [string] - item title</li>
         <li><code>type</code>: [string] - hidden field for screen readers listing the group type</li>
         <li><code>url</code>: [string] - href for the item</li>
       </ul>
-      <div class="not-prose flex flex-col gap-y-8 relative w-screen max-w-5xl left-1/2 -translate-x-1/2 p-8 bg-slate-200 border boder-slate-500 rounded">
+      <div class="not-prose flex flex-col gap-y-8 relative w-screen max-w-5xl left-1/2 -translate-x-1/2 p-8 bg-slate-200 border border-slate-500 rounded">
         {% #card %}
           {% #list_group %}
             {% #list_group_rich_item status_text="running" title="An example rich item" type="Example card" url="#" %}
@@ -472,16 +653,92 @@
       </div>
     </section>
 
-    <section id="pillSection">
-      <h2>Pill</h2>
+    <section>
+      <h2>Modal</h2>
       <ul>
         <li><code>children</code>: [html] - display the children components</li>
+        <li><code>class</code>: [string] - add HTML classes to element</li>
+        <li><code>id</code>: [string] - HTML element ID</li>
+      </ul>
+      <div class="not-prose flex flex-col gap-y-8 relative w-screen max-w-5xl left-1/2 -translate-x-1/2 p-8 bg-slate-200 border border-slate-500 rounded">
+        <div class="flex flex-row gap-x-8 items-center">
+          {% #button variant="primary-outline" type="button" data-modal="addGitHubOrg" %}
+            Add a GitHub Organisation
+          {% /button %}
+          {% #modal id="addGitHubOrg" %}
+            {% #card container=True title="Add a GitHub Organisation" %}
+              <div class="flex flex-row flex-wrap gap-2">
+                {% #button variant="success" type="submit" %}Add org{% /button %}
+                {% #button variant="danger" type="cancel" %}Cancel{% /button %}
+              </div>
+            {% /card %}
+          {% /modal %}
+        </div>
+        <pre><code class="language-django">{% verbatim %}{% #button variant="primary-outline" type="button" data-modal="addGitHubOrg" %}
+  Add a GitHub Organisation
+{% /button %}
+{% #modal id="addGitHubOrg" %}
+  {% #card container=True title="Add a GitHub Organisation" %}{% endverbatim %}
+    {% filter force_escape %}<div class="flex flex-row flex-wrap gap-2">{% endfilter %}
+      {% verbatim %}{% #button variant="success" type="submit" %}Add org{% /button %}
+      {% #button variant="danger" type="cancel" %}Cancel{% /button %}{% endverbatim %}
+    {% filter force_escape %}</div>{% endfilter %}
+  {% verbatim %}{% /card %}
+{% /modal %}{% endverbatim %}</code></pre>
+      </div>
+    </section>
+
+    <section>
+      <h2>Multiselect</h2>
+      <div class="not-prose flex flex-col gap-y-8 relative w-screen max-w-5xl left-1/2 -translate-x-1/2 p-8 bg-slate-200 border border-slate-500 rounded">
+        <div class="flex flex-row gap-x-8 items-center">
+          {% #card title="Filter by company" container=True class="w-full max-w-prose" %}
+            {% #multiselect custom_field=True name="company" placeholder="Select a company" %}
+              {% multiselect_option name="Kramerica Industries" value="kramerica" is_active=True %}
+              {% multiselect_option name="Vandelay Industries" value="vandelay" %}
+            {% /multiselect %}
+          {% /card %}
+        </div>
+        <pre><code class="language-django">{% verbatim %}{% #card title="Filter by company" container=True class="w-full max-w-prose" %}
+  {% #multiselect custom_field=True name="company" placeholder="Select a company" %}
+    {% multiselect_option name="Kramerica Industries" value="kramerica" is_active=True %}
+    {% multiselect_option name="Vandelay Industries" value="vandelay" %}
+  {% /multiselect %}
+{% /card %}{% endverbatim %}</code></pre>
+      </div>
+
+      <h3>Multiselect container</h3>
+      <ul>
+        <li><code>children</code>: [html] - display the children components</li>
+        <li><code>custom_field</code>: [boolean] - set to true if field does not directly map to a Django Form field</li>
+        <li><code>data-max-items</code>: [number] - set the total number of items that can be selected</li>
+        <li><code>id</code>: [string] - HTML element ID</li>
+        <li><code>name</code>: [string] - HTML element name</li>
+        <li><code>multiple</code>: [boolean] - if true, multiple options can be selected (default to true)</li>
+        <li><a href="https://developer.mozilla.org/en-US/docs/Web/HTML/Element/input#placeholder"><code>placeholder</code></a></li>
+        <li><a href="https://developer.mozilla.org/en-US/docs/Web/HTML/Attributes/required"><code>required</code></a></li>
+      </ul>
+
+      <h3>Multiselect option</h3>
+      <ul>
+        <li><code>is_active</code>: [boolean] - if true, option is shown above the search bar</li>
+        <li><code>name</code>: [string] - name show in the HTML option tag</li>
+        <li><code>value</code>: [string] - value used for the HTML option tag</li>
+      </ul>
+    </section>
+
+    <section id="pillSection">
+      <h2>Pills</h2>
+      <h3>Pill</h3>
+      <ul>
+        <li><code>children</code>: [html] - display the children components</li>
+        <li><code>class</code>: [string] - add HTML classes to element</li>
         <li><code>sr_only</code>: [string] - add explainer text for screen readers</li>
         <li><code>text</code>: [string] - text to display in the component</li>
         <li><code>variant</code>: [string] - select styling colours for the component</li>
       </ul>
 
-      <div class="not-prose flex flex-col gap-y-8 relative w-screen max-w-5xl left-1/2 -translate-x-1/2 p-8 bg-slate-200 border boder-slate-500 rounded">
+      <div class="not-prose flex flex-col gap-y-8 relative w-screen max-w-5xl left-1/2 -translate-x-1/2 p-8 bg-slate-200 border border-slate-500 rounded">
         <div class="flex flex-col gap-8 md:flex-row items-center">
           {% pill variant="danger" text="Danger" %}
           {% pill variant="info" text="Info" %}
@@ -496,16 +753,234 @@
 {% pill variant="success" text="Success" %}
 {% pill variant="warning" text="Warning" %}{% endverbatim %}</code></pre>
       </div>
+
+      <h3>Application status pill</h3>
+      <ul>
+        <li><code>class</code>: [string] - add HTML classes to element</li>
+        <li><code>status</code>: [string] - selects the correct variant for Job Server application status</li>
+      </ul>
+      <div class="not-prose flex flex-col gap-y-8 relative w-screen max-w-5xl left-1/2 -translate-x-1/2 p-8 bg-slate-200 border border-slate-500 rounded">
+        <div class="flex flex-col gap-8 md:flex-row items-center">
+          {% pill_application_status status="approved_fully" %}
+          {% pill_application_status status="ongoing" %}
+        </div>
+
+        <pre><code class="language-django">{% verbatim %}{% pill_application_status status="approved_fully" %}
+{% pill_application_status status="ongoing" %}{% endverbatim %}</code></pre>
+      </div>
+
+      <h3>Project status pill</h3>
+      <ul>
+        <li><code>status</code>: [string] - selects the correct variant for Job Server project status</li>
+        <li><code>text</code>: [string] - display text in the pill</li>
+      </ul>
+      <div class="not-prose flex flex-col gap-y-8 relative w-screen max-w-5xl left-1/2 -translate-x-1/2 p-8 bg-slate-200 border border-slate-500 rounded">
+        <div class="flex flex-col gap-8 md:flex-row items-center">
+          {% pill_project_status status="completed-and-awaiting" text="Completed and awaiting publication" %}
+          {% pill_project_status status="ongoing-and-linked" text="Ongoing" %}
+        </div>
+
+        <pre><code class="language-django">{% verbatim %}{% pill_project_status status="approved_fully" %}
+{% pill_project_status status="ongoing" %}{% endverbatim %}</code></pre>
+      </div>
     </section>
 
     <section id="skipLinkSection">
       <h2>Skip link</h2>
-      <div class="not-prose flex flex-col gap-y-8 relative w-screen max-w-5xl left-1/2 -translate-x-1/2 p-8 bg-slate-200 border boder-slate-500 rounded">
+      <div class="not-prose flex flex-col gap-y-8 relative w-screen max-w-5xl left-1/2 -translate-x-1/2 p-8 bg-slate-200 border border-slate-500 rounded">
         <div class="flex flex-row gap-x-8 items-center">
           <p>Use the tab key to get the link to show</p>
           {% skip_link %}
         </div>
         <pre><code class="language-django">{% verbatim %}{% skip_link %}{% endverbatim %}</code></pre>
+      </div>
+    </section>
+
+    <section>
+      <h2>Tables</h2>
+      <div class="not-prose flex flex-col gap-y-8 relative w-screen max-w-5xl left-1/2 -translate-x-1/2 p-8 bg-slate-200 border border-slate-500 rounded">
+        <div class="flex flex-row gap-x-8 items-center">
+          {% #card class="w-full" no_container=True %}
+            <div class="inline-block min-w-full align-middle overflow-x-auto max-w-full">
+              {% #table id="customTable" %}
+                {% #table_head class="bg-slate-200" %}
+                  {% #table_row %}
+                    {% #table_header %}
+                      <div class="flex flex-row gap-2">
+                        Project
+                        <span class="ml-auto">
+                          {% icon_arrows_up_down_mini class="h4 w-4 datatable-icon--no-sort" %}
+                          {% icon_arrow_up_mini class="h4 w-4 datatable-icon--ascending" %}
+                          {% icon_arrow_down_mini class="h4 w-4 datatable-icon--descending" %}
+                        </span>
+                      </div>
+                    {% /table_header %}
+                    {% #table_header %}
+                      <div class="flex flex-row gap-2">
+                        Job requests run
+                        <span class="ml-auto">
+                          {% icon_arrows_up_down_mini class="h4 w-4 datatable-icon--no-sort" %}
+                          {% icon_arrow_up_mini class="h4 w-4 datatable-icon--ascending" %}
+                          {% icon_arrow_down_mini class="h4 w-4 datatable-icon--descending" %}
+                        </span>
+                      </div>
+                    {% /table_header %}
+                    {% #table_header data-type="date" data-format="DD MMM YYYY" %}
+                      <div class="flex flex-row gap-2">
+                        Job first run
+                        <span class="ml-auto">
+                          {% icon_arrows_up_down_mini class="h4 w-4 datatable-icon--no-sort" %}
+                          {% icon_arrow_up_mini class="h4 w-4 datatable-icon--ascending" %}
+                          {% icon_arrow_down_mini class="h4 w-4 datatable-icon--descending" %}
+                        </span>
+                      </div>
+                    {% /table_header %}
+                  {% /table_row %}
+                {% /table_head %}
+
+                {% #table_body %}
+                  {% #table_row class="even:bg-slate-50" %}
+                    {% #table_cell %}
+                      101 - Test project for a table
+                    {% /table_cell %}
+                    {% #table_cell %}
+                      786
+                    {% /table_cell %}
+                    {% #table_cell %}
+                      31 October 2022
+                    {% /table_cell %}
+                  {% /table_row %}
+                {% /table_body %}
+              {% /table %}
+              {% table_pagination has_previous=True has_next=True next_url="#" prev_url="#" %}
+            </div>
+          {% /card %}
+        </div>
+        <pre><code class="language-django">{% verbatim %}{% #card class="w-full" no_container=True %}{% endverbatim %}
+  {% filter force_escape %}<div class="inline-block min-w-full align-middle overflow-x-auto max-w-full">{% endfilter %}
+    {% verbatim %}{% #table id="customTable" %}
+      {% #table_head class="bg-slate-200" %}
+        {% #table_row %}
+          {% #table_header %}{% endverbatim %}
+          {% filter force_escape %}<div class="flex flex-row gap-2">{% endfilter %}
+              Project
+              {% filter force_escape %}<span class="ml-auto">{% endfilter %}
+                {% verbatim %}{% icon_arrows_up_down_mini class="h4 w-4 datatable-icon--no-sort" %}
+                {% icon_arrow_up_mini class="h4 w-4 datatable-icon--ascending" %}
+                {% icon_arrow_down_mini class="h4 w-4 datatable-icon--descending" %}{% endverbatim %}
+              {% filter force_escape %}</span>{% endfilter %}
+            {% filter force_escape %}</div>{% endfilter %}
+          {% verbatim %}{% /table_header %}{% endverbatim %}
+          {% verbatim %}{% #table_header %}{% endverbatim %}
+            {% filter force_escape %}<div class="flex flex-row gap-2">
+              Job requests run
+              <span class="ml-auto">{% endfilter %}
+                {% verbatim %}{% icon_arrows_up_down_mini class="h4 w-4 datatable-icon--no-sort" %}
+                {% icon_arrow_up_mini class="h4 w-4 datatable-icon--ascending" %}
+                {% icon_arrow_down_mini class="h4 w-4 datatable-icon--descending" %}{% endverbatim %}
+              {% filter force_escape %}</span>
+            </div>{% endfilter %}
+          {% verbatim %}{% /table_header %}{% endverbatim %}
+          {% verbatim %}{% #table_header data-type="date" data-format="DD MMM YYYY" %}{% endverbatim %}
+            {% filter force_escape %}<div class="flex flex-row gap-2">
+              Job first run
+              <span class="ml-auto">{% endfilter %}
+                {% verbatim %}{% icon_arrows_up_down_mini class="h4 w-4 datatable-icon--no-sort" %}
+                {% icon_arrow_up_mini class="h4 w-4 datatable-icon--ascending" %}
+                {% icon_arrow_down_mini class="h4 w-4 datatable-icon--descending" %}{% endverbatim %}
+              {% filter force_escape %}</span>
+            </div>{% endfilter %}
+          {% verbatim %}{% /table_header %}
+        {% /table_row %}
+      {% /table_head %}
+
+      {% #table_body %}
+        {% #table_row class="even:bg-slate-50" %}
+          {% #table_cell %}
+            101 - Test project for a table
+          {% /table_cell %}
+          {% #table_cell %}
+            786
+          {% /table_cell %}
+          {% #table_cell %}
+            31 October 2022
+          {% /table_cell %}
+        {% /table_row %}
+      {% /table_body %}
+    {% /table %}
+    {% table_pagination has_previous=True has_next=True next_url="#" prev_url="#" %}{% endverbatim %}
+  {% filter force_escape %}</div>{% endfilter %}
+{% verbatim %}{% /card %}{% endverbatim %}</code></pre>
+      </div>
+
+      <h3>Table</h3>
+      <ul>
+        <li><code>children</code>: [html] - display the children components</li>
+        <li><code>id</code>: [string] - add HTML ID to element</li>
+      </ul>
+
+      <h3>Table Body</h3>
+      <ul>
+        <li><code>children</code>: [html] - display the children components</li>
+      </ul>
+
+      <h3>Table Cell</h3>
+      <ul>
+        <li><code>children</code>: [html] - display the children components</li>
+        <li><code>class</code>: [string] - add HTML classes to element</li>
+        <li><code>nowrap</code>: [boolean] - if true, cell will not wrap</li>
+        <li><code>title</code>: [string] - add HTML title to element</li>
+      </ul>
+
+      <h3>Table Head</h3>
+      <ul>
+        <li><code>children</code>: [html] - display the children components</li>
+        <li><code>class</code>: [string] - add HTML classes to element</li>
+      </ul>
+
+      <h3>Table Header</h3>
+      <ul>
+        <li><code>children</code>: [html] - display the children components</li>
+        <li><code>class</code>: [string] - add HTML classes to element</li>
+        <li><code>nowrap</code>: [boolean] - if true, cell will not wrap</li>
+        <li>
+          <a href="https://fiduswriter.github.io/simple-datatables/documentation/datetime#method-1"><code>data-type</code></a>:
+          [string] - used with simple-datatables to format and sort date strings
+        </li>
+        <li>
+          <a href="https://fiduswriter.github.io/simple-datatables/documentation/datetime#method-1"><code>data-format</code></a>:
+          [string] - used with simple-datatables to format and sort date strings
+        </li>
+        <li><a href="https://developer.mozilla.org/en-US/docs/Web/HTML/Element/th#scope"><code>scope</code></a></li>
+      </ul>
+
+      <h3>Table Pagination</h3>
+      <ul>
+        <li><code>paginator</code>: [django] - passes the pagination details from Django to the function</li>
+      </ul>
+
+      <h3>Table Row</h3>
+      <ul>
+        <li><code>children</code>: [html] - display the children components</li>
+        <li><code>class</code>: [string] - add HTML classes to element</li>
+      </ul>
+    </section>
+
+    <section>
+      <h2>Time</h2>
+      <ul>
+        <li><code>children</code>: [html] - display the children components</li>
+        <li><code>class</code>: [string] - add HTML classes to element</li>
+        <li><code>datetime</code>: [datetime] - display a valid datetime for HTML time element</li>
+        <li><code>tooltip</code>: [string] - if added, tooltip will show content</li>
+      </ul>
+      <div class="not-prose flex flex-col gap-y-8 relative w-screen max-w-5xl left-1/2 -translate-x-1/2 p-8 bg-slate-200 border border-slate-500 rounded">
+        <div class="flex flex-row gap-x-8 items-center">
+          {% #time class="hover:cursor-pointer" datetime="2023-10-31T13:00:00+0000" tooltip="31 October 2023 at 13:00" %}
+            1 hour ago
+          {% /time %}
+        </div>
+        <pre><code class="language-django">{% verbatim %}code here{% endverbatim %}</code></pre>
       </div>
     </section>
 
@@ -521,7 +996,7 @@
         <li><code>time</code>: [date] - provide a Django date to display natural time and tooltip for exact time stamp</li>
         <li><code>title</code>: [string] - text to display above time or content</li>
       </ul>
-      <div class="not-prose flex flex-col gap-y-8 relative w-screen max-w-5xl left-1/2 -translate-x-1/2 p-8 bg-slate-200 border boder-slate-500 rounded">
+      <div class="not-prose flex flex-col gap-y-8 relative w-screen max-w-5xl left-1/2 -translate-x-1/2 p-8 bg-slate-200 border border-slate-500 rounded">
         <div class="flex flex-row gap-x-8 items-center">
           {% #card title="Timeline" class="w-full" container=True %}
             <ul class="flow-root">
@@ -549,8 +1024,9 @@
       <ul>
         <li><code>class</code>: [string] - add HTML classes to the component</li>
         <li><code>content</code>: [string] - text for the tooltip to display when hovered</li>
+        <li><code>tooltip_top</code>: [boolean] - if true, show the tooltip on top</li>
       </ul>
-      <div class="not-prose flex flex-col gap-y-8 relative w-screen max-w-5xl left-1/2 -translate-x-1/2 p-8 bg-slate-200 border boder-slate-500 rounded">
+      <div class="not-prose flex flex-col gap-y-8 relative w-screen max-w-5xl left-1/2 -translate-x-1/2 p-8 bg-slate-200 border border-slate-500 rounded">
         <div class="flex flex-row gap-x-8 items-center">
           <div class="relative group cursor-pointer">
             Hover here to see a tooltip
@@ -569,7 +1045,7 @@
       <ul>
         <li><code>class</code>: [string] - add HTML classes to the icon</li>
       </ul>
-      <div class="not-prose flex flex-col gap-y-8 relative w-screen max-w-5xl left-1/2 -translate-x-1/2 p-8 bg-slate-200 border boder-slate-500 rounded">
+      <div class="not-prose flex flex-col gap-y-8 relative w-screen max-w-5xl left-1/2 -translate-x-1/2 p-8 bg-slate-200 border border-slate-500 rounded">
         <div class="flex flex-row flex-wrap gap-8 items-center">
           {% icon_academic_cap_outline class="h-6 w-6 text-black" %}
           {% icon_beaker_outline class="h-6 w-6 text-black" %}
@@ -605,6 +1081,9 @@
           {% icon_lock_closed_solid class="h-6 w-6 text-blue-800" %}
           {% icon_x_circle_solid class="h-6 w-6 text-blue-800" %}
 
+          {% icon_arrow_down_mini class="h-6 w-6 text-red-800" %}
+          {% icon_arrow_up_mini class="h-6 w-6 text-red-800" %}
+          {% icon_arrows_up_down_mini class="h-6 w-6 text-red-800" %}
           {% icon_chevron_down_mini class="h-6 w-6 text-red-800" %}
           {% icon_chevron_up_mini class="h-6 w-6 text-red-800" %}
           {% icon_exclamation_circle_mini class="h-6 w-6 text-red-800" %}
@@ -645,6 +1124,9 @@
 {% icon_lock_closed_solid class="h-6 w-6 text-blue-800" %}
 {% icon_x_circle_solid class="h-6 w-6 text-blue-800" %}
 
+{% icon_arrow_down_mini class="h-6 w-6 text-red-800" %}
+{% icon_arrow_up_mini class="h-6 w-6 text-red-800" %}
+{% icon_arrows_up_down_mini class="h-6 w-6 text-red-800" %}
 {% icon_chevron_down_mini class="h-6 w-6 text-red-800" %}
 {% icon_chevron_up_mini class="h-6 w-6 text-red-800" %}
 {% icon_exclamation_circle_mini class="h-6 w-6 text-red-800" %}
@@ -659,7 +1141,7 @@
       {# <ul> #}
         {# <li><code></code></li> #}
       {# </ul> #}
-      {# <div class="not-prose flex flex-col gap-y-8 relative w-screen max-w-5xl left-1/2 -translate-x-1/2 p-8 bg-slate-200 border boder-slate-500 rounded"> #}
+      {# <div class="not-prose flex flex-col gap-y-8 relative w-screen max-w-5xl left-1/2 -translate-x-1/2 p-8 bg-slate-200 border border-slate-500 rounded"> #}
         {# <div class="flex flex-row gap-x-8 items-center"> #}
           {# {% example_here %} #}
         {# </div> #}
@@ -670,5 +1152,7 @@
 {% endblock %}
 
 {% block extra_js %}
-  {% vite_asset 'assets/src/scripts/components.js' %}
+  {% vite_asset "assets/src/scripts/components.js" %}
+  {% vite_asset "templates/_components/modal/modal.js" %}
+  {% vite_asset "templates/_components/multiselect/multiselect.js" %}
 {% endblock %}
