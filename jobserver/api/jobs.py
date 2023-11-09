@@ -259,6 +259,7 @@ class JobRequestAPIList(ListAPIView):
                 "database_name",
                 "project",
                 "orgs",
+                "codelists_ok",
             ]
             model = JobRequest
 
