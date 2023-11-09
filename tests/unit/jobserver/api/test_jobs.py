@@ -816,6 +816,7 @@ def test_jobrequestapilist_success(api_rf):
                 "created_by": workspace.created_by.username,
                 "created_at": now_iso,
             },
+            "codelists_ok": True,
         },
         {
             "backend": "test-2",
@@ -836,6 +837,7 @@ def test_jobrequestapilist_success(api_rf):
                 "created_by": workspace.created_by.username,
                 "created_at": now_iso,
             },
+            "codelists_ok": True,
         },
         {
             "backend": "test-3",
@@ -856,6 +858,7 @@ def test_jobrequestapilist_success(api_rf):
                 "created_by": workspace.created_by.username,
                 "created_at": now_iso,
             },
+            "codelists_ok": True,
         },
     ]
 
