@@ -63,7 +63,9 @@ describe("<PrepareButton />", () => {
       />,
     );
 
-    expect(screen.getByRole("button")).toHaveTextContent("Publish");
+    expect(screen.getByRole("button")).toHaveTextContent(
+      "Create a draft publication",
+    );
   });
 
   it("triggers a mutation on click", async () => {
@@ -93,12 +95,14 @@ describe("<PrepareButton />", () => {
       />,
     );
 
-    expect(screen.getByRole("button")).toHaveTextContent("Publish");
+    expect(screen.getByRole("button")).toHaveTextContent(
+      "Create a draft publication",
+    );
 
     await user.click(screen.getByRole("button"));
 
     await waitFor(() =>
-      expect(screen.getByRole("button")).toHaveTextContent("Publishing…"),
+      expect(screen.getByRole("button")).toHaveTextContent("Creating…"),
     );
 
     await waitFor(() => {
@@ -128,7 +132,9 @@ describe("<PrepareButton />", () => {
       />,
     );
 
-    expect(screen.getByRole("button")).toHaveTextContent("Publish");
+    expect(screen.getByRole("button")).toHaveTextContent(
+      "Create a draft publication",
+    );
 
     await user.click(screen.getByRole("button"));
 
@@ -164,7 +170,9 @@ describe("<PrepareButton />", () => {
       />,
     );
 
-    expect(screen.getByRole("button")).toHaveTextContent("Publish");
+    expect(screen.getByRole("button")).toHaveTextContent(
+      "Create a draft publication",
+    );
 
     await user.click(screen.getByRole("button"));
 
