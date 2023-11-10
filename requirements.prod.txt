@@ -970,8 +970,8 @@ wrapt==1.15.0 \
     #   deprecated
     #   opentelemetry-instrumentation
     #   opentelemetry-instrumentation-dbapi
-xkcdpass==1.19.4 \
-    --hash=sha256:2935d54b482d19bcb54656bda01cbbec9ee41ffd42d235a52705fd95cab70fd7
+xkcdpass==1.19.5 \
+    --hash=sha256:cc4802ded4d0ea4c03a2f1cf1d14ef627756545efd0e99c05f8e7854366279d1
     # via -r requirements.prod.in
 zipp==3.17.0 \
     --hash=sha256:0e923e726174922dce09c53c59ad483ff7bbb8e572e00c7f7c46b88556409f31 \
