@@ -44,14 +44,16 @@ describe("<App />", () => {
   it("shows prepare button", async () => {
     fetch.mockResponseOnce(JSON.stringify({ files: fileList }));
     render(<App {...props} prepareUrl={prepareUrl} />);
-    expect(screen.getByRole("button", { name: "Publish" })).toBeVisible();
+    expect(
+      screen.getByRole("button", { name: "Create a draft publication" }),
+    ).toBeVisible();
   });
 
   it("shows publish button", async () => {
     fetch.mockResponseOnce(JSON.stringify({ files: fileList }));
     render(<App {...props} publishUrl={publishUrl} />);
     expect(
-      screen.getByRole("button", { name: "Confirm Publish?" }),
+      screen.getByRole("button", { name: "Create a public published output" }),
     ).toBeVisible();
   });
 

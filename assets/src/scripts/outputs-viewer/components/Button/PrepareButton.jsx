@@ -59,7 +59,7 @@ function PrepareButton({ authToken, csrfToken, filesUrl, prepareUrl }) {
       type="button"
       variant={mutation.isPending ? "secondary" : "primary"}
     >
-      {mutation.isPending ? "Publishing…" : "Publish"}
+      {mutation.isPending ? "Creating…" : "Create a draft publication"}
     </Button>
   );
 }

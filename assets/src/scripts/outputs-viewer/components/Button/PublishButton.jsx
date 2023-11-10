@@ -52,7 +52,7 @@ function PublishButton({ csrfToken, publishUrl }) {
       type="button"
       variant={mutation.isPending ? "secondary" : "primary"}
     >
-      {mutation.isPending ? "Confirming…" : "Confirm Publish?"}
+      {mutation.isPending ? "Creating…" : "Create a public published output"}
     </Button>
   );
 }

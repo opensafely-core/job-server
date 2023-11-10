@@ -13,7 +13,9 @@ describe("<PublishButton />", () => {
   it("shows the button", () => {
     render(<PublishButton csrfToken={csrfToken} publishUrl={publishUrl} />);
 
-    expect(screen.getByRole("button")).toHaveTextContent("Publish");
+    expect(screen.getByRole("button")).toHaveTextContent(
+      "Create a public published output",
+    );
   });
 
   it("triggers a mutation on click", async () => {
@@ -28,11 +30,13 @@ describe("<PublishButton />", () => {
 
     render(<PublishButton csrfToken={csrfToken} publishUrl={publishUrl} />);
 
-    expect(screen.getByRole("button")).toHaveTextContent("Confirm Publish?");
+    expect(screen.getByRole("button")).toHaveTextContent(
+      "Create a public published output",
+    );
 
     await user.click(screen.getByRole("button"));
 
-    expect(screen.getByRole("button")).toHaveTextContent("Confirming…");
+    expect(screen.getByRole("button")).toHaveTextContent("Creating…");
 
     await waitFor(() => expect(fetch.requests().length).toEqual(1));
   });
@@ -48,7 +52,9 @@ describe("<PublishButton />", () => {
 
     render(<PublishButton csrfToken={csrfToken} publishUrl={publishUrl} />);
 
-    expect(screen.getByRole("button")).toHaveTextContent("Confirm Publish?");
+    expect(screen.getByRole("button")).toHaveTextContent(
+      "Create a public published output",
+    );
 
     await user.click(screen.getByRole("button"));
 
@@ -73,7 +79,9 @@ describe("<PublishButton />", () => {
 
     render(<PublishButton csrfToken={csrfToken} publishUrl={publishUrl} />);
 
-    expect(screen.getByRole("button")).toHaveTextContent("Confirm Publish?");
+    expect(screen.getByRole("button")).toHaveTextContent(
+      "Create a public published output",
+    );
 
     await user.click(screen.getByRole("button"));
 
