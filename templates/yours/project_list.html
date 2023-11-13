@@ -29,7 +29,6 @@
       {% endfor %}
     {% /list_group %}
 
-
     {% if page_obj.has_previous or page_obj.has_next %}
       {% if page_obj.has_next %}
         {% url_with_querystring page=page_obj.next_page_number as next_page_url %}

@@ -1,5 +1,7 @@
 {% extends "base.html" %}
 
+{% load querystring_tools %}
+
 {% block metatitle %}Your organisations | OpenSAFELY Jobs{% endblock metatitle %}
 
 {% block breadcrumbs %}
@@ -11,7 +13,7 @@
 {% endblock breadcrumbs %}
 
 {% block content %}
-  {% #card title="Organisations" subtitle="You have access to these organisations" %}
+  {% #card title="Your organisations" subtitle="You have access to these organisations" %}
     {% #list_group %}
       {% for org in object_list %}
         <li>
@@ -38,5 +40,15 @@
         </li>
       {% endfor %}
     {% /list_group %}
+
+    {% if page_obj.has_previous or page_obj.has_next %}
+      {% if page_obj.has_next %}
+        {% url_with_querystring page=page_obj.next_page_number as next_page_url %}
+      {% endif %}
+      {% if page_obj.has_previous %}
+        {% url_with_querystring page=page_obj.previous_page_number as previous_page_url %}
+      {% endif %}
+      {% card_pagination page_number=page_obj.number total_pages=page_obj.paginator.num_pages next_page_url=next_page_url previous_page_url=previous_page_url no_container=True %}
+    {% endif %}
   {% /card %}
 {% endblock content %}
