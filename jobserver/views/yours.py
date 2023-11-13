@@ -36,6 +36,8 @@ class OrgList(ListView):
 @method_decorator(login_required, name="dispatch")
 class ProjectList(ListView):
     model = Project
+    ordering = "name"
+    paginate_by = 20
     template_name = "yours/project_list.html"
 
     def get_queryset(self):
