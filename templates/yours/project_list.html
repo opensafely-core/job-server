@@ -1,35 +1,42 @@
 {% extends "base.html" %}
 
+{% load querystring_tools %}
+
 {% block metatitle %}Your projects | OpenSAFELY Jobs{% endblock metatitle %}
 
 {% block breadcrumbs %}
   {% #breadcrumbs %}
-    {% url 'home' as home_url %}
+    {% url "home" as home_url %}
     {% breadcrumb title="Home" url=home_url %}
     {% breadcrumb title="Projects" active=True %}
   {% /breadcrumbs %}
 {% endblock breadcrumbs %}
 
 {% block content %}
-  {% #card title="Projects" %}
-    {% if object_list %}
-      {% #list_group %}
-        {% for project in object_list %}
-          {% #list_group_item href=project.get_absolute_url %}
-            {{ project }}
-          {% /list_group_item %}
-        {% endfor %}
-      {% /list_group %}
-    {% else %}
-      <div class="border-t border-t-slate200 text-center p-8">
-        {% icon_folder_outline class="mx-auto h-8 w-8 text-slate-400" %}
-        <h2 class="mt-2 text-lg font-semibold text-slate-900">
-          No projects
-        </h2>
-        <p class="mt-2 text-sm text-slate-600">
-          You do not currently have access to any projects
-        </p>
-      </div>
+  {% #card title="Your projects" subtitle="Projects you can access" %}
+    {% #list_group small=True %}
+      {% for project in object_list %}
+        {% #list_group_rich_item title=project.name type="Project" url=project.get_absolute_url %}
+          <dl class="flex flex-col gap-0.5">
+            <div class="flex flex-row flex-wrap gap-1">
+              <dt class="font-bold">Organisation:</dt>
+              <dd>{{ project.org }}</dd>
+            </div>
+          </dl>
+        {% /list_group_rich_item %}
+      {% empty %}
+        {% list_group_empty icon=True title="No projects found" description="You do not currently have access to any projects" %}
+      {% endfor %}
+    {% /list_group %}
+
+    {% if page_obj.has_previous or page_obj.has_next %}
+      {% if page_obj.has_next %}
+        {% url_with_querystring page=page_obj.next_page_number as next_page_url %}
+      {% endif %}
+      {% if page_obj.has_previous %}
+        {% url_with_querystring page=page_obj.previous_page_number as previous_page_url %}
+      {% endif %}
+      {% card_pagination page_number=page_obj.number total_pages=page_obj.paginator.num_pages next_page_url=next_page_url previous_page_url=previous_page_url no_container=True %}
     {% endif %}
   {% /card %}
 {% endblock content %}
