@@ -36,6 +36,7 @@ asgiref==3.7.2 \
     --hash=sha256:9e0ce3aa93a819ba5b45120216b23878cf6e8525eb3848653452b4192b92afed
     # via
     #   django
+    #   django-browser-reload
     #   django-structlog
 attrs==23.1.0 \
     --hash=sha256:1f28b4522cdc2fb4256ac1a020c78acf9cba2c6b461ccd2c126f3aa8e8335d04 \
@@ -367,9 +368,9 @@ django-anymail==9.0 \
     --hash=sha256:4239f7c61fb77b6eb8c8591a317a84a2a78f6bce1f8f42847921de74194b5d8a \
     --hash=sha256:c21d94ffdbada613a85c22a7bf32e37447d2811e1688cd001d3cad3c7f1ff289
     # via -r requirements.prod.in
-django-browser-reload==1.12.0 \
-    --hash=sha256:2dc98c752b55d22db9c11fbc0274c16160ce4dcd67ef0ef294135ab57d711435 \
-    --hash=sha256:6c10b4b59a5aa7a412284d7c909fb5b80199e98a488f5b24da5c49b090d1ef3f
+django-browser-reload==1.12.1 \
+    --hash=sha256:08b457f1b6599bf782d4d2ecdfb0897d6fc936ac4035060d0269c2af5ef4ef7a \
+    --hash=sha256:875b6bd01db13380522ccb4ae75871a2edeae74bb5ac92bf32eb76763d575d86
     # via -r requirements.prod.in
 django-cache-url==3.4.4 \
     --hash=sha256:5ca4760b4580b80e41279bc60d1e5c16a822e4e462265faab0a330701bb0ef9a \
