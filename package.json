@@ -56,7 +56,7 @@
     "formik": "^2.4.5",
     "highlight.js": "^11.9.0",
     "html2pdf.js": "^0.10.1",
-    "htmx.org": "^1.9.8",
+    "htmx.org": "^1.9.9",
     "just-debounce-it": "^3.2.0",
     "pretty-bytes": "^6.1.1",
     "prop-types": "^15.8.1",
