@@ -7,6 +7,14 @@ updates:
       interval: "daily"
     allow:
       - dependency-type: "all"
+    groups:
+      production-dependencies-minor:
+        dependency-type: "production"
+        update-types:
+        - "minor"
+        - "patch"
+      development-dependencies:
+        dependency-type: "development"
 
   - package-ecosystem: "npm"
     directory: "/"
