@@ -7,8 +7,8 @@ import pytest
 from bs4 import BeautifulSoup
 from first import first
 from interactive_templates import git
-from opensafely._vendor.jobrunner.cli import local_run
 
+from interactive.models import AnalysisRequest
 from interactive.views import AnalysisRequestCreate
 from jobserver.authorization import CoreDeveloper, InteractiveReporter
 from jobserver.models import PublishRequest
@@ -113,12 +113,38 @@ def test_interactive_submission_success(rf, local_repo, enable_network):
     # check the view redirects, a 200 means we have validation errors
     assert response.status_code == 302, response.context_data["form"].errors
 
-    _, _, ar_pk = response.url.rpartition("/")
+    _, _, ar_pk = response.url.rpartition("/")[0].rpartition("/")
+    analysis_request = AnalysisRequest.objects.get(slug=ar_pk)
 
-    # create a working directory to run the study in
-    with tempfile.TemporaryDirectory(suffix=f"repo-{ar_pk}") as path:
-        git("clone", repo.url, path)
-        local_run.main(path, ["run_all"])
+    assert analysis_request.template_data["codelist_1"] == {
+        "path": None,
+        "slug": "opensafely/asthma-inhaler-salbutamol-medication/2020-04-15",
+        "type": "medication",
+        "label": "Asthma Inhaler Salbutamol Medication",
+        "description": None,
+    }
+    assert analysis_request.template_data["codelist_2"] == {
+        "path": None,
+        "slug": "pincer/ast/v1.8",
+        "type": "event",
+        "label": "Asthma",
+        "description": None,
+    }
+    assert analysis_request.template_data["demographics"] == ["sex", "age"]
+    assert analysis_request.template_data["filter_population"] == "all"
+    assert analysis_request.template_data["time_scale"] == "years"
+    assert analysis_request.template_data["time_value"] == 5
+
+    # Setting the Git SHA is done as a result of calling
+    # interactive_template's create_commit function. This renders the analysis
+    # code based on the contents of the template data. So if the template data
+    # hasn't changed and we receive a SHA then we can assume everything is
+    # working.
+    assert isinstance(analysis_request.job_request.sha, str)
+    assert (
+        "generate_study_population" in analysis_request.job_request.project_definition
+    )
+    assert "{{" not in analysis_request.job_request.project_definition
 
 
 def test_interactive_publishing_report_success(client, release, slack_messages):
