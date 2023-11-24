@@ -404,9 +404,9 @@ django-structlog==6.0.0 \
     --hash=sha256:07d9b35cdc3aca6de1daacb0ad7a7c58e0506a858687844ff770eb4bde5d0236 \
     --hash=sha256:233a5cc81981c547a702e141d1ece89a02a47e8127a8d0c80c8d9add4324dea2
     # via -r requirements.prod.in
-django-vite==2.1.3 \
-    --hash=sha256:97984ac495910b7b71039228ccddff52d132231fa6612d3d31c6c228c95b0217 \
-    --hash=sha256:c59b3bbd85501bc1faf63c500df66542abed2951cfa10dfbf8be8ecf229f7652
+django-vite==3.0.0 \
+    --hash=sha256:01407f806590872735f4ed87c79684e063942dba51838fc13f9056ebff10940c \
+    --hash=sha256:a2326f14d7aeba29e2db5ac4bcf27b0437810590d25f1b99a7fd20c5d1d312a2
     # via -r requirements.prod.in
 django-zen-queries==2.1.0 \
     --hash=sha256:255f6a1efd94974c5752af2ef60d2d1fa66466d74e7faf32a6ff46141e947e55 \
