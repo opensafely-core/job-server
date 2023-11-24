@@ -8,13 +8,15 @@ updates:
     allow:
       - dependency-type: "all"
     groups:
-      production-dependencies-minor:
+      prod-minor:
         dependency-type: "production"
-        update-types:
-        - "minor"
-        - "patch"
-      development-dependencies:
+        update-types: ["minor"]
+      prod-patch:
+        dependency-type: "production"
+        update-types: ["patch"]
+      dev-minor-patch:
         dependency-type: "development"
+        update-types: ["minor", "patch"]
 
   - package-ecosystem: "npm"
     directory: "/"

@@ -4,35 +4,17 @@ on: pull_request
 
 permissions:
   pull-requests: write
-  contents: write
 
 jobs:
   dependabot:
     runs-on: ubuntu-latest
     if: ${{ github.actor == 'dependabot[bot]' }}
     steps:
-      - name: Dependabot metadata
-        id: metadata
-        uses: dependabot/fetch-metadata@v1.6.0
-        with:
-          github-token: "${{ secrets.GITHUB_TOKEN }}"
-
-      - uses: actions/checkout@v4
-        with:
-          # use ref here so we're on the HEAD of the PR branch
-          ref: ${{ github.event.pull_request.head.ref }}
-
-      - name: Check we're dealing with Action or Python updates
-        id: check-labels
-        run: |
-          if gh pr view --json labels -q .labels | grep -q -E '"name":"github_actions"|"name":"python"'; then
-            echo "is-wanted-dependency=y" >> $GITHUB_OUTPUT
-          fi
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-
-      - name: Enable auto-merge for Dependabot PRs
-        if: ${{ startsWith(steps.check-labels.outputs.is-wanted-dependency, 'y') }}
+      - name: Auto-merge Dependabot PRs
+        if: |
+          startsWith(github.head_ref, '/dependabot/pip/dev-minor-patch-') ||
+          startsWith(github.head_ref, '/dependabot/pip/prod-patch-') ||
+          startsWith(github.head_ref, '/dependabot/github_actions/')
         run: |
           set -eu
 
