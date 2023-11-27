@@ -12,9 +12,9 @@ jobs:
     steps:
       - name: Auto-merge Dependabot PRs
         if: |
-          startsWith(github.head_ref, '/dependabot/pip/dev-minor-patch-') ||
-          startsWith(github.head_ref, '/dependabot/pip/prod-patch-') ||
-          startsWith(github.head_ref, '/dependabot/github_actions/')
+          startsWith(github.head_ref, 'dependabot/pip/dev-minor-patch-') ||
+          startsWith(github.head_ref, 'dependabot/pip/prod-patch-') ||
+          startsWith(github.head_ref, 'dependabot/github_actions/')
         run: |
           set -eu
 
