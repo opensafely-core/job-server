@@ -486,9 +486,9 @@ tokenize-rt==5.2.0 \
     --hash=sha256:9fe80f8a5c1edad2d3ede0f37481cc0cc1538a2f442c9c2f9e4feacd2792d054 \
     --hash=sha256:b79d41a65cfec71285433511b50271b05da3584a1da144a0752e9c621a285289
     # via django-upgrade
-urllib3==1.26.14 \
-    --hash=sha256:076907bf8fd355cde77728471316625a4d2f7e713c125f51953bb5b3eecf4f72 \
-    --hash=sha256:75edcdc2f7d85b137124a6c3c9fc3933cdeaa12ecb9a6a959f22797a0feca7e1
+urllib3==2.1.0 \
+    --hash=sha256:55901e917a5896a349ff771be919f8bd99aff50b79fe58fec595eb37bbc56bb3 \
+    --hash=sha256:df7aa8afb0148fa78488e7899b2c59b5f4ffcfa82e6c54ccb9dd37c1d7b52d54
     # via
     #   -c requirements.prod.txt
     #   requests
