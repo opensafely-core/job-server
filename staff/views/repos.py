@@ -111,7 +111,7 @@ class RepoDetail(View):
             users = list(
                 User.objects.filter(job_requests__workspace=workspace)
                 .distinct()
-                .order_by(Lower("username"), Lower("fullname"))
+                .order_by_name()
             )
             if workspace.created_by not in users:
                 users = [workspace.created_by, *users]
