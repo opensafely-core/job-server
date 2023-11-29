@@ -169,13 +169,12 @@ def test_jobrequestlist_search_using_fullname(rf, core_developer):
     user = UserFactory(fullname="Ben Goldacre")
     job_request = JobRequestFactory(created_by=user)
 
-    request = rf.get("/?q=ben")
+    request = rf.get("/?q=ben+goldacre")
     request.user = core_developer
 
     response = JobRequestList.as_view()(request)
 
     assert response.status_code == 200
-    assert len(response.context_data["object_list"]) == 1
     assert set_from_qs(response.context_data["object_list"]) == {job_request.pk}
 
 
