@@ -97,11 +97,8 @@ def test_interactive_submission_success(rf, local_repo, enable_network):
             "type": "event",
             "value": "pincer/ast/v1.8",
         },
-        "demographics": ["sex", "age"],
         "filterPopulation": "all",
         "purpose": "For… science!",
-        "timeScale": "years",
-        "timeValue": "5",
     }
     request = rf.post("/", data=json.dumps(data), content_type="appliation/json")
     request.user = user
@@ -113,36 +110,19 @@ def test_interactive_submission_success(rf, local_repo, enable_network):
     # check the view redirects, a 200 means we have validation errors
     assert response.status_code == 302, response.context_data["form"].errors
 
-    _, _, ar_pk = response.url.rpartition("/")[0].rpartition("/")
-    analysis_request = AnalysisRequest.objects.get(slug=ar_pk)
-
-    assert analysis_request.template_data["codelist_1"] == {
-        "path": None,
-        "slug": "opensafely/asthma-inhaler-salbutamol-medication/2020-04-15",
-        "type": "medication",
-        "label": "Asthma Inhaler Salbutamol Medication",
-        "description": None,
-    }
-    assert analysis_request.template_data["codelist_2"] == {
-        "path": None,
-        "slug": "pincer/ast/v1.8",
-        "type": "event",
-        "label": "Asthma",
-        "description": None,
-    }
-    assert analysis_request.template_data["demographics"] == ["sex", "age"]
-    assert analysis_request.template_data["filter_population"] == "all"
-    assert analysis_request.template_data["time_scale"] == "years"
-    assert analysis_request.template_data["time_value"] == 5
+    ar_slug = response.url.rpartition("/")[0].rpartition("/")[-1]
+    ar_pk = ar_slug.rpartition("-")[-1]
+    analysis_request = AnalysisRequest.objects.get(slug=ar_slug)
 
     # Setting the Git SHA is done as a result of calling
     # interactive_template's create_commit function. This renders the analysis
     # code based on the contents of the template data. So if the template data
-    # hasn't changed and we receive a SHA then we can assume everything is
-    # working.
+    # hasn't changed, all variables will be replaced in the project definition
+    # and a commit will be made with the SHA saved to the job request.
     assert isinstance(analysis_request.job_request.sha, str)
     assert (
-        "generate_study_population" in analysis_request.job_request.project_definition
+        f"generate_study_population_{ar_pk}"
+        in analysis_request.job_request.project_definition
     )
     assert "{{" not in analysis_request.job_request.project_definition
 
