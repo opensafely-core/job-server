@@ -96,8 +96,16 @@
                   {{ group.created_by.name }}
                 {% /table_cell %}
                 {% #table_cell nowrap=True %}
-                  <span class="relative group cursor-pointer">
-                    {{ group.started_at|naturaltime|default:"-" }}
+                  <span class="relative group{% if group.started_at %} cursor-pointer{% endif %}">
+                    {% if group.started_at|naturalday == "today" %}
+                      {{ group.started_at|naturaltime }}
+                    {% elif group.started_at %}
+                      {{ group.started_at|date:"d M Y" }}
+                      at
+                      {{ group.started_at|date:"H:i" }}
+                    {% else %}
+                      -
+                    {% endif %}
                     {% if group.started_at %}
                       {% if forloop.last %}
                         {% var position="-top-14 !pb-0" %}
