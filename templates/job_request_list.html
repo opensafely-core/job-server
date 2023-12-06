@@ -53,7 +53,6 @@
               {% #table_header %}<span class="sr-only">Status</span>{% /table_header %}
               {% #table_header nowrap=True %}Organisation{% /table_header %}
               {% #table_header nowrap=True %}Workspace{% /table_header %}
-              {% #table_header nowrap=True %}Request ID{% /table_header %}
               {% #table_header nowrap=True %}Backend{% /table_header %}
               {% #table_header nowrap=True %}Jobs{% /table_header %}
               {% #table_header nowrap=True %}User{% /table_header %}
@@ -78,13 +77,20 @@
                   <span class="sr-only">{{ group.status|title }}</span>
                 {% /table_cell %}
                 {% #table_cell class="max-w-[25ch]" %}
+                  {% fragment as link_text %}
+                    <span class="sr-only">View {{ group.workspace.project.org }} organisation</span>
+                    <span role="presentation" title="View {{ group.workspace.project.org }} organisation">&nearr;</span>
+                  {% endfragment %}
                   {{ group.workspace.project.org }}
+                  {% link href=group.workspace.project.org.get_absolute_url new_tab=True text=link_text %}
                 {% /table_cell %}
                 {% #table_cell class="break-words min-w-[18ch]" %}
+                  {% fragment as link_text %}
+                    <span class="sr-only">View {{ group.workspace.name }} workspace</span>
+                    <span role="presentation" title="View {{ group.workspace.name }} workspace">&nearr;</span>
+                  {% endfragment %}
                   {{ group.workspace.name }}
-                {% /table_cell %}
-                {% #table_cell class="font-mono" %}
-                  {{ group.id|upper }}
+                  {% link href=group.workspace.get_absolute_url new_tab=True text=link_text %}
                 {% /table_cell %}
                 {% #table_cell %}
                   {{ group.backend|upper }}
@@ -93,7 +99,12 @@
                   {{ group.num_completed }}/{{ group.jobs.all|length }}
                 {% /table_cell %}
                 {% #table_cell class="min-w-[18ch] break-words" %}
+                  {% fragment as link_text %}
+                    <span class="sr-only">View {{ group.created_by.name }}'s profile</span>
+                    <span role="presentation" title="View {{ group.created_by.name }}'s profile">&nearr;</span>
+                  {% endfragment %}
                   {{ group.created_by.name }}
+                  {% link href=group.created_by.get_absolute_url new_tab=True text=link_text %}
                 {% /table_cell %}
                 {% #table_cell nowrap=True %}
                   <span class="relative group{% if group.started_at %} cursor-pointer{% endif %}">
@@ -120,7 +131,7 @@
                 {% /table_cell %}
                 {% #table_cell nowrap=True %}
                   {% #button type="link" href=group.get_absolute_url variant="secondary-outline" small=True %}
-                    View<span class="sr-only">, Job request {{ group.id }}</span>
+                    View request {{ group.id }}
                   {% /button %}
                 {% /table_cell %}
               {% /table_row %}
