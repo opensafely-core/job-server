@@ -742,7 +742,7 @@ def test_jobrequestapilist_success(api_rf):
     job_request1 = JobRequestFactory(
         backend=backend1, workspace=workspace, created_at=now, identifier="jr1"
     )
-    JobFactory.create_batch(2, job_request=job_request1, completed_at=now)
+    JobFactory.create_batch(2, job_request=job_request1, status="succeeded")
 
     # some completed
     backend2 = BackendFactory(slug="test-2")
@@ -753,8 +753,8 @@ def test_jobrequestapilist_success(api_rf):
         identifier="jr2",
         requested_actions=["frob", "wizzle"],
     )
-    JobFactory(job_request=job_request2, completed_at=now, action="frob")
-    JobFactory(job_request=job_request2, completed_at=None, action="wizzle")
+    JobFactory(job_request=job_request2, status="succeeded", action="frob")
+    JobFactory(job_request=job_request2, status="running", action="wizzle")
 
     # none completed
     job_request3 = JobRequestFactory(
@@ -764,10 +764,10 @@ def test_jobrequestapilist_success(api_rf):
         identifier="jr3",
         requested_actions=["frobnicate", "wibble"],
     )
-    JobFactory(job_request=job_request3, completed_at=None, action="frobnicate")
-    JobFactory(job_request=job_request3, completed_at=None, action="wibble")
+    JobFactory(job_request=job_request3, status="running", action="frobnicate")
+    JobFactory(job_request=job_request3, status="pending", action="wibble")
 
-    #  no jobs
+    # no jobs
     backend3 = BackendFactory(slug="test-3")
     job_request4 = JobRequestFactory(
         backend=backend3,
@@ -777,7 +777,19 @@ def test_jobrequestapilist_success(api_rf):
         requested_actions=["analyse"],
     )
 
-    assert JobRequest.objects.count() == 4
+    # cancelled by the user
+    job_request5 = JobRequestFactory(
+        backend=backend3,
+        workspace=workspace,
+        created_at=now,
+        identifier="jr5",
+        cancelled_actions=["frobnicate", "wibble"],
+        requested_actions=["frobnicate", "wibble"],
+    )
+    JobFactory(job_request=job_request5, action="frobnicate", status="faile")
+    JobFactory(job_request=job_request5, action="wibble", status="failed")
+
+    assert JobRequest.objects.count() == 5
 
     request = api_rf.get("/")
     response = JobRequestAPIList.as_view()(request)

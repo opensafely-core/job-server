@@ -3,6 +3,7 @@ import json
 import operator
 
 import structlog
+from django.db.models import Q
 from django.http import Http404
 from django.utils import timezone
 from rest_framework import serializers
@@ -287,7 +288,7 @@ class JobRequestAPIList(ListAPIView):
     def get_queryset(self):
         qs = (
             JobRequest.objects.filter(
-                jobs__completed_at__isnull=True,
+                Q(jobs__status__in=["pending", "running"]) | Q(jobs=None),
             )
             .select_related(
                 "backend",
