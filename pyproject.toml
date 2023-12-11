@@ -49,6 +49,7 @@ omit = [
   "jobserver/management/commands/get_transitional_projects.py",
   "jobserver/management/commands/inflate_release_files.py",
   "jobserver/management/commands/list_missing_repos.py",
+  "jobserver/management/commands/migrate_postgres_serial_columns.py",
   "jobserver/management/commands/publish_files.py",
   "jobserver/management/commands/release.py",
   "jobserver/settings.py",
