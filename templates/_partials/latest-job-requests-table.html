@@ -43,7 +43,17 @@
                     {{ job_request.created_by.name }}
                   {% /table_cell %}
                   {% #table_cell nowrap=True title=job_request.started_at %}
-                    {{ job_request.started_at|naturaltime|default:"-" }}
+                    <span class="relative group{% if job_request.started_at %} cursor-pointer{% endif %}">
+                      {% if job_request.started_at|naturalday == "today" %}
+                        {{ job_request.started_at|naturaltime }}
+                      {% elif job_request.started_at %}
+                        {{ job_request.started_at|date:"d M Y" }}
+                        at
+                        {{ job_request.started_at|date:"H:i" }}
+                      {% else %}
+                        -
+                      {% endif %}
+                    </span>
                   {% /table_cell %}
                   {% #table_cell nowrap=True %}
                     {% #button type="link" href=job_request.get_absolute_url variant="secondary-outline" small=True %}
