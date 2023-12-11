@@ -10,7 +10,7 @@ from django.contrib.auth.models import AbstractBaseUser
 from django.contrib.auth.models import UserManager as DjangoUserManager
 from django.contrib.auth.validators import UnicodeUsernameValidator
 from django.contrib.postgres.fields import ArrayField
-from django.db import models, transaction
+from django.db import connection, models, transaction
 from django.db.models import Min, Q, prefetch_related_objects
 from django.db.models.functions import Lower, NullIf
 from django.urls import reverse
@@ -1363,21 +1363,30 @@ class Workspace(models.Model):
 
         We need to get the latest status for each action run inside this
         Workspace.
+
+        We're doing this in raw SQL so we can use a CTE to get the latest
+        actions, and then join that with the Jobs table to get the status of
+        those actions.
         """
-        jobs = Job.objects.filter(job_request__workspace=self)
-
-        if backend:
-            jobs = jobs.filter(job_request__backend__slug=backend)
-
-        # get all known actions
-        actions = set(jobs.values_list("action", flat=True))
-
-        action_status_lut = {}
-        for action in actions:
-            # get the latest status for an action
-            job = jobs.filter(action=action).order_by("-created_at").first()
-            action_status_lut[action] = job.status
-        return action_status_lut
+        sql = """
+        WITH latest_actions AS (
+          SELECT
+            job.action AS name,
+            job.status AS status,
+            row_number() OVER (PARTITION BY job.action ORDER BY job.created_at DESC) AS row_num
+          FROM
+            jobserver_job job
+          INNER JOIN jobserver_jobrequest job_request ON (job.job_request_id = job_request.id)
+          INNER JOIN jobserver_workspace workspace ON (job_request.workspace_id = workspace.id)
+          WHERE workspace.name = %s
+        )
+        SELECT name, status
+        FROM latest_actions
+        WHERE row_num = 1
+        """
+        with connection.cursor() as cursor:
+            cursor.execute(sql, [self.name])
+            return dict(cursor.fetchall())
 
     @property
     def is_interactive(self):
