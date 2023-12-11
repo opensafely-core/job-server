@@ -393,9 +393,9 @@ django-htmx==1.17.2 \
     --hash=sha256:4089f2ed38727e9846c2f4cd1daddf6b010c7be8d834cfbcffc8c5ecf445c04e \
     --hash=sha256:f4971432d2ca45dbb31d9b58add1c50ae54354afe4bf59cafd591b1711b502c0
     # via -r requirements.prod.in
-django-ipware==5.0.2 \
-    --hash=sha256:838b7aede77734603bd32ebd08ad7957304266580b646f8cbe982c4833b71c84 \
-    --hash=sha256:ab3ab7645e674df682c1146a5bddfa5151b1b7be7be9210872c3156bd836aad4
+django-ipware==6.0.0 \
+    --hash=sha256:5595aa3819d6c82c2a09a307dfe58f3d40bff3e098c2e8508118195ac3270465 \
+    --hash=sha256:c656805c824449b5171e6f851f6369000fe204ec03ac9977110a9b0aff4825b6
     # via django-structlog
 django-permissions-policy==4.12.0 \
     --hash=sha256:1f10fc354110fef9270fbabbbf8d5358a6d6f5380c79f0dfba56dd41e45b1936 \
@@ -840,6 +840,10 @@ python-dotenv==1.0.0 \
     --hash=sha256:a8df96034aae6d2d50a4ebe8216326c61c3eb64836776504fcca410e5937a3ba \
     --hash=sha256:f5971a9226b701070a4bf2c38c89e5a3f0d64de8debda981d1db98583009122a
     # via environs
+python-ipware==2.0.0 \
+    --hash=sha256:802858aa13308d572876d1883edae0eae380fe70a51fdefcb46c8a2099240862 \
+    --hash=sha256:a52757123c718342f74b16ab2d9d4a531888d69d10b8197c073164635df0a13b
+    # via django-ipware
 python-ulid==2.2.0 \
     --hash=sha256:9ec777177d396880d94be49ac7eb4ae2cd4a7474448bfdbfe911537add970aeb \
     --hash=sha256:ec2e69292c0b7c338a07df5e15b05270be6823675c103383e74d1d531945eab5
