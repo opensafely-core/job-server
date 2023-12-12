@@ -1,5 +1,5 @@
 import itertools
-from urllib.parse import unquote
+from urllib.parse import quote, unquote
 
 import requests
 from django.contrib import messages
@@ -195,7 +195,12 @@ class SignOffRepo(TemplateView):
         if projects.count() == 1:
             project = projects.first()
             project_status = project.get_status_display()
-            sign_off_url = self.repo.get_sign_off_url()
+
+            # quote this so the already quoted sign-off URL isn't unquoted when
+            # Django renders it, and the level of quotation on the sign-off URL
+            # is preserved for use in the ?next query arg
+            sign_off_url = quote(self.repo.get_sign_off_url(), safe="")
+
             project_url = project.get_edit_url() + f"?next={sign_off_url}"
         else:
             project_status = None

@@ -141,7 +141,8 @@ def test_signoffrepo_get_success_with_one_project(rf):
     expected = {w["name"] for w in response.context_data["workspaces"]}
     assert {w.name for w in workspaces} == expected
 
-    project_url = project.get_edit_url() + f"?next={repo.get_sign_off_url()}"
+    url = quote(repo.get_sign_off_url(), safe="")
+    project_url = project.get_edit_url() + f"?next={url}"
 
     assert response.context_data["project_url"] == project_url
     assert response.context_data["repo"]["is_private"]
