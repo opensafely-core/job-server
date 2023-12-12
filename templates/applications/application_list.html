@@ -58,8 +58,14 @@
       {% #card container=False title="Deleted applications" subtitle="OpenSAFELY applications that have been deleted by you" %}
         {% #list_group %}
           {% for application in deleted_applications %}
-            <li class="flex flex-col items-start gap-y-1 px-4 py-3 sm:px-6">
-              {% link href=application.get_absolute_url text="Application: "|add:application.pk_hash %}
+            <li class="flex flex-col gap-y-1 px-4 py-3 sm:px-6">
+              <div class="flex flex-row flex-wrap gap-2 justify-between">
+                {% link href=application.get_absolute_url text="Application: "|add:application.pk_hash %}
+                <form method="POST" action="{{ application.get_restore_url }}">
+                  {% csrf_token %}
+                  {% #button variant="danger" small=True type="submit" %}Restore{% /button %}
+                </form>
+              </div>
               <span class="text-sm text-slate-800 font-normal">
                 Started on: {{ application.created_at|date:"d F Y" }}
               </span>
