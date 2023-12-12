@@ -234,8 +234,8 @@ assets-run: assets-install
     #!/usr/bin/env bash
     set -euo pipefail
 
-    if [ "$DJANGO_VITE_DEV_MODE" == "False" ]; then
-        echo "Set DJANGO_VITE_DEV_MODE to a truthy value to run this command"
+    if [ "$ASSETS_DEV_MODE" == "False" ]; then
+        echo "Set ASSETS_DEV_MODE to a truthy value to run this command"
         exit 1
     fi
 
