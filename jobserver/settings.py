@@ -9,6 +9,7 @@ https://docs.djangoproject.com/en/3.0/topics/settings/
 For the full list of settings and their values, see
 https://docs.djangoproject.com/en/3.0/ref/settings/
 """
+import re
 from pathlib import Path
 
 from django.contrib.messages import constants as messages
@@ -164,17 +165,34 @@ STORAGES = {
 
 # https://docs.djangoproject.com/en/4.2/howto/static-files/
 # Note: these *must* be strings. If they are paths, we cannot cleanly extract them in ./scripts/collect-me-maybe.sh
+BUILT_ASSETS = env.path("BUILT_ASSETS", default=BASE_DIR / "assets" / "dist")
 STATICFILES_DIRS = [
     str(BASE_DIR / "static"),
-    str(env.path("BUILT_ASSETS", default=BASE_DIR / "assets" / "dist")),
+    str(BUILT_ASSETS),
 ]
 STATIC_ROOT = env.path("STATIC_ROOT", default=BASE_DIR / "staticfiles")
 STATIC_URL = "/static/"
 
-DJANGO_VITE_ASSETS_PATH = BASE_DIR / "assets" / "dist"
-DJANGO_VITE_DEV_MODE = env.bool("DJANGO_VITE_DEV_MODE", default=False)
-DJANGO_VITE_DEV_SERVER_PORT = 5173
-DJANGO_VITE_MANIFEST_PATH = STATIC_ROOT / "manifest.json"
+ASSETS_DEV_MODE = env.bool("ASSETS_DEV_MODE", default=False)
+
+DJANGO_VITE = {
+    "default": {
+        "dev_mode": ASSETS_DEV_MODE,
+        "manifest_path": BUILT_ASSETS / ".vite" / "manifest.json",
+    }
+}
+
+# Vite generates files with 8 hash digits
+# http://whitenoise.evans.io/en/stable/django.html#WHITENOISE_IMMUTABLE_FILE_TEST
+
+
+def immutable_file_test(path, url):
+    # Match filename with 12 hex digits before the extension
+    # e.g. app.db8f2edc0c8a.js
+    return re.match(r"^.+[\.\-][0-9a-f]{8,12}\..+$", url)
+
+
+WHITENOISE_IMMUTABLE_FILE_TEST = immutable_file_test
 
 
 # User uploaded files
@@ -272,7 +290,7 @@ CSP_STYLE_SRC = CSP_STYLE_SRC_ELEM = ["'self'"]
 CSP_INCLUDE_NONCE_IN = ["script-src", "script-src-elem"]
 
 # configure django-csp to work with Vite when using it in dev mode
-if DJANGO_VITE_DEV_MODE:
+if ASSETS_DEV_MODE:
     CSP_CONNECT_SRC = [
         "'self'",
         "ws://localhost:5173/static/",
