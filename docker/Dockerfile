@@ -141,7 +141,7 @@ ENV VIRTUAL_ENV=/opt/venv/  \
     BUILT_ASSETS=/opt/assets  \
     STATIC_ROOT=/opt/staticfiles \
     DJANGO_SETTINGS_MODULE="jobserver.settings" \
-    DJANGO_VITE_DEV_MODE=False \
+    ASSETS_DEV_MODE=False \
     OTEL_SERVICE_NAME="job-server"
 
 ##################################################

@@ -219,7 +219,7 @@ Vite has a built-in development server which will serve the assets and reload th
 
 To run the development server:
 
-1. Update the `.env` file to `DJANGO_VITE_DEV_MODE=True`
+1. Update the `.env` file to `ASSETS_DEV_MODE=True`
 2. Run `just assets-run`
 
 This will start the Vite dev server at [localhost:3000](http://localhost:3000/) and inject the relevant scripts into the Django templates.
@@ -228,7 +228,7 @@ This will start the Vite dev server at [localhost:3000](http://localhost:3000/) 
 
 To view the compiled assets:
 
-1. Update the `.env` file to `DJANGO_VITE_DEV_MODE=False`
+1. Update the `.env` file to `ASSETS_DEV_MODE=False`
 2. Run `just assets-rebuild`
 
 Vite builds the assets and outputs them to the `assets/dist` folder.
