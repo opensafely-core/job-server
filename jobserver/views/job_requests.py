@@ -232,13 +232,6 @@ class JobRequestDetail(View):
         )
         honeycomb_can_view_links = has_role(self.request.user, CoreDeveloper)
 
-        project_definition = mark_safe(
-            render_definition(
-                job_request.project_definition,
-                job_request.get_file_url,
-            )
-        )
-
         # build up is_missing_updates to define if we've not seen the backend
         # running this JobRequest for a while.
         # it's completed, we don't expect updates now
@@ -260,8 +253,7 @@ class JobRequestDetail(View):
             "is_invalid": is_invalid,
             "job_request": job_request,
             "jobs": jobs,
-            "project_definition": project_definition,
-            "project_yaml_url": job_request.get_file_url("project.yaml"),
+            "project_yaml": self.get_project_yaml(job_request),
             "user_can_cancel_jobs": can_cancel_jobs,
             "view": self,
         }
@@ -272,6 +264,32 @@ class JobRequestDetail(View):
             )
 
         return TemplateResponse(request, "job_request_detail.html", context=context)
+
+    def get_project_yaml(self, job_request):
+        is_empty = job_request.project_definition == ""
+
+        # We know files that are 2.43MB take too long to render with pygments
+        # in production and crash browser tabs locally, so we're limiting the
+        # size.  The current 1MB is arbitrary until we can get some telemetry
+        # from production.
+        is_too_large = len(job_request.project_definition) > 10_000  # ~1MB
+
+        if is_empty:
+            project_definition = ""
+        else:
+            project_definition = mark_safe(
+                render_definition(
+                    job_request.project_definition,
+                    job_request.get_file_url,
+                )
+            )
+
+        return {
+            "definition": project_definition,
+            "is_empty": is_empty,
+            "is_too_large": is_too_large,
+            "url": job_request.get_file_url("project.yaml"),
+        }
 
 
 class JobRequestDetailRedirect(RedirectView):

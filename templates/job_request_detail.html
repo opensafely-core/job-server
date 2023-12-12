@@ -74,7 +74,7 @@
           View repo
         {% /button %}
 
-        {% #button href=project_yaml_url type="link" variant="secondary" %}
+        {% #button href=project_yaml.url type="link" variant="secondary" %}
           View project.yaml
         {% /button %}
 
@@ -175,7 +175,7 @@
         {% /card %}
       {% endif %}
 
-      {% if project_definition %}
+      {% if not project_yaml.is_empty %}
         {% #card title="Pipeline" container=True %}
           <details
             class="
@@ -192,7 +192,11 @@
             </summary>
 
             <div class="p-4 bg-[#f8f8f8] overflow-scroll">
-              {{ project_definition }}
+              {% if project_yaml.is_too_large %}
+                This file is too large to render, try {% link href=project_yaml.url text="viewing it on GitHub" %}.
+              {% else %}
+                {{ project_yaml.definition }}
+              {% endif %}
             </div>
           </details>
         {% /card %}
