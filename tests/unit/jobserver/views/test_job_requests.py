@@ -1008,7 +1008,7 @@ def test_jobrequestdetail_with_permission_with_completed_at(rf):
 
 
 def test_jobrequestdetail_with_unauthenticated_user(rf):
-    job_request = JobRequestFactory()
+    job_request = JobRequestFactory(project_definition="test")
 
     request = rf.get("/")
     request.user = AnonymousUser()
