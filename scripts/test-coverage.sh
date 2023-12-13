@@ -15,7 +15,7 @@ set -x
 "$coverage" erase
 # shellcheck disable=SC2086
 "$coverage" run ${COVERAGE_ARGS:-} --module pytest "$@" || rc=$?
-"$coverage" combine --debug=pathmap
+"$coverage" combine
 
 # shellcheck disable=SC2086
 "$coverage" report ${COVERAGE_REPORT_ARGS:-} || { rc=$?; "$coverage" html ${COVERAGE_REPORT_ARGS:-}; }
