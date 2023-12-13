@@ -75,7 +75,7 @@
           >
             {% #list_group small %}
               {% for file in release.files %}
-                {% #list_group_item href=file.detail_url disabled=file.is_deleted class="flex flex-row justify-between items-center flex-wrap gap-2" %}
+                {% #list_group_item href=file.detail_url disabled=file.disable_deletion class="flex flex-row justify-between items-center flex-wrap gap-2" %}
                   <code class="truncate">{{ file.name }}</code>
 
                   {% if file.is_deleted %}
@@ -84,7 +84,13 @@
                   </span>
                   {% endif %}
 
-                  {% if user_can_delete_files and not file.is_deleted %}
+                  {% if file.not_uploaded %}
+                  <span class="text-xs text-slate-600 font-normal mr-auto">
+                    (Not yet uploaded)
+                  </span>
+                  {% endif %}
+
+                  {% if user_can_delete_files and not file.disable_deletion %}
                   <form
                     action="{{ file.get_delete_url }}"
                     class="ml-auto"
