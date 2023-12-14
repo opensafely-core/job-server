@@ -161,6 +161,19 @@ def test_jobrequest_num_completed_success():
     assert job_request.num_completed == 2
 
 
+def test_jobrequest_request_cancellation():
+    job_request = JobRequestFactory(cancelled_actions=[])
+    JobFactory(job_request=job_request, action="job1", status="pending")
+    JobFactory(job_request=job_request, action="job2", status="running")
+    JobFactory(job_request=job_request, action="job3", status="failed")
+    JobFactory(job_request=job_request, action="job4", status="succeeded")
+
+    job_request.request_cancellation()
+
+    job_request.refresh_from_db()
+    assert set(job_request.cancelled_actions) == {"job1", "job2"}
+
+
 def test_jobrequest_runtime_one_job_missing_completed_at(time_machine):
     job_request = JobRequestFactory()
 

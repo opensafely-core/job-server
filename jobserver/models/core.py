@@ -305,6 +305,18 @@ class JobRequest(models.Model):
     def num_completed(self):
         return len([j for j in self.jobs.all() if j.status == "succeeded"])
 
+    def request_cancellation(self):
+        # Exclude succeeded jobs (failed or succeeded status, consistent with Job.is_completed method)
+        actions = list(
+            set(
+                self.jobs.exclude(status__in=["failed", "succeeded"]).values_list(
+                    "action", flat=True
+                )
+            )
+        )
+        self.cancelled_actions = actions
+        self.save(update_fields=["cancelled_actions"])
+
     @property
     @queries_dangerously_enabled()
     def runtime(self):

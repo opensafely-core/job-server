@@ -46,17 +46,7 @@ class JobRequestCancel(View):
         if job_request.is_completed:
             return redirect(job_request)
 
-        # Exclude succeeded jobs (failed or succeeded status, consistent with Job.is_completed method)
-        actions = list(
-            set(
-                job_request.jobs.exclude(
-                    status__in=["failed", "succeeded"]
-                ).values_list("action", flat=True)
-            )
-        )
-
-        job_request.cancelled_actions = actions
-        job_request.save()
+        job_request.request_cancellation()
 
         messages.success(request, "The requested actions have been cancelled")
 
