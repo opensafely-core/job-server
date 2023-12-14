@@ -15,9 +15,23 @@
 {% block hero %}
   {% with id=job_request.pk|stringformat:"s" %}
     {% #staff_hero title="Job request: "|add:id %}
-      {% #button variant="primary" type="link" href=job_request.get_absolute_url %}
-        View on site
-      {% /button %}
+      <div class="flex flex-row gap-2">
+        {% #button variant="primary" type="link" href=job_request.get_absolute_url %}
+          View on site
+        {% /button %}
+        <form class="d-inline-block" method="POST" action="{{ job_request.get_staff_cancel_url }}">
+          {% csrf_token %}
+          {% if job_request.is_completed or job_request.cancelled_actions %}
+            {% #button type="submit" disabled=True tooltip="This job request can no longer be cancelled" %}
+              Cancel this job
+            {% /button %}
+          {% else %}
+            {% #button type="submit" variant="danger" %}
+              Cancel this job
+            {% /button %}
+          {% endif %}
+        </form>
+      </div>
     {% /staff_hero %}
   {% endwith %}
 {% endblock hero %}

@@ -1,10 +1,11 @@
 import pytest
+from django.contrib.messages.storage.fallback import FallbackStorage
 from django.core.exceptions import PermissionDenied
 from django.http import Http404
 
 from jobserver.models import JobRequest
 from jobserver.utils import set_from_qs
-from staff.views.job_requests import JobRequestDetail, JobRequestList
+from staff.views.job_requests import JobRequestCancel, JobRequestDetail, JobRequestList
 
 from ....factories import (
     BackendFactory,
@@ -15,6 +16,69 @@ from ....factories import (
     UserFactory,
     WorkspaceFactory,
 )
+
+
+def test_jobrequestcancel_success(rf, core_developer):
+    job_request = JobRequestFactory(cancelled_actions=[])
+    JobFactory(job_request=job_request, action="test1", status="failed")
+    JobFactory(job_request=job_request, action="test2", status="succeeded")
+    JobFactory(job_request=job_request, action="test3", status="running")
+    JobFactory(job_request=job_request, action="test4", status="pending")
+
+    request = rf.post("/")
+    request.user = core_developer
+
+    request.session = "session"
+    messages = FallbackStorage(request)
+    request._messages = messages
+
+    response = JobRequestCancel.as_view()(request, pk=job_request.pk)
+
+    assert response.status_code == 302
+    assert response.url == job_request.get_staff_url()
+
+    job_request.refresh_from_db()
+    assert sorted(job_request.cancelled_actions) == ["test3", "test4"]
+
+    messages = list(messages)
+    assert len(messages) == 1
+    assert str(messages[0]) == "The requested actions have been cancelled"
+
+
+def test_jobrequestcancel_unauthorized(rf):
+    job_request = JobRequestFactory()
+    user = UserFactory()
+
+    request = rf.post("/")
+    request.user = user
+
+    with pytest.raises(PermissionDenied):
+        JobRequestCancel.as_view()(request, pk=job_request.pk)
+
+
+def test_jobrequestcancel_unknown_job_request(rf, core_developer):
+    request = rf.post("/")
+    request.user = core_developer
+
+    with pytest.raises(Http404):
+        JobRequestCancel.as_view()(request, pk=0)
+
+
+def test_jobrequestcancel_with_completed_job_request(rf, core_developer):
+    job_request = JobRequestFactory(cancelled_actions=[])
+    JobFactory(job_request=job_request, status="failed")
+    JobFactory(job_request=job_request, status="succeeded")
+
+    request = rf.post("/")
+    request.user = core_developer
+
+    response = JobRequestCancel.as_view()(request, pk=job_request.pk)
+
+    assert response.status_code == 302
+    assert response.url == job_request.get_staff_url()
+
+    job_request.refresh_from_db()
+    assert not job_request.cancelled_actions
 
 
 def test_jobrequestdetail_success(rf, core_developer):

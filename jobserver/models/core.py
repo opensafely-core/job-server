@@ -297,6 +297,14 @@ class JobRequest(models.Model):
             },
         )
 
+    def get_staff_cancel_url(self):
+        return reverse(
+            "staff:job-request-cancel",
+            kwargs={
+                "pk": self.pk,
+            },
+        )
+
     @property
     def is_completed(self):
         return self.status in ["failed", "succeeded"]

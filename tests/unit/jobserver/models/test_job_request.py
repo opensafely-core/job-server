@@ -140,6 +140,19 @@ def test_jobrequest_get_staff_url():
     )
 
 
+def test_jobrequest_get_staff_cancel_url():
+    job_request = JobRequestFactory()
+
+    url = job_request.get_staff_cancel_url()
+
+    assert url == reverse(
+        "staff:job-request-cancel",
+        kwargs={
+            "pk": job_request.pk,
+        },
+    )
+
+
 def test_jobrequest_is_completed():
     job_request = JobRequestFactory()
     JobFactory(job_request=job_request, status="failed")
