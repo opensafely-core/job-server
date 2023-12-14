@@ -33,6 +33,12 @@
     {% /alert %}
   {% endif %}
 
+  {% if job_request.cancelled_actions and not job_request.is_completed %}
+    {% #alert variant="info" title="Cancellation requested" class="mb-4" %}
+      A User has requested this job is cancelled.
+    {% /alert %}
+  {% endif %}
+
   <div class="grid grid-cols-1 gap-6 lg:grid-cols-3">
     <div class="flex flex-col text-center items-center gap-y-2 lg:text-left lg:items-start lg:col-span-full">
       <div class="flex flex-col items-center gap-y-2 w-full lg:flex-row lg:justify-between lg:items-start">
@@ -81,7 +87,7 @@
         {% if user_can_cancel_jobs %}
           <form class="d-inline-block" method="POST" action="{{ job_request.get_cancel_url }}">
             {% csrf_token %}
-            {% if job_request.is_completed %}
+            {% if job_request.is_completed or job_request.cancelled_actions %}
               {% #button type="submit" disabled=True tooltip="This job request can no longer be cancelled" %}
                 Cancel this job
               {% /button %}
