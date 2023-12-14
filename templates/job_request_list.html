@@ -51,12 +51,11 @@
           {% #table_head class="bg-slate-200" %}
             {% #table_row %}
               {% #table_header %}<span class="sr-only">Status</span>{% /table_header %}
-              {% #table_header nowrap=True %}Organisation{% /table_header %}
+              {% #table_header nowrap=True %}Project{% /table_header %}
               {% #table_header nowrap=True %}Workspace{% /table_header %}
-              {% #table_header nowrap=True %}Request ID{% /table_header %}
-              {% #table_header nowrap=True %}Backend{% /table_header %}
-              {% #table_header nowrap=True %}Jobs{% /table_header %}
               {% #table_header nowrap=True %}User{% /table_header %}
+              {% #table_header nowrap=True %}Jobs{% /table_header %}
+              {% #table_header nowrap=True %}Backend{% /table_header %}
               {% #table_header nowrap=True %}Started{% /table_header %}
               {% #table_header %}<span class="sr-only">View request</span>{% /table_header %}
             {% /table_row %}
@@ -78,26 +77,39 @@
                   <span class="sr-only">{{ group.status|title }}</span>
                 {% /table_cell %}
                 {% #table_cell class="max-w-[25ch]" %}
-                  {{ group.workspace.project.org }}
+                  <span class="flex flex-row items-center gap-1">
+                    <img
+                      alt="{{ group.workspace.project.org }}"
+                      class="h-5 w-5 mr-1 shrink-0"
+                      src="{{ group.workspace.project.org.logo_file.url }}"
+                      title="{{ group.workspace.project.org }}"
+                    >
+                    {% link href=group.workspace.project.get_absolute_url new_tab=True text=group.workspace.project.name %}
+                  </span>
                 {% /table_cell %}
                 {% #table_cell class="break-words min-w-[18ch]" %}
-                  {{ group.workspace.name }}
+                  {% link href=group.workspace.get_absolute_url new_tab=True text=group.workspace.name %}
                 {% /table_cell %}
-                {% #table_cell class="font-mono" %}
-                  {{ group.id|upper }}
-                {% /table_cell %}
-                {% #table_cell %}
-                  {{ group.backend|upper }}
+                {% #table_cell class="min-w-[18ch] break-words" %}
+                  {% link href=group.created_by.get_absolute_url new_tab=True text=group.created_by.name %}
                 {% /table_cell %}
                 {% #table_cell %}
                   {{ group.num_completed }}/{{ group.jobs.all|length }}
                 {% /table_cell %}
-                {% #table_cell class="min-w-[18ch] break-words" %}
-                  {{ group.created_by.name }}
+                {% #table_cell %}
+                  {{ group.backend|upper }}
                 {% /table_cell %}
                 {% #table_cell nowrap=True %}
-                  <span class="relative group cursor-pointer">
-                    {{ group.started_at|naturaltime|default:"-" }}
+                  <span class="relative group{% if group.started_at %} cursor-pointer{% endif %}">
+                    {% if group.started_at|naturalday == "today" %}
+                      {{ group.started_at|naturaltime }}
+                    {% elif group.started_at %}
+                      {{ group.started_at|date:"d M Y" }}
+                      at
+                      {{ group.started_at|date:"H:i" }}
+                    {% else %}
+                      -
+                    {% endif %}
                     {% if group.started_at %}
                       {% if forloop.last %}
                         {% var position="-top-14 !pb-0" %}
@@ -111,8 +123,8 @@
                   </span>
                 {% /table_cell %}
                 {% #table_cell nowrap=True %}
-                  {% #button type="link" href=group.get_absolute_url variant="secondary-outline" small=True %}
-                    View<span class="sr-only">, Job request {{ group.id }}</span>
+                  {% #button type="link" href=group.get_absolute_url variant="primary-outline" small=True %}
+                    View
                   {% /button %}
                 {% /table_cell %}
               {% /table_row %}
