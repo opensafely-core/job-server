@@ -382,14 +382,15 @@ class ReleaseAPI(APIView):
         slacks.notify_release_file_uploaded(rfile)
 
         if analysis_request := is_interactive_report(rfile):
-            create_report(
-                analysis_request=analysis_request,
-                rfile=rfile,
-                user=analysis_request.created_by,
-            )
+            with transaction.atomic():
+                create_report(
+                    analysis_request=analysis_request,
+                    rfile=rfile,
+                    user=analysis_request.created_by,
+                )
 
-            send_report_uploaded_notification(analysis_request)
-            notify_report_uploaded(analysis_request)
+                send_report_uploaded_notification(analysis_request)
+                notify_report_uploaded(analysis_request)
 
         response = Response(status=201)
         response.headers["File-Id"] = rfile.id
