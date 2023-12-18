@@ -3,6 +3,7 @@ from django.conf import settings
 
 from interactive.commands import create_repo, create_user, create_workspace
 from jobserver.authorization import InteractiveReporter
+from jobserver.models import AuditableEvent
 from jobserver.utils import set_from_qs
 
 from ...factories import (
@@ -73,6 +74,14 @@ def test_create_user():
     assert set_from_qs(user.projects.all()) == {project.pk}
 
     assert user.project_memberships.first().roles == [InteractiveReporter]
+
+    assert AuditableEvent.objects.count() == 2
+
+    # light touch sense check that we're creating the right type of event, the
+    # tests for members.add will check all the relevant parts of the event
+    first, second = AuditableEvent.objects.all()
+    assert first.type == AuditableEvent.Type.PROJECT_MEMBER_ADDED
+    assert second.type == AuditableEvent.Type.PROJECT_MEMBER_UPDATED_ROLES
 
 
 def test_create_workspace_with_existing_objects():
