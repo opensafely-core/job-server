@@ -78,12 +78,16 @@
                 {% /table_cell %}
                 {% #table_cell class="max-w-[25ch]" %}
                   <span class="flex flex-row items-center gap-1">
-                    <img
-                      alt="{{ group.workspace.project.org }}"
-                      class="h-5 w-5 mr-1 shrink-0"
-                      src="{{ group.workspace.project.org.logo_file.url }}"
-                      title="{{ group.workspace.project.org }}"
-                    >
+                    {% if group.workspace.project.org.logo_file %}
+                      <img
+                        alt="{{ group.workspace.project.org }}"
+                        class="h-5 w-5 mr-1 shrink-0"
+                        src="{{ group.workspace.project.org.logo_file.url }}"
+                        title="{{ group.workspace.project.org }}"
+                      >
+                    {% else %}
+                      <span class="h-5 w-5 mr-1 shrink-0 bg-white rounded"></span>
+                    {% endif %}
                     {% link href=group.workspace.project.get_absolute_url new_tab=True text=group.workspace.project.name %}
                   </span>
                 {% /table_cell %}
