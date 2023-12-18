@@ -236,6 +236,14 @@ def serve_file(request, rfile):
         # bypass DRFs renderer framework and just serve bytes
         response = FileResponse(path.open("rb"))
 
+        content_type = response.headers.get("Content-Type")
+        if content_type.startswith("text"):
+            # for text-based files append a charset to the existing
+            # content-type header, being careful just in case the existing
+            # value is empty
+            joiner = "; " if content_type else ""
+            response.headers["Content-Type"] = f"{content_type}{joiner}charset=utf-8"
+
     # set Last-Modified header as per:
     # https://developer.mozilla.org/en-US/docs/Web/HTTP/Headers/Last-Modified
     response.headers["Last-Modified"] = http_date(rfile.created_at.timestamp())

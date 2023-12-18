@@ -113,7 +113,7 @@ def test_publishedsnapshotfile_success(rf, release):
 
     assert response.status_code == 200
     assert b"".join(response.streaming_content) == rfile.absolute_path().read_bytes()
-    assert response.headers["Content-Type"] == "text/plain"
+    assert response.headers["Content-Type"] == "text/plain; charset=utf-8"
     assert response.headers["Last-Modified"]
 
 

@@ -293,6 +293,17 @@ def test_serve_file(rf):
         releases.serve_file(request, rfile)
 
 
+def test_serve_file_with_non_text_file(build_release, build_release_file, rf):
+    release = build_release(["bennett.json"])
+    rfile = build_release_file(release, "bennett.json")
+
+    request = rf.get("/")
+    response = releases.serve_file(request, rfile)
+
+    assert response.status_code == 200
+    assert response.headers["Content-Type"] == "application/json"
+
+
 def test_workspace_files_no_releases():
     workspace = WorkspaceFactory()
 

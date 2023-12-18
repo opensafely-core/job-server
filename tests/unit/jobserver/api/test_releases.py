@@ -998,7 +998,7 @@ def test_releasefileapi_with_permission(api_rf, build_release_with_files):
 
     assert response.status_code == 200
     assert b"".join(response.streaming_content) == rfile.absolute_path().read_bytes()
-    assert response.headers["Content-Type"] == "text/plain"
+    assert response.headers["Content-Type"] == "text/plain; charset=utf-8"
 
 
 def test_releasefileapi_without_permission(api_rf):
