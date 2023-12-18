@@ -109,7 +109,7 @@ def test_build_outputs_zip_with_missing_files(build_release_with_files):
             assert "This file was redacted by" in zipped_contents, zipped_contents
 
 
-def test_create_release_new_style_reupload():
+def test_create_release_reupload():
     rfile = ReleaseFileFactory(name="file1.txt", filehash="hash")
 
     files = [
@@ -133,7 +133,7 @@ def test_create_release_new_style_reupload():
         )
 
 
-def test_create_release_new_style_success():
+def test_create_release_success():
     backend = BackendFactory()
     workspace = WorkspaceFactory()
     user = UserFactory()
@@ -157,27 +157,6 @@ def test_create_release_new_style_success():
     rfile = release.files.first()
     rfile.filehash == "hash"
     rfile.size == 7
-
-
-def test_create_release_success():
-    backend = BackendFactory()
-    workspace = WorkspaceFactory()
-    user = UserFactory()
-    files = {"file1.txt": "hash"}
-    release = releases.create_release(workspace, backend, user, files)
-    assert release.requested_files == files
-
-
-def test_create_release_reupload():
-    rfile = ReleaseFileFactory(name="file1.txt", filehash="hash")
-    files = {"file1.txt": "hash"}
-    with pytest.raises(releases.ReleaseFileAlreadyExists):
-        releases.create_release(
-            rfile.release.workspace,
-            rfile.release.backend,
-            rfile.release.created_by,
-            files,
-        )
 
 
 def test_handle_release_upload_file_created(build_release, file_content):
