@@ -158,7 +158,8 @@ check: black django-upgrade ruff
 
 
 check-migrations: devenv
-    $BIN/python manage.py makemigrations --dry-run --check
+    $BIN/python manage.py makemigrations --dry-run --check \
+    || echo "There is model state unaccounted for in the migrations, run python manage.py migrations to fix."
 
 
 # fix formatting and import sort ordering
