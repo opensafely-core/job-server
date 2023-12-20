@@ -22,12 +22,17 @@ from .permissions import (
 
 class CoreDeveloper:
     """
-    Internal user who develops and deploys opensafely core framework code.
+    Bennett staff member with administrator access to Job Server.
+
+    Note the name is misleading here as this does not imply what we generally mean by
+    "core developer". We plan to rename this role as part of a more general permissions
+    revamp.
     """
 
     display_name = "Core Developer"
     description = (
-        "Internal user who develops and deploys the OpenSAFELY core framework."
+        "Bennett staff member with administrator access to Job Server. "
+        "(Not necessarily a developer – this role will be renamed eventually.)"
     )
     models = [
         "jobserver.models.core.User",
