@@ -99,20 +99,19 @@
 
           <div class="flex flex-col gap-y-2 max-w-full">
             {% for action in actions %}
-              <div class="flex flex-row gap-x-4 w-full items-center" id="jobActions">
-                <div class="mr-16">
-                  {% if action.name in form.requested_actions.value %}
+              <div class="flex flex-row gap-4" id="jobActions">
+                {% if action.name in form.requested_actions.value %}
                   {% form_checkbox custom_field=True id="checkbox-"|add:action.name label=action.name name="requested_actions" value=action.name checked=False label_class="truncate py-0.5" span_class="font-mono text-base truncate" checked=True %}
-                  {% else %}
+                {% else %}
                   {% form_checkbox custom_field=True id="checkbox-"|add:action.name label=action.name name="requested_actions" value=action.name checked=False label_class="truncate py-0.5" span_class="font-mono text-base truncate" checked=False%}
-                  {% endif %}
-                </div>
+                {% endif %}
 
                 {% if action.needs %}
                   {% #button class="min-w-fit ml-auto" variant="secondary-outline" small=True data-expander-button=action.name  %}
                     Needs
                   {% /button %}
                 {% endif %}
+
                 <span class="grid place-content-center {% if not action.needs %}ml-auto{% endif %}">
                   <span class="relative grid place-content-center group hidden" data-action-status="loading">
                     {% icon_custom_spinner class="h-5 w-5 mx-auto flex-1 animate-spin stroke-current stroke-2 text-oxford-600" %}
