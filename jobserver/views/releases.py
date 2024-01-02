@@ -23,6 +23,23 @@ from ..releases import build_outputs_zip, serve_file, workspace_files
 from ..utils import build_spa_base_url
 
 
+def build_files(files, url_method_name):
+    return [
+        {
+            "pk": f.pk,
+            "name": f.name,
+            "is_deleted": f.is_deleted,
+            "disable_deletion": f.is_deleted or f.uploaded_at is None,
+            "not_uploaded": f.uploaded_at is None,
+            "deleted_at": f.deleted_at,
+            "deleted_by": f.deleted_by,
+            "detail_url": getattr(f, url_method_name),
+            "get_delete_url": f.get_delete_url(),
+        }
+        for f in files
+    ]
+
+
 class ProjectReleaseList(View):
     def get(self, request, *args, **kwargs):
         project = get_object_or_404(Project, slug=self.kwargs["project_slug"])
@@ -56,7 +73,7 @@ class ProjectReleaseList(View):
                 "created_at": r.created_at,
                 "created_by": r.created_by,
                 "download_url": r.get_download_url(),
-                "files": r.files.all(),
+                "files": build_files(r.files.all(), "get_absolute_url"),
                 "id": r.pk,
                 "view_url": r.get_absolute_url(),
                 "workspace": r.workspace,
@@ -281,19 +298,6 @@ class WorkspaceReleaseList(View):
             "release_file_view",
             project=workspace.project,
         )
-
-        def build_files(files, url_method_name):
-            return [
-                {
-                    "pk": f.pk,
-                    "name": f.name,
-                    "is_deleted": f.is_deleted,
-                    "deleted_by": f.deleted_by,
-                    "deleted_at": f.deleted_at,
-                    "detail_url": getattr(f, url_method_name),
-                }
-                for f in files
-            ]
 
         latest_files = list(
             sorted(workspace_files(workspace).values(), key=lambda rf: rf.name)

@@ -59,7 +59,7 @@
         >
           {% #list_group small %}
             {% for file in latest_release.files %}
-              {% #list_group_item href=file.detail_url disabled=file.is_deleted class="flex flex-row justify-between items-center flex-wrap gap-2" %}
+              {% #list_group_item href=file.detail_url disabled=file.disable_deletion class="flex flex-row justify-between items-center flex-wrap gap-2" %}
                 <code class="truncate">{{ file.name }}</code>
 
                 {% if file.is_deleted %}
@@ -68,16 +68,22 @@
                 </span>
                 {% endif %}
 
-                {% if user_can_delete_files and not file.is_deleted %}
+                {% if file.not_uploaded %}
+                <span class="text-xs text-slate-600 font-normal mr-auto">
+                  (Not yet uploaded)
+                </span>
+                {% endif %}
+
+                {% if user_can_delete_files and not file.disable_deletion %}
                 <form
-                  action="{% url "release-file-delete" project_slug=workspace.project.slug workspace_slug=workspace.name pk=latest_release.id release_file_id=file.pk %}"
+                  action="{{ file.get_delete_url }}"
                   class="ml-auto"
                   method="POST"
                 >
                   {% csrf_token %}
 
                   {% #button class="flex-shrink-0 whitespace-nowrap" small type="submit" variant="danger" %}
-                   Delete file
+                  Delete file
                   {% /button %}
                 </form>
                 {% endif %}
@@ -120,7 +126,7 @@
           >
             {% #list_group small %}
               {% for file in release.files %}
-                {% #list_group_item href=file.detail_url disabled=file.is_deleted class="flex flex-row justify-between items-center flex-wrap gap-2" %}
+                {% #list_group_item href=file.detail_url disabled=file.disable_deletion class="flex flex-row justify-between items-center flex-wrap gap-2" %}
                   <code class="truncate">{{ file.name }}</code>
 
                   {% if file.is_deleted %}
@@ -129,9 +135,15 @@
                   </span>
                   {% endif %}
 
-                  {% if user_can_delete_files and not file.is_deleted %}
+                  {% if file.not_uploaded %}
+                  <span class="text-xs text-slate-600 font-normal mr-auto">
+                    (Not yet uploaded)
+                  </span>
+                  {% endif %}
+
+                  {% if user_can_delete_files and not file.disable_deletion %}
                   <form
-                    action="{% url "release-file-delete" project_slug=workspace.project.slug workspace_slug=workspace.name pk=release.id release_file_id=file.pk %}"
+                    action="{{ file.get_delete_url }}"
                     class="ml-auto"
                     method="POST"
                   >
