@@ -106,17 +106,8 @@ def check_not_already_uploaded(filename, filehash, backend):
 
 @transaction.atomic
 def create_release(workspace, backend, created_by, requested_files, **kwargs):
-    # we infer a new style payload from it being a dict or list.  Once the new
-    # style release UI is completed and in use, we can remove the old way of
-    # doing things from here.
-    new_style = isinstance(requested_files, list)
-
-    if new_style:
-        for f in requested_files:
-            check_not_already_uploaded(f["name"], f["sha256"], backend)
-    else:
-        for filename, filehash in requested_files.items():
-            check_not_already_uploaded(filename, filehash, backend)
+    for f in requested_files:
+        check_not_already_uploaded(f["name"], f["sha256"], backend)
 
     release = Release.objects.create(
         workspace=workspace,
@@ -126,18 +117,17 @@ def create_release(workspace, backend, created_by, requested_files, **kwargs):
         **kwargs,
     )
 
-    if new_style:
-        for f in requested_files:
-            ReleaseFile.objects.create(
-                release=release,
-                workspace=release.workspace,
-                created_by=created_by,
-                name=f["name"],
-                filehash=f["sha256"],
-                size=f["size"],
-                mtime=f["date"],
-                metadata=f["metadata"],
-            )
+    for f in requested_files:
+        ReleaseFile.objects.create(
+            release=release,
+            workspace=release.workspace,
+            created_by=created_by,
+            name=f["name"],
+            filehash=f["sha256"],
+            size=f["size"],
+            mtime=f["date"],
+            metadata=f["metadata"],
+        )
 
     return release
 
