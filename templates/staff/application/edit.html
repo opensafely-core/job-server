@@ -32,7 +32,7 @@
 
     <div class="flex flex-col items-stretch gap-y-6 w-full max-w-3xl mb-6">
       {% form_select field=form.fields.status choices=form.fields.status.choices selected=form.status.value id="id_status" name="status" %}
-      {% form_textarea field=form.status_comment label="Status comment" %}
+      {% form_textarea field=form.status_comment label="Status comment" resize=True rows=32 %}
     </div>
 
     {% #button variant="success" type="submit" %}
