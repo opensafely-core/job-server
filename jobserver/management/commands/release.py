@@ -63,7 +63,7 @@ class Command(BaseCommand):
         username,
         create,
         *args,
-        **options
+        **options,
     ):
         assert directory.exists()
 
