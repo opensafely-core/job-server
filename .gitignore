@@ -1,8 +1,8 @@
-/__pycache__/
+/__pycache__
 /.coverage*
 /.env
 /.envrc
-/.idea/
+/.idea
 /.ipynb_checkpoints
 /.pytest_cache
 /.venv/
@@ -11,7 +11,7 @@
 /coverage
 /htmlcov
 /jobserver.dump
-/node_modules/
+/node_modules
 /workspaces
 /releases
 /staticfiles
