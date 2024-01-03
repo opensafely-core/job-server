@@ -89,7 +89,7 @@ class ProjectReleaseList(View):
 
         return TemplateResponse(
             request,
-            "project_release_list.html",
+            "project/release_list.html",
             context=context,
         )
 

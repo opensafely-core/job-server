@@ -107,7 +107,7 @@ class ProjectDetail(View):
             "workspaces": workspaces,
         }
 
-        return TemplateResponse(request, "project_detail.html", context=context)
+        return TemplateResponse(request, "project/detail.html", context=context)
 
     def get_outputs(self, workspaces):
         """
@@ -191,7 +191,7 @@ class ProjectEdit(UpdateView):
         "status_description",
     ]
     model = Project
-    template_name = "project_edit.html"
+    template_name = "project/edit.html"
 
     def get_object(self):
         project = get_object_or_404(Project, slug=self.kwargs["project_slug"])
@@ -208,7 +208,7 @@ class ProjectEdit(UpdateView):
 class ProjectEventLog(ListView):
     paginate_by = 25
     response_class = zTemplateResponse
-    template_name = "project_event_log.html"
+    template_name = "project/event_log.html"
 
     def dispatch(self, request, *args, **kwargs):
         self.project = get_object_or_404(Project, slug=self.kwargs["project_slug"])
@@ -232,7 +232,7 @@ class ProjectEventLog(ListView):
 
 
 class ProjectReportList(ListView):
-    template_name = "project_report_list.html"
+    template_name = "project/report_list.html"
 
     def dispatch(self, request, *args, **kwargs):
         self.project = get_object_or_404(Project, slug=self.kwargs["project_slug"])
