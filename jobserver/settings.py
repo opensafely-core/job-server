@@ -312,6 +312,12 @@ if ASSETS_DEV_MODE:
 CSRF_FAILURE_VIEW = "jobserver.views.errors.csrf_failure"
 
 
+# Globally set django.forms.URLField.assume_scheme to "https"
+# This can be removed in the 6.0 release
+# https://docs.djangoproject.com/en/5.0/ref/settings/#std-setting-FORMS_URLFIELD_ASSUME_HTTPS
+FORMS_URLFIELD_ASSUME_HTTPS = True
+
+
 # THIRD PARTY SETTINGS
 
 # Anymail
