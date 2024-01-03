@@ -9,7 +9,6 @@ import jobserver.models.common
 
 
 class Migration(migrations.Migration):
-
     initial = True
 
     dependencies = [

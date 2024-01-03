@@ -101,7 +101,6 @@ def test_privatereposdashboard_unauthorized(rf):
 def test_reposwithmultipleprojects_success(
     rf, django_assert_num_queries, core_developer
 ):
-
     # research-repo-1
     repo1 = RepoFactory(url="https://github.com/opensafely/repo-1")
     WorkspaceFactory(repo=repo1)
