@@ -87,7 +87,7 @@ jobs:
           just test --migrations -n 4
 
       - name: Upload HTML coverage report if tests failed
-        uses: actions/upload-artifact@v3
+        uses: actions/upload-artifact@v4
         with:
           name: python-coverage-report
           path: htmlcov
@@ -139,7 +139,7 @@ jobs:
           docker save job-server | gzip > /tmp/job-server.tar.gz
 
       - name: Upload docker image
-        uses: actions/upload-artifact@v3
+        uses: actions/upload-artifact@v4
         with:
             name: job-server-image
             path: /tmp/job-server.tar.gz
