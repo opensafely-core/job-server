@@ -247,7 +247,6 @@ def test_getnexturl_with_next_arg(rf):
 
 
 def test_getnexturl_without_next_arg(rf):
-
     request = rf.get("/")
 
     output = get_next_url(request.GET)

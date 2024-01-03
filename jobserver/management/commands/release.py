@@ -65,7 +65,6 @@ class Command(BaseCommand):
         *args,
         **options
     ):
-
         assert directory.exists()
 
         files = {}

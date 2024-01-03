@@ -9,7 +9,6 @@ def move_workspaces_to_new_release_flow(apps, schema_editor):
 
 
 class Migration(migrations.Migration):
-
     dependencies = [
         ("jobserver", "0005_add_job_run_command"),
     ]

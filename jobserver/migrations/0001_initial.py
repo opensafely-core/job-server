@@ -21,7 +21,6 @@ import jobserver.models.core
 
 
 class Migration(migrations.Migration):
-
     initial = True
 
     dependencies = []

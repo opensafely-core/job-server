@@ -6,7 +6,6 @@ import jobserver.models.core
 
 
 class Migration(migrations.Migration):
-
     dependencies = [
         ("jobserver", "0006_move_to_new_release_flow"),
     ]
