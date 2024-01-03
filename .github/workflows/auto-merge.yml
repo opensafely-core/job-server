@@ -3,6 +3,7 @@ name: Approve and enable auto-merge for Dependabot updates
 on: pull_request
 
 permissions:
+  contents: write
   pull-requests: write
 
 jobs:
