@@ -7,7 +7,6 @@
 /.venv/
 /__pycache__
 /assets/dist
-/assets/src/scripts/outputs-viewer/coverage
 /assets/stats.html
 /coverage
 /docker/staticfiles/*
