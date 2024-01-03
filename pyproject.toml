@@ -92,6 +92,7 @@ filterwarnings = [
     "ignore:path is deprecated.:DeprecationWarning:opensafely",
     "ignore:pkg_resources is deprecated as an API:DeprecationWarning:",
     "ignore:Deprecated call to `pkg_resources.declare_namespace:DeprecationWarning:",
+    "ignore:The FORMS_URLFIELD_ASSUME_HTTPS transitional setting is deprecated.:django.utils.deprecation.RemovedInDjango60Warning:",
 ]
 markers = [
   "slow_test: mark test as being slow running",
