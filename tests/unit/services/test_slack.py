@@ -28,7 +28,7 @@ def test_post_error(mocker, log_output):
         "channel": "channel",
         "exc_info": True,
         "event": "Failed to notify slack in channel: channel",
-        "log_level": "error",
+        "log_level": "exception",
     }
 
 
