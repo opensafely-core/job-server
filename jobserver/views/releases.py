@@ -346,6 +346,6 @@ class WorkspaceReleaseList(View):
 
         return TemplateResponse(
             request,
-            "workspace_release_list.html",
+            "workspace/release_list.html",
             context=context,
         )

@@ -325,7 +325,7 @@ def test_workspacecreate_without_github_orgs(rf):
     response = WorkspaceCreate.as_view()(request, project_slug=project.slug)
 
     assert response.status_code == 200
-    assert response.template_name == "workspace_create_error.html"
+    assert response.template_name == "workspace/create_error.html"
 
 
 def test_workspacecreate_without_org(rf):
@@ -340,7 +340,7 @@ def test_workspacecreate_without_org(rf):
     response = WorkspaceCreate.as_view()(request, project_slug=project.slug)
 
     assert response.status_code == 200
-    assert response.template_name == "workspace_create_error.html"
+    assert response.template_name == "workspace/create_error.html"
 
 
 def test_workspacecreate_without_permission(rf, user):
