@@ -946,9 +946,9 @@ social-auth-app-django==5.4.0 \
     --hash=sha256:09ac02a063cb313eed5e9ef2f9ac4477c8bf5bbd685925ff3aba43f9072f1bbb \
     --hash=sha256:28c65b2e2092f30cdb3cf912eeaa6988b49fdf4001b29bd89e683673d700a38e
     # via -r requirements.prod.in
-social-auth-core==4.5.0 \
-    --hash=sha256:3d4154f45c0bacffe54ccf4361bce7e66cf5f5cd1bb0ebb7507ad09a1b07d9d9 \
-    --hash=sha256:f4ae5d8e503a401f319498bcad59fd1f6c473517eeae89c22299250f63c33365
+social-auth-core==4.5.1 \
+    --hash=sha256:307a4ba64d4f3ec86e4389163eac1d8b8656ffe5ab2e964aeff043ab00b3a662 \
+    --hash=sha256:54d0c598bf6ea0ec12bbcf78bee035c7cd604b5d781d80b7997e9e033c3ac05d
     # via
     #   -r requirements.prod.in
     #   social-auth-app-django
