@@ -840,9 +840,9 @@ python-dotenv==1.0.0 \
     --hash=sha256:a8df96034aae6d2d50a4ebe8216326c61c3eb64836776504fcca410e5937a3ba \
     --hash=sha256:f5971a9226b701070a4bf2c38c89e5a3f0d64de8debda981d1db98583009122a
     # via environs
-python-ipware==2.0.0 \
-    --hash=sha256:802858aa13308d572876d1883edae0eae380fe70a51fdefcb46c8a2099240862 \
-    --hash=sha256:a52757123c718342f74b16ab2d9d4a531888d69d10b8197c073164635df0a13b
+python-ipware==2.0.1 \
+    --hash=sha256:1992920ef553165dfa35e6ea5a90762f64f3b943cc22ee6b4ec02e2c86d31178 \
+    --hash=sha256:9ba4805152ebb85ad5b53797185cd1ce6231e1db60155834f326c8cd61e8af34
     # via django-ipware
 python-ulid==2.2.0 \
     --hash=sha256:9ec777177d396880d94be49ac7eb4ae2cd4a7474448bfdbfe911537add970aeb \
