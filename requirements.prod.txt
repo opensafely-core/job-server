@@ -393,17 +393,17 @@ django-htmx==1.17.2 \
     --hash=sha256:4089f2ed38727e9846c2f4cd1daddf6b010c7be8d834cfbcffc8c5ecf445c04e \
     --hash=sha256:f4971432d2ca45dbb31d9b58add1c50ae54354afe4bf59cafd591b1711b502c0
     # via -r requirements.prod.in
-django-ipware==6.0.0 \
-    --hash=sha256:5595aa3819d6c82c2a09a307dfe58f3d40bff3e098c2e8508118195ac3270465 \
-    --hash=sha256:c656805c824449b5171e6f851f6369000fe204ec03ac9977110a9b0aff4825b6
+django-ipware==6.0.3 \
+    --hash=sha256:0f682dd4f3afef7909bb3dd396949c355982539bd4392d4e9df0b0b31604484d \
+    --hash=sha256:e54b6050af037406f05327890e742f99451dce96951223dea9cdd824e95859b6
     # via django-structlog
 django-permissions-policy==4.12.0 \
     --hash=sha256:1f10fc354110fef9270fbabbbf8d5358a6d6f5380c79f0dfba56dd41e45b1936 \
     --hash=sha256:88ee9cb345898414a6ad3f2eb0d8284c67decdfc43c6fc5331531b7c39809d8c
     # via -r requirements.prod.in
-django-structlog==6.0.0 \
-    --hash=sha256:07d9b35cdc3aca6de1daacb0ad7a7c58e0506a858687844ff770eb4bde5d0236 \
-    --hash=sha256:233a5cc81981c547a702e141d1ece89a02a47e8127a8d0c80c8d9add4324dea2
+django-structlog==7.1.0 \
+    --hash=sha256:2139c94d13b800c5c1088ace438e12ca9bfe88182790f5776c58891e8cecc61c \
+    --hash=sha256:64d81553c97683f7c012744ef5c6dc515b58e2d7a658b7552ecb3879ac46f1a9
     # via -r requirements.prod.in
 django-vite==3.0.1 \
     --hash=sha256:60fbc743ce8187c545053afec0b8fe7f8e1633619c4e0433ebc4dd4f65d0d038 \
