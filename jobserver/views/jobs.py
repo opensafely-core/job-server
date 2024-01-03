@@ -103,6 +103,7 @@ class JobDetail(View):
             ] = honeycomb.previous_actions_link(job)
 
         context = {
+            "cancellation_requested": job.action in job.job_request.cancelled_actions,
             "job": job,
             "log_path": log_path,
             "log_path_url": log_path_url,

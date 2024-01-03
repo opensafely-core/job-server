@@ -29,6 +29,12 @@
   {% /alert %}
 {% endif %}
 
+{% if cancellation_requested and not job.is_completed %}
+  {% #alert variant="info" title="Cancellation requested" class="mb-4" %}
+    A User has requested this job is cancelled.
+  {% /alert %}
+{% endif %}
+
 <div class="md:flex md:items-center md:justify-between md:space-x-5">
   <h1 class="min-w-0 text-3xl break-words md:text-4xl font-bold text-slate-900">
     {% if job.action == "__error__" %}
