@@ -8,7 +8,7 @@ from ..models import JobRequest, Org
 
 class OrgDetail(DetailView):
     model = Org
-    template_name = "org_detail.html"
+    template_name = "org/detail.html"
 
     def get_context_data(self, **kwargs):
         projects = (
@@ -28,7 +28,7 @@ class OrgDetail(DetailView):
 
 class OrgEventLog(ListView):
     paginate_by = 25
-    template_name = "org_event_log.html"
+    template_name = "org/event_log.html"
 
     def dispatch(self, request, *args, **kwargs):
         self.org = get_object_or_404(Org, slug=self.kwargs["slug"])
@@ -55,4 +55,4 @@ class OrgList(ListView):
     queryset = Org.objects.annotate(project_count=Count("projects")).order_by(
         Lower("name")
     )
-    template_name = "org_list.html"
+    template_name = "org/list.html"
