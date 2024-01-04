@@ -217,6 +217,6 @@ class SignOffRepo(TemplateView):
 
         return TemplateResponse(
             request=self.request,
-            template="sign_off_repo.html",
+            template="repo/sign_off.html",
             context=context,
         )
