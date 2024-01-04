@@ -115,7 +115,6 @@ class ProjectCollaborator:
     display_name = "Project Collaborator"
     description = "View unpublished outputs released from Level 4 to the Jobs site."
     models = [
-        "jobserver.models.core.ProjectInvitation",
         "jobserver.models.core.ProjectMembership",
         "jobserver.models.core.User",
     ]
@@ -136,7 +135,6 @@ class ProjectDeveloper:
         "Run and cancel Jobs, publish released outputs, and manage workspaces."
     )
     models = [
-        "jobserver.models.core.ProjectInvitation",
         "jobserver.models.core.ProjectMembership",
         "jobserver.models.core.User",
     ]
