@@ -75,7 +75,7 @@ class RepoHandler(View):
                     "url": repo_url,
                 },
             }
-            return TemplateResponse(request, "project_repo_list.html", context=context)
+            return TemplateResponse(request, "project/repo_list.html", context=context)
 
         projects = Project.objects.filter(workspaces__repo=repo).distinct()
 
@@ -87,7 +87,7 @@ class RepoHandler(View):
             "repo": repo,
         }
 
-        return TemplateResponse(request, "project_repo_list.html", context=context)
+        return TemplateResponse(request, "project/repo_list.html", context=context)
 
 
 @method_decorator(login_required, name="dispatch")
@@ -217,6 +217,6 @@ class SignOffRepo(TemplateView):
 
         return TemplateResponse(
             request=self.request,
-            template="sign_off_repo.html",
+            template="repo/sign_off.html",
             context=context,
         )

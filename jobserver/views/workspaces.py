@@ -42,7 +42,7 @@ from ..utils import build_spa_base_url
 class WorkspaceAnalysisRequestList(ListView):
     context_object_name = "analysis_requests"
     model = AnalysisRequest
-    template_name = "workspace_analysis_request_list.html"
+    template_name = "workspace/analysis_request_list.html"
 
     def dispatch(self, request, *args, **kwargs):
         self.workspace = get_object_or_404(
@@ -147,7 +147,7 @@ class WorkspaceBackendFiles(View):
 
         return TemplateResponse(
             request,
-            "workspace_backend_files.html",
+            "workspace/backend_files.html",
             context=context,
         )
 
@@ -156,7 +156,7 @@ class WorkspaceCreate(CreateView):
     form_class = WorkspaceCreateForm
     get_github_api = staticmethod(_get_github_api)
     model = Workspace
-    template_name = "workspace_create.html"
+    template_name = "workspace/create.html"
 
     def dispatch(self, request, *args, **kwargs):
         self.project = get_object_or_404(Project, slug=self.kwargs["project_slug"])
@@ -176,7 +176,7 @@ class WorkspaceCreate(CreateView):
             )
             return TemplateResponse(
                 request,
-                "workspace_create_error.html",
+                "workspace/create_error.html",
                 context={"message": message, "project": self.project},
             )
 
@@ -188,7 +188,7 @@ class WorkspaceCreate(CreateView):
             )
             return TemplateResponse(
                 request,
-                "workspace_create_error.html",
+                "workspace/create_error.html",
                 context={"message": message, "project": self.project},
             )
 
@@ -340,7 +340,7 @@ class WorkspaceDetail(View):
         }
         return TemplateResponse(
             request,
-            "workspace_detail.html",
+            "workspace/detail.html",
             context=context,
         )
 
@@ -370,7 +370,7 @@ class WorkspaceDetail(View):
 
 class WorkspaceEdit(FormView):
     form_class = WorkspaceEditForm
-    template_name = "workspace_edit.html"
+    template_name = "workspace/edit.html"
 
     def dispatch(self, request, *args, **kwargs):
         self.workspace = get_object_or_404(
@@ -405,7 +405,7 @@ class WorkspaceEdit(FormView):
 
 class WorkspaceEventLog(ListView):
     paginate_by = 25
-    template_name = "workspace_event_log.html"
+    template_name = "workspace/event_log.html"
 
     def dispatch(self, request, *args, **kwargs):
         self.workspace = get_object_or_404(
@@ -480,7 +480,7 @@ class WorkspaceFileList(View):
         }
         return TemplateResponse(
             request,
-            "workspace_file_list.html",
+            "workspace/file_list.html",
             context=context,
         )
 
@@ -524,7 +524,7 @@ class WorkspaceLatestOutputsDetail(View):
         }
         return TemplateResponse(
             request,
-            "workspace_latest_outputs_detail.html",
+            "workspace/latest_outputs_detail.html",
             context=context,
         )
 
@@ -619,6 +619,6 @@ class WorkspaceOutputList(ListView):
         }
         return TemplateResponse(
             request,
-            "workspace_output_list.html",
+            "workspace/output_list.html",
             context=context,
         )

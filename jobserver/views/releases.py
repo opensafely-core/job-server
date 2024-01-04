@@ -89,7 +89,7 @@ class ProjectReleaseList(View):
 
         return TemplateResponse(
             request,
-            "project_release_list.html",
+            "project/release_list.html",
             context=context,
         )
 
@@ -144,7 +144,7 @@ class ReleaseDetail(View):
 
         return TemplateResponse(
             request,
-            "release_detail.html",
+            "release/detail.html",
             context=context,
         )
 
@@ -246,7 +246,7 @@ class SnapshotDetail(View):
 
         return TemplateResponse(
             request,
-            "snapshot_detail.html",
+            "release/snapshot.html",
             context=context,
         )
 
@@ -346,6 +346,6 @@ class WorkspaceReleaseList(View):
 
         return TemplateResponse(
             request,
-            "workspace_release_list.html",
+            "release/list.html",
             context=context,
         )

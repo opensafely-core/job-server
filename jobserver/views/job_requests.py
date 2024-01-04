@@ -57,7 +57,7 @@ class JobRequestCreate(CreateView):
     form_class = JobRequestCreateForm
     get_github_api = staticmethod(_get_github_api)
     model = JobRequest
-    template_name = "job_request_create.html"
+    template_name = "job_request/create.html"
 
     def dispatch(self, request, *args, **kwargs):
         try:
@@ -253,7 +253,7 @@ class JobRequestDetail(View):
                 job_request
             )
 
-        return TemplateResponse(request, "job_request_detail.html", context=context)
+        return TemplateResponse(request, "job_request/detail.html", context=context)
 
     def get_project_yaml(self, job_request):
         is_empty = job_request.project_definition == ""
@@ -290,7 +290,7 @@ class JobRequestDetailRedirect(RedirectView):
 
 class JobRequestList(ListView):
     paginate_by = 25
-    template_name = "job_request_list.html"
+    template_name = "job_request/list.html"
 
     def get_queryset(self):
         return (

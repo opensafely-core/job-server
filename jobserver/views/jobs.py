@@ -113,7 +113,7 @@ class JobDetail(View):
             "honeycomb_links": honeycomb_links,
         }
 
-        return TemplateResponse(request, "job_detail.html", context=context)
+        return TemplateResponse(request, "job/detail.html", context=context)
 
 
 class JobDetailRedirect(RedirectView):

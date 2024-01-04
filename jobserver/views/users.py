@@ -316,7 +316,7 @@ class UserDetail(DetailView):
     slug_field = "username"
     slug_url_kwarg = "username"
     response_class = zTemplateResponse
-    template_name = "user_detail.html"
+    template_name = "user/detail.html"
 
     def get_context_data(self, **kwargs):
         projects = fetch(self.object.projects.order_by(Lower("name")))
@@ -329,7 +329,7 @@ class UserDetail(DetailView):
 class UserEventLog(ListView):
     paginate_by = 25
     response_class = zTemplateResponse
-    template_name = "user_event_log.html"
+    template_name = "user/event_log.html"
 
     def dispatch(self, request, *args, **kwargs):
         self.user = get_object_or_404(User, username=self.kwargs["username"])
@@ -356,7 +356,7 @@ class UserList(ListView):
     model = User
     paginate_by = 25
     response_class = zTemplateResponse
-    template_name = "user_list.html"
+    template_name = "user/list.html"
 
     def get_queryset(self):
         return fetch(
