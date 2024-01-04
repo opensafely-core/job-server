@@ -15,6 +15,14 @@
 
 {% #card_footer no_container=no_container %}
   <nav class="flex items-center justify-between" aria-label="Pagination">
+    <div class="flex flex-1 gap-2">
+      {% if first_page_url %}
+        {% #button type="link" href=first_page_url variant="secondary-outline" %}First{% /button %}
+      {% endif %}
+      {% if previous_page_url %}
+        {% #button type="link" href=previous_page_url variant="secondary-outline" %}Previous{% /button %}
+      {% endif %}
+    </div>
     <div class="hidden sm:block">
       <p class="text-sm text-gray-700">
         Page
@@ -23,14 +31,7 @@
         <span class="font-medium">{{ total_pages }}</span>
       </p>
     </div>
-
-    <div class="flex flex-1 justify-between gap-2 sm:justify-end">
-      {% if first_page_url %}
-        {% #button type="link" href=first_page_url variant="secondary-outline" %}First{% /button %}
-      {% endif %}
-      {% if previous_page_url %}
-        {% #button type="link" href=previous_page_url variant="secondary-outline" %}Previous{% /button %}
-      {% endif %}
+    <div class="flex flex-1 gap-2 justify-end">
       {% if next_page_url %}
         {% #button type="link" href=next_page_url variant="secondary-outline" %}Next{% /button %}
       {% endif %}
