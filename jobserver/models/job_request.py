@@ -21,6 +21,11 @@ logger = structlog.get_logger(__name__)
 def new_id():
     """
     Return a random 16 character lowercase alphanumeric string
+
+    This is used for the cross-system `identifier` fields in both JobRequest
+    and Job.  This function is mirrored in job-runner, which sets
+    Job.identifier, while this project handles setting JobRequest.identifier.
+
     We used to use UUID4's but they are unnecessarily long for our purposes
     (particularly the hex representation) and shorter IDs make debugging
     and inspecting the job-runner a bit more ergonomic.
