@@ -15,9 +15,10 @@ from django.conf import settings
 from django.db import migrations, models
 
 import jobserver.authorization.fields
-import jobserver.models.backends
+import jobserver.models.backend
 import jobserver.models.common
-import jobserver.models.core
+import jobserver.models.job_request
+import jobserver.models.org
 
 
 class Migration(migrations.Migration):
@@ -110,7 +111,7 @@ class Migration(migrations.Migration):
                 ),
                 (
                     "auth_token",
-                    models.TextField(default=jobserver.models.backends.generate_token),
+                    models.TextField(default=jobserver.models.backend.generate_token),
                 ),
                 ("level_4_url", models.TextField(blank=True, default="")),
                 (
@@ -143,7 +144,7 @@ class Migration(migrations.Migration):
                     "github_orgs",
                     django.contrib.postgres.fields.ArrayField(
                         base_field=models.TextField(),
-                        default=jobserver.models.core.default_github_orgs,
+                        default=jobserver.models.org.default_github_orgs,
                         size=None,
                     ),
                 ),
@@ -826,7 +827,9 @@ class Migration(migrations.Migration):
                 ("sha", models.TextField()),
                 (
                     "identifier",
-                    models.TextField(default=jobserver.models.core.new_id, unique=True),
+                    models.TextField(
+                        default=jobserver.models.job_request.new_id, unique=True
+                    ),
                 ),
                 ("will_notify", models.BooleanField(default=False)),
                 ("project_definition", models.TextField(default="")),

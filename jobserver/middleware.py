@@ -1,6 +1,6 @@
 from django.conf import settings
 
-from jobserver.models.backends import Backend
+from jobserver.models import Backend
 
 
 class XSSFilteringMiddleware:

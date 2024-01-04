@@ -13,7 +13,7 @@ from rest_framework.exceptions import NotFound
 from rest_framework.response import Response
 
 from .models import Release, ReleaseFile
-from .models.outputs import absolute_file_path
+from .models.release_file import absolute_file_path
 from .signing import AuthToken
 
 
