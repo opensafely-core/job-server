@@ -1,6 +1,7 @@
 {% load querystring_tools %}
 
 {% if page_obj.has_next %}
+  {% url_with_querystring page=page_obj.paginator.num_pages as last_page_url %}
   {% url_with_querystring page=page_obj.next_page_number as next_page_url %}
 {% endif %}
 
@@ -28,6 +29,9 @@
       {% endif %}
       {% if next_page_url %}
         {% #button type="link" href=next_page_url variant="secondary-outline" %}Next{% /button %}
+      {% endif %}
+      {% if last_page_url %}
+        {% #button type="link" href=last_page_url variant="secondary-outline" %}Last{% /button %}
       {% endif %}
     </div>
   </nav>
