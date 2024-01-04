@@ -6,6 +6,7 @@
 {% endif %}
 
 {% if page_obj.has_previous %}
+  {% url_with_querystring page=1 as first_page_url %}
   {% url_with_querystring page=page_obj.previous_page_number as previous_page_url %}
 {% endif %}
 
@@ -24,6 +25,9 @@
     </div>
 
     <div class="flex flex-1 justify-between gap-2 sm:justify-end">
+      {% if first_page_url %}
+        {% #button type="link" href=first_page_url variant="secondary-outline" %}First{% /button %}
+      {% endif %}
       {% if previous_page_url %}
         {% #button type="link" href=previous_page_url variant="secondary-outline" %}Previous{% /button %}
       {% endif %}
