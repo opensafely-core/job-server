@@ -442,9 +442,9 @@ six==1.16.0 \
     # via
     #   -c requirements.prod.txt
     #   python-dateutil
-stamina==23.3.0 \
-    --hash=sha256:48f1b3c39ea7e03775fdc0653f9f6ad183b401c84e0eeada12ff18accc712a61 \
-    --hash=sha256:efd0a6918bbb2adc9268768f7f9009d04f41c4fb5888e0aca82590d757988923
+stamina==24.1.0 \
+    --hash=sha256:0382013a3072c9db02f18240d36d6212e590643a45a8662cabc4584c5d1a8919 \
+    --hash=sha256:de14695610e4ea8da0624fc368607e95d923b25bfe45f4eaa10e226360bc9e02
     # via -r requirements.dev.in
 tenacity==8.2.3 \
     --hash=sha256:5398ef0d78e63f40007c1fb4c0bff96e1911394d2fa8d194f77619c05ff6cc8a \
