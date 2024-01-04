@@ -1,6 +1,6 @@
 from django.urls import reverse
 
-from ....factories import BackendFactory, BackendMembershipFactory, UserFactory
+from ....factories import BackendFactory
 
 
 def test_backend_get_edit_url():
@@ -39,12 +39,3 @@ def test_backend_str():
     backend = BackendFactory(slug="test-backend")
 
     assert str(backend) == "test-backend"
-
-
-def test_backendmembership_str():
-    backend = BackendFactory(name="Test Backend")
-    user = UserFactory(username="ben")
-
-    membership = BackendMembershipFactory(backend=backend, user=user)
-
-    assert str(membership) == "ben | Test Backend"

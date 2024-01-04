@@ -35,7 +35,7 @@ class CoreDeveloper:
         "(Not necessarily a developer – this role will be renamed eventually.)"
     )
     models = [
-        "jobserver.models.core.User",
+        "jobserver.models.user.User",
     ]
     permissions = [
         application_manage,
@@ -51,8 +51,8 @@ class InteractiveReporter:
     display_name = "Interactive Reporter"
     description = ""
     models = [
-        "jobserver.models.core.ProjectMembership",
-        "jobserver.models.core.User",
+        "jobserver.models.project_membership.ProjectMembership",
+        "jobserver.models.user.User",
     ]
     permissions = [
         analysis_request_create,
@@ -69,7 +69,7 @@ class OrgCoordinator:
     display_name = "Organisation Coordinator"
     description = ""
     models = [
-        "jobserver.models.core.OrgMembership",
+        "jobserver.models.org_membership.OrgMembership",
     ]
     permissions = []
 
@@ -82,7 +82,7 @@ class OutputChecker:
     display_name = "Output Checker"
     description = ""
     models = [
-        "jobserver.models.core.User",
+        "jobserver.models.user.User",
     ]
     permissions = [
         release_file_delete,
@@ -100,7 +100,7 @@ class OutputPublisher:
     display_name = "Output Publisher"
     description = ""
     models = [
-        "jobserver.models.core.User",
+        "jobserver.models.user.User",
     ]
     permissions = [
         snapshot_publish,
@@ -115,9 +115,8 @@ class ProjectCollaborator:
     display_name = "Project Collaborator"
     description = "View unpublished outputs released from Level 4 to the Jobs site."
     models = [
-        "jobserver.models.core.ProjectInvitation",
-        "jobserver.models.core.ProjectMembership",
-        "jobserver.models.core.User",
+        "jobserver.models.project_membership.ProjectMembership",
+        "jobserver.models.user.User",
     ]
     permissions = [
         release_file_view,
@@ -136,9 +135,8 @@ class ProjectDeveloper:
         "Run and cancel Jobs, publish released outputs, and manage workspaces."
     )
     models = [
-        "jobserver.models.core.ProjectInvitation",
-        "jobserver.models.core.ProjectMembership",
-        "jobserver.models.core.User",
+        "jobserver.models.project_membership.ProjectMembership",
+        "jobserver.models.user.User",
     ]
     permissions = [
         job_cancel,
@@ -157,7 +155,7 @@ class SignOffRepoWithOutputs:
     display_name = "Sign Off Repos with Outputs"
     description = "Internally sign off repos with outputs hosted on GitHub"
     models = [
-        "jobserver.models.core.User",
+        "jobserver.models.user.User",
     ]
     permissions = [
         repo_sign_off_with_outputs,

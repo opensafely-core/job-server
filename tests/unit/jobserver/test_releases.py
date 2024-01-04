@@ -10,7 +10,7 @@ from rest_framework.exceptions import NotFound
 
 from jobserver import releases
 from jobserver.models import ReleaseFile
-from jobserver.models.outputs import absolute_file_path
+from jobserver.models.release_file import absolute_file_path
 from tests.factories import (
     BackendFactory,
     ReleaseFileFactory,

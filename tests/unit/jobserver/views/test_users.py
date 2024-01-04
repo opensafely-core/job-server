@@ -9,7 +9,7 @@ from django.http import Http404
 from django.urls import reverse
 from django.utils import timezone
 
-import jobserver.models.core
+import jobserver.models.user
 from jobserver.authorization import InteractiveReporter
 from jobserver.utils import set_from_list
 from jobserver.views.users import (
@@ -461,7 +461,7 @@ def test_settings_user_post_invalid(rf_messages):
 
 def test_settings_token_post_success(rf, monkeypatch, token_login_user, mailoutbox):
     monkeypatch.setattr(
-        jobserver.models.core, "human_memorable_token", lambda: "foo bar baz"
+        jobserver.models.user, "human_memorable_token", lambda: "foo bar baz"
     )
 
     request = rf.post("/settings", {"token": ""})  # button name
@@ -481,7 +481,7 @@ def test_settings_token_post_success(rf, monkeypatch, token_login_user, mailoutb
 def test_settings_token_post_invalid_user(rf_messages, monkeypatch):
     # this shouldn't be used, but set it anyway so we can detect if it is used
     monkeypatch.setattr(
-        jobserver.models.core,
+        jobserver.models.user,
         "human_memorable_token",
         lambda: "foo bar baz",  # pragma: no cover
     )

@@ -1,10 +1,14 @@
+import structlog
 from django.db import models
 from django.db.models import Q
 from django.urls import reverse
 from django.utils import timezone
 from django_extensions.db.fields import AutoSlugField
 
-from .outputs import PublishRequest
+from .publish_request import PublishRequest
+
+
+logger = structlog.get_logger(__name__)
 
 
 class Report(models.Model):

@@ -2,7 +2,7 @@
 
 from django.db import migrations
 
-import jobserver.models.core
+import jobserver.models.user
 
 
 class Migration(migrations.Migration):
@@ -14,7 +14,7 @@ class Migration(migrations.Migration):
         migrations.AlterModelManagers(
             name="user",
             managers=[
-                ("objects", jobserver.models.core.UserManager()),
+                ("objects", jobserver.models.user.UserManager()),
             ],
         ),
     ]

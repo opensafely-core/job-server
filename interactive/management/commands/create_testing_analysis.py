@@ -14,7 +14,7 @@ from furl import furl
 from interactive.commands import create_report
 from interactive.models import AnalysisRequest
 from jobserver.models import Backend, JobRequest, Project, Release, ReleaseFile, User
-from jobserver.models.core import new_id
+from jobserver.models.job_request import new_id
 
 
 class Command(BaseCommand):
