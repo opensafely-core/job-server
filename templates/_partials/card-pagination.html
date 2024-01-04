@@ -1,7 +1,28 @@
 {% load querystring_tools %}
 
+{% if page_obj.has_next %}
+  {% url_with_querystring page=page_obj.paginator.num_pages as last_page_url %}
+  {% url_with_querystring page=page_obj.next_page_number as next_page_url %}
+{% endif %}
+
+{% if page_obj.has_previous %}
+  {% url_with_querystring page=1 as first_page_url %}
+  {% url_with_querystring page=page_obj.previous_page_number as previous_page_url %}
+{% endif %}
+
+{% var page_number=page_obj.number  %}
+{% var total_pages=page_obj.paginator.num_pages %}
+
 {% #card_footer no_container=no_container %}
   <nav class="flex items-center justify-between" aria-label="Pagination">
+    <div class="flex flex-1 gap-2">
+      {% if first_page_url %}
+        {% #button type="link" href=first_page_url variant="secondary-outline" %}First{% /button %}
+      {% endif %}
+      {% if previous_page_url %}
+        {% #button type="link" href=previous_page_url variant="secondary-outline" %}Previous{% /button %}
+      {% endif %}
+    </div>
     <div class="hidden sm:block">
       <p class="text-sm text-gray-700">
         Page
@@ -10,13 +31,12 @@
         <span class="font-medium">{{ total_pages }}</span>
       </p>
     </div>
-
-    <div class="flex flex-1 justify-between gap-2 sm:justify-end">
-      {% if previous_page_url %}
-        {% #button type="link" href=previous_page_url variant="secondary-outline" %}Previous{% /button %}
-      {% endif %}
+    <div class="flex flex-1 gap-2 justify-end">
       {% if next_page_url %}
         {% #button type="link" href=next_page_url variant="secondary-outline" %}Next{% /button %}
+      {% endif %}
+      {% if last_page_url %}
+        {% #button type="link" href=last_page_url variant="secondary-outline" %}Last{% /button %}
       {% endif %}
     </div>
   </nav>
