@@ -1,5 +1,16 @@
 {% load querystring_tools %}
 
+{% if page_obj.has_next %}
+  {% url_with_querystring page=page_obj.next_page_number as next_page_url %}
+{% endif %}
+
+{% if page_obj.has_previous %}
+  {% url_with_querystring page=page_obj.previous_page_number as previous_page_url %}
+{% endif %}
+
+{% var page_number=page_obj.number  %}
+{% var total_pages=page_obj.paginator.num_pages %}
+
 {% #card_footer no_container=no_container %}
   <nav class="flex items-center justify-between" aria-label="Pagination">
     <div class="hidden sm:block">
