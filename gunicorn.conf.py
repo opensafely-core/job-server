@@ -24,6 +24,9 @@ workers = 9
 port = 8000
 bind = "0.0.0.0"
 
+# emit both the old & new conventions
+os.environ["OTEL_SEMCONV_STABILITY_OPT_IN"] = "http/dup"
+
 
 def post_fork(server, worker):
     server.log.info("Worker spawned (pid: %s)", worker.pid)
