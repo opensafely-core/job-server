@@ -1,10 +1,10 @@
-from datetime import datetime
+from datetime import UTC, datetime
 
 from django.template.response import TemplateResponse
 
 
 def components(request):
-    example_date = datetime.utcfromtimestamp(1667317153)
+    example_date = datetime.fromtimestamp(1667317153, tz=UTC)
     example_form_email = {
         "auto_id": "id_email",
         "errors": {"This email is registered to a different account"},

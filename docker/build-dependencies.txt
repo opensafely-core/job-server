@@ -1,4 +1,4 @@
 # list ubuntu packges needed to build dependencies, one per line
 build-essential
 libpq-dev
-python3.11-dev
+python3.12-dev

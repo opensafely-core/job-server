@@ -21,7 +21,7 @@ jobs:
       - uses: actions/checkout@v4
       - uses: "opensafely-core/setup-action@v1"
         with:
-          python-version: "3.11"
+          python-version: "3.12"
           install-just: true
       - name: Check formatting, linting and import sorting
         run: just check
@@ -48,7 +48,7 @@ jobs:
       - uses: actions/checkout@v4
       - uses: "opensafely-core/setup-action@v1"
         with:
-          python-version: "3.11"
+          python-version: "3.12"
           install-just: true
 
       - name: Install Node.js
