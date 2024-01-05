@@ -27,11 +27,11 @@ psycopg[binary]
 pydantic
 pygments
 python-ulid
-opentelemetry-exporter-otlp-proto-http
-opentelemetry-instrumentation-django
-opentelemetry-instrumentation-requests
-opentelemetry-instrumentation-psycopg2
-opentelemetry-sdk
+opentelemetry-exporter-otlp-proto-http==1.22.0
+opentelemetry-instrumentation-django==0.43b0
+opentelemetry-instrumentation-requests==0.43b0
+opentelemetry-instrumentation-psycopg2==0.43b0
+opentelemetry-sdk==1.22.0
 requests
 sentry-sdk
 slack-sdk

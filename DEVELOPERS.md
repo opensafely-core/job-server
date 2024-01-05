@@ -16,6 +16,7 @@
   - [Running the local asset server](#running-the-local-asset-server)
   - [Compiling assets](#compiling-assets)
   - [Data Setup](#data-setup)
+  - [Upgrade OpenTelemetry dependencies](#pip-opentelemetry)
 - [Deployment](#deployment)
 - [Testing](#testing)
   - [Slack Testing](#slack-testing)
@@ -256,6 +257,14 @@ In that situation you can follow the steps below to set up your local copy of th
 1. Create a JobRequest in the Workspace.
 
 If you need one or more Jobs linked to the JobRequest you will need to create them in the database or with the Django shell.
+
+### pip-opentelemetry
+
+The opentelemetry dependencies need to be upgraded as a group. To do this, bump the relevant versions in `requirements.prod.in` and then attempt to manually resolve the dependencies by upgrading a number of packages simultaneously. A recent example of this is:
+
+```bash
+$ pip-compile --resolver=backtracking --allow-unsafe --generate-hashes --strip-extras --output-file=requirements.prod.txt requirements.prod.in --upgrade-package opentelemetry-instrumentation --upgrade-package opentelemetry-exporter-otlp-proto-http --upgrade-package opentelemetry-sdk --upgrade-package opentelemetry-instrumentation-django --upgrade-package opentelemetry-instrumentation-psycopg2 --upgrade-package opentelemetry-instrumentation-requests --upgrade-package opentelemetry-instrumentation-wsgi --upgrade-package opentelemetry-semantic-conventions --upgrade-package opentelemetry-util-http --upgrade-package opentelemetry-instrumentation-dbapi --upgrade-package opentelemetry-api --upgrade-package opentelemetry-proto --upgrade-package opentelemetry-exporter-otlp-proto-common
+```
 
 
 ## Deployment
