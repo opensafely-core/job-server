@@ -269,7 +269,7 @@ docker-serve env="dev" *args="": _env
 
 
 # run cmd in dev or prod docker container
-docker-run env="dev" *args="bash": _env
+docker-run env="dev" *args="": _env
     {{ just_executable() }} docker/run {{ env }} {{ args }}
 
 
