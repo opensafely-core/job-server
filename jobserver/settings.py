@@ -392,3 +392,8 @@ BACKEND_IP_MAP = {
     # uncomment to pretend your browser is on tpp
     # "127.0.0.1": "tpp",
 }
+
+# These orgs are not copiloted
+BENNETT_ORG_PK = 3
+LSHTM_ORG_PK = 4
+UNIVERSITY_OF_BRISTOL_ORG_PK = 9

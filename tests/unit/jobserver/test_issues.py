@@ -1,3 +1,4 @@
+from django.conf import settings
 from first import first
 
 from jobserver.issues import (
@@ -90,7 +91,7 @@ def test_create_github_issue_external_success(build_release_with_files, github_a
 
 
 def test_create_github_issue_internal_success(build_release_with_files, github_api):
-    org = OrgFactory(slug="datalab")
+    org = OrgFactory(pk=settings.BENNETT_ORG_PK)
     user = UserFactory()
     OrgMembershipFactory(org=org, user=user)
     release = build_release_with_files(["file1.txt", "graph.png"], created_by=user)

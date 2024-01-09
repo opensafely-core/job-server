@@ -3,6 +3,7 @@ import itertools
 import requests
 import structlog
 from csp.decorators import csp_exempt
+from django.conf import settings
 from django.contrib.postgres.aggregates import ArrayAgg
 from django.db.models import Count, Min, Value
 from django.db.models.functions import Least
@@ -86,11 +87,15 @@ class Copiloting(TemplateView):
 
     def get_context_data(self, **kwargs):
         # these orgs are not copiloted so we can ignore them here
-        excluded_org_slugs = ["datalab", "lshtm", "university-of-bristol"]
+        excluded_org_pks = [
+            settings.BENNETT_ORG_PK,
+            settings.LSHTM_ORG_PK,
+            settings.UNIVERSITY_OF_BRISTOL_ORG_PK,
+        ]
 
         projects = (
             Project.objects.select_related("copilot", "org")
-            .exclude(org__slug__in=excluded_org_slugs)
+            .exclude(org__pk__in=excluded_org_pks)
             .annotate(
                 workspace_count=Count("workspaces", distinct=True),
                 job_request_count=Count("workspaces__job_requests", distinct=True),
@@ -110,7 +115,7 @@ class Copiloting(TemplateView):
 
         release_files_by_project = itertools.groupby(
             ReleaseFile.objects.select_related("workspace__project")
-            .exclude(workspace__project__org__slug__in=excluded_org_slugs)
+            .exclude(workspace__project__org__pk__in=excluded_org_pks)
             .order_by("workspace__project__pk")
             .iterator(),
             key=lambda f: f.workspace.project.pk,

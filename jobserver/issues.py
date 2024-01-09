@@ -91,7 +91,7 @@ def create_copilot_publish_report_request(report, github_api):
 
 
 def create_output_checking_request(release, github_api):
-    is_internal = release.created_by.orgs.filter(slug="datalab").exists()
+    is_internal = release.created_by.orgs.filter(pk=settings.BENNETT_ORG_PK).exists()
 
     files = release.files.all()
     number = len(files)
