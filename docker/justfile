@@ -30,7 +30,7 @@ serve env="dev" *args="":
     docker-compose up {{ args }} {{ env }}
 
 # run command in dev|prod container
-run env="dev" *args="bash":
+run env="dev" *args="":
     {{ just_executable() }} build {{ env }}
     docker-compose run --rm {{ env }} {{ args }}
 

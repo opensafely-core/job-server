@@ -5,7 +5,7 @@
 /.ipynb_checkpoints
 /.pytest_cache
 /.venv/
-/__pycache__
+__pycache__
 /assets/dist
 /assets/stats.html
 /coverage
