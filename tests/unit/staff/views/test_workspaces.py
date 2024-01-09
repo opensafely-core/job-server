@@ -61,11 +61,12 @@ def test_workspaceedit_get_success(rf, core_developer):
 def test_workspaceedit_post_success(rf, core_developer):
     org = OrgFactory()
     old_project = ProjectFactory(org=org)
-    workspace = WorkspaceFactory(project=old_project)
+    workspace = WorkspaceFactory(project=old_project, purpose="old value")
 
     new_project = ProjectFactory(org=org)
 
     data = {
+        "purpose": "new value",
         "project": str(new_project.pk),
     }
     request = rf.post("/", data)
@@ -78,6 +79,7 @@ def test_workspaceedit_post_success(rf, core_developer):
 
     workspace.refresh_from_db()
     assert workspace.uses_new_release_flow
+    assert workspace.purpose == "new value"
 
     Redirect.objects.count() == 1
     redirect = Redirect.objects.first()
@@ -92,6 +94,7 @@ def test_workspaceedit_post_success_when_not_changing_project(rf, core_developer
     workspace = WorkspaceFactory(project=project)
 
     data = {
+        "purpose": "",
         "project": str(project.pk),
     }
     request = rf.post("/", data)
