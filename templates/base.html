@@ -22,6 +22,9 @@
       });
     </script>
 
+    <meta name="is_logged_in" content="{% if user.is_authenticated %}true{% else %}false{% endif %}">
+    <meta name="is_staff" content="{% if user_can_view_staff_area %}true{% else %}false{% endif %}">
+
     {% vite_hmr_client %}
     {% vite_asset "assets/src/scripts/base.js" %}
 
