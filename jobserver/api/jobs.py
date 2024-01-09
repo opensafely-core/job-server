@@ -171,7 +171,7 @@ class JobAPIUpdate(APIView):
 
                 # We only send notifications or alerts for newly completed jobs
                 if newly_completed:
-                    handle_job_notifications(request, job_request, job)
+                    handle_job_notifications(job_request, job)
 
             # refresh the JobRequest instance so we can get an updated status
             job_request.refresh_from_db()
@@ -199,7 +199,7 @@ class JobAPIUpdate(APIView):
         return Response({"status": "success"}, status=200)
 
 
-def handle_job_notifications(request, job_request, job):
+def handle_job_notifications(job_request, job):
     if job_request.will_notify:
         send_finished_notification(
             job_request.created_by.email,
