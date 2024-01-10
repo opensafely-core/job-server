@@ -36,6 +36,8 @@
         {% form_legend text="Is this workspace archived?" %}
         {% form_checkbox field=form.is_archived label="Archive" checked=form.is_archived.value %}
       {% /form_fieldset %}
+
+      {% form_textarea class="w-full max-w-[65ch]" field=form.purpose resize=False rows="8" %}
     {% /card %}
 
     {% #button variant="success" type="submit" class="self-start" %}

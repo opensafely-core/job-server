@@ -282,10 +282,13 @@ class WorkspaceModelChoiceField(forms.ModelChoiceField):
 
 
 class WorkspaceEditForm(forms.ModelForm):
+    purpose = forms.CharField(required=False)
+
     class Meta:
         fields = [
             "project",
             "is_archived",
+            "purpose",
         ]
         model = Workspace
 
