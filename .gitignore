@@ -12,6 +12,7 @@ __pycache__
 /docker/staticfiles/*
 /htmlcov
 /jobserver.dump
+/jobserver.sqlite.zip
 /node_modules
 /release-hatch
 /releases
