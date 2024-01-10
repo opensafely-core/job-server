@@ -7,8 +7,8 @@ import pytest
 from bs4 import BeautifulSoup
 from first import first
 from interactive_templates import git
-from opensafely._vendor.jobrunner.cli import local_run
 
+from interactive.models import AnalysisRequest
 from interactive.views import AnalysisRequestCreate
 from jobserver.authorization import CoreDeveloper, InteractiveReporter
 from jobserver.models import PublishRequest
@@ -97,11 +97,8 @@ def test_interactive_submission_success(rf, local_repo, enable_network):
             "type": "event",
             "value": "pincer/ast/v1.8",
         },
-        "demographics": ["sex", "age"],
         "filterPopulation": "all",
         "purpose": "For… science!",
-        "timeScale": "years",
-        "timeValue": "5",
     }
     request = rf.post("/", data=json.dumps(data), content_type="appliation/json")
     request.user = user
@@ -113,12 +110,21 @@ def test_interactive_submission_success(rf, local_repo, enable_network):
     # check the view redirects, a 200 means we have validation errors
     assert response.status_code == 302, response.context_data["form"].errors
 
-    _, _, ar_pk = response.url.rpartition("/")
+    ar_slug = response.url.rpartition("/")[0].rpartition("/")[-1]
+    ar_pk = ar_slug.rpartition("-")[-1]
+    analysis_request = AnalysisRequest.objects.get(slug=ar_slug)
 
-    # create a working directory to run the study in
-    with tempfile.TemporaryDirectory(suffix=f"repo-{ar_pk}") as path:
-        git("clone", repo.url, path)
-        local_run.main(path, ["run_all"])
+    # Setting the Git SHA is done as a result of calling
+    # interactive_template's create_commit function. This renders the analysis
+    # code based on the contents of the template data. So if the template data
+    # hasn't changed, all variables will be replaced in the project definition
+    # and a commit will be made with the SHA saved to the job request.
+    assert isinstance(analysis_request.job_request.sha, str)
+    assert (
+        f"generate_study_population_{ar_pk}"
+        in analysis_request.job_request.project_definition
+    )
+    assert "{{" not in analysis_request.job_request.project_definition
 
 
 def test_interactive_publishing_report_success(client, release, slack_messages):

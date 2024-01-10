@@ -9,7 +9,6 @@ coverage[toml]
 coverage-enable-subprocess
 django-upgrade
 factory_boy
-opensafely
 pip-tools
 pre-commit
 pytest-django
