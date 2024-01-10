@@ -375,7 +375,7 @@ Alternatively, the `osi_release` command can be used without running an analysis
 ## Dumping co-pilot reporting data
 Co-pilots [have a report](https://github.com/ebmdatalab/copiloting/tree/copiloting-report) they run every few months, building on data from this service.
 
-To produce a dump in the format they need you will need to install [db-to-sqlite](https://pypi.org/project/db-to-sqlite/) via pip, pipx, brew, or your installer of choice.
+To produce a dump in the format they need you will need to install [db-to-sqlite](https://pypi.org/project/db-to-sqlite/) via pip, pipx, or your installer of choice.
 
 Then run the following, replacing `<database URL>` with the URL to your database, this is likely in the `DATABASE_URL` environment variable.
 
