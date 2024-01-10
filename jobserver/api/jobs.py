@@ -145,7 +145,12 @@ class JobAPIUpdate(APIView):
                     defaults={**job_data},
                 )
 
-                if not created:
+                if created:
+                    created_job_ids.append(str(job.id))
+                    # For newly created jobs we can't tell if they've just transitioned
+                    # to completed so we assume they have to avoid missing notifications
+                    newly_completed = job_data["status"] in COMPLETED_STATES
+                else:
                     updated_job_ids.append(str(job.id))
                     # check to see if the Job is about to transition to completed
                     # (failed or succeeded) so we can notify after the update
@@ -160,19 +165,13 @@ class JobAPIUpdate(APIView):
                         setattr(job, key, value)
                     job.save()
 
-                else:
-                    created_job_ids.append(str(job.id))
-                    # For newly created jobs we can't tell if they've just transitioned
-                    # to completed so we assume they have to avoid missing notifications
-                    newly_completed = job_data["status"] in COMPLETED_STATES
-
                 # round trip the Job to the db so all fields are converted to
                 # their python representations
                 job.refresh_from_db()
 
                 # We only send notifications or alerts for newly completed jobs
                 if newly_completed:
-                    handle_job_notifications(request, job_request, job)
+                    handle_job_notifications(job_request, job)
 
             # refresh the JobRequest instance so we can get an updated status
             job_request.refresh_from_db()
@@ -200,7 +199,7 @@ class JobAPIUpdate(APIView):
         return Response({"status": "success"}, status=200)
 
 
-def handle_job_notifications(request, job_request, job):
+def handle_job_notifications(job_request, job):
     if job_request.will_notify:
         send_finished_notification(
             job_request.created_by.email,
