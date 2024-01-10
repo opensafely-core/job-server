@@ -20,4 +20,6 @@ set -x
 # shellcheck disable=SC2086
 "$coverage" report ${COVERAGE_REPORT_ARGS:-} || { rc=$?; "$coverage" html ${COVERAGE_REPORT_ARGS:-}; }
 
+"$coverage" erase
+
 exit $rc
