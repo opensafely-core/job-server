@@ -1,4 +1,4 @@
-#!/bin/bash
+#!/usr/bin/env bash
 set -eu -o pipefail
 
 RELEASE_HATCH_REPO=${RELEASE_HATCH_REPO:-./release-hatch}
