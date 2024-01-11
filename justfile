@@ -251,6 +251,10 @@ assets-test: assets-install
 release-hatch:
     ./scripts/local-release-hatch.sh
 
+# dump data for co-pilot reporting to a compressed SQLite database
+dump-co-pilot-reporting-data:
+    ./scripts/dump-co-pilot-reporting-data.sh
+
 # note these are just aliases for the docker/justfile commands. We add them just for autocompletion from the root dir
 
 # build docker image env=dev|prod

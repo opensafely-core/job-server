@@ -375,28 +375,10 @@ Alternatively, the `osi_release` command can be used without running an analysis
 ## Dumping co-pilot reporting data
 Co-pilots [have a report](https://github.com/ebmdatalab/copiloting/tree/copiloting-report) they run every few months, building on data from this service.
 
-To produce a dump in the format they need you will need to install [db-to-sqlite](https://pypi.org/project/db-to-sqlite/) via pip, pipx, brew, or your installer of choice.
+To produce a dump in the format they need you will need to install [db-to-sqlite](https://pypi.org/project/db-to-sqlite/) via pip, pipx, or your installer of choice.
+You will also need to set the `DATABASE_URL` environment variable.
 
-Then run the following, replacing `<database URL>` with the URL to your database, this is likely in the `DATABASE_URL` environment variable.
-
-```
-db-to-sqlite \
-    --progress \
-    --table applications_application \
-    --table jobserver_project \
-    --table jobserver_projectmembership \
-    --table jobserver_workspace \
-    --table jobserver_user \
-    --table jobserver_org \
-    --table jobserver_orgmembership \
-    --table jobserver_job \
-    --table jobserver_jobrequest \
-    --table jobserver_release \
-    --table jobserver_releasefile \
-    <database URL> \
-    jobserver.sqlite
-```
-
+Then run `just dump-co-pilot-reporting-data`.
 
 ## Ensuring paired field state with CheckConstraints
 We have various paired fields in our database models.
