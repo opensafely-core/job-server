@@ -15,8 +15,31 @@ class XSSFilteringMiddleware:
         return response
 
 
+class TemplateNameMiddleware:
+    def __init__(self, get_response):
+        self.get_response = get_response
+
+    def __call__(self, request):
+        return self.get_response(request)
+
+    def process_template_response(self, request, response):
+        if response.context_data is None:
+            # no context data, so fail fast
+            return response
+
+        if "template_name" in response.context_data:
+            # application's page.html uses template_name to include custom
+            # templates for it's Form instances.  This is only used for the
+            # researchers page so could potentially be removed in favour of
+            # simplifying this check.
+            return response
+
+        response.context_data["template_name"] = response.template_name
+        return response
+
+
 class ClientAddressIdentification:
-    """Detect if client IP address is commng from a Level 4 IP address.
+    """Detect if client IP address is coming from a Level 4 IP address.
 
     In the simple local dev case, there is no proxy, so we just use
     REMOTE_ADDR. When we are behind nginx, we use the standard X-Forwarded-For

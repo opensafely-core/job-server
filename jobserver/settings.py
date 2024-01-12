@@ -85,6 +85,7 @@ MIDDLEWARE = [
     "csp.middleware.CSPMiddleware",
     "jobserver.middleware.XSSFilteringMiddleware",
     "jobserver.middleware.ClientAddressIdentification",
+    "jobserver.middleware.TemplateNameMiddleware",
 ]
 
 ROOT_URLCONF = "jobserver.urls"
