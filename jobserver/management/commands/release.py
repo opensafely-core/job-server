@@ -1,4 +1,5 @@
 import hashlib
+from datetime import UTC, datetime
 from pathlib import Path
 
 from django.conf import settings
@@ -67,13 +68,21 @@ class Command(BaseCommand):
     ):
         assert directory.exists()
 
-        files = {}
+        files = []
 
         for filename in directory.glob("**/*"):
             if filename.is_dir():
                 continue
-            relative = filename.relative_to(directory)
-            files[str(relative)] = hashlib.sha256(filename.read_bytes()).hexdigest()
+            files.append(
+                {
+                    "name": filename.name,
+                    "url": "",
+                    "size": filename.stat().st_size,
+                    "sha256": hashlib.sha256(filename.read_bytes()).hexdigest(),
+                    "date": datetime.fromtimestamp(filename.stat().st_mtime, tz=UTC),
+                    "metadata": "",
+                }
+            )
 
         try:
             workspace = Workspace.objects.get(name=workspace_name)
@@ -101,9 +110,10 @@ class Command(BaseCommand):
         user = get_or_maybe_create(create, User, {"username": username})
 
         release = releases.create_release(workspace, backend, user, files)
-        for filename in files:
-            handle = (directory / filename).open("rb")
-            releases.handle_file_upload(release, backend, user, handle, filename)
+        for f in files:
+            name = f["name"]
+            handle = (directory / name).open("rb")
+            releases.handle_file_upload(release, backend, user, handle, name)
 
         print("Release created:")
         f = furl(settings.BASE_URL)
