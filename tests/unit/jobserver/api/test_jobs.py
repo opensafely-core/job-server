@@ -113,6 +113,7 @@ def test_jobapiupdate_all_existing(api_rf, time_machine):
             "started_at": minutes_ago(now, 1),
             "updated_at": now,
             "completed_at": seconds_ago(now, 30),
+            "metrics": {"cpu_peak": 99},
         },
         {
             "identifier": "job2",
@@ -161,6 +162,7 @@ def test_jobapiupdate_all_existing(api_rf, time_machine):
     assert job1.started_at == minutes_ago(now, 1)
     assert job1.updated_at == now
     assert job1.completed_at == seconds_ago(now, 30)
+    assert job1.metrics == {"cpu_peak": 99}
 
     # running
     assert job2.identifier == "job2"
@@ -299,6 +301,7 @@ def test_jobapiupdate_mixture(api_rf, time_machine):
             "started_at": minutes_ago(now, 1),
             "updated_at": now,
             "completed_at": seconds_ago(now, 30),
+            "metrics": {"cpu_peak": 99},
         },
         {
             "identifier": "job3",
@@ -335,6 +338,7 @@ def test_jobapiupdate_mixture(api_rf, time_machine):
     assert job2.started_at == minutes_ago(now, 1)
     assert job2.updated_at == now
     assert job2.completed_at == seconds_ago(now, 30)
+    assert job2.metrics == {"cpu_peak": 99}
 
     # running
     assert job3.pk != job1.pk
