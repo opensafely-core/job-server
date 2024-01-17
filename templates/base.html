@@ -38,7 +38,7 @@
 
   <body class="preload flex flex-col min-h-screen text-slate bg-white">
     {% skip_link %}
-    {% header login_url=login_url nav=nav user=user request=request user_can_view_staff_area=user_can_view_staff_area %}
+    {% header csrf_token=csrf_token login_url=login_url nav=nav user=user request=request user_can_view_staff_area=user_can_view_staff_area %}
 
     {% block breadcrumbs %}{% endblock %}
 
