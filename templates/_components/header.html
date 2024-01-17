@@ -82,7 +82,10 @@
               {% endif %}
               <li><a href="{% url 'settings' %}" class="{{ link_class }}">Settings</a></li>
               <li><a href="{% url 'applications:list' %}" class="{{ link_class }}">Applications</a></li>
-              <li><a href="{% url 'logout' %}" class="{{ link_class }}">Logout</a></li>
+              <form action="{% url 'logout' %}" method="POST">
+                {% csrf_token %}
+                <button class="{{ link_class }} w-full text-left" type="submit">Logout</button>
+              </form>
             </ul>
           </li>
           {% endif %}
@@ -164,7 +167,10 @@
                 {% endif %}
                 <li><a class="{{ link_class }}" href="{% url 'settings' %}">Settings</a></li>
                 <li><a class="{{ link_class }}" href="{% url 'applications:list' %}">Applications</a></li>
-                <li><a class="{{ link_class }}" href="{% url 'logout' %}">Logout</a></li>
+                <form action="{% url 'logout' %}" method="POST">
+                  {% csrf_token %}
+                  <button class="{{ link_class }} w-full text-left" type="submit">Logout</button>
+                </form>
               </ul>
             </div>
           </details>
