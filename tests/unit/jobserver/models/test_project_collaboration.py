@@ -1,4 +1,17 @@
+import pytest
+from django.db import IntegrityError
+
 from ....factories import OrgFactory, ProjectCollaborationFactory, ProjectFactory
+
+
+def test_projectcollaboration_only_one_lead_org():
+    project = ProjectFactory()
+
+    ProjectCollaborationFactory.create_batch(3, project=project)
+    ProjectCollaborationFactory(project=project, is_lead=True)
+
+    with pytest.raises(IntegrityError):
+        ProjectCollaborationFactory(project=project, is_lead=True)
 
 
 def test_projectcollaboration_str():
