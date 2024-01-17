@@ -18,3 +18,6 @@ class ProjectCollaboration(models.Model):
     def __str__(self):
         suffix = " (lead)" if self.is_lead else ""
         return f"{self.org.name} <-> {self.project.name}{suffix}"
+
+    class Meta:
+        unique_together = ["org", "project"]
