@@ -46,6 +46,8 @@ class Job(models.Model):
     # send from job-runner so we can link direct to a trace
     trace_context = models.JSONField(null=True)
 
+    metrics = models.JSONField(null=True)
+
     class Meta:
         ordering = ["pk"]
 

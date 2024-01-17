@@ -68,6 +68,7 @@ class JobAPIUpdate(APIView):
         started_at = serializers.DateTimeField(allow_null=True)
         completed_at = serializers.DateTimeField(allow_null=True)
         trace_context = serializers.JSONField(allow_null=True, required=False)
+        metrics = serializers.JSONField(allow_null=True, required=False)
 
     def initial(self, request, *args, **kwargs):
         token = request.headers.get("Authorization")
