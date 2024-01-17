@@ -1,14 +1,14 @@
 import itertools
 
 from csp.decorators import csp_exempt
-from django.db.models import Count, Min
+from django.db.models import Count, Min, Prefetch
 from django.db.models.functions import Least, Lower
 from django.utils.decorators import method_decorator
 from django.views.generic import TemplateView
 
 from jobserver.authorization import CoreDeveloper
 from jobserver.authorization.decorators import require_role
-from jobserver.models import Project, ReleaseFile
+from jobserver.models import Org, Project, ReleaseFile
 
 
 @method_decorator(require_role(CoreDeveloper), name="dispatch")
@@ -18,8 +18,12 @@ class ProjectsDashboard(TemplateView):
 
     def get_context_data(self, **kwargs):
         projects = (
-            Project.objects.select_related("copilot", "org")
+            Project.objects.select_related("copilot")
+            .prefetch_related(
+                Prefetch("orgs", queryset=Org.objects.order_by(Lower("name")))
+            )
             .annotate(
+                org_count=Count("orgs", distinct=True),
                 workspace_count=Count("workspaces", distinct=True),
                 job_request_count=Count("workspaces__job_requests", distinct=True),
                 date_first_run=Min(
@@ -30,7 +34,7 @@ class ProjectsDashboard(TemplateView):
                 ),
             )
             .order_by(Lower("name"))
-            .iterator()
+            .iterator(chunk_size=300)
         )
 
         release_files_by_project = itertools.groupby(
@@ -67,7 +71,8 @@ class ProjectsDashboard(TemplateView):
                     "job_request_count": project.job_request_count,
                     "name": project.name,
                     "number": project.number,
-                    "org": project.org,
+                    "org_count": project.org_count,
+                    "orgs": project.orgs.all(),
                     "workspace_count": project.workspace_count,
                 }
 

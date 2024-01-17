@@ -35,7 +35,7 @@
               {% /table_header %}
               {% #table_header %}
                 <div class="flex flex-row gap-2">
-                  Organisation
+                  Organisation(s)
                   <span class="ml-auto">
                     {% icon_arrows_up_down_mini class="h4 w-4 datatable-icon--no-sort" %}
                     {% icon_arrow_up_mini class="h4 w-4 datatable-icon--ascending" %}
@@ -107,6 +107,26 @@
                 {% /table_cell %}
                 {% #table_cell %}
                   <a href="{{ project.org.get_staff_url }}">{{ project.org.name }}</a>
+                  {% if project.org_count > 1 %}
+                    <details>
+                      <summary>
+                        <span class="summary--show">Show</span>
+                        <span class="summary--hide">Hide</span>
+                        {{ project.org_count }} organisations
+                      </summary>
+                      <ul class="mt-1 mb-0 pl-2 ml-2">
+                        {% for org in project.orgs %}
+                        <li>
+                          <a href="{{ org.get_staff_url }}">{{ org.name }}</a>
+                        </li>
+                        {% endfor %}
+                      </ul>
+                    </details>
+                  {% else %}
+                    {% for org in project.orgs %}
+                    <a href="{{ org.get_staff_url }}">{{ org.name }}</a>
+                    {% endfor %}
+                  {% endif %}
                 {% /table_cell %}
                 {% #table_cell nowrap=True %}
                   {% if project.copilot %}

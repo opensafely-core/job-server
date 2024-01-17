@@ -813,8 +813,7 @@ def test_jobrequestcreate_post_with_codelists_error(
 
 
 def test_jobrequestcreate_unknown_workspace(rf, user):
-    org = user.orgs.first()
-    project = ProjectFactory(org=org)
+    project = ProjectFactory()
 
     request = rf.get("/")
     request.user = user
@@ -933,7 +932,7 @@ def test_jobrequestdetail_with_permission(rf, django_assert_num_queries):
     request = rf.get("/")
     request.user = user
 
-    with django_assert_num_queries(6):
+    with django_assert_num_queries(8):
         response = JobRequestDetail.as_view()(
             request,
             project_slug=job_request.workspace.project.slug,
@@ -1083,5 +1082,7 @@ def test_jobrequestlist_success(rf):
     request.user = UserFactory()
 
     response = JobRequestList.as_view()(request)
+
+    assert response.status_code == 200
 
     assert set_from_qs(response.context_data["object_list"]) == {job_request.pk}

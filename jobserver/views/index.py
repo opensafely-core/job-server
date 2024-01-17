@@ -12,8 +12,8 @@ class Index(View):
                 "created_by",
                 "workspace",
                 "workspace__project",
-                "workspace__project__org",
             )
+            .prefetch_related("workspace__project__orgs")
             .order_by("-pk")
         )
 

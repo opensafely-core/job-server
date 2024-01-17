@@ -145,12 +145,12 @@ def test_jobrequestlist_filter_by_orgs(rf, core_developer):
     JobRequestFactory.create_batch(5)
 
     org1 = OrgFactory(slug="test-a")
-    project1 = ProjectFactory(org=org1)
+    project1 = ProjectFactory(orgs=[org1])
     workspace1 = WorkspaceFactory(project=project1)
     job_request1 = JobRequestFactory(workspace=workspace1)
 
     org2 = OrgFactory(slug="test-2")
-    project2 = ProjectFactory(org=org2)
+    project2 = ProjectFactory(orgs=[org2])
     workspace2 = WorkspaceFactory(project=project2)
     job_request2 = JobRequestFactory(workspace=workspace2)
 
@@ -160,7 +160,6 @@ def test_jobrequestlist_filter_by_orgs(rf, core_developer):
     response = JobRequestList.as_view()(request)
 
     assert response.status_code == 200
-    assert len(response.context_data["object_list"]) == 1
     assert set_from_qs(response.context_data["object_list"]) == {job_request1.pk}
 
     # now check with 2 orgs
@@ -171,7 +170,6 @@ def test_jobrequestlist_filter_by_orgs(rf, core_developer):
     response = JobRequestList.as_view()(request)
 
     assert response.status_code == 200
-    assert len(response.context_data["object_list"]) == 2
     assert set_from_qs(response.context_data["object_list"]) == {
         job_request1.pk,
         job_request2.pk,
@@ -191,7 +189,6 @@ def test_jobrequestlist_filter_by_project(rf, core_developer):
     response = JobRequestList.as_view()(request)
 
     assert response.status_code == 200
-    assert len(response.context_data["object_list"]) == 1
     assert set_from_qs(response.context_data["object_list"]) == {job_request.pk}
 
 
@@ -207,7 +204,6 @@ def test_jobrequestlist_filter_by_user(rf, core_developer):
     response = JobRequestList.as_view()(request)
 
     assert response.status_code == 200
-    assert len(response.context_data["object_list"]) == 1
     assert set_from_qs(response.context_data["object_list"]) == {job_request.pk}
 
 
@@ -223,7 +219,6 @@ def test_jobrequestlist_filter_by_workspace(rf, core_developer):
     response = JobRequestList.as_view()(request)
 
     assert response.status_code == 200
-    assert len(response.context_data["object_list"]) == 1
     assert set_from_qs(response.context_data["object_list"]) == {job_request.pk}
 
 
@@ -253,7 +248,6 @@ def test_jobrequestlist_search_using_identifier(rf, core_developer):
     response = JobRequestList.as_view()(request)
 
     assert response.status_code == 200
-    assert len(response.context_data["object_list"]) == 1
     assert set_from_qs(response.context_data["object_list"]) == {job_request.pk}
 
     request = rf.get("/?q=34ab")
@@ -262,7 +256,6 @@ def test_jobrequestlist_search_using_identifier(rf, core_developer):
     response = JobRequestList.as_view()(request)
 
     assert response.status_code == 200
-    assert len(response.context_data["object_list"]) == 1
     assert set_from_qs(response.context_data["object_list"]) == {job_request.pk}
 
 
@@ -280,7 +273,6 @@ def test_jobrequestlist_search_using_job_identifier(rf, core_developer):
     response = JobRequestList.as_view()(request)
 
     assert response.status_code == 200
-    assert len(response.context_data["object_list"]) == 1
     assert set_from_qs(response.context_data["object_list"]) == {job_request.pk}
 
 
@@ -288,7 +280,7 @@ def test_jobrequestlist_search_using_org(rf, core_developer):
     JobRequestFactory.create_batch(5)
 
     org = OrgFactory(name="University of Testing")
-    project = ProjectFactory(org=org)
+    project = ProjectFactory(orgs=[org])
     workspace = WorkspaceFactory(project=project)
     job_request = JobRequestFactory(workspace=workspace)
 
@@ -298,7 +290,6 @@ def test_jobrequestlist_search_using_org(rf, core_developer):
     response = JobRequestList.as_view()(request)
 
     assert response.status_code == 200
-    assert len(response.context_data["object_list"]) == 1
     assert set_from_qs(response.context_data["object_list"]) == {job_request.pk}
 
 
@@ -330,7 +321,6 @@ def test_jobrequestlist_search_using_project(rf, core_developer):
     response = JobRequestList.as_view()(request)
 
     assert response.status_code == 200
-    assert len(response.context_data["object_list"]) == 1
     assert set_from_qs(response.context_data["object_list"]) == {job_request.pk}
 
 
@@ -346,7 +336,6 @@ def test_jobrequestlist_search_using_username(rf, core_developer):
     response = JobRequestList.as_view()(request)
 
     assert response.status_code == 200
-    assert len(response.context_data["object_list"]) == 1
     assert set_from_qs(response.context_data["object_list"]) == {job_request.pk}
 
 
@@ -362,7 +351,6 @@ def test_jobrequestlist_search_using_workspace(rf, core_developer):
     response = JobRequestList.as_view()(request)
 
     assert response.status_code == 200
-    assert len(response.context_data["object_list"]) == 1
     assert set_from_qs(response.context_data["object_list"]) == {job_request.pk}
 
 

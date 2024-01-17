@@ -95,11 +95,13 @@ class ProjectCreate(CreateView):
         # wrap the transaction in a try so it can rollback when that fires
         try:
             with transaction.atomic():
+                orgs = form.cleaned_data.pop("orgs")
                 project = Project.objects.create(
                     **form.cleaned_data,
                     created_by=self.request.user,
                     updated_by=self.request.user,
                 )
+                project.orgs.set(orgs)
 
                 # make sure the relevant interactive repo exists on GitHub
                 repo_url = create_repo(
@@ -174,6 +176,7 @@ class ProjectDetail(DetailView):
             "memberships": self.object.memberships.select_related("user").order_by(
                 Lower("user__username")
             ),
+            "orgs": self.object.orgs.order_by(Lower("name")),
             "redirects": self.object.redirects.order_by("old_url"),
             "workspaces": self.object.workspaces.order_by("name"),
         }
@@ -194,6 +197,7 @@ class ProjectEdit(UpdateView):
         new = form.save(commit=False)
         new.updated_by = self.request.user
         new.save()
+        new.orgs.set(form.cleaned_data["orgs"])
 
         # check changed_data here instead of comparing self.object.project to
         # new.project because self.object is mutated when ModelForm._post_clean
@@ -258,7 +262,7 @@ class ProjectList(ListView):
 
     def get_context_data(self, **kwargs):
         return super().get_context_data(**kwargs) | {
-            "orgs": Org.objects.order_by("name"),
+            "orgs": Org.objects.order_by(Lower("name")),
             "q": self.request.GET.get("q", ""),
         }
 
@@ -273,7 +277,7 @@ class ProjectList(ListView):
             qs = qs.filter(qwargs(fields, q))
 
         if orgs := self.request.GET.getlist("orgs"):
-            qs = qs.filter(org__slug__in=orgs)
+            qs = qs.filter(orgs__slug__in=orgs)
 
         return qs.distinct()
 

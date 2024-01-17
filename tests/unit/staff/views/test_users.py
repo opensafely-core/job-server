@@ -122,7 +122,7 @@ def test_usercreate_post_success(rf, core_developer):
     assert response.url == user.get_staff_url()
     assert user.created_by == core_developer
     assert user.name == "New Name-Name"
-    assert user.orgs.first() == project.org
+    assert set_from_qs(user.orgs.all()) == set_from_qs(project.orgs.all())
     assert user.projects.first() == project
 
 
@@ -135,12 +135,10 @@ def test_usercreate_unauthorized(rf):
 
 
 def test_userdetail_with_email_user_invokes_userdetailwithemail(rf, core_developer):
-    org = OrgFactory()
-    project = ProjectFactory(org=org)
+    project = ProjectFactory()
     user = UserFactory()
 
-    # link the user to some a org, and project
-    OrgMembershipFactory(org=org, user=user)
+    # link the user to a project
     ProjectMembershipFactory(project=project, user=user, roles=[ProjectDeveloper])
 
     request = rf.get("/")
@@ -152,14 +150,12 @@ def test_userdetail_with_email_user_invokes_userdetailwithemail(rf, core_develop
 
 
 def test_userdetail_with_oauth_user_invokes_userdetailwithoauth(rf, core_developer):
-    org = OrgFactory()
-    project = ProjectFactory(org=org)
+    project = ProjectFactory()
     user = UserFactory()
     UserSocialAuthFactory(user=user)
 
-    # link the user to some a backend, org, and project
+    # link the user to a backend, and project
     BackendMembershipFactory(user=user)
-    OrgMembershipFactory(org=org, user=user)
     ProjectMembershipFactory(project=project, user=user, roles=[ProjectDeveloper])
 
     request = rf.get("/")
@@ -188,6 +184,11 @@ def test_userdetail_without_core_dev_role(rf):
 
 def test_userdetailwithemail_get_success(rf, core_developer):
     user = UserFactory()
+
+    # add a couple of memberships so the orgs and projects comprehensions in
+    # get_context_data fire
+    OrgMembershipFactory(user=user)
+    ProjectMembershipFactory(user=user)
 
     request = rf.get("/")
     request.user = core_developer
@@ -220,14 +221,12 @@ def test_userdetailwithemail_post_success(rf, core_developer):
 def test_userdetailwithemail_with_oauth_user_invokes_userdetailwithoauth(
     rf, core_developer
 ):
-    org = OrgFactory()
-    project = ProjectFactory(org=org)
+    project = ProjectFactory()
     user = UserFactory()
     UserSocialAuthFactory(user=user)
 
-    # link the user to some a backend, org, and project
+    # link the user to some a backend, and project
     BackendMembershipFactory(user=user)
-    OrgMembershipFactory(org=org, user=user)
     ProjectMembershipFactory(project=project, user=user, roles=[ProjectDeveloper])
 
     request = rf.get("/")
@@ -256,8 +255,8 @@ def test_userdetailwithemail_without_core_dev_role(rf, core_developer):
 
 def test_userdetailwithoauth_get_success(rf, core_developer):
     org = OrgFactory()
-    project1 = ProjectFactory(org=org)
-    project2 = ProjectFactory(org=org)
+    project1 = ProjectFactory()
+    project2 = ProjectFactory()
     user = UserFactory(roles=[OutputPublisher, ProjectDeveloper])
     UserSocialAuthFactory(user=user)
 
@@ -284,18 +283,14 @@ def test_userdetailwithoauth_get_success(rf, core_developer):
 def test_userdetailwithoauth_post_success(rf, core_developer):
     backend = BackendFactory()
 
-    org = OrgFactory()
-    project1 = ProjectFactory(org=org)
-    project2 = ProjectFactory(org=org)
+    project1 = ProjectFactory()
+    project2 = ProjectFactory()
     user = UserFactory(roles=[OutputPublisher, ProjectDeveloper])
     UserSocialAuthFactory(user=user)
 
     # link the user to some Backends
     BackendMembershipFactory(user=user)
     BackendMembershipFactory(user=user)
-
-    # link the user to the Org
-    OrgMembershipFactory(org=org, user=user)
 
     # link the user to the Projects
     ProjectMembershipFactory(project=project1, user=user)
@@ -314,18 +309,14 @@ def test_userdetailwithoauth_post_success(rf, core_developer):
 
 
 def test_userdetailwithoauth_post_with_unknown_backend(rf, core_developer):
-    org = OrgFactory()
-    project1 = ProjectFactory(org=org)
-    project2 = ProjectFactory(org=org)
+    project1 = ProjectFactory()
+    project2 = ProjectFactory()
     user = UserFactory(roles=[OutputPublisher, ProjectDeveloper])
     UserSocialAuthFactory(user=user)
 
     # link the user to some Backends
     BackendMembershipFactory(user=user)
     BackendMembershipFactory(user=user)
-
-    # link the user to the Org
-    OrgMembershipFactory(org=org, user=user)
 
     # link the user to the Projects
     ProjectMembershipFactory(project=project1, user=user)
@@ -357,12 +348,10 @@ def test_userdetailwithoauth_post_with_unknown_backend(rf, core_developer):
 def test_userdetailwithoauth_with_email_only_user_invokes_userdetailwithemail(
     rf, core_developer
 ):
-    org = OrgFactory()
-    project = ProjectFactory(org=org)
+    project = ProjectFactory()
     user = UserFactory()
 
     # link the user to the Org&Project
-    OrgMembershipFactory(org=org, user=user)
     ProjectMembershipFactory(project=project, user=user, roles=[InteractiveReporter])
 
     request = rf.get("/")

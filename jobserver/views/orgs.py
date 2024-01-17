@@ -43,10 +43,8 @@ class OrgEventLog(ListView):
     def get_queryset(self):
         return (
             JobRequest.objects.with_started_at()
-            .filter(workspace__project__org=self.org)
-            .select_related(
-                "backend", "workspace", "workspace__project", "workspace__project__org"
-            )
+            .filter(workspace__project__orgs__in=[self.org])
+            .select_related("backend", "workspace", "workspace__project")
             .order_by("-pk")
         )
 

@@ -6,7 +6,7 @@ from csp.decorators import csp_exempt
 from django.conf import settings
 from django.contrib.postgres.aggregates import ArrayAgg
 from django.db.models import Count, Min, Value
-from django.db.models.functions import Least
+from django.db.models.functions import Least, Lower
 from django.utils.decorators import method_decorator
 from django.views.generic import TemplateView
 
@@ -94,8 +94,8 @@ class Copiloting(TemplateView):
         ]
 
         projects = (
-            Project.objects.select_related("copilot", "org")
-            .exclude(org__pk__in=excluded_org_pks)
+            Project.objects.select_related("copilot")
+            .exclude(orgs__pk__in=excluded_org_pks)
             .annotate(
                 workspace_count=Count("workspaces", distinct=True),
                 job_request_count=Count("workspaces__job_requests", distinct=True),
@@ -115,7 +115,7 @@ class Copiloting(TemplateView):
 
         release_files_by_project = itertools.groupby(
             ReleaseFile.objects.select_related("workspace__project")
-            .exclude(workspace__project__org__pk__in=excluded_org_pks)
+            .exclude(workspace__project__orgs__pk__in=excluded_org_pks)
             .order_by("workspace__project__pk")
             .iterator(),
             key=lambda f: f.workspace.project.pk,
@@ -144,6 +144,9 @@ class Copiloting(TemplateView):
             """
             for project in projects:
                 files_released_count = file_counts_by_project.get(project.pk, 0)
+                orgs = list(
+                    project.orgs.order_by(Lower("name")).values_list("name", flat=True)
+                )
                 repos = repos_by_project.get(project.pk, [])
 
                 yield {
@@ -154,7 +157,7 @@ class Copiloting(TemplateView):
                     "job_request_count": project.job_request_count,
                     "name": project.name,
                     "number": project.number,
-                    "org": project.org,
+                    "orgs": orgs,
                     "repos": repos,
                     "status": project.get_status_display(),
                     "workspace_count": project.workspace_count,

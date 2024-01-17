@@ -27,10 +27,11 @@ from ....factories import (
 
 
 def test_user_all_roles():
-    project = ProjectFactory()
+    org = OrgFactory()
+    project = ProjectFactory(orgs=[org])
     user = UserFactory(roles=[OutputChecker])
 
-    OrgMembershipFactory(org=project.org, user=user, roles=[OutputChecker])
+    OrgMembershipFactory(org=org, user=user, roles=[OutputChecker])
     ProjectMembershipFactory(project=project, user=user, roles=[ProjectCollaborator])
 
     expected = {OutputChecker, ProjectCollaborator}
@@ -84,7 +85,7 @@ def test_user_get_absolute_url():
 
 def test_user_get_all_permissions():
     org = OrgFactory()
-    project = ProjectFactory(org=org)
+    project = ProjectFactory(orgs=[org])
     user = UserFactory(roles=[CoreDeveloper])
 
     OrgMembershipFactory(org=org, user=user, roles=[OrgCoordinator])

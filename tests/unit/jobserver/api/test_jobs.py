@@ -820,7 +820,7 @@ def test_jobrequestapilist_success(api_rf):
             "created_by": job_request2.created_by.username,
             "force_run_dependencies": False,
             "identifier": job_request2.identifier,
-            "orgs": [project.org.slug],
+            "orgs": list(project.orgs.values_list("slug", flat=True)),
             "project": project.slug,
             "requested_actions": ["frob", "wizzle"],
             "sha": "",
@@ -841,7 +841,7 @@ def test_jobrequestapilist_success(api_rf):
             "created_by": job_request3.created_by.username,
             "force_run_dependencies": False,
             "identifier": job_request3.identifier,
-            "orgs": [project.org.slug],
+            "orgs": list(project.orgs.values_list("slug", flat=True)),
             "project": project.slug,
             "requested_actions": ["frobnicate", "wibble"],
             "sha": "",
@@ -862,7 +862,7 @@ def test_jobrequestapilist_success(api_rf):
             "created_by": job_request4.created_by.username,
             "force_run_dependencies": False,
             "identifier": job_request4.identifier,
-            "orgs": [project.org.slug],
+            "orgs": list(project.orgs.values_list("slug", flat=True)),
             "project": project.slug,
             "requested_actions": ["analyse"],
             "sha": "",
@@ -882,7 +882,7 @@ def test_jobrequestapilist_success(api_rf):
 def test_userapidetail_success(api_rf):
     backend = BackendFactory()
     org = OrgFactory()
-    project = ProjectFactory(org=org)
+    project = ProjectFactory(orgs=[org])
     user = UserFactory(roles=[CoreDeveloper])
 
     OrgMembershipFactory(org=org, user=user, roles=[OrgCoordinator])

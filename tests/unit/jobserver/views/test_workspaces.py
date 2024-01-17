@@ -316,7 +316,7 @@ def test_workspacecreate_without_github_orgs(rf):
     org = OrgFactory(github_orgs=[])
     OrgMembershipFactory(org=org, user=user)
 
-    project = ProjectFactory(org=org)
+    project = ProjectFactory(orgs=[org])
     ProjectMembershipFactory(project=project, user=user, roles=[ProjectDeveloper])
 
     request = rf.get("/")

@@ -139,7 +139,16 @@
   <div class="flex flex-col gap-4">
     {% #card title="Associations" %}
       {% #description_list %}
-        {% #description_item stacked=True title="Organisation" %}
+        {% #description_item stacked=True title="Organisations" %}
+          {% if orgs %}
+            <ul class="flex flex-col gap-1 items-start list-disc ml-4">
+              {% for org in orgs %}
+                <li>{% link href=org.get_staff_url text=org.name %}</li>
+              {% endfor %}
+            </ul>
+          {% else %}
+            {% list_group_empty class="w-full -ml-4" description="No organisations" %}
+          {% endif %}
           {% link href=project.org.get_staff_url text=project.org.name %}
         {% /description_item %}
 

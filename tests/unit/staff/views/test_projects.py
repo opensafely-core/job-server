@@ -8,7 +8,6 @@ from jobserver.authorization import ProjectCollaborator, ProjectDeveloper
 from jobserver.github import RepoAlreadyExists
 from jobserver.models import Project
 from jobserver.utils import dotted_path, set_from_qs
-from redirects.models import Redirect
 from staff.views.projects import (
     ProjectAddMember,
     ProjectCreate,
@@ -112,7 +111,7 @@ def test_projectcreate_post_htmx_success_with_next(rf, core_developer):
         "copilot": user.pk,
         "name": "new-name",
         "number": "7",
-        "org": OrgFactory().pk,
+        "orgs": [OrgFactory().pk],
     }
     request = rf.post("/?next=/next/page/", data)
     request.htmx = True
@@ -132,7 +131,7 @@ def test_projectcreate_post_htmx_success_without_next(rf, core_developer):
         "copilot": user.pk,
         "name": "new-name",
         "number": "7",
-        "org": OrgFactory().pk,
+        "orgs": [OrgFactory().pk],
     }
     request = rf.post("/", data)
     request.htmx = True
@@ -158,7 +157,7 @@ def test_projectcreate_post_success(rf, core_developer):
         "copilot": user.pk,
         "name": "new-name",
         "number": "7",
-        "org": org.pk,
+        "orgs": [org.pk],
     }
     request = rf.post("/", data)
     request.htmx = False
@@ -172,7 +171,7 @@ def test_projectcreate_post_success(rf, core_developer):
     assert response.url == project.get_staff_url()
     assert project.created_by == core_developer
     assert project.name == "new-name"
-    assert project.org == org
+    assert set_from_qs(project.orgs.all()) == {org.pk}
 
 
 def test_projectcreate_post_with_github_failure(rf, core_developer):
@@ -184,7 +183,7 @@ def test_projectcreate_post_with_github_failure(rf, core_developer):
         "copilot": user.pk,
         "name": "New Name-Name",
         "number": "7",
-        "org": org.pk,
+        "orgs": [org.pk],
     }
     request = rf.post("/", data)
     request.htmx = False
@@ -217,7 +216,7 @@ def test_projectcreate_post_with_unique_number_failure(rf, core_developer):
         "copilot": user.pk,
         "name": "New Name-Name",
         "number": "7",
-        "org": org.pk,
+        "orgs": [org.pk],
     }
     request = rf.post("/", data)
     request.htmx = False
@@ -280,8 +279,7 @@ def test_projectedit_get_unauthorized(rf):
 
 
 def test_projectedit_post_success(rf, core_developer):
-    old_org = OrgFactory()
-    original = ProjectFactory(org=old_org, name="test", number=123)
+    project = ProjectFactory(name="test", number=123, orgs=[OrgFactory()])
 
     new_copilot = UserFactory()
     new_org = OrgFactory()
@@ -292,33 +290,31 @@ def test_projectedit_post_success(rf, core_developer):
         "number": 456,
         "copilot": str(new_copilot.pk),
         "copilot_support_ends_at": "",
-        "org": str(new_org.pk),
+        "orgs": [str(new_org.pk)],
         "status": Project.Statuses.COMPLETED_AWAITING,
         "status_description": "",
     }
     request = rf.post("/", data)
     request.user = core_developer
 
-    response = ProjectEdit.as_view()(request, slug=original.slug)
+    response = ProjectEdit.as_view()(request, slug=project.slug)
 
     assert response.status_code == 302, response.context_data["form"].errors
 
-    updated = Project.objects.get(pk=original.pk)
-    assert response.url == updated.get_staff_url()
-    assert updated.name == "New Name"
-    assert updated.slug == "new-name"
-    assert updated.number == 456
-    assert updated.copilot == new_copilot
-    assert updated.org == new_org
-    assert updated.updated_by == core_developer
-
-    Redirect.objects.count() == 1
-    redirect = Redirect.objects.first()
-    assert redirect.project_id == original.pk
+    project.refresh_from_db()
+    assert response.url == project.get_staff_url()
+    assert project.name == "New Name"
+    assert project.slug == "new-name"
+    assert project.number == 456
+    assert project.copilot == new_copilot
+    assert set_from_qs(project.orgs.all()) == {new_org.pk}
+    assert project.updated_by == core_developer
+    assert project.redirects.count() == 1
 
 
-def test_projectedit_post_success_when_not_changing_org_or_slug(rf, core_developer):
-    project = ProjectFactory(name="Test", slug="test", number=123)
+def test_projectedit_post_success_when_not_changing_slug(rf, core_developer):
+    org = OrgFactory()
+    project = ProjectFactory(name="Test", slug="test", number=123, orgs=[org])
 
     new_copilot = UserFactory()
 
@@ -328,7 +324,7 @@ def test_projectedit_post_success_when_not_changing_org_or_slug(rf, core_develop
         "number": 456,
         "copilot": str(new_copilot.pk),
         "copilot_support_ends_at": "",
-        "org": str(project.org.pk),
+        "orgs": str(org.pk),
         "status": Project.Statuses.POSTPONED,
         "status_description": "",
     }
@@ -471,7 +467,7 @@ def test_projectlinkapplication_unknown_project(rf, core_developer):
 
 def test_projectlist_filter_by_org(rf, core_developer):
     org = OrgFactory()
-    project = ProjectFactory(org=org)
+    project = ProjectFactory(orgs=[org])
     ProjectFactory.create_batch(2)
 
     request = rf.get(f"/?orgs={org.slug}")

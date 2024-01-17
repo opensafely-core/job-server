@@ -5,7 +5,13 @@ from interactive.commands import create_repo, create_user, create_workspace
 from jobserver.authorization import InteractiveReporter
 from jobserver.utils import set_from_qs
 
-from ...factories import ProjectFactory, RepoFactory, UserFactory, WorkspaceFactory
+from ...factories import (
+    OrgFactory,
+    ProjectFactory,
+    RepoFactory,
+    UserFactory,
+    WorkspaceFactory,
+)
 from ...fakes import FakeGitHubAPI
 
 
@@ -50,7 +56,8 @@ def test_createrepo_with_missing_repo():
 
 def test_create_user():
     creator = UserFactory()
-    project = ProjectFactory()
+    org = OrgFactory()
+    project = ProjectFactory(orgs=[org])
 
     user = create_user(
         creator=creator,
@@ -62,7 +69,7 @@ def test_create_user():
     assert user.created_by == creator
     assert user.name == "Testing McTesterson"
     assert user.email == "test@example.com"
-    assert set_from_qs(user.orgs.all()) == {project.org.pk}
+    assert set_from_qs(user.orgs.all()) == set_from_qs(project.orgs.all())
     assert set_from_qs(user.projects.all()) == {project.pk}
 
     assert user.project_memberships.first().roles == [InteractiveReporter]

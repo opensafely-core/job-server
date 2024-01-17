@@ -41,10 +41,10 @@ class Project(models.Model):
         related_name="copiloted_projects",
     )
 
-    org = models.ForeignKey(
+    orgs = models.ManyToManyField(
         "Org",
-        on_delete=models.CASCADE,
         related_name="projects",
+        through="ProjectCollaboration",
     )
 
     name = models.TextField(unique=True)

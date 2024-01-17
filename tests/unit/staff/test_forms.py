@@ -120,7 +120,7 @@ def test_projecteditform_number_is_not_required():
     data = {
         "name": "Test",
         "slug": "test",
-        "org": str(org.pk),
+        "orgs": [str(org.pk)],
         "status": Project.Statuses.RETIRED,
     }
 
@@ -137,11 +137,11 @@ def test_projectcreateform_with_duplicate_number():
     project = ProjectFactory(number=42)
 
     data = {
-        "org": str(org.pk),
-        "copilot": str(copilot.pk),
         "application_url": "http://example.com",
+        "copilot": str(copilot.pk),
         "name": "Test",
         "number": project.number,
+        "orgs": [str(org.pk)],
     }
     form = ProjectCreateForm(data=data)
 
@@ -151,14 +151,16 @@ def test_projectcreateform_with_duplicate_number():
 
 
 def test_projecteditform_with_duplicate_number():
-    project = ProjectFactory()
+    org = OrgFactory()
+    project = ProjectFactory(orgs=[org])
+
     other_project = ProjectFactory(number=42)
 
     data = {
         "name": project.name,
         "slug": project.slug,
         "number": other_project.number,
-        "org": str(project.org.pk),
+        "orgs": [str(org.pk)],
         "status": project.status,
     }
     form = ProjectEditForm(data=data, instance=project)
@@ -169,13 +171,14 @@ def test_projecteditform_with_duplicate_number():
 
 
 def test_projecteditform_with_existing_number():
-    project = ProjectFactory(number=42)
+    org = OrgFactory()
+    project = ProjectFactory(number=42, orgs=[org])
 
     data = {
         "name": project.name,
         "slug": project.slug,
         "number": project.number,
-        "org": str(project.org.pk),
+        "orgs": [str(org.pk)],
         "status": project.status,
     }
     form = ProjectEditForm(data=data, instance=project)

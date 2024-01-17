@@ -99,7 +99,7 @@ class ProjectCreateForm(forms.Form):
     copilot = UserModelChoiceField(queryset=User.objects.order_by_name())
     name = forms.CharField()
     number = forms.IntegerField()
-    org = forms.ModelChoiceField(queryset=Org.objects.order_by("name"))
+    orgs = forms.ModelMultipleChoiceField(queryset=Org.objects.order_by("name"))
 
     def clean_number(self):
         number = self.cleaned_data["number"]
@@ -123,6 +123,8 @@ class ProjectCreateForm(forms.Form):
 
 
 class ProjectEditForm(forms.ModelForm):
+    orgs = forms.ModelMultipleChoiceField(queryset=Org.objects.order_by(Lower("name")))
+
     class Meta:
         fields = [
             "application_url",
@@ -131,7 +133,7 @@ class ProjectEditForm(forms.ModelForm):
             "copilot_support_ends_at",
             "name",
             "number",
-            "org",
+            "orgs",
             "slug",
             "status",
             "status_description",

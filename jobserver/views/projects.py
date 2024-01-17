@@ -14,6 +14,8 @@ from opentelemetry import trace
 from zen_queries import TemplateResponse as zTemplateResponse
 from zen_queries import fetch
 
+from jobserver.utils import set_from_qs
+
 from ..authorization import has_permission
 from ..github import _get_github_api
 from ..models import Job, JobRequest, Project, PublishRequest, Repo, Snapshot
@@ -47,7 +49,9 @@ class ProjectDetail(View):
 
         project_org_in_user_orgs = False
         if request.user.is_authenticated:
-            project_org_in_user_orgs = project.org in request.user.orgs.all()
+            project_orgs = set_from_qs(project.orgs.all())
+            user_orgs = set_from_qs(request.user.orgs.all())
+            project_org_in_user_orgs = bool(project_orgs & user_orgs)
 
         with self.tracer.start_as_current_span("first_job_ran_at"):
             job = (
@@ -224,9 +228,8 @@ class ProjectEventLog(ListView):
         return fetch(
             JobRequest.objects.with_started_at()
             .filter(workspace__project=self.project)
-            .select_related(
-                "backend", "created_by", "workspace", "workspace__project__org"
-            )
+            .select_related("backend", "created_by", "workspace")
+            .prefetch_related("workspace__project__orgs")
             .order_by("-pk")
         )
 

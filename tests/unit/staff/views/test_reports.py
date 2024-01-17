@@ -134,7 +134,7 @@ def test_reportlist_filter_by_state_rejected(rf, core_developer):
 
 def test_reportlist_filter_by_org(rf, core_developer):
     org = OrgFactory()
-    project = ProjectFactory(org=org)
+    project = ProjectFactory(orgs=[org])
     workspace = WorkspaceFactory(project=project)
     rfile = ReleaseFileFactory(workspace=workspace)
 
