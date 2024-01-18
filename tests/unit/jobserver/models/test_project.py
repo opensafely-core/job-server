@@ -1,6 +1,22 @@
+import pytest
+from django.db import IntegrityError
 from django.urls import reverse
+from django.utils import timezone
 
-from ....factories import ProjectFactory
+from ....factories import ProjectFactory, UserFactory
+
+
+def test_project_constraints_created_at_and_created_by_both_set():
+    ProjectFactory(created_at=timezone.now(), created_by=UserFactory())
+
+
+@pytest.mark.django_db(transaction=True)
+def test_project_constraints_created_at_and_created_by_only_one_set():
+    with pytest.raises(IntegrityError):
+        ProjectFactory(created_at=timezone.now(), created_by=None)
+
+    with pytest.raises(IntegrityError):
+        ProjectFactory(created_at=None, created_by=UserFactory())
 
 
 def test_project_get_absolute_url():

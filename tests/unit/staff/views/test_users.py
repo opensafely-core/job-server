@@ -543,16 +543,24 @@ def test_userlist_filter_by_any_roles_no_excludes_project_roles(rf, core_develop
     UserFactory(roles=[ProjectDeveloper])
     user = UserFactory()
 
+    # set up projects so the creator can have roles
+    project1 = ProjectFactory(created_by=UserFactory(roles=[ProjectDeveloper]))
+    project2 = ProjectFactory(created_by=UserFactory(roles=[ProjectDeveloper]))
+
     user_with_project = UserFactory()
-    ProjectMembershipFactory(user=user_with_project, roles=[ProjectDeveloper])
+    ProjectMembershipFactory(
+        project=project1, user=user_with_project, roles=[ProjectDeveloper]
+    )
 
     user_with_project_and_no_roles = UserFactory()
-    ProjectMembershipFactory(user=user_with_project_and_no_roles)
+    ProjectMembershipFactory(project=project1, user=user_with_project_and_no_roles)
 
     user_with_mixture_of_project_roles = UserFactory()
-    ProjectMembershipFactory(user=user_with_mixture_of_project_roles)
+    ProjectMembershipFactory(project=project1, user=user_with_mixture_of_project_roles)
     ProjectMembershipFactory(
-        user=user_with_mixture_of_project_roles, roles=[ProjectDeveloper]
+        project=project2,
+        user=user_with_mixture_of_project_roles,
+        roles=[ProjectDeveloper],
     )
 
     request = rf.get("/?any_roles=no")
