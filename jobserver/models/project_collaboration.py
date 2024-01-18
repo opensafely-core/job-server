@@ -1,5 +1,6 @@
 from django.db import models
 from django.db.models import Q
+from django.utils import timezone
 
 
 class ProjectCollaboration(models.Model):
@@ -15,6 +16,21 @@ class ProjectCollaboration(models.Model):
     )
 
     is_lead = models.BooleanField(default=False)
+
+    created_at = models.DateTimeField(default=timezone.now, null=True)
+    created_by = models.ForeignKey(
+        "User",
+        null=True,
+        on_delete=models.SET_NULL,
+        related_name="created_project_collaborations",
+    )
+    updated_at = models.DateTimeField(default=timezone.now, null=True)
+    updated_by = models.ForeignKey(
+        "User",
+        null=True,
+        on_delete=models.SET_NULL,
+        related_name="updated_project_collaborations",
+    )
 
     def __str__(self):
         suffix = " (lead)" if self.is_lead else ""
