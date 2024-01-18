@@ -33,21 +33,23 @@
       lg:col-span-2
     ">
       <div class="flex-shrink-0 flex flex-col items-center">
-        {% if project.org.logo_file %}
+        {% with org=project.orgs.first %}
+        {% if org.logo_file %}
           <img
-            alt="{{ project.org.name }} logo"
+            alt="{{ org.name }} logo"
             class="w-24 h-24 bg-white aspect-square rounded-2xl border border-slate-200 shadow-sm overflow-hidden flex-shrink-0 mt-1 mb-2"
             height="144"
-            src="{{ project.org.logo_file.url }}"
+            src="{{ org.logo_file.url }}"
             width="144"
           />
         {% else %}
           <span class="grid place-content-center text-center w-24 h-24 bg-white border border-slate-300 rounded-md overflow-hidden flex-shrink-0 mt-1 mb-2">
             <span class="text-xs text-slate-600 tracking-tighter leading-4 p-1">
-              {{ project.org.name }}
+              {{ org.name }}
             </span>
           </span>
         {% endif %}
+        {% endwith %}
 
         {% pill sr_only="Status:" variant=status.variant text=status.title %}
         {% if status.sub_title %}
