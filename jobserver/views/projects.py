@@ -6,7 +6,7 @@ import requests
 from django.core.exceptions import PermissionDenied
 from django.db.models import Min, OuterRef, Subquery
 from django.db.models.functions import Least, Lower
-from django.shortcuts import get_object_or_404
+from django.shortcuts import get_object_or_404, redirect
 from django.template.response import TemplateResponse
 from django.views.generic import ListView, UpdateView, View
 from opentelemetry import context as otel_context
@@ -197,6 +197,14 @@ class ProjectEdit(UpdateView):
     model = Project
     template_name = "project/edit.html"
 
+    def form_valid(self, form):
+        project = form.save(commit=False)
+        project.updated_by = self.request.user
+        project.save()
+
+        url = self.request.GET.get("next") or self.object.get_absolute_url()
+        return redirect(url)
+
     def get_object(self):
         project = get_object_or_404(Project, slug=self.kwargs["project_slug"])
 
@@ -204,9 +212,6 @@ class ProjectEdit(UpdateView):
             raise PermissionDenied
 
         return project
-
-    def get_success_url(self):
-        return self.request.GET.get("next") or self.object.get_absolute_url()
 
 
 class ProjectEventLog(ListView):

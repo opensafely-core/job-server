@@ -102,6 +102,7 @@ class ProjectFactory(factory.django.DjangoModelFactory):
         skip_postgeneration_save = True
 
     created_by = factory.SubFactory("tests.factories.UserFactory")
+    updated_by = factory.SubFactory("tests.factories.UserFactory")
 
     name = factory.Sequence(lambda n: f"Project {n}")
     slug = factory.Sequence(lambda n: f"project-{n}")
