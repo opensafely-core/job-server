@@ -28,11 +28,12 @@ else
     find $staticdirs -type f -newer "$sentinel" | grep -q . && run=true
 fi
 
-if test "$run" = "true"; then
-    echo "Run collectstatic, src file changes detected"
-    $python manage.py collectstatic --no-input --clear | grep -v '^Deleting '
-    touch "$gitkeep"
-    touch "$sentinel"
-else
+if test "$run" != "true"; then
     echo "Skipping collectstatic, no changes detected"
+    exit 0
 fi
+
+echo "Running collectstatic, src file changes detected"
+$python manage.py collectstatic --no-input --clear | grep -v '^Deleting '
+touch "$gitkeep"
+touch "$sentinel"
