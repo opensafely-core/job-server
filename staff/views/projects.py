@@ -21,7 +21,7 @@ from jobserver.authorization import CoreDeveloper
 from jobserver.authorization.decorators import require_role
 from jobserver.authorization.utils import roles_for
 from jobserver.github import GitHubError, _get_github_api
-from jobserver.models import Org, Project, ProjectMembership, User
+from jobserver.models import Org, Project, ProjectCollaboration, ProjectMembership, User
 
 from ..forms import (
     ProjectAddMemberForm,
@@ -101,7 +101,23 @@ class ProjectCreate(CreateView):
                     created_by=self.request.user,
                     updated_by=self.request.user,
                 )
-                project.orgs.set(orgs)
+
+                lead, *other = orgs
+                ProjectCollaboration.objects.create(
+                    project=project,
+                    org=lead,
+                    is_lead=True,
+                    created_by=self.request.user,
+                    updated_by=self.request.user,
+                )
+                for org in other:
+                    ProjectCollaboration.objects.create(
+                        project=project,
+                        org=org,
+                        is_lead=False,
+                        created_by=self.request.user,
+                        updated_by=self.request.user,
+                    )
 
                 # make sure the relevant interactive repo exists on GitHub
                 repo_url = create_repo(

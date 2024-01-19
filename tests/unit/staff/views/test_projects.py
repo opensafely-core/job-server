@@ -147,7 +147,8 @@ def test_projectcreate_post_htmx_success_without_next(rf, core_developer):
 
 
 def test_projectcreate_post_success(rf, core_developer):
-    org = OrgFactory()
+    org1 = OrgFactory()
+    org2 = OrgFactory()
     user = UserFactory()
 
     assert not Project.objects.exists()
@@ -157,7 +158,7 @@ def test_projectcreate_post_success(rf, core_developer):
         "copilot": user.pk,
         "name": "new-name",
         "number": "7",
-        "orgs": [org.pk],
+        "orgs": [org1.pk, org2.pk],
     }
     request = rf.post("/", data)
     request.htmx = False
@@ -171,7 +172,11 @@ def test_projectcreate_post_success(rf, core_developer):
     assert response.url == project.get_staff_url()
     assert project.created_by == core_developer
     assert project.name == "new-name"
-    assert set_from_qs(project.orgs.all()) == {org.pk}
+    assert set_from_qs(project.orgs.all()) == {org1.pk, org2.pk}
+
+    collaboration1, collaboration2 = project.collaborations.all()
+    assert collaboration1.is_lead
+    assert not collaboration2.is_lead
 
 
 def test_projectcreate_post_with_github_failure(rf, core_developer):

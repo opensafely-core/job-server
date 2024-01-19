@@ -64,6 +64,8 @@ class ApplicationApprove(FormView):
             org=org,
             project=project,
             is_lead=True,
+            created_by=self.request.user,
+            updated_by=self.request.user,
         )
 
         self.application.approved_at = timezone.now()
